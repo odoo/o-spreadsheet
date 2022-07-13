@@ -1,5 +1,5 @@
 import { Format } from "./format";
-import { Arg, Argument, ReturnValue } from "./misc";
+import { Arg, ArgValue, ReturnValue } from "./misc";
 
 export type ArgType =
   | "ANY"
@@ -30,7 +30,7 @@ export type ComputeFunction<T, R> = (this: EvalContext, ...args: ComputeFunction
 
 export interface AddFunctionDescription {
   description: string;
-  compute: ComputeFunction<Argument, ReturnValue>;
+  compute: ComputeFunction<ArgValue, ReturnValue>;
   computeFormat?: ComputeFunction<Arg, Format | undefined>;
   category?: string;
   args: ArgDefinition[];

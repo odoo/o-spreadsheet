@@ -3,11 +3,11 @@ import { toNumber } from "../../src/functions/helpers";
 import { args, functionRegistry } from "../../src/functions/index";
 import {
   Arg,
-  Argument,
   ArgValue,
   ComputeFunction,
   Format,
   PrimitiveArg,
+  PrimitiveArgValue,
   ReturnValue,
 } from "../../src/types";
 import { setCellContent, setCellFormat } from "../test_helpers/commands_helpers";
@@ -20,7 +20,7 @@ describe("functions", () => {
     expect(val).toBe("#BAD_EXPR");
     functionRegistry.add("DOUBLEDOUBLE", {
       description: "Double the first argument",
-      compute: ((arg: number) => 2 * arg) as ComputeFunction<Argument, ReturnValue>,
+      compute: ((arg: number) => 2 * arg) as ComputeFunction<ArgValue, ReturnValue>,
       args: args(`number (number) my number`),
       returns: ["NUMBER"],
     });
@@ -45,9 +45,9 @@ describe("functions", () => {
     const model = new Model();
     functionRegistry.add("RETURN.VALUE.DEPENDING.ON.INPUT.VALUE", {
       description: "return value depending on input value",
-      compute: function (arg: ArgValue) {
+      compute: function (arg: PrimitiveArgValue) {
         return toNumber(arg) * 2;
-      } as ComputeFunction<Argument, ReturnValue>,
+      } as ComputeFunction<ArgValue, ReturnValue>,
       args: args(`number (number) blabla`),
       returns: ["NUMBER"],
     });
@@ -66,9 +66,9 @@ describe("functions", () => {
       computeFormat: function (arg: PrimitiveArg) {
         return arg.format;
       } as ComputeFunction<Arg, Format | undefined>,
-      compute: function (arg: ArgValue) {
+      compute: function (arg: PrimitiveArgValue) {
         return arg;
-      } as ComputeFunction<Argument, ReturnValue>,
+      } as ComputeFunction<ArgValue, ReturnValue>,
       args: args(`number (number) blabla`),
       returns: ["NUMBER"],
     });
@@ -89,9 +89,9 @@ describe("functions", () => {
       computeFormat: function (arg: PrimitiveArg) {
         return toNumber(arg.value) >= 0 ? "0%" : "#,##0.OO";
       } as ComputeFunction<Arg, Format | undefined>,
-      compute: function (arg: ArgValue) {
+      compute: function (arg: PrimitiveArgValue) {
         return arg;
-      } as ComputeFunction<Argument, ReturnValue>,
+      } as ComputeFunction<ArgValue, ReturnValue>,
       args: args(`number (number) blabla`),
       returns: ["NUMBER"],
     });

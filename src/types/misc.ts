@@ -153,11 +153,11 @@ export interface CompiledFormula {
 
 export type Arg = MatrixArg | PrimitiveArg;
 export type MatrixArg = ({ value: CellValue; format?: Format } | undefined)[][];
-export type PrimitiveArg = { value: ArgValue; format?: Format };
+export type PrimitiveArg = { value: PrimitiveArgValue; format?: Format };
 
-export type Argument = ArgValue | ArgRange;
-export type ArgRange = (CellValue | undefined)[][];
-export type ArgValue = string | number | boolean | null;
+export type ArgValue = PrimitiveArgValue | MatrixArgValue;
+export type MatrixArgValue = (CellValue | undefined)[][];
+export type PrimitiveArgValue = string | number | boolean | null;
 
 export type FunctionReturn = { value: ReturnValue; format?: Format };
 export type ReturnValue = string | number | boolean;

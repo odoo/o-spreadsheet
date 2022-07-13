@@ -1,5 +1,5 @@
 import { _lt } from "../translation";
-import { AddFunctionDescription, ArgRange, Argument, ArgValue } from "../types";
+import { AddFunctionDescription, ArgValue, MatrixArgValue, PrimitiveArgValue } from "../types";
 import { args } from "./arguments";
 import { assert, reduceNumbers, toBoolean, toNumber, visitNumbers } from "./helpers";
 import { YEARFRAC } from "./module_date";
@@ -48,11 +48,11 @@ export const DB: AddFunctionDescription = {
   // to do: replace by dollar format
   computeFormat: () => "#,##0.00",
   compute: function (
-    cost: ArgValue,
-    salvage: ArgValue,
-    life: ArgValue,
-    period: ArgValue,
-    ...args: ArgValue[]
+    cost: PrimitiveArgValue,
+    salvage: PrimitiveArgValue,
+    life: PrimitiveArgValue,
+    period: PrimitiveArgValue,
+    ...args: PrimitiveArgValue[]
   ): number {
     const _cost = toNumber(cost);
     const _salvage = toNumber(salvage);
@@ -128,12 +128,12 @@ export const DURATION: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (
-    settlement: ArgValue,
-    maturity: ArgValue,
-    rate: ArgValue,
-    securityYield: ArgValue,
-    frequency: ArgValue,
-    dayCountConvention: ArgValue = DEFAULT_DAY_COUNT_CONVENTION
+    settlement: PrimitiveArgValue,
+    maturity: PrimitiveArgValue,
+    rate: PrimitiveArgValue,
+    securityYield: PrimitiveArgValue,
+    frequency: PrimitiveArgValue,
+    dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     dayCountConvention = dayCountConvention || 0;
     const start = Math.trunc(toNumber(settlement));
@@ -210,11 +210,11 @@ export const FV: AddFunctionDescription = {
   // to do: replace by dollar format
   computeFormat: () => "#,##0.00",
   compute: function (
-    rate: ArgValue,
-    numberOfPeriods: ArgValue,
-    paymentAmount: ArgValue,
-    presentValue: ArgValue = DEFAULT_PRESENT_VALUE,
-    endOrBeginning: ArgValue = DEFAULT_END_OR_BEGINNING
+    rate: PrimitiveArgValue,
+    numberOfPeriods: PrimitiveArgValue,
+    paymentAmount: PrimitiveArgValue,
+    presentValue: PrimitiveArgValue = DEFAULT_PRESENT_VALUE,
+    endOrBeginning: PrimitiveArgValue = DEFAULT_END_OR_BEGINNING
   ): number {
     presentValue = presentValue || 0;
     endOrBeginning = endOrBeginning || 0;
@@ -243,7 +243,10 @@ export const IRR: AddFunctionDescription = {
   `),
   returns: ["NUMBER"],
   computeFormat: () => "0%",
-  compute: function (cashFlowAmounts: ArgRange, rateGuess: ArgValue = DEFAULT_RATE_GUESS): number {
+  compute: function (
+    cashFlowAmounts: MatrixArgValue,
+    rateGuess: PrimitiveArgValue = DEFAULT_RATE_GUESS
+  ): number {
     const _rateGuess = toNumber(rateGuess);
 
     assert(
@@ -329,12 +332,12 @@ export const MDURATION: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (
-    settlement: ArgValue,
-    maturity: ArgValue,
-    rate: ArgValue,
-    securityYield: ArgValue,
-    frequency: ArgValue,
-    dayCountConvention: ArgValue = DEFAULT_DAY_COUNT_CONVENTION
+    settlement: PrimitiveArgValue,
+    maturity: PrimitiveArgValue,
+    rate: PrimitiveArgValue,
+    securityYield: PrimitiveArgValue,
+    frequency: PrimitiveArgValue,
+    dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     const duration = DURATION.compute(
       settlement,
@@ -354,7 +357,7 @@ export const MDURATION: AddFunctionDescription = {
 // NPV
 // -----------------------------------------------------------------------------
 
-function npvResult(r: number, startValue: number, values: Argument[]): number {
+function npvResult(r: number, startValue: number, values: ArgValue[]): number {
   let i = 0;
   return reduceNumbers(
     values,
@@ -378,7 +381,7 @@ export const NPV: AddFunctionDescription = {
   returns: ["NUMBER"],
   // to do: replace by dollar format
   computeFormat: () => "#,##0.00",
-  compute: function (discount: ArgValue, ...values: Argument[]): number {
+  compute: function (discount: PrimitiveArgValue, ...values: ArgValue[]): number {
     const _discount = toNumber(discount);
 
     assert(
@@ -401,7 +404,11 @@ export const PDURATION: AddFunctionDescription = {
   future_value (number) ${_lt("The investment's desired future value.")}
   `),
   returns: ["NUMBER"],
-  compute: function (rate: ArgValue, presentValue: ArgValue, futureValue: ArgValue): number {
+  compute: function (
+    rate: PrimitiveArgValue,
+    presentValue: PrimitiveArgValue,
+    futureValue: PrimitiveArgValue
+  ): number {
     const _rate = toNumber(rate);
     const _presentValue = toNumber(presentValue);
     const _futureValue = toNumber(futureValue);
@@ -441,11 +448,11 @@ export const PV: AddFunctionDescription = {
   // to do: replace by dollar format
   computeFormat: () => "#,##0.00",
   compute: function (
-    rate: ArgValue,
-    numberOfPeriods: ArgValue,
-    paymentAmount: ArgValue,
-    futureValue: ArgValue = DEFAULT_FUTURE_VALUE,
-    endOrBeginning: ArgValue = DEFAULT_END_OR_BEGINNING
+    rate: PrimitiveArgValue,
+    numberOfPeriods: PrimitiveArgValue,
+    paymentAmount: PrimitiveArgValue,
+    futureValue: PrimitiveArgValue = DEFAULT_FUTURE_VALUE,
+    endOrBeginning: PrimitiveArgValue = DEFAULT_END_OR_BEGINNING
   ): number {
     futureValue = futureValue || 0;
     endOrBeginning = endOrBeginning || 0;
@@ -480,13 +487,13 @@ export const PRICE: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (
-    settlement: ArgValue,
-    maturity: ArgValue,
-    rate: ArgValue,
-    securityYield: ArgValue,
-    redemption: ArgValue,
-    frequency: ArgValue,
-    dayCountConvention: ArgValue = DEFAULT_DAY_COUNT_CONVENTION
+    settlement: PrimitiveArgValue,
+    maturity: PrimitiveArgValue,
+    rate: PrimitiveArgValue,
+    securityYield: PrimitiveArgValue,
+    redemption: PrimitiveArgValue,
+    frequency: PrimitiveArgValue,
+    dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     dayCountConvention = dayCountConvention || 0;
     const _settlement = Math.trunc(toNumber(settlement));
@@ -578,13 +585,13 @@ export const YIELD: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (
-    settlement: ArgValue,
-    maturity: ArgValue,
-    rate: ArgValue,
-    price: ArgValue,
-    redemption: ArgValue,
-    frequency: ArgValue,
-    dayCountConvention: ArgValue = DEFAULT_DAY_COUNT_CONVENTION
+    settlement: PrimitiveArgValue,
+    maturity: PrimitiveArgValue,
+    rate: PrimitiveArgValue,
+    price: PrimitiveArgValue,
+    redemption: PrimitiveArgValue,
+    frequency: PrimitiveArgValue,
+    dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     dayCountConvention = dayCountConvention || 0;
     const _settlement = Math.trunc(toNumber(settlement));
@@ -724,12 +731,12 @@ export const YIELDMAT: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (
-    settlement: ArgValue,
-    maturity: ArgValue,
-    issue: ArgValue,
-    rate: ArgValue,
-    price: ArgValue,
-    dayCountConvention: ArgValue = DEFAULT_DAY_COUNT_CONVENTION
+    settlement: PrimitiveArgValue,
+    maturity: PrimitiveArgValue,
+    issue: PrimitiveArgValue,
+    rate: PrimitiveArgValue,
+    price: PrimitiveArgValue,
+    dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     dayCountConvention = dayCountConvention || 0;
     const _settlement = Math.trunc(toNumber(settlement));

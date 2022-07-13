@@ -1,6 +1,6 @@
 import { INITIAL_1900_DAY, jsDateToRoundNumber, MS_PER_DAY, parseDateTime } from "../helpers/dates";
 import { _lt } from "../translation";
-import { AddFunctionDescription, Argument, ArgValue } from "../types";
+import { AddFunctionDescription, ArgValue, PrimitiveArgValue } from "../types";
 import { args } from "./arguments";
 import { assert, toJsDate, toNumber, toString, visitAny } from "./helpers";
 
@@ -24,7 +24,11 @@ export const DATE: AddFunctionDescription = {
     `),
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
-  compute: function (year: ArgValue, month: ArgValue, day: ArgValue): number {
+  compute: function (
+    year: PrimitiveArgValue,
+    month: PrimitiveArgValue,
+    day: PrimitiveArgValue
+  ): number {
     let _year = Math.trunc(toNumber(year));
     const _month = Math.trunc(toNumber(month));
     const _day = Math.trunc(toNumber(day));
@@ -62,7 +66,7 @@ export const DATEVALUE: AddFunctionDescription = {
       date_string (string) ${_lt("The string representing the date.")}
     `),
   returns: ["NUMBER"],
-  compute: function (dateString: ArgValue): number {
+  compute: function (dateString: PrimitiveArgValue): number {
     const _dateString = toString(dateString);
     const internalDate = parseDateTime(_dateString);
 
@@ -85,7 +89,7 @@ export const DAY: AddFunctionDescription = {
       date (string) ${_lt("The date from which to extract the day.")}
     `),
   returns: ["NUMBER"],
-  compute: function (date: ArgValue): number {
+  compute: function (date: PrimitiveArgValue): number {
     return toJsDate(date).getDate();
   },
   isExported: true,
@@ -101,7 +105,7 @@ export const DAYS: AddFunctionDescription = {
       start_date (date) ${_lt("The start of the date range.")}
     `),
   returns: ["NUMBER"],
-  compute: function (endDate: ArgValue, startDate: ArgValue): number {
+  compute: function (endDate: PrimitiveArgValue, startDate: PrimitiveArgValue): number {
     const _endDate = toJsDate(endDate);
     const _startDate = toJsDate(startDate);
     const dateDif = _endDate.getTime() - _startDate.getTime();
@@ -123,7 +127,7 @@ export const EDATE: AddFunctionDescription = {
     `),
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
-  compute: function (startDate: ArgValue, months: ArgValue): number {
+  compute: function (startDate: PrimitiveArgValue, months: PrimitiveArgValue): number {
     const _startDate = toJsDate(startDate);
     const _months = Math.trunc(toNumber(months));
 
@@ -149,7 +153,7 @@ export const EOMONTH: AddFunctionDescription = {
     `),
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
-  compute: function (startDate: ArgValue, months: ArgValue): number {
+  compute: function (startDate: PrimitiveArgValue, months: PrimitiveArgValue): number {
     const _startDate = toJsDate(startDate);
     const _months = Math.trunc(toNumber(months));
 
@@ -170,7 +174,7 @@ export const HOUR: AddFunctionDescription = {
     time (date) ${_lt("The time from which to calculate the hour component.")}
     `),
   returns: ["NUMBER"],
-  compute: function (date: ArgValue): number {
+  compute: function (date: PrimitiveArgValue): number {
     return toJsDate(date).getHours();
   },
   isExported: true,
@@ -187,7 +191,7 @@ export const ISOWEEKNUM: AddFunctionDescription = {
     )}
     `),
   returns: ["NUMBER"],
-  compute: function (date: ArgValue): number {
+  compute: function (date: PrimitiveArgValue): number {
     const _date = toJsDate(date);
     const y = _date.getFullYear();
 
@@ -271,7 +275,7 @@ export const MINUTE: AddFunctionDescription = {
       time (date) ${_lt("The time from which to calculate the minute component.")}
     `),
   returns: ["NUMBER"],
-  compute: function (date: ArgValue): number {
+  compute: function (date: PrimitiveArgValue): number {
     return toJsDate(date).getMinutes();
   },
   isExported: true,
@@ -286,7 +290,7 @@ export const MONTH: AddFunctionDescription = {
       date (date) ${_lt("The date from which to extract the month.")}
     `),
   returns: ["NUMBER"],
-  compute: function (date: ArgValue): number {
+  compute: function (date: PrimitiveArgValue): number {
     return toJsDate(date).getMonth() + 1;
   },
   isExported: true,
@@ -309,7 +313,11 @@ export const NETWORKDAYS: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  compute: function (startDate: ArgValue, endDate: ArgValue, holidays: Argument): number {
+  compute: function (
+    startDate: PrimitiveArgValue,
+    endDate: PrimitiveArgValue,
+    holidays: ArgValue
+  ): number {
     return NETWORKDAYS_INTL.compute(startDate, endDate, 1, holidays) as number;
   },
   isExported: true,
@@ -340,7 +348,7 @@ export const NETWORKDAYS: AddFunctionDescription = {
  * - 3 return [1,2] (correspond to Monday and Tuesday)
  * - "0101010" return [2,4,6] (correspond to Tuesday, Thursday and Saturday)
  */
-function weekendToDayNumber(weekend: ArgValue): number[] {
+function weekendToDayNumber(weekend: PrimitiveArgValue): number[] {
   // case "string"
   if (typeof weekend === "string") {
     assert(() => {
@@ -413,10 +421,10 @@ export const NETWORKDAYS_INTL: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (
-    startDate: ArgValue,
-    endDate: ArgValue,
-    weekend: ArgValue = DEFAULT_WEEKEND,
-    holidays: Argument
+    startDate: PrimitiveArgValue,
+    endDate: PrimitiveArgValue,
+    weekend: PrimitiveArgValue = DEFAULT_WEEKEND,
+    holidays: ArgValue
   ): number {
     const _startDate = toJsDate(startDate);
     const _endDate = toJsDate(endDate);
@@ -478,7 +486,7 @@ export const SECOND: AddFunctionDescription = {
       time (date) ${_lt("The time from which to calculate the second component.")}
     `),
   returns: ["NUMBER"],
-  compute: function (date: ArgValue): number {
+  compute: function (date: PrimitiveArgValue): number {
     return toJsDate(date).getSeconds();
   },
   isExported: true,
@@ -496,7 +504,11 @@ export const TIME: AddFunctionDescription = {
     `),
   returns: ["DATE"],
   computeFormat: () => "hh:mm:ss a",
-  compute: function (hour: ArgValue, minute: ArgValue, second: ArgValue): number {
+  compute: function (
+    hour: PrimitiveArgValue,
+    minute: PrimitiveArgValue,
+    second: PrimitiveArgValue
+  ): number {
     let _hour = Math.trunc(toNumber(hour));
     let _minute = Math.trunc(toNumber(minute));
     let _second = Math.trunc(toNumber(second));
@@ -525,7 +537,7 @@ export const TIMEVALUE: AddFunctionDescription = {
       time_string (string) ${_lt("The string that holds the time representation.")}
     `),
   returns: ["NUMBER"],
-  compute: function (timeString: ArgValue): number {
+  compute: function (timeString: PrimitiveArgValue): number {
     const _timeString = toString(timeString);
     const internalDate = parseDateTime(_timeString);
 
@@ -570,7 +582,7 @@ export const WEEKDAY: AddFunctionDescription = {
   )}
   `),
   returns: ["NUMBER"],
-  compute: function (date: ArgValue, type: ArgValue = DEFAULT_TYPE): number {
+  compute: function (date: PrimitiveArgValue, type: PrimitiveArgValue = DEFAULT_TYPE): number {
     const _date = toJsDate(date);
     const _type = Math.round(toNumber(type));
     const m = _date.getDay();
@@ -600,7 +612,7 @@ export const WEEKNUM: AddFunctionDescription = {
   )}
     `),
   returns: ["NUMBER"],
-  compute: function (date: ArgValue, type: ArgValue = DEFAULT_TYPE): number {
+  compute: function (date: PrimitiveArgValue, type: PrimitiveArgValue = DEFAULT_TYPE): number {
     const _date = toJsDate(date);
     const _type = Math.round(toNumber(type));
     assert(
@@ -657,9 +669,9 @@ export const WORKDAY: AddFunctionDescription = {
   returns: ["NUMBER"],
   computeFormat: () => "m/d/yyyy",
   compute: function (
-    startDate: ArgValue,
-    numDays: ArgValue,
-    holidays: Argument | undefined = undefined
+    startDate: PrimitiveArgValue,
+    numDays: PrimitiveArgValue,
+    holidays: ArgValue | undefined = undefined
   ): number {
     return WORKDAY_INTL.compute(startDate, numDays, 1, holidays) as number;
   },
@@ -686,10 +698,10 @@ export const WORKDAY_INTL: AddFunctionDescription = {
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
   compute: function (
-    startDate: ArgValue,
-    numDays: ArgValue,
-    weekend: ArgValue = DEFAULT_WEEKEND,
-    holidays: Argument
+    startDate: PrimitiveArgValue,
+    numDays: PrimitiveArgValue,
+    weekend: PrimitiveArgValue = DEFAULT_WEEKEND,
+    holidays: ArgValue
   ): number {
     let _startDate = toJsDate(startDate);
     let _numDays = Math.trunc(toNumber(numDays));
@@ -740,7 +752,7 @@ export const YEAR: AddFunctionDescription = {
     date (date) ${_lt("The date from which to extract the year.")}
     `),
   returns: ["NUMBER"],
-  compute: function (date: ArgValue): number {
+  compute: function (date: PrimitiveArgValue): number {
     return toJsDate(date).getFullYear();
   },
   isExported: true,
@@ -765,9 +777,9 @@ export const YEARFRAC: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (
-    startDate: ArgValue,
-    endDate: ArgValue,
-    dayCountConvention: ArgValue = DEFAULT_DAY_COUNT_CONVENTION
+    startDate: PrimitiveArgValue,
+    endDate: PrimitiveArgValue,
+    dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     let _startDate = Math.trunc(toNumber(startDate));
     let _endDate = Math.trunc(toNumber(endDate));
@@ -922,7 +934,7 @@ export const MONTH_START: AddFunctionDescription = {
     `),
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
-  compute: function (date: ArgValue): number {
+  compute: function (date: PrimitiveArgValue): number {
     const _startDate = toJsDate(date);
     const yStart = _startDate.getFullYear();
     const mStart = _startDate.getMonth();
@@ -941,7 +953,7 @@ export const MONTH_END: AddFunctionDescription = {
     `),
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
-  compute: function (date: ArgValue): number {
+  compute: function (date: PrimitiveArgValue): number {
     return EOMONTH.compute(date, 0) as number;
   },
 };
@@ -955,7 +967,7 @@ export const QUARTER: AddFunctionDescription = {
     date (date) ${_lt("The date from which to extract the quarter.")}
     `),
   returns: ["NUMBER"],
-  compute: function (date: ArgValue): number {
+  compute: function (date: PrimitiveArgValue): number {
     return Math.ceil((toJsDate(date).getMonth() + 1) / 3);
   },
 };
@@ -970,7 +982,7 @@ export const QUARTER_START: AddFunctionDescription = {
     `),
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
-  compute: function (date: ArgValue): number {
+  compute: function (date: PrimitiveArgValue): number {
     const quarter = QUARTER.compute(date) as number;
     const year = YEAR.compute(date) as number;
     const jsDate = new Date(year, (quarter - 1) * 3, 1);
@@ -988,7 +1000,7 @@ export const QUARTER_END: AddFunctionDescription = {
     `),
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
-  compute: function (date: ArgValue): number {
+  compute: function (date: PrimitiveArgValue): number {
     const quarter = QUARTER.compute(date) as number;
     const year = YEAR.compute(date) as number;
     const jsDate = new Date(year, quarter * 3, 0);
@@ -1006,7 +1018,7 @@ export const YEAR_START: AddFunctionDescription = {
     `),
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
-  compute: function (date: ArgValue): number {
+  compute: function (date: PrimitiveArgValue): number {
     const year = YEAR.compute(date) as number;
     const jsDate = new Date(year, 0, 1);
     return jsDateToRoundNumber(jsDate);
@@ -1023,7 +1035,7 @@ export const YEAR_END: AddFunctionDescription = {
     `),
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
-  compute: function (date: ArgValue): number {
+  compute: function (date: PrimitiveArgValue): number {
     const year = YEAR.compute(date) as number;
     const jsDate = new Date(year + 1, 0, 0);
     return jsDateToRoundNumber(jsDate);
