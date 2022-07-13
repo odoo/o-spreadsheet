@@ -18,11 +18,11 @@
                   <t t-set="color" t-value="'fill : ' + runtime.baselineColor"/>
                 </t>
               </t>
-              <span t-att-style="baselineColorStyle">
+              <span t-att-style="textStyles.baselineValueStyle" class="o-baseline-text-value">
                 <t t-esc="baseline"/>
               </span>
             </t>
-            <span t-att-style="textStyles.baselineDescrStyle">
+            <span t-att-style="textStyles.baselineDescrStyle" class="o-baseline-text-description">
               <t t-esc="baselineDescr"/>
             </span>
           </div>

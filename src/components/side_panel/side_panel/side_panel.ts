@@ -50,7 +50,8 @@ css/* scss */ `
         }
 
         .o-section-subtitle {
-          color: gray;
+          color: dimgrey;
+          font-weight: 500;
           font-size: 12px;
           line-height: 14px;
           margin: 8px 0 4px 0;
@@ -109,15 +110,18 @@ css/* scss */ `
       box-sizing: border-box;
       line-height: 1;
       width: 100%;
+      height: 28px;
       .o-type-selector {
         background-position: right 5px top 11px;
       }
     }
-    input.o-required {
+    input.o-required,
+    select.o-required {
       border-color: #4c4c4c;
     }
-    input.o-optional {
-      border: 1px solid #dadce0;
+    input.o-optional,
+    select.o-optional {
+      border: 1px solid #a9a9a9;
     }
     input.o-invalid {
       border-color: red;

@@ -272,3 +272,5 @@ export interface Lazy<T> {
 export interface Cloneable<T> {
   clone: (args?: Partial<T>) => T;
 }
+
+export type CSSProperties = Record<string, string>;

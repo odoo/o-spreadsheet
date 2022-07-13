@@ -33,10 +33,6 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
     this.props.updateChart({ baselineDescr: ev.target.value });
   }
 
-  updateBaselineMode(ev) {
-    this.props.updateChart({ baselineMode: ev.target.value });
-  }
-
   openColorPicker(colorPickerId: ColorPickerId) {
     this.state.openedColorPicker = colorPickerId;
   }

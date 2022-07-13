@@ -17,6 +17,7 @@
           t-att-class="{
             'o-focused' : range.isFocused,
             'o-required': props.required,
+            'o-optional': !props.required,
             'o-invalid': isInvalid || !range.isValidRange,
           }"
         />

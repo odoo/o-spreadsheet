@@ -4,6 +4,7 @@ import { toNumber } from "../../functions/helpers";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
+  Cell,
   Color,
   CommandResult,
   CoreGetters,
@@ -19,6 +20,7 @@ import { LineChartDefinition } from "../../types/chart/line_chart";
 import { PieChartDefinition } from "../../types/chart/pie_chart";
 import { BaselineArrowDirection, BaselineMode } from "../../types/chart/scorecard_chart";
 import { relativeLuminance } from "../color";
+import { formatValue } from "../format";
 import { isDefined } from "../misc";
 import { isNumber } from "../numbers";
 import { copyRangeWithNewSheetId } from "../range";
@@ -355,24 +357,27 @@ export function checkLabelRange(
 // ---------------------------------------------------------------------------
 
 export function getBaselineText(
-  baseline: string,
+  baseline: Cell | undefined,
   keyValue: string,
   baselineMode: BaselineMode
 ): string {
   if (!baseline) {
     return "";
-  } else if (baselineMode === "text" || !isNumber(baseline) || !isNumber(keyValue)) {
-    return baseline.toString();
+  } else if (baselineMode === "text" || !isNumber(keyValue) || !isNumber(baseline.content)) {
+    return baseline.formattedValue;
   } else {
-    let diff = toNumber(keyValue) - toNumber(baseline);
+    let diff = toNumber(keyValue) - toNumber(baseline.content);
     if (baselineMode === "percentage") {
-      diff = (diff / toNumber(baseline)) * 100;
+      diff = (diff / toNumber(baseline.content)) * 100;
     }
-    let baselineValue = Math.abs(parseFloat(diff.toFixed(2))).toLocaleString();
+    const baselineValue = Math.abs(parseFloat(diff.toFixed(2)));
+    let baselineStr = baselineValue.toLocaleString();
     if (baselineMode === "percentage") {
-      baselineValue += "%";
+      baselineStr += "%";
+    } else if (baseline.format) {
+      baselineStr = formatValue(baselineValue, baseline.format);
     }
-    return baselineValue;
+    return baselineStr;
   }
 }
 
