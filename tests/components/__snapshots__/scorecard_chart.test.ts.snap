@@ -45,10 +45,7 @@ exports[`Scorecard charts Scorecard snapshot 1`] = `
       style="
       height:335px;
       width:536px;
-      padding-top:13.4px;
-      padding-bottom:13.4px;
-      padding-left:26.8px;
-      padding-right:26.8px;
+      padding:10.72px;
       background:#FFFFFF;
       color:#000000;
     "
@@ -56,11 +53,9 @@ exports[`Scorecard charts Scorecard snapshot 1`] = `
       <div
         class="o-title-text"
         style="
-    padding-top:0px;
-    padding-bottom:0px;
-    font-size:18px;
-    display:inline-block;
-  "
+font-size: 18px;
+display: inline-block;
+"
       >
         hello
       </div>
@@ -68,17 +63,15 @@ exports[`Scorecard charts Scorecard snapshot 1`] = `
       <div
         class="o-scorecard-content"
         style="
-      height:286.59999999999997px;
+      height:291.96px;
     "
       >
         <div
           class="o-key-text"
           style="
-    padding-top:0px;
-    padding-bottom:0px;
-    font-size:64.46918480282739px;
-    display:inline-block;
-  "
+font-size: 69.24101876395092px;
+display: inline-block;
+"
         >
           2
         </div>
@@ -86,11 +79,9 @@ exports[`Scorecard charts Scorecard snapshot 1`] = `
         <div
           class="o-baseline-text"
           style="
-    padding-top:0px;
-    padding-bottom:0px;
-    font-size:34.714176432291666px;
-    display:inline-block;
-  "
+font-size: 37.28362548828126px;
+display: inline-block;
+"
         >
           <svg
             class="o-cf-icon arrow-up"
@@ -107,20 +98,24 @@ exports[`Scorecard charts Scorecard snapshot 1`] = `
           </svg>
           
           <span
-            style="color:#00A04A"
+            class="o-baseline-text-value"
+            style="
+font-size: 37.28362548828126px;
+display: inline-block;
+color: #00A04A;
+"
           >
-            1 
+            1
           </span>
           
           <span
+            class="o-baseline-text-description"
             style="
-    padding-top:0px;
-    padding-bottom:0px;
-    font-size:31.2427587890625px;
-    display:inline-block;
-  "
+font-size: 33.55526293945314px;
+display: inline-block;
+"
           >
-            description
+             description
           </span>
         </div>
         

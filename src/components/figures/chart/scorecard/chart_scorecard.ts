@@ -2,9 +2,10 @@ import { Component } from "@odoo/owl";
 import { DEFAULT_FONT } from "../../../../constants";
 import { getFontSizeMatchingWidth } from "../../../../helpers";
 import { chartComponentRegistry } from "../../../../registries";
-import { Figure, Pixel, SpreadsheetChildEnv } from "../../../../types";
+import { Color, Figure, Pixel, SpreadsheetChildEnv, Style } from "../../../../types";
 import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
 import { css } from "../../../helpers/css";
+import { cellTextStyleToCss, cssPropertiesToCss } from "../../../helpers/dom_helpers";
 
 /* Sizes of boxes containing the texts, in percentage of the Chart size */
 const TITLE_FONT_SIZE = 18;
@@ -15,9 +16,8 @@ const KEY_BOX_HEIGHT_RATIO = 0.65;
 /** Baseline description should have a smaller font than the baseline */
 const BASELINE_DESCR_FONT_RATIO = 0.9;
 
-/* Paddings, in percentage of the element they are inside */
-const CHART_VERTICAL_PADDING_RATIO = 0.04;
-const CHART_HORIZONTAL_PADDING_RATIO = 0.05;
+/* Padding at the border of the chart, in percentage of the chart width */
+const CHART_PADDING_RATIO = 0.02;
 
 /**
  * Line height (in em)
@@ -72,6 +72,10 @@ css/* scss */ `
       height: ${LINE_HEIGHT + "em"};
       overflow: hidden;
       white-space: nowrap;
+
+      .o-baseline-text-description {
+        white-space: pre;
+      }
     }
   }
 `;
@@ -97,12 +101,12 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get baseline() {
-    const baseline = this.runtime?.baselineDisplay || "";
-    return baseline && this.baselineDescr ? baseline + " " : baseline;
+    return this.runtime?.baselineDisplay || "";
   }
 
   get baselineDescr() {
-    return this.runtime?.baselineDescr ? this.runtime.baselineDescr : "";
+    const baselineDescr = this.runtime?.baselineDescr || "";
+    return this.baseline && baselineDescr ? " " + baselineDescr : baselineDescr;
   }
 
   get baselineArrowDirection() {
@@ -125,10 +129,7 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
     return `
       height:${this.figure.height}px;
       width:${this.figure.width}px;
-      padding-top:${this.figure.height * CHART_VERTICAL_PADDING_RATIO}px;
-      padding-bottom:${this.figure.height * CHART_VERTICAL_PADDING_RATIO}px;
-      padding-left:${this.figure.width * CHART_HORIZONTAL_PADDING_RATIO}px;
-      padding-right:${this.figure.width * CHART_HORIZONTAL_PADDING_RATIO}px;
+      padding:${this.chartPadding}px;
       background:${this.backgroundColor};
       color:${this.fontColor};
     `;
@@ -140,13 +141,13 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
     `;
   }
 
-  get baselineColorStyle(): string {
-    return this.runtime?.baselineColor ? `color:${this.runtime.baselineColor}` : "";
+  get chartPadding() {
+    return this.figure.width * CHART_PADDING_RATIO;
   }
 
   getTextStyles() {
     // If the widest text overflows horizontally, scale it down, and apply the same scaling factors to all the other fonts.
-    const maxLineWidth = this.figure.width * (1 - 2 * CHART_HORIZONTAL_PADDING_RATIO);
+    const maxLineWidth = this.figure.width * (1 - 2 * CHART_PADDING_RATIO);
     const widestElement = this.getWidestElement();
     const baseFontSize = widestElement.getElementMaxFontSize(this.getDrawableHeight(), this);
     const fontSizeMatchingWidth = getFontSizeMatchingWidth(
@@ -168,10 +169,15 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
       }),
       keyStyle: this.getTextStyle({
         fontSize: keyFontSize,
+        cellStyle: this.runtime?.keyValueStyle,
       }),
       baselineStyle: this.getTextStyle({
         fontSize: baselineFontSize,
-        paddingTop: 0,
+      }),
+      baselineValueStyle: this.getTextStyle({
+        fontSize: baselineFontSize,
+        cellStyle: this.runtime?.baselineStyle,
+        color: this.runtime?.baselineColor,
       }),
       baselineDescrStyle: this.getTextStyle({
         fontSize: baselineFontSize * BASELINE_DESCR_FONT_RATIO,
@@ -180,20 +186,21 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   }
 
   /** Return an CSS style string corresponding to the given arguments */
-  private getTextStyle(args: { fontSize: number; paddingBottom?: number; paddingTop?: number }) {
-    return `
-    padding-top:${args.paddingTop || 0}px;
-    padding-bottom:${args.paddingBottom || 0}px;
-    font-size:${args.fontSize}px;
-    display:inline-block;
-  `;
+  private getTextStyle(args: { fontSize: number; color?: Color; cellStyle?: Style }) {
+    const cssAttributes = cellTextStyleToCss(args.cellStyle);
+    cssAttributes["font-size"] = `${args.fontSize}px`;
+    cssAttributes["display"] = "inline-block";
+    if (!cssAttributes["color"] && args.color) {
+      cssAttributes["color"] = args.color;
+    }
+
+    return cssPropertiesToCss(cssAttributes);
   }
 
   /** Get the height of the chart minus all the vertical paddings */
   private getDrawableHeight(): number {
-    let totalPaddingRatio = 2 * CHART_VERTICAL_PADDING_RATIO;
-
-    let availableHeight = this.figure.height * (1 - totalPaddingRatio);
+    const verticalPadding = 2 * this.chartPadding;
+    let availableHeight = this.figure.height - verticalPadding;
     availableHeight -= this.title ? TITLE_FONT_SIZE * LINE_HEIGHT : 0;
     return availableHeight;
   }

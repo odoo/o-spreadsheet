@@ -17,7 +17,6 @@ css/* scss */ `
         padding: 4px 6px;
         border-radius: 4px;
         box-sizing: border-box;
-        border: 1px solid #dadce0;
         flex-grow: 2;
       }
       input:focus {

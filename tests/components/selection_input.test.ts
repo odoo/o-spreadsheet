@@ -203,15 +203,11 @@ describe("Selection Input", () => {
   test("can focus a range", async () => {
     const { app } = await createSelectionInput();
     await simulateClick(".o-add-selection"); // last input is now focused
-    expect([...fixture.querySelectorAll("input")].map((i) => i.className)).toEqual([
-      "",
-      "o-focused",
-    ]);
+    expect(fixture.querySelectorAll("input")[0].classList).not.toContain("o-focused");
+    expect(fixture.querySelectorAll("input")[1].classList).toContain("o-focused");
     await simulateClick("input"); // focus the first input
-    expect([...fixture.querySelectorAll("input")].map((i) => i.className)).toEqual([
-      "o-focused",
-      "",
-    ]);
+    expect(fixture.querySelectorAll("input")[0].classList).toContain("o-focused");
+    expect(fixture.querySelectorAll("input")[1].classList).not.toContain("o-focused");
     app.destroy();
   });
 

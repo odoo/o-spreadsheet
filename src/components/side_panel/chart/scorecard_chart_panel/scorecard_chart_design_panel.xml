@@ -30,17 +30,6 @@
         />
       </div>
       <div class="o-section">
-        <div class="o-section-title">Baseline format</div>
-        <select
-          t-att-value="props.definition.baselineMode"
-          class="o-input o-type-selector"
-          t-on-change="(ev) => this.updateBaselineMode(ev)">
-          <option value="text">Absolute value</option>
-          <option value="difference">Value change compared to the key value</option>
-          <option value="percentage">Percentage change compared to the key value</option>
-        </select>
-      </div>
-      <div class="o-section">
         <div class="o-section-title">Baseline description</div>
         <input
           type="text"

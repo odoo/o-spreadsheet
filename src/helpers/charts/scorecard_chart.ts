@@ -3,6 +3,7 @@ import { chartRegistry } from "../../registries/chart_types";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
+  Cell,
   Color,
   CommandResult,
   CoreGetters,
@@ -80,7 +81,6 @@ export class ScorecardChart extends AbstractChart {
     this.background = definition.background;
     this.baselineColorUp = definition.baselineColorUp;
     this.baselineColorDown = definition.baselineColorDown;
-    this.fontColor = definition.fontColor;
   }
 
   static validateChartDefinition(
@@ -169,7 +169,6 @@ export class ScorecardChart extends AbstractChart {
       background: this.background,
       baseline: baseline ? this.getters.getRangeString(baseline, this.sheetId) : undefined,
       baselineDescr: this.baselineDescr,
-      fontColor: this.fontColor,
       keyValue: keyValue ? this.getters.getRangeString(keyValue, this.sheetId) : undefined,
     };
   }
@@ -196,21 +195,27 @@ function createScorecardChartRuntime(
 ): ScorecardChartRuntime {
   let keyValue = "";
   let formattedKeyValue = "";
+  let keyValueCell: Cell | undefined;
   if (chart.keyValue) {
-    const keyValueCell = getters.getCellsInZone(chart.keyValue.sheetId, chart.keyValue.zone)[0];
+    const keyValueZone = chart.keyValue.zone;
+    keyValueCell = getters.getCell(chart.keyValue.sheetId, keyValueZone.left, keyValueZone.top);
     keyValue = keyValueCell?.evaluated.value ? String(keyValueCell?.evaluated.value) : "";
     formattedKeyValue = keyValueCell?.formattedValue || "";
   }
-  const baseline = chart.baseline ? getters.getRangeValues(chart.baseline)[0] : undefined;
-  const baselineStr = baseline !== undefined ? String(baseline) : "";
+  let baselineCell: Cell | undefined;
+  if (chart.baseline) {
+    const baselineZone = chart.baseline.zone;
+    baselineCell = getters.getCell(chart.baseline.sheetId, baselineZone.left, baselineZone.top);
+  }
+  const baselineValue = baselineCell?.content || "";
   const background = getters.getBackgroundOfSingleCellChart(chart.background, chart.keyValue);
   return {
     title: chart.title,
     keyValue: formattedKeyValue || keyValue,
-    baselineDisplay: getBaselineText(baselineStr, keyValue, chart.baselineMode),
-    baselineArrow: getBaselineArrowDirection(baselineStr, keyValue, chart.baselineMode),
+    baselineDisplay: getBaselineText(baselineCell, keyValue, chart.baselineMode),
+    baselineArrow: getBaselineArrowDirection(baselineValue, keyValue, chart.baselineMode),
     baselineColor: getBaselineColor(
-      baselineStr,
+      baselineValue,
       chart.baselineMode,
       keyValue,
       chart.baselineColorUp,
@@ -219,5 +224,7 @@ function createScorecardChartRuntime(
     baselineDescr: chart.baselineDescr,
     fontColor: chartFontColor(background),
     background,
+    baselineStyle: chart.baselineMode !== "percentage" ? baselineCell?.style : undefined,
+    keyValueStyle: keyValueCell?.style,
   };
 }

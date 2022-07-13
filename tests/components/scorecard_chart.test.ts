@@ -1,5 +1,6 @@
 import { App } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../src";
+import { toHex } from "../../src/helpers";
 import {
   createScorecardChart,
   setCellContent,
@@ -29,6 +30,10 @@ function getChartKeyElement(): HTMLElement {
 
 function getChartBaselineElement(): HTMLElement {
   return fixture.querySelector(".o-figure div.o-baseline-text")!;
+}
+
+function getChartBaselineTextElement(): HTMLElement {
+  return fixture.querySelector(".o-figure .o-baseline-text-value")!;
 }
 
 function getElementFontSize(element: HTMLElement): number {
@@ -142,7 +147,7 @@ describe("Scorecard charts", () => {
 
     expect(getChartElement()).toBeTruthy();
     expect(getChartBaselineTextContent()).toEqual("1");
-    expect(getChartBaselineElement().querySelector("span")!.attributes["style"].value).toEqual("");
+    expect(getChartBaselineElement().querySelector("span")!.style["color"]).toEqual("");
   });
 
   test("Key < baseline display in red with down arrow", async () => {
@@ -151,9 +156,7 @@ describe("Scorecard charts", () => {
 
     const baselineElement = getChartBaselineElement();
     expect(baselineElement.querySelector("svg.arrow-down")).toBeTruthy();
-    expect(baselineElement.querySelector("span")!.attributes["style"].value).toEqual(
-      "color:#DC6965"
-    );
+    expect(toHex(baselineElement.querySelector("span")!.style["color"])).toEqual("#DC6965");
     expect(getChartBaselineTextContent()).toEqual("1");
   });
 
@@ -163,9 +166,7 @@ describe("Scorecard charts", () => {
 
     const baselineElement = getChartBaselineElement();
     expect(baselineElement.querySelector("svg.arrow-up")).toBeTruthy();
-    expect(baselineElement.querySelector("span")!.attributes["style"].value).toEqual(
-      "color:#00A04A"
-    );
+    expect(toHex(baselineElement.querySelector("span")!.style["color"])).toEqual("#00A04A");
     expect(getChartBaselineTextContent()).toEqual("1");
   });
 
@@ -175,7 +176,7 @@ describe("Scorecard charts", () => {
 
     const baselineElement = getChartBaselineElement();
     expect(baselineElement.querySelector("svg")).toBeFalsy();
-    expect(baselineElement.querySelector("span")!.attributes["style"].value).toEqual("");
+    expect(baselineElement.querySelector("span")!.style["color"]).toEqual("");
     expect(getChartBaselineTextContent()).toEqual("0");
   });
 
@@ -188,6 +189,57 @@ describe("Scorecard charts", () => {
     createScorecardChart(model, { keyValue: "A1" }, chartId);
     await nextTick();
     expect(getChartKeyElement()?.textContent).toEqual("200%");
+  });
+
+  test("Baseline is displayed with the cell format", async () => {
+    model.dispatch("SET_FORMATTING", {
+      sheetId,
+      target: target("B2"),
+      format: "[$$]#,##0.00",
+    });
+    createScorecardChart(model, { keyValue: "A1", baseline: "B2" }, chartId);
+    await nextTick();
+    expect(getChartBaselineElement()?.textContent).toEqual("$0.00");
+  });
+
+  test("Key value and baseline are displayed with the cell style", async () => {
+    model.dispatch("SET_FORMATTING", {
+      sheetId,
+      target: target("A1"),
+      style: {
+        textColor: "#FF0000",
+        bold: true,
+        italic: true,
+        strikethrough: true,
+        underline: true,
+      },
+    });
+    createScorecardChart(model, { keyValue: "A1", baseline: "A1" }, chartId);
+    await nextTick();
+    for (const el of [getChartKeyElement()!, getChartBaselineTextElement()!]) {
+      const style = el!.style;
+      expect(style["font-style"]).toEqual("italic");
+      expect(style["font-weight"]).toEqual("bold");
+      expect(toHex(style["color"])).toEqual("#FF0000");
+      expect(style["text-decoration"]).toEqual("line-through underline");
+    }
+  });
+
+  test("Baseline mode percentage don't inherit of the style/format of the cell", async () => {
+    model.dispatch("SET_FORMATTING", {
+      sheetId,
+      target: target("A1"),
+      style: { bold: true },
+      format: "0.0",
+    });
+    createScorecardChart(
+      model,
+      { keyValue: "A1", baseline: "B1", baselineMode: "percentage" },
+      chartId
+    );
+    await nextTick();
+    expect(getChartBaselineTextElement()!.style["font-weight"]).not.toEqual("bold");
+    expect(getChartBaselineTextContent()).toEqual("100%");
   });
 
   test("Increasing size of the chart scale up the font sizes", async () => {

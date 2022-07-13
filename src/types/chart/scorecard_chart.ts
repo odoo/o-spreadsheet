@@ -1,4 +1,4 @@
-import { Color } from "../misc";
+import { Color, Style } from "../misc";
 
 export interface ScorecardChartDefinition {
   readonly type: "scorecard";
@@ -10,7 +10,6 @@ export interface ScorecardChartDefinition {
   readonly background?: Color;
   readonly baselineColorUp: Color;
   readonly baselineColorDown: Color;
-  readonly fontColor?: Color;
 }
 
 export type BaselineMode = "text" | "difference" | "percentage";
@@ -23,5 +22,7 @@ export interface ScorecardChartRuntime {
   readonly baselineArrow: BaselineArrowDirection;
   readonly baselineDescr?: string;
   readonly background: Color;
-  readonly fontColor?: Color;
+  readonly fontColor: Color;
+  readonly keyValueStyle?: Style;
+  readonly baselineStyle?: Style;
 }

@@ -13,7 +13,8 @@
         />
       </div>
       <div class="o-section o-data-labels">
-        <div class="o-section-title">Baseline value</div>
+        <div class="o-section-title">Baseline configuration</div>
+        <div class="o-section-subtitle">Baseline value</div>
         <SelectionInput
           ranges="[props.definition.baseline || '']"
           isInvalid="isBaselineInvalid"
@@ -21,6 +22,15 @@
           onSelectionChanged="(ranges) => this.onBaselineRangeChanged(ranges)"
           onSelectionConfirmed="() => this.updateBaselineRange()"
         />
+        <div class="o-section-subtitle">Baseline format</div>
+        <select
+          t-att-value="props.definition.baselineMode"
+          class="o-input o-type-selector o-optional"
+          t-on-change="(ev) => this.updateBaselineMode(ev)">
+          <option value="text">Absolute value</option>
+          <option value="difference">Value change from key value</option>
+          <option value="percentage">Percentage change from key value</option>
+        </select>
       </div>
       <div class="o-section o-sidepanel-error" t-if="errorMessages">
         <div t-foreach="errorMessages" t-as="error" t-key="error">
