@@ -19,6 +19,16 @@ const { topbarMenuRegistry, dashboardMenuRegistry } = o_spreadsheet.registries;
 
 const uuidGenerator = new o_spreadsheet.helpers.UuidGenerator();
 
+const tags = new Set();
+
+const NOTIFICATION_STYLE =
+  "position:absolute;\
+  border:2px solid black;\
+  background:#F5F5DCD5;\
+  padding:20px;\
+  z-index:10000;\
+  width:140px;";
+
 topbarMenuRegistry.addChild("clear", ["file"], {
   name: "Clear & reload",
   sequence: 10,
@@ -74,6 +84,19 @@ class Demo extends Component {
       action: () => this.model.updateMode("normal"),
     });
 
+    topbarMenuRegistry.add("notify", {
+      name: "Notify?",
+      sequence: 1000,
+      isReadonlyAllowed: true,
+    });
+
+    topbarMenuRegistry.addChild("fakenotify", ["notify"], {
+      name: "click me",
+      sequence: 13,
+      isReadonlyAllowed: true,
+      action: () => this.notifyUser({ text: "This is a notification", tag: "notif" }),
+    });
+
     dashboardMenuRegistry.add("open normal", {
       name: "Normal mode",
       sequence: 10,
@@ -116,6 +139,7 @@ class Demo extends Component {
 
     useSubEnv({
       notifyUser: this.notifyUser,
+      raiseError: this.raiseError,
       askConfirmation: this.askConfirmation,
       editText: this.editText,
       loadCurrencies: async () => {
@@ -187,7 +211,22 @@ class Demo extends Component {
     this.model.leaveSession();
   }
 
-  notifyUser(content) {
+  notifyUser(notification) {
+    if (tags.has(notification.tag)) return;
+    var div = document.createElement("div");
+    var text = document.createTextNode(notification.text);
+    div.appendChild(text);
+    div.style = NOTIFICATION_STYLE;
+    const element = document.querySelector(".o-spreadsheet");
+    div.onclick = () => {
+      tags.delete(notification.tag);
+      element.removeChild(div);
+    };
+    element.appendChild(div);
+    tags.add(notification.tag);
+  }
+
+  raiseError(content) {
     window.alert(content);
   }
 

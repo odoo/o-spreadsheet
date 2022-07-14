@@ -1,4 +1,4 @@
 export interface NotifyUIEvent {
-  type: "NOTIFICATION";
+  type: "ERROR";
   text: string;
 }

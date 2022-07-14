@@ -13,11 +13,11 @@ export const PasteInteractiveContent = {
 export function handlePasteResult(env: SpreadsheetChildEnv, result: DispatchResult) {
   if (!result.isSuccessful) {
     if (result.reasons.includes(CommandResult.WrongPasteSelection)) {
-      env.notifyUser(PasteInteractiveContent.wrongPasteSelection);
+      env.raiseError(PasteInteractiveContent.wrongPasteSelection);
     } else if (result.reasons.includes(CommandResult.WillRemoveExistingMerge)) {
-      env.notifyUser(PasteInteractiveContent.willRemoveExistingMerge);
+      env.raiseError(PasteInteractiveContent.willRemoveExistingMerge);
     } else if (result.reasons.includes(CommandResult.WrongFigurePasteOption)) {
-      env.notifyUser(PasteInteractiveContent.wrongFigurePasteOption);
+      env.raiseError(PasteInteractiveContent.wrongFigurePasteOption);
     }
   }
 }

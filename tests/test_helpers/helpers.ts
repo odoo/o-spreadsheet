@@ -130,6 +130,7 @@ export async function mountSpreadsheet(
     loadCurrencies: async () => [],
     editText: () => {},
     notifyUser: () => {},
+    raiseError: () => {},
     askConfirmation: () => {},
     isDashboard: () => false,
     ...env,

@@ -9,7 +9,6 @@ import {
   SELECTION_BORDER_COLOR,
   UNHIDE_ICON_EDGE_LENGTH,
 } from "../../constants";
-import { _lt } from "../../translation";
 import {
   CommandResult,
   EdgeScrollInfo,
@@ -22,6 +21,7 @@ import {
 import { ContextMenuType } from "../grid/grid";
 import { css } from "../helpers/css";
 import { startDnd } from "../helpers/drag_and_drop";
+import { MergeErrorMessage } from "../translations_terms";
 
 // -----------------------------------------------------------------------------
 // Resizer component
@@ -485,9 +485,7 @@ export class ColResizer extends AbstractResizer {
       elements,
     });
     if (!result.isSuccessful && result.reasons.includes(CommandResult.WillRemoveExistingMerge)) {
-      this.env.notifyUser(
-        _lt("Merged cells are preventing this operation. Unmerge those cells and try again.")
-      );
+      this.env.raiseError(MergeErrorMessage);
     }
   }
 
@@ -696,9 +694,7 @@ export class RowResizer extends AbstractResizer {
       elements,
     });
     if (!result.isSuccessful && result.reasons.includes(CommandResult.WillRemoveExistingMerge)) {
-      this.env.notifyUser(
-        _lt("Merged cells are preventing this operation. Unmerge those cells and try again.")
-      );
+      this.env.raiseError(MergeErrorMessage);
     }
   }
 
