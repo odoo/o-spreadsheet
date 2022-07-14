@@ -90,3 +90,7 @@ export const NumberFormatTerms = {
 export const CustomCurrencyTerms = {
   Custom: _lt("Custom"),
 };
+
+export const MergeErrorMessage = _lt(
+  "Merged cells are preventing this operation. Unmerge those cells and try again."
+);

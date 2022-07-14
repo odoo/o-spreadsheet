@@ -124,13 +124,13 @@ describe("UI Helpers", () => {
     sheetId = model.getters.getActiveSheetId();
     notifyUserTextSpy = jest.fn();
     askConfirmationTextSpy = jest.fn();
-    const notifyUser = (content: string) => {
+    const raiseError = (content: string) => {
       notifyUserTextSpy(content.toString());
     };
     const askConfirmation = (content: string, confirm: () => any, cancel?: () => any) => {
       askConfirmationTextSpy(content.toString());
     };
-    env = makeInteractiveTestEnv(model, { notifyUser, askConfirmation });
+    env = makeInteractiveTestEnv(model, { raiseError, askConfirmation });
   });
 
   describe("Interactive paste", () => {
@@ -347,7 +347,7 @@ describe("UI Helpers", () => {
   });
 
   describe("Sort Merges", () => {
-    const notifyUser = jest.fn();
+    const raiseError = jest.fn();
     const sheetId: UID = "sheet5";
     let anchor: Position;
     const modelData = {
@@ -392,9 +392,9 @@ describe("UI Helpers", () => {
       const zone = toZone("B2:B8");
       const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
       anchor = toCartesian("B2");
-      const env = makeInteractiveTestEnv(model, { notifyUser });
+      const env = makeInteractiveTestEnv(model, { raiseError });
       interactiveSortSelection(env, sheetId, anchor, contiguousZone, "ascending");
-      expect(notifyUser).toHaveBeenCalled();
+      expect(raiseError).toHaveBeenCalled();
       expect(model.getters.getSelection()).toEqual({
         anchor: { cell: anchor, zone: contiguousZone },
         zones: [contiguousZone],
@@ -419,9 +419,9 @@ describe("UI Helpers", () => {
       const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
 
       const anchor = toCartesian("B2");
-      const env = makeInteractiveTestEnv(model, { notifyUser });
+      const env = makeInteractiveTestEnv(model, { raiseError });
       interactiveSortSelection(env, sheetId, anchor, contiguousZone, "ascending");
-      expect(notifyUser).toHaveBeenCalled();
+      expect(raiseError).toHaveBeenCalled();
       expect(model.getters.getSelection()).toEqual({
         anchor: { cell: anchor, zone: contiguousZone },
         zones: [contiguousZone],

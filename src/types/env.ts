@@ -7,8 +7,16 @@ export interface EditTextOptions {
   placeholder?: string;
 }
 
+export type notificationType = "ERROR" | "INFORMATION";
+
+export interface InformationNotification {
+  text: string;
+  tag: string;
+}
+
 export interface SpreadsheetEnv {
-  notifyUser: (content: string) => any;
+  notifyUser: (notification: InformationNotification) => any;
+  raiseError: (text: string) => any;
   askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
   editText: (
     title: string,

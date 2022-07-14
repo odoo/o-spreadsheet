@@ -7,7 +7,7 @@ export function interactiveCut(env: SpreadsheetChildEnv) {
 
   if (!result.isSuccessful) {
     if (result.isCancelledBecause(CommandResult.WrongCutSelection)) {
-      env.notifyUser(_lt("This operation is not allowed with multiple selections."));
+      env.raiseError(_lt("This operation is not allowed with multiple selections."));
     }
   }
 }
