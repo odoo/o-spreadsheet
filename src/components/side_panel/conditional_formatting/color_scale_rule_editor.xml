@@ -40,7 +40,7 @@
         <div class="o-tool o-dropdown o-with-color" t-att-disabled="threshold === undefined">
           <span
             title="Fill Color"
-            t-attf-style="border-color:#{{getThresholdColor(threshold)}}"
+            t-attf-style="border-color:{{getThresholdColor(threshold)}}"
             t-on-click.stop="(ev) => this.toggleMenu('colorScale-'+thresholdType+'Color', ev)">
             <t t-call="o-spreadsheet-Icon.FILL_COLOR"/>
           </span>
