@@ -201,7 +201,7 @@ export class EditionPlugin extends UIPlugin {
           this.cancelEdition();
           this.resetContent();
           this.ui.notifyUI({
-            type: "NOTIFICATION",
+            type: "ERROR",
             text: CELL_DELETED_MESSAGE,
           });
         }
@@ -315,7 +315,7 @@ export class EditionPlugin extends UIPlugin {
     if (cmd.elements.includes(this.col) && this.mode !== "inactive") {
       this.dispatch("STOP_EDITION", { cancel: true });
       this.ui.notifyUI({
-        type: "NOTIFICATION",
+        type: "ERROR",
         text: CELL_DELETED_MESSAGE,
       });
       return;
@@ -333,7 +333,7 @@ export class EditionPlugin extends UIPlugin {
     if (cmd.elements.includes(this.row) && this.mode !== "inactive") {
       this.dispatch("STOP_EDITION", { cancel: true });
       this.ui.notifyUI({
-        type: "NOTIFICATION",
+        type: "ERROR",
         text: CELL_DELETED_MESSAGE,
       });
       return;
