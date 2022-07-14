@@ -39,7 +39,7 @@ const THRESHOLD_TEMPLATE = xml/* xml */ `
       />
       <div class="o-tools">
         <div class="o-tool  o-dropdown o-with-color" t-att-disabled="threshold === undefined" >
-          <span title="Fill Color"  t-attf-style="border-color:#{{getThresholdColor(threshold)}}"
+          <span title="Fill Color"  t-attf-style="border-color:{{getThresholdColor(threshold)}}"
                 t-on-click.stop="(ev) => this.toggleMenu('colorScale-'+thresholdType+'Color', ev)">${icons.FILL_COLOR_ICON}</span>
           <ColorPicker t-if="state.openedMenu === 'colorScale-'+thresholdType+'Color'" dropdownDirection="'left'" onColorPicked="(color) => this.setColorScaleColor(thresholdType, color)"/>
         </div>
