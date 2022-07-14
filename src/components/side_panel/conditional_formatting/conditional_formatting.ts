@@ -1,6 +1,7 @@
 import { Component, onWillUpdateProps, useExternalListener, useState } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../constants";
 import { colorNumberString, rangeReference } from "../../../helpers/index";
+import { _t } from "../../../translation";
 import {
   CancelledReason,
   CellIsRule,
@@ -427,10 +428,10 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
       case "CellIsRule":
         const description = CellIsOperators[cf.rule.operator];
         if (cf.rule.values.length === 1) {
-          return this.env._t(`${description} ${cf.rule.values[0]}`);
+          return `${description} ${cf.rule.values[0]}`;
         }
         if (cf.rule.values.length === 2) {
-          return this.env._t(`${description} ${cf.rule.values[0]} and ${cf.rule.values[1]}`);
+          return _t("%s %s and %s", description, cf.rule.values[0], cf.rule.values[1]);
         }
         return description;
       case "ColorScaleRule":
