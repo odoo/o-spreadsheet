@@ -301,13 +301,13 @@ describe("Composer interactions", () => {
   });
 
   test("Notify ui correctly with type notification correctly use notifyUser in the env", async () => {
-    const notifyUser = jest.fn();
+    const raiseError = jest.fn();
     const fixture = makeTestFixture();
     const model = new Model();
-    const { app } = await mountSpreadsheet(fixture, { model: model }, { notifyUser: notifyUser });
+    const { app } = await mountSpreadsheet(fixture, { model }, { raiseError });
     await app.mount(fixture);
-    model["config"].notifyUI({ type: "NOTIFICATION", text: "hello" });
-    expect(notifyUser).toHaveBeenCalledWith("hello");
+    model["config"].notifyUI({ type: "ERROR", text: "hello" });
+    expect(raiseError).toHaveBeenCalledWith("hello");
     fixture.remove();
     app.destroy();
   });
