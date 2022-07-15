@@ -44,6 +44,7 @@ interface InternalNumberFormat {
   readonly integerPart: string;
   readonly isPercent: boolean;
   readonly thousandsSeparator: boolean;
+  readonly magnitude: number;
   /**
    * optional because we need to differentiate a number
    * with a dot but no decimals with a number without any decimals.
@@ -115,6 +116,7 @@ function applyInternalNumberFormat(value: number, format: InternalNumberFormat) 
   if (format.isPercent) {
     value = value * 100;
   }
+  value = value / format.magnitude;
   let maxDecimals = 0;
   if (format.decimalPart !== undefined) {
     maxDecimals = format.decimalPart.length;
@@ -385,16 +387,21 @@ function convertFormatToInternalFormat(format: Format): InternalFormat {
   return result;
 }
 
+const magnitudeRegex = /,*?$/;
+
 /**
  * @param format a formatString that is only applicable to numbers. I.e. composed of characters 0 # , . %
  */
 function convertToInternalNumberFormat(format: Format): InternalNumberFormat {
   const isPercent = format.includes("%");
-  const thousandsSeparator = format.includes(",");
-  if (format.match(/\..*,/)) {
+  const magnitudeCommas = format.match(magnitudeRegex)?.[0] || "";
+  const magnitude = !magnitudeCommas ? 1 : 1000 ** magnitudeCommas.length;
+  let _format = format.slice(0, format.length - (magnitudeCommas.length || 0));
+  const thousandsSeparator = _format.includes(",");
+  if (_format.match(/\..*,/)) {
     throw new Error("A format can't contain ',' symbol in the decimal part");
   }
-  const _format = format.replace("%", "").replace(",", "");
+  _format = _format.replace("%", "").replace(",", "");
 
   const extraSigns = _format.match(/[\%|,]/);
   if (extraSigns) {
@@ -410,12 +417,14 @@ function convertToInternalNumberFormat(format: Format): InternalNumberFormat {
       isPercent,
       thousandsSeparator,
       decimalPart,
+      magnitude,
     };
   } else {
     return {
       integerPart,
       isPercent,
       thousandsSeparator,
+      magnitude,
     };
   }
 }
