@@ -16,7 +16,7 @@ export const demoData = {
       cols: { 1: {}, 3: {} },
       rows: {},
       cells: {
-        A21: { content: "[Sheet2 => B2:](o-spreadsheet://Sheet2)" },
+        A21: { content: "[Sheet2 => B2:](o-spreadsheet://sh2)" },
         B2: { content: "[Owl is awesome](https://github.com/odoo/owl)", style: 1 },
         B4: { content: "Numbers", style: 4 },
         B21: { content: "=Sheet2!B2", style: 7 },
