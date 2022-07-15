@@ -78,7 +78,7 @@ export function getDefaultChartJsRuntime(
       },
       elements: {
         line: {
-          fill: false, // do not fill the area under line charts
+          fill: true,
         },
         point: {
           hitRadius: 15, // increased hit radius to display point tooltip when hovering nearby

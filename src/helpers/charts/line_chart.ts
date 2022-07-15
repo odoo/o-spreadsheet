@@ -339,7 +339,6 @@ function createLineChartRuntime(chart: LineChart, getters: Getters): LineChartRu
   }
 
   const colors = new ChartColors();
-
   for (let { label, data } of dataSetsValues) {
     if (["linear", "time"].includes(axisType)) {
       // Replace empty string labels by undefined to make sure chartJS doesn't decide that "" is the same as 0
@@ -352,7 +351,7 @@ function createLineChartRuntime(chart: LineChart, getters: Getters): LineChartRu
       data,
       lineTension: 0, // 0 -> render straight lines, which is much faster
       borderColor: color,
-      backgroundColor: color,
+      backgroundColor: color.replace(/\)/i, ",0.4)"),
     };
     config.data!.datasets!.push(dataset);
   }

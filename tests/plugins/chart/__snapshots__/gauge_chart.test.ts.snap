@@ -29,7 +29,7 @@ Object {
       },
       "elements": Object {
         "line": Object {
-          "fill": false,
+          "fill": true,
         },
         "point": Object {
           "hitRadius": 15,
@@ -114,7 +114,7 @@ Object {
       },
       "elements": Object {
         "line": Object {
-          "fill": false,
+          "fill": true,
         },
         "point": Object {
           "hitRadius": 15,
