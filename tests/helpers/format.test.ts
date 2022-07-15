@@ -220,6 +220,70 @@ describe("formatValue on number", () => {
   });
 });
 
+describe("formatValue on large numbers", () => {
+  test.each([
+    [1, "0k"],
+    [10, "0k"],
+    [100, "0k"],
+    [499, "0k"],
+    [501, "1k"],
+    [1000, "1k"],
+    [1499, "1k"],
+    [1501, "2k"],
+    [10000, "10k"],
+    [100000, "100k"],
+    [1000000, "1,000k"],
+    [10000000, "10,000k"],
+  ])("Format thousands with separator", (value, result) => {
+    expect(formatValue(value, "#,##0,[$k]")).toBe(result);
+  });
+
+  test.each([
+    [1, "0M"],
+    [100, "0M"],
+    [499_999, "0M"],
+    [500_001, "1M"],
+    [1_000_000, "1M"],
+    [1_499_999, "1M"],
+    [1_500_001, "2M"],
+    [10_000_000, "10M"],
+    [100_000_000, "100M"],
+    [1_000_000_000, "1,000M"],
+    [10_000_000_000, "10,000M"],
+  ])("Format millions with separator", (value, result) => {
+    expect(formatValue(value, "#,##0,,[$M]")).toBe(result);
+  });
+
+  test.each([
+    [1, "0B"],
+    [1_000_000, "0B"],
+    [1_000_000_000, "1B"],
+    [10_000_000_000, "10B"],
+  ])("Format billions with separator", (value, result) => {
+    expect(formatValue(value, "#,##0,,,[$B]")).toBe(result);
+  });
+
+  test.each([
+    [1, "0k"],
+    [1000, "1k"],
+    [1000000, "1000k"],
+    [10000000, "10000k"],
+  ])("Format thousands without separator", (value, result) => {
+    expect(formatValue(value, "###0,[$k]")).toBe(result);
+    expect(formatValue(value, "0,[$k]")).toBe(result);
+  });
+
+  test.each([
+    [1, "0M"],
+    [1_000_000, "1M"],
+    [1_000_000_000, "1000M"],
+    [10_000_000_000, "10000M"],
+  ])("Format millions without separator", (value, result) => {
+    expect(formatValue(value, "###0,,[$M]")).toBe(result);
+    expect(formatValue(value, "0,,[$M]")).toBe(result);
+  });
+});
+
 describe("formatValue on date and time", () => {
   test.each([
     "hh:mm",
