@@ -360,13 +360,17 @@ function convertFormatToInternalFormat(format: Format): InternalFormat {
         throw new Error(`Currency formats have to be prefixed by a $: ${format}`);
       }
       // manage brackets/customStrings
-      closingIndex = format.substring(currentIndex).lastIndexOf("]") + currentIndex + 1;
+      closingIndex = format.substring(currentIndex + 1).indexOf("]") + currentIndex + 2;
       if (closingIndex === 0) {
         throw new Error(`Invalid currency brackets format: ${format}`);
       }
+      const str = format.substring(currentIndex + 2, closingIndex - 1);
+      if (str.includes("[")) {
+        throw new Error(`Invalid currency format: ${format}`);
+      }
       result.push({
         type: "CURRENCY",
-        format: format.substring(currentIndex + 2, closingIndex - 1),
+        format: str,
       }); // remove leading "[$"" and ending "]".
     } else {
       // rest of the time
@@ -393,6 +397,10 @@ const magnitudeRegex = /,*?$/;
  * @param format a formatString that is only applicable to numbers. I.e. composed of characters 0 # , . %
  */
 function convertToInternalNumberFormat(format: Format): InternalNumberFormat {
+  format = format.trim();
+  if (containsInvalidNumberChars(format)) {
+    throw new Error(`Invalid number format: ${format}`);
+  }
   const isPercent = format.includes("%");
   const magnitudeCommas = format.match(magnitudeRegex)?.[0] || "";
   const magnitude = !magnitudeCommas ? 1 : 1000 ** magnitudeCommas.length;
@@ -427,6 +435,12 @@ function convertToInternalNumberFormat(format: Format): InternalNumberFormat {
       magnitude,
     };
   }
+}
+
+const validNumberChars = /[,#0.%]/g;
+
+function containsInvalidNumberChars(format: Format): boolean {
+  return Boolean(format.replace(validNumberChars, ""));
 }
 
 function convertInternalFormatToFormat(internalFormat: InternalFormat): Format {

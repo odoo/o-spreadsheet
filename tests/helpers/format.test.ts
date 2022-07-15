@@ -202,6 +202,7 @@ describe("formatValue on number", () => {
 
   test("can apply format with custom currencies", () => {
     expect(formatValue(1234, "#,##0[$TEST]")).toBe("1,234TEST");
+    expect(formatValue(1234, "#,##0 [$TEST]")).toBe("1,234TEST");
     expect(formatValue(1234, "#,##0[$ TEST]")).toBe("1,234 TEST");
     expect(formatValue(1234, "#,##0[$  TEST ]")).toBe("1,234  TEST ");
     expect(formatValue(1234, "#,##0[$ kikou lol ]")).toBe("1,234 kikou lol ");
@@ -213,10 +214,19 @@ describe("formatValue on number", () => {
     expect(formatValue(1234, "[$兔]#,##0.0")).toBe("兔1,234.0");
     // test with char used in the format reading
     expect(formatValue(1234, '[$#,##0.0E+00 %"$"]#,##0.0')).toBe('#,##0.0E+00 %"$"1,234.0');
-    expect(formatValue(1234, "[$[]#,##0.0")).toBe("[1,234.0");
-    expect(formatValue(1234, "[$]]#,##0.0")).toBe("]1,234.0");
-    expect(formatValue(1234, "[$[]]#,##0.0")).toBe("[]1,234.0");
-    expect(formatValue(1234, "[$][]#,##0.0")).toBe("][1,234.0");
+  });
+
+  test("with brackets inside the string", () => {
+    expect(() => formatValue(1234, "[$[]#,##0.0")).toThrow();
+    expect(() => formatValue(1234, "[$]]#,##0.0")).toThrow();
+    expect(() => formatValue(1234, "[$[]]#,##0.0")).toThrow();
+    expect(() => formatValue(1234, "[$][]#,##0.0")).toThrow();
+  });
+
+  test("multiple strings in one format", () => {
+    expect(formatValue(1234, "[$TEST]#,##0[$TEST]")).toBe("TEST1,234TEST");
+    expect(formatValue(1234, "#,##0[$TEST][$TEST]")).toBe("1,234TESTTEST");
+    expect(formatValue(1234, "[$TEST][$TEST]#,##0")).toBe("TESTTEST1,234");
   });
 });
 
@@ -281,6 +291,15 @@ describe("formatValue on large numbers", () => {
   ])("Format millions without separator", (value, result) => {
     expect(formatValue(value, "###0,,[$M]")).toBe(result);
     expect(formatValue(value, "0,,[$M]")).toBe(result);
+  });
+
+  test("large numbers with currencies", () => {
+    expect(formatValue(1, "#,##0,[$k][$$]")).toBe("0k$");
+    expect(formatValue(1000, "#,##0,[$k][$$]")).toBe("1k$");
+    expect(formatValue(1000, "[$$]#,##0,[$k]")).toBe("$1k");
+    expect(formatValue(1000, "[$$]0,[$k]")).toBe("$1k");
+    expect(formatValue(1000000, "[$$]0,[$k]")).toBe("$1000k");
+    expect(formatValue(1000000, "[$$]0,,[$M]")).toBe("$1M");
   });
 });
 
