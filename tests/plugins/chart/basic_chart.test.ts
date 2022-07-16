@@ -1239,15 +1239,15 @@ describe("Chart design configuration", () => {
           // prettier-ignore
           cells: {
             // data point 1: first empty
-            A2: { content: "" },      B2: { content: "" },    C2: { content: "" },
+            A2: { content: "" },    B2: { content: "" },    C2: { content: "" },
             // data point 2: only label
-            A3: { content: "P1" },    B3: { content: "" },    C3: { content: "" },
+            A3: { content: "P1" },  B3: { content: "" },    C3: { content: "" },
             // data point 3: only first value
-            A4: { content: "" },      B4: { content: "10" },  C4: { content: "" },
+            A4: { content: "" },    B4: { content: "10" },  C4: { content: "" },
             // data point 4: empty in the middle of data points
-            A5: { content: "" },      B5: { content: "" },    C5: { content: "" },
+            A5: { content: "" },    B5: { content: "" },    C5: { content: "" },
             // data point 5: only second value
-            A6: { content: "" },      B6: { content: "" },    C6: { content: "20" },
+            A6: { content: "" },    B6: { content: "" },    C6: { content: "20" },
           },
         },
       ],
@@ -1365,6 +1365,29 @@ describe("Linear/Time charts", () => {
       target: [toZone("C2:C5")],
       format: "m/d/yyyy",
     });
+    createChart(
+      model,
+      {
+        type: "line",
+        dataSets: ["B2:B5"],
+        labelRange: "C2:C5",
+        labelsAsText: false,
+      },
+      chartId
+    );
+    let chart = model.getters.getChartRuntime(chartId) as LineChartRuntime;
+    expect(chart.options!.scales!.xAxes![0].type).toEqual("time");
+
+    updateChart(model, chartId, { type: "bar" });
+    model.getters.getChartRuntime(chartId)!;
+    expect(chart.options!.scales!.xAxes![0].type).toEqual("time");
+  });
+
+  test("time axis for line/bar chart with formulas w/ date format as labels", () => {
+    setCellContent(model, "C2", "=DATE(2022,1,1)");
+    setCellContent(model, "C3", "=DATE(2022,1,2)");
+    setCellContent(model, "C4", "=DATE(2022,1,3)");
+    setCellContent(model, "C5", "=DATE(2022,1,4)");
     createChart(
       model,
       {

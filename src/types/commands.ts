@@ -4,7 +4,15 @@ import { CellPopoverType } from "./cell_popovers";
 import { ChartDefinition } from "./chart/chart";
 import { UpDown } from "./conditional_formatting";
 import { BorderCommand, ConditionalFormat, Figure, Format, Style, Zone } from "./index";
-import { Border, CellPosition, ClipboardOptions, Dimension, HeaderIndex, UID } from "./misc";
+import {
+  Border,
+  CellPosition,
+  ClipboardOptions,
+  Dimension,
+  HeaderIndex,
+  SetDecimalStep,
+  UID,
+} from "./misc";
 import { RangeData } from "./range";
 
 // -----------------------------------------------------------------------------
@@ -385,7 +393,7 @@ export interface ClearFormattingCommand extends TargetDependentCommand {
 
 export interface SetDecimalCommand extends TargetDependentCommand {
   type: "SET_DECIMAL";
-  step: number;
+  step: SetDecimalStep;
 }
 //#endregion
 

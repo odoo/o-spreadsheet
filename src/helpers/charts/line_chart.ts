@@ -253,7 +253,7 @@ function canBeDateChart(chart: LineChart, getters: Getters): boolean {
     chart.labelRange.sheetId,
     chart.labelRange.zone.left,
     chart.labelRange.zone.top
-  )?.format;
+  )?.evaluated.format;
   return Boolean(labelFormat && timeFormatMomentCompatible.test(labelFormat));
 }
 

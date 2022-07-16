@@ -22,6 +22,9 @@ export type HeaderIndex = number & Alias;
 export type Pixel = number & Alias;
 
 export type UID = string & Alias;
+
+export type SetDecimalStep = 1 | -1;
+
 /**
  * CSS style color string
  * e.g. "#ABC", "#AAAFFF", "rgb(30, 80, 16)"

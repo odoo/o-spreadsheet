@@ -1,7 +1,7 @@
 import { DATETIME_FORMAT } from "../../constants";
 import { changeDecimalPlaces, createDefaultFormat } from "../../helpers";
 import { Mode } from "../../model";
-import { CellValueType, Command, Format, UID, Zone } from "../../types/index";
+import { CellValueType, Command, Format, SetDecimalStep, UID, Zone } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 export class FormatPlugin extends UIPlugin {
@@ -29,7 +29,7 @@ export class FormatPlugin extends UIPlugin {
    * If several cells are in the zone, the format resulting from the change of the
    * first cell (with number type) will be applied to the whole zone.
    */
-  private setDecimal(sheetId: UID, zones: Zone[], step: number) {
+  private setDecimal(sheetId: UID, zones: Zone[], step: SetDecimalStep) {
     // Find the first cell with a number value and get the format
     const numberFormat = this.searchNumberFormat(sheetId, zones);
     if (numberFormat !== undefined) {
@@ -57,9 +57,9 @@ export class FormatPlugin extends UIPlugin {
           const cell = this.getters.getCell(sheetId, col, row);
           if (
             cell?.evaluated.type === CellValueType.number &&
-            !cell.format?.match(DATETIME_FORMAT) // reject dates
+            !cell.evaluated.format?.match(DATETIME_FORMAT) // reject dates
           ) {
-            return cell.format || createDefaultFormat(cell.evaluated.value);
+            return cell.evaluated.format || createDefaultFormat(cell.evaluated.value);
           }
         }
       }
