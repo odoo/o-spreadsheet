@@ -108,7 +108,7 @@ export function getDefaultChartJsRuntime(
 
 export function getLabelFormat(getters: Getters, range: Range | undefined): Format | undefined {
   if (!range) return undefined;
-  return getters.getCell(range.sheetId, range.zone.left, range.zone.top)?.format;
+  return getters.getCell(range.sheetId, range.zone.left, range.zone.top)?.evaluated.format;
 }
 
 export function getChartLabelValues(

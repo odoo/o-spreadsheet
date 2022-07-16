@@ -1,9 +1,23 @@
 import { DEFAULT_CELL_HEIGHT, PADDING_AUTORESIZE } from "../../src/constants";
 import { fontSizeMap } from "../../src/fonts";
+import { args, functionRegistry } from "../../src/functions";
+import { toString } from "../../src/functions/helpers";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { SheetUIPlugin } from "../../src/plugins/ui/ui_sheet";
-import { Cell, CommandResult, UID } from "../../src/types";
+import {
+  Arg,
+  ArgValue,
+  Cell,
+  CommandResult,
+  ComputeFunction,
+  Format,
+  PrimitiveArg,
+  PrimitiveArgValue,
+  ReturnValue,
+  SetDecimalStep,
+  UID,
+} from "../../src/types";
 import {
   createSheet,
   resizeRows,
@@ -22,7 +36,7 @@ function setFormat(model: Model, format: string) {
   });
 }
 
-function setDecimal(model: Model, step: number) {
+function setDecimal(model: Model, step: SetDecimalStep) {
   model.dispatch("SET_DECIMAL", {
     sheetId: model.getters.getActiveSheetId(),
     target: model.getters.getSelectedZones(),
@@ -152,6 +166,28 @@ describe("formatting values (with formatters)", () => {
         target: [toZone("A1")],
       })
     ).toBeCancelledBecause(CommandResult.InvalidSheetId);
+  });
+
+  test("SET_DECIMAL considers the evaluated format to infer the decimal position", () => {
+    functionRegistry.add("SET.FORMAT", {
+      description: "Returns the value set to the provided format",
+      args: args(`
+          value (any) "value to format",
+          format (any) "format to set."
+      `),
+      compute: function (value: PrimitiveArgValue, format: PrimitiveArgValue) {
+        return value || 0;
+      } as ComputeFunction<ArgValue, ReturnValue>,
+      computeFormat: function (value: PrimitiveArg, format: PrimitiveArg) {
+        return toString(format.value);
+      } as ComputeFunction<Arg, Format>,
+      returns: ["ANY"],
+    });
+    const model = new Model();
+    setCellContent(model, "A1", '=SET.FORMAT(5, "0.00")');
+    selectCell(model, "A1");
+    setDecimal(model, 1);
+    expect(getCell(model, "A1")?.format).toBe("0.000");
   });
 });
 

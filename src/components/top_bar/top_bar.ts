@@ -14,7 +14,14 @@ import { getMenuChildren, getMenuName } from "../../registries/menus/helpers";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
 import { FullMenuItem } from "../../registries/menu_items_registry";
 import { _lt } from "../../translation";
-import { Align, BorderCommand, CommandResult, SpreadsheetChildEnv, Style } from "../../types/index";
+import {
+  Align,
+  BorderCommand,
+  CommandResult,
+  SetDecimalStep,
+  SpreadsheetChildEnv,
+  Style,
+} from "../../types/index";
 import { ColorPicker } from "../color_picker/color_picker";
 import { Composer } from "../composer/composer/composer";
 import { css } from "../helpers/css";
@@ -457,7 +464,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.env.openSidePanel(sidePanel);
   }
 
-  setDecimal(step: number) {
+  setDecimal(step: SetDecimalStep) {
     this.env.model.dispatch("SET_DECIMAL", {
       sheetId: this.env.model.getters.getActiveSheetId(),
       target: this.env.model.getters.getSelectedZones(),
