@@ -126,11 +126,6 @@ export class EvaluationPlugin extends UIPlugin {
     const cells = this.getters.getCells(sheetId);
     const params = this.getFormulaParameters(computeValue);
     const visited: { [cellId: string]: boolean | null } = {};
-    for (let cell of Object.values(cells)) {
-      if (cell.isFormula()) {
-        cell.startEvaluation();
-      }
-    }
 
     for (let cell of Object.values(cells)) {
       computeValue(cell, sheetId);
@@ -208,9 +203,6 @@ export class EvaluationPlugin extends UIPlugin {
     }
 
     function getCellValue(cell: Cell, sheetId: UID): any {
-      if (cell.isFormula() && cell.evaluated.type === CellValueType.error) {
-        throw new Error(_lt("This formula depends on invalid values"));
-      }
       computeValue(cell, sheetId);
       if (cell.evaluated.type === CellValueType.error) {
         throw new Error(_lt("This formula depends on invalid values"));
