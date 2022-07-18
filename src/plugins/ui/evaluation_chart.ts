@@ -15,7 +15,7 @@ export class EvaluationChartPlugin extends UIPlugin {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
       cmd.type === "EVALUATE_CELLS" ||
-      (cmd.type === "UPDATE_CELL" && "content" in cmd)
+      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
     ) {
       for (const chartId in this.charts) {
         this.charts[chartId] = undefined;
