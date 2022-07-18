@@ -1110,10 +1110,39 @@ describe("evaluate formula getter", () => {
     setCellContent(model, "A1", "=SUM(A2)");
     setCellContent(model, "A2", "=-GETVALUE()");
     expect(getCell(model, "A1")!.evaluated.type).toBe(CellValueType.error);
+    expect(getCell(model, "A2")!.evaluated.type).toBe(CellValueType.error);
+    value = 2;
+    model.dispatch("EVALUATE_CELLS", { sheetId: model.getters.getActiveSheetId() });
+    expect(getCell(model, "A1")!.evaluated.value).toBe(-2);
+    expect(getCell(model, "A2")!.evaluated.value).toBe(-2);
+    functionRegistry.remove("GETVALUE");
+  });
+
+  test("cells in error and in another sheet are correctly reset", () => {
+    let value: string | number = "LOADING...";
+    functionRegistry.add("GETVALUE", {
+      description: "Get value",
+      compute: () => value,
+      args: args(``),
+      returns: ["ANY"],
+    });
+    createSheet(model, { sheetId: "sheet2" });
+    setCellContent(model, "A1", "=SUM(Sheet2!A2)");
+    setCellContent(model, "A2", "=-GETVALUE()", "sheet2");
     expect(getCell(model, "A1")!.evaluated.type).toBe(CellValueType.error);
     value = 2;
     model.dispatch("EVALUATE_CELLS", { sheetId: model.getters.getActiveSheetId() });
     expect(getCell(model, "A1")!.evaluated.value).toBe(-2);
-    expect(getCell(model, "A1")!.evaluated.value).toBe(-2);
+    expect(getCell(model, "A2", "sheet2")!.evaluated.value).toBe(-2);
+    functionRegistry.remove("GETVALUE");
+  });
+
+  test("cell is evaluated when changing sheet and coming back", () => {
+    const firstSheetId = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "sheet2" });
+    setCellContent(model, "A3", "=5");
+    activateSheet(model, "sheet2");
+    activateSheet(model, firstSheetId);
+    expect(getCell(model, "A3", firstSheetId)!.evaluated.value).toBe(5);
   });
 });
