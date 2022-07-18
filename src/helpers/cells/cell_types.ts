@@ -258,10 +258,6 @@ export class FormulaCell extends AbstractCell implements IFormulaCell {
     return true;
   }
 
-  startEvaluation() {
-    this.evaluated = { value: LOADING, type: CellValueType.text };
-  }
-
   assignValue(value: CellValue) {
     switch (typeof value) {
       case "number":
