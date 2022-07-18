@@ -129,11 +129,6 @@ export class EvaluationPlugin extends UIPlugin {
     const cells = this.getters.getCells(sheetId);
     const compilationParameters = this.getCompilationParameters(computeCell);
     const visited: { [cellId: string]: boolean | null } = {};
-    for (let cell of Object.values(cells)) {
-      if (cell.isFormula()) {
-        cell.startEvaluation();
-      }
-    }
 
     for (let cell of Object.values(cells)) {
       computeCell(cell);
@@ -221,13 +216,6 @@ export class EvaluationPlugin extends UIPlugin {
     }
 
     function getEvaluatedCell(cell: Cell): { value: CellValue; format?: Format } {
-      if (cell.isFormula() && cell.evaluated.type === CellValueType.error) {
-        throw new EvaluationError(
-          cell.evaluated.value,
-          cell.evaluated.error.message,
-          cell.evaluated.error.logLevel
-        );
-      }
       computeCell(cell);
       if (cell.evaluated.type === CellValueType.error) {
         throw new EvaluationError(
