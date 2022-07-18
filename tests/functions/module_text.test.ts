@@ -633,3 +633,9 @@ describe("UPPER formula", () => {
     expect(evaluateCell("A1", { A1: "=UPPER(A2)", A2: '="true"' })).toBe("TRUE");
   });
 });
+
+test("TEXT formula", () => {
+  expect(evaluateCell("A1", { A1: '=TEXT(5, "#,##0.00")' })).toBe("5.00");
+  expect(evaluateCell("A1", { A1: '=TEXT(.05, "000%")' })).toBe("005%");
+  expect(evaluateCell("A1", { A1: "=TEXT(5, 0)" })).toBe("5");
+});
