@@ -337,16 +337,16 @@ describe("clipboard", () => {
         },
       ],
     });
-    cut(model, "B1");
+    cut(model, "B1:C2");
     paste(model, "B4");
     expect(model.getters.isInMerge("s2", ...toCartesianArray("B1"))).toBe(false);
     expect(model.getters.isInMerge("s2", ...toCartesianArray("B2"))).toBe(false);
     expect(model.getters.isInMerge("s2", ...toCartesianArray("C1"))).toBe(false);
-    expect(model.getters.isInMerge("s2", ...toCartesianArray("B2"))).toBe(false);
+    expect(model.getters.isInMerge("s2", ...toCartesianArray("C2"))).toBe(false);
     expect(model.getters.isInMerge("s2", ...toCartesianArray("B4"))).toBe(true);
     expect(model.getters.isInMerge("s2", ...toCartesianArray("B5"))).toBe(true);
     expect(model.getters.isInMerge("s2", ...toCartesianArray("C4"))).toBe(true);
-    expect(model.getters.isInMerge("s2", ...toCartesianArray("B5"))).toBe(true);
+    expect(model.getters.isInMerge("s2", ...toCartesianArray("C5"))).toBe(true);
   });
 
   test("paste merge on existing merge removes existing merge", () => {

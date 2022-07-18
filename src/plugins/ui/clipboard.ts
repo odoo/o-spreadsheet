@@ -488,7 +488,6 @@ export class ClipboardPlugin extends UIPlugin {
       col: selection.left,
       row: selection.top,
     });
-    this.dispatch("REMOVE_MERGE", { sheetId: state.sheetId, target: state.merges });
     this.state = undefined;
   }
 
@@ -574,7 +573,12 @@ export class ClipboardPlugin extends UIPlugin {
         const origin = rowCells[c];
         const position = { col: col + c, row: row + r, sheetId: sheetId };
         this.removeMergeIfTopLeft(position);
-        this.pasteMergeIfExist(origin.position, position);
+        // TODO: refactor this part. the "Paste merge" action is also executed with
+        // MOVE_RANGES in pasteFromCut. Adding a condition on the operation type here
+        // is not appropriate
+        if (state.operation !== "CUT") {
+          this.pasteMergeIfExist(origin.position, position);
+        }
         this.pasteCell(origin, position, state.operation, pasteOption);
         if (shouldPasteCF) {
           this.dispatch("PASTE_CONDITIONAL_FORMAT", {
