@@ -956,6 +956,10 @@ export const demoData = {
         B164: { content: "=ISERR(NA())" },
         C164: { content: "FALSE" },
         D164: { content: "=IF(B164=C164,1, 0)" },
+        A165: { content: "TEXT" },
+        B165: { content: '=TEXT(5, "#,##0.00")' },
+        C165: { content: '="5.00"' },
+        D165: { content: "=IF(B165=C165,1, 0)" },
 
         // DATA
         G1: { content: "Name", style: 8 },

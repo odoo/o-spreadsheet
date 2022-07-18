@@ -1,3 +1,4 @@
+import { formatValue } from "../helpers";
 import { _lt } from "../translation";
 import { AddFunctionDescription, ArgValue, PrimitiveArgValue } from "../types";
 import { args } from "./arguments";
@@ -385,6 +386,25 @@ export const UPPER: AddFunctionDescription = {
   returns: ["STRING"],
   compute: function (text: PrimitiveArgValue): string {
     return toString(text).toUpperCase();
+  },
+  isExported: true,
+};
+
+// -----------------------------------------------------------------------------
+// TEXT
+// -----------------------------------------------------------------------------
+export const TEXT: AddFunctionDescription = {
+  description: _lt("Converts a number to text according to a specified format."),
+  args: args(`
+      number (number) ${_lt("The number, date or time to format.")}
+      format (string) ${_lt(
+        "The pattern by which to format the number, enclosed in quotation marks."
+      )}
+  `),
+  returns: ["STRING"],
+  compute: function (number: PrimitiveArgValue, format: PrimitiveArgValue): string {
+    const _number = toNumber(number);
+    return formatValue(_number, toString(format));
   },
   isExported: true,
 };
