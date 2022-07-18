@@ -18,6 +18,7 @@ import {
   redo,
   selectCell,
   setCellContent,
+  setCellFormat,
   undo,
   updateChart,
 } from "../../test_helpers/commands_helpers";
@@ -1338,6 +1339,19 @@ describe("Chart design configuration", () => {
     const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
     expect(chart.data!.labels).toEqual(["0"]);
     expect(chart.data!.datasets![0].data).toEqual([undefined]);
+  });
+
+  test("Changing the format of a cell reevaluates a chart runtime", () => {
+    const model = new Model();
+    let chart: BarChartRuntime;
+    setCellContent(model, "A2", "2022/03/01");
+    setCellContent(model, "A3", "2022/03/02");
+    createChart(model, { labelRange: "A2:A3", dataSets: ["B2:B3"] }, "1");
+    chart = model.getters.getChartRuntime("1") as BarChartRuntime;
+    expect(chart.data!.labels).toEqual(["2022/03/01", "2022/03/02"]);
+    setCellFormat(model, "A2", "m/d/yyyy");
+    chart = model.getters.getChartRuntime("1") as BarChartRuntime;
+    expect(chart.data!.labels).toEqual(["3/1/2022", "2022/03/02"]);
   });
 });
 
