@@ -679,4 +679,5 @@ test("Imported data are not mutated", () => {
     e1: { text: "base" },
     e2: { text: "imported" },
   });
+  corePluginRegistry.remove("mutate-plugin");
 });

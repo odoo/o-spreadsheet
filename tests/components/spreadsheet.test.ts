@@ -17,6 +17,7 @@ import {
   MockClipboard,
   mountSpreadsheet,
   nextTick,
+  restoreDefaultFunctions,
   startGridComposition,
   toRangesData,
   typeInComposerGrid,
@@ -71,54 +72,53 @@ describe("Spreadsheet", () => {
     expect(document.activeElement!.className).toEqual("o-grid-overlay");
   });
 
-  test("Can use the env in a function", () => {
+  describe("Use of env in a function", () => {
     let env;
-    const model = new Model({ sheets: [{ id: 1 }] }, { evalContext: { env: {} } });
-    functionRegistry.add("GETACTIVESHEET", {
-      description: "Get the name of the current sheet",
-      compute: function () {
-        env = this.env;
-        return "Sheet";
-      },
-      args: args(``),
-      returns: ["STRING"],
-    });
-    setCellContent(model, "A1", "=GETACTIVESHEET()");
-    expect(env).toBeTruthy();
-  });
-
-  test("Can use the env in a function at model start", async () => {
-    let env;
-    functionRegistry.add("GETACTIVESHEET", {
-      description: "Get the name of the current sheet",
-      compute: function () {
-        env = this.env;
-        return "Sheet";
-      },
-      args: args(``),
-      returns: ["STRING"],
-    });
-    await mountSpreadsheet(fixture, {
-      model: new Model(
-        {
-          version: 2,
-          sheets: [
-            {
-              name: "Sheet1",
-              colNumber: 26,
-              rowNumber: 100,
-              cells: {
-                A1: { content: "=GETACTIVESHEET()" },
-              },
-              conditionalFormats: [],
-            },
-          ],
-          activeSheet: "Sheet1",
+    beforeAll(() => {
+      functionRegistry.add("GETACTIVESHEET", {
+        description: "Get the name of the current sheet",
+        compute: function () {
+          env = this.env;
+          return "Sheet";
         },
-        { evalContext: { env: {} } }
-      ),
+        args: args(``),
+        returns: ["STRING"],
+      });
     });
-    expect(env).toBeTruthy();
+
+    afterAll(() => {
+      restoreDefaultFunctions();
+    });
+
+    test("Can use the env in a function", () => {
+      const model = new Model({ sheets: [{ id: 1 }] }, { evalContext: { env: { myKey: [] } } });
+      setCellContent(model, "A1", "=GETACTIVESHEET()");
+      expect(env).toMatchObject({ myKey: [] });
+    });
+
+    test("Can use the env in a function at model start", async () => {
+      await mountSpreadsheet(fixture, {
+        model: new Model(
+          {
+            version: 2,
+            sheets: [
+              {
+                name: "Sheet1",
+                colNumber: 26,
+                rowNumber: 100,
+                cells: {
+                  A1: { content: "=GETACTIVESHEET()" },
+                },
+                conditionalFormats: [],
+              },
+            ],
+            activeSheet: "Sheet1",
+          },
+          { evalContext: { env: { myKey: [] } } }
+        ),
+      });
+      expect(env).toMatchObject({ myKey: [] });
+    });
   });
 
   test("Clipboard is in spreadsheet env", () => {

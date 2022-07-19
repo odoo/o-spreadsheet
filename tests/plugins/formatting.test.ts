@@ -169,7 +169,7 @@ describe("formatting values (with formatters)", () => {
   });
 
   test("SET_DECIMAL considers the evaluated format to infer the decimal position", () => {
-    functionRegistry.add("SET.FORMAT", {
+    functionRegistry.add("SET.DYN.FORMAT", {
       description: "Returns the value set to the provided format",
       args: args(`
           value (any) "value to format",
@@ -184,10 +184,11 @@ describe("formatting values (with formatters)", () => {
       returns: ["ANY"],
     });
     const model = new Model();
-    setCellContent(model, "A1", '=SET.FORMAT(5, "0.00")');
+    setCellContent(model, "A1", '=SET.DYN.FORMAT(5, "0.00")');
     selectCell(model, "A1");
     setDecimal(model, 1);
     expect(getCell(model, "A1")?.format).toBe("0.000");
+    functionRegistry.remove("SET.DYN.FORMAT");
   });
 });
 

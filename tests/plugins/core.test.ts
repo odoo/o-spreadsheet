@@ -169,6 +169,7 @@ describe("core", () => {
       expect(getCellError(model, "A1")).toBe(
         `Invalid number of arguments for the TWOARGSNEEDED function. Expected 2 minimum, but got 1 instead.`
       );
+      functionRegistry.remove("TWOARGSNEEDED");
     });
   });
 

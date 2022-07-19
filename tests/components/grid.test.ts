@@ -638,6 +638,7 @@ describe("Grid component", () => {
       await rightClickCell(model, "B2");
       expect(fixture.querySelectorAll(".o-menu div")).toHaveLength(1);
       expect(fixture.querySelector(".o-menu div[data-name='A']")).not.toBeNull();
+      dashboardMenuRegistry.remove("A");
     });
 
     test("Cannot select a cell in dashboard mode", async () => {

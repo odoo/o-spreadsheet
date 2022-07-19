@@ -12,9 +12,12 @@ import {
 } from "../../src/types";
 import { setCellContent, setCellFormat } from "../test_helpers/commands_helpers";
 import { getCell } from "../test_helpers/getters_helpers";
-import { evaluateCell } from "../test_helpers/helpers";
+import { evaluateCell, restoreDefaultFunctions } from "../test_helpers/helpers";
 
 describe("functions", () => {
+  afterAll(() => {
+    restoreDefaultFunctions();
+  });
   test("can add a function", () => {
     const val = evaluateCell("A1", { A1: "=DOUBLEDOUBLE(3)" });
     expect(val).toBe("#BAD_EXPR");

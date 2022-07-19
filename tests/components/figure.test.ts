@@ -55,7 +55,12 @@ class TextFigure extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
 }
 
-figureRegistry.add("text", { Component: TextFigure });
+beforeAll(() => {
+  figureRegistry.add("text", { Component: TextFigure });
+});
+afterAll(() => {
+  figureRegistry.remove("text");
+});
 
 describe("figures", () => {
   beforeEach(async () => {
