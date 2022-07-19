@@ -1,5 +1,6 @@
 import { Model } from "../../src";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
+import { args, functionRegistry } from "../../src/functions";
 import { toCartesian, toZone } from "../../src/helpers";
 import { CommandResult, CoreCommand } from "../../src/types";
 import { CollaborationMessage } from "../../src/types/collaborative/transport_service";
@@ -741,6 +742,59 @@ describe("Multi users synchronisation", () => {
         (user) => getCell(user, "A1")!.evaluated.value,
         5
       );
+    });
+
+    test("async computation resolving when in other sheet", () => {
+      let value: string | number = "LOADING...";
+      functionRegistry.add("GET.ASYNC.VALUE", {
+        description: "Get value",
+        compute: () => value,
+        args: args(``),
+        returns: ["ANY"],
+      });
+      const firstSheetId = alice.getters.getActiveSheetId();
+      createSheet(alice, { sheetId: "sheet2" });
+      activateSheet(bob, "sheet2");
+
+      // the cell is evaluated once, with the pending value
+      setCellContent(alice, "A1", "=GET.ASYNC.VALUE()", "sheet2");
+      expect(getCell(bob, "A1", "sheet2")!.evaluated.value).toBe("LOADING...");
+      activateSheet(bob, firstSheetId);
+      // the value resolves while Bob is on another sheet
+      // the active sheet is re-evaluated
+      value = 2;
+      bob.dispatch("EVALUATE_CELLS", { sheetId: bob.getters.getActiveSheetId() });
+
+      activateSheet(bob, "sheet2");
+      expect(getCell(bob, "A1", "sheet2")!.evaluated.value).toBe(2);
+      functionRegistry.remove("GET.ASYNC.VALUE");
+    });
+
+    test("reference to async computation resolving when in other sheet", () => {
+      let value: string | number = "LOADING...";
+      functionRegistry.add("GET.ASYNC.VALUE", {
+        description: "Get value",
+        compute: () => value,
+        args: args(``),
+        returns: ["ANY"],
+      });
+      const firstSheetId = alice.getters.getActiveSheetId();
+      createSheet(alice, { sheetId: "sheet2" });
+      setCellContent(alice, "A1", "=Sheet2!A1", firstSheetId);
+      activateSheet(bob, "sheet2");
+
+      // the cell is evaluated once, with the pending value
+      setCellContent(alice, "A1", "=GET.ASYNC.VALUE()", "sheet2");
+
+      activateSheet(bob, firstSheetId);
+      // the value resolves while Bob is on another sheet,
+      // the active sheet is re-evaluated
+      value = 2;
+      bob.dispatch("EVALUATE_CELLS", { sheetId: bob.getters.getActiveSheetId() });
+
+      expect(getCell(bob, "A1", firstSheetId)!.evaluated.value).toBe(2);
+      expect(getCell(bob, "A1", "sheet2")!.evaluated.value).toBe(2);
+      functionRegistry.remove("GET.ASYNC.VALUE");
     });
   });
 
