@@ -1,5 +1,5 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { toCartesian, toZone } from "../../src/helpers";
+import { positionToZone, toCartesian, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import { SelectionDirection } from "../../src/types/selection";
@@ -967,5 +967,46 @@ describe("move elements(s)", () => {
     expect(model.getters.getRowSize(sheetId, 0)).toEqual(DEFAULT_CELL_HEIGHT);
     expect(model.getters.getRowSize(sheetId, 1)).toEqual(20);
     expect(model.getters.getRowSize(sheetId, 2)).toEqual(10);
+  });
+});
+
+describe("Selection loop (ctrl + a)", () => {
+  let model: Model;
+  beforeEach(() => {
+    model = new Model({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          // prettier-ignore
+          cells: {
+                      B1: { style: 1},
+                      B2: { content: "a" }, C2: { content: "a" },
+                                            C3: { content: "merged" }, D3: { content: "merged" }, E3: { content: "a" },
+                                            C4: { content: "a"},
+            A6: { content : "a" }
+          },
+          merges: ["C3:D3"],
+          styles: { 1: { textColor: "#fe0000" } },
+        },
+      ],
+    });
+  });
+
+  test.each([
+    ["B2", ["B2:E4", "A1:J10", "B2"]],
+    ["A2", ["A2:E4", "A1:J10", "A2"]],
+    ["B1", ["B1:E4", "A1:J10", "B1"]],
+    ["E3", ["B2:E4", "A1:J10", "E3"]],
+    ["A1", ["A1:J10", "A1"]],
+    ["A6", ["A1:J10", "A6"]],
+  ])("Selection loop", (anchor: string, expectedZones: string[]) => {
+    selectCell(model, anchor);
+    for (const zone of expectedZones) {
+      model.selection.loopSelection();
+      const selection = model.getters.getSelectedZone();
+      expect(zoneToXc(selection)).toEqual(zone);
+      expect(zoneToXc(positionToZone(model.getters.getPosition()))).toEqual(anchor);
+    }
   });
 });

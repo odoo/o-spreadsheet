@@ -389,7 +389,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         target: this.env.model.getters.getSelectedZones(),
       });
     },
-    "CTRL+A": () => this.env.model.selection.selectAll(),
+    "CTRL+A": () => this.env.model.selection.loopSelection(),
     "CTRL+S": () => {
       this.props.onSaveRequested?.();
     },

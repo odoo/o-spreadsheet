@@ -2,7 +2,7 @@ import { App } from "@odoo/owl";
 import { Spreadsheet, TransportService } from "../../src";
 import { Grid } from "../../src/components/grid/grid";
 import { HEADER_WIDTH, MESSAGE_VERSION, SCROLLBAR_WIDTH } from "../../src/constants";
-import { scrollDelay, toZone } from "../../src/helpers";
+import { scrollDelay, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import {
   createSheet,
@@ -331,17 +331,28 @@ describe("Grid component", () => {
       expect(getCell(model, "A1")!.style).toBeDefined();
     });
 
-    test("can select all the sheet with CTRL+A", async () => {
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "A", ctrlKey: true, bubbles: true })
-      );
+    test("can loop through the selection with CTRL+A", async () => {
+      function pressCtrlA() {
+        document.activeElement!.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "A", ctrlKey: true, bubbles: true })
+        );
+      }
+
+      setCellContent(model, "A1", "3");
+      setCellContent(model, "A2", "3");
+
+      pressCtrlA();
       expect(getActiveXc(model)).toBe("A1");
-      expect(model.getters.getSelectedZones()[0]).toEqual({
-        left: 0,
-        top: 0,
-        right: 25,
-        bottom: 99,
-      });
+      expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A1:A2");
+
+      pressCtrlA();
+      expect(getActiveXc(model)).toBe("A1");
+      const sheetId = model.getters.getActiveSheetId();
+      expect(model.getters.getSelectedZone()).toEqual(model.getters.getSheetZone(sheetId));
+
+      pressCtrlA();
+      expect(getActiveXc(model)).toBe("A1");
+      expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A1");
     });
 
     test("toggle bold with Ctrl+B", async () => {
