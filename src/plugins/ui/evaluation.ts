@@ -68,6 +68,11 @@ export class EvaluationPlugin extends UIPlugin {
           this.isUpToDate.clear();
         }
         break;
+      case "ACTIVATE_SHEET": {
+        this.evaluate(cmd.sheetIdTo);
+        this.isUpToDate.add(cmd.sheetIdTo);
+        break;
+      }
       case "EVALUATE_CELLS":
         this.evaluate(cmd.sheetId);
         this.isUpToDate.add(cmd.sheetId);
