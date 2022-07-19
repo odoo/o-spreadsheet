@@ -4,7 +4,7 @@ import { compile } from "../../src/formulas/index";
 import { functionRegistry } from "../../src/functions";
 import { createRange } from "../../src/helpers";
 import { ArgType, CompiledFormula } from "../../src/types";
-import { evaluateCell, evaluateCellFormat } from "../test_helpers/helpers";
+import { evaluateCell, evaluateCellFormat, restoreDefaultFunctions } from "../test_helpers/helpers";
 
 function compiledBaseFunction(formula: string): CompiledFormula {
   for (let f in functionCache) {
@@ -85,6 +85,10 @@ describe("expression compiler", () => {
 
 describe("compile functions", () => {
   describe("check number of arguments", () => {
+    afterAll(() => {
+      restoreDefaultFunctions();
+    });
+
     test("with basic arguments", () => {
       functionRegistry.add("ANYFUNCTION", {
         description: "any function",
@@ -101,6 +105,7 @@ describe("compile functions", () => {
       expect(() => compiledBaseFunction("=ANYFUNCTION(1)")).toThrow();
       expect(() => compiledBaseFunction("=ANYFUNCTION(1,2)")).not.toThrow();
       expect(() => compiledBaseFunction("=ANYFUNCTION(1,2,3)")).toThrow();
+      restoreDefaultFunctions();
     });
 
     test("with optional argument", () => {
@@ -118,6 +123,7 @@ describe("compile functions", () => {
       expect(() => compiledBaseFunction("=OPTIONAL(1)")).not.toThrow();
       expect(() => compiledBaseFunction("=OPTIONAL(1,2)")).not.toThrow();
       expect(() => compiledBaseFunction("=OPTIONAL(1,2,3)")).toThrow();
+      restoreDefaultFunctions();
     });
 
     test("with default argument", () => {
@@ -135,6 +141,7 @@ describe("compile functions", () => {
       expect(() => compiledBaseFunction("=USEDEFAULTARG(1)")).not.toThrow();
       expect(() => compiledBaseFunction("=USEDEFAULTARG(1,2)")).not.toThrow();
       expect(() => compiledBaseFunction("=USEDEFAULTARG(1,2,3)")).toThrow();
+      restoreDefaultFunctions();
     });
 
     test("with repeatable argument", () => {
@@ -152,6 +159,7 @@ describe("compile functions", () => {
       expect(() => compiledBaseFunction("=REPEATABLE(1)")).not.toThrow();
       expect(() => compiledBaseFunction("=REPEATABLE(1,2)")).not.toThrow();
       expect(() => compiledBaseFunction("=REPEATABLE(1,2,3,4,5,6)")).not.toThrow();
+      restoreDefaultFunctions();
     });
 
     test("with more than one repeatable argument", () => {
@@ -171,6 +179,7 @@ describe("compile functions", () => {
       expect(() => compiledBaseFunction("=REPEATABLES(1, 2, 3)")).not.toThrow();
       expect(() => compiledBaseFunction("=REPEATABLES(1, 2, 3, 4)")).toThrow();
       expect(() => compiledBaseFunction("=REPEATABLES(1, 2, 3, 4, 5)")).not.toThrow();
+      restoreDefaultFunctions();
     });
   });
 
@@ -211,7 +220,9 @@ describe("compile functions", () => {
         returns: ["ANY"],
       });
     });
-
+    afterAll(() => {
+      restoreDefaultFunctions();
+    });
     test("empty value interpreted as undefined", () => {
       expect(evaluateCell("A1", { A1: "=ISSECONDARGUNDEFINED(1,)" })).toBe(true);
       expect(evaluateCellFormat("A1", { A1: "=ISSECONDARGUNDEFINED(1,)" })).toBe("TRUE");
@@ -229,6 +240,9 @@ describe("compile functions", () => {
   });
 
   describe("check type of arguments", () => {
+    afterAll(() => {
+      restoreDefaultFunctions();
+    });
     test("reject non-range argument when expecting only range argument", () => {
       functionRegistry.add("RANGEEXPECTED", {
         description: "function expect number in 1st arg",
@@ -351,6 +365,10 @@ describe("compile functions", () => {
         },
         returns: ["ANY"],
       });
+    });
+
+    afterAll(() => {
+      restoreDefaultFunctions();
     });
 
     test("with function as argument --> change the order in which functions are evaluated ", () => {

@@ -3,10 +3,11 @@ import { Spreadsheet } from "../../src";
 import { args, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import {
+  clearFunctions,
   makeTestFixture,
   mountSpreadsheet,
   nextTick,
-  resetFunctions,
+  restoreDefaultFunctions,
   typeInComposerGrid,
 } from "../test_helpers/helpers";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
@@ -36,8 +37,8 @@ afterEach(() => {
 });
 
 describe("formula assistant", () => {
-  beforeEach(() => {
-    resetFunctions();
+  beforeAll(() => {
+    clearFunctions();
     functionRegistry.add("FUNC0", {
       description: "func without args",
       args: args(``),
@@ -81,6 +82,10 @@ describe("formula assistant", () => {
       compute: () => 1,
       returns: ["ANY"],
     });
+  });
+
+  afterAll(() => {
+    restoreDefaultFunctions();
   });
 
   describe("appearance", () => {

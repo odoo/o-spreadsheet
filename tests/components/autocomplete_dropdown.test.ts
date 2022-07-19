@@ -6,10 +6,11 @@ import { selectCell } from "../test_helpers/commands_helpers";
 import { clickCell } from "../test_helpers/dom_helper";
 import { getCellText } from "../test_helpers/getters_helpers";
 import {
+  clearFunctions,
   makeTestFixture,
   mountSpreadsheet,
   nextTick,
-  resetFunctions,
+  restoreDefaultFunctions,
   typeInComposerGrid as typeInComposerGridHelper,
 } from "../test_helpers/helpers";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
@@ -50,7 +51,7 @@ afterEach(() => {
 
 describe("Functions autocomplete", () => {
   beforeEach(() => {
-    resetFunctions();
+    clearFunctions();
     functionRegistry.add("IF", {
       description: "do if",
       args: args(``),
@@ -69,6 +70,10 @@ describe("Functions autocomplete", () => {
       compute: () => 1,
       returns: ["ANY"],
     });
+  });
+
+  afterAll(() => {
+    restoreDefaultFunctions();
   });
 
   describe("autocomplete", () => {
@@ -244,7 +249,7 @@ describe("Functions autocomplete", () => {
 
 describe("Autocomplete parenthesis", () => {
   beforeAll(() => {
-    resetFunctions();
+    clearFunctions();
     functionRegistry.add("IF", {
       description: "do if",
       args: args(``),
@@ -263,6 +268,10 @@ describe("Autocomplete parenthesis", () => {
       compute: () => 1,
       returns: ["ANY"],
     });
+  });
+
+  afterAll(() => {
+    restoreDefaultFunctions();
   });
 
   test("=sum(1,2 + enter adds closing parenthesis", async () => {

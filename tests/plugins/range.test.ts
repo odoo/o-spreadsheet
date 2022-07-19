@@ -76,7 +76,12 @@ class PluginTestRange extends CorePlugin {
   }
 }
 
-corePluginRegistry.add("testRange", PluginTestRange);
+beforeAll(() => {
+  corePluginRegistry.add("testRange", PluginTestRange);
+});
+afterAll(() => {
+  corePluginRegistry.remove("testRange");
+});
 
 describe("range plugin", () => {
   beforeEach(() => {

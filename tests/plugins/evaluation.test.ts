@@ -1,6 +1,13 @@
 import { args, functionRegistry } from "../../src/functions";
 import { Model } from "../../src/model";
-import { CellValueType, InvalidEvaluation, MatrixArgValue } from "../../src/types";
+import {
+  ArgValue,
+  CellValueType,
+  ComputeFunction,
+  InvalidEvaluation,
+  MatrixArgValue,
+  ReturnValue,
+} from "../../src/types";
 import {
   activateSheet,
   addColumns,
@@ -11,7 +18,12 @@ import {
   setCellContent,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellError } from "../test_helpers/getters_helpers";
-import { evaluateCell, evaluateGrid, target } from "../test_helpers/helpers";
+import {
+  evaluateCell,
+  evaluateGrid,
+  restoreDefaultFunctions,
+  target,
+} from "../test_helpers/helpers";
 import resetAllMocks = jest.resetAllMocks;
 
 describe("evaluateCells", () => {
@@ -230,8 +242,11 @@ describe("evaluateCells", () => {
   test("Evaluate only existing cells from a range partially outside of sheet", () => {
     functionRegistry.add("RANGE.COUNT.FUNCTION", {
       description: "any function",
-      compute: (range: MatrixArgValue) => range.flat().length,
-      args: [{ name: "arg", description: "", type: ["RANGE"] }],
+      compute: ((range: MatrixArgValue) => range.flat().length) as ComputeFunction<
+        ArgValue,
+        ReturnValue
+      >,
+      args: [{ name: "range", description: "", type: ["RANGE"] }],
       returns: ["NUMBER"],
     });
     const model = new Model();
@@ -243,6 +258,7 @@ describe("evaluateCells", () => {
     expect(getCell(model, "A2")!.evaluated.value).toBe(25);
     addColumns(model, "after", "Z", 1);
     expect(getCell(model, "A2")!.evaluated.value).toBe(26);
+    functionRegistry.remove("RANGE.COUNT.FUNCTION");
   });
 
   test("range totally outside of sheet", () => {
@@ -1013,6 +1029,10 @@ describe("evaluate formula getter", () => {
 
   beforeEach(() => {
     model = new Model();
+  });
+
+  afterAll(() => {
+    restoreDefaultFunctions();
   });
 
   test("a ref in the current sheet", () => {

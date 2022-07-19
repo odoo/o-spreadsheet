@@ -22,8 +22,11 @@ import { OWL_TEMPLATES } from "../setup/jest.setup";
 import { redo, setCellContent, undo } from "./commands_helpers";
 import { getCell, getCellContent } from "./getters_helpers";
 
-const functions = functionRegistry.content;
+const functionsContent = functionRegistry.content;
 const functionMap = functionRegistry.mapping;
+
+const functionsContentRestore = { ...functionsContent };
+const functionMapRestore = { ...functionMap };
 
 export function spyDispatch(parent: Spreadsheet): jest.SpyInstance {
   return jest.spyOn(parent.model, "dispatch");
@@ -211,13 +214,23 @@ export function evaluateCellFormat(xc: string, grid: GridDescr): string {
 /*
  * Remove all functions from the internal function list.
  */
-export function resetFunctions() {
+export function clearFunctions() {
   Object.keys(functionMap).forEach((k) => {
     delete functionMap[k];
   });
 
-  Object.keys(functions).forEach((k) => {
-    delete functions[k];
+  Object.keys(functionsContent).forEach((k) => {
+    delete functionsContent[k];
+  });
+}
+
+export function restoreDefaultFunctions() {
+  clearFunctions();
+  Object.keys(functionMapRestore).forEach((k) => {
+    functionMap[k] = functionMapRestore[k];
+  });
+  Object.keys(functionsContentRestore).forEach((k) => {
+    functionsContent[k] = functionsContentRestore[k];
   });
 }
 
