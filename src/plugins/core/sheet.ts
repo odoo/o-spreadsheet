@@ -65,6 +65,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getNextSheetName",
     "isEmpty",
     "getSheetSize",
+    "getSheetZone",
   ] as const;
 
   readonly sheetIdsMapName: Record<string, UID | undefined> = {};
@@ -399,6 +400,15 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return {
       height: this.getNumberRows(sheetId),
       width: this.getNumberCols(sheetId),
+    };
+  }
+
+  getSheetZone(sheetId: UID): Zone {
+    return {
+      top: 0,
+      left: 0,
+      bottom: this.getNumberRows(sheetId) - 1,
+      right: this.getNumberCols(sheetId) - 1,
     };
   }
 

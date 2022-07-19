@@ -148,6 +148,7 @@ class Demo extends Component {
     }
     this.createModel(data || demoData);
     // this.createModel(makeLargeDataset(26, 10_000, ["numbers"]));
+    // this.createModel({});
   }
 
   createModel(data) {

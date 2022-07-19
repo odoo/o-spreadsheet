@@ -16,7 +16,6 @@ import {
   Position,
   SelectionDirection,
   SelectionStep,
-  UID,
   Zone,
 } from "../types";
 import { SelectionEvent } from "../types/event_stream";
@@ -50,6 +49,7 @@ interface SelectionProcessor {
     mode: "overrideSelection" | "updateAnchor" | "newAnchor"
   ): DispatchResult;
   selectAll(): DispatchResult;
+  loopSelection(): DispatchResult;
 }
 
 /**
@@ -317,6 +317,59 @@ export class SelectionStreamProcessor
   }
 
   /**
+   * Loop the current selection while keeping the same anchor. The selection will loop through:
+   *  1) the smallest zone that contain the anchor and that have only empty cells bordering it
+   *  2) the whole sheet
+   *  3) the anchor cell
+   */
+  loopSelection(): DispatchResult {
+    const sheetId = this.getters.getActiveSheetId();
+    const anchor = this.anchor;
+
+    /** Try to expand the zone by one col/row in any direction to include a new non-empty cell */
+    const expandZone = (zone: Zone): Zone => {
+      for (const col of range(zone.left, zone.right + 1)) {
+        if (!this.isCellEmpty({ col, row: zone.top - 1 })) {
+          return { ...zone, top: zone.top - 1 };
+        }
+        if (!this.isCellEmpty({ col, row: zone.bottom + 1 })) {
+          return { ...zone, bottom: zone.bottom + 1 };
+        }
+      }
+      for (const row of range(zone.top, zone.bottom + 1)) {
+        if (!this.isCellEmpty({ col: zone.left - 1, row })) {
+          return { ...zone, left: zone.left - 1 };
+        }
+        if (!this.isCellEmpty({ col: zone.right + 1, row })) {
+          return { ...zone, right: zone.right + 1 };
+        }
+      }
+      return zone;
+    };
+
+    // The whole sheet is selected, select the anchor cell
+    if (isEqual(this.anchor.zone, this.getters.getSheetZone(sheetId))) {
+      return this.selectZone({ ...anchor, zone: positionToZone(anchor.cell) });
+    }
+
+    let hasExpanded = false;
+    let hasExpandedOnce = false;
+    let zone = anchor.zone;
+    do {
+      hasExpandedOnce = hasExpandedOnce || hasExpanded;
+      hasExpanded = false;
+      const newZone = expandZone(zone);
+      if (!isEqual(zone, newZone)) {
+        hasExpanded = true;
+        zone = newZone;
+        continue;
+      }
+    } while (hasExpanded);
+
+    return hasExpandedOnce ? this.selectZone({ ...anchor, zone }) : this.selectAll();
+  }
+
+  /**
    * Select the entire sheet
    */
   selectAll(): DispatchResult {
@@ -327,7 +380,7 @@ export class SelectionStreamProcessor
     return this.processEvent({
       type: "HeadersSelected",
       mode: "overrideSelection",
-      anchor: { zone, cell: { col: 0, row: 0 } },
+      anchor: { zone, cell: this.anchor.cell },
     });
   }
 
@@ -567,7 +620,7 @@ export class SelectionStreamProcessor
    * Check if a cell is empty or undefined in the model. If the cell is part of a merge,
    * check if the merge containing the cell is empty.
    */
-  private isCellEmpty({ col, row }: Position, sheetId: UID): boolean {
+  private isCellEmpty({ col, row }: Position, sheetId = this.getters.getActiveSheetId()): boolean {
     const mainCellPosition = this.getters.getMainCellPosition(sheetId, col, row);
     const cell = this.getters.getCell(sheetId, mainCellPosition.col, mainCellPosition.row);
     return !cell || cell.isEmpty();
