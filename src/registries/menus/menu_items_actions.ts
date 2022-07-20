@@ -576,13 +576,28 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
     x: left + Math.max(0, (width - DEFAULT_FIGURE_WIDTH) / 2),
     y: top + Math.max(0, (height - DEFAULT_FIGURE_HEIGHT) / 2),
   }; // Position at the center of the viewport
-  let dataSetsHaveTitle = false;
-  for (let x = dataSetZone.left; x <= dataSetZone.right; x++) {
-    const cell = env.model.getters.getCell(sheetId, x, zone.top);
-    if (cell && cell.evaluated.type !== CellValueType.number) {
-      dataSetsHaveTitle = true;
-      break;
-    }
+
+  let title = "";
+  const cells = env.model.getters.getCellsInZone(sheetId, {
+    ...dataSetZone,
+    bottom: dataSetZone.top,
+  });
+  const dataSetsHaveTitle = !!cells.find(
+    (cell) => cell && cell.evaluated.type !== CellValueType.number
+  );
+
+  if (dataSetsHaveTitle) {
+    const texts = cells.reduce((acc, cell) => {
+      const text =
+        cell && cell.evaluated.type !== CellValueType.error && env.model.getters.getCellText(cell);
+      if (text) {
+        acc.push(text);
+      }
+      return acc;
+    }, [] as string[]);
+    const lastElement = texts.splice(-1)[0];
+    title = texts.join(", ");
+    if (lastElement) title += (title ? " " + env._t("and") + " " : "") + lastElement;
   }
   if (zone.left !== zone.right) {
     labelRange = zoneToXc({
@@ -599,7 +614,7 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
     position,
     size,
     definition: {
-      title: "",
+      title,
       dataSets,
       labelRange,
       type: "bar",
