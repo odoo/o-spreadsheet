@@ -6,6 +6,7 @@ import { functionRegistry } from "../../src/functions/index";
 import { toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
+import { _t } from "../../src/translation";
 import {
   ColorScaleMidPointThreshold,
   ColorScaleThreshold,
@@ -71,8 +72,17 @@ export function makeTestFixture() {
   return fixture;
 }
 
-export class MockClipboard {
+export class MockClipboard implements Clipboard {
   private content: string = "Some random clipboard content";
+
+  async read() {
+    throw new Error("Clipboard mock read function not implemented");
+    return [];
+  }
+
+  async write() {
+    throw new Error("Clipboard mock write function not implemented");
+  }
 
   readText(): Promise<string> {
     return Promise.resolve(this.content);
@@ -106,7 +116,21 @@ export async function mountSpreadsheet(
   props: SpreadsheetProps = { model: new Model() },
   env: Partial<SpreadsheetChildEnv> = {}
 ): Promise<{ app: App; parent: Spreadsheet }> {
-  const app = new App(Spreadsheet, { props, env, test: true });
+  const mockEnv: SpreadsheetChildEnv = {
+    model: props.model,
+    _t: _t,
+    clipboard: new MockClipboard(),
+    openSidePanel: () => {},
+    openLinkEditor: () => {},
+    toggleSidePanel: () => {},
+    loadCurrencies: async () => [],
+    editText: () => {},
+    notifyUser: () => {},
+    askConfirmation: () => {},
+    isDashboard: () => false,
+    ...env,
+  };
+  const app = new App(Spreadsheet, { props, env: mockEnv, test: true });
   app.addTemplates(OWL_TEMPLATES);
   const parent = (await app.mount(fixture)) as Spreadsheet;
   return { app, parent };
