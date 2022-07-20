@@ -139,7 +139,7 @@ export class EvaluationPlugin extends UIPlugin {
       if (!(e instanceof Error)) {
         e = new Error(e);
       }
-      if (cell.evaluated.type !== CellValueType.error) {
+      if (cell.evaluated.value !== "#CYCLE") {
         const msg = e instanceof InvalidReferenceError ? INCORRECT_RANGE_STRING : "#ERROR";
         // apply function name
         const __lastFnCalled = params[2].__lastFnCalled || "";
