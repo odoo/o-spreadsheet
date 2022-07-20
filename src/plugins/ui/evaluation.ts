@@ -134,7 +134,7 @@ export class EvaluationPlugin extends UIPlugin {
       if (!(e instanceof Error)) {
         e = new Error(e);
       }
-      if (cell.evaluated.type !== CellValueType.error) {
+      if (cell.evaluated.value !== "#CYCLE") {
         cell.assignValue("#ERROR");
 
         // apply function name
