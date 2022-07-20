@@ -1,4 +1,8 @@
-import { DEFAULT_CELL_HEIGHT, PADDING_AUTORESIZE } from "../../src/constants";
+import {
+  DEFAULT_CELL_HEIGHT,
+  PADDING_AUTORESIZE_HORIZONTAL,
+  PADDING_AUTORESIZE_VERTICAL,
+} from "../../src/constants";
 import { fontSizeMap } from "../../src/fonts";
 import { args, functionRegistry } from "../../src/functions";
 import { toString } from "../../src/functions/helpers";
@@ -407,7 +411,8 @@ describe("Autoresize", () => {
   let model: Model;
   let sheetId: UID;
   const sizes = [10, 20];
-  const padding = 2 * PADDING_AUTORESIZE;
+  const hPadding = 2 * PADDING_AUTORESIZE_HORIZONTAL;
+  const vPadding = 2 * PADDING_AUTORESIZE_VERTICAL;
 
   beforeEach(() => {
     model = new Model();
@@ -422,15 +427,15 @@ describe("Autoresize", () => {
   test("Can autoresize a column", () => {
     setCellContent(model, "A1", "size0");
     model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
-    expect(model.getters.getColSize(sheetId, 0)).toBe(sizes[0] + padding);
+    expect(model.getters.getColSize(sheetId, 0)).toBe(sizes[0] + hPadding);
   });
 
   test("Can autoresize two columns", () => {
     setCellContent(model, "A1", "size0");
     setCellContent(model, "C1", "size1");
     model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0, 2] });
-    expect(model.getters.getColSize(sheetId, 0)).toBe(sizes[0] + padding);
-    expect(model.getters.getColSize(sheetId, 2)).toBe(sizes[1] + padding);
+    expect(model.getters.getColSize(sheetId, 0)).toBe(sizes[0] + hPadding);
+    expect(model.getters.getColSize(sheetId, 2)).toBe(sizes[1] + hPadding);
   });
 
   test("Can autoresize a row", () => {
@@ -447,7 +452,7 @@ describe("Autoresize", () => {
     model.dispatch("SET_FORMATTING", { sheetId, target: [toZone("A3")], style: { fontSize: 24 } });
     model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0, 2] });
     expect(model.getters.getRowSize(sheetId, 0)).toBe(DEFAULT_CELL_HEIGHT);
-    expect(model.getters.getRowSize(sheetId, 2)).toBe(fontSizeMap[24] + padding);
+    expect(model.getters.getRowSize(sheetId, 2)).toBe(fontSizeMap[24] + vPadding);
   });
 
   test("Can autoresize a column in another sheet", () => {
@@ -457,7 +462,7 @@ describe("Autoresize", () => {
     setCellContent(model, "A1", "size0", newSheetId);
     model.dispatch("AUTORESIZE_COLUMNS", { sheetId: newSheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(initialSize);
-    expect(model.getters.getColSize(newSheetId, 0)).toBe(sizes[0] + padding);
+    expect(model.getters.getColSize(newSheetId, 0)).toBe(sizes[0] + hPadding);
   });
 
   test("Can autoresize a row in another sheet", () => {

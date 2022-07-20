@@ -28,13 +28,14 @@ export const BOTTOMBAR_HEIGHT = 36;
 export const DEFAULT_CELL_WIDTH = 96;
 export const DEFAULT_CELL_HEIGHT = 23;
 export const SCROLLBAR_WIDTH = 15;
-export const PADDING_AUTORESIZE = 3;
 export const AUTOFILL_EDGE_LENGTH = 8;
 export const ICON_EDGE_LENGTH = 18;
 export const UNHIDE_ICON_EDGE_LENGTH = 14;
 export const MIN_CF_ICON_MARGIN = 4;
 export const MIN_CELL_TEXT_MARGIN = 4;
 export const CF_ICON_EDGE_LENGTH = 15;
+export const PADDING_AUTORESIZE_VERTICAL = 3;
+export const PADDING_AUTORESIZE_HORIZONTAL = MIN_CELL_TEXT_MARGIN;
 
 // Menus
 export const MENU_WIDTH = 250;
