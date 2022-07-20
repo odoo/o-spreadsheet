@@ -134,12 +134,10 @@ export class EvaluationPlugin extends UIPlugin {
       if (!(e instanceof Error)) {
         e = new Error(e);
       }
-      if (cell.evaluated.type !== CellValueType.error) {
-        const msg = e?.errorType || CellErrorType.GenericError;
-        // apply function name
-        const __lastFnCalled = params[2].__lastFnCalled || "";
-        cell.assignError(msg, e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled));
-      }
+      const msg = e?.errorType || CellErrorType.GenericError;
+      // apply function name
+      const __lastFnCalled = params[2].__lastFnCalled || "";
+      cell.assignError(msg, e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled));
     }
 
     function computeValue(cell: Cell, sheetId: string) {
