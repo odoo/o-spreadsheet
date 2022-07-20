@@ -7,6 +7,7 @@ import {
   HEADER_WIDTH,
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
+  PADDING_AUTORESIZE_HORIZONTAL,
 } from "../../src/constants";
 import { lettersToNumber, scrollDelay, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
@@ -381,7 +382,8 @@ describe("Resizer component", () => {
   test("Double click: Modify the size of a column", async () => {
     setCellContent(model, "B2", "b2");
     await dblClickColumn("B");
-    expect(model.getters.getColSize(model.getters.getActiveSheetId(), 1)).toBe(32);
+    const expectedSize = 2 * 13 + 2 * PADDING_AUTORESIZE_HORIZONTAL; // 2 * letter size + 2 * padding
+    expect(model.getters.getColSize(model.getters.getActiveSheetId(), 1)).toBe(expectedSize);
   });
 
   test("Double click on column then undo, then redo", async () => {
@@ -392,11 +394,12 @@ describe("Resizer component", () => {
     await dblClickColumn("D");
     const sheet = model.getters.getActiveSheetId();
     const initialSize = model.getters.getColSize(sheet, 0);
+    const resizedSize = 2 * 13 + 2 * PADDING_AUTORESIZE_HORIZONTAL; // 2 letter fontSize 13 + 2*3px padding
     expect(model.getters.getColSize(sheet, 1)).toBe(initialSize);
-    expect(model.getters.getColSize(sheet, 2)).toBe(32); // 32 = 2 letters fontSize 13 + 2*3px padding
-    expect(model.getters.getColSize(sheet, 3)).toBe(32);
+    expect(model.getters.getColSize(sheet, 2)).toBe(resizedSize);
+    expect(model.getters.getColSize(sheet, 3)).toBe(resizedSize);
     expect(model.getters.getColSize(sheet, 4)).toBe(initialSize);
-    expect(model.getters.getColDimensions(sheet, 4)!.start).toBe(initialSize * 2 + 64);
+    expect(model.getters.getColDimensions(sheet, 4)!.start).toBe(initialSize * 2 + resizedSize * 2);
     undo(model);
     expect(model.getters.getColSize(sheet, 1)).toBe(initialSize);
     expect(model.getters.getColSize(sheet, 2)).toBe(initialSize);
@@ -405,10 +408,10 @@ describe("Resizer component", () => {
     expect(model.getters.getColDimensions(sheet, 4)!.start).toBe(initialSize * 4);
     redo(model);
     expect(model.getters.getColSize(sheet, 1)).toBe(initialSize);
-    expect(model.getters.getColSize(sheet, 2)).toBe(32);
-    expect(model.getters.getColSize(sheet, 3)).toBe(32);
+    expect(model.getters.getColSize(sheet, 2)).toBe(resizedSize);
+    expect(model.getters.getColSize(sheet, 3)).toBe(resizedSize);
     expect(model.getters.getColSize(sheet, 4)).toBe(initialSize);
-    expect(model.getters.getColDimensions(sheet, 4)!.start).toBe(initialSize * 2 + 64);
+    expect(model.getters.getColDimensions(sheet, 4)!.start).toBe(initialSize * 2 + resizedSize * 2);
   });
 
   test("Double click: Modify the size of a row", async () => {
@@ -548,11 +551,12 @@ describe("Resizer component", () => {
     await selectColumn("C", { shiftKey: true });
     await selectColumn("E", { ctrlKey: true });
     await dblClickColumn("E");
-    expect(model.getters.getColSize(model.getters.getActiveSheetId(), 0)).toBe(19); // 19 = 1 letter fontSize 13 + 2*3px padding
-    expect(model.getters.getColSize(model.getters.getActiveSheetId(), 1)).toBe(19);
-    expect(model.getters.getColSize(model.getters.getActiveSheetId(), 2)).toBe(19);
+    const resizedSize = 13 + 2 * PADDING_AUTORESIZE_HORIZONTAL; // 1 letter fontSize 13 + 2 * padding
+    expect(model.getters.getColSize(model.getters.getActiveSheetId(), 0)).toBe(resizedSize);
+    expect(model.getters.getColSize(model.getters.getActiveSheetId(), 1)).toBe(resizedSize);
+    expect(model.getters.getColSize(model.getters.getActiveSheetId(), 2)).toBe(resizedSize);
     expect(model.getters.getColSize(model.getters.getActiveSheetId(), 3)).toBe(DEFAULT_CELL_WIDTH);
-    expect(model.getters.getColSize(model.getters.getActiveSheetId(), 4)).toBe(19);
+    expect(model.getters.getColSize(model.getters.getActiveSheetId(), 4)).toBe(resizedSize);
   });
 
   test("Select ABC E, dblclick F then resize only F", async () => {
@@ -561,12 +565,13 @@ describe("Resizer component", () => {
     await selectColumn("C", { shiftKey: true });
     await selectColumn("E", { ctrlKey: true });
     await dblClickColumn("F");
+    const resizedSize = 13 + 2 * PADDING_AUTORESIZE_HORIZONTAL; // 1 letter fontSize 13 + 2 * padding
     expect(model.getters.getColSize(model.getters.getActiveSheetId(), 0)).toBe(DEFAULT_CELL_WIDTH);
     expect(model.getters.getColSize(model.getters.getActiveSheetId(), 1)).toBe(DEFAULT_CELL_WIDTH);
     expect(model.getters.getColSize(model.getters.getActiveSheetId(), 2)).toBe(DEFAULT_CELL_WIDTH);
     expect(model.getters.getColSize(model.getters.getActiveSheetId(), 3)).toBe(DEFAULT_CELL_WIDTH);
     expect(model.getters.getColSize(model.getters.getActiveSheetId(), 4)).toBe(DEFAULT_CELL_WIDTH);
-    expect(model.getters.getColSize(model.getters.getActiveSheetId(), 5)).toBe(19); // 19 = 1 letter fontSize 13 + 2*3px padding
+    expect(model.getters.getColSize(model.getters.getActiveSheetId(), 5)).toBe(resizedSize);
   });
 
   test("Select 123 5, dblclick 5 then resize all", async () => {

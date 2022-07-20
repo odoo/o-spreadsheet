@@ -7,7 +7,7 @@ import {
   DEFAULT_FONT_SIZE,
   DEFAULT_FONT_WEIGHT,
   MIN_CF_ICON_MARGIN,
-  PADDING_AUTORESIZE,
+  PADDING_AUTORESIZE_VERTICAL,
 } from "../constants";
 import { fontSizeMap } from "../fonts";
 import { Cell, ConsecutiveIndexes, Lazy, Link, Style, UID } from "../types";
@@ -113,7 +113,7 @@ export function getDefaultCellHeight(cell: Cell | undefined): Pixel {
   if (!cell?.style?.fontSize) {
     return DEFAULT_CELL_HEIGHT;
   }
-  return fontSizeInPixels(cell.style) + 2 * PADDING_AUTORESIZE;
+  return fontSizeInPixels(cell.style) + 2 * PADDING_AUTORESIZE_VERTICAL;
 }
 
 export function fontSizeInPixels(style: Style) {
