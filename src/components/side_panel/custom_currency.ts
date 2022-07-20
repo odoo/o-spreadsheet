@@ -142,25 +142,29 @@ export class CustomCurrencyPanel extends Component<any, SpreadsheetChildEnv> {
     this.availableCurrencies = [emptyCurrency, ...currenciesRegistry.getAll()];
   }
 
-  updateSelectCurrency(ev) {
-    this.state.selectedCurrencyIndex = ev.target.value;
+  updateSelectCurrency(ev: InputEvent) {
+    const target = ev.target as HTMLInputElement;
+    this.state.selectedCurrencyIndex = parseInt(target.value, 10);
     const currency = this.availableCurrencies[this.state.selectedCurrencyIndex];
     this.state.currencyCode = currency.code;
     this.state.currencySymbol = currency.symbol;
   }
 
-  updateCode(ev) {
-    this.state.currencyCode = ev.target.value;
+  updateCode(ev: InputEvent) {
+    const target = ev.target as HTMLInputElement;
+    this.state.currencyCode = target.value;
     this.initAvailableCurrencies();
   }
 
-  updateSymbol(ev) {
-    this.state.currencySymbol = ev.target.value;
+  updateSymbol(ev: InputEvent) {
+    const target = ev.target as HTMLInputElement;
+    this.state.currencySymbol = target.value;
     this.initAvailableCurrencies();
   }
 
-  updateSelectFormat(ev) {
-    this.state.selectedFormatIndex = ev.target.value;
+  updateSelectFormat(ev: InputEvent) {
+    const target = ev.target as HTMLInputElement;
+    this.state.selectedFormatIndex = parseInt(target.value, 10);
   }
 
   apply() {
