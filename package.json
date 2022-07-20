@@ -74,7 +74,7 @@
     "xmlSelfClosingSpace": false
   },
   "dependencies": {
-    "@odoo/owl": "2.0.0-beta-6",
+    "@odoo/owl": "2.0.0-beta-15",
     "bootstrap": "^4.6.0"
   },
   "jest": {
