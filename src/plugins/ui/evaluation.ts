@@ -143,19 +143,17 @@ export class EvaluationPlugin extends UIPlugin {
       if (!(e instanceof Error)) {
         e = new Error(e);
       }
-      if (cell.evaluated.type !== CellValueType.error) {
-        const msg = e?.errorType || CellErrorType.GenericError;
-        // apply function name
-        const __lastFnCalled = compilationParameters[2].__lastFnCalled || "";
-        cell.assignError(
+      const msg = e?.errorType || CellErrorType.GenericError;
+      // apply function name
+      const __lastFnCalled = compilationParameters[2].__lastFnCalled || "";
+      cell.assignError(
+        msg,
+        new EvaluationError(
           msg,
-          new EvaluationError(
-            msg,
-            e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled),
-            e.logLevel !== undefined ? e.logLevel : CellErrorLevel.error
-          )
-        );
-      }
+          e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled),
+          e.logLevel !== undefined ? e.logLevel : CellErrorLevel.error
+        )
+      );
     }
 
     function computeCell(cell: Cell) {

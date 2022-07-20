@@ -1165,4 +1165,24 @@ describe("evaluate formula getter", () => {
     activateSheet(model, firstSheetId);
     expect(getCell(model, "A3", firstSheetId)!.evaluated.value).toBe(5);
   });
+
+  test("cells with two consecutive error are correctly evaluated", () => {
+    let value: number = 1;
+    functionRegistry.add("GETVALUE", {
+      description: "Get value",
+      compute: () => {
+        throw new Error(`Error${value}`);
+      },
+      args: args(``),
+      returns: ["ANY"],
+    });
+    setCellContent(model, "A1", "=GETVALUE()");
+    expect(getCell(model, "A1")!.evaluated.type).toBe(CellValueType.error);
+    expect((getCell(model, "A1")!.evaluated as InvalidEvaluation).error.message).toBe("Error1");
+    value = 2;
+    model.dispatch("EVALUATE_ALL_SHEETS");
+    expect(getCell(model, "A1")!.evaluated.type).toBe(CellValueType.error);
+    expect((getCell(model, "A1")!.evaluated as InvalidEvaluation).error.message).toBe("Error2");
+    functionRegistry.remove("GETVALUE");
+  });
 });
