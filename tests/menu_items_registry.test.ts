@@ -963,6 +963,36 @@ describe("Menu Item actions", () => {
             B3: { content: "11" },
             B4: { content: "12" },
             B5: { content: "13" },
+
+            C1: { content: "" },
+            C2: { content: "2" },
+            C3: { content: "4" },
+            C4: { content: "6" },
+
+            D1: { content: "=sum()" },
+            D2: { content: "3" },
+            D3: { content: "2" },
+            D4: { content: "5" },
+
+            E1: { content: "Title1" },
+            E2: { content: "10" },
+            E3: { content: "11" },
+            E4: { content: "12" },
+
+            F1: { content: "=sum(1,2)" },
+            F2: { content: "7" },
+            F3: { content: "8" },
+            F4: { content: "9" },
+
+            G1: { content: "" },
+            G2: { content: "7" },
+            G3: { content: "8" },
+            G4: { content: "9" },
+
+            H1: { content: "Title2" },
+            H2: { content: "7" },
+            H3: { content: "8" },
+            H4: { content: "9" },
           },
         },
       ],
@@ -989,7 +1019,7 @@ describe("Menu Item actions", () => {
           labelRange: undefined,
           legendPosition: "none",
           stackedBar: false,
-          title: "",
+          title: expect.any(String),
           type: "bar",
           verticalAxisPosition: "left",
         },
@@ -1054,7 +1084,6 @@ describe("Menu Item actions", () => {
       const payload = { ...defaultPayload };
       payload.definition.dataSets = ["B2:B5"];
       payload.definition.labelRange = undefined;
-      payload.definition.dataSetsHaveTitle = false;
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
 
@@ -1074,7 +1103,6 @@ describe("Menu Item actions", () => {
       const payload = { ...defaultPayload };
       payload.definition.dataSets = ["B2:B5"];
       payload.definition.labelRange = "A2:A5";
-      payload.definition.dataSetsHaveTitle = false;
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
 
@@ -1085,6 +1113,41 @@ describe("Menu Item actions", () => {
       payload.definition.dataSets = ["B1:B5"];
       payload.definition.labelRange = "A2:A5";
       payload.definition.dataSetsHaveTitle = true;
+      expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
+    });
+
+    test("Chart title should be set by default if dataset have any", () => {
+      setSelection(model, ["B1:C4"]);
+      doAction(["insert", "insert_chart"], env);
+      const payload = { ...defaultPayload };
+      payload.definition.dataSets = ["C1:C4"];
+      payload.definition.legendPosition = "none";
+      payload.definition.title = "";
+      payload.definition.dataSetsHaveTitle = false;
+      payload.definition.labelRange = "B1:B4";
+      expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
+    });
+    test("Chart title should only generate string and numerical values", async () => {
+      setSelection(model, ["C1:G4"]);
+      doAction(["insert", "insert_chart"], env);
+      const payload = { ...defaultPayload };
+      payload.definition.dataSets = ["D1:G4"];
+      payload.definition.legendPosition = "top";
+      payload.definition.title = "Title1 and 3";
+      payload.definition.dataSetsHaveTitle = true;
+      payload.definition.labelRange = "C2:C4";
+      await nextTick();
+      expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
+    });
+    test("Chart title should only append and prefix to last title", () => {
+      setSelection(model, ["C1:H4"]);
+      doAction(["insert", "insert_chart"], env);
+      const payload = { ...defaultPayload };
+      payload.definition.dataSets = ["D1:H4"];
+      payload.definition.legendPosition = "top";
+      payload.definition.title = "Title1, 3 and Title2";
+      payload.definition.dataSetsHaveTitle = true;
+      payload.definition.labelRange = "C2:C4";
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
     test("[Case 1] Chart is inserted with proper legend position", () => {
@@ -1102,7 +1165,8 @@ describe("Menu Item actions", () => {
       doAction(["insert", "insert_chart"], env);
       const payload = { ...defaultPayload };
       payload.definition.dataSets = ["G1:I5"];
-      payload.definition.labelRange = "F1:F5";
+      payload.definition.dataSetsHaveTitle = true;
+      payload.definition.labelRange = "F2:F5";
       payload.definition.legendPosition = "top";
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
