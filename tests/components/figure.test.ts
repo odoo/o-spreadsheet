@@ -224,4 +224,12 @@ describe("figures", () => {
     expect(window.getComputedStyle(figure).width).toBe("18px"); // width + borders - 2 * DEFAULT_CELL_WIDTH
     expect(window.getComputedStyle(figure).height).toBe("161px"); // height + offset - 2 * DEFAULT_CELL_WIDTH
   });
+
+  test("Selected figure isn't removed by scroll", async () => {
+    createFigure(model);
+    model.dispatch("SELECT_FIGURE", { id: "someuuid" });
+    fixture.querySelector(".o-grid")!.dispatchEvent(new WheelEvent("wheel", { deltaX: 1500 }));
+    fixture.querySelector(".o-scrollbar.vertical")!.dispatchEvent(new Event("scroll"));
+    expect(model.getters.getSelectedFigureId()).toEqual("someuuid");
+  });
 });
