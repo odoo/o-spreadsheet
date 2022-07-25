@@ -1,4 +1,12 @@
-import { isEqual, isInside, organizeZone, positionToZone, range, union } from "../helpers";
+import {
+  deepCopy,
+  isEqual,
+  isInside,
+  organizeZone,
+  positionToZone,
+  range,
+  union,
+} from "../helpers";
 import { _t } from "../translation";
 import {
   AnchorZone,
@@ -105,8 +113,10 @@ export class SelectionStreamProcessor
   }
 
   release(owner: unknown) {
-    this.stream.release(owner);
-    this.anchor = this.defaultAnchor;
+    if (this.stream.isListening(owner)) {
+      this.stream.release(owner);
+      this.anchor = this.defaultAnchor;
+    }
   }
 
   /**
@@ -327,7 +337,12 @@ export class SelectionStreamProcessor
    * be processed.
    */
   private processEvent(newAnchorEvent: Omit<SelectionEvent, "previousAnchor">): DispatchResult {
-    const event = { ...newAnchorEvent, previousAnchor: this.anchor };
+    const sheetId = this.getters.getActiveSheetId();
+    const previousAnchor: AnchorZone = deepCopy({
+      cell: this.anchor.cell,
+      zone: this.getters.expandZone(sheetId, this.anchor.zone),
+    });
+    const event = { ...newAnchorEvent, previousAnchor };
     const commandResult = this.checkEventAnchorZone(event);
     if (commandResult !== CommandResult.Success) {
       return new DispatchResult(commandResult);
