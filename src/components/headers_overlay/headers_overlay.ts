@@ -154,9 +154,11 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     this.state.waitingForMove = false;
   }
 
-  onDblClick() {
+  onDblClick(ev: MouseEvent) {
     this._fitElementSize(this.state.activeElement);
     this.state.isResizing = false;
+    this._computeHandleDisplay(ev);
+    this._computeGrabDisplay(ev);
   }
 
   onMouseDown(ev: MouseEvent) {
