@@ -644,7 +644,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onMouseDown(ev: MouseEvent) {
-    if (ev.button > 0 || this.env.isDashboard()) {
+    if (ev.button > 0) {
       // not main button, probably a context menu
       return;
     }
@@ -654,6 +654,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     }
     this.clickedCol = col;
     this.clickedRow = row;
+
+    if (this.env.model.getters.isDashboard()) {
+      this.env.model.selection.selectCell(col, row);
+      return;
+    }
 
     const sheetId = this.env.model.getters.getActiveSheetId();
     this.closeOpenedPopover();

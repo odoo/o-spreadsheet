@@ -55,7 +55,7 @@ export class EventStream<Event> {
   }
 
   /**
-   * Register callbacks to observe the steam
+   * Register callbacks to observe the stream
    */
   observe(owner: unknown, callbacks: Omit<StreamCallbacks<Event>, "unsubscribe">) {
     this.observers.push({ owner, callbacks });

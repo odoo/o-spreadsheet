@@ -4,7 +4,6 @@ import { Grid } from "../../src/components/grid/grid";
 import { HEADER_WIDTH, MESSAGE_VERSION, SCROLLBAR_WIDTH } from "../../src/constants";
 import { scrollDelay, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { dashboardMenuRegistry } from "../../src/registries";
 import {
   createSheet,
   hideColumns,
@@ -624,37 +623,6 @@ describe("Grid component", () => {
       await simulateClick(".o-menu div[data-name='add_row_before']");
       expect(fixture.querySelector(".o-menu div[data-name='add_row_before']")).toBeFalsy();
       expect(document.activeElement).toBe(fixture.querySelector(".o-grid-overlay"));
-    });
-
-    test("Open context menu in dashboard mode contains only items of dashboard registry", async () => {
-      dashboardMenuRegistry.add("A", {
-        name: "A",
-        sequence: 10,
-        isReadonlyAllowed: true,
-        action: () => {},
-      });
-      model.updateMode("dashboard");
-      await nextTick();
-      await rightClickCell(model, "B2");
-      expect(fixture.querySelectorAll(".o-menu div")).toHaveLength(1);
-      expect(fixture.querySelector(".o-menu div[data-name='A']")).not.toBeNull();
-      dashboardMenuRegistry.remove("A");
-    });
-
-    test("Cannot select a cell in dashboard mode", async () => {
-      model.updateMode("dashboard");
-      await clickCell(model, "H1");
-      expect(getActiveXc(model)).not.toBe("H1");
-    });
-
-    test("Keyboard event are not dispatched in dashboard mode", async () => {
-      await clickCell(model, "H1");
-      expect(getActiveXc(model)).toBe("H1");
-      model.updateMode("dashboard");
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
-      );
-      expect(getActiveXc(model)).not.toBe("I1");
     });
   });
 });

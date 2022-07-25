@@ -82,6 +82,7 @@ export { compile, functionCache } from "./formulas/compiler";
 export { astToFormula, convertAstNodes, parse } from "./formulas/parser";
 export { tokenize } from "./formulas/tokenizer";
 export { AbstractChart } from "./helpers/charts";
+export { findCellInNewZone } from "./helpers/zones";
 export { load } from "./migrations/data";
 export { Model } from "./model";
 export { CorePlugin } from "./plugins/core_plugin";
