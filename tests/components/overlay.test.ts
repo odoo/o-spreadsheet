@@ -382,8 +382,10 @@ describe("Resizer component", () => {
   test("Double click: Modify the size of a column", async () => {
     setCellContent(model, "B2", "b2");
     await dblClickColumn("B");
+    await nextTick();
     const expectedSize = 2 * 13 + 2 * PADDING_AUTORESIZE_HORIZONTAL; // 2 * letter size + 2 * padding
     expect(model.getters.getColSize(model.getters.getActiveSheetId(), 1)).toBe(expectedSize);
+    expect(fixture.querySelector(".o-handle")).toBeFalsy();
   });
 
   test("Double click on column then undo, then redo", async () => {
@@ -419,7 +421,9 @@ describe("Resizer component", () => {
     expect(model.getters.getRowSize(model.getters.getActiveSheetId(), 1)).toBe(30);
     setCellContent(model, "B2", "b2");
     await dblClickRow(1);
+    await nextTick();
     expect(model.getters.getRowSize(model.getters.getActiveSheetId(), 1)).toBe(DEFAULT_CELL_HEIGHT);
+    expect(fixture.querySelector(".o-handle")).toBeFalsy();
   });
 
   test("Double click on rows then undo, then redo", async () => {
