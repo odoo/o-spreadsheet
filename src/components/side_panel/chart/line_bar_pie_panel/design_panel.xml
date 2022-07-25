@@ -28,7 +28,7 @@
         />
       </div>
       <div class="o-section">
-        <div class="o-section-title">LegendPosition</div>
+        <div class="o-section-title">Legend position</div>
         <select
           t-att-value="props.definition.legendPosition"
           class="o-input o-type-selector"
