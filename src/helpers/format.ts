@@ -36,7 +36,7 @@ const zeroRegexp = /0/g;
  */
 type InternalFormat = (
   | { type: "NUMBER"; format: InternalNumberFormat }
-  | { type: "CURRENCY"; format: string }
+  | { type: "STRING"; format: string }
   | { type: "DATE"; format: string }
 )[];
 
@@ -104,7 +104,7 @@ function applyInternalFormat(value: number, internalFormat: InternalFormat): For
       case "NUMBER":
         formattedValue += applyInternalNumberFormat(Math.abs(value), part.format);
         break;
-      case "CURRENCY":
+      case "STRING":
         formattedValue += part.format;
         break;
     }
@@ -330,7 +330,7 @@ export function createLargeNumberFormat(
             },
           },
           {
-            type: "CURRENCY" as const,
+            type: "STRING" as const,
             format: postFix,
           },
         ];
@@ -399,7 +399,7 @@ function convertFormatToInternalFormat(format: Format): InternalFormat {
         throw new Error(`Invalid currency format: ${format}`);
       }
       result.push({
-        type: "CURRENCY",
+        type: "STRING",
         format: str,
       }); // remove leading "[$"" and ending "]".
     } else {
@@ -494,7 +494,7 @@ function convertInternalFormatToFormat(internalFormat: InternalFormat): Format {
           currentFormat += ",".repeat(Math.log10(fmt.magnitude) / 3);
         }
         break;
-      case "CURRENCY":
+      case "STRING":
         currentFormat = `[$${part.format}]`;
         break;
       case "DATE":
