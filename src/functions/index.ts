@@ -11,6 +11,7 @@ import {
   FunctionReturn,
 } from "../types";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
+import * as misc from "./module_custom";
 import * as database from "./module_database";
 import * as date from "./module_date";
 import * as engineering from "./module_engineering";
@@ -33,6 +34,7 @@ const functions: { [category: string]: { [name: string]: AddFunctionDescription 
   lookup,
   logical,
   math,
+  misc,
   operators,
   statistical,
   text,
@@ -108,7 +110,7 @@ for (let category in functions) {
   for (let name in fns) {
     const addDescr = fns[name];
     addDescr.category = category;
-    name = name.replace("_", ".");
+    name = name.replace(/_/g, ".");
     functionRegistry.add(name, { isExported: false, ...addDescr });
   }
 }

@@ -311,6 +311,36 @@ export function createDefaultFormat(value: number): Format {
   return decimalDigits ? "0." + "0".repeat(decimalDigits.length) : "0";
 }
 
+export function createLargeNumberFormat(
+  format: Format | undefined,
+  magnitude: number,
+  postFix: string
+): Format {
+  const internalFormat = parseFormat(format || "#,##0");
+  const largeNumberFormat = internalFormat
+    .map((formatPart) => {
+      if (formatPart.type === "NUMBER") {
+        return [
+          {
+            ...formatPart,
+            format: {
+              ...formatPart.format,
+              magnitude,
+              decimalPart: undefined,
+            },
+          },
+          {
+            type: "CURRENCY" as const,
+            format: postFix,
+          },
+        ];
+      }
+      return formatPart;
+    })
+    .flat();
+  return convertInternalFormatToFormat(largeNumberFormat);
+}
+
 export function changeDecimalPlaces(format: Format, step: number) {
   const internalFormat = parseFormat(format);
   const newInternalFormat = internalFormat.map((intFmt) => {
@@ -459,6 +489,9 @@ function convertInternalFormatToFormat(internalFormat: InternalFormat): Format {
         }
         if (fmt.isPercent) {
           currentFormat += "%";
+        }
+        if (fmt.magnitude) {
+          currentFormat += ",".repeat(Math.log10(fmt.magnitude) / 3);
         }
         break;
       case "CURRENCY":
