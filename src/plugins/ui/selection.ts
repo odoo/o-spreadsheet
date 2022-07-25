@@ -189,23 +189,20 @@ export class GridSelectionPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      // some commands should not remove the current selection
-      case "CREATE_SHEET":
-      case "DELETE_SHEET":
-      case "CREATE_FIGURE":
-      case "CREATE_CHART":
-      case "UPDATE_FIGURE":
-      case "EVALUATE_CELLS":
-      case "DISABLE_SELECTION_INPUT":
-      case "ENABLE_NEW_SELECTION_INPUT":
+      case "START_EDITION":
+      case "ACTIVATE_SHEET":
+        this.selectedFigureId = null;
         break;
       case "DELETE_FIGURE":
         if (this.selectedFigureId === cmd.id) {
           this.selectedFigureId = null;
         }
         break;
-      default:
-        this.selectedFigureId = null;
+      case "DELETE_SHEET":
+        if (this.selectedFigureId && this.getters.getFigure(cmd.sheetId, this.selectedFigureId)) {
+          this.selectedFigureId = null;
+        }
+        break;
     }
     switch (cmd.type) {
       case "START":
