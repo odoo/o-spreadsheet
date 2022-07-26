@@ -285,14 +285,19 @@ export class EditionPlugin extends UIPlugin {
     const start = tokens[0].start;
     const end = tokens[tokens.length - 1].end;
     const newContent = content.slice(0, start) + updatedReferences + content.slice(end);
-
     const lengthDiff = newContent.length - content.length;
+
+    const startOfTokens = refTokens[0].start;
+    const endOfTokens = refTokens[refTokens.length - 1].end + lengthDiff;
+    const selection = { start: startOfTokens, end: endOfTokens };
+    // Put the selection at the end of the token if we cycled on a single token
+    if (refTokens.length === 1 && this.selectionStart === this.selectionEnd) {
+      selection.start = selection.end;
+    }
+
     this.dispatch("SET_CURRENT_CONTENT", {
       content: newContent,
-      selection: {
-        start: refTokens[0].start,
-        end: refTokens[refTokens.length - 1].end + lengthDiff,
-      },
+      selection,
     });
   }
 

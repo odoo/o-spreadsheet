@@ -1220,17 +1220,17 @@ describe("composer", () => {
   });
 
   test("f4 shortcut set composer selection to entire cell symbol on which f4 is applied", async () => {
-    composerEl = await typeInComposerGrid("=A1");
-    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 1 });
+    composerEl = await typeInComposerGrid("=AA1");
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 2 });
     await keyDown("F4");
-    expect(model.getters.getCurrentContent()).toEqual("=$A$1");
-    expect(model.getters.getComposerSelection()).toEqual({ start: 1, end: 5 });
-    expect(cehMock.currentState).toEqual({ cursorStart: 1, cursorEnd: 5 });
+    expect(model.getters.getCurrentContent()).toEqual("=$AA$1");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 1, end: 6 });
+    expect(cehMock.currentState).toEqual({ cursorStart: 1, cursorEnd: 6 });
   });
 
   test("f4 shortcut set composer selection to entire range symbol on which f4 is applied", async () => {
     composerEl = await typeInComposerGrid("=A1:B2");
-    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 1 });
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 2 });
     await keyDown("F4");
     expect(model.getters.getCurrentContent()).toEqual("=$A$1:$B$2");
     expect(model.getters.getComposerSelection()).toEqual({ start: 1, end: 10 });
@@ -1292,6 +1292,18 @@ describe("composer", () => {
     expect(composerEl.textContent).toEqual("=SUM($A$1,$C$2)");
     await keyDown("ArrowDown");
     expect(composerEl.textContent).toEqual("=SUM($A$1,$C$2)");
+  });
+
+  test("f4 put selection at the end of looped token when the original selection was of size 0", async () => {
+    composerEl = await typeInComposerGrid("=A1");
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 1 });
+    await keyDown("F4");
+    expect(composerEl.textContent).toEqual("=$A$1");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
+
+    await keyDown("F4");
+    expect(composerEl.textContent).toEqual("=A$1");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 4, end: 4 });
   });
 });
 
