@@ -455,6 +455,9 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
         style="height:1px;width:2592px"
       />
     </div>
+    <div
+      class="o-scrollbar corner"
+    />
   </div>
   
   

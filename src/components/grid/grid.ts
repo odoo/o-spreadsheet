@@ -210,6 +210,8 @@ css/* scss */ `
       position: absolute;
       overflow: auto;
       z-index: ${ComponentsImportance.ScrollBar};
+      background-color: ${BACKGROUND_GRAY_COLOR};
+
       &.vertical {
         right: 0;
         bottom: ${SCROLLBAR_WIDTH}px;
@@ -221,6 +223,14 @@ css/* scss */ `
         height: ${SCROLLBAR_WIDTH}px;
         right: ${SCROLLBAR_WIDTH}px;
         overflow-y: hidden;
+      }
+      &.corner {
+        right: 0px;
+        bottom: 0px;
+        height: ${SCROLLBAR_WIDTH}px;
+        width: ${SCROLLBAR_WIDTH}px;
+        border-top: 1px solid #e2e3e3;
+        border-left: 1px solid #e2e3e3;
       }
     }
 

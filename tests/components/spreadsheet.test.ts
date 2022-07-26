@@ -11,7 +11,13 @@ import {
   selectCell,
   setCellContent,
 } from "../test_helpers/commands_helpers";
-import { clickCell, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
+import {
+  clickCell,
+  getElComputedStyle,
+  rightClickCell,
+  simulateClick,
+  triggerMouseEvent,
+} from "../test_helpers/dom_helper";
 import {
   makeTestFixture,
   MockClipboard,
@@ -413,5 +419,43 @@ describe("Composer / selectionInput interactions", () => {
     await clickCell(model, "E5");
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);
     expect(model.getters.getActiveViewport()).toMatchObject(scrolledViewport);
+  });
+
+  test("Z-indexes of the various spreadsheet components", async () => {
+    const getZIndex = (selector: string) => Number(getElComputedStyle(selector, "zIndex")) || 0;
+    mockChart();
+    const model = parent.model;
+
+    const gridZIndex = getZIndex(".o-grid");
+    const vScrollbarZIndex = getZIndex(".o-scrollbar.vertical");
+    const hScrollbarZIndex = getZIndex(".o-scrollbar.horizontal");
+    const scrollbarCornerZIndex = getZIndex(".o-scrollbar.corner");
+
+    await rightClickCell(model, "A1");
+    const contextMenuZIndex = getZIndex(".o-popover");
+
+    await typeInComposerGrid("=A1:B2");
+    const gridComposerZIndex = getZIndex("div.o-grid-composer");
+    const highlighZIndex = getZIndex(".o-highlight");
+
+    triggerMouseEvent(".o-tool.o-dropdown.o-with-color", "click");
+    await nextTick();
+    const colorPickerZIndex = getZIndex("div.o-color-picker");
+
+    createChart(model, {}, "thisIsAnId");
+    model.dispatch("SELECT_FIGURE", { id: "thisIsAnId" });
+    await nextTick();
+    const figureZIndex = getZIndex(".o-figure");
+    const figureAnchorZIndex = getZIndex(".o-anchor");
+
+    expect(gridZIndex).toBeLessThan(highlighZIndex);
+    expect(highlighZIndex).toBeLessThan(figureZIndex);
+    expect(figureZIndex).toBeLessThan(vScrollbarZIndex);
+    expect(vScrollbarZIndex).toEqual(hScrollbarZIndex);
+    expect(hScrollbarZIndex).toEqual(scrollbarCornerZIndex);
+    expect(scrollbarCornerZIndex).toBeLessThan(gridComposerZIndex);
+    expect(gridComposerZIndex).toBeLessThan(colorPickerZIndex);
+    expect(colorPickerZIndex).toBeLessThan(contextMenuZIndex);
+    expect(contextMenuZIndex).toBeLessThan(figureAnchorZIndex);
   });
 });

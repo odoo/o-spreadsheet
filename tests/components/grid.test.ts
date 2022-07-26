@@ -1,8 +1,13 @@
 import { App } from "@odoo/owl";
 import { Spreadsheet, TransportService } from "../../src";
 import { Grid } from "../../src/components/grid/grid";
-import { HEADER_WIDTH, MESSAGE_VERSION, SCROLLBAR_WIDTH } from "../../src/constants";
-import { scrollDelay, toZone, zoneToXc } from "../../src/helpers";
+import {
+  BACKGROUND_GRAY_COLOR,
+  HEADER_WIDTH,
+  MESSAGE_VERSION,
+  SCROLLBAR_WIDTH,
+} from "../../src/constants";
+import { scrollDelay, toHex, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import {
   createSheet,
@@ -15,6 +20,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import {
   clickCell,
+  getElComputedStyle,
   gridMouseEvent,
   hoverCell,
   rightClickCell,
@@ -975,5 +981,14 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
       top: 3,
       bottom: 44,
     });
+  });
+
+  test("Scroll bars have background color", () => {
+    // Without background color, elements could be displayed above the scrollbars placeholders
+    const getColor = (selector: string) => toHex(getElComputedStyle(selector, "background"));
+
+    expect(getColor(".o-scrollbar.corner")).toEqual(toHex(BACKGROUND_GRAY_COLOR));
+    expect(getColor(".o-scrollbar.horizontal")).toEqual(toHex(BACKGROUND_GRAY_COLOR));
+    expect(getColor(".o-scrollbar.vertical")).toEqual(toHex(BACKGROUND_GRAY_COLOR));
   });
 });
