@@ -145,3 +145,9 @@ export async function keyUp(key: string, options: any = {}): Promise<void> {
   );
   return await nextTick();
 }
+
+export function getElComputedStyle(selector: string, style: string): string {
+  const element = document.querySelector(selector);
+  if (!element) throw new Error(`No element matching selector "${selector}"`);
+  return window.getComputedStyle(element)[style];
+}

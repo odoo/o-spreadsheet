@@ -98,6 +98,7 @@
         t-att-style="hScrollbarStyle">
         <div t-attf-style="height:1px;width:{{gridSize.width}}px"/>
       </div>
+      <div class="o-scrollbar corner"/>
     </div>
   </t>
 </templates>
