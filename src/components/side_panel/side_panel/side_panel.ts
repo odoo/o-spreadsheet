@@ -11,6 +11,7 @@ css/* scss */ `
     overflow-x: hidden;
     background-color: white;
     border: 1px solid darkgray;
+    user-select: none;
     .o-sidePanelHeader {
       padding: 6px;
       height: 30px;
