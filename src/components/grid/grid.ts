@@ -581,7 +581,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       dpr,
       thinLineWidth,
     };
-    const { width, height } = this.env.model.getters.getViewportDimensionWithHeaders();
+    let { width, height } = this.env.model.getters.getViewportDimensionWithHeaders();
+    // TODO : find the root cause that make us need this
+    width = width - 1;
+    height = height - 1;
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
     canvas.width = width * dpr;

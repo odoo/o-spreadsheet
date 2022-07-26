@@ -411,9 +411,9 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
     
     
     <canvas
-      height="985"
-      style="width:985px;height:985px;"
-      width="985"
+      height="984"
+      style="width:984px;height:984px;"
+      width="984"
     />
     
     
