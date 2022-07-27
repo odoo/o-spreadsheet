@@ -759,6 +759,15 @@ describe("error tooltip", () => {
     await clickCell(model, "C8");
     expect(model.getters.getCurrentContent()).toBe("Hello");
   });
+
+  test("Wheel events on error tooltip are scrolling the grid", async () => {
+    setCellContent(model, "C1", "=0/0");
+    await hoverCell(model, "C1", 400);
+    const ev = new WheelEvent("wheel", { deltaY: 300, deltaX: 300, deltaMode: 0, bubbles: true });
+    document.querySelector(".o-error-tooltip")!.dispatchEvent(ev);
+    expect(getVerticalScroll()).toBe(300);
+    expect(getHorizontalScroll()).toBe(300);
+  });
 });
 
 describe("Events on Grid update viewport correctly", () => {
