@@ -26,13 +26,6 @@ describe("cell popover plugin", () => {
         y: HEADER_HEIGHT,
       },
     });
-    model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: DEFAULT_CELL_WIDTH + 1, offsetY: 0 });
-    expect(model.getters.getCellPopover({ col: 0, row: 0 })).toMatchObject({
-      coordinates: {
-        x: startColOne,
-        y: HEADER_HEIGHT,
-      },
-    });
   });
 
   test("bottom left position is correct on a merge", () => {
