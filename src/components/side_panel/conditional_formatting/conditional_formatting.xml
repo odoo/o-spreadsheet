@@ -101,10 +101,14 @@
               <t t-set="rule" t-value="state.rules.iconSet"/>
             </t>
             <div class="o-sidePanelButtons">
-              <button t-on-click="switchToList" class="o-sidePanelButton o-cf-cancel">
+              <button
+                t-on-click="switchToList"
+                class="o-sidePanelButton btn btn-secondary o-cf-cancel me-2">
                 Cancel
               </button>
-              <button t-on-click="saveConditionalFormat" class="o-sidePanelButton o-cf-save">
+              <button
+                t-on-click="saveConditionalFormat"
+                class="o-sidePanelButton btn btn-primary o-cf-save">
                 Save
               </button>
             </div>

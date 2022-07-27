@@ -77,28 +77,6 @@ css/* scss */ `
       margin-top: 10px;
     }
 
-    .o-sidePanelButtons {
-      padding: 16px;
-      text-align: right;
-    }
-
-    .o-sidePanelButton {
-      border: 1px solid lightgrey;
-      padding: 0px 20px 0px 20px;
-      border-radius: 4px;
-      font-weight: 500;
-      font-size: 14px;
-      height: 30px;
-      line-height: 16px;
-      background: white;
-      margin-right: 8px;
-      &:hover:enabled {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-    }
-    .o-sidePanelButton:enabled {
-      cursor: pointer;
-    }
     .o-sidePanelButton:last-child {
       margin-right: 0px;
     }

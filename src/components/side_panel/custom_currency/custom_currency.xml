@@ -50,9 +50,9 @@
           </t>
         </select>
       </div>
-      <div class="o-sidePanelButtons">
+      <div class="o-sidePanelButtons px-4">
         <button
-          class="o-sidePanelButton"
+          class="o-sidePanelButton btn btn-primary"
           t-on-click="() => this.apply()"
           t-att-disabled="!formatProposals.length || isSameFormat">
           Apply

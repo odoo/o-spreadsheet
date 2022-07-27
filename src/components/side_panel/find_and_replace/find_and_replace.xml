@@ -5,7 +5,7 @@
       tabindex="0"
       t-on-focusin="onFocusSidePanel"
       t-ref="findAndReplace">
-      <div class="o-section">
+      <div class="o-section p-4">
         <div class="o-section-title">Search</div>
         <div class="o-input-search-container">
           <input
@@ -56,21 +56,21 @@
           </div>
         </div>
       </div>
-      <div class="o-sidePanelButtons">
+      <div class="o-sidePanelButtons px-4">
         <button
           t-att-disabled="!hasSearchResult"
           t-on-click="onSelectPreviousCell"
-          class="o-sidePanelButton">
+          class="o-sidePanelButton btn btn-primary me-2">
           Previous
         </button>
         <button
           t-att-disabled="!hasSearchResult"
           t-on-click="onSelectNextCell"
-          class="o-sidePanelButton">
+          class="o-sidePanelButton btn btn-primary">
           Next
         </button>
       </div>
-      <div class="o-section" t-if="!env.model.getters.isReadonly()">
+      <div class="o-section p-4" t-if="!env.model.getters.isReadonly()">
         <div class="o-section-title">Replace</div>
         <div class="o-input-search-container">
           <input
@@ -82,17 +82,17 @@
         </div>
       </div>
 
-      <div class="o-sidePanelButtons" t-if="!env.model.getters.isReadonly()">
+      <div class="o-sidePanelButtons px-4" t-if="!env.model.getters.isReadonly()">
         <button
           t-att-disabled="env.model.getters.getCurrentSelectedMatchIndex() === null"
           t-on-click="replace"
-          class="o-sidePanelButton">
+          class="o-sidePanelButton btn btn-primary me-2">
           Replace
         </button>
         <button
           t-att-disabled="env.model.getters.getCurrentSelectedMatchIndex() === null"
           t-on-click="replaceAll"
-          class="o-sidePanelButton">
+          class="o-sidePanelButton btn btn-primary">
           Replace all
         </button>
       </div>
