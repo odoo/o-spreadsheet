@@ -758,6 +758,7 @@ describe("figures", () => {
         await simulateClick(".o-data-series input");
         setInputValueAndTrigger(".o-data-series input", "", "input");
         setInputValueAndTrigger(".o-data-series input", "", "change");
+        await nextTick();
         await simulateClick(".o-data-series .o-selection-ok");
         expect(document.querySelector(".o-data-series input")?.classList).toContain("o-invalid");
       });
