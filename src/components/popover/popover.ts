@@ -26,6 +26,7 @@ interface Props {
    * it is rendered on the top.
    */
   flipVerticalOffset: Pixel;
+  onMouseWheel: (ev: WheelEvent) => void;
 }
 
 export class Popover extends Component<Props, SpreadsheetChildEnv> {
@@ -35,6 +36,7 @@ export class Popover extends Component<Props, SpreadsheetChildEnv> {
     flipVerticalOffset: 0,
     verticalOffset: 0,
     marginTop: 0,
+    onMouseWheel: () => {},
   };
 
   private spreadsheetPosition = useSpreadsheetPosition();
