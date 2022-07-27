@@ -52,7 +52,16 @@ export class CellPopoverPlugin extends UIPlugin {
 
   getCellPopover({ col, row }: Partial<Position>): ClosedCellPopover | PositionedCellPopover {
     const sheetId = this.getters.getActiveSheetId();
-    if (this.persistentPopover) {
+    const viewport = this.getters.getActiveViewport();
+
+    if (
+      this.persistentPopover &&
+      this.getters.isVisibleInViewport(
+        this.persistentPopover.col,
+        this.persistentPopover.row,
+        viewport
+      )
+    ) {
       const mainPosition = this.getters.getMainCellPosition(
         sheetId,
         this.persistentPopover.col,
@@ -68,7 +77,13 @@ export class CellPopoverPlugin extends UIPlugin {
             ...this.computePopoverProps(this.persistentPopover, popover.cellCorner),
           };
     }
-    if (col === undefined || row === undefined) return { isOpen: false };
+    if (
+      col === undefined ||
+      row === undefined ||
+      !this.getters.isVisibleInViewport(col, row, viewport)
+    ) {
+      return { isOpen: false };
+    }
     const mainPosition = this.getters.getMainCellPosition(sheetId, col, row);
     const popover = cellPopoverRegistry
       .getAll()

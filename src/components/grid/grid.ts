@@ -81,6 +81,8 @@ function useCellHovered(env: SpreadsheetChildEnv): Partial<Position> {
   const hoveredPosition: Partial<Position> = useState({} as Partial<Position>);
   const { Date } = window;
   const gridRef = useRef("gridOverlay");
+  const vScrollbarRef = useRef("vscrollbar");
+  const hScrollbarRef = useRef("hscrollbar");
   let x = 0;
   let y = 0;
   let lastMoved = 0;
@@ -114,7 +116,7 @@ function useCellHovered(env: SpreadsheetChildEnv): Partial<Position> {
     lastMoved = Date.now();
   }
 
-  function reset() {
+  function recompute() {
     const { col, row } = getPosition();
     if (col !== hoveredPosition.col || row !== hoveredPosition.row) {
       hoveredPosition.col = undefined;
@@ -122,12 +124,20 @@ function useCellHovered(env: SpreadsheetChildEnv): Partial<Position> {
     }
   }
 
+  function reset() {
+    hoveredPosition.col = undefined;
+    hoveredPosition.row = undefined;
+  }
+
   onMounted(() => {
     const grid = gridRef.el!;
     grid.addEventListener("mousemove", updateMousePosition);
     grid.addEventListener("mouseleave", pause);
     grid.addEventListener("mouseenter", resume);
-    grid.addEventListener("mousedown", reset);
+    grid.addEventListener("mousedown", recompute);
+
+    vScrollbarRef.el!.addEventListener("scroll", reset);
+    hScrollbarRef.el!.addEventListener("scroll", reset);
   });
 
   onWillUnmount(() => {
@@ -135,7 +145,10 @@ function useCellHovered(env: SpreadsheetChildEnv): Partial<Position> {
     grid.removeEventListener("mousemove", updateMousePosition);
     grid.removeEventListener("mouseleave", pause);
     grid.removeEventListener("mouseenter", resume);
-    grid.removeEventListener("mousedown", reset);
+    grid.removeEventListener("mousedown", recompute);
+
+    vScrollbarRef.el!.removeEventListener("scroll", reset);
+    hScrollbarRef.el!.removeEventListener("scroll", reset);
   });
   return hoveredPosition;
 }

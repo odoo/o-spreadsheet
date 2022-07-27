@@ -40,6 +40,7 @@ import {
   Touch,
 } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
+import { DEFAULT_CELL_HEIGHT } from "./../../src/constants";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );
@@ -61,6 +62,8 @@ let parent: Spreadsheet;
 let app: App;
 
 chartComponentRegistry.add("bar", ChartJsComponent);
+
+jest.useFakeTimers();
 
 beforeEach(async () => {
   jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
@@ -599,6 +602,68 @@ describe("Grid component", () => {
     });
   });
 
+  describe("Grid Scroll", () => {
+    function scrollGrid(args: { deltaY?: number; shiftKey?: boolean }) {
+      fixture.querySelector(".o-grid")!.dispatchEvent(
+        new WheelEvent("wheel", {
+          deltaY: args.deltaY || 0,
+          shiftKey: args.shiftKey,
+          deltaMode: 0,
+          bubbles: true,
+        })
+      );
+      // Need to do this manually since the scrollbars are mocked
+      fixture.querySelector(".o-scrollbar.vertical")!.dispatchEvent(new Event("scroll"));
+    }
+
+    test("Can scroll vertically", async () => {
+      scrollGrid({ deltaY: 1000 });
+      expect(getVerticalScroll()).toBe(1000);
+      expect(getHorizontalScroll()).toBe(0);
+    });
+
+    test("Can scroll horizontally using shift key", async () => {
+      scrollGrid({ deltaY: 1500, shiftKey: true });
+      expect(getVerticalScroll()).toBe(0);
+      expect(getHorizontalScroll()).toBe(1500);
+    });
+
+    test("Scrolling the grid remove hover popover", async () => {
+      setCellContent(model, "A1", "=1/0");
+      await hoverCell(model, "A1", 400);
+      expect(fixture.querySelector(".o-error-tooltip")).not.toBeNull();
+      scrollGrid({ deltaY: 100 });
+      await nextTick();
+      expect(fixture.querySelector(".o-error-tooltip")).toBeNull();
+    });
+
+    test("Scrolling the grid remove persistent popovers if the cell is outside the viewport", async () => {
+      model.dispatch("OPEN_CELL_POPOVER", {
+        col: 0,
+        row: 0,
+        popoverType: "LinkEditor",
+      });
+      await nextTick();
+      expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
+      scrollGrid({ deltaY: DEFAULT_CELL_HEIGHT });
+      await nextTick();
+      expect(fixture.querySelector(".o-link-editor")).toBeNull();
+    });
+
+    test("Scrolling the grid don't remove persistent popovers if the cell is inside the viewport", async () => {
+      model.dispatch("OPEN_CELL_POPOVER", {
+        col: 0,
+        row: 0,
+        popoverType: "LinkEditor",
+      });
+      await nextTick();
+      expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
+      scrollGrid({ deltaY: DEFAULT_CELL_HEIGHT - 5 });
+      await nextTick();
+      expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
+    });
+  });
+
   describe("paint format tool with grid selection", () => {
     test("can paste format with mouse", async () => {
       setCellContent(model, "B2", "b2");
@@ -629,15 +694,6 @@ describe("Grid component", () => {
         new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
       );
       expect(getCell(model, "C2")!.style).toEqual({ bold: true });
-    });
-    test("Can scroll horizontally using shift key", async () => {
-      const baseVertical = getVerticalScroll();
-      const baseHorizontal = getHorizontalScroll();
-      fixture
-        .querySelector(".o-grid")!
-        .dispatchEvent(new WheelEvent("wheel", { deltaY: 1500, shiftKey: true }));
-      expect(getVerticalScroll()).toBe(baseVertical);
-      expect(getHorizontalScroll()).toBe(baseHorizontal + 1500);
     });
     test("closing contextmenu focuses the grid", async () => {
       await rightClickCell(model, "B2");
