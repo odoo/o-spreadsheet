@@ -80,11 +80,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
     return CommandResult.Success;
   }
 
-  isPasteAllowed(
-    target: Zone[],
-    clipboardOption?: ClipboardOptions,
-    ignoreMerges = false
-  ): CommandResult {
+  isPasteAllowed(target: Zone[], clipboardOption?: ClipboardOptions): CommandResult {
     const sheetId = this.getters.getActiveSheetId();
     if (this.operation === "CUT" && clipboardOption?.pasteOption !== undefined) {
       // cannot paste only format or only value if the previous operation is a CUT
@@ -97,11 +93,9 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
         return CommandResult.WrongPasteSelection;
       }
     }
-    if (!ignoreMerges) {
-      for (let zone of this.getPasteZones(target)) {
-        if (this.getters.doesIntersectMerge(sheetId, zone)) {
-          return CommandResult.WillRemoveExistingMerge;
-        }
+    for (let zone of this.getPasteZones(target)) {
+      if (this.getters.doesIntersectMerge(sheetId, zone)) {
+        return CommandResult.WillRemoveExistingMerge;
       }
     }
     return CommandResult.Success;
@@ -273,7 +267,6 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
       for (let c = 0; c < width; c++) {
         const origin = rowCells[c];
         const position = { col: col + c, row: row + r, sheetId: sheetId };
-        this.removeMergeIfTopLeft(position);
         // TODO: refactor this part. the "Paste merge" action is also executed with
         // MOVE_RANGES in pasteFromCut. Adding a condition on the operation type here
         // is not appropriate
@@ -366,20 +359,6 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
   ): string {
     const ranges = this.getters.createAdaptedRanges(cell.dependencies, offsetX, offsetY, sheetId);
     return this.getters.buildFormulaContent(sheetId, cell, ranges);
-  }
-
-  /**
-   * If the position is the top-left of an existing merge, remove it
-   */
-  private removeMergeIfTopLeft(position: CellPosition) {
-    const { sheetId, col, row } = position;
-    const { col: left, row: top } = this.getters.getMainCellPosition(sheetId, col, row);
-    if (top === row && left === col) {
-      const merge = this.getters.getMerge(sheetId, col, row);
-      if (merge) {
-        this.dispatch("REMOVE_MERGE", { sheetId, target: [merge] });
-      }
-    }
   }
 
   /**

@@ -16,11 +16,7 @@ export interface ClipboardState {
 
   isCutAllowed(target: Zone[]): CommandResult;
 
-  isPasteAllowed(
-    target: Zone[],
-    clipboardOption?: ClipboardOptions,
-    ignoreMerges?: boolean
-  ): CommandResult;
+  isPasteAllowed(target: Zone[], clipboardOption?: ClipboardOptions): CommandResult;
 
   paste(target: Zone[], options?: ClipboardOptions | undefined): void;
   getClipboardContent(): string;

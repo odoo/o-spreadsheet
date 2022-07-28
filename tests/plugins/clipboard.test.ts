@@ -358,49 +358,6 @@ describe("clipboard", () => {
     expect(model.getters.isInMerge("s2", ...toCartesianArray("C5"))).toBe(true);
   });
 
-  test("paste merge on existing merge removes existing merge", () => {
-    const model = new Model({
-      sheets: [
-        {
-          id: "s3",
-          colNumber: 5,
-          rowNumber: 5,
-          merges: ["B2:C4"],
-        },
-      ],
-    });
-    copy(model, "B2");
-    paste(model, "A1", true);
-    expect(model.getters.isInMerge("s3", ...toCartesianArray("B2"))).toBe(true);
-    expect(model.getters.isInMerge("s3", ...toCartesianArray("B3"))).toBe(true);
-    expect(model.getters.isInMerge("s3", ...toCartesianArray("B4"))).toBe(false);
-    expect(model.getters.isInMerge("s3", ...toCartesianArray("C2"))).toBe(false);
-    expect(model.getters.isInMerge("s3", ...toCartesianArray("C3"))).toBe(false);
-    expect(model.getters.isInMerge("s3", ...toCartesianArray("C4"))).toBe(false);
-  });
-
-  test("Pasting content on merge will remove the merge", () => {
-    const model = new Model({
-      sheets: [
-        {
-          id: "s1",
-          colNumber: 5,
-          rowNumber: 5,
-          cells: {
-            A1: { content: "miam" },
-          },
-          merges: ["B1:C2"],
-        },
-      ],
-    });
-    copy(model, "A1");
-    paste(model, "B1", true);
-    expect(model.getters.isInMerge("s1", ...toCartesianArray("B1"))).toBe(false);
-    expect(model.getters.isInMerge("s1", ...toCartesianArray("B2"))).toBe(false);
-    expect(model.getters.isInMerge("s1", ...toCartesianArray("C1"))).toBe(false);
-    expect(model.getters.isInMerge("s1", ...toCartesianArray("C2"))).toBe(false);
-  });
-
   test("Pasting merge on content will remove the content", () => {
     const model = new Model({
       sheets: [
@@ -505,28 +462,6 @@ describe("clipboard", () => {
     expect(model.getters.isInMerge("s1", ...toCartesianArray("B3"))).toBe(true);
     expect(model.getters.isInMerge("s1", ...toCartesianArray("C2"))).toBe(true);
     expect(model.getters.isInMerge("s1", ...toCartesianArray("C3"))).toBe(true);
-  });
-
-  test("Pasting content that will destroy a merge will be applied if forced", async () => {
-    const model = new Model({
-      sheets: [
-        {
-          id: "s1",
-          colNumber: 5,
-          rowNumber: 5,
-          merges: ["B2:C3"],
-        },
-      ],
-    });
-    copy(model, "B2");
-    paste(model, "A1", true);
-    expect(model.getters.isInMerge("s1", ...toCartesianArray("A1"))).toBe(true);
-    expect(model.getters.isInMerge("s1", ...toCartesianArray("A2"))).toBe(true);
-    expect(model.getters.isInMerge("s1", ...toCartesianArray("B1"))).toBe(true);
-    expect(model.getters.isInMerge("s1", ...toCartesianArray("B2"))).toBe(true);
-    expect(model.getters.isInMerge("s1", ...toCartesianArray("B3"))).toBe(false);
-    expect(model.getters.isInMerge("s1", ...toCartesianArray("C2"))).toBe(false);
-    expect(model.getters.isInMerge("s1", ...toCartesianArray("C3"))).toBe(false);
   });
 
   test("cutting a cell with style remove the cell", () => {
@@ -1019,7 +954,7 @@ describe("clipboard", () => {
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
     copy(model, "B2");
-    paste(model, "C2", false, "onlyFormat");
+    paste(model, "C2", "onlyFormat");
     expect(getCellContent(model, "C2")).toBe("");
     expect(getCell(model, "C2")!.style).toEqual({ bold: true });
   });
@@ -1036,7 +971,7 @@ describe("clipboard", () => {
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
     copy(model, "B2");
-    paste(model, "C2", false, "onlyFormat");
+    paste(model, "C2", "onlyFormat");
     expect(getCellContent(model, "C2")).toBe("");
     expect(getCell(model, "C2")!.style).toEqual({ bold: true });
   });
@@ -1054,7 +989,7 @@ describe("clipboard", () => {
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
     copy(model, "B2");
-    paste(model, "C2", false, "onlyFormat");
+    paste(model, "C2", "onlyFormat");
 
     expect(getCellContent(model, "C2")).toBe("c2");
     expect(getCell(model, "C2")!.style).toEqual({ bold: true });
@@ -1070,7 +1005,7 @@ describe("clipboard", () => {
       style: { bold: true },
     });
     copy(model, "B2");
-    paste(model, "C2", false, "onlyFormat");
+    paste(model, "C2", "onlyFormat");
 
     expect(getCellContent(model, "C2")).toBe("");
     expect(getCell(model, "C2")!.style).toEqual({ bold: true });
@@ -1084,7 +1019,7 @@ describe("clipboard", () => {
     setCellContent(model, "B2", "b2");
     selectCell(model, "B2");
     copy(model, "B2");
-    paste(model, "C2", false, "onlyValue");
+    paste(model, "C2", "onlyValue");
     expect(getCellContent(model, "C2")).toBe("b2");
   });
 
@@ -1100,7 +1035,7 @@ describe("clipboard", () => {
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
     copy(model, "B2");
-    paste(model, "C2", false, "onlyValue");
+    paste(model, "C2", "onlyValue");
 
     expect(getCell(model, "C2")!.evaluated.value).toBe("b2");
     expect(getCell(model, "C2")!.style).not.toBeDefined();
@@ -1118,7 +1053,7 @@ describe("clipboard", () => {
     expect(getBorder(model, "B2")).toEqual({ bottom: ["thin", "#000"] });
 
     copy(model, "B2");
-    paste(model, "C2", false, "onlyValue");
+    paste(model, "C2", "onlyValue");
 
     expect(getCell(model, "C2")!.evaluated.value).toBe("b2");
     expect(getBorder(model, "C2")).toBeNull();
@@ -1136,7 +1071,7 @@ describe("clipboard", () => {
     expect(getCellContent(model, "B2")).toBe("45.10%");
 
     copy(model, "B2");
-    paste(model, "C2", false, "onlyValue");
+    paste(model, "C2", "onlyValue");
 
     expect(getCellContent(model, "C2")).toBe("0.451");
   });
@@ -1163,9 +1098,9 @@ describe("clipboard", () => {
 
     expect(result).toBeSuccessfullyDispatched();
     copy(model, "A1");
-    paste(model, "C1", false, "onlyValue");
+    paste(model, "C1", "onlyValue");
     copy(model, "A2");
-    paste(model, "C2", false, "onlyValue");
+    paste(model, "C2", "onlyValue");
     expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
       fillColor: "#FF0000",
     });
@@ -1187,7 +1122,7 @@ describe("clipboard", () => {
     expect(getCell(model, "C3")!.style).toEqual({ bold: true });
 
     copy(model, "B2");
-    paste(model, "C3", false, "onlyValue");
+    paste(model, "C3", "onlyValue");
 
     expect(getCellContent(model, "C3")).toBe("b2");
     expect(getCell(model, "C3")!.style).toEqual({ bold: true });
@@ -1207,7 +1142,7 @@ describe("clipboard", () => {
     expect(getBorder(model, "C4")).toEqual({ top: ["thin", "#000"] });
 
     copy(model, "B2");
-    paste(model, "C3", false, "onlyValue");
+    paste(model, "C3", "onlyValue");
 
     expect(getCellContent(model, "C3")).toBe("b2");
     expect(getBorder(model, "C3")).toEqual({ bottom: ["thin", "#000"] });
@@ -1226,7 +1161,7 @@ describe("clipboard", () => {
     expect(getCellContent(model, "C3")).toBe("45.10%");
 
     copy(model, "B2");
-    paste(model, "C3", false, "onlyValue");
+    paste(model, "C3", "onlyValue");
 
     expect(getCellContent(model, "C3")).toBe("4200.00%");
   });
@@ -1237,7 +1172,7 @@ describe("clipboard", () => {
     setCellContent(model, "A2", "=EQ(42,42)");
     setCellContent(model, "A3", '=CONCAT("Ki","kou")');
     copy(model, "A1:A3");
-    paste(model, "B1", false, "onlyValue");
+    paste(model, "B1", "onlyValue");
     expect(getCellContent(model, "B1")).toBe("3");
     expect(getCellContent(model, "B2")).toBe("TRUE");
     expect(getCellContent(model, "B3")).toBe("Kikou");
@@ -1272,7 +1207,7 @@ describe("clipboard", () => {
     setCellFormat(model, "A8", "#,##0[$$]");
 
     copy(model, "A1:A8");
-    paste(model, "B1", false);
+    paste(model, "B1");
 
     setCellFormat(model, "B5", "#,##0[$$]");
     setCellFormat(model, "B7", "0%");
@@ -1321,7 +1256,7 @@ describe("clipboard", () => {
     setCellContent(model, "B8", "42");
 
     copy(model, "A1:A8");
-    paste(model, "B1", false, "onlyFormat");
+    paste(model, "B1", "onlyFormat");
 
     expect(getCellContent(model, "B1")).toBe("42");
     expect(getCellContent(model, "B2")).toBe("4200%");
@@ -1341,7 +1276,7 @@ describe("clipboard", () => {
       style: { bold: true },
     });
     copy(model, "B2");
-    paste(model, "C2", false, "onlyValue");
+    paste(model, "C2", "onlyValue");
 
     expect(getCellContent(model, "C2")).toBe("b2");
     expect(getCell(model, "C2")!.style).not.toBeDefined();
@@ -1354,7 +1289,7 @@ describe("clipboard", () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
     cut(model, "B2");
-    const result = paste(model, "C3", false, "onlyValue");
+    const result = paste(model, "C3", "onlyValue");
     expect(result).toBeCancelledBecause(CommandResult.WrongPasteOption);
   });
 
@@ -1362,7 +1297,7 @@ describe("clipboard", () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
     cut(model, "B2");
-    const result = paste(model, "C3", false, "onlyFormat");
+    const result = paste(model, "C3", "onlyFormat");
     expect(result).toBeCancelledBecause(CommandResult.WrongPasteOption);
   });
 
@@ -1556,7 +1491,7 @@ describe("clipboard", () => {
     copy(model, "A1");
 
     // select B2 and paste format
-    paste(model, "B2", false, "onlyFormat");
+    paste(model, "B2", "onlyFormat");
 
     expect(getCellContent(model, "B2")).toBe("b2");
     expect(getCell(model, "B2")!.style).not.toBeDefined();
