@@ -6,7 +6,7 @@ import {
   tokenColor,
 } from "../../src/components/composer/composer/composer";
 import { fontSizes } from "../../src/fonts";
-import { colors, toCartesian, toZone } from "../../src/helpers/index";
+import { colors, toCartesian, toHex, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { Highlight, LinkCell } from "../../src/types";
 import {
@@ -29,10 +29,12 @@ import {
 } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import {
+  createEqualCF,
   makeTestFixture,
   mountSpreadsheet,
   nextTick,
   startGridComposition,
+  toRangesData,
   typeInComposerGrid as typeInComposerGridHelper,
 } from "../test_helpers/helpers";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
@@ -1048,6 +1050,33 @@ describe("composer", () => {
       await typeInComposerGrid("Hello");
       const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
       expect(gridComposer.style.textAlign).toBe("right");
+    });
+
+    test("Composer inherit cell's CF formatting", async () => {
+      const sheetId = model.getters.getActiveSheetId();
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createEqualCF(
+          "4",
+          {
+            fillColor: "#0000FF",
+            bold: true,
+            italic: true,
+            strikethrough: true,
+            underline: true,
+            textColor: "#FF0000",
+          },
+          "cfId"
+        ),
+        ranges: toRangesData(sheetId, "A1"),
+        sheetId,
+      });
+      setCellContent(model, "A1", "4");
+      await typeInComposerGrid("Hello");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.textDecoration).toBe("line-through underline");
+      expect(gridComposer.style.fontWeight).toBe("bold");
+      expect(toHex(gridComposer.style.background)).toBe("#0000FF");
+      expect(toHex(gridComposer.style.color)).toBe("#FF0000");
     });
   });
 

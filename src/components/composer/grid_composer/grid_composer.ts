@@ -9,6 +9,7 @@ import { DOMDimension, Rect, Ref, SpreadsheetChildEnv, Zone } from "../../../typ
 import { css } from "../../helpers/css";
 import { getTextDecoration } from "../../helpers/dom_helpers";
 import { Composer } from "../composer/composer";
+import { Style } from "./../../../types/misc";
 
 const SCROLLBAR_WIDTH = 14;
 const SCROLLBAR_HIGHT = 15;
@@ -91,7 +92,15 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
 
   get containerStyle(): string {
     const isFormula = this.env.model.getters.getCurrentContent().startsWith("=");
-    const style = this.env.model.getters.getCurrentStyle();
+    const cell = this.env.model.getters.getActiveCell();
+    let style: Style = {};
+    if (cell) {
+      const cellPosition = this.env.model.getters.getCellPosition(cell.id);
+      style = {
+        ...cell.style,
+        ...this.env.model.getters.getConditionalStyle(cellPosition.col, cellPosition.row),
+      };
+    }
 
     // position style
     const { x: left, y: top, width, height } = this.rect;
@@ -110,7 +119,6 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     let textAlign = "left";
 
     if (!isFormula) {
-      const cell = this.env.model.getters.getActiveCell();
       textAlign = style.align || cell?.defaultAlign || "left";
     }
 
