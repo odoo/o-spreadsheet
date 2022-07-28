@@ -5,7 +5,11 @@ import {
   AddMergeInteractiveContent,
   interactiveAddMerge,
 } from "../../src/helpers/ui/merge_interactive";
-import { interactivePaste, PasteInteractiveContent } from "../../src/helpers/ui/paste_interactive";
+import {
+  interactivePaste,
+  interactivePasteFromOS,
+  PasteInteractiveContent,
+} from "../../src/helpers/ui/paste_interactive";
 import { interactiveRenameSheet } from "../../src/helpers/ui/sheet_interactive";
 import { Model } from "../../src/model";
 import {
@@ -206,6 +210,27 @@ describe("UI Helpers", () => {
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         PasteInteractiveContent.willRemoveExistingMerge.toString()
       );
+    });
+
+    describe("Paste from OS", () => {
+      const clipboardString = "a\t1\nb\t2";
+
+      test("Can interactive paste", () => {
+        interactivePasteFromOS(env, target("D2"), clipboardString);
+        expect(getCellContent(model, "D2")).toBe("a");
+        expect(getCellContent(model, "E2")).toBe("1");
+        expect(getCellContent(model, "D3")).toBe("b");
+        expect(getCellContent(model, "E3")).toBe("2");
+      });
+
+      test("Pasting content that will destroy a merge will notify the user", async () => {
+        merge(model, "B2:C3");
+        selectCell(model, "A1");
+        interactivePasteFromOS(env, model.getters.getSelectedZones(), clipboardString);
+        expect(notifyUserTextSpy).toHaveBeenCalledWith(
+          PasteInteractiveContent.willRemoveExistingMerge.toString()
+        );
+      });
     });
   });
 

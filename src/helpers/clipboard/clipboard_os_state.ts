@@ -1,5 +1,6 @@
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
-import { CommandDispatcher, Getters, Zone } from "../../types";
+import { ClipboardOptions, CommandDispatcher, CommandResult, Getters, Zone } from "../../types";
+import { zoneToDimension } from "../zones";
 import { ClipboardCellsAbstractState } from "./clipboard_abstract_cell_state";
 
 /** State of the clipboard when copying/cutting from the OS clipboard*/
@@ -19,14 +20,20 @@ export class ClipboardOsState extends ClipboardCellsAbstractState {
       .map((vals) => vals.split("\t"));
   }
 
+  isPasteAllowed(target: Zone[], clipboardOption?: ClipboardOptions | undefined): CommandResult {
+    const sheetId = this.getters.getActiveSheetId();
+    const pasteZone = this.getPasteZone(target);
+    if (this.getters.doesIntersectMerge(sheetId, pasteZone)) {
+      return CommandResult.WillRemoveExistingMerge;
+    }
+    return CommandResult.Success;
+  }
+
   paste(target: Zone[]) {
     const values = this.values;
-    const { left: activeCol, top: activeRow } = target[0];
-    const width = Math.max.apply(
-      Math,
-      values.map((a) => a.length)
-    );
-    const height = values.length;
+    const pasteZone = this.getPasteZone(target);
+    const { left: activeCol, top: activeRow } = pasteZone;
+    const { width, height } = zoneToDimension(pasteZone);
     const sheetId = this.getters.getActiveSheetId();
     this.addMissingDimensions(width, height, activeCol, activeRow);
     for (let i = 0; i < values.length; i++) {
@@ -50,5 +57,17 @@ export class ClipboardOsState extends ClipboardCellsAbstractState {
 
   getClipboardContent(): string {
     return this.values.map((values) => values.join("\t")).join("\n");
+  }
+
+  private getPasteZone(target: Zone[]): Zone {
+    const height = this.values.length;
+    const width = Math.max(...this.values.map((a) => a.length));
+    const { left: activeCol, top: activeRow } = target[0];
+    return {
+      top: activeRow,
+      left: activeCol,
+      bottom: activeRow + height - 1,
+      right: activeCol + width - 1,
+    };
   }
 }
