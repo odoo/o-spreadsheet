@@ -343,7 +343,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
             sheetId: sheet.id,
             col,
             row,
-            style: topLeft ? topLeft.style : undefined,
+            style: topLeft ? topLeft.style : null,
             content: undefined,
           });
         }
