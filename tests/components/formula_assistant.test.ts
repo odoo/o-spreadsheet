@@ -26,7 +26,9 @@ beforeEach(async () => {
   model = parent.model;
 
   // start composition
-  document.querySelector(".o-grid")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+  document
+    .querySelector(".o-grid")!
+    .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
   await nextTick();
   composerEl = fixture.querySelector(".o-grid div.o-composer")!;
 });

@@ -1425,9 +1425,11 @@ describe("composer highlights color", () => {
     expect(getHighlights(model)[0].color).toBe(colors[0]);
     expect(getHighlights(model)[1].color).toBe(colors[1]);
 
-    document.activeElement!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
+    );
     await nextTick();
-    canvasEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    canvasEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
     await nextTick();
     expect(getHighlights(model).length).toBe(2);
     expect(getHighlights(model)[0].color).toBe(colors[0]);

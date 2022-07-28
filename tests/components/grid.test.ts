@@ -239,7 +239,7 @@ describe("Grid component", () => {
       // change this
       document
         .querySelector(".o-grid")!
-        .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+        .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
       expect(getActiveXc(model)).toBe("A1");
       expect(model.getters.getEditionMode()).toBe("editing");
     });
@@ -273,7 +273,9 @@ describe("Grid component", () => {
       await nextTick();
       fixture
         .querySelector("div.o-composer")!
-        .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", shiftKey: true }));
+        .dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Enter", shiftKey: true, bubbles: true })
+        );
       expect(getActiveXc(model)).toBe("A1");
       expect(model.getters.getEditionMode()).toBe("inactive");
       expect(getCellContent(model, "A1")).toBe("a");
@@ -282,7 +284,7 @@ describe("Grid component", () => {
     test("pressing TAB move to next cell", async () => {
       document
         .querySelector(".o-grid")!
-        .dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
+        .dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true }));
       expect(getActiveXc(model)).toBe("B1");
     });
 
@@ -291,7 +293,7 @@ describe("Grid component", () => {
       expect(getActiveXc(model)).toBe("B1");
       document
         .querySelector(".o-grid")!
-        .dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true }));
+        .dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true, bubbles: true }));
       expect(getActiveXc(model)).toBe("A1");
     });
 

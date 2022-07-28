@@ -2,7 +2,9 @@ import { App, Component, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
 import { sidePanelRegistry } from "../../src/registries/index";
 import { SidePanelContent } from "../../src/registries/side_panel_registry";
+import { setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick } from "../test_helpers/dom_helper";
+import { getCellContent } from "../test_helpers/getters_helpers";
 import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
@@ -140,5 +142,20 @@ describe("Side Panel", () => {
     simulateClick(".o-sidePanelClose");
     await nextTick();
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid-overlay"));
+  });
+
+  test("keyboards event on the side panel are handled in the grid", async () => {
+    const model = parent.model;
+    sidePanelRegistry.add("CUSTOM_PANEL", {
+      title: "Custom Panel",
+      Body: Body,
+    });
+    parent.env.openSidePanel("CUSTOM_PANEL");
+    await nextTick();
+    setCellContent(model, "A1", "a");
+    expect(getCellContent(model, "A1")).toEqual("a");
+    const keyDown = new KeyboardEvent("keydown", { key: "z", bubbles: true, ctrlKey: true });
+    document.querySelector(".o-sidePanel")!.dispatchEvent(keyDown);
+    expect(getCellContent(model, "A1")).toEqual("");
   });
 });

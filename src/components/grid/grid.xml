@@ -4,7 +4,7 @@
       class="o-grid"
       t-att-class="{'o-two-columns': !props.sidePanelIsOpen}"
       t-on-click="focus"
-      t-on-keydown="onKeydown"
+      t-on-keydown="onGridKeydown"
       t-on-wheel="onMouseWheel"
       t-ref="grid">
       <!-- tabindex="-1" is necessary to keep the focus on composer while selecting a cell -->

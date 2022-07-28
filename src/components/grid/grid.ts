@@ -297,6 +297,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);
+    useExternalListener(document.body, "keydown", this.onGlobalKeydown);
     useTouchMove(this.moveCanvas.bind(this), () => this.vScrollbar.scroll > 0);
     onMounted(() => this.initGrid());
     onPatched(() => {
@@ -366,29 +367,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.focus();
   }
 
-  // this map will handle most of the actions that should happen on key down. The arrow keys are managed in the key
-  // down itself
-  private keyDownMapping: { [key: string]: Function } = {
-    ENTER: () => {
-      const cell = this.env.model.getters.getActiveCell();
-      !cell || cell.isEmpty()
-        ? this.props.onGridComposerCellFocused()
-        : this.props.onComposerContentFocused();
-    },
-    TAB: () => this.env.model.selection.moveAnchorCell("right", "one"),
-    "SHIFT+TAB": () => this.env.model.selection.moveAnchorCell("left", "one"),
-    F2: () => {
-      const cell = this.env.model.getters.getActiveCell();
-      !cell || cell.isEmpty()
-        ? this.props.onGridComposerCellFocused()
-        : this.props.onComposerContentFocused();
-    },
-    DELETE: () => {
-      this.env.model.dispatch("DELETE_CONTENT", {
-        sheetId: this.env.model.getters.getActiveSheetId(),
-        target: this.env.model.getters.getSelectedZones(),
-      });
-    },
+  /**
+   * This map will handle most of the actions that should happen on key down globally in the window.
+   */
+  private globalKeyDownMapping: { [key: string]: Function } = {
     "CTRL+A": () => this.env.model.selection.loopSelection(),
     "CTRL+S": () => {
       this.props.onSaveRequested?.();
@@ -413,24 +395,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         target: this.env.model.getters.getSelectedZones(),
         style: { underline: !this.env.model.getters.getCurrentStyle().underline },
       }),
-    "ALT+=": () => {
-      const sheetId = this.env.model.getters.getActiveSheetId();
-
-      const mainSelectedZone = this.env.model.getters.getSelectedZone();
-      const { anchor } = this.env.model.getters.getSelection();
-      const sums = this.env.model.getters.getAutomaticSums(sheetId, mainSelectedZone, anchor.cell);
-      if (
-        this.env.model.getters.isSingleCellOrMerge(sheetId, mainSelectedZone) ||
-        (this.env.model.getters.isEmpty(sheetId, mainSelectedZone) && sums.length <= 1)
-      ) {
-        const zone = sums[0]?.zone;
-        const zoneXc = zone ? this.env.model.getters.zoneToXC(sheetId, sums[0].zone) : "";
-        const formula = `=SUM(${zoneXc})`;
-        this.props.onGridComposerCellFocused(formula, { start: 5, end: 5 + zoneXc.length });
-      } else {
-        this.env.model.dispatch("SUM_SELECTION");
-      }
-    },
     "CTRL+HOME": () => {
       const sheetId = this.env.model.getters.getActiveSheetId();
       const { col, row } = this.env.model.getters.getNextVisibleCellPosition(sheetId, 0, 0);
@@ -481,6 +445,51 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     },
     PAGEDOWN: () => this.env.model.dispatch("SHIFT_VIEWPORT_DOWN"),
     PAGEUP: () => this.env.model.dispatch("SHIFT_VIEWPORT_UP"),
+  };
+
+  /**
+   * This map will handle most of the actions that should happen on key down when the grid is focused.
+   * The arrow keys are managed in the key down itself
+   */
+  private gridKeyDownMapping: { [key: string]: Function } = {
+    ENTER: () => {
+      const cell = this.env.model.getters.getActiveCell();
+      !cell || cell.isEmpty()
+        ? this.props.onGridComposerCellFocused()
+        : this.props.onComposerContentFocused();
+    },
+    TAB: () => this.env.model.selection.moveAnchorCell("right", "one"),
+    "SHIFT+TAB": () => this.env.model.selection.moveAnchorCell("left", "one"),
+    F2: () => {
+      const cell = this.env.model.getters.getActiveCell();
+      !cell || cell.isEmpty()
+        ? this.props.onGridComposerCellFocused()
+        : this.props.onComposerContentFocused();
+    },
+    DELETE: () => {
+      this.env.model.dispatch("DELETE_CONTENT", {
+        sheetId: this.env.model.getters.getActiveSheetId(),
+        target: this.env.model.getters.getSelectedZones(),
+      });
+    },
+    "ALT+=": () => {
+      const sheetId = this.env.model.getters.getActiveSheetId();
+
+      const mainSelectedZone = this.env.model.getters.getSelectedZone();
+      const { anchor } = this.env.model.getters.getSelection();
+      const sums = this.env.model.getters.getAutomaticSums(sheetId, mainSelectedZone, anchor.cell);
+      if (
+        this.env.model.getters.isSingleCellOrMerge(sheetId, mainSelectedZone) ||
+        (this.env.model.getters.isEmpty(sheetId, mainSelectedZone) && sums.length <= 1)
+      ) {
+        const zone = sums[0]?.zone;
+        const zoneXc = zone ? this.env.model.getters.zoneToXC(sheetId, sums[0].zone) : "";
+        const formula = `=SUM(${zoneXc})`;
+        this.props.onGridComposerCellFocused(formula, { start: 5, end: 5 + zoneXc.length });
+      } else {
+        this.env.model.dispatch("SUM_SELECTION");
+      }
+    },
   };
 
   focus() {
@@ -819,7 +828,39 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  onKeydown(ev: KeyboardEvent) {
+  private keyEventToHandlerString(ev: KeyboardEvent): string {
+    let keyDownString = "";
+    if (ev.ctrlKey) keyDownString += "CTRL+";
+    if (ev.metaKey) keyDownString += "CTRL+";
+    if (ev.altKey) keyDownString += "ALT+";
+    if (ev.shiftKey) keyDownString += "SHIFT+";
+    keyDownString += ev.key.toUpperCase();
+
+    return keyDownString;
+  }
+
+  /**
+   * Handle keyboard events that occurred anywhere in the document
+   */
+  private onGlobalKeydown(ev: KeyboardEvent) {
+    if (this.env.isDashboard()) {
+      return;
+    }
+
+    const keyDownString = this.keyEventToHandlerString(ev);
+    const handler = this.globalKeyDownMapping[keyDownString];
+    if (handler) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      handler();
+      return;
+    }
+  }
+
+  /**
+   * Handle keyboard events that occurred in the grid
+   */
+  onGridKeydown(ev: KeyboardEvent) {
     if (this.env.isDashboard()) {
       return;
     }
@@ -828,21 +869,17 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
 
-    let keyDownString = "";
-    if (ev.ctrlKey) keyDownString += "CTRL+";
-    if (ev.metaKey) keyDownString += "CTRL+";
-    if (ev.altKey) keyDownString += "ALT+";
-    if (ev.shiftKey) keyDownString += "SHIFT+";
-    keyDownString += ev.key.toUpperCase();
-
-    let handler = this.keyDownMapping[keyDownString];
+    const keyDownString = this.keyEventToHandlerString(ev);
+    const handler = this.gridKeyDownMapping[keyDownString];
     if (handler) {
       ev.preventDefault();
       ev.stopPropagation();
       handler();
       return;
     }
-    if (!keyDownMappingIgnore.includes(keyDownString)) {
+    if (
+      ![...keyDownMappingIgnore, ...Object.keys(this.globalKeyDownMapping)].includes(keyDownString)
+    ) {
       if (ev.key.length === 1 && !ev.ctrlKey && !ev.metaKey && !ev.altKey) {
         // if the user types a character on the grid, it means he wants to start composing the selected cell with that
         // character
