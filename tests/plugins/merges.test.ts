@@ -379,6 +379,22 @@ describe("merges", () => {
     expect(getCell(model, "A4")!.evaluated.value).toBe(1);
   });
 
+  test("merging => unmerging  : cell styles are overridden even if the top left cell had no style", () => {
+    const model = new Model();
+
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: target("B1"),
+      style: { fillColor: "red" },
+    });
+    merge(model, "A1:B1");
+    expect(getStyle(model, "A1")).toBeUndefined();
+    expect(getStyle(model, "B1")).toBeUndefined();
+    unMerge(model, "A1:B1");
+    expect(getStyle(model, "A1")).toBeUndefined();
+    expect(getStyle(model, "B1")).toBeUndefined();
+  });
+
   test("merging => setting background color => unmerging", () => {
     const model = new Model();
     const sheet1 = model.getters.getSheetIds()[0];
