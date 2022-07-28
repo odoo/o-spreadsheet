@@ -30,11 +30,7 @@ export abstract class ClipboardCellsAbstractState implements ClipboardState {
     return CommandResult.Success;
   }
 
-  isPasteAllowed(
-    target: Zone[],
-    clipboardOption?: ClipboardOptions,
-    ignoreMerges?: boolean
-  ): CommandResult {
+  isPasteAllowed(target: Zone[], clipboardOption?: ClipboardOptions): CommandResult {
     return CommandResult.Success;
   }
 

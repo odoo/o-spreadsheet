@@ -415,7 +415,6 @@ export interface PasteCommand {
   type: "PASTE";
   target: Zone[];
   pasteOption?: ClipboardPasteOptions;
-  force?: boolean;
 }
 
 export interface AutoFillCellCommand {

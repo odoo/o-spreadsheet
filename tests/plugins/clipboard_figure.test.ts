@@ -148,7 +148,7 @@ describe("Clipboard for figures", () => {
     test("Cannot paste with clipboard options when pasting a figure", () => {
       model.dispatch("SELECT_FIGURE", { id: chartId });
       copy(model);
-      const result = paste(model, "A1", false, "onlyFormat");
+      const result = paste(model, "A1", "onlyFormat");
       expect(result).toBeCancelledBecause(CommandResult.WrongFigurePasteOption);
     });
   });

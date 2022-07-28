@@ -229,10 +229,9 @@ export function cut(model: Model, ...ranges: string[]): DispatchResult {
 export function paste(
   model: Model,
   range: string,
-  force?: boolean,
   pasteOption?: ClipboardPasteOptions
 ): DispatchResult {
-  return model.dispatch("PASTE", { target: target(range), force, pasteOption });
+  return model.dispatch("PASTE", { target: target(range), pasteOption });
 }
 
 /**
