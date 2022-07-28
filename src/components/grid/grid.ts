@@ -18,7 +18,7 @@ import {
 } from "../../constants";
 import { findCellInNewZone, isInside, MAX_DELAY, range } from "../../helpers/index";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
-import { interactivePaste } from "../../helpers/ui/paste_interactive";
+import { interactivePaste, interactivePasteFromOS } from "../../helpers/ui/paste_interactive";
 import { ComposerSelection } from "../../plugins/ui/edition";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
@@ -942,10 +942,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         // the paste actually comes from o-spreadsheet itself
         interactivePaste(this.env, target);
       } else {
-        this.env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
-          target,
-          text: content,
-        });
+        interactivePasteFromOS(this.env, target, content);
       }
     }
   }

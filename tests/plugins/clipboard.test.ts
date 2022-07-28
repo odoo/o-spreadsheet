@@ -436,33 +436,14 @@ describe("clipboard", () => {
     expect(getCellText(model, "A1", "s2")).toBe("=A2");
   });
 
-  test("Pasting content that will destroy a merge will fail if not forced", async () => {
-    const model = new Model({
-      sheets: [
-        {
-          id: "s1",
-          colNumber: 5,
-          rowNumber: 5,
-          merges: ["B2:C3"],
-        },
-        {
-          id: "s2",
-          colNumber: 5,
-          rowNumber: 5,
-        },
-      ],
-    });
-
+  test("Pasting content that will destroy a merge will fail", async () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    merge(model, "B2:C3");
     copy(model, "B2");
     const result = paste(model, "A1");
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
-    expect(model.getters.isInMerge("s1", ...toCartesianArray("A1"))).toBe(false);
-    expect(model.getters.isInMerge("s1", ...toCartesianArray("A2"))).toBe(false);
-    expect(model.getters.isInMerge("s1", ...toCartesianArray("B1"))).toBe(false);
-    expect(model.getters.isInMerge("s1", ...toCartesianArray("B2"))).toBe(true);
-    expect(model.getters.isInMerge("s1", ...toCartesianArray("B3"))).toBe(true);
-    expect(model.getters.isInMerge("s1", ...toCartesianArray("C2"))).toBe(true);
-    expect(model.getters.isInMerge("s1", ...toCartesianArray("C3"))).toBe(true);
+    expect(model.getters.getMerges(sheetId).map(zoneToXc)).toEqual(["B2:C3"]);
   });
 
   test("Can paste a single cell on a merge", () => {
@@ -556,6 +537,15 @@ describe("clipboard", () => {
     expect(getCellContent(model, "C2")).toBe("b");
     expect(getCellContent(model, "D1")).toBe("1");
     expect(getCellContent(model, "D2")).toBe("2");
+  });
+
+  test("Pasting content from os that will destroy a merge will fail", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    merge(model, "B2:C3");
+    const result = pasteFromOSClipboard(model, "B2", "a\t1\nb\t2");
+    expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
+    expect(model.getters.getMerges(sheetId).map(zoneToXc)).toEqual(["B2:C3"]);
   });
 
   test("pasting numbers from windows clipboard => interpreted as number", () => {

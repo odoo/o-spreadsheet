@@ -6,7 +6,11 @@ import {
 import { numberToLetters, zoneToXc } from "../../helpers/index";
 import { interactiveSortSelection } from "../../helpers/sort";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
-import { handlePasteResult, interactivePaste } from "../../helpers/ui/paste_interactive";
+import {
+  handlePasteResult,
+  interactivePaste,
+  interactivePasteFromOS,
+} from "../../helpers/ui/paste_interactive";
 import { _lt } from "../../translation";
 import { CellValueType, Format, SpreadsheetChildEnv, Style } from "../../types/index";
 
@@ -84,10 +88,7 @@ export const PASTE_ACTION = async (env: SpreadsheetChildEnv) => {
   const osClipboard = await readOsClipboard(env);
   const target = env.model.getters.getSelectedZones();
   if (osClipboard && osClipboard !== spreadsheetClipboard) {
-    env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
-      target,
-      text: osClipboard,
-    });
+    interactivePasteFromOS(env, target, osClipboard);
   } else {
     interactivePaste(env, target);
   }

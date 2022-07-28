@@ -50,6 +50,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     "doesRowsHaveCommonMerges",
     "getMerges",
     "getMerge",
+    "getMergesInZone",
     "isSingleCellOrMerge",
   ] as const;
 
@@ -128,6 +129,23 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     const sheetMap = this.mergeCellMap[sheetId];
     const mergeId = sheetMap ? col in sheetMap && sheetMap[col]?.[row] : undefined;
     return mergeId ? this.getMergeById(sheetId, mergeId) : undefined;
+  }
+
+  getMergesInZone(sheetId: UID, zone: Zone): Merge[] {
+    const sheetMap = this.mergeCellMap[sheetId];
+    if (!sheetMap) return [];
+    const mergeIds = new Set<number>();
+
+    for (const { col, row } of positions(zone)) {
+      const mergeId = sheetMap[col]?.[row];
+      if (mergeId) {
+        mergeIds.add(mergeId);
+      }
+    }
+
+    return Array.from(mergeIds)
+      .map((mergeId) => this.getMergeById(sheetId, mergeId))
+      .filter(isDefined);
   }
 
   /**

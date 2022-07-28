@@ -48,6 +48,10 @@ export class ClipboardPlugin extends UIPlugin {
         }
         const pasteOption = cmd.pasteOption || (this._isPaintingFormat ? "onlyFormat" : undefined);
         return this.state.isPasteAllowed(cmd.target, { pasteOption });
+      case "PASTE_FROM_OS_CLIPBOARD": {
+        const state = new ClipboardOsState(cmd.text, this.getters, this.dispatch, this.selection);
+        return state.isPasteAllowed(cmd.target);
+      }
       case "INSERT_CELL": {
         const { cut, paste } = this.getInsertCellsTargets(cmd.zone, cmd.shiftDimension);
         const state = this.getClipboardStateForCopyCells(cut, "CUT");
