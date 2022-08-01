@@ -1,5 +1,5 @@
 import { Component, onMounted, onPatched, useRef, useState } from "@odoo/owl";
-import { BACKGROUND_GRAY_COLOR, BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../../constants";
+import { BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { formatValue } from "../../helpers/format";
 import { interactiveRenameSheet } from "../../helpers/ui/sheet_interactive";
 import { MenuItemRegistry, sheetMenuRegistry } from "../../registries/index";
@@ -13,63 +13,25 @@ import { Menu, MenuState } from "../menu/menu";
 
 css/* scss */ `
   .o-spreadsheet-bottom-bar {
-    background-color: ${BACKGROUND_GRAY_COLOR};
     padding-left: ${HEADER_WIDTH}px;
-    display: flex;
-    align-items: center;
-    font-size: 15px;
-    border-top: 1px solid lightgrey;
-    overflow: hidden;
-
-    .o-add-sheet,
-    .o-list-sheets {
-      margin-right: 5px;
-    }
 
     .o-add-sheet.disabled {
       cursor: not-allowed;
     }
 
-    .o-sheet-item {
-      display: flex;
-      align-items: center;
-      padding: 5px;
-      cursor: pointer;
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-    }
-
-    .o-all-sheets {
-      display: flex;
-      align-items: center;
-      max-width: 80%;
-      overflow: hidden;
+    .o-sheet-item:hover {
+      background-color: rgba(0, 0, 0, 0.08);
     }
 
     .o-sheet {
-      color: #666;
-      padding: 0 15px;
-      padding-right: 10px;
       height: ${BOTTOMBAR_HEIGHT}px;
       line-height: ${BOTTOMBAR_HEIGHT}px;
-      user-select: none;
-      white-space: nowrap;
-      border-left: 1px solid #c1c1c1;
 
       &:last-child {
-        border-right: 1px solid #c1c1c1;
-      }
-
-      &.active {
-        color: #484;
-        background-color: #ffffff;
-        box-shadow: 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+        border-right: 1px solid #dee2e6;
       }
 
       .o-sheet-icon {
-        margin-left: 5px;
-
         &:hover {
           background-color: rgba(0, 0, 0, 0.08);
         }
@@ -77,27 +39,9 @@ css/* scss */ `
     }
 
     .o-selection-statistic {
-      background-color: #ffffff;
-      margin-left: auto;
-      font-size: 14px;
-      margin-right: 20px;
-      padding: 4px 8px;
-      color: #333;
-      border-radius: 3px;
-      box-shadow: 0 1px 3px 1px rgba(60, 64, 67, 0.15);
-      user-select: none;
-      cursor: pointer;
       &:hover {
         background-color: rgba(0, 0, 0, 0.08);
       }
-    }
-
-    .fade-enter-active {
-      transition: opacity 0.5s;
-    }
-
-    .fade-enter {
-      opacity: 0;
     }
   }
 `;

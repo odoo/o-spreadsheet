@@ -10,49 +10,25 @@ const LINK_TOOLTIP_HEIGHT = 43;
 const LINK_TOOLTIP_WIDTH = 220;
 
 css/* scss */ `
+  .cursor-pointer {
+    cursor: pointer;
+  }
   .o-link-tool {
-    font-size: 13px;
-    background-color: white;
-    box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
-    padding: 6px 12px;
-    border-radius: 4px;
-    display: flex;
-    justify-content: space-between;
-
     img {
-      margin-right: 3px;
       width: 16px;
       height: 16px;
     }
 
     a.o-link {
       color: #01666b;
-      text-decoration: none;
-      flex-grow: 2;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
-    a.o-link:hover {
-      text-decoration: none;
-      color: #001d1f;
-      cursor: pointer;
-    }
-  }
-  .o-link-icon {
-    float: right;
-    padding-left: 4%;
-    .o-icon {
-      height: 16px;
+    a.o-link:hover,
+    .o-link-icon:hover {
+      color: #000;
     }
   }
   .o-link-icon .o-icon {
-    padding-top: 3px;
     height: 13px;
-  }
-  .o-link-icon:hover {
-    cursor: pointer;
-    color: #000;
   }
 `;
 

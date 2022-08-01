@@ -1,17 +1,18 @@
 <templates>
   <t t-name="o-spreadsheet-LinkDisplay" owl="1">
-    <div class="o-link-tool">
+    <div class="o-link-tool d-flex justify-content-between px-2 py-1 bg-white shadow">
       <t t-set="link" t-value="cell.link"/>
       <!-- t-key to prevent owl from re-using the previous img element when the link changes.
     The wrong/previous image would be displayed while the new one loads -->
       <img
+        class="me-1"
         t-if="link.isExternal"
         t-key="link.url"
         t-attf-src="https://www.google.com/s2/favicons?sz=16&amp;domain={{link.url}}"
       />
       <a
         t-if="link.isExternal"
-        class="o-link"
+        class="o-link flex-grow-1 text-decoration-none text-nowrap overflow-hidden text-truncate"
         t-att-href="link.url"
         target="_blank"
         t-on-click.prevent="openLink"
@@ -20,17 +21,25 @@
       </a>
       <a
         t-else=""
-        class="o-link"
+        class="o-link flex-grow-1 text-decoration-none text-nowrap overflow-hidden text-truncate"
         t-on-click.prevent="openLink"
         t-att-title="cell.urlRepresentation">
         <t t-esc="cell.urlRepresentation"/>
       </a>
-      <span class="o-link-icon o-unlink" t-on-click="unlink" title="Remove link">
-        <t t-call="o-spreadsheet-Icon.UNLINK"/>
-      </span>
-      <span class="o-link-icon o-edit-link" t-on-click="edit" title="Edit link">
-        <t t-call="o-spreadsheet-Icon.EDIT"/>
-      </span>
+      <div class="d-flex justify-content-end align-items-center ms-2">
+        <span
+          class="o-link-icon o-unlink cursor-pointer ps-1"
+          t-on-click="unlink"
+          title="Remove link">
+          <t t-call="o-spreadsheet-Icon.UNLINK"/>
+        </span>
+        <span
+          class="o-link-icon o-edit-link cursor-pointer ps-1"
+          t-on-click="edit"
+          title="Edit link">
+          <t t-call="o-spreadsheet-Icon.EDIT"/>
+        </span>
+      </div>
     </div>
   </t>
 </templates>

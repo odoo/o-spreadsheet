@@ -99,7 +99,7 @@ describe("Autofill component", () => {
     expect(fixture.querySelector(".o-autofill")).not.toBeNull();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toMatchInlineSnapshot(`
       <div
-        class="o-autofill-nextvalue"
+        class="o-autofill-nextvalue position-absolute bg-white p-1 border border-black pe-none text-nowrap fs-6"
         style="top:11px;left:235px;"
       >
         <div>
@@ -131,7 +131,7 @@ describe("Autofill component", () => {
     expect(fixture.querySelector(".o-autofill")).not.toBeNull();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toMatchInlineSnapshot(`
       <div
-        class="o-autofill-nextvalue"
+        class="o-autofill-nextvalue position-absolute bg-white p-1 border border-black pe-none text-nowrap fs-6"
         style="top:11px;left:235px;"
       >
         <div>
@@ -160,7 +160,7 @@ describe("Autofill component", () => {
     expect(fixture.querySelector(".o-autofill")).not.toBeNull();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toMatchInlineSnapshot(`
       <div
-        class="o-autofill-nextvalue"
+        class="o-autofill-nextvalue position-absolute bg-white p-1 border border-black pe-none text-nowrap fs-6"
         style="top:11px;left:235px;"
       >
         <div>

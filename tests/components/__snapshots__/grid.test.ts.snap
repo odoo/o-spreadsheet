@@ -2,11 +2,11 @@
 
 exports[`Grid component simple rendering snapshot 1`] = `
 <div
-  class="o-grid o-two-columns"
+  class="o-grid position-relative overflow-hidden o-two-columns"
 >
   <!-- tabindex="-1" is necessary to keep the focus on composer while selecting a cell -->
   <div
-    class="o-grid-overlay"
+    class="o-grid-overlay position-absolute"
     style="
       top: 26px;
       left: 48px;
@@ -23,7 +23,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
     class="o-overlay"
   >
     <div
-      class="o-col-resizer"
+      class="o-col-resizer position-absolute top-0 end-0"
     >
       
       
@@ -33,7 +33,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
     </div>
     
     <div
-      class="o-row-resizer"
+      class="o-row-resizer position-absolute start-0 end-0 h-100"
     >
       
       
@@ -57,11 +57,11 @@ exports[`Grid component simple rendering snapshot 1`] = `
   
   
   <div
-    class="o-autofill"
+    class="o-autofill position-absolute border border-white"
     style="top:45px;left:140px"
   >
     <div
-      class="o-autofill-handler"
+      class="o-autofill-handler position-absolute"
       style="top:0px;left:0px;"
     />
     
@@ -71,7 +71,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
   
   
   <div
-    class="o-scrollbar vertical"
+    class="o-scrollbar vertical position-absolute overflow-auto end-0"
     style="
       top: 26px;"
   >
@@ -80,7 +80,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
     />
   </div>
   <div
-    class="o-scrollbar horizontal"
+    class="o-scrollbar horizontal position-absolute overflow-auto bottom-0"
     style="
       left: 48px;"
   >
@@ -89,7 +89,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
     />
   </div>
   <div
-    class="o-scrollbar corner"
+    class="o-scrollbar corner end-0 bottom-0 border-top border-end"
   />
 </div>
 `;
@@ -110,7 +110,7 @@ exports[`error tooltip can display error tooltip 1`] = `
     "
 >
   <div
-    class="o-error-tooltip"
+    class="o-error-tooltip p-2 bg-white border-start border-4 border-warning fs-5"
   >
     The divisor must be different from zero.
   </div>

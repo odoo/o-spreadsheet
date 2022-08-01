@@ -2,24 +2,24 @@
 
 exports[`UI of conditional formats Conditional format list simple snapshot 1`] = `
 <div
-  class="o-sidePanel"
+  class="o-sidePanel d-flex flex-column border-start bg-white"
 >
   <div
-    class="o-sidePanelHeader"
+    class="o-sidePanelHeader d-flex justify-content-between align-items-center p-2 border-bottom fw-bold"
   >
     <div
-      class="o-sidePanelTitle"
+      class="o-sidePanelTitle px-2 py-1 text-secondary fw-bold"
     >
       Conditional formatting
     </div>
     <div
-      class="o-sidePanelClose"
+      class="o-sidePanelClose btn btn-secondary"
     >
-      ×
+       × 
     </div>
   </div>
   <div
-    class="o-sidePanelBody"
+    class="o-sidePanelBody overflow-auto w-100 h-100"
   >
     <div
       class="o-cf"
@@ -29,41 +29,41 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
       >
         <div>
           <div
-            class="o-cf-preview o-cf-cursor-ptr"
+            class="o-cf-preview d-flex p-3 position-relative bg-white border-bottom cursor-pointer"
           >
             
             <div
-              class="o-cf-preview-image"
+              class="o-cf-preview-image d-flex justify-content-center align-items-center"
               style="font-weight:normal;
                text-decoration:none;
                font-style:normal;
                color:none;
                background-color:#FF0000;"
             >
-              123
+               123 
             </div>
             
             <div
-              class="o-cf-preview-description"
+              class="o-cf-preview-description position-relative my-auto ms-5"
             >
               <div
                 class="o-cf-preview-ruletype"
               >
                 <div
-                  class="o-cf-preview-description-rule"
+                  class="o-cf-preview-description-rule text-truncate fw-bold"
                 >
                   Is equal to 2
                 </div>
               </div>
               <div
-                class="o-cf-preview-range"
+                class="o-cf-preview-range text-truncate fs-6"
               >
                 A1:A2
               </div>
             </div>
             
             <div
-              class="o-cf-delete"
+              class="o-cf-delete text-secondary d-flex flex-grow-1 justify-content-end align-items-center"
             >
               <div
                 aria-label="Remove rule"
@@ -85,37 +85,37 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
         </div>
         <div>
           <div
-            class="o-cf-preview o-cf-cursor-ptr"
+            class="o-cf-preview d-flex p-3 position-relative bg-white border-bottom cursor-pointer"
           >
             
             <div
-              class="o-cf-preview-image"
+              class="o-cf-preview-image d-flex justify-content-center align-items-center"
               style="background-image: linear-gradient(to right, #FF00FF, #123456)"
             >
-              123
+               123 
             </div>
             
             <div
-              class="o-cf-preview-description"
+              class="o-cf-preview-description position-relative my-auto ms-5"
             >
               <div
                 class="o-cf-preview-ruletype"
               >
                 <div
-                  class="o-cf-preview-description-rule"
+                  class="o-cf-preview-description-rule text-truncate fw-bold"
                 >
                   Color scale
                 </div>
               </div>
               <div
-                class="o-cf-preview-range"
+                class="o-cf-preview-range text-truncate fs-6"
               >
                 B1:B5
               </div>
             </div>
             
             <div
-              class="o-cf-delete"
+              class="o-cf-delete text-secondary d-flex flex-grow-1 justify-content-end align-items-center"
             >
               <div
                 aria-label="Remove rule"
@@ -138,16 +138,21 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
         
       </div>
       <div
-        class="btn btn-link o-cf-btn-link o-cf-add"
+        class="d-flex justify-content-around align-items-center"
       >
-         + Add another rule 
+        <div
+          class="btn btn-link o-cf-btn-link o-cf-add p-3 fs-5 text-decoration-none"
+        >
+           + Add another rule 
+        </div>
+        <div
+          class="btn btn-link o-cf-btn-link o-cf-reorder p-3 fs-5 text-decoration-none"
+        >
+           Reorder rules 
+        </div>
+        
+        
       </div>
-      <div
-        class="btn btn-link o-cf-btn-link o-cf-reorder"
-      >
-         Reorder rules 
-      </div>
-      
       
       
       

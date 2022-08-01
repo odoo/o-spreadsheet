@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-Spreadsheet" owl="1">
-    <div class="o-spreadsheet" t-on-keydown="onKeydown" t-att-style="getStyle()">
+    <div class="o-spreadsheet" t-on-keydown="onKeydown">
       <TopBar
         t-if="!env.isDashboard()"
         onClick="() => this.focusGrid()"

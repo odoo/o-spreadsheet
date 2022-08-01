@@ -2,15 +2,15 @@
 
 exports[`Context Menu context menu simple rendering 1`] = `
 <div
-  class="o-menu"
+  class="o-menu bg-white py-1"
 >
   <div
-    class="o-menu-item"
+    class="o-menu-item cursor-pointer user-select-none d-flex justify-content-between align-items-center px-2 py-1"
     data-name="cut"
     title="Cut"
   >
     <span
-      class="o-menu-item-name"
+      class="o-menu-item-name overflow-hidden text-nowrap text-truncate"
     >
       Cut
     </span>
@@ -25,12 +25,12 @@ exports[`Context Menu context menu simple rendering 1`] = `
   </div>
   
   <div
-    class="o-menu-item"
+    class="o-menu-item cursor-pointer user-select-none d-flex justify-content-between align-items-center px-2 py-1"
     data-name="copy"
     title="Copy"
   >
     <span
-      class="o-menu-item-name"
+      class="o-menu-item-name overflow-hidden text-nowrap text-truncate"
     >
       Copy
     </span>
@@ -45,12 +45,12 @@ exports[`Context Menu context menu simple rendering 1`] = `
   </div>
   
   <div
-    class="o-menu-item"
+    class="o-menu-item cursor-pointer user-select-none d-flex justify-content-between align-items-center px-2 py-1"
     data-name="paste"
     title="Paste"
   >
     <span
-      class="o-menu-item-name"
+      class="o-menu-item-name overflow-hidden text-nowrap text-truncate"
     >
       Paste
     </span>
@@ -65,12 +65,12 @@ exports[`Context Menu context menu simple rendering 1`] = `
   </div>
   
   <div
-    class="o-menu-item o-menu-root"
+    class="o-menu-item cursor-pointer user-select-none d-flex justify-content-between align-items-center px-2 py-1 o-menu-root"
     data-name="paste_special"
     title="Paste special"
   >
     <span
-      class="o-menu-item-name"
+      class="o-menu-item-name overflow-hidden text-nowrap text-truncate"
     >
       Paste special
     </span>
@@ -93,12 +93,12 @@ exports[`Context Menu context menu simple rendering 1`] = `
     class="o-separator"
   />
   <div
-    class="o-menu-item"
+    class="o-menu-item cursor-pointer user-select-none d-flex justify-content-between align-items-center px-2 py-1"
     data-name="add_row_before"
     title="Insert row"
   >
     <span
-      class="o-menu-item-name"
+      class="o-menu-item-name overflow-hidden text-nowrap text-truncate"
     >
       Insert row
     </span>
@@ -108,12 +108,12 @@ exports[`Context Menu context menu simple rendering 1`] = `
   </div>
   
   <div
-    class="o-menu-item"
+    class="o-menu-item cursor-pointer user-select-none d-flex justify-content-between align-items-center px-2 py-1"
     data-name="add_column_before"
     title="Insert column"
   >
     <span
-      class="o-menu-item-name"
+      class="o-menu-item-name overflow-hidden text-nowrap text-truncate"
     >
       Insert column
     </span>
@@ -123,12 +123,12 @@ exports[`Context Menu context menu simple rendering 1`] = `
   </div>
   
   <div
-    class="o-menu-item o-menu-root"
+    class="o-menu-item cursor-pointer user-select-none d-flex justify-content-between align-items-center px-2 py-1 o-menu-root"
     data-name="insert_cell"
     title="Insert cells"
   >
     <span
-      class="o-menu-item-name"
+      class="o-menu-item-name overflow-hidden text-nowrap text-truncate"
     >
       Insert cells
     </span>
@@ -151,12 +151,12 @@ exports[`Context Menu context menu simple rendering 1`] = `
     class="o-separator"
   />
   <div
-    class="o-menu-item"
+    class="o-menu-item cursor-pointer user-select-none d-flex justify-content-between align-items-center px-2 py-1"
     data-name="delete_row"
     title="Delete row 8"
   >
     <span
-      class="o-menu-item-name"
+      class="o-menu-item-name overflow-hidden text-nowrap text-truncate"
     >
       Delete row 8
     </span>
@@ -166,12 +166,12 @@ exports[`Context Menu context menu simple rendering 1`] = `
   </div>
   
   <div
-    class="o-menu-item"
+    class="o-menu-item cursor-pointer user-select-none d-flex justify-content-between align-items-center px-2 py-1"
     data-name="delete_column"
     title="Delete column C"
   >
     <span
-      class="o-menu-item-name"
+      class="o-menu-item-name overflow-hidden text-nowrap text-truncate"
     >
       Delete column C
     </span>
@@ -181,12 +181,12 @@ exports[`Context Menu context menu simple rendering 1`] = `
   </div>
   
   <div
-    class="o-menu-item o-menu-root"
+    class="o-menu-item cursor-pointer user-select-none d-flex justify-content-between align-items-center px-2 py-1 o-menu-root"
     data-name="delete_cell"
     title="Delete cells"
   >
     <span
-      class="o-menu-item-name"
+      class="o-menu-item-name overflow-hidden text-nowrap text-truncate"
     >
       Delete cells
     </span>
@@ -207,12 +207,12 @@ exports[`Context Menu context menu simple rendering 1`] = `
   </div>
   
   <div
-    class="o-menu-item"
+    class="o-menu-item cursor-pointer user-select-none d-flex justify-content-between align-items-center px-2 py-1"
     data-name="insert_link"
     title="Insert link"
   >
     <span
-      class="o-menu-item-name"
+      class="o-menu-item-name overflow-hidden text-nowrap text-truncate"
     >
       Insert link
     </span>

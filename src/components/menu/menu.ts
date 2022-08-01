@@ -23,32 +23,10 @@ import { Popover } from "../popover/popover";
 
 css/* scss */ `
   .o-menu {
-    background-color: white;
-    padding: 5px 0px;
     .o-menu-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       box-sizing: border-box;
       height: ${MENU_ITEM_HEIGHT}px;
-      padding: 4px 16px;
-      cursor: pointer;
-      user-select: none;
 
-      .o-menu-item-name {
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-      }
-
-      &.o-menu-root {
-        display: flex;
-        justify-content: space-between;
-      }
-      .o-menu-item-icon {
-        margin-top: auto;
-        margin-bottom: auto;
-      }
       .o-icon {
         width: 10px;
       }

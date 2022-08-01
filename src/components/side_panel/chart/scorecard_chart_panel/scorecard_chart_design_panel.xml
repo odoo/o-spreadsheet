@@ -1,9 +1,9 @@
 <templates>
   <t t-name="o-spreadsheet-ScorecardChartDesignPanel" owl="1">
     <div>
-      <div class="o-section">
-        <div class="o-section-title">Background color</div>
-        <div class="o-with-color-picker">
+      <div class="o-section p-4">
+        <div class="o-section-title mb-2 fw-bold text-secondary">Background color</div>
+        <div class="o-with-color-picker position-relative">
           Select a color...
           <span
             title="Background Color"
@@ -20,29 +20,29 @@
         </div>
       </div>
 
-      <div class="o-section o-chart-title">
-        <div class="o-section-title">Title</div>
+      <div class="o-section o-chart-title p-4">
+        <div class="o-section-title mb-2 fw-bold text-secondary">Title</div>
         <input
           type="text"
           t-att-value="props.definition.title"
           t-on-change="updateTitle"
-          class="o-input o-optional"
+          class="o-input o-optional w-100 border-0 border-bottom"
           placeholder="New Chart"
         />
       </div>
-      <div class="o-section">
-        <div class="o-section-title">Baseline description</div>
+      <div class="o-section p-4">
+        <div class="o-section-title fw-bold text-secondary">Baseline description</div>
         <input
           type="text"
           t-att-value="props.definition.baselineDescr"
           t-on-change="updateBaselineDescr"
-          class="o-input o-optional"
+          class="o-input o-optional w-100 border-0 border-bottom"
         />
       </div>
     </div>
-    <div class="o-section">
-      <div class="o-section-title">Baseline color</div>
-      <div class="o-with-color-picker">
+    <div class="o-section p-4">
+      <div class="o-section-title mb-2 fw-bold text-secondary">Baseline color</div>
+      <div class="o-with-color-picker position-relative">
         Color on value increase
         <span
           title="Color Up"
@@ -58,7 +58,7 @@
         />
       </div>
       <br/>
-      <div class="o-with-color-picker">
+      <div class="o-with-color-picker position-relative">
         Color on value decrease
         <span
           title="Background Color"

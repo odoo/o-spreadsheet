@@ -2,18 +2,18 @@
 
 exports[`Scorecard charts Scorecard snapshot 1`] = `
 <div
-  class="o-figure"
+  class="o-figure position-absolute bottom-0 end-0"
   style="width:536px;height:335px;border-width: 1px;"
   tabindex="0"
 >
   <div
-    class="o-chart-container"
+    class="o-chart-container position-relative w-100 h-100"
   >
     <div
-      class="o-chart-menu"
+      class="o-chart-menu d-none position-absolute end-0 p-1"
     >
       <div
-        class="o-chart-menu-item"
+        class="o-chart-menu-item cursor-pointer"
       >
         <svg
           class="o-icon"
@@ -42,7 +42,7 @@ exports[`Scorecard charts Scorecard snapshot 1`] = `
     </div>
     
     <div
-      class="o-scorecard"
+      class="o-scorecard d-flex flex-column bg-white user-select-none"
       style="
       height:335px;
       width:536px;
@@ -51,7 +51,7 @@ exports[`Scorecard charts Scorecard snapshot 1`] = `
     "
     >
       <div
-        class="o-title-text"
+        class="o-title-text overflow-hidden text-nowrap text-start"
         style="
 font-size: 18px;
 display: inline-block;
@@ -62,13 +62,13 @@ color: #757575;
       </div>
       
       <div
-        class="o-scorecard-content"
+        class="o-scorecard-content d-flex flex-column justify-content-center h-100 text-center"
         style="
       height:291.96px;
     "
       >
         <div
-          class="o-key-text"
+          class="o-key-text overflow-hidden text-nowrap"
           style="
 font-size: 69.24101876395092px;
 display: inline-block;
@@ -79,7 +79,7 @@ color: #000000;
         </div>
         
         <div
-          class="o-baseline-text"
+          class="o-baseline-text overflow-hidden text-nowrap"
           style="
 font-size: 37.28362548828126px;
 display: inline-block;

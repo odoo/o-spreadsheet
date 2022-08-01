@@ -1,3 +1,21 @@
-$primary: red;
+$primary: #71639e;
 
+$gray-100: #f8f9fa !default;
+$gray-200: #e9ecef !default;
+$gray-700: #495057 !default;
+$o-btn-secondary-bg: white !default;
+$o-btn-secondary-hover-bg: $gray-100 !default;
+$o-btn-secondary-hover-border: $gray-200 !default;
+$dark: $gray-700;
+
+.btn-secondary {
+  color: $dark !important;
+  background: $o-btn-secondary-bg !important;
+  border: 1px solid $o-btn-secondary-bg !important;
+  &:hover,
+  &:active {
+    background: $o-btn-secondary-hover-bg !important;
+    border: 1px solid $o-btn-secondary-hover-border !important;
+  }
+}
 @import "../node_modules/bootstrap/scss/bootstrap";

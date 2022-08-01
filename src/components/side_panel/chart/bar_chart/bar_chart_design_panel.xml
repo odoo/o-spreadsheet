@@ -1,9 +1,9 @@
 <templates>
   <t t-name="o-spreadsheet-BarChartDesignPanel" owl="1">
     <div>
-      <div class="o-section">
-        <div class="o-section-title">Background color</div>
-        <div class="o-with-color-picker">
+      <div class="o-section p-4">
+        <div class="o-section-title mb-2 fw-bold text-secondary">Background color</div>
+        <div class="o-with-color-picker position-relative">
           Select a color...
           <span
             t-attf-style="border-color:{{props.definition.background}}"
@@ -18,31 +18,31 @@
           />
         </div>
       </div>
-      <div class="o-section o-chart-title">
-        <div class="o-section-title">Title</div>
+      <div class="o-section o-chart-title p-4">
+        <div class="o-section-title mb-2 fw-bold text-secondary">Title</div>
         <input
           type="text"
           t-att-value="props.definition.title"
           t-on-change="updateTitle"
-          class="o-input o-optional"
+          class="o-input o-optional w-100 border-0 border-bottom"
           placeholder="New Chart"
         />
       </div>
-      <div class="o-section">
-        <div class="o-section-title">Vertical axis position</div>
+      <div class="o-section p-4">
+        <div class="o-section-title mb-2 fw-bold text-secondary">Vertical axis position</div>
         <select
           t-att-value="props.definition.verticalAxisPosition"
-          class="o-input o-type-selector"
+          class="o-input o-type-selector w-100 border-0 border-bottom text-start"
           t-on-change="(ev) => this.updateSelect('verticalAxisPosition', ev)">
           <option value="left">Left</option>
           <option value="right">Right</option>
         </select>
       </div>
-      <div class="o-section">
-        <div class="o-section-title">Legend position</div>
+      <div class="o-section p-4">
+        <div class="o-section-title mb-2 fw-bold text-secondary">Legend position</div>
         <select
           t-att-value="props.definition.legendPosition"
-          class="o-input o-type-selector"
+          class="o-input o-type-selector w-100 border-0 border-bottom text-start"
           t-on-change="(ev) => this.updateSelect('legendPosition', ev)">
           <option value="none">None</option>
           <option value="top">Top</option>

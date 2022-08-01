@@ -68,7 +68,9 @@ describe("UI of conditional formats", () => {
           inflextion: ".o-cf .o-cf-iconset-rule .o-inflection",
           icons: ".o-cf .o-cf-iconset-rule .o-inflection .o-cf-icon",
           reverse: ".o-cf .o-cf-iconset-rule .o-cf-iconset-reverse",
-          rows: ".o-cf .o-cf-iconset-rule .o-inflection tr",
+          rows: ".o-cf .o-cf-iconset-rule .o-inflection>div>div",
+          // this selector flow is a bit of a shitshow tbh
+          // rows: ".o-cf .o-cf-iconset-rule .o-inflection tr",
         },
       },
     },
@@ -1271,11 +1273,11 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(selectors.buttonAdd, "click");
     await nextTick();
 
+    // icon set
     triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
     await nextTick();
 
-    const row = document.querySelectorAll(".o-inflection tr")[1 + iconIndex]; // +1 for the <table> headers
-    const iconElement = row.querySelectorAll("div")[0];
+    const iconElement = document.querySelectorAll(".o-cf-icon-button")[iconIndex]; // +1 for the <table> headers
     triggerMouseEvent(iconElement, "click");
     await nextTick();
 

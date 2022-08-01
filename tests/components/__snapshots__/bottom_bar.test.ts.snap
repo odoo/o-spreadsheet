@@ -2,15 +2,15 @@
 
 exports[`BottomBar component Can open the list of statistics 1`] = `
 <div
-  class="o-menu"
+  class="o-menu bg-white py-1"
 >
   <div
-    class="o-menu-item"
+    class="o-menu-item cursor-pointer user-select-none d-flex justify-content-between align-items-center px-2 py-1"
     data-name="Sum"
     title="Sum: 24"
   >
     <span
-      class="o-menu-item-name"
+      class="o-menu-item-name overflow-hidden text-nowrap text-truncate"
     >
       Sum: 24
     </span>
@@ -20,12 +20,12 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
   </div>
   
   <div
-    class="o-menu-item"
+    class="o-menu-item cursor-pointer user-select-none d-flex justify-content-between align-items-center px-2 py-1"
     data-name="Avg"
     title="Avg: 24"
   >
     <span
-      class="o-menu-item-name"
+      class="o-menu-item-name overflow-hidden text-nowrap text-truncate"
     >
       Avg: 24
     </span>
@@ -35,12 +35,12 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
   </div>
   
   <div
-    class="o-menu-item"
+    class="o-menu-item cursor-pointer user-select-none d-flex justify-content-between align-items-center px-2 py-1"
     data-name="Min"
     title="Min: 24"
   >
     <span
-      class="o-menu-item-name"
+      class="o-menu-item-name overflow-hidden text-nowrap text-truncate"
     >
       Min: 24
     </span>
@@ -50,12 +50,12 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
   </div>
   
   <div
-    class="o-menu-item"
+    class="o-menu-item cursor-pointer user-select-none d-flex justify-content-between align-items-center px-2 py-1"
     data-name="Max"
     title="Max: 24"
   >
     <span
-      class="o-menu-item-name"
+      class="o-menu-item-name overflow-hidden text-nowrap text-truncate"
     >
       Max: 24
     </span>
@@ -65,12 +65,12 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
   </div>
   
   <div
-    class="o-menu-item"
+    class="o-menu-item cursor-pointer user-select-none d-flex justify-content-between align-items-center px-2 py-1"
     data-name="Count"
     title="Count: 1"
   >
     <span
-      class="o-menu-item-name"
+      class="o-menu-item-name overflow-hidden text-nowrap text-truncate"
     >
       Count: 1
     </span>
@@ -80,12 +80,12 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
   </div>
   
   <div
-    class="o-menu-item"
+    class="o-menu-item cursor-pointer user-select-none d-flex justify-content-between align-items-center px-2 py-1"
     data-name="Count Numbers"
     title="Count Numbers: 1"
   >
     <span
-      class="o-menu-item-name"
+      class="o-menu-item-name overflow-hidden text-nowrap text-truncate"
     >
       Count Numbers: 1
     </span>
@@ -100,10 +100,10 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
 
 exports[`BottomBar component simple rendering 1`] = `
 <div
-  class="o-spreadsheet-bottom-bar o-two-columns"
+  class="o-spreadsheet-bottom-bar o-two-columns d-flex align-items-center fs-5 border-top overflow-hidden bg-light"
 >
   <div
-    class="o-sheet-item o-add-sheet"
+    class="o-sheet-item o-add-sheet d-flex align-items-center p-2 me-1 cursor-pointer"
   >
     <svg
       class="o-icon"
@@ -115,7 +115,7 @@ exports[`BottomBar component simple rendering 1`] = `
     </svg>
   </div>
   <div
-    class="o-sheet-item o-list-sheets"
+    class="o-sheet-item o-list-sheets d-flex align-items-center p-2 me-1 cursor-pointer"
   >
     <svg
       class="o-icon"
@@ -142,10 +142,10 @@ exports[`BottomBar component simple rendering 1`] = `
     </svg>
   </div>
   <div
-    class="o-all-sheets"
+    class="o-all-sheets d-flex align-items-center mw-75 overflow-hidden"
   >
     <div
-      class="o-sheet-item o-sheet active"
+      class="o-sheet-item o-sheet d-flex align-items-center py-2 ps-4 pe-3 border-start cursor-pointer user-select-none text-nowrap active bg-white shadow text-primary"
       data-id="Sheet1"
       title="Sheet1"
     >
@@ -155,7 +155,7 @@ exports[`BottomBar component simple rendering 1`] = `
         Sheet1
       </span>
       <span
-        class="o-sheet-icon"
+        class="o-sheet-icon ms-1"
       >
         <svg
           class="o-icon"

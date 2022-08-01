@@ -1,30 +1,30 @@
 <templates>
   <t t-name="o-spreadsheet-ChartPanel" owl="1">
     <div class="o-chart">
-      <div class="o-panel">
+      <div class="o-panel d-flex">
         <div
-          class="o-panel-element o-panel-configuration"
-          t-att-class="state.panel !== 'configuration' ? 'inactive' : ''"
+          class="o-panel-element o-panel-configuration cursor-pointer flex-grow-1 flex-shrink-0 py-2 border-end text-center"
+          t-att-class="state.panel !== 'configuration' ? 'inactive bg-light border-bottom' : ''"
           t-on-click="() => this.activatePanel('configuration')">
-          <i class="fa fa-sliders"/>
+          <i class="fa fa-sliders me-1"/>
           Configuration
         </div>
         <div
-          class="o-panel-element o-panel-design"
-          t-att-class="state.panel !== 'design' ? 'inactive' : ''"
+          class="o-panel-element o-panel-design cursor-pointer flex-grow-1 flex-shrink-0 py-2 text-center"
+          t-att-class="state.panel !== 'design' ? 'inactive bg-light border-bottom' : ''"
           t-on-click="() => this.activatePanel('design')">
-          <i class="fa fa-paint-brush"/>
+          <i class="fa fa-paint-brush me-1"/>
           Design
         </div>
       </div>
 
       <t t-set="definition" t-value="getChartDefinition()"/>
       <t t-if="state.panel === 'configuration'">
-        <div class="o-section">
-          <div class="o-section-title">Chart type</div>
+        <div class="o-section p-4">
+          <div class="o-section-title mb-2 fw-bold text-secondary">Chart type</div>
           <t t-set="types" t-value="chartTypes"/>
           <select
-            class="o-input o-type-selector"
+            class="o-input o-type-selector w-100 border-0 border-bottom"
             t-on-change="(ev) => this.onTypeChange(ev.target.value)">
             <option
               t-foreach="chartTypes"

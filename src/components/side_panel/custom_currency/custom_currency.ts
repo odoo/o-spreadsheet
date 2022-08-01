@@ -1,16 +1,7 @@
 import { Component, onWillStart, useState } from "@odoo/owl";
 import { currenciesRegistry } from "../../../registries/currencies_registry";
 import { Currency, Format, SpreadsheetChildEnv } from "../../../types";
-import { css } from "../../helpers/css";
 import { CustomCurrencyTerms } from "../../translations_terms";
-
-css/* scss */ `
-  .o-custom-currency {
-    .o-format-proposals {
-      color: black;
-    }
-  }
-`;
 
 interface CurrencyProposal {
   format: string;

@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-Corner" owl="1">
     <div
-      class="o-corner"
+      class="o-corner position-absolute border border-white"
       t-on-mousedown="onMouseDown"
       t-att-style="style"
       t-att-class="{

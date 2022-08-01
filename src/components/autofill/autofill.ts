@@ -13,28 +13,15 @@ css/* scss */ `
   .o-autofill {
     height: 6px;
     width: 6px;
-    border: 1px solid white;
-    position: absolute;
     background-color: #1a73e8;
 
     .o-autofill-handler {
-      position: absolute;
       height: ${AUTOFILL_EDGE_LENGTH}px;
       width: ${AUTOFILL_EDGE_LENGTH}px;
 
       &:hover {
         cursor: crosshair;
       }
-    }
-
-    .o-autofill-nextvalue {
-      position: absolute;
-      background-color: #ffffff;
-      border: 1px solid black;
-      padding: 5px;
-      font-size: 12px;
-      pointer-events: none;
-      white-space: nowrap;
     }
   }
 `;

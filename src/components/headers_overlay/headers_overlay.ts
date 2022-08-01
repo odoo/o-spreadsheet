@@ -339,10 +339,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
 
 css/* scss */ `
   .o-col-resizer {
-    position: absolute;
-    top: 0;
     left: ${HEADER_WIDTH}px;
-    right: 0;
     height: ${HEADER_HEIGHT}px;
     &.o-dragging {
       cursor: grabbing;
@@ -352,20 +349,15 @@ css/* scss */ `
     }
     .dragging-col-line {
       top: ${HEADER_HEIGHT}px;
-      position: absolute;
       width: 2px;
       height: 10000px;
-      background-color: black;
     }
     .dragging-col-shadow {
       top: ${HEADER_HEIGHT}px;
-      position: absolute;
       height: 10000px;
-      background-color: black;
       opacity: 0.1;
     }
     .o-handle {
-      position: absolute;
       height: ${HEADER_HEIGHT}px;
       width: 4px;
       cursor: e-resize;
@@ -373,8 +365,6 @@ css/* scss */ `
     }
     .dragging-resizer {
       top: ${HEADER_HEIGHT}px;
-      position: absolute;
-      margin-left: 2px;
       width: 1px;
       height: 10000px;
       background-color: ${SELECTION_BORDER_COLOR};
@@ -382,9 +372,6 @@ css/* scss */ `
     .o-unhide {
       width: ${UNHIDE_ICON_EDGE_LENGTH}px;
       height: ${UNHIDE_ICON_EDGE_LENGTH}px;
-      position: absolute;
-      overflow: hidden;
-      border-radius: 2px;
       top: calc(${HEADER_HEIGHT}px / 2 - ${UNHIDE_ICON_EDGE_LENGTH}px / 2);
     }
     .o-unhide:hover {
@@ -548,12 +535,8 @@ export class ColResizer extends AbstractResizer {
 
 css/* scss */ `
   .o-row-resizer {
-    position: absolute;
     top: ${HEADER_HEIGHT}px;
-    left: 0;
-    right: 0;
     width: ${HEADER_WIDTH}px;
-    height: 100%;
     &.o-dragging {
       cursor: grabbing;
     }
@@ -562,20 +545,15 @@ css/* scss */ `
     }
     .dragging-row-line {
       left: ${HEADER_WIDTH}px;
-      position: absolute;
       width: 10000px;
       height: 2px;
-      background-color: black;
     }
     .dragging-row-shadow {
       left: ${HEADER_WIDTH}px;
-      position: absolute;
       width: 10000px;
-      background-color: black;
       opacity: 0.1;
     }
     .o-handle {
-      position: absolute;
       height: 4px;
       width: ${HEADER_WIDTH}px;
       cursor: n-resize;
@@ -583,8 +561,6 @@ css/* scss */ `
     }
     .dragging-resizer {
       left: ${HEADER_WIDTH}px;
-      position: absolute;
-      margin-top: 2px;
       width: 10000px;
       height: 1px;
       background-color: ${SELECTION_BORDER_COLOR};
@@ -592,9 +568,6 @@ css/* scss */ `
     .o-unhide {
       width: ${UNHIDE_ICON_EDGE_LENGTH}px;
       height: ${UNHIDE_ICON_EDGE_LENGTH}px;
-      position: absolute;
-      overflow: hidden;
-      border-radius: 2px;
       left: calc(${HEADER_WIDTH}px - ${UNHIDE_ICON_EDGE_LENGTH}px - 2px);
     }
     .o-unhide > svg {

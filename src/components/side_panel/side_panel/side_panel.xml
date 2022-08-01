@@ -1,11 +1,16 @@
 <templates>
   <t t-name="o-spreadsheet-SidePanel" owl="1">
-    <div class="o-sidePanel">
-      <div class="o-sidePanelHeader">
-        <div class="o-sidePanelTitle" t-esc="getTitle()"/>
-        <div class="o-sidePanelClose" t-on-click="() => this.props.onCloseSidePanel()">×</div>
+    <div class="o-sidePanel d-flex flex-column border-start bg-white">
+      <div
+        class="o-sidePanelHeader d-flex justify-content-between align-items-center p-2 border-bottom fw-bold">
+        <div class="o-sidePanelTitle px-2 py-1 text-secondary fw-bold" t-esc="getTitle()"/>
+        <div
+          class="o-sidePanelClose btn btn-secondary"
+          t-on-click="() => this.props.onCloseSidePanel()">
+          ×
+        </div>
       </div>
-      <div class="o-sidePanelBody">
+      <div class="o-sidePanelBody overflow-auto w-100 h-100">
         <t
           t-component="state.panel.Body"
           t-props="props.panelProps"

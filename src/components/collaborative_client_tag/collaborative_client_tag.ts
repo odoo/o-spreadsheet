@@ -14,13 +14,9 @@ interface ClientTagProps {
 
 css/* scss */ `
   .o-client-tag {
-    position: absolute;
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
     font-size: ${DEFAULT_FONT_SIZE};
-    color: white;
-    opacity: 0;
-    pointer-events: none;
   }
 `;
 export class ClientTag extends Component<ClientTagProps, SpreadsheetChildEnv> {

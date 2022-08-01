@@ -5,10 +5,8 @@ import { css } from "../../helpers/css";
 
 css/* scss */ `
   .o-corner {
-    position: absolute;
     height: 6px;
     width: 6px;
-    border: 1px solid white;
   }
   .o-corner-nw,
   .o-corner-se {

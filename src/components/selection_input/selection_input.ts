@@ -1,5 +1,4 @@
 import { Component, onMounted, onPatched, onWillUnmount, useState } from "@odoo/owl";
-import { SELECTION_BORDER_COLOR } from "../../constants";
 import { UuidGenerator } from "../../helpers/index";
 import { RangeInputValue } from "../../plugins/ui/selection_input";
 import { SpreadsheetChildEnv } from "../../types";
@@ -10,44 +9,12 @@ const uuidGenerator = new UuidGenerator();
 css/* scss */ `
   .o-selection {
     .o-selection-input {
-      display: flex;
-      flex-direction: row;
-
       input {
-        padding: 4px 6px;
-        border-radius: 4px;
-        box-sizing: border-box;
-        flex-grow: 2;
-      }
-      input:focus {
-        outline: none;
-      }
-      input.o-required,
-      input.o-focused {
-        border-width: 2px;
-        padding: 3px 5px;
-      }
-      input.o-focused {
-        border-color: ${SELECTION_BORDER_COLOR};
+        border: 0;
+        border-bottom: 1px solid gray;
       }
       input.o-invalid {
-        border-color: red;
-      }
-      button.o-btn {
-        background: transparent;
-        border: none;
-        color: #333;
-        cursor: pointer;
-      }
-      button.o-btn-action {
-        margin: 8px 1px;
-        border-radius: 4px;
-        background: transparent;
-        border: 1px solid #dadce0;
-        color: #188038;
-        font-weight: bold;
-        font-size: 14px;
-        height: 25px;
+        border-bottom: 1px solid red;
       }
     }
   }

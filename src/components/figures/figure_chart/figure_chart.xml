@@ -1,12 +1,12 @@
 <templates>
   <t t-name="o-spreadsheet-ChartFigure" owl="1">
     <div
-      class="o-chart-container"
+      class="o-chart-container position-relative w-100 h-100"
       t-ref="chartContainer"
       t-on-contextmenu.prevent.stop="(ev) => !env.isDashboard() and this.onContextMenu(ev)">
-      <div class="o-chart-menu" t-if="!env.isDashboard()">
+      <div class="o-chart-menu d-none position-absolute end-0 p-1" t-if="!env.isDashboard()">
         <div
-          class="o-chart-menu-item"
+          class="o-chart-menu-item cursor-pointer"
           t-on-click="showMenu"
           t-ref="menuButton"
           t-on-contextmenu.prevent.stop="showMenu">

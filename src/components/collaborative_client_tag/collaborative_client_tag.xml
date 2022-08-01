@@ -1,7 +1,11 @@
 <templates>
   <t t-name="o-spreadsheet-ClientTag" owl="1">
     <div>
-      <div class="o-client-tag" t-att-style="tagStyle" t-esc="props.name"/>
+      <div
+        class="o-client-tag position-absolute opacity-0 pe-none text-white"
+        t-att-style="tagStyle"
+        t-esc="props.name"
+      />
     </div>
   </t>
 </templates>

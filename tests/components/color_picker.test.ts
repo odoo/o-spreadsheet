@@ -130,9 +130,9 @@ describe("Color Picker buttons", () => {
     await simulateClick(".o-color-picker-toggler");
     setInputValueAndTrigger(".o-custom-input-preview input", "this is not a color", "input");
     await nextTick();
-    expect(fixture.querySelector(".o-wrong-color")).toBeNull();
+    expect(fixture.querySelector(".border-danger")).toBeNull();
     await simulateClick(".o-add-button");
-    expect(fixture.querySelector(".o-wrong-color")).not.toBeNull();
+    expect(fixture.querySelector(".border-danger")).not.toBeNull();
     expect(onColorPicked).not.toHaveBeenCalled();
   });
 
@@ -143,9 +143,9 @@ describe("Color Picker buttons", () => {
     setInputValueAndTrigger(".o-custom-input-preview input", "this is not a color", "input");
     await nextTick();
     await simulateClick(".o-add-button");
-    expect(fixture.querySelector(".o-wrong-color")).not.toBeNull();
+    expect(fixture.querySelector(".border-danger")).not.toBeNull();
     await simulateClick(".o-gradient");
-    expect(fixture.querySelector(".o-wrong-color")).toBeNull();
+    expect(fixture.querySelector(".border-danger")).toBeNull();
     await simulateClick(".o-add-button");
     expect(onColorPicked).toHaveBeenCalled();
   });

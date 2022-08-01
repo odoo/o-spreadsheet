@@ -3,50 +3,7 @@ import { deepCopy } from "../../../../helpers/index";
 import { GaugeChartDefinition, SectionRule } from "../../../../types/chart/gauge_chart";
 import { CommandResult, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { ColorPicker } from "../../../color_picker/color_picker";
-import { css } from "../../../helpers/css";
 import { ChartTerms } from "../../../translations_terms";
-
-css/* scss */ `
-  .o-gauge-color-set {
-    .o-gauge-color-set-color-button {
-      display: inline-block;
-      border: 1px solid #dadce0;
-      border-radius: 4px;
-      cursor: pointer;
-      padding: 1px 2px;
-    }
-    .o-gauge-color-set-color-button:hover {
-      background-color: rgba(0, 0, 0, 0.08);
-    }
-    table {
-      table-layout: fixed;
-      margin-top: 2%;
-      display: table;
-      text-align: left;
-      font-size: 12px;
-      line-height: 18px;
-      width: 100%;
-    }
-    th.o-gauge-color-set-colorPicker {
-      width: 8%;
-    }
-    th.o-gauge-color-set-text {
-      width: 40%;
-    }
-    th.o-gauge-color-set-value {
-      width: 22%;
-    }
-    th.o-gauge-color-set-type {
-      width: 30%;
-    }
-    input,
-    select {
-      width: 100%;
-      height: 100%;
-      box-sizing: border-box;
-    }
-  }
-`;
 
 type GaugeMenu =
   | "backgroundColor"

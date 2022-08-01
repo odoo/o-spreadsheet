@@ -27,33 +27,13 @@ const LINE_HEIGHT = 1.2;
 
 css/* scss */ `
   div.o-scorecard {
-    user-select: none;
-    background-color: white;
-    display: flex;
-    flex-direction: column;
     box-sizing: border-box;
 
-    .o-scorecard-content {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      justify-content: center;
-      text-align: center;
-    }
-
-    .o-title-text {
-      text-align: left;
+    .o-title-text,
+    .o-key-text,
+    .o-baseline-text {
       height: ${LINE_HEIGHT + "em"};
       line-height: ${LINE_HEIGHT + "em"};
-      overflow: hidden;
-      white-space: nowrap;
-    }
-
-    .o-key-text {
-      line-height: ${LINE_HEIGHT + "em"};
-      height: ${LINE_HEIGHT + "em"};
-      overflow: hidden;
-      white-space: nowrap;
     }
 
     .o-cf-icon {
@@ -65,15 +45,8 @@ css/* scss */ `
       padding-right: 3px;
     }
 
-    .o-baseline-text {
-      line-height: ${LINE_HEIGHT + "em"};
-      height: ${LINE_HEIGHT + "em"};
-      overflow: hidden;
-      white-space: nowrap;
-
-      .o-baseline-text-description {
-        white-space: pre;
-      }
+    .o-baseline-text-description {
+      white-space: pre;
     }
   }
 `;

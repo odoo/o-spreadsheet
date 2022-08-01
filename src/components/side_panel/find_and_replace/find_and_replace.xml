@@ -1,35 +1,36 @@
 <templates>
   <t t-name="o-spreadsheet-FindAndReplacePanel" owl="1">
     <div
-      class="o-find-and-replace"
+      class="o-find-and-replace h-100"
       tabindex="0"
       t-on-focusin="onFocusSidePanel"
       t-ref="findAndReplace">
       <div class="o-section p-4">
-        <div class="o-section-title">Search</div>
-        <div class="o-input-search-container">
+        <div class="o-section-title mb-2 fw-bold text-secondary">Search</div>
+        <div
+          class="o-input-search-container d-flex flex-wrap justify-content-between align-items-center">
           <input
             type="text"
-            class="o-input o-input-with-count"
+            class="o-input o-input-with-count w-100 border-0 border-bottom"
             t-on-input="onInput"
             t-on-keydown="onKeydownSearch"
           />
-          <div class="o-input-count" t-if="hasSearchResult">
+          <div class="o-input-count p-2 pb-0" t-if="hasSearchResult">
             <t t-esc="env.model.getters.getCurrentSelectedMatchIndex()+1"/>
             /
             <t t-esc="env.model.getters.getSearchMatches().length"/>
           </div>
         </div>
         <div>
-          <div class="o-far-item">
-            <label class="o-far-checkbox">
+          <div class="o-far-item d-block mt-2">
+            <label class="o-far-checkbox d-inline-block">
               <input
                 t-model="state.searchOptions.matchCase"
                 t-on-change="updateSearch"
-                class="o-far-input"
+                class="o-far-input align-middle"
                 type="checkbox"
               />
-              <span class="o-far-label">Match case</span>
+              <span class="o-far-label position-relative ps-2">Match case</span>
             </label>
           </div>
           <div class="o-far-item">
@@ -37,10 +38,10 @@
               <input
                 t-model="state.searchOptions.exactMatch"
                 t-on-change="updateSearch"
-                class="o-far-input"
+                class="o-far-input align-middle"
                 type="checkbox"
               />
-              <span class="o-far-label">Match entire cell content</span>
+              <span class="o-far-label position-relative ps-2">Match entire cell content</span>
             </label>
           </div>
           <div class="o-far-item">
@@ -48,10 +49,10 @@
               <input
                 t-model="state.searchOptions.searchFormulas"
                 t-on-change="searchFormulas"
-                class="o-far-input"
+                class="o-far-input align-middle"
                 type="checkbox"
               />
-              <span class="o-far-label">Search in formulas</span>
+              <span class="o-far-label position-relative ps-2">Search in formulas</span>
             </label>
           </div>
         </div>
@@ -60,22 +61,22 @@
         <button
           t-att-disabled="!hasSearchResult"
           t-on-click="onSelectPreviousCell"
-          class="o-sidePanelButton btn btn-primary me-2">
+          class="o-sidePanelButton btn btn-link me-2">
           Previous
         </button>
         <button
           t-att-disabled="!hasSearchResult"
           t-on-click="onSelectNextCell"
-          class="o-sidePanelButton btn btn-primary">
+          class="o-sidePanelButton btn btn-link">
           Next
         </button>
       </div>
       <div class="o-section p-4" t-if="!env.model.getters.isReadonly()">
-        <div class="o-section-title">Replace</div>
+        <div class="o-section-title mb-2 fw-bold text-secondary">Replace</div>
         <div class="o-input-search-container">
           <input
             type="text"
-            class="o-input o-input-without-count"
+            class="o-input o-input-without-count w-100 border-0 border-bottom"
             t-model="state.replaceWith"
             t-on-keydown="onKeydownReplace"
           />
@@ -86,13 +87,13 @@
         <button
           t-att-disabled="env.model.getters.getCurrentSelectedMatchIndex() === null"
           t-on-click="replace"
-          class="o-sidePanelButton btn btn-primary me-2">
+          class="o-sidePanelButton btn btn-link me-2">
           Replace
         </button>
         <button
           t-att-disabled="env.model.getters.getCurrentSelectedMatchIndex() === null"
           t-on-click="replaceAll"
-          class="o-sidePanelButton btn btn-primary">
+          class="o-sidePanelButton btn btn-link">
           Replace all
         </button>
       </div>

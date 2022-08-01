@@ -1,41 +1,7 @@
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
 import { ChartSidePanel, chartSidePanelComponentRegistry } from "..";
-import { BACKGROUND_HEADER_COLOR } from "../../../../constants";
 import { getChartDefinitionFromContextCreation, getChartTypes } from "../../../../helpers/charts";
 import { ChartDefinition, ChartType, SpreadsheetChildEnv, UID } from "../../../../types/index";
-import { css } from "../../../helpers/css";
-
-css/* scss */ `
-  .o-chart {
-    .o-panel {
-      display: flex;
-      .o-panel-element {
-        flex: 1 0 auto;
-        padding: 8px 0px;
-        text-align: center;
-        cursor: pointer;
-        border-right: 1px solid darkgray;
-        &.inactive {
-          background-color: ${BACKGROUND_HEADER_COLOR};
-          border-bottom: 1px solid darkgray;
-        }
-        .fa {
-          margin-right: 4px;
-        }
-      }
-      .o-panel-element:last-child {
-        border-right: none;
-      }
-    }
-
-    .o-with-color-picker {
-      position: relative;
-    }
-    .o-with-color-picker > span {
-      border-bottom: 4px solid;
-    }
-  }
-`;
 
 interface Props {
   figureId: UID;

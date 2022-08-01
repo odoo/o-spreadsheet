@@ -1,21 +1,21 @@
 <templates>
   <t t-name="o-spreadsheet-IconSets" owl="1">
     <div>
-      <div class="o-section-subtitle">Icons</div>
-      <div class="o-cf-iconsets">
+      <div class="o-section-subtitle my-2 text-secondary">Icons</div>
+      <div class="o-cf-iconsets cursor-pointer d-flex justify-content-between mb-3">
         <div
-          class="o-cf-iconset"
+          class="o-cf-iconset d-flex justify-content-between p-1 w-25"
           t-foreach="['arrows', 'smiley', 'dots']"
           t-as="iconSet"
           t-key="iconSet"
           t-on-click="(ev) => this.setIconSet(iconSet, ev)">
-          <div class="o-cf-icon">
+          <div class="o-cf-icon mx-1">
             <t t-call="o-spreadsheet-Icon.{{icons[iconSets[iconSet].good].template}}"/>
           </div>
-          <div class="o-cf-icon">
+          <div class="o-cf-icon mx-1">
             <t t-call="o-spreadsheet-Icon.{{icons[iconSets[iconSet].neutral].template}}"/>
           </div>
-          <div class="o-cf-icon">
+          <div class="o-cf-icon mx-1">
             <t t-call="o-spreadsheet-Icon.{{icons[iconSets[iconSet].bad].template}}"/>
           </div>
         </div>
@@ -24,10 +24,10 @@
   </t>
 
   <t t-name="o-spreadsheet-IconSetInflexionPointRow" owl="1">
-    <tr>
-      <td>
+    <div class="o-inputs d-flex justify-content-between align-items-center gap-3 mb-2">
+      <div class="flex-shrink-1">
         <div t-on-click.stop="(ev) => this.toggleMenu('iconSet-'+icon+'Icon', ev)">
-          <div class="o-cf-icon-button">
+          <div class="o-cf-icon-button cursor-pointer">
             <t t-call="o-spreadsheet-Icon.{{icons[iconValue].template}}"/>
           </div>
         </div>
@@ -35,47 +35,48 @@
           t-if="state.openedMenu === 'iconSet-'+icon+'Icon'"
           onIconPicked="(i) => this.setIcon(icon, i)"
         />
-      </td>
-      <td>When value is</td>
-      <td>
-        <select class="o-input" name="valueType" t-model="inflectionPointValue.operator">
-          <option value="gt">
-            <span>&#62;</span>
-          </option>
-          <option value="ge">
-            <span>&#8805;</span>
-          </option>
-        </select>
-      </td>
-      <td>
-        <input
-          type="text"
-          class="o-input"
-          t-att-class="{ 'o-invalid': isInflectionPointInvalid(inflectionPoint) }"
-          t-model="rule[inflectionPoint].value"
-        />
-      </td>
-      <td>
-        <select class="o-input" name="valueType" t-model="inflectionPointValue.type">
-          <option value="number">Number</option>
-          <option value="percentage">Percentage</option>
-          <option value="percentile">Percentile</option>
-          <option value="formula">Formula</option>
-        </select>
-      </td>
-    </tr>
+      </div>
+      <div class="flex-grow-1 flex-shrink-0">When value is</div>
+
+      <select
+        class="o-input w-50 border-0 border-bottom"
+        name="valueType"
+        t-model="inflectionPointValue.operator">
+        <option value="gt">
+          <span>&#62;</span>
+        </option>
+        <option value="ge">
+          <span>&#8805;</span>
+        </option>
+      </select>
+      <input
+        type="text"
+        class="o-input w-50 h-100 flex-grow-0 flex-shrink-1 border-0 border-bottom"
+        t-att-class="{ 'o-invalid border-danger': isInflectionPointInvalid(inflectionPoint) }"
+        t-model="rule[inflectionPoint].value"
+      />
+      <select
+        class="o-input h-100 w-100 border-0 border-bottom"
+        name="valueType"
+        t-model="inflectionPointValue.type">
+        <option value="number">Number</option>
+        <option value="percentage">Percentage</option>
+        <option value="percentile">Percentile</option>
+        <option value="formula">Formula</option>
+      </select>
+    </div>
   </t>
 
   <t t-name="o-spreadsheet-IconSetInflexionPoints" owl="1">
     <div class="o-inflection">
-      <table>
-        <tr>
-          <th class="o-cf-iconset-icons"/>
-          <th class="o-cf-iconset-text"/>
-          <th class="o-cf-iconset-operator"/>
-          <th class="o-cf-iconset-value">Value</th>
-          <th class="o-cf-iconset-type">Type</th>
-        </tr>
+      <div>
+        <div class="d-flex justify-content-end align-items-center gap-0 my-2">
+          <div class="o-cf-iconset-icons"/>
+          <div class="o-cf-iconset-text"/>
+          <div class="o-cf-iconset-operator"/>
+          <div class="o-cf-iconset-value">Value</div>
+          <div class="o-cf-iconset-type w-25">Type</div>
+        </div>
         <t t-call="o-spreadsheet-IconSetInflexionPointRow">
           <t t-set="iconValue" t-value="rule.icons.upper"/>
           <t t-set="icon" t-value="'upper'"/>
@@ -88,10 +89,10 @@
           <t t-set="inflectionPointValue" t-value="rule.lowerInflectionPoint"/>
           <t t-set="inflectionPoint" t-value="'lowerInflectionPoint'"/>
         </t>
-        <tr>
-          <td>
+        <div class="d-flex justify-content-start align-items-center gap-3 mb-2">
+          <div class="flex-shrink-1 flex-grow-0">
             <div t-on-click.stop="(ev) => this.toggleMenu('iconSet-lowerIcon', ev)">
-              <div class="o-cf-icon-button">
+              <div class="o-cf-icon-button cursor-pointer">
                 <t t-call="o-spreadsheet-Icon.{{icons[rule.icons.lower].template}}"/>
               </div>
             </div>
@@ -99,20 +100,19 @@
               t-if="state.openedMenu === 'iconSet-lowerIcon'"
               onIconPicked="(icon) => this.setIcon('lower', icon)"
             />
-          </td>
-          <td>Else</td>
-          <td/>
-          <td/>
-          <td/>
-        </tr>
-      </table>
+          </div>
+          <div>Else</div>
+        </div>
+      </div>
     </div>
   </t>
   <t t-name="o-spreadsheet-IconSetEditor" owl="1">
-    <div class="o-cf-iconset-rule">
+    <div class="o-cf-iconset-rule mb-5">
       <t t-call="o-spreadsheet-IconSets"/>
       <t t-call="o-spreadsheet-IconSetInflexionPoints"/>
-      <div class="btn btn-link o_refresh_measures o-cf-iconset-reverse" t-on-click="reverseIcons">
+      <div
+        class="btn btn-link o_refresh_measures o-cf-iconset-reverse my-1"
+        t-on-click="reverseIcons">
         <div class="me-1 d-inline-block">
           <t t-call="o-spreadsheet-Icon.REFRESH"/>
         </div>

@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-Grid" owl="1">
     <div
-      class="o-grid"
+      class="o-grid position-relative overflow-hidden"
       t-att-class="{'o-two-columns': !props.sidePanelIsOpen}"
       t-on-click="focus"
       t-on-keydown="onKeydown"
@@ -11,7 +11,7 @@
       <div
         t-ref="gridOverlay"
         tabindex="-1"
-        class="o-grid-overlay"
+        class="o-grid-overlay position-absolute"
         t-att-style="gridOverlayStyle"
         t-on-mousedown="onMouseDown"
         t-on-dblclick="onDoubleClick"
@@ -86,20 +86,20 @@
         t-value="env.model.getters.getMaxViewportSize(env.model.getters.getActiveSheet())"
       />
       <div
-        class="o-scrollbar vertical"
+        class="o-scrollbar vertical position-absolute overflow-auto end-0"
         t-on-scroll="onScroll"
         t-ref="vscrollbar"
         t-att-style="vScrollbarStyle">
         <div t-attf-style="width:1px;height:{{gridSize.height}}px"/>
       </div>
       <div
-        class="o-scrollbar horizontal"
+        class="o-scrollbar horizontal position-absolute overflow-auto bottom-0"
         t-on-scroll="onScroll"
         t-ref="hscrollbar"
         t-att-style="hScrollbarStyle">
         <div t-attf-style="height:1px;width:{{gridSize.width}}px"/>
       </div>
-      <div class="o-scrollbar corner"/>
+      <div class="o-scrollbar corner end-0 bottom-0 border-top border-end"/>
     </div>
   </t>
 </templates>

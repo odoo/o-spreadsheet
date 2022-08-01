@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-Border" owl="1">
     <div
-      class="o-border"
+      class="o-border position-absolute"
       t-on-mousedown="onMouseDown"
       t-att-style="style"
       t-att-class="{

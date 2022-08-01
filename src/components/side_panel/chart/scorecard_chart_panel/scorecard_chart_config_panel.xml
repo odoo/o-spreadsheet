@@ -1,8 +1,8 @@
 <templates>
   <t t-name="o-spreadsheet-ScorecardChartConfigPanel" owl="1">
     <div>
-      <div class="o-section o-data-series">
-        <div class="o-section-title">Key value</div>
+      <div class="o-section o-data-series p-4">
+        <div class="o-section-title mb-2 fw-bold text-secondary">Key value</div>
         <SelectionInput
           ranges="[props.definition.keyValue || '']"
           isInvalid="isKeyValueInvalid"
@@ -12,8 +12,8 @@
           onSelectionConfirmed="() => this.updateKeyValueRange()"
         />
       </div>
-      <div class="o-section o-data-labels">
-        <div class="o-section-title">Baseline configuration</div>
+      <div class="o-section o-data-labels p-4">
+        <div class="o-section-title mb-2 fw-bold text-secondary">Baseline configuration</div>
         <div class="o-section-subtitle">Baseline value</div>
         <SelectionInput
           ranges="[props.definition.baseline || '']"
@@ -22,17 +22,17 @@
           onSelectionChanged="(ranges) => this.onBaselineRangeChanged(ranges)"
           onSelectionConfirmed="() => this.updateBaselineRange()"
         />
-        <div class="o-section-subtitle">Baseline format</div>
+        <div class="o-section-subtitle mt-3 mb-2">Baseline format</div>
         <select
           t-att-value="props.definition.baselineMode"
-          class="o-input o-type-selector o-optional"
+          class="o-input o-type-selector o-optional w-100 border-0 border-bottom"
           t-on-change="(ev) => this.updateBaselineMode(ev)">
           <option value="text">Absolute value</option>
           <option value="difference">Value change from key value</option>
           <option value="percentage">Percentage change from key value</option>
         </select>
       </div>
-      <div class="o-section o-sidepanel-error" t-if="errorMessages">
+      <div class="o-section o-sidepanel-error text-danger mt-2 p-4" t-if="errorMessages">
         <div t-foreach="errorMessages" t-as="error" t-key="error">
           <t t-esc="error"/>
         </div>

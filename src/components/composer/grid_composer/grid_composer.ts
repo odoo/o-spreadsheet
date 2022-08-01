@@ -19,7 +19,6 @@ css/* scss */ `
   div.o-grid-composer {
     z-index: ${ComponentsImportance.Composer};
     box-sizing: border-box;
-    position: absolute;
     border: ${COMPOSER_BORDER_WIDTH}px solid ${SELECTION_BORDER_COLOR};
   }
 `;

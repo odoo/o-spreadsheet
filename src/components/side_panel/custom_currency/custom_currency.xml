@@ -1,10 +1,10 @@
 <templates>
   <t t-name="o-spreadsheet-CustomCurrencyPanel" owl="1">
     <div class="o-custom-currency">
-      <div class="o-section" t-if="availableCurrencies.length > 1">
-        <div class="o-section-title">Currency</div>
+      <div class="o-section p-4" t-if="availableCurrencies.length > 1">
+        <div class="o-section-title mb-2 fw-bold text-secondary">Currency</div>
         <select
-          class="o-input o-available-currencies"
+          class="o-input o-available-currencies w-100 border-0 border-bottom"
           t-on-change="(ev) => this.updateSelectCurrency(ev)">
           <t t-foreach="availableCurrencies" t-as="currency" t-key="currency_index">
             <option
@@ -15,30 +15,30 @@
           </t>
         </select>
       </div>
-      <div class="o-section">
+      <div class="o-section p-4">
         <div class="o-subsection-left">
-          <div class="o-section-title">Code</div>
+          <div class="o-section-title mb-2 fw-bold text-secondary">Code</div>
           <input
             type="text"
-            class="o-input"
+            class="o-input w-100 border-0 border-bottom"
             t-model="state.currencyCode"
             t-on-input="(ev) => this.updateCode(ev)"
           />
         </div>
-        <div class="o-subsection-right">
-          <div class="o-section-title">Symbol</div>
+        <div class="o-subsection-right pt-4">
+          <div class="o-section-title mb-2 fw-bold text-secondary">Symbol</div>
           <input
             type="text"
-            class="o-input"
+            class="o-input w-100 border-0 border-bottom"
             t-model="state.currencySymbol"
             t-on-input="(ev) => this.updateSymbol(ev)"
           />
         </div>
       </div>
-      <div class="o-section">
-        <div class="o-section-title">Format</div>
+      <div class="o-section p-4">
+        <div class="o-section-title mb-2 fw-bold text-secondary">Format</div>
         <select
-          class="o-input o-format-proposals"
+          class="o-input o-format-proposals w-100 border-0 border-bottom"
           t-on-change="(ev) => this.updateSelectFormat(ev)"
           t-att-disabled="!formatProposals.length">
           <t t-foreach="formatProposals" t-as="proposal" t-key="proposal_index">
@@ -52,7 +52,7 @@
       </div>
       <div class="o-sidePanelButtons px-4">
         <button
-          class="o-sidePanelButton btn btn-primary"
+          class="o-sidePanelButton btn btn-primary text-white"
           t-on-click="() => this.apply()"
           t-att-disabled="!formatProposals.length || isSameFormat">
           Apply

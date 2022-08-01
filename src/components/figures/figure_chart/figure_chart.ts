@@ -12,22 +12,6 @@ import { Menu, MenuState } from "../../menu/menu";
 // STYLE
 // -----------------------------------------------------------------------------
 css/* scss */ `
-  .o-chart-container {
-    width: 100%;
-    height: 100%;
-    position: relative;
-
-    .o-chart-menu {
-      right: 0px;
-      display: none;
-      position: absolute;
-      padding: 5px;
-    }
-
-    .o-chart-menu-item {
-      cursor: pointer;
-    }
-  }
   .o-figure.active:focus,
   .o-figure:hover {
     .o-chart-container {

@@ -5,7 +5,7 @@
         t-foreach="ranges"
         t-as="range"
         t-key="range.id"
-        class="o-selection-input"
+        class="o-selection-input d-flex py-1"
         t-att-class="props.class">
         <input
           type="text"
@@ -14,15 +14,16 @@
           t-on-focus="() => this.focus(range.id)"
           t-att-value="range.xc"
           t-att-style="getColor(range)"
+          class="flex-grow-1"
           t-att-class="{
-            'o-focused' : range.isFocused,
+            'o-focused border-primary' : range.isFocused,
             'o-required': props.required,
             'o-optional': !props.required,
             'o-invalid': isInvalid || !range.isValidRange,
           }"
         />
         <button
-          class="o-btn o-remove-selection"
+          class="o-btn o-remove-selection flex-shrink-1 btn btn-link pb-0 text-dark text-decoration-none lh-1"
           t-if="ranges.length > 1"
           t-on-click="() => this.removeInput(range.id)">
           ✖
@@ -30,10 +31,16 @@
       </div>
 
       <div class="o-selection-input">
-        <button class="o-btn-action o-add-selection" t-if="canAddRange" t-on-click="addEmptyInput">
+        <button
+          class="o-btn-action o-add-selection btn btn-link"
+          t-if="canAddRange"
+          t-on-click="addEmptyInput">
           Add range
         </button>
-        <button class="o-btn-action o-selection-ok" t-if="hasFocus" t-on-click="disable">
+        <button
+          class="o-btn-action o-selection-ok btn btn-link"
+          t-if="hasFocus"
+          t-on-click="disable">
           Confirm
         </button>
       </div>

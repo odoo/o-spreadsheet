@@ -1,13 +1,15 @@
 <templates>
   <t t-name="o-spreadsheet-ColorPicker" owl="1">
-    <div class="o-color-picker" t-att-class="props.dropdownDirection || 'right'">
-      <div class="o-color-picker-section-name">Standard</div>
+    <div
+      class="o-color-picker position-absolute top-100 bg-white shadow"
+      t-att-class="props.dropdownDirection || 'right start-0'">
+      <div class="o-color-picker-section-name fw-bold text-secondary">Standard</div>
       <div class="colors-grid">
         <div
           t-foreach="COLORS"
           t-as="color"
           t-key="color"
-          class="o-color-picker-line-item"
+          class="o-color-picker-line-item m-0 p-0 rounded-circle"
           t-att-data-color="color"
           t-on-click="() => this.onColorClick(color)"
           t-attf-style="background-color:{{color}};">
@@ -20,20 +22,20 @@
         </div>
       </div>
       <div class="o-separator"/>
-      <div class="o-color-picker-section-name">
+      <div class="o-color-picker-section-name fw-bold text-secondary">
         <span>Custom</span>
       </div>
       <div class="colors-grid">
         <div
-          class="o-color-picker-toggler o-color-picker-line-item"
+          class="o-color-picker-toggler o-color-picker-line-item m-0 p-0 rounded-circle"
           t-on-click.stop="toggleColorPicker">
-          <div align="center">+</div>
+          <div class="fw-bold" align="center">+</div>
         </div>
         <div
           t-foreach="env.model.getters.getCustomColors()"
           t-as="color"
           t-key="color"
-          class="o-color-picker-line-item"
+          class="o-color-picker-line-item cursor-pointer rounded-circle"
           t-att-data-color="color"
           t-attf-style="background-color:{{color}};"
           t-on-click="() => this.onColorClick(color)">
@@ -45,8 +47,11 @@
           </div>
         </div>
       </div>
-      <div t-if="state.showGradient" class="o-custom-selector">
-        <div class="o-magnifier-glass" t-att-style="magnifyingGlassStyle"/>
+      <div t-if="state.showGradient" class="o-custom-selector position-relative">
+        <div
+          class="o-magnifier-glass position-absolute rounded-circle"
+          t-att-style="magnifyingGlassStyle"
+        />
         <div
           class="o-gradient"
           t-on-click.stop="computeCustomColor"
@@ -54,22 +59,28 @@
           t-on-mousemove="moveMagnifier"
           t-on-mouseover="showMagnifier"
         />
-        <div class="o-custom-input-preview">
+        <div class="o-custom-input-preview d-flex my-2">
           <input
             type="text"
-            t-att-class="{'o-wrong-color': state.isCurrentColorInvalid }"
+            class="o-input w-100 border-0 border-bottom"
+            t-att-class="{'border-danger': state.isCurrentColorInvalid }"
             t-on-click.stop=""
             t-model="state.currentColor"
           />
-          <div class="o-color-preview" t-attf-style="background-color:{{state.currentColor}}"/>
+          <div
+            class="o-color-preview border w-100"
+            t-attf-style="background-color:{{state.currentColor}}"
+          />
         </div>
-        <div class="o-custom-input-buttons">
-          <button class="o-add-button" t-on-click="setCustomColor">Add</button>
+        <div class="o-custom-input-buttons text-end">
+          <button class="o-add-button btn btn-primary border-0" t-on-click="setCustomColor">
+            Add
+          </button>
         </div>
       </div>
       <div class="o-separator"/>
-      <div class="o-buttons">
-        <button t-on-click="resetColor" class="o-cancel">Reset</button>
+      <div class="o-buttons d-flex p-1">
+        <button t-on-click="resetColor" class="o-cancel btn btn-light border w-100">Reset</button>
       </div>
     </div>
   </t>

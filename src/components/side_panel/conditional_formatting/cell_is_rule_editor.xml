@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-CellIsRuleEditorPreview" owl="1">
     <div
-      class="o-cf-preview-line"
+      class="o-cf-preview-line p-3"
       t-attf-style="font-weight:{{currentStyle.bold ?'bold':'normal'}};
                        text-decoration:{{getTextDecoration(currentStyle)}};
                        font-style:{{currentStyle.italic?'italic':'normal'}};
@@ -14,9 +14,11 @@
   </t>
 
   <t t-name="o-spreadsheet-CellIsRuleEditor" owl="1">
-    <div class="o-cf-cell-is-rule">
-      <div class="o-section-subtitle">Format cells if...</div>
-      <select t-model="rule.operator" class="o-input o-cell-is-operator">
+    <div class="o-cf-cell-is-rule mb-5">
+      <div class="o-section-subtitle my-2 text-secondary">Format cells if...</div>
+      <select
+        t-model="rule.operator"
+        class="o-input o-cell-is-operator border-0 border-bottom mb-1 w-100">
         <t t-foreach="Object.keys(cellIsOperators)" t-as="op" t-key="op_index">
           <option t-att-value="op" t-esc="cellIsOperators[op]"/>
         </t>
@@ -26,54 +28,55 @@
           type="text"
           placeholder="Value"
           t-model="rule.values[0]"
-          t-att-class="{ 'o-invalid': isValue1Invalid }"
-          class="o-input o-cell-is-value o-required"
+          t-att-class="{ 'o-invalid border-danger': isValue1Invalid }"
+          class="o-input o-cell-is-value o-required mb-1 w-100 border-0 border-bottom border-dark"
         />
         <t t-if="rule.operator === 'Between' || rule.operator === 'NotBetween'">
           <input
             type="text"
             placeholder="and value"
             t-model="rule.values[1]"
-            t-att-class="{ 'o-invalid': isValue2Invalid }"
-            class="o-input o-cell-is-value o-required"
+            t-att-class="{ 'o-invalid border-danger': isValue2Invalid }"
+            class="o-input o-cell-is-value o-required mb-1 w-100 border-0 border-bottom border-dark"
           />
         </t>
       </t>
-      <div class="o-section-subtitle">Formatting style</div>
+      <div class="o-section-subtitle my-2 text-secondary">Formatting style</div>
 
       <t t-call="o-spreadsheet-CellIsRuleEditorPreview">
         <t t-set="currentStyle" t-value="rule.style"/>
       </t>
-      <div class="o-tools">
+      <div class="o-tools text-dark cursor-pointer d-flex">
         <div
-          class="o-tool"
+          class="o-tool o-dropdown o-with-color position-relative d-flex align-items-center m-1 px-0 py-1"
           title="Bold"
           t-att-class="{active:rule.style.bold}"
           t-on-click="() => this.toggleStyle('bold')">
           <t t-call="o-spreadsheet-Icon.BOLD"/>
         </div>
         <div
-          class="o-tool"
+          class="o-tool position-relative d-flex align-items-center m-1 px-0 py-1"
           title="Italic"
           t-att-class="{active:rule.style.italic}"
           t-on-click="() => this.toggleStyle('italic')">
           <t t-call="o-spreadsheet-Icon.ITALIC"/>
         </div>
         <div
-          class="o-tool"
+          class="o-tool position-relative d-flex align-items-center m-1 px-0 py-1"
           title="Underline"
           t-att-class="{active:rule.style.underline}"
           t-on-click="(ev) => this.toggleStyle('underline', ev)">
           <t t-call="o-spreadsheet-Icon.UNDERLINE"/>
         </div>
         <div
-          class="o-tool"
+          class="o-tool position-relative d-flex align-items-center m-1 px-0 py-1"
           title="Strikethrough"
           t-att-class="{active:rule.style.strikethrough}"
           t-on-click="(ev) => this.toggleStyle('strikethrough', ev)">
           <t t-call="o-spreadsheet-Icon.STRIKE"/>
         </div>
-        <div class="o-tool o-dropdown o-with-color">
+        <div
+          class="o-tool o-dropdown o-with-color position-relative d-flex align-items-center m-1 px-0 py-1">
           <span
             title="TextColor"
             t-attf-style="border-color:{{rule.style.textColor}}"
@@ -89,7 +92,8 @@
           />
         </div>
         <div class="o-divider"/>
-        <div class="o-tool o-dropdown o-with-color">
+        <div
+          class="o-tool o-dropdown o-with-color position-relative d-flex align-items-center m-1 px-0 py-1">
           <span
             title="FillColor"
             t-attf-style="border-color:{{rule.style.fillColor}}"

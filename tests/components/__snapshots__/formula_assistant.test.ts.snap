@@ -2,14 +2,14 @@
 
 exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
 <div
-  class="o-formula-assistant-container o-formula-assistant-event-auto"
+  class="o-formula-assistant-container user-select-none o-formula-assistant-event-auto pe-auto"
   style="box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);"
 >
   <div
-    class="o-formula-assistant"
+    class="o-formula-assistant bg-white pb-2"
   >
     <div
-      class="o-formula-assistant-head"
+      class="o-formula-assistant-head bg-light p-3"
     >
       <span>
         FUNC1
@@ -17,7 +17,7 @@ exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
        ( 
       
       <span
-        class="o-formula-assistant-focus"
+        class="o-formula-assistant-focus text-primary fw-bold"
       >
         <span>
           
@@ -46,22 +46,20 @@ exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
        ) 
     </div>
     <div
-      class="o-formula-assistant-core"
+      class="o-formula-assistant-core px-3 pb-2 m-1 border-bottom"
     >
-      <div
-        class="o-formula-assistant-gray"
-      >
-        ABOUT
-      </div>
+      <!-- &lt;div class="o-formula-assistant-gray"&gt;ABOUT&lt;/div&gt; -->
       <div>
         func1 def
       </div>
     </div>
     <div
-      class="o-formula-assistant-arg o-formula-assistant-gray o-formula-assistant-focus"
+      class="o-formula-assistant-arg d-flex flex-column px-3 py-1 m-1 o-formula-assistant-gray text-secondary o-formula-assistant-focus"
     >
       <div>
-        <span>
+        <span
+          class="text-primary fw-bold"
+        >
           f1Arg1
         </span>
         
@@ -69,13 +67,13 @@ exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
         
       </div>
       <div
-        class="o-formula-assistant-arg-description"
+        class="o-formula-assistant-arg-description fs-6 text-black"
       >
         f1 Arg1 def
       </div>
     </div>
     <div
-      class="o-formula-assistant-arg o-formula-assistant-gray"
+      class="o-formula-assistant-arg d-flex flex-column px-3 py-1 m-1 o-formula-assistant-gray text-secondary"
     >
       <div>
         <span>
@@ -86,7 +84,7 @@ exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
         
       </div>
       <div
-        class="o-formula-assistant-arg-description"
+        class="o-formula-assistant-arg-description fs-6"
       >
         f1 Arg2 def
       </div>

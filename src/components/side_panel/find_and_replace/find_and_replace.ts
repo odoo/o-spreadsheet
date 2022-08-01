@@ -4,35 +4,8 @@ import { css } from "../../helpers/css";
 
 css/* scss */ `
   .o-find-and-replace {
-    .o-far-item {
-      display: block;
-      .o-far-checkbox {
-        display: inline-block;
-        .o-far-input {
-          vertical-align: middle;
-        }
-        .o-far-label {
-          position: relative;
-          top: 1.5px;
-          padding-left: 4px;
-        }
-      }
-    }
-    outline: none;
-    height: 100%;
-    .o-input-search-container {
-      display: flex;
-      .o-input-with-count {
-        flex-grow: 1;
-        width: auto;
-      }
-      .o-input-without-count {
-        width: 100%;
-      }
-      .o-input-count {
-        width: fit-content;
-        padding: 4 0 4 4;
-      }
+    .o-far-label {
+      top: 1.5px;
     }
   }
 `;

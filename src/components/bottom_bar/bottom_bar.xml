@@ -1,33 +1,37 @@
 <templates>
   <t t-name="o-spreadsheet-BottomBar" owl="1">
     <div
-      class="o-spreadsheet-bottom-bar o-two-columns"
+      class="o-spreadsheet-bottom-bar o-two-columns d-flex align-items-center fs-5 border-top overflow-hidden bg-light"
       t-on-click="props.onClick"
       t-ref="bottomBar">
       <div
-        class="o-sheet-item o-add-sheet"
+        class="o-sheet-item o-add-sheet d-flex align-items-center p-2 me-1 cursor-pointer"
         t-att-class="{'disabled': env.model.getters.isReadonly()}"
         t-on-click="addSheet">
         <t t-call="o-spreadsheet-Icon.PLUS"/>
       </div>
-      <div class="o-sheet-item o-list-sheets" t-on-click="listSheets">
+      <div
+        class="o-sheet-item o-list-sheets d-flex align-items-center p-2 me-1 cursor-pointer"
+        t-on-click="listSheets">
         <t t-call="o-spreadsheet-Icon.LIST"/>
       </div>
-      <div class="o-all-sheets">
+      <div class="o-all-sheets d-flex align-items-center mw-75 overflow-hidden">
         <t t-foreach="getVisibleSheets()" t-as="sheet" t-key="sheet.id">
           <div
-            class="o-sheet-item o-sheet"
+            class="o-sheet-item o-sheet d-flex align-items-center py-2 ps-4 pe-3 border-start cursor-pointer user-select-none text-nowrap"
             t-on-click="(ev) => this.activateSheet(sheet.id, ev)"
             t-on-contextmenu.prevent="(ev) => this.onContextMenu(sheet.id, ev)"
             t-att-title="sheet.name"
             t-att-data-id="sheet.id"
-            t-att-class="{active: sheet.id === env.model.getters.getActiveSheetId()}">
+            t-attf-class="{{ (sheet.id === env.model.getters.getActiveSheetId()) ? 'active bg-white shadow text-primary': 'text-secondary' }}">
             <span
               class="o-sheet-name"
               t-esc="sheet.name"
               t-on-dblclick="(ev) => this.onDblClick(sheet.id, ev)"
             />
-            <span class="o-sheet-icon" t-on-click.stop="(ev) => this.onIconClick(sheet.id, ev)">
+            <span
+              class="o-sheet-icon ms-1"
+              t-on-click.stop="(ev) => this.onIconClick(sheet.id, ev)">
               <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
             </span>
           </div>
@@ -37,7 +41,7 @@
       <t t-set="selectedStatistic" t-value="getSelectedStatistic()"/>
       <div
         t-if="selectedStatistic !== undefined"
-        class="o-selection-statistic"
+        class="o-selection-statistic d-flex align-items-center h-100 bg-white ms-auto p-3 cursor-pointer user-select-none shadow text-secondary"
         t-on-click="listSelectionStatistics">
         <t t-esc="selectedStatistic"/>
         <span>

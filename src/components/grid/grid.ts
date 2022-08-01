@@ -207,8 +207,6 @@ function useTouchMove(handler: (deltaX: Pixel, deltaY: Pixel) => void, canMoveUp
 // -----------------------------------------------------------------------------
 css/* scss */ `
   .o-grid {
-    position: relative;
-    overflow: hidden;
     background-color: ${BACKGROUND_GRAY_COLOR};
 
     > canvas {
@@ -220,35 +218,26 @@ css/* scss */ `
       }
     }
     .o-scrollbar {
-      position: absolute;
-      overflow: auto;
       z-index: ${ComponentsImportance.ScrollBar};
       background-color: ${BACKGROUND_GRAY_COLOR};
 
       &.vertical {
-        right: 0;
         bottom: ${SCROLLBAR_WIDTH}px;
         width: ${SCROLLBAR_WIDTH}px;
         overflow-x: hidden;
       }
       &.horizontal {
-        bottom: 0;
         height: ${SCROLLBAR_WIDTH}px;
         right: ${SCROLLBAR_WIDTH}px;
         overflow-y: hidden;
       }
       &.corner {
-        right: 0px;
-        bottom: 0px;
         height: ${SCROLLBAR_WIDTH}px;
         width: ${SCROLLBAR_WIDTH}px;
-        border-top: 1px solid #e2e3e3;
-        border-left: 1px solid #e2e3e3;
       }
     }
 
     .o-grid-overlay {
-      position: absolute;
       outline: none;
     }
   }

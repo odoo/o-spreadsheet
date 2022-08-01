@@ -3,50 +3,49 @@
 exports[`Spreadsheet simple rendering snapshot 1`] = `
 <div
   class="o-spreadsheet"
-  style="grid-template-rows: 63px auto 37px"
 >
   <div
-    class="o-spreadsheet-topbar o-two-columns"
+    class="o-spreadsheet-topbar o-two-columns d-flex flex-column bg-white"
   >
     <div
-      class="o-topbar-top"
+      class="o-topbar-top d-flex px-2 py-1 justify-content-between border-bottom"
     >
       <!-- Menus -->
       <div
-        class="o-topbar-topleft"
+        class="o-topbar-topleft d-flex"
       >
         <div
-          class="o-topbar-menu"
+          class="o-topbar-menu cursor-pointer px-2 py-1"
           data-id="file"
         >
           File
         </div>
         <div
-          class="o-topbar-menu"
+          class="o-topbar-menu cursor-pointer px-2 py-1"
           data-id="edit"
         >
           Edit
         </div>
         <div
-          class="o-topbar-menu"
+          class="o-topbar-menu cursor-pointer px-2 py-1"
           data-id="view"
         >
           View
         </div>
         <div
-          class="o-topbar-menu"
+          class="o-topbar-menu cursor-pointer px-2 py-1"
           data-id="insert"
         >
           Insert
         </div>
         <div
-          class="o-topbar-menu"
+          class="o-topbar-menu cursor-pointer px-2 py-1"
           data-id="format"
         >
           Format
         </div>
         <div
-          class="o-topbar-menu"
+          class="o-topbar-menu cursor-pointer px-2 py-1"
           data-id="data"
         >
           Data
@@ -56,22 +55,22 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
         
       </div>
       <div
-        class="o-topbar-topright"
+        class="o-topbar-topright d-flex justify-content-end"
       >
         
       </div>
     </div>
     <!-- Toolbar and Cell Content -->
     <div
-      class="o-topbar-toolbar"
+      class="o-topbar-toolbar d-flex border-bottom"
     >
       <!-- Toolbar -->
       
       <div
-        class="o-toolbar-tools"
+        class="o-toolbar-tools d-flex flex-shrink-0 ms-4 text-dark"
       >
         <div
-          class="o-tool o-disabled"
+          class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer o-disabled opacity-50"
           title="Undo"
         >
           <svg
@@ -85,7 +84,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
           </svg>
         </div>
         <div
-          class="o-tool o-disabled"
+          class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer o-disabled opacity-50"
           title="Redo"
         >
           <svg
@@ -99,7 +98,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
           </svg>
         </div>
         <div
-          class="o-tool"
+          class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
           title="Paint Format"
         >
           <svg
@@ -113,7 +112,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
           </svg>
         </div>
         <div
-          class="o-tool"
+          class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
           title="Clear Format"
         >
           <svg
@@ -127,32 +126,32 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
           </svg>
         </div>
         <div
-          class="o-divider"
+          class="o-divider d-inline-block w-0 mx-1 border-start"
         />
         <div
-          class="o-tool"
+          class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
           title="Format as percent"
         >
            % 
         </div>
         <div
-          class="o-tool"
+          class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
           title="Decrease decimal places"
         >
            .0 
         </div>
         <div
-          class="o-tool"
+          class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
           title="Increase decimal places"
         >
            .00 
         </div>
         <div
-          class="o-tool o-dropdown"
+          class="o-tool o-dropdown position-relative d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
           title="More formats"
         >
           <div
-            class="o-text-icon"
+            class="o-text-icon h-100 lh-lg"
           >
              123 
             <svg
@@ -169,14 +168,14 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
           
         </div>
         <div
-          class="o-divider"
+          class="o-divider d-inline-block w-0 mx-1 border-start"
         />
         <div
-          class="o-tool o-dropdown"
+          class="o-tool o-dropdown position-relative d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
           title="Font Size"
         >
           <div
-            class="o-text-icon"
+            class="o-text-icon h-100 lh-lg"
           >
             10
             <svg
@@ -193,10 +192,10 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
           
         </div>
         <div
-          class="o-divider"
+          class="o-divider d-inline-block w-0 mx-1 border-start"
         />
         <div
-          class="o-tool"
+          class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
           title="Bold"
         >
           <svg
@@ -211,7 +210,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
           </svg>
         </div>
         <div
-          class="o-tool"
+          class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
           title="Italic"
         >
           <svg
@@ -226,7 +225,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
           </svg>
         </div>
         <div
-          class="o-tool"
+          class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
           title="Strikethrough"
         >
           <svg
@@ -241,7 +240,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
           </svg>
         </div>
         <div
-          class="o-tool o-dropdown o-with-color"
+          class="o-tool o-dropdown o-with-color position-relative d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
           title="Text Color"
         >
           <span
@@ -261,10 +260,10 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
           
         </div>
         <div
-          class="o-divider"
+          class="o-divider d-inline-block w-0 mx-1 border-start"
         />
         <div
-          class="o-tool  o-dropdown o-with-color"
+          class="o-tool  o-dropdown o-with-color position-relative d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
           title="Fill Color"
         >
           <span
@@ -283,7 +282,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
           
         </div>
         <div
-          class="o-tool o-dropdown"
+          class="o-tool o-dropdown position-relative d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
           title="Borders"
         >
           <span>
@@ -300,7 +299,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
           
         </div>
         <div
-          class="o-tool o-merge-tool o-disabled"
+          class="o-tool o-merge-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer o-disabled opacity-50"
           title="Merge Cells"
         >
           <svg
@@ -313,10 +312,10 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
           </svg>
         </div>
         <div
-          class="o-divider"
+          class="o-divider d-inline-block w-0 mx-1 border-start"
         />
         <div
-          class="o-tool o-dropdown"
+          class="o-tool o-dropdown position-relative d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
           title="Horizontal align"
         >
           <span>
@@ -345,13 +344,16 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
           </span>
           
         </div>
+        <div
+          class="o-divider d-inline-block w-0 border-start"
+        />
       </div>
       
       <div
-        class="o-composer-container"
+        class="o-composer-container flex-grow-1 flex-shrink-0 border-top"
       >
         <div
-          class="o-composer"
+          class="o-composer h-75 px-1 text-break"
           contenteditable="true"
           spellcheck="false"
           style="
@@ -369,11 +371,11 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
   </div>
   
   <div
-    class="o-grid o-two-columns"
+    class="o-grid position-relative overflow-hidden o-two-columns"
   >
     <!-- tabindex="-1" is necessary to keep the focus on composer while selecting a cell -->
     <div
-      class="o-grid-overlay"
+      class="o-grid-overlay position-absolute"
       style="
       top: 26px;
       left: 48px;
@@ -390,7 +392,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
       class="o-overlay"
     >
       <div
-        class="o-col-resizer"
+        class="o-col-resizer position-absolute top-0 end-0"
       >
         
         
@@ -400,7 +402,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
       </div>
       
       <div
-        class="o-row-resizer"
+        class="o-row-resizer position-absolute start-0 end-0 h-100"
       >
         
         
@@ -424,11 +426,11 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
     
     
     <div
-      class="o-autofill"
+      class="o-autofill position-absolute border border-white"
       style="top:45px;left:140px"
     >
       <div
-        class="o-autofill-handler"
+        class="o-autofill-handler position-absolute"
         style="top:0px;left:0px;"
       />
       
@@ -438,7 +440,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
     
     
     <div
-      class="o-scrollbar vertical"
+      class="o-scrollbar vertical position-absolute overflow-auto end-0"
       style="
       top: 26px;"
     >
@@ -447,7 +449,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
       />
     </div>
     <div
-      class="o-scrollbar horizontal"
+      class="o-scrollbar horizontal position-absolute overflow-auto bottom-0"
       style="
       left: 48px;"
     >
@@ -456,16 +458,16 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
       />
     </div>
     <div
-      class="o-scrollbar corner"
+      class="o-scrollbar corner end-0 bottom-0 border-top border-end"
     />
   </div>
   
   
   <div
-    class="o-spreadsheet-bottom-bar o-two-columns"
+    class="o-spreadsheet-bottom-bar o-two-columns d-flex align-items-center fs-5 border-top overflow-hidden bg-light"
   >
     <div
-      class="o-sheet-item o-add-sheet"
+      class="o-sheet-item o-add-sheet d-flex align-items-center p-2 me-1 cursor-pointer"
     >
       <svg
         class="o-icon"
@@ -477,7 +479,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
       </svg>
     </div>
     <div
-      class="o-sheet-item o-list-sheets"
+      class="o-sheet-item o-list-sheets d-flex align-items-center p-2 me-1 cursor-pointer"
     >
       <svg
         class="o-icon"
@@ -504,10 +506,10 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
       </svg>
     </div>
     <div
-      class="o-all-sheets"
+      class="o-all-sheets d-flex align-items-center mw-75 overflow-hidden"
     >
       <div
-        class="o-sheet-item o-sheet active"
+        class="o-sheet-item o-sheet d-flex align-items-center py-2 ps-4 pe-3 border-start cursor-pointer user-select-none text-nowrap active bg-white shadow text-primary"
         data-id="1"
         title="Sheet1"
       >
@@ -517,7 +519,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
           Sheet1
         </span>
         <span
-          class="o-sheet-icon"
+          class="o-sheet-icon ms-1"
         >
           <svg
             class="o-icon"

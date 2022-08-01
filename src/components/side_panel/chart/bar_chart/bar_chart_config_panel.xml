@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-BarConfigPanel" owl="1">
     <div>
-      <div class="o-section">
+      <div class="o-section p-4">
         <div class="o_checkbox">
           <input
             type="checkbox"
@@ -12,8 +12,8 @@
           Stacked barchart
         </div>
       </div>
-      <div class="o-section o-data-series">
-        <div class="o-section-title">Data Series</div>
+      <div class="o-section o-data-series p-4">
+        <div class="o-section-title mb-2 fw-bold text-secondary">Data Series</div>
         <SelectionInput
           ranges="dataSeriesRanges"
           isInvalid="isDatasetInvalid"
@@ -28,8 +28,8 @@
         />
         Data series include title
       </div>
-      <div class="o-section o-data-labels">
-        <div class="o-section-title">Categories / Labels</div>
+      <div class="o-section o-data-labels p-4">
+        <div class="o-section-title mb-2 fw-bold text-secondary">Categories / Labels</div>
         <SelectionInput
           ranges="[props.definition.labelRange || '']"
           isInvalid="isLabelInvalid"
@@ -38,7 +38,7 @@
           onSelectionConfirmed="() => this.onLabelRangeConfirmed()"
         />
       </div>
-      <div class="o-section o-sidepanel-error" t-if="errorMessages">
+      <div class="o-section o-sidepanel-error text-danger mt-2 p-4" t-if="errorMessages">
         <div t-foreach="errorMessages" t-as="error" t-key="error">
           <t t-esc="error"/>
         </div>

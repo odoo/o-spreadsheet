@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-ErrorToolTip" owl="1">
-    <div class="o-error-tooltip">
+    <div class="o-error-tooltip p-2 bg-white border-start border-4 border-warning fs-5">
       <t t-esc="props.text"/>
     </div>
   </t>

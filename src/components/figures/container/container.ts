@@ -35,13 +35,6 @@ const ACTIVE_BORDER_WIDTH = 2;
 const MIN_FIG_SIZE = 80;
 
 css/*SCSS*/ `
-  .o-figure-wrapper {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-  }
-
   div.o-figure {
     box-sizing: content-box;
     position: absolute;

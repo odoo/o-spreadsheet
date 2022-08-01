@@ -11,29 +11,33 @@
             <t t-call="o-spreadsheet-ConditionalFormattingPanelPreview"/>
           </div>
         </div>
-        <t t-if="state.mode === 'list'">
-          <div
-            class="btn btn-link o-cf-btn-link o-cf-add"
-            t-on-click.prevent.stop="addConditionalFormat">
-            + Add another rule
-          </div>
-          <div
-            class="btn btn-link o-cf-btn-link o-cf-reorder"
-            t-on-click="reorderConditionalFormats">
-            Reorder rules
-          </div>
-        </t>
-        <t t-if="state.mode === 'reorder'">
-          <div class="btn btn-link o-cf-btn-link o-cf-exit-reorder" t-on-click="switchToList">
-            Stop reordering rules
-          </div>
-        </t>
+        <div class="d-flex justify-content-around align-items-center">
+          <t t-if="state.mode === 'list'">
+            <div
+              class="btn btn-link o-cf-btn-link o-cf-add p-3 fs-5 text-decoration-none"
+              t-on-click.prevent.stop="addConditionalFormat">
+              + Add another rule
+            </div>
+            <div
+              class="btn btn-link o-cf-btn-link o-cf-reorder p-3 fs-5 text-decoration-none"
+              t-on-click="reorderConditionalFormats">
+              Reorder rules
+            </div>
+          </t>
+          <t t-if="state.mode === 'reorder'">
+            <div
+              class="btn btn-link o-cf-btn-link o-cf-exit-reorder p-3 fs-5 text-decoration-none"
+              t-on-click="switchToList">
+              Stop reordering rules
+            </div>
+          </t>
+        </div>
       </t>
       <t t-if="state.mode === 'edit' || state.mode === 'add'" t-key="state.currentCF.id">
-        <div class="o-cf-ruleEditor">
-          <div class="o-section o-cf-range">
-            <div class="o-section-title">Apply to range</div>
-            <div class="o-selection-cf">
+        <div class="o-cf-ruleEditor fs-6">
+          <div class="o-section o-cf-range p-4">
+            <div class="o-section-title mb-2 fw-bold text-secondary">Apply to range</div>
+            <div class="o-selection-cf mb-2">
               <SelectionInput
                 ranges="state.currentCF.ranges"
                 class="'o-range'"
@@ -42,8 +46,9 @@
                 required="true"
               />
             </div>
-            <div class="o-section-title">Format rules</div>
-            <div class="o_field_radio o_horizontal o_field_widget o-cf-type-selector">
+            <div class="o-section-title mb-2 fw-bold text-secondary">Format rules</div>
+            <div
+              class="o_field_radio o_horizontal o_field_widget o-cf-type-selector d-flex justify-content-between align-items-center">
               <div
                 class="custom-control form-check o_cf_radio_item"
                 t-on-click="() => this.changeRuleType('CellIsRule')">
@@ -55,7 +60,9 @@
                   name="ruleType"
                   value="CellIsRule"
                 />
-                <label for="cellIsRule" class="form-check-label o_form_label">Single color</label>
+                <label for="cellIsRule" class="form-check-label o_form_label align-middle">
+                  Single color
+                </label>
               </div>
               <div
                 class="custom-control form-check o_cf_radio_item"
@@ -68,7 +75,7 @@
                   name="ruleType"
                   value="ColorScaleRule"
                 />
-                <label for="colorScaleRule" class="form-check-label o_form_label">
+                <label for="colorScaleRule" class="form-check-label o_form_label align-middle">
                   Color scale
                 </label>
               </div>
@@ -84,11 +91,13 @@
                   name="ruleType"
                   value="IconSetRule"
                 />
-                <label for="iconSetRule" class="form-check-label o_form_label">Icon set</label>
+                <label for="iconSetRule" class="form-check-label o_form_label align-middle">
+                  Icon set
+                </label>
               </div>
             </div>
           </div>
-          <div class="o-section o-cf-editor">
+          <div class="o-section o-cf-editor p-4">
             <t t-if="state.currentCFType === 'CellIsRule'" t-call="o-spreadsheet-CellIsRuleEditor">
               <t t-set="rule" t-value="state.rules.cellIs"/>
             </t>
@@ -108,13 +117,17 @@
               </button>
               <button
                 t-on-click="saveConditionalFormat"
-                class="o-sidePanelButton btn btn-primary o-cf-save">
+                class="o-sidePanelButton o-cf-save btn btn-primary text-white">
                 Save
               </button>
             </div>
           </div>
-          <div class="o-section">
-            <div class="o-cf-error" t-foreach="state.errors || []" t-as="error" t-key="error_index">
+          <div class="o-section p-4">
+            <div
+              class="o-cf-error text-danger mt-2"
+              t-foreach="state.errors || []"
+              t-as="error"
+              t-key="error_index">
               <t t-esc="errorMessage(error)"/>
             </div>
           </div>
@@ -124,37 +137,45 @@
   </t>
 
   <t t-name="o-spreadsheet-ConditionalFormattingPanelPreview" owl="1">
-    <div class="o-cf-preview" t-att-class="{ 'o-cf-cursor-ptr': state.mode !== 'reorder' }">
+    <div
+      class="o-cf-preview d-flex p-3 position-relative bg-white border-bottom"
+      t-att-class="{ 'cursor-pointer': state.mode !== 'reorder' }">
       <t t-if="cf.rule.type==='IconSetRule'">
-        <div class="o-cf-preview-icon">
+        <div class="o-cf-preview-icon d-flex justify-content-center align-items-center">
           <t t-call="o-spreadsheet-Icon.{{icons[cf.rule.icons.upper].template}}"/>
           <t t-call="o-spreadsheet-Icon.{{icons[cf.rule.icons.middle].template}}"/>
           <t t-call="o-spreadsheet-Icon.{{icons[cf.rule.icons.lower].template}}"/>
         </div>
       </t>
       <t t-else="">
-        <div t-att-style="getStyle(cf.rule)" class="o-cf-preview-image">123</div>
+        <div
+          t-att-style="getStyle(cf.rule)"
+          class="o-cf-preview-image d-flex justify-content-center align-items-center">
+          123
+        </div>
       </t>
-      <div class="o-cf-preview-description">
+      <div class="o-cf-preview-description position-relative my-auto ms-5">
         <div class="o-cf-preview-ruletype">
-          <div class="o-cf-preview-description-rule">
+          <div class="o-cf-preview-description-rule text-truncate fw-bold">
             <t t-esc="getDescription(cf)"/>
           </div>
         </div>
-        <div class="o-cf-preview-range" t-esc="cf.ranges"/>
+        <div class="o-cf-preview-range text-truncate fs-6" t-esc="cf.ranges"/>
       </div>
       <t t-if="state.mode === 'reorder'">
-        <div class="o-cf-reorder">
+        <div
+          class="o-cf-reorder text-secondary d-flex flex-column flex-grow-1 justify-content-between align-items-end">
           <t t-if="!cf_first">
             <div
-              class="o-cf-reorder-button-up o-cf-reorder-button"
+              class="o-cf-reorder-button-up o-cf-reorder-button cursor-pointer p-2 pt-0"
               t-on-click="(ev) => this.reorderRule(cf, 'up', ev)">
               <t t-call="o-spreadsheet-Icon.CARET_UP"/>
             </div>
           </t>
           <t t-if="!cf_last">
             <div
-              class="o-cf-reorder-button-down o-cf-reorder-button"
+              t-attf-class="{{cf_first ? 'd-flex align-items-end h-100' : ''}}"
+              class="o-cf-reorder-button-down o-cf-reorder-button cursor-pointer p-2 pt-0"
               t-on-click="(ev) => this.reorderRule(cf, 'down', ev)">
               <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
             </div>
@@ -162,7 +183,8 @@
         </div>
       </t>
       <t t-else="">
-        <div class="o-cf-delete">
+        <div
+          class="o-cf-delete text-secondary d-flex flex-grow-1 justify-content-end align-items-center">
           <div
             class="o-cf-delete-button"
             t-on-click.stop="(ev) => this.deleteConditionalFormat(cf, ev)"

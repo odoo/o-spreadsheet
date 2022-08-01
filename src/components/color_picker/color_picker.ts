@@ -30,13 +30,8 @@ const GRADIENT_HEIGHT = PICKER_WIDTH - 50;
 
 css/* scss */ `
   .o-color-picker {
-    position: absolute;
-    top: calc(100% + 5px);
     z-index: ${ComponentsImportance.ColorPicker};
-    box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
-    background-color: white;
     padding: ${PICKER_PADDING}px 0px;
-    line-height: 1.2;
     width: ${GRADIENT_WIDTH + 2 * PICKER_PADDING}px;
 
     .o-color-picker-section-name {
@@ -52,12 +47,7 @@ css/* scss */ `
     .o-color-picker-line-item {
       width: ${ITEM_EDGE_LENGTH}px;
       height: ${ITEM_EDGE_LENGTH}px;
-      margin: 0px;
-      border-radius: 50px;
       border: ${ITEM_BORDER_WIDTH}px solid #666666;
-      padding: 0px;
-      font-size: 16px;
-      background: white;
       &:hover {
         background-color: rgba(0, 0, 0, 0.08);
         outline: 1px solid gray;
@@ -65,16 +55,7 @@ css/* scss */ `
       }
     }
     .o-buttons {
-      padding: 6px;
-      display: flex;
       .o-cancel {
-        margin: 0px ${ITEM_HORIZONTAL_MARGIN}px;
-        border: ${ITEM_BORDER_WIDTH}px solid #c0c0c0;
-        width: 100%;
-        padding: 5px;
-        font-size: 14px;
-        background: white;
-        border-radius: 4px;
         &:hover:enabled {
           background-color: rgba(0, 0, 0, 0.08);
         }
@@ -82,9 +63,6 @@ css/* scss */ `
     }
     .o-add-button {
       border: ${ITEM_BORDER_WIDTH}px solid #c0c0c0;
-      padding: 4px;
-      background: white;
-      border-radius: 4px;
       &:hover:enabled {
         background-color: rgba(0, 0, 0, 0.08);
       }
@@ -94,21 +72,8 @@ css/* scss */ `
       margin-top: ${MENU_SEPARATOR_PADDING}px;
       margin-bottom: ${MENU_SEPARATOR_PADDING}px;
     }
-    input {
-      box-sizing: border-box;
-      width: 100%;
-      border-radius: 4px;
-      padding: 4px 23px 4px 10px;
-      height: 24px;
-      border: 1px solid #c0c0c0;
-      margin: 0 2px 0 0;
-    }
-    input.o-wrong-color {
-      border-color: red;
-    }
     .o-custom-selector {
       padding: ${LINE_HORIZONTAL_PADDING}px;
-      position: relative;
       .o-gradient {
         background: linear-gradient(to bottom, hsl(0 100% 0%), transparent, hsl(0 0% 100%)),
           linear-gradient(
@@ -133,20 +98,10 @@ css/* scss */ `
       }
       .o-custom-input-preview {
         padding: 2px ${LINE_VERTICAL_PADDING}px;
-        display: flex;
       }
       .o-custom-input-buttons {
         padding: 2px ${LINE_VERTICAL_PADDING}px;
-        text-align: right;
       }
-      .o-color-preview {
-        border: 1px solid #c0c0c0;
-        border-radius: 4px;
-        width: 100%;
-      }
-    }
-    &.right {
-      left: 0;
     }
     &.left {
       right: 0;
@@ -156,9 +111,7 @@ css/* scss */ `
     }
   }
   .o-magnifier-glass {
-    position: absolute;
     border: ${ITEM_BORDER_WIDTH}px solid #c0c0c0;
-    border-radius: 50%;
     width: 30px;
     height: 30px;
   }

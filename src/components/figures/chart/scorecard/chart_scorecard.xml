@@ -1,12 +1,26 @@
 <templates>
   <t t-name="o-spreadsheet-ScorecardChart" owl="1">
-    <div class="o-scorecard" t-att-style="chartStyle">
+    <div class="o-scorecard d-flex flex-column bg-white user-select-none" t-att-style="chartStyle">
       <t t-set="textStyles" t-value="getTextStyles()"/>
-      <div t-if="title" class="o-title-text" t-esc="title" t-att-style="textStyles.titleStyle"/>
-      <div class="o-scorecard-content" t-att-style="chartContentStyle">
-        <div class="o-key-text" t-if="keyValue" t-esc="keyValue" t-att-style="textStyles.keyStyle"/>
+      <div
+        t-if="title"
+        class="o-title-text overflow-hidden text-nowrap text-start"
+        t-esc="title"
+        t-att-style="textStyles.titleStyle"
+      />
+      <div
+        class="o-scorecard-content d-flex flex-column justify-content-center h-100 text-center"
+        t-att-style="chartContentStyle">
+        <div
+          class="o-key-text overflow-hidden text-nowrap"
+          t-if="keyValue"
+          t-esc="keyValue"
+          t-att-style="textStyles.keyStyle"
+        />
         <t t-if="baseline || baselineDescr">
-          <div class="o-baseline-text" t-att-style="textStyles.baselineStyle">
+          <div
+            class="o-baseline-text overflow-hidden text-nowrap"
+            t-att-style="textStyles.baselineStyle">
             <t t-if="baseline">
               <t t-if="baselineArrowDirection === 'up'">
                 <t t-call="o-spreadsheet-Icon.ARROW_UP">

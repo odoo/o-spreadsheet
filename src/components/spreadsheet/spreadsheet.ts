@@ -6,12 +6,7 @@ import {
   useState,
   useSubEnv,
 } from "@odoo/owl";
-import {
-  BOTTOMBAR_HEIGHT,
-  CF_ICON_EDGE_LENGTH,
-  ICON_EDGE_LENGTH,
-  TOPBAR_HEIGHT,
-} from "../../constants";
+import { CF_ICON_EDGE_LENGTH, ICON_EDGE_LENGTH } from "../../constants";
 import { Model } from "../../model";
 import { ComposerSelection } from "../../plugins/ui/edition";
 import { SpreadsheetChildEnv, WorkbookData } from "../../types";
@@ -32,6 +27,7 @@ css/* scss */ `
   .o-spreadsheet {
     position: relative;
     display: grid;
+    grid-template-rows: 64px auto 37px;
     grid-template-columns: auto 350px;
     * {
       font-family: "Roboto", "RobotoDraft", Helvetica, Arial, sans-serif;
@@ -43,7 +39,23 @@ css/* scss */ `
       box-sizing: content-box;
     }
   }
-
+  .o-input {
+    outline: 0;
+    .o-type-selector {
+      background-position: right 5px top 11px;
+    }
+  }
+  input.o-required,
+  select.o-required {
+    border-color: #4c4c4c;
+  }
+  input.o-optional,
+  select.o-optional {
+    border-bottom: 1px solid #a9a9a9;
+  }
+  input:focus {
+    outline: none;
+  }
   .o-two-columns {
     grid-column: 1 / 3;
   }
@@ -95,13 +107,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   private _focusGrid?: () => void;
 
   private keyDownMapping!: { [key: string]: Function };
-
-  getStyle() {
-    if (this.env.isDashboard()) {
-      return `grid-template-rows: auto;`;
-    }
-    return `grid-template-rows: ${TOPBAR_HEIGHT}px auto ${BOTTOMBAR_HEIGHT + 1}px`;
-  }
 
   setup() {
     this.props.exposeSpreadsheet?.(this);

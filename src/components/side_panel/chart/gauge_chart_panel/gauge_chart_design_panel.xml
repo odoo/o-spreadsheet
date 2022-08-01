@@ -1,13 +1,13 @@
 <templates>
   <t t-name="o-spreadsheet-GaugeChartDesignPanel" owl="1">
     <div>
-      <div class="o-section">
-        <div class="o-section-title">Background color</div>
-        <div class="o-with-color-picker">
+      <div class="o-section p-4">
+        <div class="o-section-title mb-2 fw-bold text-secondary">Background color</div>
+        <div class="o-with-color-picker position-relative">
           Select a color...
           <span
-            title="Background Color"
             t-attf-style="border-color:{{props.definition.background}}"
+            title="Background Color"
             t-on-click.stop="() => this.toggleMenu('backgroundColor', ev)">
             <t t-call="o-spreadsheet-Icon.FILL_COLOR"/>
           </span>
@@ -20,47 +20,51 @@
         </div>
       </div>
 
-      <div class="o-section o-chart-title">
-        <div class="o-section-title">Title</div>
+      <div class="o-section o-chart-title p-4">
+        <div class="o-section-title mb-2 fw-bold text-secondary">Title</div>
         <input
           type="text"
           t-att-value="props.definition.title"
           t-on-change="updateTitle"
-          class="o-input o-optional"
+          class="o-input o-optional w-100 border-0 border-bottom"
           placeholder="New Chart"
         />
       </div>
 
-      <div class="o-section">
-        <div class="o-section-title">Range</div>
-        <div class="o-subsection-left">
-          <input
-            type="text"
-            t-att-value="props.definition.sectionRule.rangeMin"
-            t-on-change="updateRangeMin"
-            class="o-input o-data-range-min"
-            t-att-class="{ 'o-invalid': isRangeMinInvalid() }"
-          />
-        </div>
-        <div class="o-subsection-right">
-          <input
-            type="text"
-            t-att-value="props.definition.sectionRule.rangeMax"
-            t-on-change="updateRangeMax"
-            class="o-input o-data-range-max"
-            t-att-class="{ 'o-invalid': isRangeMaxInvalid() }"
-          />
+      <div class="o-section p-4">
+        <div class="o-section-title mb-2 fw-bold text-secondary">Range</div>
+        <div class="d-flex justify-content-between gap-1">
+          <div class="o-subsection-left">
+            <input
+              type="text"
+              t-att-value="props.definition.sectionRule.rangeMin"
+              t-on-change="updateRangeMin"
+              class="o-input o-data-range-min w-100 border-0 border-bottom"
+              t-att-class="{ 'o-invalid border-danger': isRangeMinInvalid() }"
+            />
+          </div>
+          <div class="o-subsection-right">
+            <input
+              type="text"
+              t-att-value="props.definition.sectionRule.rangeMax"
+              t-on-change="updateRangeMax"
+              class="o-input o-data-range-max w-100 border-0 border-bottom"
+              t-att-class="{ 'o-invalid border-danger': isRangeMaxInvalid() }"
+            />
+          </div>
         </div>
       </div>
 
-      <div class="o-section">
-        <div class="o-section-title">Thresholds</div>
+      <div class="o-section p-4">
+        <div class="o-section-title mb-2 fw-bold text-secondary">Thresholds</div>
         <t t-call="o-spreadsheet-GaugeChartColorSectionTemplate">
           <t t-set="sectionRule" t-value="props.definition.sectionRule"/>
         </t>
       </div>
 
-      <div class="o-section o-sidepanel-error" t-if="designErrorMessages.length">
+      <div
+        class="o-section o-sidepanel-error text-danger mt-2 p-4"
+        t-if="designErrorMessages.length">
         <div t-foreach="designErrorMessages" t-as="error" t-key="error">
           <t t-esc="error"/>
         </div>
@@ -70,13 +74,13 @@
 
   <t t-name="o-spreadsheet-GaugeChartColorSectionTemplate" owl="1">
     <div class="o-gauge-color-set">
-      <table>
-        <tr>
-          <th class="o-gauge-color-set-colorPicker"/>
-          <th class="o-gauge-color-set-text"/>
-          <th class="o-gauge-color-set-value">Value</th>
-          <th class="o-gauge-color-set-type">Type</th>
-        </tr>
+      <div>
+        <div class="d-flex justify-content-end align-items-center gap-0 my-2">
+          <div class="o-gauge-color-set-colorPicker"/>
+          <div class="o-gauge-color-set-text"/>
+          <div class="o-gauge-color-set-value w-25">Value</div>
+          <div class="o-gauge-color-set-type w-25">Type</div>
+        </div>
 
         <t t-call="o-spreadsheet-GaugeChartColorSectionTemplateRow">
           <t t-set="sectionColor" t-value="sectionRule.colors.lowerColor"/>
@@ -94,10 +98,11 @@
           <t t-set="inflectionPointName" t-value="'upperInflectionPoint'"/>
         </t>
 
-        <tr>
-          <td>
-            <div class="o-tools">
-              <div class="o-tool o-dropdown o-with-color">
+        <div class="d-flex justify-content-start align-items-center gap-3 mb-2">
+          <div class="flex-shrink-1 flex-grow-0">
+            <div class="o-tools position-relative text-dark cursor-pointer d-flex">
+              <div
+                class="o-tool o-dropdown o-with-coloro-tool o-dropdown o-with-color position-relative d-flex align-items-center m-1 px-0 py-1">
                 <span
                   title="Fill Color"
                   t-attf-style="border-color:{{sectionRule.colors.upperColor}}"
@@ -112,21 +117,19 @@
                 />
               </div>
             </div>
-          </td>
-          <td>Else</td>
-          <td/>
-          <td/>
-          <td/>
-        </tr>
-      </table>
+          </div>
+          <div>Else</div>
+        </div>
+      </div>
     </div>
   </t>
 
   <t t-name="o-spreadsheet-GaugeChartColorSectionTemplateRow" owl="1">
-    <tr>
-      <td>
-        <div class="o-tools">
-          <div class="o-tool o-dropdown o-with-color">
+    <div class="d-flex justify-content-between align-items-center gap-3 mb-2">
+      <div class="flex-shrink-1">
+        <div class="o-tools position-relative text-dark cursor-pointer d-flex">
+          <div
+            class="o-tool o-dropdown o-with-coloro-tool o-dropdown o-with-color position-relative d-flex align-items-center m-1 px-0 py-1">
             <span
               title="Fill Color"
               t-attf-style="border-color:{{sectionColor}}"
@@ -141,28 +144,28 @@
             />
           </div>
         </div>
-      </td>
-      <td>When value is below</td>
-      <td>
+      </div>
+      <div class="flex-grow-1 flex-shrink-0">When value is below</div>
+      <div class="flex-shrink-1">
         <input
           type="text"
-          class="o-input"
+          class="o-input h-100 w-100 border-0 border-bottom"
           t-on-change="(ev) => this.updateInflectionPointValue(inflectionPointName, ev)"
           t-attf-class="o-input-{{inflectionPointName}}"
-          t-att-class="{ 'o-invalid': isInvalid }"
+          t-att-class="{ 'o-invalid border-danger': isInvalid }"
           t-model="inflectionPoint.value"
         />
-      </td>
-      <td>
+      </div>
+      <div class="flex-grow-1 flex-shrink-0">
         <select
-          class="o-input"
+          class="o-input h-100 w-100 border-0 border-bottom"
           name="valueType"
           t-model="inflectionPoint.type"
           t-on-change="(ev) => this.updateInflectionPointType(inflectionPointName, ev)">
           <option value="number">Number</option>
           <option value="percentage">Percentage</option>
         </select>
-      </td>
-    </tr>
+      </div>
+    </div>
   </t>
 </templates>

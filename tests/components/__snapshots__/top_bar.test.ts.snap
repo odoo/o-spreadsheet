@@ -6,47 +6,47 @@ exports[`TopBar component can set cell format 1`] = `
     class="o-spreadsheet"
   >
     <div
-      class="o-spreadsheet-topbar o-two-columns"
+      class="o-spreadsheet-topbar o-two-columns d-flex flex-column bg-white"
     >
       <div
-        class="o-topbar-top"
+        class="o-topbar-top d-flex px-2 py-1 justify-content-between border-bottom"
       >
         <!-- Menus -->
         <div
-          class="o-topbar-topleft"
+          class="o-topbar-topleft d-flex"
         >
           <div
-            class="o-topbar-menu"
+            class="o-topbar-menu cursor-pointer px-2 py-1"
             data-id="file"
           >
             File
           </div>
           <div
-            class="o-topbar-menu"
+            class="o-topbar-menu cursor-pointer px-2 py-1"
             data-id="edit"
           >
             Edit
           </div>
           <div
-            class="o-topbar-menu"
+            class="o-topbar-menu cursor-pointer px-2 py-1"
             data-id="view"
           >
             View
           </div>
           <div
-            class="o-topbar-menu"
+            class="o-topbar-menu cursor-pointer px-2 py-1"
             data-id="insert"
           >
             Insert
           </div>
           <div
-            class="o-topbar-menu"
+            class="o-topbar-menu cursor-pointer px-2 py-1"
             data-id="format"
           >
             Format
           </div>
           <div
-            class="o-topbar-menu"
+            class="o-topbar-menu cursor-pointer px-2 py-1"
             data-id="data"
           >
             Data
@@ -56,22 +56,22 @@ exports[`TopBar component can set cell format 1`] = `
           
         </div>
         <div
-          class="o-topbar-topright"
+          class="o-topbar-topright d-flex justify-content-end"
         >
           
         </div>
       </div>
       <!-- Toolbar and Cell Content -->
       <div
-        class="o-topbar-toolbar"
+        class="o-topbar-toolbar d-flex border-bottom"
       >
         <!-- Toolbar -->
         
         <div
-          class="o-toolbar-tools"
+          class="o-toolbar-tools d-flex flex-shrink-0 ms-4 text-dark"
         >
           <div
-            class="o-tool o-disabled"
+            class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer o-disabled opacity-50"
             title="Undo"
           >
             <svg
@@ -85,7 +85,7 @@ exports[`TopBar component can set cell format 1`] = `
             </svg>
           </div>
           <div
-            class="o-tool o-disabled"
+            class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer o-disabled opacity-50"
             title="Redo"
           >
             <svg
@@ -99,7 +99,7 @@ exports[`TopBar component can set cell format 1`] = `
             </svg>
           </div>
           <div
-            class="o-tool"
+            class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
             title="Paint Format"
           >
             <svg
@@ -113,7 +113,7 @@ exports[`TopBar component can set cell format 1`] = `
             </svg>
           </div>
           <div
-            class="o-tool"
+            class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
             title="Clear Format"
           >
             <svg
@@ -127,32 +127,32 @@ exports[`TopBar component can set cell format 1`] = `
             </svg>
           </div>
           <div
-            class="o-divider"
+            class="o-divider d-inline-block w-0 mx-1 border-start"
           />
           <div
-            class="o-tool"
+            class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
             title="Format as percent"
           >
              % 
           </div>
           <div
-            class="o-tool"
+            class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
             title="Decrease decimal places"
           >
              .0 
           </div>
           <div
-            class="o-tool"
+            class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
             title="Increase decimal places"
           >
              .00 
           </div>
           <div
-            class="o-tool o-dropdown"
+            class="o-tool o-dropdown position-relative d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
             title="More formats"
           >
             <div
-              class="o-text-icon"
+              class="o-text-icon h-100 lh-lg"
             >
                123 
               <svg
@@ -167,10 +167,10 @@ exports[`TopBar component can set cell format 1`] = `
               
             </div>
             <div
-              class="o-dropdown-content o-text-options  o-format-tool "
+              class="o-dropdown-content o-text-options o-format-tool py-1 position-absolute top-100 start-0 shadow bg-white"
             >
               <div
-                class="active"
+                class="lh-lg px-4 text-nowrap active"
                 data-format="automatic"
               >
                 Automatic
@@ -181,6 +181,7 @@ exports[`TopBar component can set cell format 1`] = `
                 </span>
               </div>
               <div
+                class="lh-lg px-4 text-nowrap"
                 data-format="number"
               >
                 Number
@@ -191,6 +192,7 @@ exports[`TopBar component can set cell format 1`] = `
                 </span>
               </div>
               <div
+                class="lh-lg px-4 text-nowrap"
                 data-format="percent"
               >
                 Percent
@@ -201,6 +203,7 @@ exports[`TopBar component can set cell format 1`] = `
                 </span>
               </div>
               <div
+                class="lh-lg px-4 text-nowrap"
                 data-format="currency"
               >
                 Currency
@@ -211,6 +214,7 @@ exports[`TopBar component can set cell format 1`] = `
                 </span>
               </div>
               <div
+                class="lh-lg px-4 text-nowrap"
                 data-format="currency_rounded"
               >
                 Currency rounded
@@ -221,6 +225,7 @@ exports[`TopBar component can set cell format 1`] = `
                 </span>
               </div>
               <div
+                class="lh-lg px-4 text-nowrap"
                 data-format="date"
               >
                 Date
@@ -231,6 +236,7 @@ exports[`TopBar component can set cell format 1`] = `
                 </span>
               </div>
               <div
+                class="lh-lg px-4 text-nowrap"
                 data-format="time"
               >
                 Time
@@ -241,6 +247,7 @@ exports[`TopBar component can set cell format 1`] = `
                 </span>
               </div>
               <div
+                class="lh-lg px-4 text-nowrap"
                 data-format="datetime"
               >
                 Date time
@@ -251,6 +258,7 @@ exports[`TopBar component can set cell format 1`] = `
                 </span>
               </div>
               <div
+                class="lh-lg px-4 text-nowrap"
                 data-format="duration"
               >
                 Duration
@@ -263,6 +271,7 @@ exports[`TopBar component can set cell format 1`] = `
               
               
               <div
+                class="lh-lg px-4"
                 data-custom="custom_currency"
               >
                 Custom currency
@@ -273,14 +282,14 @@ exports[`TopBar component can set cell format 1`] = `
             
           </div>
           <div
-            class="o-divider"
+            class="o-divider d-inline-block w-0 mx-1 border-start"
           />
           <div
-            class="o-tool o-dropdown"
+            class="o-tool o-dropdown position-relative d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
             title="Font Size"
           >
             <div
-              class="o-text-icon"
+              class="o-text-icon h-100 lh-lg"
             >
               10
               <svg
@@ -297,10 +306,10 @@ exports[`TopBar component can set cell format 1`] = `
             
           </div>
           <div
-            class="o-divider"
+            class="o-divider d-inline-block w-0 mx-1 border-start"
           />
           <div
-            class="o-tool"
+            class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
             title="Bold"
           >
             <svg
@@ -315,7 +324,7 @@ exports[`TopBar component can set cell format 1`] = `
             </svg>
           </div>
           <div
-            class="o-tool"
+            class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
             title="Italic"
           >
             <svg
@@ -330,7 +339,7 @@ exports[`TopBar component can set cell format 1`] = `
             </svg>
           </div>
           <div
-            class="o-tool"
+            class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
             title="Strikethrough"
           >
             <svg
@@ -345,7 +354,7 @@ exports[`TopBar component can set cell format 1`] = `
             </svg>
           </div>
           <div
-            class="o-tool o-dropdown o-with-color"
+            class="o-tool o-dropdown o-with-color position-relative d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
             title="Text Color"
           >
             <span
@@ -365,10 +374,10 @@ exports[`TopBar component can set cell format 1`] = `
             
           </div>
           <div
-            class="o-divider"
+            class="o-divider d-inline-block w-0 mx-1 border-start"
           />
           <div
-            class="o-tool  o-dropdown o-with-color"
+            class="o-tool  o-dropdown o-with-color position-relative d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
             title="Fill Color"
           >
             <span
@@ -387,7 +396,7 @@ exports[`TopBar component can set cell format 1`] = `
             
           </div>
           <div
-            class="o-tool o-dropdown"
+            class="o-tool o-dropdown position-relative d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
             title="Borders"
           >
             <span>
@@ -404,7 +413,7 @@ exports[`TopBar component can set cell format 1`] = `
             
           </div>
           <div
-            class="o-tool o-merge-tool o-disabled"
+            class="o-tool o-merge-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer o-disabled opacity-50"
             title="Merge Cells"
           >
             <svg
@@ -417,10 +426,10 @@ exports[`TopBar component can set cell format 1`] = `
             </svg>
           </div>
           <div
-            class="o-divider"
+            class="o-divider d-inline-block w-0 mx-1 border-start"
           />
           <div
-            class="o-tool o-dropdown"
+            class="o-tool o-dropdown position-relative d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
             title="Horizontal align"
           >
             <span>
@@ -449,13 +458,16 @@ exports[`TopBar component can set cell format 1`] = `
             </span>
             
           </div>
+          <div
+            class="o-divider d-inline-block w-0 border-start"
+          />
         </div>
         
         <div
-          class="o-composer-container"
+          class="o-composer-container flex-grow-1 flex-shrink-0 border border-primary"
         >
           <div
-            class="o-composer"
+            class="o-composer h-75 px-1 text-break"
             contenteditable="true"
             spellcheck="false"
             style="
@@ -477,47 +489,47 @@ exports[`TopBar component can set cell format 1`] = `
 
 exports[`TopBar component simple rendering 1`] = `
 <div
-  class="o-spreadsheet-topbar o-two-columns"
+  class="o-spreadsheet-topbar o-two-columns d-flex flex-column bg-white"
 >
   <div
-    class="o-topbar-top"
+    class="o-topbar-top d-flex px-2 py-1 justify-content-between border-bottom"
   >
     <!-- Menus -->
     <div
-      class="o-topbar-topleft"
+      class="o-topbar-topleft d-flex"
     >
       <div
-        class="o-topbar-menu"
+        class="o-topbar-menu cursor-pointer px-2 py-1"
         data-id="file"
       >
         File
       </div>
       <div
-        class="o-topbar-menu"
+        class="o-topbar-menu cursor-pointer px-2 py-1"
         data-id="edit"
       >
         Edit
       </div>
       <div
-        class="o-topbar-menu"
+        class="o-topbar-menu cursor-pointer px-2 py-1"
         data-id="view"
       >
         View
       </div>
       <div
-        class="o-topbar-menu"
+        class="o-topbar-menu cursor-pointer px-2 py-1"
         data-id="insert"
       >
         Insert
       </div>
       <div
-        class="o-topbar-menu"
+        class="o-topbar-menu cursor-pointer px-2 py-1"
         data-id="format"
       >
         Format
       </div>
       <div
-        class="o-topbar-menu"
+        class="o-topbar-menu cursor-pointer px-2 py-1"
         data-id="data"
       >
         Data
@@ -527,22 +539,22 @@ exports[`TopBar component simple rendering 1`] = `
       
     </div>
     <div
-      class="o-topbar-topright"
+      class="o-topbar-topright d-flex justify-content-end"
     >
       
     </div>
   </div>
   <!-- Toolbar and Cell Content -->
   <div
-    class="o-topbar-toolbar"
+    class="o-topbar-toolbar d-flex border-bottom"
   >
     <!-- Toolbar -->
     
     <div
-      class="o-toolbar-tools"
+      class="o-toolbar-tools d-flex flex-shrink-0 ms-4 text-dark"
     >
       <div
-        class="o-tool o-disabled"
+        class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer o-disabled opacity-50"
         title="Undo"
       >
         <svg
@@ -556,7 +568,7 @@ exports[`TopBar component simple rendering 1`] = `
         </svg>
       </div>
       <div
-        class="o-tool o-disabled"
+        class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer o-disabled opacity-50"
         title="Redo"
       >
         <svg
@@ -570,7 +582,7 @@ exports[`TopBar component simple rendering 1`] = `
         </svg>
       </div>
       <div
-        class="o-tool"
+        class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
         title="Paint Format"
       >
         <svg
@@ -584,7 +596,7 @@ exports[`TopBar component simple rendering 1`] = `
         </svg>
       </div>
       <div
-        class="o-tool"
+        class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
         title="Clear Format"
       >
         <svg
@@ -598,32 +610,32 @@ exports[`TopBar component simple rendering 1`] = `
         </svg>
       </div>
       <div
-        class="o-divider"
+        class="o-divider d-inline-block w-0 mx-1 border-start"
       />
       <div
-        class="o-tool"
+        class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
         title="Format as percent"
       >
          % 
       </div>
       <div
-        class="o-tool"
+        class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
         title="Decrease decimal places"
       >
          .0 
       </div>
       <div
-        class="o-tool"
+        class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
         title="Increase decimal places"
       >
          .00 
       </div>
       <div
-        class="o-tool o-dropdown"
+        class="o-tool o-dropdown position-relative d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
         title="More formats"
       >
         <div
-          class="o-text-icon"
+          class="o-text-icon h-100 lh-lg"
         >
            123 
           <svg
@@ -640,14 +652,14 @@ exports[`TopBar component simple rendering 1`] = `
         
       </div>
       <div
-        class="o-divider"
+        class="o-divider d-inline-block w-0 mx-1 border-start"
       />
       <div
-        class="o-tool o-dropdown"
+        class="o-tool o-dropdown position-relative d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
         title="Font Size"
       >
         <div
-          class="o-text-icon"
+          class="o-text-icon h-100 lh-lg"
         >
           10
           <svg
@@ -664,10 +676,10 @@ exports[`TopBar component simple rendering 1`] = `
         
       </div>
       <div
-        class="o-divider"
+        class="o-divider d-inline-block w-0 mx-1 border-start"
       />
       <div
-        class="o-tool"
+        class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
         title="Bold"
       >
         <svg
@@ -682,7 +694,7 @@ exports[`TopBar component simple rendering 1`] = `
         </svg>
       </div>
       <div
-        class="o-tool"
+        class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
         title="Italic"
       >
         <svg
@@ -697,7 +709,7 @@ exports[`TopBar component simple rendering 1`] = `
         </svg>
       </div>
       <div
-        class="o-tool"
+        class="o-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
         title="Strikethrough"
       >
         <svg
@@ -712,7 +724,7 @@ exports[`TopBar component simple rendering 1`] = `
         </svg>
       </div>
       <div
-        class="o-tool o-dropdown o-with-color"
+        class="o-tool o-dropdown o-with-color position-relative d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
         title="Text Color"
       >
         <span
@@ -732,10 +744,10 @@ exports[`TopBar component simple rendering 1`] = `
         
       </div>
       <div
-        class="o-divider"
+        class="o-divider d-inline-block w-0 mx-1 border-start"
       />
       <div
-        class="o-tool  o-dropdown o-with-color"
+        class="o-tool  o-dropdown o-with-color position-relative d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
         title="Fill Color"
       >
         <span
@@ -754,7 +766,7 @@ exports[`TopBar component simple rendering 1`] = `
         
       </div>
       <div
-        class="o-tool o-dropdown"
+        class="o-tool o-dropdown position-relative d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
         title="Borders"
       >
         <span>
@@ -771,7 +783,7 @@ exports[`TopBar component simple rendering 1`] = `
         
       </div>
       <div
-        class="o-tool o-merge-tool o-disabled"
+        class="o-tool o-merge-tool d-flex align-items-center m-1 px-1 pb-1 cursor-pointer o-disabled opacity-50"
         title="Merge Cells"
       >
         <svg
@@ -784,10 +796,10 @@ exports[`TopBar component simple rendering 1`] = `
         </svg>
       </div>
       <div
-        class="o-divider"
+        class="o-divider d-inline-block w-0 mx-1 border-start"
       />
       <div
-        class="o-tool o-dropdown"
+        class="o-tool o-dropdown position-relative d-flex align-items-center m-1 px-1 pb-1 cursor-pointer"
         title="Horizontal align"
       >
         <span>
@@ -816,13 +828,16 @@ exports[`TopBar component simple rendering 1`] = `
         </span>
         
       </div>
+      <div
+        class="o-divider d-inline-block w-0 border-start"
+      />
     </div>
     
     <div
-      class="o-composer-container"
+      class="o-composer-container flex-grow-1 flex-shrink-0 border border-primary"
     >
       <div
-        class="o-composer"
+        class="o-composer h-75 px-1 text-break"
         contenteditable="true"
         spellcheck="false"
         style="

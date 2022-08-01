@@ -28,270 +28,51 @@ import { CfTerms } from "./../../translations_terms";
 
 // TODO vsc: add ordering of rules
 css/* scss */ `
-  label {
-    vertical-align: middle;
-  }
-  .o_cf_radio_item {
-    margin-right: 10%;
-  }
-  .radio input:checked {
-    color: #e9ecef;
-    border-color: #00a09d;
-    background-color: #00a09d;
-  }
-  .o-cf-editor {
-    border-bottom: solid;
-    border-color: lightgrey;
-  }
   .o-cf {
+    .o-cf-iconset-value {
+      margin-right: 3rem;
+    }
     .o-cf-type-selector {
       *,
       ::after,
       ::before {
         box-sizing: border-box;
       }
-      margin-top: 10px;
-      display: flex;
-    }
-    .o-section-subtitle:first-child {
-      margin-top: 0px;
-    }
-    .o-cf-cursor-ptr {
-      cursor: pointer;
     }
     .o-cf-preview {
-      background-color: #fff;
-      border-bottom: 1px solid #ccc;
-      display: flex;
       height: 60px;
-      padding: 10px;
-      position: relative;
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
       &:not(:hover) .o-cf-delete-button {
         display: none;
       }
-      .o-cf-preview-image {
-        border: 1px solid lightgrey;
+      .o-cf-preview-image,
+      .o-cf-preview-icon {
         height: 50px;
-        line-height: 50px;
-        margin-right: 15px;
-        margin-top: 3px;
-        position: absolute;
-        text-align: center;
         width: 50px;
       }
-      .o-cf-preview-icon {
-        border: 1px solid lightgrey;
-        position: absolute;
-        height: 50px;
-        line-height: 50px;
-        margin-right: 15px;
-        margin-top: 3px;
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-      }
       .o-cf-preview-description {
-        left: 65px;
-        margin-bottom: auto;
-        margin-right: 8px;
-        margin-top: auto;
-        position: relative;
         width: 142px;
         .o-cf-preview-description-rule {
-          margin-bottom: 4px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          font-weight: 600;
-          color: #303030;
           max-height: 2.8em;
-          line-height: 1.4em;
-        }
-        .o-cf-preview-range {
-          text-overflow: ellipsis;
-          font-size: 12px;
-          overflow: hidden;
         }
       }
-      .o-cf-delete {
-        color: dimgrey;
-        left: 90%;
-        top: 39%;
-        position: absolute;
-      }
-      .o-cf-reorder {
-        color: gray;
-        left: 90%;
-        position: absolute;
-        height: 100%;
-        width: 10%;
-      }
-      .o-cf-reorder-button:hover {
-        cursor: pointer;
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-      .o-cf-reorder-button-up {
-        width: 15px;
-        height: 20px;
-        padding: 5px;
-        padding-top: 0px;
-      }
+      .o-cf-reorder-button-up,
       .o-cf-reorder-button-down {
         width: 15px;
         height: 20px;
-        bottom: 20px;
-        padding: 5px;
-        padding-top: 0px;
-        position: absolute;
       }
-    }
-    .o-cf-ruleEditor {
-      font-size: 12px;
-      line-height: 1.5;
-      .o-selection-cf {
-        margin-bottom: 3%;
-      }
-      .o-cell-content {
-        font-size: 12px;
-        font-weight: 500;
-        padding: 0 12px;
-        margin: 0;
-        line-height: 35px;
-      }
-    }
-    .o-cf-btn-link {
-      font-size: 14px;
-      padding: 20px 24px 11px 24px;
-      height: 44px;
-      cursor: pointer;
-      text-decoration: none;
-    }
-    .o-cf-btn-link:hover {
-      color: #003a39;
-      text-decoration: none;
-    }
-    .o-cf-error {
-      color: red;
-      margin-top: 10px;
-    }
-  }
-  .o-cf-cell-is-rule {
-    .o-cf-preview-line {
-      border: 1px solid darkgrey;
-      padding: 10px;
-    }
-    .o-cell-is-operator {
-      margin-bottom: 5px;
-      width: 96%;
-    }
-    .o-cell-is-value {
-      margin-bottom: 5px;
-      width: 96%;
-    }
-    .o-color-picker {
-      pointer-events: all;
     }
   }
   .o-cf-color-scale-editor {
     .o-threshold {
-      display: flex;
-      flex-direction: horizontal;
-      select {
-        width: 100%;
-      }
       .o-threshold-value {
-        margin-left: 2%;
-        width: 20%;
         min-width: 0px; // input overflows in Firefox otherwise
       }
-      .o-threshold-value:disabled {
-        background-color: #edebed;
-      }
-    }
-    .o-cf-preview-gradient {
-      border: 1px solid darkgrey;
-      padding: 10px;
-      border-radius: 4px;
     }
   }
   .o-cf-iconset-rule {
-    font-size: 12;
-    .o-cf-iconsets {
-      display: flex;
-      justify-content: space-between;
-      .o-cf-iconset {
-        border: 1px solid #dadce0;
-        border-radius: 4px;
-        display: inline-flex;
-        padding: 5px 8px;
-        width: 25%;
-        cursor: pointer;
-        justify-content: space-between;
-        .o-cf-icon {
-          display: inline;
-          margin-left: 1%;
-          margin-right: 1%;
-        }
-        svg {
-          vertical-align: baseline;
-        }
-      }
-      .o-cf-iconset:hover {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-    }
-    .o-inflection {
-      .o-cf-icon-button {
-        display: inline-block;
-        border: 1px solid #dadce0;
-        border-radius: 4px;
-        cursor: pointer;
-        padding: 1px 2px;
-      }
-      .o-cf-icon-button:hover {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-      table {
-        table-layout: fixed;
-        margin-top: 2%;
-        display: table;
-        text-align: left;
-        font-size: 12px;
-        line-height: 18px;
-        width: 100%;
-      }
-      th.o-cf-iconset-icons {
-        width: 8%;
-      }
-      th.o-cf-iconset-text {
-        width: 28%;
-      }
-      th.o-cf-iconset-operator {
-        width: 14%;
-      }
-      th.o-cf-iconset-type {
-        width: 28%;
-      }
-      th.o-cf-iconset-value {
-        width: 26%;
-      }
-      input,
-      select {
-        width: 100%;
-        height: 100%;
-        box-sizing: border-box;
-      }
-    }
-    .o-cf-iconset-reverse {
-      margin-bottom: 2%;
-      margin-top: 2%;
-      .o-cf-label {
-        display: inline-block;
-        vertical-align: bottom;
-        margin-bottom: 2px;
-      }
+    .o-cf-iconset:hover,
+    .o-cf-icon-button:hover {
+      background-color: rgba(0, 0, 0, 0.08);
     }
   }
 `;
