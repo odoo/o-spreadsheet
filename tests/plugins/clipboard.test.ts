@@ -14,6 +14,7 @@ import {
   cut,
   deleteColumns,
   deleteRows,
+  merge,
   paste,
   pasteFromOSClipboard,
   selectCell,
@@ -462,6 +463,15 @@ describe("clipboard", () => {
     expect(model.getters.isInMerge("s1", ...toCartesianArray("B3"))).toBe(true);
     expect(model.getters.isInMerge("s1", ...toCartesianArray("C2"))).toBe(true);
     expect(model.getters.isInMerge("s1", ...toCartesianArray("C3"))).toBe(true);
+  });
+
+  test("Can paste a single cell on a merge", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "thingies");
+    merge(model, "B1:B2");
+    copy(model, "A1");
+    paste(model, "B1:B2");
+    expect(getCellContent(model, "B1")).toEqual("thingies");
   });
 
   test("cutting a cell with style remove the cell", () => {
