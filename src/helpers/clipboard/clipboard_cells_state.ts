@@ -93,9 +93,18 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
         return CommandResult.WrongPasteSelection;
       }
     }
+
+    const clipboardHeight = this.cells.length;
+    const clipboardWidth = this.cells[0].length;
     for (let zone of this.getPasteZones(target)) {
       if (this.getters.doesIntersectMerge(sheetId, zone)) {
-        return CommandResult.WillRemoveExistingMerge;
+        if (
+          target.length > 1 ||
+          !this.getters.isSingleCellOrMerge(sheetId, target[0]) ||
+          clipboardHeight * clipboardWidth !== 1
+        ) {
+          return CommandResult.WillRemoveExistingMerge;
+        }
       }
     }
     return CommandResult.Success;
