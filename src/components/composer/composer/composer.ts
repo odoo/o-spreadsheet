@@ -17,10 +17,10 @@ const functions = functionRegistry.content;
 
 const ASSISTANT_WIDTH = 300;
 
-export const FunctionColor = "#4a4e4d";
-export const OperatorColor = "#3da4ab";
-export const StringColor = "#00a82d";
-export const SelectionIndicatorColor = "darkgrey";
+const FunctionColor = "#4a4e4d";
+const OperatorColor = "#3da4ab";
+const StringColor = "#00a82d";
+const SelectionIndicatorColor = "darkgrey";
 export const NumberColor = "#02c39a";
 export const MatchingParenColor = "black";
 

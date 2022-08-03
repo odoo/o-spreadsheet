@@ -327,7 +327,7 @@ export interface XLSXXmlDocuments {
   [path: string]: XMLDocument;
 }
 
-export type XLSXFillPatternType =
+type XLSXFillPatternType =
   | "none"
   | "solid"
   | "gray0625"

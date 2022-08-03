@@ -89,7 +89,7 @@ export function toBoolean(value: string | number | boolean | null | undefined): 
   }
 }
 
-export function strictToBoolean(value: string | number | boolean | null | undefined): boolean {
+function strictToBoolean(value: string | number | boolean | null | undefined): boolean {
   if (value === "") {
     throw new Error(expectBooleanValueError(value));
   }

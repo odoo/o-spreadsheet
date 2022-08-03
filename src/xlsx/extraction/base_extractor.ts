@@ -27,7 +27,7 @@ interface ExtractArg {
   default?: string | boolean | number;
 }
 
-export class AttributeValue {
+class AttributeValue {
   private readonly value: string | boolean | number;
   constructor(value: string | boolean | number) {
     this.value = value;

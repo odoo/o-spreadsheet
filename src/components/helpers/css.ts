@@ -7,7 +7,7 @@
  * created for the first time.
  */
 
-export const STYLESHEETS: { [id: string]: HTMLStyleElement } = {};
+const STYLESHEETS: { [id: string]: HTMLStyleElement } = {};
 let nextId: number = 0;
 
 /**

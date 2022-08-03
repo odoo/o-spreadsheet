@@ -13,7 +13,7 @@ type SizedComponentConstructor = ComponentConstructor & {
  * If the cell at the given position have an associated component (linkDisplay, errorTooltip, ...),
  * returns the parameters to display the component
  */
-export type CellPopoverBuilder = (
+type CellPopoverBuilder = (
   position: Position,
   getters: Getters
 ) => CellPopoverComponent<SizedComponentConstructor>;

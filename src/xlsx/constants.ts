@@ -51,7 +51,7 @@ export const EXCEL_IMPORT_DEFAULT_NUMBER_OF_ROWS = 100;
 
 export const FIRST_NUMFMT_ID = 164;
 
-export interface functionDefaultArg {
+interface functionDefaultArg {
   type: "NUMBER";
   value: number;
 }

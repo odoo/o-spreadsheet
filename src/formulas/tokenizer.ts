@@ -24,7 +24,7 @@ const functions = functionRegistry.content;
 export const POSTFIX_UNARY_OPERATORS = ["%"];
 const OPERATORS = "+,-,*,/,:,=,<>,>=,>,<=,<,^,&".split(",").concat(POSTFIX_UNARY_OPERATORS);
 
-export type TokenType =
+type TokenType =
   | "OPERATOR"
   | "NUMBER"
   | "STRING"

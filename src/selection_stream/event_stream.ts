@@ -3,12 +3,12 @@ export interface StreamCallbacks<Event> {
   release?: () => void;
 }
 
-export interface StreamSubscription<Event> {
+interface StreamSubscription<Event> {
   owner: unknown;
   callbacks: StreamCallbacks<Event>;
 }
 
-export interface SpyStreamSubscription<Event> {
+interface SpyStreamSubscription<Event> {
   owner: unknown;
   callbacks: Omit<StreamCallbacks<Event>, "unsubscribe">;
 }

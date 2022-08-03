@@ -7,7 +7,7 @@ function randomChoice(arr: string[]): string {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-export const colors = [
+const colors = [
   "#ff851b",
   "#0074d9",
   "#7fdbff",

@@ -32,7 +32,7 @@ import {
 } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 
-export interface SheetState {
+interface SheetState {
   readonly sheets: Record<UID, Sheet | undefined>;
   readonly orderedSheetIds: UID[];
   readonly sheetIdsMapName: Record<string, UID | undefined>;
