@@ -1,6 +1,4 @@
-export interface NotificationUIEvent {
+export interface NotifyUIEvent {
   type: "NOTIFICATION";
   text: string;
 }
-
-export type NotifyUIEvent = NotificationUIEvent;

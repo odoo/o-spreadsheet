@@ -12,13 +12,7 @@ import {
   UID,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
-import { SelectionInputPlugin } from "./selection_input";
-
-export interface RangeInputValue {
-  id: UID;
-  xc: string;
-  color: string;
-}
+import { RangeInputValue, SelectionInputPlugin } from "./selection_input";
 
 /**
  * Selection input Plugin

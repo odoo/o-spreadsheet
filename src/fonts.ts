@@ -1,20 +1,7 @@
-export interface Font {
-  key: string;
-  description: string;
-}
-
 export interface FontSize {
   pt: number;
   px: number;
 }
-
-export const fonts: Font[] = [
-  { key: "Arial", description: "Arial" },
-  { key: "Helvetica", description: "Helvetica" },
-  { key: "Courier New", description: "Courier New" },
-  { key: "Verdana", description: "Verdana" },
-  { key: "Lato", description: "Lato" },
-];
 
 export const fontSizes: FontSize[] = [
   { pt: 7.5, px: 10 },

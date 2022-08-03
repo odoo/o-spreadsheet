@@ -9,10 +9,6 @@ type SizedComponentConstructor = ComponentConstructor & {
   size: { width: number; height: number };
 };
 
-export interface CellPopoverParameters {
-  type: string;
-}
-
 /**
  * If the cell at the given position have an associated component (linkDisplay, errorTooltip, ...),
  * returns the parameters to display the component

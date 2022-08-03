@@ -1,9 +1,6 @@
 import { _lt } from "./translation";
-import { BorderDescr, Style } from "./types";
+import { BorderDescr } from "./types";
 import { CellErrorType } from "./types/errors";
-
-// Scheduler
-export const MAXIMUM_EVALUATION_CHECK_DELAY_MS = 15;
 
 // Colors
 export const BACKGROUND_GRAY_COLOR = "#f5f5f5";
@@ -55,12 +52,6 @@ export const DEFAULT_FONT = "'Roboto', arial";
 // Borders
 export const DEFAULT_BORDER_DESC: BorderDescr = ["thin", "#000"];
 
-// Style
-export const DEFAULT_STYLE: Style = {
-  fillColor: "white",
-  textColor: "black",
-  fontSize: DEFAULT_FONT_SIZE,
-};
 export const LINK_COLOR = "#00f";
 // DateTimeRegex
 export const DATETIME_FORMAT = /[ymd:]/;

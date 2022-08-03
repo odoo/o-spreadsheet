@@ -483,8 +483,6 @@ export interface XLSXColor {
   tint?: number;
 }
 
-export type XLSXFigureAnchorType = "twoCellAnchor" | "oneCellAnchor" | "absoluteAnchor";
-
 export interface XLSXFigureAnchor {
   col: number;
   colOffset: number; // in EMU (English Metrical Unit)
