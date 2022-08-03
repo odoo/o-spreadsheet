@@ -26,18 +26,11 @@ export const MatchingParenColor = "black";
 
 export const SelectionIndicatorClass = "selector-flag";
 
-interface ComposerFocusedEventData {
-  content?: string;
-  selection?: ComposerSelection;
-}
-
 export type HtmlContent = {
   value: string;
   color?: string;
   class?: string;
 };
-
-export type ComposerFocusedEvent = CustomEvent<ComposerFocusedEventData>;
 
 export const tokenColor = {
   OPERATOR: OperatorColor,

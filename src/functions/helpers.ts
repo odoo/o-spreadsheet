@@ -143,25 +143,6 @@ export function visitNumbers(args: ArgValue[], cb: (arg: number) => void): void 
   );
 }
 
-export function visitBooleans(args: ArgValue[], cb: (a: boolean) => void): void {
-  visitArgs(
-    args,
-    (cellValue) => {
-      if (typeof cellValue === "boolean") {
-        cb(cellValue);
-      }
-      if (typeof cellValue === "number") {
-        cb(cellValue ? true : false);
-      }
-    },
-    (argValue) => {
-      if (argValue !== null) {
-        cb(strictToBoolean(argValue));
-      }
-    }
-  );
-}
-
 // -----------------------------------------------------------------------------
 // REDUCE FUNCTIONS
 // -----------------------------------------------------------------------------

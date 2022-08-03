@@ -24,10 +24,6 @@ export const YELLOW_DOT =
 export const RED_DOT =
   '<svg class="o-cf-icon red-dot" width="10" height="10" focusable="false" viewBox="0 0 512 512"><path fill="#DC6965" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8z"></path></svg>';
 
-export const ARROW_ICONS = { good: ARROW_UP, neutral: ARROW_RIGHT, bad: ARROW_DOWN };
-export const SMILEY_ICONS = { good: SMILE, neutral: MEH, bad: FROWN };
-export const DOTS_ICONS = { good: GREEN_DOT, neutral: YELLOW_DOT, bad: RED_DOT };
-
 function loadIconImage(svg) {
   /** We have to add xmlns, as it's not added by owl in the canvas */
   svg = `<svg xmlns="http://www.w3.org/2000/svg" ${svg.slice(4)}`;
