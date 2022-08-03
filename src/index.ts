@@ -27,7 +27,6 @@ import {
 } from "./constants";
 import { toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
 import { args, functionRegistry } from "./functions/index";
-import { LinkCell } from "./helpers/cells/index";
 import { ChartColors, chartFontColor, getDefaultChartJsRuntime } from "./helpers/charts";
 import {
   computeTextWidth,
@@ -138,9 +137,6 @@ export const registries = {
   inverseCommandRegistry,
   cellRegistry,
   cellPopoverRegistry,
-};
-export const cellTypes = {
-  LinkCell,
 };
 export const helpers = {
   args,

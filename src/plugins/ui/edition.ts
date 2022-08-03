@@ -7,7 +7,6 @@ import {
   getZoneArea,
   isEqual,
   isNumber,
-  markdownLink,
   positionToZone,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
@@ -404,7 +403,6 @@ export class EditionPlugin extends UIPlugin {
 
   private stopEdition() {
     if (this.mode !== "inactive") {
-      const activeSheetId = this.getters.getActiveSheetId();
       this.cancelEdition();
       const { col, row } = this.getters.getMainCellPosition(this.sheetId, this.col, this.row);
       let content = this.currentContent;
@@ -413,7 +411,6 @@ export class EditionPlugin extends UIPlugin {
         return;
       }
       if (content) {
-        const cell = this.getters.getCell(activeSheetId, col, row);
         if (content.startsWith("=")) {
           const left = this.currentTokens.filter((t) => t.type === "LEFT_PAREN").length;
           const right = this.currentTokens.filter((t) => t.type === "RIGHT_PAREN").length;
@@ -421,8 +418,6 @@ export class EditionPlugin extends UIPlugin {
           if (missing > 0) {
             content += concat(new Array(missing).fill(")"));
           }
-        } else if (cell?.isLink()) {
-          content = markdownLink(content, cell.link.url);
         }
         this.dispatch("UPDATE_CELL", {
           sheetId: this.sheetId,

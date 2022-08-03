@@ -6,6 +6,7 @@ export * from "./chart_types";
 export * from "./currencies_registry";
 export * from "./figure_registry";
 export * from "./inverse_command_registry";
+export * from "./link_types";
 export * from "./menus/index";
 export * from "./menu_items_registry";
 export * from "./ot_registry";

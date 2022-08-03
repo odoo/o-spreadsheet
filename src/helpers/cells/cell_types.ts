@@ -1,5 +1,4 @@
-import { DATETIME_FORMAT, LINK_COLOR, LOADING } from "../../constants";
-import { _lt } from "../../translation";
+import { DATETIME_FORMAT, LOADING } from "../../constants";
 import {
   BooleanEvaluation,
   CellDisplayProperties,
@@ -12,18 +11,14 @@ import {
   FormulaCell as IFormulaCell,
   ICell,
   InvalidEvaluation,
-  Link,
-  LinkCell as ILinkCell,
   NumberEvaluation,
   Range,
-  SpreadsheetChildEnv,
   Style,
   TextEvaluation,
   UID,
 } from "../../types";
 import { CellErrorType, EvaluationError } from "../../types/errors";
 import { formatValue } from "../format";
-import { markdownLink, parseMarkdownLink, parseSheetLink } from "../misc";
 /**
  * Abstract base implementation of a cell.
  * Concrete cell classes are responsible to build the raw cell `content` based on
@@ -34,17 +29,15 @@ abstract class AbstractCell<T extends CellEvaluation = CellEvaluation> implement
   readonly format?: Format;
   abstract content: string;
   public evaluated: T;
+  readonly url?: string;
 
-  constructor(readonly id: UID, evaluated: T, properties: CellDisplayProperties) {
+  constructor(readonly id: UID, evaluated: T, properties: CellDisplayProperties, url?: string) {
     this.style = properties.style;
     this.format = properties.format;
     this.evaluated = { ...evaluated, format: evaluated.format || properties.format };
+    this.url = url;
   }
   isFormula(): this is IFormulaCell {
-    return false;
-  }
-
-  isLink(): this is ILinkCell {
     return false;
   }
 
@@ -92,7 +85,7 @@ abstract class AbstractCell<T extends CellEvaluation = CellEvaluation> implement
 
 export class EmptyCell extends AbstractCell<EmptyEvaluation> {
   readonly content = "";
-  constructor(id: UID, properties: CellDisplayProperties = {}) {
+  constructor(id: UID, properties: CellDisplayProperties = {}, url?: string) {
     super(id, { value: "", type: CellValueType.empty }, properties);
   }
 
@@ -103,7 +96,7 @@ export class EmptyCell extends AbstractCell<EmptyEvaluation> {
 
 export class NumberCell extends AbstractCell<NumberEvaluation> {
   readonly content = formatValue(this.evaluated.value);
-  constructor(id: UID, value: number, properties: CellDisplayProperties = {}) {
+  constructor(id: UID, value: number, properties: CellDisplayProperties = {}, url?: string) {
     super(id, { value: value, type: CellValueType.number }, properties);
   }
 
@@ -117,13 +110,13 @@ export class NumberCell extends AbstractCell<NumberEvaluation> {
 
 export class BooleanCell extends AbstractCell<BooleanEvaluation> {
   readonly content = this.evaluated.value ? "TRUE" : "FALSE";
-  constructor(id: UID, value: boolean, properties: CellDisplayProperties = {}) {
+  constructor(id: UID, value: boolean, properties: CellDisplayProperties = {}, url?: string) {
     super(id, { value: value, type: CellValueType.boolean }, properties);
   }
 }
 export class TextCell extends AbstractCell<TextEvaluation> {
   readonly content = this.evaluated.value;
-  constructor(id: UID, value: string, properties: CellDisplayProperties = {}) {
+  constructor(id: UID, value: string, properties: CellDisplayProperties = {}, url?: string) {
     super(id, { value: value, type: CellValueType.text }, properties);
   }
 }
@@ -135,103 +128,18 @@ export class TextCell extends AbstractCell<TextEvaluation> {
 export class DateTimeCell extends NumberCell {
   readonly format: Format;
 
-  constructor(id: UID, value: number, properties: CellDisplayProperties & { format: Format }) {
+  constructor(
+    id: UID,
+    value: number,
+    properties: CellDisplayProperties & { format: Format },
+    url?: string
+  ) {
     super(id, value, properties);
     this.format = properties.format;
   }
 
   get composerContent() {
     return formatValue(this.evaluated.value, this.format);
-  }
-}
-
-export abstract class LinkCell extends AbstractCell<TextEvaluation> implements ILinkCell {
-  readonly link: Link;
-  readonly content: string;
-  abstract isUrlEditable: boolean;
-  abstract urlRepresentation: string;
-
-  constructor(id: UID, content: string, properties: CellDisplayProperties = {}) {
-    const link = parseMarkdownLink(content);
-    properties = {
-      ...properties,
-      style: {
-        ...properties.style,
-        textColor: properties.style?.textColor || LINK_COLOR,
-        underline: true,
-      },
-    };
-    super(id, { value: link.label, type: CellValueType.text }, properties);
-    this.link = link;
-    this.content = content;
-  }
-  abstract action(env: SpreadsheetChildEnv): void;
-
-  isLink() {
-    return true;
-  }
-
-  get composerContent() {
-    return this.link.label;
-  }
-}
-
-/**
- * Simple web link cell
- */
-export class WebLinkCell extends LinkCell {
-  readonly urlRepresentation: string;
-  readonly content: string;
-  readonly isUrlEditable: boolean;
-
-  constructor(id: UID, content: string, properties: CellDisplayProperties = {}) {
-    super(id, content, properties);
-    this.link.url = this.withHttp(this.link.url);
-    this.link.isExternal = true;
-    this.content = markdownLink(this.link.label, this.link.url);
-    this.urlRepresentation = this.link.url;
-    this.isUrlEditable = true;
-  }
-
-  action(env: SpreadsheetChildEnv) {
-    window.open(this.link.url, "_blank");
-  }
-
-  /**
-   * Add the `https` prefix to the url if it's missing
-   */
-  private withHttp(url: string): string {
-    return !/^https?:\/\//i.test(url) ? `https://${url}` : url;
-  }
-}
-
-/**
- * Link redirecting to a given sheet in the workbook.
- */
-export class SheetLinkCell extends LinkCell {
-  private sheetId: UID;
-  readonly isUrlEditable: boolean;
-
-  constructor(
-    id: UID,
-    content: string,
-    properties: CellDisplayProperties = {},
-    private sheetName: (sheetId: UID) => string | undefined
-  ) {
-    super(id, content, properties);
-    this.sheetId = parseSheetLink(this.link.url);
-    this.isUrlEditable = false;
-  }
-
-  action(env: SpreadsheetChildEnv) {
-    env.model.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: env.model.getters.getActiveSheetId(),
-      sheetIdTo: this.sheetId,
-    });
-  }
-
-  get urlRepresentation(): string {
-    return this.sheetName(this.sheetId) || _lt("Invalid sheet");
   }
 }
 

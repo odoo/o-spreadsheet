@@ -18,6 +18,7 @@ interface CellBuilder {
     id: UID,
     content: string,
     properties: CellDisplayProperties,
+    url: string | undefined,
     sheetId: UID,
     getters: CoreGetters
   ) => Cell;

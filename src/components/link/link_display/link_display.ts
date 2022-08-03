@@ -1,7 +1,7 @@
 import { Component } from "@odoo/owl";
-import { LINK_COLOR } from "../../../constants";
 import { toXC } from "../../../helpers";
-import { LinkCell, Position, SpreadsheetChildEnv } from "../../../types";
+import { urlRegistry, URLType } from "../../../registries";
+import { Cell, Position, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { css } from "../../helpers/css";
 import { Menu } from "../../menu/menu";
@@ -63,21 +63,39 @@ export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv
   static components = { Menu };
   static template = "o-spreadsheet-LinkDisplay";
   static size = { width: LINK_TOOLTIP_WIDTH, height: LINK_TOOLTIP_HEIGHT };
+  private urlTypes = urlRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
 
-  get cell(): LinkCell {
-    const { col, row } = this.props.cellPosition;
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const cell = this.env.model.getters.getCell(sheetId, col, row);
-    if (cell?.isLink()) {
-      return cell;
+  get url(): string {
+    const cell = this.getHoveredCell();
+    if (cell?.url) {
+      return cell.url;
     }
+
+    const { col, row } = this.props.cellPosition;
     throw new Error(
       `LinkDisplay Component can only be used with link cells. ${toXC(col, row)} is not a link.`
     );
   }
 
+  get urlRepresentation(): string {
+    const urlType = this.getUrlType();
+    return urlType ? urlType.representation(this.url, this.env.model) : this.url;
+  }
+
+  get isExternal(): boolean {
+    if (this.getUrlType()) {
+      return false;
+    }
+    return true;
+  }
+
   openLink() {
-    this.cell.action(this.env);
+    const urlType = this.getUrlType();
+    if (urlType) {
+      urlType.open(this.url, this.env.model);
+    } else {
+      window.open(this.withHttp(this.url), "_blank");
+    }
   }
 
   edit() {
@@ -92,15 +110,29 @@ export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv
   unlink() {
     const sheetId = this.env.model.getters.getActiveSheetId();
     const { col, row } = this.props.cellPosition;
-    const style = this.cell.style;
-    const textColor = style?.textColor === LINK_COLOR ? undefined : style?.textColor;
     this.env.model.dispatch("UPDATE_CELL", {
       col,
       row,
       sheetId,
-      content: this.cell.link.label,
-      style: { ...style, textColor, underline: undefined },
+      content: this.getHoveredCell()?.formattedValue,
     });
+  }
+
+  private getHoveredCell(): Cell | undefined {
+    const { col, row } = this.props.cellPosition;
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    return this.env.model.getters.getCell(sheetId, col, row);
+  }
+
+  private getUrlType(): URLType | undefined {
+    return this.urlTypes.find((urlType) => urlType.match(this.url));
+  }
+
+  /**
+   * Add the `https` prefix to the url if it's missing
+   */
+  private withHttp(url: string): string {
+    return !/^https?:\/\//i.test(url) ? `https://${url}` : url;
   }
 }
 
@@ -108,7 +140,7 @@ export const LinkCellPopoverBuilder: PopoverBuilders = {
   onHover: (position, getters): CellPopoverComponent<typeof LinkDisplay> => {
     const cell = getters.getCell(getters.getActiveSheetId(), position.col, position.row);
     const shouldDisplayLink =
-      cell?.isLink() &&
+      cell?.url &&
       getters.isVisibleInViewport(position.col, position.row, getters.getActiveViewport());
     if (!shouldDisplayLink) return { isOpen: false };
     return {

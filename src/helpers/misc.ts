@@ -283,7 +283,7 @@ export function parseMarkdownLink(str: string): Link {
   };
 }
 
-const O_SPREADSHEET_LINK_PREFIX = "o-spreadsheet://";
+export const O_SPREADSHEET_LINK_PREFIX = "o-spreadsheet://";
 
 export function isMarkdownSheetLink(str: string) {
   if (!isMarkdownLink(str)) {
@@ -293,14 +293,14 @@ export function isMarkdownSheetLink(str: string) {
   return url.startsWith(O_SPREADSHEET_LINK_PREFIX);
 }
 
-export function buildSheetLink(sheetId: UID) {
+export function buildSheetURL(sheetId: UID) {
   return `${O_SPREADSHEET_LINK_PREFIX}${sheetId}`;
 }
 
 /**
  * Parse a sheet link and return the sheet id
  */
-export function parseSheetLink(sheetLink: string) {
+export function parseSheetURL(sheetLink: string) {
   if (sheetLink.startsWith(O_SPREADSHEET_LINK_PREFIX)) {
     return sheetLink.substr(O_SPREADSHEET_LINK_PREFIX.length);
   }

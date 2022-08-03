@@ -1,9 +1,9 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, INCORRECT_RANGE_STRING } from "../../constants";
 import {
   isMarkdownLink,
-  isMarkdownSheetLink,
+  O_SPREADSHEET_LINK_PREFIX,
   parseMarkdownLink,
-  parseSheetLink,
+  parseSheetURL,
   toXC,
 } from "../../helpers";
 import { ExcelSheetData, ExcelWorkbookData, HeaderData } from "../../types";
@@ -115,15 +115,14 @@ export function addHyperlinks(
   const cells = sheet.cells;
   const linkNodes: XMLString[] = [];
   for (const xc in cells) {
-    const content = cells[xc]?.content;
-    if (content && isMarkdownLink(content)) {
-      const { label, url } = parseMarkdownLink(content);
-      if (isMarkdownSheetLink(content)) {
-        const sheetId = parseSheetLink(url);
+    const url = cells[xc]?.url;
+    if (url) {
+      if (url.startsWith(O_SPREADSHEET_LINK_PREFIX)) {
+        const sheetId = parseSheetURL(url);
         const sheet = data.sheets.find((sheet) => sheet.id === sheetId);
         const location = sheet ? `${sheet.name}!A1` : INCORRECT_RANGE_STRING;
         linkNodes.push(escapeXml/*xml*/ `
-          <hyperlink display="${label}" location="${location}" ref="${xc}"/>
+          <hyperlink display="${cells[xc].formattedValue}" location="${location}" ref="${xc}"/>
         `);
       } else {
         const linkRelId = addRelsToFile(

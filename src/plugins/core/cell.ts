@@ -1,6 +1,14 @@
-import { NULL_FORMAT } from "../../constants";
+import { LINK_COLOR, NULL_FORMAT } from "../../constants";
 import { cellFactory } from "../../helpers/cells/cell_factory";
-import { concat, getItemId, isInside, range, toCartesian, toXC } from "../../helpers/index";
+import {
+  concat,
+  getItemId,
+  isInside,
+  isMarkdownLink,
+  range,
+  toCartesian,
+  toXC,
+} from "../../helpers/index";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -296,7 +304,20 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   getCellStyle(cell?: Cell): Style {
-    return (cell && cell.style) || {};
+    if (cell) {
+      const style = cell.style || {};
+
+      if (cell.evaluated.type === "text" && isMarkdownLink(cell.evaluated.value)) {
+        if (style.underline === undefined) {
+          style.underline = true;
+        }
+        if (style.textColor === undefined) {
+          style.textColor = LINK_COLOR;
+        }
+      }
+      return style;
+    }
+    return {};
   }
 
   /**
