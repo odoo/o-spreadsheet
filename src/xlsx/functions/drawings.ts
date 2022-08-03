@@ -87,7 +87,7 @@ export function createDrawing(
 /**
  *  Returns the coordinates of topLeft (from) and BottomRight (to) of the chart in English Metric Units (EMU)
  */
-export function convertFigureData(
+function convertFigureData(
   figure: FigureData<ExcelChartDefinition>,
   sheet: SheetData
 ): FigurePosition {

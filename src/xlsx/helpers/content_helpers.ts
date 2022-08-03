@@ -167,7 +167,7 @@ export function normalizeStyle(construct: XLSXStructure, styles: ExtractedStyle)
   return id;
 }
 
-export function convertFormat(
+function convertFormat(
   format: XLSXNumFormat | undefined,
   numFmtStructure: XLSXNumFormat[]
 ): number {

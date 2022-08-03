@@ -77,7 +77,7 @@ const keyDownMappingIgnore: string[] = ["CTRL+C", "CTRL+V"];
 // Error Tooltip Hook
 // -----------------------------------------------------------------------------
 
-export function useCellHovered(env: SpreadsheetChildEnv): Partial<Position> {
+function useCellHovered(env: SpreadsheetChildEnv): Partial<Position> {
   const hoveredPosition: Partial<Position> = useState({} as Partial<Position>);
   const { Date } = window;
   const gridRef = useRef("gridOverlay");

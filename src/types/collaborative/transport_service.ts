@@ -3,7 +3,7 @@ import { UID } from "../misc";
 import { WorkbookData } from "../workbook_data";
 import { Client, ClientId } from "./session";
 
-export interface AbstractMessage {
+interface AbstractMessage {
   version: number;
 }
 
@@ -47,7 +47,7 @@ export interface ClientMovedMessage extends AbstractMessage {
 /**
  * Send a snapshot of the spreadsheet to the collaborative server
  */
-export interface SnapshotMessage extends AbstractMessage {
+interface SnapshotMessage extends AbstractMessage {
   type: "SNAPSHOT";
   data: WorkbookData;
   serverRevisionId: UID;
@@ -58,7 +58,7 @@ export interface SnapshotMessage extends AbstractMessage {
  * Notify all clients that the server has a new snapshot of the
  * spreadsheet and that the previous history may be lost.
  */
-export interface SnapshotCreatedMessage extends AbstractMessage {
+interface SnapshotCreatedMessage extends AbstractMessage {
   type: "SNAPSHOT_CREATED";
   serverRevisionId: UID;
   nextRevisionId: UID;

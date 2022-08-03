@@ -2,7 +2,7 @@ import { FORMULA_REF_IDENTIFIER } from "../constants";
 import { rangeTokenize } from "../formulas/range_tokenizer";
 import { cellReference } from "../helpers";
 
-export type LegacyNormalizedFormula = {
+type LegacyNormalizedFormula = {
   // if the content is a formula (ex. =sum(  a1:b3, 3) + a1, should be stored as
   // {formula: "=sum(  |ref1|, |ref2|) + |ref3|"), ["a1:b3","a1"]
   // This normalization applies to range references, numbers and string values

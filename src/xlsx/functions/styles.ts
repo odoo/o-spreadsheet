@@ -108,7 +108,7 @@ export function addBorders(borders: XLSXBorder[]): XMLString {
   `;
 }
 
-export function formatBorderAttribute(description: XLSXBorderDescr | undefined): XMLString {
+function formatBorderAttribute(description: XLSXBorderDescr | undefined): XMLString {
   if (!description) {
     return escapeXml``;
   }

@@ -37,7 +37,7 @@ type StatefulStream<Event, State> = {
 /**
  * Allows to select cells in the grid and update the selection
  */
-export interface SelectionProcessor {
+interface SelectionProcessor {
   selectZone(anchor: AnchorZone): DispatchResult;
   selectCell(col: number, row: number): DispatchResult;
   moveAnchorCell(direction: SelectionDirection, step: SelectionStep): DispatchResult;

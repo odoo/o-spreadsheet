@@ -10,7 +10,7 @@ export interface SearchOptions {
   searchFormulas: boolean;
 }
 
-export enum Direction {
+enum Direction {
   previous = -1,
   current = 0,
   next = 1,

@@ -25,7 +25,7 @@ import {
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
-export type EditionMode =
+type EditionMode =
   | "editing"
   | "selecting" // should tell if you need to underline the current range selected.
   | "inactive";

@@ -20,7 +20,7 @@ interface ErrorToolTipProps {
   text: string;
 }
 
-export class ErrorToolTip extends Component<ErrorToolTipProps> {
+class ErrorToolTip extends Component<ErrorToolTipProps> {
   static size = { width: ERROR_TOOLTIP_WIDTH, height: ERROR_TOOLTIP_HEIGHT };
   static template = "o-spreadsheet-ErrorToolTip";
   static components = {};
