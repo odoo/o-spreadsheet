@@ -1,6 +1,12 @@
 import { Model } from "../../src";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { toZone } from "../../src/helpers";
+import {
+  getColEndPosition,
+  getColStartPosition,
+  getRowEndPosition,
+  getRowStartPosition,
+} from "./getters_helpers";
 import { nextTick } from "./helpers";
 
 export async function simulateClick(
@@ -144,4 +150,98 @@ export async function keyUp(key: string, options: any = {}): Promise<void> {
     new KeyboardEvent("keyup", Object.assign({ key, bubbles: true }, options))
   );
   return await nextTick();
+}
+
+export async function mousedownNWCellCorner(model: Model, el: Element, xc: string) {
+  const { top, left } = toZone(xc);
+  triggerMouseEvent(
+    el,
+    "mousedown",
+    getColStartPosition(model, left),
+    getRowStartPosition(model, top)
+  );
+  await nextTick();
+}
+
+export async function mousedownNECellCorner(model: Model, el: Element, xc: string) {
+  const { top, left } = toZone(xc);
+  triggerMouseEvent(
+    el,
+    "mousedown",
+    getColEndPosition(model, left),
+    getRowStartPosition(model, top)
+  );
+  await nextTick();
+}
+
+export async function mousedownSWCellCorner(model: Model, el: Element, xc: string) {
+  const { top, left } = toZone(xc);
+  triggerMouseEvent(
+    el,
+    "mousedown",
+    getColStartPosition(model, left),
+    getRowEndPosition(model, top)
+  );
+  await nextTick();
+}
+
+export async function mousedownSECellCorner(model: Model, el: Element, xc: string) {
+  const { top, left } = toZone(xc);
+  triggerMouseEvent(el, "mousedown", getColEndPosition(model, left), getRowEndPosition(model, top));
+  await nextTick();
+}
+
+export async function mousedownTopCellBorder(model: Model, el: Element, xc: string) {
+  const { top, left } = toZone(xc);
+  triggerMouseEvent(
+    el,
+    "mousedown",
+    getColStartPosition(model, left) + 10,
+    getRowStartPosition(model, top) + 2
+  );
+  await nextTick();
+}
+
+export async function mousedownBottomCellBorder(model: Model, el: Element, xc: string) {
+  const { top, left } = toZone(xc);
+  triggerMouseEvent(
+    el,
+    "mousedown",
+    getColStartPosition(model, left) + 10,
+    getRowEndPosition(model, top) - 2
+  );
+  await nextTick();
+}
+
+export async function mousedownLeftCellBorder(model: Model, el: Element, xc: string) {
+  const { top, left } = toZone(xc);
+  triggerMouseEvent(
+    el,
+    "mousedown",
+    getColStartPosition(model, left) + 2,
+    getRowStartPosition(model, top) + 10
+  );
+  await nextTick();
+}
+
+export async function mousedownRightCellBorder(model: Model, el: Element, xc: string) {
+  const { top, left } = toZone(xc);
+  triggerMouseEvent(
+    el,
+    "mousedown",
+    getColEndPosition(model, left) - 2,
+    getRowStartPosition(model, top) + 10
+  );
+  await nextTick();
+}
+
+export async function mousemoveToCell(model: Model, el: Element, xc: string) {
+  const { top, left } = toZone(xc);
+  triggerMouseEvent(
+    el,
+    "mousemove",
+    getColStartPosition(model, left) + 10,
+    getRowStartPosition(model, top) + 10
+  );
+  await nextTick();
 }

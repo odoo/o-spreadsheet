@@ -50,6 +50,7 @@ export interface SelectionProcessor {
     mode: "overrideSelection" | "updateAnchor" | "newAnchor"
   ): DispatchResult;
   selectAll(): DispatchResult;
+  moveZone(anchor: AnchorZone): DispatchResult;
 }
 
 /**
@@ -328,6 +329,23 @@ export class SelectionStreamProcessor
       type: "HeadersSelected",
       mode: "overrideSelection",
       anchor: { zone, cell: { col: 0, row: 0 } },
+    });
+  }
+
+  /**
+   * Moves the current zone
+   */
+  moveZone(anchor: AnchorZone): DispatchResult {
+    // TODO
+    const sheetId = this.getters.getActiveSheetId();
+    anchor = {
+      ...anchor,
+      zone: this.getters.expandZone(sheetId, anchor.zone),
+    };
+    return this.processEvent({
+      type: "ZonesMoved",
+      anchor,
+      mode: "overrideSelection",
     });
   }
 

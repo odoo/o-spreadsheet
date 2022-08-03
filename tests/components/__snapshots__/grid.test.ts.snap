@@ -57,6 +57,47 @@ exports[`Grid component simple rendering snapshot 1`] = `
   
   
   <div
+    class="o-selection"
+  >
+    <div
+      class="o-border o-border-n"
+      style="
+        left:50px;
+        top:28px;
+        width:90px;
+        height:4px;
+    "
+    />
+    <div
+      class="o-border o-border-s"
+      style="
+        left:50px;
+        top:45px;
+        width:90px;
+        height:4px;
+    "
+    />
+    <div
+      class="o-border o-border-w"
+      style="
+        left:50px;
+        top:28px;
+        width:4px;
+        height:17px;
+    "
+    />
+    <div
+      class="o-border o-border-e"
+      style="
+        left:140px;
+        top:28px;
+        width:4px;
+        height:17px;
+    "
+    />
+    
+  </div>
+  <div
     class="o-autofill"
     style="top:45px;left:140px"
   >

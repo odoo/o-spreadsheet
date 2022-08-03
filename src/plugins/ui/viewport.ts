@@ -75,6 +75,7 @@ export class ViewportPlugin extends UIPlugin {
     switch (event.type) {
       case "HeadersSelected":
       case "AlterZoneCorner":
+      case "ZonesMoved":
         break;
       case "ZonesSelected":
         // altering a zone should not move the viewport

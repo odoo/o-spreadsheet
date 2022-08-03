@@ -60,17 +60,23 @@
           t-props="{...cellPopover.props, onClosed : () => onClosePopover()}"
         />
       </Popover>
-      <t
-        t-if="env.model.getters.getEditionMode() === 'inactive' and isAutoFillActive() and !env.isDashboard()">
-        <Autofill
-          position="getAutofillPosition()"
-          getGridBoundingClientRect="() => this.getGridBoundingClientRect()"
+      <t t-if="env.model.getters.getEditionMode() === 'inactive' and !env.isDashboard()">
+        <Selection
+          zone="env.model.getters.getSelectedZone()"
+          getGridDOMSize="() => this.getGridDOMSize()"
         />
+        <t t-if="env.model.getters.getEditionMode() === 'inactive' and isAutoFillActive() and !env.isDashboard()">
+          <Autofill position="getAutofillPosition()" getGridDOMSize="() => this.getGridDOMSize()"/>
+        </t>
       </t>
       <t t-if="env.model.getters.getEditionMode() !== 'inactive' and !env.isDashboard()">
         <t t-foreach="env.model.getters.getHighlights()" t-as="highlight" t-key="highlight_index">
           <t t-if="highlight.sheetId === env.model.getters.getActiveSheetId()">
-            <Highlight zone="highlight.zone" color="highlight.color"/>
+            <Highlight
+              zone="highlight.zone"
+              color="highlight.color"
+              getGridDOMSize="() => this.getGridDOMSize()"
+            />
           </t>
         </t>
       </t>

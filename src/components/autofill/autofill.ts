@@ -41,7 +41,7 @@ css/* scss */ `
 
 interface Props {
   position: Position;
-  getGridBoundingClientRect: () => DOMRect;
+  getGridDOMSize: () => DOMRect;
 }
 
 interface Position {
@@ -101,7 +101,7 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
     };
 
     const onMouseMove = (ev: MouseEvent) => {
-      const position = this.props.getGridBoundingClientRect();
+      const position = this.props.getGridDOMSize();
       const { offsetY, offsetX } = this.env.model.getters.getActiveViewport();
       this.state.position = {
         left: ev.clientX - start.left + offsetX,

@@ -91,6 +91,11 @@ export class ClipboardPlugin extends UIPlugin {
         this.selectPastedZone(width, height, isCutOperation, cmd.target);
         this.status = "invisible";
         break;
+      case "CLEAR_CLIPBOARD": {
+        this.state = undefined;
+        this.status = "invisible";
+        break;
+      }
       case "DELETE_CELL": {
         const { cut, paste } = this.getDeleteCellsTargets(cmd.zone, cmd.shiftDimension);
         const state = this.getClipboardState(cut, "CUT");
