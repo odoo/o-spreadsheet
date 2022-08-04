@@ -1,11 +1,12 @@
 import { parsePrimitiveContent } from "../../helpers/cells";
-import { colorNumberString, isInside, recomputeZones, toXC } from "../../helpers/index";
+import { colorNumberString, isInside, percentile, recomputeZones, toXC } from "../../helpers/index";
 import { clip, isDefined } from "../../helpers/misc";
 import { _lt } from "../../translation";
 import {
   Cell,
   CellIsRule,
   CellPosition,
+  CellValue,
   CellValueType,
   ColorScaleMidPointThreshold,
   ColorScaleRule,
@@ -161,20 +162,23 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     threshold: ColorScaleThreshold | ColorScaleMidPointThreshold | IconThreshold,
     functionName?: "min" | "max"
   ): null | number {
+    const sheetId = this.getters.getActiveSheetId();
+    const rangeValues = this.getters
+      .getRangeValues(this.getters.getRangeFromSheetXC(sheetId, range))
+      .filter(this.isCellValueNumber);
     switch (threshold.type) {
       case "value":
-        return this.getters.evaluateFormula(`=${functionName}(${range})`);
+        const result = functionName === "max" ? Math.max(...rangeValues) : Math.min(...rangeValues);
+        return result;
       case "number":
         return Number(threshold.value);
       case "percentage":
-        const min = this.getters.evaluateFormula(`=min(${range})`);
-        const max = this.getters.evaluateFormula(`=max(${range})`);
+        const min = Math.min(...rangeValues);
+        const max = Math.max(...rangeValues);
         const delta = max - min;
         return min + (delta * Number(threshold.value)) / 100;
       case "percentile":
-        return this.getters.evaluateFormula(
-          `=PERCENTILE(${range},${Number(threshold.value) / 100})`
-        );
+        return percentile(rangeValues, Number(threshold.value) / 100, true);
       case "formula":
         const value = threshold.value && this.getters.evaluateFormula(threshold.value);
         return !(value instanceof Promise) ? value : null;
@@ -493,5 +497,9 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
         }
       }
     }
+  }
+
+  private isCellValueNumber(value: CellValue): value is number {
+    return typeof value === "number";
   }
 }

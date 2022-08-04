@@ -58,3 +58,21 @@ export function parseNumber(str: string): number {
   }
   return n;
 }
+
+export function percentile(values: number[], percent: number, isInclusive: boolean) {
+  const sortedValues = [...values].sort((a, b) => a - b);
+
+  let percentIndex = (sortedValues.length + (isInclusive ? -1 : 1)) * percent;
+  if (!isInclusive) {
+    percentIndex--;
+  }
+  if (Number.isInteger(percentIndex)) {
+    return sortedValues[percentIndex];
+  }
+  const indexSup = Math.ceil(percentIndex);
+  const indexLow = Math.floor(percentIndex);
+  return (
+    sortedValues[indexSup] * (percentIndex - indexLow) +
+    sortedValues[indexLow] * (indexSup - percentIndex)
+  );
+}

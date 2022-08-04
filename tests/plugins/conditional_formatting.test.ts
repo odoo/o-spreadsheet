@@ -2014,5 +2014,24 @@ describe("conditional formats types", () => {
       deleteCells(model, "A2:A3", "up");
       expect(model.getters.getConditionalFormats(sheetId)[0].ranges[0]).toBe("A1:A10");
     });
+
+    test("Color scale with error cell in range", () => {
+      setCellContent(model, "A1", "10");
+      setCellContent(model, "A2", "=0/0");
+      setCellContent(model, "A3", "1");
+
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createColorScale(
+          "1",
+          { type: "value", color: 0xff00ff },
+          { type: "value", color: 0x123456 }
+        ),
+        ranges: toRangesData(sheetId, "A1:A3"),
+        sheetId,
+      });
+      expect(model.getters.getConditionalStyle(0, 0)).toEqual({ fillColor: "#123456" });
+      expect(model.getters.getConditionalStyle(0, 1)).toEqual(undefined);
+      expect(model.getters.getConditionalStyle(0, 2)).toEqual({ fillColor: "#ff00ff" });
+    });
   });
 });
