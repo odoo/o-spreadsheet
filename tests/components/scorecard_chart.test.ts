@@ -36,6 +36,10 @@ function getChartBaselineTextElement(): HTMLElement {
   return fixture.querySelector(".o-figure .o-baseline-text-value")!;
 }
 
+function getChartBaselineDescrElement(): HTMLElement {
+  return fixture.querySelector(".o-figure .o-baseline-text-description")!;
+}
+
 function getElementFontSize(element: HTMLElement): number {
   const fontSizeAttr = element.style.fontSize;
   return Number(fontSizeAttr.slice(0, fontSizeAttr.length - 2));
@@ -147,7 +151,7 @@ describe("Scorecard charts", () => {
 
     expect(getChartElement()).toBeTruthy();
     expect(getChartBaselineTextContent()).toEqual("1");
-    expect(getChartBaselineElement().querySelector("span")!.style["color"]).toEqual("");
+    expect(toHex(getChartBaselineTextElement()!.style["color"])).toEqual("#757575");
   });
 
   test("Key < baseline display in red with down arrow", async () => {
@@ -176,7 +180,7 @@ describe("Scorecard charts", () => {
 
     const baselineElement = getChartBaselineElement();
     expect(baselineElement.querySelector("svg")).toBeFalsy();
-    expect(baselineElement.querySelector("span")!.style["color"]).toEqual("");
+    expect(toHex(baselineElement.querySelector("span")!.style["color"])).toEqual("#757575");
     expect(getChartBaselineTextContent()).toEqual("0");
   });
 
@@ -240,6 +244,26 @@ describe("Scorecard charts", () => {
     await nextTick();
     expect(getChartBaselineTextElement()!.style["font-weight"]).not.toEqual("bold");
     expect(getChartBaselineTextContent()).toEqual("100%");
+  });
+
+  test("High contrast font colors with dark background", async () => {
+    createScorecardChart(
+      model,
+      {
+        keyValue: "A1",
+        baseline: "A1",
+        baselineDescr: "descr",
+        title: "title",
+        background: "#000000",
+      },
+      chartId
+    );
+    await nextTick();
+
+    expect(toHex(getChartTitleElement()!.style["color"])).toEqual("#BBBBBB");
+    expect(toHex(getChartBaselineTextElement()!.style["color"])).toEqual("#BBBBBB");
+    expect(toHex(getChartBaselineDescrElement()!.style["color"])).toEqual("#BBBBBB");
+    expect(toHex(getChartKeyElement()!.style["color"])).toEqual("#FFFFFF");
   });
 
   test("Increasing size of the chart scale up the font sizes", async () => {
