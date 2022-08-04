@@ -42,7 +42,6 @@ Object {
       "animation": Object {
         "duration": 0,
       },
-      "devicePixelRatio": 1,
       "elements": Object {
         "line": Object {
           "fill": false,
@@ -151,7 +150,6 @@ Object {
       "animation": Object {
         "duration": 0,
       },
-      "devicePixelRatio": 1,
       "elements": Object {
         "line": Object {
           "fill": false,
@@ -267,7 +265,6 @@ Object {
       "animation": Object {
         "duration": 0,
       },
-      "devicePixelRatio": 1,
       "elements": Object {
         "line": Object {
           "fill": false,
@@ -357,7 +354,6 @@ Object {
       "animation": Object {
         "duration": 0,
       },
-      "devicePixelRatio": 1,
       "elements": Object {
         "line": Object {
           "fill": false,
@@ -448,7 +444,6 @@ Object {
       "animation": Object {
         "duration": 0,
       },
-      "devicePixelRatio": 1,
       "elements": Object {
         "line": Object {
           "fill": false,
@@ -552,7 +547,6 @@ Object {
       "animation": Object {
         "duration": 0,
       },
-      "devicePixelRatio": 1,
       "elements": Object {
         "line": Object {
           "fill": false,
@@ -656,7 +650,6 @@ Object {
       "animation": Object {
         "duration": 0,
       },
-      "devicePixelRatio": 1,
       "elements": Object {
         "line": Object {
           "fill": false,
@@ -737,7 +730,6 @@ Object {
       "animation": Object {
         "duration": 0,
       },
-      "devicePixelRatio": 1,
       "elements": Object {
         "line": Object {
           "fill": false,
@@ -841,7 +833,6 @@ Object {
       "animation": Object {
         "duration": 0,
       },
-      "devicePixelRatio": 1,
       "elements": Object {
         "line": Object {
           "fill": false,
@@ -945,7 +936,6 @@ Object {
       "animation": Object {
         "duration": 0,
       },
-      "devicePixelRatio": 1,
       "elements": Object {
         "line": Object {
           "fill": false,
@@ -1049,7 +1039,6 @@ Object {
       "animation": Object {
         "duration": 0,
       },
-      "devicePixelRatio": 1,
       "elements": Object {
         "line": Object {
           "fill": false,
