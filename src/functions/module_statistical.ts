@@ -1,5 +1,5 @@
 import { parseDateTime } from "../helpers/dates";
-import { isNumber } from "../helpers/index";
+import { isNumber, percentile } from "../helpers/index";
 import { _lt } from "../translation";
 import { AddFunctionDescription, Arg, ArgValue, MatrixArgValue, PrimitiveArgValue } from "../types";
 import { args } from "./arguments";
@@ -118,24 +118,15 @@ function centile(data: ArgValue[], percent: PrimitiveArgValue, isInclusive: bool
   });
   assert(() => count !== 0, _lt(`[[FUNCTION_NAME]] has no valid input data.`));
 
-  let percentIndex = (count + (isInclusive ? -1 : 1)) * _percent;
   if (!isInclusive) {
+    // 2nd argument must be between 1/(n+1) and n/(n+1) with n the number of data
     assert(
-      () => 1 <= percentIndex && percentIndex <= count,
+      () => 1 / (count + 1) <= _percent && _percent <= count / (count + 1),
       _lt(`Function [[FUNCTION_NAME]] parameter 2 value is out of range.`)
     );
+  }
 
-    percentIndex--;
-  }
-  if (Number.isInteger(percentIndex)) {
-    return sortedArray[percentIndex];
-  }
-  const indexSup = Math.ceil(percentIndex);
-  const indexLow = Math.floor(percentIndex);
-  return (
-    sortedArray[indexSup] * (percentIndex - indexLow) +
-    sortedArray[indexLow] * (indexSup - percentIndex)
-  );
+  return percentile(sortedArray, _percent, isInclusive);
 }
 
 // -----------------------------------------------------------------------------
