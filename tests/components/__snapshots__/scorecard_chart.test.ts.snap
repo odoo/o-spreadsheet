@@ -47,7 +47,6 @@ exports[`Scorecard charts Scorecard snapshot 1`] = `
       width:536px;
       padding:10.72px;
       background:#FFFFFF;
-      color:#000000;
     "
     >
       <div
@@ -55,6 +54,7 @@ exports[`Scorecard charts Scorecard snapshot 1`] = `
         style="
 font-size: 18px;
 display: inline-block;
+color: #757575;
 "
       >
         hello
@@ -71,6 +71,7 @@ display: inline-block;
           style="
 font-size: 69.24101876395092px;
 display: inline-block;
+color: #000000;
 "
         >
           2
@@ -113,6 +114,7 @@ color: #00A04A;
             style="
 font-size: 33.55526293945314px;
 display: inline-block;
+color: #757575;
 "
           >
              description

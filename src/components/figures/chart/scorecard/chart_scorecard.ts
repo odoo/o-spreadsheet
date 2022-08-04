@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 import { DEFAULT_FONT } from "../../../../constants";
-import { getFontSizeMatchingWidth } from "../../../../helpers";
+import { getFontSizeMatchingWidth, relativeLuminance } from "../../../../helpers";
 import { chartComponentRegistry } from "../../../../registries";
 import { Color, Figure, Pixel, SpreadsheetChildEnv, Style } from "../../../../types";
 import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
@@ -42,7 +42,6 @@ css/* scss */ `
     }
 
     .o-title-text {
-      color: #757575;
       text-align: left;
       height: ${LINE_HEIGHT + "em"};
       line-height: ${LINE_HEIGHT + "em"};
@@ -67,7 +66,6 @@ css/* scss */ `
     }
 
     .o-baseline-text {
-      color: #757575;
       line-height: ${LINE_HEIGHT + "em"};
       height: ${LINE_HEIGHT + "em"};
       overflow: hidden;
@@ -117,8 +115,12 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
     return this.runtime?.background || "white";
   }
 
-  get fontColor() {
-    return this.runtime?.fontColor || "black";
+  get primaryFontColor() {
+    return this.runtime?.fontColor || "#000000";
+  }
+
+  get secondaryFontColor() {
+    return relativeLuminance(this.primaryFontColor) <= 0.3 ? "#757575" : "#bbbbbb";
   }
 
   get figure() {
@@ -131,7 +133,6 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
       width:${this.figure.width}px;
       padding:${this.chartPadding}px;
       background:${this.backgroundColor};
-      color:${this.fontColor};
     `;
   }
 
@@ -166,10 +167,12 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
     return {
       titleStyle: this.getTextStyle({
         fontSize: TITLE_FONT_SIZE,
+        color: this.secondaryFontColor,
       }),
       keyStyle: this.getTextStyle({
         fontSize: keyFontSize,
         cellStyle: this.runtime?.keyValueStyle,
+        color: this.primaryFontColor,
       }),
       baselineStyle: this.getTextStyle({
         fontSize: baselineFontSize,
@@ -177,10 +180,11 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
       baselineValueStyle: this.getTextStyle({
         fontSize: baselineFontSize,
         cellStyle: this.runtime?.baselineStyle,
-        color: this.runtime?.baselineColor,
+        color: this.runtime?.baselineColor || this.secondaryFontColor,
       }),
       baselineDescrStyle: this.getTextStyle({
         fontSize: baselineFontSize * BASELINE_DESCR_FONT_RATIO,
+        color: this.secondaryFontColor,
       }),
     };
   }
