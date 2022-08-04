@@ -23,6 +23,7 @@ import * as math from "./module_math";
 import * as operators from "./module_operators";
 import * as statistical from "./module_statistical";
 import * as text from "./module_text";
+import * as web from "./module_web";
 
 export { args } from "./arguments";
 
@@ -39,6 +40,7 @@ const functions: { [category: string]: { [name: string]: AddFunctionDescription 
   statistical,
   text,
   engineering,
+  web,
 };
 
 const functionNameRegex = /^[A-Z0-9\.]+$/;
