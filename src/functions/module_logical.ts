@@ -29,7 +29,7 @@ export const AND: FunctionDescription = {
       logical_expression1 (boolean, range<boolean>) ${_lt(
         "An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE, or an expression that can be coerced to a logical value."
       )}
-      logical_expression1 (boolean, range<boolean>, optional, repeating) ${_lt(
+      logical_expression2 (boolean, range<boolean>, optional, repeating) ${_lt(
         "More expressions that represent logical values."
       )}
     `),
