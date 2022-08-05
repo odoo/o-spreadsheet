@@ -181,10 +181,7 @@ css/* scss */ `
         }
 
         .o-border-dropdown {
-          .o-line-item {
-            padding: 4px;
-            margin: 1px;
-          }
+          padding: 4px;
         }
 
         .o-divider {
@@ -232,12 +229,10 @@ css/* scss */ `
 
             .o-dropdown-line {
               display: flex;
-              padding: 3px 6px;
+              margin: 1px;
 
               .o-line-item {
-                width: 16px;
-                height: 16px;
-                margin: 1px 3px;
+                padding: 4px;
 
                 &:hover {
                   background-color: rgba(0, 0, 0, 0.08);
