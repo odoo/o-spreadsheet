@@ -3,8 +3,8 @@
     <div
       class="o-chart-container"
       t-ref="chartContainer"
-      t-on-contextmenu.prevent.stop="onContextMenu">
-      <div class="o-chart-menu">
+      t-on-contextmenu.prevent.stop="(ev) => !env.isDashboard() and this.onContextMenu(ev)">
+      <div class="o-chart-menu" t-if="!env.isDashboard()">
         <div
           class="o-chart-menu-item"
           t-on-click="showMenu"

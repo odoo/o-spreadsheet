@@ -66,6 +66,7 @@ Object {
         "labels": Object {
           "fontColor": "#FFFFFF",
         },
+        "onClick": undefined,
         "position": "top",
       },
       "maintainAspectRatio": false,
@@ -174,6 +175,7 @@ Object {
         "labels": Object {
           "fontColor": "#000000",
         },
+        "onClick": undefined,
         "position": "top",
       },
       "maintainAspectRatio": false,
@@ -289,6 +291,7 @@ Object {
         "labels": Object {
           "fontColor": "#000000",
         },
+        "onClick": undefined,
         "position": "top",
       },
       "maintainAspectRatio": false,
@@ -378,6 +381,7 @@ Object {
         "labels": Object {
           "fontColor": "#000000",
         },
+        "onClick": undefined,
         "position": "top",
       },
       "maintainAspectRatio": false,
@@ -468,6 +472,7 @@ Object {
         "labels": Object {
           "fontColor": "#000000",
         },
+        "onClick": undefined,
         "position": "top",
       },
       "maintainAspectRatio": false,
@@ -571,6 +576,7 @@ Object {
         "labels": Object {
           "fontColor": "#000000",
         },
+        "onClick": undefined,
         "position": "top",
       },
       "maintainAspectRatio": false,
@@ -674,6 +680,7 @@ Object {
         "labels": Object {
           "fontColor": "#000000",
         },
+        "onClick": undefined,
         "position": "top",
       },
       "maintainAspectRatio": false,
@@ -754,6 +761,7 @@ Object {
         "labels": Object {
           "fontColor": "#000000",
         },
+        "onClick": undefined,
         "position": "top",
       },
       "maintainAspectRatio": false,
@@ -857,6 +865,7 @@ Object {
         "labels": Object {
           "fontColor": "#000000",
         },
+        "onClick": undefined,
         "position": "top",
       },
       "maintainAspectRatio": false,
@@ -960,6 +969,7 @@ Object {
         "labels": Object {
           "fontColor": "#000000",
         },
+        "onClick": undefined,
         "position": "top",
       },
       "maintainAspectRatio": false,
@@ -1063,6 +1073,7 @@ Object {
         "labels": Object {
           "fontColor": "#000000",
         },
+        "onClick": undefined,
         "position": "top",
       },
       "maintainAspectRatio": false,

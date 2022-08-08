@@ -4,12 +4,12 @@
       <t t-foreach="getVisibleFigures()" t-as="info" t-key="info.id">
         <div
           class="o-figure-wrapper"
-          t-att-style="getStyle(info)"
+          t-att-style="getWrapperStyle(info)"
           t-on-mousedown.stop="(ev) => this.onMouseDown(info.figure, ev)">
           <div
             class="o-figure"
             t-att-class="{active: info.isSelected, 'o-dragging': info.id === dnd.figureId}"
-            t-att-style="getDims(info)"
+            t-att-style="getFigureStyle(info)"
             tabindex="0"
             t-on-keydown.stop="(ev) => this.onKeyDown(info.figure, ev)"
             t-on-keyup.stop="">
