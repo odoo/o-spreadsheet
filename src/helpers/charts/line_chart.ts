@@ -285,7 +285,7 @@ function getLineConfiguration(chart: LineChart, labels: string[]): ChartConfigur
   } else {
     legend.position = chart.legendPosition;
   }
-  config.options!.legend = legend;
+  config.options!.legend = { ...config.options?.legend, ...legend };
   config.options!.layout = {
     padding: { left: 20, right: 20, top: chart.title ? 10 : 25, bottom: 10 },
   };

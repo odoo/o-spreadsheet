@@ -183,6 +183,17 @@ describe("figures", () => {
   );
 
   test.each(["basicChart", "scorecard", "gauge"])(
+    "charts don't have a menu button in dashboard mode",
+    async (chartType: string) => {
+      createTestChart(chartType);
+      model.updateMode("dashboard");
+      await nextTick();
+      expect(fixture.querySelector(".o-figure")).not.toBeNull();
+      expect(fixture.querySelector(".o-chart-menu-item")).toBeNull();
+    }
+  );
+
+  test.each(["basicChart", "scorecard", "gauge"])(
     "Click on Menu button open context menu in %s",
     async (chartType: string) => {
       createTestChart(chartType);
@@ -563,6 +574,19 @@ describe("figures", () => {
       triggerMouseEvent(".o-chart-container", "contextmenu");
       await nextTick();
       expect(document.querySelectorAll(".o-menu").length).toBe(1);
+    }
+  );
+
+  test.each(["basicChart", "scorecard", "gauge"])(
+    "Cannot open context menu on right click in dashboard mode",
+    async (chartType: string) => {
+      createTestChart(chartType);
+      model.updateMode("dashboard");
+      await nextTick();
+
+      triggerMouseEvent(".o-chart-container", "contextmenu");
+      await nextTick();
+      expect(document.querySelector(".o-menu")).toBeFalsy();
     }
   );
 

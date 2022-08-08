@@ -1,5 +1,9 @@
 import { Component, onMounted, useState } from "@odoo/owl";
-import { ComponentsImportance, SELECTION_BORDER_COLOR } from "../../../constants";
+import {
+  ComponentsImportance,
+  FIGURE_BORDER_COLOR,
+  SELECTION_BORDER_COLOR,
+} from "../../../constants";
 import { figureRegistry } from "../../../registries/index";
 import { Figure, SpreadsheetChildEnv, UID } from "../../../types/index";
 import { css } from "../../helpers/css";
@@ -26,7 +30,6 @@ css/*SCSS*/ `
   }
 
   div.o-figure {
-    border: 1px solid black;
     box-sizing: border-box;
     position: absolute;
     bottom: 3px;
@@ -136,14 +139,17 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  getDims(info: FigureInfo) {
+  getFigureStyle(info: FigureInfo) {
     const { figure, isSelected } = info;
     const borders = 2 * (isSelected ? ACTIVE_BORDER_WIDTH : BORDER_WIDTH);
     const { width, height } = isSelected && this.dnd.figureId ? this.dnd : figure;
-    return `width:${width + borders}px;height:${height + borders}px`;
+
+    const borderStyle =
+      this.env.isDashboard() || isSelected ? "" : `1px solid ${FIGURE_BORDER_COLOR}`;
+    return `width:${width + borders}px;height:${height + borders}px; border: ${borderStyle};`;
   }
 
-  getStyle(info: FigureInfo) {
+  getWrapperStyle(info: FigureInfo) {
     const { figure, isSelected } = info;
     const { offsetX, offsetY } = this.env.model.getters.getActiveViewport();
     const target = figure.id === (isSelected && this.dnd.figureId) ? this.dnd : figure;
@@ -164,7 +170,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       ANCHOR_SIZE + ACTIVE_BORDER_WIDTH + (isSelected ? ACTIVE_BORDER_WIDTH : BORDER_WIDTH);
     return `position:absolute; top:${y + 1}px; left:${x + 1}px; width:${
       width - correctionX + offset
-    }px; height:${height - correctionY + offset}px`;
+    }px; height:${height - correctionY + offset}px;`;
   }
 
   setup() {

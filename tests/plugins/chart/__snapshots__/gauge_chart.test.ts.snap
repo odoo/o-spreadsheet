@@ -46,6 +46,9 @@ Object {
           "top": 10,
         },
       },
+      "legend": Object {
+        "onClick": undefined,
+      },
       "maintainAspectRatio": false,
       "needle": Object {
         "color": "#000000",
@@ -128,6 +131,9 @@ Object {
           "right": 30,
           "top": 25,
         },
+      },
+      "legend": Object {
+        "onClick": undefined,
       },
       "maintainAspectRatio": false,
       "needle": Object {

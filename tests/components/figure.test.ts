@@ -209,6 +209,18 @@ describe("figures", () => {
     expect(figure.classList).not.toContain("o-dragging");
   });
 
+  test("Figure border disabled on dashboard mode", async () => {
+    const figureId = "someuuid";
+    createFigure(model, { id: figureId, y: 200 });
+    await nextTick();
+    const figure = fixture.querySelector(".o-figure")! as HTMLElement;
+    expect(window.getComputedStyle(figure).border).toBeTruthy();
+
+    model.updateMode("dashboard");
+    await nextTick();
+    expect(figure.style.border).toBeFalsy();
+  });
+
   test("Figures are cropped to avoid overlap with headers", async () => {
     const figureId = "someuuid";
     createFigure(model, { id: figureId, x: 100, y: 20, height: 200, width: 100 });

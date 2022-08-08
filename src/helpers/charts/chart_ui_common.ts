@@ -99,6 +99,11 @@ export function getDefaultChartJsRuntime(
         text: chart.title,
         fontColor,
       },
+      legend: {
+        // Disable default legend onClick (show/hide dataset), to allow us to set a global onClick on the chart container.
+        // If we want to re-enable this in the future, we need to override the default onClick to stop the event propagation
+        onClick: undefined,
+      },
     },
     data: {
       labels: labels.map(truncateLabel),

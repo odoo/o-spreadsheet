@@ -8,6 +8,7 @@ export const BACKGROUND_HEADER_COLOR = "#F8F9FA";
 export const BACKGROUND_HEADER_SELECTED_COLOR = "#E8EAED";
 export const BACKGROUND_HEADER_ACTIVE_COLOR = "#595959";
 export const TEXT_HEADER_COLOR = "#666666";
+export const FIGURE_BORDER_COLOR = "#c9ccd2";
 export const SELECTION_BORDER_COLOR = "#3266ca";
 export const HEADER_BORDER_COLOR = "#C0C0C0";
 export const CELL_BORDER_COLOR = "#E2E3E3";
