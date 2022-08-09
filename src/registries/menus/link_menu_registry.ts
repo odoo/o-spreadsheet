@@ -8,10 +8,12 @@ import { createFullMenuItem, MenuItemRegistry } from "../menu_items_registry";
 
 export const linkMenuRegistry = new MenuItemRegistry();
 
-linkMenuRegistry.add("sheet", {
-  name: _lt("Link sheet"),
-  sequence: 10,
-  children: (env) => {
+linkMenuRegistry
+  .add("sheet", {
+    name: _lt("Link sheet"),
+    sequence: 10,
+  })
+  .addChild("sheet_list", ["sheet"], (env) => {
     const sheets = env.model.getters
       .getSheetIds()
       .map((sheetId) => env.model.getters.getSheet(sheetId));
@@ -26,5 +28,4 @@ linkMenuRegistry.add("sheet", {
         }),
       })
     );
-  },
-});
+  });

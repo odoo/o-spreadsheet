@@ -41,7 +41,8 @@ export interface MenuItem {
 
 export type FullMenuItem = Required<MenuItem>;
 
-type menuChildren = FullMenuItem[] | ((env: SpreadsheetChildEnv) => FullMenuItem[]);
+type MenuItemGetter = (env: SpreadsheetChildEnv) => FullMenuItem[];
+type menuChildren = (FullMenuItem | MenuItemGetter)[];
 
 const DEFAULT_MENU_ITEM = (key: string) => ({
   isVisible: () => true,
@@ -58,6 +59,11 @@ const DEFAULT_MENU_ITEM = (key: string) => ({
 export function createFullMenuItem(key: string, value: MenuItem): FullMenuItem {
   return Object.assign({}, DEFAULT_MENU_ITEM(key), value);
 }
+
+export function isMenuItem(value: FullMenuItem | MenuItemGetter): value is FullMenuItem {
+  return typeof value !== "function";
+}
+
 /**
  * The class Registry is extended in order to add the function addChild
  *
@@ -75,23 +81,24 @@ export class MenuItemRegistry extends Registry<FullMenuItem> {
    * @param path Path of items to add this subitem
    * @param value Subitem to add
    */
-  addChild(key: string, path: string[], value: MenuItem): MenuItemRegistry {
+  addChild(key: string, path: string[], value: MenuItem | MenuItemGetter): MenuItemRegistry {
     const root = path.splice(0, 1)[0];
     let node: FullMenuItem | undefined = this.content[root];
     if (!node) {
       throw new Error(`Path ${root + ":" + path.join(":")} not found`);
     }
     for (let p of path) {
-      if (typeof node.children === "function") {
-        node = undefined;
-      } else {
-        node = node.children.find((elt) => elt.id === p);
-      }
+      node = node.children.filter(isMenuItem).find((elt) => elt.id === p);
+
       if (!node) {
         throw new Error(`Path ${root + ":" + path.join(":")} not found`);
       }
     }
-    (node.children as FullMenuItem[]).push(createFullMenuItem(key, value));
+    if (typeof value !== "function") {
+      node.children.push(createFullMenuItem(key, value));
+    } else {
+      node.children.push(value);
+    }
     return this;
   }
 
