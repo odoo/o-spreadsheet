@@ -45,7 +45,12 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
         >
           Format
         </div>
-        
+        <div
+          class="o-topbar-menu"
+          data-id="data"
+        >
+          Data
+        </div>
         
         
         

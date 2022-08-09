@@ -611,6 +611,52 @@ describe("TopBar - CF", () => {
     ).toBeFalsy();
     app.destroy();
   });
+
+  test("will update sidepanel if we reopen it from other cell", async () => {
+    const { app, parent } = await mountSpreadsheet(fixture);
+    const model = parent.model;
+
+    const cfRule1: ConditionalFormat = {
+      ranges: ["A1:A10"],
+      id: "1",
+      rule: {
+        values: ["2"],
+        operator: "Equal",
+        type: "CellIsRule",
+        style: { fillColor: "#FF1200" },
+      },
+    };
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: cfRule1,
+      sheetId,
+      ranges: toRangesData(sheetId, cfRule1.ranges.join(",")),
+    });
+    setSelection(model, ["A1:A11"]);
+    triggerMouseEvent(".o-topbar-menu[data-id='format']", "click");
+    await nextTick();
+    triggerMouseEvent(".o-menu-item[data-name='format_cf']", "click");
+    await nextTick();
+    expect(
+      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
+    ).toBeFalsy();
+    expect(
+      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
+    ).toBeTruthy();
+
+    setSelection(model, ["F6"]);
+    triggerMouseEvent(".o-topbar-menu[data-id='format']", "click");
+    await nextTick();
+    triggerMouseEvent(".o-menu-item[data-name='format_cf']", "click");
+    await nextTick();
+    expect(
+      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
+    ).toBeTruthy();
+    expect(
+      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
+    ).toBeFalsy();
+    app.destroy();
+  });
 });
 describe("Topbar - View", () => {
   test("Setting show formula from topbar should retain its state even it's changed via f&r side panel upon closing", async () => {

@@ -6,7 +6,6 @@ import {
   colMenuRegistry,
   createFullMenuItem,
   FullMenuItem,
-  isMenuItem,
   MenuItemRegistry,
   rowMenuRegistry,
   topbarMenuRegistry,
@@ -51,7 +50,9 @@ function getNode(
   const root = path.splice(0, 1)[0];
   let node = menuRegistry.get(root);
   for (let p of path) {
-    node = node.children.filter(isMenuItem).find((child) => child.id === p)!;
+    node = node.children
+      .filter((item): item is FullMenuItem => typeof item !== "function")
+      .find((child) => child.id === p)!;
   }
   return node;
 }
@@ -728,8 +729,8 @@ describe("Menu Item actions", () => {
     });
   });
 
-  test("Edit -> Sort ascending", () => {
-    doAction(["edit", "sort_range", "sort_ascending"], env);
+  test("Data -> Sort ascending", () => {
+    doAction(["data", "sort_range", "sort_ascending"], env);
     const { anchor, zones } = env.model.getters.getSelection();
     expect(dispatch).toHaveBeenCalledWith("SORT_CELLS", {
       sheetId: env.model.getters.getActiveSheetId(),
@@ -739,8 +740,8 @@ describe("Menu Item actions", () => {
     });
   });
 
-  test("Edit -> Sort descending", () => {
-    doAction(["edit", "sort_range", "sort_descending"], env);
+  test("Data -> Sort descending", () => {
+    doAction(["data", "sort_range", "sort_descending"], env);
     const { anchor, zones } = env.model.getters.getSelection();
     expect(dispatch).toHaveBeenCalledWith("SORT_CELLS", {
       sheetId: env.model.getters.getActiveSheetId(),
@@ -750,18 +751,18 @@ describe("Menu Item actions", () => {
     });
   });
 
-  describe("Edit -> Sort", () => {
-    const pathSort = ["edit", "sort_range"];
+  describe("Data -> Sort", () => {
+    const pathSort = ["data", "sort_range"];
 
     test("A selected zone", () => {
       setSelection(model, ["A1:A2"]);
       expect(getName(pathSort, env)).toBe("Sort range");
-      expect(getNode(pathSort).isVisible(env)).toBeTruthy();
+      expect(getNode(pathSort).isEnabled(env)).toBeTruthy();
     });
 
     test("Multiple selected zones", () => {
       setSelection(model, ["A1:A2", "B1:B2"]);
-      expect(getNode(pathSort).isVisible(env)).toBeFalsy();
+      expect(getNode(pathSort).isEnabled(env)).toBeFalsy();
     });
   });
   describe("Hide/Unhide Columns", () => {
