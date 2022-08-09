@@ -20,10 +20,10 @@ export const colors = [
 ];
 
 /*
- * transform a color number (R * 256^2 + G * 256 + B) into classic RGB
+ * transform a color number (R * 256^2 + G * 256 + B) into classic hex6 value
  * */
 export function colorNumberString(color: number): Color {
-  return color.toString(16).padStart(6, "0");
+  return toHex(color.toString(16).padStart(6, "0"));
 }
 
 let colorIndex = 0;

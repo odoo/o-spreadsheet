@@ -8712,8 +8712,8 @@ Object {
             <colorScale>
                 <cfvo type=\\"min\\"/>
                 <cfvo type=\\"max\\"/>
-                <color rgb=\\"ffffff\\"/>
-                <color rgb=\\"ff0000\\"/>
+                <color rgb=\\"FFFFFF\\"/>
+                <color rgb=\\"FF0000\\"/>
             </colorScale>
         </cfRule>
     </conditionalFormatting>
@@ -8722,8 +8722,8 @@ Object {
             <colorScale>
                 <cfvo type=\\"percent\\" val=\\"12\\"/>
                 <cfvo type=\\"percent\\" val=\\"80\\"/>
-                <color rgb=\\"ffffff\\"/>
-                <color rgb=\\"ff0000\\"/>
+                <color rgb=\\"FFFFFF\\"/>
+                <color rgb=\\"FF0000\\"/>
             </colorScale>
         </cfRule>
     </conditionalFormatting>
@@ -8733,9 +8733,9 @@ Object {
                 <cfvo type=\\"min\\"/>
                 <cfvo type=\\"percent\\" val=\\"12\\"/>
                 <cfvo type=\\"max\\"/>
-                <color rgb=\\"ffffff\\"/>
-                <color rgb=\\"33ff33\\"/>
-                <color rgb=\\"ff0000\\"/>
+                <color rgb=\\"FFFFFF\\"/>
+                <color rgb=\\"33FF33\\"/>
+                <color rgb=\\"FF0000\\"/>
             </colorScale>
         </cfRule>
     </conditionalFormatting>

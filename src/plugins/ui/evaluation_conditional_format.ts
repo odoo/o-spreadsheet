@@ -328,7 +328,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
           }
           if (!computedStyle[col]) computedStyle[col] = [];
           computedStyle[col][row] = computedStyle[col]?.[row] || {};
-          computedStyle[col][row]!.fillColor = "#" + colorNumberString(color);
+          computedStyle[col][row]!.fillColor = colorNumberString(color);
         }
       }
     }

@@ -1874,16 +1874,16 @@ describe("conditional formats types", () => {
       });
 
       expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
-        fillColor: "#ff00ff",
+        fillColor: "#FF00FF",
       });
       expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toEqual({
-        fillColor: "#e705ee",
+        fillColor: "#E705EE",
       });
       expect(model.getters.getConditionalStyle(...toCartesianArray("A3"))).toEqual({
         fillColor: "#592489",
       });
       expect(model.getters.getConditionalStyle(...toCartesianArray("A4"))).toEqual({
-        fillColor: "#2a2f67",
+        fillColor: "#2A2F67",
       });
       expect(model.getters.getConditionalStyle(...toCartesianArray("A5"))).toEqual({
         fillColor: "#123456",
@@ -1908,16 +1908,16 @@ describe("conditional formats types", () => {
       });
 
       expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
-        fillColor: "#ff00ff",
+        fillColor: "#FF00FF",
       });
       expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toEqual({
-        fillColor: "#e705ee",
+        fillColor: "#E705EE",
       });
       expect(model.getters.getConditionalStyle(...toCartesianArray("A3"))).toEqual({
         fillColor: "#592489",
       });
       expect(model.getters.getConditionalStyle(...toCartesianArray("A4"))).toEqual({
-        fillColor: "#2a2f67",
+        fillColor: "#2A2F67",
       });
       expect(model.getters.getConditionalStyle(...toCartesianArray("A5"))).toEqual({
         fillColor: "#123456",
@@ -1942,16 +1942,16 @@ describe("conditional formats types", () => {
       });
 
       expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
-        fillColor: "#ff00ff",
+        fillColor: "#FF00FF",
       });
       expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toEqual({
-        fillColor: "#e705ee",
+        fillColor: "#E705EE",
       });
       expect(model.getters.getConditionalStyle(...toCartesianArray("A3"))).toEqual({
         fillColor: "#592489",
       });
       expect(model.getters.getConditionalStyle(...toCartesianArray("A4"))).toEqual({
-        fillColor: "#2a2f67",
+        fillColor: "#2A2F67",
       });
       expect(model.getters.getConditionalStyle(...toCartesianArray("A5"))).toEqual({
         fillColor: "#123456",
@@ -1977,10 +1977,10 @@ describe("conditional formats types", () => {
         fillColor: "#808000",
       });
       expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toEqual({
-        fillColor: "#ff0000",
+        fillColor: "#FF0000",
       });
       expect(model.getters.getConditionalStyle(...toCartesianArray("A3"))).toEqual({
-        fillColor: "#00ff00",
+        fillColor: "#00FF00",
       });
     });
 
@@ -2031,7 +2031,7 @@ describe("conditional formats types", () => {
       });
       expect(model.getters.getConditionalStyle(0, 0)).toEqual({ fillColor: "#123456" });
       expect(model.getters.getConditionalStyle(0, 1)).toEqual(undefined);
-      expect(model.getters.getConditionalStyle(0, 2)).toEqual({ fillColor: "#ff00ff" });
+      expect(model.getters.getConditionalStyle(0, 2)).toEqual({ fillColor: "#FF00FF" });
     });
   });
 });
