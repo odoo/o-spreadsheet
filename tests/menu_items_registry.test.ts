@@ -4,11 +4,14 @@ import { fontSizes } from "../src/fonts";
 import { interactivePaste } from "../src/helpers/ui/paste";
 import {
   colMenuRegistry,
+  createFullMenuItem,
   FullMenuItem,
+  isMenuItem,
   MenuItemRegistry,
   rowMenuRegistry,
   topbarMenuRegistry,
 } from "../src/registries/index";
+import { getMenuChildren } from "../src/registries/menus/helpers";
 import { SpreadsheetChildEnv } from "../src/types";
 import {
   DEFAULT_CELL_HEIGHT,
@@ -48,9 +51,7 @@ function getNode(
   const root = path.splice(0, 1)[0];
   let node = menuRegistry.get(root);
   for (let p of path) {
-    if (typeof node.children !== "function") {
-      node = node.children.find((child) => child.id === p)!;
-    }
+    node = node.children.filter(isMenuItem).find((child) => child.id === p)!;
   }
   return node;
 }
@@ -90,14 +91,33 @@ describe("Menu Item Registry", () => {
       sequence: 1,
       description: "coucou",
     });
+    topbarMenuRegistry.addChild("child3", ["root", "child1"], (env) => {
+      const menus = ["test1", "test2"];
+      return menus.map((name, i) =>
+        createFullMenuItem(name, {
+          name: name,
+          sequence: i + 5,
+          action: () => {},
+        })
+      );
+    });
     const item = topbarMenuRegistry.get("root");
     expect(item.children).toHaveLength(1);
-    expect(item.children[0].name).toBe("Child1");
-    expect(item.children[0].id).toBe("child1");
-    expect(item.children[0].children).toHaveLength(1);
-    expect(item.children[0].children[0].name).toBe("Child2");
-    expect(item.children[0].children[0].description).toBe("coucou");
-    expect(item.children[0].children[0].id).toBe("child2");
+    const child = item.children[0] as FullMenuItem;
+    expect(child.name).toBe("Child1");
+    expect(child.id).toBe("child1");
+    expect(child.children).toHaveLength(2);
+    const subChild = child.children[0] as FullMenuItem;
+    expect(subChild.name).toBe("Child2");
+    expect(subChild.description).toBe("coucou");
+    expect(subChild.id).toBe("child2");
+    expect(typeof child.children[1]).toEqual("function");
+
+    const allChildren = getMenuChildren(child, {} as SpreadsheetChildEnv);
+    expect(allChildren).toHaveLength(3);
+    expect(allChildren[0].name).toBe("Child2");
+    expect(allChildren[1].name).toBe("test1");
+    expect(allChildren[2].name).toBe("test2");
   });
 
   test("Adding a child to non-existing item throws", () => {

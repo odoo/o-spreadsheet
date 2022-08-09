@@ -137,17 +137,19 @@ const subMenu: FullMenuItem[] = [
   createFullMenuItem("root", {
     name: "root",
     sequence: 1,
-    children: () => [
-      createFullMenuItem("subMenu1", {
-        name: "subMenu1",
-        sequence: 1,
-        action() {},
-      }),
-      createFullMenuItem("subMenu2", {
-        name: "subMenu2",
-        sequence: 1,
-        action() {},
-      }),
+    children: [
+      () => [
+        createFullMenuItem("subMenu1", {
+          name: "subMenu1",
+          sequence: 1,
+          action() {},
+        }),
+        createFullMenuItem("subMenu2", {
+          name: "subMenu2",
+          sequence: 1,
+          action() {},
+        }),
+      ],
     ],
   }),
 ];
@@ -337,12 +339,14 @@ describe("Context Menu", () => {
       createFullMenuItem("root", {
         name: "root",
         sequence: 2,
-        children: () => [
-          createFullMenuItem("subMenu", {
-            name: "subMenu",
-            sequence: 1,
-            action() {},
-          }),
+        children: [
+          () => [
+            createFullMenuItem("subMenu", {
+              name: "subMenu",
+              sequence: 1,
+              action() {},
+            }),
+          ],
         ],
       }),
     ];
@@ -361,12 +365,14 @@ describe("Context Menu", () => {
         name: "root",
         sequence: 1,
         isEnabled: () => false,
-        children: () => [
-          createFullMenuItem("subMenu", {
-            name: "subMenu",
-            sequence: 1,
-            action() {},
-          }),
+        children: [
+          () => [
+            createFullMenuItem("subMenu", {
+              name: "subMenu",
+              sequence: 1,
+              action() {},
+            }),
+          ],
         ],
       }),
     ];
@@ -410,18 +416,22 @@ describe("Context Menu", () => {
       createFullMenuItem("root1", {
         name: "root1",
         sequence: 1,
-        children: () => [
-          createFullMenuItem("root2", {
-            name: "root2",
-            sequence: 1,
-            children: () => [
-              createFullMenuItem("subMenu", {
-                name: "subMenu",
-                sequence: 1,
-                action() {},
-              }),
-            ],
-          }),
+        children: [
+          () => [
+            createFullMenuItem("root2", {
+              name: "root2",
+              sequence: 1,
+              children: [
+                () => [
+                  createFullMenuItem("subMenu", {
+                    name: "subMenu",
+                    sequence: 1,
+                    action() {},
+                  }),
+                ],
+              ],
+            }),
+          ],
         ],
       }),
     ];
@@ -437,13 +447,15 @@ describe("Context Menu", () => {
         name: "root1",
         sequence: 1,
         icon: "not-displayed-class",
-        children: () => [
-          createFullMenuItem("root2", {
-            name: "root2",
-            sequence: 1,
-            action() {},
-            icon: "my-class",
-          }),
+        children: [
+          () => [
+            createFullMenuItem("root2", {
+              name: "root2",
+              sequence: 1,
+              action() {},
+              icon: "my-class",
+            }),
+          ],
         ],
       }),
     ];
@@ -481,35 +493,43 @@ describe("Context Menu", () => {
       createFullMenuItem("root_1", {
         name: "root_1",
         sequence: 1,
-        children: () => [
-          createFullMenuItem("root_1_1", {
-            name: "root_1_1",
-            sequence: 1,
-            children: () => [
-              createFullMenuItem("subMenu_1", {
-                name: "subMenu_1",
-                sequence: 1,
-                action() {},
-              }),
-            ],
-          }),
+        children: [
+          () => [
+            createFullMenuItem("root_1_1", {
+              name: "root_1_1",
+              sequence: 1,
+              children: [
+                () => [
+                  createFullMenuItem("subMenu_1", {
+                    name: "subMenu_1",
+                    sequence: 1,
+                    action() {},
+                  }),
+                ],
+              ],
+            }),
+          ],
         ],
       }),
       createFullMenuItem("root_2", {
         name: "root_2",
         sequence: 2,
-        children: () => [
-          createFullMenuItem("root_2_1", {
-            name: "root_2_1",
-            sequence: 1,
-            children: () => [
-              createFullMenuItem("subMenu_2", {
-                name: "subMenu_2",
-                sequence: 1,
-                action() {},
-              }),
-            ],
-          }),
+        children: [
+          () => [
+            createFullMenuItem("root_2_1", {
+              name: "root_2_1",
+              sequence: 1,
+              children: [
+                () => [
+                  createFullMenuItem("subMenu_2", {
+                    name: "subMenu_2",
+                    sequence: 1,
+                    action() {},
+                  }),
+                ],
+              ],
+            }),
+          ],
         ],
       }),
     ];
