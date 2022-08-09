@@ -13,9 +13,8 @@ import { toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { createFullMenuItem, FullMenuItem } from "../../src/registries";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
-import { ConditionalFormat } from "../../src/types";
 import { OWL_TEMPLATES } from "../setup/jest.setup";
-import { setCellContent, setSelection } from "../test_helpers/commands_helpers";
+import { setCellContent } from "../test_helpers/commands_helpers";
 import { rightClickCell, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 import {
@@ -24,7 +23,6 @@ import {
   MockClipboard,
   mountSpreadsheet,
   nextTick,
-  toRangesData,
   Touch,
 } from "../test_helpers/helpers";
 
@@ -714,188 +712,5 @@ describe("Context Menu position on large screen 1000px/1000px", () => {
     expect(rootTop).toBe(clickY - rootHeight);
     expect(top).toBe(clickY - height);
     expect(left).toBe(clickX + width);
-  });
-});
-
-describe("Context Menu position on small screen 1000px/300px", () => {
-  // prettier-ignore
-  const longMenuItems: FullMenuItem[] = [ // menu height 6*32 => 192
-    createFullMenuItem("root_1", {name: "root_1", sequence: 1, action() {},}),
-    createFullMenuItem("root_2", {name: "root_2", sequence: 2, action() {},}),
-    createFullMenuItem("root_3", {name: "root_3", sequence: 3, action() {},}),
-    createFullMenuItem("root_4", {name: "root_4", sequence: 4,
-    children: () => [ // sub menu height 6*32 => 192
-      createFullMenuItem("subMenu_1", {name: "subMenu_1", sequence: 1, action() {},}),
-      createFullMenuItem("subMenu_2", {name: "subMenu_2", sequence: 2, action() {},}),
-      createFullMenuItem("subMenu_3", {name: "subMenu_3", sequence: 3, action() {},}),
-      createFullMenuItem("subMenu_4", {name: "subMenu_4", sequence: 4, action() {},}),
-      createFullMenuItem("subMenu_5", {name: "subMenu_5", sequence: 5, action() {},}),
-      createFullMenuItem("subMenu_6", {name: "subMenu_6", sequence: 6, action() {},}),
-    ],
-  }),
-    createFullMenuItem("root_5", {name: "root_5", sequence: 5, action() {},}),
-    createFullMenuItem("root_6", {name: "root_6", sequence: 6, action() {},}),
-  ];
-
-  test("it renders menu at the top of the screen on the right, if not enough space above and below", async () => {
-    const [clickX] = await renderContextMenu(300, 150, { menuItems: longMenuItems }, 1000, 300);
-    const { left, top } = getMenuPosition();
-    expect(left).toBe(clickX);
-    expect(top).toBe(150);
-  });
-
-  test("it renders menu at the top of the screen on the left, if not enough space above, below and on the right", async () => {
-    const [clickX] = await renderContextMenu(990, 150, { menuItems: longMenuItems }, 1000, 300);
-    const { left, top } = getMenuPosition();
-    const { width } = getMenuSize();
-    expect(left).toBe(clickX - width);
-    expect(top).toBe(150);
-  });
-
-  test("it renders submenu at the top of the screen on the right, if not enough space above and below", async () => {
-    const [clickX] = await renderContextMenu(300, 150, { menuItems: longMenuItems }, 1000, 300);
-    await simulateClick("div[data-name='root_4']");
-    const { left, top } = getSubMenuPosition();
-    const { width } = getMenuSize();
-    expect(left).toBe(clickX + width);
-    expect(top).toBe(102);
-  });
-
-  test("it renders submenu at the top of the screen on the left, if not enough space above, below and on the right", async () => {
-    const [clickX] = await renderContextMenu(
-      1000 - MENU_WIDTH - 10,
-      150,
-      { menuItems: longMenuItems },
-      1000,
-      300
-    );
-    await simulateClick("div[data-name='root_4']");
-    const { left, top } = getSubMenuPosition();
-    const { width } = getMenuSize();
-    expect(left).toBe(clickX - width);
-    expect(top).toBe(102);
-  });
-});
-
-describe("Context Menu - CF", () => {
-  test("open sidepanel with no CF in selected zone", async () => {
-    await rightClickCell(model, "B1");
-    await simulateClick(".o-menu div[data-name='conditional_formatting']");
-    expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
-    ).toBeTruthy();
-    expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
-    ).toBeFalsy();
-  });
-
-  test("open sidepanel with one CF in selected zone", async () => {
-    const cfRule: ConditionalFormat = {
-      ranges: ["A1:C7"],
-      id: "1",
-      rule: {
-        values: ["2"],
-        operator: "Equal",
-        type: "CellIsRule",
-        style: { fillColor: "#FF0000" },
-      },
-    };
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: cfRule,
-      sheetId,
-      ranges: toRangesData(sheetId, cfRule.ranges.join(",")),
-    });
-    setSelection(model, ["A1:K11"]);
-    await rightClickCell(model, "C5");
-    await simulateClick(".o-menu div[data-name='conditional_formatting']");
-    expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
-    ).toBeFalsy();
-    expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
-    ).toBeTruthy();
-  });
-
-  test("open sidepanel with more then one CF in selected zone", async () => {
-    const cfRule1: ConditionalFormat = {
-      ranges: ["A1:C7"],
-      id: "1",
-      rule: {
-        values: ["2"],
-        operator: "Equal",
-        type: "CellIsRule",
-        style: { fillColor: "#FF0000" },
-      },
-    };
-    const cfRule2: ConditionalFormat = {
-      ranges: ["A1:C7"],
-      id: "2",
-      rule: {
-        values: ["3"],
-        operator: "Equal",
-        type: "CellIsRule",
-        style: { fillColor: "#FE0001" },
-      },
-    };
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: cfRule1,
-      sheetId,
-      ranges: toRangesData(sheetId, cfRule1.ranges.join(",")),
-    });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: cfRule2,
-      sheetId,
-      ranges: toRangesData(sheetId, cfRule2.ranges.join(",")),
-    });
-    setSelection(model, ["A1:K11"]);
-    await rightClickCell(model, "C5");
-    await nextTick();
-    await simulateClick(".o-menu div[data-name='conditional_formatting']");
-    expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
-    ).toBeTruthy();
-    expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
-    ).toBeFalsy();
-  });
-  test("will update sidepanel if we reopen it from other cell", async () => {
-    const cfRule1: ConditionalFormat = {
-      ranges: ["A1:A10"],
-      id: "1",
-      rule: {
-        values: ["2"],
-        operator: "Equal",
-        type: "CellIsRule",
-        style: { fillColor: "#FF1200" },
-      },
-    };
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: cfRule1,
-      sheetId,
-      ranges: toRangesData(sheetId, cfRule1.ranges.join(",")),
-    });
-    setSelection(model, ["A1:A11"]);
-    await rightClickCell(model, "A2");
-    await simulateClick(".o-menu div[data-name='conditional_formatting']");
-    expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
-    ).toBeFalsy();
-    expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
-    ).toBeTruthy();
-
-    setSelection(model, ["F6"]);
-    await rightClickCell(model, "F6");
-    await nextTick();
-    await simulateClick(".o-menu div[data-name='conditional_formatting']");
-    expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
-    ).toBeTruthy();
-    expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
-    ).toBeFalsy();
   });
 });

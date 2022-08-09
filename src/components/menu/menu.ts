@@ -28,6 +28,7 @@ css/* scss */ `
     .o-menu-item {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       box-sizing: border-box;
       height: ${MENU_ITEM_HEIGHT}px;
       padding: 4px 16px;

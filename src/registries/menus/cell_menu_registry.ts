@@ -1,5 +1,4 @@
 import { _lt } from "../../translation";
-import { SpreadsheetChildEnv } from "../../types";
 import { MenuItemRegistry } from "../menu_items_registry";
 import * as ACTIONS from "./menu_items_actions";
 
@@ -44,22 +43,6 @@ cellMenuRegistry
     name: _lt("Paste format only"),
     sequence: 20,
     action: ACTIONS.PASTE_FORMAT_ACTION,
-  })
-  .add("sort_range", {
-    name: _lt("Sort range"),
-    sequence: 50,
-    isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
-    separator: true,
-  })
-  .addChild("sort_ascending", ["sort_range"], {
-    name: _lt("Ascending (A ⟶ Z)"),
-    sequence: 10,
-    action: ACTIONS.SORT_CELLS_ASCENDING,
-  })
-  .addChild("sort_descending", ["sort_range"], {
-    name: _lt("Descending (Z ⟶ A)"),
-    sequence: 20,
-    action: ACTIONS.SORT_CELLS_DESCENDING,
   })
   .add("add_row_before", {
     name: ACTIONS.CELL_INSERT_ROWS_BEFORE_NAME,
@@ -116,25 +99,9 @@ cellMenuRegistry
     sequence: 20,
     action: ACTIONS.DELETE_CELL_SHIFT_LEFT,
   })
-  .add("clear_cell", {
-    name: _lt("Clear cells"),
-    sequence: 140,
-    action: ACTIONS.DELETE_CONTENT_ACTION,
-    isEnabled: (env: SpreadsheetChildEnv) => {
-      const cell = env.model.getters.getActiveCell();
-      return Boolean(cell);
-    },
-    separator: true,
-  })
   .add("insert_link", {
     name: _lt("Insert link"),
     separator: true,
     sequence: 150,
     action: ACTIONS.INSERT_LINK,
-  })
-  .add("conditional_formatting", {
-    name: _lt("Conditional formatting"),
-    sequence: 160,
-    action: ACTIONS.OPEN_CF_SIDEPANEL_ACTION,
-    separator: true,
   });

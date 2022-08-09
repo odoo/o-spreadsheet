@@ -41,8 +41,8 @@ export interface MenuItem {
 
 export type FullMenuItem = Required<MenuItem>;
 
-type MenuItemGetter = (env: SpreadsheetChildEnv) => FullMenuItem[];
-type menuChildren = (FullMenuItem | MenuItemGetter)[];
+type MenuItemsBuilder = (env: SpreadsheetChildEnv) => FullMenuItem[];
+type menuChildren = (FullMenuItem | MenuItemsBuilder)[];
 
 const DEFAULT_MENU_ITEM = (key: string) => ({
   isVisible: () => true,
@@ -60,7 +60,7 @@ export function createFullMenuItem(key: string, value: MenuItem): FullMenuItem {
   return Object.assign({}, DEFAULT_MENU_ITEM(key), value);
 }
 
-export function isMenuItem(value: FullMenuItem | MenuItemGetter): value is FullMenuItem {
+function isMenuItem(value: FullMenuItem | MenuItemsBuilder): value is FullMenuItem {
   return typeof value !== "function";
 }
 
@@ -81,7 +81,7 @@ export class MenuItemRegistry extends Registry<FullMenuItem> {
    * @param path Path of items to add this subitem
    * @param value Subitem to add
    */
-  addChild(key: string, path: string[], value: MenuItem | MenuItemGetter): MenuItemRegistry {
+  addChild(key: string, path: string[], value: MenuItem | MenuItemsBuilder): MenuItemRegistry {
     const root = path.splice(0, 1)[0];
     let node: FullMenuItem | undefined = this.content[root];
     if (!node) {

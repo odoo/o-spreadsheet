@@ -93,34 +93,6 @@ exports[`Context Menu context menu simple rendering 1`] = `
     class="o-separator"
   />
   <div
-    class="o-menu-item o-menu-root"
-    data-name="sort_range"
-    title="Sort range"
-  >
-    <span
-      class="o-menu-item-name"
-    >
-      Sort range
-    </span>
-    
-    <span>
-      <svg
-        class="o-icon"
-      >
-        <polygon
-          fill="#000000"
-          points="0 0 4 4 0 8"
-          transform="translate(5 5)"
-        />
-      </svg>
-    </span>
-    
-    
-  </div>
-  <div
-    class="o-separator"
-  />
-  <div
     class="o-menu-item"
     data-name="add_row_before"
     title="Insert row"
@@ -235,23 +207,6 @@ exports[`Context Menu context menu simple rendering 1`] = `
   </div>
   
   <div
-    class="o-menu-item disabled"
-    data-name="clear_cell"
-    title="Clear cells"
-  >
-    <span
-      class="o-menu-item-name"
-    >
-      Clear cells
-    </span>
-    
-    
-    
-  </div>
-  <div
-    class="o-separator"
-  />
-  <div
     class="o-menu-item"
     data-name="insert_link"
     title="Insert link"
@@ -260,23 +215,6 @@ exports[`Context Menu context menu simple rendering 1`] = `
       class="o-menu-item-name"
     >
       Insert link
-    </span>
-    
-    
-    
-  </div>
-  <div
-    class="o-separator"
-  />
-  <div
-    class="o-menu-item"
-    data-name="conditional_formatting"
-    title="Conditional formatting"
-  >
-    <span
-      class="o-menu-item-name"
-    >
-      Conditional formatting
     </span>
     
     
