@@ -75,4 +75,44 @@ describe("FORMAT.LARGE.NUMBER formula", () => {
       })
     ).toBe("01/01/5022");
   });
+
+  test("formatting units are taken into account", () => {
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(100, "k")' })).toBe("0k");
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(1000, "k")' })).toBe("1k");
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(10000, "k")' })).toBe("10k");
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(100000, "k")' })).toBe("100k");
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(1000000, "k")' })).toBe("1,000k");
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(10000000, "k")' })).toBe("10,000k");
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(100000000, "k")' })).toBe("100,000k");
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(1000000000, "k")' })).toBe(
+      "1,000,000k"
+    );
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(10000000000, "k")' })).toBe(
+      "10,000,000k"
+    );
+
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(100, "m")' })).toBe("0m");
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(1000, "m")' })).toBe("0m");
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(10000, "m")' })).toBe("0m");
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(100000, "m")' })).toBe("0m");
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(1000000, "m")' })).toBe("1m");
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(10000000, "m")' })).toBe("10m");
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(100000000, "m")' })).toBe("100m");
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(1000000000, "m")' })).toBe("1,000m");
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(10000000000, "m")' })).toBe(
+      "10,000m"
+    );
+
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(100, "b")' })).toBe("0b");
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(1000, "b")' })).toBe("0b");
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(10000, "b")' })).toBe("0b");
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(100000, "b")' })).toBe("0b");
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(1000000, "b")' })).toBe("0b");
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(10000000, "b")' })).toBe("0b");
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(100000000, "b")' })).toBe("0b");
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(1000000000, "b")' })).toBe("1b");
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(10000000000, "b")' })).toBe("10b");
+
+    expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(100, "something")' })).toBe("#ERROR");
+  });
 });
