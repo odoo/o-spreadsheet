@@ -90,7 +90,7 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
             
             <div
               class="o-cf-preview-image"
-              style="background-image: linear-gradient(to right, #ff00ff, #123456)"
+              style="background-image: linear-gradient(to right, #FF00FF, #123456)"
             >
               123
             </div>

@@ -12,6 +12,7 @@ import {
 } from "../../types";
 import { ExcelIconSet, XLSXDxf, XMLAttributes, XMLString } from "../../types/xlsx";
 import { XLSX_ICONSET_MAP } from "../constants";
+import { toXlsxHexColor } from "../helpers/colors";
 import { convertOperator, pushElement } from "../helpers/content_helpers";
 import { escapeXml, formatAttributes, joinXmlNodes } from "../helpers/xml_helpers";
 import { adaptFormulaToExcel } from "./cells";
@@ -160,7 +161,7 @@ function addColorScaleRule(cf: ConditionalFormat, rule: ColorScaleRule): XMLStri
       }
 
       cfValueObject.push(thresholdAttributes(threshold, position));
-      colors.push([["rgb", colorNumberString(threshold.color)]]);
+      colors.push([["rgb", toXlsxHexColor(colorNumberString(threshold.color))]]);
     }
     if (!canExport) {
       console.warn(

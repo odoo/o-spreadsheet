@@ -415,10 +415,10 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
       const minColor = colorNumberString(rule.minimum.color);
       const midColor = rule.midpoint ? colorNumberString(rule.midpoint.color) : null;
       const maxColor = colorNumberString(rule.maximum.color);
-      const baseString = "background-image: linear-gradient(to right, #";
+      const baseString = "background-image: linear-gradient(to right, ";
       return midColor
-        ? baseString + minColor + ", #" + midColor + ", #" + maxColor + ")"
-        : baseString + minColor + ", #" + maxColor + ")";
+        ? baseString + minColor + ", " + midColor + ", " + maxColor + ")"
+        : baseString + minColor + ", " + maxColor + ")";
     }
     return "";
   }
@@ -681,10 +681,10 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
     const minColor = colorNumberString(rule.minimum.color);
     const midColor = colorNumberString(rule.midpoint?.color || DEFAULT_COLOR_SCALE_MIDPOINT_COLOR);
     const maxColor = colorNumberString(rule.maximum.color);
-    const baseString = "background-image: linear-gradient(to right, #";
+    const baseString = "background-image: linear-gradient(to right, ";
     return rule.midpoint === undefined
-      ? baseString + minColor + ", #" + maxColor + ")"
-      : baseString + minColor + ", #" + midColor + ", #" + maxColor + ")";
+      ? baseString + minColor + ", " + maxColor + ")"
+      : baseString + minColor + ", " + midColor + ", " + maxColor + ")";
   }
 
   getThresholdColor(threshold?: ColorScaleThreshold) {
