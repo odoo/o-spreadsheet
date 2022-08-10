@@ -3,9 +3,9 @@ import {
   AddFunctionDescription,
   ArgValue,
   CellValue,
+  FunctionReturnValue,
   MatrixArgValue,
   PrimitiveArgValue,
-  ReturnValue,
 } from "../types";
 import { args } from "./arguments";
 import { assert, toString, visitMatchingRanges } from "./helpers";
@@ -216,7 +216,7 @@ export const DGET: AddFunctionDescription = {
     database: MatrixArgValue,
     field: PrimitiveArgValue,
     criteria: MatrixArgValue
-  ): ReturnValue {
+  ): FunctionReturnValue {
     const cells = getMatchingCells(database, field, criteria);
     assert(() => cells.length === 1, _lt("More than one match found in DGET evaluation."));
     return cells[0];

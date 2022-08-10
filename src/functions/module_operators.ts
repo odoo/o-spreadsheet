@@ -1,5 +1,10 @@
 import { _lt } from "../translation";
-import { AddFunctionDescription, PrimitiveArg, PrimitiveArgValue, ReturnValue } from "../types";
+import {
+  AddFunctionDescription,
+  FunctionReturnValue,
+  PrimitiveArg,
+  PrimitiveArgValue,
+} from "../types";
 import { args } from "./arguments";
 import { assert, toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
@@ -276,7 +281,7 @@ export const UPLUS: AddFunctionDescription = {
     `),
   returns: ["ANY"],
   computeFormat: (value: PrimitiveArg) => value?.format,
-  compute: function (value: PrimitiveArgValue): ReturnValue {
+  compute: function (value: PrimitiveArgValue): FunctionReturnValue {
     return value === null ? "" : value;
   },
 };

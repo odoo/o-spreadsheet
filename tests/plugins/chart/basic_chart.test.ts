@@ -223,6 +223,26 @@ describe("datasource tests", function () {
     expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
   });
 
+  test("create chart dataset of one cell referencing an empty cell", () => {
+    setCellContent(model, "A1", "");
+    setCellContent(model, "B1", "=A1");
+    createChart(
+      model,
+      {
+        dataSets: ["B1"],
+        dataSetsHaveTitle: false,
+        type: "line",
+      },
+      "1"
+    );
+    expect(model.getters.getChartDefinition("1")).toMatchObject({
+      dataSets: ["B1"],
+      type: "line",
+    });
+    const runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+    expect(runtime.chartJsConfig.data?.datasets?.[0].data).toEqual([0]);
+  });
+
   test("create a chart with stacked bar", () => {
     createChart(
       model,
@@ -1570,7 +1590,7 @@ describe("Chart evaluation", () => {
     expect(
       (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig.data!.datasets![0]!
         .data![0]
-    ).toBeNull();
+    ).toBe(0);
     setCellContent(model, "C3", "1");
     expect(
       (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig.data!.datasets![0]!

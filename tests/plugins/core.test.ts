@@ -61,9 +61,8 @@ describe("core", () => {
         setAnchorCorner(model, "A7");
         let statisticFnResults = model.getters.getStatisticFnResults();
         expect(statisticFnResults["Sum"]).toBe(66);
-        // select the range A3:A7
-        selectCell(model, "A3");
-        setAnchorCorner(model, "A7");
+
+        selectCell(model, "A7");
         statisticFnResults = model.getters.getStatisticFnResults();
         expect(statisticFnResults["Sum"]).toBe(undefined);
       });
@@ -73,10 +72,9 @@ describe("core", () => {
         selectCell(model, "A1");
         setAnchorCorner(model, "A7");
         let statisticFnResults = model.getters.getStatisticFnResults();
-        expect(statisticFnResults["Avg"]).toBe(33);
-        // select the range A3:A7
-        selectCell(model, "A3");
-        setAnchorCorner(model, "A7");
+        expect(statisticFnResults["Avg"]).toBe(22);
+
+        selectCell(model, "A7");
         statisticFnResults = model.getters.getStatisticFnResults();
         expect(statisticFnResults["Avg"]).toBe(undefined);
       });
@@ -86,10 +84,9 @@ describe("core", () => {
         selectCell(model, "A1");
         setAnchorCorner(model, "A7");
         let statisticFnResults = model.getters.getStatisticFnResults();
-        expect(statisticFnResults["Min"]).toBe(24);
-        // select the range A3:A7
-        selectCell(model, "A3");
-        setAnchorCorner(model, "A7");
+        expect(statisticFnResults["Min"]).toBe(0);
+
+        selectCell(model, "A7");
         statisticFnResults = model.getters.getStatisticFnResults();
         expect(statisticFnResults["Min"]).toBe(undefined);
       });
@@ -100,9 +97,8 @@ describe("core", () => {
         setAnchorCorner(model, "A7");
         let statisticFnResults = model.getters.getStatisticFnResults();
         expect(statisticFnResults["Max"]).toBe(42);
-        // select the range A3:A7
-        selectCell(model, "A3");
-        setAnchorCorner(model, "A7");
+
+        selectCell(model, "A7");
         statisticFnResults = model.getters.getStatisticFnResults();
         expect(statisticFnResults["Max"]).toBe(undefined);
       });
@@ -112,10 +108,9 @@ describe("core", () => {
         selectCell(model, "A1");
         setAnchorCorner(model, "A7");
         let statisticFnResults = model.getters.getStatisticFnResults();
-        expect(statisticFnResults["Count"]).toBe(5);
-        // select the range A6:A7
-        selectCell(model, "A6");
-        setAnchorCorner(model, "A7");
+        expect(statisticFnResults["Count"]).toBe(6);
+
+        selectCell(model, "A7");
         statisticFnResults = model.getters.getStatisticFnResults();
         expect(statisticFnResults["Count"]).toBe(undefined);
       });
@@ -145,7 +140,7 @@ describe("core", () => {
         selectCell(model, "A6");
         setAnchorCorner(model, "A7");
         statisticFnResults = model.getters.getStatisticFnResults();
-        expect(statisticFnResults["Count"]).toBe(undefined);
+        expect(statisticFnResults["Count"]).toBe(1);
       });
     });
 

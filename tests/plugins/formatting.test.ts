@@ -16,9 +16,9 @@ import {
   CommandResult,
   ComputeFunction,
   Format,
+  FunctionReturnValue,
   PrimitiveArg,
   PrimitiveArgValue,
-  ReturnValue,
   SetDecimalStep,
   UID,
 } from "../../src/types";
@@ -181,7 +181,7 @@ describe("formatting values (with formatters)", () => {
       `),
       compute: function (value: PrimitiveArgValue, format: PrimitiveArgValue) {
         return value || 0;
-      } as ComputeFunction<ArgValue, ReturnValue>,
+      } as ComputeFunction<ArgValue, FunctionReturnValue>,
       computeFormat: function (value: PrimitiveArg, format: PrimitiveArg) {
         return toString(format.value);
       } as ComputeFunction<Arg, Format>,

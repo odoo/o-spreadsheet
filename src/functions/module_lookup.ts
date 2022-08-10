@@ -3,9 +3,9 @@ import { _lt } from "../translation";
 import {
   AddFunctionDescription,
   CellValue,
+  FunctionReturnValue,
   MatrixArgValue,
   PrimitiveArgValue,
-  ReturnValue,
 } from "../types";
 import { args } from "./arguments";
 import {
@@ -103,7 +103,7 @@ export const HLOOKUP: AddFunctionDescription = {
     range: MatrixArgValue,
     index: PrimitiveArgValue,
     isSorted: PrimitiveArgValue = DEFAULT_IS_SORTED
-  ): ReturnValue {
+  ): FunctionReturnValue {
     const _index = Math.trunc(toNumber(index));
     assert(
       () => 1 <= _index && _index <= range[0].length,
@@ -124,7 +124,7 @@ export const HLOOKUP: AddFunctionDescription = {
       _lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", toString(searchKey))
     );
 
-    return range[colIndex][_index - 1] as ReturnValue;
+    return range[colIndex][_index - 1] as FunctionReturnValue;
   },
   isExported: true,
 };
@@ -149,7 +149,7 @@ export const LOOKUP: AddFunctionDescription = {
     searchKey: PrimitiveArgValue,
     searchArray: MatrixArgValue,
     resultRange: MatrixArgValue | undefined
-  ): ReturnValue {
+  ): FunctionReturnValue {
     let nbCol = searchArray.length;
     let nbRow = searchArray[0].length;
 
@@ -164,7 +164,7 @@ export const LOOKUP: AddFunctionDescription = {
     if (resultRange === undefined) {
       return (
         verticalSearch ? searchArray[nbCol - 1][index] : searchArray[index][nbRow - 1]
-      ) as ReturnValue;
+      ) as FunctionReturnValue;
     }
 
     nbCol = resultRange.length;
@@ -179,7 +179,7 @@ export const LOOKUP: AddFunctionDescription = {
         () => index <= nbCol - 1,
         _lt("[[FUNCTION_NAME]] evaluates to an out of range row value %s.", (index + 1).toString())
       );
-      return resultRange[index][0] as ReturnValue;
+      return resultRange[index][0] as FunctionReturnValue;
     }
 
     assert(
@@ -187,7 +187,7 @@ export const LOOKUP: AddFunctionDescription = {
       _lt("[[FUNCTION_NAME]] evaluates to an out of range column value %s.", (index + 1).toString())
     );
 
-    return resultRange[0][index] as ReturnValue;
+    return resultRange[0][index] as FunctionReturnValue;
   },
   isExported: true,
 };
@@ -308,7 +308,7 @@ export const VLOOKUP: AddFunctionDescription = {
     range: MatrixArgValue,
     index: PrimitiveArgValue,
     isSorted: PrimitiveArgValue = DEFAULT_IS_SORTED
-  ): ReturnValue {
+  ): FunctionReturnValue {
     const _index = Math.trunc(toNumber(index));
     assert(
       () => 1 <= _index && _index <= range.length,
@@ -329,7 +329,7 @@ export const VLOOKUP: AddFunctionDescription = {
       _lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", toString(searchKey))
     );
 
-    return range[_index - 1][rowIndex] as ReturnValue;
+    return range[_index - 1][rowIndex] as FunctionReturnValue;
   },
   isExported: true,
 };
