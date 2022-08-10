@@ -114,7 +114,8 @@ css/* scss */ `
           cursor: pointer;
         }
 
-        .o-topbar-menu:hover {
+        .o-topbar-menu:hover,
+        .o-topbar-menu-active {
           background-color: #f1f3f4;
           border-radius: 2px;
         }
@@ -363,6 +364,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.state.menuState.menuItems = getMenuChildren(menu, this.env).filter(
       (item) => !item.isVisible || item.isVisible(this.env)
     );
+    this.state.menuState.parentMenu = menu;
     this.isSelectingMenu = true;
     this.openedEl = ev.target as HTMLElement;
   }
@@ -370,6 +372,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   closeMenus() {
     this.state.activeTool = "";
     this.state.menuState.isOpen = false;
+    this.state.menuState.parentMenu = undefined;
     this.isSelectingMenu = false;
     this.openedEl = null;
   }

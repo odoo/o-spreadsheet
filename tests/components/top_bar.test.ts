@@ -371,6 +371,17 @@ describe("TopBar component", () => {
     app.destroy();
   });
 
+  test("Opened menu parent is highlighted", async () => {
+    const { app } = await mountParent();
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
+    const menuItem = fixture.querySelector(".o-topbar-menu[data-id='file']");
+    expect(menuItem?.classList).not.toContain("o-topbar-menu-active");
+    triggerMouseEvent(menuItem, "click");
+    await nextTick();
+    expect(menuItem?.classList).toContain("o-topbar-menu-active");
+    app.destroy();
+  });
+
   test("Can add a custom component to topbar", async () => {
     const compDefinitions = Object.assign({}, topbarComponentRegistry.content);
     class Comp extends Component {
