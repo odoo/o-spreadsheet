@@ -1481,6 +1481,24 @@ describe("conditional formats types", () => {
     }
   );
 
+  test("CF with cell referencing empty cell is treated as zero", () => {
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        rule: {
+          values: ["0"],
+          operator: "Equal",
+          type: "CellIsRule",
+          style: { fillColor: "#FF0FFF" },
+        },
+        id: "11",
+      },
+      ranges: toRangesData(sheetId, "A1"),
+      sheetId,
+    });
+    setCellContent(model, "A1", "=B1");
+    expect(model.getters.getConditionalStyle(0, 0, sheetId)).toEqual({ fillColor: "#FF0FFF" });
+  });
+
   describe("Icon set", () => {
     describe.each(["", "aaaa", "=SUM(1, 2)"])(
       "dispatch is not allowed if value is not a number",

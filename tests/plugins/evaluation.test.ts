@@ -4,9 +4,9 @@ import {
   ArgValue,
   CellValueType,
   ComputeFunction,
+  FunctionReturnValue,
   InvalidEvaluation,
   MatrixArgValue,
-  ReturnValue,
 } from "../../src/types";
 import {
   activateSheet,
@@ -244,7 +244,7 @@ describe("evaluateCells", () => {
       description: "any function",
       compute: ((range: MatrixArgValue) => range.flat().length) as ComputeFunction<
         ArgValue,
-        ReturnValue
+        FunctionReturnValue
       >,
       args: [{ name: "range", description: "", type: ["RANGE"] }],
       returns: ["NUMBER"],
@@ -960,7 +960,7 @@ describe("evaluateCells", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A2", "=A1");
-    expect(getCell(model, "A2")!.evaluated.value).toBe(null);
+    expect(getCell(model, "A2")!.evaluated.value).toBe(0);
     model.dispatch("SET_FORMATTING", {
       sheetId,
       target: target("A1"),
@@ -970,7 +970,7 @@ describe("evaluateCells", () => {
     });
     setCellContent(model, "A12", "this re-evaluates cells");
     expect(getCellContent(model, "A2")).toBe("0");
-    expect(getCell(model, "A2")!.evaluated.value).toBe(null);
+    expect(getCell(model, "A2")!.evaluated.value).toBe(0);
   });
 
   test("evaluation follows dependencies", () => {

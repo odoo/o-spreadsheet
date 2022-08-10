@@ -1,7 +1,7 @@
 import { SpreadsheetChildEnv } from "./env";
 import { EvaluationError } from "./errors";
 import { Format, FormattedValue } from "./format";
-import { CompiledFormula, Link, ReturnValue, Style, UID } from "./misc";
+import { CompiledFormula, Link, Style, UID } from "./misc";
 import { Range } from "./range";
 
 export type Cell = ICell | FormulaCell;
@@ -37,7 +37,7 @@ export interface ICell {
 }
 
 export interface FormulaCell extends ICell {
-  assignEvaluation: (value: ReturnValue, format?: Format) => void;
+  assignEvaluation: (value: CellValue | null, format?: Format) => void;
   assignError: (value: string, error: EvaluationError) => void;
   readonly normalizedText: string;
   readonly compiledFormula: CompiledFormula;

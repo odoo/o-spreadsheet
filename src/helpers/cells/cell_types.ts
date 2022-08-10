@@ -259,7 +259,7 @@ export class FormulaCell extends AbstractCell implements IFormulaCell {
     return true;
   }
 
-  assignEvaluation(value: CellValue, format: Format) {
+  assignEvaluation(value: CellValue | null, format: Format) {
     switch (typeof value) {
       case "number":
         this.evaluated = {
@@ -282,21 +282,11 @@ export class FormulaCell extends AbstractCell implements IFormulaCell {
           type: CellValueType.text,
         };
         break;
-      // `null` and `undefined` values are not allowed according to `CellValue`
-      // but it actually happens with empty evaluated cells.
-      // TODO fix `CellValue`
       case "object": // null
         this.evaluated = {
-          value,
+          value: 0,
           format,
-          type: CellValueType.empty,
-        };
-        break;
-      case "undefined":
-        this.evaluated = {
-          value,
-          format,
-          type: CellValueType.empty,
+          type: CellValueType.number,
         };
         break;
     }

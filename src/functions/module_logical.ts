@@ -1,5 +1,5 @@
 import { _lt } from "../translation";
-import { AddFunctionDescription, ArgValue, PrimitiveArgValue, ReturnValue } from "../types";
+import { AddFunctionDescription, ArgValue, FunctionReturnValue, PrimitiveArgValue } from "../types";
 import { args } from "./arguments";
 import { assert, conditionalVisitBoolean, toBoolean } from "./helpers";
 
@@ -52,7 +52,7 @@ export const IF: AddFunctionDescription = {
     logicalExpression: PrimitiveArgValue,
     valueIfTrue: () => PrimitiveArgValue,
     valueIfFalse: () => PrimitiveArgValue = () => false
-  ): ReturnValue {
+  ): FunctionReturnValue {
     const result = toBoolean(logicalExpression) ? valueIfTrue() : valueIfFalse();
     return result === null || result === undefined ? "" : result;
   },
@@ -74,7 +74,7 @@ export const IFERROR: AddFunctionDescription = {
   compute: function (
     value: () => PrimitiveArgValue,
     valueIfError: () => PrimitiveArgValue = () => ""
-  ): ReturnValue {
+  ): FunctionReturnValue {
     let result;
     try {
       result = value();
@@ -104,7 +104,7 @@ export const IFS: AddFunctionDescription = {
       )}
   `),
   returns: ["ANY"],
-  compute: function (...values: (() => PrimitiveArgValue)[]): ReturnValue {
+  compute: function (...values: (() => PrimitiveArgValue)[]): FunctionReturnValue {
     assert(
       () => values.length % 2 === 0,
       _lt(`Wrong number of arguments. Expected an even number of arguments.`)
