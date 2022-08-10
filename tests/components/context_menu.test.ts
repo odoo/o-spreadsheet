@@ -355,6 +355,18 @@ describe("Context Menu", () => {
     expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeFalsy();
   });
 
+  test("Submenu parent is highlighted", async () => {
+    await renderContextMenu(300, 300, { menuItems: cellMenuRegistry.getAll() });
+    const menuItem = fixture.querySelector(".o-menu div[data-name='paste_special']");
+    expect(menuItem?.classList).not.toContain("o-menu-item-active");
+    triggerMouseEvent(menuItem, "mouseover");
+    await nextTick();
+    expect(menuItem?.classList).toContain("o-menu-item-active");
+    triggerMouseEvent(".o-menu div[data-name='paste_value_only']", "mouseover");
+    await nextTick();
+    expect(menuItem?.classList).toContain("o-menu-item-active");
+  });
+
   test("submenu does not open when disabled", async () => {
     const menuItems: FullMenuItem[] = [
       createFullMenuItem("root", {

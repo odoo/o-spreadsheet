@@ -53,7 +53,8 @@ css/* scss */ `
       }
 
       &:not(.disabled) {
-        &:hover {
+        &:hover,
+        &.o-menu-item-active {
           background-color: #ebebeb;
         }
         .o-menu-item-description {
@@ -84,6 +85,7 @@ interface Props {
 
 export interface MenuState {
   isOpen: boolean;
+  parentMenu?: FullMenuItem;
   position: null | DOMCoordinates;
   scrollOffset?: Pixel;
   menuItems: FullMenuItem[];
@@ -110,7 +112,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     useExternalListener(window, "contextmenu", this.onContextMenu);
     onWillUpdateProps((nextProps: Props) => {
       if (nextProps.menuItems !== this.props.menuItems) {
-        this.subMenu.isOpen = false;
+        this.closeSubMenu();
       }
     });
   }
@@ -154,7 +156,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private close() {
-    this.subMenu.isOpen = false;
+    this.closeSubMenu();
     this.props.onClose();
   }
 
@@ -182,7 +184,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     if (el && isChildEvent(el, ev)) {
       return;
     }
-    this.subMenu.isOpen = false;
+    this.closeSubMenu();
   }
 
   /**
@@ -229,6 +231,12 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     };
     this.subMenu.menuItems = getMenuChildren(menu, this.env);
     this.subMenu.isOpen = true;
+    this.subMenu.parentMenu = menu;
+  }
+
+  closeSubMenu() {
+    this.subMenu.isOpen = false;
+    this.subMenu.parentMenu = undefined;
   }
 
   onClickMenu(menu: FullMenuItem, position: Pixel) {
@@ -246,7 +254,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
       if (this.isRoot(menu)) {
         this.openSubMenu(menu, position);
       } else {
-        this.subMenu.isOpen = false;
+        this.closeSubMenu();
       }
     }
   }
