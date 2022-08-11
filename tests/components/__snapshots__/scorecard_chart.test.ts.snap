@@ -3,7 +3,7 @@
 exports[`Scorecard charts Scorecard snapshot 1`] = `
 <div
   class="o-figure"
-  style="width:538px;height:337px; border: 1px solid #c9ccd2;"
+  style="width:536px;height:335px;border-width: 1px;"
   tabindex="0"
 >
   <div
@@ -127,7 +127,5 @@ color: #757575;
     
     
   </div>
-  
-  
 </div>
 `;

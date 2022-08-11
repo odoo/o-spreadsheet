@@ -2,59 +2,68 @@
   <t t-name="o-spreadsheet-FiguresContainer" owl="1">
     <div>
       <t t-foreach="getVisibleFigures()" t-as="info" t-key="info.id">
-        <div
-          class="o-figure-wrapper"
-          t-att-style="getWrapperStyle(info)"
-          t-on-mousedown.stop="(ev) => this.onMouseDown(info.figure, ev)">
+        <div class="o-figure-container" t-att-style="getContainerStyle(info)">
           <div
-            class="o-figure"
-            t-att-class="{active: info.isSelected, 'o-dragging': info.id === dnd.figureId}"
-            t-att-style="getFigureStyle(info)"
-            tabindex="0"
-            t-on-keydown.stop="(ev) => this.onKeyDown(info.figure, ev)"
-            t-on-keyup.stop="">
-            <t
-              t-component="figureRegistry.get(info.figure.tag).Component"
-              t-key="info.id"
-              sidePanelIsOpen="props.sidePanelIsOpen"
-              onFigureDeleted="props.onFigureDeleted"
-              figure="info.figure"
-            />
-            <t t-if="info.isSelected">
-              <div
-                class="o-anchor o-top"
-                t-on-mousedown.stop="(ev) => this.resize(info.figure, 0,-1, ev)"
+            class="o-figure-wrapper"
+            t-on-mousedown.stop="(ev) => this.onMouseDown(info.figure, ev)">
+            <div
+              class="o-figure"
+              t-att-style="getFigureStyle(info)"
+              t-att-class="{active: info.isSelected, 'o-dragging': info.id === dnd.figureId}"
+              tabindex="0"
+              t-on-keydown.stop="(ev) => this.onKeyDown(info.figure, ev)"
+              t-on-keyup.stop="">
+              <t
+                t-component="figureRegistry.get(info.figure.tag).Component"
+                t-key="info.id"
+                sidePanelIsOpen="props.sidePanelIsOpen"
+                onFigureDeleted="props.onFigureDeleted"
+                figure="info.figure"
               />
-              <div
-                class="o-anchor o-topRight"
-                t-on-mousedown.stop="(ev) => this.resize(info.figure, 1,-1, ev)"
-              />
-              <div
-                class="o-anchor o-right"
-                t-on-mousedown.stop="(ev) => this.resize(info.figure, 1,0, ev)"
-              />
-              <div
-                class="o-anchor o-bottomRight"
-                t-on-mousedown.stop="(ev) => this.resize(info.figure, 1,1, ev)"
-              />
-              <div
-                class="o-anchor o-bottom"
-                t-on-mousedown.stop="(ev) => this.resize(info.figure, 0,1, ev)"
-              />
-              <div
-                class="o-anchor o-bottomLeft"
-                t-on-mousedown.stop="(ev) => this.resize(info.figure, -1,1, ev)"
-              />
-              <div
-                class="o-anchor o-left"
-                t-on-mousedown.stop="(ev) => this.resize(info.figure, -1,0, ev)"
-              />
-              <div
-                class="o-anchor o-topLeft"
-                t-on-mousedown.stop="(ev) => this.resize(info.figure, -1,-1, ev)"
-              />
-            </t>
+            </div>
           </div>
+          <t t-if="info.isSelected">
+            <div
+              class="o-anchor o-top"
+              t-att-style="this.getAnchorPosition('top', info)"
+              t-on-mousedown.stop="(ev) => this.resize(info.figure, 0,-1, ev)"
+            />
+            <div
+              class="o-anchor o-topRight"
+              t-att-style="this.getAnchorPosition('top right', info)"
+              t-on-mousedown.stop="(ev) => this.resize(info.figure, 1,-1, ev)"
+            />
+            <div
+              class="o-anchor o-right"
+              t-att-style="this.getAnchorPosition('right', info)"
+              t-on-mousedown.stop="(ev) => this.resize(info.figure, 1,0, ev)"
+            />
+            <div
+              class="o-anchor o-bottomRight"
+              t-att-style="this.getAnchorPosition('bottom right', info)"
+              t-on-mousedown.stop="(ev) => this.resize(info.figure, 1,1, ev)"
+            />
+            <div
+              class="o-anchor o-bottom"
+              t-att-style="this.getAnchorPosition('bottom', info)"
+              t-on-mousedown.stop="(ev) => this.resize(info.figure, 0,1, ev)"
+            />
+            <div
+              class="o-anchor o-bottomLeft"
+              t-att-style="this.getAnchorPosition('bottom left', info)"
+              t-on-mousedown.stop="(ev) => this.resize(info.figure, -1,1, ev)"
+            />
+            <div
+              class="o-anchor o-left"
+              t-att-style="this.getAnchorPosition('left', info)"
+              t-on-mousedown.stop="(ev) => this.resize(info.figure, -1,0, ev)"
+            />
+            <div
+              class="o-anchor o-topLeft"
+              t-att-style="this.getAnchorPosition('top left', info)"
+              t-on-mousedown.stop="(ev) => this.resize(info.figure, -1,-1, ev)"
+            />
+          </t>
         </div>
       </t>
     </div>

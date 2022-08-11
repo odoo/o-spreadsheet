@@ -10,6 +10,16 @@ import { css } from "../../helpers/css";
 import { startDnd } from "../../helpers/drag_and_drop";
 import { ChartFigure } from "../figure_chart/figure_chart";
 
+type Anchor =
+  | "top left"
+  | "top"
+  | "top right"
+  | "right"
+  | "bottom right"
+  | "bottom"
+  | "bottom left"
+  | "left";
+
 interface FigureInfo {
   id: UID;
   isSelected: boolean;
@@ -26,20 +36,24 @@ const MIN_FIG_SIZE = 80;
 
 css/*SCSS*/ `
   .o-figure-wrapper {
+    position: absolute;
+    width: 100%;
+    height: 100%;
     overflow: hidden;
   }
 
   div.o-figure {
-    box-sizing: border-box;
+    box-sizing: content-box;
     position: absolute;
-    bottom: 3px;
-    right: 3px;
+    bottom: 0px;
+    right: 0px;
+    border: solid ${FIGURE_BORDER_COLOR};
     z-index: ${ComponentsImportance.Figure};
     &:focus {
       outline: none;
     }
     &.active {
-      border: ${ACTIVE_BORDER_WIDTH}px solid ${SELECTION_BORDER_COLOR};
+      border: solid ${SELECTION_BORDER_COLOR};
       z-index: ${ComponentsImportance.Figure + 1};
     }
 
@@ -47,52 +61,42 @@ css/*SCSS*/ `
       opacity: 0.9;
       cursor: grabbing;
     }
+  }
+
+  .o-figure-container {
+    position: absolute;
+    box-sizing: content-box;
 
     .o-anchor {
       z-index: ${ComponentsImportance.ChartAnchor};
       position: absolute;
-      outline: ${BORDER_WIDTH}px solid white;
       width: ${ANCHOR_SIZE}px;
       height: ${ANCHOR_SIZE}px;
       background-color: #1a73e8;
+      outline: ${BORDER_WIDTH}px solid white;
+
       &.o-top {
-        top: -${ANCHOR_SIZE / 2}px;
-        right: calc(50% - 4px);
         cursor: n-resize;
       }
       &.o-topRight {
-        top: -${ANCHOR_SIZE / 2}px;
-        right: -${ANCHOR_SIZE / 2}px;
         cursor: ne-resize;
       }
       &.o-right {
-        right: -${ANCHOR_SIZE / 2}px;
-        top: calc(50% - 4px);
         cursor: e-resize;
       }
       &.o-bottomRight {
-        bottom: -${ANCHOR_SIZE / 2}px;
-        right: -${ANCHOR_SIZE / 2}px;
         cursor: se-resize;
       }
       &.o-bottom {
-        bottom: -${ANCHOR_SIZE / 2}px;
-        right: calc(50% - 4px);
         cursor: s-resize;
       }
       &.o-bottomLeft {
-        bottom: -${ANCHOR_SIZE / 2}px;
-        left: -${ANCHOR_SIZE / 2}px;
         cursor: sw-resize;
       }
       &.o-left {
-        bottom: calc(50% - 4px);
-        left: -${ANCHOR_SIZE / 2}px;
         cursor: w-resize;
       }
       &.o-topLeft {
-        top: -${ANCHOR_SIZE / 2}px;
-        left: -${ANCHOR_SIZE / 2}px;
         cursor: nw-resize;
       }
     }
@@ -139,38 +143,94 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  getFigureStyle(info: FigureInfo) {
+  /** Get the current figure size, which is either the stored figure size of the DnD figure size */
+  private getFigureSize(info: FigureInfo) {
     const { figure, isSelected } = info;
-    const borders = 2 * (isSelected ? ACTIVE_BORDER_WIDTH : BORDER_WIDTH);
-    const { width, height } = isSelected && this.dnd.figureId ? this.dnd : figure;
-
-    const borderStyle =
-      this.env.isDashboard() || isSelected ? "" : `1px solid ${FIGURE_BORDER_COLOR}`;
-    return `width:${width + borders}px;height:${height + borders}px; border: ${borderStyle};`;
+    const target = figure.id === (isSelected && this.dnd.figureId) ? this.dnd : figure;
+    const { width, height } = target;
+    return { width, height };
   }
 
-  getWrapperStyle(info: FigureInfo) {
+  private getFigureSizeWithBorders(info: FigureInfo) {
+    const { width, height } = this.getFigureSize(info);
+    const borders = this.getBorderWidth(info) * 2;
+    return { width: width + borders, height: height + borders };
+  }
+
+  private getBorderWidth(info: FigureInfo) {
+    return info.isSelected ? ACTIVE_BORDER_WIDTH : this.env.isDashboard() ? 0 : BORDER_WIDTH;
+  }
+
+  getFigureStyle(info: FigureInfo) {
+    const { width, height } = info.figure;
+    return `width:${width}px;height:${height}px;border-width: ${this.getBorderWidth(info)}px;`;
+  }
+
+  /** Get the overflow of the figure in the headers of the grid  */
+  private getOverflow(info: FigureInfo) {
     const { figure, isSelected } = info;
     const { offsetX, offsetY } = this.env.model.getters.getActiveViewport();
     const target = figure.id === (isSelected && this.dnd.figureId) ? this.dnd : figure;
-    const { width, height } = target;
-    let x = target.x - offsetX - 1;
-    let y = target.y - offsetY - 1;
+    let x = target.x - offsetX;
+    let y = target.y - offsetY;
+    const overflowX = this.env.isDashboard() ? 0 : Math.max(0, -x);
+    const overflowY = this.env.isDashboard() ? 0 : Math.max(0, -y);
+    return { overflowX, overflowY };
+  }
 
-    // width and height of wrapper need to be adjusted so we do not overlap
-    // with headers
-    const correctionX = this.env.isDashboard() ? 0 : Math.max(0, -x);
-    x += correctionX;
-    const correctionY = this.env.isDashboard() ? 0 : Math.max(0, -y);
-    y += correctionY;
+  getContainerStyle(info: FigureInfo) {
+    const { figure, isSelected } = info;
+    const { offsetX, offsetY } = this.env.model.getters.getActiveViewport();
+    const target = figure.id === (isSelected && this.dnd.figureId) ? this.dnd : figure;
+    const x = target.x - offsetX;
+    const y = target.y - offsetY;
+
+    const { width, height } = this.getFigureSizeWithBorders(info);
+    const { overflowX, overflowY } = this.getOverflow(info);
     if (width < 0 || height < 0) {
-      return `position:absolute;display:none;`;
+      return `display:none;`;
     }
-    const offset =
-      ANCHOR_SIZE + ACTIVE_BORDER_WIDTH + (isSelected ? ACTIVE_BORDER_WIDTH : BORDER_WIDTH);
-    return `position:absolute; top:${y + 1}px; left:${x + 1}px; width:${
-      width - correctionX + offset
-    }px; height:${height - correctionY + offset}px;`;
+    const borderOffset = BORDER_WIDTH - this.getBorderWidth(info);
+    // TODO : remove the +1 once 2951210 is fixed
+    return (
+      `top:${y + borderOffset + overflowY + 1}px;` +
+      `left:${x + borderOffset + overflowX}px;` +
+      `width:${width - overflowX}px;` +
+      `height:${height - overflowY}px;`
+    );
+  }
+
+  getAnchorPosition(anchor: Anchor, info: FigureInfo) {
+    const { width, height } = this.getFigureSizeWithBorders(info);
+    const { overflowX, overflowY } = this.getOverflow(info);
+
+    const anchorCenteringOffset = (ANCHOR_SIZE - ACTIVE_BORDER_WIDTH) / 2;
+
+    let x = 0;
+    let y = 0;
+    if (anchor.includes("top")) {
+      y = -anchorCenteringOffset;
+    } else if (anchor.includes("bottom")) {
+      y = height - ACTIVE_BORDER_WIDTH - anchorCenteringOffset;
+    } else {
+      y = (height - ACTIVE_BORDER_WIDTH) / 2 - anchorCenteringOffset;
+    }
+
+    if (anchor.includes("left")) {
+      x = -anchorCenteringOffset;
+    } else if (anchor.includes("right")) {
+      x = width - ACTIVE_BORDER_WIDTH - anchorCenteringOffset;
+    } else {
+      x = (width - ACTIVE_BORDER_WIDTH) / 2 - anchorCenteringOffset;
+    }
+
+    let visibility = "visible";
+    if (overflowX && x < overflowX) {
+      visibility = "hidden";
+    } else if (overflowY && y < overflowY) {
+      visibility = "hidden";
+    }
+    return `visibility : ${visibility};top:${y - overflowY}px; left:${x - overflowX}px;`;
   }
 
   setup() {
