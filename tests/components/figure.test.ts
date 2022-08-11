@@ -214,27 +214,31 @@ describe("figures", () => {
     createFigure(model, { id: figureId, y: 200 });
     await nextTick();
     const figure = fixture.querySelector(".o-figure")! as HTMLElement;
-    expect(window.getComputedStyle(figure).border).toBeTruthy();
+    expect(window.getComputedStyle(figure)["border-width"]).toEqual("1px");
 
     model.updateMode("dashboard");
     await nextTick();
-    expect(figure.style.border).toBeFalsy();
+    expect(window.getComputedStyle(figure)["border-width"]).toEqual("0px");
   });
 
   test("Figures are cropped to avoid overlap with headers", async () => {
     const figureId = "someuuid";
     createFigure(model, { id: figureId, x: 100, y: 20, height: 200, width: 100 });
     await nextTick();
-    const figure = fixture.querySelector(".o-figure-wrapper")!;
-    expect(window.getComputedStyle(figure).width).toBe("111px"); // width + borders
-    expect(window.getComputedStyle(figure).height).toBe("211px"); // height + borders
+    const figure = fixture.querySelector(".o-figure-container")!;
+    expect(window.getComputedStyle(figure).width).toBe("102px"); // width + borders
+    expect(window.getComputedStyle(figure).height).toBe("202px"); // height + borders
     model.dispatch("SET_VIEWPORT_OFFSET", {
       offsetX: 2 * DEFAULT_CELL_WIDTH,
       offsetY: 3 * DEFAULT_CELL_HEIGHT,
     });
     await nextTick();
-    expect(window.getComputedStyle(figure).width).toBe("18px"); // width + borders - 2 * DEFAULT_CELL_WIDTH
-    expect(window.getComputedStyle(figure).height).toBe("161px"); // height + offset - 2 * DEFAULT_CELL_WIDTH
+
+    const expectedWidth = 102 - (2 * DEFAULT_CELL_WIDTH - 100); // = width + borders - (overflow = viewport offset X - x)
+    const expectedHeight = 202 - (3 * DEFAULT_CELL_HEIGHT - 20); // = height + borders - (overflow = viewport offset Y - y)
+
+    expect(window.getComputedStyle(figure).width).toBe(`${expectedWidth}px`);
+    expect(window.getComputedStyle(figure).height).toBe(`${expectedHeight}px`);
   });
 
   test("Selected figure isn't removed by scroll", async () => {
