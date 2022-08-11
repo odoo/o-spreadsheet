@@ -933,12 +933,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     if (!zones.every(isZoneValid)) {
       return CommandResult.InvalidRange;
     } else if (zones.length && "sheetId" in cmd) {
-      const sheetZone = {
-        top: 0,
-        left: 0,
-        bottom: this.getNumberRows(cmd.sheetId) - 1,
-        right: this.getNumberRows(cmd.sheetId) - 1,
-      };
+      const sheetZone = this.getSheetZone(cmd.sheetId);
       return zones.every((zone) => isZoneInside(zone, sheetZone))
         ? CommandResult.Success
         : CommandResult.TargetOutOfSheet;

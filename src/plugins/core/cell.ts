@@ -465,12 +465,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   private checkCellOutOfSheet(sheetId: UID, col: HeaderIndex, row: HeaderIndex): CommandResult {
     const sheet = this.getters.tryGetSheet(sheetId);
     if (!sheet) return CommandResult.InvalidSheetId;
-    const sheetZone = {
-      top: 0,
-      left: 0,
-      bottom: this.getters.getNumberRows(sheetId) - 1,
-      right: this.getters.getNumberCols(sheetId) - 1,
-    };
+    const sheetZone = this.getters.getSheetZone(sheetId);
     return isInside(col, row, sheetZone) ? CommandResult.Success : CommandResult.TargetOutOfSheet;
   }
 }
