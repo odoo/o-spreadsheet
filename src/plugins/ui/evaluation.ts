@@ -247,12 +247,7 @@ export class EvaluationPlugin extends UIPlugin {
 
       // Performance issue: Avoid fetching data on positions that are out of the spreadsheet
       // e.g. A1:ZZZ9999 in a sheet with 10 cols and 10 rows should ignore everything past J10 and return a 10x10 array
-      const sheetZone = {
-        top: 0,
-        bottom: getters.getNumberRows(sheetId) - 1,
-        left: 0,
-        right: getters.getNumberCols(sheetId) - 1,
-      };
+      const sheetZone = getters.getSheetZone(sheetId);
       const result: MatrixArg = [];
 
       const zone = intersection(range.zone, sheetZone);
