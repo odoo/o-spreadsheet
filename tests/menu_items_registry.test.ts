@@ -13,6 +13,7 @@ import {
 import { getMenuChildren } from "../src/registries/menus/helpers";
 import { SpreadsheetChildEnv } from "../src/types";
 import {
+  BACKGROUND_CHART_COLOR,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   DEFAULT_FIGURE_HEIGHT,
@@ -985,6 +986,7 @@ describe("Menu Item actions", () => {
         sheetId: model.getters.getActiveSheetId(),
         definition: {
           dataSets: ["A1"],
+          background: BACKGROUND_CHART_COLOR,
           dataSetsHaveTitle: false,
           labelRange: undefined,
           legendPosition: "none",
