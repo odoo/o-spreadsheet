@@ -14,7 +14,7 @@ css/* scss */ `
     font-size: 13px;
     background-color: white;
     box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
-    padding: 12px;
+    padding: 6px 12px;
     border-radius: 4px;
     display: flex;
     justify-content: space-between;
@@ -26,15 +26,16 @@ css/* scss */ `
     }
 
     a.o-link {
-      color: #007bff;
+      color: #01666b;
+      text-decoration: none;
       flex-grow: 2;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     a.o-link:hover {
-      text-decoration: underline;
-      color: #0056b3;
+      text-decoration: none;
+      color: #001d1f;
       cursor: pointer;
     }
   }
@@ -45,9 +46,9 @@ css/* scss */ `
       height: 16px;
     }
   }
-  .o-link-icon.o-unlink .o-icon {
-    padding-top: 1px;
-    height: 14px;
+  .o-link-icon .o-icon {
+    padding-top: 3px;
+    height: 13px;
   }
   .o-link-icon:hover {
     cursor: pointer;

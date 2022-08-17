@@ -53,7 +53,7 @@ export const DEFAULT_FONT = "'Roboto', arial";
 // Borders
 export const DEFAULT_BORDER_DESC: BorderDescr = ["thin", "#000"];
 
-export const LINK_COLOR = "#00f";
+export const LINK_COLOR = "#01666b";
 // DateTimeRegex
 export const DATETIME_FORMAT = /[ymd:]/;
 

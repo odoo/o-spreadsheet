@@ -1,4 +1,5 @@
 import { Model } from "../../src";
+import { LINK_COLOR } from "../../src/constants";
 import { buildSheetLink } from "../../src/helpers";
 import { CellValueType, CommandResult, LinkCell } from "../../src/types";
 import {
@@ -66,7 +67,7 @@ describe("link cell", () => {
       expect(cell.link.label).toBe("my label");
       expect(cell.link.url).toBe(url);
       expect(cell.urlRepresentation).toBe(url);
-      expect(cell.style).toEqual({ textColor: "#00f", underline: true });
+      expect(cell.style).toEqual({ textColor: LINK_COLOR });
       expect(getCellText(model, "A1")).toBe("my label");
     }
   );
@@ -189,7 +190,6 @@ describe("link cell", () => {
       fillColor: "#555",
       bold: true,
       textColor: "#111",
-      underline: true,
     });
   });
 
@@ -207,7 +207,6 @@ describe("link cell", () => {
       fillColor: "#555",
       bold: true,
       textColor: "#111",
-      underline: true,
     });
   });
 
@@ -255,7 +254,6 @@ describe("link cell", () => {
       fillColor: "#555",
       bold: true,
       textColor: "#111",
-      underline: true,
     });
   });
 });
