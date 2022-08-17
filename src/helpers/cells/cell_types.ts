@@ -158,7 +158,6 @@ export abstract class LinkCell extends AbstractCell<TextEvaluation> implements I
       style: {
         ...properties.style,
         textColor: properties.style?.textColor || LINK_COLOR,
-        underline: true,
       },
     };
     super(id, { value: link.label, type: CellValueType.text }, properties);
