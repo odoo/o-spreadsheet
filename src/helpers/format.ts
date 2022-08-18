@@ -197,6 +197,10 @@ function splitNumber(
   value: number,
   maxDecimals: number = MAX_DECIMAL_PLACES
 ): { integerDigits: string; decimalDigits: string | undefined } {
+  // don't use the formatter if it's an integer for performance reasons
+  if (Number.isInteger(value)) {
+    return { integerDigits: value.toString(), decimalDigits: undefined };
+  }
   let formatter = numberRepresentation[maxDecimals];
   if (!formatter) {
     formatter = new Intl.NumberFormat("en-US", {
