@@ -50,7 +50,7 @@ function revertChanges(revisions: readonly Revision[]) {
   for (const revision of revisions.slice().reverse()) {
     for (let i = revision.changes.length - 1; i >= 0; i--) {
       const change = revision.changes[i];
-      applyChange(change, "before");
+      applyChange(change);
     }
   }
 }
@@ -58,7 +58,7 @@ function revertChanges(revisions: readonly Revision[]) {
 /**
  * Apply the changes of the given HistoryChange to the state
  */
-function applyChange(change: HistoryChange, target: "before" | "after") {
+function applyChange(change: HistoryChange) {
   let val = change.root as any;
   let key = change.path[change.path.length - 1];
   for (let pathIndex = 0; pathIndex < change.path.slice(0, -1).length; pathIndex++) {
@@ -69,9 +69,9 @@ function applyChange(change: HistoryChange, target: "before" | "after") {
     }
     val = val[p];
   }
-  if (change[target] === undefined) {
+  if (change["before"] === undefined) {
     delete val[key];
   } else {
-    val[key] = change[target];
+    val[key] = change["before"];
   }
 }
