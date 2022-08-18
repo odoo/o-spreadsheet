@@ -1,26 +1,22 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
-import { deepCopy, getAddHeaderStartIndex, getDefaultCellHeight, range } from "../../helpers";
-import { Cell, Command, ExcelWorkbookData, WorkbookData } from "../../types";
-import { Dimension, HeaderIndex, Pixel, UID } from "../../types/misc";
+import { deepCopy, getAddHeaderStartIndex, getDefaultCellHeight, lazy, range } from "../../helpers";
+import { Command, ExcelWorkbookData, WorkbookData } from "../../types";
+import { Dimension, HeaderIndex, Lazy, Pixel, UID } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
-
-type CellId = UID;
 
 interface HeaderSize {
   manualSize: Pixel | undefined;
-  computedSize: Pixel;
+  computedSize: Lazy<Pixel>;
 }
 
 interface HeaderSizeState {
   sizes: Record<UID, Record<Dimension, Array<HeaderSize>>>;
-  tallestCellInRows: Record<UID, Array<CellId | undefined>>;
 }
 
 export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements HeaderSizeState {
   static getters = ["getRowSize", "getColSize"] as const;
 
   readonly sizes: Record<UID, Record<Dimension, Array<HeaderSize>>> = {};
-  readonly tallestCellInRows: Record<UID, Array<CellId | undefined>> = {};
 
   handle(cmd: Command) {
     switch (cmd.type) {
@@ -29,99 +25,86 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
         const sizes = {
           COL: computedSizes.COL.map((size) => ({
             manualSize: undefined,
-            computedSize: size,
+            computedSize: lazy(() => size),
           })),
           ROW: computedSizes.ROW.map((size) => ({
             manualSize: undefined,
-            computedSize: size,
+            computedSize: lazy(() => size),
           })),
         };
         this.history.update("sizes", cmd.sheetId, sizes);
-        this.history.update("tallestCellInRows", cmd.sheetId, []);
         break;
       }
       case "DUPLICATE_SHEET":
         this.history.update("sizes", cmd.sheetIdTo, deepCopy(this.sizes[cmd.sheetId]));
-        this.history.update(
-          "tallestCellInRows",
-          cmd.sheetIdTo,
-          deepCopy(this.tallestCellInRows[cmd.sheetId])
-        );
         break;
       case "DELETE_SHEET":
         const sizes = { ...this.sizes };
         delete sizes[cmd.sheetId];
         this.history.update("sizes", sizes);
-        const tallestCellInRows = { ...this.tallestCellInRows };
-        delete tallestCellInRows[cmd.sheetId];
-        this.history.update("tallestCellInRows", tallestCellInRows);
         break;
       case "REMOVE_COLUMNS_ROWS": {
         const sizes = [...this.sizes[cmd.sheetId][cmd.dimension]];
-        const tallestCellInRows = [...this.tallestCellInRows[cmd.sheetId]];
         for (let headerIndex of [...cmd.elements].sort().reverse()) {
           sizes.splice(headerIndex, 1);
-          if (cmd.dimension === "ROW") {
-            tallestCellInRows.splice(headerIndex, 1);
-          }
         }
         this.history.update("sizes", cmd.sheetId, cmd.dimension, sizes);
-        if (cmd.dimension === "ROW") {
-          this.history.update("tallestCellInRows", cmd.sheetId, tallestCellInRows);
-        }
         break;
       }
       case "ADD_COLUMNS_ROWS": {
         const sizes = [...this.sizes[cmd.sheetId][cmd.dimension]];
         const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
-        const tallestCellInRows = [...this.tallestCellInRows[cmd.sheetId]];
         const baseSize = sizes[cmd.base];
         for (let i = 0; i < cmd.quantity; i++) {
           sizes.splice(addIndex, 0, baseSize);
-          if (cmd.dimension === "ROW") {
-            tallestCellInRows.splice(i, 1, undefined);
-          }
         }
         this.history.update("sizes", cmd.sheetId, cmd.dimension, sizes);
-        if (cmd.dimension === "ROW") {
-          this.history.update("tallestCellInRows", cmd.sheetId, tallestCellInRows);
-        }
         break;
       }
       case "RESIZE_COLUMNS_ROWS":
         for (let el of cmd.elements) {
           if (cmd.dimension === "ROW") {
-            const { cell: tallestCell, height } = this.getRowTallestCell(cmd.sheetId, el);
+            const height = this.getRowTallestCellSize(cmd.sheetId, el);
             const size = height;
-            this.history.update("tallestCellInRows", cmd.sheetId, el, tallestCell?.id);
             this.history.update("sizes", cmd.sheetId, cmd.dimension, el, {
               manualSize: cmd.size || undefined,
-              computedSize: size,
+              computedSize: lazy(() => size),
             });
           } else {
             this.history.update("sizes", cmd.sheetId, cmd.dimension, el, {
               manualSize: cmd.size || undefined,
-              computedSize: cmd.size || DEFAULT_CELL_WIDTH,
+              computedSize: lazy(() => cmd.size || DEFAULT_CELL_WIDTH),
             });
           }
         }
         break;
       case "UPDATE_CELL":
         if (!this.sizes[cmd.sheetId]?.["ROW"]?.[cmd.row]?.manualSize) {
-          this.adjustRowSizeWithCellFont(cmd.sheetId, cmd.col, cmd.row);
+          const { sheetId, row } = cmd;
+          this.history.update(
+            "sizes",
+            sheetId,
+            "ROW",
+            row,
+            "computedSize",
+            lazy(() => this.getRowTallestCellSize(sheetId, row))
+          );
         }
         break;
       case "ADD_MERGE":
       case "REMOVE_MERGE":
         for (let target of cmd.target) {
           for (let row of range(target.top, target.bottom + 1)) {
-            const { height: rowHeight, cell: tallestCell } = this.getRowTallestCell(
-              cmd.sheetId,
-              row
-            );
-            this.history.update("tallestCellInRows", cmd.sheetId, row, tallestCell?.id);
+            const rowHeight = this.getRowTallestCellSize(cmd.sheetId, row);
             if (rowHeight !== this.getRowSize(cmd.sheetId, row)) {
-              this.history.update("sizes", cmd.sheetId, "ROW", row, "computedSize", rowHeight);
+              this.history.update(
+                "sizes",
+                cmd.sheetId,
+                "ROW",
+                row,
+                "computedSize",
+                lazy(() => rowHeight)
+              );
             }
           }
         }
@@ -138,40 +121,10 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
     return this.getHeaderSize(sheetId, "ROW", index);
   }
 
-  /**
-   * Change the size of a row to match the cell with the biggest font size.
-   */
-  private adjustRowSizeWithCellFont(sheetId: UID, col: HeaderIndex, row: HeaderIndex) {
-    const currentCell = this.getters.getCell(sheetId, col, row);
-    const currentRowSize = this.getRowSize(sheetId, row);
-    const newCellHeight = this.getCellHeight(sheetId, col, row);
-
-    const tallestCell = this.tallestCellInRows[sheetId]?.[row];
-    let shouldRowBeUpdated =
-      !tallestCell ||
-      !this.getters.getCellById(tallestCell) || // tallest cell was deleted
-      (currentCell?.id === tallestCell && newCellHeight < currentRowSize); // tallest cell is smaller than before;
-
-    let newRowHeight: Pixel | undefined = undefined;
-    if (shouldRowBeUpdated) {
-      const { height: maxHeight, cell: tallestCell } = this.getRowTallestCell(sheetId, row);
-      newRowHeight = maxHeight;
-      this.history.update("tallestCellInRows", sheetId, row, tallestCell?.id);
-    } else if (newCellHeight > currentRowSize) {
-      newRowHeight = newCellHeight;
-      const tallestCell = this.getters.getCell(sheetId, col, row);
-      this.history.update("tallestCellInRows", sheetId, row, tallestCell?.id);
-    }
-
-    if (newRowHeight !== undefined && newRowHeight !== currentRowSize) {
-      this.history.update("sizes", sheetId, "ROW", row, "computedSize", newRowHeight);
-    }
-  }
-
   private getHeaderSize(sheetId: UID, dimension: Dimension, index: HeaderIndex): Pixel {
     return (
       this.sizes[sheetId]?.[dimension][index]?.manualSize ||
-      this.sizes[sheetId]?.[dimension][index]?.computedSize ||
+      this.sizes[sheetId]?.[dimension][index]?.computedSize() ||
       this.getDefaultHeaderSize(dimension)
     );
   }
@@ -184,9 +137,8 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
     for (let row of range(0, this.getters.getNumberRows(sheetId))) {
       let rowSize = this.sizes[sheetId]?.["ROW"]?.[row].manualSize;
       if (!rowSize) {
-        const { cell: tallestCell, height } = this.getRowTallestCell(sheetId, row);
+        const height = this.getRowTallestCellSize(sheetId, row);
         rowSize = height;
-        this.history.update("tallestCellInRows", sheetId, row, tallestCell?.id);
       }
       sizes.ROW.push(rowSize);
     }
@@ -216,10 +168,9 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
    * The tallest cell of the row correspond to the cell with the biggest font size,
    * and that is not part of a multi-line merge.
    */
-  private getRowTallestCell(sheetId: UID, row: HeaderIndex): { cell?: Cell; height: Pixel } {
+  private getRowTallestCellSize(sheetId: UID, row: HeaderIndex): Pixel {
     const cellIds = this.getters.getRowCells(sheetId, row);
     let maxHeight = 0;
-    let tallestCell: Cell | undefined = undefined;
     for (let i = 0; i < cellIds.length; i++) {
       const cell = this.getters.getCellById(cellIds[i]);
       if (!cell) continue;
@@ -227,14 +178,13 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
       const cellHeight = this.getCellHeight(sheetId, col, row);
       if (cellHeight > maxHeight && cellHeight > DEFAULT_CELL_HEIGHT) {
         maxHeight = cellHeight;
-        tallestCell = cell;
       }
     }
 
     if (maxHeight <= DEFAULT_CELL_HEIGHT) {
-      return { height: DEFAULT_CELL_HEIGHT };
+      return DEFAULT_CELL_HEIGHT;
     }
-    return { cell: tallestCell, height: maxHeight };
+    return maxHeight;
   }
 
   import(data: WorkbookData) {
@@ -255,11 +205,11 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
       this.sizes[sheet.id] = {
         COL: computedSizes.COL.map((size, i) => ({
           manualSize: manualSizes.COL[i],
-          computedSize: size,
+          computedSize: lazy(() => size),
         })),
         ROW: computedSizes.ROW.map((size, i) => ({
           manualSize: manualSizes.ROW[i],
-          computedSize: size,
+          computedSize: lazy(() => size),
         })),
       };
     }
