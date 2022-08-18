@@ -390,12 +390,7 @@ export class SelectionStreamProcessor
    * be processed.
    */
   private processEvent(newAnchorEvent: Omit<SelectionEvent, "previousAnchor">): DispatchResult {
-    const sheetId = this.getters.getActiveSheetId();
-    const previousAnchor: AnchorZone = deepCopy({
-      cell: this.anchor.cell,
-      zone: this.getters.expandZone(sheetId, this.anchor.zone),
-    });
-    const event = { ...newAnchorEvent, previousAnchor };
+    const event = { ...newAnchorEvent, previousAnchor: deepCopy(this.anchor) };
     const commandResult = this.checkEventAnchorZone(event);
     if (commandResult !== CommandResult.Success) {
       return new DispatchResult(commandResult);

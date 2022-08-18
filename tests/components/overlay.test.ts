@@ -14,6 +14,7 @@ import { Model } from "../../src/model";
 import {
   hideColumns,
   hideRows,
+  merge,
   redo,
   resizeRows,
   setCellContent,
@@ -1121,5 +1122,23 @@ describe("move selected element(s)", () => {
       expect(getCell(model, "A3")!.evaluated.value).toBe("a3");
       expect(getCell(model, "A4")!.evaluated.value).toBe("a4");
     });
+  });
+
+  test("Can select a column within a merge", async () => {
+    merge(model, "B1:C1");
+    await selectColumn("A");
+    await selectColumn("B", { shiftKey: true });
+    expect(model.getters.getActiveCols()).toEqual(new Set([0, 1]));
+    await selectColumn("C", { shiftKey: true });
+    expect(model.getters.getActiveCols()).toEqual(new Set([0, 1, 2]));
+  });
+
+  test("Can select a row within a merge", async () => {
+    merge(model, "B2:B3");
+    await selectRow(0);
+    await selectRow(1, { shiftKey: true });
+    expect(model.getters.getActiveRows()).toEqual(new Set([0, 1]));
+    await selectRow(2, { shiftKey: true });
+    expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2]));
   });
 });
