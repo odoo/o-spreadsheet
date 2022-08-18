@@ -43,7 +43,6 @@ interface Props {
 }
 
 interface State {
-  type: ChartType;
   panel: "configuration" | "design";
 }
 
@@ -58,7 +57,6 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
 
   setup(): void {
     this.state = useState({
-      type: this.getChartDefinition().type,
       panel: "configuration",
     });
 
@@ -66,9 +64,6 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
       if (!this.env.model.getters.isChartDefined(nextProps.figureId)) {
         this.props.onCloseSidePanel();
         return;
-      }
-      if (nextProps.figureId !== this.figureId) {
-        this.state.type = this.getChartDefinition(nextProps.figureId).type;
       }
     });
   }
@@ -96,7 +91,6 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
       id: this.figureId,
       sheetId: this.env.model.getters.getActiveSheetId(),
     });
-    this.state.type = type;
   }
 
   get chartPanel(): ChartSidePanel {
