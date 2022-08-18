@@ -1,6 +1,6 @@
 import { App } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../../src";
-import { buildSheetLink } from "../../../src/helpers";
+import { buildSheetUrl } from "../../../src/helpers";
 import { clearCell, createSheet, merge, setCellContent } from "../../test_helpers/commands_helpers";
 import { clickCell, hoverCell, rightClickCell, simulateClick } from "../../test_helpers/dom_helper";
 import { getCell } from "../../test_helpers/getters_helpers";
@@ -51,7 +51,7 @@ describe("link display component", () => {
 
   test("sheet link title shows the sheet name and doesn't have a href", async () => {
     const sheetId = model.getters.getActiveSheetId();
-    setCellContent(model, "A1", `[label](${buildSheetLink(sheetId)})`);
+    setCellContent(model, "A1", `[label](${buildSheetUrl(sheetId)})`);
     await hoverCell(model, "A1", 400);
     expect(fixture.querySelector("a")?.innerHTML).toBe("Sheet1");
     expect(fixture.querySelector("a")?.getAttribute("title")).toBe("Sheet1");
@@ -136,7 +136,7 @@ describe("link display component", () => {
     await simulateClick(".o-unlink");
     expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
     const cell = getCell(model, xc);
-    expect(cell?.isLink()).toBeFalsy();
+    expect(cell?.url).toBeFalsy();
     expect(cell?.content).toBe("label");
   });
 
@@ -160,18 +160,26 @@ describe("link display component", () => {
 
   test("link text color is not removed when the cell is unlinked if it is custom", async () => {
     setCellContent(model, "A1", "[label](url.com)");
+    expect(model.getters.getCellStyle(getCell(model, "A1"))).toEqual({
+      textColor: "#00f",
+      underline: true,
+    });
     model.dispatch("UPDATE_CELL", {
       col: 0,
       row: 0,
       sheetId: model.getters.getActiveSheetId(),
-      style: { bold: true, textColor: "#555" },
+      style: { bold: true, textColor: "#00f" },
+    });
+    expect(model.getters.getCellStyle(getCell(model, "A1"))).toEqual({
+      textColor: "#00f",
+      underline: true,
+      bold: true,
     });
     await hoverCell(model, "A1", 400);
     await simulateClick(".o-unlink");
-    expect(getCell(model, "A1")?.style).toEqual({
+    expect(model.getters.getCellStyle(getCell(model, "A1"))).toEqual({
       bold: true,
-      textColor: "#555",
-      underline: undefined,
+      textColor: "#00f",
     });
   });
 
@@ -184,7 +192,7 @@ describe("link display component", () => {
     expect(editor).toBeTruthy();
     const inputs = editor?.querySelectorAll("input")!;
     expect(inputs[0].value).toBe("label");
-    expect(inputs[1].value).toBe("https://url.com");
+    expect(inputs[1].value).toBe("url.com");
   });
 
   test("click on a web link opens the page", async () => {
@@ -199,7 +207,7 @@ describe("link display component", () => {
   test("click on a sheet link activates the sheet", async () => {
     const sheetId = "42";
     createSheet(model, { sheetId });
-    setCellContent(model, "A1", `[label](${buildSheetLink(sheetId)})`);
+    setCellContent(model, "A1", `[label](${buildSheetUrl(sheetId)})`);
     await hoverCell(model, "A1", 400);
     expect(model.getters.getActiveSheetId()).not.toBe(sheetId);
     await simulateClick("a");

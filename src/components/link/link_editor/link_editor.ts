@@ -1,7 +1,7 @@
 import { Component, onMounted, useRef, useState } from "@odoo/owl";
 import { markdownLink } from "../../../helpers";
-import { urlRegistry } from "../../../registries";
 import { linkMenuRegistry } from "../../../registries/menus/link_menu_registry";
+import { urlRegistry } from "../../../registries/url_types";
 import { DOMCoordinates, Link, Position, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { css } from "../../helpers/css";
@@ -109,7 +109,6 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
   });
   private linkEditorRef = useRef("linkEditor");
   private position = useAbsolutePosition(this.linkEditorRef);
-  private urlTypes = urlRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
   urlInput = useRef("urlInput");
 
   setup() {
@@ -176,7 +175,8 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
   }
 
   private stateFromLabelAndUrl(label: string, url: string): State {
-    const urlType = this.urlTypes.find((urlType) => urlType.match(url));
+    const urlTypes = urlRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
+    const urlType = urlTypes.find((urlType) => urlType.match(url));
     return {
       label,
       url,

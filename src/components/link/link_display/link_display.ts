@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
-import { toXC } from "../../../helpers";
-import { urlRegistry, URLType } from "../../../registries";
+import { toXC, withHttp } from "../../../helpers";
+import { urlRegistry, UrlType } from "../../../registries/url_types";
 import { Cell, Position, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { css } from "../../helpers/css";
@@ -63,23 +63,12 @@ export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv
   static components = { Menu };
   static template = "o-spreadsheet-LinkDisplay";
   static size = { width: LINK_TOOLTIP_WIDTH, height: LINK_TOOLTIP_HEIGHT };
-  private urlTypes = urlRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
-
-  get url(): string {
-    const cell = this.getHoveredCell();
-    if (cell?.url) {
-      return cell.url;
-    }
-
-    const { col, row } = this.props.cellPosition;
-    throw new Error(
-      `LinkDisplay Component can only be used with link cells. ${toXC(col, row)} is not a link.`
-    );
-  }
 
   get urlRepresentation(): string {
     const urlType = this.getUrlType();
-    return urlType ? urlType.representation(this.url, this.env.model) : this.url;
+    return urlType
+      ? urlType.representation(this.getUrl(), this.env.model)
+      : withHttp(this.getUrl());
   }
 
   get isExternal(): boolean {
@@ -92,9 +81,9 @@ export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv
   openLink() {
     const urlType = this.getUrlType();
     if (urlType) {
-      urlType.open(this.url, this.env.model);
+      urlType.open(this.getUrl(), this.env.model);
     } else {
-      window.open(this.withHttp(this.url), "_blank");
+      window.open(withHttp(this.getUrl()), "_blank");
     }
   }
 
@@ -124,15 +113,21 @@ export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv
     return this.env.model.getters.getCell(sheetId, col, row);
   }
 
-  private getUrlType(): URLType | undefined {
-    return this.urlTypes.find((urlType) => urlType.match(this.url));
+  private getUrl(): string {
+    const cell = this.getHoveredCell();
+    if (cell?.url) {
+      return cell.url;
+    }
+
+    const { col, row } = this.props.cellPosition;
+    throw new Error(
+      `LinkDisplay Component can only be used with link cells. ${toXC(col, row)} is not a link.`
+    );
   }
 
-  /**
-   * Add the `https` prefix to the url if it's missing
-   */
-  private withHttp(url: string): string {
-    return !/^https?:\/\//i.test(url) ? `https://${url}` : url;
+  private getUrlType(): UrlType | undefined {
+    const urlTypes = urlRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
+    return urlTypes.find((urlType) => urlType.match(this.getUrl()));
   }
 }
 

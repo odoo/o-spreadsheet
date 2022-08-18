@@ -1,5 +1,5 @@
 import { ICON_SETS } from "../src/components/icons/icons";
-import { buildSheetLink, lettersToNumber, markdownLink, toZone } from "../src/helpers";
+import { buildSheetUrl, lettersToNumber, markdownLink, toZone } from "../src/helpers";
 import { Border, CellIsRule, IconSetRule, Style } from "../src/types";
 import { BarChartDefinition } from "../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../src/types/chart/line_chart";
@@ -69,7 +69,7 @@ describe("Import xlsx data", () => {
       markdownLink("hyperlink", "https://www.odoo.com/")
     );
     expect(testSheet.cells["F3"]?.content).toEqual(
-      markdownLink("sheetLink", buildSheetLink("jestSheet"))
+      markdownLink("sheetLink", buildSheetUrl("jestSheet"))
     );
   });
 

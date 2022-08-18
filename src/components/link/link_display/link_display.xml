@@ -2,19 +2,19 @@
   <t t-name="o-spreadsheet-LinkDisplay" owl="1">
     <div class="o-link-tool">
       <!-- t-key to prevent owl from re-using the previous img element when the link changes.
-      The wrong/previous image would be displayed while the new one loads -->
+    The wrong/previous image would be displayed while the new one loads -->
       <img
         t-if="isExternal"
-        t-key="url"
-        t-attf-src="https://www.google.com/s2/favicons?sz=16&amp;domain={{url}}"
+        t-key="urlRepresentation"
+        t-attf-src="https://www.google.com/s2/favicons?sz=16&amp;domain={{urlRepresentation}}"
       />
       <a
         t-if="isExternal"
-        t-att-href="url"
-        target="_blank"
+        t-att-href="urlRepresentation"
         class="o-link"
+        target="_blank"
         t-on-click.prevent="openLink"
-        t-att-title="url">
+        t-att-title="urlRepresentation">
         <t t-esc="urlRepresentation"/>
       </a>
       <a t-else="" class="o-link" t-on-click.prevent="openLink" t-att-title="urlRepresentation">

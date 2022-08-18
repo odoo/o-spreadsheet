@@ -1,4 +1,4 @@
-import { buildSheetURL, markdownLink, toCartesian, toXC } from "../../helpers";
+import { buildSheetUrl, markdownLink, toCartesian, toXC } from "../../helpers";
 import { CellData, HeaderData, SheetData } from "../../types";
 import { XLSXCell, XLSXHyperLink, XLSXImportData, XLSXWorksheet } from "../../types/xlsx";
 import {
@@ -180,7 +180,7 @@ function convertHyperlink(
   if (!link.relTarget && !link.location) {
     warningManager.generateNotSupportedWarning(WarningTypes.BadlyFormattedHyperlink);
   }
-  const url = link.relTarget ? link.relTarget : buildSheetURL(link.location!.split("!")[0]);
+  const url = link.relTarget ? link.relTarget : buildSheetUrl(link.location!.split("!")[0]);
   return markdownLink(label, url);
 }
 

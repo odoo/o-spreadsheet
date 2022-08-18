@@ -283,6 +283,13 @@ export function parseMarkdownLink(str: string): Link {
   };
 }
 
+/**
+ * Add the `https` prefix to the url if it's missing
+ */
+export function withHttp(url: string): string {
+  return !/^https?:\/\//i.test(url) ? `https://${url}` : url;
+}
+
 export const O_SPREADSHEET_LINK_PREFIX = "o-spreadsheet://";
 
 export function isMarkdownSheetLink(str: string) {
@@ -293,7 +300,7 @@ export function isMarkdownSheetLink(str: string) {
   return url.startsWith(O_SPREADSHEET_LINK_PREFIX);
 }
 
-export function buildSheetURL(sheetId: UID) {
+export function buildSheetUrl(sheetId: UID) {
   return `${O_SPREADSHEET_LINK_PREFIX}${sheetId}`;
 }
 

@@ -1,6 +1,6 @@
 import { App } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../../src";
-import { buildSheetLink } from "../../../src/helpers";
+import { buildSheetUrl } from "../../../src/helpers";
 import {
   activateSheet,
   createSheet,
@@ -63,7 +63,7 @@ describe("link editor component", () => {
     const editor = fixture.querySelector(".o-link-editor");
     expect(editor).toBeTruthy();
     expect(labelInput().value).toBe("label");
-    expect(urlInput().value).toBe("https://url.com");
+    expect(urlInput().value).toBe("url.com");
   });
 
   test("open link editor from top bar menu", async () => {
@@ -103,37 +103,35 @@ describe("link editor component", () => {
     setCellContent(model, "A1", "[label](url.com)");
     await openLinkEditor(model, "A1");
     expect(labelInput().value).toBe("label");
-    expect(urlInput().value).toBe("https://url.com");
+    expect(urlInput().value).toBe("url.com");
   });
 
   test("open link editor in a sheet link cell", async () => {
     const sheetId = "42";
     createSheet(model, { sheetId });
-    setCellContent(model, "A1", `[label](${buildSheetLink(sheetId)})`);
+    setCellContent(model, "A1", `[label](${buildSheetUrl(sheetId)})`);
     await openLinkEditor(model, "A1");
     expect(labelInput().value).toBe("label");
     expect(urlInput().value).toBe(model.getters.getSheetName(sheetId));
     expect(urlInput().disabled).toBeTruthy();
   });
 
-  // test("insert link with an url and a label", async () => {
-  //   await openLinkEditor(model, "A1");
-  //   setInputValueAndTrigger(labelInput(), "my label", "input");
-  //   setInputValueAndTrigger(urlInput(), "https://url.com", "input");
-  //   await simulateClick("button.o-save");
-  //   const cell = getCell(model, "A1") as LinkCell;
-  //   expect(cell.link.label).toBe("my label");
-  //   expect(cell.link.url).toBe("https://url.com");
-  // });
+  test("insert link with an url and a label", async () => {
+    await openLinkEditor(model, "A1");
+    setInputValueAndTrigger(labelInput(), "my label", "input");
+    setInputValueAndTrigger(urlInput(), "https://url.com", "input");
+    await simulateClick("button.o-save");
+    const cell = getCell(model, "A1");
+    expect(cell!.content).toBe("[my label](https://url.com)");
+  });
 
-  // test("insert link with only an url and no label", async () => {
-  //   await openLinkEditor(model, "A1");
-  //   setInputValueAndTrigger(urlInput(), "https://url.com", "input");
-  //   await simulateClick("button.o-save");
-  //   const cell = getCell(model, "A1") as LinkCell;
-  //   expect(cell.link.label).toBe("https://url.com");
-  //   expect(cell.link.url).toBe("https://url.com");
-  // });
+  test("insert link with only an url and no label", async () => {
+    await openLinkEditor(model, "A1");
+    setInputValueAndTrigger(urlInput(), "https://url.com", "input");
+    await simulateClick("button.o-save");
+    const cell = getCell(model, "A1");
+    expect(cell!.content).toBe("[https://url.com](https://url.com)");
+  });
 
   test("insert sheet link", async () => {
     const sheetId = "42";
@@ -161,7 +159,7 @@ describe("link editor component", () => {
   test("remove current link", async () => {
     setCellContent(model, "A1", "[label](url.com)");
     await openLinkEditor(model, "A1");
-    expect(urlInput().value).toBe("https://url.com");
+    expect(urlInput().value).toBe("url.com");
     await simulateClick(".o-remove-url");
     expect(urlInput().value).toBe("");
   });

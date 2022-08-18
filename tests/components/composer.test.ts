@@ -21,6 +21,7 @@ import {
 import {
   clickCell,
   gridMouseEvent,
+  hoverCell,
   keyDown,
   keyUp,
   rightClickCell,
@@ -604,17 +605,16 @@ describe("composer", () => {
     expect(model.getters.getEditionMode()).toBe("inactive");
   });
 
-  // test("edit link cell changes the label", async () => {
-  //   setCellContent(model, "A1", "[label](http://odoo.com)");
-  //   await hoverCell(model, "A1", 400);
-  //   expect(fixture.querySelector(".o-link-tool")).not.toBeNull();
-  //   await startComposition();
-  //   await typeInComposerGrid(" updated");
-  //   await keyDown("Enter");
-  //   const cell = getCell(model, "A1") as LinkCell;
-  //   expect(cell.link.label).toBe("label updated");
-  //   expect(cell.link.url).toBe("http://odoo.com");
-  // });
+  test("edit link cell changes the label", async () => {
+    setCellContent(model, "A1", "[label](http://odoo.com)");
+    await hoverCell(model, "A1", 400);
+    expect(fixture.querySelector(".o-link-tool")).not.toBeNull();
+    await startComposition();
+    await typeInComposerGrid(" updated");
+    await keyDown("Enter");
+    const cell = getCell(model, "A1");
+    expect(cell!.content).toBe("[label updated](http://odoo.com)");
+  });
 
   test("Hitting enter on topbar composer will properly update it", async () => {
     setCellContent(model, "A1", "I am Tabouret");

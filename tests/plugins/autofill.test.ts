@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { buildSheetLink, toCartesian, toZone } from "../../src/helpers";
+import { buildSheetUrl, toCartesian, toZone } from "../../src/helpers";
 import { AutofillPlugin } from "../../src/plugins/ui/autofill";
 import { Border, ConditionalFormat, Style } from "../../src/types";
 import { DIRECTION } from "../../src/types/index";
@@ -360,7 +360,7 @@ describe("Autofill", () => {
     test.each([
       "[https://url.com](https://url.com)",
       "[custom label](https://url.com)",
-      `[custom label](${buildSheetLink("Sheet1")})`,
+      `[custom label](${buildSheetUrl("Sheet1")})`,
     ])("Autofill link %s", (link) => {
       setCellContent(model, "A1", link);
       autofill("A1", "A2");

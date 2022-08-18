@@ -27,11 +27,18 @@ import { formatValue } from "../format";
 abstract class AbstractCell<T extends CellEvaluation = CellEvaluation> implements ICell {
   readonly style?: Style;
   readonly format?: Format;
-  abstract content: string;
   public evaluated: T;
   readonly url?: string;
+  private _content: string;
 
-  constructor(readonly id: UID, evaluated: T, properties: CellDisplayProperties, url?: string) {
+  constructor(
+    readonly id: UID,
+    content: string,
+    evaluated: T,
+    properties: CellDisplayProperties,
+    url?: string
+  ) {
+    this._content = content;
     this.style = properties.style;
     this.format = properties.format;
     this.evaluated = { ...evaluated, format: evaluated.format || properties.format };
@@ -49,9 +56,11 @@ abstract class AbstractCell<T extends CellEvaluation = CellEvaluation> implement
     return formatValue(this.evaluated.value, this.evaluated.format);
   }
 
-  get composerContent() {
-    return this.content;
+  get content() {
+    return this._content;
   }
+
+  abstract get composerContent();
 
   get defaultAlign() {
     switch (this.evaluated.type) {
@@ -84,9 +93,12 @@ abstract class AbstractCell<T extends CellEvaluation = CellEvaluation> implement
 }
 
 export class EmptyCell extends AbstractCell<EmptyEvaluation> {
-  readonly content = "";
-  constructor(id: UID, properties: CellDisplayProperties = {}, url?: string) {
-    super(id, { value: "", type: CellValueType.empty }, properties);
+  constructor(id: UID, content: string, properties: CellDisplayProperties = {}, url?: string) {
+    super(id, content, { value: "", type: CellValueType.empty }, properties, url);
+  }
+
+  get composerContent() {
+    return "";
   }
 
   isEmpty() {
@@ -95,29 +107,52 @@ export class EmptyCell extends AbstractCell<EmptyEvaluation> {
 }
 
 export class NumberCell extends AbstractCell<NumberEvaluation> {
-  readonly content = formatValue(this.evaluated.value);
-  constructor(id: UID, value: number, properties: CellDisplayProperties = {}, url?: string) {
-    super(id, { value: value, type: CellValueType.number }, properties);
+  constructor(
+    id: UID,
+    content: string,
+    value: number,
+    properties: CellDisplayProperties = {},
+    url?: string
+  ) {
+    super(id, content, { value: value, type: CellValueType.number }, properties, url);
   }
 
   get composerContent() {
     if (this.format?.includes("%")) {
       return `${this.evaluated.value * 100}%`;
     }
-    return super.composerContent;
+    return formatValue(this.evaluated.value);
   }
 }
 
 export class BooleanCell extends AbstractCell<BooleanEvaluation> {
-  readonly content = this.evaluated.value ? "TRUE" : "FALSE";
-  constructor(id: UID, value: boolean, properties: CellDisplayProperties = {}, url?: string) {
-    super(id, { value: value, type: CellValueType.boolean }, properties);
+  constructor(
+    id: UID,
+    content,
+    value: boolean,
+    properties: CellDisplayProperties = {},
+    url?: string
+  ) {
+    super(id, content, { value: value, type: CellValueType.boolean }, properties, url);
+  }
+
+  get composerContent() {
+    return this.evaluated.value ? "TRUE" : "FALSE";
   }
 }
 export class TextCell extends AbstractCell<TextEvaluation> {
-  readonly content = this.evaluated.value;
-  constructor(id: UID, value: string, properties: CellDisplayProperties = {}, url?: string) {
-    super(id, { value: value, type: CellValueType.text }, properties);
+  constructor(
+    id: UID,
+    content: string,
+    value: string,
+    properties: CellDisplayProperties = {},
+    url?: string
+  ) {
+    super(id, content, { value: value, type: CellValueType.text }, properties, url);
+  }
+
+  get composerContent() {
+    return this.evaluated.value;
   }
 }
 
@@ -130,11 +165,12 @@ export class DateTimeCell extends NumberCell {
 
   constructor(
     id: UID,
+    content,
     value: number,
     properties: CellDisplayProperties & { format: Format },
     url?: string
   ) {
-    super(id, value, properties);
+    super(id, content, value, properties, url);
     this.format = properties.format;
   }
 
@@ -151,16 +187,20 @@ export class FormulaCell extends AbstractCell implements IFormulaCell {
   constructor(
     private buildFormulaString: (cell: FormulaCell) => string,
     id: UID,
-    readonly normalizedText: string,
+    content: string,
     readonly compiledFormula: CompiledFormula,
     readonly dependencies: Range[],
     properties: CellDisplayProperties
   ) {
-    super(id, { value: LOADING, type: CellValueType.text }, properties);
+    super(id, content, { value: LOADING, type: CellValueType.text }, properties);
   }
 
   get content() {
     return this.buildFormulaString(this);
+  }
+
+  get composerContent() {
+    return this.content;
   }
 
   isFormula() {
@@ -230,14 +270,10 @@ export class BadExpressionCell extends AbstractCell<InvalidEvaluation> {
    * @param error Compilation or parsing error
    * @param properties
    */
-  constructor(
-    id: UID,
-    readonly content: string,
-    error: EvaluationError,
-    properties: CellDisplayProperties
-  ) {
+  constructor(id: UID, content: string, error: EvaluationError, properties: CellDisplayProperties) {
     super(
       id,
+      content,
       {
         value: CellErrorType.BadExpression,
         type: CellValueType.error,
@@ -245,5 +281,9 @@ export class BadExpressionCell extends AbstractCell<InvalidEvaluation> {
       },
       properties
     );
+  }
+
+  get composerContent() {
+    return this.content;
   }
 }

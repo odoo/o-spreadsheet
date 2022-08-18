@@ -20,8 +20,8 @@ import {
 cellRegistry
   .add("Formula", {
     sequence: 10,
-    match: (content) => content.startsWith("="),
-    createCell: (id, content, properties, url, sheetId, getters) => {
+    match: (label) => label.startsWith("="),
+    createCell: (id, content, label, properties, url, sheetId, getters) => {
       const compiledFormula = compile(content);
       const dependencies = compiledFormula.dependencies.map((xc) =>
         getters.getRangeFromSheetXC(sheetId, xc)
@@ -36,43 +36,58 @@ cellRegistry
       );
     },
   })
-  .add("Empty", {
+  .add("EmptyLabel", {
     sequence: 20,
-    match: (content) => content === "",
-    createCell: (id, content, properties, url) => new EmptyCell(id, properties, url),
+    match: (label) => label === "",
+    createCell: (id, content, label, properties, url) =>
+      new EmptyCell(id, content, properties, url),
   })
-  .add("NumberWithDateTimeFormat", {
+  .add("NumberLabelWithDateTimeFormat", {
     sequence: 25,
-    match: (content, format) => !!format && isNumber(content) && isDateTimeFormat(format),
-    createCell: (id, content, properties, url) => {
+    match: (label, format) => !!format && isNumber(label) && isDateTimeFormat(format),
+    createCell: (id, content, label, properties, url) => {
       const format = properties.format!;
-      return new DateTimeCell(id, parseNumber(content), { ...properties, format }, url);
+      return new DateTimeCell(id, content, parseNumber(label), { ...properties, format }, url);
     },
   })
-  .add("Number", {
+  .add("NumberLabel", {
     sequence: 30,
-    match: (content) => isNumber(content),
-    createCell: (id, content, properties, url) => {
+    match: (label) => isNumber(label),
+    createCell: (id, content, label, properties, url) => {
       if (!properties.format) {
-        properties.format = detectNumberFormat(content);
+        properties.format = detectNumberFormat(label);
       }
-      return new NumberCell(id, parseNumber(content), properties, url);
+      return new NumberCell(id, content, parseNumber(label), properties, url);
     },
   })
-  .add("Boolean", {
+  .add("BooleanLabel", {
     sequence: 40,
-    match: (content) => isBoolean(content),
-    createCell: (id, content, properties, url) => {
-      return new BooleanCell(id, content.toUpperCase() === "TRUE" ? true : false, properties, url);
+    match: (label) => isBoolean(label),
+    createCell: (id, content, label, properties, url) => {
+      return new BooleanCell(
+        id,
+        content,
+        label.toUpperCase() === "TRUE" ? true : false,
+        properties,
+        url
+      );
     },
   })
-  .add("DateTime", {
+  .add("DateTimeLabelWithNumberFormat", {
+    sequence: 45,
+    match: (label, format) => !!format && isDateTime(label) && !isDateTimeFormat(format),
+    createCell: (id, content, label, properties, url) => {
+      const internalDate = parseDateTime(label)!;
+      return new NumberCell(id, content, internalDate.value, { ...properties }, url);
+    },
+  })
+  .add("DateTimeLabel", {
     sequence: 50,
-    match: (content) => isDateTime(content),
-    createCell: (id, content, properties, url) => {
-      const internalDate = parseDateTime(content)!;
+    match: (label) => isDateTime(label),
+    createCell: (id, content, label, properties, url) => {
+      const internalDate = parseDateTime(label)!;
       const format = properties.format || internalDate.format;
-      return new DateTimeCell(id, internalDate.value, { ...properties, format }, url);
+      return new DateTimeCell(id, content, internalDate.value, { ...properties, format }, url);
     },
   });
 
@@ -94,22 +109,23 @@ export function cellFactory(getters: CoreGetters) {
     properties: CellDisplayProperties,
     sheetId: UID
   ): Cell {
+    let label = content;
     let url: string | undefined = undefined;
 
     if (isMarkdownLink(content)) {
       const parsedMarkdown = parseMarkdownLink(content);
-      content = parsedMarkdown.label;
+      label = parsedMarkdown.label;
       url = parsedMarkdown.url;
     } else if (isWebLink(content)) {
       url = content;
     }
 
-    const builder = builders.find((factory) => factory.match(content, properties.format));
+    const builder = builders.find((factory) => factory.match(label, properties.format));
     if (!builder) {
-      return new TextCell(id, content, properties, url);
+      return new TextCell(id, content, label, properties, url);
     }
     try {
-      return builder.createCell(id, content, properties, url, sheetId, getters);
+      return builder.createCell(id, content, label, properties, url, sheetId, getters);
     } catch (error) {
       return new BadExpressionCell(
         id,

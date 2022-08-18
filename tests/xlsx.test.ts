@@ -1,4 +1,4 @@
-import { buildSheetLink } from "../src/helpers";
+import { buildSheetUrl } from "../src/helpers";
 import { Model } from "../src/model";
 import { adaptFormulaToExcel } from "../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../src/xlsx/helpers/xml_helpers";
@@ -903,16 +903,16 @@ describe("Test XLSX export", () => {
     const model = new Model();
     setCellContent(model, "A1", "[label](url.com)");
     setCellContent(model, "A2", "[label](http://url.com)");
-    setCellContent(model, "A3", `[Sheet1](${buildSheetLink(model.getters.getActiveSheetId())})`);
+    setCellContent(model, "A3", `[Sheet1](${buildSheetUrl(model.getters.getActiveSheetId())})`);
     setCellContent(
       model,
       "A4",
-      `[custom link label](${buildSheetLink(model.getters.getActiveSheetId())})`
+      `[custom link label](${buildSheetUrl(model.getters.getActiveSheetId())})`
     );
     setCellContent(
       model,
       "A5",
-      `[Sheet1](${buildSheetLink("invalid id because the sheet was deleted")})`
+      `[Sheet1](${buildSheetUrl("invalid id because the sheet was deleted")})`
     );
     expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
   });

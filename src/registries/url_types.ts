@@ -7,7 +7,7 @@ import { _lt } from "../translation";
 // URL Registry
 //------------------------------------------------------------------------------
 
-export interface URLType {
+export interface UrlType {
   match: (content) => boolean;
   open: (url: string, model: Model) => void;
   representation: (url: string, model: Model) => string;
@@ -15,7 +15,7 @@ export interface URLType {
   sequence: number;
 }
 
-export const urlRegistry = new Registry<URLType>();
+export const urlRegistry = new Registry<UrlType>();
 
 urlRegistry.add("sheet_URL", {
   match: (url) => url.startsWith(O_SPREADSHEET_LINK_PREFIX),

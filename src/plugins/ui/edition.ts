@@ -7,6 +7,7 @@ import {
   getZoneArea,
   isEqual,
   isNumber,
+  markdownLink,
   positionToZone,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
@@ -403,6 +404,7 @@ export class EditionPlugin extends UIPlugin {
 
   private stopEdition() {
     if (this.mode !== "inactive") {
+      const activeSheetId = this.getters.getActiveSheetId();
       this.cancelEdition();
       const { col, row } = this.getters.getMainCellPosition(this.sheetId, this.col, this.row);
       let content = this.currentContent;
@@ -410,29 +412,21 @@ export class EditionPlugin extends UIPlugin {
       if (!didChange) {
         return;
       }
-      if (content) {
-        if (content.startsWith("=")) {
-          const left = this.currentTokens.filter((t) => t.type === "LEFT_PAREN").length;
-          const right = this.currentTokens.filter((t) => t.type === "RIGHT_PAREN").length;
-          const missing = left - right;
-          if (missing > 0) {
-            content += concat(new Array(missing).fill(")"));
-          }
+      const cell = this.getters.getCell(activeSheetId, col, row);
+      if (content.startsWith("=")) {
+        const left = this.currentTokens.filter((t) => t.type === "LEFT_PAREN").length;
+        const right = this.currentTokens.filter((t) => t.type === "RIGHT_PAREN").length;
+        const missing = left - right;
+        if (missing > 0) {
+          content += concat(new Array(missing).fill(")"));
         }
-        this.dispatch("UPDATE_CELL", {
-          sheetId: this.sheetId,
-          col,
-          row,
-          content,
-        });
-      } else {
-        this.dispatch("UPDATE_CELL", {
-          sheetId: this.sheetId,
-          content: "",
-          col,
-          row,
-        });
       }
+      this.dispatch("UPDATE_CELL", {
+        sheetId: this.sheetId,
+        col,
+        row,
+        content: cell?.url ? markdownLink(content, cell.url) : content,
+      });
       this.setContent("");
     }
   }

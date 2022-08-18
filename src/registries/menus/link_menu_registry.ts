@@ -1,4 +1,4 @@
-import { buildSheetURL } from "../../helpers";
+import { buildSheetUrl } from "../../helpers";
 import { _lt } from "../../translation";
 import { createFullMenuItem, MenuItemRegistry } from "../menu_items_registry";
 
@@ -21,7 +21,7 @@ linkMenuRegistry.add("sheet", {
         sequence: i,
         action: () => ({
           label: sheet.name,
-          url: buildSheetURL(sheet.id),
+          url: buildSheetUrl(sheet.id),
         }),
       })
     );

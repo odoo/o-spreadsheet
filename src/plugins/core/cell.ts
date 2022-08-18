@@ -2,9 +2,9 @@ import { LINK_COLOR, NULL_FORMAT } from "../../constants";
 import { cellFactory } from "../../helpers/cells/cell_factory";
 import {
   concat,
+  deepCopy,
   getItemId,
   isInside,
-  isMarkdownLink,
   range,
   toCartesian,
   toXC,
@@ -305,9 +305,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   getCellStyle(cell?: Cell): Style {
     if (cell) {
-      const style = cell.style || {};
+      const style = deepCopy(cell.style) || {};
 
-      if (cell.evaluated.type === "text" && isMarkdownLink(cell.evaluated.value)) {
+      if (cell.url !== undefined) {
         if (style.underline === undefined) {
           style.underline = true;
         }

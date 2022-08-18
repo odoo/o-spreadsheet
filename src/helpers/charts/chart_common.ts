@@ -363,12 +363,16 @@ export function getBaselineText(
 ): string {
   if (!baseline) {
     return "";
-  } else if (baselineMode === "text" || !isNumber(keyValue) || !isNumber(baseline.content)) {
+  } else if (
+    baselineMode === "text" ||
+    !isNumber(keyValue) ||
+    baseline.evaluated.type !== "number"
+  ) {
     return baseline.formattedValue;
   } else {
-    let diff = toNumber(keyValue) - toNumber(baseline.content);
+    let diff = toNumber(keyValue) - toNumber(baseline.evaluated.value);
     if (baselineMode === "percentage") {
-      diff = (diff / toNumber(baseline.content)) * 100;
+      diff = (diff / toNumber(baseline.evaluated.value)) * 100;
     }
     const baselineValue = Math.abs(parseFloat(diff.toFixed(2)));
     let baselineStr = baselineValue.toLocaleString();

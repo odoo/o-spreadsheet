@@ -17,6 +17,7 @@ interface CellBuilder {
   createCell: (
     id: UID,
     content: string,
+    label: string,
     properties: CellDisplayProperties,
     url: string | undefined,
     sheetId: UID,
