@@ -24,7 +24,6 @@
           <div class="o-section-title">Chart type</div>
           <t t-set="types" t-value="chartTypes"/>
           <select
-            t-att-value="state.type"
             class="o-input o-type-selector"
             t-on-change="(ev) => this.onTypeChange(ev.target.value)">
             <option
@@ -33,7 +32,7 @@
               t-key="type"
               t-att-value="type"
               t-esc="types[type]"
-              t-att-selected="state.type === type"
+              t-att-selected="definition.type === type"
             />
           </select>
         </div>
@@ -42,7 +41,7 @@
           definition="definition"
           figureId="figureId"
           updateChart.bind="updateChart"
-          t-key="figureId + state.type"
+          t-key="figureId + definition.type"
         />
       </t>
       <t t-else="">
@@ -51,7 +50,7 @@
           definition="definition"
           figureId="figureId"
           updateChart.bind="updateChart"
-          t-key="figureId + state.type"
+          t-key="figureId + definition.type"
         />
       </t>
     </div>
