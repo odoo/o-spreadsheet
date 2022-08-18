@@ -3,7 +3,7 @@ import { LocalTransportService } from "./collaborative/local_transport_service";
 import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
 import { EventBus } from "./helpers/event_bus";
-import { UuidGenerator } from "./helpers/index";
+import { deepCopy, UuidGenerator } from "./helpers/index";
 import { buildRevisionLog } from "./history/factory";
 import { LocalHistory } from "./history/local_history";
 import {
@@ -408,7 +408,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * It will call `beforeHandle` and `handle`
    */
   private dispatchToHandlers(handlers: CommandHandler<Command>[], command: Command) {
-    command = JSON.parse(JSON.stringify(command));
+    command = deepCopy(command);
     for (const handler of handlers) {
       handler.beforeHandle(command);
     }
