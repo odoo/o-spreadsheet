@@ -1,6 +1,15 @@
+import { Map } from "immutable";
 import { NULL_FORMAT } from "../../constants";
 import { cellFactory } from "../../helpers/cells/cell_factory";
-import { concat, getItemId, isInside, range, toCartesian, toXC } from "../../helpers/index";
+import {
+  concat,
+  getItemId,
+  isDefined,
+  isInside,
+  range,
+  toCartesian,
+  toXC,
+} from "../../helpers/index";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -19,15 +28,45 @@ import {
   UID,
   UpdateCellData,
   WorkbookData,
+  WorkbookHistory,
   Zone,
 } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 
-interface CoreState {
-  // this.cells[sheetId][cellId] --> cell|undefined
-  cells: Record<UID, Record<UID, Cell | undefined>>;
+class CoreState {
+  private cells: Map<UID, Map<UID, Cell | undefined> | undefined> = Map();
+
+  constructor(private history: WorkbookHistory<any>) {}
+
+  updateCellDependency(sheetId: UID, cellId: UID, range: Range, newRange: Range) {
+    const cell = this.cells.get(sheetId)?.get(cellId);
+    if (cell && cell.isFormula()) {
+      const dependencies = [...cell.dependencies];
+      dependencies.splice(cell.dependencies.indexOf(range), 1, newRange);
+      const newCell = Object.assign(Object.create(cell), {
+        dependencies,
+      });
+      this.cells = this.cells.updateIn([sheetId, cellId], () => newCell);
+    }
+  }
+
+  insertCell(sheetId: UID, cellId: UID, cell: Cell) {
+    this.cells = this.cells.updateIn([sheetId, cellId], () => cell);
+  }
+
+  deleteCell(sheetId: UID, cellId: UID) {
+    this.cells = this.cells.updateIn([sheetId, cellId], () => undefined);
+  }
+
+  flushHistory() {
+    this.history.update("state", "cells", this.cells);
+  }
+
+  getCells() {
+    return this.cells;
+  }
 }
 
 /**
@@ -36,7 +75,7 @@ interface CoreState {
  * This is the most fundamental of all plugins. It defines how to interact with
  * cell and sheet content.
  */
-export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
+export class CellPlugin extends CorePlugin {
   static getters = [
     "zoneToXC",
     "getCells",
@@ -46,31 +85,29 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     "getCellById",
   ] as const;
 
-  public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
+  private state: CoreState = new CoreState(this.history);
+
   private createCell = cellFactory(this.getters);
 
   adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
-    for (const sheet of Object.keys(this.cells)) {
-      for (const cell of Object.values(this.cells[sheet] || {})) {
+    for (const [id, sheet] of this.state.getCells().entrySeq()) {
+      if (!sheet) {
+        continue;
+      }
+      for (const cell of sheet.valueSeq().filter(isDefined)) {
         if (cell.isFormula()) {
           for (const range of cell.dependencies) {
             if (!sheetId || range.sheetId === sheetId) {
               const change = applyChange(range);
               if (change.changeType !== "NONE") {
-                this.history.update(
-                  "cells",
-                  sheet,
-                  cell.id,
-                  "dependencies" as any,
-                  cell.dependencies.indexOf(range),
-                  change.range
-                );
+                this.state.updateCellDependency(id, cell.id, range, change.range);
               }
             }
           }
         }
       }
     }
+    this.state.flushHistory();
   }
 
   // ---------------------------------------------------------------------------
@@ -192,7 +229,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         const { col, row } = toCartesian(xc);
         if (cellData?.content || cellData?.format || cellData?.style) {
           const cell = this.importCell(sheet.id, cellData, data.styles, data.formats);
-          this.history.update("cells", sheet.id, cell.id, cell);
+          this.state.insertCell(sheet.id, cell.id, cell);
           this.dispatch("UPDATE_CELL_POSITION", {
             cellId: cell.id,
             col,
@@ -202,6 +239,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         }
       }
     }
+    this.state.flushHistory();
   }
 
   export(data: WorkbookData) {
@@ -210,7 +248,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
     for (let _sheet of data.sheets) {
       const cells: { [key: string]: CellData } = {};
-      const positions = Object.keys(this.cells[_sheet.id] || {})
+      const positions = Object.keys(this.state.getCells()[_sheet.id] || {})
         .map((cellId) => this.getters.getCellPosition(cellId))
         .sort((a, b) => (a.col === b.col ? a.row - b.row : a.col - b.col));
       for (const { col, row } of positions) {
@@ -259,7 +297,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   // GETTERS
   // ---------------------------------------------------------------------------
   getCells(sheetId: UID): Record<UID, Cell> {
-    return this.cells[sheetId] || {};
+    return (this.state.getCells().get(sheetId) || Map()).toJS() as Record<UID, Cell>;
   }
 
   /**
@@ -268,9 +306,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    */
   getCellById(cellId: UID): Cell | undefined {
     // this must be as fast as possible
-    for (const sheetId in this.cells) {
-      const sheet = this.cells[sheetId];
-      const cell = sheet[cellId];
+    for (const sheetId of this.state.getCells().keySeq()) {
+      const sheet = this.state.getCells().get(sheetId);
+      const cell = sheet?.get(cellId);
       if (cell) {
         return cell;
       }
@@ -436,7 +474,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       !format
     ) {
       if (before) {
-        this.history.update("cells", sheetId, before.id, undefined);
+        this.state.deleteCell(sheetId, before.id);
+        this.state.flushHistory();
         this.dispatch("UPDATE_CELL_POSITION", {
           cellId: undefined,
           col,
@@ -461,7 +500,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         cell.assignError(before.evaluated.value, before.evaluated.error);
       }
     }
-    this.history.update("cells", sheetId, cell.id, cell);
+    this.state.insertCell(sheetId, cell.id, cell);
+    this.state.flushHistory();
+    // this.history.update("cells", sheetId, cell.id, cell);
     this.dispatch("UPDATE_CELL_POSITION", { cellId: cell.id, col, row, sheetId });
   }
 
