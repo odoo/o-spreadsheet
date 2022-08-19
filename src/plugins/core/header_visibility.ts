@@ -70,9 +70,7 @@ export class HeaderVisibilityPlugin extends CorePlugin {
       case "ADD_COLUMNS_ROWS": {
         const hiddenHeaders = [...this.hiddenHeaders[cmd.sheetId][cmd.dimension]];
         const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
-        for (let i = 0; i < cmd.quantity; i++) {
-          hiddenHeaders.splice(addIndex, 0, false);
-        }
+        hiddenHeaders.splice(addIndex, 0, ...Array(cmd.quantity).fill(false));
         this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, hiddenHeaders);
         break;
       }
