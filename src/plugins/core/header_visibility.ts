@@ -61,7 +61,7 @@ export class HeaderVisibilityPlugin extends CorePlugin {
         break;
       case "REMOVE_COLUMNS_ROWS": {
         const hiddenHeaders = [...this.hiddenHeaders[cmd.sheetId][cmd.dimension]];
-        for (let el of [...cmd.elements].sort().reverse()) {
+        for (let el of [...cmd.elements].sort((a, b) => b - a)) {
           hiddenHeaders.splice(el, 1);
         }
         this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, hiddenHeaders);
