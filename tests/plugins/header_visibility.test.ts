@@ -264,6 +264,18 @@ describe("Hide Rows", () => {
     expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([]);
   });
 
+  test.each([
+    [10, 2],
+    [2, 10],
+  ])(
+    "delete multiple rows with alphabetical order different from natural order",
+    (...deletedRows) => {
+      hideRows(model, [5, 11]);
+      deleteRows(model, deletedRows);
+      expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[4], [9]]);
+    }
+  );
+
   test("add rows before hidden row", () => {
     hideRows(model, [1]);
     addRows(model, "after", 0, 2);
