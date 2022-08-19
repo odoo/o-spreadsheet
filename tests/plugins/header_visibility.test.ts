@@ -2,6 +2,10 @@ import { CommandResult, Model } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import {
+  addColumns,
+  addRows,
+  deleteColumns,
+  deleteRows,
   hideColumns,
   hideRows,
   merge,
@@ -50,6 +54,36 @@ describe("Hide Columns", () => {
 
   test("Cannot hide columns on invalid sheetId", () => {
     expect(hideColumns(model, ["A"], "INVALID")).toBeCancelledBecause(CommandResult.InvalidSheetId);
+  });
+
+  test("delete column before hidden column", () => {
+    hideColumns(model, ["B"]);
+    deleteColumns(model, ["A"]);
+    expect(model.getters.getHiddenColsGroups(sheetId)).toEqual([[0]]);
+  });
+
+  test("delete column after hidden column", () => {
+    hideColumns(model, ["B"]);
+    deleteColumns(model, ["C"]);
+    expect(model.getters.getHiddenColsGroups(sheetId)).toEqual([[1]]);
+  });
+
+  test("delete hidden column", () => {
+    hideColumns(model, ["B"]);
+    deleteColumns(model, ["B"]);
+    expect(model.getters.getHiddenColsGroups(sheetId)).toEqual([]);
+  });
+
+  test("add columns before hidden column", () => {
+    hideColumns(model, ["B"]);
+    addColumns(model, "before", "B", 2);
+    expect(model.getters.getHiddenColsGroups(sheetId)).toEqual([[3]]);
+  });
+
+  test("add columns after hidden column", () => {
+    hideColumns(model, ["B"]);
+    addColumns(model, "after", "B", 2);
+    expect(model.getters.getHiddenColsGroups(sheetId)).toEqual([[1]]);
   });
 
   test("hide/unhide Column on small sheet", () => {
@@ -210,6 +244,36 @@ describe("Hide Rows", () => {
     expect(model).toExport(afterHidden1);
     undo(model);
     expect(model).toExport(beforeHidden);
+  });
+
+  test("delete row before hidden row", () => {
+    hideRows(model, [2]);
+    deleteRows(model, [1]);
+    expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[1]]);
+  });
+
+  test("delete row after hidden row", () => {
+    hideRows(model, [2]);
+    deleteRows(model, [3]);
+    expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[2]]);
+  });
+
+  test("delete hidden row", () => {
+    hideRows(model, [2]);
+    deleteRows(model, [2]);
+    expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([]);
+  });
+
+  test("add rows before hidden row", () => {
+    hideRows(model, [1]);
+    addRows(model, "after", 0, 2);
+    expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[3]]);
+  });
+
+  test("add rows after hidden row", () => {
+    hideRows(model, [1]);
+    addRows(model, "after", 1, 2);
+    expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[1]]);
   });
 
   test("update selection when hiding a single row", () => {
