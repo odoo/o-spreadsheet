@@ -1,5 +1,5 @@
 import { DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { getDefaultCellHeight } from "../../src/helpers";
+import { getDefaultCellHeight, toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult, Sheet } from "../../src/types";
 import {
@@ -356,6 +356,75 @@ describe("Model resizer", () => {
         expect(model.getters.getRowSize(sheetId, 11)).toBe(DEFAULT_CELL_HEIGHT);
       }
     );
+
+    test("deleting a row before shifts the computed size", () => {
+      const model = new Model();
+      const font36CellHeight = getDefaultCellHeight({ fontSize: 36 });
+      const sheetId = model.getters.getActiveSheetId();
+      setStyle(model, "A7", { fontSize: 36 });
+      deleteRows(model, [5]);
+      expect(model.getters.getRowSize(sheetId, 5)).toBe(font36CellHeight);
+      expect(model.getters.getRowSize(sheetId, 6)).toBe(DEFAULT_CELL_HEIGHT);
+    });
+
+    test("deleting a row after does not change the computed size", () => {
+      const model = new Model();
+      const font36CellHeight = getDefaultCellHeight({ fontSize: 36 });
+      const sheetId = model.getters.getActiveSheetId();
+      setStyle(model, "A7", { fontSize: 36 });
+      deleteRows(model, [9]);
+      expect(model.getters.getRowSize(sheetId, 6)).toBe(font36CellHeight);
+    });
+
+    test("deleting the last row does not change the computed size", () => {
+      const model = new Model();
+      const font36CellHeight = getDefaultCellHeight({ fontSize: 36 });
+      const sheetId = model.getters.getActiveSheetId();
+      setStyle(model, "A7", { fontSize: 36 });
+      const lastRowIndex = model.getters.getNumberRows(sheetId) - 1;
+      deleteRows(model, [lastRowIndex]);
+      expect(model.getters.getRowSize(sheetId, 6)).toBe(font36CellHeight);
+    });
+
+    test("deleting a row does not change the last row", () => {
+      const model = new Model();
+      const sheetId = model.getters.getActiveSheetId();
+      deleteRows(model, [5]);
+      const lastRowIndex = model.getters.getNumberRows(sheetId) - 1;
+      expect(model.getters.getRowSize(sheetId, lastRowIndex)).toBe(DEFAULT_CELL_HEIGHT);
+    });
+
+    test("deleting a row shifts the last row computed size", () => {
+      const model = new Model();
+      const sheetId = model.getters.getActiveSheetId();
+      let lastRowIndex = model.getters.getNumberRows(sheetId) - 1;
+      setStyle(model, toXC(0, lastRowIndex), { fontSize: 36 });
+      deleteRows(model, [5]);
+      lastRowIndex = model.getters.getNumberRows(sheetId) - 1;
+      expect(model.getters.getRowSize(sheetId, lastRowIndex)).toBe(
+        getDefaultCellHeight({ fontSize: 36 })
+      );
+    });
+
+    test("deleting a column before does not change the computed size", () => {
+      const model = new Model();
+      const font36CellHeight = getDefaultCellHeight({ fontSize: 36 });
+      const sheetId = model.getters.getActiveSheetId();
+      setStyle(model, "B1", { fontSize: 36 });
+      expect(model.getters.getRowSize(sheetId, 0)).toBe(font36CellHeight);
+      deleteColumns(model, ["A"]);
+      expect(model.getters.getRowSize(sheetId, 0)).toBe(font36CellHeight);
+    });
+
+    test("deleting a column after does not change the computed size", () => {
+      const model = new Model();
+      const font36CellHeight = getDefaultCellHeight({ fontSize: 36 });
+      const sheetId = model.getters.getActiveSheetId();
+      setStyle(model, "B1", { fontSize: 36 });
+      expect(model.getters.getRowSize(sheetId, 0)).toBe(font36CellHeight);
+      deleteColumns(model, ["C"]);
+      expect(model.getters.getRowSize(sheetId, 0)).toBe(font36CellHeight);
+    });
 
     test("adding a merge overwriting the the tallest cell in a row update row height", () => {
       setStyle(model, "A2", { fontSize: 36 });
