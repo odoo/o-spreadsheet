@@ -10,7 +10,7 @@ import {
   PADDING_AUTORESIZE_VERTICAL,
 } from "../constants";
 import { fontSizeMap } from "../fonts";
-import { Cell, ConsecutiveIndexes, Lazy, Link, Style, UID } from "../types";
+import { ConsecutiveIndexes, Lazy, Link, Style, UID } from "../types";
 import { Cloneable, Pixel } from "./../types/misc";
 import { parseDateTime } from "./dates";
 /**
@@ -109,11 +109,11 @@ export function clip(val: number, min: number, max: number): number {
 }
 
 /** Get the default height of the cell. The height depends on the font size */
-export function getDefaultCellHeight(cell: Cell | undefined): Pixel {
-  if (!cell?.style?.fontSize) {
+export function getDefaultCellHeight(style: Style | undefined): Pixel {
+  if (!style?.fontSize) {
     return DEFAULT_CELL_HEIGHT;
   }
-  return fontSizeInPixels(cell.style) + 2 * PADDING_AUTORESIZE_VERTICAL;
+  return fontSizeInPixels(style) + 2 * PADDING_AUTORESIZE_VERTICAL;
 }
 
 export function fontSizeInPixels(style: Style) {
