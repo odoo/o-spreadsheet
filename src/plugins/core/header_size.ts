@@ -45,7 +45,7 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
         break;
       case "REMOVE_COLUMNS_ROWS": {
         const sizes = [...this.sizes[cmd.sheetId][cmd.dimension]];
-        for (let headerIndex of [...cmd.elements].sort().reverse()) {
+        for (let headerIndex of [...cmd.elements].sort((a, b) => b - a)) {
           sizes.splice(headerIndex, 1);
         }
         this.history.update("sizes", cmd.sheetId, cmd.dimension, sizes);

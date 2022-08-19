@@ -336,6 +336,27 @@ describe("Model resizer", () => {
       expect(model.getters.getRowSize(sheet.id, 0)).toBe(DEFAULT_CELL_HEIGHT);
     });
 
+    test.each([
+      [10, 2],
+      [2, 10],
+    ])(
+      "deleting multiple rows with alphabetical order different from natural order",
+      (...deletedRows) => {
+        const font36CellHeight = getDefaultCellHeight({ fontSize: 36 });
+        const model = new Model();
+        const sheetId = model.getters.getActiveSheetId();
+        setStyle(model, "A4", { fontSize: 36 });
+        setStyle(model, "A12", { fontSize: 36 });
+        expect(model.getters.getRowSize(sheetId, 3)).toBe(font36CellHeight);
+        expect(model.getters.getRowSize(sheetId, 11)).toBe(font36CellHeight);
+        deleteRows(model, deletedRows); // a naive sort [10, 1, 2].sort() gives [1, 10, 2] (alphabetical sort)
+        expect(model.getters.getRowSize(sheetId, 2)).toBe(font36CellHeight);
+        expect(model.getters.getRowSize(sheetId, 9)).toBe(font36CellHeight);
+        expect(model.getters.getRowSize(sheetId, 3)).toBe(DEFAULT_CELL_HEIGHT);
+        expect(model.getters.getRowSize(sheetId, 11)).toBe(DEFAULT_CELL_HEIGHT);
+      }
+    );
+
     test("adding a merge overwriting the the tallest cell in a row update row height", () => {
       setStyle(model, "A2", { fontSize: 36 });
       merge(model, "A1:A2");
