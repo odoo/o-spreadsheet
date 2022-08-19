@@ -44,20 +44,39 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
         this.history.update("sizes", sizes);
         break;
       case "REMOVE_COLUMNS_ROWS": {
-        const sizes = [...this.sizes[cmd.sheetId][cmd.dimension]];
+        let sizes = [...this.sizes[cmd.sheetId][cmd.dimension]];
         for (let headerIndex of [...cmd.elements].sort((a, b) => b - a)) {
           sizes.splice(headerIndex, 1);
         }
+        const min = Math.min(...cmd.elements);
+        sizes = sizes.map((size, row) => {
+          if (cmd.dimension === "ROW" && row >= min) {
+            // invalidate sizes
+            return {
+              manualSize: size.manualSize,
+              computedSize: lazy(() => this.getRowTallestCellSize(cmd.sheetId, row)),
+            };
+          }
+          return size;
+        });
         this.history.update("sizes", cmd.sheetId, cmd.dimension, sizes);
         break;
       }
       case "ADD_COLUMNS_ROWS": {
-        const sizes = [...this.sizes[cmd.sheetId][cmd.dimension]];
+        let sizes = [...this.sizes[cmd.sheetId][cmd.dimension]];
         const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
         const baseSize = sizes[cmd.base];
-        for (let i = 0; i < cmd.quantity; i++) {
-          sizes.splice(addIndex, 0, baseSize);
-        }
+        sizes.splice(addIndex, 0, ...Array(cmd.quantity).fill(baseSize));
+        sizes = sizes.map((size, row) => {
+          if (cmd.dimension === "ROW" && row > cmd.base + cmd.quantity) {
+            // invalidate sizes
+            return {
+              manualSize: size.manualSize,
+              computedSize: lazy(() => this.getRowTallestCellSize(cmd.sheetId, row)),
+            };
+          }
+          return size;
+        });
         this.history.update("sizes", cmd.sheetId, cmd.dimension, sizes);
         break;
       }
