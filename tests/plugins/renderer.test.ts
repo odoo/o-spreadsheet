@@ -36,7 +36,9 @@ jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 function getBoxFromText(model: Model, text: string): Box {
   const rendererPlugin = getPlugin(model, RendererPlugin);
   // @ts-ignore
-  return (rendererPlugin.boxes as Box[]).find((b) => b.content?.text === text);
+  return (rendererPlugin.boxes as Box[]).find(
+    (b) => (b.content?.multiLineText || []).join(" ") === text
+  );
 }
 
 interface ContextObserver {
@@ -885,6 +887,68 @@ describe("renderer", () => {
         y: HEADER_HEIGHT,
         width: 10,
         height: DEFAULT_CELL_HEIGHT * 2,
+      });
+    }
+  );
+
+  test.each(["left", "right", "center"])(
+    'Cells with the wrapping style "wrap" cannot overflow long text content',
+    (align) => {
+      const overflowingText = "I am a very very very long text";
+      let box: Box;
+      const model = new Model({
+        sheets: [
+          {
+            id: "sheet1",
+            colNumber: 3,
+            rowNumber: 1,
+            cols: { 1: { size: 20 } },
+            cells: { B1: { content: overflowingText, style: 1 } },
+          },
+        ],
+        styles: { 1: { align, wrapping: "wrap" } },
+      });
+
+      let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+      model.drawGrid(ctx);
+
+      box = getBoxFromText(model, overflowingText);
+      expect(box.clipRect).toEqual({
+        x: HEADER_WIDTH + DEFAULT_CELL_WIDTH, // clipped to the left
+        y: HEADER_HEIGHT,
+        width: 20, // clipped to the right
+        height: DEFAULT_CELL_HEIGHT,
+      });
+    }
+  );
+
+  test.each(["left", "right", "center"])(
+    'Cells with the wrapping style "crop" cannot overflow long text content',
+    (align) => {
+      const overflowingText = "I am a very very very long text";
+      let box: Box;
+      const model = new Model({
+        sheets: [
+          {
+            id: "sheet1",
+            colNumber: 3,
+            rowNumber: 1,
+            cols: { 1: { size: 20 } },
+            cells: { B1: { content: overflowingText, style: 1 } },
+          },
+        ],
+        styles: { 1: { align, wrapping: "clip" } },
+      });
+
+      let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+      model.drawGrid(ctx);
+
+      box = getBoxFromText(model, overflowingText);
+      expect(box.clipRect).toEqual({
+        x: HEADER_WIDTH + DEFAULT_CELL_WIDTH, // clipped to the left
+        y: HEADER_HEIGHT,
+        width: 20, // clipped to the right
+        height: DEFAULT_CELL_HEIGHT,
       });
     }
   );

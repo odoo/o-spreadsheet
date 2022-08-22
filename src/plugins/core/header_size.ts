@@ -178,6 +178,7 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
       return DEFAULT_CELL_HEIGHT;
     }
     const cell = this.getters.getCell(sheetId, col, row);
+    // TO DO: take multiline cells into account to compute the cell height
     return getDefaultCellHeight(cell?.style);
   }
 

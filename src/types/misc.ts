@@ -87,12 +87,16 @@ export interface ZoneDimension {
 }
 
 export type Align = "left" | "right" | "center" | undefined;
+
+export type Wrapping = "overflow" | "wrap" | "clip" | undefined;
+
 export interface Style {
   bold?: boolean;
   italic?: boolean;
   strikethrough?: boolean;
   underline?: boolean;
   align?: Align;
+  wrapping?: Wrapping;
   fillColor?: string;
   textColor?: string;
   fontSize?: number; // in pt, not in px!
