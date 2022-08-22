@@ -1,11 +1,11 @@
-import { computeIconWidth, computeTextWidth } from "../../helpers/index";
+import { PADDING_AUTORESIZE_HORIZONTAL } from "../../constants";
+import { computeIconWidth, computeTextWidth, positionToZone } from "../../helpers/index";
 import { Cell, CellValueType, Command, CommandResult, UID } from "../../types";
-import { HeaderIndex, Pixel } from "../../types/misc";
+import { HeaderIndex, Pixel, Style } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
-import { PADDING_AUTORESIZE_HORIZONTAL } from "./../../constants";
 
 export class SheetUIPlugin extends UIPlugin {
-  static getters = ["getCellWidth", "getTextWidth", "getCellText"] as const;
+  static getters = ["getCellWidth", "getTextWidth", "getCellText", "getCellMultiLineText"] as const;
 
   private ctx = document.createElement("canvas").getContext("2d")!;
 
@@ -36,7 +36,7 @@ export class SheetUIPlugin extends UIPlugin {
             this.dispatch("RESIZE_COLUMNS_ROWS", {
               elements: [col],
               dimension: "COL",
-              size: size + 2 * PADDING_AUTORESIZE_HORIZONTAL,
+              size,
               sheetId: cmd.sheetId,
             });
           }
@@ -60,13 +60,20 @@ export class SheetUIPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   getCellWidth(cell: Cell): number {
-    let width = this.getTextWidth(cell);
+    let contentWidth = this.getTextWidth(cell);
     const cellPosition = this.getters.getCellPosition(cell.id);
     const icon = this.getters.getConditionalIcon(cellPosition.col, cellPosition.row);
     if (icon) {
-      width += computeIconWidth(this.getters.getCellStyle(cell));
+      contentWidth += computeIconWidth(this.getters.getCellStyle(cell));
     }
-    return width;
+    contentWidth += 2 * PADDING_AUTORESIZE_HORIZONTAL;
+
+    if (this.getters.getCellStyle(cell).wrapping === "wrap") {
+      const zone = positionToZone(this.getters.getCellPosition(cell.id));
+      const colWidth = this.getters.getColSize(this.getters.getActiveSheetId(), zone.left);
+      return Math.min(colWidth, contentWidth);
+    }
+    return contentWidth;
   }
 
   getTextWidth(cell: Cell): number {
@@ -83,6 +90,59 @@ export class SheetUIPlugin extends UIPlugin {
     }
   }
 
+  getCellMultiLineText(cell: Cell, width: number): string[] {
+    const style = this.getters.getCellStyle(cell);
+    const text = this.getters.getCellText(cell);
+    const words = text.split(" ");
+    const brokenText: string[] = [];
+
+    let textLine = "";
+    let availableWidth = width;
+
+    for (let word of words) {
+      const splitWord = this.splitWordToSpecificWidth(this.ctx, word, width, style);
+      const lastPart = splitWord.pop()!;
+      const lastPartWidth = computeTextWidth(this.ctx, lastPart, style);
+
+      // At this step: "splitWord" is an array composed of parts of word whose
+      // length is at most equal to "width".
+      // Last part contains the end of the word.
+      // Note that: When word length is less than width, then lastPart is equal
+      // to word and splitWord is empty
+
+      if (splitWord.length) {
+        if (textLine !== "") {
+          brokenText.push(textLine);
+          textLine = "";
+          availableWidth = width;
+        }
+        splitWord.forEach((wordPart) => {
+          brokenText.push(wordPart);
+        });
+        textLine = lastPart;
+        availableWidth = width - lastPartWidth;
+      } else {
+        // here "lastPart" is equal to "word" and the "word" size is smaller than "width"
+        const _word = textLine === "" ? lastPart : " " + lastPart;
+        const wordWidth = computeTextWidth(this.ctx, _word, style);
+
+        if (wordWidth <= availableWidth) {
+          textLine += _word;
+          availableWidth -= wordWidth;
+        } else {
+          brokenText.push(textLine);
+          textLine = lastPart;
+          availableWidth = width - lastPartWidth;
+        }
+      }
+    }
+
+    if (textLine !== "") {
+      brokenText.push(textLine);
+    }
+    return brokenText;
+  }
+
   // ---------------------------------------------------------------------------
   // Grid manipulation
   // ---------------------------------------------------------------------------
@@ -91,5 +151,31 @@ export class SheetUIPlugin extends UIPlugin {
     const cells = this.getters.getColCells(sheetId, index);
     const sizes = cells.map((cell: Cell) => this.getCellWidth(cell));
     return Math.max(0, ...sizes);
+  }
+
+  private splitWordToSpecificWidth(
+    ctx: CanvasRenderingContext2D,
+    word: string,
+    width: number,
+    style: Style
+  ): string[] {
+    const wordWidth = computeTextWidth(ctx, word, style);
+    if (wordWidth <= width) {
+      return [word];
+    }
+
+    const splitWord: string[] = [];
+    let wordPart = "";
+    for (let l of word) {
+      const wordPartWidth = computeTextWidth(ctx, wordPart + l, style);
+      if (wordPartWidth > width) {
+        splitWord.push(wordPart);
+        wordPart = l;
+      } else {
+        wordPart += l;
+      }
+    }
+    splitWord.push(wordPart);
+    return splitWord;
   }
 }

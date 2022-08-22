@@ -17,6 +17,7 @@ import {
 import {
   computeTextFont,
   computeTextFontSizeInPixels,
+  computeTextWidth,
   intersection,
   numberToLetters,
   overlap,
@@ -395,7 +396,7 @@ export class RendererPlugin extends UIPlugin {
 
   private drawTexts(renderingContext: GridRenderingContext) {
     const { ctx, thinLineWidth } = renderingContext;
-    ctx.textBaseline = "middle";
+    ctx.textBaseline = "top";
     let currentFont;
     for (let box of this.boxes) {
       if (box.content) {
@@ -424,21 +425,31 @@ export class RendererPlugin extends UIPlugin {
           ctx.rect(x, y, width, height);
           ctx.clip();
         }
+
+        const brokenLineNumber = box.content.multiLineText.length;
         const size = computeTextFontSizeInPixels(style);
-        ctx.fillText(box.content.text, Math.round(x), Math.round(y));
-        if (style.strikethrough || style.underline) {
-          if (align === "right") {
-            x = x - box.content.width;
-          } else if (align === "center") {
-            x = x - box.content.width / 2;
+        const contentHeight =
+          brokenLineNumber * (size + MIN_CELL_TEXT_MARGIN) - MIN_CELL_TEXT_MARGIN;
+        let brokenLineY = y - contentHeight / 2;
+
+        for (let brokenLine of box.content.multiLineText) {
+          ctx.fillText(brokenLine, Math.round(x), Math.round(brokenLineY));
+          if (style.strikethrough || style.underline) {
+            const lineWidth = computeTextWidth(ctx, brokenLine, style);
+            let _x = x;
+            if (align === "right") {
+              _x -= lineWidth;
+            } else if (align === "center") {
+              _x -= lineWidth / 2;
+            }
+            if (style.strikethrough) {
+              ctx.fillRect(_x, brokenLineY + size / 2, lineWidth, 2.6 * thinLineWidth);
+            }
+            if (style.underline) {
+              ctx.fillRect(_x, brokenLineY + size + 1, lineWidth, 1.3 * thinLineWidth);
+            }
           }
-          if (style.strikethrough) {
-            ctx.fillRect(x, y, box.content.width, 2.6 * thinLineWidth);
-          }
-          if (style.underline) {
-            y = box.y + box.height / 2 + 1 + size / 2;
-            ctx.fillRect(x, y, box.content.width, 1.3 * thinLineWidth);
-          }
+          brokenLineY += MIN_CELL_TEXT_MARGIN + size;
         }
         if (box.clipRect) {
           ctx.restore();
@@ -624,11 +635,16 @@ export class RendererPlugin extends UIPlugin {
     /** Content */
     const text = this.getters.getCellText(cell, showFormula);
     const textWidth = this.getters.getTextWidth(cell);
+    const wrapping = this.getters.getCellStyle(cell).wrapping || "overflow";
+    const multiLineText =
+      wrapping === "wrap"
+        ? this.getters.getCellMultiLineText(cell, width - 2 * MIN_CELL_TEXT_MARGIN)
+        : [text];
     const contentWidth = iconBoxWidth + textWidth;
     const align = this.computeCellAlignment(cell, contentWidth > width);
     box.content = {
-      text,
-      width: textWidth,
+      multiLineText,
+      width: wrapping === "overflow" ? textWidth : width,
       align,
     };
 
@@ -649,7 +665,7 @@ export class RendererPlugin extends UIPlugin {
         width: Math.max(0, width - iconBoxWidth),
         height,
       };
-    } else if (isOverflowing) {
+    } else if (isOverflowing && wrapping === "overflow") {
       let nextColIndex: number, previousColIndex: number;
 
       const isCellInMerge = this.getters.isInMerge(sheetId, col, row);
@@ -697,6 +713,13 @@ export class RendererPlugin extends UIPlugin {
           break;
         }
       }
+    } else if (wrapping === "clip" || wrapping === "wrap") {
+      box.clipRect = {
+        x: box.x,
+        y: box.y,
+        width,
+        height,
+      };
     }
     return box;
   }

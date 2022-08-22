@@ -16,7 +16,7 @@ export interface DOMCoordinates {
 }
 
 export interface BoxTextContent {
-  text: string;
+  multiLineText: string[];
   width: Pixel;
   align: Align;
 }

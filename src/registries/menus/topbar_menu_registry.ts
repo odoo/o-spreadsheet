@@ -4,6 +4,7 @@ import { _lt } from "../../translation";
 import { SpreadsheetChildEnv } from "../../types/env";
 import { MenuItemRegistry } from "../menu_items_registry";
 import * as ACTIONS from "./menu_items_actions";
+import { setStyle } from "./menu_items_actions";
 
 export const topbarMenuRegistry = new MenuItemRegistry();
 
@@ -295,17 +296,36 @@ topbarMenuRegistry
   .addChild("format_font_size", ["format"], {
     name: _lt("Font size"),
     sequence: 60,
+  })
+  .addChild("format_wrapping", ["format"], {
+    name: _lt("Wrapping"),
+    sequence: 70,
     separator: true,
+  })
+  .addChild("format_wrapping_overflow", ["format", "format_wrapping"], {
+    name: "Overflow",
+    sequence: 10,
+    action: (env: SpreadsheetChildEnv) => setStyle(env, { wrapping: "overflow" }),
+  })
+  .addChild("format_wrapping_wrap", ["format", "format_wrapping"], {
+    name: "Wrap",
+    sequence: 20,
+    action: (env: SpreadsheetChildEnv) => setStyle(env, { wrapping: "wrap" }),
+  })
+  .addChild("format_wrapping_clip", ["format", "format_wrapping"], {
+    name: "Clip",
+    sequence: 30,
+    action: (env: SpreadsheetChildEnv) => setStyle(env, { wrapping: "clip" }),
   })
   .addChild("format_cf", ["format"], {
     name: _lt("Conditional formatting"),
-    sequence: 70,
+    sequence: 80,
     action: ACTIONS.OPEN_CF_SIDEPANEL_ACTION,
     separator: true,
   })
   .addChild("format_clearFormat", ["format"], {
     name: _lt("Clear formatting"),
-    sequence: 80,
+    sequence: 90,
     action: ACTIONS.FORMAT_CLEARFORMAT_ACTION,
     separator: true,
   });

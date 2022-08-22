@@ -6,6 +6,7 @@ import {
   DEFAULT_FONT,
   DEFAULT_FONT_SIZE,
   DEFAULT_FONT_WEIGHT,
+  MIN_CELL_TEXT_MARGIN,
   MIN_CF_ICON_MARGIN,
   PADDING_AUTORESIZE_VERTICAL,
 } from "../constants";
@@ -108,12 +109,17 @@ export function clip(val: number, min: number, max: number): number {
   return val < min ? min : val > max ? max : val;
 }
 
-/** Get the default height of the cell. The height depends on the font size */
-export function getDefaultCellHeight(style: Style | undefined): Pixel {
+/** Get the default height of the cell. The height depends on the font size and
+ * the number of broken line text in the cell */
+export function getDefaultCellHeight(style: Style | undefined, numberOfLines?: number): Pixel {
   if (!style?.fontSize) {
     return DEFAULT_CELL_HEIGHT;
   }
-  return computeTextFontSizeInPixels(style) + 2 * PADDING_AUTORESIZE_VERTICAL;
+  return (
+    (numberOfLines || 1) * (computeTextFontSizeInPixels(style) + MIN_CELL_TEXT_MARGIN) -
+    MIN_CELL_TEXT_MARGIN +
+    2 * PADDING_AUTORESIZE_VERTICAL
+  );
 }
 
 export function computeTextWidth(context: CanvasRenderingContext2D, text: string, style: Style) {

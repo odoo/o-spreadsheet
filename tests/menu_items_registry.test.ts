@@ -728,6 +728,35 @@ describe("Menu Item actions", () => {
     });
   });
 
+  describe("Format -> wrapping", () => {
+    test("Overflow", () => {
+      doAction(["format", "format_wrapping", "format_wrapping_overflow"], env);
+      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+        sheetId: env.model.getters.getActiveSheetId(),
+        target: env.model.getters.getSelectedZones(),
+        style: { wrapping: "overflow" },
+      });
+    });
+
+    test("Wrap", () => {
+      doAction(["format", "format_wrapping", "format_wrapping_wrap"], env);
+      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+        sheetId: env.model.getters.getActiveSheetId(),
+        target: env.model.getters.getSelectedZones(),
+        style: { wrapping: "wrap" },
+      });
+    });
+
+    test("Clip", () => {
+      doAction(["format", "format_wrapping", "format_wrapping_clip"], env);
+      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+        sheetId: env.model.getters.getActiveSheetId(),
+        target: env.model.getters.getSelectedZones(),
+        style: { wrapping: "clip" },
+      });
+    });
+  });
+
   test("Data -> Sort ascending", () => {
     doAction(["data", "sort_range", "sort_ascending"], env);
     const { anchor, zones } = env.model.getters.getSelection();
