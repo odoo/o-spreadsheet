@@ -31,7 +31,7 @@ export const FORMAT_LARGE_NUMBER: AddFunctionDescription = {
       }
     }
     if (value < 1e5) {
-      return format || "#,##0";
+      return createLargeNumberFormat(format, 0, "");
     } else if (value < 1e8) {
       return createLargeNumberFormat(format, 1e3, "k");
     } else if (value < 1e11) {

@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { setCellContent } from "../test_helpers/commands_helpers";
+import { setCellContent, setCellFormat } from "../test_helpers/commands_helpers";
 import { getCellContent, getCellError } from "../test_helpers/getters_helpers";
 import { evaluateCellText } from "../test_helpers/helpers";
 
@@ -46,6 +46,20 @@ describe("FORMAT.LARGE.NUMBER formula", () => {
     expect(evaluateCellText("A1", { A1: `=FORMAT.LARGE.NUMBER("100000")` })).toBe("100k");
   });
 
+  test("Result does not contain decimals", () => {
+    // < 100k
+    const model = new Model();
+    setCellContent(model, "A1", "100.60");
+    setCellFormat(model, "A1", "#,000.00");
+    setCellContent(model, "A2", "=FORMAT.LARGE.NUMBER(A1)");
+    expect(getCellContent(model, "A2")).toBe("101");
+    // < 100m
+    expect(evaluateCellText("A1", { A1: "=FORMAT.LARGE.NUMBER(100000.60)" })).toBe("100k");
+    // < 100b
+    expect(evaluateCellText("A1", { A1: "=FORMAT.LARGE.NUMBER(100000000.60)" })).toBe("100m");
+    // >= 100b
+    expect(evaluateCellText("A1", { A1: "=FORMAT.LARGE.NUMBER(100000000000.60)" })).toBe("100b");
+  });
   test("not a number", () => {
     const model = new Model();
     setCellContent(model, "A1", `=FORMAT.LARGE.NUMBER("a string")`);
