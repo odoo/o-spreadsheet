@@ -1037,14 +1037,14 @@ describe("evaluate formula getter", () => {
 
   test("a ref in the current sheet", () => {
     setCellContent(model, "A1", "12");
-    expect(model.getters.evaluateFormula("=A1")).toBe(12);
+    expect(model.getters.evaluateFormula("=A1").value).toBe(12);
   });
 
   test("in another sheet", () => {
     createSheet(model, { sheetId: "42" });
     const sheet2 = model.getters.getSheetIds()[1];
     setCellContent(model, "A1", "11", sheet2);
-    expect(model.getters.evaluateFormula("=Sheet2!A1")).toBe(11);
+    expect(model.getters.evaluateFormula("=Sheet2!A1").value).toBe(11);
   });
 
   // i think these formulas should throw

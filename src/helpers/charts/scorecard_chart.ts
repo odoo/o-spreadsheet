@@ -20,6 +20,7 @@ import {
   ScorecardChartRuntime,
 } from "../../types/chart/scorecard_chart";
 import { Validator } from "../../types/validator";
+import { FormulaCell } from "../cells";
 import { createRange } from "../range";
 import { rangeReference } from "../references";
 import { toUnboundedZone, zoneToXc } from "../zones";
@@ -199,8 +200,17 @@ function createScorecardChartRuntime(
   if (chart.keyValue) {
     const keyValueZone = chart.keyValue.zone;
     keyValueCell = getters.getCell(chart.keyValue.sheetId, keyValueZone.left, keyValueZone.top);
-    keyValue = keyValueCell?.evaluated.value ? String(keyValueCell?.evaluated.value) : "";
-    formattedKeyValue = keyValueCell?.formattedValue || "";
+    if (keyValueCell instanceof FormulaCell) {
+      const { value, formattedValue } = getters.evaluateFormula(
+        keyValueCell.content,
+        chart.keyValue.sheetId
+      );
+      keyValue = String(value);
+      formattedKeyValue = formattedValue;
+    } else {
+      keyValue = keyValueCell?.evaluated.value ? String(keyValueCell?.evaluated.value) : "";
+      formattedKeyValue = keyValueCell?.formattedValue || "";
+    }
   }
   let baselineCell: Cell | undefined;
   if (chart.baseline) {

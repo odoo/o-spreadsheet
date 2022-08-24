@@ -1,6 +1,6 @@
 import { compile } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
-import { intersection, isZoneValid, toXC, zoneToXc } from "../../helpers/index";
+import { formatValue, intersection, isZoneValid, toXC, zoneToXc } from "../../helpers/index";
 import { ModelConfig } from "../../model";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
 import { StateObserver } from "../../state_observer";
@@ -95,7 +95,7 @@ export class EvaluationPlugin extends UIPlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  evaluateFormula(formulaString: string, sheetId: UID = this.getters.getActiveSheetId()): any {
+  evaluateFormula(formulaString: string, sheetId: UID = this.getters.getActiveSheetId()) {
     const compiledFormula = compile(formulaString);
     const params = this.getCompilationParameters(() => {});
 
@@ -103,7 +103,12 @@ export class EvaluationPlugin extends UIPlugin {
     for (let xc of compiledFormula.dependencies) {
       ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc));
     }
-    return compiledFormula.execute(ranges, ...params).value;
+    const { format, value } = compiledFormula.execute(ranges, ...params);
+    return {
+      format,
+      value,
+      formattedValue: value ? formatValue(value, format) : "",
+    };
   }
 
   /**

@@ -7,6 +7,7 @@ import {
   addColumns,
   createScorecardChart,
   createSheet,
+  createSheetWithName,
   deleteSheet,
   redo,
   setCellContent,
@@ -149,6 +150,36 @@ describe("datasource tests", function () {
       "1"
     );
     expect(result).toBeCancelledBecause(CommandResult.InvalidScorecardBaseline);
+  });
+
+  test("Scoreboard chart with formula on another sheet is correctly loaded", () => {
+    createSheetWithName(model, { sheetId: "sheet2" }, "Sheet2");
+    setCellContent(model, "A1", "=1", "sheet2");
+    createScorecardChart(
+      model,
+      {
+        keyValue: "Sheet2!A1",
+      },
+      "1"
+    );
+    const getRuntime = () => model.getters.getChartRuntime("1") as ScorecardChartRuntime;
+    expect(getRuntime().keyValue).toBe("1");
+  });
+
+  test("Scoreboard chart with formula on another sheet is correctly updated", () => {
+    createSheetWithName(model, { sheetId: "sheet2" }, "Sheet2");
+    setCellContent(model, "A1", "1", "sheet2");
+    createScorecardChart(
+      model,
+      {
+        keyValue: "Sheet2!A1",
+      },
+      "1"
+    );
+    const getRuntime = () => model.getters.getChartRuntime("1") as ScorecardChartRuntime;
+    expect(getRuntime().keyValue).toBe("1");
+    setCellContent(model, "A1", "=2", "sheet2");
+    expect(getRuntime().keyValue).toBe("2");
   });
 
   test("Scorecard Chart is deleted on sheet deletion", () => {

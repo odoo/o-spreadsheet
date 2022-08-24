@@ -180,8 +180,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       case "percentile":
         return percentile(rangeValues, Number(threshold.value) / 100, true);
       case "formula":
-        const value = threshold.value && this.getters.evaluateFormula(threshold.value);
-        return !(value instanceof Promise) ? value : null;
+        return threshold.value ? Number(this.getters.evaluateFormula(threshold.value).value) : null;
       default:
         return null;
     }
