@@ -84,11 +84,7 @@ type LocalHistoryGetters = {
   canRedo: LocalHistory["canRedo"];
 };
 
-export type CoreGetters = {
-  isReadonly: () => boolean;
-  isDashboard: () => boolean;
-} & LocalHistoryGetters &
-  SheetGetters &
+export type CoreGetters = SheetGetters &
   HeaderSizeGetters &
   HeaderVisibilityGetters &
   CellGetters &
@@ -136,7 +132,11 @@ type SessionGetters = {
 };
 type CellPopoverPluginGetters = Pick<CellPopoverPlugin, GetterNames<typeof CellPopoverPlugin>>;
 
-export type Getters = CoreGetters &
+export type Getters = {
+  isReadonly: () => boolean;
+  isDashboard: () => boolean;
+} & LocalHistoryGetters &
+  CoreGetters &
   SessionGetters &
   AutofillGetters &
   AutomaticSumGetters &
