@@ -18,7 +18,7 @@ import {
   CommandHandler,
   CommandResult,
   CoreCommand,
-  Getters,
+  CoreGetters,
   Range,
   RangeData,
   RangeProvider,
@@ -27,9 +27,9 @@ import {
 } from "../../types/index";
 
 export class RangeAdapter implements CommandHandler<CoreCommand> {
-  private getters: Getters;
+  private getters: CoreGetters;
   private providers: Array<RangeProvider["adaptRanges"]> = [];
-  constructor(getters: Getters) {
+  constructor(getters: CoreGetters) {
     this.getters = getters;
   }
 

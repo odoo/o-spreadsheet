@@ -29,6 +29,7 @@ import {
   CommandHandler,
   CommandResult,
   CoreCommand,
+  CoreGetters,
   DispatchResult,
   EvalContext,
   Getters,
@@ -127,6 +128,12 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    */
   getters: Getters;
 
+  /**
+   * Getters that are accessible from the core plugins. It's a subset of `getters`,
+   * without the UI getters
+   */
+  private coreGetters: CoreGetters;
+
   uuidGenerator: UuidGenerator;
 
   constructor(
@@ -154,6 +161,17 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     this.history = new LocalHistory(this.dispatchFromCorePlugin, this.session);
 
+    this.coreGetters = {} as CoreGetters;
+
+    this.range = new RangeAdapter(this.coreGetters);
+    this.coreGetters.getRangeString = this.range.getRangeString.bind(this.range);
+    this.coreGetters.getRangeFromSheetXC = this.range.getRangeFromSheetXC.bind(this.range);
+    this.coreGetters.createAdaptedRanges = this.range.createAdaptedRanges.bind(this.range);
+    this.coreGetters.getRangeDataFromXc = this.range.getRangeDataFromXc.bind(this.range);
+    this.coreGetters.getRangeDataFromZone = this.range.getRangeDataFromZone.bind(this.range);
+    this.coreGetters.getRangeFromRangeData = this.range.getRangeFromRangeData.bind(this.range);
+    this.coreGetters.getSelectionRangeString = this.range.getSelectionRangeString.bind(this.range);
+
     this.getters = {
       isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",
       isDashboard: () => this.config.mode === "dashboard",
@@ -164,15 +182,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       isFullySynchronized: this.session.isFullySynchronized.bind(this.session),
     } as Getters;
 
-    this.range = new RangeAdapter(this.getters);
-    this.getters.getRangeString = this.range.getRangeString.bind(this.range);
-    this.getters.getRangeFromSheetXC = this.range.getRangeFromSheetXC.bind(this.range);
-    this.getters.createAdaptedRanges = this.range.createAdaptedRanges.bind(this.range);
-    this.getters.getRangeDataFromXc = this.range.getRangeDataFromXc.bind(this.range);
-    this.getters.getRangeDataFromZone = this.range.getRangeDataFromZone.bind(this.range);
-    this.getters.getRangeFromRangeData = this.range.getRangeFromRangeData.bind(this.range);
-    this.getters.getSelectionRangeString = this.range.getSelectionRangeString.bind(this.range);
-
     this.uuidGenerator.setIsFastStrategy(true);
 
     // Initiate stream processor
@@ -182,6 +191,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     for (let Plugin of corePluginRegistry.getAll()) {
       this.setupCorePlugin(Plugin, workbookData);
     }
+    Object.assign(this.getters, this.coreGetters);
     for (let Plugin of uiPluginRegistry.getAll()) {
       this.setupUiPlugin(Plugin);
     }
@@ -244,7 +254,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    */
   private setupCorePlugin(Plugin: CorePluginConstructor, data: WorkbookData) {
     const plugin = new Plugin(
-      this.getters,
+      this.coreGetters,
       this.state,
       this.range,
       this.dispatchFromCorePlugin,
@@ -255,7 +265,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       if (!(name in plugin)) {
         throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
       }
-      this.getters[name] = plugin[name].bind(plugin);
+      this.coreGetters[name] = plugin[name].bind(plugin);
     }
     plugin.import(data);
     this.corePlugins.push(plugin);
