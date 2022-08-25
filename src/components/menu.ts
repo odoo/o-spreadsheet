@@ -265,7 +265,9 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
       x: this.position.x + MENU_WIDTH,
       y: y - (this.subMenu.scrollOffset || 0),
     };
-    this.subMenu.menuItems = cellMenuRegistry.getChildren(menu, this.env);
+    this.subMenu.menuItems = cellMenuRegistry
+      .getChildren(menu, this.env)
+      .filter((item) => !item.isVisible || item.isVisible(this.env));
     this.subMenu.isOpen = true;
   }
 
