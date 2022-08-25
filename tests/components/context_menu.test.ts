@@ -450,7 +450,7 @@ describe("Context Menu", () => {
     expect(fixture.querySelector("div[data-name='root2'] > i")?.classList).toContain("my-class");
   });
 
-  test("Submenus are correctly hidden", async () => {
+  test("Only submenus of the current parent are visible", async () => {
     const menuItems: FullMenuItem[] = [
       createFullMenuItem("root_1", {
         name: "root_1",
@@ -497,6 +497,44 @@ describe("Context Menu", () => {
     triggerMouseEvent(".o-menu div[data-name='root_2']", "mouseover");
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='subMenu_1']")).toBeFalsy();
+    expect(fixture.querySelector(".o-menu div[data-name='root_2_1']")).toBeTruthy();
+  });
+
+  test("Submenu visibility is taken into account", async () => {
+    const menuItems: FullMenuItem[] = [
+      createFullMenuItem("root", {
+        name: "root_1",
+        sequence: 1,
+        children: () => [
+          createFullMenuItem("menu_1", {
+            name: "root_1_1",
+            sequence: 1,
+            children: () => [
+              createFullMenuItem("visible_submenu_1", {
+                name: "visible_submenu_1",
+                sequence: 1,
+                action() {},
+                isVisible: () => true,
+              }),
+              createFullMenuItem("invisible_submenu_1", {
+                name: "invisible_submenu_1",
+                sequence: 1,
+                action() {},
+                isVisible: () => false,
+              }),
+            ],
+          }),
+        ],
+      }),
+    ];
+    await renderContextMenu(300, 300, { menuItems });
+    triggerMouseEvent(".o-menu div[data-name='root']", "mouseover");
+    await nextTick();
+    expect(fixture.querySelector(".o-menu div[data-name='menu_1']")).toBeTruthy();
+    triggerMouseEvent(".o-menu div[data-name='menu_1']", "mouseover");
+    await nextTick();
+    expect(fixture.querySelector(".o-menu div[data-name='visible_submenu_1']")).toBeTruthy();
+    expect(fixture.querySelector(".o-menu div[data-name='invisible_submenu_1']")).toBeFalsy();
   });
 
   test("scroll through the menu with the wheel / scrollbar prevents the grid from scrolling", async () => {
