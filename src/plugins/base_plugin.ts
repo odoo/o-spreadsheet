@@ -4,6 +4,7 @@ import {
   CommandDispatcher,
   CommandHandler,
   CommandResult,
+  ExcelWorkbookData,
   Validation,
   WorkbookHistory,
 } from "../types/index";
@@ -38,6 +39,13 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C>, Vali
     });
     this.dispatch = dispatch;
   }
+
+  /**
+   * Export for excel should be available for all plugins, even for the UI.
+   * In some case, we need to export evaluated value, which is available from
+   * UI plugin only.
+   */
+  exportForExcel(data: ExcelWorkbookData) {}
 
   // ---------------------------------------------------------------------------
   // Command handling
