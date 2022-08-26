@@ -1,5 +1,11 @@
 import { _lt } from "../translation";
-import { AddFunctionDescription, ArgValue, FunctionReturnValue, PrimitiveArgValue } from "../types";
+import {
+  AddFunctionDescription,
+  ArgValue,
+  FunctionReturnValue,
+  PrimitiveArg,
+  PrimitiveArgValue,
+} from "../types";
 import { args } from "./arguments";
 import { assert, conditionalVisitBoolean, toBoolean } from "./helpers";
 
@@ -71,6 +77,16 @@ export const IFERROR: AddFunctionDescription = {
   )}
   `),
   returns: ["ANY"],
+  computeFormat: (
+    value: () => PrimitiveArg,
+    valueIfError: () => PrimitiveArg = () => ({ value: "" })
+  ) => {
+    try {
+      return value().format;
+    } catch (e) {
+      return valueIfError()?.format;
+    }
+  },
   compute: function (
     value: () => PrimitiveArgValue,
     valueIfError: () => PrimitiveArgValue = () => ""

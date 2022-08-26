@@ -1,3 +1,6 @@
+import { Model } from "../../src";
+import { setCellContent, setCellFormat } from "../test_helpers/commands_helpers";
+import { getCell } from "../test_helpers/getters_helpers";
 import { evaluateCell } from "../test_helpers/helpers";
 
 describe("AND formula", () => {
@@ -126,6 +129,22 @@ describe("IFERROR formula", () => {
     expect(evaluateCell("A1", { A1: "=IFERROR(1, 1/0) + IFERROR(1, 1/0)" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=IF(TRUE, 1/(1/1), 1/(1/0))" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=IF(FALSE, 1/(1/1), 1/(1/0))" })).toBe("#ERROR");
+  });
+
+  test("format is preserved from value", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "1");
+    setCellFormat(model, "A1", "0.00%");
+    setCellContent(model, "A3", "=IFERROR(A1, 2)");
+    expect(getCell(model, "A3")?.formattedValue).toBe("100.00%");
+  });
+
+  test("format is preserved from error value", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "1");
+    setCellFormat(model, "A1", "0.00%");
+    setCellContent(model, "A3", "=IFERROR(0/0, A1)");
+    expect(getCell(model, "A3")?.formattedValue).toBe("100.00%");
   });
 });
 
