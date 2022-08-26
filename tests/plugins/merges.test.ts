@@ -2,7 +2,7 @@ import { App, Component, useSubEnv, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
 import { toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { CommandResult, Style } from "../../src/types/index";
+import { CommandResult } from "../../src/types/index";
 import { OWL_TEMPLATES } from "../setup/jest.setup";
 import {
   addColumns,
@@ -25,7 +25,9 @@ import {
   getBorder,
   getCell,
   getCellContent,
+  getEvaluatedCell,
   getMerges,
+  getStyle,
 } from "../test_helpers/getters_helpers";
 import {
   getChildFromComponent,
@@ -205,16 +207,17 @@ describe("merges", () => {
         },
       ],
     });
-
     selectCell(model, "C4");
     expect(getActiveXc(model)).toBe("C4");
-    expect(model.getters.getActiveCell()).toBeUndefined(); // no active cell in C4
+    expect(getCell(model, "C4")).toBeUndefined(); // no active cell in C4
     moveAnchorCell(model, "up");
     expect(getActiveXc(model)).toBe("C3");
-    expect(model.getters.getCellPosition(model.getters.getActiveCell()!.id)).toEqual({
-      col: 1,
-      row: 1,
-      sheetId: "s1",
+    expect(model.getters.getSelection().anchor).toEqual({
+      cell: {
+        col: 2,
+        row: 2,
+      },
+      zone: toZone("B2:C3"),
     });
   });
 
@@ -248,8 +251,7 @@ describe("merges", () => {
     const [, sheet2Id] = model.getters.getSheetIds();
     expect(sheet2Id).not.toBe(model.getters.getActiveSheetId());
     deleteRows(model, [2], sheet2Id);
-    const cell = getCell(model, "A1", sheet2Id);
-    expect(model.getters.getCellStyle(cell!)).toEqual({
+    expect(model.getters.getCellStyle({ sheetId: sheet2Id, col: 0, row: 0 })).toEqual({
       fillColor: "#a2a2a2",
     });
   });
@@ -358,13 +360,13 @@ describe("merges", () => {
         },
       ],
     });
-    expect(getCell(model, "A4")!.evaluated.value).toBe(6);
+    expect(getEvaluatedCell(model, "A4").value).toBe(6);
     merge(model, "A1:A3", "Sheet1", false);
 
-    expect(getCell(model, "A1")!.evaluated.value).toBe(1);
-    expect(getCell(model, "A2")!.evaluated.value).toBe(2);
-    expect(getCell(model, "A3")!.evaluated.value).toBe(3);
-    expect(getCell(model, "A4")!.evaluated.value).toBe(6);
+    expect(getEvaluatedCell(model, "A1").value).toBe(1);
+    expect(getEvaluatedCell(model, "A2").value).toBe(2);
+    expect(getEvaluatedCell(model, "A3").value).toBe(3);
+    expect(getEvaluatedCell(model, "A4").value).toBe(6);
   });
 
   test("merging cells with values remove them if forced", () => {
@@ -383,13 +385,13 @@ describe("merges", () => {
       ],
     });
     const sheet1 = model.getters.getSheetIds()[0];
-    expect(getCell(model, "A4")!.evaluated.value).toBe(6);
+    expect(getEvaluatedCell(model, "A4").value).toBe(6);
     model.dispatch("ADD_MERGE", { sheetId: sheet1, target: target("A1:A3"), force: true });
 
-    expect(getCell(model, "A1")!.evaluated.value).toBe(1);
+    expect(getEvaluatedCell(model, "A1").value).toBe(1);
     expect(getCell(model, "A2")).toBeUndefined();
     expect(getCell(model, "A3")).toBeUndefined();
-    expect(getCell(model, "A4")!.evaluated.value).toBe(1);
+    expect(getEvaluatedCell(model, "A4").value).toBe(1);
   });
 
   test("merging => unmerging  : cell styles are overridden even if the top left cell had no style", () => {
@@ -401,11 +403,11 @@ describe("merges", () => {
       style: { fillColor: "red" },
     });
     merge(model, "A1:B1");
-    expect(getStyle(model, "A1")).toBeUndefined();
-    expect(getStyle(model, "B1")).toBeUndefined();
+    expect(getStyle(model, "A1")).toEqual({});
+    expect(getStyle(model, "B1")).toEqual({});
     unMerge(model, "A1:B1");
-    expect(getStyle(model, "A1")).toBeUndefined();
-    expect(getStyle(model, "B1")).toBeUndefined();
+    expect(getStyle(model, "A1")).toEqual({});
+    expect(getStyle(model, "B1")).toEqual({});
   });
 
   test("merging => setting background color => unmerging", () => {
@@ -709,8 +711,3 @@ describe("merges", () => {
     });
   });
 });
-
-function getStyle(model: Model, xc: string): Style {
-  const cell = getCell(model, xc)!;
-  return cell && model.getters.getCellStyle(cell);
-}

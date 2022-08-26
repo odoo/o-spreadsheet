@@ -53,9 +53,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getEvaluationSheets",
     "doesHeaderExist",
     "getCell",
-    "getCellsInZone",
     "getCellPosition",
-    "getColCells",
     "getColsZone",
     "getRowCells",
     "getRowsZone",
@@ -311,10 +309,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return this.getSheet(sheetId).name;
   }
 
-  getCellsInZone(sheetId: UID, zone: Zone): (Cell | undefined)[] {
-    return positions(zone).map(({ col, row }) => this.getCell(sheetId, col, row));
-  }
-
   /**
    * Return the sheet name or undefined if the sheet doesn't exist.
    */
@@ -367,17 +361,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       return undefined;
     }
     return this.getters.getCellById(cellId);
-  }
-
-  /**
-   * Returns all the cells of a col
-   */
-  getColCells(sheetId: UID, col: HeaderIndex): Cell[] {
-    return this.getSheet(sheetId)
-      .rows.map((row) => row.cells[col])
-      .filter(isDefined)
-      .map((cellId) => this.getters.getCellById(cellId))
-      .filter(isDefined);
   }
 
   getColsZone(sheetId: UID, start: HeaderIndex, end: HeaderIndex): Zone {
@@ -471,9 +454,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    * Check if a zone only contains empty cells
    */
   isEmpty(sheetId: UID, zone: Zone): boolean {
-    return this.getCellsInZone(sheetId, zone)
-      .flat()
-      .every((cell) => !cell || cell.isEmpty());
+    return positions(zone)
+      .map(({ col, row }) => this.getCell(sheetId, col, row))
+      .every((cell) => !cell || cell.content === "");
   }
 
   private updateCellPosition(cmd: UpdateCellPositionCommand) {

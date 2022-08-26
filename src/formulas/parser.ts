@@ -1,7 +1,7 @@
 import { DEFAULT_ERROR_MESSAGE } from "../constants";
 import { parseNumber, removeStringQuotes } from "../helpers/index";
 import { _lt } from "../translation";
-import { InvalidReferenceError } from "../types/errors";
+import { BadExpressionError, InvalidReferenceError } from "../types/errors";
 import { UnknownFunctionError } from "./../types/errors";
 import { Token, tokenize } from "./tokenizer";
 
@@ -107,7 +107,7 @@ function bindingPower(token: Token): number {
     case "OPERATOR":
       return OP_PRIORITY[token.value] || 15;
   }
-  throw new Error(_lt("Unknown token: %s", token.value));
+  throw new BadExpressionError(_lt("Unknown token: %s", token.value));
 }
 
 function parsePrefix(current: Token, tokens: Token[]): AST {
@@ -122,7 +122,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
       return { type: "STRING", value: removeStringQuotes(current.value) };
     case "FUNCTION":
       if (tokens.shift()!.type !== "LEFT_PAREN") {
-        throw new Error(_lt("Wrong function call"));
+        throw new BadExpressionError(_lt("Wrong function call"));
       } else {
         const args: AST[] = [];
         if (tokens[0] && tokens[0].type !== "RIGHT_PAREN") {
@@ -146,7 +146,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
         }
         const closingToken = tokens.shift();
         if (!closingToken || closingToken.type !== "RIGHT_PAREN") {
-          throw new Error(_lt("Wrong function call"));
+          throw new BadExpressionError(_lt("Wrong function call"));
         }
         return { type: "FUNCALL", value: current.value, args };
       }
@@ -173,14 +173,14 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
           if (functionRegex.test(current.value) && tokens[0]?.type === "LEFT_PAREN") {
             throw new UnknownFunctionError(current.value);
           }
-          throw new Error(_lt("Invalid formula"));
+          throw new BadExpressionError(_lt("Invalid formula"));
         }
         return { type: "STRING", value: current.value };
       }
     case "LEFT_PAREN":
       const result = parseExpression(tokens, 5);
       if (!tokens.length || tokens[0].type !== "RIGHT_PAREN") {
-        throw new Error(_lt("Unmatched left parenthesis"));
+        throw new BadExpressionError(_lt("Unmatched left parenthesis"));
       }
       tokens.shift();
       return result;
@@ -192,7 +192,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
           operand: parseExpression(tokens, OP_PRIORITY[current.value]),
         };
       }
-      throw new Error(_lt("Unexpected token: %s", current.value));
+      throw new BadExpressionError(_lt("Unexpected token: %s", current.value));
   }
 }
 
@@ -216,13 +216,13 @@ function parseInfix(left: AST, current: Token, tokens: Token[]): AST {
       };
     }
   }
-  throw new Error(DEFAULT_ERROR_MESSAGE);
+  throw new BadExpressionError(DEFAULT_ERROR_MESSAGE);
 }
 
 function parseExpression(tokens: Token[], bp: number): AST {
   const token = tokens.shift();
   if (!token) {
-    throw new Error(DEFAULT_ERROR_MESSAGE);
+    throw new BadExpressionError(DEFAULT_ERROR_MESSAGE);
   }
   let expr = parsePrefix(token, tokens);
   while (tokens[0] && bindingPower(tokens[0]) > bp) {
@@ -245,7 +245,7 @@ export function parseTokens(tokens: Token[]): AST {
   }
   const result = parseExpression(tokens, 0);
   if (tokens.length) {
-    throw new Error(DEFAULT_ERROR_MESSAGE);
+    throw new BadExpressionError(DEFAULT_ERROR_MESSAGE);
   }
   return result;
 }

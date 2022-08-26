@@ -28,7 +28,6 @@ import {
 } from "./constants";
 import { toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
 import { args, functionRegistry } from "./functions/index";
-import { LinkCell } from "./helpers/cells/index";
 import {
   ChartColors,
   chartFontColor,
@@ -50,6 +49,7 @@ import {
   toZone,
   UuidGenerator,
 } from "./helpers/index";
+import { openLink, urlRegistry, urlRepresentation } from "./helpers/links";
 import { createEmptyWorkbookData } from "./migrations/data";
 import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
 import { clickableCellRegistry } from "./registries/cell_clickable_registry";
@@ -58,7 +58,6 @@ import {
   autofillRulesRegistry,
   cellMenuRegistry,
   cellPopoverRegistry,
-  cellRegistry,
   chartComponentRegistry,
   chartRegistry,
   colMenuRegistry,
@@ -146,11 +145,8 @@ export const registries = {
   clickableCellRegistry,
   otRegistry,
   inverseCommandRegistry,
-  cellRegistry,
+  urlRegistry,
   cellPopoverRegistry,
-};
-export const cellTypes = {
-  LinkCell,
 };
 export const helpers = {
   args,
@@ -166,9 +162,6 @@ export const helpers = {
   UuidGenerator,
   formatValue,
   computeTextWidth,
-  isMarkdownLink,
-  parseMarkdownLink,
-  markdownLink,
   createEmptyWorkbookData,
   getDefaultChartJsRuntime,
   chartFontColor,
@@ -180,6 +173,14 @@ export const helpers = {
   rgbaToHex,
   colorToRGBA,
   positionToZone,
+};
+
+export const links = {
+  isMarkdownLink,
+  parseMarkdownLink,
+  markdownLink,
+  openLink,
+  urlRepresentation,
 };
 export const components = {
   ChartPanel,

@@ -186,11 +186,11 @@ export class CustomCurrencyPanel extends Component<Props, SpreadsheetChildEnv> {
     const sheetId = this.env.model.getters.getActiveSheetId();
 
     const cells = selectedZones
-      .map((zone) => this.env.model.getters.getCellsInZone(sheetId, zone))
+      .map((zone) => this.env.model.getters.getEvaluatedCellsInZone(sheetId, zone))
       .flat();
-    const firstFormat = cells[0]?.format;
+    const firstFormat = cells[0].format;
 
-    return cells.every((cell) => cell?.format === firstFormat) ? firstFormat : undefined;
+    return cells.every((cell) => cell.format === firstFormat) ? firstFormat : undefined;
   }
 
   currencyDisplayName(currency: Currency): string {

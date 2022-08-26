@@ -1,18 +1,27 @@
-import { NULL_FORMAT } from "../../constants";
-import { lazy } from "../../helpers";
-import { cellFactory } from "../../helpers/cells/cell_factory";
-import { concat, getItemId, isInside, range, toCartesian, toXC } from "../../helpers/index";
+import { compile, tokenize } from "../../formulas";
+import {
+  concat,
+  detectFormat,
+  getItemId,
+  isInside,
+  range,
+  toCartesian,
+  toXC,
+} from "../../helpers/index";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
   Cell,
   CellData,
+  CellPosition,
   CommandResult,
+  CompiledFormula,
   CoreCommand,
   ExcelWorkbookData,
   Format,
   FormulaCell,
   HeaderIndex,
+  LiteralCell,
   Range,
   RangePart,
   Style,
@@ -46,15 +55,13 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     "buildFormulaContent",
     "getCellById",
   ] as const;
-
   readonly nextId = 1;
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
-  private createCell = cellFactory(this.getters);
 
   adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
     for (const sheet of Object.keys(this.cells)) {
       for (const cell of Object.values(this.cells[sheet] || {})) {
-        if (cell.isFormula()) {
+        if (cell.isFormula) {
           for (const range of cell.dependencies) {
             if (!sheetId || range.sheetId === sheetId) {
               const change = applyChange(range);
@@ -241,21 +248,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const style = (cellData.style && normalizedStyles[cellData.style]) || undefined;
     const format = (cellData.format && normalizedFormats[cellData.format]) || undefined;
     const cellId = this.getNextUid();
-    const properties = { format, style };
-    return this.createCell(cellId, cellData?.content || "", properties, sheetId);
+    return this.createCell(cellId, cellData?.content || "", format, style, sheetId);
   }
 
   exportForExcel(data: ExcelWorkbookData) {
     this.export(data);
-    for (let sheet of data.sheets) {
-      for (const xc in sheet.cells) {
-        const { col, row } = toCartesian(xc);
-        const cell = this.getters.getCell(sheet.id, col, row)!;
-        const exportedCellData = sheet.cells[xc]!;
-        exportedCellData.value = cell.evaluated.value;
-        exportedCellData.isFormula = cell.isFormula();
-      }
-    }
   }
 
   // ---------------------------------------------------------------------------
@@ -284,7 +281,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   /*
    * Reconstructs the original formula string based on a normalized form and its dependencies
    */
-  buildFormulaContent(sheetId: UID, cell: FormulaCell, dependencies?: Range[]): string {
+  buildFormulaContent(
+    sheetId: UID,
+    cell: Pick<FormulaCell, "dependencies" | "compiledFormula">,
+    dependencies?: Range[]
+  ): string {
     const ranges = dependencies || [...cell.dependencies];
     return concat(
       cell.compiledFormula.tokens.map((token) => {
@@ -301,8 +302,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return this.buildFormulaContent(sheetId, cell);
   }
 
-  getCellStyle(cell?: Cell): Style {
-    return (cell && cell.style) || {};
+  getCellStyle({ sheetId, col, row }: CellPosition): Style {
+    return this.getters.getCell(sheetId, col, row)?.style || {};
   }
 
   /**
@@ -429,7 +430,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     } else {
       style = before ? before.style : undefined;
     }
-    let format = ("format" in after ? after.format : before && before.format) || NULL_FORMAT;
+    let format =
+      ("format" in after ? after.format : before && before.format) || detectFormat(afterContent);
 
     /* Read the following IF as:
      * we need to remove the cell if it is completely empty, but we can know if it completely empty if:
@@ -440,7 +442,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
      *  */
     if (
       ((hasContent && !afterContent && !after.formula) ||
-        (!hasContent && (!before || before.isEmpty()))) &&
+        (!hasContent && (!before || before.content === ""))) &&
       !style &&
       !format
     ) {
@@ -457,18 +459,120 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
 
     const cellId = before?.id || this.getNextUid();
-    const didContentChange = hasContent;
-    const properties = { format, style };
-    const cell = this.createCell(cellId, afterContent, properties, sheetId);
-    if (before && !didContentChange && cell.isFormula()) {
-      // content is not re-evaluated if the content did not change => reassign the value manually
-      // TODO this plugin should not care about evaluation
-      // and evaluation should not depend on implementation details here.
-      // Task 2813749
-      cell.assignEvaluation(lazy(before.evaluated));
-    }
+    const cell = this.createCell(cellId, afterContent, format, style, sheetId);
     this.history.update("cells", sheetId, cell.id, cell);
     this.dispatch("UPDATE_CELL_POSITION", { cellId: cell.id, col, row, sheetId });
+  }
+
+  private createCell(
+    id: UID,
+    content: string,
+    format: Format | undefined,
+    style: Style | undefined,
+    sheetId: UID
+  ): Cell {
+    if (!content.startsWith("=")) {
+      return this.createLiteralCell(id, content, format, style);
+    }
+    try {
+      return this.createFormulaCell(id, content, format, style, sheetId);
+    } catch (error) {
+      return this.createErrorFormula(id, content, format, style, error);
+    }
+  }
+
+  private createLiteralCell(
+    id: UID,
+    content: string,
+    format: Format | undefined,
+    style: Style | undefined
+  ): LiteralCell {
+    return {
+      id,
+      content,
+      style,
+      format,
+      isFormula: false,
+    };
+  }
+
+  private createFormulaCell(
+    id: UID,
+    content: string,
+    format: Format | undefined,
+    style: Style | undefined,
+    sheetId: UID
+  ): FormulaCell {
+    const compiledFormula = compile(content);
+    if (compiledFormula.dependencies.length) {
+      return this.createFormulaCellWithDependencies(id, compiledFormula, format, style, sheetId);
+    }
+    return {
+      id,
+      content,
+      style,
+      format,
+      isFormula: true,
+      compiledFormula,
+      dependencies: [],
+    };
+  }
+
+  /**
+   * Create a new formula cell with the content
+   * being a computed property to rebuild the dependencies XC.
+   */
+  private createFormulaCellWithDependencies(
+    id: UID,
+    compiledFormula: CompiledFormula,
+    format: Format | undefined,
+    style: Style | undefined,
+    sheetId: UID
+  ): FormulaCell {
+    const dependencies = compiledFormula.dependencies.map((xc) =>
+      this.getters.getRangeFromSheetXC(sheetId, xc)
+    );
+    const buildFormulaContent = this.buildFormulaContent.bind(this);
+    // Only for formulas with dependencies because
+    // **the closure is expensive memory-wise**
+    return {
+      id,
+      get content() {
+        return buildFormulaContent(sheetId, {
+          dependencies: this.dependencies,
+          compiledFormula: this.compiledFormula,
+        });
+      },
+      style,
+      format,
+      isFormula: true,
+      compiledFormula,
+      dependencies,
+    };
+  }
+
+  private createErrorFormula(
+    id: UID,
+    content: string,
+    format: Format | undefined,
+    style: Style | undefined,
+    error: unknown
+  ): FormulaCell {
+    return {
+      id,
+      content,
+      style,
+      format,
+      isFormula: true,
+      compiledFormula: {
+        dependencies: [],
+        tokens: tokenize(content),
+        execute: function () {
+          throw error;
+        },
+      },
+      dependencies: [],
+    };
   }
 
   private checkCellOutOfSheet(sheetId: UID, col: HeaderIndex, row: HeaderIndex): CommandResult {

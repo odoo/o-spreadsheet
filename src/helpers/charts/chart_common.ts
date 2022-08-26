@@ -3,12 +3,11 @@ import { INCORRECT_RANGE_STRING } from "../../constants";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
-  Cell,
-  CellEvaluation,
   CellValueType,
   Color,
   CommandResult,
   CoreGetters,
+  EvaluatedCell,
   Range,
   RemoveColumnsRowsCommand,
   UID,
@@ -357,27 +356,26 @@ export function checkLabelRange(
 // ---------------------------------------------------------------------------
 
 export function getBaselineText(
-  baseline: Cell | undefined,
-  keyValue: CellEvaluation | undefined,
+  baseline: EvaluatedCell | undefined,
+  keyValue: EvaluatedCell | undefined,
   baselineMode: BaselineMode
 ): string {
-  const baselineEvaluated = baseline?.evaluated;
-  if (!baseline || baselineEvaluated === undefined) {
+  if (!baseline) {
     return "";
   } else if (
     baselineMode === "text" ||
     keyValue?.type !== CellValueType.number ||
-    baselineEvaluated.type !== CellValueType.number
+    baseline.type !== CellValueType.number
   ) {
     return baseline.formattedValue;
   } else {
-    let diff = keyValue.value - baselineEvaluated.value;
+    let diff = keyValue.value - baseline.value;
     if (baselineMode === "percentage" && diff !== 0) {
-      diff = (diff / baselineEvaluated.value) * 100;
+      diff = (diff / baseline.value) * 100;
     }
 
-    if (baselineMode !== "percentage" && baselineEvaluated.format) {
-      return formatValue(diff, baselineEvaluated.format);
+    if (baselineMode !== "percentage" && baseline.format) {
+      return formatValue(diff, baseline.format);
     }
 
     const baselineStr = Math.abs(parseFloat(diff.toFixed(2))).toLocaleString();
@@ -386,9 +384,9 @@ export function getBaselineText(
 }
 
 export function getBaselineColor(
-  baseline: CellEvaluation | undefined,
+  baseline: EvaluatedCell | undefined,
   baselineMode: BaselineMode,
-  keyValue: CellEvaluation | undefined,
+  keyValue: EvaluatedCell | undefined,
   colorUp: Color,
   colorDown: Color
 ): Color | undefined {
@@ -409,8 +407,8 @@ export function getBaselineColor(
 }
 
 export function getBaselineArrowDirection(
-  baseline: CellEvaluation | undefined,
-  keyValue: CellEvaluation | undefined,
+  baseline: EvaluatedCell | undefined,
+  keyValue: EvaluatedCell | undefined,
   baselineMode: BaselineMode
 ): BaselineArrowDirection {
   if (

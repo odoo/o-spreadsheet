@@ -17,7 +17,7 @@ import {
   setSelection,
 } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
-import { getBorder, getCell } from "../test_helpers/getters_helpers";
+import { getBorder, getCell, getStyle } from "../test_helpers/getters_helpers";
 import {
   makeTestFixture,
   mountSpreadsheet,
@@ -289,8 +289,7 @@ describe("TopBar component", () => {
     fixture.querySelector('[data-size="8"]')!.dispatchEvent(new Event("click", { bubbles: true }));
     await nextTick();
     expect(fontSizeTool.textContent!.trim()).toBe("8");
-    const style = model.getters.getCellStyle(getCell(model, "A1")!);
-    expect(style.fontSize).toBe(8);
+    expect(getStyle(model, "A1").fontSize).toBe(8);
     app.destroy();
   });
 

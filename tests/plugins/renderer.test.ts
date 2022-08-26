@@ -732,7 +732,10 @@ describe("renderer", () => {
 
     // 1 center for headers, 1 for cell content
     expect(textAligns).toEqual(["left", "center"]);
-    expect(getCellTextMock).toHaveBeenLastCalledWith(expect.objectContaining({}), true);
+    expect(getCellTextMock).toHaveBeenLastCalledWith(
+      { sheetId: expect.any(String), col: 0, row: 0 },
+      true
+    );
   });
 
   test("functions with centered content are aligned to the left", () => {
@@ -761,7 +764,10 @@ describe("renderer", () => {
 
     // 1 center for headers, 1 for cell content
     expect(textAligns).toEqual(["left", "center"]);
-    expect(getCellTextMock).toHaveBeenLastCalledWith(expect.objectContaining({}), true);
+    expect(getCellTextMock).toHaveBeenLastCalledWith(
+      { sheetId: expect.any(String), col: 0, row: 0 },
+      true
+    );
   });
   test("CF on empty cell", () => {
     const model = new Model({

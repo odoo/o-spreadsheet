@@ -70,6 +70,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
       for (let col of columnsIndex) {
         cellsInRow.push({
           cell: getters.getCell(sheetId, col, row),
+          evaluatedCell: getters.getEvaluatedCell({ sheetId, col, row }),
           border: getters.getCellBorder(sheetId, col, row) || undefined,
           position: { col, row, sheetId },
         });
@@ -344,7 +345,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
     clipboardOption?: ClipboardOptions
   ) {
     const { sheetId, col, row } = target;
-    const targetCell = this.getters.getCell(sheetId, col, row);
+    const targetCell = this.getters.getEvaluatedCell(target);
 
     if (clipboardOption?.pasteOption !== "onlyValue") {
       const targetBorders = this.getters.getCellBorder(sheetId, col, row);
@@ -362,19 +363,19 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
         this.dispatch("UPDATE_CELL", {
           ...target,
           style: origin.cell.style,
-          format: origin.cell.evaluated.format || origin.cell.format,
+          format: origin.evaluatedCell.format,
         });
         return;
       }
 
       if (clipboardOption?.pasteOption === "onlyValue") {
-        const content = formatValue(origin.cell.evaluated.value);
+        const content = formatValue(origin.evaluatedCell.value);
         this.dispatch("UPDATE_CELL", { ...target, content });
         return;
       }
       let content = origin.cell.content;
 
-      if (origin.cell.isFormula() && operation === "COPY") {
+      if (origin.cell.isFormula && operation === "COPY") {
         const offsetX = col - origin.position.col;
         const offsetY = row - origin.position.row;
         content = this.getUpdatedContent(sheetId, origin.cell, offsetX, offsetY, operation);
@@ -401,7 +402,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
    */
   private getUpdatedContent(
     sheetId: UID,
-    cell: FormulaCell,
+    cell: Pick<FormulaCell, "compiledFormula" | "dependencies">,
     offsetX: number,
     offsetY: number,
     operation: ClipboardOperation
@@ -472,7 +473,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
         .map((cells) => {
           return cells
             .map((c) =>
-              c.cell ? this.getters.getCellText(c.cell, this.getters.shouldShowFormulas()) : ""
+              c.cell ? this.getters.getCellText(c.position, this.getters.shouldShowFormulas()) : ""
             )
             .join("\t");
         })

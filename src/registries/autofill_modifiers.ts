@@ -1,3 +1,4 @@
+import { evaluateLiteral } from "../helpers/cells";
 import { formatValue } from "../helpers/format";
 import { Registry } from "../registry";
 import {
@@ -44,7 +45,13 @@ autofillModifiersRegistry
           format: data.cell && data.cell.format,
           content,
         },
-        tooltip: content ? { props: { content: data.cell?.formattedValue } } : undefined,
+        tooltip: content
+          ? {
+              props: {
+                content: evaluateLiteral(data.cell?.content, data.cell?.format).formattedValue,
+              },
+            }
+          : undefined,
       };
     },
   })
@@ -71,18 +78,18 @@ autofillModifiersRegistry
           y = 0;
           break;
       }
-      if (!data.cell || !data.cell.isFormula()) {
+      const cell = data.cell;
+      if (!cell || !cell.isFormula) {
         return { cellData: {} };
       }
       const sheetId = data.sheetId;
-
-      const ranges = getters.createAdaptedRanges(data.cell.dependencies, x, y, sheetId);
-      const content = getters.buildFormulaContent(sheetId, data.cell, ranges);
+      const ranges = getters.createAdaptedRanges(cell.dependencies, x, y, sheetId);
+      const content = getters.buildFormulaContent(sheetId, cell, ranges);
       return {
         cellData: {
           border: data.border,
-          style: data.cell.style,
-          format: data.cell.format,
+          style: cell.style,
+          format: cell.format,
           content,
         },
         tooltip: content ? { props: { content } } : undefined,

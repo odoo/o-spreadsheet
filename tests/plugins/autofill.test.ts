@@ -9,6 +9,7 @@ import {
   deleteColumns,
   deleteRows,
   merge,
+  selectCell,
   setCellContent,
   setSelection,
 } from "../test_helpers/commands_helpers";
@@ -134,7 +135,8 @@ describe("Autofill", () => {
   test("Autofill a date displays a date in the composer", () => {
     setCellContent(model, "A1", "1/1/2017");
     autofill("A1", "A2");
-    expect(getCell(model, "A2")?.composerContent).toBe("1/2/2017");
+    selectCell(model, "A2");
+    expect(model.getters.getCurrentContent()).toBe("1/2/2017");
   });
 
   test("Autofill add CF to target cell if present in origin cell", () => {

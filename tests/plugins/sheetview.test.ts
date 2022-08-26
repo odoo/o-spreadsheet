@@ -1046,7 +1046,8 @@ describe("multi sheet with different sizes", () => {
   });
 
   test("deleting the column that has the active cell doesn't crash", () => {
-    expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("small");
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.getSheetName(sheetId)).toBe("small");
     selectCell(model, "B2");
     deleteColumns(model, ["B"]);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
@@ -1055,11 +1056,13 @@ describe("multi sheet with different sizes", () => {
       left: 0,
       right: 0,
     });
-    expect(model.getters.getActiveCell()).toBeUndefined();
+    const { col, row } = model.getters.getPosition();
+    expect(model.getters.getCell(sheetId, col, row)).toBeUndefined();
   });
 
   test("deleting the row that has the active cell doesn't crash", () => {
-    expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("small");
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.getSheetName(sheetId)).toBe("small");
     selectCell(model, "B2");
     deleteRows(model, [1]);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
@@ -1068,7 +1071,8 @@ describe("multi sheet with different sizes", () => {
       left: 0,
       right: 1,
     });
-    expect(model.getters.getActiveCell()).toBeUndefined();
+    const { col, row } = model.getters.getPosition();
+    expect(model.getters.getCell(sheetId, col, row)).toBeUndefined();
   });
 
   test("Client resize impacts all sheets", () => {

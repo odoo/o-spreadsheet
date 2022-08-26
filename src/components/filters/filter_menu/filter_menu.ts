@@ -163,7 +163,10 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
 
     const cellValues = (filter.filteredZone ? positions(filter.filteredZone) : [])
       .filter(({ row }) => !this.env.model.getters.isRowHidden(sheetId, row))
-      .map(({ col, row }) => this.env.model.getters.getCell(sheetId, col, row)?.formattedValue);
+      .map(
+        ({ col, row }) =>
+          this.env.model.getters.getEvaluatedCell({ sheetId, col, row }).formattedValue
+      );
 
     const filterValues = this.env.model.getters.getFilterValues(
       sheetId,

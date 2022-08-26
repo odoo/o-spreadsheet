@@ -366,15 +366,19 @@ function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): GaugeChar
   let displayValue = false;
 
   if (dataRange !== undefined) {
-    const cell = getters.getCell(dataRange.sheetId, dataRange.zone.left, dataRange.zone.top);
-    if (cell?.evaluated.type === CellValueType.number) {
+    const cell = getters.getEvaluatedCell({
+      sheetId: dataRange.sheetId,
+      col: dataRange.zone.left,
+      row: dataRange.zone.top,
+    });
+    if (cell.type === CellValueType.number) {
       // in gauge graph "datasets.value" is used to calculate the angle of the
       // needle in the graph. To prevent the needle from making 360° turns, we
       // clip the value between a min and a max. This min and this max are slightly
       // smaller and slightly larger than minRange and maxRange to mark the fact
       // that the needle is out of the range limits
       needleValue = clip(
-        cell?.evaluated.value,
+        cell.value,
         minNeedleValue - deltaBeyondRangeLimit,
         maxNeedleValue + deltaBeyondRangeLimit
       );

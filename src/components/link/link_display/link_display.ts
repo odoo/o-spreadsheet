@@ -1,7 +1,8 @@
 import { Component } from "@odoo/owl";
 import { LINK_COLOR } from "../../../constants";
 import { toXC } from "../../../helpers";
-import { LinkCell, Position, SpreadsheetChildEnv } from "../../../types";
+import { openLink, urlRepresentation } from "../../../helpers/links";
+import { EvaluatedCell, Link, Position, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { css } from "../../helpers/css";
 import { Menu } from "../../menu/menu";
@@ -65,20 +66,28 @@ export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv
   static template = "o-spreadsheet-LinkDisplay";
   static size = { width: LINK_TOOLTIP_WIDTH, height: LINK_TOOLTIP_HEIGHT };
 
-  get cell(): LinkCell {
+  get cell(): EvaluatedCell {
     const { col, row } = this.props.cellPosition;
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const cell = this.env.model.getters.getCell(sheetId, col, row);
-    if (cell?.isLink()) {
-      return cell;
+    return this.env.model.getters.getEvaluatedCell({ sheetId, col, row });
+  }
+
+  get link(): Link {
+    if (this.cell.link) {
+      return this.cell.link;
     }
+    const { col, row } = this.props.cellPosition;
     throw new Error(
       `LinkDisplay Component can only be used with link cells. ${toXC(col, row)} is not a link.`
     );
   }
 
+  getUrlRepresentation(link: Link): string {
+    return urlRepresentation(link, this.env.model.getters);
+  }
+
   openLink() {
-    this.cell.action(this.env);
+    openLink(this.link, this.env);
   }
 
   edit() {
@@ -93,13 +102,13 @@ export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv
   unlink() {
     const sheetId = this.env.model.getters.getActiveSheetId();
     const { col, row } = this.props.cellPosition;
-    const style = this.cell.style;
+    const style = this.env.model.getters.getCellComputedStyle(sheetId, col, row);
     const textColor = style?.textColor === LINK_COLOR ? undefined : style?.textColor;
     this.env.model.dispatch("UPDATE_CELL", {
       col,
       row,
       sheetId,
-      content: this.cell.link.label,
+      content: this.link.label,
       style: { ...style, textColor, underline: undefined },
     });
   }
@@ -108,10 +117,10 @@ export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv
 export const LinkCellPopoverBuilder: PopoverBuilders = {
   onHover: (position, getters): CellPopoverComponent<typeof LinkDisplay> => {
     const sheetId = getters.getActiveSheetId();
-    const cell = getters.getCell(sheetId, position.col, position.row);
+    const cell = getters.getEvaluatedCell(position);
     const shouldDisplayLink =
       !getters.isDashboard() &&
-      cell?.isLink() &&
+      cell.link &&
       getters.isVisibleInViewport(sheetId, position.col, position.row);
     if (!shouldDisplayLink) return { isOpen: false };
     return {

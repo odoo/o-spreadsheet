@@ -1,6 +1,6 @@
 import { ComponentConstructor } from "@odoo/owl";
-import { Getters, Position } from "./index";
-import { PropsOf } from "./misc";
+import { Getters } from "./index";
+import { CellPosition, PropsOf } from "./misc";
 import { DOMCoordinates } from "./rendering";
 
 export type CellPopoverType = "ErrorToolTip" | "LinkDisplay" | "FilterMenu" | "LinkEditor";
@@ -14,7 +14,7 @@ type SizedComponentConstructor = ComponentConstructor & {
  * returns the parameters to display the component
  */
 type CellPopoverBuilder = (
-  position: Position,
+  position: CellPosition,
   getters: Getters
 ) => CellPopoverComponent<SizedComponentConstructor>;
 

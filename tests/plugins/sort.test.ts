@@ -4,6 +4,7 @@ import { toZone, zoneToXc } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { CellValueType, UID } from "../../src/types";
 import { redo, setCellContent, sort, undo } from "../test_helpers/commands_helpers";
+import { getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { getCellsObject } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
@@ -151,14 +152,15 @@ describe("Basic Sorting", () => {
     expect(getCellsObject(model, sheetId)).toMatchObject({
       C1: { content: "=SUM(A1, A2)" },
       C2: { content: "=A4*10" },
-      C3: { content: "=BADBUNNY", evaluated: { type: CellValueType.error } },
+      C3: { content: "=BADBUNNY" },
       C4: {
         content: `=${INCORRECT_RANGE_STRING}/${INCORRECT_RANGE_STRING}`,
-        evaluated: { type: CellValueType.error },
       },
       C5: { content: '=CONCAT("ki", "kou")' },
       C6: { content: "=EQ(A4, 4)" },
     });
+    expect(getEvaluatedCell(model, "C3").type).toBe(CellValueType.error);
+    expect(getEvaluatedCell(model, "C4").type).toBe(CellValueType.error);
   });
   test("Sort all types of cells then undo then redo", () => {
     model = new Model({
@@ -193,15 +195,16 @@ describe("Basic Sorting", () => {
       A3: { content: `=SUM(4, ${INCORRECT_RANGE_STRING})` },
       A4: { content: "=DATE(2012, 12, 21)" },
       A5: { value: parseDateTime("2020/09/01")!.value },
-      A6: { content: "=BADBUNNY", evaluated: { type: CellValueType.error } },
+      A6: { content: "=BADBUNNY" },
       A7: {
         content: `=${INCORRECT_RANGE_STRING}/${INCORRECT_RANGE_STRING}`,
-        evaluated: { type: CellValueType.error },
       },
       A8: { content: "Kills" },
       A9: { content: "Machette" },
       A10: { content: '=CONCAT("Zor", "glub")' },
     });
+    expect(getEvaluatedCell(model, "A6").type).toBe(CellValueType.error);
+    expect(getEvaluatedCell(model, "A7").type).toBe(CellValueType.error);
     undo(model);
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "23" },
@@ -222,15 +225,16 @@ describe("Basic Sorting", () => {
       A3: { content: `=SUM(4, ${INCORRECT_RANGE_STRING})` },
       A4: { content: "=DATE(2012, 12, 21)" },
       A5: { value: parseDateTime("2020/09/01")!.value },
-      A6: { content: "=BADBUNNY", evaluated: { type: CellValueType.error } },
+      A6: { content: "=BADBUNNY" },
       A7: {
         content: `=${INCORRECT_RANGE_STRING}/${INCORRECT_RANGE_STRING}`,
-        evaluated: { type: CellValueType.error },
       },
       A8: { content: "Kills" },
       A9: { content: "Machette" },
       A10: { content: '=CONCAT("Zor", "glub")' },
     });
+    expect(getEvaluatedCell(model, "A6").type).toBe(CellValueType.error);
+    expect(getEvaluatedCell(model, "A7").type).toBe(CellValueType.error);
   });
   test("Sort style", () => {
     const myStyle = { textColor: "#fe0000" };

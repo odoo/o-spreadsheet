@@ -1,9 +1,9 @@
 import { _lt } from "../translation";
 import {
-  Cell,
   CellValueType,
   CommandResult,
   DispatchResult,
+  EvaluatedCell,
   Position,
   SortDirection,
   SpreadsheetChildEnv,
@@ -21,20 +21,16 @@ const SORT_TYPES: CellValueType[] = [
   CellValueType.boolean,
 ];
 
-function convertCell(cell: Cell | undefined, index: number): CellWithIndex {
-  return {
-    index,
-    type: cell ? cell.evaluated.type : CellValueType.empty,
-    value: cell ? cell.evaluated.value : "",
-  };
-}
-
 export function sortCells(
-  cells: (Cell | undefined)[],
+  cells: EvaluatedCell[],
   sortDirection: SortDirection,
   emptyCellAsZero: boolean
 ): CellWithIndex[] {
-  const cellsWithIndex: CellWithIndex[] = cells.map(convertCell);
+  const cellsWithIndex: CellWithIndex[] = cells.map((cell, index) => ({
+    index,
+    type: cell.type,
+    value: cell.value,
+  }));
   let emptyCells: CellWithIndex[] = cellsWithIndex.filter((x) => x.type === CellValueType.empty);
   let nonEmptyCells: CellWithIndex[] = cellsWithIndex.filter((x) => x.type !== CellValueType.empty);
   if (emptyCellAsZero) {

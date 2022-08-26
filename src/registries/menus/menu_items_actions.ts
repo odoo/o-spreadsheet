@@ -589,23 +589,18 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
   }; // Position at the center of the scrollable viewport
 
   let title = "";
-  const cells = env.model.getters.getCellsInZone(sheetId, {
+  const cells = env.model.getters.getEvaluatedCellsInZone(sheetId, {
     ...dataSetZone,
     bottom: dataSetZone.top,
   });
-  const dataSetsHaveTitle = !!cells.find(
-    (cell) => cell && cell.evaluated.type !== CellValueType.number
+  const dataSetsHaveTitle = cells.some(
+    (cell) => cell.type !== CellValueType.number && cell.type !== CellValueType.empty
   );
 
   if (dataSetsHaveTitle) {
-    const texts = cells.reduce((acc, cell) => {
-      const text =
-        cell && cell.evaluated.type !== CellValueType.error && env.model.getters.getCellText(cell);
-      if (text) {
-        acc.push(text);
-      }
-      return acc;
-    }, [] as string[]);
+    const texts = cells
+      .filter((cell) => cell.type !== CellValueType.error && cell.type !== CellValueType.empty)
+      .map((cell) => cell.formattedValue);
 
     const lastElement = texts.splice(-1)[0];
     title = texts.join(", ");

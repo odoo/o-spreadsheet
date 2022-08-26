@@ -5,6 +5,7 @@ import {
   AutofillModifier,
   AutofillResult,
   Cell,
+  CellValueType,
   Command,
   CommandResult,
   DIRECTION,
@@ -271,19 +272,19 @@ export class AutofillPlugin extends UIPlugin {
     let col: HeaderIndex = zone.left;
     let row: HeaderIndex = zone.bottom;
     if (col > 0) {
-      let left = this.getters.getCell(sheetId, col - 1, row);
-      while (left && !left.isEmpty()) {
+      let left = this.getters.getEvaluatedCell({ sheetId, col: col - 1, row });
+      while (left.type !== CellValueType.empty) {
         row += 1;
-        left = this.getters.getCell(sheetId, col - 1, row);
+        left = this.getters.getEvaluatedCell({ sheetId, col: col - 1, row });
       }
     }
     if (row === zone.bottom) {
       col = zone.right;
       if (col <= this.getters.getNumberCols(sheetId)) {
-        let right = this.getters.getCell(sheetId, col + 1, row);
-        while (right && !right.isEmpty()) {
+        let right = this.getters.getEvaluatedCell({ sheetId, col: col + 1, row });
+        while (right.type !== CellValueType.empty) {
           row += 1;
-          right = this.getters.getCell(sheetId, col + 1, row);
+          right = this.getters.getEvaluatedCell({ sheetId, col: col + 1, row });
         }
       }
     }

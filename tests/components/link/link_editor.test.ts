@@ -1,7 +1,6 @@
 import { App } from "@odoo/owl";
 import { Model } from "../../../src";
 import { buildSheetLink } from "../../../src/helpers";
-import { LinkCell } from "../../../src/types";
 import {
   activateSheet,
   createSheet,
@@ -14,7 +13,7 @@ import {
   setInputValueAndTrigger,
   simulateClick,
 } from "../../test_helpers/dom_helper";
-import { getCell } from "../../test_helpers/getters_helpers";
+import { getCell, getEvaluatedCell } from "../../test_helpers/getters_helpers";
 import { makeTestFixture, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 
 describe("link editor component", () => {
@@ -90,7 +89,7 @@ describe("link editor component", () => {
     async (cellContent) => {
       setCellContent(model, "A1", cellContent);
       await openLinkEditor(model, "A1");
-      expect(labelInput().value).toBe(getCell(model, "A1")?.formattedValue);
+      expect(labelInput().value).toBe(getEvaluatedCell(model, "A1").formattedValue);
       expect(urlInput().value).toBe("");
     }
   );
@@ -125,18 +124,18 @@ describe("link editor component", () => {
     setInputValueAndTrigger(labelInput(), "my label", "input");
     setInputValueAndTrigger(urlInput(), "https://url.com", "input");
     await simulateClick("button.o-save");
-    const cell = getCell(model, "A1") as LinkCell;
-    expect(cell.link.label).toBe("my label");
-    expect(cell.link.url).toBe("https://url.com");
+    const link = getEvaluatedCell(model, "A1").link;
+    expect(link?.label).toBe("my label");
+    expect(link?.url).toBe("https://url.com");
   });
 
   test("insert link with only an url and no label", async () => {
     await openLinkEditor(model, "A1");
     setInputValueAndTrigger(urlInput(), "https://url.com", "input");
     await simulateClick("button.o-save");
-    const cell = getCell(model, "A1") as LinkCell;
-    expect(cell.link.label).toBe("https://url.com");
-    expect(cell.link.url).toBe("https://url.com");
+    const link = getEvaluatedCell(model, "A1").link;
+    expect(link?.label).toBe("https://url.com");
+    expect(link?.url).toBe("https://url.com");
   });
 
   test("insert sheet link", async () => {

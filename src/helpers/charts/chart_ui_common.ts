@@ -2,7 +2,7 @@ import { ChartConfiguration } from "chart.js";
 import { ChartTerms } from "../../components/translations_terms";
 import { MAX_CHAR_LABEL } from "../../constants";
 import { _t } from "../../translation";
-import { Cell, Color, Format, Getters, Range } from "../../types";
+import { Color, Format, Getters, Range } from "../../types";
 import { DataSet, DatasetValues, LabelValues } from "../../types/chart/chart";
 import { range } from "../misc";
 import { recomputeZones, zoneToXc } from "../zones";
@@ -23,7 +23,7 @@ export function getData(getters: Getters, ds: DataSet): any[] {
       return [];
     }
     const dataRange = getters.getRangeFromSheetXC(ds.dataRange.sheetId, dataXC);
-    return getters.getRangeValues(dataRange);
+    return getters.getRangeValues(dataRange).map((value) => (value === "" ? undefined : value));
   }
   return [];
 }
@@ -114,7 +114,11 @@ export function getDefaultChartJsRuntime(
 
 export function getLabelFormat(getters: Getters, range: Range | undefined): Format | undefined {
   if (!range) return undefined;
-  return getters.getCell(range.sheetId, range.zone.left, range.zone.top)?.evaluated.format;
+  return getters.getEvaluatedCell({
+    sheetId: range.sheetId,
+    col: range.zone.left,
+    row: range.zone.top,
+  }).format;
 }
 
 export function getChartLabelValues(
@@ -127,9 +131,7 @@ export function getChartLabelValues(
     if (!labelRange.invalidXc && !labelRange.invalidSheetName) {
       labels = {
         formattedValues: getters.getRangeFormattedValues(labelRange),
-        values: getters
-          .getRangeValues(labelRange)
-          .map((val) => (val !== undefined && val !== null ? String(val) : "")),
+        values: getters.getRangeValues(labelRange).map((val) => String(val)),
       };
     }
   } else if (dataSets.length === 1) {
@@ -155,8 +157,12 @@ export function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): Da
     let label: string;
     if (ds.labelCell) {
       const labelRange = ds.labelCell;
-      const cell: Cell | undefined = labelRange
-        ? getters.getCell(labelRange.sheetId, labelRange.zone.left, labelRange.zone.top)
+      const cell = labelRange
+        ? getters.getEvaluatedCell({
+            sheetId: labelRange.sheetId,
+            col: labelRange.zone.left,
+            row: labelRange.zone.top,
+          })
         : undefined;
       label =
         cell && labelRange

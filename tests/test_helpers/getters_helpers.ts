@@ -5,8 +5,10 @@ import {
   Cell,
   CellValue,
   CellValueType,
+  EvaluatedCell,
   FormattedValue,
   Merge,
+  Style,
   UID,
 } from "../../src/types";
 import { setSelection } from "./commands_helpers";
@@ -31,15 +33,22 @@ export function getCell(
   return model.getters.getCell(sheetId, col, row);
 }
 
+export function getEvaluatedCell(
+  model: Model,
+  xc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+): EvaluatedCell {
+  const { col, row } = toCartesian(xc);
+  return model.getters.getEvaluatedCell({ sheetId, col, row });
+}
+
 export function getCellError(
   model: Model,
   xc: string,
   sheetId: UID = model.getters.getActiveSheetId()
 ): string | undefined {
-  const cell = getCell(model, xc, sheetId);
-  return cell && cell.evaluated.type === CellValueType.error
-    ? cell.evaluated.error.message
-    : undefined;
+  const cell = getEvaluatedCell(model, xc, sheetId);
+  return cell.type === CellValueType.error ? cell.error.message : undefined;
 }
 
 /**
@@ -51,8 +60,8 @@ export function getCellContent(
   xc: string,
   sheetId: UID = model.getters.getActiveSheetId()
 ): string {
-  const cell = getCell(model, xc, sheetId);
-  return cell ? model.getters.getCellText(cell, model.getters.shouldShowFormulas()) : "";
+  const { col, row } = toCartesian(xc);
+  return model.getters.getCellText({ sheetId, col, row }, model.getters.shouldShowFormulas());
 }
 
 /**
@@ -64,8 +73,14 @@ export function getCellText(
   xc: string,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  const cell = getCell(model, xc, sheetId);
-  return cell ? model.getters.getCellText(cell, true) : "";
+  const { col, row } = toCartesian(xc);
+  return model.getters.getCellText({ sheetId, col, row }, true);
+}
+
+export function getStyle(model: Model, xc: string): Style {
+  const sheetId = model.getters.getActiveSheetId();
+  const { col, row } = toCartesian(xc);
+  return model.getters.getCellComputedStyle(sheetId, col, row);
 }
 
 export function getRangeFormattedValues(

@@ -23,7 +23,12 @@ import {
   undo,
   unMerge,
 } from "../test_helpers/commands_helpers";
-import { getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
+import {
+  getCell,
+  getCellContent,
+  getCellText,
+  getEvaluatedCell,
+} from "../test_helpers/getters_helpers";
 import "../test_helpers/helpers";
 import { createEqualCF, testUndoRedo, toRangesData } from "../test_helpers/helpers";
 
@@ -209,7 +214,7 @@ describe("sheets", () => {
     setCellContent(model, "A1", "3");
     setCellContent(model, "A2", "=Sheet1!A1");
 
-    expect(getCell(model, "A2")!.evaluated.value).toBe(3);
+    expect(getEvaluatedCell(model, "A2").value).toBe(3);
   });
 
   test("can read a value in another sheet", () => {
@@ -220,14 +225,14 @@ describe("sheets", () => {
     createSheet(model, { sheetId: "42", activate: true });
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet2");
     setCellContent(model, "A1", "=Sheet1!A1");
-    expect(getCell(model, "A1")!.evaluated.value).toBe(3);
+    expect(getEvaluatedCell(model, "A1").value).toBe(3);
   });
 
   test("show #ERROR if invalid sheet name in content", () => {
     const model = new Model();
     setCellContent(model, "A1", "=Sheet133!A1");
 
-    expect(getCell(model, "A1")!.evaluated.value).toBe("#ERROR");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
   });
 
   test("does not throw if invalid sheetId", () => {
@@ -260,7 +265,7 @@ describe("sheets", () => {
     });
 
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("ABC");
-    expect(getCell(model, "B1")!.evaluated.value).toBe(3);
+    expect(getEvaluatedCell(model, "B1").value).toBe(3);
   });
 
   test("evaluating multiple sheets, 2", () => {
@@ -287,7 +292,7 @@ describe("sheets", () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("ABC");
     const B2 = getCell(model, "B2", "DEF");
     B2;
-    expect(getCell(model, "B1")!.evaluated.value).toBe(3);
+    expect(getEvaluatedCell(model, "B1").value).toBe(3);
   });
 
   test("evaluating multiple sheets, 3 (with range)", () => {
@@ -313,7 +318,7 @@ describe("sheets", () => {
     });
 
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("ABC");
-    expect(getCell(model, "B1")!.evaluated.value).toBe(5);
+    expect(getEvaluatedCell(model, "B1").value).toBe(5);
   });
 
   test("evaluating multiple sheets: cycles", () => {
@@ -342,8 +347,8 @@ describe("sheets", () => {
     });
 
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("ABC");
-    expect(getCell(model, "B1")!.evaluated.value).toBe("#CYCLE");
-    expect(getCell(model, "C3")!.evaluated.value).toBe(42);
+    expect(getEvaluatedCell(model, "B1").value).toBe("#CYCLE");
+    expect(getEvaluatedCell(model, "C3").value).toBe(42);
   });
 
   test("evaluation from one sheet to another no render", () => {
@@ -370,7 +375,7 @@ describe("sheets", () => {
         },
       ],
     });
-    expect(getCell(model, "A2")!.evaluated.value).toBe(23);
+    expect(getEvaluatedCell(model, "A2").value).toBe(23);
   });
 
   test("cells are updated when dependency in other sheet is updated", () => {
@@ -574,7 +579,7 @@ describe("sheets", () => {
     const nextName = "NEXT NAME";
     renameSheet(model, sheet2, nextName);
     expect(getCellText(model, "A1")).toBe("='NEXT NAME'!A1");
-    expect(getCell(model, "A1")!.evaluated.value).toBe(24);
+    expect(getEvaluatedCell(model, "A1").value).toBe(24);
   });
 
   test("tryGetSheetName with an existing sheet", () => {
@@ -847,11 +852,11 @@ describe("sheets", () => {
     setCellContent(model, "A1", "42");
     model.dispatch("DELETE_SHEET", { sheetId: sheet2 });
     expect(getCellText(model, "A1")).toBe("=NEW_NAME!A1");
-    expect(getCell(model, "A1")?.evaluated.value).toBe("#ERROR");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
     undo(model);
     activateSheet(model, sheet1);
     expect(getCellText(model, "A1")).toBe("=NEW_NAME!A1");
-    expect(getCell(model, "A1")?.evaluated.value).toBe(42);
+    expect(getEvaluatedCell(model, "A1").value).toBe(42);
   });
 
   test("UPDATE_CELL_POSITION remove the old position if exist", () => {

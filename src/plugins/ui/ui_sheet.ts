@@ -4,8 +4,16 @@ import {
   PADDING_AUTORESIZE_HORIZONTAL,
 } from "../../constants";
 import { computeIconWidth, computeTextWidth, positions, positionToZone } from "../../helpers/index";
-import { Cell, CellValueType, Command, CommandResult, UID } from "../../types";
-import { Dimension, HeaderDimensions, HeaderIndex, Pixel, Position, Style } from "../../types/misc";
+import { Command, CommandResult, UID } from "../../types";
+import {
+  CellPosition,
+  Dimension,
+  HeaderDimensions,
+  HeaderIndex,
+  Pixel,
+  Position,
+  Style,
+} from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 export class SheetUIPlugin extends UIPlugin {
@@ -72,14 +80,11 @@ export class SheetUIPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   getCellWidth(sheetId: UID, { col, row }: Position): number {
-    const cell = this.getters.getCell(sheetId, col, row);
-    let contentWidth = 0;
-    if (cell) {
-      contentWidth += this.getTextWidth(cell);
-    }
+    const position = { sheetId, col, row };
+    let contentWidth = this.getTextWidth(position);
     const icon = this.getters.getConditionalIcon(col, row);
     if (icon) {
-      contentWidth += computeIconWidth(this.getters.getCellStyle(cell));
+      contentWidth += computeIconWidth(this.getters.getCellStyle(position));
     }
     const isFilterHeader = this.getters.isFilterHeader(sheetId, col, row);
     if (isFilterHeader) {
@@ -89,7 +94,7 @@ export class SheetUIPlugin extends UIPlugin {
     if (contentWidth > 0) {
       contentWidth += 2 * PADDING_AUTORESIZE_HORIZONTAL;
 
-      if (this.getters.getCellStyle(cell).wrapping === "wrap") {
+      if (this.getters.getCellStyle(position).wrapping === "wrap") {
         const zone = positionToZone({ col, row });
         const colWidth = this.getters.getColSize(this.getters.getActiveSheetId(), zone.left);
         return Math.min(colWidth, contentWidth);
@@ -98,23 +103,24 @@ export class SheetUIPlugin extends UIPlugin {
     return contentWidth;
   }
 
-  getTextWidth(cell: Cell): Pixel {
-    const text = this.getters.getCellText(cell, this.getters.shouldShowFormulas());
-    const { sheetId, col, row } = this.getters.getCellPosition(cell.id);
+  getTextWidth(position: CellPosition): Pixel {
+    const text = this.getters.getCellText(position, this.getters.shouldShowFormulas());
+    const { sheetId, col, row } = position;
     return computeTextWidth(this.ctx, text, this.getters.getCellComputedStyle(sheetId, col, row));
   }
 
-  getCellText(cell: Cell, showFormula: boolean = false): string {
-    if (showFormula && (cell.isFormula() || cell.evaluated.type === CellValueType.error)) {
+  getCellText({ sheetId, col, row }: CellPosition, showFormula: boolean = false): string {
+    const cell = this.getters.getCell(sheetId, col, row);
+    if (showFormula && cell?.isFormula) {
       return cell.content;
     } else {
-      return cell.formattedValue;
+      return this.getters.getEvaluatedCell({ sheetId, col, row }).formattedValue;
     }
   }
 
-  getCellMultiLineText(cell: Cell, width: number): string[] {
-    const style = this.getters.getCellStyle(cell);
-    const text = this.getters.getCellText(cell);
+  getCellMultiLineText(position: CellPosition, width: number): string[] {
+    const style = this.getters.getCellStyle(position);
+    const text = this.getters.getCellText(position);
     const words = text.split(" ");
     const brokenText: string[] = [];
 

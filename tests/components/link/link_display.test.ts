@@ -3,7 +3,7 @@ import { Model, Spreadsheet } from "../../../src";
 import { buildSheetLink } from "../../../src/helpers";
 import { clearCell, createSheet, merge, setCellContent } from "../../test_helpers/commands_helpers";
 import { clickCell, hoverCell, rightClickCell, simulateClick } from "../../test_helpers/dom_helper";
-import { getCell } from "../../test_helpers/getters_helpers";
+import { getCell, getEvaluatedCell } from "../../test_helpers/getters_helpers";
 import { makeTestFixture, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 
 describe("link display component", () => {
@@ -134,9 +134,8 @@ describe("link display component", () => {
     await hoverCell(model, xc, 400);
     await simulateClick(".o-unlink");
     expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
-    const cell = getCell(model, xc);
-    expect(cell?.isLink()).toBeFalsy();
-    expect(cell?.content).toBe("label");
+    expect(getEvaluatedCell(model, xc).link).toBeFalsy();
+    expect(getCell(model, xc)?.content).toBe("label");
   });
 
   test("link text color is removed when the cell is unlinked", async () => {

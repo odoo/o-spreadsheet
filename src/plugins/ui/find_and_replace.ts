@@ -1,4 +1,11 @@
-import { Cell, Command, GridRenderingContext, HeaderIndex, LAYERS, UID } from "../../types/index";
+import {
+  CellPosition,
+  Command,
+  GridRenderingContext,
+  HeaderIndex,
+  LAYERS,
+  Position,
+} from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 const BORDER_COLOR: string = "#8B008B";
@@ -133,25 +140,19 @@ export class FindAndReplacePlugin extends UIPlugin {
    * Find matches using the current regex
    */
   private findMatches() {
-    const activeSheetId = this.getters.getActiveSheetId();
-    const cells = this.getters.getCells(activeSheetId);
+    const sheetId = this.getters.getActiveSheetId();
+    const cells = this.getters.getCells(sheetId);
     const matches: SearchMatch[] = [];
 
     if (this.toSearch) {
       for (const cell of Object.values(cells)) {
+        const { col, row } = this.getters.getCellPosition(cell.id);
         if (
           cell &&
           this.currentSearchRegex &&
-          this.currentSearchRegex.test(
-            this.searchOptions.searchFormulas
-              ? cell.isFormula()
-                ? cell.content
-                : String(cell.evaluated.value)
-              : String(cell.evaluated.value)
-          )
+          this.currentSearchRegex.test(this.getSearchableString({ sheetId, col, row }))
         ) {
-          const position = this.getters.getCellPosition(cell.id);
-          const match: SearchMatch = { col: position.col, row: position.row, selected: false };
+          const match: SearchMatch = { col, row, selected: false };
           matches.push(match);
         }
       }
@@ -159,7 +160,7 @@ export class FindAndReplacePlugin extends UIPlugin {
     return matches.sort(this.sortByRowThenColumn);
   }
 
-  private sortByRowThenColumn(a, b) {
+  private sortByRowThenColumn(a: Position, b: Position) {
     if (a.row === b.row) {
       return a.col - b.col;
     }
@@ -222,16 +223,20 @@ export class FindAndReplacePlugin extends UIPlugin {
     const matches = this.searchMatches;
     const selectedMatch = matches[this.selectedMatchIndex];
     const sheetId = this.getters.getActiveSheetId();
-    const cellToReplace = this.getters.getCell(sheetId, selectedMatch.col, selectedMatch.row);
-    const toReplace: string | null = this.toReplace(cellToReplace, sheetId);
-    if (!cellToReplace || !toReplace) {
+    const cell = this.getters.getCell(sheetId, selectedMatch.col, selectedMatch.row);
+    if (cell?.isFormula && !this.searchOptions.searchFormulas) {
       this.selectNextCell(Direction.next);
     } else {
       const replaceRegex = new RegExp(
         this.currentSearchRegex.source,
         this.currentSearchRegex.flags + "g"
       );
-      const newContent = toReplace.toString().replace(replaceRegex, replaceWith);
+      const toReplace: string | null = this.getSearchableString({
+        sheetId,
+        col: selectedMatch.col,
+        row: selectedMatch.row,
+      });
+      const newContent = toReplace.replace(replaceRegex, replaceWith);
       this.dispatch("UPDATE_CELL", {
         sheetId: this.getters.getActiveSheetId(),
         col: selectedMatch.col,
@@ -252,19 +257,12 @@ export class FindAndReplacePlugin extends UIPlugin {
     }
   }
 
-  /**
-   * Determines if the content, the value or nothing should be replaced,
-   * based on the search and replace options
-   */
-  private toReplace(cell: Cell | undefined, sheetId: UID): string | null {
-    if (cell) {
-      if (this.searchOptions.searchFormulas && cell.isFormula()) {
-        return cell.content;
-      } else if (this.searchOptions.searchFormulas || !cell.isFormula()) {
-        return (cell.evaluated.value as any).toString();
-      }
+  private getSearchableString({ sheetId, col, row }: CellPosition): string {
+    const cell = this.getters.getCell(sheetId, col, row);
+    if (this.searchOptions.searchFormulas && cell?.isFormula) {
+      return cell.content;
     }
-    return null;
+    return this.getters.getEvaluatedCell({ sheetId, col, row }).formattedValue;
   }
 
   // ---------------------------------------------------------------------------

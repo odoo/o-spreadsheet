@@ -7,7 +7,7 @@ import {
 import { fontSizes } from "../../src/fonts";
 import { colors, toCartesian, toHex, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { Highlight, LinkCell } from "../../src/types";
+import { Highlight } from "../../src/types";
 import {
   activateSheet,
   createSheet,
@@ -26,7 +26,12 @@ import {
   rightClickCell,
   simulateClick,
 } from "../test_helpers/dom_helper";
-import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
+import {
+  getActiveXc,
+  getCellContent,
+  getCellText,
+  getEvaluatedCell,
+} from "../test_helpers/getters_helpers";
 import {
   createEqualCF,
   makeTestFixture,
@@ -565,7 +570,7 @@ describe("composer", () => {
     await typeInComposerGrid("=qsdf");
     await keyDown("Enter");
     expect(getCellText(model, "A1")).toBe("=qsdf");
-    expect(getCell(model, "A1")!.evaluated.value).toBe("#BAD_EXPR");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#BAD_EXPR");
   });
 
   test("typing text then enter exits the edit mode and moves to the next cell down", async () => {
@@ -573,7 +578,7 @@ describe("composer", () => {
     await typeInComposerGrid("qsdf");
     await keyDown("Enter");
     expect(getCellContent(model, "A1")).toBe("qsdf");
-    expect(getCell(model, "A1")!.evaluated.value).toBe("qsdf");
+    expect(getEvaluatedCell(model, "A1").value).toBe("qsdf");
   });
 
   test("typing CTRL+C does not type C in the cell", async () => {
@@ -611,9 +616,18 @@ describe("composer", () => {
     await startComposition();
     await typeInComposerGrid(" updated");
     await keyDown("Enter");
-    const cell = getCell(model, "A1") as LinkCell;
-    expect(cell.link.label).toBe("label updated");
-    expect(cell.link.url).toBe("http://odoo.com");
+    const link = getEvaluatedCell(model, "A1").link;
+    expect(link?.label).toBe("label updated");
+    expect(link?.url).toBe("http://odoo.com");
+  });
+
+  test("top bar composer displays formula", async () => {
+    setCellContent(model, "A1", "=A1+A2");
+    await nextTick();
+    const topbarComposerElement = fixture.querySelector(
+      ".o-topbar-toolbar .o-composer-container div"
+    )!;
+    expect(topbarComposerElement.textContent).toBe("=A1+A2");
   });
 
   test("Hitting enter on topbar composer will properly update it", async () => {
@@ -1181,7 +1195,7 @@ describe("composer", () => {
     // stop editing with enter
     await keyDown("Enter");
     expect(getCellText(model, "C8")).toBe("=");
-    expect(getCell(model, "C8")!.evaluated.value).toBe("#BAD_EXPR");
+    expect(getEvaluatedCell(model, "C8").value).toBe("#BAD_EXPR");
     expect(getActiveXc(model)).toBe("C9");
     expect(model.getters.getEditionMode()).toBe("inactive");
 

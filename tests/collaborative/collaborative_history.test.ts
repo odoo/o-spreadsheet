@@ -14,7 +14,7 @@ import {
   snapshot,
   undo,
 } from "../test_helpers/commands_helpers";
-import { getCell, getCellContent } from "../test_helpers/getters_helpers";
+import { getCell, getCellContent, getStyle } from "../test_helpers/getters_helpers";
 import { getPlugin, target } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
@@ -142,10 +142,9 @@ describe("Collaborative local history", () => {
       style: { fillColor: "#121212" },
     });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getCellStyle(getCell(alice, "H2")!),
-      { fillColor: "#121212" }
-    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getStyle(user, "H2"), {
+      fillColor: "#121212",
+    });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCell(alice, "N2"),
       undefined

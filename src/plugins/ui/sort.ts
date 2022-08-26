@@ -2,16 +2,18 @@ import { isInside, overlap, range, zoneToDimension } from "../../helpers/index";
 import { sortCells } from "../../helpers/sort";
 import { _lt } from "../../translation";
 import {
-  Cell,
+  CellPosition,
   CellValueType,
   Command,
   CommandResult,
+  EvaluatedCell,
   HeaderIndex,
   Position,
   SortCommand,
   SortDirection,
   SortOptions,
   UID,
+  UpdateCellCommand,
   Zone,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
@@ -95,25 +97,21 @@ export class SortPlugin extends UIPlugin {
    */
   private checkExpandedValues(sheetId: UID, z: Zone): boolean {
     const expandedZone = this.expand(sheetId, z);
-    let cell: Cell | undefined;
+    let cell: EvaluatedCell | undefined;
     if (this.getters.doesIntersectMerge(sheetId, expandedZone)) {
       const { left, right, top, bottom } = expandedZone;
       for (let c = left; c <= right; c++) {
         for (let r = top; r <= bottom; r++) {
-          const { col: mainCellCol, row: mainCellRow } = this.getters.getMainCellPosition(
-            sheetId,
-            c,
-            r
-          );
-          cell = this.getters.getCell(sheetId, mainCellCol, mainCellRow);
-          if (cell?.formattedValue) {
+          const { col, row } = this.getters.getMainCellPosition(sheetId, c, r);
+          cell = this.getters.getEvaluatedCell({ sheetId, col, row });
+          if (cell.formattedValue) {
             return true;
           }
         }
       }
     } else {
-      for (let cell of this.getters.getCellsInZone(sheetId, expandedZone)) {
-        if (cell?.formattedValue) {
+      for (let cell of this.getters.getEvaluatedCellsInZone(sheetId, expandedZone)) {
+        if (cell.formattedValue) {
           return true;
         }
       }
@@ -229,10 +227,10 @@ export class SortPlugin extends UIPlugin {
    *  For the second criteria, we ignore columns on which the cell below is empty.
    *
    */
-  private hasHeader(items: (Cell | undefined)[][]): boolean {
+  private hasHeader(sheetId: UID, items: Position[][]): boolean {
     if (items[0].length === 1) return false;
     let cells: CellValueType[][] = items.map((col) =>
-      col.map((cell) => cell?.evaluated.type || CellValueType.empty)
+      col.map(({ col, row }) => this.getters.getEvaluatedCell({ sheetId, col, row }).type)
     );
 
     // ignore left-most column when topLeft cell is empty
@@ -264,38 +262,39 @@ export class SortPlugin extends UIPlugin {
     ).col; // fetch anchor
     let sortZone = Object.assign({}, zone);
     // Update in case of merges in the zone
-    let cells = this.mainCells(sheetId, zone);
+    let cellPositions = this.mainCells(sheetId, zone);
 
-    if (!options.sortHeaders && this.hasHeader(cells)) {
+    if (!options.sortHeaders && this.hasHeader(sheetId, cellPositions)) {
       sortZone.top += stepY;
     }
-    cells = this.mainCells(sheetId, sortZone);
+    cellPositions = this.mainCells(sheetId, sortZone);
 
-    const sortingCells = cells[sortingCol - sortZone.left];
+    const sortingCells = cellPositions[sortingCol - sortZone.left];
     const sortedIndexOfSortTypeCells = sortCells(
-      sortingCells,
+      sortingCells.map((position) => this.getters.getEvaluatedCell(position)),
       sortDirection,
       Boolean(options.emptyCellAsZero)
     );
     const sortedIndex: number[] = sortedIndexOfSortTypeCells.map((x) => x.index);
 
-    const [width, height]: [number, number] = [cells.length, cells[0].length];
+    const [width, height]: [number, number] = [cellPositions.length, cellPositions[0].length];
 
+    const updateCellCommands: Omit<UpdateCellCommand, "type">[] = [];
     for (let c: HeaderIndex = 0; c < width; c++) {
       for (let r: HeaderIndex = 0; r < height; r++) {
-        let cell = cells[c][sortedIndex[r]];
+        let { col, row, sheetId } = cellPositions[c][sortedIndex[r]];
+        const cell = this.getters.getCell(sheetId, col, row);
         let newCol: HeaderIndex = sortZone.left + c * stepX;
         let newRow: HeaderIndex = sortZone.top + r * stepY;
-        let newCellValues: any = {
+        let newCellValues: Omit<UpdateCellCommand, "type"> = {
           sheetId: sheetId,
           col: newCol,
           row: newRow,
           content: "",
-          value: "",
         };
         if (cell) {
           let content: string = cell.content;
-          if (cell.isFormula()) {
+          if (cell.isFormula) {
             const position = this.getters.getCellPosition(cell.id);
             const offsetY = newRow - position.row;
             // we only have a vertical offset
@@ -305,9 +304,11 @@ export class SortPlugin extends UIPlugin {
           newCellValues.style = cell.style;
           newCellValues.content = content;
           newCellValues.format = cell.format;
-          newCellValues.value = cell.evaluated.value;
         }
-        this.dispatch("UPDATE_CELL", newCellValues);
+        updateCellCommands.push(newCellValues);
+      }
+      for (const cmd of updateCellCommands) {
+        this.dispatch("UPDATE_CELL", cmd);
       }
     }
   }
@@ -327,16 +328,16 @@ export class SortPlugin extends UIPlugin {
   /**
    * Return a 2D array of cells in the zone (main merge cells if there are merges)
    */
-  private mainCells(sheetId: UID, zone: Zone): (Cell | undefined)[][] {
+  private mainCells(sheetId: UID, zone: Zone): CellPosition[][] {
     const [stepX, stepY] = this.mainCellsSteps(sheetId, zone);
-    const cells: (Cell | undefined)[][] = [];
+    const cells: CellPosition[][] = [];
     const cols = range(zone.left, zone.right + 1, stepX);
     const rows = range(zone.top, zone.bottom + 1, stepY);
     for (const col of cols) {
-      const colCells: (Cell | undefined)[] = [];
+      const colCells: CellPosition[] = [];
       cells.push(colCells);
       for (const row of rows) {
-        colCells.push(this.getters.getCell(sheetId, col, row));
+        colCells.push({ sheetId, col, row });
       }
     }
     return cells;

@@ -54,12 +54,12 @@ export class FormatPlugin extends UIPlugin {
     for (let zone of zones) {
       for (let row = zone.top; row <= zone.bottom; row++) {
         for (let col = zone.left; col <= zone.right; col++) {
-          const cell = this.getters.getCell(sheetId, col, row);
+          const cell = this.getters.getEvaluatedCell({ sheetId, col, row });
           if (
-            cell?.evaluated.type === CellValueType.number &&
-            !cell.evaluated.format?.match(DATETIME_FORMAT) // reject dates
+            cell.type === CellValueType.number &&
+            !cell.format?.match(DATETIME_FORMAT) // reject dates
           ) {
-            return cell.evaluated.format || createDefaultFormat(cell.evaluated.value);
+            return cell.format || createDefaultFormat(cell.value);
           }
         }
       }

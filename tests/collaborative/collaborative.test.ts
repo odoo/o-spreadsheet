@@ -23,7 +23,12 @@ import {
   setCellContent,
   undo,
 } from "../test_helpers/commands_helpers";
-import { getBorder, getCell, getCellContent } from "../test_helpers/getters_helpers";
+import {
+  getBorder,
+  getCell,
+  getCellContent,
+  getEvaluatedCell,
+} from "../test_helpers/getters_helpers";
 import { createEqualCF, target, toRangesData } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
@@ -724,23 +729,23 @@ describe("Multi users synchronisation", () => {
   describe("Evaluation", () => {
     test("Evaluation is correctly triggered after cell updated", () => {
       setCellContent(alice, "A1", "=5");
-      expect(getCell(alice, "A1")!.evaluated.value).toBe(5);
-      expect(getCell(bob, "A1")!.evaluated.value).toBe(5);
+      expect(getEvaluatedCell(alice, "A1").value).toBe(5);
+      expect(getEvaluatedCell(bob, "A1").value).toBe(5);
     });
     test("Cell value is correctly re-evaluated after undo", () => {
       setCellContent(alice, "A1", "=5");
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
-        (user) => getCell(user, "A1")!.evaluated.value,
+        (user) => getEvaluatedCell(user, "A1").value,
         5
       );
       setCellContent(alice, "A1", "=10");
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
-        (user) => getCell(user, "A1")!.evaluated.value,
+        (user) => getEvaluatedCell(user, "A1").value,
         10
       );
       undo(alice);
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
-        (user) => getCell(user, "A1")!.evaluated.value,
+        (user) => getEvaluatedCell(user, "A1").value,
         5
       );
     });
@@ -759,7 +764,7 @@ describe("Multi users synchronisation", () => {
 
       // the cell is evaluated once, with the pending value
       setCellContent(alice, "A1", "=GET.ASYNC.VALUE()", "sheet2");
-      expect(getCell(bob, "A1", "sheet2")!.evaluated.value).toBe("LOADING...");
+      expect(getEvaluatedCell(bob, "A1", "sheet2").value).toBe("LOADING...");
       activateSheet(bob, firstSheetId);
       // the value resolves while Bob is on another sheet
       // the active sheet is re-evaluated
@@ -767,7 +772,7 @@ describe("Multi users synchronisation", () => {
       bob.dispatch("EVALUATE_CELLS", { sheetId: bob.getters.getActiveSheetId() });
 
       activateSheet(bob, "sheet2");
-      expect(getCell(bob, "A1", "sheet2")!.evaluated.value).toBe(2);
+      expect(getEvaluatedCell(bob, "A1", "sheet2").value).toBe(2);
       functionRegistry.remove("GET.ASYNC.VALUE");
     });
 
@@ -793,8 +798,8 @@ describe("Multi users synchronisation", () => {
       value = 2;
       bob.dispatch("EVALUATE_CELLS", { sheetId: bob.getters.getActiveSheetId() });
 
-      expect(getCell(bob, "A1", firstSheetId)!.evaluated.value).toBe(2);
-      expect(getCell(bob, "A1", "sheet2")!.evaluated.value).toBe(2);
+      expect(getEvaluatedCell(bob, "A1", firstSheetId).value).toBe(2);
+      expect(getEvaluatedCell(bob, "A1", "sheet2").value).toBe(2);
       functionRegistry.remove("GET.ASYNC.VALUE");
     });
   });

@@ -20,9 +20,8 @@ import {
 } from "../../src/types";
 import { XLSXExport } from "../../src/types/xlsx";
 import { OWL_TEMPLATES } from "../setup/jest.setup";
-import { CellEvaluation } from "./../../src/types/cells";
 import { redo, setCellContent, undo } from "./commands_helpers";
-import { getCell, getCellContent } from "./getters_helpers";
+import { getCellContent, getEvaluatedCell } from "./getters_helpers";
 
 const functionsContent = functionRegistry.content;
 const functionMap = functionRegistry.mapping;
@@ -154,10 +153,10 @@ type GridResult = { [xc: string]: any };
 export function getGrid(model: Model): GridResult {
   const result = {};
   const sheetId = model.getters.getActiveSheetId();
-  for (let cellId in model.getters.getCells(sheetId)) {
+  for (let cellId in model.getters.getEvaluatedCells(sheetId)) {
     const { col, row } = model.getters.getCellPosition(cellId);
-    const cell = model.getters.getCell(sheetId, col, row);
-    result[toXC(col, row)] = cell ? cell.evaluated.value : undefined;
+    const cell = model.getters.getEvaluatedCell({ sheetId, col, row });
+    result[toXC(col, row)] = cell.value;
   }
   return result;
 }
@@ -179,8 +178,7 @@ export function evaluateGrid(grid: GridDescr): GridResult {
   }
   const result = {};
   for (let xc in grid) {
-    const cell = getCell(model, xc);
-    result[xc] = cell ? cell.evaluated.value : "";
+    result[xc] = getEvaluatedCell(model, xc).value;
   }
   return result;
 }
@@ -208,8 +206,7 @@ export function evaluateGridFormat(grid: GridDescr): FormattedGridDescr {
   }
   const result = {};
   for (let xc in grid) {
-    const cell = getCell(model, xc);
-    result[xc] = cell ? cell.evaluated.format : "";
+    result[xc] = getEvaluatedCell(model, xc).format || "";
   }
   return result;
 }
@@ -482,21 +479,18 @@ export function toCartesianArray(xc: string): [number, number] {
 interface CellValue {
   value: string | number | boolean;
   style?: Style;
-  evaluated: CellEvaluation;
   format?: string;
   content: string;
 }
 
 export function getCellsObject(model: Model, sheetId: UID): Record<string, CellValue> {
   const cells: Record<string, CellValue> = {};
-  for (let cell of Object.values(model.getters.getCells(sheetId))) {
+  for (const cell of Object.values(model.getters.getCells(sheetId))) {
     const { col, row } = model.getters.getCellPosition(cell.id);
-    cell = model.getters.getCell(sheetId, col, row)!;
     cells[toXC(col, row)] = {
       style: cell.style,
       format: cell.format,
-      value: cell.evaluated.value,
-      evaluated: cell.evaluated,
+      value: model.getters.getEvaluatedCell({ sheetId, col, row }).value,
       content: cell.content,
     };
   }

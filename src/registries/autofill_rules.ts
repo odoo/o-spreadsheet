@@ -1,4 +1,5 @@
 import { DATETIME_FORMAT } from "../constants";
+import { evaluateLiteral } from "../helpers/cells";
 import { Registry } from "../registry";
 import { AutofillModifier, Cell, CellValueType } from "../types/index";
 
@@ -28,8 +29,9 @@ function getGroup(cell: Cell, cells: (Cell | undefined)[]): number[] {
     if (x === cell) {
       found = true;
     }
-    if (x?.evaluated.type === CellValueType.number) {
-      group.push(x!.evaluated.value);
+    const cellValue = evaluateLiteral(x?.content);
+    if (cellValue.type === CellValueType.number) {
+      group.push(cellValue.value);
     } else {
       if (found) {
         return group;
@@ -57,7 +59,7 @@ function getAverageIncrement(group: number[]) {
 autofillRulesRegistry
   .add("simple_value_copy", {
     condition: (cell: Cell, cells: (Cell | undefined)[]) => {
-      return cells.length === 1 && !cell.isFormula() && !cell.format?.match(DATETIME_FORMAT);
+      return cells.length === 1 && !cell.isFormula && !cell.format?.match(DATETIME_FORMAT);
     },
     generateRule: () => {
       return { type: "COPY_MODIFIER" };
@@ -65,21 +67,23 @@ autofillRulesRegistry
     sequence: 10,
   })
   .add("copy_text", {
-    condition: (cell: Cell) => !cell.isFormula() && cell.evaluated.type === CellValueType.text,
+    condition: (cell: Cell) =>
+      !cell.isFormula && evaluateLiteral(cell.content).type === CellValueType.text,
     generateRule: () => {
       return { type: "COPY_MODIFIER" };
     },
     sequence: 20,
   })
   .add("update_formula", {
-    condition: (cell: Cell) => cell.isFormula(),
+    condition: (cell: Cell) => cell.isFormula,
     generateRule: (_, cells: (Cell | undefined)[]) => {
       return { type: "FORMULA_MODIFIER", increment: cells.length, current: 0 };
     },
     sequence: 30,
   })
   .add("increment_number", {
-    condition: (cell: Cell) => cell.evaluated.type === CellValueType.number,
+    condition: (cell: Cell) =>
+      !cell.isFormula && evaluateLiteral(cell.content).type === CellValueType.number,
     generateRule: (cell: Cell, cells: (Cell | undefined)[]) => {
       const group = getGroup(cell, cells);
       let increment: number = 1;
@@ -88,10 +92,11 @@ autofillRulesRegistry
       } else if (group.length > 2) {
         increment = getAverageIncrement(group) * group.length;
       }
+      const evaluation = evaluateLiteral(cell.content);
       return {
         type: "INCREMENT_MODIFIER",
         increment,
-        current: cell.evaluated.type === CellValueType.number ? cell.evaluated.value : 0,
+        current: evaluation.type === CellValueType.number ? evaluation.value : 0,
       };
     },
     sequence: 40,
