@@ -130,13 +130,13 @@ describe("link display component", () => {
     expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
   });
 
-  test.each(["A1", "A10"])("remove link by clicking the unlink icon", async (xc) => {
+  test.each(["A1"])("remove link by clicking the unlink icon", async (xc) => {
     setCellContent(model, xc, "[label](url.com)");
     await hoverCell(model, xc, 400);
     await simulateClick(".o-unlink");
     expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
     const cell = getCell(model, xc);
-    expect(cell?.isLink()).toBeFalsy();
+    expect(cell?.link).toBeFalsy();
     expect(cell?.content).toBe("label");
   });
 

@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { LINK_COLOR } from "../../src/constants";
 import { buildSheetLink } from "../../src/helpers";
-import { CellValueType, CommandResult, LinkCell } from "../../src/types";
+import { CellValueType, CommandResult } from "../../src/types";
 import {
   copy,
   createSheet,
@@ -62,11 +62,11 @@ describe("link cell", () => {
     (url) => {
       const model = new Model();
       setCellContent(model, "A1", `[my label](${url})`);
-      const cell = getCell(model, "A1") as LinkCell;
+      const cell = getCell(model, "A1")!;
       expect(cell.content).toBe(`[my label](${url})`);
-      expect(cell.link.label).toBe("my label");
-      expect(cell.link.url).toBe(url);
-      expect(cell.urlRepresentation).toBe(url);
+      expect(cell.link?.label).toBe("my label");
+      expect(cell.link?.url).toBe(url);
+      expect(cell.link?.urlRepresentation).toBe(url);
       expect(cell.style).toEqual({ textColor: LINK_COLOR });
       expect(getCellText(model, "A1")).toBe("my label");
     }
@@ -75,19 +75,19 @@ describe("link cell", () => {
   test("https prefix is added if it's missing", () => {
     const model = new Model();
     setCellContent(model, "A1", `[my label](odoo.com)`);
-    const cell = getCell(model, "A1") as LinkCell;
-    expect(cell.content).toBe(`[my label](https://odoo.com)`);
-    expect(cell.link.url).toBe("https://odoo.com");
-    expect(cell.urlRepresentation).toBe("https://odoo.com");
+    const cell = getCell(model, "A1")!;
+    expect(cell.content).toBe(`[my label](odoo.com)`);
+    expect(cell.link?.url).toBe("https://odoo.com");
+    expect(cell.link?.urlRepresentation).toBe("https://odoo.com");
   });
 
   test("simple url becomes a link cell", () => {
     const model = new Model();
     setCellContent(model, "A1", "http://odoo.com");
-    const cell = getCell(model, "A1") as LinkCell;
-    expect(cell.content).toBe("[http://odoo.com](http://odoo.com)");
-    expect(cell.link.label).toBe("http://odoo.com");
-    expect(cell.link.url).toBe("http://odoo.com");
+    const cell = getCell(model, "A1")!;
+    expect(cell.content).toBe("http://odoo.com");
+    expect(cell.link?.label).toBe("http://odoo.com");
+    expect(cell.link?.url).toBe("http://odoo.com");
   });
 
   test.each([
@@ -127,10 +127,10 @@ describe("link cell", () => {
     const sheetId = model.getters.getActiveSheetId();
     const sheetLink = buildSheetLink(sheetId);
     setCellContent(model, "A1", `[my label](${sheetLink})`);
-    const cell = getCell(model, "A1") as LinkCell;
-    expect(cell.link.label).toBe("my label");
-    expect(cell.link.url).toBe(sheetLink);
-    expect(cell.urlRepresentation).toBe("Sheet1");
+    const cell = getCell(model, "A1")!;
+    expect(cell.link?.label).toBe("my label");
+    expect(cell.link?.url).toBe(sheetLink);
+    expect(cell.link?.urlRepresentation).toBe("Sheet1");
     expect(getCellText(model, "A1")).toBe("my label");
   });
 
@@ -139,25 +139,25 @@ describe("link cell", () => {
     const sheetId = model.getters.getActiveSheetId();
     const sheetLink = buildSheetLink(sheetId);
     setCellContent(model, "A1", `[my label](${sheetLink})`);
-    const cell = getCell(model, "A1") as LinkCell;
+    const cell = getCell(model, "A1")!;
 
     renameSheet(model, sheetId, "new name");
-    expect(cell.link.label).toBe("my label");
-    expect(cell.link.url).toBe(sheetLink);
-    expect(cell.urlRepresentation).toBe("new name");
+    expect(cell.link?.label).toBe("my label");
+    expect(cell.link?.url).toBe(sheetLink);
+    expect(cell.link?.urlRepresentation).toBe("new name");
     expect(getCellText(model, "A1")).toBe("my label");
     undo(model);
-    expect(cell.urlRepresentation).toBe("Sheet1");
+    expect(cell.link?.urlRepresentation).toBe("Sheet1");
   });
 
   test("can create an invalid sheet link", () => {
     const model = new Model();
     const sheetLink = buildSheetLink("invalidSheetId");
     setCellContent(model, "A1", `[my label](${sheetLink})`);
-    const cell = getCell(model, "A1") as LinkCell;
-    expect(cell.link.label).toBe("my label");
-    expect(cell.link.url).toBe(sheetLink);
-    expect(cell.urlRepresentation.toString()).toBe("Invalid sheet");
+    const cell = getCell(model, "A1")!;
+    expect(cell.link?.label).toBe("my label");
+    expect(cell.link?.url).toBe(sheetLink);
+    expect(cell.link?.urlRepresentation.toString()).toBe("Invalid sheet");
     expect(getCellText(model, "A1")).toBe("my label");
   });
 
@@ -167,13 +167,13 @@ describe("link cell", () => {
     const sheetLink = buildSheetLink("42");
     setCellContent(model, "A1", `[my label](${sheetLink})`);
     deleteSheet(model, "42");
-    const cell = getCell(model, "A1") as LinkCell;
-    expect(cell.link.label).toBe("my label");
-    expect(cell.link.url).toBe(sheetLink);
-    expect(cell.urlRepresentation.toString()).toBe("Invalid sheet");
+    const cell = getCell(model, "A1")!;
+    expect(cell.link?.label).toBe("my label");
+    expect(cell.link?.url).toBe(sheetLink);
+    expect(cell.link?.urlRepresentation.toString()).toBe("Invalid sheet");
     expect(getCellText(model, "A1")).toBe("my label");
     undo(model);
-    expect(cell.urlRepresentation).toBe("Sheet2");
+    expect(cell.link?.urlRepresentation).toBe("Sheet2");
   });
 
   test("link text color is applied if a custom style is specified", () => {
@@ -213,11 +213,11 @@ describe("link cell", () => {
   test("copy-paste web links", () => {
     const model = new Model();
     setCellContent(model, "B2", `[my label](odoo.com)`);
-    const B2 = getCell(model, "B2") as LinkCell;
+    const B2 = getCell(model, "B2")!;
     copy(model, "B2");
     paste(model, "D2");
-    const B2After = getCell(model, "B2") as LinkCell;
-    const D2 = getCell(model, "D2") as LinkCell;
+    const B2After = getCell(model, "B2")!;
+    const D2 = getCell(model, "D2")!;
     expect(B2After.link).toEqual(B2.link);
     expect(D2.link).toEqual(B2.link);
     expect(D2.style).toEqual(B2.style);
@@ -228,11 +228,11 @@ describe("link cell", () => {
     const sheetId = model.getters.getActiveSheetId();
     const sheetLink = buildSheetLink(sheetId);
     setCellContent(model, "B2", `[my label](${sheetLink})`);
-    const B2 = getCell(model, "B2") as LinkCell;
+    const B2 = getCell(model, "B2")!;
     copy(model, "B2");
     paste(model, "D2");
-    const B2After = getCell(model, "B2") as LinkCell;
-    const D2 = getCell(model, "D2") as LinkCell;
+    const B2After = getCell(model, "B2")!;
+    const D2 = getCell(model, "D2")!;
     expect(B2After.link).toEqual(B2.link);
     expect(D2.link).toEqual(B2.link);
     expect(D2.style).toEqual(B2.style);

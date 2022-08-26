@@ -291,8 +291,8 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     for (let row = top; row <= bottom; row++) {
       for (let col = left; col <= right; col++) {
         if (col !== left || row !== top) {
-          const cell = this.getters.getCell(sheetId, col, row);
-          if (cell && !cell.isEmpty()) {
+          const cell = this.getters.getCellData(sheetId, col, row);
+          if (cell && cell.content !== "") {
             return true;
           }
         }
@@ -371,7 +371,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     if (tl === br) {
       return;
     }
-    const topLeft = this.getters.getCell(sheetId, left, top);
+    const topLeft = this.getters.getCellData(sheetId, left, top);
 
     let id = this.nextId++;
     this.history.update(

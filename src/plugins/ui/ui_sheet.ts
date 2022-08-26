@@ -105,7 +105,7 @@ export class SheetUIPlugin extends UIPlugin {
   }
 
   getCellText(cell: Cell, showFormula: boolean = false): string {
-    if (showFormula && (cell.isFormula() || cell.evaluated.type === CellValueType.error)) {
+    if (showFormula && (cell.isFormula || cell.evaluated.type === CellValueType.error)) {
       return cell.content;
     } else {
       return cell.formattedValue;

@@ -177,7 +177,7 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
     if (merge && merge.bottom !== merge.top) {
       return DEFAULT_CELL_HEIGHT;
     }
-    const cell = this.getters.getCell(sheetId, col, row);
+    const cell = this.getters.getCellData(sheetId, col, row);
     // TO DO: take multiline cells into account to compute the cell height
     return getDefaultCellHeight(cell?.style);
   }
@@ -192,7 +192,7 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
     const cellIds = this.getters.getRowCells(sheetId, row);
     let maxHeight = 0;
     for (let i = 0; i < cellIds.length; i++) {
-      const cell = this.getters.getCellById(cellIds[i]);
+      const cell = this.getters.getCellDataById(cellIds[i]);
       if (!cell) continue;
       const { col, row } = this.getters.getCellPosition(cell.id);
       const cellHeight = this.getCellHeight(sheetId, col, row);

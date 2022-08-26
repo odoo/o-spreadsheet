@@ -10,7 +10,7 @@ import {
   toHex,
 } from "../../helpers";
 import { GaugeChart, ScorecardChart } from "../../helpers/charts";
-import { Cell, Color, Command, RGBA, UID } from "../../types";
+import { Color, Command, RGBA, StaticCellData, UID } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 /**
@@ -90,7 +90,7 @@ export class CustomColorsPlugin extends UIPlugin {
   getCustomColors(): Color[] {
     let usedColors: Color[] = [];
     for (const sheetId of this.getters.getSheetIds()) {
-      const cells = Object.values(this.getters.getCells(sheetId));
+      const cells = Object.values(this.getters.getCellsData(sheetId));
       usedColors = usedColors.concat(
         this.getColorsFromCells(cells),
         this.getFormattingColors(sheetId),
@@ -109,7 +109,7 @@ export class CustomColorsPlugin extends UIPlugin {
     ]).filter((color) => !COLOR_PICKER_DEFAULTS.includes(color));
   }
 
-  private getColorsFromCells(cells: Cell[]): Color[] {
+  private getColorsFromCells(cells: StaticCellData[]): Color[] {
     const colors: Set<Color> = new Set();
     for (const cell of cells) {
       if (cell.style?.textColor) {

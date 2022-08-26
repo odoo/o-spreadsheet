@@ -28,7 +28,7 @@ import {
 } from "./constants";
 import { toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
 import { args, functionRegistry } from "./functions/index";
-import { LinkCell } from "./helpers/cells/index";
+import { urlRegistry } from "./helpers/cells/link_factory";
 import {
   ChartColors,
   chartFontColor,
@@ -58,7 +58,6 @@ import {
   autofillRulesRegistry,
   cellMenuRegistry,
   cellPopoverRegistry,
-  cellRegistry,
   chartComponentRegistry,
   chartRegistry,
   colMenuRegistry,
@@ -146,11 +145,8 @@ export const registries = {
   clickableCellRegistry,
   otRegistry,
   inverseCommandRegistry,
-  cellRegistry,
+  urlRegistry,
   cellPopoverRegistry,
-};
-export const cellTypes = {
-  LinkCell,
 };
 export const helpers = {
   args,

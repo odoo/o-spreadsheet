@@ -144,7 +144,7 @@ export class FindAndReplacePlugin extends UIPlugin {
           this.currentSearchRegex &&
           this.currentSearchRegex.test(
             this.searchOptions.searchFormulas
-              ? cell.isFormula()
+              ? cell.isFormula
                 ? cell.content
                 : String(cell.evaluated.value)
               : String(cell.evaluated.value)
@@ -258,9 +258,9 @@ export class FindAndReplacePlugin extends UIPlugin {
    */
   private toReplace(cell: Cell | undefined, sheetId: UID): string | null {
     if (cell) {
-      if (this.searchOptions.searchFormulas && cell.isFormula()) {
+      if (this.searchOptions.searchFormulas && cell.isFormula) {
         return cell.content;
-      } else if (this.searchOptions.searchFormulas || !cell.isFormula()) {
+      } else if (this.searchOptions.searchFormulas || !cell.isFormula) {
         return (cell.evaluated.value as any).toString();
       }
     }

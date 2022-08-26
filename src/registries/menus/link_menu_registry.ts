@@ -1,4 +1,4 @@
-import { buildSheetLink } from "../../helpers";
+import { buildSheetLink, markdownLink } from "../../helpers";
 import { _lt } from "../../translation";
 import { createFullMenuItem, MenuItemRegistry } from "../menu_items_registry";
 
@@ -21,11 +21,7 @@ linkMenuRegistry
       createFullMenuItem(sheet.id, {
         name: sheet.name,
         sequence: i,
-        action: () => ({
-          link: { label: sheet.name, url: buildSheetLink(sheet.id) },
-          urlRepresentation: sheet.name,
-          isUrlEditable: false,
-        }),
+        action: () => markdownLink(sheet.name, buildSheetLink(sheet.id)),
       })
     );
   });

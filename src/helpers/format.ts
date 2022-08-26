@@ -1,6 +1,8 @@
 import { DATETIME_FORMAT } from "../constants";
 import { CellValue, Format, FormattedValue } from "../types";
-import { INITIAL_1900_DAY, numberToJsDate } from "./dates";
+import { INITIAL_1900_DAY, numberToJsDate, parseDateTime } from "./dates";
+import { isDateTime } from "./misc";
+import { isNumber } from "./numbers";
 
 /**
  *  Constant used to indicate the maximum of digits that is possible to display
@@ -309,6 +311,30 @@ function formatJSTime(jsDate: Date, format: Format): FormattedValue {
 export function createDefaultFormat(value: number): Format {
   let { decimalDigits } = splitNumber(value, 10);
   return decimalDigits ? "0." + "0".repeat(decimalDigits.length) : "0";
+}
+
+export function detectFormat(content: string): Format | undefined {
+  if (isDateTime(content)) {
+    const internalDate = parseDateTime(content)!;
+    return internalDate.format;
+  }
+  if (!isNumber(content)) {
+    return undefined;
+  }
+  const digitBase = content.includes(".") ? "0.00" : "0";
+  const matchedCurrencies = content.match(/[\$€]/);
+  if (matchedCurrencies) {
+    const matchedFirstDigit = content.match(/[\d]/);
+    const currency = "[$" + matchedCurrencies.values().next().value + "]";
+    if (matchedFirstDigit!.index! < matchedCurrencies.index!) {
+      return "#,##" + digitBase + currency;
+    }
+    return currency + "#,##" + digitBase;
+  }
+  if (content.includes("%")) {
+    return digitBase + "%";
+  }
+  return undefined;
 }
 
 export function createLargeNumberFormat(

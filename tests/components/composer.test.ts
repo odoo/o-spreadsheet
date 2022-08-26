@@ -8,7 +8,7 @@ import {
 import { fontSizes } from "../../src/fonts";
 import { colors, toCartesian, toHex, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { Highlight, LinkCell } from "../../src/types";
+import { Highlight } from "../../src/types";
 import {
   activateSheet,
   createSheet,
@@ -614,9 +614,9 @@ describe("composer", () => {
     await startComposition();
     await typeInComposerGrid(" updated");
     await keyDown("Enter");
-    const cell = getCell(model, "A1") as LinkCell;
-    expect(cell.link.label).toBe("label updated");
-    expect(cell.link.url).toBe("http://odoo.com");
+    const link = getCell(model, "A1")?.link;
+    expect(link?.label).toBe("label updated");
+    expect(link?.url).toBe("http://odoo.com");
   });
 
   test("Hitting enter on topbar composer will properly update it", async () => {
@@ -1463,7 +1463,7 @@ describe("composer highlights color", () => {
     expect(composerEl.textContent).toBe(ref);
   });
 
-  test("highlight cross-sheet ranges", async () => {
+  test("highlight cross sheet ranges", async () => {
     createSheet(model, { sheetId: "42" });
     setCellContent(model, "A1", "=B1+Sheet2!A1");
     await startComposition();

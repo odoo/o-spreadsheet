@@ -11,7 +11,6 @@ import {
 } from "../../helpers/index";
 import { _lt, _t } from "../../translation";
 import {
-  Cell,
   CellPosition,
   Command,
   CommandResult,
@@ -25,6 +24,7 @@ import {
   Row,
   Sheet,
   SheetData,
+  StaticCellData,
   UID,
   UpdateCellPositionCommand,
   WorkbookData,
@@ -52,10 +52,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "isSheetVisible",
     "getEvaluationSheets",
     "doesHeaderExist",
-    "getCell",
-    "getCellsInZone",
+    "getCellData",
     "getCellPosition",
-    "getColCells",
+    "getCellsDataInZone",
     "getColsZone",
     "getRowCells",
     "getRowsZone",
@@ -311,8 +310,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return this.getSheet(sheetId).name;
   }
 
-  getCellsInZone(sheetId: UID, zone: Zone): (Cell | undefined)[] {
-    return positions(zone).map(({ col, row }) => this.getCell(sheetId, col, row));
+  getCellsDataInZone(sheetId: UID, zone: Zone): (StaticCellData | undefined)[] {
+    return positions(zone).map(({ col, row }) => this.getCellData(sheetId, col, row));
   }
 
   /**
@@ -360,24 +359,13 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return row;
   }
 
-  getCell(sheetId: UID, col: HeaderIndex, row: HeaderIndex): Cell | undefined {
+  getCellData(sheetId: UID, col: HeaderIndex, row: HeaderIndex): StaticCellData | undefined {
     const sheet = this.tryGetSheet(sheetId);
     const cellId = sheet?.rows[row]?.cells[col];
     if (cellId === undefined) {
       return undefined;
     }
-    return this.getters.getCellById(cellId);
-  }
-
-  /**
-   * Returns all the cells of a col
-   */
-  getColCells(sheetId: UID, col: HeaderIndex): Cell[] {
-    return this.getSheet(sheetId)
-      .rows.map((row) => row.cells[col])
-      .filter(isDefined)
-      .map((cellId) => this.getters.getCellById(cellId))
-      .filter(isDefined);
+    return this.getters.getCellDataById(cellId);
   }
 
   getColsZone(sheetId: UID, start: HeaderIndex, end: HeaderIndex): Zone {
@@ -471,9 +459,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    * Check if a zone only contains empty cells
    */
   isEmpty(sheetId: UID, zone: Zone): boolean {
-    return this.getCellsInZone(sheetId, zone)
+    return this.getCellsDataInZone(sheetId, zone)
       .flat()
-      .every((cell) => !cell || cell.isEmpty());
+      .every((cell) => !cell || cell.content === "");
   }
 
   private updateCellPosition(cmd: UpdateCellPositionCommand) {
@@ -664,7 +652,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     this.history.update("orderedSheetIds", orderedSheetIds);
     this.history.update("sheets", Object.assign({}, this.sheets, { [newSheet.id]: newSheet }));
 
-    for (const cell of Object.values(this.getters.getCells(fromId))) {
+    for (const cell of Object.values(this.getters.getCellsData(fromId))) {
       const { col, row } = this.getCellPosition(cell.id);
       this.dispatch("UPDATE_CELL", {
         sheetId: newSheet.id,

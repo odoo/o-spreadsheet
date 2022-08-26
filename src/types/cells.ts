@@ -1,12 +1,42 @@
-import { Lazy } from ".";
-import { SpreadsheetChildEnv } from "./env";
 import { EvaluationError } from "./errors";
 import { Format, FormattedValue } from "./format";
 import { CompiledFormula, Link, Style, UID } from "./misc";
 import { Range } from "./range";
 
-export type Cell = ICell | FormulaCell;
-export interface ICell {
+interface CellData {
+  readonly id: UID;
+  /**
+   * Raw cell content
+   */
+  readonly content: string;
+  readonly style?: Style;
+  readonly format?: Format;
+}
+
+interface ConstantCellData extends CellData {
+  readonly contentType: "constantValue";
+  readonly isFormula: false;
+  readonly isValidFormula: false;
+}
+
+export interface FormulaCellData extends CellData {
+  readonly contentType: "validFormula";
+  readonly isFormula: true;
+  readonly isValidFormula: true;
+  readonly compiledFormula: CompiledFormula;
+  readonly dependencies: Range[];
+}
+
+export interface InvalidFormulaCellData extends CellData {
+  readonly contentType: "invalidFormula";
+  readonly isFormula: true;
+  readonly isValidFormula: false;
+  readonly error: Error;
+}
+
+export type StaticCellData = ConstantCellData | FormulaCellData | InvalidFormulaCellData;
+
+interface CellProperties {
   readonly id: UID;
   /**
    * Raw cell content
@@ -20,7 +50,7 @@ export interface ICell {
   /**
    * Evaluated cell content
    */
-  readonly evaluated: CellEvaluation;
+  readonly evaluated: EvaluationResult;
   /**
    * Cell value formatted based on the format
    */
@@ -28,91 +58,84 @@ export interface ICell {
   readonly style?: Style;
   readonly format?: Format;
   readonly defaultAlign: "right" | "center" | "left";
+  readonly link?: Link;
   /**
    * Can the cell appear in an automatic sum zone.
    */
   readonly isAutoSummable: boolean;
-  isFormula(): this is FormulaCell;
-  isLink(): this is LinkCell;
   isEmpty(): boolean;
+  isFormula: boolean;
+  readonly isValidFormula: boolean;
 }
 
-export interface FormulaCell extends ICell {
-  assignEvaluation: (
-    evaluationResult: Lazy<{ value: CellValue | null; format?: Format } | EvaluationError>
-  ) => void;
-  readonly compiledFormula: CompiledFormula;
+interface ConstantCell extends CellProperties {
+  readonly isValidFormula: false;
+}
+
+export interface ValidFormulaCell extends CellProperties {
+  readonly isValidFormula: true;
   readonly dependencies: Range[];
+  readonly compiledFormula: CompiledFormula;
 }
 
-/**
- * A cell that can redirect to a given location which is
- * specified in a link.
- */
-export interface LinkCell extends ICell {
-  readonly link: Link;
+export type Cell = ConstantCell | ValidFormulaCell;
+
+interface EvaluationResultProperties {
   /**
-   * Go to the link destination
+   * Cell content displayed in the composer. It defaults to the cell content
+   * for most cell types.
    */
-  readonly action: (env: SpreadsheetChildEnv) => void;
+  readonly composerContent: string;
   /**
-   * String used to display the URL in components.
-   * Particularly useful for special links (sheet, etc.)
-   * - a simple web link displays the raw url
-   * - a link to a sheet displays the sheet name
+   * Cell value formatted based on the format
    */
-  readonly urlRepresentation: string;
+  readonly formattedValue: FormattedValue;
+  readonly defaultAlign: "right" | "center" | "left";
   /**
-   * Specifies if the URL is editable by the end user.
-   * Special links might not allow it.
+   * Can the cell appear in an automatic sum zone.
    */
-  readonly isUrlEditable: boolean;
+  readonly isAutoSummable: boolean;
 }
 
 export type CellValue = string | number | boolean;
 
-export interface CellDisplayProperties {
-  style?: Style;
-  format?: Format;
-}
-
-export type CellEvaluation =
+export type EvaluationResult =
   | NumberEvaluation
   | TextEvaluation
   | BooleanEvaluation
   | EmptyEvaluation
   | InvalidEvaluation;
 
-export type NumberEvaluation = {
+export interface NumberEvaluation extends EvaluationResultProperties {
   readonly type: CellValueType.number;
   readonly value: number;
   readonly format?: Format;
-};
+}
 
-export type TextEvaluation = {
+export interface TextEvaluation extends EvaluationResultProperties {
   readonly type: CellValueType.text;
   readonly value: string;
   readonly format?: Format;
-};
+}
 
-export type BooleanEvaluation = {
+export interface BooleanEvaluation extends EvaluationResultProperties {
   readonly type: CellValueType.boolean;
   readonly value: boolean;
   readonly format?: Format;
-};
+}
 
-export type EmptyEvaluation = {
+export interface EmptyEvaluation extends EvaluationResultProperties {
   readonly type: CellValueType.empty;
   readonly value: "";
   readonly format?: Format;
-};
+}
 
-export type InvalidEvaluation = {
+export interface InvalidEvaluation extends EvaluationResultProperties {
   readonly type: CellValueType.error;
   readonly value: string;
   readonly error: EvaluationError;
   readonly format?: Format;
-};
+}
 
 export enum CellValueType {
   boolean = "boolean",

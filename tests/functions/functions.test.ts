@@ -90,11 +90,11 @@ describe("functions", () => {
     setCellContent(model, "A1", "42");
     setCellFormat(model, "A1", "0%");
     setCellContent(model, "A2", "42");
-    setCellFormat(model, "A2", "#,##0.OO");
+    setCellFormat(model, "A2", "#,##0.00");
     setCellContent(model, "B1", "=RETURN.FORMAT.DEPENDING.ON.INPUT.FORMAT(A1)");
     setCellContent(model, "B2", "=RETURN.FORMAT.DEPENDING.ON.INPUT.FORMAT(A2)");
     expect(getCell(model, "B1")!.evaluated.format).toBe("0%");
-    expect(getCell(model, "B2")!.evaluated.format).toBe("#,##0.OO");
+    expect(getCell(model, "B2")!.evaluated.format).toBe("#,##0.00");
   });
 
   test("Function can return format depending on input value", () => {
@@ -102,7 +102,7 @@ describe("functions", () => {
     functionRegistry.add("RETURN.FORMAT.DEPENDING.ON.INPUT.VALUE", {
       description: "return format depending on input value",
       computeFormat: function (arg: PrimitiveArg) {
-        return toNumber(arg.value) >= 0 ? "0%" : "#,##0.OO";
+        return toNumber(arg.value) >= 0 ? "0%" : "#,##0.00";
       } as ComputeFunction<Arg, Format | undefined>,
       compute: function (arg: PrimitiveArgValue) {
         return arg;
@@ -115,7 +115,7 @@ describe("functions", () => {
     setCellContent(model, "B1", "=RETURN.FORMAT.DEPENDING.ON.INPUT.VALUE(A1)");
     setCellContent(model, "B2", "=RETURN.FORMAT.DEPENDING.ON.INPUT.VALUE(A2)");
     expect(getCell(model, "B1")!.evaluated.format).toBe("0%");
-    expect(getCell(model, "B2")!.evaluated.format).toBe("#,##0.OO");
+    expect(getCell(model, "B2")!.evaluated.format).toBe("#,##0.00");
   });
 
   test("Can use a custom evaluation context in a function", () => {

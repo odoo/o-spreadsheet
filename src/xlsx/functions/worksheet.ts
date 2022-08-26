@@ -1,11 +1,6 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, INCORRECT_RANGE_STRING } from "../../constants";
-import {
-  isMarkdownLink,
-  isMarkdownSheetLink,
-  parseMarkdownLink,
-  parseSheetLink,
-  toXC,
-} from "../../helpers";
+import { isMarkdownLink, isSheetUrl, parseMarkdownLink, parseSheetUrl, toXC } from "../../helpers";
+import { withHttp } from "../../helpers/cells/link_factory";
 import { ExcelSheetData, ExcelWorkbookData, HeaderData } from "../../types";
 import { XLSXStructure, XMLAttributes, XMLString } from "../../types/xlsx";
 import {
@@ -118,8 +113,8 @@ export function addHyperlinks(
     const content = cells[xc]?.content;
     if (content && isMarkdownLink(content)) {
       const { label, url } = parseMarkdownLink(content);
-      if (isMarkdownSheetLink(content)) {
-        const sheetId = parseSheetLink(url);
+      if (isSheetUrl(url)) {
+        const sheetId = parseSheetUrl(url);
         const sheet = data.sheets.find((sheet) => sheet.id === sheetId);
         const location = sheet ? `${sheet.name}!A1` : INCORRECT_RANGE_STRING;
         linkNodes.push(escapeXml/*xml*/ `
@@ -130,7 +125,7 @@ export function addHyperlinks(
           construct.relsFiles,
           `xl/worksheets/_rels/sheet${sheetIndex}.xml.rels`,
           {
-            target: url,
+            target: withHttp(url),
             type: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
             targetMode: "External",
           }

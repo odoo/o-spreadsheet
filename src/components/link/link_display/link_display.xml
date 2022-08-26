@@ -1,7 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-LinkDisplay" owl="1">
     <div class="o-link-tool">
-      <t t-set="link" t-value="cell.link"/>
       <!-- t-key to prevent owl from re-using the previous img element when the link changes.
     The wrong/previous image would be displayed while the new one loads -->
       <img
@@ -16,14 +15,14 @@
         target="_blank"
         t-on-click.prevent="openLink"
         t-att-title="link.url">
-        <t t-esc="cell.urlRepresentation"/>
+        <t t-esc="link.urlRepresentation"/>
       </a>
       <a
         t-else=""
         class="o-link"
         t-on-click.prevent="openLink"
-        t-att-title="cell.urlRepresentation">
-        <t t-esc="cell.urlRepresentation"/>
+        t-att-title="link.urlRepresentation">
+        <t t-esc="link.urlRepresentation"/>
       </a>
       <span class="o-link-icon o-unlink" t-on-click="unlink" title="Remove link">
         <t t-call="o-spreadsheet-Icon.UNLINK"/>

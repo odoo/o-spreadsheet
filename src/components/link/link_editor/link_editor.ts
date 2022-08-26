@@ -1,7 +1,8 @@
 import { Component, onMounted, useRef, useState } from "@odoo/owl";
 import { markdownLink } from "../../../helpers";
+import { linkDetector } from "../../../helpers/cells/link_factory";
 import { linkMenuRegistry } from "../../../registries/menus/link_menu_registry";
-import { DOMCoordinates, Link, Position, SpreadsheetChildEnv } from "../../../types";
+import { DOMCoordinates, Position, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { css } from "../../helpers/css";
 import { useAbsolutePosition } from "../../helpers/position_hook";
@@ -90,8 +91,9 @@ interface LinkEditorProps {
   onClosed?: () => void;
 }
 
+// TODO REF that
 interface State {
-  link: Link;
+  link: { label: string; url: string };
   urlRepresentation: string;
   isUrlEditable: boolean;
 }
@@ -117,11 +119,11 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
     const { col, row } = this.props.cellPosition;
     const sheetId = this.env.model.getters.getActiveSheetId();
     const cell = this.env.model.getters.getCell(sheetId, col, row);
-    if (cell?.isLink()) {
+    if (cell?.link) {
       return {
         link: { url: cell.link.url, label: cell.formattedValue },
-        urlRepresentation: cell.urlRepresentation,
-        isUrlEditable: cell.isUrlEditable,
+        urlRepresentation: cell.link.urlRepresentation,
+        isUrlEditable: cell.link.isUrlEditable,
       };
     }
     return {
@@ -138,12 +140,16 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
     };
   }
 
-  onSpecialLink(ev: CustomEvent<State>) {
-    const { detail } = ev;
-    this.state.link.url = detail.link.url;
-    this.state.link.label = detail.link.label;
-    this.state.isUrlEditable = detail.isUrlEditable;
-    this.state.urlRepresentation = detail.urlRepresentation;
+  onSpecialLink(ev: CustomEvent<string>) {
+    const { detail: markdownLink } = ev;
+    const link = linkDetector(this.env.model.getters)(markdownLink);
+    if (!link) {
+      return;
+    }
+    this.state.link.url = link.url;
+    this.state.link.label = link.label;
+    this.state.isUrlEditable = link.isUrlEditable;
+    this.state.urlRepresentation = link.urlRepresentation;
   }
 
   openMenu() {

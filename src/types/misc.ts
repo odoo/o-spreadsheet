@@ -49,13 +49,21 @@ export interface HSLA {
 }
 
 export interface Link {
-  label: string;
-  url: string;
+  readonly label: string;
+  readonly url: string;
+  readonly isExternal: boolean;
   /**
-   * Specifies if the resource is external and can
-   * be opened in a new tab.
+   * String used to display the URL in components.
+   * Particularly useful for special links (sheet, etc.)
+   * - a simple web link displays the raw url
+   * - a link to a sheet displays the sheet name
    */
-  isExternal?: boolean;
+  readonly urlRepresentation: string;
+  /**
+   * Specifies if the URL is editable by the end user.
+   * Special links might not allow it.
+   */
+  readonly isUrlEditable: boolean;
 }
 
 export interface Zone {

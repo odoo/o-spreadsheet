@@ -295,7 +295,7 @@ export class SortPlugin extends UIPlugin {
         };
         if (cell) {
           let content: string = cell.content;
-          if (cell.isFormula()) {
+          if (cell.isValidFormula) {
             const position = this.getters.getCellPosition(cell.id);
             const offsetY = newRow - position.row;
             // we only have a vertical offset

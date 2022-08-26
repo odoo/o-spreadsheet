@@ -421,7 +421,7 @@ export class EditionPlugin extends UIPlugin {
           if (missing > 0) {
             content += concat(new Array(missing).fill(")"));
           }
-        } else if (cell?.isLink()) {
+        } else if (cell?.link) {
           content = markdownLink(content, cell.link.url);
         }
         this.dispatch("UPDATE_CELL", {
