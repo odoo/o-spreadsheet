@@ -220,7 +220,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         cells[xc] = {
           style: cell.style ? getItemId<Style>(cell.style, styles) : undefined,
           format: cell.format ? getItemId<Format>(cell.format, formats) : undefined,
-          content: cell.content,
+          content: cell.content || undefined,
         };
       }
       _sheet.cells = cells;
