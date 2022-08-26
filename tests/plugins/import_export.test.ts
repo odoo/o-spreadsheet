@@ -16,8 +16,9 @@ import {
   resizeColumns,
   resizeRows,
   setCellContent,
+  setStyle,
 } from "../test_helpers/commands_helpers";
-import { getCellContent, getMerges } from "../test_helpers/getters_helpers";
+import { getCell, getCellContent, getMerges } from "../test_helpers/getters_helpers";
 import "../test_helpers/helpers";
 
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
@@ -442,6 +443,24 @@ describe("Import", () => {
     expect(Object.keys(getMerges(model))).toHaveLength(1);
     expect(Object.values(getMerges(model))[0].topLeft).toEqual(toCartesian("A2"));
   });
+
+  test("can import cell without content", () => {
+    const model = new Model({
+      sheets: [
+        {
+          id: "1",
+          cells: {
+            A1: { format: 1 },
+          },
+        },
+      ],
+      formats: {
+        1: "0.00%",
+      },
+    });
+    expect(getCell(model, "A1")?.content).toBe("");
+    expect(getCell(model, "A1")?.format).toBe("0.00%");
+  });
 });
 
 describe("Export", () => {
@@ -504,6 +523,13 @@ describe("Export", () => {
     });
     const exp = model.exportData();
     expect(exp.sheets![0].cells!.A1!.format).toBe(1);
+  });
+
+  test("empty content is not exported", () => {
+    const model = new Model();
+    setStyle(model, "A1", { fillColor: "#123456" });
+    const exp = model.exportData();
+    expect(exp.sheets![0].cells!.A1!).toEqual({ style: 1 });
   });
 });
 
