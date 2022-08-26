@@ -91,7 +91,7 @@ abstract class AbstractCell<T extends CellEvaluation = CellEvaluation> implement
       case CellValueType.text:
         return true;
       case CellValueType.number:
-        return !this.format?.match(DATETIME_FORMAT);
+        return !this.evaluated.format?.match(DATETIME_FORMAT);
       case CellValueType.error:
       case CellValueType.boolean:
         return false;
