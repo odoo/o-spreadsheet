@@ -12,6 +12,7 @@ import {
   load,
   repairInitialMessages,
 } from "./migrations/data";
+import { BasePlugin } from "./plugins/base_plugin";
 import { RangeAdapter } from "./plugins/core/range";
 import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
 import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
@@ -492,7 +493,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.dispatch("EVALUATE_ALL_SHEETS");
     let data = createEmptyExcelWorkbookData();
     for (let handler of this.handlers) {
-      if (handler instanceof CorePlugin) {
+      if (handler instanceof BasePlugin) {
         handler.exportForExcel(data);
       }
     }
