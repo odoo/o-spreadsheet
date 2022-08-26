@@ -605,10 +605,7 @@ export class RendererPlugin extends UIPlugin {
       width,
       height,
       border: this.getters.getCellBorder(sheetId, col, row) || undefined,
-      style: {
-        ...this.getters.getCellStyle(cell),
-        ...this.getters.getConditionalStyle(col, row),
-      },
+      style: this.getters.getCellComputedStyle(sheetId, col, row),
     };
 
     if (!cell) {

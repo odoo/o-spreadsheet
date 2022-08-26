@@ -11,6 +11,7 @@ import {
   moveConditionalFormat,
   redo,
   setCellContent,
+  setStyle,
   undo,
 } from "../test_helpers/commands_helpers";
 import {
@@ -71,14 +72,38 @@ describe("conditional format", () => {
         ranges: ["A:A"],
       },
     ]);
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A2"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A3"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A4"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A3"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A4"))).toEqual({
       fillColor: "#0000FF",
     });
+  });
+
+  test("getCellComputedStyle", () => {
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "1");
+    setStyle(model, "A1", { fillColor: "blue" });
+    setStyle(model, "A2", { bold: true });
+    setStyle(model, "A3", { fillColor: "orange" });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
+      ranges: toRangesData(sheetId, "A1, A2"),
+      sheetId,
+    });
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
+      fillColor: "#FF0000",
+    });
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A2"))).toEqual({
+      fillColor: "#FF0000",
+      bold: true,
+    });
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A3"))).toEqual({
+      fillColor: "orange",
+    });
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A4"))).toEqual({});
   });
 
   test("Add conditional formatting on inactive sheet", () => {
@@ -180,24 +205,24 @@ describe("conditional format", () => {
         ranges: ["A1:A4"],
       },
     ]);
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A2"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A3"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A4"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A3"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A4"))).toEqual({
       fillColor: "#0000FF",
     });
     model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
       id: "2",
       sheetId,
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A2"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A3"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A4"))).toBeUndefined();
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A3"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A4"))).toEqual({});
   });
 
   test("works on multiple ranges", () => {
@@ -208,10 +233,10 @@ describe("conditional format", () => {
       ranges: toRangesData(sheetId, "A1, A2"),
       sheetId,
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A2"))).toEqual({
       fillColor: "#FF0000",
     });
   });
@@ -224,24 +249,24 @@ describe("conditional format", () => {
       ranges: toRangesData(sheetId, "A1, A2"),
       sheetId,
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A2"))).toEqual({
       fillColor: "#FF0000",
     });
 
     undo(model);
 
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toBeUndefined();
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A2"))).toEqual({});
 
     redo(model);
 
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A2"))).toEqual({
       fillColor: "#FF0000",
     });
   });
@@ -264,10 +289,10 @@ describe("conditional format", () => {
       ranges: toRangesData(sheetId, "B1,B2"),
       sheetId,
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("B1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("B2"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B2"))).toEqual({
       fillColor: "#FF0000",
     });
     addColumns(model, "after", "A", 1);
@@ -283,12 +308,12 @@ describe("conditional format", () => {
         },
       },
     ]);
-    expect(model.getters.getConditionalStyle(...toCartesianArray("B1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("B2"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("C1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B1"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B2"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("C2"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C2"))).toEqual({
       fillColor: "#FF0000",
     });
 
@@ -305,22 +330,22 @@ describe("conditional format", () => {
         },
       },
     ]);
-    expect(model.getters.getConditionalStyle(...toCartesianArray("B1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("B2"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B2"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("C1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("C2"))).toBeUndefined();
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C1"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C2"))).toEqual({});
 
     redo(model);
-    expect(model.getters.getConditionalStyle(...toCartesianArray("B1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("B2"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("C1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B1"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B2"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("C2"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C2"))).toEqual({
       fillColor: "#FF0000",
     });
   });
@@ -356,15 +381,15 @@ describe("conditional format", () => {
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
     setCellContent(model, "A1", "2");
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
       fillColor: "#FF0000",
     });
     setCellContent(model, "A1", "1");
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
     setCellContent(model, "A1", "=A2");
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
       fillColor: "#FF0000",
     });
   });
@@ -377,7 +402,7 @@ describe("conditional format", () => {
       sheetId,
     });
     setCellContent(model, "A1", "=BLA");
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
   });
 
   test("multiple conditional formats for one cell", () => {
@@ -392,7 +417,7 @@ describe("conditional format", () => {
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
       fillColor: "#FF0000",
       textColor: "#445566",
     });
@@ -410,7 +435,7 @@ describe("conditional format", () => {
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
       fillColor: "#FF0000",
     });
   });
@@ -437,7 +462,7 @@ describe("conditional format", () => {
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
       fillColor: "#FF0000",
     });
   });
@@ -449,7 +474,7 @@ describe("conditional format", () => {
       sheetId,
     });
     expect(result).toBeSuccessfullyDispatched();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
       fillColor: "#FF0000",
     });
   });
@@ -491,11 +516,11 @@ describe("conditional format", () => {
         { id: "6", ranges: ["F1:F2"], rule },
         { id: "7", ranges: ["G1:G2"], rule },
       ]);
-      expect(model.getters.getConditionalStyle(...toCartesianArray("B2"))).toBeUndefined();
-      expect(model.getters.getConditionalStyle(...toCartesianArray("C2"))!.fillColor).toBe(
-        "orange"
-      );
-      expect(model.getters.getConditionalStyle(...toCartesianArray("C3"))).toBeUndefined();
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B2"))).toEqual({});
+      expect(
+        model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C2"))!.fillColor
+      ).toBe("orange");
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C3"))).toEqual({});
     });
     test("On column deletion", () => {
       model = new Model({
@@ -531,11 +556,11 @@ describe("conditional format", () => {
         { id: "8", ranges: ["A7", "B7"], rule },
         { id: "9", ranges: ["A7", "B7"], rule },
       ]);
-      expect(model.getters.getConditionalStyle(...toCartesianArray("B2"))).toBeUndefined();
-      expect(model.getters.getConditionalStyle(...toCartesianArray("B3"))!.fillColor).toBe(
-        "orange"
-      );
-      expect(model.getters.getConditionalStyle(...toCartesianArray("C3"))).toBeUndefined();
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B2"))).toEqual({});
+      expect(
+        model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B3"))!.fillColor
+      ).toBe("orange");
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C3"))).toEqual({});
     });
     test("On column addition", () => {
       model = new Model({
@@ -563,10 +588,10 @@ describe("conditional format", () => {
         { id: "3", ranges: ["C3:F3"], rule },
         { id: "4", ranges: ["C4"], rule },
       ]);
-      expect(model.getters.getConditionalStyle(...toCartesianArray("B4"))).toBeUndefined();
-      expect(model.getters.getConditionalStyle(...toCartesianArray("C4"))!.fillColor).toBe(
-        "orange"
-      );
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B4"))).toEqual({});
+      expect(
+        model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C4"))!.fillColor
+      ).toBe("orange");
     });
     test("On row addition", () => {
       model = new Model({
@@ -594,10 +619,10 @@ describe("conditional format", () => {
         { id: "3", ranges: ["C3:C6"], rule },
         { id: "4", ranges: ["D3"], rule },
       ]);
-      expect(model.getters.getConditionalStyle(...toCartesianArray("D2"))).toBeUndefined();
-      expect(model.getters.getConditionalStyle(...toCartesianArray("D3"))!.fillColor).toBe(
-        "orange"
-      );
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("D2"))).toEqual({});
+      expect(
+        model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("D3"))!.fillColor
+      ).toBe("orange");
     });
   });
 
@@ -693,11 +718,11 @@ describe("conditional format", () => {
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
       fillColor: "#FF0000",
     });
     moveConditionalFormat(model, idRule1, "down", sheetId);
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
       fillColor: "#0000FF",
     });
   });
@@ -728,8 +753,8 @@ describe("conditional formats types", () => {
           sheetId,
         });
         setCellContent(model, "A1", cellContent);
-        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
-        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
+        expect(model.getters.getCellComputedStyle(sheetId, 0, 0)).toEqual(computedStyle);
       });
 
       test.each([
@@ -752,8 +777,8 @@ describe("conditional formats types", () => {
           sheetId,
         });
         setCellContent(model, "A1", cellContent);
-        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
-        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
+        expect(model.getters.getCellComputedStyle(sheetId, 0, 0)).toEqual(computedStyle);
       });
     });
 
@@ -773,25 +798,25 @@ describe("conditional formats types", () => {
       });
 
       setCellContent(model, "A1", "0");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
 
       setCellContent(model, "A1", "1");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
         fillColor: "#ff0f0f",
       });
 
       setCellContent(model, "A1", "1.5");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
         fillColor: "#ff0f0f",
       });
 
       setCellContent(model, "A1", "3");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
         fillColor: "#ff0f0f",
       });
 
       setCellContent(model, "A1", "3.5");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
     });
 
     describe("Operator ContainsText", () => {
@@ -818,8 +843,8 @@ describe("conditional formats types", () => {
           sheetId,
         });
         setCellContent(model, "A1", cellContent);
-        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
-        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
+        expect(model.getters.getCellComputedStyle(sheetId, 0, 0)).toEqual(computedStyle);
       });
 
       test.each([
@@ -843,8 +868,8 @@ describe("conditional formats types", () => {
           sheetId,
         });
         setCellContent(model, "A1", cellContent);
-        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
-        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
+        expect(model.getters.getCellComputedStyle(sheetId, 0, 0)).toEqual(computedStyle);
       });
     });
 
@@ -870,8 +895,8 @@ describe("conditional formats types", () => {
           sheetId,
         });
         setCellContent(model, "A1", cellContent);
-        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
-        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
+        expect(model.getters.getCellComputedStyle(sheetId, 0, 0)).toEqual(computedStyle);
       });
 
       test.each([
@@ -894,8 +919,8 @@ describe("conditional formats types", () => {
           sheetId,
         });
         setCellContent(model, "A1", cellContent);
-        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
-        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
+        expect(model.getters.getCellComputedStyle(sheetId, 0, 0)).toEqual(computedStyle);
       });
     });
 
@@ -914,13 +939,13 @@ describe("conditional formats types", () => {
         sheetId,
       });
       setCellContent(model, "A1", "5");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
 
       setCellContent(model, "A1", "12");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
 
       setCellContent(model, "A1", "13");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
         fillColor: "#ff0f0f",
       });
     });
@@ -941,15 +966,15 @@ describe("conditional formats types", () => {
       });
 
       setCellContent(model, "A1", "5");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
 
       setCellContent(model, "A1", "12");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
         fillColor: "#ff0f0f",
       });
 
       setCellContent(model, "A1", "13");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
         fillColor: "#ff0f0f",
       });
     });
@@ -970,13 +995,13 @@ describe("conditional formats types", () => {
       });
 
       setCellContent(model, "A1", "11");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
 
       setCellContent(model, "A1", "10");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
 
       setCellContent(model, "A1", "9");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
         fillColor: "#ff0f0f",
       });
     });
@@ -997,15 +1022,15 @@ describe("conditional formats types", () => {
       });
 
       setCellContent(model, "A1", "11");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
 
       setCellContent(model, "A1", "10");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
         fillColor: "#ff0f0f",
       });
 
       setCellContent(model, "A1", "9");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
         fillColor: "#ff0f0f",
       });
     });
@@ -1026,23 +1051,23 @@ describe("conditional formats types", () => {
       });
 
       setCellContent(model, "A1", "4");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
         fillColor: "#ff0f0f",
       });
 
       setCellContent(model, "A1", "0");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
         fillColor: "#ff0f0f",
       });
 
       setCellContent(model, "A1", "5");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
 
       setCellContent(model, "A1", "10");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
 
       setCellContent(model, "A1", "10.1");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
         fillColor: "#ff0f0f",
       });
     });
@@ -1061,15 +1086,15 @@ describe("conditional formats types", () => {
         ranges: toRangesData(sheetId, "A1"),
         sheetId,
       });
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
         fillColor: "#ff0f0f",
       });
 
       setCellContent(model, "A1", "hellqsdfo");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
 
       setCellContent(model, "A1", "hello");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
         fillColor: "#ff0f0f",
       });
     });
@@ -1097,8 +1122,8 @@ describe("conditional formats types", () => {
           sheetId,
         });
         setCellContent(model, "A1", cellContent);
-        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
-        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
+        expect(model.getters.getCellComputedStyle(sheetId, 0, 0)).toEqual(computedStyle);
       });
 
       test.each([
@@ -1121,8 +1146,8 @@ describe("conditional formats types", () => {
           sheetId,
         });
         setCellContent(model, "A1", cellContent);
-        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
-        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
+        expect(model.getters.getCellComputedStyle(sheetId, 0, 0)).toEqual(computedStyle);
       });
     });
 
@@ -1147,8 +1172,8 @@ describe("conditional formats types", () => {
           sheetId,
         });
         setCellContent(model, "A1", cellContent);
-        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
-        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
+        expect(model.getters.getCellComputedStyle(sheetId, 0, 0)).toEqual(computedStyle);
       });
 
       test.each([
@@ -1172,8 +1197,8 @@ describe("conditional formats types", () => {
           sheetId,
         });
         setCellContent(model, "A1", cellContent);
-        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
-        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
+        expect(model.getters.getCellComputedStyle(sheetId, 0, 0)).toEqual(computedStyle);
       });
 
       test.each([
@@ -1197,8 +1222,8 @@ describe("conditional formats types", () => {
           sheetId,
         });
         setCellContent(model, "A1", cellContent);
-        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
-        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
+        expect(model.getters.getCellComputedStyle(sheetId, 0, 0)).toEqual(computedStyle);
       });
     });
 
@@ -1223,8 +1248,8 @@ describe("conditional formats types", () => {
           sheetId,
         });
         setCellContent(model, "A1", cellContent);
-        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
-        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
+        expect(model.getters.getCellComputedStyle(sheetId, 0, 0)).toEqual(computedStyle);
       });
 
       test.each([
@@ -1248,8 +1273,8 @@ describe("conditional formats types", () => {
           sheetId,
         });
         setCellContent(model, "A1", cellContent);
-        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
-        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
+        expect(model.getters.getCellComputedStyle(sheetId, 0, 0)).toEqual(computedStyle);
       });
 
       test.each([
@@ -1273,8 +1298,8 @@ describe("conditional formats types", () => {
           sheetId,
         });
         setCellContent(model, "A1", cellContent);
-        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
-        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
+        expect(model.getters.getCellComputedStyle(sheetId, 0, 0)).toEqual(computedStyle);
       });
     });
 
@@ -1293,31 +1318,31 @@ describe("conditional formats types", () => {
         sheetId,
       });
       setCellContent(model, "A1", "");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
         fillColor: "#ff0f0f",
       });
 
       setCellContent(model, "A1", " ");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
         fillColor: "#ff0f0f",
       });
 
       setCellContent(model, "A2", "");
       setCellContent(model, "A1", "=A2");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
 
       setCellContent(model, "A1", '=""');
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
         fillColor: "#ff0f0f",
       });
 
       setCellContent(model, "A1", '=" "');
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
         fillColor: "#ff0f0f",
       });
 
       setCellContent(model, "A1", "helabclo");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
     });
 
     test("Operator IsNotEmpty", () => {
@@ -1335,13 +1360,13 @@ describe("conditional formats types", () => {
         sheetId,
       });
       setCellContent(model, "A1", "");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
 
       setCellContent(model, "A1", " ");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
 
       setCellContent(model, "A1", "helabclo");
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
         fillColor: "#ff0f0f",
       });
     });
@@ -1496,7 +1521,9 @@ describe("conditional formats types", () => {
       sheetId,
     });
     setCellContent(model, "A1", "=B1");
-    expect(model.getters.getConditionalStyle(0, 0, sheetId)).toEqual({ fillColor: "#FF0FFF" });
+    expect(model.getters.getCellComputedStyle(sheetId, 0, 0)).toEqual({
+      fillColor: "#FF0FFF",
+    });
   });
 
   describe("Icon set", () => {
@@ -1621,7 +1648,7 @@ describe("conditional formats types", () => {
         ranges: toRangesData(sheetId, "A1"),
         sheetId,
       });
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual(undefined);
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
       expect(model.getters.getConditionalIcon(...toCartesianArray("A1"))).toEqual("arrowNeutral");
     });
 
@@ -1646,7 +1673,7 @@ describe("conditional formats types", () => {
           ranges: toRangesData(sheetId, "A1"),
           sheetId,
         });
-        expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+        expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
         expect(model.getters.getConditionalIcon(...toCartesianArray("A1"))).toBeUndefined();
       }
     );
@@ -1871,7 +1898,7 @@ describe("conditional formats types", () => {
         ranges: toRangesData(sheetId, "A1"),
         sheetId,
       });
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual(undefined);
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
     });
 
     test("2 points, value scale", () => {
@@ -1891,19 +1918,19 @@ describe("conditional formats types", () => {
         sheetId,
       });
 
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
         fillColor: "#FF00FF",
       });
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A2"))).toEqual({
         fillColor: "#E705EE",
       });
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A3"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A3"))).toEqual({
         fillColor: "#592489",
       });
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A4"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A4"))).toEqual({
         fillColor: "#2A2F67",
       });
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A5"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A5"))).toEqual({
         fillColor: "#123456",
       });
     });
@@ -1925,19 +1952,19 @@ describe("conditional formats types", () => {
         sheetId,
       });
 
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
         fillColor: "#FF00FF",
       });
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A2"))).toEqual({
         fillColor: "#E705EE",
       });
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A3"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A3"))).toEqual({
         fillColor: "#592489",
       });
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A4"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A4"))).toEqual({
         fillColor: "#2A2F67",
       });
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A5"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A5"))).toEqual({
         fillColor: "#123456",
       });
     });
@@ -1959,19 +1986,19 @@ describe("conditional formats types", () => {
         sheetId,
       });
 
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
         fillColor: "#FF00FF",
       });
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A2"))).toEqual({
         fillColor: "#E705EE",
       });
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A3"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A3"))).toEqual({
         fillColor: "#592489",
       });
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A4"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A4"))).toEqual({
         fillColor: "#2A2F67",
       });
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A5"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A5"))).toEqual({
         fillColor: "#123456",
       });
     });
@@ -1991,13 +2018,13 @@ describe("conditional formats types", () => {
         sheetId,
       });
 
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
         fillColor: "#808000",
       });
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A2"))).toEqual({
         fillColor: "#FF0000",
       });
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A3"))).toEqual({
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A3"))).toEqual({
         fillColor: "#00FF00",
       });
     });
@@ -2015,8 +2042,8 @@ describe("conditional formats types", () => {
         sheetId,
       });
 
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual(undefined);
-      expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toEqual(undefined);
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A2"))).toEqual({});
     });
 
     test("CF is not updated with insert/delete cells", () => {
@@ -2047,9 +2074,9 @@ describe("conditional formats types", () => {
         ranges: toRangesData(sheetId, "A1:A3"),
         sheetId,
       });
-      expect(model.getters.getConditionalStyle(0, 0)).toEqual({ fillColor: "#123456" });
-      expect(model.getters.getConditionalStyle(0, 1)).toEqual(undefined);
-      expect(model.getters.getConditionalStyle(0, 2)).toEqual({ fillColor: "#FF00FF" });
+      expect(model.getters.getCellComputedStyle(sheetId, 0, 0)).toEqual({ fillColor: "#123456" });
+      expect(model.getters.getCellComputedStyle(sheetId, 0, 1)).toEqual({});
+      expect(model.getters.getCellComputedStyle(sheetId, 0, 2)).toEqual({ fillColor: "#FF00FF" });
     });
   });
 });

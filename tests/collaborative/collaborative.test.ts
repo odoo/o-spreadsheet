@@ -822,7 +822,7 @@ describe("Multi users synchronisation", () => {
     });
     const { col, row } = toCartesian("A1");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getConditionalStyle(col, row),
+      (user) => user.getters.getCellComputedStyle(sheetId, col, row),
       { fillColor: "#00FF00" }
     );
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -861,7 +861,7 @@ describe("Multi users synchronisation", () => {
     });
     const { col, row } = toCartesian("A1");
     expect([alice, bob]).toHaveSynchronizedValue(
-      (user) => user.getters.getConditionalStyle(col, row),
+      (user) => user.getters.getCellComputedStyle(sheetId, col, row),
       { fillColor: "#FF0000" }
     );
   });

@@ -1253,12 +1253,12 @@ describe("clipboard", () => {
     paste(model, "C1", false, "onlyValue");
     copy(model, "A2");
     paste(model, "C2", false, "onlyValue");
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("C1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("C2"))).toBeUndefined();
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A2"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C1"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C2"))).toEqual({});
   });
 
   test("paste value only does not remove style", () => {
@@ -1672,14 +1672,14 @@ describe("clipboard", () => {
     paste(model, "C1");
     copy(model, "A2");
     paste(model, "C2");
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("C1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A2"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("C2"))).toBeUndefined();
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C2"))).toEqual({});
   });
   test("can cut and paste a conditional formatted cell", () => {
     const model = new Model({
@@ -1704,12 +1704,12 @@ describe("clipboard", () => {
     paste(model, "C1");
     cut(model, "A2");
     paste(model, "C2");
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("C1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A2"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("C2"))).toBeUndefined();
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C2"))).toEqual({});
   });
 
   test("can copy and paste a conditional formatted zone", () => {
@@ -1732,22 +1732,22 @@ describe("clipboard", () => {
     copy(model, "A1:A2");
     paste(model, "B1");
     paste(model, "C1");
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("B1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A2"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("B2"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("C1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B2"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("C2"))).toBeUndefined();
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C2"))).toEqual({});
     setCellContent(model, "C1", "2");
     setCellContent(model, "C2", "1");
-    expect(model.getters.getConditionalStyle(...toCartesianArray("C1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("C2"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C1"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C2"))).toEqual({
       fillColor: "#FF0000",
     });
   });
@@ -1771,16 +1771,16 @@ describe("clipboard", () => {
     });
     cut(model, "A1:A2");
     paste(model, "B1");
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("B1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A2"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("B2"))).toBeUndefined();
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B2"))).toEqual({});
     setCellContent(model, "B1", "2");
     setCellContent(model, "B2", "1");
-    expect(model.getters.getConditionalStyle(...toCartesianArray("B1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("B2"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B1"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B2"))).toEqual({
       fillColor: "#FF0000",
     });
   });
@@ -1811,14 +1811,14 @@ describe("clipboard", () => {
     copy(model, "A1:A2");
     activateSheet(model, "s2");
     paste(model, "A1");
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+    expect(model.getters.getCellComputedStyle("s2", ...toCartesianArray("A1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toBeUndefined();
+    expect(model.getters.getCellComputedStyle("s2", ...toCartesianArray("A2"))).toEqual({});
     setCellContent(model, "A1", "2");
     setCellContent(model, "A2", "1");
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toEqual({
+    expect(model.getters.getCellComputedStyle("s2", ...toCartesianArray("A1"))).toEqual({});
+    expect(model.getters.getCellComputedStyle("s2", ...toCartesianArray("A2"))).toEqual({
       fillColor: "#FF0000",
     });
   });
@@ -1849,19 +1849,19 @@ describe("clipboard", () => {
     cut(model, "A1:A2");
     activateSheet(model, sheet2);
     paste(model, "A1");
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheet2, ...toCartesianArray("A1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toBeUndefined();
+    expect(model.getters.getCellComputedStyle(sheet2, ...toCartesianArray("A2"))).toEqual({});
     setCellContent(model, "A1", "2");
     setCellContent(model, "A2", "1");
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toEqual({
+    expect(model.getters.getCellComputedStyle(sheet2, ...toCartesianArray("A1"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheet2, ...toCartesianArray("A2"))).toEqual({
       fillColor: "#FF0000",
     });
     activateSheet(model, sheet1);
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toBeUndefined();
+    expect(model.getters.getCellComputedStyle(sheet1, ...toCartesianArray("A1"))).toEqual({});
+    expect(model.getters.getCellComputedStyle(sheet1, ...toCartesianArray("A2"))).toEqual({});
   });
 
   test("can copy and paste a cell which contains a cross-sheet reference", () => {

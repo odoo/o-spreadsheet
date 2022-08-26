@@ -96,10 +96,11 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     let style: Style = {};
     if (cell) {
       const cellPosition = this.env.model.getters.getCellPosition(cell.id);
-      style = {
-        ...cell.style,
-        ...this.env.model.getters.getConditionalStyle(cellPosition.col, cellPosition.row),
-      };
+      style = this.env.model.getters.getCellComputedStyle(
+        cellPosition.sheetId,
+        cellPosition.col,
+        cellPosition.row
+      );
     }
 
     // position style

@@ -97,14 +97,7 @@ export class EvaluationChartPlugin extends UIPlugin {
     }
     const col = mainRange.zone.left;
     const row = mainRange.zone.top;
-    const cfFormat = this.getters.getConditionalStyle(col, row, mainRange.sheetId);
-    if (cfFormat && cfFormat.fillColor) {
-      return cfFormat.fillColor;
-    }
-    const cell = this.getters.getCell(mainRange.sheetId, col, row);
-    if (cell && cell.style && cell.style.fillColor) {
-      return cell.style.fillColor;
-    }
-    return BACKGROUND_CHART_COLOR;
+    const style = this.getters.getCellComputedStyle(mainRange.sheetId, col, row);
+    return style.fillColor || BACKGROUND_CHART_COLOR;
   }
 }

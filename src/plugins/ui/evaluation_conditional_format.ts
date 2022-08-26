@@ -28,7 +28,7 @@ import { UIPlugin } from "../ui_plugin";
 // -----------------------------------------------------------------------------
 
 export class EvaluationConditionalFormatPlugin extends UIPlugin {
-  static getters = ["getConditionalStyle", "getConditionalIcon"] as const;
+  static getters = ["getConditionalIcon", "getCellComputedStyle"] as const;
   private isStale: boolean = true;
   // stores the computed styles in the format of computedStyles.sheetName[col][row] = Style
   private computedStyles: { [sheet: string]: { [col: HeaderIndex]: (Style | undefined)[] } } = {};
@@ -78,19 +78,14 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  /**
-   * Returns the conditional style property for a given cell reference or
-   * undefined if this cell doesn't have a conditional style set.
-   *
-   * @param sheetId: take the cell in the active sheet if the method is not given a sheetId
-   */
-  getConditionalStyle(
-    col: HeaderIndex,
-    row: HeaderIndex,
-    sheetId = this.getters.getActiveSheetId()
-  ): Style | undefined {
+  getCellComputedStyle(sheetId: UID, col: HeaderIndex, row: HeaderIndex): Style {
+    const cell = this.getters.getCell(sheetId, col, row);
     const styles = this.computedStyles[sheetId];
-    return styles && styles[col]?.[row];
+    const cfStyle = styles && styles[col]?.[row];
+    return {
+      ...cell?.style,
+      ...cfStyle,
+    };
   }
 
   getConditionalIcon(col: HeaderIndex, row: HeaderIndex): string | undefined {
