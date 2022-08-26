@@ -196,7 +196,10 @@ export class AutomaticSumPlugin extends UIPlugin {
   }
 
   private isNumber(cell?: Cell): boolean {
-    return cell?.evaluated.type === CellValueType.number && !cell.format?.match(DATETIME_FORMAT);
+    return (
+      cell?.evaluated.type === CellValueType.number &&
+      !cell.evaluated.format?.match(DATETIME_FORMAT)
+    );
   }
 
   private isZoneValid(zone: Zone): boolean {
