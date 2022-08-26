@@ -91,6 +91,20 @@ describe("automatic sum", () => {
     expect(getCellText(model, "B4")).toBe("");
   });
 
+  test("with a date resulting from a formula after numbers", () => {
+    setCellContent(model, "B2", "4");
+    setCellContent(model, "B3", "=DATE(2020, 12, 31)");
+    automaticSum(model, "B4");
+    expect(getCellText(model, "B4")).toBe("");
+  });
+
+  test("with a date resulting from a formula before numbers", () => {
+    setCellContent(model, "B2", "=DATE(2020, 12, 31)");
+    setCellContent(model, "B3", "4");
+    automaticSum(model, "B4");
+    expect(getCellText(model, "B4")).toBe("=SUM(B3)");
+  });
+
   test("with a bad expression after numbers", () => {
     setCellContent(model, "B2", "4");
     setCellContent(model, "B3", "=THIS IS A BAD EXPRESSION");
