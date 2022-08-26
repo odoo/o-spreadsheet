@@ -160,30 +160,30 @@ describe("Autofill", () => {
     });
     let col: number, row: number;
     ({ col, row } = toCartesian("A1"));
-    expect(model.getters.getConditionalStyle(col, row)).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, col, row)).toEqual({
       fillColor: "#FF0000",
     });
     ({ col, row } = toCartesian("A2"));
-    expect(model.getters.getConditionalStyle(col, row)).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, col, row)).toEqual({
       fillColor: "#FF0000",
     });
     ({ col, row } = toCartesian("A3"));
-    expect(model.getters.getConditionalStyle(col, row)).toBeFalsy();
+    expect(model.getters.getCellComputedStyle(sheetId, col, row)).toEqual({});
     ({ col, row } = toCartesian("A4"));
-    expect(model.getters.getConditionalStyle(col, row)).toBeFalsy();
+    expect(model.getters.getCellComputedStyle(sheetId, col, row)).toEqual({});
     autofill("A1:A4", "A8");
     ({ col, row } = toCartesian("A5"));
-    expect(model.getters.getConditionalStyle(col, row)).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, col, row)).toEqual({
       fillColor: "#FF0000",
     });
     ({ col, row } = toCartesian("A6"));
-    expect(model.getters.getConditionalStyle(col, row)).toEqual({
+    expect(model.getters.getCellComputedStyle(sheetId, col, row)).toEqual({
       fillColor: "#FF0000",
     });
     ({ col, row } = toCartesian("A7"));
-    expect(model.getters.getConditionalStyle(col, row)).toBeFalsy();
+    expect(model.getters.getCellComputedStyle(sheetId, col, row)).toEqual({});
     ({ col, row } = toCartesian("A8"));
-    expect(model.getters.getConditionalStyle(col, row)).toBeFalsy();
+    expect(model.getters.getCellComputedStyle(sheetId, col, row)).toEqual({});
   });
 
   describe("Autofill multiple values", () => {

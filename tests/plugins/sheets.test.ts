@@ -624,7 +624,7 @@ describe("sheets", () => {
     expect(model.getters.getNumberCols(model.getters.getActiveSheetId())).toBe(5);
     expect(model.getters.getNumberRows(model.getters.getActiveSheetId())).toBe(5);
     const { col, row } = toCartesian("A1");
-    expect(model.getters.getConditionalStyle(col, row)).toEqual({
+    expect(model.getters.getCellComputedStyle(newSheet, col, row)).toEqual({
       fillColor: "orange",
     });
   });
@@ -658,7 +658,7 @@ describe("sheets", () => {
     activateSheet(model, newSheetId);
     expect(getCellContent(model, "A1")).toBe("42");
     const { col, row } = toCartesian("A1");
-    expect(model.getters.getConditionalStyle(col, row)).toEqual({
+    expect(model.getters.getCellComputedStyle(newSheetId, col, row)).toEqual({
       fillColor: "orange",
     });
     expect(model.getters.getConditionalFormats(newSheetId)).toHaveLength(1);
@@ -668,10 +668,10 @@ describe("sheets", () => {
       ranges: toRangesData(sheetId, "A1:A2"),
       sheetId,
     });
-    expect(model.getters.getConditionalStyle(col, row)).toEqual({ fillColor: "blue" });
+    expect(model.getters.getCellComputedStyle(newSheetId, col, row)).toEqual({ fillColor: "blue" });
     expect(model.getters.getConditionalFormats(newSheetId)).toHaveLength(1);
     activateSheet(model, sheet);
-    expect(model.getters.getConditionalStyle(col, row)).toEqual({
+    expect(model.getters.getCellComputedStyle(sheet, col, row)).toEqual({
       fillColor: "orange",
     });
     expect(model.getters.getConditionalFormats(newSheetId)).toHaveLength(1);
