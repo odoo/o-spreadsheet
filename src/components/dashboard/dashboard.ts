@@ -2,7 +2,7 @@ import { Component, useRef, useState } from "@odoo/owl";
 import { positionToZone } from "../../helpers/zones";
 import { clickableCellRegistry } from "../../registries/cell_clickable_registry";
 import {
-  Cell,
+  CellPosition,
   DOMCoordinates,
   DOMDimension,
   Pixel,
@@ -25,8 +25,9 @@ interface Props {}
 
 interface ClickableCell {
   coordinates: Rect;
-  cell: Cell;
-  action: (cell: Cell, env: SpreadsheetChildEnv) => void;
+  position: Position;
+  action: (position: CellPosition, env: SpreadsheetChildEnv) => void;
+  tKey: string;
 }
 
 css/* scss */ `
@@ -35,6 +36,8 @@ css/* scss */ `
     cursor: pointer;
   }
 `;
+
+let tKey = 1;
 
 export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SpreadsheetDashboard";
@@ -105,33 +108,34 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     const sheetId = this.env.model.getters.getActiveSheetId();
     for (const col of this.env.model.getters.getSheetViewVisibleCols()) {
       for (const row of this.env.model.getters.getSheetViewVisibleRows()) {
-        const cell = this.env.model.getters.getCell(sheetId, col, row);
-        if (cell) {
-          const action = this.getClickableAction(cell);
-          if (!action) {
-            continue;
-          }
-          let zone: Zone;
-          if (this.env.model.getters.isInMerge(sheetId, col, row)) {
-            zone = this.env.model.getters.getMerge(sheetId, col, row)!;
-          } else {
-            zone = positionToZone({ col, row });
-          }
-          const rect = this.env.model.getters.getVisibleRect(zone);
-          cells.push({
-            coordinates: rect,
-            cell,
-            action,
-          });
+        const action = this.getClickableAction({ sheetId, col, row });
+        if (!action) {
+          continue;
         }
+        let zone: Zone;
+        if (this.env.model.getters.isInMerge(sheetId, col, row)) {
+          zone = this.env.model.getters.getMerge(sheetId, col, row)!;
+        } else {
+          zone = positionToZone({ col, row });
+        }
+        const rect = this.env.model.getters.getVisibleRect(zone);
+        cells.push({
+          coordinates: rect,
+          position: { col, row },
+          action,
+          // we can't rely on position only because a row or a column could
+          // be inserted at any time.
+          tKey: `${tKey}-${col}-${row}`,
+        });
       }
     }
+    tKey++;
     return cells;
   }
 
-  getClickableAction(cell: Cell) {
+  getClickableAction(position: CellPosition) {
     for (const items of clickableCellRegistry.getAll().sort((a, b) => a.sequence - b.sequence)) {
-      if (items.condition(cell, this.env)) {
+      if (items.condition(position, this.env)) {
         return items.action;
       }
     }
@@ -139,8 +143,8 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
   }
 
   selectClickableCell(clickableCell: ClickableCell) {
-    const { cell, action } = clickableCell;
-    action(cell, this.env);
+    const { position, action } = clickableCell;
+    action({ ...position, sheetId: this.env.model.getters.getActiveSheetId() }, this.env);
   }
 
   onClosePopover() {

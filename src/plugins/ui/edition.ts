@@ -3,8 +3,10 @@ import { POSTFIX_UNARY_OPERATORS } from "../../formulas/tokenizer";
 import {
   colors,
   concat,
+  formatValue,
   getComposerSheetName,
   getZoneArea,
+  isDateTimeFormat,
   isEqual,
   isNumber,
   markdownLink,
@@ -14,7 +16,16 @@ import {
 } from "../../helpers/index";
 import { loopThroughReferenceType } from "../../helpers/reference_type";
 import { _lt } from "../../translation";
-import { Highlight, Range, RangePart, UID, Zone } from "../../types";
+import {
+  CellPosition,
+  CellValueType,
+  Format,
+  Highlight,
+  Range,
+  RangePart,
+  UID,
+  Zone,
+} from "../../types";
 import { SelectionEvent } from "../../types/event_stream";
 import {
   AddColumnsRowsCommand,
@@ -82,8 +93,9 @@ export class EditionPlugin extends UIPlugin {
         }
       case "START_EDITION":
         if (cmd.selection) {
-          const cell = this.getters.getActiveCell();
-          const content = cmd.text || cell?.composerContent || "";
+          const sheetId = this.getters.getActiveSheetId();
+          const content =
+            cmd.text || this.getComposerContent({ sheetId, ...this.getters.getPosition() });
           return this.validateSelection(content.length, cmd.selection.start, cmd.selection.end);
         } else {
           return CommandResult.Success;
@@ -225,8 +237,8 @@ export class EditionPlugin extends UIPlugin {
 
   getCurrentContent(): string {
     if (this.mode === "inactive") {
-      const cell = this.getters.getActiveCell();
-      return cell?.composerContent || "";
+      const sheetId = this.getters.getActiveSheetId();
+      return this.getComposerContent({ sheetId, ...this.getters.getPosition() });
     }
     return this.currentContent;
   }
@@ -378,17 +390,18 @@ export class EditionPlugin extends UIPlugin {
    * @private
    */
   private startEdition(str?: string, selection?: ComposerSelection) {
-    const cell = this.getters.getActiveCell();
-    if (str && cell?.format?.includes("%") && isNumber(str)) {
+    const evaluatedCell = this.getters.getActiveCell();
+    if (str && evaluatedCell.format?.includes("%") && isNumber(str)) {
       selection = selection || { start: str.length, end: str.length };
       str = `${str}%`;
     }
-    this.initialContent = cell?.composerContent || "";
-    this.mode = "editing";
+    const sheetId = this.getters.getActiveSheetId();
     const { col, row } = this.getters.getPosition();
     this.col = col;
+    this.sheetId = sheetId;
     this.row = row;
-    this.sheetId = this.getters.getActiveSheetId();
+    this.initialContent = this.getComposerContent({ sheetId, col, row });
+    this.mode = "editing";
     this.setContent(str || this.initialContent, selection);
     this.colorIndexByRange = {};
     const zone = positionToZone({ col: this.col, row: this.row });
@@ -404,7 +417,6 @@ export class EditionPlugin extends UIPlugin {
 
   private stopEdition() {
     if (this.mode !== "inactive") {
-      const activeSheetId = this.getters.getActiveSheetId();
       this.cancelEdition();
       const { col, row } = this.getters.getMainCellPosition(this.sheetId, this.col, this.row);
       let content = this.currentContent;
@@ -413,7 +425,8 @@ export class EditionPlugin extends UIPlugin {
         return;
       }
       if (content) {
-        const cell = this.getters.getCell(activeSheetId, col, row);
+        const sheetId = this.getters.getActiveSheetId();
+        const cell = this.getters.getEvaluatedCell({ sheetId, col, row });
         if (content.startsWith("=")) {
           const left = this.currentTokens.filter((t) => t.type === "LEFT_PAREN").length;
           const right = this.currentTokens.filter((t) => t.type === "RIGHT_PAREN").length;
@@ -421,7 +434,7 @@ export class EditionPlugin extends UIPlugin {
           if (missing > 0) {
             content += concat(new Array(missing).fill(")"));
           }
-        } else if (cell?.isLink()) {
+        } else if (cell.link) {
           content = markdownLink(content, cell.link.url);
         }
         this.dispatch("UPDATE_CELL", {
@@ -455,6 +468,40 @@ export class EditionPlugin extends UIPlugin {
         sheetIdTo: this.sheetId,
       });
     }
+  }
+
+  private getComposerContent({ sheetId, col, row }: CellPosition): string {
+    const { col: mainCol, row: mainRow } = this.getters.getMainCellPosition(sheetId, col, row);
+    const cell = this.getters.getCell(sheetId, mainCol, mainRow);
+    if (cell?.isFormula) {
+      return cell.content;
+    }
+    const { format, value, type, formattedValue } = this.getters.getEvaluatedCell({
+      sheetId,
+      col: mainCol,
+      row: mainRow,
+    });
+    switch (type) {
+      case CellValueType.text:
+      case CellValueType.empty:
+        return value;
+      case CellValueType.boolean:
+        return formattedValue;
+      case CellValueType.error:
+        return cell?.content || "";
+      case CellValueType.number:
+        if (format && isDateTimeFormat(format)) {
+          return formattedValue;
+        }
+        return this.numberComposerContent(value, format);
+    }
+  }
+
+  private numberComposerContent(value: number, format?: Format): string {
+    if (format?.includes("%")) {
+      return `${value * 100}%`;
+    }
+    return formatValue(value);
   }
 
   /**

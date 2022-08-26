@@ -3,7 +3,7 @@
 // -----------------------------------------------------------------------------
 import { ComponentConstructor } from "@odoo/owl";
 import { Token } from "../formulas";
-import { Cell, CellValue } from "./cells";
+import { Cell, CellValue, EvaluatedCell } from "./cells";
 import { CommandResult } from "./commands";
 import { Format } from "./format";
 import { Range } from "./range";
@@ -49,13 +49,14 @@ export interface HSLA {
 }
 
 export interface Link {
-  label: string;
-  url: string;
+  readonly label: string;
+  readonly url: string;
+  readonly isExternal: boolean;
   /**
-   * Specifies if the resource is external and can
-   * be opened in a new tab.
+   * Specifies if the URL is editable by the end user.
+   * Special links might not allow it.
    */
-  isExternal?: boolean;
+  readonly isUrlEditable: boolean;
 }
 
 export interface Zone {
@@ -179,6 +180,7 @@ export type FunctionReturnValue = string | number | boolean;
 
 export interface ClipboardCell {
   cell?: Cell;
+  evaluatedCell: EvaluatedCell;
   border?: Border;
   position: CellPosition;
 }

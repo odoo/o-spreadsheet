@@ -2,7 +2,7 @@ import { toZone, zoneToXc } from "../../src/helpers";
 import { ClipboardCellsState } from "../../src/helpers/clipboard/clipboard_cells_state";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui/clipboard";
-import { CellValueType, CommandResult, Zone } from "../../src/types/index";
+import { CommandResult, Zone } from "../../src/types/index";
 import {
   activateSheet,
   addCellToSelection,
@@ -30,6 +30,7 @@ import {
   getCellContent,
   getCellError,
   getCellText,
+  getEvaluatedCell,
 } from "../test_helpers/getters_helpers";
 import {
   createEqualCF,
@@ -54,27 +55,15 @@ describe("clipboard", () => {
 
     expect(getCell(model, "B2")).toMatchObject({
       content: "b2",
-      evaluated: {
-        type: CellValueType.text,
-        value: "b2",
-      },
     });
 
     copy(model, "B2");
     paste(model, "D2");
     expect(getCell(model, "B2")).toMatchObject({
       content: "b2",
-      evaluated: {
-        type: CellValueType.text,
-        value: "b2",
-      },
     });
     expect(getCell(model, "D2")).toMatchObject({
       content: "b2",
-      evaluated: {
-        type: CellValueType.text,
-        value: "b2",
-      },
     });
     expect(getClipboardVisibleZones(model).length).toBe(0);
   });
@@ -84,29 +73,17 @@ describe("clipboard", () => {
     setCellContent(model, "B2", "b2");
     expect(getCell(model, "B2")).toMatchObject({
       content: "b2",
-      evaluated: {
-        type: CellValueType.text,
-        value: "b2",
-      },
     });
 
     cut(model, "B2");
     expect(getCell(model, "B2")).toMatchObject({
       content: "b2",
-      evaluated: {
-        type: CellValueType.text,
-        value: "b2",
-      },
     });
     paste(model, "D2");
 
     expect(getCell(model, "B2")).toBeUndefined();
     expect(getCell(model, "D2")).toMatchObject({
       content: "b2",
-      evaluated: {
-        type: CellValueType.text,
-        value: "b2",
-      },
     });
 
     expect(getClipboardVisibleZones(model).length).toBe(0);
@@ -156,20 +133,12 @@ describe("clipboard", () => {
     paste(model, "B2");
     expect(getCell(model, "A1")).toMatchObject({
       content: "a1Sheet2",
-      evaluated: {
-        type: CellValueType.text,
-        value: "a1Sheet2",
-      },
     });
     expect(getCell(model, "B2")).toMatchObject({
       content: "a1",
-      evaluated: {
-        type: CellValueType.text,
-        value: "a1",
-      },
     });
     activateSheet(model, to);
-    expect(model.getters.getCells(to)).toEqual({});
+    expect(model.getters.getEvaluatedCells(to)).toEqual({});
 
     expect(getClipboardVisibleZones(model).length).toBe(0);
 
@@ -230,7 +199,7 @@ describe("clipboard", () => {
     // select B2 again and paste
     paste(model, "B2");
 
-    expect(getCell(model, "B2")!.evaluated.value).toBe("a1");
+    expect(getEvaluatedCell(model, "B2").value).toBe("a1");
     expect(getCell(model, "B2")!.style).not.toBeDefined();
   });
 
@@ -471,10 +440,6 @@ describe("clipboard", () => {
     expect(getCell(model, "C2")).toMatchObject({
       style: { bold: true },
       content: "b2",
-      evaluated: {
-        type: CellValueType.text,
-        value: "b2",
-      },
     });
     expect(getCell(model, "B2")).toBeUndefined();
   });
@@ -553,11 +518,11 @@ describe("clipboard", () => {
     pasteFromOSClipboard(model, "C1", "1\r\n2\r\n3");
 
     expect(getCellContent(model, "C1")).toBe("1");
-    expect(getCell(model, "C1")?.evaluated.value).toBe(1);
+    expect(getEvaluatedCell(model, "C1").value).toBe(1);
     expect(getCellContent(model, "C2")).toBe("2");
-    expect(getCell(model, "C2")?.evaluated.value).toBe(2);
+    expect(getEvaluatedCell(model, "C2").value).toBe(2);
     expect(getCellContent(model, "C3")).toBe("3");
-    expect(getCell(model, "C3")?.evaluated.value).toBe(3);
+    expect(getEvaluatedCell(model, "C3").value).toBe(3);
   });
 
   test("incompatible multiple selections: only last one is actually copied", () => {
@@ -920,14 +885,14 @@ describe("clipboard", () => {
     setCellContent(model, "B2", '="test"');
 
     expect(getCellText(model, "B2")).toEqual('="test"');
-    expect(getCell(model, "B2")!.evaluated.value).toEqual("test");
+    expect(getEvaluatedCell(model, "B2").value).toEqual("test");
 
     copy(model, "B2");
     paste(model, "D2");
     expect(getCellText(model, "B2")).toEqual('="test"');
-    expect(getCell(model, "B2")!.evaluated.value).toEqual("test");
+    expect(getEvaluatedCell(model, "B2").value).toEqual("test");
     expect(getCellText(model, "D2")).toEqual('="test"');
-    expect(getCell(model, "D2")!.evaluated.value).toEqual("test");
+    expect(getEvaluatedCell(model, "D2").value).toEqual("test");
     expect(getClipboardVisibleZones(model).length).toBe(0);
   });
 
@@ -1037,7 +1002,7 @@ describe("clipboard", () => {
     copy(model, "B2");
     paste(model, "C2", "onlyValue");
 
-    expect(getCell(model, "C2")!.evaluated.value).toBe("b2");
+    expect(getEvaluatedCell(model, "C2").value).toBe("b2");
     expect(getCell(model, "C2")!.style).not.toBeDefined();
   });
 
@@ -1055,7 +1020,7 @@ describe("clipboard", () => {
     copy(model, "B2");
     paste(model, "C2", "onlyValue");
 
-    expect(getCell(model, "C2")!.evaluated.value).toBe("b2");
+    expect(getEvaluatedCell(model, "C2").value).toBe("b2");
     expect(getBorder(model, "C2")).toBeNull();
   });
 

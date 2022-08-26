@@ -2948,7 +2948,7 @@ describe("NPV formula", () => {
       });
     });
 
-    describe("order of the repeatable arguments impact the result", () => {
+    test("order of the repeatable arguments impact the result", () => {
       const grid = {
         A1: "=NPV(0.08, B1, C1, B2, C2)",
         A2: "=NPV(0.08, C2, B2, C1, B1)",

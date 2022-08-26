@@ -39,7 +39,13 @@ import {
   simulateClick,
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
-import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
+import {
+  getActiveXc,
+  getCell,
+  getCellContent,
+  getCellText,
+  getStyle,
+} from "../test_helpers/getters_helpers";
 import {
   makeTestFixture,
   MockClipboard,
@@ -393,13 +399,13 @@ describe("Grid component", () => {
       );
       await nextTick();
       expect(getCell(model, "A1")!.style).toEqual({ bold: true });
-      expect(model.getters.getCellStyle(model.getters.getActiveCell()!)).toEqual({ bold: true });
+      expect(getStyle(model, "A1")).toEqual({ bold: true });
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "B", ctrlKey: true, bubbles: true })
       );
       await nextTick();
       expect(getCell(model, "A1")!.style).toEqual({ bold: false });
-      expect(model.getters.getCellStyle(model.getters.getActiveCell()!)).toEqual({ bold: false });
+      expect(getStyle(model, "A1")).toEqual({ bold: false });
     });
 
     test("toggle Italic with Ctrl+I", async () => {
@@ -410,13 +416,13 @@ describe("Grid component", () => {
       );
       await nextTick();
       expect(getCell(model, "A1")!.style).toEqual({ italic: true });
-      expect(model.getters.getCellStyle(model.getters.getActiveCell()!)).toEqual({ italic: true });
+      expect(getStyle(model, "A1")).toEqual({ italic: true });
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "I", ctrlKey: true, bubbles: true })
       );
       await nextTick();
       expect(getCell(model, "A1")!.style).toEqual({ italic: false });
-      expect(model.getters.getCellStyle(model.getters.getActiveCell()!)).toEqual({ italic: false });
+      expect(getStyle(model, "A1")).toEqual({ italic: false });
     });
 
     test("can automatically sum with ALT+=", async () => {

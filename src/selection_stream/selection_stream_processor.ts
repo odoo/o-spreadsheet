@@ -10,6 +10,7 @@ import {
 import { _t } from "../translation";
 import {
   AnchorZone,
+  CellValueType,
   CommandResult,
   DispatchResult,
   Getters,
@@ -617,8 +618,8 @@ export class SelectionStreamProcessor
    */
   private isCellEmpty({ col, row }: Position, sheetId = this.getters.getActiveSheetId()): boolean {
     const mainCellPosition = this.getters.getMainCellPosition(sheetId, col, row);
-    const cell = this.getters.getCell(sheetId, mainCellPosition.col, mainCellPosition.row);
-    return !cell || cell.isEmpty();
+    const cell = this.getters.getEvaluatedCell({ sheetId, ...mainCellPosition });
+    return cell.type === CellValueType.empty;
   }
 
   /** Computes the next cell position in the given direction by crossing through merges and skipping hidden cells.

@@ -1,6 +1,6 @@
 import { DEFAULT_FONT_SIZE } from "../../src/constants";
 import { fontSizeMap } from "../../src/fonts";
-import { toZone } from "../../src/helpers";
+import { toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { createSheet, selectCell, setCellContent, undo } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
@@ -134,9 +134,13 @@ describe("styles", () => {
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
-    const A1 = getCell(model, "A1")!;
-    const A2 = getCell(model, "A2")!;
-    expect(model.getters.getTextWidth(A1)).toBe(fontSizeMap[fontSize]);
-    expect(model.getters.getTextWidth(A2)).toBe(fontSizeMap[DEFAULT_FONT_SIZE]);
+    const A1 = toCartesian("A1");
+    const A2 = toCartesian("A2");
+    expect(model.getters.getTextWidth({ sheetId, col: A1.col, row: A1.row })).toBe(
+      fontSizeMap[fontSize]
+    );
+    expect(model.getters.getTextWidth({ sheetId, col: A2.col, row: A2.row })).toBe(
+      fontSizeMap[DEFAULT_FONT_SIZE]
+    );
   });
 });

@@ -8,7 +8,16 @@ import {
   union,
   zoneToDimension,
 } from "../../helpers";
-import { Cell, CellValueType, Command, Dimension, Position, Sheet, UID, Zone } from "../../types";
+import {
+  CellValueType,
+  Command,
+  Dimension,
+  EvaluatedCell,
+  Position,
+  Sheet,
+  UID,
+  Zone,
+} from "../../types";
 import { HeaderIndex } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
@@ -127,8 +136,8 @@ export class AutomaticSumPlugin extends UIPlugin {
     col: HeaderIndex,
     row: HeaderIndex
   ): Zone | undefined {
-    const topCell = this.getters.getCell(sheet.id, col, row - 1);
-    const leftCell = this.getters.getCell(sheet.id, col - 1, row);
+    const topCell = this.getters.getEvaluatedCell({ sheetId: sheet.id, col, row: row - 1 });
+    const leftCell = this.getters.getEvaluatedCell({ sheetId: sheet.id, col: col - 1, row });
     if (this.isNumber(leftCell) && !this.isNumber(topCell)) {
       return this.findHorizontalZone(sheet, col, row);
     }
@@ -175,10 +184,10 @@ export class AutomaticSumPlugin extends UIPlugin {
    * @returns the starting position of the valid zone or Infinity if the zone is not valid.
    */
   private reduceZoneStart(sheet: Sheet, zone: Zone, end: HeaderIndex): number {
-    const cells = this.getters.getCellsInZone(sheet.id, zone);
+    const cells = this.getters.getEvaluatedCellsInZone(sheet.id, zone);
     const cellPositions = range(end, -1, -1);
     const invalidCells = cellPositions.filter(
-      (position) => cells[position] && !cells[position]?.isAutoSummable
+      (position) => cells[position] && !cells[position].isAutoSummable
     );
     const maxValidPosition = Math.max(...invalidCells);
     const numberSequences = groupConsecutive(
@@ -195,11 +204,8 @@ export class AutomaticSumPlugin extends UIPlugin {
     return this.getters.isEmpty(sheetId, zone) || this.getters.isSingleCellOrMerge(sheetId, zone);
   }
 
-  private isNumber(cell?: Cell): boolean {
-    return (
-      cell?.evaluated.type === CellValueType.number &&
-      !cell.evaluated.format?.match(DATETIME_FORMAT)
-    );
+  private isNumber(cell: EvaluatedCell): boolean {
+    return cell.type === CellValueType.number && !cell.format?.match(DATETIME_FORMAT);
   }
 
   private isZoneValid(zone: Zone): boolean {

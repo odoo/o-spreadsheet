@@ -179,8 +179,7 @@ describe("next/previous cycle", () => {
     model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
     let matches = model.getters.getSearchMatches();
     let matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    let activeCellPosition = model.getters.getCellPosition(model.getters.getActiveCell()!.id);
-    expect(activeCellPosition).toStrictEqual({ col: 0, row: 0, sheetId: "s1" });
+    expect(model.getters.getPosition()).toStrictEqual({ col: 0, row: 0 });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(0);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: true });
@@ -190,8 +189,7 @@ describe("next/previous cycle", () => {
     model.dispatch("SELECT_SEARCH_NEXT_MATCH");
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    activeCellPosition = model.getters.getCellPosition(model.getters.getActiveCell()!.id);
-    expect(activeCellPosition).toStrictEqual({ col: 0, row: 1, sheetId: "s1" });
+    expect(model.getters.getPosition()).toStrictEqual({ col: 0, row: 1 });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(1);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: false });
@@ -201,8 +199,7 @@ describe("next/previous cycle", () => {
     model.dispatch("SELECT_SEARCH_NEXT_MATCH");
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    activeCellPosition = model.getters.getCellPosition(model.getters.getActiveCell()!.id);
-    expect(activeCellPosition).toStrictEqual({ col: 0, row: 2, sheetId: "s1" });
+    expect(model.getters.getPosition()).toStrictEqual({ col: 0, row: 2 });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(2);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: false });
@@ -212,8 +209,7 @@ describe("next/previous cycle", () => {
     model.dispatch("SELECT_SEARCH_NEXT_MATCH");
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    activeCellPosition = model.getters.getCellPosition(model.getters.getActiveCell()!.id);
-    expect(activeCellPosition).toStrictEqual({ col: 0, row: 0, sheetId: "s1" });
+    expect(model.getters.getPosition()).toStrictEqual({ col: 0, row: 0 });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(0);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: true });
@@ -223,8 +219,7 @@ describe("next/previous cycle", () => {
     model.dispatch("SELECT_SEARCH_NEXT_MATCH");
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    activeCellPosition = model.getters.getCellPosition(model.getters.getActiveCell()!.id);
-    expect(activeCellPosition).toStrictEqual({ col: 0, row: 1, sheetId: "s1" });
+    expect(model.getters.getPosition()).toStrictEqual({ col: 0, row: 1 });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(1);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: false });
@@ -235,8 +230,7 @@ describe("next/previous cycle", () => {
     model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
     let matches = model.getters.getSearchMatches();
     let matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    let activeCellPosition = model.getters.getCellPosition(model.getters.getActiveCell()!.id);
-    expect(activeCellPosition).toStrictEqual({ col: 0, row: 0, sheetId: "s1" });
+    expect(model.getters.getPosition()).toStrictEqual({ col: 0, row: 0 });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(0);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: true });
@@ -246,8 +240,7 @@ describe("next/previous cycle", () => {
     model.dispatch("SELECT_SEARCH_PREVIOUS_MATCH");
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    activeCellPosition = model.getters.getCellPosition(model.getters.getActiveCell()!.id);
-    expect(activeCellPosition).toStrictEqual({ col: 0, row: 2, sheetId: "s1" });
+    expect(model.getters.getPosition()).toStrictEqual({ col: 0, row: 2 });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(2);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: false });
@@ -257,8 +250,7 @@ describe("next/previous cycle", () => {
     model.dispatch("SELECT_SEARCH_PREVIOUS_MATCH");
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    activeCellPosition = model.getters.getCellPosition(model.getters.getActiveCell()!.id);
-    expect(activeCellPosition).toStrictEqual({ col: 0, row: 1, sheetId: "s1" });
+    expect(model.getters.getPosition()).toStrictEqual({ col: 0, row: 1 });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(1);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: false });
@@ -268,8 +260,7 @@ describe("next/previous cycle", () => {
     model.dispatch("SELECT_SEARCH_PREVIOUS_MATCH");
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    activeCellPosition = model.getters.getCellPosition(model.getters.getActiveCell()!.id);
-    expect(activeCellPosition).toStrictEqual({ col: 0, row: 0, sheetId: "s1" });
+    expect(model.getters.getPosition()).toStrictEqual({ col: 0, row: 0 });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(0);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: true });
@@ -279,8 +270,7 @@ describe("next/previous cycle", () => {
     model.dispatch("SELECT_SEARCH_PREVIOUS_MATCH");
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    activeCellPosition = model.getters.getCellPosition(model.getters.getActiveCell()!.id);
-    expect(activeCellPosition).toStrictEqual({ col: 0, row: 2, sheetId: "s1" });
+    expect(model.getters.getPosition()).toStrictEqual({ col: 0, row: 2 });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(2);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: false });

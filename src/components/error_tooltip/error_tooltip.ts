@@ -34,14 +34,11 @@ ErrorToolTip.props = {
 
 export const ErrorToolTipPopoverBuilder: PopoverBuilders = {
   onHover: (position, getters): CellPopoverComponent<typeof ErrorToolTip> => {
-    const cell = getters.getCell(getters.getActiveSheetId(), position.col, position.row);
-    if (
-      cell?.evaluated.type === CellValueType.error &&
-      cell.evaluated.error.logLevel > CellErrorLevel.silent
-    ) {
+    const cell = getters.getEvaluatedCell(position);
+    if (cell.type === CellValueType.error && cell.error.logLevel > CellErrorLevel.silent) {
       return {
         isOpen: true,
-        props: { text: cell.evaluated.error.message },
+        props: { text: cell.error.message },
         Component: ErrorToolTip,
         cellCorner: "TopRight",
       };

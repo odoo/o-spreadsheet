@@ -34,7 +34,7 @@ import { CellErrorLevel } from "../../types/errors";
 import {
   Align,
   Box,
-  Cell,
+  CellPosition,
   CellValueType,
   Dimension,
   GridRenderingContext,
@@ -495,10 +495,10 @@ export class RendererPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     let col: HeaderIndex = base;
     while (col < max) {
-      const nextCell = this.getters.getCell(sheetId, col + 1, row);
+      const nextCell = this.getters.getEvaluatedCell({ sheetId, col: col + 1, row });
       const nextCellBorder = this.getters.getCellBorderWithFilterBorder(sheetId, col + 1, row);
       if (
-        (nextCell && !nextCell.isEmpty()) ||
+        nextCell.type !== CellValueType.empty ||
         this.getters.isInMerge(sheetId, col + 1, row) ||
         nextCellBorder?.left
       ) {
@@ -513,10 +513,10 @@ export class RendererPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     let col: HeaderIndex = base;
     while (col > min) {
-      const previousCell = this.getters.getCell(sheetId, col - 1, row);
+      const previousCell = this.getters.getEvaluatedCell({ sheetId, col: col - 1, row });
       const previousCellBorder = this.getters.getCellBorderWithFilterBorder(sheetId, col - 1, row);
       if (
-        (previousCell && !previousCell.isEmpty()) ||
+        previousCell.type !== CellValueType.empty ||
         this.getters.isInMerge(sheetId, col + 1, row) ||
         previousCellBorder?.right
       ) {
@@ -527,15 +527,17 @@ export class RendererPlugin extends UIPlugin {
     return col;
   }
 
-  private computeCellAlignment(cell: Cell, isOverflowing: boolean): Align {
-    if (cell.isFormula() && this.getters.shouldShowFormulas()) {
+  private computeCellAlignment({ sheetId, col, row }: CellPosition, isOverflowing: boolean): Align {
+    const cell = this.getters.getCell(sheetId, col, row);
+    if (cell?.isFormula && this.getters.shouldShowFormulas()) {
       return "left";
     }
-    const { align } = this.getters.getCellStyle(cell);
-    if (isOverflowing && cell.evaluated.type === CellValueType.number) {
+    const { align } = this.getters.getCellStyle({ sheetId, col, row });
+    const evaluatedCell = this.getters.getEvaluatedCell({ sheetId, col, row });
+    if (isOverflowing && evaluatedCell.type === CellValueType.number) {
       return align !== "center" ? "left" : align;
     }
-    return align || cell.defaultAlign;
+    return align || evaluatedCell.defaultAlign;
   }
 
   private createZoneBox(sheetId: UID, zone: Zone): Box {
@@ -544,7 +546,7 @@ export class RendererPlugin extends UIPlugin {
     const right = visibleCols[visibleCols.length - 1];
     const col: HeaderIndex = zone.left;
     const row: HeaderIndex = zone.top;
-    const cell = this.getters.getCell(sheetId, col, row);
+    const cell = this.getters.getEvaluatedCell({ sheetId, col, row });
     const showFormula = this.getters.shouldShowFormulas();
     const { x, y, width, height } = this.getters.getVisibleRect(zone);
 
@@ -557,7 +559,7 @@ export class RendererPlugin extends UIPlugin {
       style: this.getters.getCellComputedStyle(sheetId, col, row),
     };
 
-    if (!cell) {
+    if (cell.type === CellValueType.empty) {
       return box;
     }
     /** Icon CF */
@@ -578,15 +580,16 @@ export class RendererPlugin extends UIPlugin {
     const headerIconWidth = box.isFilterHeader ? ICON_EDGE_LENGTH + FILTER_ICON_MARGIN : 0;
 
     /** Content */
-    const text = this.getters.getCellText(cell, showFormula);
-    const textWidth = this.getters.getTextWidth(cell);
-    const wrapping = this.getters.getCellStyle(cell).wrapping || "overflow";
+    const position = { sheetId, col, row };
+    const text = this.getters.getCellText(position, showFormula);
+    const textWidth = this.getters.getTextWidth(position);
+    const wrapping = this.getters.getCellStyle(position).wrapping || "overflow";
     const multiLineText =
       wrapping === "wrap"
-        ? this.getters.getCellMultiLineText(cell, width - 2 * MIN_CELL_TEXT_MARGIN)
+        ? this.getters.getCellMultiLineText(position, width - 2 * MIN_CELL_TEXT_MARGIN)
         : [text];
     const contentWidth = iconBoxWidth + textWidth + headerIconWidth;
-    const align = this.computeCellAlignment(cell, contentWidth > width);
+    const align = this.computeCellAlignment(position, contentWidth > width);
     box.content = {
       multiLineText,
       width: wrapping === "overflow" ? textWidth : width,
@@ -594,11 +597,8 @@ export class RendererPlugin extends UIPlugin {
     };
 
     /** Error */
-    if (
-      cell.evaluated.type === CellValueType.error &&
-      cell.evaluated.error.logLevel > CellErrorLevel.silent
-    ) {
-      box.error = cell.evaluated.error.message;
+    if (cell.type === CellValueType.error && cell.error.logLevel > CellErrorLevel.silent) {
+      box.error = cell.error.message;
     }
 
     /** ClipRect */

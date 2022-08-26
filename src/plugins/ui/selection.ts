@@ -19,13 +19,13 @@ import { SelectionEvent } from "../../types/event_stream";
 import {
   AddColumnsRowsCommand,
   AnchorZone,
-  Cell,
   CellValueType,
   ClientPosition,
   Command,
   CommandDispatcher,
   CommandResult,
   Dimension,
+  EvaluatedCell,
   Getters,
   GridRenderingContext,
   HeaderIndex,
@@ -339,11 +339,11 @@ export class GridSelectionPlugin extends UIPlugin {
   getActiveSheetId(): UID {
     return this.activeSheet.id;
   }
-  getActiveCell(): Cell | undefined {
+  getActiveCell(): EvaluatedCell {
     const sheetId = this.getters.getActiveSheetId();
     const { col, row } = this.gridSelection.anchor.cell;
-    const { col: mainCol, row: mainRow } = this.getters.getMainCellPosition(sheetId, col, row);
-    return this.getters.getCell(sheetId, mainCol, mainRow);
+    const mainPosition = this.getters.getMainCellPosition(sheetId, col, row);
+    return this.getters.getEvaluatedCell({ sheetId, ...mainPosition });
   }
 
   getActiveCols(): Set<number> {
@@ -375,8 +375,9 @@ export class GridSelectionPlugin extends UIPlugin {
   }
 
   getCurrentStyle(): Style {
-    const cell = this.getters.getActiveCell();
-    return cell ? this.getters.getCellStyle(cell) : {};
+    const zone = this.getters.getSelectedZone();
+    const sheetId = this.getters.getActiveSheetId();
+    return this.getters.getCellStyle({ sheetId, col: zone.left, row: zone.top });
   }
 
   getSelectedZones(): Zone[] {
@@ -417,16 +418,16 @@ export class GridSelectionPlugin extends UIPlugin {
     // get deduplicated cells in zones
     const cells = new Set(
       this.gridSelection.zones
-        .map((zone) => this.getters.getCellsInZone(this.getters.getActiveSheetId(), zone))
+        .map((zone) => this.getters.getEvaluatedCellsInZone(this.getters.getActiveSheetId(), zone))
         .flat()
-        .filter((cell) => cell !== undefined)
+        .filter((cell) => cell.type !== CellValueType.empty)
     );
 
     let cellsTypes = new Set<CellValueType>();
     let cellsValues: (string | number | boolean)[] = [];
     for (let cell of cells) {
-      cellsTypes.add(cell!.evaluated.type);
-      cellsValues.push(cell!.evaluated.value);
+      cellsTypes.add(cell.type);
+      cellsValues.push(cell.value);
     }
 
     let statisticFnResults: { [name: string]: number | undefined } = {};
@@ -451,10 +452,10 @@ export class GridSelectionPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const cellPositions = this.gridSelection.zones.map(positions).flat();
     for (const { col, row } of cellPositions) {
-      const cell = this.getters.getCell(sheetId, col, row);
-      if (cell?.evaluated.type === CellValueType.number) {
+      const cell = this.getters.getEvaluatedCell({ sheetId, col, row });
+      if (cell.type === CellValueType.number) {
         n++;
-        aggregate += cell.evaluated.value;
+        aggregate += cell.value;
       }
     }
     return n < 2 ? null : formatValue(aggregate);

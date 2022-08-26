@@ -4,8 +4,8 @@ import {
   ArgValue,
   CellValueType,
   ComputeFunction,
+  ErrorCell,
   FunctionReturnValue,
-  InvalidEvaluation,
   MatrixArgValue,
 } from "../../src/types";
 import {
@@ -17,7 +17,12 @@ import {
   paste,
   setCellContent,
 } from "../test_helpers/commands_helpers";
-import { getCell, getCellContent, getCellError } from "../test_helpers/getters_helpers";
+import {
+  getCell,
+  getCellContent,
+  getCellError,
+  getEvaluatedCell,
+} from "../test_helpers/getters_helpers";
 import {
   evaluateCell,
   evaluateGrid,
@@ -134,13 +139,13 @@ describe("evaluateCells", () => {
   test("error in some function calls", () => {
     const model = new Model();
     setCellContent(model, "A1", '=Sum("asdf")');
-    expect(getCell(model, "A1")!.evaluated.value).toBe("#ERROR");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
     expect(getCellError(model, "A1")).toBe(
       `The function SUM expects a number value, but 'asdf' is a string, and cannot be coerced to a number.`
     );
 
     setCellContent(model, "A1", "=Sum(asdf)");
-    expect(getCell(model, "A1")!.evaluated.value).toBe("#BAD_EXPR");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#BAD_EXPR");
     expect(getCellError(model, "A1")).toBe(`Invalid formula`);
 
     setCellContent(model, "A1", "=DECIMAL(1,100)");
@@ -153,16 +158,16 @@ describe("evaluateCells", () => {
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "=A1+A2");
 
-    expect(getCell(model, "A3")!.evaluated.value).toBe(3);
+    expect(getEvaluatedCell(model, "A3").value).toBe(3);
     setCellContent(model, "A2", "asdf");
-    expect(getCell(model, "A3")!.evaluated.value).toBe("#ERROR");
+    expect(getEvaluatedCell(model, "A3").value).toBe("#ERROR");
     expect(getCellError(model, "A3")).toBe(
       `The function ADD expects a number value, but 'asdf' is a string, and cannot be coerced to a number.`
     );
     setCellContent(model, "A1", "33");
-    expect(getCell(model, "A3")!.evaluated.value).toBe("#ERROR");
+    expect(getEvaluatedCell(model, "A3").value).toBe("#ERROR");
     setCellContent(model, "A2", "10");
-    expect(getCell(model, "A3")!.evaluated.value).toBe(43);
+    expect(getEvaluatedCell(model, "A3").value).toBe(43);
   });
 
   test("error in an subtraction", () => {
@@ -171,16 +176,16 @@ describe("evaluateCells", () => {
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "=A1-A2");
 
-    expect(getCell(model, "A3")!.evaluated.value).toBe(-1);
+    expect(getEvaluatedCell(model, "A3").value).toBe(-1);
     setCellContent(model, "A2", "asdf");
-    expect(getCell(model, "A3")!.evaluated.value).toBe("#ERROR");
+    expect(getEvaluatedCell(model, "A3").value).toBe("#ERROR");
     setCellContent(model, "A1", "33");
-    expect(getCell(model, "A3")!.evaluated.value).toBe("#ERROR");
+    expect(getEvaluatedCell(model, "A3").value).toBe("#ERROR");
     expect(getCellError(model, "A3")).toBe(
       `The function MINUS expects a number value, but 'asdf' is a string, and cannot be coerced to a number.`
     );
     setCellContent(model, "A2", "10");
-    expect(getCell(model, "A3")!.evaluated.value).toBe(23);
+    expect(getEvaluatedCell(model, "A3").value).toBe(23);
   });
 
   test("error in a multiplication", () => {
@@ -189,13 +194,13 @@ describe("evaluateCells", () => {
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "=A1*A2");
 
-    expect(getCell(model, "A3")!.evaluated.value).toBe(2);
+    expect(getEvaluatedCell(model, "A3").value).toBe(2);
     setCellContent(model, "A2", "asdf");
-    expect(getCell(model, "A3")!.evaluated.value).toBe("#ERROR");
+    expect(getEvaluatedCell(model, "A3").value).toBe("#ERROR");
     setCellContent(model, "A1", "33");
-    expect(getCell(model, "A3")!.evaluated.value).toBe("#ERROR");
+    expect(getEvaluatedCell(model, "A3").value).toBe("#ERROR");
     setCellContent(model, "A2", "10");
-    expect(getCell(model, "A3")!.evaluated.value).toBe(330);
+    expect(getEvaluatedCell(model, "A3").value).toBe(330);
   });
 
   test("error in a division", () => {
@@ -204,13 +209,13 @@ describe("evaluateCells", () => {
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "=A1/A2");
 
-    expect(getCell(model, "A3")!.evaluated.value).toBe(0.5);
+    expect(getEvaluatedCell(model, "A3").value).toBe(0.5);
     setCellContent(model, "A2", "asdf");
-    expect(getCell(model, "A3")!.evaluated.value).toBe("#ERROR");
+    expect(getEvaluatedCell(model, "A3").value).toBe("#ERROR");
     setCellContent(model, "A1", "30");
-    expect(getCell(model, "A3")!.evaluated.value).toBe("#ERROR");
+    expect(getEvaluatedCell(model, "A3").value).toBe("#ERROR");
     setCellContent(model, "A2", "10");
-    expect(getCell(model, "A3")!.evaluated.value).toBe(3);
+    expect(getEvaluatedCell(model, "A3").value).toBe(3);
   });
 
   test("error in range vlookup", () => {
@@ -245,18 +250,18 @@ describe("evaluateCells", () => {
   ])("setting a format on an error cell keeps the error", (formula) => {
     const model = new Model();
     setCellContent(model, "A1", formula);
-    let evaluation = getCell(model, "A1")?.evaluated as InvalidEvaluation;
-    const error = evaluation.error.message;
-    const value = evaluation.value;
+    let cell = getEvaluatedCell(model, "A1") as ErrorCell;
+    const error = cell.error.message;
+    const value = cell.value;
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
       format: "#,##0",
     });
-    evaluation = getCell(model, "A1")?.evaluated as InvalidEvaluation;
-    expect(evaluation.type).toBe(CellValueType.error);
-    expect(evaluation.error.message).toBe(error);
-    expect(evaluation.value).toBe(value);
+    cell = getEvaluatedCell(model, "A1") as ErrorCell;
+    expect(cell.type).toBe(CellValueType.error);
+    expect(cell.error.message).toBe(error);
+    expect(cell.value).toBe(value);
   });
 
   test("range", () => {
@@ -264,7 +269,7 @@ describe("evaluateCells", () => {
     setCellContent(model, "D4", "42");
     setCellContent(model, "A1", "=sum(A2:Z10)");
 
-    expect(getCell(model, "A1")!.evaluated.value).toBe(42);
+    expect(getEvaluatedCell(model, "A1").value).toBe(42);
   });
 
   test("Evaluate only existing cells from a range partially outside of sheet", () => {
@@ -282,10 +287,10 @@ describe("evaluateCells", () => {
     setCellContent(model, "A1", "=RANGE.COUNT.FUNCTION(A2:AZ999)");
     setCellContent(model, "A2", "=RANGE.COUNT.FUNCTION(B2:AZ2)");
 
-    expect(getCell(model, "A1")!.evaluated.value).toBe(2574);
-    expect(getCell(model, "A2")!.evaluated.value).toBe(25);
+    expect(getEvaluatedCell(model, "A1").value).toBe(2574);
+    expect(getEvaluatedCell(model, "A2").value).toBe(25);
     addColumns(model, "after", "Z", 1);
-    expect(getCell(model, "A2")!.evaluated.value).toBe(26);
+    expect(getEvaluatedCell(model, "A2").value).toBe(26);
     functionRegistry.remove("RANGE.COUNT.FUNCTION");
   });
 
@@ -293,13 +298,13 @@ describe("evaluateCells", () => {
     const model = new Model();
     setCellContent(model, "A1", "=sum(AB1:AZ999)");
 
-    expect(getCell(model, "A1")!.evaluated.value).toBe(0);
+    expect(getEvaluatedCell(model, "A1").value).toBe(0);
   });
 
   test("=Range", () => {
     const model = new Model();
     setCellContent(model, "A1", "=A2:A3");
-    expect(getCell(model, "A1")!.evaluated.value).toBe("#ERROR");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
   });
 
   test("misc math formulas", () => {
@@ -314,12 +319,12 @@ describe("evaluateCells", () => {
     setCellContent(model, "C5", "=floor(A8)");
     setCellContent(model, "C6", "=sum(A1:A4,B1:B5)");
 
-    expect(getCell(model, "C1")!.evaluated.value).toBe(8);
-    expect(getCell(model, "C2")!.evaluated.value).toBe(42);
-    expect(getCell(model, "C3")!.evaluated.value).toBe(1);
-    expect(getCell(model, "C4")!.evaluated.value).toBe(2);
-    expect(getCell(model, "C5")!.evaluated.value).toBe(0);
-    expect(getCell(model, "C6")!.evaluated.value).toBe(46.3);
+    expect(getEvaluatedCell(model, "C1").value).toBe(8);
+    expect(getEvaluatedCell(model, "C2").value).toBe(42);
+    expect(getEvaluatedCell(model, "C3").value).toBe(1);
+    expect(getEvaluatedCell(model, "C4").value).toBe(2);
+    expect(getEvaluatedCell(model, "C5").value).toBe(0);
+    expect(getEvaluatedCell(model, "C6").value).toBe(46.3);
   });
 
   test("priority of operations", () => {
@@ -332,13 +337,13 @@ describe("evaluateCells", () => {
     setCellContent(model, "A6", "=1 & 8 + 2");
     setCellContent(model, "A7", "=1 & 10 - 2");
 
-    expect(getCell(model, "A1")!.evaluated.value).toBe(7);
-    expect(getCell(model, "A2")!.evaluated.value).toBe(4);
-    expect(getCell(model, "A3")!.evaluated.value).toBe(-4);
-    expect(getCell(model, "A4")!.evaluated.value).toBe(-1);
-    expect(getCell(model, "A5")!.evaluated.value).toBe(5);
-    expect(getCell(model, "A6")!.evaluated.value).toBe("110");
-    expect(getCell(model, "A7")!.evaluated.value).toBe("18");
+    expect(getEvaluatedCell(model, "A1").value).toBe(7);
+    expect(getEvaluatedCell(model, "A2").value).toBe(4);
+    expect(getEvaluatedCell(model, "A3").value).toBe(-4);
+    expect(getEvaluatedCell(model, "A4").value).toBe(-1);
+    expect(getEvaluatedCell(model, "A5").value).toBe(5);
+    expect(getEvaluatedCell(model, "A6").value).toBe("110");
+    expect(getEvaluatedCell(model, "A7").value).toBe("18");
   });
 
   test("& operator", () => {
@@ -377,12 +382,12 @@ describe("evaluateCells", () => {
     setCellContent(model, "A5", "FaLsE");
     setCellContent(model, "A6", "TrUe");
 
-    expect(getCell(model, "A1")!.evaluated.value).toBe(false);
-    expect(getCell(model, "A2")!.evaluated.value).toBe(true);
-    expect(getCell(model, "A3")!.evaluated.value).toBe(false);
-    expect(getCell(model, "A4")!.evaluated.value).toBe(true);
-    expect(getCell(model, "A5")!.evaluated.value).toBe(false);
-    expect(getCell(model, "A6")!.evaluated.value).toBe(true);
+    expect(getEvaluatedCell(model, "A1").value).toBe(false);
+    expect(getEvaluatedCell(model, "A2").value).toBe(true);
+    expect(getEvaluatedCell(model, "A3").value).toBe(false);
+    expect(getEvaluatedCell(model, "A4").value).toBe(true);
+    expect(getEvaluatedCell(model, "A5").value).toBe(false);
+    expect(getEvaluatedCell(model, "A6").value).toBe(true);
 
     setCellContent(model, "B1", "=FALSE");
     setCellContent(model, "B2", "=TRUE");
@@ -391,12 +396,12 @@ describe("evaluateCells", () => {
     setCellContent(model, "B5", "=FaLsE");
     setCellContent(model, "B6", "=TrUe");
 
-    expect(getCell(model, "B1")!.evaluated.value).toBe(false);
-    expect(getCell(model, "B2")!.evaluated.value).toBe(true);
-    expect(getCell(model, "B3")!.evaluated.value).toBe(false);
-    expect(getCell(model, "B4")!.evaluated.value).toBe(true);
-    expect(getCell(model, "B5")!.evaluated.value).toBe(false);
-    expect(getCell(model, "B6")!.evaluated.value).toBe(true);
+    expect(getEvaluatedCell(model, "B1").value).toBe(false);
+    expect(getEvaluatedCell(model, "B2").value).toBe(true);
+    expect(getEvaluatedCell(model, "B3").value).toBe(false);
+    expect(getEvaluatedCell(model, "B4").value).toBe(true);
+    expect(getEvaluatedCell(model, "B5").value).toBe(false);
+    expect(getEvaluatedCell(model, "B6").value).toBe(true);
 
     setCellContent(model, "A1", " FALSE ");
     setCellContent(model, "A2", " TRUE ");
@@ -405,12 +410,12 @@ describe("evaluateCells", () => {
     setCellContent(model, "A5", " FaLsE ");
     setCellContent(model, "A6", " TrUe ");
 
-    expect(getCell(model, "A1")!.evaluated.value).toBe(" FALSE ");
-    expect(getCell(model, "A2")!.evaluated.value).toBe(" TRUE ");
-    expect(getCell(model, "A3")!.evaluated.value).toBe(" false ");
-    expect(getCell(model, "A4")!.evaluated.value).toBe(" true ");
-    expect(getCell(model, "A5")!.evaluated.value).toBe(" FaLsE ");
-    expect(getCell(model, "A6")!.evaluated.value).toBe(" TrUe ");
+    expect(getEvaluatedCell(model, "A1").value).toBe(" FALSE ");
+    expect(getEvaluatedCell(model, "A2").value).toBe(" TRUE ");
+    expect(getEvaluatedCell(model, "A3").value).toBe(" false ");
+    expect(getEvaluatedCell(model, "A4").value).toBe(" true ");
+    expect(getEvaluatedCell(model, "A5").value).toBe(" FaLsE ");
+    expect(getEvaluatedCell(model, "A6").value).toBe(" TrUe ");
 
     setCellContent(model, "B1", "= FALSE ");
     setCellContent(model, "B2", "= TRUE ");
@@ -419,12 +424,12 @@ describe("evaluateCells", () => {
     setCellContent(model, "B5", "= FaLsE ");
     setCellContent(model, "B6", "= TrUe ");
 
-    expect(getCell(model, "B1")!.evaluated.value).toBe(false);
-    expect(getCell(model, "B2")!.evaluated.value).toBe(true);
-    expect(getCell(model, "B3")!.evaluated.value).toBe(false);
-    expect(getCell(model, "B4")!.evaluated.value).toBe(true);
-    expect(getCell(model, "B5")!.evaluated.value).toBe(false);
-    expect(getCell(model, "B6")!.evaluated.value).toBe(true);
+    expect(getEvaluatedCell(model, "B1").value).toBe(false);
+    expect(getEvaluatedCell(model, "B2").value).toBe(true);
+    expect(getEvaluatedCell(model, "B3").value).toBe(false);
+    expect(getEvaluatedCell(model, "B4").value).toBe(true);
+    expect(getEvaluatedCell(model, "B5").value).toBe(false);
+    expect(getEvaluatedCell(model, "B6").value).toBe(true);
   });
 
   test("various expressions with whitespace", () => {
@@ -467,40 +472,40 @@ describe("evaluateCells", () => {
     setCellContent(model, "D8", "=COUNT( 44   45  )");
 
     expect(getCell(model, "A1")!).toBeUndefined();
-    expect(getCell(model, "A2")!.evaluated.value).toBe(",");
-    expect(getCell(model, "A3")!.evaluated.value).toBe(" ");
-    expect(getCell(model, "A4")!.evaluated.value).toBe(" , ");
-    expect(getCell(model, "A5")!.evaluated.value).toBe(42);
-    expect(getCell(model, "A6")!.evaluated.value).toBe(" 42 , 24  ");
-    expect(getCell(model, "A7")!.evaluated.value).toBe(" 43 ,     ");
-    expect(getCell(model, "A8")!.evaluated.value).toBe(" 44   45  ");
+    expect(getEvaluatedCell(model, "A2").value).toBe(",");
+    expect(getEvaluatedCell(model, "A3").value).toBe(" ");
+    expect(getEvaluatedCell(model, "A4").value).toBe(" , ");
+    expect(getEvaluatedCell(model, "A5").value).toBe(42);
+    expect(getEvaluatedCell(model, "A6").value).toBe(" 42 , 24  ");
+    expect(getEvaluatedCell(model, "A7").value).toBe(" 43 ,     ");
+    expect(getEvaluatedCell(model, "A8").value).toBe(" 44   45  ");
 
-    expect(getCell(model, "B1")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return "There was a problem"
-    expect(getCell(model, "B2")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return "There was a problem"
-    expect(getCell(model, "B3")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return "There was a problem"
-    expect(getCell(model, "B4")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return "There was a problem"
-    expect(getCell(model, "B5")!.evaluated.value).toBe(42);
-    expect(getCell(model, "B6")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
-    expect(getCell(model, "B7")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return "There was a problem"
-    expect(getCell(model, "B8")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
+    expect(getEvaluatedCell(model, "B1").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return "There was a problem"
+    expect(getEvaluatedCell(model, "B2").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return "There was a problem"
+    expect(getEvaluatedCell(model, "B3").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return "There was a problem"
+    expect(getEvaluatedCell(model, "B4").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return "There was a problem"
+    expect(getEvaluatedCell(model, "B5").value).toBe(42);
+    expect(getEvaluatedCell(model, "B6").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
+    expect(getEvaluatedCell(model, "B7").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return "There was a problem"
+    expect(getEvaluatedCell(model, "B8").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
 
-    expect(getCell(model, "C1")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #N/A
-    expect(getCell(model, "C2")!.evaluated.value).toBe(0);
-    expect(getCell(model, "C3")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #N/A
-    expect(getCell(model, "C4")!.evaluated.value).toBe(0);
-    expect(getCell(model, "C5")!.evaluated.value).toBe(42);
-    expect(getCell(model, "C6")!.evaluated.value).toBe(66);
-    expect(getCell(model, "C7")!.evaluated.value).toBe(43);
-    expect(getCell(model, "C8")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
+    expect(getEvaluatedCell(model, "C1").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #N/A
+    expect(getEvaluatedCell(model, "C2").value).toBe(0);
+    expect(getEvaluatedCell(model, "C3").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #N/A
+    expect(getEvaluatedCell(model, "C4").value).toBe(0);
+    expect(getEvaluatedCell(model, "C5").value).toBe(42);
+    expect(getEvaluatedCell(model, "C6").value).toBe(66);
+    expect(getEvaluatedCell(model, "C7").value).toBe(43);
+    expect(getEvaluatedCell(model, "C8").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
 
-    expect(getCell(model, "D1")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #N/A
-    expect(getCell(model, "D2")!.evaluated.value).toBe(2);
-    expect(getCell(model, "D3")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #N/A
-    expect(getCell(model, "D4")!.evaluated.value).toBe(2);
-    expect(getCell(model, "D5")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D6")!.evaluated.value).toBe(2);
-    expect(getCell(model, "D7")!.evaluated.value).toBe(2);
-    expect(getCell(model, "D8")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
+    expect(getEvaluatedCell(model, "D1").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #N/A
+    expect(getEvaluatedCell(model, "D2").value).toBe(2);
+    expect(getEvaluatedCell(model, "D3").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #N/A
+    expect(getEvaluatedCell(model, "D4").value).toBe(2);
+    expect(getEvaluatedCell(model, "D5").value).toBe(1);
+    expect(getEvaluatedCell(model, "D6").value).toBe(2);
+    expect(getEvaluatedCell(model, "D7").value).toBe(2);
+    expect(getEvaluatedCell(model, "D8").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
   });
 
   test("various string expressions with whitespace", () => {
@@ -542,41 +547,41 @@ describe("evaluateCells", () => {
     setCellContent(model, "D7", '=COUNT(" 43 ,     ")');
     setCellContent(model, "D8", '=COUNT(" 44   45  ")');
 
-    expect(getCell(model, "A1")!.evaluated.value).toBe('""');
-    expect(getCell(model, "A2")!.evaluated.value).toBe('","');
-    expect(getCell(model, "A3")!.evaluated.value).toBe('" "');
-    expect(getCell(model, "A4")!.evaluated.value).toBe('" , "');
-    expect(getCell(model, "A5")!.evaluated.value).toBe('" 42  "');
-    expect(getCell(model, "A6")!.evaluated.value).toBe('" 42 , 24  "');
-    expect(getCell(model, "A7")!.evaluated.value).toBe('" 43 ,     "');
-    expect(getCell(model, "A8")!.evaluated.value).toBe('" 44   45  "');
+    expect(getEvaluatedCell(model, "A1").value).toBe('""');
+    expect(getEvaluatedCell(model, "A2").value).toBe('","');
+    expect(getEvaluatedCell(model, "A3").value).toBe('" "');
+    expect(getEvaluatedCell(model, "A4").value).toBe('" , "');
+    expect(getEvaluatedCell(model, "A5").value).toBe('" 42  "');
+    expect(getEvaluatedCell(model, "A6").value).toBe('" 42 , 24  "');
+    expect(getEvaluatedCell(model, "A7").value).toBe('" 43 ,     "');
+    expect(getEvaluatedCell(model, "A8").value).toBe('" 44   45  "');
 
-    expect(getCell(model, "B1")!.evaluated.value).toBe("");
-    expect(getCell(model, "B2")!.evaluated.value).toBe(",");
-    expect(getCell(model, "B3")!.evaluated.value).toBe(" ");
-    expect(getCell(model, "B4")!.evaluated.value).toBe(" , ");
-    expect(getCell(model, "B5")!.evaluated.value).toBe(" 42  ");
-    expect(getCell(model, "B6")!.evaluated.value).toBe(" 42 , 24  ");
-    expect(getCell(model, "B7")!.evaluated.value).toBe(" 43 ,     ");
-    expect(getCell(model, "B8")!.evaluated.value).toBe(" 44   45  ");
+    expect(getEvaluatedCell(model, "B1").value).toBe("");
+    expect(getEvaluatedCell(model, "B2").value).toBe(",");
+    expect(getEvaluatedCell(model, "B3").value).toBe(" ");
+    expect(getEvaluatedCell(model, "B4").value).toBe(" , ");
+    expect(getEvaluatedCell(model, "B5").value).toBe(" 42  ");
+    expect(getEvaluatedCell(model, "B6").value).toBe(" 42 , 24  ");
+    expect(getEvaluatedCell(model, "B7").value).toBe(" 43 ,     ");
+    expect(getEvaluatedCell(model, "B8").value).toBe(" 44   45  ");
 
-    expect(getCell(model, "C1")!.evaluated.value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
-    expect(getCell(model, "C2")!.evaluated.value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
-    expect(getCell(model, "C3")!.evaluated.value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
-    expect(getCell(model, "C4")!.evaluated.value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
-    expect(getCell(model, "C5")!.evaluated.value).toBe(42);
-    expect(getCell(model, "C6")!.evaluated.value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
-    expect(getCell(model, "C7")!.evaluated.value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
-    expect(getCell(model, "C8")!.evaluated.value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
+    expect(getEvaluatedCell(model, "C1").value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
+    expect(getEvaluatedCell(model, "C2").value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
+    expect(getEvaluatedCell(model, "C3").value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
+    expect(getEvaluatedCell(model, "C4").value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
+    expect(getEvaluatedCell(model, "C5").value).toBe(42);
+    expect(getEvaluatedCell(model, "C6").value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
+    expect(getEvaluatedCell(model, "C7").value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
+    expect(getEvaluatedCell(model, "C8").value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
 
-    expect(getCell(model, "D1")!.evaluated.value).toBe(0);
-    expect(getCell(model, "D2")!.evaluated.value).toBe(0);
-    expect(getCell(model, "D3")!.evaluated.value).toBe(0);
-    expect(getCell(model, "D4")!.evaluated.value).toBe(0);
-    expect(getCell(model, "D5")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D6")!.evaluated.value).toBe(0);
-    expect(getCell(model, "D7")!.evaluated.value).toBe(0);
-    expect(getCell(model, "D8")!.evaluated.value).toBe(0);
+    expect(getEvaluatedCell(model, "D1").value).toBe(0);
+    expect(getEvaluatedCell(model, "D2").value).toBe(0);
+    expect(getEvaluatedCell(model, "D3").value).toBe(0);
+    expect(getEvaluatedCell(model, "D4").value).toBe(0);
+    expect(getEvaluatedCell(model, "D5").value).toBe(1);
+    expect(getEvaluatedCell(model, "D6").value).toBe(0);
+    expect(getEvaluatedCell(model, "D7").value).toBe(0);
+    expect(getEvaluatedCell(model, "D8").value).toBe(0);
   });
 
   test("various expressions with dot", () => {
@@ -598,21 +603,21 @@ describe("evaluateCells", () => {
     setCellContent(model, "D2", "=COUNT(4.)");
     setCellContent(model, "D3", "=COUNT(.2)");
 
-    expect(getCell(model, "A1")!.evaluated.value).toBe(4.2);
-    expect(getCell(model, "A2")!.evaluated.value).toBe(4);
-    expect(getCell(model, "A3")!.evaluated.value).toBe(0.2);
+    expect(getEvaluatedCell(model, "A1").value).toBe(4.2);
+    expect(getEvaluatedCell(model, "A2").value).toBe(4);
+    expect(getEvaluatedCell(model, "A3").value).toBe(0.2);
 
-    expect(getCell(model, "B1")!.evaluated.value).toBe(4.2);
-    expect(getCell(model, "B2")!.evaluated.value).toBe(4);
-    expect(getCell(model, "B3")!.evaluated.value).toBe(0.2);
+    expect(getEvaluatedCell(model, "B1").value).toBe(4.2);
+    expect(getEvaluatedCell(model, "B2").value).toBe(4);
+    expect(getEvaluatedCell(model, "B3").value).toBe(0.2);
 
-    expect(getCell(model, "C1")!.evaluated.value).toBe(4.2);
-    expect(getCell(model, "C2")!.evaluated.value).toBe(4);
-    expect(getCell(model, "C3")!.evaluated.value).toBe(0.2);
+    expect(getEvaluatedCell(model, "C1").value).toBe(4.2);
+    expect(getEvaluatedCell(model, "C2").value).toBe(4);
+    expect(getEvaluatedCell(model, "C3").value).toBe(0.2);
 
-    expect(getCell(model, "D1")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D2")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D3")!.evaluated.value).toBe(1);
+    expect(getEvaluatedCell(model, "D1").value).toBe(1);
+    expect(getEvaluatedCell(model, "D2").value).toBe(1);
+    expect(getEvaluatedCell(model, "D3").value).toBe(1);
   });
 
   test("various string expressions with dot", () => {
@@ -633,21 +638,21 @@ describe("evaluateCells", () => {
     setCellContent(model, "D2", '=COUNT("4.")');
     setCellContent(model, "D3", '=COUNT(".2")');
 
-    expect(getCell(model, "A1")!.evaluated.value).toBe('"4.2"');
-    expect(getCell(model, "A2")!.evaluated.value).toBe('"4."');
-    expect(getCell(model, "A3")!.evaluated.value).toBe('".2"');
+    expect(getEvaluatedCell(model, "A1").value).toBe('"4.2"');
+    expect(getEvaluatedCell(model, "A2").value).toBe('"4."');
+    expect(getEvaluatedCell(model, "A3").value).toBe('".2"');
 
-    expect(getCell(model, "B1")!.evaluated.value).toBe("4.2");
-    expect(getCell(model, "B2")!.evaluated.value).toBe("4.");
-    expect(getCell(model, "B3")!.evaluated.value).toBe(".2");
+    expect(getEvaluatedCell(model, "B1").value).toBe("4.2");
+    expect(getEvaluatedCell(model, "B2").value).toBe("4.");
+    expect(getEvaluatedCell(model, "B3").value).toBe(".2");
 
-    expect(getCell(model, "C1")!.evaluated.value).toBe(4.2);
-    expect(getCell(model, "C2")!.evaluated.value).toBe(4);
-    expect(getCell(model, "C3")!.evaluated.value).toBe(0.2);
+    expect(getEvaluatedCell(model, "C1").value).toBe(4.2);
+    expect(getEvaluatedCell(model, "C2").value).toBe(4);
+    expect(getEvaluatedCell(model, "C3").value).toBe(0.2);
 
-    expect(getCell(model, "D1")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D2")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D3")!.evaluated.value).toBe(1);
+    expect(getEvaluatedCell(model, "D1").value).toBe(1);
+    expect(getEvaluatedCell(model, "D2").value).toBe(1);
+    expect(getEvaluatedCell(model, "D3").value).toBe(1);
   });
 
   test("various expressions with dot and whitespace", () => {
@@ -680,33 +685,33 @@ describe("evaluateCells", () => {
     setCellContent(model, "D5", "=COUNT( .24)");
     setCellContent(model, "D6", "=COUNT(. 24)");
 
-    expect(getCell(model, "A1")!.evaluated.value).toBe("42 .24");
-    expect(getCell(model, "A2")!.evaluated.value).toBe("42. 24");
-    expect(getCell(model, "A3")!.evaluated.value).toBe("42 .");
-    expect(getCell(model, "A4")!.evaluated.value).toBe(42);
-    expect(getCell(model, "A5")!.evaluated.value).toBe(0.24);
-    expect(getCell(model, "A6")!.evaluated.value).toBe(". 24");
+    expect(getEvaluatedCell(model, "A1").value).toBe("42 .24");
+    expect(getEvaluatedCell(model, "A2").value).toBe("42. 24");
+    expect(getEvaluatedCell(model, "A3").value).toBe("42 .");
+    expect(getEvaluatedCell(model, "A4").value).toBe(42);
+    expect(getEvaluatedCell(model, "A5").value).toBe(0.24);
+    expect(getEvaluatedCell(model, "A6").value).toBe(". 24");
 
-    expect(getCell(model, "B1")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
-    expect(getCell(model, "B2")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
-    expect(getCell(model, "B3")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
-    expect(getCell(model, "B4")!.evaluated.value).toBe(42);
-    expect(getCell(model, "B5")!.evaluated.value).toBe(0.24);
-    expect(getCell(model, "B6")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
+    expect(getEvaluatedCell(model, "B1").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
+    expect(getEvaluatedCell(model, "B2").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
+    expect(getEvaluatedCell(model, "B3").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
+    expect(getEvaluatedCell(model, "B4").value).toBe(42);
+    expect(getEvaluatedCell(model, "B5").value).toBe(0.24);
+    expect(getEvaluatedCell(model, "B6").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
 
-    expect(getCell(model, "C1")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
-    expect(getCell(model, "C2")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
-    expect(getCell(model, "C3")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
-    expect(getCell(model, "C4")!.evaluated.value).toBe(42);
-    expect(getCell(model, "C5")!.evaluated.value).toBe(0.24);
-    expect(getCell(model, "C6")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
+    expect(getEvaluatedCell(model, "C1").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
+    expect(getEvaluatedCell(model, "C2").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
+    expect(getEvaluatedCell(model, "C3").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
+    expect(getEvaluatedCell(model, "C4").value).toBe(42);
+    expect(getEvaluatedCell(model, "C5").value).toBe(0.24);
+    expect(getEvaluatedCell(model, "C6").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
 
-    expect(getCell(model, "D1")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
-    expect(getCell(model, "D2")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
-    expect(getCell(model, "D3")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
-    expect(getCell(model, "D4")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D5")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D6")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
+    expect(getEvaluatedCell(model, "D1").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
+    expect(getEvaluatedCell(model, "D2").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
+    expect(getEvaluatedCell(model, "D3").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
+    expect(getEvaluatedCell(model, "D4").value).toBe(1);
+    expect(getEvaluatedCell(model, "D5").value).toBe(1);
+    expect(getEvaluatedCell(model, "D6").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
   });
 
   test("various string expressions with dot and whitespace", () => {
@@ -739,33 +744,33 @@ describe("evaluateCells", () => {
     setCellContent(model, "D5", '=COUNT(" .24")');
     setCellContent(model, "D6", '=COUNT(". 24")');
 
-    expect(getCell(model, "A1")!.evaluated.value).toBe('"42 .24"');
-    expect(getCell(model, "A2")!.evaluated.value).toBe('"42. 24"');
-    expect(getCell(model, "A3")!.evaluated.value).toBe('"42 ."');
-    expect(getCell(model, "A4")!.evaluated.value).toBe('"42. "');
-    expect(getCell(model, "A5")!.evaluated.value).toBe('" .24"');
-    expect(getCell(model, "A6")!.evaluated.value).toBe('". 24"');
+    expect(getEvaluatedCell(model, "A1").value).toBe('"42 .24"');
+    expect(getEvaluatedCell(model, "A2").value).toBe('"42. 24"');
+    expect(getEvaluatedCell(model, "A3").value).toBe('"42 ."');
+    expect(getEvaluatedCell(model, "A4").value).toBe('"42. "');
+    expect(getEvaluatedCell(model, "A5").value).toBe('" .24"');
+    expect(getEvaluatedCell(model, "A6").value).toBe('". 24"');
 
-    expect(getCell(model, "B1")!.evaluated.value).toBe("42 .24");
-    expect(getCell(model, "B2")!.evaluated.value).toBe("42. 24");
-    expect(getCell(model, "B3")!.evaluated.value).toBe("42 .");
-    expect(getCell(model, "B4")!.evaluated.value).toBe("42. ");
-    expect(getCell(model, "B5")!.evaluated.value).toBe(" .24");
-    expect(getCell(model, "B6")!.evaluated.value).toBe(". 24");
+    expect(getEvaluatedCell(model, "B1").value).toBe("42 .24");
+    expect(getEvaluatedCell(model, "B2").value).toBe("42. 24");
+    expect(getEvaluatedCell(model, "B3").value).toBe("42 .");
+    expect(getEvaluatedCell(model, "B4").value).toBe("42. ");
+    expect(getEvaluatedCell(model, "B5").value).toBe(" .24");
+    expect(getEvaluatedCell(model, "B6").value).toBe(". 24");
 
-    expect(getCell(model, "C1")!.evaluated.value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
-    expect(getCell(model, "C2")!.evaluated.value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
-    expect(getCell(model, "C3")!.evaluated.value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
-    expect(getCell(model, "C4")!.evaluated.value).toBe(42);
-    expect(getCell(model, "C5")!.evaluated.value).toBe(0.24);
-    expect(getCell(model, "C6")!.evaluated.value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
+    expect(getEvaluatedCell(model, "C1").value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
+    expect(getEvaluatedCell(model, "C2").value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
+    expect(getEvaluatedCell(model, "C3").value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
+    expect(getEvaluatedCell(model, "C4").value).toBe(42);
+    expect(getEvaluatedCell(model, "C5").value).toBe(0.24);
+    expect(getEvaluatedCell(model, "C6").value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
 
-    expect(getCell(model, "D1")!.evaluated.value).toBe(0);
-    expect(getCell(model, "D2")!.evaluated.value).toBe(0);
-    expect(getCell(model, "D3")!.evaluated.value).toBe(0);
-    expect(getCell(model, "D4")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D5")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D6")!.evaluated.value).toBe(0);
+    expect(getEvaluatedCell(model, "D1").value).toBe(0);
+    expect(getEvaluatedCell(model, "D2").value).toBe(0);
+    expect(getEvaluatedCell(model, "D3").value).toBe(0);
+    expect(getEvaluatedCell(model, "D4").value).toBe(1);
+    expect(getEvaluatedCell(model, "D5").value).toBe(1);
+    expect(getEvaluatedCell(model, "D6").value).toBe(0);
   });
 
   test("various expressions with percent, dot and whitespace", () => {
@@ -822,57 +827,57 @@ describe("evaluateCells", () => {
     setCellContent(model, "D11", "=COUNT(3.%)");
     setCellContent(model, "D12", "=COUNT( 4.% )");
 
-    expect(getCell(model, "A1")!.evaluated.value).toBe("%");
-    expect(getCell(model, "A2")!.evaluated.value).toBe(" %");
-    expect(getCell(model, "A3")!.evaluated.value).toBe(0.4);
-    expect(getCell(model, "A4")!.evaluated.value).toBe(0.41);
-    expect(getCell(model, "A5")!.evaluated.value).toBe(0.42);
-    expect(getCell(model, "A6")!.evaluated.value).toBe(0.43);
-    expect(getCell(model, "A7")!.evaluated.value).toBeCloseTo(0.041, 3);
-    expect(getCell(model, "A8")!.evaluated.value).toBe(0.042);
-    expect(getCell(model, "A9")!.evaluated.value).toBe(0.001);
-    expect(getCell(model, "A10")!.evaluated.value).toBe(0.002);
-    expect(getCell(model, "A11")!.evaluated.value).toBe(0.03);
-    expect(getCell(model, "A12")!.evaluated.value).toBe(0.04);
+    expect(getEvaluatedCell(model, "A1").value).toBe("%");
+    expect(getEvaluatedCell(model, "A2").value).toBe(" %");
+    expect(getEvaluatedCell(model, "A3").value).toBe(0.4);
+    expect(getEvaluatedCell(model, "A4").value).toBe(0.41);
+    expect(getEvaluatedCell(model, "A5").value).toBe(0.42);
+    expect(getEvaluatedCell(model, "A6").value).toBe(0.43);
+    expect(getEvaluatedCell(model, "A7").value).toBeCloseTo(0.041, 3);
+    expect(getEvaluatedCell(model, "A8").value).toBe(0.042);
+    expect(getEvaluatedCell(model, "A9").value).toBe(0.001);
+    expect(getEvaluatedCell(model, "A10").value).toBe(0.002);
+    expect(getEvaluatedCell(model, "A11").value).toBe(0.03);
+    expect(getEvaluatedCell(model, "A12").value).toBe(0.04);
 
-    expect(getCell(model, "B1")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
-    expect(getCell(model, "B2")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
-    expect(getCell(model, "B3")!.evaluated.value).toBe(0.4);
-    expect(getCell(model, "B4")!.evaluated.value).toBe(0.41);
-    expect(getCell(model, "B5")!.evaluated.value).toBe(0.42);
-    expect(getCell(model, "B6")!.evaluated.value).toBe(0.43);
-    expect(getCell(model, "B7")!.evaluated.value).toBeCloseTo(0.041, 3);
-    expect(getCell(model, "B8")!.evaluated.value).toBe(0.042);
-    expect(getCell(model, "B9")!.evaluated.value).toBe(0.001);
-    expect(getCell(model, "B10")!.evaluated.value).toBe(0.002);
-    expect(getCell(model, "B11")!.evaluated.value).toBe(0.03);
-    expect(getCell(model, "B12")!.evaluated.value).toBe(0.04);
+    expect(getEvaluatedCell(model, "B1").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
+    expect(getEvaluatedCell(model, "B2").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
+    expect(getEvaluatedCell(model, "B3").value).toBe(0.4);
+    expect(getEvaluatedCell(model, "B4").value).toBe(0.41);
+    expect(getEvaluatedCell(model, "B5").value).toBe(0.42);
+    expect(getEvaluatedCell(model, "B6").value).toBe(0.43);
+    expect(getEvaluatedCell(model, "B7").value).toBeCloseTo(0.041, 3);
+    expect(getEvaluatedCell(model, "B8").value).toBe(0.042);
+    expect(getEvaluatedCell(model, "B9").value).toBe(0.001);
+    expect(getEvaluatedCell(model, "B10").value).toBe(0.002);
+    expect(getEvaluatedCell(model, "B11").value).toBe(0.03);
+    expect(getEvaluatedCell(model, "B12").value).toBe(0.04);
 
-    expect(getCell(model, "C1")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
-    expect(getCell(model, "C2")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
-    expect(getCell(model, "C3")!.evaluated.value).toBe(0.4);
-    expect(getCell(model, "C4")!.evaluated.value).toBe(0.41);
-    expect(getCell(model, "C5")!.evaluated.value).toBe(0.42);
-    expect(getCell(model, "C6")!.evaluated.value).toBe(0.43);
-    expect(getCell(model, "C7")!.evaluated.value).toBeCloseTo(0.041, 3);
-    expect(getCell(model, "C8")!.evaluated.value).toBe(0.042);
-    expect(getCell(model, "C9")!.evaluated.value).toBe(0.001);
-    expect(getCell(model, "C10")!.evaluated.value).toBe(0.002);
-    expect(getCell(model, "C11")!.evaluated.value).toBe(0.03);
-    expect(getCell(model, "C12")!.evaluated.value).toBe(0.04);
+    expect(getEvaluatedCell(model, "C1").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
+    expect(getEvaluatedCell(model, "C2").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
+    expect(getEvaluatedCell(model, "C3").value).toBe(0.4);
+    expect(getEvaluatedCell(model, "C4").value).toBe(0.41);
+    expect(getEvaluatedCell(model, "C5").value).toBe(0.42);
+    expect(getEvaluatedCell(model, "C6").value).toBe(0.43);
+    expect(getEvaluatedCell(model, "C7").value).toBeCloseTo(0.041, 3);
+    expect(getEvaluatedCell(model, "C8").value).toBe(0.042);
+    expect(getEvaluatedCell(model, "C9").value).toBe(0.001);
+    expect(getEvaluatedCell(model, "C10").value).toBe(0.002);
+    expect(getEvaluatedCell(model, "C11").value).toBe(0.03);
+    expect(getEvaluatedCell(model, "C12").value).toBe(0.04);
 
-    expect(getCell(model, "D1")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
-    expect(getCell(model, "D2")!.evaluated.value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
-    expect(getCell(model, "D3")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D4")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D5")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D6")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D7")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D8")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D9")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D10")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D11")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D12")!.evaluated.value).toBe(1);
+    expect(getEvaluatedCell(model, "D1").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
+    expect(getEvaluatedCell(model, "D2").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
+    expect(getEvaluatedCell(model, "D3").value).toBe(1);
+    expect(getEvaluatedCell(model, "D4").value).toBe(1);
+    expect(getEvaluatedCell(model, "D5").value).toBe(1);
+    expect(getEvaluatedCell(model, "D6").value).toBe(1);
+    expect(getEvaluatedCell(model, "D7").value).toBe(1);
+    expect(getEvaluatedCell(model, "D8").value).toBe(1);
+    expect(getEvaluatedCell(model, "D9").value).toBe(1);
+    expect(getEvaluatedCell(model, "D10").value).toBe(1);
+    expect(getEvaluatedCell(model, "D11").value).toBe(1);
+    expect(getEvaluatedCell(model, "D12").value).toBe(1);
   });
 
   test("various string expressions with percent, dot and whitespace", () => {
@@ -930,65 +935,65 @@ describe("evaluateCells", () => {
     setCellContent(model, "D11", '=COUNT("3.%")');
     setCellContent(model, "D12", '=COUNT(" 4.% ")');
 
-    expect(getCell(model, "A1")!.evaluated.value).toBe('"%"');
-    expect(getCell(model, "A2")!.evaluated.value).toBe('" %"');
-    expect(getCell(model, "A3")!.evaluated.value).toBe('"40%"');
-    expect(getCell(model, "A4")!.evaluated.value).toBe('" 41% "');
-    expect(getCell(model, "A5")!.evaluated.value).toBe('"42 %"');
-    expect(getCell(model, "A6")!.evaluated.value).toBe('" 43 % "');
-    expect(getCell(model, "A7")!.evaluated.value).toBe('"4.1%"');
-    expect(getCell(model, "A8")!.evaluated.value).toBe('" 4.2% "');
-    expect(getCell(model, "A9")!.evaluated.value).toBe('".1%"');
-    expect(getCell(model, "A10")!.evaluated.value).toBe('" .2% "');
-    expect(getCell(model, "A11")!.evaluated.value).toBe('"3.%"');
-    expect(getCell(model, "A12")!.evaluated.value).toBe('" 4.% "');
+    expect(getEvaluatedCell(model, "A1").value).toBe('"%"');
+    expect(getEvaluatedCell(model, "A2").value).toBe('" %"');
+    expect(getEvaluatedCell(model, "A3").value).toBe('"40%"');
+    expect(getEvaluatedCell(model, "A4").value).toBe('" 41% "');
+    expect(getEvaluatedCell(model, "A5").value).toBe('"42 %"');
+    expect(getEvaluatedCell(model, "A6").value).toBe('" 43 % "');
+    expect(getEvaluatedCell(model, "A7").value).toBe('"4.1%"');
+    expect(getEvaluatedCell(model, "A8").value).toBe('" 4.2% "');
+    expect(getEvaluatedCell(model, "A9").value).toBe('".1%"');
+    expect(getEvaluatedCell(model, "A10").value).toBe('" .2% "');
+    expect(getEvaluatedCell(model, "A11").value).toBe('"3.%"');
+    expect(getEvaluatedCell(model, "A12").value).toBe('" 4.% "');
 
-    expect(getCell(model, "B1")!.evaluated.value).toBe("%");
-    expect(getCell(model, "B2")!.evaluated.value).toBe(" %");
-    expect(getCell(model, "B3")!.evaluated.value).toBe("40%");
-    expect(getCell(model, "B4")!.evaluated.value).toBe(" 41% ");
-    expect(getCell(model, "B5")!.evaluated.value).toBe("42 %");
-    expect(getCell(model, "B6")!.evaluated.value).toBe(" 43 % ");
-    expect(getCell(model, "B7")!.evaluated.value).toBe("4.1%");
-    expect(getCell(model, "B8")!.evaluated.value).toBe(" 4.2% ");
-    expect(getCell(model, "B9")!.evaluated.value).toBe(".1%");
-    expect(getCell(model, "B10")!.evaluated.value).toBe(" .2% ");
-    expect(getCell(model, "B11")!.evaluated.value).toBe("3.%");
-    expect(getCell(model, "B12")!.evaluated.value).toBe(" 4.% ");
+    expect(getEvaluatedCell(model, "B1").value).toBe("%");
+    expect(getEvaluatedCell(model, "B2").value).toBe(" %");
+    expect(getEvaluatedCell(model, "B3").value).toBe("40%");
+    expect(getEvaluatedCell(model, "B4").value).toBe(" 41% ");
+    expect(getEvaluatedCell(model, "B5").value).toBe("42 %");
+    expect(getEvaluatedCell(model, "B6").value).toBe(" 43 % ");
+    expect(getEvaluatedCell(model, "B7").value).toBe("4.1%");
+    expect(getEvaluatedCell(model, "B8").value).toBe(" 4.2% ");
+    expect(getEvaluatedCell(model, "B9").value).toBe(".1%");
+    expect(getEvaluatedCell(model, "B10").value).toBe(" .2% ");
+    expect(getEvaluatedCell(model, "B11").value).toBe("3.%");
+    expect(getEvaluatedCell(model, "B12").value).toBe(" 4.% ");
 
-    expect(getCell(model, "C1")!.evaluated.value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
-    expect(getCell(model, "C2")!.evaluated.value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
-    expect(getCell(model, "C3")!.evaluated.value).toBe(0.4);
-    expect(getCell(model, "C4")!.evaluated.value).toBe(0.41);
-    expect(getCell(model, "C5")!.evaluated.value).toBe(0.42); // @compatibility: on google sheet, return #VALUE!
-    expect(getCell(model, "C6")!.evaluated.value).toBe(0.43); // @compatibility: on google sheet, return #VALUE!
-    expect(getCell(model, "C7")!.evaluated.value).toBeCloseTo(0.041, 3);
-    expect(getCell(model, "C8")!.evaluated.value).toBe(0.042); // @compatibility: on google sheet, return #VALUE!
-    expect(getCell(model, "C9")!.evaluated.value).toBe(0.001);
-    expect(getCell(model, "C10")!.evaluated.value).toBe(0.002);
-    expect(getCell(model, "C11")!.evaluated.value).toBe(0.03);
-    expect(getCell(model, "C12")!.evaluated.value).toBe(0.04);
+    expect(getEvaluatedCell(model, "C1").value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
+    expect(getEvaluatedCell(model, "C2").value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
+    expect(getEvaluatedCell(model, "C3").value).toBe(0.4);
+    expect(getEvaluatedCell(model, "C4").value).toBe(0.41);
+    expect(getEvaluatedCell(model, "C5").value).toBe(0.42); // @compatibility: on google sheet, return #VALUE!
+    expect(getEvaluatedCell(model, "C6").value).toBe(0.43); // @compatibility: on google sheet, return #VALUE!
+    expect(getEvaluatedCell(model, "C7").value).toBeCloseTo(0.041, 3);
+    expect(getEvaluatedCell(model, "C8").value).toBe(0.042); // @compatibility: on google sheet, return #VALUE!
+    expect(getEvaluatedCell(model, "C9").value).toBe(0.001);
+    expect(getEvaluatedCell(model, "C10").value).toBe(0.002);
+    expect(getEvaluatedCell(model, "C11").value).toBe(0.03);
+    expect(getEvaluatedCell(model, "C12").value).toBe(0.04);
 
-    expect(getCell(model, "D1")!.evaluated.value).toBe(0);
+    expect(getEvaluatedCell(model, "D1").value).toBe(0);
 
-    expect(getCell(model, "D2")!.evaluated.value).toBe(0);
-    expect(getCell(model, "D3")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D4")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D5")!.evaluated.value).toBe(1); // @compatibility: google sheet returns 0 and excel 1... Excel is right
-    expect(getCell(model, "D6")!.evaluated.value).toBe(1); // @compatibility: google sheet returns 0 and excel 1... Excel is right
-    expect(getCell(model, "D7")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D8")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D9")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D10")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D11")!.evaluated.value).toBe(1);
-    expect(getCell(model, "D12")!.evaluated.value).toBe(1);
+    expect(getEvaluatedCell(model, "D2").value).toBe(0);
+    expect(getEvaluatedCell(model, "D3").value).toBe(1);
+    expect(getEvaluatedCell(model, "D4").value).toBe(1);
+    expect(getEvaluatedCell(model, "D5").value).toBe(1); // @compatibility: google sheet returns 0 and excel 1... Excel is right
+    expect(getEvaluatedCell(model, "D6").value).toBe(1); // @compatibility: google sheet returns 0 and excel 1... Excel is right
+    expect(getEvaluatedCell(model, "D7").value).toBe(1);
+    expect(getEvaluatedCell(model, "D8").value).toBe(1);
+    expect(getEvaluatedCell(model, "D9").value).toBe(1);
+    expect(getEvaluatedCell(model, "D10").value).toBe(1);
+    expect(getEvaluatedCell(model, "D11").value).toBe(1);
+    expect(getEvaluatedCell(model, "D12").value).toBe(1);
   });
 
   test("evaluate empty colored cell", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A2", "=A1");
-    expect(getCell(model, "A2")!.evaluated.value).toBe(0);
+    expect(getEvaluatedCell(model, "A2").value).toBe(0);
     model.dispatch("SET_FORMATTING", {
       sheetId,
       target: target("A1"),
@@ -998,7 +1003,7 @@ describe("evaluateCells", () => {
     });
     setCellContent(model, "A12", "this re-evaluates cells");
     expect(getCellContent(model, "A2")).toBe("0");
-    expect(getCell(model, "A2")!.evaluated.value).toBe(0);
+    expect(getEvaluatedCell(model, "A2").value).toBe(0);
   });
 
   test("evaluation follows dependencies", () => {
@@ -1017,21 +1022,21 @@ describe("evaluateCells", () => {
       ],
     });
 
-    expect(getCell(model, "A3")!.evaluated.value).toBe("old");
+    expect(getEvaluatedCell(model, "A3").value).toBe("old");
     setCellContent(model, "A1", "new");
-    expect(getCell(model, "A3")!.evaluated.value).toBe("new");
+    expect(getEvaluatedCell(model, "A3").value).toBe("new");
   });
 
   test("Coherent handling of #REF when it occurs following a column deletion or a copy/paste", () => {
     const model = new Model();
     setCellContent(model, "A1", "=SUM(B1,C1)");
     deleteColumns(model, ["B"]);
-    expect(getCell(model, "A1")!.evaluated.value).toBe("#REF");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#REF");
     expect(getCellError(model, "A1")).toBe("Invalid reference");
 
     copy(model, "A1");
     paste(model, "A2");
-    expect(getCell(model, "A2")!.evaluated.value).toBe("#REF");
+    expect(getEvaluatedCell(model, "A2").value).toBe("#REF");
     expect(getCellError(model, "A1")).toBe("Invalid reference");
   });
 
@@ -1040,9 +1045,9 @@ describe("evaluateCells", () => {
     setCellContent(model, "A1", "=+(");
     setCellContent(model, "B1", "=A1");
     setCellContent(model, "C1", "=B1");
-    expect(getCell(model, "A1")!.evaluated.value).toBe("#BAD_EXPR");
-    expect(getCell(model, "B1")!.evaluated.value).toBe("#BAD_EXPR");
-    expect(getCell(model, "C1")!.evaluated.value).toBe("#BAD_EXPR");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#BAD_EXPR");
+    expect(getEvaluatedCell(model, "B1").value).toBe("#BAD_EXPR");
+    expect(getEvaluatedCell(model, "C1").value).toBe("#BAD_EXPR");
     expect(getCellError(model, "A1")).toBe("Invalid expression");
     expect(getCellError(model, "B1")).toBe("Invalid expression");
     expect(getCellError(model, "C1")).toBe("Invalid expression");
@@ -1099,10 +1104,10 @@ describe("evaluate formula getter", () => {
       returns: ["NUMBER"],
     });
     setCellContent(model, "A1", "=GETVALUE()");
-    expect(getCell(model, "A1")!.evaluated.value).toBe(1);
+    expect(getEvaluatedCell(model, "A1").value).toBe(1);
     value = 2;
     model.dispatch("EVALUATE_CELLS", { sheetId: model.getters.getActiveSheetId() });
-    expect(getCell(model, "A1")!.evaluated.value).toBe(2);
+    expect(getEvaluatedCell(model, "A1").value).toBe(2);
   });
 
   test("using cells in other sheets", () => {
@@ -1112,7 +1117,7 @@ describe("evaluate formula getter", () => {
     setCellContent(model, "A1", "12", s[1]);
     setCellContent(model, "A2", "=A1", s[1]);
     setCellContent(model, "A2", "=Sheet2!A1", s[0]);
-    expect(getCell(model, "A2", s[0])!.evaluated.value).toBe(12);
+    expect(getEvaluatedCell(model, "A2", s[0]).value).toBe(12);
   });
 
   test.skip("EVALUATE_CELLS with no argument re-evaluates do not reevaluate the cells if they are not modified", () => {
@@ -1159,12 +1164,12 @@ describe("evaluate formula getter", () => {
     });
     setCellContent(model, "A1", "=SUM(A2)");
     setCellContent(model, "A2", "=-GETVALUE()");
-    expect(getCell(model, "A1")!.evaluated.type).toBe(CellValueType.error);
-    expect(getCell(model, "A2")!.evaluated.type).toBe(CellValueType.error);
+    expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
+    expect(getEvaluatedCell(model, "A2").type).toBe(CellValueType.error);
     value = 2;
     model.dispatch("EVALUATE_CELLS", { sheetId: model.getters.getActiveSheetId() });
-    expect(getCell(model, "A1")!.evaluated.value).toBe(-2);
-    expect(getCell(model, "A2")!.evaluated.value).toBe(-2);
+    expect(getEvaluatedCell(model, "A1").value).toBe(-2);
+    expect(getEvaluatedCell(model, "A2").value).toBe(-2);
     functionRegistry.remove("GETVALUE");
   });
 
@@ -1179,11 +1184,11 @@ describe("evaluate formula getter", () => {
     createSheet(model, { sheetId: "sheet2" });
     setCellContent(model, "A1", "=SUM(Sheet2!A2)");
     setCellContent(model, "A2", "=-GETVALUE()", "sheet2");
-    expect(getCell(model, "A1")!.evaluated.type).toBe(CellValueType.error);
+    expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
     value = 2;
     model.dispatch("EVALUATE_CELLS", { sheetId: model.getters.getActiveSheetId() });
-    expect(getCell(model, "A1")!.evaluated.value).toBe(-2);
-    expect(getCell(model, "A2", "sheet2")!.evaluated.value).toBe(-2);
+    expect(getEvaluatedCell(model, "A1").value).toBe(-2);
+    expect(getEvaluatedCell(model, "A2", "sheet2").value).toBe(-2);
     functionRegistry.remove("GETVALUE");
   });
 
@@ -1193,7 +1198,7 @@ describe("evaluate formula getter", () => {
     setCellContent(model, "A3", "=5");
     activateSheet(model, "sheet2");
     activateSheet(model, firstSheetId);
-    expect(getCell(model, "A3", firstSheetId)!.evaluated.value).toBe(5);
+    expect(getEvaluatedCell(model, "A3", firstSheetId).value).toBe(5);
   });
 
   test("cells with two consecutive error are correctly evaluated", () => {
@@ -1207,12 +1212,12 @@ describe("evaluate formula getter", () => {
       returns: ["ANY"],
     });
     setCellContent(model, "A1", "=GETVALUE()");
-    expect(getCell(model, "A1")!.evaluated.type).toBe(CellValueType.error);
-    expect((getCell(model, "A1")!.evaluated as InvalidEvaluation).error.message).toBe("Error1");
+    expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
+    expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe("Error1");
     value = 2;
     model.dispatch("EVALUATE_CELLS");
-    expect(getCell(model, "A1")!.evaluated.type).toBe(CellValueType.error);
-    expect((getCell(model, "A1")!.evaluated as InvalidEvaluation).error.message).toBe("Error2");
+    expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
+    expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe("Error2");
     functionRegistry.remove("GETVALUE");
   });
 });

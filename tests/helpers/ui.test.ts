@@ -46,12 +46,11 @@ import { makeInteractiveTestEnv, target } from "../test_helpers/helpers";
 
 function getCellsObject(model: Model, sheetId: UID) {
   const cells = {};
-  for (let cell of Object.values(model.getters.getCells(sheetId))) {
+  for (const cell of Object.values(model.getters.getCells(sheetId))) {
     const { col, row } = model.getters.getCellPosition(cell.id);
-    cell = model.getters.getCell(sheetId, col, row)!;
     cells[toXC(col, row)] = {
       ...cell,
-      value: cell.evaluated.value,
+      value: model.getters.getEvaluatedCell({ sheetId, col, row }).value,
       content: cell.content,
     };
   }

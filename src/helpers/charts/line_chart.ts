@@ -251,11 +251,11 @@ function canBeDateChart(chart: LineChart, getters: Getters): boolean {
   if (!chart.labelRange || !chart.dataSets || !canBeLinearChart(chart, getters)) {
     return false;
   }
-  const labelFormat = getters.getCell(
-    chart.labelRange.sheetId,
-    chart.labelRange.zone.left,
-    chart.labelRange.zone.top
-  )?.evaluated.format;
+  const labelFormat = getters.getEvaluatedCell({
+    sheetId: chart.labelRange.sheetId,
+    col: chart.labelRange.zone.left,
+    row: chart.labelRange.zone.top,
+  }).format;
   return Boolean(labelFormat && timeFormatMomentCompatible.test(labelFormat));
 }
 

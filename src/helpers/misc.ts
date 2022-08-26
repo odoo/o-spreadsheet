@@ -11,7 +11,7 @@ import {
   PADDING_AUTORESIZE_VERTICAL,
 } from "../constants";
 import { fontSizeMap } from "../fonts";
-import { ConsecutiveIndexes, Lazy, Link, Style, UID } from "../types";
+import { ConsecutiveIndexes, Lazy, Style, UID } from "../types";
 import { Cloneable, Pixel } from "./../types/misc";
 import { parseDateTime } from "./dates";
 /**
@@ -280,7 +280,7 @@ export function markdownLink(label: string, url: string): string {
   return `[${label}](${url})`;
 }
 
-export function parseMarkdownLink(str: string): Link {
+export function parseMarkdownLink(str: string): { url: string; label: string } {
   const matches = str.match(MARKDOWN_LINK_REGEX) || [];
   const label = matches[1];
   const url = matches[2];
@@ -295,11 +295,7 @@ export function parseMarkdownLink(str: string): Link {
 
 const O_SPREADSHEET_LINK_PREFIX = "o-spreadsheet://";
 
-export function isMarkdownSheetLink(str: string) {
-  if (!isMarkdownLink(str)) {
-    return false;
-  }
-  const { url } = parseMarkdownLink(str);
+export function isSheetUrl(url: string) {
   return url.startsWith(O_SPREADSHEET_LINK_PREFIX);
 }
 
@@ -310,7 +306,7 @@ export function buildSheetLink(sheetId: UID) {
 /**
  * Parse a sheet link and return the sheet id
  */
-export function parseSheetLink(sheetLink: string) {
+export function parseSheetUrl(sheetLink: string) {
   if (sheetLink.startsWith(O_SPREADSHEET_LINK_PREFIX)) {
     return sheetLink.substr(O_SPREADSHEET_LINK_PREFIX.length);
   }

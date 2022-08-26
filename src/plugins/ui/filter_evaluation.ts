@@ -1,6 +1,5 @@
 import { DEFAULT_FILTER_BORDER_DESC } from "../../constants";
 import {
-  isDefined,
   isInside,
   isObjectEmptyRecursive,
   positions,
@@ -13,6 +12,7 @@ import {
 } from "../../helpers";
 import {
   Border,
+  CellValueType,
   Command,
   CommandResult,
   ExcelFilterData,
@@ -195,8 +195,8 @@ export class FilterEvaluationPlugin extends UIPlugin {
   }
 
   private getCellValueAsString(sheetId: UID, col: number, row: number): string {
-    const value = this.getters.getCell(sheetId, col, row)?.formattedValue;
-    return value?.toLowerCase() || "";
+    const value = this.getters.getEvaluatedCell({ sheetId, col, row }).formattedValue;
+    return value.toLowerCase();
   }
 
   exportForExcel(data: ExcelWorkbookData) {
@@ -217,8 +217,11 @@ export class FilterEvaluationPlugin extends UIPlugin {
 
           const valuesInFilterZone = filter.filteredZone
             ? positions(filter.filteredZone)
-                .map((pos) => this.getters.getCell(sheetData.id, pos.col, pos.row)?.formattedValue)
-                .filter(isDefined)
+                .map(({ col, row }) =>
+                  this.getters.getEvaluatedCell({ sheetId: sheetData.id, col, row })
+                )
+                .filter((cell) => cell.type !== CellValueType.empty)
+                .map((cell) => cell.formattedValue)
             : [];
 
           // In xlsx, filtered values = values that are displayed, not values that are hidden
@@ -228,12 +231,12 @@ export class FilterEvaluationPlugin extends UIPlugin {
           filters.push({ colId: i, filteredValues: [...new Set(xlsxFilteredValues)] });
 
           // In xlsx, filter header should ALWAYS be a string and should be unique
-          const headerPosition = { col: filter.col, row: filter.zoneWithHeaders.top };
-          const headerString = this.getters.getCell(
-            sheetData.id,
-            headerPosition.col,
-            headerPosition.row
-          )?.formattedValue;
+          const headerPosition = {
+            col: filter.col,
+            row: filter.zoneWithHeaders.top,
+            sheetId: sheetData.id,
+          };
+          const headerString = this.getters.getEvaluatedCell(headerPosition).formattedValue;
           const headerName = this.getUniqueColNameForExcel(i, headerString, headerNames);
           headerNames.push(headerName);
           sheetData.cells[toXC(headerPosition.col, headerPosition.row)] = {

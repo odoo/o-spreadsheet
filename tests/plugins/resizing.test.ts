@@ -282,9 +282,9 @@ describe("Model resizer", () => {
             rowNumber: 10,
             rows: { 6: { size: 40 } },
             cells: {
-              A1: { content: "A1", evaluated: { value: "A1" } },
-              B1: { content: "B1", evaluated: { value: "B1" } },
-              A4: { content: "A4", evaluated: { value: "A4" }, style: 1 },
+              A1: { content: "A1" },
+              B1: { content: "B1" },
+              A4: { content: "A4", style: 1 },
             },
           },
         ],

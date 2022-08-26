@@ -20,7 +20,7 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
-import { getActiveXc, getCell } from "../test_helpers/getters_helpers";
+import { getActiveXc, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
@@ -873,8 +873,8 @@ describe("move selected element(s)", () => {
       // last selected column is now the column B
       await dragColumn("B", "C");
 
-      expect(getCell(model, "B1")!.evaluated.value).toBe("c1");
-      expect(getCell(model, "C1")!.evaluated.value).toBe("b1");
+      expect(getEvaluatedCell(model, "B1").value).toBe("c1");
+      expect(getEvaluatedCell(model, "C1").value).toBe("b1");
     });
 
     test("drag selected C to B --> C arrive before B", async () => {
@@ -885,8 +885,8 @@ describe("move selected element(s)", () => {
       // last selected column is now the column C
       await dragColumn("C", "B");
 
-      expect(getCell(model, "B1")!.evaluated.value).toBe("c1");
-      expect(getCell(model, "C1")!.evaluated.value).toBe("b1");
+      expect(getEvaluatedCell(model, "B1").value).toBe("c1");
+      expect(getEvaluatedCell(model, "C1").value).toBe("b1");
     });
 
     test("drag selected C,D to B (mouseDown on C) --> C,D arrive before B", async () => {
@@ -899,9 +899,9 @@ describe("move selected element(s)", () => {
       // last selected columns are now columns C, D
       await dragColumn("C", "B");
 
-      expect(getCell(model, "B1")!.evaluated.value).toBe("c1");
-      expect(getCell(model, "C1")!.evaluated.value).toBe("d1");
-      expect(getCell(model, "D1")!.evaluated.value).toBe("b1");
+      expect(getEvaluatedCell(model, "B1").value).toBe("c1");
+      expect(getEvaluatedCell(model, "C1").value).toBe("d1");
+      expect(getEvaluatedCell(model, "D1").value).toBe("b1");
     });
 
     test("drag selected C,D to B (mouseDown on D) --> C,D arrive before B", async () => {
@@ -914,9 +914,9 @@ describe("move selected element(s)", () => {
       // last selected columns are now columns C, D
       await dragColumn("D", "B");
 
-      expect(getCell(model, "B1")!.evaluated.value).toBe("c1");
-      expect(getCell(model, "C1")!.evaluated.value).toBe("d1");
-      expect(getCell(model, "D1")!.evaluated.value).toBe("b1");
+      expect(getEvaluatedCell(model, "B1").value).toBe("c1");
+      expect(getEvaluatedCell(model, "C1").value).toBe("d1");
+      expect(getEvaluatedCell(model, "D1").value).toBe("b1");
     });
 
     test("drag selected C,D to E (mouseDown on C) -->  E arrive before C,D", async () => {
@@ -929,9 +929,9 @@ describe("move selected element(s)", () => {
       // last selected columns are now columns C, D
       await dragColumn("C", "E");
 
-      expect(getCell(model, "C1")!.evaluated.value).toBe("e1");
-      expect(getCell(model, "D1")!.evaluated.value).toBe("c1");
-      expect(getCell(model, "E1")!.evaluated.value).toBe("d1");
+      expect(getEvaluatedCell(model, "C1").value).toBe("e1");
+      expect(getEvaluatedCell(model, "D1").value).toBe("c1");
+      expect(getEvaluatedCell(model, "E1").value).toBe("d1");
     });
 
     test("drag selected C,D to E (mouseDown on D) --> E arrive before C,D", async () => {
@@ -944,9 +944,9 @@ describe("move selected element(s)", () => {
       // last selected columns are now columns C, D
       await dragColumn("D", "E");
 
-      expect(getCell(model, "C1")!.evaluated.value).toBe("e1");
-      expect(getCell(model, "D1")!.evaluated.value).toBe("c1");
-      expect(getCell(model, "E1")!.evaluated.value).toBe("d1");
+      expect(getEvaluatedCell(model, "C1").value).toBe("e1");
+      expect(getEvaluatedCell(model, "D1").value).toBe("c1");
+      expect(getEvaluatedCell(model, "E1").value).toBe("d1");
     });
 
     test("drag selected C,D to C (mouseDown on D) --> does nothing", async () => {
@@ -958,8 +958,8 @@ describe("move selected element(s)", () => {
       // last selected columns are now columns C, D
       await dragColumn("D", "C");
 
-      expect(getCell(model, "C1")!.evaluated.value).toBe("c1");
-      expect(getCell(model, "D1")!.evaluated.value).toBe("d1");
+      expect(getEvaluatedCell(model, "C1").value).toBe("c1");
+      expect(getEvaluatedCell(model, "D1").value).toBe("d1");
     });
 
     test("drag selected C,D to D (mouseDown on C) --> does nothing", async () => {
@@ -971,8 +971,8 @@ describe("move selected element(s)", () => {
       // last selected columns are now columns C, D
       await dragColumn("C", "D");
 
-      expect(getCell(model, "C1")!.evaluated.value).toBe("c1");
-      expect(getCell(model, "D1")!.evaluated.value).toBe("d1");
+      expect(getEvaluatedCell(model, "C1").value).toBe("c1");
+      expect(getEvaluatedCell(model, "D1").value).toBe("d1");
     });
 
     test("can't move a selected col that isn't the last selected zone", async () => {
@@ -987,9 +987,9 @@ describe("move selected element(s)", () => {
       // last selected columns are now columns C, D
       await dragColumn("B", "D");
 
-      expect(getCell(model, "B1")!.evaluated.value).toBe("b1");
-      expect(getCell(model, "C1")!.evaluated.value).toBe("c1");
-      expect(getCell(model, "D1")!.evaluated.value).toBe("d1");
+      expect(getEvaluatedCell(model, "B1").value).toBe("b1");
+      expect(getEvaluatedCell(model, "C1").value).toBe("c1");
+      expect(getEvaluatedCell(model, "D1").value).toBe("d1");
     });
   });
 
@@ -1002,8 +1002,8 @@ describe("move selected element(s)", () => {
       // last selected row is now row 2
       await dragRow(1, 2);
 
-      expect(getCell(model, "A2")!.evaluated.value).toBe("a3");
-      expect(getCell(model, "A3")!.evaluated.value).toBe("a2");
+      expect(getEvaluatedCell(model, "A2").value).toBe("a3");
+      expect(getEvaluatedCell(model, "A3").value).toBe("a2");
     });
 
     test("drag selected 3 to 2 --> 2 arrive before 3", async () => {
@@ -1014,8 +1014,8 @@ describe("move selected element(s)", () => {
       // last selected row is now row 3
       await dragRow(2, 1);
 
-      expect(getCell(model, "A2")!.evaluated.value).toBe("a3");
-      expect(getCell(model, "A3")!.evaluated.value).toBe("a2");
+      expect(getEvaluatedCell(model, "A2").value).toBe("a3");
+      expect(getEvaluatedCell(model, "A3").value).toBe("a2");
     });
 
     test("drag selected 3,4 to 2 (mouseDown on 3) --> 3,4 arrive before 2", async () => {
@@ -1028,9 +1028,9 @@ describe("move selected element(s)", () => {
       // last selected rows are now rows 3, 4
       await dragRow(2, 1);
 
-      expect(getCell(model, "A2")!.evaluated.value).toBe("a3");
-      expect(getCell(model, "A3")!.evaluated.value).toBe("a4");
-      expect(getCell(model, "A4")!.evaluated.value).toBe("a2");
+      expect(getEvaluatedCell(model, "A2").value).toBe("a3");
+      expect(getEvaluatedCell(model, "A3").value).toBe("a4");
+      expect(getEvaluatedCell(model, "A4").value).toBe("a2");
     });
 
     test("drag selected 3,4 to 2 (mouseDown on 4) --> 3,4 arrive before 2", async () => {
@@ -1043,9 +1043,9 @@ describe("move selected element(s)", () => {
       // last selected rows are now rows 3, 4
       await dragRow(3, 1);
 
-      expect(getCell(model, "A2")!.evaluated.value).toBe("a3");
-      expect(getCell(model, "A3")!.evaluated.value).toBe("a4");
-      expect(getCell(model, "A4")!.evaluated.value).toBe("a2");
+      expect(getEvaluatedCell(model, "A2").value).toBe("a3");
+      expect(getEvaluatedCell(model, "A3").value).toBe("a4");
+      expect(getEvaluatedCell(model, "A4").value).toBe("a2");
     });
 
     test("drag selected 3,4 to 5 (mouseDown on 3) -->  5 arrive before 3,4", async () => {
@@ -1058,9 +1058,9 @@ describe("move selected element(s)", () => {
       // last selected rows are now row 3, 4
       await dragRow(2, 4);
 
-      expect(getCell(model, "A3")!.evaluated.value).toBe("a5");
-      expect(getCell(model, "A4")!.evaluated.value).toBe("a3");
-      expect(getCell(model, "A5")!.evaluated.value).toBe("a4");
+      expect(getEvaluatedCell(model, "A3").value).toBe("a5");
+      expect(getEvaluatedCell(model, "A4").value).toBe("a3");
+      expect(getEvaluatedCell(model, "A5").value).toBe("a4");
     });
 
     test("drag selected 3,4 to 5 (mouseDown on 4) -->  5 arrive before 3,4", async () => {
@@ -1073,9 +1073,9 @@ describe("move selected element(s)", () => {
       // last selected rows are now row 3, 4
       await dragRow(3, 4);
 
-      expect(getCell(model, "A3")!.evaluated.value).toBe("a5");
-      expect(getCell(model, "A4")!.evaluated.value).toBe("a3");
-      expect(getCell(model, "A5")!.evaluated.value).toBe("a4");
+      expect(getEvaluatedCell(model, "A3").value).toBe("a5");
+      expect(getEvaluatedCell(model, "A4").value).toBe("a3");
+      expect(getEvaluatedCell(model, "A5").value).toBe("a4");
     });
 
     test("drag selected 3,4 to 3 (mouseDown on 4) --> does nothing", async () => {
@@ -1087,8 +1087,8 @@ describe("move selected element(s)", () => {
       // last selected rows are now rows 3, 4
       await dragRow(3, 2);
 
-      expect(getCell(model, "A3")!.evaluated.value).toBe("a3");
-      expect(getCell(model, "A4")!.evaluated.value).toBe("a4");
+      expect(getEvaluatedCell(model, "A3").value).toBe("a3");
+      expect(getEvaluatedCell(model, "A4").value).toBe("a4");
     });
 
     test("drag selected 3,4 to 4 (mouseDown on 3) --> does nothing", async () => {
@@ -1100,8 +1100,8 @@ describe("move selected element(s)", () => {
       // last selected rows are now rows 3, 4
       await dragRow(2, 3);
 
-      expect(getCell(model, "A3")!.evaluated.value).toBe("a3");
-      expect(getCell(model, "A4")!.evaluated.value).toBe("a4");
+      expect(getEvaluatedCell(model, "A3").value).toBe("a3");
+      expect(getEvaluatedCell(model, "A4").value).toBe("a4");
     });
 
     test("can't move a selected row that isn't the last selected zone", async () => {
@@ -1116,9 +1116,9 @@ describe("move selected element(s)", () => {
       // last selected rows are now rows 3, 4
       await dragRow(1, 3);
 
-      expect(getCell(model, "A2")!.evaluated.value).toBe("a2");
-      expect(getCell(model, "A3")!.evaluated.value).toBe("a3");
-      expect(getCell(model, "A4")!.evaluated.value).toBe("a4");
+      expect(getEvaluatedCell(model, "A2").value).toBe("a2");
+      expect(getEvaluatedCell(model, "A3").value).toBe("a3");
+      expect(getEvaluatedCell(model, "A4").value).toBe("a4");
     });
   });
 

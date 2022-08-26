@@ -12,7 +12,12 @@ import {
   setCellContent,
   undo,
 } from "../test_helpers/commands_helpers";
-import { getBorder, getCell, getCellContent } from "../test_helpers/getters_helpers"; // to have getcontext mocks
+import {
+  getBorder,
+  getCell,
+  getCellContent,
+  getEvaluatedCell,
+} from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
 import { getPlugin } from "../test_helpers/helpers";
 
@@ -244,29 +249,29 @@ describe("Model history", () => {
     const model = new Model();
     setCellContent(model, "A1", "=A2");
     setCellContent(model, "A2", "11");
-    expect(getCell(model, "A1")!.evaluated.value).toBe(11);
+    expect(getEvaluatedCell(model, "A1").value).toBe(11);
     undo(model);
-    expect(getCell(model, "A1")!.evaluated.value).toBe(0);
+    expect(getEvaluatedCell(model, "A1").value).toBe(0);
     redo(model);
-    expect(getCell(model, "A1")!.evaluated.value).toBe(11);
+    expect(getEvaluatedCell(model, "A1").value).toBe(11);
   });
 
   test("undo when undo stack is empty does nothing", async () => {
     const model = new Model({ sheets: [{ cells: { A1: { content: "=10" } } }] });
 
-    expect(getCell(model, "A1")!.evaluated.value).toBe(10);
+    expect(getEvaluatedCell(model, "A1").value).toBe(10);
 
     expect(undo(model)).toBeCancelledBecause(CommandResult.EmptyUndoStack);
-    expect(getCell(model, "A1")!.evaluated.value).toBe(10);
+    expect(getEvaluatedCell(model, "A1").value).toBe(10);
   });
 
   test("undo when redo stack is empty does nothing", async () => {
     const model = new Model({ sheets: [{ cells: { A1: { content: "=10" } } }] });
 
-    expect(getCell(model, "A1")!.evaluated.value).toBe(10);
+    expect(getEvaluatedCell(model, "A1").value).toBe(10);
 
     expect(redo(model)).toBeCancelledBecause(CommandResult.EmptyRedoStack);
-    expect(getCell(model, "A1")!.evaluated.value).toBe(10);
+    expect(getEvaluatedCell(model, "A1").value).toBe(10);
   });
 
   test("undo a sheet creation changes the active sheet", () => {

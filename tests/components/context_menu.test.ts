@@ -8,7 +8,7 @@ import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry"
 import { OWL_TEMPLATES } from "../setup/jest.setup";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import { rightClickCell, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
-import { getCell, getCellContent } from "../test_helpers/getters_helpers";
+import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import {
   makeTestFixture,
   MockClipboard,
@@ -295,17 +295,13 @@ describe("Context Menu", () => {
       .add("visible_action", {
         name: "visible_action",
         sequence: 1,
-        isVisible: (env) =>
-          env.model.getters.getCell(env.model.getters.getActiveSheetId(), 1, 0)!.evaluated.value ===
-          "b1",
+        isVisible: (env) => getEvaluatedCell(model, "B1").value === "b1",
         action() {},
       })
       .add("hidden_action", {
         name: "hidden_action",
         sequence: 2,
-        isVisible: (env) =>
-          env.model.getters.getCell(env.model.getters.getActiveSheetId(), 1, 0)!.evaluated.value !==
-          "b1",
+        isVisible: (env) => getEvaluatedCell(model, "B1").value !== "b1",
         action() {},
       });
     setCellContent(model, "B1", "b1");

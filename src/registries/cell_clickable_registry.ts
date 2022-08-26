@@ -1,19 +1,19 @@
-import { LinkCell } from "../helpers/cells";
+import { openLink } from "../helpers/links";
 import { Registry } from "../registry";
-import { Cell, SpreadsheetChildEnv } from "../types";
+import { CellPosition, SpreadsheetChildEnv } from "../types";
 
 interface CellClickableItem {
-  condition: (cell: Cell, env: SpreadsheetChildEnv) => boolean;
-  action: (cell: Cell, env: SpreadsheetChildEnv) => void;
+  condition: (position: CellPosition, env: SpreadsheetChildEnv) => boolean;
+  action: (position: CellPosition, env: SpreadsheetChildEnv) => void;
   sequence: number;
 }
 
 export const clickableCellRegistry = new Registry<CellClickableItem>();
 
 clickableCellRegistry.add("link", {
-  condition: (cell: Cell) => cell.isLink(),
-  action: (cell: Cell, env: SpreadsheetChildEnv) => {
-    (cell as LinkCell).action(env);
-  },
+  condition: (position: CellPosition, env: SpreadsheetChildEnv) =>
+    !!env.model.getters.getEvaluatedCell(position).link,
+  action: (position: CellPosition, env: SpreadsheetChildEnv) =>
+    openLink(env.model.getters.getEvaluatedCell(position).link!, env),
   sequence: 5,
 });

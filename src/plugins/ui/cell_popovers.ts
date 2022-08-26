@@ -68,7 +68,7 @@ export class CellPopoverPlugin extends UIPlugin {
       );
       const popover = cellPopoverRegistry
         .get(this.persistentPopover.type)
-        .onOpen?.(mainPosition, this.getters);
+        .onOpen?.({ sheetId, ...mainPosition }, this.getters);
       return !popover?.isOpen
         ? { isOpen: false }
         : {
@@ -86,7 +86,7 @@ export class CellPopoverPlugin extends UIPlugin {
     const mainPosition = this.getters.getMainCellPosition(sheetId, col, row);
     const popover = cellPopoverRegistry
       .getAll()
-      .map((matcher) => matcher.onHover?.(mainPosition, this.getters))
+      .map((matcher) => matcher.onHover?.({ sheetId, ...mainPosition }, this.getters))
       .find((popover) => popover?.isOpen);
     return !popover?.isOpen
       ? { isOpen: false }

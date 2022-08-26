@@ -4,10 +4,10 @@ import { _t } from "../../translation";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
-  Cell,
   Color,
   CommandResult,
   CoreGetters,
+  EvaluatedCell,
   Getters,
   Range,
   RemoveColumnsRowsCommand,
@@ -195,39 +195,57 @@ function createScorecardChartRuntime(
 ): ScorecardChartRuntime {
   let keyValue = "";
   let formattedKeyValue = "";
-  let keyValueCell: Cell | undefined;
+  let keyValueCell: EvaluatedCell | undefined;
   if (chart.keyValue) {
-    const keyValueZone = chart.keyValue.zone;
-    keyValueCell = getters.getCell(chart.keyValue.sheetId, keyValueZone.left, keyValueZone.top);
-    keyValue = keyValueCell?.evaluated.value ? String(keyValueCell?.evaluated.value) : "";
-    formattedKeyValue = keyValueCell?.formattedValue || "";
+    const keyValuePosition = {
+      sheetId: chart.keyValue.sheetId,
+      col: chart.keyValue.zone.left,
+      row: chart.keyValue.zone.top,
+    };
+    keyValueCell = getters.getEvaluatedCell(keyValuePosition);
+    keyValue = String(keyValueCell.value);
+    formattedKeyValue = keyValueCell.formattedValue;
   }
-  let baselineCell: Cell | undefined;
-  if (chart.baseline) {
-    const baselineZone = chart.baseline.zone;
-    baselineCell = getters.getCell(chart.baseline.sheetId, baselineZone.left, baselineZone.top);
+  let baselineCell: EvaluatedCell | undefined;
+  const baseline = chart.baseline;
+  if (baseline) {
+    const baselinePosition = {
+      sheetId: chart.baseline.sheetId,
+      col: chart.baseline.zone.left,
+      row: chart.baseline.zone.top,
+    };
+    baselineCell = getters.getEvaluatedCell(baselinePosition);
   }
   const background = getters.getBackgroundOfSingleCellChart(chart.background, chart.keyValue);
   return {
     title: _t(chart.title),
     keyValue: formattedKeyValue || keyValue,
-    baselineDisplay: getBaselineText(baselineCell, keyValueCell?.evaluated, chart.baselineMode),
-    baselineArrow: getBaselineArrowDirection(
-      baselineCell?.evaluated,
-      keyValueCell?.evaluated,
-      chart.baselineMode
-    ),
+    baselineDisplay: getBaselineText(baselineCell, keyValueCell, chart.baselineMode),
+    baselineArrow: getBaselineArrowDirection(baselineCell, keyValueCell, chart.baselineMode),
     baselineColor: getBaselineColor(
-      baselineCell?.evaluated,
+      baselineCell,
       chart.baselineMode,
-      keyValueCell?.evaluated,
+      keyValueCell,
       chart.baselineColorUp,
       chart.baselineColorDown
     ),
     baselineDescr: _t(chart.baselineDescr || ""),
     fontColor: chartFontColor(background),
     background,
-    baselineStyle: chart.baselineMode !== "percentage" ? baselineCell?.style : undefined,
-    keyValueStyle: keyValueCell?.style,
+    baselineStyle:
+      chart.baselineMode !== "percentage" && baseline
+        ? getters.getCellStyle({
+            sheetId: baseline.sheetId,
+            col: baseline.zone.left,
+            row: baseline.zone.top,
+          })
+        : undefined,
+    keyValueStyle: chart.keyValue
+      ? getters.getCellStyle({
+          sheetId: chart.keyValue.sheetId,
+          col: chart.keyValue.zone.left,
+          row: chart.keyValue.zone.top,
+        })
+      : undefined,
   };
 }

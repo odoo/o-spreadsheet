@@ -1,6 +1,16 @@
 import { compile } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
-import { intersection, isZoneValid, lazy, toXC, zoneToXc } from "../../helpers/index";
+import { createEvaluatedCell, errorCell, evaluateLiteral } from "../../helpers/cells";
+import {
+  intersection,
+  isDefined,
+  isZoneValid,
+  lazy,
+  positions,
+  toCartesian,
+  toXC,
+  zoneToXc,
+} from "../../helpers/index";
 import { ModelConfig } from "../../model";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
 import { StateObserver } from "../../state_observer";
@@ -14,21 +24,28 @@ import {
 } from "../../types/errors";
 import {
   Cell,
+  CellPosition,
   CellValue,
   CellValueType,
   Command,
   CommandDispatcher,
   EnsureRange,
   EvalContext,
+  EvaluatedCell,
+  ExcelWorkbookData,
   Format,
   FormattedValue,
+  FormulaCell,
   Getters,
+  HeaderIndex,
   invalidateEvaluationCommands,
+  Lazy,
   MatrixArg,
   PrimitiveArg,
   Range,
   ReferenceDenormalizer,
   UID,
+  Zone,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
@@ -37,9 +54,24 @@ const functionMap = functionRegistry.mapping;
 type CompilationParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
 
 export class EvaluationPlugin extends UIPlugin {
-  static getters = ["evaluateFormula", "getRangeFormattedValues", "getRangeValues"] as const;
+  static getters = [
+    "evaluateFormula",
+    "getRangeFormattedValues",
+    "getRangeValues",
+    "getEvaluatedCell",
+    "getEvaluatedCells",
+    "getColEvaluatedCells",
+    "getEvaluatedCellsInZone",
+  ] as const;
 
   private isUpToDate = false;
+  private evaluatedCells: {
+    [sheetId: UID]:
+      | {
+          [col: HeaderIndex]: { [row: HeaderIndex]: Lazy<EvaluatedCell> | undefined } | undefined;
+        }
+      | undefined;
+  } = {};
   private readonly evalContext: EvalContext;
 
   constructor(
@@ -76,6 +108,7 @@ export class EvaluationPlugin extends UIPlugin {
   finalize() {
     if (!this.isUpToDate) {
       this.evaluate();
+      this.isUpToDate = true;
     }
   }
 
@@ -85,7 +118,9 @@ export class EvaluationPlugin extends UIPlugin {
 
   evaluateFormula(formulaString: string, sheetId: UID = this.getters.getActiveSheetId()): any {
     const compiledFormula = compile(formulaString);
-    const params = this.getCompilationParameters(() => {});
+    const params = this.getCompilationParameters((cell) =>
+      this.getEvaluatedCell(this.getters.getCellPosition(cell.id))
+    );
 
     const ranges: Range[] = [];
     for (let xc of compiledFormula.dependencies) {
@@ -101,22 +136,68 @@ export class EvaluationPlugin extends UIPlugin {
     const sheet = this.getters.tryGetSheet(range.sheetId);
     if (sheet === undefined) return [];
     return this.getters
-      .getCellsInZone(sheet.id, range.zone)
-      .map((cell) => cell?.formattedValue || "");
+      .getEvaluatedCellsInZone(sheet.id, range.zone)
+      .map((cell) => cell.formattedValue);
   }
 
   /**
    * Return the value of each cell in the range.
    */
-  getRangeValues(range: Range): (CellValue | undefined)[] {
+  getRangeValues(range: Range): CellValue[] {
     const sheet = this.getters.tryGetSheet(range.sheetId);
     if (sheet === undefined) return [];
-    return this.getters.getCellsInZone(sheet.id, range.zone).map((cell) => cell?.evaluated.value);
+    return this.getters.getEvaluatedCellsInZone(sheet.id, range.zone).map((cell) => cell.value);
+  }
+
+  getEvaluatedCell({ sheetId, col, row }: CellPosition): EvaluatedCell {
+    const cell = this.getters.getCell(sheetId, col, row);
+    if (cell === undefined) {
+      return createEvaluatedCell("");
+    }
+    // the cell might have been created by a command in the current
+    // dispatch but the evaluation is not done yet.
+    return this.evaluatedCells[sheetId]?.[col]?.[row]?.() || createEvaluatedCell("");
+  }
+
+  getEvaluatedCells(sheetId: UID): Record<UID, EvaluatedCell> {
+    const rawCells = this.getters.getCells(sheetId) || {};
+    const record: Record<UID, EvaluatedCell> = {};
+    for (let cellId of Object.keys(rawCells)) {
+      const position = this.getters.getCellPosition(cellId);
+      record[cellId] = this.getEvaluatedCell(position);
+    }
+    return record;
+  }
+
+  /**
+   * Returns all the evaluated cells of a col
+   */
+  getColEvaluatedCells(sheetId: UID, col: HeaderIndex): EvaluatedCell[] {
+    return Object.values(this.evaluatedCells[sheetId]?.[col] || [])
+      .filter(isDefined)
+      .map((lazyCell) => lazyCell());
+  }
+
+  getEvaluatedCellsInZone(sheetId: UID, zone: Zone): EvaluatedCell[] {
+    return positions(zone).map(({ col, row }) =>
+      this.getters.getEvaluatedCell({ sheetId, col, row })
+    );
   }
 
   // ---------------------------------------------------------------------------
   // Evaluator
   // ---------------------------------------------------------------------------
+
+  private setEvaluatedCell(cellId: UID, evaluatedCell: Lazy<EvaluatedCell>) {
+    const { col, row, sheetId } = this.getters.getCellPosition(cellId);
+    if (!this.evaluatedCells[sheetId]) {
+      this.evaluatedCells[sheetId] = {};
+    }
+    if (!this.evaluatedCells[sheetId]![col]) {
+      this.evaluatedCells[sheetId]![col] = {};
+    }
+    this.evaluatedCells[sheetId]![col]![row] = evaluatedCell;
+  }
 
   private *getAllCells(): Iterable<Cell> {
     // use a generator function to avoid re-building a new object
@@ -129,64 +210,71 @@ export class EvaluationPlugin extends UIPlugin {
   }
 
   private evaluate() {
-    const compilationParameters = this.getCompilationParameters(computeCell);
-    const visited: { [cellId: string]: boolean | null } = {};
+    this.evaluatedCells = {};
+    const cellsBeingComputed = new Set<UID>();
+    const computeCell = (cell: Cell): Lazy<EvaluatedCell> => {
+      const cellId = cell.id;
+      const { col, row, sheetId } = this.getters.getCellPosition(cellId);
+      const lazyEvaluation = this.evaluatedCells[sheetId]?.[col]?.[row];
+      if (lazyEvaluation) {
+        return lazyEvaluation; // already computed
+      }
+      return lazy(() => {
+        try {
+          switch (cell.isFormula) {
+            case true:
+              return computeFormulaCell(cell);
+            case false:
+              return evaluateLiteral(cell.content, cell.format);
+          }
+        } catch (e) {
+          return handleError(e, cell);
+        }
+      });
+    };
 
-    for (const cell of this.getAllCells()) {
-      computeCell(cell);
-    }
-    this.isUpToDate = true;
-
-    function handleError(e: Error | any): EvaluationError {
+    const handleError = (e: Error | any, cell: Cell): EvaluatedCell => {
       if (!(e instanceof Error)) {
         e = new Error(e);
       }
       const msg = e?.errorType || CellErrorType.GenericError;
       // apply function name
       const __lastFnCalled = compilationParameters[2].__lastFnCalled || "";
-      return new EvaluationError(
+      const error = new EvaluationError(
         msg,
         e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled),
         e.logLevel !== undefined ? e.logLevel : CellErrorLevel.error
       );
-    }
+      return errorCell(cell.content, error);
+    };
 
-    function computeCell(cell: Cell) {
-      if (!cell.isFormula()) {
-        return;
+    const computeFormulaCell = (cellData: FormulaCell): EvaluatedCell => {
+      const cellId = cellData.id;
+      if (cellsBeingComputed.has(cellId)) {
+        throw new CircularDependencyError();
       }
-      const cellId = cell.id;
+      compilationParameters[2].__originCellXC = () => {
+        // compute the value lazily for performance reasons
+        const position = compilationParameters[2].getters.getCellPosition(cellId);
+        return toXC(position.col, position.row);
+      };
+      cellsBeingComputed.add(cellId);
+      const computedCell = cellData.compiledFormula.execute(
+        cellData.dependencies,
+        ...compilationParameters
+      );
+      cellsBeingComputed.delete(cellId);
+      if (Array.isArray(computedCell.value)) {
+        // if a value returns an array (like =A1:A3)
+        throw new Error(_lt("This formula depends on invalid values"));
+      }
+      return createEvaluatedCell(computedCell.value, cellData.format || computedCell.format);
+    };
 
-      const computedCell = lazy(() => {
-        compilationParameters[2].__originCellXC = () => {
-          // compute the value lazily for performance reasons
-          const position = compilationParameters[2].getters.getCellPosition(cellId);
-          return toXC(position.col, position.row);
-        };
-        if (cellId in visited) {
-          if (visited[cellId] === null) {
-            return new CircularDependencyError();
-          }
-          return cell.evaluated;
-        }
-        visited[cellId] = null;
-        try {
-          const computedCell = cell.compiledFormula.execute(
-            cell.dependencies,
-            ...compilationParameters
-          );
-          visited[cellId] = true;
-          if (Array.isArray(computedCell.value)) {
-            // if a value returns an array (like =A1:A3)
-            throw new Error(_lt("This formula depends on invalid values"));
-          }
-          return { value: computedCell.value, format: cell.format || computedCell.format };
-        } catch (error) {
-          visited[cellId] = true;
-          return handleError(error);
-        }
-      });
-      cell.assignEvaluation(computedCell);
+    const compilationParameters = this.getCompilationParameters((cell) => computeCell(cell)());
+
+    for (const cell of this.getAllCells()) {
+      this.setEvaluatedCell(cell.id, computeCell(cell));
     }
   }
 
@@ -196,7 +284,9 @@ export class EvaluationPlugin extends UIPlugin {
    * - a range function to convert any reference to a proper value array
    * - an evaluation context
    */
-  private getCompilationParameters(computeCell: (cell: Cell) => void): CompilationParameters {
+  private getCompilationParameters(
+    computeCell: (cell: Cell) => EvaluatedCell
+  ): CompilationParameters {
     const evalContext = Object.assign(Object.create(functionMap), this.evalContext, {
       getters: this.getters,
     });
@@ -208,7 +298,7 @@ export class EvaluationPlugin extends UIPlugin {
         throw new Error(_lt("Invalid sheet name"));
       }
       cell = getters.getCell(range.sheetId, range.zone.left, range.zone.top);
-      if (!cell || cell.isEmpty()) {
+      if (!cell || cell.content === "") {
         // magic "empty" value
         // Returning {value: null} instead of undefined will ensure that we don't
         // fall back on the default value of the argument provided to the formula's compute function
@@ -217,16 +307,13 @@ export class EvaluationPlugin extends UIPlugin {
       return getEvaluatedCell(cell);
     }
 
-    function getEvaluatedCell(cell: Cell): { value: CellValue; format?: Format } {
-      if (cell.evaluated.type === CellValueType.error) {
-        throw new EvaluationError(
-          cell.evaluated.value,
-          cell.evaluated.error.message,
-          cell.evaluated.error.logLevel
-        );
+    const getEvaluatedCell = (cell: Cell): { value: CellValue; format?: Format } => {
+      const evaluatedCell = computeCell(cell);
+      if (evaluatedCell.type === CellValueType.error) {
+        throw evaluatedCell.error;
       }
-      return cell.evaluated;
-    }
+      return evaluatedCell;
+    };
 
     /**
      * Return the values of the cell(s) used in reference, but always in the format of a range even
@@ -312,5 +399,32 @@ export class EvaluationPlugin extends UIPlugin {
       return readCell(range);
     }
     return [refFn, range, evalContext];
+  }
+
+  // ---------------------------------------------------------------------------
+  // Export
+  // ---------------------------------------------------------------------------
+
+  exportForExcel(data: ExcelWorkbookData) {
+    for (let sheet of data.sheets) {
+      for (const xc in sheet.cells) {
+        const { col, row } = toCartesian(xc);
+        const cell = this.getters.getCell(sheet.id, col, row);
+        if (cell) {
+          const exportedCellData = sheet.cells[xc]!;
+          exportedCellData.value = this.getEvaluatedCell({ sheetId: sheet.id, col, row }).value;
+          exportedCellData.isFormula = cell.isFormula && !this.isBadExpression(cell.content);
+        }
+      }
+    }
+  }
+
+  private isBadExpression(formula: string): boolean {
+    try {
+      compile(formula);
+      return false;
+    } catch (error) {
+      return true;
+    }
   }
 }

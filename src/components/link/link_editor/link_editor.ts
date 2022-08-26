@@ -1,5 +1,6 @@
 import { Component, onMounted, useRef, useState } from "@odoo/owl";
 import { markdownLink } from "../../../helpers";
+import { detectLink, urlRepresentation } from "../../../helpers/links";
 import { linkMenuRegistry } from "../../../registries/menus/link_menu_registry";
 import { DOMCoordinates, Link, Position, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
@@ -91,8 +92,8 @@ interface LinkEditorProps {
 }
 
 interface State {
-  link: Link;
-  urlRepresentation: string;
+  label: string;
+  url: string;
   isUrlEditable: boolean;
 }
 
@@ -101,7 +102,7 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
   static size = { width: LINK_EDITOR_WIDTH, height: LINK_EDITOR_HEIGHT };
   static components = { Menu };
   menuItems = linkMenuRegistry.getAll();
-  private state: State = useState(this.defaultState);
+  private link: State = useState(this.defaultState);
   private menu = useState({
     isOpen: false,
   });
@@ -116,18 +117,18 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
   get defaultState(): State {
     const { col, row } = this.props.cellPosition;
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const cell = this.env.model.getters.getCell(sheetId, col, row);
-    if (cell?.isLink()) {
+    const cell = this.env.model.getters.getEvaluatedCell({ sheetId, col, row });
+    if (cell.link) {
       return {
-        link: { url: cell.link.url, label: cell.formattedValue },
-        urlRepresentation: cell.urlRepresentation,
-        isUrlEditable: cell.isUrlEditable,
+        url: cell.link.url,
+        label: cell.formattedValue,
+        isUrlEditable: cell.link.isUrlEditable,
       };
     }
     return {
-      link: { url: "", label: cell?.formattedValue || "" },
+      label: cell.formattedValue,
+      url: "",
       isUrlEditable: true,
-      urlRepresentation: "",
     };
   }
 
@@ -138,12 +139,19 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
     };
   }
 
-  onSpecialLink(ev: CustomEvent<State>) {
-    const { detail } = ev;
-    this.state.link.url = detail.link.url;
-    this.state.link.label = detail.link.label;
-    this.state.isUrlEditable = detail.isUrlEditable;
-    this.state.urlRepresentation = detail.urlRepresentation;
+  onSpecialLink(ev: CustomEvent<string>) {
+    const { detail: markdownLink } = ev;
+    const link = detectLink(markdownLink);
+    if (!link) {
+      return;
+    }
+    this.link.url = link.url;
+    this.link.label = link.label;
+    this.link.isUrlEditable = link.isUrlEditable;
+  }
+
+  getUrlRepresentation(link: Link): string {
+    return urlRepresentation(link, this.env.model.getters);
   }
 
   openMenu() {
@@ -151,19 +159,18 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
   }
 
   removeLink() {
-    this.state.link.url = "";
-    this.state.urlRepresentation = "";
-    this.state.isUrlEditable = true;
+    this.link.url = "";
+    this.link.isUrlEditable = true;
   }
 
   save() {
     const { col, row } = this.props.cellPosition;
-    const label = this.state.link.label || this.state.link.url;
+    const label = this.link.label || this.link.url;
     this.env.model.dispatch("UPDATE_CELL", {
       col: col,
       row: row,
       sheetId: this.env.model.getters.getActiveSheetId(),
-      content: markdownLink(label, this.state.link.url),
+      content: markdownLink(label, this.link.url),
     });
     this.props.onClosed?.();
   }
@@ -175,7 +182,7 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
   onKeyDown(ev: KeyboardEvent) {
     switch (ev.key) {
       case "Enter":
-        if (this.state.link.url) {
+        if (this.link.url) {
           this.save();
         }
         ev.stopPropagation();

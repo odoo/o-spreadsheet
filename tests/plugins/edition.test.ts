@@ -28,14 +28,14 @@ describe("edition", () => {
     // adding
     model.dispatch("START_EDITION", { text: "a" });
     model.dispatch("STOP_EDITION");
-    expect(Object.keys(model.getters.getCells(sheetId))).toHaveLength(1);
+    expect(Object.keys(model.getters.getEvaluatedCells(sheetId))).toHaveLength(1);
     expect(getCellContent(model, "A1")).toBe("a");
 
     // removing
     model.dispatch("START_EDITION");
     model.dispatch("SET_CURRENT_CONTENT", { content: "" });
     model.dispatch("STOP_EDITION");
-    expect(model.getters.getCells(sheetId)).toEqual({});
+    expect(model.getters.getEvaluatedCells(sheetId)).toEqual({});
   });
 
   test("deleting a cell with style does not remove it", () => {
@@ -723,53 +723,53 @@ describe("edition", () => {
   test("set a number format on a date displays the raw number", () => {
     const model = new Model();
     setCellContent(model, "A1", "2020/10/20");
-    expect(getCell(model, "A1")?.composerContent).toBe("2020/10/20");
+    expect(model.getters.getCurrentContent()).toBe("2020/10/20");
     model.dispatch("UPDATE_CELL", {
       sheetId: model.getters.getActiveSheetId(),
       col: 0,
       row: 0,
       format: "#,##0.00",
     });
-    expect(getCell(model, "A1")?.composerContent).toBe("44124");
+    expect(model.getters.getCurrentContent()).toBe("44124");
   });
 
   test("set a date format on a number displays the date", () => {
     const model = new Model();
     setCellContent(model, "A1", "42736");
-    expect(getCell(model, "A1")?.composerContent).toBe("42736");
+    expect(model.getters.getCurrentContent()).toBe("42736");
     model.dispatch("UPDATE_CELL", {
       sheetId: model.getters.getActiveSheetId(),
       col: 0,
       row: 0,
       format: "mm/dd/yyyy",
     });
-    expect(getCell(model, "A1")?.composerContent).toBe("01/01/2017");
+    expect(model.getters.getCurrentContent()).toBe("01/01/2017");
   });
 
   test("set a number format on a time displays the number", () => {
     const model = new Model();
     setCellContent(model, "A1", "12:00:00 AM");
-    expect(getCell(model, "A1")?.composerContent).toBe("12:00:00 AM");
+    expect(model.getters.getCurrentContent()).toBe("12:00:00 AM");
     model.dispatch("UPDATE_CELL", {
       sheetId: model.getters.getActiveSheetId(),
       col: 0,
       row: 0,
       format: "#,##0.00",
     });
-    expect(getCell(model, "A1")?.composerContent).toBe("0");
+    expect(model.getters.getCurrentContent()).toBe("0");
   });
 
   test("set a time format on a number displays the time", () => {
     const model = new Model();
     setCellContent(model, "A1", "1");
-    expect(getCell(model, "A1")?.composerContent).toBe("1");
+    expect(model.getters.getCurrentContent()).toBe("1");
     model.dispatch("UPDATE_CELL", {
       sheetId: model.getters.getActiveSheetId(),
       col: 0,
       row: 0,
       format: "hh:mm:ss a",
     });
-    expect(getCell(model, "A1")?.composerContent).toBe("12:00:00 AM");
+    expect(model.getters.getCurrentContent()).toBe("12:00:00 AM");
   });
 
   test("write too long formulas raises an error", async () => {

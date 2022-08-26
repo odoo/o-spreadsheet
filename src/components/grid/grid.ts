@@ -14,6 +14,7 @@ import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import { INSERT_LINK } from "../../registries/menus/menu_items_actions";
 import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
 import {
+  CellValueType,
   Client,
   DOMCoordinates,
   DOMDimension,
@@ -151,7 +152,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   private keyDownMapping: { [key: string]: Function } = {
     ENTER: () => {
       const cell = this.env.model.getters.getActiveCell();
-      !cell || cell.isEmpty()
+      cell.type === CellValueType.empty
         ? this.props.onGridComposerCellFocused()
         : this.props.onComposerContentFocused();
     },
@@ -159,7 +160,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     "SHIFT+TAB": () => this.env.model.selection.moveAnchorCell("left", "one"),
     F2: () => {
       const cell = this.env.model.getters.getActiveCell();
-      !cell || cell.isEmpty()
+      cell.type === CellValueType.empty
         ? this.props.onGridComposerCellFocused()
         : this.props.onComposerContentFocused();
     },
@@ -373,8 +374,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   onCellDoubleClicked(col: HeaderIndex, row: HeaderIndex) {
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const cell = this.env.model.getters.getCell(sheetId, col, row);
-    if (!cell || cell.isEmpty()) {
+    const cell = this.env.model.getters.getEvaluatedCell({ sheetId, col, row });
+    if (cell.type === CellValueType.empty) {
       this.props.onGridComposerCellFocused();
     } else {
       this.props.onComposerContentFocused();

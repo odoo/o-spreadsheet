@@ -18,7 +18,7 @@
         <div
           t-foreach="getClickableCells()"
           t-as="clickableCell"
-          t-key="clickableCell.cell.id"
+          t-key="clickableCell.tKey"
           class="o-dashboard-clickable-cell"
           t-on-click="() => this.selectClickableCell(clickableCell)"
           t-on-contextmenu.prevent=""

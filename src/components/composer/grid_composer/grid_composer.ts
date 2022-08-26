@@ -10,7 +10,6 @@ import { DOMDimension, Rect, Ref, SpreadsheetChildEnv, Zone } from "../../../typ
 import { getTextDecoration } from "../../helpers";
 import { css } from "../../helpers/css";
 import { Composer } from "../composer/composer";
-import { Style } from "./../../../types/misc";
 
 const SCROLLBAR_WIDTH = 14;
 const SCROLLBAR_HIGHT = 15;
@@ -91,15 +90,18 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   get containerStyle(): string {
     const isFormula = this.env.model.getters.getCurrentContent().startsWith("=");
     const cell = this.env.model.getters.getActiveCell();
-    let style: Style = {};
-    if (cell) {
-      const cellPosition = this.env.model.getters.getCellPosition(cell.id);
-      style = this.env.model.getters.getCellComputedStyle(
-        cellPosition.sheetId,
-        cellPosition.col,
-        cellPosition.row
-      );
-    }
+    const position = this.env.model.getters.getPosition();
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const cellPosition = this.env.model.getters.getMainCellPosition(
+      sheetId,
+      position.col,
+      position.row
+    );
+    const style = this.env.model.getters.getCellComputedStyle(
+      sheetId,
+      cellPosition.col,
+      cellPosition.row
+    );
 
     // position style
     const { x: left, y: top, width, height } = this.rect;
@@ -118,7 +120,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     let textAlign = "left";
 
     if (!isFormula) {
-      textAlign = style.align || cell?.defaultAlign || "left";
+      textAlign = style.align || cell.defaultAlign;
     }
 
     return `

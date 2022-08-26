@@ -124,7 +124,9 @@ describe("Export data to xlsx then import it", () => {
     (format: string) => {
       model.dispatch("SET_FORMATTING", { sheetId, target: target("A1"), format });
       const importedModel = exportToXlsxThenImport(model);
-      expect(importedModel.getters.getCell(sheetId, 0, 0)!.format).toEqual(format);
+      expect(importedModel.getters.getEvaluatedCell({ sheetId, col: 0, row: 0 }).format).toEqual(
+        format
+      );
     }
   );
 

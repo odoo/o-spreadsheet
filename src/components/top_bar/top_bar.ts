@@ -430,14 +430,14 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.redoTool = this.env.model.getters.canRedo();
     this.paintFormatTool = this.env.model.getters.isPaintingFormat();
     const cell = this.env.model.getters.getActiveCell();
-    if (cell && cell.format) {
+    if (cell.format) {
       const currentFormat = this.commonFormats.find((f) => f.value === cell.format);
       this.currentFormatName = currentFormat ? currentFormat.name : "";
     } else {
       this.currentFormatName = "automatic";
     }
     this.style = { ...this.env.model.getters.getCurrentStyle() };
-    this.style.align = this.style.align || cell?.defaultAlign;
+    this.style.align = this.style.align || cell.defaultAlign;
     this.fillColor = this.style.fillColor || "#ffffff";
     this.textColor = this.style.textColor || "#000000";
 

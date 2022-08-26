@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { setCellContent, setCellFormat } from "../test_helpers/commands_helpers";
-import { getCell } from "../test_helpers/getters_helpers";
+import { getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { evaluateCell } from "../test_helpers/helpers";
 
 describe("AND formula", () => {
@@ -136,7 +136,7 @@ describe("IFERROR formula", () => {
     setCellContent(model, "A1", "1");
     setCellFormat(model, "A1", "0.00%");
     setCellContent(model, "A3", "=IFERROR(A1, 2)");
-    expect(getCell(model, "A3")?.formattedValue).toBe("100.00%");
+    expect(getEvaluatedCell(model, "A3").formattedValue).toBe("100.00%");
   });
 
   test("format is preserved from error value", () => {
@@ -144,7 +144,7 @@ describe("IFERROR formula", () => {
     setCellContent(model, "A1", "1");
     setCellFormat(model, "A1", "0.00%");
     setCellContent(model, "A3", "=IFERROR(0/0, A1)");
-    expect(getCell(model, "A3")?.formattedValue).toBe("100.00%");
+    expect(getEvaluatedCell(model, "A3").formattedValue).toBe("100.00%");
   });
 });
 
