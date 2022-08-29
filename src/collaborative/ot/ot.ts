@@ -138,7 +138,8 @@ function transformDimension(
           if (executed.elements.includes(element)) {
             return undefined;
           }
-          for (let removedElement of executed.elements) {
+          const executedElements = executed.elements.sort((a, b) => b - a);
+          for (let removedElement of executedElements) {
             if (element > removedElement) {
               element--;
             }
