@@ -1,5 +1,5 @@
 import { CommandResult, Model } from "../../../src";
-import { deepCopy } from "../../../src/helpers";
+import { deepCopy, zoneToXc } from "../../../src/helpers";
 import {
   GaugeChartDefinition,
   GaugeChartRuntime,
@@ -16,6 +16,7 @@ import {
   undo,
   updateChart,
 } from "../../test_helpers/commands_helpers";
+import { GaugeChart } from "./../../../src/helpers/charts/gauge_chart";
 
 let model: Model;
 
@@ -344,21 +345,18 @@ describe("datasource tests", function () {
 
     expect(model.getters.getFigures(secondSheetId)).toHaveLength(1);
     const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];
-    const duplicatedChartDefinition = model.getters.getChartDefinition(duplicatedFigure.id);
-    const expectedDuplicatedChartDefinition = {
-      dataRange: "'Copy of Sheet1'!B1:B4",
-      title: "test",
-    };
+    const duplicatedChart = model.getters.getChart(duplicatedFigure.id) as GaugeChart;
+
+    expect(duplicatedChart.title).toEqual("test");
+    expect(zoneToXc(duplicatedChart.dataRange!.zone)).toEqual("B1:B4");
+    expect(duplicatedChart.dataRange!.sheetId).toEqual(secondSheetId);
+
     expect(duplicatedFigure).toMatchObject({ ...figure, id: expect.any(String) });
     expect(duplicatedFigure.id).not.toBe(figure?.id);
-    expect(duplicatedChartDefinition).toMatchObject(expectedDuplicatedChartDefinition);
     // duplicated chart is not deleted if original sheet is deleted
     deleteSheet(model, firstSheetId);
     expect(model.getters.getSheetIds()).toHaveLength(1);
     expect(model.getters.getFigures(secondSheetId)).toEqual([duplicatedFigure]);
-    expect(model.getters.getChartDefinition(duplicatedFigure.id)).toMatchObject(
-      expectedDuplicatedChartDefinition
-    );
   });
 });
 

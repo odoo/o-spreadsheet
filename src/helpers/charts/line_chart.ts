@@ -123,18 +123,21 @@ export class LineChart extends AbstractChart {
 
   private getDefinitionWithSpecificDataSets(
     dataSets: DataSet[],
-    labelRange: Range | undefined
+    labelRange: Range | undefined,
+    targetSheetId?: UID
   ): LineChartDefinition {
     return {
       type: "line",
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
       background: this.background,
       dataSets: dataSets.map((ds: DataSet) =>
-        this.getters.getRangeString(ds.dataRange, this.sheetId)
+        this.getters.getRangeString(ds.dataRange, targetSheetId || this.sheetId)
       ),
       legendPosition: this.legendPosition,
       verticalAxisPosition: this.verticalAxisPosition,
-      labelRange: labelRange ? this.getters.getRangeString(labelRange, this.sheetId) : undefined,
+      labelRange: labelRange
+        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
+        : undefined,
       title: this.title,
       labelsAsText: this.labelsAsText,
     };
@@ -182,7 +185,16 @@ export class LineChart extends AbstractChart {
   copyForSheetId(sheetId: UID): LineChart {
     const dataSets = copyDataSetsWithNewSheetId(this.sheetId, sheetId, this.dataSets);
     const labelRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.labelRange);
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, sheetId);
+    return new LineChart(definition, sheetId, this.getters);
+  }
+
+  copyInSheetId(sheetId: UID): LineChart {
+    const definition = this.getDefinitionWithSpecificDataSets(
+      this.dataSets,
+      this.labelRange,
+      sheetId
+    );
     return new LineChart(definition, sheetId, this.getters);
   }
 

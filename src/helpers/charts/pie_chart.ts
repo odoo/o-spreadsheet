@@ -131,25 +131,37 @@ export class PieChart extends AbstractChart {
 
   private getDefinitionWithSpecificDataSets(
     dataSets: DataSet[],
-    labelRange: Range | undefined
+    labelRange: Range | undefined,
+    targetSheetId?: UID
   ): PieChartDefinition {
     return {
       type: "pie",
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
       background: this.background,
       dataSets: dataSets.map((ds: DataSet) =>
-        this.getters.getRangeString(ds.dataRange, this.sheetId)
+        this.getters.getRangeString(ds.dataRange, targetSheetId || this.sheetId)
       ),
       legendPosition: this.legendPosition,
-      labelRange: labelRange ? this.getters.getRangeString(labelRange, this.sheetId) : undefined,
+      labelRange: labelRange
+        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
+        : undefined,
       title: this.title,
     };
   }
 
-  copyForSheetId(sheetId: string): PieChart {
+  copyForSheetId(sheetId: UID): PieChart {
     const dataSets = copyDataSetsWithNewSheetId(this.sheetId, sheetId, this.dataSets);
     const labelRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.labelRange);
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, sheetId);
+    return new PieChart(definition, sheetId, this.getters);
+  }
+
+  copyInSheetId(sheetId: UID): PieChart {
+    const definition = this.getDefinitionWithSpecificDataSets(
+      this.dataSets,
+      this.labelRange,
+      sheetId
+    );
     return new PieChart(definition, sheetId, this.getters);
   }
 

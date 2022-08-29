@@ -125,10 +125,19 @@ export class BarChart extends AbstractChart {
     };
   }
 
-  copyForSheetId(sheetId: string): BarChart {
+  copyForSheetId(sheetId: UID): BarChart {
     const dataSets = copyDataSetsWithNewSheetId(this.sheetId, sheetId, this.dataSets);
     const labelRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.labelRange);
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, sheetId);
+    return new BarChart(definition, sheetId, this.getters);
+  }
+
+  copyInSheetId(sheetId: UID): BarChart {
+    const definition = this.getDefinitionWithSpecificDataSets(
+      this.dataSets,
+      this.labelRange,
+      sheetId
+    );
     return new BarChart(definition, sheetId, this.getters);
   }
 
@@ -138,18 +147,21 @@ export class BarChart extends AbstractChart {
 
   private getDefinitionWithSpecificDataSets(
     dataSets: DataSet[],
-    labelRange: Range | undefined
+    labelRange: Range | undefined,
+    targetSheetId?: UID
   ): BarChartDefinition {
     return {
       type: "bar",
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
       background: this.background,
       dataSets: dataSets.map((ds: DataSet) =>
-        this.getters.getRangeString(ds.dataRange, this.sheetId)
+        this.getters.getRangeString(ds.dataRange, targetSheetId || this.sheetId)
       ),
       legendPosition: this.legendPosition,
       verticalAxisPosition: this.verticalAxisPosition,
-      labelRange: labelRange ? this.getters.getRangeString(labelRange, this.sheetId) : undefined,
+      labelRange: labelRange
+        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
+        : undefined,
       title: this.title,
       stackedBar: this.stackedBar,
     };

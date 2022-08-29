@@ -5,7 +5,7 @@ import {
   AnchorZone,
   BorderCommand,
   ChartDefinition,
-  ClipboardOptions,
+  ClipboardPasteOptions,
   CreateSheetCommand,
   DispatchResult,
   SortDirection,
@@ -204,9 +204,9 @@ export function updateChart(
 /**
  * Copy a zone
  */
-export function copy(model: Model, range?: string): DispatchResult {
-  if (range) {
-    setSelection(model, range.split(","));
+export function copy(model: Model, ...ranges: string[]): DispatchResult {
+  if (ranges && ranges.length) {
+    setSelection(model, ranges);
   }
   const result = model.dispatch("COPY");
   return result;
@@ -215,8 +215,12 @@ export function copy(model: Model, range?: string): DispatchResult {
 /**
  * Cut a zone
  */
-export function cut(model: Model, range?: string): DispatchResult {
-  return range ? model.dispatch("CUT", { target: target(range) }) : model.dispatch("CUT");
+export function cut(model: Model, ...ranges: string[]): DispatchResult {
+  if (ranges && ranges.length) {
+    setSelection(model, ranges);
+  }
+  const result = model.dispatch("CUT");
+  return result;
 }
 
 /**
@@ -226,7 +230,7 @@ export function paste(
   model: Model,
   range: string,
   force?: boolean,
-  pasteOption?: ClipboardOptions
+  pasteOption?: ClipboardPasteOptions
 ): DispatchResult {
   return model.dispatch("PASTE", { target: target(range), force, pasteOption });
 }

@@ -2,17 +2,10 @@ import { ComposerSelection } from "../plugins/ui/edition";
 import { SearchOptions } from "../plugins/ui/find_and_replace";
 import { CellPopoverType } from "./cell_popovers";
 import { ChartDefinition } from "./chart/chart";
+import { ClipboardPasteOptions } from "./clipboard";
 import { UpDown } from "./conditional_formatting";
 import { BorderCommand, ConditionalFormat, Figure, Format, Style, Zone } from "./index";
-import {
-  Border,
-  CellPosition,
-  ClipboardOptions,
-  Dimension,
-  HeaderIndex,
-  SetDecimalStep,
-  UID,
-} from "./misc";
+import { Border, CellPosition, Dimension, HeaderIndex, SetDecimalStep, UID } from "./misc";
 import { RangeData } from "./range";
 
 // -----------------------------------------------------------------------------
@@ -421,7 +414,7 @@ export interface CutCommand {
 export interface PasteCommand {
   type: "PASTE";
   target: Zone[];
-  pasteOption?: ClipboardOptions;
+  pasteOption?: ClipboardPasteOptions;
   force?: boolean;
 }
 
@@ -986,6 +979,7 @@ export const enum CommandResult {
   WrongCutSelection,
   WrongPasteSelection,
   WrongPasteOption,
+  WrongFigurePasteOption,
   EmptyClipboard,
   EmptyRange,
   InvalidRange,
@@ -1035,6 +1029,7 @@ export const enum CommandResult {
   FigureDoesNotExist,
   InvalidConditionalFormatId,
   InvalidCellPopover,
+  EmptyTarget,
 }
 
 export interface CommandHandler<T> {

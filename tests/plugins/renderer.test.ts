@@ -991,7 +991,7 @@ describe("renderer", () => {
     "compatible copied zones %s are all outlined with dots",
     (targetXc) => {
       const model = new Model();
-      copy(model, targetXc);
+      copy(model, ...targetXc.split(","));
       const { ctx, isDotOutlined, reset } = watchClipboardOutline(model);
       model.drawGrid(ctx);
       const copiedTarget = target(targetXc);
@@ -1007,7 +1007,7 @@ describe("renderer", () => {
     "only last copied non-compatible zones %s is outlined with dots",
     (targetXc) => {
       const model = new Model();
-      copy(model, targetXc);
+      copy(model, ...targetXc.split(","));
       const { ctx, isDotOutlined, reset } = watchClipboardOutline(model);
       model.drawGrid(ctx);
       const copiedTarget = target(targetXc);

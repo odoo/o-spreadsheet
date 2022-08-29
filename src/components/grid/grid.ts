@@ -277,10 +277,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   private clickedCol!: HeaderIndex;
   private clickedRow!: HeaderIndex;
 
-  // last string that was cut or copied. It is necessary so we can make the
-  // difference between a paste coming from the sheet itself, or from the
-  // os clipboard
-  private clipBoardString!: string;
   private canvasPosition!: DOMCoordinates;
   hoveredCell!: Partial<Position>;
 
@@ -301,7 +297,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.currentSheet = this.env.model.getters.getActiveSheetId();
     this.clickedCol = 0;
     this.clickedRow = 0;
-    this.clipBoardString = "";
     this.hoveredCell = useCellHovered(this.env);
 
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
@@ -917,7 +912,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.dispatch("COPY");
     }
     const content = this.env.model.getters.getClipboardContent();
-    this.clipBoardString = content;
     ev.clipboardData!.setData("text/plain", content);
     ev.preventDefault();
   }
@@ -930,7 +924,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     if (clipboardData.types.indexOf("text/plain") > -1) {
       const content = clipboardData.getData("text/plain");
       const target = this.env.model.getters.getSelectedZones();
-      if (this.clipBoardString === content) {
+      const clipBoardString = this.env.model.getters.getClipboardContent();
+      if (clipBoardString === content) {
         // the paste actually comes from o-spreadsheet itself
         interactivePaste(this.env, target);
       } else {
