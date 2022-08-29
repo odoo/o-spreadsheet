@@ -242,7 +242,6 @@ export class FormulaCell extends AbstractCell implements IFormulaCell {
   constructor(
     private buildFormulaString: (cell: FormulaCell) => string,
     id: UID,
-    readonly normalizedText: string,
     readonly compiledFormula: CompiledFormula,
     readonly dependencies: Range[],
     properties: CellDisplayProperties

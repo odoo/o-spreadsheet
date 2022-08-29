@@ -38,7 +38,6 @@ cellRegistry
       return new FormulaCell(
         (cell: FormulaCell) => getters.buildFormulaContent(sheetId, cell),
         id,
-        content,
         compiledFormula,
         dependencies,
         properties
