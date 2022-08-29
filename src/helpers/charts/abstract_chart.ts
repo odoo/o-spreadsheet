@@ -78,8 +78,15 @@ export abstract class AbstractChart {
 
   /**
    * Get a copy a the chart adapted to the given sheetId.
+   * The ranges that are in the same sheet as the chart will be adapted to the given sheetId.
    */
   abstract copyForSheetId(sheetId: UID): AbstractChart;
+
+  /**
+   * Get a copy a the chart in the given sheetId.
+   * The ranges of the chart will stay the same as the copied chart.
+   */
+  abstract copyInSheetId(sheetId: UID): AbstractChart;
 
   /**
    * Extract the ChartCreationContext of the chart

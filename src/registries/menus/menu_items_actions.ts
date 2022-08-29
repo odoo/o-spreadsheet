@@ -111,10 +111,7 @@ export const PASTE_VALUE_ACTION = async (env: SpreadsheetChildEnv) => {
 };
 
 export const PASTE_FORMAT_ACTION = (env: SpreadsheetChildEnv) =>
-  env.model.dispatch("PASTE", {
-    target: env.model.getters.getSelectedZones(),
-    pasteOption: "onlyFormat",
-  });
+  interactivePaste(env, env.model.getters.getSelectedZones(), "onlyFormat");
 
 export const DELETE_CONTENT_ACTION = (env: SpreadsheetChildEnv) =>
   env.model.dispatch("DELETE_CONTENT", {

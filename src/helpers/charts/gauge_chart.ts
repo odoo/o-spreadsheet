@@ -217,9 +217,14 @@ export class GaugeChart extends AbstractChart {
     };
   }
 
-  copyForSheetId(sheetId: string): GaugeChart {
+  copyForSheetId(sheetId: UID): GaugeChart {
     const dataRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.dataRange);
-    const definition = this.getDefinitionWithSpecificRanges(dataRange);
+    const definition = this.getDefinitionWithSpecificRanges(dataRange, sheetId);
+    return new GaugeChart(definition, sheetId, this.getters);
+  }
+
+  copyInSheetId(sheetId: UID): GaugeChart {
+    const definition = this.getDefinitionWithSpecificRanges(this.dataRange, sheetId);
     return new GaugeChart(definition, sheetId, this.getters);
   }
 
@@ -231,13 +236,18 @@ export class GaugeChart extends AbstractChart {
     return this.getDefinitionWithSpecificRanges(this.dataRange);
   }
 
-  private getDefinitionWithSpecificRanges(dataRange: Range | undefined): GaugeChartDefinition {
+  private getDefinitionWithSpecificRanges(
+    dataRange: Range | undefined,
+    targetSheetId?: UID
+  ): GaugeChartDefinition {
     return {
       background: this.background,
       sectionRule: this.sectionRule,
       title: this.title,
       type: "gauge",
-      dataRange: dataRange ? this.getters.getRangeString(dataRange, this.sheetId) : undefined,
+      dataRange: dataRange
+        ? this.getters.getRangeString(dataRange, targetSheetId || this.sheetId)
+        : undefined,
     };
   }
 

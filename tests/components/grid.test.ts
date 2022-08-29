@@ -1,5 +1,6 @@
 import { App } from "@odoo/owl";
 import { Spreadsheet, TransportService } from "../../src";
+import { ChartJsComponent } from "../../src/components/figures/chart/chartJs/chartjs";
 import { Grid } from "../../src/components/grid/grid";
 import {
   BACKGROUND_GRAY_COLOR,
@@ -9,7 +10,9 @@ import {
 } from "../../src/constants";
 import { scrollDelay, toHex, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
+import { chartComponentRegistry } from "../../src/registries";
 import {
+  createChart,
   createSheet,
   hideColumns,
   hideRows,
@@ -31,6 +34,7 @@ import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpe
 import {
   getChildFromComponent,
   makeTestFixture,
+  MockClipboard,
   mountSpreadsheet,
   nextTick,
   Touch,
@@ -55,6 +59,8 @@ let fixture: HTMLElement;
 let model: Model;
 let parent: Spreadsheet;
 let app: App;
+
+chartComponentRegistry.add("bar", ChartJsComponent);
 
 beforeEach(async () => {
   jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
@@ -988,5 +994,81 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     expect(getColor(".o-scrollbar.corner")).toEqual(toHex(BACKGROUND_GRAY_COLOR));
     expect(getColor(".o-scrollbar.horizontal")).toEqual(toHex(BACKGROUND_GRAY_COLOR));
     expect(getColor(".o-scrollbar.vertical")).toEqual(toHex(BACKGROUND_GRAY_COLOR));
+  });
+});
+
+describe("Copy paste keyboard shortcut", () => {
+  let clipboard: MockClipboard;
+  let sheetId: string;
+
+  async function getClipboardEvent(type: "copy" | "paste" | "cut") {
+    const event = new Event(type, { bubbles: true });
+    const content = await clipboard.readText();
+    //@ts-ignore
+    event.clipboardData = {
+      getData: () => content,
+      setData: async (format: string, data: string) => {
+        await clipboard.writeText(data);
+      },
+      types: ["text/plain"],
+    };
+    return event;
+  }
+
+  beforeEach(async () => {
+    clipboard = new MockClipboard();
+    Object.defineProperty(navigator, "clipboard", {
+      get() {
+        return clipboard;
+      },
+      configurable: true,
+    });
+    fixture = makeTestFixture();
+    ({ app, parent } = await mountSpreadsheet(fixture));
+    model = parent.model;
+    sheetId = model.getters.getActiveSheetId();
+  });
+
+  afterEach(() => {
+    app.destroy();
+    fixture.remove();
+  });
+
+  test("Can copy/paste cells", async () => {
+    setCellContent(model, "A1", "things");
+    selectCell(model, "A1");
+    document.body.dispatchEvent(await getClipboardEvent("copy"));
+    selectCell(model, "A2");
+    document.body.dispatchEvent(await getClipboardEvent("paste"));
+    expect(getCellContent(model, "A2")).toEqual("things");
+  });
+
+  test("Can cut/paste cells", async () => {
+    setCellContent(model, "A1", "things");
+    selectCell(model, "A1");
+    document.body.dispatchEvent(await getClipboardEvent("cut"));
+    selectCell(model, "A2");
+    document.body.dispatchEvent(await getClipboardEvent("paste"));
+    expect(getCellContent(model, "A1")).toEqual("");
+    expect(getCellContent(model, "A2")).toEqual("things");
+  });
+
+  test("Can copy/paste chart", async () => {
+    selectCell(model, "A1");
+    createChart(model, {}, "chartId");
+    model.dispatch("SELECT_FIGURE", { id: "chartId" });
+    document.body.dispatchEvent(await getClipboardEvent("copy"));
+    document.body.dispatchEvent(await getClipboardEvent("paste"));
+    expect(model.getters.getChartIds(sheetId)).toHaveLength(2);
+  });
+
+  test("Can cut/paste chart", async () => {
+    selectCell(model, "A1");
+    createChart(model, {}, "chartId");
+    model.dispatch("SELECT_FIGURE", { id: "chartId" });
+    document.body.dispatchEvent(await getClipboardEvent("cut"));
+    document.body.dispatchEvent(await getClipboardEvent("paste"));
+    expect(model.getters.getChartIds(sheetId)).toHaveLength(1);
+    expect(model.getters.getChartIds(sheetId)[0]).not.toEqual("chartId");
   });
 });

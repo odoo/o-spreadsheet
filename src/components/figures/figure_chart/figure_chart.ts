@@ -61,6 +61,24 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
       sequence: 1,
       action: () => this.env.openSidePanel("ChartPanel", { figureId: this.props.figure.id }),
     });
+    registry.add("copy", {
+      name: _lt("Copy"),
+      sequence: 2,
+      action: async () => {
+        this.env.model.dispatch("SELECT_FIGURE", { id: this.props.figure.id });
+        this.env.model.dispatch("COPY");
+        await this.env.clipboard.writeText(this.env.model.getters.getClipboardContent());
+      },
+    });
+    registry.add("cut", {
+      name: _lt("Cut"),
+      sequence: 3,
+      action: async () => {
+        this.env.model.dispatch("SELECT_FIGURE", { id: this.props.figure.id });
+        this.env.model.dispatch("CUT");
+        await this.env.clipboard.writeText(this.env.model.getters.getClipboardContent());
+      },
+    });
     registry.add("delete", {
       name: _lt("Delete"),
       sequence: 10,

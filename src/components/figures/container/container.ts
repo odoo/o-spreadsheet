@@ -326,7 +326,6 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onKeyDown(figure: Figure, ev: KeyboardEvent) {
-    ev.preventDefault();
     switch (ev.key) {
       case "Delete":
         this.env.model.dispatch("DELETE_FIGURE", {
@@ -334,6 +333,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
           id: figure.id,
         });
         this.props.onFigureDeleted();
+        ev.preventDefault();
         break;
       case "ArrowDown":
       case "ArrowLeft":
@@ -352,6 +352,8 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
           x: figure.x + delta[0],
           y: figure.y + delta[1],
         });
+        ev.preventDefault();
+        break;
     }
   }
 }

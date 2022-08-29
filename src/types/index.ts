@@ -11,6 +11,7 @@
 export * from "./autofill";
 export * from "./cells";
 export * from "./chart/chart";
+export * from "./clipboard";
 export * from "./collaborative/revisions";
 export * from "./collaborative/session";
 export * from "./commands";

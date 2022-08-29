@@ -1,4 +1,6 @@
 import { CommandResult, Model } from "../../../src";
+import { zoneToXc } from "../../../src/helpers";
+import { ScorecardChart } from "../../../src/helpers/charts";
 import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
@@ -174,6 +176,7 @@ describe("datasource tests", function () {
       {
         title: "test",
         keyValue: "B1:B4",
+        baseline: "A1",
       },
       firstSheetId
     );
@@ -185,21 +188,20 @@ describe("datasource tests", function () {
 
     expect(model.getters.getFigures(secondSheetId)).toHaveLength(1);
     const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];
-    const duplicatedChartDefinition = model.getters.getChartDefinition(duplicatedFigure.id);
-    const expectedDuplicatedChartDefinition = {
-      keyValue: "'Copy of Sheet1'!B1:B4",
-      title: "test",
-    };
+
+    const newChart = model.getters.getChart(duplicatedFigure.id) as ScorecardChart;
+    expect(newChart.title).toEqual("test");
+    expect(newChart.keyValue?.sheetId).toEqual(secondSheetId);
+    expect(zoneToXc(newChart.keyValue!.zone)).toEqual("B1:B4");
+    expect(newChart.baseline?.sheetId).toEqual(secondSheetId);
+    expect(zoneToXc(newChart.baseline!.zone)).toEqual("A1");
+
     expect(duplicatedFigure).toMatchObject({ ...figure, id: expect.any(String) });
     expect(duplicatedFigure.id).not.toBe(figure?.id);
-    expect(duplicatedChartDefinition).toMatchObject(expectedDuplicatedChartDefinition);
     // duplicated chart is not deleted if original sheet is deleted
     deleteSheet(model, firstSheetId);
     expect(model.getters.getSheetIds()).toHaveLength(1);
     expect(model.getters.getFigures(secondSheetId)).toEqual([duplicatedFigure]);
-    expect(model.getters.getChartDefinition(duplicatedFigure.id)).toMatchObject(
-      expectedDuplicatedChartDefinition
-    );
   });
 });
 

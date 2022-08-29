@@ -21,6 +21,7 @@ export type HeaderIndex = number & Alias;
 // any DOM pixel value
 export type Pixel = number & Alias;
 
+// Unique identifier
 export type UID = string & Alias;
 
 export type SetDecimalStep = 1 | -1;
@@ -236,8 +237,6 @@ export interface RangeProvider {
 }
 
 export type Validation<T> = (toValidate: T) => CommandResult | CommandResult[];
-
-export type ClipboardOptions = "onlyFormat" | "onlyValue";
 
 export type Increment = 1 | -1 | 0;
 

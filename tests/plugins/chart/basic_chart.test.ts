@@ -1,6 +1,7 @@
 import { Model } from "../../../src";
 import { ChartTerms } from "../../../src/components/translations_terms";
-import { toZone } from "../../../src/helpers/zones";
+import { BarChart } from "../../../src/helpers/charts";
+import { toZone, zoneToXc } from "../../../src/helpers/zones";
 import { BorderCommand, CommandResult } from "../../../src/types";
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
 import { LineChartDefinition, LineChartRuntime } from "../../../src/types/chart/line_chart";
@@ -772,10 +773,12 @@ describe("datasource tests", function () {
   test("Chart is copied on sheet duplication", () => {
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
+    const dataSets = ["B1:B4", "C1:C4"];
+
     createChart(
       model,
       {
-        dataSets: ["B1:B4", "C1:C4"],
+        dataSets,
         labelRange: "A2:A4",
       },
       firstSheetId
@@ -785,26 +788,26 @@ describe("datasource tests", function () {
       sheetIdTo: secondSheetId,
       sheetId: firstSheetId,
     });
-    const sheetName = model.getters.getSheet(secondSheetId).name;
 
     expect(model.getters.getFigures(secondSheetId)).toHaveLength(1);
     const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];
-    const duplicatedChartDefinition = model.getters.getChartDefinition(duplicatedFigure.id);
-    const expectedDuplicatedChartDefinition = {
-      dataSets: [`B1:B4`, `C1:C4`],
-      labelRange: `'${sheetName}'!A2:A4`,
-      title: "test",
-    };
+    const newChart = model.getters.getChart(duplicatedFigure.id) as BarChart;
+
+    expect(newChart.labelRange?.sheetId).toEqual(secondSheetId);
+    expect(zoneToXc(newChart.labelRange!.zone)).toEqual("A2:A4");
+
+    newChart.dataSets?.map((ds, index) => {
+      expect(ds.dataRange.sheetId).toEqual(secondSheetId);
+      expect(zoneToXc(ds.dataRange.zone)).toEqual(dataSets[index]);
+    });
+
     expect(duplicatedFigure).toMatchObject({ ...figure, id: expect.any(String) });
     expect(duplicatedFigure.id).not.toBe(figure?.id);
-    expect(duplicatedChartDefinition).toMatchObject(expectedDuplicatedChartDefinition);
+
     // duplicated chart is not deleted if original sheet is deleted
     deleteSheet(model, firstSheetId);
     expect(model.getters.getSheetIds()).toHaveLength(1);
     expect(model.getters.getFigures(secondSheetId)).toEqual([duplicatedFigure]);
-    expect(model.getters.getChartDefinition(duplicatedFigure.id)).toMatchObject(
-      expectedDuplicatedChartDefinition
-    );
   });
 
   test("Chart foreign ranges unchanged on sheet duplication", () => {

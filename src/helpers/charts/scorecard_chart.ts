@@ -123,10 +123,15 @@ export class ScorecardChart extends AbstractChart {
     };
   }
 
-  copyForSheetId(sheetId: string): ScorecardChart {
+  copyForSheetId(sheetId: UID): ScorecardChart {
     const baseline = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.baseline);
     const keyValue = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.keyValue);
-    const definition = this.getDefinitionWithSpecificRanges(baseline, keyValue);
+    const definition = this.getDefinitionWithSpecificRanges(baseline, keyValue, sheetId);
+    return new ScorecardChart(definition, sheetId, this.getters);
+  }
+
+  copyInSheetId(sheetId: UID): ScorecardChart {
+    const definition = this.getDefinitionWithSpecificRanges(this.baseline, this.keyValue, sheetId);
     return new ScorecardChart(definition, sheetId, this.getters);
   }
 
@@ -158,7 +163,8 @@ export class ScorecardChart extends AbstractChart {
 
   private getDefinitionWithSpecificRanges(
     baseline: Range | undefined,
-    keyValue: Range | undefined
+    keyValue: Range | undefined,
+    targetSheetId?: UID
   ): ScorecardChartDefinition {
     return {
       baselineColorDown: this.baselineColorDown,
@@ -167,9 +173,13 @@ export class ScorecardChart extends AbstractChart {
       title: this.title,
       type: "scorecard",
       background: this.background,
-      baseline: baseline ? this.getters.getRangeString(baseline, this.sheetId) : undefined,
+      baseline: baseline
+        ? this.getters.getRangeString(baseline, targetSheetId || this.sheetId)
+        : undefined,
       baselineDescr: this.baselineDescr,
-      keyValue: keyValue ? this.getters.getRangeString(keyValue, this.sheetId) : undefined,
+      keyValue: keyValue
+        ? this.getters.getRangeString(keyValue, targetSheetId || this.sheetId)
+        : undefined,
     };
   }
 
