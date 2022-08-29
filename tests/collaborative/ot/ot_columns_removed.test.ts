@@ -293,6 +293,12 @@ describe("OT with REMOVE_COLUMN", () => {
       const result = transform(command, removeColumns);
       expect(result).toEqual(command);
     });
+
+    test("Remove a column adjacent to removed columns", () => {
+      const command = { ...toTransform, elements: [2] };
+      const result = transform(command, { ...removeColumns, elements: [0, 1] });
+      expect(result).toEqual({ ...command, elements: [0] });
+    });
   });
 
   const resizeColumnsCommand: Omit<ResizeColumnsRowsCommand, "elements"> = {

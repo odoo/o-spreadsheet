@@ -270,28 +270,34 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
       expect(result).toEqual({ ...command, elements: [0] });
     });
 
-    test("Remove a column before removed rows", () => {
+    test("Remove a row before removed rows", () => {
       const command = { ...toTransform, elements: [0] };
       const result = transform(command, removeRows);
       expect(result).toEqual(command);
     });
 
-    test("Remove a column after removed rows", () => {
+    test("Remove a row after removed rows", () => {
       const command = { ...toTransform, elements: [8] };
       const result = transform(command, removeRows);
       expect(result).toEqual({ ...command, elements: [5] });
     });
 
-    test("Remove a column inside removed rows", () => {
+    test("Remove a row inside removed rows", () => {
       const command = { ...toTransform, elements: [4] };
       const result = transform(command, removeRows);
       expect(result).toEqual({ ...command, elements: [2] });
     });
 
-    test("Remove a column on another sheet", () => {
+    test("Remove a row on another sheet", () => {
       const command = { ...toTransform, elements: [4], sheetId: "42" };
       const result = transform(command, removeRows);
       expect(result).toEqual(command);
+    });
+
+    test("Remove a row adjacent to removed row", () => {
+      const command = { ...toTransform, elements: [2] };
+      const result = transform(command, { ...removeRows, elements: [0, 1] });
+      expect(result).toEqual({ ...command, elements: [0] });
     });
   });
 
