@@ -372,6 +372,8 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   updateCellState() {
+    this.state.menuState.parentMenu = undefined;
+    this.isSelectingMenu = false;
     const zones = this.env.model.getters.getSelectedZones();
     const { top, left, right, bottom } = zones[0];
     this.cannotMerge = zones.length > 1 || (top === bottom && left === right);
