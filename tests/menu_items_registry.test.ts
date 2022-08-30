@@ -2,7 +2,7 @@ import { App } from "@odoo/owl";
 import { Model, Spreadsheet } from "../src";
 import { fontSizes } from "../src/fonts";
 import { zoneToXc } from "../src/helpers";
-import { interactivePaste } from "../src/helpers/ui/paste";
+import { interactivePaste } from "../src/helpers/ui/paste_interactive";
 import {
   colMenuRegistry,
   createFullMenuItem,

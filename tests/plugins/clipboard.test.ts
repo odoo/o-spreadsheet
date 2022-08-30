@@ -1,7 +1,5 @@
 import { toZone, zoneToXc } from "../../src/helpers";
 import { ClipboardCellsState } from "../../src/helpers/clipboard/clipboard_cells_state";
-import { interactiveCut } from "../../src/helpers/ui/cut";
-import { interactivePaste } from "../../src/helpers/ui/paste";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui/clipboard";
 import { CellValueType, CommandResult, Zone } from "../../src/types/index";
@@ -36,7 +34,6 @@ import {
   createEqualCF,
   getGrid,
   getPlugin,
-  makeInteractiveTestEnv,
   target,
   toCartesianArray,
   toRangesData,
@@ -132,13 +129,6 @@ describe("clipboard", () => {
     const model = new Model();
     const result = paste(model, "D2");
     expect(result).toBeCancelledBecause(CommandResult.EmptyClipboard);
-  });
-
-  test("paste without copied value interactively", () => {
-    const model = new Model();
-    const env = makeInteractiveTestEnv(model);
-    interactivePaste(env, target("D2"));
-    expect(getCellContent(model, "D2")).toBe("");
   });
 
   test("paste zones without copied value", () => {
@@ -488,53 +478,6 @@ describe("clipboard", () => {
     expect(getCellText(model, "A1", "s2")).toBe("=A2");
   });
 
-  test("Pasting content that will destroy a merge will notify the user", async () => {
-    const notifyUser = jest.fn();
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 5,
-          rowNumber: 5,
-          merges: ["B2:C3"],
-        },
-        {
-          colNumber: 5,
-          rowNumber: 5,
-        },
-      ],
-    });
-
-    copy(model, "B2");
-
-    selectCell(model, "A1");
-    const env = makeInteractiveTestEnv(model, { notifyUser });
-    interactivePaste(env, model.getters.getSelectedZones());
-    expect(notifyUser).toHaveBeenCalled();
-  });
-
-  test("Dispatch a PASTE command with interactive=true correctly takes pasteOption into account", async () => {
-    const model = new Model();
-    const style = { fontSize: 36 };
-    const sheetId = model.getters.getActiveSheetId();
-    setCellContent(model, "A1", "=42");
-    model.dispatch("UPDATE_CELL", { sheetId, col: 0, row: 0, style });
-
-    copy(model, "A1");
-    const env = makeInteractiveTestEnv(model);
-    interactivePaste(env, target("B1"), "onlyFormat");
-    interactivePaste(env, target("B2"), "onlyValue");
-    interactivePaste(env, target("B3"));
-
-    expect(getCellText(model, "B1")).toBe("");
-    expect(getCell(model, "B1")!.style).toEqual(style);
-
-    expect(getCellText(model, "B2")).toBe("42");
-    expect(getCell(model, "B2")!.style).toBeUndefined();
-
-    expect(getCellText(model, "B3")).toBe("=42");
-    expect(getCell(model, "B3")!.style).toEqual(style);
-  });
-
   test("Pasting content that will destroy a merge will fail if not forced", async () => {
     const model = new Model({
       sheets: [
@@ -848,20 +791,6 @@ describe("clipboard", () => {
       const result = paste(model, "C1, E1");
       expect(result).toBeCancelledBecause(CommandResult.WrongPasteSelection);
     });
-
-    test("paste a zone with more than one value will warn user", async () => {
-      const notifyUser = jest.fn();
-      const model = new Model();
-      copy(model, "A1:A2");
-
-      // select C4 and F6
-      selectCell(model, "C4");
-      addCellToSelection(model, "F6");
-
-      const env = makeInteractiveTestEnv(model, { notifyUser });
-      interactivePaste(env, model.getters.getSelectedZones());
-      expect(notifyUser).toHaveBeenCalled();
-    });
   });
 
   describe("cut/paste a zone in several selection will paste the zone only once", () => {
@@ -893,18 +822,6 @@ describe("clipboard", () => {
       const result = paste(model, "C1, E1");
       expect(result).toBeCancelledBecause(CommandResult.WrongPasteSelection);
     });
-
-    test("paste a zone with more than one value will warn user", async () => {
-      const notifyUser = jest.fn();
-      const model = new Model();
-      cut(model, "A1:A2");
-
-      selectCell(model, "C4");
-      addCellToSelection(model, "F6");
-      const env = makeInteractiveTestEnv(model, { notifyUser });
-      interactivePaste(env, model.getters.getSelectedZones());
-      expect(notifyUser).toHaveBeenCalled();
-    });
   });
 
   describe("cut/paste several zones", () => {
@@ -912,15 +829,6 @@ describe("clipboard", () => {
       const model = new Model();
       const result = cut(model, "A1", "A2");
       expect(result).toBeCancelledBecause(CommandResult.WrongCutSelection);
-    });
-
-    test("cutting with multiple selection will warn user", async () => {
-      const notifyUser = jest.fn();
-      const model = new Model();
-      const env = makeInteractiveTestEnv(model, { notifyUser });
-      setSelection(model, ["A1", "A2"]);
-      interactiveCut(env);
-      expect(notifyUser).toHaveBeenCalled();
     });
   });
 
@@ -1070,15 +978,6 @@ describe("clipboard", () => {
       copy(model, "A1", "C1");
       const result = paste(model, "A2, B2");
       expect(result).toBeCancelledBecause(CommandResult.WrongPasteSelection);
-    });
-
-    test("will warn user if paste in several selection", () => {
-      const notifyUser = jest.fn();
-      const model = new Model();
-      copy(model, "A1", "C1");
-      const env = makeInteractiveTestEnv(model, { notifyUser });
-      interactivePaste(env, target("A2, B2"));
-      expect(notifyUser).toHaveBeenCalled();
     });
   });
   test("can copy and paste a cell with STRING content", () => {

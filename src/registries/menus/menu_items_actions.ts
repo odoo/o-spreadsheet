@@ -5,8 +5,8 @@ import {
 } from "../../constants";
 import { numberToLetters, zoneToXc } from "../../helpers/index";
 import { interactiveSortSelection } from "../../helpers/sort";
-import { interactiveCut } from "../../helpers/ui/cut";
-import { handlePasteResult, interactivePaste } from "../../helpers/ui/paste";
+import { interactiveCut } from "../../helpers/ui/cut_interactive";
+import { handlePasteResult, interactivePaste } from "../../helpers/ui/paste_interactive";
 import { _lt } from "../../translation";
 import { CellValueType, Format, SpreadsheetChildEnv, Style } from "../../types/index";
 
