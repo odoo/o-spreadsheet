@@ -1136,6 +1136,10 @@ export const demoData = {
         B167: { content: '=IFNA(NA(), "hello")' },
         C167: { content: '="hello"' },
         D167: { content: "=IF(B167=C167,1, 0)" },
+        A168: { content: "CLEAN" },
+        B168: { content: '=CLEAN("a"&CHAR(10))' },
+        C168: { content: '="a"' },
+        D168: { content: "=IF(B168=C168,1, 0)" },
 
         // DATA
         G1: { content: "Name", style: 8 },
