@@ -29,6 +29,28 @@ export const CHAR: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// CLEAN
+// -----------------------------------------------------------------------------
+export const CLEAN: AddFunctionDescription = {
+  description: _lt("Remove non-printable characters from a piece of text."),
+  args: args(`
+      text (string) ${_lt("The text whose non-printable characters are to be removed.")}
+  `),
+  returns: ["STRING"],
+  compute: function (text: PrimitiveArgValue): string {
+    const _text = toString(text);
+    let cleanedStr = "";
+    for (const char of _text) {
+      if (char && char.charCodeAt(0) > 31) {
+        cleanedStr += char;
+      }
+    }
+    return cleanedStr;
+  },
+  isExported: true,
+};
+
+// -----------------------------------------------------------------------------
 // CONCATENATE
 // -----------------------------------------------------------------------------
 export const CONCATENATE: AddFunctionDescription = {
