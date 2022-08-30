@@ -160,9 +160,8 @@ describe("Selection Input", () => {
     await simulateClick(input);
     clickCell(parent.model, "B4");
     await nextTick();
-    await keyDown("Control");
-    clickCell(parent.model, "B5");
-    await keyUp("Control");
+    clickCell(parent.model, "B5", { ctrlKey: true });
+    await nextTick();
     const inputs = fixture.querySelectorAll(
       ".o-selection-input input"
     ) as unknown as HTMLInputElement[];

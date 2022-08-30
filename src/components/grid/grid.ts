@@ -676,6 +676,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       // not main button, probably a context menu
       return;
     }
+    if (ev.ctrlKey) {
+      this.env.model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
+    }
     const [col, row] = this.getCartesianCoordinates(ev);
     if (col < 0 || row < 0) {
       return;
@@ -770,9 +773,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     };
     const onMouseUp = (ev: MouseEvent) => {
       clearTimeout(timeOutId);
-      this.env.model.dispatch(
-        ev.ctrlKey ? "PREPARE_SELECTION_INPUT_EXPANSION" : "STOP_SELECTION_INPUT"
-      );
+      this.env.model.dispatch("STOP_SELECTION_INPUT");
       this.gridOverlay.el!.removeEventListener("mousemove", onMouseMove);
       if (this.env.model.getters.isPaintingFormat()) {
         this.env.model.dispatch("PASTE", {
