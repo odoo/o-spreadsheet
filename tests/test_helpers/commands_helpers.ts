@@ -621,24 +621,13 @@ export function sort(
 export function merge(
   model: Model,
   range: string,
-  sheetId: UID = model.getters.getActiveSheetId()
+  sheetId: UID = model.getters.getActiveSheetId(),
+  force: boolean = true
 ): DispatchResult {
   return model.dispatch("ADD_MERGE", {
     sheetId,
     target: target(range),
-    force: true,
-  });
-}
-
-export function interactiveMerge(
-  model: Model,
-  range: string,
-  sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return model.dispatch("ADD_MERGE", {
-    sheetId,
-    target: target(range),
-    force: false,
+    force,
   });
 }
 

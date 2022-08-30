@@ -1,7 +1,7 @@
 import { Component, onMounted, onPatched, useRef, useState } from "@odoo/owl";
 import { BACKGROUND_GRAY_COLOR, BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { formatValue } from "../../helpers/format";
-import { interactiveRenameSheet } from "../../helpers/ui/sheet";
+import { interactiveRenameSheet } from "../../helpers/ui/sheet_interactive";
 import { MenuItemRegistry, sheetMenuRegistry } from "../../registries/index";
 import { Pixel, SpreadsheetChildEnv, UID } from "../../types";
 import { css } from "../helpers/css";

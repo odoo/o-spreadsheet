@@ -1,4 +1,4 @@
-import { interactiveRenameSheet } from "../../helpers/ui/sheet";
+import { interactiveRenameSheet } from "../../helpers/ui/sheet_interactive";
 import { _lt } from "../../translation";
 import { MenuItemRegistry } from "../menu_items_registry";
 

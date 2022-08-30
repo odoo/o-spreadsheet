@@ -1,7 +1,6 @@
 import { CommandResult, Model } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { interactivePaste, PasteInteractiveContent } from "../../src/helpers/ui/paste";
-import { SpreadsheetChildEnv, UID } from "../../src/types";
+import { UID } from "../../src/types";
 import {
   activateSheet,
   copy,
@@ -14,7 +13,6 @@ import {
   updateChart,
 } from "../test_helpers/commands_helpers";
 import { getCellContent } from "../test_helpers/getters_helpers";
-import { makeInteractiveTestEnv, target } from "../test_helpers/helpers";
 import { BarChartDefinition } from "./../../src/types/chart/bar_chart";
 
 describe("Clipboard for figures", () => {
@@ -152,28 +150,6 @@ describe("Clipboard for figures", () => {
       copy(model);
       const result = paste(model, "A1", false, "onlyFormat");
       expect(result).toBeCancelledBecause(CommandResult.WrongFigurePasteOption);
-    });
-  });
-
-  describe("Interactive paste", () => {
-    let env: SpreadsheetChildEnv;
-    let notifyUserTextSpy: jest.Mock<any, any>;
-
-    beforeEach(() => {
-      notifyUserTextSpy = jest.fn();
-      const notifyUser = (content: string) => {
-        notifyUserTextSpy(content.toString());
-      };
-      env = makeInteractiveTestEnv(model, { notifyUser });
-    });
-
-    test("paste special with a figure will warn the user", async () => {
-      model.dispatch("SELECT_FIGURE", { id: chartId });
-      copy(model);
-      interactivePaste(env, target("A1"), "onlyFormat");
-      expect(notifyUserTextSpy).toHaveBeenCalledWith(
-        PasteInteractiveContent.wrongFigurePasteOption.toString()
-      );
     });
   });
 });

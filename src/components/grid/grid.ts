@@ -17,8 +17,8 @@ import {
   SCROLLBAR_WIDTH,
 } from "../../constants";
 import { findCellInNewZone, isInside, MAX_DELAY, range } from "../../helpers/index";
-import { interactiveCut } from "../../helpers/ui/cut";
-import { interactivePaste } from "../../helpers/ui/paste";
+import { interactiveCut } from "../../helpers/ui/cut_interactive";
+import { interactivePaste } from "../../helpers/ui/paste_interactive";
 import { ComposerSelection } from "../../plugins/ui/edition";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
