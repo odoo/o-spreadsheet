@@ -125,7 +125,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     });
 
     useExternalListener(window as any, "resize", () => this.render(true));
-    useExternalListener(document.body, "keyup", this.onKeyup.bind(this));
     useExternalListener(window, "beforeunload", this.unbindModelEvents.bind(this));
     onMounted(() => this.bindModelEvents());
     onWillUnmount(() => this.unbindModelEvents());
@@ -191,16 +190,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     this.props.onContentSaved?.(this.model.exportData());
   }
 
-  onKeyup(ev: KeyboardEvent) {
-    if (ev.key === "Control") {
-      this.model.dispatch("STOP_SELECTION_INPUT");
-    }
-  }
-
   onKeydown(ev: KeyboardEvent) {
-    if (ev.key === "Control" && !ev.repeat) {
-      this.model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
-    }
     let keyDownString = "";
     if (ev.ctrlKey || ev.metaKey) {
       keyDownString += "CTRL+";
