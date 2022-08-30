@@ -29,6 +29,25 @@ describe("CHAR formula", () => {
   });
 });
 
+describe("CLEAN formula", () => {
+  test("functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: "=CLEAN()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=CLEAN(65)" })).toBe("65");
+    expect(evaluateCell("A1", { A1: '=CLEAN("hey")' })).toBe("hey");
+    expect(evaluateCell("A1", { A1: "=CLEAN(CHAR(50))" })).toBe("2");
+    expect(evaluateCell("A1", { A1: "=CLEAN(CHAR(10))" })).toBe("");
+    expect(evaluateCell("A1", { A1: '=CLEAN("A")' })).toBe("A");
+  });
+
+  test("functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=CLEAN(A2)" })).toBe("");
+    expect(evaluateCell("A1", { A1: "=CLEAN(A2)", A2: "66" })).toBe("66");
+    expect(evaluateCell("A1", { A1: "=CLEAN(A2)", A2: "hey" })).toBe("hey");
+    expect(evaluateCell("A1", { A1: "=CLEAN(A2)", A2: "=CHAR(50)" })).toBe("2");
+    expect(evaluateCell("A1", { A1: "=CLEAN(A2)", A2: '="A" & CHAR(5)' })).toBe("A");
+  });
+});
+
 describe("CONCATENATE formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=CONCATENATE()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
