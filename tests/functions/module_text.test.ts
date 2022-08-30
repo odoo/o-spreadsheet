@@ -343,6 +343,24 @@ describe("LOWER formula", () => {
   });
 });
 
+describe("PROPER formula", () => {
+  test("functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: "=PROPER()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=PROPER(65)" })).toBe("65");
+    expect(evaluateCell("A1", { A1: '=PROPER("hey")' })).toBe("Hey");
+    expect(evaluateCell("A1", { A1: '=PROPER("75google@rdm.com")' })).toBe("75Google@Rdm.Com");
+    expect(evaluateCell("A1", { A1: '=PROPER("ça")' })).toBe("Ça");
+    expect(evaluateCell("A1", { A1: '=PROPER("ébloui")' })).toBe("Ébloui");
+  });
+
+  test("functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=PROPER(A2)" })).toBe("");
+    expect(evaluateCell("A1", { A1: "=PROPER(A2)", A2: "66" })).toBe("66");
+    expect(evaluateCell("A1", { A1: "=PROPER(A2)", A2: "hey" })).toBe("Hey");
+    expect(evaluateCell("A1", { A1: "=PROPER(A2)", A2: '="bi-annual' })).toBe("Bi-Annual");
+  });
+});
+
 describe("REPLACE formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=REPLACE("ABZ", 2, 1, "Y")' })).toBe("AYZ");
