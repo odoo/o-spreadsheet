@@ -1140,6 +1140,10 @@ export const demoData = {
         B168: { content: '=CLEAN("a"&CHAR(10))' },
         C168: { content: '="a"' },
         D168: { content: "=IF(B168=C168,1, 0)" },
+        A169: { content: "PROPER" },
+        B169: { content: '=PROPER("this is a sentence")' },
+        C169: { content: '="This Is A Sentence"' },
+        D169: { content: "=IF(B169=C169,1, 0)" },
 
         // DATA
         G1: { content: "Name", style: 8 },

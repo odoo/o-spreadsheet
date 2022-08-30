@@ -6,6 +6,9 @@ import { assert, reduceAny, toBoolean, toNumber, toString } from "./helpers";
 
 const DEFAULT_STARTING_AT = 1;
 
+/** Regex matching all the words in a string */
+const wordRegex = /[A-Za-zÀ-ÖØ-öø-ÿ]+/g;
+
 // -----------------------------------------------------------------------------
 // CHAR
 // -----------------------------------------------------------------------------
@@ -196,6 +199,26 @@ export const LOWER: AddFunctionDescription = {
   returns: ["STRING"],
   compute: function (text: PrimitiveArgValue): string {
     return toString(text).toLowerCase();
+  },
+  isExported: true,
+};
+
+// -----------------------------------------------------------------------------
+// PROPER
+// -----------------------------------------------------------------------------
+export const PROPER: AddFunctionDescription = {
+  description: _lt("Capitalizes each word in a specified string."),
+  args: args(`
+  text_to_capitalize (string) ${_lt(
+    "The text which will be returned with the first letter of each word in uppercase and all other letters in lowercase."
+  )}
+  `),
+  returns: ["STRING"],
+  compute: function (text: PrimitiveArgValue): string {
+    const _text = toString(text);
+    return _text.replace(wordRegex, (word): string => {
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    });
   },
   isExported: true,
 };
