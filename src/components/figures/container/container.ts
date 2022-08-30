@@ -48,13 +48,11 @@ css/*SCSS*/ `
     bottom: 0px;
     right: 0px;
     border: solid ${FIGURE_BORDER_COLOR};
-    z-index: ${ComponentsImportance.Figure};
     &:focus {
       outline: none;
     }
     &.active {
       border: solid ${SELECTION_BORDER_COLOR};
-      z-index: ${ComponentsImportance.Figure + 1};
     }
 
     &.o-dragging {
@@ -196,7 +194,8 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       `top:${y + borderOffset + overflowY + 1}px;` +
       `left:${x + borderOffset + overflowX}px;` +
       `width:${width - overflowX}px;` +
-      `height:${height - overflowY}px;`
+      `height:${height - overflowY}px;` +
+      `z-index: ${ComponentsImportance.Figure + (info.isSelected ? 1 : 0)}`
     );
   }
 
