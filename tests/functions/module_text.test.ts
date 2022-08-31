@@ -343,6 +343,27 @@ describe("LOWER formula", () => {
   });
 });
 
+describe("MID formula", () => {
+  test("functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: "=MID()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: '=MID("amen")' })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: '=MID("amen", 2)' })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: '=MID("amen", 0, 1)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: '=MID("amen", 0, -1)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+
+    expect(evaluateCell("A1", { A1: '=MID("amen", 2, 1)' })).toBe("m");
+    expect(evaluateCell("A1", { A1: "=MID(6558, 2, 2)" })).toBe("55");
+    expect(evaluateCell("A1", { A1: '=MID("hey", 2, 20)' })).toBe("ey");
+  });
+
+  test("functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=MID(A2, 1, 1)" })).toBe("");
+    expect(evaluateCell("A1", { A1: "=MID(A2, 2, 1)", A2: "66" })).toBe("6");
+    expect(evaluateCell("A1", { A1: "=MID(A2, 3, 5)", A2: "hey" })).toBe("y");
+    expect(evaluateCell("A1", { A1: "=MID(A2, 3, 5)", A2: "I'm a legend)" })).toBe("m a l");
+  });
+});
+
 describe("PROPER formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=PROPER()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
