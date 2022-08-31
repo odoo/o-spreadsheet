@@ -404,6 +404,43 @@ describe("figures", () => {
     }
   );
 
+  test("changing property and selecting another chart doesn't change first chart", async () => {
+    createChart(
+      model,
+      {
+        dataSets: ["C1:C4"],
+        labelRange: "A2:A4",
+        type: "line",
+        title: "old_title_1",
+      },
+      "1"
+    );
+    await nextTick();
+    createChart(
+      model,
+      {
+        dataSets: ["C1:C4"],
+        labelRange: "A2:A4",
+        type: "line",
+        title: "old_title_2",
+      },
+      "2"
+    );
+    await nextTick();
+
+    const figures = fixture.querySelectorAll(".o-figure");
+    await simulateClick(figures[0] as HTMLElement);
+    await simulateClick(".o-chart-menu-item");
+    await simulateClick(".o-menu div[data-name='edit']");
+    await simulateClick(".o-panel .inactive");
+    await simulateClick(".o-chart-title input");
+    setInputValueAndTrigger(".o-chart-title input", "first_title", "input");
+
+    await simulateClick(figures[1] as HTMLElement);
+    expect(model.getters.getChartDefinition("1").title).toBe("old_title_1");
+    expect(model.getters.getChartDefinition("2").title).toBe("old_title_2");
+  });
+
   test.each(["basicChart", "scorecard"])(
     "can edit charts %s background",
     async (chartType: string) => {
