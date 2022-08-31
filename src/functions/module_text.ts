@@ -204,6 +204,45 @@ export const LOWER: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// MID
+// -----------------------------------------------------------------------------
+export const MID: AddFunctionDescription = {
+  description: _lt("A segment of a string."),
+  args: args(`
+      text (string) ${_lt("The string to extract a segment from.")}
+      starting_at  (number) ${_lt(
+        "The index from the left of string from which to begin extracting. The first character in string has the index 1."
+      )}
+      extract_length  (number) ${_lt("The length of the segment to extract.")}
+  `),
+  returns: ["STRING"],
+  compute: function (
+    text: PrimitiveArgValue,
+    starting_at: PrimitiveArgValue,
+    extract_length: PrimitiveArgValue
+  ): string {
+    const _text = toString(text);
+    const _starting_at = toNumber(starting_at);
+    const _extract_length = toNumber(extract_length);
+
+    assert(
+      () => _starting_at >= 1,
+      _lt(
+        "The starting_at argument (%s) must be positive greater than one.",
+        _starting_at.toString()
+      )
+    );
+    assert(
+      () => _extract_length >= 0,
+      _lt("The extract_length argument (%s) must be positive or null.", _extract_length.toString())
+    );
+
+    return _text.slice(_starting_at - 1, _starting_at + _extract_length - 1);
+  },
+  isExported: true,
+};
+
+// -----------------------------------------------------------------------------
 // PROPER
 // -----------------------------------------------------------------------------
 export const PROPER: AddFunctionDescription = {
