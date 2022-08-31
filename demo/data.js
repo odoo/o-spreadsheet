@@ -1144,6 +1144,10 @@ export const demoData = {
         B169: { content: '=PROPER("this is a sentence")' },
         C169: { content: '="This Is A Sentence"' },
         D169: { content: "=IF(B169=C169,1, 0)" },
+        A170: { content: "MID" },
+        B170: { content: '=MID("Odoo", 2, 5)' },
+        C170: { content: '="doo"' },
+        D170: { content: "=IF(B170=C170,1, 0)" },
 
         // DATA
         G1: { content: "Name", style: 8 },
