@@ -51,6 +51,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartPanel";
 
   private state!: State;
+  private shouldUpdateChart: boolean = true;
 
   get figureId(): UID {
     return this.state.figureId;
@@ -70,6 +71,9 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
       const selectedFigureId = this.env.model.getters.getSelectedFigureId();
       if (selectedFigureId && selectedFigureId !== this.state.figureId) {
         this.state.figureId = selectedFigureId;
+        this.shouldUpdateChart = false;
+      } else {
+        this.shouldUpdateChart = true;
       }
       if (!this.env.model.getters.isChartDefined(this.figureId)) {
         this.props.onCloseSidePanel();
@@ -79,6 +83,9 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   updateChart<T extends ChartDefinition>(updateDefinition: Partial<T>) {
+    if (!this.shouldUpdateChart) {
+      return;
+    }
     const definition: T = {
       ...(this.getChartDefinition() as T),
       ...updateDefinition,
