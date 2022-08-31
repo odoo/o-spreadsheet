@@ -366,7 +366,7 @@ describe("sheets", () => {
     activateSheet(model, sheet1);
     expect(model.getters.getActiveSheetId()).toEqual(sheet1);
     setCellContent(model, "A1", "=Sheet2!A1");
-    expect(getCellContent(model, "A1")).toEqual("0");
+    expect(getCellContent(model, "A1")).toEqual("");
     activateSheet(model, sheet2);
     setCellContent(model, "A1", "3");
     activateSheet(model, sheet1);

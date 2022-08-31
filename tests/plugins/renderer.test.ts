@@ -147,7 +147,7 @@ describe("renderer", () => {
     });
 
     model.drawGrid(ctx);
-    expect(textAligns).toEqual(["right", "center"]); // center for headers
+    expect(textAligns).toEqual(["left", "center"]); // center for headers
   });
 
   test("numbers are aligned right when overflowing vertically", () => {

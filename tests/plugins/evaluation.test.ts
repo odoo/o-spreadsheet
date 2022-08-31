@@ -960,7 +960,7 @@ describe("evaluateCells", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A2", "=A1");
-    expect(getCell(model, "A2")!.evaluated.value).toBe(0);
+    expect(getCell(model, "A2")!.evaluated.value).toBe("");
     model.dispatch("SET_FORMATTING", {
       sheetId,
       target: target("A1"),
@@ -969,8 +969,8 @@ describe("evaluateCells", () => {
       },
     });
     setCellContent(model, "A12", "this re-evaluates cells");
-    expect(getCellContent(model, "A2")).toBe("0");
-    expect(getCell(model, "A2")!.evaluated.value).toBe(0);
+    expect(getCellContent(model, "A2")).toBe("");
+    expect(getCell(model, "A2")!.evaluated.value).toBe("");
   });
 
   test("evaluation follows dependencies", () => {

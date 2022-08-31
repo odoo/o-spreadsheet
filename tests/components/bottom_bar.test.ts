@@ -414,10 +414,6 @@ describe("BottomBar component", () => {
     selectCell(model, "A2");
     await nextTick();
     expect(fixture.querySelector(".o-selection-statistic")?.textContent).toBe("Sum: 24");
-
-    selectCell(model, "A3");
-    await nextTick();
-    expect(fixture.querySelector(".o-selection-statistic")?.textContent).toBe("Sum: 0");
     app.destroy();
   });
 

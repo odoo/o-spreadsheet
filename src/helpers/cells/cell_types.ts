@@ -282,9 +282,9 @@ export class FormulaCell extends AbstractCell implements IFormulaCell {
         break;
       case "object": // null
         this.evaluated = {
-          value: 0,
+          value: "",
           format,
-          type: CellValueType.number,
+          type: CellValueType.text,
         };
         break;
     }

@@ -1329,7 +1329,9 @@ describe("conditional formats types", () => {
 
       setCellContent(model, "A2", "");
       setCellContent(model, "A1", "=A2");
-      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
+      expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
+        fillColor: "#ff0f0f",
+      });
 
       setCellContent(model, "A1", '=""');
       expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
@@ -1506,7 +1508,7 @@ describe("conditional formats types", () => {
     }
   );
 
-  test("CF with cell referencing empty cell is treated as zero", () => {
+  test("CF with cell referencing empty cell is not treated as zero", () => {
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: {
         rule: {
@@ -1521,9 +1523,7 @@ describe("conditional formats types", () => {
       sheetId,
     });
     setCellContent(model, "A1", "=B1");
-    expect(model.getters.getCellComputedStyle(sheetId, 0, 0)).toEqual({
-      fillColor: "#FF0FFF",
-    });
+    expect(model.getters.getCellComputedStyle(sheetId, 0, 0)).toEqual({});
   });
 
   describe("Icon set", () => {

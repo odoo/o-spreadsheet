@@ -246,7 +246,7 @@ describe("Model history", () => {
     setCellContent(model, "A2", "11");
     expect(getCell(model, "A1")!.evaluated.value).toBe(11);
     undo(model);
-    expect(getCell(model, "A1")!.evaluated.value).toBe(0);
+    expect(getCell(model, "A1")!.evaluated.value).toBe("");
     redo(model);
     expect(getCell(model, "A1")!.evaluated.value).toBe(11);
   });

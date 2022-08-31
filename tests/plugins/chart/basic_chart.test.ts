@@ -241,7 +241,7 @@ describe("datasource tests", function () {
       type: "line",
     });
     const runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
-    expect(runtime.chartJsConfig.data?.datasets?.[0].data).toEqual([0]);
+    expect(runtime.chartJsConfig.data?.datasets?.[0].data).toEqual([]);
   });
 
   test("create a chart with stacked bar", () => {
@@ -1593,7 +1593,7 @@ describe("Chart evaluation", () => {
     expect(
       (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig.data!.datasets![0]!
         .data![0]
-    ).toBe(0);
+    ).toBe("");
     setCellContent(model, "C3", "1");
     expect(
       (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig.data!.datasets![0]!

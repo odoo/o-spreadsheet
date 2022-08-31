@@ -72,7 +72,7 @@ describe("core", () => {
         selectCell(model, "A1");
         setAnchorCorner(model, "A7");
         let statisticFnResults = model.getters.getStatisticFnResults();
-        expect(statisticFnResults["Avg"]).toBe(22);
+        expect(statisticFnResults["Avg"]).toBe(33);
 
         selectCell(model, "A7");
         statisticFnResults = model.getters.getStatisticFnResults();
@@ -84,7 +84,7 @@ describe("core", () => {
         selectCell(model, "A1");
         setAnchorCorner(model, "A7");
         let statisticFnResults = model.getters.getStatisticFnResults();
-        expect(statisticFnResults["Min"]).toBe(0);
+        expect(statisticFnResults["Min"]).toBe(24);
 
         selectCell(model, "A7");
         statisticFnResults = model.getters.getStatisticFnResults();
@@ -173,7 +173,7 @@ describe("core", () => {
       const model = new Model();
       setCellContent(model, "A1", "=A2");
 
-      expect(getCellContent(model, "A1")).toBe("0");
+      expect(getCellContent(model, "A1")).toBe("");
     });
 
     test("format cell without content: empty string", () => {
