@@ -374,11 +374,16 @@ describe("TopBar component", () => {
   test("Opened menu parent is highlighted", async () => {
     const { app } = await mountParent();
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
-    const menuItem = fixture.querySelector(".o-topbar-menu[data-id='file']");
+    const menuItem = fixture.querySelector(".o-topbar-menu[data-id='edit']");
     expect(menuItem?.classList).not.toContain("o-topbar-menu-active");
     triggerMouseEvent(menuItem, "click");
     await nextTick();
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
     expect(menuItem?.classList).toContain("o-topbar-menu-active");
+    triggerMouseEvent(".o-menu-item", "click");
+    await nextTick();
+    expect(menuItem?.classList).not.toContain("o-topbar-menu-active");
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     app.destroy();
   });
 
