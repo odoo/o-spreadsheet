@@ -127,6 +127,26 @@ export const ISTEXT: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// ISBLANK
+// -----------------------------------------------------------------------------
+export const ISBLANK: AddFunctionDescription = {
+  description: _lt("Whether the referenced cell is empty"),
+  args: args(
+    `value (any, lazy) ${_lt("Reference to the cell that will be checked for emptiness.")}`
+  ),
+  returns: ["BOOLEAN"],
+  compute: function (value: () => PrimitiveArgValue): boolean {
+    try {
+      const val = value();
+      return val === null;
+    } catch (e) {
+      return false;
+    }
+  },
+  isExported: true,
+};
+
+// -----------------------------------------------------------------------------
 // NA
 // -----------------------------------------------------------------------------
 export const NA: AddFunctionDescription = {
