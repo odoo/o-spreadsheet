@@ -2,7 +2,6 @@ import { toZone } from "../helpers/index";
 import { _lt } from "../translation";
 import {
   AddFunctionDescription,
-  CellValue,
   FunctionReturnValue,
   MatrixArgValue,
   PrimitiveArgValue,
@@ -10,34 +9,19 @@ import {
 import { args } from "./arguments";
 import {
   assert,
-  dichotomicPredecessorSearch,
-  dichotomicSuccessorSearch,
+  dichotomicSearch,
+  getNextItemIndex,
+  linearSearch,
+  normalizeRange,
+  normalizeValue,
   toBoolean,
   toNumber,
   toString,
 } from "./helpers";
 
 const DEFAULT_IS_SORTED = true;
-
-/**
- * Perform a linear search and return the index of the perfect match.
- * -1 is returned if no value is found.
- *
- * Example:
- * - [3, 6, 10], 3 => 0
- * - [3, 6, 10], 6 => 1
- * - [3, 6, 10], 9 => -1
- * - [3, 6, 10], 2 => -1
- */
-function linearSearch(range: (CellValue | undefined)[], target: PrimitiveArgValue): number {
-  for (let i = 0; i < range.length; i++) {
-    if (range[i] === target) {
-      return i;
-    }
-  }
-  // no value is found, -1 is returned
-  return -1;
-}
+const DEFAULT_MATCH_MODE = 0;
+const DEFAULT_SEARCH_MODE = 1;
 
 // -----------------------------------------------------------------------------
 // COLUMN
@@ -105,18 +89,20 @@ export const HLOOKUP: AddFunctionDescription = {
     isSorted: PrimitiveArgValue = DEFAULT_IS_SORTED
   ): FunctionReturnValue {
     const _index = Math.trunc(toNumber(index));
+    const _searchKey = normalizeValue(searchKey);
+
     assert(
       () => 1 <= _index && _index <= range[0].length,
       _lt("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
     );
 
     const _isSorted = toBoolean(isSorted);
-    const firstRow = range.map((col) => col[0]);
+    const firstRow = normalizeRange(range.map((col) => col[0]));
     let colIndex;
     if (_isSorted) {
-      colIndex = dichotomicPredecessorSearch(firstRow, searchKey);
+      colIndex = dichotomicSearch(firstRow, _searchKey, "nextSmaller", "asc");
     } else {
-      colIndex = linearSearch(firstRow, searchKey);
+      colIndex = linearSearch(firstRow, _searchKey);
     }
 
     assert(
@@ -152,10 +138,13 @@ export const LOOKUP: AddFunctionDescription = {
   ): FunctionReturnValue {
     let nbCol = searchArray.length;
     let nbRow = searchArray[0].length;
+    const _searchKey = normalizeValue(searchKey);
 
     const verticalSearch = nbRow >= nbCol;
-    const searchRange = verticalSearch ? searchArray[0] : searchArray.map((c) => c[0]);
-    const index = dichotomicPredecessorSearch(searchRange, searchKey);
+    const searchRange = normalizeRange(
+      verticalSearch ? searchArray[0] : searchArray.map((c) => c[0])
+    );
+    const index = dichotomicSearch(searchRange, _searchKey, "nextSmaller", "asc");
     assert(
       () => index >= 0,
       _lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", toString(searchKey))
@@ -212,6 +201,7 @@ export const MATCH: AddFunctionDescription = {
     searchType: PrimitiveArgValue = DEFAULT_SEARCH_TYPE
   ): number {
     let _searchType = toNumber(searchType);
+    const _searchKey = normalizeValue(searchKey);
     const nbCol = range.length;
     const nbRow = range[0].length;
 
@@ -221,17 +211,17 @@ export const MATCH: AddFunctionDescription = {
     );
 
     let index = -1;
-    const _range = range.flat();
+    const _range = normalizeRange(range.flat());
     _searchType = Math.sign(_searchType);
     switch (_searchType) {
       case 1:
-        index = dichotomicPredecessorSearch(_range, searchKey);
+        index = dichotomicSearch(_range, _searchKey, "nextSmaller", "asc");
         break;
       case 0:
-        index = linearSearch(_range, searchKey);
+        index = linearSearch(_range, _searchKey);
         break;
       case -1:
-        index = dichotomicSuccessorSearch(_range, searchKey);
+        index = dichotomicSearch(_range, _searchKey, "nextGreater", "desc");
         break;
     }
 
@@ -310,18 +300,19 @@ export const VLOOKUP: AddFunctionDescription = {
     isSorted: PrimitiveArgValue = DEFAULT_IS_SORTED
   ): FunctionReturnValue {
     const _index = Math.trunc(toNumber(index));
+    const _searchKey = normalizeValue(searchKey);
     assert(
       () => 1 <= _index && _index <= range.length,
       _lt("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
     );
 
     const _isSorted = toBoolean(isSorted);
-    const firstCol = range[0];
+    const firstCol = normalizeRange(range[0]);
     let rowIndex;
     if (_isSorted) {
-      rowIndex = dichotomicPredecessorSearch(firstCol, searchKey);
+      rowIndex = dichotomicSearch(firstCol, _searchKey, "nextSmaller", "asc");
     } else {
-      rowIndex = linearSearch(firstCol, searchKey);
+      rowIndex = linearSearch(firstCol, _searchKey);
     }
 
     assert(
@@ -330,6 +321,111 @@ export const VLOOKUP: AddFunctionDescription = {
     );
 
     return range[_index - 1][rowIndex] as FunctionReturnValue;
+  },
+  isExported: true,
+};
+
+// -----------------------------------------------------------------------------
+// XLOOKUP
+// -----------------------------------------------------------------------------
+export const XLOOKUP: AddFunctionDescription = {
+  description: _lt(
+    `Search a range for a match and return the corresponding item from a second range.`
+  ),
+  args: args(`
+      search_key (any) ${_lt("The value to search for.")}
+      lookup_range (any, range) ${_lt(
+        "The range to consider for the search. Should be a single column or a single row."
+      )}
+      return_range (any, range) ${_lt(
+        "The range containing the return value. Should have the same dimensions as lookup_range."
+      )}
+      if_not_found (any, lazy, optional) ${_lt("If a valid match is not found, return this value.")}
+      match_mode (any, default=${DEFAULT_MATCH_MODE}) ${_lt(
+    "(0) Exact match. (-1) Return next smaller item if no match. (1) Return next greater item if no match."
+  )}
+      search_mode (any, default=${DEFAULT_SEARCH_MODE}) ${_lt(
+    "(1) Search starting at first item. \
+    (-1) Search starting at last item. \
+    (2) Perform a binary search that relies on lookup_array being sorted in ascending order. If not sorted, invalid results will be returned. \
+    (-2) Perform a binary search that relies on lookup_array being sorted in descending order. If not sorted, invalid results will be returned.\
+    "
+  )}
+
+  `),
+  returns: ["ANY"],
+  compute: function (
+    searchKey: PrimitiveArgValue,
+    lookupRange: MatrixArgValue,
+    returnRange: MatrixArgValue,
+    defaultValue?: () => PrimitiveArgValue,
+    matchMode: PrimitiveArgValue = DEFAULT_MATCH_MODE,
+    searchMode: PrimitiveArgValue = DEFAULT_SEARCH_MODE
+  ): FunctionReturnValue {
+    const _matchMode = Math.trunc(toNumber(matchMode));
+    const _searchMode = Math.trunc(toNumber(searchMode));
+    const _searchKey = normalizeValue(searchKey);
+
+    assert(
+      () => lookupRange.length === 1 || lookupRange[0].length === 1,
+      _lt("lookup_range should be either a single line or single column.")
+    );
+    assert(
+      () => returnRange.length === 1 || returnRange[0].length === 1,
+      _lt("return_range should be either a single line or single column.")
+    );
+    assert(
+      () =>
+        returnRange.length === lookupRange.length &&
+        returnRange[0].length === lookupRange[0].length,
+      _lt("return_range should have the same dimensions as lookup_range.")
+    );
+    assert(
+      () => [-1, 1, -2, 2].includes(_searchMode),
+      _lt("searchMode should be a value in [-1, 1, -2, 2].")
+    );
+    assert(
+      () => [-1, 0, 1].includes(_matchMode),
+      _lt("matchMode should be a value in [-1, 0, 1].")
+    );
+
+    const _lookupRange = normalizeRange(lookupRange.flat());
+    const _returnRange = returnRange.flat();
+
+    if (_searchMode === -1) {
+      _lookupRange.reverse();
+    }
+
+    const mode = _matchMode === 0 ? "strict" : _matchMode === 1 ? "nextGreater" : "nextSmaller";
+
+    let index: number;
+    if (_searchMode === 2) {
+      index = dichotomicSearch(_lookupRange, _searchKey, mode, "asc");
+    } else if (_searchMode === -2) {
+      index = dichotomicSearch(_lookupRange, _searchKey, mode, "desc");
+    } else if (_matchMode === 0) {
+      index = linearSearch(_lookupRange, _searchKey);
+    } else {
+      index = getNextItemIndex(
+        _lookupRange,
+        _searchKey,
+        _matchMode === 1 ? "nextGreater" : "nextSmaller"
+      );
+    }
+
+    if (index !== -1) {
+      if (_searchMode === -1) {
+        index = _returnRange.length - 1 - index;
+      }
+      return _returnRange[index] as FunctionReturnValue;
+    }
+
+    const _defaultValue = defaultValue?.();
+    assert(
+      () => !!_defaultValue,
+      _lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", toString(searchKey))
+    );
+    return _defaultValue!;
   },
   isExported: true,
 };

@@ -1,98 +1,134 @@
-import {
-  dichotomicPredecessorSearch,
-  dichotomicSuccessorSearch,
-} from "../../src/functions/helpers";
+import { dichotomicSearch } from "../../src/functions/helpers";
 
 describe("Function helpers", () => {
-  describe("dichotomicPredecessorSearch", () => {
+  describe("dichotomicSearch with array sorted in ascending order", () => {
     test("with numbers only", () => {
-      expect(dichotomicPredecessorSearch([0, 1, 2, 3, 4], 0)).toBe(0);
-      expect(dichotomicPredecessorSearch([0, 1, 2, 3, 4], 4)).toBe(4);
-      expect(dichotomicPredecessorSearch([0, 1, 2, 3, 4], 2)).toBe(2);
-      expect(dichotomicPredecessorSearch([0, 1, 2, 3, 4], 22)).toBe(4);
-      expect(dichotomicPredecessorSearch([0, 1, 2, 3, 4], -22)).toBe(-1);
-      expect(dichotomicPredecessorSearch([0, 1, 2, 3, 3], 3)).toBe(4);
+      expect(dichotomicSearch([0, 1, 2, 3, 4], 0, "nextSmaller", "asc")).toBe(0);
+      expect(dichotomicSearch([0, 1, 2, 3, 4], 4, "nextSmaller", "asc")).toBe(4);
+      expect(dichotomicSearch([0, 1, 2, 3, 4], 2, "nextSmaller", "asc")).toBe(2);
+      expect(dichotomicSearch([0, 1, 2, 3, 4], 22, "nextSmaller", "asc")).toBe(4);
+      expect(dichotomicSearch([0, 1, 2, 3, 4], -22, "nextSmaller", "asc")).toBe(-1);
+      expect(dichotomicSearch([0, 1, 2, 3, 3], 3, "nextSmaller", "asc")).toBe(4);
+
+      expect(dichotomicSearch([0, 1, 3, 4, 5], 2, "nextGreater", "asc")).toBe(2);
+      expect(dichotomicSearch([0, 1, 2, 3, 4], 4, "nextGreater", "asc")).toBe(4);
+      expect(dichotomicSearch([0, 1, 2, 3, 4], -1, "nextGreater", "asc")).toBe(0);
+      expect(dichotomicSearch([0, 1, 2, 3, 4], 5, "nextGreater", "asc")).toBe(-1);
+
+      expect(dichotomicSearch([0, 1, 2, 3, 4], -1, "strict", "asc")).toBe(-1);
+      expect(dichotomicSearch([0, 1, 2, 3, 4], 3, "strict", "asc")).toBe(3);
     });
 
     test("with strings only", () => {
-      expect(dichotomicPredecessorSearch(["0", "1", "2", "3", "4"], "0")).toBe(0);
-      expect(dichotomicPredecessorSearch(["0", "1", "2", "3", "4"], "4")).toBe(4);
-      expect(dichotomicPredecessorSearch(["0", "1", "2", "3", "4"], "2")).toBe(2);
-      expect(dichotomicPredecessorSearch(["0", "1", "2", "3", "4"], "22")).toBe(2);
-      expect(dichotomicPredecessorSearch(["0", "1", "2", "3", "4"], "9")).toBe(4);
-      expect(dichotomicPredecessorSearch(["0", "1", "2", "3", "4"], "-22")).toBe(-1);
-      expect(dichotomicPredecessorSearch(["0", "1", "3", "3", "4"], "3")).toBe(3);
+      expect(dichotomicSearch(["0", "1", "2", "3", "4"], "0", "nextSmaller", "asc")).toBe(0);
+      expect(dichotomicSearch(["0", "1", "2", "3", "4"], "4", "nextSmaller", "asc")).toBe(4);
+      expect(dichotomicSearch(["0", "1", "2", "3", "4"], "2", "nextSmaller", "asc")).toBe(2);
+      expect(dichotomicSearch(["0", "1", "2", "3", "4"], "22", "nextSmaller", "asc")).toBe(2);
+      expect(dichotomicSearch(["0", "1", "2", "3", "4"], "9", "nextSmaller", "asc")).toBe(4);
+      expect(dichotomicSearch(["0", "1", "2", "3", "4"], "-22", "nextSmaller", "asc")).toBe(-1);
+      expect(dichotomicSearch(["0", "1", "3", "3", "4"], "3", "nextSmaller", "asc")).toBe(3);
+
+      expect(dichotomicSearch(["0", "1", "2", "3", "4"], "5", "nextGreater", "asc")).toBe(-1);
+      expect(dichotomicSearch(["1", "2", "3", "4"], "0", "nextGreater", "asc")).toBe(0);
+      expect(dichotomicSearch(["0", "1", "3", "4"], "2", "nextGreater", "asc")).toBe(2);
+      expect(dichotomicSearch(["0", "1", "3", "3", "4"], "3", "nextGreater", "asc")).toBe(3);
+
+      expect(dichotomicSearch(["0", "1", "3", "4"], "2", "strict", "asc")).toBe(-1);
+      expect(dichotomicSearch(["0", "1", "3", "3", "4"], "1", "strict", "asc")).toBe(1);
     });
 
     test("search number in strings and numbers", () => {
-      expect(dichotomicPredecessorSearch([0, "a", "a", "a", "a"], 0)).toBe(0);
-      expect(dichotomicPredecessorSearch(["a", "a", "a", "a", 0], 0)).toBe(4);
-      expect(dichotomicPredecessorSearch(["a", "a", 0, "a", "a"], 0)).toBe(2);
-      expect(dichotomicPredecessorSearch(["a", "a", "a", "a", "a"], 0)).toBe(-1);
-      expect(dichotomicPredecessorSearch(["0", "0", "a", 0, "0"], 0)).toBe(3);
+      expect(dichotomicSearch([0, "a", "a", "a", "a"], 0, "nextSmaller", "asc")).toBe(0);
+      expect(dichotomicSearch(["a", "a", "a", "a", 0], 0, "nextSmaller", "asc")).toBe(4);
+      expect(dichotomicSearch(["a", "a", 0, "a", "a"], 0, "nextSmaller", "asc")).toBe(2);
+      expect(dichotomicSearch(["a", "a", "a", "a", "a"], 0, "nextGreater", "asc")).toBe(-1);
+      expect(dichotomicSearch(["0", "0", "a", 0, "0"], 0, "nextGreater", "asc")).toBe(3);
+      expect(dichotomicSearch(["0", "0", "a", 0, "0"], 0, "strict", "asc")).toBe(3);
     });
 
     test("search string in strings and numbers", () => {
       const u = undefined;
-      expect(dichotomicPredecessorSearch(["a", u, u, u, u], "a")).toBe(0);
-      expect(dichotomicPredecessorSearch([u, u, u, u, "a"], "a")).toBe(4);
-      expect(dichotomicPredecessorSearch([u, u, "a", u, u], "a")).toBe(2);
-      expect(dichotomicPredecessorSearch([u, u, u, u, u], "a")).toBe(-1);
-      expect(dichotomicPredecessorSearch([u, "0", u, u, u], "0")).toBe(1);
+      expect(dichotomicSearch(["a", u, u, u, u], "a", "nextSmaller", "asc")).toBe(0);
+      expect(dichotomicSearch([u, u, u, u, "a"], "a", "nextSmaller", "asc")).toBe(4);
+      expect(dichotomicSearch([u, u, "a", u, u], "a", "nextSmaller", "asc")).toBe(2);
+      expect(dichotomicSearch([u, u, u, u, u], "a", "nextGreater", "asc")).toBe(-1);
+      expect(dichotomicSearch([u, "0", u, u, u], "0", "nextGreater", "asc")).toBe(1);
+      expect(dichotomicSearch([u, "0", u, u, u], "0", "strict", "asc")).toBe(1);
     });
 
     test("search string in strings and numbers", () => {
-      expect(dichotomicPredecessorSearch(["a", 0, 0, 0, 0], "a")).toBe(0);
-      expect(dichotomicPredecessorSearch([0, 0, 0, 0, "a"], "a")).toBe(4);
-      expect(dichotomicPredecessorSearch([0, 0, "a", 0, 0], "a")).toBe(2);
-      expect(dichotomicPredecessorSearch([0, 0, 0, 0, 0], "a")).toBe(-1);
-      expect(dichotomicPredecessorSearch([0, "0", 0, 0, 0], "0")).toBe(1);
+      expect(dichotomicSearch(["a", 0, 0, 0, 0], "a", "nextSmaller", "asc")).toBe(0);
+      expect(dichotomicSearch([0, 0, 0, 0, "a"], "a", "nextSmaller", "asc")).toBe(4);
+      expect(dichotomicSearch([0, 0, "a", 0, 0], "a", "nextSmaller", "asc")).toBe(2);
+      expect(dichotomicSearch([0, 0, 0, 0, 0], "a", "nextGreater", "asc")).toBe(-1);
+      expect(dichotomicSearch([0, "0", 0, 0, 0], "0", "nextGreater", "asc")).toBe(1);
+      expect(dichotomicSearch([0, "0", 0, 0, 0], "0", "strict", "asc")).toBe(1);
     });
   });
 
   describe("dichotomicSuccessorSearch", () => {
     test("with numbers only", () => {
-      expect(dichotomicSuccessorSearch([4, 3, 2, 1, 0], 4)).toBe(0);
-      expect(dichotomicSuccessorSearch([4, 3, 2, 1, 0], 0)).toBe(4);
-      expect(dichotomicSuccessorSearch([4, 3, 2, 1, 0], 2)).toBe(2);
-      expect(dichotomicSuccessorSearch([4, 3, 2, 1, 0], 22)).toBe(-1);
-      expect(dichotomicSuccessorSearch([4, 3, 2, 1, 0], -22)).toBe(4);
-      expect(dichotomicSuccessorSearch([3, 3, 2, 1, 0], 3)).toBe(0);
+      expect(dichotomicSearch([4, 3, 2, 1, 0], 4, "nextGreater", "desc")).toBe(0);
+      expect(dichotomicSearch([4, 3, 2, 1, 0], 0, "nextGreater", "desc")).toBe(4);
+      expect(dichotomicSearch([4, 3, 2, 1, 0], 2, "nextGreater", "desc")).toBe(2);
+      expect(dichotomicSearch([4, 3, 2, 1, 0], 22, "nextGreater", "desc")).toBe(-1);
+      expect(dichotomicSearch([4, 3, 2, 1, 0], -22, "nextGreater", "desc")).toBe(4);
+      expect(dichotomicSearch([3, 3, 2, 1, 0], 3, "nextGreater", "desc")).toBe(0);
+
+      expect(dichotomicSearch([4, 3, 2, 1, 0], 2, "nextSmaller", "desc")).toBe(2);
+      expect(dichotomicSearch([4, 3, 2, 1, 0], 22, "nextSmaller", "desc")).toBe(0);
+      expect(dichotomicSearch([4, 3, 2, 1, 0], -22, "nextSmaller", "desc")).toBe(-1);
+      expect(dichotomicSearch([3, 3, 2, 1, 0], 3, "nextSmaller", "desc")).toBe(0);
+
+      expect(dichotomicSearch([4, 3, 2, 1, 0], -22, "strict", "desc")).toBe(-1);
+      expect(dichotomicSearch([3, 3, 2, 1, 0], 0, "strict", "desc")).toBe(4);
     });
 
     test("with strings only", () => {
-      expect(dichotomicSuccessorSearch(["4", "3", "2", "1", "0"], "0")).toBe(4);
-      expect(dichotomicSuccessorSearch(["4", "3", "2", "1", "0"], "4")).toBe(0);
-      expect(dichotomicSuccessorSearch(["4", "3", "2", "1", "0"], "2")).toBe(2);
-      expect(dichotomicSuccessorSearch(["4", "3", "2", "1", "0"], "22")).toBe(1);
-      expect(dichotomicSuccessorSearch(["4", "3", "2", "1", "0"], "9")).toBe(-1);
-      expect(dichotomicSuccessorSearch(["4", "3", "2", "1", "0"], "-22")).toBe(4);
-      expect(dichotomicSuccessorSearch(["4", "3", "2", "1", "0"], "3")).toBe(1);
+      expect(dichotomicSearch(["4", "3", "2", "1", "0"], "0", "nextGreater", "desc")).toBe(4);
+      expect(dichotomicSearch(["4", "3", "2", "1", "0"], "4", "nextGreater", "desc")).toBe(0);
+      expect(dichotomicSearch(["4", "3", "2", "1", "0"], "2", "nextGreater", "desc")).toBe(2);
+      expect(dichotomicSearch(["4", "3", "2", "1", "0"], "22", "nextGreater", "desc")).toBe(1);
+      expect(dichotomicSearch(["4", "3", "2", "1", "0"], "9", "nextGreater", "desc")).toBe(-1);
+      expect(dichotomicSearch(["4", "3", "2", "1", "0"], "-22", "nextGreater", "desc")).toBe(4);
+      expect(dichotomicSearch(["4", "3", "2", "1", "0"], "3", "nextGreater", "desc")).toBe(1);
+
+      expect(dichotomicSearch(["4", "3", "2", "1", "0"], "22", "nextSmaller", "desc")).toBe(2);
+      expect(dichotomicSearch(["4", "3", "2", "1", "0"], "9", "nextSmaller", "desc")).toBe(0);
+      expect(dichotomicSearch(["4", "3", "2", "1", "0"], "-22", "nextSmaller", "desc")).toBe(-1);
+      expect(dichotomicSearch(["4", "3", "2", "1", "0"], "3", "nextSmaller", "desc")).toBe(1);
+      expect(dichotomicSearch(["3", "3", "2", "1", "0"], "3", "nextSmaller", "desc")).toBe(0);
+
+      expect(dichotomicSearch(["4", "3", "2", "1", "0"], "3", "strict", "desc")).toBe(1);
+      expect(dichotomicSearch(["3", "3", "2", "1", "0"], "a", "strict", "desc")).toBe(-1);
     });
 
     test("search number in strings and numbers", () => {
-      expect(dichotomicSuccessorSearch([0, "a", "a", "a", "a"], 0)).toBe(0);
-      expect(dichotomicSuccessorSearch(["a", "a", "a", "a", 0], 0)).toBe(4);
-      expect(dichotomicSuccessorSearch(["a", "a", 0, "a", "a"], 0)).toBe(2);
-      expect(dichotomicSuccessorSearch(["a", "a", "a", "a", "a"], 0)).toBe(-1);
-      expect(dichotomicSuccessorSearch(["0", "0", "a", 0, "0"], 0)).toBe(3);
+      expect(dichotomicSearch([0, "a", "a", "a", "a"], 0, "nextGreater", "desc")).toBe(0);
+      expect(dichotomicSearch(["a", "a", "a", "a", 0], 0, "nextGreater", "desc")).toBe(4);
+      expect(dichotomicSearch(["a", "a", 0, "a", "a"], 0, "nextGreater", "desc")).toBe(2);
+      expect(dichotomicSearch(["a", "a", "a", "a", "a"], 0, "nextSmaller", "desc")).toBe(-1);
+      expect(dichotomicSearch(["0", "0", "a", 0, "0"], 0, "nextSmaller", "desc")).toBe(3);
+      expect(dichotomicSearch(["0", "0", "a", 0, "0"], 0, "strict", "desc")).toBe(3);
     });
 
     test("search string in strings and numbers", () => {
       const u = undefined;
-      expect(dichotomicSuccessorSearch(["a", u, u, u, u], "a")).toBe(0);
-      expect(dichotomicSuccessorSearch([u, u, u, u, "a"], "a")).toBe(4);
-      expect(dichotomicSuccessorSearch([u, u, "a", u, u], "a")).toBe(2);
-      expect(dichotomicSuccessorSearch([u, u, u, u, u], "a")).toBe(-1);
-      expect(dichotomicSuccessorSearch([u, "0", u, u, u], "0")).toBe(1);
+      expect(dichotomicSearch(["a", u, u, u, u], "a", "nextGreater", "desc")).toBe(0);
+      expect(dichotomicSearch([u, u, u, u, "a"], "a", "nextGreater", "desc")).toBe(4);
+      expect(dichotomicSearch([u, u, "a", u, u], "a", "nextGreater", "desc")).toBe(2);
+      expect(dichotomicSearch([u, u, u, u, u], "a", "nextSmaller", "desc")).toBe(-1);
+      expect(dichotomicSearch([u, "0", u, u, u], "0", "nextSmaller", "desc")).toBe(1);
+      expect(dichotomicSearch([u, "0", u, u, u], "0", "strict", "desc")).toBe(1);
     });
 
     test("search string in strings and numbers", () => {
-      expect(dichotomicSuccessorSearch(["a", 0, 0, 0, 0], "a")).toBe(0);
-      expect(dichotomicSuccessorSearch([0, 0, 0, 0, "a"], "a")).toBe(4);
-      expect(dichotomicSuccessorSearch([0, 0, "a", 0, 0], "a")).toBe(2);
-      expect(dichotomicSuccessorSearch([0, 0, 0, 0, 0], "a")).toBe(-1);
-      expect(dichotomicSuccessorSearch([0, "0", 0, 0, 0], "0")).toBe(1);
+      expect(dichotomicSearch(["a", 0, 0, 0, 0], "a", "nextGreater", "desc")).toBe(0);
+      expect(dichotomicSearch([0, 0, 0, 0, "a"], "a", "nextGreater", "desc")).toBe(4);
+      expect(dichotomicSearch([0, 0, "a", 0, 0], "a", "nextGreater", "desc")).toBe(2);
+      expect(dichotomicSearch([0, 0, 0, 0, 0], "a", "nextSmaller", "desc")).toBe(-1);
+      expect(dichotomicSearch([0, "0", 0, 0, 0], "0", "nextSmaller", "desc")).toBe(1);
+      expect(dichotomicSearch([0, "0", 0, 0, 0], "0", "strict", "desc")).toBe(1);
     });
   });
 });
