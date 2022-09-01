@@ -282,11 +282,17 @@ describe("TopBar component", () => {
 
   test("can set font size", async () => {
     const { model } = await mountParent();
-    const fontSizeTool = fixture.querySelector('.o-tool[title="Font Size"]')!;
-    expect(fontSizeTool.textContent!.trim()).toBe(DEFAULT_FONT_SIZE.toString());
-    await click(fontSizeTool);
-    await click(fixture, "[data-size='8']");
-    expect(fontSizeTool.textContent!.trim()).toBe("8");
+    const fontSizeText = fixture.querySelector("input.o-font-size")! as HTMLInputElement;
+    expect(fontSizeText.value.trim()).toBe(DEFAULT_FONT_SIZE.toString());
+    const fontSizeTool = fixture.querySelector('span[title="Font Size"]')!;
+    fontSizeTool.dispatchEvent(new Event("click"));
+    await nextTick();
+    const fontSizeList = fixture.querySelector(".o-font-size-editor div.o-dropdown-content")!;
+    fontSizeList
+      .querySelector('[data-size="8"]')!
+      .dispatchEvent(new Event("click", { bubbles: true }));
+    await nextTick();
+    expect(fontSizeText.value.trim()).toBe("8");
     expect(getStyle(model, "A1").fontSize).toBe(8);
   });
 
@@ -565,7 +571,7 @@ describe("TopBar component", () => {
     async (toolName: string, dropdownContentSelector: string) => {
       await mountParent();
 
-      await simulateClick(`.o-tool[title="${toolName}"]`);
+      await simulateClick(`[title="${toolName}"]`);
       await nextTick();
       expect(fixture.querySelector(dropdownContentSelector)).toBeTruthy();
       await simulateClick(dropdownContentSelector);
@@ -799,7 +805,7 @@ describe("Topbar - menu item resizing with viewport", () => {
   test("font size dropdown in top bar is resized with screen size change", async () => {
     const model = new Model();
     await mountParent(model);
-    triggerMouseEvent('.o-tool[title="Font Size"]', "click");
+    triggerMouseEvent('[title="Font Size"]', "click");
     await nextTick();
     let height = getElComputedStyle(".o-dropdown-content.o-text-options", "maxHeight");
     expect(parseInt(height)).toBe(

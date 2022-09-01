@@ -1,4 +1,3 @@
-import { fontSizeMap } from "../../fonts";
 import { formatValue } from "../../helpers";
 import { Border, BorderDescr, Style } from "../../types";
 import {
@@ -102,9 +101,7 @@ export function convertStyle(
         ? convertColor(styleStruct.fillStyle?.fgColor)
         : convertColor(styleStruct.fillStyle?.bgColor),
     textColor: convertColor(styleStruct.fontStyle?.color),
-    fontSize: styleStruct.fontStyle?.size
-      ? getClosestFontSize(styleStruct.fontStyle.size)
-      : undefined,
+    fontSize: styleStruct.fontStyle?.size,
   };
 }
 
@@ -170,18 +167,6 @@ export function convertXlsxFormat(
     format || `nmFmtId ${numFmtId}`
   );
   return undefined;
-}
-
-/**
- * We currently only support only a set of font sizes, we cannot define new font sizes.
- * This function adapts an arbitrary font size to the closest supported font size.
- */
-function getClosestFontSize(fontSize: number): number {
-  const supportedSizes = Object.keys(fontSizeMap).map(Number);
-  const closest = supportedSizes.reduce((prev, curr) =>
-    Math.abs(curr - fontSize) < Math.abs(prev - fontSize) ? curr : prev
-  );
-  return closest;
 }
 
 // ---------------------------------------------------------------------------

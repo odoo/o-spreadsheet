@@ -11,7 +11,6 @@ import {
   NEWLINE,
   PADDING_AUTORESIZE_VERTICAL,
 } from "../constants";
-import { fontSizeMap } from "../fonts";
 import { Cell, ConsecutiveIndexes, Lazy, Style, UID } from "../types";
 import { Cloneable, Pixel } from "./../types/misc";
 import { parseDateTime } from "./dates";
@@ -142,6 +141,10 @@ export function computeTextWidth(context: CanvasRenderingContext2D, text: string
   return textWidth;
 }
 
+export function fontSizeInPixels(fontSize: number) {
+  return Math.round((fontSize * 96) / 72);
+}
+
 export function computeTextFont(style: Style): string {
   const italic = style.italic ? "italic " : "";
   const weight = style.bold ? "bold" : DEFAULT_FONT_WEIGHT;
@@ -151,10 +154,7 @@ export function computeTextFont(style: Style): string {
 
 export function computeTextFontSizeInPixels(style?: Style): number {
   const sizeInPt = style?.fontSize || DEFAULT_FONT_SIZE;
-  if (!fontSizeMap[sizeInPt]) {
-    throw new Error("Size of the font is not supported");
-  }
-  return fontSizeMap[sizeInPt];
+  return fontSizeInPixels(sizeInPt);
 }
 
 /**

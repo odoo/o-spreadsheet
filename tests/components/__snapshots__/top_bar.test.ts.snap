@@ -289,13 +289,17 @@ exports[`TopBar component can set cell format 1`] = `
               class="o-divider"
             />
             <div
-              class="o-dropdown"
+              class="o-dropdown o-font-size-editor"
             >
-              <div
-                class="o-tool o-dropdown-button o-text-icon"
+              <input
+                class="o-font-size bg-transparent border-0"
+                max="400"
+                min="1"
+                type="number"
+              />
+              <span
                 title="Font Size"
               >
-                10
                 <svg
                   class="o-icon"
                 >
@@ -305,10 +309,10 @@ exports[`TopBar component can set cell format 1`] = `
                     transform="translate(5 7)"
                   />
                 </svg>
-                
-              </div>
+              </span>
               
             </div>
+            
             <div
               class="o-divider"
             />
@@ -793,13 +797,17 @@ exports[`TopBar component simple rendering 1`] = `
           class="o-divider"
         />
         <div
-          class="o-dropdown"
+          class="o-dropdown o-font-size-editor"
         >
-          <div
-            class="o-tool o-dropdown-button o-text-icon"
+          <input
+            class="o-font-size bg-transparent border-0"
+            max="400"
+            min="1"
+            type="number"
+          />
+          <span
             title="Font Size"
           >
-            10
             <svg
               class="o-icon"
             >
@@ -809,10 +817,10 @@ exports[`TopBar component simple rendering 1`] = `
                 transform="translate(5 7)"
               />
             </svg>
-            
-          </div>
+          </span>
           
         </div>
+        
         <div
           class="o-divider"
         />

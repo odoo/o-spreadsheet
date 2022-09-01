@@ -1,5 +1,5 @@
 import { NumberFormatTerms } from "../../components/translations_terms";
-import { fontSizes } from "../../fonts";
+import { FONT_SIZES } from "../../constants";
 import { functionRegistry } from "../../functions/index";
 import { isDefined } from "../../helpers";
 import { interactiveFreezeColumnsRows } from "../../helpers/ui/freeze_interactive";
@@ -529,11 +529,11 @@ topbarMenuRegistry
   });
 
 // Font-sizes
-for (let fs of fontSizes) {
-  topbarMenuRegistry.addChild(`format_font_size_${fs.pt}`, ["format", "format_font_size"], {
-    name: fs.pt.toString(),
-    sequence: fs.pt,
-    action: (env: SpreadsheetChildEnv) => ACTIONS.setStyle(env, { fontSize: fs.pt }),
+for (let fs of FONT_SIZES) {
+  topbarMenuRegistry.addChild(`format_font_size_${fs}`, ["format", "format_font_size"], {
+    name: fs.toString(),
+    sequence: fs,
+    action: (env: SpreadsheetChildEnv) => ACTIONS.setStyle(env, { fontSize: fs }),
   });
 }
 

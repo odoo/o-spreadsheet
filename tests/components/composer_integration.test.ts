@@ -2,10 +2,10 @@ import { Model } from "../../src";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
+  FONT_SIZES,
   HEADER_HEIGHT,
   HEADER_WIDTH,
 } from "../../src/constants";
-import { fontSizes } from "../../src/fonts";
 import { colors, toHex, toZone } from "../../src/helpers";
 import {
   activateSheet,
@@ -502,7 +502,7 @@ describe("Grid composer", () => {
 
   describe("Grid composer's style depends on the style of the cell when containing text", () => {
     test("Inherits the style of the cell", async () => {
-      const fontSize = fontSizes[0];
+      const fontSize = FONT_SIZES[0];
       const color = "#123456";
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
@@ -510,7 +510,7 @@ describe("Grid composer", () => {
         style: {
           textColor: color,
           fillColor: color,
-          fontSize: fontSize.pt,
+          fontSize,
           bold: true,
           italic: true,
           strikethrough: true,
@@ -522,7 +522,7 @@ describe("Grid composer", () => {
       const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
       expect(toHex(gridComposer.style.color)).toBe(color);
       expect(toHex(gridComposer.style.background)).toBe(color);
-      expect(gridComposer.style.fontSize).toBe("10px");
+      expect(gridComposer.style.fontSize).toBe("8px");
       expect(gridComposer.style.fontWeight).toBe("bold");
       expect(gridComposer.style.fontStyle).toBe("italic");
       expect(gridComposer.style.textDecoration).toBe("line-through underline");
@@ -559,7 +559,7 @@ describe("Grid composer", () => {
 
   describe("grid composer's style does not depend on the style of the cell when containing a formula", () => {
     test("Does not inherit style of the cell", async () => {
-      const fontSize = fontSizes[0];
+      const fontSize = FONT_SIZES[0];
       const color = "#123456";
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
@@ -567,7 +567,7 @@ describe("Grid composer", () => {
         style: {
           textColor: color,
           fillColor: color,
-          fontSize: fontSize.pt,
+          fontSize,
           bold: true,
           italic: true,
           strikethrough: true,
@@ -580,7 +580,7 @@ describe("Grid composer", () => {
       expect(toHex(gridComposer.style.color)).toBe("#000000");
       expect(toHex(gridComposer.style.background)).toBe("#FFFFFF");
       expect(gridComposer.style.fontSize).toBe("13px");
-      expect(gridComposer.style.fontWeight).toBe("500");
+      expect(gridComposer.style.fontWeight).toBe("");
       expect(gridComposer.style.fontStyle).toBe("normal");
       expect(gridComposer.style.textDecoration).toBe("none");
       expect(gridComposer.style.textAlign).toBe("left");
@@ -611,7 +611,7 @@ describe("Grid composer", () => {
       await typeInComposerGrid("=", true);
       const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
       expect(gridComposer.style.textDecoration).toBe("none");
-      expect(gridComposer.style.fontWeight).toBe("500");
+      expect(gridComposer.style.fontWeight).toBe("");
       expect(toHex(gridComposer.style.color)).toBe("#000000");
       expect(toHex(gridComposer.style.background)).toBe("#FFFFFF");
     });
