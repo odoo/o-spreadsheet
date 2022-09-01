@@ -19,7 +19,7 @@
             t-if="state.menuState.isOpen"
             position="state.menuState.position"
             menuItems="state.menuState.menuItems"
-            onClose="() => this.state.menuState.isOpen=false"
+            onClose="() => this.closeMenus()"
           />
         </div>
         <div class="o-topbar-topright">
