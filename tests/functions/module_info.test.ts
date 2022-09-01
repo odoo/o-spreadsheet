@@ -144,6 +144,35 @@ describe("ISNA formula", () => {
   });
 });
 
+describe("ISBLANK formula", () => {
+  test("functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: "=ISBLANK()" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: '=ISBLANK("")' })).toBe(false);
+    expect(evaluateCell("A1", { A1: '=ISBLANK("test")' })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISBLANK(TRUE)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISBLANK(FALSE)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISBLANK(1)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISBLANK(3%)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISBLANK(1/0)" })).toBe(false);
+  });
+
+  test("functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=ISBLANK(A2)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=ISBLANK(A2)", A2: "TEST" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISBLANK(A2)", A2: "TRUE" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISBLANK(A2)", A2: "1" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISBLANK(A2)", A2: '"test"' })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISBLANK(A2)", A2: '"123"' })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISBLANK(A2)", A2: '="TRUE"' })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISBLANK(A2)", A2: "=true" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISBLANK(A2)", A2: "=false" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISBLANK(A2)", A2: "=123" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISBLANK(A2)", A2: "=A2" })).toBe(false); // corresponds to #CYCLE error
+    expect(evaluateCell("A1", { A1: "=ISBLANK(A2)", A2: "=(+" })).toBe(false); // corresponds to #BAD_EXPR error
+    expect(evaluateCell("A1", { A1: "=ISBLANK(A2)", A2: "=SQRT(-1)" })).toBe(false); // corresponds to #ERROR error
+  });
+});
+
 describe("ISNONTEXT formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=ISNONTEXT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A

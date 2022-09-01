@@ -1128,6 +1128,10 @@ export const demoData = {
         B165: { content: '=TEXT(5, "#,##0.00")' },
         C165: { content: '="5.00"' },
         D165: { content: "=IF(B165=C165,1, 0)" },
+        A166: { content: "ISBLANK" },
+        B166: { content: "=ISBLANK(E166)" },
+        C166: { content: "=TRUE" },
+        D166: { content: "=IF(B166=C166,1, 0)" },
 
         // DATA
         G1: { content: "Name", style: 8 },
