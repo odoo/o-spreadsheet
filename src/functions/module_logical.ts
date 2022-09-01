@@ -6,6 +6,7 @@ import {
   PrimitiveArg,
   PrimitiveArgValue,
 } from "../types";
+import { CellErrorType } from "../types/errors";
 import { args } from "./arguments";
 import { assert, conditionalVisitBoolean, toBoolean } from "./helpers";
 
@@ -96,6 +97,37 @@ export const IFERROR: AddFunctionDescription = {
       result = value();
     } catch (e) {
       result = valueIfError();
+    }
+    return result === null || result === undefined ? "" : result;
+  },
+  isExported: true,
+};
+
+// -----------------------------------------------------------------------------
+// IFNA
+// -----------------------------------------------------------------------------
+export const IFNA: AddFunctionDescription = {
+  description: _lt("Value if it is not an #N/A error, otherwise 2nd argument."),
+  args: args(`
+    value (any, lazy) ${_lt("The value to return if value itself is not #N/A an error.")}
+    value_if_error (any, lazy, default=${_lt("An empty value")}) ${_lt(
+    "The value the function returns if value is an #N/A error."
+  )}
+  `),
+  returns: ["ANY"],
+  compute: function (
+    value: () => PrimitiveArgValue,
+    valueIfError: () => PrimitiveArgValue = () => ""
+  ): FunctionReturnValue {
+    let result;
+    try {
+      result = value();
+    } catch (e) {
+      if (e.errorType === CellErrorType.NotAvailable) {
+        result = valueIfError();
+      } else {
+        result = value();
+      }
     }
     return result === null || result === undefined ? "" : result;
   },

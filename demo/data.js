@@ -1132,6 +1132,10 @@ export const demoData = {
         B166: { content: "=ISBLANK(E166)" },
         C166: { content: "=TRUE" },
         D166: { content: "=IF(B166=C166,1, 0)" },
+        A167: { content: "IFNA" },
+        B167: { content: '=IFNA(NA(), "hello")' },
+        C167: { content: '="hello"' },
+        D167: { content: "=IF(B167=C167,1, 0)" },
 
         // DATA
         G1: { content: "Name", style: 8 },
