@@ -67,7 +67,6 @@ NW = no warning generated for these conversions.
   - we only support solid fill pattern. Convert all other patterns into solid fills.
 - Font :
   - We only support Arial
-  - Only some font sizes are supported, imported font sizes will be rounded to the closest supported font size.
 - Number formats :
   - See section "Number Formats"
 - Strings :

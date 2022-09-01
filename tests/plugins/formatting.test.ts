@@ -7,10 +7,9 @@ import {
   PADDING_AUTORESIZE_HORIZONTAL,
   PADDING_AUTORESIZE_VERTICAL,
 } from "../../src/constants";
-import { fontSizeMap } from "../../src/fonts";
 import { args, functionRegistry } from "../../src/functions";
 import { toString } from "../../src/functions/helpers";
-import { toZone } from "../../src/helpers";
+import { fontSizeInPixels, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import {
   Arg,
@@ -455,7 +454,7 @@ describe("Autoresize", () => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
     const ctx = document.createElement("canvas").getContext("2d")!;
-    ctx.font = `${fontSizeMap[DEFAULT_FONT_SIZE]}px ${DEFAULT_FONT}`;
+    ctx.font = `${fontSizeInPixels(DEFAULT_FONT_SIZE)}px ${DEFAULT_FONT}`;
     sizes = [TEXT, LONG_TEXT].map((text) => ctx.measureText(text).width);
   });
 
@@ -547,7 +546,7 @@ describe("Autoresize", () => {
     model.dispatch("SET_FORMATTING", { sheetId, target: [toZone("A3")], style: { fontSize: 24 } });
     model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0, 2] });
     expect(model.getters.getRowSize(sheetId, 0)).toBe(DEFAULT_CELL_HEIGHT);
-    expect(model.getters.getRowSize(sheetId, 2)).toBe(fontSizeMap[24] + vPadding);
+    expect(model.getters.getRowSize(sheetId, 2)).toBe(fontSizeInPixels(24) + vPadding);
   });
 
   test("Can autoresize a column in another sheet", () => {

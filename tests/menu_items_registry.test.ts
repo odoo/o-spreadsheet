@@ -1,5 +1,5 @@
 import { Model, Spreadsheet } from "../src";
-import { fontSizes } from "../src/fonts";
+import { FONT_SIZES } from "../src/constants";
 import { zoneToXc } from "../src/helpers";
 import { interactivePaste } from "../src/helpers/ui/paste_interactive";
 import { colMenuRegistry, rowMenuRegistry, topbarMenuRegistry } from "../src/registries/index";
@@ -665,12 +665,12 @@ describe("Menu Item actions", () => {
   });
 
   test("Format -> font-size", () => {
-    const fontSize = fontSizes[0];
-    doAction(["format", "format_font_size", `format_font_size_${fontSize.pt}`], env);
+    const fontSize = FONT_SIZES[0];
+    doAction(["format", "format_font_size", `format_font_size_${fontSize}`], env);
     expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
       sheetId: env.model.getters.getActiveSheetId(),
       target: env.model.getters.getSelectedZones(),
-      style: { fontSize: fontSize.pt },
+      style: { fontSize },
     });
   });
 

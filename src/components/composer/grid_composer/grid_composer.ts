@@ -1,7 +1,12 @@
 import { Component, onMounted, onWillUpdateProps, useRef, useState } from "@odoo/owl";
 import { ComponentsImportance, SELECTION_BORDER_COLOR } from "../../../constants";
-import { fontSizeMap } from "../../../fonts";
-import { deepEquals, getComposerSheetName, positionToZone, toXC } from "../../../helpers";
+import {
+  deepEquals,
+  fontSizeInPixels,
+  getComposerSheetName,
+  positionToZone,
+  toXC,
+} from "../../../helpers";
 import { ComposerSelection } from "../../../plugins/ui_stateful/edition";
 import { DOMDimension, Rect, Ref, SpreadsheetChildEnv, Zone } from "../../../types/index";
 import { getTextDecoration } from "../../helpers";
@@ -139,7 +144,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
 
     // font style
     const fontSize = (!isFormula && style.fontSize) || 10;
-    const fontWeight = !isFormula && style.bold ? "bold" : 500;
+    const fontWeight = !isFormula && style.bold ? "bold" : undefined;
     const fontStyle = !isFormula && style.italic ? "italic" : "normal";
     const textDecoration = !isFormula ? getTextDecoration(style) : "none";
 
@@ -165,12 +170,10 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
 
       background,
       color,
-
-      "font-size": `${fontSizeMap[fontSize]}px`,
-      "font-weight": String(fontWeight),
+      "font-size": `${fontSizeInPixels(fontSize)}px`,
+      "font-weight": fontWeight,
       "font-style": fontStyle,
       "text-decoration": textDecoration,
-
       "text-align": textAlign,
     });
   }
