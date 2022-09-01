@@ -4,6 +4,8 @@ import { isNumber, parseNumber } from "../helpers/numbers";
 import { _lt } from "../translation";
 import { ArgValue, CellValue, MatrixArgValue, PrimitiveArgValue } from "../types";
 
+const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
+
 export function assert(condition: () => boolean, message: string): void {
   if (!condition()) {
     throw new Error(message);
@@ -57,6 +59,30 @@ export function toString(value: string | number | boolean | null | undefined): s
     default:
       return "";
   }
+}
+
+/**
+ * Normalize range by setting all the string in the range to lowercase and replacing
+ * accent letters with plain letters
+ */
+export function normalizeRange<T>(range: T[]) {
+  return range.map((item) => (typeof item === "string" ? normalizeString(item) : item));
+}
+
+/** Normalize string by setting it to lowercase and replacing accent letters with plain letters */
+export function normalizeString(str: string) {
+  return str
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+/**
+ * Normalize a value.
+ * If the cell value is a string, this will set it to lowercase and replacing accent letters with plain letters
+ */
+export function normalizeValue<T>(value: T): T | string {
+  return typeof value === "string" ? normalizeString(value) : value;
 }
 
 const expectBooleanValueError = (value: string) =>
@@ -471,42 +497,34 @@ export function visitMatchingRanges(
 // -----------------------------------------------------------------------------
 
 /**
- * Perform a dichotomic search and return the index of the nearest match less than
- * or equal to the target. If all values in the range are greater than the target,
- * -1 is returned.
- * If the range is not in sorted order, an incorrect value might be returned.
+ * Perform a dichotomic search on an array and return the index of the nearest match.
  *
- * Example:
- * - [3, 6, 10], 3 => 0
- * - [3, 6, 10], 6 => 1
- * - [3, 6, 10], 9 => 1
- * - [3, 6, 10], 42 => 2
- * - [3, 6, 10], 2 => -1
- * - [3, undefined, 6, undefined, 10], 9 => 2
- * - [3, 6, undefined, undefined, undefined, 10], 2 => -1
+ * The array should be sorted, if not an incorrect value might be returned. In the case where multiple
+ * element of the array match the target, the method will return the first match if the array is sorted
+ * in descending order, and the last match if the array is in ascending order.
+ *
+ *
+ * @param range the array in which to search.
+ * @param target the value to search.
+ * @param mode "nextGreater/nextSmaller" : return next greater/smaller value if no exact match is found.
+ * @param sortOrder whether the array is sorted in ascending or descending order.
  */
-export function dichotomicPredecessorSearch(
+export function dichotomicSearch(
   range: (CellValue | undefined)[],
-  target: PrimitiveArgValue
+  target: PrimitiveArgValue,
+  mode: "nextGreater" | "nextSmaller" | "strict",
+  sortOrder: "asc" | "desc"
 ): number {
-  if (target === null) {
+  if (target === null || target === undefined) {
     return -1;
   }
   const targetType = typeof target;
 
-  let valMin: CellValue | undefined = undefined;
-  let valMinIndex: number | undefined = undefined;
+  let matchVal: CellValue | undefined = undefined;
+  let matchValIndex: number | undefined = undefined;
 
   let indexLeft = 0;
   let indexRight = range.length - 1;
-
-  if (typeof range[indexLeft] === targetType && target < (range[indexLeft] as CellValue)) {
-    return -1;
-  }
-
-  if (typeof range[indexRight] === targetType && (range[indexRight] as CellValue) <= target) {
-    return indexRight;
-  }
 
   let indexMedian: number;
   let currentIndex: number;
@@ -514,7 +532,7 @@ export function dichotomicPredecessorSearch(
   let currentType: string;
 
   while (indexRight - indexLeft >= 0) {
-    indexMedian = Math.ceil((indexLeft + indexRight) / 2);
+    indexMedian = Math.floor((indexLeft + indexRight) / 2);
 
     currentIndex = indexMedian;
     currentVal = range[currentIndex];
@@ -526,21 +544,42 @@ export function dichotomicPredecessorSearch(
       currentVal = range[currentIndex];
       currentType = typeof currentVal;
     }
+    if (currentType !== targetType || currentVal === undefined) {
+      indexLeft = indexMedian + 1;
+      continue;
+    }
 
     // 2 - check if value match
-    if (currentType === targetType && (currentVal as CellValue) <= target) {
+    if (mode === "strict" && currentVal === target) {
+      matchVal = currentVal;
+      matchValIndex = currentIndex;
+    } else if (mode === "nextSmaller" && currentVal <= target) {
       if (
-        valMin === undefined ||
-        valMin < (currentVal as CellValue) ||
-        (valMin === currentVal && valMinIndex! < currentIndex)
+        matchVal === undefined ||
+        matchVal < currentVal ||
+        (matchVal === currentVal && sortOrder === "asc" && matchValIndex! < currentIndex) ||
+        (matchVal === currentVal && sortOrder === "desc" && matchValIndex! > currentIndex)
       ) {
-        valMin = currentVal;
-        valMinIndex = currentIndex;
+        matchVal = currentVal;
+        matchValIndex = currentIndex;
+      }
+    } else if (mode === "nextGreater" && currentVal >= target) {
+      if (
+        matchVal === undefined ||
+        matchVal > currentVal ||
+        (matchVal === currentVal && sortOrder === "asc" && matchValIndex! < currentIndex) ||
+        (matchVal === currentVal && sortOrder === "desc" && matchValIndex! > currentIndex)
+      ) {
+        matchVal = currentVal;
+        matchValIndex = currentIndex;
       }
     }
 
-    // 3 - give new indexs for the Binary search
-    if (currentType === targetType && (currentVal as CellValue) > target) {
+    // 3 - give new indexes for the Binary search
+    if (
+      (sortOrder === "asc" && currentVal > target) ||
+      (sortOrder === "desc" && currentVal <= target)
+    ) {
       indexRight = currentIndex - 1;
     } else {
       indexLeft = indexMedian + 1;
@@ -548,79 +587,64 @@ export function dichotomicPredecessorSearch(
   }
 
   // note that valMinIndex could be 0
-  return valMinIndex !== undefined ? valMinIndex : -1;
+  return matchValIndex !== undefined ? matchValIndex : -1;
 }
 
 /**
- * Perform a dichotomic search and return the index of the nearest match more than
- * or equal to the target. If all values in the range are smaller than the target,
- * -1 is returned.
- * If the range is not in sorted order, an incorrect value might be returned.
+ * Perform a linear search and return the index of the perfect match.
+ * -1 is returned if no value is found.
  *
  * Example:
- * - [10, 6, 3], 3 => 2
- * - [10, 6, 3], 6 => 1
- * - [10, 6, 3], 9 => 0
- * - [10, 6, 3], 42 => -1
- * - [10, 6, 3], 2 => 2
- * - [10, undefined, 6, undefined, 3], 9 => 0
- * - [10, 6, undefined, undefined, undefined, 3], 2 => 5
+ * - [3, 6, 10], 3 => 0
+ * - [3, 6, 10], 6 => 1
+ * - [3, 6, 10], 9 => -1
+ * - [3, 6, 10], 2 => -1
  */
-export function dichotomicSuccessorSearch(range: any[], target: any): number {
-  const targetType = typeof target;
+export function linearSearch(range: (CellValue | undefined)[], target: PrimitiveArgValue): number {
+  for (let i = 0; i < range.length; i++) {
+    if (range[i] === target) {
+      return i;
+    }
+  }
+  // no value is found, -1 is returned
+  return -1;
+}
 
-  let valMax: any;
-  let valMaxIndex: number | undefined = undefined;
+export function getNextItemIndex(
+  range: (CellValue | undefined)[],
+  target: PrimitiveArgValue | undefined,
+  mode: "nextSmaller" | "nextGreater"
+): number {
+  if (target === null || target === undefined) return -1;
+  const indexOfTarget = range.indexOf(target);
+  if (indexOfTarget !== -1) {
+    return indexOfTarget;
+  }
 
-  let indexLeft = 0;
-  let indexRight = range.length - 1;
+  const sorted = [...range, target].sort(compareCellValues);
 
-  if (typeof range[indexLeft] === targetType && target > range[indexLeft]) {
+  let indexInSorted = sorted.indexOf(target);
+  if (mode === "nextGreater" && indexInSorted < sorted.length - 1) {
+    indexInSorted += 1;
+  } else if (mode === "nextSmaller" && indexInSorted > 0) {
+    indexInSorted -= 1;
+  } else {
     return -1;
   }
 
-  if (typeof range[indexRight] === targetType && range[indexRight] > target) {
-    return indexRight;
-  }
+  return range.indexOf(sorted[indexInSorted]);
+}
 
-  let indexMedian: number;
-  let currentIndex: number;
-  let currentVal: any;
-  let currentType: any;
-
-  while (indexRight - indexLeft >= 0) {
-    indexMedian = Math.ceil((indexLeft + indexRight) / 2);
-    currentIndex = indexMedian;
-    currentVal = range[currentIndex];
-    currentType = typeof currentVal;
-
-    // 1 - linear search to find value with the same type
-    while (indexLeft <= currentIndex && targetType !== currentType) {
-      currentIndex--;
-      currentVal = range[currentIndex];
-      currentType = typeof currentVal;
-    }
-
-    // 2 - check if value match
-    if (currentType === targetType && currentVal >= target) {
-      if (
-        valMax === undefined ||
-        valMax > currentVal ||
-        (valMax === currentVal && valMaxIndex! > currentIndex)
-      ) {
-        valMax = currentVal;
-        valMaxIndex = currentIndex;
-      }
-    }
-
-    // 3 - give new indexs for the Binary search
-    if (currentType === targetType && currentVal <= target) {
-      indexRight = currentIndex - 1;
-    } else {
-      indexLeft = indexMedian + 1;
+function compareCellValues(left: CellValue | undefined, right: CellValue | undefined): number {
+  let typeOrder = SORT_TYPES_ORDER.indexOf(typeof left) - SORT_TYPES_ORDER.indexOf(typeof right);
+  if (typeOrder === 0) {
+    if (typeof left === "string" && typeof right === "string") {
+      typeOrder = left.localeCompare(right);
+    } else if (typeof left === "number" && typeof right === "number") {
+      typeOrder = left - right;
+    } else if (typeof left === "boolean" && typeof right === "boolean") {
+      typeOrder = Number(left) - Number(right);
     }
   }
-
-  // note that valMaxIndex could be 0
-  return valMaxIndex !== undefined ? valMaxIndex : -1;
+  return typeOrder;
 }

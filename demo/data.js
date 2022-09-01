@@ -1148,6 +1148,10 @@ export const demoData = {
         B170: { content: '=MID("Odoo", 2, 5)' },
         C170: { content: '="doo"' },
         D170: { content: "=IF(B170=C170,1, 0)" },
+        A171: { content: "XLOOKUP" },
+        B171: { content: '=XLOOKUP("robot4", G2:G9, H2:H9)' },
+        C171: { content: "=42" },
+        D171: { content: "=IF(B171=C171,1, 0)" },
 
         // DATA
         G1: { content: "Name", style: 8 },

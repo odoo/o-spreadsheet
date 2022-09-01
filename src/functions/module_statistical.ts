@@ -5,7 +5,7 @@ import { AddFunctionDescription, Arg, ArgValue, MatrixArgValue, PrimitiveArgValu
 import { args } from "./arguments";
 import {
   assert,
-  dichotomicPredecessorSearch,
+  dichotomicSearch,
   reduceAny,
   reduceNumbers,
   reduceNumbersTextAs0,
@@ -111,7 +111,7 @@ function centile(data: ArgValue[], percent: PrimitiveArgValue, isInclusive: bool
   let count = 0;
   visitAny(data, (d) => {
     if (typeof d === "number") {
-      index = dichotomicPredecessorSearch(sortedArray, d);
+      index = dichotomicSearch(sortedArray, d, "nextSmaller", "asc");
       sortedArray.splice(index + 1, 0, d);
       count++;
     }
@@ -510,7 +510,7 @@ export const LARGE: AddFunctionDescription = {
     let count = 0;
     visitAny([data], (d) => {
       if (typeof d === "number") {
-        index = dichotomicPredecessorSearch(largests, d);
+        index = dichotomicSearch(largests, d, "nextSmaller", "asc");
         largests.splice(index + 1, 0, d);
         count++;
         if (count > _n) {
@@ -867,7 +867,7 @@ export const SMALL: AddFunctionDescription = {
     let count = 0;
     visitAny([data], (d) => {
       if (typeof d === "number") {
-        index = dichotomicPredecessorSearch(largests, d);
+        index = dichotomicSearch(largests, d, "nextSmaller", "asc");
         largests.splice(index + 1, 0, d);
         count++;
         if (count > _n) {

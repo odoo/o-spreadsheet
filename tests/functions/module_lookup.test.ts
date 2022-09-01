@@ -98,6 +98,10 @@ describe("LOOKUP formula", () => {
     expect(evaluatedGrid.A15).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
     expect(evaluatedGrid.A16).toBe("res 09");
   });
+
+  test("Accents and uppercase are ignored", () => {
+    expect(evaluateCell("A1", { A1: '=LOOKUP("epee", B1)', B1: "Épée" })).toBe("Épée");
+  });
 });
 
 describe("MATCH formula", () => {
@@ -168,9 +172,9 @@ describe("MATCH formula", () => {
     const ascendingAsDescending = { ...rangeAscending, ...evAsDescending };
     const aAsD = evaluateGrid(ascendingAsDescending);
 
-    expect(aAsD.D1).toBe(6);
-    expect(aAsD.D2).toBe(6);
-    expect(aAsD.D3).toBe("#ERROR"); // @compatibility: on googlesheets, return 6
+    expect(aAsD.D1).toBe(3); // @compatibility: on googlesheets, return 6
+    expect(aAsD.D2).toBe(3); // @compatibility: on googlesheets, return 6
+    expect(aAsD.D3).toBe(3); // @compatibility: on googlesheets, return 6
     expect(aAsD.D4).toBe("#ERROR"); // @compatibility: on googlesheets, return 6
     expect(aAsD.D5).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
     expect(aAsD.D6).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
@@ -185,10 +189,10 @@ describe("MATCH formula", () => {
     expect(uAsA.B1).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
     expect(uAsA.B2).toBe(1);
     expect(uAsA.B3).toBe(1);
-    expect(uAsA.B4).toBe(4); // @compatibility: on googlesheets, return 5
-    expect(uAsA.B5).toBe(4); // @compatibility: on googlesheets, return 5
-    expect(uAsA.B6).toBe(4); // @compatibility: on googlesheets, return 5
-    expect(uAsA.B7).toBe(4); // @compatibility: on googlesheets, return 5
+    expect(uAsA.B4).toBe(3); // @compatibility: on googlesheets, return 5
+    expect(uAsA.B5).toBe(3); // @compatibility: on googlesheets, return 5
+    expect(uAsA.B6).toBe(3); // @compatibility: on googlesheets, return 5
+    expect(uAsA.B7).toBe(3); // @compatibility: on googlesheets, return 5
     expect(uAsA.B8).toBe(6);
 
     const unsortedAsUnsorted = { ...rangeUnsorted, ...evAsUnsorted };
@@ -206,10 +210,10 @@ describe("MATCH formula", () => {
     const unsortedAsDescending = { ...rangeUnsorted, ...evAsDescending };
     const uAsD = evaluateGrid(unsortedAsDescending);
 
-    expect(uAsD.D1).toBe(6);
-    expect(uAsD.D2).toBe(6);
-    expect(uAsD.D3).toBe("#ERROR"); // @compatibility: on googlesheets, return 6
-    expect(uAsD.D4).toBe("#ERROR"); // @compatibility: on googlesheets, return 3
+    expect(uAsD.D1).toBe(5); // @compatibility: on googlesheets, return 6
+    expect(uAsD.D2).toBe(5); // @compatibility: on googlesheets, return 6
+    expect(uAsD.D3).toBe(5); // @compatibility: on googlesheets, return 6
+    expect(uAsD.D4).toBe(3);
     expect(uAsD.D5).toBe("#ERROR"); // @compatibility: on googlesheets, return 2
     expect(uAsD.D6).toBe("#ERROR"); // @compatibility: on googlesheets, return 2
     expect(uAsD.D7).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
@@ -223,11 +227,11 @@ describe("MATCH formula", () => {
     expect(dAsA.B1).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
     expect(dAsA.B2).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
     expect(dAsA.B3).toBe("#ERROR"); // @compatibility: on googlesheets, return 6
-    expect(dAsA.B4).toBe("#ERROR"); // @compatibility: on googlesheets, return 6
-    expect(dAsA.B5).toBe("#ERROR"); // @compatibility: on googlesheets, return 6
-    expect(dAsA.B6).toBe("#ERROR"); // @compatibility: on googlesheets, return 6
-    expect(dAsA.B7).toBe(6);
-    expect(dAsA.B8).toBe(6);
+    expect(dAsA.B4).toBe(3); // @compatibility: on googlesheets, return 6
+    expect(dAsA.B5).toBe(3); // @compatibility: on googlesheets, return 6
+    expect(dAsA.B6).toBe(3); // @compatibility: on googlesheets, return 6
+    expect(dAsA.B7).toBe(3); // @compatibility: on googlesheets, return 6
+    expect(dAsA.B8).toBe(3); // @compatibility: on googlesheets, return 6
 
     const descendingAsUnsorted = { ...rangeDescending, ...evAsUnsorted };
     const dAsU = evaluateGrid(descendingAsUnsorted);
@@ -309,6 +313,10 @@ describe("MATCH formula", () => {
     expect(descendingString.D3).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
     expect(descendingString.D4).toBe(4);
     expect(descendingString.D5).toBe(3);
+  });
+
+  test("Accents and uppercase are ignored", () => {
+    expect(evaluateCell("A1", { A1: '=MATCH("epee", B1, 1)', B1: "Épée" })).toBe(1);
   });
 });
 
@@ -598,6 +606,10 @@ describe("VLOOKUP formula", () => {
       });
     });
   });
+
+  test("Accents and uppercase are ignored", () => {
+    expect(evaluateCell("A1", { A1: '=VLOOKUP("epee", B1, 1)', B1: "Épée" })).toBe("Épée");
+  });
 });
 
 describe("HLOOKUP formula", () => {
@@ -753,6 +765,192 @@ describe("HLOOKUP formula", () => {
         expect(gridU.Z1).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
         expect(gridU.Z2).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
       });
+    });
+  });
+
+  test("Accents and uppercase are ignored", () => {
+    expect(evaluateCell("A1", { A1: '=HLOOKUP("epee", B1, 1)', B1: "Épée" })).toBe("Épée");
+  });
+});
+
+describe("XLOOKUP formula", () => {
+  test("Check argument validity", () => {
+    expect(evaluateCell("A1", { A1: "=XLOOKUP()" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5)" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, B1:B5)" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, B1:B5, C1:C5,, -5)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, B1:B5, C1:C5,, 2)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, B1:B5, C1:C5,, 1, 0)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, B1:B5, C1:C5,, 1, -3)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, B1:C5, C1:C5,, 1, -3)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, B1:B5, C1:C6,, 1, -3)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, B1:D1, B2:E2,, 1, -3)" })).toBe("#ERROR");
+  });
+
+  // prettier-ignore
+  const commonGrid = {
+    B1: "B1", C1: "C1", D1: "B1",
+    B2: "b2", C2: "C2", D2: "D2",
+    B3: "5", C3: "C3", D3: "D3",
+    B4: "help", C4: "C4", D4: "D4",
+    B5: "5", C5: "C5", D5: "D5",
+    B6: "épinards", C6: "C6", D6: "D6",
+  };
+
+  test("Simple vertical XLOOKUP", () => {
+    const grid = evaluateGrid({
+      ...commonGrid,
+      Z1: '=XLOOKUP( "B1", B1:B6, C1:C6 )',
+      Z2: '=XLOOKUP( "B2", B1:B6, C1:C6 )',
+      Z3: "=XLOOKUP( 5, B1:B6, C1:C6 )",
+      Z5: '=XLOOKUP( "epinards", B1:B6, C1:C6 )',
+    });
+    expect(grid.Z1).toBe("C1");
+    expect(grid.Z2).toBe("C2");
+    expect(grid.Z3).toBe("C3");
+    expect(grid.Z5).toBe("C6");
+  });
+
+  test("Simple horizontal XLOOKUP", () => {
+    const grid = evaluateGrid({
+      ...commonGrid,
+      Z1: '=XLOOKUP( "B1", B1:D1, B3:D3 )',
+      Z2: '=XLOOKUP( "C1", B1:D1, B3:D3 )',
+      Z3: "=XLOOKUP( 5, B1:D1, B3:D3 )",
+    });
+    expect(grid.Z1).toBe(5);
+    expect(grid.Z2).toBe("C3");
+    expect(grid.Z3).toBe("#ERROR");
+  });
+
+  test("if_not_found argument", () => {
+    const grid = evaluateGrid({
+      ...commonGrid,
+      Y2: "=0/0",
+      Z1: '=XLOOKUP( "ola", B1:B6, C1:C6 )',
+      Z2: '=XLOOKUP( "ola", B1:B6, C1:C6, 5 )',
+      Z3: "=XLOOKUP( 5, B1:B6, C1:C6, Y2 )",
+    });
+    expect(grid.Z1).toBe("#ERROR");
+    expect(grid.Z2).toBe(5);
+    expect(grid.Z3).toBe("C3");
+  });
+
+  describe("match_mode argument", () => {
+    test("Exact match", () => {
+      const grid = evaluateGrid({
+        ...commonGrid,
+        Z1: '=XLOOKUP( "c", B1:B6, B1:B6,, 0 )',
+        Z2: '=XLOOKUP( "B1", B1:B6, B1:B6,, 0 )',
+      });
+      expect(grid.Z1).toBe("#ERROR");
+      expect(grid.Z2).toBe("B1");
+    });
+
+    test("Next smaller item", () => {
+      const grid = evaluateGrid({
+        ...commonGrid,
+        Z1: '=XLOOKUP( "c", B1:B6, B1:B6,, -1 )',
+        Z2: "=XLOOKUP( 6, B1:B6, B1:B6,, -1 )",
+        Z3: "=XLOOKUP( 4, B1:B6, B1:B6,, -1 )",
+      });
+      expect(grid.Z1).toBe("b2");
+      expect(grid.Z2).toBe(5);
+      expect(grid.Z3).toBe("#ERROR");
+    });
+
+    test("Next greater item", () => {
+      const grid = evaluateGrid({
+        ...commonGrid,
+        Z1: '=XLOOKUP( "c", B1:B6, B1:B6,, 1 )',
+        Z2: "=XLOOKUP( 6, B1:B6, B1:B6,, 1 )",
+        Z3: "=XLOOKUP( 4, B1:B6, B1:B6,, 1 )",
+        Z4: '=XLOOKUP( "z", B1:B6, B1:B6,, 1 )',
+      });
+      expect(grid.Z1).toBe("épinards");
+      expect(grid.Z2).toBe("B1");
+      expect(grid.Z3).toBe(5);
+      expect(grid.Z4).toBe("#ERROR");
+    });
+  });
+
+  describe("search_mode argument", () => {
+    // prettier-ignore
+    const ascSortedGrid = {
+      B1: "5", C1: "C1",
+      B2: "5", C2: "C2",
+      B3: "B1", C3: "C3",
+      B4: "b2", C4: "C4",
+      B5: "épinards", C5: "C5",
+      B6: "help", C6: "C6",
+    };
+
+    // prettier-ignore
+    const descSortedGrid = {
+      B1: "help", C1: "C1",
+      B2: "épinards", C2: "C2",
+      B3: "b2", C3: "C3",
+      B4: "B1", C4: "C4",
+      B5: "5", C5: "C5",
+      B6: "5", C6: "C6",
+    };
+
+    test("Search starting at first/last item (search_mode = 1/-1)", () => {
+      const grid = evaluateGrid({
+        ...commonGrid,
+        Z1: "=XLOOKUP( 5, B1:B6, C1:C6,, 0, 1 )",
+        Z2: "=XLOOKUP( 4, B1:B6, C1:C6,, 1, 1 )",
+        Z3: "=XLOOKUP( 6, B1:B6, C1:C6,, -1, 1 )",
+        Z4: "=XLOOKUP( 5, B1:B6, C1:C6,, 0, -1 )",
+        Z5: "=XLOOKUP( 4, B1:B6, C1:C6,, 1, -1 )",
+        Z6: "=XLOOKUP( 6, B1:B6, C1:C6,, -1, -1 )",
+      });
+      expect(grid.Z1).toBe("C3");
+      expect(grid.Z2).toBe("C3");
+      expect(grid.Z3).toBe("C3");
+      expect(grid.Z4).toBe("C5");
+      expect(grid.Z5).toBe("C5");
+      expect(grid.Z6).toBe("C5");
+    });
+
+    test("With dichotomic search, grid sorted ascending", () => {
+      const grid = evaluateGrid({
+        ...ascSortedGrid,
+        Z1: "=XLOOKUP( 5, B1:B6, C1:C6,, 0, 2 )",
+        Z2: '=XLOOKUP( "b2", B1:B6, C1:C6,, 0, 2 )',
+        Z3: '=XLOOKUP( "b3", B1:B6, C1:C6,, 0, 2 )',
+        Z4: "=XLOOKUP( 4, B1:B6, C1:C6,, 1, 2 )",
+        Z5: "=XLOOKUP( 6, B1:B6, C1:C6,, -1, 2 )",
+        Z6: "=XLOOKUP( 4, B1:B6, C1:C6,, -1, 2 )",
+        Z7: '=XLOOKUP( "b", B1:B6, C1:C6,, 1, 2 )',
+      });
+      expect(grid.Z1).toBe("C2");
+      expect(grid.Z2).toBe("C4");
+      expect(grid.Z3).toBe("#ERROR");
+      expect(grid.Z4).toBe("C2");
+      expect(grid.Z5).toBe("C2");
+      expect(grid.Z6).toBe("#ERROR");
+      expect(grid.Z7).toBe("C3");
+    });
+
+    test("With dichotomic search sorted descending", () => {
+      const grid = evaluateGrid({
+        ...descSortedGrid,
+        Z1: "=XLOOKUP( 5, B1:B6, C1:C6,, 0, -2 )",
+        Z2: '=XLOOKUP( "b2", B1:B6, C1:C6,, 0, -2 )',
+        Z3: '=XLOOKUP( "b3", B1:B6, C1:C6,, 0, 2 )',
+        Z4: "=XLOOKUP( 4, B1:B6, C1:C6,, 1, -2 )",
+        Z5: "=XLOOKUP( 6, B1:B6, C1:C6,, -1, -2 )",
+        Z6: "=XLOOKUP( 4, B1:B6, C1:C6,, -1, -2 )",
+        Z7: '=XLOOKUP( "b", B1:B6, C1:C6,, 1, -2 )',
+      });
+      expect(grid.Z1).toBe("C5");
+      expect(grid.Z2).toBe("C3");
+      expect(grid.Z3).toBe("#ERROR");
+      expect(grid.Z4).toBe("C5");
+      expect(grid.Z5).toBe("C5");
+      expect(grid.Z6).toBe("#ERROR");
+      expect(grid.Z7).toBe("C4");
     });
   });
 });
