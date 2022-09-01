@@ -148,6 +148,34 @@ describe("IFERROR formula", () => {
   });
 });
 
+describe("IFNA formula", () => {
+  test("functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: "=IFNA( )" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=IFNA( ,  )" })).toBe("");
+    expect(evaluateCell("A1", { A1: "=IFNA(FALSE , 42)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=IFNA(TRUE , 42)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: '=IFNA("" , 42)' })).toBe("");
+    expect(evaluateCell("A1", { A1: "=IFNA(3% , 42)" })).toBe(0.03);
+    expect(evaluateCell("A1", { A1: "=IFNA(FALSE, 42/0)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=IFNA(42/0, FALSE)" })).toBe("#ERROR");
+
+    expect(evaluateCell("A1", { A1: "=IFNA(NA(), 42)" })).toBe(42);
+  });
+
+  test("functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=IFNA(A2, 42)", A2: "=NA()" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=IFNA(A2, 42)", A2: "=A2" })).toBe("#CYCLE"); // corespond to #CYCLE error
+    expect(evaluateCell("A1", { A1: "=IFNA(A2, 42)", A2: "=(+" })).toBe("#BAD_EXPR"); // corespond to #BAD_EXPR error
+    expect(evaluateCell("A1", { A1: "=IFNA(A2, 42)", A2: "=SQRT(-1)" })).toBe("#ERROR"); // corespond to #ERROR error
+
+    expect(evaluateCell("A1", { A1: "=IFNA(A2, 42)" })).toBe("");
+    expect(evaluateCell("A1", { A1: "=IFNA(A2, 42)", A2: "FALSE" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=IFNA(A2, 42)", A2: "TRUE" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=IFNA(A2, 42)", A2: "3" })).toBe(3);
+    expect(evaluateCell("A1", { A1: "=IFNA(A2, 42)", A2: "test" })).toBe("test");
+  });
+});
+
 describe("IFS formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=IFS( ,  )" })).toBe("#ERROR"); // @compatibility: on google sheets, return #N/A
