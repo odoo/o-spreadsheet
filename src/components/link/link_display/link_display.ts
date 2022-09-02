@@ -1,7 +1,7 @@
 import { Component } from "@odoo/owl";
 import { LINK_COLOR } from "../../../constants";
 import { toXC } from "../../../helpers";
-import { openLink } from "../../../helpers/cells/url_types";
+import { openLink } from "../../../helpers/cells/link_factory";
 import { Cell, Link, Position, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { css } from "../../helpers/css";
