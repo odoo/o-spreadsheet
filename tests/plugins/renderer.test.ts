@@ -12,7 +12,7 @@ import { Mode, Model } from "../../src/model";
 import {
   CELL_BACKGROUND_GRIDLINE_STROKE_STYLE,
   RendererPlugin,
-} from "../../src/plugins/ui/renderer";
+} from "../../src/plugins/feature_plugins/renderer";
 import { Box, GridRenderingContext, Viewport } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {

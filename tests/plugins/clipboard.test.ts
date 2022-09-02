@@ -1,7 +1,7 @@
 import { toZone, zoneToXc } from "../../src/helpers";
 import { ClipboardCellsState } from "../../src/helpers/clipboard/clipboard_cells_state";
 import { Model } from "../../src/model";
-import { ClipboardPlugin } from "../../src/plugins/ui/clipboard";
+import { ClipboardPlugin } from "../../src/plugins/stateful_ui_plugins/clipboard";
 import { CellValueType, CommandResult, Zone } from "../../src/types/index";
 import {
   activateSheet,

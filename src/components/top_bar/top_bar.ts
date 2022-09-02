@@ -9,7 +9,7 @@ import { BACKGROUND_HEADER_COLOR, ComponentsImportance, DEFAULT_FONT_SIZE } from
 import { fontSizes } from "../../fonts";
 import { isEqual } from "../../helpers/index";
 import { interactiveAddMerge } from "../../helpers/ui/merge_interactive";
-import { ComposerSelection } from "../../plugins/ui/edition";
+import { ComposerSelection } from "../../plugins/stateful_ui_plugins/edition";
 import { setFormatter, setStyle, topbarComponentRegistry } from "../../registries/index";
 import { getMenuChildren, getMenuName } from "../../registries/menus/helpers";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";

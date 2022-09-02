@@ -1,7 +1,7 @@
 import { UIPlugin } from "../../src";
 import { MAX_HISTORY_STEPS } from "../../src/constants";
 import { Model } from "../../src/model";
-import { uiPluginRegistry } from "../../src/plugins";
+import { featurePluginRegistry } from "../../src/plugins";
 import { StateObserver } from "../../src/state_observer";
 import { CommandResult, UpdateCellCommand } from "../../src/types/commands";
 import {
@@ -309,7 +309,7 @@ describe("Model history", () => {
 
   test("undone & redone commands are part of the command", () => {
     class TestPlugin extends UIPlugin {}
-    uiPluginRegistry.add("test-plugin", TestPlugin);
+    featurePluginRegistry.add("test-plugin", TestPlugin);
     const model = new Model();
     const plugin = getPlugin(model, TestPlugin);
     plugin.handle = jest.fn((cmd) => {});
@@ -331,6 +331,6 @@ describe("Model history", () => {
       type: "REDO",
       commands: [command],
     });
-    uiPluginRegistry.remove("test-plugin");
+    featurePluginRegistry.remove("test-plugin");
   });
 });

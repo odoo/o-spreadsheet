@@ -13,7 +13,7 @@ import {
   TOPBAR_HEIGHT,
 } from "../../constants";
 import { Model } from "../../model";
-import { ComposerSelection } from "../../plugins/ui/edition";
+import { ComposerSelection } from "../../plugins/stateful_ui_plugins/edition";
 import { SpreadsheetChildEnv, WorkbookData } from "../../types";
 import { NotifyUIEvent } from "../../types/ui";
 import { BottomBar } from "../bottom_bar/bottom_bar";

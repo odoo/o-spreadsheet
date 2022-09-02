@@ -8,7 +8,7 @@ import { args, functionRegistry } from "../../src/functions";
 import { toString } from "../../src/functions/helpers";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { SheetUIPlugin } from "../../src/plugins/ui/ui_sheet";
+import { SheetUIPlugin } from "../../src/plugins/feature_plugins/ui_sheet";
 import {
   Arg,
   ArgValue,

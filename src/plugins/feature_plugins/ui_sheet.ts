@@ -1,8 +1,8 @@
+import { PADDING_AUTORESIZE_HORIZONTAL } from "../../constants";
 import { computeIconWidth, computeTextWidth } from "../../helpers/index";
 import { Cell, CellValueType, Command, CommandResult, UID } from "../../types";
 import { HeaderIndex, Pixel } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
-import { PADDING_AUTORESIZE_HORIZONTAL } from "./../../constants";
 
 export class SheetUIPlugin extends UIPlugin {
   static getters = ["getCellWidth", "getTextWidth", "getCellText"] as const;

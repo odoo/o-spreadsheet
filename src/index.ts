@@ -42,7 +42,12 @@ import {
   UuidGenerator,
 } from "./helpers/index";
 import { createEmptyWorkbookData } from "./migrations/data";
-import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
+import {
+  corePluginRegistry,
+  coreViewsPluginRegistry,
+  featurePluginRegistry,
+  statefulUIPluginRegistry,
+} from "./plugins/index";
 import {
   autofillModifiersRegistry,
   autofillRulesRegistry,
@@ -123,7 +128,9 @@ export const registries = {
   dashboardMenuRegistry,
   linkMenuRegistry,
   functionRegistry,
-  uiPluginRegistry,
+  featurePluginRegistry,
+  coreViewsPluginRegistry,
+  statefulUIPluginRegistry,
   corePluginRegistry,
   rowMenuRegistry,
   sidePanelRegistry,

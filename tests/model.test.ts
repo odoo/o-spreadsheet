@@ -1,7 +1,7 @@
 import { CommandResult, CorePlugin } from "../src";
 import { toZone } from "../src/helpers";
 import { Model, ModelConfig } from "../src/model";
-import { corePluginRegistry, uiPluginRegistry } from "../src/plugins/index";
+import { corePluginRegistry, featurePluginRegistry } from "../src/plugins/index";
 import { UIPlugin } from "../src/plugins/ui_plugin";
 import { Command, CoreCommand, DispatchResult } from "../src/types";
 import { copy, selectCell, setCellContent } from "./test_helpers/commands_helpers";
@@ -30,12 +30,12 @@ describe("Model", () => {
         }
       }
     }
-    uiPluginRegistry.add("myUIPlugin", MyUIPlugin);
+    featurePluginRegistry.add("myUIPlugin", MyUIPlugin);
     corePluginRegistry.add("myCorePlugin", MyCorePlugin);
     const model = new Model();
     copy(model, "A1");
     expect(result).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
-    uiPluginRegistry.remove("myUIPlugin");
+    featurePluginRegistry.remove("myUIPlugin");
     corePluginRegistry.remove("myCorePlugin");
   });
 
@@ -84,7 +84,7 @@ describe("Model", () => {
         }
       }
     }
-    uiPluginRegistry.add("myUIPlugin", MyUIPlugin);
+    featurePluginRegistry.add("myUIPlugin", MyUIPlugin);
     const model = new Model();
     setCellContent(model, "A1", "copy&paste me");
     copy(model, "A1");

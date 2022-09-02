@@ -10,25 +10,26 @@ import { HeaderVisibilityPlugin } from "../plugins/core/header_visibility";
 import { MergePlugin } from "../plugins/core/merge";
 import { RangeAdapter } from "../plugins/core/range";
 import { SheetPlugin } from "../plugins/core/sheet";
-import { AutofillPlugin } from "../plugins/ui/autofill";
-import { AutomaticSumPlugin } from "../plugins/ui/automatic_sum";
-import { CellPopoverPlugin } from "../plugins/ui/cell_popovers";
-import { ClipboardPlugin } from "../plugins/ui/clipboard";
-import { CustomColorsPlugin } from "../plugins/ui/custom_colors";
-import { EditionPlugin } from "../plugins/ui/edition";
-import { EvaluationPlugin } from "../plugins/ui/evaluation";
-import { EvaluationChartPlugin } from "../plugins/ui/evaluation_chart";
-import { EvaluationConditionalFormatPlugin } from "../plugins/ui/evaluation_conditional_format";
-import { FindAndReplacePlugin } from "../plugins/ui/find_and_replace";
-import { HighlightPlugin } from "../plugins/ui/highlight";
-import { RendererPlugin } from "../plugins/ui/renderer";
-import { GridSelectionPlugin } from "../plugins/ui/selection";
-import { SelectionInputsManagerPlugin } from "../plugins/ui/selection_inputs_manager";
-import { SelectionMultiUserPlugin } from "../plugins/ui/selection_multiuser";
-import { SortPlugin } from "../plugins/ui/sort";
-import { UIOptionsPlugin } from "../plugins/ui/ui_options";
-import { SheetUIPlugin } from "../plugins/ui/ui_sheet";
-import { ViewportPlugin } from "../plugins/ui/viewport";
+import { CustomColorsPlugin } from "../plugins/core_views_plugins/custom_colors";
+import { EvaluationPlugin } from "../plugins/core_views_plugins/evaluation";
+import { EvaluationChartPlugin } from "../plugins/core_views_plugins/evaluation_chart";
+import { EvaluationConditionalFormatPlugin } from "../plugins/core_views_plugins/evaluation_conditional_format";
+import { ViewportPlugin } from "../plugins/core_views_plugins/viewport";
+import { AutofillPlugin } from "../plugins/feature_plugins/autofill";
+import { AutomaticSumPlugin } from "../plugins/feature_plugins/automatic_sum";
+import { CellPopoverPlugin } from "../plugins/feature_plugins/cell_popovers";
+import { FindAndReplacePlugin } from "../plugins/feature_plugins/find_and_replace";
+import { HighlightPlugin } from "../plugins/feature_plugins/highlight";
+import { RendererPlugin } from "../plugins/feature_plugins/renderer";
+import { SelectionInputsManagerPlugin } from "../plugins/feature_plugins/selection_inputs_manager";
+import { SelectionMultiUserPlugin } from "../plugins/feature_plugins/selection_multiuser";
+import { SortPlugin } from "../plugins/feature_plugins/sort";
+import { UIOptionsPlugin } from "../plugins/feature_plugins/ui_options";
+import { SheetUIPlugin } from "../plugins/feature_plugins/ui_sheet";
+import { ClipboardPlugin } from "../plugins/stateful_ui_plugins/clipboard";
+import { EditionPlugin } from "../plugins/stateful_ui_plugins/edition";
+import { GridSelectionPlugin } from "../plugins/stateful_ui_plugins/selection";
+
 // -----------------------------------------------------------------------------
 // Getters
 // -----------------------------------------------------------------------------

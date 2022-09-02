@@ -15,7 +15,12 @@ import {
 import { BasePlugin } from "./plugins/base_plugin";
 import { RangeAdapter } from "./plugins/core/range";
 import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
-import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
+import {
+  corePluginRegistry,
+  coreViewsPluginRegistry,
+  featurePluginRegistry,
+  statefulUIPluginRegistry,
+} from "./plugins/index";
 import { UIPlugin, UIPluginConstructor } from "./plugins/ui_plugin";
 import { SelectionStreamProcessor } from "./selection_stream/selection_stream_processor";
 import { StateObserver } from "./state_observer";
@@ -91,7 +96,11 @@ const enum Status {
 export class Model extends EventBus<any> implements CommandDispatcher {
   private corePlugins: CorePlugin[] = [];
 
-  private uiPlugins: UIPlugin[] = [];
+  private featurePlugins: UIPlugin[] = [];
+
+  private statefulUIPlugins: UIPlugin[] = [];
+
+  private coreViewsPlugins: UIPlugin[] = [];
 
   private history: LocalHistory;
 
@@ -193,8 +202,14 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       this.setupCorePlugin(Plugin, workbookData);
     }
     Object.assign(this.getters, this.coreGetters);
-    for (let Plugin of uiPluginRegistry.getAll()) {
-      this.setupUiPlugin(Plugin);
+    for (let Plugin of statefulUIPluginRegistry.getAll()) {
+      this.statefulUIPlugins.push(this.setupUiPlugin(Plugin));
+    }
+    for (let Plugin of coreViewsPluginRegistry.getAll()) {
+      this.coreViewsPlugins.push(this.setupUiPlugin(Plugin));
+    }
+    for (let Plugin of featurePluginRegistry.getAll()) {
+      this.featurePlugins.push(this.setupUiPlugin(Plugin));
     }
     this.uuidGenerator.setIsFastStrategy(false);
 
@@ -222,7 +237,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   get handlers(): CommandHandler<Command>[] {
-    return [this.range, ...this.corePlugins, ...this.uiPlugins, this.history];
+    return [this.range, ...this.corePlugins, ...this.allUIPlugins, this.history];
   }
 
   joinSession() {
@@ -241,10 +256,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       }
       this.getters[name] = plugin[name].bind(plugin);
     }
-    this.uiPlugins.push(plugin);
     const layers = Plugin.layers.map((l) => [plugin, l] as [UIPlugin, LAYERS]);
     this.renderers.push(...layers);
     this.renderers.sort((p1, p2) => p1[1] - p2[1]);
+    return plugin;
   }
 
   /**
@@ -274,9 +289,13 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private onRemoteRevisionReceived({ commands }: { commands: CoreCommand[] }) {
     for (let command of commands) {
-      this.dispatchToHandlers(this.uiPlugins, command);
+      this.dispatchToHandlers(this.allUIPlugins, command);
     }
     this.finalize();
+  }
+
+  get allUIPlugins(): UIPlugin[] {
+    return [...this.statefulUIPlugins, ...this.coreViewsPlugins, ...this.featurePlugins];
   }
 
   private setupSession(revisionId: UID): Session {
@@ -285,7 +304,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         revisionId,
         this.state.recordChanges.bind(this.state),
         (command: CoreCommand) =>
-          this.dispatchToHandlers([this.range, ...this.corePlugins], command)
+          this.dispatchToHandlers(
+            [this.range, ...this.corePlugins, ...this.coreViewsPlugins],
+            command
+          )
       ),
       this.config.transportService,
       revisionId
@@ -297,6 +319,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.session.on("remote-revision-received", this, this.onRemoteRevisionReceived);
     this.session.on("revision-redone", this, this.finalize);
     this.session.on("revision-undone", this, this.finalize);
+    this.session.on("snapshot", this, this.finalize);
     // How could we improve communication between the session and UI?
     // It feels weird to have the model piping specific session events to its own bus.
     this.session.on("unexpected-revision-id", this, () => this.trigger("unexpected-revision-id"));

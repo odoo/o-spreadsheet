@@ -3,7 +3,10 @@ import { ComponentsImportance, SELECTION_BORDER_COLOR } from "../../../constants
 import { EnrichedToken } from "../../../formulas/index";
 import { functionRegistry } from "../../../functions/index";
 import { isEqual, rangeReference, zoneToDimension } from "../../../helpers/index";
-import { ComposerSelection, SelectionIndicator } from "../../../plugins/ui/edition";
+import {
+  ComposerSelection,
+  SelectionIndicator,
+} from "../../../plugins/stateful_ui_plugins/edition";
 import { DOMDimension, FunctionDescription, Rect, SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
 import {

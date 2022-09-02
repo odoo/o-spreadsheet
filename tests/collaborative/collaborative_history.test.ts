@@ -1,7 +1,7 @@
 import { Model, UIPlugin } from "../../src";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers";
-import { uiPluginRegistry } from "../../src/plugins";
+import { featurePluginRegistry } from "../../src/plugins";
 import { CommandResult, UpdateCellCommand } from "../../src/types";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
 import {
@@ -683,7 +683,7 @@ describe("Collaborative local history", () => {
 
   test("undone & redone commands are transformed", () => {
     class TestPlugin extends UIPlugin {}
-    uiPluginRegistry.add("test-plugin", TestPlugin);
+    featurePluginRegistry.add("test-plugin", TestPlugin);
     const david = new Model(alice.exportData(), {
       transportService: network,
       client: { id: "david", name: "David" },
@@ -692,7 +692,7 @@ describe("Collaborative local history", () => {
       transportService: network,
       client: { id: "elisa", name: "Elisa" },
     });
-    uiPluginRegistry.remove("test-plugin");
+    featurePluginRegistry.remove("test-plugin");
     const command: UpdateCellCommand = {
       type: "UPDATE_CELL",
       col: 0,
