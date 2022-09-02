@@ -624,6 +624,16 @@ describe("Collaborative local history", () => {
     expect(redo(alice)).toBeCancelledBecause(CommandResult.EmptyRedoStack);
   });
 
+  test("concurrently dispatch correctly re-evaluate after history cleared", () => {
+    const bobData = bob.exportData();
+    network.concurrent(() => {
+      snapshot(bob);
+      setCellContent(alice, "A2", "=3");
+    });
+    expect(new Model(network.snapshot)).toExport(bobData);
+    expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A2"), "3");
+  });
+
   test("concurrently dispatch after history cleared", () => {
     const bobData = bob.exportData();
     network.concurrent(() => {

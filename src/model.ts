@@ -16,6 +16,8 @@ import { BasePlugin } from "./plugins/base_plugin";
 import { RangeAdapter } from "./plugins/core/range";
 import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
 import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
+import { EditionPlugin } from "./plugins/ui/edition";
+import { GridSelectionPlugin } from "./plugins/ui/selection";
 import { UIPlugin, UIPluginConstructor } from "./plugins/ui_plugin";
 import { SelectionStreamProcessor } from "./selection_stream/selection_stream_processor";
 import { StateObserver } from "./state_observer";
@@ -221,6 +223,13 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     markRaw(this);
   }
 
+  get handlersWithoutSelection(): CommandHandler<Command>[] {
+    const uiPlugins = this.uiPlugins.filter(
+      (plugin) => !(plugin instanceof GridSelectionPlugin) && !(plugin instanceof EditionPlugin)
+    );
+    return [this.range, ...this.corePlugins, ...uiPlugins, this.history];
+  }
+
   get handlers(): CommandHandler<Command>[] {
     return [this.range, ...this.corePlugins, ...this.uiPlugins, this.history];
   }
@@ -284,8 +293,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       buildRevisionLog(
         revisionId,
         this.state.recordChanges.bind(this.state),
-        (command: CoreCommand) =>
-          this.dispatchToHandlers([this.range, ...this.corePlugins], command)
+        (command: CoreCommand) => {
+          this.dispatchToHandlers(this.handlersWithoutSelection, command);
+          this.finalize();
+        }
       ),
       this.config.transportService,
       revisionId
