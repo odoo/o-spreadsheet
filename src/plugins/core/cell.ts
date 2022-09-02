@@ -60,7 +60,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
     for (const sheet of Object.keys(this.cells)) {
       for (const cell of Object.values(this.cells[sheet] || {})) {
-        if ("dependencies" in cell) {
+        if (cell.isValidFormula) {
           for (const range of cell.dependencies) {
             if (!sheetId || range.sheetId === sheetId) {
               const change = applyChange(range);
