@@ -1,4 +1,5 @@
 import { NULL_FORMAT } from "../../constants";
+import { lazy } from "../../helpers";
 import { cellFactory } from "../../helpers/cells/cell_factory";
 import { concat, getItemId, isInside, range, toCartesian, toXC } from "../../helpers/index";
 import {
@@ -6,7 +7,6 @@ import {
   ApplyRangeChange,
   Cell,
   CellData,
-  CellValueType,
   CommandResult,
   CoreCommand,
   ExcelWorkbookData,
@@ -456,10 +456,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       // TODO this plugin should not care about evaluation
       // and evaluation should not depend on implementation details here.
       // Task 2813749
-      cell.assignEvaluation(before.evaluated.value, before.evaluated.format);
-      if (before.evaluated.type === CellValueType.error) {
-        cell.assignError(before.evaluated.value, before.evaluated.error);
-      }
+      cell.assignEvaluation(lazy(before.evaluated));
     }
     this.history.update("cells", sheetId, cell.id, cell);
     this.dispatch("UPDATE_CELL_POSITION", { cellId: cell.id, col, row, sheetId });

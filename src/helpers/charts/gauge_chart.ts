@@ -228,10 +228,6 @@ export class GaugeChart extends AbstractChart {
     return new GaugeChart(definition, sheetId, this.getters);
   }
 
-  getSheetIdsUsedInChartRanges(): UID[] {
-    return this.dataRange ? [this.dataRange.sheetId] : [];
-  }
-
   getDefinition(): GaugeChartDefinition {
     return this.getDefinitionWithSpecificRanges(this.dataRange);
   }

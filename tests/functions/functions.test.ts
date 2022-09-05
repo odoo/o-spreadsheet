@@ -142,4 +142,17 @@ describe("functions", () => {
       model.getters.getNumberCols(model.getters.getActiveSheetId())
     );
   });
+
+  test("undefined fallback to an empty string in a function", () => {
+    functionRegistry.add("UNDEFINED", {
+      description: "undefined",
+      // @ts-expect-error can happen in a vanilla javascript code base
+      compute: function () {
+        return undefined;
+      },
+      args: args(``),
+      returns: ["STRING"],
+    });
+    expect(evaluateCell("A1", { A1: "=UNDEFINED()" })).toBe("");
+  });
 });

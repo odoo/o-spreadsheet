@@ -92,9 +92,4 @@ export abstract class AbstractChart {
    * Extract the ChartCreationContext of the chart
    */
   abstract getContextCreation(): ChartCreationContext;
-
-  /**
-   * Get the sheet ids that are used in the ranges of the chart.
-   */
-  abstract getSheetIdsUsedInChartRanges(): UID[];
 }

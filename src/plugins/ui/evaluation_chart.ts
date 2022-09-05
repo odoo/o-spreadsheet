@@ -34,14 +34,6 @@ export class EvaluationChartPlugin extends UIPlugin {
       case "DELETE_FIGURE":
         this.charts[cmd.id] = undefined;
         break;
-      case "REFRESH_CHART":
-        this.charts[cmd.id] = undefined;
-        this.evaluateUsedSheets([cmd.id]); //TODO Lazy evaluation for the win
-        break;
-      case "ACTIVATE_SHEET":
-        const chartsIds = this.getters.getChartIds(cmd.sheetIdTo);
-        this.evaluateUsedSheets(chartsIds); //TODO Lazy evaluation for the win
-        break;
       case "DELETE_SHEET":
         for (let chartId in this.charts) {
           if (!this.getters.isChartDefined(chartId)) {
@@ -61,21 +53,6 @@ export class EvaluationChartPlugin extends UIPlugin {
       this.charts[figureId] = this.createRuntimeChart(chart);
     }
     return this.charts[figureId]!;
-  }
-
-  private evaluateUsedSheets(chartsIds: UID[]) {
-    const usedSheetsId: Set<UID> = new Set();
-    for (let chartId of chartsIds) {
-      const sheetIds = this.getters.getSheetIdsUsedInChartRanges(chartId) || [];
-      sheetIds.forEach((sheetId) => {
-        if (sheetId !== this.getters.getActiveSheetId()) {
-          usedSheetsId.add(sheetId);
-        }
-      });
-    }
-    for (let sheetId of usedSheetsId) {
-      this.dispatch("EVALUATE_CELLS", { sheetId });
-    }
   }
 
   /**

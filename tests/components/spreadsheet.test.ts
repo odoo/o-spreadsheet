@@ -18,6 +18,7 @@ import {
   simulateClick,
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
+import { getCellContent } from "../test_helpers/getters_helpers";
 import {
   makeTestFixture,
   MockClipboard,
@@ -99,6 +100,7 @@ describe("Spreadsheet", () => {
     test("Can use the env in a function", () => {
       const model = new Model({ sheets: [{ id: 1 }] }, { evalContext: { env: { myKey: [] } } });
       setCellContent(model, "A1", "=GETACTIVESHEET()");
+      expect(getCellContent(model, "A1")).toBe("Sheet");
       expect(env).toMatchObject({ myKey: [] });
     });
 

@@ -1083,25 +1083,19 @@ function _getColumnLetter(number) {
 
 function computeFormulaCells(cols, rows) {
   const cells = {};
-  for (let letter = 0; letter <= cols; letter++) {
-    const x = _getColumnLetter(letter);
-    if (letter === 0) {
-      cells[x + 3] = { content: letter.toString() };
-    } else {
-      const prev = _getColumnLetter(letter - 1);
-      cells[x + 3] = {
-        content: `=2*${prev}${rows}`,
-      };
-    }
-    for (let index = 4; index <= rows; index++) {
-      cells[x + index] = {
-        content: `=${x}${index - 1}+1`,
+  for (let row = 4; row <= rows; row++) {
+    cells[`A${row}`] = { content: row.toString() };
+    for (let col = 1; col < cols; col++) {
+      const colLetter = _getColumnLetter(col);
+      const prev = _getColumnLetter(col - 1);
+      cells[colLetter + row] = {
+        content: `=${prev}${row}+1`,
       };
     }
   }
   const letter = _getColumnLetter(cols);
   const nextLetter = _getColumnLetter(cols + 1);
-  for (let i = 3; i <= rows; i++) {
+  for (let i = 3; i < cols; i++) {
     cells[nextLetter + i] = {
       content: `=SUM(A${i}:${letter}${i})`,
     };

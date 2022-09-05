@@ -22,7 +22,6 @@ import {
 import { LegendPosition, VerticalAxisPosition } from "../../types/chart/common_chart";
 import { Validator } from "../../types/validator";
 import { toXlsxHexColor } from "../../xlsx/helpers/colors";
-import { isDefined } from "../misc";
 import { createRange } from "../range";
 import { AbstractChart } from "./abstract_chart";
 import {
@@ -178,23 +177,6 @@ export class BarChart extends AbstractChart {
       dataSets,
       stackedBar: this.stackedBar,
     };
-  }
-
-  getSheetIdsUsedInChartRanges(): UID[] {
-    const sheetIds = new Set<UID>();
-    const ranges: Range[] = [];
-    this.dataSets.map((ds) => ds.dataRange).map((range) => ranges.push(range));
-    this.dataSets
-      .map((ds) => ds.labelCell)
-      .filter(isDefined)
-      .map((range) => ranges.push(range));
-    if (this.labelRange) {
-      ranges.push(this.labelRange);
-    }
-    for (const range of ranges) {
-      sheetIds.add(range.sheetId);
-    }
-    return Array.from(sheetIds);
   }
 
   updateRanges(applyChange: ApplyRangeChange): BarChart {

@@ -1,3 +1,4 @@
+import { Lazy } from ".";
 import { SpreadsheetChildEnv } from "./env";
 import { EvaluationError } from "./errors";
 import { Format, FormattedValue } from "./format";
@@ -37,8 +38,9 @@ export interface ICell {
 }
 
 export interface FormulaCell extends ICell {
-  assignEvaluation: (value: CellValue | null, format?: Format) => void;
-  assignError: (value: string, error: EvaluationError) => void;
+  assignEvaluation: (
+    evaluationResult: Lazy<{ value: CellValue | null; format?: Format } | EvaluationError>
+  ) => void;
   readonly compiledFormula: CompiledFormula;
   readonly dependencies: Range[];
 }

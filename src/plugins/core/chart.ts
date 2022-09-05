@@ -40,7 +40,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     "getChartIds",
     "getChart",
     "getContextCreationChart",
-    "getSheetIdsUsedInChartRanges",
   ] as const;
 
   readonly charts: Record<UID, AbstractChart | undefined> = {};
@@ -143,10 +142,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       throw new Error(`There is no chart with the given figureId: ${figureId}`);
     }
     return definition;
-  }
-
-  getSheetIdsUsedInChartRanges(figureId: UID): UID[] | undefined {
-    return this.charts[figureId]?.getSheetIdsUsedInChartRanges();
   }
 
   // ---------------------------------------------------------------------------

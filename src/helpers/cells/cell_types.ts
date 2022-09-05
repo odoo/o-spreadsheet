@@ -12,6 +12,7 @@ import {
   FormulaCell as IFormulaCell,
   ICell,
   InvalidEvaluation,
+  Lazy,
   Link,
   LinkCell as ILinkCell,
   NumberEvaluation,
@@ -23,6 +24,7 @@ import {
 } from "../../types";
 import { CellErrorType, EvaluationError } from "../../types/errors";
 import { formatValue } from "../format";
+import { lazy } from "../index";
 import { markdownLink, parseMarkdownLink, parseSheetLink } from "../misc";
 /**
  * Abstract base implementation of a cell.
@@ -33,12 +35,15 @@ abstract class AbstractCell<T extends CellEvaluation = CellEvaluation> implement
   readonly style?: Style;
   readonly format?: Format;
   abstract content: string;
-  public evaluated: T;
+  protected lazyEvaluated: Lazy<T>;
 
-  constructor(readonly id: UID, evaluated: T, properties: CellDisplayProperties) {
+  constructor(readonly id: UID, lazyEvaluated: Lazy<T>, properties: CellDisplayProperties) {
     this.style = properties.style;
     this.format = properties.format;
-    this.evaluated = { ...evaluated, format: evaluated.format || properties.format };
+    this.lazyEvaluated = lazyEvaluated.map((evaluated) => ({
+      ...evaluated,
+      format: properties.format || evaluated.format,
+    }));
   }
   isFormula(): this is IFormulaCell {
     return false;
@@ -50,6 +55,10 @@ abstract class AbstractCell<T extends CellEvaluation = CellEvaluation> implement
 
   isEmpty(): boolean {
     return false;
+  }
+
+  get evaluated(): T {
+    return this.lazyEvaluated();
   }
 
   get formattedValue() {
@@ -93,7 +102,7 @@ abstract class AbstractCell<T extends CellEvaluation = CellEvaluation> implement
 export class EmptyCell extends AbstractCell<EmptyEvaluation> {
   readonly content = "";
   constructor(id: UID, properties: CellDisplayProperties = {}) {
-    super(id, { value: "", type: CellValueType.empty }, properties);
+    super(id, lazy({ value: "", type: CellValueType.empty }), properties);
   }
 
   isEmpty() {
@@ -104,7 +113,7 @@ export class EmptyCell extends AbstractCell<EmptyEvaluation> {
 export class NumberCell extends AbstractCell<NumberEvaluation> {
   readonly content = formatValue(this.evaluated.value);
   constructor(id: UID, value: number, properties: CellDisplayProperties = {}) {
-    super(id, { value: value, type: CellValueType.number }, properties);
+    super(id, lazy({ value, type: CellValueType.number }), properties);
   }
 
   get composerContent() {
@@ -118,13 +127,13 @@ export class NumberCell extends AbstractCell<NumberEvaluation> {
 export class BooleanCell extends AbstractCell<BooleanEvaluation> {
   readonly content = this.evaluated.value ? "TRUE" : "FALSE";
   constructor(id: UID, value: boolean, properties: CellDisplayProperties = {}) {
-    super(id, { value: value, type: CellValueType.boolean }, properties);
+    super(id, lazy({ value, type: CellValueType.boolean }), properties);
   }
 }
 export class TextCell extends AbstractCell<TextEvaluation> {
   readonly content = this.evaluated.value;
   constructor(id: UID, value: string, properties: CellDisplayProperties = {}) {
-    super(id, { value: value, type: CellValueType.text }, properties);
+    super(id, lazy({ value, type: CellValueType.text }), properties);
   }
 }
 
@@ -160,7 +169,7 @@ export abstract class LinkCell extends AbstractCell<TextEvaluation> implements I
         textColor: properties.style?.textColor || LINK_COLOR,
       },
     };
-    super(id, { value: link.label, type: CellValueType.text }, properties);
+    super(id, lazy({ value: link.label, type: CellValueType.text }), properties);
     this.link = link;
     this.content = content;
   }
@@ -246,7 +255,7 @@ export class FormulaCell extends AbstractCell implements IFormulaCell {
     readonly dependencies: Range[],
     properties: CellDisplayProperties
   ) {
-    super(id, { value: LOADING, type: CellValueType.text }, properties);
+    super(id, lazy({ value: LOADING, type: CellValueType.text }), properties);
   }
 
   get content() {
@@ -257,45 +266,52 @@ export class FormulaCell extends AbstractCell implements IFormulaCell {
     return true;
   }
 
-  assignEvaluation(value: CellValue | null, format: Format) {
-    switch (typeof value) {
-      case "number":
-        this.evaluated = {
-          value,
-          format,
-          type: CellValueType.number,
+  assignEvaluation(
+    lazyEvaluationResult: Lazy<{ value: CellValue | null; format?: Format } | EvaluationError>
+  ) {
+    this.lazyEvaluated = lazyEvaluationResult.map((evaluationResult) => {
+      if (evaluationResult instanceof EvaluationError) {
+        return {
+          value: evaluationResult.errorType,
+          type: CellValueType.error,
+          error: evaluationResult,
         };
-        break;
-      case "boolean":
-        this.evaluated = {
-          value,
-          format,
-          type: CellValueType.boolean,
-        };
-        break;
-      case "string":
-        this.evaluated = {
-          value,
-          format,
-          type: CellValueType.text,
-        };
-        break;
-      case "object": // null
-        this.evaluated = {
-          value: 0,
-          format,
-          type: CellValueType.number,
-        };
-        break;
-    }
-  }
-
-  assignError(value: string, error: EvaluationError) {
-    this.evaluated = {
-      value,
-      error,
-      type: CellValueType.error,
-    };
+      }
+      const { value, format } = evaluationResult;
+      switch (typeof value) {
+        case "number":
+          return {
+            value,
+            format,
+            type: CellValueType.number,
+          };
+        case "boolean":
+          return {
+            value,
+            format,
+            type: CellValueType.boolean,
+          };
+        case "string":
+          return {
+            value,
+            format,
+            type: CellValueType.text,
+          };
+        case "object": // null
+          return {
+            value: 0,
+            format,
+            type: CellValueType.number,
+          };
+        default:
+          // cannot happen with Typescript compiler watching
+          // but possible in a vanilla javascript code base
+          return {
+            value: "",
+            type: CellValueType.empty,
+          };
+      }
+    });
   }
 }
 
@@ -318,11 +334,11 @@ export class BadExpressionCell extends AbstractCell<InvalidEvaluation> {
   ) {
     super(
       id,
-      {
+      lazy({
         value: CellErrorType.BadExpression,
         type: CellValueType.error,
         error,
-      },
+      }),
       properties
     );
   }

@@ -150,17 +150,6 @@ export class ScorecardChart extends AbstractChart {
     };
   }
 
-  getSheetIdsUsedInChartRanges(): UID[] {
-    const sheetIds: Set<UID> = new Set<UID>();
-    if (this.baseline) {
-      sheetIds.add(this.baseline.sheetId);
-    }
-    if (this.keyValue) {
-      sheetIds.add(this.keyValue.sheetId);
-    }
-    return Array.from(sheetIds);
-  }
-
   private getDefinitionWithSpecificRanges(
     baseline: Range | undefined,
     keyValue: Range | undefined,

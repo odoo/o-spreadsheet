@@ -18,6 +18,7 @@ function getCellsObject(model: Model, sheetId: UID) {
     cell = model.getters.getCell(sheetId, col, row)!;
     cells[toXC(col, row)] = {
       ...cell,
+      evaluated: cell.evaluated,
       value: cell.evaluated.value,
       content: cell.content,
     };

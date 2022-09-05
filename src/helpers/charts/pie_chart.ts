@@ -29,7 +29,6 @@ import { LegendPosition } from "../../types/chart/common_chart";
 import { PieChartDefinition, PieChartRuntime } from "../../types/chart/pie_chart";
 import { Validator } from "../../types/validator";
 import { toXlsxHexColor } from "../../xlsx/helpers/colors";
-import { isDefined } from "../misc";
 import { createRange } from "../range";
 import { AbstractChart } from "./abstract_chart";
 import {
@@ -176,23 +175,6 @@ export class PieChart extends AbstractChart {
       verticalAxisPosition: "left", //TODO ExcelChartDefinition should be adapted, but can be done later
       dataSets,
     };
-  }
-
-  getSheetIdsUsedInChartRanges(): UID[] {
-    const sheetIds = new Set<UID>();
-    const ranges: Range[] = [];
-    this.dataSets.map((ds) => ds.dataRange).map((range) => ranges.push(range));
-    this.dataSets
-      .map((ds) => ds.labelCell)
-      .filter(isDefined)
-      .map((range) => ranges.push(range));
-    if (this.labelRange) {
-      ranges.push(this.labelRange);
-    }
-    for (const range of ranges) {
-      sheetIds.add(range.sheetId);
-    }
-    return Array.from(sheetIds);
   }
 
   updateRanges(applyChange: ApplyRangeChange): PieChart {
