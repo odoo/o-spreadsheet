@@ -25,11 +25,11 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
         const sizes = {
           COL: computedSizes.COL.map((size) => ({
             manualSize: undefined,
-            computedSize: lazy(() => size),
+            computedSize: lazy(size),
           })),
           ROW: computedSizes.ROW.map((size) => ({
             manualSize: undefined,
-            computedSize: lazy(() => size),
+            computedSize: lazy(size),
           })),
         };
         this.history.update("sizes", cmd.sheetId, sizes);
@@ -87,12 +87,12 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
             const size = height;
             this.history.update("sizes", cmd.sheetId, cmd.dimension, el, {
               manualSize: cmd.size || undefined,
-              computedSize: lazy(() => size),
+              computedSize: lazy(size),
             });
           } else {
             this.history.update("sizes", cmd.sheetId, cmd.dimension, el, {
               manualSize: cmd.size || undefined,
-              computedSize: lazy(() => cmd.size || DEFAULT_CELL_WIDTH),
+              computedSize: lazy(cmd.size || DEFAULT_CELL_WIDTH),
             });
           }
         }
@@ -122,7 +122,7 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
                 "ROW",
                 row,
                 "computedSize",
-                lazy(() => rowHeight)
+                lazy(rowHeight)
               );
             }
           }
@@ -224,11 +224,11 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
       this.sizes[sheet.id] = {
         COL: computedSizes.COL.map((size, i) => ({
           manualSize: manualSizes.COL[i],
-          computedSize: lazy(() => size),
+          computedSize: lazy(size),
         })),
         ROW: computedSizes.ROW.map((size, i) => ({
           manualSize: manualSizes.ROW[i],
-          computedSize: lazy(() => size),
+          computedSize: lazy(size),
         })),
       };
     }
