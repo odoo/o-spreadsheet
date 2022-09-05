@@ -185,4 +185,16 @@ describe("lazy", () => {
     expect(lazyValue()).toBe(undefined);
     expect(count).toBe(1);
   });
+
+  test("lazy with non computed values", () => {
+    expect(lazy(5)()).toBe(5);
+    expect(lazy(true)()).toBe(true);
+    expect(lazy("a string")()).toBe("a string");
+    const obj = { a: 5 };
+    expect(lazy(obj)()).toBe(obj);
+  });
+
+  test("map a non-computed lazy value to another value", () => {
+    expect(lazy(5).map((n) => n + 1)()).toBe(6);
+  });
 });

@@ -389,12 +389,12 @@ export function concat(chars: string[]): string {
 /**
  * Lazy value computed by the provided function.
  */
-export function lazy<T>(fn: () => T): Lazy<T> {
+export function lazy<T>(fn: (() => T) | T): Lazy<T> {
   let isMemoized = false;
   let memo: T | undefined;
   const lazyValue = () => {
     if (!isMemoized) {
-      memo = fn();
+      memo = fn instanceof Function ? fn() : fn;
       isMemoized = true;
     }
     return memo!;
