@@ -93,15 +93,6 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
         this.props.onFigureDeleted();
       },
     });
-    registry.add("refresh", {
-      name: _lt("Refresh"),
-      sequence: 11,
-      action: () => {
-        this.env.model.dispatch("REFRESH_CHART", {
-          id: this.props.figure.id,
-        });
-      },
-    });
     return registry;
   }
 

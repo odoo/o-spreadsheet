@@ -506,28 +506,6 @@ describe("figures", () => {
   );
 
   test.each(["basicChart", "scorecard", "gauge"])(
-    "can refresh a chart",
-    async (chartType: string) => {
-      createTestChart(chartType);
-      await nextTick();
-
-      expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
-      await simulateClick(".o-figure");
-      await simulateClick(".o-chart-menu-item");
-      await simulateClick(".o-menu div[data-name='edit']");
-      await nextTick();
-      expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
-      await simulateClick(".o-figure");
-      await simulateClick(".o-chart-menu-item");
-      const dispatch = spyDispatch(parent);
-      await simulateClick(".o-menu div[data-name='refresh']");
-      expect(dispatch).toHaveBeenCalledWith("REFRESH_CHART", {
-        id: "someuuid",
-      });
-    }
-  );
-
-  test.each(["basicChart", "scorecard", "gauge"])(
     "selecting other chart will adapt sidepanel",
     async (chartType: string) => {
       createTestChart(chartType);

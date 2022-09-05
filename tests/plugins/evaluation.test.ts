@@ -1103,7 +1103,7 @@ describe("evaluate formula getter", () => {
     expect(mockCompute).toHaveBeenCalledTimes(0);
   });
   test("cells are re-evaluated if one of their dependency changes", () => {
-    const mockCompute = jest.fn();
+    const mockCompute = jest.fn().mockReturnValue("Hi");
 
     functionRegistry.add("GETVALUE", {
       description: "Get value",
@@ -1112,10 +1112,12 @@ describe("evaluate formula getter", () => {
       returns: ["NUMBER"],
     });
     setCellContent(model, "A1", "=GETVALUE(A2)");
-
+    expect(getCellContent(model, "A1")).toBe("Hi");
     expect(mockCompute).toHaveBeenCalledTimes(1);
     resetAllMocks();
+    mockCompute.mockReturnValue("Hello");
     setCellContent(model, "A2", "1");
+    expect(getCellContent(model, "A1")).toBe("Hello");
     expect(mockCompute).toHaveBeenCalledTimes(1);
   });
 
@@ -1180,7 +1182,7 @@ describe("evaluate formula getter", () => {
     expect(getCell(model, "A1")!.evaluated.type).toBe(CellValueType.error);
     expect((getCell(model, "A1")!.evaluated as InvalidEvaluation).error.message).toBe("Error1");
     value = 2;
-    model.dispatch("EVALUATE_ALL_SHEETS");
+    model.dispatch("EVALUATE_CELLS");
     expect(getCell(model, "A1")!.evaluated.type).toBe(CellValueType.error);
     expect((getCell(model, "A1")!.evaluated as InvalidEvaluation).error.message).toBe("Error2");
     functionRegistry.remove("GETVALUE");

@@ -372,11 +372,6 @@ export interface UpdateChartCommand extends SheetDependentCommand {
   definition: ChartDefinition;
 }
 
-export interface RefreshChartCommand {
-  type: "REFRESH_CHART";
-  id: UID;
-}
-
 export interface SetFormattingCommand extends TargetDependentCommand {
   type: "SET_FORMATTING";
   style?: Style;
@@ -486,8 +481,6 @@ export interface SetColorCommand {
 
 export interface EvaluateCellsCommand {
   type: "EVALUATE_CELLS";
-  sheetId: UID;
-  onlyWaiting?: boolean;
 }
 
 export interface StartChangeHighlightCommand {
@@ -772,9 +765,6 @@ export interface PasteCFCommand {
   operation: "CUT" | "COPY";
 }
 
-export interface EvaluateAllSheetsCommand {
-  type: "EVALUATE_ALL_SHEETS";
-}
 //#endregion
 
 export interface ActivateNextSheetCommand {
@@ -902,14 +892,12 @@ export type LocalCommand =
   | ReplaceAllSearchCommand
   | SortCommand
   | ResizeViewportCommand
-  | RefreshChartCommand
   | SumSelectionCommand
   | DeleteCellCommand
   | InsertCellCommand
   | SetViewportOffsetCommand
   | MoveViewportDownCommand
   | MoveViewportUpCommand
-  | EvaluateAllSheetsCommand
   | OpenCellPopoverCommand
   | CloseCellPopoverCommand
   | ActivateNextSheetCommand

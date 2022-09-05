@@ -1035,17 +1035,15 @@ describe("multiple sheets", function () {
       const chart = (model.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig;
       expect(chart.data!.datasets![0].data).toEqual([2, 4]);
     });
-    test("refresh chart to update it with new data", () => {
+    test("chart is updated with new data", () => {
+      let chart = (model.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig;
+      expect(chart.data!.datasets![0].data).toEqual([2, 4]);
       model.dispatch("UPDATE_CELL", {
         sheetId: "Sheet2",
         col: 0,
         row: 0,
         content: "=Sheet1!B1*3",
       });
-      let chart = (model.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig;
-      expect(chart.data!.datasets![0].data).toEqual(["Loading...", 4]); // data has not been updated :(
-
-      model.dispatch("REFRESH_CHART", { id: "1" });
       chart = (model.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig;
       expect(chart.data!.datasets![0].data).toEqual([3, 4]);
 
@@ -1055,10 +1053,6 @@ describe("multiple sheets", function () {
         row: 1,
         content: "5",
       });
-      chart = (model.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig;
-      expect(chart.data!.datasets![0].data).toEqual([3, 4]); // data has not been updated :(
-
-      model.dispatch("REFRESH_CHART", { id: "1" });
       chart = (model.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig;
       expect(chart.data!.datasets![0].data).toEqual([3, 10]);
     });

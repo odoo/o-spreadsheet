@@ -490,7 +490,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * (e.g. open a document with several sheet and click on download before visiting each sheet)
    */
   exportXLSX(): XLSXExport {
-    this.dispatch("EVALUATE_ALL_SHEETS");
+    this.dispatch("EVALUATE_CELLS");
     let data = createEmptyExcelWorkbookData();
     for (let handler of this.handlers) {
       if (handler instanceof BasePlugin) {

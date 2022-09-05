@@ -1,6 +1,6 @@
 import { compile } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
-import { intersection, isZoneValid, toXC, zoneToXc } from "../../helpers/index";
+import { intersection, isZoneValid, lazy, toXC, zoneToXc } from "../../helpers/index";
 import { ModelConfig } from "../../model";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
 import { StateObserver } from "../../state_observer";
@@ -22,7 +22,6 @@ import {
   EvalContext,
   Format,
   FormattedValue,
-  FormulaCell,
   Getters,
   invalidateEvaluationCommands,
   MatrixArg,
@@ -40,7 +39,7 @@ type CompilationParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
 export class EvaluationPlugin extends UIPlugin {
   static getters = ["evaluateFormula", "getRangeFormattedValues", "getRangeValues"] as const;
 
-  private isUpToDate: Set<UID> = new Set(); // Set<sheetIds>
+  private isUpToDate = false;
   private readonly evalContext: EvalContext;
 
   constructor(
@@ -60,34 +59,23 @@ export class EvaluationPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     if (invalidateEvaluationCommands.has(cmd.type)) {
-      this.isUpToDate.clear();
+      this.isUpToDate = false;
     }
     switch (cmd.type) {
       case "UPDATE_CELL":
         if ("content" in cmd || "format" in cmd) {
-          this.isUpToDate.clear();
+          this.isUpToDate = false;
         }
         break;
-      case "ACTIVATE_SHEET": {
-        this.evaluate(cmd.sheetIdTo);
-        this.isUpToDate.add(cmd.sheetIdTo);
-        break;
-      }
       case "EVALUATE_CELLS":
-        this.evaluate(cmd.sheetId);
-        this.isUpToDate.add(cmd.sheetId);
-        break;
-      case "EVALUATE_ALL_SHEETS":
-        this.evaluateAllSheets();
+        this.evaluate();
         break;
     }
   }
 
   finalize() {
-    const sheetId = this.getters.getActiveSheetId();
-    if (!this.isUpToDate.has(sheetId)) {
-      this.evaluate(sheetId);
-      this.isUpToDate.add(sheetId);
+    if (!this.isUpToDate) {
+      this.evaluate();
     }
   }
 
@@ -130,29 +118,36 @@ export class EvaluationPlugin extends UIPlugin {
   // Evaluator
   // ---------------------------------------------------------------------------
 
-  private evaluate(sheetId: UID) {
-    const cells = this.getters.getCells(sheetId);
+  private *getAllCells(): Iterable<Cell> {
+    // use a generator function to avoid re-building a new object
+    for (const sheetId of this.getters.getSheetIds()) {
+      const cells = this.getters.getCells(sheetId);
+      for (const cellId in cells) {
+        yield cells[cellId];
+      }
+    }
+  }
+
+  private evaluate() {
     const compilationParameters = this.getCompilationParameters(computeCell);
     const visited: { [cellId: string]: boolean | null } = {};
 
-    for (let cell of Object.values(cells)) {
+    for (const cell of this.getAllCells()) {
       computeCell(cell);
     }
+    this.isUpToDate = true;
 
-    function handleError(e: Error | any, cell: FormulaCell) {
+    function handleError(e: Error | any): EvaluationError {
       if (!(e instanceof Error)) {
         e = new Error(e);
       }
       const msg = e?.errorType || CellErrorType.GenericError;
       // apply function name
       const __lastFnCalled = compilationParameters[2].__lastFnCalled || "";
-      cell.assignError(
+      return new EvaluationError(
         msg,
-        new EvaluationError(
-          msg,
-          e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled),
-          e.logLevel !== undefined ? e.logLevel : CellErrorLevel.error
-        )
+        e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled),
+        e.logLevel !== undefined ? e.logLevel : CellErrorLevel.error
       );
     }
 
@@ -161,33 +156,37 @@ export class EvaluationPlugin extends UIPlugin {
         return;
       }
       const cellId = cell.id;
-      if (cellId in visited) {
-        if (visited[cellId] === null) {
-          cell.assignError(CellErrorType.CircularDependency, new CircularDependencyError());
-        }
-        return;
-      }
-      visited[cellId] = null;
-      try {
+
+      const computedCell = lazy(() => {
         compilationParameters[2].__originCellXC = () => {
           // compute the value lazily for performance reasons
           const position = compilationParameters[2].getters.getCellPosition(cellId);
           return toXC(position.col, position.row);
         };
-
-        const computedCell = cell.compiledFormula.execute(
-          cell.dependencies,
-          ...compilationParameters
-        );
-        cell.assignEvaluation(computedCell.value, cell.format || computedCell.format);
-        if (Array.isArray(cell.evaluated.value)) {
-          // if a value returns an array (like =A1:A3)
-          throw new Error(_lt("This formula depends on invalid values"));
+        if (cellId in visited) {
+          if (visited[cellId] === null) {
+            return new CircularDependencyError();
+          }
+          return cell.evaluated;
         }
-      } catch (e) {
-        handleError(e, cell);
-      }
-      visited[cellId] = true;
+        visited[cellId] = null;
+        try {
+          const computedCell = cell.compiledFormula.execute(
+            cell.dependencies,
+            ...compilationParameters
+          );
+          visited[cellId] = true;
+          if (Array.isArray(computedCell.value)) {
+            // if a value returns an array (like =A1:A3)
+            throw new Error(_lt("This formula depends on invalid values"));
+          }
+          return { value: computedCell.value, format: cell.format || computedCell.format };
+        } catch (error) {
+          visited[cellId] = true;
+          return handleError(error);
+        }
+      });
+      cell.assignEvaluation(computedCell);
     }
   }
 
@@ -219,7 +218,6 @@ export class EvaluationPlugin extends UIPlugin {
     }
 
     function getEvaluatedCell(cell: Cell): { value: CellValue; format?: Format } {
-      computeCell(cell);
       if (cell.evaluated.type === CellValueType.error) {
         throw new EvaluationError(
           cell.evaluated.value,
@@ -314,15 +312,5 @@ export class EvaluationPlugin extends UIPlugin {
       return readCell(range);
     }
     return [refFn, range, evalContext];
-  }
-
-  /**
-   * Triggers an evaluation of all cells on all sheets.
-   */
-  private evaluateAllSheets() {
-    for (const sheetId of this.getters.getSheetIds()) {
-      this.evaluate(sheetId);
-      this.isUpToDate.add(sheetId);
-    }
   }
 }
