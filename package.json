@@ -64,7 +64,7 @@
     "printWidth": 100
   },
   "dependencies": {
-    "@odoo/owl": "2.0.0-beta-15",
+    "@odoo/owl": "2.0.0-beta-18",
     "bootstrap": "^4.6.0"
   },
   "jest": {
