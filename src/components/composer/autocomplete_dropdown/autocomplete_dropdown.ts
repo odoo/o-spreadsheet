@@ -71,7 +71,7 @@ export interface TextValueProviderApi {
   getValueToFill: () => string | undefined;
 }
 
-export abstract class TextValueProvider extends Component<Props> implements TextValueProviderApi {
+export class TextValueProvider extends Component<Props> implements TextValueProviderApi {
   static template = "o-spreadsheet-TextValueProvider";
   state = useState({
     values: <AutocompleteValue[]>[],

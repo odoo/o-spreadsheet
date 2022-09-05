@@ -1,4 +1,4 @@
-import { ComponentConstructor } from "@odoo/owl/dist/types/component/component";
+import { ComponentConstructor } from "@odoo/owl";
 import { Getters, Position } from "./index";
 import { PropsOf } from "./misc";
 import { DOMCoordinates } from "./rendering";
