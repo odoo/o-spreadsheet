@@ -237,6 +237,10 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     this.subMenu.parentMenu = menu;
   }
 
+  isParentMenu(subMenu: MenuState, menuItem: FullMenuItem) {
+    return subMenu.parentMenu?.id === menuItem.id;
+  }
+
   closeSubMenu() {
     this.subMenu.isOpen = false;
     this.subMenu.parentMenu = undefined;

@@ -1,7 +1,7 @@
 // -----------------------------------------------------------------------------
 // MISC
 // -----------------------------------------------------------------------------
-import { ComponentConstructor } from "@odoo/owl/dist/types/component/component";
+import { ComponentConstructor } from "@odoo/owl";
 import { Token } from "../formulas";
 import { Cell, CellValue } from "./cells";
 import { CommandResult } from "./commands";
