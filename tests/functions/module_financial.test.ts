@@ -576,6 +576,48 @@ describe("DURATION formula", () => {
   });
 });
 
+describe("EFFECT formula", () => {
+  test("take 2 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=EFFECT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=EFFECT(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=EFFECT(1, 1)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=EFFECT(1, 1, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("Nominal rate is > 0", () => {
+    expect(evaluateCell("A1", { A1: "=EFFECT(-1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=EFFECT(0, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=EFFECT(1, 1)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=EFFECT(0.5, 1)" })).toBe(0.5);
+  });
+
+  test("Number of periods is > 0 and is truncated", () => {
+    expect(evaluateCell("A1", { A1: "=EFFECT(1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=EFFECT(1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=EFFECT(1, 1)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=EFFECT(1, 1.5)" })).toBe(1);
+  });
+
+  test.each([
+    ["6%", 1, 0.06],
+    ["6.09%", 2, 0.061827203],
+    ["6.14%", 4, 0.062828258],
+    ["6.17%", 12, 0.063475078],
+    ["6.18%", 365, 0.063744009],
+    ["6.14%", 4.5, 0.062828258],
+    ["12.00%", 3, 0.124864],
+    ["15%", 7, 0.15999472],
+  ])(
+    "function result =EFFECT(%s, %s)",
+    (nominalRate: string | number, nPeriods: number, expectedResult: number) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=EFFECT("${nominalRate}", "${nPeriods}")`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 8);
+    }
+  );
+});
+
 describe("FV formula", () => {
   test("take at 4 or 5 arguments", () => {
     expect(evaluateCell("A1", { A1: "=FV(1, 2)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -1320,6 +1362,47 @@ describe("MDURATION formula", () => {
       });
     });
   });
+});
+
+describe("NOMINAL formula", () => {
+  test("take 2 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=NOMINAL()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=NOMINAL(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=NOMINAL(1, 1)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=NOMINAL(1, 1, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("Effective rate is > 0", () => {
+    expect(evaluateCell("A1", { A1: "=NOMINAL(-1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=NOMINAL(0, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=NOMINAL(1, 1)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=NOMINAL(0.5, 1)" })).toBe(0.5);
+  });
+
+  test("Number of periods is > 0 and is truncated", () => {
+    expect(evaluateCell("A1", { A1: "=NOMINAL(1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=NOMINAL(1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=NOMINAL(1, 1)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=NOMINAL(1, 1.5)" })).toBe(1);
+  });
+
+  test.each([
+    ["6%", 1, 0.06],
+    ["6.09%", 2, 0.06],
+    ["6.14%", 4, 0.060034857],
+    ["6.17%", 12, 0.060021003],
+    ["6.18%", 365, 0.059970507],
+    [0.12, 3, 0.115496461],
+    [0.15, 7, 0.141166518],
+  ])(
+    "function result =NOMINAL(%s, %s)",
+    (effectiveRate: string | number, nPeriods: number, expectedResult: number) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=NOMINAL("${effectiveRate}", "${nPeriods}")`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 8);
+    }
+  );
 });
 
 describe("NPV formula", () => {
