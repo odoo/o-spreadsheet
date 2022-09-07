@@ -3371,6 +3371,92 @@ describe("YIELD formula", () => {
   });
 });
 
+describe("YIELDDISC function", () => {
+  test("take 4-5 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=YIELDDISC()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=YIELDDISC(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=YIELDDISC(1, 2)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=YIELDDISC(1, 2, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=YIELDDISC(1, 2, 1, 1)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=YIELDDISC(1, 2, 1, 1, 0)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=YIELDDISC(1, 2, 1, 1, 0, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("settlement is < maturity", () => {
+    expect(evaluateCell("A1", { A1: "=YIELDDISC(1, 1, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+    expect(evaluateCell("A1", { A1: "=YIELDDISC(2, 1, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+  });
+
+  test("price, redemption are > 0", () => {
+    expect(evaluateCell("A1", { A1: "=YIELDDISC(1, 2, -1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+    expect(evaluateCell("A1", { A1: "=YIELDDISC(1, 2, 1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+    expect(evaluateCell("A1", { A1: "=YIELDDISC(1, 2, 1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+    expect(evaluateCell("A1", { A1: "=YIELDDISC(1, 2, 0, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+  });
+
+  test("day_count_convention is between 0 and 4", () => {
+    expect(evaluateCell("A1", { A1: "=YIELDDISC(1, 2, 1, 1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+    expect(evaluateCell("A1", { A1: "=YIELDDISC(1, 1, -1, 0, 5)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+  });
+
+  test.each([
+    ["01/01/2012", "05/01/2016", 10, 100, 0, 2.076923077],
+    ["01/01/2012", "05/01/2016", 20, 100, 0, 0.923076923],
+    ["01/01/2012", "05/01/2016", 50, 100, 0, 0.230769231],
+    ["12/20/2014", "05/01/2016", 50, 68, 0, 0.26395112],
+    ["12/20/2014", "05/01/2016", 50, 12, 0, -0.557230143],
+    ["01/01/2012", "05/01/2016", 50, 68, 1, 0.083150442],
+    ["01/01/2012", "05/01/2016", 20, 20, 1, 0],
+    ["01/01/2012", "05/01/2016", 10, 89, 1, 1.824690265],
+    ["01/01/2012", "05/01/2016", 50, 68, 1, 0.083150442],
+    ["12/30/2014", "05/31/2016", 50, 1, 0, -0.691764706],
+    ["12/30/2014", "05/31/2016", 50, 1, 1, -0.691171171],
+    ["12/30/2014", "05/31/2016", 50, 1, 2, -0.681081081],
+    ["12/30/2014", "05/31/2016", 50, 1, 3, -0.690540541],
+    ["12/30/2014", "05/31/2016", 50, 1, 4, -0.691764706],
+    ["02/29/2020", "07/31/2020", 100, 20, 0, -1.907284768],
+    ["02/29/2020", "07/31/2020", 100, 20, 1, -1.91372549],
+    ["02/29/2020", "07/31/2020", 100, 20, 2, -1.882352941],
+    ["02/29/2020", "07/31/2020", 100, 20, 3, -1.908496732],
+    ["02/29/2020", "07/31/2020", 100, 20, 4, -1.907284768],
+    ["10/31/2005", "10/30/2010", 100, 20, 0, -0.16],
+    ["10/31/2005", "10/30/2010", 100, 20, 1, -0.160073059],
+    ["10/31/2005", "10/30/2010", 100, 20, 2, -0.157808219],
+    ["10/31/2005", "10/30/2010", 100, 20, 3, -0.16],
+    ["10/31/2005", "10/30/2010", 100, 20, 4, -0.16],
+    ["12/05/2009", "02/28/2010", 100, 20, 0, -3.469879518],
+    ["12/05/2009", "02/28/2010", 100, 20, 1, -3.435294118],
+    ["12/05/2009", "02/28/2010", 100, 20, 2, -3.388235294],
+    ["12/05/2009", "02/28/2010", 100, 20, 3, -3.435294118],
+    ["12/05/2009", "02/28/2010", 100, 20, 4, -3.469879518],
+    ["03/31/2008", "02/29/2012", 100, 20, 0, -0.204400284],
+    ["03/31/2008", "02/29/2012", 100, 20, 1, -0.20441958],
+    ["03/31/2008", "02/29/2012", 100, 20, 2, -0.201398601],
+    ["03/31/2008", "02/29/2012", 100, 20, 3, -0.204195804],
+    ["03/31/2008", "02/29/2012", 100, 20, 4, -0.204400284],
+    ["03/30/2008", "02/28/2011", 100, 20, 0, -0.27480916],
+    ["03/30/2008", "02/28/2011", 100, 20, 1, -0.274366197],
+    ["03/30/2008", "02/28/2011", 100, 20, 2, -0.270422535],
+    ["03/30/2008", "02/28/2011", 100, 20, 3, -0.274178404],
+    ["03/30/2008", "02/28/2011", 100, 20, 4, -0.27480916],
+  ])(
+    "function result =YIELDDISC(%s, %s, %s, %s, %s)",
+    (
+      settlement: string,
+      maturity: string,
+      pr: number,
+      redemption: number,
+      basis: number,
+      expectedResult: number
+    ) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=YIELDDISC("${settlement}", "${maturity}", ${pr}, ${redemption}, ${basis})`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+});
+
 describe("YIELDMAT formula", () => {
   test("take at 6 or 7 arguments", () => {
     expect(evaluateCell("A1", { A1: "=YIELDMAT(100, 465, 0, 0.05)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
