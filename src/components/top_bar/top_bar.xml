@@ -37,7 +37,7 @@
             Readonly Access
           </span>
         </div>
-        <div t-else="" class="o-toolbar-tools">
+        <div t-else="" class="o-toolbar-tools" t-on-contextmenu.prevent="">
           <div
             class="o-tool"
             title="Undo"

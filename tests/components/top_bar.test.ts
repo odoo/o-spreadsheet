@@ -1,4 +1,5 @@
 import { App, Component, onMounted, onWillUnmount, useState, useSubEnv, xml } from "@odoo/owl";
+import { Spreadsheet } from "../../src";
 import { TopBar } from "../../src/components/top_bar/top_bar";
 import { DEFAULT_FONT_SIZE } from "../../src/constants";
 import { toZone } from "../../src/helpers";
@@ -15,7 +16,7 @@ import {
   setCellContent,
   setSelection,
 } from "../test_helpers/commands_helpers";
-import { triggerMouseEvent } from "../test_helpers/dom_helper";
+import { rightClickCell, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getBorder, getCell } from "../test_helpers/getters_helpers";
 import {
   makeTestFixture,
@@ -104,6 +105,21 @@ describe("TopBar component", () => {
     await nextTick();
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
     expect(fixture.querySelectorAll(".o-color-line").length).toBe(0);
+    app.destroy();
+  });
+
+  test("opening a context menu closes an already opened topbar menu", async () => {
+    const { app, parent } = await mountSpreadsheet(fixture);
+    const model = (parent as Spreadsheet).model;
+
+    expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
+    fixture.querySelector('.o-tool[title="Borders"]')!.dispatchEvent(new Event("click"));
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
+    expect(fixture.querySelectorAll(".o-line-item").length).not.toBe(0);
+    await rightClickCell(model, "B2");
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
     app.destroy();
   });
 

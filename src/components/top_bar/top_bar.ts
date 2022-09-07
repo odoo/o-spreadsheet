@@ -306,6 +306,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     useExternalListener(window as any, "click", this.onClick);
+    useExternalListener(window as any, "contextmenu", this.onClick);
     onWillStart(() => this.updateCellState());
     onWillUpdateProps(() => this.updateCellState());
   }

@@ -3,7 +3,7 @@
     <div
       class="o-chart-container"
       t-ref="chartContainer"
-      t-on-contextmenu.prevent.stop="(ev) => !env.isDashboard() and this.onContextMenu(ev)">
+      t-on-contextmenu.prevent="(ev) => !env.isDashboard() and this.onContextMenu(ev)">
       <div class="o-chart-menu" t-if="!env.isDashboard()">
         <div
           class="o-chart-menu-item"
@@ -20,7 +20,7 @@
       />
 
       <Menu
-        t-if="menuState.isOpen"
+        t-if="this.isMenuOpen()"
         position="menuState.position"
         menuItems="menuState.menuItems"
         onClose="() => this.menuState.isOpen=false"

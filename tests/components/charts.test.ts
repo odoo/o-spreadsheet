@@ -14,6 +14,7 @@ import {
   updateChart,
 } from "../test_helpers/commands_helpers";
 import {
+  rightClickCell,
   setInputValueAndTrigger,
   simulateClick,
   triggerMouseEvent,
@@ -1149,5 +1150,66 @@ describe("charts with multiple sheets", () => {
     expect(runtimeChart).toBeDefined();
     await nextTick();
     expect(fixture.querySelector(".o-chart-container")).not.toBeNull();
+  });
+});
+
+describe("Chart Context Menu", () => {
+  beforeEach(async () => {
+    fixture = makeTestFixture();
+    ({ app, parent } = await mountSpreadsheet(fixture));
+    model = (parent as Spreadsheet).model;
+  });
+  afterEach(async () => {
+    app.destroy();
+    fixture.remove();
+  });
+
+  test("Right click on chart closes top bar drop-down tool", async () => {
+    createChart(model, {}, "chartId");
+    await nextTick();
+
+    expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
+    fixture.querySelector('.o-tool[title="Borders"]')!.dispatchEvent(new Event("click"));
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
+
+    triggerMouseEvent(".o-chart-container", "contextmenu");
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
+  });
+
+  test("Right click on a chart closes other chart's context menu", async () => {
+    // This test ensure there is only one context menu openened at a time.
+    createChart(model, {}, "chartId1");
+    await nextTick();
+    createChart(model, {}, "chartId2");
+    await nextTick();
+
+    const charts = fixture.querySelectorAll(".o-chart-container");
+
+    triggerMouseEvent(charts[0], "contextmenu");
+    await nextTick();
+    expect(document.querySelectorAll(".o-menu").length).toBe(1);
+
+    triggerMouseEvent(charts[1], "contextmenu");
+    await nextTick();
+    expect(document.querySelectorAll(".o-menu").length).toBe(1);
+  });
+
+  test("Right click on a cell closes other chart's context menu", async () => {
+    // This test ensure there is only one context menu openened at a time.
+    createChart(model, {}, "chartId1");
+    await nextTick();
+    createChart(model, {}, "chartId2");
+    await nextTick();
+
+    const charts = fixture.querySelectorAll(".o-chart-container");
+
+    triggerMouseEvent(charts[0], "contextmenu");
+    await nextTick();
+    expect(document.querySelectorAll(".o-menu").length).toBe(1);
+
+    await rightClickCell(model, "B2");
+    expect(document.querySelectorAll(".o-menu").length).toBe(1);
   });
 });

@@ -809,6 +809,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   // ---------------------------------------------------------------------------
 
   onCanvasContextMenu(ev: MouseEvent) {
+    if (ev.currentTarget !== ev.target) {
+      this.closeMenu();
+      return;
+    }
     ev.preventDefault();
     const [col, row] = this.getCartesianCoordinates(ev);
     if (col < 0 || row < 0) {

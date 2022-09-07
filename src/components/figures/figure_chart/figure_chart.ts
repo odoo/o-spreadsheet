@@ -117,6 +117,7 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private openContextMenu(position: DOMCoordinates) {
+    this.env.model.dispatch("SELECT_FIGURE", { id: this.props.figure.id });
     const registry = this.getMenuItemRegistry();
     this.menuState.isOpen = true;
     this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
@@ -130,5 +131,15 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
       throw new Error(`Component is not defined for type ${type}`);
     }
     return component;
+  }
+
+  isMenuOpen(): boolean {
+    if (this.menuState.isOpen) {
+      if (this.env.model.getters.getSelectedFigureId() === this.props.figure.id) {
+        return true;
+      }
+      this.menuState.isOpen = false;
+    }
+    return false;
   }
 }

@@ -1,6 +1,9 @@
 <templates>
   <t t-name="o-spreadsheet-ColorPicker" owl="1">
-    <div class="o-color-picker" t-att-class="props.dropdownDirection || 'right'">
+    <div
+      class="o-color-picker"
+      t-att-class="props.dropdownDirection || 'right'"
+      t-on-contextmenu.stop="">
       <div class="o-color-picker-section-name">Standard</div>
       <div class="colors-grid">
         <div
