@@ -7,6 +7,8 @@ import {
   checkCouponFrequency,
   checkDayCountConvention,
   checkMaturityAndSettlementDates,
+  checkPricePositive,
+  checkRedemptionPositive,
 } from "./helper_financial";
 import { YEARFRAC } from "./module_date";
 
@@ -830,10 +832,7 @@ export const PRICE: AddFunctionDescription = {
 
     assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
     assert(() => _yield >= 0, _lt("The yield (%s) must be positive or null.", _yield.toString()));
-    assert(
-      () => _redemption > 0,
-      _lt("The redemption (%s) must be strictly positive.", _redemption.toString())
-    );
+    checkRedemptionPositive(_redemption);
 
     const years = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention) as number;
     const nbrRealCoupons = years * _frequency;
@@ -984,11 +983,8 @@ export const YIELD: AddFunctionDescription = {
     checkDayCountConvention(_dayCountConvention);
 
     assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
-    assert(() => _price > 0, _lt("The price (%s) must be strictly positive.", _price.toString()));
-    assert(
-      () => _redemption > 0,
-      _lt("The redemption (%s) must be strictly positive.", _redemption.toString())
-    );
+    checkPricePositive(_price);
+    checkRedemptionPositive(_redemption);
 
     const years = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention) as number;
     const nbrRealCoupons = years * _frequency;
@@ -1072,6 +1068,56 @@ export const YIELD: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// YIELDDISC
+// -----------------------------------------------------------------------------
+export const YIELDDISC: AddFunctionDescription = {
+  description: _lt("Annual yield of a discount security."),
+  args: args(`
+        settlement (date) ${_lt(
+          "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
+        )}
+        maturity (date) ${_lt(
+          "The maturity or end date of the security, when it can be redeemed at face, or par value."
+        )}
+        price (number) ${_lt("The price at which the security is bought per 100 face value.")}
+        redemption (number) ${_lt("The redemption amount per 100 face value, or par.")}
+        day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
+    "An indicator of what day count method to use."
+  )}
+    `),
+  returns: ["NUMBER"],
+  compute: function (
+    settlement: PrimitiveArgValue,
+    maturity: PrimitiveArgValue,
+    price: PrimitiveArgValue,
+    redemption: PrimitiveArgValue,
+    dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
+  ): number {
+    dayCountConvention = dayCountConvention || 0;
+    const _settlement = Math.trunc(toNumber(settlement));
+    const _maturity = Math.trunc(toNumber(maturity));
+    const _price = toNumber(price);
+    const _redemption = toNumber(redemption);
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+
+    checkMaturityAndSettlementDates(_settlement, _maturity);
+    checkDayCountConvention(_dayCountConvention);
+    checkPricePositive(_price);
+    checkRedemptionPositive(_redemption);
+
+    /**
+     * https://wiki.documentfoundation.org/Documentation/Calc_Functions/YIELDDISC
+     *
+     *                    (redemption / price) - 1
+     * YIELDDISC = _____________________________________
+     *             YEARFRAC(settlement, maturity, basis)
+     */
+    const yearFrac = YEARFRAC.compute(settlement, maturity, dayCountConvention) as number;
+    return (_redemption / _price - 1) / yearFrac;
+  },
+};
+
+// -----------------------------------------------------------------------------
 // YIELDMAT
 // -----------------------------------------------------------------------------
 
@@ -1120,7 +1166,7 @@ export const YIELDMAT: AddFunctionDescription = {
       )
     );
     assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
-    assert(() => _price > 0, _lt("The price (%s) must be strictly positive.", _price.toString()));
+    checkPricePositive(_price);
 
     const issueToMaturity = YEARFRAC.compute(_issue, _maturity, _dayCountConvention) as number;
     const issueToSettlement = YEARFRAC.compute(_issue, _settlement, _dayCountConvention) as number;
