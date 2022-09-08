@@ -1524,6 +1524,48 @@ describe("IRR formula", () => {
   });
 });
 
+describe("ISPMT function", () => {
+  test("ISPMT takes 4 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=ISPMT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=ISPMT(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=ISPMT(0, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=ISPMT(0, 1, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=ISPMT(0, 1, 1, 1)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ISPMT(0, 1, 1, 1, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("number_of_periods is !== 0", () => {
+    expect(evaluateCell("A1", { A1: "=ISPMT(0, 1, -1, -1)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ISPMT(0, 1, 0, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+    expect(evaluateCell("A1", { A1: "=ISPMT(0, 1, 1, -1)" })).toBe(0);
+  });
+
+  test.each([
+    ["5%", 1, 6, 100, -4.166666667],
+    ["5%", 3, 6, 0, 0],
+    ["2.50%", 3, 6, 1000, -12.5],
+    ["-10.00%", 2, 4, 1000, 50],
+    ["12.00%", -1, 2, 1000, -180],
+    ["0.00%", 6, 6, 18, 0],
+    ["0.00%", 2, 4, 100, 0],
+    ["2.50%", 1, 6, -200, 4.166666667],
+    ["2.50%", 2, 4, 100, -1.25],
+    ["2.50%", -2, -4, 100, -1.25],
+    ["2.50%", 2, -4, 100, -3.75],
+    ["2.50%", 2.5, 4, 100, -0.9375],
+    ["5%", 1, 12, 200, -9.166666667],
+    ["2.50%", 3, 6, 1000, -12.5],
+    ["-10.00%", 2, 4, -1000, -50],
+    ["12.00%", 1, 2, 1000, -60],
+  ])(
+    "function result =ISPMT(%s, %s, %s, %s)",
+    (rate: string, period: number, numberOfPeriods: number, presentValue: number, expectedResult: number) => {
+      const cellValue = evaluateCell("A1", { A1: `=ISPMT(${rate}, ${period}, ${numberOfPeriods}, ${presentValue})` });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+});
+
 describe("MDURATION formula", () => {
   test("take at 4 or 5 arguments", () => {
     expect(evaluateCell("A1", { A1: "=MDURATION(0, 365, 0.05, 0.1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
