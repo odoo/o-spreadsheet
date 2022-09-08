@@ -282,7 +282,7 @@ export class FormulaCell extends AbstractCell implements IFormulaCell {
       switch (typeof value) {
         case "number":
           return {
-            value,
+            value: value || 0, // necessary to avoid "-0" values
             format,
             type: CellValueType.number,
           };

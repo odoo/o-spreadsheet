@@ -105,6 +105,12 @@ describe("evaluateCells", () => {
     expect(evaluateCell("C1", grid)).toBe(1);
   });
 
+  test("We avoid '-0' values", () => {
+    const grid = { C1: "=MULTIPLY(0, -1)" };
+    expect(evaluateCell("C1", grid)).toBe(0);
+    expect(evaluateCell("C1", grid)).not.toBe(-0);
+  });
+
   test("With cell outside of sheet", () => {
     const grid = { C1: "=SUM(A11111,AAA1)" };
     expect(evaluateCell("C1", grid)).toBe(0);
