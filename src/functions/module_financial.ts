@@ -4,16 +4,18 @@ import { AddFunctionDescription, ArgValue, MatrixArgValue, PrimitiveArgValue } f
 import { args } from "./arguments";
 import { assert, reduceNumbers, toBoolean, toJsDate, toNumber, visitNumbers } from "./helpers";
 import {
+  assertNumberOfPeriodsPositive,
+  assertPricePositive,
+  assertRedemptionPositive,
   checkCouponFrequency,
   checkDayCountConvention,
   checkMaturityAndSettlementDates,
-  checkPricePositive,
-  checkRedemptionPositive,
 } from "./helper_financial";
 import { YEARFRAC } from "./module_date";
 
 const DEFAULT_DAY_COUNT_CONVENTION = 0;
 const DEFAULT_END_OR_BEGINNING = 0;
+const DEFAULT_FUTURE_VALUE = 0;
 
 const COUPON_FUNCTION_ARGS = args(`
 settlement (date) ${_lt(
@@ -749,9 +751,60 @@ export const PDURATION: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// PMT
+// -----------------------------------------------------------------------------
+export const PMT: AddFunctionDescription = {
+  description: _lt("Periodic payment for an annuity investment."),
+  args: args(`
+  rate (number) ${_lt("The annualized rate of interest.")}
+  number_of_periods (number) ${_lt("The number of payments to be made.")}
+  present_value (number) ${_lt("The current value of the annuity.")}
+  future_value (number, default=${DEFAULT_FUTURE_VALUE}) ${_lt(
+    "The future value remaining after the final payment has been made."
+  )}
+  end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt(
+    "Whether payments are due at the end (0) or beginning (1) of each period."
+  )}
+  `),
+  returns: ["NUMBER"],
+  computeFormat: () => "#,##0.00",
+  compute: function (
+    rate: PrimitiveArgValue,
+    numberOfPeriods: PrimitiveArgValue,
+    presentValue: PrimitiveArgValue,
+    futureValue: PrimitiveArgValue = DEFAULT_FUTURE_VALUE,
+    endOrBeginning: PrimitiveArgValue = DEFAULT_END_OR_BEGINNING
+  ): number {
+    futureValue = futureValue || 0;
+    endOrBeginning = endOrBeginning || 0;
+    const n = toNumber(numberOfPeriods);
+    const r = toNumber(rate);
+    const t = toBoolean(endOrBeginning) ? 1 : 0;
+    let fv = toNumber(futureValue);
+    let pv = toNumber(presentValue);
+
+    assertNumberOfPeriodsPositive(n);
+
+    /**
+     * https://wiki.documentfoundation.org/Documentation/Calc_Functions/PMT
+     *
+     * 0 = pv * (1 + r)^N + fv + [ p * (1 + r * t) * ((1 + r)^N - 1) ] / r
+     *
+     * We simply the equation for p
+     */
+    if (r === 0) {
+      return -(fv + pv) / n;
+    }
+    let payment = -(pv * (1 + r) ** n + fv);
+    payment = (payment * r) / ((1 + r * t) * ((1 + r) ** n - 1));
+
+    return payment;
+  },
+};
+
+// -----------------------------------------------------------------------------
 // PV
 // -----------------------------------------------------------------------------
-const DEFAULT_FUTURE_VALUE = 0;
 export const PV: AddFunctionDescription = {
   description: _lt("Present value of an annuity investment."),
   args: args(`
@@ -832,7 +885,7 @@ export const PRICE: AddFunctionDescription = {
 
     assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
     assert(() => _yield >= 0, _lt("The yield (%s) must be positive or null.", _yield.toString()));
-    checkRedemptionPositive(_redemption);
+    assertRedemptionPositive(_redemption);
 
     const years = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention) as number;
     const nbrRealCoupons = years * _frequency;
@@ -904,7 +957,7 @@ export const RATE: AddFunctionDescription = {
     let fv = toNumber(futureValue);
     let pv = toNumber(presentValue);
 
-    assert(() => n >= 0, _lt("The number_of_periods (%s) must be greater than 0.", n.toString()));
+    assertNumberOfPeriodsPositive(n);
     assert(
       () => [payment, pv, fv].some((val) => val > 0) && [payment, pv, fv].some((val) => val < 0),
       _lt(
@@ -983,8 +1036,8 @@ export const YIELD: AddFunctionDescription = {
     checkDayCountConvention(_dayCountConvention);
 
     assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
-    checkPricePositive(_price);
-    checkRedemptionPositive(_redemption);
+    assertPricePositive(_price);
+    assertRedemptionPositive(_redemption);
 
     const years = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention) as number;
     const nbrRealCoupons = years * _frequency;
@@ -1102,8 +1155,8 @@ export const YIELDDISC: AddFunctionDescription = {
 
     checkMaturityAndSettlementDates(_settlement, _maturity);
     checkDayCountConvention(_dayCountConvention);
-    checkPricePositive(_price);
-    checkRedemptionPositive(_redemption);
+    assertPricePositive(_price);
+    assertRedemptionPositive(_redemption);
 
     /**
      * https://wiki.documentfoundation.org/Documentation/Calc_Functions/YIELDDISC
@@ -1166,7 +1219,7 @@ export const YIELDMAT: AddFunctionDescription = {
       )
     );
     assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
-    checkPricePositive(_price);
+    assertPricePositive(_price);
 
     const issueToMaturity = YEARFRAC.compute(_issue, _maturity, _dayCountConvention) as number;
     const issueToSettlement = YEARFRAC.compute(_issue, _settlement, _dayCountConvention) as number;
