@@ -520,6 +520,52 @@ export const FV: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// IPMT
+// -----------------------------------------------------------------------------
+export const IPMT: AddFunctionDescription = {
+  description: _lt("Payment on the principal of an investment."),
+  args: args(`
+  rate (number) ${_lt("The annualized rate of interest.")}
+  period (number) ${_lt("The amortization period, in terms of number of periods.")}
+  number_of_periods (number) ${_lt("The number of payments to be made.")}
+  present_value (number) ${_lt("The current value of the annuity.")}
+  future_value (number, default=${DEFAULT_FUTURE_VALUE}) ${_lt(
+    "The future value remaining after the final payment has been made."
+  )}
+  end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt(
+    "Whether payments are due at the end (0) or beginning (1) of each period."
+  )}
+  `),
+  returns: ["NUMBER"],
+  computeFormat: () => "#,##0.00",
+  compute: function (
+    rate: PrimitiveArgValue,
+    currentPeriod: PrimitiveArgValue,
+    numberOfPeriods: PrimitiveArgValue,
+    presentValue: PrimitiveArgValue,
+    futureValue: PrimitiveArgValue = DEFAULT_FUTURE_VALUE,
+    endOrBeginning: PrimitiveArgValue = DEFAULT_END_OR_BEGINNING
+  ): number {
+    const payment = PMT.compute(
+      rate,
+      numberOfPeriods,
+      presentValue,
+      futureValue,
+      endOrBeginning
+    ) as number;
+    const ppmt = PPMT.compute(
+      rate,
+      currentPeriod,
+      numberOfPeriods,
+      presentValue,
+      futureValue,
+      endOrBeginning
+    ) as number;
+    return payment - ppmt;
+  },
+};
+
+// -----------------------------------------------------------------------------
 // IRR
 // -----------------------------------------------------------------------------
 const DEFAULT_RATE_GUESS = 0.1;
