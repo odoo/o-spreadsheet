@@ -32,13 +32,20 @@ export function checkDayCountConvention(dayCountConvention: number) {
   );
 }
 
-export function checkRedemptionPositive(redemption: number) {
+export function assertRedemptionPositive(redemption: number) {
   assert(
     () => redemption > 0,
     _lt("The redemption (%s) must be strictly positive.", redemption.toString())
   );
 }
 
-export function checkPricePositive(price: number) {
+export function assertPricePositive(price: number) {
   assert(() => price > 0, _lt("The price (%s) must be strictly positive.", price.toString()));
+}
+
+export function assertNumberOfPeriodsPositive(nPeriods: number) {
+  assert(
+    () => nPeriods > 0,
+    _lt("The number_of_periods (%s) must be greater than 0.", nPeriods.toString())
+  );
 }
