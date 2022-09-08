@@ -1900,6 +1900,52 @@ describe("NOMINAL formula", () => {
   );
 });
 
+describe("NPER function", () => {
+  test("NPER takes 3-5 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=NPER()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=NPER(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=NPER(0, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=NPER(0, 1, -1)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=NPER(0, 1, -1, 0)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=NPER(0, 1, -1, 0, 0)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=NPER(0, 1, -1, 0, 0, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test.each([
+    ["5%", -100, -1000, 0, 0, -8.310386223],
+    ["5%", -100, 0, 0, 0, 0],
+    ["5%", -100, 0, 10, 0, 0.102224323],
+    ["2%", 100, -1000, 0, 0, 11.26838111],
+    ["3%", -200, 1000, 0, 0, 5.498156798],
+    ["15%", 10000, 10000, 0, 0, -1],
+    ["8%", 100, 10, 23, 0, -0.344844026],
+    ["5%", -100, -1000, 100, 0, -7.310386223],
+    ["5%", -100, -1000, 0, 1, -7.982444277],
+    ["-5%", -100, 200, 0, 0, 1.858141126],
+    ["0%", -100, -1000, 0, 0, -10],
+    ["0%", 100, 200, 0, 0, -2],
+    ["0%", 800, -1000, 500, 0, 0.625],
+    ["0%", -400, -1000, 1000, 1, 0],
+    ["0%", 600, 100, 1000, 1, -1.833333333],
+    ["0%", -400, 100, 1000, 1, 2.75],
+  ])(
+    "function result =NPER(%s, %s, %s, %s, %s)",
+    (
+      rate: string,
+      payment: number,
+      presentValue: number,
+      futureValue: number,
+      endOrBeginning: number,
+      expectedResult: number
+    ) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=NPER(${rate}, ${payment}, ${presentValue}, ${futureValue}, ${endOrBeginning})`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+});
+
 describe("NPV formula", () => {
   test("ttake 2 arg minimum", () => {
     expect(evaluateCell("A1", { A1: "=NPV(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
