@@ -695,35 +695,35 @@ describe("POW formula", () => {
 describe("UMINUS formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=UMINUS()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=UMINUS(0)" })).toBe(-0);
+    expect(evaluateCell("A1", { A1: "=UMINUS(0)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=UMINUS(2)" })).toBe(-2);
     expect(evaluateCell("A1", { A1: "=UMINUS(-3)" })).toBe(3);
   });
 
   test("casting tests on simple arguments", () => {
-    expect(evaluateCell("A1", { A1: '=UMINUS("")' })).toBe(-0);
+    expect(evaluateCell("A1", { A1: '=UMINUS("")' })).toBe(0);
     expect(evaluateCell("A1", { A1: '=UMINUS(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=UMINUS("4")' })).toBe(-4);
     expect(evaluateCell("A1", { A1: '=UMINUS("-3")' })).toBe(3);
     expect(evaluateCell("A1", { A1: "=UMINUS(TRUE)" })).toBe(-1);
-    expect(evaluateCell("A1", { A1: "=UMINUS(FALSE)" })).toBe(-0);
+    expect(evaluateCell("A1", { A1: "=UMINUS(FALSE)" })).toBe(0);
     expect(evaluateCell("A1", { A1: '=UMINUS("test")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
   test("functional tests on cell arguments", () => {
-    expect(evaluateCell("A1", { A1: "=UMINUS(A2)" })).toBe(-0);
-    expect(evaluateCell("A1", { A1: "=UMINUS(A2)", A2: "0" })).toBe(-0);
+    expect(evaluateCell("A1", { A1: "=UMINUS(A2)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=UMINUS(A2)", A2: "0" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=UMINUS(A2)", A2: "-2" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=UMINUS(A2)", A2: "3" })).toBe(-3);
   });
 
   test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=UMINUS(A2)", A2: "TRUE" })).toBe(-1);
-    expect(evaluateCell("A1", { A1: "=UMINUS(A2)", A2: "FALSE" })).toBe(-0);
+    expect(evaluateCell("A1", { A1: "=UMINUS(A2)", A2: "FALSE" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=UMINUS(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=UMINUS(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=UMINUS(A2)", A2: '"42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=UMINUS(A2)", A2: '=""' })).toBe(-0);
+    expect(evaluateCell("A1", { A1: "=UMINUS(A2)", A2: '=""' })).toBe(0);
     expect(evaluateCell("A1", { A1: "=UMINUS(A2)", A2: '="42"' })).toBe(-42);
   });
 
