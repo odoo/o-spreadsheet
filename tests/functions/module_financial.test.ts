@@ -2281,6 +2281,73 @@ describe("PMT function", () => {
   });
 });
 
+describe("PPMT function", () => {
+  test("PPMT takes 4-6 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=PPMT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=PPMT(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=PPMT(0, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=PPMT(0, 1, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=PPMT(0, 1, 1, -1)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=PPMT(0, 1, 1, -1, 0)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=PPMT(0, 1, 1, -1, 0, 0)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=PPMT(0, 1, 1, -1, 0, 0, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("number_of_periods is > 0", () => {
+    expect(evaluateCell("A1", { A1: "=PPMT(0, 1, -1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+    expect(evaluateCell("A1", { A1: "=PPMT(0, 1, 0, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+    expect(evaluateCell("A1", { A1: "=PPMT(0, 1, 1, -1)" })).toBe(1);
+  });
+
+  test("period is > 0 and < number_of_periods", () => {
+    expect(evaluateCell("A1", { A1: "=PPMT(0, -1, 1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+    expect(evaluateCell("A1", { A1: "=PPMT(0, 0, 1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+    expect(evaluateCell("A1", { A1: "=PPMT(0, 1, 1, -1)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=PPMT(0, 2, 1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+  });
+
+  test.each([
+    ["5%", 1, 12, 200, 0, 0, -12.565082],
+    ["5%", 1, 12, 0, 0, 0, 0],
+    ["5%", 1, 12, 0, 100, 0, -6.282541002],
+    ["2.50%", 3, 6, 1000, 0, 0, -164.4753133],
+    ["-10.00%", 2, 4, 1000, -50, 0, -248.6187845],
+    ["12.00%", 1, 2, 1000, 500, 0, -707.5471698],
+    ["0.00%", 6, 6, 18, 15, 0, -5.5],
+    ["0.00%", 2, 4, 100, 100, 1, -50],
+    ["0.00%", 6, 6, 200, -20, 0, -30],
+    ["0.00%", 2, 4, -200, 100, 0, 25],
+    ["2.50%", 1, 6, -200, 200, 0, 0],
+    ["2.50%", 2, 4, 100, 0, 1, -24.08178777],
+    ["2.50%", 2, 4, 100, 0, 0, -24.68383247],
+    ["2.50%", 2.5, 4, 100, 0, 0, -24.99047568],
+    ["5%", 1, 12, 200, 0, 1, -21.49055429],
+    ["2.50%", 3, 6, 1000, 0, 1, -160.4637203],
+    ["-10.00%", 2, 4, 1000, -50, 1, -276.2430939],
+    ["12.00%", 1, 2, 1000, 500, 1, -738.8814016],
+  ])(
+    "function result =PPMT(%s, %s, %s, %s, %s, %s)",
+    (
+      rate: string,
+      period: number,
+      numberPeriods: number,
+      presentValue: number,
+      futureValue: number,
+      endOrBeginning: number,
+      expectedResult: number
+    ) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=PPMT(${rate}, ${period}, ${numberPeriods}, ${presentValue}, ${futureValue}, ${endOrBeginning})`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+
+  test("return value with formating", () => {
+    expect(evaluateCellFormat("A1", { A1: "=PPMT(0, 1, 1, -1)" })).toBe("#,##0.00");
+  });
+});
+
 describe("PV formula", () => {
   test("take at 4 or 5 arguments", () => {
     expect(evaluateCell("A1", { A1: "=PV(1, 2)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
