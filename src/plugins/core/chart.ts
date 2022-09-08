@@ -89,7 +89,12 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
             // TODO:
             // This is not really correct, it should be the role of figures to
             // duplicate a figure.
-            this.addFigure(id, cmd.sheetIdTo, { x: fig.x, y: fig.y });
+            this.addFigure(
+              id,
+              cmd.sheetIdTo,
+              { x: fig.x, y: fig.y },
+              { width: fig.width, height: fig.height }
+            );
             this.history.update("charts", id, chart);
           }
         }

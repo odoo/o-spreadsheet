@@ -1,6 +1,7 @@
 import { Model } from "../../../src";
 import { Color, UID } from "../../../src/types";
 import {
+  createChart,
   createGaugeChart,
   createScorecardChart,
   setCellContent,
@@ -83,4 +84,30 @@ describe("Single cell chart background color", () => {
       expect(model.getters.getChartRuntime(chartId).background).toEqual("#0000FF");
     }
   );
+
+  test("Duplicating a sheet preserves the figure dimensions", () => {
+    const firstSheetId = model.getters.getActiveSheetId();
+    const secondSheetId = "42";
+    createChart(model, { type: "bar" });
+    const firstSheetFigures = model.getters.getFigures(firstSheetId);
+    expect(firstSheetFigures.length).toBe(1);
+    model.dispatch("UPDATE_FIGURE", {
+      sheetId,
+      id: firstSheetFigures[0].id,
+      x: 0,
+      y: 0,
+      width: 123,
+      height: 321,
+    });
+    model.dispatch("DUPLICATE_SHEET", {
+      sheetIdTo: secondSheetId,
+      sheetId: firstSheetId,
+    });
+    const secondSheetFigures = model.getters.getFigures(secondSheetId);
+    expect(secondSheetFigures.length).toBe(1);
+    expect(firstSheetFigures[0]).toMatchObject({
+      ...secondSheetFigures[0],
+      id: expect.any(String),
+    });
+  });
 });
