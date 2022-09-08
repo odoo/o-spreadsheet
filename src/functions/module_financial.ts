@@ -648,6 +648,39 @@ export const IRR: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// ISPMT
+// -----------------------------------------------------------------------------
+export const ISPMT: AddFunctionDescription = {
+  description: _lt("Returns the interest paid at a particular period of an investment."),
+  args: args(`
+  rate (number) ${_lt("The interest rate.")}
+  period (number) ${_lt("The period for which you want to view the interest payment.")}
+  number_of_periods (number) ${_lt("The number of payments to be made.")}
+  present_value (number) ${_lt("The current value of the annuity.")}
+  `),
+  returns: ["NUMBER"],
+  compute: function (
+    rate: PrimitiveArgValue,
+    currentPeriod: PrimitiveArgValue,
+    numberOfPeriods: PrimitiveArgValue,
+    presentValue: PrimitiveArgValue
+  ): number {
+    const interestRate = toNumber(rate);
+    const period = toNumber(currentPeriod);
+    const nOfPeriods = toNumber(numberOfPeriods);
+    const investment = toNumber(presentValue);
+
+    assert(
+      () => nOfPeriods !== 0,
+      _lt("The number of periods must be different than 0.", nOfPeriods.toString())
+    );
+
+    const currentInvestment = investment - investment * (period / nOfPeriods);
+    return -1 * currentInvestment * interestRate;
+  },
+};
+
+// -----------------------------------------------------------------------------
 // MDURATION
 // -----------------------------------------------------------------------------
 export const MDURATION: AddFunctionDescription = {
