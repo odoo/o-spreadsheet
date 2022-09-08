@@ -1325,6 +1325,73 @@ describe("FV formula", () => {
   });
 });
 
+describe("IPMT function", () => {
+  test("IPMT takes 4-6 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=IPMT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=IPMT(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=IPMT(0, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=IPMT(0, 1, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=IPMT(0, 1, 1, -1)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=IPMT(0, 1, 1, -1, 0)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=IPMT(0, 1, 1, -1, 0, 0)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=IPMT(0, 1, 1, -1, 0, 0, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("number_of_periods is > 0", () => {
+    expect(evaluateCell("A1", { A1: "=IPMT(0, 1, -1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+    expect(evaluateCell("A1", { A1: "=IPMT(0, 1, 0, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+    expect(evaluateCell("A1", { A1: "=IPMT(0, 1, 1, -1)" })).toBe(0);
+  });
+
+  test("period is > 0 and < number_of_periods", () => {
+    expect(evaluateCell("A1", { A1: "=IPMT(0, -1, 1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+    expect(evaluateCell("A1", { A1: "=IPMT(0, 0, 1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+    expect(evaluateCell("A1", { A1: "=IPMT(0, 1, 1, -1)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=IPMT(0, 2, 1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+  });
+
+  test.each([
+    ["5%", 1, 12, 200, 0, 0, -10],
+    ["5%", 1, 12, 0, 0, 0, 0],
+    ["5%", 1, 12, 0, 100, 0, 0],
+    ["2.50%", 3, 6, 1000, 0, 0, -17.07465771],
+    ["-10.00%", 2, 4, 1000, -50, 0, 72.37569061],
+    ["12.00%", 1, 2, 1000, 500, 0, -120],
+    ["0.00%", 6, 6, 18, 15, 0, 0],
+    ["0.00%", 2, 4, 100, 100, 1, 0],
+    ["0.00%", 6, 6, 200, -20, 0, 0],
+    ["0.00%", 2, 4, -200, 100, 0, 0],
+    ["2.50%", 1, 6, -200, 200, 0, 5],
+    ["2.50%", 2, 4, 100, 0, 1, -1.851663713],
+    ["2.50%", 2, 4, 100, 0, 0, -1.897955306],
+    ["2.50%", 2.5, 4, 100, 0, 0, -1.591312089],
+    ["5%", 1, 12, 200, 0, 1, 0],
+    ["2.50%", 3, 6, 1000, 0, 1, -16.65820265],
+    ["-10.00%", 2, 4, 1000, -50, 1, 80.41743401],
+    ["12.00%", 1, 2, 1000, 500, 1, 0],
+  ])(
+    "function result =IPMT(%s, %s, %s, %s, %s, %s)",
+    (
+      rate: string,
+      period: number,
+      numberOfPeriods: number,
+      presentValue: number,
+      futureValue: number,
+      enfOrBeginning: number,
+      expectedResult: number
+    ) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=IPMT(${rate}, ${period}, ${numberOfPeriods}, ${presentValue}, ${futureValue}, ${enfOrBeginning})`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+
+  test("return value with formating", () => {
+    expect(evaluateCellFormat("A1", { A1: "=IPMT(0, 1, 1, -1)" })).toBe("#,##0.00");
+  });
+});
+
 describe("IRR formula", () => {
   test("ttake 2 arg minimum", () => {
     expect(evaluateCell("A1", { A1: "=IRR()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
