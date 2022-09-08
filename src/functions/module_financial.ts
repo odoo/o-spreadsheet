@@ -677,6 +677,60 @@ export const NOMINAL: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// NPER
+// -----------------------------------------------------------------------------
+export const NPER: AddFunctionDescription = {
+  description: _lt("Number of payment periods for an investment."),
+  args: args(`
+  rate (number) ${_lt("The interest rate.")}
+  payment_amount (number) ${_lt("The amount of each payment made.")}
+  present_value (number) ${_lt("The current value of the annuity.")}
+  future_value (number, default=${DEFAULT_FUTURE_VALUE}) ${_lt(
+    "The future value remaining after the final payment has been made."
+  )}
+  end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt(
+    "Whether payments are due at the end (0) or beginning (1) of each period."
+  )}
+  `),
+  returns: ["NUMBER"],
+  compute: function (
+    rate: PrimitiveArgValue,
+    paymentAmount: PrimitiveArgValue,
+    presentValue: PrimitiveArgValue,
+    futureValue: PrimitiveArgValue = DEFAULT_FUTURE_VALUE,
+    endOrBeginning: PrimitiveArgValue = DEFAULT_END_OR_BEGINNING
+  ): number {
+    futureValue = futureValue || 0;
+    endOrBeginning = endOrBeginning || 0;
+    const r = toNumber(rate);
+    const p = toNumber(paymentAmount);
+    const pv = toNumber(presentValue);
+    const fv = toNumber(futureValue);
+    const t = toBoolean(endOrBeginning) ? 1 : 0;
+
+    /**
+     * https://wiki.documentfoundation.org/Documentation/Calc_Functions/NPER
+     *
+     * 0 = pv * (1 + r)^N + fv + [ p * (1 + r * t) * ((1 + r)^N - 1) ] / r
+     *
+     * We solve the equation for N:
+     *
+     * with C = [ p * (1 + r * t)] / r and
+     *      r' = 1 + r
+     *
+     * => 0 = pv * r'^N + C * r'^N - C + fv
+     * <=> (C - fv) = r'^N * (pv + C)
+     * <=> log[(C - fv) / (pv + C)] = N * log(r')
+     */
+    if (r === 0) {
+      return (Math.sign(-pv - fv) * Math.abs(fv + pv)) / p;
+    }
+    const c = (p * (1 + r * t)) / r;
+    return Math.log10((c - fv) / (pv + c)) / Math.log10(1 + r);
+  },
+};
+
+// -----------------------------------------------------------------------------
 // NPV
 // -----------------------------------------------------------------------------
 
