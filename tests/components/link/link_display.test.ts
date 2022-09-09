@@ -6,6 +6,9 @@ import { clickCell, hoverCell, rightClickCell, simulateClick } from "../../test_
 import { getCell } from "../../test_helpers/getters_helpers";
 import { makeTestFixture, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 
+jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
+jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
+
 describe("link display component", () => {
   let fixture: HTMLElement;
   let model: Model;
