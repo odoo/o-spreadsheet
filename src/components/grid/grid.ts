@@ -10,6 +10,7 @@ import {
 import {
   AUTOFILL_EDGE_LENGTH,
   BACKGROUND_GRAY_COLOR,
+  CANVAS_SHIFT,
   ComponentsImportance,
   DEFAULT_CELL_HEIGHT,
   HEADER_HEIGHT,
@@ -608,7 +609,13 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     canvas.width = width * dpr;
     canvas.height = height * dpr;
     canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
-    ctx.translate(-0.5, -0.5);
+    // Imagine each pixel as a large square. The whole-number coordinates (0, 1, 2…)
+    // are the edges of the squares. If you draw a one-unit-wide line between whole-number
+    // coordinates, it will overlap opposite sides of the pixel square, and the resulting
+    // line will be drawn two pixels wide. To draw a line that is only one pixel wide,
+    // you need to shift the coordinates by 0.5 perpendicular to the line's direction.
+    // http://diveintohtml5.info/canvas.html#pixel-madness
+    ctx.translate(-CANVAS_SHIFT, -CANVAS_SHIFT);
     ctx.scale(dpr, dpr);
     this.env.model.drawGrid(renderingContext);
   }

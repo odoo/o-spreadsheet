@@ -2,6 +2,8 @@ import { _lt } from "./translation";
 import { BorderDescr } from "./types";
 import { CellErrorType } from "./types/errors";
 
+export const CANVAS_SHIFT = 0.5;
+
 // Colors
 export const BACKGROUND_GRAY_COLOR = "#f5f5f5";
 export const BACKGROUND_HEADER_COLOR = "#F8F9FA";
