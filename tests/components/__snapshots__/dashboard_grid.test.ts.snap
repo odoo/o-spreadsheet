@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Grid component simple rendering snapshot 1`] = `
+exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`] = `
 <div
   class="o-grid o-two-columns"
 >
@@ -49,9 +49,9 @@ exports[`Grid component simple rendering snapshot 1`] = `
   
   
   <canvas
-    height="985"
-    style="width:985px;height:985px;"
-    width="985"
+    height="1026"
+    style="width:1048px;height:1026px;"
+    width="1048"
   />
   
   
@@ -93,28 +93,5 @@ exports[`Grid component simple rendering snapshot 1`] = `
   <div
     class="o-scrollbar corner"
   />
-</div>
-`;
-
-exports[`error tooltip can display error tooltip 1`] = `
-<div
-  class="o-popover"
-  style="
-      position: absolute;
-      z-index: 30;
-      top:187px;
-      left:336px;
-      max-height:934px;
-      width:180px;
-      overflow-y: auto;
-      overflow-x: hidden;
-      box-shadow: 1px 2px 5px 2px rgb(51 51 51 / 15%);
-    "
->
-  <div
-    class="o-error-tooltip"
-  >
-    The divisor must be different from zero.
-  </div>
 </div>
 `;
