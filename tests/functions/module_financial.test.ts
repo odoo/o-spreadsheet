@@ -3125,6 +3125,81 @@ describe("PRICE formula", () => {
   });
 });
 
+describe("PRICEDISC function", () => {
+  test("PRICEDISC takes 4-5 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=PRICEDISC()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=PRICEDISC(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=PRICEDISC(0, 365)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=PRICEDISC(0, 365, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=PRICEDISC(0, 365, 1, 1)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=PRICEDISC(0, 365, 1, 1, 0)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=PRICEDISC(0, 365, 1, 1, 0, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("Maturity must be greater than settlement", () => {
+    expect(evaluateCell("A1", { A1: "=PRICEDISC(0, 0, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=PRICEDISC(1, 0, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("Redemption should be > 0", () => {
+    expect(evaluateCell("A1", { A1: "=PRICEDISC(0, 1, 1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=PRICEDISC(0, 1, 1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("Discount should be > 0", () => {
+    expect(evaluateCell("A1", { A1: "=PRICEDISC(0, 1, 0, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=PRICEDISC(0, 1, -1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test.each([
+    ["01/01/2012", "01/01/2014", "10%", 100, 1, 79.99087591],
+    ["01/01/2012", "05/01/2016", "20%", 100, 2, 12.11111111],
+    ["01/01/2012", "05/01/2016", "50%", 100, 2, -119.7222222],
+    ["12/20/2014", "05/01/2016", "1%", 68, 2, 67.05933333],
+    ["12/20/2014", "05/01/2016", "50%", 12, 2, 3.7],
+    ["01/30/2013", "05/31/2016", "50%", 1, 2, -0.690277778],
+    ["12/30/2014", "05/31/2016", "50%", 5, 2, 1.402777778],
+    ["12/30/2014", "05/31/2016", "50%", 110, 2, 30.86111111],
+    ["12/30/2014", "05/31/2016", "50%", 1, 2, 0.280555556],
+    ["12/30/2009", "05/31/2023", "50%", 1, 2, -5.805555556],
+    ["01/01/2012", "05/01/2016", "10%", 68, 0, 38.53333333],
+    ["01/01/2012", "05/01/2016", "10%", 68, 1, 38.55938697],
+    ["01/01/2012", "05/01/2016", "10%", 68, 2, 38.11777778],
+    ["01/01/2012", "05/01/2016", "10%", 68, 3, 38.52712329],
+    ["01/01/2012", "05/01/2016", "10%", 68, 4, 38.53333333],
+    ["02/29/2020", "07/31/2020", "5%", 100, 0, 97.90277778],
+    ["02/29/2020", "07/31/2020", "5%", 100, 1, 97.90983607],
+    ["02/29/2020", "07/31/2020", "5%", 100, 2, 97.875],
+    ["02/29/2020", "07/31/2020", "5%", 100, 3, 97.90410959],
+    ["02/29/2020", "07/31/2020", "5%", 100, 4, 97.90277778],
+    ["10/31/2005", "10/30/2010", "5%", 100, 0, 75],
+    ["10/31/2005", "10/30/2010", "5%", 100, 1, 75.01141031],
+    ["10/31/2005", "10/30/2010", "5%", 100, 2, 74.65277778],
+    ["10/31/2005", "10/30/2010", "5%", 100, 3, 75],
+    ["10/31/2005", "10/30/2010", "5%", 100, 4, 75],
+    ["03/30/2008", "02/28/2011", "5%", 100, 0, 85.44444444],
+    ["03/30/2008", "02/28/2011", "5%", 100, 1, 85.42094456],
+    ["03/30/2008", "02/28/2011", "5%", 100, 2, 85.20833333],
+    ["03/30/2008", "02/28/2011", "5%", 100, 3, 85.4109589],
+    ["03/30/2008", "02/28/2011", "5%", 100, 4, 85.44444444],
+  ])(
+    "function result =PRICEDISC(%s, %s, %s, %s, %s)",
+    (
+      settlement: string,
+      maturity: string,
+      discount: string,
+      redemption: number,
+      dayCountConvention: number,
+      expectedResult: number
+    ) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=PRICEDISC("${settlement}", "${maturity}", ${discount}, ${redemption}, ${dayCountConvention})`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 6);
+    }
+  );
+});
+
 describe("RATE function", () => {
   test("take 3-6 arguments", () => {
     expect(evaluateCell("A1", { A1: "=RATE()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A

@@ -1105,6 +1105,61 @@ export const PRICE: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// PRICEDISC
+// -----------------------------------------------------------------------------
+export const PRICEDISC: AddFunctionDescription = {
+  description: _lt("Price of a discount security."),
+  args: args(`
+      settlement (date) ${_lt(
+        "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
+      )}
+      maturity (date) ${_lt(
+        "The maturity or end date of the security, when it can be redeemed at face, or par value."
+      )}
+      discount (number) ${_lt("The discount rate of the security at time of purchase.")}
+      redemption (number) ${_lt("The redemption amount per 100 face value, or par.")}
+      day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
+    "An indicator of what day count method to use."
+  )}
+    `),
+  returns: ["NUMBER"],
+  compute: function (
+    settlement: PrimitiveArgValue,
+    maturity: PrimitiveArgValue,
+    discount: PrimitiveArgValue,
+    redemption: PrimitiveArgValue,
+    dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
+  ): number {
+    dayCountConvention = dayCountConvention || 0;
+    const _settlement = Math.trunc(toNumber(settlement));
+    const _maturity = Math.trunc(toNumber(maturity));
+    const _discount = toNumber(discount);
+    const _redemption = toNumber(redemption);
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+
+    checkMaturityAndSettlementDates(_settlement, _maturity);
+    checkDayCountConvention(_dayCountConvention);
+
+    assert(
+      () => _discount > 0,
+      _lt("The discount (%s) must be greater than 0.", _discount.toString())
+    );
+    assertRedemptionPositive(_redemption);
+
+    /**
+     * https://support.microsoft.com/en-us/office/pricedisc-function-d06ad7c1-380e-4be7-9fd9-75e3079acfd3
+     *
+     * B = number of days in year, depending on year basis
+     * DSM = number of days from settlement to maturity
+     *
+     * PRICEDISC = redemption - discount * redemption * (DSM/B)
+     */
+    const yearsFrac = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention) as number;
+    return _redemption - _discount * _redemption * yearsFrac;
+  },
+};
+
+// -----------------------------------------------------------------------------
 // RATE
 // -----------------------------------------------------------------------------
 const RATE_GUESS_DEFAULT = 0.1;
