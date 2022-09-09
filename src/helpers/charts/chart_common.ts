@@ -1,10 +1,11 @@
 import { transformZone } from "../../collaborative/ot/ot_helpers";
 import { INCORRECT_RANGE_STRING } from "../../constants";
-import { toNumber } from "../../functions/helpers";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
   Cell,
+  CellEvaluation,
+  CellValueType,
   Color,
   CommandResult,
   CoreGetters,
@@ -22,7 +23,6 @@ import { BaselineArrowDirection, BaselineMode } from "../../types/chart/scorecar
 import { relativeLuminance } from "../color";
 import { formatValue } from "../format";
 import { isDefined } from "../misc";
-import { isNumber } from "../numbers";
 import { copyRangeWithNewSheetId } from "../range";
 import { rangeReference } from "../references";
 import { isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../zones";
@@ -358,40 +358,48 @@ export function checkLabelRange(
 
 export function getBaselineText(
   baseline: Cell | undefined,
-  keyValue: string,
+  keyValue: CellEvaluation | undefined,
   baselineMode: BaselineMode
 ): string {
-  if (!baseline) {
+  const baselineEvaluated = baseline?.evaluated;
+  if (!baseline || baselineEvaluated === undefined) {
     return "";
-  } else if (baselineMode === "text" || !isNumber(keyValue) || !isNumber(baseline.content)) {
+  } else if (
+    baselineMode === "text" ||
+    keyValue?.type !== CellValueType.number ||
+    baselineEvaluated.type !== CellValueType.number
+  ) {
     return baseline.formattedValue;
   } else {
-    let diff = toNumber(keyValue) - toNumber(baseline.content);
+    let diff = keyValue?.value - baselineEvaluated.value;
     if (baselineMode === "percentage") {
-      diff = (diff / toNumber(baseline.content)) * 100;
+      diff = (diff / baselineEvaluated.value) * 100;
     }
-    const baselineValue = Math.abs(parseFloat(diff.toFixed(2)));
-    let baselineStr = baselineValue.toLocaleString();
+    let baselineStr = Math.abs(parseFloat(diff.toFixed(2))).toLocaleString();
     if (baselineMode === "percentage") {
       baselineStr += "%";
     } else if (baseline.format) {
-      baselineStr = formatValue(baselineValue, baseline.format);
+      baselineStr = formatValue(diff, baseline.format);
     }
     return baselineStr;
   }
 }
 
 export function getBaselineColor(
-  baseline: string,
+  baseline: CellEvaluation | undefined,
   baselineMode: BaselineMode,
-  keyValue: string,
+  keyValue: CellEvaluation | undefined,
   colorUp: Color,
   colorDown: Color
 ): Color | undefined {
-  if (baselineMode === "text" || !isNumber(baseline) || !isNumber(keyValue)) {
+  if (
+    baselineMode === "text" ||
+    baseline?.type !== CellValueType.number ||
+    keyValue?.type !== CellValueType.number
+  ) {
     return undefined;
   }
-  const diff = toNumber(keyValue) - toNumber(baseline);
+  const diff = keyValue.value - baseline.value;
   if (diff > 0) {
     return colorUp;
   } else if (diff < 0) {
@@ -401,15 +409,19 @@ export function getBaselineColor(
 }
 
 export function getBaselineArrowDirection(
-  baseline: string | undefined,
-  keyValue: string,
+  baseline: CellEvaluation | undefined,
+  keyValue: CellEvaluation | undefined,
   baselineMode: BaselineMode
 ): BaselineArrowDirection {
-  if (baselineMode === "text" || !isNumber(baseline) || !isNumber(keyValue)) {
+  if (
+    baselineMode === "text" ||
+    baseline?.type !== CellValueType.number ||
+    keyValue?.type !== CellValueType.number
+  ) {
     return "neutral";
   }
 
-  const diff = toNumber(keyValue) - toNumber(baseline);
+  const diff = keyValue.value - baseline.value;
   if (diff > 0) {
     return "up";
   } else if (diff < 0) {
