@@ -6,6 +6,7 @@ import {
   setCellContent,
   updateChart,
 } from "../test_helpers/commands_helpers";
+import { getCellContent } from "../test_helpers/getters_helpers";
 import { makeTestFixture, mountSpreadsheet, nextTick, target } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
@@ -81,6 +82,7 @@ describe("Scorecard charts", () => {
           cells: {
             A1: { content: "2" },
             A2: { content: "3" },
+            A3: { content: "2.1234" },
             B1: { content: "1" },
             B2: { content: "2" },
             B3: { content: "3" },
@@ -184,26 +186,65 @@ describe("Scorecard charts", () => {
     expect(getChartBaselineTextContent()).toEqual("0");
   });
 
-  test("Key value is displayed with the cell format", async () => {
+  test("Key value is displayed with the cell evaluated format", async () => {
+    setCellContent(model, "C1", "=A1");
     model.dispatch("SET_FORMATTING", {
       sheetId,
       target: target("A1"),
       format: "0%",
     });
-    createScorecardChart(model, { keyValue: "A1" }, chartId);
+    createScorecardChart(model, { keyValue: "C1" }, chartId);
     await nextTick();
     expect(getChartKeyElement()?.textContent).toEqual("200%");
   });
 
-  test("Baseline is displayed with the cell format", async () => {
+  test("Baseline is displayed with the cell evaluated format", async () => {
+    setCellContent(model, "C1", "=B2");
+    createScorecardChart(model, { keyValue: "A3", baseline: "C1" }, chartId);
+    await nextTick();
+    expect(getChartBaselineElement()?.textContent).toEqual((0.12).toLocaleString());
+
     model.dispatch("SET_FORMATTING", {
       sheetId,
       target: target("B2"),
       format: "[$$]#,##0.00",
     });
-    createScorecardChart(model, { keyValue: "A1", baseline: "B2" }, chartId);
     await nextTick();
-    expect(getChartBaselineElement()?.textContent).toEqual("$0.00");
+    expect(getChartBaselineElement()?.textContent).toEqual("$0.12");
+  });
+
+  test("Baseline with lot of decimal is truncated", async () => {
+    setCellContent(model, "C1", "=B2");
+    createScorecardChart(model, { keyValue: "A3", baseline: "B2" }, chartId);
+    await nextTick();
+    expect(getCellContent(model, "A3")).toEqual("2.1234");
+    expect(getChartBaselineElement()?.textContent).toEqual((0.12).toLocaleString());
+  });
+
+  test("Baseline with lot of decimal isn't truncated if the cell has a format", async () => {
+    createScorecardChart(model, { keyValue: "A3", baseline: "B2" }, chartId);
+    model.dispatch("SET_FORMATTING", {
+      sheetId,
+      target: target("B2"),
+      format: "[$$]#,####0.0000",
+    });
+    await nextTick();
+    expect(getChartBaselineElement()?.textContent).toEqual("$0.1234");
+  });
+
+  test("Baseline percentage mode format has priority over cell format", async () => {
+    createScorecardChart(
+      model,
+      { keyValue: "A1", baseline: "B1", baselineMode: "percentage" },
+      chartId
+    );
+    model.dispatch("SET_FORMATTING", {
+      sheetId,
+      target: target("B1"),
+      format: "[$$]#,####0.0000",
+    });
+    await nextTick();
+    expect(getChartBaselineElement()?.textContent).toEqual("100%");
   });
 
   test("Key value and baseline are displayed with the cell style", async () => {

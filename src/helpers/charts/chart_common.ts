@@ -371,17 +371,17 @@ export function getBaselineText(
   ) {
     return baseline.formattedValue;
   } else {
-    let diff = keyValue?.value - baselineEvaluated.value;
+    let diff = keyValue.value - baselineEvaluated.value;
     if (baselineMode === "percentage") {
       diff = (diff / baselineEvaluated.value) * 100;
     }
-    let baselineStr = Math.abs(parseFloat(diff.toFixed(2))).toLocaleString();
-    if (baselineMode === "percentage") {
-      baselineStr += "%";
-    } else if (baseline.format) {
-      baselineStr = formatValue(diff, baseline.format);
+
+    if (baselineMode !== "percentage" && baselineEvaluated.format) {
+      return formatValue(diff, baselineEvaluated.format);
     }
-    return baselineStr;
+
+    const baselineStr = Math.abs(parseFloat(diff.toFixed(2))).toLocaleString();
+    return baselineMode === "percentage" ? baselineStr + "%" : baselineStr;
   }
 }
 
