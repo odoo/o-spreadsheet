@@ -64,8 +64,10 @@ describe("styles", () => {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
       style: { fillColor: "red" },
+      format: "#,##0.0",
     });
     expect(getCell(model, "B1")!.style).toBeDefined();
+    expect(getCell(model, "B1")!.format).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
@@ -81,6 +83,7 @@ describe("styles", () => {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
       style: { fillColor: "red" },
+      format: "#,##0.0",
     });
     expect(getCell(model, "B1")!.style).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
@@ -90,9 +93,10 @@ describe("styles", () => {
     expect(getCell(model, "B1")!.style).not.toBeDefined();
     undo(model);
     expect(getCell(model, "B1")!.style).toBeDefined();
+    expect(getCell(model, "B1")!.format).toBeDefined();
   });
 
-  test("clear formatting does not remove format", () => {
+  test("clear formatting should remove format", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("SET_FORMATTING", {
@@ -104,7 +108,7 @@ describe("styles", () => {
       sheetId,
       target: target("A1"),
     });
-    expect(getCell(model, "A1")?.format).toBe("#,##0.0");
+    expect(getCell(model, "A1")?.format).toBeUndefined();
   });
 
   test("Can set a format in another than the active one", () => {
