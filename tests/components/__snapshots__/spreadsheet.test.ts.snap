@@ -440,6 +440,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
     <div
       class="o-scrollbar vertical"
       style="
+      
       top: 26px;"
     >
       <div
@@ -449,6 +450,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
     <div
       class="o-scrollbar horizontal"
       style="
+      
       left: 48px;"
     >
       <div

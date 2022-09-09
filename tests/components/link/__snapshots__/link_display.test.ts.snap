@@ -21,7 +21,7 @@ exports[`link display component snapshot in dashboard mode 1`] = `
       z-index: 30;
       top:23px;
       left:0px;
-      max-height:934px;
+      max-height:949px;
       width:220px;
       overflow-y: auto;
       overflow-x: hidden;

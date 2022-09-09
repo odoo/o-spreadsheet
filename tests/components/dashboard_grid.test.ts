@@ -25,6 +25,10 @@ describe("Grid component in dashboard mode", () => {
     fixture.remove();
   });
 
+  test("simple dashboard rendering snapshot", async () => {
+    expect(fixture.querySelector(".o-grid")).toMatchSnapshot();
+  });
+
   test("Open context menu in dashboard mode contains only items of dashboard registry", async () => {
     dashboardMenuRegistry.add("A", {
       name: "A",

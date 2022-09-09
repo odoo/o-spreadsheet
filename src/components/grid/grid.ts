@@ -343,11 +343,13 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   get vScrollbarStyle() {
     return `
+      ${this.env.isDashboard() ? "width: 0px;" : ""}
       top: ${this.env.isDashboard() ? 0 : HEADER_HEIGHT}px;`;
   }
 
   get hScrollbarStyle() {
     return `
+      ${this.env.isDashboard() ? "width: 0px;" : ""}
       left: ${this.env.isDashboard() ? 0 : HEADER_WIDTH}px;`;
   }
 
@@ -519,8 +521,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   resizeGrid() {
-    const currentHeight = this.gridEl.clientHeight - SCROLLBAR_WIDTH;
-    const currentWidth = this.gridEl.clientWidth - SCROLLBAR_WIDTH;
+    const scrollBarWidth = this.env.isDashboard() ? 0 : SCROLLBAR_WIDTH;
+    const currentHeight = this.gridEl.clientHeight - scrollBarWidth;
+    const currentWidth = this.gridEl.clientWidth - scrollBarWidth;
     const { height: viewportHeight, width: viewportWidth } =
       this.env.model.getters.getViewportDimensionWithHeaders();
     if (currentHeight != viewportHeight || currentWidth !== viewportWidth) {
