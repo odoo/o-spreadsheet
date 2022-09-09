@@ -3200,6 +3200,102 @@ describe("PRICEDISC function", () => {
   );
 });
 
+describe("PRICEMAT function", () => {
+  test("PRICEMAT takes 5-6 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=PRICEMAT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=PRICEMAT(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=PRICEMAT(1, 2)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=PRICEMAT(1, 2, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=PRICEMAT(1, 2, 0, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=PRICEMAT(1, 2, 0, 0, 0)" })).toBe(100);
+    expect(evaluateCell("A1", { A1: "=PRICEMAT(1, 2, 0, 0, 0, 0)" })).toBe(100);
+    expect(evaluateCell("A1", { A1: "=PRICEMAT(1, 2, 0, 0, 0, 0, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("maturity date > settlement date", () => {
+    expect(evaluateCell("A1", { A1: "=PRICEMAT(2, 2, 0, 0, 0, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+    expect(evaluateCell("A1", { A1: "=PRICEMAT(3, 2, 0, 0, 0, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+  });
+
+  test("settlement date > issue date", () => {
+    expect(evaluateCell("A1", { A1: "=PRICEMAT(2, 5, 3, 0, 0, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+    expect(evaluateCell("A1", { A1: "=PRICEMAT(2, 5, 2, 0, 0, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+  });
+
+  test("yield >= 0", () => {
+    expect(evaluateCell("A1", { A1: "=PRICEMAT(1, 2, 0, 0, -1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+    expect(evaluateCell("A1", { A1: "=PRICEMAT(1, 2, 0, 0, -0.5, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+  });
+
+  test("rate >= 0", () => {
+    expect(evaluateCell("A1", { A1: "=PRICEMAT(1, 2, 0, -1, 0, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+    expect(evaluateCell("A1", { A1: "=PRICEMAT(1, 2, 0, -0.5, 0, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+  });
+
+  test("dayCountConvention is between 0 and 4", () => {
+    expect(evaluateCell("A1", { A1: "=PRICEMAT(1, 2, 0, 0, 0, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+    expect(evaluateCell("A1", { A1: "=PRICEMAT(1, 2, 0, 0, 0, 5)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #!NUM
+  });
+
+  test.each([
+    /*
+     * @compatibility
+     * Results marked as @compatibility are from LibreOffice Calc and are different from the values in Excel.
+     * Most of the results are different from Google Sheet.
+     * See comment in PRICEMAT implementation for details.
+     */
+    ["01/01/2005", "01/01/2006", "01/01/2004", "5.00%", "5.00%", 0, 99.76190476],
+    ["01/02/2005", "06/06/2006", "01/01/2005", "12.00%", "5.00%", 0, 109.3262726],
+    ["02/01/2007", "02/28/2012", "01/01/2004", "0.50%", "12.00%", 0, 63.14395587],
+    ["01/02/2022", "01/03/2022", "01/01/2022", "1.00%", "10.00%", 0, 99.97500617],
+    ["03/30/2004", "05/01/2004", "01/01/2004", "5.00%", "0.00%", 0, 100.4305556],
+    ["01/01/2005", "01/01/2006", "01/01/2004", "0.00%", "5.00%", 0, 95.23809524],
+    ["01/01/2005", "01/01/2006", "01/01/2004", "5.00%", "0.00%", 0, 105],
+    ["01/01/2005", "06/01/2006", "01/01/2004", "0.00%", "0.00%", 0, 100],
+    ["02/28/2005", "12/31/2005", "01/01/2005", "5.00%", "10.00%", 0, 96.106564556], // @compatibility
+    ["02/28/2005", "12/31/2005", "01/01/2005", "5.00%", "10.00%", 1, 96.07100018],
+    ["02/28/2005", "12/31/2005", "01/01/2005", "5.00%", "10.00%", 2, 96.01984127],
+    ["02/28/2005", "12/31/2005", "01/01/2005", "5.00%", "10.00%", 3, 96.07100018],
+    ["02/28/2005", "12/31/2005", "01/01/2005", "5.00%", "10.00%", 4, 96.06891765],
+    ["03/31/2006", "01/01/2007", "01/01/2005", "5.00%", "10.00%", 0, 96.0491475071041], // @compatibility
+    ["03/31/2006", "01/01/2007", "01/01/2005", "5.00%", "10.00%", 1, 96.04776028],
+    ["03/31/2006", "01/01/2007", "01/01/2005", "5.00%", "10.00%", 2, 95.99062607],
+    ["03/31/2006", "01/01/2007", "01/01/2005", "5.00%", "10.00%", 3, 96.04776028],
+    ["03/31/2006", "01/01/2007", "01/01/2005", "5.00%", "10.00%", 4, 96.063036395993], // @compatibility
+    ["06/30/2004", "01/01/2007", "01/01/2002", "5.00%", "10.00%", 0, 87.4916716],
+    ["06/30/2004", "01/01/2007", "01/01/2002", "5.00%", "10.00%", 1, 87.4927083], // @compatibility
+    ["06/30/2004", "01/01/2007", "01/01/2002", "5.00%", "10.00%", 2, 87.30292543],
+    ["06/30/2004", "01/01/2007", "01/01/2002", "5.00%", "10.00%", 3, 87.47673634],
+    ["06/30/2004", "01/01/2007", "01/01/2002", "5.00%", "10.00%", 4, 87.4916716],
+    ["10/31/2005", "10/30/2010", "02/28/2002", "5.00%", "10.00%", 0, 77.2083333333333], // @compatibility
+    ["10/31/2005", "10/30/2010", "02/28/2002", "5.00%", "10.00%", 1, 77.2195674945665], // @compatibility
+    ["10/31/2005", "10/30/2010", "02/28/2002", "5.00%", "10.00%", 2, 76.9141705069124],
+    ["10/31/2005", "10/30/2010", "02/28/2002", "5.00%", "10.00%", 3, 77.2100456621005],
+    ["10/31/2005", "10/30/2010", "02/28/2002", "5.00%", "10.00%", 4, 77.212962962963],
+    ["03/30/2008", "02/28/2011", "03/31/2002", "5.00%", "10.00%", 0, 81.9621342512909],
+    ["03/30/2008", "02/28/2011", "03/31/2002", "5.00%", "10.00%", 1, 81.9487890924023], // @compatibility
+    ["03/30/2008", "02/28/2011", "03/31/2002", "5.00%", "10.00%", 2, 81.6380403715613], // @compatibility
+    ["03/30/2008", "02/28/2011", "03/31/2002", "5.00%", "10.00%", 3, 81.9269164281875],
+    ["03/30/2008", "02/28/2011", "03/31/2002", "5.00%", "10.00%", 4, 81.9621342512909],
+  ])(
+    "function result =PRICEMAT(%s, %s, %s, %s, %s, %s)",
+    (
+      settlement: string,
+      maturity: string,
+      issue: string,
+      rate: string,
+      yieldValue: string,
+      dayCountConvention: number,
+      expectedResult: number
+    ) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=PRICEMAT("${settlement}", "${maturity}", "${issue}", ${rate}, ${yieldValue}, ${dayCountConvention})`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+});
+
 describe("RATE function", () => {
   test("take 3-6 arguments", () => {
     expect(evaluateCell("A1", { A1: "=RATE()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
