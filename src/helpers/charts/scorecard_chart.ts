@@ -206,17 +206,20 @@ function createScorecardChartRuntime(
     const baselineZone = chart.baseline.zone;
     baselineCell = getters.getCell(chart.baseline.sheetId, baselineZone.left, baselineZone.top);
   }
-  const baselineValue = baselineCell?.content || "";
   const background = getters.getBackgroundOfSingleCellChart(chart.background, chart.keyValue);
   return {
     title: chart.title,
     keyValue: formattedKeyValue || keyValue,
-    baselineDisplay: getBaselineText(baselineCell, keyValue, chart.baselineMode),
-    baselineArrow: getBaselineArrowDirection(baselineValue, keyValue, chart.baselineMode),
+    baselineDisplay: getBaselineText(baselineCell, keyValueCell?.evaluated, chart.baselineMode),
+    baselineArrow: getBaselineArrowDirection(
+      baselineCell?.evaluated,
+      keyValueCell?.evaluated,
+      chart.baselineMode
+    ),
     baselineColor: getBaselineColor(
-      baselineValue,
+      baselineCell?.evaluated,
       chart.baselineMode,
-      keyValue,
+      keyValueCell?.evaluated,
       chart.baselineColorUp,
       chart.baselineColorDown
     ),

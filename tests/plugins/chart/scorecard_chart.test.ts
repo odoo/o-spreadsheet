@@ -309,3 +309,20 @@ test("font color is white with a dark background color", () => {
     "#FFFFFF"
   );
 });
+
+test("Scorecard with formula cell", () => {
+  setCellContent(model, "A2", "=MULTIPLY(1, 2)");
+  setCellContent(model, "A1", "=SUM(1, 3)");
+  createScorecardChart(
+    model,
+    {
+      keyValue: "A1",
+      baseline: "A2",
+      baselineMode: "percentage",
+    },
+    "1"
+  );
+  const runtime = model.getters.getChartRuntime("1") as ScorecardChartRuntime;
+  expect(runtime.keyValue).toEqual("4");
+  expect(runtime.baselineDisplay).toEqual("100%");
+});
