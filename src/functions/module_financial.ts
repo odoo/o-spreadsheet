@@ -10,6 +10,7 @@ import {
   checkCouponFrequency,
   checkDayCountConvention,
   checkMaturityAndSettlementDates,
+  checkSettlementAndIssueDates,
 } from "./helper_financial";
 import { YEARFRAC } from "./module_date";
 
@@ -1156,6 +1157,88 @@ export const PRICEDISC: AddFunctionDescription = {
      */
     const yearsFrac = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention) as number;
     return _redemption - _discount * _redemption * yearsFrac;
+  },
+};
+
+// -----------------------------------------------------------------------------
+// PRICEMAT
+// -----------------------------------------------------------------------------
+export const PRICEMAT: AddFunctionDescription = {
+  description: _lt(
+    "Calculates the price of a security paying interest at maturity, based on expected yield."
+  ),
+  args: args(`
+      settlement (date) ${_lt(
+        "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
+      )}
+      maturity (date) ${_lt(
+        "The maturity or end date of the security, when it can be redeemed at face, or par value."
+      )}
+      issue (date) ${_lt("The date the security was initially issued.")}
+      rate (number) ${_lt("The annualized rate of interest.")}
+      yield (number) ${_lt("The expected annual yield of the security.")}
+      day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
+    "An indicator of what day count method to use."
+  )}
+    `),
+  returns: ["NUMBER"],
+  compute: function (
+    settlement: PrimitiveArgValue,
+    maturity: PrimitiveArgValue,
+    issue: PrimitiveArgValue,
+    rate: PrimitiveArgValue,
+    securityYield: PrimitiveArgValue,
+    dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
+  ): number {
+    dayCountConvention = dayCountConvention || 0;
+    const _settlement = Math.trunc(toNumber(settlement));
+    const _maturity = Math.trunc(toNumber(maturity));
+    const _issue = Math.trunc(toNumber(issue));
+    const _rate = toNumber(rate);
+    const _yield = toNumber(securityYield);
+    const _dayCount = Math.trunc(toNumber(dayCountConvention));
+
+    checkSettlementAndIssueDates(_settlement, _issue);
+    checkMaturityAndSettlementDates(_settlement, _maturity);
+    checkDayCountConvention(_dayCount);
+
+    assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
+    assert(() => _yield >= 0, _lt("The yield (%s) must be positive or null.", _yield.toString()));
+
+    /**
+     * https://support.microsoft.com/en-us/office/pricemat-function-52c3b4da-bc7e-476a-989f-a95f675cae77
+     *
+     * B = number of days in year, depending on year basis
+     * DSM = number of days from settlement to maturity
+     * DIM = number of days from issue to maturity
+     * DIS = number of days from issue to settlement
+     *
+     *             100 + (DIM/B * rate * 100)
+     *  PRICEMAT =  __________________________   - (DIS/B * rate * 100)
+     *              1 + (DSM/B * yield)
+     *
+     * The ratios number_of_days / days_in_year are computed using the YEARFRAC function, that handle
+     * differences due to day count conventions.
+     *
+     * Compatibility note :
+     *
+     * Contrary to GSheet and OpenOffice, Excel doesn't seems to always use its own YEARFRAC function
+     * to compute PRICEMAT, and give different values for some combinations of dates and day count
+     * conventions ( notably for leap years and dayCountConvention = 1 (Actual/Actual)).
+     *
+     * Our function PRICEMAT give us the same results as LibreOffice Calc.
+     * Google Sheet use the formula with YEARFRAC, but its YEARFRAC function results are different
+     * from the results of Excel/LibreOffice, thus we get different values with PRICEMAT.
+     *
+     */
+    const settlementToMaturity = YEARFRAC.compute(_settlement, _maturity, _dayCount) as number;
+    const issueToSettlement = YEARFRAC.compute(_settlement, _issue, _dayCount) as number;
+    const issueToMaturity = YEARFRAC.compute(_issue, _maturity, _dayCount) as number;
+
+    const numerator = 100 + issueToMaturity * _rate * 100;
+    const denominator = 1 + settlementToMaturity * _yield;
+    const term2 = issueToSettlement * _rate * 100;
+    return numerator / denominator - term2;
   },
 };
 

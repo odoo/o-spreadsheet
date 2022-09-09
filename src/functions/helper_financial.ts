@@ -13,6 +13,18 @@ export function checkMaturityAndSettlementDates(settlement: number, maturity: nu
   );
 }
 
+/** Assert settlement date > issue date */
+export function checkSettlementAndIssueDates(settlement: number, issue: number) {
+  assert(
+    () => issue < settlement,
+    _lt(
+      "The settlement date (%s) must be strictly greater than the issue date (%s).",
+      settlement.toString(),
+      issue.toString()
+    )
+  );
+}
+
 /** Assert coupon frequency is in [1, 2, 4] */
 export function checkCouponFrequency(frequency: number) {
   assert(
