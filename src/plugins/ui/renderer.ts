@@ -3,6 +3,7 @@ import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_COLOR,
   BACKGROUND_HEADER_SELECTED_COLOR,
+  CANVAS_SHIFT,
   CELL_BORDER_COLOR,
   DEFAULT_FONT,
   DEFAULT_FONT_SIZE,
@@ -278,7 +279,7 @@ export class RendererPlugin extends UIPlugin {
 
     // white background
     ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, width, height);
+    ctx.fillRect(0, 0, width + CANVAS_SHIFT, height + CANVAS_SHIFT);
 
     // background grid
     const { right, left, top, bottom } = viewport;
