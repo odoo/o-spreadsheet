@@ -97,7 +97,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         }
         break;
       case "CLEAR_FORMATTING":
-        this.clearStyles(cmd.sheetId, cmd.target);
+        this.clearFormatting(cmd.sheetId, cmd.target);
         break;
       case "ADD_COLUMNS_ROWS":
         if (cmd.dimension === "COL") {
@@ -142,9 +142,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   /**
-   * Clear the styles of zones
+   * Clear the styles and format of zones
    */
-  private clearStyles(sheetId: UID, zones: Zone[]) {
+  private clearFormatting(sheetId: UID, zones: Zone[]) {
     for (let zone of zones) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
@@ -154,6 +154,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
             col,
             row,
             style: null,
+            format: "",
           });
         }
       }
