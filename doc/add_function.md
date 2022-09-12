@@ -12,6 +12,8 @@ o_spreadsheet.addFunction("myfunc", {
 The `addFunction` method takes a name, and a function descriptor (it should
 implement the `FunctionDescription` interface from the code `/functions/index.ts`).
 
+The name of the function should be upper-cased and can be separated by a dot (MY.FUNCTION)
+
 The properties of a function are:
 
 - `description` (string) : the description of the function that will be shown as help for the user when he types the formula (don't forget the translations)
@@ -100,9 +102,9 @@ const spreadsheet = o_spreadsheet; // obtain the reference to the global o_sprea
     spreadsheet.addFunction("NEW.FORMULA", NEW_FORMULA);
 ```
 
-## More about the `compute` function
+## More about the `compute` and `computeFormat` function
 
-> The function `compute` will be **_called after any change on a sheet_** during the evaluation of a worksheet. The execution of compute is synchronous, so the user will be stuck until all the compute functions execute completely.
+> The functions `compute` and `computeFormat` will be **_called after any change on a sheet_** during the evaluation of a worksheet. The execution of compute is synchronous, so the user will be stuck until all the compute functions execute completely.
 > That means that **_it should be fast_**, that any error in it will put the cell to `#ERROR`.
 
 ```javascript
@@ -130,6 +132,9 @@ const NEW_FORMULA : {
   }
 }
 ```
+
+`computeFormat` function takes the same number of arguments as `compute`, but as
+an object `{ value, format }`.
 
 Depending on type, the parameters received by the compute function are like this:
 
@@ -183,7 +188,7 @@ export const WORKDAY_INTL = {
     if (holidays !== undefined) { // <--
       // if the user provided any holidays, all of them will be added to timesHoliday set, no matter how the user entered them
       visitAny(holidays, (h) => {
-        const holiday = toNativeDate(h);
+        const holiday = toJseDate(h);
         timesHoliday.add(holiday.getTime());
       });
     }
@@ -208,12 +213,9 @@ export const MEDIAN: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  compute: function (): number {
-    // here we don't define the arguments on the function at all.
-    // In javascript all arguments passed to a function are stored in the magic variable `arguments`
+  compute: function (value1: ArgValue, value2: ArgValue): number {
     let data: any[] = [];
-    // we use here arguments : an array of all the arguments passed to the function
-    visitNumbers(arguments, (arg) => {
+    visitNumbers([value1, value2], (arg) => {
       data.push(arg);
     });
     return centile([data], 0.5, true);
@@ -225,3 +227,70 @@ export const MEDIAN: AddFunctionDescription = {
 - `visitBooleans`(args: IArguments, callback: (a: boolean) => boolean): void
 
 see [add plugin](add_plugin.md)
+
+#### Asynchronous function
+
+Function are synchronous. However, you can use a `getter` to fetch data from an external source.
+Here is what a function fetching currency rate from a server might look like.
+
+```ts
+addFunction("CURRENCY.RATE", {
+  description:
+    "This function takes in two currency codes as arguments, and returns the exchange rate from the first currency to the second as float.",
+  compute: function (currencyFrom, currencyTo) {
+    const from = toString(currencyFrom);
+    const to = toString(currencyTo);
+    const currencyRate = this.getters.getCurrencyRate(from, to);
+    if (currencyRate.status === "LOADING") {
+      throw new Error("Loading...");
+    }
+    return currencyRate.value;
+  },
+  args: args(`
+        currency_from (string) First currency code.
+        currency_to (string) Second currency code.
+    `),
+  returns: ["NUMBER"],
+});
+```
+
+And add a [plugin](./extending/architecture.md#plugins) to handle data loading.
+
+```ts
+const { uiPluginRegistry } = o_spreadsheet.registries;
+const { UIPlugin } = o_spreadsheet;
+
+class CurrencyPlugin extends UIPlugin {
+  static getters = ["getCurrencyRate"];
+
+  constructor(getters, history, dispatch, config) {
+    super(getters, history, dispatch, config);
+
+    /**
+     * You can add whatever you need to the `config` property at the model
+     * creation
+     */
+    this.server = config.server;
+
+    // a cache to store fetched rates
+    this.currencyRates = {};
+  }
+
+  getCurrencyRate(from: string, to: string) {
+    const cacheKey = `${from}-${to}`;
+    if (cacheKey in this.currencyRates) {
+      return this.currencyRates[cacheKey];
+    }
+    // start fetching the data
+    this.server.fetchCurrencyRate(from, to).then((result) => {
+      this.currencyRates[cacheKey] = { value: result, status: "COMPLETED" };
+      // don't forget to trigger a new evaluation when the data is loaded!
+      this.dispatch("EVALUATE_CELLS");
+    });
+    // return synchronously
+    return { status: "LOADING" };
+  }
+}
+
+uiPluginRegistry.add("currencyPlugin", CurrencyPlugin);
+```
