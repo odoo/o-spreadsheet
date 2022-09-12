@@ -148,6 +148,43 @@ describe("DAYS formula", () => {
   });
 });
 
+describe("DAYS360 function", () => {
+  test("DAYS360 takes 2-3 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=DAYS360()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=DAYS360(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=DAYS360(0, 0)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=DAYS360(0, 0, 0)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=DAYS360(0, 0, 0, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test.each([
+    ["01/30/2006", "12/31/2006", "FALSE", 330],
+    ["01/30/2006", "12/01/2006", "FALSE", 301],
+    ["01/30/2004", "01/01/2002", "FALSE", -749],
+    ["02/28/2002", "03/01/2002", "FALSE", 1],
+    ["01/01/2000", "10/05/2022", "FALSE", 8194],
+    ["01/30/2006", "12/31/2006", "FALSE", 330],
+    ["02/28/2006", "03/10/2006", "TRUE", 12],
+    ["02/28/2006", "03/10/2006", "FALSE", 10],
+    ["02/28/2008", "03/10/2008", "TRUE", 12],
+    ["02/28/2008", "03/10/2008", "FALSE", 12],
+    ["03/01/2008", "02/28/2008", "TRUE", -3],
+    ["03/01/2008", "02/28/2008", "FALSE", -3],
+    ["03/01/2008", "02/29/2008", "TRUE", -2],
+    ["03/01/2008", "02/28/2008", "FALSE", -3],
+    ["03/31/2008", "04/30/2008", "TRUE", 30],
+    ["03/31/2008", "04/30/2008", "FALSE", 30],
+  ])(
+    "function result =DASY360(%s, %s, %s)",
+    (startDate: string, endDate: string, method: string, expectedResult: number) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=DAYS360("${startDate}", "${endDate}", "${method}")`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+});
+
 describe("EDATE formula", () => {
   test("functional tests on simple arguments", () => {
     const grid = {
