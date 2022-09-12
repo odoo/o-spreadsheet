@@ -110,7 +110,7 @@ export class FindAndReplacePlugin extends UIPlugin {
   private updateSearch(toSearch: string, searchOptions: SearchOptions) {
     this.searchOptions = searchOptions;
     if (toSearch !== this.toSearch) {
-      this.selectedMatchIndex = 0;
+      this.selectedMatchIndex = null;
     }
     this.toSearch = toSearch;
     this.updateRegex();
@@ -195,7 +195,7 @@ export class FindAndReplacePlugin extends UIPlugin {
     }
     //modulo of negative value to be able to cycle in both directions with previous and next
     nextIndex = ((nextIndex % matches.length) + matches.length) % matches.length;
-    if (this.selectedMatchIndex !== nextIndex) {
+    if (this.selectedMatchIndex === null || this.selectedMatchIndex !== nextIndex) {
       this.selectedMatchIndex = nextIndex;
       this.dispatch("SELECT_CELL", { col: matches[nextIndex].col, row: matches[nextIndex].row });
     }
