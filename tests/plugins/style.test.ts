@@ -1,8 +1,10 @@
+import { DEFAULT_FONT_SIZE } from "../../src/constants";
+import { fontSizeMap } from "../../src/fonts";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { createSheet, selectCell, setCellContent, undo } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
-import { target } from "../test_helpers/helpers";
+import { createEqualCF, target, toRangesData } from "../test_helpers/helpers";
 
 describe("styles", () => {
   test("can undo and redo a setStyle operation on an empty cell", () => {
@@ -115,5 +117,22 @@ describe("styles", () => {
     });
     expect(getCell(model, "A1")).toBeUndefined();
     expect(getCell(model, "A1", "42")!.style).toBeDefined();
+  });
+
+  test("getTextWidth use computed style", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "H");
+    setCellContent(model, "A2", "H");
+    const fontSize = 36;
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("H", { fontSize }, "1"),
+      ranges: toRangesData(sheetId, "A1"),
+      sheetId,
+    });
+    const A1 = getCell(model, "A1")!;
+    const A2 = getCell(model, "A2")!;
+    expect(model.getters.getTextWidth(A1)).toBe(fontSizeMap[fontSize]);
+    expect(model.getters.getTextWidth(A2)).toBe(fontSizeMap[DEFAULT_FONT_SIZE]);
   });
 });

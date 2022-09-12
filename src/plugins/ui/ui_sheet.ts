@@ -71,7 +71,8 @@ export class SheetUIPlugin extends UIPlugin {
 
   getTextWidth(cell: Cell): number {
     const text = this.getters.getCellText(cell, this.getters.shouldShowFormulas());
-    return computeTextWidth(this.ctx, text, this.getters.getCellStyle(cell));
+    const { sheetId, col, row } = this.getters.getCellPosition(cell.id);
+    return computeTextWidth(this.ctx, text, this.getters.getCellComputedStyle(sheetId, col, row));
   }
 
   getCellText(cell: Cell, showFormula: boolean = false): string {
