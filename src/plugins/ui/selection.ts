@@ -265,7 +265,6 @@ export class GridSelectionPlugin extends UIPlugin {
           this.onMoveElements(cmd);
         }
         break;
-      case "UPDATE_CHART":
       case "SELECT_FIGURE":
         this.selectedFigureId = cmd.id;
         break;
