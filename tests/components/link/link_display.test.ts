@@ -33,11 +33,11 @@ describe("link display component", () => {
     expect(fixture.querySelector(".o-popover")?.outerHTML).toMatchSnapshot();
   });
 
-  test("snapshot in dashboard mode", async () => {
+  test("Link display is not shown in dashboard mode", async () => {
     setCellContent(model, "A1", "[label](url.com)");
     model.updateMode("dashboard");
     await hoverCell(model, "A1", 400);
-    expect(fixture.querySelector(".o-popover")?.outerHTML).toMatchSnapshot();
+    expect(fixture.querySelector(".o-popover")).toBeNull();
   });
 
   test("link shows the url", async () => {
