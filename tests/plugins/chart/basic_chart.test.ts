@@ -575,7 +575,7 @@ describe("datasource tests", function () {
     expect(result).toBeCancelledBecause(CommandResult.InvalidDataSet);
   });
 
-  test("chart is focused after creation and update", () => {
+  test("chart is not selected after creation and update", () => {
     const chartId = "1234";
     createChart(
       model,
@@ -595,7 +595,7 @@ describe("datasource tests", function () {
       labelRange: "A2:A4",
       title: "updated chart",
     });
-    expect(model.getters.getSelectedFigureId()).toBe(chartId);
+    expect(model.getters.getSelectedFigureId()).toBeNull();
   });
 
   test("create chart with invalid labels", () => {
