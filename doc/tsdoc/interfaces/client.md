@@ -6,24 +6,24 @@
 
 ### Properties
 
-- [id](client.md#id)
-- [name](client.md#name)
-- [position](client.md#position)
+- [id](Client.md#id)
+- [name](Client.md#name)
+- [position](Client.md#position)
 
 ## Properties
 
 ### id
 
-• **id**: *string*
+• **id**: `string`
 
 ___
 
 ### name
 
-• **name**: *string*
+• **name**: `string`
 
 ___
 
 ### position
 
-• `Optional` **position**: ClientPosition
+• `Optional` **position**: `ClientPosition`

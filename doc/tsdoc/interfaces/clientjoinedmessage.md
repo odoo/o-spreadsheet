@@ -4,32 +4,36 @@
 
 ## Hierarchy
 
-* *AbstractMessage*
+- `AbstractMessage`
 
-  ↳ **ClientJoinedMessage**
+  ↳ **`ClientJoinedMessage`**
 
 ## Table of contents
 
 ### Properties
 
-- [client](clientjoinedmessage.md#client)
-- [type](clientjoinedmessage.md#type)
-- [version](clientjoinedmessage.md#version)
+- [client](ClientJoinedMessage.md#client)
+- [type](ClientJoinedMessage.md#type)
+- [version](ClientJoinedMessage.md#version)
 
 ## Properties
 
 ### client
 
-• **client**: *Required*<[*Client*](client.md)\>
+• **client**: `Required`<[`Client`](Client.md)\>
 
 ___
 
 ### type
 
-• **type**: *CLIENT_JOINED*
+• **type**: ``"CLIENT_JOINED"``
 
 ___
 
 ### version
 
-• **version**: *number*
+• **version**: `number`
+
+#### Inherited from
+
+AbstractMessage.version

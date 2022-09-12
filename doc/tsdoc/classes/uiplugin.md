@@ -7,159 +7,172 @@ They can draw on the grid canvas.
 
 ## Type parameters
 
-Name | Default |
-:------ | :------ |
-`State` | *any* |
-`C` | Command |
+| Name | Type |
+| :------ | :------ |
+| `State` | `any` |
+| `C` | `Command` |
 
 ## Hierarchy
 
-* *BasePlugin*<State, C\>
+- `BasePlugin`<`State`, `C`\>
 
-  ↳ **UIPlugin**
+  ↳ **`UIPlugin`**
 
 ## Table of contents
 
 ### Constructors
 
-- [constructor](uiplugin.md#constructor)
+- [constructor](UIPlugin.md#constructor)
 
 ### Properties
 
-- [currentMode](uiplugin.md#currentmode)
-- [dispatch](uiplugin.md#dispatch)
-- [getters](uiplugin.md#getters)
-- [history](uiplugin.md#history)
-- [ui](uiplugin.md#ui)
-- [getters](uiplugin.md#getters)
-- [layers](uiplugin.md#layers)
-- [modes](uiplugin.md#modes)
+- [dispatch](UIPlugin.md#dispatch)
+- [getters](UIPlugin.md#getters)
+- [history](UIPlugin.md#history)
+- [selection](UIPlugin.md#selection)
+- [ui](UIPlugin.md#ui)
+- [getters](UIPlugin.md#getters)
+- [layers](UIPlugin.md#layers)
 
 ### Methods
 
-- [allowDispatch](uiplugin.md#allowdispatch)
-- [batchValidations](uiplugin.md#batchvalidations)
-- [beforeHandle](uiplugin.md#beforehandle)
-- [chainValidations](uiplugin.md#chainvalidations)
-- [checkValidations](uiplugin.md#checkvalidations)
-- [drawGrid](uiplugin.md#drawgrid)
-- [finalize](uiplugin.md#finalize)
-- [handle](uiplugin.md#handle)
+- [allowDispatch](UIPlugin.md#allowdispatch)
+- [batchValidations](UIPlugin.md#batchvalidations)
+- [beforeHandle](UIPlugin.md#beforehandle)
+- [chainValidations](UIPlugin.md#chainvalidations)
+- [checkValidations](UIPlugin.md#checkvalidations)
+- [drawGrid](UIPlugin.md#drawgrid)
+- [exportForExcel](UIPlugin.md#exportforexcel)
+- [finalize](UIPlugin.md#finalize)
+- [handle](UIPlugin.md#handle)
 
 ## Constructors
 
 ### constructor
 
-\+ **new UIPlugin**<State, C\>(`getters`: Getters, `state`: *StateObserver*, `dispatch`: <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*) => [*DispatchResult*](dispatchresult.md)<T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>) => [*DispatchResult*](dispatchresult.md), `config`: ModelConfig): [*UIPlugin*](uiplugin.md)<State, C\>
+• **new UIPlugin**<`State`, `C`\>(`getters`, `state`, `dispatch`, `config`, `selection`)
 
-#### Type parameters:
+#### Type parameters
 
-Name | Default |
-:------ | :------ |
-`State` | *any* |
-`C` | Command |
+| Name | Type |
+| :------ | :------ |
+| `State` | `any` |
+| `C` | `Command` |
 
-#### Parameters:
+#### Parameters
 
-Name | Type |
-:------ | :------ |
-`getters` | Getters |
-`state` | *StateObserver* |
-`dispatch` | <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*) => [*DispatchResult*](dispatchresult.md)<T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>) => [*DispatchResult*](dispatchresult.md) |
-`config` | ModelConfig |
+| Name | Type |
+| :------ | :------ |
+| `getters` | `Getters` |
+| `state` | `StateObserver` |
+| `dispatch` | <T, C\>(`type`: {} extends `Omit`<`C`, ``"type"``\> ? `T` : `never`) => [`DispatchResult`](DispatchResult.md)<T, C\>(`type`: `T`, `r`: `Omit`<`C`, ``"type"``\>) => [`DispatchResult`](DispatchResult.md) |
+| `config` | `ModelConfig` |
+| `selection` | `SelectionStreamProcessor` |
 
-**Returns:** [*UIPlugin*](uiplugin.md)<State, C\>
+#### Overrides
+
+BasePlugin&lt;State, C\&gt;.constructor
 
 ## Properties
 
-### currentMode
-
-• `Protected` **currentMode**: Mode
-
-___
-
 ### dispatch
 
-• `Protected` **dispatch**: <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*) => [*DispatchResult*](dispatchresult.md)<T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>) => [*DispatchResult*](dispatchresult.md)
+• `Protected` **dispatch**: <T, C\>(`type`: {} extends `Omit`<`C`, ``"type"``\> ? `T` : `never`) => [`DispatchResult`](DispatchResult.md)<T, C\>(`type`: `T`, `r`: `Omit`<`C`, ``"type"``\>) => [`DispatchResult`](DispatchResult.md)
 
-#### Type declaration:
+#### Type declaration
 
-▸ <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*): [*DispatchResult*](dispatchresult.md)
+▸ <`T`, `C`\>(`type`): [`DispatchResult`](DispatchResult.md)
 
-#### Type parameters:
+##### Type parameters
 
-Name | Type |
-:------ | :------ |
-`T` | *UPDATE_CELL* \| *UPDATE_CELL_POSITION* \| *CLEAR_CELL* \| *DELETE_CONTENT* \| *SET_DECIMAL* \| *ADD_COLUMNS_ROWS* \| *REMOVE_COLUMNS_ROWS* \| *RESIZE_COLUMNS_ROWS* \| *HIDE_COLUMNS_ROWS* \| *UNHIDE_COLUMNS_ROWS* \| *SET_GRID_LINES_VISIBILITY* \| *ADD_MERGE* \| *REMOVE_MERGE* \| *CREATE_SHEET* \| *DELETE_SHEET* \| *DUPLICATE_SHEET* \| *MOVE_SHEET* \| *RENAME_SHEET* \| *ADD_CONDITIONAL_FORMAT* \| *REMOVE_CONDITIONAL_FORMAT* \| *CREATE_FIGURE* \| *DELETE_FIGURE* \| *UPDATE_FIGURE* \| *SET_FORMATTING* \| *CLEAR_FORMATTING* \| *SET_BORDER* \| *CREATE_CHART* \| *UPDATE_CHART* \| *REQUEST_UNDO* \| *REQUEST_REDO* \| *UNDO* \| *REDO* \| *ENABLE_NEW_SELECTION_INPUT* \| *DISABLE_SELECTION_INPUT* \| *FOCUS_RANGE* \| *ADD_EMPTY_RANGE* \| *REMOVE_RANGE* \| *CHANGE_RANGE* \| *COPY* \| *CUT* \| *PASTE* \| *CUT_AND_PASTE* \| *AUTOFILL_CELL* \| *PASTE_FROM_OS_CLIPBOARD* \| *ACTIVATE_PAINT_FORMAT* \| *PASTE_CONDITIONAL_FORMAT* \| *AUTORESIZE_COLUMNS* \| *AUTORESIZE_ROWS* \| *MOVE_POSITION* \| *DELETE_SHEET_CONFIRMATION* \| *ACTIVATE_SHEET* \| *START_SELECTION* \| *START_SELECTION_EXPANSION* \| *PREPARE_SELECTION_EXPANSION* \| *STOP_SELECTION* \| *SELECT_CELL* \| *SET_SELECTION* \| *SELECT_COLUMN* \| *SELECT_ROW* \| *SELECT_ALL* \| *ALTER_SELECTION* \| *EVALUATE_CELLS* \| *ADD_HIGHLIGHTS* \| *REMOVE_HIGHLIGHTS* \| *REMOVE_ALL_HIGHLIGHTS* \| *HIGHLIGHT_SELECTION* \| *ADD_PENDING_HIGHLIGHTS* \| *RESET_PENDING_HIGHLIGHT* \| *SET_HIGHLIGHT_COLOR* \| *STOP_COMPOSER_RANGE_SELECTION* \| *START_EDITION* \| *STOP_EDITION* \| *SET_CURRENT_CONTENT* \| *CHANGE_COMPOSER_CURSOR_SELECTION* \| *REPLACE_COMPOSER_CURSOR_SELECTION* \| *START* \| *AUTOFILL* \| *AUTOFILL_SELECT* \| *SET_FORMULA_VISIBILITY* \| *AUTOFILL_AUTO* \| *SELECT_FIGURE* \| *UPDATE_SEARCH* \| *REFRESH_SEARCH* \| *CLEAR_SEARCH* \| *SELECT_SEARCH_PREVIOUS_MATCH* \| *SELECT_SEARCH_NEXT_MATCH* \| *REPLACE_SEARCH* \| *REPLACE_ALL_SEARCH* \| *SORT_CELLS* \| *RESIZE_VIEWPORT* \| *REFRESH_CHART* \| *SUM_SELECTION* \| *DELETE_CELL* \| *INSERT_CELL* \| *SET_VIEWPORT_OFFSET* \| *EVALUATE_ALL_SHEETS* \| *ACTIVATE_NEXT_SHEET* \| *ACTIVATE_PREVIOUS_SHEET* |
-`C` | { `type`: T  } & UpdateCellCommand \| { `type`: T  } & UpdateCellPositionCommand \| { `type`: T  } & ClearCellCommand \| { `type`: T  } & DeleteContentCommand \| { `type`: T  } & SetDecimalCommand \| { `type`: T  } & AddColumnsRowsCommand \| { `type`: T  } & RemoveColumnsRowsCommand \| { `type`: T  } & ResizeColumnsRowsCommand \| { `type`: T  } & HideColumnsRowsCommand \| { `type`: T  } & UnhideColumnsRowsCommand \| { `type`: T  } & SetGridLinesVisibilityCommand \| { `type`: T  } & AddMergeCommand \| { `type`: T  } & RemoveMergeCommand \| { `type`: T  } & CreateSheetCommand \| { `type`: T  } & DeleteSheetCommand \| { `type`: T  } & DuplicateSheetCommand \| { `type`: T  } & MoveSheetCommand \| { `type`: T  } & RenameSheetCommand \| { `type`: T  } & AddConditionalFormatCommand \| { `type`: T  } & RemoveConditionalFormatCommand \| { `type`: T  } & CreateFigureCommand \| { `type`: T  } & DeleteFigureCommand \| { `type`: T  } & *UpdateFigureCommand* \| { `type`: T  } & SetFormattingCommand \| { `type`: T  } & ClearFormattingCommand \| { `type`: T  } & SetBorderCommand \| { `type`: T  } & CreateChartCommand \| { `type`: T  } & UpdateChartCommand \| { `type`: T  } & RequestUndoCommand \| { `type`: T  } & RequestRedoCommand \| { `type`: T  } & UndoCommand \| { `type`: T  } & RedoCommand \| { `type`: T  } & NewInputCommand \| { `type`: T  } & RemoveInputCommand \| { `type`: T  } & FocusInputCommand \| { `type`: T  } & AddEmptyRangeCommand \| { `type`: T  } & RemoveRangeCommand \| { `type`: T  } & ChangeRangeCommand \| { `type`: T  } & CopyCommand \| { `type`: T  } & CutCommand \| { `type`: T  } & PasteCommand \| { `type`: T  } & CutAndPasteCommand \| { `type`: T  } & AutoFillCellCommand \| { `type`: T  } & PasteFromOSClipboardCommand \| { `type`: T  } & ActivatePaintFormatCommand \| { `type`: T  } & PasteCFCommand \| { `type`: T  } & AutoresizeColumnsCommand \| { `type`: T  } & AutoresizeRowsCommand \| { `type`: T  } & MovePositionCommand \| { `type`: T  } & DeleteSheetConfirmationCommand \| { `type`: T  } & ActivateSheetCommand \| { `type`: T  } & StartSelectionCommand \| { `type`: T  } & StartExpansionCommand \| { `type`: T  } & PrepareExpansionCommand \| { `type`: T  } & StopSelectionCommand \| { `type`: T  } & SelectCellCommand \| { `type`: T  } & SetSelectionCommand \| { `type`: T  } & SelectColumnCommand \| { `type`: T  } & SelectRowCommand \| { `type`: T  } & SelectAllCommand \| { `type`: T  } & AlterSelectionCommand \| { `type`: T  } & EvaluateCellsCommand \| { `type`: T  } & AddHighlightsCommand \| { `type`: T  } & RemoveHighlightsCommand \| { `type`: T  } & RemoveAllHighlightsCommand \| { `type`: T  } & HighlightSelectionCommand \| { `type`: T  } & AddPendingHighlightCommand \| { `type`: T  } & ResetPendingHighlightCommand \| { `type`: T  } & SetColorCommand \| { `type`: T  } & StopComposerSelectionCommand \| { `type`: T  } & StartEditionCommand \| { `type`: T  } & StopEditionCommand \| { `type`: T  } & SetCurrentContentCommand \| { `type`: T  } & ChangeComposerSelectionCommand \| { `type`: T  } & ReplaceComposerSelectionCommand \| { `type`: T  } & StartCommand \| { `type`: T  } & AutofillCommand \| { `type`: T  } & AutofillSelectCommand \| { `type`: T  } & ShowFormulaCommand \| { `type`: T  } & AutofillAutoCommand \| { `type`: T  } & SelectFigureCommand \| { `type`: T  } & UpdateSearchCommand \| { `type`: T  } & RefreshSearchCommand \| { `type`: T  } & ClearSearchCommand \| { `type`: T  } & SelectSearchPreviousCommand \| { `type`: T  } & SelectSearchNextCommand \| { `type`: T  } & ReplaceSearchCommand \| { `type`: T  } & ReplaceAllSearchCommand \| { `type`: T  } & SortCommand \| { `type`: T  } & ResizeViewportCommand \| { `type`: T  } & RefreshChartCommand \| { `type`: T  } & SumSelectionCommand \| { `type`: T  } & DeleteCellCommand \| { `type`: T  } & InsertCellCommand \| { `type`: T  } & SetViewportOffsetCommand \| { `type`: T  } & EvaluateAllSheetsCommand \| { `type`: T  } & ActivateNextSheetCommand \| { `type`: T  } & ActivatePreviousSheetCommand |
+| Name | Type |
+| :------ | :------ |
+| `T` | extends ``"UPDATE_CELL"`` \| ``"UPDATE_CELL_POSITION"`` \| ``"CLEAR_CELL"`` \| ``"DELETE_CONTENT"`` \| ``"SET_DECIMAL"`` \| ``"ADD_COLUMNS_ROWS"`` \| ``"REMOVE_COLUMNS_ROWS"`` \| ``"RESIZE_COLUMNS_ROWS"`` \| ``"HIDE_COLUMNS_ROWS"`` \| ``"UNHIDE_COLUMNS_ROWS"`` \| ``"SET_GRID_LINES_VISIBILITY"`` \| ``"ADD_MERGE"`` \| ``"REMOVE_MERGE"`` \| ``"CREATE_SHEET"`` \| ``"DELETE_SHEET"`` \| ``"DUPLICATE_SHEET"`` \| ``"MOVE_SHEET"`` \| ``"RENAME_SHEET"`` \| ``"HIDE_SHEET"`` \| ``"SHOW_SHEET"`` \| ``"MOVE_RANGES"`` \| ``"ADD_CONDITIONAL_FORMAT"`` \| ``"REMOVE_CONDITIONAL_FORMAT"`` \| ``"MOVE_CONDITIONAL_FORMAT"`` \| ``"CREATE_FIGURE"`` \| ``"DELETE_FIGURE"`` \| ``"UPDATE_FIGURE"`` \| ``"SET_FORMATTING"`` \| ``"CLEAR_FORMATTING"`` \| ``"SET_BORDER"`` \| ``"CREATE_CHART"`` \| ``"UPDATE_CHART"`` \| ``"REQUEST_UNDO"`` \| ``"REQUEST_REDO"`` \| ``"UNDO"`` \| ``"REDO"`` \| ``"ENABLE_NEW_SELECTION_INPUT"`` \| ``"DISABLE_SELECTION_INPUT"`` \| ``"UNFOCUS_SELECTION_INPUT"`` \| ``"FOCUS_RANGE"`` \| ``"ADD_EMPTY_RANGE"`` \| ``"REMOVE_RANGE"`` \| ``"CHANGE_RANGE"`` \| ``"COPY"`` \| ``"CUT"`` \| ``"PASTE"`` \| ``"AUTOFILL_CELL"`` \| ``"PASTE_FROM_OS_CLIPBOARD"`` \| ``"ACTIVATE_PAINT_FORMAT"`` \| ``"PASTE_CONDITIONAL_FORMAT"`` \| ``"AUTORESIZE_COLUMNS"`` \| ``"AUTORESIZE_ROWS"`` \| ``"MOVE_COLUMNS_ROWS"`` \| ``"ACTIVATE_SHEET"`` \| ``"PREPARE_SELECTION_INPUT_EXPANSION"`` \| ``"STOP_SELECTION_INPUT"`` \| ``"EVALUATE_CELLS"`` \| ``"CHANGE_HIGHLIGHT"`` \| ``"START_CHANGE_HIGHLIGHT"`` \| ``"SET_HIGHLIGHT_COLOR"`` \| ``"STOP_COMPOSER_RANGE_SELECTION"`` \| ``"START_EDITION"`` \| ``"STOP_EDITION"`` \| ``"SET_CURRENT_CONTENT"`` \| ``"CHANGE_COMPOSER_CURSOR_SELECTION"`` \| ``"REPLACE_COMPOSER_CURSOR_SELECTION"`` \| ``"CYCLE_EDITION_REFERENCES"`` \| ``"START"`` \| ``"AUTOFILL"`` \| ``"AUTOFILL_SELECT"`` \| ``"SET_FORMULA_VISIBILITY"`` \| ``"AUTOFILL_AUTO"`` \| ``"SELECT_FIGURE"`` \| ``"UPDATE_SEARCH"`` \| ``"REFRESH_SEARCH"`` \| ``"CLEAR_SEARCH"`` \| ``"SELECT_SEARCH_PREVIOUS_MATCH"`` \| ``"SELECT_SEARCH_NEXT_MATCH"`` \| ``"REPLACE_SEARCH"`` \| ``"REPLACE_ALL_SEARCH"`` \| ``"SORT_CELLS"`` \| ``"RESIZE_VIEWPORT"`` \| ``"SUM_SELECTION"`` \| ``"DELETE_CELL"`` \| ``"INSERT_CELL"`` \| ``"SET_VIEWPORT_OFFSET"`` \| ``"SHIFT_VIEWPORT_DOWN"`` \| ``"SHIFT_VIEWPORT_UP"`` \| ``"OPEN_CELL_POPOVER"`` \| ``"CLOSE_CELL_POPOVER"`` \| ``"ACTIVATE_NEXT_SHEET"`` \| ``"ACTIVATE_PREVIOUS_SHEET"`` |
+| `C` | extends { `type`: `T`  } & `UpdateCellCommand` \| { `type`: `T`  } & `UpdateCellPositionCommand` \| { `type`: `T`  } & `ClearCellCommand` \| { `type`: `T`  } & `DeleteContentCommand` \| { `type`: `T`  } & `SetDecimalCommand` \| { `type`: `T`  } & `AddColumnsRowsCommand` \| { `type`: `T`  } & `RemoveColumnsRowsCommand` \| { `type`: `T`  } & `ResizeColumnsRowsCommand` \| { `type`: `T`  } & `HideColumnsRowsCommand` \| { `type`: `T`  } & `UnhideColumnsRowsCommand` \| { `type`: `T`  } & `SetGridLinesVisibilityCommand` \| { `type`: `T`  } & `AddMergeCommand` \| { `type`: `T`  } & `RemoveMergeCommand` \| { `type`: `T`  } & `CreateSheetCommand` \| { `type`: `T`  } & `DeleteSheetCommand` \| { `type`: `T`  } & `DuplicateSheetCommand` \| { `type`: `T`  } & `MoveSheetCommand` \| { `type`: `T`  } & `RenameSheetCommand` \| { `type`: `T`  } & `HideSheetCommand` \| { `type`: `T`  } & `ShowSheetCommand` \| { `type`: `T`  } & `MoveRangeCommand` \| { `type`: `T`  } & `AddConditionalFormatCommand` \| { `type`: `T`  } & `RemoveConditionalFormatCommand` \| { `type`: `T`  } & `MoveConditionalFormatCommand` \| { `type`: `T`  } & `CreateFigureCommand` \| { `type`: `T`  } & `DeleteFigureCommand` \| { `type`: `T`  } & `UpdateFigureCommand` \| { `type`: `T`  } & `SetFormattingCommand` \| { `type`: `T`  } & `ClearFormattingCommand` \| { `type`: `T`  } & `SetBorderCommand` \| { `type`: `T`  } & `CreateChartCommand` \| { `type`: `T`  } & `UpdateChartCommand` \| { `type`: `T`  } & `RequestUndoCommand` \| { `type`: `T`  } & `RequestRedoCommand` \| { `type`: `T`  } & `UndoCommand` \| { `type`: `T`  } & `RedoCommand` \| { `type`: `T`  } & `NewInputCommand` \| { `type`: `T`  } & `RemoveInputCommand` \| { `type`: `T`  } & `UnfocusInputCommand` \| { `type`: `T`  } & `FocusInputCommand` \| { `type`: `T`  } & `AddEmptyRangeCommand` \| { `type`: `T`  } & `RemoveRangeCommand` \| { `type`: `T`  } & `ChangeRangeCommand` \| { `type`: `T`  } & `CopyCommand` \| { `type`: `T`  } & `CutCommand` \| { `type`: `T`  } & `PasteCommand` \| { `type`: `T`  } & `AutoFillCellCommand` \| { `type`: `T`  } & `PasteFromOSClipboardCommand` \| { `type`: `T`  } & `ActivatePaintFormatCommand` \| { `type`: `T`  } & `PasteCFCommand` \| { `type`: `T`  } & `AutoresizeColumnsCommand` \| { `type`: `T`  } & `AutoresizeRowsCommand` \| { `type`: `T`  } & `MoveColumnsRowsCommand` \| { `type`: `T`  } & `ActivateSheetCommand` \| { `type`: `T`  } & `PrepareExpansionCommand` \| { `type`: `T`  } & `StopSelectionCommand` \| { `type`: `T`  } & `EvaluateCellsCommand` \| { `type`: `T`  } & `ChangeHighlightCommand` \| { `type`: `T`  } & `StartChangeHighlightCommand` \| { `type`: `T`  } & `SetColorCommand` \| { `type`: `T`  } & `StopComposerSelectionCommand` \| { `type`: `T`  } & `StartEditionCommand` \| { `type`: `T`  } & `StopEditionCommand` \| { `type`: `T`  } & `SetCurrentContentCommand` \| { `type`: `T`  } & `ChangeComposerSelectionCommand` \| { `type`: `T`  } & `ReplaceComposerSelectionCommand` \| { `type`: `T`  } & `CycleEditionReferencesCommand` \| { `type`: `T`  } & `StartCommand` \| { `type`: `T`  } & `AutofillCommand` \| { `type`: `T`  } & `AutofillSelectCommand` \| { `type`: `T`  } & `ShowFormulaCommand` \| { `type`: `T`  } & `AutofillAutoCommand` \| { `type`: `T`  } & `SelectFigureCommand` \| { `type`: `T`  } & `UpdateSearchCommand` \| { `type`: `T`  } & `RefreshSearchCommand` \| { `type`: `T`  } & `ClearSearchCommand` \| { `type`: `T`  } & `SelectSearchPreviousCommand` \| { `type`: `T`  } & `SelectSearchNextCommand` \| { `type`: `T`  } & `ReplaceSearchCommand` \| { `type`: `T`  } & `ReplaceAllSearchCommand` \| { `type`: `T`  } & `SortCommand` \| { `type`: `T`  } & `ResizeViewportCommand` \| { `type`: `T`  } & `SumSelectionCommand` \| { `type`: `T`  } & `DeleteCellCommand` \| { `type`: `T`  } & `InsertCellCommand` \| { `type`: `T`  } & `SetViewportOffsetCommand` \| { `type`: `T`  } & `MoveViewportDownCommand` \| { `type`: `T`  } & `MoveViewportUpCommand` \| { `type`: `T`  } & `OpenCellPopoverCommand` \| { `type`: `T`  } & `CloseCellPopoverCommand` \| { `type`: `T`  } & `ActivateNextSheetCommand` \| { `type`: `T`  } & `ActivatePreviousSheetCommand` |
 
-#### Parameters:
+##### Parameters
 
-Name | Type |
-:------ | :------ |
-`type` | {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never* |
+| Name | Type |
+| :------ | :------ |
+| `type` | {} extends `Omit`<`C`, ``"type"``\> ? `T` : `never` |
 
-**Returns:** [*DispatchResult*](dispatchresult.md)
+##### Returns
 
-▸ <T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>): [*DispatchResult*](dispatchresult.md)
+[`DispatchResult`](DispatchResult.md)
 
-#### Type parameters:
+▸ <`T`, `C`\>(`type`, `r`): [`DispatchResult`](DispatchResult.md)
 
-Name | Type |
-:------ | :------ |
-`T` | *UPDATE_CELL* \| *UPDATE_CELL_POSITION* \| *CLEAR_CELL* \| *DELETE_CONTENT* \| *SET_DECIMAL* \| *ADD_COLUMNS_ROWS* \| *REMOVE_COLUMNS_ROWS* \| *RESIZE_COLUMNS_ROWS* \| *HIDE_COLUMNS_ROWS* \| *UNHIDE_COLUMNS_ROWS* \| *SET_GRID_LINES_VISIBILITY* \| *ADD_MERGE* \| *REMOVE_MERGE* \| *CREATE_SHEET* \| *DELETE_SHEET* \| *DUPLICATE_SHEET* \| *MOVE_SHEET* \| *RENAME_SHEET* \| *ADD_CONDITIONAL_FORMAT* \| *REMOVE_CONDITIONAL_FORMAT* \| *CREATE_FIGURE* \| *DELETE_FIGURE* \| *UPDATE_FIGURE* \| *SET_FORMATTING* \| *CLEAR_FORMATTING* \| *SET_BORDER* \| *CREATE_CHART* \| *UPDATE_CHART* \| *REQUEST_UNDO* \| *REQUEST_REDO* \| *UNDO* \| *REDO* \| *ENABLE_NEW_SELECTION_INPUT* \| *DISABLE_SELECTION_INPUT* \| *FOCUS_RANGE* \| *ADD_EMPTY_RANGE* \| *REMOVE_RANGE* \| *CHANGE_RANGE* \| *COPY* \| *CUT* \| *PASTE* \| *CUT_AND_PASTE* \| *AUTOFILL_CELL* \| *PASTE_FROM_OS_CLIPBOARD* \| *ACTIVATE_PAINT_FORMAT* \| *PASTE_CONDITIONAL_FORMAT* \| *AUTORESIZE_COLUMNS* \| *AUTORESIZE_ROWS* \| *MOVE_POSITION* \| *DELETE_SHEET_CONFIRMATION* \| *ACTIVATE_SHEET* \| *START_SELECTION* \| *START_SELECTION_EXPANSION* \| *PREPARE_SELECTION_EXPANSION* \| *STOP_SELECTION* \| *SELECT_CELL* \| *SET_SELECTION* \| *SELECT_COLUMN* \| *SELECT_ROW* \| *SELECT_ALL* \| *ALTER_SELECTION* \| *EVALUATE_CELLS* \| *ADD_HIGHLIGHTS* \| *REMOVE_HIGHLIGHTS* \| *REMOVE_ALL_HIGHLIGHTS* \| *HIGHLIGHT_SELECTION* \| *ADD_PENDING_HIGHLIGHTS* \| *RESET_PENDING_HIGHLIGHT* \| *SET_HIGHLIGHT_COLOR* \| *STOP_COMPOSER_RANGE_SELECTION* \| *START_EDITION* \| *STOP_EDITION* \| *SET_CURRENT_CONTENT* \| *CHANGE_COMPOSER_CURSOR_SELECTION* \| *REPLACE_COMPOSER_CURSOR_SELECTION* \| *START* \| *AUTOFILL* \| *AUTOFILL_SELECT* \| *SET_FORMULA_VISIBILITY* \| *AUTOFILL_AUTO* \| *SELECT_FIGURE* \| *UPDATE_SEARCH* \| *REFRESH_SEARCH* \| *CLEAR_SEARCH* \| *SELECT_SEARCH_PREVIOUS_MATCH* \| *SELECT_SEARCH_NEXT_MATCH* \| *REPLACE_SEARCH* \| *REPLACE_ALL_SEARCH* \| *SORT_CELLS* \| *RESIZE_VIEWPORT* \| *REFRESH_CHART* \| *SUM_SELECTION* \| *DELETE_CELL* \| *INSERT_CELL* \| *SET_VIEWPORT_OFFSET* \| *EVALUATE_ALL_SHEETS* \| *ACTIVATE_NEXT_SHEET* \| *ACTIVATE_PREVIOUS_SHEET* |
-`C` | { `type`: T  } & UpdateCellCommand \| { `type`: T  } & UpdateCellPositionCommand \| { `type`: T  } & ClearCellCommand \| { `type`: T  } & DeleteContentCommand \| { `type`: T  } & SetDecimalCommand \| { `type`: T  } & AddColumnsRowsCommand \| { `type`: T  } & RemoveColumnsRowsCommand \| { `type`: T  } & ResizeColumnsRowsCommand \| { `type`: T  } & HideColumnsRowsCommand \| { `type`: T  } & UnhideColumnsRowsCommand \| { `type`: T  } & SetGridLinesVisibilityCommand \| { `type`: T  } & AddMergeCommand \| { `type`: T  } & RemoveMergeCommand \| { `type`: T  } & CreateSheetCommand \| { `type`: T  } & DeleteSheetCommand \| { `type`: T  } & DuplicateSheetCommand \| { `type`: T  } & MoveSheetCommand \| { `type`: T  } & RenameSheetCommand \| { `type`: T  } & AddConditionalFormatCommand \| { `type`: T  } & RemoveConditionalFormatCommand \| { `type`: T  } & CreateFigureCommand \| { `type`: T  } & DeleteFigureCommand \| { `type`: T  } & *UpdateFigureCommand* \| { `type`: T  } & SetFormattingCommand \| { `type`: T  } & ClearFormattingCommand \| { `type`: T  } & SetBorderCommand \| { `type`: T  } & CreateChartCommand \| { `type`: T  } & UpdateChartCommand \| { `type`: T  } & RequestUndoCommand \| { `type`: T  } & RequestRedoCommand \| { `type`: T  } & UndoCommand \| { `type`: T  } & RedoCommand \| { `type`: T  } & NewInputCommand \| { `type`: T  } & RemoveInputCommand \| { `type`: T  } & FocusInputCommand \| { `type`: T  } & AddEmptyRangeCommand \| { `type`: T  } & RemoveRangeCommand \| { `type`: T  } & ChangeRangeCommand \| { `type`: T  } & CopyCommand \| { `type`: T  } & CutCommand \| { `type`: T  } & PasteCommand \| { `type`: T  } & CutAndPasteCommand \| { `type`: T  } & AutoFillCellCommand \| { `type`: T  } & PasteFromOSClipboardCommand \| { `type`: T  } & ActivatePaintFormatCommand \| { `type`: T  } & PasteCFCommand \| { `type`: T  } & AutoresizeColumnsCommand \| { `type`: T  } & AutoresizeRowsCommand \| { `type`: T  } & MovePositionCommand \| { `type`: T  } & DeleteSheetConfirmationCommand \| { `type`: T  } & ActivateSheetCommand \| { `type`: T  } & StartSelectionCommand \| { `type`: T  } & StartExpansionCommand \| { `type`: T  } & PrepareExpansionCommand \| { `type`: T  } & StopSelectionCommand \| { `type`: T  } & SelectCellCommand \| { `type`: T  } & SetSelectionCommand \| { `type`: T  } & SelectColumnCommand \| { `type`: T  } & SelectRowCommand \| { `type`: T  } & SelectAllCommand \| { `type`: T  } & AlterSelectionCommand \| { `type`: T  } & EvaluateCellsCommand \| { `type`: T  } & AddHighlightsCommand \| { `type`: T  } & RemoveHighlightsCommand \| { `type`: T  } & RemoveAllHighlightsCommand \| { `type`: T  } & HighlightSelectionCommand \| { `type`: T  } & AddPendingHighlightCommand \| { `type`: T  } & ResetPendingHighlightCommand \| { `type`: T  } & SetColorCommand \| { `type`: T  } & StopComposerSelectionCommand \| { `type`: T  } & StartEditionCommand \| { `type`: T  } & StopEditionCommand \| { `type`: T  } & SetCurrentContentCommand \| { `type`: T  } & ChangeComposerSelectionCommand \| { `type`: T  } & ReplaceComposerSelectionCommand \| { `type`: T  } & StartCommand \| { `type`: T  } & AutofillCommand \| { `type`: T  } & AutofillSelectCommand \| { `type`: T  } & ShowFormulaCommand \| { `type`: T  } & AutofillAutoCommand \| { `type`: T  } & SelectFigureCommand \| { `type`: T  } & UpdateSearchCommand \| { `type`: T  } & RefreshSearchCommand \| { `type`: T  } & ClearSearchCommand \| { `type`: T  } & SelectSearchPreviousCommand \| { `type`: T  } & SelectSearchNextCommand \| { `type`: T  } & ReplaceSearchCommand \| { `type`: T  } & ReplaceAllSearchCommand \| { `type`: T  } & SortCommand \| { `type`: T  } & ResizeViewportCommand \| { `type`: T  } & RefreshChartCommand \| { `type`: T  } & SumSelectionCommand \| { `type`: T  } & DeleteCellCommand \| { `type`: T  } & InsertCellCommand \| { `type`: T  } & SetViewportOffsetCommand \| { `type`: T  } & EvaluateAllSheetsCommand \| { `type`: T  } & ActivateNextSheetCommand \| { `type`: T  } & ActivatePreviousSheetCommand |
+##### Type parameters
 
-#### Parameters:
+| Name | Type |
+| :------ | :------ |
+| `T` | extends ``"UPDATE_CELL"`` \| ``"UPDATE_CELL_POSITION"`` \| ``"CLEAR_CELL"`` \| ``"DELETE_CONTENT"`` \| ``"SET_DECIMAL"`` \| ``"ADD_COLUMNS_ROWS"`` \| ``"REMOVE_COLUMNS_ROWS"`` \| ``"RESIZE_COLUMNS_ROWS"`` \| ``"HIDE_COLUMNS_ROWS"`` \| ``"UNHIDE_COLUMNS_ROWS"`` \| ``"SET_GRID_LINES_VISIBILITY"`` \| ``"ADD_MERGE"`` \| ``"REMOVE_MERGE"`` \| ``"CREATE_SHEET"`` \| ``"DELETE_SHEET"`` \| ``"DUPLICATE_SHEET"`` \| ``"MOVE_SHEET"`` \| ``"RENAME_SHEET"`` \| ``"HIDE_SHEET"`` \| ``"SHOW_SHEET"`` \| ``"MOVE_RANGES"`` \| ``"ADD_CONDITIONAL_FORMAT"`` \| ``"REMOVE_CONDITIONAL_FORMAT"`` \| ``"MOVE_CONDITIONAL_FORMAT"`` \| ``"CREATE_FIGURE"`` \| ``"DELETE_FIGURE"`` \| ``"UPDATE_FIGURE"`` \| ``"SET_FORMATTING"`` \| ``"CLEAR_FORMATTING"`` \| ``"SET_BORDER"`` \| ``"CREATE_CHART"`` \| ``"UPDATE_CHART"`` \| ``"REQUEST_UNDO"`` \| ``"REQUEST_REDO"`` \| ``"UNDO"`` \| ``"REDO"`` \| ``"ENABLE_NEW_SELECTION_INPUT"`` \| ``"DISABLE_SELECTION_INPUT"`` \| ``"UNFOCUS_SELECTION_INPUT"`` \| ``"FOCUS_RANGE"`` \| ``"ADD_EMPTY_RANGE"`` \| ``"REMOVE_RANGE"`` \| ``"CHANGE_RANGE"`` \| ``"COPY"`` \| ``"CUT"`` \| ``"PASTE"`` \| ``"AUTOFILL_CELL"`` \| ``"PASTE_FROM_OS_CLIPBOARD"`` \| ``"ACTIVATE_PAINT_FORMAT"`` \| ``"PASTE_CONDITIONAL_FORMAT"`` \| ``"AUTORESIZE_COLUMNS"`` \| ``"AUTORESIZE_ROWS"`` \| ``"MOVE_COLUMNS_ROWS"`` \| ``"ACTIVATE_SHEET"`` \| ``"PREPARE_SELECTION_INPUT_EXPANSION"`` \| ``"STOP_SELECTION_INPUT"`` \| ``"EVALUATE_CELLS"`` \| ``"CHANGE_HIGHLIGHT"`` \| ``"START_CHANGE_HIGHLIGHT"`` \| ``"SET_HIGHLIGHT_COLOR"`` \| ``"STOP_COMPOSER_RANGE_SELECTION"`` \| ``"START_EDITION"`` \| ``"STOP_EDITION"`` \| ``"SET_CURRENT_CONTENT"`` \| ``"CHANGE_COMPOSER_CURSOR_SELECTION"`` \| ``"REPLACE_COMPOSER_CURSOR_SELECTION"`` \| ``"CYCLE_EDITION_REFERENCES"`` \| ``"START"`` \| ``"AUTOFILL"`` \| ``"AUTOFILL_SELECT"`` \| ``"SET_FORMULA_VISIBILITY"`` \| ``"AUTOFILL_AUTO"`` \| ``"SELECT_FIGURE"`` \| ``"UPDATE_SEARCH"`` \| ``"REFRESH_SEARCH"`` \| ``"CLEAR_SEARCH"`` \| ``"SELECT_SEARCH_PREVIOUS_MATCH"`` \| ``"SELECT_SEARCH_NEXT_MATCH"`` \| ``"REPLACE_SEARCH"`` \| ``"REPLACE_ALL_SEARCH"`` \| ``"SORT_CELLS"`` \| ``"RESIZE_VIEWPORT"`` \| ``"SUM_SELECTION"`` \| ``"DELETE_CELL"`` \| ``"INSERT_CELL"`` \| ``"SET_VIEWPORT_OFFSET"`` \| ``"SHIFT_VIEWPORT_DOWN"`` \| ``"SHIFT_VIEWPORT_UP"`` \| ``"OPEN_CELL_POPOVER"`` \| ``"CLOSE_CELL_POPOVER"`` \| ``"ACTIVATE_NEXT_SHEET"`` \| ``"ACTIVATE_PREVIOUS_SHEET"`` |
+| `C` | extends { `type`: `T`  } & `UpdateCellCommand` \| { `type`: `T`  } & `UpdateCellPositionCommand` \| { `type`: `T`  } & `ClearCellCommand` \| { `type`: `T`  } & `DeleteContentCommand` \| { `type`: `T`  } & `SetDecimalCommand` \| { `type`: `T`  } & `AddColumnsRowsCommand` \| { `type`: `T`  } & `RemoveColumnsRowsCommand` \| { `type`: `T`  } & `ResizeColumnsRowsCommand` \| { `type`: `T`  } & `HideColumnsRowsCommand` \| { `type`: `T`  } & `UnhideColumnsRowsCommand` \| { `type`: `T`  } & `SetGridLinesVisibilityCommand` \| { `type`: `T`  } & `AddMergeCommand` \| { `type`: `T`  } & `RemoveMergeCommand` \| { `type`: `T`  } & `CreateSheetCommand` \| { `type`: `T`  } & `DeleteSheetCommand` \| { `type`: `T`  } & `DuplicateSheetCommand` \| { `type`: `T`  } & `MoveSheetCommand` \| { `type`: `T`  } & `RenameSheetCommand` \| { `type`: `T`  } & `HideSheetCommand` \| { `type`: `T`  } & `ShowSheetCommand` \| { `type`: `T`  } & `MoveRangeCommand` \| { `type`: `T`  } & `AddConditionalFormatCommand` \| { `type`: `T`  } & `RemoveConditionalFormatCommand` \| { `type`: `T`  } & `MoveConditionalFormatCommand` \| { `type`: `T`  } & `CreateFigureCommand` \| { `type`: `T`  } & `DeleteFigureCommand` \| { `type`: `T`  } & `UpdateFigureCommand` \| { `type`: `T`  } & `SetFormattingCommand` \| { `type`: `T`  } & `ClearFormattingCommand` \| { `type`: `T`  } & `SetBorderCommand` \| { `type`: `T`  } & `CreateChartCommand` \| { `type`: `T`  } & `UpdateChartCommand` \| { `type`: `T`  } & `RequestUndoCommand` \| { `type`: `T`  } & `RequestRedoCommand` \| { `type`: `T`  } & `UndoCommand` \| { `type`: `T`  } & `RedoCommand` \| { `type`: `T`  } & `NewInputCommand` \| { `type`: `T`  } & `RemoveInputCommand` \| { `type`: `T`  } & `UnfocusInputCommand` \| { `type`: `T`  } & `FocusInputCommand` \| { `type`: `T`  } & `AddEmptyRangeCommand` \| { `type`: `T`  } & `RemoveRangeCommand` \| { `type`: `T`  } & `ChangeRangeCommand` \| { `type`: `T`  } & `CopyCommand` \| { `type`: `T`  } & `CutCommand` \| { `type`: `T`  } & `PasteCommand` \| { `type`: `T`  } & `AutoFillCellCommand` \| { `type`: `T`  } & `PasteFromOSClipboardCommand` \| { `type`: `T`  } & `ActivatePaintFormatCommand` \| { `type`: `T`  } & `PasteCFCommand` \| { `type`: `T`  } & `AutoresizeColumnsCommand` \| { `type`: `T`  } & `AutoresizeRowsCommand` \| { `type`: `T`  } & `MoveColumnsRowsCommand` \| { `type`: `T`  } & `ActivateSheetCommand` \| { `type`: `T`  } & `PrepareExpansionCommand` \| { `type`: `T`  } & `StopSelectionCommand` \| { `type`: `T`  } & `EvaluateCellsCommand` \| { `type`: `T`  } & `ChangeHighlightCommand` \| { `type`: `T`  } & `StartChangeHighlightCommand` \| { `type`: `T`  } & `SetColorCommand` \| { `type`: `T`  } & `StopComposerSelectionCommand` \| { `type`: `T`  } & `StartEditionCommand` \| { `type`: `T`  } & `StopEditionCommand` \| { `type`: `T`  } & `SetCurrentContentCommand` \| { `type`: `T`  } & `ChangeComposerSelectionCommand` \| { `type`: `T`  } & `ReplaceComposerSelectionCommand` \| { `type`: `T`  } & `CycleEditionReferencesCommand` \| { `type`: `T`  } & `StartCommand` \| { `type`: `T`  } & `AutofillCommand` \| { `type`: `T`  } & `AutofillSelectCommand` \| { `type`: `T`  } & `ShowFormulaCommand` \| { `type`: `T`  } & `AutofillAutoCommand` \| { `type`: `T`  } & `SelectFigureCommand` \| { `type`: `T`  } & `UpdateSearchCommand` \| { `type`: `T`  } & `RefreshSearchCommand` \| { `type`: `T`  } & `ClearSearchCommand` \| { `type`: `T`  } & `SelectSearchPreviousCommand` \| { `type`: `T`  } & `SelectSearchNextCommand` \| { `type`: `T`  } & `ReplaceSearchCommand` \| { `type`: `T`  } & `ReplaceAllSearchCommand` \| { `type`: `T`  } & `SortCommand` \| { `type`: `T`  } & `ResizeViewportCommand` \| { `type`: `T`  } & `SumSelectionCommand` \| { `type`: `T`  } & `DeleteCellCommand` \| { `type`: `T`  } & `InsertCellCommand` \| { `type`: `T`  } & `SetViewportOffsetCommand` \| { `type`: `T`  } & `MoveViewportDownCommand` \| { `type`: `T`  } & `MoveViewportUpCommand` \| { `type`: `T`  } & `OpenCellPopoverCommand` \| { `type`: `T`  } & `CloseCellPopoverCommand` \| { `type`: `T`  } & `ActivateNextSheetCommand` \| { `type`: `T`  } & `ActivatePreviousSheetCommand` |
 
-Name | Type |
-:------ | :------ |
-`type` | T |
-`r` | *Pick*<C, Exclude<keyof C, *type*\>\> |
+##### Parameters
 
-**Returns:** [*DispatchResult*](dispatchresult.md)
+| Name | Type |
+| :------ | :------ |
+| `type` | `T` |
+| `r` | `Omit`<`C`, ``"type"``\> |
+
+##### Returns
+
+[`DispatchResult`](DispatchResult.md)
+
+#### Inherited from
+
+BasePlugin.dispatch
 
 ___
 
 ### getters
 
-• `Protected` **getters**: Getters
+• `Protected` **getters**: `Getters`
 
 ___
 
 ### history
 
-• `Protected` **history**: *WorkbookHistory*<State\>
+• `Protected` **history**: `WorkbookHistory`<`State`\>
+
+#### Inherited from
+
+BasePlugin.history
+
+___
+
+### selection
+
+• `Protected` **selection**: `SelectionStreamProcessor`
 
 ___
 
 ### ui
 
-• `Protected` **ui**: *Pick*<ModelConfig, *askConfirmation* \| *notifyUser* \| *openSidePanel* \| *editText*\>
+• `Protected` **ui**: `UIActions`
 
 ___
 
 ### getters
 
-▪ `Static` **getters**: *string*[]
+▪ `Static` **getters**: readonly `string`[] = `[]`
+
+#### Inherited from
+
+BasePlugin.getters
 
 ___
 
 ### layers
 
-▪ `Static` **layers**: LAYERS[]
-
-___
-
-### modes
-
-▪ `Static` **modes**: Mode[]
+▪ `Static` **layers**: `LAYERS`[] = `[]`
 
 ## Methods
 
 ### allowDispatch
 
-▸ **allowDispatch**(`command`: C): [*Success*](../enums/commandresult.md#success) \| [*CancelledForUnknownReason*](../enums/commandresult.md#cancelledforunknownreason) \| [*WillRemoveExistingMerge*](../enums/commandresult.md#willremoveexistingmerge) \| [*MergeIsDestructive*](../enums/commandresult.md#mergeisdestructive) \| [*CellIsMerged*](../enums/commandresult.md#cellismerged) \| [*EmptyUndoStack*](../enums/commandresult.md#emptyundostack) \| [*EmptyRedoStack*](../enums/commandresult.md#emptyredostack) \| [*NotEnoughElements*](../enums/commandresult.md#notenoughelements) \| [*NotEnoughSheets*](../enums/commandresult.md#notenoughsheets) \| [*MissingSheetName*](../enums/commandresult.md#missingsheetname) \| [*DuplicatedSheetName*](../enums/commandresult.md#duplicatedsheetname) \| [*ForbiddenCharactersInSheetName*](../enums/commandresult.md#forbiddencharactersinsheetname) \| [*WrongSheetMove*](../enums/commandresult.md#wrongsheetmove) \| [*WrongSheetPosition*](../enums/commandresult.md#wrongsheetposition) \| [*InvalidAnchorZone*](../enums/commandresult.md#invalidanchorzone) \| [*SelectionOutOfBound*](../enums/commandresult.md#selectionoutofbound) \| [*TargetOutOfSheet*](../enums/commandresult.md#targetoutofsheet) \| [*WrongPasteSelection*](../enums/commandresult.md#wrongpasteselection) \| [*EmptyClipboard*](../enums/commandresult.md#emptyclipboard) \| [*EmptyRange*](../enums/commandresult.md#emptyrange) \| [*InvalidRange*](../enums/commandresult.md#invalidrange) \| [*InvalidSheetId*](../enums/commandresult.md#invalidsheetid) \| [*InputAlreadyFocused*](../enums/commandresult.md#inputalreadyfocused) \| [*MaximumRangesReached*](../enums/commandresult.md#maximumrangesreached) \| [*InvalidChartDefinition*](../enums/commandresult.md#invalidchartdefinition) \| [*EmptyDataSet*](../enums/commandresult.md#emptydataset) \| [*InvalidDataSet*](../enums/commandresult.md#invaliddataset) \| [*InvalidLabelRange*](../enums/commandresult.md#invalidlabelrange) \| [*InvalidAutofillSelection*](../enums/commandresult.md#invalidautofillselection) \| [*WrongComposerSelection*](../enums/commandresult.md#wrongcomposerselection) \| [*MinBiggerThanMax*](../enums/commandresult.md#minbiggerthanmax) \| [*LowerBiggerThanUpper*](../enums/commandresult.md#lowerbiggerthanupper) \| [*MidBiggerThanMax*](../enums/commandresult.md#midbiggerthanmax) \| [*MinBiggerThanMid*](../enums/commandresult.md#minbiggerthanmid) \| [*FirstArgMissing*](../enums/commandresult.md#firstargmissing) \| [*SecondArgMissing*](../enums/commandresult.md#secondargmissing) \| [*MinNaN*](../enums/commandresult.md#minnan) \| [*MidNaN*](../enums/commandresult.md#midnan) \| [*MaxNaN*](../enums/commandresult.md#maxnan) \| [*ValueUpperInflectionNaN*](../enums/commandresult.md#valueupperinflectionnan) \| [*ValueLowerInflectionNaN*](../enums/commandresult.md#valuelowerinflectionnan) \| [*MinInvalidFormula*](../enums/commandresult.md#mininvalidformula) \| [*MidInvalidFormula*](../enums/commandresult.md#midinvalidformula) \| [*MaxInvalidFormula*](../enums/commandresult.md#maxinvalidformula) \| [*ValueUpperInvalidFormula*](../enums/commandresult.md#valueupperinvalidformula) \| [*ValueLowerInvalidFormula*](../enums/commandresult.md#valuelowerinvalidformula) \| [*InvalidSortZone*](../enums/commandresult.md#invalidsortzone) \| [*WaitingSessionConfirmation*](../enums/commandresult.md#waitingsessionconfirmation) \| [*MergeOverlap*](../enums/commandresult.md#mergeoverlap) \| [*TooManyHiddenElements*](../enums/commandresult.md#toomanyhiddenelements) \| [*Readonly*](../enums/commandresult.md#readonly) \| [*InvalidOffset*](../enums/commandresult.md#invalidoffset) \| [*InvalidViewportSize*](../enums/commandresult.md#invalidviewportsize) \| [*CommandResult*](../enums/commandresult.md)[]
+▸ **allowDispatch**(`command`): [`CommandResult`](../enums/CommandResult.md) \| [`CommandResult`](../enums/CommandResult.md)[]
 
 Before a command is accepted, the model will ask each plugin if the command
 is allowed.  If all of then return true, then we can proceed. Otherwise,
@@ -167,140 +180,208 @@ the command is cancelled.
 
 There should not be any side effects in this method.
 
-#### Parameters:
+#### Parameters
 
-Name | Type |
-:------ | :------ |
-`command` | C |
+| Name | Type |
+| :------ | :------ |
+| `command` | `C` |
 
-**Returns:** [*Success*](../enums/commandresult.md#success) \| [*CancelledForUnknownReason*](../enums/commandresult.md#cancelledforunknownreason) \| [*WillRemoveExistingMerge*](../enums/commandresult.md#willremoveexistingmerge) \| [*MergeIsDestructive*](../enums/commandresult.md#mergeisdestructive) \| [*CellIsMerged*](../enums/commandresult.md#cellismerged) \| [*EmptyUndoStack*](../enums/commandresult.md#emptyundostack) \| [*EmptyRedoStack*](../enums/commandresult.md#emptyredostack) \| [*NotEnoughElements*](../enums/commandresult.md#notenoughelements) \| [*NotEnoughSheets*](../enums/commandresult.md#notenoughsheets) \| [*MissingSheetName*](../enums/commandresult.md#missingsheetname) \| [*DuplicatedSheetName*](../enums/commandresult.md#duplicatedsheetname) \| [*ForbiddenCharactersInSheetName*](../enums/commandresult.md#forbiddencharactersinsheetname) \| [*WrongSheetMove*](../enums/commandresult.md#wrongsheetmove) \| [*WrongSheetPosition*](../enums/commandresult.md#wrongsheetposition) \| [*InvalidAnchorZone*](../enums/commandresult.md#invalidanchorzone) \| [*SelectionOutOfBound*](../enums/commandresult.md#selectionoutofbound) \| [*TargetOutOfSheet*](../enums/commandresult.md#targetoutofsheet) \| [*WrongPasteSelection*](../enums/commandresult.md#wrongpasteselection) \| [*EmptyClipboard*](../enums/commandresult.md#emptyclipboard) \| [*EmptyRange*](../enums/commandresult.md#emptyrange) \| [*InvalidRange*](../enums/commandresult.md#invalidrange) \| [*InvalidSheetId*](../enums/commandresult.md#invalidsheetid) \| [*InputAlreadyFocused*](../enums/commandresult.md#inputalreadyfocused) \| [*MaximumRangesReached*](../enums/commandresult.md#maximumrangesreached) \| [*InvalidChartDefinition*](../enums/commandresult.md#invalidchartdefinition) \| [*EmptyDataSet*](../enums/commandresult.md#emptydataset) \| [*InvalidDataSet*](../enums/commandresult.md#invaliddataset) \| [*InvalidLabelRange*](../enums/commandresult.md#invalidlabelrange) \| [*InvalidAutofillSelection*](../enums/commandresult.md#invalidautofillselection) \| [*WrongComposerSelection*](../enums/commandresult.md#wrongcomposerselection) \| [*MinBiggerThanMax*](../enums/commandresult.md#minbiggerthanmax) \| [*LowerBiggerThanUpper*](../enums/commandresult.md#lowerbiggerthanupper) \| [*MidBiggerThanMax*](../enums/commandresult.md#midbiggerthanmax) \| [*MinBiggerThanMid*](../enums/commandresult.md#minbiggerthanmid) \| [*FirstArgMissing*](../enums/commandresult.md#firstargmissing) \| [*SecondArgMissing*](../enums/commandresult.md#secondargmissing) \| [*MinNaN*](../enums/commandresult.md#minnan) \| [*MidNaN*](../enums/commandresult.md#midnan) \| [*MaxNaN*](../enums/commandresult.md#maxnan) \| [*ValueUpperInflectionNaN*](../enums/commandresult.md#valueupperinflectionnan) \| [*ValueLowerInflectionNaN*](../enums/commandresult.md#valuelowerinflectionnan) \| [*MinInvalidFormula*](../enums/commandresult.md#mininvalidformula) \| [*MidInvalidFormula*](../enums/commandresult.md#midinvalidformula) \| [*MaxInvalidFormula*](../enums/commandresult.md#maxinvalidformula) \| [*ValueUpperInvalidFormula*](../enums/commandresult.md#valueupperinvalidformula) \| [*ValueLowerInvalidFormula*](../enums/commandresult.md#valuelowerinvalidformula) \| [*InvalidSortZone*](../enums/commandresult.md#invalidsortzone) \| [*WaitingSessionConfirmation*](../enums/commandresult.md#waitingsessionconfirmation) \| [*MergeOverlap*](../enums/commandresult.md#mergeoverlap) \| [*TooManyHiddenElements*](../enums/commandresult.md#toomanyhiddenelements) \| [*Readonly*](../enums/commandresult.md#readonly) \| [*InvalidOffset*](../enums/commandresult.md#invalidoffset) \| [*InvalidViewportSize*](../enums/commandresult.md#invalidviewportsize) \| [*CommandResult*](../enums/commandresult.md)[]
+#### Returns
+
+[`CommandResult`](../enums/CommandResult.md) \| [`CommandResult`](../enums/CommandResult.md)[]
+
+#### Inherited from
+
+BasePlugin.allowDispatch
 
 ___
 
 ### batchValidations
 
-▸ **batchValidations**<T\>(...`validations`: *Validation*<T\>[]): *Validation*<T\>
+▸ **batchValidations**<`T`\>(...`validations`): `Validation`<`T`\>
 
 Combine multiple validation functions into a single function
 returning the list of result of every validation.
 
-#### Type parameters:
+#### Type parameters
 
-Name |
-:------ |
-`T` |
+| Name |
+| :------ |
+| `T` |
 
-#### Parameters:
+#### Parameters
 
-Name | Type |
-:------ | :------ |
-`...validations` | *Validation*<T\>[] |
+| Name | Type |
+| :------ | :------ |
+| `...validations` | `Validation`<`T`\>[] |
 
-**Returns:** *Validation*<T\>
+#### Returns
+
+`Validation`<`T`\>
+
+#### Inherited from
+
+BasePlugin.batchValidations
 
 ___
 
 ### beforeHandle
 
-▸ **beforeHandle**(`command`: C): *void*
+▸ **beforeHandle**(`command`): `void`
 
 This method is useful when a plugin need to perform some action before a
 command is handled in another plugin. This should only be used if it is not
 possible to do the work in the handle method.
 
-#### Parameters:
+#### Parameters
 
-Name | Type |
-:------ | :------ |
-`command` | C |
+| Name | Type |
+| :------ | :------ |
+| `command` | `C` |
 
-**Returns:** *void*
+#### Returns
+
+`void`
+
+#### Inherited from
+
+BasePlugin.beforeHandle
 
 ___
 
 ### chainValidations
 
-▸ **chainValidations**<T\>(...`validations`: *Validation*<T\>[]): *Validation*<T\>
+▸ **chainValidations**<`T`\>(...`validations`): `Validation`<`T`\>
 
 Combine multiple validation functions. Every validation is executed one after
 the other. As soon as one validation fails, it stops and the cancelled reason
 is returned.
 
-#### Type parameters:
+#### Type parameters
 
-Name |
-:------ |
-`T` |
+| Name |
+| :------ |
+| `T` |
 
-#### Parameters:
+#### Parameters
 
-Name | Type |
-:------ | :------ |
-`...validations` | *Validation*<T\>[] |
+| Name | Type |
+| :------ | :------ |
+| `...validations` | `Validation`<`T`\>[] |
 
-**Returns:** *Validation*<T\>
+#### Returns
+
+`Validation`<`T`\>
+
+#### Inherited from
+
+BasePlugin.chainValidations
 
 ___
 
 ### checkValidations
 
-▸ **checkValidations**<T\>(`command`: T, ...`validations`: *Validation*<T\>[]): [*Success*](../enums/commandresult.md#success) \| [*CancelledForUnknownReason*](../enums/commandresult.md#cancelledforunknownreason) \| [*WillRemoveExistingMerge*](../enums/commandresult.md#willremoveexistingmerge) \| [*MergeIsDestructive*](../enums/commandresult.md#mergeisdestructive) \| [*CellIsMerged*](../enums/commandresult.md#cellismerged) \| [*EmptyUndoStack*](../enums/commandresult.md#emptyundostack) \| [*EmptyRedoStack*](../enums/commandresult.md#emptyredostack) \| [*NotEnoughElements*](../enums/commandresult.md#notenoughelements) \| [*NotEnoughSheets*](../enums/commandresult.md#notenoughsheets) \| [*MissingSheetName*](../enums/commandresult.md#missingsheetname) \| [*DuplicatedSheetName*](../enums/commandresult.md#duplicatedsheetname) \| [*ForbiddenCharactersInSheetName*](../enums/commandresult.md#forbiddencharactersinsheetname) \| [*WrongSheetMove*](../enums/commandresult.md#wrongsheetmove) \| [*WrongSheetPosition*](../enums/commandresult.md#wrongsheetposition) \| [*InvalidAnchorZone*](../enums/commandresult.md#invalidanchorzone) \| [*SelectionOutOfBound*](../enums/commandresult.md#selectionoutofbound) \| [*TargetOutOfSheet*](../enums/commandresult.md#targetoutofsheet) \| [*WrongPasteSelection*](../enums/commandresult.md#wrongpasteselection) \| [*EmptyClipboard*](../enums/commandresult.md#emptyclipboard) \| [*EmptyRange*](../enums/commandresult.md#emptyrange) \| [*InvalidRange*](../enums/commandresult.md#invalidrange) \| [*InvalidSheetId*](../enums/commandresult.md#invalidsheetid) \| [*InputAlreadyFocused*](../enums/commandresult.md#inputalreadyfocused) \| [*MaximumRangesReached*](../enums/commandresult.md#maximumrangesreached) \| [*InvalidChartDefinition*](../enums/commandresult.md#invalidchartdefinition) \| [*EmptyDataSet*](../enums/commandresult.md#emptydataset) \| [*InvalidDataSet*](../enums/commandresult.md#invaliddataset) \| [*InvalidLabelRange*](../enums/commandresult.md#invalidlabelrange) \| [*InvalidAutofillSelection*](../enums/commandresult.md#invalidautofillselection) \| [*WrongComposerSelection*](../enums/commandresult.md#wrongcomposerselection) \| [*MinBiggerThanMax*](../enums/commandresult.md#minbiggerthanmax) \| [*LowerBiggerThanUpper*](../enums/commandresult.md#lowerbiggerthanupper) \| [*MidBiggerThanMax*](../enums/commandresult.md#midbiggerthanmax) \| [*MinBiggerThanMid*](../enums/commandresult.md#minbiggerthanmid) \| [*FirstArgMissing*](../enums/commandresult.md#firstargmissing) \| [*SecondArgMissing*](../enums/commandresult.md#secondargmissing) \| [*MinNaN*](../enums/commandresult.md#minnan) \| [*MidNaN*](../enums/commandresult.md#midnan) \| [*MaxNaN*](../enums/commandresult.md#maxnan) \| [*ValueUpperInflectionNaN*](../enums/commandresult.md#valueupperinflectionnan) \| [*ValueLowerInflectionNaN*](../enums/commandresult.md#valuelowerinflectionnan) \| [*MinInvalidFormula*](../enums/commandresult.md#mininvalidformula) \| [*MidInvalidFormula*](../enums/commandresult.md#midinvalidformula) \| [*MaxInvalidFormula*](../enums/commandresult.md#maxinvalidformula) \| [*ValueUpperInvalidFormula*](../enums/commandresult.md#valueupperinvalidformula) \| [*ValueLowerInvalidFormula*](../enums/commandresult.md#valuelowerinvalidformula) \| [*InvalidSortZone*](../enums/commandresult.md#invalidsortzone) \| [*WaitingSessionConfirmation*](../enums/commandresult.md#waitingsessionconfirmation) \| [*MergeOverlap*](../enums/commandresult.md#mergeoverlap) \| [*TooManyHiddenElements*](../enums/commandresult.md#toomanyhiddenelements) \| [*Readonly*](../enums/commandresult.md#readonly) \| [*InvalidOffset*](../enums/commandresult.md#invalidoffset) \| [*InvalidViewportSize*](../enums/commandresult.md#invalidviewportsize) \| [*CommandResult*](../enums/commandresult.md)[]
+▸ **checkValidations**<`T`\>(`command`, ...`validations`): [`CommandResult`](../enums/CommandResult.md) \| [`CommandResult`](../enums/CommandResult.md)[]
 
-#### Type parameters:
+#### Type parameters
 
-Name |
-:------ |
-`T` |
+| Name |
+| :------ |
+| `T` |
 
-#### Parameters:
+#### Parameters
 
-Name | Type |
-:------ | :------ |
-`command` | T |
-`...validations` | *Validation*<T\>[] |
+| Name | Type |
+| :------ | :------ |
+| `command` | `T` |
+| `...validations` | `Validation`<`T`\>[] |
 
-**Returns:** [*Success*](../enums/commandresult.md#success) \| [*CancelledForUnknownReason*](../enums/commandresult.md#cancelledforunknownreason) \| [*WillRemoveExistingMerge*](../enums/commandresult.md#willremoveexistingmerge) \| [*MergeIsDestructive*](../enums/commandresult.md#mergeisdestructive) \| [*CellIsMerged*](../enums/commandresult.md#cellismerged) \| [*EmptyUndoStack*](../enums/commandresult.md#emptyundostack) \| [*EmptyRedoStack*](../enums/commandresult.md#emptyredostack) \| [*NotEnoughElements*](../enums/commandresult.md#notenoughelements) \| [*NotEnoughSheets*](../enums/commandresult.md#notenoughsheets) \| [*MissingSheetName*](../enums/commandresult.md#missingsheetname) \| [*DuplicatedSheetName*](../enums/commandresult.md#duplicatedsheetname) \| [*ForbiddenCharactersInSheetName*](../enums/commandresult.md#forbiddencharactersinsheetname) \| [*WrongSheetMove*](../enums/commandresult.md#wrongsheetmove) \| [*WrongSheetPosition*](../enums/commandresult.md#wrongsheetposition) \| [*InvalidAnchorZone*](../enums/commandresult.md#invalidanchorzone) \| [*SelectionOutOfBound*](../enums/commandresult.md#selectionoutofbound) \| [*TargetOutOfSheet*](../enums/commandresult.md#targetoutofsheet) \| [*WrongPasteSelection*](../enums/commandresult.md#wrongpasteselection) \| [*EmptyClipboard*](../enums/commandresult.md#emptyclipboard) \| [*EmptyRange*](../enums/commandresult.md#emptyrange) \| [*InvalidRange*](../enums/commandresult.md#invalidrange) \| [*InvalidSheetId*](../enums/commandresult.md#invalidsheetid) \| [*InputAlreadyFocused*](../enums/commandresult.md#inputalreadyfocused) \| [*MaximumRangesReached*](../enums/commandresult.md#maximumrangesreached) \| [*InvalidChartDefinition*](../enums/commandresult.md#invalidchartdefinition) \| [*EmptyDataSet*](../enums/commandresult.md#emptydataset) \| [*InvalidDataSet*](../enums/commandresult.md#invaliddataset) \| [*InvalidLabelRange*](../enums/commandresult.md#invalidlabelrange) \| [*InvalidAutofillSelection*](../enums/commandresult.md#invalidautofillselection) \| [*WrongComposerSelection*](../enums/commandresult.md#wrongcomposerselection) \| [*MinBiggerThanMax*](../enums/commandresult.md#minbiggerthanmax) \| [*LowerBiggerThanUpper*](../enums/commandresult.md#lowerbiggerthanupper) \| [*MidBiggerThanMax*](../enums/commandresult.md#midbiggerthanmax) \| [*MinBiggerThanMid*](../enums/commandresult.md#minbiggerthanmid) \| [*FirstArgMissing*](../enums/commandresult.md#firstargmissing) \| [*SecondArgMissing*](../enums/commandresult.md#secondargmissing) \| [*MinNaN*](../enums/commandresult.md#minnan) \| [*MidNaN*](../enums/commandresult.md#midnan) \| [*MaxNaN*](../enums/commandresult.md#maxnan) \| [*ValueUpperInflectionNaN*](../enums/commandresult.md#valueupperinflectionnan) \| [*ValueLowerInflectionNaN*](../enums/commandresult.md#valuelowerinflectionnan) \| [*MinInvalidFormula*](../enums/commandresult.md#mininvalidformula) \| [*MidInvalidFormula*](../enums/commandresult.md#midinvalidformula) \| [*MaxInvalidFormula*](../enums/commandresult.md#maxinvalidformula) \| [*ValueUpperInvalidFormula*](../enums/commandresult.md#valueupperinvalidformula) \| [*ValueLowerInvalidFormula*](../enums/commandresult.md#valuelowerinvalidformula) \| [*InvalidSortZone*](../enums/commandresult.md#invalidsortzone) \| [*WaitingSessionConfirmation*](../enums/commandresult.md#waitingsessionconfirmation) \| [*MergeOverlap*](../enums/commandresult.md#mergeoverlap) \| [*TooManyHiddenElements*](../enums/commandresult.md#toomanyhiddenelements) \| [*Readonly*](../enums/commandresult.md#readonly) \| [*InvalidOffset*](../enums/commandresult.md#invalidoffset) \| [*InvalidViewportSize*](../enums/commandresult.md#invalidviewportsize) \| [*CommandResult*](../enums/commandresult.md)[]
+#### Returns
+
+[`CommandResult`](../enums/CommandResult.md) \| [`CommandResult`](../enums/CommandResult.md)[]
+
+#### Inherited from
+
+BasePlugin.checkValidations
 
 ___
 
 ### drawGrid
 
-▸ **drawGrid**(`ctx`: GridRenderingContext, `layer`: LAYERS): *void*
+▸ **drawGrid**(`ctx`, `layer`): `void`
 
-#### Parameters:
+#### Parameters
 
-Name | Type |
-:------ | :------ |
-`ctx` | GridRenderingContext |
-`layer` | LAYERS |
+| Name | Type |
+| :------ | :------ |
+| `ctx` | `GridRenderingContext` |
+| `layer` | `LAYERS` |
 
-**Returns:** *void*
+#### Returns
+
+`void`
+
+___
+
+### exportForExcel
+
+▸ **exportForExcel**(`data`): `void`
+
+Export for excel should be available for all plugins, even for the UI.
+In some case, we need to export evaluated value, which is available from
+UI plugin only.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `data` | `ExcelWorkbookData` |
+
+#### Returns
+
+`void`
+
+#### Inherited from
+
+BasePlugin.exportForExcel
 
 ___
 
 ### finalize
 
-▸ **finalize**(): *void*
+▸ **finalize**(): `void`
 
 Sometimes, it is useful to perform some work after a command (and all its
 subcommands) has been completely handled.  For example, when we paste
 multiple cells, we only want to reevaluate the cell values once at the end.
 
-**Returns:** *void*
+#### Returns
+
+`void`
+
+#### Inherited from
+
+BasePlugin.finalize
 
 ___
 
 ### handle
 
-▸ **handle**(`command`: C): *void*
+▸ **handle**(`command`): `void`
 
 This is the standard place to handle any command. Most of the plugin
 command handling work should take place here.
 
-#### Parameters:
+#### Parameters
 
-Name | Type |
-:------ | :------ |
-`command` | C |
+| Name | Type |
+| :------ | :------ |
+| `command` | `C` |
 
-**Returns:** *void*
+#### Returns
+
+`void`
+
+#### Inherited from
+
+BasePlugin.handle

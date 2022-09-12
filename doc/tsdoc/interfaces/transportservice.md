@@ -8,43 +8,41 @@ The service will handle all networking details internally.
 
 ## Type parameters
 
-Name | Default |
-:------ | :------ |
-`T` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `T` | `any` |
 
 ## Table of contents
 
-### Properties
+### Methods
 
-- [leave](transportservice.md#leave)
-- [onNewMessage](transportservice.md#onnewmessage)
-- [sendMessage](transportservice.md#sendmessage)
+- [leave](TransportService.md#leave)
+- [onNewMessage](TransportService.md#onnewmessage)
+- [sendMessage](TransportService.md#sendmessage)
 
-## Properties
+## Methods
 
 ### leave
 
-• **leave**: (`id`: *string*) => *void*
+▸ **leave**(`id`): `void`
 
 Unregister a callback linked to the given id
 
-#### Type declaration:
+#### Parameters
 
-▸ (`id`: *string*): *void*
+| Name | Type |
+| :------ | :------ |
+| `id` | `UID` |
 
-#### Parameters:
+#### Returns
 
-Name | Type |
-:------ | :------ |
-`id` | *string* |
-
-**Returns:** *void*
+`void`
 
 ___
 
 ### onNewMessage
 
-• **onNewMessage**: (`id`: *string*, `callback`: *NewMessageCallback*<T\>) => *void*
+▸ **onNewMessage**(`id`, `callback`): `void`
 
 Register a callback function which will be called each time
 a new message is received.
@@ -57,35 +55,31 @@ transportService.onNewMessage(id, (message) => {
 ```
 The `id` is used to unregister this callback when the session is closed.
 
-#### Type declaration:
+#### Parameters
 
-▸ (`id`: *string*, `callback`: *NewMessageCallback*<T\>): *void*
+| Name | Type |
+| :------ | :------ |
+| `id` | `UID` |
+| `callback` | `NewMessageCallback`<`T`\> |
 
-#### Parameters:
+#### Returns
 
-Name | Type |
-:------ | :------ |
-`id` | *string* |
-`callback` | *NewMessageCallback*<T\> |
-
-**Returns:** *void*
+`void`
 
 ___
 
 ### sendMessage
 
-• **sendMessage**: (`message`: T) => *void*
+▸ **sendMessage**(`message`): `void`
 
 Send a message to all clients
 
-#### Type declaration:
+#### Parameters
 
-▸ (`message`: T): *void*
+| Name | Type |
+| :------ | :------ |
+| `message` | `T` |
 
-#### Parameters:
+#### Returns
 
-Name | Type |
-:------ | :------ |
-`message` | T |
-
-**Returns:** *void*
+`void`

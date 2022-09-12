@@ -4,46 +4,50 @@
 
 ## Hierarchy
 
-* *AbstractMessage*
+- `AbstractMessage`
 
-  ↳ **RevisionUndoneMessage**
+  ↳ **`RevisionUndoneMessage`**
 
 ## Table of contents
 
 ### Properties
 
-- [nextRevisionId](revisionundonemessage.md#nextrevisionid)
-- [serverRevisionId](revisionundonemessage.md#serverrevisionid)
-- [type](revisionundonemessage.md#type)
-- [undoneRevisionId](revisionundonemessage.md#undonerevisionid)
-- [version](revisionundonemessage.md#version)
+- [nextRevisionId](RevisionUndoneMessage.md#nextrevisionid)
+- [serverRevisionId](RevisionUndoneMessage.md#serverrevisionid)
+- [type](RevisionUndoneMessage.md#type)
+- [undoneRevisionId](RevisionUndoneMessage.md#undonerevisionid)
+- [version](RevisionUndoneMessage.md#version)
 
 ## Properties
 
 ### nextRevisionId
 
-• **nextRevisionId**: *string*
+• **nextRevisionId**: `UID`
 
 ___
 
 ### serverRevisionId
 
-• **serverRevisionId**: *string*
+• **serverRevisionId**: `UID`
 
 ___
 
 ### type
 
-• **type**: *REVISION_UNDONE*
+• **type**: ``"REVISION_UNDONE"``
 
 ___
 
 ### undoneRevisionId
 
-• **undoneRevisionId**: *string*
+• **undoneRevisionId**: `UID`
 
 ___
 
 ### version
 
-• **version**: *number*
+• **version**: `number`
+
+#### Inherited from
+
+AbstractMessage.version

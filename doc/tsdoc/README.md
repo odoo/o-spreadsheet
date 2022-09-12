@@ -6,28 +6,30 @@ o-spreadsheet API
 
 ### Enumerations
 
-- [CommandResult](enums/commandresult.md)
+- [CommandResult](enums/CommandResult.md)
 
 ### Classes
 
-- [CorePlugin](classes/coreplugin.md)
-- [DataSource](classes/datasource.md)
-- [DispatchResult](classes/dispatchresult.md)
-- [Model](classes/model.md)
-- [Revision](classes/revision.md)
-- [Spreadsheet](classes/spreadsheet.md)
-- [UIPlugin](classes/uiplugin.md)
+- [AbstractChart](classes/AbstractChart.md)
+- [CorePlugin](classes/CorePlugin.md)
+- [DispatchResult](classes/DispatchResult.md)
+- [EvaluationError](classes/EvaluationError.md)
+- [Model](classes/Model.md)
+- [Registry](classes/Registry.md)
+- [Revision](classes/Revision.md)
+- [Spreadsheet](classes/Spreadsheet.md)
+- [UIPlugin](classes/UIPlugin.md)
 
 ### Interfaces
 
-- [Client](interfaces/client.md)
-- [ClientJoinedMessage](interfaces/clientjoinedmessage.md)
-- [ClientLeftMessage](interfaces/clientleftmessage.md)
-- [ClientMovedMessage](interfaces/clientmovedmessage.md)
-- [RemoteRevisionMessage](interfaces/remoterevisionmessage.md)
-- [RevisionRedoneMessage](interfaces/revisionredonemessage.md)
-- [RevisionUndoneMessage](interfaces/revisionundonemessage.md)
-- [TransportService](interfaces/transportservice.md)
+- [Client](interfaces/Client.md)
+- [ClientJoinedMessage](interfaces/ClientJoinedMessage.md)
+- [ClientLeftMessage](interfaces/ClientLeftMessage.md)
+- [ClientMovedMessage](interfaces/ClientMovedMessage.md)
+- [RemoteRevisionMessage](interfaces/RemoteRevisionMessage.md)
+- [RevisionRedoneMessage](interfaces/RevisionRedoneMessage.md)
+- [RevisionUndoneMessage](interfaces/RevisionUndoneMessage.md)
+- [TransportService](interfaces/TransportService.md)
 
 ### Type aliases
 
@@ -38,211 +40,370 @@ o-spreadsheet API
 
 - [DATETIME\_FORMAT](README.md#datetime_format)
 - [SPREADSHEET\_DIMENSIONS](README.md#spreadsheet_dimensions)
-- [\_\_DEBUG\_\_](README.md#__debug__)
 - [\_\_info\_\_](README.md#__info__)
+- [cellTypes](README.md#celltypes)
+- [components](README.md#components)
 - [coreTypes](README.md#coretypes)
 - [functionCache](README.md#functioncache)
 - [helpers](README.md#helpers)
+- [invalidateEvaluationCommands](README.md#invalidateevaluationcommands)
 - [readonlyAllowedCommands](README.md#readonlyallowedcommands)
 - [registries](README.md#registries)
 
 ### Functions
 
 - [astToFormula](README.md#asttoformula)
-- [normalize](README.md#normalize)
+- [compile](README.md#compile)
+- [convertAstNodes](README.md#convertastnodes)
+- [findCellInNewZone](README.md#findcellinnewzone)
+- [load](README.md#load)
 - [parse](README.md#parse)
 - [setTranslationMethod](README.md#settranslationmethod)
+- [tokenize](README.md#tokenize)
 
 ## Type aliases
 
 ### CancelledReason
 
-Ƭ **CancelledReason**: *Exclude*<[*CommandResult*](enums/commandresult.md), [*Success*](enums/commandresult.md#success)\>
+Ƭ **CancelledReason**: `Exclude`<[`CommandResult`](enums/CommandResult.md), [`Success`](enums/CommandResult.md#success)\>
 
 ___
 
 ### CollaborationMessage
 
-Ƭ **CollaborationMessage**: [*RevisionUndoneMessage*](interfaces/revisionundonemessage.md) \| [*RevisionRedoneMessage*](interfaces/revisionredonemessage.md) \| [*RemoteRevisionMessage*](interfaces/remoterevisionmessage.md) \| SnapshotMessage \| SnapshotCreatedMessage \| [*ClientMovedMessage*](interfaces/clientmovedmessage.md) \| [*ClientJoinedMessage*](interfaces/clientjoinedmessage.md) \| [*ClientLeftMessage*](interfaces/clientleftmessage.md)
+Ƭ **CollaborationMessage**: [`RevisionUndoneMessage`](interfaces/RevisionUndoneMessage.md) \| [`RevisionRedoneMessage`](interfaces/RevisionRedoneMessage.md) \| [`RemoteRevisionMessage`](interfaces/RemoteRevisionMessage.md) \| `SnapshotMessage` \| `SnapshotCreatedMessage` \| [`ClientMovedMessage`](interfaces/ClientMovedMessage.md) \| [`ClientJoinedMessage`](interfaces/ClientJoinedMessage.md) \| [`ClientLeftMessage`](interfaces/ClientLeftMessage.md)
 
 ## Variables
 
 ### DATETIME\_FORMAT
 
-• `Const` **DATETIME\_FORMAT**: *RegExp*
+• **DATETIME\_FORMAT**: `RegExp`
 
 ___
 
 ### SPREADSHEET\_DIMENSIONS
 
-• `Const` **SPREADSHEET\_DIMENSIONS**: *object*
+• **SPREADSHEET\_DIMENSIONS**: `Object`
 
-#### Type declaration:
+#### Type declaration
 
-Name | Type |
-:------ | :------ |
-`BOTTOMBAR_HEIGHT` | *number* |
-`DEFAULT_CELL_HEIGHT` | *number* |
-`DEFAULT_CELL_WIDTH` | *number* |
-`HEADER_HEIGHT` | *number* |
-`HEADER_WIDTH` | *number* |
-`MIN_COL_WIDTH` | *number* |
-`MIN_ROW_HEIGHT` | *number* |
-`SCROLLBAR_WIDTH` | *number* |
-`TOPBAR_HEIGHT` | *number* |
-
-___
-
-### \_\_DEBUG\_\_
-
-• `Const` **\_\_DEBUG\_\_**: *object*
-
-#### Type declaration:
+| Name | Type |
+| :------ | :------ |
+| `BOTTOMBAR_HEIGHT` | `number` |
+| `DEFAULT_CELL_HEIGHT` | `number` |
+| `DEFAULT_CELL_WIDTH` | `number` |
+| `HEADER_HEIGHT` | `number` |
+| `HEADER_WIDTH` | `number` |
+| `MIN_COL_WIDTH` | `number` |
+| `MIN_ROW_HEIGHT` | `number` |
+| `SCROLLBAR_WIDTH` | `number` |
+| `TOPBAR_HEIGHT` | `number` |
 
 ___
 
 ### \_\_info\_\_
 
-• `Const` **\_\_info\_\_**: *object*
+• **\_\_info\_\_**: `Object` = `{}`
 
 We export here all entities that needs to be accessed publicly by Odoo.
 
 Note that the __info__ key is actually completed by the build process (see
 the rollup.config.js file)
 
-#### Type declaration:
+___
+
+### cellTypes
+
+• **cellTypes**: `Object`
+
+#### Type declaration
+
+| Name | Type |
+| :------ | :------ |
+| `LinkCell` | typeof `LinkCell` |
+
+___
+
+### components
+
+• **components**: `Object`
+
+#### Type declaration
+
+| Name | Type |
+| :------ | :------ |
+| `BarConfigPanel` | typeof `BarConfigPanel` |
+| `ChartFigure` | typeof `ChartFigure` |
+| `ChartJsComponent` | typeof `ChartJsComponent` |
+| `ChartPanel` | typeof `ChartPanel` |
+| `GaugeChartConfigPanel` | typeof `GaugeChartConfigPanel` |
+| `GaugeChartDesignPanel` | typeof `GaugeChartDesignPanel` |
+| `Grid` | typeof `Grid` |
+| `LineBarPieConfigPanel` | typeof `LineBarPieConfigPanel` |
+| `LineBarPieDesignPanel` | typeof `LineBarPieDesignPanel` |
+| `LineConfigPanel` | typeof `LineConfigPanel` |
+| `ScorecardChart` | typeof `ScorecardChart` |
+| `ScorecardChartConfigPanel` | typeof `ScorecardChartConfigPanel` |
+| `ScorecardChartDesignPanel` | typeof `ScorecardChartDesignPanel` |
 
 ___
 
 ### coreTypes
 
-• `Const` **coreTypes**: *Set*<*UPDATE_CELL* \| *UPDATE_CELL_POSITION* \| *CLEAR_CELL* \| *DELETE_CONTENT* \| *SET_DECIMAL* \| *ADD_COLUMNS_ROWS* \| *REMOVE_COLUMNS_ROWS* \| *RESIZE_COLUMNS_ROWS* \| *HIDE_COLUMNS_ROWS* \| *UNHIDE_COLUMNS_ROWS* \| *SET_GRID_LINES_VISIBILITY* \| *ADD_MERGE* \| *REMOVE_MERGE* \| *CREATE_SHEET* \| *DELETE_SHEET* \| *DUPLICATE_SHEET* \| *MOVE_SHEET* \| *RENAME_SHEET* \| *ADD_CONDITIONAL_FORMAT* \| *REMOVE_CONDITIONAL_FORMAT* \| *CREATE_FIGURE* \| *DELETE_FIGURE* \| *UPDATE_FIGURE* \| *SET_FORMATTING* \| *CLEAR_FORMATTING* \| *SET_BORDER* \| *CREATE_CHART* \| *UPDATE_CHART*\>
+• **coreTypes**: `Set`<``"UPDATE_CELL"`` \| ``"UPDATE_CELL_POSITION"`` \| ``"CLEAR_CELL"`` \| ``"DELETE_CONTENT"`` \| ``"SET_DECIMAL"`` \| ``"ADD_COLUMNS_ROWS"`` \| ``"REMOVE_COLUMNS_ROWS"`` \| ``"RESIZE_COLUMNS_ROWS"`` \| ``"HIDE_COLUMNS_ROWS"`` \| ``"UNHIDE_COLUMNS_ROWS"`` \| ``"SET_GRID_LINES_VISIBILITY"`` \| ``"ADD_MERGE"`` \| ``"REMOVE_MERGE"`` \| ``"CREATE_SHEET"`` \| ``"DELETE_SHEET"`` \| ``"DUPLICATE_SHEET"`` \| ``"MOVE_SHEET"`` \| ``"RENAME_SHEET"`` \| ``"HIDE_SHEET"`` \| ``"SHOW_SHEET"`` \| ``"MOVE_RANGES"`` \| ``"ADD_CONDITIONAL_FORMAT"`` \| ``"REMOVE_CONDITIONAL_FORMAT"`` \| ``"MOVE_CONDITIONAL_FORMAT"`` \| ``"CREATE_FIGURE"`` \| ``"DELETE_FIGURE"`` \| ``"UPDATE_FIGURE"`` \| ``"SET_FORMATTING"`` \| ``"CLEAR_FORMATTING"`` \| ``"SET_BORDER"`` \| ``"CREATE_CHART"`` \| ``"UPDATE_CHART"``\>
 
 ___
 
 ### functionCache
 
-• `Const` **functionCache**: *object*
+• **functionCache**: `Object` = `{}`
 
-#### Type declaration:
+#### Index signature
+
+▪ [key: `string`]: `Omit`<`CompiledFormula`, ``"dependencies"`` \| ``"tokens"``\>
 
 ___
 
 ### helpers
 
-• `Const` **helpers**: *object*
+• **helpers**: `Object`
 
-#### Type declaration:
+#### Type declaration
 
-Name | Type |
-:------ | :------ |
-`UuidGenerator` | *typeof* UuidGenerator |
-`args` | (`strings`: *string*) => Arg[] |
-`computeTextWidth` | (`context`: CanvasRenderingContext2D, `text`: *string*, `style`: Style) => *number* |
-`createFullMenuItem` | (`key`: *string*, `value`: MenuItem) => FullMenuItem |
-`formatDecimal` | (`n`: *number*, `decimals`: *number*, `sep`: *string*) => *string* |
-`numberToLetters` | (`n`: *number*) => *string* |
-`toBoolean` | (`value`: ArgValue) => *boolean* |
-`toCartesian` | (`xc`: *string*) => [*number*, *number*] |
-`toNumber` | (`value`: ArgValue) => *number* |
-`toString` | (`value`: ArgValue) => *string* |
-`toXC` | (`col`: *number*, `row`: *number*) => *string* |
-`toZone` | (`xc`: *string*) => Zone |
+| Name | Type |
+| :------ | :------ |
+| `CellErrorLevel` | typeof `CellErrorLevel` |
+| `ChartColors` | typeof `ChartColors` |
+| `EvaluationError` | typeof [`EvaluationError`](classes/EvaluationError.md) |
+| `UuidGenerator` | typeof `UuidGenerator` |
+| `args` | (`strings`: `string`) => `ArgDefinition`[] |
+| `chartFontColor` | (`backgroundColor`: `undefined` \| `Color`) => `Color` |
+| `computeTextWidth` | (`context`: `CanvasRenderingContext2D`, `text`: `string`, `style`: `Style`) => `number` |
+| `createEmptyWorkbookData` | (`sheetName`: `string`) => `WorkbookData` |
+| `createFullMenuItem` | (`key`: `string`, `value`: `MenuItem`) => `FullMenuItem` |
+| `formatValue` | (`value`: `CellValue`, `format?`: `Format`) => `FormattedValue` |
+| `getDefaultChartJsRuntime` | (`chart`: [`AbstractChart`](classes/AbstractChart.md), `labels`: `string`[], `fontColor`: `Color`) => `ChartConfiguration` |
+| `getMenuChildren` | (`node`: `Required`<`MenuItem`\>, `env`: `SpreadsheetChildEnv`) => `FullMenuItem`[] |
+| `isMarkdownLink` | (`str`: `string`) => `boolean` |
+| `markdownLink` | (`label`: `string`, `url`: `string`) => `string` |
+| `numberToLetters` | (`n`: `number`) => `string` |
+| `parseMarkdownLink` | (`str`: `string`) => `Link` |
+| `toBoolean` | (`value`: `undefined` \| ``null`` \| `string` \| `number` \| `boolean`) => `boolean` |
+| `toCartesian` | (`xc`: `string`) => `Position` |
+| `toJsDate` | (`value`: `undefined` \| ``null`` \| `string` \| `number` \| `boolean`) => `Date` |
+| `toNumber` | (`value`: `undefined` \| ``null`` \| `string` \| `number` \| `boolean`) => `number` |
+| `toString` | (`value`: `undefined` \| ``null`` \| `string` \| `number` \| `boolean`) => `string` |
+| `toXC` | (`col`: `HeaderIndex`, `row`: `HeaderIndex`, `rangePart`: `RangePart`) => `string` |
+| `toZone` | (`xc`: `string`) => `Zone` |
+
+___
+
+### invalidateEvaluationCommands
+
+• **invalidateEvaluationCommands**: `Set`<``"UPDATE_CELL"`` \| ``"UPDATE_CELL_POSITION"`` \| ``"CLEAR_CELL"`` \| ``"DELETE_CONTENT"`` \| ``"SET_DECIMAL"`` \| ``"ADD_COLUMNS_ROWS"`` \| ``"REMOVE_COLUMNS_ROWS"`` \| ``"RESIZE_COLUMNS_ROWS"`` \| ``"HIDE_COLUMNS_ROWS"`` \| ``"UNHIDE_COLUMNS_ROWS"`` \| ``"SET_GRID_LINES_VISIBILITY"`` \| ``"ADD_MERGE"`` \| ``"REMOVE_MERGE"`` \| ``"CREATE_SHEET"`` \| ``"DELETE_SHEET"`` \| ``"DUPLICATE_SHEET"`` \| ``"MOVE_SHEET"`` \| ``"RENAME_SHEET"`` \| ``"HIDE_SHEET"`` \| ``"SHOW_SHEET"`` \| ``"MOVE_RANGES"`` \| ``"ADD_CONDITIONAL_FORMAT"`` \| ``"REMOVE_CONDITIONAL_FORMAT"`` \| ``"MOVE_CONDITIONAL_FORMAT"`` \| ``"CREATE_FIGURE"`` \| ``"DELETE_FIGURE"`` \| ``"UPDATE_FIGURE"`` \| ``"SET_FORMATTING"`` \| ``"CLEAR_FORMATTING"`` \| ``"SET_BORDER"`` \| ``"CREATE_CHART"`` \| ``"UPDATE_CHART"`` \| ``"REQUEST_UNDO"`` \| ``"REQUEST_REDO"`` \| ``"UNDO"`` \| ``"REDO"`` \| ``"ENABLE_NEW_SELECTION_INPUT"`` \| ``"DISABLE_SELECTION_INPUT"`` \| ``"UNFOCUS_SELECTION_INPUT"`` \| ``"FOCUS_RANGE"`` \| ``"ADD_EMPTY_RANGE"`` \| ``"REMOVE_RANGE"`` \| ``"CHANGE_RANGE"`` \| ``"COPY"`` \| ``"CUT"`` \| ``"PASTE"`` \| ``"AUTOFILL_CELL"`` \| ``"PASTE_FROM_OS_CLIPBOARD"`` \| ``"ACTIVATE_PAINT_FORMAT"`` \| ``"PASTE_CONDITIONAL_FORMAT"`` \| ``"AUTORESIZE_COLUMNS"`` \| ``"AUTORESIZE_ROWS"`` \| ``"MOVE_COLUMNS_ROWS"`` \| ``"ACTIVATE_SHEET"`` \| ``"PREPARE_SELECTION_INPUT_EXPANSION"`` \| ``"STOP_SELECTION_INPUT"`` \| ``"EVALUATE_CELLS"`` \| ``"CHANGE_HIGHLIGHT"`` \| ``"START_CHANGE_HIGHLIGHT"`` \| ``"SET_HIGHLIGHT_COLOR"`` \| ``"STOP_COMPOSER_RANGE_SELECTION"`` \| ``"START_EDITION"`` \| ``"STOP_EDITION"`` \| ``"SET_CURRENT_CONTENT"`` \| ``"CHANGE_COMPOSER_CURSOR_SELECTION"`` \| ``"REPLACE_COMPOSER_CURSOR_SELECTION"`` \| ``"CYCLE_EDITION_REFERENCES"`` \| ``"START"`` \| ``"AUTOFILL"`` \| ``"AUTOFILL_SELECT"`` \| ``"SET_FORMULA_VISIBILITY"`` \| ``"AUTOFILL_AUTO"`` \| ``"SELECT_FIGURE"`` \| ``"UPDATE_SEARCH"`` \| ``"REFRESH_SEARCH"`` \| ``"CLEAR_SEARCH"`` \| ``"SELECT_SEARCH_PREVIOUS_MATCH"`` \| ``"SELECT_SEARCH_NEXT_MATCH"`` \| ``"REPLACE_SEARCH"`` \| ``"REPLACE_ALL_SEARCH"`` \| ``"SORT_CELLS"`` \| ``"RESIZE_VIEWPORT"`` \| ``"SUM_SELECTION"`` \| ``"DELETE_CELL"`` \| ``"INSERT_CELL"`` \| ``"SET_VIEWPORT_OFFSET"`` \| ``"SHIFT_VIEWPORT_DOWN"`` \| ``"SHIFT_VIEWPORT_UP"`` \| ``"OPEN_CELL_POPOVER"`` \| ``"CLOSE_CELL_POPOVER"`` \| ``"ACTIVATE_NEXT_SHEET"`` \| ``"ACTIVATE_PREVIOUS_SHEET"``\>
 
 ___
 
 ### readonlyAllowedCommands
 
-• `Const` **readonlyAllowedCommands**: *Set*<*UPDATE_CELL* \| *UPDATE_CELL_POSITION* \| *CLEAR_CELL* \| *DELETE_CONTENT* \| *SET_DECIMAL* \| *ADD_COLUMNS_ROWS* \| *REMOVE_COLUMNS_ROWS* \| *RESIZE_COLUMNS_ROWS* \| *HIDE_COLUMNS_ROWS* \| *UNHIDE_COLUMNS_ROWS* \| *SET_GRID_LINES_VISIBILITY* \| *ADD_MERGE* \| *REMOVE_MERGE* \| *CREATE_SHEET* \| *DELETE_SHEET* \| *DUPLICATE_SHEET* \| *MOVE_SHEET* \| *RENAME_SHEET* \| *ADD_CONDITIONAL_FORMAT* \| *REMOVE_CONDITIONAL_FORMAT* \| *CREATE_FIGURE* \| *DELETE_FIGURE* \| *UPDATE_FIGURE* \| *SET_FORMATTING* \| *CLEAR_FORMATTING* \| *SET_BORDER* \| *CREATE_CHART* \| *UPDATE_CHART* \| *REQUEST_UNDO* \| *REQUEST_REDO* \| *UNDO* \| *REDO* \| *ENABLE_NEW_SELECTION_INPUT* \| *DISABLE_SELECTION_INPUT* \| *FOCUS_RANGE* \| *ADD_EMPTY_RANGE* \| *REMOVE_RANGE* \| *CHANGE_RANGE* \| *COPY* \| *CUT* \| *PASTE* \| *CUT_AND_PASTE* \| *AUTOFILL_CELL* \| *PASTE_FROM_OS_CLIPBOARD* \| *ACTIVATE_PAINT_FORMAT* \| *PASTE_CONDITIONAL_FORMAT* \| *AUTORESIZE_COLUMNS* \| *AUTORESIZE_ROWS* \| *MOVE_POSITION* \| *DELETE_SHEET_CONFIRMATION* \| *ACTIVATE_SHEET* \| *START_SELECTION* \| *START_SELECTION_EXPANSION* \| *PREPARE_SELECTION_EXPANSION* \| *STOP_SELECTION* \| *SELECT_CELL* \| *SET_SELECTION* \| *SELECT_COLUMN* \| *SELECT_ROW* \| *SELECT_ALL* \| *ALTER_SELECTION* \| *EVALUATE_CELLS* \| *ADD_HIGHLIGHTS* \| *REMOVE_HIGHLIGHTS* \| *REMOVE_ALL_HIGHLIGHTS* \| *HIGHLIGHT_SELECTION* \| *ADD_PENDING_HIGHLIGHTS* \| *RESET_PENDING_HIGHLIGHT* \| *SET_HIGHLIGHT_COLOR* \| *STOP_COMPOSER_RANGE_SELECTION* \| *START_EDITION* \| *STOP_EDITION* \| *SET_CURRENT_CONTENT* \| *CHANGE_COMPOSER_CURSOR_SELECTION* \| *REPLACE_COMPOSER_CURSOR_SELECTION* \| *START* \| *AUTOFILL* \| *AUTOFILL_SELECT* \| *SET_FORMULA_VISIBILITY* \| *AUTOFILL_AUTO* \| *SELECT_FIGURE* \| *UPDATE_SEARCH* \| *REFRESH_SEARCH* \| *CLEAR_SEARCH* \| *SELECT_SEARCH_PREVIOUS_MATCH* \| *SELECT_SEARCH_NEXT_MATCH* \| *REPLACE_SEARCH* \| *REPLACE_ALL_SEARCH* \| *SORT_CELLS* \| *RESIZE_VIEWPORT* \| *REFRESH_CHART* \| *SUM_SELECTION* \| *DELETE_CELL* \| *INSERT_CELL* \| *SET_VIEWPORT_OFFSET* \| *EVALUATE_ALL_SHEETS* \| *ACTIVATE_NEXT_SHEET* \| *ACTIVATE_PREVIOUS_SHEET*\>
+• **readonlyAllowedCommands**: `Set`<``"UPDATE_CELL"`` \| ``"UPDATE_CELL_POSITION"`` \| ``"CLEAR_CELL"`` \| ``"DELETE_CONTENT"`` \| ``"SET_DECIMAL"`` \| ``"ADD_COLUMNS_ROWS"`` \| ``"REMOVE_COLUMNS_ROWS"`` \| ``"RESIZE_COLUMNS_ROWS"`` \| ``"HIDE_COLUMNS_ROWS"`` \| ``"UNHIDE_COLUMNS_ROWS"`` \| ``"SET_GRID_LINES_VISIBILITY"`` \| ``"ADD_MERGE"`` \| ``"REMOVE_MERGE"`` \| ``"CREATE_SHEET"`` \| ``"DELETE_SHEET"`` \| ``"DUPLICATE_SHEET"`` \| ``"MOVE_SHEET"`` \| ``"RENAME_SHEET"`` \| ``"HIDE_SHEET"`` \| ``"SHOW_SHEET"`` \| ``"MOVE_RANGES"`` \| ``"ADD_CONDITIONAL_FORMAT"`` \| ``"REMOVE_CONDITIONAL_FORMAT"`` \| ``"MOVE_CONDITIONAL_FORMAT"`` \| ``"CREATE_FIGURE"`` \| ``"DELETE_FIGURE"`` \| ``"UPDATE_FIGURE"`` \| ``"SET_FORMATTING"`` \| ``"CLEAR_FORMATTING"`` \| ``"SET_BORDER"`` \| ``"CREATE_CHART"`` \| ``"UPDATE_CHART"`` \| ``"REQUEST_UNDO"`` \| ``"REQUEST_REDO"`` \| ``"UNDO"`` \| ``"REDO"`` \| ``"ENABLE_NEW_SELECTION_INPUT"`` \| ``"DISABLE_SELECTION_INPUT"`` \| ``"UNFOCUS_SELECTION_INPUT"`` \| ``"FOCUS_RANGE"`` \| ``"ADD_EMPTY_RANGE"`` \| ``"REMOVE_RANGE"`` \| ``"CHANGE_RANGE"`` \| ``"COPY"`` \| ``"CUT"`` \| ``"PASTE"`` \| ``"AUTOFILL_CELL"`` \| ``"PASTE_FROM_OS_CLIPBOARD"`` \| ``"ACTIVATE_PAINT_FORMAT"`` \| ``"PASTE_CONDITIONAL_FORMAT"`` \| ``"AUTORESIZE_COLUMNS"`` \| ``"AUTORESIZE_ROWS"`` \| ``"MOVE_COLUMNS_ROWS"`` \| ``"ACTIVATE_SHEET"`` \| ``"PREPARE_SELECTION_INPUT_EXPANSION"`` \| ``"STOP_SELECTION_INPUT"`` \| ``"EVALUATE_CELLS"`` \| ``"CHANGE_HIGHLIGHT"`` \| ``"START_CHANGE_HIGHLIGHT"`` \| ``"SET_HIGHLIGHT_COLOR"`` \| ``"STOP_COMPOSER_RANGE_SELECTION"`` \| ``"START_EDITION"`` \| ``"STOP_EDITION"`` \| ``"SET_CURRENT_CONTENT"`` \| ``"CHANGE_COMPOSER_CURSOR_SELECTION"`` \| ``"REPLACE_COMPOSER_CURSOR_SELECTION"`` \| ``"CYCLE_EDITION_REFERENCES"`` \| ``"START"`` \| ``"AUTOFILL"`` \| ``"AUTOFILL_SELECT"`` \| ``"SET_FORMULA_VISIBILITY"`` \| ``"AUTOFILL_AUTO"`` \| ``"SELECT_FIGURE"`` \| ``"UPDATE_SEARCH"`` \| ``"REFRESH_SEARCH"`` \| ``"CLEAR_SEARCH"`` \| ``"SELECT_SEARCH_PREVIOUS_MATCH"`` \| ``"SELECT_SEARCH_NEXT_MATCH"`` \| ``"REPLACE_SEARCH"`` \| ``"REPLACE_ALL_SEARCH"`` \| ``"SORT_CELLS"`` \| ``"RESIZE_VIEWPORT"`` \| ``"SUM_SELECTION"`` \| ``"DELETE_CELL"`` \| ``"INSERT_CELL"`` \| ``"SET_VIEWPORT_OFFSET"`` \| ``"SHIFT_VIEWPORT_DOWN"`` \| ``"SHIFT_VIEWPORT_UP"`` \| ``"OPEN_CELL_POPOVER"`` \| ``"CLOSE_CELL_POPOVER"`` \| ``"ACTIVATE_NEXT_SHEET"`` \| ``"ACTIVATE_PREVIOUS_SHEET"``\>
 
 ___
 
 ### registries
 
-• `Const` **registries**: *object*
+• **registries**: `Object`
 
-#### Type declaration:
+#### Type declaration
 
-Name | Type |
-:------ | :------ |
-`autofillModifiersRegistry` | *Registry*<AutofillModifierImplementation\> |
-`autofillRulesRegistry` | *Registry*<AutofillRule\> |
-`cellMenuRegistry` | *MenuItemRegistry* |
-`colMenuRegistry` | *MenuItemRegistry* |
-`corePluginRegistry` | *Registry*<CorePluginConstructor\> |
-`functionRegistry` | *FunctionRegistry* |
-`inverseCommandRegistry` | *Registry*<InverseFunction\> |
-`otRegistry` | *OTRegistry* |
-`rowMenuRegistry` | *MenuItemRegistry* |
-`sheetMenuRegistry` | *MenuItemRegistry* |
-`sidePanelRegistry` | *Registry*<SidePanelContent\> |
-`topbarComponentRegistry` | *Registry*<TopbarComponent\> |
-`topbarMenuRegistry` | *MenuItemRegistry* |
-`uiPluginRegistry` | *Registry*<UIPluginConstructor\> |
+| Name | Type |
+| :------ | :------ |
+| `autofillModifiersRegistry` | [`Registry`](classes/Registry.md)<`AutofillModifierImplementation`\> |
+| `autofillRulesRegistry` | [`Registry`](classes/Registry.md)<`AutofillRule`\> |
+| `cellMenuRegistry` | `MenuItemRegistry` |
+| `cellPopoverRegistry` | [`Registry`](classes/Registry.md)<`PopoverBuilders`\> |
+| `cellRegistry` | [`Registry`](classes/Registry.md)<`CellBuilder`\> |
+| `chartComponentRegistry` | [`Registry`](classes/Registry.md)<`fn`\> |
+| `chartRegistry` | [`Registry`](classes/Registry.md)<`ChartBuilder`\> |
+| `chartSidePanelComponentRegistry` | [`Registry`](classes/Registry.md)<`ChartSidePanel`\> |
+| `colMenuRegistry` | `MenuItemRegistry` |
+| `corePluginRegistry` | [`Registry`](classes/Registry.md)<`CorePluginConstructor`\> |
+| `dashboardMenuRegistry` | `MenuItemRegistry` |
+| `figureRegistry` | [`Registry`](classes/Registry.md)<`FigureContent`\> |
+| `functionRegistry` | `FunctionRegistry` |
+| `inverseCommandRegistry` | [`Registry`](classes/Registry.md)<`InverseFunction`\> |
+| `linkMenuRegistry` | `MenuItemRegistry` |
+| `otRegistry` | `OTRegistry` |
+| `rowMenuRegistry` | `MenuItemRegistry` |
+| `sheetMenuRegistry` | `MenuItemRegistry` |
+| `sidePanelRegistry` | [`Registry`](classes/Registry.md)<`SidePanelContent`\> |
+| `topbarComponentRegistry` | `TopBarComponentRegistry` |
+| `topbarMenuRegistry` | `MenuItemRegistry` |
+| `uiPluginRegistry` | [`Registry`](classes/Registry.md)<`UIPluginConstructor`\> |
 
 ## Functions
 
 ### astToFormula
 
-▸ **astToFormula**(`ast`: AST): *string*
+▸ **astToFormula**(`ast`): `string`
 
 Converts an ast formula to the corresponding string
 
-#### Parameters:
+#### Parameters
 
-Name | Type |
-:------ | :------ |
-`ast` | AST |
+| Name | Type |
+| :------ | :------ |
+| `ast` | `AST` |
 
-**Returns:** *string*
+#### Returns
+
+`string`
 
 ___
 
-### normalize
+### compile
 
-▸ **normalize**(`formula`: *string*): NormalizedFormula
+▸ **compile**(`formula`): `CompiledFormula`
 
-parses a formula (as a string) into the same formula,
-but with the references to other cells extracted
+#### Parameters
 
-=sum(a3:b1) + c3 --> =sum(|0|) + |1|
+| Name | Type |
+| :------ | :------ |
+| `formula` | `string` |
 
-#### Parameters:
+#### Returns
 
-Name | Type |
-:------ | :------ |
-`formula` | *string* |
+`CompiledFormula`
 
-**Returns:** NormalizedFormula
+___
+
+### convertAstNodes
+
+▸ **convertAstNodes**<`T`\>(`ast`, `type`, `fn`): `any`
+
+Allows to visit all nodes of an AST and apply a mapping function
+to nodes of a specific type.
+Useful if you want to convert some part of a formula.
+
+e.g.
+```ts
+convertAstNodes(ast, "FUNCALL", convertFormulaToExcel)
+
+function convertFormulaToExcel(ast: ASTFuncall) {
+  // ...
+  return modifiedAst
+}
+```
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `T` | extends ``"BIN_OPERATION"`` \| ``"UNARY_OPERATION"`` \| ``"FUNCALL"`` \| ``"NUMBER"`` \| ``"BOOLEAN"`` \| ``"STRING"`` \| ``"REFERENCE"`` \| ``"UNKNOWN"`` |
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `ast` | `AST` |
+| `type` | `T` |
+| `fn` | (`ast`: `Extract`<`ASTOperation`, `Object`\> \| `Extract`<`ASTUnaryOperation`, `Object`\> \| `Extract`<`ASTFuncall`, `Object`\> \| `Extract`<`ASTNumber`, `Object`\> \| `Extract`<`ASTBoolean`, `Object`\> \| `Extract`<`ASTString`, `Object`\> \| `Extract`<`ASTReference`, `Object`\> \| `Extract`<`ASTUnknown`, `Object`\>) => `AST` |
+
+#### Returns
+
+`any`
+
+___
+
+### findCellInNewZone
+
+▸ **findCellInNewZone**(`oldZone`, `currentZone`): `Position`
+
+This function will compare the modifications of selection to determine
+a cell that is part of the new zone and not the previous one.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `oldZone` | `Zone` |
+| `currentZone` | `Zone` |
+
+#### Returns
+
+`Position`
+
+___
+
+### load
+
+▸ **load**(`data?`, `verboseImport?`): `WorkbookData`
+
+This function tries to load anything that could look like a valid
+workbookData object. It applies any migrations, if needed, and return a
+current, complete workbookData object.
+
+It also ensures that there is at least one sheet.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `data?` | `any` |
+| `verboseImport?` | `boolean` |
+
+#### Returns
+
+`WorkbookData`
 
 ___
 
 ### parse
 
-▸ **parse**(`str`: *string*): AST
+▸ **parse**(`str`): `AST`
 
 Parse an expression (as a string) into an AST.
 
-#### Parameters:
+#### Parameters
 
-Name | Type |
-:------ | :------ |
-`str` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `str` | `string` |
 
-**Returns:** AST
+#### Returns
+
+`AST`
 
 ___
 
 ### setTranslationMethod
 
-▸ **setTranslationMethod**(`tfn`: TranslationFunction): *void*
+▸ **setTranslationMethod**(`tfn`): `void`
 
 Allow to inject a translation function from outside o-spreadsheet.
 
-#### Parameters:
+#### Parameters
 
-Name | Type | Description |
-:------ | :------ | :------ |
-`tfn` | TranslationFunction | the function that will do the translation    |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `tfn` | `TranslationFunction` | the function that will do the translation |
 
-**Returns:** *void*
+#### Returns
+
+`void`
+
+___
+
+### tokenize
+
+▸ **tokenize**(`str`): `Token`[]
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `str` | `string` |
+
+#### Returns
+
+`Token`[]

@@ -6,374 +6,500 @@
 
 ### Enumeration members
 
-- [CancelledForUnknownReason](commandresult.md#cancelledforunknownreason)
-- [CellIsMerged](commandresult.md#cellismerged)
-- [DuplicatedSheetName](commandresult.md#duplicatedsheetname)
-- [EmptyClipboard](commandresult.md#emptyclipboard)
-- [EmptyDataSet](commandresult.md#emptydataset)
-- [EmptyRange](commandresult.md#emptyrange)
-- [EmptyRedoStack](commandresult.md#emptyredostack)
-- [EmptyUndoStack](commandresult.md#emptyundostack)
-- [FirstArgMissing](commandresult.md#firstargmissing)
-- [ForbiddenCharactersInSheetName](commandresult.md#forbiddencharactersinsheetname)
-- [InputAlreadyFocused](commandresult.md#inputalreadyfocused)
-- [InvalidAnchorZone](commandresult.md#invalidanchorzone)
-- [InvalidAutofillSelection](commandresult.md#invalidautofillselection)
-- [InvalidChartDefinition](commandresult.md#invalidchartdefinition)
-- [InvalidDataSet](commandresult.md#invaliddataset)
-- [InvalidLabelRange](commandresult.md#invalidlabelrange)
-- [InvalidOffset](commandresult.md#invalidoffset)
-- [InvalidRange](commandresult.md#invalidrange)
-- [InvalidSheetId](commandresult.md#invalidsheetid)
-- [InvalidSortZone](commandresult.md#invalidsortzone)
-- [InvalidViewportSize](commandresult.md#invalidviewportsize)
-- [LowerBiggerThanUpper](commandresult.md#lowerbiggerthanupper)
-- [MaxInvalidFormula](commandresult.md#maxinvalidformula)
-- [MaxNaN](commandresult.md#maxnan)
-- [MaximumRangesReached](commandresult.md#maximumrangesreached)
-- [MergeIsDestructive](commandresult.md#mergeisdestructive)
-- [MergeOverlap](commandresult.md#mergeoverlap)
-- [MidBiggerThanMax](commandresult.md#midbiggerthanmax)
-- [MidInvalidFormula](commandresult.md#midinvalidformula)
-- [MidNaN](commandresult.md#midnan)
-- [MinBiggerThanMax](commandresult.md#minbiggerthanmax)
-- [MinBiggerThanMid](commandresult.md#minbiggerthanmid)
-- [MinInvalidFormula](commandresult.md#mininvalidformula)
-- [MinNaN](commandresult.md#minnan)
-- [MissingSheetName](commandresult.md#missingsheetname)
-- [NotEnoughElements](commandresult.md#notenoughelements)
-- [NotEnoughSheets](commandresult.md#notenoughsheets)
-- [Readonly](commandresult.md#readonly)
-- [SecondArgMissing](commandresult.md#secondargmissing)
-- [SelectionOutOfBound](commandresult.md#selectionoutofbound)
-- [Success](commandresult.md#success)
-- [TargetOutOfSheet](commandresult.md#targetoutofsheet)
-- [TooManyHiddenElements](commandresult.md#toomanyhiddenelements)
-- [ValueLowerInflectionNaN](commandresult.md#valuelowerinflectionnan)
-- [ValueLowerInvalidFormula](commandresult.md#valuelowerinvalidformula)
-- [ValueUpperInflectionNaN](commandresult.md#valueupperinflectionnan)
-- [ValueUpperInvalidFormula](commandresult.md#valueupperinvalidformula)
-- [WaitingSessionConfirmation](commandresult.md#waitingsessionconfirmation)
-- [WillRemoveExistingMerge](commandresult.md#willremoveexistingmerge)
-- [WrongComposerSelection](commandresult.md#wrongcomposerselection)
-- [WrongPasteSelection](commandresult.md#wrongpasteselection)
-- [WrongSheetMove](commandresult.md#wrongsheetmove)
-- [WrongSheetPosition](commandresult.md#wrongsheetposition)
+- [CancelledForUnknownReason](CommandResult.md#cancelledforunknownreason)
+- [CellIsMerged](CommandResult.md#cellismerged)
+- [DuplicatedSheetName](CommandResult.md#duplicatedsheetname)
+- [EmptyClipboard](CommandResult.md#emptyclipboard)
+- [EmptyGaugeRangeMax](CommandResult.md#emptygaugerangemax)
+- [EmptyGaugeRangeMin](CommandResult.md#emptygaugerangemin)
+- [EmptyRange](CommandResult.md#emptyrange)
+- [EmptyRedoStack](CommandResult.md#emptyredostack)
+- [EmptyTarget](CommandResult.md#emptytarget)
+- [EmptyUndoStack](CommandResult.md#emptyundostack)
+- [FigureDoesNotExist](CommandResult.md#figuredoesnotexist)
+- [FirstArgMissing](CommandResult.md#firstargmissing)
+- [ForbiddenCharactersInSheetName](CommandResult.md#forbiddencharactersinsheetname)
+- [GaugeLowerBiggerThanUpper](CommandResult.md#gaugelowerbiggerthanupper)
+- [GaugeLowerInflectionPointNaN](CommandResult.md#gaugelowerinflectionpointnan)
+- [GaugeRangeMaxNaN](CommandResult.md#gaugerangemaxnan)
+- [GaugeRangeMinBiggerThanRangeMax](CommandResult.md#gaugerangeminbiggerthanrangemax)
+- [GaugeRangeMinNaN](CommandResult.md#gaugerangeminnan)
+- [GaugeUpperInflectionPointNaN](CommandResult.md#gaugeupperinflectionpointnan)
+- [InputAlreadyFocused](CommandResult.md#inputalreadyfocused)
+- [InvalidAnchorZone](CommandResult.md#invalidanchorzone)
+- [InvalidAutofillSelection](CommandResult.md#invalidautofillselection)
+- [InvalidCellPopover](CommandResult.md#invalidcellpopover)
+- [InvalidChartDefinition](CommandResult.md#invalidchartdefinition)
+- [InvalidConditionalFormatId](CommandResult.md#invalidconditionalformatid)
+- [InvalidDataSet](CommandResult.md#invaliddataset)
+- [InvalidGaugeDataRange](CommandResult.md#invalidgaugedatarange)
+- [InvalidLabelRange](CommandResult.md#invalidlabelrange)
+- [InvalidOffset](CommandResult.md#invalidoffset)
+- [InvalidRange](CommandResult.md#invalidrange)
+- [InvalidScorecardBaseline](CommandResult.md#invalidscorecardbaseline)
+- [InvalidScorecardKeyValue](CommandResult.md#invalidscorecardkeyvalue)
+- [InvalidSheetId](CommandResult.md#invalidsheetid)
+- [InvalidSortZone](CommandResult.md#invalidsortzone)
+- [InvalidViewportSize](CommandResult.md#invalidviewportsize)
+- [InvalidZones](CommandResult.md#invalidzones)
+- [LowerBiggerThanUpper](CommandResult.md#lowerbiggerthanupper)
+- [MaxInvalidFormula](CommandResult.md#maxinvalidformula)
+- [MaxNaN](CommandResult.md#maxnan)
+- [MaximumRangesReached](CommandResult.md#maximumrangesreached)
+- [MergeIsDestructive](CommandResult.md#mergeisdestructive)
+- [MergeOverlap](CommandResult.md#mergeoverlap)
+- [MidBiggerThanMax](CommandResult.md#midbiggerthanmax)
+- [MidInvalidFormula](CommandResult.md#midinvalidformula)
+- [MidNaN](CommandResult.md#midnan)
+- [MinBiggerThanMax](CommandResult.md#minbiggerthanmax)
+- [MinBiggerThanMid](CommandResult.md#minbiggerthanmid)
+- [MinInvalidFormula](CommandResult.md#mininvalidformula)
+- [MinNaN](CommandResult.md#minnan)
+- [MissingSheetName](CommandResult.md#missingsheetname)
+- [NotEnoughElements](CommandResult.md#notenoughelements)
+- [NotEnoughSheets](CommandResult.md#notenoughsheets)
+- [Readonly](CommandResult.md#readonly)
+- [SecondArgMissing](CommandResult.md#secondargmissing)
+- [SelectionOutOfBound](CommandResult.md#selectionoutofbound)
+- [Success](CommandResult.md#success)
+- [TargetOutOfSheet](CommandResult.md#targetoutofsheet)
+- [TooManyHiddenElements](CommandResult.md#toomanyhiddenelements)
+- [ValueLowerInflectionNaN](CommandResult.md#valuelowerinflectionnan)
+- [ValueLowerInvalidFormula](CommandResult.md#valuelowerinvalidformula)
+- [ValueUpperInflectionNaN](CommandResult.md#valueupperinflectionnan)
+- [ValueUpperInvalidFormula](CommandResult.md#valueupperinvalidformula)
+- [WaitingSessionConfirmation](CommandResult.md#waitingsessionconfirmation)
+- [WillRemoveExistingMerge](CommandResult.md#willremoveexistingmerge)
+- [WrongComposerSelection](CommandResult.md#wrongcomposerselection)
+- [WrongCutSelection](CommandResult.md#wrongcutselection)
+- [WrongFigurePasteOption](CommandResult.md#wrongfigurepasteoption)
+- [WrongPasteOption](CommandResult.md#wrongpasteoption)
+- [WrongPasteSelection](CommandResult.md#wrongpasteselection)
+- [WrongSheetMove](CommandResult.md#wrongsheetmove)
+- [WrongSheetPosition](CommandResult.md#wrongsheetposition)
 
 ## Enumeration members
 
 ### CancelledForUnknownReason
 
-• **CancelledForUnknownReason**: = 1
+• **CancelledForUnknownReason** = `1`
 
 ___
 
 ### CellIsMerged
 
-• **CellIsMerged**: = 4
+• **CellIsMerged** = `4`
 
 ___
 
 ### DuplicatedSheetName
 
-• **DuplicatedSheetName**: = 10
+• **DuplicatedSheetName** = `10`
 
 ___
 
 ### EmptyClipboard
 
-• **EmptyClipboard**: = 18
+• **EmptyClipboard** = `21`
 
 ___
 
-### EmptyDataSet
+### EmptyGaugeRangeMax
 
-• **EmptyDataSet**: = 25
+• **EmptyGaugeRangeMax** = `36`
+
+___
+
+### EmptyGaugeRangeMin
+
+• **EmptyGaugeRangeMin** = `34`
 
 ___
 
 ### EmptyRange
 
-• **EmptyRange**: = 19
+• **EmptyRange** = `22`
 
 ___
 
 ### EmptyRedoStack
 
-• **EmptyRedoStack**: = 6
+• **EmptyRedoStack** = `6`
+
+___
+
+### EmptyTarget
+
+• **EmptyTarget** = `70`
 
 ___
 
 ### EmptyUndoStack
 
-• **EmptyUndoStack**: = 5
+• **EmptyUndoStack** = `5`
+
+___
+
+### FigureDoesNotExist
+
+• **FigureDoesNotExist** = `67`
 
 ___
 
 ### FirstArgMissing
 
-• **FirstArgMissing**: = 34
+• **FirstArgMissing** = `48`
 
 ___
 
 ### ForbiddenCharactersInSheetName
 
-• **ForbiddenCharactersInSheetName**: = 11
+• **ForbiddenCharactersInSheetName** = `11`
+
+___
+
+### GaugeLowerBiggerThanUpper
+
+• **GaugeLowerBiggerThanUpper** = `41`
+
+___
+
+### GaugeLowerInflectionPointNaN
+
+• **GaugeLowerInflectionPointNaN** = `39`
+
+___
+
+### GaugeRangeMaxNaN
+
+• **GaugeRangeMaxNaN** = `37`
+
+___
+
+### GaugeRangeMinBiggerThanRangeMax
+
+• **GaugeRangeMinBiggerThanRangeMax** = `38`
+
+___
+
+### GaugeRangeMinNaN
+
+• **GaugeRangeMinNaN** = `35`
+
+___
+
+### GaugeUpperInflectionPointNaN
+
+• **GaugeUpperInflectionPointNaN** = `40`
 
 ___
 
 ### InputAlreadyFocused
 
-• **InputAlreadyFocused**: = 22
+• **InputAlreadyFocused** = `26`
 
 ___
 
 ### InvalidAnchorZone
 
-• **InvalidAnchorZone**: = 14
+• **InvalidAnchorZone** = `14`
 
 ___
 
 ### InvalidAutofillSelection
 
-• **InvalidAutofillSelection**: = 28
+• **InvalidAutofillSelection** = `42`
+
+___
+
+### InvalidCellPopover
+
+• **InvalidCellPopover** = `69`
 
 ___
 
 ### InvalidChartDefinition
 
-• **InvalidChartDefinition**: = 24
+• **InvalidChartDefinition** = `28`
+
+___
+
+### InvalidConditionalFormatId
+
+• **InvalidConditionalFormatId** = `68`
 
 ___
 
 ### InvalidDataSet
 
-• **InvalidDataSet**: = 26
+• **InvalidDataSet** = `29`
+
+___
+
+### InvalidGaugeDataRange
+
+• **InvalidGaugeDataRange** = `33`
 
 ___
 
 ### InvalidLabelRange
 
-• **InvalidLabelRange**: = 27
+• **InvalidLabelRange** = `30`
 
 ___
 
 ### InvalidOffset
 
-• **InvalidOffset**: = 51
+• **InvalidOffset** = `65`
 
 ___
 
 ### InvalidRange
 
-• **InvalidRange**: = 20
+• **InvalidRange** = `23`
+
+___
+
+### InvalidScorecardBaseline
+
+• **InvalidScorecardBaseline** = `32`
+
+___
+
+### InvalidScorecardKeyValue
+
+• **InvalidScorecardKeyValue** = `31`
 
 ___
 
 ### InvalidSheetId
 
-• **InvalidSheetId**: = 21
+• **InvalidSheetId** = `25`
 
 ___
 
 ### InvalidSortZone
 
-• **InvalidSortZone**: = 46
+• **InvalidSortZone** = `60`
 
 ___
 
 ### InvalidViewportSize
 
-• **InvalidViewportSize**: = 52
+• **InvalidViewportSize** = `66`
+
+___
+
+### InvalidZones
+
+• **InvalidZones** = `24`
 
 ___
 
 ### LowerBiggerThanUpper
 
-• **LowerBiggerThanUpper**: = 31
+• **LowerBiggerThanUpper** = `45`
 
 ___
 
 ### MaxInvalidFormula
 
-• **MaxInvalidFormula**: = 43
+• **MaxInvalidFormula** = `57`
 
 ___
 
 ### MaxNaN
 
-• **MaxNaN**: = 38
+• **MaxNaN** = `52`
 
 ___
 
 ### MaximumRangesReached
 
-• **MaximumRangesReached**: = 23
+• **MaximumRangesReached** = `27`
 
 ___
 
 ### MergeIsDestructive
 
-• **MergeIsDestructive**: = 3
+• **MergeIsDestructive** = `3`
 
 ___
 
 ### MergeOverlap
 
-• **MergeOverlap**: = 48
+• **MergeOverlap** = `62`
 
 ___
 
 ### MidBiggerThanMax
 
-• **MidBiggerThanMax**: = 32
+• **MidBiggerThanMax** = `46`
 
 ___
 
 ### MidInvalidFormula
 
-• **MidInvalidFormula**: = 42
+• **MidInvalidFormula** = `56`
 
 ___
 
 ### MidNaN
 
-• **MidNaN**: = 37
+• **MidNaN** = `51`
 
 ___
 
 ### MinBiggerThanMax
 
-• **MinBiggerThanMax**: = 30
+• **MinBiggerThanMax** = `44`
 
 ___
 
 ### MinBiggerThanMid
 
-• **MinBiggerThanMid**: = 33
+• **MinBiggerThanMid** = `47`
 
 ___
 
 ### MinInvalidFormula
 
-• **MinInvalidFormula**: = 41
+• **MinInvalidFormula** = `55`
 
 ___
 
 ### MinNaN
 
-• **MinNaN**: = 36
+• **MinNaN** = `50`
 
 ___
 
 ### MissingSheetName
 
-• **MissingSheetName**: = 9
+• **MissingSheetName** = `9`
 
 ___
 
 ### NotEnoughElements
 
-• **NotEnoughElements**: = 7
+• **NotEnoughElements** = `7`
 
 ___
 
 ### NotEnoughSheets
 
-• **NotEnoughSheets**: = 8
+• **NotEnoughSheets** = `8`
 
 ___
 
 ### Readonly
 
-• **Readonly**: = 50
+• **Readonly** = `64`
 
 ___
 
 ### SecondArgMissing
 
-• **SecondArgMissing**: = 35
+• **SecondArgMissing** = `49`
 
 ___
 
 ### SelectionOutOfBound
 
-• **SelectionOutOfBound**: = 15
+• **SelectionOutOfBound** = `15`
 
 ___
 
 ### Success
 
-• **Success**: = 0
+• **Success** = `0`
 
 ___
 
 ### TargetOutOfSheet
 
-• **TargetOutOfSheet**: = 16
+• **TargetOutOfSheet** = `16`
 
 ___
 
 ### TooManyHiddenElements
 
-• **TooManyHiddenElements**: = 49
+• **TooManyHiddenElements** = `63`
 
 ___
 
 ### ValueLowerInflectionNaN
 
-• **ValueLowerInflectionNaN**: = 40
+• **ValueLowerInflectionNaN** = `54`
 
 ___
 
 ### ValueLowerInvalidFormula
 
-• **ValueLowerInvalidFormula**: = 45
+• **ValueLowerInvalidFormula** = `59`
 
 ___
 
 ### ValueUpperInflectionNaN
 
-• **ValueUpperInflectionNaN**: = 39
+• **ValueUpperInflectionNaN** = `53`
 
 ___
 
 ### ValueUpperInvalidFormula
 
-• **ValueUpperInvalidFormula**: = 44
+• **ValueUpperInvalidFormula** = `58`
 
 ___
 
 ### WaitingSessionConfirmation
 
-• **WaitingSessionConfirmation**: = 47
+• **WaitingSessionConfirmation** = `61`
 
 ___
 
 ### WillRemoveExistingMerge
 
-• **WillRemoveExistingMerge**: = 2
+• **WillRemoveExistingMerge** = `2`
 
 ___
 
 ### WrongComposerSelection
 
-• **WrongComposerSelection**: = 29
+• **WrongComposerSelection** = `43`
+
+___
+
+### WrongCutSelection
+
+• **WrongCutSelection** = `17`
+
+___
+
+### WrongFigurePasteOption
+
+• **WrongFigurePasteOption** = `20`
+
+___
+
+### WrongPasteOption
+
+• **WrongPasteOption** = `19`
 
 ___
 
 ### WrongPasteSelection
 
-• **WrongPasteSelection**: = 17
+• **WrongPasteSelection** = `18`
 
 ___
 
 ### WrongSheetMove
 
-• **WrongSheetMove**: = 12
+• **WrongSheetMove** = `12`
 
 ___
 
 ### WrongSheetPosition
 
-• **WrongSheetPosition**: = 13
+• **WrongSheetPosition** = `13`

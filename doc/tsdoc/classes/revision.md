@@ -4,33 +4,33 @@
 
 ## Implements
 
-* *RevisionData*
+- `RevisionData`
 
 ## Table of contents
 
 ### Constructors
 
-- [constructor](revision.md#constructor)
+- [constructor](Revision.md#constructor)
 
 ### Properties
 
-- [clientId](revision.md#clientid)
-- [id](revision.md#id)
+- [clientId](Revision.md#clientid)
+- [id](Revision.md#id)
 
 ### Accessors
 
-- [changes](revision.md#changes)
-- [commands](revision.md#commands)
+- [changes](Revision.md#changes)
+- [commands](Revision.md#commands)
 
 ### Methods
 
-- [setChanges](revision.md#setchanges)
+- [setChanges](Revision.md#setchanges)
 
 ## Constructors
 
 ### constructor
 
-\+ **new Revision**(`id`: *string*, `clientId`: *string*, `commands`: readonly CoreCommand[], `changes?`: readonly HistoryChange[]): [*Revision*](revision.md)
+• **new Revision**(`id`, `clientId`, `commands`, `changes?`)
 
 A revision represents a whole client action (Create a sheet, merge a Zone, Undo, ...).
 A revision contains the following information:
@@ -40,55 +40,67 @@ A revision contains the following information:
  - clientId: Client who initiated the action
  - changes: List of changes applied on the state.
 
-#### Parameters:
+#### Parameters
 
-Name | Type |
-:------ | :------ |
-`id` | *string* |
-`clientId` | *string* |
-`commands` | readonly CoreCommand[] |
-`changes?` | readonly HistoryChange[] |
-
-**Returns:** [*Revision*](revision.md)
+| Name | Type |
+| :------ | :------ |
+| `id` | `UID` |
+| `clientId` | `string` |
+| `commands` | readonly `CoreCommand`[] |
+| `changes?` | readonly `HistoryChange`[] |
 
 ## Properties
 
 ### clientId
 
-• `Readonly` **clientId**: *string*
+• `Readonly` **clientId**: `string`
+
+#### Implementation of
+
+RevisionData.clientId
 
 ___
 
 ### id
 
-• `Readonly` **id**: *string*
+• `Readonly` **id**: `UID`
+
+#### Implementation of
+
+RevisionData.id
 
 ## Accessors
 
 ### changes
 
-• get **changes**(): readonly HistoryChange[]
+• `get` **changes**(): readonly `HistoryChange`[]
 
-**Returns:** readonly HistoryChange[]
+#### Returns
+
+readonly `HistoryChange`[]
 
 ___
 
 ### commands
 
-• get **commands**(): readonly CoreCommand[]
+• `get` **commands**(): readonly `CoreCommand`[]
 
-**Returns:** readonly CoreCommand[]
+#### Returns
+
+readonly `CoreCommand`[]
 
 ## Methods
 
 ### setChanges
 
-▸ **setChanges**(`changes`: readonly HistoryChange[]): *void*
+▸ **setChanges**(`changes`): `void`
 
-#### Parameters:
+#### Parameters
 
-Name | Type |
-:------ | :------ |
-`changes` | readonly HistoryChange[] |
+| Name | Type |
+| :------ | :------ |
+| `changes` | readonly `HistoryChange`[] |
 
-**Returns:** *void*
+#### Returns
+
+`void`

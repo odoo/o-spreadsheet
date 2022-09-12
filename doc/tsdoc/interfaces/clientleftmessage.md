@@ -4,32 +4,36 @@
 
 ## Hierarchy
 
-* *AbstractMessage*
+- `AbstractMessage`
 
-  ↳ **ClientLeftMessage**
+  ↳ **`ClientLeftMessage`**
 
 ## Table of contents
 
 ### Properties
 
-- [clientId](clientleftmessage.md#clientid)
-- [type](clientleftmessage.md#type)
-- [version](clientleftmessage.md#version)
+- [clientId](ClientLeftMessage.md#clientid)
+- [type](ClientLeftMessage.md#type)
+- [version](ClientLeftMessage.md#version)
 
 ## Properties
 
 ### clientId
 
-• **clientId**: *string*
+• **clientId**: `string`
 
 ___
 
 ### type
 
-• **type**: *CLIENT_LEFT*
+• **type**: ``"CLIENT_LEFT"``
 
 ___
 
 ### version
 
-• **version**: *number*
+• **version**: `number`
+
+#### Inherited from
+
+AbstractMessage.version

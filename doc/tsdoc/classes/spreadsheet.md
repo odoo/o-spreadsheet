@@ -4,337 +4,305 @@
 
 ## Hierarchy
 
-* *Component*<Props\>
+- `Component`<`SpreadsheetProps`, `SpreadsheetChildEnv`\>
 
-  ↳ **Spreadsheet**
+  ↳ **`Spreadsheet`**
 
 ## Table of contents
 
 ### Constructors
 
-- [constructor](spreadsheet.md#constructor)
+- [constructor](Spreadsheet.md#constructor)
 
 ### Properties
 
-- [composer](spreadsheet.md#composer)
-- [grid](spreadsheet.md#grid)
-- [model](spreadsheet.md#model)
-- [sidePanel](spreadsheet.md#sidepanel)
-- [\_t](spreadsheet.md#_t)
-- [components](spreadsheet.md#components)
-- [style](spreadsheet.md#style)
-- [template](spreadsheet.md#template)
+- [composer](Spreadsheet.md#composer)
+- [model](Spreadsheet.md#model)
+- [sidePanel](Spreadsheet.md#sidepanel)
+- [\_t](Spreadsheet.md#_t)
+- [components](Spreadsheet.md#components)
+- [template](Spreadsheet.md#template)
 
 ### Accessors
 
-- [focusGridComposer](spreadsheet.md#focusgridcomposer)
-- [focusTopBarComposer](spreadsheet.md#focustopbarcomposer)
+- [focusGridComposer](Spreadsheet.md#focusgridcomposer)
+- [focusTopBarComposer](Spreadsheet.md#focustopbarcomposer)
 
 ### Methods
 
-- [copy](spreadsheet.md#copy)
-- [destroy](spreadsheet.md#destroy)
-- [focusGrid](spreadsheet.md#focusgrid)
-- [mounted](spreadsheet.md#mounted)
-- [onGridComposerCellFocused](spreadsheet.md#ongridcomposercellfocused)
-- [onGridComposerContentFocused](spreadsheet.md#ongridcomposercontentfocused)
-- [onKeydown](spreadsheet.md#onkeydown)
-- [onKeyup](spreadsheet.md#onkeyup)
-- [onTopBarComposerFocused](spreadsheet.md#ontopbarcomposerfocused)
-- [openSidePanel](spreadsheet.md#opensidepanel)
-- [paste](spreadsheet.md#paste)
-- [save](spreadsheet.md#save)
-- [toggleSidePanel](spreadsheet.md#togglesidepanel)
-- [willUnmount](spreadsheet.md#willunmount)
-- [willUpdateProps](spreadsheet.md#willupdateprops)
+- [closeSidePanel](Spreadsheet.md#closesidepanel)
+- [focusGrid](Spreadsheet.md#focusgrid)
+- [getStyle](Spreadsheet.md#getstyle)
+- [onGridComposerCellFocused](Spreadsheet.md#ongridcomposercellfocused)
+- [onGridComposerContentFocused](Spreadsheet.md#ongridcomposercontentfocused)
+- [onKeydown](Spreadsheet.md#onkeydown)
+- [onKeyup](Spreadsheet.md#onkeyup)
+- [onTopBarComposerFocused](Spreadsheet.md#ontopbarcomposerfocused)
+- [openSidePanel](Spreadsheet.md#opensidepanel)
+- [save](Spreadsheet.md#save)
+- [setup](Spreadsheet.md#setup)
+- [toggleSidePanel](Spreadsheet.md#togglesidepanel)
 
 ## Constructors
 
 ### constructor
 
-\+ **new Spreadsheet**(): [*Spreadsheet*](spreadsheet.md)
+• **new Spreadsheet**(`props`, `env`, `node`)
 
-**Returns:** [*Spreadsheet*](spreadsheet.md)
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `props` | `SpreadsheetProps` |
+| `env` | `SpreadsheetChildEnv` |
+| `node` | `ComponentNode`<`any`, `any`\> |
+
+#### Inherited from
+
+Component<SpreadsheetProps, SpreadsheetChildEnv\>.constructor
 
 ## Properties
 
 ### composer
 
-• **composer**: *object*
-
-#### Type declaration:
-
-Name | Type |
-:------ | :------ |
-`gridFocusMode` | *inactive* \| *contentFocus* \| *cellFocus* |
-`topBarFocus` | *inactive* \| *contentFocus* |
-
-___
-
-### grid
-
-• **grid**: *Ref*<Component<any, Env\>\>
+• **composer**: `ComposerState`
 
 ___
 
 ### model
 
-• **model**: [*Model*](model.md)
+• **model**: [`Model`](Model.md)
 
 ___
 
 ### sidePanel
 
-• **sidePanel**: *object*
-
-#### Type declaration:
-
-Name | Type |
-:------ | :------ |
-`component`? | *string* |
-`isOpen` | *boolean* |
-`panelProps` | *any* |
+• **sidePanel**: `SidePanelState`
 
 ___
 
 ### \_t
 
-▪ `Static` **\_t**: (`s`: *string*) => *string*
+▪ `Static` **\_t**: (`s`: `string`) => `string`
 
-#### Type declaration:
+#### Type declaration
 
-▸ (`s`: *string*): *string*
+▸ (`s`): `string`
 
-#### Parameters:
+##### Parameters
 
-Name | Type |
-:------ | :------ |
-`s` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `s` | `string` |
 
-**Returns:** *string*
+##### Returns
+
+`string`
 
 ___
 
 ### components
 
-▪ `Static` **components**: *object*
+▪ `Static` **components**: `Object`
 
-#### Type declaration:
+#### Type declaration
 
-Name | Type |
-:------ | :------ |
-`BottomBar` | *typeof* BottomBar |
-`Grid` | *typeof* Grid |
-`SidePanel` | *typeof* SidePanel |
-`TopBar` | *typeof* TopBar |
-
-___
-
-### style
-
-▪ `Static` **style**: *string*
+| Name | Type |
+| :------ | :------ |
+| `BottomBar` | typeof `BottomBar` |
+| `Grid` | typeof `Grid` |
+| `SidePanel` | typeof `SidePanel` |
+| `TopBar` | typeof `TopBar` |
 
 ___
 
 ### template
 
-▪ `Static` **template**: *string*
+▪ `Static` **template**: `string` = `"o-spreadsheet-Spreadsheet"`
+
+#### Overrides
+
+Component.template
 
 ## Accessors
 
 ### focusGridComposer
 
-• get **focusGridComposer**(): *inactive* \| *contentFocus* \| *cellFocus*
+• `get` **focusGridComposer**(): `ComposerFocusType`
 
-**Returns:** *inactive* \| *contentFocus* \| *cellFocus*
+#### Returns
+
+`ComposerFocusType`
 
 ___
 
 ### focusTopBarComposer
 
-• get **focusTopBarComposer**(): *inactive* \| *contentFocus*
+• `get` **focusTopBarComposer**(): `Omit`<`ComposerFocusType`, ``"cellFocus"``\>
 
-**Returns:** *inactive* \| *contentFocus*
+#### Returns
+
+`Omit`<`ComposerFocusType`, ``"cellFocus"``\>
 
 ## Methods
 
-### copy
+### closeSidePanel
 
-▸ **copy**(`cut`: *boolean*, `ev`: ClipboardEvent): *void*
+▸ **closeSidePanel**(): `void`
 
-#### Parameters:
+#### Returns
 
-Name | Type |
-:------ | :------ |
-`cut` | *boolean* |
-`ev` | ClipboardEvent |
-
-**Returns:** *void*
-
-___
-
-### destroy
-
-▸ **destroy**(): *void*
-
-**Returns:** *void*
+`void`
 
 ___
 
 ### focusGrid
 
-▸ **focusGrid**(): *void*
+▸ **focusGrid**(): `void`
 
-**Returns:** *void*
+#### Returns
+
+`void`
 
 ___
 
-### mounted
+### getStyle
 
-▸ **mounted**(): *void*
+▸ **getStyle**(): `string`
 
-**Returns:** *void*
+#### Returns
+
+`string`
 
 ___
 
 ### onGridComposerCellFocused
 
-▸ **onGridComposerCellFocused**(`ev`: ComposerFocusedEvent): *void*
+▸ **onGridComposerCellFocused**(`content?`, `selection?`): `void`
 
-#### Parameters:
+#### Parameters
 
-Name | Type |
-:------ | :------ |
-`ev` | ComposerFocusedEvent |
+| Name | Type |
+| :------ | :------ |
+| `content?` | `string` |
+| `selection?` | `ComposerSelection` |
 
-**Returns:** *void*
+#### Returns
+
+`void`
 
 ___
 
 ### onGridComposerContentFocused
 
-▸ **onGridComposerContentFocused**(`ev`: ComposerFocusedEvent): *void*
+▸ **onGridComposerContentFocused**(): `void`
 
-#### Parameters:
+#### Returns
 
-Name | Type |
-:------ | :------ |
-`ev` | ComposerFocusedEvent |
-
-**Returns:** *void*
+`void`
 
 ___
 
 ### onKeydown
 
-▸ **onKeydown**(`ev`: KeyboardEvent): *void*
+▸ **onKeydown**(`ev`): `void`
 
-#### Parameters:
+#### Parameters
 
-Name | Type |
-:------ | :------ |
-`ev` | KeyboardEvent |
+| Name | Type |
+| :------ | :------ |
+| `ev` | `KeyboardEvent` |
 
-**Returns:** *void*
+#### Returns
+
+`void`
 
 ___
 
 ### onKeyup
 
-▸ **onKeyup**(`ev`: KeyboardEvent): *void*
+▸ **onKeyup**(`ev`): `void`
 
-#### Parameters:
+#### Parameters
 
-Name | Type |
-:------ | :------ |
-`ev` | KeyboardEvent |
+| Name | Type |
+| :------ | :------ |
+| `ev` | `KeyboardEvent` |
 
-**Returns:** *void*
+#### Returns
+
+`void`
 
 ___
 
 ### onTopBarComposerFocused
 
-▸ **onTopBarComposerFocused**(`ev`: ComposerFocusedEvent): *void*
+▸ **onTopBarComposerFocused**(`selection`): `void`
 
-#### Parameters:
+#### Parameters
 
-Name | Type |
-:------ | :------ |
-`ev` | ComposerFocusedEvent |
+| Name | Type |
+| :------ | :------ |
+| `selection` | `ComposerSelection` |
 
-**Returns:** *void*
+#### Returns
+
+`void`
 
 ___
 
 ### openSidePanel
 
-▸ **openSidePanel**(`panel`: *string*, `panelProps`: *any*): *void*
+▸ **openSidePanel**(`panel`, `panelProps`): `void`
 
-#### Parameters:
+#### Parameters
 
-Name | Type |
-:------ | :------ |
-`panel` | *string* |
-`panelProps` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `panel` | `string` |
+| `panelProps` | `any` |
 
-**Returns:** *void*
+#### Returns
 
-___
-
-### paste
-
-▸ **paste**(`ev`: ClipboardEvent): *void*
-
-#### Parameters:
-
-Name | Type |
-:------ | :------ |
-`ev` | ClipboardEvent |
-
-**Returns:** *void*
+`void`
 
 ___
 
 ### save
 
-▸ **save**(): *void*
+▸ **save**(): `void`
 
-**Returns:** *void*
+#### Returns
+
+`void`
+
+___
+
+### setup
+
+▸ **setup**(): `void`
+
+#### Returns
+
+`void`
+
+#### Overrides
+
+Component.setup
 
 ___
 
 ### toggleSidePanel
 
-▸ **toggleSidePanel**(`panel`: *string*, `panelProps`: *any*): *void*
+▸ **toggleSidePanel**(`panel`, `panelProps`): `void`
 
-#### Parameters:
+#### Parameters
 
-Name | Type |
-:------ | :------ |
-`panel` | *string* |
-`panelProps` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `panel` | `string` |
+| `panelProps` | `any` |
 
-**Returns:** *void*
+#### Returns
 
-___
-
-### willUnmount
-
-▸ **willUnmount**(): *void*
-
-**Returns:** *void*
-
-___
-
-### willUpdateProps
-
-▸ **willUpdateProps**(`nextProps`: Props): *Promise*<void\>
-
-#### Parameters:
-
-Name | Type |
-:------ | :------ |
-`nextProps` | Props |
-
-**Returns:** *Promise*<void\>
+`void`

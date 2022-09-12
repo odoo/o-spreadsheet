@@ -4,53 +4,57 @@
 
 ## Hierarchy
 
-* *AbstractMessage*
+- `AbstractMessage`
 
-  ↳ **RemoteRevisionMessage**
+  ↳ **`RemoteRevisionMessage`**
 
 ## Table of contents
 
 ### Properties
 
-- [clientId](remoterevisionmessage.md#clientid)
-- [commands](remoterevisionmessage.md#commands)
-- [nextRevisionId](remoterevisionmessage.md#nextrevisionid)
-- [serverRevisionId](remoterevisionmessage.md#serverrevisionid)
-- [type](remoterevisionmessage.md#type)
-- [version](remoterevisionmessage.md#version)
+- [clientId](RemoteRevisionMessage.md#clientid)
+- [commands](RemoteRevisionMessage.md#commands)
+- [nextRevisionId](RemoteRevisionMessage.md#nextrevisionid)
+- [serverRevisionId](RemoteRevisionMessage.md#serverrevisionid)
+- [type](RemoteRevisionMessage.md#type)
+- [version](RemoteRevisionMessage.md#version)
 
 ## Properties
 
 ### clientId
 
-• **clientId**: *string*
+• **clientId**: `string`
 
 ___
 
 ### commands
 
-• **commands**: readonly CoreCommand[]
+• **commands**: readonly `CoreCommand`[]
 
 ___
 
 ### nextRevisionId
 
-• **nextRevisionId**: *string*
+• **nextRevisionId**: `UID`
 
 ___
 
 ### serverRevisionId
 
-• **serverRevisionId**: *string*
+• **serverRevisionId**: `UID`
 
 ___
 
 ### type
 
-• **type**: *REMOTE_REVISION*
+• **type**: ``"REMOTE_REVISION"``
 
 ___
 
 ### version
 
-• **version**: *number*
+• **version**: `number`
+
+#### Inherited from
+
+AbstractMessage.version

@@ -4,32 +4,36 @@
 
 ## Hierarchy
 
-* *AbstractMessage*
+- `AbstractMessage`
 
-  ↳ **ClientMovedMessage**
+  ↳ **`ClientMovedMessage`**
 
 ## Table of contents
 
 ### Properties
 
-- [client](clientmovedmessage.md#client)
-- [type](clientmovedmessage.md#type)
-- [version](clientmovedmessage.md#version)
+- [client](ClientMovedMessage.md#client)
+- [type](ClientMovedMessage.md#type)
+- [version](ClientMovedMessage.md#version)
 
 ## Properties
 
 ### client
 
-• **client**: *Required*<[*Client*](client.md)\>
+• **client**: `Required`<[`Client`](Client.md)\>
 
 ___
 
 ### type
 
-• **type**: *CLIENT_MOVED*
+• **type**: ``"CLIENT_MOVED"``
 
 ___
 
 ### version
 
-• **version**: *number*
+• **version**: `number`
+
+#### Inherited from
+
+AbstractMessage.version
