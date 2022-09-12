@@ -9,7 +9,7 @@ import {
 import { _lt } from "../translation";
 import { AddFunctionDescription, ArgValue, PrimitiveArgValue } from "../types";
 import { args } from "./arguments";
-import { assert, toJsDate, toNumber, toString, visitAny } from "./helpers";
+import { assert, toBoolean, toJsDate, toNumber, toString, visitAny } from "./helpers";
 
 const DEFAULT_TYPE = 1;
 const DEFAULT_WEEKEND = 1;
@@ -112,6 +112,35 @@ export const DAYS: AddFunctionDescription = {
     const _startDate = toJsDate(startDate);
     const dateDif = _endDate.getTime() - _startDate.getTime();
     return Math.round(dateDif / MS_PER_DAY);
+  },
+  isExported: true,
+};
+
+// -----------------------------------------------------------------------------
+// DAYS360
+// -----------------------------------------------------------------------------
+const DEFAULT_DAY_COUNT_METHOD = 0;
+export const DAYS360: AddFunctionDescription = {
+  description: _lt("Number of days between two dates on a 360-day year (months of 30 days)."),
+  args: args(`
+      start_date (date) ${_lt("The start date to consider in the calculation.")}
+      end_date (date) ${_lt("The end date to consider in the calculation.")}
+      method (number, default=${DEFAULT_DAY_COUNT_METHOD}) ${_lt(
+    "An indicator of what day count method to use. (0) US NASD method (1) European method"
+  )}
+    `),
+  returns: ["NUMBER"],
+  compute: function (
+    startDate: PrimitiveArgValue,
+    endDate: PrimitiveArgValue,
+    method: PrimitiveArgValue = DEFAULT_DAY_COUNT_METHOD
+  ): number {
+    const _startDate = toNumber(startDate);
+    const _endDate = toNumber(endDate);
+    const dayCountConvention = toBoolean(method) ? 4 : 0;
+
+    const yearFrac = YEARFRAC.compute(startDate, endDate, dayCountConvention) as number;
+    return Math.sign(_endDate - _startDate) * Math.round(yearFrac * 360);
   },
   isExported: true,
 };
