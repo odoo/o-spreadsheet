@@ -97,7 +97,7 @@
               <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
             </div>
             <div
-              class="o-dropdown-content o-text-options o-format-tool py-1 position-absolute top-100 start-0 shadow bg-white"
+              class="o-dropdown-content o-text-options o-format-tool py-2 position-absolute top-100 start-0 shadow bg-white"
               t-if="state.activeTool === 'formatTool'"
               t-on-click="setFormat">
               <t t-foreach="commonFormats" t-as="commonFormat" t-key="commonFormat.name">
@@ -126,11 +126,11 @@
               <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
             </div>
             <div
-              class="o-dropdown-content o-text-options position-absolute top-100 start-0 p-2 shadow bg-white"
+              class="o-dropdown-content o-text-options position-absolute top-100 start-0 shadow bg-white"
               t-if="state.activeTool === 'fontSizeTool'"
               t-on-click="setSize">
               <t t-foreach="fontSizes" t-as="font" t-key="font_index">
-                <div class="lh-lg" t-esc="font.pt" t-att-data-size="font.pt"/>
+                <div class="lh-lg px-3 py-1" t-esc="font.pt" t-att-data-size="font.pt"/>
               </t>
             </div>
           </div>

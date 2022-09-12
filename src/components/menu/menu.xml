@@ -23,8 +23,12 @@
             t-att-data-name="menuItem.id"
             t-on-click="() => this.onClickMenu(menuItem, menuItem_index)"
             t-on-mouseover="() => this.onMouseOver(menuItem, menuItem_index)"
-            class="o-menu-item cursor-pointer user-select-none d-flex justify-content-between align-items-center px-2 py-1"
-            t-att-class="{ 'o-menu-root d-flex justify-content-between': isMenuRoot, 'disabled': !isMenuEnabled, 'o-menu-item-active': isParentMenu(subMenu, menuItem)}"
+            class="o-menu-item cursor-pointer user-select-none d-flex justify-content-between align-items-center"
+            t-att-class="{ 
+              'o-menu-root d-flex justify-content-between': isMenuRoot,
+              'disabled': !isMenuEnabled,
+              'o-menu-item-active': isParentMenu(subMenu, menuItem)
+            }"
             t-att-style="getColor(menuItem)">
             <span
               class="o-menu-item-name overflow-hidden text-nowrap text-truncate"

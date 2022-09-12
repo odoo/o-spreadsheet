@@ -16,7 +16,7 @@ css/* scss */ `
   .o-figure:hover {
     .o-chart-container {
       .o-chart-menu {
-        display: flex;
+        display: flex !important;
       }
     }
   }

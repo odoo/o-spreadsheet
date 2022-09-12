@@ -21,12 +21,13 @@ import { Popover } from "../popover/popover";
 // Context Menu Component
 //------------------------------------------------------------------------------
 
+// TODORAR maybe change the padding to use BS predefined?
 css/* scss */ `
   .o-menu {
     .o-menu-item {
       box-sizing: border-box;
       height: ${MENU_ITEM_HEIGHT}px;
-
+      padding: 4px 16px;
       .o-icon {
         width: 10px;
       }
