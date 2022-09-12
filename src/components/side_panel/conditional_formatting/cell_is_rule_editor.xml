@@ -14,7 +14,7 @@
   </t>
 
   <t t-name="o-spreadsheet-CellIsRuleEditor" owl="1">
-    <div class="o-cf-cell-is-rule mb-5">
+    <div class="o-cf-cell-is-rule mb-4">
       <div class="o-section-subtitle my-2 text-secondary">Format cells if...</div>
       <select
         t-model="rule.operator"

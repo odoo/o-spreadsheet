@@ -69,7 +69,7 @@
   </t>
 
   <t t-name="o-spreadsheet-ColorScaleRuleEditor" owl="1">
-    <div class="o-cf-color-scale-editor mb-5">
+    <div class="o-cf-color-scale-editor mb-3">
       <div class="o-section-subtitle my-2 text-secondary">Preview</div>
       <t t-call="o-spreadsheet-ColorScaleRuleEditorPreview"/>
       <div class="o-section-subtitle my-2 text-secondary">Minpoint</div>

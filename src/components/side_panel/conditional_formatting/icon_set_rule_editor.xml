@@ -107,7 +107,7 @@
     </div>
   </t>
   <t t-name="o-spreadsheet-IconSetEditor" owl="1">
-    <div class="o-cf-iconset-rule mb-5">
+    <div class="o-cf-iconset-rule mb-4">
       <t t-call="o-spreadsheet-IconSets"/>
       <t t-call="o-spreadsheet-IconSetInflexionPoints"/>
       <div
