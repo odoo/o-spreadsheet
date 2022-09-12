@@ -17,7 +17,7 @@ These are the elements of the XMLs that we don't parse at all because we don't i
 
   - Fills : gradients fills are not parsed
   - Fonts :
-    - font family : this is useless for us. It's an index to the table at OpenXml §18.18.94
+    - font family : this is useless for us. It's an index to the table at [OpenXml §18.18.94)[https://www.ecma-international.org/publications-and-standards/standards/ecma-376/]
   - CellStyleXfs :
     - It's supposed to be additional style to apply to the cells, but this doesn't really seems to be used by excel.
   - Boolean applyAlignment/applyFont/applyFill... :
