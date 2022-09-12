@@ -1,4 +1,5 @@
 import { Model } from "../../src";
+import { toZone } from "../../src/helpers";
 import { SearchOptions } from "../../src/plugins/ui/find_and_replace";
 import { activateSheet, createSheet, setCellContent } from "../test_helpers/commands_helpers";
 import { getCellContent, getCellText } from "../test_helpers/getters_helpers";
@@ -31,6 +32,11 @@ describe("basic search", () => {
     expect(matches[1]).toStrictEqual({ col: 0, row: 2, selected: false });
     expect(matches[2]).toStrictEqual({ col: 0, row: 3, selected: false });
     expect(matches[3]).toStrictEqual({ col: 0, row: 4, selected: false });
+  });
+
+  test("Update search automatically select the first match", () => {
+    model.dispatch("UPDATE_SEARCH", { toSearch: "2", searchOptions });
+    expect(model.getters.getSelection().zones).toEqual([toZone("A6")]);
   });
 
   test("modifying cells won't change the search", () => {
