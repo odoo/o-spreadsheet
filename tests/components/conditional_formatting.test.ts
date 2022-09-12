@@ -176,6 +176,7 @@ describe("UI of conditional formats", () => {
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
 
+      const sheetId = model.getters.getActiveSheetId();
       expect(dispatch).toHaveBeenNthCalledWith(1, "ADD_CONDITIONAL_FORMAT", {
         cf: {
           id: "1",
@@ -192,12 +193,45 @@ describe("UI of conditional formats", () => {
             values: ["3"],
           },
         },
-        ranges: toRangesData(model.getters.getActiveSheetId(), "A1:A3"),
-        sheetId: model.getters.getActiveSheetId(),
+        ranges: toRangesData(sheetId, "A1:A3"),
+        sheetId,
       });
     });
 
-    test("the preview should be bold when the rule is bold", async () => {
+    test("CellIsRule editor displays the right preview", async () => {
+      const sheetId = model.getters.getActiveSheetId();
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createEqualCF(
+          "2",
+          {
+            fillColor: "#FFA500",
+            textColor: "#ffff00",
+            italic: true,
+            bold: true,
+            strikethrough: true,
+          },
+          "1"
+        ),
+        sheetId: model.getters.getActiveSheetId(),
+        ranges: toRangesData(sheetId, "A1:A2"),
+      });
+      // let the sidePanel reload the CF values
+      await nextTick();
+      triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[0], "click");
+      await nextTick();
+      await nextTick();
+
+      const previewLine = document.querySelector(".o-cf-preview-line")! as HTMLDivElement;
+      const style = window.getComputedStyle(previewLine);
+      expect(previewLine.textContent).toBe("Preview text");
+      expect(style.color).toBe("rgb(255, 255, 0)");
+      expect(style.backgroundColor).toBe("rgb(255, 165, 0)");
+      expect(style.fontWeight).toBe("bold");
+      expect(style.fontStyle).toBe("italic");
+      expect(style.textDecoration).toBe("line-through");
+    });
+
+    test("the list preview should be bold when the rule is bold", async () => {
       const sheetId = model.getters.getActiveSheetId();
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99"),
@@ -231,6 +265,7 @@ describe("UI of conditional formats", () => {
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
 
+      const sheetId = model.getters.getActiveSheetId();
       expect(dispatch).toHaveBeenNthCalledWith(1, "ADD_CONDITIONAL_FORMAT", {
         cf: {
           id: "2",
@@ -248,8 +283,8 @@ describe("UI of conditional formats", () => {
             type: "ColorScaleRule",
           },
         },
-        ranges: toRangesData(model.getters.getActiveSheetId(), "B2:B5"),
-        sheetId: model.getters.getActiveSheetId(),
+        ranges: toRangesData(sheetId, "B2:B5"),
+        sheetId,
       });
     });
 
@@ -302,6 +337,7 @@ describe("UI of conditional formats", () => {
       //  click save
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
+      const sheetId = model.getters.getActiveSheetId();
       expect(dispatch).toHaveBeenNthCalledWith(1, "ADD_CONDITIONAL_FORMAT", {
         cf: {
           id: "43",
@@ -318,8 +354,8 @@ describe("UI of conditional formats", () => {
             values: ["3"],
           },
         },
-        ranges: toRangesData(model.getters.getActiveSheetId(), "A1:A3"),
-        sheetId: model.getters.getActiveSheetId(),
+        ranges: toRangesData(sheetId, "A1:A3"),
+        sheetId,
       });
     });
 
@@ -475,6 +511,7 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
+    const sheetId = model.getters.getActiveSheetId();
     expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "45",
@@ -492,8 +529,8 @@ describe("UI of conditional formats", () => {
           type: "ColorScaleRule",
         },
       },
-      ranges: toRangesData(model.getters.getActiveSheetId(), "B2:B5"),
-      sheetId: model.getters.getActiveSheetId(),
+      ranges: toRangesData(sheetId, "B2:B5"),
+      sheetId,
     });
   });
 
@@ -526,6 +563,7 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
+    const sheetId = model.getters.getActiveSheetId();
     expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "45",
@@ -543,8 +581,8 @@ describe("UI of conditional formats", () => {
           type: "ColorScaleRule",
         },
       },
-      ranges: toRangesData(model.getters.getActiveSheetId(), "B2:B5"),
-      sheetId: model.getters.getActiveSheetId(),
+      ranges: toRangesData(sheetId, "B2:B5"),
+      sheetId,
     });
   });
 
@@ -577,6 +615,7 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
+    const sheetId = model.getters.getActiveSheetId();
     expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "45",
@@ -594,8 +633,8 @@ describe("UI of conditional formats", () => {
           type: "ColorScaleRule",
         },
       },
-      ranges: toRangesData(model.getters.getActiveSheetId(), "B2:B5"),
-      sheetId: model.getters.getActiveSheetId(),
+      ranges: toRangesData(sheetId, "B2:B5"),
+      sheetId,
     });
   });
 
@@ -636,6 +675,7 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
+    const sheetId = model.getters.getActiveSheetId();
     expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "45",
@@ -658,8 +698,8 @@ describe("UI of conditional formats", () => {
           type: "ColorScaleRule",
         },
       },
-      ranges: toRangesData(model.getters.getActiveSheetId(), "B2:B5"),
-      sheetId: model.getters.getActiveSheetId(),
+      ranges: toRangesData(sheetId, "B2:B5"),
+      sheetId,
     });
   });
 
@@ -1173,6 +1213,7 @@ describe("UI of conditional formats", () => {
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
 
+      const sheetId = model.getters.getActiveSheetId();
       expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
         cf: {
           id: "45",
@@ -1195,8 +1236,8 @@ describe("UI of conditional formats", () => {
             },
           },
         },
-        ranges: toRangesData(model.getters.getActiveSheetId(), "B2:B5"),
-        sheetId: model.getters.getActiveSheetId(),
+        ranges: toRangesData(sheetId, "B2:B5"),
+        sheetId,
       });
     });
 
@@ -1234,6 +1275,7 @@ describe("UI of conditional formats", () => {
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
 
+      const sheetId = model.getters.getActiveSheetId();
       expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
         cf: {
           id: "45",
@@ -1256,8 +1298,8 @@ describe("UI of conditional formats", () => {
             },
           },
         },
-        ranges: toRangesData(model.getters.getActiveSheetId(), "A1"),
-        sheetId: model.getters.getActiveSheetId(),
+        ranges: toRangesData(sheetId, "A1"),
+        sheetId,
       });
     });
   });
@@ -1288,6 +1330,7 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
+    const sheetId = model.getters.getActiveSheetId();
     expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "45",
@@ -1306,8 +1349,8 @@ describe("UI of conditional formats", () => {
           },
         },
       },
-      ranges: toRangesData(model.getters.getActiveSheetId(), "A1"),
-      sheetId: model.getters.getActiveSheetId(),
+      ranges: toRangesData(sheetId, "A1"),
+      sheetId,
     });
   });
 
