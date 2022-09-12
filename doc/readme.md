@@ -1,23 +1,19 @@
 # o-spreadsheet
 
-The `o-spreadsheet` library is designed to be standalone, but easy to integrate.
+The `o-spreadsheet` library is designed to be standalone, but easy to integrate/extend.
 
 The public API can be found [here](tsdoc/README.md)
-
-## Integrating o-spreadsheet in an existing application
-
-1. [Providing a way for o-spreadsheet to interact with the user](integration.md)
-   1. for confirmation
-   1. for notification
-   1. for editing text
-1. Loading and saving data
-1. Customizing the layout
-1. Translating terms
-1. [Collaborative edition](collaborative.md)
 
 ## Our Terminology
 
 [At a glance](o-spreadsheet_terminology.png)
+
+## Integrating o-spreadsheet in an existing owl application
+
+1. [Minimal spreadsheet](integration.md#minimal-spreadsheet)
+1. [Spreadsheet component props](integration.md#spreadsheet-component-props)
+1. [Model creation](integration.md#model-creation)
+1. [Collaborative edition](integration.md#collaborative-edition)
 
 ## Extending the functionalities of o-spreadsheet
 

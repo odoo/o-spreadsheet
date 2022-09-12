@@ -1,4 +1,4 @@
-# Integrating o-spreadsheet in an existing owl application
+# Extending the functionalities of o-spreadsheet
 
 ## Minimal spreadsheet
 

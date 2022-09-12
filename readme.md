@@ -4,9 +4,7 @@ a.k.a. "Owly Sheet"
 
 Spreadsheet component, written in Owl.
 
-## Prerequisites
-
-install nodejs 12.0 at least
+This library is written to be used in [Odoo](https://github.com/odoo/odoo).
 
 ## Scripts
 
@@ -17,22 +15,16 @@ npm install
 # build o_spreadsheet.js in dist/
 npm run build
 
-# build stuff, start a live server, build with --watch
+# build stuff, start a live server, start a collaborative server, build with --watch
 npm run dev
 
 # run the test suite
 npm run test
 npm run test -- --watch
+
+# build documentation
+npm run doc
 ```
-
-## Code
-
-Most of the code is contained in the following four modules:
-
-- `formulas`
-- `functions`
-- `model`
-- `ui`
 
 ## Documentation
 
