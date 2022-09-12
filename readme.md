@@ -1,14 +1,43 @@
 # o-spreadsheet
 
-a.k.a. "Owly Sheet"
+A standalone spreadsheet for the web, easily integrable and extendable.
 
-Spreadsheet component, written in Owl.
+- All basic features you can expect from a spreadsheet
+- Real time collaboration
+- Import/Export of excel file format
+- and more...
 
-## Prerequisites
+Try it with the [live demo](https://odoo.github.io/o-spreadsheet/)!
 
-install nodejs 12.0 at least
+![o-spreadsheet screenshot](doc/o-spreadsheet.png "o-spreadsheet demo")
 
-## Scripts
+## Integrating o-spreadsheet
+
+1. [Getting started](doc/integrating/integration.md#getting-started)
+2. [Spreadsheet component props](doc/integrating/integration.md#spreadsheet-component-props)
+3. [Model creation](doc/integrating/integration.md#model-creation)
+4. [Collaborative edition](doc/integrating/integration.md#collaborative-edition)
+5. [Translation](doc/integrating/integration.md#translation)
+<!--
+
+- use with other UI library
+- use with Typescript
+  -->
+
+## Extending the functionalities of o-spreadsheet
+
+1. [Architecture](doc/extending/architecture.md)
+2. [Custom function](doc/add_function.md)
+3. [Business feature](doc/extending/business_feature.md)
+4. Menu items (under construction)
+5. Side panel (under construction)
+6. Notification (under construction)
+7. Import Excel (under construction)
+8. [Export Excel](doc/extending/xlsx/xlsx_import.md)
+9. [Terminology](doc/o-spreadsheet_terminology.png)
+10. [API](doc/tsdoc/README.md)
+
+## Run it!
 
 ```bash
 # install dependencies
@@ -17,23 +46,13 @@ npm install
 # build o_spreadsheet.js in dist/
 npm run build
 
-# build stuff, start a live server, build with --watch
+# build stuff, start a live server, start a collaborative server, build with --watch
 npm run dev
 
 # run the test suite
 npm run test
 npm run test -- --watch
+
+# build documentation
+npm run doc
 ```
-
-## Code
-
-Most of the code is contained in the following four modules:
-
-- `formulas`
-- `functions`
-- `model`
-- `ui`
-
-## Documentation
-
-See [documentation](doc/readme.md).
