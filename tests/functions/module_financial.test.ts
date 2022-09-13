@@ -747,7 +747,7 @@ describe("DB formula", () => {
 
     test("parameter 1 must be greater than 0", () => {
       expect(evaluateCell("A1", { A1: "=DB(1, 0, 10, 2)" })).toBeCloseTo(0, 5);
-      expect(evaluateCell("A1", { A1: "=DB(0, 10, 10, 2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+      expect(evaluateCell("A1", { A1: "=DB(0, 10, 10, 2)" })).toBeCloseTo(0, 5); // @compatibility: on google sheets, return #NUM!
       expect(evaluateCell("A1", { A1: "=DB(-10, 100, 6, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
     });
 
@@ -807,8 +807,8 @@ describe("DB formula", () => {
   describe("casting", () => {
     describe("on 1st argument", () => {
       test("empty argument/cell are considered as 0", () => {
-        expect(evaluateCell("A1", { A1: "=DB( , 10, 10, 2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-        expect(evaluateCell("A1", { A1: "=DB(A2, 10, 10, 2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+        expect(evaluateCell("A1", { A1: "=DB( , 10, 10, 2)" })).toBe(0); // @compatibility: on google sheets, return #NUM!
+        expect(evaluateCell("A1", { A1: "=DB(A2, 10, 10, 2)" })).toBe(0); // @compatibility: on google sheets, return #NUM!
       });
       test("string/string in cell which can be cast in number are interpreted as numbers", () => {
         expect(evaluateCell("A1", { A1: '=DB("100", 10, 10, 2)' })).toBeCloseTo(16.3564, 5);
@@ -824,7 +824,7 @@ describe("DB formula", () => {
       });
       test("boolean/boolean in cell are interpreted as numbers", () => {
         expect(evaluateCell("A1", { A1: "=DB(TRUE, 2, 2, 1)" })).toBeCloseTo(-0.414, 5);
-        expect(evaluateCell("A1", { A1: "=DB(FALSE, 2, 2, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+        expect(evaluateCell("A1", { A1: "=DB(FALSE, 2, 2, 1)" })).toBe(0); // @compatibility: on google sheets, return #NUM!
         expect(evaluateCell("A1", { A1: "=DB(A2, 2, 2, 1)", A2: "TRUE" })).toBeCloseTo(-0.414, 5);
       });
     });
@@ -927,6 +927,122 @@ describe("DB formula", () => {
 
   test("return value with formating", () => {
     expect(evaluateCellFormat("A1", { A1: "=DB(100, 10, 5, 1)" })).toBe("#,##0.00");
+  });
+});
+
+describe("DDB function", () => {
+  test("DDB takes 4-5 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=DDB()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=DDB(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=DDB(0, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=DDB(0, 1, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=DDB(0, 1, 1, 1)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=DDB(0, 1, 1, 1, 2)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=DDB(0, 1, 1, 1, 2, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("cost is >= 0", () => {
+    expect(evaluateCell("A1", { A1: "=DDB(-1, 1, 1, 1, 2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DDB(0, 1, 1, 1, 2)" })).toBe(0); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("salvage is >= 0", () => {
+    expect(evaluateCell("A1", { A1: "=DDB(0, -1, 1, 1, 2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DDB(0, 0, 1, 1, 2)" })).toBe(0);
+  });
+
+  test("life is > 0", () => {
+    expect(evaluateCell("A1", { A1: "=DDB(0, 1, -1, 1, 2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DDB(0, 1, 0, 1, 2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("period is > 0 and < life", () => {
+    expect(evaluateCell("A1", { A1: "=DDB(0, 1, 1, -1, 2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DDB(0, 1, 1, 0, 2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DDB(0, 1, 1, 2, 2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("factor is > 0", () => {
+    expect(evaluateCell("A1", { A1: "=DDB(0, 1, 1, 1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DDB(0, 1, 1, 1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test.each([
+    [1000, 200, 12, 1, 2, 166.6666667],
+    [1000, 200, 12, 2, 2, 138.8888889],
+    [1000, 500, 12, 3, 2, 115.7407407],
+    [1000, 200, 12, 4, 2, 96.45061728],
+    [1000, 200, 12, 5, 2, 80.3755144],
+    [1000, 200, 12, 6, 2, 66.97959534],
+    [1000, 200, 12, 7, 2, 55.81632945],
+    [1000, 200, 12, 8, 2, 46.51360787],
+    [1000, 200, 12, 9, 2, 32.56803936],
+    [1000, 200, 12, 10, 2, 0],
+    [1000, 200, 12, 11, 2, 0],
+    [1000, 200, 12, 12, 2, 0],
+    [1000.5, 50, 5, 2, 2, 240.12], //decimal cost
+    [1000, 50.56, 5, 2, 2, 240], // decimal salvage
+    [28, 30, 9, 2, 2, 0],
+    [12, 5, 8, 8, 2, 0],
+    [120, 5, 5, 1, 2, 48],
+    [1000.5, 50, 5, 2, 4, 150.1],
+    [1000, 50, 5, 2, 6, 0],
+    [28, 5, 9, 2, 1, 2.765432099],
+    [12, 12, 8, 2, 3, 0],
+    [120, 5, 15, 2, 10, 26.66666667],
+    [0, 200, 12, 1, 2, 0], // cost = 0
+    [1000, 0, 12, 1, 2, 166.6666667], // salvage = 0
+    [1000, 200, 12, 1, 13, 800], // factor/life > 1
+    [300, 50, 12, 1, 50, 250], // factor/life > 1
+    [300, 320, 12, 1, 2, 0], // salvage > cost
+    [100, 200, 10, 2, 2, 0], // salvage > cost
+  ])(
+    "function result =DDB(%s, %s, %s, %s, %s)",
+    (
+      cost: number,
+      salvage: number,
+      life: number,
+      period: number,
+      factor: number,
+      expectedResult: number
+    ) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=DDB(${cost}, ${salvage}, ${life}, ${period}, ${factor})`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+
+  test.each([
+    [1000, 200, 12, 0.2, 2, 166.6666667],
+    [1000, 200, 12, 0.6, 2, 166.6666667],
+    [1000, 200, 12, 1, 2, 166.6666667],
+    [1000, 200, 12, 1.5, 2, 152.1451549],
+    [1000, 200, 12, 1.7, 2, 146.6972178],
+    [1000, 200, 12, 1.9, 2, 141.4443578],
+    [1000, 200, 12, 9.5, 2, 12.30460219],
+    [1000, 200, 12, 10.2, 2, 0],
+  ])(
+    "function result for decimal periods =DDB(%s, %s, %s, %s, %s)",
+    (
+      cost: number,
+      salvage: number,
+      life: number,
+      period: number,
+      factor: number,
+      expectedResult: number
+    ) => {
+      // @compatibility : decimals periods are truncated in google sheet, except in the first and last deprecation. They
+      // are supported in Excel/Calc.
+      const cellValue = evaluateCell("A1", {
+        A1: `=DDB(${cost}, ${salvage}, ${life}, ${period}, ${factor})`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+
+  test("return value with formating", () => {
+    expect(evaluateCellFormat("A1", { A1: "=DDB(0, 1, 1, 1)" })).toBe("#,##0.00");
   });
 });
 
@@ -1787,8 +1903,16 @@ describe("ISPMT function", () => {
     ["12.00%", 1, 2, 1000, -60],
   ])(
     "function result =ISPMT(%s, %s, %s, %s)",
-    (rate: string, period: number, numberOfPeriods: number, presentValue: number, expectedResult: number) => {
-      const cellValue = evaluateCell("A1", { A1: `=ISPMT(${rate}, ${period}, ${numberOfPeriods}, ${presentValue})` });
+    (
+      rate: string,
+      period: number,
+      numberOfPeriods: number,
+      presentValue: number,
+      expectedResult: number
+    ) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=ISPMT(${rate}, ${period}, ${numberOfPeriods}, ${presentValue})`,
+      });
       expect(cellValue).toBeCloseTo(expectedResult, 4);
     }
   );
