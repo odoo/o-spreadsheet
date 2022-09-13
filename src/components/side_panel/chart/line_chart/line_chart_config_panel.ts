@@ -17,4 +17,10 @@ export class LineConfigPanel extends LineBarPieConfigPanel {
       labelsAsText: ev.target.checked,
     });
   }
+
+  onUpdateStacked(ev) {
+    this.props.updateChart({
+      stacked: ev.target.checked,
+    });
+  }
 }

@@ -1047,7 +1047,7 @@ describe("Menu Item actions", () => {
           dataSetsHaveTitle: false,
           labelRange: undefined,
           legendPosition: "none",
-          stackedBar: false,
+          stacked: false,
           title: expect.any(String),
           type: "bar",
           verticalAxisPosition: "left",

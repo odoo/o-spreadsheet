@@ -232,8 +232,8 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
   // Excel does not support this feature
   const axisPos = chart.verticalAxisPosition === "left" ? "l" : "r";
 
-  const grouping = chart.stackedBar ? "stacked" : "clustered";
-  const overlap = chart.stackedBar ? 100 : -20;
+  const grouping = chart.stacked ? "stacked" : "clustered";
+  const overlap = chart.stacked ? 100 : -20;
   return escapeXml/*xml*/ `
     <c:barChart>
       <c:barDir val="col"/>
@@ -286,9 +286,11 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
 
   // Excel does not support this feature
   const axisPos = chart.verticalAxisPosition === "left" ? "l" : "r";
+  const grouping = chart.stacked ? "stacked" : "standard";
 
   return escapeXml/*xml*/ `
     <c:lineChart>
+      <c:grouping val="${grouping}"/>
       <!-- each data marker in the series does not have a different color -->
       <c:varyColors val="0"/>
       ${joinXmlNodes(dataSetsNodes)}

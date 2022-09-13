@@ -745,7 +745,7 @@ describe("Test XLSX export", () => {
         {
           dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
           labelRange: "Sheet1!A2:A4",
-          stackedBar: true,
+          stacked: true,
           type: "bar",
         },
         "1"

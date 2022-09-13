@@ -11,7 +11,7 @@ export interface BarChartDefinition {
   readonly background?: Color;
   readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
-  readonly stackedBar: boolean;
+  readonly stacked: boolean;
 }
 
 export type BarChartRuntime = {

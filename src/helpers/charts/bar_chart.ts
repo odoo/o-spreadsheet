@@ -65,7 +65,7 @@ export class BarChart extends AbstractChart {
   readonly background?: Color;
   readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
-  readonly stackedBar: boolean;
+  readonly stacked: boolean;
   readonly type = "bar";
 
   constructor(definition: BarChartDefinition, sheetId: UID, getters: CoreGetters) {
@@ -80,7 +80,7 @@ export class BarChart extends AbstractChart {
     this.background = definition.background;
     this.verticalAxisPosition = definition.verticalAxisPosition;
     this.legendPosition = definition.legendPosition;
-    this.stackedBar = definition.stackedBar;
+    this.stacked = definition.stacked;
   }
 
   static transformDefinition(
@@ -102,7 +102,7 @@ export class BarChart extends AbstractChart {
       background: context.background,
       dataSets: context.range ? context.range : [],
       dataSetsHaveTitle: false,
-      stackedBar: false,
+      stacked: false,
       legendPosition: "top",
       title: context.title || "",
       type: "bar",
@@ -162,7 +162,7 @@ export class BarChart extends AbstractChart {
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
       title: this.title,
-      stackedBar: this.stackedBar,
+      stacked: this.stacked,
     };
   }
 
@@ -175,7 +175,6 @@ export class BarChart extends AbstractChart {
       backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       dataSets,
-      stackedBar: this.stackedBar,
     };
   }
 
@@ -234,7 +233,7 @@ function getBarConfiguration(chart: BarChart, labels: string[]): ChartConfigurat
       },
     ],
   };
-  if (chart.stackedBar) {
+  if (chart.stacked) {
     config.options!.scales.xAxes![0].stacked = true;
     config.options!.scales.yAxes![0].stacked = true;
   }

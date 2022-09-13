@@ -7,7 +7,7 @@ Object {
     "data": Object {
       "datasets": Array [
         Object {
-          "backgroundColor": "rgb(31,119,180)",
+          "backgroundColor": "#1f77b4",
           "borderColor": "rgb(31,119,180)",
           "data": Array [
             Object {
@@ -27,8 +27,10 @@ Object {
               "y": undefined,
             },
           ],
+          "fill": false,
           "label": "10",
           "lineTension": 0,
+          "pointBackgroundColor": "rgb(31,119,180)",
         },
       ],
       "labels": Array [
@@ -64,6 +66,7 @@ Object {
       "legend": Object {
         "labels": Object {
           "fontColor": "#FFFFFF",
+          "generateLabels": [Function],
         },
         "onClick": undefined,
         "position": "top",
@@ -115,7 +118,7 @@ Object {
     "data": Object {
       "datasets": Array [
         Object {
-          "backgroundColor": "rgb(31,119,180)",
+          "backgroundColor": "#1f77b4",
           "borderColor": "rgb(31,119,180)",
           "data": Array [
             Object {
@@ -135,8 +138,10 @@ Object {
               "y": 13,
             },
           ],
+          "fill": false,
           "label": "Series 1",
           "lineTension": 0,
+          "pointBackgroundColor": "rgb(31,119,180)",
         },
       ],
       "labels": Array [
@@ -172,6 +177,7 @@ Object {
       "legend": Object {
         "labels": Object {
           "fontColor": "#000000",
+          "generateLabels": [Function],
         },
         "onClick": undefined,
         "position": "top",
@@ -230,7 +236,7 @@ Object {
     "data": Object {
       "datasets": Array [
         Object {
-          "backgroundColor": "rgb(31,119,180)",
+          "backgroundColor": "#1f77b4",
           "borderColor": "rgb(31,119,180)",
           "data": Array [
             Object {
@@ -250,8 +256,10 @@ Object {
               "y": 13,
             },
           ],
+          "fill": false,
           "label": "Series 1",
           "lineTension": 0,
+          "pointBackgroundColor": "rgb(31,119,180)",
         },
       ],
       "labels": Array [
@@ -287,6 +295,7 @@ Object {
       "legend": Object {
         "labels": Object {
           "fontColor": "#000000",
+          "generateLabels": [Function],
         },
         "onClick": undefined,
         "position": "top",
@@ -427,13 +436,15 @@ Object {
     "data": Object {
       "datasets": Array [
         Object {
-          "backgroundColor": "rgb(31,119,180)",
+          "backgroundColor": "#1f77b4",
           "borderColor": "rgb(31,119,180)",
           "data": Array [
             30,
           ],
+          "fill": false,
           "label": "Series 1",
           "lineTension": 0,
+          "pointBackgroundColor": "rgb(31,119,180)",
         },
       ],
       "labels": Array [
@@ -466,6 +477,7 @@ Object {
       "legend": Object {
         "labels": Object {
           "fontColor": "#000000",
+          "generateLabels": [Function],
         },
         "onClick": undefined,
         "position": "top",
@@ -515,26 +527,30 @@ Object {
     "data": Object {
       "datasets": Array [
         Object {
-          "backgroundColor": "rgb(31,119,180)",
+          "backgroundColor": "#1f77b4",
           "borderColor": "rgb(31,119,180)",
           "data": Array [
             10,
             11,
             12,
           ],
+          "fill": false,
           "label": "first column dataset",
           "lineTension": 0,
+          "pointBackgroundColor": "rgb(31,119,180)",
         },
         Object {
-          "backgroundColor": "rgb(255,127,14)",
+          "backgroundColor": "#ff7f0e",
           "borderColor": "rgb(255,127,14)",
           "data": Array [
             20,
             19,
             18,
           ],
+          "fill": false,
           "label": "second column datase…",
           "lineTension": 0,
+          "pointBackgroundColor": "rgb(255,127,14)",
         },
       ],
       "labels": Array [
@@ -569,6 +585,7 @@ Object {
       "legend": Object {
         "labels": Object {
           "fontColor": "#000000",
+          "generateLabels": [Function],
         },
         "onClick": undefined,
         "position": "top",
@@ -618,26 +635,30 @@ Object {
     "data": Object {
       "datasets": Array [
         Object {
-          "backgroundColor": "rgb(31,119,180)",
+          "backgroundColor": "#1f77b4",
           "borderColor": "rgb(31,119,180)",
           "data": Array [
             10,
             11,
             12,
           ],
+          "fill": false,
           "label": "Series 1",
           "lineTension": 0,
+          "pointBackgroundColor": "rgb(31,119,180)",
         },
         Object {
-          "backgroundColor": "rgb(255,127,14)",
+          "backgroundColor": "#ff7f0e",
           "borderColor": "rgb(255,127,14)",
           "data": Array [
             20,
             19,
             18,
           ],
+          "fill": false,
           "label": "Series 2",
           "lineTension": 0,
+          "pointBackgroundColor": "rgb(255,127,14)",
         },
       ],
       "labels": Array [
@@ -672,6 +693,7 @@ Object {
       "legend": Object {
         "labels": Object {
           "fontColor": "#000000",
+          "generateLabels": [Function],
         },
         "onClick": undefined,
         "position": "top",
@@ -752,6 +774,7 @@ Object {
       "legend": Object {
         "labels": Object {
           "fontColor": "#000000",
+          "generateLabels": [Function],
         },
         "onClick": undefined,
         "position": "top",
@@ -801,26 +824,30 @@ Object {
     "data": Object {
       "datasets": Array [
         Object {
-          "backgroundColor": "rgb(31,119,180)",
+          "backgroundColor": "#1f77b4",
           "borderColor": "rgb(31,119,180)",
           "data": Array [
             10,
             11,
             12,
           ],
+          "fill": false,
           "label": "first column dataset",
           "lineTension": 0,
+          "pointBackgroundColor": "rgb(31,119,180)",
         },
         Object {
-          "backgroundColor": "rgb(255,127,14)",
+          "backgroundColor": "#ff7f0e",
           "borderColor": "rgb(255,127,14)",
           "data": Array [
             20,
             19,
             18,
           ],
+          "fill": false,
           "label": "second column datase…",
           "lineTension": 0,
+          "pointBackgroundColor": "rgb(255,127,14)",
         },
       ],
       "labels": Array [
@@ -855,6 +882,7 @@ Object {
       "legend": Object {
         "labels": Object {
           "fontColor": "#000000",
+          "generateLabels": [Function],
         },
         "onClick": undefined,
         "position": "top",
@@ -904,26 +932,30 @@ Object {
     "data": Object {
       "datasets": Array [
         Object {
-          "backgroundColor": "rgb(31,119,180)",
+          "backgroundColor": "#1f77b4",
           "borderColor": "rgb(31,119,180)",
           "data": Array [
             30,
             31,
             32,
           ],
+          "fill": false,
           "label": "first row dataset",
           "lineTension": 0,
+          "pointBackgroundColor": "rgb(31,119,180)",
         },
         Object {
-          "backgroundColor": "rgb(255,127,14)",
+          "backgroundColor": "#ff7f0e",
           "borderColor": "rgb(255,127,14)",
           "data": Array [
             40,
             41,
             42,
           ],
+          "fill": false,
           "label": "second row dataset",
           "lineTension": 0,
+          "pointBackgroundColor": "rgb(255,127,14)",
         },
       ],
       "labels": Array [
@@ -958,6 +990,7 @@ Object {
       "legend": Object {
         "labels": Object {
           "fontColor": "#000000",
+          "generateLabels": [Function],
         },
         "onClick": undefined,
         "position": "top",
@@ -1007,26 +1040,30 @@ Object {
     "data": Object {
       "datasets": Array [
         Object {
-          "backgroundColor": "rgb(31,119,180)",
+          "backgroundColor": "#1f77b4",
           "borderColor": "rgb(31,119,180)",
           "data": Array [
             30,
             31,
             32,
           ],
+          "fill": false,
           "label": "Series 1",
           "lineTension": 0,
+          "pointBackgroundColor": "rgb(31,119,180)",
         },
         Object {
-          "backgroundColor": "rgb(255,127,14)",
+          "backgroundColor": "#ff7f0e",
           "borderColor": "rgb(255,127,14)",
           "data": Array [
             40,
             41,
             42,
           ],
+          "fill": false,
           "label": "Series 2",
           "lineTension": 0,
+          "pointBackgroundColor": "rgb(255,127,14)",
         },
       ],
       "labels": Array [
@@ -1061,6 +1098,7 @@ Object {
       "legend": Object {
         "labels": Object {
           "fontColor": "#000000",
+          "generateLabels": [Function],
         },
         "onClick": undefined,
         "position": "top",

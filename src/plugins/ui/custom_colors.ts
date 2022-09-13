@@ -1,4 +1,4 @@
-import { COLORS } from "../../constants";
+import { COLOR_PICKER_DEFAULTS } from "../../constants";
 import {
   colorNumberString,
   colorToRGBA,
@@ -106,7 +106,7 @@ export class CustomColorsPlugin extends UIPlugin {
           .filter(isColorValid)
           .map((c) => toHex(c).toLowerCase())
       ),
-    ]).filter((color) => !COLORS.includes(color));
+    ]).filter((color) => !COLOR_PICKER_DEFAULTS.includes(color));
   }
 
   private getColorsFromCells(cells: Cell[]): Color[] {
@@ -169,7 +169,7 @@ export class CustomColorsPlugin extends UIPlugin {
 
   private tryToAddColor(color: Color) {
     const formattedColor = toHex(color).toLowerCase();
-    if (color && !COLORS.includes(formattedColor)) {
+    if (color && !COLOR_PICKER_DEFAULTS.includes(formattedColor)) {
       this.customColors.add(formattedColor);
     }
   }
