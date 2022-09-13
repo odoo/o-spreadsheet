@@ -1,6 +1,84 @@
 import { formatValue } from "../../src/helpers";
 import { evaluateCell, evaluateCellFormat, evaluateGrid } from "../test_helpers/helpers";
 
+describe("ACCRINTM function", () => {
+  test("ACCRINTM takes 4-5 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=ACCRINTM()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=ACCRINTM(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=ACCRINTM(0, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=ACCRINTM(0, 1, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=ACCRINTM(0, 1, 1, 1)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ACCRINTM(0, 1, 1, 1, 0)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ACCRINTM(0, 1, 1, 1, 0, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("settlement > issue", () => {
+    expect(evaluateCell("A1", { A1: "=ACCRINTM(-1, 0, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=ACCRINTM(1, 1, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=ACCRINTM(2, 1, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("rate > 0", () => {
+    expect(evaluateCell("A1", { A1: "=ACCRINTM(0, 1, -1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=ACCRINTM(0, 1, 0, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("redemption > 0", () => {
+    expect(evaluateCell("A1", { A1: "=ACCRINTM(0, 1, 1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=ACCRINTM(0, 1, 1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("dayCountConvention is between 0 and 4 > 0", () => {
+    expect(evaluateCell("A1", { A1: "=ACCRINTM(0, 1, 1, 1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=ACCRINTM(0, 1, 1, 1, 5)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test.each([
+    ["01/01/2004", "01/01/2006", "5.00%", 1000, 0, 100],
+    ["01/01/2005", "06/06/2006", "12.00%", 1000, 0, 171.6666667],
+    ["03/12/2004", "02/28/2012", "0.50%", 1000, 0, 39.80555556],
+    ["02/29/2020", "01/03/2022", "1.00%", 68, 0, 1.252333333],
+    ["01/01/2004", "01/01/2006", "5.00%", 1000, 0, 100],
+    ["01/01/2005", "06/06/2006", "12.00%", 1000, 0, 171.6666667],
+    ["01/01/2004", "02/28/2012", "0.50%", 1000, 0, 40.79166667],
+    ["01/01/2022", "01/03/2022", "1.00%", 68, 0, 0.003777778],
+    ["01/01/2004", "05/01/2004", "5.00%", 12, 0, 0.2],
+    ["01/01/2004", "01/01/2006", "1.00%", 1, 0, 0.02],
+    ["01/01/2004", "01/01/2006", "5.00%", 5, 0, 0.5],
+    ["01/01/2004", "06/01/2006", "1.00%", 110, 0, 2.658333333],
+    ["01/01/2005", "12/31/2005", "5.00%", 1000, 0, 50],
+    ["01/01/2005", "12/31/2005", "5.00%", 1000, 1, 49.8630137],
+    ["01/01/2005", "12/31/2005", "5.00%", 1000, 2, 50.55555556],
+    ["01/01/2005", "12/31/2005", "5.00%", 1000, 3, 49.8630137],
+    ["01/01/2005", "12/31/2005", "5.00%", 1000, 4, 49.86111111],
+    ["02/29/2004", "01/01/2007", "5.00%", 1000, 0, 141.8055556],
+    ["02/29/2004", "01/01/2007", "5.00%", 1000, 1, 141.9575633],
+    ["02/29/2004", "01/01/2007", "5.00%", 1000, 2, 144.0277778],
+    ["02/29/2004", "01/01/2007", "5.00%", 1000, 3, 142.0547945],
+    ["02/29/2004", "01/01/2007", "5.00%", 1000, 4, 141.9444444],
+    ["01/01/2002", "02/28/2007", "5.00%", 1000, 0, 257.9166667],
+    ["01/01/2002", "02/28/2007", "5.00%", 1000, 1, 257.9643998],
+    ["01/01/2002", "02/28/2007", "5.00%", 1000, 2, 261.6666667],
+    ["01/01/2002", "02/28/2007", "5.00%", 1000, 3, 258.0821918],
+    ["01/01/2002", "02/28/2007", "5.00%", 1000, 4, 257.9166667],
+  ])(
+    "function result =ACCRINTM(%s, %s, %s, %s, %s)",
+    (
+      issue: string,
+      maturity: string,
+      rate: string,
+      redemption: number,
+      dayCountConvention: number,
+      expectedResult: number
+    ) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=ACCRINTM("${issue}", "${maturity}", ${rate}, ${redemption}, ${dayCountConvention})`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+});
+
 describe("Coupons formulas", () => {
   function testCouponArgNumber(fnName: string) {
     expect(evaluateCell("A1", { A1: `=${fnName}(0, 100)` })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
