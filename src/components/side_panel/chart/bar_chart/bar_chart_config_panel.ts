@@ -5,7 +5,7 @@ export class BarConfigPanel extends LineBarPieConfigPanel {
 
   onUpdateStacked(ev) {
     this.props.updateChart({
-      stackedBar: ev.target.checked,
+      stacked: ev.target.checked,
     });
   }
 }

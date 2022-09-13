@@ -218,7 +218,7 @@ describe("Export data to xlsx then import it", () => {
       background: "#FFFFFF",
       verticalAxisPosition: "left" as const,
       legendPosition: "top" as const,
-      stackedBar: false,
+      stacked: false,
       labelsAsText: false,
     },
     {
@@ -230,7 +230,7 @@ describe("Export data to xlsx then import it", () => {
       background: "#AAAAAA",
       verticalAxisPosition: "right" as const,
       legendPosition: "bottom" as const,
-      stackedBar: true,
+      stacked: true,
     },
     {
       title: "pie demo chart",
@@ -241,7 +241,19 @@ describe("Export data to xlsx then import it", () => {
       background: "#FFFFFF",
       verticalAxisPosition: "left" as const,
       legendPosition: "right" as const,
-      stackedBar: false,
+      stacked: false,
+    },
+    {
+      title: "demo chart4",
+      dataSets: ["Sheet1!B26:B35", "Sheet1!C26:C35"],
+      labelRange: "Sheet1!A27:A35",
+      type: "line" as const,
+      dataSetsHaveTitle: false,
+      background: "#FFFFFF",
+      verticalAxisPosition: "right" as const,
+      legendPosition: "top" as const,
+      stacked: true,
+      labelsAsText: false,
     },
   ])("Charts %s", (chartDef: any) => {
     createChart(model, chartDef, "1");

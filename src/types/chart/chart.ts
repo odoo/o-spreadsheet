@@ -1,7 +1,7 @@
 import { Range } from "../../types";
 import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
-import { LegendPosition } from "./common_chart";
+import { LegendPosition, VerticalAxisPosition } from "./common_chart";
 import { GaugeChartDefinition, GaugeChartRuntime } from "./gauge_chart";
 import { LineChartDefinition, LineChartRuntime } from "./line_chart";
 import { PieChartDefinition, PieChartRuntime } from "./pie_chart";
@@ -54,9 +54,9 @@ export interface ExcelChartDefinition {
   readonly labelRange?: string;
   readonly backgroundColor: XlsxHexColor;
   readonly fontColor: XlsxHexColor;
-  readonly verticalAxisPosition: "left" | "right";
+  readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
-  readonly stackedBar?: boolean;
+  readonly stacked?: boolean;
 }
 
 export interface ChartCreationContext {

@@ -12,6 +12,7 @@ export interface LineChartDefinition {
   readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
   readonly labelsAsText: boolean;
+  readonly stacked: boolean;
 }
 
 export type LineChartRuntime = {

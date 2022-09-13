@@ -28,14 +28,21 @@ import {
 import { toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
 import { args, functionRegistry } from "./functions/index";
 import { LinkCell } from "./helpers/cells/index";
-import { ChartColors, chartFontColor, getDefaultChartJsRuntime } from "./helpers/charts";
 import {
+  ChartColors,
+  chartFontColor,
+  getDefaultChartJsRuntime,
+  getFillingMode,
+} from "./helpers/charts";
+import {
+  colorToRGBA,
   computeTextWidth,
   formatValue,
   isMarkdownLink,
   markdownLink,
   numberToLetters,
   parseMarkdownLink,
+  rgbaToHex,
   toCartesian,
   toXC,
   toZone,
@@ -166,6 +173,9 @@ export const helpers = {
   ChartColors,
   EvaluationError,
   CellErrorLevel,
+  getFillingMode,
+  rgbaToHex,
+  colorToRGBA,
 };
 export const components = {
   ChartPanel,

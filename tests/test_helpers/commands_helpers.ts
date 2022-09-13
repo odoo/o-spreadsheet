@@ -111,7 +111,7 @@ export function createChart(
       background: data.background || BACKGROUND_CHART_COLOR,
       verticalAxisPosition: ("verticalAxisPosition" in data && data.verticalAxisPosition) || "left",
       legendPosition: data.legendPosition || "top",
-      stackedBar: ("stackedBar" in data && data.stackedBar) || false,
+      stacked: ("stacked" in data && data.stacked) || false,
       labelsAsText: ("labelsAsText" in data && data.labelsAsText) || false,
     },
   });
