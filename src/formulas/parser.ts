@@ -2,7 +2,10 @@ import { DEFAULT_ERROR_MESSAGE } from "../constants";
 import { parseNumber, removeStringQuotes } from "../helpers/index";
 import { _lt } from "../translation";
 import { InvalidReferenceError } from "../types/errors";
+import { UnknownFunctionError } from "./../types/errors";
 import { Token, tokenize } from "./tokenizer";
+
+const functionRegex = /[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*/;
 
 const UNARY_OPERATORS_PREFIX = ["-", "+"];
 const UNARY_OPERATORS_POSTFIX = ["%"];
@@ -167,6 +170,9 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
         return { type: "BOOLEAN", value: current.value.toUpperCase() === "TRUE" } as AST;
       } else {
         if (current.value) {
+          if (functionRegex.test(current.value) && tokens[0]?.type === "LEFT_PAREN") {
+            throw new UnknownFunctionError(current.value);
+          }
           throw new Error(_lt("Invalid formula"));
         }
         return { type: "STRING", value: current.value };

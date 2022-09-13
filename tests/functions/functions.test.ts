@@ -20,7 +20,7 @@ describe("functions", () => {
   });
   test("can add a function", () => {
     const val = evaluateCell("A1", { A1: "=DOUBLEDOUBLE(3)" });
-    expect(val).toBe("#BAD_EXPR");
+    expect(val).toBe("#NAME?");
     functionRegistry.add("DOUBLEDOUBLE", {
       description: "Double the first argument",
       compute: ((arg: number) => 2 * arg) as ComputeFunction<ArgValue, FunctionReturnValue>,

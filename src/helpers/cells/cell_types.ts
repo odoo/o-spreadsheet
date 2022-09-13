@@ -22,7 +22,7 @@ import {
   TextEvaluation,
   UID,
 } from "../../types";
-import { CellErrorType, EvaluationError } from "../../types/errors";
+import { EvaluationError } from "../../types/errors";
 import { formatValue } from "../format";
 import { lazy } from "../index";
 import { markdownLink, parseMarkdownLink, parseSheetLink } from "../misc";
@@ -319,7 +319,7 @@ export class FormulaCell extends AbstractCell implements IFormulaCell {
  * Cell containing a formula which could not be compiled
  * or a content which could not be parsed.
  */
-export class BadExpressionCell extends AbstractCell<InvalidEvaluation> {
+export class ErrorCell extends AbstractCell<InvalidEvaluation> {
   /**
    * @param id
    * @param content Invalid formula string
@@ -335,7 +335,7 @@ export class BadExpressionCell extends AbstractCell<InvalidEvaluation> {
     super(
       id,
       lazy({
-        value: CellErrorType.BadExpression,
+        value: error.errorType,
         type: CellValueType.error,
         error,
       }),

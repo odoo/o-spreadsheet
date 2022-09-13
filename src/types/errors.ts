@@ -5,6 +5,7 @@ export enum CellErrorType {
   InvalidReference = "#REF",
   BadExpression = "#BAD_EXPR",
   CircularDependency = "#CYCLE",
+  UnknownFunction = "#NAME?",
   GenericError = "#ERROR",
 }
 
@@ -44,5 +45,11 @@ export class InvalidReferenceError extends EvaluationError {
 export class NotAvailableError extends EvaluationError {
   constructor() {
     super(CellErrorType.NotAvailable, _lt("Data not available"), CellErrorLevel.silent);
+  }
+}
+
+export class UnknownFunctionError extends EvaluationError {
+  constructor(fctName: string) {
+    super(CellErrorType.UnknownFunction, _lt('Unknown function: "%s"', fctName));
   }
 }
