@@ -24,6 +24,7 @@ import {
   restoreDefaultFunctions,
   target,
 } from "../test_helpers/helpers";
+import { CellErrorType } from "./../../src/types/errors";
 import resetAllMocks = jest.resetAllMocks;
 
 describe("evaluateCells", () => {
@@ -127,11 +128,14 @@ describe("evaluateCells", () => {
   test("error in some function calls", () => {
     const model = new Model();
     setCellContent(model, "A1", '=Sum("asdf")');
-
     expect(getCell(model, "A1")!.evaluated.value).toBe("#ERROR");
     expect(getCellError(model, "A1")).toBe(
       `The function SUM expects a number value, but 'asdf' is a string, and cannot be coerced to a number.`
     );
+
+    setCellContent(model, "A1", "=Sum(asdf)");
+    expect(getCell(model, "A1")!.evaluated.value).toBe("#BAD_EXPR");
+    expect(getCellError(model, "A1")).toBe(`Invalid formula`);
 
     setCellContent(model, "A1", "=DECIMAL(1,100)");
     expect(getCellError(model, "A1")).toBe(`The base (100) must be between 2 and 36 inclusive.`);
@@ -209,6 +213,24 @@ describe("evaluateCells", () => {
     setCellContent(model, "A1", "=VLOOKUP(D12, A2:A200, 2, false)");
 
     expect(getCellError(model, "A1")).toBe("VLOOKUP evaluates to an out of bounds range.");
+  });
+
+  test("Unknown function error", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=ThisIsNotARealFunction(A2)");
+    expect(getCellContent(model, "A1")).toBe(CellErrorType.UnknownFunction);
+    expect(getCellError(model, "A1")).toBe('Unknown function: "ThisIsNotARealFunction"');
+
+    setCellContent(model, "A1", "=This.Is.Not.A.Real.Function(A2)");
+    expect(getCellContent(model, "A1")).toBe(CellErrorType.UnknownFunction);
+    expect(getCellError(model, "A1")).toBe('Unknown function: "This.Is.Not.A.Real.Function"');
+  });
+
+  test("Unknown function with spaces before LEFT_PAREN", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=ThisIsNotARealFunction    (A2)");
+    expect(getCellContent(model, "A1")).toBe(CellErrorType.UnknownFunction);
+    expect(getCellError(model, "A1")).toBe('Unknown function: "ThisIsNotARealFunction"');
   });
 
   test.each([
