@@ -6,6 +6,7 @@ import { assert, reduceNumbers, toBoolean, toJsDate, toNumber, visitNumbers } fr
 import {
   assertNumberOfPeriodsPositive,
   assertPricePositive,
+  assertRatePositive,
   assertRedemptionPositive,
   checkCouponFrequency,
   checkDayCountConvention,
@@ -55,6 +56,45 @@ function newtonMethod(
   } while (!yEqual0);
   return x;
 }
+
+// -----------------------------------------------------------------------------
+// ACCRINTM
+// -----------------------------------------------------------------------------
+export const ACCRINTM: AddFunctionDescription = {
+  description: _lt("Accrued interest of security paying at maturity."),
+  args: args(`
+        issue (date) ${_lt("The date the security was initially issued.")}
+        maturity (date) ${_lt("The maturity date of the security.")}
+        rate (number) ${_lt("The annualized rate of interest.")}
+        redemption (number) ${_lt("The redemption amount per 100 face value, or par.")}
+        day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
+    "An indicator of what day count method to use."
+  )}
+    `),
+  returns: ["NUMBER"],
+  compute: function (
+    issue: PrimitiveArgValue,
+    settlement: PrimitiveArgValue,
+    rate: PrimitiveArgValue,
+    redemption: PrimitiveArgValue,
+    dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
+  ): number {
+    dayCountConvention = dayCountConvention || 0;
+    const start = Math.trunc(toNumber(issue));
+    const end = Math.trunc(toNumber(settlement));
+    const _redemption = toNumber(redemption);
+    const _rate = toNumber(rate);
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+
+    checkSettlementAndIssueDates(end, start);
+    checkDayCountConvention(_dayCountConvention);
+    assertRedemptionPositive(_redemption);
+    assertRatePositive(_rate);
+
+    const yearFrac = YEARFRAC.compute(start, end, dayCountConvention) as number;
+    return _redemption * _rate * yearFrac;
+  },
+};
 
 // -----------------------------------------------------------------------------
 // COUPDAYS
@@ -870,7 +910,7 @@ export const PDURATION: AddFunctionDescription = {
     const _presentValue = toNumber(presentValue);
     const _futureValue = toNumber(futureValue);
 
-    assert(() => _rate > 0, _lt("The rate (%s) must be strictly positive.", _rate.toString()));
+    assertRatePositive(_rate);
     assert(
       () => _presentValue > 0,
       _lt("The present_value (%s) must be strictly positive.", _presentValue.toString())
