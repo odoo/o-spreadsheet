@@ -353,6 +353,73 @@ export const COUPPCD: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// CUMIPMT
+// -----------------------------------------------------------------------------
+export const CUMIPMT: AddFunctionDescription = {
+  description: _lt("Cumulative interest paid over a set of periods."),
+  args: args(`
+  rate (number) ${_lt("The interest rate.")}
+  number_of_periods (number) ${_lt("The number of payments to be made.")}
+  present_value (number) ${_lt("The current value of the annuity.")}
+  first_period (number) ${_lt(
+    "The number of the payment period to begin the cumulative calculation."
+  )}
+  last_period (number) ${_lt("The number of the payment period to end the cumulative calculation.")}
+  end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt(
+    "Whether payments are due at the end (0) or beginning (1) of each period."
+  )}
+  `),
+  returns: ["NUMBER"],
+  compute: function (
+    rate: PrimitiveArgValue,
+    numberOfPeriods: PrimitiveArgValue,
+    presentValue: PrimitiveArgValue,
+    firstPeriod: PrimitiveArgValue,
+    lastPeriod: PrimitiveArgValue,
+    endOrBeginning: PrimitiveArgValue = DEFAULT_END_OR_BEGINNING
+  ): number {
+    const first = toNumber(firstPeriod);
+    const last = toNumber(lastPeriod);
+    const _rate = toNumber(rate);
+    const pv = toNumber(presentValue);
+    const nOfPeriods = toNumber(numberOfPeriods);
+
+    assert(
+      () => first > 0,
+      _lt("The first_period (%s) must be strictly positive.", first.toString())
+    );
+    assert(() => last > 0, _lt("The last_period (%s) must be strictly positive.", last.toString()));
+    assert(
+      () => first <= last,
+      _lt(
+        "The first_period (%s) must be smaller or equal to the last_period (%s).",
+        first.toString(),
+        last.toString()
+      )
+    );
+    assert(
+      () => last <= nOfPeriods,
+      _lt(
+        "The last_period (%s) must be smaller or equal to the number_of_periods (%s).",
+        first.toString(),
+        nOfPeriods.toString()
+      )
+    );
+    assertRatePositive(_rate);
+    assert(() => pv > 0, _lt("The present_value (%s) must be strictly positive.", pv.toString()));
+    assertNumberOfPeriodsPositive(nOfPeriods);
+
+    let cumSum = 0;
+    for (let i = first; i <= last; i++) {
+      const ipmt = IPMT.compute(rate, i, nOfPeriods, presentValue, 0, endOrBeginning) as number;
+      cumSum += ipmt;
+    }
+
+    return cumSum;
+  },
+};
+
+// -----------------------------------------------------------------------------
 // DB
 // -----------------------------------------------------------------------------
 export const DB: AddFunctionDescription = {
