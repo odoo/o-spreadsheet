@@ -62,7 +62,7 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
     background: convertColor({ rgb: chartData.backgroundColor }) || "#FFFFFF",
     verticalAxisPosition: chartData.verticalAxisPosition,
     legendPosition: chartData.legendPosition,
-    stackedBar: chartData.stackedBar || false,
+    stacked: chartData.stacked || false,
     labelsAsText: false,
   };
 }

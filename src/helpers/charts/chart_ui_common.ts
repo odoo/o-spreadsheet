@@ -169,3 +169,12 @@ export function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): Da
   }
   return datasetValues;
 }
+
+/** See https://www.chartjs.org/docs/latest/charts/area.html#filling-modes */
+export function getFillingMode(index: number): "origin" | number {
+  if (index === 0) {
+    return "origin";
+  } else {
+    return index - 1;
+  }
+}

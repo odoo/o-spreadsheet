@@ -558,7 +558,7 @@ describe("Collaborative Sheet manipulation", () => {
       title: "chart title",
       dataSetsHaveTitle: false,
       type: "bar",
-      stackedBar: false,
+      stacked: false,
       background: BACKGROUND_CHART_COLOR,
       verticalAxisPosition: "left",
       legendPosition: "top",

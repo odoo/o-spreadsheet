@@ -10,12 +10,15 @@
           onSelectionChanged="(ranges) => this.onDataSeriesRangesChanged(ranges)"
           onSelectionConfirmed="() => this.onDataSeriesConfirmed()"
         />
-        <input
-          type="checkbox"
-          t-att-checked="props.definition.dataSetsHaveTitle"
-          t-on-change="onUpdateDataSetsHaveTitle"
-        />
-        Data series include title
+        <label>
+          <input
+            type="checkbox"
+            t-att-checked="props.definition.dataSetsHaveTitle"
+            t-on-change="onUpdateDataSetsHaveTitle"
+            class="align-middle"
+          />
+          Data series include title
+        </label>
       </div>
       <div class="o-section o-data-labels">
         <div class="o-section-title">Categories / Labels</div>

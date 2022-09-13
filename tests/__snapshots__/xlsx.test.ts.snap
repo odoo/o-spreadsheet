@@ -2384,6 +2384,7 @@ Object {
             <!-- how the chart element is placed on the chart -->
             <c:layout/>
             <c:lineChart>
+                <c:grouping val=\\"standard\\"/>
                 <!-- each data marker in the series does not have a different color -->
                 <c:varyColors val=\\"0\\"/>
                 <c:ser>
@@ -5810,6 +5811,7 @@ Object {
             <!-- how the chart element is placed on the chart -->
             <c:layout/>
             <c:lineChart>
+                <c:grouping val=\\"standard\\"/>
                 <!-- each data marker in the series does not have a different color -->
                 <c:varyColors val=\\"0\\"/>
                 <c:ser>
@@ -6366,6 +6368,7 @@ Object {
             <!-- how the chart element is placed on the chart -->
             <c:layout/>
             <c:lineChart>
+                <c:grouping val=\\"standard\\"/>
                 <!-- each data marker in the series does not have a different color -->
                 <c:varyColors val=\\"0\\"/>
                 <c:ser>

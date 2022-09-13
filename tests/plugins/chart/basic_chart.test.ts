@@ -251,7 +251,7 @@ describe("datasource tests", function () {
         dataSets: ["B7:B8"],
         labelRange: "B7",
         type: "bar",
-        stackedBar: true,
+        stacked: true,
       },
       "1"
     );
@@ -1120,7 +1120,7 @@ describe("Chart without labels", () => {
     title: "My chart",
     type: "bar",
     verticalAxisPosition: "left",
-    stackedBar: false,
+    stacked: false,
   };
 
   test("The legend is not displayed when there is only one dataSet and no label", () => {
@@ -1180,7 +1180,7 @@ describe("Chart design configuration", () => {
     type: "bar",
     verticalAxisPosition: "left",
     labelRange: "A1",
-    stackedBar: false,
+    stacked: false,
   };
 
   test("Legend position", () => {
@@ -1228,7 +1228,7 @@ describe("Chart design configuration", () => {
         ?.yAxes![0].stacked
     ).toBeUndefined();
 
-    updateChart(model, "42", { stackedBar: true });
+    updateChart(model, "42", { stacked: true });
     expect(
       (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales
         ?.xAxes![0].stacked
@@ -1239,6 +1239,16 @@ describe("Chart design configuration", () => {
     ).toBe(true);
 
     updateChart(model, "42", { type: "line" });
+    expect(
+      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales
+        ?.xAxes![0].stacked
+    ).toBeUndefined();
+    expect(
+      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales
+        ?.yAxes![0].stacked
+    ).toBe(true);
+
+    updateChart(model, "42", { type: "line", stacked: false });
     expect(
       (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales
         ?.xAxes![0].stacked

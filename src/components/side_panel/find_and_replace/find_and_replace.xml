@@ -21,6 +21,7 @@
           </div>
         </div>
         <div>
+          <!-- TODO: go through this css, the group misses a padding and could profit from BootStrap -->
           <div class="o-far-item">
             <label class="o-far-checkbox">
               <input
