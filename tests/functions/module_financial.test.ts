@@ -648,6 +648,81 @@ describe("CUMIPMT function", () => {
   );
 });
 
+describe("CUMPRINC function", () => {
+  test("CUMPRINC takes 5-6 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=CUMPRINC()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=CUMPRINC(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=CUMPRINC(1, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=CUMPRINC(1, 1, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=CUMPRINC(1, 1, 1, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=CUMPRINC(1, 1, 1, 1, 1)" })).toBe(-1);
+    expect(evaluateCell("A1", { A1: "=CUMPRINC(1, 1, 1, 1, 1, 0)" })).toBe(-1);
+    expect(evaluateCell("A1", { A1: "=CUMPRINC(1, 1, 1, 1, 1, 0, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("rate > 0 ", () => {
+    expect(evaluateCell("A1", { A1: "=CUMPRINC(-1, 1, 1, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=CUMPRINC(0, 1, 1, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("number of periods > 0", () => {
+    expect(evaluateCell("A1", { A1: "=CUMPRINC(1, -1, 1, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=CUMPRINC(1, 0, 1, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("present value > 0", () => {
+    expect(evaluateCell("A1", { A1: "=CUMPRINC(1, 1, -1, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=CUMPRINC(1, 1, 0, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("first period > 0 and first period <= last period ", () => {
+    expect(evaluateCell("A1", { A1: "=CUMPRINC(1, 1, 1, -1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=CUMPRINC(1, 1, 1, 0, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=CUMPRINC(1, 1, 1, 2, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("last period > 0 and last period <= number of periods", () => {
+    expect(evaluateCell("A1", { A1: "=CUMPRINC(1, 1, 1, 1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=CUMPRINC(1, 1, 1, 1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=CUMPRINC(1, 1, 1, 1, 2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test.each([
+    ["5%", 12, 200, 1, 10, 0, -158.0422511],
+    ["2.50%", 6, 1000, 2, 5, 0, -666.328106],
+    ["10.00%", 4, 1000, 2, 3, 0, -497.7375566],
+    ["12.00%", 2, 1000, 1, 2, 0, -1000],
+    ["1.00%", 6, 18, 4, 6, 0, -9.134319493],
+    ["2.00%", 4, 100, 1, 4, 1, -100],
+    ["3.00%", 6, 200, 1, 6, 0, -200],
+    ["4.00%", 4, 102, 1, 4, 0, -102],
+    ["5%", 12, 200, 1, 10, 0, -158.0422511],
+    ["2.50%", 6, 1000, 2, 6, 0, -843.4500289],
+    ["10.00%", 4, 1000, 1, 4, 0, -1000],
+    ["12.00%", 2, 1000, 1, 2, 0, -1000],
+    ["5%", 12, 200, 1, 10, 1, -160.0402392],
+    ["2.50%", 6, 1000, 2, 6, 1, -822.878077],
+    ["10.00%", 4, 1000, 1, 4, 1, -1000],
+    ["12.00%", 2, 1000, 1, 2, 1, -1000],
+  ])(
+    "function result =CUMPRINC(%s, %s, %s, %s, %s, %s)",
+    (
+      rate: string,
+      numberOfPeriods: number,
+      presentValue: number,
+      firstPeriod: number,
+      lastPeriod: number,
+      beginningOrEnd: number,
+      expectedResult: number
+    ) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=CUMPRINC(${rate}, ${numberOfPeriods}, ${presentValue}, ${firstPeriod}, ${lastPeriod}, ${beginningOrEnd})`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+});
+
 describe("DB formula", () => {
   test("take at 4 or 5 arguments", () => {
     expect(evaluateCell("A1", { A1: "=DB(100, 10, 5)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
