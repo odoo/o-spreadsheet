@@ -66,6 +66,22 @@ export function assertRatePositive(rate: number) {
   assert(() => rate > 0, _lt("The rate (%s) must be strictly positive.", rate.toString()));
 }
 
+export function assertLifePositive(life: number) {
+  assert(() => life > 0, _lt("The life (%s) must be strictly positive.", life.toString()));
+}
+
+export function assertCostPositiveOrZero(cost: number) {
+  assert(() => cost >= 0, _lt("The cost (%s) must be positive or null.", cost.toString()));
+}
+
+export function assertPeriodPositive(period: number) {
+  assert(() => period > 0, _lt("The period (%s) must be strictly positive.", period.toString()));
+}
+
+export function assertSalvagePositiveOrZero(salvage: number) {
+  assert(() => salvage >= 0, _lt("The salvage (%s) must be positive or null.", salvage.toString()));
+}
+
 export function assertPresentValuePositive(pv: number) {
   assert(() => pv > 0, _lt("The present value (%s) must be strictly positive.", pv.toString()));
 }
@@ -74,11 +90,11 @@ export function assertPresentValuePositive(pv: number) {
  * Check if the given periods are valid. This will assert :
  *
  * - 0 < numberOfPeriods
- * - 0 < firstPeriod < lastPeriod
- * - 0 < lastPeriod < numberOfPeriods
+ * - 0 < firstPeriod <= lastPeriod
+ * - 0 < lastPeriod <= numberOfPeriods
  *
  */
-export function checkPeriodsAreValid(
+export function checkFirstAndLastPeriodsAreValid(
   firstPeriod: number,
   lastPeriod: number,
   numberOfPeriods: number
