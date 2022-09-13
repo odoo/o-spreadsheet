@@ -573,6 +573,81 @@ describe("Coupons formulas", () => {
   });
 });
 
+describe("CUMIPMT function", () => {
+  test("CUMIPMT takes 5-6 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=CUMIPMT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=CUMIPMT(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=CUMIPMT(1, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=CUMIPMT(1, 1, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=CUMIPMT(1, 1, 1, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=CUMIPMT(1, 1, 1, 1, 1)" })).toBe(-1);
+    expect(evaluateCell("A1", { A1: "=CUMIPMT(1, 1, 1, 1, 1, 0)" })).toBe(-1);
+    expect(evaluateCell("A1", { A1: "=CUMIPMT(1, 1, 1, 1, 1, 0, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("rate > 0 ", () => {
+    expect(evaluateCell("A1", { A1: "=CUMIPMT(-1, 1, 1, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=CUMIPMT(0, 1, 1, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("number of periods > 0", () => {
+    expect(evaluateCell("A1", { A1: "=CUMIPMT(1, -1, 1, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=CUMIPMT(1, 0, 1, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("present value > 0", () => {
+    expect(evaluateCell("A1", { A1: "=CUMIPMT(1, 1, -1, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=CUMIPMT(1, 1, 0, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("first period > 0 and first period <= last period ", () => {
+    expect(evaluateCell("A1", { A1: "=CUMIPMT(1, 1, 1, -1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=CUMIPMT(1, 1, 1, 0, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=CUMIPMT(1, 1, 1, 2, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("last period > 0 and last period <= number of periods", () => {
+    expect(evaluateCell("A1", { A1: "=CUMIPMT(1, 1, 1, 1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=CUMIPMT(1, 1, 1, 1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=CUMIPMT(1, 1, 1, 1, 2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test.each([
+    ["5%", 12, 200, 1, 10, 0, -67.60856889],
+    ["2.50%", 6, 1000, 2, 5, 0, -59.8717783],
+    ["10.00%", 4, 1000, 2, 3, 0, -133.2040509],
+    ["12.00%", 2, 1000, 1, 2, 0, -183.3962264],
+    ["1.00%", 6, 18, 4, 6, 0, -0.18329231],
+    ["2.00%", 4, 100, 1, 4, 1, -2.98970693],
+    ["3.00%", 6, 200, 1, 6, 0, -21.51700054],
+    ["4.00%", 4, 102, 1, 4, 0, -10.39993851],
+    ["5%", 12, 200, 1, 10, 1, -54.86530371],
+    ["2.50%", 6, 1000, 2, 6, 1, -62.73153792],
+    ["10.00%", 4, 1000, 1, 4, 1, -147.1665589],
+    ["12.00%", 2, 1000, 1, 2, 1, -56.60377358],
+    ["5%", 12, 200, 1, 10, 1, -54.86530371],
+    ["2.50%", 6, 1000, 2, 6, 1, -62.73153792],
+    ["10.00%", 4, 1000, 1, 4, 1, -147.1665589],
+    ["12.00%", 2, 1000, 1, 2, 1, -56.60377358],
+  ])(
+    "function result =CUMIPMT(%s, %s, %s, %s, %s, %s)",
+    (
+      rate: string,
+      nOfPeriods: number,
+      presentValue: number,
+      firstPeriod: number,
+      lastPeriod: number,
+      endOrBeginning: number,
+      expectedResult: number
+    ) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=CUMIPMT(${rate}, ${nOfPeriods}, ${presentValue}, ${firstPeriod}, ${lastPeriod}, ${endOrBeginning})`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+});
+
 describe("DB formula", () => {
   test("take at 4 or 5 arguments", () => {
     expect(evaluateCell("A1", { A1: "=DB(100, 10, 5)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
