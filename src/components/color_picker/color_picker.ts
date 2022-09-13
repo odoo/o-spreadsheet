@@ -220,7 +220,7 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
   }
 
   resetColor() {
-    this.props.onColorPicked("");
+    this.props.onColorPicked("#FFFFFF");
   }
 
   setCustomColor(ev: Event) {

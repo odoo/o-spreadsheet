@@ -75,7 +75,7 @@ describe("Color Picker buttons", () => {
     const onColorPicked = jest.fn();
     await mountColorPicker({ currentColor: "#45818e", onColorPicked });
     await simulateClick(".o-cancel");
-    expect(onColorPicked).toHaveBeenCalledWith("");
+    expect(onColorPicked).toHaveBeenCalledWith("#FFFFFF");
   });
 
   test("Click on '+' button toggle the custom color part", async () => {
