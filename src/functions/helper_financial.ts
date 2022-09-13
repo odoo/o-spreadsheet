@@ -61,3 +61,7 @@ export function assertNumberOfPeriodsPositive(nPeriods: number) {
     _lt("The number_of_periods (%s) must be greater than 0.", nPeriods.toString())
   );
 }
+
+export function assertRatePositive(rate: number) {
+  assert(() => rate > 0, _lt("The rate (%s) must be strictly positive.", rate.toString()));
+}
