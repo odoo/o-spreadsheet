@@ -65,3 +65,47 @@ export function assertNumberOfPeriodsPositive(nPeriods: number) {
 export function assertRatePositive(rate: number) {
   assert(() => rate > 0, _lt("The rate (%s) must be strictly positive.", rate.toString()));
 }
+
+export function assertPresentValuePositive(pv: number) {
+  assert(() => pv > 0, _lt("The present value (%s) must be strictly positive.", pv.toString()));
+}
+
+/**
+ * Check if the given periods are valid. This will assert :
+ *
+ * - 0 < numberOfPeriods
+ * - 0 < firstPeriod < lastPeriod
+ * - 0 < lastPeriod < numberOfPeriods
+ *
+ */
+export function checkPeriodsAreValid(
+  firstPeriod: number,
+  lastPeriod: number,
+  numberOfPeriods: number
+) {
+  assertNumberOfPeriodsPositive(numberOfPeriods);
+  assert(
+    () => firstPeriod > 0,
+    _lt("The first_period (%s) must be strictly positive.", firstPeriod.toString())
+  );
+  assert(
+    () => lastPeriod > 0,
+    _lt("The last_period (%s) must be strictly positive.", lastPeriod.toString())
+  );
+  assert(
+    () => firstPeriod <= lastPeriod,
+    _lt(
+      "The first_period (%s) must be smaller or equal to the last_period (%s).",
+      firstPeriod.toString(),
+      lastPeriod.toString()
+    )
+  );
+  assert(
+    () => lastPeriod <= numberOfPeriods,
+    _lt(
+      "The last_period (%s) must be smaller or equal to the number_of_periods (%s).",
+      firstPeriod.toString(),
+      numberOfPeriods.toString()
+    )
+  );
+}
