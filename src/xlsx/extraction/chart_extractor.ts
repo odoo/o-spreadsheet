@@ -51,7 +51,7 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
                 default: "b",
               }).asString()
             ],
-          stackedBar: barChartGrouping === "stacked",
+          stacked: barChartGrouping === "stacked",
           fontColor: "000000",
         };
       }

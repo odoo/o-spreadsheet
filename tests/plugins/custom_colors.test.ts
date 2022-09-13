@@ -94,7 +94,7 @@ describe("custom colors are correctly handled when editing charts", () => {
         title: "a title",
         dataSets: [],
         type: "bar",
-        stackedBar: false,
+        stacked: false,
         dataSetsHaveTitle: false,
         verticalAxisPosition: "left",
         legendPosition: "none",

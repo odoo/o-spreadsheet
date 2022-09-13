@@ -1,6 +1,20 @@
 <templates>
   <t t-name="o-spreadsheet-LineConfigPanel" owl="1">
     <div>
+      <div class="o-section pt-0">
+        <div class="o-checkbox">
+          <label>
+            <input
+              type="checkbox"
+              name="stacked"
+              t-att-checked="props.definition.stacked"
+              t-on-change="onUpdateStacked"
+              class="align-middle"
+            />
+            Stacked linechart
+          </label>
+        </div>
+      </div>
       <div class="o-section o-data-series">
         <div class="o-section-title">Data Series</div>
         <SelectionInput
@@ -10,12 +24,15 @@
           onSelectionChanged="(ranges) => this.onDataSeriesRangesChanged(ranges)"
           onSelectionConfirmed="() => this.onDataSeriesConfirmed()"
         />
-        <input
-          type="checkbox"
-          t-att-checked="props.definition.dataSetsHaveTitle"
-          t-on-change="onUpdateDataSetsHaveTitle"
-        />
-        Data series include title
+        <label>
+          <input
+            type="checkbox"
+            t-att-checked="props.definition.dataSetsHaveTitle"
+            t-on-change="onUpdateDataSetsHaveTitle"
+            class="align-middle"
+          />
+          Data series include title
+        </label>
       </div>
       <div class="o-section o-data-labels">
         <div class="o-section-title">Categories / Labels</div>
@@ -27,13 +44,15 @@
           onSelectionConfirmed="() => this.onLabelRangeConfirmed()"
         />
         <div t-if="canTreatLabelsAsText">
-          <input
-            type="checkbox"
-            name="labelsAsText"
-            t-att-checked="props.definition.labelsAsText"
-            t-on-change="onUpdateLabelsAsText"
-          />
-          Treat labels as text
+          <label>
+            <input
+              type="checkbox"
+              name="labelsAsText"
+              t-att-checked="props.definition.labelsAsText"
+              t-on-change="onUpdateLabelsAsText"
+            />
+            Treat labels as text
+          </label>
         </div>
       </div>
       <div class="o-section o-sidepanel-error" t-if="errorMessages">

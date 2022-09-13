@@ -1,5 +1,5 @@
 import { ChartConfiguration, ChartDataSets, ChartLegendOptions } from "chart.js";
-import { BACKGROUND_CHART_COLOR } from "../../constants";
+import { BACKGROUND_CHART_COLOR, LINE_FILL_TRANSPARENCY } from "../../constants";
 import { chartRegistry } from "../../registries/chart_types";
 import {
   AddColumnsRowsCommand,
@@ -25,6 +25,7 @@ import { LineChartDefinition, LineChartRuntime } from "../../types/chart/line_ch
 import { Validator } from "../../types/validator";
 import { toXlsxHexColor } from "../../xlsx/helpers/colors";
 import { getChartTimeOptions, timeFormatMomentCompatible } from "../chart_date";
+import { colorToRGBA, rgbaToHex } from "../color";
 import { formatValue } from "../format";
 import { deepCopy, findNextDefinedValue } from "../misc";
 import { createRange } from "../range";
@@ -46,6 +47,7 @@ import {
   getChartDatasetValues,
   getChartLabelValues,
   getDefaultChartJsRuntime,
+  getFillingMode,
   getLabelFormat,
 } from "./chart_ui_common";
 
@@ -72,6 +74,7 @@ export class LineChart extends AbstractChart {
   readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
   readonly labelsAsText: boolean;
+  readonly stacked: boolean;
   readonly type = "line";
 
   constructor(definition: LineChartDefinition, sheetId: UID, getters: CoreGetters) {
@@ -87,6 +90,7 @@ export class LineChart extends AbstractChart {
     this.verticalAxisPosition = definition.verticalAxisPosition;
     this.legendPosition = definition.legendPosition;
     this.labelsAsText = definition.labelsAsText;
+    this.stacked = definition.stacked;
   }
 
   static validateChartDefinition(
@@ -114,6 +118,7 @@ export class LineChart extends AbstractChart {
       type: "line",
       verticalAxisPosition: "left",
       labelRange: context.auxiliaryRange || undefined,
+      stacked: false,
     };
   }
 
@@ -140,6 +145,7 @@ export class LineChart extends AbstractChart {
         : undefined,
       title: this.title,
       labelsAsText: this.labelsAsText,
+      stacked: this.stacked,
     };
   }
 
@@ -273,7 +279,17 @@ function getLineConfiguration(chart: LineChart, labels: string[]): ChartConfigur
   const fontColor = chartFontColor(chart.background);
   const config: ChartConfiguration = getDefaultChartJsRuntime(chart, labels, fontColor);
   const legend: ChartLegendOptions = {
-    labels: { fontColor },
+    labels: {
+      fontColor,
+      generateLabels(chart) {
+        const { data } = chart;
+        const labels = window.Chart.defaults.global.legend!.labels!.generateLabels!(chart);
+        for (const [index, label] of labels.entries()) {
+          label.fillStyle = data.datasets![index].borderColor as string;
+        }
+        return labels;
+      },
+    },
   };
   if ((!chart.labelRange && chart.dataSets.length === 1) || chart.legendPosition === "none") {
     legend.display = false;
@@ -309,6 +325,9 @@ function getLineConfiguration(chart: LineChart, labels: string[]): ChartConfigur
       },
     ],
   };
+  if (chart.stacked) {
+    config.options!.scales.yAxes![0].stacked = true;
+  }
   return config;
 }
 
@@ -334,20 +353,26 @@ function createLineChartRuntime(chart: LineChart, getters: Getters): LineChartRu
   }
 
   const colors = new ChartColors();
-
-  for (let { label, data } of dataSetsValues) {
+  for (let [index, { label, data }] of dataSetsValues.entries()) {
     if (["linear", "time"].includes(axisType)) {
       // Replace empty string labels by undefined to make sure chartJS doesn't decide that "" is the same as 0
       data = data.map((y, index) => ({ x: labels[index] || undefined, y }));
     }
-
     const color = colors.next();
+    let backgroundRGBA = colorToRGBA(color);
+    if (chart.stacked) {
+      backgroundRGBA.a = LINE_FILL_TRANSPARENCY;
+    }
+    const backgroundColor = rgbaToHex(backgroundRGBA);
+
     const dataset: ChartDataSets = {
       label,
       data,
       lineTension: 0, // 0 -> render straight lines, which is much faster
       borderColor: color,
-      backgroundColor: color,
+      backgroundColor,
+      pointBackgroundColor: color,
+      fill: chart.stacked ? getFillingMode(index) : false,
     };
     config.data!.datasets!.push(dataset);
   }

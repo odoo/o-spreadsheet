@@ -633,7 +633,7 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
       labelRange,
       type: "bar",
       background: BACKGROUND_CHART_COLOR,
-      stackedBar: false,
+      stacked: false,
       dataSetsHaveTitle,
       verticalAxisPosition: "left",
       legendPosition: newLegendPos,

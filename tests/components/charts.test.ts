@@ -37,7 +37,7 @@ const TEST_CHART_DATA = {
     title: "hello",
     background: BACKGROUND_CHART_COLOR,
     verticalAxisPosition: "left" as const,
-    stackedBar: false,
+    stacked: false,
     legendPosition: "top" as const,
   },
   scorecard: {

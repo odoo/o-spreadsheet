@@ -257,7 +257,7 @@ const MIGRATIONS: Migration[] = [
           chart.data.background = BACKGROUND_CHART_COLOR;
           chart.data.verticalAxisPosition = "left";
           chart.data.legendPosition = "top";
-          chart.data.stackedBar = false;
+          chart.data.stacked = false;
         }
       }
       return data;

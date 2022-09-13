@@ -177,6 +177,7 @@ describe("Migrations", () => {
       background: BACKGROUND_CHART_COLOR,
       verticalAxisPosition: "left",
       legendPosition: "top",
+      stacked: false,
     });
     expect(data.sheets[0].figures[1].data).toEqual({
       type: "bar",
@@ -187,7 +188,7 @@ describe("Migrations", () => {
       background: BACKGROUND_CHART_COLOR,
       verticalAxisPosition: "left",
       legendPosition: "top",
-      stackedBar: false,
+      stacked: false,
     });
     expect(data.sheets[0].figures[2].data).toEqual({
       type: "bar",
@@ -198,7 +199,7 @@ describe("Migrations", () => {
       background: BACKGROUND_CHART_COLOR,
       verticalAxisPosition: "left",
       legendPosition: "top",
-      stackedBar: false,
+      stacked: false,
     });
     expect(data.sheets[0].figures[3].data).toEqual({
       type: "bar",
@@ -209,7 +210,7 @@ describe("Migrations", () => {
       background: BACKGROUND_CHART_COLOR,
       verticalAxisPosition: "left",
       legendPosition: "top",
-      stackedBar: false,
+      stacked: false,
     });
   });
   test.each(FORBIDDEN_SHEET_CHARS)("migrate version 7: sheet Names", (char) => {

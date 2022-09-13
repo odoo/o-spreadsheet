@@ -1,6 +1,6 @@
 import { Component, useState } from "@odoo/owl";
 import {
-  COLORS,
+  COLOR_PICKER_DEFAULTS,
   ComponentsImportance,
   MENU_SEPARATOR_BORDER_WIDTH,
   MENU_SEPARATOR_PADDING,
@@ -195,7 +195,7 @@ interface State {
 
 export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ColorPicker";
-  COLORS = COLORS;
+  COLORS = COLOR_PICKER_DEFAULTS;
 
   private state: State = useState({
     showGradient: false,
