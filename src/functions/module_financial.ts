@@ -853,6 +853,56 @@ export const FVSCHEDULE: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// INTRATE
+// -----------------------------------------------------------------------------
+export const INTRATE: AddFunctionDescription = {
+  description: _lt("Calculates effective interest rate."),
+  args: args(`
+      settlement (date) ${_lt(
+        "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
+      )}
+      maturity (date) ${_lt(
+        "The maturity or end date of the security, when it can be redeemed at face, or par value."
+      )}
+      investment (number) ${_lt("The amount invested in the security.")}
+      redemption (number) ${_lt("The amount to be received at maturity.")}
+      day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
+    "An indicator of what day count method to use."
+  )}
+    `),
+  returns: ["NUMBER"],
+  compute: function (
+    settlement: PrimitiveArgValue,
+    maturity: PrimitiveArgValue,
+    investment: PrimitiveArgValue,
+    redemption: PrimitiveArgValue,
+    dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
+  ): number {
+    const _settlement = Math.trunc(toNumber(settlement));
+    const _maturity = Math.trunc(toNumber(maturity));
+    const _redemption = toNumber(redemption);
+    const _investment = toNumber(investment);
+
+    checkMaturityAndSettlementDates(_settlement, _maturity);
+    assert(
+      () => _investment > 0,
+      _lt("The investment (%s) must be strictly positive.", _investment.toString())
+    );
+    assertRedemptionPositive(_redemption);
+
+    /**
+     * https://wiki.documentfoundation.org/Documentation/Calc_Functions/INTRATE
+     *
+     *             (Redemption  - Investment) / Investment
+     * INTRATE =  _________________________________________
+     *              YEARFRAC(settlement, maturity, basis)
+     */
+    const yearFrac = YEARFRAC.compute(_settlement, _maturity, dayCountConvention) as number;
+    return (_redemption - _investment) / _investment / yearFrac;
+  },
+};
+
+// -----------------------------------------------------------------------------
 // IPMT
 // -----------------------------------------------------------------------------
 export const IPMT: AddFunctionDescription = {
