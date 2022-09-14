@@ -480,7 +480,7 @@ describe("Composer / selectionInput interactions", () => {
     createChart(model, {}, "thisIsAnId");
     model.dispatch("SELECT_FIGURE", { id: "thisIsAnId" });
     await nextTick();
-    const figureZIndex = getZIndex(".o-figure-container");
+    const figureZIndex = getZIndex(".o-figure-wrapper");
     const figureAnchorZIndex = getZIndex(".o-anchor");
 
     expect(gridZIndex).toBeLessThan(highlighZIndex);

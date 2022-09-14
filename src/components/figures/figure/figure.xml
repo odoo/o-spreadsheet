@@ -1,0 +1,67 @@
+<templates>
+  <t t-name="o-spreadsheet-FigureComponent" owl="1">
+    <div class="o-figure-wrapper" t-att-style="getContainerStyle()">
+      <div class="o-figure-overflow-wrapper">
+        <div
+          class="o-figure"
+          t-on-mousedown.stop="(ev) => this.onMouseDown(ev)"
+          t-att-style="getFigureStyle()"
+          t-att-class="{active: isSelected, 'o-dragging': dnd.isActive}"
+          t-ref="figure"
+          tabindex="0"
+          t-on-keydown.stop="(ev) => this.onKeyDown(ev)"
+          t-on-keyup.stop="">
+          <t
+            t-component="figureRegistry.get(this.props.figure.tag).Component"
+            t-key="this.props.figure.id"
+            sidePanelIsOpen="props.sidePanelIsOpen"
+            onFigureDeleted="props.onFigureDeleted"
+            figure="this.props.figure"
+          />
+        </div>
+      </div>
+      <t t-if="isSelected">
+        <div
+          class="o-anchor o-top"
+          t-att-style="this.getAnchorPosition('top')"
+          t-on-mousedown.stop="(ev) => this.resize(0,-1, ev)"
+        />
+        <div
+          class="o-anchor o-topRight"
+          t-att-style="this.getAnchorPosition('top right')"
+          t-on-mousedown.stop="(ev) => this.resize(1,-1, ev)"
+        />
+        <div
+          class="o-anchor o-right"
+          t-att-style="this.getAnchorPosition('right')"
+          t-on-mousedown.stop="(ev) => this.resize(1,0, ev)"
+        />
+        <div
+          class="o-anchor o-bottomRight"
+          t-att-style="this.getAnchorPosition('bottom right', info)"
+          t-on-mousedown.stop="(ev) => this.resize(1,1, ev)"
+        />
+        <div
+          class="o-anchor o-bottom"
+          t-att-style="this.getAnchorPosition('bottom')"
+          t-on-mousedown.stop="(ev) => this.resize(0,1, ev)"
+        />
+        <div
+          class="o-anchor o-bottomLeft"
+          t-att-style="this.getAnchorPosition('bottom left')"
+          t-on-mousedown.stop="(ev) => this.resize(-1,1, ev)"
+        />
+        <div
+          class="o-anchor o-left"
+          t-att-style="this.getAnchorPosition('left')"
+          t-on-mousedown.stop="(ev) => this.resize(-1,0, ev)"
+        />
+        <div
+          class="o-anchor o-topLeft"
+          t-att-style="this.getAnchorPosition('top left')"
+          t-on-mousedown.stop="(ev) => this.resize(-1,-1, ev)"
+        />
+      </t>
+    </div>
+  </t>
+</templates>
