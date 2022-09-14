@@ -1490,6 +1490,38 @@ describe("DURATION formula", () => {
   });
 });
 
+describe("DOLLARDE function", () => {
+  test("DOLLARDE takes 2 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=DOLLARDE()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=DOLLARDE(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=DOLLARDE(1, 1)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=DOLLARDE(1, 1, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("unit must be strictly positive", () => {
+    expect(evaluateCell("A1", { A1: "=DOLLARDE(1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DOLLARDE(1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test.each([
+    [10, 8, 10],
+    [15.9, 32, 17.8125],
+    [100.1, 32, 100.3125],
+    [69.1, 9, 69.11111111],
+    [-10.9, 9, -11],
+    [-10.85, 9, -10.94444444],
+    [-10.7, 9, -10.77777778],
+    [-10.7, 9.68, -10.77777778],
+    [589.99, 101, 598.8019802],
+  ])(
+    "function result =DOLLARDE(%s, %s)",
+    (fractionalPrice: number, unit: number, expectedResult: number) => {
+      const cellValue = evaluateCell("A1", { A1: `=DOLLARDE(${fractionalPrice}, ${unit})` });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+});
+
 describe("EFFECT formula", () => {
   test("take 2 arguments", () => {
     expect(evaluateCell("A1", { A1: "=EFFECT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A

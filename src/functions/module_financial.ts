@@ -638,6 +638,33 @@ export const DISC: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// DOLLARDE
+// -----------------------------------------------------------------------------
+export const DOLLARDE: AddFunctionDescription = {
+  description: _lt("Convert a decimal fraction to decimal value."),
+  args: args(`
+      fractional_price (number) ${_lt(
+        "The price quotation given using fractional decimal conventions."
+      )}
+      unit (number) ${_lt("The units of the fraction, e.g. 8 for 1/8ths or 32 for 1/32nds.")}
+    `),
+  returns: ["NUMBER"],
+  compute: function (fractionalPrice: PrimitiveArgValue, unit: PrimitiveArgValue): number {
+    const price = toNumber(fractionalPrice);
+    const _unit = Math.trunc(toNumber(unit));
+
+    assert(() => _unit > 0, _lt("The unit (%s) must be strictly positive.", _unit.toString()));
+
+    const truncatedPrice = Math.trunc(price);
+    const priceFractionalPart = price - truncatedPrice;
+
+    const frac = 10 ** Math.ceil(Math.log10(_unit)) / _unit;
+
+    return truncatedPrice + priceFractionalPart * frac;
+  },
+};
+
+// -----------------------------------------------------------------------------
 // DURATION
 // -----------------------------------------------------------------------------
 export const DURATION: AddFunctionDescription = {
