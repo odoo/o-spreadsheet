@@ -1046,6 +1046,81 @@ describe("DDB function", () => {
   });
 });
 
+describe("DISC function", () => {
+  test("DISC takes 4-5 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=DISC()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=DISC(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=DISC(0, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=DISC(0, 1, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=DISC(0, 1, 1, 1)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=DISC(0, 1, 1, 1, 0)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=DISC(0, 1, 1, 1, 0, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("maturity date > settlement date", () => {
+    expect(evaluateCell("A1", { A1: "=DISC(1, 1, 1, 1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DISC(2, 1, 1, 1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("price is > 0", () => {
+    expect(evaluateCell("A1", { A1: "=DISC(0, 1, -1, 1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DISC(0, 1, 0, 1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("redemption is > 0", () => {
+    expect(evaluateCell("A1", { A1: "=DISC(0, 1, 1, -1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DISC(0, 1, 1, 0, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("dayCountConvention is between 0 and 4", () => {
+    expect(evaluateCell("A1", { A1: "=DISC(0, 1, 1, 1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DISC(0, 1, 1, 1, 5)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test.each([
+    ["01/01/2012", "01/01/2014", 100, 200, 2, 0.24623803],
+    ["01/01/2012", "05/01/2016", 100, 100, 2, 0],
+    ["01/01/2012", "05/01/2016", 60, 100, 2, 0.09102402],
+    ["12/20/2014", "05/01/2016", 1, 68, 2, 0.712260808],
+    ["12/20/2014", "05/01/2016", 50, 60, 2, 0.120481928],
+    ["01/30/2013", "05/31/2016", 5, 6, 2, 0.049301561],
+    ["12/30/2014", "05/31/2016", 50, 5, 2, -6.254826255],
+    ["12/30/2014", "05/31/2016", 200, 110, 2, -0.568620569],
+    ["12/30/2014", "05/31/2016", 347, 1, 2, -240.4633205],
+    ["12/30/2009", "05/31/2023", 12, 1, 2, -0.808163265],
+    ["12/31/2012", "05/01/2016", 100, 68, 0, -0.141058921],
+    ["12/31/2012", "05/01/2016", 100, 68, 1, -0.141292474],
+    ["12/31/2012", "05/01/2016", 100, 68, 2, -0.139204408],
+    ["12/31/2012", "05/01/2016", 100, 68, 3, -0.141137803],
+    ["12/31/2012", "05/01/2016", 100, 68, 4, -0.141058921],
+    ["02/29/2012", "01/31/2013", 500, 1000, 0, 0.543806647],
+    ["02/29/2012", "01/01/2013", 500, 1000, 1, 0.596091205],
+    ["02/29/2012", "01/01/2013", 500, 1000, 2, 0.586319218],
+    ["02/29/2012", "01/01/2013", 500, 1000, 3, 0.594462541],
+    ["02/29/2012", "01/01/2013", 500, 1000, 4, 0.59602649],
+    ["02/28/2011", "02/28/2012", 500, 1000, 0, 0.502793296],
+    ["02/28/2011", "02/28/2012", 500, 1000, 1, 0.5],
+    ["02/28/2011", "02/28/2012", 500, 1000, 2, 0.493150685],
+    ["02/28/2011", "02/28/2012", 500, 1000, 3, 0.5],
+    ["02/28/2011", "02/28/2012", 500, 1000, 4, 0.5],
+  ])(
+    "function result =DISC(%s, %s, %s, %s, %s)",
+    (
+      settlement: string,
+      maturity: string,
+      price: number,
+      redemption: number,
+      dayCountConvention: number,
+      expectedResult: number
+    ) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=DISC("${settlement}", "${maturity}", ${price}, ${redemption}, ${dayCountConvention})`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+});
+
 describe("DURATION formula", () => {
   test("take at 4 or 5 arguments", () => {
     expect(evaluateCell("A1", { A1: "=DURATION(0, 365, 0.05, 0.1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
