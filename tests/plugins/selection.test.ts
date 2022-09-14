@@ -1,5 +1,5 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { toZone } from "../../src/helpers";
+import { positions, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import { SelectionDirection } from "../../src/types/selection";
@@ -516,6 +516,20 @@ describe("multiple sheets", () => {
     model.dispatch("DELETE_SHEET", { sheetId });
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
     expect(model.getters.getActiveSheetId()).toBe("42");
+  });
+
+  test("Do not share selections between sheets", () => {
+    const model = new Model();
+    selectCell(model, "B2");
+    const sheetId = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "42", activate: true });
+    selectCell(model, "C4");
+    activateSheet(model, sheetId);
+    // any action that can be undone
+    createSheet(model, { sheetId: "test to undo" });
+    undo(model);
+    expect(model.getters.getSheetPosition(sheetId)).toEqual(positions(toZone("B2"))[0]);
+    expect(model.getters.getSheetPosition("42")).toEqual(positions(toZone("C4"))[0]);
   });
 
   test("Activating an unvisited sheet selects its first visible cell", () => {

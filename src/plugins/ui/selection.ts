@@ -43,8 +43,6 @@ import { UIPlugin } from "../ui_plugin";
 
 interface SheetInfo {
   gridSelection: Selection;
-  activeCol: number;
-  activeRow: number;
 }
 
 interface SelectionStatisticFunction {
@@ -225,11 +223,8 @@ export class GridSelectionPlugin extends UIPlugin {
         break;
       case "ACTIVATE_SHEET": {
         this.setActiveSheet(cmd.sheetIdTo);
-        const { col, row } = this.gridSelection.anchor.cell;
         this.sheetsData[cmd.sheetIdFrom] = {
           gridSelection: deepCopy(this.gridSelection),
-          activeCol: col,
-          activeRow: row,
         };
         if (cmd.sheetIdTo in this.sheetsData) {
           Object.assign(this, this.sheetsData[cmd.sheetIdTo]);
@@ -296,11 +291,9 @@ export class GridSelectionPlugin extends UIPlugin {
           delete this.sheetsData[sheetId];
         }
         for (const sheetId in this.sheetsData) {
-          const { anchor } = this.clipSelection(sheetId, this.sheetsData[sheetId].gridSelection);
+          const gridSelection = this.clipSelection(sheetId, this.sheetsData[sheetId].gridSelection);
           this.sheetsData[sheetId] = {
-            gridSelection: this.gridSelection,
-            activeCol: anchor.cell.col,
-            activeRow: anchor.cell.row,
+            gridSelection: deepCopy(gridSelection),
           };
         }
         const sheetId = this.getters.getActiveSheetId();
