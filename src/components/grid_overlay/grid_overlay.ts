@@ -8,7 +8,7 @@ import {
   Ref,
   SpreadsheetChildEnv,
 } from "../../types";
-import { FiguresContainer } from "../figures/container/container";
+import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { useInterval } from "../helpers/time_hooks";
 
 function useCellHovered(
