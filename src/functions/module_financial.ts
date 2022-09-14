@@ -2,7 +2,15 @@ import { addMonthsToDate, getYearFrac, isLastDayOfMonth, jsDateToRoundNumber } f
 import { _lt } from "../translation";
 import { AddFunctionDescription, ArgValue, MatrixArgValue, PrimitiveArgValue } from "../types";
 import { args } from "./arguments";
-import { assert, reduceNumbers, toBoolean, toJsDate, toNumber, visitNumbers } from "./helpers";
+import {
+  assert,
+  reduceAny,
+  reduceNumbers,
+  toBoolean,
+  toJsDate,
+  toNumber,
+  visitNumbers,
+} from "./helpers";
 import {
   assertCostPositiveOrZero,
   assertLifePositive,
@@ -823,6 +831,24 @@ export const FV: AddFunctionDescription = {
     const pv = toNumber(presentValue);
     const type = toBoolean(endOrBeginning) ? 1 : 0;
     return r ? -pv * (1 + r) ** n - (p * (1 + r * type) * ((1 + r) ** n - 1)) / r : -(pv + p * n);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// FVSCHEDULE
+// -----------------------------------------------------------------------------
+export const FVSCHEDULE: AddFunctionDescription = {
+  description: _lt("Future value of principal from series of rates."),
+  args: args(`
+  principal (number) ${_lt("The amount of initial capital or value to compound against.")}
+  rate_schedule (number, range<number>) ${_lt(
+    "A series of interest rates to compound against the principal."
+  )}
+  `),
+  returns: ["NUMBER"],
+  compute: function (principalAmount: PrimitiveArgValue, rateSchedule: ArgValue): number {
+    const principal = toNumber(principalAmount);
+    return reduceAny([rateSchedule], (acc, rate) => acc * (1 + toNumber(rate)), principal);
   },
 };
 
