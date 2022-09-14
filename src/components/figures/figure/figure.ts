@@ -1,4 +1,4 @@
-import { Component, onMounted, useState } from "@odoo/owl";
+import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import {
   ComponentsImportance,
   FIGURE_BORDER_COLOR,
@@ -9,7 +9,6 @@ import { Figure, Pixel, SpreadsheetChildEnv, UID } from "../../../types/index";
 import { css } from "../../helpers/css";
 import { gridOverlayPosition } from "../../helpers/dom_helpers";
 import { startDnd } from "../../helpers/drag_and_drop";
-import { ChartFigure } from "../figure_chart/figure_chart";
 
 type Anchor =
   | "top left"
@@ -21,12 +20,6 @@ type Anchor =
   | "bottom left"
   | "left";
 
-interface FigureInfo {
-  id: UID;
-  isSelected: boolean;
-  figure: Figure;
-}
-
 // -----------------------------------------------------------------------------
 // STYLE
 // -----------------------------------------------------------------------------
@@ -36,16 +29,12 @@ const ACTIVE_BORDER_WIDTH = 2;
 const MIN_FIG_SIZE = 80;
 
 css/*SCSS*/ `
-  .o-figure-wrapper {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-  }
-
   div.o-figure {
     box-sizing: content-box;
     position: absolute;
+    width: 100%;
+    height: 100%;
+
     bottom: 0px;
     right: 0px;
     border: solid ${FIGURE_BORDER_COLOR};
@@ -62,10 +51,16 @@ css/*SCSS*/ `
     }
   }
 
-  .o-figure-container {
+  .o-figure-wrapper {
     position: absolute;
     box-sizing: content-box;
 
+    .o-figure-overflow-wrapper {
+      position: absolute;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+    }
     .o-anchor {
       z-index: ${ComponentsImportance.ChartAnchor};
       position: absolute;
@@ -105,74 +100,60 @@ css/*SCSS*/ `
 interface Props {
   sidePanelIsOpen: Boolean;
   onFigureDeleted: () => void;
+  figure: Figure;
 }
 
-export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-FiguresContainer";
+export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-FigureComponent";
   static components = {};
   figureRegistry = figureRegistry;
 
+  private figureRef = useRef("figure");
+
   dnd = useState({
-    figureId: "",
+    isActive: false,
     x: 0,
     y: 0,
     width: 0,
     height: 0,
   });
 
-  getVisibleFigures(): FigureInfo[] {
-    const selectedId = this.env.model.getters.getSelectedFigureId();
-    return this.env.model.getters.getVisibleFigures().map((f) => {
-      let figure = f;
-      // Returns current state of drag&drop figure instead of its stored state
-      if (this.dnd.figureId === f.id) {
-        figure = {
-          ...f,
-          x: this.dnd.x,
-          y: this.dnd.y,
-          width: this.dnd.width,
-          height: this.dnd.height,
-        };
-      }
-      return {
-        id: f.id,
-        isSelected: f.id === selectedId,
-        figure: figure,
-      };
-    });
+  get displayedFigure(): Figure {
+    return this.dnd.isActive ? { ...this.props.figure, ...this.dnd } : this.props.figure;
+  }
+
+  get isSelected(): boolean {
+    return this.env.model.getters.getSelectedFigureId() === this.props.figure.id;
   }
 
   /** Get the current figure size, which is either the stored figure size of the DnD figure size */
-  private getFigureSize(info: FigureInfo) {
-    const { figure, isSelected } = info;
-    const target = figure.id === (isSelected && this.dnd.figureId) ? this.dnd : figure;
-    const { width, height } = target;
+  private getFigureSize() {
+    const { width, height } = this.displayedFigure;
     return { width, height };
   }
 
-  private getFigureSizeWithBorders(info: FigureInfo) {
-    const { width, height } = this.getFigureSize(info);
-    const borders = this.getBorderWidth(info) * 2;
+  private getFigureSizeWithBorders() {
+    const { width, height } = this.getFigureSize();
+    const borders = this.getBorderWidth() * 2;
     return { width: width + borders, height: height + borders };
   }
 
-  private getBorderWidth(info: FigureInfo) {
-    return info.isSelected ? ACTIVE_BORDER_WIDTH : this.env.isDashboard() ? 0 : BORDER_WIDTH;
+  private getBorderWidth() {
+    return this.isSelected ? ACTIVE_BORDER_WIDTH : this.env.isDashboard() ? 0 : BORDER_WIDTH;
   }
 
-  getFigureStyle(info: FigureInfo) {
-    const { width, height } = info.figure;
-    return `width:${width}px;height:${height}px;border-width: ${this.getBorderWidth(info)}px;`;
+  getFigureStyle() {
+    const { width, height } = this.displayedFigure;
+    return `width:${width}px;height:${height}px;border-width: ${this.getBorderWidth()}px;`;
   }
 
-  getContainerStyle(info: FigureInfo) {
-    const { figure, isSelected } = info;
-    const target = figure.id === (isSelected && this.dnd.figureId) ? this.dnd : figure;
+  getContainerStyle() {
+    const target = this.displayedFigure;
     const { x: offsetCorrectionX, y: offsetCorrectionY } =
       this.env.model.getters.getMainViewportCoordinates();
 
     const { offsetX, offsetY } = this.env.model.getters.getActiveSheetScrollInfo();
-    let { width, height } = this.getFigureSizeWithBorders(info);
+    let { width, height } = this.getFigureSizeWithBorders();
     let x: Pixel, y: Pixel;
 
     // Visually, the content of the container is slightly shifted as it includes borders and/or corners.
@@ -200,23 +181,22 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     if (width < 0 || height < 0) {
       return `display:none;`;
     }
-    const borderOffset = BORDER_WIDTH - this.getBorderWidth(info);
+    const borderOffset = BORDER_WIDTH - this.getBorderWidth();
     // TODO : remove the +1 once 2951210 is fixed
     return (
       `top:${y + borderOffset + 1}px;` +
       `left:${x + borderOffset}px;` +
       `width:${width}px;` +
       `height:${height}px;` +
-      `z-index: ${ComponentsImportance.Figure + (info.isSelected ? 1 : 0)}`
+      `z-index: ${ComponentsImportance.Figure + (this.isSelected ? 1 : 0)}`
     );
   }
 
-  getAnchorPosition(anchor: Anchor, info: FigureInfo) {
-    let { width, height } = this.getFigureSizeWithBorders(info);
+  getAnchorPosition(anchor: Anchor) {
+    let { width, height } = this.getFigureSizeWithBorders();
 
     const anchorCenteringOffset = (ANCHOR_SIZE - ACTIVE_BORDER_WIDTH) / 2;
-    const { figure, isSelected } = info;
-    const target = figure.id === (isSelected && this.dnd.figureId) ? this.dnd : figure;
+    const target = this.displayedFigure;
 
     let x = 0;
     let y = 0;
@@ -266,23 +246,23 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   setup() {
-    onMounted(() => {
-      // horrible, but necessary
-      // the following line ensures that we render the figures with the correct
-      // viewport.  The reason is that whenever we initialize the grid
-      // component, we do not know yet the actual size of the viewport, so the
-      // first owl rendering is done with an empty viewport.  Only then we can
-      // compute which figures should be displayed, so we have to force a
-      // new rendering
-      this.render();
-    });
+    useEffect(
+      (selectedFigureId: UID | null, thisFigureId: UID, el: HTMLElement | null) => {
+        if (selectedFigureId === thisFigureId) {
+          el?.focus();
+        }
+      },
+      () => [this.env.model.getters.getSelectedFigureId(), this.props.figure.id, this.figureRef.el]
+    );
   }
 
-  resize(figure: Figure, dirX: number, dirY: number, ev: MouseEvent) {
+  resize(dirX: number, dirY: number, ev: MouseEvent) {
+    const figure = this.props.figure;
+
     ev.stopPropagation();
     const initialX = ev.clientX;
     const initialY = ev.clientY;
-    this.dnd.figureId = figure.id;
+    this.dnd.isActive = true;
     this.dnd.x = figure.x;
     this.dnd.y = figure.y;
     this.dnd.width = figure.width;
@@ -301,7 +281,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       }
     };
     const onMouseUp = (ev: MouseEvent) => {
-      this.dnd.figureId = "";
+      this.dnd.isActive = false;
       const update: Partial<Figure> = {
         x: this.dnd.x,
         y: this.dnd.y,
@@ -321,7 +301,9 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     startDnd(onMouseMove, onMouseUp);
   }
 
-  onMouseDown(figure: Figure, ev: MouseEvent) {
+  onMouseDown(ev: MouseEvent) {
+    const figure = this.props.figure;
+
     if (ev.button > 0 || this.env.model.getters.isReadonly()) {
       // not main button, probably a context menu
       return;
@@ -331,7 +313,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
     if (this.props.sidePanelIsOpen) {
-      this.env.openSidePanel("ChartPanel", { figureId: figure.id });
+      this.env.openSidePanel("ChartPanel");
     }
 
     const position = gridOverlayPosition();
@@ -341,7 +323,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
 
     const initialX = ev.clientX - position.left;
     const initialY = ev.clientY - position.top;
-    this.dnd.figureId = figure.id;
+    this.dnd.isActive = true;
     this.dnd.x = figure.x;
     this.dnd.y = figure.y;
     this.dnd.width = figure.width;
@@ -368,7 +350,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       this.dnd.y = Math.max(figure.y + deltaY, 0);
     };
     const onMouseUp = (ev: MouseEvent) => {
-      this.dnd.figureId = "";
+      this.dnd.isActive = false;
       this.env.model.dispatch("UPDATE_FIGURE", {
         sheetId: this.env.model.getters.getActiveSheetId(),
         id: figure.id,
@@ -379,7 +361,9 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     startDnd(onMouseMove, onMouseUp);
   }
 
-  onKeyDown(figure: Figure, ev: KeyboardEvent) {
+  onKeyDown(ev: KeyboardEvent) {
+    const figure = this.props.figure;
+
     switch (ev.key) {
       case "Delete":
         this.env.model.dispatch("DELETE_FIGURE", {
@@ -411,5 +395,3 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 }
-
-figureRegistry.add("chart", { Component: ChartFigure, SidePanelComponent: "ChartPanel" });

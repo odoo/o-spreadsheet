@@ -59,7 +59,10 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
     registry.add("edit", {
       name: _lt("Edit"),
       sequence: 1,
-      action: () => this.env.openSidePanel("ChartPanel", { figureId: this.props.figure.id }),
+      action: () => {
+        this.env.model.dispatch("SELECT_FIGURE", { id: this.props.figure.id });
+        this.env.openSidePanel("ChartPanel");
+      },
     });
     registry.add("copy", {
       name: _lt("Copy"),
@@ -88,7 +91,7 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
           id: this.props.figure.id,
         });
         if (this.props.sidePanelIsOpen) {
-          this.env.toggleSidePanel("ChartPanel", { figureId: this.props.figure.id });
+          this.env.toggleSidePanel("ChartPanel");
         }
         this.props.onFigureDeleted();
       },
