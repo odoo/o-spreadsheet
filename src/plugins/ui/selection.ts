@@ -280,16 +280,6 @@ export class GridSelectionPlugin extends UIPlugin {
       case "UNDO":
       case "REDO":
       case "DELETE_SHEET":
-        if (!this.getters.tryGetSheet(this.getters.getActiveSheetId())) {
-          const currentSheets = this.getters.getVisibleSheetIds();
-          this.activeSheet = this.getters.getSheet(currentSheets[0]);
-          this.selectCell(0, 0);
-          this.moveClient({
-            sheetId: this.getters.getActiveSheetId(),
-            col: 0,
-            row: 0,
-          });
-        }
         const deletedSheetIds = Object.keys(this.sheetsData).filter(
           (sheetId) => !this.getters.tryGetSheet(sheetId)
         );
@@ -301,6 +291,25 @@ export class GridSelectionPlugin extends UIPlugin {
           this.sheetsData[sheetId] = {
             gridSelection: deepCopy(gridSelection),
           };
+        }
+        if (!this.getters.tryGetSheet(this.getters.getActiveSheetId())) {
+          const currentSheetIds = this.getters.getVisibleSheetIds();
+          this.activeSheet = this.getters.getSheet(currentSheetIds[0]);
+          if (this.activeSheet.id in this.sheetsData) {
+            const { anchor } = this.clipSelection(
+              this.activeSheet.id,
+              this.sheetsData[this.activeSheet.id].gridSelection
+            );
+            this.selectCell(anchor.cell.col, anchor.cell.row);
+          } else {
+            this.selectCell(0, 0);
+          }
+          const { col, row } = this.gridSelection.anchor.cell;
+          this.moveClient({
+            sheetId: this.getters.getActiveSheetId(),
+            col,
+            row,
+          });
         }
         const sheetId = this.getters.getActiveSheetId();
         this.gridSelection.zones = this.gridSelection.zones.map((z) =>
