@@ -512,11 +512,14 @@ describe("multiple sheets", () => {
   test("Selection is updated when deleting the active sheet", () => {
     const model = new Model();
     selectCell(model, "B2");
-    const sheetId = model.getters.getActiveSheetId();
-    createSheet(model, { sheetId: "42" });
-    model.dispatch("DELETE_SHEET", { sheetId });
-    expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
-    expect(model.getters.getActiveSheetId()).toBe("42");
+    const firstSheetId = model.getters.getActiveSheetId();
+    const secondSheetId = "42";
+    createSheet(model, { sheetId: secondSheetId, activate: true });
+    selectCell(model, "C4");
+    activateSheet(model, firstSheetId);
+    model.dispatch("DELETE_SHEET", { sheetId: firstSheetId });
+    expect(model.getters.getSelectedZone()).toEqual(toZone("C4"));
+    expect(model.getters.getActiveSheetId()).toBe(secondSheetId);
   });
 
   test("Do not share selections between sheets", () => {
