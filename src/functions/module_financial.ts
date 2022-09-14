@@ -665,6 +665,33 @@ export const DOLLARDE: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// DOLLARFR
+// -----------------------------------------------------------------------------
+export const DOLLARFR: AddFunctionDescription = {
+  description: _lt("Convert a decimal value to decimal fraction."),
+  args: args(`
+  decimal_price (number) ${_lt("The price quotation given as a decimal value.")}
+      unit (number) ${_lt(
+        "The units of the desired fraction, e.g. 8 for 1/8ths or 32 for 1/32nds."
+      )}
+    `),
+  returns: ["NUMBER"],
+  compute: function (decimalPrice: PrimitiveArgValue, unit: PrimitiveArgValue): number {
+    const price = toNumber(decimalPrice);
+    const _unit = Math.trunc(toNumber(unit));
+
+    assert(() => _unit > 0, _lt("The unit (%s) must be strictly positive.", _unit.toString()));
+
+    const truncatedPrice = Math.trunc(price);
+    const priceFractionalPart = price - truncatedPrice;
+
+    const frac = _unit / 10 ** Math.ceil(Math.log10(_unit));
+
+    return truncatedPrice + priceFractionalPart * frac;
+  },
+};
+
+// -----------------------------------------------------------------------------
 // DURATION
 // -----------------------------------------------------------------------------
 export const DURATION: AddFunctionDescription = {
