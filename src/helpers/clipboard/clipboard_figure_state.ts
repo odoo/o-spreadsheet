@@ -86,6 +86,8 @@ export class ClipboardFigureState implements ClipboardState {
         id: this.copiedFigure.id,
       });
     }
+
+    this.dispatch("SELECT_FIGURE", { id: newId });
   }
 
   getClipboardContent() {

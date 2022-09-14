@@ -287,6 +287,24 @@ describe("figures", () => {
     }
   );
 
+  test.each(["basicChart", "scorecard", "gauge"])(
+    "Copied chart are selected",
+    async (chartType: string) => {
+      createTestChart(chartType);
+      await nextTick();
+
+      await simulateClick(".o-figure");
+      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-menu div[data-name='copy']");
+      expect(model.getters.getSelectedFigureId()).toEqual(chartId);
+      paste(model, "A1");
+      expect(model.getters.getChartIds(sheetId).length).toEqual(2);
+      const chartIds = model.getters.getChartIds(sheetId);
+      expect(model.getters.getSelectedFigureId()).not.toEqual(chartId);
+      expect(model.getters.getSelectedFigureId()).toEqual(chartIds[1]);
+    }
+  );
+
   test.each(["scorecard", "basicChart", "gauge"])(
     "Click on Edit button will prefill sidepanel",
     async (chartType: string) => {
@@ -440,7 +458,8 @@ describe("figures", () => {
       const domClass = rangesDomClasses[i];
       const attrName = nameInChartDef[i];
       expect(model.getters.getChartDefinition(chartId)?.[attrName]).not.toBeUndefined();
-      parent.env.openSidePanel("ChartPanel", { figureId: chartId });
+      parent.env.model.dispatch("SELECT_FIGURE", { id: chartId });
+      parent.env.openSidePanel("ChartPanel");
       await nextTick();
       await simulateClick(domClass + " input");
       setInputValueAndTrigger(domClass + " input", "", "change");
@@ -505,43 +524,60 @@ describe("figures", () => {
     }
   );
 
-  test.each(["basicChart", "scorecard", "gauge"])(
+  describe.each(["basicChart", "scorecard", "gauge"])(
     "selecting other chart will adapt sidepanel",
-    async (chartType: string) => {
-      createTestChart(chartType);
-      await nextTick();
+    (chartType: string) => {
+      test.each(["click", "SELECT_FIGURE command"])(
+        "when using %s",
+        async (selectMethod: string) => {
+          createTestChart(chartType);
+          await nextTick();
 
-      createChart(model, {
-        dataSets: ["C1:C4"],
-        labelRange: "A2:A4",
-        title: "second",
-        type: "line",
-      });
-      await nextTick();
-      const figures = fixture.querySelectorAll(".o-figure");
-      await simulateClick(figures[0] as HTMLElement);
-      await simulateClick(".o-chart-menu-item");
-      await simulateClick(".o-menu div[data-name='edit']");
-      await nextTick();
-      expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
-      await simulateClick(figures[1] as HTMLElement);
-      await nextTick();
-      const panelChartType = fixture.querySelectorAll(".o-input")[0];
-      const dataSeries = fixture.querySelectorAll(
-        ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
-      )[0];
-      const hasTitle = (dataSeries.querySelector("input[type=checkbox]") as HTMLInputElement)
-        .checked;
-      const labels = fixture.querySelector(".o-data-labels");
-      expect((panelChartType as HTMLSelectElement).value).toBe("line");
-      expect((dataSeries.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
-        "C1:C4"
-      );
-      expect(hasTitle).toBe(true);
-      expect((labels!.querySelector(".o-selection input") as HTMLInputElement).value).toBe("A2:A4");
-      await simulateClick(".o-panel .inactive");
-      expect((fixture.querySelector(".o-panel .inactive") as HTMLElement).textContent).toBe(
-        " Configuration "
+          createChart(
+            model,
+            {
+              dataSets: ["C1:C4"],
+              labelRange: "A2:A4",
+              title: "second",
+              type: "line",
+            },
+            "secondChartId"
+          );
+          await nextTick();
+          const figures = fixture.querySelectorAll(".o-figure");
+          await simulateClick(figures[0] as HTMLElement);
+          await simulateClick(".o-chart-menu-item");
+          await simulateClick(".o-menu div[data-name='edit']");
+          await nextTick();
+          expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
+
+          if (selectMethod === "click") {
+            await simulateClick(figures[1] as HTMLElement);
+          } else {
+            model.dispatch("SELECT_FIGURE", { id: "secondChartId" });
+          }
+
+          await nextTick();
+          const panelChartType = fixture.querySelectorAll(".o-input")[0];
+          const dataSeries = fixture.querySelectorAll(
+            ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
+          )[0];
+          const hasTitle = (dataSeries.querySelector("input[type=checkbox]") as HTMLInputElement)
+            .checked;
+          const labels = fixture.querySelector(".o-data-labels");
+          expect((panelChartType as HTMLSelectElement).value).toBe("line");
+          expect((dataSeries.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
+            "C1:C4"
+          );
+          expect(hasTitle).toBe(true);
+          expect((labels!.querySelector(".o-selection input") as HTMLInputElement).value).toBe(
+            "A2:A4"
+          );
+          await simulateClick(".o-panel .inactive");
+          expect((fixture.querySelector(".o-panel .inactive") as HTMLElement).textContent).toBe(
+            " Configuration "
+          );
+        }
       );
     }
   );
@@ -775,7 +811,8 @@ describe("figures", () => {
       createTestChart(chartType);
       await nextTick();
 
-      parent.env.openSidePanel("ChartPanel", { figureId: chartId });
+      parent.env.model.dispatch("SELECT_FIGURE", { id: chartId });
+      parent.env.openSidePanel("ChartPanel");
       await nextTick();
 
       // empty dataset/key value
@@ -798,7 +835,8 @@ describe("figures", () => {
       beforeEach(async () => {
         createTestChart("gauge");
         await nextTick();
-        parent.env.openSidePanel("ChartPanel", { figureId: chartId });
+        parent.env.model.dispatch("SELECT_FIGURE", { id: chartId });
+        parent.env.openSidePanel("ChartPanel");
         await nextTick();
       });
 
