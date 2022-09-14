@@ -1121,6 +1121,39 @@ describe("DISC function", () => {
   );
 });
 
+describe("DOLLARFR function", () => {
+  test("DOLLARFR takes 2 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=DOLLARFR()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=DOLLARFR(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=DOLLARFR(1, 1)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=DOLLARFR(1, 1, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("unit must be strictly positive", () => {
+    expect(evaluateCell("A1", { A1: "=DOLLARFR(1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DOLLARFR(1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test.each([
+    [10, 8, 10],
+    [15.9, 32, 15.288],
+    [100.1, 32, 100.032],
+    [69.1, 9, 69.09],
+    [-10.9, 9, -10.81],
+    [-10.85, 9, -10.765],
+    [-10.7, 9, -10.63],
+    [-10.7, 9.68, -10.63],
+    [589.99, 105, 589.10395],
+    [0.99, 256, 0.25344],
+  ])(
+    "function result =DOLLARFR(%s, %s)",
+    (decimalPrice: number, unit: number, expectedResult: number) => {
+      const cellValue = evaluateCell("A1", { A1: `=DOLLARFR(${decimalPrice}, ${unit})` });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+});
+
 describe("DURATION formula", () => {
   test("take at 4 or 5 arguments", () => {
     expect(evaluateCell("A1", { A1: "=DURATION(0, 365, 0.05, 0.1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
