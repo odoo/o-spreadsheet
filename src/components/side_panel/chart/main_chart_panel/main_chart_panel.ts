@@ -2,6 +2,7 @@ import { Component, onWillUpdateProps, useState } from "@odoo/owl";
 import { ChartSidePanel, chartSidePanelComponentRegistry } from "..";
 import { BACKGROUND_HEADER_COLOR } from "../../../../constants";
 import { getChartDefinitionFromContextCreation, getChartTypes } from "../../../../helpers/charts";
+import { _lt } from "../../../../translation";
 import { ChartDefinition, ChartType, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { css } from "../../../helpers/css";
 
@@ -38,12 +39,12 @@ css/* scss */ `
 `;
 
 interface Props {
-  figureId: UID;
   onCloseSidePanel: () => void;
 }
 
 interface State {
   panel: "configuration" | "design";
+  figureId: UID;
 }
 
 export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
@@ -52,16 +53,25 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
   private state!: State;
 
   get figureId(): UID {
-    return this.props.figureId;
+    return this.state.figureId;
   }
 
   setup(): void {
+    const selectedFigureId = this.env.model.getters.getSelectedFigureId();
+    if (!selectedFigureId) {
+      throw new Error(_lt("Cannot open the chart side panel while no chart are selected"));
+    }
     this.state = useState({
       panel: "configuration",
+      figureId: selectedFigureId,
     });
 
-    onWillUpdateProps((nextProps: Props) => {
-      if (!this.env.model.getters.isChartDefined(nextProps.figureId)) {
+    onWillUpdateProps(() => {
+      const selectedFigureId = this.env.model.getters.getSelectedFigureId();
+      if (selectedFigureId && selectedFigureId !== this.state.figureId) {
+        this.state.figureId = selectedFigureId;
+      }
+      if (!this.env.model.getters.isChartDefined(this.figureId)) {
         this.props.onCloseSidePanel();
         return;
       }

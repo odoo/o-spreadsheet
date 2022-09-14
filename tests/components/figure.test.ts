@@ -165,6 +165,14 @@ describe("figures", () => {
     expect(figure).toMatchObject({ id: "someuuid", x: 2, y: 2 });
   });
 
+  test("figure is focused after a SELECT_FIGURE", async () => {
+    createFigure(model);
+    await nextTick();
+    model.dispatch("SELECT_FIGURE", { id: "someuuid" });
+    await nextTick();
+    expect(document.activeElement?.classList).toContain("o-figure");
+  });
+
   test("select a figure, it should have the  resize handles", async () => {
     createFigure(model);
     model.dispatch("SELECT_FIGURE", { id: "someuuid" });
@@ -223,7 +231,7 @@ describe("figures", () => {
     const figureId = "someuuid";
     createFigure(model, { id: figureId, x: 100, y: 20, height: 200, width: 100 });
     await nextTick();
-    const figure = fixture.querySelector(".o-figure-container")!;
+    const figure = fixture.querySelector(".o-figure-wrapper")!;
     expect(window.getComputedStyle(figure).width).toBe("102px"); // width + borders
     expect(window.getComputedStyle(figure).height).toBe("202px"); // height + borders
     model.dispatch("SET_VIEWPORT_OFFSET", {

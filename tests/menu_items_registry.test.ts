@@ -1072,6 +1072,15 @@ describe("Menu Item actions", () => {
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
 
+    test("Chart is selected and focused at insertion", async () => {
+      setSelection(model, ["B2"]);
+      doAction(["insert", "insert_chart"], env);
+      const id = model.getters.getFigures(model.getters.getActiveSheetId())[0].id;
+      expect(dispatchSpy).toHaveBeenCalledWith("SELECT_FIGURE", { id });
+      await nextTick();
+      expect(document.activeElement?.classList).toContain("o-figure");
+    });
+
     test("Chart is inserted at correct position inside bottomRight pane for rows freeze", () => {
       const sheetId = model.getters.getActiveSheetId();
       freezeRows(model, 5, sheetId);
@@ -1181,7 +1190,7 @@ describe("Menu Item actions", () => {
         x: 2 * DEFAULT_CELL_WIDTH + (width - DEFAULT_FIGURE_WIDTH) / 2,
         y: 4 * DEFAULT_CELL_HEIGHT + (height - DEFAULT_FIGURE_HEIGHT) / 2,
       }; // Position at the center of the viewport
-      expect(dispatchSpy).toHaveBeenLastCalledWith("CREATE_CHART", payload);
+      expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
 
     test("Chart is inserted at correct position on a scrolled viewport with frozen rows", () => {
@@ -1203,7 +1212,7 @@ describe("Menu Item actions", () => {
         x: 2 * DEFAULT_CELL_WIDTH + (width - DEFAULT_FIGURE_WIDTH) / 2,
         y: 4 * DEFAULT_CELL_HEIGHT + (height - DEFAULT_FIGURE_HEIGHT + offsetCorrectionY) / 2,
       }; // Position at the center of the viewport
-      expect(dispatchSpy).toHaveBeenLastCalledWith("CREATE_CHART", payload);
+      expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
 
     test("Chart is inserted at correct position on a scrolled viewport with columns frozen", () => {
@@ -1225,7 +1234,7 @@ describe("Menu Item actions", () => {
         x: 2 * DEFAULT_CELL_WIDTH + (width - DEFAULT_FIGURE_WIDTH + offsetCorrectionX) / 2,
         y: 4 * DEFAULT_CELL_HEIGHT + (height - DEFAULT_FIGURE_HEIGHT) / 2,
       }; // Position at the center of the viewport
-      expect(dispatchSpy).toHaveBeenLastCalledWith("CREATE_CHART", payload);
+      expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
 
     test("Chart is inserted at correct position on a scrolled viewport with both directions frozen", () => {
@@ -1249,7 +1258,7 @@ describe("Menu Item actions", () => {
         x: 2 * DEFAULT_CELL_WIDTH + (width - DEFAULT_FIGURE_WIDTH + offsetCorrectionX) / 2,
         y: 4 * DEFAULT_CELL_HEIGHT + (height - DEFAULT_FIGURE_HEIGHT + offsetCorrectionY) / 2,
       }; // Position at the center of the viewport
-      expect(dispatchSpy).toHaveBeenLastCalledWith("CREATE_CHART", payload);
+      expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
 
     test("Chart of single column without title", () => {
