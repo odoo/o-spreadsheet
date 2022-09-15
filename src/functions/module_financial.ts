@@ -1921,6 +1921,62 @@ export const SYD: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// TBILLPRICE
+// -----------------------------------------------------------------------------
+export const TBILLPRICE: AddFunctionDescription = {
+  description: _lt("Price of a US Treasury bill."),
+  args: args(`
+      settlement (date) ${_lt(
+        "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
+      )}
+      maturity (date) ${_lt(
+        "The maturity or end date of the security, when it can be redeemed at face, or par value."
+      )}
+      discount (number) ${_lt("The discount rate of the bill at time of purchase.")}
+    `),
+  returns: ["NUMBER"],
+  compute: function (
+    settlement: PrimitiveArgValue,
+    maturity: PrimitiveArgValue,
+    discount: PrimitiveArgValue
+  ): number {
+    const start = Math.trunc(toNumber(settlement));
+    const end = Math.trunc(toNumber(maturity));
+    const disc = toNumber(discount);
+
+    const startDate = toJsDate(start);
+    const endDate = toJsDate(end);
+
+    const startDatePlusOneYear = new Date(startDate);
+    startDatePlusOneYear.setFullYear(startDate.getFullYear() + 1);
+
+    checkMaturityAndSettlementDates(start, end);
+    assert(
+      () => endDate.getTime() <= startDatePlusOneYear.getTime(),
+      _lt(
+        "The settlement date (%s) must at most one year after the maturity date (%s).",
+        start.toString(),
+        end.toString()
+      )
+    );
+    assertDiscountPositive(disc);
+    assert(() => disc < 1, _lt("The discount (%s) must be smaller than 1.", disc.toString()));
+
+    /**
+     * https://support.microsoft.com/en-us/office/tbillprice-function-eacca992-c29d-425a-9eb8-0513fe6035a2
+     *
+     * TBILLPRICE = 100 * (1 - discount * DSM / 360)
+     *
+     * with DSM = number of days from settlement to maturity
+     *
+     * The ratio DSM/360 can be computed with the YEARFRAC function with dayCountConvention = 2 (actual/360).
+     */
+    const yearFrac = YEARFRAC.compute(start, end, 2) as number;
+    return 100 * (1 - disc * yearFrac);
+  },
+};
+
+// -----------------------------------------------------------------------------
 // YIELD
 // -----------------------------------------------------------------------------
 
