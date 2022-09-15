@@ -1822,6 +1822,39 @@ export const RECEIVED: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// RRI
+// -----------------------------------------------------------------------------
+export const RRI: AddFunctionDescription = {
+  description: _lt(
+    "Computes the rate needed for an investment to reach a specific value within a specific number of periods."
+  ),
+  args: args(`
+      number_of_periods (number) ${_lt("The number of periods.")}
+      present_value (number) ${_lt("The present value of the investment.")}
+      future_value (number) ${_lt("The future value of the investment.")}
+    `),
+  returns: ["NUMBER"],
+  compute: function (
+    numberOfPeriods: PrimitiveArgValue,
+    presentValue: PrimitiveArgValue,
+    futureValue: PrimitiveArgValue
+  ): number {
+    const n = toNumber(numberOfPeriods);
+    const pv = toNumber(presentValue);
+    const fv = toNumber(futureValue);
+
+    assertNumberOfPeriodsPositive(n);
+
+    /**
+     * https://support.microsoft.com/en-us/office/rri-function-6f5822d8-7ef1-4233-944c-79e8172930f4
+     *
+     * RRI = (future value / present value) ^ (1 / number of periods) - 1
+     */
+    return (fv / pv) ** (1 / n) - 1;
+  },
+};
+
+// -----------------------------------------------------------------------------
 // YIELD
 // -----------------------------------------------------------------------------
 

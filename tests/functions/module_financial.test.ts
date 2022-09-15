@@ -4198,6 +4198,51 @@ describe("RECEIVED function", () => {
   );
 });
 
+describe("RRI function", () => {
+  test("RRI takes 3 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=RRI()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=RRI(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=RRI(1, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=RRI(1, 1, 1)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=RRI(1, 1, 1, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("number of period should be positive", () => {
+    expect(evaluateCell("A1", { A1: "=RRI(-1, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=RRI(0, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test.each([
+    [12, 0, 0, 0],
+    [6, 1, 0, -1],
+    [4, -100, -50, -0.159103585],
+    [2, -100, -87, -0.067262095],
+    [2, 20, 100, 1.236067977],
+    [4, 100, 100, 0],
+    [6, 200, 20, -0.318707931],
+    [4, 200, 250, 0.057371263],
+    [6, -200, -250, 0.037890816],
+    [4, -200, -150, -0.069395141],
+    [4.5, -200, -150, -0.061928728],
+    [4, -200, -150, -0.069395141],
+    [4, -200.5, -150, -0.069975862],
+    [4, -200.5, -150.5, -0.069201809],
+  ])(
+    "function result =RRI(%s, %s, %s)",
+    (
+      numbreOfPeriods: number,
+      presentValue: number,
+      futureValue: number,
+      expectedResult: number
+    ) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=RRI(${numbreOfPeriods}, ${presentValue}, ${futureValue})`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+});
+
 describe("YIELD formula", () => {
   test("take at 6 or 7 arguments", () => {
     expect(evaluateCell("A1", { A1: "=YIELD(0, 365, 0.05, 90, 120)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
