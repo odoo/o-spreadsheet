@@ -21,6 +21,8 @@ import {
 } from "./helpers";
 import {
   assertCostPositiveOrZero,
+  assertDiscountPositive,
+  assertInvestmentPositive,
   assertLifePositive,
   assertNumberOfPeriodsPositive,
   assertPeriodPositive,
@@ -892,10 +894,7 @@ export const INTRATE: AddFunctionDescription = {
     const _investment = toNumber(investment);
 
     checkMaturityAndSettlementDates(_settlement, _maturity);
-    assert(
-      () => _investment > 0,
-      _lt("The investment (%s) must be strictly positive.", _investment.toString())
-    );
+    assertInvestmentPositive(_investment);
     assertRedemptionPositive(_redemption);
 
     /**
@@ -1596,10 +1595,7 @@ export const PRICEDISC: AddFunctionDescription = {
     checkMaturityAndSettlementDates(_settlement, _maturity);
     checkDayCountConvention(_dayCountConvention);
 
-    assert(
-      () => _discount > 0,
-      _lt("The discount (%s) must be greater than 0.", _discount.toString())
-    );
+    assertDiscountPositive(_discount);
     assertRedemptionPositive(_redemption);
 
     /**
@@ -1766,6 +1762,62 @@ export const RATE: AddFunctionDescription = {
     };
 
     return newtonMethod(func, derivFunc, guess, 40, 1e-5);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// RECEIVED
+// -----------------------------------------------------------------------------
+export const RECEIVED: AddFunctionDescription = {
+  description: _lt("Amount received at maturity for a security."),
+  args: args(`
+      settlement (date) ${_lt(
+        "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
+      )}
+      maturity (date) ${_lt(
+        "The maturity or end date of the security, when it can be redeemed at face, or par value."
+      )}
+      investment (number) ${_lt(
+        "The amount invested (irrespective of face value of each security)."
+      )}
+      discount (number) ${_lt("The discount rate of the security invested in.")}
+      day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
+    "An indicator of what day count method to use."
+  )}
+    `),
+  returns: ["NUMBER"],
+  compute: function (
+    settlement: PrimitiveArgValue,
+    maturity: PrimitiveArgValue,
+    investment: PrimitiveArgValue,
+    discount: PrimitiveArgValue,
+    dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
+  ): number {
+    dayCountConvention = dayCountConvention || 0;
+    const _settlement = Math.trunc(toNumber(settlement));
+    const _maturity = Math.trunc(toNumber(maturity));
+    const _investment = toNumber(investment);
+    const _discount = toNumber(discount);
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+
+    checkMaturityAndSettlementDates(_settlement, _maturity);
+    checkDayCountConvention(_dayCountConvention);
+    assertInvestmentPositive(_investment);
+    assertDiscountPositive(_discount);
+
+    /**
+     * https://support.microsoft.com/en-us/office/received-function-7a3f8b93-6611-4f81-8576-828312c9b5e5
+     *
+     *                    investment
+     * RECEIVED = _________________________
+     *              1 - discount * DSM / B
+     *
+     * with DSM = number of days from settlement to maturity and B = number of days in a year
+     *
+     * The ratio DSM/B can be computed with the YEARFRAC function to take the dayCountConvention into account.
+     */
+    const yearsFrac = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention) as number;
+    return _investment / (1 - _discount * yearsFrac);
   },
 };
 

@@ -86,6 +86,20 @@ export function assertPresentValuePositive(pv: number) {
   assert(() => pv > 0, _lt("The present value (%s) must be strictly positive.", pv.toString()));
 }
 
+export function assertInvestmentPositive(investment: number) {
+  assert(
+    () => investment > 0,
+    _lt("The investment (%s) must be strictly positive.", investment.toString())
+  );
+}
+
+export function assertDiscountPositive(discount: number) {
+  assert(
+    () => discount > 0,
+    _lt("The discount (%s) must be strictly positive.", discount.toString())
+  );
+}
+
 /**
  * Check if the given periods are valid. This will assert :
  *
