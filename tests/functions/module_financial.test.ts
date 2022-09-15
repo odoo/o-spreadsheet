@@ -4278,6 +4278,75 @@ describe("SLN function", () => {
   });
 });
 
+describe("SYD function", () => {
+  test("SYD takes 4 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=SYD()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=SYD(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=SYD(0, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=SYD(0, 0, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=SYD(0, 0, 1, 1)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SYD(0, 0, 1, 1, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("life > 0", () => {
+    expect(evaluateCell("A1", { A1: "=SYD(0, 0, -1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=SYD(0, 0, 0, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("period > 0 and period < life", () => {
+    expect(evaluateCell("A1", { A1: "=SYD(0, 0, 1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=SYD(0, 0, 1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=SYD(0, 0, 1, 2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test.each([
+    [1000, 200, 12, 1, 123.0769231],
+    [1000, 200, 12, 2, 112.8205128],
+    [1000, 200, 12, 3, 102.5641026],
+    [1000, 200, 12, 4, 92.30769231],
+    [1000, 200, 12, 5, 82.05128205],
+    [1000, 200, 12, 6, 71.79487179],
+    [1000, 200, 12, 7, 61.53846154],
+    [1000, 200, 12, 8, 51.28205128],
+    [1000, 200, 12, 9, 41.02564103],
+    [1000, 200, 12, 10, 30.76923077],
+    [1000, 200, 12, 11, 20.51282051],
+    [1000, 200, 12, 12, 10.25641026],
+    [1000.5, 50, 5, 2, 253.4666667],
+    [1000, 50.5, 5, 2, 253.2],
+    [28, 30, 9, 3, -0.311111111],
+    [-12, 5, 8, 8, -0.472222222],
+    [-120, 5, 5, 1, -41.66666667],
+    [0, 0, 5, 1, 0],
+    [0, 50, 5, 2, -13.33333333],
+    [1000.5, 0, 5, 2, 266.8],
+  ])(
+    "function result =SYD(%s, %s, %s, %s)",
+    (cost: number, salvage: number, life: number, period: number, expectedResult: number) => {
+      const cellValue = evaluateCell("A1", { A1: `=SYD(${cost}, ${salvage}, ${life}, ${period})` });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+
+  test.each([
+    [1000, 200, 12, 0.2, 131.2820513],
+    [1000, 200, 12, 1.8, 114.8717949],
+    [1000, 200, 12, 11.5, 15.38461538],
+    [1000, 1200, 10, 1.2, -35.63636364],
+    [1000, 1200, 10, 0.5, -38.18181818],
+  ])(
+    "function result with decimal period =SYD(%s, %s, %s, %s)",
+    (cost: number, salvage: number, life: number, period: number, expectedResult: number) => {
+      const cellValue = evaluateCell("A1", { A1: `=SYD(${cost}, ${salvage}, ${life}, ${period})` });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+
+  test("return value with formating", () => {
+    expect(evaluateCellFormat("A1", { A1: "=SYD(0, 0, 1, 1)" })).toBe("#,##0.00");
+  });
+});
+
 describe("YIELD formula", () => {
   test("take at 6 or 7 arguments", () => {
     expect(evaluateCell("A1", { A1: "=YIELD(0, 365, 0.05, 90, 120)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A

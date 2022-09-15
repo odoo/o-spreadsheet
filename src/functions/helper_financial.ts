@@ -86,6 +86,13 @@ export function assertPresentValuePositive(pv: number) {
   assert(() => pv > 0, _lt("The present value (%s) must be strictly positive.", pv.toString()));
 }
 
+export function assertPeriodSmallerThanLife(period: number, life: number) {
+  assert(
+    () => period <= life,
+    _lt("The period (%s) must be less than or equal life (%.", period.toString(), life.toString())
+  );
+}
+
 export function assertInvestmentPositive(investment: number) {
   assert(
     () => investment > 0,
