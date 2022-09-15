@@ -7,22 +7,29 @@
         t-key="range.id"
         class="o-selection-input"
         t-att-class="props.class">
-        <input
-          type="text"
-          spellcheck="false"
-          t-on-change="(ev) => this.onInputChanged(range.id, ev)"
-          t-on-focus="() => this.focus(range.id)"
-          t-on-keydown="onKeydown"
-          t-att-value="range.xc"
-          t-att-style="getColor(range)"
-          t-att-class="{
+        <div class="input-container">
+          <input
+            type="text"
+            spellcheck="false"
+            t-on-change="(ev) => this.onInputChanged(range.id, ev)"
+            t-on-focus="() => this.focus(range.id)"
+            t-on-keydown="onKeydown"
+            t-att-value="range.xc"
+            t-att-style="getColor(range)"
+            t-att-class="{
             'o-focused' : range.isFocused,
             'o-required': props.required,
             'o-optional': !props.required,
             'o-invalid': isInvalid || !range.isValidRange,
             'text-decoration-underline': range.isFocused and state.mode === 'select-range'
           }"
-        />
+          />
+          <span t-if="isInvalid || !range.isValidRange" class="icon" title="This range is invalid">
+            <t t-call="o-spreadsheet-Icon.ERROR">
+              <t t-set="color" t-value="'fill : #FF0000'"/>
+            </t>
+          </span>
+        </div>
         <button
           class="o-btn o-remove-selection"
           t-if="ranges.length > 1"
@@ -35,8 +42,11 @@
         <button class="o-btn-action o-add-selection" t-if="canAddRange" t-on-click="addEmptyInput">
           Add range
         </button>
-        <button class="o-btn-action o-selection-ok" t-if="hasFocus" t-on-click="disable">
+        <button class="o-btn-action o-selection-ok" t-if="isConfirmable" t-on-click="disable">
           Confirm
+        </button>
+        <button class="o-btn-action o-selection-ko" t-if="isResettable" t-on-click="reset">
+          Reset
         </button>
       </div>
     </div>

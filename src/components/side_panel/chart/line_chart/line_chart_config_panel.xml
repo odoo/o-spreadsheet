@@ -19,7 +19,6 @@
         <div class="o-section-title">Data Series</div>
         <SelectionInput
           ranges="dataSeriesRanges"
-          isInvalid="isDatasetInvalid"
           required="true"
           onSelectionChanged="(ranges) => this.onDataSeriesRangesChanged(ranges)"
           onSelectionConfirmed="() => this.onDataSeriesConfirmed()"

@@ -561,13 +561,26 @@ describe("figures", () => {
       }
     );
 
-    test.each([
-      ["basicChart", [CommandResult.InvalidDataSet]],
-      ["scorecard", [CommandResult.InvalidScorecardKeyValue]],
-      ["gauge", [CommandResult.InvalidGaugeDataRange]],
-    ])(
-      "update chart with invalid dataset/keyValue/dataRange",
-      async (chartType: string, expectedResults: CommandResult[]) => {
+    test.each(["basicChart", "scorecard", "gauge"])(
+      "update chart with valid dataset/keyValue/dataRange show confirm button/hide reset button",
+      async (chartType: string) => {
+        createTestChart(chartType);
+        await nextTick();
+
+        await simulateClick(".o-figure");
+        await simulateClick(".o-chart-menu-item");
+        await simulateClick(".o-menu div[data-name='edit']");
+        await simulateClick(".o-data-series input");
+        setInputValueAndTrigger(".o-data-series input", "A1", "change");
+        await nextTick();
+        expect(fixture.querySelectorAll(".o-data-series .o-selection-ok").length).toBe(1);
+        expect(fixture.querySelectorAll(".o-data-series .o-selection-ko").length).toBe(0);
+      }
+    );
+
+    test.each(["basicChart", "scorecard", "gauge"])(
+      "update chart with invalid dataset/keyValue/dataRange hide confirm button/show reset button",
+      async (chartType: string) => {
         createTestChart(chartType);
         await nextTick();
 
@@ -577,10 +590,50 @@ describe("figures", () => {
         await simulateClick(".o-data-series input");
         setInputValueAndTrigger(".o-data-series input", "This is not valid", "change");
         await nextTick();
+        expect(fixture.querySelectorAll(".o-data-series .o-selection-ok").length).toBe(0);
+        expect(fixture.querySelectorAll(".o-data-series .o-selection-ko").length).toBe(1);
+      }
+    );
+
+    test.each(["basicChart", "scorecard", "gauge"])(
+      "Clicking on reset button on dataset/keyValue/dataRange put back the last valid dataset/keyValue/dataRange",
+      async (chartType: string) => {
+        createTestChart(chartType);
+        await nextTick();
+
+        await simulateClick(".o-figure");
+        await simulateClick(".o-chart-menu-item");
+        await simulateClick(".o-menu div[data-name='edit']");
+        await simulateClick(".o-data-series input");
+        setInputValueAndTrigger(".o-data-series input", "A1", "change");
+        await nextTick();
         await simulateClick(".o-data-series .o-selection-ok");
-        expect(errorMessages()).toEqual(
-          expectedResults.map((result) => ChartTerms.Errors[result].toString())
+
+        await simulateClick(".o-data-series input");
+        setInputValueAndTrigger(".o-data-series input", "this is not valid", "change");
+        await nextTick();
+        await simulateClick(".o-data-series .o-selection-ko");
+
+        expect((fixture.querySelector(".o-data-series input") as HTMLInputElement).value).toBe(
+          "A1"
         );
+      }
+    );
+
+    test.each(["basicChart", "scorecard"])(
+      "update chart with valid labels/baseline show confirm button/hide reset button",
+      async (chartType: string) => {
+        createTestChart(chartType);
+        await nextTick();
+
+        await simulateClick(".o-figure");
+        await simulateClick(".o-chart-menu-item");
+        await simulateClick(".o-menu div[data-name='edit']");
+        await simulateClick(".o-data-labels input");
+        setInputValueAndTrigger(".o-data-labels input", "A1", "change");
+        await nextTick();
+        expect(fixture.querySelectorAll(".o-data-labels .o-selection-ok").length).toBe(1);
+        expect(fixture.querySelectorAll(".o-data-labels .o-selection-ko").length).toBe(0);
       }
     );
 
@@ -588,7 +641,7 @@ describe("figures", () => {
       ["basicChart", [CommandResult.InvalidLabelRange]],
       ["scorecard", [CommandResult.InvalidScorecardBaseline]],
     ])(
-      "update chart with invalid labels/baseline",
+      "update chart with invalid labels/baseline hide confirm button/show reset button",
       async (chartType: string, expectedResults: CommandResult[]) => {
         createTestChart(chartType);
         await nextTick();
@@ -599,9 +652,35 @@ describe("figures", () => {
         await simulateClick(".o-data-labels input");
         setInputValueAndTrigger(".o-data-labels input", "this is not valid", "change");
         await nextTick();
+        expect(fixture.querySelectorAll(".o-data-labels .o-selection-ok").length).toBe(0);
+        expect(fixture.querySelectorAll(".o-data-labels .o-selection-ko").length).toBe(1);
+      }
+    );
+
+    test.each([
+      ["basicChart", [CommandResult.InvalidLabelRange]],
+      ["scorecard", [CommandResult.InvalidScorecardBaseline]],
+    ])(
+      "update chart with invalid labels/baseline hide confirm button/show reset button",
+      async (chartType: string, expectedResults: CommandResult[]) => {
+        createTestChart(chartType);
+        await nextTick();
+
+        await simulateClick(".o-figure");
+        await simulateClick(".o-chart-menu-item");
+        await simulateClick(".o-menu div[data-name='edit']");
+        await simulateClick(".o-data-labels input");
+        setInputValueAndTrigger(".o-data-labels input", "A1", "change");
+        await nextTick();
         await simulateClick(".o-data-labels .o-selection-ok");
-        expect(errorMessages()).toEqual(
-          expectedResults.map((result) => ChartTerms.Errors[result].toString())
+
+        await simulateClick(".o-data-labels input");
+        setInputValueAndTrigger(".o-data-labels input", "this is not valid", "change");
+        await nextTick();
+        await simulateClick(".o-data-labels .o-selection-ko");
+
+        expect((fixture.querySelector(".o-data-labels input") as HTMLInputElement).value).toBe(
+          "A1"
         );
       }
     );

@@ -13,26 +13,37 @@ css/* scss */ `
     .o-selection-input {
       display: flex;
       flex-direction: row;
+      padding: 2px 0px;
 
+      .input-container {
+        position: relative;
+        width: 100%;
+      }
       input {
         padding: 4px 6px;
         border-radius: 4px;
         box-sizing: border-box;
         flex-grow: 2;
+        width: 100%;
       }
       input:focus {
         outline: none;
       }
       input.o-required,
       input.o-focused {
-        border-width: 2px;
+        border-width: 1px;
         padding: 3px 5px;
+        border-style: solid;
       }
       input.o-focused {
         border-color: ${SELECTION_BORDER_COLOR};
+        border-width: 2px;
       }
       input.o-invalid {
         border-color: red;
+        position: relative;
+        background-color: #ffdddd;
+        border-width: 2px;
       }
       button.o-btn {
         background: transparent;
@@ -49,6 +60,11 @@ css/* scss */ `
         font-weight: bold;
         font-size: 14px;
         height: 25px;
+      }
+      .icon {
+        position: absolute;
+        right: 8px;
+        top: 7px;
       }
     }
   }
@@ -123,6 +139,14 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     return this.props.isInvalid || this.state.isMissing;
   }
 
+  get isConfirmable(): boolean {
+    return this.hasFocus && this.ranges.every((range) => range.isValidRange);
+  }
+
+  get isResettable(): boolean {
+    return this.ranges.some((range) => !range.isValidRange);
+  }
+
   setup() {
     onMounted(() => this.enableNewSelectionInput());
     onWillUnmount(async () => this.disableNewSelectionInput());
@@ -143,7 +167,8 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
 
   checkChange() {
     const value = this.env.model.getters.getSelectionInputValue(this.id);
-    if (this.previousRanges.join() !== value.join()) {
+    const valid = !this.isInvalid && this.ranges.every((range) => range.isValidRange);
+    if (valid && this.previousRanges.join() !== value.join()) {
       this.triggerChange();
     }
   }
@@ -156,7 +181,9 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   private triggerChange() {
     const ranges = this.env.model.getters.getSelectionInputValue(this.id);
     this.props.onSelectionChanged?.(ranges);
-    this.previousRanges = ranges;
+    if (this.isConfirmable) {
+      this.previousRanges = ranges;
+    }
   }
 
   onKeydown(ev: KeyboardEvent) {
@@ -176,10 +203,12 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   focus(rangeId: string) {
     this.state.isMissing = false;
     this.state.mode = "select-range";
-    this.env.model.dispatch("FOCUS_RANGE", {
-      id: this.id,
-      rangeId,
-    });
+    if (this.ranges.find((r) => r.id == rangeId)?.isValidRange) {
+      this.env.model.dispatch("FOCUS_RANGE", {
+        id: this.id,
+        rangeId,
+      });
+    }
   }
 
   addEmptyInput() {
@@ -201,6 +230,19 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     });
     target.blur();
     this.triggerChange();
+  }
+
+  reset(ev: InputEvent) {
+    const existingSelectionRange = this.env.model.getters.getSelectionInput(this.id);
+    for (var i = 0; i < this.ranges.length; i++) {
+      this.env.model.dispatch("CHANGE_RANGE", {
+        id: this.id,
+        rangeId: existingSelectionRange[i].id,
+        value: i < this.previousRanges.length ? this.previousRanges[i] : "",
+      });
+    }
+    this.props.onSelectionChanged?.(this.previousRanges);
+    this.props.onSelectionConfirmed?.();
   }
 
   disable() {

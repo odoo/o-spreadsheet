@@ -46,10 +46,6 @@ export class LineBarPieConfigPanel extends Component<Props, SpreadsheetChildEnv>
     );
   }
 
-  get isDatasetInvalid(): boolean {
-    return !!this.state.datasetDispatchResult?.isCancelledBecause(CommandResult.InvalidDataSet);
-  }
-
   get isLabelInvalid(): boolean {
     return !!this.state.labelsDispatchResult?.isCancelledBecause(CommandResult.InvalidLabelRange);
   }
