@@ -5,38 +5,59 @@
         t-foreach="ranges"
         t-as="range"
         t-key="range.id"
-        class="o-selection-input"
+        class="o-selection-input d-flex flex-row"
         t-att-class="props.class">
-        <input
-          type="text"
-          spellcheck="false"
-          t-on-input="(ev) => this.onInputChanged(range.id, ev)"
-          t-on-focus="() => this.focus(range.id)"
-          t-on-keydown="onKeydown"
-          t-att-value="range.xc"
-          t-att-style="getColor(range)"
-          t-att-class="{
-            'o-focused' : range.isFocused,
-            'o-required': props.required,
-            'o-optional': !props.required,
-            'o-invalid': isInvalid || !range.isValidRange,
-            'text-decoration-underline': range.isFocused and state.mode === 'select-range'
-          }"
-          t-ref="{{range.isFocused ? 'focusedInput' : 'unfocusedInput' + range_index}}"
-        />
+        <div class="position-relative w-100">
+          <input
+            type="text"
+            spellcheck="false"
+            t-on-input="(ev) => this.onInputChanged(range.id, ev)"
+            t-on-focus="() => this.focus(range.id)"
+            t-on-keydown="onKeydown"
+            t-att-value="range.xc"
+            t-att-style="getColor(range)"
+            class="w-100"
+            t-att-class="{
+              'o-focused' : range.isFocused,
+              'o-required': props.required,
+              'o-optional': !props.required,
+              'o-invalid border-danger position-relative': isInvalid || !range.isValidRange,
+              'text-decoration-underline': range.isFocused and state.mode === 'select-range'
+            }"
+            t-ref="{{range.isFocused ? 'focusedInput' : 'unfocusedInput' + range_index}}"
+          />
+          <span
+            t-if="isInvalid || !range.isValidRange"
+            class="error-icon text-danger position-absolute"
+            title="This range is invalid">
+            <t t-call="o-spreadsheet-Icon.ERROR"/>
+          </span>
+        </div>
         <button
-          class="o-btn o-remove-selection"
+          class="o-btn border-0 bg-transparent fw-bold o-remove-selection"
           t-if="ranges.length > 1"
           t-on-click="() => this.removeInput(range.id)">
           ✕
         </button>
       </div>
 
-      <div class="o-selection-input">
-        <button class="o-btn-action o-add-selection" t-if="canAddRange" t-on-click="addEmptyInput">
+      <div class="o-selection-input d-flex flex-row">
+        <button
+          class="o-btn-action bg-transparent fw-bold o-add-selection"
+          t-if="canAddRange"
+          t-on-click="addEmptyInput">
           Add range
         </button>
-        <button class="o-btn-action o-selection-ok" t-if="hasFocus" t-on-click="confirm">
+        <button
+          class="o-btn-action bg-transparent fw-bold o-selection-ko"
+          t-if="isResettable"
+          t-on-click="reset">
+          Reset
+        </button>
+        <button
+          class="o-btn-action bg-transparent fw-bold o-selection-ok"
+          t-if="isConfirmable"
+          t-on-click="confirm">
           Confirm
         </button>
       </div>

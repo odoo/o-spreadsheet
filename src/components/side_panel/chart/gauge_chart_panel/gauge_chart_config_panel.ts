@@ -46,6 +46,10 @@ export class GaugeChartConfigPanel extends Component<Props, SpreadsheetChildEnv>
       dataRange: this.dataRange,
     });
   }
+
+  getDataRange(): string {
+    return this.dataRange || "";
+  }
 }
 
 GaugeChartConfigPanel.props = {

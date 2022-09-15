@@ -3,7 +3,13 @@ import { Model } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { SelectionInput } from "../../src/components/selection_input/selection_input";
 import { activateSheet, createSheet, selectCell, undo } from "../test_helpers/commands_helpers";
-import { clickCell, keyDown, keyUp, simulateClick } from "../test_helpers/dom_helper";
+import {
+  clickCell,
+  keyDown,
+  keyUp,
+  setInputValueAndTrigger,
+  simulateClick,
+} from "../test_helpers/dom_helper";
 import {
   getChildFromComponent,
   makeTestFixture,
@@ -38,7 +44,7 @@ interface SelectionInputTestConfig {
 class Parent extends Component<any> {
   static template = xml/* xml */ `
     <SelectionInput
-      ranges="initialRanges || []"
+      ranges="() => initialRanges || []"
       hasSingleRange="hasSingleRange"
       onSelectionChanged="(ranges) => this.onChanged(ranges)"
       onSelectionConfirmed="onConfirmed" />
@@ -76,10 +82,10 @@ class MultiParent extends Component<any> {
   static template = xml/* xml */ `
     <div>
       <div class="input-1">
-        <SelectionInput ranges="[]"/>
+        <SelectionInput ranges="() => []"/>
       </div>
       <div class="input-2">
-        <SelectionInput ranges="[]"/>
+        <SelectionInput ranges="() => []"/>
       </div>
     </div>
   `;
@@ -129,6 +135,27 @@ describe("Selection Input", () => {
     await createSelectionInput();
     await simulateClick(".o-add-selection");
     expect(fixture.querySelectorAll(".o-remove-selection").length).toBe(2);
+  });
+
+  test("update with invalid input hide confirm button", async () => {
+    await createSelectionInput();
+    await simulateClick(fixture.querySelector("input")!);
+    expect(fixture.querySelectorAll(".o-selection-ok").length).toBe(1);
+    expect(fixture.querySelectorAll(".o-selection-ko").length).toBe(0);
+    setInputValueAndTrigger(fixture.querySelector("input")!, "A1", "input");
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-selection-ok").length).toBe(1);
+    expect(fixture.querySelectorAll(".o-selection-ko").length).toBe(1);
+    await simulateClick(".o-selection-ok");
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-selection-ok").length).toBe(0);
+    expect(fixture.querySelectorAll(".o-selection-ko").length).toBe(0);
+
+    await simulateClick("input");
+    setInputValueAndTrigger(fixture.querySelector("input")!, "this is not valid", "input");
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-selection-ok").length).toBe(0);
+    expect(fixture.querySelectorAll(".o-selection-ko").length).toBe(1);
   });
 
   test("hitting enter key acts the same as clicking confirm button", async () => {
