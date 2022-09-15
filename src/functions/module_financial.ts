@@ -26,6 +26,7 @@ import {
   assertLifePositive,
   assertNumberOfPeriodsPositive,
   assertPeriodPositive,
+  assertPeriodSmallerThanLife,
   assertPresentValuePositive,
   assertPricePositive,
   assertRatePositive,
@@ -570,14 +571,7 @@ export const DDB: AddFunctionDescription = {
     assertSalvagePositiveOrZero(_salvage);
     assertPeriodPositive(_period);
     assertLifePositive(_life);
-    assert(
-      () => _period <= _life,
-      _lt(
-        "The period (%s) must be less than or equal life (%.",
-        _period.toString(),
-        _life.toString()
-      )
-    );
+    assertPeriodSmallerThanLife(_period, _life);
     assert(
       () => _factor > 0,
       _lt("The depreciation factor (%s) must be strictly positive.", _factor.toString())
@@ -1879,6 +1873,50 @@ export const SLN: AddFunctionDescription = {
     // It's up to the user to make sure the arguments make sense, which is good design because the user is smart.
 
     return (_cost - _salvage) / _life;
+  },
+};
+
+// -----------------------------------------------------------------------------
+// SYD
+// -----------------------------------------------------------------------------
+export const SYD: AddFunctionDescription = {
+  description: _lt("Depreciation via sum of years digit method."),
+  args: args(`
+        cost (number) ${_lt("The initial cost of the asset.")}
+        salvage (number) ${_lt("The value of the asset at the end of depreciation.")}
+        life (number) ${_lt("The number of periods over which the asset is depreciated.")}
+        period (number) ${_lt("The single period within life for which to calculate depreciation.")}
+    `),
+  returns: ["NUMBER"],
+  computeFormat: () => "#,##0.00",
+  compute: function (
+    cost: PrimitiveArgValue,
+    salvage: PrimitiveArgValue,
+    life: PrimitiveArgValue,
+    period: PrimitiveArgValue
+  ): number {
+    const _cost = toNumber(cost);
+    const _salvage = toNumber(salvage);
+    const _life = toNumber(life);
+    const _period = toNumber(period);
+
+    assertPeriodPositive(_period);
+    assertLifePositive(_life);
+    assertPeriodSmallerThanLife(_period, _life);
+
+    /**
+     * This deprecation method use the sum of digits of the periods of the life as the deprecation factor.
+     * For example for a life = 5, we have a deprecation factor or 1 + 2 + 3 + 4 + 5 = 15 = life * (life + 1) / 2 = F.
+     *
+     * The deprecation for a period p is then computed based on F and the remaining lifetime at the period P.
+     *
+     * deprecation = (cost - salvage) * (number of remaining periods / F)
+     */
+
+    const deprecFactor = (_life * (_life + 1)) / 2;
+    const remainingPeriods = _life - _period + 1;
+
+    return (_cost - _salvage) * (remainingPeriods / deprecFactor);
   },
 };
 
