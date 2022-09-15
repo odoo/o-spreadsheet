@@ -4123,6 +4123,81 @@ describe("RATE function", () => {
   });
 });
 
+describe("RECEIVED function", () => {
+  test("RECEIVED takes 4-5 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=RECEIVED()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=RECEIVED(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=RECEIVED(0, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=RECEIVED(0, 1, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=RECEIVED(0, 1, 1, 1)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=RECEIVED(0, 1, 1, 1, 0)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=RECEIVED(0, 1, 1, 1, 0, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("settlement < maturity", () => {
+    expect(evaluateCell("A1", { A1: "=RECEIVED(1, 1, 1, 1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=RECEIVED(2, 1, 1, 1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("investment > 0", () => {
+    expect(evaluateCell("A1", { A1: "=RECEIVED(0, 1, -1, 1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=RECEIVED(0, 1, 0, 1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("discount rate > 0", () => {
+    expect(evaluateCell("A1", { A1: "=RECEIVED(0, 1, 1,-1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=RECEIVED(0, 1, 1, 0, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("dayCountConvention is between 0 and 4", () => {
+    expect(evaluateCell("A1", { A1: "=RECEIVED(0, 1, 1, 1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=RECEIVED(0, 1, 1, 1, 5)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test.each([
+    ["01/01/2012", "01/01/2014", 100, "40%", 2, 532.5443787],
+    ["01/01/2012", "05/01/2016", 100.69, "10%", 2, 179.6253717],
+    ["01/01/2012", "05/01/2016", 60.9, "10%", 2, 108.64222],
+    ["12/20/2014", "05/01/2016", 1.5, "68%", 2, 25.28089888],
+    ["12/20/2014", "05/01/2016", 50, "60%", 2, 294.1176471],
+    ["01/30/2013", "05/31/2016", 5, "6%", 2, 6.272214092],
+    ["12/30/2014", "05/31/2016", 50, "5%", 2, 53.876085],
+    ["12/30/2014", "05/31/2016", 200, "11%", 2, 237.6080787],
+    ["12/30/2014", "05/31/2016", 347, "12%", 2, 419.4198227],
+    ["12/30/2009", "05/31/2023", 12, "2%", 2, 16.48854962],
+    ["01/01/2005", "12/31/2005", 100, "20%", 0, 125],
+    ["01/01/2005", "12/31/2005", 100, "20%", 1, 124.9144422],
+    ["01/01/2005", "12/31/2005", 100, "20%", 2, 125.3481894],
+    ["01/01/2005", "12/31/2005", 100, "20%", 3, 124.9144422],
+    ["01/01/2005", "12/31/2005", 100, "20%", 4, 124.9132547],
+    ["02/29/2004", "02/28/2007", 500, "10%", 0, 714.2857143],
+    ["02/29/2004", "02/28/2007", 500, "10%", 1, 714.0762463],
+    ["02/29/2004", "02/28/2007", 500, "10%", 2, 718.5628743],
+    ["02/29/2004", "02/28/2007", 500, "10%", 3, 714.2857143],
+    ["02/29/2004", "02/28/2007", 500, "10%", 4, 714.00238],
+    ["01/31/2002", "02/28/2008", 500, "15%", 0, 5660.377358],
+    ["01/31/2002", "02/28/2008", 500, "15%", 1, 5630.9183],
+    ["01/31/2002", "02/28/2008", 500, "15%", 2, 6629.834254],
+    ["01/31/2002", "02/28/2008", 500, "15%", 3, 5676.51633],
+    ["01/31/2002", "02/28/2008", 500, "15%", 4, 5660.377358],
+  ])(
+    "function result =RECEIVED(%s, %s, %s, %s, %s)",
+    (
+      settlement: string,
+      maturity: string,
+      investment: number,
+      discount: string,
+      dayCountConvention: number,
+      expectedResult: number
+    ) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=RECEIVED("${settlement}", "${maturity}", ${investment}, ${discount}, ${dayCountConvention})`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+});
+
 describe("YIELD formula", () => {
   test("take at 6 or 7 arguments", () => {
     expect(evaluateCell("A1", { A1: "=YIELD(0, 365, 0.05, 90, 120)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
