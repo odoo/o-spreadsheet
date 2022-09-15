@@ -4243,6 +4243,41 @@ describe("RRI function", () => {
   );
 });
 
+describe("SLN function", () => {
+  test("SLN takes 3 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=SLN()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=SLN(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=SLN(1, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=SLN(1, 1, 1)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SLN(1, 1, 1, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test.each([
+    [1000, 200, 12, 66.66666667],
+    [100, 200, 12, -8.333333333],
+    [1500, 200, 5, 260],
+    [178, 200, 8, -2.75],
+    [0, 105, 11, -9.545454545],
+    [158, 0, 69, 2.289855072],
+    [0, 0, 12, 0],
+    [-1000, 200, 10, -120],
+    [1000, -200, 10, 120],
+    [-1000, -200, 10, -80],
+    [1000, 200, 10, 80],
+    [1000, 200, -10, -80],
+  ])(
+    "function result =SLN(%s, %s, %s)",
+    (cost: number, salvage: number, life: number, expectedResult: number) => {
+      const cellValue = evaluateCell("A1", { A1: `=SLN(${cost}, ${salvage}, ${life})` });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+
+  test("return value with formating", () => {
+    expect(evaluateCellFormat("A1", { A1: "=SLN(1, 1, 1)" })).toBe("#,##0.00");
+  });
+});
+
 describe("YIELD formula", () => {
   test("take at 6 or 7 arguments", () => {
     expect(evaluateCell("A1", { A1: "=YIELD(0, 365, 0.05, 90, 120)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
