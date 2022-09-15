@@ -63,6 +63,7 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
         this.unfocus();
         break;
 
+      case "ADD_RANGE":
       case "ADD_EMPTY_RANGE":
       case "REMOVE_RANGE":
         if (cmd.id !== this.focusedInputId) {
@@ -80,13 +81,15 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
         if (cmd.id !== this.focusedInputId) {
           const input = this.inputs[cmd.id];
           const range = input.ranges.find((range) => range.id === cmd.rangeId);
-          const sheetId = this.getters.getActiveSheetId();
-          const zone = this.getters.getRangeFromSheetXC(sheetId, range?.xc || "A1").zone;
-          this.selection.capture(
-            input,
-            { cell: { col: zone.left, row: zone.top }, zone },
-            { handleEvent: input.handleEvent.bind(input) }
-          );
+          if (this.isRangeValid(range?.xc || "A1")) {
+            const sheetId = this.getters.getActiveSheetId();
+            const zone = this.getters.getRangeFromSheetXC(sheetId, range?.xc || "A1").zone;
+            this.selection.capture(
+              input,
+              { cell: { col: zone.left, row: zone.top }, zone },
+              { handleEvent: input.handleEvent.bind(input) }
+            );
+          }
           this.focusedInputId = cmd.id;
         }
         break;

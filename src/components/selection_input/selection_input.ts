@@ -7,7 +7,6 @@ import {
   useRef,
   useState,
 } from "@odoo/owl";
-import { SELECTION_BORDER_COLOR } from "../../constants";
 import { UuidGenerator } from "../../helpers/index";
 import { RangeInputValue } from "../../plugins/ui_feature/selection_input";
 import { Color, SpreadsheetChildEnv } from "../../types";
@@ -19,57 +18,58 @@ const uuidGenerator = new UuidGenerator();
 css/* scss */ `
   .o-selection {
     .o-selection-input {
-      display: flex;
-      flex-direction: row;
+      padding: 2px 0px;
 
       input {
         padding: 4px 6px;
         border-radius: 4px;
         box-sizing: border-box;
-        flex-grow: 2;
       }
       input:focus {
         outline: none;
       }
       input.o-required,
       input.o-focused {
+        border: 1px solid;
+      }
+      input.o-focused {
         border-width: 2px;
         padding: 3px 5px;
       }
-      input.o-focused {
-        border-color: ${SELECTION_BORDER_COLOR};
-      }
       input.o-invalid {
-        border-color: red;
+        /* The background-color is similar to the bootstrap alert-danger class but, because of the commit 0358a76d,
+         * which avoids being parasitized by the dark-mode in spreadsheet, we cannot use this class.
+         * TODO: Replace with the bootstrap alert-danger class when we support dark mode
+         */
+        background-color: #ffdddd;
+        border-width: 2px;
       }
       button.o-btn {
-        background: transparent;
-        border: none;
         color: #333;
-        cursor: pointer;
       }
       button.o-btn-action {
         margin: 8px 1px;
         border-radius: 4px;
-        background: transparent;
         border: 1px solid #dadce0;
         color: #188038;
-        font-weight: bold;
         font-size: 14px;
         height: 25px;
+      }
+      .error-icon {
+        right: 7px;
+        top: 7px;
       }
     }
     /** Make the character a bit bigger
     compared to its neighbor INPUT box  */
     .o-remove-selection {
-      font-weight: bold;
       font-size: calc(100% + 4px);
     }
   }
 `;
 
 interface Props {
-  ranges: string[];
+  ranges: () => string[];
   hasSingleRange?: boolean;
   required?: boolean;
   isInvalid?: boolean;
@@ -101,7 +101,7 @@ interface SelectionRange extends Omit<RangeInputValue, "color"> {
 export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SelectionInput";
   private id = uuidGenerator.uuidv4();
-  private previousRanges: string[] = this.props.ranges || [];
+  private previousRanges: string[] = this.props.ranges() || [];
   private originSheet = this.env.model.getters.getActiveSheetId();
   private state: State = useState({
     isMissing: false,
@@ -110,11 +110,11 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   private focusedInput = useRef("focusedInput");
 
   get ranges(): SelectionRange[] {
-    const existingSelectionRange = this.env.model.getters.getSelectionInput(this.id);
-    const ranges = existingSelectionRange.length
-      ? existingSelectionRange
-      : this.props.ranges
-      ? this.props.ranges.map((xc, id) => ({
+    const existingSelectionRanges = this.env.model.getters.getSelectionInput(this.id);
+    const ranges = existingSelectionRanges.length
+      ? existingSelectionRanges
+      : this.props.ranges()
+      ? this.props.ranges().map((xc, id) => ({
           xc,
           id,
           isFocused: false,
@@ -138,6 +138,14 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     return this.props.isInvalid || this.state.isMissing;
   }
 
+  get isConfirmable(): boolean {
+    return this.hasFocus && this.ranges.every((range) => range.isValidRange);
+  }
+
+  get isResettable(): boolean {
+    return this.previousRanges.join() !== this.ranges.map((r) => r.xc).join();
+  }
+
   setup() {
     useEffect(
       () => this.focusedInput.el?.focus(),
@@ -151,7 +159,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   enableNewSelectionInput() {
     this.env.model.dispatch("ENABLE_NEW_SELECTION_INPUT", {
       id: this.id,
-      initialRanges: this.props.ranges,
+      initialRanges: this.props.ranges(),
       hasSingleRange: this.props.hasSingleRange,
     });
   }
@@ -162,7 +170,8 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
 
   checkChange() {
     const value = this.env.model.getters.getSelectionInputValue(this.id);
-    if (this.previousRanges.join() !== value.join()) {
+    const valid = !this.isInvalid && this.ranges.every((range) => range.isValidRange);
+    if (valid && this.previousRanges.join() !== value.join()) {
       this.triggerChange();
     }
   }
@@ -175,7 +184,6 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   private triggerChange() {
     const ranges = this.env.model.getters.getSelectionInputValue(this.id);
     this.props.onSelectionChanged?.(ranges);
-    this.previousRanges = ranges;
   }
 
   onKeydown(ev: KeyboardEvent) {
@@ -230,10 +238,38 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     this.triggerChange();
   }
 
+  reset() {
+    const existingSelectionRanges = this.env.model.getters.getSelectionInput(this.id);
+    for (const range of existingSelectionRanges) {
+      this.env.model.dispatch("REMOVE_RANGE", {
+        id: this.id,
+        rangeId: range.id,
+      });
+    }
+    for (const range of this.previousRanges) {
+      this.env.model.dispatch("ADD_RANGE", { id: this.id, value: range });
+    }
+    this.confirm();
+  }
+
   confirm() {
-    this.env.model.dispatch("UNFOCUS_SELECTION_INPUT");
-    const ranges = this.env.model.getters.getSelectionInputValue(this.id);
-    if (this.props.required && ranges.length === 0) {
+    let anyValidInput = false;
+    const existingSelectionRanges = this.env.model.getters.getSelectionInput(this.id);
+    const existingSelectionXcs: string[] = [];
+    for (const range of existingSelectionRanges) {
+      if (range.xc === "") {
+        this.env.model.dispatch("REMOVE_RANGE", {
+          id: this.id,
+          rangeId: range.id,
+        });
+        continue;
+      }
+      existingSelectionXcs.push(range.xc);
+      if (this.env.model.getters.isRangeValid(range.xc)) {
+        anyValidInput = true;
+      }
+    }
+    if (this.props.required && !anyValidInput) {
       this.state.isMissing = true;
     }
     const activeSheetId = this.env.model.getters.getActiveSheetId();
@@ -243,12 +279,18 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
         sheetIdTo: this.originSheet,
       });
     }
+    this.props.onSelectionChanged?.(existingSelectionXcs);
     this.props.onSelectionConfirmed?.();
+    this.previousRanges = this.props.ranges();
+    if (existingSelectionXcs.join() !== this.previousRanges.join()) {
+      this.enableNewSelectionInput();
+    }
+    this.env.model.dispatch("UNFOCUS_SELECTION_INPUT");
   }
 }
 
 SelectionInput.props = {
-  ranges: Array,
+  ranges: Function,
   hasSingleRange: { type: Boolean, optional: true },
   required: { type: Boolean, optional: true },
   isInvalid: { type: Boolean, optional: true },

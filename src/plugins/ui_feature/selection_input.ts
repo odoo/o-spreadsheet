@@ -65,6 +65,7 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
 
   allowDispatch(cmd: LocalCommand): CommandResult {
     switch (cmd.type) {
+      case "ADD_RANGE":
       case "ADD_EMPTY_RANGE":
         if (this.inputHasSingleRange && this.ranges.length === 1) {
           return CommandResult.MaximumRangesReached;
@@ -109,6 +110,10 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
       }
       case "ADD_EMPTY_RANGE":
         this.insertNewRange(this.ranges.length, [""]);
+        this.focusLast();
+        break;
+      case "ADD_RANGE":
+        this.insertNewRange(this.ranges.length, [cmd.value]);
         this.focusLast();
         break;
       case "REMOVE_RANGE":

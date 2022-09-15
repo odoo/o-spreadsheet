@@ -59,6 +59,10 @@ export class ScorecardChartConfigPanel extends Component<Props, SpreadsheetChild
     });
   }
 
+  getKeyValueRange(): string {
+    return this.keyValue || "";
+  }
+
   onBaselineRangeChanged(ranges: string[]) {
     this.baseline = ranges[0];
   }
@@ -67,6 +71,10 @@ export class ScorecardChartConfigPanel extends Component<Props, SpreadsheetChild
     this.state.baselineDispatchResult = this.props.updateChart({
       baseline: this.baseline,
     });
+  }
+
+  getBaselineRange(): string {
+    return this.baseline || "";
   }
 
   updateBaselineMode(ev) {

@@ -1,5 +1,5 @@
 import { Component, useState } from "@odoo/owl";
-import { createRange } from "../../../../helpers";
+import { createRange, spreadRange } from "../../../../helpers";
 import { createDataSets } from "../../../../helpers/figures/charts";
 import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import { LineChartDefinition } from "../../../../types/chart/line_chart";
@@ -71,9 +71,14 @@ export class LineBarPieConfigPanel extends Component<Props, SpreadsheetChildEnv>
   }
 
   onDataSeriesConfirmed() {
+    this.dataSeriesRanges = spreadRange(this.dataSeriesRanges);
     this.state.datasetDispatchResult = this.props.updateChart({
       dataSets: this.dataSeriesRanges,
     });
+  }
+
+  getDataSeriesRanges() {
+    return this.dataSeriesRanges;
   }
 
   /**
@@ -88,6 +93,10 @@ export class LineBarPieConfigPanel extends Component<Props, SpreadsheetChildEnv>
     this.state.labelsDispatchResult = this.props.updateChart({
       labelRange: this.labelRange,
     });
+  }
+
+  getLabelRange(): string {
+    return this.labelRange || "";
   }
 
   onUpdateAggregated(ev) {

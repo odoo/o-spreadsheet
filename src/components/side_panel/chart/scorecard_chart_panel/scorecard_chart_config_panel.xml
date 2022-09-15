@@ -4,7 +4,7 @@
       <div class="o-section o-data-series">
         <div class="o-section-title">Key value</div>
         <SelectionInput
-          ranges="[props.definition.keyValue || '']"
+          ranges="() => [this.getKeyValueRange()]"
           isInvalid="isKeyValueInvalid"
           hasSingleRange="true"
           required="true"
@@ -16,7 +16,7 @@
         <div class="o-section-title">Baseline configuration</div>
         <div class="o-section-subtitle">Baseline value</div>
         <SelectionInput
-          ranges="[props.definition.baseline || '']"
+          ranges="() => [this.getBaselineRange()]"
           isInvalid="isBaselineInvalid"
           hasSingleRange="true"
           onSelectionChanged="(ranges) => this.onBaselineRangeChanged(ranges)"

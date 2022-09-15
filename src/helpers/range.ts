@@ -9,7 +9,8 @@ import {
   Zone,
   ZoneDimension,
 } from "../types";
-import { isRowReference } from "./references";
+import { isRowReference, splitReference } from "./references";
+import { toUnboundedZone, zoneToXc } from "./zones";
 
 interface ConstructorArgs {
   readonly zone: Readonly<Zone | UnboundedZone>;
@@ -193,4 +194,45 @@ export function copyRangeWithNewSheetId(sheetIdFrom: UID, sheetIdTo: UID, range:
  */
 export function createRange(getters: CoreGetters, sheetId: UID, range?: string): Range | undefined {
   return range ? getters.getRangeFromSheetXC(sheetId, range) : undefined;
+}
+
+/**
+ * Spread multiple colrows zone to one row/col zone and add a many new input range as needed.
+ * For example, A1:B4 will become [A1:A4, B1:B4]
+ */
+export function spreadRange(ranges: string[]): string[] {
+  const postProcessedRanges: string[] = [];
+  for (const range of ranges) {
+    const { sheetName } = splitReference(range);
+    const sheetPrefix = sheetName ? `${sheetName}!` : "";
+    const zone = toUnboundedZone(range);
+    if (zone.bottom !== zone.top && zone.left != zone.right) {
+      if (zone.right) {
+        for (let j = zone.left; j <= zone.right; ++j) {
+          postProcessedRanges.push(
+            `${sheetPrefix}${zoneToXc({
+              left: j,
+              right: j,
+              top: zone.top,
+              bottom: zone.bottom,
+            })}`
+          );
+        }
+      } else {
+        for (let j = zone.top; j <= zone.bottom!; ++j) {
+          postProcessedRanges.push(
+            `${sheetPrefix}${zoneToXc({
+              left: zone.left,
+              right: zone.right,
+              top: j,
+              bottom: j,
+            })}`
+          );
+        }
+      }
+    } else {
+      postProcessedRanges.push(range);
+    }
+  }
+  return postProcessedRanges;
 }
