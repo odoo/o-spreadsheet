@@ -4347,6 +4347,53 @@ describe("SYD function", () => {
   });
 });
 
+describe("TBILLPRICE function", () => {
+  test("TBILLPRICE takes 3 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=TBILLPRICE()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=TBILLPRICE(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=TBILLPRICE(0, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=TBILLPRICE(0, 1, 0.1)" })).toBeCloseTo(99.972222, 4);
+    expect(evaluateCell("A1", { A1: "=TBILLPRICE(0, 1, 0.1, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("discount > 0 and discount < 1", () => {
+    expect(evaluateCell("A1", { A1: "=TBILLPRICE(0, 1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=TBILLPRICE(0, 1, -0.1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=TBILLPRICE(0, 1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=TBILLPRICE(0, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=TBILLPRICE(0, 1, 2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("maturity > settlement and maturity is no more than a year after settlement", () => {
+    expect(evaluateCell("A1", { A1: "=TBILLPRICE(1, 1, 0.1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=TBILLPRICE(2, 1, 0.1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: '=TBILLPRICE("01/01/2012", "01/02/2013", 0.1)' })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test.each([
+    ["02/29/2012", "03/01/2013", "20%", 79.66666667],
+    ["01/01/2012", "05/01/2012", "10%", 96.63888889],
+    ["10/01/2012", "11/10/2012", "10%", 98.88888889],
+    ["12/30/2014", "12/31/2014", "68%", 99.81111111],
+    ["02/28/2012", "01/31/2013", "2%", 98.12222222],
+    ["02/29/2012", "01/30/2013", "20%", 81.33333333],
+    ["02/29/2012", "01/31/2013", "20%", 81.27777778],
+    ["02/29/2012", "01/15/2013", "20%", 82.16666667],
+    ["12/31/2012", "02/01/2013", "20%", 98.22222222],
+    ["12/31/2012", "05/01/2013", "20%", 93.27777778],
+    ["02/29/2012", "01/01/2013", "10%", 91.47222222],
+    ["01/01/2012", "02/28/2012", "15%", 97.58333333],
+  ])(
+    "function result =TBILLPRICE(%s, %s, %s)",
+    (arg0: string, arg1: string, arg2: string, expectedResult: number) => {
+      const cellValue = evaluateCell("A1", { A1: `=TBILLPRICE("${arg0}", "${arg1}", ${arg2})` });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+});
+
 describe("YIELD formula", () => {
   test("take at 6 or 7 arguments", () => {
     expect(evaluateCell("A1", { A1: "=YIELD(0, 365, 0.05, 90, 120)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
