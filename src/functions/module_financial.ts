@@ -1855,6 +1855,34 @@ export const RRI: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// SLN
+// -----------------------------------------------------------------------------
+export const SLN: AddFunctionDescription = {
+  description: _lt("Depreciation of an asset using the straight-line method."),
+  args: args(`
+        cost (number) ${_lt("The initial cost of the asset.")}
+        salvage (number) ${_lt("The value of the asset at the end of depreciation.")}
+        life (number) ${_lt("The number of periods over which the asset is depreciated.")}
+    `),
+  returns: ["NUMBER"],
+  computeFormat: () => "#,##0.00",
+  compute: function (
+    cost: PrimitiveArgValue,
+    salvage: PrimitiveArgValue,
+    life: PrimitiveArgValue
+  ): number {
+    const _cost = toNumber(cost);
+    const _salvage = toNumber(salvage);
+    const _life = toNumber(life);
+
+    // No assertion is done on the values of the arguments to be compatible with Excel/Gsheet that don't check the values.
+    // It's up to the user to make sure the arguments make sense, which is good design because the user is smart.
+
+    return (_cost - _salvage) / _life;
+  },
+};
+
+// -----------------------------------------------------------------------------
 // YIELD
 // -----------------------------------------------------------------------------
 
