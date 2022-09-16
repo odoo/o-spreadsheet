@@ -22,6 +22,7 @@ import {
 import {
   assertCostPositiveOrZero,
   assertDiscountPositive,
+  assertDiscountSmallerThanOne,
   assertInvestmentPositive,
   assertLifePositive,
   assertNumberOfPeriodsPositive,
@@ -32,13 +33,14 @@ import {
   assertRatePositive,
   assertRedemptionPositive,
   assertSalvagePositiveOrZero,
+  assertSettlementLessThanOneYearBeforeMaturity,
   checkCouponFrequency,
   checkDayCountConvention,
   checkFirstAndLastPeriodsAreValid,
   checkMaturityAndSettlementDates,
   checkSettlementAndIssueDates,
 } from "./helper_financial";
-import { YEARFRAC } from "./module_date";
+import { DAYS, YEARFRAC } from "./module_date";
 
 const DEFAULT_DAY_COUNT_CONVENTION = 0;
 const DEFAULT_END_OR_BEGINNING = 0;
@@ -1944,23 +1946,10 @@ export const TBILLPRICE: AddFunctionDescription = {
     const end = Math.trunc(toNumber(maturity));
     const disc = toNumber(discount);
 
-    const startDate = toJsDate(start);
-    const endDate = toJsDate(end);
-
-    const startDatePlusOneYear = new Date(startDate);
-    startDatePlusOneYear.setFullYear(startDate.getFullYear() + 1);
-
     checkMaturityAndSettlementDates(start, end);
-    assert(
-      () => endDate.getTime() <= startDatePlusOneYear.getTime(),
-      _lt(
-        "The settlement date (%s) must at most one year after the maturity date (%s).",
-        start.toString(),
-        end.toString()
-      )
-    );
+    assertSettlementLessThanOneYearBeforeMaturity(start, end);
     assertDiscountPositive(disc);
-    assert(() => disc < 1, _lt("The discount (%s) must be smaller than 1.", disc.toString()));
+    assertDiscountSmallerThanOne(disc);
 
     /**
      * https://support.microsoft.com/en-us/office/tbillprice-function-eacca992-c29d-425a-9eb8-0513fe6035a2
@@ -1973,6 +1962,78 @@ export const TBILLPRICE: AddFunctionDescription = {
      */
     const yearFrac = YEARFRAC.compute(start, end, 2) as number;
     return 100 * (1 - disc * yearFrac);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// TBILLEQ
+// -----------------------------------------------------------------------------
+export const TBILLEQ: AddFunctionDescription = {
+  description: _lt("Equivalent rate of return for a US Treasury bill."),
+  args: args(`
+      settlement (date) ${_lt(
+        "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
+      )}
+      maturity (date) ${_lt(
+        "The maturity or end date of the security, when it can be redeemed at face, or par value."
+      )}
+      discount (number) ${_lt("The discount rate of the bill at time of purchase.")}
+    `),
+  returns: ["NUMBER"],
+  compute: function (
+    settlement: PrimitiveArgValue,
+    maturity: PrimitiveArgValue,
+    discount: PrimitiveArgValue
+  ): number {
+    const start = Math.trunc(toNumber(settlement));
+    const end = Math.trunc(toNumber(maturity));
+    const disc = toNumber(discount);
+
+    checkMaturityAndSettlementDates(start, end);
+    assertSettlementLessThanOneYearBeforeMaturity(start, end);
+    assertDiscountPositive(disc);
+    assertDiscountSmallerThanOne(disc);
+
+    /**
+     * https://support.microsoft.com/en-us/office/tbilleq-function-2ab72d90-9b4d-4efe-9fc2-0f81f2c19c8c
+     *
+     *               365 * discount
+     * TBILLEQ = ________________________
+     *            360 - discount * DSM
+     *
+     * with DSM = number of days from settlement to maturity
+     *
+     * What is not indicated in the Excel documentation is that this formula only works for duration between settlement
+     * and maturity that are less than 6 months (182 days). This is because US Treasury bills use semi-annual interest,
+     * and thus we have to take into account the compound interest for the calculation.
+     *
+     * For this case, the formula becomes (Treasury Securities and Derivatives, by Frank J. Fabozzi, page 49)
+     *
+     *            -2X + 2* SQRT[ X² - (2X - 1) * (1 - 100/p) ]
+     * TBILLEQ = ________________________________________________
+     *                            2X - 1
+     *
+     * with X = DSM / (number of days in a year),
+     *  and p is the price, computed with TBILLPRICE
+     *
+     * Note that from my tests in Excel, we take (number of days in a year) = 366 ONLY if DSM is 366, not if
+     * the settlement year is a leap year.
+     *
+     */
+
+    const nDays = DAYS.compute(end, start) as number;
+    if (nDays <= 182) {
+      return (365 * disc) / (360 - disc * nDays);
+    }
+
+    const p = (TBILLPRICE.compute(start, end, disc) as number) / 100;
+
+    const daysInYear = nDays === 366 ? 366 : 365;
+    const x = nDays / daysInYear;
+    const num = -2 * x + 2 * Math.sqrt(x ** 2 - (2 * x - 1) * (1 - 1 / p));
+    const denom = 2 * x - 1;
+
+    return num / denom;
   },
 };
 
