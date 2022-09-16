@@ -2038,6 +2038,52 @@ export const TBILLEQ: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// TBILLYIELD
+// -----------------------------------------------------------------------------
+export const TBILLYIELD: AddFunctionDescription = {
+  description: _lt("The yield of a US Treasury bill based on price."),
+  args: args(`
+      settlement (date) ${_lt(
+        "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
+      )}
+      maturity (date) ${_lt(
+        "The maturity or end date of the security, when it can be redeemed at face, or par value."
+      )}
+      price (number) ${_lt("The price at which the security is bought per 100 face value.")}
+    `),
+  returns: ["NUMBER"],
+  compute: function (
+    settlement: PrimitiveArgValue,
+    maturity: PrimitiveArgValue,
+    price: PrimitiveArgValue
+  ): number {
+    const start = Math.trunc(toNumber(settlement));
+    const end = Math.trunc(toNumber(maturity));
+    const p = toNumber(price);
+
+    checkMaturityAndSettlementDates(start, end);
+    assertSettlementLessThanOneYearBeforeMaturity(start, end);
+    assertPricePositive(p);
+
+    /**
+     * https://support.microsoft.com/en-us/office/tbillyield-function-6d381232-f4b0-4cd5-8e97-45b9c03468ba
+     *
+     *              100 - price     360
+     * TBILLYIELD = ____________ * _____
+     *                 price        DSM
+     *
+     * with DSM = number of days from settlement to maturity
+     *
+     * The ratio DSM/360 can be computed with the YEARFRAC function with dayCountConvention = 2 (actual/360).
+     *
+     */
+
+    const yearFrac = YEARFRAC.compute(start, end, 2) as number;
+    return ((100 - p) / p) * (1 / yearFrac);
+  },
+};
+
+// -----------------------------------------------------------------------------
 // YIELD
 // -----------------------------------------------------------------------------
 

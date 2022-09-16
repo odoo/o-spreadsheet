@@ -4444,6 +4444,52 @@ describe("TBILLEQ function", () => {
   );
 });
 
+describe("TBILLYIELD function", () => {
+  test("TBILLYIELD takes 3 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=TBILLYIELD()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=TBILLYIELD(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=TBILLYIELD(0, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=TBILLYIELD(0, 1, 100)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=TBILLYIELD(0, 1, 100, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("price > 0", () => {
+    expect(evaluateCell("A1", { A1: "=TBILLYIELD(0, 1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=TBILLPRICE(0, 1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("maturity > settlement and maturity is no more than a year after settlement", () => {
+    expect(evaluateCell("A1", { A1: "=TBILLPRICE(1, 1, 100)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=TBILLPRICE(2, 1, 100)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: '=TBILLPRICE("01/01/2012", "01/02/2013", 100)' })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test.each([
+    ["02/29/2012", "03/01/2013", 100, 0],
+    ["01/01/2012", "05/01/2012", 300, -1.983471074],
+    ["10/01/2012", "11/10/2012", 400, -6.75],
+    ["12/30/2014", "12/31/2014", 120, -60],
+    ["02/28/2012", "01/31/2013", 150, -0.355029586],
+    ["02/29/2012", "01/30/2013", 251, -0.644564599],
+    ["02/29/2012", "01/31/2013", 600, -0.890207715],
+    ["02/29/2012", "01/15/2013", 99, 0.011328236],
+    ["12/31/2012", "02/01/2013", 84, 2.142857143],
+    ["12/31/2012", "05/01/2013", 456, -2.322749021],
+    ["02/29/2012", "01/01/2013", 12, 8.599348534],
+    ["02/29/2012", "01/01/2013", 12.5, 8.208469055],
+  ])(
+    "function result =TBILLYIELD(%s, %s, %s)",
+    (settlement: string, maturity: string, price: number, expectedResult: number) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=TBILLYIELD("${settlement}", "${maturity}", ${price})`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+});
+
 describe("YIELD formula", () => {
   test("take at 6 or 7 arguments", () => {
     expect(evaluateCell("A1", { A1: "=YIELD(0, 365, 0.05, 90, 120)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
