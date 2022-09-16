@@ -4394,6 +4394,56 @@ describe("TBILLPRICE function", () => {
   );
 });
 
+describe("TBILLEQ function", () => {
+  test("TBILLEQ takes 3 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=TBILLEQ()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=TBILLEQ(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=TBILLEQ(0, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=TBILLEQ(0, 1, 0.1)" })).toBeCloseTo(0.1014170603, 4);
+    expect(evaluateCell("A1", { A1: "=TBILLEQ(0, 1, 0.1, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("discount > 0 and discount < 1", () => {
+    expect(evaluateCell("A1", { A1: "=TBILLEQ(0, 1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=TBILLEQ(0, 1, -0.1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=TBILLEQ(0, 1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=TBILLEQ(0, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=TBILLEQ(0, 1, 2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("maturity > settlement and maturity is no more than a year after settlement", () => {
+    expect(evaluateCell("A1", { A1: "=TBILLEQ(1, 1, 0.1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=TBILLEQ(2, 1, 0.1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: '=TBILLEQ("01/01/2012", "01/02/2013", 0.1)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test.each([
+    ["05/01/1997", "10/30/1997", "20%", 0.225587145], // < 6 months (6 months = 182 days)
+    ["05/01/1997", "10/31/1997", "20%", 0.22565709], // > 6 months (6 montsh = 182 days)
+    ["02/29/2012", "03/01/2013", "20%", 0.240741061], // 366 days between settlement and maturity
+    ["02/29/2012", "02/28/2013", "20%", 0.239960179], // 365 days between settlement and maturity
+    ["01/01/2012", "05/01/2012", "10%", 0.104915206],
+    ["10/01/2012", "11/10/2012", "10%", 0.10252809],
+    ["12/30/2014", "12/31/2014", "68%", 0.690749193],
+    ["02/28/2012", "01/31/2013", "2%", 0.020568519],
+    ["02/29/2012", "01/30/2013", "20%", 0.236536775],
+    ["02/29/2012", "01/31/2013", "20%", 0.236649838],
+    ["02/29/2012", "01/15/2013", "20%", 0.234886111],
+    ["12/31/2012", "02/01/2013", "20%", 0.206447964],
+    ["12/31/2012", "05/01/2013", "20%", 0.217391304],
+    ["02/29/2012", "01/01/2013", "10%", 0.108456067],
+    ["01/01/2012", "02/28/2012", "15%", 0.155849701],
+  ])(
+    "function result =TBILLEQ(%s, %s, %s)",
+    (settlement: string, maturity: string, discount: string, expectedResult: number) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=TBILLEQ("${settlement}", "${maturity}", ${discount})`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+});
+
 describe("YIELD formula", () => {
   test("take at 6 or 7 arguments", () => {
     expect(evaluateCell("A1", { A1: "=YIELD(0, 365, 0.05, 90, 120)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
