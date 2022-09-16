@@ -1,5 +1,5 @@
 import { _lt } from "../translation";
-import { assert } from "./helpers";
+import { assert, toJsDate } from "./helpers";
 
 /** Assert maturity date > settlement date */
 export function checkMaturityAndSettlementDates(settlement: number, maturity: number) {
@@ -107,6 +107,29 @@ export function assertDiscountPositive(discount: number) {
   );
 }
 
+export function assertDiscountSmallerThanOne(discount: number) {
+  assert(() => discount < 1, _lt("The discount (%s) must be smaller than 1.", discount.toString()));
+}
+
+export function assertSettlementLessThanOneYearBeforeMaturity(
+  settlement: number,
+  maturity: number
+) {
+  const startDate = toJsDate(settlement);
+  const endDate = toJsDate(maturity);
+
+  const startDatePlusOneYear = new Date(startDate);
+  startDatePlusOneYear.setFullYear(startDate.getFullYear() + 1);
+
+  assert(
+    () => endDate.getTime() <= startDatePlusOneYear.getTime(),
+    _lt(
+      "The settlement date (%s) must at most one year after the maturity date (%s).",
+      settlement.toString(),
+      maturity.toString()
+    )
+  );
+}
 /**
  * Check if the given periods are valid. This will assert :
  *
