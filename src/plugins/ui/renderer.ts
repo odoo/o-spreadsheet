@@ -6,8 +6,6 @@ import {
   CANVAS_SHIFT,
   CELL_BORDER_COLOR,
   DEFAULT_FONT,
-  DEFAULT_FONT_SIZE,
-  DEFAULT_FONT_WEIGHT,
   HEADER_BORDER_COLOR,
   HEADER_FONT_SIZE,
   HEADER_HEIGHT,
@@ -16,8 +14,9 @@ import {
   MIN_CF_ICON_MARGIN,
   TEXT_HEADER_COLOR,
 } from "../../constants";
-import { fontSizeMap } from "../../fonts";
 import {
+  computeTextFont,
+  computeTextFontSizeInPixels,
   intersection,
   numberToLetters,
   overlap,
@@ -402,11 +401,7 @@ export class RendererPlugin extends UIPlugin {
       if (box.content) {
         const style = box.style || {};
         const align = box.content.align || "left";
-        const italic = style.italic ? "italic " : "";
-        const weight = style.bold ? "bold" : DEFAULT_FONT_WEIGHT;
-        const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
-        const size = fontSizeMap[sizeInPt];
-        const font = `${italic}${weight} ${size}px ${DEFAULT_FONT}`;
+        const font = computeTextFont(style);
         if (font !== currentFont) {
           currentFont = font;
           ctx.font = font;
@@ -429,6 +424,7 @@ export class RendererPlugin extends UIPlugin {
           ctx.rect(x, y, width, height);
           ctx.clip();
         }
+        const size = computeTextFontSizeInPixels(style);
         ctx.fillText(box.content.text, Math.round(x), Math.round(y));
         if (style.strikethrough || style.underline) {
           if (align === "right") {
@@ -614,8 +610,7 @@ export class RendererPlugin extends UIPlugin {
     }
     /** Icon CF */
     const cfIcon = this.getters.getConditionalIcon(col, row);
-    const fontSize = box.style.fontSize || DEFAULT_FONT_SIZE;
-    const fontSizePX = fontSizeMap[fontSize];
+    const fontSizePX = computeTextFontSizeInPixels(box.style);
     const iconBoxWidth = cfIcon ? 2 * MIN_CF_ICON_MARGIN + fontSizePX : 0;
     if (cfIcon) {
       box.image = {
@@ -646,7 +641,7 @@ export class RendererPlugin extends UIPlugin {
     }
 
     /** ClipRect */
-    const isOverflowing = contentWidth > width || fontSizeMap[fontSize] > height;
+    const isOverflowing = contentWidth > width || fontSizePX > height;
     if (cfIcon) {
       box.clipRect = {
         x: box.x + iconBoxWidth,
