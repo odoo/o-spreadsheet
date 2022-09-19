@@ -113,24 +113,30 @@ export function getDefaultCellHeight(style: Style | undefined): Pixel {
   if (!style?.fontSize) {
     return DEFAULT_CELL_HEIGHT;
   }
-  return fontSizeInPixels(style) + 2 * PADDING_AUTORESIZE_VERTICAL;
+  return computeTextFontSizeInPixels(style) + 2 * PADDING_AUTORESIZE_VERTICAL;
 }
 
-export function fontSizeInPixels(style: Style) {
+export function computeTextWidth(context: CanvasRenderingContext2D, text: string, style: Style) {
+  context.save();
+  context.font = computeTextFont(style);
+  const textWidth = context.measureText(text).width;
+  context.restore();
+  return textWidth;
+}
+
+export function computeTextFont(style: Style): string {
+  const italic = style.italic ? "italic " : "";
+  const weight = style.bold ? "bold" : DEFAULT_FONT_WEIGHT;
+  const size = computeTextFontSizeInPixels(style);
+  return `${italic}${weight} ${size}px ${DEFAULT_FONT}`;
+}
+
+export function computeTextFontSizeInPixels(style: Style): number {
   const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
   if (!fontSizeMap[sizeInPt]) {
     throw new Error("Size of the font is not supported");
   }
   return fontSizeMap[sizeInPt];
-}
-
-export function computeTextWidth(context: CanvasRenderingContext2D, text: string, style: Style) {
-  const italic = style.italic ? "italic " : "";
-  const weight = style.bold ? "bold" : DEFAULT_FONT_WEIGHT;
-  const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
-  const size = fontSizeMap[sizeInPt];
-  context.font = `${italic}${weight} ${size}px ${DEFAULT_FONT}`;
-  return context.measureText(text).width;
 }
 
 /**
@@ -168,10 +174,8 @@ export function getFontSizeMatchingWidth(
   return fontSize;
 }
 
-export function computeIconWidth(context: CanvasRenderingContext2D, style: Style) {
-  const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
-  const size = fontSizeMap[sizeInPt];
-  return size + 2 * MIN_CF_ICON_MARGIN;
+export function computeIconWidth(style: Style) {
+  return computeTextFontSizeInPixels(style) + 2 * MIN_CF_ICON_MARGIN;
 }
 
 /**

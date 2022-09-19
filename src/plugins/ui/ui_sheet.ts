@@ -64,7 +64,7 @@ export class SheetUIPlugin extends UIPlugin {
     const cellPosition = this.getters.getCellPosition(cell.id);
     const icon = this.getters.getConditionalIcon(cellPosition.col, cellPosition.row);
     if (icon) {
-      width += computeIconWidth(this.ctx, this.getters.getCellStyle(cell));
+      width += computeIconWidth(this.getters.getCellStyle(cell));
     }
     return width;
   }
