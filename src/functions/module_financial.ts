@@ -1,11 +1,30 @@
+import { addMonthsToDate, getYearFrac, isLastDayOfMonth, jsDateToRoundNumber } from "../helpers";
 import { _lt } from "../translation";
 import { AddFunctionDescription, ArgValue, MatrixArgValue, PrimitiveArgValue } from "../types";
 import { args } from "./arguments";
-import { assert, reduceNumbers, toBoolean, toNumber, visitNumbers } from "./helpers";
+import { assert, reduceNumbers, toBoolean, toJsDate, toNumber, visitNumbers } from "./helpers";
+import {
+  checkCouponFrequency,
+  checkDayCountConvention,
+  checkMaturityAndSettlementDates,
+} from "./helper_financial";
 import { YEARFRAC } from "./module_date";
 
 const DEFAULT_DAY_COUNT_CONVENTION = 0;
 const DEFAULT_END_OR_BEGINNING = 0;
+
+const COUPON_FUNCTION_ARGS = args(`
+settlement (date) ${_lt(
+  "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
+)}
+maturity (date) ${_lt(
+  "The maturity or end date of the security, when it can be redeemed at face, or par value."
+)}
+frequency (number) ${_lt("The number of interest or coupon payments per year (1, 2, or 4).")}
+day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
+  "An indicator of what day count method to use."
+)}
+`);
 
 function newtonMethod(
   func: (x: number) => number,
@@ -31,6 +50,262 @@ function newtonMethod(
   } while (!yEqual0);
   return x;
 }
+
+// -----------------------------------------------------------------------------
+// COUPDAYS
+// -----------------------------------------------------------------------------
+export const COUPDAYS: AddFunctionDescription = {
+  description: _lt("Days in coupon period containing settlement date."),
+  args: COUPON_FUNCTION_ARGS,
+  returns: ["NUMBER"],
+  compute: function (
+    settlement: PrimitiveArgValue,
+    maturity: PrimitiveArgValue,
+    frequency: PrimitiveArgValue,
+    dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
+  ): number {
+    dayCountConvention = dayCountConvention || 0;
+    const start = Math.trunc(toNumber(settlement));
+    const end = Math.trunc(toNumber(maturity));
+    const _frequency = Math.trunc(toNumber(frequency));
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+
+    checkMaturityAndSettlementDates(start, end);
+    checkCouponFrequency(_frequency);
+    checkDayCountConvention(_dayCountConvention);
+
+    // https://wiki.documentfoundation.org/Documentation/Calc_Functions/COUPDAYS
+    if (_dayCountConvention === 1) {
+      const before = COUPPCD.compute(settlement, maturity, frequency, dayCountConvention) as number;
+      const after = COUPNCD.compute(settlement, maturity, frequency, dayCountConvention) as number;
+      return after - before;
+    }
+
+    const daysInYear = _dayCountConvention === 3 ? 365 : 360;
+    return daysInYear / _frequency;
+  },
+};
+
+// -----------------------------------------------------------------------------
+// COUPDAYBS
+// -----------------------------------------------------------------------------
+export const COUPDAYBS: AddFunctionDescription = {
+  description: _lt("Days from settlement until next coupon."),
+  args: COUPON_FUNCTION_ARGS,
+  returns: ["NUMBER"],
+  compute: function (
+    settlement: PrimitiveArgValue,
+    maturity: PrimitiveArgValue,
+    frequency: PrimitiveArgValue,
+    dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
+  ): number {
+    dayCountConvention = dayCountConvention || 0;
+    const start = Math.trunc(toNumber(settlement));
+    const end = Math.trunc(toNumber(maturity));
+    const _frequency = Math.trunc(toNumber(frequency));
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+
+    checkMaturityAndSettlementDates(start, end);
+    checkCouponFrequency(_frequency);
+    checkDayCountConvention(_dayCountConvention);
+
+    const couponBeforeStart = COUPPCD.compute(start, end, frequency, dayCountConvention) as number;
+    if ([1, 2, 3].includes(_dayCountConvention)) {
+      return start - couponBeforeStart;
+    }
+
+    if (_dayCountConvention === 4) {
+      const yearFrac = getYearFrac(couponBeforeStart, start, _dayCountConvention);
+      return Math.round(yearFrac * 360);
+    }
+
+    const startDate = toJsDate(start);
+    const dateCouponBeforeStart = toJsDate(couponBeforeStart);
+
+    const y1 = dateCouponBeforeStart.getFullYear();
+    const y2 = startDate.getFullYear();
+    const m1 = dateCouponBeforeStart.getMonth() + 1; // +1 because months in js start at 0 and it's confusing
+    const m2 = startDate.getMonth() + 1;
+    let d1 = dateCouponBeforeStart.getDate();
+    let d2 = startDate.getDate();
+
+    /**
+     * Rules based on https://en.wikipedia.org/wiki/Day_count_convention#30/360_US
+     *
+     * These are slightly modified (no mention of if investment is EOM and rules order is modified),
+     * but from my testing this seems the rules used by Excel/GSheet.
+     */
+    if (
+      m1 === 2 &&
+      m2 === 2 &&
+      isLastDayOfMonth(dateCouponBeforeStart) &&
+      isLastDayOfMonth(startDate)
+    ) {
+      d2 = 30;
+    }
+    if (d2 === 31 && (d1 === 30 || d1 === 31)) {
+      d2 = 30;
+    }
+    if (m1 === 2 && isLastDayOfMonth(dateCouponBeforeStart)) {
+      d1 = 30;
+    }
+    if (d1 === 31) {
+      d1 = 30;
+    }
+
+    return (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// COUPDAYSNC
+// -----------------------------------------------------------------------------
+export const COUPDAYSNC: AddFunctionDescription = {
+  description: _lt("Days from settlement until next coupon."),
+  args: COUPON_FUNCTION_ARGS,
+  returns: ["NUMBER"],
+  compute: function (
+    settlement: PrimitiveArgValue,
+    maturity: PrimitiveArgValue,
+    frequency: PrimitiveArgValue,
+    dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
+  ): number {
+    dayCountConvention = dayCountConvention || 0;
+    const start = Math.trunc(toNumber(settlement));
+    const end = Math.trunc(toNumber(maturity));
+    const _frequency = Math.trunc(toNumber(frequency));
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+
+    checkMaturityAndSettlementDates(start, end);
+    checkCouponFrequency(_frequency);
+    checkDayCountConvention(_dayCountConvention);
+
+    const couponAfterStart = COUPNCD.compute(start, end, frequency, dayCountConvention) as number;
+    if ([1, 2, 3].includes(_dayCountConvention)) {
+      return couponAfterStart - start;
+    }
+
+    if (_dayCountConvention === 4) {
+      const yearFrac = getYearFrac(start, couponAfterStart, _dayCountConvention);
+      return Math.round(yearFrac * 360);
+    }
+
+    const coupDayBs = COUPDAYBS.compute(
+      settlement,
+      maturity,
+      frequency,
+      _dayCountConvention
+    ) as number;
+    const coupDays = COUPDAYS.compute(
+      settlement,
+      maturity,
+      frequency,
+      _dayCountConvention
+    ) as number;
+    return coupDays - coupDayBs;
+  },
+};
+
+// -----------------------------------------------------------------------------
+// COUPNCD
+// -----------------------------------------------------------------------------
+export const COUPNCD: AddFunctionDescription = {
+  description: _lt("Next coupon date after the settlement date."),
+  args: COUPON_FUNCTION_ARGS,
+  returns: ["NUMBER"],
+  computeFormat: () => "m/d/yyyy",
+  compute: function (
+    settlement: PrimitiveArgValue,
+    maturity: PrimitiveArgValue,
+    frequency: PrimitiveArgValue,
+    dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
+  ): number {
+    dayCountConvention = dayCountConvention || 0;
+    const start = Math.trunc(toNumber(settlement));
+    const end = Math.trunc(toNumber(maturity));
+    const _frequency = Math.trunc(toNumber(frequency));
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+
+    checkMaturityAndSettlementDates(start, end);
+    checkCouponFrequency(_frequency);
+    checkDayCountConvention(_dayCountConvention);
+
+    const monthsPerPeriod = 12 / _frequency;
+
+    const coupNum = COUPNUM.compute(settlement, maturity, frequency, dayCountConvention) as number;
+    const date = addMonthsToDate(toJsDate(end), -(coupNum - 1) * monthsPerPeriod, true);
+    return jsDateToRoundNumber(date);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// COUPNUM
+// -----------------------------------------------------------------------------
+export const COUPNUM: AddFunctionDescription = {
+  description: _lt("Number of coupons between settlement and maturity."),
+  args: COUPON_FUNCTION_ARGS,
+  returns: ["NUMBER"],
+  compute: function (
+    settlement: PrimitiveArgValue,
+    maturity: PrimitiveArgValue,
+    frequency: PrimitiveArgValue,
+    dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
+  ): number {
+    dayCountConvention = dayCountConvention || 0;
+    const start = Math.trunc(toNumber(settlement));
+    const end = Math.trunc(toNumber(maturity));
+    const _frequency = Math.trunc(toNumber(frequency));
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+
+    checkMaturityAndSettlementDates(start, end);
+    checkCouponFrequency(_frequency);
+    checkDayCountConvention(_dayCountConvention);
+
+    let num = 1;
+    let currentDate = end;
+    const monthsPerPeriod = 12 / _frequency;
+
+    while (currentDate > start) {
+      currentDate = jsDateToRoundNumber(
+        addMonthsToDate(toJsDate(currentDate), -monthsPerPeriod, false)
+      );
+      num++;
+    }
+    return num - 1;
+  },
+};
+
+// -----------------------------------------------------------------------------
+// COUPPCD
+// -----------------------------------------------------------------------------
+export const COUPPCD: AddFunctionDescription = {
+  description: _lt("Last coupon date prior to or on the settlement date."),
+  args: COUPON_FUNCTION_ARGS,
+  returns: ["NUMBER"],
+  computeFormat: () => "m/d/yyyy",
+  compute: function (
+    settlement: PrimitiveArgValue,
+    maturity: PrimitiveArgValue,
+    frequency: PrimitiveArgValue,
+    dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
+  ): number {
+    dayCountConvention = dayCountConvention || 0;
+    const start = Math.trunc(toNumber(settlement));
+    const end = Math.trunc(toNumber(maturity));
+    const _frequency = Math.trunc(toNumber(frequency));
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+
+    checkMaturityAndSettlementDates(start, end);
+    checkCouponFrequency(_frequency);
+    checkDayCountConvention(_dayCountConvention);
+
+    const monthsPerPeriod = 12 / _frequency;
+
+    const coupNum = COUPNUM.compute(settlement, maturity, frequency, dayCountConvention) as number;
+    const date = addMonthsToDate(toJsDate(end), -coupNum * monthsPerPeriod, true);
+    return jsDateToRoundNumber(date);
+  },
+};
 
 // -----------------------------------------------------------------------------
 // DB
@@ -143,27 +418,12 @@ export const DURATION: AddFunctionDescription = {
     const _frequency = Math.trunc(toNumber(frequency));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
 
-    assert(
-      () => start < end,
-      _lt(
-        "The maturity (%s) must be strictly greater than the settlement (%s).",
-        end.toString(),
-        start.toString()
-      )
-    );
+    checkMaturityAndSettlementDates(start, end);
+    checkCouponFrequency(_frequency);
+    checkDayCountConvention(_dayCountConvention);
+
     assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
     assert(() => _yield >= 0, _lt("The yield (%s) must be positive or null.", _yield.toString()));
-    assert(
-      () => [1, 2, 4].includes(_frequency),
-      _lt("The frequency (%s) must be one of %s", _frequency.toString(), [1, 2, 4].toString())
-    );
-    assert(
-      () => 0 <= _dayCountConvention && _dayCountConvention <= 4,
-      _lt(
-        "The day_count_convention (%s) must be between 0 and 4 inclusive.",
-        _dayCountConvention.toString()
-      )
-    );
 
     const years = YEARFRAC.compute(start, end, _dayCountConvention) as number;
     const timeFirstYear = years - Math.trunc(years) || 1 / _frequency;
@@ -564,30 +824,15 @@ export const PRICE: AddFunctionDescription = {
     const _frequency = Math.trunc(toNumber(frequency));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
 
-    assert(
-      () => _maturity > _settlement,
-      _lt(
-        "The maturity (%s) must be strictly greater than the settlement (%s).",
-        _maturity.toString(),
-        _settlement.toString()
-      )
-    );
+    checkMaturityAndSettlementDates(_settlement, _maturity);
+    checkCouponFrequency(_frequency);
+    checkDayCountConvention(_dayCountConvention);
+
     assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
     assert(() => _yield >= 0, _lt("The yield (%s) must be positive or null.", _yield.toString()));
     assert(
       () => _redemption > 0,
       _lt("The redemption (%s) must be strictly positive.", _redemption.toString())
-    );
-    assert(
-      () => [1, 2, 4].includes(_frequency),
-      _lt("The frequency (%s) must be one of %s.", _frequency.toString(), [1, 2, 4].toString())
-    );
-    assert(
-      () => 0 <= _dayCountConvention && _dayCountConvention <= 4,
-      _lt(
-        "The day_count_convention (%s) must be between 0 and 4 inclusive.",
-        _dayCountConvention.toString()
-      )
     );
 
     const years = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention) as number;
@@ -734,30 +979,15 @@ export const YIELD: AddFunctionDescription = {
     const _frequency = Math.trunc(toNumber(frequency));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
 
-    assert(
-      () => _maturity > _settlement,
-      _lt(
-        "The maturity (%s) must be strictly greater than the settlement (%s).",
-        _maturity.toString(),
-        _settlement.toString()
-      )
-    );
+    checkMaturityAndSettlementDates(_settlement, _maturity);
+    checkCouponFrequency(_frequency);
+    checkDayCountConvention(_dayCountConvention);
+
     assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
     assert(() => _price > 0, _lt("The price (%s) must be strictly positive.", _price.toString()));
     assert(
       () => _redemption > 0,
       _lt("The redemption (%s) must be strictly positive.", _redemption.toString())
-    );
-    assert(
-      () => [1, 2, 4].includes(_frequency),
-      _lt("The frequency (%s) must be one of %s.", _frequency.toString(), [1, 2, 4].toString())
-    );
-    assert(
-      () => 0 <= _dayCountConvention && _dayCountConvention <= 4,
-      _lt(
-        "The day_count_convention (%s) must between 0 and 4 inclusive.",
-        _dayCountConvention.toString()
-      )
     );
 
     const years = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention) as number;
@@ -878,6 +1108,9 @@ export const YIELDMAT: AddFunctionDescription = {
     const _price = toNumber(price);
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
 
+    checkMaturityAndSettlementDates(_settlement, _maturity);
+    checkDayCountConvention(_dayCountConvention);
+
     assert(
       () => _settlement >= _issue,
       _lt(
@@ -886,23 +1119,8 @@ export const YIELDMAT: AddFunctionDescription = {
         _issue.toString()
       )
     );
-    assert(
-      () => _maturity > _settlement,
-      _lt(
-        "The maturity (%s) must be strictly greater than the settlement (%s).",
-        _maturity.toString(),
-        _settlement.toString()
-      )
-    );
     assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
     assert(() => _price > 0, _lt("The price (%s) must be strictly positive.", _price.toString()));
-    assert(
-      () => 0 <= _dayCountConvention && _dayCountConvention <= 4,
-      _lt(
-        "The day_count_convention (%s) must be between 0 and 4 inclusive.",
-        _dayCountConvention.toString()
-      )
-    );
 
     const issueToMaturity = YEARFRAC.compute(_issue, _maturity, _dayCountConvention) as number;
     const issueToSettlement = YEARFRAC.compute(_issue, _settlement, _dayCountConvention) as number;
