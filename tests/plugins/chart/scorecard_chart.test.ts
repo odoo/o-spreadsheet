@@ -203,6 +203,136 @@ describe("datasource tests", function () {
     expect(model.getters.getSheetIds()).toHaveLength(1);
     expect(model.getters.getFigures(secondSheetId)).toEqual([duplicatedFigure]);
   });
+
+  test("percentage with key value smaller than baseline", () => {
+    setCellContent(model, "A1", "40");
+    setCellContent(model, "A2", "100");
+    createScorecardChart(model, {
+      keyValue: "A1",
+      baseline: "A2",
+      baselineMode: "percentage",
+    });
+    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
+      baselineArrow: "down",
+      baselineColor: "#DC6965",
+      baselineDisplay: "60%",
+      keyValue: "40",
+    });
+  });
+
+  test("percentage with key value greater than baseline", () => {
+    setCellContent(model, "A1", "140");
+    setCellContent(model, "A2", "100");
+    createScorecardChart(model, {
+      keyValue: "A1",
+      baseline: "A2",
+      baselineMode: "percentage",
+    });
+    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
+      baselineArrow: "up",
+      baselineColor: "#00A04A",
+      baselineDisplay: "40%",
+      keyValue: "140",
+    });
+  });
+
+  test("percentage with key value equal to baseline", () => {
+    setCellContent(model, "A1", "140");
+    setCellContent(model, "A2", "140");
+    createScorecardChart(model, {
+      keyValue: "A1",
+      baseline: "A2",
+      baselineMode: "percentage",
+    });
+    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
+      baselineArrow: "neutral",
+      baselineColor: undefined,
+      baselineDisplay: "0%",
+      keyValue: "140",
+    });
+  });
+
+  test("percentage with key value not defined", () => {
+    setCellContent(model, "A2", "140");
+    createScorecardChart(model, {
+      keyValue: "A1",
+      baseline: "A2",
+      baselineMode: "percentage",
+    });
+    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
+      baselineArrow: "neutral",
+      baselineColor: undefined,
+      baselineDisplay: "140",
+      keyValue: "",
+    });
+  });
+
+  test("percentage with baseline value not defined", () => {
+    setCellContent(model, "A1", "140");
+    createScorecardChart(model, {
+      keyValue: "A1",
+      baseline: "A2",
+      baselineMode: "percentage",
+    });
+    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
+      baselineArrow: "neutral",
+      baselineColor: undefined,
+      baselineDisplay: "",
+      keyValue: "140",
+    });
+  });
+
+  test("percentage with key value not defined and baseline value not defined", () => {
+    createScorecardChart(model, {
+      keyValue: "A1",
+      baseline: "A2",
+      baselineMode: "percentage",
+    });
+    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
+      baselineArrow: "neutral",
+      baselineColor: undefined,
+      baselineDisplay: "",
+      keyValue: "",
+    });
+  });
+
+  test("percentage with baseline value being 0", () => {
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "0");
+    createScorecardChart(model, {
+      keyValue: "A1",
+      baseline: "A2",
+      baselineMode: "percentage",
+    });
+    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
+      baselineArrow: "up",
+      baselineColor: "#00A04A",
+      baselineDisplay: "∞%",
+    });
+  });
+
+  test("percentage with key value and baseline value being 0", () => {
+    setCellContent(model, "A1", "0");
+    setCellContent(model, "A2", "0");
+    createScorecardChart(model, {
+      keyValue: "A1",
+      baseline: "A2",
+      baselineMode: "percentage",
+    });
+    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
+      baselineArrow: "neutral",
+      baselineColor: undefined,
+      baselineDisplay: "0%",
+    });
+  });
 });
 
 describe("multiple sheets", () => {
