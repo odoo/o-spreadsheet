@@ -372,7 +372,7 @@ export function getBaselineText(
     return baseline.formattedValue;
   } else {
     let diff = keyValue.value - baselineEvaluated.value;
-    if (baselineMode === "percentage") {
+    if (baselineMode === "percentage" && diff !== 0) {
       diff = (diff / baselineEvaluated.value) * 100;
     }
 
