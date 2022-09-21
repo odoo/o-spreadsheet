@@ -2620,6 +2620,105 @@ describe("MDURATION formula", () => {
   });
 });
 
+describe("MIRR function", () => {
+  test("MIRR takes 3 arguments", () => {
+    const grid = { B1: "1", B2: "-1" };
+    expect(evaluateCell("A1", { A1: "=MIRR()", ...grid })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=MIRR(B1:B2)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=MIRR(B1:B2, 0)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=MIRR(B1:B2, 0, 0)", ...grid })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MIRR(B1:B2, 0, 0, 0)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("cashflow_amounts must contain both positive and negative values", () => {
+    let grid = { B1: "-1", B2: "-1", B3: "-1" };
+    expect(evaluateCell("A1", { A1: "=MIRR(B1:B3, 0, 0)", ...grid })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    grid = { B1: "1", B2: "1", B3: "1" };
+    expect(evaluateCell("A1", { A1: "=MIRR(B1:B3, 0, 0)", ...grid })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    grid = { B1: "0", B2: "0", B3: "1" };
+    expect(evaluateCell("A1", { A1: "=MIRR(B1:B3, 0, 0)", ...grid })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    grid = { B1: "-1", B2: "-1", B3: "0" };
+    expect(evaluateCell("A1", { A1: "=MIRR(B1:B3, 0, 0)", ...grid })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    grid = { B1: "0", B2: "0", B3: "0" };
+    expect(evaluateCell("A1", { A1: "=MIRR(B1:B3, 0, 0)", ...grid })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+  });
+
+  test.each([
+    [[50, -60, 80, 10, -50], 0.1, 0.05, 0.157969714],
+    [[500, 600, -550, 125, 269], -0.1, 0.05, 0.25836707],
+    [[50, 0, -98, -100, -50], 0.11, -0.05, -0.3155768],
+    [[-23, -899, 9000, 0, 0], -0.03, -0.03, 0.727977096],
+    [[1000, 1000, -1000, -1000, 500], 0, 0, 0.057371263],
+  ])(
+    "function result =MIRR(%s, %s, %s, %s)",
+    (cashflow: number[], financeRate: number, reinvestRate: number, expectedResult: number) => {
+      const grid = {
+        B1: cashflow[0].toString(),
+        B2: cashflow[1].toString(),
+        B3: cashflow[2].toString(),
+        B4: cashflow[3].toString(),
+        B5: cashflow[4].toString(),
+      };
+      const cellValue = evaluateCell("A1", {
+        ...grid,
+        A1: `=MIRR(B1:B5, ${financeRate}, ${reinvestRate})`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+
+  test("can take multi-dimensional arrays as argument", () => {
+    const cashflow = [500, 100, -200, 900, -1000];
+
+    const gridSingleRow = {
+      B1: cashflow[0].toString(),
+      B2: cashflow[1].toString(),
+      B3: cashflow[2].toString(),
+      B4: cashflow[3].toString(),
+      B5: cashflow[4].toString(),
+    };
+    const value = evaluateCell("A1", { ...gridSingleRow, A1: `=MIRR(B1:B5, 1, 1)` });
+    expect(value).toBeCloseTo(2.1155759, 4);
+
+    const grid = {
+      B1: cashflow[0].toString(),
+      B2: cashflow[1].toString(),
+      B3: cashflow[2].toString(),
+      C1: cashflow[3].toString(),
+      C2: cashflow[4].toString(),
+    };
+    const cellValue = evaluateCell("A1", { ...grid, A1: `=MIRR(B1:C3, 1, 1)` });
+    expect(cellValue).toBeCloseTo(2.263664256, 4);
+
+    const grid2 = {
+      B1: cashflow[0].toString(),
+      C1: cashflow[1].toString(),
+      D1: cashflow[2].toString(),
+      B2: cashflow[3].toString(),
+      C2: cashflow[4].toString(),
+    };
+    const cellValue2 = evaluateCell("A1", { ...grid2, A1: `=MIRR(B1:D2, 1, 1)` });
+    expect(cellValue2).toBeCloseTo(2.1155759, 4);
+  });
+
+  test("undefined values in cashflow_amounts are ignored and not treated as 0", () => {
+    let grid: any = { B1: undefined, B2: "3", B3: undefined, B4: "-2", B5: undefined };
+    expect(evaluateCell("A1", { A1: "=MIRR(B1:B5, 1, 1)", ...grid })).toBeCloseTo(5, 4);
+    grid = { B1: "0", B2: "3", B3: undefined, B4: "-2", B5: undefined };
+    expect(evaluateCell("A1", { A1: "=MIRR(B1:B5, 1, 1)", ...grid })).toBeCloseTo(2.464101615, 4);
+    grid = { B1: undefined, B2: "3", B3: "0", B4: "-2", B5: undefined };
+    expect(evaluateCell("A1", { A1: "=MIRR(B1:B5, 1, 1)", ...grid })).toBeCloseTo(3.898979486, 4);
+    grid = { B1: undefined, B2: "3", B3: undefined, B4: "-2", B5: "0" };
+    expect(evaluateCell("A1", { A1: "=MIRR(B1:B5, 1, 1)", ...grid })).toBeCloseTo(2.464101615, 4);
+    grid = { B1: undefined, B2: "3", B3: "0", B4: "-2", B5: "0" };
+    expect(evaluateCell("A1", { A1: "=MIRR(B1:B5, 1, 1)", ...grid })).toBeCloseTo(2.634241186, 4);
+    grid = { B1: "0", B2: "3", B3: "0", B4: "-2", B5: undefined };
+    expect(evaluateCell("A1", { A1: "=MIRR(B1:B5, 1, 1)", ...grid })).toBeCloseTo(2.634241186, 4);
+    grid = { B1: "0", B2: "3", B3: "0", B4: "-2", B5: "0" };
+    expect(evaluateCell("A1", { A1: "=MIRR(B1:B5, 1, 1)", ...grid })).toBeCloseTo(2.13016916, 4);
+  });
+});
+
 describe("NOMINAL formula", () => {
   test("take 2 arguments", () => {
     expect(evaluateCell("A1", { A1: "=NOMINAL()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A

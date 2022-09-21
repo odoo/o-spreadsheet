@@ -477,3 +477,8 @@ export function toLowerCase(str: string | undefined): string {
 export function sumOfArray(arr: number[]): number {
   return arr.reduce((partialSum, a) => partialSum + a, 0);
 }
+
+export function transpose2dArray<T>(matrix: T[][]): T[][] {
+  if (!matrix.length) return matrix;
+  return matrix[0].map((_, i) => matrix.map((row) => row[i]));
+}
