@@ -1,4 +1,12 @@
-import { addMonthsToDate, getYearFrac, isLastDayOfMonth, jsDateToRoundNumber } from "../helpers";
+import {
+  addMonthsToDate,
+  getYearFrac,
+  isDefined,
+  isLastDayOfMonth,
+  jsDateToRoundNumber,
+  range,
+  transpose2dArray,
+} from "../helpers";
 import { _lt } from "../translation";
 import { AddFunctionDescription, ArgValue, MatrixArgValue, PrimitiveArgValue } from "../types";
 import { args } from "./arguments";
@@ -1104,6 +1112,71 @@ export const MDURATION: AddFunctionDescription = {
     const y = toNumber(securityYield);
     const k = Math.trunc(toNumber(frequency));
     return duration / (1 + y / k);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// MIRR
+// -----------------------------------------------------------------------------
+export const MIRR: AddFunctionDescription = {
+  description: _lt("Modified internal rate of return."),
+  args: args(`
+  cashflow_amounts (range<number>) ${_lt(
+    "A range containing the income or payments associated with the investment. The array should contain bot payments and incomes."
+  )}
+  financing_rate (number) ${_lt("The interest rate paid on funds invested.")}
+  reinvestment_return_rate (number) ${_lt(
+    "The return (as a percentage) earned on reinvestment of income received from the investment."
+  )}
+  `),
+  returns: ["NUMBER"],
+  compute: function (
+    cashflowAmount: MatrixArgValue,
+    financingRate: PrimitiveArgValue,
+    reinvestmentRate: PrimitiveArgValue
+  ): number {
+    const fRate = toNumber(financingRate);
+    const rRate = toNumber(reinvestmentRate);
+    const cashFlow = transpose2dArray(cashflowAmount).flat().filter(isDefined).map(toNumber);
+    const n = cashFlow.length;
+
+    /**
+     * https://en.wikipedia.org/wiki/Modified_internal_rate_of_return
+     *
+     *         /  FV(positive cash flows, reinvestment rate) \  ^ (1 / (n - 1))
+     * MIRR = |  ___________________________________________  |                 - 1
+     *         \   - PV(negative cash flows, finance rate)   /
+     *
+     * with n the number of cash flows.
+     *
+     * You can compute FV and PV as :
+     *
+     * FV =    SUM      [ (cashFlow[i]>0 ? cashFlow[i] : 0) * (1 + rRate)**(n - i-1) ]
+     *       i= 0 => n
+     *
+     * PV =    SUM      [ (cashFlow[i]<0 ? cashFlow[i] : 0) / (1 + fRate)**i ]
+     *       i= 0 => n
+     */
+
+    let fv = 0;
+    let pv = 0;
+    for (const i of range(0, n)) {
+      const amount = cashFlow[i];
+      if (amount >= 0) {
+        fv += amount * (rRate + 1) ** (n - i - 1);
+      } else {
+        pv += amount / (fRate + 1) ** i;
+      }
+    }
+
+    assert(
+      () => pv !== 0 && fv !== 0,
+      _lt("There must be both positive and negative values in cashflow_amounts.")
+    );
+
+    const exponent = 1 / (n - 1);
+
+    return (-fv / pv) ** exponent - 1;
   },
 };
 
