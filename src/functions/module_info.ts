@@ -44,10 +44,14 @@ export const ISERROR: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const ISLOGICAL: AddFunctionDescription = {
   description: _lt("Whether a value is `true` or `false`."),
-  args: args(`value (any) ${_lt("The value to be verified as a logical TRUE or FALSE.")}`),
+  args: args(`value (any, lazy) ${_lt("The value to be verified as a logical TRUE or FALSE.")}`),
   returns: ["BOOLEAN"],
-  compute: function (value: PrimitiveArgValue): boolean {
-    return typeof value === "boolean";
+  compute: function (value: () => PrimitiveArgValue): boolean {
+    try {
+      return typeof value() === "boolean";
+    } catch (e) {
+      return false;
+    }
   },
   isExported: true,
 };
@@ -75,10 +79,14 @@ export const ISNA: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const ISNONTEXT: AddFunctionDescription = {
   description: _lt("Whether a value is non-textual."),
-  args: args(`value (any) ${_lt("The value to be checked.")}`),
+  args: args(`value (any, lazy) ${_lt("The value to be checked.")}`),
   returns: ["BOOLEAN"],
-  compute: function (value: PrimitiveArgValue): boolean {
-    return typeof value !== "string";
+  compute: function (value: () => PrimitiveArgValue): boolean {
+    try {
+      return typeof value() !== "string";
+    } catch (e) {
+      return true;
+    }
   },
   isExported: true,
 };
@@ -89,10 +97,14 @@ export const ISNONTEXT: AddFunctionDescription = {
 
 export const ISNUMBER: AddFunctionDescription = {
   description: _lt("Whether a value is a number."),
-  args: args(`value (any) ${_lt("The value to be verified as a number.")}`),
+  args: args(`value (any, lazy) ${_lt("The value to be verified as a number.")}`),
   returns: ["BOOLEAN"],
-  compute: function (value: PrimitiveArgValue): boolean {
-    return typeof value === "number";
+  compute: function (value: () => PrimitiveArgValue): boolean {
+    try {
+      return typeof value() === "number";
+    } catch (e) {
+      return false;
+    }
   },
   isExported: true,
 };
@@ -102,10 +114,14 @@ export const ISNUMBER: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const ISTEXT: AddFunctionDescription = {
   description: _lt("Whether a value is text."),
-  args: args(`value (any) ${_lt("The value to be verified as text.")}`),
+  args: args(`value (any, lazy) ${_lt("The value to be verified as text.")}`),
   returns: ["BOOLEAN"],
-  compute: function (value: PrimitiveArgValue): boolean {
-    return typeof value === "string";
+  compute: function (value: () => PrimitiveArgValue): boolean {
+    try {
+      return typeof value() === "string";
+    } catch (e) {
+      return false;
+    }
   },
   isExported: true,
 };

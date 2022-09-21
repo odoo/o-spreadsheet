@@ -87,6 +87,8 @@ describe("ISLOGICAL formula", () => {
     expect(evaluateCell("A1", { A1: "=ISLOGICAL(1)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=ISLOGICAL(1.2)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=ISLOGICAL(3%)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISLOGICAL(1/0)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISLOGICAL(NA())" })).toBe(false);
   });
 
   test("functional tests on cell arguments", () => {
@@ -102,6 +104,10 @@ describe("ISLOGICAL formula", () => {
     expect(evaluateCell("A1", { A1: "=ISLOGICAL(A2)", A2: "=true" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=ISLOGICAL(A2)", A2: "=false" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=ISLOGICAL(A2)", A2: "=123" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISLOGICAL(A2)", A2: "=A2" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISLOGICAL(A2)", A2: "=1/0" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISLOGICAL(A2)", A2: "=+(" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISLOGICAL(A2)", A2: "=NA()" })).toBe(false);
   });
 });
 
@@ -147,6 +153,8 @@ describe("ISNONTEXT formula", () => {
     expect(evaluateCell("A1", { A1: "=ISNONTEXT(TRUE)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=ISNONTEXT(123)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=ISNONTEXT(3%)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=ISNONTEXT(1/0)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=ISNONTEXT(NA())" })).toBe(true);
   });
 
   test("functional tests on cell arguments", () => {
@@ -160,6 +168,10 @@ describe("ISNONTEXT formula", () => {
     expect(evaluateCell("A1", { A1: "=ISNONTEXT(A2)", A2: '="TRUE"' })).toBe(false);
     expect(evaluateCell("A1", { A1: "=ISNONTEXT(A2)", A2: "=true" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=ISNONTEXT(A2)", A2: "=123" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=ISNONTEXT(A2)", A2: "=A2" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=ISNONTEXT(A2)", A2: "=1/0" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=ISNONTEXT(A2)", A2: "=+(" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=ISNONTEXT(A2)", A2: "=NA()" })).toBe(true);
   });
 });
 
@@ -173,6 +185,8 @@ describe("ISNUMBER formula", () => {
     expect(evaluateCell("A1", { A1: "=ISNUMBER(123)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=ISNUMBER(1.2)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=ISNUMBER(3%)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=ISNUMBER(1/0)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISNUMBER(NA())" })).toBe(false);
   });
 
   test("functional tests on cell arguments", () => {
@@ -186,6 +200,10 @@ describe("ISNUMBER formula", () => {
     expect(evaluateCell("A1", { A1: "=ISNUMBER(A2)", A2: '="TRUE"' })).toBe(false);
     expect(evaluateCell("A1", { A1: "=ISNUMBER(A2)", A2: "=true" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=ISNUMBER(A2)", A2: "=123" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=ISNUMBER(A2)", A2: "=A2" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISNUMBER(A2)", A2: "=1/0" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISNUMBER(A2)", A2: "=+(" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISNUMBER(A2)", A2: "=NA()" })).toBe(false);
   });
 });
 
@@ -198,6 +216,8 @@ describe("ISTEXT formula", () => {
     expect(evaluateCell("A1", { A1: "=ISTEXT(TRUE)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=ISTEXT(123)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=ISTEXT(3%)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISTEXT(1/0)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISTEXT(NA())" })).toBe(false);
   });
 
   test("functional tests on cell arguments", () => {
@@ -211,6 +231,10 @@ describe("ISTEXT formula", () => {
     expect(evaluateCell("A1", { A1: "=ISTEXT(A2)", A2: '="TRUE"' })).toBe(true);
     expect(evaluateCell("A1", { A1: "=ISTEXT(A2)", A2: "=true" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=ISTEXT(A2)", A2: "=123" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISTEXT(A2)", A2: "=A2" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISTEXT(A2)", A2: "=1/0" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISTEXT(A2)", A2: "=+(" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISTEXT(A2)", A2: "=NA()" })).toBe(false);
   });
 });
 
