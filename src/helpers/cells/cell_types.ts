@@ -1,5 +1,5 @@
 import { DATETIME_FORMAT, LINK_COLOR, LOADING } from "../../constants";
-import { _lt } from "../../translation";
+import { _lt, _t } from "../../translation";
 import {
   BooleanEvaluation,
   CellDisplayProperties,
@@ -169,6 +169,7 @@ export abstract class LinkCell extends AbstractCell<TextEvaluation> implements I
         textColor: properties.style?.textColor || LINK_COLOR,
       },
     };
+    link.label = _t(link.label);
     super(id, lazy({ value: link.label, type: CellValueType.text }), properties);
     this.link = link;
     this.content = content;
