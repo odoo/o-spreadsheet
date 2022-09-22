@@ -21,6 +21,7 @@ import {
 } from "./helpers";
 import {
   assertCostPositiveOrZero,
+  assertDeprecationFactorPositive,
   assertDiscountPositive,
   assertDiscountSmallerThanOne,
   assertInvestmentPositive,
@@ -39,6 +40,7 @@ import {
   checkFirstAndLastPeriodsAreValid,
   checkMaturityAndSettlementDates,
   checkSettlementAndIssueDates,
+  checkStartAndEndPeriodAreValid,
 } from "./helper_financial";
 import { DAYS, YEARFRAC } from "./module_date";
 
@@ -574,10 +576,7 @@ export const DDB: AddFunctionDescription = {
     assertPeriodPositive(_period);
     assertLifePositive(_life);
     assertPeriodSmallerThanLife(_period, _life);
-    assert(
-      () => _factor > 0,
-      _lt("The depreciation factor (%s) must be strictly positive.", _factor.toString())
-    );
+    assertDeprecationFactorPositive(_factor);
 
     if (_cost === 0 || _salvage >= _cost) return 0;
 
@@ -2080,6 +2079,94 @@ export const TBILLYIELD: AddFunctionDescription = {
 
     const yearFrac = YEARFRAC.compute(start, end, 2) as number;
     return ((100 - p) / p) * (1 / yearFrac);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// VDB
+// -----------------------------------------------------------------------------
+const DEFAULT_VDB_NO_SWITCH = false;
+export const VDB: AddFunctionDescription = {
+  description: _lt("Variable declining balance. WARNING : does not handle decimal periods."),
+  args: args(`
+        cost (number) ${_lt("The initial cost of the asset.")}
+        salvage (number) ${_lt("The value of the asset at the end of depreciation.")}
+        life (number) ${_lt("The number of periods over which the asset is depreciated.")}
+        start (number) ${_lt("Starting period to calculate depreciation.")}
+        end (number) ${_lt("Ending period to calculate depreciation.")}
+        factor (number, default=${DEFAULT_DDB_DEPRECIATION_FACTOR}) ${_lt(
+    "The number of months in the first year of depreciation."
+  )}
+  no_switch (number, default=${DEFAULT_VDB_NO_SWITCH}) ${_lt(
+    "Whether to switch to straight-line depreciation when the depreciation is greater than the declining balance calculation."
+  )}
+    `),
+  returns: ["NUMBER"],
+  compute: function (
+    cost: PrimitiveArgValue,
+    salvage: PrimitiveArgValue,
+    life: PrimitiveArgValue,
+    startPeriod: PrimitiveArgValue,
+    endPeriod: PrimitiveArgValue,
+    factor: PrimitiveArgValue = DEFAULT_DDB_DEPRECIATION_FACTOR,
+    noSwitch: PrimitiveArgValue = DEFAULT_VDB_NO_SWITCH
+  ): number {
+    factor = factor || 0;
+    const _cost = toNumber(cost);
+    const _salvage = toNumber(salvage);
+    const _life = toNumber(life);
+    /* TODO : handle decimal periods
+     * on end_period it looks like it is a simple linear function, but I cannot understand exactly how
+     * decimals periods are handled with start_period.
+     */
+    const _startPeriod = Math.trunc(toNumber(startPeriod));
+    const _endPeriod = Math.trunc(toNumber(endPeriod));
+    const _factor = toNumber(factor);
+    const _noSwitch = toBoolean(noSwitch);
+
+    assertCostPositiveOrZero(_cost);
+    assertSalvagePositiveOrZero(_salvage);
+    checkStartAndEndPeriodAreValid(_startPeriod, _endPeriod, _life);
+    assertDeprecationFactorPositive(_factor);
+
+    if (_cost === 0) return 0;
+    if (_salvage >= _cost) {
+      return _startPeriod < 1 ? _cost - _salvage : 0;
+    }
+
+    const doubleDeprecFactor = _factor / _life;
+    if (doubleDeprecFactor >= 1) {
+      return _startPeriod < 1 ? _cost - _salvage : 0;
+    }
+
+    let previousCost = _cost;
+    let currentDeprec: number = 0;
+    let resultDeprec = 0;
+    let isLinearDeprec = false;
+    for (let i = 0; i < _endPeriod; i++) {
+      // compute the current deprecation, or keep the last one if we reached a stage of linear deprecation
+      if (!isLinearDeprec || _noSwitch) {
+        const doubleDeprec = previousCost * doubleDeprecFactor;
+
+        const remainingPeriods = _life - i;
+        const linearDeprec = (previousCost - _salvage) / remainingPeriods;
+
+        if (!_noSwitch && linearDeprec > doubleDeprec) {
+          isLinearDeprec = true;
+          currentDeprec = linearDeprec;
+        } else {
+          currentDeprec = doubleDeprec;
+        }
+      }
+
+      const nextCost = Math.max(previousCost - currentDeprec, _salvage);
+      if (i >= _startPeriod) {
+        resultDeprec += previousCost - nextCost;
+      }
+      previousCost = nextCost;
+    }
+
+    return resultDeprec;
   },
 };
 
