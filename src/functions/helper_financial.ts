@@ -111,6 +111,13 @@ export function assertDiscountSmallerThanOne(discount: number) {
   assert(() => discount < 1, _lt("The discount (%s) must be smaller than 1.", discount.toString()));
 }
 
+export function assertDeprecationFactorPositive(factor: number) {
+  assert(
+    () => factor > 0,
+    _lt("The depreciation factor (%s) must be strictly positive.", factor.toString())
+  );
+}
+
 export function assertSettlementLessThanOneYearBeforeMaturity(
   settlement: number,
   maturity: number
@@ -166,6 +173,46 @@ export function checkFirstAndLastPeriodsAreValid(
       "The last_period (%s) must be smaller or equal to the number_of_periods (%s).",
       firstPeriod.toString(),
       numberOfPeriods.toString()
+    )
+  );
+}
+
+/**
+ * Check if the given periods are valid. This will assert :
+ *
+ * - 0 < life
+ * - 0 <= startPeriod <= endPeriod
+ * - 0 <= endPeriod <= life
+ *
+ */
+export function checkStartAndEndPeriodAreValid(
+  startPeriod: number,
+  endPeriod: number,
+  life: number
+) {
+  assertLifePositive(life);
+  assert(
+    () => startPeriod >= 0,
+    _lt("The start_period (%s) must be greater or equal than 0.", startPeriod.toString())
+  );
+  assert(
+    () => endPeriod >= 0,
+    _lt("The end_period (%s) must be greater or equal than 0.", endPeriod.toString())
+  );
+  assert(
+    () => startPeriod <= endPeriod,
+    _lt(
+      "The start_period (%s) must be smaller or equal to the end_period (%s).",
+      startPeriod.toString(),
+      endPeriod.toString()
+    )
+  );
+  assert(
+    () => endPeriod <= life,
+    _lt(
+      "The end_period (%s) must be smaller or equal to the life (%s).",
+      startPeriod.toString(),
+      life.toString()
     )
   );
 }

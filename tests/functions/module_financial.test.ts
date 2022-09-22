@@ -4490,6 +4490,190 @@ describe("TBILLYIELD function", () => {
   );
 });
 
+describe("VDB function", () => {
+  test("VDB takes 5-7 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=VDB()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=VDB(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=VDB(1, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=VDB(1, 0, 1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=VDB(1, 0, 1, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=VDB(1, 0, 1, 0, 1)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=VDB(1, 0, 1, 0, 1, 2)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=VDB(1, 0, 1, 0, 1, 2, TRUE)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=VDB(1, 0, 1, 0, 1, 2, TRUE, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("cost and salvage >= 0", () => {
+    expect(evaluateCell("A1", { A1: "=VDB(-1, 0, 1, 0, 1, 2, TRUE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=VDB(1, -1, 1, 0, 1, 2, TRUE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("life > 0", () => {
+    expect(evaluateCell("A1", { A1: "=VDB(1, 0, -1, 0, 1, 2, TRUE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=VDB(1, 0, 0, 0, 1, 2, TRUE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("start period >= 0 and <= end period", () => {
+    expect(evaluateCell("A1", { A1: "=VDB(1, 0, 1, -1, 1, 2, TRUE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=VDB(1, 0, 1, 2, 2, 2, TRUE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("end period >= 0 and <= life", () => {
+    expect(evaluateCell("A1", { A1: "=VDB(1, 0, 1, 0, -1, 2, TRUE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=VDB(1, 0, 1, 0, 3, 2, TRUE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("factor > 0", () => {
+    expect(evaluateCell("A1", { A1: "=VDB(1, 0, 1, 0, 1, -1, TRUE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=VDB(1, 0, 1, 0, 1, 0, TRUE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test.each([
+    [1200, 200, 10, 0, 1, 1.5, "FALSE", 180],
+    [1200, 200, 10, 1, 2, 1.5, "FALSE", 153],
+    [1200, 200, 10, 2, 3, 1.5, "FALSE", 130.05],
+    [1200, 200, 10, 3, 4, 1.5, "FALSE", 110.5425],
+    [1200, 200, 10, 4, 5, 1.5, "FALSE", 93.961125],
+    [1200, 200, 10, 5, 6, 1.5, "FALSE", 79.86695625],
+    [1200, 200, 10, 6, 7, 1.5, "FALSE", 67.88691281],
+    [1200, 200, 10, 7, 8, 1.5, "FALSE", 61.56416865],
+    [1200, 200, 10, 8, 9, 1.5, "FALSE", 61.56416865],
+    [1200, 200, 10, 9, 10, 1.5, "FALSE", 61.56416865],
+    [1000.5, 50, 5, 2, 4, 3, "FALSE", 110.08],
+    [1000, 50, 5, 2, 5, 3.5, "FALSE", 40],
+    [28, 30, 9, 2, 3, 5, "FALSE", 0],
+    [12, 5, 8, 7, 8, 4, "FALSE", 0],
+    [120, 5, 5, 1, 1, 2, "FALSE", 0],
+    [1000.5, 50, 5, 2, 3, 3, "FALSE", 96.048],
+    [1000, 50, 5, 2, 3, 6, "FALSE", 0],
+    [28, 5, 9, 2, 5, 1, "FALSE", 7.346593507],
+    [12, 5, 8, 2, 4, 3, "FALSE", 0],
+    [120, 5, 15, 2, 4, 10, "FALSE", 8.333333333],
+    [1000, 0, 12, 1, 2, 2, "FALSE", 138.8888889],
+    [0, 200, 12, 1, 2, 2, "FALSE", 0],
+    [0, 0, 12, 1, 2, 2, "FALSE", 0],
+  ])(
+    "function result =VDB(%s, %s, %s, %s, %s, %s, %s)",
+    (
+      cost: number,
+      salvage: number,
+      life: number,
+      startPeriod: number,
+      endPeriod: number,
+      factor: number,
+      noSwitch: string,
+      expectedResult: number
+    ) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=VDB(${cost}, ${salvage}, ${life}, ${startPeriod}, ${endPeriod}, ${factor}, ${noSwitch})`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+
+  test.each([
+    [1200, 200, 7, 0, 1, 1.5, "TRUE", 257.1428571],
+    [1200, 200, 7, 1, 2, 1.5, "TRUE", 202.0408163],
+    [1200, 200, 7, 2, 3, 1.5, "TRUE", 158.7463557],
+    [1200, 200, 7, 3, 4, 1.5, "TRUE", 124.7292795],
+    [1200, 200, 7, 4, 5, 1.5, "TRUE", 98.00157672],
+    [1200, 200, 7, 5, 6, 1.5, "TRUE", 77.00123885],
+    [1200, 200, 7, 6, 7, 1.5, "TRUE", 60.50097339],
+    [1200, 200, 7, 1, 5, 1.5, "TRUE", 583.5180282],
+    [200, 100, 10, 0, 2, 1.5, "TRUE", 55.5],
+  ])(
+    "function result with no_switch=TRUE =VDB(%s, %s, %s, %s, %s, %s, %s)",
+    (
+      cost: number,
+      salvage: number,
+      life: number,
+      startPeriod: number,
+      endPeriod: number,
+      factor: number,
+      noSwitch: string,
+      expectedResult: number
+    ) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=VDB(${cost}, ${salvage}, ${life}, ${startPeriod}, ${endPeriod}, ${factor}, ${noSwitch})`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+
+  test.each([
+    [1200, 200, 7, 0, 6, 12, "FALSE", 1000],
+    [1200, 200, 7, 1, 2, 10, "TRUE", 0],
+    [1200, 200, 7, 0, 1, 10, "FALSE", 1000],
+    [1200, 200, 7, 0, 3, 7, "TRUE", 1000],
+    [1200, 200, 7, 0, 3, 7, "FALSE", 1000],
+  ])(
+    "function result with factor >= life, =VDB(%s, %s, %s, %s, %s, %s, %s)",
+    (
+      cost: number,
+      salvage: number,
+      life: number,
+      startPeriod: number,
+      endPeriod: number,
+      factor: number,
+      noSwitch: string,
+      expectedResult: number
+    ) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=VDB(${cost}, ${salvage}, ${life}, ${startPeriod}, ${endPeriod}, ${factor}, ${noSwitch})`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+
+  test.each([
+    [1000, 1200, 7, 0, 6, 2, "FALSE", -200],
+    [1000, 1200, 7, 1, 2, 2, "FALSE", 0],
+    [1000, 1300, 7, 0, 1, 2, "FALSE", -300],
+    [1000, 1200, 7, 2, 3, 2, "FALSE", 0],
+  ])(
+    "function result with salvage > cost, =VDB(%s, %s, %s, %s, %s, %s, %s)",
+    (
+      cost: number,
+      salvage: number,
+      life: number,
+      startPeriod: number,
+      endPeriod: number,
+      factor: number,
+      noSwitch: string,
+      expectedResult: number
+    ) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=VDB(${cost}, ${salvage}, ${life}, ${startPeriod}, ${endPeriod}, ${factor}, ${noSwitch})`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+
+
+  test.each([
+    [1200, 200, 7, 1.1, 2.2, 1.5, "TRUE", 202.0408163],
+    [1200, 200, 7, 2.5, 3.9, 1.5, "TRUE", 158.7463557],
+  ])(
+    "periods are truncated",
+    (
+      cost: number,
+      salvage: number,
+      life: number,
+      startPeriod: number,
+      endPeriod: number,
+      factor: number,
+      noSwitch: string,
+      expectedResult: number
+    ) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=VDB(${cost}, ${salvage}, ${life}, ${startPeriod}, ${endPeriod}, ${factor}, ${noSwitch})`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+
+});
+
 describe("YIELD formula", () => {
   test("take at 6 or 7 arguments", () => {
     expect(evaluateCell("A1", { A1: "=YIELD(0, 365, 0.05, 90, 120)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
