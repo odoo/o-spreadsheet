@@ -142,9 +142,6 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
   });
   private isKeyStillDown: boolean = false;
 
-  /** Should be true if a mousedown was called on the composer, and the mouseUp still hasn't been handled */
-  private mouseDownActive: boolean = false;
-
   get assistantStyle(): string {
     if (this.props.delimitation && this.props.rect) {
       const { x: cellX, y: cellY, height: cellHeight } = this.props.rect;
@@ -365,18 +362,10 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
       // not main button, probably a context menu
       return;
     }
-
-    if (this.props.focus === "inactive") {
-      const newSelection = this.contentHelper.getCurrentSelection();
-      this.props.onComposerContentFocused(newSelection);
-    } else {
-      this.contentHelper.removeSelection();
-      this.mouseDownActive = true;
-    }
+    this.contentHelper.removeSelection();
   }
 
   onClick() {
-    this.mouseDownActive = false;
     if (this.env.model.getters.isReadonly()) {
       return;
     }
@@ -391,11 +380,6 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onBlur() {
-    if (this.mouseDownActive && this.props.focus !== "inactive") {
-      const newSelection = this.contentHelper.getCurrentSelection();
-      this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", newSelection);
-      this.mouseDownActive = false;
-    }
     this.isKeyStillDown = false;
   }
 
