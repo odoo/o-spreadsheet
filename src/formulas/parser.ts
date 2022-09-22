@@ -5,7 +5,7 @@ import { InvalidReferenceError } from "../types/errors";
 import { UnknownFunctionError } from "./../types/errors";
 import { Token, tokenize } from "./tokenizer";
 
-const functionRegex = /[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*/;
+const functionRegex = /[a-zA-Z0-9\_]+(\.[a-zA-Z0-9\_]+)*/;
 
 const UNARY_OPERATORS_PREFIX = ["-", "+"];
 const UNARY_OPERATORS_POSTFIX = ["%"];
