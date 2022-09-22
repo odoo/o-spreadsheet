@@ -1,6 +1,6 @@
-import { version } from "./package.json";
-import git from "git-rev-sync";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
+import git from "git-rev-sync";
+import { version } from "./package.json";
 
 export default {
   input: "dist/js/index.js",
