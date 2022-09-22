@@ -1,6 +1,6 @@
 # o-spreadsheet architecture
 
-o-spreadsheet is architected in two main parts:
+o-spreadsheet is architected in two main parts: the core engine and the spreadsheet rendering in the DOM.
 
 ## Core engine
 

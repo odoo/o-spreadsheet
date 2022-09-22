@@ -1,6 +1,6 @@
 # Integrating o-spreadsheet in an existing owl application
 
-## Minimal spreadsheet
+## Getting Started
 
 Here is the shortest example to use o-spreadsheet in an Owl application:
 
@@ -57,3 +57,16 @@ An array with revisions that should be loaded at the model creation.
 ## Collaborative edition
 
 See [collaborative documentation](collaborative.md)
+
+## Translation
+
+To translate terms in o-spreadsheet, a translate function can be passed to o_spreadsheet.
+This function should take a string and returns the translated string.
+
+```typescript
+function _t(term) {
+  return translate(term);
+}
+
+o_spreadsheet.setTranslationMethod(_t);
+```
