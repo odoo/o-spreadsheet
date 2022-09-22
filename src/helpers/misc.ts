@@ -328,7 +328,7 @@ export function isDefined<T>(argument: T | undefined): argument is T {
 /**
  * Check if all the values of an object, and all the values of the objects inside of it, are undefined.
  */
-export function isObjectEmptyRecursive<T>(argument: T | undefined): boolean {
+export function isObjectEmptyRecursive<T extends object>(argument: T | undefined): boolean {
   if (argument === undefined) return true;
   return Object.values(argument).every((value) =>
     typeof value === "object" ? isObjectEmptyRecursive(value) : !value
