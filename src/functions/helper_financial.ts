@@ -216,3 +216,10 @@ export function checkStartAndEndPeriodAreValid(
     )
   );
 }
+
+export function assertRateGuessGreaterThanMinusOne(guess: number) {
+  assert(
+    () => guess > -1,
+    _lt("The rate_guess (%s) must be strictly greater than -1.", guess.toString())
+  );
+}

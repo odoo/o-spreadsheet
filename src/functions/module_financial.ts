@@ -31,6 +31,7 @@ import {
   assertPeriodSmallerThanLife,
   assertPresentValuePositive,
   assertPricePositive,
+  assertRateGuessGreaterThanMinusOne,
   assertRatePositive,
   assertRedemptionPositive,
   assertSalvagePositiveOrZero,
@@ -66,7 +67,8 @@ function newtonMethod(
   derivFunc: (x: number) => number,
   startValue: number,
   interMax: number,
-  epsMax: number = 1e-10
+  epsMax: number = 1e-10,
+  nanFallback?: (previousFallback: number | undefined) => number
 ) {
   let x = startValue;
   let newX: number;
@@ -74,8 +76,19 @@ function newtonMethod(
   let y: number;
   let yEqual0 = false;
   let count = 0;
+  let previousFallback: number | undefined = undefined;
   do {
     y = func(x);
+    if (isNaN(y)) {
+      assert(
+        () => count < interMax && nanFallback !== undefined,
+        _lt(`Function [[FUNCTION_NAME]] didn't find any result.`)
+      );
+      count++;
+      x = nanFallback!(previousFallback);
+      previousFallback = x;
+      continue;
+    }
     newX = x - y / derivFunc(x);
     xDelta = Math.abs(newX - x);
     x = newX;
@@ -972,10 +985,7 @@ export const IRR: AddFunctionDescription = {
   ): number {
     const _rateGuess = toNumber(rateGuess);
 
-    assert(
-      () => _rateGuess > -1,
-      _lt("The rate_guess (%s) must be strictly greater than -1.", _rateGuess.toString())
-    );
+    assertRateGuessGreaterThanMinusOne(_rateGuess);
 
     // check that values contains at least one positive value and one negative value
     // and extract number present in the cashFlowAmount argument
@@ -1736,7 +1746,7 @@ export const RATE: AddFunctionDescription = {
         n.toString()
       )
     );
-    assert(() => guess > -1, _lt("The rate_guess (%s) must be greater than -1.", guess.toString()));
+    assertRateGuessGreaterThanMinusOne(guess);
 
     fv -= payment * type;
     pv += payment * type;
@@ -2167,6 +2177,104 @@ export const VDB: AddFunctionDescription = {
     }
 
     return resultDeprec;
+  },
+};
+
+// -----------------------------------------------------------------------------
+// XIRR
+// -----------------------------------------------------------------------------
+export const XIRR: AddFunctionDescription = {
+  description: _lt("Internal rate of return given non-periodic cash flows."),
+  args: args(`
+  cashflow_amounts (range<number>) ${_lt(
+    "An range containing the income or payments associated with the investment."
+  )}
+  cashflow_dates (range<number>) ${_lt(
+    "An range with dates corresponding to the cash flows in cashflow_amounts."
+  )}
+  rate_guess (number, default=${RATE_GUESS_DEFAULT}) ${_lt(
+    "An estimate for what the internal rate of return will be."
+  )}
+  `),
+  returns: ["NUMBER"],
+  compute: function (
+    cashflowAmounts: MatrixArgValue,
+    cashflowDates: MatrixArgValue,
+    rateGuess: PrimitiveArgValue = RATE_GUESS_DEFAULT
+  ): number {
+    rateGuess = rateGuess || 0;
+    const guess = toNumber(rateGuess);
+
+    const _cashFlows = cashflowAmounts.flat().map(toNumber);
+    const _dates = cashflowDates.flat().map(toNumber);
+
+    assert(
+      () =>
+        cashflowAmounts.length === cashflowDates.length &&
+        cashflowAmounts[0].length === cashflowDates[0].length,
+      _lt("The cashflow_amounts and cashflow_dates ranges must have the same dimensions.")
+    );
+    assert(
+      () => _cashFlows.some((val) => val > 0) && _cashFlows.some((val) => val < 0),
+      _lt("There must be both positive and negative values in cashflow_amounts.")
+    );
+    assert(
+      () => _dates.every((date) => date >= _dates[0]),
+      _lt(
+        "All the dates should be greater or equal to the first date in cashflow_dates (%s).",
+        _dates[0].toString()
+      )
+    );
+    assertRateGuessGreaterThanMinusOne(guess);
+
+    const map = new Map<number, number>();
+    for (const i of range(0, _dates.length)) {
+      const date = _dates[i];
+      if (map.has(date)) map.set(date, map.get(date)! + _cashFlows[i]);
+      else map.set(date, _cashFlows[i]);
+    }
+    const dates = Array.from(map.keys());
+    const values = dates.map((date) => map.get(date)!);
+
+    /**
+     * https://support.microsoft.com/en-us/office/xirr-function-de1242ec-6477-445b-b11b-a303ad9adc9d
+     *
+     * The rate is computed iteratively by trying to solve the equation
+     *
+     *
+     * 0 =    SUM     [ P_i * (1 + rate) ^((d_0 - d_i) / 365) ]  + P_0
+     *     i = 1 => n
+     *
+     * with P_i = price number i
+     *      d_i = date number i
+     *
+     * This function is not defined for rate < -1. For the case where we get rates < -1 in the Newton method, add
+     * a fallback for a number very close to -1 to continue the Newton method.
+     *
+     */
+    const func = (rate: number) => {
+      let value = values[0];
+      for (const i of range(1, values.length)) {
+        const dateDiff = (dates[0] - dates[i]) / 365;
+        value += values[i] * (1 + rate) ** dateDiff;
+      }
+      return value;
+    };
+    const derivFunc = (rate: number) => {
+      let deriv = 0;
+      for (const i of range(1, values.length)) {
+        const dateDiff = (dates[0] - dates[i]) / 365;
+        deriv += dateDiff * values[i] * (1 + rate) ** (dateDiff - 1);
+      }
+      return deriv;
+    };
+    const nanFallback = (previousFallback: number | undefined) => {
+      // -0.9 => -0.99 => -0.999 => ...
+      if (!previousFallback) return -0.9;
+      return previousFallback / 10 - 0.9;
+    };
+
+    return newtonMethod(func, derivFunc, guess, 40, 1e-5, nanFallback);
   },
 };
 
