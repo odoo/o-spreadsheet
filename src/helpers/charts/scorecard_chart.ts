@@ -1,5 +1,6 @@
 import { transformZone } from "../../collaborative/ot/ot_helpers";
 import { chartRegistry } from "../../registries/chart_types";
+import { _t } from "../../translation";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -208,7 +209,7 @@ function createScorecardChartRuntime(
   }
   const background = getters.getBackgroundOfSingleCellChart(chart.background, chart.keyValue);
   return {
-    title: chart.title,
+    title: _t(chart.title),
     keyValue: formattedKeyValue || keyValue,
     baselineDisplay: getBaselineText(baselineCell, keyValueCell?.evaluated, chart.baselineMode),
     baselineArrow: getBaselineArrowDirection(
@@ -223,7 +224,7 @@ function createScorecardChartRuntime(
       chart.baselineColorUp,
       chart.baselineColorDown
     ),
-    baselineDescr: chart.baselineDescr,
+    baselineDescr: _t(chart.baselineDescr || ""),
     fontColor: chartFontColor(background),
     background,
     baselineStyle: chart.baselineMode !== "percentage" ? baselineCell?.style : undefined,
