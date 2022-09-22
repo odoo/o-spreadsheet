@@ -32,7 +32,7 @@ describe("functions", () => {
 
   test("can not add a function with invalid name", () => {
     const createBadFunction = () => {
-      functionRegistry.add("TEST_FUNCTION", {
+      functionRegistry.add("TEST*FUNCTION", {
         description: "Double the first argument",
         compute: () => 0,
         args: [],
@@ -40,8 +40,20 @@ describe("functions", () => {
       });
     };
     expect(createBadFunction).toThrow(
-      "Invalid function name TEST_FUNCTION. Function names can exclusively contain alphanumerical values separated by dots (.)"
+      "Invalid function name TEST*FUNCTION. Function names can exclusively contain alphanumerical values separated by dots (.)"
     );
+  });
+
+  test("can add a function with underscore", () => {
+    const createBadFunction = () => {
+      functionRegistry.add("TEST_FUNCTION", {
+        description: "Double the first argument",
+        compute: () => 0,
+        args: [],
+        returns: ["NUMBER"],
+      });
+    };
+    expect(createBadFunction).not.toThrow();
   });
 
   test("Function can return value depending on input values", () => {

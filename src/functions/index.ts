@@ -41,7 +41,7 @@ const functions: { [category: string]: { [name: string]: AddFunctionDescription 
   engineering,
 };
 
-const functionNameRegex = /^[A-Z0-9\.]+$/;
+const functionNameRegex = /^[A-Z0-9\_\.]+$/;
 
 //------------------------------------------------------------------------------
 // Function registry
@@ -56,7 +56,7 @@ class FunctionRegistry extends Registry<FunctionDescription> {
     if (!name.match(functionNameRegex)) {
       throw new Error(
         _lt(
-          "Invalid function name %s. Function names can exclusively contain alphanumerical values separated by dots (.)",
+          "Invalid function name %s. Function names can exclusively contain alphanumerical values separated by dots (.) or underscore (_)",
           name
         )
       );
