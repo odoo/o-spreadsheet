@@ -26,7 +26,6 @@ import {
   keyUp,
   rightClickCell,
   simulateClick,
-  triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import {
@@ -34,7 +33,6 @@ import {
   makeTestFixture,
   mountSpreadsheet,
   nextTick,
-  spyDispatch,
   startGridComposition,
   toRangesData,
   typeInComposerGrid as typeInComposerGridHelper,
@@ -446,24 +444,6 @@ describe("composer", () => {
     expect(model.getters.getEditionMode()).toBe("editing");
     expect(model.getters.getPosition()).toEqual(toCartesian("A1"));
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer")!);
-  });
-
-  test("Composer take focus on mouse down", async () => {
-    triggerMouseEvent("div.o-composer", "mousedown");
-    await nextTick();
-    expect(model.getters.getEditionMode()).toBe("editing");
-    expect(document.activeElement).toBe(fixture.querySelector("div.o-composer"));
-  });
-
-  test("Composer update its selection when mouseup isn't in the composer", async () => {
-    triggerMouseEvent("div.o-composer", "click");
-    await nextTick();
-
-    const dispatch = spyDispatch(parent);
-    triggerMouseEvent("div.o-composer", "mousedown");
-    triggerMouseEvent("div.o-spreadsheet-topbar", "mouseup");
-    triggerMouseEvent("div.o-spreadsheet-topbar", "click");
-    expect(dispatch).toHaveBeenCalledWith("CHANGE_COMPOSER_CURSOR_SELECTION", { end: 0, start: 0 });
   });
 
   test("starting the edition with a key stroke =, the composer should have the focus after the key input", async () => {
