@@ -1,3 +1,5 @@
+// Don't remove unused import
+// organize-imports-ignore
 import { demoData, makeLargeDataset } from "./data.js";
 import { currenciesData } from "./currencies.js";
 import { WebsocketTransport } from "./transport.js";
