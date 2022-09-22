@@ -24,7 +24,7 @@
         <div class="o-section-title">Title</div>
         <input
           type="text"
-          t-att-value="props.definition.title"
+          t-att-value="env._t(props.definition.title)"
           t-on-change="updateTitle"
           class="o-input o-optional"
           placeholder="New Chart"
@@ -34,7 +34,7 @@
         <div class="o-section-title">Baseline description</div>
         <input
           type="text"
-          t-att-value="props.definition.baselineDescr"
+          t-att-value="env._t(props.definition.baselineDescr)"
           t-on-change="updateBaselineDescr"
           class="o-input o-optional"
         />

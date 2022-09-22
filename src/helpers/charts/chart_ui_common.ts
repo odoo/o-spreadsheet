@@ -1,6 +1,7 @@
 import { ChartConfiguration } from "chart.js";
 import { ChartTerms } from "../../components/translations_terms";
 import { MAX_CHAR_LABEL } from "../../constants";
+import { _t } from "../../translation";
 import { Cell, Color, Format, Getters, Range } from "../../types";
 import { DataSet, DatasetValues, LabelValues } from "../../types/chart/chart";
 import { range } from "../misc";
@@ -95,7 +96,7 @@ export function getDefaultChartJsRuntime(
         display: !!chart.title,
         fontSize: 22,
         fontStyle: "normal",
-        text: chart.title,
+        text: _t(chart.title),
         fontColor,
       },
       legend: {
