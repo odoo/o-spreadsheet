@@ -4849,6 +4849,143 @@ describe("XIRR function", () => {
   });
 });
 
+describe("XNPV function", () => {
+  test("XNPV takes 3 arguments", () => {
+    const grid = { B1: "1", B2: "-1", C1: "0", C2: "1" };
+    expect(evaluateCell("A1", { A1: "=XNPV()", ...grid })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=XNPV(0.1)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=XNPV(0.1, 1)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=XNPV(0.1, 1, 1)", ...grid })).toBeCloseTo(1);
+    expect(evaluateCell("A1", { A1: "=XNPV(0.1, 1, 1, 0)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("cash flow and date ranges have the same dimensions", () => {
+    const grid = { B1: "1", B2: "-1", C1: "0", D1: "1", C2: "1" };
+    expect(evaluateCell("A1", { A1: "=XNPV(1, B1:B2, C1:D1)", ...grid })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=XNPV(1, B1:B2, C1:C3)", ...grid })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("first date should be greater than the others", () => {
+    let grid = { B1: "1", B2: "-1", C1: "2", C2: "1" };
+    expect(evaluateCell("A1", { A1: "=XNPV(1, B1:B2, C1:C2)", ...grid })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    grid = { B1: "1", B2: "-1", C1: "3", C2: "1" };
+    expect(evaluateCell("A1", { A1: "=XNPV(1, B1:B2, C1:C2)", ...grid })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("the rate should be > 0", () => {
+    const grid = { B1: "1", B2: "-1", C1: "0", C2: "1" };
+    expect(evaluateCell("A1", { A1: "=XNPV(-1, B1:B2, C1:C2)", ...grid })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=XNPV(0, B1:B2, C1:C2)", ...grid })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("there should be only numbers in the ranges", () => {
+    let grid: Record<string, string | undefined> = { B1: "1", B2: "-1", C1: "2", C2: "abcd" };
+    expect(evaluateCell("A1", { A1: "=XNPV(1, B1:B2, C1:C2)", ...grid })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    grid = { B1: "abcd", B2: "-1", C1: "3", C2: "1" };
+    expect(evaluateCell("A1", { A1: "=XNPV(1, B1:B2, C1:C2)", ...grid })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    grid = { B1: "1", B2: undefined, C1: "3", C2: "1" };
+    expect(evaluateCell("A1", { A1: "=XNPV(1, B1:B2, C1:C2)", ...grid })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    grid = { B1: "1", B2: "-1", C1: "3", C2: undefined };
+    expect(evaluateCell("A1", { A1: "=XNPV(1, B1:B2, C1:C2)", ...grid })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+  });
+
+  //TODO undefined valeus => error
+  test.each([
+    [
+      0.1,
+      [1000, -1000, -2000, -2000, -6000],
+      ["01/01/2018", "01/01/2019", "01/01/2020", "01/01/2021", "01/01/2022"],
+      -7161.231517,
+    ],
+    [
+      0.5,
+      [-6500, 1500, 600, -2500, 4000],
+      ["01/01/2018", "02/01/2018", "03/01/2018", "04/01/2018", "05/01/2018"],
+      -3250.186044,
+    ],
+    [
+      1.2,
+      [5.69, 1.2, -1.289, -2.566, -1],
+      ["03/31/2018", "02/28/2019", "12/31/2019", "01/01/2020", "05/01/2020"],
+      5.114395911,
+    ],
+    [
+      0.3,
+      [0, -1000, -2000, 20000, -6000],
+      ["01/01/2018", "02/28/2018", "10/25/2019", "02/29/2020", "06/12/2020"],
+      5983.276417,
+    ],
+  ])(
+    "function result =XNPV(%s, %s, %s)",
+    (rate: number, cashFlow: number[], dates: string[], expectedResult: number) => {
+      const grid = {
+        B1: cashFlow[0].toString(),
+        B2: cashFlow[1].toString(),
+        B3: cashFlow[2].toString(),
+        B4: cashFlow[3].toString(),
+        B5: cashFlow[4].toString(),
+        C1: dates[0].toString(),
+        C2: dates[1].toString(),
+        C3: dates[2].toString(),
+        C4: dates[3].toString(),
+        C5: dates[4].toString(),
+      };
+      const cellValue = evaluateCell("A1", { ...grid, A1: `=XNPV(${rate}, B1:B5, C1:C5)` });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+
+  test("can take multi-dimensional arrays as argument", () => {
+    //prettier-ignore
+    const singlColGrid = {
+      B1: "1000", C1: "01/01/2018",
+      B2: "-1000", C2: "01/01/2019",
+      B3: "-2000", C3: "01/01/2020",
+      B4: "-2000", C4: "01/01/2021",
+    };
+    const cellValue = evaluateCell("A1", { ...singlColGrid, A1: `=XNPV(0.1, B1:B4, C1:C4)` });
+    expect(cellValue).toBeCloseTo(-3064.220752, 4);
+
+    //prettier-ignore
+    const singlRowGrid = {
+      B1: "1000", C1: "-1000", D1: "-2000", E1: "-2000",
+      B2: "01/01/2018", C2: "01/01/2019", D2: "01/01/2020", E2: "01/01/2021",
+    };
+    const cellValue2 = evaluateCell("A1", { ...singlRowGrid, A1: `=XNPV(0.1, B1:E1, B2:E2)` });
+    expect(cellValue2).toBeCloseTo(-3064.220752, 4);
+
+    //prettier-ignore
+    const multiDimensionalGrid = {
+      B1: "1000", C1: "-2000", D1: "01/01/2018", E1: "01/01/2020",
+      B2: "-1000", C2: "-2000", D2: "01/01/2019", E2: "01/01/2021",
+    };
+    const cellValue3 = evaluateCell("A1", {
+      ...multiDimensionalGrid,
+      A1: `=XNPV(0.1, B1:C2, D1:E2)`,
+    });
+    expect(cellValue3).toBeCloseTo(-3064.220752, 4);
+  });
+
+  test("values with the same date are added together", () => {
+    //prettier-ignore
+    const grid1 = {
+      B1: "1000", C1: "01/01/2018",
+      B2: "-2000", C2: "01/01/2021",
+      B3: "-6000", C3: "01/01/2021",
+    };
+    const cellValue = evaluateCell("A1", { ...grid1, A1: `=XNPV(0.1, B1:B3, C1:C3)` });
+    expect(cellValue).toBeCloseTo(-5008.949123, 4);
+
+    //prettier-ignore
+    const grid2 = {
+      B1: "1000", C1: "01/01/2018",
+      B2: "-8000", C2: "01/01/2021",
+    };
+    const cellValue2 = evaluateCell("A1", { ...grid2, A1: `=XNPV(0.1, B1:B2, C1:C2)` });
+    expect(cellValue2).toBeCloseTo(-5008.949123, 4);
+  });
+});
+
 describe("YIELD formula", () => {
   test("take at 6 or 7 arguments", () => {
     expect(evaluateCell("A1", { A1: "=YIELD(0, 365, 0.05, 90, 120)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
