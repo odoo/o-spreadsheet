@@ -34,7 +34,7 @@ import { markdownLink, parseMarkdownLink, parseSheetLink } from "../misc";
 abstract class AbstractCell<T extends CellEvaluation = CellEvaluation> implements ICell {
   readonly style?: Style;
   readonly format?: Format;
-  abstract content: string;
+  protected abstract lazyContent: Lazy<string>;
   protected lazyEvaluated: Lazy<T>;
 
   constructor(readonly id: UID, lazyEvaluated: Lazy<T>, properties: CellDisplayProperties) {
@@ -55,6 +55,10 @@ abstract class AbstractCell<T extends CellEvaluation = CellEvaluation> implement
 
   isEmpty(): boolean {
     return false;
+  }
+
+  get content(): string {
+    return this.lazyContent();
   }
 
   get evaluated(): T {
@@ -100,7 +104,7 @@ abstract class AbstractCell<T extends CellEvaluation = CellEvaluation> implement
 }
 
 export class EmptyCell extends AbstractCell<EmptyEvaluation> {
-  readonly content = "";
+  readonly lazyContent = lazy("");
   constructor(id: UID, properties: CellDisplayProperties = {}) {
     super(id, lazy({ value: "", type: CellValueType.empty }), properties);
   }
@@ -111,7 +115,7 @@ export class EmptyCell extends AbstractCell<EmptyEvaluation> {
 }
 
 export class NumberCell extends AbstractCell<NumberEvaluation> {
-  readonly content = formatValue(this.evaluated.value);
+  readonly lazyContent = lazy(() => formatValue(this.evaluated.value));
   constructor(id: UID, value: number, properties: CellDisplayProperties = {}) {
     super(id, lazy({ value, type: CellValueType.number }), properties);
   }
@@ -125,13 +129,13 @@ export class NumberCell extends AbstractCell<NumberEvaluation> {
 }
 
 export class BooleanCell extends AbstractCell<BooleanEvaluation> {
-  readonly content = this.evaluated.value ? "TRUE" : "FALSE";
+  readonly lazyContent = lazy(this.evaluated.value ? "TRUE" : "FALSE");
   constructor(id: UID, value: boolean, properties: CellDisplayProperties = {}) {
     super(id, lazy({ value, type: CellValueType.boolean }), properties);
   }
 }
 export class TextCell extends AbstractCell<TextEvaluation> {
-  readonly content = this.evaluated.value;
+  readonly lazyContent = lazy(this.evaluated.value);
   constructor(id: UID, value: string, properties: CellDisplayProperties = {}) {
     super(id, lazy({ value, type: CellValueType.text }), properties);
   }
@@ -156,7 +160,7 @@ export class DateTimeCell extends NumberCell {
 
 export abstract class LinkCell extends AbstractCell<TextEvaluation> implements ILinkCell {
   readonly link: Link;
-  readonly content: string;
+  readonly lazyContent: Lazy<string>;
   abstract isUrlEditable: boolean;
   abstract urlRepresentation: string;
 
@@ -172,7 +176,7 @@ export abstract class LinkCell extends AbstractCell<TextEvaluation> implements I
     link.label = _t(link.label);
     super(id, lazy({ value: link.label, type: CellValueType.text }), properties);
     this.link = link;
-    this.content = content;
+    this.lazyContent = lazy(content);
   }
   abstract action(env: SpreadsheetChildEnv): void;
 
@@ -190,14 +194,14 @@ export abstract class LinkCell extends AbstractCell<TextEvaluation> implements I
  */
 export class WebLinkCell extends LinkCell {
   readonly urlRepresentation: string;
-  readonly content: string;
+  readonly lazyContent: Lazy<string>;
   readonly isUrlEditable: boolean;
 
   constructor(id: UID, content: string, properties: CellDisplayProperties = {}) {
     super(id, content, properties);
     this.link.url = this.withHttp(this.link.url);
     this.link.isExternal = true;
-    this.content = markdownLink(this.link.label, this.link.url);
+    this.lazyContent = lazy(() => markdownLink(this.link.label, this.link.url));
     this.urlRepresentation = this.link.url;
     this.isUrlEditable = true;
   }
@@ -259,8 +263,8 @@ export class FormulaCell extends AbstractCell implements IFormulaCell {
     super(id, lazy({ value: LOADING, type: CellValueType.text }), properties);
   }
 
-  get content() {
-    return this.buildFormulaString(this);
+  get lazyContent(): Lazy<string> {
+    return lazy(() => this.buildFormulaString(this));
   }
 
   isFormula() {
@@ -321,18 +325,14 @@ export class FormulaCell extends AbstractCell implements IFormulaCell {
  * or a content which could not be parsed.
  */
 export class ErrorCell extends AbstractCell<InvalidEvaluation> {
+  protected readonly lazyContent: Lazy<string>;
   /**
    * @param id
    * @param content Invalid formula string
    * @param error Compilation or parsing error
    * @param properties
    */
-  constructor(
-    id: UID,
-    readonly content: string,
-    error: EvaluationError,
-    properties: CellDisplayProperties
-  ) {
+  constructor(id: UID, content: string, error: EvaluationError, properties: CellDisplayProperties) {
     super(
       id,
       lazy({
@@ -342,5 +342,6 @@ export class ErrorCell extends AbstractCell<InvalidEvaluation> {
       }),
       properties
     );
+    this.lazyContent = lazy(content);
   }
 }
