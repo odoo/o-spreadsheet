@@ -223,3 +223,27 @@ export function assertRateGuessGreaterThanMinusOne(guess: number) {
     _lt("The rate_guess (%s) must be strictly greater than -1.", guess.toString())
   );
 }
+
+export function assertCashFlowsAndDatesHaveSameDimension(cashFlows: any[][], dates: any[][]) {
+  assert(
+    () => cashFlows.length === dates.length && cashFlows[0].length === dates[0].length,
+    _lt("The cashflow_amounts and cashflow_dates ranges must have the same dimensions.")
+  );
+}
+
+export function assertCashFlowsHavePositiveAndNegativesValues(cashFlow: number[]) {
+  assert(
+    () => cashFlow.some((val) => val > 0) && cashFlow.some((val) => val < 0),
+    _lt("There must be both positive and negative values in cashflow_amounts.")
+  );
+}
+
+export function assertEveryDateGreaterThanFirstDateOfCashFlowDates(dates: number[]) {
+  assert(
+    () => dates.every((date) => date >= dates[0]),
+    _lt(
+      "All the dates should be greater or equal to the first date in cashflow_dates (%s).",
+      dates[0].toString()
+    )
+  );
+}
