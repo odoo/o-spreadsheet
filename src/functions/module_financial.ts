@@ -14,16 +14,20 @@ import {
   assert,
   reduceAny,
   reduceNumbers,
+  strictToNumber,
   toBoolean,
   toJsDate,
   toNumber,
   visitNumbers,
 } from "./helpers";
 import {
+  assertCashFlowsAndDatesHaveSameDimension,
+  assertCashFlowsHavePositiveAndNegativesValues,
   assertCostPositiveOrZero,
   assertDeprecationFactorPositive,
   assertDiscountPositive,
   assertDiscountSmallerThanOne,
+  assertEveryDateGreaterThanFirstDateOfCashFlowDates,
   assertInvestmentPositive,
   assertLifePositive,
   assertNumberOfPeriodsPositive,
@@ -62,11 +66,23 @@ day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
 )}
 `);
 
+/**
+ * Use the Newton–Raphson method to find a root of the given function in an iterative manner.
+ *
+ * @param func the function to find a root of
+ * @param derivFunc the derivative of the function
+ * @param startValue the initial value for the first iteration of the algorithm
+ * @param maxIterations the maximum number of iterations
+ * @param epsMax the epsilon for the root
+ * @param nanFallback a function giving a fallback value to use if func(x) returns NaN. Useful if the
+ *                       function is not defined for some range, but we know approximately where the root is when the Newton
+ *                       algorithm ends up in this range.
+ */
 function newtonMethod(
   func: (x: number) => number,
   derivFunc: (x: number) => number,
   startValue: number,
-  interMax: number,
+  maxIterations: number,
   epsMax: number = 1e-10,
   nanFallback?: (previousFallback: number | undefined) => number
 ) {
@@ -81,7 +97,7 @@ function newtonMethod(
     y = func(x);
     if (isNaN(y)) {
       assert(
-        () => count < interMax && nanFallback !== undefined,
+        () => count < maxIterations && nanFallback !== undefined,
         _lt(`Function [[FUNCTION_NAME]] didn't find any result.`)
       );
       count++;
@@ -93,7 +109,7 @@ function newtonMethod(
     xDelta = Math.abs(newX - x);
     x = newX;
     yEqual0 = xDelta < epsMax || Math.abs(y) < epsMax;
-    assert(() => count < interMax, _lt(`Function [[FUNCTION_NAME]] didn't find any result.`));
+    assert(() => count < maxIterations, _lt(`Function [[FUNCTION_NAME]] didn't find any result.`));
     count++;
   } while (!yEqual0);
   return x;
@@ -2208,23 +2224,9 @@ export const XIRR: AddFunctionDescription = {
     const _cashFlows = cashflowAmounts.flat().map(toNumber);
     const _dates = cashflowDates.flat().map(toNumber);
 
-    assert(
-      () =>
-        cashflowAmounts.length === cashflowDates.length &&
-        cashflowAmounts[0].length === cashflowDates[0].length,
-      _lt("The cashflow_amounts and cashflow_dates ranges must have the same dimensions.")
-    );
-    assert(
-      () => _cashFlows.some((val) => val > 0) && _cashFlows.some((val) => val < 0),
-      _lt("There must be both positive and negative values in cashflow_amounts.")
-    );
-    assert(
-      () => _dates.every((date) => date >= _dates[0]),
-      _lt(
-        "All the dates should be greater or equal to the first date in cashflow_dates (%s).",
-        _dates[0].toString()
-      )
-    );
+    assertCashFlowsAndDatesHaveSameDimension(cashflowAmounts, cashflowDates);
+    assertCashFlowsHavePositiveAndNegativesValues(_cashFlows);
+    assertEveryDateGreaterThanFirstDateOfCashFlowDates(_dates);
     assertRateGuessGreaterThanMinusOne(guess);
 
     const map = new Map<number, number>();
@@ -2275,6 +2277,81 @@ export const XIRR: AddFunctionDescription = {
     };
 
     return newtonMethod(func, derivFunc, guess, 40, 1e-5, nanFallback);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// XNPV
+// -----------------------------------------------------------------------------
+export const XNPV: AddFunctionDescription = {
+  description: _lt("Net present value given to non-periodic cash flows.."),
+  args: args(`
+  discount (number) ${_lt("The discount rate of the investment over one period.")}
+  cashflow_amounts (number, range<number>) ${_lt(
+    "An range containing the income or payments associated with the investment."
+  )}
+  cashflow_dates (number, range<number>) ${_lt(
+    "An range with dates corresponding to the cash flows in cashflow_amounts."
+  )}
+  `),
+  returns: ["NUMBER"],
+  compute: function (
+    discount: PrimitiveArgValue,
+    cashflowAmounts: ArgValue,
+    cashflowDates: ArgValue
+  ): number {
+    const rate = toNumber(discount);
+
+    const _cashFlows = Array.isArray(cashflowAmounts)
+      ? cashflowAmounts.flat().map(strictToNumber)
+      : [strictToNumber(cashflowAmounts)];
+    const _dates = Array.isArray(cashflowDates)
+      ? cashflowDates.flat().map(strictToNumber)
+      : [strictToNumber(cashflowDates)];
+
+    if (Array.isArray(cashflowDates) && Array.isArray(cashflowAmounts)) {
+      assertCashFlowsAndDatesHaveSameDimension(cashflowAmounts, cashflowDates);
+    } else {
+      assert(
+        () => _cashFlows.length === _dates.length,
+        _lt("There must be the same number of values in cashflow_amounts and cashflow_dates.")
+      );
+    }
+    assertEveryDateGreaterThanFirstDateOfCashFlowDates(_dates);
+    assertRatePositive(rate);
+
+    if (_cashFlows.length === 1) return _cashFlows[0];
+
+    // aggregate values of the same date
+    const map = new Map<number, number>();
+    for (const i of range(0, _dates.length)) {
+      const date = _dates[i];
+      if (map.has(date)) map.set(date, map.get(date)! + _cashFlows[i]);
+      else map.set(date, _cashFlows[i]);
+    }
+    const dates = Array.from(map.keys());
+    const values = dates.map((date) => map.get(date)!);
+
+    /**
+     * https://support.microsoft.com/en-us/office/xirr-function-de1242ec-6477-445b-b11b-a303ad9adc9d
+     *
+     * The present value is computed using
+     *
+     *
+     * NPV =    SUM     [ P_i *(1 + rate) ^((d_0 - d_i) / 365) ]  + P_0
+     *       i = 1 => n
+     *
+     * with P_i = price number i
+     *      d_i = date number i
+     *
+     *
+     */
+    let pv = values[0];
+    for (const i of range(1, values.length)) {
+      const dateDiff = (dates[0] - dates[i]) / 365;
+      pv += values[i] * (1 + rate) ** dateDiff;
+    }
+    return pv;
   },
 };
 
