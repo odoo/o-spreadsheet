@@ -79,6 +79,116 @@ describe("ACCRINTM function", () => {
   );
 });
 
+describe("AMORLINC function", () => {
+  test("AMORLINC takes 6-7 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=AMORLINC()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=AMORLINC(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=AMORLINC(1, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=AMORLINC(1, 0, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=AMORLINC(1, 0, 0, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=AMORLINC(1, 0, 0, 0, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=AMORLINC(1, 0, 0, 0, 0, 0.1)" })).toBe(0.1);
+    expect(evaluateCell("A1", { A1: "=AMORLINC(1, 0, 0, 0, 0, 0.1, 0)" })).toBe(0.1);
+    expect(evaluateCell("A1", { A1: "=AMORLINC(1, 0, 0, 0, 0, 0.1, 0, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("cost > 0", () => {
+    expect(evaluateCell("A1", { A1: "=AMORLINC(-1, 0, 0, 0, 0, 0.1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=AMORLINC(0, 0, 0, 0, 0, 0.1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("purchase date <= first period date", () => {
+    expect(evaluateCell("A1", { A1: "=AMORLINC(1, -1, 0, 0, 0, 0.1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=AMORLINC(1, 2, 1, 0, 0, 0.1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("salvage >= 0", () => {
+    expect(evaluateCell("A1", { A1: "=AMORLINC(1, 0, 0, -1, 0, 0.1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("period >= 0", () => {
+    expect(evaluateCell("A1", { A1: "=AMORLINC(1, 0, 0, 0, -1, 0.1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("period are truncated if > 1, and rounded to 1 if < 1", () => {
+    expect(evaluateCell("A1", { A1: "=AMORLINC(1000, 1, 2, 0, 0, 0.8, 0)" })).toBeCloseTo(2.2222);
+    expect(evaluateCell("A1", { A1: "=AMORLINC(1000, 1, 2, 0, 0.5, 0.8, 0)" })).toBeCloseTo(800);
+    expect(evaluateCell("A1", { A1: "=AMORLINC(1000, 1, 2, 0, 0.9, 0.8, 0)" })).toBeCloseTo(800);
+    expect(evaluateCell("A1", { A1: "=AMORLINC(1000, 1, 2, 0, 1.6, 0.8, 0)" })).toBeCloseTo(800);
+    expect(evaluateCell("A1", { A1: "=AMORLINC(1000, 1, 2, 0, 2, 0.8, 0)" })).toBeCloseTo(197.7777);
+    expect(evaluateCell("A1", { A1: "=AMORLINC(1000, 1, 2, 0, 2.5, 0.8, 0)" })).toBeCloseTo(
+      197.7777
+    );
+  });
+
+  test("rate > 0", () => {
+    expect(evaluateCell("A1", { A1: "=AMORLINC(1, 0, 0, 0, 0, -0.1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=AMORLINC(1, 0, 0, 0, 0, 0, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("dayCountConvention is between 0 and 4", () => {
+    expect(evaluateCell("A1", { A1: "=AMORLINC(1, 0, 0, 0, 0, 0.1, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=AMORLINC(1, 0, 0, 0, 0, 0.1, 5)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test.each([
+    /* @compatibility
+     * Two compatibilities issues here :
+     *  1) as explained in the comments of AMORLINC implementation, the first period is handled differently if purchaseDate === firstPeriodEnd
+     *  2) for whatever reason, dayCountConvention = 2 isn't implemented for this function in Excel.
+     * */
+    [1000, "1/1/2020", "2/1/2020", 100, 0, 0.2, 0, 16.66666667],
+    [1000, "1/1/2020", "2/1/2020", 100, 1, 0.2, 0, 200],
+    [1000, "1/1/2020", "2/1/2020", 100, 2, 0.2, 0, 200],
+    [1000, "1/1/2020", "2/1/2020", 100, 3, 0.2, 0, 200],
+    [1000, "1/1/2020", "2/1/2020", 100, 4, 0.2, 0, 200],
+    [1000, "1/1/2020", "2/1/2020", 100, 5, 0.2, 0, 83.33333333],
+    [1000, "1/1/2020", "2/1/2020", 100, 6, 0.2, 0, 0],
+    [1000, "2/2/2020", "5/4/2020", 0, 0, 1.5, 0, 383.3333333],
+    [1000, "2/2/2020", "5/4/2020", 0, 1, 1.5, 0, 616.6666667],
+    [200, "5/31/2020", "5/31/2020", 20, 0, 0.5, 0, 100], // @compatibility: on google sheets, return 0
+    [200, "5/31/2020", "5/31/2020", 20, 1, 0.5, 0, 80], // @compatibility: on google sheets, return 100
+    [550, "2/29/2020", "2/29/2020", 0, 0, 0.2, 0, 110], // @compatibility: on google sheets, return 110
+    [550, "2/29/2020", "2/29/2020", 0, 1, 0.2, 0, 110],
+    [200, "2/29/2020", "2/29/2020", 150, 0, 0.5, 0, 50], // @compatibility: on google sheets, return 0
+    [200, "2/29/2020", "2/29/2020", 150, 1, 0.5, 0, 0], // @compatibility: on google sheets, return 50
+    [250, "12/30/2020", "3/3/2021", 0, 0, 0.01, 0, 0.4375],
+    [250, "12/30/2020", "3/3/2021", 0, 1, 0.01, 0, 2.5],
+    [1500, "1/31/2020", "2/29/2020", 12, 0, 0.1, 0, 12.08333333],
+    [1500, "1/31/2020", "2/29/2020", 12, 0, 0.1, 1, 11.8852459],
+    [1500, "1/31/2020", "2/29/2020", 12, 0, 0.1, 2, 12.08333333], // @compatibility: throw error in Excel
+    [1500, "1/31/2020", "2/29/2020", 12, 0, 0.1, 3, 11.91780822],
+    [1500, "1/31/2020", "2/29/2020", 12, 0, 0.1, 4, 12.08333333],
+    [800, "2/28/2019", "6/30/2019", 0, 0, 0.1, 0, 26.66666667],
+    [800, "2/28/2019", "4364600.00%", 0, 0, 0.1, 1, 26.73972603],
+    [800, "2/28/2019", "6/30/2019", 0, 0, 0.1, 2, 27.11111111], // @compatibility: throw error in Excel
+    [800, "2/28/2019", "6/30/2019", 0, 0, 0.1, 3, 26.73972603],
+    [800, "2/28/2019", "6/30/2019", 0, 0, 0.1, 4, 27.11111111],
+    [500, "1/28/2020", "2/28/2020", 0, 0, 0.1, 0, 4.166666667],
+    [500, "1/28/2020", "2/28/2020", 0, 0, 0.1, 1, 4.234972678],
+    [500, "1/28/2020", "2/28/2020", 0, 0, 0.1, 2, 4.305555556], // @compatibility: throw error in Excel
+    [500, "1/28/2020", "2/28/2020", 0, 0, 0.1, 3, 4.246575342],
+    [500, "1/28/2020", "2/28/2020", 0, 0, 0.1, 4, 4.166666667],
+  ])(
+    "function result =AMORLINC(%s, %s, %s, %s, %s, %s, %s)",
+    (
+      cost: number,
+      purchaseDate: string,
+      firstPeriodEnd: string,
+      salvage: number,
+      period: number,
+      rate: number,
+      dayCountConvention: number,
+      expectedResult: number
+    ) => {
+      const cellValue = evaluateCell("A1", {
+        A1: `=AMORLINC(${cost}, "${purchaseDate}", "${firstPeriodEnd}", ${salvage}, ${period}, ${rate}, ${dayCountConvention})`,
+      });
+      expect(cellValue).toBeCloseTo(expectedResult, 4);
+    }
+  );
+});
+
 describe("Coupons formulas", () => {
   function testCouponArgNumber(fnName: string) {
     expect(evaluateCell("A1", { A1: `=${fnName}(0, 100)` })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A

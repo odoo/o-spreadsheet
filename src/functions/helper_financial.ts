@@ -70,6 +70,10 @@ export function assertLifePositive(life: number) {
   assert(() => life > 0, _lt("The life (%s) must be strictly positive.", life.toString()));
 }
 
+export function assertCostPositive(cost: number) {
+  assert(() => cost > 0, _lt("The cost (%s) must be strictly positive.", cost.toString()));
+}
+
 export function assertCostPositiveOrZero(cost: number) {
   assert(() => cost >= 0, _lt("The cost (%s) must be positive or null.", cost.toString()));
 }
@@ -78,8 +82,23 @@ export function assertPeriodPositive(period: number) {
   assert(() => period > 0, _lt("The period (%s) must be strictly positive.", period.toString()));
 }
 
+export function assertPeriodPositiveOrZero(period: number) {
+  assert(() => period >= 0, _lt("The period (%s) must be positive or null.", period.toString()));
+}
+
 export function assertSalvagePositiveOrZero(salvage: number) {
   assert(() => salvage >= 0, _lt("The salvage (%s) must be positive or null.", salvage.toString()));
+}
+
+export function assertSalvageSmallerOrEqualThanCost(salvage: number, cost: number) {
+  assert(
+    () => salvage <= cost,
+    _lt(
+      "The salvage (%s) must be smaller or equal than the cost (%s).",
+      salvage.toString(),
+      cost.toString()
+    )
+  );
 }
 
 export function assertPresentValuePositive(pv: number) {
