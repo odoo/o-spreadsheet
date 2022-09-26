@@ -23,6 +23,7 @@ import {
 import {
   assertCashFlowsAndDatesHaveSameDimension,
   assertCashFlowsHavePositiveAndNegativesValues,
+  assertCostPositive,
   assertCostPositiveOrZero,
   assertDeprecationFactorPositive,
   assertDiscountPositive,
@@ -32,6 +33,7 @@ import {
   assertLifePositive,
   assertNumberOfPeriodsPositive,
   assertPeriodPositive,
+  assertPeriodPositiveOrZero,
   assertPeriodSmallerThanLife,
   assertPresentValuePositive,
   assertPricePositive,
@@ -39,6 +41,7 @@ import {
   assertRatePositive,
   assertRedemptionPositive,
   assertSalvagePositiveOrZero,
+  assertSalvageSmallerOrEqualThanCost,
   assertSettlementLessThanOneYearBeforeMaturity,
   checkCouponFrequency,
   checkDayCountConvention,
@@ -151,6 +154,89 @@ export const ACCRINTM: AddFunctionDescription = {
 
     const yearFrac = YEARFRAC.compute(start, end, dayCountConvention) as number;
     return _redemption * _rate * yearFrac;
+  },
+};
+
+// -----------------------------------------------------------------------------
+// AMORLINC
+// -----------------------------------------------------------------------------
+export const AMORLINC: AddFunctionDescription = {
+  description: _lt("Depreciation for an accounting period."),
+  args: args(`
+        cost (number) ${_lt("The initial cost of the asset.")}
+        purchase_date (date) ${_lt("The date the asset was purchased.")}
+        first_period_end (date) ${_lt("The date the first period ended.")}
+        salvage (number) ${_lt("The value of the asset at the end of depreciation.")}
+        period (number) ${_lt("The single period within life for which to calculate depreciation.")}
+        rate (number) ${_lt("The deprecation rate.")}
+        day_count_convention  (number, optional) ${_lt(
+          "An indicator of what day count method to use."
+        )}
+    `),
+  returns: ["NUMBER"],
+  compute: function (
+    cost: PrimitiveArgValue,
+    purchaseDate: PrimitiveArgValue,
+    firstPeriodEnd: PrimitiveArgValue,
+    salvage: PrimitiveArgValue,
+    period: PrimitiveArgValue,
+    rate: PrimitiveArgValue,
+    dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
+  ): number {
+    dayCountConvention = dayCountConvention || 0;
+    const _cost = toNumber(cost);
+    const _purchaseDate = Math.trunc(toNumber(purchaseDate));
+    const _firstPeriodEnd = Math.trunc(toNumber(firstPeriodEnd));
+    const _salvage = toNumber(salvage);
+    const _period = toNumber(period);
+    const _rate = toNumber(rate);
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+
+    assertCostPositive(_cost);
+    assertSalvagePositiveOrZero(_salvage);
+    assertSalvageSmallerOrEqualThanCost(_salvage, _cost);
+    assertPeriodPositiveOrZero(_period);
+    assertRatePositive(_rate);
+    checkDayCountConvention(_dayCountConvention);
+    assert(
+      () => _purchaseDate <= _firstPeriodEnd,
+      _lt(
+        "The purchase_date (%s) must be before the first_period_end (%s).",
+        _purchaseDate.toString(),
+        _firstPeriodEnd.toString()
+      )
+    );
+
+    /**
+     * https://wiki.documentfoundation.org/Documentation/Calc_Functions/AMORLINC
+     *
+     * AMORLINC period 0 = cost * rate * YEARFRAC(purchase date, first period end)
+     * AMORLINC period n = cost * rate
+     * AMORLINC at the last period is such that the remaining deprecated cost is equal to the salvage value.
+     *
+     * The period is and rounded to 1 if < 1 truncated if > 1,
+     *
+     * Compatibility note :
+     * If (purchase date) === (first period end), on GSheet the deprecation at the first period is 0, and on Excel
+     * it is a full period deprecation. We choose to use the Excel behaviour.
+     */
+
+    const roundedPeriod = _period < 1 && _period > 0 ? 1 : Math.trunc(_period);
+
+    const deprec = _cost * _rate;
+    const yearFrac = YEARFRAC.compute(
+      _purchaseDate,
+      _firstPeriodEnd,
+      _dayCountConvention
+    ) as number;
+    const firstDeprec = _purchaseDate === _firstPeriodEnd ? deprec : deprec * yearFrac;
+
+    const valueAtPeriod = _cost - firstDeprec - deprec * roundedPeriod;
+
+    if (valueAtPeriod >= _salvage) {
+      return roundedPeriod === 0 ? firstDeprec : deprec;
+    }
+    return _salvage - valueAtPeriod < deprec ? deprec - (_salvage - valueAtPeriod) : 0;
   },
 };
 
