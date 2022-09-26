@@ -163,6 +163,9 @@ function transformDimension(
     return transformSheetResult === "IGNORE_COMMAND" ? "IGNORE_COMMAND" : cmd;
   }
   if (executed.type === "ADD_COLUMNS_ROWS" || executed.type === "REMOVE_COLUMNS_ROWS") {
+    if (executed.dimension !== cmd.dimension) {
+      return cmd;
+    }
     const isUnique = cmd.type === "ADD_COLUMNS_ROWS";
     const field = isUnique ? "base" : "elements";
     let elements: HeaderIndex[] = isUnique ? [cmd[field]] : cmd[field];
