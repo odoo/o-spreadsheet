@@ -353,4 +353,16 @@ describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
       expect(result).toEqual(command);
     });
   });
+  describe("Adding column does not impact commands in dimension 'ROW'", () => {
+    test("Add rows after add columns after", () => {
+      const command = { ...addColumnsAfter, dimension: "ROW" } as AddColumnsRowsCommand;
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual(command);
+    });
+    test("Add rows after add columns before", () => {
+      const command = { ...addColumnsBefore, dimension: "ROW" } as AddColumnsRowsCommand;
+      const result = transform(command, addColumnsBefore);
+      expect(result).toEqual(command);
+    });
+  });
 });
