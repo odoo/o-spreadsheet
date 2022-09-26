@@ -25,14 +25,10 @@ Utiliser
 ## Extending the functionalities of o-spreadsheet
 
 1. [Architecture](extending/architecture.md)
-   1. [UI]()
-   2. [Plugins]()
-      1. [Core]()
-      2. [UI]()
 2. [Custom formula]()
    1. [Basic]()
    2. [Async]()
-3. [Business feature]()
+3. [Business feature](extending/business_feature.md)
    Plugin + command + getters + ot
 4. [Menu items]()
 5. [Side panel]()

@@ -19,37 +19,17 @@ There is 2 different kind of plugins: CorePlugin and UIPlugin.
 
 ## Plugin skeleton
 
-```javascript
-/*
-class MyPlugin extends spreadsheet.BasePlugin { // V1.0
-  constructor(workbook, getters, history, dispatch, config) { // V1.0
- */
+```typescript
 
-class MyPlugin extends spreadsheet.CorePlugin {
-  constructor(getters, history, dispatch, config) {
-    // will assign the correctly the references of the parameters
-    super(...arguments);
+const { CorePlugin } = o_spreadsheet;
 
-    // create plugin state here
-    this.myPluginState = { firstProp: "hello" };
-
-    // assign default values
-    this.currentSomething = "";
-  }
+class MyPlugin extends CorePlugin {
+  readonly myPluginState = { firstProp: "hello" };
+  readonly currentSomething = "";
 
   // ---------------------------------------------------------------------
   // Command handling
   // ---------------------------------------------------------------------
-  allowDispatch(cmd) {
-    // every plugin are called for every command, only process the commands that is interesting for this plugin
-    switch (cmd.type) {
-      case "DO_SOMETHING":
-        if (cmd.toPutInFirstProp === "bla") {
-          return CommandResult.IncorrectValueForMyPlugin;
-        }
-    }
-    return CommandResult.Success;
-  }
 
   handle(cmd) {
     // every plugin handle every commands, but most plugins only care for some commands.
@@ -84,9 +64,6 @@ class MyPlugin extends spreadsheet.CorePlugin {
   }
 }
 
-// makes the new plugin to be instantiated for every spreadsheet mode
-MyPlugin.modes = ["normal", "headless"];
-
 // makes the function getSomething accessible from anywhere that has a reference to model.getters
 MyPlugin.getters = ["getSomething"];
 
@@ -95,10 +72,6 @@ MyPlugin.getters = ["getSomething"];
 const pluginRegistry = spreadsheet.registries.pluginRegistry;
 pluginRegistry.add("MyPlugin", MyPlugin);
 
-// the command result should be any number > 1000 (o-spreadsheet reserves the numbers until 1000 for internal use)
-const CommandResult = {
-  IncorrectValueForMyPlugin: 2000,
-};
 ```
 
 ## Dispatch lifecycle and methods
@@ -106,9 +79,38 @@ const CommandResult = {
 For processing all commands, command will go through the functions on the plugins in this order:
 
 1. `allowDispatch(command: Command): CommandResult`
-   Used to refuse a command and return a message. As soon as you return anything else than CommandResult.Success, the
-   entire command processing stops for all plugins Here is the only way to refuse a command safely (that is, ensuring
+   Used to refuse a command. As soon as you return anything else than `CommandResult.Success`, the
+   entire command processing is aborted for all plugins. Here is the only way to refuse a command safely (that is, ensuring
    that no plugin has updated its state and possibly perverting the `undo` stack).
+
+```typescript
+class MyPlugin extends CorePlugin {
+
+  allowDispatch(cmd) {
+    // every plugin is called for every command, only process the commands that is interesting for this plugin
+    switch (cmd.type) {
+      case "DO_SOMETHING":
+        if (cmd.toPutInFirstProp === "bla") {
+          return CommandResult.IncorrectValueForMyPlugin;
+        }
+    }
+    return CommandResult.Success;
+  }
+
+  handle(cmd) {
+    // `handle` is called only if no plugin refused the command
+    switch (cmd.type) {
+      case "DO_SOMETHING":
+        break;
+    }
+  }
+}
+
+// the command result should be any number > 1000 (o-spreadsheet reserves the numbers until 1000 for internal use)
+const CommandResult = {
+  IncorrectValueForMyPlugin: 2000,
+};
+```
 
 2. `beforeHandle(command: Command): void`
    Used only in specific cases, to store temporary information before processing the command by another plugin
@@ -117,50 +119,39 @@ For processing all commands, command will go through the functions on the plugin
    Actually processing the command. A command can be processed by multiple plugins. Handle can update the state of the
    plugin and/or dispatch new commands
 
-4. `finalize(command: Command): void`
+4. `finalize(): void`
    To continue processing a command after all plugins have handled it. In finalize, you cannot dispatch new commands
 
-After all the `finalize` functions have been executed, the OWL state of spreadsheet will be updated.
-
-## Specifics for interactive commands
-
-If a command has the flag `{ interactive: true }`, the command will not call `allowDispatch` nor `finalize`
+After all the `finalize` functions have been executed, the spreadsheet component will be re-rendered.
 
 ## Changes that can be undone and redone
-
-The OWL state that is used to display the state of the spreadsheet to the user should be mainly based on the result of
-some getters that are implemented in the plugins. The getter will return part of the state that is controlled by the
-plugin bound to part of the interface.
 
 Hitting CTRL+Z or using the Undo button should undo the last action. This action might actually have resulted in
 multiple updates in multiple plugins, done by a single or multiple commands.
 
 Changes to the state that must be restored by Undo must be done through the function `this.history.update()`
 
-TODO: explain about object reference must be different and array changes
+Hint: `this.history` can be used with multiple level of depth:
 
-### Undo-able change example
-
-```javascript
-class MyPlugin extends spreadsheet.CorePlugin {
-  constructor(workbook, getters, history, dispatch, config) {
-    super(...arguments);
-    this.myPluginState = {
-      firstProp: "bla",
-      secondProp: "hello",
+```typescript
+  class DummyPlugin extends CorePlugin {
+    readonly records = {
+      1: {
+        data: {
+          1: {
+            text: "hello"
+          }
+        }
+      }
     };
-  }
 
-  handle(cmd) {
-    switch (cmd.type) {
-      case "MyPluginCommand":
-        // set this.myPluginState.firstProp to cmd.newValue in a way that can be undone
-        this.history.update("myPluginState", "firstPrp", cmd.newValue)
-        // after the command is completely processed, the user can hit Undo, the value will be reset to its previous value
-        break;
-    }
-  }
-}
+    // Replace "hello" by "Bye"
+    this.history.update("records", 1, "data", 1, "text", "Bye");
 
-...
+    // Add a new object in data
+    this.history.update("records", 1, "data", 2, { text: "Here" });
+
+    // Remove entry 1 of data
+    this.history.update("records", 1, "data", undefined);
+  }
 ```
