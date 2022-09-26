@@ -306,4 +306,32 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
       expect(result).toBeUndefined();
     });
   });
+
+  describe("Removing column does not transform commands in dimension 'ROW'", () => {
+    const addColumnsAfter: AddColumnsRowsCommand = {
+      type: "ADD_COLUMNS_ROWS",
+      dimension: "COL",
+      position: "after",
+      base: 5,
+      quantity: 2,
+      sheetId,
+    };
+    const addColumnsBefore: AddColumnsRowsCommand = {
+      type: "ADD_COLUMNS_ROWS",
+      dimension: "COL",
+      position: "after",
+      base: 5,
+      quantity: 2,
+      sheetId,
+    };
+
+    test("Add columns (after) after delete columns", () => {
+      const result = transform(addColumnsAfter, removeRows);
+      expect(result).toEqual(addColumnsAfter);
+    });
+    test("Add rows (before) after delete columns", () => {
+      const result = transform(addColumnsBefore, removeRows);
+      expect(result).toEqual(addColumnsBefore);
+    });
+  });
 });
