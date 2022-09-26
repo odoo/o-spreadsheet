@@ -1,13 +1,19 @@
-import { Component, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, useEffect, useRef } from "@odoo/owl";
 import {
   ComponentsImportance,
   FIGURE_BORDER_COLOR,
+  FIGURE_BORDER_WIDTH,
   SELECTION_BORDER_COLOR,
 } from "../../../constants";
 import { figureRegistry } from "../../../registries/index";
 import { Figure, SpreadsheetChildEnv, UID } from "../../../types/index";
 import { css } from "../../helpers/css";
 import { startDnd } from "../../helpers/drag_and_drop";
+import {
+  FigureDndManager,
+  FigureDnDMoveManager,
+  FigureDnDResizeManager,
+} from "../../helpers/figure_dnd_manager";
 
 type Anchor =
   | "top left"
@@ -23,9 +29,7 @@ type Anchor =
 // STYLE
 // -----------------------------------------------------------------------------
 const ANCHOR_SIZE = 8;
-const BORDER_WIDTH = 1;
 const ACTIVE_BORDER_WIDTH = 2;
-const MIN_FIG_SIZE = 80;
 
 css/*SCSS*/ `
   div.o-figure {
@@ -66,7 +70,7 @@ css/*SCSS*/ `
       width: ${ANCHOR_SIZE}px;
       height: ${ANCHOR_SIZE}px;
       background-color: #1a73e8;
-      outline: ${BORDER_WIDTH}px solid white;
+      outline: ${FIGURE_BORDER_WIDTH}px solid white;
 
       &.o-top {
         cursor: n-resize;
@@ -94,6 +98,19 @@ css/*SCSS*/ `
       }
     }
   }
+
+  .o-figure-snap-border {
+    position: absolute;
+    z-index: ${ComponentsImportance.ChartAnchor + 1};
+    &.vertical {
+      width: 0px;
+      border-left: 1px dashed black;
+    }
+    &.horizontal {
+      border-top: 1px dashed black;
+      height: 0px;
+    }
+  }
 `;
 
 interface Props {
@@ -109,16 +126,12 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 
   private figureRef = useRef("figure");
 
-  dnd = useState({
-    isActive: false,
-    x: 0,
-    y: 0,
-    width: 0,
-    height: 0,
-  });
+  private dndManager: FigureDndManager | undefined = undefined;
 
   get displayedFigure(): Figure {
-    return this.dnd.isActive ? { ...this.props.figure, ...this.dnd } : this.props.figure;
+    return this.dndManager
+      ? { ...this.props.figure, ...this.dndManager.getDnd() }
+      : this.props.figure;
   }
 
   get isSelected(): boolean {
@@ -138,7 +151,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private getBorderWidth() {
-    return this.isSelected ? ACTIVE_BORDER_WIDTH : this.env.isDashboard() ? 0 : BORDER_WIDTH;
+    return this.isSelected ? ACTIVE_BORDER_WIDTH : this.env.isDashboard() ? 0 : FIGURE_BORDER_WIDTH;
   }
 
   getFigureStyle() {
@@ -168,7 +181,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     if (width < 0 || height < 0) {
       return `display:none;`;
     }
-    const borderOffset = BORDER_WIDTH - this.getBorderWidth();
+    const borderOffset = FIGURE_BORDER_WIDTH - this.getBorderWidth();
     // TODO : remove the +1 once 2951210 is fixed
     return (
       `top:${y + borderOffset + overflowY + 1}px;` +
@@ -223,47 +236,38 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     );
   }
 
-  resize(dirX: number, dirY: number, ev: MouseEvent) {
+  resize(dirX: -1 | 0 | 1, dirY: -1 | 0 | 1, ev: MouseEvent) {
     const figure = this.props.figure;
 
     ev.stopPropagation();
-    const initialX = ev.clientX;
-    const initialY = ev.clientY;
-    this.dnd.isActive = true;
-    this.dnd.x = figure.x;
-    this.dnd.y = figure.y;
-    this.dnd.width = figure.width;
-    this.dnd.height = figure.height;
+    const visibleFigures = this.env.model.getters.getVisibleFigures();
+    const otherFigures = visibleFigures.filter((fig) => fig.id !== figure.id);
+    const dndManager = new FigureDnDResizeManager(figure, otherFigures, ev.clientX, ev.clientY);
+    this.dndManager = dndManager;
 
     const onMouseMove = (ev: MouseEvent) => {
-      const deltaX = dirX * (ev.clientX - initialX);
-      const deltaY = dirY * (ev.clientY - initialY);
-      this.dnd.width = Math.max(figure.width + deltaX, MIN_FIG_SIZE);
-      this.dnd.height = Math.max(figure.height + deltaY, MIN_FIG_SIZE);
-      if (dirX < 0) {
-        this.dnd.x = figure.x - deltaX;
-      }
-      if (dirY < 0) {
-        this.dnd.y = figure.y - deltaY;
-      }
+      dndManager.resize(dirX, dirY, ev.clientX, ev.clientY);
+      this.render();
     };
     const onMouseUp = (ev: MouseEvent) => {
-      this.dnd.isActive = false;
+      const dnd = dndManager.getDnd();
       const update: Partial<Figure> = {
-        x: this.dnd.x,
-        y: this.dnd.y,
+        x: dnd.x,
+        y: dnd.y,
       };
       if (dirX) {
-        update.width = this.dnd.width;
+        update.width = dnd.width;
       }
       if (dirY) {
-        update.height = this.dnd.height;
+        update.height = dnd.height;
       }
       this.env.model.dispatch("UPDATE_FIGURE", {
         sheetId: this.env.model.getters.getActiveSheetId(),
         id: figure.id,
         ...update,
       });
+      this.dndManager = undefined;
+      this.render();
     };
     startDnd(onMouseMove, onMouseUp);
   }
@@ -282,26 +286,25 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     if (this.props.sidePanelIsOpen) {
       this.env.openSidePanel("ChartPanel");
     }
-    const initialX = ev.clientX;
-    const initialY = ev.clientY;
-    this.dnd.isActive = true;
-    this.dnd.x = figure.x;
-    this.dnd.y = figure.y;
-    this.dnd.width = figure.width;
-    this.dnd.height = figure.height;
+    const visibleFigures = this.env.model.getters.getVisibleFigures();
+    const otherFigures = visibleFigures.filter((fig) => fig.id !== figure.id);
+    const dndManager = new FigureDnDMoveManager(figure, otherFigures, ev.clientX, ev.clientY);
+    this.dndManager = dndManager;
 
     const onMouseMove = (ev: MouseEvent) => {
-      this.dnd.x = Math.max(figure.x - initialX + ev.clientX, 0);
-      this.dnd.y = Math.max(figure.y - initialY + ev.clientY, 0);
+      dndManager.drag(ev.clientX, ev.clientY);
+      this.render();
     };
     const onMouseUp = (ev: MouseEvent) => {
-      this.dnd.isActive = false;
+      const dnd = dndManager.getDnd();
       this.env.model.dispatch("UPDATE_FIGURE", {
         sheetId: this.env.model.getters.getActiveSheetId(),
         id: figure.id,
-        x: this.dnd.x,
-        y: this.dnd.y,
+        x: dnd.x,
+        y: dnd.y,
       });
+      this.dndManager = undefined;
+      this.render();
     };
     startDnd(onMouseMove, onMouseUp);
   }
@@ -338,5 +341,47 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
         ev.preventDefault();
         break;
     }
+  }
+
+  get horizontalSnapLineStyle(): string {
+    if (!this.dndManager) return "";
+
+    const snap = this.dndManager.getCurrentHorizontalSnapLine();
+    const dnd = this.dndManager.getDnd();
+    const { offsetX, offsetY } = this.env.model.getters.getActiveViewport();
+
+    if (!snap || snap.y < offsetY) return "";
+
+    const leftMost = Math.min(dnd.x, snap.matchedFig.x);
+    const rightMost = Math.max(dnd.x + dnd.width, snap.matchedFig.x + snap.matchedFig.width);
+
+    const overflowX = offsetX - leftMost > 0 ? offsetX - leftMost : 0;
+    const overflowY = offsetY - dnd.y > 0 ? offsetY - dnd.y : 0;
+
+    const left = leftMost === dnd.x ? 0 : leftMost - dnd.x + overflowX;
+    return `left: ${left}px;width: ${rightMost - leftMost - overflowX}px;top:${
+      snap.y - dnd.y + FIGURE_BORDER_WIDTH - overflowY
+    }px`;
+  }
+
+  get verticalSnapLineStyle(): string {
+    if (!this.dndManager) return "";
+    const snap = this.dndManager.getCurrentVerticalSnapLine();
+    const dnd = this.dndManager.getDnd();
+
+    const { offsetX, offsetY } = this.env.model.getters.getActiveViewport();
+
+    if (!snap || snap.x < offsetX) return "";
+
+    const topMost = Math.min(dnd.y, snap.matchedFig.y);
+    const bottomMost = Math.max(dnd.y + dnd.height, snap.matchedFig.y + snap.matchedFig.height);
+
+    const overflowY = offsetY - topMost > 0 ? offsetY - topMost : 0;
+    const overflowX = offsetX - dnd.x > 0 ? offsetX - dnd.x : 0;
+
+    const top = topMost === dnd.y ? 0 : topMost - dnd.y + overflowY;
+    return `top: ${top}px;height: ${bottomMost - topMost - overflowY}px;left:${
+      snap.x - dnd.x + FIGURE_BORDER_WIDTH - overflowX
+    }px`;
   }
 }

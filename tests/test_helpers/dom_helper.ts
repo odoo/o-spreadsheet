@@ -1,6 +1,7 @@
 import { Model } from "../../src";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { toZone } from "../../src/helpers";
+import { Pixel } from "../../src/types";
 import { nextTick } from "./helpers";
 
 export async function simulateClick(
@@ -150,4 +151,24 @@ export function getElComputedStyle(selector: string, style: string): string {
   const element = document.querySelector(selector);
   if (!element) throw new Error(`No element matching selector "${selector}"`);
   return window.getComputedStyle(element)[style];
+}
+
+export async function dragElement(
+  element: Element,
+  dragX: Pixel,
+  dragY: Pixel,
+  dontMouseUp = false
+) {
+  triggerMouseEvent(element, "mousedown");
+  await nextTick();
+  triggerMouseEvent(element, "mousemove", dragX, dragY);
+  await nextTick();
+  if (!dontMouseUp) {
+    triggerMouseEvent(element, "mouseup");
+    await nextTick();
+  }
+}
+
+export function pixelsToNumber(sizeInPixels: string) {
+  return Number(sizeInPixels.replace("px", ""));
 }
