@@ -70,7 +70,12 @@ export class CustomColorsPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "UPDATE_CELL":
+      case "UPDATE_CELL": {
+        if (cmd.style) {
+          this.shouldUpdateColors = true;
+        }
+        break;
+      }
       case "UPDATE_CHART":
       case "CREATE_CHART":
       case "ADD_CONDITIONAL_FORMAT":
