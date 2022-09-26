@@ -1,4 +1,4 @@
-import { FIGURE_BORDER_SIZE } from "../../constants";
+import { FIGURE_BORDER_WIDTH } from "../../constants";
 import { FigureData, HeaderData, SheetData } from "../../types";
 import { ExcelChartDefinition } from "../../types/chart/chart";
 import { XMLAttributes, XMLString } from "../../types/xlsx";
@@ -128,7 +128,7 @@ function figureCoordinates(
     if (currentPosition <= position && position < currentPosition + header.size!) {
       return {
         index: parseInt(headerIndex),
-        offset: convertDotValueToEMU(position - currentPosition + FIGURE_BORDER_SIZE),
+        offset: convertDotValueToEMU(position - currentPosition + FIGURE_BORDER_WIDTH),
       };
     } else {
       currentPosition += header.size!;
@@ -136,6 +136,6 @@ function figureCoordinates(
   }
   return {
     index: headers.length - 1,
-    offset: convertDotValueToEMU(position - currentPosition + FIGURE_BORDER_SIZE),
+    offset: convertDotValueToEMU(position - currentPosition + FIGURE_BORDER_WIDTH),
   };
 }

@@ -158,11 +158,12 @@ export async function dragElement(
   element: Element | string,
   dragX: Pixel,
   dragY: Pixel,
-  mouseUp = false
+  mouseUp = false,
+  mouseDownPosition = { x: 0, y: 0 }
 ) {
-  triggerMouseEvent(element, "mousedown");
+  triggerMouseEvent(element, "mousedown", mouseDownPosition.x, mouseDownPosition.y);
   await nextTick();
-  triggerMouseEvent(element, "mousemove", dragX, dragY);
+  triggerMouseEvent(element, "mousemove", mouseDownPosition.x + dragX, mouseDownPosition.y + dragY);
   await nextTick();
   if (mouseUp) {
     triggerMouseEvent(element, "mouseup");
@@ -178,4 +179,8 @@ export async function dragElement(
  */
 export function edgeScrollDelay(scrollDistance: Pixel, iterations: number) {
   return scrollDelay(Math.abs(Math.round(scrollDistance))) * (iterations + 1) - MIN_DELAY / 2;
+}
+
+export function pixelsToNumber(sizeInPixels: string) {
+  return Number(sizeInPixels.replace("px", ""));
 }

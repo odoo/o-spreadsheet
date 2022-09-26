@@ -133,8 +133,6 @@ export const MENU_SEPARATOR_BORDER_WIDTH = 1;
 export const MENU_SEPARATOR_PADDING = 5;
 export const MENU_SEPARATOR_HEIGHT = MENU_SEPARATOR_BORDER_WIDTH + 2 * MENU_SEPARATOR_PADDING;
 
-export const FIGURE_BORDER_SIZE = 1;
-
 // Fonts
 export const DEFAULT_FONT_WEIGHT = "400";
 export const DEFAULT_FONT_SIZE = 10;
@@ -160,6 +158,8 @@ export const DEFAULT_REVISION_ID = "START_REVISION";
 // Figure
 export const DEFAULT_FIGURE_HEIGHT = 335;
 export const DEFAULT_FIGURE_WIDTH = 536;
+export const FIGURE_BORDER_WIDTH = 1;
+export const MIN_FIG_SIZE = 80;
 
 // Chart
 export const MAX_CHAR_LABEL = 20;
