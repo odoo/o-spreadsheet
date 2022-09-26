@@ -129,6 +129,9 @@ function transformDimension(
   executed: CoreCommand
 ): CoreCommand | TransformResult {
   if (executed.type === "ADD_COLUMNS_ROWS" || executed.type === "REMOVE_COLUMNS_ROWS") {
+    if (executed.dimension !== cmd.dimension) {
+      return cmd;
+    }
     const isUnique = cmd.type === "ADD_COLUMNS_ROWS";
     const field = isUnique ? "base" : "elements";
     let elements: number[] = isUnique ? [cmd[field]] : cmd[field];
