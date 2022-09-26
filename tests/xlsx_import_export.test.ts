@@ -1,5 +1,5 @@
 import { Model } from "../src";
-import { FIGURE_BORDER_SIZE } from "../src/constants";
+import { FIGURE_BORDER_WIDTH } from "../src/constants";
 import { toZone } from "../src/helpers";
 import { Align, BorderDescr, ConditionalFormatRule, Style } from "../src/types";
 import {
@@ -20,8 +20,8 @@ import { target, toRangesData } from "./test_helpers/helpers";
  *
  * Some side effects of exporting to xlsx then re-importing:
  *  - cols/row without a size will now have a explicitly defined size, close to the default size but not exactly the same (rounding error)
- *  - figure position : at export we add FIGURE_BORDER_SIZE to the position of the chart, so the charts at 0,0 are nicely displayed
- *          in excel, without their border being hidden below the overlay. We cannot subtract -FIGURE_BORDER_SIZE at import, as
+ *  - figure position : at export we add FIGURE_BORDER_WIDTH to the position of the chart, so the charts at 0,0 are nicely displayed
+ *          in excel, without their border being hidden below the overlay. We cannot subtract -FIGURE_BORDER_WIDTH at import, as
  *          this could lead to negative coordinates. The position of the figures is thus slightly off when exporting the re-importing.
  *  - charts: datasetHaveTitles boolean is lost. The dataset ranges that will be exported (and re-imported )are the
  *          ranges without the dataset titles (the range minus the first cell of the range) when datasetHaveTitles was true.
@@ -203,9 +203,9 @@ describe("Export data to xlsx then import it", () => {
     const importedFigure = importedModel.getters.getFigures(sheetId)[0];
     expect(importedFigure.height).toEqual(figure.height);
     expect(importedFigure.width).toBeBetween(figure.width - 1, figure.width + 1);
-    // See explanation at the top of the file for +FIGURE_BORDER_SIZE
-    expect(importedFigure.x).toEqual(figure.x + FIGURE_BORDER_SIZE);
-    expect(importedFigure.y).toEqual(figure.y + FIGURE_BORDER_SIZE);
+    // See explanation at the top of the file for +FIGURE_BORDER_WIDTH
+    expect(importedFigure.x).toEqual(figure.x + FIGURE_BORDER_WIDTH);
+    expect(importedFigure.y).toEqual(figure.y + FIGURE_BORDER_WIDTH);
   });
 
   test.each([
