@@ -19,7 +19,7 @@ const sheetId = "1";
 
 const model = new Model();
 
-// Update A1's content
+// Update A1's content by dispatching a command
 model.dispatch("UPDATE_CELL", {
   col,
   row,
@@ -27,6 +27,8 @@ model.dispatch("UPDATE_CELL", {
   content: "Hello world",
 });
 ```
+
+All existing commands are available [https://github.com/odoo/o-spreadsheet/blob/16.0/src/types/commands.ts#L906](here)
 
 - **getter** functions allows to read the current state.
 
@@ -40,7 +42,7 @@ Commands are handled internally by **plugins**.
 
 A plugin can:
 
-- have its own state
+- have its own private state
 - introduce new getters to make parts of its state available for other plugins or the user interface.
 - react to any dispatched command
 
