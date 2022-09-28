@@ -2,6 +2,7 @@ import { Model } from "../../../src";
 import { ChartTerms } from "../../../src/components/translations_terms";
 import { BarChart } from "../../../src/helpers/charts";
 import { toZone, zoneToXc } from "../../../src/helpers/zones";
+import { ChartPlugin } from "../../../src/plugins/core/chart";
 import { BorderCommand, CommandResult } from "../../../src/types";
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
 import { LineChartDefinition, LineChartRuntime } from "../../../src/types/chart/line_chart";
@@ -23,7 +24,7 @@ import {
   undo,
   updateChart,
 } from "../../test_helpers/commands_helpers";
-import { nextTick, target } from "../../test_helpers/helpers";
+import { getPlugin, nextTick, target } from "../../test_helpers/helpers";
 jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
 
 let model: Model;
@@ -1618,4 +1619,34 @@ test("creating chart with single dataset should have legend position set as none
   expect(
     (model.getters.getChartRuntime("24") as BarChartRuntime).chartJsConfig.options?.legend?.position
   ).toBe("top");
+});
+
+test("Duplicating a sheet dispatches `CREATE_CHART` for each chart", () => {
+  createChart(
+    model,
+    {
+      dataSets: ["D5:D10", "E5:E10"],
+      type: "bar",
+    },
+    "24"
+  );
+  createChart(
+    model,
+    {
+      dataSets: ["D5:D10", "E5:E10"],
+      type: "line",
+    },
+    "25"
+  );
+  const chartPlugin = getPlugin(model, ChartPlugin);
+  // @ts-ignore
+  const spyDispatch = jest.spyOn(chartPlugin, "dispatch");
+  const sheetId = model.getters.getActiveSheetId();
+  model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: "copyOf" + sheetId });
+  // first chart duplicated
+  expect(spyDispatch).toHaveBeenNthCalledWith(1, "CREATE_CHART", expect.any(Object));
+  expect(spyDispatch).toHaveBeenNthCalledWith(2, "CREATE_FIGURE", expect.any(Object));
+  // second chart duplicated
+  expect(spyDispatch).toHaveBeenNthCalledWith(3, "CREATE_CHART", expect.any(Object));
+  expect(spyDispatch).toHaveBeenNthCalledWith(4, "CREATE_FIGURE", expect.any(Object));
 });
