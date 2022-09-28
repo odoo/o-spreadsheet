@@ -86,16 +86,15 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
             const id = this.nextId.toString();
             this.history.update("nextId", this.nextId + 1);
             const chart = this.charts[fig.id]?.copyForSheetId(cmd.sheetIdTo);
-            // TODO:
-            // This is not really correct, it should be the role of figures to
-            // duplicate a figure.
-            this.addFigure(
-              id,
-              cmd.sheetIdTo,
-              { x: fig.x, y: fig.y },
-              { width: fig.width, height: fig.height }
-            );
-            this.history.update("charts", id, chart);
+            if (chart) {
+              this.dispatch("CREATE_CHART", {
+                id,
+                position: { x: fig.x, y: fig.y },
+                size: { width: fig.width, height: fig.height },
+                definition: chart.getDefinition(),
+                sheetId: cmd.sheetIdTo,
+              });
+            }
           }
         }
         break;
