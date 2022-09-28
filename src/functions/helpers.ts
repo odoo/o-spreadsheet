@@ -496,6 +496,20 @@ export function visitMatchingRanges(
 // COMMON FUNCTIONS
 // -----------------------------------------------------------------------------
 
+export function getNormalizedValueFromColumnRange(
+  range: MatrixArgValue,
+  index: number
+): CellValue | undefined {
+  return normalizeValue(range[0][index]);
+}
+
+export function getNormalizedValueFromRowRange(
+  range: MatrixArgValue,
+  index: number
+): CellValue | undefined {
+  return normalizeValue(range[index][0]);
+}
+
 /**
  * Perform a dichotomic search on an array and return the index of the nearest match.
  *
@@ -504,16 +518,20 @@ export function visitMatchingRanges(
  * in descending order, and the last match if the array is in ascending order.
  *
  *
- * @param range the array in which to search.
+ * @param data the array in which to search.
  * @param target the value to search.
  * @param mode "nextGreater/nextSmaller" : return next greater/smaller value if no exact match is found.
  * @param sortOrder whether the array is sorted in ascending or descending order.
+ * @param rangeLength the number of elements to consider in the search array.
+ * @param getValueInData function returning the element at index i in the search array.
  */
-export function dichotomicSearch(
-  range: (CellValue | undefined)[],
+export function dichotomicSearch<T>(
+  data: T,
   target: PrimitiveArgValue,
   mode: "nextGreater" | "nextSmaller" | "strict",
-  sortOrder: "asc" | "desc"
+  sortOrder: "asc" | "desc",
+  rangeLength: number,
+  getValueInData: (range: T, index: number) => CellValue | undefined
 ): number {
   if (target === null || target === undefined) {
     return -1;
@@ -524,7 +542,7 @@ export function dichotomicSearch(
   let matchValIndex: number | undefined = undefined;
 
   let indexLeft = 0;
-  let indexRight = range.length - 1;
+  let indexRight = rangeLength - 1;
 
   let indexMedian: number;
   let currentIndex: number;
@@ -535,13 +553,13 @@ export function dichotomicSearch(
     indexMedian = Math.floor((indexLeft + indexRight) / 2);
 
     currentIndex = indexMedian;
-    currentVal = range[currentIndex];
+    currentVal = getValueInData(data, currentIndex);
     currentType = typeof currentVal;
 
     // 1 - linear search to find value with the same type
     while (indexLeft <= currentIndex && targetType !== currentType) {
       currentIndex--;
-      currentVal = range[currentIndex];
+      currentVal = getValueInData(data, currentIndex);
       currentType = typeof currentVal;
     }
     if (currentType !== targetType || currentVal === undefined) {
@@ -591,7 +609,7 @@ export function dichotomicSearch(
 }
 
 /**
- * Perform a linear search and return the index of the perfect match.
+ * Perform a linear search and return the index of the match.
  * -1 is returned if no value is found.
  *
  * Example:
@@ -599,40 +617,57 @@ export function dichotomicSearch(
  * - [3, 6, 10], 6 => 1
  * - [3, 6, 10], 9 => -1
  * - [3, 6, 10], 2 => -1
- */
-export function linearSearch(range: (CellValue | undefined)[], target: PrimitiveArgValue): number {
-  for (let i = 0; i < range.length; i++) {
-    if (range[i] === target) {
-      return i;
-    }
-  }
-  // no value is found, -1 is returned
-  return -1;
-}
+ *
+ * @param data the array to search in.
+ * @param target the value to search in the array.
+ * @param mode if "strict" return exact match index. "nextGreater" returns the next greater
+ * element from the target and "nextSmaller" the next smaller
+ * @param numberOfValues the number of elements to consider in the search array.
+ * @param getValueInData function returning the element at index i in the search array.
+ * @param reverseSearch if true, search in the array starting from the end.
 
-export function getNextItemIndex(
-  range: (CellValue | undefined)[],
+ */
+export function linearSearch<T>(
+  data: T,
   target: PrimitiveArgValue | undefined,
-  mode: "nextSmaller" | "nextGreater"
+  mode: "nextSmaller" | "nextGreater" | "strict",
+  numberOfValues: number,
+  getValueInData: (data: T, index: number) => CellValue | undefined,
+  reverseSearch = false
 ): number {
   if (target === null || target === undefined) return -1;
-  const indexOfTarget = range.indexOf(target);
-  if (indexOfTarget !== -1) {
-    return indexOfTarget;
+
+  const getValue = reverseSearch
+    ? (data: T, i: number) => getValueInData(data, numberOfValues - i - 1)
+    : getValueInData;
+
+  let closestMatch: CellValue | undefined = undefined;
+  let closestMatchIndex = -1;
+  for (let i = 0; i < numberOfValues; i++) {
+    const value = getValue(data, i);
+    if (value === target) {
+      return reverseSearch ? numberOfValues - i - 1 : i;
+    }
+    if (mode === "nextSmaller") {
+      if (
+        (!closestMatch && compareCellValues(target, value) >= 0) ||
+        (compareCellValues(target, value) >= 0 && compareCellValues(value, closestMatch) > 0)
+      ) {
+        closestMatch = value;
+        closestMatchIndex = i;
+      }
+    } else if (mode === "nextGreater") {
+      if (
+        (!closestMatch && compareCellValues(target, value) <= 0) ||
+        (compareCellValues(target, value) <= 0 && compareCellValues(value, closestMatch) < 0)
+      ) {
+        closestMatch = value;
+        closestMatchIndex = i;
+      }
+    }
   }
 
-  const sorted = [...range, target].sort(compareCellValues);
-
-  let indexInSorted = sorted.indexOf(target);
-  if (mode === "nextGreater" && indexInSorted < sorted.length - 1) {
-    indexInSorted += 1;
-  } else if (mode === "nextSmaller" && indexInSorted > 0) {
-    indexInSorted -= 1;
-  } else {
-    return -1;
-  }
-
-  return range.indexOf(sorted[indexInSorted]);
+  return reverseSearch ? numberOfValues - closestMatchIndex - 1 : closestMatchIndex;
 }
 
 function compareCellValues(left: CellValue | undefined, right: CellValue | undefined): number {
