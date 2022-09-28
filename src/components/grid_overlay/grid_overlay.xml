@@ -1,0 +1,17 @@
+<templates>
+  <t t-name="o-spreadsheet-GridOverlay" owl="1">
+    <div
+      t-ref="gridOverlay"
+      class="o-grid-overlay"
+      t-att-style="gridOverlayStyle"
+      t-on-mousedown="props.mousedown"
+      t-on-dblclick="props.dblclick"
+      t-on-contextmenu="props.contextmenu">
+      <FiguresContainer
+        model="props.model"
+        sidePanelIsOpen="props.sidePanelIsOpen"
+        onFigureDeleted="props.onFigureDeleted"
+      />
+    </div>
+  </t>
+</templates>

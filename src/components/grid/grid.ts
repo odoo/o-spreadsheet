@@ -40,6 +40,7 @@ import { Autofill } from "../autofill/autofill";
 import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag";
 import { GridComposer } from "../composer/grid_composer/grid_composer";
 import { FiguresContainer } from "../figures/container/container";
+import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
 import { css } from "../helpers/css";
 import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
@@ -280,6 +281,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     ClientTag,
     Highlight,
     Popover,
+    GridOverlay,
   };
 
   private menuState!: MenuState;
@@ -342,7 +344,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       left: ${this.env.isDashboard() ? 0 : HEADER_WIDTH}px;
       height: calc(100% - ${this.env.isDashboard() ? 0 : HEADER_HEIGHT}px);
       width: calc(100% - ${this.env.isDashboard() ? 0 : HEADER_WIDTH}px);
-    `;
+      `;
   }
 
   get vScrollbarStyle() {
@@ -544,10 +546,14 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       const gridOffsetX = left - gridLeft;
       const gridOffsetY = top - gridTop;
       this.env.model.dispatch("RESIZE_SHEETVIEW", {
+        // width: this.gridOverlay.el!.clientWidth - scrollBarWidth,
+        // height: this.gridOverlay.el!.clientHeight - scrollBarWidth,
+        gridOffsetX: this.env.isDashboard() ? 0 : HEADER_WIDTH,
+        gridOffsetY: this.env.isDashboard() ? 0 : HEADER_HEIGHT,
         width: currentWidth - gridOffsetX,
         height: currentHeight - gridOffsetY,
-        gridOffsetX,
-        gridOffsetY,
+        // gridOffsetX,
+        // gridOffsetY,
       });
     }
   }
