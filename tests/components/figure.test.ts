@@ -96,7 +96,7 @@ describe("figures", () => {
     figure.dispatchEvent(new KeyboardEvent("keydown", { key: "Delete" }));
     await nextTick();
     expect(fixture.querySelector(".o-figure")).toBeNull();
-    expect(document.activeElement).toBe(fixture.querySelector(".o-grid-overlay"));
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid"));
   });
 
   test("deleting a figure doesn't delete selection", async () => {
