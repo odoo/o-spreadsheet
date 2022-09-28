@@ -10,9 +10,9 @@ import { args } from "./arguments";
 import {
   assert,
   dichotomicSearch,
-  getNextItemIndex,
+  getNormalizedValueFromColumnRange,
+  getNormalizedValueFromRowRange,
   linearSearch,
-  normalizeRange,
   normalizeValue,
   toBoolean,
   toNumber,
@@ -97,12 +97,24 @@ export const HLOOKUP: AddFunctionDescription = {
     );
 
     const _isSorted = toBoolean(isSorted);
-    const firstRow = normalizeRange(range.map((col) => col[0]));
     let colIndex;
     if (_isSorted) {
-      colIndex = dichotomicSearch(firstRow, _searchKey, "nextSmaller", "asc");
+      colIndex = dichotomicSearch(
+        range,
+        _searchKey,
+        "nextSmaller",
+        "asc",
+        range.length,
+        getNormalizedValueFromRowRange
+      );
     } else {
-      colIndex = linearSearch(firstRow, _searchKey);
+      colIndex = linearSearch(
+        range,
+        _searchKey,
+        "strict",
+        range.length,
+        getNormalizedValueFromRowRange
+      );
     }
 
     assert(
@@ -141,10 +153,18 @@ export const LOOKUP: AddFunctionDescription = {
     const _searchKey = normalizeValue(searchKey);
 
     const verticalSearch = nbRow >= nbCol;
-    const searchRange = normalizeRange(
-      verticalSearch ? searchArray[0] : searchArray.map((c) => c[0])
+    const getElement = verticalSearch
+      ? getNormalizedValueFromColumnRange
+      : getNormalizedValueFromRowRange;
+    const rangeLength = verticalSearch ? nbRow : nbCol;
+    const index = dichotomicSearch(
+      searchArray,
+      _searchKey,
+      "nextSmaller",
+      "asc",
+      rangeLength,
+      getElement
     );
-    const index = dichotomicSearch(searchRange, _searchKey, "nextSmaller", "asc");
     assert(
       () => index >= 0,
       _lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", toString(searchKey))
@@ -211,17 +231,19 @@ export const MATCH: AddFunctionDescription = {
     );
 
     let index = -1;
-    const _range = normalizeRange(range.flat());
+    const getElement =
+      nbCol === 1 ? getNormalizedValueFromColumnRange : getNormalizedValueFromRowRange;
+    const rangeLen = nbCol === 1 ? range[0].length : range.length;
     _searchType = Math.sign(_searchType);
     switch (_searchType) {
       case 1:
-        index = dichotomicSearch(_range, _searchKey, "nextSmaller", "asc");
+        index = dichotomicSearch(range, _searchKey, "nextSmaller", "asc", rangeLen, getElement);
         break;
       case 0:
-        index = linearSearch(_range, _searchKey);
+        index = linearSearch(range, _searchKey, "strict", rangeLen, getElement);
         break;
       case -1:
-        index = dichotomicSearch(_range, _searchKey, "nextGreater", "desc");
+        index = dichotomicSearch(range, _searchKey, "nextGreater", "desc", rangeLen, getElement);
         break;
     }
 
@@ -307,12 +329,24 @@ export const VLOOKUP: AddFunctionDescription = {
     );
 
     const _isSorted = toBoolean(isSorted);
-    const firstCol = normalizeRange(range[0]);
     let rowIndex;
     if (_isSorted) {
-      rowIndex = dichotomicSearch(firstCol, _searchKey, "nextSmaller", "asc");
+      rowIndex = dichotomicSearch(
+        range,
+        _searchKey,
+        "nextSmaller",
+        "asc",
+        range[0].length,
+        getNormalizedValueFromColumnRange
+      );
     } else {
-      rowIndex = linearSearch(firstCol, _searchKey);
+      rowIndex = linearSearch(
+        range,
+        _searchKey,
+        "strict",
+        range[0].length,
+        getNormalizedValueFromColumnRange
+      );
     }
 
     assert(
@@ -368,11 +402,11 @@ export const XLOOKUP: AddFunctionDescription = {
 
     assert(
       () => lookupRange.length === 1 || lookupRange[0].length === 1,
-      _lt("lookup_range should be either a single line or single column.")
+      _lt("lookup_range should be either a single row or single column.")
     );
     assert(
       () => returnRange.length === 1 || returnRange[0].length === 1,
-      _lt("return_range should be either a single line or single column.")
+      _lt("return_range should be either a single row or single column.")
     );
     assert(
       () =>
@@ -389,35 +423,26 @@ export const XLOOKUP: AddFunctionDescription = {
       _lt("matchMode should be a value in [-1, 0, 1].")
     );
 
-    const _lookupRange = normalizeRange(lookupRange.flat());
-    const _returnRange = returnRange.flat();
+    const getElement =
+      lookupRange.length === 1 ? getNormalizedValueFromColumnRange : getNormalizedValueFromRowRange;
 
-    if (_searchMode === -1) {
-      _lookupRange.reverse();
-    }
+    const rangeLen = lookupRange.length === 1 ? lookupRange[0].length : lookupRange.length;
 
     const mode = _matchMode === 0 ? "strict" : _matchMode === 1 ? "nextGreater" : "nextSmaller";
+    const reverseSearch = _searchMode === -1;
 
     let index: number;
-    if (_searchMode === 2) {
-      index = dichotomicSearch(_lookupRange, _searchKey, mode, "asc");
-    } else if (_searchMode === -2) {
-      index = dichotomicSearch(_lookupRange, _searchKey, mode, "desc");
-    } else if (_matchMode === 0) {
-      index = linearSearch(_lookupRange, _searchKey);
+    if (_searchMode === 2 || _searchMode === -2) {
+      const sortOrder = _searchMode === 2 ? "asc" : "desc";
+      index = dichotomicSearch(lookupRange, _searchKey, mode, sortOrder, rangeLen, getElement);
     } else {
-      index = getNextItemIndex(
-        _lookupRange,
-        _searchKey,
-        _matchMode === 1 ? "nextGreater" : "nextSmaller"
-      );
+      index = linearSearch(lookupRange, _searchKey, mode, rangeLen, getElement, reverseSearch);
     }
 
     if (index !== -1) {
-      if (_searchMode === -1) {
-        index = _returnRange.length - 1 - index;
-      }
-      return _returnRange[index] as FunctionReturnValue;
+      return (
+        lookupRange.length === 1 ? returnRange[0][index] : returnRange[index][0]
+      ) as FunctionReturnValue;
     }
 
     const _defaultValue = defaultValue?.();
