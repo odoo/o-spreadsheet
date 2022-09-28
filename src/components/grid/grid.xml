@@ -2,15 +2,14 @@
   <t t-name="o-spreadsheet-Grid" owl="1">
     <div
       class="o-grid"
+      tabindex="-1"
       t-att-class="{'o-two-columns': !props.sidePanelIsOpen}"
       t-on-click="focus"
       t-on-keydown="onKeydown"
       t-on-wheel="onMouseWheel"
       t-ref="grid">
-      <!-- tabindex="-1" is necessary to keep the focus on composer while selecting a cell -->
       <div
         t-ref="gridOverlay"
-        tabindex="-1"
         class="o-grid-overlay"
         t-att-style="gridOverlayStyle"
         t-on-mousedown="onMouseDown"

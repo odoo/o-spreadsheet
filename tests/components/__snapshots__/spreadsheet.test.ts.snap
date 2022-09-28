@@ -370,8 +370,8 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
   
   <div
     class="o-grid o-two-columns"
+    tabindex="-1"
   >
-    <!-- tabindex="-1" is necessary to keep the focus on composer while selecting a cell -->
     <div
       class="o-grid-overlay"
       style="
@@ -380,7 +380,6 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
       height: calc(100% - 26px);
       width: calc(100% - 48px);
     "
-      tabindex="-1"
     >
       <div>
         
