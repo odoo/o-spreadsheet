@@ -111,7 +111,14 @@ function centile(data: ArgValue[], percent: PrimitiveArgValue, isInclusive: bool
   let count = 0;
   visitAny(data, (d) => {
     if (typeof d === "number") {
-      index = dichotomicSearch(sortedArray, d, "nextSmaller", "asc");
+      index = dichotomicSearch(
+        sortedArray,
+        d,
+        "nextSmaller",
+        "asc",
+        sortedArray.length,
+        (array, i) => array[i]
+      );
       sortedArray.splice(index + 1, 0, d);
       count++;
     }
@@ -510,7 +517,14 @@ export const LARGE: AddFunctionDescription = {
     let count = 0;
     visitAny([data], (d) => {
       if (typeof d === "number") {
-        index = dichotomicSearch(largests, d, "nextSmaller", "asc");
+        index = dichotomicSearch(
+          largests,
+          d,
+          "nextSmaller",
+          "asc",
+          largests.length,
+          (array, i) => array[i]
+        );
         largests.splice(index + 1, 0, d);
         count++;
         if (count > _n) {
@@ -867,7 +881,14 @@ export const SMALL: AddFunctionDescription = {
     let count = 0;
     visitAny([data], (d) => {
       if (typeof d === "number") {
-        index = dichotomicSearch(largests, d, "nextSmaller", "asc");
+        index = dichotomicSearch(
+          largests,
+          d,
+          "nextSmaller",
+          "asc",
+          largests.length,
+          (array, i) => array[i]
+        );
         largests.splice(index + 1, 0, d);
         count++;
         if (count > _n) {
