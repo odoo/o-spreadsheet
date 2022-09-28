@@ -211,14 +211,13 @@ css/* scss */ `
     position: relative;
     overflow: hidden;
     background-color: ${BACKGROUND_GRAY_COLOR};
+    &:focus {
+      outline: none;
+    }
 
     > canvas {
       border-top: 1px solid #e2e3e3;
       border-bottom: 1px solid #e2e3e3;
-
-      &:focus {
-        outline: none;
-      }
     }
     .o-scrollbar {
       position: absolute;
@@ -514,7 +513,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   focus() {
     if (!this.env.model.getters.getSelectedFigureId()) {
-      this.gridOverlay.el!.focus();
+      this.gridRef.el!.focus();
     }
   }
 
