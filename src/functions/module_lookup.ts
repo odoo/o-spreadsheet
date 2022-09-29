@@ -7,6 +7,7 @@ import {
   toBoolean,
   toNumber,
 } from "./helpers";
+import { isPlainObject } from "../helpers/misc";
 
 /**
  * Perform a linear search and return the index of the perfect match.
@@ -21,6 +22,14 @@ import {
 function linearSearch(range: any[], target: any): number {
   for (let i = 0; i < range.length; i++) {
     if (range[i] === target) {
+      return i;
+    } else if (
+      isPlainObject(range[i]) &&
+      range[i].jsDate &&
+      isPlainObject(target) &&
+      target.jsDate &&
+      range[i].jsDate.getDate() === target.jsDate.getDate()
+    ) {
       return i;
     }
   }

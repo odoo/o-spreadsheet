@@ -488,5 +488,17 @@ describe("lookup", () => {
         });
       });
     });
+    test("lookup number with string and date values", () => {
+      // prettier-ignore
+      const rangesGrid = {
+        A1: "Date", B1: "Amount", C1: "Target Date", D1: "VLOOKUP",
+        A2: "9/11/2001", B2: "666", C2: "9/11/2001",
+      };
+      const grid = evaluateGrid({
+        ...rangesGrid,
+        D2: "=VLOOKUP(C2, A1:B2, 2, 0)",
+      });
+      expect(grid.D2).toBe(666);
+    });
   });
 });
