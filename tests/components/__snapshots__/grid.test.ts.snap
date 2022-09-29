@@ -10,14 +10,19 @@ exports[`Grid component simple rendering snapshot 1`] = `
     style="
       top: 26px;
       left: 48px;
-      height: calc(100% - 26px);
-      width: calc(100% - 48px);
+      height: calc(100% - 41px);
+      width: calc(100% - 63px);
     "
   >
+    <!-- TODO remove sidePanelIsOpen props. It is wrong.
+      If you have a CF sidepanel open, selecting a figure should
+      not open the figure side panel -->
     <div>
       
     </div>
+    
   </div>
+  
   <div
     class="o-overlay"
   >
@@ -55,6 +60,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
   
   
   
+  
   <div
     class="o-autofill"
     style="top:19px;left:92px"
@@ -72,23 +78,35 @@ exports[`Grid component simple rendering snapshot 1`] = `
   <div
     class="o-scrollbar vertical"
     style="
-      
-      top: 26px;"
+top: 26px;
+right: 0px;
+bottom: 15px;
+"
   >
     <div
-      style="width:1px;height:2328px"
+      style="
+width: 1px;
+height: 2328px;
+"
     />
   </div>
+  
   <div
     class="o-scrollbar horizontal"
     style="
-      
-      left: 48px;"
+left: 48px;
+bottom: 0px;
+right: 15px;
+"
   >
     <div
-      style="height:1px;width:2592px"
+      style="
+width: 2592px;
+height: 1px;
+"
     />
   </div>
+  
   <div
     class="o-scrollbar corner"
   />

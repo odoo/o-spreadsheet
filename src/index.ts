@@ -2,6 +2,7 @@ import { ChartJsComponent } from "./components/figures/chart/chartJs/chartjs";
 import { ScorecardChart } from "./components/figures/chart/scorecard/chart_scorecard";
 import { ChartFigure } from "./components/figures/figure_chart/figure_chart";
 import { Grid } from "./components/grid/grid";
+import { GridOverlay } from "./components/grid_overlay/grid_overlay";
 import {
   BarConfigPanel,
   chartSidePanelComponentRegistry,
@@ -61,7 +62,6 @@ import {
   chartRegistry,
   colMenuRegistry,
   createFullMenuItem,
-  dashboardMenuRegistry,
   figureRegistry,
   inverseCommandRegistry,
   linkMenuRegistry,
@@ -128,7 +128,6 @@ export const registries = {
   autofillRulesRegistry,
   cellMenuRegistry,
   colMenuRegistry,
-  dashboardMenuRegistry,
   linkMenuRegistry,
   functionRegistry,
   uiPluginRegistry,
@@ -184,6 +183,7 @@ export const components = {
   ChartFigure,
   ChartJsComponent,
   Grid,
+  GridOverlay,
   ScorecardChart,
   LineConfigPanel,
   LineBarPieDesignPanel,

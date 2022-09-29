@@ -1,18 +1,6 @@
-import {
-  Component,
-  onMounted,
-  onPatched,
-  onWillUnmount,
-  useExternalListener,
-  useRef,
-  useState,
-} from "@odoo/owl";
+import { Component, onMounted, useEffect, useExternalListener, useRef, useState } from "@odoo/owl";
 import {
   AUTOFILL_EDGE_LENGTH,
-  BACKGROUND_GRAY_COLOR,
-  CANVAS_SHIFT,
-  ComponentsImportance,
-  DEFAULT_CELL_HEIGHT,
   HEADER_HEIGHT,
   HEADER_WIDTH,
   SCROLLBAR_WIDTH,
@@ -23,32 +11,31 @@ import { interactivePaste, interactivePasteFromOS } from "../../helpers/ui/paste
 import { ComposerSelection } from "../../plugins/ui/edition";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
-import { dashboardMenuRegistry } from "../../registries/menus/dashboard_menu_registry";
 import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
-import { ClosedCellPopover, PositionedCellPopover } from "../../types/cell_popovers";
 import {
   Client,
   DOMCoordinates,
+  DOMDimension,
   HeaderIndex,
   Pixel,
   Position,
   Ref,
   SpreadsheetChildEnv,
-  UID,
 } from "../../types/index";
 import { Autofill } from "../autofill/autofill";
 import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag";
 import { GridComposer } from "../composer/grid_composer/grid_composer";
-import { FiguresContainer } from "../figures/container/container";
+import { GridOverlay } from "../grid_overlay/grid_overlay";
+import { GridPopover } from "../grid_popover/grid_popover";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
-import { css } from "../helpers/css";
 import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
+import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useAbsolutePosition } from "../helpers/position_hook";
-import { useInterval } from "../helpers/time_hooks";
+import { useWheelHandler } from "../helpers/wheel_hook";
 import { Highlight } from "../highlight/highlight/highlight";
 import { Menu, MenuState } from "../menu/menu";
 import { Popover } from "../popover/popover";
-import { ScrollBar } from "../scrollbar";
+import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
  * for displaying the actual grid, rendering it, managing events, ...
@@ -60,199 +47,18 @@ import { ScrollBar } from "../scrollbar";
  * - a vertical resizer (same, for rows)
  */
 
-export type ContextMenuType = "ROW" | "COL" | "CELL" | "DASHBOARD";
+export type ContextMenuType = "ROW" | "COL" | "CELL";
 
 const registries = {
   ROW: rowMenuRegistry,
   COL: colMenuRegistry,
   CELL: cellMenuRegistry,
-  DASHBOARD: dashboardMenuRegistry,
 };
 
 // copy and paste are specific events that should not be managed by the keydown event,
 // but they shouldn't be preventDefault and stopped (else copy and paste events will not trigger)
 // and also should not result in typing the character C or V in the composer
 const keyDownMappingIgnore: string[] = ["CTRL+C", "CTRL+V"];
-
-// -----------------------------------------------------------------------------
-// Error Tooltip Hook
-// -----------------------------------------------------------------------------
-
-function useCellHovered(env: SpreadsheetChildEnv): Partial<Position> {
-  const hoveredPosition: Partial<Position> = useState({} as Partial<Position>);
-  const { Date } = window;
-  const gridRef = useRef("gridOverlay");
-  const vScrollbarRef = useRef("vscrollbar");
-  const hScrollbarRef = useRef("hscrollbar");
-  let x = 0;
-  let y = 0;
-  let lastMoved = 0;
-
-  function getPosition(): Position {
-    const col = env.model.getters.getColIndex(x);
-    const row = env.model.getters.getRowIndex(y);
-    return { col, row };
-  }
-
-  const { pause, resume } = useInterval(checkTiming, 200);
-
-  function checkTiming() {
-    const { col, row } = getPosition();
-    const delta = Date.now() - lastMoved;
-    if (delta > 300 && (col !== hoveredPosition.col || row !== hoveredPosition.row)) {
-      hoveredPosition.col = undefined;
-      hoveredPosition.row = undefined;
-    }
-    if (delta > 300) {
-      if (col < 0 || row < 0) {
-        return;
-      }
-      hoveredPosition.col = col;
-      hoveredPosition.row = row;
-    }
-  }
-  function updateMousePosition(e: MouseEvent) {
-    x = e.offsetX;
-    y = e.offsetY;
-    lastMoved = Date.now();
-  }
-
-  function recompute() {
-    const { col, row } = getPosition();
-    if (col !== hoveredPosition.col || row !== hoveredPosition.row) {
-      hoveredPosition.col = undefined;
-      hoveredPosition.row = undefined;
-    }
-  }
-
-  function reset() {
-    hoveredPosition.col = undefined;
-    hoveredPosition.row = undefined;
-  }
-
-  onMounted(() => {
-    const grid = gridRef.el!;
-    grid.addEventListener("mousemove", updateMousePosition);
-    grid.addEventListener("mouseleave", pause);
-    grid.addEventListener("mouseenter", resume);
-    grid.addEventListener("mousedown", recompute);
-
-    vScrollbarRef.el!.addEventListener("scroll", reset);
-    hScrollbarRef.el!.addEventListener("scroll", reset);
-  });
-
-  onWillUnmount(() => {
-    const grid = gridRef.el!;
-    grid.removeEventListener("mousemove", updateMousePosition);
-    grid.removeEventListener("mouseleave", pause);
-    grid.removeEventListener("mouseenter", resume);
-    grid.removeEventListener("mousedown", recompute);
-
-    vScrollbarRef.el!.removeEventListener("scroll", reset);
-    hScrollbarRef.el!.removeEventListener("scroll", reset);
-  });
-  return hoveredPosition;
-}
-
-function useTouchMove(handler: (deltaX: Pixel, deltaY: Pixel) => void, canMoveUp: () => boolean) {
-  const canvasRef = useRef("canvas");
-  let x = null as number | null;
-  let y = null as number | null;
-
-  function onTouchStart(ev: TouchEvent) {
-    if (ev.touches.length !== 1) return;
-    x = ev.touches[0].clientX;
-    y = ev.touches[0].clientY;
-  }
-
-  function onTouchEnd() {
-    x = null;
-    y = null;
-  }
-
-  function onTouchMove(ev: TouchEvent) {
-    if (ev.touches.length !== 1) return;
-    // On mobile browsers, swiping down is often associated with "pull to refresh".
-    // We only want this behavior if the grid is already at the top.
-    // Otherwise we only want to move the canvas up, without triggering any refresh.
-    if (canMoveUp()) {
-      ev.preventDefault();
-      ev.stopPropagation();
-    }
-    const currentX = ev.touches[0].clientX;
-    const currentY = ev.touches[0].clientY;
-    handler(x! - currentX, y! - currentY);
-    x = currentX;
-    y = currentY;
-  }
-
-  onMounted(() => {
-    canvasRef.el!.addEventListener("touchstart", onTouchStart);
-    canvasRef.el!.addEventListener("touchend", onTouchEnd);
-    canvasRef.el!.addEventListener("touchmove", onTouchMove);
-  });
-
-  onWillUnmount(() => {
-    canvasRef.el!.removeEventListener("touchstart", onTouchStart);
-    canvasRef.el!.removeEventListener("touchend", onTouchEnd);
-    canvasRef.el!.removeEventListener("touchmove", onTouchMove);
-  });
-}
-
-// -----------------------------------------------------------------------------
-// TEMPLATE
-// -----------------------------------------------------------------------------
-
-// -----------------------------------------------------------------------------
-// STYLE
-// -----------------------------------------------------------------------------
-css/* scss */ `
-  .o-grid {
-    position: relative;
-    overflow: hidden;
-    background-color: ${BACKGROUND_GRAY_COLOR};
-    &:focus {
-      outline: none;
-    }
-
-    > canvas {
-      border-top: 1px solid #e2e3e3;
-      border-bottom: 1px solid #e2e3e3;
-    }
-    .o-scrollbar {
-      position: absolute;
-      overflow: auto;
-      z-index: ${ComponentsImportance.ScrollBar};
-      background-color: ${BACKGROUND_GRAY_COLOR};
-
-      &.vertical {
-        right: 0;
-        bottom: ${SCROLLBAR_WIDTH}px;
-        width: ${SCROLLBAR_WIDTH}px;
-        overflow-x: hidden;
-      }
-      &.horizontal {
-        bottom: 0;
-        height: ${SCROLLBAR_WIDTH}px;
-        right: ${SCROLLBAR_WIDTH}px;
-        overflow-y: hidden;
-      }
-      &.corner {
-        right: 0px;
-        bottom: 0px;
-        height: ${SCROLLBAR_WIDTH}px;
-        width: ${SCROLLBAR_WIDTH}px;
-        border-top: 1px solid #e2e3e3;
-        border-left: 1px solid #e2e3e3;
-      }
-    }
-
-    .o-grid-overlay {
-      position: absolute;
-      outline: none;
-    }
-  }
-`;
 
 interface Props {
   sidePanelIsOpen: boolean;
@@ -269,28 +75,24 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Grid";
   static components = {
     GridComposer,
+    GridOverlay,
+    GridPopover,
     HeadersOverlay,
     Menu,
     Autofill,
-    FiguresContainer,
     ClientTag,
     Highlight,
     Popover,
+    VerticalScrollBar,
+    HorizontalScrollBar,
   };
-
+  readonly HEADER_HEIGHT = HEADER_HEIGHT;
+  readonly HEADER_WIDTH = HEADER_WIDTH;
   private menuState!: MenuState;
-  private vScrollbarRef!: Ref<HTMLElement>;
-  private hScrollbarRef!: Ref<HTMLElement>;
   private gridRef!: Ref<HTMLElement>;
-  private vScrollbar!: ScrollBar;
-  private hScrollbar!: ScrollBar;
-  private gridOverlay!: Ref<HTMLElement>;
-  private canvas!: Ref<HTMLElement>;
-  private currentSheet!: UID;
-  private clickedCol!: HeaderIndex;
-  private clickedRow!: HeaderIndex;
 
-  private canvasPosition!: DOMCoordinates;
+  onMouseWheel!: (ev: WheelEvent) => void;
+  canvasPosition!: DOMCoordinates;
   hoveredCell!: Partial<Position>;
 
   setup() {
@@ -299,94 +101,41 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       position: null,
       menuItems: [],
     });
-    this.vScrollbarRef = useRef("vscrollbar");
-    this.hScrollbarRef = useRef("hscrollbar");
     this.gridRef = useRef("grid");
-    this.gridOverlay = useRef("gridOverlay");
-    this.canvas = useRef("canvas");
-    this.canvasPosition = useAbsolutePosition(this.canvas);
-    this.vScrollbar = new ScrollBar(this.vScrollbarRef.el, "vertical");
-    this.hScrollbar = new ScrollBar(this.hScrollbarRef.el, "horizontal");
-    this.currentSheet = this.env.model.getters.getActiveSheetId();
-    this.clickedCol = 0;
-    this.clickedRow = 0;
-    this.hoveredCell = useCellHovered(this.env);
+    this.canvasPosition = useAbsolutePosition(this.gridRef);
+    this.hoveredCell = useState({ col: undefined, row: undefined });
 
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);
-    useTouchMove(this.moveCanvas.bind(this), () => this.vScrollbar.scroll > 0);
-    onMounted(() => this.initGrid());
-    onPatched(() => {
-      this.drawGrid();
-      this.resizeGrid();
-    });
+    onMounted(() => this.focus());
     this.props.exposeFocus(() => this.focus());
+    useGridDrawing("canvas", this.env.model, () =>
+      this.env.model.getters.getSheetViewDimensionWithHeaders()
+    );
+    useEffect(
+      () => this.focus(),
+      () => [this.env.model.getters.getActiveSheetId()]
+    );
+    this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
+      this.moveCanvas(deltaX, deltaY);
+      this.hoveredCell.col = undefined;
+      this.hoveredCell.row = undefined;
+    });
   }
 
-  private initGrid() {
-    this.vScrollbar.el = this.vScrollbarRef.el!;
-    this.hScrollbar.el = this.hScrollbarRef.el!;
-    this.focus();
-    this.resizeGrid();
-    this.drawGrid();
+  onCellHovered({ col, row }) {
+    this.hoveredCell.col = col;
+    this.hoveredCell.row = row;
   }
 
-  get gridOverlayStyle() {
+  get gridOverlayDimensions() {
     return `
-      top: ${this.env.isDashboard() ? 0 : HEADER_HEIGHT}px;
-      left: ${this.env.isDashboard() ? 0 : HEADER_WIDTH}px;
-      height: calc(100% - ${this.env.isDashboard() ? 0 : HEADER_HEIGHT}px);
-      width: calc(100% - ${this.env.isDashboard() ? 0 : HEADER_WIDTH}px);
+      top: ${HEADER_HEIGHT}px;
+      left: ${HEADER_WIDTH}px;
+      height: calc(100% - ${HEADER_HEIGHT + SCROLLBAR_WIDTH}px);
+      width: calc(100% - ${HEADER_WIDTH + SCROLLBAR_WIDTH}px);
     `;
-  }
-
-  get vScrollbarStyle() {
-    const { y } = this.env.model.getters.getMainViewportRect();
-    const { yRatio } = this.env.model.getters.getFrozenSheetViewRatio(
-      this.env.model.getters.getActiveSheetId()
-    );
-    return `
-      ${this.env.isDashboard() || yRatio >= 1 ? "width: 0px;" : ""}
-      top: ${y + (this.env.isDashboard() ? 0 : HEADER_HEIGHT)}px;`;
-  }
-
-  get hScrollbarStyle() {
-    const { x } = this.env.model.getters.getMainViewportRect();
-    const { xRatio } = this.env.model.getters.getFrozenSheetViewRatio(
-      this.env.model.getters.getActiveSheetId()
-    );
-    return `
-      ${this.env.isDashboard() || xRatio >= 1 ? "width: 0px;" : ""}
-      left: ${x + (this.env.isDashboard() ? 0 : HEADER_WIDTH)}px;`;
-  }
-
-  get cellPopover(): PositionedCellPopover | ClosedCellPopover {
-    if (this.menuState.isOpen) {
-      return { isOpen: false };
-    }
-    const popover = this.env.model.getters.getCellPopover(this.hoveredCell);
-    if (!popover.isOpen) {
-      return { isOpen: false };
-    }
-    const coordinates = popover.coordinates;
-    return {
-      ...popover,
-      // transform from the "canvas coordinate system" to the "body coordinate system"
-      coordinates: {
-        x: coordinates.x + this.canvasPosition.x,
-        y: coordinates.y + this.canvasPosition.y,
-      },
-    };
-  }
-
-  get activeCellPosition(): Position {
-    const { col, row } = this.env.model.getters.getPosition();
-    return this.env.model.getters.getMainCellPosition(
-      this.env.model.getters.getActiveSheetId(),
-      col,
-      row
-    );
   }
 
   onClosePopover() {
@@ -524,56 +273,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     return this.gridRef.el;
   }
 
-  get gridOverlayEl(): HTMLElement {
-    if (!this.gridOverlay.el) {
-      throw new Error("GridOverlay el is not defined.");
-    }
-    return this.gridOverlay.el;
-  }
-
-  getGridBoundingClientRect(): DOMRect {
-    return this.gridEl.getBoundingClientRect();
-  }
-
-  resizeGrid() {
-    const scrollBarWidth = this.env.isDashboard() ? 0 : SCROLLBAR_WIDTH;
-    const currentHeight = this.gridOverlayEl.clientHeight - scrollBarWidth;
-    const currentWidth = this.gridOverlayEl.clientWidth - scrollBarWidth;
-    const { height: viewportHeight, width: viewportWidth } =
-      this.env.model.getters.getSheetViewDimension();
-    if (currentHeight != viewportHeight || currentWidth !== viewportWidth) {
-      this.env.model.dispatch("RESIZE_SHEETVIEW", {
-        width: currentWidth,
-        height: currentHeight,
-        gridOffsetX: this.env.isDashboard() ? 0 : HEADER_WIDTH,
-        gridOffsetY: this.env.isDashboard() ? 0 : HEADER_HEIGHT,
-      });
-    }
-  }
-
-  onScroll() {
-    const { offsetScrollbarX, offsetScrollbarY } =
-      this.env.model.getters.getActiveSheetScrollInfo();
-    if (
-      offsetScrollbarX !== this.hScrollbar.scroll ||
-      offsetScrollbarY !== this.vScrollbar.scroll
-    ) {
-      const { maxOffsetX, maxOffsetY } = this.env.model.getters.getMaximumSheetOffset();
-      this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
-        offsetX: Math.min(this.hScrollbar.scroll, maxOffsetX),
-        offsetY: Math.min(this.vScrollbar.scroll, maxOffsetY),
-      });
-    }
-  }
-
-  checkSheetChanges() {
-    const currentSheet = this.env.model.getters.getActiveSheetId();
-    if (currentSheet !== this.currentSheet) {
-      this.focus();
-      this.currentSheet = currentSheet;
-    }
-  }
-
   getAutofillPosition() {
     const zone = this.env.model.getters.getSelectedZone();
     const rect = this.env.model.getters.getVisibleRect(zone);
@@ -594,65 +293,26 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     return !(rect.width === 0 || rect.height === 0);
   }
 
-  drawGrid() {
-    //reposition scrollbar
-    const { offsetScrollbarX, offsetScrollbarY } =
-      this.env.model.getters.getActiveSheetScrollInfo();
-    this.hScrollbar.scroll = offsetScrollbarX;
-    this.vScrollbar.scroll = offsetScrollbarY;
-    // check for position changes
-    this.checkSheetChanges();
-    // drawing grid on canvas
-    const canvas = this.canvas.el as HTMLCanvasElement;
-    const dpr = window.devicePixelRatio || 1;
-    const ctx = canvas.getContext("2d", { alpha: false })!;
-    const thinLineWidth = 0.4 * dpr;
-    const renderingContext = {
-      ctx,
-      dpr,
-      thinLineWidth,
-    };
-    const { width, height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
-    // Imagine each pixel as a large square. The whole-number coordinates (0, 1, 2…)
-    // are the edges of the squares. If you draw a one-unit-wide line between whole-number
-    // coordinates, it will overlap opposite sides of the pixel square, and the resulting
-    // line will be drawn two pixels wide. To draw a line that is only one pixel wide,
-    // you need to shift the coordinates by 0.5 perpendicular to the line's direction.
-    // http://diveintohtml5.info/canvas.html#pixel-madness
-    ctx.translate(-CANVAS_SHIFT, -CANVAS_SHIFT);
-    ctx.scale(dpr, dpr);
-    this.env.model.drawGrid(renderingContext);
+  onGridResized({ height, width }: DOMDimension) {
+    this.env.model.dispatch("RESIZE_SHEETVIEW", {
+      width: width,
+      height: height,
+      gridOffsetX: HEADER_WIDTH,
+      gridOffsetY: HEADER_HEIGHT,
+    });
   }
 
-  private moveCanvas(deltaX, deltaY) {
-    this.vScrollbar.scroll = this.vScrollbar.scroll + deltaY;
-    this.hScrollbar.scroll = this.hScrollbar.scroll + deltaX;
+  private moveCanvas(deltaX: number, deltaY: number) {
+    const { offsetScrollbarX, offsetScrollbarY } =
+      this.env.model.getters.getActiveSheetScrollInfo();
     this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: this.hScrollbar.scroll,
-      offsetY: this.vScrollbar.scroll,
+      offsetX: Math.max(offsetScrollbarX + deltaX, 0),
+      offsetY: Math.max(offsetScrollbarY + deltaY, 0),
     });
   }
 
   getClientPositionKey(client: Client) {
     return `${client.id}-${client.position?.sheetId}-${client.position?.col}-${client.position?.row}`;
-  }
-
-  onMouseWheel(ev: WheelEvent) {
-    if (ev.ctrlKey) {
-      return;
-    }
-    function normalize(val: number): number {
-      return val * (ev.deltaMode === 0 ? 1 : DEFAULT_CELL_HEIGHT);
-    }
-
-    const deltaX = ev.shiftKey ? ev.deltaY : ev.deltaX;
-    const deltaY = ev.shiftKey ? ev.deltaX : ev.deltaY;
-    this.moveCanvas(normalize(deltaX), normalize(deltaY));
   }
 
   isCellHovered(col: HeaderIndex, row: HeaderIndex): boolean {
@@ -663,52 +323,26 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   // Zone selection with mouse
   // ---------------------------------------------------------------------------
 
-  /**
-   * Get the coordinates in pixels, with 0,0 being the top left of the grid itself
-   */
-  getCoordinates(ev: MouseEvent): [Pixel, Pixel] {
-    return [ev.offsetX, ev.offsetY];
-  }
-
-  getCartesianCoordinates(ev: MouseEvent): [HeaderIndex, HeaderIndex] {
-    const [x, y] = this.getCoordinates(ev);
-    const colIndex = this.env.model.getters.getColIndex(x);
-    const rowIndex = this.env.model.getters.getRowIndex(y);
-    return [colIndex, rowIndex];
-  }
-
-  onMouseDown(ev: MouseEvent) {
-    if (ev.button > 0) {
-      // not main button, probably a context menu
-      return;
-    }
-    if (ev.ctrlKey) {
+  onCellClicked(
+    col: HeaderIndex,
+    row: HeaderIndex,
+    { ctrlKey, shiftKey }: { ctrlKey: boolean; shiftKey: boolean }
+  ) {
+    if (ctrlKey) {
       this.env.model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
-    }
-    const [col, row] = this.getCartesianCoordinates(ev);
-    if (col < 0 || row < 0) {
-      return;
-    }
-    this.clickedCol = col;
-    this.clickedRow = row;
-
-    if (this.env.model.getters.isDashboard()) {
-      this.env.model.selection.selectCell(col, row);
-      return;
     }
 
     this.closeOpenedPopover();
     if (this.env.model.getters.getEditionMode() === "editing") {
       this.env.model.dispatch("STOP_EDITION");
     }
-    if (ev.shiftKey) {
+    if (shiftKey) {
       this.env.model.selection.setAnchorCorner(col, row);
-    } else if (ev.ctrlKey) {
+    } else if (ctrlKey) {
       this.env.model.selection.addCellToSelection(col, row);
     } else {
       this.env.model.selection.selectCell(col, row);
     }
-    this.checkSheetChanges();
     let prevCol = col;
     let prevRow = row;
 
@@ -730,13 +364,13 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     dragAndDropBeyondTheViewport(this.env, onMouseMove, onMouseUp);
   }
 
-  onDoubleClick(ev) {
-    const [col, row] = this.getCartesianCoordinates(ev);
-    if (this.clickedCol === col && this.clickedRow === row) {
-      const cell = this.env.model.getters.getActiveCell();
-      !cell || cell.isEmpty()
-        ? this.props.onGridComposerCellFocused()
-        : this.props.onComposerContentFocused();
+  onCellDoubleClicked(col: HeaderIndex, row: HeaderIndex) {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const cell = this.env.model.getters.getCell(sheetId, col, row);
+    if (!cell || cell.isEmpty()) {
+      this.props.onGridComposerCellFocused();
+    } else {
+      this.props.onComposerContentFocused();
     }
   }
 
@@ -772,9 +406,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onKeydown(ev: KeyboardEvent) {
-    if (this.env.isDashboard()) {
-      return;
-    }
     if (ev.key.startsWith("Arrow")) {
       this.processArrows(ev);
       return;
@@ -810,12 +441,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   // Context Menu
   // ---------------------------------------------------------------------------
 
-  onCanvasContextMenu(ev: MouseEvent) {
-    ev.preventDefault();
-    const [col, row] = this.getCartesianCoordinates(ev);
-    if (col < 0 || row < 0) {
-      return;
-    }
+  onCellRightClicked(col: HeaderIndex, row: HeaderIndex, { x, y }: DOMCoordinates) {
     const zones = this.env.model.getters.getSelectedZones();
     const lastZone = zones[zones.length - 1];
     let type: ContextMenuType = "CELL";
@@ -830,14 +456,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         type = "ROW";
       }
     }
-    this.toggleContextMenu(type, ev.clientX, ev.clientY);
+    this.toggleContextMenu(type, x, y);
   }
 
   toggleContextMenu(type: ContextMenuType, x: Pixel, y: Pixel) {
     this.closeOpenedPopover();
-    if (this.env.model.getters.isDashboard()) {
-      type = "DASHBOARD";
-    }
     this.menuState.isOpen = true;
     this.menuState.position = { x, y };
     this.menuState.menuItems = registries[type]

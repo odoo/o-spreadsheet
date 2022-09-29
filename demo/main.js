@@ -17,7 +17,7 @@ const {
 } = owl;
 
 const { Spreadsheet, Model } = o_spreadsheet;
-const { topbarMenuRegistry, dashboardMenuRegistry } = o_spreadsheet.registries;
+const { topbarMenuRegistry } = o_spreadsheet.registries;
 
 const uuidGenerator = new o_spreadsheet.helpers.UuidGenerator();
 
@@ -97,13 +97,6 @@ class Demo extends Component {
       sequence: 13,
       isReadonlyAllowed: true,
       action: () => this.notifyUser({ text: "This is a notification", tag: "notif" }),
-    });
-
-    dashboardMenuRegistry.add("open normal", {
-      name: "Normal mode",
-      sequence: 10,
-      isReadonlyAllowed: true,
-      action: () => this.model.updateMode("normal"),
     });
 
     topbarMenuRegistry.addChild("xlsxImport", ["file"], {

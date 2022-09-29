@@ -2,8 +2,7 @@ import { App } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { dashboardMenuRegistry } from "../../src/registries";
-import { clickCell, rightClickCell } from "../test_helpers/dom_helper";
+import { clickCell } from "../test_helpers/dom_helper";
 import { getActiveXc } from "../test_helpers/getters_helpers";
 import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
@@ -28,20 +27,6 @@ describe("Grid component in dashboard mode", () => {
 
   test("simple dashboard rendering snapshot", async () => {
     expect(fixture.querySelector(".o-grid")).toMatchSnapshot();
-  });
-
-  test("Open context menu in dashboard mode contains only items of dashboard registry", async () => {
-    dashboardMenuRegistry.add("A", {
-      name: "A",
-      sequence: 10,
-      isReadonlyAllowed: true,
-      action: () => {},
-    });
-    await nextTick();
-    await rightClickCell(model, "B2");
-    expect(fixture.querySelectorAll(".o-menu div")).toHaveLength(1);
-    expect(fixture.querySelector(".o-menu div[data-name='A']")).not.toBeNull();
-    dashboardMenuRegistry.remove("A");
   });
 
   test("Keyboard event are not dispatched in dashboard mode", async () => {

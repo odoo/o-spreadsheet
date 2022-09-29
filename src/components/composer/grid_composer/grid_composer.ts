@@ -6,8 +6,8 @@ import {
 } from "../../../constants";
 import { fontSizeMap } from "../../../fonts";
 import { DOMDimension, Rect, Ref, SpreadsheetChildEnv, Zone } from "../../../types/index";
+import { getTextDecoration } from "../../helpers";
 import { css } from "../../helpers/css";
-import { getTextDecoration } from "../../helpers/dom_helpers";
 import { Composer } from "../composer/composer";
 import { Style } from "./../../../types/misc";
 

@@ -210,11 +210,12 @@ describe("figures", () => {
     const figureId = "someuuid";
     createFigure(model, { id: figureId, y: 200 });
     await nextTick();
-    const figure = fixture.querySelector(".o-figure")! as HTMLElement;
+    let figure = fixture.querySelector(".o-figure")! as HTMLElement;
     expect(window.getComputedStyle(figure)["border-width"]).toEqual("1px");
 
     model.updateMode("dashboard");
     await nextTick();
+    figure = fixture.querySelector(".o-figure")! as HTMLElement;
     expect(window.getComputedStyle(figure)["border-width"]).toEqual("0px");
   });
 

@@ -66,7 +66,6 @@ export function dragAndDropBeyondTheViewport(
       return;
     }
 
-    const { maxOffsetX, maxOffsetY } = getters.getMaximumSheetOffset();
     const { x: offsetCorrectionX, y: offsetCorrectionY } = getters.getMainViewportCoordinates();
     let { top, left, bottom, right } = getters.getActiveMainViewport();
     let { offsetScrollbarX: offsetX, offsetScrollbarY: offsetY } =
@@ -99,10 +98,7 @@ export function dragAndDropBeyondTheViewport(
             newTarget = left - 1;
             break;
         }
-        offsetX = Math.min(
-          maxOffsetX,
-          getters.getColDimensions(sheetId, newTarget!).start - offsetCorrectionX
-        );
+        offsetX = getters.getColDimensions(sheetId, newTarget!).start - offsetCorrectionX;
       }
     }
 
@@ -130,10 +126,7 @@ export function dragAndDropBeyondTheViewport(
             newTarget = top + edgeScrollInfoY.direction;
             break;
         }
-        offsetY = Math.min(
-          maxOffsetY,
-          env.model.getters.getRowDimensions(sheetId, newTarget!).start - offsetCorrectionY
-        );
+        offsetY = env.model.getters.getRowDimensions(sheetId, newTarget!).start - offsetCorrectionY;
       }
     }
 
