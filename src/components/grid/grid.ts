@@ -665,10 +665,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
    * Get the coordinates in pixels, with 0,0 being the top left of the grid itself
    */
   getCoordinates(ev: MouseEvent): [Pixel, Pixel] {
-    const rect = this.gridOverlay.el!.getBoundingClientRect();
-    const x = ev.pageX - rect.left;
-    const y = ev.pageY - rect.top;
-    return [x, y];
+    return [ev.offsetX, ev.offsetY];
   }
 
   getCartesianCoordinates(ev: MouseEvent): [HeaderIndex, HeaderIndex] {
