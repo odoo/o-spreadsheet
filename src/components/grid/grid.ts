@@ -525,26 +525,29 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     return this.gridRef.el;
   }
 
+  get gridOverlayEl(): HTMLElement {
+    if (!this.gridOverlay.el) {
+      throw new Error("GridOverlay el is not defined.");
+    }
+    return this.gridOverlay.el;
+  }
+
   getGridBoundingClientRect(): DOMRect {
     return this.gridEl.getBoundingClientRect();
   }
 
   resizeGrid() {
     const scrollBarWidth = this.env.isDashboard() ? 0 : SCROLLBAR_WIDTH;
-    const currentHeight = this.gridEl.clientHeight - scrollBarWidth;
-    const currentWidth = this.gridEl.clientWidth - scrollBarWidth;
+    const currentHeight = this.gridOverlayEl.clientHeight - scrollBarWidth;
+    const currentWidth = this.gridOverlayEl.clientWidth - scrollBarWidth;
     const { height: viewportHeight, width: viewportWidth } =
-      this.env.model.getters.getSheetViewDimensionWithHeaders();
+      this.env.model.getters.getSheetViewDimension();
     if (currentHeight != viewportHeight || currentWidth !== viewportWidth) {
-      const { top: gridTop, left: gridLeft } = this.gridEl.getBoundingClientRect();
-      const { top, left } = this.gridOverlay.el!.getBoundingClientRect();
-      const gridOffsetX = left - gridLeft;
-      const gridOffsetY = top - gridTop;
       this.env.model.dispatch("RESIZE_SHEETVIEW", {
-        width: currentWidth - gridOffsetX,
-        height: currentHeight - gridOffsetY,
-        gridOffsetX,
-        gridOffsetY,
+        width: currentWidth,
+        height: currentHeight,
+        gridOffsetX: this.env.isDashboard() ? 0 : HEADER_WIDTH,
+        gridOffsetY: this.env.isDashboard() ? 0 : HEADER_HEIGHT,
       });
     }
   }

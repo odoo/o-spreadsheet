@@ -4,9 +4,9 @@ exports[`link display component simple snapshot 1`] = `
 "<div class=\\"o-popover\\" style=\\"
       position: absolute;
       z-index: 30;
-      top:23px;
-      left:0px;
-      max-height:934px;
+      top:49px;
+      left:48px;
+      max-height:960px;
       width:220px;
       overflow-y: auto;
       overflow-x: hidden;
