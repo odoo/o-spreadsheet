@@ -86,8 +86,6 @@ export function triggerMouseEvent(
   });
   (ev as any).offsetX = x;
   (ev as any).offsetY = y;
-  (ev as any).pageX = x;
-  (ev as any).pageY = y;
   if (typeof selector === "string") {
     document.querySelector(selector)!.dispatchEvent(ev);
   } else {
