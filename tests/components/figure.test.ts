@@ -13,9 +13,6 @@ import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
 import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
-jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
-jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
-
 let fixture: HTMLElement;
 let model: Model;
 let parent: Spreadsheet;

@@ -90,9 +90,6 @@ function errorMessages(): string[] {
   return textContentAll(".o-sidepanel-error div");
 }
 
-jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
-jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
-
 const originalGetBoundingClientRect = HTMLDivElement.prototype.getBoundingClientRect;
 jest
   .spyOn(HTMLDivElement.prototype, "getBoundingClientRect")
