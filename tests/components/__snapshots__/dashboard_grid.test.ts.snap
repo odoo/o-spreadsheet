@@ -49,9 +49,9 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
   
   
   <canvas
-    height="1000"
-    style="width:1000px;height:1000px;"
-    width="1000"
+    height="985"
+    style="width:985px;height:985px;"
+    width="985"
   />
   
   
