@@ -1,0 +1,17 @@
+<templates>
+  <t t-name="o-spreadsheet-GridPopover" owl="1">
+    <Popover
+      t-if="cellPopover.isOpen"
+      position="cellPopover.coordinates"
+      childWidth="cellPopover.Component.size.width"
+      childHeight="cellPopover.Component.size.height"
+      flipHorizontalOffset="cellPopover.cellWidth"
+      flipVerticalOffset="cellPopover.cellHeight"
+      onMouseWheel="props.onMouseWheel">
+      <t
+        t-component="cellPopover.Component"
+        t-props="{...cellPopover.props, onClosed : () => props.onClosePopover()}"
+      />
+    </Popover>
+  </t>
+</templates>

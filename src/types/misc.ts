@@ -288,4 +288,4 @@ export interface Cloneable<T> {
   clone: (args?: Partial<T>) => T;
 }
 
-export type CSSProperties = Record<string, string>;
+export type CSSProperties<P extends string = string> = Record<P, string>;

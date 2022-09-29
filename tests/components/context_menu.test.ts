@@ -1,6 +1,5 @@
 import { App, Component, useSubEnv, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
-import { Grid } from "../../src/components/grid/grid";
 import { Menu } from "../../src/components/menu/menu";
 import { MENU_ITEM_HEIGHT, MENU_WIDTH, TOPBAR_HEIGHT } from "../../src/constants";
 import { toXC } from "../../src/helpers";
@@ -12,7 +11,6 @@ import { setCellContent } from "../test_helpers/commands_helpers";
 import { rightClickCell, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 import {
-  getChildFromComponent,
   makeTestFixture,
   MockClipboard,
   mountSpreadsheet,
@@ -591,11 +589,10 @@ describe("Context Menu", () => {
   });
 
   test("scroll through the menu with the wheel / scrollbar prevents the grid from scrolling", async () => {
-    const grid = getChildFromComponent(parent, Grid);
-    const verticalScrollBar = grid["vScrollbar"];
-    const horizontalScrollBar = grid["hScrollbar"];
-    expect(verticalScrollBar.scroll).toBe(0);
-    expect(horizontalScrollBar.scroll).toBe(0);
+    const verticalScrollBar = fixture.querySelector(".o-scrollbar.vertical") as HTMLElement;
+    const horizontalScrollBar = fixture.querySelector(".o-scrollbar.horizontal") as HTMLElement;
+    expect(verticalScrollBar.scrollTop).toBe(0);
+    expect(horizontalScrollBar.scrollLeft).toBe(0);
 
     await rightClickCell(model, "C8");
 
@@ -608,16 +605,16 @@ describe("Context Menu", () => {
     await nextTick();
 
     // grid always at (0, 0) scroll position
-    expect(verticalScrollBar.scroll).toBe(0);
-    expect(horizontalScrollBar.scroll).toBe(0);
+    expect(verticalScrollBar.scrollTop).toBe(0);
+    expect(horizontalScrollBar.scrollLeft).toBe(0);
   });
 
   test("scroll through the menu with the touch device prevents the grid from scrolling", async () => {
-    const grid = getChildFromComponent(parent, Grid);
-    const verticalScrollBar = grid["vScrollbar"];
-    const horizontalScrollBar = grid["hScrollbar"];
-    expect(verticalScrollBar.scroll).toBe(0);
-    expect(horizontalScrollBar.scroll).toBe(0);
+    const verticalScrollBar = fixture.querySelector(".o-scrollbar.vertical") as HTMLElement;
+    const horizontalScrollBar = fixture.querySelector(".o-scrollbar.horizontal") as HTMLElement;
+
+    expect(verticalScrollBar.scrollTop).toBe(0);
+    expect(horizontalScrollBar.scrollLeft).toBe(0);
 
     await rightClickCell(model, "C8");
 
@@ -656,8 +653,8 @@ describe("Context Menu", () => {
 
     await nextTick();
     // grid always at (0, 0) scroll position
-    expect(verticalScrollBar.scroll).toBe(0);
-    expect(horizontalScrollBar.scroll).toBe(0);
+    expect(verticalScrollBar.scrollTop).toBe(0);
+    expect(horizontalScrollBar.scrollLeft).toBe(0);
   });
 });
 

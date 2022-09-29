@@ -1,27 +1,31 @@
 <templates>
   <t t-name="o-spreadsheet-Spreadsheet" owl="1">
     <div class="o-spreadsheet" t-on-keydown="onKeydown" t-att-style="getStyle()">
-      <TopBar
-        t-if="!env.isDashboard()"
-        onClick="() => this.focusGrid()"
-        onComposerContentFocused="(selection) => this.onTopBarComposerFocused(selection)"
-        focusComposer="focusTopBarComposer"
-      />
-      <Grid
-        sidePanelIsOpen="sidePanel.isOpen"
-        onSaveRequested="() => this.save()"
-        focusComposer="focusGridComposer"
-        exposeFocus="(focus) => this._focusGrid = focus"
-        onComposerContentFocused="() => this.onGridComposerContentFocused()"
-        onGridComposerCellFocused="(content, selection) => this.onGridComposerCellFocused(content, selection)"
-      />
-      <SidePanel
-        t-if="sidePanel.isOpen"
-        onCloseSidePanel="() => this.closeSidePanel()"
-        component="sidePanel.component"
-        panelProps="sidePanel.panelProps"
-      />
-      <BottomBar onClick="() => this.focusGrid()" t-if="!env.isDashboard()"/>
+      <t t-if="env.isDashboard()">
+        <SpreadsheetDashboard/>
+      </t>
+      <t t-else="">
+        <TopBar
+          onClick="() => this.focusGrid()"
+          onComposerContentFocused="(selection) => this.onTopBarComposerFocused(selection)"
+          focusComposer="focusTopBarComposer"
+        />
+        <Grid
+          sidePanelIsOpen="sidePanel.isOpen"
+          onSaveRequested="() => this.save()"
+          focusComposer="focusGridComposer"
+          exposeFocus="(focus) => this._focusGrid = focus"
+          onComposerContentFocused="() => this.onGridComposerContentFocused()"
+          onGridComposerCellFocused="(content, selection) => this.onGridComposerCellFocused(content, selection)"
+        />
+        <SidePanel
+          t-if="sidePanel.isOpen"
+          onCloseSidePanel="() => this.closeSidePanel()"
+          component="sidePanel.component"
+          panelProps="sidePanel.panelProps"
+        />
+        <BottomBar onClick="() => this.focusGrid()"/>
+      </t>
     </div>
   </t>
 </templates>
