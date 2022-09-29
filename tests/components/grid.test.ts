@@ -71,9 +71,6 @@ chartComponentRegistry.add("bar", ChartJsComponent);
 jest.useFakeTimers();
 
 beforeEach(async () => {
-  jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
-  jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
-
   fixture = makeTestFixture();
 });
 

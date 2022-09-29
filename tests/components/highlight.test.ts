@@ -520,8 +520,7 @@ describe("Border component", () => {
 
 describe("Edge-Scrolling on mouseMove of hightlights", () => {
   let parent: Spreadsheet;
-  jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
-  jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
+
   beforeEach(async () => {
     jest.useFakeTimers();
     fixture = makeTestFixture();

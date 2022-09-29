@@ -6,9 +6,6 @@ import { setCellContent, setViewportOffset } from "../test_helpers/commands_help
 import { clickCell, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { makeTestFixture, mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
 
-jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
-jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
-
 let fixture: HTMLElement;
 let model: Model;
 let parent: Spreadsheet;
