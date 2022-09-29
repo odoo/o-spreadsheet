@@ -7,9 +7,6 @@ import { freezeColumns, freezeRows, setViewportOffset } from "../test_helpers/co
 import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { makeTestFixture, nextTick } from "../test_helpers/helpers";
 
-jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
-jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
-
 // As we test an isolated component, grid and gridOverlay won't exist
 jest.mock("../../src/components/helpers/dom_helpers", () => require("./__mocks__/dom_helpers"));
 

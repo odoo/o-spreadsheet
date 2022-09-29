@@ -16,9 +16,6 @@ let model: Model;
 let parent: Spreadsheet;
 let app: App;
 
-jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
-jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
-
 beforeEach(async () => {
   fixture = makeTestFixture();
   ({ app, parent } = await mountSpreadsheet(fixture));

@@ -43,9 +43,6 @@ afterEach(() => {
   fixture.remove();
 });
 
-jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
-jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
-
 function getActiveXc(model: Model): string {
   const { col, row } = model.getters.getPosition();
   return toXC(col, row);
