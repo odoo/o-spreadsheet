@@ -1197,7 +1197,7 @@ describe("Events on Grid update viewport correctly", () => {
   });
 
   test("A resize of the grid DOM element impacts the viewport", async () => {
-    expect(model.getters.getSheetViewDimensionWithHeaders()).toMatchObject({
+    expect(model.getters.getSheetViewDimension()).toMatchObject({
       width: 1000 - SCROLLBAR_WIDTH,
       height: 1000 - SCROLLBAR_WIDTH,
     });
@@ -1208,7 +1208,7 @@ describe("Events on Grid update viewport correctly", () => {
     parent.render();
     await nextTick();
 
-    expect(model.getters.getSheetViewDimensionWithHeaders()).toMatchObject({
+    expect(model.getters.getSheetViewDimension()).toMatchObject({
       width: 800 - SCROLLBAR_WIDTH,
       height: 650 - SCROLLBAR_WIDTH,
     });
