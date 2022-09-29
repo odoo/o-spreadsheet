@@ -52,6 +52,10 @@ export async function clickCell(
   extra: MouseEventInit = { bubbles: true }
 ) {
   const zone = toZone(xc);
+  const sheetId = model.getters.getActiveSheetId();
+  if (!model.getters.isVisibleInViewport(sheetId, zone.left, zone.top)) {
+    throw new Error(`You can't click on ${xc} because it is not visible`);
+  }
   let { x, y } = model.getters.getVisibleRect(zone);
   if (!model.getters.isDashboard()) {
     x -= HEADER_WIDTH;

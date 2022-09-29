@@ -392,20 +392,34 @@ describe("Viewport of Simple sheet", () => {
 
   test("cannot set offset outside of the grid", () => {
     // negative
-    const negativeOffsetResult = setViewportOffset(model, -1, 0);
-    expect(negativeOffsetResult).toBeCancelledBecause(CommandResult.InvalidOffset);
+    setViewportOffset(model, -1, -1);
+    expect(model.getters.getActiveSheetScrollInfo()).toEqual({
+      offsetScrollbarX: 0,
+      offsetScrollbarY: 0,
+      offsetX: 0,
+      offsetY: 0,
+    });
 
     // too large
     model.dispatch("RESIZE_SHEETVIEW", {
-      height: DEFAULT_SHEETVIEW_SIZE,
-      width: DEFAULT_SHEETVIEW_SIZE,
+      height: 10 * DEFAULT_CELL_HEIGHT,
+      width: 10 * DEFAULT_CELL_WIDTH,
       gridOffsetX: 0,
       gridOffsetY: 0,
     });
-    const { maxOffsetY } = model.getters.getMaximumSheetOffset();
-    const tooLargeOffsetResult = setViewportOffset(model, 0, maxOffsetY + 1);
+    const sheetId = model.getters.getActiveSheetId();
+    const nCols = model.getters.getNumberCols(sheetId);
+    const nRows = model.getters.getNumberRows(sheetId);
+    setViewportOffset(model, nCols * DEFAULT_CELL_WIDTH + 10, nRows * DEFAULT_CELL_HEIGHT + 10);
 
-    expect(tooLargeOffsetResult).toBeCancelledBecause(CommandResult.InvalidOffset);
+    const maxOffsetX = DEFAULT_CELL_WIDTH * (nCols - 10 + 1);
+    const maxOffsetY = DEFAULT_CELL_HEIGHT * (nRows - 10 + 1);
+    expect(model.getters.getActiveSheetScrollInfo()).toEqual({
+      offsetScrollbarX: maxOffsetX + 1,
+      offsetScrollbarY: maxOffsetY + 1 + 5,
+      offsetX: maxOffsetX,
+      offsetY: maxOffsetY,
+    });
   });
 
   test("Resize (increase) columns correctly affects viewport without changing the offset", () => {
@@ -759,6 +773,42 @@ describe("Viewport of Simple sheet", () => {
     merge(model, "C4:D5");
     expect(freezeColumns(model, 3)).toBeCancelledBecause(CommandResult.MergeOverlap);
     expect(freezeRows(model, 4)).toBeCancelledBecause(CommandResult.MergeOverlap);
+  });
+
+  test("resize to identical values doesn't do anything (no render)", () => {
+    model.dispatch("RESIZE_SHEETVIEW", {
+      height: 100,
+      width: 50,
+      gridOffsetX: 10,
+      gridOffsetY: 15,
+    });
+    expect(
+      model.dispatch("RESIZE_SHEETVIEW", {
+        height: 100,
+        width: 50,
+        gridOffsetX: 10,
+        gridOffsetY: 15,
+      })
+    ).toBeCancelledBecause(CommandResult.ValuesNotChanged);
+  });
+
+  test("cannot resize to negative values", () => {
+    expect(
+      model.dispatch("RESIZE_SHEETVIEW", {
+        height: -100,
+        width: 50,
+        gridOffsetX: 0,
+        gridOffsetY: 0,
+      })
+    ).toBeCancelledBecause(CommandResult.InvalidViewportSize);
+    expect(
+      model.dispatch("RESIZE_SHEETVIEW", {
+        height: 100,
+        width: -50,
+        gridOffsetX: 0,
+        gridOffsetY: 0,
+      })
+    ).toBeCancelledBecause(CommandResult.InvalidViewportSize);
   });
 });
 

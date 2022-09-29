@@ -16,7 +16,7 @@ beforeEach(() => {
     .mockImplementation(function (this: HTMLDivElement) {
       const grid = this.className.includes("o-grid-overlay");
       if (grid) {
-        return 1000;
+        return 985;
       }
       return 0;
     });
@@ -24,7 +24,7 @@ beforeEach(() => {
     .spyOn(HTMLDivElement.prototype, "clientWidth", "get")
     .mockImplementation(function (this: HTMLDivElement) {
       if (this.className.includes("o-grid-overlay")) {
-        return 1000;
+        return 985;
       }
       return 0;
     });
