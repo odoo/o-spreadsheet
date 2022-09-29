@@ -8,10 +8,10 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
   <div
     class="o-grid-overlay"
     style="
-      top: 26px;
-      left: 48px;
-      height: calc(100% - 26px);
-      width: calc(100% - 48px);
+      top: 0px;
+      left: 0px;
+      height: calc(100% - 0px);
+      width: calc(100% - 0px);
     "
     tabindex="-1"
   >
@@ -19,53 +19,16 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
       
     </div>
   </div>
-  <div
-    class="o-overlay"
-  >
-    <div
-      class="o-col-resizer"
-    >
-      
-      
-      
-      
-      
-    </div>
-    
-    <div
-      class="o-row-resizer"
-    >
-      
-      
-      
-      
-      
-    </div>
-    
-    <div
-      class="all"
-    />
-  </div>
   
   
   <canvas
-    height="985"
-    style="width:985px;height:985px;"
-    width="985"
+    height="1000"
+    style="width:1000px;height:1000px;"
+    width="1000"
   />
   
   
   
-  <div
-    class="o-autofill"
-    style="top:19px;left:92px"
-  >
-    <div
-      class="o-autofill-handler"
-      style="top:0px;left:0px;"
-    />
-    
-  </div>
   
   
   
@@ -73,8 +36,8 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
   <div
     class="o-scrollbar vertical"
     style="
-      
-      top: 26px;"
+      width: 0px;
+      top: 0px;"
   >
     <div
       style="width:1px;height:2328px"
@@ -83,8 +46,8 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
   <div
     class="o-scrollbar horizontal"
     style="
-      
-      left: 48px;"
+      width: 0px;
+      left: 0px;"
   >
     <div
       style="height:1px;width:2592px"

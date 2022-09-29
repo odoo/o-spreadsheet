@@ -18,6 +18,7 @@ describe("Grid component in dashboard mode", () => {
     ({ app, parent } = await mountSpreadsheet(fixture));
     model = parent.model;
     model.updateMode("dashboard");
+    await nextTick();
   });
 
   afterEach(() => {

@@ -1,4 +1,5 @@
 import { Model } from "../../src";
+import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { MIN_DELAY, scrollDelay, toZone } from "../../src/helpers";
 import { Pixel } from "../../src/types";
 import { nextTick } from "./helpers";
@@ -36,6 +37,10 @@ export async function simulateClick(
 export async function hoverCell(model: Model, xc: string, delay: number) {
   const zone = toZone(xc);
   let { x, y } = model.getters.getVisibleRect(zone);
+  if (!model.getters.isDashboard()) {
+    x -= HEADER_WIDTH;
+    y -= HEADER_HEIGHT;
+  }
   triggerMouseEvent(".o-grid-overlay", "mousemove", x, y);
   jest.advanceTimersByTime(delay);
   await nextTick();
@@ -48,6 +53,10 @@ export async function clickCell(
 ) {
   const zone = toZone(xc);
   let { x, y } = model.getters.getVisibleRect(zone);
+  if (!model.getters.isDashboard()) {
+    x -= HEADER_WIDTH;
+    y -= HEADER_HEIGHT;
+  }
   await simulateClick(".o-grid-overlay", x, y, extra);
 }
 
@@ -59,6 +68,10 @@ export async function gridMouseEvent(
 ) {
   const zone = toZone(xc);
   let { x, y } = model.getters.getVisibleRect(zone);
+  if (!model.getters.isDashboard()) {
+    x -= HEADER_WIDTH;
+    y -= HEADER_HEIGHT;
+  }
   triggerMouseEvent(".o-grid-overlay", type, x, y, extra);
   await nextTick();
 }
@@ -74,18 +87,20 @@ export async function rightClickCell(
 export function triggerMouseEvent(
   selector: string | any,
   type: string,
-  x?: number,
-  y?: number,
+  offsetX?: number,
+  offsetY?: number,
   extra: MouseEventInit = { bubbles: true }
 ): void {
   const ev = new MouseEvent(type, {
-    clientX: x,
-    clientY: y,
+    // this is only correct if we assume the target is positioned
+    // at the very top left corner of the screen
+    clientX: offsetX,
+    clientY: offsetY,
     bubbles: true,
     ...extra,
   });
-  (ev as any).offsetX = x;
-  (ev as any).offsetY = y;
+  (ev as any).offsetX = offsetX;
+  (ev as any).offsetY = offsetY;
   if (typeof selector === "string") {
     document.querySelector(selector)!.dispatchEvent(ev);
   } else {
