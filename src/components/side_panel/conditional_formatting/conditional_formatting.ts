@@ -18,8 +18,8 @@ import {
   Zone,
 } from "../../../types";
 import { ColorPicker } from "../../color_picker/color_picker";
+import { getTextDecoration } from "../../helpers";
 import { css } from "../../helpers/css";
-import { getTextDecoration } from "../../helpers/dom_helpers";
 import { ICONS, ICON_SETS } from "../../icons/icons";
 import { IconPicker } from "../../icon_picker/icon_picker";
 import { SelectionInput } from "../../selection_input/selection_input";

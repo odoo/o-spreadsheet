@@ -6,52 +6,67 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
   tabindex="-1"
 >
   <div
-    class="o-grid-overlay"
+    class="mx-auto h-100 position-relative"
     style="
-      top: 0px;
-      left: 0px;
-      height: calc(100% - 0px);
-      width: calc(100% - 0px);
+      max-width: 2496px;
     "
   >
-    <div>
+    <div
+      class="o-grid-overlay"
+      style="
+      height: 100%;
+      width: 100%
+    "
+    >
+      <!-- TODO remove sidePanelIsOpen props. It is wrong.
+      If you have a CF sidepanel open, selecting a figure should
+      not open the figure side panel -->
+      <div>
+        
+      </div>
       
     </div>
+    
+    <canvas
+      height="985"
+      style="width:985px;height:985px;"
+      width="985"
+    />
+    
+    
   </div>
-  
-  
-  <canvas
-    height="1000"
-    style="width:1000px;height:1000px;"
-    width="1000"
-  />
-  
-  
-  
-  
-  
-  
-  
   <div
     class="o-scrollbar vertical"
     style="
-      width: 0px;
-      top: 0px;"
+top: 0px;
+right: 0px;
+bottom: 15px;
+"
   >
     <div
-      style="width:1px;height:2328px"
+      style="
+width: 1px;
+height: 2328px;
+"
     />
   </div>
+  
   <div
     class="o-scrollbar horizontal"
     style="
-      width: 0px;
-      left: 0px;"
+left: 0px;
+bottom: 0px;
+right: 15px;
+"
   >
     <div
-      style="height:1px;width:2592px"
+      style="
+width: 2592px;
+height: 1px;
+"
     />
   </div>
+  
   <div
     class="o-scrollbar corner"
   />

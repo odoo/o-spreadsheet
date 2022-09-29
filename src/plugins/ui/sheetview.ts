@@ -1,5 +1,5 @@
 import { DEFAULT_SHEETVIEW_SIZE } from "../../constants";
-import { findCellInNewZone, isDefined, range } from "../../helpers";
+import { clip, findCellInNewZone, isDefined, range } from "../../helpers";
 import { scrollDelay } from "../../helpers/index";
 import { InternalViewport } from "../../helpers/internal_viewport";
 import { SelectionEvent } from "../../types/event_stream";
@@ -14,6 +14,7 @@ import {
   Pixel,
   Position,
   Rect,
+  ResizeViewportCommand,
   ScrollDirection,
   SheetScrollInfo,
   UID,
@@ -80,7 +81,6 @@ export class SheetViewPlugin extends UIPlugin {
     "getSheetViewDimension",
     "getSheetViewDimensionWithHeaders",
     "getMainViewportRect",
-    "getMaximumSheetOffset",
     "isVisibleInViewport",
     "getEdgeScrollCol",
     "getEdgeScrollRow",
@@ -114,12 +114,12 @@ export class SheetViewPlugin extends UIPlugin {
   allowDispatch(cmd: Command) {
     switch (cmd.type) {
       case "SET_VIEWPORT_OFFSET":
-        return this.checkValidations(cmd, this.checkOffsetValidity, this.checkScrollingDirection);
+        return this.checkScrollingDirection(cmd);
       case "RESIZE_SHEETVIEW":
-        if (cmd.width < 0 || cmd.height < 0) {
-          return CommandResult.InvalidViewportSize;
-        }
-        return CommandResult.Success;
+        return this.chainValidations(
+          this.checkValuesAreDifferent,
+          this.checkPositiveDimension
+        )(cmd);
       case "FREEZE_COLUMNS": {
         const sheetId = this.getters.getActiveSheetId();
         const merges = this.getters.getMerges(sheetId);
@@ -310,7 +310,7 @@ export class SheetViewPlugin extends UIPlugin {
     return { x, y, width, height };
   }
 
-  getMaximumSheetOffset(): { maxOffsetX: Pixel; maxOffsetY: Pixel } {
+  private getMaximumSheetOffset(): { maxOffsetX: Pixel; maxOffsetY: Pixel } {
     const sheetId = this.getters.getActiveSheetId();
     const { width, height } = this.getMainViewportRect();
     const viewport = this.getMainInternalViewport(sheetId);
@@ -476,6 +476,26 @@ export class SheetViewPlugin extends UIPlugin {
     return Object.values(this.viewports[sheetId]!).filter(isDefined);
   }
 
+  private checkPositiveDimension(cmd: ResizeViewportCommand) {
+    if (cmd.width < 0 || cmd.height < 0) {
+      return CommandResult.InvalidViewportSize;
+    }
+    return CommandResult.Success;
+  }
+
+  private checkValuesAreDifferent(cmd: ResizeViewportCommand) {
+    const { height, width } = this.getSheetViewDimension();
+    if (
+      cmd.gridOffsetX === this.gridOffsetX &&
+      cmd.gridOffsetY === this.gridOffsetY &&
+      cmd.width === width &&
+      cmd.height === height
+    ) {
+      return CommandResult.ValuesNotChanged;
+    }
+    return CommandResult.Success;
+  }
+
   private checkScrollingDirection({
     offsetX,
     offsetY,
@@ -489,20 +509,6 @@ export class SheetViewPlugin extends UIPlugin {
       (!pane.canScrollVertically && offsetY > 0)
     ) {
       return CommandResult.InvalidScrollingDirection;
-    }
-    return CommandResult.Success;
-  }
-
-  private checkOffsetValidity({
-    offsetX,
-    offsetY,
-  }: {
-    offsetX: Pixel;
-    offsetY: Pixel;
-  }): CommandResult {
-    const { maxOffsetX, maxOffsetY } = this.getMaximumSheetOffset();
-    if (offsetX < 0 || offsetY < 0 || offsetY > maxOffsetY || offsetX > maxOffsetX) {
-      return CommandResult.InvalidOffset;
     }
     return CommandResult.Success;
   }
@@ -574,9 +580,9 @@ export class SheetViewPlugin extends UIPlugin {
 
   private setSheetViewOffset(offsetX: Pixel, offsetY: Pixel) {
     const sheetId = this.getters.getActiveSheetId();
-
+    const { maxOffsetX, maxOffsetY } = this.getMaximumSheetOffset();
     Object.values(this.getSubViewports(sheetId)).forEach((viewport) =>
-      viewport.setViewportOffset(offsetX, offsetY)
+      viewport.setViewportOffset(clip(offsetX, 0, maxOffsetX), clip(offsetY, 0, maxOffsetY))
     );
   }
 

@@ -42,7 +42,6 @@ css/* scss */ `
 
 interface Props {
   position: Position;
-  getGridBoundingClientRect: () => DOMRect;
 }
 
 interface Position {

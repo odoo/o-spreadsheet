@@ -4,8 +4,8 @@ import { getFontSizeMatchingWidth, relativeLuminance } from "../../../../helpers
 import { chartComponentRegistry } from "../../../../registries";
 import { Color, Figure, Pixel, SpreadsheetChildEnv, Style } from "../../../../types";
 import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
+import { cellTextStyleToCss, cssPropertiesToCss } from "../../../helpers";
 import { css } from "../../../helpers/css";
-import { cellTextStyleToCss, cssPropertiesToCss } from "../../../helpers/dom_helpers";
 
 /* Sizes of boxes containing the texts, in percentage of the Chart size */
 const TITLE_FONT_SIZE = 18;

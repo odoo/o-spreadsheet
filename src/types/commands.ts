@@ -1056,7 +1056,6 @@ export const enum CommandResult {
   MergeOverlap,
   TooManyHiddenElements,
   Readonly,
-  InvalidOffset,
   InvalidViewportSize,
   InvalidScrollingDirection,
   FigureDoesNotExist,
@@ -1065,6 +1064,7 @@ export const enum CommandResult {
   EmptyTarget,
   InvalidFreezeQuantity,
   FrozenPaneOverlap,
+  ValuesNotChanged,
 }
 
 export interface CommandHandler<T> {

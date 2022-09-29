@@ -8,10 +8,12 @@ import {
   useSubEnv,
 } from "@odoo/owl";
 import {
+  BACKGROUND_GRAY_COLOR,
   BOTTOMBAR_HEIGHT,
   CF_ICON_EDGE_LENGTH,
   ICON_EDGE_LENGTH,
   MAXIMAL_FREEZABLE_RATIO,
+  SCROLLBAR_WIDTH,
   TOPBAR_HEIGHT,
 } from "../../constants";
 import { Model } from "../../model";
@@ -20,6 +22,7 @@ import { _lt } from "../../translation";
 import { SpreadsheetChildEnv, WorkbookData } from "../../types";
 import { NotifyUIEvent } from "../../types/ui";
 import { BottomBar } from "../bottom_bar/bottom_bar";
+import { SpreadsheetDashboard } from "../dashboard/dashboard";
 import { Grid } from "../grid/grid";
 import { css } from "../helpers/css";
 import { SidePanel } from "../side_panel/side_panel/side_panel";
@@ -65,6 +68,41 @@ css/* scss */ `
   }
 `;
 
+// -----------------------------------------------------------------------------
+// GRID STYLE
+// -----------------------------------------------------------------------------
+
+css/* scss */ `
+  .o-grid {
+    position: relative;
+    overflow: hidden;
+    background-color: ${BACKGROUND_GRAY_COLOR};
+    &:focus {
+      outline: none;
+    }
+
+    > canvas {
+      border-top: 1px solid #e2e3e3;
+      border-bottom: 1px solid #e2e3e3;
+    }
+    .o-scrollbar {
+      &.corner {
+        right: 0px;
+        bottom: 0px;
+        height: ${SCROLLBAR_WIDTH}px;
+        width: ${SCROLLBAR_WIDTH}px;
+        border-top: 1px solid #e2e3e3;
+        border-left: 1px solid #e2e3e3;
+      }
+    }
+
+    .o-grid-overlay {
+      position: absolute;
+      outline: none;
+    }
+  }
+`;
+
 export interface SpreadsheetProps {
   model: Model;
   exposeSpreadsheet?: (spreadsheet: Spreadsheet) => void;
@@ -87,7 +125,7 @@ interface ComposerState {
 
 export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Spreadsheet";
-  static components = { TopBar, Grid, BottomBar, SidePanel };
+  static components = { TopBar, Grid, BottomBar, SidePanel, SpreadsheetDashboard };
   static _t = t;
 
   model!: Model;
