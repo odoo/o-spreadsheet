@@ -125,7 +125,7 @@ return _1;
 exports[`expression compiler expressions with a debugger 1`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
-// =? |0| / |N0|
+// =?|0|/|N0|
 debugger;
 let _2 = ref(deps[0], false, \\"DIVIDE\\",  undefined);
 let _3 = { value: this.constantValues.numbers[0] };
@@ -138,7 +138,7 @@ return _1;
 exports[`expression compiler read some values and functions 1`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
-// =|0| + sum(|1|)
+// =|0|+sum(|1|)
 let _2 = ref(deps[0], false, \\"ADD\\",  undefined);
 let _4 = range(deps[1]);
 ctx.__lastFnCalled = 'SUM';
@@ -178,7 +178,7 @@ return _1;
 exports[`expression compiler some arithmetic expressions 4`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
-// =|N0| + |N1|
+// =|N0|+|N1|
 let _2 = { value: this.constantValues.numbers[0] };
 let _3 = { value: this.constantValues.numbers[1] };
 ctx.__lastFnCalled = 'ADD';
@@ -190,7 +190,7 @@ return _1;
 exports[`expression compiler some arithmetic expressions 5`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
-// =|N0| * |N1|
+// =|N0|*|N1|
 let _2 = { value: this.constantValues.numbers[0] };
 let _3 = { value: this.constantValues.numbers[1] };
 ctx.__lastFnCalled = 'MULTIPLY';
@@ -202,7 +202,7 @@ return _1;
 exports[`expression compiler some arithmetic expressions 6`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
-// =|N0| - |N1|
+// =|N0|-|N1|
 let _2 = { value: this.constantValues.numbers[0] };
 let _3 = { value: this.constantValues.numbers[1] };
 ctx.__lastFnCalled = 'MINUS';
@@ -214,7 +214,7 @@ return _1;
 exports[`expression compiler some arithmetic expressions 7`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
-// =|N0| / |N1|
+// =|N0|/|N1|
 let _2 = { value: this.constantValues.numbers[0] };
 let _3 = { value: this.constantValues.numbers[1] };
 ctx.__lastFnCalled = 'DIVIDE';
@@ -237,7 +237,7 @@ return _1;
 exports[`expression compiler some arithmetic expressions 9`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
-// =(|N0| + |N1|) * (-|N1| + |N2|)
+// =(|N0|+|N1|)*(-|N1|+|N2|)
 let _3 = { value: this.constantValues.numbers[0] };
 let _4 = { value: this.constantValues.numbers[1] };
 ctx.__lastFnCalled = 'ADD';
@@ -269,7 +269,7 @@ return _1;
 exports[`expression compiler some arithmetic expressions 11`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
-// =sum(true, |S0|)
+// =sum(true,|S0|)
 let _2 = { value: this.constantValues.strings[0] };
 ctx.__lastFnCalled = 'SUM';
 let _1 = ctx['SUM']({ value: true },_2);
@@ -328,7 +328,7 @@ return _1;
 exports[`expression compiler with the same reference multiple times 1`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
-// =SUM(|0|, |0|, |2|)
+// =SUM(|0|,|0|,|2|)
 let _2 = range(deps[0]);
 let _3 = range(deps[0]);
 let _4 = range(deps[2]);
