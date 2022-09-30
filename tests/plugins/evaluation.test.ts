@@ -584,6 +584,15 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "D8").value).toBe(0);
   });
 
+  test("Expression with new lines", () => {
+    expect(evaluateCell("A1", { A1: "=\nD3", D3: "23" })).toBe(23);
+    expect(evaluateCell("A1", { A1: "=D3\n", D3: "23" })).toBe(23);
+    expect(evaluateCell("A1", { A1: "\n=D3", D3: "23" })).toBe("\n=D3");
+    expect(evaluateCell("A1", { A1: "=SUM(\nD3\n)", D3: "23" })).toBe(23);
+    expect(evaluateCell("A1", { A1: "=SUM(D3\n, 5)", D3: "23" })).toBe(28);
+    expect(evaluateCell("A1", { A1: "=SU\nM(D3)", D3: "23" })).toBe(23);
+  });
+
   test("various expressions with dot", () => {
     const model = new Model();
 

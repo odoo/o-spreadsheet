@@ -1,6 +1,11 @@
-import { INCORRECT_RANGE_STRING } from "../constants";
+import { INCORRECT_RANGE_STRING, NEWLINE } from "../constants";
 import { functionRegistry } from "../functions/index";
-import { concat, formulaNumberRegexp, rangeReference } from "../helpers/index";
+import {
+  concat,
+  formulaNumberRegexp,
+  rangeReference,
+  replaceSpecialSpaces,
+} from "../helpers/index";
 
 /**
  * Tokenizer
@@ -45,6 +50,7 @@ export interface Token {
 }
 
 export function tokenize(str: string): Token[] {
+  str = replaceSpecialSpaces(str);
   const chars = str.split("");
   const result: Token[] = [];
 
@@ -196,11 +202,17 @@ function tokenizeSymbol(chars: string[]): Token | null {
   return null;
 }
 
-const whiteSpaceRegexp = /\s/;
-
 function tokenizeSpace(chars: string[]): Token | null {
   let length = 0;
-  while (chars[0] && chars[0].match(whiteSpaceRegexp)) {
+  while (chars[0] === "\n") {
+    length++;
+    chars.shift();
+  }
+  if (length) {
+    return { type: "SPACE", value: NEWLINE.repeat(length) };
+  }
+
+  while (chars[0] === " ") {
     length++;
     chars.shift();
   }

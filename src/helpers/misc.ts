@@ -7,6 +7,7 @@ import {
   DEFAULT_FONT_WEIGHT,
   MIN_CELL_TEXT_MARGIN,
   MIN_CF_ICON_MARGIN,
+  NEWLINE,
 } from "../constants";
 import { fontSizeMap } from "../fonts";
 import { ConsecutiveIndexes, Lazy, Style, UID } from "../types";
@@ -461,4 +462,39 @@ export function toLowerCase(str: string | undefined): string {
 export function transpose2dArray<T>(matrix: T[][]): T[][] {
   if (!matrix.length) return matrix;
   return matrix[0].map((_, i) => matrix.map((row) => row[i]));
+}
+
+/**
+ * Equivalent to "\s" in regexp, minus the new lines characters
+ *
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Character_Classes
+ */
+const whiteSpaceCharacters = [
+  " ",
+  "\t",
+  "\f",
+  "\v",
+  String.fromCharCode(parseInt("00a0", 16)),
+  String.fromCharCode(parseInt("1680", 16)),
+  String.fromCharCode(parseInt("2000", 16)),
+  String.fromCharCode(parseInt("200a", 16)),
+  String.fromCharCode(parseInt("2028", 16)),
+  String.fromCharCode(parseInt("2029", 16)),
+  String.fromCharCode(parseInt("202f", 16)),
+  String.fromCharCode(parseInt("205f", 16)),
+  String.fromCharCode(parseInt("3000", 16)),
+  String.fromCharCode(parseInt("feff", 16)),
+];
+const whiteSpaceRegexp = new RegExp(whiteSpaceCharacters.join("|"), "g");
+const newLineRegex = /\r\n|\r|\n/g;
+
+/**
+ * Replace all the special spaces in a string (non-breaking, tabs, ...) by normal spaces, and all the
+ * different newlines types by \n.
+ */
+export function replaceSpecialSpaces(text: string | undefined): string {
+  if (!text) return "";
+  text = text.replace(whiteSpaceRegexp, " ");
+  text = text.replace(newLineRegex, NEWLINE);
+  return text;
 }

@@ -13,7 +13,13 @@ import {
   setCellFormat,
   undo,
 } from "../test_helpers/commands_helpers";
-import { getCell, getCellText, getEvaluatedCell, getStyle } from "../test_helpers/getters_helpers";
+import {
+  getCell,
+  getCellContent,
+  getCellText,
+  getEvaluatedCell,
+  getStyle,
+} from "../test_helpers/getters_helpers";
 
 describe("getCellText", () => {
   test("Update cell with a format is correctly set", () => {
@@ -349,3 +355,17 @@ describe("link cell", () => {
     });
   });
 });
+
+test.each([
+  ["Line\nLine2", "Line\nLine2"],
+  ["Line\rLine2", "Line\nLine2"],
+  ["Line\r\nLine2", "Line\nLine2"],
+  ["Word\xa0Word2", "Word Word2"], // \xa0 => non-breaking space
+])(
+  "Content string given to update cell are properly sanitized %s",
+  (originalString: string, sanitizedString: string) => {
+    const model = new Model();
+    setCellContent(model, "A1", originalString);
+    expect(getCellContent(model, "A1")).toEqual(sanitizedString);
+  }
+);
