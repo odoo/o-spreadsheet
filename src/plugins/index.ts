@@ -27,6 +27,7 @@ import { SelectionInputsManagerPlugin } from "./ui/selection_inputs_manager";
 import { SelectionMultiUserPlugin } from "./ui/selection_multiuser";
 import { SheetViewPlugin } from "./ui/sheetview";
 import { SortPlugin } from "./ui/sort";
+import { TransactionPlugin } from "./ui/transaction";
 import { UIOptionsPlugin } from "./ui/ui_options";
 import { SheetUIPlugin } from "./ui/ui_sheet";
 import { UIPluginConstructor } from "./ui_plugin";
@@ -43,6 +44,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("chart", ChartPlugin);
 
 export const uiPluginRegistry = new Registry<UIPluginConstructor>()
+  .add("transaction", TransactionPlugin)
   .add("selection", GridSelectionPlugin)
   .add("ui_sheet", SheetUIPlugin)
   .add("ui_options", UIOptionsPlugin)

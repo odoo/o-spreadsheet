@@ -815,6 +815,11 @@ export interface ActivatePreviousSheetCommand {
   type: "ACTIVATE_PREVIOUS_SHEET";
 }
 
+export interface TransactionCommand {
+  type: "TRANSACTION";
+  commands: Command[];
+}
+
 export interface OpenCellPopoverCommand {
   type: "OPEN_CELL_POPOVER";
   col: number;
@@ -946,7 +951,8 @@ export type LocalCommand =
   | OpenCellPopoverCommand
   | CloseCellPopoverCommand
   | ActivateNextSheetCommand
-  | ActivatePreviousSheetCommand;
+  | ActivatePreviousSheetCommand
+  | TransactionCommand;
 
 export type Command = CoreCommand | LocalCommand;
 
