@@ -469,4 +469,14 @@ describe("compile functions", () => {
       refFn.mockReset();
     });
   });
+
+  test("function cache ignore spaces in functions", () => {
+    compiledBaseFunction("=SUM(A1)");
+    expect(Object.keys(functionCache)).toEqual(["=SUM(|0|)"]);
+    compile("= SUM(A1)");
+    compile("=SUM( A1)");
+    compile("= SUM(A1 )");
+    compile("= SUM   (    A1    )");
+    expect(Object.keys(functionCache)).toEqual(["=SUM(|0|)"]);
+  });
 });
