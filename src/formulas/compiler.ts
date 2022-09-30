@@ -361,7 +361,9 @@ export function compile(formula: string): CompiledFormula {
  * the compiled formula does not depend on their actual value.
  * Both `=A1+1+"2"` and `=A2+2+"3"` are compiled to the exact same function.
  *
- * A formula `=A1+A2+SUM(2, 2, "2")` have the cache key `=|0|+|1|+SUM(|N0|, |N0|, |S0|)`
+ * Spaces are also ignored to compute the cache key.
+ *
+ * A formula `=A1+A2+SUM(2, 2, "2")` have the cache key `=|0|+|1|+SUM(|N0|,|N0|,|S0|)`
  */
 function compilationCacheKey(
   tokens: Token[],
@@ -379,6 +381,8 @@ function compilationCacheKey(
         case "REFERENCE":
         case "INVALID_REFERENCE":
           return `|${dependencies.indexOf(token.value)}|`;
+        case "SPACE":
+          return "";
         default:
           return token.value;
       }
