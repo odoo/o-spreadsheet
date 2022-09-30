@@ -207,9 +207,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       case "UNFREEZE_COLUMNS":
         this.setPaneDivisions(cmd.sheetId, 0, "COL");
         break;
-      case "UNFREEZE_COLUMNS_ROWS":
-        this.setPaneDivisions(cmd.sheetId, 0, "COL");
-        this.setPaneDivisions(cmd.sheetId, 0, "ROW");
     }
   }
 

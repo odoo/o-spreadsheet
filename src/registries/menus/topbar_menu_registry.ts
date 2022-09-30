@@ -196,10 +196,15 @@ topbarMenuRegistry
       );
       return xSplit + ySplit > 0;
     },
-    action: (env) =>
-      env.model.dispatch("UNFREEZE_COLUMNS_ROWS", {
-        sheetId: env.model.getters.getActiveSheetId(),
-      }),
+    action: (env) => {
+      const sheetId = env.model.getters.getActiveSheetId();
+      env.model.dispatch("TRANSACTION", {
+        commands: [
+          { type: "UNFREEZE_ROWS", sheetId },
+          { type: "UNFREEZE_COLUMNS", sheetId },
+        ],
+      });
+    },
   })
   .addChild("freeze_panes", ["view"], {
     name: _lt("Freeze"),

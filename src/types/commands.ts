@@ -141,7 +141,6 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "UNFREEZE_ROWS",
   "FREEZE_COLUMNS",
   "FREEZE_ROWS",
-  "UNFREEZE_COLUMNS_ROWS",
 
   /** MERGE */
   "ADD_MERGE",
@@ -263,10 +262,6 @@ export interface FreezeRowsCommand extends SheetDependentCommand {
   type: "FREEZE_ROWS";
   /** number of frozen rows */
   quantity: number;
-}
-export interface UnfreezeColumnsRowsCommand {
-  type: "UNFREEZE_COLUMNS_ROWS";
-  sheetId: UID;
 }
 
 export interface UnfreezeColumnsCommand {
@@ -852,7 +847,6 @@ export type CoreCommand =
   | SetGridLinesVisibilityCommand
   | FreezeColumnsCommand
   | FreezeRowsCommand
-  | UnfreezeColumnsRowsCommand
   | UnfreezeColumnsCommand
   | UnfreezeRowsCommand
 

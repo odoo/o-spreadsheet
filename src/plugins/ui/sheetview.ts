@@ -213,7 +213,6 @@ export class SheetViewPlugin extends UIPlugin {
       case "UNFREEZE_COLUMNS":
       case "FREEZE_COLUMNS":
       case "FREEZE_ROWS":
-      case "UNFREEZE_COLUMNS_ROWS":
         this.resetViewports(this.getters.getActiveSheetId());
         break;
     }

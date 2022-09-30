@@ -28,11 +28,13 @@ import {
   freezeRows,
   hideColumns,
   hideRows,
+  redo,
   selectCell,
   selectColumn,
   selectRow,
   setAnchorCorner,
   setSelection,
+  undo,
 } from "./test_helpers/commands_helpers";
 import { getCellContent } from "./test_helpers/getters_helpers";
 import {
@@ -1390,6 +1392,23 @@ describe("Menu Item actions", () => {
       unfreeze_panes.action(env);
       expect(model.getters.getPaneDivisions(sheetId));
       expect(unfreeze_panes.isVisible(env)).toBe(false);
+    });
+
+    test("UNDO/REDO Unfreeze columns and rows", () => {
+      const sheetId = model.getters.getActiveSheetId();
+      const view = topbarMenuRegistry.getAll().find((item) => item.id === "view")!;
+      const unfreeze_panes = (view.children as FullMenuItem[]).find(
+        (item) => item.id === "unfreeze_panes"
+      )!;
+      freezeColumns(model, 5);
+      freezeRows(model, 10);
+      expect(model.getters.getPaneDivisions(sheetId)).toMatchObject({ xSplit: 5, ySplit: 10 });
+      unfreeze_panes.action(env);
+      expect(model.getters.getPaneDivisions(sheetId)).toMatchObject({ xSplit: 0, ySplit: 0 });
+      undo(model);
+      expect(model.getters.getPaneDivisions(sheetId)).toMatchObject({ xSplit: 5, ySplit: 10 });
+      redo(model);
+      expect(model.getters.getPaneDivisions(sheetId)).toMatchObject({ xSplit: 0, ySplit: 0 });
     });
 
     test("unfreeze actions visibility", () => {
