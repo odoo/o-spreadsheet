@@ -1,3 +1,4 @@
+import { NEWLINE } from "../../src/constants";
 import { rangeTokenize } from "../../src/formulas";
 
 describe("rangeTokenizer", () => {
@@ -31,6 +32,18 @@ describe("rangeTokenizer", () => {
       { type: "SPACE", value: "  " },
       { type: "REFERENCE", value: "A1 : A2" },
       { type: "SPACE", value: "   " },
+    ]);
+  });
+  test("operation and range with spaces and newlines", () => {
+    expect(rangeTokenize("=A3\n+  A1 :\r A2   \r\n")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "REFERENCE", value: "A3" },
+      { type: "SPACE", value: NEWLINE },
+      { type: "OPERATOR", value: "+" },
+      { type: "SPACE", value: "  " },
+      { type: "REFERENCE", value: "A1 :\n A2" },
+      { type: "SPACE", value: "   " },
+      { type: "SPACE", value: NEWLINE },
     ]);
   });
 

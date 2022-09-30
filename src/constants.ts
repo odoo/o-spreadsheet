@@ -208,3 +208,5 @@ export enum ComponentsImportance {
 export const DEFAULT_SHEETVIEW_SIZE = 1000;
 
 export const MAXIMAL_FREEZABLE_RATIO = 0.85;
+
+export const NEWLINE = "\n";
