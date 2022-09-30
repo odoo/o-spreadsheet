@@ -5,6 +5,7 @@ import {
   getItemId,
   isInside,
   range,
+  replaceSpecialSpaces,
   toCartesian,
   toXC,
 } from "../../helpers/index";
@@ -31,8 +32,6 @@ import {
   Zone,
 } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
-
-const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
@@ -429,9 +428,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const hasContent = "content" in after || "formula" in after;
 
     // Compute the new cell properties
-    const afterContent = hasContent
-      ? after.content?.replace(nbspRegexp, "") || ""
-      : before?.content || "";
+    const afterContent = hasContent ? replaceSpecialSpaces(after?.content) : before?.content || "";
     let style: Style | undefined;
     if (after.style !== undefined) {
       style = after.style || undefined;
