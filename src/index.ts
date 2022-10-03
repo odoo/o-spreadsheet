@@ -42,6 +42,7 @@ import {
   markdownLink,
   numberToLetters,
   parseMarkdownLink,
+  positionToZone,
   rgbaToHex,
   toCartesian,
   toXC,
@@ -176,6 +177,7 @@ export const helpers = {
   getFillingMode,
   rgbaToHex,
   colorToRGBA,
+  positionToZone,
 };
 export const components = {
   ChartPanel,
