@@ -3,8 +3,6 @@
     <div class="o-grid o-two-columns" tabindex="-1" t-on-wheel="onMouseWheel" t-on-copy="copy">
       <div class="mx-auto h-100 position-relative" t-ref="grid" t-att-style="gridContainer">
         <GridOverlay
-          onCellClicked.bind="onCellClicked"
-          onCellRightClicked.bind="onCellRightClicked"
           onCellHovered.bind="onCellHovered"
           onGridResized.bind="onGridResized"
           onGridMoved.bind="moveCanvas"
@@ -16,6 +14,15 @@
           hoveredCell="hoveredCell"
           onMouseWheel.bind="onMouseWheel"
           onClosePopover.bind="onClosePopover"
+        />
+        <div
+          t-foreach="getClickableCells()"
+          t-as="clickableCell"
+          t-key="clickableCell.cell.id"
+          class="o-dashboard-clickable-cell"
+          t-on-click="() => this.selectClickableCell(clickableCell)"
+          t-on-contextmenu.prevent=""
+          t-att-style="getCellClickableStyle(clickableCell.coordinates)"
         />
       </div>
       <VerticalScrollBar/>
