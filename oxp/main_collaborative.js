@@ -31,7 +31,6 @@ class Demo extends Component {
       },
       existingHistoryJson
     );
-    this.model.joinSession();
   }
 
   generateClientIdName() {
