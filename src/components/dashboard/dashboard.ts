@@ -1,15 +1,19 @@
 import { Component, useRef, useState } from "@odoo/owl";
-import { isInside } from "../../helpers/index";
+import { positionToZone } from "../../helpers/zones";
+import { clickableCellRegistry } from "../../registries/cell_clickable_registry";
 import {
+  Cell,
   DOMCoordinates,
   DOMDimension,
-  HeaderIndex,
   Pixel,
   Position,
+  Rect,
   SpreadsheetChildEnv,
+  Zone,
 } from "../../types/index";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
+import { css } from "../helpers/css";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useAbsolutePosition } from "../helpers/position_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
@@ -17,6 +21,19 @@ import { Popover } from "../popover/popover";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
 
 interface Props {}
+
+interface ClickableCell {
+  coordinates: Rect;
+  cell: Cell;
+  action: (cell: Cell, env: SpreadsheetChildEnv) => void;
+}
+
+css/* scss */ `
+  .o-dashboard-clickable-cell {
+    position: absolute;
+    cursor: pointer;
+  }
+`;
 
 export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SpreadsheetDashboard";
@@ -66,8 +83,66 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     `;
   }
 
+  getCellClickableStyle(coordinates: Rect) {
+    return `
+      top: ${coordinates.y}px;
+      left: ${coordinates.x}px;
+      width: ${coordinates.width}px;
+      height: ${coordinates.height}px;
+    `;
+  }
+
+  /**
+   * Get all the boxes for the cell in the sheet view that are clickable.
+   * This function is used to render an overlay over each clickable cell in
+   * order to display a pointer cursor.
+   *
+   */
+  getClickableCells(): ClickableCell[] {
+    const cells: ClickableCell[] = [];
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    for (const col of this.env.model.getters.getSheetViewVisibleCols()) {
+      for (const row of this.env.model.getters.getSheetViewVisibleRows()) {
+        const cell = this.env.model.getters.getCell(sheetId, col, row);
+        if (cell) {
+          const action = this.getClickableAction(cell);
+          if (!action) {
+            continue;
+          }
+          let zone: Zone;
+          if (this.env.model.getters.isInMerge(sheetId, col, row)) {
+            zone = this.env.model.getters.getMerge(sheetId, col, row)!;
+          } else {
+            zone = positionToZone({ col, row });
+          }
+          const rect = this.env.model.getters.getVisibleRect(zone);
+          cells.push({
+            coordinates: rect,
+            cell,
+            action,
+          });
+        }
+      }
+    }
+    return cells;
+  }
+
+  getClickableAction(cell: Cell) {
+    for (const items of clickableCellRegistry.getAll().sort((a, b) => a.sequence - b.sequence)) {
+      if (items.condition(cell)) {
+        return items.action;
+      }
+    }
+    return false;
+  }
+
+  selectClickableCell(clickableCell: ClickableCell) {
+    const { cell, action } = clickableCell;
+    action(cell, this.env);
+  }
+
   onClosePopover() {
-    this.closeOpenedPopover();
+    this.env.model.dispatch("CLOSE_CELL_POPOVER");
   }
 
   onGridResized({ height, width }: DOMDimension) {
@@ -86,35 +161,6 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
       offsetX: offsetScrollbarX + deltaX,
       offsetY: offsetScrollbarY + deltaY,
     });
-  }
-
-  isCellHovered(col: HeaderIndex, row: HeaderIndex): boolean {
-    return this.hoveredCell.col === col && this.hoveredCell.row === row;
-  }
-
-  // ---------------------------------------------------------------------------
-  // Zone selection with mouse
-  // ---------------------------------------------------------------------------
-
-  onCellClicked(col: HeaderIndex, row: HeaderIndex) {
-    this.env.model.selection.selectCell(col, row);
-  }
-
-  closeOpenedPopover() {
-    this.env.model.dispatch("CLOSE_CELL_POPOVER");
-  }
-
-  // ---------------------------------------------------------------------------
-  // Context Menu
-  // ---------------------------------------------------------------------------
-
-  onCellRightClicked(col: HeaderIndex, row: HeaderIndex, { x, y }: DOMCoordinates) {
-    const zones = this.env.model.getters.getSelectedZones();
-    const lastZone = zones[zones.length - 1];
-    if (!isInside(col, row, lastZone)) {
-      this.env.model.selection.selectCell(col, row);
-    }
-    this.closeOpenedPopover();
   }
 
   copy(ev: ClipboardEvent) {
