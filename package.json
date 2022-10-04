@@ -4,7 +4,7 @@
   "description": "A spreadsheet component",
   "main": "index.js",
   "scripts": {
-    "serve-static": "live-server --open=demo --watch=dist/o_spreadsheet.js,dist/o_spreadsheet.xml,demo",
+    "serve-static": "live-server --open=oxp --watch=dist/o_spreadsheet.js,dist/o_spreadsheet.xml,oxp",
     "dev": "npm-run-all build --parallel server serve-static watch:*",
     "server": "node tools/server/main.js",
     "build:js": "tsc --module es6 --outDir dist/js --incremental",

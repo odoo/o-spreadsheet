@@ -1,3 +1,5 @@
+export const SERVER_ADDRESS = "http://localhost:9000";
+
 /**
  * This class is used to communicate with the demo server through websocket
  */
