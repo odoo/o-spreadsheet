@@ -3,7 +3,7 @@ import { Registry } from "../registry";
 import { Cell, SpreadsheetChildEnv } from "../types";
 
 interface CellClickableItem {
-  condition: (cell: Cell) => boolean;
+  condition: (cell: Cell, env: SpreadsheetChildEnv) => boolean;
   action: (cell: Cell, env: SpreadsheetChildEnv) => void;
   sequence: number;
 }
