@@ -129,7 +129,7 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
 
   getClickableAction(cell: Cell) {
     for (const items of clickableCellRegistry.getAll().sort((a, b) => a.sequence - b.sequence)) {
-      if (items.condition(cell)) {
+      if (items.condition(cell, this.env)) {
         return items.action;
       }
     }
