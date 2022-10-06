@@ -1,8 +1,0 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
-if [ "$HUSKY_POST_CHECKOUT" != 0 ]; then
-    if [ "$1" != "$2" ]; then
-        npm install >/dev/null 2>&1
-    fi
-fi

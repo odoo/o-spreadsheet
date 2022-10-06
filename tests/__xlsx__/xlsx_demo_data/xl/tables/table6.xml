@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<table xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" mc:Ignorable="xr xr3" id="9" xr:uid="{847D120C-F960-41ED-A0C3-F310F57D99C2}" name="Table4910" displayName="Table4910" ref="C26:D28" headerRowCount="0" totalsRowCount="1">
-  <tableColumns count="2">
-    <tableColumn id="1" xr3:uid="{C558EF6F-4A8A-4E75-AE48-0832E77F3422}" name="Column1" totalsRowLabel="Total"/>
-    <tableColumn id="2" xr3:uid="{2F9CCC95-38E6-43F5-951A-64266A55FCDA}" name="Column2" totalsRowFunction="sum"/>
-  </tableColumns>
-  <tableStyleInfo name="TableStyleLight8" showFirstColumn="0" showLastColumn="0" showRowStripes="0" showColumnStripes="0"/>
-</table>
