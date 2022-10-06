@@ -1,10 +1,42 @@
 # o-spreadsheet
 
-a.k.a. "Owly Sheet"
+`o-spreadsheet` is a standalone spreadsheet for the web, easily integrable and extendable.
 
-Spreadsheet component, written in Owl.
+## Supported features
 
-This library is written to be used in [Odoo](https://github.com/odoo/odoo).
+Here is a non-exhaustive list of features supported by o-spreadsheet:
+
+- All basic features you can expect from a spreadsheet
+- Real time collaboration
+- Import/Export of excel file format
+
+## Integrating o-spreadsheet in an existing owl application
+
+1. [Getting started](doc/integrating/integration.md#getting-started)
+2. [Spreadsheet component props](doc/integrating/integration.md#spreadsheet-component-props)
+3. [Model creation](doc/integrating/integration.md#model-creation)
+4. [Collaborative edition](doc/integrating/integration.md#collaborative-edition)
+5. [Translation](doc/integrating/integration.md#translation)
+<!--
+Utiliser
+    - Utiliser dans autre chose que owl
+    - (Typescript ?) -> to test later -->
+
+## Extending the functionalities of o-spreadsheet
+
+1. [Architecture](doc/extending/architecture.md)
+2. [Custom function](doc/add_function.md)
+   1. [Basic]()
+   2. [Async]()
+3. [Business feature](doc/extending/business_feature.md)
+   Plugin + command + getters + ot
+4. [Menu items]()
+5. [Side panel]()
+6. [Notification]()
+7. [Import Excel]()
+8. [Export Excel](doc/extending/xlsx/xlsx_import.md)
+9. [Terminology](o-spreadsheet_terminology.png)
+10. [API](tsdoc/README.md)
 
 ## Scripts
 
