@@ -33,7 +33,7 @@
     "spreadsheet",
     "odoo"
   ],
-  "author": "Gery Debongnie",
+  "author": "Odoo",
   "license": "LGPL-3.0-or-later",
   "devDependencies": {
     "@prettier/plugin-xml": "^2.0.1",
