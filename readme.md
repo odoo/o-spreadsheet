@@ -7,6 +7,10 @@ A standalone spreadsheet for the web, easily integrable and extendable.
 - Import/Export of excel file format
 - and more...
 
+Try it with the [live demo](https://odoo.github.io/o-spreadsheet/)!
+
+![o-spreadsheet screenshot](doc/o-spreadsheet.png "o-spreadsheet demo")
+
 ## Integrating o-spreadsheet
 
 1. [Getting started](doc/integrating/integration.md#getting-started)
