@@ -5,17 +5,22 @@
 Here is the shortest example to use o-spreadsheet in an Owl application:
 
 ```typescript
-const { Component } = owl;
 const { Spreadsheet, Model } = o_spreadsheet;
 
-class App extends Component {
-   static template = xml`
-      <Spreadsheet model="model"/>
-   `;
-
-   private model: Model = new Model();
-}
-App.components = { Spreadsheet };
+const model = new Model();
+const templates = await (await fetch("../dist/o_spreadsheet.xml")).text();
+const env = {
+  notifyUser: () => window.alert(content),
+  askConfirmation: (message, confirm, cancel) => confirm(),
+  editText: (title, callback) => callback(""),
+  loadCurrencies: () => [],
+};
+const app = new owl.App(Spreadsheet, {
+  props: { model },
+  env,
+  templates,
+});
+app.mount(document.body);
 ```
 
 ## Spreadsheet component props

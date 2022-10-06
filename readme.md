@@ -1,6 +1,6 @@
 # o-spreadsheet
 
-`o-spreadsheet` is a standalone spreadsheet for the web, easily integrable and extendable.
+Standalone spreadsheet for the web, easily integrable and extendable.
 
 ## Supported features
 
@@ -10,7 +10,7 @@ Here is a non-exhaustive list of features supported by o-spreadsheet:
 - Real time collaboration
 - Import/Export of excel file format
 
-## Integrating o-spreadsheet in an existing owl application
+## Integrating o-spreadsheet
 
 1. [Getting started](doc/integrating/integration.md#getting-started)
 2. [Spreadsheet component props](doc/integrating/integration.md#spreadsheet-component-props)
