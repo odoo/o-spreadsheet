@@ -29,15 +29,15 @@ Try it with the [live demo](https://odoo.github.io/o-spreadsheet/)!
 1. [Architecture](doc/extending/architecture.md)
 2. [Custom function](doc/add_function.md)
 3. [Business feature](doc/extending/business_feature.md)
-4. [Menu items]()
-5. [Side panel]()
-6. [Notification]()
-7. [Import Excel]()
+4. [Menu items (under construction)]()
+5. [Side panel (under construction)]()
+6. [Notification (under construction)]()
+7. [Import Excel (under construction)]()
 8. [Export Excel](doc/extending/xlsx/xlsx_import.md)
 9. [Terminology](doc/o-spreadsheet_terminology.png)
 10. [API](doc/tsdoc/README.md)
 
-## Scripts
+## Run it!
 
 ```bash
 # install dependencies
@@ -56,7 +56,3 @@ npm run test -- --watch
 # build documentation
 npm run doc
 ```
-
-## Documentation
-
-See [documentation](doc/readme.md).
