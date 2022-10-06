@@ -28,14 +28,13 @@ Here is a non-exhaustive list of features supported by o-spreadsheet:
 1. [Architecture](doc/extending/architecture.md)
 2. [Custom function](doc/add_function.md)
 3. [Business feature](doc/extending/business_feature.md)
-   Plugin + command + getters + ot
 4. [Menu items]()
 5. [Side panel]()
 6. [Notification]()
 7. [Import Excel]()
 8. [Export Excel](doc/extending/xlsx/xlsx_import.md)
-9. [Terminology](o-spreadsheet_terminology.png)
-10. [API](tsdoc/README.md)
+9. [Terminology](doc/o-spreadsheet_terminology.png)
+10. [API](doc/tsdoc/README.md)
 
 ## Scripts
 
