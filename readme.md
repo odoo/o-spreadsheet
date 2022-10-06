@@ -1,14 +1,11 @@
 # o-spreadsheet
 
-Standalone spreadsheet for the web, easily integrable and extendable.
-
-## Supported features
-
-Here is a non-exhaustive list of features supported by o-spreadsheet:
+A standalone spreadsheet for the web, easily integrable and extendable.
 
 - All basic features you can expect from a spreadsheet
 - Real time collaboration
 - Import/Export of excel file format
+- and more...
 
 ## Integrating o-spreadsheet
 

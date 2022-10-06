@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-Here is the shortest example to use o-spreadsheet in an Owl application:
+Here is the shortest example to use o-spreadsheet.
 
 ```typescript
 const { Spreadsheet, Model } = o_spreadsheet;
@@ -42,9 +42,13 @@ In collaborative context, it could happen that an unexpected revision is receive
 
 Spreadsheet model can be created with the following arguments, all optionals:
 
-- `data`
+```ts
+const { Model } = o_spreadsheet;
+const model = new Model(data, config)
+```
 
-Data to be loaded in the model. If this argument is not provided, an empty spreadsheet is created.
+- `data`
+  Data to be loaded in the model. If this argument is not provided, an empty spreadsheet is created.
 
 - `config` A config object with the following properties, all optionals:
 
@@ -56,12 +60,11 @@ Data to be loaded in the model. If this argument is not provided, an empty sprea
   - `notifyUI` Function that will be called whenever something has to be asked to the user.
 
 - `stateUpdateMessages`
-
-An array with revisions that should be loaded at the model creation.
+  An array with revisions to apply before the model is started
 
 ## Collaborative edition
 
-See [collaborative documentation](collaborative.md)
+See [collaborative documentation](../integrating/collaborative/collaborative.md)
 
 ## Translation
 
