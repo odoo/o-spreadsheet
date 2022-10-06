@@ -18,16 +18,15 @@ Here is a non-exhaustive list of features supported by o-spreadsheet:
 4. [Collaborative edition](doc/integrating/integration.md#collaborative-edition)
 5. [Translation](doc/integrating/integration.md#translation)
 <!--
-Utiliser
-    - Utiliser dans autre chose que owl
-    - (Typescript ?) -> to test later -->
+
+- use with other UI library
+- use with Typescript
+  -->
 
 ## Extending the functionalities of o-spreadsheet
 
 1. [Architecture](doc/extending/architecture.md)
 2. [Custom function](doc/add_function.md)
-   1. [Basic]()
-   2. [Async]()
 3. [Business feature](doc/extending/business_feature.md)
    Plugin + command + getters + ot
 4. [Menu items]()

@@ -10,7 +10,9 @@ The model architectural pattern is [command query separation](https://en.wikiped
 
 You can interact with the model by two means:
 
-- **commands** can update the spreadsheet state
+### Commands
+
+**commands** can update the spreadsheet state
 
 ```javascript
 const col = 0;
@@ -30,7 +32,9 @@ model.dispatch("UPDATE_CELL", {
 
 All existing commands are available [https://github.com/odoo/o-spreadsheet/blob/16.0/src/types/commands.ts#L906](here)
 
-- **getter** functions allows to read the current state.
+### Getters
+
+**getter** functions allows to read the current state.
 
 ```javascript
 // Read the cell content
@@ -39,6 +43,8 @@ console.log(cell.content); // Will display "Hello world"
 ```
 
 Commands are handled internally by **plugins**.
+
+### Plugins
 
 A plugin can:
 
@@ -57,6 +63,8 @@ UI plugins are separated in three different categories, with the following respo
 - Handle high-level features that could be described with lower-level features (Sort a zone can be described with different cell updates)
 
 Each UI plugin is responsible of one feature.
+
+More details about plugins here: [Adding a new feature](./business_feature.md)
 
 ## UI rendering
 

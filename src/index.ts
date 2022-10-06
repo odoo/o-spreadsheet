@@ -65,6 +65,7 @@ import {
   topbarMenuRegistry,
 } from "./registries/index";
 import { getMenuChildren } from "./registries/menus/helpers";
+import { FunctionDescription } from "./types";
 import { CellErrorLevel, EvaluationError } from "./types/errors";
 
 /**
@@ -182,3 +183,7 @@ export const components = {
   ScorecardChartConfigPanel,
   ScorecardChartDesignPanel,
 };
+
+export function addFunction(functionName: string, functionDescription: FunctionDescription) {
+  functionRegistry.add(functionName, functionDescription);
+}
