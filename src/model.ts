@@ -394,7 +394,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         }
         break;
       case Status.Finalizing:
-        throw new Error(_lt("Cannot dispatch commands in the finalize state"));
+        throw new Error("Cannot dispatch commands in the finalize state");
       case Status.RunningCore:
         throw new Error("A UI plugin cannot dispatch while handling a core command");
     }
