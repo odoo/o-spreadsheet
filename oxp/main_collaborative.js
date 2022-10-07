@@ -4,6 +4,7 @@ import * as interactions from "./interactions.js";
 
 const { xml, Component, useSubEnv, onWillStart, onWillUnmount, useExternalListener } = owl;
 const { Spreadsheet, Model, helpers } = o_spreadsheet;
+import * as custo from "./custo.js";
 
 class Demo extends Component {
   static template = xml/* xml */ `<Spreadsheet model="model" />`;
