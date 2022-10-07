@@ -138,6 +138,11 @@ export async function mountSpreadsheet(
   const app = new App(Spreadsheet, { props, env: mockEnv, test: true });
   app.addTemplates(OWL_TEMPLATES);
   const parent = (await app.mount(fixture)) as Spreadsheet;
+  /**
+   * The following nextTick is necessary to ensure that a re-render is correctly
+   * done after the resize of the sheet view.
+   */
+  await nextTick();
   return { app, parent };
 }
 
