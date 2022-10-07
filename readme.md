@@ -2,6 +2,8 @@
 
 A standalone spreadsheet for the web, easily integrable and extendable.
 
+a.k.a. "[Owly](https://github.com/odoo/owl) Sheet" 🦉
+
 - All basic features you can expect from a spreadsheet
 - Real time collaboration
 - Import/Export of excel file format
