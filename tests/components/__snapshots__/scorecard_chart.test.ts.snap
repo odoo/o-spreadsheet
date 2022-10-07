@@ -129,3 +129,133 @@ color: #757575;
   </div>
 </div>
 `;
+
+exports[`Scorecard charts scorecard text is resized while figure is resized 1`] = `
+<div
+  class="o-figure active o-dragging"
+  style="width:236px;height:135px;border-width: 2px;"
+  tabindex="0"
+>
+  <div
+    class="o-chart-container"
+  >
+    <div
+      class="o-chart-menu"
+    >
+      <div
+        class="o-chart-menu-item"
+      >
+        <svg
+          class="o-icon"
+          viewBox="0 0 384 384"
+        >
+          <rect
+            height="42.667"
+            width="384"
+            x="0"
+            y="277.333"
+          />
+          <rect
+            height="42.667"
+            width="384"
+            x="0"
+            y="170.667"
+          />
+          <rect
+            height="42.667"
+            width="384"
+            x="0"
+            y="64"
+          />
+        </svg>
+      </div>
+    </div>
+    
+    <div
+      class="o-scorecard"
+      style="
+      height:135px;
+      width:236px;
+      padding:4.72px;
+      background:#FFFFFF;
+    "
+    >
+      <div
+        class="o-title-text"
+        style="
+font-size: 18px;
+display: inline-block;
+color: #757575;
+"
+      >
+        hello
+      </div>
+      
+      <div
+        class="o-scorecard-content"
+        style="
+      height:103.96000000000001px;
+    "
+      >
+        <div
+          class="o-key-text"
+          style="
+font-size: 30.46703915550596px;
+display: inline-block;
+color: #000000;
+"
+        >
+          2
+        </div>
+        
+        <div
+          class="o-baseline-text"
+          style="
+font-size: 16.405328776041667px;
+display: inline-block;
+"
+        >
+          <svg
+            class="o-cf-icon arrow-up"
+            focusable="false"
+            height="10"
+            viewBox="0 0 448 512"
+            width="10"
+          >
+            <path
+              d="M34.9 289.5l-22.2-22.2c-9.4-9.4-9.4-24.6 0-33.9L207 39c9.4-9.4 24.6-9.4 33.9 0l194.3 194.3c9.4 9.4 9.4 24.6 0 33.9L413 289.4c-9.5 9.5-25 9.3-34.3-.4L264 168.6V456c0 13.3-10.7 24-24 24h-32c-13.3 0-24-10.7-24-24V168.6L69.2 289.1c-9.3 9.8-24.8 10-34.3.4z"
+              fill="#00A04A"
+              style="fill : #00A04A"
+            />
+          </svg>
+          
+          <span
+            class="o-baseline-text-value"
+            style="
+font-size: 16.405328776041667px;
+display: inline-block;
+color: #00A04A;
+"
+          >
+            1
+          </span>
+          
+          <span
+            class="o-baseline-text-description"
+            style="
+font-size: 14.764795898437502px;
+display: inline-block;
+color: #757575;
+"
+          >
+             description
+          </span>
+        </div>
+        
+      </div>
+    </div>
+    
+    
+  </div>
+</div>
+`;

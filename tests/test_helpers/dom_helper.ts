@@ -154,6 +154,22 @@ export function getElComputedStyle(selector: string, style: string): string {
   return window.getComputedStyle(element)[style];
 }
 
+export async function dragElement(
+  element: Element | string,
+  dragX: Pixel,
+  dragY: Pixel,
+  mouseUp = false
+) {
+  triggerMouseEvent(element, "mousedown");
+  await nextTick();
+  triggerMouseEvent(element, "mousemove", dragX, dragY);
+  await nextTick();
+  if (mouseUp) {
+    triggerMouseEvent(element, "mouseup");
+    await nextTick();
+  }
+}
+
 /**
  *
  * @param scrollDistance distance of cursor from the edge

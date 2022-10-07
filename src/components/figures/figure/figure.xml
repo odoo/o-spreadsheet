@@ -16,7 +16,7 @@
             t-key="this.props.figure.id"
             sidePanelIsOpen="props.sidePanelIsOpen"
             onFigureDeleted="props.onFigureDeleted"
-            figure="this.props.figure"
+            figure="displayedFigure"
           />
         </div>
       </div>

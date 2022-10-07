@@ -6,6 +6,7 @@ import {
   setCellContent,
   updateChart,
 } from "../test_helpers/commands_helpers";
+import { dragElement, getElComputedStyle, simulateClick } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
 import { makeTestFixture, mountSpreadsheet, nextTick, target } from "../test_helpers/helpers";
 
@@ -107,6 +108,22 @@ describe("Scorecard charts", () => {
       chartId
     );
     await nextTick();
+    expect(getChartElement()).toMatchSnapshot();
+  });
+
+  test("scorecard text is resized while figure is resized", async () => {
+    createScorecardChart(
+      model,
+      { keyValue: "A1", baseline: "B1", title: "hello", baselineDescr: "description" },
+      chartId
+    );
+    await nextTick();
+    await simulateClick(".o-figure");
+    expect(getElComputedStyle(".o-figure", "width")).toBe("536px");
+    expect(getElComputedStyle(".o-figure", "height")).toBe("335px");
+    await dragElement(".o-anchor.o-topLeft", 300, 200);
+    expect(getElComputedStyle(".o-figure", "width")).toBe("236px");
+    expect(getElComputedStyle(".o-figure", "height")).toBe("135px");
     expect(getChartElement()).toMatchSnapshot();
   });
 
