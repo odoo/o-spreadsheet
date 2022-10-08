@@ -239,6 +239,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       if (!(name in plugin)) {
         throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
       }
+      if (name in this.getters) {
+        throw new Error(`Getter "${name}" is already defined.`);
+      }
       this.getters[name] = plugin[name].bind(plugin);
     }
     this.uiPlugins.push(plugin);
@@ -265,6 +268,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     for (let name of Plugin.getters) {
       if (!(name in plugin)) {
         throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
+      }
+      if (name in this.coreGetters) {
+        throw new Error(`Getter "${name}" is already defined.`);
       }
       this.coreGetters[name] = plugin[name].bind(plugin);
     }
