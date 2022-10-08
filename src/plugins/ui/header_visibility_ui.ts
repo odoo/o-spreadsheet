@@ -5,7 +5,6 @@ import { UIPlugin } from "../ui_plugin";
 export class HeaderVisibilityUIPlugin extends UIPlugin {
   static getters = [
     "getNextVisibleCellPosition",
-    "getNextVisibleCellPosition",
     "findVisibleHeader",
     "findLastVisibleColRowIndex",
     "findFirstVisibleColRowIndex",
