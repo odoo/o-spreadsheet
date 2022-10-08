@@ -112,4 +112,46 @@ describe("Model", () => {
     const model = new Model({}, { custom: "42" } as unknown as ModelConfig);
     expect(model["config"]["custom"]).toBe("42");
   });
+
+  test("Cannot add an already existing core getters", () => {
+    class MyCorePlugin1 extends CorePlugin {
+      static getters = ["getSomething"];
+
+      getSomething() {}
+    }
+
+    class MyCorePlugin2 extends CorePlugin {
+      static getters = ["getSomething"];
+
+      getSomething() {}
+    }
+    corePluginRegistry.add("myCorePlugin1", MyCorePlugin1);
+    corePluginRegistry.add("myCorePlugin2", MyCorePlugin2);
+
+    expect(() => new Model()).toThrowError(`Getter "getSomething" is already defined.`);
+
+    corePluginRegistry.remove("myCorePlugin1");
+    corePluginRegistry.remove("myCorePlugin2");
+  });
+
+  test("Cannot add an already existing getters", () => {
+    class MyUIPlugin1 extends UIPlugin {
+      static getters = ["getSomething"];
+
+      getSomething() {}
+    }
+
+    class MyUIPlugin2 extends UIPlugin {
+      static getters = ["getSomething"];
+
+      getSomething() {}
+    }
+    uiPluginRegistry.add("myUIPlugin1", MyUIPlugin1);
+    uiPluginRegistry.add("myUIPlugin2", MyUIPlugin2);
+
+    expect(() => new Model()).toThrowError(`Getter "getSomething" is already defined.`);
+
+    uiPluginRegistry.remove("myUIPlugin1");
+    uiPluginRegistry.remove("myUIPlugin2");
+  });
 });
