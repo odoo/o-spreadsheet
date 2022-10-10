@@ -107,7 +107,7 @@ export class SheetViewPlugin extends UIPlugin {
   private gridOffsetX: Pixel = 0;
   private gridOffsetY: Pixel = 0;
 
-  private sheetsWithDirtyViewports: UID[] = [];
+  private sheetsWithDirtyViewports: Set<UID> = new Set();
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
@@ -210,7 +210,7 @@ export class SheetViewPlugin extends UIPlugin {
       case "UPDATE_CELL":
         // update cell content or format can change hidden rows because of data filters
         if ("content" in cmd || "format" in cmd) {
-          this.sheetsWithDirtyViewports.push(cmd.sheetId);
+          this.sheetsWithDirtyViewports.add(cmd.sheetId);
         }
         break;
       case "ACTIVATE_SHEET":
@@ -231,7 +231,7 @@ export class SheetViewPlugin extends UIPlugin {
     for (const sheetId of this.sheetsWithDirtyViewports) {
       this.resetViewports(sheetId);
     }
-    this.sheetsWithDirtyViewports = [];
+    this.sheetsWithDirtyViewports = new Set();
     this.setViewports();
   }
 
