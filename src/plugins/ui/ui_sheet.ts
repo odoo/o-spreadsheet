@@ -86,12 +86,14 @@ export class SheetUIPlugin extends UIPlugin {
       contentWidth += ICON_EDGE_LENGTH + FILTER_ICON_MARGIN;
     }
 
-    contentWidth += 2 * PADDING_AUTORESIZE_HORIZONTAL;
+    if (contentWidth > 0) {
+      contentWidth += 2 * PADDING_AUTORESIZE_HORIZONTAL;
 
-    if (this.getters.getCellStyle(cell).wrapping === "wrap") {
-      const zone = positionToZone({ col, row });
-      const colWidth = this.getters.getColSize(this.getters.getActiveSheetId(), zone.left);
-      return Math.min(colWidth, contentWidth);
+      if (this.getters.getCellStyle(cell).wrapping === "wrap") {
+        const zone = positionToZone({ col, row });
+        const colWidth = this.getters.getColSize(this.getters.getActiveSheetId(), zone.left);
+        return Math.min(colWidth, contentWidth);
+      }
     }
     return contentWidth;
   }
