@@ -119,6 +119,13 @@ describe("Filters plugin", () => {
       expect(model.getters.getFilterValues(sheetId, 0, 0)).toEqual(["2", "A"]);
     });
 
+    test("Can update  a filter in readonly mode", () => {
+      createFilter(model, "A1:A5");
+      model.updateMode("readonly");
+      updateFilter(model, "A1", ["2", "A"]);
+      expect(model.getters.getFilterValues(sheetId, 0, 0)).toEqual(["2", "A"]);
+    });
+
     test("Create a filter with multiple target create a single filter of the union of the targets", () => {
       createFilter(model, "A1:A5, B1:B5");
       expect(model.getters.getFilterTable(sheetId, 0, 0)!.zone).toEqual(toZone("A1:B5"));
