@@ -1,7 +1,7 @@
 import { formatValue } from "../../src/helpers";
 import { evaluateCell, evaluateCellFormat, evaluateGrid } from "../test_helpers/helpers";
 
-describe("ACCRINTM function", () => {
+describe("ACCRINTM formula", () => {
   test("ACCRINTM takes 4-5 arguments", () => {
     expect(evaluateCell("A1", { A1: "=ACCRINTM()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=ACCRINTM(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -79,7 +79,7 @@ describe("ACCRINTM function", () => {
   );
 });
 
-describe("AMORLINC function", () => {
+describe("AMORLINC formula", () => {
   test("AMORLINC takes 6-7 arguments", () => {
     expect(evaluateCell("A1", { A1: "=AMORLINC()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=AMORLINC(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -683,7 +683,7 @@ describe("Coupons formulas", () => {
   });
 });
 
-describe("CUMIPMT function", () => {
+describe("CUMIPMT formula", () => {
   test("CUMIPMT takes 5-6 arguments", () => {
     expect(evaluateCell("A1", { A1: "=CUMIPMT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=CUMIPMT(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -758,7 +758,7 @@ describe("CUMIPMT function", () => {
   );
 });
 
-describe("CUMPRINC function", () => {
+describe("CUMPRINC formula", () => {
   test("CUMPRINC takes 5-6 arguments", () => {
     expect(evaluateCell("A1", { A1: "=CUMPRINC()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=CUMPRINC(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -1040,7 +1040,7 @@ describe("DB formula", () => {
   });
 });
 
-describe("DDB function", () => {
+describe("DDB formula", () => {
   test("DDB takes 4-5 arguments", () => {
     expect(evaluateCell("A1", { A1: "=DDB()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=DDB(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -1156,7 +1156,7 @@ describe("DDB function", () => {
   });
 });
 
-describe("DISC function", () => {
+describe("DISC formula", () => {
   test("DISC takes 4-5 arguments", () => {
     expect(evaluateCell("A1", { A1: "=DISC()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=DISC(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -1231,7 +1231,7 @@ describe("DISC function", () => {
   );
 });
 
-describe("DOLLARFR function", () => {
+describe("DOLLARFR formula", () => {
   test("DOLLARFR takes 2 arguments", () => {
     expect(evaluateCell("A1", { A1: "=DOLLARFR()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=DOLLARFR(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -1633,7 +1633,7 @@ describe("DURATION formula", () => {
   });
 });
 
-describe("DOLLARDE function", () => {
+describe("DOLLARDE formula", () => {
   test("DOLLARDE takes 2 arguments", () => {
     expect(evaluateCell("A1", { A1: "=DOLLARDE()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=DOLLARDE(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -1919,7 +1919,7 @@ describe("FV formula", () => {
   });
 });
 
-describe("FVSCHEDULE function", () => {
+describe("FVSCHEDULE formula", () => {
   test("FVSCHEDULE takes 2 arguments", () => {
     expect(evaluateCell("A1", { A1: "=FVSCHEDULE()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=FVSCHEDULE(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -2007,7 +2007,7 @@ describe("FVSCHEDULE function", () => {
   });
 });
 
-describe("IPMT function", () => {
+describe("IPMT formula", () => {
   test("IPMT takes 4-6 arguments", () => {
     expect(evaluateCell("A1", { A1: "=IPMT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=IPMT(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -2074,7 +2074,7 @@ describe("IPMT function", () => {
   });
 });
 
-describe("INTRATE function", () => {
+describe("INTRATE formula", () => {
   test("INTRATE takes 4-5 arguments", () => {
     expect(evaluateCell("A1", { A1: "=INTRATE()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=INTRATE(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -2278,7 +2278,7 @@ describe("IRR formula", () => {
   });
 });
 
-describe("ISPMT function", () => {
+describe("ISPMT formula", () => {
   test("ISPMT takes 4 arguments", () => {
     expect(evaluateCell("A1", { A1: "=ISPMT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=ISPMT(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -2730,7 +2730,7 @@ describe("MDURATION formula", () => {
   });
 });
 
-describe("MIRR function", () => {
+describe("MIRR formula", () => {
   test("MIRR takes 3 arguments", () => {
     const grid = { B1: "1", B2: "-1" };
     expect(evaluateCell("A1", { A1: "=MIRR()", ...grid })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -2870,7 +2870,7 @@ describe("NOMINAL formula", () => {
   );
 });
 
-describe("NPER function", () => {
+describe("NPER formula", () => {
   test("NPER takes 3-5 arguments", () => {
     expect(evaluateCell("A1", { A1: "=NPER()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=NPER(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -3198,7 +3198,7 @@ describe("PDURATION formula", () => {
   });
 });
 
-describe("PMT function", () => {
+describe("PMT formula", () => {
   test("take 3-5 arguments", () => {
     expect(evaluateCell("A1", { A1: "=PMT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=PMT(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -3251,7 +3251,7 @@ describe("PMT function", () => {
   });
 });
 
-describe("PPMT function", () => {
+describe("PPMT formula", () => {
   test("PPMT takes 4-6 arguments", () => {
     expect(evaluateCell("A1", { A1: "=PPMT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=PPMT(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -3986,7 +3986,7 @@ describe("PRICE formula", () => {
   });
 });
 
-describe("PRICEDISC function", () => {
+describe("PRICEDISC formula", () => {
   test("PRICEDISC takes 4-5 arguments", () => {
     expect(evaluateCell("A1", { A1: "=PRICEDISC()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=PRICEDISC(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -4061,7 +4061,7 @@ describe("PRICEDISC function", () => {
   );
 });
 
-describe("PRICEMAT function", () => {
+describe("PRICEMAT formula", () => {
   test("PRICEMAT takes 5-6 arguments", () => {
     expect(evaluateCell("A1", { A1: "=PRICEMAT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=PRICEMAT(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -4157,7 +4157,7 @@ describe("PRICEMAT function", () => {
   );
 });
 
-describe("RATE function", () => {
+describe("RATE formula", () => {
   test("take 3-6 arguments", () => {
     expect(evaluateCell("A1", { A1: "=RATE()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=RATE(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -4233,7 +4233,7 @@ describe("RATE function", () => {
   });
 });
 
-describe("RECEIVED function", () => {
+describe("RECEIVED formula", () => {
   test("RECEIVED takes 4-5 arguments", () => {
     expect(evaluateCell("A1", { A1: "=RECEIVED()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=RECEIVED(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -4308,7 +4308,7 @@ describe("RECEIVED function", () => {
   );
 });
 
-describe("RRI function", () => {
+describe("RRI formula", () => {
   test("RRI takes 3 arguments", () => {
     expect(evaluateCell("A1", { A1: "=RRI()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=RRI(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -4353,7 +4353,7 @@ describe("RRI function", () => {
   );
 });
 
-describe("SLN function", () => {
+describe("SLN formula", () => {
   test("SLN takes 3 arguments", () => {
     expect(evaluateCell("A1", { A1: "=SLN()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=SLN(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -4388,7 +4388,7 @@ describe("SLN function", () => {
   });
 });
 
-describe("SYD function", () => {
+describe("SYD formula", () => {
   test("SYD takes 4 arguments", () => {
     expect(evaluateCell("A1", { A1: "=SYD()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=SYD(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -4457,7 +4457,7 @@ describe("SYD function", () => {
   });
 });
 
-describe("TBILLPRICE function", () => {
+describe("TBILLPRICE formula", () => {
   test("TBILLPRICE takes 3 arguments", () => {
     expect(evaluateCell("A1", { A1: "=TBILLPRICE()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=TBILLPRICE(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -4504,7 +4504,7 @@ describe("TBILLPRICE function", () => {
   );
 });
 
-describe("TBILLEQ function", () => {
+describe("TBILLEQ formula", () => {
   test("TBILLEQ takes 3 arguments", () => {
     expect(evaluateCell("A1", { A1: "=TBILLEQ()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=TBILLEQ(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -4554,7 +4554,7 @@ describe("TBILLEQ function", () => {
   );
 });
 
-describe("TBILLYIELD function", () => {
+describe("TBILLYIELD formula", () => {
   test("TBILLYIELD takes 3 arguments", () => {
     expect(evaluateCell("A1", { A1: "=TBILLYIELD()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=TBILLYIELD(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -4600,7 +4600,7 @@ describe("TBILLYIELD function", () => {
   );
 });
 
-describe("VDB function", () => {
+describe("VDB formula", () => {
   test("VDB takes 5-7 arguments", () => {
     expect(evaluateCell("A1", { A1: "=VDB()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=VDB(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -4782,7 +4782,7 @@ describe("VDB function", () => {
   );
 });
 
-describe("XIRR function", () => {
+describe("XIRR formula", () => {
   test("XIRR takes 2-3 arguments", () => {
     const grid = { B1: "1", B2: "-1", C1: "0", C2: "1" };
     expect(evaluateCell("A1", { A1: "=XIRR()", ...grid })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -4959,7 +4959,7 @@ describe("XIRR function", () => {
   });
 });
 
-describe("XNPV function", () => {
+describe("XNPV formula", () => {
   test("XNPV takes 3 arguments", () => {
     const grid = { B1: "1", B2: "-1", C1: "0", C2: "1" };
     expect(evaluateCell("A1", { A1: "=XNPV()", ...grid })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -5541,7 +5541,7 @@ describe("YIELD formula", () => {
   });
 });
 
-describe("YIELDDISC function", () => {
+describe("YIELDDISC formula", () => {
   test("take 4-5 arguments", () => {
     expect(evaluateCell("A1", { A1: "=YIELDDISC()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=YIELDDISC(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
