@@ -209,7 +209,7 @@ export class SheetViewPlugin extends UIPlugin {
         break;
       case "UPDATE_CELL":
         // update cell content or format can change hidden rows because of data filters
-        if ("content" in cmd || "format" in cmd) {
+        if ("content" in cmd || "format" in cmd || cmd.style?.fontSize !== undefined) {
           this.sheetsWithDirtyViewports.add(cmd.sheetId);
         }
         break;

@@ -31,6 +31,7 @@ import {
   setCellContent,
   setFormat,
   setSelection,
+  setStyle,
   setViewportOffset,
   undo,
   unfreezeColumns,
@@ -843,6 +844,29 @@ describe("Viewport of Simple sheet", () => {
     oldViewport = { ...model.getters.getActiveMainViewport() };
     setFormat(model, "0.00%", target("A5"));
     expect(model.getters.getActiveMainViewport()).not.toEqual(oldViewport);
+  });
+
+  test("viewport is recomputed when font size changes", () => {
+    expect(model.getters.getActiveMainViewport()).toEqual({
+      bottom: 43,
+      left: 0,
+      right: 10,
+      top: 0,
+    });
+    setStyle(model, "A1:A20", { fontSize: 36 });
+    expect(model.getters.getActiveMainViewport()).toEqual({
+      bottom: 18,
+      left: 0,
+      right: 10,
+      top: 0,
+    });
+    setStyle(model, "A1:A20", { fontSize: 8 });
+    expect(model.getters.getActiveMainViewport()).toEqual({
+      bottom: 43,
+      left: 0,
+      right: 10,
+      top: 0,
+    });
   });
 });
 
