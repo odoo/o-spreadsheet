@@ -133,6 +133,8 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
 
   "OPEN_CELL_POPOVER",
   "CLOSE_CELL_POPOVER",
+
+  "UPDATE_FILTER",
 ]);
 
 export const coreTypes = new Set<CoreCommandTypes>([
