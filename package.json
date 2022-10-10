@@ -10,6 +10,7 @@
     "build:js": "tsc --module es6 --outDir dist/js --incremental",
     "bundle:js": "rollup -c -m",
     "bundle:xml": "node tools/bundle_xml/main.js",
+    "bundle:session": "cp logs/session_backup.json logs/session.json",
     "build": "npm-run-all build:js bundle:*",
     "doc": "typedoc",
     "precommit": "npm run prettier && npm run doc",
