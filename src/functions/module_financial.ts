@@ -23,32 +23,32 @@ import {
 import {
   assertCashFlowsAndDatesHaveSameDimension,
   assertCashFlowsHavePositiveAndNegativesValues,
-  assertCostPositive,
   assertCostPositiveOrZero,
-  assertDeprecationFactorPositive,
-  assertDiscountPositive,
-  assertDiscountSmallerThanOne,
+  assertCostStrictlyPositive,
+  assertCouponFrequencyIsValid,
+  assertDayCountConventionIsValid,
+  assertDeprecationFactorStrictlyPositive,
+  assertDiscountStrictlyPositive,
+  assertDiscountStrictlySmallerThanOne,
   assertEveryDateGreaterThanFirstDateOfCashFlowDates,
-  assertInvestmentPositive,
-  assertLifePositive,
-  assertNumberOfPeriodsPositive,
-  assertPeriodPositive,
+  assertFirstAndLastPeriodsAreValid,
+  assertInvestmentStrictlyPositive,
+  assertLifeStrictlyPositive,
+  assertMaturityAndSettlementDatesAreValid,
+  assertNumberOfPeriodsStrictlyPositive,
   assertPeriodPositiveOrZero,
-  assertPeriodSmallerThanLife,
-  assertPresentValuePositive,
-  assertPricePositive,
-  assertRateGuessGreaterThanMinusOne,
-  assertRatePositive,
-  assertRedemptionPositive,
+  assertPeriodSmallerOrEqualToLife,
+  assertPeriodStrictlyPositive,
+  assertPresentValueStrictlyPositive,
+  assertPriceStrictlyPositive,
+  assertRateGuessStrictlyGreaterThanMinusOne,
+  assertRateStrictlyPositive,
+  assertRedemptionStrictlyPositive,
   assertSalvagePositiveOrZero,
   assertSalvageSmallerOrEqualThanCost,
+  assertSettlementAndIssueDatesAreValid,
   assertSettlementLessThanOneYearBeforeMaturity,
-  checkCouponFrequency,
-  checkDayCountConvention,
-  checkFirstAndLastPeriodsAreValid,
-  checkMaturityAndSettlementDates,
-  checkSettlementAndIssueDates,
-  checkStartAndEndPeriodAreValid,
+  assertStartAndEndPeriodAreValid,
 } from "./helper_financial";
 import { DAYS, YEARFRAC } from "./module_date";
 
@@ -147,10 +147,10 @@ export const ACCRINTM: AddFunctionDescription = {
     const _rate = toNumber(rate);
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
 
-    checkSettlementAndIssueDates(end, start);
-    checkDayCountConvention(_dayCountConvention);
-    assertRedemptionPositive(_redemption);
-    assertRatePositive(_rate);
+    assertSettlementAndIssueDatesAreValid(end, start);
+    assertDayCountConventionIsValid(_dayCountConvention);
+    assertRedemptionStrictlyPositive(_redemption);
+    assertRateStrictlyPositive(_rate);
 
     const yearFrac = YEARFRAC.compute(start, end, dayCountConvention) as number;
     return _redemption * _rate * yearFrac;
@@ -193,12 +193,12 @@ export const AMORLINC: AddFunctionDescription = {
     const _rate = toNumber(rate);
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
 
-    assertCostPositive(_cost);
+    assertCostStrictlyPositive(_cost);
     assertSalvagePositiveOrZero(_salvage);
     assertSalvageSmallerOrEqualThanCost(_salvage, _cost);
     assertPeriodPositiveOrZero(_period);
-    assertRatePositive(_rate);
-    checkDayCountConvention(_dayCountConvention);
+    assertRateStrictlyPositive(_rate);
+    assertDayCountConventionIsValid(_dayCountConvention);
     assert(
       () => _purchaseDate <= _firstPeriodEnd,
       _lt(
@@ -261,9 +261,9 @@ export const COUPDAYS: AddFunctionDescription = {
     const _frequency = Math.trunc(toNumber(frequency));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
 
-    checkMaturityAndSettlementDates(start, end);
-    checkCouponFrequency(_frequency);
-    checkDayCountConvention(_dayCountConvention);
+    assertMaturityAndSettlementDatesAreValid(start, end);
+    assertCouponFrequencyIsValid(_frequency);
+    assertDayCountConventionIsValid(_dayCountConvention);
 
     // https://wiki.documentfoundation.org/Documentation/Calc_Functions/COUPDAYS
     if (_dayCountConvention === 1) {
@@ -297,9 +297,9 @@ export const COUPDAYBS: AddFunctionDescription = {
     const _frequency = Math.trunc(toNumber(frequency));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
 
-    checkMaturityAndSettlementDates(start, end);
-    checkCouponFrequency(_frequency);
-    checkDayCountConvention(_dayCountConvention);
+    assertMaturityAndSettlementDatesAreValid(start, end);
+    assertCouponFrequencyIsValid(_frequency);
+    assertDayCountConventionIsValid(_dayCountConvention);
 
     const couponBeforeStart = COUPPCD.compute(start, end, frequency, dayCountConvention) as number;
     if ([1, 2, 3].includes(_dayCountConvention)) {
@@ -369,9 +369,9 @@ export const COUPDAYSNC: AddFunctionDescription = {
     const _frequency = Math.trunc(toNumber(frequency));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
 
-    checkMaturityAndSettlementDates(start, end);
-    checkCouponFrequency(_frequency);
-    checkDayCountConvention(_dayCountConvention);
+    assertMaturityAndSettlementDatesAreValid(start, end);
+    assertCouponFrequencyIsValid(_frequency);
+    assertDayCountConventionIsValid(_dayCountConvention);
 
     const couponAfterStart = COUPNCD.compute(start, end, frequency, dayCountConvention) as number;
     if ([1, 2, 3].includes(_dayCountConvention)) {
@@ -420,9 +420,9 @@ export const COUPNCD: AddFunctionDescription = {
     const _frequency = Math.trunc(toNumber(frequency));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
 
-    checkMaturityAndSettlementDates(start, end);
-    checkCouponFrequency(_frequency);
-    checkDayCountConvention(_dayCountConvention);
+    assertMaturityAndSettlementDatesAreValid(start, end);
+    assertCouponFrequencyIsValid(_frequency);
+    assertDayCountConventionIsValid(_dayCountConvention);
 
     const monthsPerPeriod = 12 / _frequency;
 
@@ -452,9 +452,9 @@ export const COUPNUM: AddFunctionDescription = {
     const _frequency = Math.trunc(toNumber(frequency));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
 
-    checkMaturityAndSettlementDates(start, end);
-    checkCouponFrequency(_frequency);
-    checkDayCountConvention(_dayCountConvention);
+    assertMaturityAndSettlementDatesAreValid(start, end);
+    assertCouponFrequencyIsValid(_frequency);
+    assertDayCountConventionIsValid(_dayCountConvention);
 
     let num = 1;
     let currentDate = end;
@@ -491,9 +491,9 @@ export const COUPPCD: AddFunctionDescription = {
     const _frequency = Math.trunc(toNumber(frequency));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
 
-    checkMaturityAndSettlementDates(start, end);
-    checkCouponFrequency(_frequency);
-    checkDayCountConvention(_dayCountConvention);
+    assertMaturityAndSettlementDatesAreValid(start, end);
+    assertCouponFrequencyIsValid(_frequency);
+    assertDayCountConventionIsValid(_dayCountConvention);
 
     const monthsPerPeriod = 12 / _frequency;
 
@@ -536,9 +536,9 @@ export const CUMIPMT: AddFunctionDescription = {
     const pv = toNumber(presentValue);
     const nOfPeriods = toNumber(numberOfPeriods);
 
-    checkFirstAndLastPeriodsAreValid(first, last, nOfPeriods);
-    assertRatePositive(_rate);
-    assertPresentValuePositive(pv);
+    assertFirstAndLastPeriodsAreValid(first, last, nOfPeriods);
+    assertRateStrictlyPositive(_rate);
+    assertPresentValueStrictlyPositive(pv);
 
     let cumSum = 0;
     for (let i = first; i <= last; i++) {
@@ -583,9 +583,9 @@ export const CUMPRINC: AddFunctionDescription = {
     const pv = toNumber(presentValue);
     const nOfPeriods = toNumber(numberOfPeriods);
 
-    checkFirstAndLastPeriodsAreValid(first, last, nOfPeriods);
-    assertRatePositive(_rate);
-    assertPresentValuePositive(pv);
+    assertFirstAndLastPeriodsAreValid(first, last, nOfPeriods);
+    assertRateStrictlyPositive(_rate);
+    assertPresentValueStrictlyPositive(pv);
 
     let cumSum = 0;
     for (let i = first; i <= last; i++) {
@@ -629,8 +629,8 @@ export const DB: AddFunctionDescription = {
 
     assertCostPositiveOrZero(_cost);
     assertSalvagePositiveOrZero(_salvage);
-    assertPeriodPositive(_period);
-    assertLifePositive(_life);
+    assertPeriodStrictlyPositive(_period);
+    assertLifeStrictlyPositive(_life);
     assert(
       () => 1 <= _month && _month <= 12,
       _lt("The month (%s) must be between 1 and 12 inclusive.", _month.toString())
@@ -699,10 +699,10 @@ export const DDB: AddFunctionDescription = {
 
     assertCostPositiveOrZero(_cost);
     assertSalvagePositiveOrZero(_salvage);
-    assertPeriodPositive(_period);
-    assertLifePositive(_life);
-    assertPeriodSmallerThanLife(_period, _life);
-    assertDeprecationFactorPositive(_factor);
+    assertPeriodStrictlyPositive(_period);
+    assertLifeStrictlyPositive(_life);
+    assertPeriodSmallerOrEqualToLife(_period, _life);
+    assertDeprecationFactorStrictlyPositive(_factor);
 
     if (_cost === 0 || _salvage >= _cost) return 0;
 
@@ -757,10 +757,10 @@ export const DISC: AddFunctionDescription = {
     const _redemption = toNumber(redemption);
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
 
-    checkMaturityAndSettlementDates(_settlement, _maturity);
-    checkDayCountConvention(_dayCountConvention);
-    assertPricePositive(_price);
-    assertRedemptionPositive(_redemption);
+    assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
+    assertDayCountConventionIsValid(_dayCountConvention);
+    assertPriceStrictlyPositive(_price);
+    assertRedemptionStrictlyPositive(_redemption);
 
     /**
      * https://support.microsoft.com/en-us/office/disc-function-71fce9f3-3f05-4acf-a5a3-eac6ef4daa53
@@ -872,9 +872,9 @@ export const DURATION: AddFunctionDescription = {
     const _frequency = Math.trunc(toNumber(frequency));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
 
-    checkMaturityAndSettlementDates(start, end);
-    checkCouponFrequency(_frequency);
-    checkDayCountConvention(_dayCountConvention);
+    assertMaturityAndSettlementDatesAreValid(start, end);
+    assertCouponFrequencyIsValid(_frequency);
+    assertDayCountConventionIsValid(_dayCountConvention);
 
     assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
     assert(() => _yield >= 0, _lt("The yield (%s) must be positive or null.", _yield.toString()));
@@ -1022,9 +1022,9 @@ export const INTRATE: AddFunctionDescription = {
     const _redemption = toNumber(redemption);
     const _investment = toNumber(investment);
 
-    checkMaturityAndSettlementDates(_settlement, _maturity);
-    assertInvestmentPositive(_investment);
-    assertRedemptionPositive(_redemption);
+    assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
+    assertInvestmentStrictlyPositive(_investment);
+    assertRedemptionStrictlyPositive(_redemption);
 
     /**
      * https://wiki.documentfoundation.org/Documentation/Calc_Functions/INTRATE
@@ -1108,7 +1108,7 @@ export const IRR: AddFunctionDescription = {
   ): number {
     const _rateGuess = toNumber(rateGuess);
 
-    assertRateGuessGreaterThanMinusOne(_rateGuess);
+    assertRateGuessStrictlyGreaterThanMinusOne(_rateGuess);
 
     // check that values contains at least one positive value and one negative value
     // and extract number present in the cashFlowAmount argument
@@ -1459,7 +1459,7 @@ export const PDURATION: AddFunctionDescription = {
     const _presentValue = toNumber(presentValue);
     const _futureValue = toNumber(futureValue);
 
-    assertRatePositive(_rate);
+    assertRateStrictlyPositive(_rate);
     assert(
       () => _presentValue > 0,
       _lt("The present_value (%s) must be strictly positive.", _presentValue.toString())
@@ -1507,7 +1507,7 @@ export const PMT: AddFunctionDescription = {
     let fv = toNumber(futureValue);
     let pv = toNumber(presentValue);
 
-    assertNumberOfPeriodsPositive(n);
+    assertNumberOfPeriodsStrictlyPositive(n);
 
     /**
      * https://wiki.documentfoundation.org/Documentation/Calc_Functions/PMT
@@ -1563,7 +1563,7 @@ export const PPMT: AddFunctionDescription = {
     const fv = toNumber(futureValue);
     const pv = toNumber(presentValue);
 
-    assertNumberOfPeriodsPositive(n);
+    assertNumberOfPeriodsStrictlyPositive(n);
     assert(
       () => period > 0 && period <= n,
       _lt("The period must be between 1 and number_of_periods", n.toString())
@@ -1660,13 +1660,13 @@ export const PRICE: AddFunctionDescription = {
     const _frequency = Math.trunc(toNumber(frequency));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
 
-    checkMaturityAndSettlementDates(_settlement, _maturity);
-    checkCouponFrequency(_frequency);
-    checkDayCountConvention(_dayCountConvention);
+    assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
+    assertCouponFrequencyIsValid(_frequency);
+    assertDayCountConventionIsValid(_dayCountConvention);
 
     assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
     assert(() => _yield >= 0, _lt("The yield (%s) must be positive or null.", _yield.toString()));
-    assertRedemptionPositive(_redemption);
+    assertRedemptionStrictlyPositive(_redemption);
 
     const years = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention) as number;
     const nbrRealCoupons = years * _frequency;
@@ -1732,11 +1732,11 @@ export const PRICEDISC: AddFunctionDescription = {
     const _redemption = toNumber(redemption);
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
 
-    checkMaturityAndSettlementDates(_settlement, _maturity);
-    checkDayCountConvention(_dayCountConvention);
+    assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
+    assertDayCountConventionIsValid(_dayCountConvention);
 
-    assertDiscountPositive(_discount);
-    assertRedemptionPositive(_redemption);
+    assertDiscountStrictlyPositive(_discount);
+    assertRedemptionStrictlyPositive(_redemption);
 
     /**
      * https://support.microsoft.com/en-us/office/pricedisc-function-d06ad7c1-380e-4be7-9fd9-75e3079acfd3
@@ -1790,9 +1790,9 @@ export const PRICEMAT: AddFunctionDescription = {
     const _yield = toNumber(securityYield);
     const _dayCount = Math.trunc(toNumber(dayCountConvention));
 
-    checkSettlementAndIssueDates(_settlement, _issue);
-    checkMaturityAndSettlementDates(_settlement, _maturity);
-    checkDayCountConvention(_dayCount);
+    assertSettlementAndIssueDatesAreValid(_settlement, _issue);
+    assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
+    assertDayCountConventionIsValid(_dayCount);
 
     assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
     assert(() => _yield >= 0, _lt("The yield (%s) must be positive or null.", _yield.toString()));
@@ -1875,7 +1875,7 @@ export const RATE: AddFunctionDescription = {
     let fv = toNumber(futureValue);
     let pv = toNumber(presentValue);
 
-    assertNumberOfPeriodsPositive(n);
+    assertNumberOfPeriodsStrictlyPositive(n);
     assert(
       () => [payment, pv, fv].some((val) => val > 0) && [payment, pv, fv].some((val) => val < 0),
       _lt(
@@ -1883,7 +1883,7 @@ export const RATE: AddFunctionDescription = {
         n.toString()
       )
     );
-    assertRateGuessGreaterThanMinusOne(guess);
+    assertRateGuessStrictlyGreaterThanMinusOne(guess);
 
     fv -= payment * type;
     pv += payment * type;
@@ -1943,10 +1943,10 @@ export const RECEIVED: AddFunctionDescription = {
     const _discount = toNumber(discount);
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
 
-    checkMaturityAndSettlementDates(_settlement, _maturity);
-    checkDayCountConvention(_dayCountConvention);
-    assertInvestmentPositive(_investment);
-    assertDiscountPositive(_discount);
+    assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
+    assertDayCountConventionIsValid(_dayCountConvention);
+    assertInvestmentStrictlyPositive(_investment);
+    assertDiscountStrictlyPositive(_discount);
 
     /**
      * https://support.microsoft.com/en-us/office/received-function-7a3f8b93-6611-4f81-8576-828312c9b5e5
@@ -1987,7 +1987,7 @@ export const RRI: AddFunctionDescription = {
     const pv = toNumber(presentValue);
     const fv = toNumber(futureValue);
 
-    assertNumberOfPeriodsPositive(n);
+    assertNumberOfPeriodsStrictlyPositive(n);
 
     /**
      * https://support.microsoft.com/en-us/office/rri-function-6f5822d8-7ef1-4233-944c-79e8172930f4
@@ -2052,9 +2052,9 @@ export const SYD: AddFunctionDescription = {
     const _life = toNumber(life);
     const _period = toNumber(period);
 
-    assertPeriodPositive(_period);
-    assertLifePositive(_life);
-    assertPeriodSmallerThanLife(_period, _life);
+    assertPeriodStrictlyPositive(_period);
+    assertLifeStrictlyPositive(_life);
+    assertPeriodSmallerOrEqualToLife(_period, _life);
 
     /**
      * This deprecation method use the sum of digits of the periods of the life as the deprecation factor.
@@ -2097,10 +2097,10 @@ export const TBILLPRICE: AddFunctionDescription = {
     const end = Math.trunc(toNumber(maturity));
     const disc = toNumber(discount);
 
-    checkMaturityAndSettlementDates(start, end);
+    assertMaturityAndSettlementDatesAreValid(start, end);
     assertSettlementLessThanOneYearBeforeMaturity(start, end);
-    assertDiscountPositive(disc);
-    assertDiscountSmallerThanOne(disc);
+    assertDiscountStrictlyPositive(disc);
+    assertDiscountStrictlySmallerThanOne(disc);
 
     /**
      * https://support.microsoft.com/en-us/office/tbillprice-function-eacca992-c29d-425a-9eb8-0513fe6035a2
@@ -2141,10 +2141,10 @@ export const TBILLEQ: AddFunctionDescription = {
     const end = Math.trunc(toNumber(maturity));
     const disc = toNumber(discount);
 
-    checkMaturityAndSettlementDates(start, end);
+    assertMaturityAndSettlementDatesAreValid(start, end);
     assertSettlementLessThanOneYearBeforeMaturity(start, end);
-    assertDiscountPositive(disc);
-    assertDiscountSmallerThanOne(disc);
+    assertDiscountStrictlyPositive(disc);
+    assertDiscountStrictlySmallerThanOne(disc);
 
     /**
      * https://support.microsoft.com/en-us/office/tbilleq-function-2ab72d90-9b4d-4efe-9fc2-0f81f2c19c8c
@@ -2214,9 +2214,9 @@ export const TBILLYIELD: AddFunctionDescription = {
     const end = Math.trunc(toNumber(maturity));
     const p = toNumber(price);
 
-    checkMaturityAndSettlementDates(start, end);
+    assertMaturityAndSettlementDatesAreValid(start, end);
     assertSettlementLessThanOneYearBeforeMaturity(start, end);
-    assertPricePositive(p);
+    assertPriceStrictlyPositive(p);
 
     /**
      * https://support.microsoft.com/en-us/office/tbillyield-function-6d381232-f4b0-4cd5-8e97-45b9c03468ba
@@ -2281,8 +2281,8 @@ export const VDB: AddFunctionDescription = {
 
     assertCostPositiveOrZero(_cost);
     assertSalvagePositiveOrZero(_salvage);
-    checkStartAndEndPeriodAreValid(_startPeriod, _endPeriod, _life);
-    assertDeprecationFactorPositive(_factor);
+    assertStartAndEndPeriodAreValid(_startPeriod, _endPeriod, _life);
+    assertDeprecationFactorStrictlyPositive(_factor);
 
     if (_cost === 0) return 0;
     if (_salvage >= _cost) {
@@ -2357,7 +2357,7 @@ export const XIRR: AddFunctionDescription = {
     assertCashFlowsAndDatesHaveSameDimension(cashflowAmounts, cashflowDates);
     assertCashFlowsHavePositiveAndNegativesValues(_cashFlows);
     assertEveryDateGreaterThanFirstDateOfCashFlowDates(_dates);
-    assertRateGuessGreaterThanMinusOne(guess);
+    assertRateGuessStrictlyGreaterThanMinusOne(guess);
 
     const map = new Map<number, number>();
     for (const i of range(0, _dates.length)) {
@@ -2449,7 +2449,7 @@ export const XNPV: AddFunctionDescription = {
       );
     }
     assertEveryDateGreaterThanFirstDateOfCashFlowDates(_dates);
-    assertRatePositive(rate);
+    assertRateStrictlyPositive(rate);
 
     if (_cashFlows.length === 1) return _cashFlows[0];
 
@@ -2529,13 +2529,13 @@ export const YIELD: AddFunctionDescription = {
     const _frequency = Math.trunc(toNumber(frequency));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
 
-    checkMaturityAndSettlementDates(_settlement, _maturity);
-    checkCouponFrequency(_frequency);
-    checkDayCountConvention(_dayCountConvention);
+    assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
+    assertCouponFrequencyIsValid(_frequency);
+    assertDayCountConventionIsValid(_dayCountConvention);
 
     assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
-    assertPricePositive(_price);
-    assertRedemptionPositive(_redemption);
+    assertPriceStrictlyPositive(_price);
+    assertRedemptionStrictlyPositive(_redemption);
 
     const years = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention) as number;
     const nbrRealCoupons = years * _frequency;
@@ -2652,10 +2652,10 @@ export const YIELDDISC: AddFunctionDescription = {
     const _redemption = toNumber(redemption);
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
 
-    checkMaturityAndSettlementDates(_settlement, _maturity);
-    checkDayCountConvention(_dayCountConvention);
-    assertPricePositive(_price);
-    assertRedemptionPositive(_redemption);
+    assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
+    assertDayCountConventionIsValid(_dayCountConvention);
+    assertPriceStrictlyPositive(_price);
+    assertRedemptionStrictlyPositive(_redemption);
 
     /**
      * https://wiki.documentfoundation.org/Documentation/Calc_Functions/YIELDDISC
@@ -2707,8 +2707,8 @@ export const YIELDMAT: AddFunctionDescription = {
     const _price = toNumber(price);
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
 
-    checkMaturityAndSettlementDates(_settlement, _maturity);
-    checkDayCountConvention(_dayCountConvention);
+    assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
+    assertDayCountConventionIsValid(_dayCountConvention);
 
     assert(
       () => _settlement >= _issue,
@@ -2719,7 +2719,7 @@ export const YIELDMAT: AddFunctionDescription = {
       )
     );
     assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
-    assertPricePositive(_price);
+    assertPriceStrictlyPositive(_price);
 
     const issueToMaturity = YEARFRAC.compute(_issue, _maturity, _dayCountConvention) as number;
     const issueToSettlement = YEARFRAC.compute(_issue, _settlement, _dayCountConvention) as number;

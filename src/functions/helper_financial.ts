@@ -2,7 +2,7 @@ import { _lt } from "../translation";
 import { assert, toJsDate } from "./helpers";
 
 /** Assert maturity date > settlement date */
-export function checkMaturityAndSettlementDates(settlement: number, maturity: number) {
+export function assertMaturityAndSettlementDatesAreValid(settlement: number, maturity: number) {
   assert(
     () => settlement < maturity,
     _lt(
@@ -14,7 +14,7 @@ export function checkMaturityAndSettlementDates(settlement: number, maturity: nu
 }
 
 /** Assert settlement date > issue date */
-export function checkSettlementAndIssueDates(settlement: number, issue: number) {
+export function assertSettlementAndIssueDatesAreValid(settlement: number, issue: number) {
   assert(
     () => issue < settlement,
     _lt(
@@ -26,7 +26,7 @@ export function checkSettlementAndIssueDates(settlement: number, issue: number) 
 }
 
 /** Assert coupon frequency is in [1, 2, 4] */
-export function checkCouponFrequency(frequency: number) {
+export function assertCouponFrequencyIsValid(frequency: number) {
   assert(
     () => [1, 2, 4].includes(frequency),
     _lt("The frequency (%s) must be one of %s", frequency.toString(), [1, 2, 4].toString())
@@ -34,7 +34,7 @@ export function checkCouponFrequency(frequency: number) {
 }
 
 /** Assert dayCountConvention is between 0 and 4 */
-export function checkDayCountConvention(dayCountConvention: number) {
+export function assertDayCountConventionIsValid(dayCountConvention: number) {
   assert(
     () => 0 <= dayCountConvention && dayCountConvention <= 4,
     _lt(
@@ -44,33 +44,33 @@ export function checkDayCountConvention(dayCountConvention: number) {
   );
 }
 
-export function assertRedemptionPositive(redemption: number) {
+export function assertRedemptionStrictlyPositive(redemption: number) {
   assert(
     () => redemption > 0,
     _lt("The redemption (%s) must be strictly positive.", redemption.toString())
   );
 }
 
-export function assertPricePositive(price: number) {
+export function assertPriceStrictlyPositive(price: number) {
   assert(() => price > 0, _lt("The price (%s) must be strictly positive.", price.toString()));
 }
 
-export function assertNumberOfPeriodsPositive(nPeriods: number) {
+export function assertNumberOfPeriodsStrictlyPositive(nPeriods: number) {
   assert(
     () => nPeriods > 0,
     _lt("The number_of_periods (%s) must be greater than 0.", nPeriods.toString())
   );
 }
 
-export function assertRatePositive(rate: number) {
+export function assertRateStrictlyPositive(rate: number) {
   assert(() => rate > 0, _lt("The rate (%s) must be strictly positive.", rate.toString()));
 }
 
-export function assertLifePositive(life: number) {
+export function assertLifeStrictlyPositive(life: number) {
   assert(() => life > 0, _lt("The life (%s) must be strictly positive.", life.toString()));
 }
 
-export function assertCostPositive(cost: number) {
+export function assertCostStrictlyPositive(cost: number) {
   assert(() => cost > 0, _lt("The cost (%s) must be strictly positive.", cost.toString()));
 }
 
@@ -78,7 +78,7 @@ export function assertCostPositiveOrZero(cost: number) {
   assert(() => cost >= 0, _lt("The cost (%s) must be positive or null.", cost.toString()));
 }
 
-export function assertPeriodPositive(period: number) {
+export function assertPeriodStrictlyPositive(period: number) {
   assert(() => period > 0, _lt("The period (%s) must be strictly positive.", period.toString()));
 }
 
@@ -101,36 +101,36 @@ export function assertSalvageSmallerOrEqualThanCost(salvage: number, cost: numbe
   );
 }
 
-export function assertPresentValuePositive(pv: number) {
+export function assertPresentValueStrictlyPositive(pv: number) {
   assert(() => pv > 0, _lt("The present value (%s) must be strictly positive.", pv.toString()));
 }
 
-export function assertPeriodSmallerThanLife(period: number, life: number) {
+export function assertPeriodSmallerOrEqualToLife(period: number, life: number) {
   assert(
     () => period <= life,
     _lt("The period (%s) must be less than or equal life (%.", period.toString(), life.toString())
   );
 }
 
-export function assertInvestmentPositive(investment: number) {
+export function assertInvestmentStrictlyPositive(investment: number) {
   assert(
     () => investment > 0,
     _lt("The investment (%s) must be strictly positive.", investment.toString())
   );
 }
 
-export function assertDiscountPositive(discount: number) {
+export function assertDiscountStrictlyPositive(discount: number) {
   assert(
     () => discount > 0,
     _lt("The discount (%s) must be strictly positive.", discount.toString())
   );
 }
 
-export function assertDiscountSmallerThanOne(discount: number) {
+export function assertDiscountStrictlySmallerThanOne(discount: number) {
   assert(() => discount < 1, _lt("The discount (%s) must be smaller than 1.", discount.toString()));
 }
 
-export function assertDeprecationFactorPositive(factor: number) {
+export function assertDeprecationFactorStrictlyPositive(factor: number) {
   assert(
     () => factor > 0,
     _lt("The depreciation factor (%s) must be strictly positive.", factor.toString())
@@ -164,12 +164,12 @@ export function assertSettlementLessThanOneYearBeforeMaturity(
  * - 0 < lastPeriod <= numberOfPeriods
  *
  */
-export function checkFirstAndLastPeriodsAreValid(
+export function assertFirstAndLastPeriodsAreValid(
   firstPeriod: number,
   lastPeriod: number,
   numberOfPeriods: number
 ) {
-  assertNumberOfPeriodsPositive(numberOfPeriods);
+  assertNumberOfPeriodsStrictlyPositive(numberOfPeriods);
   assert(
     () => firstPeriod > 0,
     _lt("The first_period (%s) must be strictly positive.", firstPeriod.toString())
@@ -204,12 +204,12 @@ export function checkFirstAndLastPeriodsAreValid(
  * - 0 <= endPeriod <= life
  *
  */
-export function checkStartAndEndPeriodAreValid(
+export function assertStartAndEndPeriodAreValid(
   startPeriod: number,
   endPeriod: number,
   life: number
 ) {
-  assertLifePositive(life);
+  assertLifeStrictlyPositive(life);
   assert(
     () => startPeriod >= 0,
     _lt("The start_period (%s) must be greater or equal than 0.", startPeriod.toString())
@@ -236,7 +236,7 @@ export function checkStartAndEndPeriodAreValid(
   );
 }
 
-export function assertRateGuessGreaterThanMinusOne(guess: number) {
+export function assertRateGuessStrictlyGreaterThanMinusOne(guess: number) {
   assert(
     () => guess > -1,
     _lt("The rate_guess (%s) must be strictly greater than -1.", guess.toString())
