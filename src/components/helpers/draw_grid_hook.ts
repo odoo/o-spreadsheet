@@ -5,7 +5,7 @@ import { DOMDimension } from "../../types";
 
 export function useGridDrawing(refName: string, model: Model, canvasSize: () => DOMDimension) {
   const canvasRef = useRef(refName);
-  useEffect(() => drawGrid());
+  useEffect(drawGrid);
 
   function drawGrid() {
     const canvas = canvasRef.el as HTMLCanvasElement;
