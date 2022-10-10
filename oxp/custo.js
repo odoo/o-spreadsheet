@@ -6,7 +6,6 @@ const { Spreadsheet, Model, registries, UuidGenerator, helpers, UIPlugin } = o_s
 //   }
 //   import(){}
 // }
-//
 // registries.corePluginRegistry.add("debuggerPlugin", DebuggerPlugin)
 
 // registries.topbarMenuRegistry.addChild("Make Flashy !", ["format"], {
