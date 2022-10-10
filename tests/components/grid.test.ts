@@ -276,6 +276,17 @@ describe("Grid component", () => {
       expect(getCellContent(model, "A1")).toBe("a");
     });
 
+    test("pressing BACKSPACE remove the content of a cell", async () => {
+      setCellContent(model, "A1", "test");
+      await nextTick();
+      fixture
+        .querySelector("div.o-grid")!
+        .dispatchEvent(new KeyboardEvent("keydown", { key: "Backspace" }));
+      expect(getActiveXc(model)).toBe("A1");
+      expect(model.getters.getEditionMode()).toBe("inactive");
+      expect(getCellContent(model, "A1")).toBe("");
+    });
+
     test("pressing shift+ENTER in edit mode stop editing and move one cell up", async () => {
       selectCell(model, "A2");
       expect(getActiveXc(model)).toBe("A2");
