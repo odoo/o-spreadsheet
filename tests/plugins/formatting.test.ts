@@ -532,4 +532,13 @@ describe("Autoresize", () => {
     expect(model.getters.getRowSize(sheetId, 0)).toBe(initialSize);
     expect(model.getters.getRowSize(newSheetId, 0)).toBe(DEFAULT_CELL_HEIGHT);
   });
+
+  test("Autoresizing empty cols has no effect", () => {
+    const initialSize = model.getters.getColSize(sheetId, 0);
+    model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    expect(model.getters.getColSize(sheetId, 0)).toBe(initialSize);
+    setCellContent(model, "A1", '=""');
+    model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    expect(model.getters.getColSize(sheetId, 0)).toBe(initialSize);
+  });
 });
