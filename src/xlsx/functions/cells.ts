@@ -63,7 +63,8 @@ export function addFormula(cell: ExcelCellData): {
 
 export function addContent(
   content: string,
-  sharedStrings: string[]
+  sharedStrings: string[],
+  forceString = false
 ): {
   attrs: XMLAttributes;
   node: XMLString;
@@ -71,10 +72,10 @@ export function addContent(
   let value: string = content;
   const attrs: XMLAttributes = [];
 
-  if (["TRUE", "FALSE"].includes(value.trim())) {
+  if (!forceString && ["TRUE", "FALSE"].includes(value.trim())) {
     value = value === "TRUE" ? "1" : "0";
     attrs.push(["t", "b"]);
-  } else if (!isNumber(value)) {
+  } else if (forceString || !isNumber(value)) {
     const { id } = pushElement(content, sharedStrings);
     value = id.toString();
     attrs.push(["t", "s"]);

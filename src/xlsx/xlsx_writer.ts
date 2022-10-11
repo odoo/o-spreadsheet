@@ -1,5 +1,5 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
-import { ExcelWorkbookData } from "../types";
+import { ExcelSheetData, ExcelWorkbookData } from "../types";
 import {
   XLSXExport,
   XLSXExportFile,
@@ -8,7 +8,7 @@ import {
   XMLAttributes,
   XMLString,
 } from "../types/xlsx";
-import { CONTENT_TYPES, NAMESPACE, RELATIONSHIP_NSR } from "./constants";
+import { CONTENT_TYPES, NAMESPACE, RELATIONSHIP_NSR, XLSX_RELATION_TYPE } from "./constants";
 import { createChart } from "./functions/charts";
 import { addConditionalFormatting } from "./functions/conditional_formatting";
 import { createDrawing } from "./functions/drawings";
@@ -20,6 +20,7 @@ import {
   addNumberFormats,
   addStyles,
 } from "./functions/styles";
+import { createTable } from "./functions/table";
 import {
   addColumns,
   addHyperlinks,
@@ -83,7 +84,7 @@ function createWorkbook(data: ExcelWorkbookData, construct: XLSXStructure): XLSX
     `);
 
     addRelsToFile(construct.relsFiles, "xl/_rels/workbook.xml.rels", {
-      type: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet",
+      type: XLSX_RELATION_TYPE.sheet,
       target: `worksheets/sheet${index}.xml`,
     });
   }
@@ -99,6 +100,7 @@ function createWorkbook(data: ExcelWorkbookData, construct: XLSXStructure): XLSX
 
 function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XLSXExportFile[] {
   const files: XLSXExportFile[] = [];
+  let currentTableIndex = 1;
   for (const [sheetIndex, sheet] of Object.entries(data.sheets)) {
     const namespaces: XMLAttributes = [
       ["xmlns", NAMESPACE["worksheet"]],
@@ -108,6 +110,9 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
       ["defaultRowHeight", convertHeightToExcel(DEFAULT_CELL_HEIGHT)],
       ["defaultColWidth", convertWidthToExcel(DEFAULT_CELL_WIDTH)],
     ];
+
+    const tablesNode = createTablesForSheet(sheet, sheetIndex, currentTableIndex, construct, files);
+    currentTableIndex += sheet.filterTables.length;
 
     // Figures and Charts
     let drawingNode = escapeXml``;
@@ -121,7 +126,7 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
           `xl/drawings/_rels/drawing${sheetIndex}.xml.rels`,
           {
             target: `../charts/chart${xlsxChartId}.xml`,
-            type: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart",
+            type: XLSX_RELATION_TYPE.chart,
           }
         );
         chartRelIds.push(chartRelId);
@@ -139,7 +144,7 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
         `xl/worksheets/_rels/sheet${sheetIndex}.xml.rels`,
         {
           target: `../drawings/drawing${sheetIndex}.xml`,
-          type: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing",
+          type: XLSX_RELATION_TYPE.drawing,
         }
       );
       files.push(
@@ -161,19 +166,62 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
         ${joinXmlNodes(addConditionalFormatting(construct.dxfs, sheet.conditionalFormats))}
         ${addHyperlinks(construct, data, sheetIndex)}
         ${drawingNode}
+        ${tablesNode}
       </worksheet>
     `;
     files.push(createXMLFile(parseXML(sheetXml), `xl/worksheets/sheet${sheetIndex}.xml`, "sheet"));
   }
   addRelsToFile(construct.relsFiles, "xl/_rels/workbook.xml.rels", {
-    type: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings",
+    type: XLSX_RELATION_TYPE.sharedStrings,
     target: "sharedStrings.xml",
   });
   addRelsToFile(construct.relsFiles, "xl/_rels/workbook.xml.rels", {
-    type: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles",
+    type: XLSX_RELATION_TYPE.styles,
     target: "styles.xml",
   });
   return files;
+}
+
+/**
+ * Create xlsx files for each tables contained in the given sheet, and add them to the XLSXStructure ans XLSXExportFiles.
+ *
+ * Return an XML string that should be added in the sheet to link these table to the sheet.
+ */
+function createTablesForSheet(
+  sheetData: ExcelSheetData,
+  sheetId: string,
+  startingTableId: number,
+  construct: XLSXStructure,
+  files: XLSXExportFile[]
+): XMLString {
+  let currentTableId = startingTableId;
+  if (!sheetData.filterTables.length) return new XMLString("");
+
+  const sheetRelFile = `xl/worksheets/_rels/sheet${sheetId}.xml.rels`;
+
+  const tableParts: XMLString[] = [];
+  for (const table of sheetData.filterTables) {
+    const tableRelId = addRelsToFile(construct.relsFiles, sheetRelFile, {
+      target: `../tables/table${currentTableId}.xml`,
+      type: XLSX_RELATION_TYPE.table,
+    });
+
+    files.push(
+      createXMLFile(
+        createTable(table, currentTableId, sheetData),
+        `xl/tables/table${currentTableId}.xml`,
+        "table"
+      )
+    );
+
+    tableParts.push(escapeXml/*xml*/ `<tablePart r:id="${tableRelId}" />`);
+    currentTableId++;
+  }
+  return escapeXml/*xml*/ `
+    <tableParts count="${sheetData.filterTables.length}">
+      ${joinXmlNodes(tableParts)}
+    </tableParts>
+`;
 }
 
 function createStylesSheet(construct: XLSXStructure): XLSXExportFile {
@@ -258,7 +306,7 @@ function createContentTypes(files: XLSXExportFile[]): XLSXExportFile {
 function createRelRoot(): XLSXExportFile {
   const attributes: XMLAttributes = [
     ["Id", "rId1"],
-    ["Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"],
+    ["Type", XLSX_RELATION_TYPE.document],
     ["Target", "xl/workbook.xml"],
   ];
 
