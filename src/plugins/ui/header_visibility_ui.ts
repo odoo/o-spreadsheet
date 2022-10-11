@@ -1,5 +1,5 @@
 import { range } from "../../helpers";
-import { Dimension, HeaderIndex, Position, UID } from "../../types";
+import { Dimension, ExcelWorkbookData, HeaderIndex, Position, UID } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 export class HeaderVisibilityUIPlugin extends UIPlugin {
@@ -71,5 +71,14 @@ export class HeaderVisibilityUIPlugin extends UIPlugin {
       }
     }
     return undefined;
+  }
+
+  exportForExcel(data: ExcelWorkbookData) {
+    for (const sheetData of data.sheets) {
+      for (const [row, rowData] of Object.entries(sheetData.rows)) {
+        const isHidden = this.isRowHidden(sheetData.id, Number(row));
+        rowData.isHidden = isHidden;
+      }
+    }
   }
 }

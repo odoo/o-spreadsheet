@@ -1,12 +1,26 @@
 import { DEFAULT_FILTER_BORDER_DESC } from "../../constants";
 import {
+  isDefined,
   isInside,
   isObjectEmptyRecursive,
+  positions,
   range,
   removeFalsyAttributes,
   toLowerCase,
+  toXC,
+  toZone,
+  zoneToDimension,
 } from "../../helpers";
-import { Border, Command, CommandResult, FilterId, Position, UID } from "../../types";
+import {
+  Border,
+  Command,
+  CommandResult,
+  ExcelFilterData,
+  ExcelWorkbookData,
+  FilterId,
+  Position,
+  UID,
+} from "../../types";
 import { UIPlugin } from "../ui_plugin";
 import { UpdateFilterCommand } from "./../../types/commands";
 
@@ -171,5 +185,75 @@ export class FilterEvaluationPlugin extends UIPlugin {
   private getCellValueAsString(sheetId: UID, col: number, row: number): string {
     const value = this.getters.getCell(sheetId, col, row)?.formattedValue;
     return value?.toLowerCase() || "";
+  }
+
+  exportForExcel(data: ExcelWorkbookData) {
+    for (const sheetData of data.sheets) {
+      for (const tableData of sheetData.filterTables) {
+        const tableZone = toZone(tableData.range);
+        const filters: ExcelFilterData[] = [];
+        const headerNames: string[] = [];
+        for (const i of range(0, zoneToDimension(tableZone).width)) {
+          const filteredValues: string[] = this.getFilterValues(
+            sheetData.id,
+            tableZone.left + i,
+            tableZone.top
+          );
+
+          const filter = this.getters.getFilter(sheetData.id, tableZone.left + i, tableZone.top);
+          if (!filter) continue;
+
+          const valuesInFilterZone = filter.filteredZone
+            ? positions(filter.filteredZone)
+                .map((pos) => this.getters.getCell(sheetData.id, pos.col, pos.row)?.formattedValue)
+                .filter(isDefined)
+            : [];
+
+          // In xlsx, filtered values = values that are displayed, not values that are hidden
+          const xlsxFilteredValues = valuesInFilterZone.filter(
+            (val) => !filteredValues.includes(val)
+          );
+          filters.push({ colId: i, filteredValues: [...new Set(xlsxFilteredValues)] });
+
+          // In xlsx, filter header should ALWAYS be a string and should be unique
+          const headerPosition = { col: filter.col, row: filter.zoneWithHeaders.top };
+          const headerString = this.getters.getCell(
+            sheetData.id,
+            headerPosition.col,
+            headerPosition.row
+          )?.formattedValue;
+          const headerName = this.getUniqueColNameForExcel(i, headerString, headerNames);
+          headerNames.push(headerName);
+          sheetData.cells[toXC(headerPosition.col, headerPosition.row)] = {
+            ...sheetData.cells[toXC(headerPosition.col, headerPosition.row)],
+            content: headerName,
+            value: headerName,
+            isFormula: false,
+          };
+        }
+        tableData.filters = filters;
+      }
+    }
+  }
+
+  /**
+   * Get an unique column name for the column at colIndex. If the column name is already in the array of used column names,
+   * concatenate a number to the name until we find a new unique name (eg. "ColName" => "ColName1" => "ColName2" ...)
+   */
+  private getUniqueColNameForExcel(
+    colIndex: number,
+    colName: string | undefined,
+    usedColNames: string[]
+  ): string {
+    if (!colName) {
+      colName = `Column${colIndex}`;
+    }
+    let currentColName = colName;
+    let i = 2;
+    while (usedColNames.includes(currentColName)) {
+      currentColName = colName + String(i);
+      i++;
+    }
+    return currentColName;
   }
 }

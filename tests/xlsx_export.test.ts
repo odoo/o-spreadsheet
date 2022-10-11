@@ -1,9 +1,30 @@
 import { buildSheetLink } from "../src/helpers";
+import { createEmptyExcelWorkbookData } from "../src/migrations/data";
 import { Model } from "../src/model";
+import { BasePlugin } from "../src/plugins/base_plugin";
+import { ExcelWorkbookData } from "../src/types";
 import { adaptFormulaToExcel } from "../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../src/xlsx/helpers/xml_helpers";
-import { createChart, createSheet, merge, setCellContent } from "./test_helpers/commands_helpers";
+import {
+  createChart,
+  createFilter,
+  createSheet,
+  merge,
+  setCellContent,
+  updateFilter,
+} from "./test_helpers/commands_helpers";
 import { exportPrettifiedXlsx, toRangesData } from "./test_helpers/helpers";
+
+function getExportedExcelData(model: Model): ExcelWorkbookData {
+  model.dispatch("EVALUATE_CELLS");
+  let data = createEmptyExcelWorkbookData();
+  for (let handler of model.handlers) {
+    if (handler instanceof BasePlugin) {
+      handler.exportForExcel(data);
+    }
+  }
+  return data;
+}
 
 const simpleData = {
   sheets: [
@@ -934,6 +955,81 @@ describe("Test XLSX export", () => {
       sheets: [{ id: "sheet0" }, { id: "sheet1", areGridLinesVisible: true }],
     });
     expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+  });
+
+  describe("Export data filters", () => {
+    test("Table headers formula are replaced with their evaluated formatted value", () => {
+      const model = new Model();
+      createFilter(model, "A1:A4");
+      setCellContent(model, "A1", "=DATE(1,1,1)");
+      setCellContent(model, "A2", "=DATE(1,1,1)");
+      const exported = getExportedExcelData(model);
+      expect(exported.sheets[0].cells["A1"]?.content).toEqual("1/1/1901");
+      expect(exported.sheets[0].cells["A1"]?.value).toEqual("1/1/1901");
+      expect(exported.sheets[0].cells["A1"]?.isFormula).toEqual(false);
+
+      expect(exported.sheets[0].cells["A2"]?.content).toEqual("=DATE(1,1,1)");
+      expect(exported.sheets[0].cells["A2"]?.value).toEqual(367);
+      expect(exported.sheets[0].cells["A2"]?.isFormula).toEqual(true);
+    });
+
+    test("Table headers are replaced by unique value", () => {
+      const model = new Model();
+      createFilter(model, "A1:B4");
+      setCellContent(model, "A1", "Hello");
+      setCellContent(model, "B1", "Hello");
+      const exported = getExportedExcelData(model);
+      expect(exported.sheets[0].cells["A1"]?.content).toEqual("Hello");
+      expect(exported.sheets[0].cells["A1"]?.value).toEqual("Hello");
+
+      expect(exported.sheets[0].cells["B1"]?.content).toEqual("Hello2");
+      expect(exported.sheets[0].cells["B1"]?.value).toEqual("Hello2");
+    });
+
+    test("Filtered values are exported and rows are hidden", () => {
+      const model = new Model();
+      createFilter(model, "A1:B4");
+      setCellContent(model, "A2", "Hello");
+      setCellContent(model, "A3", "Konnichiwa");
+      setCellContent(model, "A4", '=CONCAT("Bon", "jour")');
+      updateFilter(model, "A1", ["Konnichiwa"]);
+      const exported = getExportedExcelData(model);
+      // Filtered values are the values that are displayed in xlsx, not the values that are hidden
+      expect(exported.sheets[0].filterTables[0].filters[0].filteredValues).toEqual([
+        "Hello",
+        "Bonjour",
+      ]);
+      expect(exported.sheets[0].rows[2].isHidden).toBeTruthy();
+    });
+
+    test("Filtered values are not duplicated", () => {
+      const model = new Model();
+      createFilter(model, "A1:B4");
+      setCellContent(model, "A2", "Konnichiwa");
+      setCellContent(model, "A3", "Konnichiwa");
+      const exported = getExportedExcelData(model);
+      expect(exported.sheets[0].filterTables[0].filters[0].filteredValues).toEqual(["Konnichiwa"]);
+    });
+
+    test("Empty cells are not added to filteredValues", () => {
+      const model = new Model();
+      createFilter(model, "A1:B4");
+      const exported = getExportedExcelData(model);
+      expect(exported.sheets[0].filterTables[0].filters[0].filteredValues).toEqual([]);
+    });
+
+    test("Export data filters snapshot", async () => {
+      const model = new Model();
+      setCellContent(model, "A1", "Hello");
+      setCellContent(model, "B1", "Hello");
+      setCellContent(model, "C1", "56");
+      setCellContent(model, "A2", "5");
+      setCellContent(model, "A3", "5");
+      setCellContent(model, "A4", "78");
+      createFilter(model, "A1:C4");
+      updateFilter(model, "A1", ["5"]);
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
   });
 });
 

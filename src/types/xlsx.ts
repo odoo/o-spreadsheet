@@ -22,6 +22,9 @@ import { Alias, ExcelChartDefinition, Format, PaneDivision } from ".";
  *  - cf rule (XLSXCfRule): §18.3.1.10 (cfRule)
  *  - cf rule icon set (XLSXIconSet) : §18.3.1.49 (iconSet)
  *  - cf value object (XLSXCfValueObject): §18.3.1.11 (cfvo)
+ *  - data filter (XLSXSimpleFilter): §18.3.2.6 (filter)
+ *  - data filter column (XLSXFilterColumn): §18.3.2.7 (filterColumns)
+ *  - data filter zone (XLSXAutoFilter): §18.3.1.2 (autoFilter)
  *  - external workbook (XLSXExternalBook): $18.14.7 (externalBook)
  *  - fills (XLSXFill): §18.8.20 (fill)
  *  - figure (XLSXFigure): §20.5.2.35 (wsDr (Worksheet Drawing))
@@ -556,6 +559,22 @@ export interface XLSXTable {
   totalsRowCount: number;
   cols: XLSXTableCol[];
   style?: XLSXTableStyleInfo;
+  autoFilter?: XLSXAutoFilter;
+}
+
+export interface XLSXAutoFilter {
+  zone: string;
+  columns: XLSXFilterColumn[];
+}
+
+export interface XLSXFilterColumn {
+  colId: number;
+  hiddenButton?: boolean;
+  filters: XLSXSimpleFilter[];
+}
+
+export interface XLSXSimpleFilter {
+  val: string;
 }
 
 export interface XLSXExternalBook {
