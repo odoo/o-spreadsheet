@@ -343,6 +343,16 @@ describe("UI Helpers", () => {
         AddMergeInteractiveContent.MergeInFilter.toString()
       );
     });
+
+    test("Destructive merge inside a filter", () => {
+      createFilter(model, "A1:A2");
+      setCellContent(model, "A2", ":)");
+      interactiveAddMerge(env, sheetId, target("A1:B5"));
+      expect(notifyUserTextSpy).toHaveBeenCalledWith(
+        AddMergeInteractiveContent.MergeInFilter.toString()
+      );
+      expect(askConfirmationTextSpy).not.toHaveBeenCalled();
+    });
   });
 
   describe("Sort multi adjacent columns", () => {
