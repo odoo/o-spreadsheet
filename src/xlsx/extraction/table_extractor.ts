@@ -1,4 +1,11 @@
-import { XLSXTable, XLSXTableCol, XLSXTableStyleInfo } from "../../types/xlsx";
+import {
+  XLSXAutoFilter,
+  XLSXFilterColumn,
+  XLSXSimpleFilter,
+  XLSXTable,
+  XLSXTableCol,
+  XLSXTableStyleInfo,
+} from "../../types/xlsx";
 import { XlsxBaseExtractor } from "./base_extractor";
 
 export class XlsxTableExtractor extends XlsxBaseExtractor {
@@ -21,6 +28,7 @@ export class XlsxTableExtractor extends XlsxBaseExtractor {
           }).asNum()!,
           cols: this.extractTableCols(tableElement),
           style: this.extractTableStyleInfo(tableElement),
+          autoFilter: this.extractTableAutoFilter(tableElement),
         };
       }
     )[0];
@@ -52,5 +60,43 @@ export class XlsxTableExtractor extends XlsxBaseExtractor {
         };
       }
     )[0];
+  }
+
+  private extractTableAutoFilter(tableElement: Element) {
+    return this.mapOnElements(
+      { query: "autoFilter", parent: tableElement },
+      (autoFilterElement): XLSXAutoFilter => {
+        return {
+          columns: this.extractFilterColumns(autoFilterElement),
+          zone: this.extractAttr(autoFilterElement, "ref", { required: true }).asString(),
+        };
+      }
+    )[0];
+  }
+
+  private extractFilterColumns(autoFilterElement: Element): XLSXFilterColumn[] {
+    return this.mapOnElements(
+      { query: "tableColumn", parent: autoFilterElement },
+      (filterColumnElement): XLSXFilterColumn => {
+        return {
+          colId: this.extractAttr(autoFilterElement, "colId", { required: true }).asNum(),
+          hiddenButton: this.extractAttr(autoFilterElement, "hiddenButton", {
+            default: false,
+          }).asBool(),
+          filters: this.extractSimpleFilter(filterColumnElement),
+        };
+      }
+    );
+  }
+
+  private extractSimpleFilter(filterColumnElement: Element): XLSXSimpleFilter[] {
+    return this.mapOnElements(
+      { query: "filter", parent: filterColumnElement },
+      (filterColumnElement): XLSXSimpleFilter => {
+        return {
+          val: this.extractAttr(filterColumnElement, "val", { required: true }).asString(),
+        };
+      }
+    );
   }
 }

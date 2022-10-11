@@ -463,6 +463,21 @@ describe("Import xlsx data", () => {
     }
   });
 
+  test("tables with headers are imported as FilterTables", () => {
+    const sheet = getWorkbookSheet("jestTable", convertedData)!;
+    expect(sheet.filterTables).toHaveLength(3);
+    expect(sheet.filterTables[0]).toEqual({ range: "C3:J6" });
+    expect(sheet.filterTables[1]).toEqual({ range: "C11:D12" });
+    expect(sheet.filterTables[2]).toEqual({ range: "C30:D32" });
+  });
+
+  test("rows filtered by a table filter are hidden", () => {
+    const sheet = getWorkbookSheet("jestTable", convertedData)!;
+    expect(sheet.filterTables[2]).toEqual({ range: "C30:D32" });
+    expect(sheet.cells["C31"]?.content).toEqual("Hidden");
+    expect(sheet.rows[30].isHidden).toBeTruthy();
+  });
+
   describe("table styles", () => {
     /** Test tables for styles are 2x2 tables located at the right of the cell describing them */
     let tableTestSheet: SheetData;

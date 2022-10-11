@@ -42,7 +42,11 @@ These are the elements of the XMLs that we don't parse at all because we don't i
   - everything not pie/doughnut/bar/line chart
 
 - Pivots :
+
   - we don't support excel-like pivot. Import them as Table.
+
+- Data filters:
+  - we only support filters with simple string matching
 
 ## What we don't support at conversion :
 
@@ -86,8 +90,11 @@ NW = no warning generated for these conversions.
     - We don't support IconSet with more than 3 icons, replace them with IconSet with 3 icons (NW)
 - Charts :
   - convert pie charts with multiple datasets into doughnut chart (NW)
-- Tables (NW) :
-  - we don't support tables the same way as Excel, the most we can do is import cells with formatting to represent a table
+- Tables & filters (NW) :
+  - import tables (with a header) as FilterTables.
+    - for the tables without headers, we only apply a style to the cells of the table.
+    - we don't import values in data filters, as they are non-persistent data in o_spreadsheet.
+    - rows filtered and hidden by filters will be hidden in the sheet, as "standard" hidden rows, not rows hidden by a filter
   - table style in XLSX is a string that represent a style and there's 80+ different styles supported. We currently don't support those and
     will use a default style for all the tables.
 - External References (NW):
