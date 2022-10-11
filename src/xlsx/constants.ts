@@ -17,6 +17,10 @@ export const NAMESPACE = {
   worksheet: "http://schemas.openxmlformats.org/spreadsheetml/2006/main",
   workbook: "http://schemas.openxmlformats.org/spreadsheetml/2006/main",
   drawing: "http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing",
+  table: "http://schemas.openxmlformats.org/spreadsheetml/2006/main",
+  revision: "http://schemas.microsoft.com/office/spreadsheetml/2014/revision",
+  revision3: "http://schemas.microsoft.com/office/spreadsheetml/2016/revision3",
+  markupCompatibility: "http://schemas.openxmlformats.org/markup-compatibility/2006",
 };
 
 export const DRAWING_NS_A = "http://schemas.openxmlformats.org/drawingml/2006/main";
@@ -33,6 +37,19 @@ export const CONTENT_TYPES = {
   table: "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml",
   pivot: "application/vnd.openxmlformats-officedocument.spreadsheetml.pivotTable+xml",
   externalLink: "application/vnd.openxmlformats-officedocument.spreadsheetml.externalLink+xml",
+} as const;
+
+export const XLSX_RELATION_TYPE = {
+  document: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument",
+  sheet: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet",
+  sharedStrings:
+    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings",
+  styles: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles",
+  drawing: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing",
+  chart: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart",
+  theme: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme",
+  table: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/table",
+  hyperlink: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
 } as const;
 
 export const RELATIONSHIP_NSR =

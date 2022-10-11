@@ -1,13 +1,16 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, INCORRECT_RANGE_STRING } from "../../constants";
 import {
+  isInside,
   isMarkdownLink,
   isMarkdownSheetLink,
   parseMarkdownLink,
   parseSheetLink,
   toXC,
+  toZone,
 } from "../../helpers";
 import { ExcelSheetData, ExcelWorkbookData, HeaderData } from "../../types";
 import { XLSXStructure, XMLAttributes, XMLString } from "../../types/xlsx";
+import { XLSX_RELATION_TYPE } from "../constants";
 import {
   addRelsToFile,
   convertHeightToExcel,
@@ -16,6 +19,7 @@ import {
   normalizeStyle,
 } from "../helpers/content_helpers";
 import { escapeXml, formatAttributes, joinXmlNodes } from "../helpers/xml_helpers";
+import { HeaderIndex } from "./../../types/misc";
 import { addContent, addFormula } from "./cells";
 
 export function addColumns(cols: { [key: number]: HeaderData }): XMLString {
@@ -78,9 +82,11 @@ export function addRows(
           const { label } = parseMarkdownLink(cell.content);
           ({ attrs: additionalAttrs, node: cellNode } = addContent(label, construct.sharedStrings));
         } else if (cell.content && cell.content !== "") {
+          const isTableHeader = isCellTableHeader(c, r, sheet);
           ({ attrs: additionalAttrs, node: cellNode } = addContent(
             cell.content,
-            construct.sharedStrings
+            construct.sharedStrings,
+            isTableHeader
           ));
         }
         attributes.push(...additionalAttrs);
@@ -104,6 +110,14 @@ export function addRows(
       ${joinXmlNodes(rowNodes)}
     </sheetData>
   `;
+}
+
+function isCellTableHeader(col: HeaderIndex, row: HeaderIndex, sheet: ExcelSheetData): boolean {
+  return sheet.filterTables.some((table) => {
+    const zone = toZone(table.range);
+    const headerZone = { ...zone, bottom: zone.top };
+    return isInside(col, row, headerZone);
+  });
 }
 
 export function addHyperlinks(
@@ -131,7 +145,7 @@ export function addHyperlinks(
           `xl/worksheets/_rels/sheet${sheetIndex}.xml.rels`,
           {
             target: url,
-            type: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
+            type: XLSX_RELATION_TYPE.hyperlink,
             targetMode: "External",
           }
         );

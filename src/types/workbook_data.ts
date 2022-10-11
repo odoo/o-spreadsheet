@@ -66,11 +66,22 @@ export interface ExcelCellData extends CellData {
   value: CellValue;
   isFormula: Boolean;
 }
-export interface ExcelSheetData extends SheetData {
+export interface ExcelSheetData extends Omit<SheetData, "figureTables"> {
   cells: { [key: string]: ExcelCellData | undefined };
   charts: FigureData<ExcelChartDefinition>[];
+  filterTables: ExcelFilterTableData[];
 }
 
 export interface FilterTableData {
   range: string;
+}
+
+export interface ExcelFilterTableData {
+  range: string;
+  filters: ExcelFilterData[];
+}
+
+export interface ExcelFilterData {
+  colId: number;
+  filteredValues: string[];
 }
