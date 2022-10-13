@@ -180,12 +180,10 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
     this.env.model.dispatch("SELECT_SEARCH_NEXT_MATCH");
   }
   updateSearch() {
-    if (this.state.toSearch) {
-      this.env.model.dispatch("UPDATE_SEARCH", {
-        toSearch: this.state.toSearch,
-        searchOptions: this.state.searchOptions,
-      });
-    }
+    this.env.model.dispatch("UPDATE_SEARCH", {
+      toSearch: this.state.toSearch,
+      searchOptions: this.state.searchOptions,
+    });
   }
   debouncedUpdateSearch() {
     clearTimeout(this.inDebounce);
