@@ -54,13 +54,17 @@ interface FindAndReplaceState {
 export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FindAndReplacePanel";
   private state: FindAndReplaceState = useState(this.initialState());
-  private inDebounce;
+  private debounceTimeoutId;
   private showFormulaState: boolean = false;
 
   private findAndReplaceRef = useRef("findAndReplace");
 
   get hasSearchResult() {
     return this.env.model.getters.getCurrentSelectedMatchIndex() !== null;
+  }
+
+  get pendingSearch() {
+    return this.debounceTimeoutId !== undefined;
   }
 
   setup() {
@@ -118,8 +122,11 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
     });
   }
   debouncedUpdateSearch() {
-    clearTimeout(this.inDebounce);
-    this.inDebounce = setTimeout(() => this.updateSearch.call(this), 400);
+    clearTimeout(this.debounceTimeoutId);
+    this.debounceTimeoutId = setTimeout(() => {
+      this.updateSearch();
+      this.debounceTimeoutId = undefined;
+    }, 400);
   }
 
   replace() {
