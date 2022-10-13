@@ -1,5 +1,6 @@
 import { Model, Spreadsheet } from "../../src";
 import { DispatchResult } from "../../src/types/commands";
+import { setCellContent } from "../test_helpers/commands_helpers";
 import { setInputValueAndTrigger, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
@@ -135,11 +136,37 @@ describe("find and replace sidePanel component", () => {
       expect(parent.env.dispatch).toHaveBeenCalledWith("SELECT_SEARCH_PREVIOUS_MATCH");
     });
 
-    test("won't search on empty string", async () => {
+    test("search on empty string", async () => {
       setInputValueAndTrigger(selectors.inputSearch, "", "input");
       jest.runAllTimers();
       await nextTick();
-      expect(parent.env.dispatch).not.toHaveBeenCalled();
+      expect(parent.env.dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
+        searchOptions: { exactMatch: false, matchCase: false, searchFormulas: false },
+        toSearch: "",
+      });
+    });
+  });
+
+  describe("search count match", () => {
+    test("search match count is displayed", async () => {
+      setCellContent(model, "A1", "Hello");
+      expect(fixture.querySelector(".o-input-count")).toBeNull();
+      setInputValueAndTrigger(selectors.inputSearch, "Hel", "input");
+      jest.runAllTimers();
+      await nextTick();
+      expect(fixture.querySelector(".o-input-count")?.innerHTML).toBe("1 / 1");
+    });
+
+    test("search match count is removed when input is cleared", async () => {
+      setCellContent(model, "A1", "Hello");
+      setInputValueAndTrigger(selectors.inputSearch, "Hel", "input");
+      jest.runAllTimers();
+      await nextTick();
+      expect(fixture.querySelector(".o-input-count")?.innerHTML).toBe("1 / 1");
+      setInputValueAndTrigger(selectors.inputSearch, "", "input");
+      jest.runAllTimers();
+      await nextTick();
+      expect(fixture.querySelector(".o-input-count")).toBeNull();
     });
   });
 
