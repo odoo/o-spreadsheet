@@ -47,15 +47,12 @@ export class HeaderVisibilityUIPlugin extends UIPlugin {
   findLastVisibleColRowIndex(
     sheetId: UID,
     dimension: Dimension,
-    indexes: { first: number; last: number }
+    { last, first }: { first: HeaderIndex; last: HeaderIndex }
   ): HeaderIndex {
-    let lastIndex: HeaderIndex;
-    for (lastIndex = indexes.last; lastIndex >= indexes.first; lastIndex--) {
-      if (!this.isHeaderHidden(sheetId, dimension, lastIndex)) {
-        return lastIndex;
-      }
-    }
-    return lastIndex;
+    const lastVisibleIndex = range(last, first, -1).find(
+      (index) => !this.isHeaderHidden(sheetId, dimension, index)
+    );
+    return lastVisibleIndex || first;
   }
 
   findFirstVisibleColRowIndex(sheetId: UID, dimension: Dimension) {
