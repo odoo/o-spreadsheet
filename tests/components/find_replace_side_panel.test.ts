@@ -1,5 +1,6 @@
 import { App } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../src";
+import { setCellContent } from "../test_helpers/commands_helpers";
 import { setInputValueAndTrigger, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { makeTestFixture, mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
@@ -134,11 +135,45 @@ describe("find and replace sidePanel component", () => {
       expect(dispatch).toHaveBeenCalledWith("SELECT_SEARCH_PREVIOUS_MATCH");
     });
 
-    test("won't search on empty string", async () => {
-      dispatch = spyDispatch(parent);
+    test("search on empty string", async () => {
+      jest.useFakeTimers();
       setInputValueAndTrigger(selectors.inputSearch, "", "input");
+      jest.runAllTimers();
       await nextTick();
-      expect(dispatch).not.toHaveBeenCalledWith();
+      expect(dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
+        searchOptions: { exactMatch: false, matchCase: false, searchFormulas: false },
+        toSearch: "",
+      });
+      jest.useRealTimers();
+    });
+  });
+
+  describe("search count match", () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+    test("search match count is displayed", async () => {
+      setCellContent(model, "A1", "Hello");
+      expect(fixture.querySelector(".o-input-count")).toBeNull();
+      setInputValueAndTrigger(selectors.inputSearch, "Hel", "input");
+      jest.runAllTimers();
+      await nextTick();
+      expect(fixture.querySelector(".o-input-count")?.innerHTML).toBe("1 / 1");
+    });
+
+    test("search match count is removed when input is cleared", async () => {
+      setCellContent(model, "A1", "Hello");
+      setInputValueAndTrigger(selectors.inputSearch, "Hel", "input");
+      jest.runAllTimers();
+      await nextTick();
+      expect(fixture.querySelector(".o-input-count")?.innerHTML).toBe("1 / 1");
+      setInputValueAndTrigger(selectors.inputSearch, "", "input");
+      jest.runAllTimers();
+      await nextTick();
+      expect(fixture.querySelector(".o-input-count")).toBeNull();
     });
   });
 
