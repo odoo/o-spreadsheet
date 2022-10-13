@@ -166,6 +166,8 @@ describe("find and replace sidePanel component", () => {
     test("search match count is removed when input is cleared", async () => {
       setCellContent(model, "A1", "Hello");
       setInputValueAndTrigger(selectors.inputSearch, "Hel", "input");
+      await nextTick();
+      expect(fixture.querySelector(".o-input-count")).toBeNull();
       jest.runAllTimers();
       await nextTick();
       expect(fixture.querySelector(".o-input-count")?.innerHTML).toBe("1 / 1");
@@ -173,6 +175,14 @@ describe("find and replace sidePanel component", () => {
       jest.runAllTimers();
       await nextTick();
       expect(fixture.querySelector(".o-input-count")).toBeNull();
+    });
+
+    test("search without match displays no match count", async () => {
+      expect(fixture.querySelector(".o-input-count")).toBeNull();
+      setInputValueAndTrigger(selectors.inputSearch, "a search term", "input");
+      jest.runAllTimers();
+      await nextTick();
+      expect(fixture.querySelector(".o-input-count")?.innerHTML).toBe("0 / 0");
     });
   });
 
