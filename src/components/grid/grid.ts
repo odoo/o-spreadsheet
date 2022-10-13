@@ -315,8 +315,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const { offsetScrollbarX, offsetScrollbarY } =
       this.env.model.getters.getActiveSheetScrollInfo();
     this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: Math.max(offsetScrollbarX + deltaX, 0),
-      offsetY: Math.max(offsetScrollbarY + deltaY, 0),
+      offsetX: offsetScrollbarX + deltaX,
+      offsetY: offsetScrollbarY + deltaY,
     });
   }
 
