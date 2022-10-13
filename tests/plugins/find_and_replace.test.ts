@@ -83,6 +83,18 @@ describe("basic search", () => {
     expect(matches[3]).toStrictEqual({ col: 0, row: 4, selected: false });
   });
 
+  test("search on empty string does not match anything", () => {
+    model.dispatch("UPDATE_SEARCH", { toSearch: "", searchOptions });
+    expect(model.getters.getSearchMatches()).toHaveLength(0);
+  });
+
+  test("search on empty string clears matches", () => {
+    model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
+    expect(model.getters.getSearchMatches()).toHaveLength(4);
+    model.dispatch("UPDATE_SEARCH", { toSearch: "", searchOptions });
+    expect(model.getters.getSearchMatches()).toHaveLength(0);
+  });
+
   test.skip("Will search a modified cell", () => {
     // not implemented
     model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
