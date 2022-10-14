@@ -144,7 +144,10 @@ export class EvaluationPlugin extends UIPlugin {
       const msg = e?.errorType || CellErrorType.GenericError;
       // apply function name
       const __lastFnCalled = compilationParameters[2].__lastFnCalled || "";
-      return new EvaluationError(
+
+      const ErrorClass = e instanceof EvaluationError ? e.constructor : EvaluationError;
+      // @ts-ignore
+      return new ErrorClass(
         msg,
         e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled),
         e.logLevel !== undefined ? e.logLevel : CellErrorLevel.error
