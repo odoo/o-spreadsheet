@@ -34,10 +34,9 @@ Try it with the [live demo](https://odoo.github.io/o-spreadsheet/)!
 4. Menu items (under construction)
 5. Side panel (under construction)
 6. Notification (under construction)
-7. Import Excel (under construction)
-8. [Export Excel](doc/extending/xlsx/xlsx_import.md)
-9. [Terminology](doc/o-spreadsheet_terminology.png)
-10. [API](doc/tsdoc/README.md)
+7. Export Excel (under construction)
+8. [Terminology](doc/o-spreadsheet_terminology.png)
+9. [API](doc/tsdoc/README.md)
 
 ## Run it!
 
