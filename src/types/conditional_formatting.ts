@@ -1,4 +1,4 @@
-import { Style, UID } from "./misc";
+import { Style, UID, Zone } from "./misc";
 import { Range } from "./range";
 
 // -----------------------------------------------------------------------------
@@ -13,7 +13,11 @@ export interface ConditionalFormat {
   id: UID;
   rule: ConditionalFormatRule; // the rules to apply, in order;
   stopIfTrue?: boolean; // the next rules must not be evaluated/applied if this rule is true
-  ranges: string[]; // the cells/ranges on which to apply this conditional formatting
+  ranges: Zone[]; // the cells/ranges on which to apply this conditional formatting
+}
+
+export interface ExportedConditionalFormat extends Omit<ConditionalFormat, "ranges"> {
+  ranges: string[];
 }
 
 export interface ConditionalFormatInternal extends Omit<ConditionalFormat, "ranges"> {

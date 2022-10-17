@@ -1,6 +1,6 @@
 import { CellValue, Format } from ".";
 import { ExcelChartDefinition } from "./chart/chart";
-import { ConditionalFormat } from "./conditional_formatting";
+import { ExportedConditionalFormat } from "./conditional_formatting";
 import { Border, PaneDivision, Pixel, Style, UID } from "./misc";
 
 export interface Dependencies {
@@ -41,7 +41,7 @@ export interface SheetData {
   figures: FigureData<any>[];
   cols: { [key: number]: HeaderData };
   rows: { [key: number]: HeaderData };
-  conditionalFormats: ConditionalFormat[];
+  conditionalFormats: ExportedConditionalFormat[];
   filterTables: FilterTableData[];
   areGridLinesVisible?: boolean;
   isVisible: boolean;

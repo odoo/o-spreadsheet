@@ -4,7 +4,7 @@ import {
   ColorScaleMidPointThreshold,
   ColorScaleRule,
   ColorScaleThreshold,
-  ConditionalFormat,
+  ExportedConditionalFormat as ConditionalFormat,
   IconSet,
   IconSetRule,
   IconThreshold,

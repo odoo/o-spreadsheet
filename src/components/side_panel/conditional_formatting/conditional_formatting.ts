@@ -1,6 +1,6 @@
 import { Component, onWillUpdateProps, useExternalListener, useState } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../constants";
-import { colorNumberString, rangeReference } from "../../../helpers/index";
+import { colorNumberString, rangeReference, zoneToXc } from "../../../helpers/index";
 import { _t } from "../../../translation";
 import {
   CancelledReason,
@@ -10,6 +10,7 @@ import {
   CommandResult,
   ConditionalFormat,
   ConditionalFormatRule,
+  ExportedConditionalFormat,
   IconSetRule,
   SingleColorRules,
   SpreadsheetChildEnv,
@@ -321,7 +322,7 @@ type CFMenu =
 interface State {
   mode: Mode;
   rules: Rules;
-  currentCF?: Omit<ConditionalFormat, "rule">;
+  currentCF?: Omit<ExportedConditionalFormat, "rule">;
   currentCFType?: CFType;
   errors: CancelledReason[];
   openedMenu?: CFMenu;
@@ -376,8 +377,12 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
     useExternalListener(window as any, "click", this.closeMenus);
   }
 
-  get conditionalFormats(): ConditionalFormat[] {
-    return this.env.model.getters.getConditionalFormats(this.env.model.getters.getActiveSheetId());
+  get conditionalFormats(): ExportedConditionalFormat[] {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    return this.env.model.getters.getConditionalFormats(sheetId).map((cf) => ({
+      ...cf,
+      ranges: cf.ranges.map(zoneToXc),
+    }));
   }
 
   get isRangeValid(): boolean {
@@ -551,7 +556,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
   /**
    * Edit an existing CF. Return without doing anything in reorder mode.
    */
-  editConditionalFormat(cf: ConditionalFormat) {
+  editConditionalFormat(cf: ExportedConditionalFormat) {
     if (this.state.mode === "reorder") return;
 
     this.state.mode = "edit";

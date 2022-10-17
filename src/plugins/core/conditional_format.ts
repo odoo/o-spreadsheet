@@ -121,7 +121,7 @@ export class ConditionalFormatPlugin
         break;
       case "DUPLICATE_SHEET":
         this.history.update("cfRules", cmd.sheetIdTo, []);
-        for (const cf of this.getConditionalFormats(cmd.sheetId)) {
+        for (const cf of this.cfRules[cmd.sheetId]) {
           this.addConditionalFormatting(cf, cmd.sheetIdTo);
         }
         break;
@@ -133,9 +133,7 @@ export class ConditionalFormatPlugin
       case "ADD_CONDITIONAL_FORMAT":
         const cf = {
           ...cmd.cf,
-          ranges: cmd.ranges.map((rangeData) =>
-            this.getters.getRangeString(this.getters.getRangeFromRangeData(rangeData), cmd.sheetId)
-          ),
+          ranges: cmd.ranges.map((rangeData) => this.getters.getRangeFromRangeData(rangeData)),
         };
         this.addConditionalFormatting(cf, cmd.sheetId);
         break;
@@ -150,9 +148,10 @@ export class ConditionalFormatPlugin
 
   import(data: WorkbookData) {
     for (let sheet of data.sheets) {
-      this.cfRules[sheet.id] = sheet.conditionalFormats.map((rule) =>
-        this.mapToConditionalFormatInternal(sheet.id, rule)
-      );
+      this.cfRules[sheet.id] = sheet.conditionalFormats.map((rule) => ({
+        ...rule,
+        ranges: rule.ranges.map((range) => this.getters.getRangeFromSheetXC(sheet.id, range)),
+      }));
     }
   }
 
@@ -160,9 +159,10 @@ export class ConditionalFormatPlugin
     if (data.sheets) {
       for (let sheet of data.sheets) {
         if (this.cfRules[sheet.id]) {
-          sheet.conditionalFormats = this.cfRules[sheet.id].map((rule) =>
-            this.mapToConditionalFormat(sheet.id, rule)
-          );
+          sheet.conditionalFormats = this.cfRules[sheet.id].map((rule) => ({
+            ...rule,
+            ranges: rule.ranges.map((rangeXc) => this.getters.getRangeString(rangeXc, sheet.id)),
+          }));
         }
       }
     }
@@ -231,32 +231,16 @@ export class ConditionalFormatPlugin
   private mapToConditionalFormat(sheetId: UID, cf: ConditionalFormatInternal): ConditionalFormat {
     return {
       ...cf,
-      ranges: cf.ranges.map((range) => {
-        return this.getters.getRangeString(range, sheetId);
-      }),
+      ranges: cf.ranges.map((range) => range.zone),
     };
-  }
-
-  private mapToConditionalFormatInternal(
-    sheet: UID,
-    cf: ConditionalFormat
-  ): ConditionalFormatInternal {
-    const conditionalFormat = {
-      ...cf,
-      ranges: cf.ranges.map((range) => {
-        return this.getters.getRangeFromSheetXC(sheet, range);
-      }),
-    };
-    return conditionalFormat;
   }
 
   /**
    * Add or replace a conditional format rule
    */
-  private addConditionalFormatting(cf: ConditionalFormat, sheet: string) {
+  private addConditionalFormatting(newCF: ConditionalFormatInternal, sheet: string) {
     const currentCF = this.cfRules[sheet].slice();
-    const replaceIndex = currentCF.findIndex((c) => c.id === cf.id);
-    const newCF = this.mapToConditionalFormatInternal(sheet, cf);
+    const replaceIndex = currentCF.findIndex((c) => c.id === newCF.id);
     if (replaceIndex > -1) {
       currentCF.splice(replaceIndex, 1, newCF);
     } else {

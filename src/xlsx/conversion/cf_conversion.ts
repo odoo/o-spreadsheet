@@ -2,8 +2,8 @@ import { ICON_SETS } from "../../components/icons/icons";
 import {
   ColorScaleMidPointThreshold,
   ColorScaleThreshold,
-  ConditionalFormat,
   ConditionalFormattingOperatorValues,
+  ExportedConditionalFormat,
   IconThreshold,
 } from "../../types";
 import { ExcelIconSet, XLSXConditionalFormat, XLSXDxf } from "../../types/xlsx";
@@ -22,8 +22,8 @@ export function convertConditionalFormats(
   xlsxCfs: XLSXConditionalFormat[],
   dxfs: XLSXDxf[],
   warningManager: XLSXImportWarningManager
-): ConditionalFormat[] {
-  const cfs: ConditionalFormat[] = [];
+): ExportedConditionalFormat[] {
+  const cfs: ExportedConditionalFormat[] = [];
   let cfId = 1;
   for (let cf of xlsxCfs) {
     if (cf.cfRules.length === 0) continue;
@@ -104,7 +104,7 @@ export function convertConditionalFormats(
 function convertColorScale(
   id: number,
   xlsxCf: XLSXConditionalFormat
-): ConditionalFormat | undefined {
+): ExportedConditionalFormat | undefined {
   const scale = xlsxCf.cfRules[0].colorScale;
   if (
     !scale ||
@@ -151,7 +151,7 @@ function convertIconSet(
   id: number,
   xlsxCf: XLSXConditionalFormat,
   warningManager: XLSXImportWarningManager
-): ConditionalFormat | undefined {
+): ExportedConditionalFormat | undefined {
   const xlsxIconSet = xlsxCf.cfRules[0].iconSet;
   if (!xlsxIconSet) return undefined;
   let cfVos = xlsxIconSet.cfvos;
