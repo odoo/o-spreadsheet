@@ -1,7 +1,13 @@
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers";
 import { SearchOptions } from "../../src/plugins/ui_feature/find_and_replace";
-import { activateSheet, createSheet, setCellContent } from "../test_helpers/commands_helpers";
+import {
+  activateSheet,
+  createSheet,
+  setCellContent,
+  setSelection,
+  setViewportOffset,
+} from "../test_helpers/commands_helpers";
 import { getCellContent, getCellText } from "../test_helpers/getters_helpers";
 
 let model: Model;
@@ -278,6 +284,57 @@ describe("next/previous cycle", () => {
     expect(matches[2]).toStrictEqual({ col: 0, row: 2, selected: true });
   });
 });
+
+describe("next/previous with single match", () => {
+  beforeEach(() => {
+    model = new Model();
+    setCellContent(model, "A1", "1");
+    searchOptions = {
+      matchCase: false,
+      exactMatch: false,
+      searchFormulas: false,
+    };
+    model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
+    model.dispatch("SELECT_SEARCH_NEXT_MATCH");
+  });
+
+  test.each(["SELECT_SEARCH_NEXT_MATCH", "SELECT_SEARCH_PREVIOUS_MATCH"] as const)(
+    "%s after changing selection will re-select the match",
+    (cmd) => {
+      setSelection(model, ["B3"]);
+      expect(model.getters.getSelection().zones).toEqual([toZone("B3")]);
+      model.dispatch(cmd);
+      expect(model.getters.getSelection().zones).toEqual([toZone("A1")]);
+    }
+  );
+
+  test("UPDATE_SEARCH after changing selection will re-select the match", () => {
+    setSelection(model, ["B3"]);
+    expect(model.getters.getSelection().zones).toEqual([toZone("B3")]);
+    model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
+    expect(model.getters.getSelection().zones).toEqual([toZone("A1")]);
+  });
+
+  test.each(["SELECT_SEARCH_NEXT_MATCH", "SELECT_SEARCH_PREVIOUS_MATCH"] as const)(
+    "%s after scrolling will re-scroll to the match",
+    (cmd) => {
+      const viewportAfterSearch = model.getters.getActiveMainViewport();
+      setViewportOffset(model, 1000, 1000);
+      expect(model.getters.getActiveMainViewport()).not.toMatchObject(viewportAfterSearch);
+      model.dispatch("SELECT_SEARCH_NEXT_MATCH");
+      expect(model.getters.getActiveMainViewport()).toMatchObject(viewportAfterSearch);
+    }
+  );
+
+  test("UPDATE_SEARCH after scrolling will re-scroll to the match", () => {
+    const viewportAfterSearch = model.getters.getActiveMainViewport();
+    setViewportOffset(model, 1000, 1000);
+    expect(model.getters.getActiveMainViewport()).not.toMatchObject(viewportAfterSearch);
+    model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
+    expect(model.getters.getActiveMainViewport()).toMatchObject(viewportAfterSearch);
+  });
+});
+
 describe("search options", () => {
   beforeEach(() => {
     model = new Model();
