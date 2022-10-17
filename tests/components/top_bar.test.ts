@@ -16,7 +16,7 @@ import {
   setCellContent,
   setSelection,
 } from "../test_helpers/commands_helpers";
-import { triggerMouseEvent } from "../test_helpers/dom_helper";
+import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getBorder, getCell } from "../test_helpers/getters_helpers";
 import {
   makeTestFixture,
@@ -271,7 +271,7 @@ describe("TopBar component", () => {
     formatTool.dispatchEvent(new Event("click"));
     await nextTick();
     expect(fixture).toMatchSnapshot();
-    formatTool
+    fixture
       .querySelector('[data-format="percent"]')!
       .dispatchEvent(new Event("click", { bubbles: true }));
     await nextTick();
@@ -286,9 +286,7 @@ describe("TopBar component", () => {
     expect(fontSizeTool.textContent!.trim()).toBe(DEFAULT_FONT_SIZE.toString());
     fontSizeTool.dispatchEvent(new Event("click"));
     await nextTick();
-    fontSizeTool
-      .querySelector('[data-size="8"]')!
-      .dispatchEvent(new Event("click", { bubbles: true }));
+    fixture.querySelector('[data-size="8"]')!.dispatchEvent(new Event("click", { bubbles: true }));
     await nextTick();
     expect(fontSizeTool.textContent!.trim()).toBe("8");
     const style = model.getters.getCellStyle(getCell(model, "A1")!);
@@ -308,9 +306,7 @@ describe("TopBar component", () => {
     alignTool.dispatchEvent(new Event("click"));
     await nextTick();
 
-    const alignButtons = fixture.querySelectorAll(
-      '.o-tool[title="Horizontal align"] div.o-dropdown-item'
-    )!;
+    const alignButtons = fixture.querySelectorAll("div.o-dropdown-item")!;
     const button = [...alignButtons].find((element) =>
       element.children[0]!.classList.contains(iconClass)
     )!;
@@ -513,6 +509,29 @@ describe("TopBar component", () => {
     expect(model.getters.getCurrentContent()).toBe(content);
     app.destroy();
   });
+
+  test.each([
+    ["Horizontal align", ".o-dropdown-content"],
+    ["Borders", ".o-dropdown-content"],
+    ["Font Size", ".o-dropdown-content"],
+    ["Fill Color", ".o-color-picker"],
+    ["Text Color", ".o-color-picker"],
+    ["More formats", ".o-dropdown-content"],
+  ])(
+    "Clicking a static element inside a dropdown '%s' don't close the dropdown",
+    async (toolName: string, dropdownContentSelector: string) => {
+      const model = new Model();
+      const { app } = await mountParent(model);
+
+      await simulateClick(`.o-tool[title="${toolName}"]`);
+      await nextTick();
+      expect(fixture.querySelector(dropdownContentSelector)).toBeTruthy();
+      await simulateClick(dropdownContentSelector);
+      await nextTick();
+      expect(fixture.querySelector(dropdownContentSelector)).toBeTruthy();
+      app.destroy();
+    }
+  );
 });
 
 test("Can show/hide a TopBarComponent based on condition", async () => {

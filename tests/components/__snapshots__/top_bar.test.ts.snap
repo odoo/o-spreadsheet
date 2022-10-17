@@ -148,11 +148,11 @@ exports[`TopBar component can set cell format 1`] = `
              .00 
           </div>
           <div
-            class="o-tool o-dropdown"
-            title="More formats"
+            class="o-dropdown"
           >
             <div
-              class="o-text-icon"
+              class="o-tool o-dropdown-button o-text-icon"
+              title="More formats"
             >
                123 
               <svg
@@ -170,7 +170,7 @@ exports[`TopBar component can set cell format 1`] = `
               class="o-dropdown-content o-text-options  o-format-tool "
             >
               <div
-                class="active"
+                class="o-dropdown-item active"
                 data-format="automatic"
               >
                 Automatic
@@ -181,6 +181,7 @@ exports[`TopBar component can set cell format 1`] = `
                 </span>
               </div>
               <div
+                class="o-dropdown-item"
                 data-format="number"
               >
                 Number
@@ -191,6 +192,7 @@ exports[`TopBar component can set cell format 1`] = `
                 </span>
               </div>
               <div
+                class="o-dropdown-item"
                 data-format="percent"
               >
                 Percent
@@ -201,6 +203,7 @@ exports[`TopBar component can set cell format 1`] = `
                 </span>
               </div>
               <div
+                class="o-dropdown-item"
                 data-format="currency"
               >
                 Currency
@@ -211,6 +214,7 @@ exports[`TopBar component can set cell format 1`] = `
                 </span>
               </div>
               <div
+                class="o-dropdown-item"
                 data-format="currency_rounded"
               >
                 Currency rounded
@@ -221,6 +225,7 @@ exports[`TopBar component can set cell format 1`] = `
                 </span>
               </div>
               <div
+                class="o-dropdown-item"
                 data-format="date"
               >
                 Date
@@ -231,6 +236,7 @@ exports[`TopBar component can set cell format 1`] = `
                 </span>
               </div>
               <div
+                class="o-dropdown-item"
                 data-format="time"
               >
                 Time
@@ -241,6 +247,7 @@ exports[`TopBar component can set cell format 1`] = `
                 </span>
               </div>
               <div
+                class="o-dropdown-item"
                 data-format="datetime"
               >
                 Date time
@@ -251,6 +258,7 @@ exports[`TopBar component can set cell format 1`] = `
                 </span>
               </div>
               <div
+                class="o-dropdown-item"
                 data-format="duration"
               >
                 Duration
@@ -263,6 +271,7 @@ exports[`TopBar component can set cell format 1`] = `
               
               
               <div
+                class="o-dropdown-item"
                 data-custom="custom_currency"
               >
                 Custom currency
@@ -276,11 +285,11 @@ exports[`TopBar component can set cell format 1`] = `
             class="o-divider"
           />
           <div
-            class="o-tool o-dropdown"
-            title="Font Size"
+            class="o-dropdown"
           >
             <div
-              class="o-text-icon"
+              class="o-tool o-dropdown-button o-text-icon"
+              title="Font Size"
             >
               10
               <svg
@@ -345,22 +354,26 @@ exports[`TopBar component can set cell format 1`] = `
             </svg>
           </div>
           <div
-            class="o-tool o-dropdown o-with-color"
-            title="Text Color"
+            class="o-dropdown"
           >
-            <span
-              style="border-color:#000000"
+            <div
+              class="o-tool o-dropdown-button o-with-color"
+              title="Text Color"
             >
-              <svg
-                class="o-icon"
+              <span
+                style="border-color:#000000"
               >
-                <path
-                  d="M7,0 L5,0 L0.5,12 L2.5,12 L3.62,9 L8.37,9 L9.49,12 L11.49,12 L7,0 L7,0 Z M4.38,7 L6,2.67 L7.62,7 L4.38,7 L4.38,7 Z"
-                  fill="#000000"
-                  transform="translate(3 1)"
-                />
-              </svg>
-            </span>
+                <svg
+                  class="o-icon"
+                >
+                  <path
+                    d="M7,0 L5,0 L0.5,12 L2.5,12 L3.62,9 L8.37,9 L9.49,12 L11.49,12 L7,0 L7,0 Z M4.38,7 L6,2.67 L7.62,7 L4.38,7 L4.38,7 Z"
+                    fill="#000000"
+                    transform="translate(3 1)"
+                  />
+                </svg>
+              </span>
+            </div>
             
             
           </div>
@@ -368,39 +381,47 @@ exports[`TopBar component can set cell format 1`] = `
             class="o-divider"
           />
           <div
-            class="o-tool  o-dropdown o-with-color"
-            title="Fill Color"
+            class="o-dropdown "
           >
-            <span
-              style="border-color:#ffffff"
+            <div
+              class="o-tool o-dropdown-button o-with-color"
+              title="Fill Color"
             >
-              <svg
-                class="o-icon"
+              <span
+                style="border-color:#ffffff"
               >
-                <path
-                  d="M14.5,8.87 C14.5,8.87 13,10.49 13,11.49 C13,12.32 13.67,12.99 14.5,12.99 C15.33,12.99 16,12.32 16,11.49 C16,10.5 14.5,8.87 14.5,8.87 L14.5,8.87 Z M12.71,6.79 L5.91,0 L4.85,1.06 L6.44,2.65 L2.29,6.79 C1.9,7.18 1.9,7.81 2.29,8.2 L6.79,12.7 C6.99,12.9 7.24,13 7.5,13 C7.76,13 8.01,12.9 8.21,12.71 L12.71,8.21 C13.1,7.82 13.1,7.18 12.71,6.79 L12.71,6.79 Z M4.21,7 L7.5,3.71 L10.79,7 L4.21,7 L4.21,7 Z"
-                  fill="#000000"
-                />
-              </svg>
-            </span>
+                <svg
+                  class="o-icon"
+                >
+                  <path
+                    d="M14.5,8.87 C14.5,8.87 13,10.49 13,11.49 C13,12.32 13.67,12.99 14.5,12.99 C15.33,12.99 16,12.32 16,11.49 C16,10.5 14.5,8.87 14.5,8.87 L14.5,8.87 Z M12.71,6.79 L5.91,0 L4.85,1.06 L6.44,2.65 L2.29,6.79 C1.9,7.18 1.9,7.81 2.29,8.2 L6.79,12.7 C6.99,12.9 7.24,13 7.5,13 C7.76,13 8.01,12.9 8.21,12.71 L12.71,8.21 C13.1,7.82 13.1,7.18 12.71,6.79 L12.71,6.79 Z M4.21,7 L7.5,3.71 L10.79,7 L4.21,7 L4.21,7 Z"
+                    fill="#000000"
+                  />
+                </svg>
+              </span>
+            </div>
             
             
           </div>
           <div
-            class="o-tool o-dropdown"
-            title="Borders"
+            class="o-dropdown"
           >
-            <span>
-              <svg
-                class="o-icon"
-              >
-                <path
-                  d="M0,0 L0,14 L14,14 L14,0 L0,0 L0,0 Z M6,12 L2,12 L2,8 L6,8 L6,12 L6,12 Z M6,6 L2,6 L2,2 L6,2 L6,6 L6,6 Z M12,12 L8,12 L8,8 L12,8 L12,12 L12,12 Z M12,6 L8,6 L8,2 L12,2 L12,6 L12,6 Z"
-                  fill="#000000"
-                  transform="translate(2 2)"
-                />
-              </svg>
-            </span>
+            <div
+              class="o-tool o-dropdown-button"
+              title="Borders"
+            >
+              <span>
+                <svg
+                  class="o-icon"
+                >
+                  <path
+                    d="M0,0 L0,14 L14,14 L14,0 L0,0 L0,0 Z M6,12 L2,12 L2,8 L6,8 L6,12 L6,12 Z M6,6 L2,6 L2,2 L6,2 L6,6 L6,6 Z M12,12 L8,12 L8,8 L12,8 L12,12 L12,12 Z M12,6 L8,6 L8,2 L12,2 L12,6 L12,6 Z"
+                    fill="#000000"
+                    transform="translate(2 2)"
+                  />
+                </svg>
+              </span>
+            </div>
             
           </div>
           <div
@@ -420,33 +441,37 @@ exports[`TopBar component can set cell format 1`] = `
             class="o-divider"
           />
           <div
-            class="o-tool o-dropdown"
-            title="Horizontal align"
+            class="o-dropdown"
           >
-            <span>
-              
-              
-              <svg
-                class="o-icon align-left"
-              >
-                <path
-                  d="M0,14 L10,14 L10,12 L0,12 L0,14 Z M10,4 L0,4 L0,6 L10,6 L10,4 Z M0,0 L0,2 L14,2 L14,0 L0,0 Z M0,10 L14,10 L14,8 L0,8 L0,10 Z"
-                  fill="#000000"
-                  transform="translate(2 2)"
-                />
-              </svg>
-              
-              <svg
-                class="o-icon"
-              >
-                <polygon
-                  fill="#000000"
-                  points="0 0 4 4 8 0"
-                  transform="translate(5 7)"
-                />
-              </svg>
-              
-            </span>
+            <div
+              class="o-tool o-dropdown-button"
+              title="Horizontal align"
+            >
+              <span>
+                
+                
+                <svg
+                  class="o-icon align-left"
+                >
+                  <path
+                    d="M0,14 L10,14 L10,12 L0,12 L0,14 Z M10,4 L0,4 L0,6 L10,6 L10,4 Z M0,0 L0,2 L14,2 L14,0 L0,0 Z M0,10 L14,10 L14,8 L0,8 L0,10 Z"
+                    fill="#000000"
+                    transform="translate(2 2)"
+                  />
+                </svg>
+                
+                <svg
+                  class="o-icon"
+                >
+                  <polygon
+                    fill="#000000"
+                    points="0 0 4 4 8 0"
+                    transform="translate(5 7)"
+                  />
+                </svg>
+                
+              </span>
+            </div>
             
           </div>
           <div
@@ -641,11 +666,11 @@ exports[`TopBar component simple rendering 1`] = `
          .00 
       </div>
       <div
-        class="o-tool o-dropdown"
-        title="More formats"
+        class="o-dropdown"
       >
         <div
-          class="o-text-icon"
+          class="o-tool o-dropdown-button o-text-icon"
+          title="More formats"
         >
            123 
           <svg
@@ -665,11 +690,11 @@ exports[`TopBar component simple rendering 1`] = `
         class="o-divider"
       />
       <div
-        class="o-tool o-dropdown"
-        title="Font Size"
+        class="o-dropdown"
       >
         <div
-          class="o-text-icon"
+          class="o-tool o-dropdown-button o-text-icon"
+          title="Font Size"
         >
           10
           <svg
@@ -734,22 +759,26 @@ exports[`TopBar component simple rendering 1`] = `
         </svg>
       </div>
       <div
-        class="o-tool o-dropdown o-with-color"
-        title="Text Color"
+        class="o-dropdown"
       >
-        <span
-          style="border-color:#000000"
+        <div
+          class="o-tool o-dropdown-button o-with-color"
+          title="Text Color"
         >
-          <svg
-            class="o-icon"
+          <span
+            style="border-color:#000000"
           >
-            <path
-              d="M7,0 L5,0 L0.5,12 L2.5,12 L3.62,9 L8.37,9 L9.49,12 L11.49,12 L7,0 L7,0 Z M4.38,7 L6,2.67 L7.62,7 L4.38,7 L4.38,7 Z"
-              fill="#000000"
-              transform="translate(3 1)"
-            />
-          </svg>
-        </span>
+            <svg
+              class="o-icon"
+            >
+              <path
+                d="M7,0 L5,0 L0.5,12 L2.5,12 L3.62,9 L8.37,9 L9.49,12 L11.49,12 L7,0 L7,0 Z M4.38,7 L6,2.67 L7.62,7 L4.38,7 L4.38,7 Z"
+                fill="#000000"
+                transform="translate(3 1)"
+              />
+            </svg>
+          </span>
+        </div>
         
         
       </div>
@@ -757,39 +786,47 @@ exports[`TopBar component simple rendering 1`] = `
         class="o-divider"
       />
       <div
-        class="o-tool  o-dropdown o-with-color"
-        title="Fill Color"
+        class="o-dropdown "
       >
-        <span
-          style="border-color:#ffffff"
+        <div
+          class="o-tool o-dropdown-button o-with-color"
+          title="Fill Color"
         >
-          <svg
-            class="o-icon"
+          <span
+            style="border-color:#ffffff"
           >
-            <path
-              d="M14.5,8.87 C14.5,8.87 13,10.49 13,11.49 C13,12.32 13.67,12.99 14.5,12.99 C15.33,12.99 16,12.32 16,11.49 C16,10.5 14.5,8.87 14.5,8.87 L14.5,8.87 Z M12.71,6.79 L5.91,0 L4.85,1.06 L6.44,2.65 L2.29,6.79 C1.9,7.18 1.9,7.81 2.29,8.2 L6.79,12.7 C6.99,12.9 7.24,13 7.5,13 C7.76,13 8.01,12.9 8.21,12.71 L12.71,8.21 C13.1,7.82 13.1,7.18 12.71,6.79 L12.71,6.79 Z M4.21,7 L7.5,3.71 L10.79,7 L4.21,7 L4.21,7 Z"
-              fill="#000000"
-            />
-          </svg>
-        </span>
+            <svg
+              class="o-icon"
+            >
+              <path
+                d="M14.5,8.87 C14.5,8.87 13,10.49 13,11.49 C13,12.32 13.67,12.99 14.5,12.99 C15.33,12.99 16,12.32 16,11.49 C16,10.5 14.5,8.87 14.5,8.87 L14.5,8.87 Z M12.71,6.79 L5.91,0 L4.85,1.06 L6.44,2.65 L2.29,6.79 C1.9,7.18 1.9,7.81 2.29,8.2 L6.79,12.7 C6.99,12.9 7.24,13 7.5,13 C7.76,13 8.01,12.9 8.21,12.71 L12.71,8.21 C13.1,7.82 13.1,7.18 12.71,6.79 L12.71,6.79 Z M4.21,7 L7.5,3.71 L10.79,7 L4.21,7 L4.21,7 Z"
+                fill="#000000"
+              />
+            </svg>
+          </span>
+        </div>
         
         
       </div>
       <div
-        class="o-tool o-dropdown"
-        title="Borders"
+        class="o-dropdown"
       >
-        <span>
-          <svg
-            class="o-icon"
-          >
-            <path
-              d="M0,0 L0,14 L14,14 L14,0 L0,0 L0,0 Z M6,12 L2,12 L2,8 L6,8 L6,12 L6,12 Z M6,6 L2,6 L2,2 L6,2 L6,6 L6,6 Z M12,12 L8,12 L8,8 L12,8 L12,12 L12,12 Z M12,6 L8,6 L8,2 L12,2 L12,6 L12,6 Z"
-              fill="#000000"
-              transform="translate(2 2)"
-            />
-          </svg>
-        </span>
+        <div
+          class="o-tool o-dropdown-button"
+          title="Borders"
+        >
+          <span>
+            <svg
+              class="o-icon"
+            >
+              <path
+                d="M0,0 L0,14 L14,14 L14,0 L0,0 L0,0 Z M6,12 L2,12 L2,8 L6,8 L6,12 L6,12 Z M6,6 L2,6 L2,2 L6,2 L6,6 L6,6 Z M12,12 L8,12 L8,8 L12,8 L12,12 L12,12 Z M12,6 L8,6 L8,2 L12,2 L12,6 L12,6 Z"
+                fill="#000000"
+                transform="translate(2 2)"
+              />
+            </svg>
+          </span>
+        </div>
         
       </div>
       <div
@@ -809,33 +846,37 @@ exports[`TopBar component simple rendering 1`] = `
         class="o-divider"
       />
       <div
-        class="o-tool o-dropdown"
-        title="Horizontal align"
+        class="o-dropdown"
       >
-        <span>
-          
-          
-          <svg
-            class="o-icon align-left"
-          >
-            <path
-              d="M0,14 L10,14 L10,12 L0,12 L0,14 Z M10,4 L0,4 L0,6 L10,6 L10,4 Z M0,0 L0,2 L14,2 L14,0 L0,0 Z M0,10 L14,10 L14,8 L0,8 L0,10 Z"
-              fill="#000000"
-              transform="translate(2 2)"
-            />
-          </svg>
-          
-          <svg
-            class="o-icon"
-          >
-            <polygon
-              fill="#000000"
-              points="0 0 4 4 8 0"
-              transform="translate(5 7)"
-            />
-          </svg>
-          
-        </span>
+        <div
+          class="o-tool o-dropdown-button"
+          title="Horizontal align"
+        >
+          <span>
+            
+            
+            <svg
+              class="o-icon align-left"
+            >
+              <path
+                d="M0,14 L10,14 L10,12 L0,12 L0,14 Z M10,4 L0,4 L0,6 L10,6 L10,4 Z M0,0 L0,2 L14,2 L14,0 L0,0 Z M0,10 L14,10 L14,8 L0,8 L0,10 Z"
+                fill="#000000"
+                transform="translate(2 2)"
+              />
+            </svg>
+            
+            <svg
+              class="o-icon"
+            >
+              <polygon
+                fill="#000000"
+                points="0 0 4 4 8 0"
+                transform="translate(5 7)"
+              />
+            </svg>
+            
+          </span>
+        </div>
         
       </div>
       <div

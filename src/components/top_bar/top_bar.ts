@@ -18,6 +18,7 @@ import { FullMenuItem } from "../../registries/menu_items_registry";
 import {
   Align,
   BorderCommand,
+  Format,
   SetDecimalStep,
   SpreadsheetChildEnv,
   Style,
@@ -25,7 +26,6 @@ import {
 import { ColorPicker } from "../color_picker/color_picker";
 import { Composer } from "../composer/composer/composer";
 import { css } from "../helpers/css";
-import { isChildEvent } from "../helpers/dom_helpers";
 import { Menu, MenuState } from "../menu/menu";
 import { ComposerFocusType } from "../spreadsheet/spreadsheet";
 import { NumberFormatTerms } from "../translations_terms";
@@ -157,7 +157,7 @@ css/* scss */ `
           display: flex;
           align-items: center;
           margin: 2px;
-          padding: 0 3px;
+          padding: 0px 3px;
           border-radius: 2px;
           cursor: pointer;
           min-width: fit-content;
@@ -206,6 +206,12 @@ css/* scss */ `
 
         .o-dropdown {
           position: relative;
+          display: flex;
+          align-items: center;
+
+          .o-dropdown-button {
+            height: 30px;
+          }
 
           .o-text-icon {
             height: 100%;
@@ -229,7 +235,7 @@ css/* scss */ `
             background-color: white;
 
             .o-dropdown-item {
-              padding: 7px 10px;
+              cursor: pointer;
             }
 
             .o-dropdown-item:hover {
@@ -242,6 +248,9 @@ css/* scss */ `
 
               .o-line-item {
                 padding: 4px;
+                width: 18px;
+                height: 18px;
+                cursor: pointer;
 
                 &:hover {
                   background-color: rgba(0, 0, 0, 0.08);
@@ -264,6 +273,10 @@ css/* scss */ `
                   left: 5px;
                 }
               }
+            }
+
+            .o-dropdown-align-item {
+              padding: 7px 10px;
             }
           }
         }
@@ -315,7 +328,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   `;
 
   setup() {
-    useExternalListener(window as any, "click", this.onClick);
+    useExternalListener(window as any, "click", this.onExternalClick);
     onWillStart(() => this.updateCellState());
     onWillUpdateProps(() => this.updateCellState());
   }
@@ -326,18 +339,28 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
       .filter((item) => !item.isVisible || item.isVisible(this.env));
   }
 
-  onClick(ev: MouseEvent) {
-    if (this.openedEl && isChildEvent(this.openedEl, ev)) {
+  onExternalClick(ev: MouseEvent) {
+    // TODO : manage click events better. We need this piece of code
+    // otherwise the event opening the menu would close it on the same frame.
+    // And we cannot stop the event propagation because it's used in an
+    // external listener of the Menu component to close the context menu when
+    // clicking on the top bar
+    if (this.openedEl === ev.target) {
       return;
     }
     this.closeMenus();
   }
 
-  toogleStyle(style: string) {
+  onClick() {
+    this.props.onClick();
+    this.closeMenus();
+  }
+
+  toggleStyle(style: string) {
     setStyle(this.env, { [style]: !this.style[style] });
   }
 
-  toogleFormat(formatName: string) {
+  toggleFormat(formatName: string) {
     const formatter = FORMATS.find((f) => f.name === formatName);
     const value = (formatter && formatter.value) || "";
     setFormatter(this.env, value);
@@ -345,6 +368,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   toggleAlign(align: Align) {
     setStyle(this.env, { ["align"]: align });
+    this.onClick();
   }
 
   onMenuMouseOver(menu: FullMenuItem, ev: MouseEvent) {
@@ -442,6 +466,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   setColor(target: string, color: string) {
     setStyle(this.env, { [target]: color });
+    this.onClick();
   }
 
   setBorder(command: BorderCommand) {
@@ -450,18 +475,16 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
       target: this.env.model.getters.getSelectedZones(),
       border: command,
     });
+    this.onClick();
   }
 
-  setFormat(ev: MouseEvent) {
-    const format = (ev.target as HTMLElement).dataset.format;
-    if (format) {
-      this.toogleFormat(format);
-      return;
+  setFormat(format: Format, custom: boolean) {
+    if (!custom) {
+      this.toggleFormat(format);
+    } else {
+      this.openCustomFormatSidePanel(format);
     }
-    const custom = (ev.target as HTMLElement).dataset.custom;
-    if (custom) {
-      this.openCustomFormatSidePanel(custom);
-    }
+    this.onClick();
   }
 
   openCustomFormatSidePanel(custom: string) {
@@ -491,9 +514,10 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  setSize(ev: MouseEvent) {
-    const fontSize = parseFloat((ev.target as HTMLElement).dataset.size!);
+  setSize(fontSizeStr: string) {
+    const fontSize = parseFloat(fontSizeStr);
     setStyle(this.env, { fontSize });
+    this.onClick();
   }
 
   doAction(action: (env: SpreadsheetChildEnv) => void) {

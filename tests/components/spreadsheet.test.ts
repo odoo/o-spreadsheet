@@ -472,7 +472,7 @@ describe("Composer / selectionInput interactions", () => {
     const gridComposerZIndex = getZIndex("div.o-grid-composer");
     const highlighZIndex = getZIndex(".o-highlight");
 
-    triggerMouseEvent(".o-tool.o-dropdown.o-with-color", "click");
+    triggerMouseEvent(".o-tool.o-dropdown-button.o-with-color", "click");
     await nextTick();
     const colorPickerZIndex = getZIndex("div.o-color-picker");
 
