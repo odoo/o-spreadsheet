@@ -228,7 +228,7 @@ css/* scss */ `
 
           .o-dropdown-content {
             position: absolute;
-            top: calc(100% + 5px);
+            top: 100%;
             left: 0;
             z-index: ${ComponentsImportance.Dropdown};
             box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
