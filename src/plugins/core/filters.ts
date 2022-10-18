@@ -298,7 +298,7 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
 
     for (const col of range(zone.left, zone.right + 1)) {
       // Since this plugin is loaded before CellPlugin, the getters still give us the old cell content
-      const cellContent = this.getters.getCell(sheetId, col, row)?.content;
+      const cellContent = this.getters.getCellData(sheetId, col, row)?.content;
       if (cellContent) {
         return false;
       }

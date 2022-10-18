@@ -446,16 +446,6 @@ export class EvaluationPlugin extends UIPlugin {
     return [refFn, range, evalContext];
   }
 
-  /**
-   * Triggers an evaluation of all cells on all sheets.
-   */
-  private evaluateAllSheets() {
-    for (const sheetId of this.getters.getSheetIds()) {
-      this.evaluate(sheetId);
-      this.isUpToDate.add(sheetId);
-    }
-  }
-
   // ---------------------------------------------------------------------------
   // Export
   // ---------------------------------------------------------------------------

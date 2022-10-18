@@ -4,11 +4,11 @@ import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
   Cell,
-  CellEvaluation,
   CellValueType,
   Color,
   CommandResult,
   CoreGetters,
+  EvaluationResult,
   Range,
   RemoveColumnsRowsCommand,
   UID,
@@ -358,7 +358,7 @@ export function checkLabelRange(
 
 export function getBaselineText(
   baseline: Cell | undefined,
-  keyValue: CellEvaluation | undefined,
+  keyValue: EvaluationResult | undefined,
   baselineMode: BaselineMode
 ): string {
   const baselineEvaluated = baseline?.evaluated;
@@ -386,9 +386,9 @@ export function getBaselineText(
 }
 
 export function getBaselineColor(
-  baseline: CellEvaluation | undefined,
+  baseline: EvaluationResult | undefined,
   baselineMode: BaselineMode,
-  keyValue: CellEvaluation | undefined,
+  keyValue: EvaluationResult | undefined,
   colorUp: Color,
   colorDown: Color
 ): Color | undefined {
@@ -409,8 +409,8 @@ export function getBaselineColor(
 }
 
 export function getBaselineArrowDirection(
-  baseline: CellEvaluation | undefined,
-  keyValue: CellEvaluation | undefined,
+  baseline: EvaluationResult | undefined,
+  keyValue: EvaluationResult | undefined,
   baselineMode: BaselineMode
 ): BaselineArrowDirection {
   if (

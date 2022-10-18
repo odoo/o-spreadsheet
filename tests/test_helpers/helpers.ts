@@ -12,6 +12,7 @@ import {
   ColorScaleThreshold,
   CommandTypes,
   ConditionalFormat,
+  EvaluationResult,
   RangeData,
   SpreadsheetChildEnv,
   Style,
@@ -20,7 +21,6 @@ import {
 } from "../../src/types";
 import { XLSXExport } from "../../src/types/xlsx";
 import { OWL_TEMPLATES } from "../setup/jest.setup";
-import { CellEvaluation } from "./../../src/types/cells";
 import { redo, setCellContent, undo } from "./commands_helpers";
 import { getCell, getCellContent } from "./getters_helpers";
 
@@ -473,7 +473,7 @@ export function toCartesianArray(xc: string): [number, number] {
 interface CellValue {
   value: string | number | boolean;
   style?: Style;
-  evaluated: CellEvaluation;
+  evaluated: EvaluationResult;
   format?: string;
   content: string;
 }

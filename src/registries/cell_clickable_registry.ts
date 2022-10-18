@@ -1,4 +1,4 @@
-import { LinkCell } from "../helpers/cells";
+import { openLink } from "../helpers/cells/link_factory";
 import { Registry } from "../registry";
 import { Cell, SpreadsheetChildEnv } from "../types";
 
@@ -11,9 +11,7 @@ interface CellClickableItem {
 export const clickableCellRegistry = new Registry<CellClickableItem>();
 
 clickableCellRegistry.add("link", {
-  condition: (cell: Cell) => cell.isLink(),
-  action: (cell: Cell, env: SpreadsheetChildEnv) => {
-    (cell as LinkCell).action(env);
-  },
+  condition: (cell: Cell) => cell.link !== undefined,
+  action: (cell: Cell, env: SpreadsheetChildEnv) => openLink(cell.link!, env),
   sequence: 5,
 });
