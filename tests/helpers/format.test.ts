@@ -5,7 +5,6 @@ describe("formatValue on number", () => {
   test("apply default format ", () => {
     expect(formatValue(1)).toBe("1");
     expect(formatValue(0)).toBe("0");
-    expect(formatValue(-1)).toBe("-1");
     expect(formatValue(0.1)).toBe("0.1");
     expect(formatValue(0.01)).toBe("0.01");
     expect(formatValue(0.001)).toBe("0.001");
@@ -15,14 +14,34 @@ describe("formatValue on number", () => {
     expect(formatValue(0.0000001)).toBe("0.0000001");
     expect(formatValue(0.00000001)).toBe("0.00000001");
     expect(formatValue(0.000000001)).toBe("0.000000001");
-    expect(formatValue(0.0000000001)).toBe("0.0000000001");
+    expect(formatValue(0.0000000001)).toBe("0");
     expect(formatValue(0.00000000001)).toBe("0");
     expect(formatValue(0.000000000001)).toBe("0");
 
-    // @compatibility note: in Google Sheets, the next three tests result in 1234512345
-    expect(formatValue(1234512345.1)).toBe("1234512345.1");
-    expect(formatValue(1234512345.12)).toBe("1234512345.12");
-    expect(formatValue(1234512345.123)).toBe("1234512345.123");
+    expect(formatValue(-1)).toBe("-1");
+    expect(formatValue(-0.1)).toBe("-0.1");
+    expect(formatValue(-0.01)).toBe("-0.01");
+    expect(formatValue(-0.001)).toBe("-0.001");
+    expect(formatValue(-0.0001)).toBe("-0.0001");
+    expect(formatValue(-0.00001)).toBe("-0.00001");
+    expect(formatValue(-0.000001)).toBe("-0.000001");
+    expect(formatValue(-0.0000001)).toBe("-0.0000001");
+    expect(formatValue(-0.00000001)).toBe("-0.00000001");
+    expect(formatValue(-0.000000001)).toBe("-0.000000001");
+    expect(formatValue(-0.0000000001)).toBe("-0");
+    expect(formatValue(-0.00000000001)).toBe("-0");
+    expect(formatValue(-0.000000000001)).toBe("-0");
+
+    expect(formatValue(1.123456789)).toBe("1.123456789");
+    expect(formatValue(10.123456789)).toBe("10.12345679");
+    expect(formatValue(100.123456789)).toBe("100.1234568");
+    expect(formatValue(1000.123456789)).toBe("1000.123457");
+    expect(formatValue(10000.123456789)).toBe("10000.12346");
+    expect(formatValue(-10000.123456789)).toBe("-10000.12346");
+
+    // too many integer digit to display decimal part
+    expect(formatValue(12345123456.1234)).toBe("12345123456");
+    expect(formatValue(12345123456.9999)).toBe("12345123457");
 
     expect(formatValue(123.10000000001)).toBe("123.1");
     expect(formatValue(123.10000000000000001)).toBe("123.1");

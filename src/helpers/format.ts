@@ -11,6 +11,12 @@ import { isNumber } from "./numbers";
  */
 const MAX_DECIMAL_PLACES = 20;
 
+/**
+ * Number of digits for the default number format. This number of digit make a number fit well in a cell
+ * with default size and default font size.
+ */
+const DEFAULT_FORMAT_NUMBER_OF_DIGITS = 11;
+
 //from https://stackoverflow.com/questions/721304/insert-commas-into-number-string @Thomas/Alan Moore
 const thousandsGroupsRegexp = /(\d+?)(?=(\d{3})+(?!\d)|$)/g;
 
@@ -349,8 +355,27 @@ function formatJSTime(jsDate: Date, format: Format): FormattedValue {
 // CREATE / MODIFY FORMAT
 // -----------------------------------------------------------------------------
 
+/**
+ * Create a default format for a number.
+ *
+ * If possible this will try round the number to have less than DEFAULT_FORMAT_NUMBER_OF_DIGITS characters
+ * in the number. This is obviously only possible for number with a big decimal part. For number with a lot
+ * of digits in the integer part, keep the number as it is.
+ */
 export function createDefaultFormat(value: number): Format {
-  let { decimalDigits } = splitNumber(value, 10);
+  let { integerDigits, decimalDigits } = splitNumber(value);
+  if (!decimalDigits) return "0";
+
+  const digitsInIntegerPart = integerDigits.replace("-", "").length;
+
+  // If there's no space for at least the decimal separator + a decimal digit, don't display decimals
+  if (digitsInIntegerPart + 2 > DEFAULT_FORMAT_NUMBER_OF_DIGITS) {
+    return "0";
+  }
+
+  // -1 for the decimal separator character
+  const spaceForDecimalsDigits = DEFAULT_FORMAT_NUMBER_OF_DIGITS - digitsInIntegerPart - 1;
+  ({ decimalDigits } = splitNumber(value, Math.min(spaceForDecimalsDigits, decimalDigits.length)));
   return decimalDigits ? "0." + "0".repeat(decimalDigits.length) : "0";
 }
 

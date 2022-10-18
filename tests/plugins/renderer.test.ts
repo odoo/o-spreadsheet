@@ -7,6 +7,7 @@ import {
   FILTERS_COLOR,
   HEADER_HEIGHT,
   HEADER_WIDTH,
+  MIN_CELL_TEXT_MARGIN,
   MIN_CF_ICON_MARGIN,
   SELECTION_BORDER_COLOR,
 } from "../../src/constants";
@@ -597,12 +598,17 @@ describe("renderer", () => {
         {
           id: 1,
           colNumber: 4,
-          cols: { 0: { size: 2 }, 1: { size: 2 }, 2: { size: 12 }, 3: { size: 12 } },
+          cols: {
+            0: { size: 2 + MIN_CELL_TEXT_MARGIN },
+            1: { size: 2 + MIN_CELL_TEXT_MARGIN },
+            2: { size: 12 + MIN_CELL_TEXT_MARGIN },
+            3: { size: 12 + MIN_CELL_TEXT_MARGIN },
+          },
           merges: ["A2:B2", "C2:D2"],
           cells: {
-            A1: { content: "123456" },
+            A1: { content: "123456789" },
             A2: { content: "=A1" },
-            C1: { content: "123456891" },
+            C1: { content: "123456891234" },
             C2: { content: "=C1" },
           },
           conditionalFormats: [
@@ -1177,7 +1183,7 @@ describe("renderer", () => {
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     model.drawGrid(ctx);
     box = getBoxFromText(model, cellContent);
-    const maxIconBoxWidth = box.image!.size + 2 * MIN_CF_ICON_MARGIN;
+    const maxIconBoxWidth = box.image!.size + MIN_CF_ICON_MARGIN;
     expect(box.image!.clipIcon).toEqual({
       x: 0,
       y: 0,
@@ -1283,6 +1289,35 @@ describe("renderer", () => {
       );
     }
   );
+  test("Box clip rect computation take the text margin into account", () => {
+    let box: Box;
+    const model = new Model({
+      sheets: [
+        {
+          id: "sheet1",
+          colNumber: 1,
+          rowNumber: 1,
+        },
+      ],
+    });
+    resizeColumns(model, ["A"], 10);
+
+    // Text + MIN_CELL_TEXT_MARGIN  <= col size, no clip
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+    let text = "a".repeat(10 - MIN_CELL_TEXT_MARGIN);
+    setCellContent(model, "A1", text);
+    model.drawGrid(ctx);
+    box = getBoxFromText(model, text);
+    expect(box.clipRect).toBeUndefined();
+
+    // Text + MIN_CELL_TEXT_MARGIN  > col size, clip text
+    ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+    text = "a".repeat(10);
+    setCellContent(model, "A1", text);
+    model.drawGrid(ctx);
+    box = getBoxFromText(model, text);
+    expect(box.clipRect).toEqual({ x: 0, y: 0, width: 10, height: DEFAULT_CELL_HEIGHT });
+  });
 
   test.each(["A1", "A1:A2", "A1:A2,B1:B2", "A1,C1"])(
     "compatible copied zones %s are all outlined with dots",
