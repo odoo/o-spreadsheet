@@ -96,8 +96,8 @@ export class EvaluationPlugin extends UIPlugin {
     }
     switch (cmd.type) {
       case "UPDATE_CELL":
+        this.isUpToDate = false;
         if ("content" in cmd || "format" in cmd) {
-          this.isUpToDate = false;
         }
         break;
       case "EVALUATE_CELLS":
@@ -247,7 +247,6 @@ export class EvaluationPlugin extends UIPlugin {
   }
   private evaluate() {
     const visit: { [cellId: string]: "done" | "pending" } = {};
-
     const computeCell = (staticCell: StaticCellData): Cell => {
       const cellId = staticCell.id;
       if (visit[cellId] === "done" || this.evaluatedCells[cellId]) {
@@ -310,7 +309,7 @@ export class EvaluationPlugin extends UIPlugin {
     };
 
     const compilationParameters = this.getCompilationParameters(computeCell);
-
+    this.evaluatedCells = {};
     for (const cell of this.getAllCells()) {
       this.evaluatedCells[cell.id] = computeCell(cell);
     }

@@ -146,6 +146,7 @@ export function createEvaluationResult(value: CellValue | null, format?: Format)
   } catch (error) {
     return errorEvaluation(
       (value || 0).toString(),
+      // Rename that
       new BadExpressionError(error.message || DEFAULT_ERROR_MESSAGE)
     );
   }
