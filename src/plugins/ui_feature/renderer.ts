@@ -268,7 +268,7 @@ export class RendererPlugin extends UIPlugin {
         let x: number;
         let y = box.y + box.height / 2 + 1;
         if (align === "left") {
-          x = box.x + (box.image ? box.image.size + 2 * MIN_CF_ICON_MARGIN : MIN_CELL_TEXT_MARGIN);
+          x = box.x + MIN_CELL_TEXT_MARGIN + (box.image ? box.image.size + MIN_CF_ICON_MARGIN : 0);
         } else if (align === "right") {
           x =
             box.x +
@@ -568,7 +568,7 @@ export class RendererPlugin extends UIPlugin {
     /** Icon CF */
     const cfIcon = this.getters.getConditionalIcon(position);
     const fontSizePX = computeTextFontSizeInPixels(box.style);
-    const iconBoxWidth = cfIcon ? 2 * MIN_CF_ICON_MARGIN + fontSizePX : 0;
+    const iconBoxWidth = cfIcon ? MIN_CF_ICON_MARGIN + fontSizePX : 0;
     if (cfIcon) {
       box.image = {
         type: "icon",
@@ -584,7 +584,7 @@ export class RendererPlugin extends UIPlugin {
 
     /** Content */
     const text = this.getters.getCellText(position, showFormula);
-    const textWidth = this.getters.getTextWidth(position);
+    const textWidth = this.getters.getTextWidth(position) + MIN_CELL_TEXT_MARGIN;
     const wrapping = this.getters.getCellStyle(position).wrapping || "overflow";
     const multiLineText =
       wrapping === "wrap"
@@ -631,7 +631,7 @@ export class RendererPlugin extends UIPlugin {
           const { x, y, width, height } = this.getters.getVisibleRect(
             union(zone, emptyZoneOnTheLeft)
           );
-          if (width < textWidth || fontSizePX > height) {
+          if (width < contentWidth || fontSizePX > height) {
             box.clipRect = { x, y, width, height };
           }
           break;
@@ -641,7 +641,7 @@ export class RendererPlugin extends UIPlugin {
           const { x, y, width, height } = this.getters.getVisibleRect(
             union(zone, emptyZoneOnTheRight)
           );
-          if (width < textWidth || fontSizePX > height) {
+          if (width < contentWidth || fontSizePX > height) {
             box.clipRect = { x, y, width, height };
           }
           break;
@@ -654,7 +654,7 @@ export class RendererPlugin extends UIPlugin {
           };
           const { x, y, width, height } = this.getters.getVisibleRect(emptyZone);
           if (
-            width < textWidth ||
+            width < contentWidth ||
             previousColIndex === col ||
             nextColIndex === col ||
             fontSizePX > height
