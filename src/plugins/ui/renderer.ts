@@ -491,23 +491,37 @@ export class RendererPlugin extends UIPlugin {
     ctx.stroke();
   }
 
-  private hasContent(col: HeaderIndex, row: HeaderIndex): boolean {
-    const sheetId = this.getters.getActiveSheetId();
-    const cell = this.getters.getCell(sheetId, col, row);
-    return (cell && !cell.isEmpty()) || this.getters.isInMerge(sheetId, col, row);
-  }
-
   private findNextEmptyCol(base: HeaderIndex, max: HeaderIndex, row: HeaderIndex): HeaderIndex {
+    const sheetId = this.getters.getActiveSheetId();
     let col: HeaderIndex = base;
-    while (col < max && !this.hasContent(col + 1, row)) {
+    while (col < max) {
+      const nextCell = this.getters.getCell(sheetId, col + 1, row);
+      const nextCellBorder = this.getters.getCellBorderWithFilterBorder(sheetId, col + 1, row);
+      if (
+        (nextCell && !nextCell.isEmpty()) ||
+        this.getters.isInMerge(sheetId, col + 1, row) ||
+        nextCellBorder?.left
+      ) {
+        return col;
+      }
       col++;
     }
     return col;
   }
 
   private findPreviousEmptyCol(base: HeaderIndex, min: HeaderIndex, row: HeaderIndex): HeaderIndex {
+    const sheetId = this.getters.getActiveSheetId();
     let col: HeaderIndex = base;
-    while (col > min && !this.hasContent(col - 1, row)) {
+    while (col > min) {
+      const previousCell = this.getters.getCell(sheetId, col - 1, row);
+      const previousCellBorder = this.getters.getCellBorderWithFilterBorder(sheetId, col - 1, row);
+      if (
+        (previousCell && !previousCell.isEmpty()) ||
+        this.getters.isInMerge(sheetId, col + 1, row) ||
+        previousCellBorder?.right
+      ) {
+        return col;
+      }
       col--;
     }
     return col;
