@@ -246,6 +246,12 @@ function splitNumber(
   return { integerDigits, decimalDigits };
 }
 
+/** Convert a number into a string, without scientific notation */
+export function numberToString(number: number): string {
+  const { integerDigits, decimalDigits } = splitNumber(number, 20);
+  return decimalDigits ? `${integerDigits}.${decimalDigits}` : integerDigits;
+}
+
 /**
  * Check if the given format is a time, date or date time format.
  */

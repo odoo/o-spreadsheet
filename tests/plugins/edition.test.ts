@@ -15,6 +15,7 @@ import {
   selectCell,
   setAnchorCorner,
   setCellContent,
+  setFormat,
   setSelection,
 } from "../test_helpers/commands_helpers";
 import {
@@ -721,6 +722,37 @@ describe("edition", () => {
     model.dispatch("START_EDITION");
     expect(model.getters.getCurrentContent()).toBe("");
     expect(model.getters.getComposerSelection()).toEqual({ start: 0, end: 0 });
+  });
+
+  test("Numbers in the composer are displayed without default format", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "0.123456789123");
+    selectCell(model, "A1");
+    expect(model.getters.getCurrentContent()).toBe("0.123456789123");
+    model.dispatch("UPDATE_CELL", {
+      sheetId: model.getters.getActiveSheetId(),
+      col: 0,
+      row: 0,
+      format: "#,##0.00",
+    });
+    expect(model.getters.getCurrentContent()).toBe("0.123456789123");
+  });
+
+  test("Numbers in the composer are displayed without number of digit format", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "0.123456789123");
+    setFormat(model, "#,##0.00", target("A1"));
+    selectCell(model, "A1");
+    expect(model.getters.getCurrentContent()).toBe("0.123456789123");
+  });
+
+  test("Composer content for very large number don't user scientific notation", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "123456789123456789123456789");
+    selectCell(model, "A1");
+
+    // replacing lest significant digits by zeroes is a JS limitation.
+    expect(model.getters.getCurrentContent()).toBe("123456789123456790000000000");
   });
 
   test("set a number format on a date displays the raw number", () => {
