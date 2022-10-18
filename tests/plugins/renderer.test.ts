@@ -17,7 +17,7 @@ import {
   CELL_BACKGROUND_GRIDLINE_STROKE_STYLE,
   RendererPlugin,
 } from "../../src/plugins/ui/renderer";
-import { Box, GridRenderingContext, Viewport } from "../../src/types";
+import { Align, BorderCommand, Box, GridRenderingContext, Viewport, Zone } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {
   addColumns,
@@ -28,8 +28,10 @@ import {
   paste,
   resizeColumns,
   resizeRows,
+  setBorder,
   setCellContent,
   setSelection,
+  setStyle,
 } from "../test_helpers/commands_helpers";
 import { createEqualCF, getPlugin, target, toRangesData } from "../test_helpers/helpers";
 import { watchClipboardOutline } from "../test_helpers/renderer_helpers";
@@ -1167,6 +1169,82 @@ describe("renderer", () => {
       height: DEFAULT_CELL_HEIGHT,
     });
   });
+
+  test.each([
+    ["right", ["left"], { left: 1, right: 1, top: 1, bottom: 1 }], // align right, left border => clipped on cell zone
+    ["right", ["left", "right"], { left: 1, right: 1, top: 1, bottom: 1 }], // align right, left + right border => clipped on cell zone
+    ["right", ["right"], undefined], // align right, right border => no clip
+
+    ["left", ["right"], { left: 1, right: 1, top: 1, bottom: 1 }], // align left, right border => clipped on cell zone
+    ["left", ["left", "right"], { left: 1, right: 1, top: 1, bottom: 1 }], // align left, left + right border => clipped on cell zone
+    ["left", ["left"], undefined], // align left, left border => no clip
+
+    ["center", ["right"], { left: 0, right: 1, top: 1, bottom: 1 }], // align center, right border => clipped right
+    ["center", ["left", "right"], { left: 1, right: 1, top: 1, bottom: 1 }], // align center, left + right border => clipped on cell zone
+    ["center", ["left"], { left: 1, right: 2, top: 1, bottom: 1 }], // align center, right border => clipped left
+  ])(
+    "cells with borders are correctly clipped",
+    (align: string, borders: string[], expectedClipRectZone: Zone | undefined) => {
+      const cellContent = "This is a long text larger than a cell";
+      const model = new Model({
+        sheets: [
+          {
+            id: "sheet1",
+            colNumber: 3,
+            rowNumber: 3,
+            cells: { B2: { content: cellContent } },
+            cols: { 1: { size: 10 } },
+          },
+        ],
+      });
+
+      setStyle(model, "B2", { align: align as Align });
+
+      for (const border of borders) {
+        setBorder(model, border as BorderCommand, "B2");
+      }
+
+      let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+      model.drawGrid(ctx);
+      const box = getBoxFromText(model, cellContent);
+      expect(box.clipRect).toEqual(
+        expectedClipRectZone ? model.getters.getVisibleRect(expectedClipRectZone) : undefined
+      );
+    }
+  );
+
+  test.each([
+    ["right", { left: 1, right: 2, top: 0, bottom: 0 }], // align right, left border => clipped on cell zone
+    ["left", { left: 2, right: 3, top: 0, bottom: 0 }], // align left, left + right border => clipped on cell zone
+    ["center", { left: 1, right: 3, top: 0, bottom: 0 }], // align center, right border => clipped left
+  ])(
+    "Cell text overflowing on multiple cells is cut as soon as it encounter a border with align %s",
+    (align: string, expectedClipRectZone: Zone | undefined) => {
+      const cellContent = "This is a very vey very very very very long text larger than a cell";
+      const model = new Model({
+        sheets: [
+          {
+            id: "sheet1",
+            colNumber: 6,
+            rowNumber: 6,
+            cells: { C1: { content: cellContent } },
+            cols: { 1: { size: 10 }, 2: { size: 10 }, 3: { size: 10 } },
+          },
+        ],
+      });
+
+      setBorder(model, "right", "A1");
+      setStyle(model, "C1", { align: align as Align });
+      setBorder(model, "left", "E1");
+
+      let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+      model.drawGrid(ctx);
+      const box = getBoxFromText(model, cellContent);
+      expect(box.clipRect).toEqual(
+        expectedClipRectZone ? model.getters.getVisibleRect(expectedClipRectZone) : undefined
+      );
+    }
+  );
 
   test.each(["A1", "A1:A2", "A1:A2,B1:B2", "A1,C1"])(
     "compatible copied zones %s are all outlined with dots",
