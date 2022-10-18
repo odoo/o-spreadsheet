@@ -43,6 +43,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
       case "UPDATE_CELL":
       case "EVALUATE_CELLS":
       case "ACTIVATE_SHEET":
+      case "REMOVE_FILTER_TABLE":
         this.isEvaluationDirty = true;
         break;
       case "UPDATE_FILTER":
