@@ -3,6 +3,7 @@ import { toZone } from "../../src/helpers";
 import { UID } from "../../src/types";
 import {
   createFilter,
+  deleteFilter,
   hideColumns,
   hideRows,
   setBorder,
@@ -49,6 +50,16 @@ describe("Filter Evaluation Plugin", () => {
     setFormat(model, "m/d/yyyy", target("A2"));
     updateFilter(model, "A2", ["1/1/1900"]);
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
+  });
+
+  test("deleting a filter table show rows again", () => {
+    const model = new Model();
+    createFilter(model, "A1:A3");
+    setCellContent(model, "A2", "Hi");
+    updateFilter(model, "A2", ["Hi"]);
+    expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
+    deleteFilter(model, "A1:A3");
+    expect(model.getters.isRowHidden(sheetId, 1)).toEqual(false);
   });
 
   test("Filters ignore lowercase/uppercase", () => {
