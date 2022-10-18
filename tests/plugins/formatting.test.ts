@@ -35,7 +35,7 @@ import {
   setFormat,
   setStyle,
 } from "../test_helpers/commands_helpers";
-import { getCell, getCellContent } from "../test_helpers/getters_helpers";
+import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
 
 function setDecimal(model: Model, step: SetDecimalStep) {
   model.dispatch("SET_DECIMAL", {
@@ -190,6 +190,44 @@ describe("formatting values (with formatters)", () => {
     setDecimal(model, 1);
     expect(getCell(model, "A1")?.format).toBe("0.000");
     functionRegistry.remove("SET.DYN.FORMAT");
+  });
+
+  test("SET_DECIMAL on long number that are truncated due to default format don't lose truncated digits", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "10.123456789123");
+    expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.12345679");
+
+    setDecimal(model, 1);
+    expect(getCell(model, "A1")?.format).toBe("0." + "0".repeat(9));
+    expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.123456789");
+
+    setDecimal(model, -1);
+    expect(getCell(model, "A1")?.format).toBe("0." + "0".repeat(8));
+    expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.12345679");
+
+    setDecimal(model, -1);
+    expect(getCell(model, "A1")?.format).toBe("0." + "0".repeat(7));
+    expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.1234568");
+
+    setDecimal(model, 1);
+    expect(getCell(model, "A1")?.format).toBe("0." + "0".repeat(8));
+    expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.12345679");
+  });
+
+  test("UPDATE_CELL on long number that are truncated due to default format don't loose truncated digits", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "10.123456789123");
+    expect(getEvaluatedCell(model, "A1").value).toEqual(10.123456789123);
+
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("UPDATE_CELL", {
+      col: 0,
+      row: 0,
+      sheetId,
+      style: { fillColor: "#555" },
+      format: "[$$]#,##0.00",
+    });
+    expect(getEvaluatedCell(model, "A1").value).toEqual(10.123456789123);
   });
 });
 
