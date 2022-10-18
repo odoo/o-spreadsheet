@@ -192,6 +192,9 @@ export class FindAndReplacePlugin extends UIPlugin {
       this.selectedMatchIndex = nextIndex;
       this.selection.selectCell(matches[nextIndex].col, matches[nextIndex].row);
     }
+
+    if (this.searchMatches.length === 1) this.selection.selectCell(matches[0].col, matches[0].row);
+
     for (let index = 0; index < this.searchMatches.length; index++) {
       this.searchMatches[index].selected = index === this.selectedMatchIndex;
     }
