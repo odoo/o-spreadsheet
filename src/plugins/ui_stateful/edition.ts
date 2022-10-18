@@ -3,13 +3,13 @@ import { POSTFIX_UNARY_OPERATORS } from "../../formulas/tokenizer";
 import {
   colors,
   concat,
-  formatValue,
   getComposerSheetName,
   getZoneArea,
   isDateTimeFormat,
   isEqual,
   isNumber,
   markdownLink,
+  numberToString,
   positionToZone,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
@@ -498,7 +498,7 @@ export class EditionPlugin extends UIPlugin {
     if (format?.includes("%")) {
       return `${value * 100}%`;
     }
-    return formatValue(value);
+    return numberToString(value);
   }
 
   /**
