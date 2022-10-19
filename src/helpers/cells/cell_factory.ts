@@ -44,7 +44,7 @@ function numberComposerContent(value: number, format?: Format): string {
 function numberEvaluation(value: number, format?: Format): NumberEvaluation {
   return {
     type: CellValueType.number,
-    value,
+    value: value || 0, // necessary to avoid "-0" and NaN values,
     format,
     isAutoSummable: true,
     defaultAlign: "right",

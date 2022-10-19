@@ -855,10 +855,10 @@ describe("DB formula", () => {
       });
     });
 
-    test("sdfgsdfg0", () => {
-      // expect(evaluateCell("A1", { A1: "=DB(1, 0, 10, 2)" })).toBeCloseTo(0, 5);
+    test("parameter 1 must be greater than 0", () => {
+      expect(evaluateCell("A1", { A1: "=DB(1, 0, 10, 2)" })).toBeCloseTo(0, 5);
       expect(evaluateCell("A1", { A1: "=DB(0, 10, 10, 2)" })).toBeCloseTo(0, 5); // @compatibility: on google sheets, return #NUM!
-      // expect(evaluateCell("A1", { A1: "=DB(-10, 100, 6, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+      expect(evaluateCell("A1", { A1: "=DB(-10, 100, 6, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
     });
 
     test("parameter 2 must be greater than or equal to 0", () => {

@@ -95,8 +95,8 @@ export class EvaluationPlugin extends UIPlugin {
     }
     switch (cmd.type) {
       case "UPDATE_CELL":
-        this.isUpToDate = false;
         if ("content" in cmd || "format" in cmd) {
+          this.isUpToDate = false;
         }
         break;
       case "EVALUATE_CELLS":
