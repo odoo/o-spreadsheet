@@ -3,6 +3,7 @@ import { functionRegistry } from "../functions/index";
 import { concat, parseNumber, removeStringQuotes } from "../helpers";
 import { _lt } from "../translation";
 import { CompiledFormula } from "../types";
+import { BadExpressionError } from "../types/errors";
 import { AST, ASTFuncall, parseTokens } from "./parser";
 import { rangeTokenize } from "./range_tokenizer";
 
@@ -91,10 +92,10 @@ export function compile(formula: string): CompiledFormula {
     let nextId = 1;
 
     if (ast.type === "BIN_OPERATION" && ast.value === ":") {
-      throw new Error(_lt("Invalid formula"));
+      throw new BadExpressionError(_lt("Invalid formula"));
     }
     if (ast.type === "UNKNOWN") {
-      throw new Error(_lt("Invalid formula"));
+      throw new BadExpressionError(_lt("Invalid formula"));
     }
     const compiledAST = compileAST(ast);
     const code = splitCodeLines([
@@ -131,7 +132,7 @@ export function compile(formula: string): CompiledFormula {
       const nbrArg = currentFunctionArguments.length;
 
       if (nbrArg < functionDefinition.minArgRequired) {
-        throw new Error(
+        throw new BadExpressionError(
           _lt(
             "Invalid number of arguments for the %s function. Expected %s minimum, but got %s instead.",
             ast.value.toUpperCase(),
@@ -142,7 +143,7 @@ export function compile(formula: string): CompiledFormula {
       }
 
       if (nbrArg > functionDefinition.maxArgPossible) {
-        throw new Error(
+        throw new BadExpressionError(
           _lt(
             "Invalid number of arguments for the %s function. Expected %s maximum, but got %s instead.",
             ast.value.toUpperCase(),
@@ -157,7 +158,7 @@ export function compile(formula: string): CompiledFormula {
         const argBeforeRepeat = functionDefinition.args.length - repeatingArg;
         const nbrRepeatingArg = nbrArg - argBeforeRepeat;
         if (nbrRepeatingArg % repeatingArg !== 0) {
-          throw new Error(
+          throw new BadExpressionError(
             _lt(
               "Invalid number of arguments for the %s function. Expected all arguments after position %s to be supplied by groups of %s arguments",
               ast.value.toUpperCase(),
@@ -199,7 +200,7 @@ export function compile(formula: string): CompiledFormula {
           );
           if (isRangeOnly) {
             if (currentArg.type !== "REFERENCE") {
-              throw new Error(
+              throw new BadExpressionError(
                 _lt(
                   "Function %s expects the parameter %s to be reference to a cell or range, not a %s.",
                   ast.value.toUpperCase(),
@@ -254,7 +255,7 @@ export function compile(formula: string): CompiledFormula {
       let id, fnName, statement;
       if (ast.type !== "REFERENCE" && !(ast.type === "BIN_OPERATION" && ast.value === ":")) {
         if (isMeta) {
-          throw new Error(_lt(`Argument must be a reference to a cell or range.`));
+          throw new BadExpressionError(_lt(`Argument must be a reference to a cell or range.`));
         }
       }
       if (ast.debug) {

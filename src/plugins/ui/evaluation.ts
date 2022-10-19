@@ -21,7 +21,6 @@ import { SelectionStreamProcessor } from "../../selection_stream/selection_strea
 import { StateObserver } from "../../state_observer";
 import { _lt } from "../../translation";
 import {
-  BadExpressionError,
   CellErrorLevel,
   CellErrorType,
   CircularDependencyError,
@@ -255,7 +254,7 @@ export class EvaluationPlugin extends UIPlugin {
       try {
         switch (staticCell.contentType) {
           case "invalidFormula":
-            return handleError(new BadExpressionError(staticCell.error.message), staticCell);
+            return handleError(staticCell.error, staticCell);
           case "validFormula":
             return computeFormulaCell(staticCell);
           case "constantValue":
