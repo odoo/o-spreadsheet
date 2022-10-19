@@ -765,6 +765,16 @@ describe("Grid component", () => {
       expect(fixture.querySelector(".o-menu div[data-name='add_row_before']")).toBeFalsy();
       expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
     });
+
+    test("Duplicating sheet in the bottom bar focus the grid afterward", async () => {
+      expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
+
+      // open and close sheet context menu
+      await simulateClick(".o-spreadsheet-bottom-bar .o-all-sheets .o-sheet-item .o-icon");
+      await simulateClick(".o-menu-item[title='Duplicate']");
+
+      expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
+    });
   });
 });
 
