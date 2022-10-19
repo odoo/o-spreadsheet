@@ -947,6 +947,26 @@ describe("composer", () => {
     expect(composerEl.textContent).toBe("=C8");
   });
 
+  test("Composer is closed when changing sheet while not editing a formula", async () => {
+    const baseSheetId = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "42", name: "Sheet2" });
+    await nextTick();
+
+    // Editing text
+    await typeInComposerGrid("hey");
+    expect(fixture.querySelector(".o-grid .o-composer")).toBeTruthy();
+    activateSheet(model, "42");
+    await nextTick();
+    expect(fixture.querySelector(".o-grid .o-composer")).toBeFalsy();
+
+    // Editing formula
+    await typeInComposerGrid("=");
+    expect(fixture.querySelector(".o-grid .o-composer")).toBeTruthy();
+    activateSheet(model, baseSheetId);
+    await nextTick();
+    expect(fixture.querySelector(".o-grid .o-composer")).toBeTruthy();
+  });
+
   describe("composer's style depends on the style of the cell", () => {
     test("with text color", async () => {
       model.dispatch("SET_FORMATTING", {
