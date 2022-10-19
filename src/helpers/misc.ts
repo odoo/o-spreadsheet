@@ -414,6 +414,25 @@ export function lazy<T>(fn: (() => T) | T): Lazy<T> {
 }
 
 /**
+ * Creates a version of the function that's memoized on the value of its first
+ * argument, if any.
+ *
+ */
+export function memoize<T extends any[], U>(func: (...args: T) => U): (...args: T) => U {
+  const cache = new Map();
+  const funcName = func.name ? func.name + " (memoized)" : "memoized";
+  return {
+    [funcName](...args: T) {
+      const cacheKey = args.map((a) => `${a}`).join("!");
+      if (!cache.has(cacheKey)) {
+        cache.set(cacheKey, func(...args));
+      }
+      return cache.get(cacheKey);
+    },
+  }[funcName];
+}
+
+/**
  * Find the next defined value after the given index in an array of strings. If there is no defined value
  * after the index, return the closest defined value before the index. Return an empty string if no
  * defined value was found.

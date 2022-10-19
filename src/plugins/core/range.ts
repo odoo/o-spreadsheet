@@ -1,6 +1,7 @@
 import { INCORRECT_RANGE_STRING } from "../../constants";
 import {
   createAdaptedZone,
+  createRangePaPa,
   getComposerSheetName,
   groupConsecutive,
   isZoneInside,
@@ -8,7 +9,6 @@ import {
   numberToLetters,
   RangeImpl,
   rangeReference,
-  toUnboundedZone,
 } from "../../helpers/index";
 import {
   ApplyRangeChange,
@@ -306,15 +306,21 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
         prefixSheet = true;
       }
     }
-    const zone = toUnboundedZone(sheetXC);
-    const parts = RangeImpl.getRangeParts(sheetXC, zone);
     const invalidSheetName =
       sheetName && !this.getters.getSheetIdByName(sheetName) ? sheetName : undefined;
     const sheetId = this.getters.getSheetIdByName(sheetName) || defaultSheetId;
+    return createRangePaPa(
+      sheetId,
+      sheetXC,
+      invalidSheetName,
+      prefixSheet,
+      this.getters.getSheetSize
+    );
+    // const zone = toUnboundedZone(sheetXC);
+    // const parts = RangeImpl.getRangeParts(sheetXC, zone);
+    // const rangeInterface = { prefixSheet, zone, sheetId, invalidSheetName, parts };
 
-    const rangeInterface = { prefixSheet, zone, sheetId, invalidSheetName, parts };
-
-    return new RangeImpl(rangeInterface, this.getters.getSheetSize).orderZone();
+    // return new RangeImpl(rangeInterface, this.getters.getSheetSize);
   }
 
   /**

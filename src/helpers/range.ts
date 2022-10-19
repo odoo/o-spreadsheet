@@ -10,7 +10,25 @@ import {
   Zone,
   ZoneDimension,
 } from "../types";
+import { memoize } from "./misc";
 import { isRowReference } from "./references";
+import { toUnboundedZone } from "./zones";
+
+function createRangePouPou(
+  sheetId: UID,
+  sheetXC: string,
+  invalidSheetName: string | undefined,
+  prefixSheet: boolean,
+  getSheetSize: (sheetId: UID) => ZoneDimension
+): RangeImpl {
+  const zone = toUnboundedZone(sheetXC);
+  const parts = RangeImpl.getRangeParts(sheetXC, zone);
+  const rangeInterface = { prefixSheet, zone, sheetId, invalidSheetName, parts };
+
+  return new RangeImpl(rangeInterface, getSheetSize).orderZone();;
+}
+
+export const createRangePaPa = memoize(createRangePouPou);
 
 interface ConstructorArgs {
   readonly zone: Readonly<Zone | UnboundedZone>;
