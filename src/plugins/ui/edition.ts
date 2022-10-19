@@ -519,14 +519,15 @@ export class EditionPlugin extends UIPlugin {
 
   private getRangeReference(
     range: Range,
-    fixedParts: RangePart[] = [{ colFixed: false, rowFixed: false }]
+    fixedParts: Range["parts"] = [{ colFixed: false, rowFixed: false }]
   ) {
+    let _fixedParts = [...fixedParts];
     if (fixedParts.length === 1 && getZoneArea(range.zone) > 1) {
-      fixedParts.push({ ...fixedParts[0] });
+      _fixedParts.push({ ...fixedParts[0] });
     } else if (fixedParts.length === 2 && getZoneArea(range.zone) === 1) {
-      fixedParts.pop();
+      _fixedParts.pop();
     }
-    const newRange = range.clone({ parts: this.previousRange!.parts });
+    const newRange = range.clone({ parts: _fixedParts });
     return this.getters.getSelectionRangeString(newRange, this.getters.getEditionSheet());
   }
 

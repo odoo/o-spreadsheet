@@ -1,20 +1,20 @@
 import { Cloneable, UID, UnboundedZone, Zone } from "./misc";
 
 export interface RangePart {
-  colFixed: boolean;
-  rowFixed: boolean;
+  readonly colFixed: boolean;
+  readonly rowFixed: boolean;
 }
 
 export interface Range extends Cloneable<Range> {
-  zone: Zone;
-  parts: RangePart[];
-  invalidXc?: string;
+  readonly zone: Readonly<Zone>;
+  readonly parts: readonly RangePart[];
+  readonly invalidXc?: string;
   /** true if the user provided the range with the sheet name */
-  prefixSheet: boolean;
+  readonly prefixSheet: boolean;
   /** the name of any sheet that is invalid */
-  invalidSheetName?: string;
+  readonly invalidSheetName?: string;
   /** the sheet on which the range is defined */
-  sheetId: UID;
+  readonly sheetId: UID;
 }
 
 export interface RangeData {

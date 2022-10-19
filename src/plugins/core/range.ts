@@ -275,9 +275,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
           : range.unboundedZone.bottom! +
             ((range.parts[1] || range.parts[0]).rowFixed ? 0 : offsetY),
       };
-      range = range.clone({ sheetId: copySheetId, zone: unboundZone });
-      range.orderZone();
-      return range;
+      return range.clone({ sheetId: copySheetId, zone: unboundZone }).orderZone();
     });
   }
 
@@ -316,10 +314,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
 
     const rangeInterface = { prefixSheet, zone, sheetId, invalidSheetName, parts };
 
-    const range = new RangeImpl(rangeInterface, this.getters.getSheetSize);
-    range.orderZone();
-
-    return range;
+    return new RangeImpl(rangeInterface, this.getters.getSheetSize).orderZone();
   }
 
   /**

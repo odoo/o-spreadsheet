@@ -1,6 +1,7 @@
 import { _lt } from "../translation";
 import {
   CoreGetters,
+  DeepWriteable,
   Range,
   RangeData,
   RangePart,
@@ -12,20 +13,20 @@ import {
 import { isRowReference } from "./references";
 
 interface ConstructorArgs {
-  zone: Zone | UnboundedZone;
-  parts: RangePart[];
-  invalidXc?: string;
+  readonly zone: Readonly<Zone | UnboundedZone>;
+  readonly parts: Readonly<Readonly<RangePart>[]>;
+  readonly invalidXc?: string;
   /** true if the user provided the range with the sheet name */
-  prefixSheet: boolean;
+  readonly prefixSheet: boolean;
   /** the name of any sheet that is invalid */
-  invalidSheetName?: string;
+  readonly invalidSheetName?: string;
   /** the sheet on which the range is defined */
-  sheetId: UID;
+  readonly sheetId: UID;
 }
 
 export class RangeImpl implements Range {
-  private readonly _zone: Zone | UnboundedZone;
-  readonly parts: RangePart[];
+  private readonly _zone: Readonly<Zone | UnboundedZone>;
+  readonly parts: Range["parts"];
   readonly invalidXc?: string | undefined;
   readonly prefixSheet: boolean = false;
   readonly sheetId: UID; // the sheet on which the range is defined
@@ -64,7 +65,7 @@ export class RangeImpl implements Range {
   }
 
   static getRangeParts(xc: string, zone: UnboundedZone): RangePart[] {
-    const parts: RangePart[] = xc.split(":").map((p) => {
+    const parts: DeepWriteable<RangePart[]> = xc.split(":").map((p) => {
       const isFullRow = isRowReference(p);
       return {
         colFixed: isFullRow ? false : p.startsWith("$"),
@@ -114,28 +115,45 @@ export class RangeImpl implements Range {
    * Check that a zone is valid regarding the order of top-bottom and left-right.
    * Left should be smaller than right, top should be smaller than bottom.
    * If it's not the case, simply invert them, and invert the linked parts
-   * (in place!)
    */
-  orderZone() {
-    if (this._zone.right !== undefined && this._zone.right < this._zone.left) {
-      let right = this._zone.right;
-      this._zone.right = this._zone.left;
-      this._zone.left = right;
-
-      let rightFixed = this.parts[1].colFixed;
-      this.parts[1].colFixed = this.parts[0].colFixed;
-      this.parts[0].colFixed = rightFixed;
+  orderZone(): RangeImpl {
+    // if (!isZoneValid(zone)) {
+    //   return [zone, parts];
+    // }
+    const zone = { ...this._zone };
+    let parts = this.parts;
+    if (zone.right !== undefined && zone.right < zone.left) {
+      let right = zone.right;
+      zone.right = zone.left;
+      zone.left = right;
+      parts = [
+        {
+          colFixed: parts[1]?.colFixed || false,
+          rowFixed: parts[0]?.rowFixed || false,
+        },
+        {
+          colFixed: parts[0]?.colFixed || false,
+          rowFixed: parts[1]?.rowFixed || false,
+        },
+      ];
     }
 
-    if (this._zone.bottom !== undefined && this._zone.bottom < this._zone.top) {
-      let bottom = this._zone.bottom;
-      this._zone.bottom = this._zone.top;
-      this._zone.top = bottom;
-
-      let bottomFixed = this.parts[1].rowFixed;
-      this.parts[1].rowFixed = this.parts[0].rowFixed;
-      this.parts[0].rowFixed = bottomFixed;
+    if (zone.bottom !== undefined && zone.bottom < zone.top) {
+      let bottom = zone.bottom;
+      zone.bottom = zone.top;
+      zone.top = bottom;
+      parts = [
+        {
+          colFixed: parts[0]?.colFixed || false,
+          rowFixed: parts[1]?.rowFixed || false,
+        },
+        {
+          colFixed: parts[1]?.colFixed || false,
+          rowFixed: parts[0]?.rowFixed || false,
+        },
+      ];
     }
+    return this.clone({ zone, parts });
   }
 
   /**
