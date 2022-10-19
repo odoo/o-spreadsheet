@@ -967,6 +967,17 @@ describe("composer", () => {
     expect(fixture.querySelector(".o-grid .o-composer")).toBeTruthy();
   });
 
+  test("the composer should keep the focus after changing sheet", async () => {
+    createSheet(model, { sheetId: "42", name: "Sheet2" });
+    await nextTick();
+
+    await startComposition("=");
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer")!);
+    await simulateClick(fixture.querySelectorAll(".o-sheet-item.o-sheet")[1]);
+    expect(model.getters.getActiveSheetId()).toEqual("42");
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer")!);
+  });
+
   describe("composer's style depends on the style of the cell", () => {
     test("with text color", async () => {
       model.dispatch("SET_FORMATTING", {
