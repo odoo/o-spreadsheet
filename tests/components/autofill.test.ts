@@ -1,8 +1,13 @@
 import { App, Component, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, HEADER_WIDTH } from "../../src/constants";
+import {
+  DEFAULT_CELL_HEIGHT,
+  DEFAULT_CELL_WIDTH,
+  HEADER_HEIGHT,
+  HEADER_WIDTH,
+} from "../../src/constants";
 import { Model } from "../../src/model";
-import { setCellContent, setViewportOffset } from "../test_helpers/commands_helpers";
+import { setCellContent, setSelection, setViewportOffset } from "../test_helpers/commands_helpers";
 import { clickCell, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { makeTestFixture, mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
 
@@ -257,6 +262,7 @@ describe("Autofill component", () => {
     await nextTick();
     expect(dispatch).not.toHaveBeenCalled();
   });
+
   test("Autofill component is hidden when the bottom right selection is out of the viewport", async () => {
     await clickCell(model, "A1");
     expect(fixture.querySelector(".o-autofill")).not.toBeNull();
@@ -266,5 +272,23 @@ describe("Autofill component", () => {
     setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT);
     await nextTick();
     expect(fixture.querySelector(".o-autofill")).toBeNull();
+  });
+
+  test("Autofill does not reset the viewport position", async () => {
+    setSelection(parent.model, ["A1:A100"]);
+    parent.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 400, offsetY: 400 });
+    const firstViewport = parent.model.getters.getActiveMainViewport();
+    const autofill = fixture.querySelector(".o-autofill");
+    triggerMouseEvent(autofill, "mousedown", 4, 4);
+    await nextTick();
+    const newX =
+      HEADER_WIDTH +
+      parent.model.getters.getColDimensions(parent.model.getters.getActiveSheetId(), 0)!.start +
+      2 * DEFAULT_CELL_WIDTH;
+    triggerMouseEvent(autofill, "mousemove", newX, HEADER_HEIGHT + 4);
+    await nextTick();
+    triggerMouseEvent(autofill, "mouseup", newX, HEADER_HEIGHT + 4);
+    await nextTick();
+    expect(firstViewport).toMatchObject(parent.model.getters.getActiveMainViewport());
   });
 });
