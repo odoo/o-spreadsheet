@@ -46,6 +46,25 @@ describe("simple selection", () => {
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 1, bottom: 2 });
   });
 
+  test("Adding a cell of a merge in the selection adds the whole merge", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          merges: ["A2:B3"],
+        },
+      ],
+    });
+
+    expect(model.getters.getSelectedZones()).toEqual([{ left: 0, top: 0, right: 0, bottom: 0 }]);
+    addCellToSelection(model, "A2");
+    expect(model.getters.getSelectedZones()).toEqual([
+      { left: 0, top: 0, right: 0, bottom: 0 },
+      { left: 0, top: 1, right: 1, bottom: 2 },
+    ]);
+  });
+
   test("can select selection with shift-arrow", () => {
     const model = new Model({
       sheets: [
