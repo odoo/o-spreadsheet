@@ -109,7 +109,7 @@ export class GridSelectionPlugin extends UIPlugin {
   ] as const;
 
   private gridSelection: {
-    readonly anchor: AnchorZone; // the anchor is managed by the selection processor. It must not be reassigned
+    readonly anchor: AnchorZone;
     zones: Zone[];
   } = {
     anchor: {
@@ -176,6 +176,7 @@ export class GridSelectionPlugin extends UIPlugin {
         break;
     }
     this.setSelectionMixin(event.anchor, zones);
+    this.selection.resetDefaultAnchor(this, deepCopy(this.gridSelection.anchor));
     const { col, row } = this.gridSelection.anchor.cell;
     this.moveClient({
       sheetId: this.getters.getActiveSheetId(),
@@ -209,11 +210,11 @@ export class GridSelectionPlugin extends UIPlugin {
           sheetIdTo: firstSheetId,
           sheetIdFrom: firstSheetId,
         });
+        const { col, row } = this.getters.getNextVisibleCellPosition(firstSheetId, 0, 0);
+        this.selectCell(col, row);
         this.selection.registerAsDefault(this, this.gridSelection.anchor, {
           handleEvent: this.handleEvent.bind(this),
         });
-        const { col, row } = this.getters.getNextVisibleCellPosition(firstSheetId, 0, 0);
-        this.selectCell(col, row);
         this.moveClient({ sheetId: firstSheetId, col: 0, row: 0 });
         break;
       case "ACTIVATE_SHEET": {
@@ -226,7 +227,7 @@ export class GridSelectionPlugin extends UIPlugin {
         };
         if (cmd.sheetIdTo in this.sheetsData) {
           Object.assign(this, this.sheetsData[cmd.sheetIdTo]);
-          this.selection.resetDefaultAnchor(this, this.gridSelection.anchor);
+          this.selection.resetDefaultAnchor(this, deepCopy(this.gridSelection.anchor));
         } else {
           const { col, row } = this.getters.getNextVisibleCellPosition(cmd.sheetIdTo, 0, 0);
           this.selectCell(col, row);
@@ -498,8 +499,7 @@ export class GridSelectionPlugin extends UIPlugin {
       this.getters.getActiveSheetId(),
       { anchor, zones }
     );
-    this.gridSelection.anchor.cell.col = clippedAnchor.cell.col;
-    this.gridSelection.anchor.cell.row = clippedAnchor.cell.row;
+    this.gridSelection.anchor.cell = clippedAnchor.cell;
     this.gridSelection.anchor.zone = clippedAnchor.zone;
     this.gridSelection.zones = uniqueZones(clippedZones);
   }

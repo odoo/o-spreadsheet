@@ -179,7 +179,7 @@ export class SelectionStreamProcessor
   addCellToSelection(col: HeaderIndex, row: HeaderIndex): DispatchResult {
     const sheetId = this.getters.getActiveSheetId();
     ({ col, row } = this.getters.getMainCellPosition(sheetId, col, row));
-    const zone = positionToZone({ col, row });
+    const zone = this.getters.expandZone(sheetId, positionToZone({ col, row }));
     return this.processEvent({
       type: "ZonesSelected",
       anchor: { zone, cell: { col, row } },
