@@ -124,7 +124,7 @@ export class EditionPlugin extends UIPlugin {
         break;
       case "STOP_EDITION":
         if (cmd.cancel) {
-          this.cancelEdition();
+          this.cancelEditionAndActivateSheet();
           this.resetContent();
         } else {
           this.stopEdition();
@@ -139,7 +139,7 @@ export class EditionPlugin extends UIPlugin {
         this.replaceSelection(cmd.text);
         break;
       case "SELECT_FIGURE":
-        this.cancelEdition();
+        this.cancelEditionAndActivateSheet();
         this.resetContent();
         break;
       case "ADD_COLUMNS_ROWS":
@@ -186,6 +186,10 @@ export class EditionPlugin extends UIPlugin {
         this.selectionEnd = this.currentContent.length;
         break;
       case "ACTIVATE_SHEET":
+        if (!this.currentContent.startsWith("=")) {
+          this.cancelEdition();
+          this.resetContent();
+        }
         if (cmd.sheetIdFrom !== cmd.sheetIdTo) {
           const { col, row } = this.getters.getNextVisibleCellPosition(cmd.sheetIdTo, 0, 0);
           const zone = this.getters.expandZone(cmd.sheetIdTo, positionToZone({ col, row }));
@@ -198,7 +202,7 @@ export class EditionPlugin extends UIPlugin {
         const sheetIdExists = !!this.getters.tryGetSheet(this.sheetId);
         if (!sheetIdExists && this.mode !== "inactive") {
           this.sheetId = this.getters.getActiveSheetId();
-          this.cancelEdition();
+          this.cancelEditionAndActivateSheet();
           this.resetContent();
           this.ui.notifyUI({
             type: "ERROR",
@@ -405,7 +409,7 @@ export class EditionPlugin extends UIPlugin {
   private stopEdition() {
     if (this.mode !== "inactive") {
       const activeSheetId = this.getters.getActiveSheetId();
-      this.cancelEdition();
+      this.cancelEditionAndActivateSheet();
       const { col, row } = this.getters.getMainCellPosition(this.sheetId, this.col, this.row);
       let content = this.currentContent;
       const didChange = this.initialContent !== content;
@@ -442,12 +446,11 @@ export class EditionPlugin extends UIPlugin {
     }
   }
 
-  private cancelEdition() {
+  private cancelEditionAndActivateSheet() {
     if (this.mode === "inactive") {
       return;
     }
-    this.mode = "inactive";
-    this.selection.release(this);
+    this.cancelEdition();
     const sheetId = this.getters.getActiveSheetId();
     if (sheetId !== this.sheetId) {
       this.dispatch("ACTIVATE_SHEET", {
@@ -455,6 +458,14 @@ export class EditionPlugin extends UIPlugin {
         sheetIdTo: this.sheetId,
       });
     }
+  }
+
+  private cancelEdition() {
+    if (this.mode === "inactive") {
+      return;
+    }
+    this.mode = "inactive";
+    this.selection.release(this);
   }
 
   /**
