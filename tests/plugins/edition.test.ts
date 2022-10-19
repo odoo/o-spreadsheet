@@ -69,9 +69,17 @@ describe("edition", () => {
     expect(getCellContent(model, "A2")).toBe("");
   });
 
-  test("editing a cell, then activating a new sheet: edition should not be stopped", () => {
+  test("editing a cell, then activating a new sheet: edition should be stopped when editing text", () => {
     const model = new Model();
     model.dispatch("START_EDITION", { text: "a" });
+    expect(model.getters.getEditionMode()).toBe("editing");
+    createSheet(model, { activate: true, sheetId: "42" });
+    expect(model.getters.getEditionMode()).toBe("inactive");
+  });
+
+  test("editing a cell, then activating a new sheet: edition should not be stopped when editing formula", () => {
+    const model = new Model();
+    model.dispatch("START_EDITION", { text: "=A1" });
     expect(model.getters.getEditionMode()).toBe("editing");
     createSheet(model, { activate: true, sheetId: "42" });
     expect(model.getters.getEditionMode()).not.toBe("inactive");
