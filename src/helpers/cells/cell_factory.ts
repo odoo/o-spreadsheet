@@ -142,10 +142,10 @@ export function createEvaluationResult(value: CellValue | null, format?: Format)
         return evaluateCell;
       }
     }
-    return textEvaluation((value || 0).toString(), format);
+    return textEvaluation((value || "").toString(), format);
   } catch (error) {
     return errorEvaluation(
-      (value || 0).toString(),
+      (value || "").toString(),
       // Rename that
       new BadExpressionError(error.message || DEFAULT_ERROR_MESSAGE)
     );

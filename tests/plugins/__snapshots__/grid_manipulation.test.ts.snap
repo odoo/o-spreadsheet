@@ -5,7 +5,11 @@ Object {
   "A1": Object {
     "content": "=D1",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -16,7 +20,11 @@ Object {
   "A2": Object {
     "content": "=Sheet1!D1",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -27,7 +35,11 @@ Object {
   "A3": Object {
     "content": "=Sheet2!B1",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -38,7 +50,11 @@ Object {
   "A5": Object {
     "content": "=SUM(A1:F1)",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -49,7 +65,11 @@ Object {
   "A6": Object {
     "content": "=SUM(E1:F1)",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -60,7 +80,11 @@ Object {
   "A7": Object {
     "content": "=SUM(D1:D2)",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -71,7 +95,11 @@ Object {
   "F1": Object {
     "content": "=A1",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -82,7 +110,11 @@ Object {
   "F2": Object {
     "content": "=D1",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -93,7 +125,11 @@ Object {
   "F3": Object {
     "content": "=$G1",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -104,7 +140,11 @@ Object {
   "F4": Object {
     "content": "=F3",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -120,7 +160,11 @@ Object {
   "A1": Object {
     "content": "=B1",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -131,7 +175,11 @@ Object {
   "A2": Object {
     "content": "=Sheet1!D1",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -142,7 +190,11 @@ Object {
   "A3": Object {
     "content": "=Sheet2!B1",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -158,7 +210,11 @@ Object {
   "A1": Object {
     "content": "=#REF",
     "evaluated": Object {
+      "composerContent": "=#REF",
+      "defaultAlign": "center",
       "error": [Error: Invalid reference],
+      "formattedValue": "#REF",
+      "isAutoSummable": false,
       "type": "error",
       "value": "#REF",
     },
@@ -169,7 +225,11 @@ Object {
   "A2": Object {
     "content": "=#REF",
     "evaluated": Object {
+      "composerContent": "=#REF",
+      "defaultAlign": "center",
       "error": [Error: Invalid reference],
+      "formattedValue": "#REF",
+      "isAutoSummable": false,
       "type": "error",
       "value": "#REF",
     },
@@ -180,7 +240,11 @@ Object {
   "A3": Object {
     "content": "=Sheet2!B1",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -191,7 +255,11 @@ Object {
   "A5": Object {
     "content": "=SUM(A1:B1)",
     "evaluated": Object {
+      "composerContent": "=SUM(A1:B1)",
+      "defaultAlign": "center",
       "error": [Error: Invalid reference],
+      "formattedValue": "#REF",
+      "isAutoSummable": false,
       "type": "error",
       "value": "#REF",
     },
@@ -202,7 +270,11 @@ Object {
   "A6": Object {
     "content": "=SUM(B1)",
     "evaluated": Object {
+      "composerContent": "=SUM(B1)",
+      "defaultAlign": "center",
       "error": [Error: Invalid reference],
+      "formattedValue": "#REF",
+      "isAutoSummable": false,
       "type": "error",
       "value": "#REF",
     },
@@ -213,7 +285,11 @@ Object {
   "A7": Object {
     "content": "=SUM(#REF)",
     "evaluated": Object {
+      "composerContent": "=SUM(#REF)",
+      "defaultAlign": "center",
       "error": [Error: Invalid reference],
+      "formattedValue": "#REF",
+      "isAutoSummable": false,
       "type": "error",
       "value": "#REF",
     },
@@ -224,7 +300,11 @@ Object {
   "B1": Object {
     "content": "=A1",
     "evaluated": Object {
+      "composerContent": "=A1",
+      "defaultAlign": "center",
       "error": [Error: Invalid reference],
+      "formattedValue": "#REF",
+      "isAutoSummable": false,
       "type": "error",
       "value": "#REF",
     },
@@ -235,7 +315,11 @@ Object {
   "B2": Object {
     "content": "=#REF",
     "evaluated": Object {
+      "composerContent": "=#REF",
+      "defaultAlign": "center",
       "error": [Error: Invalid reference],
+      "formattedValue": "#REF",
+      "isAutoSummable": false,
       "type": "error",
       "value": "#REF",
     },
@@ -246,7 +330,11 @@ Object {
   "B3": Object {
     "content": "=$C1",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -257,7 +345,11 @@ Object {
   "B4": Object {
     "content": "=B3",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -273,7 +365,11 @@ Object {
   "A1": Object {
     "content": "=B1",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -284,7 +380,11 @@ Object {
   "A2": Object {
     "content": "=#REF",
     "evaluated": Object {
+      "composerContent": "=#REF",
+      "defaultAlign": "center",
       "error": [Error: Invalid reference],
+      "formattedValue": "#REF",
+      "isAutoSummable": false,
       "type": "error",
       "value": "#REF",
     },
@@ -295,7 +395,11 @@ Object {
   "A3": Object {
     "content": "=Sheet2!B1",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -311,7 +415,11 @@ Object {
   "A1": Object {
     "content": "=A4",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -322,7 +430,11 @@ Object {
   "A6": Object {
     "content": "=A1",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -333,7 +445,11 @@ Object {
   "B1": Object {
     "content": "=Sheet1!A4",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -344,7 +460,11 @@ Object {
   "B6": Object {
     "content": "=B1",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -355,7 +475,11 @@ Object {
   "C1": Object {
     "content": "=Sheet2!A2",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -366,7 +490,11 @@ Object {
   "C6": Object {
     "content": "=A$7",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -377,7 +505,11 @@ Object {
   "D6": Object {
     "content": "=C6",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -388,7 +520,11 @@ Object {
   "E1": Object {
     "content": "=SUM(A1:A6)",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -399,7 +535,11 @@ Object {
   "F1": Object {
     "content": "=SUM(A5:A6)",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -410,7 +550,11 @@ Object {
   "G1": Object {
     "content": "=SUM(B4:C4)",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -426,7 +570,11 @@ Object {
   "A1": Object {
     "content": "=A2",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -437,7 +585,11 @@ Object {
   "B1": Object {
     "content": "=Sheet1!A4",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -448,7 +600,11 @@ Object {
   "C1": Object {
     "content": "=Sheet2!A2",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -464,7 +620,11 @@ Object {
   "A1": Object {
     "content": "=#REF",
     "evaluated": Object {
+      "composerContent": "=#REF",
+      "defaultAlign": "center",
       "error": [Error: Invalid reference],
+      "formattedValue": "#REF",
+      "isAutoSummable": false,
       "type": "error",
       "value": "#REF",
     },
@@ -475,7 +635,11 @@ Object {
   "A2": Object {
     "content": "=A1",
     "evaluated": Object {
+      "composerContent": "=A1",
+      "defaultAlign": "center",
       "error": [Error: Invalid reference],
+      "formattedValue": "#REF",
+      "isAutoSummable": false,
       "type": "error",
       "value": "#REF",
     },
@@ -486,7 +650,11 @@ Object {
   "B1": Object {
     "content": "=#REF",
     "evaluated": Object {
+      "composerContent": "=#REF",
+      "defaultAlign": "center",
       "error": [Error: Invalid reference],
+      "formattedValue": "#REF",
+      "isAutoSummable": false,
       "type": "error",
       "value": "#REF",
     },
@@ -497,7 +665,11 @@ Object {
   "B2": Object {
     "content": "=B1",
     "evaluated": Object {
+      "composerContent": "=B1",
+      "defaultAlign": "center",
       "error": [Error: Invalid reference],
+      "formattedValue": "#REF",
+      "isAutoSummable": false,
       "type": "error",
       "value": "#REF",
     },
@@ -508,7 +680,11 @@ Object {
   "C1": Object {
     "content": "=Sheet2!A2",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -519,7 +695,11 @@ Object {
   "C2": Object {
     "content": "=A$3",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -530,7 +710,11 @@ Object {
   "D2": Object {
     "content": "=C2",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -541,7 +725,11 @@ Object {
   "E1": Object {
     "content": "=SUM(A1:A2)",
     "evaluated": Object {
+      "composerContent": "=SUM(A1:A2)",
+      "defaultAlign": "center",
       "error": [Error: Invalid reference],
+      "formattedValue": "#REF",
+      "isAutoSummable": false,
       "type": "error",
       "value": "#REF",
     },
@@ -552,7 +740,11 @@ Object {
   "F1": Object {
     "content": "=SUM(A2)",
     "evaluated": Object {
+      "composerContent": "=SUM(A2)",
+      "defaultAlign": "center",
       "error": [Error: Invalid reference],
+      "formattedValue": "#REF",
+      "isAutoSummable": false,
       "type": "error",
       "value": "#REF",
     },
@@ -563,7 +755,11 @@ Object {
   "G1": Object {
     "content": "=SUM(#REF)",
     "evaluated": Object {
+      "composerContent": "=SUM(#REF)",
+      "defaultAlign": "center",
       "error": [Error: Invalid reference],
+      "formattedValue": "#REF",
+      "isAutoSummable": false,
       "type": "error",
       "value": "#REF",
     },
@@ -579,7 +775,11 @@ Object {
   "A1": Object {
     "content": "=A2",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -590,7 +790,11 @@ Object {
   "B1": Object {
     "content": "=#REF",
     "evaluated": Object {
+      "composerContent": "=#REF",
+      "defaultAlign": "center",
       "error": [Error: Invalid reference],
+      "formattedValue": "#REF",
+      "isAutoSummable": false,
       "type": "error",
       "value": "#REF",
     },
@@ -601,7 +805,11 @@ Object {
   "C1": Object {
     "content": "=Sheet2!A2",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -617,7 +825,11 @@ Object {
   "B2": Object {
     "content": "=Sheet1!A2",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -628,7 +840,11 @@ Object {
   "C1": Object {
     "content": "=Sheet2!A1",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -644,7 +860,11 @@ Object {
   "A1": Object {
     "content": "=B1",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -655,7 +875,11 @@ Object {
   "B1": Object {
     "content": "=Sheet1!A2",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
@@ -666,7 +890,11 @@ Object {
   "C1": Object {
     "content": "=Sheet2!A1",
     "evaluated": Object {
+      "composerContent": "0",
+      "defaultAlign": "right",
       "format": undefined,
+      "formattedValue": "0",
+      "isAutoSummable": true,
       "type": "number",
       "value": 0,
     },
