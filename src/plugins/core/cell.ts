@@ -28,6 +28,7 @@ const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
   cells: Record<UID, Record<UID, Cell | undefined>>;
+  nextId: number;
 }
 
 /**
@@ -46,6 +47,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     "getCellById",
   ] as const;
 
+  readonly nextId = 1;
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
   private createCell = cellFactory(this.getters);
 
@@ -238,7 +240,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   ): Cell {
     const style = (cellData.style && normalizedStyles[cellData.style]) || undefined;
     const format = (cellData.format && normalizedFormats[cellData.format]) || undefined;
-    const cellId = this.uuidGenerator.uuidv4();
+    const cellId = this.getNextUid();
     const properties = { format, style };
     return this.createCell(cellId, cellData?.content || "", properties, sheetId);
   }
@@ -407,6 +409,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return format;
   }
 
+  private getNextUid() {
+    const id = this.nextId.toString();
+    this.history.update("nextId", this.nextId + 1);
+    return id;
+  }
+
   private updateCell(sheetId: UID, col: HeaderIndex, row: HeaderIndex, after: UpdateCellData) {
     const before = this.getters.getCell(sheetId, col, row);
     const hasContent = "content" in after || "formula" in after;
@@ -448,7 +456,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       return;
     }
 
-    const cellId = before?.id || this.uuidGenerator.uuidv4();
+    const cellId = before?.id || this.getNextUid();
     const didContentChange = hasContent;
     const properties = { format, style };
     const cell = this.createCell(cellId, afterContent, properties, sheetId);
