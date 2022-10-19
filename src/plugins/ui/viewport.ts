@@ -82,7 +82,11 @@ export class ViewportPlugin extends UIPlugin {
       case "ZonesSelected":
         // altering a zone should not move the viewport
         const sheet = this.getters.getActiveSheet();
-        let [col, row] = findCellInNewZone(event.previousAnchor.zone, event.anchor.zone);
+        let [col, row] = findCellInNewZone(
+          event.previousAnchor.zone,
+          event.anchor.zone,
+          this.getActiveSnappedViewport()
+        );
         col = Math.min(col, sheet.cols.length - 1);
         row = Math.min(row, sheet.rows.length - 1);
         this.refreshViewport(this.getters.getActiveSheetId(), { col, row });
