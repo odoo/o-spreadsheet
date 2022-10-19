@@ -70,11 +70,10 @@ describe("Spreadsheet", () => {
     // TODO check
     expect(document.activeElement!.tagName).toEqual("INPUT");
     document.querySelector(".o-add-sheet")!.dispatchEvent(new Event("click"));
-    // simulate the fact that a user clicking on the add sheet button will
-    // move the focus to the document.body
-    (document.activeElement as any).blur();
     await nextTick();
     expect(document.querySelectorAll(".o-sheet").length).toBe(2);
+    expect(document.activeElement!.tagName).toEqual("INPUT");
+    await simulateClick(document.querySelectorAll(".o-sheet")[1]);
     expect(document.activeElement!.tagName).toEqual("INPUT");
   });
 
