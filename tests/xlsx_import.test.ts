@@ -180,7 +180,7 @@ describe("Import xlsx data", () => {
     ["[$$]#,##0.000", "M6"],
     ["[$₪] #,##0", "M7"],
     ["#,##0[$ EUR €]", "M8"],
-    ["not supported: non-standard date format", "M9"],
+    ["d/m/yy", "M9"],
     ["not supported: multiple escaped sequences", "M10"],
   ])("Can import format %s", (format, cellXc) => {
     const testSheet = getWorkbookSheet("jestStyles", convertedData)!;
@@ -769,12 +769,15 @@ test.each([
   ["0.000%", "0.000%"],
   ["#,##0.00", "#,##0.00"],
   ["m/d/yyyy", "m/d/yyyy"],
+  ["mmm/dddd/yy", "mmm/dddd/yy"],
+  ["mmmm/ddd/yyyy", "mmmm/ddd/yyyy"],
+  ["mmmmm/dd/yy", "mmmmm/dd/yy"],
   ["m/d/yyyy\\ hh:mm:ss", "m/d/yyyy hh:mm:ss"],
   ["hh:mm:ss a", "hh:mm:ss a"],
   ['#,##0.00 "€"', "#,##0.00 [$€]"],
   ["[$$-409]#,##0.000", "[$$]#,##0.000"],
   ["[$-409]0.00", "0.00"],
-  ["d/m/yy;@", undefined],
+  ["d/m/yy;@", "d/m/yy"],
   ["[$₪-40D] #,##0", "[$₪] #,##0"],
   ['"€"#,##0.00 "€"', undefined],
 ])("convert format", async (excelFormat, convertedFormat) => {

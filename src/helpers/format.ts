@@ -40,6 +40,33 @@ type InternalFormat = (
   | { type: "DATE"; format: string }
 )[];
 
+// TODO in the future : remove these constants MONTHS/DAYS, and use a library such as luxon to handle it
+// + possibly handle automatic translation of day/month
+const MONTHS: Readonly<Record<number, string>> = {
+  0: "January",
+  1: "February",
+  2: "March",
+  3: "April",
+  4: "May",
+  5: "June",
+  6: "July",
+  7: "August",
+  8: "September",
+  9: "October",
+  10: "November",
+  11: "December",
+};
+
+const DAYS: Readonly<Record<number, string>> = {
+  0: "Sunday",
+  1: "Monday",
+  2: "Tuesday",
+  3: "Wednesday",
+  4: "Thursday",
+  5: "Friday",
+  6: "Saturday",
+};
+
 interface InternalNumberFormat {
   readonly integerPart: string;
   readonly isPercent: boolean;
@@ -244,8 +271,8 @@ export function applyDateTimeFormat(value: number, format: Format): FormattedVal
 }
 
 function formatJSDate(jsDate: Date, format: Format): FormattedValue {
-  const sep = format.match(/\/|-|\s/)![0];
-  const parts = format.split(sep);
+  const sep = format.match(/\/|-|\s/)?.[0];
+  const parts = sep ? format.split(sep) : [format];
   return parts
     .map((p) => {
       switch (p) {
@@ -253,10 +280,23 @@ function formatJSDate(jsDate: Date, format: Format): FormattedValue {
           return jsDate.getDate();
         case "dd":
           return jsDate.getDate().toString().padStart(2, "0");
+        case "ddd":
+          return DAYS[jsDate.getDay()].slice(0, 3);
+        case "dddd":
+          return DAYS[jsDate.getDay()];
         case "m":
           return jsDate.getMonth() + 1;
         case "mm":
           return String(jsDate.getMonth() + 1).padStart(2, "0");
+        case "mmm":
+          return MONTHS[jsDate.getMonth()].slice(0, 3);
+        case "mmmm":
+          return MONTHS[jsDate.getMonth()];
+        case "mmmmm":
+          return MONTHS[jsDate.getMonth()].slice(0, 1);
+        case "yy":
+          const fullYear = String(jsDate.getFullYear()).replace("-", "").padStart(2, "0");
+          return fullYear.slice(fullYear.length - 2);
         case "yyyy":
           return jsDate.getFullYear();
         default:
