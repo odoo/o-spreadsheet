@@ -1,4 +1,5 @@
 import { DATETIME_FORMAT } from "../constants";
+import { _lt } from "../translation";
 import { CellValue, Format, FormattedValue } from "../types";
 import { DateTime, INITIAL_1900_DAY, numberToJsDate } from "./dates";
 
@@ -39,6 +40,33 @@ type InternalFormat = (
   | { type: "STRING"; format: string }
   | { type: "DATE"; format: string }
 )[];
+
+// TODO in the future : remove these constants MONTHS/DAYS, and use a library such as luxon to handle it
+// + possibly handle automatic translation of day/month
+const MONTHS: Readonly<Record<number, string>> = {
+  0: _lt("January"),
+  1: _lt("February"),
+  2: _lt("March"),
+  3: _lt("April"),
+  4: _lt("May"),
+  5: _lt("June"),
+  6: _lt("July"),
+  7: _lt("August"),
+  8: _lt("September"),
+  9: _lt("October"),
+  10: _lt("November"),
+  11: _lt("December"),
+};
+
+const DAYS: Readonly<Record<number, string>> = {
+  0: _lt("Sunday"),
+  1: _lt("Monday"),
+  2: _lt("Tuesday"),
+  3: _lt("Wednesday"),
+  4: _lt("Thursday"),
+  5: _lt("Friday"),
+  6: _lt("Saturday"),
+};
 
 interface InternalNumberFormat {
   readonly integerPart: string;
@@ -338,8 +366,8 @@ export function applyDateTimeFormat(value: number, format: Format): FormattedVal
 }
 
 function formatJSDate(jsDate: DateTime, format: Format): FormattedValue {
-  const sep = format.match(/\/|-|\s/)![0];
-  const parts = format.split(sep);
+  const sep = format.match(/\/|-|\s/)?.[0];
+  const parts = sep ? format.split(sep) : [format];
   return parts
     .map((p) => {
       switch (p) {
@@ -347,10 +375,23 @@ function formatJSDate(jsDate: DateTime, format: Format): FormattedValue {
           return jsDate.getDate();
         case "dd":
           return jsDate.getDate().toString().padStart(2, "0");
+        case "ddd":
+          return DAYS[jsDate.getDay()].slice(0, 3);
+        case "dddd":
+          return DAYS[jsDate.getDay()];
         case "m":
           return jsDate.getMonth() + 1;
         case "mm":
           return String(jsDate.getMonth() + 1).padStart(2, "0");
+        case "mmm":
+          return MONTHS[jsDate.getMonth()].slice(0, 3);
+        case "mmmm":
+          return MONTHS[jsDate.getMonth()];
+        case "mmmmm":
+          return MONTHS[jsDate.getMonth()].slice(0, 1);
+        case "yy":
+          const fullYear = String(jsDate.getFullYear()).replace("-", "").padStart(2, "0");
+          return fullYear.slice(fullYear.length - 2);
         case "yyyy":
           return jsDate.getFullYear();
         default:

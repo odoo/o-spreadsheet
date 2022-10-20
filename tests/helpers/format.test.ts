@@ -363,6 +363,12 @@ describe("formatValue on date and time", () => {
     "m d",
     "m-d",
     "m/d",
+    "yy-mm",
+    "ddd-mm",
+    "dddd-mm",
+    "mmm-yy",
+    "mmmm-yy",
+    "mmmmm-yy",
   ])("detect date time format %s", (format) => {
     expect(isDateTimeFormat(format)).toBe(true);
   });
@@ -614,6 +620,109 @@ describe("formatValue on date and time", () => {
       ["yyyy mm dd", "1954 01 02"],
     ])("year month day, with ' ' as separator", (format, result) => {
       expect(formatValue(value, format)).toBe(result);
+    });
+
+    test.each([
+      ["01/01/2023", "Sun-01-2023"],
+      ["01/02/2023", "Mon-01-2023"],
+      ["01/03/2023", "Tue-01-2023"],
+      ["01/04/2023", "Wed-01-2023"],
+      ["01/05/2023", "Thu-01-2023"],
+      ["01/06/2023", "Fri-01-2023"],
+      ["01/07/2023", "Sat-01-2023"],
+    ])("three letter day of the week (ddd) %s", (value, result) => {
+      expect(formatValue(parseDateTime(value)!.value, "ddd-mm-yyyy")).toBe(result);
+    });
+
+    test.each([
+      ["2023/01/01", "Sunday-01-2023"],
+      ["2023/01/02", "Monday-01-2023"],
+      ["2023/01/03", "Tuesday-01-2023"],
+      ["2023/01/04", "Wednesday-01-2023"],
+      ["2023/01/05", "Thursday-01-2023"],
+      ["2023/01/06", "Friday-01-2023"],
+      ["2023/01/07", "Saturday-01-2023"],
+    ])("Full letter day of the week (dddd) %s", (value, result) => {
+      expect(formatValue(parseDateTime(value)!.value, "dddd-mm-yyyy")).toBe(result);
+    });
+
+    test.each([
+      ["2023/01/01", "Jan-2023"],
+      ["2023/02/01", "Feb-2023"],
+      ["2023/03/01", "Mar-2023"],
+      ["2023/04/01", "Apr-2023"],
+      ["2023/05/01", "May-2023"],
+      ["2023/06/01", "Jun-2023"],
+      ["2023/07/01", "Jul-2023"],
+      ["2023/08/01", "Aug-2023"],
+      ["2023/09/01", "Sep-2023"],
+      ["2023/10/01", "Oct-2023"],
+      ["2023/11/01", "Nov-2023"],
+      ["2023/12/01", "Dec-2023"],
+    ])("Three letter day of month (mmm) %s", (value, result) => {
+      expect(formatValue(parseDateTime(value)!.value, "mmm-yyyy")).toBe(result);
+    });
+
+    test.each([
+      ["2023/01/01", "January-2023"],
+      ["2023/02/01", "February-2023"],
+      ["2023/03/01", "March-2023"],
+      ["2023/04/01", "April-2023"],
+      ["2023/05/01", "May-2023"],
+      ["2023/06/01", "June-2023"],
+      ["2023/07/01", "July-2023"],
+      ["2023/08/01", "August-2023"],
+      ["2023/09/01", "September-2023"],
+      ["2023/10/01", "October-2023"],
+      ["2023/11/01", "November-2023"],
+      ["2023/12/01", "December-2023"],
+    ])("Full letter day of month (mmmm) %s", (value, result) => {
+      expect(formatValue(parseDateTime(value)!.value, "mmmm-yyyy")).toBe(result);
+    });
+
+    test.each([
+      ["2023/01/01", "J-2023"],
+      ["2023/02/01", "F-2023"],
+      ["2023/03/01", "M-2023"],
+      ["2023/04/01", "A-2023"],
+      ["2023/05/01", "M-2023"],
+      ["2023/06/01", "J-2023"],
+      ["2023/07/01", "J-2023"],
+      ["2023/08/01", "A-2023"],
+      ["2023/09/01", "S-2023"],
+      ["2023/10/01", "O-2023"],
+      ["2023/11/01", "N-2023"],
+      ["2023/12/01", "D-2023"],
+    ])("One letter day of month (mmmmm) %s", (value, result) => {
+      expect(formatValue(parseDateTime(value)!.value, "mmmmm-yyyy")).toBe(result);
+    });
+
+    test.each([
+      [44927 /* 01/01/2023 */, "01-23"],
+      [45292 /* 01/01/2024 */, "01-24"],
+      [24838 /* 01/01/1968 */, "01-68"],
+      [38718 /* 01/01/2006 */, "01-06"],
+      [-691767 /* 01/01/0006 */, "01-06"],
+      [-715508 /* 01/01/-0059 */, "01-59"],
+      [-737422 /* 01/01/-0119 */, "01-19"],
+    ])("2 last digits of year (yy) %s", (value, result) => {
+      expect(formatValue(value, "mm-yy")).toBe(result);
+    });
+
+    test.each([
+      ["d", "1"],
+      ["dd", "01"],
+      ["ddd", "Sun"],
+      ["dddd", "Sunday"],
+      ["m", "1"],
+      ["mm", "01"],
+      ["mmm", "Jan"],
+      ["mmmm", "January"],
+      ["mmmmm", "J"],
+      ["yy", "23"],
+      ["yyyy", "2023"],
+    ])("Format without separators %s", (format, result) => {
+      expect(formatValue(parseDateTime("01/01/2023")!.value, format)).toBe(result);
     });
   });
 
