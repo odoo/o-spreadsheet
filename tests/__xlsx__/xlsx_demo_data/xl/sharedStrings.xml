@@ -1211,7 +1211,7 @@
     <t>#,##0[$ EUR €]</t>
   </si>
   <si>
-    <t>not supported: non-standard date format</t>
+    <t>d/m/yy</t>
   </si>
   <si>
     <t>not supported: multiple escaped sequences</t>
