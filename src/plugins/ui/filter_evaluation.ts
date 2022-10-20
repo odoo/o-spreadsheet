@@ -46,6 +46,17 @@ export class FilterEvaluationPlugin extends UIPlugin {
       case "REMOVE_FILTER_TABLE":
         this.isEvaluationDirty = true;
         break;
+      case "START":
+        for (const sheetId of this.getters.getSheetIds()) {
+          this.filterValues[sheetId] = {};
+          for (const filter of this.getters.getFilters(sheetId)) {
+            this.filterValues[sheetId][filter.id] = [];
+          }
+        }
+        break;
+      case "CREATE_SHEET":
+        this.filterValues[cmd.sheetId] = {};
+        break;
       case "UPDATE_FILTER":
         this.updateFilter(cmd);
         this.updateHiddenRows();
@@ -55,7 +66,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
         for (const copiedFilter of this.getters.getFilters(cmd.sheetId)) {
           const zone = copiedFilter.zoneWithHeaders;
           const newFilter = this.getters.getFilter(cmd.sheetIdTo, zone.left, zone.top)!;
-          filterValues[newFilter.id] = this.filterValues[cmd.sheetId][copiedFilter.id];
+          filterValues[newFilter.id] = this.filterValues[cmd.sheetId]?.[copiedFilter.id] || [];
         }
         this.filterValues[cmd.sheetIdTo] = filterValues;
         break;
