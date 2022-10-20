@@ -416,7 +416,7 @@ export function lazy<T>(fn: (() => T) | T): Lazy<T> {
 /**
  * Creates a version of the function that's memoized on the value of its first
  * argument, if any.
- *
+ * Stolen from Odoo
  */
 export function memoize<T extends any[], U>(func: (...args: T) => U): (...args: T) => U {
   const cache = new Map();

@@ -26,6 +26,7 @@ function createRangePouPou(
   return new RangeImpl(rangeInterface).orderZone();
 }
 
+// TODO not global. Scope this to the Range plugin
 const createRangePipi = memoize((sheetId: UID) =>
   memoize((prefixSheet: boolean) =>
     memoize((invalidSheetName: string | undefined) =>
