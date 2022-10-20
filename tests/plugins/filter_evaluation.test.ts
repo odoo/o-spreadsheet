@@ -152,4 +152,15 @@ describe("Filter Evaluation Plugin", () => {
       }
     }
   });
+
+  test("Sheet duplication after importing filter don't break", () => {
+    const model = new Model({ sheets: [{ id: "sh1", filterTables: [{ range: "A1:A8" }] }] });
+    expect(model.getters.getFilter("sh1", 0, 0)).toBeTruthy();
+
+    model.dispatch("DUPLICATE_SHEET", {
+      sheetId: "sh1",
+      sheetIdTo: "sh2",
+    });
+    expect(model.getters.getFilter("sh2", 0, 0)).toBeTruthy();
+  });
 });
