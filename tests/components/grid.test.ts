@@ -51,7 +51,6 @@ import { MockTransportService } from "../__mocks__/transport_service";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );
-// jest.mock("../../src/components/scrollbar", () => require("./__mocks__/scrollbar"));
 
 function getVerticalScroll(): number {
   const scrollbar = fixture.querySelector(".o-scrollbar.vertical") as HTMLElement;
