@@ -538,6 +538,9 @@ describe("multiple sheets", () => {
     model.dispatch("DELETE_SHEET", { sheetId: firstSheetId });
     expect(model.getters.getSelectedZone()).toEqual(toZone("C4"));
     expect(model.getters.getActiveSheetId()).toBe(secondSheetId);
+    moveAnchorCell(model, "right");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("D4"));
+    expect(model.getters.getActiveSheetId()).toBe(secondSheetId);
   });
 
   test("Do not share selections between sheets", () => {
