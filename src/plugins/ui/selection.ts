@@ -109,7 +109,7 @@ export class GridSelectionPlugin extends UIPlugin {
   ] as const;
 
   private gridSelection: {
-    readonly anchor: AnchorZone;
+    anchor: AnchorZone;
     zones: Zone[];
   } = {
     anchor: {
@@ -176,6 +176,7 @@ export class GridSelectionPlugin extends UIPlugin {
         break;
     }
     this.setSelectionMixin(event.anchor, zones);
+    /** Any change to the selection has to be  reflected in the selection processor. */
     this.selection.resetDefaultAnchor(this, deepCopy(this.gridSelection.anchor));
     const { col, row } = this.gridSelection.anchor.cell;
     this.moveClient({
@@ -320,8 +321,11 @@ export class GridSelectionPlugin extends UIPlugin {
           sheetId,
           this.gridSelection.anchor.zone
         );
-        this.ensureSelectionValidity();
+        this.setSelectionMixin(this.gridSelection.anchor, this.gridSelection.zones);
+        break;
     }
+    /** Any change to the selection has to be  reflected in the selection processor. */
+    this.selection.resetDefaultAnchor(this, deepCopy(this.gridSelection.anchor));
   }
 
   // ---------------------------------------------------------------------------
@@ -494,13 +498,16 @@ export class GridSelectionPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
   // Other
   // ---------------------------------------------------------------------------
+  /**
+   * Ensure selections are not outside sheet boundaries.
+   * They are clipped to fit inside the sheet if needed.
+   */
   private setSelectionMixin(anchor: AnchorZone, zones: Zone[]) {
     const { anchor: clippedAnchor, zones: clippedZones } = this.clipSelection(
       this.getters.getActiveSheetId(),
       { anchor, zones }
     );
-    this.gridSelection.anchor.cell = clippedAnchor.cell;
-    this.gridSelection.anchor.zone = clippedAnchor.zone;
+    this.gridSelection.anchor = clippedAnchor;
     this.gridSelection.zones = uniqueZones(clippedZones);
   }
   /**
@@ -546,7 +553,6 @@ export class GridSelectionPlugin extends UIPlugin {
       zone: selectedZone,
     };
     this.setSelectionMixin(anchor, [selectedZone]);
-    this.ensureSelectionValidity();
   }
 
   private onRowsRemoved(cmd: RemoveColumnsRowsCommand) {
@@ -562,7 +568,6 @@ export class GridSelectionPlugin extends UIPlugin {
       zone: selectedZone,
     };
     this.setSelectionMixin(anchor, [selectedZone]);
-    this.ensureSelectionValidity();
   }
 
   private onAddElements(cmd: AddColumnsRowsCommand) {
@@ -662,18 +667,6 @@ export class GridSelectionPlugin extends UIPlugin {
   //-------------------------------------------
   // Helpers for extensions
   // ------------------------------------------
-  /**
-   * Ensure selections are not outside sheet boundaries.
-   * They are clipped to fit inside the sheet if needed.
-   */
-  private ensureSelectionValidity() {
-    let { anchor, zones } = this.clipSelection(this.getters.getActiveSheetId(), this.gridSelection);
-    this.gridSelection.zones = uniqueZones(zones);
-    this.gridSelection.anchor.cell.col = anchor.cell.col;
-    this.gridSelection.anchor.cell.row = anchor.cell.row;
-    this.gridSelection.anchor.zone = anchor.zone;
-  }
-
   /**
    * Clip the selection if it spans outside the sheet
    */
