@@ -25,7 +25,9 @@ function createRangePouPou(
   const parts = RangeImpl.getRangeParts(sheetXC, zone);
   const rangeInterface = { prefixSheet, zone, sheetId, invalidSheetName, parts };
 
-  return new RangeImpl(rangeInterface, getSheetSize).orderZone();;
+  const range = new RangeImpl(rangeInterface).orderZone();
+  Object.assign(range, { getSheetSize });
+  return range;
 }
 
 export const createRangePaPa = memoize(createRangePouPou);
@@ -50,7 +52,10 @@ export class RangeImpl implements Range {
   readonly sheetId: UID; // the sheet on which the range is defined
   readonly invalidSheetName?: string; // the name of any sheet that is invalid
 
-  constructor(args: ConstructorArgs, private getSheetSize: (sheetId: UID) => ZoneDimension) {
+  constructor(
+    args: ConstructorArgs,
+    private getSheetSize: (sheetId: UID) => ZoneDimension = () => ({ width: 0, height: 0 })
+  ) {
     this._zone = args.zone;
     this.parts = args.parts;
     this.prefixSheet = args.prefixSheet;
