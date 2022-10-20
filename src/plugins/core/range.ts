@@ -9,6 +9,7 @@ import {
   numberToLetters,
   RangeImpl,
   rangeReference,
+  zoneToXc,
 } from "../../helpers/index";
 import {
   ApplyRangeChange,
@@ -404,18 +405,24 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   }
 
   getRangeFromRangeData(data: RangeData): Range {
-    const rangeInterface = {
-      prefixSheet: false,
-      zone: data._zone,
-      sheetId: data._sheetId,
-      invalidSheetName: undefined,
-      parts: [
-        { colFixed: false, rowFixed: false },
-        { colFixed: false, rowFixed: false },
-      ],
-    };
-
-    return new RangeImpl(rangeInterface, this.getters.getSheetSize);
+    // const rangeInterface = {
+    //   prefixSheet: false,
+    //   zone: data._zone,
+    //   sheetId: data._sheetId,
+    //   invalidSheetName: undefined,
+    //   parts: [
+    //     { colFixed: false, rowFixed: false },
+    //     { colFixed: false, rowFixed: false },
+    //   ],
+    // };
+    return createRangePaPa(
+      data._sheetId,
+      zoneToXc(data._zone),
+      undefined,
+      false,
+      this.getters.getSheetSize
+    );
+    // return new RangeImpl(rangeInterface, this.getters.getSheetSize);
   }
 
   // ---------------------------------------------------------------------------
