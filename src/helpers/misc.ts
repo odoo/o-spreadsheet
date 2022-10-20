@@ -423,7 +423,7 @@ export function memoize<T extends any[], U>(func: (...args: T) => U): (...args: 
   const funcName = func.name ? func.name + " (memoized)" : "memoized";
   return {
     [funcName](...args: T) {
-      const cacheKey = args.map((a) => `${a}`).join("!");
+      const cacheKey = args[0];
       if (!cache.has(cacheKey)) {
         cache.set(cacheKey, func(...args));
       }

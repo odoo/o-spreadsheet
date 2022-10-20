@@ -18,19 +18,35 @@ function createRangePouPou(
   sheetId: UID,
   sheetXC: string,
   invalidSheetName: string | undefined,
-  prefixSheet: boolean,
-  getSheetSize: (sheetId: UID) => ZoneDimension
+  prefixSheet: boolean
 ): RangeImpl {
   const zone = toUnboundedZone(sheetXC);
   const parts = RangeImpl.getRangeParts(sheetXC, zone);
   const rangeInterface = { prefixSheet, zone, sheetId, invalidSheetName, parts };
+  return new RangeImpl(rangeInterface).orderZone();
+}
 
-  const range = new RangeImpl(rangeInterface).orderZone();
+const createRangePipi = memoize((sheetId: UID) =>
+  memoize((prefixSheet: boolean) =>
+    memoize((invalidSheetName: string | undefined) =>
+      memoize((sheetXC: string) =>
+        createRangePouPou(sheetId, sheetXC, invalidSheetName, prefixSheet)
+      )
+    )
+  )
+);
+
+export function createRangePaPa(
+  sheetId: UID,
+  sheetXC: string,
+  invalidSheetName: string | undefined,
+  prefixSheet: boolean,
+  getSheetSize: (sheetId: UID) => ZoneDimension
+): RangeImpl {
+  const range = createRangePipi(sheetId)(prefixSheet)(invalidSheetName)(sheetXC);
   Object.assign(range, { getSheetSize });
   return range;
 }
-
-export const createRangePaPa = memoize(createRangePouPou);
 
 interface ConstructorArgs {
   readonly zone: Readonly<Zone | UnboundedZone>;
