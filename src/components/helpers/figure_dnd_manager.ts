@@ -43,6 +43,8 @@ export abstract class FigureDndManager {
   protected currentHorizontalSnapLine: HorizontalSnapLine | undefined = undefined;
   protected currentVerticalSnapLine: VerticalSnapLine | undefined = undefined;
 
+  isActive = false;
+
   constructor(
     draggedFigure: FigurePosition,
     protected readonly otherFigures: Figure[],
@@ -231,6 +233,7 @@ export class FigureDnDMoveManager extends FigureDndManager {
   }
 
   drag(mousePosition: PixelPosition, scrollInfo: SheetScrollInfo) {
+    this.isActive = true;
     const initialMouseX = this.initialMousePosition.x;
     const mouseX = mousePosition.x;
     const viewportX = this.mainViewportPosition.x;
@@ -291,6 +294,7 @@ export class FigureDnDMoveManager extends FigureDndManager {
 
 export class FigureDnDResizeManager extends FigureDndManager {
   resize(dirX: -1 | 0 | 1, dirY: -1 | 0 | 1, mousePosition: PixelPosition) {
+    this.isActive = true;
     this.currentHorizontalSnapLine = undefined;
     this.currentVerticalSnapLine = undefined;
 

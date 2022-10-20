@@ -226,6 +226,24 @@ describe("figures", () => {
     expect(model.getters.getFigure(sheetId, figureId)).toMatchObject(expectedSize);
   });
 
+  test("Figure is considered dragging at mouseMove when resizing, not on mouseDown", async () => {
+    createFigure(model);
+    await nextTick();
+
+    const figureEl = fixture.querySelector(".o-figure")!;
+    await simulateClick(figureEl);
+    const anchorEl = fixture.querySelector(".o-anchor.o-top");
+    expect(figureEl.classList).not.toContain("o-dragging");
+
+    triggerMouseEvent(anchorEl, "mousedown");
+    await nextTick();
+    expect(figureEl.classList).not.toContain("o-dragging");
+
+    triggerMouseEvent(anchorEl, "mousemove");
+    await nextTick();
+    expect(figureEl.classList).toContain("o-dragging");
+  });
+
   describe("Move a figure with drag & drop ", () => {
     test("Can move a figure with drag & drop", async () => {
       createFigure(model, { id: "someuuid", x: 200, y: 100 });
@@ -277,6 +295,22 @@ describe("figures", () => {
         x: 4 * DEFAULT_CELL_WIDTH,
         y: 200,
       });
+    });
+
+    test("Figure is considered dragging at mouseMove, not on mouseDown", async () => {
+      createFigure(model);
+      await nextTick();
+
+      const figureEl = fixture.querySelector(".o-figure")!;
+      expect(figureEl.classList).not.toContain("o-dragging");
+
+      triggerMouseEvent(figureEl, "mousedown");
+      await nextTick();
+      expect(figureEl.classList).not.toContain("o-dragging");
+
+      triggerMouseEvent(figureEl, "mousemove");
+      await nextTick();
+      expect(figureEl.classList).toContain("o-dragging");
     });
   });
 

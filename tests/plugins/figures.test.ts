@@ -352,7 +352,7 @@ describe("figure plugin", () => {
     expect(model.getters.getSelectedFigureId()).toBeNull();
   });
 
-  test("Selecting a cell cancel the edition of a cell", () => {
+  test("Selecting a figure cancel the edition of a cell", () => {
     const model = new Model();
     model.dispatch("CREATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),

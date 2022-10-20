@@ -6,7 +6,7 @@
           class="o-figure"
           t-on-mousedown.stop="(ev) => this.onMouseDown(ev)"
           t-att-style="getFigureStyle()"
-          t-att-class="{active: isSelected, 'o-dragging': !!dndManager}"
+          t-att-class="{active: isSelected, 'o-dragging': dndManager and dndManager.isActive}"
           t-ref="figure"
           tabindex="0"
           t-on-keydown.stop="(ev) => this.onKeyDown(ev)"
