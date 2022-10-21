@@ -225,7 +225,8 @@ export class FigureDnDMoveManager extends FigureDndManager {
     draggedFigure: FigurePosition,
     otherFigures: Figure[],
     initialMousePosition: PixelPosition,
-    private readonly mainViewportPosition: PixelPosition
+    private readonly mainViewportPosition: PixelPosition,
+    private readonly frozenPaneOffset: number
   ) {
     super(draggedFigure, otherFigures, initialMousePosition);
   }
@@ -239,28 +240,40 @@ export class FigureDnDMoveManager extends FigureDndManager {
     const mouseY = mousePosition.y;
     const viewportY = this.mainViewportPosition.y;
 
-    let deltaX = initialMouseX - mouseX;
-    // Put the figure on the frozen pane if the mouse is over the pane
-    if (mouseX > viewportX && initialMouseX < viewportX) {
-      deltaX -= scrollInfo.offsetX;
-    } else if (mouseX < viewportX && initialMouseX > viewportX) {
-      deltaX += scrollInfo.offsetX;
+    const deltaX = initialMouseX - mouseX;
+    let newX = this.initialFigure.x - deltaX;
+
+    // Freeze panes: always display the figure above the panes
+    if (viewportX > 0) {
+      const isInitialXInFrozenPane = this.initialFigure.x < viewportX - this.frozenPaneOffset;
+      const isNewXInFrozenPane = newX < viewportX - this.frozenPaneOffset;
+      const isNewXBelowFrozenPane = newX < scrollInfo.offsetX + viewportX - this.frozenPaneOffset;
+      if (isInitialXInFrozenPane && !isNewXInFrozenPane) {
+        newX += scrollInfo.offsetX;
+      } else if (!isInitialXInFrozenPane && isNewXBelowFrozenPane) {
+        newX -= scrollInfo.offsetX;
+      }
     }
+    newX = Math.max(newX, 0);
 
-    let deltaY = initialMouseY - mouseY;
+    const deltaY = initialMouseY - mouseY;
+    let newY = this.initialFigure.y - deltaY;
 
-    // Put the figure on the frozen pane if the mouse is over the pane
-    if (mouseY > viewportY && initialMouseY < viewportY) {
-      deltaY -= scrollInfo.offsetY;
-    } else if (mouseY < viewportY && initialMouseY > viewportY) {
-      deltaY += scrollInfo.offsetY;
+    // Freeze panes: always display the figure above the panes
+    if (viewportY > 0) {
+      const isInitialYInFrozenPane = this.initialFigure.y < viewportY - this.frozenPaneOffset;
+      const isNewYInFrozenPane = newY < viewportY - this.frozenPaneOffset;
+      const isNewYBelowFrozenPane = newY < scrollInfo.offsetY + viewportY - this.frozenPaneOffset;
+      if (isInitialYInFrozenPane && !isNewYInFrozenPane) {
+        newY += scrollInfo.offsetY;
+      } else if (!isInitialYInFrozenPane && isNewYBelowFrozenPane) {
+        newY -= scrollInfo.offsetY;
+      }
     }
+    newY = Math.max(newY, 0);
 
-    const x = Math.max(this.initialFigure.x - deltaX, 0);
-    const y = Math.max(this.initialFigure.y - deltaY, 0);
-
-    const dnd = { ...this.dnd, x, y };
-    let dndX = x;
+    const dnd = { ...this.dnd, x: newX, y: newY };
+    let dndX = newX;
     const vSnap = this.getVerticalSnapLine(
       dnd,
       ["left", "right", "hCenter"],
@@ -271,7 +284,7 @@ export class FigureDnDMoveManager extends FigureDndManager {
       dndX = vSnap.x - offset;
     }
 
-    let dndY = y;
+    let dndY = newY;
     const hSnap = this.getHorizontalSnapLine(
       dnd,
       ["top", "bottom", "vCenter"],

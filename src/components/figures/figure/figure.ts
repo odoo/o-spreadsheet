@@ -8,7 +8,6 @@ import {
 import { figureRegistry } from "../../../registries/index";
 import { Figure, Pixel, SpreadsheetChildEnv, UID } from "../../../types/index";
 import { css } from "../../helpers/css";
-import { gridOverlayPosition } from "../../helpers/dom_helpers";
 import { startDnd } from "../../helpers/drag_and_drop";
 import {
   FigureDndManager,
@@ -155,6 +154,10 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     return this.isSelected ? ACTIVE_BORDER_WIDTH : this.env.isDashboard() ? 0 : FIGURE_BORDER_WIDTH;
   }
 
+  private getBorderShift() {
+    return ANCHOR_SIZE / 2;
+  }
+
   getFigureStyle() {
     const { width, height } = this.displayedFigure;
     return `width:${width}px;height:${height}px;border-width: ${this.getBorderWidth()}px;`;
@@ -171,7 +174,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 
     // Visually, the content of the container is slightly shifted as it includes borders and/or corners.
     // If we want to make assertions on the position of the content, we need to take this shift into account
-    const borderShift = ANCHOR_SIZE / 2;
+    const borderShift = this.getBorderShift();
 
     if (target.x + borderShift < offsetCorrectionX) {
       x = target.x;
@@ -217,7 +220,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     const { x: offsetCorrectionX, y: offsetCorrectionY } =
       this.env.model.getters.getMainViewportCoordinates();
     const { offsetX, offsetY } = this.env.model.getters.getActiveSheetScrollInfo();
-    const borderShift = ANCHOR_SIZE / 2;
+    const borderShift = this.getBorderShift();
 
     if (target.x + borderShift < offsetCorrectionX) {
       x = 0;
@@ -308,7 +311,6 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 
   onMouseDown(ev: MouseEvent) {
     const figure = this.props.figure;
-    const gridPosition = gridOverlayPosition();
 
     if (ev.button > 0 || this.env.model.getters.isReadonly()) {
       // not main button, probably a context menu
@@ -325,14 +327,13 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     const otherFigures = visibleFigures.filter((fig) => fig.id !== figure.id);
     const mousePosition = { x: ev.clientX, y: ev.clientY };
     const mainViewportPosition = this.env.model.getters.getMainViewportCoordinates();
-    mainViewportPosition.x += gridPosition.left;
-    mainViewportPosition.y += gridPosition.top;
 
     const dndManager = new FigureDnDMoveManager(
       figure,
       otherFigures,
       mousePosition,
-      mainViewportPosition
+      mainViewportPosition,
+      this.getBorderShift()
     );
     this.dndManager = dndManager;
 

@@ -239,43 +239,78 @@ describe("figures", () => {
       });
     });
 
-    test("frozen pane: put the figure on the pane if the mouse goes over it, instead of below the pane. Y axis", async () => {
-      freezeRows(model, 5);
-      setViewportOffset(model, 0, 5 * DEFAULT_CELL_HEIGHT);
-      const figurePosition = { x: 200, y: 11 * DEFAULT_CELL_HEIGHT };
-      createFigure(model, { id: "someuuid", ...figurePosition });
-      await nextTick();
-
-      const figureEl = fixture.querySelector(".o-figure")!;
-      const figurePositionInViewport = {
-        ...figurePosition,
-        y: figurePosition.y - 5 * DEFAULT_CELL_HEIGHT,
-      };
-      await dragElement(figureEl, 0, -2 * DEFAULT_CELL_HEIGHT, true, figurePositionInViewport);
-      await nextTick();
-      expect(model.getters.getFigure(model.getters.getActiveSheetId(), "someuuid")).toMatchObject({
-        x: 200,
-        y: 4 * DEFAULT_CELL_HEIGHT,
+    describe("Figure drag & drop with frozen pane", () => {
+      const cellWidth = DEFAULT_CELL_WIDTH;
+      const cellHeight = DEFAULT_CELL_HEIGHT;
+      const id = "someId";
+      const figureSelector = ".o-figure";
+      beforeEach(async () => {
+        freezeRows(model, 5);
+        freezeColumns(model, 5);
+        model.dispatch("SET_VIEWPORT_OFFSET", {
+          offsetX: 10 * cellWidth,
+          offsetY: 10 * cellHeight,
+        });
       });
-    });
 
-    test("frozen pane: put the figure on the pane if the mouse goes over it, instead of below the pane. X axis", async () => {
-      freezeColumns(model, 5);
-      setViewportOffset(model, 5 * DEFAULT_CELL_WIDTH, 0);
-      const figurePosition = { x: 11 * DEFAULT_CELL_WIDTH, y: 200 };
-      createFigure(model, { id: "someuuid", ...figurePosition });
-      await nextTick();
+      test("Figure in frozen rows can be dragged to main viewport", async () => {
+        createFigure(model, { id, x: 16 * cellWidth, y: 4 * cellHeight });
+        await nextTick();
+        await dragElement(figureSelector, 0, 3 * cellHeight, true);
+        expect(model.getters.getFigure(sheetId, id)).toMatchObject({
+          x: 16 * cellWidth,
+          y: 17 * cellHeight, // initial position + drag offset + scroll offset
+        });
+      });
 
-      const figureEl = fixture.querySelector(".o-figure")!;
-      const figurePositionInViewport = {
-        ...figurePosition,
-        x: figurePosition.x - 5 * DEFAULT_CELL_WIDTH,
-      };
-      await dragElement(figureEl, -2 * DEFAULT_CELL_WIDTH, 0, true, figurePositionInViewport);
-      await nextTick();
-      expect(model.getters.getFigure(model.getters.getActiveSheetId(), "someuuid")).toMatchObject({
-        x: 4 * DEFAULT_CELL_WIDTH,
-        y: 200,
+      test("Figure in main viewport can be dragged to frozen rows", async () => {
+        createFigure(model, { id, x: 16 * cellWidth, y: 16 * cellHeight });
+        await nextTick();
+        await dragElement(figureSelector, 0, -3 * cellHeight, true);
+        expect(model.getters.getFigure(sheetId, id)).toMatchObject({
+          x: 16 * cellWidth,
+          y: 3 * cellHeight, // initial position + drag offset - scroll offset
+        });
+      });
+
+      test("Dragging figure that is half hidden by frozen rows will put in on top of the freeze pane", async () => {
+        createFigure(model, { id, x: 16 * cellWidth, y: 14 * cellHeight, height: 5 * cellHeight });
+        await nextTick();
+        await dragElement(figureSelector, 1, 0, true);
+        expect(model.getters.getFigure(sheetId, id)).toMatchObject({
+          x: 16 * cellWidth + 1,
+          y: 4 * cellHeight, // initial position - scroll offset
+        });
+      });
+
+      test("Figure in frozen cols can be dragged to main viewport", async () => {
+        createFigure(model, { id, x: 4 * cellWidth, y: 16 * cellHeight });
+        await nextTick();
+        await dragElement(figureSelector, 3 * cellWidth, 0, true);
+        expect(model.getters.getFigure(sheetId, id)).toMatchObject({
+          x: 17 * cellWidth, // initial position + drag offset + scroll offset
+          y: 16 * cellHeight,
+        });
+      });
+
+      test("Figure in main viewport can be dragged to frozen cols", async () => {
+        createFigure(model, { id, x: 16 * cellWidth, y: 16 * cellHeight });
+        await nextTick();
+        await dragElement(figureSelector, -3 * cellWidth, 0, true);
+        expect(model.getters.getFigure(sheetId, id)).toMatchObject({
+          x: 3 * cellWidth, // initial position + drag offset - scroll offset
+          y: 16 * cellHeight,
+        });
+      });
+
+      test("Dragging figure that is half hidden by frozen cols will put in on top of the freeze pane", async () => {
+        createFigure(model, { id, x: 14 * cellWidth, y: 16 * cellHeight, width: 5 * cellWidth });
+        await nextTick();
+        await dragElement(figureSelector, 0, 1, true);
+        expect(model.getters.getFigure(sheetId, id)).toMatchObject({
+          x: 4 * cellWidth, // initial position - scroll offset
+          y: 16 * cellHeight + 1,
+        });
       });
     });
   });
