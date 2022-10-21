@@ -1,6 +1,9 @@
 <templates>
   <t t-name="o-spreadsheet-Spreadsheet" owl="1">
-    <div class="o-spreadsheet" t-on-keydown="onKeydown" t-att-style="getStyle()">
+    <div
+      class="o-spreadsheet"
+      t-on-keydown="(ev) => !env.isDashboard() and this.onKeydown(ev)"
+      t-att-style="getStyle()">
       <t t-if="env.isDashboard()">
         <SpreadsheetDashboard/>
       </t>
