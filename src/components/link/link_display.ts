@@ -25,8 +25,8 @@ const TEMPLATE = xml/* xml */ `
       t-att-title="cell.urlRepresentation">
       <t t-esc="cell.urlRepresentation"/>
     </a>
-    <span class="o-link-icon o-unlink" t-on-click="unlink" title="${LinkEditorTerms.Remove}">${UNLINK}</span>
-    <span class="o-link-icon o-edit-link" t-on-click="edit" title="${LinkEditorTerms.Edit}">${EDIT}</span>
+    <span t-if="!env.getters.isReadonly()" class="o-link-icon o-unlink" t-on-click="unlink" title="${LinkEditorTerms.Remove}">${UNLINK}</span>
+    <span t-if="!env.getters.isReadonly()" class="o-link-icon o-edit-link" t-on-click="edit" title="${LinkEditorTerms.Edit}">${EDIT}</span>
   </div>
 `;
 
