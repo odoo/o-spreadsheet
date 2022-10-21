@@ -492,4 +492,16 @@ describe("Composer / selectionInput interactions", () => {
     expect(colorPickerZIndex).toBeLessThan(contextMenuZIndex);
     expect(contextMenuZIndex).toBeLessThan(figureAnchorZIndex);
   });
+
+  test("Keydown is ineffective in dashboard mode", async () => {
+    const spreadsheetKeyDown = jest.spyOn(parent, "onKeydown");
+    const spreadsheetDiv = fixture.querySelector(".o-spreadsheet")!;
+    spreadsheetDiv.dispatchEvent(new KeyboardEvent("keydown", { key: "H", ctrlKey: true }));
+    expect(spreadsheetKeyDown).toHaveBeenCalled();
+    jest.clearAllMocks();
+    parent.model.updateMode("dashboard");
+    await nextTick();
+    spreadsheetDiv.dispatchEvent(new KeyboardEvent("keydown", { key: "H", ctrlKey: true }));
+    expect(spreadsheetKeyDown).not.toHaveBeenCalled();
+  });
 });
