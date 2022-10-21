@@ -617,6 +617,14 @@ describe("Grid component", () => {
       expect(model.getters.getActiveSheetId()).toBe("third");
     });
 
+    test("pressing Ctrl+K opens the link editor", async () => {
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true })
+      );
+      await nextTick();
+      expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
+    });
+
     test("Filter icon is correctly rendered", async () => {
       createFilter(model, "B2:C3");
       await nextTick();

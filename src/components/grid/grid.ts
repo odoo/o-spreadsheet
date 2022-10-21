@@ -11,6 +11,7 @@ import { interactivePaste, interactivePasteFromOS } from "../../helpers/ui/paste
 import { ComposerSelection } from "../../plugins/ui/edition";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
+import { INSERT_LINK } from "../../registries/menus/menu_items_actions";
 import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
 import {
   Client,
@@ -267,6 +268,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     },
     PAGEDOWN: () => this.env.model.dispatch("SHIFT_VIEWPORT_DOWN"),
     PAGEUP: () => this.env.model.dispatch("SHIFT_VIEWPORT_UP"),
+    "CTRL+K": () => INSERT_LINK(this.env),
   };
 
   focus() {
