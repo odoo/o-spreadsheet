@@ -170,4 +170,15 @@ describe("link display component", () => {
     expect(model.getters.getActiveSheetId()).toBe(sheetId);
     expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
   });
+
+  test("remove/edit link are hidden in readonly mode", async () => {
+    setCellContent(model, "A1", "[label](url.com)");
+    await nextTick();
+    model.updateReadOnly(true);
+    await clickCell(model, "A1");
+    const linkTool = fixture.querySelector(".o-link-tool");
+    expect(linkTool).toBeTruthy();
+    expect(linkTool!.querySelector(".o-unlink")).toBeFalsy();
+    expect(linkTool!.querySelector(".o-edit-link")).toBeFalsy();
+  });
 });
