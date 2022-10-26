@@ -316,10 +316,10 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       };
     } else {
       onMouseMove = (ev: MouseEvent) => {
-        const deltaX = dirX * (ev.clientX - initialX);
-        const deltaY = dirY * (ev.clientY - initialY);
-        this.dnd.width = Math.max(figure.width + deltaX, this.minFigSize);
-        this.dnd.height = Math.max(figure.height + deltaY, this.minFigSize);
+        const deltaX = Math.max(dirX * (ev.clientX - initialX), MIN_FIG_SIZE - figure.width);
+        const deltaY = Math.max(dirY * (ev.clientY - initialY), MIN_FIG_SIZE - figure.height);
+        this.dnd.width = figure.width + deltaX;
+        this.dnd.height = figure.height + deltaY;
         if (dirX < 0) {
           this.dnd.x = figure.x - deltaX;
         }
