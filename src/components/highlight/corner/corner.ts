@@ -73,3 +73,11 @@ export class Corner extends Component<Props, SpreadsheetChildEnv> {
     this.props.onResizeHighlight(this.isLeft, this.isTop);
   }
 }
+
+Corner.props = {
+  zone: Object,
+  color: String,
+  orientation: String,
+  isResizing: Boolean,
+  onResizeHighlight: Function,
+};

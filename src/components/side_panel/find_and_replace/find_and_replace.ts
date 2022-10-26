@@ -37,7 +37,9 @@ css/* scss */ `
   }
 `;
 
-interface Props {}
+interface Props {
+  onCloseSidePanel: () => void;
+}
 
 interface FindAndReplaceState {
   toSearch: string;
@@ -155,3 +157,7 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
     };
   }
 }
+
+FindAndReplacePanel.props = {
+  onCloseSidePanel: Function,
+};

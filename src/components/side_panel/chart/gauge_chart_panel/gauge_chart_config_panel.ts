@@ -47,3 +47,9 @@ export class GaugeChartConfigPanel extends Component<Props, SpreadsheetChildEnv>
     });
   }
 }
+
+GaugeChartConfigPanel.props = {
+  figureId: String,
+  definition: Object,
+  updateChart: Function,
+};

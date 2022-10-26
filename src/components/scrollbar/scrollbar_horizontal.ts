@@ -4,7 +4,7 @@ import { SpreadsheetChildEnv } from "../../types";
 import { ScrollBar } from "./scrollbar";
 
 interface Props {
-  position: { left: number };
+  leftOffset: number;
 }
 
 export class HorizontalScrollBar extends Component<Props, SpreadsheetChildEnv> {
@@ -19,7 +19,7 @@ export class HorizontalScrollBar extends Component<Props, SpreadsheetChildEnv> {
         onScroll.bind="onScroll"
       />`;
   static defaultProps = {
-    position: { left: 0 },
+    leftOffset: 0,
   };
 
   get offset() {
@@ -40,7 +40,7 @@ export class HorizontalScrollBar extends Component<Props, SpreadsheetChildEnv> {
   get position() {
     const { x } = this.env.model.getters.getMainViewportRect();
     return {
-      left: `${this.props.position.left + x}px`,
+      left: `${this.props.leftOffset + x}px`,
       bottom: "0px",
       right: `${SCROLLBAR_WIDTH}px`,
     };
@@ -54,3 +54,7 @@ export class HorizontalScrollBar extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 }
+
+HorizontalScrollBar.props = {
+  leftOffset: { type: Number, optional: true },
+};

@@ -195,6 +195,9 @@ interface State {
 
 export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ColorPicker";
+  static defaultProps = {
+    currentColor: "", //TODO Change it to false instead of empty string
+  };
   COLORS = COLOR_PICKER_DEFAULTS;
 
   private state: State = useState({
@@ -264,3 +267,9 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
     }`;
   }
 }
+
+ColorPicker.props = {
+  dropdownDirection: { type: String, optional: true },
+  onColorPicked: Function,
+  currentColor: { type: String, optional: true },
+};

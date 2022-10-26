@@ -66,6 +66,10 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 }
 
+ChartJsComponent.props = {
+  figure: Object,
+};
+
 chartComponentRegistry.add("line", ChartJsComponent);
 chartComponentRegistry.add("bar", ChartJsComponent);
 chartComponentRegistry.add("pie", ChartJsComponent);

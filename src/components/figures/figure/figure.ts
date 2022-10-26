@@ -395,3 +395,9 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 }
+
+FigureComponent.props = {
+  sidePanelIsOpen: Boolean,
+  onFigureDeleted: Function,
+  figure: Object,
+};

@@ -296,7 +296,8 @@ css/* scss */ `
   }
 `;
 interface Props {
-  selection: Zone[] | undefined;
+  selection?: Zone[];
+  onCloseSidePanel: () => void;
 }
 
 type CFType = "CellIsRule" | "ColorScaleRule" | "IconSetRule";
@@ -751,3 +752,8 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
     this.state.rules.iconSet.icons[target] = icon;
   }
 }
+
+ConditionalFormattingPanel.props = {
+  selection: { type: Object, optional: true },
+  onCloseSidePanel: Function,
+};

@@ -152,3 +152,8 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
     dragAndDropBeyondTheViewport(this.env, mouseMove, mouseUp);
   }
 }
+
+Highlight.props = {
+  zone: Object,
+  color: String,
+};

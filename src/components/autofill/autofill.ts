@@ -128,8 +128,16 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
   }
 }
 
+Autofill.props = {
+  position: Object,
+};
+
 class TooltipComponent extends Component<Props> {
   static template = xml/* xml */ `
     <div t-esc="props.content"/>
   `;
 }
+
+TooltipComponent.props = {
+  content: String,
+};

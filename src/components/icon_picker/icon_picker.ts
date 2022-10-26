@@ -40,3 +40,7 @@ export class IconPicker extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 }
+
+IconPicker.props = {
+  onIconPicked: Function,
+};

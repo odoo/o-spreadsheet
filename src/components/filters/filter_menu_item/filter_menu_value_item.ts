@@ -5,8 +5,8 @@ interface Props {
   value: string;
   isChecked: boolean;
   isSelected: boolean;
-  onMouseEnter: () => void;
   onClick: () => void;
+  onMouseMove: () => void;
   scrolledTo: "top" | "bottom" | undefined;
 }
 
@@ -32,3 +32,12 @@ export class FilterMenuValueItem extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 }
+
+FilterMenuValueItem.props = {
+  value: String,
+  isChecked: Boolean,
+  isSelected: Boolean,
+  onMouseMove: Function,
+  onClick: Function,
+  scrolledTo: { type: String, optional: true },
+};

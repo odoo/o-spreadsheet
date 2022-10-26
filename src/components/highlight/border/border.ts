@@ -59,3 +59,10 @@ export class Border extends Component<Props, SpreadsheetChildEnv> {
     this.props.onMoveHighlight(ev.clientX, ev.clientY);
   }
 }
+
+Border.props = {
+  zone: Object,
+  orientation: String,
+  isMoving: Boolean,
+  onMoveHighlight: Function,
+};

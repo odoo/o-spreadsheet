@@ -134,3 +134,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
     this.state.panel = panel;
   }
 }
+
+ChartPanel.props = {
+  onCloseSidePanel: Function,
+};

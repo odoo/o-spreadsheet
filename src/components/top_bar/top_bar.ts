@@ -559,3 +559,9 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 }
+
+TopBar.props = {
+  onClick: Function,
+  focusComposer: String,
+  onComposerContentFocused: Function,
+};

@@ -18,6 +18,7 @@ css/* scss */ `
 
 interface ErrorToolTipProps {
   text: string;
+  onClosed?: () => void;
 }
 
 class ErrorToolTip extends Component<ErrorToolTipProps> {
@@ -25,6 +26,11 @@ class ErrorToolTip extends Component<ErrorToolTipProps> {
   static template = "o-spreadsheet-ErrorToolTip";
   static components = {};
 }
+
+ErrorToolTip.props = {
+  text: String,
+  onClosed: { type: Function, optional: true },
+};
 
 export const ErrorToolTipPopoverBuilder: PopoverBuilders = {
   onHover: (position, getters): CellPopoverComponent<typeof ErrorToolTip> => {

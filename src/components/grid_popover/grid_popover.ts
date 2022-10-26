@@ -29,3 +29,10 @@ export class GridPopover extends Component<Props, SpreadsheetChildEnv> {
     };
   }
 }
+
+GridPopover.props = {
+  gridPosition: Object,
+  hoveredCell: Object,
+  onClosePopover: Function,
+  onMouseWheel: Function,
+};

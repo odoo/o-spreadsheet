@@ -122,3 +122,8 @@ export const LinkCellPopoverBuilder: PopoverBuilders = {
     };
   },
 };
+
+LinkDisplay.props = {
+  cellPosition: Object,
+  onClosed: { type: Function, optional: true },
+};

@@ -31,4 +31,9 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   }
 }
 
+FiguresContainer.props = {
+  sidePanelIsOpen: Boolean,
+  onFigureDeleted: Function,
+};
+
 figureRegistry.add("chart", { Component: ChartFigure, SidePanelComponent: "ChartPanel" });

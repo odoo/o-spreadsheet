@@ -96,3 +96,10 @@ export class FunctionDescriptionProvider extends Component<Props> {
     }, 2000) as unknown as number;
   }
 }
+
+FunctionDescriptionProvider.props = {
+  functionName: String,
+  functionDescription: Object,
+  argToFocus: Number,
+  borderStyle: String,
+};

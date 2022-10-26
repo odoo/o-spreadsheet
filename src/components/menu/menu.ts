@@ -258,3 +258,11 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 }
+
+Menu.props = {
+  position: Object,
+  menuItems: Array,
+  depth: { type: Number, optional: true },
+  onClose: Function,
+  onMenuClicked: { type: Function, optional: true },
+};

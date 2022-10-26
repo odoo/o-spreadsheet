@@ -4,7 +4,7 @@ import { SpreadsheetChildEnv } from "../../types";
 import { ScrollBar } from "./scrollbar";
 
 interface Props {
-  position: { top: number };
+  topOffset: number;
 }
 
 export class VerticalScrollBar extends Component<Props, SpreadsheetChildEnv> {
@@ -19,7 +19,7 @@ export class VerticalScrollBar extends Component<Props, SpreadsheetChildEnv> {
       onScroll.bind="onScroll"
     />`;
   static defaultProps = {
-    position: { top: 0 },
+    topOffset: 0,
   };
 
   get offset() {
@@ -40,7 +40,7 @@ export class VerticalScrollBar extends Component<Props, SpreadsheetChildEnv> {
   get position() {
     const { y } = this.env.model.getters.getMainViewportRect();
     return {
-      top: `${this.props.position.top + y}px`,
+      top: `${this.props.topOffset + y}px`,
       right: "0px",
       bottom: `${SCROLLBAR_WIDTH}px`,
     };
@@ -54,3 +54,7 @@ export class VerticalScrollBar extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 }
+
+VerticalScrollBar.props = {
+  topOffset: { type: Number, optional: true },
+};

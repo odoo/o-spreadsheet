@@ -88,3 +88,9 @@ export class LineBarPieConfigPanel extends Component<Props, SpreadsheetChildEnv>
     });
   }
 }
+
+LineBarPieConfigPanel.props = {
+  figureId: String,
+  definition: Object,
+  updateChart: Function,
+};

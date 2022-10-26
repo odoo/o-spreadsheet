@@ -196,3 +196,8 @@ export const LinkEditorPopoverBuilder: PopoverBuilders = {
     };
   },
 };
+
+LinkEditor.props = {
+  cellPosition: Object,
+  onClosed: { type: Function, optional: true },
+};

@@ -131,3 +131,12 @@ export class TextValueProvider extends Component<Props> implements TextValueProv
     return undefined;
   }
 }
+
+TextValueProvider.props = {
+  provider: String,
+  filter: { type: Function, optional: true },
+  search: String,
+  borderStyle: String,
+  exposeAPI: Function,
+  onCompleted: Function,
+};
