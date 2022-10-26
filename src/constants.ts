@@ -174,6 +174,8 @@ export const DEFAULT_SCORECARD_BASELINE_COLOR_DOWN = "#DC6965";
 
 export const LINE_FILL_TRANSPARENCY = 0.4;
 
+export const MIN_FIG_SIZE = 80;
+
 // session
 export const DEBOUNCE_TIME = 200;
 export const MESSAGE_VERSION = 1;
