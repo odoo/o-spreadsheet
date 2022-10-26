@@ -1,4 +1,4 @@
-import { Component, onMounted, useEffect, useRef, xml } from "@odoo/owl";
+import { Component, onMounted, onWillUpdateProps, useRef, xml } from "@odoo/owl";
 import { BACKGROUND_GRAY_COLOR, ComponentsImportance, SCROLLBAR_WIDTH } from "../../constants";
 import { CSSProperties, Pixel, Ref } from "../../types";
 import { cssPropertiesToCss } from "../helpers";
@@ -67,15 +67,9 @@ export class ScrollBar extends Component<Props> {
     onMounted(() => {
       this.scrollbar.el = this.scrollbarRef.el!;
     });
-    // TODO improve useEffect dependencies typing in owl
-    useEffect(
-      () => {
-        if (this.scrollbar.scroll !== this.props.offset) {
-          this.scrollbar.scroll = this.props.offset;
-        }
-      },
-      () => [this.scrollbar.scroll, this.props.offset]
-    );
+    onWillUpdateProps((nextProps: Props) => {
+      this.scrollbar.scroll = nextProps.offset;
+    });
   }
 
   get sizeCss() {
