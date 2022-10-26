@@ -174,3 +174,5 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     ev.preventDefault();
   }
 }
+
+SpreadsheetDashboard.props = {};

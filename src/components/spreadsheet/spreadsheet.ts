@@ -330,3 +330,10 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     }
   }
 }
+
+Spreadsheet.props = {
+  model: Object,
+  exposeSpreadsheet: { type: Function, optional: true },
+  onUnexpectedRevisionId: { type: Function, optional: true },
+  onContentSaved: { type: Function, optional: true },
+};

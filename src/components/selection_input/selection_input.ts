@@ -58,6 +58,7 @@ interface Props {
   hasSingleRange?: boolean;
   required?: boolean;
   isInvalid?: boolean;
+  class?: string;
   onSelectionChanged?: (ranges: string[]) => void;
   onSelectionConfirmed?: () => void;
 }
@@ -194,3 +195,13 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     this.props.onSelectionConfirmed?.();
   }
 }
+
+SelectionInput.props = {
+  ranges: Array,
+  hasSingleRange: { type: Boolean, optional: true },
+  required: { type: Boolean, optional: true },
+  isInvalid: { type: Boolean, optional: true },
+  class: { type: String, optional: true },
+  onSelectionChanged: { type: Function, optional: true },
+  onSelectionConfirmed: { type: Function, optional: true },
+};

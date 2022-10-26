@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 import { DEFAULT_FONT_SIZE } from "../../constants";
-import { HeaderIndex, SpreadsheetChildEnv, Viewport } from "../../types";
+import { HeaderIndex, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 
 interface ClientTagProps {
@@ -9,7 +9,6 @@ interface ClientTagProps {
   color: string;
   col: HeaderIndex;
   row: HeaderIndex;
-  viewport: Viewport;
 }
 
 css/* scss */ `
@@ -41,3 +40,11 @@ export class ClientTag extends Component<ClientTagProps, SpreadsheetChildEnv> {
     }`;
   }
 }
+
+ClientTag.props = {
+  active: Boolean,
+  name: String,
+  color: String,
+  col: Number,
+  row: Number,
+};

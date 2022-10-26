@@ -37,6 +37,7 @@ import { Highlight } from "../highlight/highlight/highlight";
 import { Menu, MenuState } from "../menu/menu";
 import { Popover } from "../popover/popover";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
+import { ComposerFocusType } from "../spreadsheet/spreadsheet";
 
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
@@ -65,6 +66,7 @@ const keyDownMappingIgnore: string[] = ["CTRL+C", "CTRL+V"];
 interface Props {
   sidePanelIsOpen: boolean;
   exposeFocus: (focus: () => void) => void;
+  focusComposer: ComposerFocusType;
   onComposerContentFocused: () => void;
   onGridComposerCellFocused: (content?: string, selection?: ComposerSelection) => void;
   onSaveRequested?: () => void;
@@ -518,3 +520,12 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.focus();
   }
 }
+
+Grid.props = {
+  sidePanelIsOpen: Boolean,
+  exposeFocus: Function,
+  focusComposer: String,
+  onComposerContentFocused: Function,
+  onGridComposerCellFocused: Function,
+  onSaveRequested: { type: Function, optional: true },
+};

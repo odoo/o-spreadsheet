@@ -5,6 +5,7 @@ import {
   SELECTION_BORDER_COLOR,
 } from "../../../constants";
 import { fontSizeMap } from "../../../fonts";
+import { ComposerSelection } from "../../../plugins/ui/edition";
 import { DOMDimension, Rect, Ref, SpreadsheetChildEnv, Zone } from "../../../types/index";
 import { getTextDecoration } from "../../helpers";
 import { css } from "../../helpers/css";
@@ -25,14 +26,14 @@ css/* scss */ `
 `;
 
 interface ComposerState {
-  rect: Rect | null;
-  delimitation: DOMDimension | null;
+  rect?: Rect;
+  delimitation?: DOMDimension;
 }
 
 interface Props {
   focus: "inactive" | "cellFocus" | "contentFocus";
-  content: string;
   onComposerUnmounted: () => void;
+  onComposerContentFocused: (selection: ComposerSelection) => void;
 }
 
 /**
@@ -53,8 +54,8 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   setup() {
     this.gridComposerRef = useRef("gridComposer");
     this.composerState = useState({
-      rect: null,
-      delimitation: null,
+      rect: undefined,
+      delimitation: undefined,
     });
     const { col, row } = this.env.model.getters.getPosition();
     this.zone = this.env.model.getters.expandZone(this.env.model.getters.getActiveSheetId(), {
@@ -146,3 +147,9 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     `;
   }
 }
+
+GridComposer.props = {
+  focus: { validate: (value: string) => ["inactive", "cellFocus", "contentFocus"].includes(value) },
+  onComposerUnmounted: Function,
+  onComposerContentFocused: Function,
+};

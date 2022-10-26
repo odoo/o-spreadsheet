@@ -46,3 +46,9 @@ export class FilterIcon extends Component<Props, SpreadsheetEnv> {
     return `top:${y}px;left:${x}px`;
   }
 }
+
+FilterIcon.props = {
+  position: Object,
+  isActive: Boolean,
+  onClick: Function,
+};

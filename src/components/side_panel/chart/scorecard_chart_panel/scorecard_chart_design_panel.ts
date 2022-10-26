@@ -52,3 +52,9 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
     this.state.openedColorPicker = undefined;
   }
 }
+
+ScorecardChartDesignPanel.props = {
+  figureId: String,
+  definition: Object,
+  updateChart: Function,
+};

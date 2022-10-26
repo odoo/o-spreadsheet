@@ -115,7 +115,6 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
   static components = { TextValueProvider, FunctionDescriptionProvider };
   static defaultProps = {
     inputStyle: "",
-    focus: "inactive",
   };
 
   composerRef = useRef("o_composer");
@@ -572,3 +571,12 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     this.processTokenAtCursor();
   }
 }
+
+Composer.props = {
+  inputStyle: { type: String, optional: true },
+  rect: { type: Object, optional: true },
+  delimitation: { type: Object, optional: true },
+  focus: { validate: (value: string) => ["inactive", "cellFocus", "contentFocus"].includes(value) },
+  onComposerUnmounted: { type: Function, optional: true },
+  onComposerContentFocused: Function,
+};

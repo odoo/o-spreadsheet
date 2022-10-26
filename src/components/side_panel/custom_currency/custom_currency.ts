@@ -17,6 +17,10 @@ interface CurrencyProposal {
   example: string;
 }
 
+interface Props {
+  onCloseSidePanel: () => void;
+}
+
 interface State {
   selectedCurrencyIndex: number;
   currencyCode: string;
@@ -24,7 +28,7 @@ interface State {
   selectedFormatIndex: number;
 }
 
-export class CustomCurrencyPanel extends Component<any, SpreadsheetChildEnv> {
+export class CustomCurrencyPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CustomCurrencyPanel";
   private availableCurrencies!: Currency[];
   private state!: State;
@@ -193,3 +197,7 @@ export class CustomCurrencyPanel extends Component<any, SpreadsheetChildEnv> {
     return currency.name + (currency.code ? ` (${currency.code})` : "");
   }
 }
+
+CustomCurrencyPanel.props = {
+  onCloseSidePanel: Function,
+};

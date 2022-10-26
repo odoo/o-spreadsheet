@@ -55,3 +55,9 @@ export class LineBarPieDesignPanel extends Component<Props, SpreadsheetChildEnv>
     });
   }
 }
+
+LineBarPieDesignPanel.props = {
+  figureId: String,
+  definition: Object,
+  updateChart: Function,
+};

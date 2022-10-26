@@ -244,3 +244,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     return fnName + ": " + (fnValue !== undefined ? formatValue(fnValue) : "__");
   }
 }
+
+BottomBar.props = {
+  onClick: Function,
+};

@@ -71,3 +71,7 @@ export class FilterIconsOverlay extends Component<Props, SpreadsheetChildEnv> {
     return !(rect.width === 0 || rect.height === 0);
   }
 }
+
+FilterIconsOverlay.props = {
+  gridPosition: { type: Object, optional: true },
+};

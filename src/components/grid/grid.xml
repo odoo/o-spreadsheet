@@ -70,8 +70,8 @@
         onClose="() => this.closeMenu()"
       />
       <FilterIconsOverlay gridPosition="{ x: HEADER_WIDTH, y : HEADER_HEIGHT }"/>
-      <VerticalScrollBar position="{ top: HEADER_HEIGHT }"/>
-      <HorizontalScrollBar position="{ left: HEADER_WIDTH }"/>
+      <VerticalScrollBar topOffset="HEADER_HEIGHT"/>
+      <HorizontalScrollBar leftOffset="HEADER_WIDTH"/>
       <div class="o-scrollbar corner"/>
     </div>
   </t>

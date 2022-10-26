@@ -347,6 +347,10 @@ css/* scss */ `
   }
 `;
 
+AbstractResizer.props = {
+  onOpenContextMenu: Function,
+};
+
 export class ColResizer extends AbstractResizer {
   static template = "o-spreadsheet-ColResizer";
 
@@ -544,6 +548,10 @@ css/* scss */ `
   }
 `;
 
+ColResizer.props = {
+  onOpenContextMenu: Function,
+};
+
 export class RowResizer extends AbstractResizer {
   static template = "o-spreadsheet-RowResizer";
 
@@ -691,6 +699,10 @@ css/* scss */ `
   }
 `;
 
+RowResizer.props = {
+  onOpenContextMenu: Function,
+};
+
 export class HeadersOverlay extends Component<any, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-HeadersOverlay";
   static components = { ColResizer, RowResizer };
@@ -699,3 +711,7 @@ export class HeadersOverlay extends Component<any, SpreadsheetChildEnv> {
     this.env.model.selection.selectAll();
   }
 }
+
+HeadersOverlay.props = {
+  onOpenContextMenu: Function,
+};

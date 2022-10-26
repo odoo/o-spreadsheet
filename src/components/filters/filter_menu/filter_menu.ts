@@ -310,6 +310,10 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     this.props.onClosed?.();
   }
 }
+FilterMenu.props = {
+  filterPosition: Object,
+  onClosed: { type: Function, optional: true },
+};
 
 export const FilterMenuPopoverBuilder: PopoverBuilders = {
   onOpen: (position, getters): CellPopoverComponent<typeof FilterMenu> => {

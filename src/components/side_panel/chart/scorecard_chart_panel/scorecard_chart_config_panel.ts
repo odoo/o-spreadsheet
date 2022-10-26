@@ -73,3 +73,9 @@ export class ScorecardChartConfigPanel extends Component<Props, SpreadsheetChild
     this.props.updateChart({ baselineMode: ev.target.value });
   }
 }
+
+ScorecardChartConfigPanel.props = {
+  figureId: String,
+  definition: Object,
+  updateChart: Function,
+};

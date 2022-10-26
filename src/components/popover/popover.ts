@@ -99,3 +99,14 @@ export class Popover extends Component<Props, SpreadsheetChildEnv> {
     );
   }
 }
+
+Popover.props = {
+  position: Object,
+  marginTop: { type: Number, optional: true },
+  childWidth: Number,
+  childHeight: Number,
+  flipHorizontalOffset: { type: Number, optional: true },
+  flipVerticalOffset: { type: Number, optional: true },
+  onMouseWheel: { type: Function, optional: true },
+  slots: Object,
+};

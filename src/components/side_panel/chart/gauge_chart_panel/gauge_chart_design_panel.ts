@@ -195,3 +195,9 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     this.state.openedMenu = undefined;
   }
 }
+
+GaugeChartDesignPanel.props = {
+  figureId: String,
+  definition: Object,
+  updateChart: Function,
+};

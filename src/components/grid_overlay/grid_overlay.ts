@@ -213,3 +213,15 @@ export class GridOverlay extends Component<Props> {
     return [colIndex, rowIndex];
   }
 }
+
+GridOverlay.props = {
+  onCellHovered: { type: Function, optional: true },
+  onCellDoubleClicked: { type: Function, optional: true },
+  onCellClicked: { type: Function, optional: true },
+  onCellRightClicked: { type: Function, optional: true },
+  onGridResized: { type: Function, optional: true },
+  onFigureDeleted: { type: Function, optional: true },
+  onGridMoved: Function,
+  gridOverlayDimensions: String,
+  sidePanelIsOpen: { type: Boolean, optional: true },
+};

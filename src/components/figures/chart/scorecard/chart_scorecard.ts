@@ -275,4 +275,8 @@ class KeyValueElement implements ScorecardScalableElement {
   }
 }
 
+ScorecardChart.props = {
+  figure: Object,
+};
+
 chartComponentRegistry.add("scorecard", ScorecardChart);

@@ -135,3 +135,9 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
     return component;
   }
 }
+
+ChartFigure.props = {
+  figure: Object,
+  sidePanelIsOpen: Boolean,
+  onFigureDeleted: Function,
+};

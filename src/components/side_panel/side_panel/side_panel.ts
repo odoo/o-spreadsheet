@@ -274,3 +274,9 @@ export class SidePanel extends Component<Props, SpreadsheetChildEnv> {
       : this.state.panel.title;
   }
 }
+
+SidePanel.props = {
+  component: String,
+  panelProps: { type: Object, optional: true },
+  onCloseSidePanel: Function,
+};
