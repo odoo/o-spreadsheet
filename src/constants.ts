@@ -170,6 +170,8 @@ export const DEFAULT_GAUGE_UPPER_COLOR = "#6aa84f";
 
 export const LINE_FILL_TRANSPARENCY = 0.4;
 
+export const MIN_FIG_SIZE = 80;
+
 // session
 export const DEBOUNCE_TIME = 200;
 export const MESSAGE_VERSION = 1;

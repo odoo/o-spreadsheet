@@ -1,6 +1,6 @@
 import { App, Component, xml } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../src";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, MIN_FIG_SIZE } from "../../src/constants";
 import { figureRegistry } from "../../src/registries";
 import { CreateFigureCommand, Figure, SpreadsheetChildEnv, UID } from "../../src/types";
 import {
@@ -9,7 +9,7 @@ import {
   selectCell,
   setCellContent,
 } from "../test_helpers/commands_helpers";
-import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
+import { dragElement, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
 import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
@@ -36,6 +36,21 @@ function createFigure(
     sheetId,
     figure: { ...defaultParameters, ...figureParameters },
   });
+}
+
+const anchorSelectors = {
+  top: ".o-anchor.o-top",
+  topRight: ".o-anchor.o-topRight",
+  right: ".o-anchor.o-right",
+  bottomRight: ".o-anchor.o-bottomRight",
+  bottom: ".o-anchor.o-bottom",
+  bottomLeft: ".o-anchor.o-bottomLeft",
+  left: ".o-anchor.o-left",
+  topLeft: ".o-anchor.o-topLeft",
+};
+async function dragAnchor(anchor: string, dragX: number, dragY: number, mouseUp = false) {
+  const anchorElement = fixture.querySelector(anchorSelectors[anchor])!;
+  await dragElement(anchorElement, dragX, dragY, mouseUp);
 }
 
 //Test Component required as we don't especially want/need to load an entire chart
@@ -179,6 +194,57 @@ describe("figures", () => {
     await nextTick();
     const anchors = fixture.querySelectorAll(".o-anchor");
     expect(anchors).toHaveLength(8);
+  });
+
+  test.each([
+    [
+      "topLeft",
+      { mouseOffsetX: 200, mouseOffsetY: 200 },
+      {
+        x: 200 + 100 - MIN_FIG_SIZE,
+        y: 200 + 100 - MIN_FIG_SIZE,
+        width: MIN_FIG_SIZE,
+        height: MIN_FIG_SIZE,
+      },
+    ],
+    [
+      "topRight",
+      { mouseOffsetX: -200, mouseOffsetY: 200 },
+      {
+        x: 200,
+        y: 200 + 100 - MIN_FIG_SIZE,
+        width: MIN_FIG_SIZE,
+        height: MIN_FIG_SIZE,
+      },
+    ],
+    [
+      "bottomLeft",
+      { mouseOffsetX: 200, mouseOffsetY: -200 },
+      {
+        x: 200 + 100 - MIN_FIG_SIZE,
+        y: 200,
+        width: MIN_FIG_SIZE,
+        height: MIN_FIG_SIZE,
+      },
+    ],
+    [
+      "bottomRight",
+      { mouseOffsetX: -200, mouseOffsetY: -200 },
+      {
+        x: 200,
+        y: 200,
+        width: MIN_FIG_SIZE,
+        height: MIN_FIG_SIZE,
+      },
+    ],
+  ])("resize a figure don't move it", async (anchor: string, mouseMove, expectedSize) => {
+    const figureId = "someuuid";
+    const sheetId = model.getters.getActiveSheetId();
+    createFigure(model, { id: figureId, y: 200, x: 200, width: 100, height: 100 });
+    await nextTick();
+    await simulateClick(".o-figure");
+    await dragAnchor(anchor, mouseMove.mouseOffsetX, mouseMove.mouseOffsetY, true);
+    expect(model.getters.getFigure(sheetId, figureId)).toMatchObject(expectedSize);
   });
 
   test("Can resize a figure through its anchors", async () => {
