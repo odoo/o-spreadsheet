@@ -13,8 +13,8 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FiguresContainer";
   static components = { FigureComponent };
 
-  getVisibleFigures(): Figure[] {
-    return this.env.model.getters.getVisibleFigures();
+  getFigures(): Figure[] {
+    return this.env.model.getters.getFigures(this.env.model.getters.getActiveSheetId());
   }
 
   setup() {

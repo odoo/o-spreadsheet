@@ -7,7 +7,8 @@ type EventFn = (ev: MouseEvent) => void;
 export function startDnd(
   onMouseMove: EventFn,
   onMouseUp: EventFn,
-  onMouseDown: EventFn = () => {}
+  onMouseDown: EventFn = () => {},
+  onWheel?: EventFn
 ) {
   const _onMouseUp = (ev: MouseEvent) => {
     onMouseUp(ev);
@@ -16,8 +17,9 @@ export function startDnd(
     window.removeEventListener("mouseup", _onMouseUp);
     window.removeEventListener("dragstart", _onDragStart);
     window.removeEventListener("mousemove", onMouseMove);
-    window.removeEventListener("wheel", onMouseMove);
+    window.removeEventListener("wheel", onWheel || onMouseMove);
   };
+
   function _onDragStart(ev: DragEvent) {
     ev.preventDefault();
   }
@@ -25,7 +27,7 @@ export function startDnd(
   window.addEventListener("mouseup", _onMouseUp);
   window.addEventListener("dragstart", _onDragStart);
   window.addEventListener("mousemove", onMouseMove);
-  window.addEventListener("wheel", onMouseMove);
+  window.addEventListener("wheel", onWheel || onMouseMove);
 }
 
 /**

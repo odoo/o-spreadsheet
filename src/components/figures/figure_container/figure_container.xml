@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-FiguresContainer" owl="1">
     <div>
-      <t t-foreach="getVisibleFigures()" t-as="figure" t-key="figure.id">
+      <t t-foreach="getFigures()" t-as="figure" t-key="figure.id">
         <FigureComponent
           sidePanelIsOpen="this.props.sidePanelIsOpen"
           onFigureDeleted="this.props.onFigureDeleted"

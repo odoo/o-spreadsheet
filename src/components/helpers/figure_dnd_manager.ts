@@ -225,6 +225,7 @@ export class FigureDnDMoveManager extends FigureDndManager {
     draggedFigure: FigurePosition,
     otherFigures: Figure[],
     initialMousePosition: PixelPosition,
+    private readonly initialScrollInfo: SheetScrollInfo,
     private readonly mainViewportPosition: PixelPosition,
     private readonly frozenPaneOffset: number
   ) {
@@ -240,7 +241,7 @@ export class FigureDnDMoveManager extends FigureDndManager {
     const mouseY = mousePosition.y;
     const viewportY = this.mainViewportPosition.y;
 
-    const deltaX = initialMouseX - mouseX;
+    const deltaX = initialMouseX - mouseX + (this.initialScrollInfo.offsetX - scrollInfo.offsetX);
     let newX = this.initialFigure.x - deltaX;
 
     // Freeze panes: always display the figure above the panes
@@ -256,7 +257,7 @@ export class FigureDnDMoveManager extends FigureDndManager {
     }
     newX = Math.max(newX, 0);
 
-    const deltaY = initialMouseY - mouseY;
+    const deltaY = initialMouseY - mouseY + (this.initialScrollInfo.offsetY - scrollInfo.offsetY);
     let newY = this.initialFigure.y - deltaY;
 
     // Freeze panes: always display the figure above the panes

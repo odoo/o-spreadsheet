@@ -138,6 +138,10 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     return this.env.model.getters.getSelectedFigureId() === this.props.figure.id;
   }
 
+  get isFigureVisible(): boolean {
+    return this.env.model.getters.isFigureVisible(this.displayedFigure);
+  }
+
   /** Get the current figure size, which is either the stored figure size of the DnD figure size */
   private getFigureSize() {
     const { width, height } = this.displayedFigure;
@@ -306,7 +310,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       this.dndManager = undefined;
       this.render();
     };
-    startDnd(onMouseMove, onMouseUp);
+    startDnd(onMouseMove, onMouseUp, () => {}, onMouseUp);
   }
 
   onMouseDown(ev: MouseEvent) {
@@ -332,6 +336,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       figure,
       otherFigures,
       mousePosition,
+      this.env.model.getters.getActiveSheetScrollInfo(),
       mainViewportPosition,
       this.getBorderShift()
     );

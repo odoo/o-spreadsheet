@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-FigureComponent" owl="1">
-    <div class="o-figure-wrapper" t-att-style="getContainerStyle()">
+    <div class="o-figure-wrapper" t-if="isFigureVisible" t-att-style="getContainerStyle()">
       <div class="o-figure-overflow-wrapper">
         <div
           class="o-figure"

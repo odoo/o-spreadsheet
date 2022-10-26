@@ -92,6 +92,7 @@ export class SheetViewPlugin extends UIPlugin {
     "getSheetViewVisibleCols",
     "getSheetViewVisibleRows",
     "getFrozenSheetViewRatio",
+    "isFigureVisible",
   ] as const;
 
   readonly viewports: Record<UID, SheetViewports | undefined> = {};
@@ -707,31 +708,33 @@ export class SheetViewPlugin extends UIPlugin {
 
   getVisibleFigures(): Figure[] {
     const sheetId = this.getters.getActiveSheetId();
-    const result: Figure[] = [];
     const figures = this.getters.getFigures(sheetId);
+    return figures.filter((fig) => this.isFigureVisible(fig));
+  }
+
+  isFigureVisible(figure: Figure): boolean {
+    const sheetId = this.getters.getActiveSheetId();
+    if (!figure) return false;
     const { offsetX, offsetY } = this.getSheetScrollInfo(sheetId);
     const { x: offsetCorrectionX, y: offsetCorrectionY } =
       this.getters.getMainViewportCoordinates();
     const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
 
-    for (const figure of figures) {
-      if (
-        figure.x >= offsetCorrectionX &&
-        (figure.x + figure.width <= offsetCorrectionX + offsetX ||
-          figure.x >= width + offsetX + offsetCorrectionX)
-      ) {
-        continue;
-      }
-      if (
-        figure.y >= offsetCorrectionY &&
-        (figure.y + figure.height <= offsetCorrectionY + offsetY ||
-          figure.y >= height + offsetY + offsetCorrectionY)
-      ) {
-        continue;
-      }
-      result.push(figure);
+    if (
+      figure.x >= offsetCorrectionX &&
+      (figure.x + figure.width <= offsetCorrectionX + offsetX ||
+        figure.x >= width + offsetX + offsetCorrectionX)
+    ) {
+      return false;
     }
-    return result;
+    if (
+      figure.y >= offsetCorrectionY &&
+      (figure.y + figure.height <= offsetCorrectionY + offsetY ||
+        figure.y >= height + offsetY + offsetCorrectionY)
+    ) {
+      return false;
+    }
+    return true;
   }
 
   getFrozenSheetViewRatio(sheetId: UID) {

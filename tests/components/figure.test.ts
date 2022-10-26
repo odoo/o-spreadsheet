@@ -5,6 +5,7 @@ import { figureRegistry } from "../../src/registries";
 import { CreateFigureCommand, Figure, Pixel, SpreadsheetChildEnv, UID } from "../../src/types";
 import {
   activateSheet,
+  addColumns,
   createSheet,
   freezeColumns,
   freezeRows,
@@ -226,6 +227,23 @@ describe("figures", () => {
     expect(model.getters.getFigure(sheetId, figureId)).toMatchObject(expectedSize);
   });
 
+  test("Scrolling during resize apply the resize and stop the drag & drop", async () => {
+    const figureId = "someuuid";
+    createFigure(model, { id: figureId, y: 200, x: 200, width: 100, height: 100 });
+    await nextTick();
+    await simulateClick(".o-figure");
+    await dragAnchor("top", 0, -50, false);
+    const anchor = fixture.querySelector(anchorSelectors.top)!;
+    anchor.dispatchEvent(new WheelEvent("wheel", { deltaY: 10, deltaX: 10, bubbles: true }));
+
+    expect(model.getters.getFigure(sheetId, figureId)).toMatchObject({ width: 100, height: 150 });
+
+    // Check if drag & drop was stopped
+    triggerMouseEvent(anchor, "mousemove", 0, -50);
+    triggerMouseEvent(anchor, "mouseUp");
+    expect(model.getters.getFigure(sheetId, figureId)).toMatchObject({ width: 100, height: 150 });
+  });
+
   describe("Move a figure with drag & drop ", () => {
     test("Can move a figure with drag & drop", async () => {
       createFigure(model, { id: "someuuid", x: 200, y: 100 });
@@ -313,6 +331,33 @@ describe("figures", () => {
         });
       });
     });
+
+    test.each([
+      [{ wheelX: 0, wheelY: 10 * DEFAULT_CELL_HEIGHT }],
+      [{ wheelX: 10 * DEFAULT_CELL_WIDTH, wheelY: 0 }],
+      [{ wheelX: 0, wheelY: 50 * DEFAULT_CELL_HEIGHT }], // scroll out of original viewport
+      [{ wheelX: 40 * DEFAULT_CELL_WIDTH, wheelY: 0 }], // scroll out of original viewport
+    ])(
+      "Can scroll while dragging a figure",
+      async ({ wheelX, wheelY }: { wheelX: number; wheelY: number }) => {
+        addColumns(model, "after", "A", 50);
+        createFigure(model, { id: "someuuid", x: 200, y: 100 });
+        await nextTick();
+        const figureEl = fixture.querySelector(".o-figure")!;
+
+        triggerMouseEvent(figureEl, "mousedown");
+        figureEl.dispatchEvent(
+          new WheelEvent("wheel", { deltaY: wheelY, deltaX: wheelX, bubbles: true })
+        );
+        triggerMouseEvent(figureEl, "mouseup");
+        await nextTick();
+
+        expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
+          x: 200 + wheelX,
+          y: 100 + wheelY,
+        });
+      }
+    );
   });
 
   test("Cannot select/move figure in readonly mode", async () => {
