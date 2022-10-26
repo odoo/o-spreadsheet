@@ -2,6 +2,7 @@ import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import {
   ComponentsImportance,
   FIGURE_BORDER_COLOR,
+  MIN_FIG_SIZE,
   SELECTION_BORDER_COLOR,
 } from "../../../constants";
 import { figureRegistry } from "../../../registries/index";
@@ -26,7 +27,6 @@ type Anchor =
 const ANCHOR_SIZE = 8;
 const BORDER_WIDTH = 1;
 const ACTIVE_BORDER_WIDTH = 2;
-const MIN_FIG_SIZE = 80;
 
 css/*SCSS*/ `
   div.o-figure {
@@ -269,10 +269,10 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     this.dnd.height = figure.height;
 
     const onMouseMove = (ev: MouseEvent) => {
-      const deltaX = dirX * (ev.clientX - initialX);
-      const deltaY = dirY * (ev.clientY - initialY);
-      this.dnd.width = Math.max(figure.width + deltaX, MIN_FIG_SIZE);
-      this.dnd.height = Math.max(figure.height + deltaY, MIN_FIG_SIZE);
+      const deltaX = Math.max(dirX * (ev.clientX - initialX), MIN_FIG_SIZE - figure.width);
+      const deltaY = Math.max(dirY * (ev.clientY - initialY), MIN_FIG_SIZE - figure.height);
+      this.dnd.width = figure.width + deltaX;
+      this.dnd.height = figure.height + deltaY;
       if (dirX < 0) {
         this.dnd.x = figure.x - deltaX;
       }
