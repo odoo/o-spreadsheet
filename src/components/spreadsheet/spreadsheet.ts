@@ -113,7 +113,6 @@ css/* scss */ `
 export interface SpreadsheetProps {
   model: Model;
   exposeSpreadsheet?: (spreadsheet: Spreadsheet) => void;
-  onUnexpectedRevisionId?: () => void;
   onContentSaved?: (data: WorkbookData) => void;
 }
 
@@ -334,6 +333,5 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 Spreadsheet.props = {
   model: Object,
   exposeSpreadsheet: { type: Function, optional: true },
-  onUnexpectedRevisionId: { type: Function, optional: true },
   onContentSaved: { type: Function, optional: true },
 };
