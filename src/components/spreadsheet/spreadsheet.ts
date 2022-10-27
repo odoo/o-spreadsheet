@@ -21,7 +21,7 @@ import {
 import { Model } from "../../model";
 import { ComposerSelection } from "../../plugins/ui/edition";
 import { _lt } from "../../translation";
-import { SpreadsheetChildEnv, WorkbookData } from "../../types";
+import { SpreadsheetChildEnv } from "../../types";
 import { NotifyUIEvent } from "../../types/ui";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
@@ -113,7 +113,6 @@ css/* scss */ `
 export interface SpreadsheetProps {
   model: Model;
   exposeSpreadsheet?: (spreadsheet: Spreadsheet) => void;
-  onContentSaved?: (data: WorkbookData) => void;
 }
 
 const t = (s: string): string => s;
@@ -262,10 +261,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     this._focusGrid();
   }
 
-  save() {
-    this.props.onContentSaved?.(this.model.exportData());
-  }
-
   onKeydown(ev: KeyboardEvent) {
     let keyDownString = "";
     if (ev.ctrlKey || ev.metaKey) {
@@ -333,5 +328,4 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 Spreadsheet.props = {
   model: Object,
   exposeSpreadsheet: { type: Function, optional: true },
-  onContentSaved: { type: Function, optional: true },
 };

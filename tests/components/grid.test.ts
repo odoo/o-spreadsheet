@@ -420,20 +420,6 @@ describe("Grid component", () => {
       expect(model.getters.getCellStyle(model.getters.getActiveCell()!)).toEqual({ italic: false });
     });
 
-    test("can save the sheet with CTRL+S", async () => {
-      let saveContentCalled = false;
-      ({ app, parent } = await mountSpreadsheet(fixture, {
-        model: new Model(),
-        onContentSaved: () => {
-          saveContentCalled = true;
-        },
-      }));
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "S", ctrlKey: true, bubbles: true })
-      );
-      expect(saveContentCalled).toBe(true);
-    });
-
     test("can automatically sum with ALT+=", async () => {
       setCellContent(model, "B2", "2");
       selectCell(model, "B5");
