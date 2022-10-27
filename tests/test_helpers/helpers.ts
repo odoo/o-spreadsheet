@@ -121,7 +121,7 @@ export async function mountSpreadsheet(
   fixture: HTMLElement,
   props: SpreadsheetProps = { model: new Model() },
   env: Partial<SpreadsheetChildEnv> = {}
-): Promise<{ app: App; parent: Spreadsheet }> {
+): Promise<{ app: App; parent: Spreadsheet; model: Model }> {
   const mockEnv: SpreadsheetChildEnv = {
     model: props.model,
     _t: _t,
@@ -144,7 +144,7 @@ export async function mountSpreadsheet(
    * done after the resize of the sheet view.
    */
   await nextTick();
-  return { app, parent };
+  return { app, parent, model: parent.model };
 }
 
 type GridDescr = { [xc: string]: string | undefined };

@@ -34,8 +34,7 @@ describe("UI of conditional formats", () => {
 
   beforeEach(async () => {
     fixture = makeTestFixture();
-    ({ app, parent } = await mountSpreadsheet(fixture));
-    model = parent.model;
+    ({ app, parent, model } = await mountSpreadsheet(fixture));
     parent.env.openSidePanel("ConditionalFormatting");
     await nextTick();
   });

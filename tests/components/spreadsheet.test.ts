@@ -52,8 +52,9 @@ Object.defineProperty(navigator, "clipboard", {
 
 beforeEach(async () => {
   fixture = makeTestFixture();
-  const model = new Model({ sheets: [{ id: "sh1" }] });
-  ({ app, parent } = await mountSpreadsheet(fixture, { model }));
+  ({ app, parent } = await mountSpreadsheet(fixture, {
+    model: new Model({ sheets: [{ id: "sh1" }] }),
+  }));
 });
 
 afterEach(() => {

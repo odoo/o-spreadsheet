@@ -149,8 +149,7 @@ describe("figures", () => {
         },
       ],
     };
-    ({ app, parent } = await mountSpreadsheet(fixture, { model: new Model(data) }));
-    model = parent.model;
+    ({ app, parent, model } = await mountSpreadsheet(fixture, { model: new Model(data) }));
     await nextTick();
     await nextTick();
     await nextTick();
@@ -1206,8 +1205,7 @@ describe("charts with multiple sheets", () => {
         },
       ],
     };
-    ({ app, parent } = await mountSpreadsheet(fixture, { model: new Model(data) }));
-    model = parent.model;
+    ({ app, parent, model } = await mountSpreadsheet(fixture, { model: new Model(data) }));
     await nextTick();
   });
   afterEach(() => {

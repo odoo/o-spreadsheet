@@ -1,5 +1,5 @@
 import { App } from "@odoo/owl";
-import { Model, Spreadsheet } from "../../src";
+import { Model } from "../../src";
 import { toHex } from "../../src/helpers";
 import {
   createScorecardChart,
@@ -15,7 +15,6 @@ let model: Model;
 let chartId: string;
 let sheetId: string;
 
-let parent: Spreadsheet;
 let app: App;
 
 function getChartElement(): HTMLElement {
@@ -91,8 +90,7 @@ describe("Scorecard charts", () => {
         },
       ],
     };
-    ({ app, parent } = await mountSpreadsheet(fixture, { model: new Model(data) }));
-    model = parent.model;
+    ({ app, model } = await mountSpreadsheet(fixture, { model: new Model(data) }));
     await nextTick();
     await nextTick();
   });

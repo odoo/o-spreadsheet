@@ -571,8 +571,7 @@ describe("TopBar - Custom currency", () => {
 
 describe("Format", () => {
   test("can clear format", async () => {
-    const { app, parent } = await mountSpreadsheet(fixture);
-    const model = parent.model;
+    const { app, model } = await mountSpreadsheet(fixture);
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("SET_FORMATTING", {
       sheetId,
@@ -613,8 +612,7 @@ describe("TopBar - CF", () => {
   });
 
   test("open sidepanel with one CF in selected zone", async () => {
-    const { app, parent } = await mountSpreadsheet(fixture);
-    const model = parent.model;
+    const { app, model } = await mountSpreadsheet(fixture);
 
     const cfRule: ConditionalFormat = {
       ranges: ["A1:C7"],
@@ -648,8 +646,7 @@ describe("TopBar - CF", () => {
   });
 
   test("open sidepanel with with more then one CF in selected zone", async () => {
-    const { app, parent } = await mountSpreadsheet(fixture);
-    const model = parent.model;
+    const { app, model } = await mountSpreadsheet(fixture);
 
     const cfRule1: ConditionalFormat = {
       ranges: ["A1:C7"],
@@ -698,8 +695,7 @@ describe("TopBar - CF", () => {
   });
 
   test("will update sidepanel if we reopen it from other cell", async () => {
-    const { app, parent } = await mountSpreadsheet(fixture);
-    const model = parent.model;
+    const { app, model } = await mountSpreadsheet(fixture);
 
     const cfRule1: ConditionalFormat = {
       ranges: ["A1:A10"],
@@ -745,8 +741,7 @@ describe("TopBar - CF", () => {
 });
 describe("Topbar - View", () => {
   test("Setting show formula from topbar should retain its state even it's changed via f&r side panel upon closing", async () => {
-    const { app, parent } = await mountSpreadsheet(fixture);
-    const model = parent.model;
+    const { app, parent, model } = await mountSpreadsheet(fixture);
     triggerMouseEvent(".o-topbar-menu[data-id='view']", "click");
     await nextTick();
     triggerMouseEvent(".o-menu-item[data-name='view_formulas']", "click");

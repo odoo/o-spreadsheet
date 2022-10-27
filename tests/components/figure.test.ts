@@ -1,5 +1,5 @@
 import { App, Component, xml } from "@odoo/owl";
-import { Model, Spreadsheet } from "../../src";
+import { Model } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { figureRegistry } from "../../src/registries";
 import { CreateFigureCommand, Figure, SpreadsheetChildEnv, UID } from "../../src/types";
@@ -15,7 +15,6 @@ import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/hel
 
 let fixture: HTMLElement;
 let model: Model;
-let parent: Spreadsheet;
 let app: App;
 
 function createFigure(
@@ -62,8 +61,7 @@ afterAll(() => {
 describe("figures", () => {
   beforeEach(async () => {
     fixture = makeTestFixture();
-    ({ app, parent } = await mountSpreadsheet(fixture));
-    model = parent.model;
+    ({ app, model } = await mountSpreadsheet(fixture));
   });
 
   afterEach(() => {

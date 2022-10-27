@@ -15,8 +15,7 @@ describe("link display component", () => {
   beforeEach(async () => {
     jest.useFakeTimers();
     fixture = makeTestFixture();
-    ({ app, parent } = await mountSpreadsheet(fixture));
-    model = parent.model;
+    ({ app, parent, model } = await mountSpreadsheet(fixture));
   });
 
   afterEach(() => {
