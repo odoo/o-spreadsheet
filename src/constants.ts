@@ -168,6 +168,10 @@ export const DEFAULT_GAUGE_LOWER_COLOR = "#cc0000";
 export const DEFAULT_GAUGE_MIDDLE_COLOR = "#f1c232";
 export const DEFAULT_GAUGE_UPPER_COLOR = "#6aa84f";
 
+export const DEFAULT_SCORECARD_BASELINE_MODE = "difference";
+export const DEFAULT_SCORECARD_BASELINE_COLOR_UP = "#00A04A";
+export const DEFAULT_SCORECARD_BASELINE_COLOR_DOWN = "#DC6965";
+
 export const LINE_FILL_TRANSPARENCY = 0.4;
 
 // session

@@ -1,5 +1,6 @@
 import {
   deepCopy,
+  deepEquals,
   isEqual,
   isInside,
   organizeZone,
@@ -45,12 +46,10 @@ interface SelectionProcessor {
   addCellToSelection(col: number, row: number): DispatchResult;
   resizeAnchorZone(direction: SelectionDirection, step: SelectionStep): DispatchResult;
   selectColumn(index: number, mode: SelectionEvent["mode"]): DispatchResult;
-  selectRow(
-    index: number,
-    mode: "overrideSelection" | "updateAnchor" | "newAnchor"
-  ): DispatchResult;
+  selectRow(index: number, mode: SelectionEvent["mode"]): DispatchResult;
   selectAll(): DispatchResult;
   loopSelection(): DispatchResult;
+  selectTableAroundSelection(): DispatchResult;
 }
 
 /**
@@ -123,7 +122,10 @@ export class SelectionStreamProcessor
   /**
    * Select a new anchor
    */
-  selectZone(anchor: AnchorZone): DispatchResult {
+  selectZone(
+    anchor: AnchorZone,
+    mode: SelectionEvent["mode"] = "overrideSelection"
+  ): DispatchResult {
     const sheetId = this.getters.getActiveSheetId();
     anchor = {
       ...anchor,
@@ -132,7 +134,7 @@ export class SelectionStreamProcessor
     return this.processEvent({
       type: "ZonesSelected",
       anchor,
-      mode: "overrideSelection",
+      mode,
     });
   }
 
@@ -296,10 +298,7 @@ export class SelectionStreamProcessor
     });
   }
 
-  selectRow(
-    index: HeaderIndex,
-    mode: "overrideSelection" | "updateAnchor" | "newAnchor"
-  ): DispatchResult {
+  selectRow(index: HeaderIndex, mode: SelectionEvent["mode"]): DispatchResult {
     const sheetId = this.getters.getActiveSheetId();
     const right = this.getters.getNumberCols(sheetId) - 1;
     let zone = { top: index, bottom: index, left: 0, right };
@@ -333,47 +332,26 @@ export class SelectionStreamProcessor
     const sheetId = this.getters.getActiveSheetId();
     const anchor = this.anchor;
 
-    /** Try to expand the zone by one col/row in any direction to include a new non-empty cell */
-    const expandZone = (zone: Zone): Zone => {
-      for (const col of range(zone.left, zone.right + 1)) {
-        if (!this.isCellEmpty({ col, row: zone.top - 1 })) {
-          return { ...zone, top: zone.top - 1 };
-        }
-        if (!this.isCellEmpty({ col, row: zone.bottom + 1 })) {
-          return { ...zone, bottom: zone.bottom + 1 };
-        }
-      }
-      for (const row of range(zone.top, zone.bottom + 1)) {
-        if (!this.isCellEmpty({ col: zone.left - 1, row })) {
-          return { ...zone, left: zone.left - 1 };
-        }
-        if (!this.isCellEmpty({ col: zone.right + 1, row })) {
-          return { ...zone, right: zone.right + 1 };
-        }
-      }
-      return zone;
-    };
-
     // The whole sheet is selected, select the anchor cell
     if (isEqual(this.anchor.zone, this.getters.getSheetZone(sheetId))) {
       return this.selectZone({ ...anchor, zone: positionToZone(anchor.cell) });
     }
 
-    let hasExpanded = false;
-    let hasExpandedOnce = false;
-    let zone = anchor.zone;
-    do {
-      hasExpandedOnce = hasExpandedOnce || hasExpanded;
-      hasExpanded = false;
-      const newZone = expandZone(zone);
-      if (!isEqual(zone, newZone)) {
-        hasExpanded = true;
-        zone = newZone;
-        continue;
-      }
-    } while (hasExpanded);
+    const tableZone = this.expandZoneToTable(anchor.zone);
 
-    return hasExpandedOnce ? this.selectZone({ ...anchor, zone }) : this.selectAll();
+    return !deepEquals(tableZone, anchor.zone)
+      ? this.selectZone({ ...anchor, zone: tableZone })
+      : this.selectAll();
+  }
+
+  /**
+   * Select a "table" around the current selection.
+   * We define a table by the smallest zone that contain the anchor and that have only empty
+   * cells bordering it
+   */
+  selectTableAroundSelection(): DispatchResult {
+    const tableZone = this.expandZoneToTable(this.anchor.zone);
+    return this.selectZone({ ...this.anchor, zone: tableZone }, "updateAnchor");
   }
 
   /**
@@ -653,5 +631,47 @@ export class SelectionStreamProcessor
 
   private getPosition(): Position {
     return { ...this.anchor.cell };
+  }
+
+  /**
+   * Expand the given zone to a table.
+   * We define a table by the smallest zone that contain the anchor and that have only empty
+   * cells bordering it
+   */
+  private expandZoneToTable(zoneToExpand: Zone): Zone {
+    /** Try to expand the zone by one col/row in any direction to include a new non-empty cell */
+    const expandZone = (zone: Zone): Zone => {
+      for (const col of range(zone.left, zone.right + 1)) {
+        if (!this.isCellEmpty({ col, row: zone.top - 1 })) {
+          return { ...zone, top: zone.top - 1 };
+        }
+        if (!this.isCellEmpty({ col, row: zone.bottom + 1 })) {
+          return { ...zone, bottom: zone.bottom + 1 };
+        }
+      }
+      for (const row of range(zone.top, zone.bottom + 1)) {
+        if (!this.isCellEmpty({ col: zone.left - 1, row })) {
+          return { ...zone, left: zone.left - 1 };
+        }
+        if (!this.isCellEmpty({ col: zone.right + 1, row })) {
+          return { ...zone, right: zone.right + 1 };
+        }
+      }
+      return zone;
+    };
+
+    let hasExpanded = false;
+    let zone = zoneToExpand;
+    do {
+      hasExpanded = false;
+      const newZone = expandZone(zone);
+      if (!isEqual(zone, newZone)) {
+        hasExpanded = true;
+        zone = newZone;
+        continue;
+      }
+    } while (hasExpanded);
+
+    return zone;
   }
 }

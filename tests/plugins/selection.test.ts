@@ -1039,7 +1039,7 @@ describe("Selection loop (ctrl + a)", () => {
     ["E3", ["B2:E4", "A1:J10", "E3"]],
     ["A1", ["A1:J10", "A1"]],
     ["A6", ["A1:J10", "A6"]],
-  ])("Selection loop", (anchor: string, expectedZones: string[]) => {
+  ])("Selection loop with anchor %s", (anchor: string, expectedZones: string[]) => {
     selectCell(model, anchor);
     for (const zone of expectedZones) {
       model.selection.loopSelection();
@@ -1047,5 +1047,20 @@ describe("Selection loop (ctrl + a)", () => {
       expect(zoneToXc(selection)).toEqual(zone);
       expect(zoneToXc(positionToZone(model.getters.getPosition()))).toEqual(anchor);
     }
+  });
+
+  test.each([
+    ["B2", "B2:E4"],
+    ["A2", "A2:E4"],
+    ["B1", "B1:E4"],
+    ["E3", "B2:E4"],
+    ["A1", "A1"],
+    ["A6", "A6"],
+  ])("Select table around the anchor %s", (anchor: string, expectedZone: string) => {
+    selectCell(model, anchor);
+    model.selection.selectTableAroundSelection();
+    const selection = model.getters.getSelectedZone();
+    expect(zoneToXc(selection)).toEqual(expectedZone);
+    expect(zoneToXc(positionToZone(model.getters.getPosition()))).toEqual(anchor);
   });
 });

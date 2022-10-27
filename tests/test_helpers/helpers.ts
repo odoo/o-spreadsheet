@@ -6,6 +6,7 @@ import { functionRegistry } from "../../src/functions/index";
 import { toCartesian, toUnboundedZone, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
+import { FullMenuItem, MenuItemRegistry, topbarMenuRegistry } from "../../src/registries";
 import { _t } from "../../src/translation";
 import {
   ColorScaleMidPointThreshold,
@@ -20,6 +21,7 @@ import {
 } from "../../src/types";
 import { XLSXExport } from "../../src/types/xlsx";
 import { OWL_TEMPLATES } from "../setup/jest.setup";
+import { Currency } from "./../../src/types/currency";
 import { redo, setCellContent, undo } from "./commands_helpers";
 import { getCellContent, getEvaluatedCell } from "./getters_helpers";
 
@@ -31,6 +33,10 @@ const functionMapRestore = { ...functionMap };
 
 export function spyDispatch(parent: Spreadsheet): jest.SpyInstance {
   return jest.spyOn(parent.props.model, "dispatch");
+}
+
+export function spyModelDispatch(model: Model): jest.SpyInstance {
+  return jest.spyOn(model, "dispatch");
 }
 
 export function getPlugin<T extends new (...args: any) => any>(
@@ -75,6 +81,26 @@ export function makeTestFixture() {
   let fixture = document.createElement("div");
   document.body.appendChild(fixture);
   return fixture;
+}
+
+export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv>): SpreadsheetChildEnv {
+  return {
+    model: mockEnv.model || new Model(),
+    isDashboard: mockEnv.isDashboard || (() => false),
+    openSidePanel: mockEnv.openSidePanel || (() => {}),
+    toggleSidePanel: mockEnv.toggleSidePanel || (() => {}),
+    clipboard: mockEnv.clipboard || new MockClipboard(),
+    _t: mockEnv._t || ((str: string, ...values: any) => str),
+    notifyUser: mockEnv.notifyUser || (() => {}),
+    raiseError: mockEnv.raiseError || (() => {}),
+    askConfirmation: mockEnv.askConfirmation || (() => {}),
+    editText: mockEnv.editText || (() => {}),
+    loadCurrencies:
+      mockEnv.loadCurrencies ||
+      (async () => {
+        return [] as Currency[];
+      }),
+  };
 }
 
 export class MockClipboard implements Clipboard {
@@ -495,4 +521,37 @@ export function getCellsObject(model: Model, sheetId: UID): Record<string, CellV
     };
   }
   return cells;
+}
+
+export function doAction(
+  path: string[],
+  env: SpreadsheetChildEnv,
+  menuRegistry: MenuItemRegistry = topbarMenuRegistry
+): void {
+  const node = getNode(path, menuRegistry);
+  node.action(env);
+}
+
+export function getNode(
+  _path: string[],
+  menuRegistry: MenuItemRegistry = topbarMenuRegistry
+): FullMenuItem {
+  const path = [..._path];
+  const root = path.splice(0, 1)[0];
+  let node = menuRegistry.get(root);
+  for (let p of path) {
+    node = node.children
+      .filter((item): item is FullMenuItem => typeof item !== "function")
+      .find((child) => child.id === p)!;
+  }
+  return node;
+}
+
+export function getName(
+  path: string[],
+  env: SpreadsheetChildEnv,
+  menuRegistry: MenuItemRegistry = topbarMenuRegistry
+): string {
+  const node = getNode(path, menuRegistry);
+  return typeof node.name === "function" ? node.name(env).toString() : node.name.toString();
 }

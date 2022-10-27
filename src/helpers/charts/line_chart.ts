@@ -225,8 +225,8 @@ function fixEmptyLabelsForDateCharts(
   return { labels: newLabels, dataSetsValues: newDatasets };
 }
 
-export function canChartParseLabels(chart: LineChart, getters: Getters): boolean {
-  return canBeDateChart(chart, getters) || canBeLinearChart(chart, getters);
+export function canChartParseLabels(labelRange: Range | undefined, getters: Getters): boolean {
+  return canBeDateChart(labelRange, getters) || canBeLinearChart(labelRange, getters);
 }
 
 function getChartAxisType(chart: LineChart, getters: Getters): AxisType {
@@ -240,31 +240,31 @@ function getChartAxisType(chart: LineChart, getters: Getters): AxisType {
 }
 
 function isDateChart(chart: LineChart, getters: Getters): boolean {
-  return !chart.labelsAsText && canBeDateChart(chart, getters);
+  return !chart.labelsAsText && canBeDateChart(chart.labelRange, getters);
 }
 
 function isLinearChart(chart: LineChart, getters: Getters): boolean {
-  return !chart.labelsAsText && canBeLinearChart(chart, getters);
+  return !chart.labelsAsText && canBeLinearChart(chart.labelRange, getters);
 }
 
-function canBeDateChart(chart: LineChart, getters: Getters): boolean {
-  if (!chart.labelRange || !chart.dataSets || !canBeLinearChart(chart, getters)) {
+function canBeDateChart(labelRange: Range | undefined, getters: Getters): boolean {
+  if (!labelRange || !canBeLinearChart(labelRange, getters)) {
     return false;
   }
   const labelFormat = getters.getEvaluatedCell({
-    sheetId: chart.labelRange.sheetId,
-    col: chart.labelRange.zone.left,
-    row: chart.labelRange.zone.top,
+    sheetId: labelRange.sheetId,
+    col: labelRange.zone.left,
+    row: labelRange.zone.top,
   }).format;
   return Boolean(labelFormat && timeFormatMomentCompatible.test(labelFormat));
 }
 
-function canBeLinearChart(chart: LineChart, getters: Getters): boolean {
-  if (!chart.labelRange || !chart.dataSets) {
+function canBeLinearChart(labelRange: Range | undefined, getters: Getters): boolean {
+  if (!labelRange) {
     return false;
   }
 
-  const labels = getters.getRangeValues(chart.labelRange);
+  const labels = getters.getRangeValues(labelRange);
   if (labels.some((label) => isNaN(Number(label)) && label)) {
     return false;
   }

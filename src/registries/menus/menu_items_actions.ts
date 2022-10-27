@@ -1,9 +1,6 @@
-import {
-  BACKGROUND_CHART_COLOR,
-  DEFAULT_FIGURE_HEIGHT,
-  DEFAULT_FIGURE_WIDTH,
-} from "../../constants";
-import { areZonesContinuous, numberToLetters, zoneToXc } from "../../helpers/index";
+import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH } from "../../constants";
+import { getChartPositionAtCenterOfViewport, getSmartChartDefinition } from "../../helpers/charts";
+import { areZonesContinuous, getZoneArea, numberToLetters } from "../../helpers/index";
 import { interactiveSortSelection } from "../../helpers/sort";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
 import { interactiveAddFilter } from "../../helpers/ui/filter_interactive";
@@ -13,7 +10,7 @@ import {
   interactivePasteFromOS,
 } from "../../helpers/ui/paste_interactive";
 import { _lt } from "../../translation";
-import { CellValueType, Format, SpreadsheetChildEnv, Style } from "../../types/index";
+import { Format, SpreadsheetChildEnv, Style } from "../../types/index";
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -558,85 +555,27 @@ export const CREATE_SHEET_ACTION = (env: SpreadsheetChildEnv) => {
 
 export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
   const getters = env.model.getters;
-  const zone = getters.getSelectedZone();
-  let dataSetZone = zone;
   const id = env.model.uuidGenerator.uuidv4();
-  let labelRange: string | undefined;
-  if (zone.left !== zone.right) {
-    dataSetZone = { ...zone, left: zone.left + 1 };
-  }
-  const dataSets = [zoneToXc(dataSetZone)];
   const sheetId = getters.getActiveSheetId();
 
-  const { x: offsetCorrectionX, y: offsetCorrectionY } = getters.getMainViewportCoordinates();
-  const { offsetX, offsetY } = getters.getActiveSheetScrollInfo();
-  const { width, height } = getters.getSheetViewDimension();
+  if (getZoneArea(env.model.getters.getSelectedZone()) === 1) {
+    env.model.selection.selectTableAroundSelection();
+  }
+
   const size = { width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
-  const rect = getters.getVisibleRect(getters.getActiveMainViewport());
+  const position = getChartPositionAtCenterOfViewport(getters, size);
 
-  const scrollableViewportWidth = Math.min(rect.width, width - offsetCorrectionX);
-  const scrollableViewportHeight = Math.min(rect.height, height - offsetCorrectionY);
-
-  const position = {
-    x:
-      offsetCorrectionX +
-      offsetX +
-      Math.max(0, (scrollableViewportWidth - DEFAULT_FIGURE_WIDTH) / 2),
-    y:
-      offsetCorrectionY +
-      offsetY +
-      Math.max(0, (scrollableViewportHeight - DEFAULT_FIGURE_HEIGHT) / 2),
-  }; // Position at the center of the scrollable viewport
-
-  let title = "";
-  const cells = env.model.getters.getEvaluatedCellsInZone(sheetId, {
-    ...dataSetZone,
-    bottom: dataSetZone.top,
-  });
-  const dataSetsHaveTitle = cells.some(
-    (cell) => cell.type !== CellValueType.number && cell.type !== CellValueType.empty
-  );
-
-  if (dataSetsHaveTitle) {
-    const texts = cells
-      .filter((cell) => cell.type !== CellValueType.error && cell.type !== CellValueType.empty)
-      .map((cell) => cell.formattedValue);
-
-    const lastElement = texts.splice(-1)[0];
-    title = texts.join(", ");
-    if (lastElement) {
-      title += (title ? " " + env._t("and") + " " : "") + lastElement;
-    }
-  }
-
-  if (zone.left !== zone.right) {
-    labelRange = zoneToXc({
-      ...zone,
-      right: zone.left,
-      top: dataSetsHaveTitle ? zone.top + 1 : zone.top,
-    });
-  }
-  const newLegendPos = dataSetZone.right === dataSetZone.left ? "none" : "top"; //Using the same variable as above to identify number of columns involved.
-
-  env.model.dispatch("CREATE_CHART", {
+  const result = env.model.dispatch("CREATE_CHART", {
     sheetId,
     id,
     position,
     size,
-    definition: {
-      title,
-      dataSets,
-      labelRange,
-      type: "bar",
-      background: BACKGROUND_CHART_COLOR,
-      stacked: false,
-      dataSetsHaveTitle,
-      verticalAxisPosition: "left",
-      legendPosition: newLegendPos,
-    },
+    definition: getSmartChartDefinition(env.model.getters.getSelectedZone(), env.model.getters),
   });
-  env.model.dispatch("SELECT_FIGURE", { id });
-  env.openSidePanel("ChartPanel");
+  if (result.isSuccessful) {
+    env.model.dispatch("SELECT_FIGURE", { id });
+    env.openSidePanel("ChartPanel");
+  }
 };
 
 //------------------------------------------------------------------------------

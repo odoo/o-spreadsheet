@@ -7,6 +7,8 @@ import {
   Color,
   CommandResult,
   CoreGetters,
+  DOMCoordinates,
+  DOMDimension,
   EvaluatedCell,
   Range,
   RemoveColumnsRowsCommand,
@@ -25,6 +27,7 @@ import { isDefined } from "../misc";
 import { copyRangeWithNewSheetId } from "../range";
 import { rangeReference } from "../references";
 import { isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../zones";
+import { Getters } from "./../../types/getters";
 
 /**
  * This file contains helpers that are common to different charts (mainly
@@ -426,4 +429,24 @@ export function getBaselineArrowDirection(
     return "down";
   }
   return "neutral";
+}
+
+export function getChartPositionAtCenterOfViewport(
+  getters: Getters,
+  chartSize: DOMDimension
+): DOMCoordinates {
+  const { x: viewportX, y: viewportY } = getters.getMainViewportCoordinates();
+  const { offsetX, offsetY } = getters.getActiveSheetScrollInfo();
+  const { width, height } = getters.getSheetViewDimension();
+  const rect = getters.getVisibleRect(getters.getActiveMainViewport());
+
+  const scrollableViewportWidth = Math.min(rect.width, width - viewportX);
+  const scrollableViewportHeight = Math.min(rect.height, height - viewportY);
+
+  const position = {
+    x: viewportX + offsetX + Math.max(0, (scrollableViewportWidth - chartSize.width) / 2),
+    y: viewportY + offsetY + Math.max(0, (scrollableViewportHeight - chartSize.height) / 2),
+  }; // Position at the center of the scrollable viewport
+
+  return position;
 }
