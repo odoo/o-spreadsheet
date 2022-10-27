@@ -34,10 +34,6 @@ Spreadsheet component takes the following props:
 
 Sometimes it could be necessary to access the component instance outside of the component, notably in tests. This function is a callback that will be called by the component, with itself as argument.
 
-- `onUnexpectedRevisionId` (function, optional)
-
-In collaborative context, it could happen that an unexpected revision is received, notably when the user is de-synchronized. This function will be called when a such revision is received.
-
 ## Model creation
 
 Spreadsheet model can be created with the following arguments, all optionals:
