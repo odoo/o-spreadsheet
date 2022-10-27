@@ -1,5 +1,4 @@
 import { App, Component, useSubEnv, xml } from "@odoo/owl";
-import { Spreadsheet } from "../../src";
 import { Menu } from "../../src/components/menu/menu";
 import { MENU_ITEM_HEIGHT, MENU_WIDTH, TOPBAR_HEIGHT } from "../../src/constants";
 import { toXC } from "../../src/helpers";
@@ -19,7 +18,6 @@ import {
 } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
-let parent: Component;
 let app: App;
 let model: Model;
 
@@ -32,8 +30,7 @@ beforeEach(async () => {
     configurable: true,
   });
   fixture = makeTestFixture();
-  ({ app, parent } = await mountSpreadsheet(fixture));
-  model = (parent as Spreadsheet).model;
+  ({ app, model } = await mountSpreadsheet(fixture));
 });
 
 afterEach(() => {

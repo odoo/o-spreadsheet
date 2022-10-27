@@ -491,7 +491,7 @@ describe("figures", () => {
       const domClass = rangesDomClasses[i];
       const attrName = nameInChartDef[i];
       expect(model.getters.getChartDefinition(chartId)?.[attrName]).not.toBeUndefined();
-      parent.env.model.dispatch("SELECT_FIGURE", { id: chartId });
+      model.dispatch("SELECT_FIGURE", { id: chartId });
       parent.env.openSidePanel("ChartPanel");
       await nextTick();
       await simulateClick(domClass + " input");
@@ -499,7 +499,7 @@ describe("figures", () => {
       await nextTick();
       await simulateClick(domClass + " .o-selection-ok");
       expect(
-        (parent.model.getters.getChartDefinition(chartId) as ChartDefinition)[attrName]
+        (model.getters.getChartDefinition(chartId) as ChartDefinition)[attrName]
       ).toBeUndefined();
     }
   });

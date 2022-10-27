@@ -1,5 +1,5 @@
 import { App } from "@odoo/owl";
-import { Model, Spreadsheet } from "../../../src";
+import { Model } from "../../../src";
 import { buildSheetLink } from "../../../src/helpers";
 import { LinkCell } from "../../../src/types";
 import {
@@ -20,7 +20,6 @@ import { makeTestFixture, mountSpreadsheet, nextTick } from "../../test_helpers/
 describe("link editor component", () => {
   let fixture: HTMLElement;
   let model: Model;
-  let grid: Spreadsheet;
   let app: App;
 
   async function openLinkEditor(model: Model, xc: string) {
@@ -39,8 +38,7 @@ describe("link editor component", () => {
 
   beforeEach(async () => {
     fixture = makeTestFixture();
-    ({ app, parent: grid } = await mountSpreadsheet(fixture));
-    model = grid.model;
+    ({ app, model } = await mountSpreadsheet(fixture));
   });
 
   afterEach(() => {

@@ -1,5 +1,4 @@
 import { App, Component, useSubEnv, xml } from "@odoo/owl";
-import { Spreadsheet } from "../../src";
 import { Highlight } from "../../src/components/highlight/highlight/highlight";
 import {
   DEFAULT_CELL_HEIGHT,
@@ -519,13 +518,10 @@ describe("Border component", () => {
 });
 
 describe("Edge-Scrolling on mouseMove of hightlights", () => {
-  let parent: Spreadsheet;
-
   beforeEach(async () => {
     jest.useFakeTimers();
     fixture = makeTestFixture();
-    ({ app, parent } = await mountSpreadsheet(fixture));
-    model = parent.model;
+    ({ app, model } = await mountSpreadsheet(fixture));
     // ensure that highlights exist
     await startGridComposition();
     await typeInComposerGrid("=A1");

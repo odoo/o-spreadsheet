@@ -1365,7 +1365,7 @@ describe("UI of conditional formats", () => {
       triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
       await nextTick();
 
-      const cfPlugin = getPlugin(parent.model, ConditionalFormatPlugin);
+      const cfPlugin = getPlugin(parent.props.model, ConditionalFormatPlugin);
       cfPlugin.allowDispatch = jest.fn(() => error);
 
       triggerMouseEvent(selectors.buttonSave, "click");
@@ -1390,7 +1390,7 @@ describe("UI of conditional formats", () => {
       triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
       await nextTick();
 
-      const cfPlugin = getPlugin(parent.model, ConditionalFormatPlugin);
+      const cfPlugin = getPlugin(parent.props.model, ConditionalFormatPlugin);
       cfPlugin.allowDispatch = jest.fn(() => error);
 
       triggerMouseEvent(selectors.buttonSave, "click");
