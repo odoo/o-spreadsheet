@@ -2,17 +2,15 @@
 // Miscellaneous
 //------------------------------------------------------------------------------
 import {
-  DEFAULT_CELL_HEIGHT,
   DEFAULT_FONT,
   DEFAULT_FONT_SIZE,
   DEFAULT_FONT_WEIGHT,
   MIN_CELL_TEXT_MARGIN,
   MIN_CF_ICON_MARGIN,
-  PADDING_AUTORESIZE_VERTICAL,
 } from "../constants";
 import { fontSizeMap } from "../fonts";
 import { ConsecutiveIndexes, Lazy, Style, UID } from "../types";
-import { Cloneable, Pixel } from "./../types/misc";
+import { Cloneable } from "./../types/misc";
 import { parseDateTime } from "./dates";
 /**
  * Stringify an object, like JSON.stringify, except that the first level of keys
@@ -109,17 +107,8 @@ export function clip(val: number, min: number, max: number): number {
   return val < min ? min : val > max ? max : val;
 }
 
-/** Get the default height of the cell. The height depends on the font size and
- * the number of broken line text in the cell */
-export function getDefaultCellHeight(style: Style | undefined, numberOfLines?: number): Pixel {
-  if (!style?.fontSize) {
-    return DEFAULT_CELL_HEIGHT;
-  }
-  return (
-    (numberOfLines || 1) * (computeTextFontSizeInPixels(style) + MIN_CELL_TEXT_MARGIN) -
-    MIN_CELL_TEXT_MARGIN +
-    2 * PADDING_AUTORESIZE_VERTICAL
-  );
+export function computeTextLinesHeight(textLineHeight: number, numberOfLines: number = 1) {
+  return numberOfLines * (textLineHeight + MIN_CELL_TEXT_MARGIN) - MIN_CELL_TEXT_MARGIN;
 }
 
 export function computeTextWidth(context: CanvasRenderingContext2D, text: string, style: Style) {
@@ -137,8 +126,8 @@ export function computeTextFont(style: Style): string {
   return `${italic}${weight} ${size}px ${DEFAULT_FONT}`;
 }
 
-export function computeTextFontSizeInPixels(style: Style): number {
-  const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
+export function computeTextFontSizeInPixels(style?: Style): number {
+  const sizeInPt = style?.fontSize || DEFAULT_FONT_SIZE;
   if (!fontSizeMap[sizeInPt]) {
     throw new Error("Size of the font is not supported");
   }

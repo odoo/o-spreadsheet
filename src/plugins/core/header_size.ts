@@ -1,5 +1,16 @@
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
-import { deepCopy, getAddHeaderStartIndex, getDefaultCellHeight, lazy, range } from "../../helpers";
+import {
+  DEFAULT_CELL_HEIGHT,
+  DEFAULT_CELL_WIDTH,
+  PADDING_AUTORESIZE_VERTICAL,
+} from "../../constants";
+import {
+  computeTextFontSizeInPixels,
+  computeTextLinesHeight,
+  deepCopy,
+  getAddHeaderStartIndex,
+  lazy,
+  range,
+} from "../../helpers";
 import { Command, ExcelWorkbookData, WorkbookData } from "../../types";
 import { CellPosition, Dimension, HeaderIndex, Lazy, Pixel, UID } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
@@ -178,8 +189,9 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
       return DEFAULT_CELL_HEIGHT;
     }
     const cell = this.getters.getCell(position);
-    // TO DO: take multiline cells into account to compute the cell height
-    return getDefaultCellHeight(cell?.style);
+    // TO DO: take multi text line into account to compute the real cell height in case of wrapping cell
+    const fontSize = computeTextFontSizeInPixels(cell?.style);
+    return computeTextLinesHeight(fontSize) + 2 * PADDING_AUTORESIZE_VERTICAL;
   }
 
   /**

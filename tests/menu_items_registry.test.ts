@@ -689,6 +689,62 @@ describe("Menu Item actions", () => {
     });
   });
 
+  describe("Format -> Alignment", () => {
+    test("Left", () => {
+      doAction(["format", "format_alignment", "format_alignment_left"], env);
+      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+        sheetId: env.model.getters.getActiveSheetId(),
+        target: env.model.getters.getSelectedZones(),
+        style: { align: "left" },
+      });
+    });
+
+    test("Center", () => {
+      doAction(["format", "format_alignment", "format_alignment_center"], env);
+      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+        sheetId: env.model.getters.getActiveSheetId(),
+        target: env.model.getters.getSelectedZones(),
+        style: { align: "center" },
+      });
+    });
+
+    test("Right", () => {
+      doAction(["format", "format_alignment", "format_alignment_right"], env);
+      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+        sheetId: env.model.getters.getActiveSheetId(),
+        target: env.model.getters.getSelectedZones(),
+        style: { align: "right" },
+      });
+    });
+
+    test("Top", () => {
+      doAction(["format", "format_alignment", "format_alignment_top"], env);
+      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+        sheetId: env.model.getters.getActiveSheetId(),
+        target: env.model.getters.getSelectedZones(),
+        style: { verticalAlign: "top" },
+      });
+    });
+
+    test("Middle", () => {
+      doAction(["format", "format_alignment", "format_alignment_middle"], env);
+      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+        sheetId: env.model.getters.getActiveSheetId(),
+        target: env.model.getters.getSelectedZones(),
+        style: { verticalAlign: "middle" },
+      });
+    });
+
+    test("Bottom", () => {
+      doAction(["format", "format_alignment", "format_alignment_bottom"], env);
+      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+        sheetId: env.model.getters.getActiveSheetId(),
+        target: env.model.getters.getSelectedZones(),
+        style: { verticalAlign: "bottom" },
+      });
+    });
+  });
+
   describe("Format -> wrapping", () => {
     test("Overflow", () => {
       doAction(["format", "format_wrapping", "format_wrapping_overflow"], env);

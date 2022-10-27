@@ -1,4 +1,4 @@
-import { Alias, Align, Border, Pixel, Style, Zone } from "./misc";
+import { Alias, Align, Border, Pixel, Style, VerticalAlign, Zone } from "./misc";
 
 export type Rect = {
   x: Pixel;
@@ -16,7 +16,7 @@ export interface DOMCoordinates {
 }
 
 export interface BoxTextContent {
-  multiLineText: string[];
+  textLines: string[];
   width: Pixel;
   align: Align;
 }
@@ -30,6 +30,7 @@ export interface Box extends Rect {
   error?: string;
   image?: Image;
   isMerge?: boolean;
+  verticalAlign?: VerticalAlign;
 }
 export interface Image {
   clipIcon: Rect | null;
