@@ -12,7 +12,6 @@
         />
         <Grid
           sidePanelIsOpen="sidePanel.isOpen"
-          onSaveRequested="() => this.save()"
           focusComposer="focusGridComposer"
           exposeFocus="(focus) => this._focusGrid = focus"
           onComposerContentFocused="() => this.onGridComposerContentFocused()"

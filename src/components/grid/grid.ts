@@ -69,7 +69,6 @@ interface Props {
   focusComposer: ComposerFocusType;
   onComposerContentFocused: () => void;
   onGridComposerCellFocused: (content?: string, selection?: ComposerSelection) => void;
-  onSaveRequested?: () => void;
 }
 
 // -----------------------------------------------------------------------------
@@ -178,9 +177,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       });
     },
     "CTRL+A": () => this.env.model.selection.loopSelection(),
-    "CTRL+S": () => {
-      this.props.onSaveRequested?.();
-    },
     "CTRL+Z": () => this.env.model.dispatch("REQUEST_UNDO"),
     "CTRL+Y": () => this.env.model.dispatch("REQUEST_REDO"),
     "CTRL+B": () =>
@@ -527,5 +523,4 @@ Grid.props = {
   focusComposer: String,
   onComposerContentFocused: Function,
   onGridComposerCellFocused: Function,
-  onSaveRequested: { type: Function, optional: true },
 };
