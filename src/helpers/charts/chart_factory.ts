@@ -1,5 +1,19 @@
+import {
+  BACKGROUND_CHART_COLOR,
+  DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
+  DEFAULT_SCORECARD_BASELINE_COLOR_UP,
+  DEFAULT_SCORECARD_BASELINE_MODE,
+} from "../../constants";
 import { chartRegistry } from "../../registries/chart_types";
-import { AddColumnsRowsCommand, CommandResult, RemoveColumnsRowsCommand, UID } from "../../types";
+import { _t } from "../../translation";
+import {
+  AddColumnsRowsCommand,
+  CellValueType,
+  CommandResult,
+  RemoveColumnsRowsCommand,
+  UID,
+  Zone,
+} from "../../types";
 import {
   ChartCreationContext,
   ChartDefinition,
@@ -8,7 +22,9 @@ import {
 } from "../../types/chart/chart";
 import { CoreGetters, Getters } from "../../types/getters";
 import { Validator } from "../../types/validator";
+import { getZoneArea, zoneToXc } from "../zones";
 import { AbstractChart } from "./abstract_chart";
+import { canChartParseLabels } from "./line_chart";
 
 /**
  * Create a function used to create a Chart based on the definition
@@ -88,4 +104,96 @@ export function getChartTypes(): Record<string, string> {
     result[key] = chartRegistry.get(key).name;
   }
   return result;
+}
+
+/**
+ * Return a "smart" chart definition in the given zone. The definition is "smart" because it will
+ * use the best type of chart to display the data of the zone.
+ *
+ * It will also try to find labels and datasets in the range, and try to find title for the datasets.
+ *
+ * The type of chart will be :
+ * - If the zone is a single non-empty cell, returns a scorecard
+ * - If the all the labels are numbers/date, returns a line chart
+ * - Else returns a bar chart
+ */
+export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefinition {
+  let dataSetZone = zone;
+  if (zone.left !== zone.right) {
+    dataSetZone = { ...zone, left: zone.left + 1 };
+  }
+  const dataSets = [zoneToXc(dataSetZone)];
+  const sheetId = getters.getActiveSheetId();
+
+  const topLeftCell = getters.getCell(sheetId, zone.left, zone.top);
+  if (getZoneArea(zone) === 1 && topLeftCell?.content) {
+    return {
+      type: "scorecard",
+      title: "",
+      background: BACKGROUND_CHART_COLOR,
+      keyValue: zoneToXc(zone),
+      baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
+      baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
+      baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
+    };
+  }
+
+  let title = "";
+  const cellsInFirstRow = getters.getEvaluatedCellsInZone(sheetId, {
+    ...dataSetZone,
+    bottom: dataSetZone.top,
+  });
+  const dataSetsHaveTitle = !!cellsInFirstRow.find(
+    (cell) => cell.type !== CellValueType.empty && cell.type !== CellValueType.number
+  );
+
+  if (dataSetsHaveTitle) {
+    const texts = cellsInFirstRow
+      .filter((cell) => cell.type !== CellValueType.error && cell.type !== CellValueType.empty)
+      .map((cell) => cell.formattedValue);
+
+    const lastElement = texts.splice(-1)[0];
+    title = texts.join(", ");
+    if (lastElement) {
+      title += (title ? " " + _t("and") + " " : "") + lastElement;
+    }
+  }
+
+  let labelRangeXc: string | undefined;
+  if (zone.left !== zone.right) {
+    labelRangeXc = zoneToXc({
+      ...zone,
+      right: zone.left,
+      top: dataSetsHaveTitle ? zone.top + 1 : zone.top,
+    });
+  }
+  // Only display legend for several datasets.
+  const newLegendPos = dataSetZone.right === dataSetZone.left ? "none" : "top";
+
+  const labelRange = labelRangeXc ? getters.getRangeFromSheetXC(sheetId, labelRangeXc) : undefined;
+  if (canChartParseLabels(labelRange, getters)) {
+    return {
+      title,
+      dataSets,
+      labelsAsText: false,
+      stacked: false,
+      labelRange: labelRangeXc,
+      type: "line",
+      background: BACKGROUND_CHART_COLOR,
+      dataSetsHaveTitle,
+      verticalAxisPosition: "left",
+      legendPosition: newLegendPos,
+    };
+  }
+  return {
+    title,
+    dataSets,
+    labelRange: labelRangeXc,
+    type: "bar",
+    background: BACKGROUND_CHART_COLOR,
+    stacked: false,
+    dataSetsHaveTitle,
+    verticalAxisPosition: "left",
+    legendPosition: newLegendPos,
+  };
 }

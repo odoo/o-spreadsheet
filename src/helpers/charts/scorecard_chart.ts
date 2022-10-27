@@ -1,4 +1,9 @@
 import { transformZone } from "../../collaborative/ot/ot_helpers";
+import {
+  DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
+  DEFAULT_SCORECARD_BASELINE_COLOR_UP,
+  DEFAULT_SCORECARD_BASELINE_MODE,
+} from "../../constants";
 import { chartRegistry } from "../../registries/chart_types";
 import { _t } from "../../translation";
 import {
@@ -97,9 +102,9 @@ export class ScorecardChart extends AbstractChart {
       type: "scorecard",
       keyValue: context.range ? context.range[0] : undefined,
       title: context.title || "",
-      baselineMode: "difference",
-      baselineColorUp: "#00A04A",
-      baselineColorDown: "#DC6965",
+      baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
+      baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
+      baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
       baseline: context.auxiliaryRange || "",
     };
   }
