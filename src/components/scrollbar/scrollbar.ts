@@ -3,7 +3,7 @@ import { BACKGROUND_GRAY_COLOR, ComponentsImportance, SCROLLBAR_WIDTH } from "..
 import { CSSProperties, Pixel, Ref } from "../../types";
 import { cssPropertiesToCss } from "../helpers";
 import { css } from "../helpers/css";
-import { ScrollBar as ScrollBarBRol, ScrollDirection } from "../scrollbar";
+import { ScrollBar as ScrollBarElement, ScrollDirection } from "../scrollbar";
 
 interface Props {
   width: Pixel;
@@ -21,18 +21,6 @@ css/* scss */ `
     z-index: ${ComponentsImportance.ScrollBar};
     background-color: ${BACKGROUND_GRAY_COLOR};
 
-    // &.vertical {
-    //   right: 0;
-    //   bottom: ${SCROLLBAR_WIDTH}px;
-    //   width: ${SCROLLBAR_WIDTH}px;
-    //   overflow-x: hidden;
-    // }
-    // &.horizontal {
-    //   bottom: 0;
-    //   height: ${SCROLLBAR_WIDTH}px;
-    //   right: ${SCROLLBAR_WIDTH}px;
-    //   overflow-y: hidden;
-    // }
     &.corner {
       right: 0px;
       bottom: 0px;
@@ -59,11 +47,11 @@ export class ScrollBar extends Component<Props> {
     height: 1,
   };
   private scrollbarRef!: Ref<HTMLElement>;
-  private scrollbar!: ScrollBarBRol;
+  private scrollbar!: ScrollBarElement;
 
   setup() {
     this.scrollbarRef = useRef("scrollbar");
-    this.scrollbar = new ScrollBarBRol(this.scrollbarRef.el, this.props.direction);
+    this.scrollbar = new ScrollBarElement(this.scrollbarRef.el, this.props.direction);
     onMounted(() => {
       this.scrollbar.el = this.scrollbarRef.el!;
     });
