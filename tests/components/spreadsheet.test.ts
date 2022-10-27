@@ -149,12 +149,12 @@ describe("Spreadsheet", () => {
       new KeyboardEvent("keydown", { key: "H", ctrlKey: true, bubbles: true })
     );
     await nextTick();
-    expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
+    expect(document.querySelectorAll(".o-spreadsheet-side-panel-container").length).toBe(1);
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "H", ctrlKey: true, bubbles: true })
     );
     await nextTick();
-    expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
+    expect(document.querySelectorAll(".o-spreadsheet-side-panel-container").length).toBe(0);
   });
 
   test("can open/close search with ctrl+f", async () => {
@@ -162,13 +162,13 @@ describe("Spreadsheet", () => {
       new KeyboardEvent("keydown", { key: "F", ctrlKey: true, bubbles: true })
     );
     await nextTick();
-    expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
+    expect(document.querySelectorAll(".o-spreadsheet-side-panel-container").length).toBe(1);
     await nextTick();
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "F", ctrlKey: true, bubbles: true })
     );
     await nextTick();
-    expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
+    expect(document.querySelectorAll(".o-spreadsheet-side-panel-container").length).toBe(0);
   });
 
   test("Can instantiate a spreadsheet with a given client id-name", async () => {
@@ -219,7 +219,7 @@ describe("Composer interactions", () => {
       new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
     );
     await nextTick();
-    const gridComposer = document.querySelector(".o-grid .o-composer");
+    const gridComposer = document.querySelector(".o-spreadsheet-grid-container .o-composer");
     const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
     expect(document.activeElement).toBe(gridComposer);
     await typeInComposerGrid("text");
@@ -231,7 +231,7 @@ describe("Composer interactions", () => {
     triggerMouseEvent(".o-spreadsheet-topbar .o-composer", "click");
     await nextTick();
     const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
-    const gridComposer = document.querySelector(".o-grid .o-composer");
+    const gridComposer = document.querySelector(".o-spreadsheet-grid-container .o-composer");
     expect(topBarComposer).not.toBeNull();
     expect(document.activeElement).toBe(topBarComposer);
     expect(gridComposer).not.toBeNull();
@@ -245,7 +245,7 @@ describe("Composer interactions", () => {
     triggerMouseEvent(".o-spreadsheet-topbar .o-composer", "click");
     await nextTick();
     const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
-    const gridComposer = document.querySelector(".o-grid .o-composer");
+    const gridComposer = document.querySelector(".o-spreadsheet-grid-container .o-composer");
 
     // Type in top bar composer
     await typeInComposerTopBar("from topbar");
@@ -253,7 +253,7 @@ describe("Composer interactions", () => {
     expect(gridComposer!.textContent).toBe("from topbar");
 
     // Focus grid composer and type
-    triggerMouseEvent(".o-grid .o-composer", "click");
+    triggerMouseEvent(".o-spreadsheet-grid-container .o-composer", "click");
     await nextTick();
     await typeInComposerGrid("from grid");
     expect(topBarComposer!.textContent).toBe("from topbarfrom grid");
@@ -287,10 +287,14 @@ describe("Composer interactions", () => {
     const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
     await typeInComposerGrid("=SU");
     await nextTick();
-    expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).not.toBeNull();
+    expect(
+      fixture.querySelector(".o-spreadsheet-grid-container .o-autocomplete-dropdown")
+    ).not.toBeNull();
     topBarComposer.dispatchEvent(new Event("click"));
     await nextTick();
-    expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).toBeNull();
+    expect(
+      fixture.querySelector(".o-spreadsheet-grid-container .o-autocomplete-dropdown")
+    ).toBeNull();
   });
 
   test("focus top bar composer does not resize grid composer when autocomplete is displayed", async () => {
@@ -299,7 +303,9 @@ describe("Composer interactions", () => {
     );
     await nextTick();
     const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
-    const gridComposerContainer = document.querySelector(".o-grid-composer")! as HTMLElement;
+    const gridComposerContainer = document.querySelector(
+      ".o-spreadsheet-grid-composer"
+    )! as HTMLElement;
     const spy = jest.spyOn(gridComposerContainer.style, "width", "set");
     await typeInComposerGrid("=SU");
     await nextTick();
@@ -312,7 +318,9 @@ describe("Composer interactions", () => {
   test("selecting ranges multiple times in topbar bar does not resize grid composer", async () => {
     triggerMouseEvent(".o-spreadsheet-topbar .o-composer", "click");
     await nextTick();
-    const gridComposerContainer = document.querySelector(".o-grid-composer")! as HTMLElement;
+    const gridComposerContainer = document.querySelector(
+      ".o-spreadsheet-grid-composer"
+    )! as HTMLElement;
     // Type in top bar composer
     await typeInComposerTopBar("=");
     const spy = jest.spyOn(gridComposerContainer.style, "width", "set");
@@ -390,12 +398,12 @@ describe("Composer / selectionInput interactions", () => {
       await nextTick();
 
       await startGridComposition(composerContent);
-      expect(document.querySelectorAll(".o-grid-composer")).toHaveLength(1);
+      expect(document.querySelectorAll(".o-spreadsheet-grid-composer")).toHaveLength(1);
 
       // focus selection input
       await simulateClick(".o-selection-input input");
 
-      expect(document.querySelectorAll(".o-grid-composer")).toHaveLength(0);
+      expect(document.querySelectorAll(".o-spreadsheet-grid-composer")).toHaveLength(0);
     }
   );
 
@@ -437,7 +445,7 @@ describe("Composer / selectionInput interactions", () => {
     await typeInComposerTopBar("=");
     // scroll
     fixture
-      .querySelector(".o-grid")!
+      .querySelector(".o-spreadsheet-grid-container")!
       .dispatchEvent(new WheelEvent("wheel", { deltaY: 3 * DEFAULT_CELL_HEIGHT }));
     await nextTick();
     const scrolledViewport = model.getters.getActiveMainViewport();
@@ -459,7 +467,7 @@ describe("Composer / selectionInput interactions", () => {
   test("Z-indexes of the various spreadsheet components", async () => {
     const getZIndex = (selector: string) => Number(getElComputedStyle(selector, "zIndex")) || 0;
     mockChart();
-    const gridZIndex = getZIndex(".o-grid");
+    const gridZIndex = getZIndex(".o-spreadsheet-grid-container");
     const vScrollbarZIndex = getZIndex(".o-scrollbar.vertical");
     const hScrollbarZIndex = getZIndex(".o-scrollbar.horizontal");
     const scrollbarCornerZIndex = getZIndex(".o-scrollbar.corner");
@@ -468,7 +476,7 @@ describe("Composer / selectionInput interactions", () => {
     const contextMenuZIndex = getZIndex(".o-popover");
 
     await typeInComposerGrid("=A1:B2");
-    const gridComposerZIndex = getZIndex("div.o-grid-composer");
+    const gridComposerZIndex = getZIndex("div.o-spreadsheet-grid-composer");
     const highlighZIndex = getZIndex(".o-highlight");
 
     triggerMouseEvent(".o-tool.o-dropdown-button.o-with-color", "click");

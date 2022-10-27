@@ -16,7 +16,7 @@ exports[`Scorecard charts Scorecard snapshot 1`] = `
         class="o-chart-menu-item"
       >
         <svg
-          class="o-icon"
+          class="o-spreadsheet-icon"
           viewBox="0 0 384 384"
         >
           <rect
@@ -146,7 +146,7 @@ exports[`Scorecard charts scorecard text is resized while figure is resized 1`] 
         class="o-chart-menu-item"
       >
         <svg
-          class="o-icon"
+          class="o-spreadsheet-icon"
           viewBox="0 0 384 384"
         >
           <rect

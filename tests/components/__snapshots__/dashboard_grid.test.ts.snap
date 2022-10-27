@@ -2,7 +2,7 @@
 
 exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`] = `
 <div
-  class="o-grid o-two-columns"
+  class="o-spreadsheet-grid-container"
   tabindex="-1"
 >
   <div
@@ -12,19 +12,15 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
     "
   >
     <div
-      class="o-grid-overlay"
+      class="o-spreadsheet-grid-overlay"
       style="
       height: 100%;
       width: 100%
     "
     >
-      <!-- TODO remove sidePanelIsOpen props. It is wrong.
-      If you have a CF sidepanel open, selecting a figure should
-      not open the figure side panel -->
       <div>
         
       </div>
-      
     </div>
     
     <canvas

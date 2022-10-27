@@ -603,10 +603,14 @@ describe("TopBar - CF", () => {
     triggerMouseEvent(".o-menu-item[data-name='format_cf']", "click");
     await nextTick();
     expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
+      fixture.querySelector(
+        ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-cf .o-cf-preview-list"
+      )
     ).toBeTruthy();
     expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
+      fixture.querySelector(
+        ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-cf .o-cf-ruleEditor"
+      )
     ).toBeFalsy();
     app.destroy();
   });
@@ -637,10 +641,14 @@ describe("TopBar - CF", () => {
     triggerMouseEvent(".o-menu-item[data-name='format_cf']", "click");
     await nextTick();
     expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
+      fixture.querySelector(
+        ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-cf .o-cf-preview-list"
+      )
     ).toBeFalsy();
     expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
+      fixture.querySelector(
+        ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-cf .o-cf-ruleEditor"
+      )
     ).toBeTruthy();
     app.destroy();
   });
@@ -686,10 +694,14 @@ describe("TopBar - CF", () => {
     triggerMouseEvent(".o-menu-item[data-name='format_cf']", "click");
     await nextTick();
     expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
+      fixture.querySelector(
+        ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-cf .o-cf-preview-list"
+      )
     ).toBeTruthy();
     expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
+      fixture.querySelector(
+        ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-cf .o-cf-ruleEditor"
+      )
     ).toBeFalsy();
     app.destroy();
   });
@@ -719,10 +731,14 @@ describe("TopBar - CF", () => {
     triggerMouseEvent(".o-menu-item[data-name='format_cf']", "click");
     await nextTick();
     expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
+      fixture.querySelector(
+        ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-cf .o-cf-preview-list"
+      )
     ).toBeFalsy();
     expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
+      fixture.querySelector(
+        ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-cf .o-cf-ruleEditor"
+      )
     ).toBeTruthy();
 
     setSelection(model, ["F6"]);
@@ -731,10 +747,14 @@ describe("TopBar - CF", () => {
     triggerMouseEvent(".o-menu-item[data-name='format_cf']", "click");
     await nextTick();
     expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
+      fixture.querySelector(
+        ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-cf .o-cf-preview-list"
+      )
     ).toBeTruthy();
     expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
+      fixture.querySelector(
+        ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-cf .o-cf-ruleEditor"
+      )
     ).toBeFalsy();
     app.destroy();
   });
@@ -753,16 +773,13 @@ describe("Topbar - View", () => {
     await nextTick();
     triggerMouseEvent(
       document.querySelector(
-        ".o-sidePanel .o-sidePanelBody .o-find-and-replace .o-section:nth-child(1) .o-far-item:nth-child(3) input"
+        ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-find-and-replace .o-section:nth-child(1) .o-far-item:nth-child(3) input"
       ),
       "click"
     );
     await nextTick();
     expect(model.getters.shouldShowFormulas()).toBe(false);
-    triggerMouseEvent(
-      document.querySelector(".o-sidePanel .o-sidePanelHeader .o-sidePanelClose"),
-      "click"
-    );
+    await simulateClick(".o-spreadsheet-side-panel-header button.btn-close");
     await nextTick();
     expect(model.getters.shouldShowFormulas()).toBe(true);
     app.destroy();

@@ -61,7 +61,6 @@ const registries = {
 };
 
 interface Props {
-  sidePanelIsOpen: boolean;
   exposeFocus: (focus: () => void) => void;
   focusComposer: ComposerFocusType;
   onComposerContentFocused: () => void;
@@ -508,7 +507,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 }
 
 Grid.props = {
-  sidePanelIsOpen: Boolean,
   exposeFocus: Function,
   focusComposer: String,
   onComposerContentFocused: Function,

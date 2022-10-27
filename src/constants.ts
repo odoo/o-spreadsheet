@@ -1,3 +1,4 @@
+import { css } from "./components/helpers";
 import { _lt } from "./translation";
 import { BorderDescr } from "./types";
 import { CellErrorType } from "./types/errors";
@@ -5,7 +6,7 @@ import { CellErrorType } from "./types/errors";
 export const CANVAS_SHIFT = 0.5;
 
 // Colors
-export const BACKGROUND_GRAY_COLOR = "#f5f5f5";
+export const BACKGROUND_GRAY_COLOR = "f5f5f5";
 export const BACKGROUND_HEADER_COLOR = "#F8F9FA";
 export const BACKGROUND_HEADER_SELECTED_COLOR = "#E8EAED";
 export const BACKGROUND_HEADER_ACTIVE_COLOR = "#595959";
@@ -21,6 +22,7 @@ export const LINK_COLOR = "#01666b";
 export const FILTERS_COLOR = "#188038";
 export const BACKGROUND_HEADER_FILTER_COLOR = "#E6F4EA";
 export const BACKGROUND_HEADER_SELECTED_FILTER_COLOR = "#CEEAD6";
+export const CORNER_BACKGROUND_COLOR = "#1a73e8";
 
 // Color picker
 export const COLOR_PICKER_DEFAULTS = [
@@ -201,3 +203,9 @@ export enum ComponentsImportance {
 export const DEFAULT_SHEETVIEW_SIZE = 1000;
 
 export const MAXIMAL_FREEZABLE_RATIO = 0.85;
+
+css/* SCSS */ `
+  .o-spreadsheet {
+    --BACKGROUND_GRAY_COLOR: ${BACKGROUND_GRAY_COLOR};
+  }
+`;

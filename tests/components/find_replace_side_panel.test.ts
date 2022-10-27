@@ -8,26 +8,27 @@ jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 let model: Model;
 
 const selectors = {
-  closeSidepanel: ".o-sidePanel .o-sidePanelClose",
+  closeSidepanel: ".o-spreadsheet-side-panel-header button.btn-close",
   inputSearch:
-    ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-input-search-container input",
-  inputReplace: ".o-sidePanel .o-find-and-replace .o-section:nth-child(3) input",
+    ".o-spreadsheet-side-panel-container .o-find-and-replace .o-section:nth-child(1) .o-input-search-container input",
+  inputReplace:
+    ".o-spreadsheet-side-panel-container .o-find-and-replace .o-section:nth-child(3) input",
   previousButton:
-    ".o-sidePanel .o-find-and-replace .o-sidePanelButtons:nth-of-type(2) .o-sidePanelButton:nth-child(1)",
+    ".o-spreadsheet-side-panel-container .o-find-and-replace .o-sidePanelButtons:nth-of-type(2) .o-sidePanelButton:nth-child(1)",
   nextButton:
-    ".o-sidePanel .o-find-and-replace .o-sidePanelButtons:nth-of-type(2) .o-sidePanelButton:nth-child(2)",
+    ".o-spreadsheet-side-panel-container .o-find-and-replace .o-sidePanelButtons:nth-of-type(2) .o-sidePanelButton:nth-child(2)",
   replaceButton:
-    ".o-sidePanel .o-find-and-replace .o-sidePanelButtons:nth-of-type(4) .o-sidePanelButton:nth-child(1)",
+    ".o-spreadsheet-side-panel-container .o-find-and-replace .o-sidePanelButtons:nth-of-type(4) .o-sidePanelButton:nth-child(1)",
   replaceAllButton:
-    ".o-sidePanel .o-find-and-replace .o-sidePanelButtons:nth-of-type(4) .o-sidePanelButton:nth-child(2)",
+    ".o-spreadsheet-side-panel-container .o-find-and-replace .o-sidePanelButtons:nth-of-type(4) .o-sidePanelButton:nth-child(2)",
   checkBoxMatchingCase:
-    ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-far-item:nth-child(1) input",
+    ".o-spreadsheet-side-panel-container .o-find-and-replace .o-section:nth-child(1) .o-far-item:nth-child(1) input",
   checkBoxExactMatch:
-    ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-far-item:nth-child(2) input",
+    ".o-spreadsheet-side-panel-container .o-find-and-replace .o-section:nth-child(1) .o-far-item:nth-child(2) input",
   checkBoxSearchFormulas:
-    ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-far-item:nth-child(3) input",
+    ".o-spreadsheet-side-panel-container .o-find-and-replace .o-section:nth-child(1) .o-far-item:nth-child(3) input",
   checkBoxReplaceFormulas:
-    ".o-sidePanel .o-find-and-replace .o-section:nth-child(3) .o-far-item:nth-child(3) input",
+    ".o-spreadsheet-side-panel-container .o-find-and-replace .o-section:nth-child(3) .o-far-item:nth-child(3) input",
 };
 
 describe("find and replace sidePanel component", () => {
@@ -47,14 +48,14 @@ describe("find and replace sidePanel component", () => {
   });
   describe("Sidepanel", () => {
     test("Can close the find and replace side panel", async () => {
-      expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
+      expect(document.querySelectorAll(".o-spreadsheet-side-panel-container").length).toBe(1);
       triggerMouseEvent(document.querySelector(selectors.closeSidepanel), "click");
       await nextTick();
-      expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
+      expect(document.querySelectorAll(".o-spreadsheet-side-panel-container").length).toBe(0);
     });
 
     test("When opening sidepanel, focus will be on search input", async () => {
-      expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
+      expect(document.querySelectorAll(".o-spreadsheet-side-panel-container").length).toBe(1);
       await nextTick();
       expect(document.activeElement).toBe(document.querySelector(selectors.inputSearch));
     });

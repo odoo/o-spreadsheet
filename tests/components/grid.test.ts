@@ -2,7 +2,6 @@ import { App } from "@odoo/owl";
 import { Spreadsheet, TransportService } from "../../src";
 import { ChartJsComponent } from "../../src/components/figures/chart/chartJs/chartjs";
 import {
-  BACKGROUND_GRAY_COLOR,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   FILTER_ICON_MARGIN,
@@ -12,7 +11,7 @@ import {
   MESSAGE_VERSION,
   SCROLLBAR_WIDTH,
 } from "../../src/constants";
-import { toHex, toZone, zoneToXc } from "../../src/helpers";
+import { toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { chartComponentRegistry } from "../../src/registries";
 import {
@@ -32,7 +31,6 @@ import {
 import {
   clickCell,
   edgeScrollDelay,
-  getElComputedStyle,
   gridMouseEvent,
   hoverCell,
   rightClickCell,
@@ -91,13 +89,13 @@ describe("Grid component", () => {
   });
 
   test("simple rendering snapshot", async () => {
-    expect(fixture.querySelector(".o-grid")).toMatchSnapshot();
+    expect(fixture.querySelector(".o-spreadsheet-grid-container")).toMatchSnapshot();
   });
 
   test("can render a sheet with a merge", async () => {
     const sheet1 = model.getters.getSheetIds()[0];
     merge(model, "B2:B3", sheet1);
-    expect(fixture.querySelector(".o-grid-overlay")).not.toBeNull();
+    expect(fixture.querySelector(".o-spreadsheet-grid-overlay")).not.toBeNull();
   });
 
   test("can click on a cell to select it", async () => {
@@ -132,11 +130,11 @@ describe("Grid component", () => {
   test("Can open the Conditional Format side panel", async () => {
     parent.env.openSidePanel("ConditionalFormatting");
     await nextTick();
-    expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
+    expect(document.querySelectorAll(".o-spreadsheet-side-panel-container").length).toBe(1);
   });
 
   test("Can touch the grid to move it", async () => {
-    const grid = fixture.querySelector(".o-grid-overlay")!;
+    const grid = fixture.querySelector(".o-spreadsheet-grid-overlay")!;
     expect(getHorizontalScroll()).toBe(0);
     expect(getVerticalScroll()).toBe(0);
     grid.dispatchEvent(
@@ -183,7 +181,7 @@ describe("Grid component", () => {
     expect(getVerticalScroll()).toBe(50);
   });
   test("Event is stopped if not at the top", async () => {
-    const grid = fixture.querySelector(".o-grid-overlay")!;
+    const grid = fixture.querySelector(".o-spreadsheet-grid-overlay")!;
     expect(getHorizontalScroll()).toBe(0);
     expect(getVerticalScroll()).toBe(0);
 
@@ -257,7 +255,7 @@ describe("Grid component", () => {
       // note: this behaviour is not like excel. Maybe someone will want to
       // change this
       document
-        .querySelector(".o-grid")!
+        .querySelector(".o-spreadsheet-grid-container")!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
       expect(getActiveXc(model)).toBe("A1");
       expect(model.getters.getEditionMode()).toBe("editing");
@@ -278,7 +276,7 @@ describe("Grid component", () => {
       setCellContent(model, "A1", "test");
       await nextTick();
       fixture
-        .querySelector("div.o-grid")!
+        .querySelector("div.o-spreadsheet-grid-container")!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Backspace" }));
       expect(getActiveXc(model)).toBe("A1");
       expect(model.getters.getEditionMode()).toBe("inactive");
@@ -311,7 +309,7 @@ describe("Grid component", () => {
 
     test("pressing TAB move to next cell", async () => {
       document
-        .querySelector(".o-grid")!
+        .querySelector(".o-spreadsheet-grid-container")!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       expect(getActiveXc(model)).toBe("B1");
     });
@@ -320,7 +318,7 @@ describe("Grid component", () => {
       selectCell(model, "B1");
       expect(getActiveXc(model)).toBe("B1");
       document
-        .querySelector(".o-grid")!
+        .querySelector(".o-spreadsheet-grid-container")!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true }));
       expect(getActiveXc(model)).toBe("A1");
     });
@@ -426,7 +424,9 @@ describe("Grid component", () => {
         new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
       );
       await nextTick();
-      expect(document.activeElement).toBe(document.querySelector(".o-grid-composer .o-composer"));
+      expect(document.activeElement).toBe(
+        document.querySelector(".o-spreadsheet-grid-composer .o-composer")
+      );
       expect(model.getters.getEditionMode()).toBe("editing");
       expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 10 });
       expect(model.getters.getCurrentContent()).toBe("=SUM(B2:B4)");
@@ -633,7 +633,7 @@ describe("Grid component", () => {
     test("Filter icon change when filter is active", async () => {
       createFilter(model, "A1:A2");
       await nextTick();
-      const grid = fixture.querySelector(".o-grid")!;
+      const grid = fixture.querySelector(".o-spreadsheet-grid-container")!;
       expect(grid.querySelectorAll(".filter-icon")).toHaveLength(1);
       expect(grid.querySelectorAll(".filter-icon-active")).toHaveLength(0);
 
@@ -654,7 +654,7 @@ describe("Grid component", () => {
 
   describe("Grid Scroll", () => {
     async function scrollGrid(args: { deltaY?: number; shiftKey?: boolean }) {
-      fixture.querySelector(".o-grid")!.dispatchEvent(
+      fixture.querySelector(".o-spreadsheet-grid-container")!.dispatchEvent(
         new WheelEvent("wheel", {
           deltaY: args.deltaY || 0,
           shiftKey: args.shiftKey,
@@ -751,7 +751,9 @@ describe("Grid component", () => {
       await rightClickCell(model, "B2");
       await simulateClick(".o-menu div[data-name='add_row_before']");
       expect(fixture.querySelector(".o-menu div[data-name='add_row_before']")).toBeFalsy();
-      expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
+      expect(document.activeElement).toBe(
+        fixture.querySelector(".o-spreadsheet-grid-container>input")
+      );
     });
   });
 });
@@ -894,7 +896,9 @@ describe("Events on Grid update viewport correctly", () => {
     //   left: 0,
     //   right: 10,
     // });
-    fixture.querySelector(".o-grid")!.dispatchEvent(new WheelEvent("wheel", { deltaY: 1200 }));
+    fixture
+      .querySelector(".o-spreadsheet-grid-container")!
+      .dispatchEvent(new WheelEvent("wheel", { deltaY: 1200 }));
     await nextTick();
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 52,
@@ -911,7 +915,7 @@ describe("Events on Grid update viewport correctly", () => {
   });
   test("Horizontal scroll", async () => {
     fixture
-      .querySelector(".o-grid")!
+      .querySelector(".o-spreadsheet-grid-container")!
       .dispatchEvent(new WheelEvent("wheel", { deltaY: 200, shiftKey: true }));
     await nextTick();
     expect(model.getters.getActiveMainViewport()).toMatchObject({
@@ -1227,7 +1231,7 @@ describe("Events on Grid update viewport correctly", () => {
   });
 
   test("Scroll viewport then alter selection with keyboard from penultimate cell to last cell does not shift viewport", async () => {
-    await simulateClick(".o-grid-overlay"); // gain focus on grid element
+    await simulateClick(".o-spreadsheet-grid-overlay"); // gain focus on grid element
     const { width } = model.getters.getMainViewportRect();
     const { width: viewportWidth } = model.getters.getSheetViewDimensionWithHeaders();
     document.activeElement!.dispatchEvent(
@@ -1270,7 +1274,7 @@ describe("Events on Grid update viewport correctly", () => {
   });
 
   test("Scroll viewport then alter selection with mouse from penultimate cell to last cell does not shift viewport", async () => {
-    await simulateClick(".o-grid-overlay"); // gain focus on grid element
+    await simulateClick(".o-spreadsheet-grid-overlay"); // gain focus on grid element
     const { width } = model.getters.getMainViewportRect();
     const { width: viewportWidth } = model.getters.getSheetViewDimensionWithHeaders();
     document.activeElement!.dispatchEvent(
@@ -1310,12 +1314,12 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
   test("Can edge-scroll horizontally", async () => {
     const { width, height } = model.getters.getSheetViewDimension();
     const y = height / 2;
-    triggerMouseEvent(".o-grid-overlay", "mousedown", width / 2, y);
-    triggerMouseEvent(".o-grid-overlay", "mousemove", 1.5 * width, y);
+    triggerMouseEvent(".o-spreadsheet-grid-overlay", "mousedown", width / 2, y);
+    triggerMouseEvent(".o-spreadsheet-grid-overlay", "mousemove", 1.5 * width, y);
     const advanceTimer = edgeScrollDelay(0.5 * width, 5);
 
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-grid-overlay", "mouseup", 1.5 * width, y);
+    triggerMouseEvent(".o-spreadsheet-grid-overlay", "mouseup", 1.5 * width, y);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 6,
@@ -1324,12 +1328,12 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
       bottom: 42,
     });
 
-    triggerMouseEvent(".o-grid-overlay", "mousedown", width / 2, y);
-    triggerMouseEvent(".o-grid-overlay", "mousemove", -0.5 * width, y);
+    triggerMouseEvent(".o-spreadsheet-grid-overlay", "mousedown", width / 2, y);
+    triggerMouseEvent(".o-spreadsheet-grid-overlay", "mousemove", -0.5 * width, y);
     const advanceTimer2 = edgeScrollDelay(0.5 * width, 2);
 
     jest.advanceTimersByTime(advanceTimer2);
-    triggerMouseEvent(".o-grid-overlay", "mouseup", -0.5 * width, y);
+    triggerMouseEvent(".o-spreadsheet-grid-overlay", "mouseup", -0.5 * width, y);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 3,
@@ -1342,12 +1346,12 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
   test("Can edge-scroll vertically", async () => {
     const { width, height } = model.getters.getSheetViewDimensionWithHeaders();
     const x = width / 2;
-    triggerMouseEvent(".o-grid-overlay", "mousedown", x, height / 2);
-    triggerMouseEvent(".o-grid-overlay", "mousemove", x, 1.5 * height);
+    triggerMouseEvent(".o-spreadsheet-grid-overlay", "mousedown", x, height / 2);
+    triggerMouseEvent(".o-spreadsheet-grid-overlay", "mousemove", x, 1.5 * height);
     const advanceTimer = edgeScrollDelay(0.5 * height, 5);
 
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-grid-overlay", "mouseup", x, 1.5 * height);
+    triggerMouseEvent(".o-spreadsheet-grid-overlay", "mouseup", x, 1.5 * height);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 0,
@@ -1356,12 +1360,12 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
       bottom: 48,
     });
 
-    triggerMouseEvent(".o-grid-overlay", "mousedown", x, height / 2);
-    triggerMouseEvent(".o-grid-overlay", "mousemove", x, -0.5 * height);
+    triggerMouseEvent(".o-spreadsheet-grid-overlay", "mousedown", x, height / 2);
+    triggerMouseEvent(".o-spreadsheet-grid-overlay", "mousemove", x, -0.5 * height);
     const advanceTimer2 = edgeScrollDelay(0.5 * height, 2);
 
     jest.advanceTimersByTime(advanceTimer2);
-    triggerMouseEvent(".o-grid-overlay", "mouseup", x, -0.5 * height);
+    triggerMouseEvent(".o-spreadsheet-grid-overlay", "mouseup", x, -0.5 * height);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 0,
@@ -1369,15 +1373,6 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
       top: 3,
       bottom: 45,
     });
-  });
-
-  test("Scroll bars have background color", () => {
-    // Without background color, elements could be displayed above the scrollbars placeholders
-    const getColor = (selector: string) => toHex(getElComputedStyle(selector, "background"));
-
-    expect(getColor(".o-scrollbar.corner")).toEqual(toHex(BACKGROUND_GRAY_COLOR));
-    expect(getColor(".o-scrollbar.horizontal")).toEqual(toHex(BACKGROUND_GRAY_COLOR));
-    expect(getColor(".o-scrollbar.vertical")).toEqual(toHex(BACKGROUND_GRAY_COLOR));
   });
 });
 

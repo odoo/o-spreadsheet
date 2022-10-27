@@ -71,7 +71,7 @@ beforeEach(async () => {
   jest.useFakeTimers();
   fixture = makeTestFixture();
   ({ app, model } = await mountSpreadsheet(fixture));
-  gridInputEl = document.querySelector(".o-grid>input")!;
+  gridInputEl = document.querySelector(".o-spreadsheet-grid-container>input")!;
 });
 
 afterEach(() => {
@@ -441,7 +441,9 @@ describe("composer", () => {
     await startComposition();
     expect(model.getters.getEditionMode()).toBe("editing");
     expect(model.getters.getPosition()).toEqual(toCartesian("A1"));
-    expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer")!);
+    expect(document.activeElement).toBe(
+      fixture.querySelector(".o-spreadsheet-grid-container div.o-composer")!
+    );
   });
 
   test("starting the edition with a key stroke =, the composer should have the focus after the key input", async () => {
@@ -519,7 +521,9 @@ describe("composer", () => {
     composerEl.dispatchEvent(new Event("keyup"));
     await rightClickCell(model, "C8");
     expect(getActiveXc(model)).toBe("C8");
-    expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(0);
+    expect(fixture.querySelectorAll(".o-spreadsheet-grid-container div.o-composer")).toHaveLength(
+      0
+    );
   });
 
   test("type '=' in the sheet and select a cell", async () => {
@@ -637,7 +641,7 @@ describe("composer", () => {
     expect(topbarComposerElement.textContent).toBe("I am Tabouret");
     await simulateClick(topbarComposerElement); // gain focus on topbar composer
     await keyDown("ArrowLeft");
-    await simulateClick(".o-grid-overlay", 300, 200); // focus another Cell (i.e. C8)
+    await simulateClick(".o-spreadsheet-grid-overlay", 300, 200); // focus another Cell (i.e. C8)
     expect(topbarComposerElement.textContent).toBe("");
   });
 
@@ -647,7 +651,9 @@ describe("composer", () => {
     )!;
     await simulateClick(topbarComposerElement);
     expect(document.activeElement).toBe(topbarComposerElement);
-    const gridComposerElement = fixture.querySelector(".o-grid .o-composer-container div")!;
+    const gridComposerElement = fixture.querySelector(
+      ".o-spreadsheet-grid-container .o-composer-container div"
+    )!;
     await simulateClick(gridComposerElement);
     expect(document.activeElement).toBe(gridComposerElement);
   });
@@ -952,7 +958,7 @@ describe("composer", () => {
         style: { textColor: "#123456" },
       });
       await typeInComposerGrid("Hello");
-      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      const gridComposer = fixture.querySelector(".o-spreadsheet-grid-composer")! as HTMLElement;
       expect(gridComposer.style.color).toBe("rgb(18, 52, 86)");
       // @ts-ignore
       const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
@@ -967,7 +973,7 @@ describe("composer", () => {
         style: { fillColor: "#123456" },
       });
       await typeInComposerGrid("Hello");
-      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      const gridComposer = fixture.querySelector(".o-spreadsheet-grid-composer")! as HTMLElement;
       expect(gridComposer.style.background).toBe("rgb(18, 52, 86)");
     });
 
@@ -979,7 +985,7 @@ describe("composer", () => {
         style: { fontSize: fontSize.pt },
       });
       await typeInComposerGrid("Hello");
-      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      const gridComposer = fixture.querySelector(".o-spreadsheet-grid-composer")! as HTMLElement;
       expect(gridComposer.style.fontSize).toBe("10px");
     });
 
@@ -990,7 +996,7 @@ describe("composer", () => {
         style: { bold: true },
       });
       await typeInComposerGrid("Hello");
-      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      const gridComposer = fixture.querySelector(".o-spreadsheet-grid-composer")! as HTMLElement;
       expect(gridComposer.style.fontWeight).toBe("bold");
     });
 
@@ -1001,7 +1007,7 @@ describe("composer", () => {
         style: { italic: true },
       });
       await typeInComposerGrid("Hello");
-      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      const gridComposer = fixture.querySelector(".o-spreadsheet-grid-composer")! as HTMLElement;
       expect(gridComposer.style.fontStyle).toBe("italic");
     });
 
@@ -1012,7 +1018,7 @@ describe("composer", () => {
         style: { strikethrough: true },
       });
       await typeInComposerGrid("Hello");
-      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      const gridComposer = fixture.querySelector(".o-spreadsheet-grid-composer")! as HTMLElement;
       expect(gridComposer.style.textDecoration).toBe("line-through");
     });
 
@@ -1023,7 +1029,7 @@ describe("composer", () => {
         style: { underline: true },
       });
       await typeInComposerGrid("Hello");
-      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      const gridComposer = fixture.querySelector(".o-spreadsheet-grid-composer")! as HTMLElement;
       expect(gridComposer.style.textDecoration).toBe("underline");
     });
 
@@ -1034,7 +1040,7 @@ describe("composer", () => {
         style: { strikethrough: true, underline: true },
       });
       await typeInComposerGrid("Hello");
-      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      const gridComposer = fixture.querySelector(".o-spreadsheet-grid-composer")! as HTMLElement;
       expect(gridComposer.style.textDecoration).toBe("line-through underline");
     });
 
@@ -1045,7 +1051,7 @@ describe("composer", () => {
         style: { align: "right" },
       });
       await typeInComposerGrid("Hello");
-      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      const gridComposer = fixture.querySelector(".o-spreadsheet-grid-composer")! as HTMLElement;
       expect(gridComposer.style.textAlign).toBe("right");
     });
 
@@ -1069,7 +1075,7 @@ describe("composer", () => {
       });
       setCellContent(model, "A1", "4");
       await typeInComposerGrid("Hello");
-      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      const gridComposer = fixture.querySelector(".o-spreadsheet-grid-composer")! as HTMLElement;
       expect(gridComposer.style.textDecoration).toBe("line-through underline");
       expect(gridComposer.style.fontWeight).toBe("bold");
       expect(toHex(gridComposer.style.background)).toBe("#0000FF");
@@ -1085,7 +1091,7 @@ describe("composer", () => {
         style: { textColor: "#123456" },
       });
       await typeInComposerGrid("=");
-      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      const gridComposer = fixture.querySelector(".o-spreadsheet-grid-composer")! as HTMLElement;
       expect(gridComposer.style.color).toBe("rgb(0, 0, 0)");
     });
 
@@ -1096,7 +1102,7 @@ describe("composer", () => {
         style: { textColor: "#123456" },
       });
       await typeInComposerGrid("=");
-      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      const gridComposer = fixture.querySelector(".o-spreadsheet-grid-composer")! as HTMLElement;
       expect(gridComposer.style.background).toBe("rgb(255, 255, 255)");
     });
 
@@ -1108,7 +1114,7 @@ describe("composer", () => {
         style: { fontSize: fontSize.pt },
       });
       await typeInComposerGrid("=");
-      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      const gridComposer = fixture.querySelector(".o-spreadsheet-grid-composer")! as HTMLElement;
       expect(gridComposer.style.fontSize).toBe("13px");
     });
 
@@ -1119,7 +1125,7 @@ describe("composer", () => {
         style: { bold: true },
       });
       await typeInComposerGrid("=");
-      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      const gridComposer = fixture.querySelector(".o-spreadsheet-grid-composer")! as HTMLElement;
       expect(gridComposer.style.fontWeight).toBe("500");
     });
 
@@ -1130,7 +1136,7 @@ describe("composer", () => {
         style: { italic: true },
       });
       await typeInComposerGrid("=");
-      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      const gridComposer = fixture.querySelector(".o-spreadsheet-grid-composer")! as HTMLElement;
       expect(gridComposer.style.fontStyle).toBe("normal");
     });
 
@@ -1141,7 +1147,7 @@ describe("composer", () => {
         style: { strikethrough: true },
       });
       await typeInComposerGrid("=");
-      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      const gridComposer = fixture.querySelector(".o-spreadsheet-grid-composer")! as HTMLElement;
       expect(gridComposer.style.textDecoration).toBe("none");
     });
 
@@ -1152,7 +1158,7 @@ describe("composer", () => {
         style: { align: "right" },
       });
       await typeInComposerGrid("=");
-      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      const gridComposer = fixture.querySelector(".o-spreadsheet-grid-composer")! as HTMLElement;
       expect(gridComposer.style.textAlign).toBe("left");
     });
   });
@@ -1169,7 +1175,9 @@ describe("composer", () => {
     await typeInComposerGrid("=");
     await rightClickCell(model, "C8");
     expect(model.getters.getEditionMode()).toBe("inactive");
-    expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(0);
+    expect(fixture.querySelectorAll(".o-spreadsheet-grid-container div.o-composer")).toHaveLength(
+      0
+    );
   });
 
   test("type '=', stop editing with enter, click on the modified cell --> the edition mode should be inactive", async () => {
@@ -1494,10 +1502,12 @@ describe("Copy/paste in composer", () => {
     const clipboardEvent = new Event("paste", { bubbles: true, cancelable: true });
     //@ts-ignore
     clipboardEvent.clipboardData = { getData: () => "unimportant" };
-    fixture.querySelector(".o-grid-composer .o-composer")!.dispatchEvent(clipboardEvent);
+    fixture
+      .querySelector(".o-spreadsheet-grid-composer .o-composer")!
+      .dispatchEvent(clipboardEvent);
     await nextTick();
     expect(model.getters.getEditionMode()).not.toBe("inactive");
-    expect(fixture.querySelectorAll(".o-grid-composer .o-composer")).toHaveLength(1);
+    expect(fixture.querySelectorAll(".o-spreadsheet-grid-composer .o-composer")).toHaveLength(1);
     expect(spyDispatch).not.toBeCalledWith("PASTE_FROM_OS_CLIPBOARD", expect.any);
     expect(spyDispatch).not.toBeCalledWith("PASTE", expect.any);
   });

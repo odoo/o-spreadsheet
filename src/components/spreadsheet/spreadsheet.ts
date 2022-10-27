@@ -8,14 +8,12 @@ import {
   useSubEnv,
 } from "@odoo/owl";
 import {
-  BACKGROUND_GRAY_COLOR,
   BOTTOMBAR_HEIGHT,
   CF_ICON_EDGE_LENGTH,
   ICON_EDGE_LENGTH,
   MAXIMAL_FREEZABLE_RATIO,
   MENU_SEPARATOR_BORDER_WIDTH,
   MENU_SEPARATOR_PADDING,
-  SCROLLBAR_WIDTH,
   TOPBAR_HEIGHT,
 } from "../../constants";
 import { Model } from "../../model";
@@ -39,8 +37,7 @@ export type ComposerFocusType = "inactive" | "cellFocus" | "contentFocus";
 css/* scss */ `
   .o-spreadsheet {
     position: relative;
-    display: grid;
-    grid-template-columns: auto 350px;
+    background-color: var(--BACKGROUND_GRAY_COLOR);
     * {
       font-family: "Roboto", "RobotoDraft", Helvetica, Arial, sans-serif;
     }
@@ -55,13 +52,56 @@ css/* scss */ `
       margin-top: ${MENU_SEPARATOR_PADDING}px;
       margin-bottom: ${MENU_SEPARATOR_PADDING}px;
     }
+
+    &.o-spreadsheet-dashboard {
+      display: block;
+    }
+
+    &.o-spreadsheet-normal {
+      display: grid;
+      grid-template-columns: auto 350px;
+      grid-template-rows: ${TOPBAR_HEIGHT}px auto ${BOTTOMBAR_HEIGHT + 1}px;
+      grid-template-areas:
+        "top-bar top-bar"
+        "grid grid"
+        "bottom-bar bottom-bar";
+
+      &.o-spreadsheet-with-side-panel {
+        grid-template-areas:
+          "top-bar top-bar"
+          "grid side-panel"
+          "bottom-bar bottom-bar";
+      }
+
+      .o-spreadsheet-topbar {
+        grid-area: top-bar;
+      }
+
+      .o-spreadsheet-grid-container {
+        grid-area: grid;
+        position: relative;
+        overflow: hidden;
+        &:focus {
+          outline: none;
+        }
+
+        > canvas {
+          border-top: 1px solid #e2e3e3;
+          border-bottom: 1px solid #e2e3e3;
+        }
+      }
+
+      .o-spreadsheet-side-panel-container {
+        grid-area: side-panel;
+      }
+
+      .o-spreadsheet-bottom-bar {
+        grid-area: bottom-bar;
+      }
+    }
   }
 
-  .o-two-columns {
-    grid-column: 1 / 3;
-  }
-
-  .o-icon {
+  .o-spreadsheet-icon {
     width: ${ICON_EDGE_LENGTH}px;
     height: ${ICON_EDGE_LENGTH}px;
     opacity: 0.6;
@@ -78,37 +118,6 @@ css/* scss */ `
 // -----------------------------------------------------------------------------
 // GRID STYLE
 // -----------------------------------------------------------------------------
-
-css/* scss */ `
-  .o-grid {
-    position: relative;
-    overflow: hidden;
-    background-color: ${BACKGROUND_GRAY_COLOR};
-    &:focus {
-      outline: none;
-    }
-
-    > canvas {
-      border-top: 1px solid #e2e3e3;
-      border-bottom: 1px solid #e2e3e3;
-    }
-    .o-scrollbar {
-      &.corner {
-        right: 0px;
-        bottom: 0px;
-        height: ${SCROLLBAR_WIDTH}px;
-        width: ${SCROLLBAR_WIDTH}px;
-        border-top: 1px solid #e2e3e3;
-        border-left: 1px solid #e2e3e3;
-      }
-    }
-
-    .o-grid-overlay {
-      position: absolute;
-      outline: none;
-    }
-  }
-`;
 
 export interface SpreadsheetProps {
   model: Model;
@@ -145,11 +154,11 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     return this.props.model;
   }
 
-  getStyle() {
+  get rootClass(): string {
     if (this.env.isDashboard()) {
-      return `grid-template-rows: auto;`;
+      return "o-spreadsheet-dashboard";
     }
-    return `grid-template-rows: ${TOPBAR_HEIGHT}px auto ${BOTTOMBAR_HEIGHT + 1}px`;
+    return "o-spreadsheet-normal" + (this.sidePanel.isOpen ? " o-spreadsheet-with-side-panel" : "");
   }
 
   setup() {

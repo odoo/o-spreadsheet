@@ -29,7 +29,7 @@ describe("Grid component in dashboard mode", () => {
   });
 
   test("simple dashboard rendering snapshot", async () => {
-    expect(fixture.querySelector(".o-grid")).toMatchSnapshot();
+    expect(fixture.querySelector(".o-spreadsheet-grid-container")).toMatchSnapshot();
   });
 
   test("Keyboard event are not dispatched in dashboard mode", async () => {

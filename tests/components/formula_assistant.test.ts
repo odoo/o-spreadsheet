@@ -23,9 +23,11 @@ beforeEach(async () => {
   ({ app, model } = await mountSpreadsheet(fixture));
 
   // start composition
-  document.querySelector(".o-grid")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+  document
+    .querySelector(".o-spreadsheet-grid-container")!
+    .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
   await nextTick();
-  composerEl = fixture.querySelector(".o-grid div.o-composer")!;
+  composerEl = fixture.querySelector(".o-spreadsheet-grid-container div.o-composer")!;
 });
 
 afterEach(() => {

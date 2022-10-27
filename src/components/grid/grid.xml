@@ -1,9 +1,8 @@
 <templates>
   <t t-name="o-spreadsheet-Grid" owl="1">
     <div
-      class="o-grid"
+      class="o-spreadsheet-grid-container"
       tabindex="-1"
-      t-att-class="{'o-two-columns': !props.sidePanelIsOpen}"
       t-on-click="focus"
       t-on-keydown="onKeydown"
       t-on-wheel="onMouseWheel"
@@ -16,7 +15,6 @@
         onGridResized.bind="onGridResized"
         onGridMoved.bind="moveCanvas"
         gridOverlayDimensions="gridOverlayDimensions"
-        sidePanelIsOpen="props.sidePanelIsOpen"
         onFigureDeleted.bind="focus"
       />
       <HeadersOverlay onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)"/>

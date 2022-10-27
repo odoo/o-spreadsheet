@@ -77,7 +77,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     
     <span>
       <svg
-        class="o-icon"
+        class="o-spreadsheet-icon"
       >
         <polygon
           fill="#000000"
@@ -135,7 +135,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     
     <span>
       <svg
-        class="o-icon"
+        class="o-spreadsheet-icon"
       >
         <polygon
           fill="#000000"
@@ -193,7 +193,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     
     <span>
       <svg
-        class="o-icon"
+        class="o-spreadsheet-icon"
       >
         <polygon
           fill="#000000"

@@ -9,6 +9,7 @@ import {
   SpreadsheetChildEnv,
 } from "../../types";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
+import { css } from "../helpers";
 import { useInterval } from "../helpers/time_hooks";
 
 function useCellHovered(
@@ -145,9 +146,15 @@ interface Props {
   onGridResized: (dimension: DOMDimension) => void;
   onGridMoved: (deltaX: Pixel, deltaY: Pixel) => void;
   gridOverlayDimensions: string;
-  sidePanelIsOpen: boolean;
   onFigureDeleted: () => void;
 }
+
+css/* scss */ `
+  .o-spreadsheet-grid-overlay {
+    position: absolute;
+    outline: none;
+  }
+`;
 
 export class GridOverlay extends Component<Props> {
   static template = "o-spreadsheet-GridOverlay";
@@ -159,7 +166,6 @@ export class GridOverlay extends Component<Props> {
     onCellRightClicked: () => {},
     onGridResized: () => {},
     onFigureDeleted: () => {},
-    sidePanelIsOpen: false,
   };
   private gridOverlay!: Ref<HTMLElement>;
 
@@ -223,5 +229,4 @@ GridOverlay.props = {
   onFigureDeleted: { type: Function, optional: true },
   onGridMoved: Function,
   gridOverlayDimensions: String,
-  sidePanelIsOpen: { type: Boolean, optional: true },
 };

@@ -2,8 +2,8 @@
   <t t-name="o-spreadsheet-Spreadsheet" owl="1">
     <div
       class="o-spreadsheet"
-      t-on-keydown="(ev) => !env.isDashboard() and this.onKeydown(ev)"
-      t-att-style="getStyle()">
+      t-attf-class="o-spreadsheet {{ rootClass }}"
+      t-on-keydown="(ev) => !env.isDashboard() and this.onKeydown(ev)">
       <t t-if="env.isDashboard()">
         <SpreadsheetDashboard/>
       </t>
@@ -14,7 +14,6 @@
           focusComposer="focusTopBarComposer"
         />
         <Grid
-          sidePanelIsOpen="sidePanel.isOpen"
           focusComposer="focusGridComposer"
           exposeFocus="(focus) => this._focusGrid = focus"
           onComposerContentFocused="() => this.onGridComposerContentFocused()"

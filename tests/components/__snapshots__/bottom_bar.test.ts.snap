@@ -100,13 +100,13 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
 
 exports[`BottomBar component simple rendering 1`] = `
 <div
-  class="o-spreadsheet-bottom-bar o-two-columns"
+  class="o-spreadsheet-bottom-bar"
 >
   <div
     class="o-sheet-item o-add-sheet"
   >
     <svg
-      class="o-icon"
+      class="o-spreadsheet-icon"
     >
       <path
         d="M8,0 L10,0 L10,8 L18,8 L18,10 L10,10 L10,18 L8,18 L8,10 L0,10 L0,8 L8,8"
@@ -118,7 +118,7 @@ exports[`BottomBar component simple rendering 1`] = `
     class="o-sheet-item o-list-sheets"
   >
     <svg
-      class="o-icon"
+      class="o-spreadsheet-icon"
       viewBox="0 0 384 384"
     >
       <rect
@@ -158,7 +158,7 @@ exports[`BottomBar component simple rendering 1`] = `
         class="o-sheet-icon"
       >
         <svg
-          class="o-icon"
+          class="o-spreadsheet-icon"
         >
           <polygon
             fill="#000000"

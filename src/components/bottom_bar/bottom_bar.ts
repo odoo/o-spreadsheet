@@ -1,5 +1,5 @@
 import { Component, onMounted, onPatched, useRef, useState } from "@odoo/owl";
-import { BACKGROUND_GRAY_COLOR, BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../../constants";
+import { BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { formatValue } from "../../helpers/format";
 import { interactiveRenameSheet } from "../../helpers/ui/sheet_interactive";
 import { MenuItemRegistry, sheetMenuRegistry } from "../../registries/index";
@@ -13,7 +13,6 @@ import { Menu, MenuState } from "../menu/menu";
 
 css/* scss */ `
   .o-spreadsheet-bottom-bar {
-    background-color: ${BACKGROUND_GRAY_COLOR};
     padding-left: ${HEADER_WIDTH}px;
     display: flex;
     align-items: center;

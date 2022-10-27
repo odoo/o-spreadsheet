@@ -2,24 +2,22 @@
 
 exports[`UI of conditional formats Conditional format list simple snapshot 1`] = `
 <div
-  class="o-sidePanel"
+  class="o-spreadsheet-side-panel-container d-flex flex-column bg-white border user-select-none"
 >
   <div
-    class="o-sidePanelHeader"
+    class="o-spreadsheet-side-panel-header d-flex align-items-center justify-content-between border-top border-bottom fw-bold p-3"
   >
     <div
-      class="o-sidePanelTitle"
+      class="text-secondary"
     >
       Conditional formatting
     </div>
-    <div
-      class="o-sidePanelClose"
-    >
-      ×
-    </div>
+    <button
+      class="btn-close"
+    />
   </div>
   <div
-    class="o-sidePanelBody"
+    class="o-spreadsheet-side-panel-body w-100 overflow-auto"
   >
     <div
       class="o-cf"

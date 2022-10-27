@@ -36,9 +36,11 @@ beforeEach(async () => {
   ({ app, model } = await mountSpreadsheet(fixture));
 
   // start composition
-  fixture.querySelector(".o-grid")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+  fixture
+    .querySelector(".o-spreadsheet-grid-container")!
+    .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
   await nextTick();
-  composerEl = fixture.querySelector(".o-grid div.o-composer")!;
+  composerEl = fixture.querySelector(".o-spreadsheet-grid-container div.o-composer")!;
 });
 
 afterEach(() => {
@@ -284,9 +286,11 @@ describe("Autocomplete parenthesis", () => {
     await nextTick();
     selectCell(model, "A1");
     //edit A1
-    fixture.querySelector(".o-grid")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    fixture
+      .querySelector(".o-spreadsheet-grid-container")!
+      .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
-    composerEl = fixture.querySelector(".o-grid div.o-composer")!;
+    composerEl = fixture.querySelector(".o-spreadsheet-grid-container div.o-composer")!;
     // @ts-ignore
     const cehMock = window.mockContentHelper as ContentEditableHelper;
     // select SUM

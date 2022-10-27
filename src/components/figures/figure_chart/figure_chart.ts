@@ -40,7 +40,6 @@ css/* scss */ `
 
 interface Props {
   figure: Figure;
-  sidePanelIsOpen: boolean;
   onFigureDeleted: () => void;
 }
 
@@ -90,9 +89,6 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
           sheetId: this.env.model.getters.getActiveSheetId(),
           id: this.props.figure.id,
         });
-        if (this.props.sidePanelIsOpen) {
-          this.env.toggleSidePanel("ChartPanel");
-        }
         this.props.onFigureDeleted();
       },
     });
@@ -138,6 +134,5 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
 
 ChartFigure.props = {
   figure: Object,
-  sidePanelIsOpen: Boolean,
   onFigureDeleted: Function,
 };

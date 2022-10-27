@@ -108,7 +108,7 @@ describe("UI of conditional formats", () => {
     buttonReoder: ".o-cf-reorder",
     buttonExitReorder: ".o-cf-exit-reorder",
     error: ".o-cf-error",
-    closePanel: ".o-sidePanelClose",
+    closePanel: ".o-spreadsheet-side-panel-header button.btn-close",
   };
 
   describe("Conditional format list", () => {
@@ -131,7 +131,7 @@ describe("UI of conditional formats", () => {
       await nextTick();
     });
     test("simple snapshot", () => {
-      expect(fixture.querySelector(".o-sidePanel")!).toMatchSnapshot();
+      expect(fixture.querySelector(".o-spreadsheet-side-panel-container")!).toMatchSnapshot();
     });
     test("the list of CF has a correct preview", () => {
       // check the html of the list (especially the colors)

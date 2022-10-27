@@ -9,12 +9,13 @@ jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 jest.useFakeTimers();
 
 const selectors = {
-  closeSidepanel: ".o-sidePanel .o-sidePanelClose",
-  availableCurrencies: ".o-sidePanel .o-custom-currency .o-available-currencies",
-  inputCode: ".o-sidePanel .o-custom-currency .o-subsection-left input",
-  inputSymbol: ".o-sidePanel .o-custom-currency .o-subsection-right input",
-  formatProposals: ".o-sidePanel .o-custom-currency .o-format-proposals",
-  applyFormat: ".o-sidePanel .o-custom-currency .o-sidePanelButtons button",
+  closeSidepanel: ".o-spreadsheet-side-panel-header button.btn-close",
+  availableCurrencies:
+    ".o-spreadsheet-side-panel-container .o-custom-currency .o-available-currencies",
+  inputCode: ".o-spreadsheet-side-panel-container .o-custom-currency .o-subsection-left input",
+  inputSymbol: ".o-spreadsheet-side-panel-container .o-custom-currency .o-subsection-right input",
+  formatProposals: ".o-spreadsheet-side-panel-container .o-custom-currency .o-format-proposals",
+  applyFormat: ".o-spreadsheet-side-panel-container .o-custom-currency .o-sidePanelButtons button",
 };
 
 const [code1, code2] = ["ABC", "DEF"];
@@ -77,10 +78,10 @@ describe("custom currency sidePanel component", () => {
     // Close button
     // -------------------------------------------------------------------------
     test("Can close the custom currency side panel", async () => {
-      expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
+      expect(document.querySelectorAll(".o-spreadsheet-side-panel-container").length).toBe(1);
       triggerMouseEvent(document.querySelector(selectors.closeSidepanel), "click");
       await nextTick();
-      expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
+      expect(document.querySelectorAll(".o-spreadsheet-side-panel-container").length).toBe(0);
     });
 
     // -------------------------------------------------------------------------

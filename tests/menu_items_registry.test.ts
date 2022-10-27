@@ -677,10 +677,10 @@ describe("Menu Item actions", () => {
     test("Custom currency", async () => {
       doAction(["format", "format_number", "format_custom_currency"], env);
       await nextTick();
-      expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
-      expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe(
-        "Custom currency format"
-      );
+      expect(document.querySelectorAll(".o-spreadsheet-side-panel-container")).toHaveLength(1);
+      expect(
+        document.querySelector(".o-spreadsheet-side-panel-header div.text-secondary")!.textContent
+      ).toBe("Custom currency format");
     });
   });
 

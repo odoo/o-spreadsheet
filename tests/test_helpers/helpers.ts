@@ -344,7 +344,7 @@ async function typeInComposerHelper(selector: string, text: string, fromScratch:
 }
 
 export async function typeInComposerGrid(text: string, fromScratch: boolean = true) {
-  return await typeInComposerHelper(".o-grid .o-composer", text, fromScratch);
+  return await typeInComposerHelper(".o-spreadsheet-grid-container .o-composer", text, fromScratch);
 }
 
 export async function typeInComposerTopBar(text: string, fromScratch: boolean = true) {
@@ -353,18 +353,18 @@ export async function typeInComposerTopBar(text: string, fromScratch: boolean = 
 
 export async function startGridComposition(key?: string) {
   if (key) {
-    const gridInputEl = document.querySelector(".o-grid>input");
+    const gridInputEl = document.querySelector(".o-spreadsheet-grid-container>input");
     gridInputEl!.dispatchEvent(
       new InputEvent("input", { data: key, bubbles: true, cancelable: true })
     );
   } else {
-    const gridInputEl = document.querySelector(".o-grid");
+    const gridInputEl = document.querySelector(".o-spreadsheet-grid-container");
     gridInputEl!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true })
     );
   }
   await nextTick();
-  return document.querySelector(".o-grid .o-composer")!;
+  return document.querySelector(".o-spreadsheet-grid-container .o-composer")!;
 }
 
 /**

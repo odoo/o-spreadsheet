@@ -46,8 +46,10 @@ describe("Side Panel", () => {
     });
     parent.env.openSidePanel("CUSTOM_PANEL");
     await nextTick();
-    expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
-    expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Custom Panel");
+    expect(document.querySelectorAll(".o-spreadsheet-side-panel-container")).toHaveLength(1);
+    expect(
+      document.querySelector(".o-spreadsheet-side-panel-header div.text-secondary")!.textContent
+    ).toBe("Custom Panel");
     expect(document.querySelector(".main_body")!.textContent).toBe("test");
     expect(document.querySelector(".props_body")).toBeNull();
   });
@@ -59,10 +61,10 @@ describe("Side Panel", () => {
     });
     parent.env.openSidePanel("CUSTOM_PANEL");
     await nextTick();
-    expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
-    simulateClick(".o-sidePanelClose");
+    expect(document.querySelectorAll(".o-spreadsheet-side-panel-container")).toHaveLength(1);
+    simulateClick(".o-spreadsheet-side-panel-header button.btn-close");
     await nextTick();
-    expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(0);
+    expect(document.querySelectorAll(".o-spreadsheet-side-panel-container")).toHaveLength(0);
   });
 
   test("Can toggle a side panel", async () => {
@@ -72,10 +74,10 @@ describe("Side Panel", () => {
     });
     parent.env.toggleSidePanel("CUSTOM_PANEL");
     await nextTick();
-    expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
+    expect(document.querySelectorAll(".o-spreadsheet-side-panel-container")).toHaveLength(1);
     parent.env.toggleSidePanel("CUSTOM_PANEL");
     await nextTick();
-    expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(0);
+    expect(document.querySelectorAll(".o-spreadsheet-side-panel-container")).toHaveLength(0);
   });
 
   test("Can toggle a side panel when another is already opened", async () => {
@@ -89,10 +91,14 @@ describe("Side Panel", () => {
     });
     parent.env.toggleSidePanel("CUSTOM_PANEL_1");
     await nextTick();
-    expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Custom Panel 1");
+    expect(
+      document.querySelector(".o-spreadsheet-side-panel-header div.text-secondary")!.textContent
+    ).toBe("Custom Panel 1");
     parent.env.toggleSidePanel("CUSTOM_PANEL_2");
     await nextTick();
-    expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Custom Panel 2");
+    expect(
+      document.querySelector(".o-spreadsheet-side-panel-header div.text-secondary")!.textContent
+    ).toBe("Custom Panel 2");
   });
 
   test("Can open a custom side panel with custom title and panelProps", async () => {
@@ -102,8 +108,10 @@ describe("Side Panel", () => {
     });
     parent.env.openSidePanel("CUSTOM_PANEL", { text: "context" });
     await nextTick();
-    expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
-    expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Computed Title");
+    expect(document.querySelectorAll(".o-spreadsheet-side-panel-container")).toHaveLength(1);
+    expect(
+      document.querySelector(".o-spreadsheet-side-panel-header div.text-secondary")!.textContent
+    ).toBe("Computed Title");
     expect(document.querySelector(".main_body")!.textContent).toBe("test");
     expect(document.querySelector(".props_body")).not.toBeNull();
     expect(document.querySelector(".props_body")!.textContent).toBe("context");
@@ -122,8 +130,10 @@ describe("Side Panel", () => {
     await nextTick();
     parent.env.openSidePanel("PANEL_2", { field: "field" });
     await nextTick();
-    expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
-    expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("PANEL_2");
+    expect(document.querySelectorAll(".o-spreadsheet-side-panel-container")).toHaveLength(1);
+    expect(
+      document.querySelector(".o-spreadsheet-side-panel-header div.text-secondary")!.textContent
+    ).toBe("PANEL_2");
     expect(document.querySelector(".main_body_2")).not.toBeNull();
     expect(document.querySelector(".main_body_2")!.textContent).toBe("Hello");
     expect(document.querySelector(".props_body_2")).not.toBeNull();
@@ -137,8 +147,10 @@ describe("Side Panel", () => {
     });
     parent.env.openSidePanel("CUSTOM_PANEL");
     await nextTick();
-    simulateClick(".o-sidePanelClose");
+    simulateClick(".o-spreadsheet-side-panel-header button.btn-close");
     await nextTick();
-    expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
+    expect(document.activeElement).toBe(
+      fixture.querySelector(".o-spreadsheet-grid-container>input")
+    );
   });
 });

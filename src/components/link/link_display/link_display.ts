@@ -42,11 +42,11 @@ css/* scss */ `
   .o-link-icon {
     float: right;
     padding-left: 4%;
-    .o-icon {
+    .o-spreadsheet-icon {
       height: 16px;
     }
   }
-  .o-link-icon .o-icon {
+  .o-link-icon .o-spreadsheet-icon {
     padding-top: 3px;
     height: 13px;
   }

@@ -1,5 +1,5 @@
 import { Component, useState, xml } from "@odoo/owl";
-import { AUTOFILL_EDGE_LENGTH } from "../../constants";
+import { AUTOFILL_EDGE_LENGTH, CORNER_BACKGROUND_COLOR } from "../../constants";
 import { clip } from "../../helpers";
 import { HeaderIndex, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
@@ -10,32 +10,15 @@ import { startDnd } from "../helpers/drag_and_drop";
 // Autofill
 // -----------------------------------------------------------------------------
 
+const AUTOFILL_EDGE_LENGTH_WITHOUT_BORDER = AUTOFILL_EDGE_LENGTH - 2;
+
 css/* scss */ `
-  .o-autofill {
-    height: 6px;
-    width: 6px;
-    border: 1px solid white;
-    position: absolute;
-    background-color: #1a73e8;
-
-    .o-autofill-handler {
-      position: absolute;
-      height: ${AUTOFILL_EDGE_LENGTH}px;
-      width: ${AUTOFILL_EDGE_LENGTH}px;
-
-      &:hover {
-        cursor: crosshair;
-      }
-    }
-
-    .o-autofill-nextvalue {
-      position: absolute;
-      background-color: #ffffff;
-      border: 1px solid black;
-      padding: 5px;
-      font-size: 12px;
-      pointer-events: none;
-      white-space: nowrap;
+  .o-spreadsheet-autofill-handler {
+    height: ${AUTOFILL_EDGE_LENGTH_WITHOUT_BORDER}px;
+    width: ${AUTOFILL_EDGE_LENGTH_WITHOUT_BORDER}px;
+    background-color: ${CORNER_BACKGROUND_COLOR};
+    &:hover {
+      cursor: crosshair;
     }
   }
 `;

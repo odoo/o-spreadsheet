@@ -91,7 +91,9 @@ describe("figures", () => {
     figure.dispatchEvent(new KeyboardEvent("keydown", { key: "Delete" }));
     await nextTick();
     expect(fixture.querySelector(".o-figure")).toBeNull();
-    expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
+    expect(document.activeElement).toBe(
+      fixture.querySelector(".o-spreadsheet-grid-container>input")
+    );
   });
 
   test("deleting a figure doesn't delete selection", async () => {
@@ -110,7 +112,9 @@ describe("figures", () => {
   test("Add a figure on sheet2, scroll down on sheet 1, switch to sheet 2, the figure should be displayed", async () => {
     createSheet(model, { sheetId: "42", position: 1 });
     createFigure(model, {}, "42");
-    fixture.querySelector(".o-grid")!.dispatchEvent(new WheelEvent("wheel", { deltaX: 1500 }));
+    fixture
+      .querySelector(".o-spreadsheet-grid-container")!
+      .dispatchEvent(new WheelEvent("wheel", { deltaX: 1500 }));
     fixture.querySelector(".o-scrollbar.vertical")!.dispatchEvent(new Event("scroll"));
     await nextTick();
     activateSheet(model, "42");
@@ -259,7 +263,9 @@ describe("figures", () => {
   test("Selected figure isn't removed by scroll", async () => {
     createFigure(model);
     model.dispatch("SELECT_FIGURE", { id: "someuuid" });
-    fixture.querySelector(".o-grid")!.dispatchEvent(new WheelEvent("wheel", { deltaX: 1500 }));
+    fixture
+      .querySelector(".o-spreadsheet-grid-container")!
+      .dispatchEvent(new WheelEvent("wheel", { deltaX: 1500 }));
     fixture.querySelector(".o-scrollbar.vertical")!.dispatchEvent(new Event("scroll"));
     expect(model.getters.getSelectedFigureId()).toEqual("someuuid");
   });

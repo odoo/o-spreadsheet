@@ -1,46 +1,14 @@
-import { Component, onWillUpdateProps, useState } from "@odoo/owl";
-import { BACKGROUND_HEADER_COLOR, ComponentsImportance } from "../../../constants";
+import { Component } from "@odoo/owl";
+import { ComponentsImportance } from "../../../constants";
 import { SidePanelContent, sidePanelRegistry } from "../../../registries/side_panel_registry";
 import { SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
 
 css/* scss */ `
-  .o-sidePanel {
-    display: flex;
-    flex-direction: column;
+  .o-spreadsheet-side-panel-container {
     overflow-x: hidden;
-    background-color: white;
-    border: 1px solid darkgray;
-    user-select: none;
-    .o-sidePanelHeader {
-      padding: 6px;
-      height: 30px;
-      background-color: ${BACKGROUND_HEADER_COLOR};
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid darkgray;
-      border-top: 1px solid darkgray;
-      font-weight: bold;
-      .o-sidePanelTitle {
-        font-weight: bold;
-        padding: 5px 10px;
-        color: dimgrey;
-      }
-      .o-sidePanelClose {
-        font-size: 1.5rem;
-        padding: 5px 10px;
-        cursor: pointer;
-        &:hover {
-          background-color: WhiteSmoke;
-        }
-      }
-    }
-    .o-sidePanelBody {
-      overflow: auto;
-      width: 100%;
-      height: 100%;
 
+    .o-spreadsheet-side-panel-body {
       .o-section {
         padding: 16px;
 
@@ -251,27 +219,16 @@ interface Props {
   onCloseSidePanel: () => void;
 }
 
-interface State {
-  panel: SidePanelContent;
-}
-
 export class SidePanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SidePanel";
-  state!: State;
 
-  setup() {
-    this.state = useState({
-      panel: sidePanelRegistry.get(this.props.component),
-    });
-    onWillUpdateProps(
-      (nextProps: Props) => (this.state.panel = sidePanelRegistry.get(nextProps.component))
-    );
+  get panel(): SidePanelContent {
+    return sidePanelRegistry.get(this.props.component);
   }
 
-  getTitle() {
-    return typeof this.state.panel.title === "function"
-      ? this.state.panel.title(this.env)
-      : this.state.panel.title;
+  get title(): string {
+    const title = this.panel.title;
+    return typeof title === "function" ? title(this.env) : title;
   }
 }
 

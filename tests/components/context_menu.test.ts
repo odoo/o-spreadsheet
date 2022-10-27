@@ -217,7 +217,7 @@ describe("Context Menu", () => {
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
 
-    await simulateClick(".o-grid-overlay", 50, 50);
+    await simulateClick(".o-spreadsheet-grid-overlay", 50, 50);
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
   });
 

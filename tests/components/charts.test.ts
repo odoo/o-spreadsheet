@@ -312,12 +312,16 @@ describe("figures", () => {
       const editButton = fixture.querySelector(".o-menu div[data-name='edit']")!;
       expect(editButton.textContent).toBe("Edit");
       await simulateClick(".o-menu div[data-name='edit']");
-      expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
+      expect(
+        fixture.querySelector(
+          ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-chart"
+        )
+      ).toBeTruthy();
       const panelChartType = fixture.querySelectorAll(".o-input")[0];
       switch (chartType) {
         case "basicChart": {
           const dataSeries = fixture.querySelectorAll(
-            ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
+            ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-chart .o-data-series"
           )[0];
           const hasTitle = (dataSeries.querySelector("input[type=checkbox]") as HTMLInputElement)
             .checked;
@@ -334,7 +338,7 @@ describe("figures", () => {
         }
         case "scorecard": {
           const keyValue = fixture.querySelector(
-            ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
+            ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-chart .o-data-series"
           );
           const baseline = fixture.querySelector(".o-data-labels");
           expect((panelChartType as HTMLSelectElement).value).toBe(TEST_CHART_DATA.scorecard.type);
@@ -362,9 +366,13 @@ describe("figures", () => {
       expect(editButton.textContent).toBe("Edit");
       await simulateClick(".o-menu div[data-name='edit']");
       await nextTick();
-      expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
+      expect(
+        fixture.querySelector(
+          ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-chart"
+        )
+      ).toBeTruthy();
       const dataSeries = fixture.querySelectorAll(
-        ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
+        ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-chart .o-data-series"
       )[0] as HTMLInputElement;
       const dataSeriesValues = dataSeries.querySelector("input");
       const dispatch = spyDispatch(parent);
@@ -456,7 +464,11 @@ describe("figures", () => {
       await nextTick();
       await simulateClick(".o-panel-element.inactive");
       await nextTick();
-      expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
+      expect(
+        fixture.querySelector(
+          ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-chart"
+        )
+      ).toBeTruthy();
       const colorpickerButton = fixture.querySelector(".o-with-color-picker span");
       await simulateClick(colorpickerButton);
       await nextTick();
@@ -513,10 +525,14 @@ describe("figures", () => {
     expect(editButton.textContent).toBe("Edit");
     await simulateClick(".o-menu div[data-name='edit']");
     await nextTick();
-    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
+    expect(
+      fixture.querySelector(
+        ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-chart"
+      )
+    ).toBeTruthy();
     const chartType = fixture.querySelectorAll(".o-input")[0] as HTMLSelectElement;
     const dataSeries = fixture.querySelectorAll(
-      ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
+      ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-chart .o-data-series"
     )[0] as HTMLInputElement;
     const dataSeriesValues = dataSeries.querySelector("input");
     const hasTitle = dataSeries.querySelector("input[type=checkbox]") as HTMLInputElement;
@@ -542,18 +558,30 @@ describe("figures", () => {
       createTestChart(chartType);
       await nextTick();
 
-      expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
+      expect(
+        fixture.querySelector(
+          ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-chart"
+        )
+      ).toBeFalsy();
       await simulateClick(".o-figure");
       await simulateClick(".o-chart-menu-item");
       await simulateClick(".o-menu div[data-name='edit']");
       await nextTick();
-      expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
+      expect(
+        fixture.querySelector(
+          ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-chart"
+        )
+      ).toBeTruthy();
       await simulateClick(".o-figure");
       await simulateClick(".o-chart-menu-item");
       await simulateClick(".o-menu div[data-name='delete']");
       expect(() => model.getters.getChartRuntime("someuuid")).toThrow();
       await nextTick();
-      expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
+      expect(
+        fixture.querySelector(
+          ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-chart"
+        )
+      ).toBeFalsy();
     }
   );
 
@@ -582,7 +610,11 @@ describe("figures", () => {
           await simulateClick(".o-chart-menu-item");
           await simulateClick(".o-menu div[data-name='edit']");
           await nextTick();
-          expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
+          expect(
+            fixture.querySelector(
+              ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-chart"
+            )
+          ).toBeTruthy();
 
           if (selectMethod === "click") {
             await simulateClick(figures[1] as HTMLElement);
@@ -593,7 +625,7 @@ describe("figures", () => {
           await nextTick();
           const panelChartType = fixture.querySelectorAll(".o-input")[0];
           const dataSeries = fixture.querySelectorAll(
-            ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
+            ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-chart .o-data-series"
           )[0];
           const hasTitle = (dataSeries.querySelector("input[type=checkbox]") as HTMLInputElement)
             .checked;
@@ -997,7 +1029,11 @@ describe("figures", () => {
       await nextTick();
       await simulateClick(".o-panel-element.inactive");
       await nextTick();
-      expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
+      expect(
+        fixture.querySelector(
+          ".o-spreadsheet-side-panel-container .o-spreadsheet-side-panel-body .o-chart"
+        )
+      ).toBeTruthy();
 
       // Change color of "up" value of baseline
       const colorpickerUpButton = fixture.querySelectorAll(".o-with-color-picker span")[1];

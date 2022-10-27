@@ -7,7 +7,7 @@ export function isChildEvent(parent: HTMLElement, ev: Event): boolean {
 }
 
 export function gridOverlayPosition() {
-  const spreadsheetElement = document.querySelector(".o-grid-overlay");
+  const spreadsheetElement = document.querySelector(".o-spreadsheet-grid-overlay");
   if (spreadsheetElement) {
     const { top, left } = spreadsheetElement.getBoundingClientRect();
     return { top, left };

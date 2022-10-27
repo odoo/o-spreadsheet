@@ -1,6 +1,7 @@
 import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import {
   ComponentsImportance,
+  CORNER_BACKGROUND_COLOR,
   FIGURE_BORDER_COLOR,
   SELECTION_BORDER_COLOR,
 } from "../../../constants";
@@ -66,7 +67,7 @@ css/*SCSS*/ `
       position: absolute;
       width: ${ANCHOR_SIZE}px;
       height: ${ANCHOR_SIZE}px;
-      background-color: #1a73e8;
+      background-color: ${CORNER_BACKGROUND_COLOR};
       outline: ${BORDER_WIDTH}px solid white;
 
       &.o-top {
@@ -98,7 +99,6 @@ css/*SCSS*/ `
 `;
 
 interface Props {
-  sidePanelIsOpen: Boolean;
   onFigureDeleted: () => void;
   figure: Figure;
 }
@@ -312,9 +312,6 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     if (!selectResult.isSuccessful) {
       return;
     }
-    if (this.props.sidePanelIsOpen) {
-      this.env.openSidePanel("ChartPanel");
-    }
 
     const position = gridOverlayPosition();
     const { x: offsetCorrectionX, y: offsetCorrectionY } =
@@ -399,7 +396,6 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 }
 
 FigureComponent.props = {
-  sidePanelIsOpen: Boolean,
   onFigureDeleted: Function,
   figure: Object,
 };

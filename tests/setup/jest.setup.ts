@@ -14,7 +14,7 @@ beforeEach(() => {
   jest
     .spyOn(HTMLDivElement.prototype, "clientHeight", "get")
     .mockImplementation(function (this: HTMLDivElement) {
-      const grid = this.className.includes("o-grid-overlay");
+      const grid = this.className.includes("o-spreadsheet-grid-overlay");
       if (grid) {
         return 985;
       }
@@ -23,7 +23,7 @@ beforeEach(() => {
   jest
     .spyOn(HTMLDivElement.prototype, "clientWidth", "get")
     .mockImplementation(function (this: HTMLDivElement) {
-      if (this.className.includes("o-grid-overlay")) {
+      if (this.className.includes("o-spreadsheet-grid-overlay")) {
         return 985;
       }
       return 0;

@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-Icon.UNDO" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <path
         fill="#000000"
         d="M11.5656391,4.43436088 L9,7 L16,7 L16,0 L13.0418424,2.95815758 C11.5936787,1.73635959 9.72260775,1 7.67955083,1 C4.22126258,1 1.25575599,3.10984908 0,6 L2,7 C2.93658775,4.60974406 5.12943697,3.08011229 7.67955083,3 C9.14881247,3.0528747 10.4994783,3.57862053 11.5656391,4.43436088 Z"
@@ -9,7 +9,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.REDO" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <path
         fill="#000000"
         d="M11.5656391,4.43436088 L9,7 L16,7 L16,0 L13.0418424,2.95815758 C11.5936787,1.73635959 9.72260775,1 7.67955083,1 C4.22126258,1 1.25575599,3.10984908 0,6 L2,7 C2.93658775,4.60974406 5.12943697,3.08011229 7.67955083,3 C9.14881247,3.0528747 10.4994783,3.57862053 11.5656391,4.43436088 Z"
@@ -18,7 +18,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.PAINT_FORMAT" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <path
         fill="#000000"
         d="M9,0 L1,0 C0.45,0 0,0.45 0,1 L0,4 C0,4.55 0.45,5 1,5 L9,5 C9.55,5 10,4.55 10,4 L10,3 L11,3 L11,6 L4,6 L4,14 L6,14 L6,8 L13,8 L13,2 L10,2 L10,1 C10,0.45 9.55,0 9,0 Z"
@@ -27,7 +27,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.CLEAR_FORMAT" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <path
         fill="#000000"
         d="M0.27,1.55 L5.43,6.7 L3,12 L5.5,12 L7.14,8.42 L11.73,13 L13,11.73 L1.55,0.27 L0.27,1.55 L0.27,1.55 Z M3.82,0 L5.82,2 L7.58,2 L7.03,3.21 L8.74,4.92 L10.08,2 L14,2 L14,0 L3.82,0 L3.82,0 Z"
@@ -36,27 +36,27 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.TRIANGLE_DOWN" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <polygon fill="#000000" points="0 0 4 4 8 0" transform="translate(5 7)"/>
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.TRIANGLE_UP" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <polygon fill="#000000" points="4 0 0 4 8 4" transform="translate(5 7)"/>
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.TRIANGLE_RIGHT" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <polygon fill="#000000" points="0 0 4 4 0 8" transform="translate(5 5)"/>
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.TRIANGLE_LEFT" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <polygon fill="#000000" points="4 0 0 4 4 8" transform="translate(5 5)"/>
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.BOLD" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <path
         fill="#000000"
         fill-rule="evenodd"
@@ -66,7 +66,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.ITALIC" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <polygon
         fill="#000000"
         fill-rule="evenodd"
@@ -76,7 +76,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.UNDERLINE" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <path
         fill="#000000"
         d="M6,12 C8.76,12 11,9.76 11,7 L11,0 L9,0 L9,7 C9,8.75029916 7.49912807,10 6,10 C4.50087193,10 3,8.75837486 3,7 L3,0 L1,0 L1,7 C1,9.76 3.24,12 6,12 Z M0,13 L0,15 L12,15 L12,13 L0,13 Z"
@@ -85,7 +85,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.STRIKE" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <path
         fill="#010101"
         fill-rule="evenodd"
@@ -96,7 +96,7 @@
   </t>
 
   <t t-name="o-spreadsheet-Icon.TEXT_COLOR" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <path
         fill="#000000"
         d="M7,0 L5,0 L0.5,12 L2.5,12 L3.62,9 L8.37,9 L9.49,12 L11.49,12 L7,0 L7,0 Z M4.38,7 L6,2.67 L7.62,7 L4.38,7 L4.38,7 Z"
@@ -105,7 +105,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.FILL_COLOR" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <path
         fill="#000000"
         d="M14.5,8.87 C14.5,8.87 13,10.49 13,11.49 C13,12.32 13.67,12.99 14.5,12.99 C15.33,12.99 16,12.32 16,11.49 C16,10.5 14.5,8.87 14.5,8.87 L14.5,8.87 Z M12.71,6.79 L5.91,0 L4.85,1.06 L6.44,2.65 L2.29,6.79 C1.9,7.18 1.9,7.81 2.29,8.2 L6.79,12.7 C6.99,12.9 7.24,13 7.5,13 C7.76,13 8.01,12.9 8.21,12.71 L12.71,8.21 C13.1,7.82 13.1,7.18 12.71,6.79 L12.71,6.79 Z M4.21,7 L7.5,3.71 L10.79,7 L4.21,7 L4.21,7 Z"
@@ -113,7 +113,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.MERGE_CELL" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <path
         fill="#000000"
         d="M3,6 L1,6 L1,2 L8,2 L8,4 L3,4 L3,6 Z M10,4 L10,2 L17,2 L17,6 L15,6 L15,4 L10,4 Z M10,14 L15,14 L15,12 L17,12 L17,16 L10,16 L10,14 Z M1,12 L3,12 L3,14 L8,14 L8,16 L1,16 L1,12 Z M1,8 L5,8 L5,6 L8,9 L5,12 L5,10 L1,10 L1,8 Z M10,9 L13,6 L13,8 L17,8 L17,10 L13,10 L13,12 L10,9 Z"
@@ -121,7 +121,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.ALIGN_LEFT" owl="1">
-    <svg class="o-icon align-left">
+    <svg class="o-spreadsheet-icon align-left">
       <path
         fill="#000000"
         d="M0,14 L10,14 L10,12 L0,12 L0,14 Z M10,4 L0,4 L0,6 L10,6 L10,4 Z M0,0 L0,2 L14,2 L14,0 L0,0 Z M0,10 L14,10 L14,8 L0,8 L0,10 Z"
@@ -130,7 +130,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.ALIGN_CENTER" owl="1">
-    <svg class="o-icon align-center">
+    <svg class="o-spreadsheet-icon align-center">
       <path
         fill="#000000"
         d="M2,12 L2,14 L12,14 L12,12 L2,12 Z M2,4 L2,6 L12,6 L12,4 L2,4 Z M0,10 L14,10 L14,8 L0,8 L0,10 Z M0,0 L0,2 L14,2 L14,0 L0,0 Z"
@@ -139,7 +139,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.ALIGN_RIGHT" owl="1">
-    <svg class="o-icon align-right">
+    <svg class="o-spreadsheet-icon align-right">
       <path
         fill="#000000"
         d="M4,14 L14,14 L14,12 L4,12 L4,14 Z M0,10 L14,10 L14,8 L0,8 L0,10 Z M0,0 L0,2 L14,2 L14,0 L0,0 Z M4,6 L14,6 L14,4 L4,4 L4,6 Z"
@@ -148,7 +148,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.ALIGN_MIDDLE" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <path
         fill="#000000"
         d="M9.5,3 L7,3 L7,0 L5,0 L5,3 L2.5,3 L6,6.5 L9.5,3 L9.5,3 Z M0,8 L0,10 L12,10 L12,8 L0,8 L0,8 Z M2.5,15 L5,15 L5,18 L7,18 L7,15 L9.5,15 L6,11.5 L2.5,15 L2.5,15 Z"
@@ -157,7 +157,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.TEXT_WRAPPING" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <path
         fill="#000000"
         d="M14,0 L0,0 L0,2 L14,2 L14,0 Z M0,12 L4,12 L4,10 L0,10 L0,12 Z M11.5,5 L0,5 L0,7 L11.75,7 C12.58,7 13.25,7.67 13.25,8.5 C13.25,9.33 12.58,10 11.75,10 L9,10 L9,8 L6,11 L9,14 L9,12 L11.5,12 C13.43,12 15,10.43 15,8.5 C15,6.57 13.43,5 11.5,5 Z"
@@ -166,7 +166,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.BORDERS" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <path
         fill="#000000"
         d="M0,0 L0,14 L14,14 L14,0 L0,0 L0,0 Z M6,12 L2,12 L2,8 L6,8 L6,12 L6,12 Z M6,6 L2,6 L2,2 L6,2 L6,6 L6,6 Z M12,12 L8,12 L8,8 L12,8 L12,12 L12,12 Z M12,6 L8,6 L8,2 L12,2 L12,6 L12,6 Z"
@@ -175,7 +175,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.BORDER_HV" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <g fill="#000000" transform="translate(2 2)">
         <path
           d="M0,14 L2,14 L2,12 L0,12 L0,14 L0,14 Z M2,3 L0,3 L0,5 L2,5 L2,3 L2,3 Z M3,14 L5,14 L5,12 L3,12 L3,14 L3,14 Z M11,0 L9,0 L9,2 L11,2 L11,0 L11,0 Z M2,0 L0,0 L0,2 L2,2 L2,0 L2,0 Z M5,0 L3,0 L3,2 L5,2 L5,0 L5,0 Z M0,11 L2,11 L2,9 L0,9 L0,11 L0,11 Z M9,14 L11,14 L11,12 L9,12 L9,14 L9,14 Z M12,0 L12,2 L14,2 L14,0 L12,0 L12,0 Z M12,5 L14,5 L14,3 L12,3 L12,5 L12,5 Z M12,14 L14,14 L14,12 L12,12 L12,14 L12,14 Z M12,11 L14,11 L14,9 L12,9 L12,11 L12,11 Z"
@@ -186,7 +186,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.BORDER_H" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <g fill="#000000" transform="translate(2 2)">
         <path
           d="M6,14 L8,14 L8,12 L6,12 L6,14 L6,14 Z M3,2 L5,2 L5,0 L3,0 L3,2 L3,2 Z M6,11 L8,11 L8,9 L6,9 L6,11 L6,11 Z M3,14 L5,14 L5,12 L3,12 L3,14 L3,14 Z M0,5 L2,5 L2,3 L0,3 L0,5 L0,5 Z M0,14 L2,14 L2,12 L0,12 L0,14 L0,14 Z M0,2 L2,2 L2,0 L0,0 L0,2 L0,2 Z M0,11 L2,11 L2,9 L0,9 L0,11 L0,11 Z M12,11 L14,11 L14,9 L12,9 L12,11 L12,11 Z M12,14 L14,14 L14,12 L12,12 L12,14 L12,14 Z M12,5 L14,5 L14,3 L12,3 L12,5 L12,5 Z M12,0 L12,2 L14,2 L14,0 L12,0 L12,0 Z M6,2 L8,2 L8,0 L6,0 L6,2 L6,2 Z M9,2 L11,2 L11,0 L9,0 L9,2 L9,2 Z M6,5 L8,5 L8,3 L6,3 L6,5 L6,5 Z M9,14 L11,14 L11,12 L9,12 L9,14 L9,14 Z"
@@ -197,7 +197,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.BORDER_V" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <g fill="#000000" transform="translate(2 2)">
         <path
           d="M3,14 L5,14 L5,12 L3,12 L3,14 L3,14 Z M0,5 L2,5 L2,3 L0,3 L0,5 L0,5 Z M0,2 L2,2 L2,0 L0,0 L0,2 L0,2 Z M3,8 L5,8 L5,6 L3,6 L3,8 L3,8 Z M3,2 L5,2 L5,0 L3,0 L3,2 L3,2 Z M0,14 L2,14 L2,12 L0,12 L0,14 L0,14 Z M0,8 L2,8 L2,6 L0,6 L0,8 L0,8 Z M0,11 L2,11 L2,9 L0,9 L0,11 L0,11 Z M12,0 L12,2 L14,2 L14,0 L12,0 L12,0 Z M12,8 L14,8 L14,6 L12,6 L12,8 L12,8 Z M12,14 L14,14 L14,12 L12,12 L12,14 L12,14 Z M12,5 L14,5 L14,3 L12,3 L12,5 L12,5 Z M12,11 L14,11 L14,9 L12,9 L12,11 L12,11 Z M9,14 L11,14 L11,12 L9,12 L9,14 L9,14 Z M9,8 L11,8 L11,6 L9,6 L9,8 L9,8 Z M9,2 L11,2 L11,0 L9,0 L9,2 L9,2 Z"
@@ -208,7 +208,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.BORDER_EXTERNAL" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <g fill="#000000" transform="translate(2 2)">
         <path
           d="M8,3 L6,3 L6,5 L8,5 L8,3 L8,3 Z M11,6 L9,6 L9,8 L11,8 L11,6 L11,6 Z M8,6 L6,6 L6,8 L8,8 L8,6 L8,6 Z M8,9 L6,9 L6,11 L8,11 L8,9 L8,9 Z M5,6 L3,6 L3,8 L5,8 L5,6 L5,6 Z"
@@ -219,7 +219,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.BORDER_LEFT" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <g fill="#000000" transform="translate(2 2)">
         <path
           d="M6,8 L8,8 L8,6 L6,6 L6,8 L6,8 Z M6,5 L8,5 L8,3 L6,3 L6,5 L6,5 Z M6,11 L8,11 L8,9 L6,9 L6,11 L6,11 Z M6,14 L8,14 L8,12 L6,12 L6,14 L6,14 Z M3,14 L5,14 L5,12 L3,12 L3,14 L3,14 Z M3,2 L5,2 L5,0 L3,0 L3,2 L3,2 Z M3,8 L5,8 L5,6 L3,6 L3,8 L3,8 Z M12,14 L14,14 L14,12 L12,12 L12,14 L12,14 Z M12,8 L14,8 L14,6 L12,6 L12,8 L12,8 Z M12,11 L14,11 L14,9 L12,9 L12,11 L12,11 Z M12,5 L14,5 L14,3 L12,3 L12,5 L12,5 Z M6,2 L8,2 L8,0 L6,0 L6,2 L6,2 Z M12,0 L12,2 L14,2 L14,0 L12,0 L12,0 Z M9,14 L11,14 L11,12 L9,12 L9,14 L9,14 Z M9,8 L11,8 L11,6 L9,6 L9,8 L9,8 Z M9,2 L11,2 L11,0 L9,0 L9,2 L9,2 Z"
@@ -230,7 +230,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.BORDER_TOP" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <g fill="#000000" transform="translate(2 2)">
         <path
           d="M3,8 L5,8 L5,6 L3,6 L3,8 L3,8 Z M0,14 L2,14 L2,12 L0,12 L0,14 L0,14 Z M6,14 L8,14 L8,12 L6,12 L6,14 L6,14 Z M6,11 L8,11 L8,9 L6,9 L6,11 L6,11 Z M3,14 L5,14 L5,12 L3,12 L3,14 L3,14 Z M0,11 L2,11 L2,9 L0,9 L0,11 L0,11 Z M6,8 L8,8 L8,6 L6,6 L6,8 L6,8 Z M0,5 L2,5 L2,3 L0,3 L0,5 L0,5 Z M0,8 L2,8 L2,6 L0,6 L0,8 L0,8 Z M12,8 L14,8 L14,6 L12,6 L12,8 L12,8 Z M12,11 L14,11 L14,9 L12,9 L12,11 L12,11 Z M12,5 L14,5 L14,3 L12,3 L12,5 L12,5 Z M6,5 L8,5 L8,3 L6,3 L6,5 L6,5 Z M9,14 L11,14 L11,12 L9,12 L9,14 L9,14 Z M9,8 L11,8 L11,6 L9,6 L9,8 L9,8 Z M12,14 L14,14 L14,12 L12,12 L12,14 L12,14 Z"
@@ -241,7 +241,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.BORDER_RIGHT" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <g fill="#000000" transform="translate(2 2)">
         <path
           d="M0,2 L2,2 L2,0 L0,0 L0,2 L0,2 Z M3,2 L5,2 L5,0 L3,0 L3,2 L3,2 Z M3,8 L5,8 L5,6 L3,6 L3,8 L3,8 Z M3,14 L5,14 L5,12 L3,12 L3,14 L3,14 Z M0,5 L2,5 L2,3 L0,3 L0,5 L0,5 Z M0,8 L2,8 L2,6 L0,6 L0,8 L0,8 Z M0,14 L2,14 L2,12 L0,12 L0,14 L0,14 Z M0,11 L2,11 L2,9 L0,9 L0,11 L0,11 Z M9,8 L11,8 L11,6 L9,6 L9,8 L9,8 Z M6,14 L8,14 L8,12 L6,12 L6,14 L6,14 Z M9,14 L11,14 L11,12 L9,12 L9,14 L9,14 Z M6,2 L8,2 L8,0 L6,0 L6,2 L6,2 Z M9,2 L11,2 L11,0 L9,0 L9,2 L9,2 Z M6,11 L8,11 L8,9 L6,9 L6,11 L6,11 Z M6,5 L8,5 L8,3 L6,3 L6,5 L6,5 Z M6,8 L8,8 L8,6 L6,6 L6,8 L6,8 Z"
@@ -252,7 +252,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.BORDER_BOTTOM" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <g fill="#000000" transform="translate(2 2)">
         <path
           d="M5,0 L3,0 L3,2 L5,2 L5,0 L5,0 Z M8,6 L6,6 L6,8 L8,8 L8,6 L8,6 Z M8,9 L6,9 L6,11 L8,11 L8,9 L8,9 Z M11,6 L9,6 L9,8 L11,8 L11,6 L11,6 Z M5,6 L3,6 L3,8 L5,8 L5,6 L5,6 Z M11,0 L9,0 L9,2 L11,2 L11,0 L11,0 Z M8,3 L6,3 L6,5 L8,5 L8,3 L8,3 Z M8,0 L6,0 L6,2 L8,2 L8,0 L8,0 Z M2,9 L0,9 L0,11 L2,11 L2,9 L2,9 Z M12,11 L14,11 L14,9 L12,9 L12,11 L12,11 Z M12,5 L14,5 L14,3 L12,3 L12,5 L12,5 Z M12,8 L14,8 L14,6 L12,6 L12,8 L12,8 Z M12,0 L12,2 L14,2 L14,0 L12,0 L12,0 Z M2,0 L0,0 L0,2 L2,2 L2,0 L2,0 Z M2,3 L0,3 L0,5 L2,5 L2,3 L2,3 Z M2,6 L0,6 L0,8 L2,8 L2,6 L2,6 Z"
@@ -263,7 +263,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.BORDER_CLEAR" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <path
         fill="#000000"
         fill-rule="evenodd"
@@ -275,7 +275,7 @@
   </t>
 
   <t t-name="o-spreadsheet-Icon.PLUS" owl="1">
-    <svg class="o-icon">
+    <svg class="o-spreadsheet-icon">
       <path
         fill="#000000"
         d="M8,0 L10,0 L10,8 L18,8 L18,10 L10,10 L10,18 L8,18 L8,10 L0,10 L0,8 L8,8"
@@ -283,7 +283,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.LIST" owl="1">
-    <svg class="o-icon" viewBox="0 0 384 384">
+    <svg class="o-spreadsheet-icon" viewBox="0 0 384 384">
       <rect x="0" y="277.333" width="384" height="42.667"/>
       <rect x="0" y="170.667" width="384" height="42.667"/>
       <rect x="0" y="64" width="384" height="42.667"/>
@@ -291,7 +291,7 @@
   </t>
 
   <t t-name="o-spreadsheet-Icon.EDIT" owl="1">
-    <svg class="o-icon" viewBox="0 0 576 512">
+    <svg class="o-spreadsheet-icon" viewBox="0 0 576 512">
       <path
         fill="currentColor"
         d="M402.6 83.2l90.2 90.2c3.8 3.8 3.8 10 0 13.8L274.4 405.6l-92.8 10.3c-12.4 1.4-22.9-9.1-21.5-21.5l10.3-92.8L388.8 83.2c3.8-3.8 10-3.8 13.8 0zm162-22.9l-48.8-48.8c-15.2-15.2-39.9-15.2-55.2 0l-35.4 35.4c-3.8 3.8-3.8 10 0 13.8l90.2 90.2c3.8 3.8 10 3.8 13.8 0l35.4-35.4c15.2-15.3 15.2-40 0-55.2zM384 346.2V448H64V128h229.8c3.2 0 6.2-1.3 8.5-3.5l40-40c7.6-7.6 2.2-20.5-8.5-20.5H48C21.5 64 0 85.5 0 112v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V306.2c0-10.7-12.9-16-20.5-8.5l-40 40c-2.2 2.3-3.5 5.3-3.5 8.5z"
@@ -299,7 +299,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.UNLINK" owl="1">
-    <svg class="o-icon" viewBox="0 0 512 512">
+    <svg class="o-spreadsheet-icon" viewBox="0 0 512 512">
       <path
         fill="currentColor"
         d="M304.083 405.907c4.686 4.686 4.686 12.284 0 16.971l-44.674 44.674c-59.263 59.262-155.693 59.266-214.961 0-59.264-59.265-59.264-155.696 0-214.96l44.675-44.675c4.686-4.686 12.284-4.686 16.971 0l39.598 39.598c4.686 4.686 4.686 12.284 0 16.971l-44.675 44.674c-28.072 28.073-28.072 73.75 0 101.823 28.072 28.072 73.75 28.073 101.824 0l44.674-44.674c4.686-4.686 12.284-4.686 16.971 0l39.597 39.598zm-56.568-260.216c4.686 4.686 12.284 4.686 16.971 0l44.674-44.674c28.072-28.075 73.75-28.073 101.824 0 28.072 28.073 28.072 73.75 0 101.823l-44.675 44.674c-4.686 4.686-4.686 12.284 0 16.971l39.598 39.598c4.686 4.686 12.284 4.686 16.971 0l44.675-44.675c59.265-59.265 59.265-155.695 0-214.96-59.266-59.264-155.695-59.264-214.961 0l-44.674 44.674c-4.686 4.686-4.686 12.284 0 16.971l39.597 39.598zm234.828 359.28l22.627-22.627c9.373-9.373 9.373-24.569 0-33.941L63.598 7.029c-9.373-9.373-24.569-9.373-33.941 0L7.029 29.657c-9.373 9.373-9.373 24.569 0 33.941l441.373 441.373c9.373 9.372 24.569 9.372 33.941 0z"

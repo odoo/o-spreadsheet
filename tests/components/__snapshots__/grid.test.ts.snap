@@ -2,11 +2,11 @@
 
 exports[`Grid component simple rendering snapshot 1`] = `
 <div
-  class="o-grid o-two-columns"
+  class="o-spreadsheet-grid-container"
   tabindex="-1"
 >
   <div
-    class="o-grid-overlay"
+    class="o-spreadsheet-grid-overlay"
     style="
       top: 26px;
       left: 48px;
@@ -14,13 +14,9 @@ exports[`Grid component simple rendering snapshot 1`] = `
       width: calc(100% - 63px);
     "
   >
-    <!-- TODO remove sidePanelIsOpen props. It is wrong.
-      If you have a CF sidepanel open, selecting a figure should
-      not open the figure side panel -->
     <div>
       
     </div>
-    
   </div>
   
   <div
@@ -66,15 +62,9 @@ exports[`Grid component simple rendering snapshot 1`] = `
   
   
   <div
-    class="o-autofill"
+    class="o-spreadsheet-autofill-handler position-absolute border border-white"
     style="top:45px;left:140px"
-  >
-    <div
-      class="o-autofill-handler"
-      style="top:0px;left:0px;"
-    />
-    
-  </div>
+  />
   
   
   

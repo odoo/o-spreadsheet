@@ -41,7 +41,7 @@ export async function hoverCell(model: Model, xc: string, delay: number) {
     x -= HEADER_WIDTH;
     y -= HEADER_HEIGHT;
   }
-  triggerMouseEvent(".o-grid-overlay", "mousemove", x, y);
+  triggerMouseEvent(".o-spreadsheet-grid-overlay", "mousemove", x, y);
   jest.advanceTimersByTime(delay);
   await nextTick();
 }
@@ -61,7 +61,7 @@ export async function clickCell(
     x -= HEADER_WIDTH;
     y -= HEADER_HEIGHT;
   }
-  await simulateClick(".o-grid-overlay", x, y, extra);
+  await simulateClick(".o-spreadsheet-grid-overlay", x, y, extra);
 }
 
 export async function gridMouseEvent(
@@ -76,7 +76,7 @@ export async function gridMouseEvent(
     x -= HEADER_WIDTH;
     y -= HEADER_HEIGHT;
   }
-  triggerMouseEvent(".o-grid-overlay", type, x, y, extra);
+  triggerMouseEvent(".o-spreadsheet-grid-overlay", type, x, y, extra);
   await nextTick();
 }
 

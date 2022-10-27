@@ -1,5 +1,5 @@
 import { Component, onMounted, useEffect, useRef, xml } from "@odoo/owl";
-import { BACKGROUND_GRAY_COLOR, ComponentsImportance, SCROLLBAR_WIDTH } from "../../constants";
+import { ComponentsImportance, SCROLLBAR_WIDTH } from "../../constants";
 import { CSSProperties, Pixel, Ref } from "../../types";
 import { cssPropertiesToCss } from "../helpers";
 import { css } from "../helpers/css";
@@ -19,7 +19,6 @@ css/* scss */ `
     position: absolute;
     overflow: auto;
     z-index: ${ComponentsImportance.ScrollBar};
-    background-color: ${BACKGROUND_GRAY_COLOR};
 
     &.corner {
       right: 0px;

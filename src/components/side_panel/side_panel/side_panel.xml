@@ -1,21 +1,23 @@
 <templates>
   <t t-name="o-spreadsheet-SidePanel" owl="1">
-    <div class="o-sidePanel">
-      <div class="o-sidePanelHeader">
-        <div class="o-sidePanelTitle" t-esc="getTitle()"/>
-        <div class="o-sidePanelClose" t-on-click="() => this.props.onCloseSidePanel()">×</div>
+    <div
+      class="o-spreadsheet-side-panel-container d-flex flex-column bg-white border user-select-none">
+      <div
+        class="o-spreadsheet-side-panel-header d-flex align-items-center justify-content-between border-top border-bottom fw-bold p-3">
+        <div class="text-secondary" t-esc="title"/>
+        <button class="btn-close" t-on-click="this.props.onCloseSidePanel"/>
       </div>
-      <div class="o-sidePanelBody">
+      <div class="o-spreadsheet-side-panel-body w-100 overflow-auto">
         <t
-          t-component="state.panel.Body"
+          t-component="panel.Body"
           t-props="props.panelProps"
           onCloseSidePanel="props.onCloseSidePanel"
           t-key="'Body_' + props.component"
         />
       </div>
-      <div class="o-sidePanelFooter" t-if="state.panel.Footer">
+      <div class="o-spreadsheet-side-panel-footer" t-if="panel.Footer">
         <t
-          t-component="state.panel.Footer"
+          t-component="panel.Footer"
           t-props="props.panelProps"
           t-key="'Footer_' + props.component"
         />

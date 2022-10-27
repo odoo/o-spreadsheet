@@ -47,7 +47,7 @@ css/* scss */ `
         margin-top: auto;
         margin-bottom: auto;
       }
-      .o-icon {
+      .o-spreadheet-icon {
         width: 10px;
       }
 
