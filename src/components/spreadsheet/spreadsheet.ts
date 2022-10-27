@@ -112,7 +112,6 @@ css/* scss */ `
 
 export interface SpreadsheetProps {
   model: Model;
-  exposeSpreadsheet?: (spreadsheet: Spreadsheet) => void;
 }
 
 const t = (s: string): string => s;
@@ -154,7 +153,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   }
 
   setup() {
-    this.props.exposeSpreadsheet?.(this);
     this.sidePanel = useState({ isOpen: false, panelProps: {} });
     this.composer = useState({
       topBarFocus: "inactive",
@@ -328,5 +326,4 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
 Spreadsheet.props = {
   model: Object,
-  exposeSpreadsheet: { type: Function, optional: true },
 };
