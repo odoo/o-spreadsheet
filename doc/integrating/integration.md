@@ -30,10 +30,6 @@ Spreadsheet component takes the following props:
 - `model`
   The spreadsheet model to be used with the component.
 
-- `exposeSpreadsheet` (function, optional)
-
-Sometimes it could be necessary to access the component instance outside of the component, notably in tests. This function is a callback that will be called by the component, with itself as argument.
-
 ## Model creation
 
 Spreadsheet model can be created with the following arguments, all optionals:
