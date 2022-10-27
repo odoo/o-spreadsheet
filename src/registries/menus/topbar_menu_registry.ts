@@ -386,10 +386,47 @@ topbarMenuRegistry
   .addChild("format_font_size", ["format"], {
     name: _lt("Font size"),
     sequence: 60,
+    separator: true,
+  })
+  .addChild("format_alignment", ["format"], {
+    name: _lt("Alignment"),
+    sequence: 70,
+  })
+  .addChild("format_alignment_left", ["format", "format_alignment"], {
+    name: "Left",
+    sequence: 10,
+    action: (env: SpreadsheetChildEnv) => setStyle(env, { align: "left" }),
+  })
+  .addChild("format_alignment_center", ["format", "format_alignment"], {
+    name: "Center",
+    sequence: 20,
+    action: (env: SpreadsheetChildEnv) => setStyle(env, { align: "center" }),
+  })
+  .addChild("format_alignment_right", ["format", "format_alignment"], {
+    name: "Right",
+    sequence: 30,
+    action: (env: SpreadsheetChildEnv) => setStyle(env, { align: "right" }),
+    separator: true,
+  })
+  .addChild("format_alignment_top", ["format", "format_alignment"], {
+    name: "Top",
+    sequence: 40,
+    action: (env: SpreadsheetChildEnv) => setStyle(env, { verticalAlign: "top" }),
+  })
+  .addChild("format_alignment_middle", ["format", "format_alignment"], {
+    name: "Middle",
+    sequence: 50,
+    action: (env: SpreadsheetChildEnv) => setStyle(env, { verticalAlign: "middle" }),
+  })
+  .addChild("format_alignment_bottom", ["format", "format_alignment"], {
+    name: "Bottom",
+    sequence: 60,
+    action: (env: SpreadsheetChildEnv) => setStyle(env, { verticalAlign: "bottom" }),
+    separator: true,
   })
   .addChild("format_wrapping", ["format"], {
     name: _lt("Wrapping"),
-    sequence: 70,
+    sequence: 80,
     separator: true,
   })
   .addChild("format_wrapping_overflow", ["format", "format_wrapping"], {
@@ -409,13 +446,13 @@ topbarMenuRegistry
   })
   .addChild("format_cf", ["format"], {
     name: _lt("Conditional formatting"),
-    sequence: 80,
+    sequence: 90,
     action: ACTIONS.OPEN_CF_SIDEPANEL_ACTION,
     separator: true,
   })
   .addChild("format_clearFormat", ["format"], {
     name: _lt("Clear formatting"),
-    sequence: 90,
+    sequence: 100,
     action: ACTIONS.FORMAT_CLEARFORMAT_ACTION,
     separator: true,
   })

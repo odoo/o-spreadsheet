@@ -1,7 +1,7 @@
-import { DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { getDefaultCellHeight, toXC } from "../../src/helpers";
+import { DEFAULT_CELL_WIDTH, PADDING_AUTORESIZE_VERTICAL } from "../../src/constants";
+import { computeTextFontSizeInPixels, computeTextLinesHeight, toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CommandResult, Sheet } from "../../src/types";
+import { CommandResult, Sheet, Style } from "../../src/types";
 import {
   activateSheet,
   addColumns,
@@ -22,6 +22,11 @@ import {
   unMerge,
 } from "../test_helpers/commands_helpers";
 import { DEFAULT_CELL_HEIGHT } from "./../../src/constants";
+
+function getDefaultCellHeight(style: Style) {
+  const textFontSize = computeTextFontSizeInPixels(style);
+  return computeTextLinesHeight(textFontSize) + 2 * PADDING_AUTORESIZE_VERTICAL;
+}
 
 describe("Model resizer", () => {
   test("Can resize one column, undo, then redo", async () => {

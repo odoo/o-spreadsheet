@@ -91,6 +91,8 @@ export interface ZoneDimension {
 
 export type Align = "left" | "right" | "center" | undefined;
 
+export type VerticalAlign = "top" | "middle" | "bottom" | undefined;
+
 export type Wrapping = "overflow" | "wrap" | "clip" | undefined;
 
 export interface Style {
@@ -100,6 +102,7 @@ export interface Style {
   underline?: boolean;
   align?: Align;
   wrapping?: Wrapping;
+  verticalAlign?: VerticalAlign;
   fillColor?: string;
   textColor?: string;
   fontSize?: number; // in pt, not in px!

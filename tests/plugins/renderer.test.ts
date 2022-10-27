@@ -47,7 +47,7 @@ function getBoxFromText(model: Model, text: string): Box {
   const rendererPlugin = getPlugin(model, RendererPlugin);
   // @ts-ignore
   return (rendererPlugin.boxes as Box[]).find(
-    (b) => (b.content?.multiLineText || []).join(" ") === text
+    (b) => (b.content?.textLines || []).join(" ") === text
   );
 }
 
@@ -1512,5 +1512,122 @@ describe("renderer", () => {
       SELECTION_BORDER_COLOR, // selection drawGrid
       SELECTION_BORDER_COLOR, // selection drawGrid
     ]);
+  });
+
+  test("draw text position depends on vertical align", () => {
+    const model = new Model({
+      sheets: [
+        {
+          id: 1,
+          colNumber: 1,
+          rowNumber: 1,
+          rows: { 0: { size: DEFAULT_CELL_HEIGHT * 2 } },
+          cells: {
+            A1: { content: "kikou" },
+          },
+        },
+      ],
+    });
+
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onFunctionCall: (val, args) => {
+        if (val === "fillText") {
+          verticalStartPoints.push(args[2]); // args[2] corespond to "y"
+        }
+      },
+    });
+
+    // vertical top point
+    let verticalStartPoints: any[] = [];
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: target("A1"),
+      style: { verticalAlign: "top" },
+    });
+    model.drawGrid(ctx);
+    expect(verticalStartPoints[0]).toEqual(5);
+
+    // vertical middle point
+    verticalStartPoints = [];
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: target("A1"),
+      style: { verticalAlign: "middle" },
+    });
+    model.drawGrid(ctx);
+    expect(verticalStartPoints[0]).toEqual(18);
+
+    // vertical bottom point
+    verticalStartPoints = [];
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: target("A1"),
+      style: { verticalAlign: "bottom" },
+    });
+    model.drawGrid(ctx);
+    expect(verticalStartPoints[0]).toEqual(30);
+  });
+
+  test("keep the text vertically align to the top if not enough spaces to display it", () => {
+    const model = new Model({
+      sheets: [
+        {
+          id: 1,
+          colNumber: 1,
+          rowNumber: 1,
+          rows: { 0: { size: DEFAULT_CELL_HEIGHT } },
+          cells: {
+            A1: {
+              content:
+                'KIKOU: Interjection utilisée par les adolescents pour signifier "salut", "coucou", sur support électronique.',
+            },
+          },
+        },
+      ],
+    });
+
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onFunctionCall: (val, args) => {
+        if (val === "fillText") {
+          verticalStartPoints.push(args[2]); // args[2] corespond to "y"
+        }
+      },
+    });
+
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: target("A1"),
+      style: { wrapping: "wrap" },
+    });
+
+    // with verticalAlign top
+    let verticalStartPoints: any[] = [];
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: target("A1"),
+      style: { verticalAlign: "top" },
+    });
+    model.drawGrid(ctx);
+    expect(verticalStartPoints[0]).toEqual(5);
+
+    // with verticalAlign middle
+    verticalStartPoints = [];
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: target("A1"),
+      style: { verticalAlign: "middle" },
+    });
+    model.drawGrid(ctx);
+    expect(verticalStartPoints[0]).toEqual(5);
+
+    // with verticalAlign bottom
+    verticalStartPoints = [];
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: target("A1"),
+      style: { verticalAlign: "bottom" },
+    });
+    model.drawGrid(ctx);
+    expect(verticalStartPoints[0]).toEqual(5);
   });
 });

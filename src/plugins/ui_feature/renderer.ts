@@ -22,6 +22,7 @@ import {
 import {
   computeTextFont,
   computeTextFontSizeInPixels,
+  computeTextLinesHeight,
   computeTextWidth,
   getZonesCols,
   getZonesRows,
@@ -259,26 +260,32 @@ export class RendererPlugin extends UIPlugin {
       if (box.content) {
         const style = box.style || {};
         const align = box.content.align || "left";
+
+        // compute font and textColor
         const font = computeTextFont(style);
         if (font !== currentFont) {
           currentFont = font;
           ctx.font = font;
         }
         ctx.fillStyle = style.textColor || "#000";
-        let x: number;
-        let y = box.y + box.height / 2 + 1;
+
+        // compute horizontal align start point parameter
+        let x = box.x;
         if (align === "left") {
-          x = box.x + MIN_CELL_TEXT_MARGIN + (box.image ? box.image.size + MIN_CF_ICON_MARGIN : 0);
+          x += MIN_CELL_TEXT_MARGIN + (box.image ? box.image.size + MIN_CF_ICON_MARGIN : 0);
         } else if (align === "right") {
-          x =
-            box.x +
+          x +=
             box.width -
             MIN_CELL_TEXT_MARGIN -
             (box.isFilterHeader ? ICON_EDGE_LENGTH + FILTER_ICON_MARGIN : 0);
         } else {
-          x = box.x + box.width / 2;
+          x += box.width / 2;
         }
+
+        // horizontal align text direction
         ctx.textAlign = align;
+
+        // clip rect if needed
         if (box.clipRect) {
           ctx.save();
           ctx.beginPath();
@@ -287,14 +294,15 @@ export class RendererPlugin extends UIPlugin {
           ctx.clip();
         }
 
-        const brokenLineNumber = box.content.multiLineText.length;
-        const size = computeTextFontSizeInPixels(style);
-        const contentHeight =
-          brokenLineNumber * (size + MIN_CELL_TEXT_MARGIN) - MIN_CELL_TEXT_MARGIN;
-        let brokenLineY = y - contentHeight / 2;
+        // compute vertical align start point parameter:
+        const textLineHeight = computeTextFontSizeInPixels(style);
+        const numberOfLines = box.content.textLines.length;
+        let y = this.computeTextYCoordinate(box, textLineHeight, numberOfLines);
 
-        for (let brokenLine of box.content.multiLineText) {
-          ctx.fillText(brokenLine, Math.round(x), Math.round(brokenLineY));
+        // use the horizontal and the vertical start points to:
+        // fill text / fill strikethrough / fill underline
+        for (let brokenLine of box.content.textLines) {
+          ctx.fillText(brokenLine, Math.round(x), Math.round(y));
           if (style.strikethrough || style.underline) {
             const lineWidth = computeTextWidth(ctx, brokenLine, style);
             let _x = x;
@@ -304,14 +312,15 @@ export class RendererPlugin extends UIPlugin {
               _x -= lineWidth / 2;
             }
             if (style.strikethrough) {
-              ctx.fillRect(_x, brokenLineY + size / 2, lineWidth, 2.6 * thinLineWidth);
+              ctx.fillRect(_x, y + textLineHeight / 2, lineWidth, 2.6 * thinLineWidth);
             }
             if (style.underline) {
-              ctx.fillRect(_x, brokenLineY + size + 1, lineWidth, 1.3 * thinLineWidth);
+              ctx.fillRect(_x, y + textLineHeight + 1, lineWidth, 1.3 * thinLineWidth);
             }
           }
-          brokenLineY += MIN_CELL_TEXT_MARGIN + size;
+          y += MIN_CELL_TEXT_MARGIN + textLineHeight;
         }
+
         if (box.clipRect) {
           ctx.restore();
         }
@@ -324,8 +333,6 @@ export class RendererPlugin extends UIPlugin {
     for (const box of this.boxes) {
       if (box.image) {
         const icon: HTMLImageElement = box.image.image;
-        const size = box.image.size;
-        const margin = (box.height - size) / 2;
         if (box.image.clipIcon) {
           ctx.save();
           ctx.beginPath();
@@ -333,12 +340,37 @@ export class RendererPlugin extends UIPlugin {
           ctx.rect(x, y, width, height);
           ctx.clip();
         }
-        ctx.drawImage(icon, box.x + MIN_CF_ICON_MARGIN, box.y + margin, size, size);
+
+        const iconSize = box.image.size;
+        const y = this.computeTextYCoordinate(box, iconSize);
+        ctx.drawImage(icon, box.x + MIN_CF_ICON_MARGIN, y, iconSize, iconSize);
         if (box.image.clipIcon) {
           ctx.restore();
         }
       }
     }
+  }
+
+  /** Compute the vertical start point from which a text line should be draw.
+   *
+   * Note that in case the cell does not have enough spaces to display its text lines,
+   * (wrapping cell case) then the vertical align should be at the top.
+   * */
+  private computeTextYCoordinate(box: Box, textLineHeight: number, numberOfLines: number = 1) {
+    const y = box.y + 1;
+    const textHeight = computeTextLinesHeight(textLineHeight, numberOfLines);
+    const hasEnoughSpaces = box.height > textHeight + MIN_CELL_TEXT_MARGIN * 2;
+    const verticalAlign = box.verticalAlign || "middle";
+
+    if (hasEnoughSpaces) {
+      if (verticalAlign === "middle") {
+        return y + (box.height - textHeight) / 2;
+      }
+      if (verticalAlign === "bottom") {
+        return y + box.height - textHeight - MIN_CELL_TEXT_MARGIN;
+      }
+    }
+    return y + MIN_CELL_TEXT_MARGIN;
   }
 
   private drawHeaders(renderingContext: GridRenderingContext) {
@@ -552,6 +584,7 @@ export class RendererPlugin extends UIPlugin {
     const cell = this.getters.getEvaluatedCell(position);
     const showFormula = this.getters.shouldShowFormulas();
     const { x, y, width, height } = this.getters.getVisibleRect(zone);
+    const { verticalAlign } = this.getters.getCellStyle(position);
 
     const box: Box = {
       x,
@@ -560,6 +593,7 @@ export class RendererPlugin extends UIPlugin {
       height,
       border: this.getters.getCellBorderWithFilterBorder(position) || undefined,
       style: this.getters.getCellComputedStyle(position),
+      verticalAlign,
     };
 
     if (cell.type === CellValueType.empty) {
@@ -593,7 +627,7 @@ export class RendererPlugin extends UIPlugin {
     const contentWidth = iconBoxWidth + textWidth + headerIconWidth;
     const align = this.computeCellAlignment(position, contentWidth > width);
     box.content = {
-      multiLineText,
+      textLines: multiLineText,
       width: wrapping === "overflow" ? textWidth : width,
       align,
     };
