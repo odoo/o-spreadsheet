@@ -31,7 +31,7 @@ const functionsContentRestore = { ...functionsContent };
 const functionMapRestore = { ...functionMap };
 
 export function spyDispatch(parent: Spreadsheet): jest.SpyInstance {
-  return jest.spyOn(parent.model, "dispatch");
+  return jest.spyOn(parent.props.model, "dispatch");
 }
 
 export function getPlugin<T extends new (...args: any) => any>(
@@ -144,7 +144,7 @@ export async function mountSpreadsheet(
    * done after the resize of the sheet view.
    */
   await nextTick();
-  return { app, parent, model: parent.model };
+  return { app, parent, model: parent.props.model };
 }
 
 type GridDescr = { [xc: string]: string | undefined };

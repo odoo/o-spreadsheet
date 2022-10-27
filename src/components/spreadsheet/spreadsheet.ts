@@ -133,8 +133,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   static components = { TopBar, Grid, BottomBar, SidePanel, SpreadsheetDashboard };
   static _t = t;
 
-  model!: Model;
-
   sidePanel!: SidePanelState;
   composer!: ComposerState;
 
@@ -143,6 +141,10 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   private keyDownMapping!: { [key: string]: Function };
 
   private isViewportTooSmall: boolean = false;
+
+  get model(): Model {
+    return this.props.model;
+  }
 
   getStyle() {
     if (this.env.isDashboard()) {
@@ -153,7 +155,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
   setup() {
     this.props.exposeSpreadsheet?.(this);
-    this.model = this.props.model;
     this.sidePanel = useState({ isOpen: false, panelProps: {} });
     this.composer = useState({
       topBarFocus: "inactive",
