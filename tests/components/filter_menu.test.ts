@@ -1,5 +1,5 @@
 import { App } from "@odoo/owl";
-import { Model, Spreadsheet } from "../../src";
+import { Model } from "../../src";
 import { UID } from "../../src/types";
 import {
   createFilter,
@@ -25,7 +25,6 @@ describe("Filter menu component", () => {
   let fixture: HTMLElement;
   let model: Model;
   let sheetId: UID;
-  let parent: Spreadsheet;
   let app: App;
 
   function getFilterMenuValues() {
@@ -42,8 +41,7 @@ describe("Filter menu component", () => {
 
   beforeEach(async () => {
     fixture = makeTestFixture();
-    ({ app, parent } = await mountSpreadsheet(fixture));
-    model = parent.model;
+    ({ app, model } = await mountSpreadsheet(fixture));
     sheetId = model.getters.getActiveSheetId();
   });
 

@@ -158,8 +158,7 @@ describe("Menu Item actions", () => {
       configurable: true,
     });
     fixture = makeTestFixture();
-    ({ app, parent } = await mountSpreadsheet(fixture));
-    model = parent.model;
+    ({ app, parent, model } = await mountSpreadsheet(fixture));
     env = parent.env;
     dispatch = spyDispatch(parent);
   });
@@ -1108,8 +1107,7 @@ describe("Menu Item actions", () => {
 
     beforeEach(async () => {
       fixture = makeTestFixture();
-      ({ app, parent } = await mountSpreadsheet(fixture, { model: new Model(data) }));
-      model = parent.model;
+      ({ app, parent, model } = await mountSpreadsheet(fixture, { model: new Model(data) }));
       env = parent.env;
       mockChart();
       dispatchSpy = spyDispatch(parent);

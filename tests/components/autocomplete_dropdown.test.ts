@@ -1,5 +1,4 @@
 import { App } from "@odoo/owl";
-import { Spreadsheet } from "../../src";
 import { args, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import { selectCell } from "../test_helpers/commands_helpers";
@@ -21,7 +20,6 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 let model: Model;
 let composerEl: Element;
 let fixture: HTMLElement;
-let parent: Spreadsheet;
 let app: App;
 let cehMock: ContentEditableHelper;
 
@@ -35,8 +33,7 @@ async function typeInComposerGrid(text: string, fromScratch: boolean = true) {
 
 beforeEach(async () => {
   fixture = makeTestFixture();
-  ({ app, parent } = await mountSpreadsheet(fixture));
-  model = parent.model;
+  ({ app, model } = await mountSpreadsheet(fixture));
 
   // start composition
   fixture.querySelector(".o-grid")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));

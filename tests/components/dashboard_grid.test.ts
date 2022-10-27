@@ -1,5 +1,4 @@
 import { App } from "@odoo/owl";
-import { Spreadsheet } from "../../src";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -14,14 +13,12 @@ import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/hel
 
 let fixture: HTMLElement;
 let model: Model;
-let parent: Spreadsheet;
 let app: App;
 
 describe("Grid component in dashboard mode", () => {
   beforeEach(async () => {
     fixture = makeTestFixture();
-    ({ app, parent } = await mountSpreadsheet(fixture));
-    model = parent.model;
+    ({ app, model } = await mountSpreadsheet(fixture));
     model.updateMode("dashboard");
     await nextTick();
   });

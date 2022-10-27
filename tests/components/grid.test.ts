@@ -82,8 +82,7 @@ afterEach(() => {
 describe("Grid component", () => {
   beforeEach(async () => {
     fixture = makeTestFixture();
-    ({ app, parent } = await mountSpreadsheet(fixture));
-    model = parent.model;
+    ({ app, parent, model } = await mountSpreadsheet(fixture));
   });
 
   afterEach(() => {
@@ -807,8 +806,7 @@ describe("Multi User selection", () => {
 describe("error tooltip", () => {
   beforeEach(async () => {
     jest.useFakeTimers();
-    ({ app, parent } = await mountSpreadsheet(fixture));
-    model = parent.model;
+    ({ app, parent, model } = await mountSpreadsheet(fixture));
   });
 
   afterEach(() => {
@@ -875,8 +873,7 @@ describe("error tooltip", () => {
 describe("Events on Grid update viewport correctly", () => {
   beforeEach(async () => {
     fixture = makeTestFixture();
-    ({ app, parent } = await mountSpreadsheet(fixture));
-    model = parent.model;
+    ({ app, parent, model } = await mountSpreadsheet(fixture));
   });
   afterEach(() => {
     app.destroy();
@@ -1294,8 +1291,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
   beforeEach(async () => {
     jest.useFakeTimers();
     fixture = makeTestFixture();
-    ({ app, parent } = await mountSpreadsheet(fixture));
-    model = parent.model;
+    ({ app, parent, model } = await mountSpreadsheet(fixture));
   });
 
   afterEach(() => {
@@ -1404,8 +1400,7 @@ describe("Copy paste keyboard shortcut", () => {
       configurable: true,
     });
     fixture = makeTestFixture();
-    ({ app, parent } = await mountSpreadsheet(fixture));
-    model = parent.model;
+    ({ app, parent, model } = await mountSpreadsheet(fixture));
     sheetId = model.getters.getActiveSheetId();
   });
 

@@ -1,5 +1,4 @@
 import { App } from "@odoo/owl";
-import { Spreadsheet } from "../../src";
 import { ColResizer, RowResizer } from "../../src/components/headers_overlay/headers_overlay";
 import {
   DEFAULT_CELL_HEIGHT,
@@ -755,12 +754,10 @@ describe("Resizer component", () => {
 });
 
 describe("Edge-Scrolling on mouseMove in selection", () => {
-  let parent: Spreadsheet;
   beforeEach(async () => {
     jest.useFakeTimers();
     fixture = makeTestFixture();
-    ({ app, parent } = await mountSpreadsheet(fixture));
-    model = parent.model;
+    ({ app, model } = await mountSpreadsheet(fixture));
   });
 
   afterEach(() => {
