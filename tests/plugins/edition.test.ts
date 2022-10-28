@@ -771,4 +771,16 @@ describe("edition", () => {
     });
     expect(getCell(model, "A1")?.composerContent).toBe("12:00:00 AM");
   });
+
+  test("write too long formulas raises an error", async () => {
+    const model = new Model({});
+    const spyNotify = jest.spyOn(model["config"], "notifyUI");
+    model.dispatch("START_EDITION");
+    const content = // 101 tokens
+      "=1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1";
+    model.dispatch("SET_CURRENT_CONTENT", { content });
+    model.dispatch("STOP_EDITION");
+
+    expect(spyNotify).toHaveBeenCalled();
+  });
 });
