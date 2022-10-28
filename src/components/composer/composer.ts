@@ -452,10 +452,11 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
 
   private getContent(): HtmlContent[] {
     let content: HtmlContent[];
-    let value = this.getters.getCurrentContent();
+    const value = this.getters.getCurrentContent();
+    const isValidFormula = value.startsWith("=") && this.getters.getCurrentTokens().length > 0;
     if (value === "") {
       content = [];
-    } else if (value.startsWith("=") && this.getters.getEditionMode() !== "inactive") {
+    } else if (isValidFormula && this.getters.getEditionMode() !== "inactive") {
       content = this.getColoredTokens();
     } else {
       content = [{ value }];
@@ -468,7 +469,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     const tokenAtCursor = this.getters.getTokenAtCursor();
     const result: any[] = [];
     const { end } = this.getters.getComposerSelection();
-    for (let token of tokens) {
+    for (const token of tokens) {
       switch (token.type) {
         case "OPERATOR":
         case "NUMBER":
