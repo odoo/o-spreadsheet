@@ -133,7 +133,7 @@ export class EditionPlugin extends UIPlugin {
         }
         break;
       case "SET_CURRENT_CONTENT":
-        this.setContent(cmd.content, cmd.selection);
+        this.setContent(cmd.content, cmd.selection, true);
         break;
       case "REPLACE_COMPOSER_CURSOR_SELECTION":
         this.replaceSelection(cmd.text);
@@ -453,7 +453,7 @@ export class EditionPlugin extends UIPlugin {
     this.setContent(this.initialContent || "");
   }
 
-  private setContent(text: string, selection?: ComposerSelection) {
+  private setContent(text: string, selection?: ComposerSelection, raise?: boolean) {
     const isNewCurrentContent = this.currentContent !== text;
     this.currentContent = text;
 
@@ -465,6 +465,16 @@ export class EditionPlugin extends UIPlugin {
     }
     if (isNewCurrentContent || this.mode !== "inactive") {
       this.currentTokens = text.startsWith("=") ? composerTokenize(text) : [];
+      if (this.currentTokens.length > 100) {
+        if (raise) {
+          this.ui.notifyUI({
+            type: "NOTIFICATION",
+            text: _lt(
+              "This formula has over 100 parts. It can't be processed properly, consider splitting it into multiple cells"
+            ),
+          });
+        }
+      }
     }
     if (this.canStartComposerRangeSelection()) {
       this.startComposerRangeSelection();
