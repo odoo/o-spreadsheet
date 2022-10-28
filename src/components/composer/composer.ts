@@ -64,6 +64,7 @@ const TEMPLATE = xml/* xml */ `
     t-on-keyup="onKeyup"
     t-on-click.stop="onClick"
     t-on-blur="onBlur"
+    t-on-paste.stop=""
   />
 
   <div t-if="props.focus !== 'inactive' and (autoCompleteState.showProvider or functionDescriptionState.showDescription)"
