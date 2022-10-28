@@ -1,7 +1,6 @@
 import { INCORRECT_RANGE_STRING } from "../constants";
 import { functionRegistry } from "../functions/index";
 import { formulaNumberRegexp, rangeReference } from "../helpers/index";
-import { _lt } from "../translation";
 
 /**
  * Tokenizer
@@ -47,17 +46,8 @@ export interface Token {
 export function tokenize(str: string): Token[] {
   const chars = str.split("");
   const result: Token[] = [];
-  let tokenCount = 0;
 
   while (chars.length) {
-    tokenCount++;
-    if (tokenCount > 100) {
-      throw new Error(
-        _lt(
-          "This formula has over 100 parts. It can't be processed properly, consider splitting it into multiple cells"
-        )
-      );
-    }
     let token =
       tokenizeSpace(chars) ||
       tokenizeMisc(chars) ||
