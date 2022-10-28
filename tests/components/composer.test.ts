@@ -30,6 +30,7 @@ import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpe
 import {
   createEqualCF,
   makeTestFixture,
+  MockClipboard,
   mountSpreadsheet,
   nextTick,
   startGridComposition,
@@ -1472,5 +1473,32 @@ describe("composer highlights color", () => {
     expect(highlights[1].sheetId).toBe("42");
     expect(highlights[1].zone).toEqual({ left: 0, right: 0, top: 0, bottom: 0 });
   });
+
   test("grid composer is resized when top bar composer grows", async () => {});
+});
+
+describe("Copy/paste in composer", () => {
+  beforeAll(() => {
+    const clipboard = new MockClipboard();
+    Object.defineProperty(navigator, "clipboard", {
+      get() {
+        return clipboard;
+      },
+      configurable: true,
+    });
+  });
+
+  test("Can copy random content inside the composer", async () => {
+    const spyDispatch = jest.spyOn(model, "dispatch");
+    await startComposition();
+    const clipboardEvent = new Event("paste", { bubbles: true, cancelable: true });
+    //@ts-ignore
+    clipboardEvent.clipboardData = { getData: () => "unimportant" };
+    fixture.querySelector(".o-grid-composer .o-composer")!.dispatchEvent(clipboardEvent);
+    await nextTick();
+    expect(model.getters.getEditionMode()).not.toBe("inactive");
+    expect(fixture.querySelectorAll(".o-grid-composer .o-composer")).toHaveLength(1);
+    expect(spyDispatch).not.toBeCalledWith("PASTE_FROM_OS_CLIPBOARD", expect.any);
+    expect(spyDispatch).not.toBeCalledWith("PASTE", expect.any);
+  });
 });
