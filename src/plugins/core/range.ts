@@ -1,6 +1,7 @@
 import { INCORRECT_RANGE_STRING } from "../../constants";
 import {
   createAdaptedZone,
+  createRangePaPa,
   getComposerSheetName,
   groupConsecutive,
   isZoneInside,
@@ -8,7 +9,7 @@ import {
   numberToLetters,
   RangeImpl,
   rangeReference,
-  toUnboundedZone,
+  zoneToXc,
 } from "../../helpers/index";
 import {
   ApplyRangeChange,
@@ -275,9 +276,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
           : range.unboundedZone.bottom! +
             ((range.parts[1] || range.parts[0]).rowFixed ? 0 : offsetY),
       };
-      range = range.clone({ sheetId: copySheetId, zone: unboundZone });
-      range.orderZone();
-      return range;
+      return range.clone({ sheetId: copySheetId, zone: unboundZone }).orderZone();
     });
   }
 
@@ -308,18 +307,21 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
         prefixSheet = true;
       }
     }
-    const zone = toUnboundedZone(sheetXC);
-    const parts = RangeImpl.getRangeParts(sheetXC, zone);
     const invalidSheetName =
       sheetName && !this.getters.getSheetIdByName(sheetName) ? sheetName : undefined;
     const sheetId = this.getters.getSheetIdByName(sheetName) || defaultSheetId;
+    return createRangePaPa(
+      sheetId,
+      sheetXC,
+      invalidSheetName,
+      prefixSheet,
+      this.getters.getSheetSize
+    );
+    // const zone = toUnboundedZone(sheetXC);
+    // const parts = RangeImpl.getRangeParts(sheetXC, zone);
+    // const rangeInterface = { prefixSheet, zone, sheetId, invalidSheetName, parts };
 
-    const rangeInterface = { prefixSheet, zone, sheetId, invalidSheetName, parts };
-
-    const range = new RangeImpl(rangeInterface, this.getters.getSheetSize);
-    range.orderZone();
-
-    return range;
+    // return new RangeImpl(rangeInterface, this.getters.getSheetSize);
   }
 
   /**
@@ -403,18 +405,24 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   }
 
   getRangeFromRangeData(data: RangeData): Range {
-    const rangeInterface = {
-      prefixSheet: false,
-      zone: data._zone,
-      sheetId: data._sheetId,
-      invalidSheetName: undefined,
-      parts: [
-        { colFixed: false, rowFixed: false },
-        { colFixed: false, rowFixed: false },
-      ],
-    };
-
-    return new RangeImpl(rangeInterface, this.getters.getSheetSize);
+    // const rangeInterface = {
+    //   prefixSheet: false,
+    //   zone: data._zone,
+    //   sheetId: data._sheetId,
+    //   invalidSheetName: undefined,
+    //   parts: [
+    //     { colFixed: false, rowFixed: false },
+    //     { colFixed: false, rowFixed: false },
+    //   ],
+    // };
+    return createRangePaPa(
+      data._sheetId,
+      zoneToXc(data._zone),
+      undefined,
+      false,
+      this.getters.getSheetSize
+    );
+    // return new RangeImpl(rangeInterface, this.getters.getSheetSize);
   }
 
   // ---------------------------------------------------------------------------

@@ -292,6 +292,9 @@ export interface Cloneable<T> {
 
 export type CSSProperties<P extends string = string> = Record<P, string>;
 
+// https://stackoverflow.com/a/43001581
+export type DeepWriteable<T> = { -readonly [P in keyof T]: DeepWriteable<T[P]> };
+
 export interface SortOptions {
   /** If true sort the headers of the range along with the rest */
   sortHeaders?: boolean;
