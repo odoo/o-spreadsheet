@@ -351,9 +351,18 @@ export async function typeInComposerTopBar(text: string, fromScratch: boolean = 
   return await typeInComposerHelper(".o-spreadsheet-topbar .o-composer", text, fromScratch);
 }
 
-export async function startGridComposition(key: string = "Enter") {
-  const gridEl = document.querySelector(".o-grid");
-  gridEl!.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
+export async function startGridComposition(key?: string) {
+  if (key) {
+    const gridInputEl = document.querySelector(".o-grid>input");
+    gridInputEl!.dispatchEvent(
+      new InputEvent("input", { data: key, bubbles: true, cancelable: true })
+    );
+  } else {
+    const gridInputEl = document.querySelector(".o-grid");
+    gridInputEl!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true })
+    );
+  }
   await nextTick();
   return document.querySelector(".o-grid .o-composer")!;
 }
