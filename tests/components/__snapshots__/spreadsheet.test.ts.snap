@@ -373,6 +373,10 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
     class="o-grid o-two-columns"
   >
     
+    <input
+      class="position-absolute"
+      style="z-index:-1000;"
+    />
     <canvas
       height="985"
       style="width:985px;height:985px;"
