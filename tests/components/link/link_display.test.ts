@@ -231,4 +231,15 @@ describe("link display component", () => {
     await clickCell(model, "A1");
     expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
   });
+
+  test("remove/edit link are hidden in readonly mode", async () => {
+    setCellContent(model, "A1", "[label](url.com)");
+    await nextTick();
+    model.updateMode("readonly");
+    await hoverCell(model, "A1", 400);
+    const linkTool = fixture.querySelector(".o-link-tool");
+    expect(linkTool).toBeTruthy();
+    expect(linkTool!.querySelector(".o-unlink")).toBeFalsy();
+    expect(linkTool!.querySelector(".o-edit-link")).toBeFalsy();
+  });
 });
