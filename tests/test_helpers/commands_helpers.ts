@@ -350,7 +350,7 @@ export function selectCell(model: Model, xc: string): DispatchResult {
 export function moveAnchorCell(
   model: Model,
   direction: SelectionDirection,
-  step: SelectionStep = "one"
+  step: SelectionStep = 1
 ): DispatchResult {
   return model.selection.moveAnchorCell(direction, step);
 }
@@ -358,7 +358,7 @@ export function moveAnchorCell(
 export function resizeAnchorZone(
   model: Model,
   direction: SelectionDirection,
-  step: SelectionStep = "one"
+  step: SelectionStep = 1
 ): DispatchResult {
   return model.selection.resizeAnchorZone(direction, step);
 }

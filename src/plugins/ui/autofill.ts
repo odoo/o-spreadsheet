@@ -1,4 +1,4 @@
-import { clip, isInside, toCartesian, toXC, union } from "../../helpers/index";
+import { clip, isInside, toCartesian, toXC } from "../../helpers/index";
 import { Mode } from "../../model";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "../../registries/index";
 import {
@@ -85,6 +85,7 @@ export class AutofillPlugin extends UIPlugin {
   static modes: Mode[] = ["normal"];
 
   private autofillZone: Zone | undefined;
+  private steps: number | undefined;
   private lastCellSelected: { col?: number; row?: number } = {};
   private direction: DIRECTION | undefined;
   private tooltip: Tooltip | undefined;
@@ -167,7 +168,7 @@ export class AutofillPlugin extends UIPlugin {
    *              useful to set it to false when we need to fill the tooltip
    */
   private autofill(apply: boolean) {
-    if (!this.autofillZone || this.direction === undefined) {
+    if (!this.autofillZone || !this.steps || this.direction === undefined) {
       this.tooltip = undefined;
       return;
     }
@@ -226,12 +227,12 @@ export class AutofillPlugin extends UIPlugin {
     }
 
     if (apply) {
-      const zone = union(this.getters.getSelectedZone(), this.autofillZone);
       this.autofillZone = undefined;
+      this.selection.resizeAnchorZone(this.direction, this.steps);
       this.lastCellSelected = {};
       this.direction = undefined;
+      this.steps = 0;
       this.tooltip = undefined;
-      this.selection.selectZone({ cell: { col: zone.left, row: zone.top }, zone });
     }
   }
 
@@ -248,15 +249,19 @@ export class AutofillPlugin extends UIPlugin {
     switch (this.direction) {
       case DIRECTION.UP:
         this.saveZone(row, source.top - 1, source.left, source.right);
+        this.steps = source.top - row;
         break;
       case DIRECTION.DOWN:
         this.saveZone(source.bottom + 1, row, source.left, source.right);
+        this.steps = row - source.bottom;
         break;
       case DIRECTION.LEFT:
         this.saveZone(source.top, source.bottom, col, source.left - 1);
+        this.steps = source.left - col;
         break;
       case DIRECTION.RIGHT:
         this.saveZone(source.top, source.bottom, source.right + 1, col);
+        this.steps = col - source.right;
         break;
     }
     this.autofill(false);

@@ -280,7 +280,6 @@ describe("Autofill component", () => {
     setSelection(parent.model, ["A1:A100"]);
     parent.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 400, offsetY: 400 });
     const firstViewport = parent.model.getters.getActiveSnappedViewport();
-    console.log(firstViewport);
     const autofill = fixture.querySelector(".o-autofill");
     triggerMouseEvent(autofill, "mousedown", 4, 4);
     await nextTick();
@@ -292,7 +291,6 @@ describe("Autofill component", () => {
     await nextTick();
     triggerMouseEvent(autofill, "mouseup", newX, HEADER_HEIGHT + 4);
     await nextTick();
-    console.log(parent.model.getters.getActiveSnappedViewport());
     expect(firstViewport).toMatchObject(parent.model.getters.getActiveSnappedViewport());
   });
 });
