@@ -84,8 +84,8 @@ export const enum LAYERS {
   Clipboard,
   Search,
   Chart,
-  Selection,
   Autofill,
+  Selection,
   Headers, // Probably keep this at the end
 }
 

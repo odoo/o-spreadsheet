@@ -722,14 +722,15 @@ export class GridSelectionPlugin extends UIPlugin {
     ctx.fillStyle = onlyOneCell ? "#f3f7fe" : "#e9f0ff";
     ctx.strokeStyle = SELECTION_BORDER_COLOR;
     ctx.lineWidth = 1.5 * thinLineWidth;
-    ctx.globalCompositeOperation = "multiply";
     for (const zone of zones) {
       const { x, y, width, height } = this.getters.getVisibleRect(zone);
+      ctx.globalCompositeOperation = "multiply";
       ctx.fillRect(x, y, width, height);
+      ctx.globalCompositeOperation = "source-over";
       ctx.strokeRect(x, y, width, height);
     }
-    ctx.globalCompositeOperation = "source-over";
 
+    ctx.globalCompositeOperation = "source-over";
     // active zone
     const activeSheet = this.getters.getActiveSheetId();
     const { col, row } = this.getPosition();
