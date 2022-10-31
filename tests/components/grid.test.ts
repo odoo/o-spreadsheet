@@ -595,7 +595,7 @@ describe("Grid component", () => {
       await rightClickCell(model, "B2");
       await simulateClick(".o-menu div[data-name='add_row_before']");
       expect(fixture.querySelector(".o-menu div[data-name='add_row_before']")).toBeFalsy();
-      expect(document.activeElement).toBe(fixture.querySelector("canvas"));
+      expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
     });
   });
 });

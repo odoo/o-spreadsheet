@@ -41,6 +41,7 @@ const TEMPLATE = xml/* xml */ `
       t-on-link-editor-closed="closeLinkEditor"
       t-ref="grid"
       focusComposer="focusGridComposer"
+      exposeFocus="(focus) => this._focusGrid = focus"
       t-on-composer-content-focused="onGridComposerContentFocused"
       t-on-composer-cell-focused="onGridComposerCellFocused"
       t-att-class="{'o-two-columns': !sidePanel.isOpen}"/>
@@ -133,6 +134,8 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     topBarFocus: "inactive",
     gridFocusMode: "inactive",
   } as { topBarFocus: "inactive" | "contentFocus"; gridFocusMode: "inactive" | "cellFocus" | "contentFocus" });
+
+  private _focusGrid?: () => void;
 
   // last string that was cut or copied. It is necessary so we can make the
   // difference between a paste coming from the sheet itself, or from the
@@ -244,7 +247,10 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     }
   }
   focusGrid() {
-    (<any>this.grid.comp).focus();
+    if (!this._focusGrid) {
+      throw new Error("_focusGrid should be exposed by the grid component");
+    }
+    this._focusGrid();
   }
 
   copy(cut: boolean, ev: ClipboardEvent) {
