@@ -667,6 +667,26 @@ describe("Viewport of Simple sheet", () => {
     });
   });
 
+  describe("Cross Move Position with selection outside the viewport affects offset", () => {
+    test("Move horizontally a cell which row is outside the viewport", () => {
+      const { bottom } = model.getters.getActiveMainViewport();
+      selectCell(model, toXC(0, bottom + 3));
+      const viewport = { ...model.getters.getActiveMainViewport() };
+      model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 0 });
+      moveAnchorCell(model, "right");
+      expect(model.getters.getActiveMainViewport()).toMatchObject(viewport);
+    });
+
+    test("Move vertically a cell which col is outside the viewport", () => {
+      const { right } = model.getters.getActiveMainViewport();
+      selectCell(model, toXC(right + 3, 0));
+      const viewport = { ...model.getters.getActiveMainViewport() };
+      model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 0 });
+      moveAnchorCell(model, "down");
+      expect(model.getters.getActiveMainViewport()).toMatchObject(viewport);
+    });
+  });
+
   test("Move position on cells that are taller than the client's height", () => {
     const { height } = model.getters.getSheetViewDimensionWithHeaders();
     resizeRows(model, [0], height + 50);
