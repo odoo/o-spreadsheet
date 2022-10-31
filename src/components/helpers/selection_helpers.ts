@@ -13,8 +13,8 @@ export function updateSelectionWithArrowKeys(
 ) {
   const direction = arrowMap[ev.key];
   if (ev.shiftKey) {
-    selection.resizeAnchorZone(direction, ev.ctrlKey ? "end" : "one");
+    selection.resizeAnchorZone(direction, ev.ctrlKey ? "end" : 1);
   } else {
-    selection.moveAnchorCell(direction, ev.ctrlKey ? "end" : "one");
+    selection.moveAnchorCell(direction, ev.ctrlKey ? "end" : 1);
   }
 }

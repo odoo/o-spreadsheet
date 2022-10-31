@@ -156,8 +156,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         ? this.props.onGridComposerCellFocused()
         : this.props.onComposerContentFocused();
     },
-    TAB: () => this.env.model.selection.moveAnchorCell("right", "one"),
-    "SHIFT+TAB": () => this.env.model.selection.moveAnchorCell("left", "one"),
+    TAB: () => this.env.model.selection.moveAnchorCell("right", 1),
+    "SHIFT+TAB": () => this.env.model.selection.moveAnchorCell("left", 1),
     F2: () => {
       const cell = this.env.model.getters.getActiveCell();
       cell.type === CellValueType.empty
