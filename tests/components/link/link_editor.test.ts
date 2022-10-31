@@ -20,12 +20,17 @@ describe("link editor component", () => {
     await simulateClick(".o-menu-item[data-name='insert_link']");
   }
 
+  // TODO: type this correcly in master
   function labelInput(): HTMLInputElement {
-    const inputs = fixture?.querySelectorAll("input")!;
+    const inputs = fixture?.querySelectorAll(
+      ".o-link-editor input"
+    )! as NodeListOf<HTMLInputElement>;
     return inputs[0];
   }
   function urlInput(): HTMLInputElement {
-    const inputs = fixture?.querySelectorAll("input")!;
+    const inputs = fixture?.querySelectorAll(
+      ".o-link-editor input"
+    )! as NodeListOf<HTMLInputElement>;
     return inputs[1];
   }
 

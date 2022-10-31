@@ -65,10 +65,6 @@ const LINK_EDITOR_HEIGHT = 180;
 
 const ERROR_TOOLTIP_HEIGHT = 40;
 const ERROR_TOOLTIP_WIDTH = 180;
-// copy and paste are specific events that should not be managed by the keydown event,
-// but they shouldn't be preventDefault and stopped (else copy and paste events will not trigger)
-// and also should not result in typing the character C or V in the composer
-const keyDownMappingIgnore: string[] = ["CTRL+C", "CTRL+V"];
 
 // -----------------------------------------------------------------------------
 // Error Tooltip Hook
@@ -185,6 +181,9 @@ const TEMPLATE = xml/* xml */ `
         onComposerContentFocused="props.onComposerContentFocused"
         focus="props.focusComposer"
         />
+    </t>
+    <t else="1">
+      <input class="position-absolute" style="z-index:-1000;" t-on-input="onInput" t-ref="hiddenInput"/>
     </t>
     <canvas t-ref="canvas"
       t-on-mousedown="onMouseDown"
@@ -331,6 +330,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
   private vScrollbar: ScrollBar;
   private hScrollbar: ScrollBar;
   private canvas = useRef("canvas");
+  private hiddenInput = useRef("hiddenInput");
   private getters = this.env.getters;
   private dispatch = this.env.dispatch;
   private currentSheet = this.getters.getActiveSheetId();
@@ -553,7 +553,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
 
   focus() {
     if (!this.getters.isSelectingForComposer() && !this.getters.getSelectedFigureId()) {
-      this.canvas.el!.focus();
+      this.hiddenInput.el!.focus();
     }
   }
 
@@ -845,6 +845,16 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     }
   }
 
+  onInput(ev: InputEvent) {
+    if (ev.data) {
+      // if the user types a character on the grid, it means he wants to start composing the selected cell with that
+      // character
+      ev.preventDefault();
+      ev.stopPropagation();
+      this.props.onGridComposerCellFocused(ev.data);
+    }
+  }
+
   onKeydown(ev: KeyboardEvent) {
     if (ev.key.startsWith("Arrow")) {
       this.processArrows(ev);
@@ -864,16 +874,6 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
       ev.stopPropagation();
       handler();
       return;
-    }
-    if (!keyDownMappingIgnore.includes(keyDownString)) {
-      if (ev.key.length === 1 && !ev.ctrlKey && !ev.metaKey && !ev.altKey) {
-        // if the user types a character on the grid, it means he wants to start composing the selected cell with that
-        // character
-        ev.preventDefault();
-        ev.stopPropagation();
-
-        this.props.onGridComposerCellFocused(ev.key);
-      }
     }
   }
 
