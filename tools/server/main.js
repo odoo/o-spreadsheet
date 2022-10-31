@@ -1,3 +1,7 @@
+/**
+ * This is not suitable for production use!
+ * This is only a simplified implementation for demonstration purposes.
+ */
 const express = require("express");
 const cors = require("cors");
 const fs = require("fs");
