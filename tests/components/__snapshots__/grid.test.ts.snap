@@ -52,6 +52,10 @@ exports[`Grid component simple rendering snapshot 1`] = `
   </div>
   
   
+  <input
+    class="position-absolute"
+    style="z-index:-1000;"
+  />
   <canvas
     height="1011"
     style="width:1033px;height:1011px;"
