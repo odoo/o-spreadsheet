@@ -903,7 +903,7 @@ describe("Menu Item actions", () => {
 
       test("Filters -> Create filter", () => {
         setSelection(model, ["A1:A5"]);
-        expect(getName(createFilterPath, env)).toBe("Add Filter");
+        expect(getName(createFilterPath, env)).toBe("Create filter");
         expect(getNode(createFilterPath).isVisible(env)).toBeTruthy();
         expect(getNode(removeFilterPath).isVisible(env)).toBeFalsy();
         doAction(createFilterPath, env);
@@ -913,10 +913,10 @@ describe("Menu Item actions", () => {
         });
       });
 
-      test("Filters -> Remove Filter", () => {
+      test("Filters -> Remove filter", () => {
         createFilter(model, "A1:A5");
         setSelection(model, ["A1:A5"]);
-        expect(getName(removeFilterPath, env)).toBe("Remove Filter");
+        expect(getName(removeFilterPath, env)).toBe("Remove filter");
         expect(getNode(removeFilterPath).isVisible(env)).toBeTruthy();
         expect(getNode(createFilterPath).isVisible(env)).toBeFalsy();
         doAction(removeFilterPath, env);
@@ -938,7 +938,7 @@ describe("Menu Item actions", () => {
         expect(getNode(createFilterPath).isEnabled(env)).toBeTruthy();
       });
 
-      test("Filters -> Remove Filter is displayed instead of add filter when the selection contains a filter", () => {
+      test("Filters -> Remove filter is displayed instead of add filter when the selection contains a filter", () => {
         setSelection(model, ["A1:A5"]);
         expect(getNode(removeFilterPath).isVisible(env)).toBeFalsy();
         expect(getNode(createFilterPath).isVisible(env)).toBeTruthy();
