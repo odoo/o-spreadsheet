@@ -1113,6 +1113,7 @@ export const enum CommandResult {
   MergeInFilter,
   NonContinuousTargets,
   DuplicatedFigureId,
+  InvalidSelectionStep,
 }
 
 export interface CommandHandler<T> {

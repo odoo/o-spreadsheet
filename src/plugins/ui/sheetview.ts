@@ -152,13 +152,20 @@ export class SheetViewPlugin extends UIPlugin {
       case "AlterZoneCorner":
         break;
       case "ZonesSelected":
-        // altering a zone should not move the viewport
+        let { col, row } = findCellInNewZone(event.previousAnchor.zone, event.anchor.zone);
+        if (event.mode === "updateAnchor") {
+          const oldZone = event.previousAnchor.zone;
+          const newZone = event.anchor.zone;
+          // altering a zone should not move the viewport in a dimension that wasn't changed
+          const { top, bottom, left, right } = this.getters.getActiveMainViewport();
+          if (oldZone.left === newZone.left && oldZone.right === newZone.right) {
+            col = left > col || col > right ? left : col;
+          }
+          if (oldZone.top === newZone.top && oldZone.bottom === newZone.bottom) {
+            row = top > row || row > bottom ? top : row;
+          }
+        }
         const sheetId = this.getters.getActiveSheetId();
-        let { col, row } = findCellInNewZone(
-          event.previousAnchor.zone,
-          event.anchor.zone,
-          this.getters.getActiveMainViewport()
-        );
         col = Math.min(col, this.getters.getNumberCols(sheetId) - 1);
         row = Math.min(row, this.getters.getNumberRows(sheetId) - 1);
         this.refreshViewport(this.getters.getActiveSheetId(), { col, row });
