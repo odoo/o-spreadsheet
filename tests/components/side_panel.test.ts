@@ -130,7 +130,7 @@ describe("Side Panel", () => {
     expect(document.querySelector(".props_body_2")!.textContent).toBe("field");
   });
 
-  test("Closing a side panel focuses the grid/canvas", async () => {
+  test("Closing a side panel focuses the grid hidden input", async () => {
     sidePanelRegistry.add("CUSTOM_PANEL", {
       title: "Custom Panel",
       Body: Body,
@@ -139,6 +139,6 @@ describe("Side Panel", () => {
     await nextTick();
     simulateClick(".o-sidePanelClose");
     await nextTick();
-    expect(document.activeElement).toBe(fixture.querySelector(".o-grid"));
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
   });
 });

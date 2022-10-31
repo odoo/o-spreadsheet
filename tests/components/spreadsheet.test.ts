@@ -67,14 +67,15 @@ describe("Spreadsheet", () => {
   });
 
   test("focus is properly set, initially and after switching sheet", async () => {
-    expect(document.activeElement!.className).toEqual("o-grid o-two-columns");
+    // TODO check
+    expect(document.activeElement!.tagName).toEqual("INPUT");
     document.querySelector(".o-add-sheet")!.dispatchEvent(new Event("click"));
     // simulate the fact that a user clicking on the add sheet button will
     // move the focus to the document.body
     (document.activeElement as any).blur();
     await nextTick();
     expect(document.querySelectorAll(".o-sheet").length).toBe(2);
-    expect(document.activeElement!.className).toEqual("o-grid o-two-columns");
+    expect(document.activeElement!.tagName).toEqual("INPUT");
   });
 
   describe("Use of env in a function", () => {
@@ -134,9 +135,7 @@ describe("Spreadsheet", () => {
   test("typing opens composer after toolbar clicked", async () => {
     await simulateClick(`div[title="Bold"]`);
     expect(document.activeElement).not.toBeNull();
-    document.activeElement?.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "d", bubbles: true })
-    );
+    document.activeElement?.dispatchEvent(new InputEvent("input", { data: "d", bubbles: true }));
     await nextTick();
     expect(parent.model.getters.getEditionMode()).toBe("editing");
     expect(parent.model.getters.getCurrentContent()).toBe("d");

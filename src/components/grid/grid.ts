@@ -57,11 +57,6 @@ const registries = {
   CELL: cellMenuRegistry,
 };
 
-// copy and paste are specific events that should not be managed by the keydown event,
-// but they shouldn't be preventDefault and stopped (else copy and paste events will not trigger)
-// and also should not result in typing the character C or V in the composer
-const keyDownMappingIgnore: string[] = ["CTRL+C", "CTRL+V"];
-
 interface Props {
   sidePanelIsOpen: boolean;
   exposeFocus: (focus: () => void) => void;
@@ -93,6 +88,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   readonly HEADER_WIDTH = HEADER_WIDTH;
   private menuState!: MenuState;
   private gridRef!: Ref<HTMLElement>;
+  private hiddenInput!: Ref<HTMLElement>;
 
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
@@ -105,6 +101,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       menuItems: [],
     });
     this.gridRef = useRef("grid");
+    this.hiddenInput = useRef("hiddenInput");
     this.canvasPosition = useAbsolutePosition(this.gridRef);
     this.hoveredCell = useState({ col: undefined, row: undefined });
 
@@ -271,7 +268,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   focus() {
     if (!this.env.model.getters.getSelectedFigureId()) {
-      this.gridRef.el!.focus();
+      this.hiddenInput.el!.focus();
     }
   }
 
@@ -434,15 +431,15 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       handler();
       return;
     }
-    if (!keyDownMappingIgnore.includes(keyDownString)) {
-      if (ev.key.length === 1 && !ev.ctrlKey && !ev.metaKey && !ev.altKey) {
-        // if the user types a character on the grid, it means he wants to start composing the selected cell with that
-        // character
-        ev.preventDefault();
-        ev.stopPropagation();
+  }
 
-        this.props.onGridComposerCellFocused(ev.key);
-      }
+  onInput(ev: InputEvent) {
+    if (ev.data) {
+      // if the user types a character on the grid, it means he wants to start composing the selected cell with that
+      // character
+      ev.preventDefault();
+      ev.stopPropagation();
+      this.props.onGridComposerCellFocused(ev.data);
     }
   }
 

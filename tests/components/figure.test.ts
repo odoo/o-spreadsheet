@@ -84,7 +84,7 @@ describe("figures", () => {
     expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
   });
 
-  test("deleting a figure focuses the grid", async () => {
+  test("deleting a figure focuses the grid hidden input", async () => {
     createFigure(model);
     await nextTick();
     const figure = fixture.querySelector(".o-figure")!;
@@ -93,7 +93,7 @@ describe("figures", () => {
     figure.dispatchEvent(new KeyboardEvent("keydown", { key: "Delete" }));
     await nextTick();
     expect(fixture.querySelector(".o-figure")).toBeNull();
-    expect(document.activeElement).toBe(fixture.querySelector(".o-grid"));
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
   });
 
   test("deleting a figure doesn't delete selection", async () => {
