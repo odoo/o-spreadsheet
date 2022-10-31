@@ -72,7 +72,7 @@ topbarMenuRegistry
   })
   .addChild("sort_range", ["data"], {
     name: _lt("Sort range"),
-    sequence: 62,
+    sequence: 20,
     isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
     separator: true,
   })
@@ -414,15 +414,15 @@ topbarMenuRegistry
     separator: true,
   })
   .addChild("add_data_filter", ["data"], {
-    name: _lt("Add Filter"),
-    sequence: 20,
+    name: _lt("Create filter"),
+    sequence: 10,
     action: ACTIONS.FILTERS_CREATE_FILTER_TABLE,
     isVisible: (env) => !ACTIONS.SELECTION_CONTAINS_FILTER(env),
     isEnabled: (env) => ACTIONS.SELECTION_IS_CONTINUOUS(env),
   })
   .addChild("remove_data_filter", ["data"], {
-    name: _lt("Remove Filter"),
-    sequence: 20,
+    name: _lt("Remove filter"),
+    sequence: 10,
     action: ACTIONS.FILTERS_REMOVE_FILTER_TABLE,
     isVisible: ACTIONS.SELECTION_CONTAINS_FILTER,
   });
