@@ -28,6 +28,14 @@
           focus="props.focusComposer"
         />
       </t>
+      <t else="1">
+        <input
+          class="position-absolute"
+          style="z-index:-1000;"
+          t-on-input="onInput"
+          t-ref="hiddenInput"
+        />
+      </t>
       <canvas t-ref="canvas"/>
       <t
         t-foreach="env.model.getters.getClientsToDisplay()"
