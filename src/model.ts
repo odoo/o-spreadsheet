@@ -394,10 +394,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
             return dispatchResult;
           }
           this.state.addCommand(command);
-          this.dispatchToHandlers(this.handlers, command);
-        } else {
-          this.dispatchToHandlers(this.handlers, command);
         }
+        this.dispatchToHandlers(this.handlers, command);
         break;
       case Status.Finalizing:
         throw new Error("Cannot dispatch commands in the finalize state");
