@@ -295,7 +295,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
 
     const direction = ev.shiftKey ? "left" : "right";
     this.env.model.dispatch("STOP_EDITION");
-    this.env.model.selection.moveAnchorCell(direction, "one");
+    this.env.model.selection.moveAnchorCell(direction, 1);
   }
 
   private processEnterKey(ev: KeyboardEvent) {
@@ -311,7 +311,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     }
     this.env.model.dispatch("STOP_EDITION");
     const direction = ev.shiftKey ? "up" : "down";
-    this.env.model.selection.moveAnchorCell(direction, "one");
+    this.env.model.selection.moveAnchorCell(direction, 1);
   }
 
   private processEscapeKey() {

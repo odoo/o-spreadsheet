@@ -180,10 +180,10 @@ export type BorderCommand =
 export type BorderDescription = { vertical?: BorderDescr; horizontal?: BorderDescr } | undefined;
 
 export const enum DIRECTION {
-  UP,
-  DOWN,
-  LEFT,
-  RIGHT,
+  UP = "up",
+  DOWN = "down",
+  LEFT = "left",
+  RIGHT = "right",
 }
 
 export type ChangeType = "REMOVE" | "RESIZE" | "MOVE" | "CHANGE" | "NONE";

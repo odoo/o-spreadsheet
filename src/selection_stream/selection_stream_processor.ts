@@ -142,7 +142,10 @@ export class SelectionStreamProcessor
   /**
    * Set the selection to one of the cells adjacent to the current anchor cell.
    */
-  moveAnchorCell(direction: SelectionDirection, step: SelectionStep = "one"): DispatchResult {
+  moveAnchorCell(direction: SelectionDirection, step: SelectionStep = 1): DispatchResult {
+    if (step !== "end" && step <= 0) {
+      return new DispatchResult(CommandResult.InvalidSelectionStep);
+    }
     const { col, row } = this.getNextAvailablePosition(direction, step);
     return this.selectCell(col, row);
   }
@@ -188,7 +191,10 @@ export class SelectionStreamProcessor
    * The anchor cell remains where it is. It's the opposite side
    * of the anchor zone which moves.
    */
-  resizeAnchorZone(direction: SelectionDirection, step: SelectionStep = "one"): DispatchResult {
+  resizeAnchorZone(direction: SelectionDirection, step: SelectionStep = 1): DispatchResult {
+    if (step !== "end" && step <= 0) {
+      return new DispatchResult(CommandResult.InvalidSelectionStep);
+    }
     const sheet = this.getters.getActiveSheet();
     const anchor = this.anchor;
     const { col: anchorCol, row: anchorRow } = anchor.cell;
@@ -378,7 +384,7 @@ export class SelectionStreamProcessor
    */
   private getNextAvailablePosition(
     direction: SelectionDirection,
-    step: SelectionStep = "one"
+    step: SelectionStep = 1
   ): Position {
     const { col, row } = this.anchor.cell;
     const delta = this.deltaToTarget({ col, row }, direction, step);
@@ -468,20 +474,20 @@ export class SelectionStreamProcessor
   ): [number, number] {
     switch (direction) {
       case "up":
-        return step === "one"
-          ? [0, -1]
+        return step !== "end"
+          ? [0, -step]
           : [0, this.getEndOfCluster(position, "rows", -1) - position.row];
       case "down":
-        return step === "one"
-          ? [0, 1]
+        return step !== "end"
+          ? [0, step]
           : [0, this.getEndOfCluster(position, "rows", 1) - position.row];
       case "left":
-        return step === "one"
-          ? [-1, 0]
+        return step !== "end"
+          ? [-step, 0]
           : [this.getEndOfCluster(position, "cols", -1) - position.col, 0];
       case "right":
-        return step === "one"
-          ? [1, 0]
+        return step !== "end"
+          ? [step, 0]
           : [this.getEndOfCluster(position, "cols", 1) - position.col, 0];
     }
   }

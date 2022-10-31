@@ -392,4 +392,25 @@ describe("Navigation starting from hidden cells", () => {
       expect(model.getters.getPosition()).toEqual(toCartesian(endPosition));
     }
   );
+
+  test("Cannot from zero or negative steps does nothing", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 5,
+          rowNumber: 2,
+        },
+      ],
+    });
+    selectCell(model, "C1");
+    hideColumns(model, ["C"]);
+    const move1 = moveAnchorCell(model, "down", 0);
+    expect(move1).toBeCancelledBecause(CommandResult.InvalidSelectionStep);
+    const move2 = moveAnchorCell(model, "up", -1);
+    expect(move2).toBeCancelledBecause(CommandResult.InvalidSelectionStep);
+    const move3 = moveAnchorCell(model, "right", -2);
+    expect(move3).toBeCancelledBecause(CommandResult.InvalidSelectionStep);
+    const move4 = moveAnchorCell(model, "left", -3);
+    expect(move4).toBeCancelledBecause(CommandResult.InvalidSelectionStep);
+  });
 });

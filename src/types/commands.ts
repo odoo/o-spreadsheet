@@ -991,6 +991,7 @@ export const enum CommandResult {
   FigureDoesNotExist,
   InvalidConditionalFormatId,
   DuplicatedFigureId,
+  InvalidSelectionStep,
 }
 
 export interface CommandHandler<T> {

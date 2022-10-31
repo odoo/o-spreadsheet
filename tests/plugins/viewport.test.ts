@@ -118,7 +118,7 @@ describe("Viewport of Simple sheet", () => {
 
   test("Add columns doesn't affect offset", () => {
     selectCell(model, "P1");
-    const currentViewport = model.getters.getActiveViewport();
+    const currentViewport = { ...model.getters.getActiveViewport() };
     addColumns(model, "after", "P", 30);
     expect(model.getters.getActiveViewport()).toMatchObject(currentViewport);
     undo(model);
@@ -535,6 +535,26 @@ describe("Viewport of Simple sheet", () => {
     expect(model.getters.getActiveViewport()).toMatchObject(
       model.getters.getActiveSnappedViewport()
     );
+  });
+
+  describe("Cross Move Position with selection outside the viewport affects offset", () => {
+    test("Move horizontally a cell which row is outside the viewport", () => {
+      const { bottom } = model.getters.getActiveSnappedViewport();
+      selectCell(model, toXC(0, bottom + 3));
+      const viewport = { ...model.getters.getActiveSnappedViewport() };
+      model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 0 });
+      moveAnchorCell(model, "right");
+      expect(model.getters.getActiveSnappedViewport()).toMatchObject(viewport);
+    });
+
+    test("Move vertically a cell which col is outside the viewport", () => {
+      const { right } = model.getters.getActiveSnappedViewport();
+      selectCell(model, toXC(right + 3, 0));
+      const viewport = { ...model.getters.getActiveSnappedViewport() };
+      model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 0 });
+      moveAnchorCell(model, "down");
+      expect(model.getters.getActiveSnappedViewport()).toMatchObject(viewport);
+    });
   });
 
   test("Move position on cells that are taller than the client's height", () => {
