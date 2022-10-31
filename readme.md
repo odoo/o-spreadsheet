@@ -57,3 +57,10 @@ npm run test -- --watch
 # build documentation
 npm run doc
 ```
+
+## Contributing
+
+- Open a pull request or an issue on this repository.
+- Make sure you have [signed the CLA](https://github.com/odoo/odoo/blob/16.0/doc/cla/sign-cla.md) on [odoo repository](https://github.com/odoo/odoo).
+
+Most of [odoo contribution guidelines](https://github.com/odoo/odoo/wiki/Contributing#making-pull-requests) apply here.
