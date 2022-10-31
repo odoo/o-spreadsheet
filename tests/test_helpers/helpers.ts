@@ -260,9 +260,14 @@ export async function typeInComposer(composerEl: Element, text: string) {
   await nextTick();
 }
 
-export async function startGridComposition(key: string = "Enter") {
-  const gridEl = document.querySelector(".o-grid");
-  gridEl!.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true }));
+export async function startGridComposition(key?: string) {
+  if (key) {
+    const gridInputEl = document.querySelector(".o-grid>input");
+    gridInputEl!.dispatchEvent(new InputEvent("input", { data: key, bubbles: true }));
+  } else {
+    const gridInputEl = document.querySelector(".o-grid");
+    gridInputEl!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+  }
   await nextTick();
   return document.querySelector(".o-grid .o-composer")!;
 }

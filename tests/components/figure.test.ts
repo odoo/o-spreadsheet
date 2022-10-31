@@ -111,7 +111,7 @@ describe("figures", () => {
     expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
   });
 
-  test("deleting a figure focuses the canvas", async () => {
+  test("deleting a figure focuses the grid hidden input", async () => {
     model.dispatch("CREATE_TEXT_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
       id: "someuuid",
@@ -124,7 +124,7 @@ describe("figures", () => {
     figure.dispatchEvent(new KeyboardEvent("keydown", { key: "Delete" }));
     await nextTick();
     expect(fixture.querySelector(".o-figure")).toBeNull();
-    expect(document.activeElement).toBe(fixture.querySelector("canvas"));
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
   });
 
   test("deleting a figure doesn't delete selection", async () => {

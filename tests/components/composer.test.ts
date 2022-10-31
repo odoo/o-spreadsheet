@@ -32,7 +32,7 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 
 let model: Model;
 let composerEl: Element;
-let canvasEl: Element;
+let gridInputEl: Element;
 let fixture: HTMLElement;
 let parent: Spreadsheet;
 let cehMock: ContentEditableHelper;
@@ -79,7 +79,7 @@ beforeEach(async () => {
     width: 1000,
     height: 1000,
   });
-  canvasEl = parent.el?.querySelector(".o-grid")!;
+  gridInputEl = parent.el?.querySelector(".o-grid>input")!;
 });
 
 afterEach(() => {
@@ -529,16 +529,15 @@ describe("composer", () => {
   });
 
   test("typing CTRL+C does not type C in the cell", async () => {
-    canvasEl.dispatchEvent(
+    gridInputEl.dispatchEvent(
       new KeyboardEvent("keydown", { key: "c", ctrlKey: true, bubbles: true })
     );
     await nextTick();
     expect(model.getters.getCurrentContent()).toBe("");
   });
+
   test("keyup event triggered after edition end", async () => {
-    canvasEl.dispatchEvent(
-      new KeyboardEvent("keydown", Object.assign({ key: "d", bubbles: true }))
-    );
+    gridInputEl.dispatchEvent(new InputEvent("input", Object.assign({ data: "d", bubbles: true })));
     await nextTick();
     const composerEl = fixture.querySelector("div.o-composer")!;
     expect(model.getters.getEditionMode()).toBe("editing");
@@ -1242,9 +1241,11 @@ describe("composer highlights color", () => {
     expect(getHighlights(model)[0].color).toBe(colors[0]);
     expect(getHighlights(model)[1].color).toBe(colors[1]);
 
-    document.activeElement!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
+    );
     await nextTick();
-    canvasEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    gridInputEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
     await nextTick();
     expect(getHighlights(model).length).toBe(2);
     expect(getHighlights(model)[0].color).toBe(colors[0]);
