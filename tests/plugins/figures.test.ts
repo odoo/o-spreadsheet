@@ -327,4 +327,28 @@ describe("figure plugin", () => {
     expect(model.getters.getEditionMode()).toBe("inactive");
     expect(model.getters.getActiveCell()?.evaluated.value).toBeUndefined();
   });
+
+  test("cannot duplicate figure ids", () => {
+    const model = new Model();
+    const figure = {
+      id: "someuuid",
+      x: 10,
+      y: 10,
+      tag: "hey",
+      width: 10,
+      height: 10,
+    };
+    const cmd1 = model.dispatch("CREATE_FIGURE", {
+      sheetId: model.getters.getActiveSheetId(),
+      figure,
+    });
+    expect(cmd1).toBeSuccessfullyDispatched();
+    createSheet(model, { sheetId: "42" });
+
+    const cmd2 = model.dispatch("CREATE_FIGURE", {
+      sheetId: "42",
+      figure,
+    });
+    expect(cmd2).toBeCancelledBecause(CommandResult.DuplicatedFigureId);
+  });
 });

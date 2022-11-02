@@ -289,6 +289,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       if (sheet.figures) {
         for (let figure of sheet.figures) {
           if (figure.tag === "chart") {
+            this.history.update("nextId", this.nextId + 1);
             const figureData: ChartUIDefinition = {
               ...figure.data,
             };
