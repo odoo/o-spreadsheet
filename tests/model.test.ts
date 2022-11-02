@@ -16,7 +16,8 @@ import { FindAndReplacePlugin } from "../src/plugins/ui/find_and_replace";
 import { SortPlugin } from "../src/plugins/ui/sort";
 import { SheetUIPlugin } from "../src/plugins/ui/ui_sheet";
 import { UIPlugin } from "../src/plugins/ui_plugin";
-import { Command, CoreCommand, DispatchResult } from "../src/types";
+import { Command, CoreCommand, coreTypes, DispatchResult } from "../src/types";
+import { setupCollaborativeEnv } from "./collaborative/collaborative_helpers";
 import { selectCell, setCellContent } from "./test_helpers/commands_helpers";
 import { getCell, getCellText } from "./test_helpers/getters_helpers";
 
@@ -173,7 +174,7 @@ describe("Model", () => {
     model.dispatch("COPY", { target: [toZone("A1")] });
     expect(result).toBeSuccessfullyDispatched();
     expect(getCellText(model, "A2")).toBe("copy&paste me");
-    corePluginRegistry.remove("myUIPlugin");
+    uiPluginRegistry.remove("myUIPlugin");
   });
 
   test("Can open a model in readonly mode", () => {
@@ -194,5 +195,47 @@ describe("Model", () => {
   test("Can add custom elements in the config of model", () => {
     const model = new Model({}, { custom: "42" } as unknown as ModelConfig);
     expect(model["config"]["custom"]).toBe("42");
+  });
+
+  test("Replayed commands are not send to UI plugins", () => {
+    let numberCall = 0;
+    //@ts-ignore
+    coreTypes.add("MY_CMD_1");
+    //@ts-ignore
+    coreTypes.add("MY_CMD_2");
+    class MyUIPlugin extends UIPlugin {
+      handle(cmd: Command) {
+        //@ts-ignore
+        if (cmd.type === "MY_CMD_2") {
+          if (this.getters.getClient().id === "bob") {
+            numberCall++;
+          }
+        }
+      }
+    }
+    uiPluginRegistry.add("myUIPlugin", MyUIPlugin);
+
+    class MyCorePlugin extends CorePlugin {
+      public readonly state: number = 0;
+      handle(cmd: CoreCommand) {
+        //@ts-ignore
+        if (cmd.type === "MY_CMD_1") {
+          this.history.update("state", 1);
+          //@ts-ignore
+          this.dispatch("MY_CMD_2");
+        }
+      }
+    }
+    corePluginRegistry.add("myCorePlugin", MyCorePlugin);
+
+    const { alice, bob, network } = setupCollaborativeEnv();
+    network.concurrent(() => {
+      setCellContent(alice, "A1", "Hello");
+      //@ts-ignore
+      bob.dispatch("MY_CMD_1");
+    });
+    expect(numberCall).toEqual(1);
+    uiPluginRegistry.remove("myUIPlugin");
+    corePluginRegistry.remove("myCorePlugin");
   });
 });
