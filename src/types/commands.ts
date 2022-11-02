@@ -986,6 +986,7 @@ export const enum CommandResult {
   NotEnoughSheets,
   MissingSheetName,
   DuplicatedSheetName,
+  DuplicatedSheetId,
   ForbiddenCharactersInSheetName,
   WrongSheetMove,
   WrongSheetPosition,
