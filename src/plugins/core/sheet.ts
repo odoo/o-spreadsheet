@@ -1003,6 +1003,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   private checkSheetExists(cmd: Command): CommandResult {
     if (cmd.type !== "CREATE_SHEET" && "sheetId" in cmd && this.sheets[cmd.sheetId] === undefined) {
       return CommandResult.InvalidSheetId;
+    } else if (cmd.type === "CREATE_SHEET" && this.sheets[cmd.sheetId] !== undefined) {
+      return CommandResult.DuplicatedSheetId;
     }
     return CommandResult.Success;
   }
