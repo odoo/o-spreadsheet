@@ -175,6 +175,21 @@ describe("sheets", () => {
     );
   });
 
+  test("Cannot create a sheet with an already existent id", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    expect(
+      createSheetWithName(
+        model,
+        {
+          sheetId,
+          position: 1,
+        },
+        "newSheet"
+      )
+    ).toBeCancelledBecause(CommandResult.DuplicatedSheetId);
+  });
+
   test("Cannot delete an invalid sheet; confirmation", async () => {
     const model = new Model();
     expect(model.dispatch("DELETE_SHEET", { sheetId: "invalid" })).toBeCancelledBecause(
