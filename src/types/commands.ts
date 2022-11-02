@@ -989,6 +989,7 @@ export const enum CommandResult {
   InvalidViewportSize,
   FigureDoesNotExist,
   InvalidConditionalFormatId,
+  DuplicatedFigureId,
 }
 
 export interface CommandHandler<T> {
