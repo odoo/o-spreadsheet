@@ -160,6 +160,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
           // figure data should be external IMO => chart should be in sheet.chart
           // instead of in figure.data
           if (figure.tag === "chart") {
+            this.history.update("nextId", this.nextId + 1);
             this.charts[figure.id] = this.createChart(figure.id, figure.data, sheet.id);
           }
         }
