@@ -104,6 +104,12 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   private session: Session;
 
   /**
+   * In a collaborative context, some commands can be replayed, we have to ensure
+   * that these commands are not replayed on the UI plugins.
+   */
+  private isReplayingCommand: boolean = false;
+
+  /**
    * A plugin can draw some contents on the canvas. But even better: it can do
    * so multiple times.  The order of the render calls will determine a list of
    * "layers" (i.e., earlier calls will be obviously drawn below later calls).
@@ -270,8 +276,11 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       buildRevisionLog(
         revisionId,
         this.state.recordChanges.bind(this.state),
-        (command: CoreCommand) =>
-          this.dispatchToHandlers([this.range, ...this.corePlugins], command)
+        (command: CoreCommand) => {
+          this.isReplayingCommand = true;
+          this.dispatchToHandlers([this.range, ...this.corePlugins], command);
+          this.isReplayingCommand = false;
+        }
       ),
       this.config.transportService,
       revisionId
@@ -408,7 +417,8 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     const command: Command = { type, ...payload };
     const previousStatus = this.status;
     this.status = Status.RunningCore;
-    this.dispatchToHandlers(this.handlers, command);
+    const handlers = this.isReplayingCommand ? [this.range, ...this.corePlugins] : this.handlers;
+    this.dispatchToHandlers(handlers, command);
     this.status = previousStatus;
     return DispatchResult.Success;
   };
