@@ -987,6 +987,54 @@ describe("datasource tests", function () {
     );
   });
 
+  test("Duplicate sheet > export > import > duplicate sheet contains 2 distinct charts", () => {
+    const firstSheetId = model.getters.getActiveSheetId();
+    const secondSheetId = "42";
+    const thirdSheetId = "third";
+    createChart(
+      model,
+      {
+        dataSets: ["B1:B4", "C1:C4"],
+        labelRange: "A2:A4",
+      },
+      firstSheetId
+    );
+    model.dispatch("DUPLICATE_SHEET", {
+      sheetId: firstSheetId,
+      sheetIdTo: secondSheetId,
+    });
+
+    const newModel = new Model(model.exportData());
+    newModel.dispatch("DUPLICATE_SHEET", {
+      sheetId: secondSheetId,
+      sheetIdTo: thirdSheetId,
+    });
+
+    const figuresSh1 = newModel.getters.getFigures(firstSheetId);
+    const figuresSh2 = newModel.getters.getFigures(secondSheetId);
+    const figuresSh3 = newModel.getters.getFigures(thirdSheetId);
+
+    expect(figuresSh1.length).toEqual(1);
+    expect(figuresSh2.length).toEqual(1);
+    expect(figuresSh3.length).toEqual(1);
+
+    expect(newModel.getters.getChartsIdBySheet(firstSheetId).length).toEqual(1);
+    expect(newModel.getters.getChartsIdBySheet(secondSheetId).length).toEqual(1);
+    expect(newModel.getters.getChartsIdBySheet(thirdSheetId).length).toEqual(1);
+
+    const chartSh1 = newModel.getters.getChartDefinition(figuresSh1[0].id);
+    const chartSh2 = newModel.getters.getChartDefinition(figuresSh2[0].id);
+    const chartSh3 = newModel.getters.getChartDefinition(figuresSh3[0].id);
+
+    expect(chartSh1?.sheetId).toBe(firstSheetId);
+    expect(chartSh2?.sheetId).toBe(secondSheetId);
+    expect(chartSh3?.sheetId).toBe(thirdSheetId);
+
+    expect(chartSh1).not.toEqual(chartSh2);
+    expect(chartSh2).not.toEqual(chartSh3);
+    expect(chartSh3).not.toEqual(chartSh1);
+  });
+
   test("Chart foreign ranges unchanged on sheet duplication", () => {
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetName = "FixedRef";
