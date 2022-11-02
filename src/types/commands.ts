@@ -1111,6 +1111,7 @@ export const enum CommandResult {
   FilterNotFound,
   MergeInFilter,
   NonContinuousTargets,
+  DuplicatedFigureId,
 }
 
 export interface CommandHandler<T> {
