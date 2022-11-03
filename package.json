@@ -78,7 +78,9 @@
   },
   "dependencies": {
     "@odoo/owl": "2.0.1",
-    "bootstrap": "^5.1.3"
+    "bootstrap": "^5.1.3",
+    "immer": "^9.0.16",
+    "immutable": "^4.1.0"
   },
   "jest": {
     "roots": [
