@@ -1,7 +1,7 @@
 import { reactive } from "@odoo/owl";
 import { store } from "../src/stores/providers";
 
-test("blou", () => {
+test("writting original reactive state triggers children", () => {
   const originState = reactive({
     a: 1,
     get b() {
