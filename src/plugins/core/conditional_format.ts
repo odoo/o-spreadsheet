@@ -117,7 +117,8 @@ export class ConditionalFormatPlugin
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_SHEET":
-        this.cfRules[cmd.sheetId] = [];
+        this.history.update("cfRules", cmd.sheetId, []);
+        // this.cfRules[cmd.sheetId] = [];
         break;
       case "DUPLICATE_SHEET":
         this.history.update("cfRules", cmd.sheetIdTo, []);

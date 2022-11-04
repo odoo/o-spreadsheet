@@ -35,7 +35,7 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_SHEET":
-        this.figures[cmd.sheetId] = {};
+        this.history.update("figures", cmd.sheetId, {});
         break;
       case "DELETE_SHEET":
         this.deleteSheet(cmd.sheetId);

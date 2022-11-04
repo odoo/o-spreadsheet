@@ -73,7 +73,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         }
       }
     }
-    this.history.update("style", "border", "width", 12);
   }
 
   // ---------------------------------------------------------------------------

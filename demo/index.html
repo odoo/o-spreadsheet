@@ -3,6 +3,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
   </head>
   <body>
+    <script>
+      // WORKAROUND for immer.js esm (see https://github.com/immerjs/immer/issues/557)
+      window.process = {
+        env: {
+          NODE_ENV: "production",
+        },
+      };
+    </script>
     <script src="../node_modules/@odoo/owl/dist/owl.iife.js"></script>
     <script src="../node_modules/jszip/dist/jszip.min.js"></script>
     <script src="../node_modules/file-saver/dist/FileSaver.min.js"></script>

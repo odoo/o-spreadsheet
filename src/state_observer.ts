@@ -1,3 +1,4 @@
+import produce from "immer";
 import { createEmptyStructure } from "./helpers/state_manager_helpers";
 import { CoreCommand, HistoryChange } from "./types";
 
@@ -22,30 +23,49 @@ export class StateObserver {
 
   addChange(...args: any[]) {
     const val: any = args.pop();
-    const [root, ...path] = args as [any, string | number];
-    let value = root as any;
-    let key = path[path.length - 1];
-    for (let pathIndex = 0; pathIndex <= path.length - 2; pathIndex++) {
-      const p = path[pathIndex];
-      if (value[p] === undefined) {
-        const nextPath = path[pathIndex + 1];
-        value[p] = createEmptyStructure(nextPath);
+    const [root, ...path] = args;
+    if (path.length === 1) {
+      // only first property and value
+      const key = path[0];
+      this.changes.push({
+        root,
+        path,
+        before: root[key],
+        after: val,
+      });
+      if (val === undefined) {
+        delete root[key];
+      } else {
+        root[key] = val;
       }
-      value = value[p];
-    }
-    if (value[key] === val) {
       return;
     }
+    const value = root[path[0]] as any;
+    const nextValue = produce(value, (draft) => {
+      let key = path[path.length - 1];
+      for (let pathIndex = 1; pathIndex <= path.length - 2; pathIndex++) {
+        const p = path[pathIndex];
+        if (draft[p] === undefined) {
+          const nextPath = path[pathIndex + 1];
+          draft[p] = createEmptyStructure(nextPath);
+        }
+        draft = draft[p];
+      }
+      // if (draft[key] === val) {
+      //   return;
+      // }
+      if (val === undefined) {
+        delete draft[key];
+      } else {
+        draft[key] = val;
+      }
+    });
     this.changes.push({
       root,
       path,
-      before: value[key],
-      after: val,
+      before: root[path[0]],
+      after: nextValue,
     });
-    if (val === undefined) {
-      delete value[key];
-    } else {
-      value[key] = val;
-    }
+    root[path[0]] = nextValue;
   }
 }

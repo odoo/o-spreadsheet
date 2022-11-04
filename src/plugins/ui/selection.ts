@@ -328,7 +328,7 @@ export class GridSelectionPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   getActiveSheet(): Readonly<Sheet> {
-    return this.activeSheet;
+    return this.getters.getSheet(this.activeSheet.id);
   }
 
   getActiveSheetId(): UID {

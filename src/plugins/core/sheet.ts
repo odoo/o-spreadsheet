@@ -163,7 +163,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         this.moveSheet(cmd.sheetId, cmd.direction);
         break;
       case "RENAME_SHEET":
-        this.renameSheet(this.sheets[cmd.sheetId]!, cmd.name!);
+        this.renameSheet(cmd.sheetId, cmd.name!);
         break;
       case "HIDE_SHEET":
         this.hideSheet(cmd.sheetId);
@@ -175,21 +175,21 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo);
         break;
       case "DELETE_SHEET":
-        this.deleteSheet(this.sheets[cmd.sheetId]!);
+        this.deleteSheet(cmd.sheetId);
         break;
 
       case "REMOVE_COLUMNS_ROWS":
         if (cmd.dimension === "COL") {
-          this.removeColumns(this.sheets[cmd.sheetId]!, [...cmd.elements]);
+          this.removeColumns(cmd.sheetId, [...cmd.elements]);
         } else {
-          this.removeRows(this.sheets[cmd.sheetId]!, [...cmd.elements]);
+          this.removeRows(cmd.sheetId, [...cmd.elements]);
         }
         break;
       case "ADD_COLUMNS_ROWS":
         if (cmd.dimension === "COL") {
-          this.addColumns(this.sheets[cmd.sheetId]!, cmd.base, cmd.position, cmd.quantity);
+          this.addColumns(cmd.sheetId, cmd.base, cmd.position, cmd.quantity);
         } else {
-          this.addRows(this.sheets[cmd.sheetId]!, cmd.base, cmd.position, cmd.quantity);
+          this.addRows(cmd.sheetId, cmd.base, cmd.position, cmd.quantity);
         }
         break;
       case "UPDATE_CELL_POSITION":
@@ -628,11 +628,11 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return this.checkSheetName(cmd);
   }
 
-  private renameSheet(sheet: Sheet, name: string) {
-    const oldName = sheet.name;
-    this.history.update("sheets", sheet.id, "name", name.trim());
+  private renameSheet(sheetId: UID, name: string) {
+    const oldName = this.getSheet(sheetId).name;
+    this.history.update("sheets", sheetId, "name", name.trim());
     const sheetIdsMapName = Object.assign({}, this.sheetIdsMapName);
-    sheetIdsMapName[name] = sheet.id;
+    sheetIdsMapName[name] = sheetId;
     delete sheetIdsMapName[oldName];
     this.history.update("sheetIdsMapName", sheetIdsMapName);
   }
@@ -693,20 +693,16 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return name;
   }
 
-  private deleteSheet(sheet: Sheet) {
-    const name = sheet.name;
-    const sheets = Object.assign({}, this.sheets);
-    delete sheets[sheet.id];
-    this.history.update("sheets", sheets);
+  private deleteSheet(sheetId: UID) {
+    const name = this.getSheet(sheetId).name;
+    this.history.update("sheets", sheetId, undefined);
 
     const orderedSheetIds = this.orderedSheetIds.slice();
-    const currentIndex = orderedSheetIds.indexOf(sheet.id);
+    const currentIndex = orderedSheetIds.indexOf(sheetId);
     orderedSheetIds.splice(currentIndex, 1);
 
     this.history.update("orderedSheetIds", orderedSheetIds);
-    const sheetIdsMapName = Object.assign({}, this.sheetIdsMapName);
-    delete sheetIdsMapName[name];
-    this.history.update("sheetIdsMapName", sheetIdsMapName);
+    this.history.update("sheetIdsMapName", name, undefined);
   }
 
   /**
@@ -719,16 +715,17 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    * @param sheet ID of the sheet on which deletion should be applied
    * @param columns Columns to delete
    */
-  private removeColumns(sheet: Sheet, columns: HeaderIndex[]) {
+  private removeColumns(sheetId: UID, columns: HeaderIndex[]) {
     // This is necessary because we have to delete elements in correct order:
     // begin with the end.
     columns.sort((a, b) => b - a);
     for (let column of columns) {
       // Move the cells.
-      this.moveCellOnColumnsDeletion(sheet, column);
+      this.moveCellOnColumnsDeletion(sheetId, column);
     }
-    const numberOfCols = this.sheets[sheet.id]!.numberOfCols;
-    this.history.update("sheets", sheet.id, "numberOfCols", numberOfCols - columns.length);
+    const numberOfCols = this.sheets[sheetId]!.numberOfCols;
+    this.history.update("sheets", sheetId, "numberOfCols", numberOfCols - columns.length);
+    const sheet = this.getSheet(sheetId);
     const count = columns.filter((col) => col < sheet.panes.xSplit).length;
     if (count) {
       this.setPaneDivisions(sheet.id, sheet.panes.xSplit - count, "COL");
@@ -746,56 +743,60 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    * @param sheet ID of the sheet on which deletion should be applied
    * @param rows Rows to delete
    */
-  private removeRows(sheet: Sheet, rows: HeaderIndex[]) {
+  private removeRows(sheetId: UID, rows: HeaderIndex[]) {
     // This is necessary because we have to delete elements in correct order:
     // begin with the end.
     rows.sort((a, b) => b - a);
 
     for (let group of groupConsecutive(rows)) {
       // Move the cells.
-      this.moveCellOnRowsDeletion(sheet, group[group.length - 1], group[0]);
+      this.moveCellOnRowsDeletion(sheetId, group[group.length - 1], group[0]);
 
       // Effectively delete the element and recompute the left-right/top-bottom.
-      group.map((row) => this.updateRowsStructureOnDeletion(row, sheet));
+      group.map((row) => this.updateRowsStructureOnDeletion(row, sheetId));
     }
+    const sheet = this.getSheet(sheetId);
     const count = rows.filter((row) => row < sheet.panes.ySplit).length;
     if (count) {
-      this.setPaneDivisions(sheet.id, sheet.panes.ySplit - count, "ROW");
+      this.setPaneDivisions(sheetId, sheet.panes.ySplit - count, "ROW");
     }
   }
 
   private addColumns(
-    sheet: Sheet,
+    sheetId: UID,
     column: HeaderIndex,
     position: "before" | "after",
     quantity: number
   ) {
     const index = position === "before" ? column : column + 1;
     // Move the cells.
-    this.moveCellsOnAddition(sheet, index, quantity, "columns");
+    this.moveCellsOnAddition(sheetId, index, quantity, "columns");
 
-    const numberOfCols = this.sheets[sheet.id]!.numberOfCols;
-    this.history.update("sheets", sheet.id, "numberOfCols", numberOfCols + quantity);
+    const numberOfCols = this.sheets[sheetId]!.numberOfCols;
+    this.history.update("sheets", sheetId, "numberOfCols", numberOfCols + quantity);
+    const sheet = this.getSheet(sheetId);
     if (index < sheet.panes.xSplit) {
       this.setPaneDivisions(sheet.id, sheet.panes.xSplit + quantity, "COL");
     }
   }
 
-  private addRows(sheet: Sheet, row: HeaderIndex, position: "before" | "after", quantity: number) {
+  private addRows(sheetId: UID, row: HeaderIndex, position: "before" | "after", quantity: number) {
     const index = position === "before" ? row : row + 1;
-    this.addEmptyRows(sheet, quantity);
+    this.addEmptyRows(sheetId, quantity);
 
     // Move the cells.
-    this.moveCellsOnAddition(sheet, index, quantity, "rows");
+    this.moveCellsOnAddition(sheetId, index, quantity, "rows");
 
     // Recompute the left-right/top-bottom.
-    this.updateRowsStructureOnAddition(sheet, row, quantity);
+    this.updateRowsStructureOnAddition(sheetId, row, quantity);
+    const sheet = this.getSheet(sheetId);
     if (index < sheet.panes.ySplit) {
       this.setPaneDivisions(sheet.id, sheet.panes.ySplit + quantity, "ROW");
     }
   }
 
-  private moveCellOnColumnsDeletion(sheet: Sheet, deletedColumn: number) {
+  private moveCellOnColumnsDeletion(sheetId: UID, deletedColumn: number) {
+    const sheet = this.getSheet(sheetId);
     for (let [index, row] of Object.entries(sheet.rows)) {
       const rowIndex = parseInt(index, 10);
       for (let i in row.cells) {
@@ -826,12 +827,13 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    * Move the cells after a column or rows insertion
    */
   private moveCellsOnAddition(
-    sheet: Sheet,
+    sheetId: UID,
     addedElement: HeaderIndex,
     quantity: number,
     dimension: "rows" | "columns"
   ) {
     const commands: UpdateCellPositionCommand[] = [];
+    const sheet = this.getSheet(sheetId);
     for (const [index, row] of Object.entries(sheet.rows)) {
       const rowIndex = parseInt(index, 10);
       if (dimension !== "rows" || rowIndex >= addedElement) {
@@ -866,11 +868,12 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    *
    */
   private moveCellOnRowsDeletion(
-    sheet: Sheet,
+    sheetId: UID,
     deleteFromRow: HeaderIndex,
     deleteToRow: HeaderIndex
   ) {
     const numberRows = deleteToRow - deleteFromRow + 1;
+    const sheet = this.getSheet(sheetId);
     for (let [index, row] of Object.entries(sheet.rows)) {
       const rowIndex = parseInt(index, 10);
       if (rowIndex >= deleteFromRow && rowIndex <= deleteToRow) {
@@ -903,8 +906,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
   }
 
-  private updateRowsStructureOnDeletion(index: HeaderIndex, sheet: Sheet) {
+  private updateRowsStructureOnDeletion(index: HeaderIndex, sheetId: UID) {
     const rows: Row[] = [];
+    const sheet = this.getSheet(sheetId);
     const cellsQueue = sheet.rows.map((row) => row.cells);
     for (let i in sheet.rows) {
       if (parseInt(i, 10) === index) {
@@ -914,7 +918,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         cells: cellsQueue.shift()!,
       });
     }
-    this.history.update("sheets", sheet.id, "rows", rows);
+    this.history.update("sheets", sheetId, "rows", rows);
   }
 
   /**
@@ -925,8 +929,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    * @param addedRow Index of the added row
    * @param rowsToAdd Number of the rows to add
    */
-  private updateRowsStructureOnAddition(sheet: Sheet, addedRow: HeaderIndex, rowsToAdd: number) {
+  private updateRowsStructureOnAddition(sheetId: UID, addedRow: HeaderIndex, rowsToAdd: number) {
     const rows: Row[] = [];
+    const sheet = this.getSheet(sheetId);
     const cellsQueue = sheet.rows.map((row) => row.cells);
     sheet.rows.forEach(() =>
       rows.push({
@@ -942,7 +947,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    * @param sheet Sheet
    * @param quantity Number of rows to add
    */
-  private addEmptyRows(sheet: Sheet, quantity: number) {
+  private addEmptyRows(sheetId: UID, quantity: number) {
+    const sheet = this.getSheet(sheetId);
     const rows: Row[] = sheet.rows.slice();
     for (let i = 0; i < quantity; i++) {
       rows.push({

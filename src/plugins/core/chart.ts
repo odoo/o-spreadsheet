@@ -173,12 +173,15 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         // TODO This code is false, if two plugins want ot insert figures on the sheet, it will crash !
         const sheetFigures = this.getters.getFigures(sheet.id);
         const figures = sheetFigures as FigureData<any>[];
-        for (let figure of figures) {
+        // for (let figure of figures) {
+        // }
+        sheet.figures = figures.map((figure) => {
+          figure = { ...figure };
           if (figure && figure.tag === "chart") {
             figure.data = this.getChartDefinition(figure.id);
           }
-        }
-        sheet.figures = figures;
+          return figure;
+        });
       }
     }
   }
