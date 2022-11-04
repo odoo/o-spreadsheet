@@ -74,7 +74,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   readonly orderedSheetIds: UID[] = [];
   readonly sheets: Record<UID, Sheet | undefined> = {};
   readonly cellPosition: Record<UID, CellPosition | undefined> = {};
-
+  static stateKeys = ["sheetIdsMapName", "orderedSheetIds", "sheets", "cellPosition"];
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
@@ -289,7 +289,12 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   tryGetSheet(sheetId: UID): Sheet | undefined {
-    return this.sheets[sheetId];
+    try {
+      return this.sheets[sheetId];
+    } catch (error) {
+      console.log();
+    }
+    return undefined;
   }
 
   getSheet(sheetId: UID): Sheet {

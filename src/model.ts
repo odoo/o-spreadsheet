@@ -274,7 +274,13 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       }
       this.coreGetters[name] = plugin[name].bind(plugin);
     }
-    plugin.import(data);
+    // @ts-ignore
+    for (const property of Plugin.stateKeys || []) {
+      this.state.register(plugin, property);
+    }
+    this.state.recordChanges(() => {
+      plugin.import(data);
+    });
     this.corePlugins.push(plugin);
   }
 

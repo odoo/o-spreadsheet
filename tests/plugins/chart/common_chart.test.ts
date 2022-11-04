@@ -105,7 +105,7 @@ describe("Single cell chart background color", () => {
     });
     const secondSheetFigures = model.getters.getFigures(secondSheetId);
     expect(secondSheetFigures.length).toBe(1);
-    expect(firstSheetFigures[0]).toMatchObject({
+    expect(model.getters.getFigures(firstSheetId)[0]).toMatchObject({
       ...secondSheetFigures[0],
       id: expect.any(String),
     });

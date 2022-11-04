@@ -30,6 +30,24 @@ test("immer", () => {
   console.log(updated);
 });
 
+test("0 as key", () => {
+  const state = {
+    sheet: {
+      rows: [{ cells: { 0: 1 } }],
+    },
+  };
+  const updated = produce(state, (draft) => {
+    draft.sheet.rows[0].cells[2] = 3;
+    draft.sheet.rows.push({ cells: { 0: 5 } });
+  });
+  const updatedTwice = produce(state, (draft) => {
+    draft.sheet.rows[0].cells[2] = 3;
+    draft.sheet.rows.push({ cells: { 0: 5 } });
+  });
+  console.log(updated);
+  console.log(updatedTwice);
+});
+
 test("replace immer", () => {
   const updated = produce(
     cell,

@@ -125,7 +125,7 @@ export class GridSelectionPlugin extends UIPlugin {
   // This flag is used to avoid to historize the ACTIVE_SHEET command when it's
   // the main command.
 
-  activeSheet: Sheet = null as any;
+  activeSheetId: UID = null as any;
 
   constructor(
     getters: Getters,
@@ -294,11 +294,11 @@ export class GridSelectionPlugin extends UIPlugin {
         }
         if (!this.getters.tryGetSheet(this.getters.getActiveSheetId())) {
           const currentSheetIds = this.getters.getVisibleSheetIds();
-          this.activeSheet = this.getters.getSheet(currentSheetIds[0]);
-          if (this.activeSheet.id in this.sheetsData) {
+          this.activeSheetId = currentSheetIds[0];
+          if (this.activeSheetId in this.sheetsData) {
             const { anchor } = this.clipSelection(
-              this.activeSheet.id,
-              this.sheetsData[this.activeSheet.id].gridSelection
+              this.activeSheetId,
+              this.sheetsData[this.activeSheetId].gridSelection
             );
             this.selectCell(anchor.cell.col, anchor.cell.row);
           } else {
@@ -328,11 +328,11 @@ export class GridSelectionPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   getActiveSheet(): Readonly<Sheet> {
-    return this.getters.getSheet(this.activeSheet.id);
+    return this.getters.getSheet(this.activeSheetId);
   }
 
   getActiveSheetId(): UID {
-    return this.activeSheet.id;
+    return this.activeSheetId;
   }
   getActiveCell(): Cell | undefined {
     const sheetId = this.getters.getActiveSheetId();
@@ -517,13 +517,12 @@ export class GridSelectionPlugin extends UIPlugin {
   }
 
   private setActiveSheet(id: UID) {
-    const sheet = this.getters.getSheet(id);
-    this.activeSheet = sheet;
+    this.activeSheetId = id;
   }
 
   private activateNextSheet(direction: "left" | "right") {
     const sheetIds = this.getters.getSheetIds();
-    const oldSheetPosition = sheetIds.findIndex((id) => id === this.activeSheet.id);
+    const oldSheetPosition = sheetIds.findIndex((id) => id === this.activeSheetId);
     const delta = direction === "left" ? sheetIds.length - 1 : 1;
     const newPosition = (oldSheetPosition + delta) % sheetIds.length;
     this.dispatch("ACTIVATE_SHEET", {
