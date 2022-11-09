@@ -6,6 +6,7 @@ import { isEqual, rangeReference, zoneToDimension } from "../../../helpers/index
 import { ComposerSelection, SelectionIndicator } from "../../../plugins/ui/edition";
 import { DOMDimension, FunctionDescription, Rect, SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
+import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
 import {
   TextValueProvider,
   TextValueProviderApi,
@@ -207,9 +208,9 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     if (this.env.model.getters.isSelectingForComposer()) {
       this.functionDescriptionState.showDescription = false;
       // Prevent the default content editable behavior which moves the cursor
-      // but don't stop the event and let it bubble to the grid which will
-      // update the selection accordingly
       ev.preventDefault();
+      ev.stopPropagation();
+      updateSelectionWithArrowKeys(ev, this.env.model.selection);
       return;
     }
     const content = this.env.model.getters.getCurrentContent();
