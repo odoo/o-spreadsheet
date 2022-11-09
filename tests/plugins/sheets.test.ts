@@ -403,7 +403,7 @@ describe("sheets", () => {
     const sheet1 = model.getters.getSheetIds()[0];
     const sheet2 = model.getters.getSheetIds()[1];
     const beforeMoveSheet = model.exportData();
-    moveSheet(model, "right", sheet1);
+    moveSheet(model, 1, sheet1);
     expect(model.getters.getActiveSheetId()).toEqual(sheet1);
     expect(model.getters.getSheetIds()[0]).toEqual(sheet2);
     expect(model.getters.getSheetIds()[1]).toEqual(sheet1);
@@ -418,8 +418,8 @@ describe("sheets", () => {
     createSheet(model, { sheetId: "42" });
     const sheet1 = model.getters.getSheetIds()[0];
     const sheet2 = model.getters.getSheetIds()[1];
-    expect(moveSheet(model, "left", sheet1)).toBeCancelledBecause(CommandResult.WrongSheetMove);
-    expect(moveSheet(model, "right", sheet2)).toBeCancelledBecause(CommandResult.WrongSheetMove);
+    expect(moveSheet(model, -1, sheet1)).toBeCancelledBecause(CommandResult.WrongSheetMove);
+    expect(moveSheet(model, 1, sheet2)).toBeCancelledBecause(CommandResult.WrongSheetMove);
   });
 
   test("Cannot hide a sheet with only one sheet", () => {
@@ -471,8 +471,20 @@ describe("sheets", () => {
     createSheet(model, { sheetId: "sheet2" });
     createSheet(model, { sheetId: "sheet1" });
     hideSheet(model, "sheet1");
-    moveSheet(model, "left", "sheet2");
+    moveSheet(model, -1, "sheet2");
     expect(model.getters.getVisibleSheetIds()).toEqual(["sheet2", "sheet0"]);
+  });
+
+  test("Can move a sheet 2 right", () => {
+    const model = new Model({ sheets: [{ id: "sheet0" }, { id: "sheet1" }, { id: "sheet2" }] });
+    moveSheet(model, 2, "sheet0");
+    expect(model.getters.getVisibleSheetIds()).toEqual(["sheet1", "sheet2", "sheet0"]);
+  });
+
+  test("Can move a sheet 2 left", () => {
+    const model = new Model({ sheets: [{ id: "sheet0" }, { id: "sheet1" }, { id: "sheet2" }] });
+    moveSheet(model, -2, "sheet2");
+    expect(model.getters.getVisibleSheetIds()).toEqual(["sheet2", "sheet0", "sheet1"]);
   });
 
   test("Can move right a sheet with invisible sheet in between", () => {
@@ -481,7 +493,7 @@ describe("sheets", () => {
     createSheet(model, { sheetId: "sheet1" });
     hideSheet(model, "sheet1");
     expect(model.getters.getVisibleSheetIds()).toEqual(["sheet0", "sheet2"]);
-    moveSheet(model, "right", "sheet0");
+    moveSheet(model, 1, "sheet0");
     expect(model.getters.getVisibleSheetIds()).toEqual(["sheet2", "sheet0"]);
   });
 
@@ -490,7 +502,7 @@ describe("sheets", () => {
     createSheet(model, { sheetId: "sheet2" });
     createSheet(model, { sheetId: "sheet1" });
     hideSheet(model, "sheet0");
-    expect(moveSheet(model, "left", "sheet1")).toBeCancelledBecause(CommandResult.WrongSheetMove);
+    expect(moveSheet(model, -1, "sheet1")).toBeCancelledBecause(CommandResult.WrongSheetMove);
   });
 
   test("Cannot move right a sheet with invisible sheet to the right", () => {
@@ -498,7 +510,7 @@ describe("sheets", () => {
     createSheet(model, { sheetId: "sheet2" });
     createSheet(model, { sheetId: "sheet1" });
     hideSheet(model, "sheet2");
-    expect(moveSheet(model, "right", "sheet1")).toBeCancelledBecause(CommandResult.WrongSheetMove);
+    expect(moveSheet(model, 1, "sheet1")).toBeCancelledBecause(CommandResult.WrongSheetMove);
   });
 
   test("Can rename a sheet", () => {

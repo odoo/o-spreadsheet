@@ -95,21 +95,12 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         return this.checkValidations(cmd, this.checkSheetName, this.checkSheetPosition);
       }
       case "MOVE_SHEET":
-        const currentIndex = this.orderedSheetIds.indexOf(cmd.sheetId);
-        if (cmd.direction === "left") {
-          const leftSheets = this.orderedSheetIds
-            .slice(0, currentIndex)
-            .map((id) => !this.isSheetVisible(id));
-          return leftSheets.every((isHidden) => isHidden)
-            ? CommandResult.WrongSheetMove
-            : CommandResult.Success;
-        } else {
-          const rightSheets = this.orderedSheetIds
-            .slice(currentIndex + 1)
-            .map((id) => !this.isSheetVisible(id));
-          return rightSheets.every((isHidden) => isHidden)
-            ? CommandResult.WrongSheetMove
-            : CommandResult.Success;
+        try {
+          const currentIndex = this.orderedSheetIds.findIndex((id) => id === cmd.sheetId);
+          this.findIndexOfTargetSheet(currentIndex, cmd.delta);
+          return CommandResult.Success;
+        } catch (e) {
+          return CommandResult.WrongSheetMove;
         }
       case "RENAME_SHEET":
         return this.isRenameAllowed(cmd);
@@ -164,7 +155,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         this.history.update("sheetIdsMapName", sheet.name, sheet.id);
         break;
       case "MOVE_SHEET":
-        this.moveSheet(cmd.sheetId, cmd.direction);
+        this.moveSheet(cmd.sheetId, cmd.delta);
         break;
       case "RENAME_SHEET":
         this.renameSheet(this.sheets[cmd.sheetId]!, cmd.name!);
@@ -550,42 +541,33 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return sheet;
   }
 
-  private moveSheet(sheetId: UID, direction: "left" | "right") {
+  private moveSheet(sheetId: UID, delta: number) {
     const orderedSheetIds = this.orderedSheetIds.slice();
     const currentIndex = orderedSheetIds.findIndex((id) => id === sheetId);
     const sheet = orderedSheetIds.splice(currentIndex, 1);
-    let index =
-      direction === "left"
-        ? this.findIndexOfPreviousVisibleSheet(currentIndex - 1, orderedSheetIds)
-        : this.findIndexOfNextVisibleSheet(currentIndex + 1, orderedSheetIds);
-    if (index === undefined) {
-      index = orderedSheetIds.length;
-    }
+    let index = this.findIndexOfTargetSheet(currentIndex, delta);
     orderedSheetIds.splice(index, 0, sheet[0]);
     this.history.update("orderedSheetIds", orderedSheetIds);
   }
 
-  private findIndexOfPreviousVisibleSheet(current: HeaderIndex, orderedSheetIds: UID[]) {
-    while (current >= 0 && !this.isSheetVisible(orderedSheetIds[current])) {
-      current--;
+  private findIndexOfTargetSheet(currentIndex: HeaderIndex, deltaIndex: number): number {
+    while (deltaIndex != 0 && 0 <= currentIndex && currentIndex <= this.orderedSheetIds.length) {
+      if (deltaIndex > 0) {
+        currentIndex++;
+        if (this.isSheetVisible(this.orderedSheetIds[currentIndex])) {
+          deltaIndex--;
+        }
+      } else if (deltaIndex < 0) {
+        currentIndex--;
+        if (this.isSheetVisible(this.orderedSheetIds[currentIndex])) {
+          deltaIndex++;
+        }
+      }
     }
-    if (current === -1) {
-      throw new Error("There is no previous visible sheet");
+    if (deltaIndex === 0) {
+      return currentIndex;
     }
-    return current;
-  }
-
-  private findIndexOfNextVisibleSheet(current: HeaderIndex, orderedSheetIds: UID[]) {
-    while (current < orderedSheetIds.length && !this.isSheetVisible(orderedSheetIds[current])) {
-      current++;
-    }
-    if (
-      current === orderedSheetIds.length - 1 &&
-      !this.isSheetVisible(orderedSheetIds[current - 1])
-    ) {
-      return undefined;
-    }
-    return current;
+    throw new Error(_lt("There is not enough visible sheets"));
   }
 
   private checkSheetName(cmd: RenameSheetCommand | CreateSheetCommand): CommandResult {

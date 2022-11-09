@@ -26,14 +26,16 @@
           t-if="state.isSheetListScrollableLeft"
         />
         <div
-          class="o-sheet-list d-flex w-100 overflow-hidden"
+          class="o-sheet-list d-flex w-100 overflow-hidden px-1"
           t-ref="sheetList"
           t-on-wheel="onWheel"
           t-on-scroll="onScroll">
-          <t t-foreach="getVisibleSheets()" t-as="sheet" t-key="sheet.id">
+          <t t-foreach="getSheets()" t-as="sheet" t-key="sheet.id">
             <BottomBarSheet
+              style="getSheetStyle(sheet.id)"
               sheetId="sheet.id"
               openContextMenu="(registry, ev) => this.onSheetContextMenu(sheet.id, registry, ev)"
+              onMouseDown="(ev) => this.onSheetMouseDown(sheet.id, ev)"
             />
           </t>
         </div>

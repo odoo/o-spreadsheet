@@ -24,12 +24,16 @@ export function mockGetBoundingClientRect(
 function populateDOMRect(partialRect: Partial<DOMRect>): Partial<DOMRect> {
   const rect = { ...partialRect };
 
-  if (rect.x && !rect.left) rect.left = rect.x;
-  if (rect.y && !rect.top) rect.top = rect.y;
-  if (rect.width && rect.x && !rect.right) rect.right = rect.x + rect.width;
-  if (rect.height && rect.y && !rect.bottom) rect.bottom = rect.y + rect.height;
-  if (rect.left && rect.right && !rect.width) rect.width = rect.right - rect.left;
-  if (rect.top && rect.bottom && !rect.height) rect.height = rect.bottom - rect.top;
+  if (rect.x !== undefined && !rect.left) rect.left = rect.x;
+  if (rect.y !== undefined && !rect.top) rect.top = rect.y;
+  if (rect.width !== undefined && rect.x !== undefined && !rect.right)
+    rect.right = rect.x + rect.width;
+  if (rect.height !== undefined && rect.y !== undefined && !rect.bottom)
+    rect.bottom = rect.y + rect.height;
+  if (rect.left !== undefined && rect.right !== undefined && !rect.width)
+    rect.width = rect.right - rect.left;
+  if (rect.top !== undefined && rect.bottom !== undefined && !rect.height)
+    rect.height = rect.bottom - rect.top;
 
   return rect;
 }

@@ -198,16 +198,18 @@ export async function selectColumnByClicking(model: Model, letter: string, extra
 
 export async function dragElement(
   element: Element | string,
-  dragX: Pixel,
-  dragY: Pixel,
+  dragOffset: { x: Pixel; y: Pixel },
+  startingPosition: { x: Pixel; y: Pixel } = { x: 0, y: 0 },
   mouseUp = false
 ) {
-  triggerMouseEvent(element, "mousedown");
+  const { x: startX, y: startY } = startingPosition;
+  const { x: offsetX, y: offsetY } = dragOffset;
+  triggerMouseEvent(element, "mousedown", startX, startY);
   await nextTick();
-  triggerMouseEvent(element, "mousemove", dragX, dragY);
+  triggerMouseEvent(element, "mousemove", startX + offsetX, startY + offsetY);
   await nextTick();
   if (mouseUp) {
-    triggerMouseEvent(element, "mouseup");
+    triggerMouseEvent(element, "mouseup", startX + offsetX, startY + offsetY);
     await nextTick();
   }
 }

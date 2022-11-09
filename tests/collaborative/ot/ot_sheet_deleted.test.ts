@@ -76,7 +76,7 @@ describe("OT with DELETE_SHEET", () => {
     type: "REMOVE_MERGE",
     target: target("A1:B1"),
   };
-  const moveSheet: Omit<MoveSheetCommand, "sheetId"> = { type: "MOVE_SHEET", direction: "left" };
+  const moveSheet: Omit<MoveSheetCommand, "sheetId"> = { type: "MOVE_SHEET", delta: -1 };
   const renameSheet: Omit<RenameSheetCommand, "sheetId"> = { type: "RENAME_SHEET", name: "test" };
   const hideSheet: Omit<HideSheetCommand, "sheetId"> = { type: "HIDE_SHEET" };
   const showSheet: Omit<ShowSheetCommand, "sheetId"> = { type: "SHOW_SHEET" };

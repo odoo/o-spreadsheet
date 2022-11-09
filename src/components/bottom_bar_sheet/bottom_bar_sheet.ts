@@ -14,6 +14,8 @@ css/* scss */ `
     padding-right: 10px;
     height: ${BOTTOMBAR_HEIGHT}px;
     border-left: 1px solid #c1c1c1;
+    border-right: 1px solid #c1c1c1;
+    margin-left: -1px;
     cursor: pointer;
     &:hover {
       background-color: rgba(0, 0, 0, 0.08);
@@ -51,6 +53,8 @@ css/* scss */ `
 interface Props {
   sheetId: string;
   openContextMenu: (registry: MenuItemRegistry, ev: MouseEvent) => void;
+  style?: string;
+  onMouseDown: (ev: MouseEvent) => void;
 }
 
 interface State {
@@ -60,6 +64,10 @@ interface State {
 export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BottomBarSheet";
   static components = { Ripple };
+  static defaultProps = {
+    onMouseDown: () => {},
+    style: "",
+  };
 
   private state = useState<State>({ isEditing: false });
 
@@ -107,8 +115,9 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  clickSheet() {
+  onMouseDown(ev) {
     this.activateSheet();
+    this.props.onMouseDown(ev);
   }
 
   private activateSheet() {
@@ -203,4 +212,6 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
 BottomBarSheet.props = {
   sheetId: String,
   openContextMenu: Function,
+  style: { type: String, optional: true },
+  onMouseDown: { type: Function, optional: true },
 };

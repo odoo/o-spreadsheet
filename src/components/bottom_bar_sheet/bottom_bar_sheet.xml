@@ -3,9 +3,10 @@
     <Ripple>
       <div
         class="o-sheet position-relative d-flex align-items-center user-select-none text-nowrap "
-        t-on-click="() => this.clickSheet()"
+        t-on-mousedown="(ev) => this.onMouseDown(ev)"
         t-on-contextmenu.prevent="(ev) => this.onContextMenu(ev)"
         t-ref="sheetDiv"
+        t-att-style="props.style"
         t-att-title="sheetName"
         t-att-data-id="props.sheetId"
         t-att-class="{active: isSheetActive}">

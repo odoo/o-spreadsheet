@@ -101,7 +101,7 @@ describe("Collaborative Sheet manipulation", () => {
     createSheet(bob, { sheetId: "42", activate: true });
     network.concurrent(() => {
       createSheet(alice, { sheetId: "2", position: 1 });
-      moveSheet(bob, "right", sheet1);
+      moveSheet(bob, 1, sheet1);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getSheetIds(),
@@ -115,8 +115,8 @@ describe("Collaborative Sheet manipulation", () => {
     createSheet(bob, { sheetId: "1", activate: true, position: 1 });
     createSheet(bob, { sheetId: "2", activate: true, position: 2 });
     network.concurrent(() => {
-      moveSheet(alice, "right", sheet1);
-      moveSheet(bob, "left", "2");
+      moveSheet(alice, 1, sheet1);
+      moveSheet(bob, -1, "2");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getSheetIds(),

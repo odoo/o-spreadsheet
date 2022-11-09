@@ -1,12 +1,15 @@
-import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
+import { Component, onWillUnmount, onWillUpdateProps, useRef, useState } from "@odoo/owl";
 import { BACKGROUND_GRAY_COLOR, HEADER_WIDTH } from "../../constants";
+import { deepEquals } from "../../helpers";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
-import { MenuMouseEvent, Pixel, SpreadsheetChildEnv, UID } from "../../types";
+import { MenuMouseEvent, Pixel, Rect, SpreadsheetChildEnv, UID } from "../../types";
 import { Ripple } from "../animation/ripple";
 import { BottomBarSheet } from "../bottom_bar_sheet/bottom_bar_sheet";
 import { BottomBarStatistic } from "../bottom_bar_statistic/bottom_bar_statistic";
-import { css } from "../helpers/css";
+import { css, cssPropertiesToCss } from "../helpers/css";
+import { DOMDndHelper } from "../helpers/dom_dnd_helper";
 import { Menu, MenuState } from "../menu/menu";
+import { CSSProperties } from "./../../types/misc";
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -34,19 +37,12 @@ css/* scss */ `
 
     .o-all-sheets {
       max-width: 70%;
-
       .o-bottom-bar-fade-out {
         background-image: linear-gradient(-90deg, #cfcfcf, transparent 1%);
       }
 
       .o-bottom-bar-fade-in {
         background-image: linear-gradient(90deg, #cfcfcf, transparent 1%);
-      }
-
-      &:after {
-        content: "";
-        border-right: 1px solid #c1c1c1;
-        height: 100%;
       }
     }
 
@@ -72,6 +68,17 @@ css/* scss */ `
   }
 `;
 
+interface BottomBarSheetItem {
+  id: UID;
+  name: string;
+}
+
+interface SheetState {
+  sheetList: BottomBarSheetItem[];
+  isDnd: boolean;
+  sheetDndPositions: Record<UID, number> | undefined;
+}
+
 interface Props {
   onClick: () => void;
 }
@@ -87,6 +94,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   private bottomBarRef = useRef("bottomBar");
   private sheetListRef = useRef("sheetList");
 
+  private dndHelper: DOMDndHelper | undefined;
   private targetScroll: number | undefined = undefined;
   private state = useState({
     isSheetListScrollableLeft: false,
@@ -101,11 +109,29 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     position: null,
     menuItems: [],
   });
+  sheetState: SheetState = useState({
+    sheetList: this.getVisibleSheets(),
+    isDnd: false,
+    sheetDndPositions: undefined,
+  });
 
   setup() {
     onWillUpdateProps(() => {
       this.updateScrollState();
+      const visibleSheets = this.getVisibleSheets();
+      // Cancel sheet dragging when there is a change in the sheets
+      if (this.sheetState.isDnd && !deepEquals(this.sheetState.sheetList, visibleSheets)) {
+        this.stopDragging();
+      }
+      this.sheetState.sheetList = visibleSheets;
     });
+    onWillUnmount(() => {
+      this.dndHelper?.destroy();
+    });
+  }
+
+  isDragged(sheetId: UID): boolean {
+    return this.sheetState.isDnd && this.dndHelper?.draggedItemId === sheetId;
   }
 
   clickAddSheet(ev: MouseEvent) {
@@ -118,10 +144,15 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     this.env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
   }
 
-  getVisibleSheets() {
-    return this.env.model.getters
-      .getVisibleSheetIds()
-      .map((sheetId) => this.env.model.getters.getSheet(sheetId));
+  private getVisibleSheets(): BottomBarSheetItem[] {
+    return this.env.model.getters.getVisibleSheetIds().map((sheetId) => {
+      const sheet = this.env.model.getters.getSheet(sheetId);
+      return { id: sheet.id, name: sheet.name };
+    });
+  }
+
+  getSheets() {
+    return this.sheetState.sheetList;
   }
 
   clickListSheets(ev: MouseEvent) {
@@ -147,7 +178,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     this.openContextMenu(left, top, "listSheets", registry);
   }
 
-  openContextMenu(x: Pixel, y: Pixel, menuId: string, registry: MenuItemRegistry) {
+  openContextMenu(x: Pixel, y: Pixel, menuId: UID, registry: MenuItemRegistry) {
     this.menuState.isOpen = true;
     this.menuState.menuId = menuId;
     this.menuState.menuItems = registry.getMenuItems();
@@ -213,6 +244,88 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     if (!this.sheetListRef.el) return;
     this.targetScroll = scroll;
     this.sheetListRef.el.scrollTo({ top: 0, left: scroll, behavior: "smooth" });
+  }
+
+  onSheetMouseDown(sheetId: UID, event: MouseEvent) {
+    if (event.button !== 0) return;
+    this.closeMenu();
+
+    const mouseX = event.clientX;
+
+    document.body.style.cursor = "move";
+    const visibleSheets = this.getVisibleSheets();
+    const sheetRects = this.getSheetItemRects();
+
+    const sheets = visibleSheets.map((sheet, index) => ({
+      id: sheet.id,
+      size: sheetRects[index].width,
+      position: sheetRects[index].x,
+    }));
+    this.dndHelper = new DOMDndHelper({
+      draggedItemId: sheetId,
+      mouseX,
+      items: sheets,
+      containerEl: this.sheetListRef.el!,
+      onChange: (newPositions) => {
+        this.sheetState.isDnd = true;
+        this.sheetState.sheetDndPositions = newPositions;
+      },
+      onCancel: () => this.stopDragging(),
+      onDragEnd: (sheetId: UID, finalIndex: number) => this.onDragEnd(sheetId, finalIndex),
+    });
+  }
+
+  private onDragEnd(sheetId: UID, finalIndex: number) {
+    const originalIndex = this.sheetState.sheetList.findIndex((sheet) => sheet.id === sheetId);
+    const delta = finalIndex - originalIndex;
+    if (sheetId && delta !== 0) {
+      this.env.model.dispatch("MOVE_SHEET", {
+        sheetId: sheetId,
+        delta: delta,
+      });
+    }
+    this.stopDragging();
+  }
+
+  getSheetStyle(sheetId: UID): string {
+    const style: CSSProperties = {};
+    if (this.sheetState.isDnd) {
+      style.position = "relative";
+      style.left = (this.sheetState.sheetDndPositions?.[sheetId] || 0) + "px";
+      style.transition = "left 0.5s";
+      style.cursor = "move";
+    }
+    if (this.isDragged(sheetId)) {
+      style.transition = "left 0s";
+      style["z-index"] = "1000";
+    }
+    return cssPropertiesToCss(style);
+  }
+
+  private stopDragging() {
+    document.body.style.cursor = "";
+    this.sheetState.sheetList = this.getVisibleSheets();
+    this.sheetState.isDnd = false;
+    this.sheetState.sheetDndPositions = undefined;
+    this.dndHelper = undefined;
+  }
+
+  private getSheetItemRects(): Rect[] {
+    return Array.from(this.bottomBarRef.el!.querySelectorAll<HTMLElement>(`.o-sheet`))
+      .map((sheetEl) => sheetEl.getBoundingClientRect())
+      .map((rect) => ({
+        x: rect.x,
+        width: rect.width - 1, // -1 to compensate negative margin
+        y: rect.y,
+        height: rect.height,
+      }));
+  }
+
+  getSheetClasses(sheetId: UID) {
+    let classes = "";
+    if (this.isDragged(sheetId)) classes += "dragged ";
+    if (this.sheetState.isDnd) classes += "dragging ";
+    return classes;
   }
 
   get sheetListCurrentScroll() {

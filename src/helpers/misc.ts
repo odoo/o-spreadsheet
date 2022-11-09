@@ -520,3 +520,12 @@ export function replaceSpecialSpaces(text: string | undefined): string {
   text = text.replace(newLineRegex, NEWLINE);
   return text;
 }
+
+/** Move the item at the starting index to the target index in an array */
+export function moveItemToIndex<T>(array: T[], startIndex: number, targetIndex: number): T[] {
+  array = [...array];
+  const item = array[startIndex];
+  array.splice(startIndex, 1);
+  array.splice(targetIndex, 0, item);
+  return array;
+}

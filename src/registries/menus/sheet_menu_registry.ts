@@ -45,7 +45,7 @@ export function getSheetMenuRegistry(args: { renameSheetCallback: () => void }):
       action: (env) =>
         env.model.dispatch("MOVE_SHEET", {
           sheetId: env.model.getters.getActiveSheetId(),
-          direction: "right",
+          delta: 1,
         }),
     })
     .add("move_left", {
@@ -58,7 +58,7 @@ export function getSheetMenuRegistry(args: { renameSheetCallback: () => void }):
       action: (env) =>
         env.model.dispatch("MOVE_SHEET", {
           sheetId: env.model.getters.getActiveSheetId(),
-          direction: "left",
+          delta: -1,
         }),
     })
     .add("hide_sheet", {

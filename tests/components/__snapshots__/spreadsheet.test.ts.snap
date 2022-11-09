@@ -679,7 +679,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
     >
       
       <div
-        class="o-sheet-list d-flex w-100 overflow-hidden"
+        class="o-sheet-list d-flex w-100 overflow-hidden px-1"
       >
         <div
           class="o-ripple-container position-relative"
@@ -693,6 +693,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
             <div
               class="o-sheet position-relative d-flex align-items-center user-select-none text-nowrap active"
               data-id="sh1"
+              style=""
               title="Sheet1"
             >
               <span
