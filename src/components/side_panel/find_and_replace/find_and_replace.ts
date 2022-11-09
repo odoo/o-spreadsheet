@@ -82,6 +82,7 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   onKeydownSearch(ev: KeyboardEvent) {
     if (ev.key === "Enter") {
       ev.preventDefault();
+      ev.stopPropagation();
       this.onSelectNextCell();
     }
   }
@@ -89,6 +90,7 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   onKeydownReplace(ev: KeyboardEvent) {
     if (ev.key === "Enter") {
       ev.preventDefault();
+      ev.stopPropagation();
       this.replace();
     }
   }

@@ -371,6 +371,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
           id: figure.id,
         });
         this.props.onFigureDeleted();
+        ev.stopPropagation();
         ev.preventDefault();
         break;
       case "ArrowDown":
@@ -390,6 +391,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
           x: figure.x + delta[0],
           y: figure.y + delta[1],
         });
+        ev.stopPropagation();
         ev.preventDefault();
         break;
     }

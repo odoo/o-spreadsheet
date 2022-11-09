@@ -12,6 +12,7 @@
           spellcheck="false"
           t-on-change="(ev) => this.onInputChanged(range.id, ev)"
           t-on-focus="() => this.focus(range.id)"
+          t-on-keydown="onKeydown"
           t-att-value="range.xc"
           t-att-style="getColor(range)"
           t-att-class="{
@@ -19,6 +20,7 @@
             'o-required': props.required,
             'o-optional': !props.required,
             'o-invalid': isInvalid || !range.isValidRange,
+            'text-decoration-underline': range.isFocused and state.mode === 'select-range'
           }"
         />
         <button

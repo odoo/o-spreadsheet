@@ -33,6 +33,7 @@ import { HeadersOverlay } from "../headers_overlay/headers_overlay";
 import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useAbsolutePosition } from "../helpers/position_hook";
+import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { Highlight } from "../highlight/highlight/highlight";
 import { Menu, MenuState } from "../menu/menu";
@@ -391,18 +392,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     ev.preventDefault();
     ev.stopPropagation();
     this.closeOpenedPopover();
-    const arrowMap = {
-      ArrowDown: { direction: "down", delta: [0, 1] },
-      ArrowLeft: { direction: "left", delta: [-1, 0] },
-      ArrowRight: { direction: "right", delta: [1, 0] },
-      ArrowUp: { direction: "up", delta: [0, -1] },
-    };
-    const { direction } = arrowMap[ev.key];
-    if (ev.shiftKey) {
-      this.env.model.selection.resizeAnchorZone(direction, ev.ctrlKey ? "end" : "one");
-    } else {
-      this.env.model.selection.moveAnchorCell(direction, ev.ctrlKey ? "end" : "one");
-    }
+
+    updateSelectionWithArrowKeys(ev, this.env.model.selection);
 
     if (this.env.model.getters.isPaintingFormat()) {
       this.env.model.dispatch("PASTE", {

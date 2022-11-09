@@ -2,7 +2,6 @@
   <t t-name="o-spreadsheet-FunctionDescriptionProvider" owl="1">
     <div
       class="o-formula-assistant-container"
-      t-att-style="props.borderStyle"
       t-att-class="{
           'o-formula-assistant-event-none': assistantState.allowCellSelectionBehind,
           'o-formula-assistant-event-auto': !assistantState.allowCellSelectionBehind

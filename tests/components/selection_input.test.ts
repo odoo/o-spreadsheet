@@ -16,7 +16,7 @@ let model: Model;
 let fixture: HTMLElement;
 
 function focus(index = 0) {
-  fixture.querySelectorAll("input")[index].dispatchEvent(new Event("focus"));
+  fixture.querySelectorAll("input")[index].focus();
 }
 
 async function writeInput(index: number, text: string) {
@@ -250,6 +250,24 @@ describe("Selection Input", () => {
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("C2");
     expect(fixture.querySelectorAll("input")[1].value).toBe("A1");
     expect(model.getters.getSelectionInput(id)[1].xc).toBe("A1");
+    app.destroy();
+  });
+
+  test("F2 alters edition mode", async () => {
+    const { app } = await createSelectionInput({ initialRanges: ["C2"] });
+    const selectionInputEl: HTMLInputElement = fixture.querySelector(".o-selection-input input")!;
+    focus(0);
+    await nextTick();
+    expect(document.activeElement).toBe(selectionInputEl);
+    selectionInputEl.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft" }));
+    await nextTick();
+    expect(document.activeElement).toBe(selectionInputEl);
+    expect(selectionInputEl?.value).toEqual("B2");
+    selectionInputEl.dispatchEvent(new KeyboardEvent("keydown", { key: "F2" }));
+    selectionInputEl.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft" }));
+    await nextTick();
+    expect(document.activeElement).toBe(selectionInputEl);
+    expect(selectionInputEl?.value).toEqual("B2");
     app.destroy();
   });
 

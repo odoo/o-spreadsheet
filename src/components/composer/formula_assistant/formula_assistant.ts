@@ -59,7 +59,6 @@ interface Props {
   functionName: string;
   functionDescription: FunctionDescription;
   argToFocus: number;
-  borderStyle: string;
 }
 
 interface AssistantState {
@@ -101,5 +100,4 @@ FunctionDescriptionProvider.props = {
   functionName: String,
   functionDescription: Object,
   argToFocus: Number,
-  borderStyle: String,
 };
