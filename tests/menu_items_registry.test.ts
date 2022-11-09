@@ -535,6 +535,17 @@ describe("Menu Item actions", () => {
     });
   });
 
+  test("Insert -> Function", () => {
+    doAction(["insert", "insert_function", "insert_function_sum"], env);
+    expect(dispatch).toHaveBeenCalledWith("START_EDITION", {
+      text: "=SUM(",
+    });
+    doAction(["insert", "insert_function", "insert_function_sum"], env);
+    expect(dispatch).toHaveBeenCalledWith("SET_CURRENT_CONTENT", {
+      content: "=SUM(",
+    });
+  });
+
   describe("Format -> numbers", () => {
     test("Automatic", () => {
       doAction(["format", "format_number", "format_number_automatic"], env);

@@ -35,5 +35,6 @@ export interface SpreadsheetChildEnv extends SpreadsheetEnv {
   toggleSidePanel: (panel: string, panelProps?: any) => void;
   clipboard: ClipboardInterface;
   _t: TranslationFunction;
+  startCellEdition: (content: string) => void;
   loadCurrencies?: () => Promise<Currency[]>;
 }

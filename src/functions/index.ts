@@ -27,21 +27,23 @@ import * as web from "./module_web";
 
 export { args } from "./arguments";
 
-const functions: { [category: string]: { [name: string]: AddFunctionDescription } } = {
-  database,
-  date,
-  financial,
-  info,
-  lookup,
-  logical,
-  math,
-  misc,
-  operators,
-  statistical,
-  text,
-  engineering,
-  web,
-};
+type Functions = { [functionName: string]: AddFunctionDescription };
+type Category = { name: string; functions: Functions };
+const categories: Category[] = [
+  { name: _lt("Database"), functions: database },
+  { name: _lt("Date"), functions: date },
+  { name: _lt("Financial"), functions: financial },
+  { name: _lt("Info"), functions: info },
+  { name: _lt("Lookup"), functions: lookup },
+  { name: _lt("Logical"), functions: logical },
+  { name: _lt("Math"), functions: math },
+  { name: _lt("Misc"), functions: misc },
+  { name: _lt("Operator"), functions: operators },
+  { name: _lt("Statistical"), functions: statistical },
+  { name: _lt("Text"), functions: text },
+  { name: _lt("Engineering"), functions: engineering },
+  { name: _lt("Web"), functions: web },
+];
 
 const functionNameRegex = /^[A-Z0-9\_\.]+$/;
 
@@ -107,11 +109,11 @@ function _extractArgValuesFromArgs(arg: Arg): ArgValue {
 
 export const functionRegistry = new FunctionRegistry();
 
-for (let category in functions) {
-  const fns = functions[category];
+for (let category of categories) {
+  const fns = category.functions;
   for (let name in fns) {
     const addDescr = fns[name];
-    addDescr.category = category;
+    addDescr.category = addDescr.category || category.name;
     name = name.replace(/_/g, ".");
     functionRegistry.add(name, { isExported: false, ...addDescr });
   }
