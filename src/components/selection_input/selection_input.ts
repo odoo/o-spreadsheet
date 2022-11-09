@@ -4,6 +4,7 @@ import { UuidGenerator } from "../../helpers/index";
 import { RangeInputValue } from "../../plugins/ui/selection_input";
 import { SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
+import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 
 const uuidGenerator = new UuidGenerator();
 
@@ -63,6 +64,13 @@ interface Props {
   onSelectionConfirmed?: () => void;
 }
 
+type SelectionRangeEditMode = "select-range" | "text-edit";
+
+interface State {
+  isMissing: boolean;
+  mode: SelectionRangeEditMode;
+}
+
 interface SelectionRange extends Omit<RangeInputValue, "color"> {
   isFocused: boolean;
   isValidRange: boolean;
@@ -81,8 +89,9 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   private id = uuidGenerator.uuidv4();
   private previousRanges: string[] = this.props.ranges || [];
   private originSheet = this.env.model.getters.getActiveSheetId();
-  private state = useState({
+  private state: State = useState({
     isMissing: false,
+    mode: "select-range",
   });
 
   get ranges(): SelectionRange[] {
@@ -150,8 +159,23 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     this.previousRanges = ranges;
   }
 
+  onKeydown(ev: KeyboardEvent) {
+    if (ev.key === "F2") {
+      ev.preventDefault();
+      ev.stopPropagation();
+      this.state.mode = this.state.mode === "select-range" ? "text-edit" : "select-range";
+    } else if (ev.key.startsWith("Arrow")) {
+      ev.stopPropagation();
+      if (this.state.mode === "select-range") {
+        ev.preventDefault();
+        updateSelectionWithArrowKeys(ev, this.env.model.selection);
+      }
+    }
+  }
+
   focus(rangeId: string) {
     this.state.isMissing = false;
+    this.state.mode = "select-range";
     this.env.model.dispatch("FOCUS_RANGE", {
       id: this.id,
       rangeId,

@@ -3,7 +3,7 @@
     <div
       class="o-link-editor"
       t-on-click.stop="() => this.menu.isOpen=false"
-      t-on-keydown.stop="onKeyDown"
+      t-on-keydown="onKeyDown"
       t-ref="linkEditor">
       <div class="o-section">
         <div class="o-section-title">Text</div>

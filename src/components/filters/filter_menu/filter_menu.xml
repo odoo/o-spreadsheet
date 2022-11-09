@@ -21,7 +21,7 @@
           type="text"
           t-model="state.textFilter"
           placeholder="Search..."
-          t-on-keydown="(ev) => this.onKeyDown(ev)"
+          t-on-keydown="onKeyDown"
         />
         <i class="o-search-icon position-absolute">
           <t t-call="o-spreadsheet-Icon.SEARCH"/>
