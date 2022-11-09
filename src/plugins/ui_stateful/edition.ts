@@ -129,7 +129,11 @@ export class EditionPlugin extends UIPlugin {
         }
         break;
       case "START_EDITION":
-        this.startEdition(cmd.text, cmd.selection);
+        if (this.mode !== "inactive" && cmd.text) {
+          this.setContent(cmd.text, cmd.selection);
+        } else {
+          this.startEdition(cmd.text, cmd.selection);
+        }
         this.updateRangeColor();
         break;
       case "STOP_EDITION":

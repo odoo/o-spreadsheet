@@ -25,7 +25,7 @@ import { Registry } from "./registry";
  *    NB: a separator defined on the last item is not displayed !
  *
  */
-interface MenuItemSpec {
+export interface MenuItemSpec {
   name: string | ((env: SpreadsheetChildEnv) => string);
   description?: string;
   sequence?: number;

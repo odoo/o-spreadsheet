@@ -841,4 +841,12 @@ describe("edition", () => {
 
     expect(spyNotify).toHaveBeenCalled();
   });
+
+  test("start edition twice --> overwrites the contents of the first start edition", () => {
+    const model = new Model();
+    model.dispatch("START_EDITION", { text: "=SUM(" });
+    expect(model.getters.getCurrentContent()).toBe("=SUM(");
+    model.dispatch("START_EDITION", { text: "=DB(" });
+    expect(model.getters.getCurrentContent()).toBe("=DB(");
+  });
 });

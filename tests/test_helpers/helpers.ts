@@ -103,6 +103,7 @@ export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): Spreads
     raiseError: mockEnv.raiseError || (() => {}),
     askConfirmation: mockEnv.askConfirmation || (() => {}),
     editText: mockEnv.editText || (() => {}),
+    startCellEdition: mockEnv.startCellEdition || (() => {}),
     loadCurrencies:
       mockEnv.loadCurrencies ||
       (async () => {
