@@ -7,10 +7,7 @@ import { ComposerSelection, SelectionIndicator } from "../../../plugins/ui/editi
 import { DOMDimension, FunctionDescription, Rect, SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
-import {
-  TextValueProvider,
-  TextValueProviderApi,
-} from "../autocomplete_dropdown/autocomplete_dropdown";
+import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdown";
 import { ContentEditableHelper } from "../content_editable_helper";
 import { FunctionDescriptionProvider } from "../formula_assistant/formula_assistant";
 
@@ -84,6 +81,11 @@ css/* scss */ `
   }
 `;
 
+export interface AutocompleteValue {
+  text: string;
+  description: string;
+}
+
 interface Props {
   inputStyle: string;
   rect?: Rect;
@@ -100,7 +102,8 @@ interface ComposerState {
 
 interface AutoCompleteState {
   showProvider: boolean;
-  search: string;
+  selectedIndex: number;
+  values: AutocompleteValue[];
 }
 
 interface FunctionDescriptionState {
@@ -118,7 +121,6 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
   };
 
   composerRef = useRef("o_composer");
-  private autocompleteAPI?: TextValueProviderApi;
 
   contentHelper: ContentEditableHelper = new ContentEditableHelper(this.composerRef.el!);
 
@@ -129,8 +131,8 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
 
   autoCompleteState: AutoCompleteState = useState({
     showProvider: false,
-    provider: "functions",
-    search: "",
+    values: [],
+    selectedIndex: 0,
   });
 
   functionDescriptionState: FunctionDescriptionState = useState({
@@ -223,16 +225,16 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     }
     ev.stopPropagation();
     // only for arrow up and down
-    if (
-      ["ArrowUp", "ArrowDown"].includes(ev.key) &&
-      this.autoCompleteState.showProvider &&
-      this.autocompleteAPI
-    ) {
+    if (["ArrowUp", "ArrowDown"].includes(ev.key) && this.autoCompleteState.showProvider) {
       ev.preventDefault();
       if (ev.key === "ArrowUp") {
-        this.autocompleteAPI.moveUp();
+        this.autoCompleteState.selectedIndex--;
+        if (this.autoCompleteState.selectedIndex < 0) {
+          this.autoCompleteState.selectedIndex = this.autoCompleteState.values.length - 1;
+        }
       } else {
-        this.autocompleteAPI.moveDown();
+        this.autoCompleteState.selectedIndex =
+          (this.autoCompleteState.selectedIndex + 1) % this.autoCompleteState.values.length;
       }
     }
   }
@@ -240,8 +242,9 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
   private processTabKey(ev: KeyboardEvent) {
     ev.preventDefault();
     ev.stopPropagation();
-    if (this.autoCompleteState.showProvider && this.autocompleteAPI) {
-      const autoCompleteValue = this.autocompleteAPI.getValueToFill();
+    if (this.autoCompleteState.showProvider) {
+      const autoCompleteValue =
+        this.autoCompleteState.values[this.autoCompleteState.selectedIndex]?.text;
       if (autoCompleteValue) {
         this.autoComplete(autoCompleteValue);
         return;
@@ -262,8 +265,9 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     ev.preventDefault();
     ev.stopPropagation();
     this.isKeyStillDown = false;
-    if (this.autoCompleteState.showProvider && this.autocompleteAPI) {
-      const autoCompleteValue = this.autocompleteAPI.getValueToFill();
+    if (this.autoCompleteState.showProvider) {
+      const autoCompleteValue =
+        this.autoCompleteState.values[this.autoCompleteState.selectedIndex]?.text;
       if (autoCompleteValue) {
         this.autoComplete(autoCompleteValue);
         return;
@@ -336,8 +340,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     ev.stopPropagation();
     this.autoCompleteState.showProvider = false;
     if (ev.ctrlKey && ev.key === " ") {
-      this.autoCompleteState.search = "";
-      this.autoCompleteState.showProvider = true;
+      this.showAutocomplete("");
       this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
       return;
     }
@@ -354,6 +357,22 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
 
     this.processTokenAtCursor();
     this.processContent();
+  }
+
+  showAutocomplete(searchTerm: string) {
+    this.autoCompleteState.showProvider = true;
+    let values = Object.keys(functionRegistry.content).map((key) => {
+      return {
+        text: key,
+        description: functionRegistry.get(key).description,
+      };
+    });
+
+    values = values
+      .filter((t) => t.text.toUpperCase().startsWith(searchTerm.toUpperCase()))
+      .sort((l, r) => (l.text < r.text ? -1 : l.text > r.text ? 1 : 0));
+    this.autoCompleteState.values = values.slice(0, 10);
+    this.autoCompleteState.selectedIndex = 0;
   }
 
   onMousedown(ev: MouseEvent) {
@@ -515,8 +534,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
           (tokenAtCursor.type === "SYMBOL" && !rangeReference.test(xc))
         ) {
           // initialize Autocomplete Dropdown
-          this.autoCompleteState.search = tokenAtCursor.value;
-          this.autoCompleteState.showProvider = true;
+          this.showAutocomplete(tokenAtCursor.value);
         } else if (tokenAtCursor.functionContext && tokenAtCursor.type !== "UNKNOWN") {
           // initialize Formula Assistant
           const tokenContext = tokenAtCursor.functionContext;

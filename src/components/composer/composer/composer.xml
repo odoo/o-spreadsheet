@@ -22,8 +22,8 @@
         t-att-style="assistantStyle">
         <TextValueProvider
           t-if="autoCompleteState.showProvider"
-          exposeAPI="(api) => this.autocompleteAPI = api"
-          search="autoCompleteState.search"
+          values="autoCompleteState.values"
+          selectedIndex="autoCompleteState.selectedIndex"
           onCompleted="(text) => this.onCompleted(text)"
           borderStyle="borderStyle"
         />
