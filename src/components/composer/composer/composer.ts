@@ -100,7 +100,6 @@ interface ComposerState {
 
 interface AutoCompleteState {
   showProvider: boolean;
-  provider: string;
   search: string;
 }
 
@@ -547,7 +546,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
         }
 
         const tokens = this.env.model.getters.getCurrentTokens();
-        if (this.autoCompleteState.provider && tokens.length) {
+        if (tokens.length) {
           value += "(";
 
           const currentTokenIndex = tokens.map((token) => token.start).indexOf(tokenAtCursor.start);

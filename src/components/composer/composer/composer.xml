@@ -24,7 +24,6 @@
           t-if="autoCompleteState.showProvider"
           exposeAPI="(api) => this.autocompleteAPI = api"
           search="autoCompleteState.search"
-          provider="autoCompleteState.provider"
           onCompleted="(text) => this.onCompleted(text)"
           borderStyle="borderStyle"
         />

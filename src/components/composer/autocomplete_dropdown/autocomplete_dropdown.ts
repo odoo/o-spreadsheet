@@ -1,8 +1,6 @@
 import { Component, onMounted, onWillUpdateProps, useState } from "@odoo/owl";
-import { functionRegistry } from "../../../functions/index";
-import { Registry } from "../../../registry";
+import { functionRegistry } from "../../../functions";
 import { css } from "../../helpers/css";
-const functions = functionRegistry.content;
 
 // -----------------------------------------------------------------------------
 // Autocomplete Value Providers
@@ -12,19 +10,6 @@ interface AutocompleteValue {
   text: string;
   description: string;
 }
-
-type AutocompleteProvider = () => AutocompleteValue[];
-
-const providerRegistry = new Registry<AutocompleteProvider>();
-
-providerRegistry.add("functions", () => {
-  return Object.keys(functions).map((key) => {
-    return {
-      text: key,
-      description: functions[key].description,
-    };
-  });
-});
 
 // -----------------------------------------------------------------------------
 // Autocomplete DropDown component
@@ -57,7 +42,6 @@ css/* scss */ `
 `;
 
 interface Props {
-  provider: string;
   filter?: (searchTerm: string, vals: AutocompleteValue[]) => AutocompleteValue[];
   search: string;
   borderStyle: string;
@@ -95,8 +79,12 @@ export class TextValueProvider extends Component<Props> implements TextValueProv
   }
 
   async filter(searchTerm: string) {
-    const provider = providerRegistry.get(this.props.provider);
-    let values = provider();
+    let values = Object.keys(functionRegistry.content).map((key) => {
+      return {
+        text: key,
+        description: functionRegistry.get(key).description,
+      };
+    });
     if (this.props.filter) {
       values = this.props.filter(searchTerm, values);
     } else {
@@ -133,7 +121,6 @@ export class TextValueProvider extends Component<Props> implements TextValueProv
 }
 
 TextValueProvider.props = {
-  provider: String,
   filter: { type: Function, optional: true },
   search: String,
   borderStyle: String,
