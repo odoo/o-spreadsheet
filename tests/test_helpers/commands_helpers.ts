@@ -716,12 +716,12 @@ export function moveRows(
 
 export function moveSheet(
   model: Model,
-  direction: "left" | "right",
+  delta: number,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
   return model.dispatch("MOVE_SHEET", {
     sheetId,
-    direction,
+    delta,
   });
 }
 

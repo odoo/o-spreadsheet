@@ -3,6 +3,8 @@ import { Model, Spreadsheet } from "../../src";
 import { ChartJsComponent } from "../../src/components/figures/chart/chartJs/chartjs";
 import { ScorecardChart } from "../../src/components/figures/chart/scorecard/chart_scorecard";
 import {
+  DEFAULT_CELL_HEIGHT,
+  DEFAULT_CELL_WIDTH,
   FIGURE_BORDER_COLOR,
   MENU_WIDTH,
   MIN_FIG_SIZE,
@@ -10,8 +12,6 @@ import {
 } from "../../src/constants";
 import { chartComponentRegistry, figureRegistry } from "../../src/registries";
 import { CreateFigureCommand, Figure, SpreadsheetChildEnv, UID } from "../../src/types";
-
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import {
   activateSheet,
   addColumns,
@@ -78,7 +78,7 @@ const anchorSelectors = {
   topLeft: ".o-fig-anchor.o-topLeft",
 };
 async function dragAnchor(anchor: string, dragX: number, dragY: number, mouseUp = false) {
-  await dragElement(anchorSelectors[anchor], dragX, dragY, mouseUp);
+  await dragElement(anchorSelectors[anchor], { x: dragX, y: dragY }, { x: 0, y: 0 }, mouseUp);
 }
 
 //Test Component required as we don't especially want/need to load an entire chart
@@ -340,7 +340,7 @@ describe("figures", () => {
     test("Can move a figure with drag & drop", async () => {
       createFigure(model, { id: "someuuid", x: 200, y: 100 });
       await nextTick();
-      await dragElement(".o-figure", 150, 100, true);
+      await dragElement(".o-figure", { x: 150, y: 100 }, undefined, true);
       await nextTick();
       expect(model.getters.getFigure(model.getters.getActiveSheetId(), "someuuid")).toMatchObject({
         x: 350,
@@ -367,7 +367,7 @@ describe("figures", () => {
       test("Figure in frozen rows can be dragged to main viewport", async () => {
         createFigure(model, { id, x: 16 * cellWidth, y: 4 * cellHeight });
         await nextTick();
-        await dragElement(figureSelector, 0, 3 * cellHeight, true);
+        await dragElement(figureSelector, { x: 0, y: 3 * cellHeight }, undefined, true);
         expect(model.getters.getFigure(sheetId, id)).toMatchObject({
           x: 16 * cellWidth,
           y: 17 * cellHeight, // initial position + drag offset + scroll offset
@@ -376,7 +376,7 @@ describe("figures", () => {
       test("Figure in main viewport can be dragged to frozen rows", async () => {
         createFigure(model, { id, x: 16 * cellWidth, y: 16 * cellHeight });
         await nextTick();
-        await dragElement(figureSelector, 0, -3 * cellHeight, true);
+        await dragElement(figureSelector, { x: 0, y: -3 * cellHeight }, undefined, true);
         expect(model.getters.getFigure(sheetId, id)).toMatchObject({
           x: 16 * cellWidth,
           y: 3 * cellHeight, // initial position + drag offset - scroll offset
@@ -385,7 +385,7 @@ describe("figures", () => {
       test("Dragging figure that is half hidden by frozen rows will put in on top of the freeze pane", async () => {
         createFigure(model, { id, x: 16 * cellWidth, y: 14 * cellHeight, height: 5 * cellHeight });
         await nextTick();
-        await dragElement(figureSelector, 1, 0, true);
+        await dragElement(figureSelector, { x: 1, y: 0 }, undefined, true);
         expect(model.getters.getFigure(sheetId, id)).toMatchObject({
           x: 16 * cellWidth + 1,
           y: 4 * cellHeight, // initial position - scroll offset
@@ -394,7 +394,7 @@ describe("figures", () => {
       test("Figure in frozen cols can be dragged to main viewport", async () => {
         createFigure(model, { id, x: 4 * cellWidth, y: 16 * cellHeight });
         await nextTick();
-        await dragElement(figureSelector, 3 * cellWidth, 0, true);
+        await dragElement(figureSelector, { x: 3 * cellWidth, y: 0 }, undefined, true);
         expect(model.getters.getFigure(sheetId, id)).toMatchObject({
           x: 17 * cellWidth, // initial position + drag offset + scroll offset
           y: 16 * cellHeight,
@@ -403,7 +403,7 @@ describe("figures", () => {
       test("Figure in main viewport can be dragged to frozen cols", async () => {
         createFigure(model, { id, x: 16 * cellWidth, y: 16 * cellHeight });
         await nextTick();
-        await dragElement(figureSelector, -3 * cellWidth, 0, true);
+        await dragElement(figureSelector, { x: -3 * cellWidth, y: 0 }, undefined, true);
         expect(model.getters.getFigure(sheetId, id)).toMatchObject({
           x: 3 * cellWidth, // initial position + drag offset - scroll offset
           y: 16 * cellHeight,
@@ -412,7 +412,7 @@ describe("figures", () => {
       test("Dragging figure that is half hidden by frozen cols will put in on top of the freeze pane", async () => {
         createFigure(model, { id, x: 14 * cellWidth, y: 16 * cellHeight, width: 5 * cellWidth });
         await nextTick();
-        await dragElement(figureSelector, 0, 1, true);
+        await dragElement(figureSelector, { x: 0, y: 1 }, undefined, true);
         expect(model.getters.getFigure(sheetId, id)).toMatchObject({
           x: 4 * cellWidth, // initial position - scroll offset
           y: 16 * cellHeight + 1,

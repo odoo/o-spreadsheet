@@ -1,16 +1,31 @@
 import { Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
 import { BottomBar } from "../../src/components/bottom_bar/bottom_bar";
 import { Model } from "../../src/model";
-import { SpreadsheetChildEnv } from "../../src/types";
+import { Pixel, SpreadsheetChildEnv, UID } from "../../src/types";
 import {
   activateSheet,
   createSheet,
+  deleteSheet,
   hideSheet,
+  redo,
+  renameSheet,
+  resizeColumns,
+  resizeRows,
   selectCell,
   setCellContent,
+  undo,
 } from "../test_helpers/commands_helpers";
-import { click, keyDown, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
+import {
+  click,
+  dragElement,
+  getElComputedStyle,
+  keyDown,
+  simulateClick,
+  triggerMouseEvent,
+} from "../test_helpers/dom_helper";
 import { mockUuidV4To, mountComponent, nextTick } from "../test_helpers/helpers";
+import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
+
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let fixture: HTMLElement;
@@ -30,6 +45,11 @@ class Parent extends Component<any, any> {
   getSubEnv() {
     return this.__owl__.childEnv;
   }
+}
+
+function isDragAndDropActive(): boolean {
+  const activeSheet = fixture.querySelector<HTMLElement>(".o-sheet.active")!;
+  return activeSheet.style.transition === "left 0s";
 }
 
 async function mountBottomBar(
@@ -80,14 +100,13 @@ describe("BottomBar component", () => {
   });
 
   test("Can activate a sheet", async () => {
-    const { parent } = await mountBottomBar();
-    const dispatch = jest.spyOn(parent.props.model, "dispatch");
-    await click(fixture, ".o-sheet");
-    const sheetIdFrom = parent.props.model.getters.getActiveSheetId();
-    const sheetIdTo = sheetIdFrom;
+    const model = new Model({ sheets: [{ id: "Sheet1" }, { id: "Sheet2" }] });
+    await mountBottomBar(model);
+    const dispatch = jest.spyOn(model, "dispatch");
+    triggerMouseEvent(`.o-sheet[data-id="Sheet2"]`, "mousedown");
     expect(dispatch).toHaveBeenCalledWith("ACTIVATE_SHEET", {
-      sheetIdFrom,
-      sheetIdTo,
+      sheetIdFrom: "Sheet1",
+      sheetIdTo: "Sheet2",
     });
   });
 
@@ -156,7 +175,7 @@ describe("BottomBar component", () => {
     await click(fixture, ".o-menu-item[data-name='move_right'");
     expect(dispatch).toHaveBeenCalledWith("MOVE_SHEET", {
       sheetId,
-      direction: "right",
+      delta: 1,
     });
   });
 
@@ -172,7 +191,7 @@ describe("BottomBar component", () => {
     await click(fixture, ".o-menu-item[data-name='move_left'");
     expect(dispatch).toHaveBeenCalledWith("MOVE_SHEET", {
       sheetId,
-      direction: "left",
+      delta: -1,
     });
   });
 
@@ -605,5 +624,173 @@ describe("BottomBar component", () => {
     selectCell(model, "A2");
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
+  });
+
+  describe("drag & drop sheet", () => {
+    const sheetIds: UID[] = ["Sheet1", "Sheet2", "Sheet3", "Sheet4"];
+    let model: Model;
+
+    beforeEach(async () => {
+      mockGetBoundingClientRect({
+        "o-sheet": (el: HTMLElement) => ({
+          x: model.getters.getSheetIds().indexOf(el.dataset.id!) * 100,
+          width: 101, // width of 101 and x is offset by only 100 because there's negative borders on sheets
+        }),
+        "o-sheet-list": () => ({ x: 0, width: 500 }),
+      });
+
+      jest.useFakeTimers();
+      model = new Model({ sheets: sheetIds.map((sheetId) => ({ id: sheetId })) });
+      await mountBottomBar(model);
+    });
+
+    async function dragSheet(
+      sheetId: UID,
+      args: {
+        mouseMoveX: Pixel;
+        mouseUp?: boolean;
+        mouseInitialX?: Pixel;
+      }
+    ) {
+      const mouseUp = args.mouseUp !== undefined ? args.mouseUp : true;
+      const sheetEl = fixture.querySelector(`.o-sheet[data-id="${sheetId}"]`)!;
+      const startingX =
+        args.mouseInitialX !== undefined ? args.mouseInitialX : sheetEl.getBoundingClientRect().x;
+      // const startingX = 0;
+      await dragElement(
+        `.o-sheet[data-id="${sheetId}"]`,
+        { x: args.mouseMoveX, y: 0 },
+        { x: startingX, y: 0 },
+        mouseUp
+      );
+    }
+
+    test("Can drag & drop a sheet forward", async () => {
+      await dragSheet("Sheet1", { mouseMoveX: 210 });
+      expect(model.getters.getVisibleSheetIds()).toEqual(["Sheet2", "Sheet3", "Sheet1", "Sheet4"]);
+    });
+
+    test("Can drag & drop a sheet backward", async () => {
+      await dragSheet("Sheet4", { mouseMoveX: -190 });
+      expect(model.getters.getVisibleSheetIds()).toEqual(["Sheet1", "Sheet4", "Sheet2", "Sheet3"]);
+    });
+
+    test("Can drag & drop a sheet on itself", async () => {
+      await dragSheet("Sheet1", { mouseMoveX: 10 });
+      expect(model.getters.getVisibleSheetIds()).toEqual(["Sheet1", "Sheet2", "Sheet3", "Sheet4"]);
+    });
+
+    test("Drag & dropped sheet is activated", async () => {
+      expect(model.getters.getActiveSheetId()).toBe("Sheet1");
+      await dragSheet("Sheet3", { mouseMoveX: 10, mouseUp: false });
+      expect(model.getters.getActiveSheetId()).toBe("Sheet3");
+    });
+
+    test("undo/redo drag & drop of a sheet", async () => {
+      await dragSheet("Sheet4", { mouseMoveX: -190 });
+      expect(model.getters.getVisibleSheetIds()).toEqual(["Sheet1", "Sheet4", "Sheet2", "Sheet3"]);
+      undo(model);
+      expect(model.getters.getVisibleSheetIds()).toEqual(["Sheet1", "Sheet2", "Sheet3", "Sheet4"]);
+      redo(model);
+      expect(model.getters.getVisibleSheetIds()).toEqual(["Sheet1", "Sheet4", "Sheet2", "Sheet3"]);
+    });
+
+    test("Can edge scroll to the right", async () => {
+      createSheet(model, { sheetId: "Sheet5", position: model.getters.getSheetIds().length });
+      createSheet(model, { sheetId: "Sheet6", position: model.getters.getSheetIds().length });
+      createSheet(model, { sheetId: "Sheet7", position: model.getters.getSheetIds().length });
+      createSheet(model, { sheetId: "Sheet8", position: model.getters.getSheetIds().length });
+      createSheet(model, { sheetId: "Sheet9", position: model.getters.getSheetIds().length });
+      createSheet(model, { sheetId: "Sheet10", position: model.getters.getSheetIds().length });
+      activateSheet(model, "Sheet0");
+      await nextTick();
+
+      await dragSheet("Sheet1", { mouseMoveX: 600, mouseUp: false, mouseInitialX: 0 });
+      jest.advanceTimersByTime(5000);
+      triggerMouseEvent(document, "mouseup");
+      const sheetIds = model.getters.getVisibleSheetIds();
+      expect(sheetIds[sheetIds.length - 1]).toEqual("Sheet1");
+    });
+
+    test("Can edge scroll to the left", async () => {
+      createSheet(model, { sheetId: "Sheet5", position: model.getters.getSheetIds().length });
+      createSheet(model, { sheetId: "Sheet6", position: model.getters.getSheetIds().length });
+      createSheet(model, { sheetId: "Sheet7", position: model.getters.getSheetIds().length });
+      createSheet(model, { sheetId: "Sheet8", position: model.getters.getSheetIds().length });
+      createSheet(model, { sheetId: "Sheet9", position: model.getters.getSheetIds().length });
+      createSheet(model, { sheetId: "Sheet10", position: model.getters.getSheetIds().length });
+      activateSheet(model, "Sheet10");
+      await nextTick();
+
+      await dragSheet("Sheet10", { mouseMoveX: -500, mouseUp: false, mouseInitialX: 400 });
+      jest.advanceTimersByTime(5000);
+      triggerMouseEvent(document, "mouseup");
+      expect(model.getters.getVisibleSheetIds()[0]).toEqual("Sheet10");
+    });
+
+    test("Swap a sheet with a sheet with a longer name : no back & forth when moving mouse", async () => {
+      mockGetBoundingClientRect({
+        "o-sheet-list": () => ({ x: 0, width: 500 }),
+        "o-sheet": (el: HTMLElement) => {
+          if (el.dataset.id === "Sheet1") return { x: 0, width: 100 };
+          else if (el.dataset.id === "Sheet2") return { x: 100, width: 300 };
+          return { x: model.getters.getSheetIds().indexOf(el.dataset.id!) * 100 + 200, width: 100 };
+        },
+      });
+
+      triggerMouseEvent('.o-sheet[data-id="Sheet1"]', "mousedown");
+      triggerMouseEvent('.o-sheet[data-id="Sheet1"]', "mousemove", 0, 0);
+      await nextTick();
+      expect(getElComputedStyle('.o-sheet[data-id="Sheet1"]', "left")).toBe("0px");
+      expect(getElComputedStyle('.o-sheet[data-id="Sheet2"]', "left")).toBe("0px");
+
+      triggerMouseEvent('.o-sheet[data-id="Sheet1"]', "mousemove", 100, 0);
+      await nextTick();
+      expect(getElComputedStyle(".o-sheet[data-id=Sheet1]", "left")).toBe("100px");
+      expect(getElComputedStyle(".o-sheet[data-id=Sheet2]", "left")).toBe("-99px"); // -99 because we do a -1 to take the negative margin into account
+
+      triggerMouseEvent('.o-sheet[data-id="Sheet1"]', "mousemove", 150, 0); // 150 is the position of the mouse not the move offset
+      await nextTick();
+      expect(getElComputedStyle(".o-sheet[data-id=Sheet1]", "left")).toBe("150px");
+      expect(getElComputedStyle(".o-sheet[data-id=Sheet2]", "left")).toBe("-99px");
+    });
+
+    test.each([
+      () => createSheet(model, { sheetId: "newSheet" }),
+      () => deleteSheet(model, "Sheet2"),
+      () => renameSheet(model, "Sheet2", "New name"),
+      () => hideSheet(model, "Sheet2"),
+    ])(
+      "Modifying the sheet list during the drag & drop cancels it",
+      async (modifySheetList: () => void) => {
+        await dragSheet("Sheet3", { mouseMoveX: 10, mouseUp: false });
+        await nextTick();
+        expect(isDragAndDropActive()).toBeTruthy();
+        modifySheetList();
+        await nextTick();
+        expect(isDragAndDropActive()).toBeFalsy();
+      }
+    );
+
+    test.each([
+      () => resizeColumns(model, ["A"], 10),
+      () => resizeRows(model, [1], 10),
+      () => setCellContent(model, "A1", "Content"),
+    ])("Random actions on sheets does not cancel the drag & drop", async (action: () => void) => {
+      await dragSheet("Sheet3", { mouseMoveX: 10, mouseUp: false });
+      await nextTick();
+      expect(isDragAndDropActive()).toBeTruthy();
+      action();
+      await nextTick();
+      expect(isDragAndDropActive()).toBeTruthy();
+    });
+
+    test("Bottom bar context menu is closed when starting to drag a sheet", async () => {
+      triggerMouseEvent(".o-sheet", "contextmenu");
+      await nextTick();
+      expect(fixture.querySelector(".o-menu")).toBeTruthy();
+      await dragSheet("Sheet1", { mouseMoveX: 10, mouseUp: false });
+      expect(fixture.querySelector(".o-menu")).toBeFalsy();
+    });
   });
 });

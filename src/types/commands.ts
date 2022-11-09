@@ -341,7 +341,7 @@ export interface DuplicateSheetCommand extends SheetDependentCommand {
 
 export interface MoveSheetCommand extends SheetDependentCommand {
   type: "MOVE_SHEET";
-  direction: "left" | "right";
+  delta: number;
 }
 
 export interface RenameSheetCommand extends SheetDependentCommand {
