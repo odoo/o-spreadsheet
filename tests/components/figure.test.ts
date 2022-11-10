@@ -10,7 +10,7 @@ import {
   setCellContent,
 } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
-import { getCellContent } from "../test_helpers/getters_helpers";
+import { getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
@@ -177,6 +177,17 @@ describe("figures", () => {
     await nextTick();
     const anchors = fixture.querySelectorAll(".o-anchor");
     expect(anchors).toHaveLength(8);
+  });
+
+  test("Can undo/redo with a figure focused", async () => {
+    createFigure(model);
+    await nextTick();
+    setCellContent(model, "A1", "hello");
+    await simulateClick(".o-figure");
+    fixture
+      .querySelector(".o-figure")
+      ?.dispatchEvent(new KeyboardEvent("keydown", { key: "z", ctrlKey: true, bubbles: true }));
+    expect(getCellText(model, "A1")).toBe("");
   });
 
   test("Can resize a figure through its anchors", async () => {

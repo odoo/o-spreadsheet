@@ -9,7 +9,7 @@
           t-att-class="{active: isSelected, 'o-dragging': dnd.isActive}"
           t-ref="figure"
           tabindex="0"
-          t-on-keydown.stop="(ev) => this.onKeyDown(ev)"
+          t-on-keydown="(ev) => this.onKeyDown(ev)"
           t-on-keyup.stop="">
           <t
             t-component="figureRegistry.get(this.props.figure.tag).Component"
