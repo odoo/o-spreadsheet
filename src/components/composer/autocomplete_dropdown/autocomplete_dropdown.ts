@@ -2,14 +2,6 @@ import { Component } from "@odoo/owl";
 import { css } from "../../helpers/css";
 import { AutocompleteValue } from "../composer/composer";
 
-// -----------------------------------------------------------------------------
-// Autocomplete Value Providers
-// -----------------------------------------------------------------------------
-
-// -----------------------------------------------------------------------------
-// Autocomplete DropDown component
-// -----------------------------------------------------------------------------
-
 css/* scss */ `
   .o-autocomplete-dropdown {
     pointer-events: auto;
@@ -39,21 +31,15 @@ css/* scss */ `
 interface Props {
   values: AutocompleteValue[];
   selectedIndex: number;
-  borderStyle: string;
-  onCompleted: (text?: string) => void;
+  onValueSelected: (value: string) => void;
 }
 
 export class TextValueProvider extends Component<Props> {
   static template = "o-spreadsheet-TextValueProvider";
-
-  fillValue(index: number) {
-    this.props.onCompleted(this.props.values[index].text);
-  }
 }
 
 TextValueProvider.props = {
   values: Array,
   selectedIndex: Number,
-  borderStyle: String,
-  onCompleted: Function,
+  onValueSelected: Function,
 };

@@ -73,6 +73,11 @@ css/* scss */ `
       margin: 4px;
       pointer-events: none;
     }
+
+    .o-autocomplete-dropdown,
+    .o-formula-assistant-container {
+      box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
+    }
   }
 
   /* Custom css to highlight topbar composer on focus */
@@ -164,8 +169,6 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     return `width:${ASSISTANT_WIDTH}px;`;
   }
 
-  borderStyle = `box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);`;
-
   // we can't allow input events to be triggered while we remove and add back the content of the composer in processContent
   shouldProcessInputEvents: boolean = false;
   tokens: EnrichedToken[] = [];
@@ -223,7 +226,13 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.dispatch("STOP_EDITION");
       return;
     }
+    // All arrow keys are processed: up and down should move autocomplete, left
+    // and right should move the cursor.
     ev.stopPropagation();
+    this.handleArrowKeysForAutocomplete(ev);
+  }
+
+  private handleArrowKeysForAutocomplete(ev: KeyboardEvent) {
     // only for arrow up and down
     if (["ArrowUp", "ArrowDown"].includes(ev.key) && this.autoCompleteState.showProvider) {
       ev.preventDefault();
@@ -361,10 +370,10 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
 
   showAutocomplete(searchTerm: string) {
     this.autoCompleteState.showProvider = true;
-    let values = Object.keys(functionRegistry.content).map((key) => {
+    let values = Object.entries(functionRegistry.content).map(([text, { description }]) => {
       return {
-        text: key,
-        description: functionRegistry.get(key).description,
+        text,
+        description,
       };
     });
 
@@ -399,10 +408,6 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
 
   onBlur() {
     this.isKeyStillDown = false;
-  }
-
-  onCompleted(text: string | undefined) {
-    text && this.autoComplete(text);
   }
 
   // ---------------------------------------------------------------------------

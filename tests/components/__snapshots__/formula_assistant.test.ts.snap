@@ -3,7 +3,6 @@
 exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
 <div
   class="o-formula-assistant-container o-formula-assistant-event-auto"
-  style="box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);"
 >
   <div
     class="o-formula-assistant"

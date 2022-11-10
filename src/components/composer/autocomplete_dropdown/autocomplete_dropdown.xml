@@ -1,12 +1,10 @@
 <templates>
   <t t-name="o-spreadsheet-TextValueProvider" owl="1">
-    <div
-      t-att-class="{'o-autocomplete-dropdown':props.values.length}"
-      t-att-style="props.values.length > 0 ? props.borderStyle : null">
+    <div t-att-class="{'o-autocomplete-dropdown':props.values.length}">
       <t t-foreach="props.values" t-as="v" t-key="v.text">
         <div
           t-att-class="{'o-autocomplete-value-focus': props.selectedIndex === v_index}"
-          t-on-click.stop.prevent="() => this.fillValue(v_index)">
+          t-on-click.stop.prevent="() => this.props.onValueSelected(v.text)">
           <div class="o-autocomplete-value" t-esc="v.text"/>
           <div
             class="o-autocomplete-description"
