@@ -1,10 +1,4 @@
-import {
-  getComposerSheetName,
-  getNextColor,
-  positionToZone,
-  UuidGenerator,
-  zoneToXc,
-} from "../../helpers/index";
+import { getComposerSheetName, getNextColor, positionToZone, zoneToXc } from "../../helpers/index";
 import { ModelConfig } from "../../model";
 import { StreamCallbacks } from "../../selection_stream/event_stream";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
@@ -20,8 +14,6 @@ import {
   UID,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
-
-const uuidGenerator = new UuidGenerator();
 
 export interface RangeInputValue {
   id: UID;
@@ -190,7 +182,6 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
   private setContent(index: number, xc: string) {
     this.ranges[index] = {
       ...this.ranges[index],
-      id: uuidGenerator.uuidv4(),
       xc,
     };
   }

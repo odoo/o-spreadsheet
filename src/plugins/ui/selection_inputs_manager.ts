@@ -1,4 +1,4 @@
-import { positionToZone, rangeReference } from "../../helpers/index";
+import { positionToZone, rangeReference, toZone } from "../../helpers/index";
 import { ModelConfig } from "../../model";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
 import { StateObserver } from "../../state_observer";
@@ -82,13 +82,25 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
 
       case "ADD_EMPTY_RANGE":
       case "REMOVE_RANGE":
-      case "FOCUS_RANGE":
-      case "CHANGE_RANGE":
         if (cmd.id !== this.focusedInputId) {
           const input = this.inputs[cmd.id];
           this.selection.capture(
             input,
             { cell: { col: 0, row: 0 }, zone: positionToZone({ col: 0, row: 0 }) },
+            { handleEvent: input.handleEvent.bind(input) }
+          );
+          this.focusedInputId = cmd.id;
+        }
+        break;
+      case "FOCUS_RANGE":
+      case "CHANGE_RANGE":
+        if (cmd.id !== this.focusedInputId) {
+          const input = this.inputs[cmd.id];
+          const range = input.ranges.find((range) => range.id === cmd.rangeId);
+          const zone = toZone(range?.xc || "A1");
+          this.selection.capture(
+            input,
+            { cell: { col: zone.left, row: zone.top }, zone },
             { handleEvent: input.handleEvent.bind(input) }
           );
           this.focusedInputId = cmd.id;
