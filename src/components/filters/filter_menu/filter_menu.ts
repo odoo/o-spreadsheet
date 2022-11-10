@@ -256,6 +256,7 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
           selectedIndex = Math.min(selectedIndex + 1, displayedValues.length - 1);
         }
         ev.preventDefault();
+        ev.stopPropagation();
         break;
       case "ArrowUp":
         if (selectedIndex === undefined) {
@@ -264,11 +265,13 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
           selectedIndex = Math.max(selectedIndex - 1, 0);
         }
         ev.preventDefault();
+        ev.stopPropagation();
         break;
       case "Enter":
         if (selectedIndex !== undefined) {
           this.checkValue(displayedValues[selectedIndex]);
         }
+        ev.stopPropagation();
         ev.preventDefault();
         break;
     }
