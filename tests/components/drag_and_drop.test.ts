@@ -2,8 +2,17 @@ import { App, Component, useSubEnv, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { dragAndDropBeyondTheViewport } from "../../src/components/helpers/drag_and_drop";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
+import { numberToLetters } from "../../src/helpers";
 import { SpreadsheetChildEnv, UID } from "../../src/types";
-import { freezeColumns, freezeRows, setViewportOffset } from "../test_helpers/commands_helpers";
+import {
+  addColumns,
+  addRows,
+  freezeColumns,
+  freezeRows,
+  hideColumns,
+  hideRows,
+  setViewportOffset,
+} from "../test_helpers/commands_helpers";
 import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { makeTestFixture, nextTick } from "../test_helpers/helpers";
 
@@ -153,6 +162,35 @@ describe("Drag And Drop horizontal tests", () => {
       right: 15,
     });
   });
+
+  test("drag And Drop through hidden columns", async () => {
+    const { right } = model.getters.getActiveMainViewport();
+    addColumns(model, "after", "Z", 100);
+    hideColumns(model, [numberToLetters(right + 1)]);
+    const { width, height } = model.getters.getSheetViewDimension();
+    const y = height / 2;
+    triggerMouseEvent(".o-fake-grid", "mousedown", width / 2, y);
+    triggerMouseEvent(".o-fake-grid", "mousemove", 1.5 * width, y);
+    const advanceTimer = edgeScrollDelay(0.5 * width, 5);
+
+    jest.advanceTimersByTime(advanceTimer);
+    triggerMouseEvent(".o-fake-grid", "mouseup", 1.5 * width, y);
+    expect(model.getters.getActiveMainViewport()).toMatchObject({
+      left: 6,
+      right: 17,
+    });
+    setViewportOffset(model, (right + 2) * DEFAULT_CELL_WIDTH, 0);
+    await nextTick();
+    triggerMouseEvent(".o-fake-grid", "mousedown", width / 2, y);
+    triggerMouseEvent(".o-fake-grid", "mousemove", -1.5 * width, y);
+
+    jest.advanceTimersByTime(advanceTimer);
+    triggerMouseEvent(".o-fake-grid", "mouseup", -1.5 * width, y);
+    expect(model.getters.getActiveMainViewport()).toMatchObject({
+      left: 6,
+      right: 17,
+    });
+  });
 });
 
 describe("Drag And Drop vertical tests", () => {
@@ -276,6 +314,35 @@ describe("Drag And Drop vertical tests without frozen panes", () => {
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 4,
       bottom: 47,
+    });
+  });
+
+  test("drag And Drop through hidden rows", async () => {
+    const { bottom } = model.getters.getActiveMainViewport();
+    addRows(model, "after", 80, 100);
+    hideRows(model, [bottom + 1]);
+    const { width, height } = model.getters.getSheetViewDimension();
+    const x = width / 2;
+    triggerMouseEvent(".o-fake-grid", "mousedown", x, height / 2);
+    triggerMouseEvent(".o-fake-grid", "mousemove", x, 1.5 * height);
+    const advanceTimer = edgeScrollDelay(0.5 * height, 5);
+
+    jest.advanceTimersByTime(advanceTimer);
+    triggerMouseEvent(".o-fake-grid", "mouseup", x, 1.5 * height);
+    expect(model.getters.getActiveMainViewport()).toMatchObject({
+      top: 6,
+      bottom: 50,
+    });
+    setViewportOffset(model, 0, (bottom + 2) * DEFAULT_CELL_HEIGHT);
+    await nextTick();
+    triggerMouseEvent(".o-fake-grid", "mousedown", x, height / 2);
+    triggerMouseEvent(".o-fake-grid", "mousemove", x, -1.5 * height);
+
+    jest.advanceTimersByTime(advanceTimer);
+    triggerMouseEvent(".o-fake-grid", "mouseup", x, -1.5 * height);
+    expect(model.getters.getActiveMainViewport()).toMatchObject({
+      top: 39,
+      bottom: 83,
     });
   });
 });
