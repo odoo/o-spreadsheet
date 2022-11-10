@@ -95,7 +95,10 @@ export function dragAndDropBeyondTheViewport(
             break;
           case -1:
             colIndex = left - 1;
-            newTarget = left - 1;
+            while (env.model.getters.isColHidden(sheetId, colIndex)) {
+              colIndex--;
+            }
+            newTarget = colIndex;
             break;
         }
         offsetX = getters.getColDimensions(sheetId, newTarget!).start - offsetCorrectionX;
@@ -123,7 +126,10 @@ export function dragAndDropBeyondTheViewport(
             break;
           case -1:
             rowIndex = top - 1;
-            newTarget = top + edgeScrollInfoY.direction;
+            while (env.model.getters.isRowHidden(sheetId, rowIndex)) {
+              rowIndex--;
+            }
+            newTarget = rowIndex;
             break;
         }
         offsetY = env.model.getters.getRowDimensions(sheetId, newTarget!).start - offsetCorrectionY;
