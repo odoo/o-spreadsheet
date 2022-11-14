@@ -1,6 +1,7 @@
 import { _lt } from "../translation";
 import { FunctionDescription } from "../types";
 import { args } from "./arguments";
+import { formatDateTime } from "./dates";
 import {
   dichotomicPredecessorSearch,
   dichotomicSuccessorSearch,
@@ -50,7 +51,11 @@ export const LOOKUP: FunctionDescription = {
 
     const index = dichotomicPredecessorSearch(searchRange, search_key);
     if (index === -1) {
-      throw new Error(_lt("Did not find value '%s' in LOOKUP evaluation.", search_key));
+      const value =
+        typeof search_key === "object"
+          ? formatDateTime(search_key.value, search_key.format)
+          : search_key;
+      throw new Error(_lt("Did not find value '%s' in LOOKUP evaluation.", value));
     }
     if (result_range === undefined) {
       return verticalSearch ? search_array.pop()[index] : search_array[index].pop();
@@ -118,7 +123,11 @@ export const MATCH: FunctionDescription = {
     if (index > -1) {
       return index + 1;
     } else {
-      throw new Error(_lt("Did not find value '%s' in MATCH evaluation.", search_key));
+      const value =
+        typeof search_key === "object"
+          ? formatDateTime(search_key.value, search_key.format)
+          : search_key;
+      throw new Error(_lt("Did not find value '%s' in MATCH evaluation.", value));
     }
   },
 };
@@ -160,7 +169,11 @@ export const VLOOKUP: FunctionDescription = {
     if (lineIndex > -1) {
       return range[_index - 1][lineIndex];
     } else {
-      throw new Error(_lt("Did not find value '%s' in VLOOKUP evaluation.", search_key));
+      const value =
+        typeof search_key === "object"
+          ? formatDateTime(search_key.value, search_key.format)
+          : search_key;
+      throw new Error(_lt("Did not find value '%s' in VLOOKUP evaluation.", value));
     }
   },
 };
