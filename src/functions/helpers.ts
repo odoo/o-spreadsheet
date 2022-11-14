@@ -557,7 +557,7 @@ export function dichotomicSearch<T>(
     currentType = typeof currentVal;
 
     // 1 - linear search to find value with the same type
-    while (indexLeft <= currentIndex && targetType !== currentType) {
+    while (indexLeft < currentIndex && targetType !== currentType) {
       currentIndex--;
       currentVal = getValueInData(data, currentIndex);
       currentType = typeof currentVal;
