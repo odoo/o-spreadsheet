@@ -4,6 +4,11 @@ import { isNumber, parseNumber } from "../helpers/index";
 import { _lt } from "../translation";
 import { parseDateTime } from "./dates";
 
+const INITIAL_1900_DAY = new Date(1899, 11, 30) as any;
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const INITIAL_JS_DAY = new Date(0) as any;
+const DATE_JS_1900_OFFSET = INITIAL_JS_DAY - INITIAL_1900_DAY;
+
 const expectNumberValueError = (value: string) =>
   _lt(
     "The function [[FUNCTION_NAME]] expects a number value, but '%s' is a string, and cannot be coerced to a number.",
@@ -25,6 +30,11 @@ export function toNumber(value: any): number {
         return internalDate.value;
       }
       throw new Error(expectNumberValueError(value));
+    case "object":
+      if (value !== null && value.jsDate) {
+        return value.value;
+      }
+      return value || 0;
     default:
       return value || 0;
   }
@@ -545,4 +555,38 @@ export function dichotomicSuccessorSearch(range: any[], target: any): number {
 
   // note that valMaxIndex could be 0
   return valMaxIndex !== undefined ? valMaxIndex : -1;
+}
+
+export function extractDateValue(arg: any) {
+  if (typeof arg === "object" && arg.jsDate) {
+    return arg.value;
+  }
+  return arg;
+}
+
+// -----------------------------------------------------------------------------
+// Conversion
+// -----------------------------------------------------------------------------
+
+export function numberToJsDate(value: number): Date {
+  const truncValue = Math.trunc(value);
+  let date = new Date(truncValue * MS_PER_DAY - DATE_JS_1900_OFFSET);
+
+  let time = value - truncValue;
+  time = time < 0 ? 1 + time : time;
+
+  const hours = Math.round(time * 24);
+  const minutes = Math.round((time - hours / 24) * 24 * 60);
+  const seconds = Math.round((time - hours / 24 - minutes / 24 / 60) * 24 * 60 * 60);
+
+  date.setHours(hours);
+  date.setMinutes(minutes);
+  date.setSeconds(seconds);
+
+  return date;
+}
+
+export function jsDateToRoundNumber(date: Date): number {
+  const delta = date.getTime() - INITIAL_1900_DAY.getTime();
+  return Math.round(delta / MS_PER_DAY);
 }

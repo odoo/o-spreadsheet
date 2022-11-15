@@ -5,6 +5,7 @@ import { formatDateTime } from "./dates";
 import {
   dichotomicPredecessorSearch,
   dichotomicSuccessorSearch,
+  extractDateValue,
   toBoolean,
   toNumber,
 } from "./helpers";
@@ -47,13 +48,16 @@ export const LOOKUP: FunctionDescription = {
   returns: ["ANY"],
   compute: function (search_key: any, search_array: any, result_range: any = undefined): any {
     const verticalSearch = search_array[0].length >= search_array.length;
-    const searchRange = verticalSearch ? search_array[0] : search_array.map((c) => c[0]);
+    const searchRange = (verticalSearch ? search_array[0] : search_array.map((c) => c[0])).map(
+      (el) => extractDateValue(el)
+    );
 
-    const index = dichotomicPredecessorSearch(searchRange, search_key);
+    const key = extractDateValue(search_key);
+    const index = dichotomicPredecessorSearch(searchRange, key);
     if (index === -1) {
       const value =
-        typeof search_key === "object"
-          ? formatDateTime(search_key.value, search_key.format)
+        typeof search_key === "object" && search_key.jsDate
+          ? formatDateTime(search_key)
           : search_key;
       throw new Error(_lt("Did not find value '%s' in LOOKUP evaluation.", value));
     }
@@ -107,25 +111,26 @@ export const MATCH: FunctionDescription = {
       throw new Error(_lt(`MATCH range must be a single row or a single column.`));
     }
     let index = -1;
-    range = range.flat();
+    range = range.flat().map((el) => extractDateValue(el));
+    const key = extractDateValue(search_key);
     _searchType = Math.sign(_searchType);
     switch (_searchType) {
       case 1:
-        index = dichotomicPredecessorSearch(range, search_key);
+        index = dichotomicPredecessorSearch(range, key);
         break;
       case 0:
-        index = linearSearch(range, search_key);
+        index = linearSearch(range, key);
         break;
       case -1:
-        index = dichotomicSuccessorSearch(range, search_key);
+        index = dichotomicSuccessorSearch(range, key);
         break;
     }
     if (index > -1) {
       return index + 1;
     } else {
       const value =
-        typeof search_key === "object"
-          ? formatDateTime(search_key.value, search_key.format)
+        typeof search_key === "object" && search_key.jsDate
+          ? formatDateTime(search_key)
           : search_key;
       throw new Error(_lt("Did not find value '%s' in MATCH evaluation.", value));
     }
@@ -158,20 +163,21 @@ export const VLOOKUP: FunctionDescription = {
     }
 
     const _isSorted = toBoolean(is_sorted);
-    const firstCol = range[0];
+    const firstCol = range[0].map((el) => extractDateValue(el));
+    const key = extractDateValue(search_key);
     let lineIndex;
     if (_isSorted) {
-      lineIndex = dichotomicPredecessorSearch(firstCol, search_key);
+      lineIndex = dichotomicPredecessorSearch(firstCol, key);
     } else {
-      lineIndex = linearSearch(firstCol, search_key);
+      lineIndex = linearSearch(firstCol, key);
     }
 
     if (lineIndex > -1) {
       return range[_index - 1][lineIndex];
     } else {
       const value =
-        typeof search_key === "object"
-          ? formatDateTime(search_key.value, search_key.format)
+        typeof search_key === "object" && search_key.jsDate
+          ? formatDateTime(search_key)
           : search_key;
       throw new Error(_lt("Did not find value '%s' in VLOOKUP evaluation.", value));
     }

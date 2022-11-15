@@ -12,7 +12,7 @@ import { toNumber } from "./helpers";
 export interface InternalDate {
   value: number;
   format: string;
-  jsDate?: Date;
+  jsDate: Date;
 }
 
 // -----------------------------------------------------------------------------
@@ -220,7 +220,7 @@ export function toNativeDate(date: any): Date {
 // Formatting
 // -----------------------------------------------------------------------------
 
-export function formatDateTime(date: InternalDate, format?: string): string {
+export function formatDateTime(date: Omit<InternalDate, "jsDate">, format?: string): string {
   // TODO: unify the format functions for date and datetime
   // This requires some code to 'parse' or 'tokenize' the format, keep it in a
   // cache, and use it in a single mapping, that recognizes the special list

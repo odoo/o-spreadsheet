@@ -2,7 +2,7 @@ import { _lt } from "../translation";
 import { FunctionDescription } from "../types";
 import { args } from "./arguments";
 import { InternalDate } from "./dates";
-import { toNumber, toString } from "./helpers";
+import { extractDateValue, numberToJsDate, toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
 
 // -----------------------------------------------------------------------------
@@ -23,6 +23,7 @@ export const ADD: FunctionDescription = {
       return {
         value: value1.value + toNumber(value2),
         format: value1.format,
+        jsDate: numberToJsDate(value1.value + toNumber(value2)),
       };
     }
     return toNumber(value1) + toNumber(value2);
@@ -88,6 +89,8 @@ export const EQ: FunctionDescription = {
     if (typeof value2 === "string") {
       value2 = value2.toUpperCase();
     }
+    value1 = extractDateValue(value1);
+    value2 = extractDateValue(value2);
     return value1 === value2;
   },
 };
@@ -102,6 +105,9 @@ function applyRelationalOperator(
 ): boolean {
   value1 = isEmpty(value1) ? getNeutral[typeof value2] : value1;
   value2 = isEmpty(value2) ? getNeutral[typeof value1] : value2;
+  value1 = extractDateValue(value1);
+  value2 = extractDateValue(value2);
+
   if (typeof value1 !== "number") {
     value1 = toString(value1).toUpperCase();
   }

@@ -5,7 +5,7 @@ describe("lookup", () => {
   // LOOKUP
   //----------------------------------------------------------------------------
 
-  test("LOOKUP: fonctional tests on range", () => {
+  test("LOOKUP: functional tests on range", () => {
     // prettier-ignore
     const grid = {
       A1: "1", B1: "res 01", C1: "res 11", D1: "res 21", E1: "res 31",
@@ -49,6 +49,20 @@ describe("lookup", () => {
 
     expect(evaluatedGrid.A15).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
     expect(evaluatedGrid.A16).toBe("res 09");
+  });
+
+  test("LOOKUP: lookup dates", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "01/03/2020", B1: "999",     C1: "15",     D1: "01/03/2020", E1: "01/04/2000",
+      A2: "missed1",    B2: "missed2", C2: "touché",
+
+      A4: "=LOOKUP(D1, A1:C1, A2:C2)",
+      A5: "=LOOKUP(E1, A1:C1, A2:C2)",
+    }
+    const evaluatedGrid = evaluateGrid(grid);
+    expect(evaluatedGrid.A4).toBe("touché");
+    expect(evaluatedGrid.A5).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
   });
 
   //----------------------------------------------------------------------------
@@ -263,6 +277,23 @@ describe("lookup", () => {
     expect(descendingString.D3).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
     expect(descendingString.D4).toBe(4);
     expect(descendingString.D5).toBe(3);
+  });
+
+  test("MATCH: match dates", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "01/03/2020", B1: "999",    C1: "15",     D1: "01/03/2020", E1: "01/04/2000",
+
+      A4: "=MATCH(D1, A1:C1, 0)",
+      A5: "=MATCH(D1, A1:C1, 1)",
+      A6: "=MATCH(E1, A1:C1, 0)",
+      A7: "=MATCH(E1, A1:C1, 1)",
+    }
+    const evaluatedGrid = evaluateGrid(grid);
+    expect(evaluatedGrid.A4).toBe(1);
+    expect(evaluatedGrid.A5).toBe(3);
+    expect(evaluatedGrid.A6).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(evaluatedGrid.A7).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
   });
 
   //----------------------------------------------------------------------------
@@ -488,5 +519,23 @@ describe("lookup", () => {
         });
       });
     });
+  });
+
+  test("VLOOKUP: lookup dates", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "01/03/2020", B1: "999",     C1: "15",     D1: "01/03/2020", E1: "01/04/2000",
+      A2: "touché",     B2: "missed1", C2: "missed2",
+
+      A4: "=VLOOKUP(D1, A1:C2, 2, 0)",
+      A5: "=VLOOKUP(D1, A1:C2, 2, 1)",
+      A6: "=VLOOKUP(E1, A1:C2, 2, 0)",
+      A7: "=VLOOKUP(E1, A1:C2, 2, 1)",
+    }
+    const evaluatedGrid = evaluateGrid(grid);
+    expect(evaluatedGrid.A4).toBe(999);
+    expect(evaluatedGrid.A5).toBe(999);
+    expect(evaluatedGrid.A6).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(evaluatedGrid.A7).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
   });
 });

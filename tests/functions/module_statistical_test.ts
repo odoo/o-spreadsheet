@@ -750,6 +750,9 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=LARGE(A2:A4, A5)", A2: "3", A3: "", A4: "2", A5: "3" })).toBe(
       "#ERROR"
     ); // @compatibility: on google sheets, return #NUM!
+    expect(
+      evaluateCell("A1", { A1: "=LARGE(A2:A4, A5)", A2: "03/01/2020", A3: "-11", A4: "2", A5: "1" })
+    ).toBe(43891);
   });
 
   test("LARGE: casting tests on cell arguments", () => {
@@ -1383,6 +1386,12 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=SMALL(A2:A4, A5)", A2: "3", A3: "", A4: "2", A5: "3" })).toBe(
       "#ERROR"
     ); // @compatibility: on google sheets, return #NUM!
+    expect(
+      evaluateCell("A1", { A1: "=SMALL(A2:A4, A5)", A2: "03/01/2020", A3: "-11", A4: "2", A5: "1" })
+    ).toBe(-11);
+    expect(
+      evaluateCell("A1", { A1: "=SMALL(A2:A3, A5)", A2: "03/01/2020", A3: "1e15", A5: "1" })
+    ).toBe(43891);
   });
 
   test("SMALL: casting tests on cell arguments", () => {
