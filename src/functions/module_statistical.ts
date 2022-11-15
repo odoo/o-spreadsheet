@@ -5,6 +5,7 @@ import { args } from "./arguments";
 import { parseDateTime } from "./dates";
 import {
   dichotomicPredecessorSearch,
+  extractDateValue,
   reduceArgs,
   reduceNumbers,
   reduceNumbersTextAs0,
@@ -456,6 +457,7 @@ export const LARGE: FunctionDescription = {
     let index: number;
     let count = 0;
     visitAny(data, (d) => {
+      d = extractDateValue(d);
       if (typeof d === "number") {
         index = dichotomicPredecessorSearch(largests, d);
         largests.splice(index + 1, 0, d);
@@ -653,6 +655,7 @@ export const SMALL: FunctionDescription = {
     let index: number;
     let count = 0;
     visitAny(data, (d) => {
+      d = extractDateValue(d);
       if (typeof d === "number") {
         index = dichotomicPredecessorSearch(largests, d);
         largests.splice(index + 1, 0, d);

@@ -41,6 +41,31 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "42", A3: '=""' })).toBe(42);
     expect(evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "42", A3: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "42", A3: '="42"' })).toBe(84);
+
+    expect(evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "03/01/2020", A3: "03/01/2020" })).toBe(
+      87782
+    );
+    expect(
+      evaluateCell("A1", {
+        A1: "=ADD(A2, A3)",
+        A2: "=A4+1",
+        A3: "=A4+1",
+        A4: "03/01/2020",
+        A5: "03/01/2020",
+      })
+    ).toBe(87784);
+    expect(
+      evaluateCell("A1", {
+        A1: "=ADD(A2, A3)",
+        A2: "=A4+0.1",
+        A3: "=A4+0.1",
+        A4: "03/01/2020",
+        A5: "03/01/2020",
+      })
+    ).toBe(87782.2);
+    expect(evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "03/01/2020", A3: "2" })).toMatchObject({
+      value: 43893,
+    });
   });
 
   //----------------------------------------------------------------------------
@@ -160,6 +185,29 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=EQ(A2, A3)", A2: '=""', A3: "0" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=EQ(A2, A3)", A2: "=TRUE", A3: "1" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=EQ(A2, A3)", A2: '="42"', A3: "42" })).toBe(false);
+
+    expect(evaluateCell("A1", { A1: "=EQ(A2, A3)", A2: "03/01/2020", A3: "03/01/2020" })).toBe(
+      true
+    );
+    expect(
+      evaluateCell("A1", {
+        A1: "=EQ(A2, A3)",
+        A2: "=A4+1",
+        A3: "=A4+1",
+        A4: "03/01/2020",
+        A5: "03/01/2020",
+      })
+    ).toBe(true);
+    expect(
+      evaluateCell("A1", {
+        A1: "=EQ(A2, A3)",
+        A2: "=A4+0.1",
+        A3: "=A4+0.2",
+        A4: "03/01/2020",
+        A5: "03/01/2020",
+      })
+    ).toBe(false);
+    expect(evaluateCell("A1", { A1: "=EQ(A2, A3)", A2: "03/01/2020", A3: "43891" })).toBe(true);
   });
 
   //----------------------------------------------------------------------------
@@ -246,6 +294,39 @@ describe("operators", () => {
 
     expect(evaluateCell("A1", { A1: "=GT(A2, A3)", A2: '="1"', A3: "99999" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=GT(A2, A3)", A2: '="1"', A3: '="99999"' })).toBe(false);
+
+    expect(evaluateCell("A1", { A1: "=GT(A2, A3)", A2: "03/01/2020", A3: "03/01/2020" })).toBe(
+      false
+    );
+    expect(
+      evaluateCell("A1", {
+        A1: "=GT(A2, A3)",
+        A2: "=A4+1",
+        A3: "=A4",
+        A4: "03/01/2020",
+        A5: "03/01/2020",
+      })
+    ).toBe(true);
+    expect(
+      evaluateCell("A1", {
+        A1: "=GT(A3, A2)",
+        A2: "=A4+1",
+        A3: "=A4",
+        A4: "03/01/2020",
+        A5: "03/01/2020",
+      })
+    ).toBe(false);
+    expect(
+      evaluateCell("A1", {
+        A1: "=GT(A2, A3)",
+        A2: "=A4+0.1",
+        A3: "=A4+0.2",
+        A4: "03/01/2020",
+        A5: "03/01/2020",
+      })
+    ).toBe(false);
+    expect(evaluateCell("A1", { A1: "=GT(A2, A3)", A2: "03/01/2020", A3: "4" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=GT(A3, A2)", A2: "03/01/2020", A3: "4" })).toBe(false);
   });
 
   //----------------------------------------------------------------------------
@@ -333,6 +414,40 @@ describe("operators", () => {
 
     expect(evaluateCell("A1", { A1: "=GTE(A2, A3)", A2: '="1"', A3: "99999" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=GTE(A2, A3)", A2: '="1"', A3: '="99999"' })).toBe(false);
+
+    expect(evaluateCell("A1", { A1: "=GTE(A2, A3)", A2: "03/01/2020", A3: "03/01/2020" })).toBe(
+      true
+    );
+    expect(
+      evaluateCell("A1", {
+        A1: "=GTE(A2, A3)",
+        A2: "=A4+1",
+        A3: "=A4",
+        A4: "03/01/2020",
+        A5: "03/01/2020",
+      })
+    ).toBe(true);
+    expect(
+      evaluateCell("A1", {
+        A1: "=GTE(A3, A2)",
+        A2: "=A4+1",
+        A3: "=A4",
+        A4: "03/01/2020",
+        A5: "03/01/2020",
+      })
+    ).toBe(false);
+    expect(
+      evaluateCell("A1", {
+        A1: "=GTE(A2, A3)",
+        A2: "=A4+0.1",
+        A3: "=A4+0.2",
+        A4: "03/01/2020",
+        A5: "03/01/2020",
+      })
+    ).toBe(false);
+    expect(evaluateCell("A1", { A1: "=GTE(A2, A3)", A2: "03/01/2020", A3: "4" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=GTE(A2, A3)", A2: "03/01/2020", A3: "43891" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=GTE(A2, A3)", A2: "03/01/2020", A3: "100000" })).toBe(false);
   });
 
   //----------------------------------------------------------------------------
@@ -419,6 +534,39 @@ describe("operators", () => {
 
     expect(evaluateCell("A1", { A1: "=LT(A2, A3)", A2: '="1"', A3: "99999" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=LT(A2, A3)", A2: '="1"', A3: '="99999"' })).toBe(true);
+
+    expect(evaluateCell("A1", { A1: "=LT(A2, A3)", A2: "03/01/2020", A3: "03/01/2020" })).toBe(
+      false
+    );
+    expect(
+      evaluateCell("A1", {
+        A1: "=LT(A2, A3)",
+        A2: "=A4+1",
+        A3: "=A4",
+        A4: "03/01/2020",
+        A5: "03/01/2020",
+      })
+    ).toBe(false);
+    expect(
+      evaluateCell("A1", {
+        A1: "=LT(A3, A2)",
+        A2: "=A4+1",
+        A3: "=A4",
+        A4: "03/01/2020",
+        A5: "03/01/2020",
+      })
+    ).toBe(true);
+    expect(
+      evaluateCell("A1", {
+        A1: "=LT(A2, A3)",
+        A2: "=A4+0.1",
+        A3: "=A4+0.2",
+        A4: "03/01/2020",
+        A5: "03/01/2020",
+      })
+    ).toBe(true);
+    expect(evaluateCell("A1", { A1: "=LT(A2, A3)", A2: "03/01/2020", A3: "4" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=LT(A3, A2)", A2: "03/01/2020", A3: "4" })).toBe(true);
   });
 
   //----------------------------------------------------------------------------
@@ -506,6 +654,40 @@ describe("operators", () => {
 
     expect(evaluateCell("A1", { A1: "=LTE(A2, A3)", A2: '="1"', A3: "99999" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=LTE(A2, A3)", A2: '="1"', A3: '="99999"' })).toBe(true);
+
+    expect(evaluateCell("A1", { A1: "=LTE(A2, A3)", A2: "03/01/2020", A3: "03/01/2020" })).toBe(
+      true
+    );
+    expect(
+      evaluateCell("A1", {
+        A1: "=LTE(A2, A3)",
+        A2: "=A4+1",
+        A3: "=A4",
+        A4: "03/01/2020",
+        A5: "03/01/2020",
+      })
+    ).toBe(false);
+    expect(
+      evaluateCell("A1", {
+        A1: "=LTE(A3, A2)",
+        A2: "=A4+1",
+        A3: "=A4",
+        A4: "03/01/2020",
+        A5: "03/01/2020",
+      })
+    ).toBe(true);
+    expect(
+      evaluateCell("A1", {
+        A1: "=LTE(A2, A3)",
+        A2: "=A4+0.1",
+        A3: "=A4+0.2",
+        A4: "03/01/2020",
+        A5: "03/01/2020",
+      })
+    ).toBe(true);
+    expect(evaluateCell("A1", { A1: "=LTE(A2, A3)", A2: "03/01/2020", A3: "4" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=LTE(A2, A3)", A2: "03/01/2020", A3: "43891" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=LTE(A2, A3)", A2: "03/01/2020", A3: "100000" })).toBe(true);
   });
 
   //----------------------------------------------------------------------------
