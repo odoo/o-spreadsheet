@@ -180,6 +180,12 @@ export function getElComputedStyle(selector: string, style: string): string {
   return window.getComputedStyle(element)[style];
 }
 
+export function getElStyle(selector: string, style: string): string {
+  const element = document.querySelector<HTMLElement>(selector);
+  if (!element) throw new Error(`No element matching selector "${selector}"`);
+  return element.style[style];
+}
+
 /**
  * Select a column
  * @param model
@@ -205,13 +211,11 @@ export async function dragElement(
   const { x: startX, y: startY } = startingPosition;
   const { x: offsetX, y: offsetY } = dragOffset;
   triggerMouseEvent(element, "mousedown", startX, startY);
-  await nextTick();
   triggerMouseEvent(element, "mousemove", startX + offsetX, startY + offsetY);
-  await nextTick();
   if (mouseUp) {
     triggerMouseEvent(element, "mouseup", startX + offsetX, startY + offsetY);
-    await nextTick();
   }
+  await nextTick();
 }
 
 /**

@@ -3,6 +3,7 @@
 exports[`Scorecard charts Scorecard snapshot 1`] = `
 <div
   class="o-figure w-100 h-100"
+  data-id="someuuid"
   style=""
   tabindex="0"
 >
@@ -110,6 +111,7 @@ exports[`Scorecard charts Scorecard snapshot 1`] = `
 exports[`Scorecard charts scorecard text is resized while figure is resized 1`] = `
 <div
   class="o-figure w-100 h-100"
+  data-id="someuuid"
   style="opacity:0.9; cursor:grabbing;"
   tabindex="0"
 >

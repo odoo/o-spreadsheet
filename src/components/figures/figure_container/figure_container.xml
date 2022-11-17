@@ -22,5 +22,19 @@
         </div>
       </t>
     </div>
+    <div
+      class="o-figure-container position-absolute pe-none overflow-hidden"
+      t-if="dnd.horizontalSnap"
+      t-att-style="dnd.horizontalSnap.containerStyle"
+      t-att-data-id="'HorizontalSnapContainer'">
+      <div class="o-figure-snap-line horizontal" t-att-style="dnd.horizontalSnap.lineStyle"/>
+    </div>
+    <div
+      class="o-figure-container position-absolute pe-none overflow-hidden"
+      t-if="dnd.verticalSnap"
+      t-att-style="dnd.verticalSnap.containerStyle"
+      t-att-data-id="'VerticalSnapContainer'">
+      <div class="o-figure-snap-line vertical" t-att-style="dnd.verticalSnap.lineStyle"/>
+    </div>
   </t>
 </templates>

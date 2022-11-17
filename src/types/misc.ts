@@ -203,6 +203,12 @@ export interface Position {
   col: HeaderIndex;
   row: HeaderIndex;
 }
+
+export interface PixelPosition {
+  x: Pixel;
+  y: Pixel;
+}
+
 export interface Merge extends Zone {
   id: number;
   topLeft: Position;

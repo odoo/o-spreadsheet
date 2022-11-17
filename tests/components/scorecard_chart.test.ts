@@ -7,7 +7,7 @@ import {
   setCellContent,
   updateChart,
 } from "../test_helpers/commands_helpers";
-import { dragElement, getElComputedStyle, simulateClick } from "../test_helpers/dom_helper";
+import { dragElement, getElStyle, simulateClick } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick, target } from "../test_helpers/helpers";
 
@@ -118,11 +118,11 @@ describe("Scorecard charts", () => {
       chartId
     );
     await simulateClick(".o-figure");
-    expect(getElComputedStyle(".o-figure-wrapper", "width")).toBe("536px");
-    expect(getElComputedStyle(".o-figure-wrapper", "height")).toBe("335px");
+    expect(getElStyle(".o-figure-wrapper", "width")).toBe("536px");
+    expect(getElStyle(".o-figure-wrapper", "height")).toBe("335px");
     await dragElement(".o-fig-anchor.o-topLeft", { x: 300, y: 200 });
-    expect(getElComputedStyle(".o-figure-wrapper", "width")).toBe("236px");
-    expect(getElComputedStyle(".o-figure-wrapper", "height")).toBe("135px");
+    expect(getElStyle(".o-figure-wrapper", "width")).toBe("236px");
+    expect(getElStyle(".o-figure-wrapper", "height")).toBe("135px");
     // force a triggering of all resizeObservers to ensure the grid is resized
     //@ts-ignore
     window.resizers.resize();
