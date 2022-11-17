@@ -4,7 +4,7 @@ import { FIGURE_ID_SPLITTER } from "../../../src/constants";
 import { BarChart } from "../../../src/helpers/figures/charts";
 import { toZone, zoneToXc } from "../../../src/helpers/zones";
 import { ChartPlugin } from "../../../src/plugins/core/chart";
-import { BorderCommand, CommandResult } from "../../../src/types";
+import { CommandResult } from "../../../src/types";
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
 import { LineChartDefinition, LineChartRuntime } from "../../../src/types/chart/line_chart";
 import { PieChartRuntime } from "../../../src/types/chart/pie_chart";
@@ -1480,39 +1480,37 @@ describe("Chart design configuration", () => {
     expect(chart.data!.datasets![0].data).toEqual([]);
   });
 
-  test.each([
-    { format: "0.00%" },
-    { style: { textColor: "#FFF" } },
-    { border: "bottom" as BorderCommand },
-  ])("no data points but style on a label", (formatting) => {
-    const model = new Model();
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: target("A2:A3"),
-      ...formatting,
-    });
-    createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
-    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
-    expect(chart.data!.labels).toEqual([]);
-    expect(chart.data!.datasets![0].data).toEqual([]);
-  });
+  test.each([{ format: "0.00%" }, { style: { textColor: "#FFF" } }])(
+    "no data points but style on a label",
+    (formatting) => {
+      const model = new Model();
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: target("A2:A3"),
+        ...formatting,
+      });
+      createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
+      const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
+      expect(chart.data!.labels).toEqual([]);
+      expect(chart.data!.datasets![0].data).toEqual([]);
+    }
+  );
 
-  test.each([
-    { format: "0.00%" },
-    { style: { textColor: "#FFF" } },
-    { border: "bottom" as BorderCommand },
-  ])("no data points but style on a value", (formatting) => {
-    const model = new Model();
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: target("B1:B3"),
-      ...formatting,
-    });
-    createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
-    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
-    expect(chart.data!.labels).toEqual([]);
-    expect(chart.data!.datasets![0].data).toEqual([]);
-  });
+  test.each([{ format: "0.00%" }, { style: { textColor: "#FFF" } }])(
+    "no data points but style on a value",
+    (formatting) => {
+      const model = new Model();
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: target("B1:B3"),
+        ...formatting,
+      });
+      createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
+      const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
+      expect(chart.data!.labels).toEqual([]);
+      expect(chart.data!.datasets![0].data).toEqual([]);
+    }
+  );
 
   test("data point with only a zero value", () => {
     const model = new Model();

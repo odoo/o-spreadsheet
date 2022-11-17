@@ -16,7 +16,7 @@ import {
 import { fontSizeInPixels, toHex, toZone } from "../../src/helpers";
 import { Mode, Model } from "../../src/model";
 import { RendererPlugin } from "../../src/plugins/ui_feature/renderer";
-import { Align, BorderCommand, Box, GridRenderingContext, Viewport, Zone } from "../../src/types";
+import { Align, BorderPosition, Box, GridRenderingContext, Viewport, Zone } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {
   addColumns,
@@ -27,10 +27,10 @@ import {
   paste,
   resizeColumns,
   resizeRows,
-  setBorder,
   setCellContent,
   setSelection,
   setStyle,
+  setZoneBorders,
 } from "../test_helpers/commands_helpers";
 import { createEqualCF, getPlugin, target, toRangesData } from "../test_helpers/helpers";
 import { watchClipboardOutline } from "../test_helpers/renderer_helpers";
@@ -1233,7 +1233,7 @@ describe("renderer", () => {
       setStyle(model, "B2", { align: align as Align });
 
       for (const border of borders) {
-        setBorder(model, border as BorderCommand, "B2");
+        setZoneBorders(model, { position: border as BorderPosition }, ["B2"]);
       }
 
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
@@ -1258,7 +1258,7 @@ describe("renderer", () => {
       setStyle(model, "B2", { align: "center" });
 
       for (const border of borders) {
-        setBorder(model, border as BorderCommand, "B2");
+        setZoneBorders(model, { position: border as BorderPosition }, ["B2"]);
       }
 
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
@@ -1301,9 +1301,9 @@ describe("renderer", () => {
         ],
       });
 
-      setBorder(model, "right", "A1");
+      setZoneBorders(model, { position: "right" }, ["A1"]);
       setStyle(model, "C1", { align: align as Align });
-      setBorder(model, "left", "E1");
+      setZoneBorders(model, { position: "left" }, ["E1"]);
 
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
       model.drawGrid(ctx);
@@ -1709,6 +1709,7 @@ describe("renderer", () => {
       });
     });
   });
+
   describe("Multi-line text rendering", () => {
     let model: Model;
     let ctx: MockGridRenderingContext;
@@ -1766,5 +1767,271 @@ describe("renderer", () => {
       expect(box.isOverflow).toBeTruthy();
       expect(box.content?.width).toEqual(longerLine.length + MIN_CELL_TEXT_MARGIN);
     });
+  });
+
+  test("Can render borders with different colors on the same cell", () => {
+    const model = new Model();
+    const colors = {
+      left: "#FF0000",
+      right: "#888800",
+      top: "#00FF00",
+      bottom: "#008888",
+    };
+    for (const [position, color] of Object.entries(colors)) {
+      setZoneBorders(
+        model,
+        {
+          position: position as BorderPosition,
+          color,
+          style: "thin",
+        },
+        ["A1"]
+      );
+    }
+
+    let renderedBorders = {};
+    let currentColor = "";
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "strokeStyle") {
+          if (Object.values(colors).includes(value)) {
+            currentColor = value;
+          }
+        }
+      },
+      onFunctionCall: (val, args) => {
+        if (currentColor !== "" && val == "moveTo") {
+          renderedBorders[currentColor] = { start: args };
+        } else if (currentColor !== "" && val == "lineTo") {
+          renderedBorders[currentColor].end = args;
+          currentColor = "";
+        }
+      },
+    });
+    model.drawGrid(ctx);
+    expect(renderedBorders).toEqual({
+      [colors.left]: {
+        start: [0, 0],
+        end: [0, 0 + DEFAULT_CELL_HEIGHT],
+      },
+      [colors.top]: {
+        start: [0, 0],
+        end: [0 + DEFAULT_CELL_WIDTH, 0],
+      },
+      [colors.right]: {
+        start: [0 + DEFAULT_CELL_WIDTH, 0],
+        end: [0 + DEFAULT_CELL_WIDTH, 0 + DEFAULT_CELL_HEIGHT],
+      },
+      [colors.bottom]: {
+        start: [0, 0 + DEFAULT_CELL_HEIGHT],
+        end: [0 + DEFAULT_CELL_WIDTH, 0 + DEFAULT_CELL_HEIGHT],
+      },
+    });
+  });
+
+  test("Thin border is correctly rendered", () => {
+    const model = new Model();
+    setZoneBorders(
+      model,
+      {
+        position: "left",
+        style: "thin",
+      },
+      ["A1"]
+    );
+
+    let lineDash: any[] = [];
+    let lineWidth = 1;
+    let borderRenderingContext: [number, any[]][] = [];
+    let isDrawing = false;
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "lineWidth") {
+          lineWidth = value;
+        }
+      },
+      onFunctionCall: (val, args) => {
+        if (val === "setLineDash") {
+          lineDash = args;
+        } else if (val === "moveTo" && args[0] === 0 && args[1] === 0) {
+          isDrawing = true;
+        } else if (
+          val === "lineTo" &&
+          args[0] === 0 &&
+          args[1] === DEFAULT_CELL_HEIGHT &&
+          isDrawing
+        ) {
+          borderRenderingContext.push([lineWidth, lineDash]);
+          isDrawing = false;
+        }
+      },
+    });
+    model.drawGrid(ctx);
+    expect(borderRenderingContext).toEqual([[1, []]]);
+  });
+
+  test("Medium border is correctly rendered", () => {
+    const model = new Model();
+    setZoneBorders(
+      model,
+      {
+        position: "left",
+        style: "medium",
+        color: "#FF0000",
+      },
+      ["A1"]
+    );
+
+    let lineDash: any[] = [];
+    let lineWidth = 1;
+    let borderRenderingContext: [number, any[]][] = [];
+    let isDrawing = false;
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "lineWidth") {
+          lineWidth = value;
+        }
+      },
+      onFunctionCall: (val, args) => {
+        if (val === "setLineDash") {
+          lineDash = args;
+        } else if (val === "moveTo" && args[0] === 0.5 && args[1] === -0.5) {
+          isDrawing = true;
+        } else if (
+          val === "lineTo" &&
+          args[0] === 0.5 &&
+          args[1] === DEFAULT_CELL_HEIGHT + 1.5 &&
+          isDrawing
+        ) {
+          borderRenderingContext.push([lineWidth, lineDash]);
+          isDrawing = false;
+        }
+      },
+    });
+    model.drawGrid(ctx);
+    expect(borderRenderingContext).toEqual([[2, []]]);
+  });
+
+  test("Thick border is correctly rendered", () => {
+    const model = new Model();
+    setZoneBorders(
+      model,
+      {
+        position: "left",
+        style: "thick",
+      },
+      ["A1"]
+    );
+
+    let lineDash: any[] = [];
+    let lineWidth = 1;
+    let borderRenderingContext: [number, any[]][] = [];
+    let isDrawing = false;
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "lineWidth") {
+          lineWidth = value;
+        }
+      },
+      onFunctionCall: (val, args) => {
+        if (val === "setLineDash") {
+          lineDash = args;
+        } else if (val === "moveTo" && args[0] === 0 && args[1] === -1) {
+          isDrawing = true;
+        } else if (
+          val === "lineTo" &&
+          args[0] === 0 &&
+          args[1] === DEFAULT_CELL_HEIGHT + 1 &&
+          isDrawing
+        ) {
+          borderRenderingContext.push([lineWidth, lineDash]);
+          isDrawing = false;
+        }
+      },
+    });
+    model.drawGrid(ctx);
+    expect(borderRenderingContext).toEqual([[3, []]]);
+  });
+
+  test("Dashed border is correctly rendered", () => {
+    const model = new Model();
+    setZoneBorders(
+      model,
+      {
+        position: "left",
+        style: "dashed",
+      },
+      ["A1"]
+    );
+
+    let lineDash: any[] = [];
+    let lineWidth = 1;
+    let borderRenderingContext: [number, any[]][] = [];
+    let isDrawing = false;
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "lineWidth") {
+          lineWidth = value;
+        }
+      },
+      onFunctionCall: (val, args) => {
+        if (val === "setLineDash") {
+          lineDash = args;
+        } else if (val === "moveTo" && args[0] === 0 && args[1] === 0) {
+          isDrawing = true;
+        } else if (
+          val === "lineTo" &&
+          args[0] === 0 &&
+          args[1] === DEFAULT_CELL_HEIGHT &&
+          isDrawing
+        ) {
+          borderRenderingContext.push([lineWidth, lineDash]);
+          isDrawing = false;
+        }
+      },
+    });
+    model.drawGrid(ctx);
+    expect(borderRenderingContext).toEqual([[1, [[1, 3]]]]);
+  });
+
+  test("Dotted border is correctly rendered", () => {
+    const model = new Model();
+    setZoneBorders(
+      model,
+      {
+        position: "left",
+        style: "dotted",
+      },
+      ["A1"]
+    );
+
+    let lineDash: any[] = [];
+    let lineWidth = 1;
+    let borderRenderingContext: [number, any[]][] = [];
+    let isDrawing = false;
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "lineWidth") {
+          lineWidth = value;
+        }
+      },
+      onFunctionCall: (val, args) => {
+        if (val === "setLineDash") {
+          lineDash = args;
+        } else if (val === "moveTo" && args[0] === 0 && args[1] === 0.5) {
+          isDrawing = true;
+        } else if (
+          val === "lineTo" &&
+          args[0] === 0 &&
+          args[1] === DEFAULT_CELL_HEIGHT + 0.5 &&
+          isDrawing
+        ) {
+          borderRenderingContext.push([lineWidth, lineDash]);
+          isDrawing = false;
+        }
+      },
+    });
+    model.drawGrid(ctx);
+    expect(borderRenderingContext).toEqual([[1, [[1, 1]]]]);
   });
 });

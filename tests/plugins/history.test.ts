@@ -11,6 +11,7 @@ import {
   redo,
   selectCell,
   setCellContent,
+  setZoneBorders,
   undo,
 } from "../test_helpers/commands_helpers";
 import {
@@ -215,16 +216,8 @@ describe("Model history", () => {
   test("two identical changes do not count as two undo steps", () => {
     const model = new Model();
     selectCell(model, "B2");
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
-      border: "all",
-    });
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
-      border: "all",
-    });
+    setZoneBorders(model, { position: "all" });
+    setZoneBorders(model, { position: "all" });
 
     expect(getBorder(model, "B2")).toBeDefined();
     undo(model);

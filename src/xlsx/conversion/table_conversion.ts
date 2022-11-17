@@ -17,7 +17,7 @@ export const TABLE_HIGHLIGHTED_CELL_STYLE: Style = {
   bold: true,
 };
 
-export const TABLE_BORDER_STYLE: BorderDescr = ["thin", "#000000FF"];
+export const TABLE_BORDER_STYLE: BorderDescr = { style: "thin", color: "#000000FF" };
 
 /**
  * Convert the imported XLSX tables.

@@ -152,8 +152,8 @@ describe("Import xlsx data", () => {
     const expectedBorderColor =
       cellContentSplit.length === 2 ? standardizeColor(cellContentSplit[1]) : "#000000FF";
     for (let side of ["top", "bottom", "left", "right"]) {
-      expect(cellBorders[side][0]).toEqual(expectedBorderStyle);
-      expect(standardizeColor(cellBorders[side][1])).toEqual(expectedBorderColor);
+      expect(cellBorders[side].style).toEqual(expectedBorderStyle);
+      expect(standardizeColor(cellBorders[side].color)).toEqual(expectedBorderColor);
     }
   });
 

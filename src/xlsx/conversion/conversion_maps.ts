@@ -58,17 +58,17 @@ export const CELL_TYPE_CONVERSION_MAP: Record<string, XLSXCellType> = {
 export const BORDER_STYLE_CONVERSION_MAP: Record<XLSXBorderStyle, BorderStyle | undefined> = {
   dashDot: "thin",
   dashDotDot: "thin",
-  dashed: "thin",
-  dotted: "thin",
+  dashed: "dashed",
+  dotted: "dotted",
   double: "thin",
   hair: "thin",
-  medium: "thin",
+  medium: "medium",
   mediumDashDot: "thin",
   mediumDashDotDot: "thin",
   mediumDashed: "thin",
   none: undefined,
   slantDashDot: "thin",
-  thick: "thin",
+  thick: "thick",
   thin: "thin",
 };
 

@@ -51,7 +51,7 @@ describe("OT with REMOVE_COLUMN", () => {
     type: "SET_BORDER",
     sheetId,
     row: 1,
-    border: { left: ["thin", "#000"] },
+    border: { left: { style: "thin", color: "#000" } },
   };
 
   describe.each([updateCell, updateCellPosition, clearCell, setBorder])(

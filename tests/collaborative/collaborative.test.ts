@@ -333,10 +333,10 @@ describe("Multi users synchronisation", () => {
         sheetId,
         target: target("A1:B2"),
       });
-      bob.dispatch("SET_FORMATTING", {
+      bob.dispatch("SET_ZONE_BORDERS", {
         sheetId,
         target: [toZone("B2:C3")],
-        border: "external",
+        border: { position: "external" },
       });
     });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();

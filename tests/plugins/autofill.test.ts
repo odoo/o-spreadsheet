@@ -121,7 +121,7 @@ describe("Autofill", () => {
     const col = 0;
     const row = 0;
     const border: Border = {
-      left: ["thin", "#000"],
+      left: { style: "thin", color: "#000" },
     };
     const style: Style = { textColor: "orange" };
     model.dispatch("UPDATE_CELL", {
@@ -421,7 +421,7 @@ describe("Autofill", () => {
       const col = 0;
       const row = 1;
       const border: Border = {
-        left: ["thin", "#000"],
+        left: { style: "thin", color: "#000" },
       };
       const style: Style = { textColor: "orange" };
       model.dispatch("UPDATE_CELL", {
@@ -465,7 +465,7 @@ describe("Autofill", () => {
     const col = 0;
     const row = 2;
     const border: Border = {
-      left: ["thin", "#000"],
+      left: { style: "thin", color: "#000" },
     };
     const style: Style = { textColor: "orange" };
     model.dispatch("UPDATE_CELL", {

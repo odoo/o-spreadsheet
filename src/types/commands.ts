@@ -6,9 +6,10 @@ import { ClipboardPasteOptions } from "./clipboard";
 import { UpDown } from "./conditional_formatting";
 import { FigureSize } from "./figure";
 import { Image } from "./image";
-import { BorderCommand, ConditionalFormat, Figure, Format, Style, Zone } from "./index";
+import { ConditionalFormat, Figure, Format, Style, Zone } from "./index";
 import {
   Border,
+  BorderData,
   CellPosition,
   Color,
   Dimension,
@@ -190,6 +191,7 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "SET_FORMATTING",
   "CLEAR_FORMATTING",
   "SET_BORDER",
+  "SET_ZONE_BORDERS",
 
   /** CHART */
   "CREATE_CHART",
@@ -465,8 +467,12 @@ export interface UpdateFilterCommand extends PositionDependentCommand {
 export interface SetFormattingCommand extends TargetDependentCommand {
   type: "SET_FORMATTING";
   style?: Style;
-  border?: BorderCommand;
   format?: Format;
+}
+
+export interface SetZoneBordersCommand extends TargetDependentCommand {
+  type: "SET_ZONE_BORDERS";
+  border: BorderData;
 }
 
 export interface SetBorderCommand extends PositionDependentCommand {
@@ -946,6 +952,7 @@ export type CoreCommand =
   /** FORMATTING */
   | SetFormattingCommand
   | ClearFormattingCommand
+  | SetZoneBordersCommand
   | SetBorderCommand
 
   /** CHART */

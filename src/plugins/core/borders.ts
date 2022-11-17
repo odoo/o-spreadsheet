@@ -1,11 +1,13 @@
 import { DEFAULT_BORDER_DESC } from "../../constants";
-import { range, stringify, toCartesian, toXC, toZone } from "../../helpers/index";
+import { isDefined, range, stringify, toCartesian, toXC, toZone } from "../../helpers/index";
 import {
   AddColumnsRowsCommand,
   Border,
-  BorderCommand,
+  BorderDescr,
   BorderDescription,
+  BorderPosition,
   CellPosition,
+  Color,
   Command,
   ExcelWorkbookData,
   HeaderIndex,
@@ -25,7 +27,7 @@ interface BordersPluginState {
  * - borders
  */
 export class BordersPlugin extends CorePlugin<BordersPluginState> implements BordersPluginState {
-  static getters = ["getCellBorder"] as const;
+  static getters = ["getCellBorder", "getBordersColors"] as const;
 
   public readonly borders: BordersPluginState["borders"] = {};
 
@@ -59,10 +61,20 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
       case "SET_BORDER":
         this.setBorder(cmd.sheetId, cmd.col, cmd.row, cmd.border);
         break;
-      case "SET_FORMATTING":
+      case "SET_ZONE_BORDERS":
         if (cmd.border) {
           const target = cmd.target.map((zone) => this.getters.expandZone(cmd.sheetId, zone));
-          this.setBorders(cmd.sheetId, target, cmd.border);
+          this.setBorders(
+            cmd.sheetId,
+            target,
+            cmd.border.position,
+            cmd.border.color === ""
+              ? undefined
+              : {
+                  style: cmd.border.style || DEFAULT_BORDER_DESC.style,
+                  color: cmd.border.color || DEFAULT_BORDER_DESC.color,
+                }
+          );
         }
         break;
       case "CLEAR_FORMATTING":
@@ -150,6 +162,24 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
       return null;
     }
     return border;
+  }
+
+  getBordersColors(sheetId: UID): Color[] {
+    const colors: Color[] = [];
+    const sheetBorders = this.borders[sheetId];
+    if (sheetBorders) {
+      for (const borders of sheetBorders.filter(isDefined)) {
+        for (const cellBorder of borders) {
+          if (cellBorder?.horizontal) {
+            colors.push(cellBorder.horizontal.color);
+          }
+          if (cellBorder?.vertical) {
+            colors.push(cellBorder.vertical.color);
+          }
+        }
+      }
+    }
+    return colors;
   }
 
   // ---------------------------------------------------------------------------
@@ -416,43 +446,48 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    * Set the borders of a zone by computing the borders to add from the given
    * command
    */
-  private setBorders(sheetId: UID, zones: Zone[], command: BorderCommand) {
-    if (command === "clear") {
+  private setBorders(
+    sheetId: UID,
+    zones: Zone[],
+    position: BorderPosition,
+    border: BorderDescr | undefined
+  ) {
+    if (position === "clear") {
       return this.clearBorders(sheetId, zones);
     }
     for (let zone of zones) {
-      if (command === "h" || command === "hv" || command === "all") {
+      if (position === "h" || position === "hv" || position === "all") {
         for (let row = zone.top + 1; row <= zone.bottom; row++) {
           for (let col = zone.left; col <= zone.right; col++) {
-            this.addBorder(sheetId, col, row, { top: DEFAULT_BORDER_DESC });
+            this.addBorder(sheetId, col, row, { top: border });
           }
         }
       }
-      if (command === "v" || command === "hv" || command === "all") {
+      if (position === "v" || position === "hv" || position === "all") {
         for (let row = zone.top; row <= zone.bottom; row++) {
           for (let col = zone.left + 1; col <= zone.right; col++) {
-            this.addBorder(sheetId, col, row, { left: DEFAULT_BORDER_DESC });
+            this.addBorder(sheetId, col, row, { left: border });
           }
         }
       }
-      if (command === "left" || command === "all" || command === "external") {
+      if (position === "left" || position === "all" || position === "external") {
         for (let row = zone.top; row <= zone.bottom; row++) {
-          this.addBorder(sheetId, zone.left, row, { left: DEFAULT_BORDER_DESC });
+          this.addBorder(sheetId, zone.left, row, { left: border });
         }
       }
-      if (command === "right" || command === "all" || command === "external") {
+      if (position === "right" || position === "all" || position === "external") {
         for (let row = zone.top; row <= zone.bottom; row++) {
-          this.addBorder(sheetId, zone.right + 1, row, { left: DEFAULT_BORDER_DESC });
+          this.addBorder(sheetId, zone.right + 1, row, { left: border });
         }
       }
-      if (command === "top" || command === "all" || command === "external") {
+      if (position === "top" || position === "all" || position === "external") {
         for (let col = zone.left; col <= zone.right; col++) {
-          this.addBorder(sheetId, col, zone.top, { top: DEFAULT_BORDER_DESC });
+          this.addBorder(sheetId, col, zone.top, { top: border });
         }
       }
-      if (command === "bottom" || command === "all" || command === "external") {
+      if (position === "bottom" || position === "all" || position === "external") {
         for (let col = zone.left; col <= zone.right; col++) {
-          this.addBorder(sheetId, col, zone.bottom + 1, { top: DEFAULT_BORDER_DESC });
+          this.addBorder(sheetId, col, zone.bottom + 1, { top: border });
         }
       }
     }
@@ -467,16 +502,20 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     const bordersBottomRight = this.getCellBorder({ sheetId, col: right, row: bottom });
     this.clearBorders(sheetId, [zone]);
     if (bordersTopLeft?.top) {
-      this.setBorders(sheetId, [{ ...zone, bottom: top }], "top");
+      this.setBorders(sheetId, [{ ...zone, bottom: top }], "top", bordersTopLeft.top);
     }
     if (bordersTopLeft?.left) {
-      this.setBorders(sheetId, [{ ...zone, right: left }], "left");
+      this.setBorders(sheetId, [{ ...zone, right: left }], "left", bordersTopLeft.left);
     }
-    if (bordersBottomRight?.bottom || bordersTopLeft?.bottom) {
-      this.setBorders(sheetId, [{ ...zone, top: bottom }], "bottom");
+    if (bordersBottomRight?.bottom) {
+      this.setBorders(sheetId, [{ ...zone, top: bottom }], "bottom", bordersBottomRight.bottom);
+    } else if (bordersTopLeft?.bottom) {
+      this.setBorders(sheetId, [{ ...zone, top: bottom }], "bottom", bordersTopLeft.bottom);
     }
-    if (bordersBottomRight?.right || bordersTopLeft?.right) {
-      this.setBorders(sheetId, [{ ...zone, left: right }], "right");
+    if (bordersBottomRight?.right) {
+      this.setBorders(sheetId, [{ ...zone, left: right }], "right", bordersBottomRight.right);
+    } else if (bordersTopLeft?.right) {
+      this.setBorders(sheetId, [{ ...zone, left: right }], "right", bordersTopLeft.right);
     }
   }
 

@@ -149,8 +149,8 @@ export const DEFAULT_FONT = "'Roboto', arial";
 export const DEFAULT_VERTICAL_ALIGN = "bottom";
 
 // Borders
-export const DEFAULT_BORDER_DESC: BorderDescr = ["thin", "#000"];
-export const DEFAULT_FILTER_BORDER_DESC: BorderDescr = ["thin", FILTERS_COLOR];
+export const DEFAULT_BORDER_DESC: BorderDescr = { style: "thin", color: "#000000" };
+export const DEFAULT_FILTER_BORDER_DESC: BorderDescr = { style: "thin", color: FILTERS_COLOR };
 
 // Ranges
 export const INCORRECT_RANGE_STRING = CellErrorType.InvalidReference;

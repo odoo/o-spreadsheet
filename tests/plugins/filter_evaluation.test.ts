@@ -6,9 +6,9 @@ import {
   deleteFilter,
   hideColumns,
   hideRows,
-  setBorder,
   setCellContent,
   setFormat,
+  setZoneBorders,
   updateFilter,
 } from "../test_helpers/commands_helpers";
 import { target } from "../test_helpers/helpers";
@@ -119,7 +119,7 @@ describe("Filter Evaluation Plugin", () => {
   });
 
   test("Filters borders don't overwrite cell borders", () => {
-    setBorder(model, "left", "A7:A9");
+    setZoneBorders(model, { position: "left" }, ["A7:A9"]);
     createFilter(model, "A7:A9");
     const zone = toZone("A7:A9");
     for (let row = zone.top; row <= zone.bottom; row++) {

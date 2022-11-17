@@ -57,7 +57,6 @@ NW = no warning generated for these conversions.
 - Style :
   - col/row style. We apply the style on each cell of the row/col. (NW)
 - Borders :
-  - most border styles. We only support thin borders, and will convert every other border style to thin border.
   - diagonal borders
 - Align :
   - some horizontal alignments. We only support left/right/center. Other types will be converted as follows:

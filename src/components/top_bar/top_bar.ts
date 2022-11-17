@@ -25,6 +25,7 @@ import { formatNumberMenuItemSpec, topbarComponentRegistry } from "../../registr
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
 import { Color, Pixel, SpreadsheetChildEnv } from "../../types/index";
 import { ActionButton } from "../action_button/action_button";
+import { BorderEditorWidget } from "../border_editor/border_editor_widget";
 import { ColorPicker } from "../color_picker/color_picker";
 import { ColorPickerWidget } from "../color_picker/color_picker_widget";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
@@ -58,31 +59,30 @@ const HOVERED_FONT_COLOR = "#000";
 // TopBar
 // -----------------------------------------------------------------------------
 css/* scss */ `
+  .o-topbar-hoverable {
+    cursor: pointer;
+    .o-icon {
+      color: ${ICONS_COLOR};
+    }
+    &:not(.o-disabled):not(.active):hover {
+      background-color: ${HOVERED_BG_COLOR};
+      color: ${HOVERED_FONT_COLOR};
+      .o-icon {
+        color: ${HOVERED_FONT_COLOR};
+      }
+    }
+    &.active {
+      background-color: ${ACTIVE_BG_COLOR};
+      color: ${ACTIVE_FONT_COLOR};
+      .o-icon {
+        color: ${ACTIVE_FONT_COLOR};
+      }
+    }
+  }
   .o-spreadsheet-topbar {
     line-height: 1.2;
     font-size: 13px;
     font-weight: 500;
-
-    .o-topbar-hoverable {
-      cursor: pointer;
-      .o-icon {
-        color: ${ICONS_COLOR};
-      }
-      &:not(.o-disabled):not(.active):hover {
-        background-color: ${HOVERED_BG_COLOR};
-        color: ${HOVERED_FONT_COLOR};
-        .o-icon {
-          color: ${HOVERED_FONT_COLOR};
-        }
-      }
-      &.active {
-        background-color: ${ACTIVE_BG_COLOR};
-        color: ${ACTIVE_FONT_COLOR};
-        .o-icon {
-          color: ${ACTIVE_FONT_COLOR};
-        }
-      }
-    }
 
     .o-topbar-top {
       border-bottom: 1px solid ${SEPARATOR_COLOR};
@@ -158,6 +158,7 @@ css/* scss */ `
     }
   }
 `;
+
 export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TopBar";
   get dropdownStyle() {
@@ -170,6 +171,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     TopBarComposer,
     FontSizeEditor,
     ActionButton,
+    BorderEditorWidget,
   };
 
   state: State = useState({

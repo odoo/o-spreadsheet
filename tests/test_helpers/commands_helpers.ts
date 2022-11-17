@@ -2,7 +2,7 @@ import { isInside, lettersToNumber, toCartesian, toZone } from "../../src/helper
 import { Model } from "../../src/model";
 import {
   AnchorZone,
-  BorderCommand,
+  BorderData,
   ChartDefinition,
   ClipboardPasteOptions,
   CreateSheetCommand,
@@ -459,12 +459,16 @@ export function insertCells(model: Model, range: string, shift: "right" | "down"
 /**
  * Set a border to a given zone or the selected zones
  */
-export function setBorder(model: Model, border: BorderCommand, xc?: string) {
-  const target = xc ? [toZone(xc)] : model.getters.getSelectedZones();
-  model.dispatch("SET_FORMATTING", {
+export function setZoneBorders(model: Model, border: BorderData, xcs?: string[]) {
+  const target = xcs ? xcs.map(toZone) : model.getters.getSelectedZones();
+  model.dispatch("SET_ZONE_BORDERS", {
     sheetId: model.getters.getActiveSheetId(),
     target,
-    border,
+    border: {
+      position: border.position,
+      color: border.color,
+      style: border.style,
+    },
   });
 }
 

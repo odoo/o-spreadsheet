@@ -14,6 +14,7 @@ import {
   setCellContent,
   setSelection,
   setStyle,
+  setZoneBorders,
 } from "../test_helpers/commands_helpers";
 import {
   click,
@@ -108,18 +109,12 @@ describe("TopBar component", () => {
     setCellContent(model, "B2", "b2");
     await mountParent(model);
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
-    await click(fixture, ".o-menu-item-button[title='Borders']");
+    await click(fixture, '.o-menu-item-button[title="Vertical align"]');
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
-    expect(fixture.querySelectorAll(".o-menu-item-button[title='All borders']").length).toBe(1);
-    expect(
-      fixture.querySelectorAll(".o-menu-item-button[title='Left (Ctrl+Shift+L)']").length
-    ).toBe(0);
-    await click(fixture, ".o-menu-item-button[title='Horizontal align']");
+    expect(fixture.querySelectorAll('.o-menu-item-button[title="Top"]').length).not.toBe(0);
+    await click(fixture, '.o-menu-item-button[title="Horizontal align"]');
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
-    expect(fixture.querySelectorAll(".o-menu-item-button[title='All borders']").length).toBe(0);
-    expect(
-      fixture.querySelectorAll(".o-menu-item-button[title='Left (Ctrl+Shift+L)']").length
-    ).toBe(1);
+    expect(fixture.querySelectorAll('.o-menu-item-button[title="Top"]').length).toBe(0);
   });
 
   test("Menu should be closed while clicking on composer", async () => {
@@ -273,11 +268,7 @@ describe("TopBar component", () => {
   test("can clear formatting", async () => {
     const model = new Model();
     selectCell(model, "B1");
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
-      border: "all",
-    });
+    setZoneBorders(model, { position: "all" });
     expect(getBorder(model, "B1")).toBeDefined();
     await mountParent(model);
     const clearFormatTool = fixture.querySelector(
@@ -418,9 +409,9 @@ describe("TopBar component", () => {
     await mountParent(model);
 
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
-    await click(fixture, '.o-menu-item-button[title="Borders"]');
+    await click(fixture, '.o-menu-item-button[title="Vertical align"]');
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
-    await click(fixture, '.o-menu-item-button[title="Borders"]');
+    await click(fixture, '.o-menu-item-button[title="Vertical align"]');
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
   });
 
@@ -567,7 +558,6 @@ describe("TopBar component", () => {
     ["Horizontal align", ".o-dropdown-content"],
     ["Vertical align", ".o-dropdown-content"],
     ["Wrapping", ".o-dropdown-content"],
-    ["Borders", ".o-dropdown-content"],
     ["Font Size", ".o-dropdown-content"],
     ["More formats", ".o-menu"],
   ])(

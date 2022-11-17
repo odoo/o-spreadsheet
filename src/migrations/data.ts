@@ -23,7 +23,7 @@ import { normalizeV9 } from "./legacy_tools";
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 12;
+export const CURRENT_VERSION = 13;
 const INITIAL_SHEET_ID = "Sheet1";
 
 /**
@@ -300,6 +300,25 @@ const MIGRATIONS: Migration[] = [
     applyMigration(data: any): any {
       for (let sheet of data.sheets || []) {
         sheet.isVisible = true;
+      }
+      return data;
+    },
+  },
+  {
+    description: "Change Border description structure",
+    from: 12,
+    to: 13,
+    applyMigration(data: any): any {
+      for (const borderId in data.borders) {
+        const border = data.borders[borderId];
+        for (const position in border) {
+          if (Array.isArray(border[position])) {
+            border[position] = {
+              style: border[position][0],
+              color: border[position][1],
+            };
+          }
+        }
       }
       return data;
     },

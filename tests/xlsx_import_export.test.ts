@@ -113,7 +113,7 @@ describe("Export data to xlsx then import it", () => {
   });
 
   test("Cell border", () => {
-    const descr: BorderDescr = ["thin", "#000000"];
+    const descr: BorderDescr = { style: "thin", color: "#000000" };
     const border = { bottom: descr, top: descr, left: descr, right: descr };
     model.dispatch("SET_BORDER", {
       sheetId,

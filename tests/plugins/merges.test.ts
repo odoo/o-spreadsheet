@@ -1,3 +1,4 @@
+import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types/index";
@@ -13,6 +14,7 @@ import {
   selectCell,
   setAnchorCorner,
   setCellContent,
+  setZoneBorders,
   undo,
   unMerge,
 } from "../test_helpers/commands_helpers";
@@ -384,76 +386,121 @@ describe("merges", () => {
 
   test("merging => setting border => unmerging", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
     merge(model, "A1:B1");
-    model.dispatch("SET_FORMATTING", {
-      sheetId,
-      target: [toZone("A1")],
-      border: "external",
+    setZoneBorders(model, { position: "external" }, ["A1"]);
+    expect(getBorder(model, "A1")).toEqual({
+      left: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+      top: DEFAULT_BORDER_DESC,
     });
-    const line = ["thin", "#000"];
-    expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
-    expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
+    expect(getBorder(model, "B1")).toEqual({
+      right: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+      top: DEFAULT_BORDER_DESC,
+    });
 
     unMerge(model, "A1:B1");
-    expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
-    expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
+    expect(getBorder(model, "A1")).toEqual({
+      left: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+      top: DEFAULT_BORDER_DESC,
+    });
+    expect(getBorder(model, "B1")).toEqual({
+      right: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+      top: DEFAULT_BORDER_DESC,
+    });
   });
 
   test("setting border => merging => unmerging", () => {
     const model = new Model();
-    const sheet1 = model.getters.getSheetIds()[0];
     setAnchorCorner(model, "B1");
 
-    model.dispatch("SET_FORMATTING", {
-      sheetId: sheet1,
-      target: model.getters.getSelectedZones(),
-      border: "external",
+    setZoneBorders(model, { position: "external" });
+    expect(getBorder(model, "A1")).toEqual({
+      left: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+      top: DEFAULT_BORDER_DESC,
     });
-    const line = ["thin", "#000"];
-    expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
-    expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
+    expect(getBorder(model, "B1")).toEqual({
+      right: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+      top: DEFAULT_BORDER_DESC,
+    });
     merge(model, "A1:B1");
     merge(model, "A1:B1");
-    expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
-    expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
+    expect(getBorder(model, "A1")).toEqual({
+      left: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+      top: DEFAULT_BORDER_DESC,
+    });
+    expect(getBorder(model, "B1")).toEqual({
+      right: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+      top: DEFAULT_BORDER_DESC,
+    });
   });
 
   test("setting border to topleft => merging => unmerging", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("SET_FORMATTING", {
-      sheetId,
-      target: [toZone("A1")],
-      border: "external",
-    });
-    const line = ["thin", "#000"];
+    setZoneBorders(model, { position: "external" }, ["A1"]);
     merge(model, "A1:B1");
-    expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
-    expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
+    expect(getBorder(model, "A1")).toEqual({
+      left: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+      top: DEFAULT_BORDER_DESC,
+    });
+    expect(getBorder(model, "B1")).toEqual({
+      right: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+      top: DEFAULT_BORDER_DESC,
+    });
     unMerge(model, "A1:B1");
-    expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
-    expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
+    expect(getBorder(model, "A1")).toEqual({
+      left: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+      top: DEFAULT_BORDER_DESC,
+    });
+    expect(getBorder(model, "B1")).toEqual({
+      right: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+      top: DEFAULT_BORDER_DESC,
+    });
   });
 
   test("setting border to topleft => setting style => merging => unmerging", () => {
     const model = new Model();
     const sheet1 = model.getters.getSheetIds()[0];
+    setZoneBorders(model, { position: "external" }, ["A1"]);
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
       target: [toZone("A1")],
-      border: "external",
       style: { fillColor: "red" },
     });
-    const line = ["thin", "#000"];
     merge(model, "A1:B1");
-    expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
-    expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
+    expect(getBorder(model, "A1")).toEqual({
+      left: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+      top: DEFAULT_BORDER_DESC,
+    });
+    expect(getBorder(model, "B1")).toEqual({
+      right: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+      top: DEFAULT_BORDER_DESC,
+    });
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
     merge(model, "A1:B1");
-    expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
-    expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
+    expect(getBorder(model, "A1")).toEqual({
+      left: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+      top: DEFAULT_BORDER_DESC,
+    });
+    expect(getBorder(model, "B1")).toEqual({
+      right: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+      top: DEFAULT_BORDER_DESC,
+    });
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
   });
@@ -551,7 +598,7 @@ describe("merges", () => {
         },
       ],
       styles: { 1: { textColor: "#fe0000" } },
-      borders: { 1: { top: ["thin", "#000"] } },
+      borders: { 1: { top: { style: "medium", color: "#ff0000" } } },
     });
     const sheetId = model.getters.getActiveSheetId();
     let col: number, row: number;
@@ -560,12 +607,12 @@ describe("merges", () => {
     ({ col, row } = toCartesian("C4"));
     expect(model.getters.getMerge({ sheetId, col, row })).toBeTruthy();
     expect(getCell(model, "B4")!.style).toEqual({ textColor: "#fe0000" });
-    expect(getBorder(model, "B4")).toEqual({ top: ["thin", "#000"] });
+    expect(getBorder(model, "B4")).toEqual({ top: { style: "medium", color: "#ff0000" } });
     unMerge(model, "B4:C5");
     expect(getCell(model, "B4")!.style).toEqual({ textColor: "#fe0000" });
     expect(getCell(model, "C4")!.style).toEqual({ textColor: "#fe0000" });
-    expect(getBorder(model, "B4")).toEqual({ top: ["thin", "#000"] });
-    expect(getBorder(model, "C4")).toEqual({ top: ["thin", "#000"] });
+    expect(getBorder(model, "B4")).toEqual({ top: { style: "medium", color: "#ff0000" } });
+    expect(getBorder(model, "C4")).toEqual({ top: { style: "medium", color: "#ff0000" } });
     expect(getBorder(model, "C5")).toBeNull();
   });
 

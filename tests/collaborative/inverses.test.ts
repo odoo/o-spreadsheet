@@ -14,7 +14,7 @@ import {
   RemoveMergeCommand,
   ResizeColumnsRowsCommand,
   SetBorderCommand,
-  SetFormattingCommand,
+  SetZoneBordersCommand,
   UpdateCellCommand,
   UpdateCellPositionCommand,
   UpdateChartCommand,
@@ -273,10 +273,10 @@ describe("Inverses commands", () => {
       sheetId: "42",
       id: "1",
     };
-    const setFormatting: SetFormattingCommand = {
-      type: "SET_FORMATTING",
+    const setZoneBorders: SetZoneBordersCommand = {
+      type: "SET_ZONE_BORDERS",
       sheetId: "1",
-      border: "all",
+      border: { position: "all" },
       target: [toZone("A1")],
     };
     const clearFormatting: ClearFormattingCommand = {
@@ -287,7 +287,7 @@ describe("Inverses commands", () => {
     const setBorder: SetBorderCommand = {
       type: "SET_BORDER",
       sheetId: "1",
-      border: { left: ["thin", "#000"] },
+      border: { left: { style: "thin", color: "#000" } },
       col: 1,
       row: 1,
     };
@@ -305,7 +305,7 @@ describe("Inverses commands", () => {
       resizeColumns,
       resizeRows,
       updateFigure,
-      setFormatting,
+      setZoneBorders,
       clearFormatting,
       setBorder,
       updateChart,
