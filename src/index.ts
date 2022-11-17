@@ -51,7 +51,12 @@ import {
 } from "./helpers/index";
 import { openLink, urlRegistry, urlRepresentation } from "./helpers/links";
 import { createEmptyWorkbookData } from "./migrations/data";
-import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
+import {
+  corePluginRegistry,
+  coreViewsPluginRegistry,
+  featurePluginRegistry,
+  statefulUIPluginRegistry,
+} from "./plugins/index";
 import { clickableCellRegistry } from "./registries/cell_clickable_registry";
 import {
   autofillModifiersRegistry,
@@ -131,7 +136,9 @@ export const registries = {
   colMenuRegistry,
   linkMenuRegistry,
   functionRegistry,
-  uiPluginRegistry,
+  featurePluginRegistry,
+  statefulUIPluginRegistry,
+  coreViewsPluginRegistry,
   corePluginRegistry,
   rowMenuRegistry,
   sidePanelRegistry,

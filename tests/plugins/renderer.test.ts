@@ -16,7 +16,7 @@ import { Mode, Model } from "../../src/model";
 import {
   CELL_BACKGROUND_GRIDLINE_STROKE_STYLE,
   RendererPlugin,
-} from "../../src/plugins/ui/renderer";
+} from "../../src/plugins/ui_feature/renderer";
 import { Align, BorderCommand, Box, GridRenderingContext, Viewport, Zone } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {

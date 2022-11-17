@@ -5,7 +5,7 @@ import {
   SELECTION_BORDER_COLOR,
 } from "../../../constants";
 import { fontSizeMap } from "../../../fonts";
-import { ComposerSelection } from "../../../plugins/ui/edition";
+import { ComposerSelection } from "../../../plugins/ui_stateful/edition";
 import { DOMDimension, Rect, Ref, SpreadsheetChildEnv, Zone } from "../../../types/index";
 import { getTextDecoration } from "../../helpers";
 import { css } from "../../helpers/css";

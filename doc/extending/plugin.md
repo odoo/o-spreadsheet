@@ -17,6 +17,15 @@ There is 2 different kind of plugins: CorePlugin and UIPlugin.
   - import and export its state to be stored in the o-spreadsheet file
 - UIPlugin manages transient state, user specific state and everything that is needed to display the spreadsheet without changing the persistent data (like evaluation)
 
+UI plugins are separated in three different categories:
+
+- Stateful Plugins
+  - Plugins which have a state, but which should not be shared in collaborative
+- Core views Plugins
+  - Plugins which have a derived state from core data
+- Feature plugins
+  - Plugins which handle a specific feature, without handling any core commands
+
 ## Plugin skeleton
 
 ```typescript

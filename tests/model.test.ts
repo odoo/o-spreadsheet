@@ -1,12 +1,12 @@
 import { CommandResult, CorePlugin } from "../src";
 import { toZone } from "../src/helpers";
 import { Model, ModelConfig } from "../src/model";
-import { corePluginRegistry, uiPluginRegistry } from "../src/plugins/index";
+import { corePluginRegistry, featurePluginRegistry } from "../src/plugins/index";
 import { UIPlugin } from "../src/plugins/ui_plugin";
 import { Command, CoreCommand, coreTypes, DispatchResult } from "../src/types";
 import { setupCollaborativeEnv } from "./collaborative/collaborative_helpers";
 import { copy, selectCell, setCellContent } from "./test_helpers/commands_helpers";
-import { getCellText } from "./test_helpers/getters_helpers";
+import { getCellContent, getCellText } from "./test_helpers/getters_helpers";
 
 describe("Model", () => {
   test("core plugin can refuse command from UI plugin", () => {
@@ -31,12 +31,12 @@ describe("Model", () => {
         }
       }
     }
-    uiPluginRegistry.add("myUIPlugin", MyUIPlugin);
+    featurePluginRegistry.add("myUIPlugin", MyUIPlugin);
     corePluginRegistry.add("myCorePlugin", MyCorePlugin);
     const model = new Model();
     copy(model, "A1");
     expect(result).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
-    uiPluginRegistry.remove("myUIPlugin");
+    featurePluginRegistry.remove("myUIPlugin");
     corePluginRegistry.remove("myCorePlugin");
   });
 
@@ -85,13 +85,13 @@ describe("Model", () => {
         }
       }
     }
-    uiPluginRegistry.add("myUIPlugin", MyUIPlugin);
+    featurePluginRegistry.add("myUIPlugin", MyUIPlugin);
     const model = new Model();
     setCellContent(model, "A1", "copy&paste me");
     copy(model, "A1");
     expect(result).toBeSuccessfullyDispatched();
     expect(getCellText(model, "A2")).toBe("copy&paste me");
-    uiPluginRegistry.remove("myUIPlugin");
+    featurePluginRegistry.remove("myUIPlugin");
   });
 
   test("Can open a model in readonly mode", () => {
@@ -147,13 +147,13 @@ describe("Model", () => {
 
       getSomething() {}
     }
-    uiPluginRegistry.add("myUIPlugin1", MyUIPlugin1);
-    uiPluginRegistry.add("myUIPlugin2", MyUIPlugin2);
+    featurePluginRegistry.add("myUIPlugin1", MyUIPlugin1);
+    featurePluginRegistry.add("myUIPlugin2", MyUIPlugin2);
 
     expect(() => new Model()).toThrowError(`Getter "getSomething" is already defined.`);
 
-    uiPluginRegistry.remove("myUIPlugin1");
-    uiPluginRegistry.remove("myUIPlugin2");
+    featurePluginRegistry.remove("myUIPlugin1");
+    featurePluginRegistry.remove("myUIPlugin2");
   });
 
   test("Replayed commands are not send to UI plugins", () => {
@@ -172,7 +172,7 @@ describe("Model", () => {
         }
       }
     }
-    uiPluginRegistry.add("myUIPlugin", MyUIPlugin);
+    featurePluginRegistry.add("myUIPlugin", MyUIPlugin);
 
     class MyCorePlugin extends CorePlugin {
       public readonly state: number = 0;
@@ -194,7 +194,41 @@ describe("Model", () => {
       bob.dispatch("MY_CMD_1");
     });
     expect(numberCall).toEqual(1);
-    uiPluginRegistry.remove("myUIPlugin");
+    featurePluginRegistry.remove("myUIPlugin");
+    corePluginRegistry.remove("myCorePlugin");
+  });
+
+  test("Core commands which dispatch UPDATE_CELL should trigger evaluation", () => {
+    //@ts-ignore
+    coreTypes.add("MY_CMD_1");
+    class MyCorePlugin extends CorePlugin {
+      handle(cmd: CoreCommand) {
+        //@ts-ignore
+        if (cmd.type === "MY_CMD_1") {
+          this.dispatch("UPDATE_CELL", {
+            //@ts-ignore
+            sheetId: cmd.sheetId,
+            col: 0,
+            row: 0,
+            content: "=5",
+          });
+        }
+      }
+    }
+    corePluginRegistry.add("myCorePlugin", MyCorePlugin);
+
+    const { alice, bob, charlie } = setupCollaborativeEnv();
+    setCellContent(alice, "A1", "=3");
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "A1"),
+      "3"
+    );
+    //@ts-ignore
+    alice.dispatch("MY_CMD_1", { sheetId: alice.getters.getActiveSheetId() });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "A1"),
+      "5"
+    );
     corePluginRegistry.remove("myCorePlugin");
   });
 });

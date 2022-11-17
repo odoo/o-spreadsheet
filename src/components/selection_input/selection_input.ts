@@ -1,7 +1,7 @@
 import { Component, onMounted, onPatched, onWillUnmount, useState } from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { UuidGenerator } from "../../helpers/index";
-import { RangeInputValue } from "../../plugins/ui/selection_input";
+import { RangeInputValue } from "../../plugins/ui_feature/selection_input";
 import { SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
