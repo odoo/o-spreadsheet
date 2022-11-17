@@ -60,7 +60,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
     type: "SET_BORDER",
     sheetId,
     row: 1,
-    border: { left: ["thin", "#000"] },
+    border: { left: { style: "thin", color: "#000" } },
   };
 
   describe.each([updateCell, updateCellPosition, clearCell, setBorder])(

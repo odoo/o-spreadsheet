@@ -1,4 +1,5 @@
 import {
+  DEFAULT_BORDER_DESC,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   INCORRECT_RANGE_STRING,
@@ -22,6 +23,7 @@ import {
   selectCell,
   setCellContent,
   setSelection,
+  setZoneBorders,
   undo,
   unfreezeColumns,
   unfreezeRows,
@@ -90,7 +92,7 @@ const fullData = {
     },
   ],
   styles: { 1: { textColor: "#fe0000" } },
-  borders: { 1: { top: ["thin", "#000"] } },
+  borders: { 1: { top: { style: "thin", color: "#000" } } },
 };
 
 //------------------------------------------------------------------------------
@@ -99,7 +101,7 @@ const fullData = {
 
 describe("Clear columns", () => {
   test("Can clear multiple column", () => {
-    const border = { right: ["thin", "#000"] };
+    const border = { right: { style: "thin", color: "#000" } };
     model = new Model({
       sheets: [
         {
@@ -144,7 +146,7 @@ describe("Clear columns", () => {
 
 describe("Clear rows", () => {
   test("Can clear multiple rows", () => {
-    const border = { right: ["thin", "#000"] };
+    const border = { right: { style: "thin", color: "#000" } };
     model = new Model({
       sheets: [
         {
@@ -301,8 +303,17 @@ describe("Columns", () => {
 
   describe("Correctly update borders", () => {
     test("Add columns with simple border", () => {
-      const s = ["thin", "#000"];
-      model = new Model({ sheets: [{ cells: { A2: { border: 1 } } }], borders: { 1: { top: s } } });
+      const s = { style: "thin", color: "#000" };
+      model = new Model({
+        sheets: [
+          {
+            cells: {
+              A2: { border: 1 },
+            },
+          },
+        ],
+        borders: { 1: { top: s } },
+      });
       expect(getBorder(model, "A1")).toEqual({ bottom: s });
       expect(getBorder(model, "A2")).toEqual({ top: s });
       addColumns(model, "before", "A", 1);
@@ -321,7 +332,7 @@ describe("Columns", () => {
       expect(getBorder(model, "C2")).toBeNull();
     });
     test("Add columns with two consecutive borders", () => {
-      const s = ["thin", "#000"];
+      const s = { style: "thin", color: "#000" };
       model = new Model({
         sheets: [
           {
@@ -367,50 +378,47 @@ describe("Columns", () => {
 
     test("insert column after cell with external border", () => {
       const model = new Model();
-      const sheetId = model.getters.getActiveSheetId();
-      const s = ["thin", "#000"];
-      model.dispatch("SET_FORMATTING", {
-        sheetId,
-        target: [toZone("B2")],
-        border: "external",
-      });
+      setZoneBorders(model, { position: "external" }, ["B2"]);
       addColumns(model, "after", "B", 1);
-      expect(getBorder(model, "B2")).toEqual({ top: s, bottom: s, left: s, right: s });
-      expect(getBorder(model, "C2")).toEqual({ left: s });
+      expect(getBorder(model, "B2")).toEqual({
+        top: DEFAULT_BORDER_DESC,
+        bottom: DEFAULT_BORDER_DESC,
+        left: DEFAULT_BORDER_DESC,
+        right: DEFAULT_BORDER_DESC,
+      });
+      expect(getBorder(model, "C2")).toEqual({ left: DEFAULT_BORDER_DESC });
     });
 
     test("insert column before cell with external border", () => {
       const model = new Model();
-      const sheetId = model.getters.getActiveSheetId();
-      const s = ["thin", "#000"];
-      model.dispatch("SET_FORMATTING", {
-        sheetId,
-        target: [toZone("B2")],
-        border: "external",
-      });
+      setZoneBorders(model, { position: "external" }, ["B2"]);
       addColumns(model, "before", "B", 1);
-      expect(getBorder(model, "C2")).toEqual({ top: s, bottom: s, left: s, right: s });
-      expect(getBorder(model, "B2")).toEqual({ right: s });
+      expect(getBorder(model, "C2")).toEqual({
+        top: DEFAULT_BORDER_DESC,
+        bottom: DEFAULT_BORDER_DESC,
+        left: DEFAULT_BORDER_DESC,
+        right: DEFAULT_BORDER_DESC,
+      });
+      expect(getBorder(model, "B2")).toEqual({ right: DEFAULT_BORDER_DESC });
     });
 
     test("delete column after cell with external border", () => {
       const model = new Model();
-      const sheetId = model.getters.getActiveSheetId();
-      const s = ["thin", "#000"];
-      model.dispatch("SET_FORMATTING", {
-        sheetId,
-        target: [toZone("B2")],
-        border: "external",
-      });
+      setZoneBorders(model, { position: "external" }, ["B2"]);
       deleteColumns(model, ["C"]);
-      expect(getBorder(model, "B2")).toEqual({ top: s, bottom: s, left: s, right: s });
+      expect(getBorder(model, "B2")).toEqual({
+        top: DEFAULT_BORDER_DESC,
+        bottom: DEFAULT_BORDER_DESC,
+        left: DEFAULT_BORDER_DESC,
+        right: DEFAULT_BORDER_DESC,
+      });
     });
   });
 
   describe("Correctly update border and style", () => {
     let border: Border;
     beforeEach(() => {
-      border = { top: ["thin", "#000"] };
+      border = { top: { style: "thin", color: "#000000" } };
       model = new Model({
         sheets: [
           {
@@ -440,7 +448,7 @@ describe("Columns", () => {
     test("On deletion", () => {
       deleteColumns(model, ["B"]);
       const style = { textColor: "#fe0000" };
-      const s = ["thin", "#000"];
+      const s = { style: "thin", color: "#000000" };
       expect(getCell(model, "B1")).toBeUndefined();
       expect(getCell(model, "B2")).toBeUndefined();
       expect(getCell(model, "B3")).toBeUndefined();
@@ -458,7 +466,7 @@ describe("Columns", () => {
       expect(getBorder(model, "C3")).toEqual({ top: s });
     });
     test("On addition", () => {
-      const s = ["thin", "#000"];
+      const s = { style: "thin", color: "#000000" };
       const style = { textColor: "#fe0000" };
       expect(getBorder(model, "A1")).toEqual({ bottom: s });
       expect(getBorder(model, "A2")).toEqual({ top: s, bottom: s });
@@ -1050,11 +1058,11 @@ describe("Rows", () => {
         ],
         styles: { 1: { textColor: "#fe0000" } },
         formats: { 1: "0.00%" },
-        borders: { 1: { top: ["thin", "#000"] } },
+        borders: { 1: { top: { style: "thin", color: "#000000" } } },
       });
     });
     test("On deletion", () => {
-      const s = ["thin", "#000"];
+      const s = { style: "thin", color: "#000000" };
       const style = { textColor: "#fe0000" };
       const sheetId = model.getters.getActiveSheetId();
       expect(Object.keys(model.getters.getEvaluatedCells(sheetId))).toHaveLength(8); // 7 NumberCells + 1 emptyCell in merge with style
@@ -1078,7 +1086,7 @@ describe("Rows", () => {
     });
 
     test("On addition", () => {
-      const s = ["thin", "#000"];
+      const s = { style: "thin", color: "#000000" };
       addRows(model, "before", 1, 1);
       const style = { textColor: "#fe0000" };
       expect(getBorder(model, "B1")).toEqual({ top: s, bottom: s });
@@ -1126,13 +1134,8 @@ describe("Rows", () => {
 
     test("insert row after cell with external border", () => {
       const model = new Model();
-      const sheetId = model.getters.getActiveSheetId();
-      const s = ["thin", "#000"];
-      model.dispatch("SET_FORMATTING", {
-        sheetId,
-        target: [toZone("B2")],
-        border: "external",
-      });
+      const s = DEFAULT_BORDER_DESC;
+      setZoneBorders(model, { position: "external" }, ["B2"]);
       addRows(model, "after", 1, 1);
       expect(getBorder(model, "B2")).toEqual({ top: s, bottom: s, left: s, right: s });
       expect(getBorder(model, "B3")).toEqual({ top: s });
@@ -1140,13 +1143,8 @@ describe("Rows", () => {
 
     test("insert row before cell with external border", () => {
       const model = new Model();
-      const sheetId = model.getters.getActiveSheetId();
-      const s = ["thin", "#000"];
-      model.dispatch("SET_FORMATTING", {
-        sheetId,
-        target: [toZone("B2")],
-        border: "external",
-      });
+      const s = DEFAULT_BORDER_DESC;
+      setZoneBorders(model, { position: "external" }, ["B2"]);
       addRows(model, "before", 1, 1);
       expect(getBorder(model, "B2")).toEqual({ bottom: s });
       expect(getBorder(model, "B3")).toEqual({ top: s, bottom: s, left: s, right: s });
@@ -1154,13 +1152,8 @@ describe("Rows", () => {
 
     test("delete row  after cell with external border", () => {
       const model = new Model();
-      const sheetId = model.getters.getActiveSheetId();
-      const s = ["thin", "#000"];
-      model.dispatch("SET_FORMATTING", {
-        sheetId,
-        target: [toZone("B2")],
-        border: "external",
-      });
+      const s = DEFAULT_BORDER_DESC;
+      setZoneBorders(model, { position: "external" }, ["B2"]);
       deleteRows(model, [2]);
       expect(getBorder(model, "B2")).toEqual({ top: s, bottom: s, left: s, right: s });
     });

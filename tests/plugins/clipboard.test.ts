@@ -1,3 +1,4 @@
+import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { toCartesian, toZone, zoneToXc } from "../../src/helpers";
 import { ClipboardCellsState } from "../../src/helpers/clipboard/clipboard_cells_state";
 import { Model } from "../../src/model";
@@ -25,6 +26,7 @@ import {
   setCellFormat,
   setSelection,
   setStyle,
+  setZoneBorders,
   undo,
 } from "../test_helpers/commands_helpers";
 import {
@@ -237,36 +239,27 @@ describe("clipboard", () => {
   test("can copy a cell with borders", () => {
     const model = new Model();
     selectCell(model, "B2");
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
-      border: "bottom",
-    });
-    expect(getBorder(model, "B2")).toEqual({ bottom: ["thin", "#000"] });
+    setZoneBorders(model, { position: "bottom" });
+    expect(getBorder(model, "B2")).toEqual({ bottom: DEFAULT_BORDER_DESC });
 
     copy(model, "B2");
     paste(model, "C2");
 
-    expect(getBorder(model, "B2")).toEqual({ bottom: ["thin", "#000"] });
-    expect(getBorder(model, "C2")).toEqual({ bottom: ["thin", "#000"] });
+    expect(getBorder(model, "B2")).toEqual({ bottom: DEFAULT_BORDER_DESC });
+    expect(getBorder(model, "C2")).toEqual({ bottom: DEFAULT_BORDER_DESC });
   });
 
   test("paste cell does not overwrite existing borders", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("SET_FORMATTING", {
-      sheetId,
-      target: target("A1"),
-      border: "all",
-    });
+    setZoneBorders(model, { position: "all" }, ["A1"]);
     copy(model, "B2");
     paste(model, "A1");
-    const border = ["thin", "#000"];
-    expect(getBorder(model, "A1")).toEqual({
-      top: border,
-      bottom: border,
-      left: border,
-      right: border,
+    expect(model.getters.getCellBorder({ sheetId, col: 0, row: 0 })).toEqual({
+      top: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+      left: DEFAULT_BORDER_DESC,
+      right: DEFAULT_BORDER_DESC,
     });
   });
 
@@ -1060,12 +1053,8 @@ describe("clipboard", () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
     selectCell(model, "B2");
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
-      border: "bottom",
-    });
-    expect(getBorder(model, "B2")).toEqual({ bottom: ["thin", "#000"] });
+    setZoneBorders(model, { position: "bottom" });
+    expect(getBorder(model, "B2")).toEqual({ bottom: DEFAULT_BORDER_DESC });
 
     copy(model, "B2");
     paste(model, "C2", "onlyValue");
@@ -1141,19 +1130,15 @@ describe("clipboard", () => {
     setCellContent(model, "B2", "b2");
     setCellContent(model, "C3", "c3");
     selectCell(model, "C3");
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
-      border: "bottom",
-    });
-    expect(getBorder(model, "C3")).toEqual({ bottom: ["thin", "#000"] });
-    expect(getBorder(model, "C4")).toEqual({ top: ["thin", "#000"] });
+    setZoneBorders(model, { position: "bottom" });
+    expect(getBorder(model, "C3")).toEqual({ bottom: DEFAULT_BORDER_DESC });
+    expect(getBorder(model, "C4")).toEqual({ top: DEFAULT_BORDER_DESC });
 
     copy(model, "B2");
     paste(model, "C3", "onlyValue");
 
     expect(getCellContent(model, "C3")).toBe("b2");
-    expect(getBorder(model, "C3")).toEqual({ bottom: ["thin", "#000"] });
+    expect(getBorder(model, "C3")).toEqual({ bottom: DEFAULT_BORDER_DESC });
   });
 
   test("paste value only does not remove formating", () => {

@@ -169,7 +169,7 @@ describe("Simple Spreadsheet Component", () => {
     const hScrollbarZIndex = getZIndex(".o-scrollbar.horizontal");
     const scrollbarCornerZIndex = getZIndex(".o-scrollbar.corner");
 
-    const dropdownEL = fixture.querySelector(".o-menu-item-button[title='Borders']")!;
+    const dropdownEL = fixture.querySelector(".o-menu-item-button[title='Vertical align']")!;
     await click(dropdownEL);
     const dropDownZIndex = getZIndex(".o-dropdown-content");
 

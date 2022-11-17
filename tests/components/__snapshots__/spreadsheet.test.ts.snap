@@ -372,15 +372,13 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           </div>
           
           <div
-            class="o-dropdown"
+            class="d-flex position-relative"
+            title="Borders"
           >
             <span
-              class="o-menu-item-button o-topbar-hoverable"
-              title="Borders"
+              class="o-topbar-hoverable o-menu-item-button"
             >
-              <span
-                style=""
-              >
+              <span>
                 <svg
                   class="o-icon"
                 >
@@ -390,13 +388,10 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                   />
                 </svg>
               </span>
-              
-              
             </span>
             
-            
-            
           </div>
+          
           <span
             class="o-menu-item-button o-disabled o-topbar-hoverable"
             title="Merge cells"

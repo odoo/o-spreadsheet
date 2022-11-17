@@ -93,11 +93,21 @@ export function addBorders(borders: XLSXBorder[]): XMLString {
   for (let border of Object.values(borders)) {
     borderNodes.push(escapeXml/*xml*/ `
       <border>
-        <left ${formatBorderAttribute(border["left"])} />
-        <right ${formatBorderAttribute(border["right"])} />
-        <top ${formatBorderAttribute(border["top"])} />
-        <bottom ${formatBorderAttribute(border["bottom"])} />
-        <diagonal ${formatBorderAttribute(border["diagonal"])} />
+        <left ${formatBorderAttribute(border["left"])}>
+          ${addBorderColor(border["left"])}
+        </left>
+        <right ${formatBorderAttribute(border["right"])}>
+          ${addBorderColor(border["right"])}
+        </right>
+        <top ${formatBorderAttribute(border["top"])}>
+          ${addBorderColor(border["top"])}
+        </top>
+        <bottom ${formatBorderAttribute(border["bottom"])}>
+          ${addBorderColor(border["bottom"])}
+        </bottom>
+        <diagonal ${formatBorderAttribute(border["diagonal"])}>
+          ${addBorderColor(border["diagonal"])}
+        </diagonal>
       </border>
     `);
   }
@@ -112,10 +122,16 @@ function formatBorderAttribute(description: XLSXBorderDescr | undefined): XMLStr
   if (!description) {
     return escapeXml``;
   }
-  return formatAttributes([
-    ["style", description.style],
-    ["color", toXlsxHexColor(description.color.rgb!)],
-  ]);
+  return formatAttributes([["style", description.style]]);
+}
+
+function addBorderColor(description: XLSXBorderDescr | undefined): XMLString {
+  if (!description) {
+    return escapeXml``;
+  }
+  return escapeXml/*xml*/ `
+    <color ${formatAttributes([["rgb", toXlsxHexColor(description.color.rgb!)]])}/>
+  `;
 }
 
 export function addStyles(styles: XLSXStyle[]): XMLString {

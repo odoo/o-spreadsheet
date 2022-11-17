@@ -47,7 +47,7 @@ describe("Migrations", () => {
       ],
     });
     const data = model.exportData();
-    expect(data.version).toBe(12);
+    expect(data.version).toBe(13);
     expect(data.sheets[0].id).toBeDefined();
     expect(data.sheets[0].figures).toBeDefined();
     expect(data.sheets[0].cells.A1!.content).toBe("=A1");
@@ -70,7 +70,7 @@ describe("Migrations", () => {
     });
     const data = model.exportData();
     const cells = data.sheets[0].cells;
-    expect(data.version).toBe(12);
+    expect(data.version).toBe(13);
     // formulas are de-normalized with version 9
     expect(cells.A1?.content).toBe("=A1");
     expect(cells.A2?.content).toBe("=1");
@@ -372,6 +372,36 @@ describe("Migrations", () => {
     expect(data.sheets[1].cells["A1"]?.format).toEqual(1);
     expect(data.sheets[1].cells["A2"]?.format).toEqual(2);
   });
+
+  test("migrate version 12: update border description structure", () => {
+    const model = new Model({
+      version: 12,
+      sheets: [
+        {
+          id: "1",
+          cells: {
+            A1: {
+              border: 1,
+            },
+          },
+        },
+      ],
+      borders: {
+        1: {
+          top: ["thin", "#000"],
+        },
+      },
+    });
+    const data = model.exportData();
+    expect(data.borders).toEqual({
+      1: {
+        top: {
+          style: "thin",
+          color: "#000",
+        },
+      },
+    });
+  });
 });
 
 describe("Import", () => {
@@ -560,7 +590,7 @@ test("complete import, then export", () => {
     },
     borders: {
       1: {
-        top: ["thin", "#000"] as BorderDescr,
+        top: { style: "thin", color: "#000" } as BorderDescr,
       },
     },
     uniqueFigureIds: true,

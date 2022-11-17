@@ -430,6 +430,38 @@
       />
     </svg>
   </t>
+  <t t-name="o-spreadsheet-Icon.BORDER_TYPE" owl="1">
+    <svg class="o-icon">
+      <g fill="#000000" transform="translate(2 2)">
+        <polygon points="0 0 0 2 14 2 14 0"/>
+        <polygon points="0 6 0 8 5 8 5 6"/>
+        <polygon points="9 6 9 8 14 8 14 6"/>
+        <polygon points="0 12 0 14 2 14 2 12"/>
+        <polygon points="4 12 4 14 6 14 6 12"/>
+        <polygon points="8 12 8 14 10 14 10 12"/>
+        <polygon points="12 12 12 14 14 14 14 12"/>
+      </g>
+    </svg>
+  </t>
+  <t t-name="o-spreadsheet-Icon.BORDER_COLOR" owl="1">
+    <svg class="o-icon">
+      <g fill="#000000" transform="translate(4 2)">
+        <polygon points="0 12 0 9 7 2 10 5 3 12"/>
+        <polygon points="8 1 9 0 12 3 11 4"/>
+      </g>
+    </svg>
+  </t>
+  <t t-name="o-spreadsheet-Icon.BORDER_NO_COLOR" owl="1">
+    <svg class="o-icon">
+      <g fill="#000000">
+        <polygon points="4 12 4 9 11 2 14 5 7 12"/>
+        <polygon points="12 1 13 0 16 3 15 4"/>
+      </g>
+      <g>
+        <rect x="0" y="14" width="18" height="4" stroke="black" fill="none"/>
+      </g>
+    </svg>
+  </t>
 
   <t t-name="o-spreadsheet-Icon.PLUS" owl="1">
     <svg class="o-icon">

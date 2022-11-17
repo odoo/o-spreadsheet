@@ -39,7 +39,7 @@ describe("OT with ADD_MERGE", () => {
   const setBorder: Omit<SetBorderCommand, "row" | "col"> = {
     type: "SET_BORDER",
     sheetId,
-    border: { left: ["thin", "#000"] },
+    border: { left: { style: "thin", color: "#000" } },
   };
 
   describe.each([updateCell, updateCellPosition, clearCell, setBorder])(

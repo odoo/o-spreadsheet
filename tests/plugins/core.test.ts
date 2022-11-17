@@ -15,6 +15,7 @@ import {
   setCellContent,
   setCellFormat,
   setSelection,
+  setZoneBorders,
   undo,
 } from "../test_helpers/commands_helpers";
 import {
@@ -180,11 +181,7 @@ describe("core", () => {
     test("format cell without content: empty string", () => {
       const model = new Model();
       selectCell(model, "B2");
-      model.dispatch("SET_FORMATTING", {
-        sheetId: model.getters.getActiveSheetId(),
-        target: model.getters.getSelectedZones(),
-        border: "bottom",
-      });
+      setZoneBorders(model, { position: "bottom" });
       expect(getCellContent(model, "B2")).toBe("");
     });
 
@@ -590,11 +587,7 @@ describe("history", () => {
   test("can delete a cell with a border", () => {
     const model = new Model();
     setCellContent(model, "A1", "3");
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
-      border: "bottom",
-    });
+    setZoneBorders(model, { position: "bottom" }, ["A1"]);
 
     expect(getCellContent(model, "A1")).toBe("3");
 

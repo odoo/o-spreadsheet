@@ -58,7 +58,7 @@ function convertBorderDescr(
   addBorderDescrWarnings(borderDescr, warningManager);
 
   const style = BORDER_STYLE_CONVERSION_MAP[borderDescr.style];
-  return style ? [style, convertColor(borderDescr.color)!] : undefined;
+  return style ? { style, color: convertColor(borderDescr.color)! } : undefined;
 }
 
 export function convertStyles(

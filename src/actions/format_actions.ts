@@ -1,6 +1,6 @@
 import { DEFAULT_FONT_SIZE, DEFAULT_VERTICAL_ALIGN, FONT_SIZES } from "../constants";
 import { _lt } from "../translation";
-import { Align, BorderCommand, SpreadsheetChildEnv } from "../types";
+import { Align, SpreadsheetChildEnv } from "../types";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 
@@ -259,71 +259,6 @@ export const clearFormat: ActionSpec = {
   icon: "o-spreadsheet-Icon.CLEAR_FORMAT",
 };
 
-export const borders: ActionSpec = {
-  name: _lt("Borders"),
-  icon: "o-spreadsheet-Icon.BORDERS",
-};
-
-export const bordersAll: ActionSpec = {
-  name: _lt("All borders"),
-  execute: (env) => setBorder(env, "all"),
-  icon: "o-spreadsheet-Icon.BORDERS",
-};
-
-export const bordersInner: ActionSpec = {
-  name: _lt("Inner borders"),
-  execute: (env) => setBorder(env, "hv"),
-  icon: "o-spreadsheet-Icon.BORDER_HV",
-};
-
-export const bordersHorizontal: ActionSpec = {
-  name: _lt("Horizontal borders"),
-  execute: (env) => setBorder(env, "h"),
-  icon: "o-spreadsheet-Icon.BORDER_H",
-};
-
-export const bordersVertical: ActionSpec = {
-  name: _lt("Vertical borders"),
-  execute: (env) => setBorder(env, "v"),
-  icon: "o-spreadsheet-Icon.BORDER_V",
-};
-
-export const bordersExternal: ActionSpec = {
-  name: _lt("External borders"),
-  execute: (env) => setBorder(env, "external"),
-  icon: "o-spreadsheet-Icon.BORDER_EXTERNAL",
-};
-
-export const bordersLeft: ActionSpec = {
-  name: _lt("Left borders"),
-  execute: (env) => setBorder(env, "left"),
-  icon: "o-spreadsheet-Icon.BORDER_LEFT",
-};
-
-export const bordersTop: ActionSpec = {
-  name: _lt("Top borders"),
-  execute: (env) => setBorder(env, "top"),
-  icon: "o-spreadsheet-Icon.BORDER_TOP",
-};
-
-export const bordersRight: ActionSpec = {
-  name: _lt("Right borders"),
-  execute: (env) => setBorder(env, "right"),
-  icon: "o-spreadsheet-Icon.BORDER_RIGHT",
-};
-
-export const bordersBottom: ActionSpec = {
-  name: _lt("Bottom borders"),
-  execute: (env) => setBorder(env, "bottom"),
-  icon: "o-spreadsheet-Icon.BORDER_BOTTOM",
-};
-
-export const bordersClear: ActionSpec = {
-  name: _lt("Clear borders"),
-  execute: (env) => setBorder(env, "clear"),
-  icon: "o-spreadsheet-Icon.BORDER_CLEAR",
-};
-
 function fontSizeMenuBuilder(): ActionSpec[] {
   return FONT_SIZES.map((fs) => {
     return {
@@ -349,14 +284,6 @@ function isFormatSelected(env, format: string): boolean {
 function isFontSizeSelected(env, fontSize: number): boolean {
   const currentFontSize = env.model.getters.getCurrentStyle().fontSize || DEFAULT_FONT_SIZE;
   return currentFontSize === fontSize;
-}
-
-function setBorder(env: SpreadsheetChildEnv, command: BorderCommand) {
-  env.model.dispatch("SET_FORMATTING", {
-    sheetId: env.model.getters.getActiveSheetId(),
-    target: env.model.getters.getSelectedZones(),
-    border: command,
-  });
 }
 
 function getHorizontalAlign(env: SpreadsheetChildEnv): Align {

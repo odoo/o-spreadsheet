@@ -88,35 +88,13 @@
               class="'o-topbar-hoverable o-menu-item-button'"
             />
 
-            <div class="o-dropdown">
-              <ActionButton
-                action="FORMAT.borders"
-                t-on-click="(ev) => this.toggleDropdownTool('borderTool', ev)"
-                class="'o-topbar-hoverable'"
-              />
-              <div
-                class="o-dropdown-content"
-                t-if="state.activeTool === 'borderTool'"
-                t-att-style="dropdownStyle"
-                t-on-click.stop="">
-                <div class="o-dropdown-line">
-                  <ActionButton action="FORMAT.bordersAll" class="'o-topbar-hoverable'"/>
-                  <ActionButton action="FORMAT.bordersInner" class="'o-topbar-hoverable'"/>
-                  <ActionButton action="FORMAT.bordersHorizontal" class="'o-topbar-hoverable'"/>
-                  <ActionButton action="FORMAT.bordersVertical" class="'o-topbar-hoverable'"/>
-                  <ActionButton action="FORMAT.bordersExternal" class="'o-topbar-hoverable'"/>
-                </div>
-                <div class="o-dropdown-line">
-                  <ActionButton action="FORMAT.bordersLeft" class="'o-topbar-hoverable'"/>
-                  <ActionButton action="FORMAT.bordersTop" class="'o-topbar-hoverable'"/>
-                  <ActionButton action="FORMAT.bordersRight" class="'o-topbar-hoverable'"/>
-                  <ActionButton action="FORMAT.bordersBottom" class="'o-topbar-hoverable'"/>
-                  <ActionButton action="FORMAT.bordersClear" class="'o-topbar-hoverable'"/>
-                </div>
-              </div>
-            </div>
+            <BorderEditorWidget
+              class="'o-topbar-hoverable o-menu-item-button'"
+              toggleBorderEditor="(ev) => this.toggleDropdownTool('borderTool', ev)"
+              showBorderEditor="state.activeTool === 'borderTool'"
+              dropdownMaxHeight="this.props.dropdownMaxHeight"
+            />
             <ActionButton action="EDIT.mergeCells" class="'o-topbar-hoverable'"/>
-
             <div class="o-divider"/>
 
             <div class="o-dropdown">

@@ -10,7 +10,7 @@ import {
   toHex,
 } from "../../helpers";
 import { GaugeChart, ScorecardChart } from "../../helpers/figures/charts";
-import { Cell, Color, Command, RGBA, UID } from "../../types";
+import { Color, Command, RGBA, UID } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 /**
@@ -74,6 +74,9 @@ export class CustomColorsPlugin extends UIPlugin {
       case "UPDATE_CHART":
       case "CREATE_CHART":
       case "ADD_CONDITIONAL_FORMAT":
+      case "SET_BORDER":
+      case "SET_ZONE_BORDERS":
+      case "SET_FORMATTING":
         this.shouldUpdateColors = true;
     }
   }
@@ -90,9 +93,8 @@ export class CustomColorsPlugin extends UIPlugin {
   getCustomColors(): Color[] {
     let usedColors: Color[] = [];
     for (const sheetId of this.getters.getSheetIds()) {
-      const cells = Object.values(this.getters.getCells(sheetId));
       usedColors = usedColors.concat(
-        this.getColorsFromCells(cells),
+        this.getColorsFromCells(sheetId),
         this.getFormattingColors(sheetId),
         this.getChartColors(sheetId)
       );
@@ -107,7 +109,8 @@ export class CustomColorsPlugin extends UIPlugin {
     ]).filter((color) => !COLOR_PICKER_DEFAULTS.includes(color));
   }
 
-  private getColorsFromCells(cells: Cell[]): Color[] {
+  private getColorsFromCells(sheetId: UID): Color[] {
+    const cells = Object.values(this.getters.getCells(sheetId));
     const colors: Set<Color> = new Set();
     for (const cell of cells) {
       if (cell.style?.textColor) {
@@ -116,6 +119,9 @@ export class CustomColorsPlugin extends UIPlugin {
       if (cell.style?.fillColor) {
         colors.add(cell.style.fillColor);
       }
+    }
+    for (const color of this.getters.getBordersColors(sheetId)) {
+      colors.add(color);
     }
     return [...colors];
   }
