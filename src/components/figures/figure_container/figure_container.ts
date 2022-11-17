@@ -1,26 +1,27 @@
 import { Component, onMounted, useState } from "@odoo/owl";
-import { MIN_FIG_SIZE } from "../../../constants";
+import { ComponentsImportance, MIN_FIG_SIZE } from "../../../constants";
+import { isDefined } from "../../../helpers";
+import { rectIntersection, rectUnion } from "../../../helpers/rectangle";
 import { figureRegistry } from "../../../registries";
-import {
-  DOMCoordinates,
-  Figure,
-  Pixel,
-  ResizeDirection,
-  SpreadsheetChildEnv,
-} from "../../../types/index";
-import { cssPropertiesToCss } from "../../helpers";
+import { Figure, Rect, ResizeDirection, SpreadsheetChildEnv, UID } from "../../../types/index";
+import { css, cssPropertiesToCss } from "../../helpers";
 import { startDnd } from "../../helpers/drag_and_drop";
+import {
+  internalFigureToScreen,
+  screenFigureToInternal,
+} from "../../helpers/figure_container_helper";
+import { dragFigureForMove, dragFigureForResize } from "../../helpers/figure_drag_helper";
+import {
+  HFigureAxisType,
+  snapForMove,
+  snapForResize,
+  SnapLine,
+  VFigureAxisType,
+} from "../../helpers/figure_snap_helper";
 import { FigureComponent } from "../figure/figure";
 
 type ContainerType = "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "dnd";
 
-interface DndState {
-  figId: string | undefined;
-  x: Pixel;
-  y: Pixel;
-  width: Pixel;
-  height: Pixel;
-}
 interface Props {
   onFigureDeleted: () => void;
 }
@@ -31,6 +32,33 @@ interface Container {
   style: string;
   inverseViewportStyle: string;
 }
+
+interface Snap<T extends HFigureAxisType | VFigureAxisType> {
+  line: SnapLine<T>;
+  lineStyle: string;
+  containerStyle: string;
+}
+
+interface DndState {
+  draggedFigure?: Figure;
+  horizontalSnap?: Snap<HFigureAxisType>;
+  verticalSnap?: Snap<VFigureAxisType>;
+}
+
+css/*SCSS*/ `
+  .o-figure-snap-line {
+    position: relative;
+    z-index: ${ComponentsImportance.FigureSnapLine};
+    &.vertical {
+      width: 0px;
+      border-left: 1px dashed black;
+    }
+    &.horizontal {
+      border-top: 1px dashed black;
+      height: 0px;
+    }
+  }
+`;
 
 /**
  * Each figure ⭐ is positioned inside a container `div` placed and sized
@@ -97,11 +125,9 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   static components = { FigureComponent };
 
   dnd = useState<DndState>({
-    figId: undefined,
-    x: 0,
-    y: 0,
-    width: 0,
-    height: 0,
+    draggedFigure: undefined,
+    horizontalSnap: undefined,
+    verticalSnap: undefined,
   });
 
   setup() {
@@ -119,9 +145,15 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
 
   private getVisibleFigures(): Figure[] {
     const visibleFigures = this.env.model.getters.getVisibleFigures();
-    if (this.dnd.figId && !visibleFigures.some((figure) => figure.id === this.dnd.figId)) {
+    if (
+      this.dnd.draggedFigure &&
+      !visibleFigures.some((figure) => figure.id === this.dnd.draggedFigure?.id)
+    ) {
       visibleFigures.push(
-        this.env.model.getters.getFigure(this.env.model.getters.getActiveSheetId(), this.dnd.figId)!
+        this.env.model.getters.getFigure(
+          this.env.model.getters.getActiveSheetId(),
+          this.dnd.draggedFigure?.id
+        )!
       );
     }
     return visibleFigures;
@@ -151,7 +183,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       }
     }
 
-    if (this.dnd.figId) {
+    if (this.dnd.draggedFigure) {
       containers.push({
         type: "dnd",
         figures: [this.getDndFigure()],
@@ -164,20 +196,28 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private getContainerStyle(container: ContainerType): string {
+    return this.rectToCss(this.getContainerRect(container));
+  }
+
+  private rectToCss(rect: Rect): string {
+    return cssPropertiesToCss({
+      left: `${rect.x}px`,
+      top: `${rect.y}px`,
+      width: `${rect.width}px`,
+      height: `${rect.height}px`,
+    });
+  }
+
+  private getContainerRect(container: ContainerType): Rect {
     const { width: viewWidth, height: viewHeight } = this.env.model.getters.getMainViewportRect();
     const { x: viewportX, y: viewportY } = this.env.model.getters.getMainViewportCoordinates();
 
-    const left = ["bottomRight", "topRight"].includes(container) ? viewportX : 0;
-    const width = viewWidth - left;
-    const top = ["bottomRight", "bottomLeft"].includes(container) ? viewportY : 0;
-    const height = viewHeight - top;
+    const x = ["bottomRight", "topRight"].includes(container) ? viewportX : 0;
+    const width = viewWidth - x;
+    const y = ["bottomRight", "bottomLeft"].includes(container) ? viewportY : 0;
+    const height = viewHeight - y;
 
-    return cssPropertiesToCss({
-      left: `${left}px`,
-      top: `${top}px`,
-      width: `${width}px`,
-      height: `${height}px`,
-    });
+    return { x, y, width, height };
   }
 
   private getInverseViewportPositionStyle(container: ContainerType): string {
@@ -195,7 +235,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
 
   private getFigureContainer(figure: Figure): ContainerType {
     const { x: viewportX, y: viewportY } = this.env.model.getters.getMainViewportCoordinates();
-    if (figure.id === this.dnd.figId) {
+    if (figure.id === this.dnd.draggedFigure?.id) {
       return "dnd";
     } else if (figure.x < viewportX && figure.y < viewportY) {
       return "topLeft";
@@ -220,149 +260,174 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
 
     const sheetId = this.env.model.getters.getActiveSheetId();
 
-    const mouseInitialX = ev.clientX;
-    const mouseInitialY = ev.clientY;
+    const initialMousePosition = { x: ev.clientX, y: ev.clientY };
 
-    const { x: dndInitialX, y: dndInitialY } = this.internalToScreenCoordinates(figure);
-    this.dnd.x = dndInitialX;
-    this.dnd.y = dndInitialY;
-    this.dnd.width = figure.width;
-    this.dnd.height = figure.height;
+    const { x, y } = internalFigureToScreen(this.env.model.getters, figure);
+
+    const initialFig = { ...figure, x, y };
 
     const onMouseMove = (ev: MouseEvent) => {
-      const { x: viewportX, y: viewportY } = this.env.model.getters.getMainViewportCoordinates();
-      const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+      const getters = this.env.model.getters;
+      const currentMousePosition = { x: ev.clientX, y: ev.clientY };
+      const draggedFigure = dragFigureForMove(
+        currentMousePosition,
+        initialMousePosition,
+        initialFig,
+        this.env.model.getters.getMainViewportCoordinates(),
+        getters.getActiveSheetScrollInfo()
+      );
 
-      const minX = viewportX ? 0 : -scrollX;
-      const minY = viewportY ? 0 : -scrollY;
+      const otherFigures = this.getOtherFigures(figure.id);
+      const internalDragged = screenFigureToInternal(getters, draggedFigure);
+      const snapResult = snapForMove(getters, internalDragged, otherFigures);
 
-      this.dnd.figId = figure.id;
-
-      const newX = ev.clientX;
-      let deltaX = newX - mouseInitialX;
-      this.dnd.x = Math.max(dndInitialX + deltaX, minX);
-
-      const newY = ev.clientY;
-      let deltaY = newY - mouseInitialY;
-      this.dnd.y = Math.max(dndInitialY + deltaY, minY);
+      this.dnd.draggedFigure = internalFigureToScreen(getters, snapResult.snappedFigure);
+      this.dnd.horizontalSnap = this.getSnap(snapResult.horizontalSnapLine);
+      this.dnd.verticalSnap = this.getSnap(snapResult.verticalSnapLine);
     };
     const onMouseUp = (ev: MouseEvent) => {
-      if (!this.dnd.figId) {
+      if (!this.dnd.draggedFigure) {
         return;
       }
-      let { x, y } = this.screenCoordinatesToInternal(this.dnd);
-      this.dnd.figId = undefined;
+      let { x, y } = screenFigureToInternal(this.env.model.getters, this.dnd.draggedFigure);
+      this.dnd.draggedFigure = undefined;
+      this.dnd.horizontalSnap = undefined;
+      this.dnd.verticalSnap = undefined;
       this.env.model.dispatch("UPDATE_FIGURE", { sheetId, id: figure.id, x, y });
     };
     startDnd(onMouseMove, onMouseUp);
   }
 
+  /**
+   * Initialize the resize of a figure with mouse movements
+   *
+   * @param dirX X direction of the resize. -1 : resize from the left border of the figure, 0 : no resize in X, 1 :
+   * resize from the right border of the figure
+   * @param dirY Y direction of the resize. -1 : resize from the top border of the figure, 0 : no resize in Y, 1 :
+   * resize from the bottom border of the figure
+   * @param ev Mouse Event
+   */
   startResize(figure: Figure, dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) {
     ev.stopPropagation();
-    const initialX = ev.clientX;
-    const initialY = ev.clientY;
+    const initialMousePosition = { x: ev.clientX, y: ev.clientY };
 
-    const { x: dndInitialX, y: dndInitialY } = this.internalToScreenCoordinates(figure);
-    this.dnd.x = dndInitialX;
-    this.dnd.y = dndInitialY;
-    this.dnd.width = figure.width;
-    this.dnd.height = figure.height;
+    const { x, y } = internalFigureToScreen(this.env.model.getters, figure);
 
+    const initialFig = { ...figure, x, y };
     const keepRatio = figureRegistry.get(figure.tag).keepRatio || false;
     const minFigSize = figureRegistry.get(figure.tag).minFigSize || MIN_FIG_SIZE;
 
-    let onMouseMove: (ev: MouseEvent) => void;
+    const onMouseMove = (ev: MouseEvent) => {
+      const currentMousePosition = { x: ev.clientX, y: ev.clientY };
+      const draggedFigure = dragFigureForResize(
+        initialFig,
+        dirX,
+        dirY,
+        currentMousePosition,
+        initialMousePosition,
+        keepRatio,
+        minFigSize
+      );
 
-    if (keepRatio && dirX != 0 && dirY != 0) {
-      onMouseMove = (ev: MouseEvent) => {
-        this.dnd.figId = figure.id;
-        const deltaX = Math.min(dirX * (initialX - ev.clientX), figure.width - minFigSize);
-        const deltaY = Math.min(dirY * (initialY - ev.clientY), figure.height - minFigSize);
-        const fraction = Math.min(deltaX / figure.width, deltaY / figure.height);
-        this.dnd.width = figure.width * (1 - fraction);
-        this.dnd.height = figure.height * (1 - fraction);
-        if (dirX < 0) {
-          this.dnd.x = dndInitialX + figure.width * fraction;
-        }
-        if (dirY < 0) {
-          this.dnd.y = dndInitialY + figure.height * fraction;
-        }
-      };
-    } else {
-      onMouseMove = (ev: MouseEvent) => {
-        this.dnd.figId = figure.id;
-        const deltaX = Math.max(dirX * (ev.clientX - initialX), minFigSize - figure.width);
-        const deltaY = Math.max(dirY * (ev.clientY - initialY), minFigSize - figure.height);
-        this.dnd.width = figure.width + deltaX;
-        this.dnd.height = figure.height + deltaY;
-        if (dirX < 0) {
-          this.dnd.x = dndInitialX - deltaX;
-        }
-        if (dirY < 0) {
-          this.dnd.y = dndInitialY - deltaY;
-        }
-      };
-    }
+      const otherFigures = this.getOtherFigures(figure.id);
+      const snapResult = snapForResize(
+        this.env.model.getters,
+        dirX,
+        dirY,
+        draggedFigure,
+        otherFigures
+      );
+      this.dnd.draggedFigure = snapResult.snappedFigure;
+      this.dnd.horizontalSnap = this.getSnap(snapResult.horizontalSnapLine);
+      this.dnd.verticalSnap = this.getSnap(snapResult.verticalSnapLine);
+    };
     const onMouseUp = (ev: MouseEvent) => {
-      if (!this.dnd.figId) {
+      if (!this.dnd.draggedFigure) {
         return;
       }
-      this.dnd.figId = undefined;
-      let { x, y } = this.screenCoordinatesToInternal(this.dnd);
+      let { x, y } = screenFigureToInternal(this.env.model.getters, this.dnd.draggedFigure);
       const update: Partial<Figure> = { x, y };
       if (dirX) {
-        update.width = this.dnd.width;
+        update.width = this.dnd.draggedFigure.width;
       }
       if (dirY) {
-        update.height = this.dnd.height;
+        update.height = this.dnd.draggedFigure.height;
       }
       this.env.model.dispatch("UPDATE_FIGURE", {
         sheetId: this.env.model.getters.getActiveSheetId(),
         id: figure.id,
         ...update,
       });
+      this.dnd.draggedFigure = undefined;
+      this.dnd.horizontalSnap = undefined;
+      this.dnd.verticalSnap = undefined;
     };
     startDnd(onMouseMove, onMouseUp);
   }
 
+  private getOtherFigures(figId: UID): Figure[] {
+    return this.getVisibleFigures().filter((f) => f.id !== figId);
+  }
+
   private getDndFigure(): Figure {
-    const figure = this.getVisibleFigures().find((fig) => fig.id === this.dnd.figId);
+    const figure = this.getVisibleFigures().find((fig) => fig.id === this.dnd.draggedFigure?.id);
     if (!figure) throw new Error("Dnd figure not found");
     return {
       ...figure,
-      x: this.dnd.x,
-      y: this.dnd.y,
-      width: this.dnd.width,
-      height: this.dnd.height,
+      ...this.dnd.draggedFigure,
     };
   }
 
   getFigureStyle(figure: Figure): string {
-    if (figure.id !== this.dnd.figId) return "";
+    if (figure.id !== this.dnd.draggedFigure?.id) return "";
     return cssPropertiesToCss({
       opacity: "0.9",
       cursor: "grabbing",
     });
   }
 
-  private internalToScreenCoordinates({ x, y }: DOMCoordinates): DOMCoordinates {
-    const { x: viewportX, y: viewportY } = this.env.model.getters.getMainViewportCoordinates();
-    const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+  private getSnap<T extends HFigureAxisType | VFigureAxisType>(
+    snapLine: SnapLine<T> | undefined
+  ): Snap<T> | undefined {
+    if (!snapLine || !this.dnd.draggedFigure) return undefined;
 
-    x = x < viewportX ? x : x - scrollX;
-    y = y < viewportY ? y : y - scrollY;
+    const figureVisibleRects = snapLine.matchedFigIds
+      .map((id) => this.getVisibleFigures().find((fig) => fig.id === id))
+      .filter(isDefined)
+      .map((fig) => {
+        const figOnSCreen = internalFigureToScreen(this.env.model.getters, fig);
+        const container = this.getFigureContainer(fig);
+        return rectIntersection(figOnSCreen, this.getContainerRect(container));
+      })
+      .filter(isDefined);
 
-    return { x, y };
+    const containerRect = rectUnion(this.dnd.draggedFigure, ...figureVisibleRects);
+
+    return {
+      line: snapLine,
+      containerStyle: this.rectToCss(containerRect),
+      lineStyle: this.getSnapLineStyle(snapLine, containerRect),
+    };
   }
 
-  private screenCoordinatesToInternal({ x, y }: DOMCoordinates): DOMCoordinates {
-    const { x: viewportX, y: viewportY } = this.env.model.getters.getMainViewportCoordinates();
-    const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
-
-    x = viewportX && x < viewportX ? x : x + scrollX;
-    y = viewportY && y < viewportY ? y : y + scrollY;
-
-    return { x, y };
+  private getSnapLineStyle(
+    snapLine: SnapLine<HFigureAxisType | VFigureAxisType> | undefined,
+    containerRect: Rect
+  ): string {
+    if (!snapLine) return "";
+    if (["top", "vCenter", "bottom"].includes(snapLine.snappedAxisType)) {
+      return cssPropertiesToCss({
+        top: `${snapLine.position - containerRect.y}px`,
+        left: `0px`,
+        width: `100%`,
+      });
+    } else {
+      return cssPropertiesToCss({
+        top: `0px`,
+        left: `${snapLine.position - containerRect.x}px`,
+        height: `100%`,
+      });
+    }
   }
 }
 

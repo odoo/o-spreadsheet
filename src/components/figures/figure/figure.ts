@@ -59,7 +59,7 @@ css/*SCSS*/ `
     box-sizing: content-box;
 
     .o-fig-anchor {
-      z-index: ${ComponentsImportance.ChartAnchor};
+      z-index: ${ComponentsImportance.FigureAnchor};
       position: absolute;
       width: ${ANCHOR_SIZE}px;
       height: ${ANCHOR_SIZE}px;

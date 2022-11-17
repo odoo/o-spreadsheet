@@ -7,6 +7,7 @@ exports[`figures selected figure snapshot 1`] = `
 >
   <div
     class="o-figure w-100 h-100"
+    data-id="someuuid"
     style=""
     tabindex="0"
   >

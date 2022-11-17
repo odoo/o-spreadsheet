@@ -138,8 +138,6 @@ export const MENU_SEPARATOR_BORDER_WIDTH = 1;
 export const MENU_SEPARATOR_PADDING = 5;
 export const MENU_SEPARATOR_HEIGHT = MENU_SEPARATOR_BORDER_WIDTH + 2 * MENU_SEPARATOR_PADDING;
 
-export const FIGURE_BORDER_SIZE = 1;
-
 // Fonts
 export const DEFAULT_FONT_WEIGHT = "400";
 export const DEFAULT_FONT_SIZE = 10;
@@ -165,6 +163,9 @@ export const DEFAULT_REVISION_ID = "START_REVISION";
 // Figure
 export const DEFAULT_FIGURE_HEIGHT = 335;
 export const DEFAULT_FIGURE_WIDTH = 536;
+export const FIGURE_BORDER_WIDTH = 1;
+export const ACTIVE_BORDER_WIDTH = 2;
+export const MIN_FIG_SIZE = 80;
 
 // Chart
 export const MAX_CHAR_LABEL = 20;
@@ -179,8 +180,6 @@ export const DEFAULT_SCORECARD_BASELINE_COLOR_UP = "#00A04A";
 export const DEFAULT_SCORECARD_BASELINE_COLOR_DOWN = "#DC6965";
 
 export const LINE_FILL_TRANSPARENCY = 0.4;
-
-export const MIN_FIG_SIZE = 80;
 
 // session
 export const DEBOUNCE_TIME = 200;
@@ -206,7 +205,8 @@ export enum ComponentsImportance {
   TopBarComposer = 21,
   IconPicker = 25,
   Popover = 30,
-  ChartAnchor = 1000,
+  FigureAnchor = 1000,
+  FigureSnapLine = 1001,
 }
 
 export const DEFAULT_SHEETVIEW_SIZE = 1000;

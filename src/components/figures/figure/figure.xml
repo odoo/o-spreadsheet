@@ -7,6 +7,7 @@
         t-on-contextmenu.prevent.stop="onContextMenu"
         t-ref="figure"
         t-att-style="props.style"
+        t-att-data-id="props.figure.id"
         tabindex="0"
         t-on-keydown="(ev) => this.onKeyDown(ev)"
         t-on-keyup.stop="">
