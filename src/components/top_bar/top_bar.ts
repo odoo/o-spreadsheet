@@ -10,7 +10,7 @@ import { fontSizes } from "../../fonts";
 import { areZonesContinuous, isEqual } from "../../helpers/index";
 import { interactiveAddFilter } from "../../helpers/ui/filter_interactive";
 import { interactiveAddMerge } from "../../helpers/ui/merge_interactive";
-import { ComposerSelection } from "../../plugins/ui/edition";
+import { ComposerSelection } from "../../plugins/ui_stateful/edition";
 import { setFormatter, setStyle, topbarComponentRegistry } from "../../registries/index";
 import { getMenuChildren, getMenuName } from "../../registries/menus/helpers";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";

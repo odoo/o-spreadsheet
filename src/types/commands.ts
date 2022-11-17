@@ -1,5 +1,5 @@
-import { ComposerSelection } from "../plugins/ui/edition";
-import { SearchOptions } from "../plugins/ui/find_and_replace";
+import { SearchOptions } from "../plugins/ui_feature/find_and_replace";
+import { ComposerSelection } from "../plugins/ui_stateful/edition";
 import { CellPopoverType } from "./cell_popovers";
 import { ChartDefinition } from "./chart/chart";
 import { ClipboardPasteOptions } from "./clipboard";

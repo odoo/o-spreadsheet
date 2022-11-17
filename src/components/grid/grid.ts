@@ -8,7 +8,7 @@ import {
 import { isInside, range } from "../../helpers/index";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
 import { interactivePaste, interactivePasteFromOS } from "../../helpers/ui/paste_interactive";
-import { ComposerSelection } from "../../plugins/ui/edition";
+import { ComposerSelection } from "../../plugins/ui_stateful/edition";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import { INSERT_LINK } from "../../registries/menus/menu_items_actions";

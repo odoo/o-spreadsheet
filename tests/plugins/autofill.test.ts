@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { buildSheetLink, toCartesian, toZone } from "../../src/helpers";
-import { AutofillPlugin } from "../../src/plugins/ui/autofill";
+import { AutofillPlugin } from "../../src/plugins/ui_feature/autofill";
 import { Border, ConditionalFormat, Style } from "../../src/types";
 import { DIRECTION } from "../../src/types/index";
 import {

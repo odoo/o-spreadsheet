@@ -228,6 +228,9 @@ export class SheetViewPlugin extends UIPlugin {
       case "UNFREEZE_COLUMNS_ROWS":
         this.resetViewports(this.getters.getActiveSheetId());
         break;
+      case "DELETE_SHEET":
+        this.sheetsWithDirtyViewports.delete(cmd.sheetId);
+        break;
     }
   }
 

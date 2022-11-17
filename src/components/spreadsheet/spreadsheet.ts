@@ -19,7 +19,7 @@ import {
   TOPBAR_HEIGHT,
 } from "../../constants";
 import { Model } from "../../model";
-import { ComposerSelection } from "../../plugins/ui/edition";
+import { ComposerSelection } from "../../plugins/ui_stateful/edition";
 import { _lt } from "../../translation";
 import { SpreadsheetChildEnv } from "../../types";
 import { NotifyUIEvent } from "../../types/ui";
