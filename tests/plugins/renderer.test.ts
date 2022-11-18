@@ -1016,6 +1016,38 @@ describe("renderer", () => {
     }
   );
 
+  test.each([
+    ["right", "A1:A2"],
+    ["left", "C1:C2"],
+    ["center", "A1:A2", "C1:C2"],
+  ])("Content cannot overflow over merge with align %s", (align, ...merges) => {
+    const overflowingText = "I am a very long text";
+    const model = new Model({
+      sheets: [
+        {
+          id: "sheet1",
+          colNumber: 5,
+          rowNumber: 5,
+          cols: { 1: { size: 5 } },
+          cells: { B2: { content: overflowingText, style: 1 } },
+          merges,
+        },
+      ],
+      styles: { 1: { align } },
+    });
+
+    const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+    model.drawGrid(ctx);
+
+    const box = getBoxFromText(model, overflowingText);
+    expect(box.clipRect).toEqual({
+      x: DEFAULT_CELL_WIDTH,
+      y: DEFAULT_CELL_HEIGHT,
+      width: 5,
+      height: DEFAULT_CELL_HEIGHT,
+    });
+  });
+
   test.each(["left", "right", "center"])(
     'Cells with the wrapping style "wrap" cannot overflow long text content',
     (align) => {
