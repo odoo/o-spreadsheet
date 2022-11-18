@@ -1766,4 +1766,50 @@ describe("renderer", () => {
       });
     });
   });
+  describe("Multi-line text rendering", () => {
+    let model: Model;
+    let ctx: MockGridRenderingContext;
+    let renderedTexts: String[];
+
+    beforeEach(() => {
+      model = new Model();
+      renderedTexts = [];
+      ctx = new MockGridRenderingContext(model, 1000, 1000, {
+        onFunctionCall: (fn, args) => {
+          if (fn === "fillText") {
+            renderedTexts.push(args[0]);
+          }
+        },
+      });
+    });
+
+    test("Wrapped text is displayed over multiple lines", () => {
+      const overFlowingContent = "ThisIsAVeryVeryLongText";
+      setCellContent(model, "A1", overFlowingContent);
+      setStyle(model, "A1", { wrapping: "wrap" });
+      resizeColumns(model, ["A"], 14);
+
+      // Split length = 14 - 2*MIN_CELL_TEXT_MARGIN = 6 letters (1 letter = 1px in the tests)
+      const splittedText = ["ThisIs", "AVeryV", "eryLon", "gText"];
+
+      model.drawGrid(ctx);
+      expect(renderedTexts.slice(0, 4)).toEqual(splittedText);
+    });
+
+    test("Wrapped text try to not split words in multiple lines if the word is small enough", () => {
+      const overFlowingContent = "W Word2 W3 WordThatIsTooLong";
+      setCellContent(model, "A1", overFlowingContent);
+      setStyle(model, "A1", { wrapping: "wrap" });
+      resizeColumns(model, ["A"], 16);
+
+      model.drawGrid(ctx);
+      expect(renderedTexts.slice(0, 5)).toEqual(["W Word2", "W3", "WordThat", "IsTooLon", "g"]);
+    });
+
+    test("Texts with newlines are displayed over multiple lines", () => {
+      setCellContent(model, "A1", "Line1\nLine2\rLine3\r\nLine4");
+      model.drawGrid(ctx);
+      expect(renderedTexts.slice(0, 4)).toEqual(["Line1", "Line2", "Line3", "Line4"]);
+    });
+  });
 });

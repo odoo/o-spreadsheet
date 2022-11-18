@@ -64,290 +64,101 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
     </div>
     <!-- Toolbar and Cell Content -->
     <div
-      class="o-topbar-toolbar"
+      class="d-flex"
     >
-      <!-- Toolbar -->
-      
       <div
-        class="o-toolbar-tools"
+        class="o-topbar-toolbar"
       >
+        <!-- Toolbar -->
+        
         <div
-          class="o-tool o-disabled"
-          title="Undo"
-        >
-          <svg
-            class="o-icon"
-          >
-            <path
-              d="M11.5656391,4.43436088 L9,7 L16,7 L16,0 L13.0418424,2.95815758 C11.5936787,1.73635959 9.72260775,1 7.67955083,1 C4.22126258,1 1.25575599,3.10984908 0,6 L2,7 C2.93658775,4.60974406 5.12943697,3.08011229 7.67955083,3 C9.14881247,3.0528747 10.4994783,3.57862053 11.5656391,4.43436088 Z"
-              fill="#000000"
-              transform="matrix(-1 0 0 1 17 5)"
-            />
-          </svg>
-        </div>
-        <div
-          class="o-tool o-disabled"
-          title="Redo"
-        >
-          <svg
-            class="o-icon"
-          >
-            <path
-              d="M11.5656391,4.43436088 L9,7 L16,7 L16,0 L13.0418424,2.95815758 C11.5936787,1.73635959 9.72260775,1 7.67955083,1 C4.22126258,1 1.25575599,3.10984908 0,6 L2,7 C2.93658775,4.60974406 5.12943697,3.08011229 7.67955083,3 C9.14881247,3.0528747 10.4994783,3.57862053 11.5656391,4.43436088 Z"
-              fill="#000000"
-              transform="translate(1 5)"
-            />
-          </svg>
-        </div>
-        <div
-          class="o-tool"
-          title="Paint Format"
-        >
-          <svg
-            class="o-icon"
-          >
-            <path
-              d="M9,0 L1,0 C0.45,0 0,0.45 0,1 L0,4 C0,4.55 0.45,5 1,5 L9,5 C9.55,5 10,4.55 10,4 L10,3 L11,3 L11,6 L4,6 L4,14 L6,14 L6,8 L13,8 L13,2 L10,2 L10,1 C10,0.45 9.55,0 9,0 Z"
-              fill="#000000"
-              transform="translate(3 2)"
-            />
-          </svg>
-        </div>
-        <div
-          class="o-tool"
-          title="Clear Format"
-        >
-          <svg
-            class="o-icon"
-          >
-            <path
-              d="M0.27,1.55 L5.43,6.7 L3,12 L5.5,12 L7.14,8.42 L11.73,13 L13,11.73 L1.55,0.27 L0.27,1.55 L0.27,1.55 Z M3.82,0 L5.82,2 L7.58,2 L7.03,3.21 L8.74,4.92 L10.08,2 L14,2 L14,0 L3.82,0 L3.82,0 Z"
-              fill="#000000"
-              transform="translate(2 3)"
-            />
-          </svg>
-        </div>
-        <div
-          class="o-divider"
-        />
-        <div
-          class="o-tool"
-          title="Format as percent"
-        >
-           % 
-        </div>
-        <div
-          class="o-tool"
-          title="Decrease decimal places"
-        >
-           .0 
-        </div>
-        <div
-          class="o-tool"
-          title="Increase decimal places"
-        >
-           .00 
-        </div>
-        <div
-          class="o-dropdown"
+          class="o-toolbar-tools"
         >
           <div
-            class="o-tool o-dropdown-button o-text-icon"
-            title="More formats"
+            class="o-tool o-disabled"
+            title="Undo"
           >
-             123 
             <svg
               class="o-icon"
             >
-              <polygon
+              <path
+                d="M11.5656391,4.43436088 L9,7 L16,7 L16,0 L13.0418424,2.95815758 C11.5936787,1.73635959 9.72260775,1 7.67955083,1 C4.22126258,1 1.25575599,3.10984908 0,6 L2,7 C2.93658775,4.60974406 5.12943697,3.08011229 7.67955083,3 C9.14881247,3.0528747 10.4994783,3.57862053 11.5656391,4.43436088 Z"
                 fill="#000000"
-                points="0 0 4 4 8 0"
-                transform="translate(5 7)"
+                transform="matrix(-1 0 0 1 17 5)"
               />
             </svg>
-            
           </div>
-          
-        </div>
-        <div
-          class="o-divider"
-        />
-        <div
-          class="o-dropdown"
-        >
           <div
-            class="o-tool o-dropdown-button o-text-icon"
-            title="Font Size"
+            class="o-tool o-disabled"
+            title="Redo"
           >
-            10
             <svg
               class="o-icon"
             >
-              <polygon
+              <path
+                d="M11.5656391,4.43436088 L9,7 L16,7 L16,0 L13.0418424,2.95815758 C11.5936787,1.73635959 9.72260775,1 7.67955083,1 C4.22126258,1 1.25575599,3.10984908 0,6 L2,7 C2.93658775,4.60974406 5.12943697,3.08011229 7.67955083,3 C9.14881247,3.0528747 10.4994783,3.57862053 11.5656391,4.43436088 Z"
                 fill="#000000"
-                points="0 0 4 4 8 0"
-                transform="translate(5 7)"
+                transform="translate(1 5)"
               />
             </svg>
-            
           </div>
-          
-        </div>
-        <div
-          class="o-divider"
-        />
-        <div
-          class="o-tool"
-          title="Bold"
-        >
-          <svg
-            class="o-icon"
-          >
-            <path
-              d="M9,3.5 C9,1.57 7.43,0 5.5,0 L1.77635684e-15,0 L1.77635684e-15,12 L6.25,12 C8.04,12 9.5,10.54 9.5,8.75 C9.5,7.45 8.73,6.34 7.63,5.82 C8.46,5.24 9,4.38 9,3.5 Z M5,2 C5.82999992,2 6.5,2.67 6.5,3.5 C6.5,4.33 5.82999992,5 5,5 L3,5 L3,2 L5,2 Z M3,10 L3,7 L5.5,7 C6.32999992,7 7,7.67 7,8.5 C7,9.33 6.32999992,10 5.5,10 L3,10 Z"
-              fill="#000000"
-              fill-rule="evenodd"
-              transform="translate(4 3)"
-            />
-          </svg>
-        </div>
-        <div
-          class="o-tool"
-          title="Italic"
-        >
-          <svg
-            class="o-icon"
-          >
-            <polygon
-              fill="#000000"
-              fill-rule="evenodd"
-              points="4 0 4 2 6.58 2 2.92 10 0 10 0 12 8 12 8 10 5.42 10 9.08 2 12 2 12 0"
-              transform="translate(3 3)"
-            />
-          </svg>
-        </div>
-        <div
-          class="o-tool"
-          title="Strikethrough"
-        >
-          <svg
-            class="o-icon"
-          >
-            <path
-              d="M2.8875,3.06 C2.8875,2.6025 2.985,2.18625 3.18375,1.8075 C3.3825,1.42875 3.66,1.10625 4.02,0.84 C4.38,0.57375 4.80375,0.3675 5.29875,0.22125 C5.79375,0.075 6.33375,0 6.92625,0 C7.53375,0 8.085,0.0825 8.58,0.25125 C9.075,0.42 9.49875,0.6525 9.85125,0.95625 C10.20375,1.25625 10.47375,1.6125 10.665,2.02875 C10.85625,2.44125 10.95,2.895 10.95,3.38625 L8.6925,3.38625 C8.6925,3.1575 8.655,2.94375 8.58375,2.74875 C8.5125,2.55 8.4,2.38125 8.25,2.2425 C8.1,2.10375 7.9125,1.99125 7.6875,1.91625 C7.4625,1.8375 7.19625,1.8 6.88875,1.8 C6.5925,1.8 6.3375,1.83375 6.11625,1.8975 C5.89875,1.96125 5.71875,2.05125 5.57625,2.1675 C5.43375,2.28375 5.325,2.41875 5.25375,2.5725 C5.1825,2.72625 5.145,2.895 5.145,3.0675 C5.145,3.4275 5.32875,3.73125 5.69625,3.975 C5.71780203,3.98908066 5.73942012,4.00311728 5.76118357,4.01733315 C6.02342923,4.18863185 6.5,4.5 7,5 L4,5 C4,5 3.21375,4.37625 3.17625,4.30875 C2.985,3.9525 2.8875,3.53625 2.8875,3.06 Z M14,6 L0,6 L0,8 L7.21875,8 C7.35375,8.0525 7.51875,8.105 7.63125,8.15375 C7.90875,8.2775 8.12625,8.40875 8.28375,8.53625 C8.44125,8.6675 8.54625,8.81 8.6025,8.96 C8.65875,9.11375 8.685,9.28625 8.685,9.47375 C8.685,9.65 8.65125,9.815 8.58375,9.965 C8.51625,10.11875 8.41125,10.25 8.2725,10.35875 C8.13375,10.4675 7.95375,10.55375 7.74,10.6175 C7.5225,10.68125 7.27125,10.71125 6.97875,10.71125 C6.6525,10.71125 6.35625,10.6775 6.09,10.61375 C5.82375,10.55 5.59875,10.445 5.41125,10.3025 C5.22375,10.16 5.0775,9.9725 4.9725,9.74375 C4.8675,9.515 4.78125,9.17 4.78125,9 L2.55,9 C2.55,9.2525 2.61,9.6875 2.72625,10.025 C2.8425,10.3625 3.0075,10.66625 3.21375,10.9325 C3.42,11.19875 3.6675,11.4275 3.94875,11.6225 C4.23,11.8175 4.53375,11.9825 4.86375,12.11 C5.19375,12.24125 5.535,12.33875 5.89875,12.39875 C6.25875,12.4625 6.6225,12.4925 6.9825,12.4925 C7.5825,12.4925 8.13,12.425 8.6175,12.28625 C9.105,12.1475 9.525,11.94875 9.87,11.69375 C10.215,11.435 10.48125,11.12 10.6725,10.74125 C10.86375,10.3625 10.95375,9.935 10.95375,9.455 C10.95375,9.005 10.875,8.6 10.72125,8.24375 C10.68375,8.1575 10.6425,8.075 10.59375,7.9925 L14,8 L14,6 Z"
-              fill="#010101"
-              fill-rule="evenodd"
-              transform="translate(2 3)"
-            />
-          </svg>
-        </div>
-        <div
-          class="o-dropdown"
-        >
           <div
-            class="o-tool o-dropdown-button o-with-color"
-            title="Text Color"
+            class="o-tool"
+            title="Paint Format"
           >
-            <span
-              style="border-color:#000000"
+            <svg
+              class="o-icon"
             >
-              <svg
-                class="o-icon"
-              >
-                <path
-                  d="M7,0 L5,0 L0.5,12 L2.5,12 L3.62,9 L8.37,9 L9.49,12 L11.49,12 L7,0 L7,0 Z M4.38,7 L6,2.67 L7.62,7 L4.38,7 L4.38,7 Z"
-                  fill="#000000"
-                  transform="translate(3 1)"
-                />
-              </svg>
-            </span>
+              <path
+                d="M9,0 L1,0 C0.45,0 0,0.45 0,1 L0,4 C0,4.55 0.45,5 1,5 L9,5 C9.55,5 10,4.55 10,4 L10,3 L11,3 L11,6 L4,6 L4,14 L6,14 L6,8 L13,8 L13,2 L10,2 L10,1 C10,0.45 9.55,0 9,0 Z"
+                fill="#000000"
+                transform="translate(3 2)"
+              />
+            </svg>
           </div>
-          
-          
-        </div>
-        <div
-          class="o-divider"
-        />
-        <div
-          class="o-dropdown "
-        >
           <div
-            class="o-tool o-dropdown-button o-with-color"
-            title="Fill Color"
+            class="o-tool"
+            title="Clear Format"
           >
-            <span
-              style="border-color:#ffffff"
+            <svg
+              class="o-icon"
             >
-              <svg
-                class="o-icon"
-              >
-                <path
-                  d="M14.5,8.87 C14.5,8.87 13,10.49 13,11.49 C13,12.32 13.67,12.99 14.5,12.99 C15.33,12.99 16,12.32 16,11.49 C16,10.5 14.5,8.87 14.5,8.87 L14.5,8.87 Z M12.71,6.79 L5.91,0 L4.85,1.06 L6.44,2.65 L2.29,6.79 C1.9,7.18 1.9,7.81 2.29,8.2 L6.79,12.7 C6.99,12.9 7.24,13 7.5,13 C7.76,13 8.01,12.9 8.21,12.71 L12.71,8.21 C13.1,7.82 13.1,7.18 12.71,6.79 L12.71,6.79 Z M4.21,7 L7.5,3.71 L10.79,7 L4.21,7 L4.21,7 Z"
-                  fill="#000000"
-                />
-              </svg>
-            </span>
+              <path
+                d="M0.27,1.55 L5.43,6.7 L3,12 L5.5,12 L7.14,8.42 L11.73,13 L13,11.73 L1.55,0.27 L0.27,1.55 L0.27,1.55 Z M3.82,0 L5.82,2 L7.58,2 L7.03,3.21 L8.74,4.92 L10.08,2 L14,2 L14,0 L3.82,0 L3.82,0 Z"
+                fill="#000000"
+                transform="translate(2 3)"
+              />
+            </svg>
           </div>
-          
-          
-        </div>
-        <div
-          class="o-dropdown"
-        >
           <div
-            class="o-tool o-dropdown-button"
-            title="Borders"
+            class="o-divider"
+          />
+          <div
+            class="o-tool"
+            title="Format as percent"
           >
-            <span>
-              <svg
-                class="o-icon"
-              >
-                <path
-                  d="M0,0 L0,14 L14,14 L14,0 L0,0 L0,0 Z M6,12 L2,12 L2,8 L6,8 L6,12 L6,12 Z M6,6 L2,6 L2,2 L6,2 L6,6 L6,6 Z M12,12 L8,12 L8,8 L12,8 L12,12 L12,12 Z M12,6 L8,6 L8,2 L12,2 L12,6 L12,6 Z"
-                  fill="#000000"
-                  transform="translate(2 2)"
-                />
-              </svg>
-            </span>
+             % 
           </div>
-          
-        </div>
-        <div
-          class="o-tool o-merge-tool o-disabled"
-          title="Merge Cells"
-        >
-          <svg
-            class="o-icon"
-          >
-            <path
-              d="M3,6 L1,6 L1,2 L8,2 L8,4 L3,4 L3,6 Z M10,4 L10,2 L17,2 L17,6 L15,6 L15,4 L10,4 Z M10,14 L15,14 L15,12 L17,12 L17,16 L10,16 L10,14 Z M1,12 L3,12 L3,14 L8,14 L8,16 L1,16 L1,12 Z M1,8 L5,8 L5,6 L8,9 L5,12 L5,10 L1,10 L1,8 Z M10,9 L13,6 L13,8 L17,8 L17,10 L13,10 L13,12 L10,9 Z"
-              fill="#000000"
-            />
-          </svg>
-        </div>
-        <div
-          class="o-divider"
-        />
-        <div
-          class="o-dropdown"
-        >
           <div
-            class="o-tool o-dropdown-button"
-            title="Horizontal align"
+            class="o-tool"
+            title="Decrease decimal places"
           >
-            <span>
-              
-              
-              <svg
-                class="o-icon align-left"
-              >
-                <path
-                  d="M0,14 L10,14 L10,12 L0,12 L0,14 Z M10,4 L0,4 L0,6 L10,6 L10,4 Z M0,0 L0,2 L14,2 L14,0 L0,0 Z M0,10 L14,10 L14,8 L0,8 L0,10 Z"
-                  fill="#000000"
-                  transform="translate(2 2)"
-                />
-              </svg>
-              
+             .0 
+          </div>
+          <div
+            class="o-tool"
+            title="Increase decimal places"
+          >
+             .00 
+          </div>
+          <div
+            class="o-dropdown"
+          >
+            <div
+              class="o-tool o-dropdown-button o-text-icon"
+              title="More formats"
+            >
+               123 
               <svg
                 class="o-icon"
               >
@@ -358,47 +169,236 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 />
               </svg>
               
-            </span>
+            </div>
+            
+          </div>
+          <div
+            class="o-divider"
+          />
+          <div
+            class="o-dropdown"
+          >
+            <div
+              class="o-tool o-dropdown-button o-text-icon"
+              title="Font Size"
+            >
+              10
+              <svg
+                class="o-icon"
+              >
+                <polygon
+                  fill="#000000"
+                  points="0 0 4 4 8 0"
+                  transform="translate(5 7)"
+                />
+              </svg>
+              
+            </div>
+            
+          </div>
+          <div
+            class="o-divider"
+          />
+          <div
+            class="o-tool"
+            title="Bold"
+          >
+            <svg
+              class="o-icon"
+            >
+              <path
+                d="M9,3.5 C9,1.57 7.43,0 5.5,0 L1.77635684e-15,0 L1.77635684e-15,12 L6.25,12 C8.04,12 9.5,10.54 9.5,8.75 C9.5,7.45 8.73,6.34 7.63,5.82 C8.46,5.24 9,4.38 9,3.5 Z M5,2 C5.82999992,2 6.5,2.67 6.5,3.5 C6.5,4.33 5.82999992,5 5,5 L3,5 L3,2 L5,2 Z M3,10 L3,7 L5.5,7 C6.32999992,7 7,7.67 7,8.5 C7,9.33 6.32999992,10 5.5,10 L3,10 Z"
+                fill="#000000"
+                fill-rule="evenodd"
+                transform="translate(4 3)"
+              />
+            </svg>
+          </div>
+          <div
+            class="o-tool"
+            title="Italic"
+          >
+            <svg
+              class="o-icon"
+            >
+              <polygon
+                fill="#000000"
+                fill-rule="evenodd"
+                points="4 0 4 2 6.58 2 2.92 10 0 10 0 12 8 12 8 10 5.42 10 9.08 2 12 2 12 0"
+                transform="translate(3 3)"
+              />
+            </svg>
+          </div>
+          <div
+            class="o-tool"
+            title="Strikethrough"
+          >
+            <svg
+              class="o-icon"
+            >
+              <path
+                d="M2.8875,3.06 C2.8875,2.6025 2.985,2.18625 3.18375,1.8075 C3.3825,1.42875 3.66,1.10625 4.02,0.84 C4.38,0.57375 4.80375,0.3675 5.29875,0.22125 C5.79375,0.075 6.33375,0 6.92625,0 C7.53375,0 8.085,0.0825 8.58,0.25125 C9.075,0.42 9.49875,0.6525 9.85125,0.95625 C10.20375,1.25625 10.47375,1.6125 10.665,2.02875 C10.85625,2.44125 10.95,2.895 10.95,3.38625 L8.6925,3.38625 C8.6925,3.1575 8.655,2.94375 8.58375,2.74875 C8.5125,2.55 8.4,2.38125 8.25,2.2425 C8.1,2.10375 7.9125,1.99125 7.6875,1.91625 C7.4625,1.8375 7.19625,1.8 6.88875,1.8 C6.5925,1.8 6.3375,1.83375 6.11625,1.8975 C5.89875,1.96125 5.71875,2.05125 5.57625,2.1675 C5.43375,2.28375 5.325,2.41875 5.25375,2.5725 C5.1825,2.72625 5.145,2.895 5.145,3.0675 C5.145,3.4275 5.32875,3.73125 5.69625,3.975 C5.71780203,3.98908066 5.73942012,4.00311728 5.76118357,4.01733315 C6.02342923,4.18863185 6.5,4.5 7,5 L4,5 C4,5 3.21375,4.37625 3.17625,4.30875 C2.985,3.9525 2.8875,3.53625 2.8875,3.06 Z M14,6 L0,6 L0,8 L7.21875,8 C7.35375,8.0525 7.51875,8.105 7.63125,8.15375 C7.90875,8.2775 8.12625,8.40875 8.28375,8.53625 C8.44125,8.6675 8.54625,8.81 8.6025,8.96 C8.65875,9.11375 8.685,9.28625 8.685,9.47375 C8.685,9.65 8.65125,9.815 8.58375,9.965 C8.51625,10.11875 8.41125,10.25 8.2725,10.35875 C8.13375,10.4675 7.95375,10.55375 7.74,10.6175 C7.5225,10.68125 7.27125,10.71125 6.97875,10.71125 C6.6525,10.71125 6.35625,10.6775 6.09,10.61375 C5.82375,10.55 5.59875,10.445 5.41125,10.3025 C5.22375,10.16 5.0775,9.9725 4.9725,9.74375 C4.8675,9.515 4.78125,9.17 4.78125,9 L2.55,9 C2.55,9.2525 2.61,9.6875 2.72625,10.025 C2.8425,10.3625 3.0075,10.66625 3.21375,10.9325 C3.42,11.19875 3.6675,11.4275 3.94875,11.6225 C4.23,11.8175 4.53375,11.9825 4.86375,12.11 C5.19375,12.24125 5.535,12.33875 5.89875,12.39875 C6.25875,12.4625 6.6225,12.4925 6.9825,12.4925 C7.5825,12.4925 8.13,12.425 8.6175,12.28625 C9.105,12.1475 9.525,11.94875 9.87,11.69375 C10.215,11.435 10.48125,11.12 10.6725,10.74125 C10.86375,10.3625 10.95375,9.935 10.95375,9.455 C10.95375,9.005 10.875,8.6 10.72125,8.24375 C10.68375,8.1575 10.6425,8.075 10.59375,7.9925 L14,8 L14,6 Z"
+                fill="#010101"
+                fill-rule="evenodd"
+                transform="translate(2 3)"
+              />
+            </svg>
+          </div>
+          <div
+            class="o-dropdown"
+          >
+            <div
+              class="o-tool o-dropdown-button o-with-color"
+              title="Text Color"
+            >
+              <span
+                style="border-color:#000000"
+              >
+                <svg
+                  class="o-icon"
+                >
+                  <path
+                    d="M7,0 L5,0 L0.5,12 L2.5,12 L3.62,9 L8.37,9 L9.49,12 L11.49,12 L7,0 L7,0 Z M4.38,7 L6,2.67 L7.62,7 L4.38,7 L4.38,7 Z"
+                    fill="#000000"
+                    transform="translate(3 1)"
+                  />
+                </svg>
+              </span>
+            </div>
+            
+            
+          </div>
+          <div
+            class="o-divider"
+          />
+          <div
+            class="o-dropdown "
+          >
+            <div
+              class="o-tool o-dropdown-button o-with-color"
+              title="Fill Color"
+            >
+              <span
+                style="border-color:#ffffff"
+              >
+                <svg
+                  class="o-icon"
+                >
+                  <path
+                    d="M14.5,8.87 C14.5,8.87 13,10.49 13,11.49 C13,12.32 13.67,12.99 14.5,12.99 C15.33,12.99 16,12.32 16,11.49 C16,10.5 14.5,8.87 14.5,8.87 L14.5,8.87 Z M12.71,6.79 L5.91,0 L4.85,1.06 L6.44,2.65 L2.29,6.79 C1.9,7.18 1.9,7.81 2.29,8.2 L6.79,12.7 C6.99,12.9 7.24,13 7.5,13 C7.76,13 8.01,12.9 8.21,12.71 L12.71,8.21 C13.1,7.82 13.1,7.18 12.71,6.79 L12.71,6.79 Z M4.21,7 L7.5,3.71 L10.79,7 L4.21,7 L4.21,7 Z"
+                    fill="#000000"
+                  />
+                </svg>
+              </span>
+            </div>
+            
+            
+          </div>
+          <div
+            class="o-dropdown"
+          >
+            <div
+              class="o-tool o-dropdown-button"
+              title="Borders"
+            >
+              <span>
+                <svg
+                  class="o-icon"
+                >
+                  <path
+                    d="M0,0 L0,14 L14,14 L14,0 L0,0 L0,0 Z M6,12 L2,12 L2,8 L6,8 L6,12 L6,12 Z M6,6 L2,6 L2,2 L6,2 L6,6 L6,6 Z M12,12 L8,12 L8,8 L12,8 L12,12 L12,12 Z M12,6 L8,6 L8,2 L12,2 L12,6 L12,6 Z"
+                    fill="#000000"
+                    transform="translate(2 2)"
+                  />
+                </svg>
+              </span>
+            </div>
+            
+          </div>
+          <div
+            class="o-tool o-merge-tool o-disabled"
+            title="Merge Cells"
+          >
+            <svg
+              class="o-icon"
+            >
+              <path
+                d="M3,6 L1,6 L1,2 L8,2 L8,4 L3,4 L3,6 Z M10,4 L10,2 L17,2 L17,6 L15,6 L15,4 L10,4 Z M10,14 L15,14 L15,12 L17,12 L17,16 L10,16 L10,14 Z M1,12 L3,12 L3,14 L8,14 L8,16 L1,16 L1,12 Z M1,8 L5,8 L5,6 L8,9 L5,12 L5,10 L1,10 L1,8 Z M10,9 L13,6 L13,8 L17,8 L17,10 L13,10 L13,12 L10,9 Z"
+                fill="#000000"
+              />
+            </svg>
+          </div>
+          <div
+            class="o-divider"
+          />
+          <div
+            class="o-dropdown"
+          >
+            <div
+              class="o-tool o-dropdown-button"
+              title="Horizontal align"
+            >
+              <span>
+                
+                
+                <svg
+                  class="o-icon align-left"
+                >
+                  <path
+                    d="M0,14 L10,14 L10,12 L0,12 L0,14 Z M10,4 L0,4 L0,6 L10,6 L10,4 Z M0,0 L0,2 L14,2 L14,0 L0,0 Z M0,10 L14,10 L14,8 L0,8 L0,10 Z"
+                    fill="#000000"
+                    transform="translate(2 2)"
+                  />
+                </svg>
+                
+                <svg
+                  class="o-icon"
+                >
+                  <polygon
+                    fill="#000000"
+                    points="0 0 4 4 8 0"
+                    transform="translate(5 7)"
+                  />
+                </svg>
+                
+              </span>
+            </div>
+            
+          </div>
+          <div
+            class="o-divider"
+          />
+          
+          <div
+            class="o-tool o-filter-tool"
+            title="Create filter"
+          >
+            <svg
+              class="o-cf-icon filter-icon-inactive"
+              focusable="false"
+              height="10"
+              viewBox="0 0 512 512"
+              width="10"
+            >
+              <path
+                d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+                fill="#606162"
+              />
+            </svg>
           </div>
           
         </div>
-        <div
-          class="o-divider"
-        />
-        
-        <div
-          class="o-tool o-filter-tool"
-          title="Create filter"
-        >
-          <svg
-            class="o-cf-icon filter-icon-inactive"
-            focusable="false"
-            height="10"
-            viewBox="0 0 512 512"
-            width="10"
-          >
-            <path
-              d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
-              fill="#606162"
-            />
-          </svg>
-        </div>
         
       </div>
-      
       <div
         class="o-composer-container"
+        style="overflow-y: hidden"
       >
         <div
           class="o-composer"
           contenteditable="true"
           spellcheck="false"
-          style="
-    line-height: 34px;
-    padding-left: 8px;
-    height: 34px;
-    background-color: white;
-  "
+          style=""
           tabindex="1"
         />
         

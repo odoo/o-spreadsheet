@@ -131,7 +131,6 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     return `
       line-height: ${DEFAULT_CELL_HEIGHT}px;
       max-height: inherit;
-      overflow: hidden;
     `;
   }
 }

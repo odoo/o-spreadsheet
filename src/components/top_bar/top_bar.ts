@@ -5,7 +5,12 @@ import {
   useExternalListener,
   useState,
 } from "@odoo/owl";
-import { BACKGROUND_HEADER_COLOR, ComponentsImportance, DEFAULT_FONT_SIZE } from "../../constants";
+import {
+  BACKGROUND_HEADER_COLOR,
+  ComponentsImportance,
+  DEFAULT_FONT_SIZE,
+  SELECTION_BORDER_COLOR,
+} from "../../constants";
 import { fontSizes } from "../../fonts";
 import { areZonesContinuous, isEqual, positionToZone } from "../../helpers/index";
 import { interactiveAddFilter } from "../../helpers/ui/filter_interactive";
@@ -97,6 +102,7 @@ css/* scss */ `
     flex-direction: column;
     font-size: 13px;
     line-height: 1.2;
+    height: 34px;
     user-select: none;
 
     .o-topbar-top {
@@ -126,10 +132,45 @@ css/* scss */ `
         justify-content: flex-end;
       }
     }
+
+    .o-composer-container {
+      border: 1px solid #e0e2e4;
+      margin-top: -1px;
+      margin-bottom: -1px;
+      line-height: 20px;
+      padding-top: 7px;
+      padding-bottom: 7px;
+
+      height: 20px;
+      background-color: white;
+
+      &:focus-within {
+        border: 1px solid ${SELECTION_BORDER_COLOR};
+        height: fit-content;
+        padding-bottom: 7px;
+        max-height: 100px;
+      }
+
+      .o-composer {
+        padding-left: 8px;
+
+        &:not(:focus) {
+          p {
+            padding-bottom: 10px;
+          }
+        }
+
+        &:focus {
+          height: fit-content;
+        }
+      }
+    }
+
     /* Toolbar + Cell Content */
     .o-topbar-toolbar {
       border-bottom: 1px solid #e0e2e4;
       display: flex;
+      height: 34px;
 
       .o-readonly-toolbar {
         display: flex;
@@ -137,12 +178,6 @@ css/* scss */ `
         background-color: ${BACKGROUND_HEADER_COLOR};
         padding-left: 18px;
         padding-right: 18px;
-      }
-      .o-composer-container {
-        height: 34px;
-        border: 1px solid #e0e2e4;
-        margin-top: -1px;
-        margin-bottom: -1px;
       }
 
       /* Toolbar */
@@ -320,12 +355,6 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   fillColor: string = "#ffffff";
   textColor: string = "#000000";
   menus: FullMenuItem[] = [];
-  composerStyle = `
-    line-height: 34px;
-    padding-left: 8px;
-    height: 34px;
-    background-color: white;
-  `;
 
   setup() {
     useExternalListener(window as any, "click", this.onExternalClick);

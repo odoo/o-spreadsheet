@@ -1,5 +1,5 @@
 import { Component, onMounted, onPatched, onWillUnmount, useRef, useState } from "@odoo/owl";
-import { ComponentsImportance, SELECTION_BORDER_COLOR } from "../../../constants";
+import { ComponentsImportance, NEWLINE } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/index";
 import { functionRegistry } from "../../../functions/index";
 import { isEqual, rangeReference, zoneToDimension } from "../../../helpers/index";
@@ -49,6 +49,10 @@ css/* scss */ `
     z-index: ${ComponentsImportance.Composer};
     flex-grow: 1;
     max-height: inherit;
+    max-height: 200px;
+    overflow-x: hidden;
+    overflow-wrap: break-word;
+
     .o-composer {
       caret-color: black;
       padding-left: 3px;
@@ -60,14 +64,20 @@ css/* scss */ `
       &.unfocusable {
         pointer-events: none;
       }
-      span {
-        white-space: pre;
-        &.${SelectionIndicatorClass}:after {
-          content: "${SelectionIndicator}";
-          color: ${SelectionIndicatorColor};
+
+      p {
+        margin-bottom: 0px;
+
+        span {
+          white-space: pre-wrap;
+          &.${SelectionIndicatorClass}:after {
+            content: "${SelectionIndicator}";
+            color: ${SelectionIndicatorColor};
+          }
         }
       }
     }
+
     .o-composer-assistant {
       position: absolute;
       margin: 4px;
@@ -78,11 +88,6 @@ css/* scss */ `
     .o-formula-assistant-container {
       box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
     }
-  }
-
-  /* Custom css to highlight topbar composer on focus */
-  .o-topbar-toolbar .o-composer-container:focus-within {
-    border: 1px solid ${SELECTION_BORDER_COLOR};
   }
 `;
 
@@ -118,6 +123,14 @@ interface FunctionDescriptionState {
   argToFocus: number;
 }
 
+/**
+ * TODO :
+ * - paste values with newlines in composer is buggy
+ * - formula helper is buggy for multi line composer
+ * - grid composer style with scrollbar if cell > composer
+ * - line height of grid composer
+ * - (optional) : scroll when composer isn't expanded isn't very good. It also sucks in gsheet tho.
+ */
 export class Composer extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Composer";
   static components = { TextValueProvider, FunctionDescriptionProvider };
@@ -126,6 +139,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
   };
 
   composerRef = useRef("o_composer");
+  composerContainerRef = useRef("o_composer_container");
 
   contentHelper: ContentEditableHelper = new ContentEditableHelper(this.composerRef.el!);
 
@@ -191,6 +205,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
 
       this.contentHelper.updateEl(el);
       this.processContent();
+      this.contentHelper.scrollToSelection();
     });
 
     onWillUnmount(() => {
@@ -273,6 +288,20 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
   private processEnterKey(ev: KeyboardEvent) {
     ev.preventDefault();
     ev.stopPropagation();
+    if (ev.altKey || ev.ctrlKey) {
+      const selection = this.contentHelper.getCurrentSelection();
+      const currentContent = this.env.model.getters.getCurrentContent();
+      const content =
+        currentContent.slice(0, selection.start) + NEWLINE + currentContent.slice(selection.end);
+      this.env.model.dispatch("SET_CURRENT_CONTENT", {
+        content,
+        selection: { start: selection.start + 1, end: selection.start + 1 },
+      });
+
+      this.processContent();
+      return;
+    }
+
     this.isKeyStillDown = false;
     if (this.autoCompleteState.showProvider) {
       const autoCompleteValue =
@@ -304,7 +333,10 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
       ev.stopPropagation();
     }
     const { start, end } = this.contentHelper.getCurrentSelection();
-    if (!this.env.model.getters.isSelectingForComposer()) {
+    if (
+      !this.env.model.getters.isSelectingForComposer() &&
+      !(ev.key === "Enter" && (ev.altKey || ev.ctrlKey))
+    ) {
       this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start, end });
       this.isKeyStillDown = true;
     }
@@ -318,9 +350,8 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
     this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
-    const el = this.composerRef.el! as HTMLInputElement;
     this.env.model.dispatch("SET_CURRENT_CONTENT", {
-      content: el.childNodes.length ? el.textContent! : "",
+      content: this.contentHelper.getText(),
       selection: this.contentHelper.getCurrentSelection(),
     });
   }
@@ -329,7 +360,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     this.isKeyStillDown = false;
     if (
       this.props.focus === "inactive" ||
-      ["Control", "Shift", "Tab", "Enter", "F4"].includes(ev.key)
+      ["Control", "Alt", "Shift", "Tab", "Enter", "F4"].includes(ev.key)
     ) {
       return;
     }
@@ -363,7 +394,6 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
         this.contentHelper.getCurrentSelection()
       );
     }
-
     this.processTokenAtCursor();
     this.processContent();
   }
@@ -410,11 +440,17 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     this.isKeyStillDown = false;
   }
 
+  getContainerStyle() {
+    const content = this.env.model.getters.getCurrentContent();
+    return `overflow-y: ${content.includes(NEWLINE) ? "auto" : "hidden"}`;
+  }
+
   // ---------------------------------------------------------------------------
   // Private
   // ---------------------------------------------------------------------------
 
   private processContent() {
+    const scroll = this.getCurrentScroll();
     this.contentHelper.removeAll(); // removes the content of the composer, to be added just after
     this.shouldProcessInputEvents = false;
 
@@ -424,6 +460,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     const content = this.getContent();
     if (content.length !== 0) {
       this.contentHelper.setText(content);
+      this.setCurrentScroll(scroll);
       const { start, end } = this.env.model.getters.getComposerSelection();
 
       if (this.props.focus !== "inactive") {
@@ -436,25 +473,26 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private getContent(): HtmlContent[] {
-    let content: HtmlContent[];
-    const value = this.env.model.getters.getCurrentContent();
+    let content: HtmlContent[] = [];
+    let value = this.env.model.getters.getCurrentContent();
     const isValidFormula =
       value.startsWith("=") && this.env.model.getters.getCurrentTokens().length > 0;
+
     if (value === "") {
       content = [];
     } else if (isValidFormula && this.props.focus !== "inactive") {
       content = this.getColoredTokens();
     } else {
-      content = [{ value }];
+      content.push({ value });
     }
     return content;
   }
 
-  private getColoredTokens(): any[] {
+  private getColoredTokens(): HtmlContent[] {
     const tokens = this.env.model.getters.getCurrentTokens();
     const tokenAtCursor = this.env.model.getters.getTokenAtCursor();
-    const result: any[] = [];
-    const { start, end } = this.env.model.getters.getComposerSelection();
+    const result: HtmlContent[] = [];
+    const { end, start } = this.env.model.getters.getComposerSelection();
     for (const token of tokens) {
       switch (token.type) {
         case "OPERATOR":
@@ -594,6 +632,16 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
       });
     }
     this.processTokenAtCursor();
+  }
+
+  private getCurrentScroll(): number {
+    return this.composerContainerRef.el?.scrollTop || 0;
+  }
+
+  private setCurrentScroll(scroll: number) {
+    if (this.composerContainerRef.el) {
+      this.composerContainerRef.el.scrollTop = scroll;
+    }
   }
 }
 

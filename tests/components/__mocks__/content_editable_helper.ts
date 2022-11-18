@@ -133,4 +133,10 @@ export class ContentEditableHelper {
         break;
     }
   }
+
+  scrollToSelection() {}
+
+  getText() {
+    return this.el!.textContent || "";
+  }
 }

@@ -14,3 +14,15 @@ export function gridOverlayPosition() {
   }
   throw new Error("Can't find spreadsheet position");
 }
+
+/**
+ * Iterate over the dom tree starting at `el` and over all the children depth first.
+ * */
+export function* iterateChildren(el: Node): Generator<Node> {
+  yield el;
+  if (el.hasChildNodes()) {
+    for (let child of el.childNodes) {
+      yield* iterateChildren(child);
+    }
+  }
+}

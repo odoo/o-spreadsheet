@@ -1,3 +1,5 @@
+import { iterateChildren } from "../helpers/dom_helpers";
+import { NEWLINE } from "./../../constants";
 import { HtmlContent } from "./composer/composer";
 
 export class ContentEditableHelper {
@@ -22,14 +24,13 @@ export class ContentEditableHelper {
       range.setEnd(this.el, 0);
       selection.addRange(range);
     } else {
-      if (start < 0 || end > this.el!.textContent!.length) {
+      const textLength = this.getText().length;
+      if (start < 0 || end > textLength) {
         console.warn(
-          `wrong selection asked start ${start}, end ${end}, text content length ${
-            this.el!.textContent!.length
-          }`
+          `wrong selection asked start ${start}, end ${end}, text content length ${textLength}`
         );
         if (start < 0) start = 0;
-        if (end > this.el!.textContent!.length) end = this.el!.textContent!.length;
+        if (end > textLength) end = textLength;
       }
       let startNode = this.findChildAtCharacterIndex(start);
       let endNode = this.findChildAtCharacterIndex(end);
@@ -43,20 +44,32 @@ export class ContentEditableHelper {
    * finds the dom element that contains the character at `offset`
    */
   private findChildAtCharacterIndex(offset: number): { node: Node; offset: number } {
-    let it = this.iterateChildren(this.el);
+    let it = iterateChildren(this.el);
     let current, previous;
     let usedCharacters = offset;
+    let isFirstParagraph = true;
     do {
       current = it.next();
       if (!current.done && !current.value.hasChildNodes()) {
         if (current.value.textContent && current.value.textContent.length < usedCharacters) {
           usedCharacters -= current.value.textContent.length;
-        } else {
+        } else if (
+          current.value.textContent &&
+          current.value.textContent.length >= usedCharacters
+        ) {
           it.return(current.value);
         }
         previous = current.value;
       }
-    } while (!current.done);
+      // One new paragraph = one new line character, except for the first paragraph
+      if (!current.done && current.value.nodeName === "P") {
+        if (isFirstParagraph) {
+          isFirstParagraph = false;
+        } else {
+          usedCharacters--;
+        }
+      }
+    } while (!current.done && usedCharacters);
 
     if (current.value) {
       return { node: current.value, offset: usedCharacters };
@@ -65,15 +78,31 @@ export class ContentEditableHelper {
   }
 
   /**
-   * Iterate over the dom tree starting at `el` and over all the children depth first.
-   * */
-  private *iterateChildren(el): Generator<Node> {
-    yield el;
-    if (el.hasChildNodes()) {
-      for (let child of el.childNodes) {
-        yield* this.iterateChildren(child);
+   * Split an array of HTMLContents into lines. Each NEWLINE character encountered will create a new
+   * line. Contents can be split into multiple parts if they contain multiple NEWLINE characters.
+   */
+  private splitHtmlContentsInLines(contents: HtmlContent[]): HtmlContent[][] {
+    const contentSplitInLines: HtmlContent[][] = [];
+    let currentLine: HtmlContent[] = [];
+
+    for (const content of contents) {
+      if (content.value.includes(NEWLINE)) {
+        const lines = content.value.split(NEWLINE);
+        const lastLine = lines.pop()!;
+        for (const line of lines) {
+          currentLine.push({ ...content, value: line });
+          contentSplitInLines.push(currentLine);
+          currentLine = [];
+        }
+        currentLine.push({ ...content, value: lastLine });
+      } else {
+        currentLine.push(content);
       }
     }
+    if (currentLine.length) {
+      contentSplitInLines.push(currentLine);
+    }
+    return contentSplitInLines;
   }
 
   /**
@@ -83,19 +112,49 @@ export class ContentEditableHelper {
    * Each span will have its own fontcolor and specific class if provided in the HtmlContent object.
    */
   setText(contents: HtmlContent[]) {
+    this.el.innerHTML = "";
     if (contents.length === 0) {
       return;
     }
-    for (const content of contents) {
-      const span = document.createElement("span");
-      span.innerText = content.value;
-      if (content.color) {
-        span.style.color = content.color;
+
+    const contentSplitInLines: HtmlContent[][] = this.splitHtmlContentsInLines(contents);
+
+    for (const line of contentSplitInLines) {
+      const p = document.createElement("p");
+
+      if (line.length === 0 || line.every((content) => content.value === "")) {
+        p.appendChild(document.createElement("br"));
+        this.el.appendChild(p);
+        continue;
       }
-      if (content.class) {
-        span.classList.add(content.class);
+
+      for (const content of line) {
+        if (!content.value && !content.class) {
+          continue;
+        }
+        const span = document.createElement("span");
+        span.innerText = content.value;
+        if (content.color) {
+          span.style.color = content.color;
+        }
+        if (content.class) {
+          span.classList.add(content.class);
+        }
+        p.appendChild(span);
       }
-      this.el.appendChild(span);
+
+      this.el.appendChild(p);
+    }
+  }
+
+  scrollToSelection() {
+    const focusedNode = document.getSelection()?.focusNode;
+    if (focusedNode) {
+      if (focusedNode instanceof Element || focusedNode instanceof HTMLElement) {
+        focusedNode.scrollIntoView(false);
+      } else {
+        focusedNode.parentElement?.scrollIntoView(false);
+      }
     }
   }
 
@@ -131,19 +190,33 @@ export class ContentEditableHelper {
   }
 
   private findSizeBeforeElement(nodeToFind: Node): number {
-    let it = this.iterateChildren(this.el);
     let usedCharacters = 0;
-    let current = it.next();
 
+    let it = iterateChildren(this.el);
+    let current = it.next();
+    let isFirstParagraph = true;
     while (!current.done && current.value !== nodeToFind) {
       if (!current.value.hasChildNodes()) {
         if (current.value.textContent) {
           usedCharacters += current.value.textContent.length;
         }
       }
+      // One new paragraph = one new line character, except for the first paragraph
+      if (current.value.nodeName === "P") {
+        if (isFirstParagraph) {
+          isFirstParagraph = false;
+        } else {
+          usedCharacters++;
+        }
+      }
       current = it.next();
     }
-
+    if (current.value !== nodeToFind) {
+      throw new Error("Cannot find the node in the children of the element");
+    }
+    if (nodeToFind.nodeName === "P" && !isFirstParagraph && nodeToFind.textContent == "") {
+      usedCharacters++;
+    }
     return usedCharacters;
   }
 
@@ -156,5 +229,27 @@ export class ContentEditableHelper {
       endElement: selection.focusNode || this.el,
       endSelectionOffset: selection.focusOffset,
     };
+  }
+
+  getText(): string {
+    let text = "";
+
+    let it = iterateChildren(this.el);
+    let current = it.next();
+    let isFirstParagraph = true;
+    while (!current.done) {
+      if (!current.value.hasChildNodes()) {
+        text += current.value.textContent;
+      }
+      if (current.value.nodeName === "P") {
+        if (isFirstParagraph) {
+          isFirstParagraph = false;
+        } else {
+          text += NEWLINE;
+        }
+      }
+      current = it.next();
+    }
+    return text;
   }
 }

@@ -4,6 +4,7 @@ import {
   NumberColor,
   tokenColor,
 } from "../../src/components/composer/composer/composer";
+import { NEWLINE } from "../../src/constants";
 import { fontSizes } from "../../src/fonts";
 import { colors, toHex, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
@@ -627,7 +628,7 @@ describe("composer", () => {
     setCellContent(model, "A1", "=A1+A2");
     await nextTick();
     const topbarComposerElement = fixture.querySelector(
-      ".o-topbar-toolbar .o-composer-container div"
+      ".o-spreadsheet-topbar .o-composer-container div"
     )!;
     expect(topbarComposerElement.textContent).toBe("=A1+A2");
   });
@@ -636,7 +637,7 @@ describe("composer", () => {
     setCellContent(model, "A1", "I am Tabouret");
     await clickCell(model, "A1");
     const topbarComposerElement = fixture.querySelector(
-      ".o-topbar-toolbar .o-composer-container div"
+      ".o-spreadsheet-topbar .o-composer-container div"
     )!;
     expect(topbarComposerElement.textContent).toBe("I am Tabouret");
     await simulateClick(topbarComposerElement);
@@ -648,7 +649,7 @@ describe("composer", () => {
     setCellContent(model, "A1", "I am Tabouret");
     await clickCell(model, "A1");
     const topbarComposerElement = fixture.querySelector(
-      ".o-topbar-toolbar .o-composer-container div"
+      ".o-spreadsheet-topbar .o-composer-container div"
     )!;
     expect(topbarComposerElement.textContent).toBe("I am Tabouret");
     await simulateClick(topbarComposerElement); // gain focus on topbar composer
@@ -659,7 +660,7 @@ describe("composer", () => {
 
   test("focus topbar composer then focus grid composer", async () => {
     const topbarComposerElement = fixture.querySelector(
-      ".o-topbar-toolbar .o-composer-container div"
+      ".o-spreadsheet-topbar .o-composer-container div"
     )!;
     await simulateClick(topbarComposerElement);
     expect(document.activeElement).toBe(topbarComposerElement);
@@ -1391,6 +1392,53 @@ describe("composer", () => {
     await keyDown("F4");
     expect(composerEl.textContent).toEqual("=A$1");
     expect(model.getters.getComposerSelection()).toEqual({ start: 4, end: 4 });
+  });
+
+  test("Can go to a new line in the composer with alt + enter or ctrl + enter", async () => {
+    await typeInComposerGrid("A");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 1, end: 1 });
+
+    await keyDown("Enter", { bubbles: true, altKey: true });
+    expect(model.getters.getComposerSelection()).toEqual({ start: 2, end: 2 });
+    expect(model.getters.getCurrentContent()).toEqual("A\n");
+
+    await keyDown("Enter", { bubbles: true, ctrlKey: true });
+    expect(model.getters.getComposerSelection()).toEqual({ start: 3, end: 3 });
+    expect(model.getters.getCurrentContent()).toEqual("A\n\n");
+
+    await typeInComposerGrid("C");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 4, end: 4 });
+    expect(model.getters.getCurrentContent()).toEqual("A\n\nC");
+
+    await keyDown("Enter");
+    expect(getCellContent(model, "A1")).toEqual("A\n\nC");
+  });
+
+  // test("Typing in the composer keeps the scroll", async () => {
+  //   jest
+  //   .spyOn(HTMLDivElement.prototype, "scrollTo")
+  //   .mockImplementation(function (this: HTMLDivElement) {
+  //     if (this.className.includes("o-composer-container")) {
+  //       scroll = 56;
+  //     }
+  //   });
+
+  //   setCellContent(model, "A1", NEWLINE.repeat(20));
+  //   composerEl = await startGridComposition();
+  //   const scroll = composerEl.parentElement!.scrollTop;
+  //   expect(scroll).not.toBe(0);
+  //   await typeInComposerGrid("h");
+  //   expect(composerEl.parentElement!.scrollTop).toEqual(scroll);
+  // });
+
+  test("Typing in the composer keeps the scroll", async () => {
+    // TODO : this isn't even a test, it's always true with jest DOM env
+    setCellContent(model, "A1", NEWLINE.repeat(20));
+    composerEl = await startGridComposition();
+    composerEl.parentElement!.scrollTop = 25;
+    expect(scroll).not.toBe(0);
+    await typeInComposerGrid("h");
+    expect(composerEl.parentElement!.scrollTop).toEqual(25);
   });
 });
 
