@@ -48,8 +48,6 @@ export interface ComposerSelection {
   end: number;
 }
 
-export const SelectionIndicator = "␣";
-
 export class EditionPlugin extends UIPlugin {
   static getters = [
     "getEditionMode",

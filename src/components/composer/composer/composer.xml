@@ -1,8 +1,9 @@
 <templates>
   <t t-name="o-spreadsheet-Composer" owl="1">
-    <div class="o-composer-container">
+    <div class="o-composer-container w-100 h-100">
       <div
-        t-att-class="{ 'o-composer': true, 'text-muted': env.model.getters.isReadonly(), 'unfocusable': env.model.getters.isReadonly() }"
+        class="o-composer w-100 text-start"
+        t-att-class="{ 'text-muted': env.model.getters.isReadonly(), 'unfocusable': env.model.getters.isReadonly() }"
         t-att-style="props.inputStyle"
         t-ref="o_composer"
         tabindex="1"
@@ -10,6 +11,7 @@
         spellcheck="false"
         t-on-keydown="onKeydown"
         t-on-mousedown="onMousedown"
+        t-on-mousewheel.stop=""
         t-on-input="onInput"
         t-on-keyup="onKeyup"
         t-on-click.stop="onClick"
@@ -20,7 +22,10 @@
       <div
         t-if="props.focus !== 'inactive' and (autoCompleteState.showProvider or functionDescriptionState.showDescription)"
         class="o-composer-assistant"
-        t-att-style="assistantStyle">
+        t-att-style="assistantStyle"
+        t-on-mousedown.prevent.stop=""
+        t-on-click.prevent.stop=""
+        t-on-mouseup.prevent.stop="">
         <TextValueProvider
           t-if="autoCompleteState.showProvider"
           values="autoCompleteState.values"

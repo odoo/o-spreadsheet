@@ -1,9 +1,9 @@
 import { App } from "@odoo/owl";
 import {
-  MatchingParenColor,
-  NumberColor,
-  tokenColor,
+  selectionIndicatorClass,
+  tokenColors,
 } from "../../src/components/composer/composer/composer";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, HEADER_HEIGHT } from "../../src/constants";
 import { fontSizes } from "../../src/fonts";
 import { colors, toHex, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
@@ -15,11 +15,14 @@ import {
   createSheetWithName,
   merge,
   resizeAnchorZone,
+  resizeColumns,
+  resizeRows,
   selectCell,
   setCellContent,
 } from "../test_helpers/commands_helpers";
 import {
   clickCell,
+  getElComputedStyle,
   gridMouseEvent,
   hoverCell,
   keyDown,
@@ -44,6 +47,7 @@ import {
   toRangesData,
   typeInComposerGrid as typeInComposerGridHelper,
 } from "../test_helpers/helpers";
+import { HEADER_WIDTH } from "./../../src/constants";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
@@ -627,7 +631,7 @@ describe("composer", () => {
     setCellContent(model, "A1", "=A1+A2");
     await nextTick();
     const topbarComposerElement = fixture.querySelector(
-      ".o-topbar-toolbar .o-composer-container div"
+      ".o-spreadsheet-topbar .o-composer-container div"
     )!;
     expect(topbarComposerElement.textContent).toBe("=A1+A2");
   });
@@ -636,7 +640,7 @@ describe("composer", () => {
     setCellContent(model, "A1", "I am Tabouret");
     await clickCell(model, "A1");
     const topbarComposerElement = fixture.querySelector(
-      ".o-topbar-toolbar .o-composer-container div"
+      ".o-spreadsheet-topbar .o-composer-container div"
     )!;
     expect(topbarComposerElement.textContent).toBe("I am Tabouret");
     await simulateClick(topbarComposerElement);
@@ -648,7 +652,7 @@ describe("composer", () => {
     setCellContent(model, "A1", "I am Tabouret");
     await clickCell(model, "A1");
     const topbarComposerElement = fixture.querySelector(
-      ".o-topbar-toolbar .o-composer-container div"
+      ".o-spreadsheet-topbar .o-composer-container div"
     )!;
     expect(topbarComposerElement.textContent).toBe("I am Tabouret");
     await simulateClick(topbarComposerElement); // gain focus on topbar composer
@@ -659,7 +663,7 @@ describe("composer", () => {
 
   test("focus topbar composer then focus grid composer", async () => {
     const topbarComposerElement = fixture.querySelector(
-      ".o-topbar-toolbar .o-composer-container div"
+      ".o-spreadsheet-topbar .o-composer-container div"
     )!;
     await simulateClick(topbarComposerElement);
     expect(document.activeElement).toBe(topbarComposerElement);
@@ -991,7 +995,56 @@ describe("composer", () => {
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer")!);
   });
 
-  describe("composer's style depends on the style of the cell", () => {
+  describe("grid composer basic style", () => {
+    const composerContainerSelector = ".o-grid .o-grid-composer";
+    const composerSelector = composerContainerSelector + " .o-composer";
+
+    test("Grid composer snapshot", async () => {
+      await typeInComposerGrid("A");
+      expect(fixture.querySelector(composerContainerSelector)).toMatchSnapshot();
+    });
+
+    test("Grid composer container is positioned over the edited cell", async () => {
+      selectCell(model, "C3");
+      await typeInComposerGrid("A");
+
+      const expectedTop = HEADER_HEIGHT + 2 * DEFAULT_CELL_HEIGHT;
+      const expectedLeft = HEADER_WIDTH + 2 * DEFAULT_CELL_WIDTH - 1; //-1 to include cell border
+
+      expect(getElComputedStyle(composerContainerSelector, "top")).toBe(expectedTop + "px");
+      expect(getElComputedStyle(composerContainerSelector, "left")).toBe(expectedLeft + "px");
+    });
+
+    test("Grid composer container have a min-height / min-width to have the same size as the edited cell ", async () => {
+      resizeRows(model, [0], 40);
+      resizeColumns(model, ["A"], 50);
+      await typeInComposerGrid("A");
+
+      let expectedMinHeight = 40 + 1; // +1 to include cell border
+      let expectedMinWidth = 50 + 1;
+
+      expect(getElComputedStyle(composerContainerSelector, "min-height")).toBe(
+        expectedMinHeight + "px"
+      );
+      expect(getElComputedStyle(composerContainerSelector, "min-width")).toBe(
+        expectedMinWidth + "px"
+      );
+    });
+
+    test("Grid composer have a max-height / max-width to avoid overflow outside of grid", async () => {
+      selectCell(model, "C3");
+      await typeInComposerGrid("A");
+
+      const sheetViewDims = model.getters.getSheetViewDimension();
+      const expectedMaxHeight = sheetViewDims.height - 2 * DEFAULT_CELL_HEIGHT;
+      const expectedMaxWidth = sheetViewDims.width - 2 * DEFAULT_CELL_WIDTH;
+
+      expect(getElComputedStyle(composerSelector, "max-height")).toBe(expectedMaxHeight + "px");
+      expect(getElComputedStyle(composerSelector, "max-width")).toBe(expectedMaxWidth + "px");
+    });
+  });
+
+  describe("grid composer's style depends on the style of the cell", () => {
     test("with text color", async () => {
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
@@ -1124,7 +1177,7 @@ describe("composer", () => {
     });
   });
 
-  describe("composer's style does not depend on the style of the cell when it is a formula", () => {
+  describe("grid composer's style does not depend on the style of the cell when it is a formula", () => {
     test("with text color", async () => {
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
@@ -1392,6 +1445,26 @@ describe("composer", () => {
     expect(composerEl.textContent).toEqual("=A$1");
     expect(model.getters.getComposerSelection()).toEqual({ start: 4, end: 4 });
   });
+
+  test("Can go to a new line in the composer with alt + enter or ctrl + enter", async () => {
+    await typeInComposerGrid("A");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 1, end: 1 });
+
+    await keyDown("Enter", { bubbles: true, altKey: true });
+    expect(model.getters.getComposerSelection()).toEqual({ start: 2, end: 2 });
+    expect(model.getters.getCurrentContent()).toEqual("A\n");
+
+    await keyDown("Enter", { bubbles: true, ctrlKey: true });
+    expect(model.getters.getComposerSelection()).toEqual({ start: 3, end: 3 });
+    expect(model.getters.getCurrentContent()).toEqual("A\n\n");
+
+    await typeInComposerGrid("C");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 4, end: 4 });
+    expect(model.getters.getCurrentContent()).toEqual("A\n\nC");
+
+    await keyDown("Enter");
+    expect(getCellContent(model, "A1")).toEqual("A\n\nC");
+  });
 });
 
 describe("composer formula color", () => {
@@ -1399,70 +1472,70 @@ describe("composer formula color", () => {
     composerEl = await typeInComposerGrid("=SUM");
     // @ts-ignore
     const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
-    expect(contentColors["SUM"]).toBe(tokenColor["FUNCTION"]);
+    expect(contentColors["SUM"]).toBe(tokenColors["FUNCTION"]);
   });
 
   test('type "=SUM(" --> left parenthesis should be highlighted', async () => {
     composerEl = await typeInComposerGrid("=SUM(");
     // @ts-ignore
     const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
-    expect(contentColors["("]).toBe(MatchingParenColor);
+    expect(contentColors["("]).toBe(tokenColors.MATCHING_PAREN);
   });
 
   test('type "=SUM(1" --> left parenthesis should have specific parenthesis color', async () => {
     composerEl = await typeInComposerGrid("=SUM(1");
     // @ts-ignore
     const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
-    expect(contentColors["("]).toBe(tokenColor["LEFT_PAREN"]);
+    expect(contentColors["("]).toBe(tokenColors["LEFT_PAREN"]);
   });
 
   test('type "=SUM(1" --> number should have specific number color', async () => {
     composerEl = await typeInComposerGrid("=SUM(1");
     // @ts-ignore
     const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
-    expect(contentColors["1"]).toBe(tokenColor["NUMBER"]);
+    expect(contentColors["1"]).toBe(tokenColors["NUMBER"]);
   });
 
   test('type "=SUM(1," --> comma should have specific comma color', async () => {
     composerEl = await typeInComposerGrid("=SUM(1,");
     // @ts-ignore
     const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
-    expect(contentColors[","]).toBe(tokenColor["COMMA"]);
+    expect(contentColors[","]).toBe(tokenColors["COMMA"]);
   });
 
   test(`type '=SUM(1, "2"' --> string should have specific string color`, async () => {
     composerEl = await typeInComposerGrid('=SUM(1, "2"');
     // @ts-ignore
     const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
-    expect(contentColors[`"2"`]).toBe(tokenColor["STRING"]);
+    expect(contentColors[`"2"`]).toBe(tokenColors["STRING"]);
   });
 
   test(`type '=SUM(1, "2")' --> right parenthesis should be highlighted`, async () => {
     composerEl = await typeInComposerGrid('=SUM(1, "2")');
     // @ts-ignore
     const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
-    expect(contentColors[")"]).toBe(MatchingParenColor);
+    expect(contentColors[")"]).toBe(tokenColors.MATCHING_PAREN);
   });
 
   test(`type '=SUM(1, "2") +' --> right parenthesis should have specific parenthesis color`, async () => {
     composerEl = await typeInComposerGrid('=SUM(1, "2") +');
     // @ts-ignore
     const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
-    expect(contentColors[")"]).toBe(tokenColor["RIGHT_PAREN"]);
+    expect(contentColors[")"]).toBe(tokenColors["RIGHT_PAREN"]);
   });
 
   test(`type '=SUM(1, "2") +' --> operator should have specific operator color`, async () => {
     composerEl = await typeInComposerGrid('=SUM(1, "2") +');
     // @ts-ignore
     const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
-    expect(contentColors["+"]).toBe(tokenColor["OPERATOR"]);
+    expect(contentColors["+"]).toBe(tokenColors["OPERATOR"]);
   });
 
   test(`type '=SUM(1, "2") + TRUE' --> boolean should have specific bolean color`, async () => {
     composerEl = await typeInComposerGrid('=SUM(1, "2") + TRUE');
     // @ts-ignore
     const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
-    expect(contentColors["TRUE"]).toBe(NumberColor);
+    expect(contentColors["TRUE"]).toBe(tokenColors.NUMBER);
   });
 });
 
@@ -1536,6 +1609,74 @@ describe("composer highlights color", () => {
   });
 
   test("grid composer is resized when top bar composer grows", async () => {});
+});
+
+describe("Composer string is correctly translated to HtmlContents[][] for the contentEditableHelper", () => {
+  test("Simple string", async () => {
+    await typeInComposerGrid("I'm a simple content");
+    expect(cehMock.contents).toEqual([[{ value: "I'm a simple content" }]]);
+  });
+
+  test("Simple formula", async () => {
+    await typeInComposerGrid("=1 + A1");
+    expect(cehMock.contents).toEqual([
+      [
+        { value: "=", color: tokenColors.OPERATOR },
+        { value: "1", color: tokenColors.NUMBER },
+        { value: " ", color: "#000" },
+        { value: "+", color: tokenColors.OPERATOR },
+        { value: " ", color: "#000" },
+        { value: "A1", color: cehMock.colors["A1"] },
+      ],
+    ]);
+  });
+
+  test("Selection indicator in simple formula", async () => {
+    await typeInComposerGrid("=");
+    expect(cehMock.contents).toEqual([
+      [{ value: "=", color: tokenColors.OPERATOR, class: selectionIndicatorClass }],
+    ]);
+  });
+
+  test("Multi-line string", async () => {
+    await typeInComposerGrid("\nI'm\nmulti\n\nline\n");
+    expect(cehMock.contents).toEqual([
+      [{ value: "" }],
+      [{ value: "I'm" }],
+      [{ value: "multi" }],
+      [{ value: "" }],
+      [{ value: "line" }],
+      [{ value: "" }],
+    ]);
+  });
+
+  test("Multi-line formula", async () => {
+    await typeInComposerGrid("=\nA1: \nA2\n\n+SUM(\n5)");
+    expect(cehMock.contents).toEqual([
+      [{ value: "=", color: tokenColors.OPERATOR }],
+      [{ value: "A1: ", color: cehMock.colors["A1: "] }],
+      [{ value: "A2", color: cehMock.colors["A1: "] }],
+      [{ value: "", color: "#000" }],
+      [
+        { value: "+", color: tokenColors.OPERATOR },
+        { value: "SUM", color: tokenColors.FUNCTION },
+        { value: "(", color: tokenColors.MATCHING_PAREN },
+      ],
+      [
+        { value: "5", color: tokenColors.NUMBER },
+        { value: ")", color: tokenColors.MATCHING_PAREN },
+      ],
+    ]);
+  });
+
+  test("Selection indicator in multi-line formula", async () => {
+    await typeInComposerGrid("=\n\n");
+    expect(cehMock.contents).toEqual([
+      [{ value: "=", color: tokenColors.OPERATOR }],
+      [{ value: "", color: "#000" }],
+      [{ value: "", color: "#000", class: selectionIndicatorClass }],
+    ]);
+  });
 });
 
 describe("Copy/paste in composer", () => {

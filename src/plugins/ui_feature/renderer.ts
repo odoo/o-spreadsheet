@@ -597,13 +597,15 @@ export class RendererPlugin extends UIPlugin {
     const headerIconWidth = box.isFilterHeader ? FILTER_ICON_EDGE_LENGTH + FILTER_ICON_MARGIN : 0;
 
     /** Content */
-    const text = this.getters.getCellText(position, showFormula);
-    const textWidth = this.getters.getTextWidth(position) + MIN_CELL_TEXT_MARGIN;
-    const wrapping = this.getters.getCellStyle(position).wrapping || "overflow";
-    const multiLineText =
-      wrapping === "wrap"
-        ? this.getters.getCellMultiLineText(position, width - 2 * MIN_CELL_TEXT_MARGIN)
-        : [text];
+    const style = this.getters.getCellComputedStyle(position);
+    const wrapping = style.wrapping || "overflow";
+    const maxWidth =
+      wrapping === "wrap" && !showFormula ? width - 2 * MIN_CELL_TEXT_MARGIN : undefined;
+    const multiLineText = this.getters.getCellMultiLineText(position, maxWidth);
+    const textWidth = Math.max(
+      ...multiLineText.map((line) => this.getters.getTextWidth(line, style) + MIN_CELL_TEXT_MARGIN)
+    );
+
     const contentWidth = iconBoxWidth + textWidth + headerIconWidth;
     const align = this.computeCellAlignment(position, contentWidth > width);
     box.content = {
@@ -646,7 +648,7 @@ export class RendererPlugin extends UIPlugin {
           const { x, y, width, height } = this.getters.getVisibleRect(
             union(zone, emptyZoneOnTheLeft)
           );
-          if (width < contentWidth || fontSizePX > height) {
+          if (width < contentWidth || fontSizePX > height || multiLineText.length > 1) {
             box.clipRect = { x, y, width, height };
           }
           break;
@@ -656,7 +658,7 @@ export class RendererPlugin extends UIPlugin {
           const { x, y, width, height } = this.getters.getVisibleRect(
             union(zone, emptyZoneOnTheRight)
           );
-          if (width < contentWidth || fontSizePX > height) {
+          if (width < contentWidth || fontSizePX > height || multiLineText.length > 1) {
             box.clipRect = { x, y, width, height };
           }
           break;
@@ -673,7 +675,8 @@ export class RendererPlugin extends UIPlugin {
           if (
             x + width < boxMiddle + halfContentWidth ||
             x > boxMiddle - halfContentWidth ||
-            fontSizePX > height
+            fontSizePX > height ||
+            multiLineText.length > 1
           ) {
             const clipX = x > boxMiddle - halfContentWidth ? x : boxMiddle - halfContentWidth;
             const clipWidth = x + width - clipX;
@@ -682,7 +685,7 @@ export class RendererPlugin extends UIPlugin {
           break;
         }
       }
-    } else if (wrapping === "clip" || wrapping === "wrap") {
+    } else if (wrapping === "clip" || wrapping === "wrap" || multiLineText.length > 1) {
       box.clipRect = {
         x: box.x,
         y: box.y,

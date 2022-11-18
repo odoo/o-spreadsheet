@@ -25,3 +25,24 @@ export function getBoundingRectAsPOJO(el: Element): Rect {
     height: rect.height,
   };
 }
+
+/**
+ * Iterate over all the children of `el` in the dom tree starting at `el`, depth first.
+ */
+export function* iterateChildren(el: Node): Generator<Node> {
+  yield el;
+  if (el.hasChildNodes()) {
+    for (let child of el.childNodes) {
+      yield* iterateChildren(child);
+    }
+  }
+}
+
+export function getElementScrollTop(el: HTMLElement | null): number {
+  return el?.scrollTop || 0;
+}
+
+export function setElementScrollTop(el: HTMLElement | null, scroll: number) {
+  if (!el) return;
+  el.scrollTop = scroll;
+}

@@ -21,6 +21,7 @@ export const LINK_COLOR = "#01666b";
 export const FILTERS_COLOR = "#188038";
 export const BACKGROUND_HEADER_FILTER_COLOR = "#E6F4EA";
 export const BACKGROUND_HEADER_SELECTED_FILTER_COLOR = "#CEEAD6";
+export const SEPARATOR_COLOR = "#E0E2E4";
 
 // Color picker
 export const COLOR_PICKER_DEFAULTS = [
@@ -112,6 +113,7 @@ export const MIN_COL_WIDTH = 5;
 export const HEADER_HEIGHT = 26;
 export const HEADER_WIDTH = 48;
 export const TOPBAR_HEIGHT = 63;
+export const TOPBAR_TOOLBAR_HEIGHT = 34;
 export const BOTTOMBAR_HEIGHT = 36;
 export const DEFAULT_CELL_WIDTH = 96;
 export const DEFAULT_CELL_HEIGHT = 23;
@@ -198,7 +200,8 @@ export enum ComponentsImportance {
   Figure = 10,
   Dropdown = 12,
   ScrollBar = 15,
-  Composer = 20,
+  GridComposer = 20,
+  TopBarComposer = 21,
   ColorPicker = 25,
   IconPicker = 25,
   Popover = 30,

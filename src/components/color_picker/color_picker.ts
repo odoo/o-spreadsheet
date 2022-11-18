@@ -4,6 +4,7 @@ import {
   ComponentsImportance,
   MENU_SEPARATOR_BORDER_WIDTH,
   MENU_SEPARATOR_PADDING,
+  SEPARATOR_COLOR,
 } from "../../constants";
 import { hslaToRGBA, isColorValid, rgbaToHex } from "../../helpers";
 import { chartFontColor } from "../../helpers/figures/charts";
@@ -90,7 +91,7 @@ css/* scss */ `
       }
     }
     .o-separator {
-      border-bottom: ${MENU_SEPARATOR_BORDER_WIDTH}px solid #e0e2e4;
+      border-bottom: ${MENU_SEPARATOR_BORDER_WIDTH}px solid ${SEPARATOR_COLOR};
       margin-top: ${MENU_SEPARATOR_PADDING}px;
       margin-bottom: ${MENU_SEPARATOR_PADDING}px;
     }
