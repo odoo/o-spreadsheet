@@ -155,7 +155,7 @@ describe("navigation", () => {
         },
       ],
     });
-    expect(model.getters.getPosition()).toEqual(toCartesian("A1"));
+    expect(getActiveXc(model)).toEqual("A1");
 
     // put selection below merge
     selectCell(model, "B3");
@@ -166,12 +166,12 @@ describe("navigation", () => {
     expect(getActiveXc(model)).toBe("B2");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
-    expect(model.getters.getPosition()).toEqual(toCartesian("B2"));
+    expect(getActiveXc(model)).toEqual("B2");
 
     // move to the top, outside the merge
     moveAnchorCell(model, "up");
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
-    expect(model.getters.getPosition()).toEqual(toCartesian("B2"));
+    expect(getActiveXc(model)).toEqual("B2");
   });
 
   test("move right from right col (of the viewport)", () => {

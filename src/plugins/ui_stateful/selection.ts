@@ -7,6 +7,7 @@ import {
   formatValue,
   isEqual,
   positions,
+  positionToZone,
   uniqueZones,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
@@ -386,7 +387,11 @@ export class GridSelectionPlugin extends UIPlugin {
   }
 
   getPosition(): Position {
-    return { col: this.gridSelection.anchor.cell.col, row: this.gridSelection.anchor.cell.row };
+    return this.getters.getMainCellPosition(
+      this.getActiveSheetId(),
+      this.gridSelection.anchor.cell.col,
+      this.gridSelection.anchor.cell.row
+    );
   }
 
   getSheetPosition(sheetId: UID): Position {
@@ -724,12 +729,7 @@ export class GridSelectionPlugin extends UIPlugin {
     if (this.getters.isInMerge(activeSheet, col, row)) {
       zone = this.getters.getMerge(activeSheet, col, row)!;
     } else {
-      zone = {
-        top: row,
-        bottom: row,
-        left: col,
-        right: col,
-      };
+      zone = positionToZone({ col, row });
     }
     const { x, y, width, height } = this.getters.getVisibleRect(zone);
     if (width > 0 && height > 0) {

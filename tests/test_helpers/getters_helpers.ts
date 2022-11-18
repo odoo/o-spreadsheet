@@ -17,7 +17,7 @@ import { setSelection } from "./commands_helpers";
  * Get the active XC
  */
 export function getActiveXc(model: Model): string {
-  const { col, row } = model.getters.getPosition();
+  const { col, row } = model.getters.getSelection().anchor.cell;
   return toXC(col, row);
 }
 
