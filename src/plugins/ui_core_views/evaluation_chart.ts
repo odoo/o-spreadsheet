@@ -74,7 +74,8 @@ export class EvaluationChartPlugin extends UIPlugin {
     }
     const col = mainRange.zone.left;
     const row = mainRange.zone.top;
-    const style = this.getters.getCellComputedStyle(mainRange.sheetId, col, row);
+    const sheetId = mainRange.sheetId;
+    const style = this.getters.getCellComputedStyle({ sheetId, col, row });
     return style.fillColor || BACKGROUND_CHART_COLOR;
   }
 }

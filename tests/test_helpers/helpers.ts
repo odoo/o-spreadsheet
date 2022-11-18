@@ -307,7 +307,7 @@ export function XCToMergeCellMap(
   const sheetId = model.getters.getActiveSheetId();
   for (const mergeXC of mergeXCList) {
     const { col, row } = toCartesian(mergeXC);
-    const merge = model.getters.getMerge(sheetId, col, row);
+    const merge = model.getters.getMerge({ sheetId, col, row });
     if (!mergeCellMap[col]) mergeCellMap[col] = [];
     mergeCellMap[col][row] = merge ? merge.id : undefined;
   }
@@ -498,10 +498,6 @@ export const mockChart = () => {
   return mockChartData;
 };
 
-export function toCartesianArray(xc: string): [number, number] {
-  const { col, row } = toCartesian(xc);
-  return [col, row];
-}
 interface CellValue {
   value: string | number | boolean;
   style?: Style;

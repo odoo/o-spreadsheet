@@ -391,7 +391,7 @@ describe("core", () => {
   test("core cell getter does not crash if invalid col/row", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    expect(model.getters.getCell(sheetId, -1, -1)).toBeUndefined();
+    expect(model.getters.getCell({ sheetId, col: -1, row: -1 })).toBeUndefined();
   });
 
   test("single cell XC conversion", () => {

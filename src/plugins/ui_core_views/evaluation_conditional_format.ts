@@ -18,6 +18,7 @@ import {
   IconThreshold,
   invalidateCFEvaluationCommands,
   NumberCell,
+  Position,
   Style,
   UID,
   Zone,
@@ -79,27 +80,28 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getCellComputedStyle(sheetId: UID, col: HeaderIndex, row: HeaderIndex): Style {
+  getCellComputedStyle(position: CellPosition): Style {
     // TODO move this getter out of CF: it also depends on filters and link
-    const cell = this.getters.getCell(sheetId, col, row);
+    const { sheetId, col, row } = position;
+    const cell = this.getters.getCell(position);
     const styles = this.computedStyles[sheetId];
     const cfStyle = styles && styles[col]?.[row];
     const computedStyle = {
       ...cell?.style,
       ...cfStyle,
     };
-    const evaluatedCell = this.getters.getEvaluatedCell({ sheetId, col, row });
+    const evaluatedCell = this.getters.getEvaluatedCell(position);
     if (evaluatedCell.link && !computedStyle.textColor) {
       computedStyle.textColor = LINK_COLOR;
     }
 
-    if (this.getters.isFilterHeader(sheetId, col, row)) {
+    if (this.getters.isFilterHeader(position)) {
       computedStyle.bold = true;
     }
     return computedStyle;
   }
 
-  getConditionalIcon(col: HeaderIndex, row: HeaderIndex): string | undefined {
+  getConditionalIcon({ col, row }: Position): string | undefined {
     const activeSheet = this.getters.getActiveSheetId();
     const icon = this.computedIcons[activeSheet];
     return icon && icon[col]?.[row];

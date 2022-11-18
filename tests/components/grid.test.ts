@@ -12,7 +12,7 @@ import {
   MESSAGE_VERSION,
   SCROLLBAR_WIDTH,
 } from "../../src/constants";
-import { toHex, toZone, zoneToXc } from "../../src/helpers";
+import { toCartesian, toHex, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { chartComponentRegistry } from "../../src/registries";
 import {
@@ -40,10 +40,10 @@ import {
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import {
-  getActiveXc,
   getCell,
   getCellContent,
   getCellText,
+  getSelectionAnchorCellXc,
   getStyle,
 } from "../test_helpers/getters_helpers";
 import {
@@ -110,7 +110,7 @@ describe("Grid component", () => {
     setCellContent(model, "B2", "b2");
     setCellContent(model, "B3", "b3");
     await clickCell(model, "C8");
-    expect(getActiveXc(model)).toBe("C8");
+    expect(getSelectionAnchorCellXc(model)).toBe("C8");
   });
 
   test("can click on resizer, then move selection with keyboard", async () => {
@@ -120,7 +120,7 @@ describe("Grid component", () => {
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true })
     );
-    expect(getActiveXc(model)).toBe("A2");
+    expect(getSelectionAnchorCellXc(model)).toBe("A2");
   });
 
   test("can shift-click on a cell to update selection", async () => {
@@ -265,7 +265,7 @@ describe("Grid component", () => {
       document
         .querySelector(".o-grid")!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-      expect(getActiveXc(model)).toBe("A1");
+      expect(getSelectionAnchorCellXc(model)).toBe("A1");
       expect(model.getters.getEditionMode()).toBe("editing");
     });
 
@@ -275,7 +275,7 @@ describe("Grid component", () => {
       fixture
         .querySelector("div.o-composer")!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-      expect(getActiveXc(model)).toBe("A2");
+      expect(getSelectionAnchorCellXc(model)).toBe("A2");
       expect(model.getters.getEditionMode()).toBe("inactive");
       expect(getCellContent(model, "A1")).toBe("a");
     });
@@ -286,20 +286,20 @@ describe("Grid component", () => {
       fixture
         .querySelector("div.o-grid")!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Backspace" }));
-      expect(getActiveXc(model)).toBe("A1");
+      expect(getSelectionAnchorCellXc(model)).toBe("A1");
       expect(model.getters.getEditionMode()).toBe("inactive");
       expect(getCellContent(model, "A1")).toBe("");
     });
 
     test("pressing shift+ENTER in edit mode stop editing and move one cell up", async () => {
       selectCell(model, "A2");
-      expect(getActiveXc(model)).toBe("A2");
+      expect(getSelectionAnchorCellXc(model)).toBe("A2");
       model.dispatch("START_EDITION", { text: "a" });
       await nextTick();
       fixture
         .querySelector("div.o-composer")!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", shiftKey: true }));
-      expect(getActiveXc(model)).toBe("A1");
+      expect(getSelectionAnchorCellXc(model)).toBe("A1");
       expect(model.getters.getEditionMode()).toBe("inactive");
       expect(getCellContent(model, "A2")).toBe("a");
     });
@@ -310,7 +310,7 @@ describe("Grid component", () => {
       fixture
         .querySelector("div.o-composer")!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", shiftKey: true }));
-      expect(getActiveXc(model)).toBe("A1");
+      expect(getSelectionAnchorCellXc(model)).toBe("A1");
       expect(model.getters.getEditionMode()).toBe("inactive");
       expect(getCellContent(model, "A1")).toBe("a");
     });
@@ -319,16 +319,16 @@ describe("Grid component", () => {
       document
         .querySelector(".o-grid")!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
-      expect(getActiveXc(model)).toBe("B1");
+      expect(getSelectionAnchorCellXc(model)).toBe("B1");
     });
 
     test("pressing shift+TAB move to previous cell", async () => {
       selectCell(model, "B1");
-      expect(getActiveXc(model)).toBe("B1");
+      expect(getSelectionAnchorCellXc(model)).toBe("B1");
       document
         .querySelector(".o-grid")!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true }));
-      expect(getActiveXc(model)).toBe("A1");
+      expect(getSelectionAnchorCellXc(model)).toBe("A1");
     });
 
     test("can undo/redo with keyboard", async () => {
@@ -378,16 +378,16 @@ describe("Grid component", () => {
       setCellContent(model, "A2", "3");
 
       pressCtrlA();
-      expect(getActiveXc(model)).toBe("A1");
+      expect(getSelectionAnchorCellXc(model)).toBe("A1");
       expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A1:A2");
 
       pressCtrlA();
-      expect(getActiveXc(model)).toBe("A1");
+      expect(getSelectionAnchorCellXc(model)).toBe("A1");
       const sheetId = model.getters.getActiveSheetId();
       expect(model.getters.getSelectedZone()).toEqual(model.getters.getSheetZone(sheetId));
 
       pressCtrlA();
-      expect(getActiveXc(model)).toBe("A1");
+      expect(getSelectionAnchorCellXc(model)).toBe("A1");
       expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A1");
     });
 
@@ -645,7 +645,8 @@ describe("Grid component", () => {
 
       updateFilter(model, "A1", ["5"]);
       await nextTick();
-      expect(model.getters.isFilterActive(model.getters.getActiveSheetId(), 0, 0)).toBeTruthy();
+      const sheetId = model.getters.getActiveSheetId();
+      expect(model.getters.isFilterActive({ sheetId, ...toCartesian("A1") })).toBeTruthy();
       expect(grid.querySelectorAll(".filter-icon")).toHaveLength(0);
       expect(grid.querySelectorAll(".filter-icon-active")).toHaveLength(1);
     });
@@ -689,7 +690,7 @@ describe("Grid component", () => {
       expect(fixture.querySelector(".o-error-tooltip")).not.toBeNull();
       await scrollGrid({ deltaY: 100 });
       const sheetId = model.getters.getActiveSheetId();
-      expect(model.getters.isVisibleInViewport(sheetId, 0, 9)).toBe(true);
+      expect(model.getters.isVisibleInViewport({ sheetId, col: 0, row: 9 })).toBe(true);
       expect(fixture.querySelector(".o-error-tooltip")).toBeNull();
     });
 
@@ -703,7 +704,7 @@ describe("Grid component", () => {
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
       await scrollGrid({ deltaY: DEFAULT_CELL_HEIGHT });
       const sheetId = model.getters.getActiveSheetId();
-      expect(model.getters.isVisibleInViewport(sheetId, 0, 0)).toBe(false);
+      expect(model.getters.isVisibleInViewport({ sheetId, col: 0, row: 0 })).toBe(false);
       expect(fixture.querySelector(".o-link-editor")).toBeNull();
     });
 
@@ -717,7 +718,7 @@ describe("Grid component", () => {
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
       await scrollGrid({ deltaY: DEFAULT_CELL_HEIGHT - 5 });
       const sheetId = model.getters.getActiveSheetId();
-      expect(model.getters.isVisibleInViewport(sheetId, 0, 0)).toBe(true);
+      expect(model.getters.isVisibleInViewport({ sheetId, col: 0, row: 0 })).toBe(true);
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
     });
   });
@@ -935,17 +936,17 @@ describe("Events on Grid update viewport correctly", () => {
   });
   test("Move selection with keyboard", async () => {
     await clickCell(model, "I1");
-    expect(getActiveXc(model)).toBe("I1");
+    expect(getSelectionAnchorCellXc(model)).toBe("I1");
     const viewport = model.getters.getActiveMainViewport();
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
     );
-    expect(getActiveXc(model)).toBe("J1");
+    expect(getSelectionAnchorCellXc(model)).toBe("J1");
     expect(model.getters.getActiveMainViewport()).toMatchObject(viewport);
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
     );
-    expect(getActiveXc(model)).toBe("K1");
+    expect(getSelectionAnchorCellXc(model)).toBe("K1");
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       ...viewport,
       left: 1,
@@ -1084,7 +1085,7 @@ describe("Events on Grid update viewport correctly", () => {
 
   test("Alter selection with keyboard", async () => {
     await clickCell(model, "I1");
-    expect(getActiveXc(model)).toBe("I1");
+    expect(getSelectionAnchorCellXc(model)).toBe("I1");
     const viewport = model.getters.getActiveMainViewport();
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowRight", shiftKey: true, bubbles: true })

@@ -344,7 +344,7 @@ export class AutofillPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     for (let xc of source) {
       const { col, row } = toCartesian(xc);
-      const cell = this.getters.getCell(sheetId, col, row);
+      const cell = this.getters.getCell({ sheetId, col, row });
       cellsData.push({
         col,
         row,
@@ -359,8 +359,7 @@ export class AutofillPlugin extends UIPlugin {
         const newRule = this.getRule(cellData.cell, cells);
         rule = newRule || rule;
       }
-      const { sheetId, col, row } = cellData;
-      const border = this.getters.getCellBorder(sheetId, col, row) || undefined;
+      const border = this.getters.getCellBorder(cellData) || undefined;
       nextCells.push({
         data: { ...cellData, border },
         rule,
@@ -406,23 +405,22 @@ export class AutofillPlugin extends UIPlugin {
     col: HeaderIndex,
     row: HeaderIndex
   ) {
-    const activeSheet = this.getters.getActiveSheet();
-    if (
-      this.getters.isInMerge(activeSheet.id, col, row) &&
-      !this.getters.isInMerge(activeSheet.id, originCol, originRow)
-    ) {
-      const zone = this.getters.getMerge(activeSheet.id, col, row);
+    const sheetId = this.getters.getActiveSheetId();
+    const position = { sheetId, col, row };
+    const originPosition = { sheetId, col: originCol, row: originRow };
+    if (this.getters.isInMerge(position) && !this.getters.isInMerge(originPosition)) {
+      const zone = this.getters.getMerge(position);
       if (zone) {
         this.dispatch("REMOVE_MERGE", {
-          sheetId: activeSheet.id,
+          sheetId,
           target: [zone],
         });
       }
     }
-    const originMerge = this.getters.getMerge(activeSheet.id, originCol, originRow);
+    const originMerge = this.getters.getMerge(originPosition);
     if (originMerge?.topLeft.col === originCol && originMerge?.topLeft.row === originRow) {
       this.dispatch("ADD_MERGE", {
-        sheetId: activeSheet.id,
+        sheetId,
         target: [
           {
             top: row,

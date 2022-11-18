@@ -156,7 +156,7 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
 
   private getFilterValues(position: Position): Value[] {
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const filter = this.env.model.getters.getFilter(sheetId, position.col, position.row);
+    const filter = this.env.model.getters.getFilter({ sheetId, ...position });
     if (!filter) {
       return [];
     }
@@ -168,11 +168,7 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
           this.env.model.getters.getEvaluatedCell({ sheetId, col, row }).formattedValue
       );
 
-    const filterValues = this.env.model.getters.getFilterValues(
-      sheetId,
-      position.col,
-      position.row
-    );
+    const filterValues = this.env.model.getters.getFilterValues({ sheetId, ...position });
 
     const strValues = [...cellValues, ...filterValues];
     const normalizedFilteredValues = filterValues.map(toLowerCase);
@@ -216,7 +212,7 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
   get filterTable() {
     const sheetId = this.env.model.getters.getActiveSheetId();
     const position = this.props.filterPosition;
-    return this.env.model.getters.getFilterTable(sheetId, position.col, position.row);
+    return this.env.model.getters.getFilterTable({ sheetId, ...position });
   }
 
   get displayedValues() {

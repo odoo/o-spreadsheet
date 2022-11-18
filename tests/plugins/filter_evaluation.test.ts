@@ -107,7 +107,7 @@ describe("Filter Evaluation Plugin", () => {
     const zone = toZone("A7:B9");
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
-        const filterBorder = model.getters.getCellBorderWithFilterBorder(sheetId, col, row);
+        const filterBorder = model.getters.getCellBorderWithFilterBorder({ sheetId, col, row });
         const expected = {};
         expected["top"] = row === zone.top ? DEFAULT_FILTER_BORDER_DESC : undefined;
         expected["bottom"] = row === zone.bottom ? DEFAULT_FILTER_BORDER_DESC : undefined;
@@ -123,7 +123,7 @@ describe("Filter Evaluation Plugin", () => {
     createFilter(model, "A7:A9");
     const zone = toZone("A7:A9");
     for (let row = zone.top; row <= zone.bottom; row++) {
-      const filterBorder = model.getters.getCellBorderWithFilterBorder(sheetId, 0, row);
+      const filterBorder = model.getters.getCellBorderWithFilterBorder({ sheetId, col: 0, row });
       const expected = {
         top: row === zone.top ? DEFAULT_FILTER_BORDER_DESC : undefined,
         bottom: row === zone.bottom ? DEFAULT_FILTER_BORDER_DESC : undefined,
@@ -142,7 +142,7 @@ describe("Filter Evaluation Plugin", () => {
     const zone = toZone("C8:D12");
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
-        const filterBorder = model.getters.getCellBorderWithFilterBorder(sheetId, col, row);
+        const filterBorder = model.getters.getCellBorderWithFilterBorder({ sheetId, col, row });
         const expected = {};
         expected["top"] = row === zone.top ? DEFAULT_FILTER_BORDER_DESC : undefined;
         expected["bottom"] = row === zone.bottom ? DEFAULT_FILTER_BORDER_DESC : undefined;
@@ -155,12 +155,12 @@ describe("Filter Evaluation Plugin", () => {
 
   test("Sheet duplication after importing filter don't break", () => {
     const model = new Model({ sheets: [{ id: "sh1", filterTables: [{ range: "A1:A8" }] }] });
-    expect(model.getters.getFilter("sh1", 0, 0)).toBeTruthy();
+    expect(model.getters.getFilter({ sheetId: "sh1", col: 0, row: 0 })).toBeTruthy();
 
     model.dispatch("DUPLICATE_SHEET", {
       sheetId: "sh1",
       sheetIdTo: "sh2",
     });
-    expect(model.getters.getFilter("sh2", 0, 0)).toBeTruthy();
+    expect(model.getters.getFilter({ sheetId: "sh2", col: 0, row: 0 })).toBeTruthy();
   });
 });

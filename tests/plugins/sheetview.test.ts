@@ -1076,8 +1076,8 @@ describe("multi sheet with different sizes", () => {
       left: 0,
       right: 0,
     });
-    const { col, row } = model.getters.getActivePosition();
-    expect(model.getters.getCell(sheetId, col, row)).toBeUndefined();
+    const position = model.getters.getActivePosition();
+    expect(model.getters.getCell(position)).toBeUndefined();
   });
 
   test("deleting the row that has the active cell doesn't crash", () => {
@@ -1091,8 +1091,8 @@ describe("multi sheet with different sizes", () => {
       left: 0,
       right: 1,
     });
-    const { col, row } = model.getters.getActivePosition();
-    expect(model.getters.getCell(sheetId, col, row)).toBeUndefined();
+    const position = model.getters.getActivePosition();
+    expect(model.getters.getCell(position)).toBeUndefined();
   });
 
   test("Client resize impacts all sheets", () => {

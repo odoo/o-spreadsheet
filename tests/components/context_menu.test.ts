@@ -38,8 +38,8 @@ afterEach(() => {
   fixture.remove();
 });
 
-function getActiveXc(model: Model): string {
-  const { col, row } = model.getters.getActivePosition();
+function getSelectionAnchorCellXc(model: Model): string {
+  const { col, row } = model.getters.getSelection().anchor.cell;
   return toXC(col, row);
 }
 
@@ -204,16 +204,16 @@ describe("Context Menu", () => {
   });
 
   test("right click on a cell opens a context menu", async () => {
-    expect(getActiveXc(model)).toBe("A1");
+    expect(getSelectionAnchorCellXc(model)).toBe("A1");
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
     await rightClickCell(model, "C8");
-    expect(getActiveXc(model)).toBe("C8");
+    expect(getSelectionAnchorCellXc(model)).toBe("C8");
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
   });
 
   test("right click on a cell, then left click elsewhere closes a context menu", async () => {
     await rightClickCell(model, "C8");
-    expect(getActiveXc(model)).toBe("C8");
+    expect(getSelectionAnchorCellXc(model)).toBe("C8");
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
 
@@ -225,7 +225,7 @@ describe("Context Menu", () => {
     setCellContent(model, "B1", "b1");
 
     await rightClickCell(model, "B1");
-    expect(getActiveXc(model)).toBe("B1");
+    expect(getSelectionAnchorCellXc(model)).toBe("B1");
 
     // click on 'copy' menu item
     await simulateClick(".o-menu div[data-name='copy']");
@@ -249,7 +249,7 @@ describe("Context Menu", () => {
     // right click on B2
     await rightClickCell(model, "B2");
     await nextTick();
-    expect(getActiveXc(model)).toBe("B2");
+    expect(getSelectionAnchorCellXc(model)).toBe("B2");
 
     // click on 'paste' menu item
     await simulateClick(".o-menu div[data-name='paste']");

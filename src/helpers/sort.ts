@@ -69,10 +69,10 @@ export function interactiveSortSelection(
   if (env.model.getters.doesIntersectMerge(sheetId, zone)) {
     multiColumns = false;
     let table: UID[];
-    for (let r = zone.top; r <= zone.bottom; r++) {
+    for (let row = zone.top; row <= zone.bottom; row++) {
       table = [];
-      for (let c = zone.left; c <= zone.right; c++) {
-        let merge = env.model.getters.getMerge(sheetId, c, r);
+      for (let col = zone.left; col <= zone.right; col++) {
+        let merge = env.model.getters.getMerge({ sheetId, col, row });
         if (merge && !table.includes(merge.id.toString())) {
           table.push(merge.id.toString());
         }

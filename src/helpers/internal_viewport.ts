@@ -127,13 +127,9 @@ export class InternalViewport {
     if (!position) {
       position = this.getters.getSheetPosition(sheetId);
     }
-    const mainCellPosition = this.getters.getMainCellPosition(sheetId, position.col, position.row);
+    const mainCellPosition = this.getters.getMainCellPosition({ sheetId, ...position });
 
-    const { col, row } = this.getters.getNextVisibleCellPosition(
-      sheetId,
-      mainCellPosition.col,
-      mainCellPosition.row
-    );
+    const { col, row } = this.getters.getNextVisibleCellPosition(mainCellPosition);
     if (isInside(col, this.boundaries.top, this.boundaries)) {
       this.adjustPositionX(col);
     }

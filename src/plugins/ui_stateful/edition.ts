@@ -93,9 +93,7 @@ export class EditionPlugin extends UIPlugin {
         }
       case "START_EDITION":
         if (cmd.selection) {
-          const sheetId = this.getters.getActiveSheetId();
-          const content =
-            cmd.text || this.getComposerContent({ sheetId, ...this.getters.getActivePosition() });
+          const content = cmd.text || this.getComposerContent(this.getters.getActivePosition());
           return this.validateSelection(content.length, cmd.selection.start, cmd.selection.end);
         } else {
           return CommandResult.Success;
@@ -199,7 +197,11 @@ export class EditionPlugin extends UIPlugin {
         break;
       case "ACTIVATE_SHEET":
         if (cmd.sheetIdFrom !== cmd.sheetIdTo) {
-          const { col, row } = this.getters.getNextVisibleCellPosition(cmd.sheetIdTo, 0, 0);
+          const { col, row } = this.getters.getNextVisibleCellPosition({
+            sheetId: cmd.sheetIdTo,
+            col: 0,
+            row: 0,
+          });
           const zone = this.getters.expandZone(cmd.sheetIdTo, positionToZone({ col, row }));
           this.selection.resetAnchor(this, { cell: { col, row }, zone });
         }
@@ -237,8 +239,7 @@ export class EditionPlugin extends UIPlugin {
 
   getCurrentContent(): string {
     if (this.mode === "inactive") {
-      const sheetId = this.getters.getActiveSheetId();
-      return this.getComposerContent({ sheetId, ...this.getters.getActivePosition() });
+      return this.getComposerContent(this.getters.getActivePosition());
     }
     return this.currentContent;
   }
@@ -418,7 +419,8 @@ export class EditionPlugin extends UIPlugin {
   private stopEdition() {
     if (this.mode !== "inactive") {
       this.cancelEdition();
-      const { col, row } = this.getters.getMainCellPosition(this.sheetId, this.col, this.row);
+      const col = this.col;
+      const row = this.row;
       let content = this.currentContent;
       const didChange = this.initialContent !== content;
       if (!didChange) {
@@ -426,7 +428,7 @@ export class EditionPlugin extends UIPlugin {
       }
       if (content) {
         const sheetId = this.getters.getActiveSheetId();
-        const cell = this.getters.getEvaluatedCell({ sheetId, col, row });
+        const cell = this.getters.getEvaluatedCell({ sheetId, col: this.col, row: this.row });
         if (content.startsWith("=")) {
           const left = this.currentTokens.filter((t) => t.type === "LEFT_PAREN").length;
           const right = this.currentTokens.filter((t) => t.type === "RIGHT_PAREN").length;
@@ -470,17 +472,12 @@ export class EditionPlugin extends UIPlugin {
     }
   }
 
-  private getComposerContent({ sheetId, col, row }: CellPosition): string {
-    const { col: mainCol, row: mainRow } = this.getters.getMainCellPosition(sheetId, col, row);
-    const cell = this.getters.getCell(sheetId, mainCol, mainRow);
+  private getComposerContent(position: CellPosition): string {
+    const cell = this.getters.getCell(position);
     if (cell?.isFormula) {
       return cell.content;
     }
-    const { format, value, type, formattedValue } = this.getters.getEvaluatedCell({
-      sheetId,
-      col: mainCol,
-      row: mainRow,
-    });
+    const { format, value, type, formattedValue } = this.getters.getEvaluatedCell(position);
     switch (type) {
       case CellValueType.text:
       case CellValueType.empty:

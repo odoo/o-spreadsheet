@@ -629,7 +629,7 @@ test("can import cells outside sheet size", () => {
   expect(model.getters.getNumberCols(sheetId)).toBe(26);
   const { col, row } = toCartesian("Z100");
 
-  expect(model.getters.getCell(sheetId, col, row)?.content).toBe("hello");
+  expect(model.getters.getCell({ sheetId, col, row })?.content).toBe("hello");
 });
 
 test("Data of a duplicate sheet are correctly duplicated", () => {

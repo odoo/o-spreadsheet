@@ -2,11 +2,12 @@ import { Model } from "../../src";
 import { INCORRECT_RANGE_STRING } from "../../src/constants";
 import { FormulaCell } from "../../src/types";
 import { createSheetWithName, setCellContent } from "../test_helpers/commands_helpers";
+import { getCell } from "../test_helpers/getters_helpers";
 
 function moveFormula(model: Model, formula: string, offsetX: number, offsetY: number): string {
   const sheetId = model.getters.getActiveSheetId();
   setCellContent(model, "A1", formula);
-  const cell = model.getters.getCell(sheetId, 0, 0) as FormulaCell;
+  const cell = getCell(model, "A1") as FormulaCell;
   const newDependencies = model.getters.createAdaptedRanges(
     cell.dependencies,
     offsetX,

@@ -19,13 +19,13 @@ import {
   undo,
   updateFilter,
 } from "../test_helpers/commands_helpers";
-import { getCellContent } from "../test_helpers/getters_helpers";
+import { getCellContent, getFilter, getFilterTable } from "../test_helpers/getters_helpers";
 
 function getFilterValues(model: Model, sheetId = model.getters.getActiveSheetId()) {
   const table = model.getters.getFilterTables(sheetId)[0];
   return table.filters.map((filter) => ({
     zone: zoneToXc(filter.zoneWithHeaders),
-    value: model.getters.getFilterValues(sheetId, filter.col, table.zone.top),
+    value: model.getters.getFilterValues({ sheetId, col: filter.col, row: table.zone.top }),
   }));
 }
 
@@ -100,9 +100,9 @@ describe("Filters plugin", () => {
   describe("Creating and updating a filter", () => {
     test("Can create a filter", () => {
       createFilter(model, "A1:A5");
-      expect(model.getters.getFilterTable(sheetId, 0, 0)!.zone).toEqual(toZone("A1:A5"));
+      expect(getFilterTable(model, "A1")!.zone).toEqual(toZone("A1:A5"));
 
-      expect(model.getters.getFilter(sheetId, 0, 0)).toEqual({
+      expect(getFilter(model, "A1")).toEqual({
         zoneWithHeaders: toZone("A1:A5"),
         id: expect.any(String),
       });
@@ -110,25 +110,25 @@ describe("Filters plugin", () => {
 
     test("Can create a filter on multiple target if they are continuous", () => {
       createFilter(model, "A1:A5,B1:B5");
-      expect(model.getters.getFilterTable(sheetId, 0, 0)!.zone).toEqual(toZone("A1:B5"));
+      expect(getFilterTable(model, "A1")!.zone).toEqual(toZone("A1:B5"));
     });
 
     test("Can update  a filter", () => {
       createFilter(model, "A1:A5");
       updateFilter(model, "A1", ["2", "A"]);
-      expect(model.getters.getFilterValues(sheetId, 0, 0)).toEqual(["2", "A"]);
+      expect(model.getters.getFilterValues({ sheetId, col: 0, row: 0 })).toEqual(["2", "A"]);
     });
 
     test("Can update  a filter in readonly mode", () => {
       createFilter(model, "A1:A5");
       model.updateMode("readonly");
       updateFilter(model, "A1", ["2", "A"]);
-      expect(model.getters.getFilterValues(sheetId, 0, 0)).toEqual(["2", "A"]);
+      expect(model.getters.getFilterValues({ sheetId, col: 0, row: 0 })).toEqual(["2", "A"]);
     });
 
     test("Create a filter with multiple target create a single filter of the union of the targets", () => {
       createFilter(model, "A1:A5, B1:B5");
-      expect(model.getters.getFilterTable(sheetId, 0, 0)!.zone).toEqual(toZone("A1:B5"));
+      expect(getFilterTable(model, "A1")!.zone).toEqual(toZone("A1:B5"));
     });
 
     test("Create new filter on sheet duplication", () => {
@@ -484,10 +484,10 @@ describe("Filters plugin", () => {
 
     test("Inserting cell above a filter don't shift down the filters columns", () => {
       insertCells(model, "C1", "down");
-      expect(model.getters.getFilterTable(sheetId, 2, 2)).toMatchObject({
+      expect(getFilterTable(model, "C3")).toMatchObject({
         zone: toZone("C3:F6"),
       });
-      expect(model.getters.getFilter(sheetId, 2, 2)).toMatchObject({
+      expect(getFilter(model, "C3")).toMatchObject({
         zoneWithHeaders: toZone("C3:C6"),
       });
     });
@@ -508,14 +508,13 @@ describe("Filters plugin", () => {
     test("Can undo/redo a delete filter", () => {
       const model = new Model();
       createFilter(model, "A1:A4");
-      const sheetId = model.getters.getActiveSheetId();
-      expect(model.getters.getFilter(sheetId, 0, 0)).toBeTruthy();
+      expect(getFilter(model, "A1")).toBeTruthy();
       deleteFilter(model, "A1");
-      expect(model.getters.getFilter(sheetId, 0, 0)).toBeFalsy();
+      expect(getFilter(model, "A1")).toBeFalsy();
       undo(model);
-      expect(model.getters.getFilter(sheetId, 0, 0)).toBeTruthy();
+      expect(getFilter(model, "A1")).toBeTruthy();
       redo(model);
-      expect(model.getters.getFilter(sheetId, 0, 0)).toBeFalsy();
+      expect(getFilter(model, "A1")).toBeFalsy();
     });
   });
 
@@ -526,11 +525,15 @@ describe("Filters plugin", () => {
 
       copy(model, "A1:B4");
       paste(model, "A5");
-      expect(model.getters.getFilterTable(sheetId, 0, 0)).toBeTruthy();
-      const copiedTable = model.getters.getFilterTable(sheetId, 0, 4);
+      expect(getFilterTable(model, "A1")).toBeTruthy();
+      const copiedTable = getFilterTable(model, "A5");
       expect(copiedTable).toBeTruthy();
       expect(
-        model.getters.getFilterValues(sheetId, copiedTable!.zone.left, copiedTable!.zone.top)
+        model.getters.getFilterValues({
+          sheetId,
+          col: copiedTable!.zone.left,
+          row: copiedTable!.zone.top,
+        })
       ).toEqual(["thisIsAValue"]);
     });
 
@@ -540,11 +543,15 @@ describe("Filters plugin", () => {
 
       cut(model, "A1:B4");
       paste(model, "A5");
-      expect(model.getters.getFilterTable(sheetId, 0, 0)).toBeFalsy();
-      const copiedTable = model.getters.getFilterTable(sheetId, 0, 4);
+      expect(getFilterTable(model, "A1")).toBeFalsy();
+      const copiedTable = getFilterTable(model, "A5");
       expect(copiedTable).toBeTruthy();
       expect(
-        model.getters.getFilterValues(sheetId, copiedTable!.zone.left, copiedTable!.zone.top)
+        model.getters.getFilterValues({
+          sheetId,
+          col: copiedTable!.zone.left,
+          row: copiedTable!.zone.top,
+        })
       ).toEqual(["thisIsAValue"]);
     });
 
@@ -555,15 +562,19 @@ describe("Filters plugin", () => {
 
       cut(model, "A1:D7");
       paste(model, "A5");
-      expect(model.getters.getFilterTable(sheetId, 0, 0)).toBeFalsy();
-      expect(model.getters.getFilterTable(sheetId, 3, 4)).toBeFalsy();
+      expect(getFilterTable(model, "A1")).toBeFalsy();
+      expect(getFilterTable(model, "D5")).toBeFalsy();
 
-      const copiedTable = model.getters.getFilterTable(sheetId, 0, 4);
+      const copiedTable = getFilterTable(model, "A5");
       expect(copiedTable).toBeTruthy();
       expect(
-        model.getters.getFilterValues(sheetId, copiedTable!.zone.left, copiedTable!.zone.top)
+        model.getters.getFilterValues({
+          sheetId,
+          col: copiedTable!.zone.left,
+          row: copiedTable!.zone.top,
+        })
       ).toEqual(["thisIsAValue"]);
-      expect(model.getters.getFilterTable(sheetId, 3, 8)).toBeTruthy();
+      expect(getFilterTable(model, "D9")).toBeTruthy();
     });
 
     test("Don't copy tables that are not entirety in the selection", () => {
@@ -572,8 +583,8 @@ describe("Filters plugin", () => {
 
       cut(model, "A1:A10");
       paste(model, "A5");
-      expect(model.getters.getFilterTable(sheetId, 0, 0)).toBeTruthy();
-      expect(model.getters.getFilterTable(sheetId, 0, 4)).toBeFalsy();
+      expect(getFilterTable(model, "A1")).toBeTruthy();
+      expect(getFilterTable(model, "A5")).toBeFalsy();
     });
 
     test("Don't copy tables if the selection is inside the table but smaller", () => {
@@ -582,8 +593,8 @@ describe("Filters plugin", () => {
 
       cut(model, "A1:A2");
       paste(model, "A5");
-      expect(model.getters.getFilterTable(sheetId, 0, 0)).toBeTruthy();
-      expect(model.getters.getFilterTable(sheetId, 0, 4)).toBeFalsy();
+      expect(getFilterTable(model, "A1")).toBeTruthy();
+      expect(getFilterTable(model, "A5")).toBeFalsy();
     });
 
     test("Copy tables that are in a bigger selection", () => {
@@ -592,8 +603,8 @@ describe("Filters plugin", () => {
 
       cut(model, "A1:C5");
       paste(model, "A5");
-      expect(model.getters.getFilterTable(sheetId, 0, 0)).toBeFalsy();
-      expect(model.getters.getFilterTable(sheetId, 0, 4)).toBeTruthy();
+      expect(getFilterTable(model, "A1")).toBeFalsy();
+      expect(getFilterTable(model, "A5")).toBeTruthy();
     });
 
     test("If the pasted table overlap with another table, don't paste it", () => {
@@ -603,9 +614,9 @@ describe("Filters plugin", () => {
       copy(model, "A1:A4");
       paste(model, "C1");
       expect(getCellContent(model, "C1")).toEqual("Hey");
-      expect(model.getters.getFilterTable(sheetId, 0, 0)).toBeTruthy();
-      expect(model.getters.getFilterTable(sheetId, 0, 2)).toBeTruthy();
-      expect(model.getters.getFilterTable(sheetId, 3, 2)).toBeFalsy();
+      expect(getFilterTable(model, "A1")).toBeTruthy();
+      expect(getFilterTable(model, "A3")).toBeTruthy();
+      expect(getFilterTable(model, "D3")).toBeFalsy();
     });
 
     test.each(["onlyFormat", "onlyValue"] as ClipboardPasteOptions[])(
@@ -616,7 +627,7 @@ describe("Filters plugin", () => {
 
         copy(model, "A1:B4");
         paste(model, "A5", pasteOption);
-        expect(model.getters.getFilterTable(sheetId, 0, 4)).toBeFalsy();
+        expect(getFilterTable(model, "A5")).toBeFalsy();
       }
     );
   });

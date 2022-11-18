@@ -68,11 +68,12 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
     for (let row of rowsIndex) {
       let cellsInRow: ClipboardCell[] = [];
       for (let col of columnsIndex) {
+        const position = { col, row, sheetId };
         cellsInRow.push({
-          cell: getters.getCell(sheetId, col, row),
-          evaluatedCell: getters.getEvaluatedCell({ sheetId, col, row }),
-          border: getters.getCellBorder(sheetId, col, row) || undefined,
-          position: { col, row, sheetId },
+          cell: getters.getCell(position),
+          evaluatedCell: getters.getEvaluatedCell(position),
+          border: getters.getCellBorder(position) || undefined,
+          position,
         });
       }
       cellsInClipboard.push(cellsInRow);
@@ -83,7 +84,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
       for (const table of this.getters.getFilterTablesInZone(sheetId, zone)) {
         const values: Array<string[]> = [];
         for (const col of range(table.zone.left, table.zone.right + 1)) {
-          values.push(this.getters.getFilterValues(sheetId, col, table.zone.top));
+          values.push(this.getters.getFilterValues({ sheetId, col, row: table.zone.top }));
         }
         tables.push({ filtersValues: values, zone: table.zone });
       }
@@ -348,7 +349,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
     const targetCell = this.getters.getEvaluatedCell(target);
 
     if (clipboardOption?.pasteOption !== "onlyValue") {
-      const targetBorders = this.getters.getCellBorder(sheetId, col, row);
+      const targetBorders = this.getters.getCellBorder(target);
       const originBorders = origin.border;
       const border = {
         top: targetBorders?.top || originBorders?.top,
@@ -418,13 +419,10 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
   private pasteMergeIfExist(origin: CellPosition, target: CellPosition) {
     let { sheetId, col, row } = origin;
 
-    const { col: mainCellColOrigin, row: mainCellRowOrigin } = this.getters.getMainCellPosition(
-      sheetId,
-      col,
-      row
-    );
+    const { col: mainCellColOrigin, row: mainCellRowOrigin } =
+      this.getters.getMainCellPosition(origin);
     if (mainCellColOrigin === col && mainCellRowOrigin === row) {
-      const merge = this.getters.getMerge(sheetId, col, row);
+      const merge = this.getters.getMerge(origin);
       if (!merge) {
         return;
       }

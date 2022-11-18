@@ -108,13 +108,14 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     const sheetId = this.env.model.getters.getActiveSheetId();
     for (const col of this.env.model.getters.getSheetViewVisibleCols()) {
       for (const row of this.env.model.getters.getSheetViewVisibleRows()) {
-        const action = this.getClickableAction({ sheetId, col, row });
+        const position = { sheetId, col, row };
+        const action = this.getClickableAction(position);
         if (!action) {
           continue;
         }
         let zone: Zone;
-        if (this.env.model.getters.isInMerge(sheetId, col, row)) {
-          zone = this.env.model.getters.getMerge(sheetId, col, row)!;
+        if (this.env.model.getters.isInMerge(position)) {
+          zone = this.env.model.getters.getMerge(position)!;
         } else {
           zone = positionToZone({ col, row });
         }

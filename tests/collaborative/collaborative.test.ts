@@ -28,6 +28,7 @@ import {
   getCell,
   getCellContent,
   getEvaluatedCell,
+  getStyle,
 } from "../test_helpers/getters_helpers";
 import { createEqualCF, target, toRangesData } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
@@ -826,11 +827,9 @@ describe("Multi users synchronisation", () => {
       moveConditionalFormat(bob, "3", "up", sheetId);
       moveConditionalFormat(alice, "3", "up", sheetId);
     });
-    const { col, row } = toCartesian("A1");
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getCellComputedStyle(sheetId, col, row),
-      { fillColor: "#00FF00" }
-    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getStyle(user, "A1"), {
+      fillColor: "#00FF00",
+    });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getConditionalFormats(sheetId)[0].id,
       "3"
@@ -865,11 +864,9 @@ describe("Multi users synchronisation", () => {
         sheetId: sheetId,
       });
     });
-    const { col, row } = toCartesian("A1");
-    expect([alice, bob]).toHaveSynchronizedValue(
-      (user) => user.getters.getCellComputedStyle(sheetId, col, row),
-      { fillColor: "#FF0000" }
-    );
+    expect([alice, bob]).toHaveSynchronizedValue((user) => getStyle(user, "A1"), {
+      fillColor: "#FF0000",
+    });
   });
 
   test("Create overlapping data filter concurrently", () => {

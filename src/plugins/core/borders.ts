@@ -5,6 +5,7 @@ import {
   Border,
   BorderCommand,
   BorderDescription,
+  CellPosition,
   Command,
   ExcelWorkbookData,
   HeaderIndex,
@@ -138,7 +139,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   // Getters
   // ---------------------------------------------------------------------------
 
-  getCellBorder(sheetId: UID, col: HeaderIndex, row: HeaderIndex): Border | null {
+  getCellBorder({ sheetId, col, row }: CellPosition): Border | null {
     const border = {
       top: this.borders[sheetId]?.[col]?.[row]?.horizontal,
       bottom: this.borders[sheetId]?.[col]?.[row + 1]?.horizontal,
@@ -167,8 +168,8 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   ) {
     const targetCols = range(leftColumn + 1, rightColumn);
     for (let row: HeaderIndex = 0; row < this.getters.getNumberRows(sheetId); row++) {
-      const leftBorder = this.getCellBorder(sheetId, leftColumn, row);
-      const rightBorder = this.getCellBorder(sheetId, rightColumn, row);
+      const leftBorder = this.getCellBorder({ sheetId, col: leftColumn, row });
+      const rightBorder = this.getCellBorder({ sheetId, col: rightColumn, row });
       if (leftBorder && rightBorder) {
         const commonSides = this.getCommonSides(leftBorder, rightBorder);
         for (let col of targetCols) {
@@ -186,8 +187,8 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   private ensureRowBorderContinuity(sheetId: UID, topRow: HeaderIndex, bottomRow: HeaderIndex) {
     const targetRows = range(topRow + 1, bottomRow);
     for (let col: HeaderIndex = 0; col < this.getters.getNumberCols(sheetId); col++) {
-      const aboveBorder = this.getCellBorder(sheetId, col, topRow);
-      const belowBorder = this.getCellBorder(sheetId, col, bottomRow);
+      const aboveBorder = this.getCellBorder({ sheetId, col, row: topRow });
+      const belowBorder = this.getCellBorder({ sheetId, col, row: bottomRow });
       if (aboveBorder && belowBorder) {
         const commonSides = this.getCommonSides(aboveBorder, belowBorder);
         for (let row of targetRows) {
@@ -406,7 +407,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    */
   private addBorder(sheetId: UID, col: HeaderIndex, row: HeaderIndex, border: Border) {
     this.setBorder(sheetId, col, row, {
-      ...this.getCellBorder(sheetId, col, row),
+      ...this.getCellBorder({ sheetId, col, row }),
       ...border,
     });
   }
@@ -462,8 +463,8 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    */
   private addBordersToMerge(sheetId: UID, zone: Zone) {
     const { left, right, top, bottom } = zone;
-    const bordersTopLeft = this.getCellBorder(sheetId, left, top);
-    const bordersBottomRight = this.getCellBorder(sheetId, right, bottom);
+    const bordersTopLeft = this.getCellBorder({ sheetId, col: left, row: top });
+    const bordersBottomRight = this.getCellBorder({ sheetId, col: right, row: bottom });
     this.clearBorders(sheetId, [zone]);
     if (bordersTopLeft?.top) {
       this.setBorders(sheetId, [{ ...zone, bottom: top }], "top");
@@ -526,7 +527,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     for (let sheet of data.sheets) {
       for (let col: HeaderIndex = 0; col < sheet.colNumber; col++) {
         for (let row: HeaderIndex = 0; row < sheet.rowNumber; row++) {
-          const border = this.getCellBorder(sheet.id, col, row);
+          const border = this.getCellBorder({ sheetId: sheet.id, col, row });
           if (border) {
             const xc = toXC(col, row);
             const cell = sheet.cells[xc];

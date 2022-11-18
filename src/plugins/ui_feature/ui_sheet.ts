@@ -3,7 +3,7 @@ import {
   ICON_EDGE_LENGTH,
   PADDING_AUTORESIZE_HORIZONTAL,
 } from "../../constants";
-import { computeIconWidth, computeTextWidth, positions, positionToZone } from "../../helpers/index";
+import { computeIconWidth, computeTextWidth, positions } from "../../helpers/index";
 import { Command, CommandResult, UID } from "../../types";
 import {
   CellPosition,
@@ -11,7 +11,6 @@ import {
   HeaderDimensions,
   HeaderIndex,
   Pixel,
-  Position,
   Style,
 } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
@@ -79,14 +78,13 @@ export class SheetUIPlugin extends UIPlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getCellWidth(sheetId: UID, { col, row }: Position): number {
-    const position = { sheetId, col, row };
+  getCellWidth(position: CellPosition): number {
     let contentWidth = this.getTextWidth(position);
-    const icon = this.getters.getConditionalIcon(col, row);
+    const icon = this.getters.getConditionalIcon(position);
     if (icon) {
       contentWidth += computeIconWidth(this.getters.getCellStyle(position));
     }
-    const isFilterHeader = this.getters.isFilterHeader(sheetId, col, row);
+    const isFilterHeader = this.getters.isFilterHeader(position);
     if (isFilterHeader) {
       contentWidth += ICON_EDGE_LENGTH + FILTER_ICON_MARGIN;
     }
@@ -95,8 +93,7 @@ export class SheetUIPlugin extends UIPlugin {
       contentWidth += 2 * PADDING_AUTORESIZE_HORIZONTAL;
 
       if (this.getters.getCellStyle(position).wrapping === "wrap") {
-        const zone = positionToZone({ col, row });
-        const colWidth = this.getters.getColSize(this.getters.getActiveSheetId(), zone.left);
+        const colWidth = this.getters.getColSize(this.getters.getActiveSheetId(), position.col);
         return Math.min(colWidth, contentWidth);
       }
     }
@@ -105,16 +102,15 @@ export class SheetUIPlugin extends UIPlugin {
 
   getTextWidth(position: CellPosition): Pixel {
     const text = this.getters.getCellText(position, this.getters.shouldShowFormulas());
-    const { sheetId, col, row } = position;
-    return computeTextWidth(this.ctx, text, this.getters.getCellComputedStyle(sheetId, col, row));
+    return computeTextWidth(this.ctx, text, this.getters.getCellComputedStyle(position));
   }
 
-  getCellText({ sheetId, col, row }: CellPosition, showFormula: boolean = false): string {
-    const cell = this.getters.getCell(sheetId, col, row);
+  getCellText(position: CellPosition, showFormula: boolean = false): string {
+    const cell = this.getters.getCell(position);
     if (showFormula && cell?.isFormula) {
       return cell.content;
     } else {
-      return this.getters.getEvaluatedCell({ sheetId, col, row }).formattedValue;
+      return this.getters.getEvaluatedCell(position).formattedValue;
     }
   }
 
@@ -234,7 +230,7 @@ export class SheetUIPlugin extends UIPlugin {
 
   private getColMaxWidth(sheetId: UID, index: HeaderIndex): number {
     const cellsPositions = positions(this.getters.getColsZone(sheetId, index, index));
-    const sizes = cellsPositions.map((position) => this.getCellWidth(sheetId, position));
+    const sizes = cellsPositions.map((position) => this.getCellWidth({ sheetId, ...position }));
     return Math.max(0, ...sizes);
   }
 

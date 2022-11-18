@@ -44,7 +44,7 @@ export class FilterIconsOverlay extends Component<Props, SpreadsheetChildEnv> {
 
   isFilterActive(position: Position): boolean {
     const sheetId = this.env.model.getters.getActiveSheetId();
-    return this.env.model.getters.isFilterActive(sheetId, position.col, position.row);
+    return this.env.model.getters.isFilterActive({ sheetId, ...position });
   }
 
   toggleFilterMenu(position: Position) {

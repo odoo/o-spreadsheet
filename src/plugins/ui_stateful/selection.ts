@@ -17,6 +17,7 @@ import { SelectionEvent } from "../../types/event_stream";
 import {
   AddColumnsRowsCommand,
   AnchorZone,
+  CellPosition,
   CellValueType,
   ClientPosition,
   Command,
@@ -27,7 +28,6 @@ import {
   HeaderIndex,
   LAYERS,
   MoveColumnsRowsCommand,
-  Position,
   RemoveColumnsRowsCommand,
   Selection,
   Sheet,
@@ -201,7 +201,11 @@ export class GridSelectionPlugin extends UIPlugin {
           sheetIdTo: firstSheetId,
           sheetIdFrom: firstSheetId,
         });
-        const { col, row } = this.getters.getNextVisibleCellPosition(firstSheetId, 0, 0);
+        const { col, row } = this.getters.getNextVisibleCellPosition({
+          sheetId: firstSheetId,
+          col: 0,
+          row: 0,
+        });
         this.selectCell(col, row);
         this.selection.registerAsDefault(this, this.gridSelection.anchor, {
           handleEvent: this.handleEvent.bind(this),
@@ -220,7 +224,11 @@ export class GridSelectionPlugin extends UIPlugin {
           Object.assign(this, this.sheetsData[cmd.sheetIdTo]);
           this.selection.resetDefaultAnchor(this, deepCopy(this.gridSelection.anchor));
         } else {
-          const { col, row } = this.getters.getNextVisibleCellPosition(cmd.sheetIdTo, 0, 0);
+          const { col, row } = this.getters.getNextVisibleCellPosition({
+            sheetId: cmd.sheetIdTo,
+            col: 0,
+            row: 0,
+          });
           this.selectCell(col, row);
         }
         break;
@@ -329,11 +337,9 @@ export class GridSelectionPlugin extends UIPlugin {
   getActiveSheetId(): UID {
     return this.activeSheet.id;
   }
+
   getActiveCell(): EvaluatedCell {
-    const sheetId = this.getters.getActiveSheetId();
-    const { col, row } = this.gridSelection.anchor.cell;
-    const mainPosition = this.getters.getMainCellPosition(sheetId, col, row);
-    return this.getters.getEvaluatedCell({ sheetId, ...mainPosition });
+    return this.getters.getEvaluatedCell(this.getActivePosition());
   }
 
   getActiveCols(): Set<number> {
@@ -386,25 +392,26 @@ export class GridSelectionPlugin extends UIPlugin {
     return this.selectedFigureId;
   }
 
-  getActivePosition(): Position {
-    return this.getters.getMainCellPosition(
-      this.getActiveSheetId(),
-      this.gridSelection.anchor.cell.col,
-      this.gridSelection.anchor.cell.row
-    );
+  getActivePosition(): CellPosition {
+    return this.getters.getMainCellPosition({
+      sheetId: this.getActiveSheetId(),
+      col: this.gridSelection.anchor.cell.col,
+      row: this.gridSelection.anchor.cell.row,
+    });
   }
 
-  getSheetPosition(sheetId: UID): Position {
+  getSheetPosition(sheetId: UID): CellPosition {
     if (sheetId === this.getters.getActiveSheetId()) {
       return this.getActivePosition();
     } else {
       const sheetData = this.sheetsData[sheetId];
       return sheetData
         ? {
+            sheetId,
             col: sheetData.gridSelection.anchor.cell.col,
             row: sheetData.gridSelection.anchor.cell.row,
           }
-        : this.getters.getNextVisibleCellPosition(sheetId, 0, 0);
+        : this.getters.getNextVisibleCellPosition({ sheetId, col: 0, row: 0 });
     }
   }
 
@@ -720,16 +727,15 @@ export class GridSelectionPlugin extends UIPlugin {
 
     ctx.globalCompositeOperation = "source-over";
     // active zone
-    const activeSheet = this.getters.getActiveSheetId();
-    const { col, row } = this.getActivePosition();
+    const position = this.getActivePosition();
 
     ctx.strokeStyle = SELECTION_BORDER_COLOR;
     ctx.lineWidth = 3 * thinLineWidth;
     let zone: Zone;
-    if (this.getters.isInMerge(activeSheet, col, row)) {
-      zone = this.getters.getMerge(activeSheet, col, row)!;
+    if (this.getters.isInMerge(position)) {
+      zone = this.getters.getMerge(position)!;
     } else {
-      zone = positionToZone({ col, row });
+      zone = positionToZone(position);
     }
     const { x, y, width, height } = this.getters.getVisibleRect(zone);
     if (width > 0 && height > 0) {

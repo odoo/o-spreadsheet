@@ -4,6 +4,7 @@ import { scrollDelay } from "../../helpers/index";
 import { InternalViewport } from "../../helpers/internal_viewport";
 import { SelectionEvent } from "../../types/event_stream";
 import {
+  CellPosition,
   Command,
   CommandResult,
   Dimension,
@@ -374,7 +375,7 @@ export class SheetViewPlugin extends UIPlugin {
   /**
    * Check if a given position is visible in the viewport.
    */
-  isVisibleInViewport(sheetId: UID, col: number, row: number): boolean {
+  isVisibleInViewport({ sheetId, col, row }: CellPosition): boolean {
     return this.getSubViewports(sheetId).some((pane) => pane.isVisible(col, row));
   }
 

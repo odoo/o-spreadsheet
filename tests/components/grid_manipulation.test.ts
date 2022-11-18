@@ -4,7 +4,7 @@ import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
 import { selectColumn, selectRow } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
-import { getActiveXc } from "../test_helpers/getters_helpers";
+import { getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
 import { makeTestFixture, mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
 
 const COLUMN_D = { x: 340, y: 10 };
@@ -37,7 +37,7 @@ describe("Context Menu add/remove row/col", () => {
   test("can open contextmenu for columns then click elsewhere to close it", async () => {
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
     simulateContextMenu(".o-col-resizer", COLUMN_D);
-    expect(getActiveXc(model)).toBe("D1");
+    expect(getSelectionAnchorCellXc(model)).toBe("D1");
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
     await simulateClick(".o-grid-overlay", OUTSIDE_CM.x, OUTSIDE_CM.y);
@@ -47,7 +47,7 @@ describe("Context Menu add/remove row/col", () => {
   test("can open contextmenu for rows then click elsewhere to close it", async () => {
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
     simulateContextMenu(".o-row-resizer", ROW_5);
-    expect(getActiveXc(model)).toBe("A5");
+    expect(getSelectionAnchorCellXc(model)).toBe("A5");
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
     await simulateClick(".o-grid-overlay", OUTSIDE_CM.x, OUTSIDE_CM.y);

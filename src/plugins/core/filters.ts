@@ -17,6 +17,7 @@ import {
 import { Filter, FilterTable } from "../../helpers/filters";
 import {
   AddColumnsRowsCommand,
+  CellPosition,
   CommandResult,
   CoreCommand,
   ExcelWorkbookData,
@@ -145,15 +146,15 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
     return this.tables[sheetId] ? Object.values(this.tables[sheetId]).filter(isDefined) : [];
   }
 
-  getFilter(sheetId: UID, col: number, row: number): Filter | undefined {
-    return this.getFilterTable(sheetId, col, row)?.filters.find((filter) => filter.col === col);
+  getFilter(position: CellPosition): Filter | undefined {
+    return this.getFilterTable(position)?.filters.find((filter) => filter.col === position.col);
   }
 
-  getFilterId(sheetId: UID, col: number, row: number): FilterId | undefined {
-    return this.getFilter(sheetId, col, row)?.id;
+  getFilterId(position: CellPosition): FilterId | undefined {
+    return this.getFilter(position)?.id;
   }
 
-  getFilterTable(sheetId: UID, col: number, row: number): FilterTable | undefined {
+  getFilterTable({ sheetId, col, row }: CellPosition): FilterTable | undefined {
     return this.getFilterTables(sheetId).find((filterTable) =>
       isInside(col, row, filterTable.zone)
     );
@@ -297,17 +298,18 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
     }
 
     for (const col of range(zone.left, zone.right + 1)) {
+      const position = { sheetId, col, row };
       // Since this plugin is loaded before CellPlugin, the getters still give us the old cell content
-      const cellContent = this.getters.getCell(sheetId, col, row)?.content;
+      const cellContent = this.getters.getCell(position)?.content;
       if (cellContent) {
         return false;
       }
 
-      if (this.getters.getFilter(sheetId, col, row)) {
+      if (this.getters.getFilter(position)) {
         return false;
       }
 
-      if (this.getters.isInMerge(sheetId, col, row)) {
+      if (this.getters.isInMerge(position)) {
         return false;
       }
     }

@@ -5,7 +5,7 @@ import {
   tokenColor,
 } from "../../src/components/composer/composer/composer";
 import { fontSizes } from "../../src/fonts";
-import { colors, toCartesian, toHex, toZone } from "../../src/helpers/index";
+import { colors, toHex, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { Highlight } from "../../src/types";
 import {
@@ -27,10 +27,11 @@ import {
   simulateClick,
 } from "../test_helpers/dom_helper";
 import {
-  getActiveXc,
+  getActivePosition,
   getCellContent,
   getCellText,
   getEvaluatedCell,
+  getSelectionAnchorCellXc,
 } from "../test_helpers/getters_helpers";
 import {
   createEqualCF,
@@ -445,7 +446,7 @@ describe("composer", () => {
   test("starting the edition with enter, the composer should have the focus", async () => {
     await startComposition();
     expect(model.getters.getEditionMode()).toBe("editing");
-    expect(model.getters.getActivePosition()).toEqual(toCartesian("A1"));
+    expect(getActivePosition(model)).toBe("A1");
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer")!);
   });
 
@@ -464,18 +465,18 @@ describe("composer", () => {
     expect(composerEl.textContent).toBe("a");
     await keyDown("ArrowRight");
     expect(getCellText(model, "A1")).toBe("a");
-    expect(model.getters.getActivePosition()).toEqual(toCartesian("B1"));
+    expect(getActivePosition(model)).toBe("B1");
 
     composerEl = await startComposition("b");
     expect(composerEl.textContent).toBe("b");
     await keyDown("ArrowRight");
     expect(getCellText(model, "B1")).toBe("b");
-    expect(model.getters.getActivePosition()).toEqual(toCartesian("C1"));
+    expect(getActivePosition(model)).toBe("C1");
 
     await keyDown("ArrowLeft");
-    expect(model.getters.getActivePosition()).toEqual(toCartesian("B1"));
+    expect(getActivePosition(model)).toBe("B1");
     await keyDown("ArrowLeft");
-    expect(model.getters.getActivePosition()).toEqual(toCartesian("A1"));
+    expect(getActivePosition(model)).toBe("A1");
     composerEl = await startComposition("c");
     expect(composerEl.textContent).toBe("c");
     await keyDown("Enter");
@@ -497,18 +498,18 @@ describe("composer", () => {
     expect(composerEl.textContent).toBe("a");
     await keyDown("ArrowDown");
     expect(getCellText(model, "A1")).toBe("a");
-    expect(model.getters.getActivePosition()).toEqual(toCartesian("A2"));
+    expect(getActivePosition(model)).toBe("A2");
 
     composerEl = await startComposition("b");
     expect(composerEl.textContent).toBe("b");
     await keyDown("ArrowDown");
     expect(getCellText(model, "A2")).toBe("b");
-    expect(model.getters.getActivePosition()).toEqual(toCartesian("A3"));
+    expect(getActivePosition(model)).toBe("A3");
 
     await keyDown("ArrowUp");
-    expect(model.getters.getActivePosition()).toEqual(toCartesian("A2"));
+    expect(getActivePosition(model)).toBe("A2");
     await keyDown("ArrowUp");
-    expect(model.getters.getActivePosition()).toEqual(toCartesian("A1"));
+    expect(getActivePosition(model)).toBe("A1");
     composerEl = await startComposition("c");
     expect(composerEl.textContent).toBe("c");
     await keyDown("Enter");
@@ -523,7 +524,7 @@ describe("composer", () => {
     composerEl.dispatchEvent(new Event("input"));
     composerEl.dispatchEvent(new Event("keyup"));
     await rightClickCell(model, "C8");
-    expect(getActiveXc(model)).toBe("C8");
+    expect(getSelectionAnchorCellXc(model)).toBe("C8");
     expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(0);
   });
 
@@ -1196,12 +1197,12 @@ describe("composer", () => {
     await keyDown("Enter");
     expect(getCellText(model, "C8")).toBe("=");
     expect(getEvaluatedCell(model, "C8").value).toBe("#BAD_EXPR");
-    expect(getActiveXc(model)).toBe("C9");
+    expect(getSelectionAnchorCellXc(model)).toBe("C9");
     expect(model.getters.getEditionMode()).toBe("inactive");
 
     // click on the modified cell C8
     await clickCell(model, "C8");
-    expect(getActiveXc(model)).toBe("C8");
+    expect(getSelectionAnchorCellXc(model)).toBe("C8");
     expect(model.getters.getEditionMode()).toBe("inactive");
   });
 

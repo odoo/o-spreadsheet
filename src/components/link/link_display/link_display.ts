@@ -102,7 +102,7 @@ export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv
   unlink() {
     const sheetId = this.env.model.getters.getActiveSheetId();
     const { col, row } = this.props.cellPosition;
-    const style = this.env.model.getters.getCellComputedStyle(sheetId, col, row);
+    const style = this.env.model.getters.getCellComputedStyle({ sheetId, col, row });
     const textColor = style?.textColor === LINK_COLOR ? undefined : style?.textColor;
     this.env.model.dispatch("UPDATE_CELL", {
       col,
@@ -116,12 +116,9 @@ export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv
 
 export const LinkCellPopoverBuilder: PopoverBuilders = {
   onHover: (position, getters): CellPopoverComponent<typeof LinkDisplay> => {
-    const sheetId = getters.getActiveSheetId();
     const cell = getters.getEvaluatedCell(position);
     const shouldDisplayLink =
-      !getters.isDashboard() &&
-      cell.link &&
-      getters.isVisibleInViewport(sheetId, position.col, position.row);
+      !getters.isDashboard() && cell.link && getters.isVisibleInViewport(position);
     if (!shouldDisplayLink) return { isOpen: false };
     return {
       isOpen: true,

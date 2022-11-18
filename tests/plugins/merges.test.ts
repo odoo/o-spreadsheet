@@ -21,12 +21,12 @@ import {
 } from "../test_helpers/commands_helpers";
 import { simulateClick } from "../test_helpers/dom_helper";
 import {
-  getActiveXc,
   getBorder,
   getCell,
   getCellContent,
   getEvaluatedCell,
   getMerges,
+  getSelectionAnchorCellXc,
   getStyle,
 } from "../test_helpers/getters_helpers";
 import {
@@ -101,8 +101,8 @@ describe("merges", () => {
       { ...toZone("C2:C3"), id: 2, topLeft: toCartesian("C2") },
       { ...toZone("B2:B3"), id: 3, topLeft: toCartesian("B2") },
     ]);
-    expect(model.getters.getMerge(secondSheetId, 2, 1)?.id).toBe(2);
-    expect(model.getters.getMerge(secondSheetId, 1, 1)?.id).toBe(3);
+    expect(model.getters.getMerge({ sheetId: secondSheetId, col: 2, row: 1 })?.id).toBe(2);
+    expect(model.getters.getMerge({ sheetId: secondSheetId, col: 1, row: 1 })?.id).toBe(3);
   });
 
   test("delete a duplicated sheet with merge", () => {
@@ -143,7 +143,7 @@ describe("merges", () => {
     expect(merge(model, "A1:C3")).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
     const { col, row } = toCartesian("A1");
 
-    expect(model.getters.getMerge(sheetId, col, row)).toBeUndefined();
+    expect(model.getters.getMerge({ sheetId, col, row })).toBeUndefined();
   });
 
   test("editing a merge cell actually edits the top left", () => {
@@ -159,7 +159,7 @@ describe("merges", () => {
     });
 
     selectCell(model, "C3");
-    expect(getActiveXc(model)).toBe("C3");
+    expect(getSelectionAnchorCellXc(model)).toBe("C3");
     model.dispatch("START_EDITION");
     expect(model.getters.getCurrentContent()).toBe("b2");
     model.dispatch("SET_CURRENT_CONTENT", { content: "new value" });
@@ -180,7 +180,7 @@ describe("merges", () => {
     });
 
     selectCell(model, "C3");
-    expect(getActiveXc(model)).toBe("C3");
+    expect(getSelectionAnchorCellXc(model)).toBe("C3");
     expect(getCellsXC(model)).toEqual(["B2"]);
     expect(getCell(model, "B2")!.style).not.toBeDefined();
     const sheet1 = model.getters.getSheetIds()[0];
@@ -208,10 +208,10 @@ describe("merges", () => {
       ],
     });
     selectCell(model, "C4");
-    expect(getActiveXc(model)).toBe("C4");
+    expect(getSelectionAnchorCellXc(model)).toBe("C4");
     expect(getCell(model, "C4")).toBeUndefined(); // no active cell in C4
     moveAnchorCell(model, "up");
-    expect(getActiveXc(model)).toBe("C3");
+    expect(getSelectionAnchorCellXc(model)).toBe("C3");
     expect(model.getters.getSelection().anchor).toEqual({
       cell: {
         col: 2,
@@ -643,9 +643,9 @@ describe("merges", () => {
     const sheetId = model.getters.getActiveSheetId();
     let col: number, row: number;
     ({ col, row } = toCartesian("B4"));
-    expect(model.getters.getMerge(sheetId, col, row)).toBeTruthy();
+    expect(model.getters.getMerge({ sheetId, col, row })).toBeTruthy();
     ({ col, row } = toCartesian("C4"));
-    expect(model.getters.getMerge(sheetId, col, row)).toBeTruthy();
+    expect(model.getters.getMerge({ sheetId, col, row })).toBeTruthy();
     expect(getCell(model, "B4")!.style).toEqual({ textColor: "#fe0000" });
     expect(getBorder(model, "B4")).toEqual({ top: ["thin", "#000"] });
     unMerge(model, "B4:C5");
