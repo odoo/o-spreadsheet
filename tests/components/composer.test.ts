@@ -445,7 +445,7 @@ describe("composer", () => {
   test("starting the edition with enter, the composer should have the focus", async () => {
     await startComposition();
     expect(model.getters.getEditionMode()).toBe("editing");
-    expect(model.getters.getPosition()).toEqual(toCartesian("A1"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("A1"));
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer")!);
   });
 
@@ -464,18 +464,18 @@ describe("composer", () => {
     expect(composerEl.textContent).toBe("a");
     await keyDown("ArrowRight");
     expect(getCellText(model, "A1")).toBe("a");
-    expect(model.getters.getPosition()).toEqual(toCartesian("B1"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("B1"));
 
     composerEl = await startComposition("b");
     expect(composerEl.textContent).toBe("b");
     await keyDown("ArrowRight");
     expect(getCellText(model, "B1")).toBe("b");
-    expect(model.getters.getPosition()).toEqual(toCartesian("C1"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("C1"));
 
     await keyDown("ArrowLeft");
-    expect(model.getters.getPosition()).toEqual(toCartesian("B1"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("B1"));
     await keyDown("ArrowLeft");
-    expect(model.getters.getPosition()).toEqual(toCartesian("A1"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("A1"));
     composerEl = await startComposition("c");
     expect(composerEl.textContent).toBe("c");
     await keyDown("Enter");
@@ -497,18 +497,18 @@ describe("composer", () => {
     expect(composerEl.textContent).toBe("a");
     await keyDown("ArrowDown");
     expect(getCellText(model, "A1")).toBe("a");
-    expect(model.getters.getPosition()).toEqual(toCartesian("A2"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("A2"));
 
     composerEl = await startComposition("b");
     expect(composerEl.textContent).toBe("b");
     await keyDown("ArrowDown");
     expect(getCellText(model, "A2")).toBe("b");
-    expect(model.getters.getPosition()).toEqual(toCartesian("A3"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("A3"));
 
     await keyDown("ArrowUp");
-    expect(model.getters.getPosition()).toEqual(toCartesian("A2"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("A2"));
     await keyDown("ArrowUp");
-    expect(model.getters.getPosition()).toEqual(toCartesian("A1"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("A1"));
     composerEl = await startComposition("c");
     expect(composerEl.textContent).toBe("c");
     await keyDown("Enter");

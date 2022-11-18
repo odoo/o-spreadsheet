@@ -95,7 +95,7 @@ export class EditionPlugin extends UIPlugin {
         if (cmd.selection) {
           const sheetId = this.getters.getActiveSheetId();
           const content =
-            cmd.text || this.getComposerContent({ sheetId, ...this.getters.getPosition() });
+            cmd.text || this.getComposerContent({ sheetId, ...this.getters.getActivePosition() });
           return this.validateSelection(content.length, cmd.selection.start, cmd.selection.end);
         } else {
           return CommandResult.Success;
@@ -238,7 +238,7 @@ export class EditionPlugin extends UIPlugin {
   getCurrentContent(): string {
     if (this.mode === "inactive") {
       const sheetId = this.getters.getActiveSheetId();
-      return this.getComposerContent({ sheetId, ...this.getters.getPosition() });
+      return this.getComposerContent({ sheetId, ...this.getters.getActivePosition() });
     }
     return this.currentContent;
   }
@@ -396,7 +396,7 @@ export class EditionPlugin extends UIPlugin {
       str = `${str}%`;
     }
     const sheetId = this.getters.getActiveSheetId();
-    const { col, row } = this.getters.getPosition();
+    const { col, row } = this.getters.getActivePosition();
     this.col = col;
     this.sheetId = sheetId;
     this.row = row;

@@ -28,23 +28,23 @@ describe("navigation", () => {
   test("normal move to the right", () => {
     const model = new Model();
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
-    expect(model.getters.getPosition()).toEqual(toCartesian("A1"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("A1"));
     expect(model.getters.getSelection().anchor.cell).toEqual(toCartesian("A1"));
 
     moveAnchorCell(model, "right");
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 1, left: 1, bottom: 0 });
-    expect(model.getters.getPosition()).toEqual(toCartesian("B1"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("B1"));
     expect(model.getters.getSelection().anchor.cell).toEqual(toCartesian("B1"));
   });
 
   test("move up from top row", () => {
     const model = new Model();
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
-    expect(model.getters.getPosition()).toEqual(toCartesian("A1"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("A1"));
 
     moveAnchorCell(model, "up");
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
-    expect(model.getters.getPosition()).toEqual(toCartesian("A1"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("A1"));
   });
 
   test("move right from right row", () => {
@@ -54,9 +54,9 @@ describe("navigation", () => {
     const xc = toXC(colNumber - 1, 0);
     selectCell(model, xc);
 
-    expect(model.getters.getPosition()).toEqual(toCartesian(xc));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian(xc));
     moveAnchorCell(model, "right");
-    expect(model.getters.getPosition()).toEqual(toCartesian(xc));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian(xc));
   });
 
   test("move bottom from bottom row", () => {
@@ -65,9 +65,9 @@ describe("navigation", () => {
     const rowNumber = model.getters.getNumberRows(activeSheetId);
     const xc = toXC(0, rowNumber - 1);
     selectCell(model, xc);
-    expect(model.getters.getPosition()).toEqual(toCartesian(xc));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian(xc));
     moveAnchorCell(model, "down");
-    expect(model.getters.getPosition()).toEqual(toCartesian(xc));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian(xc));
   });
 
   test("move bottom from merge in last position", () => {
@@ -80,9 +80,9 @@ describe("navigation", () => {
     });
     const xc = toXC(0, rowNumber - 2);
     selectCell(model, xc);
-    expect(model.getters.getPosition()).toEqual(toCartesian(xc));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian(xc));
     moveAnchorCell(model, "down");
-    expect(model.getters.getPosition()).toEqual(toCartesian(xc));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian(xc));
   });
 
   test("Cannot move bottom from merge in last position if last row is hidden", () => {
@@ -100,9 +100,9 @@ describe("navigation", () => {
     });
     const xc = toXC(0, rowNumber - 3);
     selectCell(model, xc);
-    expect(model.getters.getPosition()).toEqual(toCartesian(xc));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian(xc));
     moveAnchorCell(model, "down");
-    expect(model.getters.getPosition()).toEqual(toCartesian(xc));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian(xc));
   });
 
   test("move right from merge in last position", () => {
@@ -115,9 +115,9 @@ describe("navigation", () => {
     });
     const xc = toXC(colNumber - 2, 0);
     selectCell(model, xc);
-    expect(model.getters.getPosition()).toEqual(toCartesian(xc));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian(xc));
     moveAnchorCell(model, "right");
-    expect(model.getters.getPosition()).toEqual(toCartesian(xc));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian(xc));
   });
 
   test("move in and out of a merge", () => {
@@ -130,18 +130,18 @@ describe("navigation", () => {
         },
       ],
     });
-    expect(model.getters.getPosition()).toEqual(toCartesian("A1"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("A1"));
 
     // move to the right, inside the merge
     moveAnchorCell(model, "right");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
-    expect(model.getters.getPosition()).toEqual(toCartesian("B1"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("B1"));
 
     // move to the right, outside the merge
     moveAnchorCell(model, "right");
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 3, left: 3, bottom: 0 });
-    expect(model.getters.getPosition()).toEqual(toCartesian("D1"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("D1"));
     expect(getActiveXc(model)).toBe("D1");
   });
 
@@ -274,10 +274,10 @@ describe("navigation", () => {
     //from the right
     selectCell(model, "D1");
     moveAnchorCell(model, "left");
-    expect(model.getters.getPosition()).toEqual(toCartesian("B1"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("B1"));
     //from the left
     moveAnchorCell(model, "right");
-    expect(model.getters.getPosition()).toEqual(toCartesian("D1"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("D1"));
   });
 
   test("don't move through hidden col if out of grid", () => {
@@ -293,11 +293,11 @@ describe("navigation", () => {
     // move left from the first visible column
     selectCell(model, "B1");
     moveAnchorCell(model, "left");
-    expect(model.getters.getPosition()).toEqual(toCartesian("B1"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("B1"));
     // move right from last visible column
     selectCell(model, "D1");
     moveAnchorCell(model, "right");
-    expect(model.getters.getPosition()).toEqual(toCartesian("D1"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("D1"));
   });
 
   test("move through hidden row", () => {
@@ -312,10 +312,10 @@ describe("navigation", () => {
     });
     selectCell(model, "A4");
     moveAnchorCell(model, "up");
-    expect(model.getters.getPosition()).toEqual(toCartesian("A2"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("A2"));
     //from the top
     moveAnchorCell(model, "down");
-    expect(model.getters.getPosition()).toEqual(toCartesian("A4"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("A4"));
   });
 });
 
@@ -373,7 +373,7 @@ describe("Navigation starting from hidden cells", () => {
       selectCell(model, startPosition);
       hideColumns(model, hiddenCols);
       moveAnchorCell(model, direction);
-      expect(model.getters.getPosition()).toEqual(toCartesian(endPosition));
+      expect(model.getters.getActivePosition()).toEqual(toCartesian(endPosition));
     }
   );
   test.each([
@@ -395,7 +395,7 @@ describe("Navigation starting from hidden cells", () => {
       selectCell(model, startPosition);
       hideRows(model, hiddenRows);
       moveAnchorCell(model, direction);
-      expect(model.getters.getPosition()).toEqual(toCartesian(endPosition));
+      expect(model.getters.getActivePosition()).toEqual(toCartesian(endPosition));
     }
   );
 

@@ -1076,7 +1076,7 @@ describe("multi sheet with different sizes", () => {
       left: 0,
       right: 0,
     });
-    const { col, row } = model.getters.getPosition();
+    const { col, row } = model.getters.getActivePosition();
     expect(model.getters.getCell(sheetId, col, row)).toBeUndefined();
   });
 
@@ -1091,7 +1091,7 @@ describe("multi sheet with different sizes", () => {
       left: 0,
       right: 1,
     });
-    const { col, row } = model.getters.getPosition();
+    const { col, row } = model.getters.getActivePosition();
     expect(model.getters.getCell(sheetId, col, row)).toBeUndefined();
   });
 

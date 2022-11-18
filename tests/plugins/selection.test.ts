@@ -168,7 +168,7 @@ describe("simple selection", () => {
       },
       zones: [A1Zone],
     });
-    expect(model.getters.getPosition()).toEqual({ col: A1Zone.left, row: A1Zone.top });
+    expect(model.getters.getActivePosition()).toEqual({ col: A1Zone.left, row: A1Zone.top });
   });
   test("update selection in some different directions", () => {
     const model = new Model({
@@ -428,7 +428,7 @@ describe("simple selection", () => {
     addColumns(model, "after", "A", 1);
     selectCell(model, "D1");
     undo(model);
-    expect(model.getters.getPosition()).toEqual(toCartesian("C1"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("C1"));
     expect(model.getters.getSheetPosition("42")).toEqual(toCartesian("C1"));
   });
 
@@ -446,7 +446,7 @@ describe("simple selection", () => {
     undo(model);
     selectCell(model, "C1");
     redo(model);
-    expect(model.getters.getPosition()).toEqual(toCartesian("B1"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("B1"));
     expect(model.getters.getSheetPosition("42")).toEqual(toCartesian("B1"));
   });
 
@@ -1045,7 +1045,7 @@ describe("Selection loop (ctrl + a)", () => {
       model.selection.loopSelection();
       const selection = model.getters.getSelectedZone();
       expect(zoneToXc(selection)).toEqual(zone);
-      expect(zoneToXc(positionToZone(model.getters.getPosition()))).toEqual(anchor);
+      expect(zoneToXc(positionToZone(model.getters.getActivePosition()))).toEqual(anchor);
     }
   });
 

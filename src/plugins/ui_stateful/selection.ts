@@ -98,7 +98,7 @@ export class GridSelectionPlugin extends UIPlugin {
     "getAggregate",
     "getSelectedFigureId",
     "getSelection",
-    "getPosition",
+    "getActivePosition",
     "getSheetPosition",
     "isSelected",
     "getElementsFromSelection",
@@ -386,7 +386,7 @@ export class GridSelectionPlugin extends UIPlugin {
     return this.selectedFigureId;
   }
 
-  getPosition(): Position {
+  getActivePosition(): Position {
     return this.getters.getMainCellPosition(
       this.getActiveSheetId(),
       this.gridSelection.anchor.cell.col,
@@ -396,7 +396,7 @@ export class GridSelectionPlugin extends UIPlugin {
 
   getSheetPosition(sheetId: UID): Position {
     if (sheetId === this.getters.getActiveSheetId()) {
-      return this.getPosition();
+      return this.getActivePosition();
     } else {
       const sheetData = this.sheetsData[sheetId];
       return sheetData
@@ -721,7 +721,7 @@ export class GridSelectionPlugin extends UIPlugin {
     ctx.globalCompositeOperation = "source-over";
     // active zone
     const activeSheet = this.getters.getActiveSheetId();
-    const { col, row } = this.getPosition();
+    const { col, row } = this.getActivePosition();
 
     ctx.strokeStyle = SELECTION_BORDER_COLOR;
     ctx.lineWidth = 3 * thinLineWidth;
