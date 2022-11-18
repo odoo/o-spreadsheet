@@ -3,7 +3,7 @@ import { ComponentsImportance, NEWLINE } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/index";
 import { functionRegistry } from "../../../functions/index";
 import { isEqual, rangeReference, zoneToDimension } from "../../../helpers/index";
-import { ComposerSelection, SelectionIndicator } from "../../../plugins/ui_stateful/edition";
+import { ComposerSelection } from "../../../plugins/ui_stateful/edition";
 import { DOMDimension, FunctionDescription, Rect, SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
@@ -15,14 +15,9 @@ const functions = functionRegistry.content;
 
 const ASSISTANT_WIDTH = 300;
 
-const FunctionColor = "#4a4e4d";
-const OperatorColor = "#3da4ab";
-const StringColor = "#00a82d";
-const SelectionIndicatorColor = "darkgrey";
-export const NumberColor = "#02c39a";
-export const MatchingParenColor = "black";
-
-export const SelectionIndicatorClass = "selector-flag";
+export const selectionIndicatorClass = "selector-flag";
+const selectionIndicatorColor = "#a9a9a9";
+const selectionIndicator = "␣";
 
 export type HtmlContent = {
   value: string;
@@ -30,15 +25,19 @@ export type HtmlContent = {
   class?: string;
 };
 
+const FunctionColor = "#4a4e4d";
+const OperatorColor = "#3da4ab";
+
 export const tokenColor = {
   OPERATOR: OperatorColor,
-  NUMBER: NumberColor,
-  STRING: StringColor,
+  NUMBER: "#02c39a",
+  STRING: "#00a82d",
   FUNCTION: FunctionColor,
   DEBUGGER: OperatorColor,
   LEFT_PAREN: FunctionColor,
   RIGHT_PAREN: FunctionColor,
   COMMA: FunctionColor,
+  MATCHING_PAREN: "#000000",
 };
 
 css/* scss */ `
@@ -48,8 +47,7 @@ css/* scss */ `
     border: 0;
     z-index: ${ComponentsImportance.Composer};
     flex-grow: 1;
-    max-height: inherit;
-    max-height: 200px;
+    overflow-y: auto;
     overflow-x: hidden;
     overflow-wrap: break-word;
 
@@ -70,9 +68,9 @@ css/* scss */ `
 
         span {
           white-space: pre-wrap;
-          &.${SelectionIndicatorClass}:after {
-            content: "${SelectionIndicator}";
-            color: ${SelectionIndicatorColor};
+          &.${selectionIndicatorClass}:after {
+            content: "${selectionIndicator}";
+            color: ${selectionIndicatorColor};
           }
         }
       }
@@ -125,11 +123,17 @@ interface FunctionDescriptionState {
 
 /**
  * TODO :
- * - paste values with newlines in composer is buggy
- * - formula helper is buggy for multi line composer
- * - grid composer style with scrollbar if cell > composer
- * - line height of grid composer
+ * - DONE - paste values with newlines in composer is buggy (rar fixed half of this + small fix in contentEditableHelper)
+ * - DONE : formula helper is buggy for multi line composer
+ * - DONE grid composer style with scrollbar if cell > composer : either formula assistant isn't displayed, or it overflows
+ * - DONE - line height of grid composer
+ * - composer scroll test  + scroll when adding a new line
+ * - DONE grid selection caret should go to a new line
+ * - (close formula autocomplete when composer lose focus) - too hard w/ the current focus implementation.
+ *      - have the composer style depend on the prop focus, not the actual focus
+ * - DONE grid composer sizing + un-skip tests
  * - (optional) : scroll when composer isn't expanded isn't very good. It also sucks in gsheet tho.
+ *
  */
 export class Composer extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Composer";
@@ -472,20 +476,17 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     this.shouldProcessInputEvents = true;
   }
 
-  private getContent(): HtmlContent[] {
-    let content: HtmlContent[] = [];
+  private getContent(): HtmlContent[][] {
     let value = this.env.model.getters.getCurrentContent();
     const isValidFormula =
       value.startsWith("=") && this.env.model.getters.getCurrentTokens().length > 0;
 
     if (value === "") {
-      content = [];
+      return [];
     } else if (isValidFormula && this.props.focus !== "inactive") {
-      content = this.getColoredTokens();
-    } else {
-      content.push({ value });
+      return this.splitHtmlContentIntoLines(this.getColoredTokens());
     }
-    return content;
+    return this.splitHtmlContentIntoLines([{ value }]);
   }
 
   private getColoredTokens(): HtmlContent[] {
@@ -509,7 +510,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
         case "SYMBOL":
           let value = token.value;
           if (["TRUE", "FALSE"].includes(value.toUpperCase())) {
-            result.push({ value: token.value, color: NumberColor });
+            result.push({ value: token.value, color: tokenColor.NUMBER });
           } else {
             result.push({ value: token.value, color: "#000" });
           }
@@ -523,7 +524,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
             tokenAtCursor.parenIndex &&
             tokenAtCursor.parenIndex === token.parenIndex
           ) {
-            result.push({ value: token.value, color: MatchingParenColor || "#000" });
+            result.push({ value: token.value, color: tokenColor.MATCHING_PAREN || "#000" });
           } else {
             result.push({ value: token.value, color: tokenColor[token.type] || "#000" });
           }
@@ -533,10 +534,53 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
           break;
       }
       if (this.env.model.getters.showSelectionIndicator() && end === start && end === token.end) {
-        result[result.length - 1].class = SelectionIndicatorClass;
+        result[result.length - 1].class = selectionIndicatorClass;
       }
     }
     return result;
+  }
+
+  /**
+   * Split an array of HTMLContents into lines. Each NEWLINE character encountered will create a new
+   * line. Contents can be split into multiple parts if they contain multiple NEWLINE characters.
+   */
+  private splitHtmlContentIntoLines(contents: HtmlContent[]): HtmlContent[][] {
+    const contentSplitInLines: HtmlContent[][] = [];
+    let currentLine: HtmlContent[] = [];
+
+    for (const content of contents) {
+      if (content.value.includes(NEWLINE)) {
+        const lines = content.value.split(NEWLINE);
+        const lastLine = lines.pop()!;
+        for (const line of lines) {
+          currentLine.push({ color: content.color, value: line }); // don't copy class, only last line should keep it
+          contentSplitInLines.push(currentLine);
+          currentLine = [];
+        }
+        currentLine.push({ ...content, value: lastLine });
+      } else {
+        currentLine.push(content);
+      }
+    }
+    if (currentLine.length) {
+      contentSplitInLines.push(currentLine);
+    }
+
+    // Remove useless empty contents
+    const filteredLines: HtmlContent[][] = [];
+    for (const line of contentSplitInLines) {
+      if (line.every(this.isContentEmpty)) {
+        filteredLines.push([line[0]]);
+      } else {
+        filteredLines.push(line.filter((content) => !this.isContentEmpty(content)));
+      }
+    }
+
+    return filteredLines;
+  }
+
+  private isContentEmpty(content: HtmlContent): boolean {
+    return !(content.value || content.class);
   }
 
   private rangeColor(xc: string, sheetName?: string): string | undefined {

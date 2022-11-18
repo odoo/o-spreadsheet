@@ -1,10 +1,14 @@
 import { App } from "@odoo/owl";
 import {
-  MatchingParenColor,
-  NumberColor,
+  selectionIndicatorClass,
   tokenColor,
 } from "../../src/components/composer/composer/composer";
-import { NEWLINE } from "../../src/constants";
+import {
+  DEFAULT_CELL_HEIGHT,
+  DEFAULT_CELL_WIDTH,
+  HEADER_HEIGHT,
+  NEWLINE,
+} from "../../src/constants";
 import { fontSizes } from "../../src/fonts";
 import { colors, toHex, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
@@ -16,11 +20,14 @@ import {
   createSheetWithName,
   merge,
   resizeAnchorZone,
+  resizeColumns,
+  resizeRows,
   selectCell,
   setCellContent,
 } from "../test_helpers/commands_helpers";
 import {
   clickCell,
+  getElComputedStyle,
   gridMouseEvent,
   hoverCell,
   keyDown,
@@ -45,6 +52,7 @@ import {
   toRangesData,
   typeInComposerGrid as typeInComposerGridHelper,
 } from "../test_helpers/helpers";
+import { HEADER_WIDTH } from "./../../src/constants";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
@@ -992,7 +1000,56 @@ describe("composer", () => {
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer")!);
   });
 
-  describe("composer's style depends on the style of the cell", () => {
+  describe("grid composer basic style", () => {
+    const composerContainerSelector = ".o-grid .o-grid-composer";
+    const composerSelector = composerContainerSelector + " .o-composer";
+
+    test("Grid composer snapshot", async () => {
+      await typeInComposerGrid("A");
+      expect(fixture.querySelector(composerContainerSelector)).toMatchSnapshot();
+    });
+
+    test("Grid composer container is positioned over the edited cell", async () => {
+      selectCell(model, "C3");
+      await typeInComposerGrid("A");
+
+      const expectedTop = HEADER_HEIGHT + 2 * DEFAULT_CELL_HEIGHT;
+      const expectedLeft = HEADER_WIDTH + 2 * DEFAULT_CELL_WIDTH - 1; //-1 to include cell border
+
+      expect(getElComputedStyle(composerContainerSelector, "top")).toBe(expectedTop + "px");
+      expect(getElComputedStyle(composerContainerSelector, "left")).toBe(expectedLeft + "px");
+    });
+
+    test("Grid composer container have a min-height / min-width to have the same size as the edited cell ", async () => {
+      resizeRows(model, [0], 40);
+      resizeColumns(model, ["A"], 50);
+      await typeInComposerGrid("A");
+
+      let expectedMinHeight = 40 + 1; // +1 to include cell border
+      let expectedMinWidth = 50 + 1;
+
+      expect(getElComputedStyle(composerContainerSelector, "min-height")).toBe(
+        expectedMinHeight + "px"
+      );
+      expect(getElComputedStyle(composerContainerSelector, "min-width")).toBe(
+        expectedMinWidth + "px"
+      );
+    });
+
+    test("Grid composer have a max-height / max-width to avoid overflow outside of grid", async () => {
+      selectCell(model, "C3");
+      await typeInComposerGrid("A");
+
+      const sheetViewDims = model.getters.getSheetViewDimension();
+      const expectedMaxHeight = sheetViewDims.height - 2 * DEFAULT_CELL_HEIGHT;
+      const expectedMaxWidth = sheetViewDims.width - 2 * DEFAULT_CELL_WIDTH;
+
+      expect(getElComputedStyle(composerSelector, "max-height")).toBe(expectedMaxHeight + "px");
+      expect(getElComputedStyle(composerSelector, "max-width")).toBe(expectedMaxWidth + "px");
+    });
+  });
+
+  describe("grid composer's style depends on the style of the cell", () => {
     test("with text color", async () => {
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
@@ -1125,7 +1182,7 @@ describe("composer", () => {
     });
   });
 
-  describe("composer's style does not depend on the style of the cell when it is a formula", () => {
+  describe("grid composer's style does not depend on the style of the cell when it is a formula", () => {
     test("with text color", async () => {
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
@@ -1454,7 +1511,7 @@ describe("composer formula color", () => {
     composerEl = await typeInComposerGrid("=SUM(");
     // @ts-ignore
     const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
-    expect(contentColors["("]).toBe(MatchingParenColor);
+    expect(contentColors["("]).toBe(tokenColor.MATCHING_PAREN);
   });
 
   test('type "=SUM(1" --> left parenthesis should have specific parenthesis color', async () => {
@@ -1489,7 +1546,7 @@ describe("composer formula color", () => {
     composerEl = await typeInComposerGrid('=SUM(1, "2")');
     // @ts-ignore
     const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
-    expect(contentColors[")"]).toBe(MatchingParenColor);
+    expect(contentColors[")"]).toBe(tokenColor.MATCHING_PAREN);
   });
 
   test(`type '=SUM(1, "2") +' --> right parenthesis should have specific parenthesis color`, async () => {
@@ -1510,7 +1567,7 @@ describe("composer formula color", () => {
     composerEl = await typeInComposerGrid('=SUM(1, "2") + TRUE');
     // @ts-ignore
     const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
-    expect(contentColors["TRUE"]).toBe(NumberColor);
+    expect(contentColors["TRUE"]).toBe(tokenColor.NUMBER);
   });
 });
 
@@ -1584,6 +1641,74 @@ describe("composer highlights color", () => {
   });
 
   test("grid composer is resized when top bar composer grows", async () => {});
+});
+
+describe("Composer string is correctly translated to HtmlContents[][] for the contentEditableHelper", () => {
+  test("Simple string", async () => {
+    await typeInComposerGrid("I'm a simple content");
+    expect(cehMock.contents).toEqual([[{ value: "I'm a simple content" }]]);
+  });
+
+  test("Simple formula", async () => {
+    await typeInComposerGrid("=1 + A1");
+    expect(cehMock.contents).toEqual([
+      [
+        { value: "=", color: tokenColor.OPERATOR },
+        { value: "1", color: tokenColor.NUMBER },
+        { value: " ", color: "#000" },
+        { value: "+", color: tokenColor.OPERATOR },
+        { value: " ", color: "#000" },
+        { value: "A1", color: cehMock.colors["A1"] },
+      ],
+    ]);
+  });
+
+  test("Selection indicator in simple formula", async () => {
+    await typeInComposerGrid("=");
+    expect(cehMock.contents).toEqual([
+      [{ value: "=", color: tokenColor.OPERATOR, class: selectionIndicatorClass }],
+    ]);
+  });
+
+  test("Multi-line string", async () => {
+    await typeInComposerGrid("\nI'm\nmulti\n\nline\n");
+    expect(cehMock.contents).toEqual([
+      [{ value: "" }],
+      [{ value: "I'm" }],
+      [{ value: "multi" }],
+      [{ value: "" }],
+      [{ value: "line" }],
+      [{ value: "" }],
+    ]);
+  });
+
+  test("Multi-line formula", async () => {
+    await typeInComposerGrid("=\nA1: \nA2\n\n+SUM(\n5)");
+    expect(cehMock.contents).toEqual([
+      [{ value: "=", color: tokenColor.OPERATOR }],
+      [{ value: "A1: ", color: cehMock.colors["A1: "] }],
+      [{ value: "A2", color: cehMock.colors["A1: "] }],
+      [{ value: "", color: "#000" }],
+      [
+        { value: "+", color: tokenColor.OPERATOR },
+        { value: "SUM", color: tokenColor.FUNCTION },
+        { value: "(", color: tokenColor.MATCHING_PAREN },
+      ],
+      [
+        { value: "5", color: tokenColor.NUMBER },
+        { value: ")", color: tokenColor.MATCHING_PAREN },
+      ],
+    ]);
+  });
+
+  test("Selection indicator in multi-line formula", async () => {
+    await typeInComposerGrid("=\n\n");
+    expect(cehMock.contents).toEqual([
+      [{ value: "=", color: tokenColor.OPERATOR }],
+      [{ value: "", color: "#000" }],
+      [{ value: "", color: "#000", class: selectionIndicatorClass }],
+    ]);
+  });
 });
 
 describe("Copy/paste in composer", () => {

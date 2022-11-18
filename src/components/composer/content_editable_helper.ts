@@ -78,51 +78,22 @@ export class ContentEditableHelper {
   }
 
   /**
-   * Split an array of HTMLContents into lines. Each NEWLINE character encountered will create a new
-   * line. Contents can be split into multiple parts if they contain multiple NEWLINE characters.
-   */
-  private splitHtmlContentsInLines(contents: HtmlContent[]): HtmlContent[][] {
-    const contentSplitInLines: HtmlContent[][] = [];
-    let currentLine: HtmlContent[] = [];
-
-    for (const content of contents) {
-      if (content.value.includes(NEWLINE)) {
-        const lines = content.value.split(NEWLINE);
-        const lastLine = lines.pop()!;
-        for (const line of lines) {
-          currentLine.push({ ...content, value: line });
-          contentSplitInLines.push(currentLine);
-          currentLine = [];
-        }
-        currentLine.push({ ...content, value: lastLine });
-      } else {
-        currentLine.push(content);
-      }
-    }
-    if (currentLine.length) {
-      contentSplitInLines.push(currentLine);
-    }
-    return contentSplitInLines;
-  }
-
-  /**
    * Sets (or Replaces all) the text inside the root element in the form of distinctive
    * span for each element provided in `contents`.
    *
    * Each span will have its own fontcolor and specific class if provided in the HtmlContent object.
    */
-  setText(contents: HtmlContent[]) {
+  setText(contents: HtmlContent[][]) {
     this.el.innerHTML = "";
     if (contents.length === 0) {
       return;
     }
 
-    const contentSplitInLines: HtmlContent[][] = this.splitHtmlContentsInLines(contents);
-
-    for (const line of contentSplitInLines) {
+    for (const line of contents) {
       const p = document.createElement("p");
 
-      if (line.length === 0 || line.every((content) => content.value === "")) {
+      // Empty line
+      if (line.length === 0 || line.every((content) => content.value === "" && !content.class)) {
         p.appendChild(document.createElement("br"));
         this.el.appendChild(p);
         continue;
@@ -241,7 +212,10 @@ export class ContentEditableHelper {
       if (!current.value.hasChildNodes()) {
         text += current.value.textContent;
       }
-      if (current.value.nodeName === "P") {
+      if (
+        current.value.nodeName === "P" ||
+        (current.value.nodeName === "DIV" && current.value !== this.el) // On paste, the HTML may contain <div> instead of <p>
+      ) {
         if (isFirstParagraph) {
           isFirstParagraph = false;
         } else {

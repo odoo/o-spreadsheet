@@ -3,7 +3,10 @@
     <div
       class="o-composer-container"
       t-att-style="getContainerStyle()"
-      t-ref="o_composer_container">
+      t-ref="o_composer_container"
+      t-on-mousedown.stop.prevent=""
+      t-on-click.stop.prevent=""
+      t-on-mouseup.stop.prevent="">
       <div
         t-att-class="{ 'o-composer': true, 'text-muted': env.model.getters.isReadonly(), 'unfocusable': env.model.getters.isReadonly() }"
         t-att-style="props.inputStyle"
@@ -12,7 +15,8 @@
         t-att-contenteditable="env.model.getters.isReadonly() ? 'false' : 'true'"
         spellcheck="false"
         t-on-keydown="onKeydown"
-        t-on-mousedown="onMousedown"
+        t-on-mousedown.stop="onMousedown"
+        t-on-mouseup.stop=""
         t-on-mousewheel.stop=""
         t-on-input="onInput"
         t-on-keyup="onKeyup"

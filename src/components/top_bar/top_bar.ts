@@ -154,12 +154,6 @@ css/* scss */ `
       .o-composer {
         padding-left: 8px;
 
-        &:not(:focus) {
-          p {
-            padding-bottom: 10px;
-          }
-        }
-
         &:focus {
           height: fit-content;
         }

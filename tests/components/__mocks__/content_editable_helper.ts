@@ -1,6 +1,6 @@
 import {
   HtmlContent,
-  SelectionIndicatorClass,
+  selectionIndicatorClass,
 } from "../../../src/components/composer/composer/composer";
 
 const initialSelectionState = {
@@ -16,6 +16,7 @@ export class ContentEditableHelper {
   el: HTMLElement | null = null;
   manualRange: boolean = false;
   selectionState: { isSelectingRange: boolean; position: number } = initialSelectionState;
+  contents: HtmlContent[][] = [];
 
   updateEl(el: HTMLElement) {
     this.el = el;
@@ -38,10 +39,16 @@ export class ContentEditableHelper {
     this.currentState.cursorEnd = end;
   }
 
-  setText(values: HtmlContent[]) {
+  setText(values: HtmlContent[][]) {
     this.selectionState = initialSelectionState;
-    for (const content of values) {
-      this.insertText(content.value, { color: content.color, className: content.class });
+    this.contents = values;
+    for (const line of values) {
+      for (const content of line) {
+        this.insertText(content.value, { color: content.color, className: content.class });
+      }
+      if (line !== values[values.length - 1]) {
+        this.insertText("\n");
+      }
     }
   }
 
@@ -67,7 +74,7 @@ export class ContentEditableHelper {
       this.manualRange = false;
     }
     this.colors[value] = color;
-    if (className === SelectionIndicatorClass) {
+    if (className === selectionIndicatorClass) {
       this.selectionState = {
         isSelectingRange: true,
         position: this.currentState.cursorEnd,

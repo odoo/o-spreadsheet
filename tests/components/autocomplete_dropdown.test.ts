@@ -11,6 +11,7 @@ import {
   nextTick,
   restoreDefaultFunctions,
   typeInComposerGrid as typeInComposerGridHelper,
+  typeInComposerTopBar as typeInComposerTopBarHelper,
 } from "../test_helpers/helpers";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
@@ -25,6 +26,14 @@ let cehMock: ContentEditableHelper;
 
 async function typeInComposerGrid(text: string, fromScratch: boolean = true) {
   const composerEl = await typeInComposerGridHelper(text, fromScratch);
+  // @ts-ignore
+  cehMock = window.mockContentHelper;
+  await nextTick();
+  return composerEl;
+}
+
+async function typeInComposerTopBar(text: string, fromScratch: boolean = true) {
+  const composerEl = await typeInComposerTopBarHelper(text, fromScratch);
   // @ts-ignore
   cehMock = window.mockContentHelper;
   await nextTick();
@@ -194,6 +203,39 @@ describe("Functions autocomplete", () => {
       expect(cehMock.selectionState.position).toBe(5);
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
+    });
+
+    test("click on a autocomplete with multi-line topbar composer does the autocomplete", async () => {
+      await typeInComposerTopBar("=\nS");
+      fixture
+        .querySelector(".o-autocomplete-dropdown")!
+        .children[1].dispatchEvent(new MouseEvent("click"));
+      await nextTick();
+      expect(composerEl.textContent).toBe("=\nSZZ(");
+      expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
+      expect(cehMock.selectionState.position).toBe(6);
+      expect(document.activeElement).toBe(composerEl);
+      expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
+    });
+
+    test("Mouse events on the autocomplete dropdown don't make the composer lose focus", async () => {
+      await typeInComposerGrid("=S");
+      const dropDownEl = fixture.querySelector(".o-autocomplete-dropdown")!;
+
+      await nextTick();
+      expect(document.activeElement?.classList).toContain("o-composer");
+
+      dropDownEl.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+      await nextTick();
+      expect(document.activeElement?.classList).toContain("o-composer");
+
+      dropDownEl.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
+      await nextTick();
+      expect(document.activeElement?.classList).toContain("o-composer");
+
+      dropDownEl.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await nextTick();
+      expect(document.activeElement?.classList).toContain("o-composer");
     });
   });
 
