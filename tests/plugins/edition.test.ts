@@ -486,7 +486,7 @@ describe("edition", () => {
 
   test("set value of the active cell updates the content", () => {
     const model = new Model();
-    expect(model.getters.getPosition()).toEqual(toCartesian("A1"));
+    expect(model.getters.getActivePosition()).toEqual(toCartesian("A1"));
     setCellContent(model, "A1", "Hello sir");
     expect(model.getters.getCurrentContent()).toBe("Hello sir");
   });

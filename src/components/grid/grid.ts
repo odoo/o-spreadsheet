@@ -241,7 +241,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         left: 0,
         right: this.env.model.getters.getNumberCols(sheetId) - 1,
       };
-      const position = this.env.model.getters.getPosition();
+      const position = this.env.model.getters.getActivePosition();
       this.env.model.selection.selectZone({ cell: position, zone: newZone });
     },
     "CTRL+ ": () => {
@@ -251,7 +251,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         top: 0,
         bottom: this.env.model.getters.getNumberRows(sheetId) - 1,
       };
-      const position = this.env.model.getters.getPosition();
+      const position = this.env.model.getters.getActivePosition();
       this.env.model.selection.selectZone({ cell: position, zone: newZone });
     },
     "CTRL+SHIFT+ ": () => {

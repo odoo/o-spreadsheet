@@ -417,7 +417,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
       (left < xSplit && xSplit <= right) ||
       (top < ySplit && ySplit <= bottom);
     if (!this.cannotMerge) {
-      const { col, row } = this.env.model.getters.getPosition();
+      const { col, row } = this.env.model.getters.getActivePosition();
       const zone = this.env.model.getters.expandZone(sheetId, {
         left: col,
         right: col,

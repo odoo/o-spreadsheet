@@ -185,7 +185,7 @@ describe("next/previous cycle", () => {
     model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
     let matches = model.getters.getSearchMatches();
     let matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    expect(model.getters.getPosition()).toStrictEqual({ col: 0, row: 0 });
+    expect(model.getters.getActivePosition()).toStrictEqual({ col: 0, row: 0 });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(0);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: true });
@@ -195,7 +195,7 @@ describe("next/previous cycle", () => {
     model.dispatch("SELECT_SEARCH_NEXT_MATCH");
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    expect(model.getters.getPosition()).toStrictEqual({ col: 0, row: 1 });
+    expect(model.getters.getActivePosition()).toStrictEqual({ col: 0, row: 1 });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(1);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: false });
@@ -205,7 +205,7 @@ describe("next/previous cycle", () => {
     model.dispatch("SELECT_SEARCH_NEXT_MATCH");
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    expect(model.getters.getPosition()).toStrictEqual({ col: 0, row: 2 });
+    expect(model.getters.getActivePosition()).toStrictEqual({ col: 0, row: 2 });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(2);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: false });
@@ -215,7 +215,7 @@ describe("next/previous cycle", () => {
     model.dispatch("SELECT_SEARCH_NEXT_MATCH");
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    expect(model.getters.getPosition()).toStrictEqual({ col: 0, row: 0 });
+    expect(model.getters.getActivePosition()).toStrictEqual({ col: 0, row: 0 });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(0);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: true });
@@ -225,7 +225,7 @@ describe("next/previous cycle", () => {
     model.dispatch("SELECT_SEARCH_NEXT_MATCH");
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    expect(model.getters.getPosition()).toStrictEqual({ col: 0, row: 1 });
+    expect(model.getters.getActivePosition()).toStrictEqual({ col: 0, row: 1 });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(1);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: false });
@@ -236,7 +236,7 @@ describe("next/previous cycle", () => {
     model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
     let matches = model.getters.getSearchMatches();
     let matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    expect(model.getters.getPosition()).toStrictEqual({ col: 0, row: 0 });
+    expect(model.getters.getActivePosition()).toStrictEqual({ col: 0, row: 0 });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(0);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: true });
@@ -246,7 +246,7 @@ describe("next/previous cycle", () => {
     model.dispatch("SELECT_SEARCH_PREVIOUS_MATCH");
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    expect(model.getters.getPosition()).toStrictEqual({ col: 0, row: 2 });
+    expect(model.getters.getActivePosition()).toStrictEqual({ col: 0, row: 2 });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(2);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: false });
@@ -256,7 +256,7 @@ describe("next/previous cycle", () => {
     model.dispatch("SELECT_SEARCH_PREVIOUS_MATCH");
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    expect(model.getters.getPosition()).toStrictEqual({ col: 0, row: 1 });
+    expect(model.getters.getActivePosition()).toStrictEqual({ col: 0, row: 1 });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(1);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: false });
@@ -266,7 +266,7 @@ describe("next/previous cycle", () => {
     model.dispatch("SELECT_SEARCH_PREVIOUS_MATCH");
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    expect(model.getters.getPosition()).toStrictEqual({ col: 0, row: 0 });
+    expect(model.getters.getActivePosition()).toStrictEqual({ col: 0, row: 0 });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(0);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: true });
@@ -276,7 +276,7 @@ describe("next/previous cycle", () => {
     model.dispatch("SELECT_SEARCH_PREVIOUS_MATCH");
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    expect(model.getters.getPosition()).toStrictEqual({ col: 0, row: 2 });
+    expect(model.getters.getActivePosition()).toStrictEqual({ col: 0, row: 2 });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(2);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: false });

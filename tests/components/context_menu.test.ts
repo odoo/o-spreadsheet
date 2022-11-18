@@ -39,7 +39,7 @@ afterEach(() => {
 });
 
 function getActiveXc(model: Model): string {
-  const { col, row } = model.getters.getPosition();
+  const { col, row } = model.getters.getActivePosition();
   return toXC(col, row);
 }
 

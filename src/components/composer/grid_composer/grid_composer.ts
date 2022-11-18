@@ -56,7 +56,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       rect: undefined,
       delimitation: undefined,
     });
-    const { col, row } = this.env.model.getters.getPosition();
+    const { col, row } = this.env.model.getters.getActivePosition();
     this.zone = this.env.model.getters.expandZone(this.env.model.getters.getActiveSheetId(), {
       left: col,
       right: col,
@@ -90,7 +90,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   get containerStyle(): string {
     const isFormula = this.env.model.getters.getCurrentContent().startsWith("=");
     const cell = this.env.model.getters.getActiveCell();
-    const position = this.env.model.getters.getPosition();
+    const position = this.env.model.getters.getActivePosition();
     const sheetId = this.env.model.getters.getActiveSheetId();
     const style = this.env.model.getters.getCellComputedStyle(sheetId, position.col, position.row);
 
