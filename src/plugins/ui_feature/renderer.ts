@@ -517,7 +517,7 @@ export class RendererPlugin extends UIPlugin {
       const previousCellBorder = this.getters.getCellBorderWithFilterBorder(sheetId, col - 1, row);
       if (
         previousCell.type !== CellValueType.empty ||
-        this.getters.isInMerge(sheetId, col + 1, row) ||
+        this.getters.isInMerge(sheetId, col - 1, row) ||
         previousCellBorder?.right
       ) {
         return col;
