@@ -223,9 +223,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       const positions = Object.keys(this.cells[_sheet.id] || {})
         .map((cellId) => this.getters.getCellPosition(cellId))
         .sort((a, b) => (a.col === b.col ? a.row - b.row : a.col - b.col));
-      for (const { col, row } of positions) {
-        const cell = this.getters.getCell(_sheet.id, col, row)!;
-        const xc = toXC(col, row);
+      for (const position of positions) {
+        const cell = this.getters.getCell(position)!;
+        const xc = toXC(position.col, position.row);
 
         cells[xc] = {
           style: cell.style ? getItemId<Style>(cell.style, styles) : undefined,
@@ -302,8 +302,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return this.buildFormulaContent(sheetId, cell);
   }
 
-  getCellStyle({ sheetId, col, row }: CellPosition): Style {
-    return this.getters.getCell(sheetId, col, row)?.style || {};
+  getCellStyle(position: CellPosition): Style {
+    return this.getters.getCell(position)?.style || {};
   }
 
   /**
@@ -334,8 +334,16 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       zone.bottom,
       fixedParts.length > 1 ? fixedParts[1] : fixedParts[0]
     );
-    const cellTopLeft = this.getters.getMainCellPosition(sheetId, zone.left, zone.top);
-    const cellBotRight = this.getters.getMainCellPosition(sheetId, zone.right, zone.bottom);
+    const cellTopLeft = this.getters.getMainCellPosition({
+      sheetId,
+      col: zone.left,
+      row: zone.top,
+    });
+    const cellBotRight = this.getters.getMainCellPosition({
+      sheetId,
+      col: zone.right,
+      row: zone.bottom,
+    });
     const sameCell = cellTopLeft.col === cellBotRight.col && cellTopLeft.row === cellBotRight.row;
     if (topLeft != botRight && !sameCell) {
       return topLeft + ":" + botRight;
@@ -348,7 +356,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     for (let zone of target) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
-          const cell = this.getters.getCell(sheetId, col, row);
+          const cell = this.getters.getCell({ sheetId, col, row });
           this.dispatch("UPDATE_CELL", {
             sheetId,
             col,
@@ -397,8 +405,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     row: HeaderIndex
   ): { style?: Style; format?: Format } {
     const format: { style?: Style; format?: string } = {};
-    const { col: mainCol, row: mainRow } = this.getters.getMainCellPosition(sheetId, col, row);
-    const cell = this.getters.getCell(sheetId, mainCol, mainRow);
+    const position = this.getters.getMainCellPosition({ sheetId, col, row });
+    const cell = this.getters.getCell(position);
     if (cell) {
       if (cell.style) {
         format["style"] = cell.style;
@@ -417,7 +425,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   private updateCell(sheetId: UID, col: HeaderIndex, row: HeaderIndex, after: UpdateCellData) {
-    const before = this.getters.getCell(sheetId, col, row);
+    const before = this.getters.getCell({ sheetId, col, row });
     const hasContent = "content" in after || "formula" in after;
 
     // Compute the new cell properties

@@ -12,6 +12,7 @@ import {
 } from "../../helpers";
 import {
   Border,
+  CellPosition,
   CellValueType,
   Command,
   CommandResult,
@@ -42,7 +43,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
   allowDispatch(cmd: Command) {
     switch (cmd.type) {
       case "UPDATE_FILTER":
-        if (!this.getters.getFilterId(cmd.sheetId, cmd.col, cmd.row)) {
+        if (!this.getters.getFilterId(cmd)) {
           return CommandResult.FilterNotFound;
         }
         break;
@@ -79,7 +80,11 @@ export class FilterEvaluationPlugin extends UIPlugin {
         const filterValues: Record<FilterId, string[]> = {};
         for (const copiedFilter of this.getters.getFilters(cmd.sheetId)) {
           const zone = copiedFilter.zoneWithHeaders;
-          const newFilter = this.getters.getFilter(cmd.sheetIdTo, zone.left, zone.top)!;
+          const newFilter = this.getters.getFilter({
+            sheetId: cmd.sheetIdTo,
+            col: zone.left,
+            row: zone.top,
+          })!;
           filterValues[newFilter.id] = this.filterValues[cmd.sheetId]?.[copiedFilter.id] || [];
         }
         this.filterValues[cmd.sheetIdTo] = filterValues;
@@ -104,7 +109,8 @@ export class FilterEvaluationPlugin extends UIPlugin {
     return this.hiddenRows.has(row);
   }
 
-  getCellBorderWithFilterBorder(sheetId: UID, col: number, row: number): Border | null {
+  getCellBorderWithFilterBorder(position: CellPosition): Border | null {
+    const { sheetId, col, row } = position;
     let filterBorder: Border | undefined = undefined;
     for (let filters of this.getters.getFilterTables(sheetId)) {
       const zone = filters.zone;
@@ -127,7 +133,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
       }
     }
 
-    const cellBorder = this.getters.getCellBorder(sheetId, col, row);
+    const cellBorder = this.getters.getCellBorder(position);
 
     // Use removeFalsyAttributes to avoid overwriting filter borders with undefined values
     const border = { ...filterBorder, ...removeFalsyAttributes(cellBorder || {}) };
@@ -153,24 +159,26 @@ export class FilterEvaluationPlugin extends UIPlugin {
     return headers;
   }
 
-  getFilterValues(sheetId: UID, col: number, row: number): string[] {
-    const id = this.getters.getFilterId(sheetId, col, row);
+  getFilterValues(position: CellPosition): string[] {
+    const id = this.getters.getFilterId(position);
+    const sheetId = position.sheetId;
     if (!id || !this.filterValues[sheetId]) return [];
     return this.filterValues[sheetId][id] || [];
   }
 
-  isFilterHeader(sheetId: UID, col: number, row: number): boolean {
+  isFilterHeader({ sheetId, col, row }: CellPosition): boolean {
     const headers = this.getFilterHeaders(sheetId);
     return headers.some((header) => header.col === col && header.row === row);
   }
 
-  isFilterActive(sheetId: UID, col: number, row: number): boolean {
-    const id = this.getters.getFilterId(sheetId, col, row);
+  isFilterActive(position: CellPosition): boolean {
+    const id = this.getters.getFilterId(position);
+    const sheetId = position.sheetId;
     return Boolean(id && this.filterValues[sheetId]?.[id]?.length);
   }
 
   private updateFilter({ col, row, values, sheetId }: UpdateFilterCommand) {
-    const id = this.getters.getFilterId(sheetId, col, row);
+    const id = this.getters.getFilterId({ sheetId, col, row });
     if (!id) return;
     if (!this.filterValues[sheetId]) this.filterValues[sheetId] = {};
     this.filterValues[sheetId][id] = values;
@@ -206,13 +214,14 @@ export class FilterEvaluationPlugin extends UIPlugin {
         const filters: ExcelFilterData[] = [];
         const headerNames: string[] = [];
         for (const i of range(0, zoneToDimension(tableZone).width)) {
-          const filteredValues: string[] = this.getFilterValues(
-            sheetData.id,
-            tableZone.left + i,
-            tableZone.top
-          );
+          const position = {
+            sheetId: sheetData.id,
+            col: tableZone.left + i,
+            row: tableZone.top,
+          };
+          const filteredValues: string[] = this.getFilterValues(position);
 
-          const filter = this.getters.getFilter(sheetData.id, tableZone.left + i, tableZone.top);
+          const filter = this.getters.getFilter(position);
           if (!filter) continue;
 
           const valuesInFilterZone = filter.filteredZone

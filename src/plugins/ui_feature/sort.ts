@@ -1,4 +1,4 @@
-import { isInside, overlap, range, zoneToDimension } from "../../helpers/index";
+import { isInside, overlap, positions, range, zoneToDimension } from "../../helpers/index";
 import { sortCells } from "../../helpers/sort";
 import { _lt } from "../../translation";
 import {
@@ -45,12 +45,11 @@ export class SortPlugin extends UIPlugin {
       return CommandResult.Success;
     }
     /*Test the presence of single cells*/
-    for (let row = zone.top; row <= zone.bottom; row++) {
-      for (let col = zone.left; col <= zone.right; col++) {
-        if (!this.getters.isInMerge(sheetId, col, row)) {
-          return CommandResult.InvalidSortZone;
-        }
-      }
+    const singleCells = positions(zone).some(
+      ({ col, row }) => !this.getters.isInMerge({ sheetId, col, row })
+    );
+    if (singleCells) {
+      return CommandResult.InvalidSortZone;
     }
     return CommandResult.Success;
   }
@@ -102,7 +101,7 @@ export class SortPlugin extends UIPlugin {
       const { left, right, top, bottom } = expandedZone;
       for (let c = left; c <= right; c++) {
         for (let r = top; r <= bottom; r++) {
-          const { col, row } = this.getters.getMainCellPosition(sheetId, c, r);
+          const { col, row } = this.getters.getMainCellPosition({ sheetId, col: c, row: r });
           cell = this.getters.getEvaluatedCell({ sheetId, col, row });
           if (cell.formattedValue) {
             return true;
@@ -255,11 +254,11 @@ export class SortPlugin extends UIPlugin {
     options: SortOptions
   ) {
     const [stepX, stepY] = this.mainCellsSteps(sheetId, zone);
-    let sortingCol: HeaderIndex = this.getters.getMainCellPosition(
+    let sortingCol: HeaderIndex = this.getters.getMainCellPosition({
       sheetId,
-      anchor.col,
-      anchor.row
-    ).col; // fetch anchor
+      col: anchor.col,
+      row: anchor.row,
+    }).col; // fetch anchor
     let sortZone = Object.assign({}, zone);
     // Update in case of merges in the zone
     let cellPositions = this.mainCells(sheetId, zone);
@@ -283,7 +282,7 @@ export class SortPlugin extends UIPlugin {
     for (let c: HeaderIndex = 0; c < width; c++) {
       for (let r: HeaderIndex = 0; r < height; r++) {
         let { col, row, sheetId } = cellPositions[c][sortedIndex[r]];
-        const cell = this.getters.getCell(sheetId, col, row);
+        const cell = this.getters.getCell({ sheetId, col, row });
         let newCol: HeaderIndex = sortZone.left + c * stepX;
         let newRow: HeaderIndex = sortZone.top + r * stepY;
         let newCellValues: Omit<UpdateCellCommand, "type"> = {
@@ -319,7 +318,7 @@ export class SortPlugin extends UIPlugin {
    * Note: it is assumed all merges are the same in the zone.
    */
   private mainCellsSteps(sheetId: UID, zone: Zone): [number, number] {
-    const merge = this.getters.getMerge(sheetId, zone.left, zone.top);
+    const merge = this.getters.getMerge({ sheetId, col: zone.left, row: zone.top });
     const stepX = merge ? merge.right - merge.left + 1 : 1;
     const stepY = merge ? merge.bottom - merge.top + 1 : 1;
     return [stepX, stepY];

@@ -1,5 +1,5 @@
 import { range } from "../../helpers";
-import { Dimension, ExcelWorkbookData, HeaderIndex, Position, UID } from "../../types";
+import { CellPosition, Dimension, ExcelWorkbookData, HeaderIndex, UID } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 export class HeaderVisibilityUIPlugin extends UIPlugin {
@@ -29,8 +29,9 @@ export class HeaderVisibilityUIPlugin extends UIPlugin {
       : this.isRowHidden(sheetId, index);
   }
 
-  getNextVisibleCellPosition(sheetId: UID, col: number, row: number): Position {
+  getNextVisibleCellPosition({ sheetId, col, row }: CellPosition): CellPosition {
     return {
+      sheetId,
       col: this.findVisibleHeader(sheetId, "COL", range(col, this.getters.getNumberCols(sheetId)))!,
       row: this.findVisibleHeader(sheetId, "ROW", range(row, this.getters.getNumberRows(sheetId)))!,
     };

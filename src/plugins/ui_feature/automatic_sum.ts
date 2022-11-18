@@ -119,7 +119,7 @@ export class AutomaticSumPlugin extends UIPlugin {
    */
   private findAdjacentData(sheetId: UID, col: HeaderIndex, row: HeaderIndex): Zone | undefined {
     const sheet = this.getters.getSheet(sheetId);
-    const mainCellPosition = this.getters.getMainCellPosition(sheetId, col, row);
+    const mainCellPosition = this.getters.getMainCellPosition({ sheetId, col, row });
     const zone = this.findSuitableZoneToSum(sheet, mainCellPosition.col, mainCellPosition.row);
     if (zone) {
       return this.getters.expandZone(sheetId, zone);

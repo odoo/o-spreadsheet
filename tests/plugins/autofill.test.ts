@@ -13,7 +13,14 @@ import {
   setCellContent,
   setSelection,
 } from "../test_helpers/commands_helpers";
-import { getCell, getCellContent, getCellText, getMerges } from "../test_helpers/getters_helpers"; // to have getcontext mocks
+import {
+  getBorder,
+  getCell,
+  getCellContent,
+  getCellText,
+  getMerges,
+  getStyle,
+} from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
 import {
   getMergeCellMap,
@@ -128,7 +135,7 @@ describe("Autofill", () => {
     autofill("A1", "A2");
     const cell = getCell(model, "A2")!;
     expect(cell.style).toEqual(style);
-    expect(model.getters.getCellBorder(sheetId, 0, 1)).toEqual(border);
+    expect(getBorder(model, "A2")).toEqual(border);
     expect(cell.format).toBe("m/d/yyyy");
   });
 
@@ -160,32 +167,23 @@ describe("Autofill", () => {
       sheetId,
       ranges: toRangesData(sheetId, cf.ranges.join(",")),
     });
-    let col: number, row: number;
-    ({ col, row } = toCartesian("A1"));
-    expect(model.getters.getCellComputedStyle(sheetId, col, row)).toEqual({
+    expect(getStyle(model, "A1")).toEqual({
       fillColor: "#FF0000",
     });
-    ({ col, row } = toCartesian("A2"));
-    expect(model.getters.getCellComputedStyle(sheetId, col, row)).toEqual({
+    expect(getStyle(model, "A2")).toEqual({
       fillColor: "#FF0000",
     });
-    ({ col, row } = toCartesian("A3"));
-    expect(model.getters.getCellComputedStyle(sheetId, col, row)).toEqual({});
-    ({ col, row } = toCartesian("A4"));
-    expect(model.getters.getCellComputedStyle(sheetId, col, row)).toEqual({});
+    expect(getStyle(model, "A3")).toEqual({});
+    expect(getStyle(model, "A4")).toEqual({});
     autofill("A1:A4", "A8");
-    ({ col, row } = toCartesian("A5"));
-    expect(model.getters.getCellComputedStyle(sheetId, col, row)).toEqual({
+    expect(getStyle(model, "A5")).toEqual({
       fillColor: "#FF0000",
     });
-    ({ col, row } = toCartesian("A6"));
-    expect(model.getters.getCellComputedStyle(sheetId, col, row)).toEqual({
+    expect(getStyle(model, "A6")).toEqual({
       fillColor: "#FF0000",
     });
-    ({ col, row } = toCartesian("A7"));
-    expect(model.getters.getCellComputedStyle(sheetId, col, row)).toEqual({});
-    ({ col, row } = toCartesian("A8"));
-    expect(model.getters.getCellComputedStyle(sheetId, col, row)).toEqual({});
+    expect(getStyle(model, "A7")).toEqual({});
+    expect(getStyle(model, "A8")).toEqual({});
   });
 
   describe("Autofill multiple values", () => {
@@ -404,7 +402,7 @@ describe("Autofill", () => {
       autofill("A1", "A2");
       const cell = getCell(model, "A2")!;
       expect(cell.style).toBeUndefined();
-      expect(model.getters.getCellBorder(sheetId, col, row)).toBeNull();
+      expect(getBorder(model, "A2")).toBeNull();
       expect(cell.format).toBeUndefined();
       expect(cell["content"]).toBe("1");
     });
@@ -447,8 +445,8 @@ describe("Autofill", () => {
     autofill("A1", "A3");
     expect(getCell(model, "A2")).toBeUndefined();
     expect(getCell(model, "A3")).toBeUndefined();
-    expect(model.getters.getCellBorder(sheetId, 0, 1)).toBeNull();
-    expect(model.getters.getCellBorder(sheetId, 0, 2)).toBeNull();
+    expect(getBorder(model, "A2")).toBeNull();
+    expect(getBorder(model, "A3")).toBeNull();
   });
 
   test("Auto-autofill left", () => {

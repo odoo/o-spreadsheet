@@ -1,5 +1,5 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { positions, positionToZone, toCartesian, toZone, zoneToXc } from "../../src/helpers";
+import { positionToZone, toCartesian, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import { SelectionDirection } from "../../src/types/selection";
@@ -27,7 +27,7 @@ import {
   setSelection,
   undo,
 } from "../test_helpers/commands_helpers";
-import { getActiveXc } from "../test_helpers/getters_helpers";
+import { getActivePosition, getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
 
 let model: Model;
 const hiddenContent = { content: "hidden content to be skipped" };
@@ -142,12 +142,12 @@ describe("simple selection", () => {
     resizeAnchorZone(model, "right");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 3, left: 1, bottom: 1 });
-    expect(getActiveXc(model)).toBe("B1");
+    expect(getSelectionAnchorCellXc(model)).toBe("B1");
 
     // move to the left, outside the merge
     resizeAnchorZone(model, "left");
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 1, left: 1, bottom: 1 });
-    expect(getActiveXc(model)).toBe("B1");
+    expect(getSelectionAnchorCellXc(model)).toBe("B1");
   });
 
   test("select a cell outside the sheet", () => {
@@ -168,7 +168,7 @@ describe("simple selection", () => {
       },
       zones: [A1Zone],
     });
-    expect(model.getters.getActivePosition()).toEqual({ col: A1Zone.left, row: A1Zone.top });
+    expect(getActivePosition(model)).toBe("A1");
   });
   test("update selection in some different directions", () => {
     const model = new Model({
@@ -182,7 +182,7 @@ describe("simple selection", () => {
     });
     // move sell to B4
     selectCell(model, "B4");
-    expect(getActiveXc(model)).toBe("B4");
+    expect(getSelectionAnchorCellXc(model)).toBe("B4");
 
     // move up, inside the merge
     resizeAnchorZone(model, "up");
@@ -206,7 +206,7 @@ describe("simple selection", () => {
     });
     // move sell to B4
     selectCell(model, "B3");
-    expect(getActiveXc(model)).toBe("B3");
+    expect(getSelectionAnchorCellXc(model)).toBe("B3");
 
     // select right cell C3
     setAnchorCorner(model, "C3");
@@ -301,7 +301,7 @@ describe("simple selection", () => {
     });
     selectColumn(model, 4, "overrideSelection");
 
-    expect(getActiveXc(model)).toBe("E1");
+    expect(getSelectionAnchorCellXc(model)).toBe("E1");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 4, top: 0, right: 4, bottom: 9 });
   });
@@ -318,7 +318,7 @@ describe("simple selection", () => {
     });
     selectColumn(model, 0, "overrideSelection");
 
-    expect(getActiveXc(model)).toBe("A1");
+    expect(getSelectionAnchorCellXc(model)).toBe("A1");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 9 });
   });
 
@@ -345,7 +345,7 @@ describe("simple selection", () => {
     });
 
     selectRow(model, 4, "overrideSelection");
-    expect(getActiveXc(model)).toBe("A5");
+    expect(getSelectionAnchorCellXc(model)).toBe("A5");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 4, right: 9, bottom: 4 });
   });
@@ -362,7 +362,7 @@ describe("simple selection", () => {
     });
 
     selectRow(model, 0, "overrideSelection");
-    expect(getActiveXc(model)).toBe("A1");
+    expect(getSelectionAnchorCellXc(model)).toBe("A1");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 0 });
   });
 
@@ -410,7 +410,7 @@ describe("simple selection", () => {
       ],
     });
     selectAll(model);
-    expect(getActiveXc(model)).toBe("A1");
+    expect(getSelectionAnchorCellXc(model)).toBe("A1");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 9 });
   });
@@ -428,8 +428,8 @@ describe("simple selection", () => {
     addColumns(model, "after", "A", 1);
     selectCell(model, "D1");
     undo(model);
-    expect(model.getters.getActivePosition()).toEqual(toCartesian("C1"));
-    expect(model.getters.getSheetPosition("42")).toEqual(toCartesian("C1"));
+    expect(getActivePosition(model)).toBe("C1");
+    expect(model.getters.getSheetPosition("42")).toEqual({ sheetId: "42", ...toCartesian("C1") });
   });
 
   test("invalid selection is updated after redo", () => {
@@ -446,8 +446,8 @@ describe("simple selection", () => {
     undo(model);
     selectCell(model, "C1");
     redo(model);
-    expect(model.getters.getActivePosition()).toEqual(toCartesian("B1"));
-    expect(model.getters.getSheetPosition("42")).toEqual(toCartesian("B1"));
+    expect(getActivePosition(model)).toBe("B1");
+    expect(model.getters.getSheetPosition("42")).toEqual({ sheetId: "42", ...toCartesian("B1") });
   });
 
   test("Select a merge when its topLeft column is hidden", () => {
@@ -554,8 +554,8 @@ describe("multiple sheets", () => {
     // any action that can be undone
     createSheet(model, { sheetId: "test to undo" });
     undo(model);
-    expect(model.getters.getSheetPosition(sheetId)).toEqual(positions(toZone("B2"))[0]);
-    expect(model.getters.getSheetPosition("42")).toEqual(positions(toZone("C4"))[0]);
+    expect(model.getters.getSheetPosition(sheetId)).toEqual({ sheetId, ...toCartesian("B2") });
+    expect(model.getters.getSheetPosition("42")).toEqual({ sheetId: "42", ...toCartesian("C4") });
   });
 
   test("Activating an unvisited sheet selects its first visible cell", () => {
@@ -1045,7 +1045,7 @@ describe("Selection loop (ctrl + a)", () => {
       model.selection.loopSelection();
       const selection = model.getters.getSelectedZone();
       expect(zoneToXc(selection)).toEqual(zone);
-      expect(zoneToXc(positionToZone(model.getters.getActivePosition()))).toEqual(anchor);
+      expect(zoneToXc(toZone(getActivePosition(model)))).toEqual(anchor);
     }
   });
 
@@ -1061,6 +1061,6 @@ describe("Selection loop (ctrl + a)", () => {
     model.selection.selectTableAroundSelection();
     const selection = model.getters.getSelectedZone();
     expect(zoneToXc(selection)).toEqual(expectedZone);
-    expect(zoneToXc(positionToZone(model.getters.getPosition()))).toEqual(anchor);
+    expect(zoneToXc(positionToZone(model.getters.getActivePosition()))).toEqual(anchor);
   });
 });

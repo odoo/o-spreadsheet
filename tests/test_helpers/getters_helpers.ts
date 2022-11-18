@@ -16,8 +16,13 @@ import { setSelection } from "./commands_helpers";
 /**
  * Get the active XC
  */
-export function getActiveXc(model: Model): string {
+export function getSelectionAnchorCellXc(model: Model): string {
   const { col, row } = model.getters.getSelection().anchor.cell;
+  return toXC(col, row);
+}
+
+export function getActivePosition(model: Model): string {
+  const { col, row } = model.getters.getActivePosition();
   return toXC(col, row);
 }
 
@@ -30,7 +35,7 @@ export function getCell(
   sheetId: UID = model.getters.getActiveSheetId()
 ): Cell | undefined {
   let { col, row } = toCartesian(xc);
-  return model.getters.getCell(sheetId, col, row);
+  return model.getters.getCell({ sheetId, col, row });
 }
 
 export function getEvaluatedCell(
@@ -77,10 +82,13 @@ export function getCellText(
   return model.getters.getCellText({ sheetId, col, row }, true);
 }
 
-export function getStyle(model: Model, xc: string): Style {
-  const sheetId = model.getters.getActiveSheetId();
+export function getStyle(
+  model: Model,
+  xc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+): Style {
   const { col, row } = toCartesian(xc);
-  return model.getters.getCellComputedStyle(sheetId, col, row);
+  return model.getters.getCellComputedStyle({ sheetId, col, row });
 }
 
 export function getRangeFormattedValues(
@@ -108,7 +116,7 @@ export function getBorder(
   sheetId: UID = model.getters.getActiveSheetId()
 ): Border | null {
   const { col, row } = toCartesian(xc);
-  return model.getters.getCellBorder(sheetId, col, row);
+  return model.getters.getCellBorder({ sheetId, col, row });
 }
 
 /**
@@ -139,4 +147,22 @@ export function automaticSumMulti(
   }
   setSelection(model, xcs, { anchor });
   return model.dispatch("SUM_SELECTION");
+}
+
+export function getFilterTable(
+  model: Model,
+  xc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  const { col, row } = toCartesian(xc);
+  return model.getters.getFilterTable({ sheetId, col, row });
+}
+
+export function getFilter(
+  model: Model,
+  xc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  const { col, row } = toCartesian(xc);
+  return model.getters.getFilter({ sheetId, col, row });
 }

@@ -495,11 +495,12 @@ export class RendererPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     let col: HeaderIndex = base;
     while (col < max) {
-      const nextCell = this.getters.getEvaluatedCell({ sheetId, col: col + 1, row });
-      const nextCellBorder = this.getters.getCellBorderWithFilterBorder(sheetId, col + 1, row);
+      const position = { sheetId, col: col + 1, row };
+      const nextCell = this.getters.getEvaluatedCell(position);
+      const nextCellBorder = this.getters.getCellBorderWithFilterBorder(position);
       if (
         nextCell.type !== CellValueType.empty ||
-        this.getters.isInMerge(sheetId, col + 1, row) ||
+        this.getters.isInMerge(position) ||
         nextCellBorder?.left
       ) {
         return col;
@@ -513,11 +514,12 @@ export class RendererPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     let col: HeaderIndex = base;
     while (col > min) {
-      const previousCell = this.getters.getEvaluatedCell({ sheetId, col: col - 1, row });
-      const previousCellBorder = this.getters.getCellBorderWithFilterBorder(sheetId, col - 1, row);
+      const position = { sheetId, col: col - 1, row };
+      const previousCell = this.getters.getEvaluatedCell(position);
+      const previousCellBorder = this.getters.getCellBorderWithFilterBorder(position);
       if (
         previousCell.type !== CellValueType.empty ||
-        this.getters.isInMerge(sheetId, col - 1, row) ||
+        this.getters.isInMerge(position) ||
         previousCellBorder?.right
       ) {
         return col;
@@ -527,13 +529,13 @@ export class RendererPlugin extends UIPlugin {
     return col;
   }
 
-  private computeCellAlignment({ sheetId, col, row }: CellPosition, isOverflowing: boolean): Align {
-    const cell = this.getters.getCell(sheetId, col, row);
+  private computeCellAlignment(position: CellPosition, isOverflowing: boolean): Align {
+    const cell = this.getters.getCell(position);
     if (cell?.isFormula && this.getters.shouldShowFormulas()) {
       return "left";
     }
-    const { align } = this.getters.getCellStyle({ sheetId, col, row });
-    const evaluatedCell = this.getters.getEvaluatedCell({ sheetId, col, row });
+    const { align } = this.getters.getCellStyle(position);
+    const evaluatedCell = this.getters.getEvaluatedCell(position);
     if (isOverflowing && evaluatedCell.type === CellValueType.number) {
       return align !== "center" ? "left" : align;
     }
@@ -546,7 +548,8 @@ export class RendererPlugin extends UIPlugin {
     const right = visibleCols[visibleCols.length - 1];
     const col: HeaderIndex = zone.left;
     const row: HeaderIndex = zone.top;
-    const cell = this.getters.getEvaluatedCell({ sheetId, col, row });
+    const position = { sheetId, col, row };
+    const cell = this.getters.getEvaluatedCell(position);
     const showFormula = this.getters.shouldShowFormulas();
     const { x, y, width, height } = this.getters.getVisibleRect(zone);
 
@@ -555,15 +558,15 @@ export class RendererPlugin extends UIPlugin {
       y,
       width,
       height,
-      border: this.getters.getCellBorderWithFilterBorder(sheetId, col, row) || undefined,
-      style: this.getters.getCellComputedStyle(sheetId, col, row),
+      border: this.getters.getCellBorderWithFilterBorder(position) || undefined,
+      style: this.getters.getCellComputedStyle(position),
     };
 
     if (cell.type === CellValueType.empty) {
       return box;
     }
     /** Icon CF */
-    const cfIcon = this.getters.getConditionalIcon(col, row);
+    const cfIcon = this.getters.getConditionalIcon(position);
     const fontSizePX = computeTextFontSizeInPixels(box.style);
     const iconBoxWidth = cfIcon ? 2 * MIN_CF_ICON_MARGIN + fontSizePX : 0;
     if (cfIcon) {
@@ -576,11 +579,10 @@ export class RendererPlugin extends UIPlugin {
     }
 
     /** Filter Header */
-    box.isFilterHeader = this.getters.isFilterHeader(sheetId, col, row);
+    box.isFilterHeader = this.getters.isFilterHeader(position);
     const headerIconWidth = box.isFilterHeader ? ICON_EDGE_LENGTH + FILTER_ICON_MARGIN : 0;
 
     /** Content */
-    const position = { sheetId, col, row };
     const text = this.getters.getCellText(position, showFormula);
     const textWidth = this.getters.getTextWidth(position);
     const wrapping = this.getters.getCellStyle(position).wrapping || "overflow";
@@ -613,10 +615,10 @@ export class RendererPlugin extends UIPlugin {
     } else if (isOverflowing && wrapping === "overflow") {
       let nextColIndex: number, previousColIndex: number;
 
-      const isCellInMerge = this.getters.isInMerge(sheetId, col, row);
+      const isCellInMerge = this.getters.isInMerge(position);
       if (isCellInMerge) {
         // Always clip merges
-        nextColIndex = this.getters.getMerge(sheetId, col, row)!.right;
+        nextColIndex = this.getters.getMerge(position)!.right;
         previousColIndex = col;
       } else {
         nextColIndex = this.findNextEmptyCol(col, right, row);
@@ -685,12 +687,13 @@ export class RendererPlugin extends UIPlugin {
     const viewport = { left, right, top, bottom };
     const sheetId = this.getters.getActiveSheetId();
 
-    for (const rowNumber of visibleRows) {
-      for (const colNumber of visibleCols) {
-        if (this.getters.isInMerge(sheetId, colNumber, rowNumber)) {
+    for (const row of visibleRows) {
+      for (const col of visibleCols) {
+        const position = { sheetId, col, row };
+        if (this.getters.isInMerge(position)) {
           continue;
         }
-        boxes.push(this.createZoneBox(sheetId, positionToZone({ col: colNumber, row: rowNumber })));
+        boxes.push(this.createZoneBox(sheetId, positionToZone(position)));
       }
     }
     for (const merge of this.getters.getMerges(sheetId)) {
@@ -699,7 +702,11 @@ export class RendererPlugin extends UIPlugin {
       }
       if (overlap(merge, viewport)) {
         const box = this.createZoneBox(sheetId, merge);
-        const borderBottomRight = this.getters.getCellBorder(sheetId, merge.right, merge.bottom);
+        const borderBottomRight = this.getters.getCellBorder({
+          sheetId,
+          col: merge.right,
+          row: merge.bottom,
+        });
         box.border = {
           ...box.border,
           bottom: borderBottomRight ? borderBottomRight.bottom : undefined,

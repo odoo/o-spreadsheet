@@ -354,7 +354,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return row;
   }
 
-  getCell(sheetId: UID, col: HeaderIndex, row: HeaderIndex): Cell | undefined {
+  getCell({ sheetId, col, row }: CellPosition): Cell | undefined {
     const sheet = this.tryGetSheet(sheetId);
     const cellId = sheet?.rows[row]?.cells[col];
     if (cellId === undefined) {
@@ -455,7 +455,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    */
   isEmpty(sheetId: UID, zone: Zone): boolean {
     return positions(zone)
-      .map(({ col, row }) => this.getCell(sheetId, col, row))
+      .map(({ col, row }) => this.getCell({ sheetId, col, row }))
       .every((cell) => !cell || cell.content === "");
   }
 

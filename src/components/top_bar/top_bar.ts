@@ -7,7 +7,7 @@ import {
 } from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR, ComponentsImportance, DEFAULT_FONT_SIZE } from "../../constants";
 import { fontSizes } from "../../fonts";
-import { areZonesContinuous, isEqual } from "../../helpers/index";
+import { areZonesContinuous, isEqual, positionToZone } from "../../helpers/index";
 import { interactiveAddFilter } from "../../helpers/ui/filter_interactive";
 import { interactiveAddMerge } from "../../helpers/ui/merge_interactive";
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
@@ -407,7 +407,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   updateCellState() {
     const zones = this.env.model.getters.getSelectedZones();
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const { col, row, sheetId } = this.env.model.getters.getActivePosition();
     this.inMerge = false;
     const { top, left, right, bottom } = this.env.model.getters.getSelectedZone();
     const { xSplit, ySplit } = this.env.model.getters.getPaneDivisions(sheetId);
@@ -417,13 +417,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
       (left < xSplit && xSplit <= right) ||
       (top < ySplit && ySplit <= bottom);
     if (!this.cannotMerge) {
-      const { col, row } = this.env.model.getters.getActivePosition();
-      const zone = this.env.model.getters.expandZone(sheetId, {
-        left: col,
-        right: col,
-        top: row,
-        bottom: row,
-      });
+      const zone = this.env.model.getters.expandZone(sheetId, positionToZone({ col, row }));
       this.inMerge = isEqual(zones[0], zone);
     }
     this.undoTool = this.env.model.getters.canUndo();

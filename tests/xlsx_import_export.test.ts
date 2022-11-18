@@ -13,6 +13,7 @@ import {
   resizeRows,
   setCellContent,
 } from "./test_helpers/commands_helpers";
+import { getBorder, getCell } from "./test_helpers/getters_helpers";
 import { target, toRangesData } from "./test_helpers/helpers";
 
 /**
@@ -89,9 +90,9 @@ describe("Export data to xlsx then import it", () => {
     setCellContent(model, "A2", "=A1");
     setCellContent(model, "A3", "text");
     const importedModel = exportToXlsxThenImport(model);
-    expect(importedModel.getters.getCell(sheetId, 0, 0)!.content).toEqual("0");
-    expect(importedModel.getters.getCell(sheetId, 0, 1)!.content).toEqual("=A1");
-    expect(importedModel.getters.getCell(sheetId, 0, 2)!.content).toEqual("text");
+    expect(getCell(importedModel, "A1")!.content).toEqual("0");
+    expect(getCell(importedModel, "A2")!.content).toEqual("=A1");
+    expect(getCell(importedModel, "A3")!.content).toEqual("text");
   });
 
   test.each([
@@ -103,7 +104,7 @@ describe("Export data to xlsx then import it", () => {
   ])("Cell style %s", (style: Style) => {
     model.dispatch("SET_FORMATTING", { sheetId, target: target("A1"), style });
     const importedModel = exportToXlsxThenImport(model);
-    expect(importedModel.getters.getCell(sheetId, 0, 0)!.style).toMatchObject(style);
+    expect(getCell(importedModel, "A1")!.style).toMatchObject(style);
   });
 
   test("Cell border", () => {
@@ -116,7 +117,7 @@ describe("Export data to xlsx then import it", () => {
       border,
     });
     const importedModel = exportToXlsxThenImport(model);
-    expect(importedModel.getters.getCellBorder(sheetId, 0, 0)).toEqual(border);
+    expect(getBorder(importedModel, "A1")).toEqual(border);
   });
 
   test.each(["0.00%", "#,##0.00", "m/d/yyyy", "m/d/yyyy hh:mm:ss", "#,##0.00 [$€]"])(

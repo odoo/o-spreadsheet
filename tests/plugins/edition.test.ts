@@ -1,4 +1,4 @@
-import { toCartesian, toZone } from "../../src/helpers";
+import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import {
@@ -17,7 +17,12 @@ import {
   setCellContent,
   setSelection,
 } from "../test_helpers/commands_helpers";
-import { getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers"; // to have getcontext mocks
+import {
+  getActivePosition,
+  getCell,
+  getCellContent,
+  getCellText,
+} from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
 import { target } from "../test_helpers/helpers";
 
@@ -486,7 +491,7 @@ describe("edition", () => {
 
   test("set value of the active cell updates the content", () => {
     const model = new Model();
-    expect(model.getters.getActivePosition()).toEqual(toCartesian("A1"));
+    expect(getActivePosition(model)).toBe("A1");
     setCellContent(model, "A1", "Hello sir");
     expect(model.getters.getCurrentContent()).toBe("Hello sir");
   });
@@ -505,8 +510,7 @@ describe("edition", () => {
     const model = new Model();
     setCellContent(model, "A1", "Hello sir");
     expect(model.getters.getCurrentContent()).toBe("Hello sir");
-    const { col, row } = toCartesian("A2");
-    expect(model.getters.getCell(model.getters.getActiveSheetId(), col, row)).toBeUndefined();
+    expect(getCell(model, "A2")).toBeUndefined();
     selectCell(model, "A2");
     expect(model.getters.getCurrentContent()).toBe("");
   });
@@ -577,8 +581,7 @@ describe("edition", () => {
 
   test("select an empty cell, start selecting mode at the composer position", () => {
     const model = new Model();
-    const { col, row } = toCartesian("A2");
-    expect(model.getters.getCell(model.getters.getActiveSheetId(), col, row)).toBeUndefined();
+    expect(getCell(model, "A2")).toBeUndefined();
     selectCell(model, "A2");
     model.dispatch("START_EDITION", { text: "=" });
     moveAnchorCell(model, "right");

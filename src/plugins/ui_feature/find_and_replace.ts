@@ -221,7 +221,7 @@ export class FindAndReplacePlugin extends UIPlugin {
     const matches = this.searchMatches;
     const selectedMatch = matches[this.selectedMatchIndex];
     const sheetId = this.getters.getActiveSheetId();
-    const cell = this.getters.getCell(sheetId, selectedMatch.col, selectedMatch.row);
+    const cell = this.getters.getCell({ sheetId, ...selectedMatch });
     if (cell?.isFormula && !this.searchOptions.searchFormulas) {
       this.selectNextCell(Direction.next);
     } else {
@@ -255,12 +255,12 @@ export class FindAndReplacePlugin extends UIPlugin {
     }
   }
 
-  private getSearchableString({ sheetId, col, row }: CellPosition): string {
-    const cell = this.getters.getCell(sheetId, col, row);
+  private getSearchableString(position: CellPosition): string {
+    const cell = this.getters.getCell(position);
     if (this.searchOptions.searchFormulas && cell?.isFormula) {
       return cell.content;
     }
-    return this.getters.getEvaluatedCell({ sheetId, col, row }).formattedValue;
+    return this.getters.getEvaluatedCell(position).formattedValue;
   }
 
   // ---------------------------------------------------------------------------
@@ -272,7 +272,7 @@ export class FindAndReplacePlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
 
     for (const match of this.searchMatches) {
-      const merge = this.getters.getMerge(sheetId, match.col, match.row);
+      const merge = this.getters.getMerge({ sheetId, col: match.col, row: match.row });
       const left = merge ? merge.left : match.col;
       const right = merge ? merge.right : match.col;
       const top = merge ? merge.top : match.row;

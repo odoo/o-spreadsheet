@@ -1,7 +1,7 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
 import { deepCopy, getAddHeaderStartIndex, getDefaultCellHeight, lazy, range } from "../../helpers";
 import { Command, ExcelWorkbookData, WorkbookData } from "../../types";
-import { Dimension, HeaderIndex, Lazy, Pixel, UID } from "../../types/misc";
+import { CellPosition, Dimension, HeaderIndex, Lazy, Pixel, UID } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
 
 interface HeaderSize {
@@ -172,12 +172,12 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
    * Return the height the cell should have in the sheet, which is either DEFAULT_CELL_HEIGHT if the cell is in a multi-row
    * merge, or the height of the cell computed based on its font size.
    */
-  private getCellHeight(sheetId: UID, col: HeaderIndex, row: HeaderIndex): Pixel {
-    const merge = this.getters.getMerge(sheetId, col, row);
+  private getCellHeight(position: CellPosition): Pixel {
+    const merge = this.getters.getMerge(position);
     if (merge && merge.bottom !== merge.top) {
       return DEFAULT_CELL_HEIGHT;
     }
-    const cell = this.getters.getCell(sheetId, col, row);
+    const cell = this.getters.getCell(position);
     // TO DO: take multiline cells into account to compute the cell height
     return getDefaultCellHeight(cell?.style);
   }
@@ -194,8 +194,8 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
     for (let i = 0; i < cellIds.length; i++) {
       const cell = this.getters.getCellById(cellIds[i]);
       if (!cell) continue;
-      const { col, row } = this.getters.getCellPosition(cell.id);
-      const cellHeight = this.getCellHeight(sheetId, col, row);
+      const position = this.getters.getCellPosition(cell.id);
+      const cellHeight = this.getCellHeight(position);
       if (cellHeight > maxHeight && cellHeight > DEFAULT_CELL_HEIGHT) {
         maxHeight = cellHeight;
       }

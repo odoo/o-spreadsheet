@@ -139,7 +139,7 @@ export class EvaluationPlugin extends UIPlugin {
   }
 
   getEvaluatedCell({ sheetId, col, row }: CellPosition): EvaluatedCell {
-    const cell = this.getters.getCell(sheetId, col, row);
+    const cell = this.getters.getCell({ sheetId, col, row });
     if (cell === undefined) {
       return createEvaluatedCell("");
     }
@@ -286,7 +286,7 @@ export class EvaluationPlugin extends UIPlugin {
       if (!getters.tryGetSheet(range.sheetId)) {
         throw new Error(_lt("Invalid sheet name"));
       }
-      cell = getters.getCell(range.sheetId, range.zone.left, range.zone.top);
+      cell = getters.getCell({ sheetId: range.sheetId, col: range.zone.left, row: range.zone.top });
       if (!cell || cell.content === "") {
         // magic "empty" value
         // Returning {value: null} instead of undefined will ensure that we don't
@@ -334,7 +334,7 @@ export class EvaluationPlugin extends UIPlugin {
       for (let col = zone.left; col <= zone.right; col++) {
         const rowValues: ({ value: CellValue; format?: Format } | undefined)[] = [];
         for (let row = zone.top; row <= zone.bottom; row++) {
-          const cell = evalContext.getters.getCell(range.sheetId, col, row);
+          const cell = evalContext.getters.getCell({ sheetId: range.sheetId, col, row });
           rowValues.push(cell ? getEvaluatedCell(cell) : undefined);
         }
         result.push(rowValues);
@@ -397,11 +397,11 @@ export class EvaluationPlugin extends UIPlugin {
   exportForExcel(data: ExcelWorkbookData) {
     for (let sheet of data.sheets) {
       for (const xc in sheet.cells) {
-        const { col, row } = toCartesian(xc);
-        const cell = this.getters.getCell(sheet.id, col, row);
+        const position = { sheetId: sheet.id, ...toCartesian(xc) };
+        const cell = this.getters.getCell(position);
         if (cell) {
           const exportedCellData = sheet.cells[xc]!;
-          exportedCellData.value = this.getEvaluatedCell({ sheetId: sheet.id, col, row }).value;
+          exportedCellData.value = this.getEvaluatedCell(position).value;
           exportedCellData.isFormula = cell.isFormula && !this.isBadExpression(cell.content);
         }
       }

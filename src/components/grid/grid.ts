@@ -217,7 +217,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     },
     "CTRL+HOME": () => {
       const sheetId = this.env.model.getters.getActiveSheetId();
-      const { col, row } = this.env.model.getters.getNextVisibleCellPosition(sheetId, 0, 0);
+      const { col, row } = this.env.model.getters.getNextVisibleCellPosition({
+        sheetId,
+        col: 0,
+        row: 0,
+      });
       this.env.model.selection.selectCell(col, row);
     },
     "CTRL+END": () => {

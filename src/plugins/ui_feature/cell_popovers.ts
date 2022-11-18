@@ -1,6 +1,6 @@
 import { positionToZone } from "../../helpers";
 import { cellPopoverRegistry } from "../../registries/cell_popovers_registry";
-import { Command, CommandResult, DOMCoordinates, Position } from "../../types";
+import { CellPosition, Command, CommandResult, DOMCoordinates, Position } from "../../types";
 import {
   CellPopoverType,
   ClosedCellPopover,
@@ -14,7 +14,7 @@ import { UIPlugin } from "../ui_plugin";
 export class CellPopoverPlugin extends UIPlugin {
   static getters = ["getCellPopover", "getPersistentPopoverTypeAtPosition"] as const;
 
-  private persistentPopover?: Position & { type: CellPopoverType };
+  private persistentPopover?: CellPosition & { type: CellPopoverType };
 
   allowDispatch(cmd: Command) {
     switch (cmd.type) {
@@ -39,6 +39,7 @@ export class CellPopoverPlugin extends UIPlugin {
         this.persistentPopover = {
           col: cmd.col,
           row: cmd.row,
+          sheetId: this.getters.getActiveSheetId(),
           type: cmd.popoverType,
         };
         break;
@@ -51,22 +52,11 @@ export class CellPopoverPlugin extends UIPlugin {
   getCellPopover({ col, row }: Partial<Position>): ClosedCellPopover | PositionedCellPopover {
     const sheetId = this.getters.getActiveSheetId();
 
-    if (
-      this.persistentPopover &&
-      this.getters.isVisibleInViewport(
-        sheetId,
-        this.persistentPopover.col,
-        this.persistentPopover.row
-      )
-    ) {
-      const mainPosition = this.getters.getMainCellPosition(
-        sheetId,
-        this.persistentPopover.col,
-        this.persistentPopover.row
-      );
+    if (this.persistentPopover && this.getters.isVisibleInViewport(this.persistentPopover)) {
+      const position = this.getters.getMainCellPosition(this.persistentPopover);
       const popover = cellPopoverRegistry
         .get(this.persistentPopover.type)
-        .onOpen?.({ sheetId, ...mainPosition }, this.getters);
+        .onOpen?.(position, this.getters);
       return !popover?.isOpen
         ? { isOpen: false }
         : {
@@ -77,20 +67,20 @@ export class CellPopoverPlugin extends UIPlugin {
     if (
       col === undefined ||
       row === undefined ||
-      !this.getters.isVisibleInViewport(sheetId, col, row)
+      !this.getters.isVisibleInViewport({ sheetId, col, row })
     ) {
       return { isOpen: false };
     }
-    const mainPosition = this.getters.getMainCellPosition(sheetId, col, row);
+    const position = this.getters.getMainCellPosition({ sheetId, col, row });
     const popover = cellPopoverRegistry
       .getAll()
-      .map((matcher) => matcher.onHover?.({ sheetId, ...mainPosition }, this.getters))
+      .map((matcher) => matcher.onHover?.(position, this.getters))
       .find((popover) => popover?.isOpen);
     return !popover?.isOpen
       ? { isOpen: false }
       : {
           ...popover,
-          ...this.computePopoverProps(mainPosition, popover.cellCorner),
+          ...this.computePopoverProps(position, popover.cellCorner),
         };
   }
 
@@ -119,7 +109,7 @@ export class CellPopoverPlugin extends UIPlugin {
     corner: "TopRight" | "BottomLeft"
   ): DOMCoordinates {
     const sheetId = this.getters.getActiveSheetId();
-    const merge = this.getters.getMerge(sheetId, col, row);
+    const merge = this.getters.getMerge({ sheetId, col, row });
     if (merge) {
       col = corner === "TopRight" ? merge.right : merge.left;
       row = corner === "TopRight" ? merge.top : merge.bottom;

@@ -1,4 +1,4 @@
-import { toZone, zoneToXc } from "../../src/helpers";
+import { toCartesian, toZone, zoneToXc } from "../../src/helpers";
 import { ClipboardCellsState } from "../../src/helpers/clipboard/clipboard_cells_state";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui_stateful/clipboard";
@@ -31,15 +31,9 @@ import {
   getCellError,
   getCellText,
   getEvaluatedCell,
+  getStyle,
 } from "../test_helpers/getters_helpers";
-import {
-  createEqualCF,
-  getGrid,
-  getPlugin,
-  target,
-  toCartesianArray,
-  toRangesData,
-} from "../test_helpers/helpers";
+import { createEqualCF, getGrid, getPlugin, target, toRangesData } from "../test_helpers/helpers";
 
 function getClipboardVisibleZones(model: Model): Zone[] {
   const clipboardPlugin = getPlugin(model, ClipboardPlugin);
@@ -253,7 +247,7 @@ describe("clipboard", () => {
     copy(model, "B2");
     paste(model, "A1");
     const border = ["thin", "#000"];
-    expect(model.getters.getCellBorder(sheetId, 0, 0)).toEqual({
+    expect(getBorder(model, "A1")).toEqual({
       top: border,
       bottom: border,
       left: border,
@@ -291,18 +285,11 @@ describe("clipboard", () => {
     });
     copy(model, "B1");
     paste(model, "B4");
-    expect(
-      model.getters.isInMerge(model.getters.getActiveSheetId(), ...toCartesianArray("B4"))
-    ).toBe(true);
-    expect(
-      model.getters.isInMerge(model.getters.getActiveSheetId(), ...toCartesianArray("B5"))
-    ).toBe(true);
-    expect(
-      model.getters.isInMerge(model.getters.getActiveSheetId(), ...toCartesianArray("C4"))
-    ).toBe(true);
-    expect(
-      model.getters.isInMerge(model.getters.getActiveSheetId(), ...toCartesianArray("B5"))
-    ).toBe(true);
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.isInMerge({ sheetId, ...toCartesian("B4") })).toBe(true);
+    expect(model.getters.isInMerge({ sheetId, ...toCartesian("B5") })).toBe(true);
+    expect(model.getters.isInMerge({ sheetId, ...toCartesian("C4") })).toBe(true);
+    expect(model.getters.isInMerge({ sheetId, ...toCartesian("B5") })).toBe(true);
   });
 
   test("can cut and paste merged content", () => {
@@ -318,14 +305,14 @@ describe("clipboard", () => {
     });
     cut(model, "B1:C2");
     paste(model, "B4");
-    expect(model.getters.isInMerge("s2", ...toCartesianArray("B1"))).toBe(false);
-    expect(model.getters.isInMerge("s2", ...toCartesianArray("B2"))).toBe(false);
-    expect(model.getters.isInMerge("s2", ...toCartesianArray("C1"))).toBe(false);
-    expect(model.getters.isInMerge("s2", ...toCartesianArray("C2"))).toBe(false);
-    expect(model.getters.isInMerge("s2", ...toCartesianArray("B4"))).toBe(true);
-    expect(model.getters.isInMerge("s2", ...toCartesianArray("B5"))).toBe(true);
-    expect(model.getters.isInMerge("s2", ...toCartesianArray("C4"))).toBe(true);
-    expect(model.getters.isInMerge("s2", ...toCartesianArray("C5"))).toBe(true);
+    expect(model.getters.isInMerge({ sheetId: "s2", ...toCartesian("B1") })).toBe(false);
+    expect(model.getters.isInMerge({ sheetId: "s2", ...toCartesian("B2") })).toBe(false);
+    expect(model.getters.isInMerge({ sheetId: "s2", ...toCartesian("C1") })).toBe(false);
+    expect(model.getters.isInMerge({ sheetId: "s2", ...toCartesian("C2") })).toBe(false);
+    expect(model.getters.isInMerge({ sheetId: "s2", ...toCartesian("B4") })).toBe(true);
+    expect(model.getters.isInMerge({ sheetId: "s2", ...toCartesian("B5") })).toBe(true);
+    expect(model.getters.isInMerge({ sheetId: "s2", ...toCartesian("C4") })).toBe(true);
+    expect(model.getters.isInMerge({ sheetId: "s2", ...toCartesian("C5") })).toBe(true);
   });
 
   test("Pasting merge on content will remove the content", () => {
@@ -346,8 +333,8 @@ describe("clipboard", () => {
     });
     copy(model, "A1");
     paste(model, "C1");
-    expect(model.getters.isInMerge("s1", ...toCartesianArray("C1"))).toBe(true);
-    expect(model.getters.isInMerge("s1", ...toCartesianArray("D2"))).toBe(true);
+    expect(model.getters.isInMerge({ sheetId: "s1", ...toCartesian("C1") })).toBe(true);
+    expect(model.getters.isInMerge({ sheetId: "s1", ...toCartesian("D2") })).toBe(true);
     expect(getCellContent(model, "C1")).toBe("merge");
     expect(getCellContent(model, "D2")).toBe("");
   });
@@ -372,10 +359,10 @@ describe("clipboard", () => {
     copy(model, "B2");
     activateSheet(model, sheet2);
     paste(model, "A1");
-    expect(model.getters.isInMerge(sheet2, ...toCartesianArray("A1"))).toBe(true);
-    expect(model.getters.isInMerge(sheet2, ...toCartesianArray("A2"))).toBe(true);
-    expect(model.getters.isInMerge(sheet2, ...toCartesianArray("B1"))).toBe(true);
-    expect(model.getters.isInMerge(sheet2, ...toCartesianArray("B2"))).toBe(true);
+    expect(model.getters.isInMerge({ sheetId: sheet2, ...toCartesian("A1") })).toBe(true);
+    expect(model.getters.isInMerge({ sheetId: sheet2, ...toCartesian("A2") })).toBe(true);
+    expect(model.getters.isInMerge({ sheetId: sheet2, ...toCartesian("B1") })).toBe(true);
+    expect(model.getters.isInMerge({ sheetId: sheet2, ...toCartesian("B2") })).toBe(true);
   });
 
   test("copy/paste a formula that has no sheet specific reference to another", () => {
@@ -1066,12 +1053,12 @@ describe("clipboard", () => {
     paste(model, "C1", "onlyValue");
     copy(model, "A2");
     paste(model, "C2", "onlyValue");
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
+    expect(getStyle(model, "A1")).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A2"))).toEqual({});
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C1"))).toEqual({});
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C2"))).toEqual({});
+    expect(getStyle(model, "A2")).toEqual({});
+    expect(getStyle(model, "C1")).toEqual({});
+    expect(getStyle(model, "C2")).toEqual({});
   });
 
   test("paste value only does not remove style", () => {
@@ -1485,14 +1472,14 @@ describe("clipboard", () => {
     paste(model, "C1");
     copy(model, "A2");
     paste(model, "C2");
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
+    expect(getStyle(model, "A1")).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A2"))).toEqual({});
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C1"))).toEqual({
+    expect(getStyle(model, "A2")).toEqual({});
+    expect(getStyle(model, "C1")).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C2"))).toEqual({});
+    expect(getStyle(model, "C2")).toEqual({});
   });
   test("can cut and paste a conditional formatted cell", () => {
     const model = new Model({
@@ -1517,12 +1504,12 @@ describe("clipboard", () => {
     paste(model, "C1");
     cut(model, "A2");
     paste(model, "C2");
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A2"))).toEqual({});
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C1"))).toEqual({
+    expect(getStyle(model, "A1")).toEqual({});
+    expect(getStyle(model, "A2")).toEqual({});
+    expect(getStyle(model, "C1")).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C2"))).toEqual({});
+    expect(getStyle(model, "C2")).toEqual({});
   });
 
   test("can copy and paste a conditional formatted zone", () => {
@@ -1545,22 +1532,22 @@ describe("clipboard", () => {
     copy(model, "A1:A2");
     paste(model, "B1");
     paste(model, "C1");
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({
+    expect(getStyle(model, "A1")).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A2"))).toEqual({});
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B1"))).toEqual({
+    expect(getStyle(model, "A2")).toEqual({});
+    expect(getStyle(model, "B1")).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B2"))).toEqual({});
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C1"))).toEqual({
+    expect(getStyle(model, "B2")).toEqual({});
+    expect(getStyle(model, "C1")).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C2"))).toEqual({});
+    expect(getStyle(model, "C2")).toEqual({});
     setCellContent(model, "C1", "2");
     setCellContent(model, "C2", "1");
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C1"))).toEqual({});
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("C2"))).toEqual({
+    expect(getStyle(model, "C1")).toEqual({});
+    expect(getStyle(model, "C2")).toEqual({
       fillColor: "#FF0000",
     });
   });
@@ -1584,16 +1571,16 @@ describe("clipboard", () => {
     });
     cut(model, "A1:A2");
     paste(model, "B1");
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A2"))).toEqual({});
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B1"))).toEqual({
+    expect(getStyle(model, "A1")).toEqual({});
+    expect(getStyle(model, "A2")).toEqual({});
+    expect(getStyle(model, "B1")).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B2"))).toEqual({});
+    expect(getStyle(model, "B2")).toEqual({});
     setCellContent(model, "B1", "2");
     setCellContent(model, "B2", "1");
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B1"))).toEqual({});
-    expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("B2"))).toEqual({
+    expect(getStyle(model, "B1")).toEqual({});
+    expect(getStyle(model, "B2")).toEqual({
       fillColor: "#FF0000",
     });
   });
@@ -1624,14 +1611,14 @@ describe("clipboard", () => {
     copy(model, "A1:A2");
     activateSheet(model, "s2");
     paste(model, "A1");
-    expect(model.getters.getCellComputedStyle("s2", ...toCartesianArray("A1"))).toEqual({
+    expect(getStyle(model, "A1", "s2")).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getCellComputedStyle("s2", ...toCartesianArray("A2"))).toEqual({});
+    expect(getStyle(model, "A2", "s2")).toEqual({});
     setCellContent(model, "A1", "2");
     setCellContent(model, "A2", "1");
-    expect(model.getters.getCellComputedStyle("s2", ...toCartesianArray("A1"))).toEqual({});
-    expect(model.getters.getCellComputedStyle("s2", ...toCartesianArray("A2"))).toEqual({
+    expect(getStyle(model, "A1", "s2")).toEqual({});
+    expect(getStyle(model, "A2", "s2")).toEqual({
       fillColor: "#FF0000",
     });
   });
@@ -1662,19 +1649,19 @@ describe("clipboard", () => {
     cut(model, "A1:A2");
     activateSheet(model, sheet2);
     paste(model, "A1");
-    expect(model.getters.getCellComputedStyle(sheet2, ...toCartesianArray("A1"))).toEqual({
+    expect(getStyle(model, "A1", sheet2)).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getCellComputedStyle(sheet2, ...toCartesianArray("A2"))).toEqual({});
+    expect(getStyle(model, "A2", sheet2)).toEqual({});
     setCellContent(model, "A1", "2");
     setCellContent(model, "A2", "1");
-    expect(model.getters.getCellComputedStyle(sheet2, ...toCartesianArray("A1"))).toEqual({});
-    expect(model.getters.getCellComputedStyle(sheet2, ...toCartesianArray("A2"))).toEqual({
+    expect(getStyle(model, "A1", sheet2)).toEqual({});
+    expect(getStyle(model, "A2", sheet2)).toEqual({
       fillColor: "#FF0000",
     });
     activateSheet(model, sheet1);
-    expect(model.getters.getCellComputedStyle(sheet1, ...toCartesianArray("A1"))).toEqual({});
-    expect(model.getters.getCellComputedStyle(sheet1, ...toCartesianArray("A2"))).toEqual({});
+    expect(getStyle(model, "A1", sheet1)).toEqual({});
+    expect(getStyle(model, "A2", sheet1)).toEqual({});
   });
 
   test("can copy and paste a cell which contains a cross-sheet reference", () => {

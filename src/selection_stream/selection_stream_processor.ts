@@ -184,7 +184,7 @@ export class SelectionStreamProcessor
    */
   addCellToSelection(col: HeaderIndex, row: HeaderIndex): DispatchResult {
     const sheetId = this.getters.getActiveSheetId();
-    ({ col, row } = this.getters.getMainCellPosition(sheetId, col, row));
+    ({ col, row } = this.getters.getMainCellPosition({ sheetId, col, row }));
     const zone = this.getters.expandZone(sheetId, positionToZone({ col, row }));
     return this.processEvent({
       type: "ZonesSelected",
@@ -601,8 +601,8 @@ export class SelectionStreamProcessor
    * check if the merge containing the cell is empty.
    */
   private isCellEmpty({ col, row }: Position, sheetId = this.getters.getActiveSheetId()): boolean {
-    const mainCellPosition = this.getters.getMainCellPosition(sheetId, col, row);
-    const cell = this.getters.getEvaluatedCell({ sheetId, ...mainCellPosition });
+    const position = this.getters.getMainCellPosition({ sheetId, col, row });
+    const cell = this.getters.getEvaluatedCell(position);
     return cell.type === CellValueType.empty;
   }
 

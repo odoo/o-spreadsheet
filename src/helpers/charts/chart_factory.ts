@@ -125,7 +125,7 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
   const dataSets = [zoneToXc(dataSetZone)];
   const sheetId = getters.getActiveSheetId();
 
-  const topLeftCell = getters.getCell(sheetId, zone.left, zone.top);
+  const topLeftCell = getters.getCell({ sheetId, col: zone.left, row: zone.top });
   if (getZoneArea(zone) === 1 && topLeftCell?.content) {
     return {
       type: "scorecard",

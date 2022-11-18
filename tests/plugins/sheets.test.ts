@@ -1,5 +1,5 @@
 import { FORBIDDEN_SHEET_CHARS } from "../../src/constants";
-import { getComposerSheetName, toCartesian, toZone } from "../../src/helpers";
+import { getComposerSheetName, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import {
@@ -28,6 +28,7 @@ import {
   getCellContent,
   getCellText,
   getEvaluatedCell,
+  getStyle,
 } from "../test_helpers/getters_helpers";
 import "../test_helpers/helpers";
 import { createEqualCF, testUndoRedo, toRangesData } from "../test_helpers/helpers";
@@ -645,8 +646,7 @@ describe("sheets", () => {
     expect(getCellContent(model, "A1")).toBe("42");
     expect(model.getters.getNumberCols(model.getters.getActiveSheetId())).toBe(5);
     expect(model.getters.getNumberRows(model.getters.getActiveSheetId())).toBe(5);
-    const { col, row } = toCartesian("A1");
-    expect(model.getters.getCellComputedStyle(newSheet, col, row)).toEqual({
+    expect(getStyle(model, "A1", newSheet)).toEqual({
       fillColor: "orange",
     });
   });
@@ -679,8 +679,7 @@ describe("sheets", () => {
     const newSheetId = model.getters.getSheetIds()[1];
     activateSheet(model, newSheetId);
     expect(getCellContent(model, "A1")).toBe("42");
-    const { col, row } = toCartesian("A1");
-    expect(model.getters.getCellComputedStyle(newSheetId, col, row)).toEqual({
+    expect(getStyle(model, "A1", newSheetId)).toEqual({
       fillColor: "orange",
     });
     expect(model.getters.getConditionalFormats(newSheetId)).toHaveLength(1);
@@ -690,10 +689,10 @@ describe("sheets", () => {
       ranges: toRangesData(sheetId, "A1:A2"),
       sheetId,
     });
-    expect(model.getters.getCellComputedStyle(newSheetId, col, row)).toEqual({ fillColor: "blue" });
+    expect(getStyle(model, "A1", newSheetId)).toEqual({ fillColor: "blue" });
     expect(model.getters.getConditionalFormats(newSheetId)).toHaveLength(1);
     activateSheet(model, sheet);
-    expect(model.getters.getCellComputedStyle(sheet, col, row)).toEqual({
+    expect(getStyle(model, "A1", sheet)).toEqual({
       fillColor: "orange",
     });
     expect(model.getters.getConditionalFormats(newSheetId)).toHaveLength(1);

@@ -8,7 +8,7 @@ import {
 import { Model } from "../../src/model";
 import { createFilter, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick } from "../test_helpers/dom_helper";
-import { getActiveXc } from "../test_helpers/getters_helpers";
+import { getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
 import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
@@ -33,11 +33,11 @@ describe("Grid component in dashboard mode", () => {
   });
 
   test("Keyboard event are not dispatched in dashboard mode", async () => {
-    expect(getActiveXc(model)).toBe("A1");
+    expect(getSelectionAnchorCellXc(model)).toBe("A1");
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
     );
-    expect(getActiveXc(model)).not.toBe("B1");
+    expect(getSelectionAnchorCellXc(model)).not.toBe("B1");
   });
 
   test("Can click on a link in dashboard mode", async () => {

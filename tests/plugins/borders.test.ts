@@ -523,7 +523,7 @@ test("Cells that have undefined borders don't override borders of neighboring ce
     },
   };
   const model = new Model(data);
-  expect(model.getters.getCellBorder("Sheet1", 1, 1)).toEqual({
+  expect(getBorder(model, "B2", "Sheet1")).toEqual({
     top: ["thin", "#000"],
     bottom: ["thin", "#000"],
     left: ["thin", "#000"],
