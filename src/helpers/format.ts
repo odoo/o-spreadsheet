@@ -1,4 +1,5 @@
 import { DATETIME_FORMAT } from "../constants";
+import { _lt } from "../translation";
 import { CellValue, Format, FormattedValue } from "../types";
 import { INITIAL_1900_DAY, numberToJsDate, parseDateTime } from "./dates";
 import { isDateTime } from "./misc";
@@ -45,28 +46,28 @@ type InternalFormat = (
 // TODO in the future : remove these constants MONTHS/DAYS, and use a library such as luxon to handle it
 // + possibly handle automatic translation of day/month
 const MONTHS: Readonly<Record<number, string>> = {
-  0: "January",
-  1: "February",
-  2: "March",
-  3: "April",
-  4: "May",
-  5: "June",
-  6: "July",
-  7: "August",
-  8: "September",
-  9: "October",
-  10: "November",
-  11: "December",
+  0: _lt("January"),
+  1: _lt("February"),
+  2: _lt("March"),
+  3: _lt("April"),
+  4: _lt("May"),
+  5: _lt("June"),
+  6: _lt("July"),
+  7: _lt("August"),
+  8: _lt("September"),
+  9: _lt("October"),
+  10: _lt("November"),
+  11: _lt("December"),
 };
 
 const DAYS: Readonly<Record<number, string>> = {
-  0: "Sunday",
-  1: "Monday",
-  2: "Tuesday",
-  3: "Wednesday",
-  4: "Thursday",
-  5: "Friday",
-  6: "Saturday",
+  0: _lt("Sunday"),
+  1: _lt("Monday"),
+  2: _lt("Tuesday"),
+  3: _lt("Wednesday"),
+  4: _lt("Thursday"),
+  5: _lt("Friday"),
+  6: _lt("Saturday"),
 };
 
 interface InternalNumberFormat {
