@@ -5,7 +5,13 @@ import {
   useExternalListener,
   useState,
 } from "@odoo/owl";
-import { BACKGROUND_HEADER_COLOR, ComponentsImportance, DEFAULT_FONT_SIZE } from "../../constants";
+import {
+  BACKGROUND_HEADER_COLOR,
+  ComponentsImportance,
+  DEFAULT_FONT_SIZE,
+  SEPARATOR_COLOR,
+  TOPBAR_TOOLBAR_HEIGHT,
+} from "../../constants";
 import { fontSizes } from "../../fonts";
 import { areZonesContinuous, isEqual, positionToZone } from "../../helpers/index";
 import { interactiveAddFilter } from "../../helpers/ui/filter_interactive";
@@ -23,7 +29,7 @@ import {
   Style,
 } from "../../types/index";
 import { ColorPicker } from "../color_picker/color_picker";
-import { Composer } from "../composer/composer/composer";
+import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { css } from "../helpers/css";
 import { Menu, MenuState } from "../menu/menu";
 import { ComposerFocusType } from "../spreadsheet/spreadsheet";
@@ -99,7 +105,7 @@ css/* scss */ `
     user-select: none;
 
     .o-topbar-top {
-      border-bottom: 1px solid #e0e2e4;
+      border-bottom: 1px solid ${SEPARATOR_COLOR};
       display: flex;
       padding: 2px 10px;
       justify-content: space-between;
@@ -125,10 +131,16 @@ css/* scss */ `
         justify-content: flex-end;
       }
     }
-    /* Toolbar + Cell Content */
+
+    .o-topbar-composer {
+      flex-grow: 1;
+    }
+
+    /* Toolbar */
     .o-topbar-toolbar {
-      border-bottom: 1px solid #e0e2e4;
+      flex-shrink: 0;
       display: flex;
+      height: ${TOPBAR_TOOLBAR_HEIGHT}px;
 
       .o-readonly-toolbar {
         display: flex;
@@ -136,12 +148,6 @@ css/* scss */ `
         background-color: ${BACKGROUND_HEADER_COLOR};
         padding-left: 18px;
         padding-right: 18px;
-      }
-      .o-composer-container {
-        height: 34px;
-        border: 1px solid #e0e2e4;
-        margin-top: -1px;
-        margin-bottom: -1px;
       }
 
       /* Toolbar */
@@ -193,7 +199,7 @@ css/* scss */ `
 
         .o-divider {
           display: inline-block;
-          border-right: 1px solid #e0e2e4;
+          border-right: 1px solid ${SEPARATOR_COLOR};
           width: 0;
           margin: 0 6px;
         }
@@ -213,7 +219,6 @@ css/* scss */ `
           }
 
           .o-text-icon {
-            height: 100%;
             line-height: 30px;
           }
 
@@ -298,7 +303,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TopBar";
   DEFAULT_FONT_SIZE = DEFAULT_FONT_SIZE;
 
-  static components = { ColorPicker, Menu, Composer };
+  static components = { ColorPicker, Menu, TopBarComposer };
   commonFormats = FORMATS;
   customFormats = CUSTOM_FORMATS;
   currentFormatName = "automatic";
@@ -319,12 +324,6 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   fillColor: string = "#ffffff";
   textColor: string = "#000000";
   menus: MenuItem[] = [];
-  composerStyle = `
-    line-height: 34px;
-    padding-left: 8px;
-    height: 34px;
-    background-color: white;
-  `;
 
   setup() {
     useExternalListener(window as any, "click", this.onExternalClick);

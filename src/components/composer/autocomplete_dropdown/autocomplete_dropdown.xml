@@ -4,7 +4,7 @@
       <t t-foreach="props.values" t-as="v" t-key="v.text">
         <div
           t-att-class="{'o-autocomplete-value-focus': props.selectedIndex === v_index}"
-          t-on-click.stop.prevent="() => this.props.onValueSelected(v.text)">
+          t-on-click="() => this.props.onValueSelected(v.text)">
           <div class="o-autocomplete-value" t-esc="v.text"/>
           <div
             class="o-autocomplete-description"

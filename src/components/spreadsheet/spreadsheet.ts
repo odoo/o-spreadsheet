@@ -16,6 +16,7 @@ import {
   MENU_SEPARATOR_BORDER_WIDTH,
   MENU_SEPARATOR_PADDING,
   SCROLLBAR_WIDTH,
+  SEPARATOR_COLOR,
   TOPBAR_HEIGHT,
 } from "../../constants";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
@@ -53,7 +54,7 @@ css/* scss */ `
       box-sizing: content-box;
     }
     .o-separator {
-      border-bottom: ${MENU_SEPARATOR_BORDER_WIDTH}px solid #e0e2e4;
+      border-bottom: ${MENU_SEPARATOR_BORDER_WIDTH}px solid ${SEPARATOR_COLOR};
       margin-top: ${MENU_SEPARATOR_PADDING}px;
       margin-bottom: ${MENU_SEPARATOR_PADDING}px;
     }

@@ -79,7 +79,9 @@ export class SheetUIPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   getCellWidth(position: CellPosition): number {
-    let contentWidth = this.getTextWidth(position);
+    const text = this.getCellText(position);
+    const style = this.getters.getCellComputedStyle(position);
+    let contentWidth = this.getTextWidth(text, style);
     const icon = this.getters.getConditionalIcon(position);
     if (icon) {
       contentWidth += computeIconWidth(this.getters.getCellStyle(position));
@@ -100,9 +102,8 @@ export class SheetUIPlugin extends UIPlugin {
     return contentWidth;
   }
 
-  getTextWidth(position: CellPosition): Pixel {
-    const text = this.getters.getCellText(position, this.getters.shouldShowFormulas());
-    return computeTextWidth(this.ctx, text, this.getters.getCellComputedStyle(position));
+  getTextWidth(text: string, style: Style): Pixel {
+    return computeTextWidth(this.ctx, text, style);
   }
 
   getCellText(position: CellPosition, showFormula: boolean = false): string {
@@ -114,55 +115,67 @@ export class SheetUIPlugin extends UIPlugin {
     }
   }
 
-  getCellMultiLineText(position: CellPosition, width: number): string[] {
+  /**
+   * Return the text of a cell, split in multiple lines if needed. The text will be split in multiple
+   * line if it contains NEWLINE characters, or if it's longer than the given width.
+   */
+  getCellMultiLineText(position: CellPosition, width: number | undefined): string[] {
     const style = this.getters.getCellStyle(position);
-    const text = this.getters.getCellText(position);
-    const words = text.split(" ");
+    const text = this.getters.getCellText(position, this.getters.shouldShowFormulas());
+
     const brokenText: string[] = [];
+    for (const line of text.split("\n")) {
+      const words = line.split(" ");
 
-    let textLine = "";
-    let availableWidth = width;
+      if (!width) {
+        brokenText.push(line);
+        continue;
+      }
 
-    for (let word of words) {
-      const splitWord = this.splitWordToSpecificWidth(this.ctx, word, width, style);
-      const lastPart = splitWord.pop()!;
-      const lastPartWidth = computeTextWidth(this.ctx, lastPart, style);
+      let textLine = "";
+      let availableWidth = width;
 
-      // At this step: "splitWord" is an array composed of parts of word whose
-      // length is at most equal to "width".
-      // Last part contains the end of the word.
-      // Note that: When word length is less than width, then lastPart is equal
-      // to word and splitWord is empty
+      for (let word of words) {
+        const splitWord = this.splitWordToSpecificWidth(this.ctx, word, width, style);
+        const lastPart = splitWord.pop()!;
+        const lastPartWidth = computeTextWidth(this.ctx, lastPart, style);
 
-      if (splitWord.length) {
-        if (textLine !== "") {
-          brokenText.push(textLine);
-          textLine = "";
-          availableWidth = width;
-        }
-        splitWord.forEach((wordPart) => {
-          brokenText.push(wordPart);
-        });
-        textLine = lastPart;
-        availableWidth = width - lastPartWidth;
-      } else {
-        // here "lastPart" is equal to "word" and the "word" size is smaller than "width"
-        const _word = textLine === "" ? lastPart : " " + lastPart;
-        const wordWidth = computeTextWidth(this.ctx, _word, style);
+        // At this step: "splitWord" is an array composed of parts of word whose
+        // length is at most equal to "width".
+        // Last part contains the end of the word.
+        // Note that: When word length is less than width, then lastPart is equal
+        // to word and splitWord is empty
 
-        if (wordWidth <= availableWidth) {
-          textLine += _word;
-          availableWidth -= wordWidth;
-        } else {
-          brokenText.push(textLine);
+        if (splitWord.length) {
+          if (textLine !== "") {
+            brokenText.push(textLine);
+            textLine = "";
+            availableWidth = width;
+          }
+          splitWord.forEach((wordPart) => {
+            brokenText.push(wordPart);
+          });
           textLine = lastPart;
           availableWidth = width - lastPartWidth;
+        } else {
+          // here "lastPart" is equal to "word" and the "word" size is smaller than "width"
+          const _word = textLine === "" ? lastPart : " " + lastPart;
+          const wordWidth = computeTextWidth(this.ctx, _word, style);
+
+          if (wordWidth <= availableWidth) {
+            textLine += _word;
+            availableWidth -= wordWidth;
+          } else {
+            brokenText.push(textLine);
+            textLine = lastPart;
+            availableWidth = width - lastPartWidth;
+          }
         }
       }
-    }
 
-    if (textLine !== "") {
-      brokenText.push(textLine);
+      if (textLine !== "") {
+        brokenText.push(textLine);
+      }
     }
     return brokenText;
   }

@@ -10,6 +10,7 @@ import {
   HEADER_WIDTH,
   MIN_CELL_TEXT_MARGIN,
   MIN_CF_ICON_MARGIN,
+  NEWLINE,
   SELECTION_BORDER_COLOR,
 } from "../../src/constants";
 import { fontSizeMap } from "../../src/fonts";
@@ -43,10 +44,9 @@ jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 function getBoxFromText(model: Model, text: string): Box {
   const rendererPlugin = getPlugin(model, RendererPlugin);
-  // @ts-ignore
-  return (rendererPlugin.boxes as Box[]).find(
+  return (rendererPlugin["boxes"]! as Box[]).find(
     (b) => (b.content?.textLines || []).join(" ") === text
-  );
+  )!;
 }
 
 interface ContextObserver {
@@ -994,8 +994,9 @@ describe("renderer", () => {
     model.drawGrid(ctx);
 
     const centeredBox = getBoxFromText(model, overflowingContent);
+    const cell = model.getters.getCell({ sheetId: "sheet1", row: 0, col: 2 })!;
     const contentWidth =
-      model.getters.getTextWidth({ sheetId: "sheet1", row: 0, col: 2 }) + MIN_CELL_TEXT_MARGIN;
+      model.getters.getTextWidth(cell.content, cell.style || {}) + MIN_CELL_TEXT_MARGIN;
     const expectedClipX = 2 * DEFAULT_CELL_WIDTH + colSize / 2 - contentWidth / 2;
     expect(centeredBox.clipRect).toEqual({
       x: expectedClipX,
@@ -1316,7 +1317,8 @@ describe("renderer", () => {
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
       model.drawGrid(ctx);
       const box = getBoxFromText(model, cellContent);
-      const textWidth = model.getters.getTextWidth({ sheetId: "sheet1", row: 1, col: 1 });
+      const cell = model.getters.getCell({ sheetId: "sheet1", row: 1, col: 1 })!;
+      const textWidth = model.getters.getTextWidth(cell.content, cell.style || {});
       const expectedClipRect = model.getters.getVisibleRect({
         left: 0,
         right: 1,
@@ -1750,6 +1752,22 @@ describe("renderer", () => {
       });
     });
 
+    test("Multi-line text overflowing in x overflowing background", () => {
+      const longLine = "Text longer than a column";
+      const longerLine = "Text longer than a column but even longer";
+
+      setCellContent(model, "A1", longLine + NEWLINE + longerLine);
+      resizeColumns(model, ["A"], 10);
+      model.drawGrid(ctx);
+      const box = getBoxFromText(model, longLine + " " + longerLine);
+      expect(getCellOverflowingBackgroundDims()).toMatchObject({
+        x: box.x + ctx.thinLineWidth / 2,
+        y: box.y + ctx.thinLineWidth / 2,
+        width: longerLine.length + MIN_CELL_TEXT_MARGIN - ctx.thinLineWidth * 2,
+        height: box.height - ctx.thinLineWidth,
+      });
+    });
+
     test("Cell overflowing in y overflowing background", () => {
       const overflowingText = "TOO HIGH";
       const fontSize = 26;
@@ -1764,6 +1782,64 @@ describe("renderer", () => {
         width: box.content!.width - ctx.thinLineWidth * 2,
         height: box.height - ctx.thinLineWidth,
       });
+    });
+  });
+  describe("Multi-line text rendering", () => {
+    let model: Model;
+    let ctx: MockGridRenderingContext;
+    let renderedTexts: String[];
+
+    beforeEach(() => {
+      model = new Model();
+      renderedTexts = [];
+      ctx = new MockGridRenderingContext(model, 1000, 1000, {
+        onFunctionCall: (fn, args) => {
+          if (fn === "fillText") {
+            renderedTexts.push(args[0]);
+          }
+        },
+      });
+    });
+
+    test("Wrapped text is displayed over multiple lines", () => {
+      const overFlowingContent = "ThisIsAVeryVeryLongText";
+      setCellContent(model, "A1", overFlowingContent);
+      setStyle(model, "A1", { wrapping: "wrap" });
+      resizeColumns(model, ["A"], 14);
+
+      // Split length = 14 - 2*MIN_CELL_TEXT_MARGIN = 6 letters (1 letter = 1px in the tests)
+      const splittedText = ["ThisIs", "AVeryV", "eryLon", "gText"];
+
+      model.drawGrid(ctx);
+      expect(renderedTexts.slice(0, 4)).toEqual(splittedText);
+    });
+
+    test("Wrapped text try to not split words in multiple lines if the word is small enough", () => {
+      const overFlowingContent = "W Word2 W3 WordThatIsTooLong";
+      setCellContent(model, "A1", overFlowingContent);
+      setStyle(model, "A1", { wrapping: "wrap" });
+      resizeColumns(model, ["A"], 16);
+
+      model.drawGrid(ctx);
+      expect(renderedTexts.slice(0, 5)).toEqual(["W Word2", "W3", "WordThat", "IsTooLon", "g"]);
+    });
+
+    test("Texts with newlines are displayed over multiple lines", () => {
+      setCellContent(model, "A1", "Line1\nLine2\rLine3\r\nLine4");
+      model.drawGrid(ctx);
+      expect(renderedTexts.slice(0, 4)).toEqual(["Line1", "Line2", "Line3", "Line4"]);
+    });
+
+    test("Box of Multi-line text have the width of the longest line", () => {
+      const longLine = "Text longer than a column";
+      const longerLine = "Text longer than a column but even longer";
+
+      setCellContent(model, "A1", longLine + NEWLINE + longerLine);
+      resizeColumns(model, ["A"], 10);
+      model.drawGrid(ctx);
+      const box = getBoxFromText(model, longLine + " " + longerLine);
+      expect(box.isOverflow).toBeTruthy();
+      expect(box.content?.width).toEqual(longerLine.length + MIN_CELL_TEXT_MARGIN);
     });
   });
 });

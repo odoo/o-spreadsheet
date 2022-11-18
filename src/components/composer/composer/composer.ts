@@ -1,11 +1,12 @@
 import { Component, onMounted, onPatched, onWillUnmount, useRef, useState } from "@odoo/owl";
-import { ComponentsImportance, SELECTION_BORDER_COLOR } from "../../../constants";
+import { NEWLINE } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/index";
 import { functionRegistry } from "../../../functions/index";
 import { fuzzyLookup, isEqual, rangeReference, zoneToDimension } from "../../../helpers/index";
-import { ComposerSelection, SelectionIndicator } from "../../../plugins/ui_stateful/edition";
+import { ComposerSelection } from "../../../plugins/ui_stateful/edition";
 import { DOMDimension, FunctionDescription, Rect, SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
+import { getElementScrollTop, setElementScrollTop } from "../../helpers/dom_helpers";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
 import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdown";
 import { ContentEditableHelper } from "../content_editable_helper";
@@ -15,14 +16,9 @@ const functions = functionRegistry.content;
 
 const ASSISTANT_WIDTH = 300;
 
-const FunctionColor = "#4a4e4d";
-const OperatorColor = "#3da4ab";
-const StringColor = "#00a82d";
-const SelectionIndicatorColor = "darkgrey";
-export const NumberColor = "#02c39a";
-export const MatchingParenColor = "black";
-
-export const SelectionIndicatorClass = "selector-flag";
+export const selectionIndicatorClass = "selector-flag";
+const selectionIndicatorColor = "#a9a9a9";
+const selectionIndicator = "␣";
 
 export type HtmlContent = {
   value: string;
@@ -30,47 +26,56 @@ export type HtmlContent = {
   class?: string;
 };
 
-export const tokenColor = {
-  OPERATOR: OperatorColor,
-  NUMBER: NumberColor,
-  STRING: StringColor,
-  FUNCTION: FunctionColor,
-  DEBUGGER: OperatorColor,
-  LEFT_PAREN: FunctionColor,
-  RIGHT_PAREN: FunctionColor,
-  COMMA: FunctionColor,
+const functionColor = "#4a4e4d";
+const operatorColor = "#3da4ab";
+
+export const tokenColors = {
+  OPERATOR: operatorColor,
+  NUMBER: "#02c39a",
+  STRING: "#00a82d",
+  FUNCTION: functionColor,
+  DEBUGGER: operatorColor,
+  LEFT_PAREN: functionColor,
+  RIGHT_PAREN: functionColor,
+  COMMA: functionColor,
+  MATCHING_PAREN: "#000000",
 };
 
 css/* scss */ `
   .o-composer-container {
-    padding: 0;
-    margin: 0;
-    border: 0;
-    z-index: ${ComponentsImportance.Composer};
-    flex-grow: 1;
-    max-height: inherit;
     .o-composer {
+      overflow-y: auto;
+      overflow-x: hidden;
+      word-break: break-all;
+      padding-right: 2px;
+
+      box-sizing: border-box;
+
       caret-color: black;
       padding-left: 3px;
       padding-right: 3px;
-      word-break: break-all;
-      &:focus {
-        outline: none;
-      }
+      outline: none;
+
       &.unfocusable {
         pointer-events: none;
       }
-      span {
-        white-space: pre;
-        &.${SelectionIndicatorClass}:after {
-          content: "${SelectionIndicator}";
-          color: ${SelectionIndicatorColor};
+
+      p {
+        margin-bottom: 0px;
+
+        span {
+          white-space: pre-wrap;
+          &.${selectionIndicatorClass}:after {
+            content: "${selectionIndicator}";
+            color: ${selectionIndicatorColor};
+          }
         }
       }
     }
+
     .o-composer-assistant {
       position: absolute;
-      margin: 4px;
+      margin: 1px 4px;
       pointer-events: none;
     }
 
@@ -78,11 +83,6 @@ css/* scss */ `
     .o-formula-assistant-container {
       box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
     }
-  }
-
-  /* Custom css to highlight topbar composer on focus */
-  .o-topbar-toolbar .o-composer-container:focus-within {
-    border: 1px solid ${SELECTION_BORDER_COLOR};
   }
 `;
 
@@ -156,7 +156,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
       if (cellY > remainingHeight) {
         // render top
         assistantStyle += `
-          top: -8px;
+          top: -3px;
           transform: translate(0, -100%);
         `;
       }
@@ -191,6 +191,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
 
       this.contentHelper.updateEl(el);
       this.processContent();
+      this.contentHelper.scrollSelectionIntoView();
     });
 
     onWillUnmount(() => {
@@ -273,6 +274,21 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
   private processEnterKey(ev: KeyboardEvent) {
     ev.preventDefault();
     ev.stopPropagation();
+    if (ev.altKey || ev.ctrlKey) {
+      const selection = this.contentHelper.getCurrentSelection();
+      const currentContent = this.env.model.getters.getCurrentContent();
+      const content =
+        currentContent.slice(0, selection.start) + NEWLINE + currentContent.slice(selection.end);
+      this.env.model.dispatch("SET_CURRENT_CONTENT", {
+        content,
+        selection: { start: selection.start + 1, end: selection.start + 1 },
+      });
+
+      this.processContent();
+      this.contentHelper.scrollSelectionIntoView();
+      return;
+    }
+
     this.isKeyStillDown = false;
     if (this.autoCompleteState.showProvider) {
       const autoCompleteValue =
@@ -304,7 +320,10 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
       ev.stopPropagation();
     }
     const { start, end } = this.contentHelper.getCurrentSelection();
-    if (!this.env.model.getters.isSelectingForComposer()) {
+    if (
+      !this.env.model.getters.isSelectingForComposer() &&
+      !(ev.key === "Enter" && (ev.altKey || ev.ctrlKey))
+    ) {
       this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start, end });
       this.isKeyStillDown = true;
     }
@@ -318,9 +337,8 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
     this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
-    const el = this.composerRef.el! as HTMLInputElement;
     this.env.model.dispatch("SET_CURRENT_CONTENT", {
-      content: el.childNodes.length ? el.textContent! : "",
+      content: this.contentHelper.getText(),
       selection: this.contentHelper.getCurrentSelection(),
     });
   }
@@ -329,7 +347,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     this.isKeyStillDown = false;
     if (
       this.props.focus === "inactive" ||
-      ["Control", "Shift", "Tab", "Enter", "F4"].includes(ev.key)
+      ["Control", "Alt", "Shift", "Tab", "Enter", "F4"].includes(ev.key)
     ) {
       return;
     }
@@ -417,6 +435,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
   // ---------------------------------------------------------------------------
 
   private processContent() {
+    const oldScroll = getElementScrollTop(this.composerRef.el);
     this.contentHelper.removeAll(); // removes the content of the composer, to be added just after
     this.shouldProcessInputEvents = false;
 
@@ -424,8 +443,8 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
       this.contentHelper.el.focus();
       this.contentHelper.selectRange(0, 0); // move the cursor inside the composer at 0 0.
     }
-    const content = this.getContent();
-    if (content.length !== 0) {
+    const content = this.getContentLines();
+    if (content.length !== 0 && content.length[0] !== 0) {
       this.contentHelper.setText(content);
       const { start, end } = this.env.model.getters.getComposerSelection();
 
@@ -433,31 +452,33 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
         // Put the cursor back where it was before the rendering
         this.contentHelper.selectRange(start, end);
       }
+      setElementScrollTop(this.composerRef.el, oldScroll);
     }
 
     this.shouldProcessInputEvents = true;
   }
 
-  private getContent(): HtmlContent[] {
-    let content: HtmlContent[];
-    const value = this.env.model.getters.getCurrentContent();
+  /**
+   * Get the HTML content corresponding to the current composer token, divided by lines.
+   */
+  private getContentLines(): HtmlContent[][] {
+    let value = this.env.model.getters.getCurrentContent();
     const isValidFormula =
       value.startsWith("=") && this.env.model.getters.getCurrentTokens().length > 0;
+
     if (value === "") {
-      content = [];
+      return [];
     } else if (isValidFormula && this.props.focus !== "inactive") {
-      content = this.getColoredTokens();
-    } else {
-      content = [{ value }];
+      return this.splitHtmlContentIntoLines(this.getColoredTokens());
     }
-    return content;
+    return this.splitHtmlContentIntoLines([{ value }]);
   }
 
-  private getColoredTokens(): any[] {
+  private getColoredTokens(): HtmlContent[] {
     const tokens = this.env.model.getters.getCurrentTokens();
     const tokenAtCursor = this.env.model.getters.getTokenAtCursor();
-    const result: any[] = [];
-    const { start, end } = this.env.model.getters.getComposerSelection();
+    const result: HtmlContent[] = [];
+    const { end, start } = this.env.model.getters.getComposerSelection();
     for (const token of tokens) {
       switch (token.type) {
         case "OPERATOR":
@@ -465,7 +486,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
         case "FUNCTION":
         case "COMMA":
         case "STRING":
-          result.push({ value: token.value, color: tokenColor[token.type] || "#000" });
+          result.push({ value: token.value, color: tokenColors[token.type] || "#000" });
           break;
         case "REFERENCE":
           const [xc, sheet] = token.value.split("!").reverse() as [string, string | undefined];
@@ -474,7 +495,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
         case "SYMBOL":
           let value = token.value;
           if (["TRUE", "FALSE"].includes(value.toUpperCase())) {
-            result.push({ value: token.value, color: NumberColor });
+            result.push({ value: token.value, color: tokenColors.NUMBER });
           } else {
             result.push({ value: token.value, color: "#000" });
           }
@@ -488,9 +509,9 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
             tokenAtCursor.parenIndex &&
             tokenAtCursor.parenIndex === token.parenIndex
           ) {
-            result.push({ value: token.value, color: MatchingParenColor || "#000" });
+            result.push({ value: token.value, color: tokenColors.MATCHING_PAREN || "#000" });
           } else {
-            result.push({ value: token.value, color: tokenColor[token.type] || "#000" });
+            result.push({ value: token.value, color: tokenColors[token.type] || "#000" });
           }
           break;
         default:
@@ -498,10 +519,53 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
           break;
       }
       if (this.env.model.getters.showSelectionIndicator() && end === start && end === token.end) {
-        result[result.length - 1].class = SelectionIndicatorClass;
+        result[result.length - 1].class = selectionIndicatorClass;
       }
     }
     return result;
+  }
+
+  /**
+   * Split an array of HTMLContents into lines. Each NEWLINE character encountered will create a new
+   * line. Contents can be split into multiple parts if they contain multiple NEWLINE characters.
+   */
+  private splitHtmlContentIntoLines(contents: HtmlContent[]): HtmlContent[][] {
+    const contentSplitInLines: HtmlContent[][] = [];
+    let currentLine: HtmlContent[] = [];
+
+    for (const content of contents) {
+      if (content.value.includes(NEWLINE)) {
+        const lines = content.value.split(NEWLINE);
+        const lastLine = lines.pop()!;
+        for (const line of lines) {
+          currentLine.push({ color: content.color, value: line }); // don't copy class, only last line should keep it
+          contentSplitInLines.push(currentLine);
+          currentLine = [];
+        }
+        currentLine.push({ ...content, value: lastLine });
+      } else {
+        currentLine.push(content);
+      }
+    }
+    if (currentLine.length) {
+      contentSplitInLines.push(currentLine);
+    }
+
+    // Remove useless empty contents
+    const filteredLines: HtmlContent[][] = [];
+    for (const line of contentSplitInLines) {
+      if (line.every(this.isContentEmpty)) {
+        filteredLines.push([line[0]]);
+      } else {
+        filteredLines.push(line.filter((content) => !this.isContentEmpty(content)));
+      }
+    }
+
+    return filteredLines;
+  }
+
+  private isContentEmpty(content: HtmlContent): boolean {
+    return !(content.value || content.class);
   }
 
   private rangeColor(xc: string, sheetName?: string): string | undefined {

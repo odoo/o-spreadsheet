@@ -1,9 +1,5 @@
 import { Component, onMounted, useRef, useState } from "@odoo/owl";
-import {
-  ComponentsImportance,
-  DEFAULT_CELL_HEIGHT,
-  SELECTION_BORDER_COLOR,
-} from "../../../constants";
+import { ComponentsImportance, SELECTION_BORDER_COLOR } from "../../../constants";
 import { fontSizeMap } from "../../../fonts";
 import { positionToZone } from "../../../helpers";
 import { ComposerSelection } from "../../../plugins/ui_stateful/edition";
@@ -11,17 +7,18 @@ import { DOMDimension, Rect, Ref, SpreadsheetChildEnv, Zone } from "../../../typ
 import { getTextDecoration } from "../../helpers";
 import { css } from "../../helpers/css";
 import { Composer } from "../composer/composer";
-
-const SCROLLBAR_WIDTH = 14;
-const SCROLLBAR_HIGHT = 15;
+import { ZoneDimension } from "./../../../types/misc";
 
 const COMPOSER_BORDER_WIDTH = 3 * 0.4 * window.devicePixelRatio || 1;
 css/* scss */ `
   div.o-grid-composer {
-    z-index: ${ComponentsImportance.Composer};
+    z-index: ${ComponentsImportance.GridComposer};
     box-sizing: border-box;
     position: absolute;
     border: ${COMPOSER_BORDER_WIDTH}px solid ${SELECTION_BORDER_COLOR};
+
+    display: flex;
+    align-items: center;
   }
 `;
 
@@ -34,6 +31,7 @@ interface Props {
   focus: "inactive" | "cellFocus" | "contentFocus";
   onComposerUnmounted: () => void;
   onComposerContentFocused: (selection: ComposerSelection) => void;
+  gridDims: ZoneDimension;
 }
 
 /**
@@ -62,13 +60,6 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     this.rect = this.env.model.getters.getVisibleRect(this.zone);
     onMounted(() => {
       const el = this.gridComposerRef.el!;
-
-      //TODO Should be more correct to have a props that give the parent's clientHeight and clientWidth
-      const maxHeight = el.parentElement!.clientHeight - this.rect.y - SCROLLBAR_HIGHT;
-      el.style.maxHeight = (maxHeight + "px") as string;
-
-      const maxWidth = el.parentElement!.clientWidth - this.rect.x - SCROLLBAR_WIDTH;
-      el.style.maxWidth = (maxWidth + "px") as string;
 
       this.composerState.rect = {
         x: this.rect.x,
@@ -109,10 +100,17 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       textAlign = style.align || cell.defaultAlign;
     }
 
+    /**
+     * min-size is on the container, not the composer element, because we want to have the same size as the cell by default,
+     * including all the paddings/margins of the composer
+     *
+     * The +-1 are there to include cell borders in the composer sizing/positioning
+     */
     return `
       left: ${left - 1}px;
       top: ${top}px;
-      min-width: ${width + 2}px;
+
+      min-width: ${width + 1}px;
       min-height: ${height + 1}px;
 
       background: ${background};
@@ -128,10 +126,12 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get composerStyle(): string {
+    const maxHeight = this.props.gridDims.height - this.rect.y;
+    const maxWidth = this.props.gridDims.width - this.rect.x;
+
     return `
-      line-height: ${DEFAULT_CELL_HEIGHT}px;
-      max-height: inherit;
-      overflow: hidden;
+      max-width : ${maxWidth}px;
+      max-height : ${maxHeight}px;
     `;
   }
 }
@@ -140,4 +140,5 @@ GridComposer.props = {
   focus: { validate: (value: string) => ["inactive", "cellFocus", "contentFocus"].includes(value) },
   onComposerUnmounted: Function,
   onComposerContentFocused: Function,
+  gridDims: Object,
 };
