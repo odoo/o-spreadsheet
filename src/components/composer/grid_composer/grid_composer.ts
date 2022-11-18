@@ -92,16 +92,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     const cell = this.env.model.getters.getActiveCell();
     const position = this.env.model.getters.getPosition();
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const cellPosition = this.env.model.getters.getMainCellPosition(
-      sheetId,
-      position.col,
-      position.row
-    );
-    const style = this.env.model.getters.getCellComputedStyle(
-      sheetId,
-      cellPosition.col,
-      cellPosition.row
-    );
+    const style = this.env.model.getters.getCellComputedStyle(sheetId, position.col, position.row);
 
     // position style
     const { x: left, y: top, width, height } = this.rect;
