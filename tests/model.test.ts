@@ -6,7 +6,7 @@ import { UIPlugin } from "../src/plugins/ui_plugin";
 import { Command, CoreCommand, coreTypes, DispatchResult } from "../src/types";
 import { setupCollaborativeEnv } from "./collaborative/collaborative_helpers";
 import { copy, selectCell, setCellContent } from "./test_helpers/commands_helpers";
-import { getCellContent, getCellText } from "./test_helpers/getters_helpers";
+import { getCell, getCellContent, getCellText } from "./test_helpers/getters_helpers";
 
 describe("Model", () => {
   test("core plugin can refuse command from UI plugin", () => {
@@ -112,6 +112,19 @@ describe("Model", () => {
   test("Can add custom elements in the config of model", () => {
     const model = new Model({}, { custom: "42" } as unknown as ModelConfig);
     expect(model["config"]["custom"]).toBe("42");
+  });
+
+  test("type property in command payload is ignored", () => {
+    const model = new Model();
+    const payload = {
+      col: 0,
+      row: 0,
+      sheetId: model.getters.getActiveSheetId(),
+      content: "hello",
+      type: "greeting",
+    };
+    model.dispatch("UPDATE_CELL", payload);
+    expect(getCell(model, "A1")?.content).toBe("hello");
   });
 
   test("Cannot add an already existing core getters", () => {

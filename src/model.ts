@@ -420,7 +420,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * 2. This allows us to define its type by using the interface CommandDispatcher
    */
   dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
-    const command: Command = { type, ...payload };
+    const command: Command = { ...payload, type };
     let status: Status = this.status;
     if (this.getters.isReadonly() && !canExecuteInReadonly(command)) {
       return new DispatchResult(CommandResult.Readonly);
@@ -466,7 +466,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * A command dispatched from this function is not added to the history.
    */
   private dispatchFromCorePlugin: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
-    const command: Command = { type, ...payload };
+    const command: Command = { ...payload, type };
     const previousStatus = this.status;
     this.status = Status.RunningCore;
     const handlers = this.isReplayingCommand
