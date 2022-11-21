@@ -6,13 +6,13 @@ import { SpreadsheetChildEnv } from "../types/env";
 //------------------------------------------------------------------------------
 // Topbar Component Registry
 //------------------------------------------------------------------------------
-interface TopbarComponent {
+export interface TopbarComponent {
   id: UID;
   component: any;
   isVisible?: (env: SpreadsheetChildEnv) => boolean;
 }
 
-class TopBarComponentRegistry extends Registry<TopbarComponent> {
+export class TopBarComponentRegistry extends Registry<TopbarComponent> {
   mapping: { [key: string]: Function } = {};
   uuidGenerator = new UuidGenerator();
 

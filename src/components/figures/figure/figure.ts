@@ -110,7 +110,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 
   private figureRef = useRef("figure");
 
-  dnd = useState({
+  private dnd = useState({
     isActive: false,
     x: 0,
     y: 0,

@@ -16,7 +16,8 @@
     "strictNullChecks": true,
     "esModuleInterop": true,
     "allowJs": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "declaration": true
   },
   "include": ["src"],
   "typedocOptions": {

@@ -2,7 +2,7 @@ import { openLink } from "../helpers/links";
 import { Registry } from "../registry";
 import { CellPosition, SpreadsheetChildEnv } from "../types";
 
-interface CellClickableItem {
+export interface CellClickableItem {
   condition: (position: CellPosition, env: SpreadsheetChildEnv) => boolean;
   action: (position: CellPosition, env: SpreadsheetChildEnv) => void;
   sequence: number;
