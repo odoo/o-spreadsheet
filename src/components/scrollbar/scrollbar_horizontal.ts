@@ -42,6 +42,7 @@ export class HorizontalScrollBar extends Component<Props, SpreadsheetChildEnv> {
     return {
       left: `${this.props.position.left + x}px`,
       bottom: "0px",
+      height: `${SCROLLBAR_WIDTH}px`,
       right: `${SCROLLBAR_WIDTH}px`,
     };
   }
