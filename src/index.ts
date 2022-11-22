@@ -38,6 +38,7 @@ import {
   colorToRGBA,
   computeTextWidth,
   formatValue,
+  isDefined,
   isMarkdownLink,
   markdownLink,
   numberToLetters,
@@ -180,6 +181,7 @@ export const helpers = {
   rgbaToHex,
   colorToRGBA,
   positionToZone,
+  isDefined,
 };
 
 export const links = {
