@@ -44,6 +44,7 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
     style="
 top: 0px;
 right: 0px;
+width: 15px;
 bottom: 15px;
 "
   >
@@ -60,6 +61,7 @@ height: 2328px;
     style="
 left: 0px;
 bottom: 0px;
+height: 15px;
 right: 15px;
 "
   >

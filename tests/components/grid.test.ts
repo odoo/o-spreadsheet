@@ -101,6 +101,11 @@ describe("Grid component", () => {
     expect(fixture.querySelector(".o-grid-overlay")).not.toBeNull();
   });
 
+  test("scrollbars thickness should be set", async () => {
+    expect(getElComputedStyle(".o-scrollbar.horizontal", "height")).toBe(`${SCROLLBAR_WIDTH}px`);
+    expect(getElComputedStyle(".o-scrollbar.vertical", "width")).toBe(`${SCROLLBAR_WIDTH}px`);
+  });
+
   test("can click on a cell to select it", async () => {
     setCellContent(model, "B2", "b2");
     setCellContent(model, "B3", "b3");
