@@ -1,5 +1,4 @@
 import { positionToZone } from "../../helpers";
-import { Mode } from "../../model";
 import { cellPopoverRegistry } from "../../registries/cell_popovers_registry";
 import { Command, CommandResult, DOMCoordinates, Position } from "../../types";
 import {
@@ -14,7 +13,6 @@ import { UIPlugin } from "../ui_plugin";
  */
 export class CellPopoverPlugin extends UIPlugin {
   static getters = ["getCellPopover", "getPersistentPopoverTypeAtPosition"] as const;
-  static modes: Mode[] = ["normal"];
 
   private persistentPopover?: Position & { type: CellPopoverType };
 
