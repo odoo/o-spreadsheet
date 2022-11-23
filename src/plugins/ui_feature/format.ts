@@ -1,11 +1,9 @@
 import { DATETIME_FORMAT } from "../../constants";
 import { changeDecimalPlaces, createDefaultFormat } from "../../helpers";
-import { Mode } from "../../model";
 import { CellValueType, Command, Format, SetDecimalStep, UID, Zone } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 export class FormatPlugin extends UIPlugin {
-  static modes: Mode[] = ["normal"];
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
