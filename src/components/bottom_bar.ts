@@ -4,6 +4,7 @@ import { formatStandardNumber } from "../helpers";
 import { interactiveRenameSheet } from "../helpers/ui/sheet";
 import { MenuItemRegistry, sheetMenuRegistry } from "../registries/index";
 import { SpreadsheetEnv, UID } from "../types";
+import { useAbsolutePosition } from "./helpers/position_hook";
 import { LIST, PLUS, TRIANGLE_DOWN_ICON } from "./icons";
 import { Menu, MenuState } from "./menu";
 const { Component } = owl;
@@ -142,7 +143,7 @@ export class BottomBar extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { Menu };
-
+  private position = useAbsolutePosition();
   getters = this.env.getters;
   menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
   selectedStatisticFn: string = "";
@@ -183,7 +184,8 @@ export class BottomBar extends Component<Props, SpreadsheetEnv> {
       i++;
     }
     const target = ev.currentTarget as HTMLElement;
-    this.openContextMenu(target.offsetLeft, target.offsetTop, registry);
+    const { left } = target.getBoundingClientRect();
+    this.openContextMenu(left, registry);
   }
 
   activateSheet(name: string) {
@@ -197,10 +199,10 @@ export class BottomBar extends Component<Props, SpreadsheetEnv> {
     interactiveRenameSheet(this.env, sheetId);
   }
 
-  openContextMenu(x: number, y: number, registry: MenuItemRegistry) {
+  openContextMenu(x: number, registry: MenuItemRegistry) {
     this.menuState.isOpen = true;
     this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
-    this.menuState.position = { x, y };
+    this.menuState.position = { x, y: this.position.y };
   }
 
   onIconClick(sheet: string, ev: MouseEvent) {
@@ -211,7 +213,8 @@ export class BottomBar extends Component<Props, SpreadsheetEnv> {
       this.menuState.isOpen = false;
     } else {
       const target = (ev.currentTarget as HTMLElement).parentElement as HTMLElement;
-      this.openContextMenu(target.offsetLeft, target.offsetTop, sheetMenuRegistry);
+      const { left } = target.getBoundingClientRect();
+      this.openContextMenu(left, sheetMenuRegistry);
     }
   }
 
@@ -220,7 +223,8 @@ export class BottomBar extends Component<Props, SpreadsheetEnv> {
       this.activateSheet(sheet);
     }
     const target = ev.currentTarget as HTMLElement;
-    this.openContextMenu(target.offsetLeft, target.offsetTop, sheetMenuRegistry);
+    const { left } = target.getBoundingClientRect();
+    this.openContextMenu(left, sheetMenuRegistry);
   }
 
   getSelectedStatistic() {
@@ -253,7 +257,8 @@ export class BottomBar extends Component<Props, SpreadsheetEnv> {
       i++;
     }
     const target = ev.currentTarget as HTMLElement;
-    this.openContextMenu(target.offsetLeft + target.offsetWidth, target.offsetTop, registry);
+    const { left, width } = target.getBoundingClientRect();
+    this.openContextMenu(left + width, registry);
   }
 
   private getComposedFnName(fnName: string, fnValue: number | undefined): string {
