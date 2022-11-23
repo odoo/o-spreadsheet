@@ -1,17 +1,6 @@
 import { positionToZone, rangeReference, toZone } from "../../helpers/index";
-import { ModelConfig } from "../../model";
-import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
-import { StateObserver } from "../../state_observer";
-import {
-  Command,
-  CommandDispatcher,
-  CommandResult,
-  Getters,
-  Highlight,
-  LAYERS,
-  UID,
-} from "../../types/index";
-import { UIPlugin } from "../ui_plugin";
+import { Command, CommandResult, Highlight, LAYERS, UID } from "../../types/index";
+import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 import { RangeInputValue, SelectionInputPlugin } from "./selection_input";
 
 /**
@@ -37,14 +26,8 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
     return this.focusedInputId ? this.inputs[this.focusedInputId] : null;
   }
 
-  constructor(
-    getters: Getters,
-    private state: StateObserver,
-    dispatch: CommandDispatcher["dispatch"],
-    private config: ModelConfig,
-    selection: SelectionStreamProcessor
-  ) {
-    super(getters, state, dispatch, config, selection);
+  constructor(private config: UIPluginConfig) {
+    super(config);
   }
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -165,15 +148,7 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   private initInput(id: UID, initialRanges: string[], inputHasSingleRange: boolean = false) {
-    this.inputs[id] = new SelectionInputPlugin(
-      this.getters,
-      this.state,
-      this.dispatch,
-      this.config,
-      this.selection,
-      initialRanges,
-      inputHasSingleRange
-    );
+    this.inputs[id] = new SelectionInputPlugin(this.config, initialRanges, inputHasSingleRange);
     if (initialRanges.length === 0) {
       const input = this.inputs[id];
       const anchor = {
