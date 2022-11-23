@@ -888,6 +888,32 @@ describe("Viewport of Simple sheet", () => {
       top: 0,
     });
   });
+
+  test("getVisibleRect returns the actual visible part of a zone", () => {
+    const width = 4.5 * DEFAULT_CELL_WIDTH;
+    const height = 5.5 * DEFAULT_CELL_HEIGHT;
+    model.dispatch("RESIZE_SHEETVIEW", { gridOffsetX: 0, gridOffsetY: 0, width, height });
+    expect(model.getters.getVisibleRect(model.getters.getActiveMainViewport())).toEqual({
+      x: 0,
+      y: 0,
+      width,
+      height,
+    });
+  });
+
+  test("getVisibleRect with freezed panes returns the actual visible part of a zone", () => {
+    freezeColumns(model, 1);
+    freezeRows(model, 1);
+    const width = 4.5 * DEFAULT_CELL_WIDTH;
+    const height = 5.5 * DEFAULT_CELL_HEIGHT;
+    model.dispatch("RESIZE_SHEETVIEW", { gridOffsetX: 0, gridOffsetY: 0, width, height });
+    expect(model.getters.getVisibleRect(model.getters.getActiveMainViewport())).toEqual({
+      x: DEFAULT_CELL_WIDTH,
+      y: DEFAULT_CELL_HEIGHT,
+      width: 3.5 * DEFAULT_CELL_WIDTH,
+      height: 4.5 * DEFAULT_CELL_HEIGHT,
+    });
+  });
 });
 
 describe("Multi Panes viewport", () => {

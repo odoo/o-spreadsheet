@@ -203,18 +203,34 @@ export class InternalViewport {
     this.adjustViewportZoneY();
   }
 
+  /**
+   *
+   * @param zone
+   * @returns Computes the absolute coordinate of a given zone inside the viewport
+   */
   getRect(zone: Zone): Rect | undefined {
     const targetZone = intersection(zone, this.zone);
     if (targetZone) {
+      const x =
+        this.getters.getColRowOffset("COL", this.zone.left, targetZone.left) +
+        this.offsetCorrectionX;
+
+      const y =
+        this.getters.getColRowOffset("ROW", this.zone.top, targetZone.top) + this.offsetCorrectionY;
+
+      const width = Math.min(
+        this.getters.getColRowOffset("COL", targetZone.left, targetZone.right + 1),
+        this.width
+      );
+      const height = Math.min(
+        this.getters.getColRowOffset("ROW", targetZone.top, targetZone.bottom + 1),
+        this.height
+      );
       return {
-        x:
-          this.getters.getColRowOffset("COL", this.zone.left, targetZone.left) +
-          this.offsetCorrectionX,
-        y:
-          this.getters.getColRowOffset("ROW", this.zone.top, targetZone.top) +
-          this.offsetCorrectionY,
-        width: this.getters.getColRowOffset("COL", targetZone.left, targetZone.right + 1),
-        height: this.getters.getColRowOffset("ROW", targetZone.top, targetZone.bottom + 1),
+        x,
+        y,
+        width,
+        height,
       };
     } else {
       return undefined;

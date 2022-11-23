@@ -568,24 +568,14 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
   const dataSets = [zoneToXc(dataSetZone)];
   const sheetId = getters.getActiveSheetId();
 
-  const { x: offsetCorrectionX, y: offsetCorrectionY } = getters.getMainViewportCoordinates();
-  const { offsetX, offsetY } = getters.getActiveSheetScrollInfo();
-  const { width, height } = getters.getSheetViewDimension();
   const size = { width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
-  const rect = getters.getVisibleRect(getters.getActiveMainViewport());
-
-  const scrollableViewportWidth = Math.min(rect.width, width - offsetCorrectionX);
-  const scrollableViewportHeight = Math.min(rect.height, height - offsetCorrectionY);
+  const { x, y } = getters.getMainViewportCoordinates();
+  const { offsetX, offsetY } = getters.getActiveSheetScrollInfo();
+  const { width, height } = getters.getVisibleRect(getters.getActiveMainViewport());
 
   const position = {
-    x:
-      offsetCorrectionX +
-      offsetX +
-      Math.max(0, (scrollableViewportWidth - DEFAULT_FIGURE_WIDTH) / 2),
-    y:
-      offsetCorrectionY +
-      offsetY +
-      Math.max(0, (scrollableViewportHeight - DEFAULT_FIGURE_HEIGHT) / 2),
+    x: x + offsetX + Math.max(0, (width - size.width) / 2),
+    y: y + offsetY + Math.max(0, (height - size.height) / 2),
   }; // Position at the center of the scrollable viewport
 
   let title = "";
