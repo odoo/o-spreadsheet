@@ -2,6 +2,7 @@ import * as owl from "@odoo/owl";
 import { BACKGROUND_GRAY_COLOR, BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../constants";
 import { MenuItemRegistry, sheetMenuRegistry } from "../registries/index";
 import { SpreadsheetEnv } from "../types";
+import { useAbsolutePosition } from "./helpers/position_hook";
 import { LIST, PLUS, TRIANGLE_DOWN_ICON } from "./icons";
 import { Menu, MenuState } from "./menu";
 const { Component } = owl;
@@ -125,7 +126,7 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { Menu };
-
+  private position = useAbsolutePosition();
   getters = this.env.getters;
   menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
 
@@ -167,7 +168,9 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
       });
       i++;
     }
-    this.openContextMenu(ev.currentTarget as HTMLElement, registry);
+    const target = ev.currentTarget as HTMLElement;
+    const { left } = target.getBoundingClientRect();
+    this.openContextMenu(left, registry);
   }
 
   activateSheet(name: string) {
@@ -181,12 +184,10 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
     this.env.dispatch("RENAME_SHEET", { interactive: true, sheetId });
   }
 
-  openContextMenu(target: HTMLElement, registry: MenuItemRegistry) {
-    const x = target.offsetLeft;
-    const y = target.offsetTop;
+  openContextMenu(x: number, registry: MenuItemRegistry) {
     this.menuState.isOpen = true;
     this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
-    this.menuState.position = { x, y };
+    this.menuState.position = { x, y: this.position.y };
   }
 
   onIconClick(sheet: string, ev: MouseEvent) {
@@ -196,10 +197,9 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
     if (this.menuState.isOpen) {
       this.menuState.isOpen = false;
     } else {
-      this.openContextMenu(
-        (ev.currentTarget as HTMLElement).parentElement as HTMLElement,
-        sheetMenuRegistry
-      );
+      const target = (ev.currentTarget as HTMLElement).parentElement as HTMLElement;
+      const { left } = target.getBoundingClientRect();
+      this.openContextMenu(left, sheetMenuRegistry);
     }
   }
 
@@ -207,6 +207,8 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
     if (this.getters.getActiveSheetId() !== sheet) {
       this.activateSheet(sheet);
     }
-    this.openContextMenu(ev.currentTarget as HTMLElement, sheetMenuRegistry);
+    const target = ev.currentTarget as HTMLElement;
+    const { left } = target.getBoundingClientRect();
+    this.openContextMenu(left, sheetMenuRegistry);
   }
 }
