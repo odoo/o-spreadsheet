@@ -435,17 +435,13 @@ export function getChartPositionAtCenterOfViewport(
   getters: Getters,
   chartSize: DOMDimension
 ): DOMCoordinates {
-  const { x: viewportX, y: viewportY } = getters.getMainViewportCoordinates();
+  const { x, y } = getters.getMainViewportCoordinates();
   const { offsetX, offsetY } = getters.getActiveSheetScrollInfo();
-  const { width, height } = getters.getSheetViewDimension();
-  const rect = getters.getVisibleRect(getters.getActiveMainViewport());
-
-  const scrollableViewportWidth = Math.min(rect.width, width - viewportX);
-  const scrollableViewportHeight = Math.min(rect.height, height - viewportY);
+  const { width, height } = getters.getVisibleRect(getters.getActiveMainViewport());
 
   const position = {
-    x: viewportX + offsetX + Math.max(0, (scrollableViewportWidth - chartSize.width) / 2),
-    y: viewportY + offsetY + Math.max(0, (scrollableViewportHeight - chartSize.height) / 2),
+    x: x + offsetX + Math.max(0, (width - chartSize.width) / 2),
+    y: y + offsetY + Math.max(0, (height - chartSize.height) / 2),
   }; // Position at the center of the scrollable viewport
 
   return position;
