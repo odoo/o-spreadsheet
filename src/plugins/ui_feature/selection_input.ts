@@ -1,19 +1,8 @@
 import { getComposerSheetName, getNextColor, positionToZone, zoneToXc } from "../../helpers/index";
-import { ModelConfig } from "../../model";
 import { StreamCallbacks } from "../../selection_stream/event_stream";
-import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
-import { StateObserver } from "../../state_observer";
 import { SelectionEvent } from "../../types/event_stream";
-import {
-  Command,
-  CommandDispatcher,
-  CommandResult,
-  Getters,
-  Highlight,
-  LAYERS,
-  UID,
-} from "../../types/index";
-import { UIPlugin } from "../ui_plugin";
+import { Command, CommandResult, Highlight, LAYERS, UID } from "../../types/index";
+import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
 export interface RangeInputValue {
   id: UID;
@@ -38,15 +27,11 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
   private willAddNewRange: boolean = false;
 
   constructor(
-    getters: Getters,
-    state: StateObserver,
-    dispatch: CommandDispatcher["dispatch"],
-    config: ModelConfig,
-    selection: SelectionStreamProcessor,
+    config: UIPluginConfig,
     initialRanges: string[],
     private readonly inputHasSingleRange: boolean
   ) {
-    super(getters, state, dispatch, config, selection);
+    super(config);
     this.insertNewRange(0, initialRanges);
     this.activeSheet = this.getters.getActiveSheetId();
     if (this.ranges.length === 0) {

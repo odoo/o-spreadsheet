@@ -14,14 +14,14 @@ import {
 } from "./migrations/data";
 import { BasePlugin } from "./plugins/base_plugin";
 import { RangeAdapter } from "./plugins/core/range";
-import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
+import { CorePlugin, CorePluginConfig, CorePluginConstructor } from "./plugins/core_plugin";
 import {
   corePluginRegistry,
   coreViewsPluginRegistry,
   featurePluginRegistry,
   statefulUIPluginRegistry,
 } from "./plugins/index";
-import { UIPlugin, UIPluginConstructor } from "./plugins/ui_plugin";
+import { UIPlugin, UIPluginConfig, UIPluginConstructor } from "./plugins/ui_plugin";
 import { SelectionStreamProcessor } from "./selection_stream/selection_stream_processor";
 import { StateObserver } from "./state_observer";
 import { _lt } from "./translation";
@@ -132,6 +132,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * The config object contains some configuration flag and callbacks
    */
   private config: ModelConfig;
+  private corePluginConfig: CorePluginConfig;
+  private uiPluginConfig: UIPluginConfig;
 
   private state: StateObserver;
 
@@ -173,8 +175,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     this.session = this.setupSession(workbookData.revisionId);
 
-    this.config.moveClient = this.session.move.bind(this.session);
-
     this.history = new LocalHistory(this.dispatchFromCorePlugin, this.session);
 
     this.coreGetters = {} as CoreGetters;
@@ -202,6 +202,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     // Initiate stream processor
     this.selection = new SelectionStreamProcessor(this.getters);
+
+    this.corePluginConfig = this.setupCorePluginConfig();
+    this.uiPluginConfig = this.setupUiPluginConfig();
 
     // registering plugins
     for (let Plugin of corePluginRegistry.getAll()) {
@@ -259,7 +262,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   private setupUiPlugin(Plugin: UIPluginConstructor) {
-    const plugin = new Plugin(this.getters, this.state, this.dispatch, this.config, this.selection);
+    const plugin = new Plugin(this.uiPluginConfig);
     for (let name of Plugin.getters) {
       if (!(name in plugin)) {
         throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
@@ -282,14 +285,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * reason why the model could not add dynamically a plugin while it is running.
    */
   private setupCorePlugin(Plugin: CorePluginConstructor, data: WorkbookData) {
-    const plugin = new Plugin(
-      this.coreGetters,
-      this.state,
-      this.range,
-      this.dispatchFromCorePlugin,
-      this.config,
-      this.uuidGenerator
-    );
+    const plugin = new Plugin(this.corePluginConfig);
     for (let name of Plugin.getters) {
       if (!(name in plugin)) {
         throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
@@ -357,6 +353,28 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       moveClient: () => {},
       snapshotRequested: false,
       notifyUI: (payload: NotifyUIEvent) => this.trigger("notify-ui", payload),
+    };
+  }
+
+  private setupCorePluginConfig(): CorePluginConfig {
+    return {
+      getters: this.coreGetters,
+      stateObserver: this.state,
+      range: this.range,
+      dispatch: this.dispatchFromCorePlugin,
+      uuidGenerator: this.uuidGenerator,
+    };
+  }
+
+  private setupUiPluginConfig(): UIPluginConfig {
+    return {
+      getters: this.getters,
+      stateObserver: this.state,
+      dispatch: this.dispatch,
+      selection: this.selection,
+      moveClient: this.session.move.bind(this.session),
+      evalContext: this.config.evalContext,
+      uiActions: this.config,
     };
   }
 

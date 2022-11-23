@@ -11,9 +11,6 @@ import {
   toXC,
   zoneToXc,
 } from "../../helpers/index";
-import { ModelConfig } from "../../model";
-import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
-import { StateObserver } from "../../state_observer";
 import { _lt } from "../../translation";
 import {
   CellErrorLevel,
@@ -28,7 +25,6 @@ import {
   CellValue,
   CellValueType,
   Command,
-  CommandDispatcher,
   EnsureRange,
   EvalContext,
   EvaluatedCell,
@@ -36,7 +32,6 @@ import {
   Format,
   FormattedValue,
   FormulaCell,
-  Getters,
   HeaderIndex,
   invalidateEvaluationCommands,
   Lazy,
@@ -47,7 +42,7 @@ import {
   UID,
   Zone,
 } from "../../types/index";
-import { UIPlugin } from "../ui_plugin";
+import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
 const functionMap = functionRegistry.mapping;
 
@@ -74,14 +69,8 @@ export class EvaluationPlugin extends UIPlugin {
   } = {};
   private readonly evalContext: EvalContext;
 
-  constructor(
-    getters: Getters,
-    state: StateObserver,
-    dispatch: CommandDispatcher["dispatch"],
-    config: ModelConfig,
-    selection: SelectionStreamProcessor
-  ) {
-    super(getters, state, dispatch, config, selection);
+  constructor(config: UIPluginConfig) {
+    super(config);
     this.evalContext = config.evalContext;
   }
 

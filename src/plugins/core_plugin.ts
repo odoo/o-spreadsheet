@@ -1,5 +1,4 @@
 import { UuidGenerator } from "../helpers";
-import { ModelConfig } from "../model";
 import { StateObserver } from "../state_observer";
 import {
   ApplyRangeChange,
@@ -13,15 +12,16 @@ import { CoreGetters } from "../types/getters";
 import { BasePlugin } from "./base_plugin";
 import { RangeAdapter } from "./core/range";
 
+export interface CorePluginConfig {
+  readonly getters: CoreGetters;
+  readonly stateObserver: StateObserver;
+  readonly range: RangeAdapter;
+  readonly dispatch: CoreCommandDispatcher["dispatch"];
+  readonly uuidGenerator: UuidGenerator;
+}
+
 export interface CorePluginConstructor {
-  new (
-    getters: CoreGetters,
-    stateObserver: StateObserver,
-    range: RangeAdapter,
-    dispatch: CoreCommandDispatcher["dispatch"],
-    config: ModelConfig,
-    uuidGenerator: UuidGenerator
-  ): CorePlugin;
+  new (config: CorePluginConfig): CorePlugin;
   getters: readonly string[];
 }
 
@@ -39,15 +39,8 @@ export class CorePlugin<State = any, C = CoreCommand>
   protected range: RangeAdapter;
   protected uuidGenerator: UuidGenerator;
 
-  constructor(
-    getters: CoreGetters,
-    stateObserver: StateObserver,
-    range: RangeAdapter,
-    protected dispatch: CoreCommandDispatcher["dispatch"],
-    config: ModelConfig,
-    uuidGenerator: UuidGenerator
-  ) {
-    super(stateObserver, dispatch, config);
+  constructor({ getters, stateObserver, range, dispatch, uuidGenerator }: CorePluginConfig) {
+    super(stateObserver, dispatch);
     this.range = range;
     range.addRangeProvider(this.adaptRanges.bind(this));
     this.getters = getters;

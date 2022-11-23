@@ -11,9 +11,6 @@ import {
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
 } from "../../helpers/index";
-import { ModelConfig } from "../../model";
-import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
-import { StateObserver } from "../../state_observer";
 import { _lt } from "../../translation";
 import { SelectionEvent } from "../../types/event_stream";
 import {
@@ -22,11 +19,9 @@ import {
   CellValueType,
   ClientPosition,
   Command,
-  CommandDispatcher,
   CommandResult,
   Dimension,
   EvaluatedCell,
-  Getters,
   GridRenderingContext,
   HeaderIndex,
   LAYERS,
@@ -39,7 +34,7 @@ import {
   UID,
   Zone,
 } from "../../types/index";
-import { UIPlugin } from "../ui_plugin";
+import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
 interface SheetInfo {
   gridSelection: Selection;
@@ -127,14 +122,8 @@ export class GridSelectionPlugin extends UIPlugin {
 
   activeSheet: Sheet = null as any;
 
-  constructor(
-    getters: Getters,
-    state: StateObserver,
-    dispatch: CommandDispatcher["dispatch"],
-    config: ModelConfig,
-    selection: SelectionStreamProcessor
-  ) {
-    super(getters, state, dispatch, config, selection);
+  constructor(config: UIPluginConfig) {
+    super(config);
     this.moveClient = config.moveClient;
   }
 

@@ -1,18 +1,30 @@
 import { ModelConfig } from "../model";
 import { SelectionStreamProcessor } from "../selection_stream/selection_stream_processor";
 import { StateObserver } from "../state_observer";
-import { Command, CommandDispatcher, Getters, GridRenderingContext, LAYERS } from "../types/index";
+import {
+  ClientPosition,
+  Command,
+  CommandDispatcher,
+  Getters,
+  GridRenderingContext,
+  LAYERS,
+} from "../types/index";
 import { BasePlugin } from "./base_plugin";
 
 type UIActions = Pick<ModelConfig, "notifyUI">;
+
+export interface UIPluginConfig {
+  readonly getters: Getters;
+  readonly stateObserver: StateObserver;
+  readonly dispatch: CommandDispatcher["dispatch"];
+  readonly selection: SelectionStreamProcessor;
+  readonly moveClient: (position: ClientPosition) => void;
+  readonly evalContext: ModelConfig["evalContext"];
+  readonly uiActions: UIActions;
+}
+
 export interface UIPluginConstructor {
-  new (
-    getters: Getters,
-    state: StateObserver,
-    dispatch: CommandDispatcher["dispatch"],
-    config: ModelConfig,
-    selection: SelectionStreamProcessor
-  ): UIPlugin;
+  new (config: UIPluginConfig): UIPlugin;
   layers: LAYERS[];
   getters: readonly string[];
 }
@@ -27,16 +39,10 @@ export class UIPlugin<State = any, C = Command> extends BasePlugin<State, C> {
   protected getters: Getters;
   protected ui: UIActions;
   protected selection: SelectionStreamProcessor;
-  constructor(
-    getters: Getters,
-    state: StateObserver,
-    dispatch: CommandDispatcher["dispatch"],
-    config: ModelConfig,
-    selection: SelectionStreamProcessor
-  ) {
-    super(state, dispatch, config);
+  constructor({ getters, stateObserver, dispatch, uiActions, selection }: UIPluginConfig) {
+    super(stateObserver, dispatch);
     this.getters = getters;
-    this.ui = config;
+    this.ui = uiActions;
     this.selection = selection;
   }
 
