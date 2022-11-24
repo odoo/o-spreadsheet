@@ -5,12 +5,7 @@ import {
   useExternalListener,
   useState,
 } from "@odoo/owl";
-import {
-  BACKGROUND_HEADER_COLOR,
-  ComponentsImportance,
-  DEFAULT_FONT_SIZE,
-  SELECTION_BORDER_COLOR,
-} from "../../constants";
+import { BACKGROUND_HEADER_COLOR, ComponentsImportance, DEFAULT_FONT_SIZE } from "../../constants";
 import { fontSizes } from "../../fonts";
 import { areZonesContinuous, isEqual, positionToZone } from "../../helpers/index";
 import { interactiveAddFilter } from "../../helpers/ui/filter_interactive";
@@ -29,7 +24,7 @@ import {
   Style,
 } from "../../types/index";
 import { ColorPicker } from "../color_picker/color_picker";
-import { Composer } from "../composer/composer/composer";
+import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { css } from "../helpers/css";
 import { Menu, MenuState } from "../menu/menu";
 import { ComposerFocusType } from "../spreadsheet/spreadsheet";
@@ -130,33 +125,6 @@ css/* scss */ `
       .o-topbar-topright {
         display: flex;
         justify-content: flex-end;
-      }
-    }
-
-    .o-composer-container {
-      border: 1px solid #e0e2e4;
-      margin-top: -1px;
-      margin-bottom: -1px;
-      line-height: 20px;
-      padding-top: 7px;
-      padding-bottom: 7px;
-
-      height: 20px;
-      background-color: white;
-
-      &:focus-within {
-        border: 1px solid ${SELECTION_BORDER_COLOR};
-        height: fit-content;
-        padding-bottom: 7px;
-        max-height: 100px;
-      }
-
-      .o-composer {
-        padding-left: 8px;
-
-        &:focus {
-          height: fit-content;
-        }
       }
     }
 
@@ -328,7 +296,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TopBar";
   DEFAULT_FONT_SIZE = DEFAULT_FONT_SIZE;
 
-  static components = { ColorPicker, Menu, Composer };
+  static components = { ColorPicker, Menu, TopBarComposer };
   commonFormats = FORMATS;
   customFormats = CUSTOM_FORMATS;
   currentFormatName = "automatic";

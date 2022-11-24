@@ -46,7 +46,6 @@ css/* scss */ `
     margin: 0;
     border: 0;
     z-index: ${ComponentsImportance.Composer};
-    flex-grow: 1;
     overflow-y: auto;
     overflow-x: hidden;
     overflow-wrap: break-word;
@@ -78,7 +77,7 @@ css/* scss */ `
 
     .o-composer-assistant {
       position: absolute;
-      margin: 4px;
+      margin: 1px 4px;
       pointer-events: none;
     }
 
@@ -129,7 +128,7 @@ interface FunctionDescriptionState {
  * - DONE - line height of grid composer
  * - composer scroll test  + scroll when adding a new line
  * - DONE grid selection caret should go to a new line
- * - (close formula autocomplete when composer lose focus) - too hard w/ the current focus implementation.
+ * - DONE (close formula autocomplete when composer lose focus) - too hard w/ the current focus implementation.
  *      - have the composer style depend on the prop focus, not the actual focus
  * - DONE grid composer sizing + un-skip tests
  * - (optional) : scroll when composer isn't expanded isn't very good. It also sucks in gsheet tho.

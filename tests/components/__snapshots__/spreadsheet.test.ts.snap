@@ -391,17 +391,28 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         
       </div>
       <div
-        class="o-composer-container"
-        style="overflow-y: hidden"
+        class="o-topbar-composer"
+        style="
+      "
       >
         <div
-          class="o-composer"
-          contenteditable="true"
-          spellcheck="false"
-          style=""
-          tabindex="1"
-        />
-        
+          class="o-composer-container"
+          style="overflow-y: hidden"
+        >
+          <div
+            class="o-composer"
+            contenteditable="true"
+            spellcheck="false"
+            style="
+      padding-top: 7px;
+      padding-bottom: 7px;
+    
+        height: 20px;
+      "
+            tabindex="1"
+          />
+          
+        </div>
       </div>
       
     </div>

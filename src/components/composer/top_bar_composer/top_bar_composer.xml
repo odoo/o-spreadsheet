@@ -1,0 +1,11 @@
+<templates>
+  <t t-name="o-spreadsheet-TopBarComposer" owl="1">
+    <div class="o-topbar-composer" t-att-style="containerStyle">
+      <Composer
+        focus="props.focus"
+        inputStyle="composerStyle"
+        onComposerContentFocused="props.onComposerContentFocused"
+      />
+    </div>
+  </t>
+</templates>

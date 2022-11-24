@@ -306,7 +306,7 @@
             </div>
           </div>
         </div>
-          <Composer
+        <TopBarComposer
           focus="props.focusComposer"
           onComposerContentFocused="props.onComposerContentFocused"
         />

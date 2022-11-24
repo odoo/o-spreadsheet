@@ -503,17 +503,29 @@ exports[`TopBar component can set cell format 1`] = `
           
         </div>
         <div
-          class="o-composer-container"
-          style="overflow-y: hidden"
+          class="o-topbar-composer"
+          style="border: 1px solid #3266ca;
+    "
         >
           <div
-            class="o-composer"
-            contenteditable="true"
-            spellcheck="false"
-            style=""
-            tabindex="1"
-          />
-          
+            class="o-composer-container"
+            style="overflow-y: hidden"
+          >
+            <div
+              class="o-composer"
+              contenteditable="true"
+              spellcheck="false"
+              style="
+      padding-top: 7px;
+      padding-bottom: 7px;
+    
+        height : fit-content;
+        max-height: 100px;
+    "
+              tabindex="1"
+            />
+            
+          </div>
         </div>
         
       </div>
@@ -908,17 +920,29 @@ exports[`TopBar component simple rendering 1`] = `
       
     </div>
     <div
-      class="o-composer-container"
-      style="overflow-y: hidden"
+      class="o-topbar-composer"
+      style="border: 1px solid #3266ca;
+    "
     >
       <div
-        class="o-composer"
-        contenteditable="true"
-        spellcheck="false"
-        style=""
-        tabindex="1"
-      />
-      
+        class="o-composer-container"
+        style="overflow-y: hidden"
+      >
+        <div
+          class="o-composer"
+          contenteditable="true"
+          spellcheck="false"
+          style="
+      padding-top: 7px;
+      padding-bottom: 7px;
+    
+        height : fit-content;
+        max-height: 100px;
+    "
+          tabindex="1"
+        />
+        
+      </div>
     </div>
     
   </div>
