@@ -1,4 +1,14 @@
-Adding functions: the `o_spreadsheet` object exports an `addFunction` method:
+- [Adding a new custom function](#adding-a-new-custom-function)
+- [Example](#example)
+- [More about the `compute` and `computeFormat` function](#more-about-the-compute-and-computeformat-function)
+- [Casting and converting arguments](#casting-and-converting-arguments)
+- [Looping over arguments](#looping-over-arguments)
+  - [Processing all values of a specific reference argument](#processing-all-values-of-a-specific-reference-argument)
+  - [Processing all values of all arguments at once](#processing-all-values-of-all-arguments-at-once)
+- [External dependency](#external-dependency)
+- [Asynchronous function](#asynchronous-function)
+
+## Adding a new custom function
 
 ```javascript
 o_spreadsheet.addFunction("myfunc", {
@@ -148,11 +158,9 @@ Depending on type, the parameters received by the compute function are like this
 
 If a parameter is defined as `lazy`, you must call it as a function to obtain its value.
 
-## Helpers to facilitate casting and dealing with the parameters of the `compute` function
+## Casting and converting arguments
 
 See [src/functions/helpers.ts](../src/functions/helpers.ts)
-
-### Conversion
 
 Takes a value and converts it to the specific type, taking o-spreadsheet specific considerations into account
 
@@ -162,13 +170,15 @@ Takes a value and converts it to the specific type, taking o-spreadsheet specifi
 - `strictToBoolean`(value: any): boolean
 - `strictToNumber`(value: any): number
 
-### Looping over arguments
+## Looping over arguments
+
+See [src/functions/helpers.ts](../src/functions/helpers.ts)
 
 Most formula can take cell references as argument, ranges or list of ranges, like `=sum(A2)`, `=sum(a2,b5)` and `=sum(a2,a3, a5:b10)`.
 Treating arguments of type Range is difficult because the `compute` function doesn't know in advance the kind of reference the user will use it their formula.
 These helpers will treat all cases and call a sub-function on every value referenced in the formula.
 
-#### Processing all values of a specific reference argument
+### Processing all values of a specific reference argument
 
 - `visitAny`(arg: any, callback: (cellValue: any) => void): void
 
@@ -195,7 +205,7 @@ export const WORKDAY_INTL = {
     // [...]
 ```
 
-#### Processing all values of all arguments at once
+### Processing all values of all arguments at once
 
 Useful when all arguments must have the same processing, and ignore values that cannot be converted to a certain type.
 
@@ -226,9 +236,9 @@ export const MEDIAN: AddFunctionDescription = {
 - `visitNumbersTextAs0`(args: IArguments | any[], callback: (arg: number) => void): void
 - `visitBooleans`(args: IArguments, callback: (a: boolean) => boolean): void
 
-see [add plugin](add_plugin.md)
+see [add plugin](../doc/extending/plugin.md)
 
-### External dependency
+## External dependency
 
 You can provide any external dependencies to your functions in the `Model`'s config. They are given to the function evaluation context.
 
@@ -251,7 +261,7 @@ addFunction("USER.NAME", {
 });
 ```
 
-#### Asynchronous function
+## Asynchronous function
 
 Function are synchronous. However, you can use a `getter` to fetch data from an external source.
 Here is what a function fetching currency rate from a server might look like.
