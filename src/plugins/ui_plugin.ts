@@ -19,8 +19,8 @@ export interface UIPluginConfig {
   readonly dispatch: CommandDispatcher["dispatch"];
   readonly selection: SelectionStreamProcessor;
   readonly moveClient: (position: ClientPosition) => void;
-  readonly evalContext: ModelConfig["evalContext"];
   readonly uiActions: UIActions;
+  readonly external: ModelConfig["external"];
 }
 
 export interface UIPluginConstructor {

@@ -98,14 +98,14 @@ describe("Spreadsheet", () => {
       restoreDefaultFunctions();
     });
 
-    test("Can use the env in a function", () => {
-      const model = new Model({ sheets: [{ id: 1 }] }, { evalContext: { env: { myKey: [] } } });
+    test("Can use  an external dependency in a function", () => {
+      const model = new Model({ sheets: [{ id: 1 }] }, { external: { env: { myKey: [] } } });
       setCellContent(model, "A1", "=GETACTIVESHEET()");
       expect(getCellContent(model, "A1")).toBe("Sheet");
       expect(env).toMatchObject({ myKey: [] });
     });
 
-    test("Can use the env in a function at model start", async () => {
+    test("Can use an external dependency in a function at model start", async () => {
       await mountSpreadsheet(fixture, {
         model: new Model(
           {
@@ -123,7 +123,7 @@ describe("Spreadsheet", () => {
             ],
             activeSheet: "Sheet1",
           },
-          { evalContext: { env: { myKey: [] } } }
+          { external: { env: { myKey: [] } } }
         ),
       });
       expect(env).toMatchObject({ myKey: [] });
