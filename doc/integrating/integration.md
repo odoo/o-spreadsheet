@@ -45,7 +45,8 @@ const model = new Model(data, config);
 - `config` A config object with the following properties, all optionals:
 
   - `mode` The mode in which the spreadsheet is run: `normal`, `readonly` or `dashboard`.
-  - `evalContext` Object which is transmitted and made available while evaluating functions
+  - `external` Any external dependencies your custom plugins or functions might need.
+    They are available in plugins config and functions evaluation context.
   - `transportService` Service which ensure the communication in a collaborative context
   - `client` Client information (name, id). Used in collaborative context to indicate the positions of all clients.
   - `snapshotRequested` Boolean that set to true will indicate to the session that a snapshot has to be done after the loading of revisions.

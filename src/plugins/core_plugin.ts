@@ -1,4 +1,5 @@
 import { UuidGenerator } from "../helpers";
+import { ModelConfig } from "../model";
 import { StateObserver } from "../state_observer";
 import {
   ApplyRangeChange,
@@ -18,6 +19,7 @@ export interface CorePluginConfig {
   readonly range: RangeAdapter;
   readonly dispatch: CoreCommandDispatcher["dispatch"];
   readonly uuidGenerator: UuidGenerator;
+  readonly external: ModelConfig["external"];
 }
 
 export interface CorePluginConstructor {

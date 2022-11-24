@@ -161,3 +161,24 @@ Hint: `this.history` can be used with multiple level of depth:
     this.history.update("records", 1, "data", undefined);
   }
 ```
+
+## External dependency
+
+You can provide any external dependencies to your plugin in the `Model`'s config.
+
+Let's say you have a `user` service with the currently logged in user.
+The example below shows how the service can be used in a custom plugin.
+
+```ts
+const model = new Model(data, {
+  external: {
+    userService: services.user,
+  },
+});
+class UserPlugin extends CorePlugin {
+  constructor(config) {
+    super(config);
+    this.userService = config.external.userService;
+  }
+}
+```

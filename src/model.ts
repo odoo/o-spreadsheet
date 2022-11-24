@@ -37,7 +37,6 @@ import {
   CoreCommand,
   CoreGetters,
   DispatchResult,
-  EvalContext,
   Getters,
   GridRenderingContext,
   isCoreCommand,
@@ -78,7 +77,14 @@ export type Mode = "normal" | "readonly" | "dashboard";
 
 export interface ModelConfig {
   mode: Mode;
-  evalContext: EvalContext;
+  /**
+   * Any external dependencies your custom plugins or functions might need.
+   * They are available in plugins config and functions
+   * evaluation context.
+   */
+  external: {
+    [key: string]: any;
+  };
   moveClient: (position: ClientPosition) => void;
   transportService: TransportService;
   client: Client;
@@ -347,7 +353,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     return {
       ...config,
       mode: config.mode || "normal",
-      evalContext: config.evalContext || {},
+      external: config.external || {},
       transportService,
       client,
       moveClient: () => {},
@@ -363,6 +369,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       range: this.range,
       dispatch: this.dispatchFromCorePlugin,
       uuidGenerator: this.uuidGenerator,
+      external: this.config.external,
     };
   }
 
@@ -373,7 +380,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       dispatch: this.dispatch,
       selection: this.selection,
       moveClient: this.session.move.bind(this.session),
-      evalContext: this.config.evalContext,
+      external: this.config.external,
       uiActions: this.config,
     };
   }

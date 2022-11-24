@@ -228,6 +228,29 @@ export const MEDIAN: AddFunctionDescription = {
 
 see [add plugin](add_plugin.md)
 
+### External dependency
+
+You can provide any external dependencies to your functions in the `Model`'s config. They are given to the function evaluation context.
+
+Let's say you have a `user` service with the currently logged in user.
+The example below shows how the service can be used in a custom function.
+
+```ts
+const model = new Model(data, {
+  external: {
+    userService: services.user,
+  },
+});
+addFunction("USER.NAME", {
+  description: "Return the current user name",
+  compute: function () {
+    return this.userService.getUserName();
+  },
+  args: args(``),
+  returns: ["STRING"],
+});
+```
+
 #### Asynchronous function
 
 Function are synchronous. However, you can use a `getter` to fetch data from an external source.
