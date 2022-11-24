@@ -1,3 +1,13 @@
+- [Plugins](#plugins)
+  - [Plugin skeleton](#plugin-skeleton)
+  - [Dispatch lifecycle and methods](#dispatch-lifecycle-and-methods)
+    - [`allowDispatch`](#allowdispatch)
+    - [`beforeHandle`](#beforehandle)
+    - [`handle`](#handle)
+    - [`finalize`](#finalize)
+  - [Changes that can be undone and redone](#changes-that-can-be-undone-and-redone)
+  - [External dependency](#external-dependency)
+
 # Plugins
 
 A plugin is a way for o-spreadsheet to organize features in order not to interfere with one another.
@@ -85,10 +95,13 @@ pluginRegistry.add("MyPlugin", MyPlugin);
 
 For processing all commands, command will go through the functions on the plugins in this order:
 
-1. `allowDispatch(command: Command): CommandResult`
-   Used to refuse a command. As soon as you return anything else than `CommandResult.Success`, the
-   entire command processing is aborted for all plugins. Here is the only way to refuse a command safely (that is, ensuring
-   that no plugin has updated its state and possibly perverting the `undo` stack).
+### `allowDispatch`
+
+`allowDispatch(command: Command): CommandResult`
+
+Used to refuse a command. As soon as you return anything else than `CommandResult.Success`, the
+entire command processing is aborted for all plugins. Here is the only way to refuse a command safely (that is, ensuring
+that no plugin has updated its state and possibly perverting the `undo` stack).
 
 ```typescript
 class MyPlugin extends CorePlugin {
@@ -118,15 +131,24 @@ const CommandResult = {
 };
 ```
 
-2. `beforeHandle(command: Command): void`
-   Used only in specific cases, to store temporary information before processing the command by another plugin
+### `beforeHandle`
 
-3. `handle(command: Command): void`
-   Actually processing the command. A command can be processed by multiple plugins. Handle can update the state of the
-   plugin and/or dispatch new commands
+`beforeHandle(command: Command): void`
 
-4. `finalize(): void`
-   To continue processing a command after all plugins have handled it. In finalize, you cannot dispatch new commands
+Used only in specific cases, to store temporary information before processing the command by another plugin
+
+### `handle`
+
+`handle(command: Command): void`
+
+Actually processing the command. A command can be processed by multiple plugins. Handle can update the state of the
+plugin and/or dispatch new commands
+
+### `finalize`
+
+`finalize(): void`
+
+To continue processing a command after all plugins have handled it. In finalize, you cannot dispatch new commands
 
 After all the `finalize` functions have been executed, the spreadsheet component will be re-rendered.
 
@@ -140,17 +162,18 @@ Changes to the state that must be restored by Undo must be done through the func
 Hint: `this.history` can be used with multiple level of depth:
 
 ```typescript
-  class DummyPlugin extends CorePlugin {
-    readonly records = {
-      1: {
-        data: {
-          1: {
-            text: "hello"
-          }
-        }
-      }
-    };
+class DummyPlugin extends CorePlugin {
+  readonly records = {
+    1: {
+      data: {
+        1: {
+          text: "hello",
+        },
+      },
+    },
+  };
 
+  private foo() {
     // Replace "hello" by "Bye"
     this.history.update("records", 1, "data", 1, "text", "Bye");
 
@@ -160,6 +183,7 @@ Hint: `this.history` can be used with multiple level of depth:
     // Remove entry 1 of data
     this.history.update("records", 1, "data", undefined);
   }
+}
 ```
 
 ## External dependency
