@@ -3,12 +3,7 @@ import {
   selectionIndicatorClass,
   tokenColor,
 } from "../../src/components/composer/composer/composer";
-import {
-  DEFAULT_CELL_HEIGHT,
-  DEFAULT_CELL_WIDTH,
-  HEADER_HEIGHT,
-  NEWLINE,
-} from "../../src/constants";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, HEADER_HEIGHT } from "../../src/constants";
 import { fontSizes } from "../../src/fonts";
 import { colors, toHex, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
@@ -1469,33 +1464,6 @@ describe("composer", () => {
 
     await keyDown("Enter");
     expect(getCellContent(model, "A1")).toEqual("A\n\nC");
-  });
-
-  // test("Typing in the composer keeps the scroll", async () => {
-  //   jest
-  //   .spyOn(HTMLDivElement.prototype, "scrollTo")
-  //   .mockImplementation(function (this: HTMLDivElement) {
-  //     if (this.className.includes("o-composer-container")) {
-  //       scroll = 56;
-  //     }
-  //   });
-
-  //   setCellContent(model, "A1", NEWLINE.repeat(20));
-  //   composerEl = await startGridComposition();
-  //   const scroll = composerEl.parentElement!.scrollTop;
-  //   expect(scroll).not.toBe(0);
-  //   await typeInComposerGrid("h");
-  //   expect(composerEl.parentElement!.scrollTop).toEqual(scroll);
-  // });
-
-  test("Typing in the composer keeps the scroll", async () => {
-    // TODO : this isn't even a test, it's always true with jest DOM env
-    setCellContent(model, "A1", NEWLINE.repeat(20));
-    composerEl = await startGridComposition();
-    composerEl.parentElement!.scrollTop = 25;
-    expect(scroll).not.toBe(0);
-    await typeInComposerGrid("h");
-    expect(composerEl.parentElement!.scrollTop).toEqual(25);
   });
 });
 

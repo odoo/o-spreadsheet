@@ -5,7 +5,12 @@ import {
   useExternalListener,
   useState,
 } from "@odoo/owl";
-import { BACKGROUND_HEADER_COLOR, ComponentsImportance, DEFAULT_FONT_SIZE } from "../../constants";
+import {
+  BACKGROUND_HEADER_COLOR,
+  ComponentsImportance,
+  DEFAULT_FONT_SIZE,
+  TOPBAR_TOOLBAR_HEIGHT,
+} from "../../constants";
 import { fontSizes } from "../../fonts";
 import { areZonesContinuous, isEqual, positionToZone } from "../../helpers/index";
 import { interactiveAddFilter } from "../../helpers/ui/filter_interactive";
@@ -97,7 +102,6 @@ css/* scss */ `
     flex-direction: column;
     font-size: 13px;
     line-height: 1.2;
-    height: 34px;
     user-select: none;
 
     .o-topbar-top {
@@ -128,11 +132,16 @@ css/* scss */ `
       }
     }
 
-    /* Toolbar + Cell Content */
+    .o-topbar-composer {
+      flex-grow: 1;
+    }
+
+    /* Toolbar */
     .o-topbar-toolbar {
+      flex-shrink: 0;
       border-bottom: 1px solid #e0e2e4;
       display: flex;
-      height: 34px;
+      height: ${TOPBAR_TOOLBAR_HEIGHT - 1}px; // -1 for the border
 
       .o-readonly-toolbar {
         display: flex;

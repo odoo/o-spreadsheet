@@ -23,7 +23,6 @@ exports[`composer grid composer basic style Grid composer snapshot 1`] = `
 >
   <div
     class="o-composer-container"
-    style="overflow-y: hidden"
   >
     <div
       class="o-composer"

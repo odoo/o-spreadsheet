@@ -112,6 +112,7 @@ export const MIN_COL_WIDTH = 5;
 export const HEADER_HEIGHT = 26;
 export const HEADER_WIDTH = 48;
 export const TOPBAR_HEIGHT = 63;
+export const TOPBAR_TOOLBAR_HEIGHT = 35;
 export const BOTTOMBAR_HEIGHT = 36;
 export const DEFAULT_CELL_WIDTH = 96;
 export const DEFAULT_CELL_HEIGHT = 23;

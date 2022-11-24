@@ -17,7 +17,7 @@ export function gridOverlayPosition() {
 
 /**
  * Iterate over the dom tree starting at `el` and over all the children depth first.
- * */
+ */
 export function* iterateChildren(el: Node): Generator<Node> {
   yield el;
   if (el.hasChildNodes()) {
@@ -25,4 +25,13 @@ export function* iterateChildren(el: Node): Generator<Node> {
       yield* iterateChildren(child);
     }
   }
+}
+
+export function getElementScrollTop(el: HTMLElement | null): number {
+  return el?.scrollTop || 0;
+}
+
+export function setElementScrollTop(el: HTMLElement | null, scroll: number) {
+  if (!el) return;
+  el.scrollTop = scroll;
 }

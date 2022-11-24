@@ -2,8 +2,6 @@
   <t t-name="o-spreadsheet-Composer" owl="1">
     <div
       class="o-composer-container"
-      t-att-style="getContainerStyle()"
-      t-ref="o_composer_container"
       t-on-mousedown.stop.prevent=""
       t-on-click.stop.prevent=""
       t-on-mouseup.stop.prevent="">
@@ -16,7 +14,6 @@
         spellcheck="false"
         t-on-keydown="onKeydown"
         t-on-mousedown.stop="onMousedown"
-        t-on-mouseup.stop=""
         t-on-mousewheel.stop=""
         t-on-input="onInput"
         t-on-keyup="onKeyup"

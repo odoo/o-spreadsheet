@@ -141,7 +141,7 @@ export class ContentEditableHelper {
     }
   }
 
-  scrollToSelection() {}
+  scrollSelectionIntoView() {}
 
   getText() {
     return this.el!.textContent || "";

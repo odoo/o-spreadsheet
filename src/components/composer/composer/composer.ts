@@ -6,6 +6,7 @@ import { isEqual, rangeReference, zoneToDimension } from "../../../helpers/index
 import { ComposerSelection } from "../../../plugins/ui_stateful/edition";
 import { DOMDimension, FunctionDescription, Rect, SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
+import { getElementScrollTop, setElementScrollTop } from "../../helpers/dom_helpers";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
 import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdown";
 import { ContentEditableHelper } from "../content_editable_helper";
@@ -42,22 +43,25 @@ export const tokenColor = {
 
 css/* scss */ `
   .o-composer-container {
-    padding: 0;
-    margin: 0;
-    border: 0;
-    z-index: ${ComponentsImportance.Composer};
-    overflow-y: auto;
-    overflow-x: hidden;
-    overflow-wrap: break-word;
+    width: 100%;
+    height: 100%;
 
     .o-composer {
+      z-index: ${ComponentsImportance.Composer};
+      overflow-y: auto;
+      overflow-x: hidden;
+      word-break: break-all;
+      padding-right: 2px;
+
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+
       caret-color: black;
       padding-left: 3px;
       padding-right: 3px;
-      word-break: break-all;
-      &:focus {
-        outline: none;
-      }
+      outline: none;
+
       &.unfocusable {
         pointer-events: none;
       }
@@ -126,7 +130,7 @@ interface FunctionDescriptionState {
  * - DONE : formula helper is buggy for multi line composer
  * - DONE grid composer style with scrollbar if cell > composer : either formula assistant isn't displayed, or it overflows
  * - DONE - line height of grid composer
- * - composer scroll test  + scroll when adding a new line
+ * - DONE composer scroll test  + scroll when adding a new line
  * - DONE grid selection caret should go to a new line
  * - DONE (close formula autocomplete when composer lose focus) - too hard w/ the current focus implementation.
  *      - have the composer style depend on the prop focus, not the actual focus
@@ -142,7 +146,6 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
   };
 
   composerRef = useRef("o_composer");
-  composerContainerRef = useRef("o_composer_container");
 
   contentHelper: ContentEditableHelper = new ContentEditableHelper(this.composerRef.el!);
 
@@ -173,7 +176,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
       if (cellY > remainingHeight) {
         // render top
         assistantStyle += `
-          top: -8px;
+          top: -3px;
           transform: translate(0, -100%);
         `;
       }
@@ -208,7 +211,6 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
 
       this.contentHelper.updateEl(el);
       this.processContent();
-      this.contentHelper.scrollToSelection();
     });
 
     onWillUnmount(() => {
@@ -302,6 +304,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
       });
 
       this.processContent();
+      this.contentHelper.scrollSelectionIntoView();
       return;
     }
 
@@ -397,6 +400,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
         this.contentHelper.getCurrentSelection()
       );
     }
+
     this.processTokenAtCursor();
     this.processContent();
   }
@@ -443,39 +447,37 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     this.isKeyStillDown = false;
   }
 
-  getContainerStyle() {
-    const content = this.env.model.getters.getCurrentContent();
-    return `overflow-y: ${content.includes(NEWLINE) ? "auto" : "hidden"}`;
-  }
-
   // ---------------------------------------------------------------------------
   // Private
   // ---------------------------------------------------------------------------
 
   private processContent() {
-    const scroll = this.getCurrentScroll();
+    const oldScroll = getElementScrollTop(this.composerRef.el);
     this.contentHelper.removeAll(); // removes the content of the composer, to be added just after
     this.shouldProcessInputEvents = false;
 
     if (this.props.focus !== "inactive") {
       this.contentHelper.selectRange(0, 0); // move the cursor inside the composer at 0 0.
     }
-    const content = this.getContent();
-    if (content.length !== 0) {
+    const content = this.getContentLines();
+    if (content.length !== 0 && content.length[0] !== 0) {
       this.contentHelper.setText(content);
-      this.setCurrentScroll(scroll);
       const { start, end } = this.env.model.getters.getComposerSelection();
 
       if (this.props.focus !== "inactive") {
         // Put the cursor back where it was before the rendering
         this.contentHelper.selectRange(start, end);
       }
+      setElementScrollTop(this.composerRef.el, oldScroll);
     }
 
     this.shouldProcessInputEvents = true;
   }
 
-  private getContent(): HtmlContent[][] {
+  /**
+   * Get the HTML content corresponding to the current composer token, divided by lines.
+   */
+  private getContentLines(): HtmlContent[][] {
     let value = this.env.model.getters.getCurrentContent();
     const isValidFormula =
       value.startsWith("=") && this.env.model.getters.getCurrentTokens().length > 0;
@@ -675,16 +677,6 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
       });
     }
     this.processTokenAtCursor();
-  }
-
-  private getCurrentScroll(): number {
-    return this.composerContainerRef.el?.scrollTop || 0;
-  }
-
-  private setCurrentScroll(scroll: number) {
-    if (this.composerContainerRef.el) {
-      this.composerContainerRef.el.scrollTop = scroll;
-    }
   }
 }
 

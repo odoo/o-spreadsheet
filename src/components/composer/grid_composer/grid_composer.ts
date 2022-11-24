@@ -15,6 +15,9 @@ css/* scss */ `
     box-sizing: border-box;
     position: absolute;
     border: ${COMPOSER_BORDER_WIDTH}px solid ${SELECTION_BORDER_COLOR};
+
+    display: flex;
+    align-items: center;
   }
 `;
 
@@ -76,7 +79,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     const style = this.env.model.getters.getCellComputedStyle(position);
 
     // position style
-    let { x: left, y: top, width, height } = this.rect;
+    const { x: left, y: top, width, height } = this.rect;
 
     // color style
     const background = (!isFormula && style.fillColor) || "#ffffff";

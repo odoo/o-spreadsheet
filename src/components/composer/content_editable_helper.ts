@@ -93,7 +93,7 @@ export class ContentEditableHelper {
       const p = document.createElement("p");
 
       // Empty line
-      if (line.length === 0 || line.every((content) => content.value === "" && !content.class)) {
+      if (line.length === 0 || line.every((content) => !content.value && !content.class)) {
         p.appendChild(document.createElement("br"));
         this.el.appendChild(p);
         continue;
@@ -105,9 +105,7 @@ export class ContentEditableHelper {
         }
         const span = document.createElement("span");
         span.innerText = content.value;
-        if (content.color) {
-          span.style.color = content.color;
-        }
+        span.style.color = content.color || "";
         if (content.class) {
           span.classList.add(content.class);
         }
@@ -118,15 +116,11 @@ export class ContentEditableHelper {
     }
   }
 
-  scrollToSelection() {
+  scrollSelectionIntoView() {
     const focusedNode = document.getSelection()?.focusNode;
-    if (focusedNode) {
-      if (focusedNode instanceof Element || focusedNode instanceof HTMLElement) {
-        focusedNode.scrollIntoView(false);
-      } else {
-        focusedNode.parentElement?.scrollIntoView(false);
-      }
-    }
+    if (!focusedNode || !this.el.contains(focusedNode)) return;
+    const element = focusedNode instanceof HTMLElement ? focusedNode : focusedNode.parentElement;
+    element?.scrollIntoView({ block: "nearest" });
   }
 
   /**
@@ -173,7 +167,10 @@ export class ContentEditableHelper {
         }
       }
       // One new paragraph = one new line character, except for the first paragraph
-      if (current.value.nodeName === "P") {
+      if (
+        current.value.nodeName === "P" ||
+        (current.value.nodeName === "DIV" && current.value !== this.el) // On paste, the HTML may contain <div> instead of <p>
+      ) {
         if (isFirstParagraph) {
           isFirstParagraph = false;
         } else {
