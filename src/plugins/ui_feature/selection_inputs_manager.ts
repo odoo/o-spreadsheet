@@ -1,4 +1,4 @@
-import { positionToZone, rangeReference, toZone } from "../../helpers/index";
+import { positionToZone, rangeReference } from "../../helpers/index";
 import { Command, CommandResult, Highlight, LAYERS, UID } from "../../types/index";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 import { RangeInputValue, SelectionInputPlugin } from "./selection_input";
@@ -80,7 +80,8 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
         if (cmd.id !== this.focusedInputId) {
           const input = this.inputs[cmd.id];
           const range = input.ranges.find((range) => range.id === cmd.rangeId);
-          const zone = toZone(range?.xc || "A1");
+          const sheetId = this.getters.getActiveSheetId();
+          const zone = this.getters.getRangeFromSheetXC(sheetId, range?.xc || "A1").zone;
           this.selection.capture(
             input,
             { cell: { col: zone.left, row: zone.top }, zone },

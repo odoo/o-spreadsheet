@@ -636,4 +636,12 @@ describe("selection input plugin", () => {
     moveAnchorCell(model, "down");
     expect(highlightedZones(model)).toEqual(["A3"]);
   });
+
+  test("focus and change range with unbounded ranges", () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, initialRanges: ["A:A"] });
+    model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("A:A");
+    model.dispatch("CHANGE_RANGE", { id, rangeId: idOfRange(model, id, 0), value: "1:1" });
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("1:1");
+  });
 });
