@@ -37,3 +37,13 @@ Most of the code is contained in the following four modules:
 ## Documentation
 
 See [documentation](doc/readme.md).
+
+## Workflow
+
+The repository relies on Github Workflows to automate the creation of releases
+as well as publishing the package on NPM.
+
+# test  the workflow
+The workflow can be run locally with the help of https://github.com/nektos/act
+Bear in mind that it is not a full sandbox, you can run actual commands (like
+npm publish). Make sure you adapt said commands to dry runs.
