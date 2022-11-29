@@ -7,7 +7,8 @@
   "module": "dist/o-spreadsheet.es.js",
   "types": "dist/o_spreadsheet.d.ts",
   "files": [
-    "dist"
+    "dist/*.js",
+    "dist/*.d.ts"
   ],
   "scripts": {
     "serve-static": "live-server --open=demo --watch=dist/o_spreadsheet.js,dist/o_spreadsheet.xml,demo",
