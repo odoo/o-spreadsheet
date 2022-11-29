@@ -1,8 +1,8 @@
-import * as owl from "@odoo/owl";
+import { tags } from "@odoo/owl";
 import * as icons from "../../icons";
 import { conditionalFormattingTerms } from "../translations_terms";
 
-const { xml } = owl.tags;
+const { xml } = tags;
 
 const PREVIEW_TEMPLATE = xml/* xml */ `
     <div class="o-cf-preview-line"

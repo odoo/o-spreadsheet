@@ -1,13 +1,12 @@
-import * as owl from "@odoo/owl";
+import { Component, hooks, tags } from "@odoo/owl";
 import { DEFAULT_CELL_HEIGHT, SELECTION_BORDER_COLOR } from "../../constants";
 import { fontSizeMap } from "../../fonts";
 import { Rect, SpreadsheetEnv, Zone } from "../../types/index";
 import { getTextDecoration } from "../helpers/dom_helpers";
 import { Composer } from "./composer";
 
-const { Component } = owl;
-const { useState, onMounted } = owl.hooks;
-const { xml, css } = owl.tags;
+const { useState, onMounted } = hooks;
+const { xml, css } = tags;
 
 const SCROLLBAR_WIDTH = 14;
 const SCROLLBAR_HIGHT = 15;

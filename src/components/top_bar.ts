@@ -1,4 +1,4 @@
-import * as owl from "@odoo/owl";
+import { Component, hooks, tags, useState } from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR, DEFAULT_FONT_SIZE } from "../constants";
 import { fontSizes } from "../fonts";
 import { isEqual } from "../helpers/index";
@@ -14,8 +14,7 @@ import * as icons from "./icons";
 import { Menu, MenuState } from "./menu";
 import { ComposerFocusType } from "./spreadsheet";
 
-const { Component, useState, hooks } = owl;
-const { xml, css } = owl.tags;
+const { xml, css } = tags;
 const { useExternalListener, onWillUpdateProps, onWillStart } = hooks;
 
 type Tool =

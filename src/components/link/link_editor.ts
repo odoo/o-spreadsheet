@@ -1,4 +1,4 @@
-import * as owl from "@odoo/owl";
+import { Component, hooks, tags, useState } from "@odoo/owl";
 import { markdownLink } from "../../helpers/index";
 import { linkMenuRegistry } from "../../registries/menus/link_menu_registry";
 import { DOMCoordinates, Link, Position, SpreadsheetEnv } from "../../types";
@@ -6,7 +6,6 @@ import { useAbsolutePosition } from "../helpers/position_hook";
 import { LIST } from "./../icons";
 import { Menu } from "./../menu";
 import { LinkEditorTerms } from "./../side_panel/translations_terms";
-const { Component, tags, hooks, useState } = owl;
 const { xml, css } = tags;
 const { useRef, onMounted } = hooks;
 
@@ -140,7 +139,7 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
     isOpen: false,
   });
   private position = useAbsolutePosition();
-  urlInput = useRef("urlInput");
+  private urlInput = useRef("urlInput");
 
   setup() {
     onMounted(() => this.urlInput.el?.focus());

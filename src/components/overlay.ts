@@ -1,4 +1,4 @@
-import * as owl from "@odoo/owl";
+import { Component, hooks, tags } from "@odoo/owl";
 import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
@@ -14,9 +14,8 @@ import { ContextMenuType } from "./grid";
 import { startDnd } from "./helpers/drag_and_drop";
 import * as icons from "./icons";
 
-const { Component } = owl;
-const { xml, css } = owl.tags;
-const { useState } = owl.hooks;
+const { xml, css } = tags;
+const { useState } = hooks;
 
 // -----------------------------------------------------------------------------
 // Resizer component

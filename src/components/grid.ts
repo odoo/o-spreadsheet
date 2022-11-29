@@ -1,4 +1,4 @@
-import * as owl from "@odoo/owl";
+import { Component, hooks, tags } from "@odoo/owl";
 import {
   AUTOFILL_EDGE_LENGTH,
   BACKGROUND_GRAY_COLOR,
@@ -49,9 +49,8 @@ import { ScrollBar } from "./scrollbar";
  * - a vertical resizer (same, for rows)
  */
 
-const { Component, useState } = owl;
-const { xml, css } = owl.tags;
-const { useRef, onMounted, onWillUnmount, onPatched, useExternalListener } = owl.hooks;
+const { xml, css } = tags;
+const { useRef, onMounted, onWillUnmount, useState, onPatched, useExternalListener } = hooks;
 export type ContextMenuType = "ROW" | "COL" | "CELL";
 
 const registries = {

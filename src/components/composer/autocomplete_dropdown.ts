@@ -1,9 +1,9 @@
-import * as owl from "@odoo/owl";
+import { Component, hooks, tags, useState } from "@odoo/owl";
 import { functionRegistry } from "../../functions/index";
 import { Registry } from "../../registry";
-const { Component, useState } = owl;
-const { xml, css } = owl.tags;
-const { onMounted, onWillUpdateProps } = owl.hooks;
+
+const { onMounted, onWillUpdateProps } = hooks;
+const { xml, css } = tags;
 const functions = functionRegistry.content;
 
 // -----------------------------------------------------------------------------

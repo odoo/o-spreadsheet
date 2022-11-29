@@ -1,4 +1,4 @@
-import * as owl from "@odoo/owl";
+import { Component, hooks, tags, useState } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../constants";
 import { colorNumberString, rangeReference, toZone } from "../../../helpers/index";
 import {
@@ -25,9 +25,8 @@ import { TEMPLATE_CELL_IS_RULE_EDITOR } from "./cell_is_rule_editor";
 import { TEMPLATE_COLOR_SCALE_EDITOR } from "./color_scale_rule_editor";
 import { TEMPLATE_ICON_SET_EDITOR } from "./icon_set_rule_editor";
 
-const { Component, useState } = owl;
-const { xml, css } = owl.tags;
-const { onWillUpdateProps, useExternalListener } = owl.hooks;
+const { xml, css } = tags;
+const { onWillUpdateProps, useExternalListener } = hooks;
 
 // TODO vsc: add ordering of rules
 const PREVIEW_TEMPLATE = xml/* xml */ `

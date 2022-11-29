@@ -32,7 +32,7 @@ const functions: { [category: string]: { [name: string]: AddFunctionDescription 
 //------------------------------------------------------------------------------
 // Function registry
 //------------------------------------------------------------------------------
-class FunctionRegistry extends Registry<FunctionDescription> {
+export class FunctionRegistry extends Registry<FunctionDescription> {
   mapping: { [key: string]: Function } = {};
 
   add(name: string, addDescr: AddFunctionDescription) {

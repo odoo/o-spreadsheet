@@ -1,13 +1,11 @@
-import * as owl from "@odoo/owl";
+import { Component, hooks, tags, useState } from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../constants";
 import { UuidGenerator } from "../helpers/index";
 import { RangeInputValue } from "../plugins/ui/selection_inputs";
 import { SpreadsheetEnv } from "../types";
 
-const { Component, useState } = owl;
-
-const { xml, css } = owl.tags;
-const { onMounted, onWillUnmount, onPatched } = owl.hooks;
+const { onMounted, onWillUnmount, onPatched } = hooks;
+const { xml, css } = tags;
 
 const uuidGenerator = new UuidGenerator();
 

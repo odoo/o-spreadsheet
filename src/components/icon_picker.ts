@@ -1,8 +1,7 @@
-import * as owl from "@odoo/owl";
+import { Component, tags } from "@odoo/owl";
 import { SpreadsheetEnv } from "../types/env";
 import { ICONS, ICON_SETS } from "./icons";
-const { Component } = owl;
-const { css, xml } = owl.tags;
+const { css, xml } = tags;
 
 interface Props {
   onIconPicked: (icon: string) => void;

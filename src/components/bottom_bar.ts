@@ -1,4 +1,4 @@
-import * as owl from "@odoo/owl";
+import { Component, hooks, tags } from "@odoo/owl";
 import { BACKGROUND_GRAY_COLOR, BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../constants";
 import { formatStandardNumber } from "../helpers";
 import { interactiveRenameSheet } from "../helpers/ui/sheet";
@@ -7,9 +7,9 @@ import { SpreadsheetEnv, UID } from "../types";
 import { useAbsolutePosition } from "./helpers/position_hook";
 import { LIST, PLUS, TRIANGLE_DOWN_ICON } from "./icons";
 import { Menu, MenuState } from "./menu";
-const { Component } = owl;
-const { xml, css } = owl.tags;
-const { useState, onMounted, onPatched } = owl.hooks;
+
+const { xml, css } = tags;
+const { useState, onMounted, onPatched } = hooks;
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -143,7 +143,7 @@ export class BottomBar extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { Menu };
-  private position = useAbsolutePosition();
+  position = useAbsolutePosition();
   getters = this.env.getters;
   menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
   selectedStatisticFn: string = "";

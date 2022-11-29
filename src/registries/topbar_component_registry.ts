@@ -4,7 +4,7 @@ import { SpreadsheetEnv } from "../types/env";
 //------------------------------------------------------------------------------
 // Topbar Component Registry
 //------------------------------------------------------------------------------
-interface TopbarComponent {
+export interface TopbarComponent {
   component: any;
   isVisible?: (env: SpreadsheetEnv) => boolean;
 }
