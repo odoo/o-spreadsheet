@@ -1,7 +1,7 @@
-import * as owl from "@odoo/owl";
+import { tags } from "@odoo/owl";
 import { conditionalFormattingTerms, iconSetRule } from "../translations_terms";
 
-const { xml } = owl.tags;
+const { xml } = tags;
 
 const ICON_SETS_TEMPLATE = xml/* xml */ `
   <div>

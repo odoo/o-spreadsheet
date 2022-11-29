@@ -65,7 +65,7 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
   static components = { Menu };
   private menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
 
-  canvas = useRef("graphContainer");
+  private canvas = useRef("graphContainer");
   private chart?: Chart;
   private state: State = { background: BACKGROUND_CHART_COLOR };
   private position = useAbsolutePosition();

@@ -1,4 +1,4 @@
-import * as owl from "@odoo/owl";
+import { Component, hooks, tags } from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { EnrichedToken } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
@@ -17,9 +17,8 @@ import { ContentEditableHelper } from "./content_editable_helper";
 import { FunctionDescriptionProvider } from "./formula_assistant";
 import { Dimension } from "./grid_composer";
 
-const { Component } = owl;
-const { useRef, useState, onMounted, onPatched, onWillUnmount } = owl.hooks;
-const { xml, css } = owl.tags;
+const { useRef, useState, onMounted, onPatched, onWillUnmount } = hooks;
+const { xml, css } = tags;
 const functions = functionRegistry.content;
 
 const ASSISTANT_WIDTH = 300;
@@ -174,7 +173,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     focus: "inactive",
   };
 
-  composerRef = useRef("o_composer");
+  private composerRef = useRef("o_composer");
   private autocompleteAPI?: TextValueProviderApi;
 
   getters = this.env.getters;
