@@ -2,13 +2,19 @@
   "name": "@odoo/o-spreadsheet",
   "version": "2.0.0",
   "description": "A spreadsheet component",
-  "main": "index.js",
+  "main": "dist/o-spreadsheet.cjs.js",
+  "browser": "dist/o-spreadsheet.iife.js",
+  "module": "dist/o-spreadsheet.es.js",
+  "types": "dist/o_spreadsheet.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "serve": "live-server --open=demo --watch=dist,demo",
     "dev": "npm-run-all build --parallel server serve \"build:* -- --watch\"",
     "server": "node tools/server/main.js",
-    "build:js": "tsc --module es6 --outDir dist/js --incremental",
-    "build:bundle": "rollup -c -m",
+    "build:js": "tsc --module es6 --incremental",
+    "build:bundle": "rollup -c -m dev",
     "build": "npm run build:js && npm run build:bundle",
     "doc": "typedoc",
     "precommit": "npm run prettier && npm run doc",
@@ -16,7 +22,7 @@
     "test:watch": "jest --watch",
     "prettier": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md,demo/*.js} --write",
     "check-formatting": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md,demo/*.js} --check",
-    "dist": "tsc --module es6 --outDir dist/js && npm run build:bundle",
+    "dist": "tsc --module es6 --declaration --declarationDir dist/types && rollup -c",
     "prepare": "husky install"
   },
   "browserslist": [
@@ -25,10 +31,19 @@
   "keywords": [
     "owl",
     "spreadsheet",
+    "o-spreadsheet",
     "odoo"
   ],
-  "author": "Gery Debongnie",
+  "author": "Odoo",
   "license": "LGPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/odoo/o-spreadsheet.git"
+  },
+  "bugs": {
+    "url": "https://github.com/odoo/o-spreadsheet/issues"
+  },
+  "homepage": "https://github.com/odoo/o-spreadsheet#readme",
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^11.0.1",
     "@types/chart.js": "2.9.3",
@@ -54,6 +69,9 @@
     "prettier": "2.3.1",
     "prettier-plugin-organize-imports": "^1.1.1",
     "rollup": "^2.38.5",
+    "rollup-plugin-dts": "^4.2.0",
+    "@rollup/plugin-terser": "^0.2.0",
+    "rollup-plugin-typescript2": "^0.34.1",
     "ts-jest": "^27.0.5",
     "typedoc": "0.22.5",
     "typedoc-plugin-markdown": "3.11.1",

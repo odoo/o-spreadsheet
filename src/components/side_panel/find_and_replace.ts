@@ -1,9 +1,8 @@
-import * as owl from "@odoo/owl";
+import { Component, tags, useState } from "@odoo/owl";
 import { SpreadsheetEnv } from "../../types/index";
 import { FindAndReplaceTerms } from "./translations_terms";
 
-const { Component, useState } = owl;
-const { xml, css } = owl.tags;
+const { xml, css } = tags;
 
 const TEMPLATE = xml/* xml */ `
 <div class="o-find-and-replace" tabindex="0" t-on-focusin="onFocusSidePanel">

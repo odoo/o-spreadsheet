@@ -1,9 +1,9 @@
 import { hooks } from "@odoo/owl";
 import { DOMCoordinates } from "../../types";
-const { useComponent, useState, onPatched, useRef, onMounted } = hooks;
+const { useComponent, useState, onPatched, onMounted } = hooks;
 
 // type Ref is not exported by owl :(
-type Ref = ReturnType<typeof useRef>;
+type Ref = ReturnType<typeof hooks.useRef>;
 
 /**
  * Return the o-spreadsheet element position relative

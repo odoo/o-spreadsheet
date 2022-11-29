@@ -1,6 +1,5 @@
-import * as owl from "@odoo/owl";
+import { Component, tags } from "@odoo/owl";
 import { SpreadsheetEnv } from "../types";
-const { Component, tags } = owl;
 const { xml, css } = tags;
 
 const TEMPLATE = xml/* xml */ `

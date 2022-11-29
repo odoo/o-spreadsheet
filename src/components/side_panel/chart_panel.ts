@@ -1,4 +1,4 @@
-import * as owl from "@odoo/owl";
+import { Component, tags, useState } from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR } from "../../constants";
 import {
   ChartUIDefinition,
@@ -13,8 +13,7 @@ import * as icons from "../icons";
 import { SelectionInput } from "../selection_input";
 import { chartTerms } from "./translations_terms";
 
-const { Component, useState } = owl;
-const { xml, css } = owl.tags;
+const { xml, css } = tags;
 
 const CONFIGURATION_TEMPLATE = xml/* xml */ `
 <div>

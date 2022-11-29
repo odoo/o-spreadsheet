@@ -1,4 +1,4 @@
-import * as owl from "@odoo/owl";
+import { Component, hooks, tags, useState } from "@odoo/owl";
 import {
   BOTTOMBAR_HEIGHT,
   CF_ICON_EDGE_LENGTH,
@@ -18,10 +18,8 @@ import { LinkEditor } from "./link/link_editor";
 import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
 
-const { Component, useState } = owl;
-const { useRef, useExternalListener } = owl.hooks;
-const { xml, css } = owl.tags;
-const { useSubEnv } = owl.hooks;
+const { useExternalListener, useSubEnv, useRef } = hooks;
+const { xml, css } = tags;
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -121,7 +119,8 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     },
     this.props.stateUpdateMessages
   );
-  grid = useRef("grid");
+
+  private grid = useRef("grid");
 
   sidePanel = useState({ isOpen: false, panelProps: {} } as {
     isOpen: boolean;
@@ -145,7 +144,7 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     "CTRL+H": () => this.toggleSidePanel("FindAndReplace", {}),
     "CTRL+F": () => this.toggleSidePanel("FindAndReplace", {}),
   };
-  constructor(parent?: owl.Component<any, SpreadsheetEnv> | null, props: Props = {}) {
+  constructor(parent?: Component<any, SpreadsheetEnv> | null, props: Props = {}) {
     super(parent, props);
     useSubEnv({
       openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),

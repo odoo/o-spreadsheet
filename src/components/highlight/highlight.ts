@@ -1,13 +1,11 @@
-import * as owl from "@odoo/owl";
-import { useState } from "@odoo/owl";
+import { Component, tags, useState } from "@odoo/owl";
 import { clip, isEqual } from "../../helpers";
 import { SpreadsheetEnv, Zone } from "../../types";
 import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
 import { Border } from "./border";
 import { Corner } from "./corner";
 
-const { Component } = owl;
-const { xml } = owl.tags;
+const { xml } = tags;
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-highlight">

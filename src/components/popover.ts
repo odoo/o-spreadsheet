@@ -1,8 +1,8 @@
-import * as owl from "@odoo/owl";
+import { Component, misc, tags } from "@odoo/owl";
 import { BOTTOMBAR_HEIGHT, SCROLLBAR_WIDTH, TOPBAR_HEIGHT } from "../constants";
 import { DOMCoordinates, GridDimension, SpreadsheetEnv } from "../types";
-const { Component, tags } = owl;
-const { Portal } = owl.misc;
+
+const { Portal } = misc;
 const { xml } = tags;
 
 const TEMPLATE = xml/* xml */ `
