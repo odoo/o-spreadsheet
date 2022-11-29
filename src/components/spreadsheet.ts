@@ -7,7 +7,8 @@ import { Grid } from "./grid";
 import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
 
-const { Component, useState } = owl;
+const { useState } = owl;
+const Component = owl.Component;
 const { useRef, useExternalListener } = owl.hooks;
 const { xml, css } = owl.tags;
 const { useSubEnv } = owl.hooks;
@@ -75,7 +76,7 @@ export class Spreadsheet extends Component<Props> {
     openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
     evalContext: { env: this.env },
   });
-  grid = useRef("grid");
+  private grid = useRef("grid");
 
   sidePanel = useState({ isOpen: false, panelProps: {} } as {
     isOpen: boolean;

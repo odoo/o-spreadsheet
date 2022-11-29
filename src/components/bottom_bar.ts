@@ -5,7 +5,7 @@ import { MenuItemRegistry, sheetMenuRegistry } from "../registries/index";
 import { SpreadsheetEnv } from "../types";
 import { LIST, PLUS, TRIANGLE_DOWN_ICON } from "./icons";
 import { Menu, MenuState } from "./menu";
-const { Component } = owl;
+const Component = owl.Component;
 const { xml, css } = owl.tags;
 const { useState } = owl.hooks;
 

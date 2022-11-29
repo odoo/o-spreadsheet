@@ -34,7 +34,7 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
   static style = CSS;
   static components = {};
 
-  canvas = useRef("graphContainer");
+  private canvas = useRef("graphContainer");
   private chart?: Chart;
 
   mounted() {
@@ -46,8 +46,8 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
     const chartData = this.env.getters.getChartRuntime(figure.id);
     if (chartData) {
       if (chartData.data && chartData.data.datasets) {
-        Object.assign(this.chart!.data!.datasets, chartData.data.datasets);
-        Object.assign(this.chart!.data.labels, chartData.data.labels);
+        Object.assign(this.chart!.data!.datasets!, chartData.data.datasets);
+        Object.assign(this.chart!.data.labels!, chartData.data.labels);
       } else {
         this.chart!.data.datasets = undefined;
       }

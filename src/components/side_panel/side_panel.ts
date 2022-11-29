@@ -2,7 +2,7 @@ import * as owl from "@odoo/owl";
 import { SidePanelContent, sidePanelRegistry } from "../../registries/side_panel_registry";
 import { SpreadsheetEnv } from "../../types";
 
-const { Component } = owl;
+const Component = owl.Component;
 const { xml, css } = owl.tags;
 const { useState } = owl.hooks;
 

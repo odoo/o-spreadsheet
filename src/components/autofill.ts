@@ -3,7 +3,7 @@ import { clip } from "../helpers/misc";
 import { SpreadsheetEnv, Viewport } from "../types";
 import { startDnd } from "./helpers/drag_and_drop";
 
-const { Component } = owl;
+const Component = owl.Component;
 const { xml, css } = owl.tags;
 const { useState } = owl.hooks;
 

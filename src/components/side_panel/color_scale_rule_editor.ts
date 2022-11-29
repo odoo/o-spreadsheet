@@ -4,7 +4,8 @@ import { ColorScaleRule, ConditionalFormat, SpreadsheetEnv } from "../../types";
 import { ColorPicker } from "../color_picker";
 import * as icons from "../icons";
 
-const { Component, useState, hooks } = owl;
+const Component = owl.Component;
+const { useState, hooks } = owl;
 const { useExternalListener } = hooks;
 const { xml, css } = owl.tags;
 

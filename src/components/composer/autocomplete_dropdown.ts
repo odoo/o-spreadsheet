@@ -2,7 +2,8 @@ import * as owl from "@odoo/owl";
 import { functionRegistry } from "../../functions/index";
 import { Registry } from "../../registry";
 
-const { Component, useState } = owl;
+const Component = owl.Component;
+const { useState } = owl;
 const { xml, css } = owl.tags;
 const functions = functionRegistry.content;
 

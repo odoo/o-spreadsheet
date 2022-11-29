@@ -31,7 +31,8 @@ import { ScrollBar } from "./scrollbar";
  * - a vertical resizer (same, for rows)
  */
 
-const { Component, useState } = owl;
+const { useState } = owl;
+const Component = owl.Component;
 const { xml, css } = owl.tags;
 const { useRef, onMounted, onWillUnmount } = owl.hooks;
 export type ContextMenuType = "ROW" | "COL" | "CELL";

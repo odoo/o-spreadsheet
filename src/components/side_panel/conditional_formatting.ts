@@ -13,7 +13,8 @@ import { CellIsRuleEditor } from "./cell_is_rule_editor";
 import { ColorScaleRuleEditor } from "./color_scale_rule_editor";
 import { cellIsOperators } from "./translations_terms";
 
-const { Component, useState } = owl;
+const Component = owl.Component;
+const { useState } = owl;
 const { xml, css } = owl.tags;
 
 // TODO vsc: add ordering of rules
