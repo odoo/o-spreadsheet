@@ -4,7 +4,8 @@ import { ChartFigure, ChartTypes, CreateChartDefinition, SpreadsheetEnv } from "
 import { SelectionInput } from "../selection_input";
 import { chartTerms } from "./translations_terms";
 
-const { Component, useState } = owl;
+const Component = owl.Component;
+const { useState } = owl;
 const { xml } = owl.tags;
 
 const TEMPLATE = xml/* xml */ `

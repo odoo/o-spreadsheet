@@ -118,7 +118,7 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
     depth: 1,
   };
   private subMenu: MenuState;
-  subMenuRef = useRef("subMenuRef");
+  private subMenuRef = useRef("subMenuRef");
 
   constructor() {
     super(...arguments);

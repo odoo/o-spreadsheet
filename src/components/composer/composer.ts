@@ -6,7 +6,7 @@ import { Rect, SpreadsheetEnv, Zone } from "../../types/index";
 import { TextValueProvider } from "./autocomplete_dropdown";
 import { ContentEditableHelper } from "./content_editable_helper";
 
-const { Component } = owl;
+const Component = owl.Component;
 const { useRef, useState } = owl.hooks;
 const { xml, css } = owl.tags;
 
@@ -80,8 +80,8 @@ export class Composer extends Component<any, SpreadsheetEnv> {
   static style = CSS;
   static components = { TextValueProvider };
 
-  composerRef = useRef("o_composer");
-  autoCompleteRef = useRef("o_autocomplete_provider");
+  private composerRef = useRef("o_composer");
+  private autoCompleteRef = useRef("o_autocomplete_provider");
 
   getters = this.env.getters;
   dispatch = this.env.dispatch;

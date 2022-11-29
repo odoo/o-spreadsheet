@@ -14,7 +14,7 @@ import {
  * An AutofillModifierImplementation is used to describe how to handle a
  * AutofillModifier.
  */
-interface AutofillModifierImplementation {
+export interface AutofillModifierImplementation {
   apply: (
     rule: AutofillModifier,
     data: CellData,

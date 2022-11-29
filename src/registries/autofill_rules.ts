@@ -8,7 +8,7 @@ import { AutofillModifier, Cell } from "../types/index";
  * When we generate the rules to autofill, we take the first matching rule
  * (ordered by sequence), and we generate the AutofillModifier with generateRule
  */
-interface AutofillRule {
+export interface AutofillRule {
   condition: (cell: Cell, cells: (Cell | null)[]) => boolean;
   generateRule: (cell: Cell, cells: (Cell | null)[]) => AutofillModifier;
   sequence: number;

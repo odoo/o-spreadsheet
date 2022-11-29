@@ -2,7 +2,7 @@ import * as owl from "@odoo/owl";
 import { uuidv4 } from "../helpers/index";
 import { SpreadsheetEnv } from "../types";
 
-const { Component } = owl;
+const Component = owl.Component;
 
 const { xml, css } = owl.tags;
 
@@ -95,7 +95,7 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
   private getters = this.env.getters;
   private dispatch = this.env.dispatch;
 
-  get ranges() {
+  private get ranges() {
     return this.getters.getSelectionInput(this.id);
   }
 

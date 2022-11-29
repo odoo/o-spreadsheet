@@ -11,7 +11,8 @@ import { isChildEvent } from "./helpers/dom_helpers";
 import * as icons from "./icons";
 import { Menu, MenuState } from "./menu";
 
-const { Component, useState, hooks } = owl;
+const { useState, hooks } = owl;
+const Component = owl.Component;
 const { xml, css } = owl.tags;
 const { useExternalListener, useRef } = hooks;
 
@@ -353,7 +354,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   fillColor: string = "white";
   textColor: string = "black";
   menus: FullMenuItem[] = [];
-  menuRef = useRef("menuRef");
+  private menuRef = useRef("menuRef");
 
   constructor() {
     super(...arguments);
