@@ -138,7 +138,7 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
   };
   private subMenu: MenuState;
   private position = useAbsolutePosition(useRef("menu"));
-  subMenuRef = useRef("subMenuRef");
+  private subMenuRef = useRef("subMenuRef");
 
   constructor() {
     super(...arguments);

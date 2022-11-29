@@ -1,7 +1,6 @@
-import * as owl from "@odoo/owl";
+import { Component, tags } from "@odoo/owl";
 import { SpreadsheetEnv } from "../types/env";
-const { Component } = owl;
-const { css, xml } = owl.tags;
+const { css, xml } = tags;
 
 const COLORS = [
   [

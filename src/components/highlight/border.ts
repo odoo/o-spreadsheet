@@ -1,9 +1,8 @@
-import * as owl from "@odoo/owl";
+import { Component, tags } from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { SpreadsheetEnv, Zone } from "../../types";
 
-const { Component } = owl;
-const { xml, css } = owl.tags;
+const { xml, css } = tags;
 
 const TEMPLATE = xml/* xml */ `
     <div class="o-border"

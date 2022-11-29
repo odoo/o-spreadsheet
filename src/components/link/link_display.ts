@@ -1,11 +1,10 @@
-import * as owl from "@odoo/owl";
+import { Component, tags } from "@odoo/owl";
 import { LINK_COLOR } from "../../constants";
 import { toXC } from "../../helpers";
 import { LinkCell, Position, SpreadsheetEnv } from "../../types";
 import { EDIT, UNLINK } from "../icons";
 import { Menu } from "../menu";
 import { LinkEditorTerms } from "../side_panel/translations_terms";
-const { Component, tags } = owl;
 const { xml, css } = tags;
 
 const TEMPLATE = xml/* xml */ `

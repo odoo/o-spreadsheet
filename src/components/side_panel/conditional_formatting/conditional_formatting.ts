@@ -1,4 +1,4 @@
-import * as owl from "@odoo/owl";
+import { Component, hooks, tags, useState } from "@odoo/owl";
 import { colorNumberString, rangeReference, toZone } from "../../../helpers/index";
 import {
   CancelledReason,
@@ -19,9 +19,8 @@ import { CellIsRuleEditor } from "./cell_is_rule_editor";
 import { ColorScaleRuleEditor } from "./color_scale_rule_editor";
 import { IconSetRuleEditor } from "./icon_set_rule_editor";
 
-const { Component, useState } = owl;
-const { xml, css } = owl.tags;
-const { useRef } = owl.hooks;
+const { xml, css } = tags;
+const { useRef } = hooks;
 
 // TODO vsc: add ordering of rules
 const PREVIEW_TEMPLATE = xml/* xml */ `

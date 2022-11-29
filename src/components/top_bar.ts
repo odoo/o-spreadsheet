@@ -1,4 +1,4 @@
-import * as owl from "@odoo/owl";
+import { Component, hooks, tags, useState } from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR, DEFAULT_FONT_SIZE } from "../constants";
 import { fontSizes } from "../fonts";
 import { isEqual } from "../helpers/index";
@@ -13,8 +13,7 @@ import { isChildEvent } from "./helpers/dom_helpers";
 import * as icons from "./icons";
 import { Menu, MenuState } from "./menu";
 
-const { Component, useState, hooks } = owl;
-const { xml, css } = owl.tags;
+const { xml, css } = tags;
 const { useExternalListener, useRef } = hooks;
 
 type Tool =
@@ -388,7 +387,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   fillColor: string = "white";
   textColor: string = "black";
   menus: FullMenuItem[] = [];
-  menuRef = useRef("menuRef");
+  private menuRef = useRef("menuRef");
   composerStyle = `
     line-height: 34px;
     padding-left: 8px;
