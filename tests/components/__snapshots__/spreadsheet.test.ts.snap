@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Spreadsheet simple rendering snapshot 1`] = `
+exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
 <div
   class="o-spreadsheet"
   style="grid-template-rows: 63px auto 37px"

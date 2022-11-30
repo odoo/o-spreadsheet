@@ -51,25 +51,25 @@ Object.defineProperty(navigator, "clipboard", {
   configurable: true,
 });
 
-beforeEach(async () => {
-  fixture = makeTestFixture();
-  ({ app, model, parent } = await mountSpreadsheet(fixture, {
-    model: new Model({ sheets: [{ id: "sh1" }] }),
-  }));
-});
+describe("Simple Spreadsheet Component", () => {
+  // default model and env
+  beforeEach(async () => {
+    fixture = makeTestFixture();
+    ({ app, model, parent } = await mountSpreadsheet(fixture, {
+      model: new Model({ sheets: [{ id: "sh1" }] }),
+    }));
+  });
 
-afterEach(() => {
-  app.destroy();
-  fixture.remove();
-});
+  afterEach(() => {
+    app.destroy();
+    fixture.remove();
+  });
 
-describe("Spreadsheet", () => {
   test("simple rendering snapshot", async () => {
     expect(fixture.querySelector(".o-spreadsheet")).toMatchSnapshot();
   });
 
   test("focus is properly set, initially and after switching sheet", async () => {
-    // TODO check
     expect(document.activeElement!.tagName).toEqual("INPUT");
     document.querySelector(".o-add-sheet")!.dispatchEvent(new Event("click"));
     // simulate the fact that a user clicking on the add sheet button will
@@ -171,49 +171,114 @@ describe("Spreadsheet", () => {
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
   });
 
-  test("Can instantiate a spreadsheet with a given client id-name", async () => {
-    const client = { id: "alice", name: "Alice" };
-    ({ app, parent, model } = await mountSpreadsheet(fixture, {
-      model: new Model({}, { client }),
-    }));
-    expect(model.getters.getClient()).toEqual(client);
-    app.destroy();
+  test("Z-indexes of the various spreadsheet components", async () => {
+    const getZIndex = (selector: string) => Number(getElComputedStyle(selector, "zIndex")) || 0;
+    mockChart();
+    const gridZIndex = getZIndex(".o-grid");
+    const vScrollbarZIndex = getZIndex(".o-scrollbar.vertical");
+    const hScrollbarZIndex = getZIndex(".o-scrollbar.horizontal");
+    const scrollbarCornerZIndex = getZIndex(".o-scrollbar.corner");
+
+    await rightClickCell(model, "A1");
+    const contextMenuZIndex = getZIndex(".o-popover");
+
+    await typeInComposerGrid("=A1:B2");
+    const gridComposerZIndex = getZIndex("div.o-grid-composer");
+    const highlighZIndex = getZIndex(".o-highlight");
+
+    triggerMouseEvent(".o-tool.o-dropdown-button.o-with-color", "click");
+    await nextTick();
+    const colorPickerZIndex = getZIndex("div.o-color-picker");
+
+    createChart(model, {}, "thisIsAnId");
+    model.dispatch("SELECT_FIGURE", { id: "thisIsAnId" });
+    await nextTick();
+    const figureZIndex = getZIndex(".o-figure-wrapper");
+    const figureAnchorZIndex = getZIndex(".o-anchor");
+
+    expect(gridZIndex).toBeLessThan(highlighZIndex);
+    expect(highlighZIndex).toBeLessThan(figureZIndex);
+    expect(figureZIndex).toBeLessThan(vScrollbarZIndex);
+    expect(vScrollbarZIndex).toEqual(hScrollbarZIndex);
+    expect(hScrollbarZIndex).toEqual(scrollbarCornerZIndex);
+    expect(scrollbarCornerZIndex).toBeLessThan(gridComposerZIndex);
+    expect(gridComposerZIndex).toBeLessThan(colorPickerZIndex);
+    expect(colorPickerZIndex).toBeLessThan(contextMenuZIndex);
+    expect(contextMenuZIndex).toBeLessThan(figureAnchorZIndex);
   });
 
-  test("Spreadsheet detects frozen panes that exceed the limit size at start", async () => {
-    const notifyUser = jest.fn();
-    const model = new Model({ sheets: [{ panes: { xSplit: 12, ySplit: 50 } }] });
-    ({ app, parent } = await mountSpreadsheet(fixture, { model }, { notifyUser }));
-    expect(notifyUser).toHaveBeenCalled();
-    app.destroy();
-  });
-
-  test("Warn user only once when the viewport is too small for its frozen panes", async () => {
-    const notifyUser = jest.fn();
-    ({ app, parent, model } = await mountSpreadsheet(fixture, undefined, { notifyUser }));
-    expect(notifyUser).not.toHaveBeenCalled();
-    freezeRows(model, 51);
+  test("Keydown is ineffective in dashboard mode", async () => {
+    const spreadsheetKeyDown = jest.spyOn(parent, "onKeydown");
+    const spreadsheetDiv = fixture.querySelector(".o-spreadsheet")!;
+    spreadsheetDiv.dispatchEvent(new KeyboardEvent("keydown", { key: "H", ctrlKey: true }));
+    expect(spreadsheetKeyDown).toHaveBeenCalled();
+    jest.clearAllMocks();
+    parent.model.updateMode("dashboard");
     await nextTick();
-    expect(notifyUser).toHaveBeenCalledTimes(1);
-    //dispatching commands that do not alter the viewport/pane status and rerendering won't notify
-    addRows(model, "after", 0, 1);
-    await nextTick();
-    expect(notifyUser).toHaveBeenCalledTimes(1);
-
-    // resetting the status - the panes no longer exceed limit size
-    freezeRows(model, 3);
-    await nextTick();
-    expect(notifyUser).toHaveBeenCalledTimes(1);
-
-    // dispatching that makes the panes exceed the limit size in viewport notifies again
-    freezeRows(model, 51);
-    await nextTick();
-    expect(notifyUser).toHaveBeenCalledTimes(2);
-    app.destroy();
+    spreadsheetDiv.dispatchEvent(new KeyboardEvent("keydown", { key: "H", ctrlKey: true }));
+    expect(spreadsheetKeyDown).not.toHaveBeenCalled();
   });
 });
 
+test("Can instantiate a spreadsheet with a given client id-name", async () => {
+  const client = { id: "alice", name: "Alice" };
+  fixture = makeTestFixture();
+  ({ app, parent, model } = await mountSpreadsheet(fixture, {
+    model: new Model({}, { client }),
+  }));
+  expect(model.getters.getClient()).toEqual(client);
+  app.destroy();
+  fixture.remove();
+});
+
+test("Spreadsheet detects frozen panes that exceed the limit size at start", async () => {
+  const notifyUser = jest.fn();
+  fixture = makeTestFixture();
+  const model = new Model({ sheets: [{ panes: { xSplit: 12, ySplit: 50 } }] });
+  ({ app, parent } = await mountSpreadsheet(fixture, { model }, { notifyUser }));
+  expect(notifyUser).toHaveBeenCalled();
+  app.destroy();
+  fixture.remove();
+});
+
+test("Warn user only once when the viewport is too small for its frozen panes", async () => {
+  const notifyUser = jest.fn();
+  fixture = makeTestFixture();
+  ({ app, parent, model } = await mountSpreadsheet(fixture, undefined, { notifyUser }));
+  expect(notifyUser).not.toHaveBeenCalled();
+  freezeRows(model, 51);
+  await nextTick();
+  expect(notifyUser).toHaveBeenCalledTimes(1);
+  //dispatching commands that do not alter the viewport/pane status and rerendering won't notify
+  addRows(model, "after", 0, 1);
+  await nextTick();
+  expect(notifyUser).toHaveBeenCalledTimes(1);
+
+  // resetting the status - the panes no longer exceed limit size
+  freezeRows(model, 3);
+  await nextTick();
+  expect(notifyUser).toHaveBeenCalledTimes(1);
+
+  // dispatching that makes the panes exceed the limit size in viewport notifies again
+  freezeRows(model, 51);
+  await nextTick();
+  expect(notifyUser).toHaveBeenCalledTimes(2);
+  app.destroy();
+  fixture.remove();
+});
+
 describe("Composer interactions", () => {
+  beforeEach(async () => {
+    fixture = makeTestFixture();
+    ({ app, model, parent } = await mountSpreadsheet(fixture, {
+      model: new Model({ sheets: [{ id: "sh1" }] }),
+    }));
+  });
+
+  afterEach(() => {
+    app.destroy();
+    fixture.remove();
+  });
   test("type in grid composer adds text to topbar composer", async () => {
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
@@ -348,6 +413,10 @@ describe("Composer interactions", () => {
 
 describe("Composer / selectionInput interactions", () => {
   beforeEach(async () => {
+    fixture = makeTestFixture();
+    ({ app, model, parent } = await mountSpreadsheet(fixture, {
+      model: new Model({ sheets: [{ id: "sh1" }] }),
+    }));
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       sheetId,
@@ -364,6 +433,11 @@ describe("Composer / selectionInput interactions", () => {
     });
     // input some stuff in B2
     setCellContent(model, "B2", "=A1");
+  });
+
+  afterEach(() => {
+    app.destroy();
+    fixture.remove();
   });
 
   test("Switching from selection input to composer should update the highlihts", async () => {
@@ -454,53 +528,5 @@ describe("Composer / selectionInput interactions", () => {
     await clickCell(model, "E5");
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);
     expect(model.getters.getActiveMainViewport()).toMatchObject(scrolledViewport);
-  });
-
-  test("Z-indexes of the various spreadsheet components", async () => {
-    const getZIndex = (selector: string) => Number(getElComputedStyle(selector, "zIndex")) || 0;
-    mockChart();
-    const gridZIndex = getZIndex(".o-grid");
-    const vScrollbarZIndex = getZIndex(".o-scrollbar.vertical");
-    const hScrollbarZIndex = getZIndex(".o-scrollbar.horizontal");
-    const scrollbarCornerZIndex = getZIndex(".o-scrollbar.corner");
-
-    await rightClickCell(model, "A1");
-    const contextMenuZIndex = getZIndex(".o-popover");
-
-    await typeInComposerGrid("=A1:B2");
-    const gridComposerZIndex = getZIndex("div.o-grid-composer");
-    const highlighZIndex = getZIndex(".o-highlight");
-
-    triggerMouseEvent(".o-tool.o-dropdown-button.o-with-color", "click");
-    await nextTick();
-    const colorPickerZIndex = getZIndex("div.o-color-picker");
-
-    createChart(model, {}, "thisIsAnId");
-    model.dispatch("SELECT_FIGURE", { id: "thisIsAnId" });
-    await nextTick();
-    const figureZIndex = getZIndex(".o-figure-wrapper");
-    const figureAnchorZIndex = getZIndex(".o-anchor");
-
-    expect(gridZIndex).toBeLessThan(highlighZIndex);
-    expect(highlighZIndex).toBeLessThan(figureZIndex);
-    expect(figureZIndex).toBeLessThan(vScrollbarZIndex);
-    expect(vScrollbarZIndex).toEqual(hScrollbarZIndex);
-    expect(hScrollbarZIndex).toEqual(scrollbarCornerZIndex);
-    expect(scrollbarCornerZIndex).toBeLessThan(gridComposerZIndex);
-    expect(gridComposerZIndex).toBeLessThan(colorPickerZIndex);
-    expect(colorPickerZIndex).toBeLessThan(contextMenuZIndex);
-    expect(contextMenuZIndex).toBeLessThan(figureAnchorZIndex);
-  });
-
-  test("Keydown is ineffective in dashboard mode", async () => {
-    const spreadsheetKeyDown = jest.spyOn(parent, "onKeydown");
-    const spreadsheetDiv = fixture.querySelector(".o-spreadsheet")!;
-    spreadsheetDiv.dispatchEvent(new KeyboardEvent("keydown", { key: "H", ctrlKey: true }));
-    expect(spreadsheetKeyDown).toHaveBeenCalled();
-    jest.clearAllMocks();
-    parent.model.updateMode("dashboard");
-    await nextTick();
-    spreadsheetDiv.dispatchEvent(new KeyboardEvent("keydown", { key: "H", ctrlKey: true }));
-    expect(spreadsheetKeyDown).not.toHaveBeenCalled();
   });
 });
