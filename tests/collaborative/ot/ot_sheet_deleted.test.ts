@@ -1,4 +1,5 @@
 import { transform } from "../../../src/collaborative/ot/ot";
+import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH } from "../../../src/constants";
 import { toZone } from "../../../src/helpers";
 import {
   AddColumnsRowsCommand,
@@ -107,6 +108,14 @@ describe("OT with DELETE_SHEET", () => {
     type: "CREATE_CHART",
     id: "1",
     definition: {} as any,
+    size: {
+      height: DEFAULT_FIGURE_HEIGHT,
+      width: DEFAULT_FIGURE_WIDTH,
+    },
+    position: {
+      x: 0,
+      y: 0,
+    },
   };
   const resizeColumns: Omit<ResizeColumnsRowsCommand, "sheetId"> = {
     type: "RESIZE_COLUMNS_ROWS",

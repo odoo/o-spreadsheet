@@ -1,4 +1,8 @@
-import { BACKGROUND_CHART_COLOR } from "../../src/constants";
+import {
+  BACKGROUND_CHART_COLOR,
+  DEFAULT_FIGURE_HEIGHT,
+  DEFAULT_FIGURE_WIDTH,
+} from "../../src/constants";
 import { isInside, lettersToNumber, toCartesian, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import {
@@ -21,6 +25,12 @@ import { PieChartDefinition } from "../../src/types/chart/pie_chart";
 import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
 import { SelectionDirection, SelectionStep } from "../../src/types/selection";
 import { target } from "./helpers";
+
+const size = { width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
+const position = {
+  x: 0,
+  y: 0,
+};
 
 /**
  * Dispatch an UNDO to the model
@@ -103,6 +113,8 @@ export function createChart(
   return model.dispatch("CREATE_CHART", {
     id,
     sheetId,
+    position,
+    size,
     definition: {
       title: data.title || "test",
       dataSets: data.dataSets || [],
@@ -130,6 +142,8 @@ export function createScorecardChart(
   return model.dispatch("CREATE_CHART", {
     id,
     sheetId,
+    position,
+    size,
     definition: {
       type: "scorecard",
       title: data.title || "",
@@ -156,6 +170,8 @@ export function createGaugeChart(
   return model.dispatch("CREATE_CHART", {
     id,
     sheetId,
+    position,
+    size,
     definition: {
       type: "gauge",
       background: data.background,

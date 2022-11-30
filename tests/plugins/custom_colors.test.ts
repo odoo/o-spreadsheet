@@ -1,4 +1,5 @@
 import { Model } from "../../src";
+import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH } from "../../src/constants";
 import { UID } from "../../src/types";
 import { createChart, createScorecardChart, setStyle } from "../test_helpers/commands_helpers";
 import { createColorScale, createEqualCF, target, toRangesData } from "../test_helpers/helpers";
@@ -135,6 +136,14 @@ describe("custom colors are correctly handled when editing charts", () => {
             value: "66",
           },
         },
+      },
+      size: {
+        height: DEFAULT_FIGURE_HEIGHT,
+        width: DEFAULT_FIGURE_WIDTH,
+      },
+      position: {
+        x: 0,
+        y: 0,
       },
     });
     expect(model.getters.getCustomColors()).toEqual(["#2468bd", "#112233", "#123456"]);
