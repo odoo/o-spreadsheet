@@ -2,7 +2,9 @@ import { getCanonicalSheetName, toXC, toZone } from "../helpers/index";
 import { _t } from "../translation";
 import {
   AddFunctionDescription,
+  ArgValue,
   FunctionReturnValue,
+  isMatrix,
   MatrixArgValue,
   PrimitiveArgValue,
 } from "../types";
@@ -209,6 +211,53 @@ export const HLOOKUP: AddFunctionDescription = {
     const col = range[colIndex];
     assertAvailable(col, searchKey);
     return col[_index - 1] as FunctionReturnValue;
+  },
+  isExported: true,
+};
+
+// -----------------------------------------------------------------------------
+// INDEX
+// -----------------------------------------------------------------------------
+export const INDEX: AddFunctionDescription = {
+  description: _t("Returns the content of a cell, specified by row and column offset."),
+  args: [
+    arg("reference (any, range)", _t("The range of cells from which the values are returned.")),
+    arg(
+      "row (number, default=0)",
+      _t("The index of the row to be returned from within the reference range of cells.")
+    ),
+    arg(
+      "column (number, default=0)",
+      _t("The index of the column to be returned from within the reference range of cells.")
+    ),
+  ],
+  returns: ["ANY"],
+  compute: function (
+    reference: ArgValue,
+    row: PrimitiveArgValue = 0,
+    column: PrimitiveArgValue = 0
+  ): any {
+    const _reference = isMatrix(reference) ? reference : [[reference]];
+    const _row = toNumber(row, this.locale);
+    const _column = toNumber(column, this.locale);
+    assert(
+      () =>
+        _column >= 0 &&
+        _column - 1 < _reference.length &&
+        _row >= 0 &&
+        _row - 1 < _reference[0].length,
+      _t("Index out of range.")
+    );
+    if (row === 0 && column === 0) {
+      return _reference;
+    }
+    if (row === 0) {
+      return [_reference[_column - 1]];
+    }
+    if (column === 0) {
+      return _reference.map((col) => [col[_row - 1]]);
+    }
+    return _reference[_column - 1][_row - 1];
   },
   isExported: true,
 };

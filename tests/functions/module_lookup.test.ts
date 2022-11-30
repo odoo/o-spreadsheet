@@ -1,5 +1,6 @@
 import { Model } from "../../src/model";
 import { setCellContent } from "../test_helpers/commands_helpers";
+import { getEvaluatedCell } from "../test_helpers/getters_helpers";
 import {
   createModelFromGrid,
   evaluateCell,
@@ -1100,5 +1101,151 @@ describe("XLOOKUP formula", () => {
       expect(grid.Z6).toBe("#N/A");
       expect(grid.Z7).toBe("C4");
     });
+  });
+});
+
+describe("INDEX formula", () => {
+  test("Check argument validity", () => {
+    expect(evaluateCell("A1", { A1: "=INDEX()" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=INDEX(B1:C5, 'string')" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=INDEX(B1:C5, -1)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=INDEX(B1:C5, , -1)" })).toBe("#ERROR");
+  });
+
+  test("Check row/col index in given range", () => {
+    expect(evaluateCell("A1", { A1: "=INDEX(B1:C5, 6)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=INDEX(B1:C5, , 4)" })).toBe("#ERROR");
+  });
+
+  test("select single cell", () => {
+    //prettier-ignore
+    const grid = evaluateGrid({
+      A1: "1",                B1: "Hello",            C1: "=SUM(A1:A3)",
+      A2: "2",                B2: "Test",             C2: "=GT(A3,A1)",
+      A3: "3",                B3: "string",           C3: "=CONCAT(B3,B2)",
+      A5: "=INDEX(A1, 1, 1)", B5: "=INDEX(B1, 1, 1)", C5: "=INDEX(C1, 1, 1)",
+    });
+    expect(grid.A5).toBe(grid.A1);
+    expect(grid.B5).toBe(grid.B1);
+    expect(grid.C5).toBe(grid.C1);
+  });
+
+  test("select a full row (with empty col parameter)", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1", C1: "C1",
+      A2: "A2", B2: "B2", C2: "C2",
+      A3: "A3", B3: "B3", C3: "C3",
+      A4: "=INDEX(A1:C3, 2)",
+      A5: "=INDEX(A1:C3, 1)",
+      A6: "=INDEX(A1:C3, 3)"
+    };
+    const model = createModelFromGrid(grid);
+    expect(getEvaluatedCell(model, "A4").value).toBe("A2");
+    expect(getEvaluatedCell(model, "B4").value).toBe("B2");
+    expect(getEvaluatedCell(model, "C4").value).toBe("C2");
+    expect(getEvaluatedCell(model, "A5").value).toBe("A1");
+    expect(getEvaluatedCell(model, "B5").value).toBe("B1");
+    expect(getEvaluatedCell(model, "C5").value).toBe("C1");
+    expect(getEvaluatedCell(model, "A6").value).toBe("A3");
+    expect(getEvaluatedCell(model, "B6").value).toBe("B3");
+    expect(getEvaluatedCell(model, "C6").value).toBe("C3");
+    expect(getEvaluatedCell(model, "A7").value).toBe("");
+  });
+
+  test("select a full row (with 0 as col parameter)", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1", C1: "C1",
+      A2: "A2", B2: "B2", C2: "C2",
+      A3: "A3", B3: "B3", C3: "C3",
+      A4: "=INDEX(A1:C3, 2, 0)",
+      A5: "=INDEX(A1:C3, 1, 0)",
+      A6: "=INDEX(A1:C3, 3, 0)"
+    };
+    const model = createModelFromGrid(grid);
+    expect(getEvaluatedCell(model, "A4").value).toBe("A2");
+    expect(getEvaluatedCell(model, "B4").value).toBe("B2");
+    expect(getEvaluatedCell(model, "C4").value).toBe("C2");
+    expect(getEvaluatedCell(model, "A5").value).toBe("A1");
+    expect(getEvaluatedCell(model, "B5").value).toBe("B1");
+    expect(getEvaluatedCell(model, "C5").value).toBe("C1");
+    expect(getEvaluatedCell(model, "A6").value).toBe("A3");
+    expect(getEvaluatedCell(model, "B6").value).toBe("B3");
+    expect(getEvaluatedCell(model, "C6").value).toBe("C3");
+    expect(getEvaluatedCell(model, "A7").value).toBe("");
+  });
+
+  test("select a full column (with empty row parameter", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1", C1: "C1",
+      A2: "A2", B2: "B2", C2: "C2",
+      A3: "A3", B3: "B3", C3: "C3",
+      A4: "=INDEX(A1:C3, , 2)",
+      B4: "=INDEX(A1:C3, , 1)",
+      C4: "=INDEX(A1:C3, , 3)"
+    };
+    const model = createModelFromGrid(grid);
+    expect(getEvaluatedCell(model, "A4").value).toBe("B1");
+    expect(getEvaluatedCell(model, "A5").value).toBe("B2");
+    expect(getEvaluatedCell(model, "A6").value).toBe("B3");
+    expect(getEvaluatedCell(model, "B4").value).toBe("A1");
+    expect(getEvaluatedCell(model, "B5").value).toBe("A2");
+    expect(getEvaluatedCell(model, "B6").value).toBe("A3");
+    expect(getEvaluatedCell(model, "C4").value).toBe("C1");
+    expect(getEvaluatedCell(model, "C5").value).toBe("C2");
+    expect(getEvaluatedCell(model, "C6").value).toBe("C3");
+    expect(getEvaluatedCell(model, "D5").value).toBe("");
+  });
+
+  test("select a full column (with 0 as row parameter", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1", C1: "C1",
+      A2: "A2", B2: "B2", C2: "C2",
+      A3: "A3", B3: "B3", C3: "C3",
+      A4: "=INDEX(A1:C3, 0, 2)",
+      B4: "=INDEX(A1:C3, 0, 1)",
+      C4: "=INDEX(A1:C3, 0, 3)"
+    };
+    const model = createModelFromGrid(grid);
+    expect(getEvaluatedCell(model, "A4").value).toBe("B1");
+    expect(getEvaluatedCell(model, "A5").value).toBe("B2");
+    expect(getEvaluatedCell(model, "A6").value).toBe("B3");
+    expect(getEvaluatedCell(model, "B4").value).toBe("A1");
+    expect(getEvaluatedCell(model, "B5").value).toBe("A2");
+    expect(getEvaluatedCell(model, "B6").value).toBe("A3");
+    expect(getEvaluatedCell(model, "C4").value).toBe("C1");
+    expect(getEvaluatedCell(model, "C5").value).toBe("C2");
+    expect(getEvaluatedCell(model, "C6").value).toBe("C3");
+    expect(getEvaluatedCell(model, "D5").value).toBe("");
+  });
+
+  test("select the whole range", () => {
+    const grid = {
+      A1: "A1",
+      B1: "B1",
+      C1: "C1",
+      A2: "A2",
+      B2: "B2",
+      C2: "C2",
+      A3: "A3",
+      B3: "B3",
+      C3: "C3",
+      A4: "=INDEX(A1:C3)",
+    };
+    const model = createModelFromGrid(grid);
+    expect(getEvaluatedCell(model, "A4").value).toBe("A1");
+    expect(getEvaluatedCell(model, "B4").value).toBe("B1");
+    expect(getEvaluatedCell(model, "C4").value).toBe("C1");
+    expect(getEvaluatedCell(model, "D4").value).toBe("");
+    expect(getEvaluatedCell(model, "A5").value).toBe("A2");
+    expect(getEvaluatedCell(model, "B5").value).toBe("B2");
+    expect(getEvaluatedCell(model, "C5").value).toBe("C2");
+    expect(getEvaluatedCell(model, "A6").value).toBe("A3");
+    expect(getEvaluatedCell(model, "B6").value).toBe("B3");
+    expect(getEvaluatedCell(model, "C6").value).toBe("C3");
+    expect(getEvaluatedCell(model, "A7").value).toBe("");
   });
 });
