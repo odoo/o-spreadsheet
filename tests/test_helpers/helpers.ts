@@ -7,7 +7,6 @@ import { toCartesian, toUnboundedZone, toXC, toZone } from "../../src/helpers/in
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { FullMenuItem, MenuItemRegistry, topbarMenuRegistry } from "../../src/registries";
-import { _t } from "../../src/translation";
 import {
   ColorScaleMidPointThreshold,
   ColorScaleThreshold,
@@ -147,20 +146,7 @@ export async function mountSpreadsheet(
   props: SpreadsheetProps = { model: new Model() },
   env: Partial<SpreadsheetChildEnv> = {}
 ): Promise<{ app: App; parent: Spreadsheet; model: Model }> {
-  const mockEnv: SpreadsheetChildEnv = {
-    model: props.model,
-    _t: _t,
-    clipboard: new MockClipboard(),
-    openSidePanel: () => {},
-    toggleSidePanel: () => {},
-    loadCurrencies: async () => [],
-    editText: () => {},
-    notifyUser: () => {},
-    raiseError: () => {},
-    askConfirmation: () => {},
-    isDashboard: () => false,
-    ...env,
-  };
+  const mockEnv = makeTestEnv({ ...env, model: props.model });
   const app = new App(Spreadsheet, { props, env: mockEnv, test: true });
   app.addTemplates(OWL_TEMPLATES);
   const parent = (await app.mount(fixture)) as Spreadsheet;
