@@ -895,12 +895,6 @@ describe("Events on Grid update viewport correctly", () => {
     fixture.remove();
   });
   test("Vertical scroll", async () => {
-    // expect(model.getters.getActiveMainViewport()).toMatchObject({
-    //   top: 0,
-    //   bottom: 94,
-    //   left: 0,
-    //   right: 10,
-    // });
     fixture.querySelector(".o-grid")!.dispatchEvent(new WheelEvent("wheel", { deltaY: 1200 }));
     await nextTick();
     expect(model.getters.getActiveMainViewport()).toMatchObject({
