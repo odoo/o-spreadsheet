@@ -1,6 +1,6 @@
 import { Component, onMounted, onPatched, onWillUnmount, useState } from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../../constants";
-import { UuidGenerator } from "../../helpers/index";
+import { toUnboundedZone, UuidGenerator, zoneToXc } from "../../helpers/index";
 import { RangeInputValue } from "../../plugins/ui_feature/selection_input";
 import { SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
@@ -143,10 +143,6 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     return this.hasFocus && this.ranges.every((range) => range.isValidRange);
   }
 
-  get isResettable(): boolean {
-    return this.ranges.some((range) => !range.isValidRange);
-  }
-
   setup() {
     onMounted(() => this.enableNewSelectionInput());
     onWillUnmount(async () => this.disableNewSelectionInput());
@@ -245,11 +241,39 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     this.props.onSelectionConfirmed?.();
   }
 
-  disable() {
+  confirm() {
     this.env.model.dispatch("UNFOCUS_SELECTION_INPUT");
-    const ranges = this.env.model.getters.getSelectionInputValue(this.id);
+    const ranges = this.env.model.getters
+      .getSelectionInput(this.id)
+      .filter((r) => this.env.model.getters.isRangeValid(r.xc));
     if (this.props.required && ranges.length === 0) {
       this.state.isMissing = true;
+    }
+    for (const range of ranges) {
+      const zone = toUnboundedZone(range.xc);
+      if (zone.bottom !== zone.top && zone.left != zone.right) {
+        this.env.model.dispatch("CHANGE_RANGE", {
+          id: this.id,
+          rangeId: range.id,
+          value: zoneToXc({
+            left: zone.left,
+            right: zone.left,
+            top: zone.top,
+            bottom: zone.bottom,
+          }),
+        });
+        for (var j = zone.left + 1; j <= zone.right!; ++j) {
+          this.env.model.dispatch("ADD_RANGE", {
+            id: this.id,
+            value: zoneToXc({
+              left: j,
+              right: j,
+              top: zone.top,
+              bottom: zone.bottom,
+            }),
+          });
+        }
+      }
     }
     const activeSheetId = this.env.model.getters.getActiveSheetId();
     if (this.originSheet !== activeSheetId) {

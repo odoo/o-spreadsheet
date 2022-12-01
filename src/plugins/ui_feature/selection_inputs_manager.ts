@@ -63,6 +63,7 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
         this.unfocus();
         break;
 
+      case "ADD_RANGE":
       case "ADD_EMPTY_RANGE":
       case "REMOVE_RANGE":
         if (cmd.id !== this.focusedInputId) {

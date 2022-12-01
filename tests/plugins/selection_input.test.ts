@@ -156,6 +156,14 @@ describe("selection input plugin", () => {
     );
   });
 
+  test("cannot add new range when maximum ranges reached", () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, hasSingleRange: true });
+    expect(model.getters.getSelectionInput(id)).toHaveLength(1);
+    expect(model.dispatch("ADD_RANGE", { id, value: "A5" })).toBeCancelledBecause(
+      CommandResult.MaximumRangesReached
+    );
+  });
+
   test("add an empty range", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
     expect(model.getters.getSelectionInput(id).length).toBe(1);
@@ -163,6 +171,15 @@ describe("selection input plugin", () => {
     expect(model.getters.getSelectionInput(id).length).toBe(2);
     expect(model.getters.getSelectionInput(id)[1].isFocused).toBe(true);
     expect(model.getters.getSelectionInput(id)[1].xc).toBe("");
+  });
+
+  test("add a non-empty range", () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
+    expect(model.getters.getSelectionInput(id).length).toBe(1);
+    model.dispatch("ADD_RANGE", { id, value: "C5" });
+    expect(model.getters.getSelectionInput(id).length).toBe(2);
+    expect(model.getters.getSelectionInput(id)[1].isFocused).toBe(true);
+    expect(model.getters.getSelectionInput(id)[1].xc).toBe("C5");
   });
 
   test("add an empty range with initial value", () => {
@@ -284,7 +301,6 @@ describe("selection input plugin", () => {
 
   test("manually changing the input updates highlighted zone", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
-    model.dispatch("ADD_EMPTY_RANGE", { id });
     model.dispatch("CHANGE_RANGE", { id, rangeId: idOfRange(model, id, 0), value: "C5" });
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("C5");
     expect(highlightedZones(model)).toStrictEqual(["C5"]);
@@ -292,7 +308,6 @@ describe("selection input plugin", () => {
 
   test("selection input updates handle full column ranges", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
-    model.dispatch("ADD_EMPTY_RANGE", { id });
     model.dispatch("CHANGE_RANGE", { id, rangeId: idOfRange(model, id, 0), value: "A3:A" });
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("A3:A");
     expect(highlightedZones(model)).toEqual(["A3:A100"]);
@@ -300,7 +315,6 @@ describe("selection input plugin", () => {
 
   test("selection input updates handle full row ranges", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
-    model.dispatch("ADD_EMPTY_RANGE", { id });
     model.dispatch("CHANGE_RANGE", { id, rangeId: idOfRange(model, id, 0), value: "F3:3" });
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("F3:3");
     expect(highlightedZones(model)).toEqual(["F3:Z3"]);
@@ -317,7 +331,6 @@ describe("selection input plugin", () => {
 
   test("setting multiple ranges in one input", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
-    model.dispatch("ADD_EMPTY_RANGE", { id });
     model.dispatch("CHANGE_RANGE", { id, rangeId: idOfRange(model, id, 0), value: "C5, D8, B2" });
     const [range1, range2, range3] = model.getters.getSelectionInput(id);
     expect(range1.xc).toBe("C5");
@@ -333,7 +346,6 @@ describe("selection input plugin", () => {
 
   test("writing an invalid range does not crash", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
-    model.dispatch("ADD_EMPTY_RANGE", { id });
     model.dispatch("CHANGE_RANGE", {
       id,
       rangeId: idOfRange(model, id, 0),

@@ -729,6 +729,18 @@ export interface AddEmptyRangeCommand {
 }
 
 /**
+ * Add an range at the end of a SelectionComponent state
+ * and focus it.
+ */
+export interface AddRangeCommand {
+  type: "ADD_RANGE";
+  /** SelectionComponent id */
+  id: string;
+  /** The range to be added */
+  value: string;
+}
+
+/**
  * Remove a given range in a SelectionComponent state
  */
 export interface RemoveRangeCommand {
@@ -954,6 +966,7 @@ export type LocalCommand =
   | UnfocusInputCommand
   | FocusInputCommand
   | AddEmptyRangeCommand
+  | AddRangeCommand
   | RemoveRangeCommand
   | ChangeRangeCommand
   | CopyCommand
