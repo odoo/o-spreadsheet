@@ -43,8 +43,12 @@ export class InvalidReferenceError extends EvaluationError {
 }
 
 export class NotAvailableError extends EvaluationError {
-  constructor() {
-    super(CellErrorType.NotAvailable, _lt("Data not available"), CellErrorLevel.silent);
+  constructor(errorMessage: string | undefined = undefined) {
+    super(
+      CellErrorType.NotAvailable,
+      errorMessage || _lt("Data not available"),
+      errorMessage ? CellErrorLevel.error : CellErrorLevel.silent
+    );
   }
 }
 
