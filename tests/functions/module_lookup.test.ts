@@ -95,7 +95,7 @@ describe("LOOKUP formula", () => {
     expect(evaluatedGrid.A13).toBe("#ERROR"); // @compatibility: on googlesheets, return #NUM!
     expect(evaluatedGrid.A14).toBe("#ERROR"); // @compatibility: on googlesheets, return #NUM!
 
-    expect(evaluatedGrid.A15).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(evaluatedGrid.A15).toBe("#N/A");
     expect(evaluatedGrid.A16).toBe("res 09");
   });
 
@@ -148,7 +148,7 @@ describe("MATCH formula", () => {
     const ascendingAsAscending = { ...rangeAscending, ...evAsAscending };
     const aAsA = evaluateGrid(ascendingAsAscending);
 
-    expect(aAsA.B1).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(aAsA.B1).toBe("#N/A");
     expect(aAsA.B2).toBe(1);
     expect(aAsA.B3).toBe(3);
     expect(aAsA.B4).toBe(4);
@@ -160,14 +160,14 @@ describe("MATCH formula", () => {
     const ascendingAsUnsorted = { ...rangeAscending, ...evAsUnsorted };
     const aAsU = evaluateGrid(ascendingAsUnsorted);
 
-    expect(aAsU.C1).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(aAsU.C1).toBe("#N/A");
     expect(aAsU.C2).toBe(1);
     expect(aAsU.C3).toBe(2);
     expect(aAsU.C4).toBe(4);
-    expect(aAsU.C5).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(aAsU.C5).toBe("#N/A");
     expect(aAsU.C6).toBe(5);
     expect(aAsU.C7).toBe(6);
-    expect(aAsU.C8).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(aAsU.C8).toBe("#N/A");
 
     const ascendingAsDescending = { ...rangeAscending, ...evAsDescending };
     const aAsD = evaluateGrid(ascendingAsDescending);
@@ -175,18 +175,18 @@ describe("MATCH formula", () => {
     expect(aAsD.D1).toBe(3); // @compatibility: on googlesheets, return 6
     expect(aAsD.D2).toBe(3); // @compatibility: on googlesheets, return 6
     expect(aAsD.D3).toBe(3); // @compatibility: on googlesheets, return 6
-    expect(aAsD.D4).toBe("#ERROR"); // @compatibility: on googlesheets, return 6
-    expect(aAsD.D5).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
-    expect(aAsD.D6).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
-    expect(aAsD.D7).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
-    expect(aAsD.D8).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(aAsD.D4).toBe("#N/A"); // @compatibility: on googlesheets, return 6
+    expect(aAsD.D5).toBe("#N/A");
+    expect(aAsD.D6).toBe("#N/A");
+    expect(aAsD.D7).toBe("#N/A");
+    expect(aAsD.D8).toBe("#N/A");
   });
 
   test("range evaluate unsorted", () => {
     const unsortedAsAscending = { ...rangeUnsorted, ...evAsAscending };
     const uAsA = evaluateGrid(unsortedAsAscending);
 
-    expect(uAsA.B1).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(uAsA.B1).toBe("#N/A");
     expect(uAsA.B2).toBe(1);
     expect(uAsA.B3).toBe(1);
     expect(uAsA.B4).toBe(3); // @compatibility: on googlesheets, return 5
@@ -198,13 +198,13 @@ describe("MATCH formula", () => {
     const unsortedAsUnsorted = { ...rangeUnsorted, ...evAsUnsorted };
     const uAsU = evaluateGrid(unsortedAsUnsorted);
 
-    expect(uAsU.C1).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(uAsU.C1).toBe("#N/A");
     expect(uAsU.C2).toBe(1);
     expect(uAsU.C3).toBe(5);
     expect(uAsU.C4).toBe(3);
-    expect(uAsU.C5).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(uAsU.C5).toBe("#N/A");
     expect(uAsU.C6).toBe(2);
-    expect(uAsU.C7).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(uAsU.C7).toBe("#N/A");
     expect(uAsU.C8).toBe(6);
 
     const unsortedAsDescending = { ...rangeUnsorted, ...evAsDescending };
@@ -214,19 +214,19 @@ describe("MATCH formula", () => {
     expect(uAsD.D2).toBe(5); // @compatibility: on googlesheets, return 6
     expect(uAsD.D3).toBe(5); // @compatibility: on googlesheets, return 6
     expect(uAsD.D4).toBe(3);
-    expect(uAsD.D5).toBe("#ERROR"); // @compatibility: on googlesheets, return 2
-    expect(uAsD.D6).toBe("#ERROR"); // @compatibility: on googlesheets, return 2
-    expect(uAsD.D7).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
-    expect(uAsD.D8).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(uAsD.D5).toBe("#N/A"); // @compatibility: on googlesheets, return 2
+    expect(uAsD.D6).toBe("#N/A"); // @compatibility: on googlesheets, return 2
+    expect(uAsD.D7).toBe("#N/A");
+    expect(uAsD.D8).toBe("#N/A");
   });
 
   test("range evaluate sorted descending", () => {
     const descendingAsAscending = { ...rangeDescending, ...evAsAscending };
     const dAsA = evaluateGrid(descendingAsAscending);
 
-    expect(dAsA.B1).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
-    expect(dAsA.B2).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
-    expect(dAsA.B3).toBe("#ERROR"); // @compatibility: on googlesheets, return 6
+    expect(dAsA.B1).toBe("#N/A");
+    expect(dAsA.B2).toBe("#N/A");
+    expect(dAsA.B3).toBe("#N/A"); // @compatibility: on googlesheets, return 6
     expect(dAsA.B4).toBe(3); // @compatibility: on googlesheets, return 6
     expect(dAsA.B5).toBe(3); // @compatibility: on googlesheets, return 6
     expect(dAsA.B6).toBe(3); // @compatibility: on googlesheets, return 6
@@ -236,14 +236,14 @@ describe("MATCH formula", () => {
     const descendingAsUnsorted = { ...rangeDescending, ...evAsUnsorted };
     const dAsU = evaluateGrid(descendingAsUnsorted);
 
-    expect(dAsU.C1).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(dAsU.C1).toBe("#N/A");
     expect(dAsU.C2).toBe(6);
     expect(dAsU.C3).toBe(4);
     expect(dAsU.C4).toBe(3);
-    expect(dAsU.C5).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(dAsU.C5).toBe("#N/A");
     expect(dAsU.C6).toBe(2);
     expect(dAsU.C7).toBe(1);
-    expect(dAsU.C8).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(dAsU.C8).toBe("#N/A");
 
     const descendingAsDescending = { ...rangeDescending, ...evAsDescending };
     const dAsD = evaluateGrid(descendingAsDescending);
@@ -255,7 +255,7 @@ describe("MATCH formula", () => {
     expect(dAsD.D5).toBe(2);
     expect(dAsD.D6).toBe(2);
     expect(dAsD.D7).toBe(1);
-    expect(dAsD.D8).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(dAsD.D8).toBe("#N/A");
   });
 
   test("grid of STRING ascending", () => {
@@ -291,7 +291,7 @@ describe("MATCH formula", () => {
 
     expect(unsortedString.C1).toBe(1);
     expect(unsortedString.C2).toBe(2);
-    expect(unsortedString.C3).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(unsortedString.C3).toBe("#N/A");
     expect(unsortedString.C4).toBe(4);
     expect(unsortedString.C5).toBe(5);
   });
@@ -310,7 +310,7 @@ describe("MATCH formula", () => {
 
     expect(descendingString.D1).toBe(5);
     expect(descendingString.D2).toBe(1);
-    expect(descendingString.D3).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(descendingString.D3).toBe("#N/A");
     expect(descendingString.D4).toBe(4);
     expect(descendingString.D5).toBe(3);
   });
@@ -393,7 +393,7 @@ describe("VLOOKUP formula", () => {
       expect(grid.B9).toBe(3);
       expect(grid.C9).toBe(5);
       expect(grid.D9).toBe(5);
-      expect(grid.E9).toBe("#ERROR");
+      expect(grid.E9).toBe("#N/A");
     });
 
     test("lookup string with string and number values", () => {
@@ -419,7 +419,7 @@ describe("VLOOKUP formula", () => {
       expect(grid.B9).toBe(3);
       expect(grid.C9).toBe(5);
       expect(grid.D9).toBe(5);
-      expect(grid.E9).toBe("#ERROR");
+      expect(grid.E9).toBe("#N/A");
       expect(grid.F9).toBe(3);
     });
 
@@ -444,7 +444,7 @@ describe("VLOOKUP formula", () => {
       expect(grid.B9).toBe(3);
       expect(grid.C9).toBe(5);
       expect(grid.D9).toBe(5);
-      expect(grid.E9).toBe("#ERROR");
+      expect(grid.E9).toBe("#N/A");
     });
   });
 
@@ -539,7 +539,7 @@ describe("VLOOKUP formula", () => {
         });
         expect(grid.Z1).toBe("C4");
         expect(grid.Z2).toBe("C6");
-        expect(grid.Z3).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
+        expect(grid.Z3).toBe("#N/A");
       });
 
       test("if all values in the search column are greater than the search key --> return #ERROR ", () => {
@@ -548,8 +548,8 @@ describe("VLOOKUP formula", () => {
           Z1: "=VLOOKUP( X3, A1:E6, 3, TRUE )",
           Z2: "=VLOOKUP( X4, A1:E6, 3, TRUE )",
         });
-        expect(grid.Z1).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
-        expect(grid.Z2).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
+        expect(grid.Z1).toBe("#N/A");
+        expect(grid.Z2).toBe("#N/A");
       });
     });
 
@@ -597,12 +597,12 @@ describe("VLOOKUP formula", () => {
         };
 
         const gridS = evaluateGrid({ ...gridSorted, ...formulas });
-        expect(gridS.Z1).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
-        expect(gridS.Z2).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
+        expect(gridS.Z1).toBe("#N/A");
+        expect(gridS.Z2).toBe("#N/A");
 
         const gridU = evaluateGrid({ ...gridUnsorted, ...formulas });
-        expect(gridU.Z1).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
-        expect(gridU.Z2).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
+        expect(gridU.Z1).toBe("#N/A");
+        expect(gridU.Z2).toBe("#N/A");
       });
     });
   });
@@ -709,8 +709,8 @@ describe("HLOOKUP formula", () => {
           Z1: "=HLOOKUP( X3, A1:F5, 3, TRUE )",
           Z2: "=HLOOKUP( X4, A1:F5, 3, TRUE )",
         });
-        expect(grid.Z1).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
-        expect(grid.Z2).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
+        expect(grid.Z1).toBe("#N/A");
+        expect(grid.Z2).toBe("#N/A");
       });
     });
 
@@ -758,12 +758,12 @@ describe("HLOOKUP formula", () => {
         };
 
         const gridS = evaluateGrid({ ...gridSorted, ...formulas });
-        expect(gridS.Z1).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
-        expect(gridS.Z2).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
+        expect(gridS.Z1).toBe("#N/A");
+        expect(gridS.Z2).toBe("#N/A");
 
         const gridU = evaluateGrid({ ...gridUnsorted, ...formulas });
-        expect(gridU.Z1).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
-        expect(gridU.Z2).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
+        expect(gridU.Z1).toBe("#N/A");
+        expect(gridU.Z2).toBe("#N/A");
       });
     });
   });
@@ -820,7 +820,7 @@ describe("XLOOKUP formula", () => {
     });
     expect(grid.Z1).toBe(5);
     expect(grid.Z2).toBe("C3");
-    expect(grid.Z3).toBe("#ERROR");
+    expect(grid.Z3).toBe("#N/A");
   });
 
   test("if_not_found argument", () => {
@@ -831,7 +831,7 @@ describe("XLOOKUP formula", () => {
       Z2: '=XLOOKUP( "ola", B1:B6, C1:C6, 5 )',
       Z3: "=XLOOKUP( 5, B1:B6, C1:C6, Y2 )",
     });
-    expect(grid.Z1).toBe("#ERROR");
+    expect(grid.Z1).toBe("#N/A");
     expect(grid.Z2).toBe(5);
     expect(grid.Z3).toBe("C3");
   });
@@ -843,7 +843,7 @@ describe("XLOOKUP formula", () => {
         Z1: '=XLOOKUP( "c", B1:B6, B1:B6,, 0 )',
         Z2: '=XLOOKUP( "B1", B1:B6, B1:B6,, 0 )',
       });
-      expect(grid.Z1).toBe("#ERROR");
+      expect(grid.Z1).toBe("#N/A");
       expect(grid.Z2).toBe("B1");
     });
 
@@ -856,7 +856,7 @@ describe("XLOOKUP formula", () => {
       });
       expect(grid.Z1).toBe("b2");
       expect(grid.Z2).toBe(5);
-      expect(grid.Z3).toBe("#ERROR");
+      expect(grid.Z3).toBe("#N/A");
     });
 
     test("Next greater item", () => {
@@ -870,7 +870,7 @@ describe("XLOOKUP formula", () => {
       expect(grid.Z1).toBe("épinards");
       expect(grid.Z2).toBe("B1");
       expect(grid.Z3).toBe(5);
-      expect(grid.Z4).toBe("#ERROR");
+      expect(grid.Z4).toBe("#N/A");
     });
   });
 
@@ -926,10 +926,10 @@ describe("XLOOKUP formula", () => {
       });
       expect(grid.Z1).toBe("C2");
       expect(grid.Z2).toBe("C4");
-      expect(grid.Z3).toBe("#ERROR");
+      expect(grid.Z3).toBe("#N/A");
       expect(grid.Z4).toBe("C2");
       expect(grid.Z5).toBe("C2");
-      expect(grid.Z6).toBe("#ERROR");
+      expect(grid.Z6).toBe("#N/A");
       expect(grid.Z7).toBe("C3");
     });
 
@@ -946,10 +946,10 @@ describe("XLOOKUP formula", () => {
       });
       expect(grid.Z1).toBe("C5");
       expect(grid.Z2).toBe("C3");
-      expect(grid.Z3).toBe("#ERROR");
+      expect(grid.Z3).toBe("#N/A");
       expect(grid.Z4).toBe("C5");
       expect(grid.Z5).toBe("C5");
-      expect(grid.Z6).toBe("#ERROR");
+      expect(grid.Z6).toBe("#N/A");
       expect(grid.Z7).toBe("C4");
     });
   });

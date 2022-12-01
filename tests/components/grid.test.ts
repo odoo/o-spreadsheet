@@ -851,6 +851,17 @@ describe("error tooltip", () => {
     expect(document.querySelector(".o-error-tooltip")).toBeNull();
   });
 
+  test("Display error on #N/A 'non-silent' ", async () => {
+    Date.now = jest.fn(() => 0);
+    setCellContent(model, "A1", "=VLOOKUP(6,A1:A2,B2:B4)");
+    await nextTick();
+    gridMouseEvent(model, "mousemove", "A1");
+    Date.now = jest.fn(() => 500);
+    jest.advanceTimersByTime(300);
+    await nextTick();
+    expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
+  });
+
   test("can display error tooltip", async () => {
     setCellContent(model, "C8", "=1/0");
     await hoverCell(model, "C8", 200);
