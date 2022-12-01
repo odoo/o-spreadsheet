@@ -1,3 +1,4 @@
+import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
 import {
@@ -13,7 +14,8 @@ import {
   UID,
   Zone,
 } from "../../types";
-import { ClipboardOperation, ClipboardOptions } from "../../types/clipboard";
+import { ClipboardMIMEType, ClipboardOperation, ClipboardOptions } from "../../types/clipboard";
+import { xmlEscape } from "../../xlsx/helpers/xml_helpers";
 import { formatValue } from "../format";
 import { range } from "../misc";
 import { createAdaptedZone, mergeOverlappingZones, positions, union } from "../zones";
@@ -71,6 +73,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
         const position = { col, row, sheetId };
         cellsInRow.push({
           cell: getters.getCell(position),
+          style: getters.getCellComputedStyle(position),
           evaluatedCell: getters.getEvaluatedCell(position),
           border: getters.getCellBorder(position) || undefined,
           position,
@@ -465,7 +468,14 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
     }
   }
 
-  getClipboardContent(): string {
+  getClipboardContent(): Record<string, string> {
+    return {
+      [ClipboardMIMEType.PlainText]: this.getPlainTextContent(),
+      [ClipboardMIMEType.Html]: this.getHTMLContent(),
+    };
+  }
+
+  private getPlainTextContent(): string {
     return (
       this.cells
         .map((cells) => {
@@ -477,6 +487,25 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
         })
         .join("\n") || "\t"
     );
+  }
+
+  private getHTMLContent(): string {
+    if (this.cells.length == 1 && this.cells[0].length == 1) {
+      return this.getters.getCellText(this.cells[0][0].position);
+    }
+
+    let htmlTable = '<table border="1" style="border-collapse:collapse">';
+    for (const row of this.cells) {
+      htmlTable += "<tr>";
+      for (const cell of row) {
+        const cssStyle = cssPropertiesToCss(cellStyleToCss(cell.style), false);
+        const cellText = this.getters.getCellText(cell.position);
+        htmlTable += `<td style="${cssStyle}">` + xmlEscape(cellText) + "</td>";
+      }
+      htmlTable += "</tr>";
+    }
+    htmlTable += "</table>";
+    return htmlTable;
   }
 
   isColRowDirtyingClipboard(position: HeaderIndex, dimension: Dimension): boolean {

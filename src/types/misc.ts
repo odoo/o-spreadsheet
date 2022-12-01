@@ -183,6 +183,7 @@ export type FunctionReturnValue = string | number | boolean;
 
 export interface ClipboardCell {
   cell?: Cell;
+  style?: Style;
   evaluatedCell: EvaluatedCell;
   border?: Border;
   position: CellPosition;

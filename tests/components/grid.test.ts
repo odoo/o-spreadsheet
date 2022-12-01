@@ -15,6 +15,7 @@ import {
 import { toCartesian, toHex, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { chartComponentRegistry } from "../../src/registries";
+import { getClipboardEvent, MockClipboardData } from "../test_helpers/clipboard";
 import {
   copy,
   createChart,
@@ -50,13 +51,7 @@ import {
   getSelectionAnchorCellXc,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import {
-  makeTestFixture,
-  MockClipboard,
-  mountSpreadsheet,
-  nextTick,
-  Touch,
-} from "../test_helpers/helpers";
+import { makeTestFixture, mountSpreadsheet, nextTick, Touch } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { mockChart } from "./__mocks__/chart";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
@@ -1406,32 +1401,12 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
 });
 
 describe("Copy paste keyboard shortcut", () => {
-  let clipboard: MockClipboard;
+  let clipboardData: MockClipboardData;
   let sheetId: string;
 
-  async function getClipboardEvent(type: "copy" | "paste" | "cut") {
-    const event = new Event(type, { bubbles: true });
-    const content = await clipboard.readText();
-    //@ts-ignore
-    event.clipboardData = {
-      getData: () => content,
-      setData: async (format: string, data: string) => {
-        await clipboard.writeText(data);
-      },
-      types: ["text/plain"],
-    };
-    return event;
-  }
-
   beforeEach(async () => {
-    clipboard = new MockClipboard();
-    Object.defineProperty(navigator, "clipboard", {
-      get() {
-        return clipboard;
-      },
-      configurable: true,
-    });
     fixture = makeTestFixture();
+    clipboardData = new MockClipboardData();
     ({ app, parent, model } = await mountSpreadsheet(fixture));
     sheetId = model.getters.getActiveSheetId();
   });
@@ -1441,21 +1416,30 @@ describe("Copy paste keyboard shortcut", () => {
     fixture.remove();
   });
 
+  test("Can paste from OS", async () => {
+    selectCell(model, "A1");
+    clipboardData.setText("Excalibur");
+    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    expect(getCellContent(model, "A1")).toEqual("Excalibur");
+  });
+
   test("Can copy/paste cells", async () => {
     setCellContent(model, "A1", "things");
     selectCell(model, "A1");
-    document.body.dispatchEvent(await getClipboardEvent("copy"));
+    document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
+    expect(clipboardData.content).toEqual({ "text/plain": "things", "text/html": "things" });
     selectCell(model, "A2");
-    document.body.dispatchEvent(await getClipboardEvent("paste"));
+    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     expect(getCellContent(model, "A2")).toEqual("things");
   });
 
   test("Can cut/paste cells", async () => {
     setCellContent(model, "A1", "things");
     selectCell(model, "A1");
-    document.body.dispatchEvent(await getClipboardEvent("cut"));
+    document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    expect(clipboardData.content).toEqual({ "text/plain": "things", "text/html": "things" });
     selectCell(model, "A2");
-    document.body.dispatchEvent(await getClipboardEvent("paste"));
+    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     expect(getCellContent(model, "A1")).toEqual("");
     expect(getCellContent(model, "A2")).toEqual("things");
   });
@@ -1517,8 +1501,9 @@ describe("Copy paste keyboard shortcut", () => {
     selectCell(model, "A1");
     createChart(model, {}, "chartId");
     model.dispatch("SELECT_FIGURE", { id: "chartId" });
-    document.body.dispatchEvent(await getClipboardEvent("copy"));
-    document.body.dispatchEvent(await getClipboardEvent("paste"));
+    document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
+    expect(clipboardData.content).toEqual({ "text/plain": "\t" });
+    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     expect(model.getters.getChartIds(sheetId)).toHaveLength(2);
   });
 
@@ -1526,8 +1511,9 @@ describe("Copy paste keyboard shortcut", () => {
     selectCell(model, "A1");
     createChart(model, {}, "chartId");
     model.dispatch("SELECT_FIGURE", { id: "chartId" });
-    document.body.dispatchEvent(await getClipboardEvent("cut"));
-    document.body.dispatchEvent(await getClipboardEvent("paste"));
+    document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    expect(clipboardData.content).toEqual({ "text/plain": "\t" });
+    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     expect(model.getters.getChartIds(sheetId)).toHaveLength(1);
     expect(model.getters.getChartIds(sheetId)[0]).not.toEqual("chartId");
   });

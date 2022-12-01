@@ -14,7 +14,13 @@ import { Image } from "../../types/image";
 import { AbstractChart } from "../figures/charts";
 import { deepCopy } from "../misc";
 import { UuidGenerator } from "../uuid";
-import { ClipboardOperation, ClipboardOptions, ClipboardState } from "./../../types/clipboard";
+import {
+  ClipboardContent,
+  ClipboardMIMEType,
+  ClipboardOperation,
+  ClipboardOptions,
+  ClipboardState,
+} from "./../../types/clipboard";
 
 /** State of the clipboard when copying/cutting figures */
 export class ClipboardFigureState implements ClipboardState {
@@ -97,8 +103,8 @@ export class ClipboardFigureState implements ClipboardState {
     this.dispatch("SELECT_FIGURE", { id: newId });
   }
 
-  getClipboardContent() {
-    return "\t";
+  getClipboardContent(): ClipboardContent {
+    return { [ClipboardMIMEType.PlainText]: "\t" };
   }
 
   isColRowDirtyingClipboard(position: HeaderIndex, dimension: Dimension): boolean {

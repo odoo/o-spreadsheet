@@ -2,6 +2,13 @@ import { CommandResult } from "./commands";
 import { Dimension, HeaderIndex, UID, Zone } from "./misc";
 import { GridRenderingContext } from "./rendering";
 
+export enum ClipboardMIMEType {
+  PlainText = "text/plain",
+  Html = "text/html",
+}
+
+export type ClipboardContent = { [type in ClipboardMIMEType]?: string };
+
 export interface ClipboardOptions {
   pasteOption?: ClipboardPasteOptions;
   shouldPasteCF?: boolean;
@@ -19,7 +26,7 @@ export interface ClipboardState {
   isPasteAllowed(target: Zone[], clipboardOption?: ClipboardOptions): CommandResult;
 
   paste(target: Zone[], options?: ClipboardOptions | undefined): void;
-  getClipboardContent(): string;
+  getClipboardContent(): ClipboardContent;
   drawClipboard(renderingContext: GridRenderingContext): void;
 
   /**

@@ -20,7 +20,6 @@ import {
 import {
   makeTestFixture,
   mockChart,
-  MockClipboard,
   mountSpreadsheet,
   nextTick,
   spyDispatch,
@@ -62,13 +61,6 @@ let parent: Spreadsheet;
 let app: App;
 describe("figures", () => {
   beforeEach(async () => {
-    const clipboard = new MockClipboard();
-    Object.defineProperty(navigator, "clipboard", {
-      get() {
-        return clipboard;
-      },
-      configurable: true,
-    });
     fixture = makeTestFixture();
     mockChartData = mockChart();
     chartId = "someuuid";

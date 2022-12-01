@@ -31,7 +31,6 @@ import {
   getName,
   getNode,
   makeTestFixture,
-  MockClipboard,
   mockUuidV4To,
   mountSpreadsheet,
   nextTick,
@@ -109,13 +108,6 @@ describe("Menu Item actions", () => {
   let dispatch;
 
   beforeEach(async () => {
-    const clipboard = new MockClipboard();
-    Object.defineProperty(navigator, "clipboard", {
-      get() {
-        return clipboard;
-      },
-      configurable: true,
-    });
     fixture = makeTestFixture();
     ({ app, parent, model } = await mountSpreadsheet(fixture));
     env = parent.env;
@@ -137,20 +129,17 @@ describe("Menu Item actions", () => {
   });
 
   test("Edit -> copy", () => {
-    const clipboard = new MockClipboard();
-    //@ts-ignore
-    jest.spyOn(navigator, "clipboard", "get").mockImplementation(() => clipboard);
-    env.clipboard.writeText = jest.fn(() => Promise.resolve());
+    const spyWriteClipboard = jest.spyOn(env.clipboard, "write");
     doAction(["edit", "copy"], env);
     expect(dispatch).toHaveBeenCalledWith("COPY");
-    expect(env.clipboard.writeText).toHaveBeenCalledWith(env.model.getters.getClipboardContent());
+    expect(spyWriteClipboard).toHaveBeenCalledWith(model.getters.getClipboardContent());
   });
 
   test("Edit -> cut", () => {
-    env.clipboard.writeText = jest.fn(() => Promise.resolve());
+    const spyWriteClipboard = jest.spyOn(env.clipboard, "write");
     doAction(["edit", "cut"], env);
     expect(dispatch).toHaveBeenCalledWith("CUT");
-    expect(env.clipboard.writeText).toHaveBeenCalledWith(env.model.getters.getClipboardContent());
+    expect(spyWriteClipboard).toHaveBeenCalledWith(model.getters.getClipboardContent());
   });
 
   test("Edit -> paste from OS clipboard if copied from outside world last", async () => {
@@ -159,7 +148,7 @@ describe("Menu Item actions", () => {
     doAction(["edit", "paste"], env);
     await nextTick();
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
-      text: await env.clipboard.readText(),
+      text: "Then copy in OS clipboard",
       target: [{ bottom: 0, left: 0, right: 0, top: 0 }],
     });
   });

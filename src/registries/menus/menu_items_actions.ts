@@ -16,6 +16,7 @@ import {
 import { _lt } from "../../translation";
 import { Image } from "../../types/image";
 import { Format, SpreadsheetChildEnv, Style } from "../../types/index";
+import { ClipboardPasteOptions } from "./../../types/clipboard";
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -57,17 +58,6 @@ export function setStyle(env: SpreadsheetChildEnv, style: Style) {
   });
 }
 
-async function readOsClipboard(env: SpreadsheetChildEnv): Promise<string | undefined> {
-  try {
-    return await env.clipboard.readText();
-  } catch (e) {
-    // Permission is required to read the clipboard.
-    console.warn("The OS clipboard could not be read.");
-    console.error(e);
-    return undefined;
-  }
-}
-
 //------------------------------------------------------------------------------
 // Simple actions
 //------------------------------------------------------------------------------
@@ -78,41 +68,46 @@ export const REDO_ACTION = (env: SpreadsheetChildEnv) => env.model.dispatch("REQ
 
 export const COPY_ACTION = async (env: SpreadsheetChildEnv) => {
   env.model.dispatch("COPY");
-  await env.clipboard.writeText(env.model.getters.getClipboardContent());
+  await env.clipboard.write(env.model.getters.getClipboardContent());
 };
 
 export const CUT_ACTION = async (env: SpreadsheetChildEnv) => {
   interactiveCut(env);
-  await env.clipboard.writeText(env.model.getters.getClipboardContent());
+  await env.clipboard.write(env.model.getters.getClipboardContent());
 };
 
-export const PASTE_ACTION = async (env: SpreadsheetChildEnv) => {
-  const spreadsheetClipboard = env.model.getters.getClipboardContent();
-  const osClipboard = await readOsClipboard(env);
-  const target = env.model.getters.getSelectedZones();
-  if (osClipboard && osClipboard !== spreadsheetClipboard) {
-    interactivePasteFromOS(env, target, osClipboard);
-  } else {
-    interactivePaste(env, target);
-  }
-};
+export const PASTE_ACTION = async (env: SpreadsheetChildEnv) => paste(env);
+export const PASTE_VALUE_ACTION = async (env: SpreadsheetChildEnv) => paste(env, "onlyValue");
 
-export const PASTE_VALUE_ACTION = async (env: SpreadsheetChildEnv) => {
-  const spreadsheetClipboard = env.model.getters.getClipboardContent();
-  const osClipboard = await readOsClipboard(env);
-  const target = env.model.getters.getSelectedZones();
-  if (osClipboard && osClipboard !== spreadsheetClipboard) {
-    env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
-      target,
-      text: osClipboard,
-    });
-  } else {
-    env.model.dispatch("PASTE", {
-      target: env.model.getters.getSelectedZones(),
-      pasteOption: "onlyValue",
-    });
+async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptions) {
+  const spreadsheetClipboard = env.model.getters.getClipboardTextContent();
+  const osClipboard = await env.clipboard.readText();
+
+  switch (osClipboard.status) {
+    case "ok":
+      const target = env.model.getters.getSelectedZones();
+      if (osClipboard && osClipboard.content !== spreadsheetClipboard) {
+        interactivePasteFromOS(env, target, osClipboard.content);
+      } else {
+        interactivePaste(env, target, pasteOption);
+      }
+      break;
+    case "notImplemented":
+      env.raiseError(
+        _lt(
+          "Pasting from the context menu is not supported in this browser. Use keyboard shortcuts ctrl+c / ctrl+v instead."
+        )
+      );
+      break;
+    case "permissionDenied":
+      env.raiseError(
+        _lt(
+          "Access to the clipboard denied by the browser. Please enable clipboard permission for this page in your browser settings."
+        )
+      );
+      break;
   }
-};
+}
 
 export const PASTE_FORMAT_ACTION = (env: SpreadsheetChildEnv) =>
   interactivePaste(env, env.model.getters.getSelectedZones(), "onlyFormat");

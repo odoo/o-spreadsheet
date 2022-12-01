@@ -25,6 +25,7 @@ import { FileStore } from "../components/__mocks__/mock_file_store";
 import { ImageProvider } from "../components/__mocks__/mock_image_provider";
 import { OWL_TEMPLATES } from "../setup/jest.setup";
 import { Currency } from "./../../src/types/currency";
+import { MockClipboard } from "./clipboard";
 import { redo, setCellContent, undo } from "./commands_helpers";
 import { getCellContent, getEvaluatedCell } from "./getters_helpers";
 
@@ -105,34 +106,6 @@ export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv>): SpreadsheetC
         return [] as Currency[];
       }),
   };
-}
-
-export class MockClipboard implements Clipboard {
-  private content: string = "Some random clipboard content";
-
-  async read() {
-    throw new Error("Clipboard mock read function not implemented");
-    return [];
-  }
-
-  async write() {
-    throw new Error("Clipboard mock write function not implemented");
-  }
-
-  readText(): Promise<string> {
-    return Promise.resolve(this.content);
-  }
-
-  writeText(content: string): Promise<void> {
-    this.content = content;
-    return Promise.resolve();
-  }
-
-  addEventListener() {}
-  removeEventListener() {}
-  dispatchEvent() {
-    return false;
-  }
 }
 
 export function testUndoRedo(model: Model, expect: jest.Expect, command: CommandTypes, args: any) {
