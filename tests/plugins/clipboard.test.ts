@@ -1,7 +1,9 @@
 import { toCartesian, toZone, zoneToXc } from "../../src/helpers";
 import { ClipboardCellsState } from "../../src/helpers/clipboard/clipboard_cells_state";
 import { Model } from "../../src/model";
-import { CommandResult } from "../../src/types/index";
+import { ClipboardMIMEType, CommandResult } from "../../src/types/index";
+import { XMLString } from "../../src/types/xlsx";
+import { parseXML, xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
 import {
   activateSheet,
   addCellToSelection,
@@ -22,6 +24,7 @@ import {
   setCellContent,
   setCellFormat,
   setSelection,
+  setStyle,
   undo,
 } from "../test_helpers/commands_helpers";
 import {
@@ -448,12 +451,96 @@ describe("clipboard", () => {
     setCellContent(model, "B2", "abc");
     selectCell(model, "B2");
     copy(model, "B2");
-    expect(model.getters.getClipboardContent()).toBe("abc");
+    expect(model.getters.getClipboardTextContent()).toBe("abc");
 
     setCellContent(model, "B2", "= 1 + 2");
     selectCell(model, "B2");
     copy(model, "B2");
-    expect(model.getters.getClipboardContent()).toBe("3");
+    expect(model.getters.getClipboardTextContent()).toBe("3");
+  });
+
+  describe("Copied cells HTML", () => {
+    let model: Model;
+    beforeEach(() => {
+      model = new Model();
+    });
+
+    test("Copied HTML table snapshot", async () => {
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "B1", "2");
+      setCellContent(model, "A2", "3");
+      copy(model, "A1:B2");
+      const htmlContent = model.getters.getClipboardContent()[ClipboardMIMEType.Html]!;
+      expect(htmlContent).toMatchSnapshot();
+    });
+
+    test("Copied group of cells are represented as a valid HTML table in the clipboard", async () => {
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "B1", "2");
+      setCellContent(model, "A2", "3");
+      copy(model, "A1:B2");
+      const htmlContent = model.getters.getClipboardContent()[ClipboardMIMEType.Html]!;
+      const parsedHTML = parseXML(new XMLString(htmlContent), "text/html");
+
+      expect(parsedHTML.body.firstElementChild?.tagName).toBe("TABLE");
+      const tableRows = parsedHTML.querySelectorAll("tr");
+      expect(tableRows).toHaveLength(2);
+      expect(tableRows[0].querySelectorAll("td")).toHaveLength(2);
+      expect(tableRows[0].querySelectorAll("td")[0].innerHTML).toEqual("1");
+      expect(tableRows[0].querySelectorAll("td")[1].innerHTML).toEqual("2");
+
+      expect(tableRows[1].querySelectorAll("td")).toHaveLength(2);
+      expect(tableRows[1].querySelectorAll("td")[0].innerHTML).toEqual("3");
+      expect(tableRows[1].querySelectorAll("td")[1].innerHTML).toEqual("");
+    });
+
+    test("Copied HTML table style", async () => {
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "3");
+      copy(model, "A1:A2");
+      const htmlContent = model.getters.getClipboardContent()[ClipboardMIMEType.Html]!;
+
+      expect(htmlContent).toContain('style="border-collapse:collapse"');
+      expect(htmlContent).toContain('border="1"');
+    });
+
+    test("Copied cells have their style in the HTML", async () => {
+      const sheetId = model.getters.getActiveSheetId();
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "3");
+      setStyle(model, "A1", { bold: true });
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createEqualCF("1", { fillColor: "#123456" }, "id"),
+        ranges: toRangesData(sheetId, "A1"),
+        sheetId,
+      });
+      copy(model, "A1:A2");
+
+      const htmlContent = model.getters.getClipboardContent()[ClipboardMIMEType.Html]!;
+      const firstCellStyle = htmlContent
+        .replace(/\n/g, "")
+        .match(/<td style="(.*?)">.*?<\/td>/)![1];
+
+      expect(firstCellStyle).toContain("font-weight: bold;");
+      expect(firstCellStyle).toContain("background: #123456;");
+    });
+
+    test("Copied cells have their content escaped", async () => {
+      const cellContent = "<div>1</div>";
+      setCellContent(model, "A1", cellContent);
+      setCellContent(model, "A2", "3");
+      copy(model, "A1:A2");
+      const htmlContent = model.getters.getClipboardContent()[ClipboardMIMEType.Html]!;
+
+      expect(htmlContent).toContain(xmlEscape(cellContent));
+    });
+
+    test("Copied single cells are not in a html table", async () => {
+      const model = new Model();
+      setCellContent(model, "A1", "1");
+      copy(model, "A1");
+      expect(model.getters.getClipboardContent()[ClipboardMIMEType.Html]).toEqual("1");
+    });
   });
 
   test("can copy a rectangular selection", () => {
@@ -480,7 +567,7 @@ describe("clipboard", () => {
 
   test("empty clipboard: getClipboardContent returns a tab", () => {
     const model = new Model();
-    expect(model.getters.getClipboardContent()).toBe("\t");
+    expect(model.getters.getClipboardTextContent()).toBe("\t");
   });
 
   test("getClipboardContent exports multiple cells", () => {
@@ -490,7 +577,7 @@ describe("clipboard", () => {
     setCellContent(model, "C2", "c2");
     setCellContent(model, "C3", "c3");
     copy(model, "B2:C3");
-    expect(model.getters.getClipboardContent()).toBe("b2\tc2\nb3\tc3");
+    expect(model.getters.getClipboardTextContent()).toBe("b2\tc2\nb3\tc3");
   });
 
   test("can paste multiple cells from os clipboard", () => {

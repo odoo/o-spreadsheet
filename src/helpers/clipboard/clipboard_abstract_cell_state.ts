@@ -9,7 +9,12 @@ import {
   UID,
   Zone,
 } from "../../types";
-import { ClipboardOperation, ClipboardOptions, ClipboardState } from "./../../types/clipboard";
+import {
+  ClipboardMIMEType,
+  ClipboardOperation,
+  ClipboardOptions,
+  ClipboardState,
+} from "./../../types/clipboard";
 
 /** Abstract state of the clipboard when copying/cutting content that is pasted in cells of the sheet */
 export abstract class ClipboardCellsAbstractState implements ClipboardState {
@@ -67,7 +72,7 @@ export abstract class ClipboardCellsAbstractState implements ClipboardState {
     }
   }
 
-  abstract getClipboardContent(): string;
+  abstract getClipboardContent(): Record<ClipboardMIMEType, string>;
 
   isColRowDirtyingClipboard(position: HeaderIndex, dimension: Dimension) {
     return false;

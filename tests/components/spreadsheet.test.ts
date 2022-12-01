@@ -23,7 +23,6 @@ import {
 import { getCellContent } from "../test_helpers/getters_helpers";
 import {
   makeTestFixture,
-  MockClipboard,
   mountSpreadsheet,
   nextTick,
   restoreDefaultFunctions,
@@ -42,14 +41,6 @@ let fixture: HTMLElement;
 let parent: Spreadsheet;
 let model: Model;
 let app: App;
-const clipboard = new MockClipboard();
-
-Object.defineProperty(navigator, "clipboard", {
-  get() {
-    return clipboard;
-  },
-  configurable: true,
-});
 
 describe("Simple Spreadsheet Component", () => {
   // default model and env
@@ -130,7 +121,7 @@ describe("Simple Spreadsheet Component", () => {
   });
 
   test("Clipboard is in spreadsheet env", () => {
-    expect(parent.env.clipboard).toBe(clipboard);
+    expect(parent.env.clipboard["clipboard"]).toBe(navigator.clipboard);
   });
 
   test("typing opens composer after toolbar clicked", async () => {

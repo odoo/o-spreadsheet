@@ -1,7 +1,12 @@
 import { ClipboardCellsState } from "../../helpers/clipboard/clipboard_cells_state";
 import { ClipboardFigureState } from "../../helpers/clipboard/clipboard_figure_state";
 import { ClipboardOsState } from "../../helpers/clipboard/clipboard_os_state";
-import { ClipboardOperation, ClipboardState } from "../../types/clipboard";
+import {
+  ClipboardContent,
+  ClipboardMIMEType,
+  ClipboardOperation,
+  ClipboardState,
+} from "../../types/clipboard";
 import {
   Command,
   CommandResult,
@@ -26,7 +31,12 @@ interface InsertDeleteCellsTargets {
  */
 export class ClipboardPlugin extends UIPlugin {
   static layers = [LAYERS.Clipboard];
-  static getters = ["getClipboardContent", "isCutOperation", "isPaintingFormat"] as const;
+  static getters = [
+    "getClipboardContent",
+    "getClipboardTextContent",
+    "isCutOperation",
+    "isPaintingFormat",
+  ] as const;
 
   private status: "visible" | "invisible" = "invisible";
   private state?: ClipboardState;
@@ -168,8 +178,12 @@ export class ClipboardPlugin extends UIPlugin {
    * clipboard copy event to add it as data, otherwise an empty string is not
    * considered as a copy content.
    */
-  getClipboardContent(): string {
-    return this.state?.getClipboardContent() || "\t";
+  getClipboardContent(): ClipboardContent {
+    return this.state?.getClipboardContent() || { [ClipboardMIMEType.PlainText]: "\t" };
+  }
+
+  getClipboardTextContent(): string {
+    return this.state?.getClipboardContent()[ClipboardMIMEType.PlainText] || "\t";
   }
 
   isCutOperation(): boolean {

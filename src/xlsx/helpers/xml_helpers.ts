@@ -24,7 +24,7 @@ export function createXMLFile(
   };
 }
 
-function xmlEscape(str: XMLAttributeValue): string {
+export function xmlEscape(str: XMLAttributeValue): string {
   return String(str)
     .replace(/\&/g, "&amp;")
     .replace(/\</g, "&lt;")
@@ -37,8 +37,11 @@ export function formatAttributes(attrs: XMLAttributes): XMLString {
   return new XMLString(attrs.map(([key, val]) => `${key}="${xmlEscape(val)}"`).join(" "));
 }
 
-export function parseXML(xmlString: XMLString): XMLDocument {
-  const document = new DOMParser().parseFromString(xmlString.toString(), "text/xml");
+export function parseXML(
+  xmlString: XMLString,
+  mimeType: DOMParserSupportedType = "text/xml"
+): XMLDocument {
+  const document = new DOMParser().parseFromString(xmlString.toString(), mimeType);
   const parserError = document.querySelector("parsererror");
   if (parserError) {
     const errorString = parserError.innerHTML;

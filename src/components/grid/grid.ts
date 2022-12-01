@@ -21,9 +21,11 @@ import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import { INSERT_LINK } from "../../registries/menus/menu_items_actions";
 import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
+import { _lt } from "../../translation";
 import {
   CellValueType,
   Client,
+  ClipboardMIMEType,
   DOMCoordinates,
   DOMDimension,
   HeaderIndex,
@@ -524,6 +526,13 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     if (!this.gridEl.contains(document.activeElement)) {
       return;
     }
+
+    const clipboardData = ev.clipboardData;
+    if (!clipboardData) {
+      this.displayWarningCopyPasteNotSupported();
+      return;
+    }
+
     /* If we are currently editing a cell, let the default behavior */
     if (this.env.model.getters.getEditionMode() !== "inactive") {
       return;
@@ -534,7 +543,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.dispatch("COPY");
     }
     const content = this.env.model.getters.getClipboardContent();
-    ev.clipboardData!.setData("text/plain", content);
+    for (const type in content) {
+      clipboardData.setData(type, content[type]);
+    }
     ev.preventDefault();
   }
 
@@ -542,18 +553,28 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     if (!this.gridEl.contains(document.activeElement)) {
       return;
     }
-    const clipboardData = ev.clipboardData!;
-    if (clipboardData.types.indexOf("text/plain") > -1) {
-      const content = clipboardData.getData("text/plain");
+
+    const clipboardData = ev.clipboardData;
+    if (!clipboardData) {
+      this.displayWarningCopyPasteNotSupported();
+      return;
+    }
+
+    if (clipboardData.types.indexOf(ClipboardMIMEType.PlainText) > -1) {
+      const content = clipboardData.getData(ClipboardMIMEType.PlainText);
       const target = this.env.model.getters.getSelectedZones();
-      const clipBoardString = this.env.model.getters.getClipboardContent();
-      if (clipBoardString === content) {
+      const clipboardString = this.env.model.getters.getClipboardTextContent();
+      if (clipboardString === content) {
         // the paste actually comes from o-spreadsheet itself
         interactivePaste(this.env, target);
       } else {
         interactivePasteFromOS(this.env, target, content);
       }
     }
+  }
+
+  private displayWarningCopyPasteNotSupported() {
+    this.env.raiseError(_lt("Copy/Paste is not supported in this browser."));
   }
 
   closeMenu() {

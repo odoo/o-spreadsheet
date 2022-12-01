@@ -31,6 +31,7 @@ import { Grid } from "../grid/grid";
 import { css } from "../helpers/css";
 import { SidePanel } from "../side_panel/side_panel/side_panel";
 import { TopBar } from "../top_bar/top_bar";
+import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipboard_wrapper";
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -172,7 +173,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       openSidePanel: this.openSidePanel.bind(this),
       toggleSidePanel: this.toggleSidePanel.bind(this),
       _t: Spreadsheet._t,
-      clipboard: navigator.clipboard,
+      clipboard: this.env.clipboard || instantiateClipboard(),
     });
 
     useExternalListener(window as any, "resize", () => this.render(true));

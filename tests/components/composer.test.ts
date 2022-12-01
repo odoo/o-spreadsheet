@@ -8,6 +8,7 @@ import { fontSizes } from "../../src/fonts";
 import { colors, toHex, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { Highlight } from "../../src/types";
+import { getClipboardEvent, MockClipboardData } from "../test_helpers/clipboard";
 import {
   activateSheet,
   createSheet,
@@ -37,7 +38,6 @@ import {
 import {
   createEqualCF,
   makeTestFixture,
-  MockClipboard,
   mountSpreadsheet,
   nextTick,
   startGridComposition,
@@ -1539,22 +1539,12 @@ describe("composer highlights color", () => {
 });
 
 describe("Copy/paste in composer", () => {
-  beforeAll(() => {
-    const clipboard = new MockClipboard();
-    Object.defineProperty(navigator, "clipboard", {
-      get() {
-        return clipboard;
-      },
-      configurable: true,
-    });
-  });
-
   test("Can copy random content inside the composer", async () => {
     const spyDispatch = jest.spyOn(model, "dispatch");
     await startComposition();
-    const clipboardEvent = new Event("paste", { bubbles: true, cancelable: true });
-    //@ts-ignore
-    clipboardEvent.clipboardData = { getData: () => "unimportant" };
+    const clipboardData = new MockClipboardData();
+    clipboardData.setText("Unimportant");
+    const clipboardEvent = getClipboardEvent("paste", clipboardData);
     fixture.querySelector(".o-grid-composer .o-composer")!.dispatchEvent(clipboardEvent);
     await nextTick();
     expect(model.getters.getEditionMode()).not.toBe("inactive");

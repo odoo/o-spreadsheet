@@ -6,6 +6,7 @@ import { Model } from "../../src/model";
 import { createFullMenuItem, FullMenuItem } from "../../src/registries";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
 import { OWL_TEMPLATES } from "../setup/jest.setup";
+import { MockClipboard } from "../test_helpers/clipboard";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import {
   keyDown,
@@ -17,7 +18,6 @@ import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/gette
 import {
   getStylePropertyInPx,
   makeTestFixture,
-  MockClipboard,
   mountSpreadsheet,
   nextTick,
   Touch,

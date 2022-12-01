@@ -1,4 +1,5 @@
 import { Model } from "..";
+import { ClipboardInterface } from "../helpers/clipboard/navigator_clipboard_wrapper";
 import { TranslationFunction } from "../translation";
 import { Currency } from "./currency";
 import { ImageProviderInterface } from "./files";
@@ -33,6 +34,6 @@ export interface SpreadsheetChildEnv extends SpreadsheetEnv {
   isDashboard: () => boolean;
   openSidePanel: (panel: string, panelProps?: any) => void;
   toggleSidePanel: (panel: string, panelProps?: any) => void;
-  clipboard: Clipboard;
+  clipboard: ClipboardInterface;
   _t: TranslationFunction;
 }

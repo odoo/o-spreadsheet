@@ -1,5 +1,12 @@
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
-import { ClipboardOptions, CommandDispatcher, CommandResult, Getters, Zone } from "../../types";
+import {
+  ClipboardMIMEType,
+  ClipboardOptions,
+  CommandDispatcher,
+  CommandResult,
+  Getters,
+  Zone,
+} from "../../types";
 import { zoneToDimension } from "../zones";
 import { ClipboardCellsAbstractState } from "./clipboard_abstract_cell_state";
 
@@ -55,8 +62,10 @@ export class ClipboardOsState extends ClipboardCellsAbstractState {
     this.selection.selectZone({ cell: { col: activeCol, row: activeRow }, zone });
   }
 
-  getClipboardContent(): string {
-    return this.values.map((values) => values.join("\t")).join("\n");
+  getClipboardContent(): Record<string, string> {
+    return {
+      [ClipboardMIMEType.PlainText]: this.values.map((values) => values.join("\t")).join("\n"),
+    };
   }
 
   private getPasteZone(target: Zone[]): Zone {

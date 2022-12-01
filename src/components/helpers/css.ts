@@ -98,6 +98,20 @@ export function getTextDecoration({
 }
 
 /**
+ * Convert the cell style to CSS properties.
+ */
+export function cellStyleToCss(style: Style | undefined): CSSProperties {
+  const attributes = cellTextStyleToCss(style);
+  if (!style) return attributes;
+
+  if (style.fillColor) {
+    attributes["background"] = style.fillColor;
+  }
+
+  return attributes;
+}
+
+/**
  * Convert the cell text style to CSS properties.
  */
 export function cellTextStyleToCss(style: Style | undefined): CSSProperties {
@@ -122,10 +136,11 @@ export function cellTextStyleToCss(style: Style | undefined): CSSProperties {
   return attributes;
 }
 
-export function cssPropertiesToCss(attributes: CSSProperties): string {
+export function cssPropertiesToCss(attributes: CSSProperties, newLine = true): string {
+  const separator = newLine ? "\n" : "";
   const str = Object.entries(attributes)
     .map(([attName, attValue]) => `${attName}: ${attValue};`)
-    .join("\n");
+    .join(separator);
 
-  return "\n" + str + "\n";
+  return str ? "\n" + str + "\n" : "";
 }
