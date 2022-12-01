@@ -26,8 +26,8 @@ import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart"
 import { SelectionDirection, SelectionStep } from "../../src/types/selection";
 import { target } from "./helpers";
 
-const size = { width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
-const position = {
+const DEFAULT_FIGURE_SIZE = { width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
+const DEFAULT_FIGURE_POSITION = {
   x: 0,
   y: 0,
 };
@@ -113,8 +113,8 @@ export function createChart(
   return model.dispatch("CREATE_CHART", {
     id,
     sheetId,
-    position,
-    size,
+    position: DEFAULT_FIGURE_POSITION,
+    size: DEFAULT_FIGURE_SIZE,
     definition: {
       title: data.title || "test",
       dataSets: data.dataSets || [],
@@ -142,8 +142,8 @@ export function createScorecardChart(
   return model.dispatch("CREATE_CHART", {
     id,
     sheetId,
-    position,
-    size,
+    position: DEFAULT_FIGURE_POSITION,
+    size: DEFAULT_FIGURE_SIZE,
     definition: {
       type: "scorecard",
       title: data.title || "",
@@ -170,8 +170,8 @@ export function createGaugeChart(
   return model.dispatch("CREATE_CHART", {
     id,
     sheetId,
-    position,
-    size,
+    position: DEFAULT_FIGURE_POSITION,
+    size: DEFAULT_FIGURE_SIZE,
     definition: {
       type: "gauge",
       background: data.background,
