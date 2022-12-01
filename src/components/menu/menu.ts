@@ -126,10 +126,9 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
 
   get popover() {
     const isRoot = this.props.depth === 1;
-    let marginTop = 6;
-    if (!this.env.isDashboard()) {
-      marginTop += TOPBAR_HEIGHT + HEADER_HEIGHT;
-    }
+    // TODO: see if we could reformulate this margin
+    const marginTop = 6 + TOPBAR_HEIGHT + HEADER_HEIGHT;
+
     return {
       // some margin between the header and the component
       marginTop,
