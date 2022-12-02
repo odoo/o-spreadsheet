@@ -54,16 +54,16 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   // Top left
   get topLeftAnchorStyle() {
     return `
-      x: 0px;
-      y: 0px;
+      left: 0px;
+      top: 0px;
     `;
   }
 
   get topLeftWrapperStyle() {
     const { width, height } = this.env.model.getters.getSheetViewDimension();
     return `
-      x: 0px;
-      y: 0px;
+      left: 0px;
+      top: 0px;
       width: ${width}px;
       height: ${height}px;
     `;
@@ -74,16 +74,16 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     const { x } = this.env.model.getters.getMainViewportCoordinates();
     const { offsetX } = this.env.model.getters.getActiveSheetScrollInfo();
     return `
-      x: ${-(x + offsetX)}px;
-      y: 0px;
+      left: ${-(x + offsetX)}px;
+      top: 0px;
     `;
   }
   get topRightWrapperStyle() {
     const { x } = this.env.model.getters.getMainViewportCoordinates();
     const { width, height } = this.env.model.getters.getSheetViewDimension();
     return `
-      x: ${x}px;
-      y: 0px;
+      left: ${x}px;
+      top: 0px;
       width: ${width - x}px;
       height: ${height}px;
     `;
@@ -94,16 +94,16 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     const { y } = this.env.model.getters.getMainViewportCoordinates();
     const { offsetY } = this.env.model.getters.getActiveSheetScrollInfo();
     return `
-      x: 0px;
-      y: ${-(y + offsetY)}px;
+      left: 0px;
+      top: ${-(y + offsetY)}px;
     `;
   }
   get bottomLeftWrapperStyle() {
     const { y } = this.env.model.getters.getMainViewportCoordinates();
     const { height, width } = this.env.model.getters.getSheetViewDimension();
     return `
-      x: 0px;
-      y: ${y}px;
+      left: 0px;
+      top: ${y}px;
       width: ${width}px;
       height: ${height - y}px;
     `;
@@ -114,8 +114,8 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     const { x, y } = this.env.model.getters.getMainViewportCoordinates();
     const { offsetX, offsetY } = this.env.model.getters.getActiveSheetScrollInfo();
     return `
-      x: ${-(x + offsetX)}px;
-      y: ${-(y + offsetY)}px;
+      left: ${-(x + offsetX)}px;
+      top: ${-(y + offsetY)}px;
     `;
   }
 
@@ -123,8 +123,8 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     const { x, y } = this.env.model.getters.getMainViewportCoordinates();
     const { width, height } = this.env.model.getters.getSheetViewDimension();
     return `
-      x: ${x}px;
-      y: ${y}px;
+      left: ${x}px;
+      top: ${y}px;
       width: ${width - x}px;
       height: ${height - y}px;
       background-color:#00000080;
