@@ -3,50 +3,16 @@ import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { merge, setCellContent } from "../test_helpers";
 
 describe("cell popover plugin", () => {
-  test("position is snapped when the viewport is scrolled", () => {
-    const model = new Model();
-    const startColOne = 0;
-    const startColTwo = startColOne + DEFAULT_CELL_WIDTH;
-    setCellContent(model, "A1", "=0/0");
-    expect(model.getters.getCellPopover({ col: 0, row: 0 })).toMatchObject({
-      coordinates: {
-        x: startColTwo,
-        y: 0,
-      },
-    });
-    model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 2, offsetY: 0 });
-    expect(model.getters.getCellPopover({ col: 0, row: 0 })).toMatchObject({
-      coordinates: {
-        x: startColTwo,
-        y: 0,
-      },
-    });
-  });
-
-  test("bottom left position is correct on a merge", () => {
+  test("Anchor rect is correct on a merge", () => {
     const model = new Model();
     merge(model, "A1:B2");
-    model.dispatch("OPEN_CELL_POPOVER", {
-      col: 0,
-      row: 0,
-      popoverType: "LinkEditor",
-    });
+    setCellContent(model, "A1", "=0/0");
     expect(model.getters.getCellPopover({ col: 1, row: 1 })).toMatchObject({
-      coordinates: {
+      anchorRect: {
         x: 0,
-        y: 2 * DEFAULT_CELL_HEIGHT,
-      },
-    });
-  });
-
-  test("top right position is correct on a merge", () => {
-    const model = new Model();
-    merge(model, "A1:B2");
-    setCellContent(model, "A1", "=0/0");
-    expect(model.getters.getCellPopover({ col: 1, row: 1 })).toMatchObject({
-      coordinates: {
-        x: 2 * DEFAULT_CELL_WIDTH,
         y: 0,
+        height: 2 * DEFAULT_CELL_HEIGHT,
+        width: 2 * DEFAULT_CELL_WIDTH,
       },
     });
   });

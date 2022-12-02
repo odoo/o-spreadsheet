@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Context Menu context menu simple rendering 1`] = `
+exports[`Standalone context menu tests Context Menu context menu simple rendering 1`] = `
 <div
   class="o-menu"
 >

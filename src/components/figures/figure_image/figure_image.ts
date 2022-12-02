@@ -9,6 +9,7 @@ import { Menu, MenuState } from "../../menu/menu";
 
 interface Props {
   figure: Figure;
+  onFigureDeleted: () => void;
 }
 
 export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
@@ -106,3 +107,8 @@ export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
     return this.env.model.getters.getImagePath(this.figureId);
   }
 }
+
+ImageFigure.props = {
+  figure: Object,
+  onFigureDeleted: Function,
+};

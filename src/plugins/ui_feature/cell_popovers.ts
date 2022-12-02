@@ -1,6 +1,6 @@
 import { positionToZone } from "../../helpers";
 import { cellPopoverRegistry } from "../../registries/cell_popovers_registry";
-import { CellPosition, Command, CommandResult, DOMCoordinates, Position } from "../../types";
+import { CellPosition, Command, CommandResult, Position, Rect } from "../../types";
 import {
   CellPopoverType,
   ClosedCellPopover,
@@ -61,7 +61,7 @@ export class CellPopoverPlugin extends UIPlugin {
         ? { isOpen: false }
         : {
             ...popover,
-            ...this.computePopoverProps(this.persistentPopover, popover.cellCorner),
+            anchorRect: this.computePopoverAnchorRect(this.persistentPopover),
           };
     }
     if (
@@ -80,7 +80,7 @@ export class CellPopoverPlugin extends UIPlugin {
       ? { isOpen: false }
       : {
           ...popover,
-          ...this.computePopoverProps(position, popover.cellCorner),
+          anchorRect: this.computePopoverAnchorRect(position),
         };
   }
 
@@ -95,32 +95,12 @@ export class CellPopoverPlugin extends UIPlugin {
     return undefined;
   }
 
-  private computePopoverProps({ col, row }: Position, corner: "TopRight" | "BottomLeft") {
-    const { width, height } = this.getters.getVisibleRect(positionToZone({ col, row }));
-    return {
-      coordinates: this.computePopoverPosition({ col, row }, corner),
-      cellWidth: -width,
-      cellHeight: -height,
-    };
-  }
-
-  private computePopoverPosition(
-    { col, row }: Position,
-    corner: "TopRight" | "BottomLeft"
-  ): DOMCoordinates {
+  private computePopoverAnchorRect({ col, row }: Position): Rect {
     const sheetId = this.getters.getActiveSheetId();
     const merge = this.getters.getMerge({ sheetId, col, row });
     if (merge) {
-      col = corner === "TopRight" ? merge.right : merge.left;
-      row = corner === "TopRight" ? merge.top : merge.bottom;
+      return this.getters.getVisibleRect(merge);
     }
-    // x, y are relative to the canvas
-    const { x, y, width, height } = this.getters.getVisibleRect(positionToZone({ col, row }));
-    switch (corner) {
-      case "BottomLeft":
-        return { x, y: y + height };
-      case "TopRight":
-        return { x: x + width, y: y };
-    }
+    return this.getters.getVisibleRect(positionToZone({ col, row }));
   }
 }

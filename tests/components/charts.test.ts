@@ -1,7 +1,6 @@
 import { App } from "@odoo/owl";
 import { CommandResult, Model, Spreadsheet } from "../../src";
 import { ChartTerms } from "../../src/components/translations_terms";
-import { BACKGROUND_CHART_COLOR } from "../../src/constants";
 import { toHex, toZone } from "../../src/helpers";
 import { ChartDefinition } from "../../src/types";
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
@@ -12,6 +11,7 @@ import {
   createScorecardChart,
   updateChart,
 } from "../test_helpers/commands_helpers";
+import { TEST_CHART_DATA } from "../test_helpers/constants";
 import {
   setInputValueAndTrigger,
   simulateClick,
@@ -26,50 +26,13 @@ import {
   spyDispatch,
   textContentAll,
 } from "../test_helpers/helpers";
+import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
-export const TEST_CHART_DATA = {
-  basicChart: {
-    type: "bar" as const,
-    dataSets: ["B1:B4"],
-    labelRange: "A2:A4",
-    dataSetsHaveTitle: true,
-    title: "hello",
-    background: BACKGROUND_CHART_COLOR,
-    verticalAxisPosition: "left" as const,
-    stacked: false,
-    legendPosition: "top" as const,
-  },
-  scorecard: {
-    type: "scorecard" as const,
-    keyValue: "B1:B4",
-    baseline: "A2:A4",
-    title: "hello",
-    baselineDescr: "description",
-    baselineMode: "difference" as const,
-  },
-  gauge: {
-    type: "gauge" as const,
-    dataRange: "B1:B4",
-    title: "hello",
-    sectionRule: {
-      rangeMin: "0",
-      rangeMax: "100",
-      colors: {
-        lowerColor: "#6aa84f",
-        middleColor: "#f1c232",
-        upperColor: "#cc0000",
-      },
-      lowerInflectionPoint: {
-        type: "number" as const,
-        value: "33",
-      },
-      upperInflectionPoint: {
-        type: "number" as const,
-        value: "66",
-      },
-    },
-  },
-};
+mockGetBoundingClientRect({
+  "o-popover": () => ({ height: 0, width: 0 }),
+  "o-spreadsheet": () => ({ top: 100, left: 200, height: 1000, width: 1000 }),
+  "o-figure-menu-item": () => ({ top: 500, left: 500 }),
+});
 
 function createTestChart(type: string) {
   switch (type) {
@@ -88,19 +51,6 @@ function createTestChart(type: string) {
 function errorMessages(): string[] {
   return textContentAll(".o-sidepanel-error div");
 }
-
-const originalGetBoundingClientRect = HTMLDivElement.prototype.getBoundingClientRect;
-jest
-  .spyOn(HTMLDivElement.prototype, "getBoundingClientRect")
-  // @ts-ignore the mock should return a complete DOMRect, not only { top, left }
-  .mockImplementation(function (this: HTMLDivElement) {
-    if (this.className.includes("o-spreadsheet")) {
-      return { top: 100, left: 200 };
-    } else if (this.className.includes("o-figure-menu-item")) {
-      return { top: 500, left: 500 };
-    }
-    return originalGetBoundingClientRect.call(this);
-  });
 
 let fixture: HTMLElement;
 let model: Model;

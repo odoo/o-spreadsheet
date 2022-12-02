@@ -1,4 +1,12 @@
-import { Component, onMounted, useEffect, useExternalListener, useRef, useState } from "@odoo/owl";
+import {
+  Component,
+  onMounted,
+  useChildSubEnv,
+  useEffect,
+  useExternalListener,
+  useRef,
+  useState,
+} from "@odoo/owl";
 import {
   AUTOFILL_EDGE_LENGTH,
   HEADER_HEIGHT,
@@ -21,6 +29,7 @@ import {
   HeaderIndex,
   Pixel,
   Position,
+  Rect,
   Ref,
   SpreadsheetChildEnv,
 } from "../../types/index";
@@ -109,6 +118,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.canvasPosition = useAbsolutePosition(this.gridRef);
     this.hoveredCell = useState({ col: undefined, row: undefined });
 
+    useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);
@@ -332,6 +342,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   isCellHovered(col: HeaderIndex, row: HeaderIndex): boolean {
     return this.hoveredCell.col === col && this.hoveredCell.row === row;
+  }
+
+  private getGridRect(): Rect {
+    return { ...this.canvasPosition, ...this.env.model.getters.getSheetViewDimensionWithHeaders() };
   }
 
   // ---------------------------------------------------------------------------

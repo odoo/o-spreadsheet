@@ -1,5 +1,5 @@
-import { onMounted, onPatched, useRef, useState } from "@odoo/owl";
-import { DOMCoordinates } from "../../types";
+import { onMounted, onPatched, useComponent, useRef, useState } from "@odoo/owl";
+import { DOMCoordinates, Rect } from "../../types";
 
 // type Ref is not exported by owl :(
 type Ref = ReturnType<typeof useRef>;
@@ -8,8 +8,8 @@ type Ref = ReturnType<typeof useRef>;
  * Return the o-spreadsheet element position relative
  * to the browser viewport.
  */
-export function useSpreadsheetPosition(): DOMCoordinates {
-  const position = useState({ x: 0, y: 0 });
+export function useSpreadsheetRect(): Rect {
+  const position = useState({ x: 0, y: 0, width: 0, height: 0 });
   let spreadsheetElement = document.querySelector(".o-spreadsheet");
   updatePosition();
   function updatePosition() {
@@ -17,9 +17,11 @@ export function useSpreadsheetPosition(): DOMCoordinates {
       spreadsheetElement = document.querySelector(".o-spreadsheet");
     }
     if (spreadsheetElement) {
-      const { top, left } = spreadsheetElement.getBoundingClientRect();
+      const { top, left, width, height } = spreadsheetElement.getBoundingClientRect();
       position.x = left;
       position.y = top;
+      position.width = width;
+      position.height = height;
     }
   }
   onMounted(updatePosition);
@@ -50,4 +52,30 @@ export function useAbsolutePosition(ref: Ref): DOMCoordinates {
   onMounted(updateElPosition);
   onPatched(updateElPosition);
   return position;
+}
+
+/**
+ * Get the rectangle inside which a popover should stay when being displayed.
+ * It's the value defined in `env.getPopoverContainerRect`, or the Rect of the "o-spreadsheet"
+ * element by default.
+ *
+ * Coordinates are expressed expressed as absolute DOM position.
+ */
+export function usePopoverContainer(): Rect {
+  const container = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const component = useComponent();
+  const spreadsheetRect = useSpreadsheetRect();
+  function updateRect() {
+    const env = component.env;
+    const newRect =
+      "getPopoverContainerRect" in env ? env.getPopoverContainerRect() : spreadsheetRect;
+    container.x = newRect.x;
+    container.y = newRect.x;
+    container.width = newRect.width;
+    container.height = newRect.height;
+  }
+  updateRect();
+  onMounted(updateRect);
+  onPatched(updateRect);
+  return container;
 }
