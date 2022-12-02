@@ -1,13 +1,52 @@
 <templates>
   <t t-name="o-spreadsheet-FiguresContainer" owl="1">
     <div>
-      <t t-foreach="getVisibleFigures()" t-as="figure" t-key="figure.id">
-        <FigureComponent
-          sidePanelIsOpen="this.props.sidePanelIsOpen"
-          onFigureDeleted="this.props.onFigureDeleted"
-          figure="figure"
-        />
-      </t>
+      <t t-set="figureGroups" t-value="getVisibleFigureGroups()"/>
+      <div class="position-absolute overflow-hidden" t-att-style="topLeftWrapperStyle">
+        <div class="figure-anchor" t-att-style="topLeftAnchorStyle">
+          <t t-foreach="figureGroups.topLeft" t-as="figure" t-key="figure.id">
+            <FigureComponent
+              sidePanelIsOpen="this.props.sidePanelIsOpen"
+              onFigureDeleted="this.props.onFigureDeleted"
+              figure="figure"
+            />
+          </t>
+        </div>
+      </div>
+
+      <div class="position-absolute overflow-hidden" t-att-style="topRightWrapperStyle">
+        <div class="figure-anchor" t-att-style="topRightAnchorStyle">
+          <t t-foreach="figureGroups.topRight" t-as="figure" t-key="figure.id">
+            <FigureComponent
+              sidePanelIsOpen="this.props.sidePanelIsOpen"
+              onFigureDeleted="this.props.onFigureDeleted"
+              figure="figure"
+            />
+          </t>
+        </div>
+      </div>
+      <div class="position-absolute overflow-hidden" t-att-style="bottomLeftWrapperStyle">
+        <div class="figure-anchor" t-att-style="bottomLeftAnchorStyle">
+          <t t-foreach="figureGroups.bottomLeft" t-as="figure" t-key="figure.id">
+            <FigureComponent
+              sidePanelIsOpen="this.props.sidePanelIsOpen"
+              onFigureDeleted="this.props.onFigureDeleted"
+              figure="figure"
+            />
+          </t>
+        </div>
+      </div>
+      <div class="position-absolute overflow-hidden" t-att-style="bottomRightWrapperStyle">
+        <div class="figure-anchor" t-att-style="bottomRightAnchorStyle">
+          <t t-foreach="figureGroups.bottomRight" t-as="figure" t-key="figure.id">
+            <FigureComponent
+              sidePanelIsOpen="this.props.sidePanelIsOpen"
+              onFigureDeleted="this.props.onFigureDeleted"
+              figure="figure"
+            />
+          </t>
+        </div>
+      </div>
     </div>
   </t>
 </templates>
