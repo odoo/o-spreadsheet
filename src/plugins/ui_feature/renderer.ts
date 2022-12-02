@@ -664,17 +664,20 @@ export class RendererPlugin extends UIPlugin {
         case "center": {
           const emptyZone = {
             ...zone,
-            right: nextColIndex,
             left: previousColIndex,
+            right: nextColIndex,
           };
-          const { x, y, width, height } = this.getters.getVisibleRect(emptyZone);
+          const { x, y, height, width } = this.getters.getVisibleRect(emptyZone);
+          const halfContentWidth = contentWidth / 2;
+          const boxMiddle = box.x + box.width / 2;
           if (
-            width < contentWidth ||
-            previousColIndex === col ||
-            nextColIndex === col ||
+            x + width < boxMiddle + halfContentWidth ||
+            x > boxMiddle - halfContentWidth ||
             fontSizePX > height
           ) {
-            box.clipRect = { x, y, width, height };
+            const clipX = x > boxMiddle - halfContentWidth ? x : boxMiddle - halfContentWidth;
+            const clipWidth = x + width - clipX;
+            box.clipRect = { x: clipX, y, width: clipWidth, height };
           }
           break;
         }

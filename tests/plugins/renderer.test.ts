@@ -946,55 +946,64 @@ describe("renderer", () => {
     });
   });
 
-  test.each(["I am a very long text", "100000000000000"])(
-    "Overflowing centered content is clipped on both sides",
-    (overflowingContent) => {
-      let centeredBox: Box;
-      const model = new Model({
-        sheets: [
-          {
-            id: "sheet1",
-            colNumber: 3,
-            rowNumber: 1,
-            cols: { 1: { size: 5 } },
-            cells: { B1: { content: overflowingContent, style: 1 } },
-          },
-        ],
-        styles: { 1: { align: "center" } },
-      });
+  test("Overflowing centered content is clipped on left side correctly without overlapping", () => {
+    const overflowingContent = "I am a very long long long long long long text";
+    // using alternative col size to clarify the computations
+    const colSize = 5;
+    const model = new Model({
+      sheets: [
+        {
+          id: "sheet1",
+          colNumber: 5,
+          rowNumber: 1,
+          cols: { 1: { size: colSize }, 2: { size: colSize } },
+          cells: { C1: { content: overflowingContent, style: 1 }, A1: { content: "left" } },
+        },
+      ],
+      styles: { 1: { align: "center" } },
+    });
+    const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+    model.drawGrid(ctx);
 
-      let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-      model.drawGrid(ctx);
+    const centeredBox = getBoxFromText(model, overflowingContent);
+    expect(centeredBox.clipRect).toEqual({
+      x: DEFAULT_CELL_WIDTH, // clipped to the left
+      y: 0,
+      width: 2 * (colSize + DEFAULT_CELL_WIDTH),
+      height: DEFAULT_CELL_HEIGHT,
+    });
+  });
 
-      centeredBox = getBoxFromText(model, overflowingContent);
-      // // spans from A1 to C1 <-> no clip
-      expect(centeredBox.clipRect).toBeUndefined();
-      expect(centeredBox.isOverflow).toBeTruthy();
+  test("Overflowing centered content is clipped on right side correctly without overlapping", () => {
+    const overflowingContent = "I am a very long long long long long long text";
+    // using alternative col size to clarify the computations
+    const colSize = 5;
+    const model = new Model({
+      sheets: [
+        {
+          id: "sheet1",
+          colNumber: 10,
+          rowNumber: 1,
+          cols: { 2: { size: colSize }, 3: { size: colSize } },
+          cells: { C1: { content: overflowingContent, style: 2 }, E1: { content: "right" } },
+        },
+      ],
+      styles: { 2: { align: "center" } },
+    });
+    const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+    model.drawGrid(ctx);
 
-      setCellContent(model, "A1", "left");
-      model.drawGrid(ctx);
-
-      centeredBox = getBoxFromText(model, overflowingContent);
-      expect(centeredBox.clipRect).toEqual({
-        x: DEFAULT_CELL_WIDTH, // clipped to the left
-        y: 0,
-        width: 5 + DEFAULT_CELL_WIDTH,
-        height: DEFAULT_CELL_HEIGHT,
-      });
-      expect(centeredBox.isOverflow).toBeTruthy();
-
-      setCellContent(model, "C1", "right");
-      model.drawGrid(ctx);
-
-      centeredBox = getBoxFromText(model, overflowingContent);
-      expect(centeredBox.clipRect).toEqual({
-        x: DEFAULT_CELL_WIDTH, //clipped to the left
-        y: 0,
-        width: 5, // clipped to the right
-        height: DEFAULT_CELL_HEIGHT,
-      });
-    }
-  );
+    const centeredBox = getBoxFromText(model, overflowingContent);
+    const contentWidth =
+      model.getters.getTextWidth({ sheetId: "sheet1", row: 0, col: 2 }) + MIN_CELL_TEXT_MARGIN;
+    const expectedClipX = 2 * DEFAULT_CELL_WIDTH + colSize / 2 - contentWidth / 2;
+    expect(centeredBox.clipRect).toEqual({
+      x: expectedClipX,
+      y: 0,
+      width: 2 * DEFAULT_CELL_WIDTH + 2 * colSize - expectedClipX,
+      height: DEFAULT_CELL_HEIGHT,
+    });
+  });
 
   test.each(["left", "right", "center"])(
     "Content in merge is clipped and cannot overflow",
@@ -1250,11 +1259,10 @@ describe("renderer", () => {
     ["left", ["left", "right"], { left: 1, right: 1, top: 1, bottom: 1 }], // align left, left + right border => clipped on cell zone
     ["left", ["left"], undefined], // align left, left border => no clip
 
-    ["center", ["right"], { left: 0, right: 1, top: 1, bottom: 1 }], // align center, right border => clipped right
     ["center", ["left", "right"], { left: 1, right: 1, top: 1, bottom: 1 }], // align center, left + right border => clipped on cell zone
     ["center", ["left"], { left: 1, right: 2, top: 1, bottom: 1 }], // align center, right border => clipped left
   ])(
-    "cells with borders are correctly clipped",
+    "cells aligned %s with borders %s are correctly clipped",
     (align: string, borders: string[], expectedClipRectZone: Zone | undefined) => {
       const cellContent = "This is a long text larger than a cell";
       const model = new Model({
@@ -1283,6 +1291,46 @@ describe("renderer", () => {
       );
     }
   );
+
+  test("Cell overflowing text centered is cut correctly when there's a border", () => {
+    () => {
+      const borders = ["right"];
+      const cellContent = "This is a long text larger than a cell";
+      const model = new Model({
+        sheets: [
+          {
+            id: "sheet1",
+            colNumber: 3,
+            rowNumber: 3,
+            cells: { B2: { content: cellContent } },
+          },
+        ],
+      });
+
+      setStyle(model, "B2", { align: "center" });
+
+      for (const border of borders) {
+        setBorder(model, border as BorderCommand, "B2");
+      }
+
+      let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+      model.drawGrid(ctx);
+      const box = getBoxFromText(model, cellContent);
+      const textWidth = model.getters.getTextWidth({ sheetId: "sheet1", row: 1, col: 1 });
+      const expectedClipRect = model.getters.getVisibleRect({
+        left: 0,
+        right: 1,
+        top: 1,
+        bottom: 1,
+      });
+      const expectedCLipX = box.x + box.width / 2 - textWidth / 2;
+      expect(box.clipRect).toEqual({
+        ...expectedClipRect,
+        x: expectedCLipX,
+        width: expectedClipRect.x + expectedClipRect.width - expectedCLipX,
+      });
+    };
+  });
 
   test.each([
     ["right", { left: 1, right: 2, top: 0, bottom: 0 }], // align right, left border => clipped on cell zone
