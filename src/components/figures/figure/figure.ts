@@ -5,7 +5,7 @@ import {
   SELECTION_BORDER_COLOR,
 } from "../../../constants";
 import { figureRegistry } from "../../../registries/index";
-import { Figure, Pixel, SpreadsheetChildEnv, UID } from "../../../types/index";
+import { Figure, SpreadsheetChildEnv, UID } from "../../../types/index";
 import { css } from "../../helpers/css";
 import { gridOverlayPosition } from "../../helpers/dom_helpers";
 import { startDnd } from "../../helpers/drag_and_drop";
@@ -148,35 +148,36 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getContainerStyle() {
-    const target = this.displayedFigure;
-    const { x: offsetCorrectionX, y: offsetCorrectionY } =
-      this.env.model.getters.getMainViewportCoordinates();
+    const { x, y } = this.displayedFigure;
+    // const { x: offsetCorrectionX, y: offsetCorrectionY } =
+    //   this.env.model.getters.getMainViewportCoordinates();
 
-    const { offsetX, offsetY } = this.env.model.getters.getActiveSheetScrollInfo();
+    // const { offsetX, offsetY } = this.env.model.getters.getActiveSheetScrollInfo();
     let { width, height } = this.getFigureSizeWithBorders();
-    let x: Pixel, y: Pixel;
+
+    // let x: Pixel, y: Pixel;
 
     // Visually, the content of the container is slightly shifted as it includes borders and/or corners.
     // If we want to make assertions on the position of the content, we need to take this shift into account
-    const borderShift = ANCHOR_SIZE / 2;
+    // const borderShift = ANCHOR_SIZE / 2;
 
-    if (target.x + borderShift < offsetCorrectionX) {
-      x = target.x;
-    } else if (target.x + borderShift < offsetCorrectionX + offsetX) {
-      x = offsetCorrectionX;
-      width += target.x - offsetCorrectionX - offsetX;
-    } else {
-      x = target.x - offsetX;
-    }
+    // if (target.x + borderShift < offsetCorrectionX) {
+    //   x = target.x;
+    // } else if (target.x + borderShift < offsetCorrectionX + offsetX) {
+    //   x = offsetCorrectionX;
+    //   width += target.x - offsetCorrectionX - offsetX;
+    // } else {
+    //   x = target.x - offsetX;
+    // }
 
-    if (target.y + borderShift < offsetCorrectionY) {
-      y = target.y;
-    } else if (target.y + borderShift < offsetCorrectionY + offsetY) {
-      y = offsetCorrectionY;
-      height += target.y - offsetCorrectionY - offsetY;
-    } else {
-      y = target.y - offsetY;
-    }
+    // if (target.y + borderShift < offsetCorrectionY) {
+    //   y = target.y;
+    // } else if (target.y + borderShift < offsetCorrectionY + offsetY) {
+    //   y = offsetCorrectionY;
+    //   height += target.y - offsetCorrectionY - offsetY;
+    // } else {
+    //   y = target.y - offsetY;
+    // }
 
     if (width < 0 || height < 0) {
       return `display:none;`;
@@ -209,7 +210,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     if (target.x + borderShift < offsetCorrectionX) {
       x = 0;
     } else if (target.x + borderShift < offsetCorrectionX + offsetX) {
-      x = target.x - offsetCorrectionX - offsetX;
+      // x = target.x - offsetCorrectionX - offsetX;
     } else {
       x = 0;
     }
@@ -217,7 +218,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     if (target.y + borderShift < offsetCorrectionY) {
       y = 0;
     } else if (target.y + borderShift < offsetCorrectionY + offsetY) {
-      y = target.y - offsetCorrectionY - offsetY;
+      // y = target.y - offsetCorrectionY - offsetY;
     } else {
       y = 0;
     }
@@ -269,6 +270,10 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     this.dnd.height = figure.height;
 
     const onMouseMove = (ev: MouseEvent) => {
+      this.env.model.dispatch("MOVE_FIGURE", {
+        sheetId: this.env.model.getters.getActiveSheetId(),
+        id: figure.id,
+      });
       const deltaX = dirX * (ev.clientX - initialX);
       const deltaY = dirY * (ev.clientY - initialY);
       this.dnd.width = Math.max(figure.width + deltaX, MIN_FIG_SIZE);
@@ -297,6 +302,10 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
         id: figure.id,
         ...update,
       });
+      this.env.model.dispatch("STOP_MOVE_FIGURE", {
+        sheetId: this.env.model.getters.getActiveSheetId(),
+        id: figure.id,
+      });
     };
     startDnd(onMouseMove, onMouseUp);
   }
@@ -317,9 +326,9 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     }
 
     const position = gridOverlayPosition();
-    const { x: offsetCorrectionX, y: offsetCorrectionY } =
-      this.env.model.getters.getMainViewportCoordinates();
-    const { offsetX, offsetY } = this.env.model.getters.getActiveSheetScrollInfo();
+    // const { x: offsetCorrectionX, y: offsetCorrectionY } =
+    //   this.env.model.getters.getMainViewportCoordinates();
+    // const { offsetX, offsetY } = this.env.model.getters.getActiveSheetScrollInfo();
 
     const initialX = ev.clientX - position.left;
     const initialY = ev.clientY - position.top;
@@ -329,24 +338,32 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     this.dnd.width = figure.width;
     this.dnd.height = figure.height;
 
+    /**  TODO: the mousemove computation should still "gues" on which pane we are andcorrect according to the offset
+     *  see ADRM PR where the hook is no longer on the ev client coordinates but on the figure top left coordinates (corrected)
+     *  maybe just on mouseup
+     */
     const onMouseMove = (ev: MouseEvent) => {
+      this.env.model.dispatch("MOVE_FIGURE", {
+        sheetId: this.env.model.getters.getActiveSheetId(),
+        id: figure.id,
+      });
       const newX = ev.clientX - position.left;
       let deltaX = newX - initialX;
-      if (newX > offsetCorrectionX && initialX < offsetCorrectionX) {
-        deltaX += offsetX;
-      } else if (newX < offsetCorrectionX && initialX > offsetCorrectionX) {
-        deltaX -= offsetX;
-      }
+      // if (newX > offsetCorrectionX && initialX < offsetCorrectionX) {
+      //   deltaX += offsetX;
+      // } else if (newX < offsetCorrectionX && initialX > offsetCorrectionX) {
+      //   deltaX -= offsetX;
+      // }
       this.dnd.x = Math.max(figure.x + deltaX, 0);
 
       const newY = ev.clientY - position.top;
       let deltaY = newY - initialY;
 
-      if (newY > offsetCorrectionY && initialY < offsetCorrectionY) {
-        deltaY += offsetY;
-      } else if (newY < offsetCorrectionY && initialY > offsetCorrectionY) {
-        deltaY -= offsetY;
-      }
+      // if (newY > offsetCorrectionY && initialY < offsetCorrectionY) {
+      //   deltaY += offsetY;
+      // } else if (newY < offsetCorrectionY && initialY > offsetCorrectionY) {
+      //   deltaY -= offsetY;
+      // }
       this.dnd.y = Math.max(figure.y + deltaY, 0);
     };
     const onMouseUp = (ev: MouseEvent) => {
@@ -356,6 +373,10 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
         id: figure.id,
         x: this.dnd.x,
         y: this.dnd.y,
+      });
+      this.env.model.dispatch("STOP_MOVE_FIGURE", {
+        sheetId: this.env.model.getters.getActiveSheetId(),
+        id: figure.id,
       });
     };
     startDnd(onMouseMove, onMouseUp);

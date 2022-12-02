@@ -862,6 +862,18 @@ export interface CloseCellPopoverCommand {
   type: "CLOSE_CELL_POPOVER";
 }
 
+export interface MoveFigureCommand {
+  type: "MOVE_FIGURE";
+  sheetId: UID;
+  id: UID;
+}
+
+export interface StopMoveFigureCommand {
+  type: "STOP_MOVE_FIGURE";
+  sheetId: UID;
+  id: UID;
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -987,7 +999,9 @@ export type LocalCommand =
   | CloseCellPopoverCommand
   | ActivateNextSheetCommand
   | ActivatePreviousSheetCommand
-  | UpdateFilterCommand;
+  | UpdateFilterCommand
+  | MoveFigureCommand
+  | StopMoveFigureCommand;
 
 export type Command = CoreCommand | LocalCommand;
 

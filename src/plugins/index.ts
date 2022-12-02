@@ -37,6 +37,7 @@ import {
 } from "./ui_feature";
 import { UIPluginConstructor } from "./ui_plugin";
 import { ClipboardPlugin, EditionPlugin, GridSelectionPlugin } from "./ui_stateful";
+import { UiFigurePlugin } from "./ui_stateful/figures_ui";
 
 export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("sheet", SheetPlugin)
@@ -70,7 +71,8 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
 export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("selection", GridSelectionPlugin)
   .add("clipboard", ClipboardPlugin)
-  .add("edition", EditionPlugin);
+  .add("edition", EditionPlugin)
+  .add("figure", UiFigurePlugin);
 
 // Plugins which have a derived state from core data
 export const coreViewsPluginRegistry = new Registry<UIPluginConstructor>()

@@ -2,9 +2,12 @@
   <t t-name="o-spreadsheet-FiguresContainer" owl="1">
     <t t-set="figureGroups" t-value="getVisibleFigureGroups()"/>
 
-    <div class="position-absolute overflow-hidden pe-none" t-att-style="topLeftWrapperStyle">
+    <div
+      class="position-absolute pe-none"
+      t-att-class="{'overflow-hidden': !env.model.getters.isMovingFigure()}"
+      t-att-style="topLeftWrapperStyle">
       <div class="figure-anchor" t-att-style="topLeftAnchorStyle">
-        <t t-foreach="figureGroups.topLeft" t-as="figure" t-key="figure.id">
+        <t t-foreach="figureGroups.topLeft" t-as="figure" t-key="'topLeftAnchorStyle' + figure.id">
           <FigureComponent
             sidePanelIsOpen="this.props.sidePanelIsOpen"
             onFigureDeleted="this.props.onFigureDeleted"
@@ -14,9 +17,12 @@
       </div>
     </div>
 
-    <div class="position-absolute overflow-hidden pe-none" t-att-style="topRightWrapperStyle">
+    <div
+      class="position-absolute pe-none"
+      t-att-class="{'overflow-hidden': !env.model.getters.isMovingFigure()}"
+      t-att-style="topRightWrapperStyle">
       <div class="figure-anchor" t-att-style="topRightAnchorStyle">
-        <t t-foreach="figureGroups.topRight" t-as="figure" t-key="figure.id">
+        <t t-foreach="figureGroups.topRight" t-as="figure" t-key="'topRightAnchorStyle'+ figure.id">
           <FigureComponent
             sidePanelIsOpen="this.props.sidePanelIsOpen"
             onFigureDeleted="this.props.onFigureDeleted"
@@ -26,9 +32,15 @@
       </div>
     </div>
 
-    <div class="position-absolute overflow-hidden pe-none" t-att-style="bottomLeftWrapperStyle">
+    <div
+      class="position-absolute pe-none"
+      t-att-class="{'overflow-hidden': !env.model.getters.isMovingFigure()}"
+      t-att-style="bottomLeftWrapperStyle">
       <div class="figure-anchor" t-att-style="bottomLeftAnchorStyle">
-        <t t-foreach="figureGroups.bottomLeft" t-as="figure" t-key="figure.id">
+        <t
+          t-foreach="figureGroups.bottomLeft"
+          t-as="figure"
+          t-key="'bottomLeftAnchorStyle' + figure.id">
           <FigureComponent
             sidePanelIsOpen="this.props.sidePanelIsOpen"
             onFigureDeleted="this.props.onFigureDeleted"
@@ -38,9 +50,15 @@
       </div>
     </div>
 
-    <div class="position-absolute overflow-hidden pe-none" t-att-style="bottomRightWrapperStyle">
+    <div
+      class="position-absolute pe-none"
+      t-att-class="{'overflow-hidden': !env.model.getters.isMovingFigure()}"
+      t-att-style="bottomRightWrapperStyle">
       <div class="figure-anchor" t-att-style="bottomRightAnchorStyle">
-        <t t-foreach="figureGroups.bottomRight" t-as="figure" t-key="figure.id">
+        <t
+          t-foreach="figureGroups.bottomRight"
+          t-as="figure"
+          t-key=" 'bottomRightAnchorStyle' + figure.id">
           <FigureComponent
             sidePanelIsOpen="this.props.sidePanelIsOpen"
             onFigureDeleted="this.props.onFigureDeleted"
