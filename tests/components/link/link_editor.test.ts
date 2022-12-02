@@ -15,6 +15,11 @@ import {
 } from "../../test_helpers/dom_helper";
 import { getCell, getEvaluatedCell } from "../../test_helpers/getters_helpers";
 import { makeTestFixture, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
+import { mockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
+
+mockGetBoundingClientRect({
+  "o-spreadsheet": () => ({ top: 0, left: 0, height: 1000, width: 1000 }),
+});
 
 describe("link editor component", () => {
   let fixture: HTMLElement;

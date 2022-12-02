@@ -1,12 +1,14 @@
 import { App, Component, xml } from "@odoo/owl";
 import { Model } from "../../src";
+import { ChartJsComponent } from "../../src/components/figures/chart/chartJs/chartjs";
+import { ScorecardChart } from "../../src/components/figures/chart/scorecard/chart_scorecard";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   MENU_WIDTH,
   MIN_FIG_SIZE,
 } from "../../src/constants";
-import { figureRegistry } from "../../src/registries";
+import { chartComponentRegistry, figureRegistry } from "../../src/registries";
 import { CreateFigureCommand, Figure, SpreadsheetChildEnv, UID } from "../../src/types";
 import {
   activateSheet,
@@ -25,11 +27,13 @@ import {
   getFigureDefinition,
   getFigureIds,
   makeTestFixture,
+  mockChart,
   MockClipboard,
   mountSpreadsheet,
   nextTick,
 } from "../test_helpers/helpers";
-import { TEST_CHART_DATA } from "./charts.test";
+import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
+import { TEST_CHART_DATA } from "./../test_helpers/constants";
 
 let fixture: HTMLElement;
 let model: Model;
@@ -84,8 +88,21 @@ class TextFigure extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
 }
 
+mockChart();
+mockGetBoundingClientRect({
+  "o-popover": () => ({ height: 0, width: 0 }),
+  "o-spreadsheet": () => ({ top: 100, left: 200, height: 1000, width: 1000 }),
+  "o-figure-menu-item": () => ({ top: 500, left: 500 }),
+});
+
 beforeAll(() => {
   figureRegistry.add("text", { Component: TextFigure });
+  // TODO : remove this once #1861 is merged
+  chartComponentRegistry.add("line", ChartJsComponent);
+  chartComponentRegistry.add("bar", ChartJsComponent);
+  chartComponentRegistry.add("pie", ChartJsComponent);
+  chartComponentRegistry.add("gauge", ChartJsComponent);
+  chartComponentRegistry.add("scorecard", ScorecardChart);
 });
 afterAll(() => {
   figureRegistry.remove("text");

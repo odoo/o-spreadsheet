@@ -7,7 +7,7 @@ import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popov
 import { css } from "../../helpers/css";
 import { Menu } from "../../menu/menu";
 
-const LINK_TOOLTIP_HEIGHT = 43;
+const LINK_TOOLTIP_HEIGHT = 32;
 const LINK_TOOLTIP_WIDTH = 220;
 
 css/* scss */ `
@@ -19,6 +19,9 @@ css/* scss */ `
     border-radius: 4px;
     display: flex;
     justify-content: space-between;
+    height: ${LINK_TOOLTIP_HEIGHT}px;
+    width: ${LINK_TOOLTIP_WIDTH}px;
+    box-sizing: border-box !important;
 
     img {
       margin-right: 3px;
@@ -63,7 +66,6 @@ interface LinkDisplayProps {
 export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv> {
   static components = { Menu };
   static template = "o-spreadsheet-LinkDisplay";
-  static size = { width: LINK_TOOLTIP_WIDTH, height: LINK_TOOLTIP_HEIGHT };
 
   get cell(): EvaluatedCell {
     const { col, row } = this.props.cellPosition;

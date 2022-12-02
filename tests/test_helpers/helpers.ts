@@ -568,3 +568,10 @@ export function getFigureDefinition(
       throw new Error(`Invalide figure type: ${type}`);
   }
 }
+
+/** Extract a property of the style of the given html element and return its size in pixel */
+export function getStylePropertyInPx(el: HTMLElement, property: string): number | undefined {
+  const styleProperty = el.style[property] as string;
+  if (!styleProperty) return undefined;
+  return Number(styleProperty.replace("px", ""));
+}

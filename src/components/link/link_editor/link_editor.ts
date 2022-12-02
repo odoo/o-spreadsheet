@@ -12,7 +12,7 @@ const MENU_OFFSET_X = 320;
 const MENU_OFFSET_Y = 100;
 const PADDING = 12;
 const LINK_EDITOR_WIDTH = 340;
-const LINK_EDITOR_HEIGHT = 180;
+const LINK_EDITOR_HEIGHT = 165;
 
 css/* scss */ `
   .o-link-editor {
@@ -23,6 +23,9 @@ css/* scss */ `
     display: flex;
     flex-direction: column;
     border-radius: 4px;
+    height: ${LINK_EDITOR_HEIGHT}px;
+    width: ${LINK_EDITOR_WIDTH}px;
+
     .o-section {
       .o-section-title {
         font-weight: bold;
@@ -99,7 +102,6 @@ interface State {
 
 export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-LinkEditor";
-  static size = { width: LINK_EDITOR_WIDTH, height: LINK_EDITOR_HEIGHT };
   static components = { Menu };
   menuItems = linkMenuRegistry.getAll();
   private link: State = useState(this.defaultState);

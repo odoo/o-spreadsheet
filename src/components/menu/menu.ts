@@ -1,11 +1,10 @@
 import { Component, onWillUpdateProps, useExternalListener, useRef, useState } from "@odoo/owl";
 import {
-  HEADER_HEIGHT,
   MENU_ITEM_DISABLED_COLOR,
   MENU_ITEM_HEIGHT,
   MENU_SEPARATOR_HEIGHT,
+  MENU_VERTICAL_PADDING,
   MENU_WIDTH,
-  TOPBAR_HEIGHT,
 } from "../../constants";
 import { FullMenuItem, MenuItem } from "../../registries";
 import { getMenuChildren, getMenuDescription, getMenuName } from "../../registries/menus/helpers";
@@ -13,7 +12,7 @@ import { DOMCoordinates, Pixel, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 import { isChildEvent } from "../helpers/dom_helpers";
 import { useAbsolutePosition } from "../helpers/position_hook";
-import { Popover } from "../popover/popover";
+import { Popover, PopoverProps } from "../popover/popover";
 
 //------------------------------------------------------------------------------
 // Context Menu Component
@@ -22,7 +21,10 @@ import { Popover } from "../popover/popover";
 css/* scss */ `
   .o-menu {
     background-color: white;
-    padding: 5px 0px;
+    padding: ${MENU_VERTICAL_PADDING}px 0px;
+    width: ${MENU_WIDTH}px;
+    box-sizing: border-box !important;
+
     .o-menu-item {
       display: flex;
       justify-content: space-between;
@@ -85,7 +87,6 @@ export interface MenuState {
 }
 export class Menu extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Menu";
-  MENU_WIDTH = MENU_WIDTH;
 
   static components = { Menu, Popover };
   static defaultProps = {
@@ -117,23 +118,29 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get menuHeight(): Pixel {
-    return this.menuComponentHeight(this.props.menuItems);
+    const menuItems = this.props.menuItems;
+
+    let menuItemsHeight = this.getMenuItemsHeight(menuItems);
+
+    // We don't display separator at the end of a menu
+    if (menuItems[menuItems.length - 1].separator) {
+      menuItemsHeight -= MENU_SEPARATOR_HEIGHT;
+    }
+
+    return 2 * MENU_VERTICAL_PADDING + menuItemsHeight;
   }
 
-  get subMenuHeight(): Pixel {
-    return this.menuComponentHeight(this.subMenu.menuItems);
-  }
-
-  get popover() {
+  get popover(): PopoverProps {
     const isRoot = this.props.depth === 1;
-    // TODO: see if we could reformulate this margin
-    const marginTop = 6 + TOPBAR_HEIGHT + HEADER_HEIGHT;
-
     return {
-      // some margin between the header and the component
-      marginTop,
-      flipHorizontalOffset: MENU_WIDTH * (this.props.depth - 1),
-      flipVerticalOffset: isRoot ? 0 : MENU_ITEM_HEIGHT,
+      anchorRect: {
+        x: this.props.position.x - MENU_WIDTH * (this.props.depth - 1),
+        y: this.props.position.y,
+        width: isRoot ? 0 : MENU_WIDTH,
+        height: isRoot ? 0 : MENU_ITEM_HEIGHT,
+      },
+      positioning: "TopRight",
+      verticalOffset: isRoot ? 0 : MENU_VERTICAL_PADDING,
     };
   }
 
@@ -156,9 +163,9 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
    * Return the number of pixels between the top of the menu
    * and the menu item at a given index.
    */
-  private subMenuVerticalPosition(position: Pixel): Pixel {
-    const menusAbove = this.props.menuItems.slice(0, position);
-    return this.menuComponentHeight(menusAbove) + this.position.y;
+  private subMenuVerticalPosition(menuIndex: number): Pixel {
+    const menusAbove = this.props.menuItems.slice(0, menuIndex);
+    return this.position.y + this.getMenuItemsHeight(menusAbove) + MENU_VERTICAL_PADDING;
   }
 
   private onClick(ev: MouseEvent) {
@@ -179,14 +186,9 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     this.closeSubMenu();
   }
 
-  /**
-   * Return the total height (in pixels) needed for some
-   * menu items
-   */
-  private menuComponentHeight(menuItems: MenuItem[]): Pixel {
-    const separators = menuItems.filter((m) => m.separator);
-    const others = menuItems;
-    return MENU_ITEM_HEIGHT * others.length + separators.length * MENU_SEPARATOR_HEIGHT;
+  private getMenuItemsHeight(menuItems: MenuItem[]): Pixel {
+    const numberOfSeparators = menuItems.filter((m) => m.separator).length;
+    return MENU_ITEM_HEIGHT * menuItems.length + MENU_SEPARATOR_HEIGHT * numberOfSeparators;
   }
 
   getName(menu: FullMenuItem) {
@@ -215,8 +217,8 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
    * If the given menu is not disabled, open it's submenu at the
    * correct position according to available surrounding space.
    */
-  openSubMenu(menu: FullMenuItem, position: Pixel) {
-    const y = this.subMenuVerticalPosition(position);
+  openSubMenu(menu: FullMenuItem, menuIndex: number) {
+    const y = this.subMenuVerticalPosition(menuIndex);
     this.subMenu.position = {
       x: this.position.x + MENU_WIDTH,
       y: y - (this.subMenu.scrollOffset || 0),
@@ -237,10 +239,10 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     this.subMenu.parentMenu = undefined;
   }
 
-  onClickMenu(menu: FullMenuItem, position: Pixel) {
+  onClickMenu(menu: FullMenuItem, menuIndex: number) {
     if (this.isEnabled(menu)) {
       if (this.isRoot(menu)) {
-        this.openSubMenu(menu, position);
+        this.openSubMenu(menu, menuIndex);
       } else {
         this.activateMenu(menu);
       }

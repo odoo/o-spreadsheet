@@ -1,4 +1,4 @@
-import { Component, useRef, useState } from "@odoo/owl";
+import { Component, useChildSubEnv, useRef, useState } from "@odoo/owl";
 import { positionToZone } from "../../helpers/zones";
 import { clickableCellRegistry } from "../../registries/cell_clickable_registry";
 import {
@@ -59,6 +59,7 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     this.canvasPosition = useAbsolutePosition(gridRef);
     this.hoveredCell = useState({ col: undefined, row: undefined });
 
+    useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
     useGridDrawing("canvas", this.env.model, () => this.env.model.getters.getSheetViewDimension());
     this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
       this.moveCanvas(deltaX, deltaY);
@@ -168,6 +169,10 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
       offsetX: offsetScrollbarX + deltaX,
       offsetY: offsetScrollbarY + deltaY,
     });
+  }
+
+  private getGridRect(): Rect {
+    return { ...this.canvasPosition, ...this.env.model.getters.getSheetViewDimensionWithHeaders() };
   }
 }
 

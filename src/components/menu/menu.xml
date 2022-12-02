@@ -2,12 +2,12 @@
   <t t-name="o-spreadsheet-Menu" owl="1">
     <Popover
       t-if="props.menuItems.length"
-      position="props.position"
-      childWidth="MENU_WIDTH"
-      childHeight="menuHeight"
-      flipHorizontalOffset="popover.flipHorizontalOffset"
-      flipVerticalOffset="popover.flipVerticalOffset"
-      marginTop="popover.marginTop">
+      anchorRect="popover.anchorRect"
+      positioning="popover.positioning"
+      verticalOffset="popover.verticalOffset"
+      onPopoverHidden="() => this.closeSubMenu()"
+      onPopoverMoved="() => this.closeSubMenu()"
+      maxHeight="menuHeight">
       <div
         t-ref="menu"
         class="o-menu"

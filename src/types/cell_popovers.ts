@@ -1,12 +1,13 @@
 import { ComponentConstructor } from "@odoo/owl";
 import { Getters } from "./index";
 import { CellPosition, PropsOf } from "./misc";
-import { DOMCoordinates } from "./rendering";
+import { Rect } from "./rendering";
 
 export type CellPopoverType = "ErrorToolTip" | "LinkDisplay" | "FilterMenu" | "LinkEditor";
+export type PopoverPropsPosition = "TopRight" | "BottomLeft";
 
-type SizedComponentConstructor = ComponentConstructor & {
-  size: { width: number; height: number };
+type MaxSizedComponentConstructor = ComponentConstructor & {
+  maxSize?: { maxWidth?: number; maxHeight?: number };
 };
 
 /**
@@ -16,7 +17,7 @@ type SizedComponentConstructor = ComponentConstructor & {
 type CellPopoverBuilder = (
   position: CellPosition,
   getters: Getters
-) => CellPopoverComponent<SizedComponentConstructor>;
+) => CellPopoverComponent<MaxSizedComponentConstructor>;
 
 export interface PopoverBuilders {
   onOpen?: CellPopoverBuilder;
@@ -36,19 +37,19 @@ type OpenCellPopover<C extends ComponentConstructor> = {
   isOpen: true;
   Component: C;
   props: PropsOf<C>;
-  cellCorner: "TopRight" | "BottomLeft";
+  cellCorner: PopoverPropsPosition;
 };
 
-export type CellPopoverComponent<C extends SizedComponentConstructor = SizedComponentConstructor> =
-  | ClosedCellPopover
-  | OpenCellPopover<C>;
+export type CellPopoverComponent<
+  C extends MaxSizedComponentConstructor = MaxSizedComponentConstructor
+> = ClosedCellPopover | OpenCellPopover<C>;
 
-export type PositionedCellPopover<C extends SizedComponentConstructor = SizedComponentConstructor> =
-  {
-    isOpen: true;
-    Component: C;
-    props: PropsOf<C>;
-    coordinates: DOMCoordinates;
-    cellWidth: number;
-    cellHeight: number;
-  };
+export type PositionedCellPopover<
+  C extends MaxSizedComponentConstructor = MaxSizedComponentConstructor
+> = {
+  isOpen: true;
+  Component: C;
+  props: PropsOf<C>;
+  anchorRect: Rect;
+  cellCorner: PopoverPropsPosition;
+};
