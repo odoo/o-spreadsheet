@@ -35,8 +35,8 @@ css/*SCSS*/ `
     width: 100%;
     height: 100%;
 
-    bottom: 0px;
-    right: 0px;
+    // bottom: 0px;
+    // right: 0px;
     border: solid ${FIGURE_BORDER_COLOR};
     &:focus {
       outline: none;
@@ -56,8 +56,6 @@ css/*SCSS*/ `
     box-sizing: content-box;
 
     .o-figure-overflow-wrapper {
-      position: absolute;
-      overflow: hidden;
       width: 100%;
       height: 100%;
     }
@@ -148,6 +146,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getContainerStyle() {
+    console.log(this.dnd);
     const { x, y } = this.displayedFigure;
     // const { x: offsetCorrectionX, y: offsetCorrectionY } =
     //   this.env.model.getters.getMainViewportCoordinates();
@@ -250,7 +249,9 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     useEffect(
       (selectedFigureId: UID | null, thisFigureId: UID, el: HTMLElement | null) => {
         if (selectedFigureId === thisFigureId) {
-          el?.focus();
+          // do not scroll on newly focused element because it will drop the viewport
+          // Does not work on every browser unfortunately ...
+          el?.focus({ preventScroll: true });
         }
       },
       () => [this.env.model.getters.getSelectedFigureId(), this.props.figure.id, this.figureRef.el]
@@ -326,10 +327,10 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     }
 
     const position = gridOverlayPosition();
-    // const { x: offsetCorrectionX, y: offsetCorrectionY } =
-    //   this.env.model.getters.getMainViewportCoordinates();
-    // const { offsetX, offsetY } = this.env.model.getters.getActiveSheetScrollInfo();
-
+    const { x: offsetCorrectionX, y: offsetCorrectionY } =
+      this.env.model.getters.getMainViewportCoordinates();
+    const { offsetX, offsetY } = this.env.model.getters.getActiveSheetScrollInfo();
+    const sheetId = this.env.model.getters.getActiveSheetId();
     const initialX = ev.clientX - position.left;
     const initialY = ev.clientY - position.top;
     this.dnd.isActive = true;
@@ -338,46 +339,34 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     this.dnd.width = figure.width;
     this.dnd.height = figure.height;
 
-    /**  TODO: the mousemove computation should still "gues" on which pane we are andcorrect according to the offset
-     *  see ADRM PR where the hook is no longer on the ev client coordinates but on the figure top left coordinates (corrected)
-     *  maybe just on mouseup
-     */
     const onMouseMove = (ev: MouseEvent) => {
-      this.env.model.dispatch("MOVE_FIGURE", {
-        sheetId: this.env.model.getters.getActiveSheetId(),
-        id: figure.id,
-      });
+      if (!this.env.model.getters.isMovingFigure()) {
+        this.env.model.dispatch("MOVE_FIGURE", { sheetId, id: figure.id });
+      }
       const newX = ev.clientX - position.left;
       let deltaX = newX - initialX;
-      // if (newX > offsetCorrectionX && initialX < offsetCorrectionX) {
-      //   deltaX += offsetX;
-      // } else if (newX < offsetCorrectionX && initialX > offsetCorrectionX) {
-      //   deltaX -= offsetX;
-      // }
       this.dnd.x = Math.max(figure.x + deltaX, 0);
 
       const newY = ev.clientY - position.top;
       let deltaY = newY - initialY;
 
-      // if (newY > offsetCorrectionY && initialY < offsetCorrectionY) {
-      //   deltaY += offsetY;
-      // } else if (newY < offsetCorrectionY && initialY > offsetCorrectionY) {
-      //   deltaY -= offsetY;
-      // }
       this.dnd.y = Math.max(figure.y + deltaY, 0);
     };
     const onMouseUp = (ev: MouseEvent) => {
+      let { x, y } = this.dnd;
+      if (this.dnd.x > offsetCorrectionX && figure.x < offsetCorrectionX) {
+        x += offsetX;
+      } else if (this.dnd.x < offsetCorrectionX && figure.x > offsetCorrectionX) {
+        x -= offsetX;
+      }
+      if (this.dnd.y > offsetCorrectionY && figure.y < offsetCorrectionY) {
+        y += offsetY;
+      } else if (this.dnd.y < offsetCorrectionY && figure.y > offsetCorrectionY) {
+        y -= offsetY;
+      }
       this.dnd.isActive = false;
-      this.env.model.dispatch("UPDATE_FIGURE", {
-        sheetId: this.env.model.getters.getActiveSheetId(),
-        id: figure.id,
-        x: this.dnd.x,
-        y: this.dnd.y,
-      });
-      this.env.model.dispatch("STOP_MOVE_FIGURE", {
-        sheetId: this.env.model.getters.getActiveSheetId(),
-        id: figure.id,
-      });
+      this.env.model.dispatch("UPDATE_FIGURE", { sheetId, id: figure.id, x, y });
+      this.env.model.dispatch("STOP_MOVE_FIGURE", { sheetId, id: figure.id });
     };
     startDnd(onMouseMove, onMouseUp);
   }

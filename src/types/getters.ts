@@ -31,6 +31,7 @@ import { UIOptionsPlugin } from "../plugins/ui_feature/ui_options";
 import { SheetUIPlugin } from "../plugins/ui_feature/ui_sheet";
 import { ClipboardPlugin } from "../plugins/ui_stateful/clipboard";
 import { EditionPlugin } from "../plugins/ui_stateful/edition";
+import { UiFigurePlugin } from "../plugins/ui_stateful/figures_ui";
 import { GridSelectionPlugin } from "../plugins/ui_stateful/selection";
 // -----------------------------------------------------------------------------
 // Getters
@@ -144,6 +145,7 @@ type FilterEvaluationGetters = Pick<
   FilterEvaluationPlugin,
   GetterNames<typeof FilterEvaluationPlugin>
 >;
+type UiFigureGetters = Pick<UiFigurePlugin, GetterNames<typeof UiFigurePlugin>>;
 
 export type Getters = {
   isReadonly: () => boolean;
@@ -171,4 +173,5 @@ export type Getters = {
   ViewportGetters &
   CellPopoverPluginGetters &
   FilterEvaluationGetters &
-  HeaderVisibilityIUIGetters;
+  HeaderVisibilityIUIGetters &
+  UiFigureGetters;

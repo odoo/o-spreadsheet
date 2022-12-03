@@ -1,8 +1,8 @@
-import { UIPlugin } from "../..";
-import { Command, UID } from "../../types";
+import { Command, UID } from "../../types/index";
+import { UIPlugin } from "../ui_plugin";
 
 export class UiFigurePlugin extends UIPlugin {
-  static getters = ["isMovingFigure"];
+  static getters = ["isMovingFigure"] as const;
 
   private figure: { sheetId: UID; id: UID } | undefined = undefined;
 

@@ -53,8 +53,13 @@
     <div
       class="position-absolute pe-none"
       t-att-class="{'overflow-hidden': !env.model.getters.isMovingFigure()}"
-      t-att-style="bottomRightWrapperStyle">
-      <div class="figure-anchor" t-att-style="bottomRightAnchorStyle">
+      t-att-style="bottomRightWrapperStyle"
+      t-key="'bottomright'+ figureGroups.bottomRight.length">
+      <div
+        class="figure-anchor"
+        t-att-style="bottomRightAnchorStyle"
+        t-key="'bottomright'+ figureGroups.bottomRight.length">
+        <!-- <span>test</span> -->
         <t
           t-foreach="figureGroups.bottomRight"
           t-as="figure"

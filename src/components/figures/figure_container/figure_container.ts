@@ -22,6 +22,7 @@ css/* scss */ `
     width: 0px;
     height: 0px;
     position: absolute;
+    overflow: visible;
   }
 `;
 export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
@@ -60,7 +61,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get topLeftWrapperStyle() {
-    const { width, height } = this.env.model.getters.getSheetViewDimension();
+    const { width, height } = this.env.model.getters.getMainViewportRect();
     return `
       left: 0px;
       top: 0px;
@@ -80,7 +81,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   }
   get topRightWrapperStyle() {
     const { x } = this.env.model.getters.getMainViewportCoordinates();
-    const { width, height } = this.env.model.getters.getSheetViewDimension();
+    const { width, height } = this.env.model.getters.getMainViewportRect();
     return `
       left: ${x}px;
       top: 0px;
@@ -100,7 +101,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   }
   get bottomLeftWrapperStyle() {
     const { y } = this.env.model.getters.getMainViewportCoordinates();
-    const { height, width } = this.env.model.getters.getSheetViewDimension();
+    const { height, width } = this.env.model.getters.getMainViewportRect();
     return `
       left: 0px;
       top: ${y}px;
@@ -108,6 +109,15 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       height: ${height - y}px;
     `;
   }
+
+  /**  TODORAR : etendre les dimensions des wrappers. Il semblerait que le fait de rajouter un element dans un
+   * wrapper en position absolute force l'élement a étre visible. On a déja eu le coup dans le passé
+   *  (voir https://github.com/odoo/o-spreadsheet/pull/1071/)
+   * Donc une alternative a essayer c'est de faire un GROS wrapper de figure, qui sera lui meme coupé par le grid-overlay qui serait en overflow hidden
+   *
+   * Ceci étant dit, je dois essayer d'utiliser les portails. Donc a chaque rendu on dirait a un élément de se TP dans le bon wrapper.
+   * SI les protails fonctionnent ça peut être pas mal, je sais aps ce qui serait le moins "hacky"
+   */
 
   // bottom right
   get bottomRightAnchorStyle() {
@@ -121,7 +131,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
 
   get bottomRightWrapperStyle() {
     const { x, y } = this.env.model.getters.getMainViewportCoordinates();
-    const { width, height } = this.env.model.getters.getSheetViewDimension();
+    const { width, height } = this.env.model.getters.getMainViewportRect();
     return `
       left: ${x}px;
       top: ${y}px;
