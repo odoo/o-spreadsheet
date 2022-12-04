@@ -249,7 +249,15 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     useEffect(
       (selectedFigureId: UID | null, thisFigureId: UID, el: HTMLElement | null) => {
         if (selectedFigureId === thisFigureId) {
-          el?.focus();
+          /** Scrolling on a newly inserted figure that overflows outside the viewport
+           * will break the whole layout.
+           * NOTE: `preventScroll`does not work on mobile but then again,
+           * mobile is not really supported ATM.
+           *
+           * TODO: When implementing proper mobile, we will need to scroll the viewport
+           * correctly (and render?) before focusing the element.
+           */
+          el?.focus({ preventScroll: true });
         }
       },
       () => [this.env.model.getters.getSelectedFigureId(), this.props.figure.id, this.figureRef.el]
