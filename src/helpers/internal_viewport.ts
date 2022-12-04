@@ -271,9 +271,10 @@ export class InternalViewport {
     return -1;
   }
 
-  get zone() {
+  private get zone() {
     return { left: this.left, right: this.right, top: this.top, bottom: this.bottom };
   }
+
   private setViewportOffsetX(offsetX: Pixel) {
     if (!this.canScrollHorizontally) {
       return;
