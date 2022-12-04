@@ -5,7 +5,7 @@
       class="o-grid-overlay"
       t-att-style="props.gridOverlayDimensions"
       t-on-mousedown="onMouseDown"
-      t-on-dblclick="onDoubleClick"
+      t-on-dblclick.self="onDoubleClick"
       t-on-contextmenu="onContextMenu">
       <!-- TODO remove sidePanelIsOpen props. It is wrong.
       If you have a CF sidepanel open, selecting a figure should
