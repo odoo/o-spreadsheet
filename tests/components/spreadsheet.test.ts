@@ -184,7 +184,7 @@ describe("Simple Spreadsheet Component", () => {
     model.dispatch("SELECT_FIGURE", { id: "thisIsAnId" });
     await nextTick();
     const figureZIndex = getZIndex(".o-figure-wrapper");
-    const figureAnchorZIndex = getZIndex(".o-anchor");
+    const figureAnchorZIndex = getZIndex(".o-fig-resizer");
 
     expect(gridZIndex).toBeLessThan(highlighZIndex);
     expect(highlighZIndex).toBeLessThan(figureZIndex);

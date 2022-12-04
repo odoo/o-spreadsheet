@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-GridOverlay" owl="1">
     <div
       t-ref="gridOverlay"
-      class="o-grid-overlay"
+      class="o-grid-overlay overflow-hidden"
       t-att-style="props.gridOverlayDimensions"
       t-on-mousedown="onMouseDown"
       t-on-dblclick.self="onDoubleClick"

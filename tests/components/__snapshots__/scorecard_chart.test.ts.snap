@@ -2,12 +2,12 @@
 
 exports[`Scorecard charts Scorecard snapshot 1`] = `
 <div
-  class="o-figure"
-  style="width:536px;height:335px;border-width: 1px;"
+  class="o-figure w-100 h-100"
+  style="border-width: 1px;"
   tabindex="0"
 >
   <div
-    class="o-chart-container"
+    class="o-chart-container w-100 h-100"
   >
     <div
       class="o-figure-menu"
@@ -42,10 +42,8 @@ exports[`Scorecard charts Scorecard snapshot 1`] = `
     </div>
     
     <div
-      class="o-scorecard"
+      class="o-scorecard w-100 h-100"
       style="
-      height:335px;
-      width:536px;
       padding:10.72px;
       background:#FFFFFF;
     "
@@ -132,12 +130,12 @@ color: #757575;
 
 exports[`Scorecard charts scorecard text is resized while figure is resized 1`] = `
 <div
-  class="o-figure active o-dragging"
-  style="width:236px;height:135px;border-width: 2px;"
+  class="o-figure w-100 h-100 o-dragging"
+  style="border-width: 1px;"
   tabindex="0"
 >
   <div
-    class="o-chart-container"
+    class="o-chart-container w-100 h-100"
   >
     <div
       class="o-figure-menu"
@@ -172,10 +170,8 @@ exports[`Scorecard charts scorecard text is resized while figure is resized 1`] 
     </div>
     
     <div
-      class="o-scorecard"
+      class="o-scorecard w-100 h-100"
       style="
-      height:135px;
-      width:236px;
       padding:4.72px;
       background:#FFFFFF;
     "

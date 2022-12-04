@@ -2,12 +2,7 @@ import { App, Component, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { ChartJsComponent } from "../../src/components/figures/chart/chartJs/chartjs";
 import { ScorecardChart } from "../../src/components/figures/chart/scorecard/chart_scorecard";
-import {
-  DEFAULT_CELL_HEIGHT,
-  DEFAULT_CELL_WIDTH,
-  MENU_WIDTH,
-  MIN_FIG_SIZE,
-} from "../../src/constants";
+import { MENU_WIDTH, MIN_FIG_SIZE } from "../../src/constants";
 import { chartComponentRegistry, figureRegistry } from "../../src/registries";
 import { CreateFigureCommand, Figure, SpreadsheetChildEnv, UID } from "../../src/types";
 import {
@@ -59,14 +54,14 @@ function createFigure(
 }
 
 const anchorSelectors = {
-  top: ".o-anchor.o-top",
-  topRight: ".o-anchor.o-topRight",
-  right: ".o-anchor.o-right",
-  bottomRight: ".o-anchor.o-bottomRight",
-  bottom: ".o-anchor.o-bottom",
-  bottomLeft: ".o-anchor.o-bottomLeft",
-  left: ".o-anchor.o-left",
-  topLeft: ".o-anchor.o-topLeft",
+  top: ".o-fig-resizer.o-top",
+  topRight: ".o-fig-resizer.o-topRight",
+  right: ".o-fig-resizer.o-right",
+  bottomRight: ".o-fig-resizer.o-bottomRight",
+  bottom: ".o-fig-resizer.o-bottom",
+  bottomLeft: ".o-fig-resizer.o-bottomLeft",
+  left: ".o-fig-resizer.o-left",
+  topLeft: ".o-fig-resizer.o-topLeft",
 };
 async function dragAnchor(anchor: string, dragX: number, dragY: number, mouseUp = false) {
   const anchorElement = fixture.querySelector(anchorSelectors[anchor])!;
@@ -224,7 +219,7 @@ describe("figures", () => {
     createFigure(model);
     model.dispatch("SELECT_FIGURE", { id: "someuuid" });
     await nextTick();
-    const anchors = fixture.querySelectorAll(".o-anchor");
+    const anchors = fixture.querySelectorAll(".o-fig-resizer");
     expect(anchors).toHaveLength(8);
   });
 
@@ -298,7 +293,7 @@ describe("figures", () => {
     expect(model.getters.getSelectedFigureId()).toBe(figureId);
     expect(model.getters.getFigure(model.getters.getActiveSheetId(), figureId)!.height).toBe(100);
     // increase height by 50 pixels from the top anchor
-    const resizeTopSelector = fixture.querySelector(".o-anchor.o-top");
+    const resizeTopSelector = fixture.querySelector(".o-fig-resizer.o-top");
     triggerMouseEvent(resizeTopSelector, "mousedown", 0, 200);
     await nextTick();
     triggerMouseEvent(resizeTopSelector, "mousemove", 0, 150);
@@ -316,7 +311,7 @@ describe("figures", () => {
     const figure = fixture.querySelector(".o-figure")!;
     await simulateClick(".o-figure");
     expect(document.activeElement).not.toBe(figure);
-    expect(fixture.querySelector(".o-anchor")).toBeNull();
+    expect(fixture.querySelector(".o-fig-resizer")).toBeNull();
 
     triggerMouseEvent(figure, "mousedown", 300, 200);
     await nextTick();
@@ -334,26 +329,6 @@ describe("figures", () => {
     await nextTick();
     figure = fixture.querySelector(".o-figure")! as HTMLElement;
     expect(window.getComputedStyle(figure)["border-width"]).toEqual("0px");
-  });
-
-  test("Figures are cropped to avoid overlap with headers", async () => {
-    const figureId = "someuuid";
-    createFigure(model, { id: figureId, x: 100, y: 20, height: 200, width: 100 });
-    await nextTick();
-    const figure = fixture.querySelector(".o-figure-wrapper")!;
-    expect(window.getComputedStyle(figure).width).toBe("102px"); // width + borders
-    expect(window.getComputedStyle(figure).height).toBe("202px"); // height + borders
-    model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: 2 * DEFAULT_CELL_WIDTH,
-      offsetY: 3 * DEFAULT_CELL_HEIGHT,
-    });
-    await nextTick();
-
-    const expectedWidth = 102 - (2 * DEFAULT_CELL_WIDTH - 100); // = width + borders - (overflow = viewport offset X - x)
-    const expectedHeight = 202 - (3 * DEFAULT_CELL_HEIGHT - 20); // = height + borders - (overflow = viewport offset Y - y)
-
-    expect(window.getComputedStyle(figure).width).toBe(`${expectedWidth}px`);
-    expect(window.getComputedStyle(figure).height).toBe(`${expectedHeight}px`);
   });
 
   test("Selected figure isn't removed by scroll", async () => {

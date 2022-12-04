@@ -4,6 +4,7 @@
 import { getParsedOwlTemplateBundle } from "../../tools/bundle_xml/bundle_xml_templates";
 import "./canvas.mock";
 import "./jest_extend";
+import "./resize_observer.mock";
 
 export let OWL_TEMPLATES: Document;
 beforeAll(async () => {
@@ -28,4 +29,9 @@ beforeEach(() => {
       }
       return 0;
     });
+});
+
+afterEach(() => {
+  //@ts-ignore
+  global.resizers.removeAll();
 });
