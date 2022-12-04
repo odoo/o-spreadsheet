@@ -270,13 +270,14 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     ev.stopPropagation();
     const initialX = ev.clientX;
     const initialY = ev.clientY;
-    this.dnd.isActive = true;
+
     this.dnd.x = figure.x;
     this.dnd.y = figure.y;
     this.dnd.width = figure.width;
     this.dnd.height = figure.height;
 
     const onMouseMove = (ev: MouseEvent) => {
+      this.dnd.isActive = true;
       const deltaX = Math.max(dirX * (ev.clientX - initialX), MIN_FIG_SIZE - figure.width);
       const deltaY = Math.max(dirY * (ev.clientY - initialY), MIN_FIG_SIZE - figure.height);
       this.dnd.width = figure.width + deltaX;
@@ -331,13 +332,13 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 
     const initialX = ev.clientX - position.left;
     const initialY = ev.clientY - position.top;
-    this.dnd.isActive = true;
     this.dnd.x = figure.x;
     this.dnd.y = figure.y;
     this.dnd.width = figure.width;
     this.dnd.height = figure.height;
 
     const onMouseMove = (ev: MouseEvent) => {
+      this.dnd.isActive = true;
       const newX = ev.clientX - position.left;
       let deltaX = newX - initialX;
       if (newX > offsetCorrectionX && initialX < offsetCorrectionX) {
