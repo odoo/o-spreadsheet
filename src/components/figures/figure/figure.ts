@@ -264,7 +264,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     ev.stopPropagation();
     const initialX = ev.clientX;
     const initialY = ev.clientY;
-    this.dnd.isActive = true;
+
     this.dnd.x = figure.x;
     this.dnd.y = figure.y;
     this.dnd.width = figure.width;
@@ -275,6 +275,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
         sheetId: this.env.model.getters.getActiveSheetId(),
         id: figure.id,
       });
+      this.dnd.isActive = true;
       const deltaX = dirX * (ev.clientX - initialX);
       const deltaY = dirY * (ev.clientY - initialY);
       this.dnd.width = Math.max(figure.width + deltaX, MIN_FIG_SIZE);
@@ -333,7 +334,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     const sheetId = this.env.model.getters.getActiveSheetId();
     const initialX = ev.clientX - position.left;
     const initialY = ev.clientY - position.top;
-    this.dnd.isActive = true;
+
     this.dnd.x = figure.x;
     this.dnd.y = figure.y;
     this.dnd.width = figure.width;
@@ -343,6 +344,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       if (!this.env.model.getters.isMovingFigure()) {
         this.env.model.dispatch("MOVE_FIGURE", { sheetId, id: figure.id });
       }
+      this.dnd.isActive = true;
       const newX = ev.clientX - position.left;
       let deltaX = newX - initialX;
       this.dnd.x = Math.max(figure.x + deltaX, 0);

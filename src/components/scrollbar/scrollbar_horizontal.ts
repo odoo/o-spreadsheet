@@ -1,6 +1,6 @@
 import { Component, xml } from "@odoo/owl";
 import { SCROLLBAR_WIDTH } from "../../constants";
-import { SpreadsheetChildEnv } from "../../types";
+import { Pixel, SpreadsheetChildEnv } from "../../types";
 import { ScrollBar } from "./scrollbar";
 
 interface Props {
@@ -46,7 +46,7 @@ export class HorizontalScrollBar extends Component<Props, SpreadsheetChildEnv> {
     };
   }
 
-  onScroll(offset) {
+  onScroll(offset: Pixel) {
     const { offsetScrollbarY } = this.env.model.getters.getActiveSheetScrollInfo();
     this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
       offsetX: offset,
