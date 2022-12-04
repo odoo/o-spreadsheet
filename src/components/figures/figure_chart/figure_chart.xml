@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-ChartFigure" owl="1">
     <div
-      class="o-chart-container"
+      class="o-chart-container w-100 h-100"
       t-ref="chartContainer"
       t-on-contextmenu.prevent.stop="(ev) => !env.isDashboard() and this.onContextMenu(ev)">
       <div class="o-chart-menu" t-if="!env.isDashboard()">

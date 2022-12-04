@@ -1,8 +1,16 @@
-import { Component } from "@odoo/owl";
+import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import { DEFAULT_FONT } from "../../../../constants";
 import { getFontSizeMatchingWidth, relativeLuminance } from "../../../../helpers";
 import { chartComponentRegistry } from "../../../../registries";
-import { Color, Figure, Pixel, SpreadsheetChildEnv, Style } from "../../../../types";
+import {
+  Color,
+  DOMDimension,
+  Figure,
+  Pixel,
+  Ref,
+  SpreadsheetChildEnv,
+  Style,
+} from "../../../../types";
 import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
 import { cellTextStyleToCss, cssPropertiesToCss } from "../../../helpers";
 import { css } from "../../../helpers/css";
@@ -85,38 +93,58 @@ interface Props {
 export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ScorecardChart";
   private ctx = document.createElement("canvas").getContext("2d")!;
+  private chartRef!: Ref<HTMLDivElement>;
 
-  get runtime(): ScorecardChartRuntime | undefined {
+  private state: DOMDimension = useState({ width: 0, height: 0 });
+
+  setup() {
+    this.chartRef = useRef("chart");
+    const resizeObserver = new ResizeObserver(() => {
+      const { width, height } = this.chartRef.el!.getBoundingClientRect();
+      this.state.width = width;
+      this.state.height = height;
+    });
+    useEffect(
+      () => {
+        const el = this.chartRef.el!;
+        resizeObserver.observe(el);
+        return () => resizeObserver.unobserve(el);
+      },
+      () => [this.chartRef.el]
+    );
+  }
+
+  get runtime(): ScorecardChartRuntime {
     return this.env.model.getters.getChartRuntime(this.props.figure.id) as ScorecardChartRuntime;
   }
 
   get title() {
-    return this.runtime?.title || "";
+    return this.runtime.title;
   }
 
   get keyValue() {
-    return this.runtime?.keyValue || "";
+    return this.runtime.keyValue;
   }
 
   get baseline() {
-    return this.runtime?.baselineDisplay || "";
+    return this.runtime.baselineDisplay;
   }
 
   get baselineDescr() {
-    const baselineDescr = this.runtime?.baselineDescr || "";
+    const baselineDescr = this.runtime.baselineDescr || "";
     return this.baseline && baselineDescr ? " " + baselineDescr : baselineDescr;
   }
 
   get baselineArrowDirection() {
-    return this.runtime?.baselineArrow || "neutral";
+    return this.runtime.baselineArrow;
   }
 
   get backgroundColor() {
-    return this.runtime?.background || "#ffffff";
+    return this.runtime.background;
   }
 
   get primaryFontColor() {
-    return this.runtime?.fontColor || "#000000";
+    return this.runtime.fontColor;
   }
 
   get secondaryFontColor() {
@@ -129,8 +157,6 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
 
   get chartStyle() {
     return `
-      height:${this.figure.height}px;
-      width:${this.figure.width}px;
       padding:${this.chartPadding}px;
       background:${this.backgroundColor};
     `;
@@ -143,12 +169,12 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get chartPadding() {
-    return this.figure.width * CHART_PADDING_RATIO;
+    return this.state.width * CHART_PADDING_RATIO;
   }
 
   getTextStyles() {
     // If the widest text overflows horizontally, scale it down, and apply the same scaling factors to all the other fonts.
-    const maxLineWidth = this.figure.width * (1 - 2 * CHART_PADDING_RATIO);
+    const maxLineWidth = this.state.width * (1 - 2 * CHART_PADDING_RATIO);
     const widestElement = this.getWidestElement();
     const baseFontSize = widestElement.getElementMaxFontSize(this.getDrawableHeight(), this);
     const fontSizeMatchingWidth = getFontSizeMatchingWidth(
@@ -204,7 +230,7 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   /** Get the height of the chart minus all the vertical paddings */
   private getDrawableHeight(): number {
     const verticalPadding = 2 * this.chartPadding;
-    let availableHeight = this.figure.height - verticalPadding;
+    let availableHeight = this.state.height - verticalPadding;
     availableHeight -= this.title ? TITLE_FONT_SIZE * LINE_HEIGHT : 0;
     return availableHeight;
   }

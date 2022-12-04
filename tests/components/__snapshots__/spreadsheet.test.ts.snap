@@ -395,7 +395,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
     tabindex="-1"
   >
     <div
-      class="o-grid-overlay"
+      class="o-grid-overlay overflow-hidden"
       style="
       top: 26px;
       left: 48px;
