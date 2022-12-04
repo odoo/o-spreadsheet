@@ -1,8 +1,11 @@
 import { App } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../src";
+import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH } from "../../src/constants";
 import { toHex } from "../../src/helpers";
+import { Rect, UID } from "../../src/types";
+import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
 import {
-  createScorecardChart,
+  createScorecardChart as createScorecardChartHelper,
   setCellContent,
   updateChart,
 } from "../test_helpers/commands_helpers";
@@ -17,6 +20,21 @@ let sheetId: string;
 
 let parent: Spreadsheet;
 let app: App;
+
+const figureRect: Rect = { x: 0, y: 0, width: 0, height: 0 };
+const defaultRect = { x: 0, y: 0, width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
+
+const originalGetBoundingClientRect = HTMLDivElement.prototype.getBoundingClientRect;
+// @ts-ignore the mock should return a complete DOMRect, not only { top, left }
+jest
+  .spyOn(HTMLDivElement.prototype, "getBoundingClientRect")
+  .mockImplementation(function (this: HTMLDivElement) {
+    const isScoreCard = this.className.includes("o-scorecard");
+    if (isScoreCard) {
+      return figureRect;
+    }
+    return originalGetBoundingClientRect.call(this);
+  });
 
 function getChartElement(): HTMLElement {
   return fixture.querySelector(".o-figure")!;
@@ -47,7 +65,21 @@ function getElementFontSize(element: HTMLElement): number {
   return Number(fontSizeAttr.slice(0, fontSizeAttr.length - 2));
 }
 
-function updateChartSize(width: number, height: number) {
+async function createScorecardChart(
+  model: Model,
+  data: Partial<ScorecardChartDefinition>,
+  chartId?: UID,
+  sheetId?: UID
+) {
+  figureRect.width = DEFAULT_FIGURE_WIDTH;
+  figureRect.height = DEFAULT_FIGURE_HEIGHT;
+  createScorecardChartHelper(model, data, chartId, sheetId);
+  await nextTick();
+  // second tick required for the useEffect to be effective
+  await nextTick();
+}
+
+async function updateScorecardChartSize(width: number, height: number) {
   model.dispatch("UPDATE_FIGURE", {
     sheetId,
     id: chartId,
@@ -56,6 +88,9 @@ function updateChartSize(width: number, height: number) {
     width,
     height,
   });
+  figureRect.width = width;
+  figureRect.height = height;
+  await nextTick();
 }
 
 function getChartBaselineTextContent() {
@@ -92,48 +127,49 @@ describe("Scorecard charts", () => {
       ],
     };
     ({ app, parent } = await mountSpreadsheet(fixture, { model: new Model(data) }));
+    Object.assign(figureRect, defaultRect);
     model = parent.model;
-    await nextTick();
-    await nextTick();
   });
+
   afterEach(() => {
     app.destroy();
     fixture.remove();
+    Object.assign(figureRect, defaultRect);
   });
 
   test("Scorecard snapshot", async () => {
-    createScorecardChart(
+    await createScorecardChart(
       model,
       { keyValue: "A1", baseline: "B1", title: "hello", baselineDescr: "description" },
       chartId
     );
-    await nextTick();
     expect(getChartElement()).toMatchSnapshot();
   });
 
   test("scorecard text is resized while figure is resized", async () => {
-    createScorecardChart(
+    await createScorecardChart(
       model,
       { keyValue: "A1", baseline: "B1", title: "hello", baselineDescr: "description" },
       chartId
     );
-    await nextTick();
     await simulateClick(".o-figure");
-    expect(getElComputedStyle(".o-figure", "width")).toBe("536px");
-    expect(getElComputedStyle(".o-figure", "height")).toBe("335px");
-    await dragElement(".o-anchor.o-topLeft", 300, 200);
-    expect(getElComputedStyle(".o-figure", "width")).toBe("236px");
-    expect(getElComputedStyle(".o-figure", "height")).toBe("135px");
+    expect(getElComputedStyle(".o-figure-wrapper", "width")).toBe("536px");
+    expect(getElComputedStyle(".o-figure-wrapper", "height")).toBe("335px");
+    // required to mock getBoundingClientRect
+    figureRect.width -= 300;
+    figureRect.height -= 200;
+    await dragElement(".o-fig-resizer.o-topLeft", 300, 200);
+    expect(getElComputedStyle(".o-figure-wrapper", "width")).toBe("236px");
+    expect(getElComputedStyle(".o-figure-wrapper", "height")).toBe("135px");
     expect(getChartElement()).toMatchSnapshot();
   });
 
   test("Chart display correct info", async () => {
-    createScorecardChart(
+    await createScorecardChart(
       model,
       { keyValue: "A1", baseline: "B1", title: "hello", baselineDescr: "description" },
       chartId
     );
-    await nextTick();
 
     expect(getChartElement()).toBeTruthy();
     expect(getChartTitleElement()?.textContent).toEqual("hello");
@@ -144,8 +180,7 @@ describe("Scorecard charts", () => {
   test("Baseline = 0 correctly displayed", async () => {
     setCellContent(model, "B1", "0");
     setCellContent(model, "A1", "0");
-    createScorecardChart(model, { keyValue: "A1", baseline: "B1" }, chartId);
-    await nextTick();
+    await createScorecardChart(model, { keyValue: "A1", baseline: "B1" }, chartId);
 
     expect(getChartElement()).toBeTruthy();
     expect(getChartKeyElement()?.textContent).toEqual("0");
@@ -153,20 +188,22 @@ describe("Scorecard charts", () => {
   });
 
   test("Percentage baseline display a percentage", async () => {
-    createScorecardChart(
+    await createScorecardChart(
       model,
       { keyValue: "A1", baseline: "B1", baselineMode: "percentage" },
       chartId
     );
-    await nextTick();
 
     expect(getChartElement()).toBeTruthy();
     expect(getChartBaselineTextContent()).toEqual("100%");
   });
 
   test("Baseline with mode 'text' is plainly displayed", async () => {
-    createScorecardChart(model, { keyValue: "A1", baseline: "B1", baselineMode: "text" }, chartId);
-    await nextTick();
+    await createScorecardChart(
+      model,
+      { keyValue: "A1", baseline: "B1", baselineMode: "text" },
+      chartId
+    );
 
     expect(getChartElement()).toBeTruthy();
     expect(getChartBaselineTextContent()).toEqual("1");
@@ -174,8 +211,7 @@ describe("Scorecard charts", () => {
   });
 
   test("Key < baseline display in red with down arrow", async () => {
-    createScorecardChart(model, { keyValue: "A1", baseline: "B3" }, chartId);
-    await nextTick();
+    await createScorecardChart(model, { keyValue: "A1", baseline: "B3" }, chartId);
 
     const baselineElement = getChartBaselineElement();
     expect(baselineElement.querySelector("svg.arrow-down")).toBeTruthy();
@@ -184,8 +220,7 @@ describe("Scorecard charts", () => {
   });
 
   test("Key > baseline display in green with up arrow", async () => {
-    createScorecardChart(model, { keyValue: "A1", baseline: "B1" }, chartId);
-    await nextTick();
+    await createScorecardChart(model, { keyValue: "A1", baseline: "B1" }, chartId);
 
     const baselineElement = getChartBaselineElement();
     expect(baselineElement.querySelector("svg.arrow-up")).toBeTruthy();
@@ -194,8 +229,7 @@ describe("Scorecard charts", () => {
   });
 
   test("Key = baseline display default font color with no arrow", async () => {
-    createScorecardChart(model, { keyValue: "A1", baseline: "B2" }, chartId);
-    await nextTick();
+    await createScorecardChart(model, { keyValue: "A1", baseline: "B2" }, chartId);
 
     const baselineElement = getChartBaselineElement();
     expect(baselineElement.querySelector("svg")).toBeFalsy();
@@ -210,15 +244,13 @@ describe("Scorecard charts", () => {
       target: target("A1"),
       format: "0%",
     });
-    createScorecardChart(model, { keyValue: "C1" }, chartId);
-    await nextTick();
+    await createScorecardChart(model, { keyValue: "C1" }, chartId);
     expect(getChartKeyElement()?.textContent).toEqual("200%");
   });
 
   test("Baseline is displayed with the cell evaluated format", async () => {
     setCellContent(model, "C1", "=B2");
-    createScorecardChart(model, { keyValue: "A3", baseline: "C1" }, chartId);
-    await nextTick();
+    await createScorecardChart(model, { keyValue: "A3", baseline: "C1" }, chartId);
     expect(getChartBaselineElement()?.textContent).toEqual((0.12).toLocaleString());
 
     model.dispatch("SET_FORMATTING", {
@@ -232,14 +264,13 @@ describe("Scorecard charts", () => {
 
   test("Baseline with lot of decimal is truncated", async () => {
     setCellContent(model, "C1", "=B2");
-    createScorecardChart(model, { keyValue: "A3", baseline: "B2" }, chartId);
-    await nextTick();
+    await createScorecardChart(model, { keyValue: "A3", baseline: "B2" }, chartId);
     expect(getCellContent(model, "A3")).toEqual("2.1234");
     expect(getChartBaselineElement()?.textContent).toEqual((0.12).toLocaleString());
   });
 
   test("Baseline with lot of decimal isn't truncated if the cell has a format", async () => {
-    createScorecardChart(model, { keyValue: "A3", baseline: "B2" }, chartId);
+    await createScorecardChart(model, { keyValue: "A3", baseline: "B2" }, chartId);
     model.dispatch("SET_FORMATTING", {
       sheetId,
       target: target("B2"),
@@ -250,7 +281,7 @@ describe("Scorecard charts", () => {
   });
 
   test("Baseline percentage mode format has priority over cell format", async () => {
-    createScorecardChart(
+    await createScorecardChart(
       model,
       { keyValue: "A1", baseline: "B1", baselineMode: "percentage" },
       chartId
@@ -276,8 +307,7 @@ describe("Scorecard charts", () => {
         underline: true,
       },
     });
-    createScorecardChart(model, { keyValue: "A1", baseline: "A1" }, chartId);
-    await nextTick();
+    await createScorecardChart(model, { keyValue: "A1", baseline: "A1" }, chartId);
     for (const el of [getChartKeyElement()!, getChartBaselineTextElement()!]) {
       const style = el!.style;
       expect(style["font-style"]).toEqual("italic");
@@ -294,18 +324,17 @@ describe("Scorecard charts", () => {
       style: { bold: true },
       format: "0.0",
     });
-    createScorecardChart(
+    await createScorecardChart(
       model,
       { keyValue: "A1", baseline: "B1", baselineMode: "percentage" },
       chartId
     );
-    await nextTick();
     expect(getChartBaselineTextElement()!.style["font-weight"]).not.toEqual("bold");
     expect(getChartBaselineTextContent()).toEqual("100%");
   });
 
   test("High contrast font colors with dark background", async () => {
-    createScorecardChart(
+    await createScorecardChart(
       model,
       {
         keyValue: "A1",
@@ -316,7 +345,6 @@ describe("Scorecard charts", () => {
       },
       chartId
     );
-    await nextTick();
 
     expect(toHex(getChartTitleElement()!.style["color"])).toEqual("#BBBBBB");
     expect(toHex(getChartBaselineTextElement()!.style["color"])).toEqual("#BBBBBB");
@@ -325,23 +353,19 @@ describe("Scorecard charts", () => {
   });
 
   test("Increasing size of the chart scale up the font sizes", async () => {
-    createScorecardChart(
+    await createScorecardChart(
       model,
       { keyValue: "A1", baseline: "B2", title: "This is a title" },
       chartId
     );
-    await nextTick();
 
-    updateChartSize(100, 100);
-    await nextTick();
-    await nextTick();
+    await updateScorecardChartSize(100, 100);
 
     const baselineFontSize = getElementFontSize(getChartBaselineElement());
     const titleFontSize = getElementFontSize(getChartTitleElement());
     const keyFontSize = getElementFontSize(getChartKeyElement());
 
-    updateChartSize(200, 200);
-    await nextTick();
+    await updateScorecardChartSize(200, 200);
 
     expect(getElementFontSize(getChartBaselineElement())).toBeGreaterThan(baselineFontSize);
     expect(getElementFontSize(getChartTitleElement())).toEqual(titleFontSize);
@@ -349,23 +373,19 @@ describe("Scorecard charts", () => {
   });
 
   test("Decreasing size of the chart scale down the font sizes", async () => {
-    createScorecardChart(
+    await createScorecardChart(
       model,
       { keyValue: "A1", baseline: "B2", title: "This is a title" },
       chartId
     );
-    await nextTick();
 
-    updateChartSize(200, 200);
-    await nextTick();
-    await nextTick();
+    await updateScorecardChartSize(200, 200);
 
     const baselineFontSize = getElementFontSize(getChartBaselineElement());
     const titleFontSize = getElementFontSize(getChartTitleElement());
     const keyFontSize = getElementFontSize(getChartKeyElement());
 
-    updateChartSize(100, 100);
-    await nextTick();
+    await updateScorecardChartSize(100, 100);
 
     expect(getElementFontSize(getChartBaselineElement())).toBeLessThan(baselineFontSize);
     expect(getElementFontSize(getChartTitleElement())).toEqual(titleFontSize);
@@ -373,12 +393,11 @@ describe("Scorecard charts", () => {
   });
 
   test("Font size scale down if we put a long key value", async () => {
-    createScorecardChart(
+    await createScorecardChart(
       model,
       { keyValue: "A1", baseline: "B2", title: "This is a title" },
       chartId
     );
-    await nextTick();
     const baselineFontSize = getElementFontSize(getChartBaselineElement());
     const titleFontSize = getElementFontSize(getChartTitleElement());
     const keyFontSize = getElementFontSize(getChartKeyElement());
@@ -390,7 +409,7 @@ describe("Scorecard charts", () => {
   });
 
   test("Font size scale up if we remove a long description", async () => {
-    createScorecardChart(
+    await createScorecardChart(
       model,
       {
         keyValue: "A1",
@@ -399,8 +418,8 @@ describe("Scorecard charts", () => {
       },
       chartId
     );
-    await nextTick();
     const baselineFontSize = getElementFontSize(getChartBaselineElement());
+
     updateChart(model, chartId, { baselineDescr: "" }, sheetId);
     await nextTick();
     expect(getElementFontSize(getChartBaselineElement())).toBeGreaterThan(baselineFontSize);
