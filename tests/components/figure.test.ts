@@ -343,6 +343,7 @@ describe("figures", () => {
   test("Selected figure isn't removed by scroll", async () => {
     createFigure(model);
     model.dispatch("SELECT_FIGURE", { id: "someuuid" });
+    await nextTick();
     fixture.querySelector(".o-grid")!.dispatchEvent(new WheelEvent("wheel", { deltaX: 1500 }));
     fixture.querySelector(".o-scrollbar.vertical")!.dispatchEvent(new Event("scroll"));
     expect(model.getters.getSelectedFigureId()).toEqual("someuuid");
@@ -481,4 +482,12 @@ describe("figures", () => {
       });
     }
   );
+
+  test("Clicking a figure does not mark it a 'dragging'", async () => {
+    createFigure(model);
+    await nextTick();
+    triggerMouseEvent(".o-figure", "mousedown", 0, 0);
+    await nextTick();
+    expect(fixture.querySelector(".o-figure")?.classList.contains("o-dragging")).toBeFalsy();
+  });
 });
