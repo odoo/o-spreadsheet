@@ -5,7 +5,7 @@
       class="o-grid-overlay"
       t-att-style="props.gridOverlayDimensions"
       t-on-mousedown="onMouseDown"
-      t-on-dblclick="onDoubleClick"
+      t-on-dblclick.self="onDoubleClick"
       t-on-contextmenu="onContextMenu">
       <FiguresContainer onFigureDeleted="props.onFigureDeleted"/>
     </div>
