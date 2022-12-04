@@ -234,7 +234,7 @@ function createScorecardChartRuntime(
       chart.baselineColorUp,
       chart.baselineColorDown
     ),
-    baselineDescr: _t(chart.baselineDescr || ""),
+    baselineDescr: chart.baselineDescr ? _t(chart.baselineDescr) : "",
     fontColor: chartFontColor(background),
     background,
     baselineStyle:
