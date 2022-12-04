@@ -10,7 +10,7 @@ import { css } from "../../helpers/css";
 import { gridOverlayPosition } from "../../helpers/dom_helpers";
 import { startDnd } from "../../helpers/drag_and_drop";
 
-type Anchor =
+type ResizeAnchor =
   | "top left"
   | "top"
   | "top right"
@@ -30,20 +30,15 @@ const ACTIVE_BORDER_WIDTH = 2;
 
 css/*SCSS*/ `
   div.o-figure {
-    box-sizing: content-box;
+    box-sizing: border-box;
     position: absolute;
     width: 100%;
     height: 100%;
     user-select: none;
 
-    bottom: 0px;
-    right: 0px;
     border: solid ${FIGURE_BORDER_COLOR};
     &:focus {
       outline: none;
-    }
-    &.active {
-      border: solid ${SELECTION_BORDER_COLOR};
     }
 
     &.o-dragging {
@@ -52,17 +47,17 @@ css/*SCSS*/ `
     }
   }
 
+  div.o-active-figure-border {
+    box-sizing: border-box;
+    z-index: 1;
+    border: ${ACTIVE_BORDER_WIDTH}px solid ${SELECTION_BORDER_COLOR};
+  }
+
   .o-figure-wrapper {
     position: absolute;
     box-sizing: content-box;
 
-    .o-figure-overflow-wrapper {
-      position: absolute;
-      overflow: hidden;
-      width: 100%;
-      height: 100%;
-    }
-    .o-anchor {
+    .o-fig-resizer {
       z-index: ${ComponentsImportance.ChartAnchor};
       position: absolute;
       width: ${ANCHOR_SIZE}px;
@@ -116,10 +111,74 @@ css/*SCSS*/ `
   }
 `;
 
+interface DndState {
+  isActive: boolean;
+  x: Pixel;
+  y: Pixel;
+  width: Pixel;
+  height: Pixel;
+}
+
 interface Props {
   figure: Figure;
   onFigureDeleted: () => void;
 }
+
+/**
+ * Each figure ⭐ is positioned inside a container `div` placed and sized
+ * according to the split pane the figure is part of.
+ * Any part of the figure outside of the container is hidden
+ * thanks to its `overflow: hidden` property.
+ *
+ * Additionally, the figure is placed inside a "inverse viewport" `div` 🟥.
+ * Its position represents the viewport position in the grid: its top/left
+ * corner represents the top/left corner of the grid.
+ *
+ * It allows to position the figure inside this div regardless of the
+ * (possibly freezed) viewports and the scrolling position.
+ *
+ * --: container limits
+ * 🟥: inverse viewport
+ * ⭐: figure top/left position
+ *
+ *                     container
+ *                         ↓
+ * |🟥--------------------------------------------
+ * |  \                                          |
+ * |   \                                         |
+ * |    \                                        |
+ * |     \          visible area                 |  no scroll
+ * |      ⭐                                     |
+ * |                                             |
+ * |                                             |
+ * -----------------------------------------------
+ *
+ * the scrolling of the pane is applied as an inverse offset
+ * to the div which will in turn move the figure up and down
+ * inside the container.
+ * Hence, once the figure position is (resp. partly) out of
+ * the container dimensions, it will be (resp. partly) hidden.
+ *
+ * The same reasoning applies to the horizontal axis.
+ *
+ *  🟥 ························
+ *    \                       ↑
+ *     \                      |
+ *      \                     | inverse viewport = -1 * scroll of pane
+ *       \                    |
+ *        ⭐ <- not visible   |
+ *                            ↓
+ * -----------------------------------------------
+ * |                                             |
+ * |                                             |
+ * |                                             |
+ * |               visible area                  |
+ * |                                             |
+ * |                                             |
+ * |                                             |
+ * -----------------------------------------------
+ *
+ */
 
 export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FigureComponent";
@@ -158,7 +217,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 
   private figureRef = useRef("figure");
 
-  dnd = useState({
+  dnd: DndState = useState({
     isActive: false,
     x: 0,
     y: 0,
@@ -174,123 +233,76 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     return this.env.model.getters.getSelectedFigureId() === this.props.figure.id;
   }
 
-  /** Get the current figure size, which is either the stored figure size of the DnD figure size */
-  private getFigureSize() {
-    const { width, height } = this.displayedFigure;
-    return { width, height };
+  get containerStyle(): string {
+    const { x: figureX, y: figureY } = this.props.figure;
+    const { width: viewWidth, height: viewHeight } = this.env.model.getters.getMainViewportRect();
+    const { x, y } = this.env.model.getters.getMainViewportCoordinates();
+
+    const left = figureX >= x ? x : 0;
+    const width = viewWidth - left;
+    const top = figureY >= y ? y : 0;
+    const height = viewHeight - top;
+
+    return `
+      left: ${left}px;
+      top: ${top}px;
+      width: ${width}px;
+      height: ${height}px
+    `;
   }
 
-  private getFigureSizeWithBorders() {
-    const { width, height } = this.getFigureSize();
-    const borders = this.getBorderWidth() * 2;
-    return { width: width + borders, height: height + borders };
+  get inverseViewportPositionStyle(): string {
+    const { x: figureX, y: figureY } = this.props.figure;
+    const { offsetX, offsetY } = this.env.model.getters.getActiveSheetScrollInfo();
+    const { x, y } = this.env.model.getters.getMainViewportCoordinates();
+
+    const left = figureX >= x ? -(x + offsetX) : 0;
+    const top = figureY >= y ? -(y + offsetY) : 0;
+
+    return `
+      left: ${left}px;
+      top: ${top}px;
+    `;
   }
 
   private getBorderWidth(): Pixel {
-    return this.isSelected ? ACTIVE_BORDER_WIDTH : this.env.isDashboard() ? 0 : this.borderWidth;
+    return this.env.isDashboard() ? 0 : this.borderWidth;
   }
 
-  getFigureStyle() {
-    const { width, height } = this.displayedFigure;
-    return `width:${width}px;height:${height}px;border-width: ${this.getBorderWidth()}px;`;
+  get figureStyle() {
+    return `border-width: ${this.getBorderWidth()}px;`;
   }
 
-  getContainerStyle() {
-    const target = this.displayedFigure;
-    const { x: offsetCorrectionX, y: offsetCorrectionY } =
-      this.env.model.getters.getMainViewportCoordinates();
-
-    const { offsetX, offsetY } = this.env.model.getters.getActiveSheetScrollInfo();
-    let { width, height } = this.getFigureSizeWithBorders();
-    let x: Pixel, y: Pixel;
-
-    // Visually, the content of the container is slightly shifted as it includes borders and/or corners.
-    // If we want to make assertions on the position of the content, we need to take this shift into account
-    const borderShift = ANCHOR_SIZE / 2;
-
-    if (target.x + borderShift < offsetCorrectionX) {
-      x = target.x;
-    } else if (target.x + borderShift < offsetCorrectionX + offsetX) {
-      x = offsetCorrectionX;
-      width += target.x - offsetCorrectionX - offsetX;
-    } else {
-      x = target.x - offsetX;
-    }
-
-    if (target.y + borderShift < offsetCorrectionY) {
-      y = target.y;
-    } else if (target.y + borderShift < offsetCorrectionY + offsetY) {
-      y = offsetCorrectionY;
-      height += target.y - offsetCorrectionY - offsetY;
-    } else {
-      y = target.y - offsetY;
-    }
-
-    if (width < 0 || height < 0) {
-      return `display:none;`;
-    }
-    const borderOffset = this.borderWidth - this.getBorderWidth();
-    // TODO : remove the +1 once 2951210 is fixed
+  get wrapperStyle() {
+    const { x, y, width, height } = this.displayedFigure;
     return (
-      `top:${y + borderOffset + 1}px;` +
-      `left:${x + borderOffset}px;` +
+      `top:${y}px;` +
+      `left:${x}px;` +
       `width:${width}px;` +
       `height:${height}px;` +
       `z-index: ${ComponentsImportance.Figure + (this.isSelected ? 1 : 0)}`
     );
   }
 
-  getAnchorPosition(anchor: Anchor) {
-    let { width, height } = this.getFigureSizeWithBorders();
-
+  getResizerPosition(resizer: ResizeAnchor) {
     const anchorCenteringOffset = (ANCHOR_SIZE - ACTIVE_BORDER_WIDTH) / 2;
-    const target = this.displayedFigure;
-
-    let x = 0;
-    let y = 0;
-
-    const { x: offsetCorrectionX, y: offsetCorrectionY } =
-      this.env.model.getters.getMainViewportCoordinates();
-    const { offsetX, offsetY } = this.env.model.getters.getActiveSheetScrollInfo();
-    const borderShift = ANCHOR_SIZE / 2;
-
-    if (target.x + borderShift < offsetCorrectionX) {
-      x = 0;
-    } else if (target.x + borderShift < offsetCorrectionX + offsetX) {
-      x = target.x - offsetCorrectionX - offsetX;
+    let style = "";
+    if (resizer.includes("top")) {
+      style += `top: ${-anchorCenteringOffset}px;`;
+    } else if (resizer.includes("bottom")) {
+      style += `bottom: ${-anchorCenteringOffset}px;`;
     } else {
-      x = 0;
+      style += ` bottom: calc(50% - ${anchorCenteringOffset}px);`;
     }
 
-    if (target.y + borderShift < offsetCorrectionY) {
-      y = 0;
-    } else if (target.y + borderShift < offsetCorrectionY + offsetY) {
-      y = target.y - offsetCorrectionY - offsetY;
+    if (resizer.includes("left")) {
+      style += `left: ${-anchorCenteringOffset}px;`;
+    } else if (resizer.includes("right")) {
+      style += `right: ${-anchorCenteringOffset}px;`;
     } else {
-      y = 0;
+      style += ` right: calc(50% - ${anchorCenteringOffset}px);`;
     }
-
-    if (anchor.includes("top")) {
-      y -= anchorCenteringOffset;
-    } else if (anchor.includes("bottom")) {
-      y += height - ACTIVE_BORDER_WIDTH - anchorCenteringOffset;
-    } else {
-      y += (height - ACTIVE_BORDER_WIDTH) / 2 - anchorCenteringOffset;
-    }
-
-    if (anchor.includes("left")) {
-      x += -anchorCenteringOffset;
-    } else if (anchor.includes("right")) {
-      x += width - ACTIVE_BORDER_WIDTH - anchorCenteringOffset;
-    } else {
-      x += (width - ACTIVE_BORDER_WIDTH) / 2 - anchorCenteringOffset;
-    }
-
-    let visibility = "visible";
-    if (x < -anchorCenteringOffset || y < -anchorCenteringOffset) {
-      visibility = "hidden";
-    }
-    return `visibility:${visibility};top:${y}px; left:${x}px;`;
+    return style;
   }
 
   resize(dirX: number, dirY: number, ev: MouseEvent) {
@@ -359,7 +371,6 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 
   onMouseDown(ev: MouseEvent) {
     const figure = this.props.figure;
-
     if (ev.button > 0 || this.env.model.getters.isReadonly()) {
       // not main button, probably a context menu
       return;
@@ -373,6 +384,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     const { x: offsetCorrectionX, y: offsetCorrectionY } =
       this.env.model.getters.getMainViewportCoordinates();
     const { offsetX, offsetY } = this.env.model.getters.getActiveSheetScrollInfo();
+    const sheetId = this.env.model.getters.getActiveSheetId();
 
     const initialX = ev.clientX - position.left;
     const initialY = ev.clientY - position.top;
@@ -385,31 +397,27 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       this.dnd.isActive = true;
       const newX = ev.clientX - position.left;
       let deltaX = newX - initialX;
-      if (newX > offsetCorrectionX && initialX < offsetCorrectionX) {
-        deltaX += offsetX;
-      } else if (newX < offsetCorrectionX && initialX > offsetCorrectionX) {
-        deltaX -= offsetX;
-      }
       this.dnd.x = Math.max(figure.x + deltaX, 0);
 
       const newY = ev.clientY - position.top;
       let deltaY = newY - initialY;
-
-      if (newY > offsetCorrectionY && initialY < offsetCorrectionY) {
-        deltaY += offsetY;
-      } else if (newY < offsetCorrectionY && initialY > offsetCorrectionY) {
-        deltaY -= offsetY;
-      }
       this.dnd.y = Math.max(figure.y + deltaY, 0);
     };
     const onMouseUp = (ev: MouseEvent) => {
+      let { x, y } = this.dnd;
+      // Correct position in case of moving to/from a frozen pane
+      if (this.dnd.x > offsetCorrectionX && figure.x < offsetCorrectionX) {
+        x += offsetX;
+      } else if (this.dnd.x < offsetCorrectionX && figure.x > offsetCorrectionX) {
+        x -= offsetX;
+      }
+      if (this.dnd.y > offsetCorrectionY && figure.y < offsetCorrectionY) {
+        y += offsetY;
+      } else if (this.dnd.y < offsetCorrectionY && figure.y > offsetCorrectionY) {
+        y -= offsetY;
+      }
       this.dnd.isActive = false;
-      this.env.model.dispatch("UPDATE_FIGURE", {
-        sheetId: this.env.model.getters.getActiveSheetId(),
-        id: figure.id,
-        x: this.dnd.x,
-        y: this.dnd.y,
-      });
+      this.env.model.dispatch("UPDATE_FIGURE", { sheetId, id: figure.id, x, y });
     };
     startDnd(onMouseMove, onMouseUp);
   }

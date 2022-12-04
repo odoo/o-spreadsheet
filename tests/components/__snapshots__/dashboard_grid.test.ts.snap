@@ -12,7 +12,7 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
     "
   >
     <div
-      class="o-grid-overlay"
+      class="o-grid-overlay overflow-hidden"
       style="
       height: 100%;
       width: 100%

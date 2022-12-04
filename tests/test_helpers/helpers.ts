@@ -64,6 +64,8 @@ Scheduler.requestAnimationFrame = function (callback: FrameRequestCallback) {
 };
 
 export async function nextTick(): Promise<void> {
+  //@ts-ignore
+  window.resizers.resize();
   await new Promise((resolve) => realTimeSetTimeout(resolve));
   await new Promise((resolve) => Scheduler.requestAnimationFrame(resolve));
 }
