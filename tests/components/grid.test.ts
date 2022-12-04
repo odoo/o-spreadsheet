@@ -48,6 +48,7 @@ import {
   Touch,
 } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
+import { mockChart } from "./__mocks__/chart";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );
@@ -1469,5 +1470,26 @@ describe("Copy paste keyboard shortcut", () => {
     document.body.dispatchEvent(await getClipboardEvent("paste"));
     expect(model.getters.getChartIds(sheetId)).toHaveLength(1);
     expect(model.getters.getChartIds(sheetId)[0]).not.toEqual("chartId");
+  });
+
+  test("Double clicking only opens composer when actually targetting grid overlay", async () => {
+    // creating a child  node
+    mockChart();
+    createChart(model, {}, "chartId");
+    await nextTick();
+    await simulateClick(".o-figure", 0, 0);
+    await nextTick();
+    expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
+    // double click on child
+    triggerMouseEvent(".o-figure", "dblclick");
+    await nextTick();
+    expect(model.getters.getEditionMode()).toBe("inactive");
+    expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
+
+    // double click on grid overlay
+    triggerMouseEvent(".o-grid-overlay", "dblclick");
+    await nextTick();
+    expect(model.getters.getEditionMode()).toBe("editing");
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
   });
 });
