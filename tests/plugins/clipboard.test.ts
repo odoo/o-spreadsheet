@@ -1427,7 +1427,7 @@ describe("clipboard", () => {
       expect(getCellText(model, "A1")).toBe("=Sheet3!$C$3");
     });
 
-    test("update references even if the the formula is present in the cutting zone", () => {
+    test("update references even if the formula is present in the cutting zone", () => {
       const model = new Model();
       setCellContent(model, "A1", "=B1");
       setCellContent(model, "B1", "b1");
@@ -1448,7 +1448,7 @@ describe("clipboard", () => {
       expect(getCellText(model, "A1")).toBe("=SUM(B1:C1)+B2");
     });
 
-    test("does not update reference if it isn't fully included in the zone even if the the formula is present in the cutting zone", () => {
+    test("does not update reference if it isn't fully included in the zone even if the formula is present in the cutting zone", () => {
       const model = new Model();
       setCellContent(model, "A1", "=SUM(B1:C1)+B1");
       setCellContent(model, "B1", "b1");
