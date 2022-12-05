@@ -6,7 +6,7 @@ import {
   MENU_SEPARATOR_PADDING,
 } from "../../constants";
 import { hslaToRGBA, isColorValid, rgbaToHex } from "../../helpers";
-import { chartFontColor } from "../../helpers/charts";
+import { chartFontColor } from "../../helpers/figures/charts";
 import { Color } from "../../types";
 import { SpreadsheetChildEnv } from "../../types/env";
 import { css } from "../helpers/css";

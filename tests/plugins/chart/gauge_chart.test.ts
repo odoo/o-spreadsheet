@@ -16,7 +16,7 @@ import {
   undo,
   updateChart,
 } from "../../test_helpers/commands_helpers";
-import { GaugeChart } from "./../../../src/helpers/charts/gauge_chart";
+import { GaugeChart } from "./../../../src/helpers/figures/charts/gauge_chart";
 
 let model: Model;
 

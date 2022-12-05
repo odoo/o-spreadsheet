@@ -1,11 +1,11 @@
-import { transformZone } from "../../collaborative/ot/ot_helpers";
+import { transformZone } from "../../../collaborative/ot/ot_helpers";
 import {
   DEFAULT_GAUGE_LOWER_COLOR,
   DEFAULT_GAUGE_MIDDLE_COLOR,
   DEFAULT_GAUGE_UPPER_COLOR,
-} from "../../constants";
-import { BasePlugin } from "../../plugins/base_plugin";
-import { chartRegistry } from "../../registries/chart_types";
+} from "../../../constants";
+import { BasePlugin } from "../../../plugins/base_plugin";
+import { chartRegistry } from "../../../registries/chart_types";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -19,19 +19,19 @@ import {
   UID,
   UnboundedZone,
   Validation,
-} from "../../types";
-import { ChartCreationContext } from "../../types/chart/chart";
+} from "../../../types";
+import { ChartCreationContext } from "../../../types/chart/chart";
 import {
   GaugeChartConfiguration,
   GaugeChartDefinition,
   GaugeChartRuntime,
   SectionRule,
-} from "../../types/chart/gauge_chart";
-import { Validator } from "../../types/validator";
-import { clip } from "../index";
-import { createRange } from "../range";
-import { rangeReference } from "../references";
-import { toUnboundedZone, zoneToXc } from "../zones";
+} from "../../../types/chart/gauge_chart";
+import { Validator } from "../../../types/validator";
+import { clip } from "../../index";
+import { createRange } from "../../range";
+import { rangeReference } from "../../references";
+import { toUnboundedZone, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
 import { adaptChartRange, chartFontColor, copyLabelRangeWithNewSheetId } from "./chart_common";
 import { getDefaultChartJsRuntime } from "./chart_ui_common";

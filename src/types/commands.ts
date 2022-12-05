@@ -4,6 +4,8 @@ import { CellPopoverType } from "./cell_popovers";
 import { ChartDefinition } from "./chart/chart";
 import { ClipboardPasteOptions } from "./clipboard";
 import { UpDown } from "./conditional_formatting";
+import { FigureSize } from "./figure";
+import { Image } from "./image";
 import { BorderCommand, ConditionalFormat, Figure, Format, Style, Zone } from "./index";
 import {
   Border,
@@ -196,6 +198,9 @@ export const coreTypes = new Set<CoreCommandTypes>([
   /** FILTERS */
   "CREATE_FILTER_TABLE",
   "REMOVE_FILTER_TABLE",
+
+  /** IMAGE */
+  "CREATE_IMAGE",
 ]);
 
 export function isCoreCommand(cmd: Command): cmd is CoreCommand {
@@ -418,7 +423,7 @@ export interface CreateChartCommand extends SheetDependentCommand {
   type: "CREATE_CHART";
   id: UID;
   position?: { x: number; y: number };
-  size?: { width: number; height: number };
+  size?: FigureSize;
   definition: ChartDefinition;
 }
 
@@ -426,6 +431,18 @@ export interface UpdateChartCommand extends SheetDependentCommand {
   type: "UPDATE_CHART";
   id: UID;
   definition: ChartDefinition;
+}
+
+//------------------------------------------------------------------------------
+// Image
+//------------------------------------------------------------------------------
+
+export interface CreateImageOverCommand extends SheetDependentCommand {
+  type: "CREATE_IMAGE";
+  figureId: UID;
+  position: { x: number; y: number };
+  size: FigureSize;
+  definition: Image;
 }
 
 //------------------------------------------------------------------------------
@@ -922,6 +939,9 @@ export type CoreCommand =
   | CreateChartCommand
   | UpdateChartCommand
 
+  /** Image */
+  | CreateImageOverCommand
+
   /** FILTERS */
   | CreateFilterTableCommand
   | RemoveFilterTableCommand;
@@ -1059,6 +1079,7 @@ export const enum CommandResult {
   InvalidRange,
   InvalidZones,
   InvalidSheetId,
+  InvalidFigureId,
   InputAlreadyFocused,
   MaximumRangesReached,
   InvalidChartDefinition,

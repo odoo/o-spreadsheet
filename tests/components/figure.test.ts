@@ -1,17 +1,30 @@
 import { App, Component, xml } from "@odoo/owl";
 import { Model } from "../../src";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, MENU_WIDTH } from "../../src/constants";
 import { figureRegistry } from "../../src/registries";
 import { CreateFigureCommand, Figure, SpreadsheetChildEnv, UID } from "../../src/types";
 import {
   activateSheet,
+  createChart,
+  createGaugeChart,
+  createImage,
+  createScorecardChart,
   createSheet,
+  paste,
   selectCell,
   setCellContent,
 } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getCellContent, getCellText } from "../test_helpers/getters_helpers";
-import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
+import {
+  getFigureDefinition,
+  getFigureIds,
+  makeTestFixture,
+  MockClipboard,
+  mountSpreadsheet,
+  nextTick,
+} from "../test_helpers/helpers";
+import { TEST_CHART_DATA } from "./charts.test";
 
 let fixture: HTMLElement;
 let model: Model;
@@ -263,4 +276,138 @@ describe("figures", () => {
     fixture.querySelector(".o-scrollbar.vertical")!.dispatchEvent(new Event("scroll"));
     expect(model.getters.getSelectedFigureId()).toEqual("someuuid");
   });
+
+  describe.each(["image", "basicChart", "scorecard", "gauge"])(
+    "common tests for chart & image",
+    (type: string) => {
+      let sheetId: UID;
+      let figureId: UID;
+      beforeEach(async () => {
+        const clipboard = new MockClipboard();
+        Object.defineProperty(navigator, "clipboard", {
+          get() {
+            return clipboard;
+          },
+          configurable: true,
+        });
+        sheetId = model.getters.getActiveSheetId();
+        figureId = "figureId";
+        switch (type) {
+          case "image":
+            createImage(model, { sheetId, figureId });
+            break;
+          case "basicChart":
+            createChart(model, TEST_CHART_DATA.basicChart, figureId);
+            break;
+          case "scorecard":
+            createScorecardChart(model, TEST_CHART_DATA.scorecard, figureId);
+            break;
+          case "gauge":
+            createGaugeChart(model, TEST_CHART_DATA.gauge, figureId);
+            break;
+        }
+        await nextTick();
+      });
+      test(`Click on Delete button will delete the figure ${type}`, async () => {
+        expect(fixture.querySelector(".o-figure")).not.toBeNull();
+        await simulateClick(".o-figure");
+        expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
+        expect(fixture.querySelector(".o-figure-menu-item")).not.toBeNull();
+        await simulateClick(".o-figure-menu-item");
+        expect(fixture.querySelector(".o-menu")).not.toBeNull();
+        await simulateClick(".o-menu div[data-name='delete']");
+        expect(() => model.getters.getImage(figureId)).toThrow();
+      });
+
+      test(`Can copy/paste a figure ${type} with its context menu`, async () => {
+        const figureDef = getFigureDefinition(model, figureId, type);
+        await simulateClick(".o-figure");
+        await simulateClick(".o-figure-menu-item");
+        await simulateClick(".o-menu div[data-name='copy']");
+        paste(model, "A4");
+        expect(getFigureIds(model, sheetId)).toHaveLength(2);
+        const figureIds = getFigureIds(model, sheetId);
+        expect(getFigureDefinition(model, figureIds[0], type)).toEqual(figureDef);
+        expect(getFigureDefinition(model, figureIds[1], type)).toEqual(figureDef);
+      });
+
+      test(`Can cut/paste a figure ${type} with its context menu`, async () => {
+        const figureDef = getFigureDefinition(model, figureId, type);
+        await simulateClick(".o-figure");
+        await simulateClick(".o-figure-menu-item");
+        await simulateClick(".o-menu div[data-name='cut']");
+        paste(model, "A1");
+        expect(getFigureIds(model, sheetId)).toHaveLength(1);
+        const figureIds = getFigureIds(model, sheetId);
+        expect(getFigureDefinition(model, figureIds[0], type)).toEqual(figureDef);
+      });
+
+      test(`Copied figure ${type} are selected`, async () => {
+        await simulateClick(".o-figure");
+        await simulateClick(".o-figure-menu-item");
+        await simulateClick(".o-menu div[data-name='copy']");
+        expect(model.getters.getSelectedFigureId()).toEqual(figureId);
+        paste(model, "A1");
+        expect(getFigureIds(model, sheetId)).toHaveLength(2);
+        const chartIds = getFigureIds(model, sheetId);
+        expect(model.getters.getSelectedFigureId()).not.toEqual(figureId);
+        expect(model.getters.getSelectedFigureId()).toEqual(chartIds[1]);
+      });
+
+      test(`figure ${type} have a menu button`, async () => {
+        expect(fixture.querySelector(".o-figure")).not.toBeNull();
+        expect(fixture.querySelector(".o-figure-menu-item")).not.toBeNull();
+      });
+
+      test("images don't have a menu button in dashboard mode", async () => {
+        model.updateMode("dashboard");
+        await nextTick();
+        expect(fixture.querySelector(".o-figure")).not.toBeNull();
+        expect(fixture.querySelector(".o-figure-menu-item")).toBeNull();
+      });
+
+      test("Can open context menu on right click", async () => {
+        triggerMouseEvent(".o-figure", "contextmenu");
+        await nextTick();
+        expect(document.querySelectorAll(".o-menu").length).toBe(1);
+      });
+
+      test("Cannot open context menu on right click in dashboard mode", async () => {
+        model.updateMode("dashboard");
+        triggerMouseEvent(".o-figure", "contextmenu");
+        await nextTick();
+        expect(document.querySelector(".o-menu")).toBeFalsy();
+      });
+
+      test("Click on Menu button open context menu", async () => {
+        expect(fixture.querySelector(".o-figure")).not.toBeNull();
+        await simulateClick(".o-figure");
+        expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
+        expect(fixture.querySelector(".o-figure-menu-item")).not.toBeNull();
+        await simulateClick(".o-figure-menu-item");
+        expect(fixture.querySelector(".o-menu")).not.toBeNull();
+      });
+
+      test("Context menu is positioned according to the spreadsheet position", async () => {
+        await simulateClick(".o-figure");
+        await simulateClick(".o-figure-menu-item");
+        const menuPopover = fixture.querySelector(".o-menu")?.parentElement;
+        expect(menuPopover?.style.top).toBe(`${500 - 100}px`);
+        expect(menuPopover?.style.left).toBe(`${500 - 200 - MENU_WIDTH}px`);
+      });
+
+      test("Selecting a figure and hitting Ctrl does not unselect it", async () => {
+        await simulateClick(".o-figure");
+        expect(model.getters.getSelectedFigureId()).toBe(figureId);
+        document.activeElement!.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Control", bubbles: true })
+        );
+        expect(model.getters.getSelectedFigureId()).toBe(figureId);
+        document.activeElement!.dispatchEvent(
+          new KeyboardEvent("keyup", { key: "Control", bubbles: true })
+        );
+        expect(model.getters.getSelectedFigureId()).toBe(figureId);
+      });
+    }
+  );
 });

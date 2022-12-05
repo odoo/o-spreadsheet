@@ -1,5 +1,5 @@
 import { overlap } from "../../helpers";
-import { transformDefinition } from "../../helpers/charts";
+import { transformDefinition } from "../../helpers/figures/charts";
 import { otRegistry } from "../../registries";
 import {
   AddColumnsRowsCommand,

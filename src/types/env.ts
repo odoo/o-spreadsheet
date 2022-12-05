@@ -1,6 +1,7 @@
 import { Model } from "..";
 import { TranslationFunction } from "../translation";
 import { Currency } from "./currency";
+import { ImageProviderInterface } from "./files";
 
 export interface EditTextOptions {
   error?: string;
@@ -28,6 +29,7 @@ export interface SpreadsheetEnv {
 
 export interface SpreadsheetChildEnv extends SpreadsheetEnv {
   model: Model;
+  imageProvider?: ImageProviderInterface;
   isDashboard: () => boolean;
   openSidePanel: (panel: string, panelProps?: any) => void;
   toggleSidePanel: (panel: string, panelProps?: any) => void;

@@ -8,6 +8,7 @@ import {
   FiltersPlugin,
   HeaderSizePlugin,
   HeaderVisibilityPlugin,
+  ImagePlugin,
   MergePlugin,
   SheetPlugin,
 } from "./core";
@@ -48,7 +49,8 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("borders", BordersPlugin)
   .add("conditional formatting", ConditionalFormatPlugin)
   .add("figures", FigurePlugin)
-  .add("chart", ChartPlugin);
+  .add("chart", ChartPlugin)
+  .add("image", ImagePlugin);
 
 // Plugins which handle a specific feature, without handling any core commands
 export const featurePluginRegistry = new Registry<UIPluginConstructor>()

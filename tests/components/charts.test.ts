@@ -1,7 +1,7 @@
 import { App } from "@odoo/owl";
 import { CommandResult, Model, Spreadsheet } from "../../src";
 import { ChartTerms } from "../../src/components/translations_terms";
-import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../src/constants";
+import { BACKGROUND_CHART_COLOR } from "../../src/constants";
 import { toHex, toZone } from "../../src/helpers";
 import { ChartDefinition } from "../../src/types";
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
@@ -10,7 +10,6 @@ import {
   createChart,
   createGaugeChart,
   createScorecardChart,
-  paste,
   updateChart,
 } from "../test_helpers/commands_helpers";
 import {
@@ -28,7 +27,7 @@ import {
   textContentAll,
 } from "../test_helpers/helpers";
 
-const TEST_CHART_DATA = {
+export const TEST_CHART_DATA = {
   basicChart: {
     type: "bar" as const,
     dataSets: ["B1:B4"],
@@ -97,7 +96,7 @@ jest
   .mockImplementation(function (this: HTMLDivElement) {
     if (this.className.includes("o-spreadsheet")) {
       return { top: 100, left: 200 };
-    } else if (this.className.includes("o-chart-menu-item")) {
+    } else if (this.className.includes("o-figure-menu-item")) {
       return { top: 500, left: 500 };
     }
     return originalGetBoundingClientRect.call(this);
@@ -183,7 +182,7 @@ describe("figures", () => {
       createTestChart(chartType);
       await nextTick();
       expect(fixture.querySelector(".o-figure")).not.toBeNull();
-      expect(fixture.querySelector(".o-chart-menu-item")).not.toBeNull();
+      expect(fixture.querySelector(".o-figure-menu-item")).not.toBeNull();
     }
   );
 
@@ -194,110 +193,7 @@ describe("figures", () => {
       model.updateMode("dashboard");
       await nextTick();
       expect(fixture.querySelector(".o-figure")).not.toBeNull();
-      expect(fixture.querySelector(".o-chart-menu-item")).toBeNull();
-    }
-  );
-
-  test.each(["basicChart", "scorecard", "gauge"])(
-    "Click on Menu button open context menu in %s",
-    async (chartType: string) => {
-      createTestChart(chartType);
-      await nextTick();
-
-      expect(fixture.querySelector(".o-figure")).not.toBeNull();
-      await simulateClick(".o-figure");
-      expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
-      expect(fixture.querySelector(".o-chart-menu-item")).not.toBeNull();
-      await simulateClick(".o-chart-menu-item");
-      expect(fixture.querySelector(".o-menu")).not.toBeNull();
-    }
-  );
-
-  test.each(["scorecard", "basicChart", "gauge"])(
-    "Context menu is positioned according to the spreadsheet position in %s",
-    async (chartType: string) => {
-      createTestChart(chartType);
-      await nextTick();
-
-      await simulateClick(".o-figure");
-      await simulateClick(".o-chart-menu-item");
-      const menuPopover = fixture.querySelector(".o-menu")?.parentElement;
-      expect(menuPopover?.style.top).toBe(`${500 - 100}px`);
-      expect(menuPopover?.style.left).toBe(`${500 - 200 - MENU_WIDTH}px`);
-    }
-  );
-
-  test.each(["basicChart", "scorecard", "gauge"])(
-    "Click on Delete button will delete the chart %s",
-    async (chartType: string) => {
-      createTestChart(chartType);
-      await nextTick();
-
-      expect(model.getters.getChartDefinition(chartId)).toMatchObject(TEST_CHART_DATA[chartType]);
-      expect(fixture.querySelector(".o-figure")).not.toBeNull();
-      await simulateClick(".o-figure");
-      expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
-      expect(fixture.querySelector(".o-chart-menu-item")).not.toBeNull();
-      await simulateClick(".o-chart-menu-item");
-      expect(fixture.querySelector(".o-menu")).not.toBeNull();
-      const deleteButton = fixture.querySelector(".o-menu div[data-name='delete']")!;
-      expect(deleteButton.textContent).toBe("Delete");
-      await simulateClick(".o-menu div[data-name='delete']");
-      expect(() => model.getters.getChartRuntime(chartId)).toThrow();
-    }
-  );
-
-  test.each(["basicChart", "scorecard", "gauge"])(
-    "Can copy/paste a %s chart with its context menu",
-    async (chartType: string) => {
-      createTestChart(chartType);
-      const chartRuntime = model.getters.getChartRuntime(chartId);
-      await nextTick();
-
-      await simulateClick(".o-figure");
-      await simulateClick(".o-chart-menu-item");
-      await simulateClick(".o-menu div[data-name='copy']");
-      paste(model, "A1");
-      expect(model.getters.getChartIds(sheetId).length).toEqual(2);
-      const chartIds = model.getters.getChartIds(sheetId);
-      expect(model.getters.getChartRuntime(chartIds[1])).toEqual(chartRuntime);
-      expect(model.getters.getChartRuntime(chartIds[0])).toEqual(chartRuntime);
-    }
-  );
-
-  test.each(["basicChart", "scorecard", "gauge"])(
-    "Can cut/paste a %s chart with its context menu",
-    async (chartType: string) => {
-      createTestChart(chartType);
-      const chartRuntime = model.getters.getChartRuntime(chartId);
-      await nextTick();
-
-      await simulateClick(".o-figure");
-      await simulateClick(".o-chart-menu-item");
-      await simulateClick(".o-menu div[data-name='cut']");
-      paste(model, "A1");
-      expect(() => model.getters.getChartRuntime(chartId)).toThrow();
-      const chartIds = model.getters.getChartIds(sheetId);
-      expect(chartIds.length).toEqual(1);
-      expect(model.getters.getChartRuntime(chartIds[0])).toEqual(chartRuntime);
-    }
-  );
-
-  test.each(["basicChart", "scorecard", "gauge"])(
-    "Copied chart are selected",
-    async (chartType: string) => {
-      createTestChart(chartType);
-      await nextTick();
-
-      await simulateClick(".o-figure");
-      await simulateClick(".o-chart-menu-item");
-      await simulateClick(".o-menu div[data-name='copy']");
-      expect(model.getters.getSelectedFigureId()).toEqual(chartId);
-      paste(model, "A1");
-      expect(model.getters.getChartIds(sheetId).length).toEqual(2);
-      const chartIds = model.getters.getChartIds(sheetId);
-      expect(model.getters.getSelectedFigureId()).not.toEqual(chartId);
-      expect(model.getters.getSelectedFigureId()).toEqual(chartIds[1]);
+      expect(fixture.querySelector(".o-figure-menu-item")).toBeNull();
     }
   );
 
@@ -308,7 +204,7 @@ describe("figures", () => {
       await nextTick();
 
       await simulateClick(".o-figure");
-      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-figure-menu-item");
       const editButton = fixture.querySelector(".o-menu div[data-name='edit']")!;
       expect(editButton.textContent).toBe("Edit");
       await simulateClick(".o-menu div[data-name='edit']");
@@ -357,7 +253,7 @@ describe("figures", () => {
       await nextTick();
 
       await simulateClick(".o-figure");
-      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-figure-menu-item");
       const editButton = fixture.querySelector(".o-menu div[data-name='edit']")!;
       expect(editButton.textContent).toBe("Edit");
       await simulateClick(".o-menu div[data-name='edit']");
@@ -429,7 +325,7 @@ describe("figures", () => {
 
     const figures = fixture.querySelectorAll(".o-figure");
     await simulateClick(figures[0] as HTMLElement);
-    await simulateClick(".o-chart-menu-item");
+    await simulateClick(".o-figure-menu-item");
     await simulateClick(".o-menu div[data-name='edit']");
     await simulateClick(".o-panel .inactive");
     await simulateClick(".o-chart-title input");
@@ -449,7 +345,7 @@ describe("figures", () => {
       await nextTick();
 
       await simulateClick(".o-figure");
-      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-figure-menu-item");
       const editButton = fixture.querySelector(".o-menu div[data-name='edit']")!;
       expect(editButton.textContent).toBe("Edit");
       await simulateClick(".o-menu div[data-name='edit']");
@@ -508,7 +404,7 @@ describe("figures", () => {
     createTestChart("basicChart");
     await nextTick();
     await simulateClick(".o-figure");
-    await simulateClick(".o-chart-menu-item");
+    await simulateClick(".o-figure-menu-item");
     const editButton = fixture.querySelector(".o-menu div[data-name='edit']")!;
     expect(editButton.textContent).toBe("Edit");
     await simulateClick(".o-menu div[data-name='edit']");
@@ -544,12 +440,12 @@ describe("figures", () => {
 
       expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
       await simulateClick(".o-figure");
-      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-figure-menu-item");
       await simulateClick(".o-menu div[data-name='edit']");
       await nextTick();
       expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
       await simulateClick(".o-figure");
-      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-figure-menu-item");
       await simulateClick(".o-menu div[data-name='delete']");
       expect(() => model.getters.getChartRuntime("someuuid")).toThrow();
       await nextTick();
@@ -579,7 +475,7 @@ describe("figures", () => {
           await nextTick();
           const figures = fixture.querySelectorAll(".o-figure");
           await simulateClick(figures[0] as HTMLElement);
-          await simulateClick(".o-chart-menu-item");
+          await simulateClick(".o-figure-menu-item");
           await simulateClick(".o-menu div[data-name='edit']");
           await nextTick();
           expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
@@ -615,32 +511,12 @@ describe("figures", () => {
     }
   );
 
-  test.each(["basicChart", "scorecard", "gauge"])(
-    "Selecting a figure and hitting Ctrl does not unselect it",
-    async (chartType: string) => {
-      createTestChart(chartType);
-      await nextTick();
-
-      await simulateClick(".o-figure");
-      expect(model.getters.getSelectedFigureId()).toBe("someuuid");
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "Control", bubbles: true })
-      );
-      expect(model.getters.getSelectedFigureId()).toBe("someuuid");
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keyup", { key: "Control", bubbles: true })
-      );
-
-      expect(model.getters.getSelectedFigureId()).toBe("someuuid");
-    }
-  );
-
   test("Can remove the last data series", async () => {
     createTestChart("basicChart");
     await nextTick();
 
     await simulateClick(".o-figure");
-    await simulateClick(".o-chart-menu-item");
+    await simulateClick(".o-figure-menu-item");
     await simulateClick(".o-menu div[data-name='edit']");
     await simulateClick(".o-data-series .o-add-selection");
     const element = document.querySelectorAll(".o-data-series input")[1];
@@ -658,31 +534,6 @@ describe("figures", () => {
     ]);
   });
 
-  test.each(["basicChart", "scorecard"])(
-    "Can open context menu on right click",
-    async (chartType: string) => {
-      createTestChart(chartType);
-      await nextTick();
-
-      triggerMouseEvent(".o-chart-container", "contextmenu");
-      await nextTick();
-      expect(document.querySelectorAll(".o-menu").length).toBe(1);
-    }
-  );
-
-  test.each(["basicChart", "scorecard", "gauge"])(
-    "Cannot open context menu on right click in dashboard mode",
-    async (chartType: string) => {
-      createTestChart(chartType);
-      model.updateMode("dashboard");
-      await nextTick();
-
-      triggerMouseEvent(".o-chart-container", "contextmenu");
-      await nextTick();
-      expect(document.querySelector(".o-menu")).toBeFalsy();
-    }
-  );
-
   describe("Chart error messages", () => {
     test.each([
       ["basicChart", []],
@@ -694,7 +545,7 @@ describe("figures", () => {
         await nextTick();
 
         await simulateClick(".o-figure");
-        await simulateClick(".o-chart-menu-item");
+        await simulateClick(".o-figure-menu-item");
         await simulateClick(".o-menu div[data-name='edit']");
 
         await simulateClick(".o-data-labels input");
@@ -721,7 +572,7 @@ describe("figures", () => {
         await nextTick();
 
         await simulateClick(".o-figure");
-        await simulateClick(".o-chart-menu-item");
+        await simulateClick(".o-figure-menu-item");
         await simulateClick(".o-menu div[data-name='edit']");
         await simulateClick(".o-data-series input");
         setInputValueAndTrigger(".o-data-series input", "This is not valid", "change");
@@ -743,7 +594,7 @@ describe("figures", () => {
         await nextTick();
 
         await simulateClick(".o-figure");
-        await simulateClick(".o-chart-menu-item");
+        await simulateClick(".o-figure-menu-item");
         await simulateClick(".o-menu div[data-name='edit']");
         await simulateClick(".o-data-labels input");
         setInputValueAndTrigger(".o-data-labels input", "this is not valid", "change");
@@ -760,7 +611,7 @@ describe("figures", () => {
         createTestChart("gauge");
         await nextTick();
         await simulateClick(".o-figure");
-        await simulateClick(".o-chart-menu-item");
+        await simulateClick(".o-figure-menu-item");
         await simulateClick(".o-menu div[data-name='edit']");
         // change configuration panel to design panel
         await simulateClick(".o-panel-design");
@@ -973,7 +824,7 @@ describe("figures", () => {
       updateChart(model, chartId, { keyValue: undefined, dataRange: undefined, dataSets: [] });
       await nextTick();
       await simulateClick(".o-figure");
-      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-figure-menu-item");
       await simulateClick(".o-menu div[data-name='edit']");
       await nextTick();
 
@@ -990,7 +841,7 @@ describe("figures", () => {
       const dispatch = spyDispatch(parent);
       await nextTick();
       await simulateClick(".o-figure");
-      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-figure-menu-item");
       const editButton = fixture.querySelector(".o-menu div[data-name='edit']")!;
       expect(editButton.textContent).toBe("Edit");
       await simulateClick(".o-menu div[data-name='edit']");
@@ -1051,7 +902,7 @@ describe("figures", () => {
       updateChart(model, chartId, { type: "line", labelRange: "C2:C4", dataSets: ["B2:B4"] });
       await nextTick();
       await simulateClick(".o-figure");
-      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-figure-menu-item");
       await simulateClick(".o-menu div[data-name='edit']");
       await nextTick();
       expect(document.querySelector("input[name='labelsAsText']")).toBeTruthy();
@@ -1062,7 +913,7 @@ describe("figures", () => {
       updateChart(model, chartId, { type: "pie" });
       await nextTick();
       await simulateClick(".o-figure");
-      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-figure-menu-item");
       await simulateClick(".o-menu div[data-name='edit']");
       expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
     });
@@ -1072,7 +923,7 @@ describe("figures", () => {
       updateChart(model, chartId, { type: "bar" });
       await nextTick();
       await simulateClick(".o-figure");
-      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-figure-menu-item");
       await simulateClick(".o-menu div[data-name='edit']");
       expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
     });
@@ -1083,7 +934,7 @@ describe("figures", () => {
       updateChart(model, chartId, { labelRange: "A2:A4", dataSets: ["B2:B4"] });
       await nextTick();
       await simulateClick(".o-figure");
-      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-figure-menu-item");
       await simulateClick(".o-menu div[data-name='edit']");
       expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
     });
@@ -1098,7 +949,7 @@ describe("figures", () => {
       updateChart(model, chartId, { type: "line", labelRange: "C2:C4", dataSets: ["B2:B4"] });
       await nextTick();
       await simulateClick(".o-figure");
-      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-figure-menu-item");
       await simulateClick(".o-menu div[data-name='edit']");
       expect(document.querySelector("input[name='labelsAsText']")).toBeTruthy();
     });
@@ -1111,7 +962,7 @@ describe("figures", () => {
         (model.getters.getChartDefinition(chartId) as LineChartDefinition).labelsAsText
       ).toBeFalsy();
       await simulateClick(".o-figure");
-      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-figure-menu-item");
       await simulateClick(".o-menu div[data-name='edit']");
       await simulateClick("input[name='labelsAsText']");
       expect(
@@ -1129,7 +980,7 @@ describe("figures", () => {
       });
       updateChart(model, chartId, { type: "line", labelRange: "A2:A4", dataSets: ["B2:B4"] });
       await simulateClick(".o-figure");
-      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-figure-menu-item");
       await simulateClick(".o-menu div[data-name='edit']");
       expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
     });
@@ -1139,7 +990,7 @@ describe("figures", () => {
       await nextTick();
       updateChart(model, chartId, { type: "line", labelRange: "F2:F4", dataSets: ["B2:B4"] });
       await simulateClick(".o-figure");
-      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-figure-menu-item");
       await simulateClick(".o-menu div[data-name='edit']");
       expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
     });

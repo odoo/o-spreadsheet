@@ -1,5 +1,5 @@
 import { BACKGROUND_CHART_COLOR } from "../../constants";
-import { chartRuntimeFactory } from "../../helpers/charts";
+import { chartRuntimeFactory } from "../../helpers/figures/charts";
 import { Color, Range, UID } from "../../types";
 import { ChartRuntime } from "../../types/chart/chart";
 import {

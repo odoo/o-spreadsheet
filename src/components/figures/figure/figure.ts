@@ -24,9 +24,9 @@ type Anchor =
 // STYLE
 // -----------------------------------------------------------------------------
 const ANCHOR_SIZE = 8;
+const MIN_FIG_SIZE = 80;
 const BORDER_WIDTH = 1;
 const ACTIVE_BORDER_WIDTH = 2;
-const MIN_FIG_SIZE = 80;
 
 css/*SCSS*/ `
   div.o-figure {
@@ -34,6 +34,7 @@ css/*SCSS*/ `
     position: absolute;
     width: 100%;
     height: 100%;
+    user-select: none;
 
     bottom: 0px;
     right: 0px;
@@ -94,19 +95,60 @@ css/*SCSS*/ `
         cursor: nw-resize;
       }
     }
+
+    .o-figure-menu {
+      right: 0px;
+      display: none;
+      position: absolute;
+      padding: 5px;
+    }
+
+    .o-figure-menu-item {
+      cursor: pointer;
+    }
+
+    .o-figure.active:focus,
+    .o-figure:hover {
+      .o-figure-menu {
+        display: flex;
+      }
+    }
   }
 `;
 
 interface Props {
-  sidePanelIsOpen: Boolean;
-  onFigureDeleted: () => void;
   figure: Figure;
+  sidePanelIsOpen: boolean;
+  onFigureDeleted: () => void;
 }
 
 export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FigureComponent";
   static components = {};
-  figureRegistry = figureRegistry;
+  static defaultProps = {
+    sidePanelIsOpen: false,
+    onFigureDeleted: function () {},
+  };
+
+  private figureRegistry = figureRegistry;
+  private keepRatio!: boolean;
+  private borderWidth!: number;
+  private minFigSize!: number;
+  setup() {
+    this.figureRegistry = figureRegistry;
+    this.keepRatio = this.figureRegistry.get(this.props.figure.tag).keepRatio || false;
+    this.minFigSize = this.figureRegistry.get(this.props.figure.tag).minFigSize || MIN_FIG_SIZE;
+    const borderWidth = this.figureRegistry.get(this.props.figure.tag).borderWidth;
+    this.borderWidth = borderWidth !== undefined ? borderWidth : BORDER_WIDTH;
+    useEffect(
+      (selectedFigureId: UID | null, thisFigureId: UID, el: HTMLElement | null) => {
+        if (selectedFigureId === thisFigureId) {
+          el?.focus();
+        }
+      },
+      () => [this.env.model.getters.getSelectedFigureId(), this.props.figure.id, this.figureRef.el]
+    );
+  }
 
   private figureRef = useRef("figure");
 
@@ -138,8 +180,8 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     return { width: width + borders, height: height + borders };
   }
 
-  private getBorderWidth() {
-    return this.isSelected ? ACTIVE_BORDER_WIDTH : this.env.isDashboard() ? 0 : BORDER_WIDTH;
+  private getBorderWidth(): Pixel {
+    return this.isSelected ? ACTIVE_BORDER_WIDTH : this.env.isDashboard() ? 0 : this.borderWidth;
   }
 
   getFigureStyle() {
@@ -181,7 +223,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     if (width < 0 || height < 0) {
       return `display:none;`;
     }
-    const borderOffset = BORDER_WIDTH - this.getBorderWidth();
+    const borderOffset = this.borderWidth - this.getBorderWidth();
     // TODO : remove the +1 once 2951210 is fixed
     return (
       `top:${y + borderOffset + 1}px;` +
@@ -245,17 +287,6 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     return `visibility:${visibility};top:${y}px; left:${x}px;`;
   }
 
-  setup() {
-    useEffect(
-      (selectedFigureId: UID | null, thisFigureId: UID, el: HTMLElement | null) => {
-        if (selectedFigureId === thisFigureId) {
-          el?.focus();
-        }
-      },
-      () => [this.env.model.getters.getSelectedFigureId(), this.props.figure.id, this.figureRef.el]
-    );
-  }
-
   resize(dirX: number, dirY: number, ev: MouseEvent) {
     const figure = this.props.figure;
 
@@ -268,18 +299,35 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     this.dnd.width = figure.width;
     this.dnd.height = figure.height;
 
-    const onMouseMove = (ev: MouseEvent) => {
-      const deltaX = dirX * (ev.clientX - initialX);
-      const deltaY = dirY * (ev.clientY - initialY);
-      this.dnd.width = Math.max(figure.width + deltaX, MIN_FIG_SIZE);
-      this.dnd.height = Math.max(figure.height + deltaY, MIN_FIG_SIZE);
-      if (dirX < 0) {
-        this.dnd.x = figure.x - deltaX;
-      }
-      if (dirY < 0) {
-        this.dnd.y = figure.y - deltaY;
-      }
-    };
+    let onMouseMove: (ev: MouseEvent) => void;
+    if (this.keepRatio && dirX != 0 && dirY != 0) {
+      onMouseMove = (ev: MouseEvent) => {
+        const deltaX = Math.min(dirX * (initialX - ev.clientX), figure.width - this.minFigSize);
+        const deltaY = Math.min(dirY * (initialY - ev.clientY), figure.height - this.minFigSize);
+        const fraction = Math.min(deltaX / figure.width, deltaY / figure.height);
+        this.dnd.width = figure.width * (1 - fraction);
+        this.dnd.height = figure.height * (1 - fraction);
+        if (dirX < 0) {
+          this.dnd.x = figure.x + figure.width * fraction;
+        }
+        if (dirY < 0) {
+          this.dnd.y = figure.y + figure.height * fraction;
+        }
+      };
+    } else {
+      onMouseMove = (ev: MouseEvent) => {
+        const deltaX = dirX * (ev.clientX - initialX);
+        const deltaY = dirY * (ev.clientY - initialY);
+        this.dnd.width = Math.max(figure.width + deltaX, this.minFigSize);
+        this.dnd.height = Math.max(figure.height + deltaY, this.minFigSize);
+        if (dirX < 0) {
+          this.dnd.x = figure.x - deltaX;
+        }
+        if (dirY < 0) {
+          this.dnd.y = figure.y - deltaY;
+        }
+      };
+    }
     const onMouseUp = (ev: MouseEvent) => {
       this.dnd.isActive = false;
       const update: Partial<Figure> = {
@@ -399,7 +447,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 }
 
 FigureComponent.props = {
-  sidePanelIsOpen: Boolean,
-  onFigureDeleted: Function,
   figure: Object,
+  sidePanelIsOpen: { type: Boolean, optional: true },
+  onFigureDeleted: { type: Function, optional: true },
 };

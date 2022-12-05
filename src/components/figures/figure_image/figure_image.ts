@@ -1,87 +1,74 @@
 import { Component, useRef, useState } from "@odoo/owl";
 import { MENU_WIDTH } from "../../../constants";
-import { chartComponentRegistry } from "../../../registries/chart_types";
+import { getMaxFigureSize } from "../../../helpers/figures/figure/figure";
 import { MenuItemRegistry } from "../../../registries/index";
 import { _lt } from "../../../translation";
-import { ChartType, DOMCoordinates, Figure, SpreadsheetChildEnv } from "../../../types";
-import { css } from "../../helpers/css";
+import { DOMCoordinates, Figure, SpreadsheetChildEnv, UID } from "../../../types";
 import { useAbsolutePosition } from "../../helpers/position_hook";
 import { Menu, MenuState } from "../../menu/menu";
 
-// -----------------------------------------------------------------------------
-// STYLE
-// -----------------------------------------------------------------------------
-css/* scss */ `
-  .o-chart-container {
-    width: 100%;
-    height: 100%;
-    position: relative;
-  }
-`;
-
 interface Props {
   figure: Figure;
-  sidePanelIsOpen: boolean;
-  onFigureDeleted: () => void;
 }
 
-export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-ChartFigure";
+export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-ImageFigure";
   static components = { Menu };
   private menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
 
-  private chartContainerRef = useRef("chartContainer");
+  private imageContainerRef = useRef("o-image");
   private menuButtonRef = useRef("menuButton");
   private menuButtonPosition = useAbsolutePosition(this.menuButtonRef);
-  private position = useAbsolutePosition(this.chartContainerRef);
+  private position = useAbsolutePosition(this.imageContainerRef);
 
   private getMenuItemRegistry(): MenuItemRegistry {
     const registry = new MenuItemRegistry();
-    registry.add("edit", {
-      name: _lt("Edit"),
-      sequence: 1,
-      action: () => {
-        this.env.model.dispatch("SELECT_FIGURE", { id: this.props.figure.id });
-        this.env.openSidePanel("ChartPanel");
-      },
-    });
     registry.add("copy", {
       name: _lt("Copy"),
-      sequence: 2,
+      description: "Ctrl+C",
+      sequence: 1,
       action: async () => {
-        this.env.model.dispatch("SELECT_FIGURE", { id: this.props.figure.id });
+        this.env.model.dispatch("SELECT_FIGURE", { id: this.figureId });
         this.env.model.dispatch("COPY");
         await this.env.clipboard.writeText(this.env.model.getters.getClipboardContent());
       },
     });
     registry.add("cut", {
       name: _lt("Cut"),
-      sequence: 3,
+      description: "Ctrl+X",
+      sequence: 2,
       action: async () => {
-        this.env.model.dispatch("SELECT_FIGURE", { id: this.props.figure.id });
+        this.env.model.dispatch("SELECT_FIGURE", { id: this.figureId });
         this.env.model.dispatch("CUT");
         await this.env.clipboard.writeText(this.env.model.getters.getClipboardContent());
       },
     });
+    registry.add("reset_size", {
+      name: _lt("Reset size"),
+      sequence: 3,
+      action: () => {
+        const size = this.env.model.getters.getImageSize(this.figureId);
+        const { height, width } = getMaxFigureSize(this.env.model.getters, size);
+        this.env.model.dispatch("UPDATE_FIGURE", {
+          sheetId: this.env.model.getters.getActiveSheetId(),
+          id: this.figureId,
+          height,
+          width,
+        });
+      },
+    });
     registry.add("delete", {
-      name: _lt("Delete"),
-      sequence: 10,
+      name: _lt("Delete image"),
+      description: "delete",
+      sequence: 5,
       action: () => {
         this.env.model.dispatch("DELETE_FIGURE", {
           sheetId: this.env.model.getters.getActiveSheetId(),
-          id: this.props.figure.id,
+          id: this.figureId,
         });
-        if (this.props.sidePanelIsOpen) {
-          this.env.toggleSidePanel("ChartPanel");
-        }
-        this.props.onFigureDeleted();
       },
     });
     return registry;
-  }
-
-  get chartType(): ChartType {
-    return this.env.model.getters.getChartType(this.props.figure.id);
   }
 
   onContextMenu(ev: MouseEvent) {
@@ -107,18 +94,15 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
     this.menuState.position = position;
   }
 
-  get chartComponent(): new (...args: any) => Component {
-    const type = this.chartType;
-    const component = chartComponentRegistry.get(type);
-    if (!component) {
-      throw new Error(`Component is not defined for type ${type}`);
-    }
-    return component;
+  // ---------------------------------------------------------------------------
+  // Getters
+  // ---------------------------------------------------------------------------
+
+  get figureId(): UID {
+    return this.props.figure.id;
+  }
+
+  get getImagePath(): string {
+    return this.env.model.getters.getImagePath(this.figureId);
   }
 }
-
-ChartFigure.props = {
-  figure: Object,
-  sidePanelIsOpen: Boolean,
-  onFigureDeleted: Function,
-};

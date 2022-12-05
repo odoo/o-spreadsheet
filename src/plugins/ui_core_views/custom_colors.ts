@@ -9,7 +9,7 @@ import {
   rgbaToHSLA,
   toHex,
 } from "../../helpers";
-import { GaugeChart, ScorecardChart } from "../../helpers/charts";
+import { GaugeChart, ScorecardChart } from "../../helpers/figures/charts";
 import { Cell, Color, Command, RGBA, UID } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 

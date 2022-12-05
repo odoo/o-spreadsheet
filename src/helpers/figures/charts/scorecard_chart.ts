@@ -1,11 +1,11 @@
-import { transformZone } from "../../collaborative/ot/ot_helpers";
+import { transformZone } from "../../../collaborative/ot/ot_helpers";
 import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
-} from "../../constants";
-import { chartRegistry } from "../../registries/chart_types";
-import { _t } from "../../translation";
+} from "../../../constants";
+import { chartRegistry } from "../../../registries/chart_types";
+import { _t } from "../../../translation";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -18,17 +18,17 @@ import {
   RemoveColumnsRowsCommand,
   UID,
   UnboundedZone,
-} from "../../types";
-import { ChartCreationContext } from "../../types/chart/chart";
+} from "../../../types";
+import { ChartCreationContext } from "../../../types/chart/chart";
 import {
   BaselineMode,
   ScorecardChartDefinition,
   ScorecardChartRuntime,
-} from "../../types/chart/scorecard_chart";
-import { Validator } from "../../types/validator";
-import { createRange } from "../range";
-import { rangeReference } from "../references";
-import { toUnboundedZone, zoneToXc } from "../zones";
+} from "../../../types/chart/scorecard_chart";
+import { Validator } from "../../../types/validator";
+import { createRange } from "../../range";
+import { rangeReference } from "../../references";
+import { toUnboundedZone, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
 import {
   adaptChartRange,

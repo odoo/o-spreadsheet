@@ -1,6 +1,6 @@
 import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH } from "../../constants";
-import { AbstractChart } from "../../helpers/charts/abstract_chart";
-import { chartFactory, validateChartDefinition } from "../../helpers/charts/chart_factory";
+import { AbstractChart } from "../../helpers/figures/charts/abstract_chart";
+import { chartFactory, validateChartDefinition } from "../../helpers/figures/charts/chart_factory";
 import {
   ChartCreationContext,
   ChartDefinition,

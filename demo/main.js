@@ -3,6 +3,7 @@
 import { demoData, makeLargeDataset } from "./data.js";
 import { currenciesData } from "./currencies.js";
 import { WebsocketTransport } from "./transport.js";
+import { FileStore } from "./file_store.js";
 
 const {
   xml,
@@ -66,6 +67,7 @@ class Demo extends Component {
       name: "Local",
     };
 
+    this.fileStore = new FileStore();
     topbarMenuRegistry.addChild("readonly", ["file"], {
       name: "Open in read-only",
       sequence: 11,
@@ -107,7 +109,7 @@ class Demo extends Component {
         input.setAttribute("type", "file");
         input.setAttribute("style", "display: none");
         document.body.appendChild(input);
-        input.onchange = async () => {
+        input.addEventListener("change", async () => {
           if (input.files.length <= 0) {
             return false;
           }
@@ -127,7 +129,7 @@ class Demo extends Component {
           // note : the onchange won't be called if we cancel the dialog w/o selecting a file, so this won't be called.
           // It's kinda annoying (or not possible?) to fire an event on close, so the hidden input will just stay there
           input.remove();
-        };
+        });
         input.click();
       },
     });
@@ -208,8 +210,8 @@ class Demo extends Component {
 
   notifyUser(notification) {
     if (tags.has(notification.tag)) return;
-    var div = document.createElement("div");
-    var text = document.createTextNode(notification.text);
+    const div = document.createElement("div");
+    const text = document.createTextNode(notification.text);
     div.appendChild(text);
     div.style = NOTIFICATION_STYLE;
     const element = document.querySelector(".o-spreadsheet");
@@ -249,7 +251,7 @@ class Demo extends Component {
 
 Demo.template = xml/* xml */ `
   <div>
-    <Spreadsheet model="model" t-key="state.key"/>
+    <Spreadsheet model="model" fileStore="fileStore" t-key="state.key"/>
   </div>`;
 Demo.components = { Spreadsheet };
 

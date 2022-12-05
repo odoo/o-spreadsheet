@@ -18,10 +18,12 @@ import {
   SCROLLBAR_WIDTH,
   TOPBAR_HEIGHT,
 } from "../../constants";
+import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
 import { _lt } from "../../translation";
 import { SpreadsheetChildEnv } from "../../types";
+import { FileStore } from "../../types/files";
 import { NotifyUIEvent } from "../../types/ui";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
@@ -112,6 +114,7 @@ css/* scss */ `
 
 export interface SpreadsheetProps {
   model: Model;
+  fileStore?: FileStore;
 }
 
 const t = (s: string): string => s;
@@ -164,6 +167,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     };
     useSubEnv({
       model: this.model,
+      imageProvider: this.props.fileStore ? new ImageProvider(this.props.fileStore) : undefined,
       isDashboard: () => this.model.getters.isDashboard(),
       openSidePanel: this.openSidePanel.bind(this),
       toggleSidePanel: this.toggleSidePanel.bind(this),
@@ -326,4 +330,5 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
 Spreadsheet.props = {
   model: Object,
+  fileStore: { type: Object, optional: true },
 };

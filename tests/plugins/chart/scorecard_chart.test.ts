@@ -1,6 +1,6 @@
 import { CommandResult, Model } from "../../../src";
 import { zoneToXc } from "../../../src/helpers";
-import { ScorecardChart } from "../../../src/helpers/charts";
+import { ScorecardChart } from "../../../src/helpers/figures/charts";
 import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,

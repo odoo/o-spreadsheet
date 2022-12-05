@@ -1,5 +1,5 @@
-import { transformZone } from "../../collaborative/ot/ot_helpers";
-import { INCORRECT_RANGE_STRING } from "../../constants";
+import { transformZone } from "../../../collaborative/ot/ot_helpers";
+import { INCORRECT_RANGE_STRING } from "../../../constants";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -10,24 +10,24 @@ import {
   DOMCoordinates,
   DOMDimension,
   EvaluatedCell,
+  Getters,
   Range,
   RemoveColumnsRowsCommand,
   UID,
   UnboundedZone,
   Zone,
-} from "../../types";
-import { BarChartDefinition } from "../../types/chart/bar_chart";
-import { DataSet, ExcelChartDataset } from "../../types/chart/chart";
-import { LineChartDefinition } from "../../types/chart/line_chart";
-import { PieChartDefinition } from "../../types/chart/pie_chart";
-import { BaselineArrowDirection, BaselineMode } from "../../types/chart/scorecard_chart";
-import { relativeLuminance } from "../color";
-import { formatValue } from "../format";
-import { isDefined } from "../misc";
-import { copyRangeWithNewSheetId } from "../range";
-import { rangeReference } from "../references";
-import { isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../zones";
-import { Getters } from "./../../types/getters";
+} from "../../../types";
+import { BarChartDefinition } from "../../../types/chart/bar_chart";
+import { DataSet, ExcelChartDataset } from "../../../types/chart/chart";
+import { LineChartDefinition } from "../../../types/chart/line_chart";
+import { PieChartDefinition } from "../../../types/chart/pie_chart";
+import { BaselineArrowDirection, BaselineMode } from "../../../types/chart/scorecard_chart";
+import { relativeLuminance } from "../../color";
+import { formatValue } from "../../format";
+import { isDefined } from "../../misc";
+import { copyRangeWithNewSheetId } from "../../range";
+import { rangeReference } from "../../references";
+import { isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
 
 /**
  * This file contains helpers that are common to different charts (mainly

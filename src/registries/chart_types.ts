@@ -1,5 +1,5 @@
 import { Component } from "@odoo/owl";
-import { AbstractChart } from "../helpers/charts/abstract_chart";
+import { AbstractChart } from "../helpers/figures/charts/abstract_chart";
 import { Registry } from "../registry";
 import {
   AddColumnsRowsCommand,

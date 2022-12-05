@@ -5,14 +5,14 @@ import {
   CoreGetters,
   RemoveColumnsRowsCommand,
   UID,
-} from "../../types";
+} from "../../../types";
 import {
   ChartCreationContext,
   ChartDefinition,
   ChartType,
   ExcelChartDefinition,
-} from "../../types/chart/chart";
-import { Validator } from "../../types/validator";
+} from "../../../types/chart/chart";
+import { Validator } from "../../../types/validator";
 
 /**
  * AbstractChart is the class from which every Chart should inherit.

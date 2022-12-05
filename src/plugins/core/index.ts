@@ -6,6 +6,7 @@ export * from "./figures";
 export * from "./filters";
 export * from "./header_size";
 export * from "./header_visibility";
+export * from "./image";
 export * from "./merge";
 export * from "./range";
 export * from "./sheet";
