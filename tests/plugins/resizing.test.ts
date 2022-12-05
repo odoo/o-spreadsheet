@@ -452,13 +452,13 @@ describe("Model resizer", () => {
       expect(model.getters.getRowSize(sheetId, 0)).toBe(font36CellHeight);
     });
 
-    test("adding a merge overwriting the the tallest cell in a row update row height", () => {
+    test("adding a merge overwriting the tallest cell in a row update row height", () => {
       setStyle(model, "A2", { fontSize: 36 });
       merge(model, "A1:A2");
       expect(model.getters.getRowSize(sheet.id, 0)).toBe(DEFAULT_CELL_HEIGHT);
     });
 
-    test("adding a merge with top left being the the tallest cell in a row update row height", () => {
+    test("adding a merge with top left being the tallest cell in a row update row height", () => {
       setStyle(model, "A1", { fontSize: 36 });
       merge(model, "A1:A2");
       expect(model.getters.getRowSize(sheet.id, 0)).toBe(DEFAULT_CELL_HEIGHT);
