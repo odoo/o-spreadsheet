@@ -8,6 +8,7 @@ import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { FullMenuItem, MenuItemRegistry, topbarMenuRegistry } from "../../src/registries";
 import {
+  ChartDefinition,
   ColorScaleMidPointThreshold,
   ColorScaleThreshold,
   CommandTypes,
@@ -18,7 +19,10 @@ import {
   UID,
   Zone,
 } from "../../src/types";
+import { Image } from "../../src/types/image";
 import { XLSXExport } from "../../src/types/xlsx";
+import { FileStore } from "../components/__mocks__/mock_file_store";
+import { ImageProvider } from "../components/__mocks__/mock_image_provider";
 import { OWL_TEMPLATES } from "../setup/jest.setup";
 import { Currency } from "./../../src/types/currency";
 import { redo, setCellContent, undo } from "./commands_helpers";
@@ -89,6 +93,7 @@ export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv>): SpreadsheetC
     openSidePanel: mockEnv.openSidePanel || (() => {}),
     toggleSidePanel: mockEnv.toggleSidePanel || (() => {}),
     clipboard: mockEnv.clipboard || new MockClipboard(),
+    imageProvider: new ImageProvider(new FileStore()),
     _t: mockEnv._t || ((str: string, ...values: any) => str),
     notifyUser: mockEnv.notifyUser || (() => {}),
     raiseError: mockEnv.raiseError || (() => {}),
@@ -536,4 +541,30 @@ export function getName(
 ): string {
   const node = getNode(path, menuRegistry);
   return typeof node.name === "function" ? node.name(env).toString() : node.name.toString();
+}
+
+export function getFigureIds(model: Model, sheetId: UID, type?: string): UID[] {
+  let figures = model.getters.getFigures(sheetId);
+  if (type) {
+    figures = figures.filter((figure) => figure.tag === type);
+  }
+  return figures.map((figure) => figure.id);
+}
+
+export function getFigureDefinition(
+  model: Model,
+  figureId: UID,
+  type: string
+): ChartDefinition | Image {
+  switch (type) {
+    case "chart":
+    case "basicChart":
+    case "scorecard":
+    case "gauge":
+      return model.getters.getChartDefinition(figureId);
+    case "image":
+      return model.getters.getImage(figureId);
+    default:
+      throw new Error(`Invalide figure type: ${type}`);
+  }
 }

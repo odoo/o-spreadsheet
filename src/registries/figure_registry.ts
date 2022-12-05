@@ -14,6 +14,9 @@ import { Registry } from "../registry";
 export interface FigureContent {
   Component: any;
   SidePanelComponent?: string;
+  keepRatio?: boolean;
+  minFigSize?: number;
+  borderWidth?: number;
 }
 
 export const figureRegistry = new Registry<FigureContent>();

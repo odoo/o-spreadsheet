@@ -8,6 +8,7 @@ import { FigurePlugin } from "../plugins/core/figures";
 import { FiltersPlugin } from "../plugins/core/filters";
 import { HeaderSizePlugin } from "../plugins/core/header_size";
 import { HeaderVisibilityPlugin } from "../plugins/core/header_visibility";
+import { ImagePlugin } from "../plugins/core/image";
 import { MergePlugin } from "../plugins/core/merge";
 import { RangeAdapter } from "../plugins/core/range";
 import { SheetPlugin } from "../plugins/core/sheet";
@@ -76,6 +77,7 @@ type CellGetters = Pick<CellPlugin, GetterNames<typeof CellPlugin>>;
 type MergeGetters = Pick<MergePlugin, GetterNames<typeof MergePlugin>>;
 type BordersGetters = Pick<BordersPlugin, GetterNames<typeof BordersPlugin>>;
 type ChartGetters = Pick<ChartPlugin, GetterNames<typeof ChartPlugin>>;
+type ImageGetters = Pick<ImagePlugin, GetterNames<typeof ImagePlugin>>;
 type FigureGetters = Pick<FigurePlugin, GetterNames<typeof FigurePlugin>>;
 type RangeAdapterGetters = Pick<RangeAdapter, GetterNames<typeof RangeAdapter>>;
 type ConditionalFormatGetters = Pick<
@@ -95,6 +97,7 @@ export type CoreGetters = SheetGetters &
   MergeGetters &
   BordersGetters &
   ChartGetters &
+  ImageGetters &
   ConditionalFormatGetters &
   FigureGetters &
   RangeAdapterGetters &

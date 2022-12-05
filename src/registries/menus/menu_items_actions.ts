@@ -1,5 +1,9 @@
 import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH } from "../../constants";
-import { getChartPositionAtCenterOfViewport, getSmartChartDefinition } from "../../helpers/charts";
+import {
+  getChartPositionAtCenterOfViewport,
+  getSmartChartDefinition,
+} from "../../helpers/figures/charts";
+import { centerFigurePosition, getMaxFigureSize } from "../../helpers/figures/figure/figure";
 import { areZonesContinuous, getZoneArea, numberToLetters } from "../../helpers/index";
 import { interactiveSortSelection } from "../../helpers/sort";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
@@ -10,6 +14,7 @@ import {
   interactivePasteFromOS,
 } from "../../helpers/ui/paste_interactive";
 import { _lt } from "../../translation";
+import { Image } from "../../types/image";
 import { Format, SpreadsheetChildEnv, Style } from "../../types/index";
 
 //------------------------------------------------------------------------------
@@ -575,6 +580,38 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
   if (result.isSuccessful) {
     env.model.dispatch("SELECT_FIGURE", { id });
     env.openSidePanel("ChartPanel");
+  }
+};
+
+//------------------------------------------------------------------------------
+// Image
+//------------------------------------------------------------------------------
+async function requestImage(env: SpreadsheetChildEnv): Promise<Image | undefined> {
+  try {
+    return await env.imageProvider!.requestImage();
+  } catch {
+    env.raiseError(_lt("An unexpected error occurred during the image transfer"));
+    return undefined;
+  }
+}
+
+export const CREATE_IMAGE = async (env: SpreadsheetChildEnv) => {
+  if (env.imageProvider) {
+    const sheetId = env.model.getters.getActiveSheetId();
+    const figureId = env.model.uuidGenerator.uuidv4();
+    const image = await requestImage(env);
+    if (!image) {
+      throw new Error("No image provider was given to the environment");
+    }
+    const size = getMaxFigureSize(env.model.getters, image.size);
+    const position = centerFigurePosition(env.model.getters, size);
+    env.model.dispatch("CREATE_IMAGE", {
+      sheetId,
+      figureId,
+      position,
+      size,
+      definition: image,
+    });
   }
 };
 

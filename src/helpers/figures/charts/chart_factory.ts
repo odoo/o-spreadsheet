@@ -3,9 +3,9 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
-} from "../../constants";
-import { chartRegistry } from "../../registries/chart_types";
-import { _t } from "../../translation";
+} from "../../../constants";
+import { chartRegistry } from "../../../registries/chart_types";
+import { _t } from "../../../translation";
 import {
   AddColumnsRowsCommand,
   CellValueType,
@@ -13,16 +13,16 @@ import {
   RemoveColumnsRowsCommand,
   UID,
   Zone,
-} from "../../types";
+} from "../../../types";
 import {
   ChartCreationContext,
   ChartDefinition,
   ChartRuntime,
   ChartType,
-} from "../../types/chart/chart";
-import { CoreGetters, Getters } from "../../types/getters";
-import { Validator } from "../../types/validator";
-import { getZoneArea, zoneToXc } from "../zones";
+} from "../../../types/chart/chart";
+import { CoreGetters, Getters } from "../../../types/getters";
+import { Validator } from "../../../types/validator";
+import { getZoneArea, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
 import { canChartParseLabels } from "./line_chart";
 

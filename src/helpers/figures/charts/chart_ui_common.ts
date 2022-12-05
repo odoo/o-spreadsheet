@@ -1,11 +1,11 @@
 import { ChartConfiguration } from "chart.js";
-import { ChartTerms } from "../../components/translations_terms";
-import { MAX_CHAR_LABEL } from "../../constants";
-import { _t } from "../../translation";
-import { Color, Format, Getters, Range } from "../../types";
-import { DataSet, DatasetValues, LabelValues } from "../../types/chart/chart";
-import { range } from "../misc";
-import { recomputeZones, zoneToXc } from "../zones";
+import { ChartTerms } from "../../../components/translations_terms";
+import { MAX_CHAR_LABEL } from "../../../constants";
+import { _t } from "../../../translation";
+import { Color, Format, Getters, Range } from "../../../types";
+import { DataSet, DatasetValues, LabelValues } from "../../../types/chart/chart";
+import { range } from "../../misc";
+import { recomputeZones, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
 /**
  * This file contains helpers that are common to different runtime charts (mainly

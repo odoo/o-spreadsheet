@@ -12,8 +12,8 @@
           t-on-keydown="(ev) => this.onKeyDown(ev)"
           t-on-keyup.stop="">
           <t
-            t-component="figureRegistry.get(this.props.figure.tag).Component"
-            t-key="this.props.figure.id"
+            t-component="figureRegistry.get(props.figure.tag).Component"
+            t-key="props.figure.id"
             sidePanelIsOpen="props.sidePanelIsOpen"
             onFigureDeleted="props.onFigureDeleted"
             figure="displayedFigure"

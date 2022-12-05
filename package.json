@@ -48,6 +48,7 @@
     "cors": "^2.8.5",
     "eslint": "^6.8.0",
     "express": "^4.17.1",
+    "express-form-data": "^2.0.19",
     "express-ws": "^4.0.0",
     "file-saver": "^2.0.5",
     "fs": "^0.0.1-security",

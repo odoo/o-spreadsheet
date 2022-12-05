@@ -1,12 +1,6 @@
-import {
-  ChartConfiguration,
-  ChartData,
-  ChartDataSets,
-  ChartLegendOptions,
-  ChartTooltipItem,
-} from "chart.js";
-import { BACKGROUND_CHART_COLOR } from "../../constants";
-import { chartRegistry } from "../../registries/chart_types";
+import { ChartConfiguration, ChartDataSets, ChartLegendOptions } from "chart.js";
+import { BACKGROUND_CHART_COLOR } from "../../../constants";
+import { chartRegistry } from "../../../registries/chart_types";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -17,19 +11,18 @@ import {
   Range,
   RemoveColumnsRowsCommand,
   UID,
-} from "../../types";
+} from "../../../types";
+import { BarChartDefinition, BarChartRuntime } from "../../../types/chart/bar_chart";
 import {
   ChartCreationContext,
   DataSet,
-  DatasetValues,
   ExcelChartDataset,
   ExcelChartDefinition,
-} from "../../types/chart/chart";
-import { LegendPosition } from "../../types/chart/common_chart";
-import { PieChartDefinition, PieChartRuntime } from "../../types/chart/pie_chart";
-import { Validator } from "../../types/validator";
-import { toXlsxHexColor } from "../../xlsx/helpers/colors";
-import { createRange } from "../range";
+} from "../../../types/chart/chart";
+import { LegendPosition, VerticalAxisPosition } from "../../../types/chart/common_chart";
+import { Validator } from "../../../types/validator";
+import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
+import { createRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
   ChartColors,
@@ -49,30 +42,33 @@ import {
   getChartLabelValues,
   getDefaultChartJsRuntime,
 } from "./chart_ui_common";
-chartRegistry.add("pie", {
-  match: (type) => type === "pie",
+
+chartRegistry.add("bar", {
+  match: (type) => type === "bar",
   createChart: (definition, sheetId, getters) =>
-    new PieChart(definition as PieChartDefinition, sheetId, getters),
-  getChartRuntime: createPieChartRuntime,
-  validateChartDefinition: (validator, definition: PieChartDefinition) =>
-    PieChart.validateChartDefinition(validator, definition),
+    new BarChart(definition as BarChartDefinition, sheetId, getters),
+  getChartRuntime: createBarChartRuntime,
+  validateChartDefinition: (validator, definition: BarChartDefinition) =>
+    BarChart.validateChartDefinition(validator, definition),
   transformDefinition: (
-    definition: PieChartDefinition,
+    definition: BarChartDefinition,
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ) => PieChart.transformDefinition(definition, executed),
+  ) => BarChart.transformDefinition(definition, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
-    PieChart.getDefinitionFromContextCreation(context),
-  name: "Pie",
+    BarChart.getDefinitionFromContextCreation(context),
+  name: "Bar",
 });
 
-export class PieChart extends AbstractChart {
+export class BarChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
   readonly background?: Color;
+  readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
-  readonly type = "pie";
+  readonly stacked: boolean;
+  readonly type = "bar";
 
-  constructor(definition: PieChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(definition: BarChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
@@ -82,37 +78,37 @@ export class PieChart extends AbstractChart {
     );
     this.labelRange = createRange(getters, sheetId, definition.labelRange);
     this.background = definition.background;
+    this.verticalAxisPosition = definition.verticalAxisPosition;
     this.legendPosition = definition.legendPosition;
+    this.stacked = definition.stacked;
   }
 
   static transformDefinition(
-    definition: PieChartDefinition,
+    definition: BarChartDefinition,
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ): PieChartDefinition {
+  ): BarChartDefinition {
     return transformChartDefinitionWithDataSetsWithZone(definition, executed);
   }
 
   static validateChartDefinition(
     validator: Validator,
-    definition: PieChartDefinition
+    definition: BarChartDefinition
   ): CommandResult | CommandResult[] {
     return validator.checkValidations(definition, checkDataset, checkLabelRange);
   }
 
-  static getDefinitionFromContextCreation(context: ChartCreationContext): PieChartDefinition {
+  static getDefinitionFromContextCreation(context: ChartCreationContext): BarChartDefinition {
     return {
       background: context.background,
       dataSets: context.range ? context.range : [],
       dataSetsHaveTitle: false,
+      stacked: false,
       legendPosition: "top",
       title: context.title || "",
-      type: "pie",
+      type: "bar",
+      verticalAxisPosition: "left",
       labelRange: context.auxiliaryRange || undefined,
     };
-  }
-
-  getDefinition(): PieChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
   }
 
   getContextCreation(): ChartCreationContext {
@@ -128,40 +124,46 @@ export class PieChart extends AbstractChart {
     };
   }
 
+  copyForSheetId(sheetId: UID): BarChart {
+    const dataSets = copyDataSetsWithNewSheetId(this.sheetId, sheetId, this.dataSets);
+    const labelRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, sheetId);
+    return new BarChart(definition, sheetId, this.getters);
+  }
+
+  copyInSheetId(sheetId: UID): BarChart {
+    const definition = this.getDefinitionWithSpecificDataSets(
+      this.dataSets,
+      this.labelRange,
+      sheetId
+    );
+    return new BarChart(definition, sheetId, this.getters);
+  }
+
+  getDefinition(): BarChartDefinition {
+    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+  }
+
   private getDefinitionWithSpecificDataSets(
     dataSets: DataSet[],
     labelRange: Range | undefined,
     targetSheetId?: UID
-  ): PieChartDefinition {
+  ): BarChartDefinition {
     return {
-      type: "pie",
+      type: "bar",
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
       background: this.background,
       dataSets: dataSets.map((ds: DataSet) =>
         this.getters.getRangeString(ds.dataRange, targetSheetId || this.sheetId)
       ),
       legendPosition: this.legendPosition,
+      verticalAxisPosition: this.verticalAxisPosition,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
       title: this.title,
+      stacked: this.stacked,
     };
-  }
-
-  copyForSheetId(sheetId: UID): PieChart {
-    const dataSets = copyDataSetsWithNewSheetId(this.sheetId, sheetId, this.dataSets);
-    const labelRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.labelRange);
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, sheetId);
-    return new PieChart(definition, sheetId, this.getters);
-  }
-
-  copyInSheetId(sheetId: UID): PieChart {
-    const definition = this.getDefinitionWithSpecificDataSets(
-      this.dataSets,
-      this.labelRange,
-      sheetId
-    );
-    return new PieChart(definition, sheetId, this.getters);
   }
 
   getDefinitionForExcel(): ExcelChartDefinition {
@@ -172,12 +174,11 @@ export class PieChart extends AbstractChart {
       ...this.getDefinition(),
       backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
-      verticalAxisPosition: "left", //TODO ExcelChartDefinition should be adapted, but can be done later
       dataSets,
     };
   }
 
-  updateRanges(applyChange: ApplyRangeChange): PieChart {
+  updateRanges(applyChange: ApplyRangeChange): BarChart {
     const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,
@@ -188,11 +189,11 @@ export class PieChart extends AbstractChart {
       return this;
     }
     const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
-    return new PieChart(definition, this.sheetId, this.getters);
+    return new BarChart(definition, this.sheetId, this.getters);
   }
 }
 
-function getPieConfiguration(chart: PieChart, labels: string[]): ChartConfiguration {
+function getBarConfiguration(chart: BarChart, labels: string[]): ChartConfiguration {
   const fontColor = chartFontColor(chart.background);
   const config: ChartConfiguration = getDefaultChartJsRuntime(chart, labels, fontColor);
   const legend: ChartLegendOptions = {
@@ -207,41 +208,54 @@ function getPieConfiguration(chart: PieChart, labels: string[]): ChartConfigurat
   config.options!.layout = {
     padding: { left: 20, right: 20, top: chart.title ? 10 : 25, bottom: 10 },
   };
-  config.options!.tooltips = {
-    callbacks: {
-      title: function (tooltipItems: ChartTooltipItem[], data: ChartData) {
-        return data.datasets![tooltipItems[0]!.datasetIndex!].label!;
+
+  config.options!.scales = {
+    xAxes: [
+      {
+        ticks: {
+          // x axis configuration
+          maxRotation: 60,
+          minRotation: 15,
+          padding: 5,
+          labelOffset: 2,
+          fontColor,
+        },
       },
-    },
+    ],
+    yAxes: [
+      {
+        position: chart.verticalAxisPosition,
+        ticks: {
+          fontColor,
+          // y axis configuration
+          beginAtZero: true, // the origin of the y axis is always zero
+        },
+      },
+    ],
   };
+  if (chart.stacked) {
+    config.options!.scales.xAxes![0].stacked = true;
+    config.options!.scales.yAxes![0].stacked = true;
+  }
   return config;
 }
 
-function getPieColors(colors: ChartColors, dataSetsValues: DatasetValues[]): string[] {
-  const pieColors: string[] = [];
-  const maxLength = Math.max(...dataSetsValues.map((ds) => ds.data.length));
-  for (let i = 0; i <= maxLength; i++) {
-    pieColors.push(colors.next());
-  }
-
-  return pieColors;
-}
-
-function createPieChartRuntime(chart: PieChart, getters: Getters): PieChartRuntime {
+function createBarChartRuntime(chart: BarChart, getters: Getters): BarChartRuntime {
   const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
   let labels = labelValues.formattedValues;
   let dataSetsValues = getChartDatasetValues(getters, chart.dataSets);
 
   ({ labels, dataSetsValues } = filterEmptyDataPoints(labels, dataSetsValues));
-  const config = getPieConfiguration(chart, labels);
+  const config = getBarConfiguration(chart, labels);
   const colors = new ChartColors();
+
   for (let { label, data } of dataSetsValues) {
-    const backgroundColor = getPieColors(colors, dataSetsValues);
+    const color = colors.next();
     const dataset: ChartDataSets = {
       label,
       data,
-      borderColor: "#FFFFFF",
-      backgroundColor,
+      borderColor: color,
+      backgroundColor: color,
     };
     config.data!.datasets!.push(dataset);
   }

@@ -175,6 +175,12 @@ topbarMenuRegistry
     sequence: 50,
     action: ACTIONS.CREATE_CHART,
   })
+  .addChild("insert_image", ["insert"], {
+    name: _lt("Image"),
+    sequence: 55,
+    action: ACTIONS.CREATE_IMAGE,
+    isVisible: (env: SpreadsheetChildEnv) => env.imageProvider !== undefined,
+  })
   .addChild("insert_link", ["insert"], {
     name: _lt("Link"),
     separator: true,

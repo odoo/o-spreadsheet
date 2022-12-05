@@ -2,17 +2,28 @@
  * This is not suitable for production use!
  * This is only a simplified implementation for demonstration purposes.
  */
+const formData = require("express-form-data");
 const express = require("express");
 const cors = require("cors");
 const fs = require("fs");
 const expressWS = require("express-ws")(express());
 const app = expressWS.app;
 
+//add middleware
 app.use(cors());
 app.use(express.json());
+// parse data with connect-multiparty.
+app.use(formData.parse(/* options */));
+// delete from the request all empty files (size == 0)
+app.use(formData.format());
+// change the file objects to fs.ReadStream
+app.use(formData.stream());
+// union the body and the files
+app.use(formData.union());
 
 let messages = [];
 let serverRevisionId = "START_REVISION";
+const imagesDirectory = "./logs/images";
 
 // Creating the log file for this specific session
 if (!fs.existsSync("./logs/")) {
@@ -78,9 +89,37 @@ app.get("/", function (req, res) {
 
 app.get("/clear", function (req, res) {
   messages = [];
+  fs.rmSync(imagesDirectory, { recursive: true, force: true });
   serverRevisionId = "START_REVISION";
   log("History cleared");
   res.send("Cleared");
+});
+
+app.post("/upload-image", function (req, res) {
+  try {
+    if (!fs.existsSync(imagesDirectory)) {
+      fs.mkdirSync(imagesDirectory);
+    }
+    const formeData = req.files;
+    const readStream = formeData["image"];
+    // We use the number of files in the images folder to determined the next file name.
+    fs.readdir(imagesDirectory, (err, files) => {
+      if (err) {
+        log(err);
+      } else {
+        const file_name = files.length.toString();
+        const output = imagesDirectory + "/" + file_name;
+        // This opens up the writeable stream to `output`
+        const writeStream = fs.createWriteStream(output);
+        // This pipes the POST data to the file
+        readStream.pipe(writeStream);
+        res.send("../" + output);
+      }
+    });
+  } catch (err) {
+    log(err);
+    throw err;
+  }
 });
 
 app.ws("/", function (ws, req) {

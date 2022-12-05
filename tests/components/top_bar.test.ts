@@ -19,6 +19,7 @@ import {
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getBorder, getCell, getStyle } from "../test_helpers/getters_helpers";
 import {
+  getFigureIds,
   makeTestFixture,
   mountSpreadsheet,
   nextTick,
@@ -26,9 +27,13 @@ import {
   toRangesData,
   typeInComposerTopBar,
 } from "../test_helpers/helpers";
+import { FileStore } from "./__mocks__/mock_file_store";
 
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
+);
+jest.mock("../../src/helpers/figures/images/image_provider", () =>
+  require("./__mocks__/mock_image_provider")
 );
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
@@ -387,7 +392,7 @@ describe("TopBar component", () => {
     await nextTick();
     const insert = topbarMenuRegistry.get("insert");
     numberChild = getMenuChildren(insert, parent.env).filter(
-      (item) => item.children.length !== 0 || item.action
+      (item) => (item.children.length !== 0 || item.action) && item.isVisible(parent.env)
     ).length;
     expect(fixture.querySelectorAll(".o-menu-item")).toHaveLength(numberChild);
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
@@ -531,6 +536,19 @@ describe("TopBar component", () => {
       app.destroy();
     }
   );
+
+  test("can insert an image", async () => {
+    fixture = makeTestFixture();
+    const fileStore = new FileStore();
+    const { model, app } = await mountSpreadsheet(fixture, { model: new Model(), fileStore });
+    await nextTick();
+    const sheetId = model.getters.getActiveSheetId();
+    await simulateClick(".o-topbar-menu[data-id='insert']");
+    await simulateClick(".o-menu-item[data-name='insert_image']");
+    expect(getFigureIds(model, sheetId)).toHaveLength(1);
+    app.destroy();
+    fixture.remove();
+  });
 });
 
 test("Can show/hide a TopBarComponent based on condition", async () => {

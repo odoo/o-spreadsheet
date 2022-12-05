@@ -1,6 +1,6 @@
 import { Model } from "../../../src";
 import { ChartTerms } from "../../../src/components/translations_terms";
-import { BarChart } from "../../../src/helpers/charts";
+import { BarChart } from "../../../src/helpers/figures/charts";
 import { toZone, zoneToXc } from "../../../src/helpers/zones";
 import { ChartPlugin } from "../../../src/plugins/core/chart";
 import { BorderCommand, CommandResult } from "../../../src/types";

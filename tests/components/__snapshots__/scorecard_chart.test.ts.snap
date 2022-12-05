@@ -10,10 +10,10 @@ exports[`Scorecard charts Scorecard snapshot 1`] = `
     class="o-chart-container"
   >
     <div
-      class="o-chart-menu"
+      class="o-figure-menu"
     >
       <div
-        class="o-chart-menu-item"
+        class="o-figure-menu-item"
       >
         <svg
           class="o-icon"
@@ -140,10 +140,10 @@ exports[`Scorecard charts scorecard text is resized while figure is resized 1`] 
     class="o-chart-container"
   >
     <div
-      class="o-chart-menu"
+      class="o-figure-menu"
     >
       <div
-        class="o-chart-menu-item"
+        class="o-figure-menu-item"
       >
         <svg
           class="o-icon"

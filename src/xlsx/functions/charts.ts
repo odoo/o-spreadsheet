@@ -1,5 +1,5 @@
 import { range } from "../../helpers";
-import { ChartColors } from "../../helpers/charts";
+import { ChartColors } from "../../helpers/figures/charts";
 import { ExcelWorkbookData, FigureData } from "../../types";
 import { ExcelChartDefinition } from "../../types/chart/chart";
 import { XlsxHexColor, XMLAttributes, XMLString } from "../../types/xlsx";

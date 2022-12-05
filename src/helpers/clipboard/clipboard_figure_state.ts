@@ -3,28 +3,28 @@ import {
   CommandResult,
   Dimension,
   Figure,
+  FigureSize,
   Getters,
   GridRenderingContext,
   HeaderIndex,
   UID,
   Zone,
 } from "../../types";
-import { AbstractChart } from "../charts";
+import { Image } from "../../types/image";
+import { AbstractChart } from "../figures/charts";
+import { deepCopy } from "../misc";
 import { UuidGenerator } from "../uuid";
 import { ClipboardOperation, ClipboardOptions, ClipboardState } from "./../../types/clipboard";
 
 /** State of the clipboard when copying/cutting figures */
 export class ClipboardFigureState implements ClipboardState {
-  readonly operation: ClipboardOperation;
   readonly sheetId: UID;
-
   private readonly copiedFigure: Figure;
-  private readonly copiedChart: AbstractChart;
-
+  private readonly copiedFigureContent: ClipboardFigureChart | ClipboardFigureImage;
   constructor(
-    operation: ClipboardOperation,
-    private getters: Getters,
-    private dispatch: CommandDispatcher["dispatch"]
+    readonly operation: ClipboardOperation,
+    private readonly getters: Getters,
+    private readonly dispatch: CommandDispatcher["dispatch"]
   ) {
     this.sheetId = getters.getActiveSheetId();
     const copiedFigureId = getters.getSelectedFigureId();
@@ -36,12 +36,27 @@ export class ClipboardFigureState implements ClipboardState {
       throw new Error(`No figure for the given id: ${copiedFigureId}`);
     }
     this.copiedFigure = { ...figure };
-    const chart = getters.getChart(copiedFigureId);
-    if (!chart) {
-      throw new Error(`No chart for the given id: ${copiedFigureId}`);
+    switch (figure.tag) {
+      case "chart":
+        this.copiedFigureContent = new ClipboardFigureChart(
+          dispatch,
+          getters,
+          this.sheetId,
+          copiedFigureId
+        );
+        break;
+      case "image":
+        this.copiedFigureContent = new ClipboardFigureImage(
+          dispatch,
+          getters,
+          this.sheetId,
+          copiedFigureId
+        );
+        break;
+      default:
+        throw new Error(`Unknow tag '${figure.tag}' for the given figure id: ${copiedFigureId}`);
+        break;
     }
-    this.copiedChart = chart.copyInSheetId(this.sheetId);
-    this.operation = operation;
   }
 
   isCutAllowed(target: Zone[]): CommandResult {
@@ -63,26 +78,18 @@ export class ClipboardFigureState implements ClipboardState {
    */
   paste(target: Zone[]) {
     const sheetId = this.getters.getActiveSheetId();
-
     const position = {
       x: this.getters.getColDimensions(sheetId, target[0].left).start,
       y: this.getters.getRowDimensions(sheetId, target[0].top).start,
     };
+    const size = { height: this.copiedFigure.height, width: this.copiedFigure.width };
 
-    const newChart = this.copiedChart.copyInSheetId(sheetId);
     const newId = new UuidGenerator().uuidv4();
-
-    this.dispatch("CREATE_CHART", {
-      id: newId,
-      sheetId,
-      position,
-      size: { height: this.copiedFigure.height, width: this.copiedFigure.width },
-      definition: newChart.getDefinition(),
-    });
+    this.copiedFigureContent.paste(sheetId, newId, position, size);
 
     if (this.operation === "CUT") {
       this.dispatch("DELETE_FIGURE", {
-        sheetId: this.copiedChart.sheetId,
+        sheetId: this.copiedFigureContent.sheetId,
         id: this.copiedFigure.id,
       });
     }
@@ -99,4 +106,57 @@ export class ClipboardFigureState implements ClipboardState {
   }
 
   drawClipboard(renderingContext: GridRenderingContext): void {}
+}
+
+export class ClipboardFigureChart {
+  private readonly copiedChart: AbstractChart;
+
+  constructor(
+    private dispatch: CommandDispatcher["dispatch"],
+    getters: Getters,
+    readonly sheetId: UID,
+    copiedFigureId: string
+  ) {
+    const chart = getters.getChart(copiedFigureId);
+    if (!chart) {
+      throw new Error(`No chart for the given id: ${copiedFigureId}`);
+    }
+    this.copiedChart = chart.copyInSheetId(sheetId);
+  }
+
+  paste(sheetId: UID, figureId: UID, position: { x: number; y: number }, size: FigureSize) {
+    const copy = this.copiedChart.copyInSheetId(sheetId);
+    this.dispatch("CREATE_CHART", {
+      id: figureId,
+      sheetId,
+      position,
+      size,
+      definition: copy.getDefinition(),
+    });
+  }
+}
+
+export class ClipboardFigureImage {
+  private readonly copiedImage: Image;
+
+  constructor(
+    private dispatch: CommandDispatcher["dispatch"],
+    getters: Getters,
+    readonly sheetId: UID,
+    copiedFigureId: string
+  ) {
+    const image = getters.getImage(copiedFigureId);
+    this.copiedImage = deepCopy(image);
+  }
+
+  paste(sheetId: UID, figureId: UID, position: { x: number; y: number }, size: FigureSize) {
+    const copy = deepCopy(this.copiedImage);
+    this.dispatch("CREATE_IMAGE", {
+      figureId,
+      sheetId,
+      position,
+      size,
+      definition: copy,
+    });
+  }
 }

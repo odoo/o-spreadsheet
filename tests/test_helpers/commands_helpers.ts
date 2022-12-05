@@ -19,6 +19,7 @@ import { GaugeChartDefinition } from "../../src/types/chart/gauge_chart";
 import { LineChartDefinition } from "../../src/types/chart/line_chart";
 import { PieChartDefinition } from "../../src/types/chart/pie_chart";
 import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
+import { Image } from "../../src/types/image";
 import { SelectionDirection, SelectionStep } from "../../src/types/selection";
 import { target } from "./helpers";
 
@@ -85,6 +86,35 @@ export function createSheetWithName(
 
 export function deleteSheet(model: Model, sheetId: UID): DispatchResult {
   return model.dispatch("DELETE_SHEET", { sheetId });
+}
+
+export function createImage(
+  model: Model,
+  partialParam: {
+    sheetId?: UID;
+    figureId?: UID;
+    position?: { x: number; y: number };
+    definition?: Partial<Image>;
+  }
+) {
+  const param = {
+    sheetId: model.getters.getActiveSheetId(),
+    figureId: model.uuidGenerator.uuidv4(),
+    position: { x: 0, y: 0 },
+    ...partialParam,
+    definition: {
+      path: "image path",
+      size: { width: 380, height: 380 },
+      ...partialParam.definition,
+    },
+  };
+  return model.dispatch("CREATE_IMAGE", {
+    sheetId: param.sheetId,
+    figureId: param.figureId,
+    position: param.position,
+    size: param.definition.size,
+    definition: param.definition,
+  });
 }
 
 /**
