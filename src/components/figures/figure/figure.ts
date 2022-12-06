@@ -118,7 +118,6 @@ css/*SCSS*/ `
 
 interface Props {
   figure: Figure;
-  sidePanelIsOpen: boolean;
   onFigureDeleted: () => void;
 }
 
@@ -126,7 +125,6 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FigureComponent";
   static components = {};
   static defaultProps = {
-    sidePanelIsOpen: false,
     onFigureDeleted: function () {},
   };
 
@@ -360,9 +358,6 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     if (!selectResult.isSuccessful) {
       return;
     }
-    if (this.props.sidePanelIsOpen) {
-      this.env.openSidePanel("ChartPanel");
-    }
 
     const position = gridOverlayPosition();
     const { x: offsetCorrectionX, y: offsetCorrectionY } =
@@ -448,6 +443,5 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 
 FigureComponent.props = {
   figure: Object,
-  sidePanelIsOpen: { type: Boolean, optional: true },
   onFigureDeleted: { type: Function, optional: true },
 };

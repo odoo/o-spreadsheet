@@ -7,13 +7,7 @@
       t-on-mousedown="onMouseDown"
       t-on-dblclick="onDoubleClick"
       t-on-contextmenu="onContextMenu">
-      <!-- TODO remove sidePanelIsOpen props. It is wrong.
-      If you have a CF sidepanel open, selecting a figure should
-      not open the figure side panel -->
-      <FiguresContainer
-        sidePanelIsOpen="props.sidePanelIsOpen"
-        onFigureDeleted="props.onFigureDeleted"
-      />
+      <FiguresContainer onFigureDeleted="props.onFigureDeleted"/>
     </div>
   </t>
 </templates>
