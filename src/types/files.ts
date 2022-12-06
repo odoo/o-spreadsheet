@@ -10,6 +10,11 @@ export interface FileStore {
    * Upload a file to a server and returns its path.
    */
   upload(file: File): Promise<FilePath>;
+
+  /**
+   * Delete a file from the server
+   */
+  delete(filePath: FilePath): Promise<void>;
 }
 
 /**

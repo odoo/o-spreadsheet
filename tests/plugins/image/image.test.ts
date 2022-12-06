@@ -2,7 +2,7 @@ import { Model } from "../../../src";
 import { createImage, paste, redo, undo } from "../../test_helpers/commands_helpers";
 import { getFigureIds } from "../../test_helpers/helpers";
 
-describe("test image", function () {
+describe("image plugin", function () {
   test("create image", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();

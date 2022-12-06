@@ -256,6 +256,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     if (config.snapshotRequested) {
       this.session.snapshot(this.exportData());
+      this.garbageCollectExternalResources();
     }
     // mark all models as "raw", so they will not be turned into reactive objects
     // by owl, since we do not rely on reactivity
@@ -585,5 +586,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     data = JSON.parse(JSON.stringify(data));
 
     return getXLSX(data);
+  }
+
+  garbageCollectExternalResources() {
+    for (const plugin of this.corePlugins) {
+      plugin.garbageCollectExternalResources();
+    }
   }
 }

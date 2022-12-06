@@ -27,7 +27,7 @@ import {
   toRangesData,
   typeInComposerTopBar,
 } from "../test_helpers/helpers";
-import { FileStore } from "./__mocks__/mock_file_store";
+import { FileStore } from "../__mocks__/mock_file_store";
 
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")

@@ -68,4 +68,10 @@ export class CorePlugin<State = any, C = CoreCommand>
    * @param sheetId an optional sheetId to adapt either range of that sheet specifically, or ranges pointing to that sheet
    */
   adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID): void {}
+
+  /**
+   * Implement this method to clean unused external resources, such as images
+   * stored on a server which have been deleted.
+   */
+  garbageCollectExternalResources() {}
 }

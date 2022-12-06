@@ -17,4 +17,8 @@ export class FileStore {
       throw new Error(res.statusText);
     }
   }
+
+  async delete(path) {
+    console.warn("cannot delete file. Not implemented");
+  }
 }

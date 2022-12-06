@@ -1,6 +1,7 @@
 import { ImageFigure } from "../../components/figures/figure_image/figure_image";
-import { deepCopy } from "../../helpers";
+import { deepCopy, isDefined } from "../../helpers";
 import { figureRegistry } from "../../registries";
+import { FileStore } from "../../types/files";
 import { Image } from "../../types/image";
 import {
   CommandResult,
@@ -11,7 +12,7 @@ import {
   UID,
   WorkbookData,
 } from "../../types/index";
-import { CorePlugin } from "../core_plugin";
+import { CorePlugin, CorePluginConfig } from "../core_plugin";
 
 interface ImageState {
   readonly images: Record<UID, Record<UID, Image | undefined> | undefined>;
@@ -20,9 +21,18 @@ interface ImageState {
 
 export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
   static getters = ["getImage", "getImagePath", "getImageSize"] as const;
-
+  readonly fileStore?: FileStore;
   readonly images: Record<UID, Record<UID, Image | undefined> | undefined> = {};
+  /**
+   * paths of images synced with the file store server.
+   */
+  readonly syncedImages: Set<Image["path"]> = new Set();
   readonly nextId = 1;
+
+  constructor(config: CorePluginConfig) {
+    super(config);
+    this.fileStore = config.external.fileStore;
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -45,6 +55,7 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
       case "CREATE_IMAGE":
         this.addFigure(cmd.figureId, cmd.sheetId, cmd.position, cmd.size);
         this.history.update("images", cmd.sheetId, cmd.figureId, cmd.definition);
+        this.syncedImages.add(cmd.definition.path);
         break;
       case "DUPLICATE_SHEET": {
         const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
@@ -73,6 +84,18 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
       case "DELETE_SHEET":
         this.history.update("images", cmd.sheetId, undefined);
         break;
+    }
+  }
+
+  /**
+   * Delete unused images from the file store
+   */
+  garbageCollectExternalResources() {
+    const images = new Set(this.getAllImages().map((image) => image.path));
+    for (const path of this.syncedImages) {
+      if (!images.has(path)) {
+        this.fileStore?.delete(path);
+      }
     }
   }
 
@@ -119,6 +142,7 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
       for (const image of images) {
         this.history.update("nextId", this.nextId + 1);
         this.history.update("images", sheet.id, image.id, image.data);
+        this.syncedImages.add(image.data.path);
       }
     }
   }
@@ -130,6 +154,14 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
         image.data = this.images[sheet.id]?.[image.id];
       }
     }
+  }
+
+  private getAllImages(): Image[] {
+    const images: Image[] = [];
+    for (const sheetId in this.images) {
+      images.push(...Object.values(this.images[sheetId] || {}).filter(isDefined));
+    }
+    return images;
   }
 }
 
