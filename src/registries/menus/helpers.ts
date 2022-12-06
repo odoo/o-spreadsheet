@@ -1,5 +1,5 @@
-import { FullMenuItem } from "..";
 import { SpreadsheetChildEnv } from "../../types";
+import { FullMenuItem } from "../menu_items_registry";
 
 export function getMenuChildren(node: FullMenuItem, env: SpreadsheetChildEnv): FullMenuItem[] {
   const children: FullMenuItem[] = [];

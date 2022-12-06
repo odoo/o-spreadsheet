@@ -1,5 +1,5 @@
-import { Registry } from "../registry";
 import { Currency } from "../types";
+import { Registry } from "./registry";
 
 /**
  * Registry intended to support usual currencies. It is mainly used to create

@@ -1,4 +1,6 @@
-import { Registry } from "../registry";
+import { ChartFigure } from "../components/figures/figure_chart/figure_chart";
+import { ImageFigure } from "../components/figures/figure_image/figure_image";
+import { Registry } from "./registry";
 
 //------------------------------------------------------------------------------
 // Figure Registry
@@ -20,3 +22,10 @@ export interface FigureContent {
 }
 
 export const figureRegistry = new Registry<FigureContent>();
+figureRegistry.add("chart", { Component: ChartFigure, SidePanelComponent: "ChartPanel" });
+figureRegistry.add("image", {
+  Component: ImageFigure,
+  keepRatio: true,
+  minFigSize: 20,
+  borderWidth: 0,
+});

@@ -1,7 +1,7 @@
 import { DATETIME_FORMAT } from "../constants";
 import { evaluateLiteral } from "../helpers/cells";
-import { Registry } from "../registry";
 import { AutofillModifier, Cell, CellValueType } from "../types/index";
+import { Registry } from "./registry";
 
 /**
  * An AutofillRule is used to generate what to do when we need to autofill

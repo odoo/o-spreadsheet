@@ -1,6 +1,5 @@
 import { evaluateLiteral } from "../helpers/cells";
 import { formatValue } from "../helpers/format";
-import { Registry } from "../registry";
 import {
   AutofillData,
   AutofillModifierImplementation,
@@ -10,6 +9,7 @@ import {
   Getters,
   IncrementModifier,
 } from "../types/index";
+import { Registry } from "./registry";
 
 /**
  * An AutofillModifierImplementation is used to describe how to handle a

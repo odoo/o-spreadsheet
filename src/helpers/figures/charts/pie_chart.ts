@@ -6,7 +6,6 @@ import {
   ChartTooltipItem,
 } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
-import { chartRegistry } from "../../../registries/chart_types";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -50,21 +49,6 @@ import {
   getChartLabelValues,
   getDefaultChartJsRuntime,
 } from "./chart_ui_common";
-chartRegistry.add("pie", {
-  match: (type) => type === "pie",
-  createChart: (definition, sheetId, getters) =>
-    new PieChart(definition as PieChartDefinition, sheetId, getters),
-  getChartRuntime: createPieChartRuntime,
-  validateChartDefinition: (validator, definition: PieChartDefinition) =>
-    PieChart.validateChartDefinition(validator, definition),
-  transformDefinition: (
-    definition: PieChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ) => PieChart.transformDefinition(definition, executed),
-  getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
-    PieChart.getDefinitionFromContextCreation(context),
-  name: "Pie",
-});
 
 export class PieChart extends AbstractChart {
   readonly dataSets: DataSet[];
@@ -234,7 +218,7 @@ function getPieColors(colors: ChartColors, dataSetsValues: DatasetValues[]): str
   return pieColors;
 }
 
-function createPieChartRuntime(chart: PieChart, getters: Getters): PieChartRuntime {
+export function createPieChartRuntime(chart: PieChart, getters: Getters): PieChartRuntime {
   const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
   let labels = labelValues.formattedValues;
   let dataSetsValues = getChartDatasetValues(getters, chart.dataSets);

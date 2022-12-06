@@ -6,7 +6,8 @@ import { functionRegistry } from "../../src/functions/index";
 import { toCartesian, toUnboundedZone, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
-import { FullMenuItem, MenuItemRegistry, topbarMenuRegistry } from "../../src/registries";
+import { topbarMenuRegistry } from "../../src/registries";
+import { FullMenuItem, MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import {
   ChartDefinition,
   ColorScaleMidPointThreshold,

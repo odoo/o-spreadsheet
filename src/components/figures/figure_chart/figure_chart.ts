@@ -1,7 +1,7 @@
 import { Component, useRef, useState } from "@odoo/owl";
 import { MENU_WIDTH } from "../../../constants";
 import { chartComponentRegistry } from "../../../registries/chart_types";
-import { MenuItemRegistry } from "../../../registries/index";
+import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { _lt } from "../../../translation";
 import { ChartType, DOMCoordinates, Figure, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";

@@ -1,6 +1,6 @@
 import { openLink } from "../helpers/links";
-import { Registry } from "../registry";
 import { CellPosition, SpreadsheetChildEnv } from "../types";
+import { Registry } from "./registry";
 
 interface CellClickableItem {
   condition: (position: CellPosition, env: SpreadsheetChildEnv) => boolean;

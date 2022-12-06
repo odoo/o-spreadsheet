@@ -4,7 +4,6 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
 } from "../../../constants";
-import { chartRegistry } from "../../../registries/chart_types";
 import { _t } from "../../../translation";
 import {
   AddColumnsRowsCommand,
@@ -38,22 +37,6 @@ import {
   getBaselineColor,
   getBaselineText,
 } from "./chart_common";
-
-chartRegistry.add("scorecard", {
-  match: (type) => type === "scorecard",
-  createChart: (definition, sheetId, getters) =>
-    new ScorecardChart(definition as ScorecardChartDefinition, sheetId, getters),
-  getChartRuntime: createScorecardChartRuntime,
-  validateChartDefinition: (validator, definition) =>
-    ScorecardChart.validateChartDefinition(validator, definition as ScorecardChartDefinition),
-  transformDefinition: (
-    definition: ScorecardChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ) => ScorecardChart.transformDefinition(definition, executed),
-  getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
-    ScorecardChart.getDefinitionFromContextCreation(context),
-  name: "Scorecard",
-});
 
 function checkKeyValue(definition: ScorecardChartDefinition): CommandResult {
   return definition.keyValue && !rangeReference.test(definition.keyValue)
@@ -194,7 +177,7 @@ export class ScorecardChart extends AbstractChart {
   }
 }
 
-function createScorecardChartRuntime(
+export function createScorecardChartRuntime(
   chart: ScorecardChart,
   getters: Getters
 ): ScorecardChartRuntime {

@@ -1,7 +1,7 @@
 import { Component, useRef, useState } from "@odoo/owl";
 import { MENU_WIDTH } from "../../../constants";
 import { getMaxFigureSize } from "../../../helpers/figures/figure/figure";
-import { MenuItemRegistry } from "../../../registries/index";
+import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { _lt } from "../../../translation";
 import { DOMCoordinates, Figure, SpreadsheetChildEnv, UID } from "../../../types";
 import { useAbsolutePosition } from "../../helpers/position_hook";

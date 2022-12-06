@@ -1,5 +1,5 @@
-import { Registry } from "../registry";
-import { SpreadsheetChildEnv } from "../types/env";
+import { SpreadsheetChildEnv } from "../types";
+import { Registry } from "./registry";
 
 //------------------------------------------------------------------------------
 // Menu Item Registry
