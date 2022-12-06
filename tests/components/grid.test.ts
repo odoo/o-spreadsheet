@@ -622,6 +622,15 @@ describe("Grid component", () => {
       expect(fixture.querySelector(".o-menu div[data-name='add_row_before']")).toBeFalsy();
       expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
     });
+
+    test("Can open context menu with a keyboard input ", async () => {
+      const selector = ".o-grid>input";
+      const target = document.querySelector(selector)! as HTMLElement;
+      target.focus();
+      triggerMouseEvent(selector, "contextmenu", 0, 0, { button: 1, bubbles: true });
+      await nextTick();
+      expect(fixture.querySelector(".o-menu")).toBeTruthy();
+    });
   });
 });
 

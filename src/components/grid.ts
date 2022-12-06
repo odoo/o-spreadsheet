@@ -195,7 +195,11 @@ const TEMPLATE = xml/* xml */ `
         />
     </t>
     <t else="1">
-      <input class="position-absolute" style="z-index:-1000;" t-on-input="onInput" t-ref="hiddenInput"/>
+      <input class="position-absolute"
+        style="z-index:-1000;"
+        t-on-input="onInput"
+        t-on-contextmenu="onInputContextMenu"
+        t-ref="hiddenInput"/>
     </t>
     <canvas t-ref="canvas"
       t-on-mousedown="onMouseDown"
@@ -896,6 +900,25 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   // ---------------------------------------------------------------------------
   // Context Menu
   // ---------------------------------------------------------------------------
+
+  onInputContextMenu(ev: MouseEvent) {
+    ev.preventDefault();
+    const lastZone = this.env.model.getters.getSelectedZone();
+    const { left: col, top: row } = lastZone;
+    let type: ContextMenuType = "CELL";
+    this.env.model.dispatch("STOP_EDITION");
+    if (this.env.model.getters.getActiveCols().has(col)) {
+      type = "COL";
+    } else if (this.env.model.getters.getActiveRows().has(row)) {
+      type = "ROW";
+    }
+    const [x, y, width, height] = this.env.model.getters.getRect(
+      lastZone,
+      this.env.model.getters.getActiveSnappedViewport()
+    );
+
+    this.toggleContextMenu(type, x + width, y + height);
+  }
 
   onCanvasContextMenu(ev: MouseEvent) {
     ev.preventDefault();
