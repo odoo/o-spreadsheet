@@ -14,7 +14,6 @@
           <t
             t-component="figureRegistry.get(props.figure.tag).Component"
             t-key="props.figure.id"
-            sidePanelIsOpen="props.sidePanelIsOpen"
             onFigureDeleted="props.onFigureDeleted"
             figure="displayedFigure"
           />

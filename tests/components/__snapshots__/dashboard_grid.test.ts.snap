@@ -18,13 +18,9 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
       width: 100%
     "
     >
-      <!-- TODO remove sidePanelIsOpen props. It is wrong.
-      If you have a CF sidepanel open, selecting a figure should
-      not open the figure side panel -->
       <div>
         
       </div>
-      
     </div>
     
     <canvas

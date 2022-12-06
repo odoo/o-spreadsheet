@@ -5,7 +5,6 @@ import { FigureComponent } from "../figure/figure";
 import { ChartFigure } from "../figure_chart/figure_chart";
 
 interface Props {
-  sidePanelIsOpen: Boolean;
   onFigureDeleted: () => void;
 }
 
@@ -32,7 +31,6 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
 }
 
 FiguresContainer.props = {
-  sidePanelIsOpen: Boolean,
   onFigureDeleted: Function,
 };
 

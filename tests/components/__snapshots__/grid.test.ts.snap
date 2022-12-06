@@ -14,13 +14,9 @@ exports[`Grid component simple rendering snapshot 1`] = `
       width: calc(100% - 63px);
     "
   >
-    <!-- TODO remove sidePanelIsOpen props. It is wrong.
-      If you have a CF sidepanel open, selecting a figure should
-      not open the figure side panel -->
     <div>
       
     </div>
-    
   </div>
   
   <div

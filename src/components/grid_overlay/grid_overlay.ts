@@ -145,7 +145,6 @@ interface Props {
   onGridResized: (dimension: DOMDimension) => void;
   onGridMoved: (deltaX: Pixel, deltaY: Pixel) => void;
   gridOverlayDimensions: string;
-  sidePanelIsOpen: boolean;
   onFigureDeleted: () => void;
 }
 
@@ -159,7 +158,6 @@ export class GridOverlay extends Component<Props> {
     onCellRightClicked: () => {},
     onGridResized: () => {},
     onFigureDeleted: () => {},
-    sidePanelIsOpen: false,
   };
   private gridOverlay!: Ref<HTMLElement>;
 
@@ -223,5 +221,4 @@ GridOverlay.props = {
   onFigureDeleted: { type: Function, optional: true },
   onGridMoved: Function,
   gridOverlayDimensions: String,
-  sidePanelIsOpen: { type: Boolean, optional: true },
 };
