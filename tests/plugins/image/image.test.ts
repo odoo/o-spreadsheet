@@ -1,6 +1,6 @@
 import { Model } from "../../../src";
 import { createImage, paste, redo, undo } from "../../test_helpers/commands_helpers";
-import { getFigureIds, nextTick } from "../../test_helpers/helpers";
+import { getFigureIds } from "../../test_helpers/helpers";
 
 describe("test image", function () {
   test("create image", () => {
@@ -94,11 +94,10 @@ describe("test image in sheet", function () {
 });
 
 describe("test image import & export", function () {
-  test("can export an image", async () => {
+  test("can export an image", () => {
     const model = new Model();
     const imageId = "Image1";
     createImage(model, { sheetId: "Sheet1", figureId: imageId });
-    await nextTick();
     const data = model.exportData();
     const activeSheetId = model.getters.getActiveSheetId();
     const sheet = data.sheets.find((s) => s.id === activeSheetId)!;
@@ -110,19 +109,21 @@ describe("test image import & export", function () {
         width: 380,
         x: 0,
         y: 0,
+        data: model.getters.getImage(imageId),
       },
     ]);
   });
-  test("can import an image", async () => {
+  test("can import an image", () => {
     const model = new Model();
     const sheetId = "Sheet1";
     const imageId = "Image1";
     createImage(model, { sheetId, figureId: imageId });
-    await nextTick();
     const importedData = model.exportData();
     const newModel = new Model(importedData);
-    const image = newModel.getters.getFigure(sheetId, imageId);
-    expect(image).toBeDefined();
+    expect(newModel.getters.getImage(imageId)).toEqual(model.getters.getImage(imageId));
+    expect(newModel.getters.getFigure(sheetId, imageId)).toEqual(
+      model.getters.getFigure(sheetId, imageId)
+    );
   });
 });
 

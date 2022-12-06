@@ -2,7 +2,15 @@ import { ImageFigure } from "../../components/figures/figure_image/figure_image"
 import { deepCopy } from "../../helpers";
 import { figureRegistry } from "../../registries";
 import { Image } from "../../types/image";
-import { CommandResult, CoreCommand, Figure, FigureSize, Pixel, UID } from "../../types/index";
+import {
+  CommandResult,
+  CoreCommand,
+  Figure,
+  FigureSize,
+  Pixel,
+  UID,
+  WorkbookData,
+} from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 
 interface ImageState {
@@ -103,6 +111,25 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
       tag: "image",
     };
     this.dispatch("CREATE_FIGURE", { sheetId, figure });
+  }
+
+  import(data: WorkbookData) {
+    for (const sheet of data.sheets) {
+      const images = (sheet.figures || []).filter((figure) => figure.tag === "image");
+      for (const image of images) {
+        this.history.update("nextId", this.nextId + 1);
+        this.history.update("images", sheet.id, image.id, image.data);
+      }
+    }
+  }
+
+  export(data: WorkbookData) {
+    for (const sheet of data.sheets) {
+      const images = sheet.figures.filter((figure) => figure.tag === "image");
+      for (const image of images) {
+        image.data = this.images[sheet.id]?.[image.id];
+      }
+    }
   }
 }
 
