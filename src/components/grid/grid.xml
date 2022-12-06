@@ -32,6 +32,7 @@
           class="position-absolute"
           style="z-index:-1000;"
           t-on-input="onInput"
+          t-on-contextmenu="onInputContextMenu"
           t-ref="hiddenInput"
         />
       </t>
