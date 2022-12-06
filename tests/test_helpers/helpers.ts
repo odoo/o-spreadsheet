@@ -21,9 +21,9 @@ import {
 } from "../../src/types";
 import { Image } from "../../src/types/image";
 import { XLSXExport } from "../../src/types/xlsx";
-import { FileStore } from "../components/__mocks__/mock_file_store";
 import { ImageProvider } from "../components/__mocks__/mock_image_provider";
 import { OWL_TEMPLATES } from "../setup/jest.setup";
+import { FileStore } from "../__mocks__/mock_file_store";
 import { Currency } from "./../../src/types/currency";
 import { MockClipboard } from "./clipboard";
 import { redo, setCellContent, undo } from "./commands_helpers";

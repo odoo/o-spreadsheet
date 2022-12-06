@@ -206,3 +206,15 @@ class UserPlugin extends CorePlugin {
   }
 }
 ```
+
+**Delete external resources**
+
+If your custom plugin stores data on an external server, it may be wise to delete
+unused data if it is deleted from the spreadsheet.
+
+Naively cleaning the server when the data is deleted from the spreadsheet doesn't
+work well because the data is still in used in the history stack!
+
+When the history stack is cleared (because the spreadsheet is snapshotted),
+`garbageCollectExternalResources` method is called on each plugin. Implement this
+method to clean unused external resources.
