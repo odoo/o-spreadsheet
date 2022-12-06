@@ -142,7 +142,7 @@ exports[`BottomBar component simple rendering 1`] = `
     </svg>
   </div>
   <div
-    class="o-all-sheets"
+    class="o-all-sheets flex-shrink-0 me-3"
   >
     <div
       class="o-sheet-item o-sheet active"
