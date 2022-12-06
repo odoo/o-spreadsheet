@@ -3,14 +3,9 @@ import { Model, Spreadsheet } from "../src";
 import { fontSizes } from "../src/fonts";
 import { zoneToXc } from "../src/helpers";
 import { interactivePaste } from "../src/helpers/ui/paste_interactive";
-import {
-  colMenuRegistry,
-  createFullMenuItem,
-  FullMenuItem,
-  rowMenuRegistry,
-  topbarMenuRegistry,
-} from "../src/registries/index";
+import { colMenuRegistry, rowMenuRegistry, topbarMenuRegistry } from "../src/registries/index";
 import { getMenuChildren } from "../src/registries/menus/helpers";
+import { createFullMenuItem, FullMenuItem } from "../src/registries/menu_items_registry";
 import { SpreadsheetChildEnv } from "../src/types";
 import {
   copy,

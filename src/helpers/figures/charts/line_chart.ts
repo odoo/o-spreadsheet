@@ -1,6 +1,5 @@
 import { ChartConfiguration, ChartDataSets, ChartLegendOptions } from "chart.js";
 import { BACKGROUND_CHART_COLOR, LINE_FILL_TRANSPARENCY } from "../../../constants";
-import { chartRegistry } from "../../../registries/chart_types";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -51,22 +50,6 @@ import {
   getFillingMode,
   getLabelFormat,
 } from "./chart_ui_common";
-
-chartRegistry.add("line", {
-  match: (type) => type === "line",
-  createChart: (definition, sheetId, getters) =>
-    new LineChart(definition as LineChartDefinition, sheetId, getters),
-  getChartRuntime: createLineChartRuntime,
-  validateChartDefinition: (validator, definition) =>
-    LineChart.validateChartDefinition(validator, definition as LineChartDefinition),
-  transformDefinition: (
-    definition: LineChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ) => LineChart.transformDefinition(definition, executed),
-  getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
-    LineChart.getDefinitionFromContextCreation(context),
-  name: "Line",
-});
 
 export class LineChart extends AbstractChart {
   readonly dataSets: DataSet[];
@@ -338,7 +321,7 @@ function getLineConfiguration(chart: LineChart, labels: string[]): ChartConfigur
   return config;
 }
 
-function createLineChartRuntime(chart: LineChart, getters: Getters): LineChartRuntime {
+export function createLineChartRuntime(chart: LineChart, getters: Getters): LineChartRuntime {
   const axisType = getChartAxisType(chart, getters);
   const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
   let labels = axisType === "linear" ? labelValues.values : labelValues.formattedValues;

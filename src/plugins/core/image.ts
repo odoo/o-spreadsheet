@@ -1,6 +1,4 @@
-import { ImageFigure } from "../../components/figures/figure_image/figure_image";
 import { deepCopy, isDefined } from "../../helpers";
-import { figureRegistry } from "../../registries";
 import { FileStore } from "../../types/files";
 import { Image } from "../../types/image";
 import {
@@ -164,10 +162,3 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
     return images;
   }
 }
-
-figureRegistry.add("image", {
-  Component: ImageFigure,
-  keepRatio: true,
-  minFigSize: 20,
-  borderWidth: 0,
-});

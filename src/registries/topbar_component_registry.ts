@@ -1,7 +1,7 @@
 import { UuidGenerator } from "../helpers";
-import { Registry } from "../registry";
 import { UID } from "../types";
 import { SpreadsheetChildEnv } from "../types/env";
+import { Registry } from "./registry";
 
 //------------------------------------------------------------------------------
 // Topbar Component Registry

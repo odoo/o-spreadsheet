@@ -1,4 +1,4 @@
-import { Registry } from "../registry";
+import { Registry } from "../registries/registry";
 import {
   BordersPlugin,
   CellPlugin,

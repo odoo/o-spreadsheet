@@ -1,5 +1,5 @@
 import { Component } from "@odoo/owl";
-import { Registry } from "../../../registry";
+import { Registry } from "../../../registries/registry";
 import { BarConfigPanel } from "./bar_chart/bar_chart_config_panel";
 import { BarChartDesignPanel } from "./bar_chart/bar_chart_design_panel";
 import { GaugeChartConfigPanel } from "./gauge_chart_panel/gauge_chart_config_panel";

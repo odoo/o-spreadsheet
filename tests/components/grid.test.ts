@@ -1,6 +1,5 @@
 import { App } from "@odoo/owl";
 import { Spreadsheet, TransportService } from "../../src";
-import { ChartJsComponent } from "../../src/components/figures/chart/chartJs/chartjs";
 import {
   BACKGROUND_GRAY_COLOR,
   DEFAULT_CELL_HEIGHT,
@@ -14,7 +13,6 @@ import {
 } from "../../src/constants";
 import { toCartesian, toHex, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { chartComponentRegistry } from "../../src/registries";
 import { getClipboardEvent, MockClipboardData } from "../test_helpers/clipboard";
 import {
   copy,
@@ -72,8 +70,6 @@ let fixture: HTMLElement;
 let model: Model;
 let parent: Spreadsheet;
 let app: App;
-
-chartComponentRegistry.add("bar", ChartJsComponent);
 
 jest.useFakeTimers();
 

@@ -71,7 +71,6 @@ import {
   chartComponentRegistry,
   chartRegistry,
   colMenuRegistry,
-  createFullMenuItem,
   figureRegistry,
   inverseCommandRegistry,
   linkMenuRegistry,
@@ -83,6 +82,7 @@ import {
   topbarMenuRegistry,
 } from "./registries/index";
 import { getMenuChildren } from "./registries/menus/helpers";
+import { createFullMenuItem } from "./registries/menu_items_registry";
 import { FunctionDescription } from "./types";
 import { CellErrorLevel, EvaluationError } from "./types/errors";
 
@@ -106,7 +106,7 @@ export { load } from "./migrations/data";
 export { Model } from "./model";
 export { CorePlugin } from "./plugins/core_plugin";
 export { UIPlugin } from "./plugins/ui_plugin";
-export { Registry } from "./registry";
+export { Registry } from "./registries/registry";
 export { setTranslationMethod } from "./translation";
 export { CancelledReason, CommandResult, DispatchResult } from "./types";
 export { Client } from "./types/collaborative/session";

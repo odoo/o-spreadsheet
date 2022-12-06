@@ -5,7 +5,6 @@ import {
   DEFAULT_GAUGE_UPPER_COLOR,
 } from "../../../constants";
 import { BasePlugin } from "../../../plugins/base_plugin";
-import { chartRegistry } from "../../../registries/chart_types";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -35,22 +34,6 @@ import { toUnboundedZone, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
 import { adaptChartRange, chartFontColor, copyLabelRangeWithNewSheetId } from "./chart_common";
 import { getDefaultChartJsRuntime } from "./chart_ui_common";
-
-chartRegistry.add("gauge", {
-  match: (type) => type === "gauge",
-  createChart: (definition, sheetId, getters) =>
-    new GaugeChart(definition as GaugeChartDefinition, sheetId, getters),
-  getChartRuntime: createGaugeChartRuntime,
-  validateChartDefinition: (validator, definition) =>
-    GaugeChart.validateChartDefinition(validator, definition as GaugeChartDefinition),
-  transformDefinition: (
-    definition: GaugeChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ) => GaugeChart.transformDefinition(definition, executed),
-  getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
-    GaugeChart.getDefinitionFromContextCreation(context),
-  name: "Gauge",
-});
 
 type RangeLimitsValidation = (rangeLimit: string, rangeLimitName: string) => CommandResult;
 type InflectionPointValueValidation = (
@@ -308,7 +291,7 @@ function getGaugeConfiguration(chart: GaugeChart): GaugeChartConfiguration {
   return config;
 }
 
-function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): GaugeChartRuntime {
+export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): GaugeChartRuntime {
   const config = getGaugeConfiguration(chart);
   const colors = chart.sectionRule.colors;
 

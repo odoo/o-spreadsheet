@@ -1,5 +1,4 @@
 import { groupConsecutive } from "../helpers/index";
-import { Registry } from "../registry";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
@@ -16,6 +15,7 @@ import {
   RemoveMergeCommand,
   UnhideColumnsRowsCommand,
 } from "../types/commands";
+import { Registry } from "./registry";
 
 type InverseFunction = (cmd: CoreCommand) => CoreCommand[];
 

@@ -6,8 +6,8 @@ import {
   MENU_VERTICAL_PADDING,
   MENU_WIDTH,
 } from "../../constants";
-import { FullMenuItem, MenuItem } from "../../registries";
 import { getMenuChildren, getMenuDescription, getMenuName } from "../../registries/menus/helpers";
+import { FullMenuItem, MenuItem } from "../../registries/menu_items_registry";
 import { DOMCoordinates, Pixel, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 import { isChildEvent } from "../helpers/dom_helpers";

@@ -1,7 +1,6 @@
 import { Component } from "@odoo/owl";
 import { DEFAULT_FONT } from "../../../../constants";
 import { getFontSizeMatchingWidth, relativeLuminance } from "../../../../helpers";
-import { chartComponentRegistry } from "../../../../registries";
 import { Color, Figure, Pixel, SpreadsheetChildEnv, Style } from "../../../../types";
 import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
 import { cellTextStyleToCss, cssPropertiesToCss } from "../../../helpers";
@@ -278,5 +277,3 @@ class KeyValueElement implements ScorecardScalableElement {
 ScorecardChart.props = {
   figure: Object,
 };
-
-chartComponentRegistry.add("scorecard", ScorecardChart);

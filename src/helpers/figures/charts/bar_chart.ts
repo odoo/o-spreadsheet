@@ -1,6 +1,5 @@
 import { ChartConfiguration, ChartDataSets, ChartLegendOptions } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
-import { chartRegistry } from "../../../registries/chart_types";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -43,22 +42,6 @@ import {
   getChartLabelValues,
   getDefaultChartJsRuntime,
 } from "./chart_ui_common";
-
-chartRegistry.add("bar", {
-  match: (type) => type === "bar",
-  createChart: (definition, sheetId, getters) =>
-    new BarChart(definition as BarChartDefinition, sheetId, getters),
-  getChartRuntime: createBarChartRuntime,
-  validateChartDefinition: (validator, definition: BarChartDefinition) =>
-    BarChart.validateChartDefinition(validator, definition),
-  transformDefinition: (
-    definition: BarChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ) => BarChart.transformDefinition(definition, executed),
-  getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
-    BarChart.getDefinitionFromContextCreation(context),
-  name: "Bar",
-});
 
 export class BarChart extends AbstractChart {
   readonly dataSets: DataSet[];
@@ -247,7 +230,7 @@ function getBarConfiguration(chart: BarChart, labels: string[]): ChartConfigurat
   return config;
 }
 
-function createBarChartRuntime(chart: BarChart, getters: Getters): BarChartRuntime {
+export function createBarChartRuntime(chart: BarChart, getters: Getters): BarChartRuntime {
   const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
   let labels = labelValues.formattedValues;
   let dataSetsValues = getChartDatasetValues(getters, chart.dataSets);

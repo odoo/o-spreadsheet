@@ -1,8 +1,6 @@
 import { Component, onMounted } from "@odoo/owl";
-import { figureRegistry } from "../../../registries/index";
 import { Figure, SpreadsheetChildEnv } from "../../../types/index";
 import { FigureComponent } from "../figure/figure";
-import { ChartFigure } from "../figure_chart/figure_chart";
 
 interface Props {
   onFigureDeleted: () => void;
@@ -33,5 +31,3 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
 FiguresContainer.props = {
   onFigureDeleted: Function,
 };
-
-figureRegistry.add("chart", { Component: ChartFigure, SidePanelComponent: "ChartPanel" });

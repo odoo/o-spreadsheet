@@ -1,7 +1,6 @@
 import { Component, onMounted, onPatched, useRef } from "@odoo/owl";
 import Chart, { ChartConfiguration } from "chart.js";
 import { deepEquals } from "../../../../helpers";
-import { chartComponentRegistry } from "../../../../registries/chart_types";
 import { Figure, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { GaugeChartOptions } from "../../../../types/chart/gauge_chart";
@@ -80,8 +79,3 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
 ChartJsComponent.props = {
   figure: Object,
 };
-
-chartComponentRegistry.add("line", ChartJsComponent);
-chartComponentRegistry.add("bar", ChartJsComponent);
-chartComponentRegistry.add("pie", ChartJsComponent);
-chartComponentRegistry.add("gauge", ChartJsComponent);
