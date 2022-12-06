@@ -446,6 +446,22 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   // Context Menu
   // ---------------------------------------------------------------------------
 
+  onInputContextMenu(ev: MouseEvent) {
+    ev.preventDefault();
+    const lastZone = this.env.model.getters.getSelectedZone();
+    const { left: col, top: row } = lastZone;
+    let type: ContextMenuType = "CELL";
+    this.env.model.dispatch("STOP_EDITION");
+    if (this.env.model.getters.getActiveCols().has(col)) {
+      type = "COL";
+    } else if (this.env.model.getters.getActiveRows().has(row)) {
+      type = "ROW";
+    }
+    const { x, y, width, height } = this.env.model.getters.getVisibleRect(lastZone);
+
+    this.toggleContextMenu(type, x + width, y + height);
+  }
+
   onCellRightClicked(col: HeaderIndex, row: HeaderIndex, { x, y }: DOMCoordinates) {
     const zones = this.env.model.getters.getSelectedZones();
     const lastZone = zones[zones.length - 1];
