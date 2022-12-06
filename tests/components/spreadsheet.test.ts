@@ -89,7 +89,7 @@ describe("Simple Spreadsheet Component", () => {
     });
 
     test("Can use  an external dependency in a function", () => {
-      const model = new Model({ sheets: [{ id: 1 }] }, { external: { env: { myKey: [] } } });
+      const model = new Model({ sheets: [{ id: 1 }] }, { custom: { env: { myKey: [] } } });
       setCellContent(model, "A1", "=GETACTIVESHEET()");
       expect(getCellContent(model, "A1")).toBe("Sheet");
       expect(env).toMatchObject({ myKey: [] });
@@ -113,7 +113,7 @@ describe("Simple Spreadsheet Component", () => {
             ],
             activeSheet: "Sheet1",
           },
-          { external: { env: { myKey: [] } } }
+          { custom: { env: { myKey: [] } } }
         ),
       });
       expect(env).toMatchObject({ myKey: [] });

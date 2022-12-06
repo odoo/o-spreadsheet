@@ -13,7 +13,6 @@ const env = {
   notifyUser: () => window.alert(content),
   askConfirmation: (message, confirm, cancel) => confirm(),
   editText: (title, callback) => callback(""),
-  loadCurrencies: () => [],
 };
 const app = new owl.App(Spreadsheet, {
   props: { model },
@@ -45,9 +44,10 @@ const model = new Model(data, config);
 - `config` A config object with the following properties, all optionals:
 
   - `mode` The mode in which the spreadsheet is run: `normal`, `readonly` or `dashboard`.
-  - `external` Any external dependencies your custom plugins or functions might need.
+  - `custom` Any custom external dependencies your custom plugins or functions might need.
     They are available in plugins config and functions evaluation context.
-  - `transportService` Service which ensure the communication in a collaborative context
+  - `external`: External dependencies required to enable some features such as uploading images.
+  - [`transportService`](../integrating/collaborative/collaborative.md) Service which ensure the communication in a collaborative context
   - `client` Client information (name, id). Used in collaborative context to indicate the positions of all clients.
   - `snapshotRequested` Boolean that set to true will indicate to the session that a snapshot has to be done after the loading of revisions.
   - `notifyUI` Function that will be called whenever something has to be asked to the user.
@@ -70,4 +70,41 @@ function _t(term) {
 }
 
 o_spreadsheet.setTranslationMethod(_t);
+```
+
+## Image server
+
+Enable the image insertion feature by providing an external file store to store images.
+Your file store instance should implements the [`FileStore`](https://github.com/odoo/o-spreadsheet/blob/b4c1339c82c3831e76636851116fbf754946ea79/src/types/files.ts#L6) interface.
+
+```ts
+const fileStore = new MyFileStore(...);
+
+const model = new Model(data, {
+  external: {
+    fileStore,
+  },
+});
+```
+
+## Custom currency formats
+
+Enable the custom currency format feature by providing an external access to you currencies.
+Your function loading the currencies should return a [`Currency`](https://github.com/odoo/o-spreadsheet/blob/b4c1339c82c3831e76636851116fbf754946ea79/src/types/currency.ts) array.
+
+```ts
+async function loadCurrencies() {
+  // currencies can be loaded from anywhere, including an external server or a local file.
+  return [
+    { name: "Pound sterling", code: "GBP", symbol: "£", position: "after", decimalPlaces: 2 },
+    { name: "South Korean won", code: "KRW", symbol: "₩", position: "after", decimalPlaces: 1 },
+    { name: "Swedish krona", code: "SEK", symbol: "kr", position: "after", decimalPlaces: 2 },
+  ];
+}
+
+const model = new Model(data, {
+  external: {
+    loadCurrencies,
+  },
+});
 ```

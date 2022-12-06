@@ -6,7 +6,7 @@
     - [`handle`](#handle)
     - [`finalize`](#finalize)
   - [Changes that can be undone and redone](#changes-that-can-be-undone-and-redone)
-  - [External dependency](#external-dependency)
+  - [Custom external dependency](#custom-external-dependency)
 
 # Plugins
 
@@ -186,23 +186,23 @@ class DummyPlugin extends CorePlugin {
 }
 ```
 
-## External dependency
+## Custom external dependency
 
-You can provide any external dependencies to your plugin in the `Model`'s config.
+You can provide any custom dependencies to your plugin in the `Model`'s config.
 
 Let's say you have a `user` service with the currently logged in user.
 The example below shows how the service can be used in a custom plugin.
 
 ```ts
 const model = new Model(data, {
-  external: {
+  custom: {
     userService: services.user,
   },
 });
 class UserPlugin extends CorePlugin {
   constructor(config) {
     super(config);
-    this.userService = config.external.userService;
+    this.userService = config.custom.userService;
   }
 }
 ```

@@ -540,7 +540,8 @@ describe("TopBar component", () => {
   test("can insert an image", async () => {
     fixture = makeTestFixture();
     const fileStore = new FileStore();
-    const { model, app } = await mountSpreadsheet(fixture, { model: new Model(), fileStore });
+    const model = new Model({}, { external: { fileStore } });
+    const { app } = await mountSpreadsheet(fixture, { model });
     await nextTick();
     const sheetId = model.getters.getActiveSheetId();
     await simulateClick(".o-topbar-menu[data-id='insert']");

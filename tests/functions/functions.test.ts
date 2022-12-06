@@ -122,7 +122,7 @@ describe("functions", () => {
     const model = new Model(
       {},
       {
-        external: {
+        custom: {
           coucou: "Raoul",
         },
       }

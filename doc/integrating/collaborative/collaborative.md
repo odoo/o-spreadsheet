@@ -1,22 +1,30 @@
 # Collaborative Edition
 
-To learn more about the explored possibilities, please read [this](collaborative_choices.md).
-
 Realtime collaboration edition can be enabled to synchronize a spreadsheet across multiple clients.
 It is enabled by providing a way to communicate with other connected clients to the `<Spreadsheet/>` component. We call it the _transport service_. Its interface and how it should be implemented is described in a [dedicated section](#transport-service). An optional [client](tsdoc/interfaces/client.md) can also be provided to display the names of connected clients.
 
-```xml
-<Spreadsheet data="data" transportService="transportService" client="client"/>
+```ts
+const model = new Model(data, {
+  transportService,
+  client: { id: 456, name: "Raoul" },
+});
 ```
 
-1. [Transport](#transport)
-1. [Server](#server)
-1. [How it works](#how-it-works)
-   1. [Operational Transform](#operational-transform)
-1. [Extension](#extension)
-   1. [Commands](#commands)
-   1. [Transformations](#transformations)
-   1. [History](#history)
+```xml
+<Spreadsheet model="model"/>
+```
+
+To learn more about the explored possibilities, please read [this](collaborative_choices.md).
+
+- [Collaborative Edition](#collaborative-edition)
+  - [Transport Service](#transport-service)
+  - [Coordinating server](#coordinating-server)
+  - [How it works](#how-it-works)
+    - [Operational Transform](#operational-transform)
+  - [Extension](#extension)
+    - [Commands](#commands)
+    - [Transformations](#transformations)
+    - [History](#history)
 
 ## Transport Service
 
@@ -42,7 +50,7 @@ Messages can be split in two categories:
 - [ClientMovedMessage](tsdoc/interfaces/clientmovedmessage.md)
 - [ClientLeftMessage](tsdoc/interfaces/clientleftmessage.md)
 
-2. The messages that require special care to ensure a correct message ordering:
+1. The messages that require special care to ensure a correct message ordering:
 
 - [RemoteRevisionMessage](tsdoc/interfaces/remoterevisionmessage.md)
 - [RevisionUndoneMessage](tsdoc/interfaces/revisionundonemessage.md)

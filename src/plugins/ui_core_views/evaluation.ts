@@ -72,7 +72,7 @@ export class EvaluationPlugin extends UIPlugin {
 
   constructor(config: UIPluginConfig) {
     super(config);
-    this.evalContext = config.external;
+    this.evalContext = config.custom;
     this.lazyEvaluation = config.lazyEvaluation;
   }
 

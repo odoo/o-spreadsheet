@@ -332,6 +332,7 @@ topbarMenuRegistry
     name: NumberFormatTerms.CustomCurrency,
     sequence: 39,
     separator: true,
+    isVisible: (env) => env.loadCurrencies !== undefined,
     action: ACTIONS.OPEN_CUSTOM_CURRENCY_SIDEPANEL_ACTION,
   })
   .addChild("format_number_date", ["format", "format_number"], {

@@ -20,7 +20,7 @@ export interface UIPluginConfig {
   readonly selection: SelectionStreamProcessor;
   readonly moveClient: (position: ClientPosition) => void;
   readonly uiActions: UIActions;
-  readonly external: ModelConfig["external"];
+  readonly custom: ModelConfig["custom"];
   readonly lazyEvaluation: boolean;
 }
 
