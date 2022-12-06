@@ -70,20 +70,22 @@ type TypeByCellsPositionBySheets<T> = { [sheetID: UID]: TypeByCellsPosition<T> }
 //   }
 // }
 
-function* getCellsPositionFromSheet<T>(
+function* positionOfCells<T>(
   typeByCellsPositionBySheets: TypeByCellsPositionBySheets<T>,
   sheetId: UID
 ): Iterable<CellPosition> {
   // use a generator function to avoid re-building a new object
   const typeByCellsPosition = typeByCellsPositionBySheets[sheetId];
-  for (let x of Object.keys(typeByCellsPosition).sort()) {
-    for (let y of Object.keys(typeByCellsPosition[x]).sort()) {
-      yield { sheetId, col: Number(x), row: Number(y) };
+  if (typeByCellsPosition) {
+    for (let x of Object.keys(typeByCellsPosition).sort()) {
+      for (let y of Object.keys(typeByCellsPosition[x]).sort()) {
+        yield { sheetId, col: Number(x), row: Number(y) };
+      }
     }
   }
 }
 
-function setTypeInTypeByCellsPositionBySheets<T>(
+function setTypeAtCellsPosition<T>(
   typeByCellsPositionBySheets: TypeByCellsPositionBySheets<T>,
   { sheetId, col, row }: CellPosition,
   type: T
@@ -197,7 +199,7 @@ export class EvaluationPlugin extends UIPlugin {
       return evaluatedCell; // already computed
     }
 
-    const cell = this.getters.getCell({sheetId, col, row});
+    const cell = this.cellsHavingContent[sheetId]?.[col]?.[row];
     if (cell && cell.content) {
       return this.computeEvaluatedCell(cell);
     }
@@ -208,19 +210,17 @@ export class EvaluationPlugin extends UIPlugin {
     // So we have to look for an empty cell if its evaluated content may
     // depend on previous cells.
 
-    for (const formulaPosition of getCellsPositionFromSheet(this.spreadingAreasLimits, sheetId)) {
-      if ((col >= formulaPosition.col, row >= formulaPosition.row)) {
+    for (const formulaP of positionOfCells(this.spreadingAreasLimits, sheetId)) {
+      const formulaCell = this.cellsHavingContent[formulaP.sheetId][formulaP.col][formulaP.row];
+
+      // TO DO: change cellsBeingComputed with cellPosition type
+      const formulaIsBeingComputed = this.cellsBeingComputed.has(formulaCell.id);
+
+      if (!formulaIsBeingComputed) {
         const spreadingAreaLimits =
-          this.spreadingAreasLimits[formulaPosition.sheetId][formulaPosition.col][
-            formulaPosition.row
-          ];
+          this.spreadingAreasLimits[formulaP.sheetId][formulaP.col][formulaP.row];
 
-        if (this.isCellInsideSpreadingArea(col, row, formulaPosition, spreadingAreaLimits)) {
-          const formulaCell =
-            this.cellsHavingContent[formulaPosition.sheetId][formulaPosition.col][
-              formulaPosition.row
-            ];
-
+        if (this.isCellInsideSpreadingArea(col, row, formulaP, spreadingAreaLimits)) {
           this.computeEvaluatedCell(formulaCell);
           const evaluation = this.evaluatedCells[sheetId]?.[col]?.[row];
           if (evaluation) {
@@ -229,27 +229,6 @@ export class EvaluationPlugin extends UIPlugin {
         }
       }
     }
-
-    // const zonesByCellsPosition = this.spreadingAreasLimits[sheetId]
-    // for(let x of Object.keys(zonesByCellsPosition).sort()){
-    //   for(let y of Object.keys(zonesByCellsPosition).sort()){
-    //     const _x = Number(x)
-    //     const _y = Number(y)
-    //     const zones = zonesByCellsPosition[_x][_y]
-    //     if(zones.some((zone) => isInside(col, row, zone))){
-
-    //       // TODO: change this line
-    //       const formulaCell = this.getters.getCell(sheetId,_x,_y)!
-
-    //       this.computeEvaluatedCell(formulaCell)
-    //       const evaluation = this.evaluatedCells[sheetId]?.[col]?.[row];
-    //       if (evaluation) {
-    //         return evaluation
-    //       }
-    //     }
-    //   }
-    // }
-
     return createEvaluatedCell("");
   }
 
@@ -277,6 +256,7 @@ export class EvaluationPlugin extends UIPlugin {
     this.evaluatedCells = {};
     this.cellsHavingContent = {};
     this.spreadingAreasLimits = {};
+    this.cellsBeingComputed = new Set<UID>();
 
     this.fillCellsHavingContent();
     this.fillSpreadingAreasLimits();
@@ -289,7 +269,7 @@ export class EvaluationPlugin extends UIPlugin {
         const cellPosition = this.getters.getCellPosition(cellId);
         const cell = cells[cellId];
         if (cell.content) {
-          setTypeInTypeByCellsPositionBySheets(this.cellsHavingContent, cellPosition, cell);
+          setTypeAtCellsPosition(this.cellsHavingContent, cellPosition, cell);
         }
       }
     }
@@ -335,36 +315,36 @@ export class EvaluationPlugin extends UIPlugin {
      */
 
     for (const sheetId in this.cellsHavingContent) {
-      for (const cellPosition of getCellsPositionFromSheet(this.cellsHavingContent, sheetId)) {
-        const cell = this.cellsHavingContent[sheetId][cellPosition.col][cellPosition.row];
+      for (const cellP of positionOfCells(this.cellsHavingContent, sheetId)) {
+        const cell = this.cellsHavingContent[sheetId][cellP.col][cellP.row];
         if (cell.isFormula) {
           // TO DO: improve the performence here with a check on only formula that return array
-          setTypeInTypeByCellsPositionBySheets(
+          setTypeAtCellsPosition(
             this.spreadingAreasLimits,
-            cellPosition,
-            this.getSpreadingAreaLimits(cellPosition)
+            cellP,
+            this.getSpreadingAreaLimits(cellP)
           );
         }
       }
     }
   }
 
-  private getSpreadingAreaLimits(formulaPosition: CellPosition): CellPosition[] {
+  private getSpreadingAreaLimits(formulaP: CellPosition): CellPosition[] {
     const limits: CellPosition[] = [];
     let lastRowIndexLimit = Infinity;
 
-    // note that getCellsPositionFromSheet is importent here because it gives position of cells having content in a ordering way
+    // note that positionOfCells is importent here because it gives position of cells having content in a ordering way
     // with that, we are sure that when we find a rowIndex, this is the index of the most highter element
-    // TO DO: dont need to check cells on the rest of the column, make function that give dico of rowIdex[] by col
+    // TO DO: dont need to check cells on the rest of the column, make function that give index directly
     // generate a matrixIndex of cell having content and iterate on it
 
-    // ex:   [[1: [2,6,7]], ...
+    // ex:  [ [1,[2,6,7,...]], [3,[1,5,9,...]], ......]
 
-    for (const { sheetId, col, row } of getCellsPositionFromSheet(
+    for (const { sheetId, col, row } of positionOfCells(
       this.cellsHavingContent,
-      formulaPosition.sheetId
+      formulaP.sheetId
     )) {
-      if (col >= formulaPosition.col && row >= formulaPosition.row) {
+      if (col >= formulaP.col && row >= formulaP.row) {
         if (row < lastRowIndexLimit) {
           lastRowIndexLimit = row;
           limits.push({ sheetId, col, row });
@@ -377,19 +357,109 @@ export class EvaluationPlugin extends UIPlugin {
   private isCellInsideSpreadingArea(
     col: HeaderIndex,
     row: HeaderIndex,
-    formulaPosition: CellPosition,
+    formulaP: CellPosition,
     spreadingAreaLimits: CellPosition[]
   ): boolean {
-    // if(col >= formulaPosition.col && row >= formulaPosition.row ){
+    const cellIsLocatedBeforFormula = col < formulaP.col || row < formulaP.row;
 
-    //   if()
+    if (cellIsLocatedBeforFormula) {
+      return false;
+    }
 
-    //   for( const limit of spreadingAreaLimits){
-    //     if ()
+    let previousRowLimit = Infinity;
+    for (const limitP of spreadingAreaLimits) {
+      if (col < limitP.col && row < previousRowLimit) {
+        return true;
+      }
+      previousRowLimit = limitP.row;
+    }
 
-    //   }
-    // }
+    if (row < previousRowLimit) {
+      return true;
+    }
+
     return false;
+  }
+
+  private isFormulaEndingPositionResultNotInsideSpreadingArea(
+    endingResultPosition: CellPosition,
+    spreadingAreaLimits: CellPosition[]
+  ): CellPosition | undefined {
+    const col = endingResultPosition.col;
+    const row = endingResultPosition.row;
+    let previousColLimit = Infinity;
+    let previousRowLimit = Infinity;
+
+    for (const limitP of spreadingAreaLimits) {
+      if (col < limitP.col && row >= previousRowLimit) {
+        return {
+          col: previousColLimit,
+          row: previousRowLimit,
+          sheetId: endingResultPosition.sheetId,
+        };
+      }
+      previousColLimit = limitP.col;
+      previousRowLimit = limitP.row;
+    }
+
+    if (row >= previousRowLimit) {
+      return {
+        col: previousColLimit,
+        row: previousRowLimit,
+        sheetId: endingResultPosition.sheetId,
+      };
+    }
+
+    return undefined;
+  }
+
+  private updateSpreadingAreaNextToFormulaResultPostion(
+    formulaP: CellPosition,
+    resultEndingPosition: CellPosition
+  ) {
+    if (formulaP.sheetId !== resultEndingPosition.sheetId) {
+      throw new Error("T'es un malade Bernard !");
+    }
+
+    const sheetId = formulaP.sheetId;
+
+    // remove the spreadig area of the formula
+    delete this.spreadingAreasLimits[sheetId][formulaP.col][formulaP.row];
+    if (Object.keys(this.spreadingAreasLimits[sheetId][formulaP.col]).length === 0) {
+      delete this.spreadingAreasLimits[sheetId][formulaP.col];
+    }
+    if (Object.keys(this.spreadingAreasLimits[sheetId]).length === 0) {
+      delete this.spreadingAreasLimits[sheetId];
+    }
+
+    // update the spreading area for formulas that haven't been yet computed
+
+    for (const fP of positionOfCells(this.spreadingAreasLimits, sheetId)) {
+      if (resultEndingPosition.col >= fP.col && resultEndingPosition.row >= fP.row) {
+        const newLimit = {
+          sheetId,
+          col: Math.max(formulaP.col, fP.col),
+          row: Math.max(formulaP.row, fP.row),
+        };
+
+        const oldLimits = this.spreadingAreasLimits[sheetId][fP.col][fP.row];
+        const newLimitsFirstPart: CellPosition[] = [];
+        const newLimitsSecondPart: CellPosition[] = [];
+        let newLimitReached = false;
+
+        for (const limit of oldLimits) {
+          if (limit.col < newLimit.col || limit.row < newLimit.row) {
+            newLimitReached ? newLimitsSecondPart.push(limit) : newLimitsFirstPart.push(limit);
+          } else if (newLimitReached === false) {
+            newLimitsFirstPart.push(newLimit);
+            newLimitReached = true;
+          }
+        }
+
+        this.spreadingAreasLimits[sheetId][fP.col][fP.row] =
+          newLimitsFirstPart.concat(newLimitsSecondPart);
+      }
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -432,15 +502,44 @@ export class EvaluationPlugin extends UIPlugin {
       if (Array.isArray(computedCell.value)) {
         const { sheetId, col, row } = this.getters.getCellPosition(cellId);
 
-        // retourner erreur si plus grand que la zone prevu
-        // retourner erreur evaluated cell venant d'une autre result array present dans la zone
-        visitMatrix(computedCell.value, (x, y) => {
-          if (this.evaluatedCells[sheetId]![col + x]![row + y]) {
-            throw new Error(_lt("Content en vue mon capitaine"));
-          }
-        });
+        // Retur error if result size biger than the spreading area
+        const colNbr = computedCell.value.length;
+        const rowNbr = computedCell.value[0].length;
+        const resultEndingPosition = {
+          col: col + colNbr - 1,
+          row: row + row + rowNbr - 1,
+          sheetId,
+        };
+        const limits = this.spreadingAreasLimits[sheetId][col][row];
+        const colision = this.isFormulaEndingPositionResultNotInsideSpreadingArea(
+          resultEndingPosition,
+          limits
+        );
+        if (colision) {
+          throw new Error(
+            _lt(
+              `Array result was not expanded because it would overwrite data in ${toXC(
+                colision.col,
+                colision.row
+              )}.`
+            )
+          );
+        }
 
-        // TODO: return error if deep dependencies present in the result zone
+        // Return error if dependencies present ine the result zone
+        // TO IMPROVE: return error if DEEP dependencies present in the result zone
+        for (const range of cellData.dependencies) {
+          if (
+            intersection(range.zone, {
+              left: col,
+              top: row,
+              right: resultEndingPosition.col,
+              bottom: resultEndingPosition.row,
+            })
+          ) {
+            throw new CircularDependencyError();
+          }
+        }
       }
       return createEvaluatedCell(computedCell.value, cellData.format || computedCell.format);
     };
@@ -470,16 +569,15 @@ export class EvaluationPlugin extends UIPlugin {
   private setEvaluation(cellId: UID, evaluation: EvaluatedCell | EvaluatedCell[][]) {
     const { sheetId, col, row } = this.getters.getCellPosition(cellId);
     if (Array.isArray(evaluation)) {
+      const position = { sheetId, col, row };
       visitMatrix(evaluation, (x, y) => {
-        const position = { sheetId, col: col + x, row: row + y };
-        setTypeInTypeByCellsPositionBySheets(this.evaluatedCells, position, evaluation[x][y]);
+        position.col = col + x;
+        position.row = row + y;
+        setTypeAtCellsPosition(this.evaluatedCells, position, evaluation[x][y]);
       });
-
-      // TODO: MAJ DE zonesWaitingForPotentialMatrixResults
-
-      // this.updateSpreadingAreasLimits(position, )
+      this.updateSpreadingAreaNextToFormulaResultPostion({ sheetId, col, row }, position);
     } else {
-      setTypeInTypeByCellsPositionBySheets(this.evaluatedCells, { sheetId, col, row }, evaluation);
+      setTypeAtCellsPosition(this.evaluatedCells, { sheetId, col, row }, evaluation);
     }
   }
 
@@ -506,13 +604,20 @@ export class EvaluationPlugin extends UIPlugin {
         // TO DO: look why not throw this error in range
         throw new Error(_lt("Invalid sheet name"));
       }
-      const evaluatedCell = getEvaluatedCell({
+      const cellPosition = {
         sheetId: range.sheetId,
         col: range.zone.left,
         row: range.zone.top,
-      });
+      };
+      const evaluatedCell = getEvaluatedCell(cellPosition);
       if (evaluatedCell.type === CellValueType.error) {
         throw evaluatedCell.error;
+      }
+
+      const cell = getters.getCell(cellPosition);
+      const cellIsRealyEmpty = (!cell || cell.content === undefined) && evaluatedCell.value === "";
+      if (cellIsRealyEmpty) {
+        return { value: null, format: evaluatedCell.format };
       }
       return evaluatedCell;
     }
@@ -551,7 +656,11 @@ export class EvaluationPlugin extends UIPlugin {
           if (evaluatedCell.type === CellValueType.error) {
             throw evaluatedCell.error;
           }
-          rowValues.push(evaluatedCell);
+          // TODO: improve this condition
+          const cell = getters.getCell({ sheetId, col, row });
+          const cellIsRealyEmpty =
+            (!cell || cell.content === undefined) && evaluatedCell.value === "";
+          rowValues.push(cellIsRealyEmpty ? undefined : evaluatedCell);
         }
         result.push(rowValues);
       }
