@@ -13,7 +13,7 @@
       <div class="o-sheet-item o-list-sheets" t-on-click="listSheets">
         <t t-call="o-spreadsheet-Icon.LIST"/>
       </div>
-      <div class="o-all-sheets">
+      <div class="o-all-sheets flex-shrink-0 me-3">
         <t t-foreach="getVisibleSheets()" t-as="sheet" t-key="sheet.id">
           <div
             class="o-sheet-item o-sheet"
@@ -37,7 +37,7 @@
       <t t-set="selectedStatistic" t-value="getSelectedStatistic()"/>
       <div
         t-if="selectedStatistic !== undefined"
-        class="o-selection-statistic"
+        class="o-selection-statistic text-truncate"
         t-on-click="listSelectionStatistics">
         <t t-esc="selectedStatistic"/>
         <span>
