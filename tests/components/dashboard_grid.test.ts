@@ -71,12 +71,38 @@ describe("Grid component in dashboard mode", () => {
     expect((icons[1] as HTMLElement).style["_values"]).toEqual({ top, left: leftB });
   });
 
-  test("Clicking on a filter icon correctly open context menu", async () => {
+  test("Clicking on a filter icon correctly open the filter popover", async () => {
     model.updateMode("normal");
     createFilter(model, "A1:A2");
     model.updateMode("dashboard");
     await nextTick();
     await simulateClick(".o-filter-icon");
     expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
+  });
+
+  test("Clicking on a filter icon correctly closes the filter popover", async () => {
+    model.updateMode("normal");
+    createFilter(model, "A1:A2");
+    model.updateMode("dashboard");
+    await nextTick();
+    await simulateClick(".o-filter-icon");
+    expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
+
+    await nextTick();
+    await simulateClick(".o-filter-icon");
+    expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(0);
+  });
+
+  test("When filter menu is open, clicking on a random grid correctly closes filter popover", async () => {
+    model.updateMode("normal");
+    createFilter(model, "A1:A2");
+    model.updateMode("dashboard");
+    await nextTick();
+    await simulateClick(".o-filter-icon");
+    expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
+
+    await nextTick();
+    await simulateClick(".o-grid-overlay");
+    expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(0);
   });
 });
