@@ -26,6 +26,7 @@ import { SelectionStreamProcessor } from "./selection_stream/selection_stream_pr
 import { StateObserver } from "./state_observer";
 import { _lt } from "./translation";
 import { StateUpdateMessage, TransportService } from "./types/collaborative/transport_service";
+import { FileStore } from "./types/files";
 import {
   canExecuteInReadonly,
   Client,
@@ -36,6 +37,7 @@ import {
   CommandResult,
   CoreCommand,
   CoreGetters,
+  Currency,
   DispatchResult,
   Getters,
   GridRenderingContext,
@@ -76,21 +78,29 @@ import { getXLSX } from "./xlsx/xlsx_writer";
 export type Mode = "normal" | "readonly" | "dashboard";
 
 export interface ModelConfig {
-  mode: Mode;
+  readonly mode: Mode;
   /**
-   * Any external dependencies your custom plugins or functions might need.
+   * Any external custom dependencies your custom plugins or functions might need.
    * They are available in plugins config and functions
    * evaluation context.
    */
-  external: {
+  readonly custom: Readonly<{
     [key: string]: any;
-  };
-  moveClient: (position: ClientPosition) => void;
-  transportService: TransportService;
-  client: Client;
-  snapshotRequested: boolean;
-  notifyUI: (payload: NotifyUIEvent) => void;
-  lazyEvaluation: boolean;
+  }>;
+  /**
+   * External dependencies required to enable some features
+   * such as uploading images.
+   */
+  readonly external: Readonly<{
+    readonly fileStore?: FileStore;
+    readonly loadCurrencies?: () => Promise<Currency[]>;
+  }>;
+  readonly moveClient: (position: ClientPosition) => void;
+  readonly transportService: TransportService;
+  readonly client: Client;
+  readonly snapshotRequested: boolean;
+  readonly notifyUI: (payload: NotifyUIEvent) => void;
+  readonly lazyEvaluation: boolean;
 }
 
 const enum Status {
@@ -138,7 +148,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   /**
    * The config object contains some configuration flag and callbacks
    */
-  private config: ModelConfig;
+  readonly config: ModelConfig;
   private corePluginConfig: CorePluginConfig;
   private uiPluginConfig: UIPluginConfig;
 
@@ -357,6 +367,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     return {
       ...config,
       mode: config.mode || "normal",
+      custom: config.custom || {},
       external: config.external || {},
       transportService,
       client,
@@ -374,6 +385,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       range: this.range,
       dispatch: this.dispatchFromCorePlugin,
       uuidGenerator: this.uuidGenerator,
+      custom: this.config.custom,
       external: this.config.external,
     };
   }
@@ -385,7 +397,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       dispatch: this.dispatch,
       selection: this.selection,
       moveClient: this.session.move.bind(this.session),
-      external: this.config.external,
+      custom: this.config.custom,
       uiActions: this.config,
       lazyEvaluation: this.config.lazyEvaluation,
     };
@@ -548,6 +560,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     if (mode !== "normal") {
       this.dispatch("STOP_EDITION", { cancel: true });
     }
+    // @ts-ignore For testing purposes only
     this.config.mode = mode;
     this.trigger("update");
   }

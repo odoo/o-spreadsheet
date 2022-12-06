@@ -19,6 +19,7 @@ export interface CorePluginConfig {
   readonly range: RangeAdapter;
   readonly dispatch: CoreCommandDispatcher["dispatch"];
   readonly uuidGenerator: UuidGenerator;
+  readonly custom: ModelConfig["custom"];
   readonly external: ModelConfig["external"];
 }
 

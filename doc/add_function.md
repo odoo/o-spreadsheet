@@ -11,7 +11,7 @@
 - [Looping over arguments](#looping-over-arguments)
   - [Processing all values of a specific reference argument](#processing-all-values-of-a-specific-reference-argument)
   - [Processing all values of all arguments at once](#processing-all-values-of-all-arguments-at-once)
-- [External dependency](#external-dependency)
+- [Custom external dependency](#custom-external-dependency)
 - [Asynchronous function](#asynchronous-function)
 
 ## Adding a new custom function
@@ -379,16 +379,16 @@ export const MEDIAN: AddFunctionDescription = {
 
 see [add plugin](../doc/extending/plugin.md)
 
-## External dependency
+## Custom external dependency
 
-You can provide any external dependencies to your functions in the `Model`'s config. They are given to the function evaluation context.
+You can provide any custom external dependencies to your functions in the `Model`'s config. They are given to the function evaluation context.
 
 Let's say you have a `user` service with the currently logged in user.
 The example below shows how the service can be used in a custom function.
 
 ```ts
 const model = new Model(data, {
-  external: {
+  custom: {
     userService: services.user,
   },
 });
@@ -441,10 +441,10 @@ class CurrencyPlugin extends UIPlugin {
     super(config);
 
     /**
-     * You can add whatever you need to the `config.external` property at the model
+     * You can add whatever you need to the `config.custom` property at the model
      * creation
      */
-    this.server = config.external.server;
+    this.server = config.custom.server;
 
     // a cache to store fetched rates
     this.currencyRates = {};

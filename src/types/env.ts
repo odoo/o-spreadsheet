@@ -25,7 +25,6 @@ export interface SpreadsheetEnv {
     callback: (text: string | null) => any,
     options?: EditTextOptions
   ) => any;
-  loadCurrencies: () => Promise<Currency[]>;
 }
 
 export interface SpreadsheetChildEnv extends SpreadsheetEnv {
@@ -36,4 +35,5 @@ export interface SpreadsheetChildEnv extends SpreadsheetEnv {
   toggleSidePanel: (panel: string, panelProps?: any) => void;
   clipboard: ClipboardInterface;
   _t: TranslationFunction;
+  loadCurrencies?: () => Promise<Currency[]>;
 }

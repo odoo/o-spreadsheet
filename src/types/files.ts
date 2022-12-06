@@ -1,5 +1,7 @@
 import { Image } from "./image";
 
+type FilePath = string;
+
 /**
  * FileStore manage the transfer of file with the server.
  */
@@ -7,7 +9,7 @@ export interface FileStore {
   /**
    * Upload a file to a server and returns its path.
    */
-  upload(file: File): Promise<string>;
+  upload(file: File): Promise<FilePath>;
 }
 
 /**
