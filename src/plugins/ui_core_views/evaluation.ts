@@ -54,8 +54,8 @@ type TypeByCellsPositionBySheets<T> = { [sheetID: UID]: TypeByCellsPosition<T> }
 
 // function *getTypeByCellsPosition<T>( typeByCellsPosition: TypeByCellsPosition<T>): Iterable<T> {
 //   // use a generator function to avoid re-building a new object
-//   for(let x of Object.keys(typeByCellsPosition).sort()){
-//     for(let y of Object.keys(typeByCellsPosition[x]).sort()){
+//   for(let x of Object.keys(typeByCellsPosition).sort((a,b)=>a-b)){
+//     for(let y of Object.keys(typeByCellsPosition[x]).sort((a,b)=>a-b)){
 //       yield typeByCellsPosition[x][y]
 //     }
 //   }
@@ -77,8 +77,8 @@ function* positionOfCells<T>(
   // use a generator function to avoid re-building a new object
   const typeByCellsPosition = typeByCellsPositionBySheets[sheetId];
   if (typeByCellsPosition) {
-    for (let x of Object.keys(typeByCellsPosition).sort()) {
-      for (let y of Object.keys(typeByCellsPosition[x]).sort()) {
+    for (let x of Object.keys(typeByCellsPosition).sort((a, b) => Number(a) - Number(b))) {
+      for (let y of Object.keys(typeByCellsPosition[x]).sort((a, b) => Number(a) - Number(b))) {
         yield { sheetId, col: Number(x), row: Number(y) };
       }
     }
@@ -201,7 +201,7 @@ export class EvaluationPlugin extends UIPlugin {
 
     const cell = this.cellsHavingContent[sheetId]?.[col]?.[row];
     if (cell && cell.content) {
-      return this.computeEvaluatedCell(cell);
+      return this.computeEvaluatedCell(cell, { sheetId, col, row });
     }
 
     // An empty cell or a cell without content does not mean that the cell
@@ -221,7 +221,7 @@ export class EvaluationPlugin extends UIPlugin {
           this.spreadingAreasLimits[formulaP.sheetId][formulaP.col][formulaP.row];
 
         if (this.isCellInsideSpreadingArea(col, row, formulaP, spreadingAreaLimits)) {
-          this.computeEvaluatedCell(formulaCell);
+          this.computeEvaluatedCell(formulaCell, formulaP);
           const evaluation = this.evaluatedCells[sheetId]?.[col]?.[row];
           if (evaluation) {
             return evaluation;
@@ -229,7 +229,16 @@ export class EvaluationPlugin extends UIPlugin {
         }
       }
     }
-    return createEvaluatedCell("");
+
+    // All cells in "evaluatedCells" exist either:
+    // - because they have content that needs to be evaluated.
+    // - because their evaluated content comes from a result array
+    //
+    // However a cell may have no content and have a format,
+    // in this case we must return the format
+
+    const rawCell = this.getters.getCell({ sheetId, col, row });
+    return createEvaluatedCell("", rawCell?.format);
   }
 
   getEvaluatedCells(sheetId: UID): Record<UID, EvaluatedCell> {
@@ -340,14 +349,18 @@ export class EvaluationPlugin extends UIPlugin {
 
     // ex:  [ [1,[2,6,7,...]], [3,[1,5,9,...]], ......]
 
-    for (const { sheetId, col, row } of positionOfCells(
-      this.cellsHavingContent,
-      formulaP.sheetId
-    )) {
-      if (col >= formulaP.col && row >= formulaP.row) {
-        if (row < lastRowIndexLimit) {
-          lastRowIndexLimit = row;
-          limits.push({ sheetId, col, row });
+    for (const contentP of positionOfCells(this.cellsHavingContent, formulaP.sheetId)) {
+      const isContentDifferentFromFormula = !(
+        contentP.col === formulaP.col && contentP.row === formulaP.row
+      );
+      const isContentAfterFormula =
+        contentP.col >= formulaP.col &&
+        contentP.row >= formulaP.row &&
+        isContentDifferentFromFormula;
+      if (isContentAfterFormula) {
+        if (contentP.row < lastRowIndexLimit) {
+          lastRowIndexLimit = contentP.row;
+          limits.push(contentP);
         }
       }
     }
@@ -466,7 +479,7 @@ export class EvaluationPlugin extends UIPlugin {
   // EVALUATION
   // ---------------------------------------------------------------------------
 
-  private computeEvaluatedCell(cell: Cell): EvaluatedCell {
+  private computeEvaluatedCell(cell: Cell, cellP: CellPosition): EvaluatedCell {
     const handleError = (e: Error | any, cell: Cell): EvaluatedCell => {
       if (!(e instanceof Error)) {
         e = new Error(e);
@@ -507,7 +520,7 @@ export class EvaluationPlugin extends UIPlugin {
         const rowNbr = computedCell.value[0].length;
         const resultEndingPosition = {
           col: col + colNbr - 1,
-          row: row + row + rowNbr - 1,
+          row: row + rowNbr - 1,
           sheetId,
         };
         const limits = this.spreadingAreasLimits[sheetId][col][row];
@@ -561,13 +574,13 @@ export class EvaluationPlugin extends UIPlugin {
     } catch (e) {
       result = handleError(e, cell);
     }
-    this.setEvaluation(cell.id, result);
+    this.setEvaluation(cellP, result);
 
     return Array.isArray(result) ? result[0][0] : result;
   }
 
-  private setEvaluation(cellId: UID, evaluation: EvaluatedCell | EvaluatedCell[][]) {
-    const { sheetId, col, row } = this.getters.getCellPosition(cellId);
+  private setEvaluation(cellP: CellPosition, evaluation: EvaluatedCell | EvaluatedCell[][]) {
+    const { sheetId, col, row } = cellP;
     if (Array.isArray(evaluation)) {
       const position = { sheetId, col, row };
       visitMatrix(evaluation, (x, y) => {
@@ -580,10 +593,6 @@ export class EvaluationPlugin extends UIPlugin {
       setTypeAtCellsPosition(this.evaluatedCells, { sheetId, col, row }, evaluation);
     }
   }
-
-  // private updateSpreadingAreasLimits(){
-
-  // }
 
   /**
    * Return all functions necessary to properly evaluate a formula:
@@ -601,7 +610,7 @@ export class EvaluationPlugin extends UIPlugin {
 
     function readCell(range: Range): PrimitiveArg {
       if (!getters.tryGetSheet(range.sheetId)) {
-        // TO DO: look why not throw this error in range
+        // TO DO: look why not throw this error in the range function
         throw new Error(_lt("Invalid sheet name"));
       }
       const cellPosition = {
@@ -615,7 +624,7 @@ export class EvaluationPlugin extends UIPlugin {
       }
 
       const cell = getters.getCell(cellPosition);
-      const cellIsRealyEmpty = (!cell || cell.content === undefined) && evaluatedCell.value === "";
+      const cellIsRealyEmpty = !cell?.content && evaluatedCell.value === "";
       if (cellIsRealyEmpty) {
         return { value: null, format: evaluatedCell.format };
       }

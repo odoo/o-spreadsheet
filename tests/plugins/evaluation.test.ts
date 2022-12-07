@@ -993,6 +993,7 @@ describe("evaluateCells", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A2", "=A1");
+    expect(getCellContent(model, "A2")).toBe("0");
     expect(getEvaluatedCell(model, "A2").value).toBe(0);
     model.dispatch("SET_FORMATTING", {
       sheetId,
