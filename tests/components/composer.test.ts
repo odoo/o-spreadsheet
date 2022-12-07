@@ -17,6 +17,7 @@ import {
   resizeAnchorZone,
   selectCell,
   setCellContent,
+  setStyle,
 } from "../test_helpers/commands_helpers";
 import {
   clickCell,
@@ -1077,6 +1078,28 @@ describe("composer", () => {
       expect(gridComposer.style.fontWeight).toBe("bold");
       expect(toHex(gridComposer.style.background)).toBe("#0000FF");
       expect(toHex(gridComposer.style.color)).toBe("#FF0000");
+    });
+
+    test("composer takes style of the edited cell and not the active selection", async () => {
+      const sheetId = model.getters.getActiveSheetId();
+      setStyle(model, "A1", { align: "right", bold: true });
+
+      const newSheetId = "Sheet2";
+      createSheet(model, { sheetId: newSheetId });
+      setStyle(model, "A1", { align: "center" }, newSheetId);
+
+      await nextTick();
+      await typeInComposerGrid("Hello");
+
+      let gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.textAlign).toBe("right");
+      expect(gridComposer.style.fontWeight).toBe("bold");
+
+      activateSheet(model, newSheetId, sheetId);
+      await nextTick();
+      gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.textAlign).toBe("right");
+      expect(gridComposer.style.fontWeight).toBe("bold");
     });
   });
 

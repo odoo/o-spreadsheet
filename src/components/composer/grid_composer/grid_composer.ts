@@ -89,7 +89,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
 
   get containerStyle(): string {
     const isFormula = this.env.model.getters.getCurrentContent().startsWith("=");
-    const cell = this.env.model.getters.getActiveCell();
+    const cell = this.env.model.getters.getEditedCell();
     let style: Style = {};
     if (cell) {
       const cellPosition = this.env.model.getters.getCellPosition(cell.id);

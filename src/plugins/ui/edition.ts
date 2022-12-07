@@ -14,7 +14,7 @@ import {
 } from "../../helpers/index";
 import { loopThroughReferenceType } from "../../helpers/reference_type";
 import { _lt } from "../../translation";
-import { Highlight, Range, RangePart, UID, Zone } from "../../types";
+import { Cell, Highlight, Range, RangePart, UID, Zone } from "../../types";
 import { SelectionEvent } from "../../types/event_stream";
 import {
   AddColumnsRowsCommand,
@@ -50,6 +50,7 @@ export class EditionPlugin extends UIPlugin {
     "getCurrentTokens",
     "getTokenAtCursor",
     "getComposerHighlights",
+    "getEditedCell",
   ] as const;
 
   private col: HeaderIndex = 0;
@@ -265,6 +266,12 @@ export class EditionPlugin extends UIPlugin {
     } else {
       return this.currentTokens.find((t) => t.start <= start && t.end >= end);
     }
+  }
+
+  getEditedCell(): Cell | undefined {
+    return this.mode !== "inactive"
+      ? this.getters.getCell(this.sheetId, this.col, this.row)
+      : undefined;
   }
 
   // ---------------------------------------------------------------------------
