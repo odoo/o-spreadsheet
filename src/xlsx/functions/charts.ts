@@ -204,6 +204,13 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
   //
   // overlap and gapWitdh seems to be by default at -20 and 20 in chart.js.
   // See https://www.chartjs.org/docs/latest/charts/bar.html and https://www.chartjs.org/docs/latest/charts/bar.html#barpercentage-vs-categorypercentage
+
+  // Excel does not support aggregating labels
+  // GSheets does not export the chart if it aggregates the labels
+  if (chart.aggregated) {
+    return escapeXml``;
+  }
+
   const colors = new ChartColors();
   const dataSetsNodes: XMLString[] = [];
   for (const [dsIndex, dataset] of Object.entries(chart.dataSets)) {
@@ -252,6 +259,12 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
 }
 
 function addLineChart(chart: ExcelChartDefinition): XMLString {
+  // Excel does not support aggregating labels
+  // GSheets does not export the chart if it aggregates the labels
+  if (chart.aggregated) {
+    return escapeXml``;
+  }
+
   const colors = new ChartColors();
   const dataSetsNodes: XMLString[] = [];
   for (const [dsIndex, dataset] of Object.entries(chart.dataSets)) {

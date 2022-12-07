@@ -87,4 +87,10 @@ export class LineBarPieConfigPanel extends Component<Props, SpreadsheetChildEnv>
       labelRange: this.labelRange,
     });
   }
+
+  onUpdateAggregated(ev) {
+    this.props.updateChart({
+      aggregated: ev.target.checked,
+    });
+  }
 }

@@ -1170,6 +1170,7 @@ describe("Chart without labels", () => {
     type: "bar",
     verticalAxisPosition: "left",
     stacked: false,
+    aggregated: false,
   };
 
   test("The legend is not displayed when there is only one dataSet and no label", () => {
@@ -1230,6 +1231,7 @@ describe("Chart design configuration", () => {
     verticalAxisPosition: "left",
     labelRange: "A1",
     stacked: false,
+    aggregated: false,
   };
 
   test("Legend position", () => {
@@ -1443,6 +1445,216 @@ describe("Chart design configuration", () => {
     setCellFormat(model, "A2", "m/d/yyyy");
     chart = model.getters.getChartRuntime("1") as BarChartRuntime;
     expect(chart.chartJsConfig.data!.labels).toEqual(["3/1/2022", "2022/03/02"]);
+  });
+});
+
+describe("Chart aggregate labels", () => {
+  let aggregatedChart: BarChartDefinition;
+  let aggregatedModel: Model;
+
+  beforeEach(() => {
+    aggregatedChart = {
+      background: "#FFFFFF",
+      dataSets: ["B2:B9"],
+      labelRange: "A2:A9",
+      dataSetsHaveTitle: false,
+      legendPosition: "top",
+      title: "My chart",
+      type: "bar",
+      verticalAxisPosition: "left",
+      stacked: false,
+      aggregated: false,
+    };
+    aggregatedModel = new Model({
+      sheets: [
+        {
+          name: "Sheet1",
+          colNumber: 10,
+          rowNumber: 10,
+          rows: {},
+          cells: {
+            A2: { content: "P1" },
+            A3: { content: "P2" },
+            A4: { content: "P3" },
+            A5: { content: "P4" },
+            A6: { content: "P1" },
+            A7: { content: "P2" },
+            A8: { content: "P3" },
+            A9: { content: "P4" },
+            B1: { content: "first column dataset" },
+            B2: { content: "10" },
+            B3: { content: "11" },
+            B4: { content: "12" },
+            B5: { content: "13" },
+            B6: { content: "14" },
+            B7: { content: "15" },
+            B8: { content: "16" },
+            B9: { content: "17" },
+            C1: { content: "second column dataset" },
+            C2: { content: "31" },
+            C3: { content: "32" },
+            C4: { content: "33" },
+            C5: { content: "34" },
+            C6: { content: "21" },
+            C7: { content: "22" },
+            C8: { content: "23" },
+            C9: { content: "24" },
+          },
+        },
+      ],
+    });
+  });
+
+  test("One dataset: all data complete", () => {
+    createChart(aggregatedModel, aggregatedChart, "42");
+    let chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13, 14, 15, 16, 17]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4", "P1", "P2", "P3", "P4"]);
+
+    updateChart(aggregatedModel, "42", { aggregated: true });
+    chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([24, 26, 28, 30]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
+
+    updateChart(aggregatedModel, "42", { type: "line" });
+    chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([24, 26, 28, 30]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
+
+    updateChart(aggregatedModel, "42", { aggregated: false });
+    chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13, 14, 15, 16, 17]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4", "P1", "P2", "P3", "P4"]);
+
+    updateChart(aggregatedModel, "42", { type: "pie" });
+    chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13, 14, 15, 16, 17]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4", "P1", "P2", "P3", "P4"]);
+
+    updateChart(aggregatedModel, "42", { aggregated: true });
+    chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([24, 26, 28, 30]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
+  });
+
+  test("One dataset: some (not all) values are lost for a label", () => {
+    createChart(aggregatedModel, aggregatedChart, "42");
+    let chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13, 14, 15, 16, 17]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4", "P1", "P2", "P3", "P4"]);
+
+    updateChart(aggregatedModel, "42", { aggregated: true });
+    chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([24, 26, 28, 30]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
+
+    setCellContent(aggregatedModel, "B3", "");
+    setCellContent(aggregatedModel, "B6", "");
+    chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([10, 15, 28, 30]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
+
+    updateChart(aggregatedModel, "42", { aggregated: false });
+    chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([10, undefined, 12, 13, undefined, 15, 16, 17]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4", "P1", "P2", "P3", "P4"]);
+  });
+
+  test("One dataset: all values for a label are lost", () => {
+    createChart(aggregatedModel, aggregatedChart, "42");
+    let chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13, 14, 15, 16, 17]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4", "P1", "P2", "P3", "P4"]);
+
+    updateChart(aggregatedModel, "42", { aggregated: true });
+    chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([24, 26, 28, 30]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
+
+    setCellContent(aggregatedModel, "B2", "");
+    setCellContent(aggregatedModel, "B6", "");
+    chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([0, 26, 28, 30]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
+
+    updateChart(aggregatedModel, "42", { aggregated: false });
+    chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([undefined, 11, 12, 13, undefined, 15, 16, 17]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4", "P1", "P2", "P3", "P4"]);
+  });
+
+  test("One dataset: some values are not numbers for a label", () => {
+    createChart(aggregatedModel, aggregatedChart, "42");
+    let chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13, 14, 15, 16, 17]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4", "P1", "P2", "P3", "P4"]);
+
+    updateChart(aggregatedModel, "42", { aggregated: true });
+    chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([24, 26, 28, 30]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
+
+    setCellContent(aggregatedModel, "B3", "I am a string");
+    setCellContent(aggregatedModel, "B6", "I am a string too");
+    chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([10, 15, 28, 30]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
+
+    updateChart(aggregatedModel, "42", { aggregated: false });
+    chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([
+      10,
+      "I am a string",
+      12,
+      13,
+      "I am a string too",
+      15,
+      16,
+      17,
+    ]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4", "P1", "P2", "P3", "P4"]);
+  });
+
+  test("Multiple datasets: all data complete", () => {
+    aggregatedChart = {
+      ...aggregatedChart,
+      dataSets: ["B2:B9", "C2:C9"],
+    };
+    createChart(aggregatedModel, aggregatedChart, "42");
+    let chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13, 14, 15, 16, 17]);
+    expect(chart.data!.datasets![1].data).toEqual([31, 32, 33, 34, 21, 22, 23, 24]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4", "P1", "P2", "P3", "P4"]);
+
+    updateChart(aggregatedModel, "42", { aggregated: true });
+    chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([24, 26, 28, 30]);
+    expect(chart.data!.datasets![1].data).toEqual([52, 54, 56, 58]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
+
+    updateChart(aggregatedModel, "42", { type: "line" });
+    chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([24, 26, 28, 30]);
+    expect(chart.data!.datasets![1].data).toEqual([52, 54, 56, 58]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
+
+    updateChart(aggregatedModel, "42", { aggregated: false });
+    chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13, 14, 15, 16, 17]);
+    expect(chart.data!.datasets![1].data).toEqual([31, 32, 33, 34, 21, 22, 23, 24]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4", "P1", "P2", "P3", "P4"]);
+
+    updateChart(aggregatedModel, "42", { type: "pie" });
+    chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13, 14, 15, 16, 17]);
+    expect(chart.data!.datasets![1].data).toEqual([31, 32, 33, 34, 21, 22, 23, 24]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4", "P1", "P2", "P3", "P4"]);
+
+    updateChart(aggregatedModel, "42", { aggregated: true });
+    chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([24, 26, 28, 30]);
+    expect(chart.data!.datasets![1].data).toEqual([52, 54, 56, 58]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
   });
 });
 

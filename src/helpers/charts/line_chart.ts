@@ -43,6 +43,7 @@ import {
   updateChartRangesWithDataSets,
 } from "./chart_common";
 import {
+  aggregateDataForLabels,
   filterEmptyDataPoints,
   getChartDatasetValues,
   getChartLabelValues,
@@ -75,6 +76,7 @@ export class LineChart extends AbstractChart {
   readonly legendPosition: LegendPosition;
   readonly labelsAsText: boolean;
   readonly stacked: boolean;
+  readonly aggregated: boolean;
   readonly type = "line";
 
   constructor(definition: LineChartDefinition, sheetId: UID, getters: CoreGetters) {
@@ -91,6 +93,7 @@ export class LineChart extends AbstractChart {
     this.legendPosition = definition.legendPosition;
     this.labelsAsText = definition.labelsAsText;
     this.stacked = definition.stacked;
+    this.aggregated = definition.aggregated;
   }
 
   static validateChartDefinition(
@@ -119,6 +122,7 @@ export class LineChart extends AbstractChart {
       verticalAxisPosition: "left",
       labelRange: context.auxiliaryRange || undefined,
       stacked: false,
+      aggregated: false,
     };
   }
 
@@ -146,6 +150,7 @@ export class LineChart extends AbstractChart {
       title: this.title,
       labelsAsText: this.labelsAsText,
       stacked: this.stacked,
+      aggregated: this.aggregated,
     };
   }
 
@@ -341,6 +346,10 @@ function createLineChartRuntime(chart: LineChart, getters: Getters): LineChartRu
   if (axisType === "time") {
     ({ labels, dataSetsValues } = fixEmptyLabelsForDateCharts(labels, dataSetsValues));
   }
+  if (chart.aggregated) {
+    ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
+  }
+
   const config = getLineConfiguration(chart, labels);
   const labelFormat = getLabelFormat(getters, chart.labelRange)!;
   if (axisType === "time") {

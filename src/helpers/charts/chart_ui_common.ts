@@ -50,6 +50,33 @@ export function filterEmptyDataPoints(
   };
 }
 
+export function aggregateDataForLabels(
+  labels: string[],
+  datasets: DatasetValues[]
+): { labels: string[]; dataSetsValues: DatasetValues[] } {
+  const parseNumber = (value) => (typeof value === "number" ? value : 0);
+
+  const labelMap = {};
+  for (let indexOfLabel = 0; indexOfLabel < labels.length; ++indexOfLabel) {
+    const label = labels[indexOfLabel];
+    if (!labelMap[label]) {
+      labelMap[label] = datasets.map((dataset) => parseNumber(dataset.data[indexOfLabel]));
+      continue;
+    }
+    for (let indexOfDataset = 0; indexOfDataset < datasets.length; ++indexOfDataset) {
+      labelMap[label][indexOfDataset] += parseNumber(datasets[indexOfDataset].data[indexOfLabel]);
+    }
+  }
+
+  return {
+    labels: Object.keys(labelMap),
+    dataSetsValues: datasets.map((dataset, indexOfDataset) => ({
+      ...dataset,
+      data: Object.values(labelMap).map((dataOfLabel: any[]) => dataOfLabel[indexOfDataset]),
+    })),
+  };
+}
+
 export function truncateLabel(label: string | undefined): string {
   if (!label) {
     return "";

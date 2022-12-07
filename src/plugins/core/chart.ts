@@ -191,7 +191,9 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       for (let figure of sheetFigures) {
         if (figure && figure.tag === "chart") {
           const figureData = this.charts[figure.id]?.getDefinitionForExcel();
-          if (figureData) {
+          // Excel does not support aggregating labels directly
+          // GSheets does not export the chart if it aggregates the labels
+          if (figureData && !figureData.aggregated) {
             figures.push({
               ...figure,
               data: figureData,

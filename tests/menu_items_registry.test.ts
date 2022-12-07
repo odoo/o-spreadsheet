@@ -1125,6 +1125,7 @@ describe("Menu Item actions", () => {
           labelRange: undefined,
           legendPosition: "none",
           stacked: false,
+          aggregated: false,
           title: expect.any(String),
           type: "bar",
           verticalAxisPosition: "left",

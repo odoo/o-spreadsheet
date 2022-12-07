@@ -14,6 +14,18 @@
             Stacked barchart
           </label>
         </div>
+        <div class="o-checkbox">
+          <label>
+            <input
+              type="checkbox"
+              name="aggregated"
+              t-att-checked="props.definition.aggregated"
+              t-on-change="onUpdateAggregated"
+              class="align-middle"
+            />
+            Aggregate labels
+          </label>
+        </div>
       </div>
       <div class="o-section o-data-series">
         <div class="o-section-title">Data Series</div>

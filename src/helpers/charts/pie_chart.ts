@@ -44,6 +44,7 @@ import {
   updateChartRangesWithDataSets,
 } from "./chart_common";
 import {
+  aggregateDataForLabels,
   filterEmptyDataPoints,
   getChartDatasetValues,
   getChartLabelValues,
@@ -71,6 +72,7 @@ export class PieChart extends AbstractChart {
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
   readonly type = "pie";
+  readonly aggregated: boolean;
 
   constructor(definition: PieChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -83,6 +85,7 @@ export class PieChart extends AbstractChart {
     this.labelRange = createRange(getters, sheetId, definition.labelRange);
     this.background = definition.background;
     this.legendPosition = definition.legendPosition;
+    this.aggregated = definition.aggregated;
   }
 
   static transformDefinition(
@@ -108,6 +111,7 @@ export class PieChart extends AbstractChart {
       title: context.title || "",
       type: "pie",
       labelRange: context.auxiliaryRange || undefined,
+      aggregated: false,
     };
   }
 
@@ -145,6 +149,7 @@ export class PieChart extends AbstractChart {
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
       title: this.title,
+      aggregated: this.aggregated,
     };
   }
 
@@ -233,6 +238,10 @@ function createPieChartRuntime(chart: PieChart, getters: Getters): PieChartRunti
   let dataSetsValues = getChartDatasetValues(getters, chart.dataSets);
 
   ({ labels, dataSetsValues } = filterEmptyDataPoints(labels, dataSetsValues));
+
+  if (chart.aggregated) {
+    ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
+  }
   const config = getPieConfiguration(chart, labels);
   const colors = new ChartColors();
   for (let { label, data } of dataSetsValues) {

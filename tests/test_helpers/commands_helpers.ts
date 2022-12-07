@@ -114,6 +114,7 @@ export function createChart(
       legendPosition: data.legendPosition || "top",
       stacked: ("stacked" in data && data.stacked) || false,
       labelsAsText: ("labelsAsText" in data && data.labelsAsText) || false,
+      aggregated: ("aggregated" in data && data.aggregated) || false,
     },
   });
 }

@@ -625,6 +625,7 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
       type: "bar",
       background: BACKGROUND_CHART_COLOR,
       stacked: false,
+      aggregated: false,
       dataSetsHaveTitle,
       verticalAxisPosition: "left",
       legendPosition: newLegendPos,
