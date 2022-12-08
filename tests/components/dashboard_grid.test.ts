@@ -7,22 +7,32 @@ import {
   FILTER_ICON_MARGIN,
 } from "../../src/constants";
 import { Model } from "../../src/model";
-import { createFilter, setCellContent } from "../test_helpers/commands_helpers";
+import { createFilter, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick } from "../test_helpers/dom_helper";
 import { getActiveXc } from "../test_helpers/getters_helpers";
-import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
+import { makeTestFixture, mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
-let model: Model;
 let parent: Spreadsheet;
+let model: Model;
 let app: App;
+
+function getEmptyClipboardEvent(type: "copy" | "paste" | "cut") {
+  const event = new Event(type, { bubbles: true });
+  //@ts-ignore
+  event.clipboardData = {
+    getData: () => "",
+    setData: () => {},
+    types: ["text/plain"],
+  };
+  return event;
+}
 
 describe("Grid component in dashboard mode", () => {
   beforeEach(async () => {
     fixture = makeTestFixture();
     ({ app, parent } = await mountSpreadsheet(fixture));
     model = parent.model;
-    model.updateMode("dashboard");
     await nextTick();
   });
 
@@ -32,11 +42,15 @@ describe("Grid component in dashboard mode", () => {
   });
 
   test("simple dashboard rendering snapshot", async () => {
+    model.updateMode("dashboard");
+    await nextTick();
     expect(fixture.querySelector(".o-grid")).toMatchSnapshot();
   });
 
   test("Keyboard event are not dispatched in dashboard mode", async () => {
     expect(getActiveXc(model)).toBe("A1");
+    model.updateMode("dashboard");
+    await nextTick();
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
     );
@@ -45,7 +59,6 @@ describe("Grid component in dashboard mode", () => {
 
   test("Can click on a link in dashboard mode", async () => {
     expect(fixture.querySelectorAll(".o-dashboard-clickable-cell")).toHaveLength(0);
-    model.updateMode("normal");
     setCellContent(model, "A1", "https://odoo.com");
     model.updateMode("dashboard");
     await nextTick();
@@ -57,7 +70,6 @@ describe("Grid component in dashboard mode", () => {
   });
 
   test("Filter icon is correctly rendered", async () => {
-    model.updateMode("normal");
     createFilter(model, "B2:C3");
     model.updateMode("dashboard");
     await nextTick();
@@ -72,7 +84,6 @@ describe("Grid component in dashboard mode", () => {
   });
 
   test("Clicking on a filter icon correctly open the filter popover", async () => {
-    model.updateMode("normal");
     createFilter(model, "A1:A2");
     model.updateMode("dashboard");
     await nextTick();
@@ -81,7 +92,6 @@ describe("Grid component in dashboard mode", () => {
   });
 
   test("Clicking on a filter icon correctly closes the filter popover", async () => {
-    model.updateMode("normal");
     createFilter(model, "A1:A2");
     model.updateMode("dashboard");
     await nextTick();
@@ -94,7 +104,6 @@ describe("Grid component in dashboard mode", () => {
   });
 
   test("When filter menu is open, clicking on a random grid correctly closes filter popover", async () => {
-    model.updateMode("normal");
     createFilter(model, "A1:A2");
     model.updateMode("dashboard");
     await nextTick();
@@ -104,5 +113,18 @@ describe("Grid component in dashboard mode", () => {
     await nextTick();
     await simulateClick(".o-grid-overlay");
     expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(0);
+  });
+
+  test("Clipboard event do nothing in dashboard mode", async () => {
+    model.updateMode("dashboard");
+    await nextTick();
+    const spy = spyDispatch(parent);
+    setCellContent(model, "A1", "things");
+    selectCell(model, "A1");
+    document.body.dispatchEvent(getEmptyClipboardEvent("copy"));
+    expect(spy).not.toHaveBeenCalledWith("COPY");
+    selectCell(model, "A2");
+    document.body.dispatchEvent(getEmptyClipboardEvent("paste"));
+    expect(spy).not.toHaveBeenCalledWith("PASTE");
   });
 });
