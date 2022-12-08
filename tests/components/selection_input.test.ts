@@ -504,7 +504,7 @@ describe("Selection Input", () => {
       expect(inputs[1].value).toBe("B2");
     });
 
-    test("the first range doesn't change if other highlight transit by the first range state ", async () => {
+    test("the first range doesn't change if other highlight transit by the first range state", async () => {
       const { model, fixture } = await createSelectionInput({ initialRanges: ["B2", "B1"] });
       focus(0);
       model.dispatch("START_CHANGE_HIGHLIGHT", {

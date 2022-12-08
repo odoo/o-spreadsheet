@@ -263,7 +263,7 @@ describe("ranges and highlights", () => {
       expect(composerEl.textContent).toBe("=SUM(C3, B2)");
     });
 
-    test("the first range doesn't change if other highlight transit by the first range state ", async () => {
+    test("the first range doesn't change if other highlight transit by the first range state", async () => {
       composerEl = await typeInComposer("=SUM(B2, B1)");
       model.dispatch("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B1"),
