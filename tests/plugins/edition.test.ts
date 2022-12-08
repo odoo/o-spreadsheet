@@ -138,6 +138,7 @@ describe("edition", () => {
 
   test("setting content sets selection at the end by default", () => {
     const model = new Model();
+    model.dispatch("START_EDITION");
     expect(model.getters.getComposerSelection()).toEqual({
       start: 0,
       end: 0,
@@ -157,6 +158,7 @@ describe("edition", () => {
       start: 0,
       end: 0,
     });
+    model.dispatch("START_EDITION");
     model.dispatch("SET_CURRENT_CONTENT", {
       content: "hello",
       selection: { start: 2, end: 4 },
@@ -173,6 +175,7 @@ describe("edition", () => {
       start: 0,
       end: 0,
     });
+    model.dispatch("START_EDITION");
     const result = model.dispatch("SET_CURRENT_CONTENT", {
       content: "hello",
       selection: { start: 4, end: 0 },
@@ -186,6 +189,7 @@ describe("edition", () => {
       start: 0,
       end: 0,
     });
+    model.dispatch("START_EDITION");
     const result = model.dispatch("SET_CURRENT_CONTENT", {
       content: "hello",
       selection: { start: 1, end: 6 },
@@ -215,6 +219,7 @@ describe("edition", () => {
       start: 0,
       end: 0,
     });
+    model.dispatch("START_EDITION");
     model.dispatch("SET_CURRENT_CONTENT", {
       content: "hello",
     });
@@ -230,6 +235,7 @@ describe("edition", () => {
 
   test("Allow setting right-to-left selection", () => {
     const model = new Model();
+    model.dispatch("START_EDITION");
     model.dispatch("SET_CURRENT_CONTENT", {
       content: "hello",
     });
@@ -243,6 +249,7 @@ describe("edition", () => {
 
   test("setting selection out of content is invalid", () => {
     const model = new Model();
+    model.dispatch("START_EDITION");
     expect(model.getters.getCurrentContent()).toHaveLength(0);
     expect(
       model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {

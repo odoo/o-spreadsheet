@@ -126,8 +126,8 @@ interface SidePanelState {
 }
 
 interface ComposerState {
-  topBarFocus: "inactive" | "contentFocus";
-  gridFocusMode: "inactive" | "cellFocus" | "contentFocus";
+  topBarFocus: ComposerFocusType;
+  gridFocusMode: ComposerFocusType;
 }
 
 export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv> {

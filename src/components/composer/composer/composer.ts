@@ -7,6 +7,7 @@ import { ComposerSelection, SelectionIndicator } from "../../../plugins/ui_state
 import { DOMDimension, FunctionDescription, Rect, SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
+import { ComposerFocusType } from "../../spreadsheet/spreadsheet";
 import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdown";
 import { ContentEditableHelper } from "../content_editable_helper";
 import { FunctionDescriptionProvider } from "../formula_assistant/formula_assistant";
@@ -92,10 +93,10 @@ export interface AutocompleteValue {
 }
 
 interface Props {
-  inputStyle: string;
+  inputStyle?: string;
   rect?: Rect;
   delimitation?: DOMDimension;
-  focus: "inactive" | "cellFocus" | "contentFocus";
+  focus: ComposerFocusType;
   onComposerUnmounted?: () => void;
   onComposerContentFocused: (selection: ComposerSelection) => void;
 }
@@ -188,7 +189,6 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
   setup() {
     onMounted(() => {
       const el = this.composerRef.el!;
-
       this.contentHelper.updateEl(el);
       this.processContent();
     });
@@ -424,10 +424,9 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     const content = this.getContent();
     if (content.length !== 0) {
       this.contentHelper.setText(content);
-      const { start, end } = this.env.model.getters.getComposerSelection();
-
       if (this.props.focus !== "inactive") {
         // Put the cursor back where it was before the rendering
+        const { start, end } = this.env.model.getters.getComposerSelection();
         this.contentHelper.selectRange(start, end);
       }
     }
@@ -450,7 +449,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     return content;
   }
 
-  private getColoredTokens(): any[] {
+  private getColoredTokens(): HtmlContent[] {
     const tokens = this.env.model.getters.getCurrentTokens();
     const tokenAtCursor = this.env.model.getters.getTokenAtCursor();
     const result: any[] = [];
