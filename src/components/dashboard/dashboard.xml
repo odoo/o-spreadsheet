@@ -4,7 +4,6 @@
       class="o-grid o-two-columns"
       tabindex="-1"
       t-on-wheel="onMouseWheel"
-      t-on-copy="copy"
       t-on-click="onClosePopover">
       <div class="mx-auto h-100 position-relative" t-ref="grid" t-att-style="gridContainer">
         <GridOverlay

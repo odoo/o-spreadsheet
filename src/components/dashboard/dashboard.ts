@@ -169,15 +169,6 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
       offsetY: offsetScrollbarY + deltaY,
     });
   }
-
-  copy(ev: ClipboardEvent) {
-    this.env.model.dispatch("COPY");
-    const content = this.env.model.getters.getClipboardContent();
-    // TODO use env.clipboard
-    // TODO add a test
-    ev.clipboardData!.setData("text/plain", content);
-    ev.preventDefault();
-  }
 }
 
 SpreadsheetDashboard.props = {};
