@@ -1,4 +1,5 @@
 import { App, Component, onMounted, onWillUnmount, useState, useSubEnv, xml } from "@odoo/owl";
+import { ComposerFocusType } from "../../src/components/spreadsheet/spreadsheet";
 import { TopBar } from "../../src/components/top_bar/top_bar";
 import { DEFAULT_FONT_SIZE } from "../../src/constants";
 import { toZone } from "../../src/helpers";
@@ -49,7 +50,7 @@ class Parent extends Component {
   static components = { TopBar };
 
   static _t = t;
-  state = useState({ focusComposer: <boolean>false });
+  state = useState({ focusComposer: <ComposerFocusType>"inactive" });
 
   setup() {
     useSubEnv({
@@ -59,12 +60,12 @@ class Parent extends Component {
       _t: Parent._t,
       isDashboard: () => this.props.model.getters.isDashboard(),
     });
-    this.state.focusComposer = this.props.focusComposer || false;
+    this.state.focusComposer = this.props.focusComposer || "inactive";
     onMounted(() => this.props.model.on("update", this, this.render));
     onWillUnmount(() => this.props.model.off("update", this));
   }
 
-  setFocusComposer(isFocused: boolean) {
+  setFocusComposer(isFocused: ComposerFocusType) {
     this.state.focusComposer = isFocused;
   }
 }
@@ -346,8 +347,8 @@ describe("TopBar component", () => {
   test("opening, then closing same menu", async () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
-    const { app } = await mountParent(model);
 
+    const { app } = await mountParent(model);
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
     fixture.querySelector('.o-tool[title="Borders"]')!.dispatchEvent(new Event("click"));
     await nextTick();
@@ -504,7 +505,7 @@ describe("TopBar component", () => {
     expect(composerEl.classList.contains("unfocusable")).toBeTruthy();
     expect(composerEl.attributes.getNamedItem("contentEditable")!.value).toBe("false");
 
-    parent.setFocusComposer(true);
+    parent.setFocusComposer("contentFocus");
     await nextTick();
     // Won't update the current content
     const content = model.getters.getCurrentContent();
