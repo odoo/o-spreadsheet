@@ -116,6 +116,7 @@ export class RendererPlugin extends UIPlugin {
       case LAYERS.Background:
         this.boxes = this.getGridBoxes();
         this.drawBackground(renderingContext);
+        this.drawOverflowingCellBackground(renderingContext);
         this.drawCellBackground(renderingContext);
         this.drawBorders(renderingContext);
         this.drawTexts(renderingContext);
@@ -134,81 +135,32 @@ export class RendererPlugin extends UIPlugin {
   private drawBackground(renderingContext: GridRenderingContext) {
     const { ctx, thinLineWidth } = renderingContext;
     const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
-    const sheetId = this.getters.getActiveSheetId();
 
     // white background
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, width + CANVAS_SHIFT, height + CANVAS_SHIFT);
 
-    // background grid
-    const visibleCols = this.getters.getSheetViewVisibleCols();
-    const left = visibleCols[0];
-    const right = visibleCols[visibleCols.length - 1];
-
-    const visibleRows = this.getters.getSheetViewVisibleRows();
-    const top = visibleRows[0];
-    const bottom = visibleRows[visibleRows.length - 1];
-
-    if (!this.getters.getGridLinesVisibility(sheetId) || this.getters.isDashboard()) {
-      return;
-    }
-    ctx.lineWidth = 2 * thinLineWidth;
-    ctx.strokeStyle = CELL_BORDER_COLOR;
-    ctx.beginPath();
-
-    // vertical lines
-    for (const i of visibleCols) {
-      const zone = { top, bottom, left: i, right: i };
-      const { x, width: colWidth, height: colHeight } = this.getters.getVisibleRect(zone);
-      ctx.moveTo(x + colWidth, 0);
-      ctx.lineTo(
-        x + colWidth,
-        Math.min(height, colHeight + (this.getters.isDashboard() ? 0 : HEADER_HEIGHT))
-      );
-    }
-
-    // horizontal lines
-    for (const i of visibleRows) {
-      const zone = { left, right, top: i, bottom: i };
-      const { y, width: rowWidth, height: rowHeight } = this.getters.getVisibleRect(zone);
-      ctx.moveTo(0, y + rowHeight);
-      ctx.lineTo(
-        Math.min(width, rowWidth + (this.getters.isDashboard() ? 0 : HEADER_WIDTH)),
-        y + rowHeight
-      );
-    }
-    ctx.stroke();
-  }
-
-  private drawCellBackground(renderingContext: GridRenderingContext) {
-    const { ctx, thinLineWidth } = renderingContext;
     const areGridLinesVisible =
       !this.getters.isDashboard() &&
       this.getters.getGridLinesVisibility(this.getters.getActiveSheetId());
-    ctx.lineWidth = areGridLinesVisible ? 0.3 * thinLineWidth : thinLineWidth;
     const inset = areGridLinesVisible ? 0.1 * thinLineWidth : 0;
-    ctx.strokeStyle = "#111";
-    for (let box of this.boxes) {
-      // fill color
+
+    if (areGridLinesVisible) {
+      for (const box of this.boxes) {
+        ctx.strokeStyle = CELL_BORDER_COLOR;
+        ctx.lineWidth = thinLineWidth;
+        ctx.strokeRect(box.x + inset, box.y + inset, box.width - 2 * inset, box.height - 2 * inset);
+      }
+    }
+  }
+
+  private drawCellBackground(renderingContext: GridRenderingContext) {
+    const { ctx } = renderingContext;
+    for (const box of this.boxes) {
       let style = box.style;
-      if ((style.fillColor && style.fillColor !== "#ffffff") || box.isMerge) {
+      if (style.fillColor && style.fillColor !== "#ffffff") {
         ctx.fillStyle = style.fillColor || "#ffffff";
-        if (areGridLinesVisible) {
-          ctx.fillRect(box.x, box.y, box.width, box.height);
-          ctx.strokeRect(
-            box.x + inset,
-            box.y + inset,
-            box.width - 2 * inset,
-            box.height - 2 * inset
-          );
-        } else {
-          ctx.fillRect(
-            box.x - thinLineWidth,
-            box.y - thinLineWidth,
-            box.width + 2 * thinLineWidth,
-            box.height + 2 * thinLineWidth
-          );
-        }
+        ctx.fillRect(box.x, box.y, box.width, box.height);
       }
       if (box.error) {
         ctx.fillStyle = "red";
@@ -217,6 +169,32 @@ export class RendererPlugin extends UIPlugin {
         ctx.lineTo(box.x + box.width, box.y);
         ctx.lineTo(box.x + box.width, box.y + 5);
         ctx.fill();
+      }
+    }
+  }
+
+  private drawOverflowingCellBackground(renderingContext: GridRenderingContext) {
+    const { ctx, thinLineWidth } = renderingContext;
+    for (const box of this.boxes) {
+      if (box.content && box.isOverflow) {
+        const align = box.content.align || "left";
+        let x: number;
+        let width: number;
+        const y = box.y + thinLineWidth / 2;
+        const height = box.height - thinLineWidth;
+        if (align === "left") {
+          x = box.x + thinLineWidth / 2;
+          width = (box.clipRect?.width || box.content.width) - 2 * thinLineWidth;
+        } else if (align === "right") {
+          x = box.x + box.width - thinLineWidth / 2;
+          width = -(box.clipRect?.width || box.content.width) + 2 * thinLineWidth;
+        } else {
+          x =
+            (box.clipRect?.x || box.x + box.width / 2 - box.content.width / 2) + thinLineWidth / 2;
+          width = (box.clipRect?.width || box.content.width) - 2 * thinLineWidth;
+        }
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(x, y, width, height);
       }
     }
   }
@@ -657,6 +635,7 @@ export class RendererPlugin extends UIPlugin {
       } else {
         nextColIndex = this.findNextEmptyCol(col, right, row);
         previousColIndex = this.findPreviousEmptyCol(col, left, row);
+        box.isOverflow = true;
       }
 
       switch (align) {

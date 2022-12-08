@@ -31,6 +31,7 @@ export interface Box extends Rect {
   image?: Image;
   isMerge?: boolean;
   verticalAlign?: VerticalAlign;
+  isOverflow?: boolean;
 }
 export interface Image {
   clipIcon: Rect | null;
