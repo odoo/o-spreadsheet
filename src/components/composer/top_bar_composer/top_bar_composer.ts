@@ -14,7 +14,6 @@ css/* scss */ `
     background-color: white;
     margin-top: -1px;
     border: 1px solid;
-    line-height: 20px;
     z-index: ${ComponentsImportance.Composer};
   }
 `;
@@ -30,10 +29,9 @@ export class TopBarComposer extends Component<Props, SpreadsheetChildEnv> {
 
   get composerStyle(): string {
     const style: CSSProperties = {
-      "padding-top": "7px",
-      "padding-bottom": "7px",
-      "padding-left": "8px",
+      padding: "5px 0px 5px 8px",
       "max-height": `${COMPOSER_MAX_HEIGHT}px`,
+      "line-height": "24px",
     };
     style.height = this.props.focus === "inactive" ? `${COMPOSER_HEIGHT}px` : "fit-content";
     return cssPropertiesToCss(style);

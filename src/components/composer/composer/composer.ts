@@ -52,6 +52,7 @@ css/* scss */ `
       overflow-x: hidden;
       word-break: break-all;
       padding-right: 2px;
+      text-align: start;
 
       width: 100%;
       height: 100%;
