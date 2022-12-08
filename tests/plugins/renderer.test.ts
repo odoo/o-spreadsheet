@@ -3,6 +3,7 @@ import {
   BACKGROUND_HEADER_FILTER_COLOR,
   BACKGROUND_HEADER_SELECTED_COLOR,
   BACKGROUND_HEADER_SELECTED_FILTER_COLOR,
+  CELL_BORDER_COLOR,
   DEFAULT_CELL_HEIGHT,
   FILTERS_COLOR,
   HEADER_HEIGHT,
@@ -14,10 +15,7 @@ import {
 import { fontSizeMap } from "../../src/fonts";
 import { toZone } from "../../src/helpers";
 import { Mode, Model } from "../../src/model";
-import {
-  CELL_BACKGROUND_GRIDLINE_STROKE_STYLE,
-  RendererPlugin,
-} from "../../src/plugins/ui_feature/renderer";
+import { RendererPlugin } from "../../src/plugins/ui_feature/renderer";
 import { Align, BorderCommand, Box, GridRenderingContext, Viewport, Zone } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {
@@ -837,12 +835,14 @@ describe("renderer", () => {
       box = getBoxFromText(model, overflowingContent);
       // no clip
       expect(box.clipRect).toBeUndefined();
+      expect(box.isOverflow).toBeTruthy();
 
       // no clipping at the left
       setCellContent(model, "A1", "Content at the left");
       model.drawGrid(ctx);
       box = getBoxFromText(model, overflowingContent);
       expect(box.clipRect).toBeUndefined();
+      expect(box.isOverflow).toBeTruthy();
 
       // clipping at the right
       setCellContent(model, "C1", "Content at the right");
@@ -881,12 +881,14 @@ describe("renderer", () => {
       box = getBoxFromText(model, overflowingNumber);
       // no clip
       expect(box.clipRect).toBeUndefined();
+      expect(box.isOverflow).toBeTruthy();
 
       // no clipping at the left
       setCellContent(model, "A1", "Content at the left");
       model.drawGrid(ctx);
       box = getBoxFromText(model, overflowingNumber);
       expect(box.clipRect).toBeUndefined();
+      expect(box.isOverflow).toBeTruthy();
 
       // clipping at the right
       setCellContent(model, "C1", "Content at the right");
@@ -923,12 +925,14 @@ describe("renderer", () => {
     box = getBoxFromText(model, overflowingText);
     // no clip
     expect(box.clipRect).toBeUndefined();
+    expect(box.isOverflow).toBeTruthy();
 
     // no clipping at the right
     setCellContent(model, "C1", "Content at the left");
     model.drawGrid(ctx);
     box = getBoxFromText(model, overflowingText);
     expect(box.clipRect).toBeUndefined();
+    expect(box.isOverflow).toBeTruthy();
 
     // clipping at the left
     setCellContent(model, "A1", "Content at the right");
@@ -965,6 +969,7 @@ describe("renderer", () => {
       centeredBox = getBoxFromText(model, overflowingContent);
       // // spans from A1 to C1 <-> no clip
       expect(centeredBox.clipRect).toBeUndefined();
+      expect(centeredBox.isOverflow).toBeTruthy();
 
       setCellContent(model, "A1", "left");
       model.drawGrid(ctx);
@@ -976,6 +981,7 @@ describe("renderer", () => {
         width: 5 + DEFAULT_CELL_WIDTH,
         height: DEFAULT_CELL_HEIGHT,
       });
+      expect(centeredBox.isOverflow).toBeTruthy();
 
       setCellContent(model, "C1", "right");
       model.drawGrid(ctx);
@@ -1458,12 +1464,8 @@ describe("renderer", () => {
     // Default Model displaying grid lines
     strokeColors = [];
     model.drawGrid(ctx);
-    expect(strokeColors).toEqual([
-      CELL_BACKGROUND_GRIDLINE_STROKE_STYLE,
-      CELL_BACKGROUND_GRIDLINE_STROKE_STYLE,
-      SELECTION_BORDER_COLOR, // selection drawGrid
-      SELECTION_BORDER_COLOR, // selection drawGrid
-    ]);
+    expect(strokeColors).toContain(CELL_BORDER_COLOR);
+    expect(strokeColors).toContain(SELECTION_BORDER_COLOR);
 
     // dashboard mode
     model.updateMode("dashboard");
@@ -1497,12 +1499,8 @@ describe("renderer", () => {
     // Default Model displaying grid lines
     strokeColors = [];
     model.drawGrid(ctx);
-    expect(strokeColors).toEqual([
-      CELL_BACKGROUND_GRIDLINE_STROKE_STYLE,
-      CELL_BACKGROUND_GRIDLINE_STROKE_STYLE,
-      SELECTION_BORDER_COLOR, // selection drawGrid
-      SELECTION_BORDER_COLOR, // selection drawGrid
-    ]);
+    expect(strokeColors).toContain(CELL_BORDER_COLOR);
+    expect(strokeColors).toContain(SELECTION_BORDER_COLOR);
 
     // model without grid lines
     model.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId: "Sheet1", areGridLinesVisible: false });
