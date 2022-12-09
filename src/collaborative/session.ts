@@ -37,6 +37,7 @@ export class Session extends EventBus<CollaborativeEvent> {
   private pendingMessages: StateUpdateMessage[] = [];
 
   private waitingAck: boolean = false;
+  private isReplayingInitialRevisions = false;
 
   private processedRevisions: Set<UID> = new Set();
 
@@ -125,6 +126,7 @@ export class Session extends EventBus<CollaborativeEvent> {
   }
 
   loadInitialMessages(messages: StateUpdateMessage[]) {
+    this.isReplayingInitialRevisions = true;
     this.on("unexpected-revision-id", this, ({ revisionId }) => {
       throw new Error(`The spreadsheet could not be loaded. Revision ${revisionId} is corrupted.`);
     });
@@ -132,6 +134,7 @@ export class Session extends EventBus<CollaborativeEvent> {
       this.onMessageReceived(message);
     }
     this.off("unexpected-revision-id", this);
+    this.isReplayingInitialRevisions = false;
   }
 
   /**
@@ -338,6 +341,10 @@ export class Session extends EventBus<CollaborativeEvent> {
         clientId: revision.clientId,
         commands: revision.commands,
       };
+    }
+    if (this.isReplayingInitialRevisions) {
+      throw new Error(`Trying to send a new revision while replaying initial revision. This can lead to endless dispatches every time the spreadsheet is open.
+      ${JSON.stringify(message)}`);
     }
     this.transportService.sendMessage({
       ...message,
