@@ -79,7 +79,9 @@ export class SheetUIPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   getCellWidth(position: CellPosition): number {
-    let contentWidth = this.getTextWidth(position);
+    const text = this.getCellText(position);
+    const style = this.getters.getCellComputedStyle(position);
+    let contentWidth = this.getTextWidth(text, style);
     const icon = this.getters.getConditionalIcon(position);
     if (icon) {
       contentWidth += computeIconWidth(this.getters.getCellStyle(position));
@@ -100,9 +102,8 @@ export class SheetUIPlugin extends UIPlugin {
     return contentWidth;
   }
 
-  getTextWidth(position: CellPosition): Pixel {
-    const text = this.getters.getCellText(position, this.getters.shouldShowFormulas());
-    return computeTextWidth(this.ctx, text, this.getters.getCellComputedStyle(position));
+  getTextWidth(text: string, style: Style): Pixel {
+    return computeTextWidth(this.ctx, text, style);
   }
 
   getCellText(position: CellPosition, showFormula: boolean = false): string {

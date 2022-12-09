@@ -10,6 +10,7 @@ import {
   HEADER_WIDTH,
   MIN_CELL_TEXT_MARGIN,
   MIN_CF_ICON_MARGIN,
+  NEWLINE,
   SELECTION_BORDER_COLOR,
 } from "../../src/constants";
 import { fontSizeMap } from "../../src/fonts";
@@ -43,10 +44,9 @@ jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 function getBoxFromText(model: Model, text: string): Box {
   const rendererPlugin = getPlugin(model, RendererPlugin);
-  // @ts-ignore
-  return (rendererPlugin.boxes as Box[]).find(
+  return (rendererPlugin["boxes"]! as Box[]).find(
     (b) => (b.content?.textLines || []).join(" ") === text
-  );
+  )!;
 }
 
 interface ContextObserver {
@@ -1750,6 +1750,22 @@ describe("renderer", () => {
       });
     });
 
+    test("Multi-line text overflowing in x overflowing background", () => {
+      const longLine = "Text longer than a column";
+      const longerLine = "Text longer than a column but even longer";
+
+      setCellContent(model, "A1", longLine + NEWLINE + longerLine);
+      resizeColumns(model, ["A"], 10);
+      model.drawGrid(ctx);
+      const box = getBoxFromText(model, longLine + " " + longerLine);
+      expect(getCellOverflowingBackgroundDims()).toMatchObject({
+        x: box.x + ctx.thinLineWidth / 2,
+        y: box.y + ctx.thinLineWidth / 2,
+        width: longerLine.length + MIN_CELL_TEXT_MARGIN - ctx.thinLineWidth * 2,
+        height: box.height - ctx.thinLineWidth,
+      });
+    });
+
     test("Cell overflowing in y overflowing background", () => {
       const overflowingText = "TOO HIGH";
       const fontSize = 26;
@@ -1810,6 +1826,18 @@ describe("renderer", () => {
       setCellContent(model, "A1", "Line1\nLine2\rLine3\r\nLine4");
       model.drawGrid(ctx);
       expect(renderedTexts.slice(0, 4)).toEqual(["Line1", "Line2", "Line3", "Line4"]);
+    });
+
+    test("Box of Multi-line text have the width of the longest line", () => {
+      const longLine = "Text longer than a column";
+      const longerLine = "Text longer than a column but even longer";
+
+      setCellContent(model, "A1", longLine + NEWLINE + longerLine);
+      resizeColumns(model, ["A"], 10);
+      model.drawGrid(ctx);
+      const box = getBoxFromText(model, longLine + " " + longerLine);
+      expect(box.isOverflow).toBeTruthy();
+      expect(box.content?.width).toEqual(longerLine.length + MIN_CELL_TEXT_MARGIN);
     });
   });
 });

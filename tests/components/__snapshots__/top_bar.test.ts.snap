@@ -516,9 +516,9 @@ border-color: #3266ca;
               contenteditable="true"
               spellcheck="false"
               style="
-padding: 6px 0px 6px 8px;
+padding: 5px 0px 5px 8px;
 max-height: 100px;
-line-height: 22px;
+line-height: 24px;
 height: fit-content;
 "
               tabindex="1"
@@ -932,9 +932,9 @@ border-color: #3266ca;
           contenteditable="true"
           spellcheck="false"
           style="
-padding: 6px 0px 6px 8px;
+padding: 5px 0px 5px 8px;
 max-height: 100px;
-line-height: 22px;
+line-height: 24px;
 height: fit-content;
 "
           tabindex="1"

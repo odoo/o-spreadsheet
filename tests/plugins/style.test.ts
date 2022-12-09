@@ -1,4 +1,4 @@
-import { DEFAULT_FONT_SIZE } from "../../src/constants";
+import { DEFAULT_FONT_SIZE, PADDING_AUTORESIZE_HORIZONTAL } from "../../src/constants";
 import { fontSizeMap } from "../../src/fonts";
 import { toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
@@ -123,7 +123,7 @@ describe("styles", () => {
     expect(getCell(model, "A1", "42")!.style).toBeDefined();
   });
 
-  test("getTextWidth use computed style", () => {
+  test("getCellWidth use computed style", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "H");
@@ -136,11 +136,11 @@ describe("styles", () => {
     });
     const A1 = toCartesian("A1");
     const A2 = toCartesian("A2");
-    expect(model.getters.getTextWidth({ sheetId, col: A1.col, row: A1.row })).toBe(
-      fontSizeMap[fontSize]
+    expect(model.getters.getCellWidth({ sheetId, col: A1.col, row: A1.row })).toBe(
+      fontSizeMap[fontSize] + 2 * PADDING_AUTORESIZE_HORIZONTAL
     );
-    expect(model.getters.getTextWidth({ sheetId, col: A2.col, row: A2.row })).toBe(
-      fontSizeMap[DEFAULT_FONT_SIZE]
+    expect(model.getters.getCellWidth({ sheetId, col: A2.col, row: A2.row })).toBe(
+      fontSizeMap[DEFAULT_FONT_SIZE] + 2 * PADDING_AUTORESIZE_HORIZONTAL
     );
   });
 });

@@ -597,11 +597,14 @@ export class RendererPlugin extends UIPlugin {
     const headerIconWidth = box.isFilterHeader ? FILTER_ICON_EDGE_LENGTH + FILTER_ICON_MARGIN : 0;
 
     /** Content */
-    const textWidth = this.getters.getTextWidth(position) + MIN_CELL_TEXT_MARGIN;
-    const wrapping = this.getters.getCellStyle(position).wrapping || "overflow";
+    const style = this.getters.getCellComputedStyle(position);
+    const wrapping = style.wrapping || "overflow";
     const maxWidth =
       wrapping === "wrap" && !showFormula ? width - 2 * MIN_CELL_TEXT_MARGIN : undefined;
     const multiLineText = this.getters.getCellMultiLineText(position, maxWidth);
+    const textWidth = Math.max(
+      ...multiLineText.map((line) => this.getters.getTextWidth(line, style) + MIN_CELL_TEXT_MARGIN)
+    );
 
     const contentWidth = iconBoxWidth + textWidth + headerIconWidth;
     const align = this.computeCellAlignment(position, contentWidth > width);
