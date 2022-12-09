@@ -182,16 +182,17 @@ export class RendererPlugin extends UIPlugin {
         let width: number;
         const y = box.y + thinLineWidth / 2;
         const height = box.height - thinLineWidth;
+        const clipWidth = Math.min(box.clipRect?.width || Infinity, box.content.width);
         if (align === "left") {
           x = box.x + thinLineWidth / 2;
-          width = (box.clipRect?.width || box.content.width) - 2 * thinLineWidth;
+          width = clipWidth - 2 * thinLineWidth;
         } else if (align === "right") {
           x = box.x + box.width - thinLineWidth / 2;
-          width = -(box.clipRect?.width || box.content.width) + 2 * thinLineWidth;
+          width = -clipWidth + 2 * thinLineWidth;
         } else {
           x =
             (box.clipRect?.x || box.x + box.width / 2 - box.content.width / 2) + thinLineWidth / 2;
-          width = (box.clipRect?.width || box.content.width) - 2 * thinLineWidth;
+          width = clipWidth - 2 * thinLineWidth;
         }
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(x, y, width, height);
@@ -685,6 +686,7 @@ export class RendererPlugin extends UIPlugin {
         height,
       };
     }
+
     return box;
   }
 
