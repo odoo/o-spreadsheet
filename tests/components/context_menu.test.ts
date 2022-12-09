@@ -224,6 +224,19 @@ describe("Context Menu", () => {
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
   });
 
+  test("right click on a cell, then hitting esc key closes a context menu", async () => {
+    await rightClickCell(model, "C8");
+    expect(getActiveXc(model)).toBe("C8");
+    await nextTick();
+    expect(fixture.querySelector(".o-menu")).toBeTruthy();
+
+    document
+      .querySelector(".o-grid-overlay")!
+      .dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await nextTick();
+    expect(fixture.querySelector(".o-menu")).toBeFalsy();
+  });
+
   test("can copy/paste with context menu", async () => {
     setCellContent(model, "B1", "b1");
 

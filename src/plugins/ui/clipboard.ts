@@ -86,6 +86,9 @@ export class ClipboardPlugin extends UIPlugin {
         }
         this.status = "invisible";
         break;
+      case "CLEAN_CLIPBOARD_HIGHLIGHT":
+        this.status = "invisible";
+        break;
       case "DELETE_CELL": {
         const { cut, paste } = this.getDeleteCellsTargets(cmd.zone, cmd.shiftDimension);
         const state = this.getClipboardStateForCopyCells(cut, "CUT");

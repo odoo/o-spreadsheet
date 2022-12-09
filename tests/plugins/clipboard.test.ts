@@ -8,6 +8,7 @@ import {
   addCellToSelection,
   addColumns,
   addRows,
+  cleanClipBoardHighlight,
   copy,
   createSheet,
   createSheetWithName,
@@ -115,6 +116,28 @@ describe("clipboard", () => {
     paste(model, "D3");
 
     expect(getCell(model, "D3")).toBeUndefined();
+  });
+
+  test("can clean the clipboard visible zones", () => {
+    const model = new Model();
+    setCellContent(model, "B2", "b2");
+    expect(getCell(model, "B2")).toMatchObject({
+      content: "b2",
+      evaluated: {
+        type: CellValueType.text,
+        value: "b2",
+      },
+    });
+
+    copy(model, "B2");
+    expect(getClipboardVisibleZones(model).length).toBe(1);
+    cleanClipBoardHighlight(model);
+    expect(getClipboardVisibleZones(model).length).toBe(0);
+
+    cut(model, "B2");
+    expect(getClipboardVisibleZones(model).length).toBe(1);
+    cleanClipBoardHighlight(model);
+    expect(getClipboardVisibleZones(model).length).toBe(0);
   });
 
   test("cut command will cut the selection if no target were given", () => {

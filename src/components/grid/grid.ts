@@ -172,6 +172,15 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         target: this.env.model.getters.getSelectedZones(),
       });
     },
+    ESCAPE: () => {
+      if (this.env.model.getters.hasOpenedPopover()) {
+        this.closeOpenedPopover();
+      } else if (this.menuState.isOpen) {
+        this.closeMenu();
+      } else {
+        this.env.model.dispatch("CLEAN_CLIPBOARD_HIGHLIGHT");
+      }
+    },
     "CTRL+A": () => this.env.model.selection.loopSelection(),
     "CTRL+S": () => {
       this.props.onSaveRequested?.();

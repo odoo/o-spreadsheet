@@ -13,12 +13,17 @@ import {
   SCROLLBAR_WIDTH,
 } from "../../src/constants";
 import { toHex, toZone, zoneToXc } from "../../src/helpers";
+import { ClipboardCellsState } from "../../src/helpers/clipboard/clipboard_cells_state";
 import { Model } from "../../src/model";
+import { ClipboardPlugin } from "../../src/plugins/ui/clipboard";
 import { chartComponentRegistry } from "../../src/registries";
+import { Zone } from "../../src/types";
 import {
+  copy,
   createChart,
   createFilter,
   createSheet,
+  cut,
   freezeColumns,
   freezeRows,
   hideColumns,
@@ -41,6 +46,7 @@ import {
 } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import {
+  getPlugin,
   makeTestFixture,
   MockClipboard,
   mountSpreadsheet,
@@ -661,6 +667,19 @@ describe("Grid component", () => {
       await nextTick();
       await simulateClick(".o-filter-icon");
       expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
+    });
+
+    test("Hitting esc key correctly closes the filter menu", async () => {
+      createFilter(model, "A1:A2");
+      await nextTick();
+      await simulateClick(".o-filter-icon");
+      expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
+
+      document
+        .querySelector(".o-grid-overlay")!
+        .dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+      await nextTick();
+      expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(0);
     });
   });
 
@@ -1414,6 +1433,13 @@ describe("Copy paste keyboard shortcut", () => {
     return event;
   }
 
+  function getClipboardVisibleZones(model: Model): Zone[] {
+    const clipboardPlugin = getPlugin(model, ClipboardPlugin);
+    return clipboardPlugin["status"] === "visible"
+      ? (clipboardPlugin["state"]! as ClipboardCellsState)["zones"]
+      : [];
+  }
+
   beforeEach(async () => {
     clipboard = new MockClipboard();
     Object.defineProperty(navigator, "clipboard", {
@@ -1450,6 +1476,75 @@ describe("Copy paste keyboard shortcut", () => {
     document.body.dispatchEvent(await getClipboardEvent("paste"));
     expect(getCellContent(model, "A1")).toEqual("");
     expect(getCellContent(model, "A2")).toEqual("things");
+  });
+
+  test("Clipboard visible zones will be cleaned after hitting esc", async () => {
+    setCellContent(model, "A1", "things");
+    selectCell(model, "A1");
+    copy(model, "A1");
+    selectCell(model, "A2");
+    expect(getClipboardVisibleZones(model).length).toBe(1);
+    await nextTick();
+    document
+      .querySelector(".o-grid")!
+      .dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await nextTick();
+    expect(getClipboardVisibleZones(model).length).toBe(0);
+
+    selectCell(model, "A1");
+    cut(model, "A1");
+    selectCell(model, "A2");
+    expect(getClipboardVisibleZones(model).length).toBe(1);
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Escape", bubbles: true })
+    );
+    expect(getClipboardVisibleZones(model).length).toBe(0);
+  });
+
+  test("When there is a opened cell popover, hitting esc key will only close the popover and not clean the clipboard visible zones", async () => {
+    setCellContent(model, "A1", "things");
+    createFilter(model, "A1:A2");
+    selectCell(model, "A1");
+    copy(model, "A1");
+    selectCell(model, "A2");
+    await nextTick();
+    await simulateClick(".o-filter-icon");
+    expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
+    expect(getClipboardVisibleZones(model).length).toBe(1);
+
+    document
+      .querySelector(".o-grid")!
+      .dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(0);
+    expect(getClipboardVisibleZones(model).length).toBe(1);
+
+    document
+      .querySelector(".o-grid")!
+      .dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await nextTick();
+    expect(getClipboardVisibleZones(model).length).toBe(0);
+  });
+
+  test("When there is a opened context menu, hitting esc key will only close the menu and not clean the clipboard visible zones", async () => {
+    setCellContent(model, "A1", "things");
+    copy(model, "A1");
+    await rightClickCell(model, "A2");
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    expect(getClipboardVisibleZones(model).length).toBe(1);
+
+    document
+      .querySelector(".o-grid")!
+      .dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
+    expect(getClipboardVisibleZones(model).length).toBe(1);
+
+    document
+      .querySelector(".o-grid")!
+      .dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await nextTick();
+    expect(getClipboardVisibleZones(model).length).toBe(0);
   });
 
   test("Can copy/paste chart", async () => {
