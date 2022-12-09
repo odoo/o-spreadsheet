@@ -187,7 +187,6 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "SET_FORMATTING",
   "CLEAR_FORMATTING",
   "SET_BORDER",
-  "SET_DECIMAL",
 
   /** CHART */
   "CREATE_CHART",
@@ -872,7 +871,6 @@ export type CoreCommand =
   | UpdateCellPositionCommand
   | ClearCellCommand
   | DeleteContentCommand
-  | SetDecimalCommand
 
   /** GRID SHAPE */
   | AddColumnsRowsCommand
@@ -976,6 +974,7 @@ export type LocalCommand =
   | ReplaceSearchCommand
   | ReplaceAllSearchCommand
   | SortCommand
+  | SetDecimalCommand
   | ResizeViewportCommand
   | SumSelectionCommand
   | DeleteCellCommand
