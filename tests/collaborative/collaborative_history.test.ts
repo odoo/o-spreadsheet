@@ -355,6 +355,38 @@ describe("Collaborative local history", () => {
     expect(getCellContent(model, "A3")).toBe("3");
   });
 
+  test("Initial set decimal command is dropped", () => {
+    const initialMessages: StateUpdateMessage[] = [
+      {
+        type: "REMOTE_REVISION",
+        version: MESSAGE_VERSION,
+        nextRevisionId: "1",
+        clientId: "bob",
+        commands: [
+          {
+            // @ts-ignore SET_DECIMAL was a core command (see commit message)
+            type: "SET_DECIMAL",
+            target: target("A1"),
+            sheetId: "sheet1",
+            step: 1,
+          },
+        ],
+        serverRevisionId: "initial_revision",
+      },
+    ];
+    const data = {
+      revisionId: "initial_revision",
+      sheets: [
+        {
+          id: "sheet1",
+          cells: { A1: { content: "1" } },
+        },
+      ],
+    };
+    const model = new Model(data, {}, initialMessages);
+    expect(getCell(model, "A1")?.format).toBeUndefined();
+  });
+
   test("Undo/redo your own change only", () => {
     setCellContent(alice, "A1", "hello in A1");
     setCellContent(bob, "B2", "hello in B2");
