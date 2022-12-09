@@ -13,7 +13,7 @@ import {
   SELECTION_BORDER_COLOR,
 } from "../../src/constants";
 import { fontSizeMap } from "../../src/fonts";
-import { toZone } from "../../src/helpers";
+import { toHex, toZone } from "../../src/helpers";
 import { Mode, Model } from "../../src/model";
 import { RendererPlugin } from "../../src/plugins/ui_feature/renderer";
 import { Align, BorderCommand, Box, GridRenderingContext, Viewport, Zone } from "../../src/types";
@@ -1156,6 +1156,27 @@ describe("renderer", () => {
     });
   });
 
+  test("cells overflowing in Y have a correct clipRect", () => {
+    const model = new Model();
+    const overflowingText = "I am a very very very long text that is also too high";
+    const fontSize = 26;
+
+    setCellContent(model, "A1", overflowingText);
+    setStyle(model, "A1", { fontSize });
+    resizeRows(model, [0], Math.floor(fontSizeMap[fontSize] / 2));
+    resizeColumns(model, ["A"], 10);
+
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+    model.drawGrid(ctx);
+
+    expect(getBoxFromText(model, overflowingText).clipRect).toEqual({
+      x: 0,
+      y: 0,
+      width: 952,
+      height: Math.floor(fontSizeMap[fontSize] / 2),
+    });
+  });
+
   test("cells with icon CF are correctly clipped", () => {
     let box: Box;
     const cellContent = "10000";
@@ -1627,5 +1648,74 @@ describe("renderer", () => {
     });
     model.drawGrid(ctx);
     expect(verticalStartPoints[0]).toEqual(5);
+  });
+
+  describe("Overflowing cells background", () => {
+    let model: Model;
+    let fillWhiteRectInstructions: number[][];
+    let ctx: MockGridRenderingContext;
+
+    function getCellOverflowingBackgroundDims() {
+      // first draw of white rectangle is the spreadsheet's background
+      const instruction = fillWhiteRectInstructions[1];
+      if (!instruction) return undefined;
+      return {
+        x: instruction[0],
+        y: instruction[1],
+        width: instruction[2],
+        height: instruction[3],
+      };
+    }
+
+    beforeEach(() => {
+      model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+      fillWhiteRectInstructions = [];
+      let drawingWhiteBackground = false;
+      ctx = new MockGridRenderingContext(model, 1000, 1000, {
+        onSet: (key, value) => {
+          drawingWhiteBackground = key === "fillStyle" && toHex(value) === "#FFFFFF";
+        },
+        onFunctionCall: (key, args) => {
+          if (key !== "fillRect" || !drawingWhiteBackground) return;
+          fillWhiteRectInstructions.push(args);
+        },
+      });
+    });
+
+    test("Non-overflowing cell have no overflowing background", () => {
+      setCellContent(model, "A1", "Short text");
+      model.drawGrid(ctx);
+      expect(getCellOverflowingBackgroundDims()).toBeUndefined();
+    });
+
+    test("Cell overflowing in x overflowing background", () => {
+      const overflowingText = "Text longer than a column";
+      setCellContent(model, "A1", overflowingText);
+      resizeColumns(model, ["A"], 10);
+      model.drawGrid(ctx);
+      const box = getBoxFromText(model, overflowingText);
+      expect(getCellOverflowingBackgroundDims()).toMatchObject({
+        x: box.x + ctx.thinLineWidth / 2,
+        y: box.y + ctx.thinLineWidth / 2,
+        width: box.content!.width - ctx.thinLineWidth * 2,
+        height: box.height - ctx.thinLineWidth,
+      });
+    });
+
+    test("Cell overflowing in y overflowing background", () => {
+      const overflowingText = "TOO HIGH";
+      const fontSize = 26;
+      setCellContent(model, "A1", overflowingText);
+      setStyle(model, "A1", { fontSize });
+      resizeRows(model, [0], Math.floor(fontSizeMap[fontSize] / 2));
+      model.drawGrid(ctx);
+      const box = getBoxFromText(model, overflowingText);
+      expect(getCellOverflowingBackgroundDims()).toMatchObject({
+        x: box.x + ctx.thinLineWidth / 2,
+        y: box.y + ctx.thinLineWidth / 2,
+        width: box.content!.width - ctx.thinLineWidth * 2,
+        height: box.height - ctx.thinLineWidth,
+      });
+    });
   });
 });
