@@ -266,7 +266,10 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
 
   private onRemoteRevisionReceived({ commands }: { commands: CoreCommand[] }) {
     for (let command of commands) {
+      const previousStatus = this.status;
+      this.status = Status.RunningCore;
       this.dispatchToHandlers(this.uiPlugins, command);
+      this.status = previousStatus;
     }
     this.finalize();
   }
@@ -404,7 +407,10 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       case Status.Finalizing:
         throw new Error(_lt("Cannot dispatch commands in the finalize state"));
       case Status.RunningCore:
-        throw new Error("A UI plugin cannot dispatch while handling a core command");
+        if (isCoreCommand(command)) {
+          throw new Error(`A UI plugin cannot dispatch ${type} while handling a core command`);
+        }
+        this.dispatchToHandlers(this.handlers, command);
     }
     return DispatchResult.Success;
   };
