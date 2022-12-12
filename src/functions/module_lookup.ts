@@ -454,3 +454,38 @@ export const XLOOKUP: AddFunctionDescription = {
   },
   isExported: true,
 };
+
+// -----------------------------------------------------------------------------
+// RESULTARRAY FORMULA TEST
+// -----------------------------------------------------------------------------
+
+export const RESULT_ARRAY: AddFunctionDescription = {
+  description: _lt("Return a matrix n*n fill by the value"),
+  args: args(`
+    x (number) ${_lt("Number of col")}
+    y (number) ${_lt("Number of row")}
+  `),
+  returns: ["RANGE<NUMBER>"],
+  compute: function (x: PrimitiveArgValue, y: PrimitiveArgValue): string[][] {
+    return Array.from({ length: toNumber(x) }, (_, i) =>
+      Array.from({ length: toNumber(y) }, (_, j) => `res ${i + 1}-${j + 1}`)
+    );
+  },
+  isExported: true,
+};
+
+export const RESULT_ARRAY2: AddFunctionDescription = {
+  description: _lt("Return an 3*3 matrix if element ref is empty, else return a 1*1 matrix"),
+  args: args(`
+    element (any) ${_lt("a kikou element")}
+  `),
+  returns: ["RANGE<NUMBER>"],
+  compute: function (element: PrimitiveArgValue): string[][] {
+    if (element === null) {
+      return RESULT_ARRAY.compute(3, 3) as string[][];
+    }
+
+    return RESULT_ARRAY.compute(1, 1) as string[][];
+  },
+  isExported: true,
+};

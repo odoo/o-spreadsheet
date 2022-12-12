@@ -176,7 +176,7 @@ interface FormulaReturn extends Omit<FunctionReturn, "value"> {
   value: FunctionReturnValue | null; // Formulas can return a cell value that can be null for empty cells
   format?: Format;
 }
-export type FunctionReturnValue = string | number | boolean;
+export type FunctionReturnValue = string | number | boolean | (string | number | boolean)[][];
 
 export interface ClipboardCell {
   cell?: Cell;

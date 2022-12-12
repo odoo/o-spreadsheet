@@ -1222,3 +1222,421 @@ describe("evaluate formula getter", () => {
     functionRegistry.remove("GETVALUE");
   });
 });
+
+describe("evaluate formulas that return an array", () => {
+  let model: Model = new Model();
+
+  beforeEach(() => {
+    model = new Model();
+  });
+
+  // functionRegistry.add("GETVALUE", {
+  //   description: "Get value",
+  //   compute: () => {
+  //     throw new Error(`Error${value}`);
+  //   },
+  //   args: args(``),
+  //   returns: ["ANY"],
+  // });
+
+  afterAll(() => {
+    restoreDefaultFunctions();
+  });
+
+  test("a simple reference to a range cannot return an array", () => {
+    setCellContent(model, "A1", "=A2:A3");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+  });
+
+  test("formula with function that return array can return array", () => {
+    setCellContent(model, "A1", "=RESULT.ARRAY(2,3)");
+    expect(getEvaluatedCell(model, "A1").value).toBe("res 1-1");
+    expect(getEvaluatedCell(model, "A2").value).toBe("res 1-2");
+    expect(getEvaluatedCell(model, "A3").value).toBe("res 1-3");
+    expect(getEvaluatedCell(model, "B1").value).toBe("res 2-1");
+    expect(getEvaluatedCell(model, "B2").value).toBe("res 2-2");
+    expect(getEvaluatedCell(model, "B3").value).toBe("res 2-3");
+  });
+
+  test("reference to a formula result array is possible", () => {
+    setCellContent(model, "A1", "=RESULT.ARRAY(3,3)");
+    setCellContent(model, "D4", "=C3");
+    expect(getEvaluatedCell(model, "D4").value).toBe("res 3-3");
+  });
+
+  // TO DO : test result with format
+
+  describe("result array can collides with other cell", () => {
+    test("throw error on the formula when collide with cell having content", () => {
+      setCellContent(model, "B2", "kikou");
+      setCellContent(model, "A1", "=RESULT.ARRAY(2,2)");
+      expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+        "Array result was not expanded because it would overwrite data in B2."
+      );
+
+      setCellContent(model, "A4", "kikou");
+      setCellContent(model, "A3", "=RESULT.ARRAY(2,2)");
+      expect(getEvaluatedCell(model, "A3").value).toBe("#ERROR");
+      expect((getEvaluatedCell(model, "A3") as ErrorCell).error.message).toBe(
+        "Array result was not expanded because it would overwrite data in A4."
+      );
+    });
+
+    test("throw error on the formula when collide with other formula ", () => {
+      setCellContent(model, "B2", "=SUM(42+24)");
+      setCellContent(model, "A1", "=RESULT.ARRAY(2,2)");
+      expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+        "Array result was not expanded because it would overwrite data in B2."
+      );
+    });
+
+    test("throw error message concerning the first cell encountered vertically", () => {
+      setCellContent(model, "A1", "=RESULT.ARRAY(1,3)");
+      setCellContent(model, "A2", "kikou");
+      setCellContent(model, "A3", "kikou");
+      expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+        "Array result was not expanded because it would overwrite data in A2."
+      );
+    });
+
+    test("throw error message concerning the first cell encountered horizontally", () => {
+      setCellContent(model, "A1", "=RESULT.ARRAY(3,1)");
+      setCellContent(model, "B1", "kikou");
+      setCellContent(model, "C1", "kikou");
+      expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+        "Array result was not expanded because it would overwrite data in B1."
+      );
+    });
+
+    test("don't spread result when collide", () => {
+      setCellContent(model, "B2", "kikou");
+      setCellContent(model, "A1", "=RESULT.ARRAY(2,2)");
+      expect(getEvaluatedCell(model, "A2").value).toBe("");
+      expect(getEvaluatedCell(model, "B1").value).toBe("");
+      expect(getEvaluatedCell(model, "B2").value).toBe("kikou");
+    });
+
+    describe("collision tests on several limit positions", () => {
+      test("limit located on the formula column", () => {
+        setCellContent(model, "A1", "=RESULT.ARRAY(3,3)");
+        setCellContent(model, "A4", "kikou");
+        expect(getEvaluatedCell(model, "A1").value).toBe("res 1-1");
+
+        setCellContent(model, "A3", "kikou");
+        expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      });
+
+      test("limit located on the formula row", () => {
+        setCellContent(model, "A1", "=RESULT.ARRAY(3,3)");
+        setCellContent(model, "D1", "kikou");
+        expect(getEvaluatedCell(model, "A1").value).toBe("res 1-1");
+
+        setCellContent(model, "C1", "kikou");
+        expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      });
+
+      test("limit located before the formula column", () => {
+        setCellContent(model, "B1", "=RESULT.ARRAY(3,3)");
+        setCellContent(model, "A3", "kikou");
+        expect(getEvaluatedCell(model, "B1").value).toBe("res 1-1");
+      });
+
+      test("limit located before the formula row", () => {
+        setCellContent(model, "A2", "=RESULT.ARRAY(3,3)");
+        setCellContent(model, "C1", "kikou");
+        expect(getEvaluatedCell(model, "A2").value).toBe("res 1-1");
+      });
+
+      test("limit located adter the formula column", () => {
+        setCellContent(model, "A1", "=RESULT.ARRAY(1,3)");
+        setCellContent(model, "B3", "kikou");
+        expect(getEvaluatedCell(model, "A1").value).toBe("res 1-1");
+
+        setCellContent(model, "A1", "=RESULT.ARRAY(2,3)");
+        expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      });
+
+      test("limit located after the formula row", () => {
+        setCellContent(model, "A1", "=RESULT.ARRAY(1,3)");
+        setCellContent(model, "C2", "kikou");
+        expect(getEvaluatedCell(model, "A1").value).toBe("res 1-1");
+
+        setCellContent(model, "A1", "=RESULT.ARRAY(3,2)");
+        expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      });
+
+      test("multiple limit test", () => {
+        setCellContent(model, "A1", "=RESULT.ARRAY(5,3)");
+        setCellContent(model, "B4", "kikou");
+        expect(getEvaluatedCell(model, "A1").value).toBe("res 1-1");
+        setCellContent(model, "C5", "kikou");
+        expect(getEvaluatedCell(model, "A1").value).toBe("res 1-1");
+        setCellContent(model, "D3", "colision");
+        expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      });
+    });
+  });
+
+  describe("a formula that refers to a result array must always have the same result", () => {
+    const ref = "=C3";
+    const formula = "=RESULT.ARRAY(3,3)";
+    const result = "res 2-2";
+
+    describe("regardless the position of the result array", () => {
+      test("reference located at the top/left of the result array", () => {
+        setCellContent(model, "A1", ref);
+        setCellContent(model, "B2", formula);
+        expect(getEvaluatedCell(model, "A1").value).toBe(result);
+      });
+
+      test("reference located at the top/right of the result array", () => {
+        setCellContent(model, "E1", ref);
+        setCellContent(model, "B2", formula);
+        expect(getEvaluatedCell(model, "E1").value).toBe(result);
+      });
+
+      test("reference located at the bottom/left of the result array", () => {
+        setCellContent(model, "A5", ref);
+        setCellContent(model, "B2", formula);
+        expect(getEvaluatedCell(model, "A5").value).toBe(result);
+      });
+
+      test("reference located at the bottom/right of the result array", () => {
+        setCellContent(model, "E5", ref);
+        setCellContent(model, "B2", formula);
+        expect(getEvaluatedCell(model, "E5").value).toBe(result);
+      });
+    });
+
+    describe("regardless the order we set the formulas", () => {
+      test("reference located at the top/left of the result array, set the formula ref first", () => {
+        setCellContent(model, "A1", ref);
+        setCellContent(model, "B2", formula);
+        expect(getEvaluatedCell(model, "A1").value).toBe(result);
+      });
+
+      test("reference located at the top/left of the result array, set the result array first", () => {
+        setCellContent(model, "B2", formula);
+        setCellContent(model, "A1", ref);
+        expect(getEvaluatedCell(model, "A1").value).toBe(result);
+      });
+
+      test("reference located at the bottom/right of the result array, set the formula ref first", () => {
+        setCellContent(model, "E5", ref);
+        setCellContent(model, "B2", formula);
+        expect(getEvaluatedCell(model, "E5").value).toBe(result);
+      });
+
+      test("reference located at the bottom/right of the result array, set the result array first", () => {
+        setCellContent(model, "B2", formula);
+        setCellContent(model, "E5", ref);
+        expect(getEvaluatedCell(model, "E5").value).toBe(result);
+      });
+    });
+  });
+
+  describe("result array can collides with its references", () => {
+    test("throw error on the formula when collide", () => {
+      setCellContent(model, "A1", "=RESULT.ARRAY2(B2)"); // RESULT.3x3.IF.REF.NOT.EMPTY
+      expect(getEvaluatedCell(model, "A1").value).toBe("#CYCLE");
+    });
+
+    test("don't spread result when collide", () => {
+      setCellContent(model, "A1", "=RESULT.ARRAY2(B2)"); // RESULT.3x3.IF.REF.NOT.EMPTY
+      expect(getEvaluatedCell(model, "A2").value).toBe("");
+      expect(getEvaluatedCell(model, "B1").value).toBe("");
+      expect(getEvaluatedCell(model, "B2").value).toBe("");
+    });
+
+    describe("collision tests on several limit positions", () => {
+      test("ref located on the formula columns", () => {
+        setCellContent(model, "A1", "=RESULT.ARRAY2(A4)");
+        expect(getEvaluatedCell(model, "A1").value).toBe("res 1-1");
+
+        setCellContent(model, "A1", "=RESULT.ARRAY2(A3)");
+        expect(getEvaluatedCell(model, "A1").value).toBe("#CYCLE");
+      });
+
+      test("ref located on the formula row", () => {
+        setCellContent(model, "A1", "=RESULT.ARRAY2(D1)");
+        expect(getEvaluatedCell(model, "A1").value).toBe("res 1-1");
+
+        setCellContent(model, "A1", "=RESULT.ARRAY2(C1)");
+        expect(getEvaluatedCell(model, "A1").value).toBe("#CYCLE");
+      });
+
+      test("ref located before the formula column", () => {
+        setCellContent(model, "B2", "=RESULT.ARRAY2(A3)");
+        expect(getEvaluatedCell(model, "B2").value).toBe("res 1-1");
+      });
+
+      test("ref located before the formula row", () => {
+        setCellContent(model, "B2", "=RESULT.ARRAY2(C1)");
+        expect(getEvaluatedCell(model, "B2").value).toBe("res 1-1");
+      });
+
+      test("ref located adter the formula column", () => {
+        setCellContent(model, "B2", "=RESULT.ARRAY2(E4)");
+        expect(getEvaluatedCell(model, "B2").value).toBe("res 1-1");
+      });
+
+      test("ref located after the formula row", () => {
+        setCellContent(model, "B2", "=RESULT.ARRAY2(D5)");
+        expect(getEvaluatedCell(model, "B2").value).toBe("res 1-1");
+      });
+
+      test("multiple ref test 1", () => {
+        setCellContent(model, "A1", "=E5");
+        setCellContent(model, "B2", "=RESULT.ARRAY2(A1)");
+        expect(getEvaluatedCell(model, "A1").value).toBe(0);
+        expect(getEvaluatedCell(model, "B2").value).toBe("res 1-1");
+      });
+
+      test("multiple ref test 2", () => {
+        setCellContent(model, "A1", "=E5");
+        setCellContent(model, "B2", "=RESULT.ARRAY2(A2)");
+        setCellContent(model, "A2", "=A1");
+
+        expect(getEvaluatedCell(model, "A1").value).toBe(0);
+        expect(getEvaluatedCell(model, "B2").value).toBe("res 1-1");
+      });
+    });
+  });
+
+  describe("result array can collides with other result array", () => {
+    test("throw error on the formula when collide", () => {
+      const formula = "=RESULT.ARRAY(2,2)";
+      setCellContent(model, "B1", formula);
+      setCellContent(model, "A2", formula);
+      expect(getEvaluatedCell(model, "B1").value).toBe("res 1-1");
+      expect(getEvaluatedCell(model, "A2").value).toBe("#ERROR");
+      expect((getEvaluatedCell(model, "A2") as ErrorCell).error.message).toBe(
+        "Array result was not expanded because it would overwrite data in B2."
+      );
+    });
+
+    test("throw error message concerning the first cell encountered vertically", () => {
+      setCellContent(model, "B1", "=RESULT.ARRAY(1,3)");
+      setCellContent(model, "A2", "=RESULT.ARRAY(2,2)");
+      expect(getEvaluatedCell(model, "B1").value).toBe("res 1-1");
+      expect(getEvaluatedCell(model, "A2").value).toBe("#ERROR");
+      expect((getEvaluatedCell(model, "A2") as ErrorCell).error.message).toBe(
+        "Array result was not expanded because it would overwrite data in B2."
+      );
+    });
+
+    test("throw error message concerning the first cell encountered horizontally", () => {
+      setCellContent(model, "A2", "=RESULT.ARRAY(3,1)");
+      setCellContent(model, "B1", "=RESULT.ARRAY(2,2)");
+      expect(getEvaluatedCell(model, "A2").value).toBe("res 1-1");
+      expect(getEvaluatedCell(model, "B1").value).toBe("#ERROR");
+      expect((getEvaluatedCell(model, "B1") as ErrorCell).error.message).toBe(
+        "Array result was not expanded because it would overwrite data in B2."
+      );
+    });
+
+    test("don't spread result when collide", () => {
+      const formula = "=RESULT.ARRAY(2,2)";
+      setCellContent(model, "B1", formula);
+      setCellContent(model, "A2", formula);
+      expect(getEvaluatedCell(model, "B1").value).toBe("res 1-1");
+      expect(getEvaluatedCell(model, "B2").value).toBe("res 1-2");
+      expect(getEvaluatedCell(model, "A2").value).toBe("#ERROR");
+      expect(getEvaluatedCell(model, "A3").value).toBe("");
+      expect(getEvaluatedCell(model, "B3").value).toBe("");
+    });
+
+    describe("collision tests on several limit positions", () => {
+      const result = "res 1-1";
+      const formula = "=RESULT.ARRAY(2,2)";
+
+      test("covering formula located on the covered formula columns", () => {
+        setCellContent(model, "C3", formula);
+        setCellContent(model, "B4", formula);
+        expect(getEvaluatedCell(model, "B4").value).toBe(result);
+        expect(getEvaluatedCell(model, "C3").value).toBe("#ERROR");
+      });
+
+      test("covering formula located on the covered formula rows", () => {
+        setCellContent(model, "C3", formula);
+        setCellContent(model, "D2", formula);
+        expect(getEvaluatedCell(model, "D2").value).toBe(result);
+        expect(getEvaluatedCell(model, "C3").value).toBe("#ERROR");
+      });
+
+      test("covering formula located before the covered formula columns", () => {
+        setCellContent(model, "C3", formula);
+        setCellContent(model, "A4", formula);
+        expect(getEvaluatedCell(model, "A4").value).toBe(result);
+        expect(getEvaluatedCell(model, "C3").value).toBe(result);
+      });
+
+      test("covering formula located before the covered formula rows", () => {
+        setCellContent(model, "C3", formula);
+        setCellContent(model, "D1", formula);
+        expect(getEvaluatedCell(model, "D1").value).toBe(result);
+        expect(getEvaluatedCell(model, "C3").value).toBe(result);
+      });
+
+      test("covering formula located after the covered formula columns", () => {
+        setCellContent(model, "C3", formula);
+        setCellContent(model, "E4", formula);
+        expect(getEvaluatedCell(model, "E4").value).toBe(result);
+        expect(getEvaluatedCell(model, "C3").value).toBe(result);
+      });
+
+      test("covering formula located after the covered formula rows", () => {
+        setCellContent(model, "C3", formula);
+        setCellContent(model, "D5", formula);
+        expect(getEvaluatedCell(model, "D5").value).toBe(result);
+        expect(getEvaluatedCell(model, "C3").value).toBe(result);
+      });
+    });
+
+    // TO IMPROVE:
+    describe.skip("throw error regardless the order we 'set the formula'/'get the result'", () => {
+      const result = "res 1-1";
+      const formula = "=RESULT.ARRAY(2,2)";
+      const errorMessage = "Array result was not expanded because it would overwrite data in B2.";
+      test("order 1: set B1 < set A2 < get B1 < get A2", () => {
+        setCellContent(model, "B1", formula);
+        setCellContent(model, "A2", formula);
+
+        expect(getEvaluatedCell(model, "B1").value).toBe("#ERROR");
+        expect((getEvaluatedCell(model, "B1") as ErrorCell).error.message).toBe(errorMessage);
+        expect(getEvaluatedCell(model, "A2").value).toBe(result);
+      });
+
+      test("order 2:  set B1 < set A2 < get A2 < get B1", () => {
+        setCellContent(model, "B1", formula);
+        setCellContent(model, "A2", formula);
+
+        expect(getEvaluatedCell(model, "A2").value).toBe(result);
+        expect(getEvaluatedCell(model, "B1").value).toBe("#ERROR");
+        expect((getEvaluatedCell(model, "B1") as ErrorCell).error.message).toBe(errorMessage);
+      });
+
+      test("order 3: set A2 < set B1 < get B1 < get A2", () => {
+        setCellContent(model, "A2", formula);
+        setCellContent(model, "B1", formula);
+
+        expect(getEvaluatedCell(model, "B1").value).toBe("#ERROR");
+        expect((getEvaluatedCell(model, "B1") as ErrorCell).error.message).toBe(errorMessage);
+        expect(getEvaluatedCell(model, "A2").value).toBe(result);
+      });
+
+      test("order 4:  set A2 < set B1 < get A2 < get B1", () => {
+        setCellContent(model, "A2", formula);
+        setCellContent(model, "B1", formula);
+
+        expect(getEvaluatedCell(model, "A2").value).toBe(result);
+        expect(getEvaluatedCell(model, "B1").value).toBe("#ERROR");
+        expect((getEvaluatedCell(model, "B1") as ErrorCell).error.message).toBe(errorMessage);
+      });
+    });
+  });
+});
