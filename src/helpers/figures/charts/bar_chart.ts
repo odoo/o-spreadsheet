@@ -37,6 +37,7 @@ import {
   updateChartRangesWithDataSets,
 } from "./chart_common";
 import {
+  aggregateDataForLabels,
   filterEmptyDataPoints,
   getChartDatasetValues,
   getChartLabelValues,
@@ -66,6 +67,7 @@ export class BarChart extends AbstractChart {
   readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
   readonly stacked: boolean;
+  readonly aggregated: boolean;
   readonly type = "bar";
 
   constructor(definition: BarChartDefinition, sheetId: UID, getters: CoreGetters) {
@@ -81,6 +83,7 @@ export class BarChart extends AbstractChart {
     this.verticalAxisPosition = definition.verticalAxisPosition;
     this.legendPosition = definition.legendPosition;
     this.stacked = definition.stacked;
+    this.aggregated = definition.aggregated;
   }
 
   static transformDefinition(
@@ -103,6 +106,7 @@ export class BarChart extends AbstractChart {
       dataSets: context.range ? context.range : [],
       dataSetsHaveTitle: false,
       stacked: false,
+      aggregated: false,
       legendPosition: "top",
       title: context.title || "",
       type: "bar",
@@ -163,10 +167,13 @@ export class BarChart extends AbstractChart {
         : undefined,
       title: this.title,
       stacked: this.stacked,
+      aggregated: this.aggregated,
     };
   }
 
-  getDefinitionForExcel(): ExcelChartDefinition {
+  getDefinitionForExcel(): ExcelChartDefinition | undefined {
+    // Excel does not support aggregating labels
+    if (this.aggregated) return undefined;
     const dataSets: ExcelChartDataset[] = this.dataSets
       .map((ds: DataSet) => toExcelDataset(this.getters, ds))
       .filter((ds) => ds.range !== ""); // && range !== INCORRECT_RANGE_STRING ? show incorrect #ref ?
@@ -246,6 +253,10 @@ function createBarChartRuntime(chart: BarChart, getters: Getters): BarChartRunti
   let dataSetsValues = getChartDatasetValues(getters, chart.dataSets);
 
   ({ labels, dataSetsValues } = filterEmptyDataPoints(labels, dataSetsValues));
+  if (chart.aggregated) {
+    ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
+  }
+
   const config = getBarConfiguration(chart, labels);
   const colors = new ChartColors();
 

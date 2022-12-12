@@ -759,6 +759,62 @@ describe("Test XLSX export", () => {
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
+    test("charts that aggregate labels", async () => {
+      const model = new Model({
+        sheets: [
+          {
+            ...chartData.sheets,
+            cells: {
+              ...chartData.sheets[0].cells,
+              A6: { content: "P1" },
+              A7: { content: "P2" },
+              A8: { content: "P3" },
+              A9: { content: "P4" },
+              B6: { content: "17" },
+              B7: { content: "26" },
+              B8: { content: "13" },
+              B9: { content: "31" },
+              C6: { content: "31" },
+              C7: { content: "18" },
+              C8: { content: "9" },
+              C9: { content: "27" },
+            },
+          },
+        ],
+      });
+      createChart(
+        model,
+        {
+          dataSets: ["Sheet1!B1:B9"],
+          labelRange: "Sheet1!A2:A9",
+          aggregated: true,
+          type: "bar",
+        },
+        "1"
+      );
+      createChart(
+        model,
+        {
+          dataSets: ["Sheet1!B1:B9"],
+          labelRange: "Sheet1!A2:A9",
+          aggregated: true,
+          type: "line",
+        },
+        "1"
+      );
+      createChart(
+        model,
+        {
+          dataSets: ["Sheet1!B1:B9"],
+          labelRange: "Sheet1!A2:A9",
+          aggregated: true,
+          type: "pie",
+        },
+        "1"
+      );
+      expect(getExportedExcelData(model).sheets[0].charts.length).toBe(0);
+    });
+
     test("stacked bar chart", async () => {
       const model = new Model(chartData);
       createChart(
