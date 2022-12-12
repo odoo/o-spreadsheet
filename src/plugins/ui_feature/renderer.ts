@@ -45,6 +45,7 @@ import {
   HeaderIndex,
   LAYERS,
   Pixel,
+  Rect,
   UID,
   Viewport,
   Zone,
@@ -118,7 +119,7 @@ export class RendererPlugin extends UIPlugin {
   drawGrid(renderingContext: GridRenderingContext, layer: LAYERS) {
     switch (layer) {
       case LAYERS.Background:
-        this.boxes = this.getGridBoxes();
+        this.boxes = this.getGridBoxes(renderingContext.thinLineWidth);
         this.drawBackground(renderingContext);
         this.drawOverflowingCellBackground(renderingContext);
         this.drawCellBackground(renderingContext);
@@ -153,25 +154,27 @@ export class RendererPlugin extends UIPlugin {
       for (const box of this.boxes) {
         ctx.strokeStyle = CELL_BORDER_COLOR;
         ctx.lineWidth = thinLineWidth;
-        ctx.strokeRect(box.x + inset, box.y + inset, box.width - 2 * inset, box.height - 2 * inset);
+        let { x, y, width, height } = this.getBoxRectWithGridLines(box, thinLineWidth);
+        ctx.strokeRect(x + inset, y + inset, width - 2 * inset, height - 2 * inset);
       }
     }
   }
 
   private drawCellBackground(renderingContext: GridRenderingContext) {
-    const { ctx } = renderingContext;
+    const { ctx, thinLineWidth } = renderingContext;
     for (const box of this.boxes) {
       let style = box.style;
+      const { x, y, width, height } = this.getBoxRectWithGridLines(box, thinLineWidth);
       if (style.fillColor && style.fillColor !== "#ffffff") {
         ctx.fillStyle = style.fillColor || "#ffffff";
-        ctx.fillRect(box.x, box.y, box.width, box.height);
+        ctx.fillRect(x, y, width, height);
       }
       if (box.error) {
         ctx.fillStyle = "red";
         ctx.beginPath();
-        ctx.moveTo(box.x + box.width - 5, box.y);
-        ctx.lineTo(box.x + box.width, box.y);
-        ctx.lineTo(box.x + box.width, box.y + 5);
+        ctx.moveTo(x + width - 5, y);
+        ctx.lineTo(x + width, box.y);
+        ctx.lineTo(x + width, y + 5);
         ctx.fill();
       }
     }
@@ -205,11 +208,11 @@ export class RendererPlugin extends UIPlugin {
   }
 
   private drawBorders(renderingContext: GridRenderingContext) {
-    const { ctx } = renderingContext;
+    const { ctx, thinLineWidth } = renderingContext;
     for (let box of this.boxes) {
       const border = box.border;
       if (border) {
-        const { x, y, width, height } = box;
+        const { x, y, width, height } = this.getBoxRectWithGridLines(box, thinLineWidth);
         if (border.left) {
           drawBorder(border.left, x, y, x, y + height);
         }
@@ -437,7 +440,7 @@ export class RendererPlugin extends UIPlugin {
     // Columns headers background
     for (let col = left; col <= right; col++) {
       const colZone = { left: col, right: col, top: 0, bottom: numberOfRows - 1 };
-      const { x, width } = this.getters.getVisibleRect(colZone);
+      const { x, width } = this.getVisibleRectWithoutGridLines(colZone, thinLineWidth);
       const colHasFilter = this.getters.doesZonesContainFilter(sheetId, [colZone]);
       const isColActive = activeCols.has(col);
       const isColSelected = selectedCols.has(col);
@@ -450,13 +453,13 @@ export class RendererPlugin extends UIPlugin {
       } else {
         ctx.fillStyle = colHasFilter ? BACKGROUND_HEADER_FILTER_COLOR : BACKGROUND_HEADER_COLOR;
       }
-      ctx.fillRect(x, 0, width, HEADER_HEIGHT);
+      ctx.fillRect(x, 0, width, HEADER_HEIGHT - thinLineWidth);
     }
 
     // Rows headers background
     for (let row = top; row <= bottom; row++) {
       const rowZone = { top: row, bottom: row, left: 0, right: numberOfCols - 1 };
-      const { y, height } = this.getters.getVisibleRect(rowZone);
+      const { y, height } = this.getVisibleRectWithoutGridLines(rowZone, thinLineWidth);
 
       const rowHasFilter = this.getters.doesZonesContainFilter(sheetId, [rowZone]);
       const isRowActive = activeRows.has(row);
@@ -470,7 +473,7 @@ export class RendererPlugin extends UIPlugin {
       } else {
         ctx.fillStyle = rowHasFilter ? BACKGROUND_HEADER_FILTER_COLOR : BACKGROUND_HEADER_COLOR;
       }
-      ctx.fillRect(0, y, HEADER_WIDTH, height);
+      ctx.fillRect(0, y, HEADER_WIDTH - thinLineWidth, height);
     }
 
     // 2 main lines
@@ -543,7 +546,7 @@ export class RendererPlugin extends UIPlugin {
     const bottom = visibleRows[visibleRows.length - 1];
     const viewport = { left, right, top, bottom };
 
-    const rect = this.getters.getVisibleRect(viewport);
+    const rect = this.getVisibleRectWithoutGridLines(viewport, thinLineWidth);
     const widthCorrection = this.getters.isDashboard() ? 0 : HEADER_WIDTH;
     const heightCorrection = this.getters.isDashboard() ? 0 : HEADER_HEIGHT;
     ctx.lineWidth = 6 * thinLineWidth;
@@ -611,14 +614,14 @@ export class RendererPlugin extends UIPlugin {
     return align || evaluatedCell.defaultAlign;
   }
 
-  private createZoneBox(sheetId: UID, zone: Zone, viewport: Viewport): Box {
+  private createZoneBox(sheetId: UID, zone: Zone, viewport: Viewport, gridLinesWidth: number): Box {
     const { left, right } = viewport;
     const col: HeaderIndex = zone.left;
     const row: HeaderIndex = zone.top;
     const position = { sheetId, col, row };
     const cell = this.getters.getEvaluatedCell(position);
     const showFormula = this.getters.shouldShowFormulas();
-    const { x, y, width, height } = this.getters.getVisibleRect(zone);
+    const { x, y, width, height } = this.getVisibleRectWithoutGridLines(zone, gridLinesWidth);
     const { verticalAlign } = this.getters.getCellStyle(position);
 
     const box: Box = {
@@ -700,8 +703,9 @@ export class RendererPlugin extends UIPlugin {
       switch (align) {
         case "left": {
           const emptyZoneOnTheLeft = positionToZone({ col: nextColIndex, row });
-          const { x, y, width, height } = this.getters.getVisibleRect(
-            union(zone, emptyZoneOnTheLeft)
+          const { x, y, width, height } = this.getVisibleRectWithoutGridLines(
+            union(zone, emptyZoneOnTheLeft),
+            gridLinesWidth
           );
           if (width < contentWidth || fontSizePX > height || multiLineText.length > 1) {
             box.clipRect = { x, y, width, height };
@@ -710,8 +714,9 @@ export class RendererPlugin extends UIPlugin {
         }
         case "right": {
           const emptyZoneOnTheRight = positionToZone({ col: previousColIndex, row });
-          const { x, y, width, height } = this.getters.getVisibleRect(
-            union(zone, emptyZoneOnTheRight)
+          const { x, y, width, height } = this.getVisibleRectWithoutGridLines(
+            union(zone, emptyZoneOnTheRight),
+            gridLinesWidth
           );
           if (width < contentWidth || fontSizePX > height || multiLineText.length > 1) {
             box.clipRect = { x, y, width, height };
@@ -724,7 +729,10 @@ export class RendererPlugin extends UIPlugin {
             left: previousColIndex,
             right: nextColIndex,
           };
-          const { x, y, height, width } = this.getters.getVisibleRect(emptyZone);
+          const { x, y, height, width } = this.getVisibleRectWithoutGridLines(
+            emptyZone,
+            gridLinesWidth
+          );
           const halfContentWidth = contentWidth / 2;
           const boxMiddle = box.x + box.width / 2;
           if (
@@ -752,7 +760,7 @@ export class RendererPlugin extends UIPlugin {
     return box;
   }
 
-  private getGridBoxes(): Box[] {
+  private getGridBoxes(gridLineWidth: number): Box[] {
     const boxes: Box[] = [];
 
     const visibleCols = this.getters.getSheetViewVisibleCols();
@@ -770,7 +778,7 @@ export class RendererPlugin extends UIPlugin {
         if (this.getters.isInMerge(position)) {
           continue;
         }
-        boxes.push(this.createZoneBox(sheetId, positionToZone(position), viewport));
+        boxes.push(this.createZoneBox(sheetId, positionToZone(position), viewport, gridLineWidth));
       }
     }
     for (const merge of this.getters.getMerges(sheetId)) {
@@ -778,7 +786,7 @@ export class RendererPlugin extends UIPlugin {
         continue;
       }
       if (overlap(merge, viewport)) {
-        const box = this.createZoneBox(sheetId, merge, viewport);
+        const box = this.createZoneBox(sheetId, merge, viewport, gridLineWidth);
         const borderBottomRight = this.getters.getCellBorder({
           sheetId,
           col: merge.right,
@@ -794,5 +802,30 @@ export class RendererPlugin extends UIPlugin {
       }
     }
     return boxes;
+  }
+
+  /**
+   * Computes the coordinates and size to draw the zone on the canvas, but exclude the grid lines.
+   */
+  private getVisibleRectWithoutGridLines(zone: Zone, gridLineWidth: number): Rect {
+    const visibleRect = this.getters.getVisibleRect(zone);
+    return {
+      x: visibleRect.x + gridLineWidth,
+      y: visibleRect.y + gridLineWidth,
+      height: visibleRect.height - 2 * gridLineWidth,
+      width: visibleRect.width - 2 * gridLineWidth,
+    };
+  }
+
+  /**
+   * Returns a rect from the box dimensions, including the grid lines in the box.
+   */
+  private getBoxRectWithGridLines(box: Box, gridLineWidth: number): Rect {
+    return {
+      x: box.x - gridLineWidth,
+      y: box.y - gridLineWidth,
+      height: box.height + 2 * gridLineWidth,
+      width: box.width + 2 * gridLineWidth,
+    };
   }
 }

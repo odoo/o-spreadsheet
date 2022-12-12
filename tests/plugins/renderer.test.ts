@@ -16,7 +16,15 @@ import {
 import { fontSizeInPixels, toHex, toZone } from "../../src/helpers";
 import { Mode, Model } from "../../src/model";
 import { RendererPlugin } from "../../src/plugins/ui_feature/renderer";
-import { Align, BorderPosition, Box, GridRenderingContext, Viewport, Zone } from "../../src/types";
+import {
+  Align,
+  BorderPosition,
+  Box,
+  GridRenderingContext,
+  Rect,
+  Viewport,
+  Zone,
+} from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {
   addColumns,
@@ -41,11 +49,39 @@ MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
 };
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
+const gridLineWidth = 0.4;
+
+function addBorderWidthToRect(rect: Rect): Rect {
+  return {
+    x: Math.round((rect.x - gridLineWidth) * 100) / 100,
+    y: Math.round((rect.y - gridLineWidth) * 100) / 100,
+    width: Math.round((rect.width + 2 * gridLineWidth) * 100) / 100,
+    height: Math.round((rect.height + 2 * gridLineWidth) * 100) / 100,
+  };
+}
+
+/**
+ * In the renderer we remove the grid lines from the box dimensions, to not draw text over them.
+ * This helper add them back to the box to simplify the writing of the tests
+ */
+function addBackGridLinesToBox(box: Box): Box {
+  return {
+    ...box,
+    ...addBorderWidthToRect(box),
+    clipRect: box.clipRect ? addBorderWidthToRect(box.clipRect) : undefined,
+  };
+}
+
+/**
+ * Get the rendering box used to draw the cell with the given text
+ *
+ */
 function getBoxFromText(model: Model, text: string): Box {
   const rendererPlugin = getPlugin(model, RendererPlugin);
-  return (rendererPlugin["boxes"]! as Box[]).find(
+  const box = (rendererPlugin["boxes"] as Box[]).find(
     (b) => (b.content?.textLines || []).join(" ") === text
   )!;
+  return box;
 }
 
 interface ContextObserver {
@@ -59,7 +95,7 @@ class MockGridRenderingContext implements GridRenderingContext {
   ctx: CanvasRenderingContext2D;
   viewport: Viewport;
   dpr = 1;
-  thinLineWidth = 0.4;
+  thinLineWidth = gridLineWidth;
 
   constructor(model: Model, width: number, height: number, observer: ContextObserver) {
     model.dispatch("RESIZE_SHEETVIEW", {
@@ -121,9 +157,14 @@ describe("renderer", () => {
 
   describe("Headers background color", () => {
     function getFirstRowHeaderFillColor() {
+      const rect = {
+        x: 0,
+        y: HEADER_HEIGHT + gridLineWidth,
+        width: HEADER_WIDTH - gridLineWidth,
+        height: DEFAULT_CELL_HEIGHT - 2 * gridLineWidth,
+      };
       const index = instructions.findIndex(
-        (instr) =>
-          instr === `ctx.fillRect(${0}, ${HEADER_HEIGHT}, ${HEADER_WIDTH}, ${DEFAULT_CELL_HEIGHT})`
+        (instr) => instr === `ctx.fillRect(${rect.x}, ${rect.y}, ${rect.width}, ${rect.height})`
       );
       let instruction = instructions[index - 1];
       instruction = instruction.replace('ctx.fillStyle="', "");
@@ -132,9 +173,15 @@ describe("renderer", () => {
     }
 
     function getFirstColHeaderFillColor() {
+      const rect = {
+        x: HEADER_WIDTH + gridLineWidth,
+        y: 0,
+        width: DEFAULT_CELL_WIDTH - 2 * gridLineWidth,
+        height: HEADER_HEIGHT - gridLineWidth,
+      };
+
       const index = instructions.findIndex(
-        (instr) =>
-          instr === `ctx.fillRect(${HEADER_WIDTH}, ${0}, ${DEFAULT_CELL_WIDTH}, ${HEADER_HEIGHT})`
+        (instr) => instr === `ctx.fillRect(${rect.x}, ${rect.y}, ${rect.width}, ${rect.height})`
       );
       let instruction = instructions[index - 1];
       instruction = instruction.replace('ctx.fillStyle="', "");
@@ -297,12 +344,12 @@ describe("renderer", () => {
       sheets: [
         {
           id: 1,
-          cols: { 0: { size: 5 }, 2: { size: 25 } },
+          cols: { 0: { size: 6 }, 2: { size: 26 } },
           colNumber: 3,
           cells: {
             A1: { content: "123456" },
             A2: { content: "=A1" },
-            C1: { content: "123456" },
+            C1: { content: "123458" },
             C2: { content: "=C1" },
           },
           conditionalFormats: [
@@ -330,12 +377,9 @@ describe("renderer", () => {
       },
     });
 
-    model.drawGrid(ctx);
-    expect(textAligns).toEqual(["left", "left", "left", "left", "center"]); // A1-C1-A2-C2 and center for headers
-
     textAligns = [];
     setCellContent(model, "A1", "1");
-    setCellContent(model, "C1", "1");
+    setCellContent(model, "C1", "5");
     model.drawGrid(ctx);
     expect(textAligns).toEqual(["right", "right", "right", "right", "center"]); // A1-C1-A2-C2 and center for headers
   });
@@ -797,6 +841,7 @@ describe("renderer", () => {
       setCellContent(model, "A1", "Content at the left");
       model.drawGrid(ctx);
       box = getBoxFromText(model, overflowingContent);
+      box = addBackGridLinesToBox(box);
       expect(box.clipRect).toBeUndefined();
       expect(box.isOverflow).toBeTruthy();
 
@@ -804,6 +849,7 @@ describe("renderer", () => {
       setCellContent(model, "C1", "Content at the right");
       model.drawGrid(ctx);
       box = getBoxFromText(model, overflowingContent);
+      box = addBackGridLinesToBox(box);
       expect(box.clipRect).toEqual({
         x: DEFAULT_CELL_WIDTH,
         y: 0,
@@ -850,6 +896,7 @@ describe("renderer", () => {
       setCellContent(model, "C1", "Content at the right");
       model.drawGrid(ctx);
       box = getBoxFromText(model, overflowingNumber);
+      box = addBackGridLinesToBox(box);
       expect(box.clipRect).toEqual({
         x: DEFAULT_CELL_WIDTH,
         y: 0,
@@ -894,6 +941,7 @@ describe("renderer", () => {
     setCellContent(model, "A1", "Content at the right");
     model.drawGrid(ctx);
     box = getBoxFromText(model, overflowingText);
+    box = addBackGridLinesToBox(box);
     expect(box.clipRect).toEqual({
       x: DEFAULT_CELL_WIDTH,
       y: 0,
@@ -921,7 +969,7 @@ describe("renderer", () => {
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     model.drawGrid(ctx);
 
-    const centeredBox = getBoxFromText(model, overflowingContent);
+    const centeredBox = addBackGridLinesToBox(getBoxFromText(model, overflowingContent));
     expect(centeredBox.clipRect).toEqual({
       x: DEFAULT_CELL_WIDTH, // clipped to the left
       y: 0,
@@ -949,15 +997,16 @@ describe("renderer", () => {
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     model.drawGrid(ctx);
 
-    const centeredBox = getBoxFromText(model, overflowingContent);
+    const centeredBox = addBackGridLinesToBox(getBoxFromText(model, overflowingContent));
     const cell = model.getters.getCell({ sheetId: "sheet1", row: 0, col: 2 })!;
     const contentWidth =
       model.getters.getTextWidth(cell.content, cell.style || {}) + MIN_CELL_TEXT_MARGIN;
     const expectedClipX = 2 * DEFAULT_CELL_WIDTH + colSize / 2 - contentWidth / 2;
+
     expect(centeredBox.clipRect).toEqual({
-      x: expectedClipX,
+      x: expectedClipX - gridLineWidth,
       y: 0,
-      width: 2 * DEFAULT_CELL_WIDTH + 2 * colSize - expectedClipX,
+      width: 2 * DEFAULT_CELL_WIDTH + 2 * colSize - expectedClipX + gridLineWidth,
       height: DEFAULT_CELL_HEIGHT,
     });
   });
@@ -985,6 +1034,7 @@ describe("renderer", () => {
       model.drawGrid(ctx);
 
       box = getBoxFromText(model, overflowingText);
+      box = addBackGridLinesToBox(box);
       expect(box.clipRect).toEqual({
         x: DEFAULT_CELL_WIDTH,
         y: 0,
@@ -1017,7 +1067,8 @@ describe("renderer", () => {
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     model.drawGrid(ctx);
 
-    const box = getBoxFromText(model, overflowingText);
+    let box = getBoxFromText(model, overflowingText);
+    box = addBackGridLinesToBox(box);
     expect(box.clipRect).toEqual({
       x: DEFAULT_CELL_WIDTH,
       y: DEFAULT_CELL_HEIGHT,
@@ -1048,6 +1099,7 @@ describe("renderer", () => {
       model.drawGrid(ctx);
 
       box = getBoxFromText(model, overflowingText);
+      box = addBackGridLinesToBox(box);
       expect(box.clipRect).toEqual({
         x: DEFAULT_CELL_WIDTH, // clipped to the left
         y: 0,
@@ -1079,6 +1131,7 @@ describe("renderer", () => {
       model.drawGrid(ctx);
 
       box = getBoxFromText(model, overflowingText);
+      box = addBackGridLinesToBox(box);
       expect(box.clipRect).toEqual({
         x: DEFAULT_CELL_WIDTH, // clipped to the left
         y: 0,
@@ -1114,6 +1167,7 @@ describe("renderer", () => {
     resizeRows(model, [0], Math.floor(fontSizeInPixels(fontSize) / 2));
     model.drawGrid(ctx);
     box = getBoxFromText(model, overflowingText);
+    box = addBackGridLinesToBox(box);
     expect(box.clipRect).toEqual({
       x: 0,
       y: 0,
@@ -1135,7 +1189,9 @@ describe("renderer", () => {
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     model.drawGrid(ctx);
 
-    expect(getBoxFromText(model, overflowingText).clipRect).toEqual({
+    let box = getBoxFromText(model, overflowingText);
+    box = addBackGridLinesToBox(box);
+    expect(box.clipRect).toEqual({
       x: 0,
       y: 0,
       width: 952,
@@ -1172,12 +1228,13 @@ describe("renderer", () => {
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     model.drawGrid(ctx);
     box = getBoxFromText(model, cellContent);
+    box = addBackGridLinesToBox(box);
     const maxIconBoxWidth = box.image!.size + MIN_CF_ICON_MARGIN;
     expect(box.image!.clipIcon).toEqual({
-      x: 0,
-      y: 0,
-      width: maxIconBoxWidth,
-      height: DEFAULT_CELL_HEIGHT,
+      x: gridLineWidth,
+      y: gridLineWidth,
+      width: maxIconBoxWidth, // icon < cell width => use box width as clip width
+      height: DEFAULT_CELL_HEIGHT - 2 * gridLineWidth,
     });
     expect(box.clipRect).toEqual({
       x: maxIconBoxWidth,
@@ -1186,19 +1243,21 @@ describe("renderer", () => {
       height: DEFAULT_CELL_HEIGHT,
     });
 
-    resizeColumns(model, ["A"], maxIconBoxWidth - 3);
+    const smallColSize = maxIconBoxWidth - 3;
+    resizeColumns(model, ["A"], smallColSize);
     model.drawGrid(ctx);
     box = getBoxFromText(model, cellContent);
+    box = addBackGridLinesToBox(box);
     expect(box.image!.clipIcon).toEqual({
-      x: 0,
-      y: 0,
-      width: maxIconBoxWidth - 3,
-      height: DEFAULT_CELL_HEIGHT,
+      x: gridLineWidth,
+      y: gridLineWidth,
+      width: smallColSize - 2 * gridLineWidth, // icon > cell width => use cell width (minus gridLines) as clip width
+      height: DEFAULT_CELL_HEIGHT - 2 * gridLineWidth,
     });
     expect(box.clipRect).toEqual({
       x: maxIconBoxWidth,
       y: 0,
-      width: 0,
+      width: 2 * gridLineWidth, //TODO ???
       height: DEFAULT_CELL_HEIGHT,
     });
   });
@@ -1238,7 +1297,8 @@ describe("renderer", () => {
 
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
       model.drawGrid(ctx);
-      const box = getBoxFromText(model, cellContent);
+      let box = getBoxFromText(model, cellContent);
+      box = addBackGridLinesToBox(box);
       expect(box.clipRect).toEqual(
         expectedClipRectZone ? model.getters.getVisibleRect(expectedClipRectZone) : undefined
       );
@@ -1263,7 +1323,8 @@ describe("renderer", () => {
 
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
       model.drawGrid(ctx);
-      const box = getBoxFromText(model, cellContent);
+      let box = getBoxFromText(model, cellContent);
+      box = addBackGridLinesToBox(box);
       const cell = model.getters.getCell({ sheetId: "sheet1", row: 1, col: 1 })!;
       const textWidth = model.getters.getTextWidth(cell.content, cell.style || {});
       const expectedClipRect = model.getters.getVisibleRect({
@@ -1307,7 +1368,8 @@ describe("renderer", () => {
 
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
       model.drawGrid(ctx);
-      const box = getBoxFromText(model, cellContent);
+      let box = getBoxFromText(model, cellContent);
+      box = addBackGridLinesToBox(box);
       expect(box.clipRect).toEqual(
         expectedClipRectZone ? model.getters.getVisibleRect(expectedClipRectZone) : undefined
       );
@@ -1320,7 +1382,7 @@ describe("renderer", () => {
 
     // Text + MIN_CELL_TEXT_MARGIN  <= col size, no clip
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-    let text = "a".repeat(10 - MIN_CELL_TEXT_MARGIN);
+    let text = "a".repeat(9 - MIN_CELL_TEXT_MARGIN);
     setCellContent(model, "A1", text);
     model.drawGrid(ctx);
     box = getBoxFromText(model, text);
@@ -1332,6 +1394,7 @@ describe("renderer", () => {
     setCellContent(model, "A1", text);
     model.drawGrid(ctx);
     box = getBoxFromText(model, text);
+    box = addBackGridLinesToBox(box);
     expect(box.clipRect).toEqual({ x: 0, y: 0, width: 10, height: DEFAULT_CELL_HEIGHT });
   });
 
@@ -1429,21 +1492,21 @@ describe("renderer", () => {
       },
     });
     model.drawGrid(ctx);
-    const boxA1 = getBoxFromText(model, "#N/A"); //NotAvailableError => Shouldn't display
+    const boxA1 = addBackGridLinesToBox(getBoxFromText(model, "#N/A")); //NotAvailableError => Shouldn't display
     expect(boxA1.error).toBeUndefined();
-    const boxB1 = getBoxFromText(model, "#CYCLE"); //CycleError => Should display
+    const boxB1 = addBackGridLinesToBox(getBoxFromText(model, "#CYCLE")); //CycleError => Should display
     expect(boxB1.error).toBe("Circular reference");
     expect(filled[0][0]).toBe(boxB1.x + boxB1.width - 5);
     expect(filled[0][1]).toBe(boxB1.y);
-    const boxC1 = getBoxFromText(model, "#REF"); //BadReferenceError => Should display
+    const boxC1 = addBackGridLinesToBox(getBoxFromText(model, "#REF")); //BadReferenceError => Should display
     expect(boxC1.error).toBe("Invalid reference");
     expect(filled[1][0]).toBe(boxC1.x + boxC1.width - 5);
     expect(filled[1][1]).toBe(boxC1.y);
-    const boxD1 = getBoxFromText(model, "#BAD_EXPR"); //BadExpressionError => Should display
+    const boxD1 = addBackGridLinesToBox(getBoxFromText(model, "#BAD_EXPR")); //BadExpressionError => Should display
     expect(boxD1.error).toBeTruthy();
     expect(filled[2][0]).toBe(boxD1.x + boxD1.width - 5);
     expect(filled[2][1]).toBe(boxD1.y);
-    const boxE1 = getBoxFromText(model, "#ERROR"); // GeneralError => Should display
+    const boxE1 = addBackGridLinesToBox(getBoxFromText(model, "#ERROR")); // GeneralError => Should display
     expect(boxE1.error).toBeTruthy();
     expect(filled[3][0]).toBe(boxE1.x + boxE1.width - 5);
     expect(filled[3][1]).toBe(boxE1.y);
@@ -1670,10 +1733,10 @@ describe("renderer", () => {
       model.drawGrid(ctx);
       const box = getBoxFromText(model, overflowingText);
       expect(getCellOverflowingBackgroundDims()).toMatchObject({
-        x: box.x + ctx.thinLineWidth / 2,
-        y: box.y + ctx.thinLineWidth / 2,
-        width: box.content!.width - ctx.thinLineWidth * 2,
-        height: box.height - ctx.thinLineWidth,
+        x: box.x + gridLineWidth / 2,
+        y: box.y + gridLineWidth / 2,
+        width: box.content!.width - gridLineWidth * 2,
+        height: box.height - gridLineWidth,
       });
     });
 
@@ -1702,10 +1765,10 @@ describe("renderer", () => {
       model.drawGrid(ctx);
       const box = getBoxFromText(model, overflowingText);
       expect(getCellOverflowingBackgroundDims()).toMatchObject({
-        x: box.x + ctx.thinLineWidth / 2,
-        y: box.y + ctx.thinLineWidth / 2,
-        width: box.content!.width - ctx.thinLineWidth * 2,
-        height: box.height - ctx.thinLineWidth,
+        x: box.x + gridLineWidth / 2,
+        y: box.y + gridLineWidth / 2,
+        width: box.content!.width - gridLineWidth * 2,
+        height: box.height - gridLineWidth,
       });
     });
   });
@@ -1733,11 +1796,11 @@ describe("renderer", () => {
       setStyle(model, "A1", { wrapping: "wrap" });
       resizeColumns(model, ["A"], 14);
 
-      // Split length = 14 - 2*MIN_CELL_TEXT_MARGIN = 6 letters (1 letter = 1px in the tests)
-      const splittedText = ["ThisIs", "AVeryV", "eryLon", "gText"];
+      // Split length = 14 - 2*MIN_CELL_TEXT_MARGIN - border margin = 5 letters (1 letter = 1px in the tests)
+      const splittedText = ["ThisI", "sAVer", "yVery", "LongT", "ext"];
 
       model.drawGrid(ctx);
-      expect(renderedTexts.slice(0, 4)).toEqual(splittedText);
+      expect(renderedTexts.slice(0, 5)).toEqual(splittedText);
     });
 
     test("Wrapped text try to not split words in multiple lines if the word is small enough", () => {
@@ -1747,7 +1810,7 @@ describe("renderer", () => {
       resizeColumns(model, ["A"], 16);
 
       model.drawGrid(ctx);
-      expect(renderedTexts.slice(0, 5)).toEqual(["W Word2", "W3", "WordThat", "IsTooLon", "g"]);
+      expect(renderedTexts.slice(0, 5)).toEqual(["W Word2", "W3", "WordTha", "tIsTooL", "ong"]);
     });
 
     test("Texts with newlines are displayed over multiple lines", () => {
