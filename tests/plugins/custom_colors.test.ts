@@ -99,6 +99,7 @@ describe("custom colors are correctly handled when editing charts", () => {
         verticalAxisPosition: "left",
         legendPosition: "none",
         background: "#112233",
+        aggregated: false,
       },
     });
     expect(model.getters.getCustomColors()).toEqual(["#112233", "#123456"]);

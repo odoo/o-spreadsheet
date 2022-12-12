@@ -23,4 +23,10 @@ export class LineConfigPanel extends LineBarPieConfigPanel {
       stacked: ev.target.checked,
     });
   }
+
+  onUpdateAggregated(ev) {
+    this.props.updateChart({
+      aggregated: ev.target.checked,
+    });
+  }
 }

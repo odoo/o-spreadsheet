@@ -50,6 +50,36 @@ export function filterEmptyDataPoints(
   };
 }
 
+/**
+ * Aggregates data based on labels
+ */
+export function aggregateDataForLabels(
+  labels: string[],
+  datasets: DatasetValues[]
+): { labels: string[]; dataSetsValues: DatasetValues[] } {
+  const parseNumber = (value) => (typeof value === "number" ? value : 0);
+  const labelSet = new Set(labels);
+  const labelMap: { [key: string]: number[] } = {};
+  labelSet.forEach((label) => {
+    labelMap[label] = new Array(datasets.length).fill(0);
+  });
+
+  for (const indexOfLabel of range(0, labels.length)) {
+    const label = labels[indexOfLabel];
+    for (const indexOfDataset of range(0, datasets.length)) {
+      labelMap[label][indexOfDataset] += parseNumber(datasets[indexOfDataset].data[indexOfLabel]);
+    }
+  }
+
+  return {
+    labels: Object.keys(labelMap),
+    dataSetsValues: datasets.map((dataset, indexOfDataset) => ({
+      ...dataset,
+      data: Object.values(labelMap).map((dataOfLabel: any[]) => dataOfLabel[indexOfDataset]),
+    })),
+  };
+}
+
 export function truncateLabel(label: string | undefined): string {
   if (!label) {
     return "";

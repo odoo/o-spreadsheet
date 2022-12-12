@@ -124,6 +124,7 @@ describe("Insert chart menu item", () => {
         labelRange: undefined,
         legendPosition: "none",
         stacked: false,
+        aggregated: false,
         title: expect.any(String),
         type: "bar",
         verticalAxisPosition: "left",

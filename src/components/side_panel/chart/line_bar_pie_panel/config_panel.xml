@@ -29,6 +29,16 @@
           onSelectionChanged="(ranges) => this.onLabelRangeChanged(ranges)"
           onSelectionConfirmed="() => this.onLabelRangeConfirmed()"
         />
+        <label>
+          <input
+            type="checkbox"
+            name="aggregated"
+            t-att-checked="props.definition.aggregated"
+            t-on-change="onUpdateAggregated"
+            class="align-middle"
+          />
+          Aggregate
+        </label>
       </div>
       <div class="o-section o-sidepanel-error" t-if="errorMessages">
         <div t-foreach="errorMessages" t-as="error" t-key="error">
