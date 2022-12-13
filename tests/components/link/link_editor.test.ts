@@ -124,6 +124,20 @@ describe("link editor component", () => {
     expect(urlInput().disabled).toBeTruthy();
   });
 
+  test("open link editor in a hyperlink formula cell with a url and a label", async () => {
+    setCellContent(model, "A1", '=HYPERLINK("url.com", "label")');
+    await openLinkEditor(model, "A1");
+    expect(labelInput().value).toBe("label");
+    expect(urlInput().value).toBe("https://url.com");
+  });
+
+  test("open link editor in a hyperlink formula cell without label", async () => {
+    setCellContent(model, "B1", '=HYPERLINK("url2.com")');
+    await openLinkEditor(model, "B1");
+    expect(labelInput().value).toBe("url2.com");
+    expect(urlInput().value).toBe("https://url2.com");
+  });
+
   test("insert link with an url and a label", async () => {
     await openLinkEditor(model, "A1");
     setInputValueAndTrigger(labelInput(), "my label", "input");
@@ -169,6 +183,14 @@ describe("link editor component", () => {
   test("remove current link", async () => {
     setCellContent(model, "A1", "[label](url.com)");
     await openLinkEditor(model, "A1");
+    expect(urlInput().value).toBe("https://url.com");
+    await simulateClick(".o-remove-url");
+    expect(urlInput().value).toBe("");
+  });
+
+  test("remove link from HYPERLINK function", async () => {
+    setCellContent(model, "B1", '=HYPERLINK("url.com", "label")');
+    await openLinkEditor(model, "B1");
     expect(urlInput().value).toBe("https://url.com");
     await simulateClick(".o-remove-url");
     expect(urlInput().value).toBe("");
