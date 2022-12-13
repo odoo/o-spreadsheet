@@ -74,14 +74,57 @@ describe("link cell", () => {
     }
   );
 
-  test("https prefix is added if it's missing", () => {
-    const model = new Model();
-    setCellContent(model, "A1", `[my label](odoo.com)`);
-    const cell = getEvaluatedCell(model, "A1");
-    expect(getCell(model, "A1")?.content).toBe(`[my label](odoo.com)`);
-    expect(cell.link?.url).toBe("https://odoo.com");
-    expect(urlRepresentation(cell.link!, model.getters)).toBe("https://odoo.com");
-  });
+  test.each(["http://odoo.com", "https://odoo.com"])(
+    "can create a link cell using HYPERLINK function: %s",
+    (url) => {
+      const model = new Model();
+      setCellContent(model, "B1", `=HYPERLINK("${url}", "Odoo")`);
+      const cell = getEvaluatedCell(model, "B1");
+      expect(cell.link?.label).toBe("Odoo");
+      expect(cell.link?.url).toBe(url);
+      expect(urlRepresentation(cell.link!, model.getters)).toBe(url);
+      expect(getCell(model, "B1")?.content).toBe(`=HYPERLINK("${url}", "Odoo")`);
+      expect(getStyle(model, "B1")).toEqual({ textColor: LINK_COLOR });
+      expect(getCellText(model, "B1")).toBe(`=HYPERLINK("${url}", "Odoo")`);
+    }
+  );
+
+  test.each(["[Odoo](odoo.com)", '=HYPERLINK("odoo.com", "Odoo")'])(
+    "https prefix is added if it's missing: %s",
+    (content) => {
+      const model = new Model();
+      setCellContent(model, "A1", content);
+      const cell = getEvaluatedCell(model, "A1");
+      expect(cell.link?.url).toBe("https://odoo.com");
+      expect(urlRepresentation(cell.link!, model.getters)).toBe("https://odoo.com");
+    }
+  );
+
+  test.each([
+    '=HYPERLINK("")',
+    '=HYPERLINK("   ")',
+    '=HYPERLINK("", " ")',
+    '=HYPERLINK(" ", " ")',
+    '=HYPERLINK("", "")',
+  ])(
+    "url which is empty or only contains whitespaces in HYPERLINK should not be converted into link cell",
+    (content) => {
+      const model = new Model();
+      setCellContent(model, "A1", content);
+      const cell = getEvaluatedCell(model, "A1");
+      expect(cell.link).toBeUndefined();
+    }
+  );
+
+  test.each(['=HYPERLINK("www.odoo.com", "")', '=HYPERLINK("www.odoo.com", "   ")'])(
+    "HYPERLINK cell with non-empty url but specified empty label will still be converted into link cell",
+    (content) => {
+      const model = new Model();
+      setCellContent(model, "A1", content);
+      const cell = getEvaluatedCell(model, "A1");
+      expect(cell.link?.url).toBe("https://www.odoo.com");
+    }
+  );
 
   test("literal number in markdown is parsed", () => {
     const model = new Model();
@@ -219,39 +262,45 @@ describe("link cell", () => {
     expect(urlRepresentation(cell.link!, model.getters)).toBe("Sheet2");
   });
 
-  test("link text color is applied if a custom style is specified", () => {
-    const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("UPDATE_CELL", {
-      col: 0,
-      row: 0,
-      sheetId,
-      content: "[my label](odoo.com)",
-      style: { fillColor: "#555", bold: true, textColor: "#111" },
-    });
-    expect(getCell(model, "A1")?.style).toEqual({
-      fillColor: "#555",
-      bold: true,
-      textColor: "#111",
-    });
-  });
+  test.each(["[my label](odoo.com)", '=HYPERLINK("odoo.com")'])(
+    "link text color is applied if a custom style is specified",
+    (content) => {
+      const model = new Model();
+      const sheetId = model.getters.getActiveSheetId();
+      model.dispatch("UPDATE_CELL", {
+        col: 0,
+        row: 0,
+        sheetId,
+        content,
+        style: { fillColor: "#555", bold: true, textColor: "#111" },
+      });
+      expect(getCell(model, "A1")?.style).toEqual({
+        fillColor: "#555",
+        bold: true,
+        textColor: "#111",
+      });
+    }
+  );
 
-  test("link text color is not overwritten if there is a custom style", () => {
-    const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("UPDATE_CELL", {
-      col: 0,
-      row: 0,
-      sheetId,
-      style: { fillColor: "#555", bold: true, textColor: "#111" },
-    });
-    setCellContent(model, "A1", `[my label](odoo.com)`);
-    expect(getCell(model, "A1")?.style).toEqual({
-      fillColor: "#555",
-      bold: true,
-      textColor: "#111",
-    });
-  });
+  test.each(["[my label](odoo.com)", '=HYPERLINK("odoo.com")'])(
+    "link text color is not overwritten if there is a custom style",
+    (content) => {
+      const model = new Model();
+      const sheetId = model.getters.getActiveSheetId();
+      model.dispatch("UPDATE_CELL", {
+        col: 0,
+        row: 0,
+        sheetId,
+        style: { fillColor: "#555", bold: true, textColor: "#111" },
+      });
+      setCellContent(model, "A1", content);
+      expect(getCell(model, "A1")?.style).toEqual({
+        fillColor: "#555",
+        bold: true,
+        textColor: "#111",
+      });
+    }
+  );
 
   test("copy-paste web links", () => {
     const model = new Model();

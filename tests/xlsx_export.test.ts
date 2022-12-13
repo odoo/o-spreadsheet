@@ -284,6 +284,7 @@ const allExportableFormulasData = {
         A162: { content: "=NA()" },
         A163: { content: "=ISNA(A162)" },
         A164: { content: "=ISERR(A162)" },
+        A165: { content: '=HYPERLINK("https://www.odoo.com", "Odoo")' },
 
         // DATA
         G1: { content: "Name", style: 8 },
