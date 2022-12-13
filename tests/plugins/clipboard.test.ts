@@ -1,13 +1,13 @@
 import { toCartesian, toZone, zoneToXc } from "../../src/helpers";
 import { ClipboardCellsState } from "../../src/helpers/clipboard/clipboard_cells_state";
 import { Model } from "../../src/model";
-import { ClipboardPlugin } from "../../src/plugins/ui_stateful/clipboard";
-import { CommandResult, Zone } from "../../src/types/index";
+import { CommandResult } from "../../src/types/index";
 import {
   activateSheet,
   addCellToSelection,
   addColumns,
   addRows,
+  cleanClipBoardHighlight,
   copy,
   createSheet,
   createSheetWithName,
@@ -30,17 +30,11 @@ import {
   getCellContent,
   getCellError,
   getCellText,
+  getClipboardVisibleZones,
   getEvaluatedCell,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import { createEqualCF, getGrid, getPlugin, target, toRangesData } from "../test_helpers/helpers";
-
-function getClipboardVisibleZones(model: Model): Zone[] {
-  const clipboardPlugin = getPlugin(model, ClipboardPlugin);
-  return clipboardPlugin["status"] === "visible"
-    ? (clipboardPlugin["state"]! as ClipboardCellsState)["zones"]
-    : [];
-}
+import { createEqualCF, getGrid, target, toRangesData } from "../test_helpers/helpers";
 
 describe("clipboard", () => {
   test("can copy and paste a cell", () => {
@@ -86,6 +80,24 @@ describe("clipboard", () => {
     paste(model, "D3");
 
     expect(getCell(model, "D3")).toBeUndefined();
+  });
+
+  test("can clean the clipboard visible zones (copy)", () => {
+    const model = new Model();
+    setCellContent(model, "B2", "b2");
+    copy(model, "B2");
+    expect(getClipboardVisibleZones(model).length).toBe(1);
+    cleanClipBoardHighlight(model);
+    expect(getClipboardVisibleZones(model).length).toBe(0);
+  });
+
+  test("can clean the clipboard visible zones (cut)", () => {
+    const model = new Model();
+    setCellContent(model, "B2", "b2");
+    cut(model, "B2");
+    expect(getClipboardVisibleZones(model).length).toBe(1);
+    cleanClipBoardHighlight(model);
+    expect(getClipboardVisibleZones(model).length).toBe(0);
   });
 
   test("cut command will cut the selection if no target were given", () => {

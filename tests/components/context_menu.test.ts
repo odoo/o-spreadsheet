@@ -7,7 +7,12 @@ import { createFullMenuItem, FullMenuItem } from "../../src/registries";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
 import { OWL_TEMPLATES } from "../setup/jest.setup";
 import { setCellContent } from "../test_helpers/commands_helpers";
-import { rightClickCell, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
+import {
+  keyDown,
+  rightClickCell,
+  simulateClick,
+  triggerMouseEvent,
+} from "../test_helpers/dom_helper";
 import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import {
   getStylePropertyInPx,
@@ -234,6 +239,14 @@ describe("Standalone context menu tests", () => {
       expect(fixture.querySelector(".o-menu")).toBeTruthy();
 
       await simulateClick(".o-grid-overlay", 50, 50);
+      expect(fixture.querySelector(".o-menu")).toBeFalsy();
+    });
+
+    test("right click on a cell, then hitting esc key closes a context menu", async () => {
+      await rightClickCell(model, "C8");
+      expect(fixture.querySelector(".o-menu")).toBeTruthy();
+
+      await keyDown("Escape");
       expect(fixture.querySelector(".o-menu")).toBeFalsy();
     });
 

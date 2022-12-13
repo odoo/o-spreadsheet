@@ -1,5 +1,7 @@
+import { ClipboardCellsState } from "../../src/helpers/clipboard/clipboard_cells_state";
 import { toCartesian, toXC } from "../../src/helpers/index";
 import { Model } from "../../src/model";
+import { ClipboardPlugin } from "../../src/plugins/ui_stateful";
 import {
   Border,
   Cell,
@@ -10,8 +12,10 @@ import {
   Merge,
   Style,
   UID,
+  Zone,
 } from "../../src/types";
 import { setSelection } from "./commands_helpers";
+import { getPlugin } from "./helpers";
 
 /**
  * Get the active XC
@@ -165,4 +169,11 @@ export function getFilter(
 ) {
   const { col, row } = toCartesian(xc);
   return model.getters.getFilter({ sheetId, col, row });
+}
+
+export function getClipboardVisibleZones(model: Model): Zone[] {
+  const clipboardPlugin = getPlugin(model, ClipboardPlugin);
+  return clipboardPlugin["status"] === "visible"
+    ? (clipboardPlugin["state"]! as ClipboardCellsState)["zones"]
+    : [];
 }

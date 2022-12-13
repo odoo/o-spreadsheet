@@ -501,6 +501,10 @@ export interface PasteCommand {
   pasteOption?: ClipboardPasteOptions;
 }
 
+export interface CleanClipBoardHighlightCommand {
+  type: "CLEAN_CLIPBOARD_HIGHLIGHT";
+}
+
 export interface AutoFillCellCommand {
   type: "AUTOFILL_CELL";
   originCol: number;
@@ -959,6 +963,7 @@ export type LocalCommand =
   | CopyCommand
   | CutCommand
   | PasteCommand
+  | CleanClipBoardHighlightCommand
   | AutoFillCellCommand
   | PasteFromOSClipboardCommand
   | ActivatePaintFormatCommand

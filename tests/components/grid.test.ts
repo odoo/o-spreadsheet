@@ -16,9 +16,11 @@ import { toCartesian, toHex, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { chartComponentRegistry } from "../../src/registries";
 import {
+  copy,
   createChart,
   createFilter,
   createSheet,
+  cut,
   freezeColumns,
   freezeRows,
   hideColumns,
@@ -35,6 +37,7 @@ import {
   getElComputedStyle,
   gridMouseEvent,
   hoverCell,
+  keyDown,
   rightClickCell,
   simulateClick,
   triggerMouseEvent,
@@ -43,6 +46,7 @@ import {
   getCell,
   getCellContent,
   getCellText,
+  getClipboardVisibleZones,
   getSelectionAnchorCellXc,
   getStyle,
 } from "../test_helpers/getters_helpers";
@@ -268,9 +272,7 @@ describe("Grid component", () => {
     test("pressing ENTER put current cell in edit mode", async () => {
       // note: this behaviour is not like excel. Maybe someone will want to
       // change this
-      document
-        .querySelector(".o-grid")!
-        .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+      await keyDown("Enter");
       expect(getSelectionAnchorCellXc(model)).toBe("A1");
       expect(model.getters.getEditionMode()).toBe("editing");
     });
@@ -322,18 +324,14 @@ describe("Grid component", () => {
     });
 
     test("pressing TAB move to next cell", async () => {
-      document
-        .querySelector(".o-grid")!
-        .dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
+      await keyDown("Tab");
       expect(getSelectionAnchorCellXc(model)).toBe("B1");
     });
 
     test("pressing shift+TAB move to previous cell", async () => {
       selectCell(model, "B1");
       expect(getSelectionAnchorCellXc(model)).toBe("B1");
-      document
-        .querySelector(".o-grid")!
-        .dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true }));
+      await keyDown("Tab", { shiftKey: true });
       expect(getSelectionAnchorCellXc(model)).toBe("A1");
     });
 
@@ -1460,6 +1458,59 @@ describe("Copy paste keyboard shortcut", () => {
     document.body.dispatchEvent(await getClipboardEvent("paste"));
     expect(getCellContent(model, "A1")).toEqual("");
     expect(getCellContent(model, "A2")).toEqual("things");
+  });
+
+  test("Clipboard visible zones (copy) will be cleaned after hitting esc", async () => {
+    setCellContent(model, "A1", "things");
+    selectCell(model, "A1");
+    copy(model, "A1");
+    selectCell(model, "A2");
+    expect(getClipboardVisibleZones(model).length).toBe(1);
+    await keyDown("Escape");
+    expect(getClipboardVisibleZones(model).length).toBe(0);
+  });
+
+  test("Clipboard visible zones (cut) will be cleaned after hitting esc", async () => {
+    setCellContent(model, "A1", "things");
+    selectCell(model, "A1");
+    cut(model, "A1");
+    selectCell(model, "A2");
+    expect(getClipboardVisibleZones(model).length).toBe(1);
+    await keyDown("Escape");
+    expect(getClipboardVisibleZones(model).length).toBe(0);
+  });
+
+  test("When there is a opened cell popover, hitting esc key will only close the popover and not clean the clipboard visible zones", async () => {
+    setCellContent(model, "A1", "things");
+    createFilter(model, "A1:A2");
+    selectCell(model, "A1");
+    copy(model, "A1");
+    selectCell(model, "A2");
+    await nextTick();
+    await simulateClick(".o-filter-icon");
+    expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
+    expect(getClipboardVisibleZones(model).length).toBe(1);
+
+    await keyDown("Escape");
+    expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(0);
+    expect(getClipboardVisibleZones(model).length).toBe(1);
+
+    await keyDown("Escape");
+    expect(getClipboardVisibleZones(model).length).toBe(0);
+  });
+
+  test("When there is a opened context menu, hitting esc key will only close the menu and not clean the clipboard visible zones", async () => {
+    setCellContent(model, "A1", "things");
+    copy(model, "A1");
+    await rightClickCell(model, "A2");
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    expect(getClipboardVisibleZones(model).length).toBe(1);
+
+    await keyDown("Escape");
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
+    expect(getClipboardVisibleZones(model).length).toBe(1);
+    await keyDown("Escape");
+    expect(getClipboardVisibleZones(model).length).toBe(0);
   });
 
   test("Can copy/paste chart", async () => {

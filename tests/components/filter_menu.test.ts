@@ -8,7 +8,7 @@ import {
   setFormat,
   updateFilter,
 } from "../test_helpers/commands_helpers";
-import { simulateClick } from "../test_helpers/dom_helper";
+import { keyDown, simulateClick } from "../test_helpers/dom_helper";
 import {
   getCellsObject,
   makeTestFixture,
@@ -199,6 +199,13 @@ describe("Filter menu component", () => {
         { value: "1", isChecked: true },
         { value: "2", isChecked: true },
       ]);
+    });
+
+    test("Hitting esc key correctly closes the filter menu", async () => {
+      await openFilterMenu();
+      expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
+      await keyDown("Escape");
+      expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(0);
     });
 
     describe("Search bar", () => {
