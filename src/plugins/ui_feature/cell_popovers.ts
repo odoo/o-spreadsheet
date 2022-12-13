@@ -12,7 +12,11 @@ import { UIPlugin } from "../ui_plugin";
  * Plugin managing the display of components next to cells.
  */
 export class CellPopoverPlugin extends UIPlugin {
-  static getters = ["getCellPopover", "getPersistentPopoverTypeAtPosition"] as const;
+  static getters = [
+    "getCellPopover",
+    "getPersistentPopoverTypeAtPosition",
+    "hasOpenedPopover",
+  ] as const;
 
   private persistentPopover?: CellPosition & { type: CellPopoverType };
 
@@ -82,6 +86,10 @@ export class CellPopoverPlugin extends UIPlugin {
           ...popover,
           anchorRect: this.computePopoverAnchorRect(position),
         };
+  }
+
+  hasOpenedPopover() {
+    return this.persistentPopover !== undefined;
   }
 
   getPersistentPopoverTypeAtPosition({ col, row }: Position): CellPopoverType | undefined {

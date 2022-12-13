@@ -153,7 +153,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onClosePopover() {
-    this.closeOpenedPopover();
+    if (this.env.model.getters.hasOpenedPopover()) {
+      this.closeOpenedPopover();
+    }
     this.focus();
   }
 
@@ -185,6 +187,16 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         sheetId: this.env.model.getters.getActiveSheetId(),
         target: this.env.model.getters.getSelectedZones(),
       });
+    },
+    ESCAPE: () => {
+      /** TODO: Clean once we introduce proper focus on sub components. Grid should not have to handle all this logic */
+      if (this.env.model.getters.hasOpenedPopover()) {
+        this.closeOpenedPopover();
+      } else if (this.menuState.isOpen) {
+        this.closeMenu();
+      } else {
+        this.env.model.dispatch("CLEAN_CLIPBOARD_HIGHLIGHT");
+      }
     },
     "CTRL+A": () => this.env.model.selection.loopSelection(),
     "CTRL+Z": () => this.env.model.dispatch("REQUEST_UNDO"),
@@ -361,7 +373,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
     }
 
-    this.closeOpenedPopover();
+    if (this.env.model.getters.hasOpenedPopover()) {
+      this.closeOpenedPopover();
+    }
     if (this.env.model.getters.getEditionMode() === "editing") {
       this.env.model.dispatch("STOP_EDITION");
     }
@@ -413,7 +427,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   processArrows(ev: KeyboardEvent) {
     ev.preventDefault();
     ev.stopPropagation();
-    this.closeOpenedPopover();
+    if (this.env.model.getters.hasOpenedPopover()) {
+      this.closeOpenedPopover();
+    }
 
     updateSelectionWithArrowKeys(ev, this.env.model.selection);
 
@@ -495,7 +511,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   toggleContextMenu(type: ContextMenuType, x: Pixel, y: Pixel) {
-    this.closeOpenedPopover();
+    if (this.env.model.getters.hasOpenedPopover()) {
+      this.closeOpenedPopover();
+    }
     this.menuState.isOpen = true;
     this.menuState.position = { x, y };
     this.menuState.menuItems = registries[type]

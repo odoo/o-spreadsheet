@@ -274,6 +274,13 @@ export function pasteFromOSClipboard(model: Model, range: string, content: strin
 }
 
 /**
+ * Clean clipboard highlight selection.
+ */
+export function cleanClipBoardHighlight(model: Model): DispatchResult {
+  return model.dispatch("CLEAN_CLIPBOARD_HIGHLIGHT");
+}
+
+/**
  * Add columns
  */
 export function addColumns(
