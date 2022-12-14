@@ -89,6 +89,7 @@ describe("range plugin", () => {
       sheets: [
         { id: "s1", name: "s1", rows: 10, cols: 10 },
         { id: "s2", name: "s 2", rows: 10, cols: 10 },
+        { id: "s1!!", name: "s1!!", rows: 10, cols: 10 },
       ],
     });
     m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["B2:D4"] });
@@ -432,6 +433,20 @@ describe("range plugin", () => {
         renameSheet(m, "s1", name);
         const range = m.getters.getRangeFromSheetXC("s1", "A1");
         expect(m.getters.getRangeString(range, "tao")).toBe(`'${name}'!A1`);
+      }
+    );
+
+    test.each([
+      ["s1!!!A1:A9", "'s1!!'!A1:A9"],
+      // TODO: the output is incorrect - should be fixed in task 3112299
+      // ["'s1!!'!A1:A9", "'!A1:A9"],
+      ["s1!!!A1:s1!!!A9", "'s1!!'!A9"],
+      ["s1!!!A1:s1!!!A9", "'s1!!'!A9"],
+    ])(
+      "xc with more than one exclamation mark does not throw error",
+      (rangeString, expectedString) => {
+        const range = m.getters.getRangeFromSheetXC("s1!!", rangeString);
+        expect(m.getters.getRangeString(range)).toBe(expectedString);
       }
     );
   });
