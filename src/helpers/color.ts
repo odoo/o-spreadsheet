@@ -26,12 +26,6 @@ export function colorNumberString(color: number): Color {
   return toHex(color.toString(16).padStart(6, "0"));
 }
 
-let colorIndex = 0;
-export function getNextColor() {
-  colorIndex = ++colorIndex % colors.length;
-  return colors[colorIndex];
-}
-
 /**
  * Converts any CSS color value to a standardized hex6 value.
  * Accepts: hex3, hex6, hex8 and rgb (rgba is not supported)
