@@ -1,4 +1,4 @@
-import { getComposerSheetName, getNextColor, positionToZone, zoneToXc } from "../../helpers/index";
+import { colors, getComposerSheetName, positionToZone, zoneToXc } from "../../helpers/index";
 import { StreamCallbacks } from "../../selection_stream/event_stream";
 import { SelectionEvent } from "../../types/event_stream";
 import { Command, CommandResult, Highlight, LAYERS, UID } from "../../types/index";
@@ -185,7 +185,7 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
       ...values.map((xc, i) => ({
         xc,
         id: (this.ranges.length + i + 1).toString(),
-        color: getNextColor(),
+        color: colors[(this.ranges.length + i) % colors.length],
       }))
     );
   }
