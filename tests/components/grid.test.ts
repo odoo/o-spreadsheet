@@ -5,10 +5,10 @@ import {
   BACKGROUND_GRAY_COLOR,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
+  FILTER_ICON_EDGE_LENGTH,
   FILTER_ICON_MARGIN,
   HEADER_HEIGHT,
   HEADER_WIDTH,
-  ICON_EDGE_LENGTH,
   MESSAGE_VERSION,
   SCROLLBAR_WIDTH,
 } from "../../src/constants";
@@ -629,15 +629,15 @@ describe("Grid component", () => {
 
       const icons = fixture.querySelectorAll(".o-filter-icon");
       expect(icons).toHaveLength(2);
-      const centerIngOffset = (DEFAULT_CELL_HEIGHT - ICON_EDGE_LENGTH) / 2;
+      const centerIngOffset = (DEFAULT_CELL_HEIGHT - FILTER_ICON_EDGE_LENGTH) / 2;
       const top = `${
-        DEFAULT_CELL_HEIGHT * 2 - ICON_EDGE_LENGTH + HEADER_HEIGHT - centerIngOffset
+        DEFAULT_CELL_HEIGHT * 2 - FILTER_ICON_EDGE_LENGTH + HEADER_HEIGHT - centerIngOffset
       }px`;
       const leftA = `${
-        DEFAULT_CELL_WIDTH * 2 - ICON_EDGE_LENGTH + HEADER_WIDTH - FILTER_ICON_MARGIN
+        DEFAULT_CELL_WIDTH * 2 - FILTER_ICON_EDGE_LENGTH + HEADER_WIDTH - FILTER_ICON_MARGIN - 1
       }px`;
       const leftB = `${
-        DEFAULT_CELL_WIDTH * 3 - ICON_EDGE_LENGTH + HEADER_WIDTH - FILTER_ICON_MARGIN
+        DEFAULT_CELL_WIDTH * 3 - FILTER_ICON_EDGE_LENGTH + HEADER_WIDTH - FILTER_ICON_MARGIN - 1
       }px`;
       expect((icons[0] as HTMLElement).style["_values"]).toEqual({ top, left: leftA });
       expect((icons[1] as HTMLElement).style["_values"]).toEqual({ top, left: leftB });
