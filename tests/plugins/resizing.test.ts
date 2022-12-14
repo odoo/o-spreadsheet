@@ -1,7 +1,7 @@
 import { DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { getDefaultCellHeight, toXC } from "../../src/helpers";
+import { getDefaultCellHeight as getDefaultCellHeightHelper, toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CommandResult, Sheet } from "../../src/types";
+import { CommandResult, Sheet, Style } from "../../src/types";
 import {
   activateSheet,
   addColumns,
@@ -22,6 +22,10 @@ import {
   unMerge,
 } from "../test_helpers/commands_helpers";
 import { DEFAULT_CELL_HEIGHT } from "./../../src/constants";
+
+function getDefaultCellHeight(style: Style | undefined, numberOfLines?: number) {
+  return Math.round(getDefaultCellHeightHelper(style, numberOfLines));
+}
 
 describe("Model resizer", () => {
   test("Can resize one column, undo, then redo", async () => {
@@ -501,5 +505,14 @@ describe("Model resizer", () => {
 
       expect(model.getters.getRowSize(sheet.id, 0)).toBe(getDefaultCellHeight({ fontSize: 18 }));
     });
+  });
+
+  test("Header sizes are rounded to avoid issues in further computations with floating number precision", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    resizeColumns(model, ["A"], 26.4);
+    resizeRows(model, [0], 26.6);
+    expect(model.getters.getColSize(sheetId, 0)).toBe(26);
+    expect(model.getters.getRowSize(sheetId, 0)).toBe(27);
   });
 });

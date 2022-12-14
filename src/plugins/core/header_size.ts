@@ -141,10 +141,10 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
   }
 
   private getHeaderSize(sheetId: UID, dimension: Dimension, index: HeaderIndex): Pixel {
-    return (
+    return Math.round(
       this.sizes[sheetId]?.[dimension][index]?.manualSize ||
-      this.sizes[sheetId]?.[dimension][index]?.computedSize() ||
-      this.getDefaultHeaderSize(dimension)
+        this.sizes[sheetId]?.[dimension][index]?.computedSize() ||
+        this.getDefaultHeaderSize(dimension)
     );
   }
 

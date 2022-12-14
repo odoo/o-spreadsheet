@@ -507,20 +507,14 @@ describe("Viewport of Simple sheet", () => {
     });
     resizeRows(model, [...Array(numberRows).keys()], DEFAULT_CELL_HEIGHT / 2);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
-      top: 15,
-      bottom: 99,
-      left: 0,
-      right: 10,
-    });
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
-      top: 15,
+      top: 19,
       bottom: 99,
       left: 0,
       right: 10,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
       offsetX: 0,
-      offsetY: (DEFAULT_CELL_HEIGHT / 2) * 15,
+      offsetY: Math.round(DEFAULT_CELL_HEIGHT / 2) * 19,
     });
   });
 
