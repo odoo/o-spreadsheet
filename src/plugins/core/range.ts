@@ -303,7 +303,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     let sheetName = "";
     let prefixSheet = false;
     if (sheetXC.includes("!")) {
-      [sheetName, sheetXC] = sheetXC.split("!");
+      [sheetXC, sheetName] = sheetXC.split("!").reverse();
       if (sheetName) {
         prefixSheet = true;
       }
