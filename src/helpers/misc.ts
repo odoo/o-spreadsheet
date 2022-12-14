@@ -7,10 +7,11 @@ import {
   DEFAULT_FONT_WEIGHT,
   MIN_CELL_TEXT_MARGIN,
   MIN_CF_ICON_MARGIN,
+  PADDING_AUTORESIZE_VERTICAL,
 } from "../constants";
 import { fontSizeMap } from "../fonts";
 import { ConsecutiveIndexes, Lazy, Style, UID } from "../types";
-import { Cloneable } from "./../types/misc";
+import { Cloneable, Pixel } from "./../types/misc";
 import { parseDateTime } from "./dates";
 /**
  * Stringify an object, like JSON.stringify, except that the first level of keys
@@ -109,6 +110,15 @@ export function clip(val: number, min: number, max: number): number {
 
 export function computeTextLinesHeight(textLineHeight: number, numberOfLines: number = 1) {
   return numberOfLines * (textLineHeight + MIN_CELL_TEXT_MARGIN) - MIN_CELL_TEXT_MARGIN;
+}
+
+/**
+ * Get the default height of the cell given its style.
+ */
+export function getDefaultCellHeight(style: Style | undefined): Pixel {
+  // TO DO: take multi text line into account to compute the real cell height in case of wrapping cell
+  const fontSize = computeTextFontSizeInPixels(style);
+  return computeTextLinesHeight(fontSize) + 2 * PADDING_AUTORESIZE_VERTICAL;
 }
 
 export function computeTextWidth(context: CanvasRenderingContext2D, text: string, style: Style) {
