@@ -2,8 +2,8 @@ import { App } from "@odoo/owl";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
+  FILTER_ICON_EDGE_LENGTH,
   FILTER_ICON_MARGIN,
-  ICON_EDGE_LENGTH,
 } from "../../src/constants";
 import { Model } from "../../src/model";
 import { createFilter, setCellContent } from "../test_helpers/commands_helpers";
@@ -60,10 +60,10 @@ describe("Grid component in dashboard mode", () => {
     await nextTick();
     const icons = fixture.querySelectorAll(".o-filter-icon");
     expect(icons).toHaveLength(2);
-    const centerIngOffset = (DEFAULT_CELL_HEIGHT - ICON_EDGE_LENGTH) / 2;
-    const top = `${DEFAULT_CELL_HEIGHT * 2 - ICON_EDGE_LENGTH - centerIngOffset}px`;
-    const leftA = `${DEFAULT_CELL_WIDTH * 2 - ICON_EDGE_LENGTH - FILTER_ICON_MARGIN}px`;
-    const leftB = `${DEFAULT_CELL_WIDTH * 3 - ICON_EDGE_LENGTH - FILTER_ICON_MARGIN}px`;
+    const centerIngOffset = (DEFAULT_CELL_HEIGHT - FILTER_ICON_EDGE_LENGTH) / 2;
+    const top = `${DEFAULT_CELL_HEIGHT * 2 - FILTER_ICON_EDGE_LENGTH - centerIngOffset}px`;
+    const leftA = `${DEFAULT_CELL_WIDTH * 2 - FILTER_ICON_EDGE_LENGTH - FILTER_ICON_MARGIN - 1}px`;
+    const leftB = `${DEFAULT_CELL_WIDTH * 3 - FILTER_ICON_EDGE_LENGTH - FILTER_ICON_MARGIN - 1}px`;
     expect((icons[0] as HTMLElement).style["_values"]).toEqual({ top, left: leftA });
     expect((icons[1] as HTMLElement).style["_values"]).toEqual({ top, left: leftB });
   });

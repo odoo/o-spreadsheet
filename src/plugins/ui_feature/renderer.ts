@@ -9,6 +9,7 @@ import {
   CELL_BORDER_COLOR,
   DEFAULT_FONT,
   FILTERS_COLOR,
+  FILTER_ICON_EDGE_LENGTH,
   FILTER_ICON_MARGIN,
   HEADER_BORDER_COLOR,
   HEADER_FONT_SIZE,
@@ -593,7 +594,7 @@ export class RendererPlugin extends UIPlugin {
 
     /** Filter Header */
     box.isFilterHeader = this.getters.isFilterHeader(position);
-    const headerIconWidth = box.isFilterHeader ? ICON_EDGE_LENGTH + FILTER_ICON_MARGIN : 0;
+    const headerIconWidth = box.isFilterHeader ? FILTER_ICON_EDGE_LENGTH + FILTER_ICON_MARGIN : 0;
 
     /** Content */
     const text = this.getters.getCellText(position, showFormula);

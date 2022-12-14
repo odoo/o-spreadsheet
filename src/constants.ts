@@ -125,6 +125,7 @@ export const CF_ICON_EDGE_LENGTH = 15;
 export const PADDING_AUTORESIZE_VERTICAL = 3;
 export const PADDING_AUTORESIZE_HORIZONTAL = MIN_CELL_TEXT_MARGIN;
 export const FILTER_ICON_MARGIN = 2;
+export const FILTER_ICON_EDGE_LENGTH = 17;
 
 // Menus
 export const MENU_WIDTH = 250;
