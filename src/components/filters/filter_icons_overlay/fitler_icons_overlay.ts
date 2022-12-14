@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { FILTER_ICON_MARGIN, ICON_EDGE_LENGTH } from "../../../constants";
+import { FILTER_ICON_EDGE_LENGTH, FILTER_ICON_MARGIN } from "../../../constants";
 import { DOMCoordinates, HeaderIndex, Position, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
 import { FilterIcon } from "../filter_icon/filter_icon";
@@ -35,10 +35,10 @@ export class FilterIconsOverlay extends Component<Props, SpreadsheetChildEnv> {
     const colDims = this.env.model.getters.getColDimensionsInViewport(sheetId, position.col);
 
     // TODO : change this offset when we support vertical cell align
-    const centeringOffset = (rowDims.size - ICON_EDGE_LENGTH) / 2;
+    const centeringOffset = Math.floor((rowDims.size - FILTER_ICON_EDGE_LENGTH) / 2);
     return {
-      x: colDims.end - ICON_EDGE_LENGTH + this.props.gridPosition.x - FILTER_ICON_MARGIN,
-      y: rowDims.end - ICON_EDGE_LENGTH + this.props.gridPosition.y - centeringOffset,
+      x: colDims.end - FILTER_ICON_EDGE_LENGTH + this.props.gridPosition.x - FILTER_ICON_MARGIN - 1, // -1 for cell border
+      y: rowDims.end - FILTER_ICON_EDGE_LENGTH + this.props.gridPosition.y - centeringOffset,
     };
   }
 
