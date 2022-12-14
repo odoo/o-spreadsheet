@@ -1,5 +1,5 @@
-import { DEFAULT_CELL_WIDTH, PADDING_AUTORESIZE_VERTICAL } from "../../src/constants";
-import { computeTextFontSizeInPixels, computeTextLinesHeight, toXC } from "../../src/helpers";
+import { DEFAULT_CELL_WIDTH } from "../../src/constants";
+import { getDefaultCellHeight as getDefaultCellHeightHelper, toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult, Sheet, Style } from "../../src/types";
 import {
@@ -23,9 +23,8 @@ import {
 } from "../test_helpers/commands_helpers";
 import { DEFAULT_CELL_HEIGHT } from "./../../src/constants";
 
-function getDefaultCellHeight(style: Style) {
-  const textFontSize = computeTextFontSizeInPixels(style);
-  return computeTextLinesHeight(textFontSize) + 2 * PADDING_AUTORESIZE_VERTICAL;
+function getDefaultCellHeight(style: Style | undefined) {
+  return Math.round(getDefaultCellHeightHelper(style));
 }
 
 describe("Model resizer", () => {
@@ -506,5 +505,14 @@ describe("Model resizer", () => {
 
       expect(model.getters.getRowSize(sheet.id, 0)).toBe(getDefaultCellHeight({ fontSize: 18 }));
     });
+  });
+
+  test("Header sizes are rounded to avoid issues in further computations with floating number precision", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    resizeColumns(model, ["A"], 26.4);
+    resizeRows(model, [0], 26.6);
+    expect(model.getters.getColSize(sheetId, 0)).toBe(26);
+    expect(model.getters.getRowSize(sheetId, 0)).toBe(27);
   });
 });
