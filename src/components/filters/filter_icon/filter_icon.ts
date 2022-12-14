@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { FILTERS_COLOR, ICON_EDGE_LENGTH } from "../../../constants";
+import { FILTERS_COLOR, FILTER_ICON_EDGE_LENGTH } from "../../../constants";
 import { DOMCoordinates, SpreadsheetEnv } from "../../../types";
 import { css } from "../../helpers/css";
 
@@ -12,8 +12,8 @@ const CSS = css/* scss */ `
     display: flex;
     align-items: center;
     justify-content: center;
-    width: ${ICON_EDGE_LENGTH}px;
-    height: ${ICON_EDGE_LENGTH}px;
+    width: ${FILTER_ICON_EDGE_LENGTH}px;
+    height: ${FILTER_ICON_EDGE_LENGTH}px;
 
     svg {
       path {
