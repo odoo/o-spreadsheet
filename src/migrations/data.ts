@@ -386,7 +386,7 @@ function dropCommands(initialMessages, commandType: string) {
 // -----------------------------------------------------------------------------
 // Helpers
 // -----------------------------------------------------------------------------
-function createEmptySheet(sheetId: UID, name: string): SheetData {
+export function createEmptySheet(sheetId: UID, name: string): SheetData {
   return {
     id: sheetId,
     name,
