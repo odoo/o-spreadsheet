@@ -51,7 +51,7 @@ import {
   UuidGenerator,
 } from "./helpers/index";
 import { openLink, urlRegistry, urlRepresentation } from "./helpers/links";
-import { createEmptyWorkbookData } from "./migrations/data";
+import { createEmptySheet, createEmptyWorkbookData } from "./migrations/data";
 import {
   corePluginRegistry,
   coreViewsPluginRegistry,
@@ -171,6 +171,7 @@ export const helpers = {
   formatValue,
   computeTextWidth,
   createEmptyWorkbookData,
+  createEmptySheet,
   getDefaultChartJsRuntime,
   chartFontColor,
   getMenuChildren,
