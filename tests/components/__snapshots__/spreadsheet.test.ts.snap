@@ -476,7 +476,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
 top: 26px;
 right: 0px;
 width: 15px;
-bottom: 15px;
+bottom: 0px;
 "
     >
       <div
@@ -493,7 +493,7 @@ height: 2328px;
 left: 48px;
 bottom: 0px;
 height: 15px;
-right: 15px;
+right: 0px;
 "
     >
       <div
