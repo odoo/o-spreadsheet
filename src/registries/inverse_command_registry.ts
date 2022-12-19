@@ -34,9 +34,7 @@ export const inverseCommandRegistry = new Registry<InverseFunction>()
   .add("UNHIDE_COLUMNS_ROWS", inverseUnhideColumnsRows);
 
 for (const cmd of coreTypes.values()) {
-  try {
-    inverseCommandRegistry.get(cmd);
-  } catch (_) {
+  if (!inverseCommandRegistry.contains(cmd)) {
     inverseCommandRegistry.add(cmd, identity);
   }
 }
