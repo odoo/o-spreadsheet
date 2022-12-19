@@ -718,25 +718,47 @@ describe("Import xlsx data", () => {
     expect(figure.tag).toEqual("chart");
   });
 
-  test.each([
-    ["line chart", "line", "#CECECE", "Sheet1!B27:B35 Sheet1!C27:C35"],
-    ["bar chart", "bar", "#fff", "Sheet1!B27:B35 Sheet1!C27:C35"],
-    ["pie chart", "pie", "#fff", "Sheet1!B27:B35"],
-    ["doughnut chart", "pie", "#fff", "Sheet1!B27:B35 Sheet1!C27:C35"],
-  ])("Can import charts %s", (chartTitle, chartType, chartColor, chartDataset) => {
-    const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
-    const figure = testSheet.figures.find((figure) => figure.data.title === chartTitle)!;
-    const chartData = figure.data as LineChartDefinition | PieChartDefinition | BarChartDefinition;
-    expect(chartData.title).toEqual(chartTitle);
-    expect(chartData.type).toEqual(chartType);
-    expect(standardizeColor(chartData.background!)).toEqual(standardizeColor(chartColor));
+  test.each([["bar chart", "bar", "#fff", ["Sheet1!B27:B35", "Sheet1!C27:C35"]]])(
+    "Can import charts %s without dataset titles",
+    (chartTitle, chartType, chartColor, chartDatasets) => {
+      const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
+      const figure = testSheet.figures.find((figure) => figure.data.title === chartTitle)!;
+      const chartData = figure.data as
+        | LineChartDefinition
+        | PieChartDefinition
+        | BarChartDefinition;
+      expect(chartData.title).toEqual(chartTitle);
+      expect(chartData.type).toEqual(chartType);
+      expect(standardizeColor(chartData.background!)).toEqual(standardizeColor(chartColor));
 
-    expect(chartData.labelRange).toEqual("Sheet1!A27:A35");
-    const datasets = chartDataset.split(" ");
-    for (let i = 0; i < datasets.length; i++) {
-      expect(chartData.dataSets[i]).toEqual(datasets[i]);
+      expect(chartData.labelRange).toEqual("Sheet1!A27:A35");
+      expect(chartData.dataSets).toEqual(chartDatasets);
+      expect(chartData.dataSetsHaveTitle).toBeFalsy();
     }
-  });
+  );
+
+  test.each([
+    ["line chart", "line", "#CECECE", ["Sheet1!B26:B35", "Sheet1!C26:C35"]],
+    ["pie chart", "pie", "#fff", ["Sheet1!B26:B35"]],
+    ["doughnut chart", "pie", "#fff", ["Sheet1!B26:B35", "Sheet1!C26:C35"]],
+  ])(
+    "Can import charts %s with dataset titles",
+    (chartTitle, chartType, chartColor, chartDatasets) => {
+      const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
+      const figure = testSheet.figures.find((figure) => figure.data.title === chartTitle)!;
+      const chartData = figure.data as
+        | LineChartDefinition
+        | PieChartDefinition
+        | BarChartDefinition;
+      expect(chartData.title).toEqual(chartTitle);
+      expect(chartData.type).toEqual(chartType);
+      expect(standardizeColor(chartData.background!)).toEqual(standardizeColor(chartColor));
+
+      expect(chartData.labelRange).toEqual("Sheet1!A26:A35");
+      expect(chartData.dataSets).toEqual(chartDatasets);
+      expect(chartData.dataSetsHaveTitle).toBeTruthy();
+    }
+  );
 
   describe("Misc tests", () => {
     test("Newlines characters in strings are removed", () => {

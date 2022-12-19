@@ -27,7 +27,7 @@ import { formatValue } from "../../format";
 import { isDefined } from "../../misc";
 import { copyRangeWithNewSheetId } from "../../range";
 import { rangeReference } from "../../references";
-import { isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
+import { getZoneArea, isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
 
 /**
  * This file contains helpers that are common to different charts (mainly
@@ -151,8 +151,8 @@ export function createDataSets(
   const dataSets: DataSet[] = [];
   for (const sheetXC of dataSetsString) {
     const dataRange = getters.getRangeFromSheetXC(sheetId, sheetXC);
-    const { unboundedZone: zone, sheetId: dataSetSheetId, invalidSheetName } = dataRange;
-    if (invalidSheetName) {
+    const { unboundedZone: zone, sheetId: dataSetSheetId, invalidSheetName, invalidXc } = dataRange;
+    if (invalidSheetName || invalidXc) {
       continue;
     }
     // It's a rectangle. We treat all columns (arbitrary) as different data series.
@@ -184,13 +184,8 @@ export function createDataSets(
           )
         );
       }
-    } else if (zone.left === zone.right && zone.top === zone.bottom) {
-      // A single cell. If it's only the title, the dataset is not added.
-      if (!dataSetsHaveTitle) {
-        dataSets.push(createDataSet(getters, dataSetSheetId, zone, undefined));
-      }
     } else {
-      /* 1 row or 1 column */
+      /* 1 cell, 1 row or 1 column */
       dataSets.push(
         createDataSet(
           getters,
@@ -256,6 +251,22 @@ export function toExcelDataset(getters: CoreGetters, ds: DataSet): ExcelChartDat
     label: ds.labelCell ? getters.getRangeString(ds.labelCell, "forceSheetReference") : undefined,
     range: getters.getRangeString(dataRange, "forceSheetReference"),
   };
+}
+
+export function toExcelLabelRange(
+  getters: CoreGetters,
+  labelRange: Range | undefined,
+  shouldRemoveFirstLabel?: boolean
+) {
+  if (!labelRange) return undefined;
+  let zone = {
+    ...labelRange.zone,
+  };
+  if (shouldRemoveFirstLabel && labelRange.zone.bottom > labelRange.zone.top) {
+    zone.top = zone.top + 1;
+  }
+  const range = labelRange.clone({ zone });
+  return getters.getRangeString(range, "forceSheetReference");
 }
 
 /**
@@ -352,6 +363,22 @@ export function checkLabelRange(
     }
   }
   return CommandResult.Success;
+}
+
+export function shouldRemoveFirstLabel(
+  labelRange: Range | undefined,
+  dataset: DataSet | undefined,
+  dataSetsHaveTitle: boolean
+) {
+  if (!dataSetsHaveTitle) return false;
+  if (!labelRange) return false;
+  if (!dataset) return true;
+  const datasetLength = getZoneArea(dataset.dataRange.zone);
+  const labelLength = getZoneArea(labelRange.zone);
+  if (labelLength < datasetLength) {
+    return false;
+  }
+  return true;
 }
 
 // ---------------------------------------------------------------------------

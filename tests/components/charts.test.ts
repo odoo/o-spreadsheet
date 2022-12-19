@@ -155,8 +155,9 @@ describe("charts", () => {
           const dataSeries = fixture.querySelectorAll(
             ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
           )[0];
-          const hasTitle = (dataSeries.querySelector("input[type=checkbox]") as HTMLInputElement)
-            .checked;
+          const hasTitle = (
+            fixture.querySelector(".o-use-row-as-headers input[type=checkbox]") as HTMLInputElement
+          ).checked;
           const labels = fixture.querySelector(".o-data-labels");
           expect((panelChartType as HTMLSelectElement).value).toBe(TEST_CHART_DATA.basicChart.type);
           expect((dataSeries.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
@@ -219,7 +220,7 @@ describe("charts", () => {
       const dispatch = spyDispatch(parent);
       switch (chartType) {
         case "basicChart":
-          await click(dataSeries!.querySelector("input[type=checkbox]")!);
+          await click(fixture.querySelector(".o-use-row-as-headers input[type=checkbox]")!);
           expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
             id: chartId,
             sheetId,
@@ -390,7 +391,9 @@ describe("charts", () => {
       ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
     )[0] as HTMLInputElement;
     const dataSeriesValues = dataSeries.querySelector("input");
-    const hasTitle = dataSeries.querySelector("input[type=checkbox]") as HTMLInputElement;
+    const hasTitle = fixture.querySelector(
+      ".o-use-row-as-headers input[type=checkbox]"
+    ) as HTMLInputElement;
     setInputValueAndTrigger(chartType, "pie", "change");
     await nextTick();
     setInputValueAndTrigger(dataSeriesValues, "B2:B5", "change");
@@ -427,7 +430,9 @@ describe("charts", () => {
       ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
     )[0] as HTMLInputElement;
     const dataSeriesValues = dataSeries.querySelector("input");
-    const hasTitle = dataSeries.querySelector("input[type=checkbox]") as HTMLInputElement;
+    const hasTitle = fixture.querySelector(
+      ".o-use-row-as-headers input[type=checkbox]"
+    ) as HTMLInputElement;
     setInputValueAndTrigger(dataSeriesValues, "B2:B5", "change");
     triggerMouseEvent(hasTitle, "click");
     await nextTick();
@@ -493,8 +498,9 @@ describe("charts", () => {
           const dataSeries = fixture.querySelectorAll(
             ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
           )[0];
-          const hasTitle = (dataSeries.querySelector("input[type=checkbox]") as HTMLInputElement)
-            .checked;
+          const hasTitle = (
+            fixture.querySelector(".o-use-row-as-headers input[type=checkbox]") as HTMLInputElement
+          ).checked;
           const labels = fixture.querySelector(".o-data-labels");
           expect((panelChartType as HTMLSelectElement).value).toBe("line");
           expect((dataSeries.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(

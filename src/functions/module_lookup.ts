@@ -1,4 +1,4 @@
-import { getComposerSheetName, toXC, toZone } from "../helpers/index";
+import { getCanonicalSheetName, toXC, toZone } from "../helpers/index";
 import { _lt } from "../translation";
 import {
   AddFunctionDescription,
@@ -96,7 +96,7 @@ export const ADDRESS: AddFunctionDescription = {
       cellReference = rowPart + colPart;
     }
     if (sheet !== undefined) {
-      return `${getComposerSheetName(toString(sheet))}!${cellReference}`;
+      return `${getCanonicalSheetName(toString(sheet))}!${cellReference}`;
     }
     return cellReference;
   },

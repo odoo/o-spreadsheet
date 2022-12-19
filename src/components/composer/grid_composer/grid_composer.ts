@@ -3,7 +3,7 @@ import { ComponentsImportance, SELECTION_BORDER_COLOR } from "../../../constants
 import {
   deepEquals,
   fontSizeInPixels,
-  getComposerSheetName,
+  getCanonicalSheetName,
   positionToZone,
   toXC,
 } from "../../../helpers";
@@ -116,7 +116,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     const { col, row, sheetId } = this.env.model.getters.getCurrentEditedCell();
     const prefixSheet = sheetId !== this.env.model.getters.getActiveSheetId();
     return `${
-      prefixSheet ? getComposerSheetName(this.env.model.getters.getSheetName(sheetId)) + "!" : ""
+      prefixSheet ? getCanonicalSheetName(this.env.model.getters.getSheetName(sheetId)) + "!" : ""
     }${toXC(col, row)}`;
   }
 

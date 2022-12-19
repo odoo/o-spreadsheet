@@ -1,4 +1,4 @@
-import { getComposerSheetName, toZone } from "../../src/helpers";
+import { getCanonicalSheetName, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import {
@@ -1007,7 +1007,7 @@ describe("edition", () => {
   test.each(["sheet2", "sheet 2"])("Loop references on references with sheet name", (sheetName) => {
     const model = new Model({});
     createSheet(model, { name: sheetName });
-    const composerSheetName = getComposerSheetName(sheetName);
+    const composerSheetName = getCanonicalSheetName(sheetName);
     model.dispatch("START_EDITION", { text: `=${composerSheetName}!A1` });
     model.dispatch("CYCLE_EDITION_REFERENCES");
     expect(model.getters.getCurrentContent()).toBe(`=${composerSheetName}!$A$1`);

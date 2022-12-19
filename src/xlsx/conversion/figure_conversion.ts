@@ -1,4 +1,10 @@
-import { isDefined } from "../../helpers";
+import {
+  getCanonicalSheetName,
+  isDefined,
+  splitReference,
+  toUnboundedZone,
+  zoneToXc,
+} from "../../helpers";
 import { ChartDefinition, ExcelChartDefinition, FigureData } from "../../types";
 import { XLSXFigure, XLSXWorksheet } from "../../types/xlsx";
 import { convertEMUToDotValue, getColPosition, getRowPosition } from "../helpers/content_helpers";
@@ -47,15 +53,20 @@ function convertFigure(
 }
 
 function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | undefined {
-  const labelRange = chartData.dataSets[0].label?.replace(/\$/g, "");
-  let dataSets = chartData.dataSets.map((data) => data.range.replace(/\$/g, ""));
+  const dataSetsHaveTitle = chartData.dataSets[0].label !== undefined;
+  const labelRange = chartData.labelRange
+    ? convertExcelRangeToSheetXC(chartData.labelRange, dataSetsHaveTitle)
+    : undefined;
+  let dataSets = chartData.dataSets.map((data) =>
+    convertExcelRangeToSheetXC(data.range, dataSetsHaveTitle)
+  );
   // For doughnut charts, in chartJS first dataset = outer dataset, in excel first dataset = inner dataset
   if (chartData.type === "pie") {
     dataSets.reverse();
   }
   return {
     dataSets,
-    dataSetsHaveTitle: false,
+    dataSetsHaveTitle,
     labelRange,
     title: chartData.title || "",
     type: chartData.type,
@@ -66,4 +77,25 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
     aggregated: false,
     labelsAsText: false,
   };
+}
+
+function convertExcelRangeToSheetXC(range: string, dataSetsHaveTitle: boolean): string {
+  let { sheetName, xc } = splitReference(range);
+  if (sheetName) {
+    sheetName = getCanonicalSheetName(sheetName) + "!";
+  } else {
+    sheetName = "";
+  }
+  let zone = toUnboundedZone(xc);
+  if (dataSetsHaveTitle && zone.bottom !== undefined && zone.right !== undefined) {
+    const height = zone.bottom - zone.top + 1;
+    const width = zone.right - zone.left + 1;
+    if (height === 1) {
+      zone = { ...zone, left: zone.left - 1 };
+    } else if (width === 1) {
+      zone = { ...zone, top: zone.top - 1 };
+    }
+  }
+  const dataXC = zoneToXc(zone);
+  return sheetName + dataXC;
 }

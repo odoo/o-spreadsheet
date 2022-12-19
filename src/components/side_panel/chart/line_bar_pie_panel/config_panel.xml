@@ -10,15 +10,6 @@
           onSelectionChanged="(ranges) => this.onDataSeriesRangesChanged(ranges)"
           onSelectionConfirmed="() => this.onDataSeriesConfirmed()"
         />
-        <label>
-          <input
-            type="checkbox"
-            t-att-checked="props.definition.dataSetsHaveTitle"
-            t-on-change="onUpdateDataSetsHaveTitle"
-            class="align-middle"
-          />
-          Data series include title
-        </label>
       </div>
       <div class="o-section o-data-labels">
         <div class="o-section-title">Categories / Labels</div>
@@ -38,6 +29,19 @@
             class="align-middle"
           />
           Aggregate
+        </label>
+      </div>
+      <div class="o-section o-use-row-as-headers" t-if="calculateHeaderPosition()">
+        <label>
+          <input
+            type="checkbox"
+            t-att-checked="props.definition.dataSetsHaveTitle"
+            t-on-change="onUpdateDataSetsHaveTitle"
+            class="align-middle"
+          />
+          Use row
+          <span t-esc="calculateHeaderPosition()"/>
+          as headers
         </label>
       </div>
       <div class="o-section o-sidepanel-error" t-if="errorMessages">

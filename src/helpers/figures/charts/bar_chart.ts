@@ -33,7 +33,9 @@ import {
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
+  shouldRemoveFirstLabel,
   toExcelDataset,
+  toExcelLabelRange,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
@@ -55,6 +57,7 @@ export class BarChart extends AbstractChart {
   readonly stacked: boolean;
   readonly aggregated?: boolean;
   readonly type = "bar";
+  readonly dataSetsHaveTitle: boolean;
 
   constructor(definition: BarChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -70,6 +73,7 @@ export class BarChart extends AbstractChart {
     this.legendPosition = definition.legendPosition;
     this.stacked = definition.stacked;
     this.aggregated = definition.aggregated;
+    this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
   }
 
   static transformDefinition(
@@ -163,11 +167,17 @@ export class BarChart extends AbstractChart {
     const dataSets: ExcelChartDataset[] = this.dataSets
       .map((ds: DataSet) => toExcelDataset(this.getters, ds))
       .filter((ds) => ds.range !== ""); // && range !== INCORRECT_RANGE_STRING ? show incorrect #ref ?
+    const labelRange = toExcelLabelRange(
+      this.getters,
+      this.labelRange,
+      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], this.dataSetsHaveTitle)
+    );
     return {
       ...this.getDefinition(),
       backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       dataSets,
+      labelRange,
     };
   }
 
@@ -251,6 +261,13 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
   const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
   let labels = labelValues.formattedValues;
   let dataSetsValues = getChartDatasetValues(getters, chart.dataSets);
+  if (
+    chart.dataSetsHaveTitle &&
+    dataSetsValues[0] &&
+    labels.length > dataSetsValues[0].data.length
+  ) {
+    labels.shift();
+  }
 
   ({ labels, dataSetsValues } = filterEmptyDataPoints(labels, dataSetsValues));
   if (chart.aggregated) {

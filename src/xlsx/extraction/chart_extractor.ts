@@ -31,6 +31,7 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
           dataSets: this.extractChartDatasets(
             this.querySelector(rootChartElement, `c:${chartType}`)!
           ),
+          labelRange: this.extractChildTextContent(rootChartElement, "c:ser c:cat c:f"),
           backgroundColor: this.extractChildAttr(
             rootChartElement,
             "c:chartSpace > c:spPr a:srgbClr",
@@ -63,7 +64,7 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
       { parent: chartElement, query: "c:ser" },
       (chartDataElement): ExcelChartDataset => {
         return {
-          label: this.extractChildTextContent(chartDataElement, "c:cat c:f"),
+          label: this.extractChildTextContent(chartDataElement, "c:tx c:f"),
           range: this.extractChildTextContent(chartDataElement, "c:val c:f", { required: true })!,
         };
       }
