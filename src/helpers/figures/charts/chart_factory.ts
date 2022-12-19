@@ -163,7 +163,6 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
     labelRangeXc = zoneToXc({
       ...zone,
       right: zone.left,
-      top: dataSetsHaveTitle ? zone.top + 1 : zone.top,
     });
   }
   // Only display legend for several datasets.

@@ -87,7 +87,7 @@ Object {
                     <c:cat>
                         <c:strRef>
                             <c:f>
-                                Sheet1!A2:A5
+                                Sheet1!A3:A5
                             </c:f>
                         </c:strRef>
                     </c:cat>
@@ -125,7 +125,7 @@ Object {
                     <c:cat>
                         <c:strRef>
                             <c:f>
-                                Sheet1!A2:A5
+                                Sheet1!A3:A5
                             </c:f>
                         </c:strRef>
                     </c:cat>
@@ -719,7 +719,7 @@ Object {
                         <!-- x-coordinate values -->
                         <c:numRef>
                             <c:f>
-                                Sheet1!C4:C12
+                                Sheet1!C2:C4
                             </c:f>
                             <c:numCache/>
                         </c:numRef>
@@ -1304,7 +1304,7 @@ Object {
                         <!-- x-coordinate values -->
                         <c:numRef>
                             <c:f>
-                                Sheet1!C4:C12
+                                Sheet1!C2:C4
                             </c:f>
                             <c:numCache/>
                         </c:numRef>
@@ -1857,7 +1857,7 @@ Object {
                     <c:cat>
                         <c:strRef>
                             <c:f>
-                                Sheet1!A2:A4
+                                Sheet1!A3:A4
                             </c:f>
                         </c:strRef>
                     </c:cat>
@@ -1878,7 +1878,7 @@ Object {
                     <c:tx>
                         <c:strRef>
                             <c:f>
-                                Sheet1!C4
+                                Sheet1!C2
                             </c:f>
                         </c:strRef>
                     </c:tx>
@@ -1895,7 +1895,7 @@ Object {
                     <c:cat>
                         <c:strRef>
                             <c:f>
-                                Sheet1!A2:A4
+                                Sheet1!A3:A4
                             </c:f>
                         </c:strRef>
                     </c:cat>
@@ -1904,7 +1904,7 @@ Object {
                         <!-- x-coordinate values -->
                         <c:numRef>
                             <c:f>
-                                Sheet1!C5:C12
+                                Sheet1!C3:C4
                             </c:f>
                             <c:numCache/>
                         </c:numRef>
@@ -2127,7 +2127,7 @@ Object {
                     <c:tx>
                         <c:strRef>
                             <c:f>
-                                Sheet1!C4
+                                Sheet1!C2
                             </c:f>
                         </c:strRef>
                     </c:tx>
@@ -2157,84 +2157,6 @@ Object {
                             </a:ln>
                         </c:spPr>
                     </c:dPt>
-                    <c:dPt>
-                        <c:idx val=\\"2\\"/>
-                        <c:spPr>
-                            <a:solidFill>
-                                <a:srgbClr val=\\"AEC7E8\\"/>
-                            </a:solidFill>
-                            <a:ln cmpd=\\"sng\\" w=\\"14288\\">
-                                <a:solidFill>
-                                    <a:srgbClr val=\\"FFFFFF\\"/>
-                                </a:solidFill>
-                            </a:ln>
-                        </c:spPr>
-                    </c:dPt>
-                    <c:dPt>
-                        <c:idx val=\\"3\\"/>
-                        <c:spPr>
-                            <a:solidFill>
-                                <a:srgbClr val=\\"FFBB78\\"/>
-                            </a:solidFill>
-                            <a:ln cmpd=\\"sng\\" w=\\"14288\\">
-                                <a:solidFill>
-                                    <a:srgbClr val=\\"FFFFFF\\"/>
-                                </a:solidFill>
-                            </a:ln>
-                        </c:spPr>
-                    </c:dPt>
-                    <c:dPt>
-                        <c:idx val=\\"4\\"/>
-                        <c:spPr>
-                            <a:solidFill>
-                                <a:srgbClr val=\\"2CA02C\\"/>
-                            </a:solidFill>
-                            <a:ln cmpd=\\"sng\\" w=\\"14288\\">
-                                <a:solidFill>
-                                    <a:srgbClr val=\\"FFFFFF\\"/>
-                                </a:solidFill>
-                            </a:ln>
-                        </c:spPr>
-                    </c:dPt>
-                    <c:dPt>
-                        <c:idx val=\\"5\\"/>
-                        <c:spPr>
-                            <a:solidFill>
-                                <a:srgbClr val=\\"98DF8A\\"/>
-                            </a:solidFill>
-                            <a:ln cmpd=\\"sng\\" w=\\"14288\\">
-                                <a:solidFill>
-                                    <a:srgbClr val=\\"FFFFFF\\"/>
-                                </a:solidFill>
-                            </a:ln>
-                        </c:spPr>
-                    </c:dPt>
-                    <c:dPt>
-                        <c:idx val=\\"6\\"/>
-                        <c:spPr>
-                            <a:solidFill>
-                                <a:srgbClr val=\\"D62728\\"/>
-                            </a:solidFill>
-                            <a:ln cmpd=\\"sng\\" w=\\"14288\\">
-                                <a:solidFill>
-                                    <a:srgbClr val=\\"FFFFFF\\"/>
-                                </a:solidFill>
-                            </a:ln>
-                        </c:spPr>
-                    </c:dPt>
-                    <c:dPt>
-                        <c:idx val=\\"7\\"/>
-                        <c:spPr>
-                            <a:solidFill>
-                                <a:srgbClr val=\\"FF9896\\"/>
-                            </a:solidFill>
-                            <a:ln cmpd=\\"sng\\" w=\\"14288\\">
-                                <a:solidFill>
-                                    <a:srgbClr val=\\"FFFFFF\\"/>
-                                </a:solidFill>
-                            </a:ln>
-                        </c:spPr>
-                    </c:dPt>
                     <dLbls>
                         <c:showLegendKey val=\\"0\\"/>
                         <c:showVal val=\\"0\\"/>
@@ -2247,14 +2169,14 @@ Object {
                     <c:cat>
                         <c:strRef>
                             <c:f>
-                                Sheet1!A2:A4
+                                Sheet1!A3:A4
                             </c:f>
                         </c:strRef>
                     </c:cat>
                     <c:val>
                         <c:numRef>
                             <c:f>
-                                Sheet1!C5:C12
+                                Sheet1!C3:C4
                             </c:f>
                             <c:numCache/>
                         </c:numRef>
@@ -2308,7 +2230,7 @@ Object {
                     <c:cat>
                         <c:strRef>
                             <c:f>
-                                Sheet1!A2:A4
+                                Sheet1!A3:A4
                             </c:f>
                         </c:strRef>
                     </c:cat>
@@ -2426,7 +2348,7 @@ Object {
                     <c:cat>
                         <c:strRef>
                             <c:f>
-                                Sheet1!A2:A4
+                                Sheet1!A3:A4
                             </c:f>
                         </c:strRef>
                     </c:cat>
@@ -2452,7 +2374,7 @@ Object {
                     <c:tx>
                         <c:strRef>
                             <c:f>
-                                Sheet1!C4
+                                Sheet1!C2
                             </c:f>
                         </c:strRef>
                     </c:tx>
@@ -2467,7 +2389,7 @@ Object {
                     <c:cat>
                         <c:strRef>
                             <c:f>
-                                Sheet1!A2:A4
+                                Sheet1!A3:A4
                             </c:f>
                         </c:strRef>
                     </c:cat>
@@ -2476,7 +2398,7 @@ Object {
                         <!-- x-coordinate values -->
                         <c:numRef>
                             <c:f>
-                                Sheet1!C5:C12
+                                Sheet1!C3:C4
                             </c:f>
                             <c:numCache/>
                         </c:numRef>
@@ -2699,7 +2621,7 @@ Object {
                     <c:tx>
                         <c:strRef>
                             <c:f>
-                                'She!et2'!C4
+                                'She!et2'!C2
                             </c:f>
                         </c:strRef>
                     </c:tx>
@@ -2729,84 +2651,6 @@ Object {
                             </a:ln>
                         </c:spPr>
                     </c:dPt>
-                    <c:dPt>
-                        <c:idx val=\\"2\\"/>
-                        <c:spPr>
-                            <a:solidFill>
-                                <a:srgbClr val=\\"AEC7E8\\"/>
-                            </a:solidFill>
-                            <a:ln cmpd=\\"sng\\" w=\\"14288\\">
-                                <a:solidFill>
-                                    <a:srgbClr val=\\"FFFFFF\\"/>
-                                </a:solidFill>
-                            </a:ln>
-                        </c:spPr>
-                    </c:dPt>
-                    <c:dPt>
-                        <c:idx val=\\"3\\"/>
-                        <c:spPr>
-                            <a:solidFill>
-                                <a:srgbClr val=\\"FFBB78\\"/>
-                            </a:solidFill>
-                            <a:ln cmpd=\\"sng\\" w=\\"14288\\">
-                                <a:solidFill>
-                                    <a:srgbClr val=\\"FFFFFF\\"/>
-                                </a:solidFill>
-                            </a:ln>
-                        </c:spPr>
-                    </c:dPt>
-                    <c:dPt>
-                        <c:idx val=\\"4\\"/>
-                        <c:spPr>
-                            <a:solidFill>
-                                <a:srgbClr val=\\"2CA02C\\"/>
-                            </a:solidFill>
-                            <a:ln cmpd=\\"sng\\" w=\\"14288\\">
-                                <a:solidFill>
-                                    <a:srgbClr val=\\"FFFFFF\\"/>
-                                </a:solidFill>
-                            </a:ln>
-                        </c:spPr>
-                    </c:dPt>
-                    <c:dPt>
-                        <c:idx val=\\"5\\"/>
-                        <c:spPr>
-                            <a:solidFill>
-                                <a:srgbClr val=\\"98DF8A\\"/>
-                            </a:solidFill>
-                            <a:ln cmpd=\\"sng\\" w=\\"14288\\">
-                                <a:solidFill>
-                                    <a:srgbClr val=\\"FFFFFF\\"/>
-                                </a:solidFill>
-                            </a:ln>
-                        </c:spPr>
-                    </c:dPt>
-                    <c:dPt>
-                        <c:idx val=\\"6\\"/>
-                        <c:spPr>
-                            <a:solidFill>
-                                <a:srgbClr val=\\"D62728\\"/>
-                            </a:solidFill>
-                            <a:ln cmpd=\\"sng\\" w=\\"14288\\">
-                                <a:solidFill>
-                                    <a:srgbClr val=\\"FFFFFF\\"/>
-                                </a:solidFill>
-                            </a:ln>
-                        </c:spPr>
-                    </c:dPt>
-                    <c:dPt>
-                        <c:idx val=\\"7\\"/>
-                        <c:spPr>
-                            <a:solidFill>
-                                <a:srgbClr val=\\"FF9896\\"/>
-                            </a:solidFill>
-                            <a:ln cmpd=\\"sng\\" w=\\"14288\\">
-                                <a:solidFill>
-                                    <a:srgbClr val=\\"FFFFFF\\"/>
-                                </a:solidFill>
-                            </a:ln>
-                        </c:spPr>
-                    </c:dPt>
                     <dLbls>
                         <c:showLegendKey val=\\"0\\"/>
                         <c:showVal val=\\"0\\"/>
@@ -2819,14 +2663,14 @@ Object {
                     <c:cat>
                         <c:strRef>
                             <c:f>
-                                'She!et2'!A2:A4
+                                'She!et2'!A3:A4
                             </c:f>
                         </c:strRef>
                     </c:cat>
                     <c:val>
                         <c:numRef>
                             <c:f>
-                                'She!et2'!C5:C12
+                                'She!et2'!C3:C4
                             </c:f>
                             <c:numCache/>
                         </c:numRef>
@@ -2880,7 +2724,7 @@ Object {
                     <c:cat>
                         <c:strRef>
                             <c:f>
-                                'She!et2'!A2:A4
+                                'She!et2'!A3:A4
                             </c:f>
                         </c:strRef>
                     </c:cat>
@@ -17047,7 +16891,7 @@ Object {
                         <!-- x-coordinate values -->
                         <c:numRef>
                             <c:f>
-                                Sheet1!C4:C12
+                                Sheet1!C2:C4
                             </c:f>
                             <c:numCache/>
                         </c:numRef>

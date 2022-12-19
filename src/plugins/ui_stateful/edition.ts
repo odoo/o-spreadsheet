@@ -3,7 +3,7 @@ import { POSTFIX_UNARY_OPERATORS } from "../../formulas/tokenizer";
 import {
   colors,
   concat,
-  getComposerSheetName,
+  getCanonicalSheetName,
   getZoneArea,
   isDateTimeFormat,
   isEqual,
@@ -578,7 +578,7 @@ export class EditionPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     let selectedXc = this.getters.zoneToXC(sheetId, zone, fixedParts);
     if (this.getters.getCurrentEditedCell().sheetId !== this.getters.getActiveSheetId()) {
-      const sheetName = getComposerSheetName(
+      const sheetName = getCanonicalSheetName(
         this.getters.getSheetName(this.getters.getActiveSheetId())
       );
       selectedXc = `${sheetName}!${selectedXc}`;

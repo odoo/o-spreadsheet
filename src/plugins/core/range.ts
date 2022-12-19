@@ -1,7 +1,7 @@
 import { INCORRECT_RANGE_STRING } from "../../constants";
 import {
   createAdaptedZone,
-  getComposerSheetName,
+  getCanonicalSheetName,
   groupConsecutive,
   isZoneInside,
   isZoneValid,
@@ -366,7 +366,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       if (rangeImpl.invalidSheetName) {
         sheetName = rangeImpl.invalidSheetName;
       } else {
-        sheetName = getComposerSheetName(this.getters.getSheetName(rangeImpl.sheetId));
+        sheetName = getCanonicalSheetName(this.getters.getSheetName(rangeImpl.sheetId));
       }
     }
 

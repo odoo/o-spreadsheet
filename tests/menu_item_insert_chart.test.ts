@@ -365,7 +365,7 @@ describe("Insert chart menu item", () => {
     insertChart();
     const payload = { ...defaultPayload };
     payload.definition.dataSets = ["B1:B5"];
-    payload.definition.labelRange = "A2:A5";
+    payload.definition.labelRange = "A1:A5";
     payload.definition.dataSetsHaveTitle = true;
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
   });
@@ -389,7 +389,7 @@ describe("Insert chart menu item", () => {
     payload.definition.legendPosition = "top";
     payload.definition.title = "Title1 and 3";
     payload.definition.dataSetsHaveTitle = true;
-    payload.definition.labelRange = "C2:C4";
+    payload.definition.labelRange = "C1:C4";
     payload.definition.type = "line";
     payload.definition.labelsAsText = false;
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
@@ -402,7 +402,7 @@ describe("Insert chart menu item", () => {
     payload.definition.legendPosition = "top";
     payload.definition.title = "Title1, 3 and Title2";
     payload.definition.dataSetsHaveTitle = true;
-    payload.definition.labelRange = "C2:C4";
+    payload.definition.labelRange = "C1:C4";
     payload.definition.type = "line";
     payload.definition.labelsAsText = false;
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
@@ -412,7 +412,7 @@ describe("Insert chart menu item", () => {
     insertChart();
     const payload = { ...defaultPayload };
     payload.definition.dataSets = ["B1:B5"];
-    payload.definition.labelRange = "A2:A5";
+    payload.definition.labelRange = "A1:A5";
     payload.definition.dataSetsHaveTitle = true;
     payload.definition.legendPosition = "none";
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
@@ -423,7 +423,7 @@ describe("Insert chart menu item", () => {
     const payload = { ...defaultPayload };
     payload.definition.dataSets = ["G1:I5"];
     payload.definition.dataSetsHaveTitle = true;
-    payload.definition.labelRange = "F2:F5";
+    payload.definition.labelRange = "F1:F5";
     payload.definition.legendPosition = "top";
     payload.definition.type = "line";
     payload.definition.labelsAsText = false;
@@ -459,7 +459,7 @@ describe("Insert chart menu item", () => {
     insertChart();
     const payload = { ...defaultPayload };
     payload.definition.dataSets = ["B1:H5"];
-    payload.definition.labelRange = "A2:A5";
+    payload.definition.labelRange = "A1:A5";
     payload.definition.dataSetsHaveTitle = true;
     payload.definition.legendPosition = "top";
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);

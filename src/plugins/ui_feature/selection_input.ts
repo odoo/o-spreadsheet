@@ -1,6 +1,6 @@
 import {
   colors,
-  getComposerSheetName,
+  getCanonicalSheetName,
   positionToZone,
   splitReference,
   zoneToXc,
@@ -66,7 +66,7 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
     const inputSheetId = this.activeSheet;
     const sheetId = this.getters.getActiveSheetId();
     const sheetName = this.getters.getSheetName(sheetId);
-    this.add([sheetId === inputSheetId ? xc : `${getComposerSheetName(sheetName)}!${xc}`]);
+    this.add([sheetId === inputSheetId ? xc : `${getCanonicalSheetName(sheetName)}!${xc}`]);
   }
 
   handle(cmd: Command) {

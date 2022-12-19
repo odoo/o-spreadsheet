@@ -106,7 +106,7 @@ export function getUnquotedSheetName(sheetName: string): string {
  * '\w' captures [0-9][a-z][A-Z] and _.
  * @param sheetName Name of the sheet
  */
-export function getComposerSheetName(sheetName: string): string {
+export function getCanonicalSheetName(sheetName: string): string {
   if (sheetName.match(/\w/g)?.length !== sheetName.length) {
     sheetName = `'${sheetName}'`;
   }

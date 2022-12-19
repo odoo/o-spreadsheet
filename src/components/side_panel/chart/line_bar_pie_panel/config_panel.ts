@@ -1,4 +1,6 @@
 import { Component, useState } from "@odoo/owl";
+import { createRange } from "../../../../helpers";
+import { createDataSets } from "../../../../helpers/figures/charts";
 import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import { LineChartDefinition } from "../../../../types/chart/line_chart";
 import { PieChartDefinition } from "../../../../types/chart/pie_chart";
@@ -92,6 +94,27 @@ export class LineBarPieConfigPanel extends Component<Props, SpreadsheetChildEnv>
     this.props.updateChart({
       aggregated: ev.target.checked,
     });
+  }
+
+  calculateHeaderPosition(): number | undefined {
+    if (this.isDatasetInvalid || this.isLabelInvalid) {
+      return undefined;
+    }
+    const getters = this.env.model.getters;
+    const sheetId = getters.getActiveSheetId();
+    const labelRange = createRange(getters, sheetId, this.labelRange);
+    const dataSets = createDataSets(
+      getters,
+      this.dataSeriesRanges,
+      sheetId,
+      this.props.definition.dataSetsHaveTitle
+    );
+    if (dataSets.length) {
+      return dataSets[0].dataRange.zone.top + 1;
+    } else if (labelRange) {
+      return labelRange.zone.top + 1;
+    }
+    return undefined;
   }
 }
 
