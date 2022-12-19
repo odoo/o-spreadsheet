@@ -2,7 +2,14 @@ import * as owl from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { EnrichedToken } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
-import { DEBUG, isEqual, rangeReference, toZone, zoneToDimension } from "../../helpers/index";
+import {
+  DEBUG,
+  deepEquals,
+  isEqual,
+  rangeReference,
+  toZone,
+  zoneToDimension,
+} from "../../helpers/index";
 import { ComposerSelection, SelectionIndicator } from "../../plugins/ui/edition";
 import { FunctionDescription, Rect, SpreadsheetEnv } from "../../types/index";
 import { TextValueProvider } from "./autocomplete_dropdown";
@@ -190,6 +197,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     argToFocus: 0,
   });
   private isKeyStillDown: boolean = false;
+  private oldContent: string = "";
 
   get assistantStyle(): string {
     if (this.props.delimitation && this.props.rect) {
@@ -250,6 +258,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   }
 
   patched() {
+    // TODO: replace this with useEffect with next versions of owl
     if (!this.isKeyStillDown) {
       this.processContent();
     }
@@ -347,10 +356,12 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     if (this.props.focus === "inactive" || !this.shouldProcessInputEvents) {
       return;
     }
-    this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     const el = this.composerRef.el! as HTMLInputElement;
+    const content = el.childNodes.length ? el.textContent! : "";
+    this.oldContent = content;
+    this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     this.dispatch("SET_CURRENT_CONTENT", {
-      content: el.childNodes.length ? el.textContent! : "",
+      content,
       selection: this.contentHelper.getCurrentSelection(),
     });
   }
@@ -430,13 +441,19 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   // ---------------------------------------------------------------------------
 
   private processContent() {
+    const currentContent = this.getters.getCurrentContent();
+    const oldContent = this.oldContent || "";
+    if (!currentContent.startsWith("=") && deepEquals(oldContent, currentContent)) {
+      return;
+    }
+    this.oldContent = currentContent;
+    const content = this.getContent();
     this.contentHelper.removeAll(); // removes the content of the composer, to be added just after
     this.shouldProcessInputEvents = false;
 
     if (this.props.focus !== "inactive") {
       this.contentHelper.selectRange(0, 0); // move the cursor inside the composer at 0 0.
     }
-    const content = this.getContent();
     if (content.length !== 0) {
       this.contentHelper.setText(content);
       const { start, end } = this.getters.getComposerSelection();
@@ -454,9 +471,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     let content: HtmlContent[];
     const value = this.getters.getCurrentContent();
     const isValidFormula = value.startsWith("=") && this.getters.getCurrentTokens().length > 0;
-    if (value === "") {
-      content = [];
-    } else if (isValidFormula && this.getters.getEditionMode() !== "inactive") {
+    if (isValidFormula && this.getters.getEditionMode() !== "inactive") {
       content = this.getColoredTokens();
     } else {
       content = [{ value }];
