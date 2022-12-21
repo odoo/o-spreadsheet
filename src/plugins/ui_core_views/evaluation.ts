@@ -68,10 +68,12 @@ export class EvaluationPlugin extends UIPlugin {
       | undefined;
   } = {};
   private readonly evalContext: EvalContext;
+  private readonly lazyEvaluation: boolean;
 
   constructor(config: UIPluginConfig) {
     super(config);
     this.evalContext = config.external;
+    this.lazyEvaluation = config.lazyEvaluation;
   }
 
   // ---------------------------------------------------------------------------
@@ -186,6 +188,9 @@ export class EvaluationPlugin extends UIPlugin {
       this.evaluatedCells[sheetId]![col] = {};
     }
     this.evaluatedCells[sheetId]![col]![row] = evaluatedCell;
+    if (!this.lazyEvaluation) {
+      this.evaluatedCells[sheetId]![col]![row]!();
+    }
   }
 
   private *getAllCells(): Iterable<Cell> {

@@ -90,6 +90,7 @@ export interface ModelConfig {
   client: Client;
   snapshotRequested: boolean;
   notifyUI: (payload: NotifyUIEvent) => void;
+  lazyEvaluation: boolean;
 }
 
 const enum Status {
@@ -362,6 +363,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       moveClient: () => {},
       snapshotRequested: false,
       notifyUI: (payload: NotifyUIEvent) => this.trigger("notify-ui", payload),
+      lazyEvaluation: "lazyEvaluation" in config ? config.lazyEvaluation! : true,
     };
   }
 
@@ -385,6 +387,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       moveClient: this.session.move.bind(this.session),
       external: this.config.external,
       uiActions: this.config,
+      lazyEvaluation: this.config.lazyEvaluation,
     };
   }
 
