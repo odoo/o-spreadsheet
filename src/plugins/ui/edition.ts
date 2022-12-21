@@ -401,7 +401,9 @@ export class EditionPlugin extends UIPlugin {
       { cell: { col: this.col, row: this.row }, zone },
       {
         handleEvent: this.handleEvent.bind(this),
-        release: () => (this.mode = "inactive"),
+        release: () => {
+          this.stopEdition();
+        },
       }
     );
   }
