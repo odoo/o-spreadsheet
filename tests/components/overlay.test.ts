@@ -20,7 +20,11 @@ import {
   setCellContent,
   undo,
 } from "../test_helpers/commands_helpers";
-import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
+import {
+  edgeScrollDelay,
+  selectColumnByClicking,
+  triggerMouseEvent,
+} from "../test_helpers/dom_helper";
 import { getActiveXc, getCell } from "../test_helpers/getters_helpers";
 import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
@@ -37,19 +41,10 @@ function fillData() {
   }
 }
 
-/**
- * Select a column
- * @param letter Name of the column to click on (Starts at 'A')
- * @param extra shiftKey, ctrlKey
- */
 async function selectColumn(letter: string, extra: any = {}) {
-  const index = lettersToNumber(letter);
-  const x = model.getters.getColDimensions(model.getters.getActiveSheetId(), index)!.start + 1;
-  triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
-  await nextTick();
-  triggerMouseEvent(".o-overlay .o-col-resizer", "mousedown", x, 10, extra);
-  triggerMouseEvent(window, "mouseup", x, 10);
+  await selectColumnByClicking(model, letter, extra);
 }
+
 /**
  * Resize a column
  * @param letter Name of the column to resize (Starts at 'A')
