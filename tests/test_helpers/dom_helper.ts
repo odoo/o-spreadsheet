@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
-import { MIN_DELAY, scrollDelay, toZone } from "../../src/helpers";
+import { lettersToNumber, MIN_DELAY, scrollDelay, toZone } from "../../src/helpers";
 import { Pixel } from "../../src/types";
 import { nextTick } from "./helpers";
 
@@ -156,6 +156,22 @@ export function getElComputedStyle(selector: string, style: string): string {
   const element = document.querySelector(selector);
   if (!element) throw new Error(`No element matching selector "${selector}"`);
   return window.getComputedStyle(element)[style];
+}
+
+/**
+ * Select a column
+ * @param model
+ * @param letter Name of the column to click on (Starts at 'A')
+ * @param extra shiftKey, ctrlKey
+ */
+export async function selectColumnByClicking(model: Model, letter: string, extra: any = {}) {
+  const index = lettersToNumber(letter);
+  const x = model.getters.getColDimensions(model.getters.getActiveSheetId(), index)!.start + 1;
+  triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
+  await nextTick();
+  triggerMouseEvent(".o-overlay .o-col-resizer", "mousedown", x, 10, extra);
+  triggerMouseEvent(window, "mouseup", x, 10);
+  await nextTick();
 }
 
 export async function dragElement(

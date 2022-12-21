@@ -497,8 +497,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const lastZone = zones[zones.length - 1];
     let type: ContextMenuType = "CELL";
     if (!isInside(col, row, lastZone)) {
-      this.env.model.dispatch("UNFOCUS_SELECTION_INPUT");
-      this.env.model.dispatch("STOP_EDITION");
+      this.env.model.selection.getBackToDefault();
       this.env.model.selection.selectCell(col, row);
     } else {
       if (this.env.model.getters.getActiveCols().has(col)) {

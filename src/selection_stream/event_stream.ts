@@ -86,6 +86,17 @@ export class EventStream<Event> {
   }
 
   /**
+   * Release whichever subscription in charge and get back to the default subscription
+   */
+  getBackToDefault() {
+    if (this.mainSubscription === this.defaultSubscription) {
+      return;
+    }
+    this.mainSubscription?.callbacks.release?.();
+    this.mainSubscription = this.defaultSubscription;
+  }
+
+  /**
    * Check if you are currently the main stream consumer
    */
   isListening(owner: unknown): boolean {

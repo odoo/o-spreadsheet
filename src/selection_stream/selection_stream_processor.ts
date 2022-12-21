@@ -119,6 +119,10 @@ export class SelectionStreamProcessor
     }
   }
 
+  getBackToDefault() {
+    this.stream.getBackToDefault();
+  }
+
   /**
    * Select a new anchor
    */

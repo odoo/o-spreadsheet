@@ -24,6 +24,7 @@ import {
   keyDown,
   keyUp,
   rightClickCell,
+  selectColumnByClicking,
   simulateClick,
 } from "../test_helpers/dom_helper";
 import {
@@ -1216,6 +1217,20 @@ describe("composer", () => {
     await rightClickCell(model, "C8");
     expect(model.getters.getEditionMode()).toBe("inactive");
     expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(0);
+  });
+
+  test("The composer should be closed before selecting headers", async () => {
+    await typeInComposerGrid("Hello");
+    expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(1);
+    await selectColumnByClicking(model, "C");
+    expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(0);
+  });
+
+  test("The content in the composer should be kept after selecting headers", async () => {
+    await clickCell(model, "C8");
+    await typeInComposerGrid("Hello");
+    await selectColumnByClicking(model, "C");
+    expect(getCellText(model, "C8")).toBe("Hello");
   });
 
   test("type '=', stop editing with enter, click on the modified cell --> the edition mode should be inactive", async () => {
