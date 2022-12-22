@@ -363,7 +363,7 @@ describe("Autocomplete parenthesis", () => {
 
     model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 4 });
     await nextTick();
-    await typeInComposerGrid("if");
+    await typeInComposerGrid("if", false);
     expect(model.getters.getCurrentContent()).toBe("=if(1,2)");
   });
 
@@ -421,20 +421,23 @@ describe("Autocomplete parenthesis", () => {
 describe("composer Assistant", () => {
   test("render below the cell by default", async () => {
     await typeInComposerGrid("=s");
+    expect(fixture.querySelectorAll(".o-composer-assistant").length).toBe(1);
     const assistantEl = fixture.querySelector(".o-composer-assistant")! as HTMLElement;
     expect(assistantEl).toMatchSnapshot();
     expect(assistantEl.style.width).toBe("300px");
+    expect(assistantEl.style.top).toBe("");
+    expect(assistantEl.style.transform).toBe("");
   });
 
   test("render above the cell when not enough place below", async () => {
-    const { left, bottom } = model.getters.getActiveMainViewport();
-    selectCell(model, toXC(left, bottom));
+    const { right, bottom } = model.getters.getActiveMainViewport();
+    await clickCell(model, toXC(right, bottom));
     await typeInComposerGrid("=s");
-    const assistantEL = fixture.querySelector(".o-composer-assistant")! as HTMLElement;
-    expect(assistantEL).toMatchSnapshot();
-    expect(assistantEL.style.width).toBe("300px");
-    expect(assistantEL.style.top).toBe("-3px");
-    expect(assistantEL.style.transform).toBe("translate(0, -100%)");
+    const assistantEl = fixture.querySelector(".o-composer-assistant")! as HTMLElement;
+    expect(assistantEl).toMatchSnapshot();
+    expect(assistantEl.style.width).toBe("300px");
+    expect(assistantEl.style.top).toBe("-3px");
+    expect(assistantEl.style.transform).toBe("translate(0, -100%)");
   });
 });
 
