@@ -62,13 +62,14 @@ describe("Simple Spreadsheet Component", () => {
     ({ model, fixture } = await mountSpreadsheet({
       model: new Model({ sheets: [{ id: "sh1" }] }),
     }));
-    // TODO check
-    expect(document.activeElement!.tagName).toEqual("INPUT");
-    await click(fixture, ".o-add-sheet");
+    const defaultComposer = fixture.querySelector(".o-grid div.o-composer");
+    expect(document.activeElement).toBe(defaultComposer);
+    document.querySelector(".o-add-sheet")!.dispatchEvent(new Event("click"));
+    await nextTick();
     expect(document.querySelectorAll(".o-sheet").length).toBe(2);
-    expect(document.activeElement!.tagName).toEqual("INPUT");
+    expect(document.activeElement).toBe(defaultComposer);
     await simulateClick(document.querySelectorAll(".o-sheet")[1]);
-    expect(document.activeElement!.tagName).toEqual("INPUT");
+    expect(document.activeElement).toBe(defaultComposer);
   });
 
   describe("Use of env in a function", () => {
@@ -131,8 +132,7 @@ describe("Simple Spreadsheet Component", () => {
     ({ model, parent, fixture } = await mountSpreadsheet());
     await simulateClick(`span[title="Bold (Ctrl+B)"]`);
     expect(document.activeElement).not.toBeNull();
-    document.activeElement?.dispatchEvent(new InputEvent("input", { data: "d", bubbles: true }));
-    await nextTick();
+    await typeInComposerGrid("d");
     expect(model.getters.getEditionMode()).toBe("editing");
     expect(model.getters.getCurrentContent()).toBe("d");
   });
@@ -242,16 +242,6 @@ describe("Simple Spreadsheet Component", () => {
     expect(sheets).toHaveLength(model.getters.getSheetIds().length - 1);
   });
 
-  test("The composer helper should be closed on toggle topbar context menu", async () => {
-    ({ parent, fixture } = await mountSpreadsheet());
-    await typeInComposerGrid("=sum(");
-    expect(parent.model.getters.getEditionMode()).not.toBe("inactive");
-    expect(fixture.querySelectorAll(".o-composer-assistant")).toHaveLength(1);
-    await simulateClick(".o-topbar-topleft .o-topbar-menu");
-    expect(parent.model.getters.getEditionMode()).toBe("inactive");
-    expect(fixture.querySelectorAll(".o-composer-assistant")).toHaveLength(0);
-  });
-
   test("Insert a function properly sets the edition", async () => {
     ({ model, parent, fixture, env } = await mountSpreadsheet());
     const dispatch = spyDispatch(parent);
@@ -354,10 +344,10 @@ test("Notify ui correctly, with type notification correctly use notifyUser in th
 
 test("grid should regain focus after a topbar menu option is selected", async () => {
   ({ parent, fixture } = await mountSpreadsheet());
-  expect(document.activeElement!.tagName).toEqual("INPUT");
+  expect(document.activeElement!.classList).toContain("o-composer");
   await click(fixture, ".o-topbar-menu[data-id='format']");
   await simulateClick(".o-menu-item[title='Bold']");
-  expect(document.activeElement!.tagName).toEqual("INPUT");
+  expect(document.activeElement!.classList).toContain("o-composer");
 });
 
 describe("Composer / selectionInput interactions", () => {
@@ -410,8 +400,7 @@ describe("Composer / selectionInput interactions", () => {
 
       // focus selection input
       await simulateClick(".o-selection-input input");
-
-      expect(fixture.querySelectorAll(".o-grid-composer")).toHaveLength(0);
+      expect(model.getters.getEditionMode()).toBe("inactive");
     }
   );
 

@@ -238,7 +238,6 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onContextMenu(ev: MouseEvent) {
-    ev.preventDefault();
     const [col, row] = this.getCartesianCoordinates(ev);
     this.props.onCellRightClicked(col, row, { x: ev.clientX, y: ev.clientY });
   }

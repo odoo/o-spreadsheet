@@ -119,15 +119,15 @@ describe("Integration tests", () => {
     groupRows(model, 1, 4);
     await nextTick();
 
-    expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
 
     (document.activeElement as HTMLElement).blur(); // blur element manually because JSDom don't change focus on click event
     await click(fixture.querySelectorAll<HTMLElement>(".o-header-group")[0]);
-    expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
 
     (document.activeElement as HTMLElement).blur();
     await click(fixture.querySelectorAll<HTMLElement>(".o-header-group")[1]);
-    expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
   });
 });
 
