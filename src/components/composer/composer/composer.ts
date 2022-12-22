@@ -1,9 +1,9 @@
-import { Component, onMounted, onPatched, onWillUnmount, useRef, useState } from "@odoo/owl";
+import { Component, onMounted, onPatched, useRef, useState } from "@odoo/owl";
 import { ComponentsImportance, DEFAULT_FONT, SELECTION_BORDER_COLOR } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/index";
 import { functionRegistry } from "../../../functions/index";
 import { isEqual, rangeReference, splitReference, zoneToDimension } from "../../../helpers/index";
-import { ComposerSelection, SelectionIndicator } from "../../../plugins/ui_stateful/edition";
+import { SelectionIndicator } from "../../../plugins/ui_stateful/edition";
 import {
   Color,
   DOMDimension,
@@ -101,13 +101,14 @@ export interface AutocompleteValue {
   description: string;
 }
 
-interface Props {
+export interface ComposerProps {
   inputStyle: string;
   rect?: Rect;
   delimitation?: DOMDimension;
   focus: "inactive" | "cellFocus" | "contentFocus";
-  onComposerUnmounted?: () => void;
-  onComposerContentFocused: (selection: ComposerSelection) => void;
+  onComposerContentFocused: () => void;
+  onComposerCellFocused?: (content: String) => void;
+  isDefaultFocus?: boolean;
 }
 
 interface ComposerState {
@@ -128,11 +129,12 @@ interface FunctionDescriptionState {
   argToFocus: number;
 }
 
-export class Composer extends Component<Props, SpreadsheetChildEnv> {
+export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Composer";
   static components = { TextValueProvider, FunctionDescriptionProvider };
   static defaultProps = {
     inputStyle: "",
+    isDefaultFocus: false,
   };
 
   composerRef = useRef("o_composer");
@@ -199,13 +201,11 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
   setup() {
     onMounted(() => {
       const el = this.composerRef.el!;
-
+      if (this.props.isDefaultFocus) {
+        this.env.focusableElement.setFocusableElement(el);
+      }
       this.contentHelper.updateEl(el);
       this.processContent();
-    });
-
-    onWillUnmount(() => {
-      this.props.onComposerUnmounted?.();
     });
 
     onPatched(() => {
@@ -220,7 +220,10 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
   // ---------------------------------------------------------------------------
 
   private processArrowKeys(ev: KeyboardEvent) {
-    if (this.env.model.getters.isSelectingForComposer()) {
+    if (
+      this.env.model.getters.isSelectingForComposer() ||
+      this.env.model.getters.getEditionMode() === "inactive"
+    ) {
       this.functionDescriptionState.showDescription = false;
       // Prevent the default content editable behavior which moves the cursor
       ev.preventDefault();
@@ -263,22 +266,23 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
   private processTabKey(ev: KeyboardEvent) {
     ev.preventDefault();
     ev.stopPropagation();
-    if (this.autoCompleteState.showProvider) {
-      const autoCompleteValue =
-        this.autoCompleteState.values[this.autoCompleteState.selectedIndex]?.text;
-      if (autoCompleteValue) {
-        this.autoComplete(autoCompleteValue);
-        return;
+    if (this.env.model.getters.getEditionMode() !== "inactive") {
+      if (this.autoCompleteState.showProvider) {
+        const autoCompleteValue =
+          this.autoCompleteState.values[this.autoCompleteState.selectedIndex]?.text;
+        if (autoCompleteValue) {
+          this.autoComplete(autoCompleteValue);
+          return;
+        }
+      } else {
+        // when completing with tab, if there is no value to complete, the active cell will be moved to the right.
+        // we can't let the model think that it is for a ref selection.
+        // todo: check if this can be removed someday
+        this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
       }
-    } else {
-      // when completing with tab, if there is no value to complete, the active cell will be moved to the right.
-      // we can't let the model think that it is for a ref selection.
-      // todo: check if this can be removed someday
-      this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
+      this.env.model.dispatch("STOP_EDITION");
     }
-
     const direction = ev.shiftKey ? "left" : "right";
-    this.env.model.dispatch("STOP_EDITION");
     this.env.model.selection.moveAnchorCell(direction, 1);
   }
 
@@ -316,6 +320,9 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onKeydown(ev: KeyboardEvent) {
+    if (this.env.model.getters.getEditionMode() === "inactive") {
+      return;
+    }
     let handler = this.keyMapping[ev.key];
     if (handler) {
       handler.call(this, ev);
@@ -326,24 +333,50 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private updateCursorIfNeeded() {
-    if (!this.env.model.getters.isSelectingForComposer()) {
+    const moveCursor =
+      !this.env.model.getters.isSelectingForComposer() &&
+      !(this.env.model.getters.getEditionMode() === "inactive");
+    if (moveCursor) {
       const { start, end } = this.contentHelper.getCurrentSelection();
       this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start, end });
       this.isKeyStillDown = true;
     }
   }
 
+  onPaste(ev: ClipboardEvent) {
+    if (this.env.model.getters.getEditionMode() !== "inactive") {
+      ev.stopPropagation();
+    }
+  }
+
   /*
    * Triggered automatically by the content-editable between the keydown and key up
    * */
-  onInput() {
-    if (this.props.focus === "inactive" || !this.shouldProcessInputEvents) {
+  onInput(ev: InputEvent) {
+    if (!this.shouldProcessInputEvents) {
       return;
     }
+    if (
+      ev.inputType === "insertFromPaste" &&
+      this.env.model.getters.getEditionMode() === "inactive"
+    ) {
+      return;
+    }
+    ev.stopPropagation();
+    let content: string;
+
+    if (this.env.model.getters.getEditionMode() === "inactive") {
+      content = ev.data || "";
+    } else {
+      const el = this.composerRef.el! as HTMLInputElement;
+      content = el.childNodes.length ? el.textContent! : "";
+    }
+    if (this.props.focus === "inactive") {
+      return this.props.onComposerCellFocused?.(content);
+    }
     this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
-    const el = this.composerRef.el! as HTMLInputElement;
     this.env.model.dispatch("SET_CURRENT_CONTENT", {
-      content: el.childNodes.length ? el.textContent! : "",
+      content,
       selection: this.contentHelper.getCurrentSelection(),
     });
   }
@@ -422,8 +455,8 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     const newSelection = this.contentHelper.getCurrentSelection();
 
     this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
+    this.props.onComposerContentFocused();
     if (this.props.focus === "inactive") {
-      this.props.onComposerContentFocused(newSelection);
     }
     this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", newSelection);
     this.processTokenAtCursor();
@@ -629,6 +662,7 @@ Composer.props = {
   rect: { type: Object, optional: true },
   delimitation: { type: Object, optional: true },
   focus: { validate: (value: string) => ["inactive", "cellFocus", "contentFocus"].includes(value) },
-  onComposerUnmounted: { type: Function, optional: true },
+  onComposerCellFocused: { type: Function, optional: true },
   onComposerContentFocused: Function,
+  isDefaultFocus: { type: Boolean, optional: true },
 };
