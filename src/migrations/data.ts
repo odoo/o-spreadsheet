@@ -416,7 +416,7 @@ export function createEmptyWorkbookData(sheetName = "Sheet1"): WorkbookData {
   return data;
 }
 
-function createEmptyExcelSheet(sheetId: UID, name: string): ExcelSheetData {
+export function createEmptyExcelSheet(sheetId: UID, name: string): ExcelSheetData {
   return {
     ...(createEmptySheet(sheetId, name) as Omit<ExcelSheetData, "charts">),
     charts: [],

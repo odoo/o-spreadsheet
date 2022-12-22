@@ -50,7 +50,11 @@ import {
   toZone,
   UuidGenerator,
 } from "./helpers/index";
-import { createEmptySheet, createEmptyWorkbookData } from "./migrations/data";
+import {
+  createEmptyExcelSheet,
+  createEmptySheet,
+  createEmptyWorkbookData,
+} from "./migrations/data";
 import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
 import { clickableCellRegistry } from "./registries/cell_clickable_registry";
 import {
@@ -171,6 +175,7 @@ export const helpers = {
   markdownLink,
   createEmptyWorkbookData,
   createEmptySheet,
+  createEmptyExcelSheet,
   getDefaultChartJsRuntime,
   chartFontColor,
   getMenuChildren,
