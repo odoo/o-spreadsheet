@@ -18,6 +18,7 @@ import {
   SCROLLBAR_WIDTH,
   TOPBAR_HEIGHT,
 } from "../../constants";
+import { FocusManager } from "../../helpers/focus_manager";
 import { Model } from "../../model";
 import { ComposerSelection } from "../../plugins/ui/edition";
 import { _lt } from "../../translation";
@@ -172,6 +173,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       toggleSidePanel: this.toggleSidePanel.bind(this),
       _t: Spreadsheet._t,
       clipboard: navigator.clipboard,
+      focusManager: new FocusManager(),
     });
 
     useExternalListener(window as any, "resize", () => this.render(true));
@@ -290,19 +292,20 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     this.model.dispatch("UNFOCUS_SELECTION_INPUT");
     this.composer.topBarFocus = "contentFocus";
     this.composer.gridFocusMode = "inactive";
-    this.setComposerContent({ selection } || {});
+    this.setComposerContent({ selection });
   }
 
-  onGridComposerContentFocused() {
+  onGridComposerContentFocused(selection: ComposerSelection) {
     if (this.model.getters.isReadonly()) {
       return;
     }
     this.model.dispatch("UNFOCUS_SELECTION_INPUT");
     this.composer.topBarFocus = "inactive";
     this.composer.gridFocusMode = "contentFocus";
-    this.setComposerContent({});
+    this.setComposerContent({ selection });
   }
 
+  // TODO: either both are defined or none of them. change those args to an object
   onGridComposerCellFocused(content?: string, selection?: ComposerSelection) {
     if (this.model.getters.isReadonly()) {
       return;

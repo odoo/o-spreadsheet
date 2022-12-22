@@ -3,6 +3,7 @@ import { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
 import { functionRegistry } from "../../src/functions/index";
+import { FocusManager } from "../../src/helpers/focus_manager";
 import { toCartesian, toUnboundedZone, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
@@ -134,6 +135,7 @@ export async function mountSpreadsheet(
     raiseError: () => {},
     askConfirmation: () => {},
     isDashboard: () => false,
+    focusManager: new FocusManager(),
     ...env,
   };
   const app = new App(Spreadsheet, { props, env: mockEnv, test: true });

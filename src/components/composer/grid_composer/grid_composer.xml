@@ -3,11 +3,12 @@
     <div class="o-grid-composer" t-att-style="containerStyle" t-ref="gridComposer">
       <Composer
         focus="props.focus"
+        isDefaultFocus="true"
         inputStyle="composerStyle"
-        rect="composerState.rect"
-        delimitation="composerState.delimitation"
-        onComposerUnmounted="props.onComposerUnmounted"
+        rect="composerProps.rect"
+        delimitation="composerProps.delimitation"
         onComposerContentFocused="props.onComposerContentFocused"
+        onComposerCellFocused="props.onComposerCellFocused"
       />
     </div>
   </t>

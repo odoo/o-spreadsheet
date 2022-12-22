@@ -33,6 +33,7 @@ import {
   typeInComposerTopBar,
 } from "../test_helpers/helpers";
 import { mockChart } from "./__mocks__/chart";
+import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
@@ -67,14 +68,14 @@ describe("Spreadsheet", () => {
   });
 
   test("focus is properly set, initially and after switching sheet", async () => {
-    // TODO check
-    expect(document.activeElement!.tagName).toEqual("INPUT");
+    const defaultComposer = fixture.querySelector(".o-grid div.o-composer");
+    expect(document.activeElement).toBe(defaultComposer);
     document.querySelector(".o-add-sheet")!.dispatchEvent(new Event("click"));
     await nextTick();
     expect(document.querySelectorAll(".o-sheet").length).toBe(2);
-    expect(document.activeElement!.tagName).toEqual("INPUT");
+    expect(document.activeElement).toBe(defaultComposer);
     await simulateClick(document.querySelectorAll(".o-sheet")[1]);
-    expect(document.activeElement!.tagName).toEqual("INPUT");
+    expect(document.activeElement).toBe(defaultComposer);
   });
 
   describe("Use of env in a function", () => {
@@ -134,7 +135,10 @@ describe("Spreadsheet", () => {
   test("typing opens composer after toolbar clicked", async () => {
     await simulateClick(`div[title="Bold"]`);
     expect(document.activeElement).not.toBeNull();
-    document.activeElement?.dispatchEvent(new InputEvent("input", { data: "d", bubbles: true }));
+    // @ts-ignore
+    const cehMock = window.mockContentHelper as ContentEditableHelper;
+    cehMock.insertText("d");
+    document.activeElement!.dispatchEvent(new InputEvent("input", { data: "d", bubbles: true }));
     await nextTick();
     expect(parent.model.getters.getEditionMode()).toBe("editing");
     expect(parent.model.getters.getCurrentContent()).toBe("d");
