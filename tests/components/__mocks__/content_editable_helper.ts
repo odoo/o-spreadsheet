@@ -24,10 +24,6 @@ export class ContentEditableHelper {
     this.colors = {};
   }
   selectRange(start: number, end: number) {
-    // TODO: find a way not to depend on selectRange to gain focus and push mockContentHelper
-    this.el!.focus();
-    // @ts-ignore
-    window.mockContentHelper = this;
     this.manualRange = true;
     this.currentState.cursorStart = start;
     this.currentState.cursorEnd = end;
@@ -94,6 +90,8 @@ export class ContentEditableHelper {
   private attachEventHandlers() {
     if (this.el === null) return;
     this.el.addEventListener("keydown", (ev: KeyboardEvent) => this.onKeyDown(this.el!, ev));
+    // @ts-ignore
+    this.el.addEventListener("focus", (ev: FocusEvent) => (window.mockContentHelper = this));
   }
 
   /**

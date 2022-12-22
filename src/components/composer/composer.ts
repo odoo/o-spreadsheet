@@ -441,26 +441,31 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   // ---------------------------------------------------------------------------
 
   private processContent() {
-    const currentContent = this.getters.getCurrentContent();
-    const oldContent = this.oldContent || "";
-    if (!currentContent.startsWith("=") && deepEquals(oldContent, currentContent)) {
-      return;
+    // Ensure we have the focus we are expecting
+    if (this.props.focus !== "inactive") {
+      this.contentHelper.el.focus();
     }
-    this.oldContent = currentContent;
-    const content = this.getContent();
-    this.contentHelper.removeAll(); // removes the content of the composer, to be added just after
     this.shouldProcessInputEvents = false;
 
-    if (this.props.focus !== "inactive") {
-      this.contentHelper.selectRange(0, 0); // move the cursor inside the composer at 0 0.
-    }
-    if (content.length !== 0) {
-      this.contentHelper.setText(content);
-      const { start, end } = this.getters.getComposerSelection();
+    const currentContent = this.getters.getCurrentContent();
+    const oldContent = this.oldContent || "";
+    if (currentContent.startsWith("=") || !deepEquals(oldContent, currentContent)) {
+      //Need to re-render the whole content
+      this.oldContent = currentContent;
+      const content = this.getContent();
+      this.contentHelper.removeAll(); // removes the content of the composer, to be added just after
 
       if (this.props.focus !== "inactive") {
-        // Put the cursor back where it was before the rendering
-        this.contentHelper.selectRange(start, end);
+        this.contentHelper.selectRange(0, 0); // move the cursor inside the composer at 0 0.
+      }
+      if (content.length !== 0) {
+        this.contentHelper.setText(content);
+        const { start, end } = this.getters.getComposerSelection();
+
+        if (this.props.focus !== "inactive") {
+          // Put the cursor back where it was before the rendering
+          this.contentHelper.selectRange(start, end);
+        }
       }
     }
 
