@@ -135,6 +135,6 @@ describe("Side Panel", () => {
     await nextTick();
     simulateClick(".o-sidePanelClose");
     await nextTick();
-    expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
   });
 });
