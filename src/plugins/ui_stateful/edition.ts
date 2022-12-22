@@ -37,7 +37,7 @@ import {
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
-type EditionMode =
+export type EditionMode =
   | "editing"
   | "selecting" // should tell if you need to underline the current range selected.
   | "inactive";
@@ -260,7 +260,7 @@ export class EditionPlugin extends UIPlugin {
     };
   }
 
-  getCurrentEditedCell(): CellPosition {
+  getCurrentEditedCell(): CellPosition | undefined {
     return {
       sheetId: this.sheetId,
       col: this.col,

@@ -300,7 +300,7 @@ describe("formula assistant", () => {
 
     test("=FUNC1(42 then add ',' focus index on 2nd arg", async () => {
       await typeInComposerGrid("=FUNC1(42");
-      await typeInComposerGrid(",");
+      await typeInComposerGrid(",", false);
       expect(
         fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
           .textContent

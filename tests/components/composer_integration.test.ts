@@ -108,7 +108,7 @@ describe("Composer interactions", () => {
 
     // Focus grid composer and type
     await click(fixture, ".o-grid .o-composer");
-    await typeInComposerGrid("from grid");
+    await typeInComposerGrid("from grid", false);
     expect(topBarComposer!.textContent).toBe("from topbarfrom grid");
     expect(gridComposer!.textContent).toBe("from topbarfrom grid");
   });
@@ -221,6 +221,14 @@ describe("Composer interactions", () => {
     expect(composerEl.textContent).toBe("=C7");
   });
 
+  test("grid composer is not visible when not editing", async () => {
+    expect(model.getters.getEditionMode()).toBe("inactive");
+    const gridComposerEl = fixture.querySelector(".o-grid-composer") as HTMLDivElement;
+    expect(gridComposerEl.style.zIndex).toBe("-1000");
+    await startComposition();
+    expect(gridComposerEl.style.zIndex).toBe("");
+  });
+
   test("starting the edition with enter, the composer should have the focus", async () => {
     await startComposition();
     expect(model.getters.getEditionMode()).toBe("editing");
@@ -286,7 +294,7 @@ describe("Composer interactions", () => {
     composerEl.dispatchEvent(new Event("keyup"));
     await clickCell(model, "C8");
     expect(getSelectionAnchorCellXc(model)).toBe("C8");
-    expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(0);
+    expect(model.getters.getEditionMode()).toBe("inactive");
   });
 
   test("ArrowKeys will move to neighbour cell, if not in contentFocus mode (left/right)", async () => {
@@ -317,8 +325,8 @@ describe("Composer interactions", () => {
   test("Arrow keys will not move to neighbor cell when a formula", async () => {
     let composerEl: Element;
     composerEl = await startComposition("=");
-    await typeInComposerGrid(`"`);
-    await typeInComposerGrid(`"`);
+    await typeInComposerGrid(`"`, false);
+    await typeInComposerGrid(`"`, false);
     expect(composerEl.textContent).toBe(`=""`);
     await keyDown("ArrowLeft");
     expect(model.getters.getEditionMode()).not.toBe("inactive");
@@ -353,14 +361,13 @@ describe("Composer interactions", () => {
     await typeInComposerGrid("=");
     await rightClickCell(model, "C8");
     expect(model.getters.getEditionMode()).toBe("inactive");
-    expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(0);
   });
 
   test("The composer should be closed before selecting headers", async () => {
     await typeInComposerGrid("Hello");
-    expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(1);
+    expect(model.getters.getEditionMode()).not.toBe("inactive");
     await selectColumnByClicking(model, "C");
-    expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(0);
+    expect(model.getters.getEditionMode()).toBe("inactive");
   });
 
   test("The content in the composer should be kept after selecting headers", async () => {
@@ -427,17 +434,17 @@ describe("Grid composer", () => {
 
     // Editing text
     await typeInComposerGrid("hey");
-    expect(fixture.querySelector(".o-grid .o-composer")).toBeTruthy();
+    expect(model.getters.getEditionMode()).not.toBe("inactive");
     activateSheet(model, "42");
     await nextTick();
-    expect(fixture.querySelector(".o-grid .o-composer")).toBeFalsy();
+    expect(model.getters.getEditionMode()).toBe("inactive");
 
     // Editing formula
     await typeInComposerGrid("=");
-    expect(fixture.querySelector(".o-grid .o-composer")).toBeTruthy();
+    expect(model.getters.getEditionMode()).not.toBe("inactive");
     activateSheet(model, baseSheetId);
     await nextTick();
-    expect(fixture.querySelector(".o-grid .o-composer")).toBeTruthy();
+    expect(model.getters.getEditionMode()).not.toBe("inactive");
   });
 
   test("the composer should keep the focus after changing sheet", async () => {
@@ -453,7 +460,6 @@ describe("Grid composer", () => {
 
   describe("grid composer basic style", () => {
     const composerContainerSelector = ".o-grid .o-grid-composer";
-    const composerSelector = composerContainerSelector + " .o-composer";
 
     test("Grid composer snapshot", async () => {
       await typeInComposerGrid("A");
@@ -495,8 +501,12 @@ describe("Grid composer", () => {
       const expectedMaxHeight = sheetViewDims.height - 2 * DEFAULT_CELL_HEIGHT;
       const expectedMaxWidth = sheetViewDims.width - 2 * DEFAULT_CELL_WIDTH;
 
-      expect(getElComputedStyle(composerSelector, "max-height")).toBe(expectedMaxHeight + "px");
-      expect(getElComputedStyle(composerSelector, "max-width")).toBe(expectedMaxWidth + "px");
+      expect(getElComputedStyle(composerContainerSelector, "max-height")).toBe(
+        expectedMaxHeight + "px"
+      );
+      expect(getElComputedStyle(composerContainerSelector, "max-width")).toBe(
+        expectedMaxWidth + "px"
+      );
     });
   });
 
