@@ -74,7 +74,7 @@ async function typeInComposerGrid(text: string, fromScratch: boolean = true) {
 beforeEach(async () => {
   jest.useFakeTimers();
   ({ model, fixture } = await mountSpreadsheet());
-  gridInputEl = fixture.querySelector(".o-grid>input")!;
+  gridInputEl = fixture.querySelector(".o-grid div.o-composer")!;
 });
 
 describe("ranges and highlights", () => {
@@ -383,7 +383,7 @@ describe("ranges and highlights", () => {
       await nextTick();
       expect(composerEl.textContent).toBe("=C1");
 
-      composerEl = await typeInComposerGrid("+B2");
+      composerEl = await typeInComposerGrid("+B2", false);
       model.dispatch("START_CHANGE_HIGHLIGHT", {
         range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "B1:B2"),
       });
@@ -435,7 +435,15 @@ describe("ranges and highlights", () => {
 });
 
 describe("composer", () => {
-  test("starting the edition with enter, the composer should have the focus", async () => {
+  test("grid composer is not visible when not editing", async () => {
+    expect(model.getters.getEditionMode()).toBe("inactive");
+    const gridComposerEl = fixture.querySelector(".o-grid-composer") as HTMLDivElement;
+    expect(gridComposerEl.style.zIndex).toBe("-1000");
+    await startComposition();
+    expect(gridComposerEl.style.zIndex).toBe("");
+  });
+
+  test("starting the edition with enter, the grid composer should have the focus", async () => {
     await startComposition();
     expect(model.getters.getEditionMode()).toBe("editing");
     expect(getActivePosition(model)).toBe("A1");
@@ -454,6 +462,7 @@ describe("composer", () => {
 
   test("ArrowKeys will move to neighbour cell, if not in contentFocus mode (left/right)", async () => {
     composerEl = await startComposition("a");
+    await nextTick();
     expect(composerEl.textContent).toBe("a");
     await keyDown("ArrowRight");
     expect(getCellText(model, "A1")).toBe("a");
@@ -478,8 +487,8 @@ describe("composer", () => {
 
   test("Arrow keys will not move to neighbor cell when a formula", async () => {
     composerEl = await startComposition("=");
-    await typeInComposerGrid(`"`);
-    await typeInComposerGrid(`"`);
+    await typeInComposerGrid(`"`, false);
+    await typeInComposerGrid(`"`, false);
     expect(composerEl.textContent).toBe(`=""`);
     await keyDown("ArrowLeft");
     expect(model.getters.getEditionMode()).not.toBe("inactive");
@@ -517,7 +526,7 @@ describe("composer", () => {
     composerEl.dispatchEvent(new Event("keyup"));
     await rightClickCell(model, "C8");
     expect(getSelectionAnchorCellXc(model)).toBe("C8");
-    expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(0);
+    expect(model.getters.getEditionMode()).toBe("inactive");
   });
 
   test("type '=' in the sheet and select a cell", async () => {
@@ -618,7 +627,6 @@ describe("composer", () => {
     setCellContent(model, "A1", "[label](http://odoo.com)");
     await hoverCell(model, "A1", 400);
     expect(fixture.querySelector(".o-link-tool")).not.toBeNull();
-    await startComposition();
     await typeInComposerGrid(" updated");
     await keyDown("Enter");
     const link = getEvaluatedCell(model, "A1").link;
@@ -635,7 +643,7 @@ describe("composer", () => {
     expect(topbarComposerElement.textContent).toBe("=A1+A2");
   });
 
-  test("Hitting enter on topbar composer will properly update it", async () => {
+  test("Hitting enter on topbar composer will properly update it and stop the edition", async () => {
     setCellContent(model, "A1", "I am Tabouret");
     await clickCell(model, "A1");
     const topbarComposerElement = fixture.querySelector(
@@ -645,6 +653,8 @@ describe("composer", () => {
     await simulateClick(topbarComposerElement);
     await keyDown("Enter");
     expect(topbarComposerElement.textContent).toBe("");
+    expect(model.getters.getEditionMode()).toBe("inactive");
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer")!);
   });
 
   test("Losing focus on topbar composer will properly update it", async () => {
@@ -745,7 +755,7 @@ describe("composer", () => {
           composerEl = await startComposition();
           await typeInComposerGrid(matchingValue);
           await moveToStart();
-          composerEl = await typeInComposerGrid(formula + ",");
+          composerEl = await typeInComposerGrid(formula + ",", false);
           expect(model.getters.getEditionMode()).toBe("selecting");
           expect(composerEl.textContent).toBe(formula + "," + matchingValue);
           expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
@@ -766,7 +776,7 @@ describe("composer", () => {
           composerEl = await startComposition();
           await typeInComposerGrid(mismatchingValue);
           await moveToStart();
-          await typeInComposerGrid(formula + ",");
+          await typeInComposerGrid(formula + ",", false);
           expect(model.getters.getEditionMode()).not.toBe("selecting");
           expect(composerEl.textContent).toBe(formula + "," + mismatchingValue);
         }
@@ -779,7 +789,7 @@ describe("composer", () => {
           await typeInComposerGrid(matchingValue);
           await moveToStart();
           const formulaInput = formula + ",  ";
-          composerEl = await typeInComposerGrid(formulaInput);
+          composerEl = await typeInComposerGrid(formulaInput, false);
           expect(model.getters.getEditionMode()).toBe("selecting");
           expect(composerEl.textContent).toBe(formulaInput + matchingValue);
           expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
@@ -793,7 +803,7 @@ describe("composer", () => {
           composerEl = await startComposition();
           await typeInComposerGrid(mismatchingValue);
           await moveToStart();
-          await typeInComposerGrid(formula + ",  ");
+          await typeInComposerGrid(formula + ",  ", false);
           expect(model.getters.getEditionMode()).not.toBe("selecting");
           expect(composerEl.textContent).toBe(formula + ",  " + mismatchingValue);
           expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
@@ -806,7 +816,7 @@ describe("composer", () => {
           composerEl = await startComposition();
           await typeInComposerGrid("   " + matchingValue);
           await moveToStart();
-          composerEl = await typeInComposerGrid(formula + ",");
+          composerEl = await typeInComposerGrid(formula + ",", false);
           expect(model.getters.getEditionMode()).toBe("selecting");
           expect(composerEl.textContent).toBe(formula + ",   " + matchingValue);
           expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
@@ -820,7 +830,7 @@ describe("composer", () => {
           composerEl = await startComposition();
           await typeInComposerGrid("   " + mismatchingValue);
           await moveToStart();
-          composerEl = await typeInComposerGrid(formula + ",");
+          composerEl = await typeInComposerGrid(formula + ",", false);
           expect(model.getters.getEditionMode()).not.toBe("selecting");
           expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
           expect(composerEl.textContent).toBe(formula + ",   " + mismatchingValue);
@@ -970,17 +980,17 @@ describe("composer", () => {
 
     // Editing text
     await typeInComposerGrid("hey");
-    expect(fixture.querySelector(".o-grid .o-composer")).toBeTruthy();
+    expect(model.getters.getEditionMode()).not.toBe("inactive");
     activateSheet(model, "42");
     await nextTick();
-    expect(fixture.querySelector(".o-grid .o-composer")).toBeFalsy();
+    expect(model.getters.getEditionMode()).toBe("inactive");
 
     // Editing formula
     await typeInComposerGrid("=");
-    expect(fixture.querySelector(".o-grid .o-composer")).toBeTruthy();
+    expect(model.getters.getEditionMode()).not.toBe("inactive");
     activateSheet(model, baseSheetId);
     await nextTick();
-    expect(fixture.querySelector(".o-grid .o-composer")).toBeTruthy();
+    expect(model.getters.getEditionMode()).not.toBe("inactive");
   });
 
   test("the composer should keep the focus after changing sheet", async () => {
@@ -1219,14 +1229,6 @@ describe("composer", () => {
     await typeInComposerGrid("=");
     await rightClickCell(model, "C8");
     expect(model.getters.getEditionMode()).toBe("inactive");
-    expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(0);
-  });
-
-  test("The composer should be closed before selecting headers", async () => {
-    await typeInComposerGrid("Hello");
-    expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(1);
-    await selectColumnByClicking(model, "C");
-    expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(0);
   });
 
   test("The content in the composer should be kept after selecting headers", async () => {
@@ -1258,7 +1260,7 @@ describe("composer", () => {
   test("Add a character changing the edition mode to waitingForRangeSelection correctly renders the composer", async () => {
     await typeInComposerGrid("=sum(4");
     expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
-    await typeInComposerGrid(",");
+    await typeInComposerGrid(",", false);
     expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
   });
 

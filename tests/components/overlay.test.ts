@@ -26,8 +26,10 @@ import {
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import { getEvaluatedCell, getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
-import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
-
+import { mountSpreadsheet, nextTick, typeInComposerGrid } from "../test_helpers/helpers";
+jest.mock("../../src/components/composer/content_editable_helper", () =>
+  require("./__mocks__/content_editable_helper")
+);
 let fixture: HTMLElement;
 let model: Model;
 
@@ -209,6 +211,13 @@ describe("Resizer component", () => {
     expect(model.getters.getSelectedZones()[1]).toEqual({ left: 0, top: 3, right: 9, bottom: 3 });
     expect(model.getters.getSelectedZones()[2]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
     expect(getSelectionAnchorCellXc(model)).toBe("C1");
+  });
+
+  test("The composer should be closed before selecting headers", async () => {
+    await typeInComposerGrid("Hello");
+    expect(model.getters.getEditionMode()).not.toBe("inactive");
+    await selectColumnByClicking(model, "C");
+    expect(model.getters.getEditionMode()).toBe("inactive");
   });
 
   test("Can resize a column", async () => {
