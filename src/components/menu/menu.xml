@@ -47,6 +47,7 @@
         position="subMenuPosition"
         menuItems="subMenu.menuItems"
         depth="props.depth + 1"
+        maxHeight="props.maxHeight"
         onMenuClicked="props.onMenuClicked"
         onClose="() => this.close()"
       />

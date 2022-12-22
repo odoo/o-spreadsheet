@@ -100,76 +100,123 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
 
 exports[`BottomBar component simple rendering 1`] = `
 <div
-  class="o-spreadsheet-bottom-bar o-two-columns"
+  class="o-spreadsheet-bottom-bar o-two-columns d-flex align-items-center overflow-hidden"
 >
   <div
-    class="o-sheet-item o-add-sheet"
-  >
-    <svg
-      class="o-icon"
-    >
-      <path
-        d="M8,0 L10,0 L10,8 L18,8 L18,10 L10,10 L10,18 L8,18 L8,10 L0,10 L0,8 L8,8"
-        fill="#000000"
-      />
-    </svg>
-  </div>
-  <div
-    class="o-sheet-item o-list-sheets"
-  >
-    <svg
-      class="o-icon"
-      viewBox="0 0 384 384"
-    >
-      <rect
-        height="42.667"
-        width="384"
-        x="0"
-        y="277.333"
-      />
-      <rect
-        height="42.667"
-        width="384"
-        x="0"
-        y="170.667"
-      />
-      <rect
-        height="42.667"
-        width="384"
-        x="0"
-        y="64"
-      />
-    </svg>
-  </div>
-  <div
-    class="o-all-sheets flex-shrink-0 me-3"
+    class="o-ripple-container position-relative"
   >
     <div
-      class="o-sheet-item o-sheet active"
-      data-id="Sheet1"
-      title="Sheet1"
+      class="position-absolute"
+      style=""
     >
-      <span
-        class="o-sheet-name"
-      >
-        Sheet1
-      </span>
-      <span
-        class="o-sheet-icon"
+      
+    </div>
+    <div>
+      <div
+        class="o-sheet-item o-add-sheet position-relative me-2 p-1"
       >
         <svg
           class="o-icon"
         >
-          <polygon
+          <path
+            d="M8,0 L10,0 L10,8 L18,8 L18,10 L10,10 L10,18 L8,18 L8,10 L0,10 L0,8 L8,8"
             fill="#000000"
-            points="0 0 4 4 8 0"
-            transform="translate(5 7)"
           />
         </svg>
-      </span>
+      </div>
+    </div>
+  </div>
+  
+  <div
+    class="o-ripple-container position-relative"
+  >
+    <div
+      class="position-absolute"
+      style=""
+    >
+      
+    </div>
+    <div>
+      <div
+        class="o-sheet-item o-list-sheets position-relative me-2 p-1"
+      >
+        <svg
+          class="o-icon"
+          viewBox="0 0 384 384"
+        >
+          <rect
+            height="42.667"
+            width="384"
+            x="0"
+            y="277.333"
+          />
+          <rect
+            height="42.667"
+            width="384"
+            x="0"
+            y="170.667"
+          />
+          <rect
+            height="42.667"
+            width="384"
+            x="0"
+            y="64"
+          />
+        </svg>
+      </div>
+    </div>
+  </div>
+  
+  <div
+    class="o-all-sheets position-relative flex-shrink-0 d-flex h-100 me-3"
+  >
+    
+    <div
+      class="o-sheet-list d-flex w-100 overflow-hidden"
+    >
+      <div
+        class="o-ripple-container position-relative"
+      >
+        <div
+          class="position-absolute"
+          style=""
+        >
+          
+        </div>
+        <div>
+          <div
+            class="o-sheet position-relative d-flex align-items-center user-select-none text-nowrap active"
+            data-id="Sheet1"
+            title="Sheet1"
+          >
+            <span
+              class="o-sheet-name"
+              contenteditable="false"
+            >
+              Sheet1
+            </span>
+            <span
+              class="o-sheet-icon position-relative ms-1"
+            >
+              <svg
+                class="o-icon"
+              >
+                <polygon
+                  fill="#000000"
+                  points="0 0 4 4 8 0"
+                  transform="translate(5 7)"
+                />
+              </svg>
+            </span>
+          </div>
+        </div>
+      </div>
+      
     </div>
     
   </div>
+  
+  
   
   
 </div>

@@ -1,55 +1,90 @@
 <templates>
   <t t-name="o-spreadsheet-BottomBar" owl="1">
     <div
-      class="o-spreadsheet-bottom-bar o-two-columns"
+      class="o-spreadsheet-bottom-bar o-two-columns d-flex align-items-center overflow-hidden"
       t-on-click="props.onClick"
-      t-ref="bottomBar">
-      <div
-        class="o-sheet-item o-add-sheet"
-        t-att-class="{'disabled': env.model.getters.isReadonly()}"
-        t-on-click="addSheet">
-        <t t-call="o-spreadsheet-Icon.PLUS"/>
-      </div>
-      <div class="o-sheet-item o-list-sheets" t-on-click="listSheets">
-        <t t-call="o-spreadsheet-Icon.LIST"/>
-      </div>
-      <div class="o-all-sheets flex-shrink-0 me-3">
-        <t t-foreach="getVisibleSheets()" t-as="sheet" t-key="sheet.id">
-          <div
-            class="o-sheet-item o-sheet"
-            t-on-click="(ev) => this.activateSheet(sheet.id, ev)"
-            t-on-contextmenu.prevent="(ev) => this.onContextMenu(sheet.id, ev)"
-            t-att-title="sheet.name"
-            t-att-data-id="sheet.id"
-            t-att-class="{active: sheet.id === env.model.getters.getActiveSheetId()}">
-            <span
-              class="o-sheet-name"
-              t-esc="sheet.name"
-              t-on-dblclick="(ev) => this.onDblClick(sheet.id, ev)"
+      t-ref="bottomBar"
+      t-on-contextmenu.prevent="">
+      <Ripple>
+        <div
+          class="o-sheet-item o-add-sheet position-relative me-2 p-1"
+          t-att-class="{'disabled': env.model.getters.isReadonly()}"
+          t-on-click="clickAddSheet">
+          <t t-call="o-spreadsheet-Icon.PLUS"/>
+        </div>
+      </Ripple>
+      <Ripple>
+        <div
+          class="o-sheet-item o-list-sheets position-relative me-2 p-1"
+          t-on-click="clickListSheets">
+          <t t-call="o-spreadsheet-Icon.LIST"/>
+        </div>
+      </Ripple>
+      <div class="o-all-sheets position-relative flex-shrink-0 d-flex h-100 me-3">
+        <div
+          class="o-bottom-bar-fade-in position-absolute h-100 w-100 pe-none"
+          t-if="state.isSheetListScrollableLeft"
+        />
+        <div
+          class="o-sheet-list d-flex w-100 overflow-hidden"
+          t-ref="sheetList"
+          t-on-wheel="onWheel"
+          t-on-scroll="onScroll">
+          <t t-foreach="getVisibleSheets()" t-as="sheet" t-key="sheet.id">
+            <BottomBarSheet
+              sheetId="sheet.id"
+              openContextMenu="(registry, ev) => this.onSheetContextMenu(sheet.id, registry, ev)"
             />
-            <span class="o-sheet-icon" t-on-click.stop="(ev) => this.onIconClick(sheet.id, ev)">
-              <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
-            </span>
+          </t>
+        </div>
+        <div
+          class="o-bottom-bar-fade-out position-absolute h-100 w-100 pe-none"
+          t-if="state.isSheetListScrollableRight"
+        />
+      </div>
+      <div
+        class="o-bottom-bar-arrows d-flex h-100 me-5 align-items-center"
+        t-if="state.isSheetListScrollableLeft || state.isSheetListScrollableRight">
+        <Ripple
+          ignoreClickPosition="true"
+          width="20"
+          height="20"
+          offsetX="1"
+          allowOverflow="true"
+          enabled="state.isSheetListScrollableLeft">
+          <div
+            class="o-bottom-bar-arrow o-bottom-bar-arrow-left d-flex align-items-center me-2"
+            t-att-class="{'o-disabled': !state.isSheetListScrollableLeft}"
+            t-on-click="onArrowLeft">
+            <t t-call="o-spreadsheet-Icon.CARET_LEFT"/>
           </div>
-        </t>
+        </Ripple>
+        <Ripple
+          ignoreClickPosition="true"
+          width="20"
+          height="20"
+          offsetX="-1"
+          allowOverflow="true"
+          enabled="state.isSheetListScrollableRight">
+          <div
+            class="o-bottom-bar-arrow o-bottom-bar-arrow-right d-flex align-items-center me-4"
+            t-att-class="{'o-disabled': !state.isSheetListScrollableRight}"
+            t-on-click="onArrowRight">
+            <t t-call="o-spreadsheet-Icon.CARET_RIGHT"/>
+          </div>
+        </Ripple>
       </div>
 
-      <t t-set="selectedStatistic" t-value="getSelectedStatistic()"/>
-      <div
-        t-if="selectedStatistic !== undefined"
-        class="o-selection-statistic text-truncate"
-        t-on-click="listSelectionStatistics">
-        <t t-esc="selectedStatistic"/>
-        <span>
-          <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
-        </span>
-      </div>
+      <BottomBarStatistic
+        openContextMenu="(x, y, registry) => this.openContextMenu(x, y, 'listSelectionStatistics', registry)"
+      />
 
       <Menu
         t-if="menuState.isOpen"
         position="menuState.position"
         menuItems="menuState.menuItems"
-        onClose="() => this.menuState.isOpen=false"
+        maxHeight="menuMaxHeight"
+        onClose="() => this.closeMenu()"
       />
     </div>
   </t>

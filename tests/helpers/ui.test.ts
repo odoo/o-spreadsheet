@@ -17,20 +17,13 @@ import {
 } from "../../src/helpers/ui/paste_interactive";
 import { interactiveRenameSheet } from "../../src/helpers/ui/sheet_interactive";
 import { Model } from "../../src/model";
-import {
-  CommandResult,
-  Dimension,
-  EditTextOptions,
-  Position,
-  SpreadsheetChildEnv,
-  UID,
-} from "../../src/types";
+import { CommandResult, Dimension, Position, SpreadsheetChildEnv, UID } from "../../src/types";
 import {
   addCellToSelection,
   copy,
   createChart,
   createFilter,
-  createSheetWithName,
+  createSheet,
   cut,
   freezeColumns,
   freezeRows,
@@ -58,6 +51,21 @@ function getCellsObject(model: Model, sheetId: UID) {
 }
 
 describe("Interactive rename sheet", () => {
+  let env: SpreadsheetChildEnv;
+  let raiseErrorSpy: jest.Mock;
+  let errorTextSpy: jest.Mock;
+  let model: Model;
+
+  beforeEach(() => {
+    errorTextSpy = jest.fn();
+    raiseErrorSpy = jest.fn().mockImplementation((error, callback) => {
+      errorTextSpy(error.toString());
+      callback();
+    });
+    model = new Model({});
+    env = makeInteractiveTestEnv(model, { raiseError: raiseErrorSpy });
+  });
+
   test.each([
     ["", "The sheet name cannot be empty."],
     [
@@ -67,70 +75,38 @@ describe("Interactive rename sheet", () => {
   ])(
     "Rename a sheet with interaction with wrong name %s",
     async (sheetName, expectedErrorMessage) => {
-      const nameCallback = jest.fn().mockReturnValueOnce(sheetName).mockReturnValueOnce("new name");
-      const titleTextSpy = jest.fn();
-      const errorTextSpy = jest.fn();
-      const editText = (
-        title: string,
-        callback: (text: string | null) => any,
-        options?: EditTextOptions
-      ) => {
-        titleTextSpy(title.toString());
-        errorTextSpy(options?.error?.toString());
-        callback(nameCallback());
-      };
-      const model = new Model({});
-      const env = makeInteractiveTestEnv(model, { editText });
-      interactiveRenameSheet(env, model.getters.getActiveSheetId());
-      expect(titleTextSpy).toHaveBeenCalledTimes(2);
-      expect(titleTextSpy).toHaveBeenNthCalledWith(1, "Rename Sheet");
-      expect(titleTextSpy).toHaveBeenNthCalledWith(2, "Rename Sheet");
-      expect(errorTextSpy).toHaveBeenCalledTimes(2);
-      expect(errorTextSpy).toHaveBeenNthCalledWith(1, undefined);
-      expect(errorTextSpy).toHaveBeenNthCalledWith(2, expectedErrorMessage);
+      const errorCallback = jest.fn();
+      interactiveRenameSheet(env, model.getters.getActiveSheetId(), sheetName, errorCallback);
+      expect(raiseErrorSpy).toHaveBeenCalledTimes(1);
+      expect(errorCallback).toHaveBeenCalled();
+      expect(errorTextSpy).toHaveBeenCalledWith(expectedErrorMessage);
     }
   );
 
   test("Rename a sheet with interaction with same name as other sheet", async () => {
-    const sheetName = "existing sheet";
-    const nameCallback = jest.fn().mockReturnValueOnce(sheetName).mockReturnValueOnce("new name");
-    const titleTextSpy = jest.fn();
-    const errorTextSpy = jest.fn();
-    const editText = (
-      title: string,
-      callback: (text: string | null) => any,
-      options?: EditTextOptions
-    ) => {
-      titleTextSpy(title.toString());
-      errorTextSpy(options?.error?.toString());
-      callback(nameCallback());
-    };
-    const model = new Model({});
-    const env = makeInteractiveTestEnv(model, { editText });
-    createSheetWithName(model, { sheetId: "42", activate: false }, sheetName);
-    interactiveRenameSheet(env, model.getters.getActiveSheetId());
-    expect(titleTextSpy).toHaveBeenCalledTimes(2);
-    expect(titleTextSpy).toHaveBeenCalledWith("Rename Sheet");
-    expect(errorTextSpy).toHaveBeenCalledTimes(2);
-    expect(errorTextSpy).toHaveBeenNthCalledWith(1, undefined);
-    expect(errorTextSpy).toHaveBeenNthCalledWith(
-      2,
+    const sheetName = "ThisSheetExistsAlready";
+    createSheet(model, { name: sheetName });
+    const errorCallback = jest.fn();
+    interactiveRenameSheet(env, model.getters.getActiveSheetId(), sheetName, errorCallback);
+    expect(raiseErrorSpy).toHaveBeenCalledTimes(1);
+    expect(errorCallback).toHaveBeenCalled();
+    expect(errorTextSpy).toHaveBeenCalledWith(
       `A sheet with the name ${sheetName} already exists. Please select another name.`
     );
   });
+});
 
-  describe("Interactive Freeze columns/rows", () => {
-    const model = new Model();
-    test.each([
-      ["column", "COL"],
-      ["row", "ROW"],
-    ])("freeze %s through a merge", (name, dimension) => {
-      merge(model, "A1:D4");
-      const raiseError = jest.fn();
-      const env = makeInteractiveTestEnv(model, { raiseError });
-      interactiveFreezeColumnsRows(env, dimension as Dimension, 2);
-      expect(raiseError).toBeCalled();
-    });
+describe("Interactive Freeze columns/rows", () => {
+  const model = new Model();
+  test.each([
+    ["column", "COL"],
+    ["row", "ROW"],
+  ])("freeze %s through a merge", (name, dimension) => {
+    merge(model, "A1:D4");
+    const raiseError = jest.fn();
+    const env = makeInteractiveTestEnv(model, { raiseError });
+    interactiveFreezeColumnsRows(env, dimension as Dimension, 2);
+    expect(raiseError).toBeCalled();
   });
 });
 

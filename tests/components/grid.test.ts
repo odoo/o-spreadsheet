@@ -760,7 +760,7 @@ describe("Grid component", () => {
       expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
 
       // open and close sheet context menu
-      await simulateClick(".o-spreadsheet-bottom-bar .o-all-sheets .o-sheet-item .o-icon");
+      await simulateClick(".o-spreadsheet-bottom-bar .o-all-sheets .o-sheet .o-icon");
       await simulateClick(".o-menu-item[title='Duplicate']");
 
       expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));

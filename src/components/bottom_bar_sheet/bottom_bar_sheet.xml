@@ -1,0 +1,31 @@
+<templates>
+  <t t-name="o-spreadsheet-BottomBarSheet" owl="1">
+    <Ripple>
+      <div
+        class="o-sheet position-relative d-flex align-items-center user-select-none text-nowrap "
+        t-on-click="() => this.clickSheet()"
+        t-on-contextmenu.prevent="(ev) => this.onContextMenu(ev)"
+        t-ref="sheetDiv"
+        t-att-title="sheetName"
+        t-att-data-id="props.sheetId"
+        t-att-class="{active: isSheetActive}">
+        <span
+          class="o-sheet-name"
+          t-att-class="{'o-sheet-name-editable': state.isEditing }"
+          t-ref="sheetNameSpan"
+          t-esc="sheetName"
+          t-on-click="(ev) => this.onClickSheetName(ev)"
+          t-on-dblclick="() => this.onDblClick()"
+          t-on-focusout="() => this.onFocusOut()"
+          t-on-keydown="(ev) => this.onKeyDown(ev)"
+          t-att-contenteditable="state.isEditing.toString()"
+        />
+        <span
+          class="o-sheet-icon position-relative ms-1"
+          t-on-click.stop="(ev) => this.onIconClick(ev)">
+          <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
+        </span>
+      </div>
+    </Ripple>
+  </t>
+</templates>

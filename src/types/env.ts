@@ -18,7 +18,7 @@ export interface InformationNotification {
 
 export interface SpreadsheetEnv {
   notifyUser: (notification: InformationNotification) => any;
-  raiseError: (text: string) => any;
+  raiseError: (text: string, callback?: () => void) => any;
   askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
   editText: (
     title: string,
