@@ -224,8 +224,9 @@ class Demo extends Component {
     tags.add(notification.tag);
   }
 
-  raiseError(content) {
+  raiseError(content, callback) {
     window.alert(content);
+    callback?.();
   }
 
   editText(title, callback, options = {}) {

@@ -986,7 +986,7 @@ describe("composer", () => {
 
     await startComposition("=");
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer")!);
-    await simulateClick(fixture.querySelectorAll(".o-sheet-item.o-sheet")[1]);
+    await simulateClick(fixture.querySelectorAll(".o-sheet")[1]);
     expect(model.getters.getActiveSheetId()).toEqual("42");
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer")!);
   });

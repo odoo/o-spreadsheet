@@ -73,6 +73,7 @@ interface Props {
   position: DOMCoordinates;
   menuItems: MenuItem[];
   depth: number;
+  maxHeight?: Pixel;
   onClose: () => void;
   onMenuClicked?: (ev: CustomEvent) => void;
 }
@@ -130,7 +131,8 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
       menuItemsHeight -= MENU_SEPARATOR_HEIGHT;
     }
 
-    return 2 * MENU_VERTICAL_PADDING + menuItemsHeight;
+    const menuHeight = 2 * MENU_VERTICAL_PADDING + menuItemsHeight;
+    return this.props.maxHeight ? Math.min(menuHeight, this.props.maxHeight) : menuHeight;
   }
 
   get popover(): PopoverProps {
@@ -262,6 +264,7 @@ Menu.props = {
   position: Object,
   menuItems: Array,
   depth: { type: Number, optional: true },
+  maxHeight: { type: Number, optional: true },
   onClose: Function,
   onMenuClicked: { type: Function, optional: true },
 };

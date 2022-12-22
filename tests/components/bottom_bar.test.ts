@@ -10,7 +10,7 @@ import {
   selectCell,
   setCellContent,
 } from "../test_helpers/commands_helpers";
-import { triggerMouseEvent } from "../test_helpers/dom_helper";
+import { keyDown, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { makeTestEnv, makeTestFixture, mockUuidV4To, nextTick } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
@@ -139,6 +139,23 @@ describe("BottomBar component", () => {
     app.destroy();
   });
 
+  test("Can open context menu of a sheet with the arrow if another menu is already open", async () => {
+    const { app } = await mountBottomBar();
+
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
+
+    triggerMouseEvent(".o-sheet-item.o-list-sheets", "click");
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    expect(fixture.querySelector(".o-menu-item")!.textContent).toEqual("Sheet1");
+
+    triggerMouseEvent(".o-sheet-icon", "click");
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    expect(fixture.querySelector(".o-menu-item")!.textContent).toEqual("Duplicate");
+    app.destroy();
+  });
+
   test("Can move right a sheet", async () => {
     const { app, model } = await mountBottomBar();
     const dispatch = jest.spyOn(model, "dispatch");
@@ -210,25 +227,97 @@ describe("BottomBar component", () => {
     app.destroy();
   });
 
-  test("Can rename a sheet", async () => {
-    const { app, model } = await mountBottomBar(new Model(), {
-      editText: jest.fn((title, callback, options) => callback("new_name")),
+  describe("Rename a sheet", () => {
+    let app: App;
+    let model: Model;
+    let raiseError: jest.Mock;
+    beforeEach(async () => {
+      raiseError = jest.fn((string, callback) => {
+        callback();
+      });
+      ({ app, model } = await mountBottomBar(new Model(), { raiseError }));
+      model;
     });
-    triggerMouseEvent(".o-sheet", "contextmenu");
-    await nextTick();
-    triggerMouseEvent(".o-menu-item[data-name='rename'", "click");
-    expect(model.getters.getActiveSheet().name).toEqual("new_name");
-    app.destroy();
-  });
 
-  test("Can rename a sheet with dblclick", async () => {
-    const { app, model } = await mountBottomBar(new Model(), {
-      editText: jest.fn((title, callback, options) => callback("new_name")),
+    afterEach(() => {
+      app.destroy();
     });
-    triggerMouseEvent(".o-sheet-name", "dblclick");
-    await nextTick();
-    expect(model.getters.getActiveSheet().name).toEqual("new_name");
-    app.destroy();
+
+    test("Double click on the sheet name make it editable and give it the focus", async () => {
+      const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
+      expect(sheetName.getAttribute("contenteditable")).toEqual("false");
+      triggerMouseEvent(sheetName, "dblclick");
+      await nextTick();
+      expect(sheetName.getAttribute("contenteditable")).toEqual("true");
+      expect(document.activeElement).toEqual(sheetName);
+    });
+
+    test("Rename sheet with context menu makes sheet name editable and give it the focus", async () => {
+      triggerMouseEvent(".o-sheet", "contextmenu");
+      await nextTick();
+      triggerMouseEvent(".o-menu-item[data-name='rename'", "click");
+      await nextTick();
+      const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
+      expect(sheetName.getAttribute("contenteditable")).toEqual("true");
+      expect(document.activeElement).toEqual(sheetName);
+    });
+
+    test("The whole sheet name is in the selection after starting the edition", async () => {
+      const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
+      triggerMouseEvent(sheetName, "dblclick");
+      await nextTick();
+      expect(window.getSelection()?.toString()).toEqual("Sheet1");
+    });
+
+    test("Pressing enter confirm the change in sheet name", async () => {
+      const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
+      triggerMouseEvent(sheetName, "dblclick");
+      await nextTick();
+      sheetName.innerHTML = "New name";
+      await keyDown("Enter");
+      expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toEqual("New name");
+    });
+
+    test("Losing focus confirms the change in sheet name", async () => {
+      const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
+      triggerMouseEvent(sheetName, "dblclick");
+      await nextTick();
+      sheetName.innerHTML = "New name";
+      sheetName.blur();
+      expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toEqual("New name");
+    });
+
+    test("Pressing escape cancels the change in sheet name", async () => {
+      const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
+      triggerMouseEvent(sheetName, "dblclick");
+      await nextTick();
+      sheetName.innerHTML = "New name";
+      await keyDown("Escape");
+      expect(sheetName.innerHTML).toEqual("Sheet1");
+      expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toEqual("Sheet1");
+    });
+
+    test("Renaming sheet is interactive", async () => {
+      const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
+      triggerMouseEvent(sheetName, "dblclick");
+      await nextTick();
+      sheetName.innerHTML = "";
+      await keyDown("Enter");
+      expect(raiseError).toHaveBeenCalled();
+    });
+
+    test("After an error was raised at the confirmation of the new sheet name, the sheet name is selected and focused ", async () => {
+      createSheet(model, { name: "ThisIsASheet" });
+      const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
+      triggerMouseEvent(sheetName, "dblclick");
+      await nextTick();
+      sheetName.innerHTML = "ThisIsASheet";
+      expect(window.getSelection()?.toString()).toEqual("");
+      await keyDown("Enter");
+      expect(raiseError).toHaveBeenCalled();
+      expect(window.getSelection()?.toString()).toEqual("ThisIsASheet");
+      expect(document.activeElement).toEqual(sheetName);
+    });
   });
 
   test("Can duplicate a sheet", async () => {
@@ -310,6 +399,156 @@ describe("BottomBar component", () => {
       sheetIdTo: "42",
     });
     app.destroy();
+  });
+
+  describe("Scroll on the list of sheets", () => {
+    let model: Model;
+    let app: App;
+    let parent: Parent;
+    let sheetListEl: HTMLElement;
+
+    jest
+      .spyOn(Element.prototype, "clientWidth", "get")
+      .mockImplementation(function (this: HTMLDivElement) {
+        if (this.classList.contains("o-sheet-list")) return 300;
+        return 0;
+      });
+
+    beforeEach(async () => {
+      model = new Model({
+        sheets: [
+          { name: "Sheet1" },
+          { name: "Sheet2" },
+          { name: "Sheet3" },
+          { name: "Sheet4" },
+          { name: "Sheet5" },
+          { name: "Sheet6" },
+        ],
+      });
+      ({ app, parent } = await mountBottomBar(model));
+      sheetListEl = fixture.querySelector<HTMLElement>(".o-sheet-list")!;
+      //@ts-ignore - scrollTo is not defined in JSDOM
+      sheetListEl.scrollTo = (arg: ScrollToOptions) => {
+        sheetListEl.scrollLeft = arg.left!;
+      };
+    });
+
+    afterEach(() => {
+      parent;
+      app.destroy();
+    });
+
+    test("Can scroll on the list of sheets", async () => {
+      expect(sheetListEl.scrollLeft).toBe(0);
+      sheetListEl.dispatchEvent(new WheelEvent("wheel", { deltaY: 100 }));
+      expect(sheetListEl.scrollLeft).toBe(50);
+      sheetListEl.dispatchEvent(new WheelEvent("wheel", { deltaY: -100 }));
+      expect(sheetListEl.scrollLeft).toBe(0);
+    });
+
+    test("Enough space to display all the sheets: no scroll arrow nor fade effect", async () => {
+      jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(300);
+      jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(300);
+      await nextTick();
+      expect(fixture.querySelector(".o-bottom-bar-arrow-left")).toBeNull();
+      expect(fixture.querySelector(".o-bottom-bar-arrow-right")).toBeNull();
+      expect(fixture.querySelector(".o-bottom-bar-fade-in")).toBeNull();
+      expect(fixture.querySelector(".o-bottom-bar-fade-out")).toBeNull();
+    });
+
+    test("Can scroll to the right: scroll arrow right enabled and fade-out effect", async () => {
+      jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(300);
+      jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(500);
+      parent.render();
+      await nextTick();
+
+      expect(fixture.querySelector(".o-bottom-bar-arrow-left.o-disabled")).not.toBeNull();
+      expect(fixture.querySelector(".o-bottom-bar-arrow-right:not(.o-disabled)")).not.toBeNull();
+      expect(fixture.querySelector(".o-bottom-bar-fade-in")).toBeNull();
+      expect(fixture.querySelector(".o-bottom-bar-fade-out")).not.toBeNull();
+    });
+
+    test("Can scroll to the left: scroll arrow left enabled and fade-in effect", async () => {
+      jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(300);
+      jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(500);
+      sheetListEl.scrollLeft = 200;
+      parent.render();
+      await nextTick();
+      expect(fixture.querySelector(".o-bottom-bar-arrow-left:not(.o-disabled)")).not.toBeNull();
+      expect(fixture.querySelector(".o-bottom-bar-arrow-right.o-disabled")).not.toBeNull();
+      expect(fixture.querySelector(".o-bottom-bar-fade-in")).not.toBeNull();
+      expect(fixture.querySelector(".o-bottom-bar-fade-out")).toBeNull();
+    });
+
+    test("Can scroll in both direction: scroll arrows enabled and fade effects", async () => {
+      jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(300);
+      jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(500);
+      sheetListEl.scrollLeft = 100;
+      parent.render();
+      await nextTick();
+      expect(fixture.querySelector(".o-bottom-bar-arrow-left:not(.o-disabled)")).not.toBeNull();
+      expect(fixture.querySelector(".o-bottom-bar-arrow-right:not(.o-disabled)")).not.toBeNull();
+      expect(fixture.querySelector(".o-bottom-bar-fade-in")).not.toBeNull();
+      expect(fixture.querySelector(".o-bottom-bar-fade-out")).not.toBeNull();
+    });
+
+    test("Scroll to the right with the arrow button", async () => {
+      jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(100);
+      jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(250);
+      parent.render();
+      await nextTick();
+      simulateClick(".o-bottom-bar-arrow-right");
+      await nextTick();
+      expect(sheetListEl.scrollLeft).toBe(100);
+
+      simulateClick(".o-bottom-bar-arrow-right");
+      await nextTick();
+      expect(sheetListEl.scrollLeft).toBe(150);
+    });
+
+    test("Scroll to the left with the arrow button", async () => {
+      jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(100);
+      jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(250);
+      sheetListEl.scrollLeft = 150;
+      parent.render();
+      await nextTick();
+      simulateClick(".o-bottom-bar-arrow-left");
+      await nextTick();
+      expect(sheetListEl.scrollLeft).toBe(50);
+
+      simulateClick(".o-bottom-bar-arrow-left");
+      await nextTick();
+      expect(sheetListEl.scrollLeft).toBe(0);
+    });
+
+    test("Spam click on the arrow button scrolls a lot", async () => {
+      let scrollTo = 0;
+      //@ts-ignore - scrollTo is not defined in JSDOM
+      sheetListEl.scrollTo = (arg: ScrollToOptions) => {
+        scrollTo = arg.left!;
+      };
+
+      jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(100);
+      jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(800);
+      parent.render();
+      await nextTick();
+
+      simulateClick(".o-bottom-bar-arrow-right");
+      simulateClick(".o-bottom-bar-arrow-right");
+      simulateClick(".o-bottom-bar-arrow-right");
+      simulateClick(".o-bottom-bar-arrow-right");
+      simulateClick(".o-bottom-bar-arrow-right");
+      expect(scrollTo).toBe(500);
+
+      sheetListEl.scrollLeft = 500;
+      sheetListEl.dispatchEvent(new MouseEvent("scroll"));
+      await nextTick();
+
+      simulateClick(".o-bottom-bar-arrow-left");
+      simulateClick(".o-bottom-bar-arrow-left");
+      simulateClick(".o-bottom-bar-arrow-left");
+      expect(scrollTo).toBe(200);
+    });
   });
 
   test("Display the statistic button only if no-empty cells are selected", async () => {
