@@ -327,7 +327,7 @@ describe("formula assistant", () => {
 
     test("=FUNC1(42 then add ',' focus index on 2nd arg", async () => {
       await typeInComposer("=FUNC1(42");
-      await typeInComposer(",");
+      await typeInComposer(",", false);
       expect(
         fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
           .textContent

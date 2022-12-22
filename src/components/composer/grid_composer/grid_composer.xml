@@ -7,14 +7,7 @@
       t-esc="cellReference"
     />
     <div class="o-grid-composer" t-att-style="containerStyle" t-ref="gridComposer">
-      <Composer
-        focus="props.focus"
-        inputStyle="composerStyle"
-        rect="composerState.rect"
-        delimitation="composerState.delimitation"
-        onComposerUnmounted="props.onComposerUnmounted"
-        onComposerContentFocused="props.onComposerContentFocused"
-      />
+      <Composer t-props="composerProps"/>
     </div>
   </t>
 </templates>

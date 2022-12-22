@@ -7,7 +7,7 @@
       t-att-style="style"
       t-on-mousedown="onMouseDown"
       t-on-dblclick.self="onDoubleClick"
-      t-on-contextmenu="onContextMenu">
+      t-on-contextmenu.stop.prevent="onContextMenu">
       <FiguresContainer onFigureDeleted="props.onFigureDeleted"/>
     </div>
   </t>
