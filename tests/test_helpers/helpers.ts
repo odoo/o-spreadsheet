@@ -5,6 +5,7 @@ import { Action } from "../../src/actions/action";
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
 import { functionRegistry } from "../../src/functions/index";
 import { ImageProvider } from "../../src/helpers/figures/images/image_provider";
+import { FocusableElement } from "../../src/helpers/focus_manager";
 import { toCartesian, toUnboundedZone, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
@@ -114,6 +115,7 @@ export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): Spreads
       (async () => {
         return [] as Currency[];
       }),
+    focusableElement: new FocusableElement(),
   };
 }
 
@@ -437,7 +439,7 @@ export async function typeInComposerHelper(selector: string, text: string, fromS
 }
 
 export async function typeInComposerGrid(text: string, fromScratch: boolean = true) {
-  return await typeInComposerHelper(".o-grid .o-composer", text, fromScratch);
+  return await typeInComposerHelper(".o-grid div.o-composer", text, fromScratch);
 }
 
 export async function typeInComposerTopBar(text: string, fromScratch: boolean = true) {
@@ -445,14 +447,16 @@ export async function typeInComposerTopBar(text: string, fromScratch: boolean = 
 }
 
 export async function startGridComposition(key?: string) {
+  const gridComposerTarget = document.querySelector(".o-grid .o-composer")!;
   if (key) {
-    const gridInputEl = document.querySelector(".o-grid>input");
-    gridInputEl!.dispatchEvent(
+    gridComposerTarget!.dispatchEvent(
       new InputEvent("input", { data: key, bubbles: true, cancelable: true })
     );
   } else {
-    const gridInputEl = document.querySelector(".o-grid");
-    gridInputEl!.dispatchEvent(
+    gridComposerTarget!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true })
+    );
+    gridComposerTarget!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true })
     );
   }

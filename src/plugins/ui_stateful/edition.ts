@@ -36,7 +36,7 @@ import {
 import { SelectionEvent } from "../../types/event_stream";
 import { UIPlugin } from "../ui_plugin";
 
-type EditionMode =
+export type EditionMode =
   | "editing"
   | "selecting" // should tell if you need to underline the current range selected.
   | "inactive";
@@ -254,7 +254,7 @@ export class EditionPlugin extends UIPlugin {
     };
   }
 
-  getCurrentEditedCell(): CellPosition {
+  getCurrentEditedCell(): CellPosition | undefined {
     return {
       sheetId: this.sheetId,
       col: this.col,
@@ -577,7 +577,7 @@ export class EditionPlugin extends UIPlugin {
   ): string {
     const sheetId = this.getters.getActiveSheetId();
     let selectedXc = this.getters.zoneToXC(sheetId, zone, fixedParts);
-    if (this.getters.getCurrentEditedCell().sheetId !== this.getters.getActiveSheetId()) {
+    if (this.getters.getCurrentEditedCell()?.sheetId !== this.getters.getActiveSheetId()) {
       const sheetName = getCanonicalSheetName(
         this.getters.getSheetName(this.getters.getActiveSheetId())
       );
@@ -599,7 +599,7 @@ export class EditionPlugin extends UIPlugin {
     const newRange = range.clone({ parts: _fixedParts });
     return this.getters.getSelectionRangeString(
       newRange,
-      this.getters.getCurrentEditedCell().sheetId
+      this.getters.getCurrentEditedCell()?.sheetId || this.getters.getActiveSheetId()
     );
   }
 
@@ -637,7 +637,8 @@ export class EditionPlugin extends UIPlugin {
     if (!this.currentContent.startsWith("=") || this.mode === "inactive") {
       return;
     }
-    const editionSheetId = this.getters.getCurrentEditedCell().sheetId;
+    const editionSheetId =
+      this.getters.getCurrentEditedCell()?.sheetId || this.getters.getActiveSheetId();
     const XCs = this.getReferencedRanges().map((range) =>
       this.getters.getRangeString(range, editionSheetId)
     );
@@ -668,7 +669,8 @@ export class EditionPlugin extends UIPlugin {
     if (!this.currentContent.startsWith("=") || this.mode === "inactive") {
       return [];
     }
-    const editionSheetId = this.getters.getCurrentEditedCell().sheetId;
+    const editionSheetId =
+      this.getters.getCurrentEditedCell()?.sheetId || this.getters.getActiveSheetId();
     const rangeColor = (rangeString: string) => {
       const colorIndex = this.colorIndexByRange[rangeString];
       return colors[colorIndex % colors.length];
@@ -687,7 +689,8 @@ export class EditionPlugin extends UIPlugin {
    * Return ranges currently referenced in the composer
    */
   getReferencedRanges(): Range[] {
-    const editionSheetId = this.getters.getCurrentEditedCell().sheetId;
+    const editionSheetId =
+      this.getters.getCurrentEditedCell()?.sheetId || this.getters.getActiveSheetId();
     const referenceRanges = this.currentTokens
       .filter((token) => token.type === "REFERENCE")
       .map((token) => this.getters.getRangeFromSheetXC(editionSheetId, token.value));

@@ -901,25 +901,26 @@ describe("Grid component", () => {
       keyDown({ key: "ArrowRight" });
       expect(getCell(model, "C2")!.style).toEqual({ bold: true });
     });
+
     test("closing contextmenu focuses the grid", async () => {
       await rightClickCell(model, "B2");
       await simulateClick(".o-menu div[data-name='add_row_before']");
       expect(fixture.querySelector(".o-menu div[data-name='add_row_before']")).toBeFalsy();
-      expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
+      expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
     });
 
     test("Duplicating sheet in the bottom bar focus the grid afterward", async () => {
-      expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
+      expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
 
       // open and close sheet context menu
       await simulateClick(".o-spreadsheet-bottom-bar .o-all-sheets .o-sheet .o-icon");
       await simulateClick(".o-menu-item[title='Duplicate']");
 
-      expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
+      expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
     });
 
     test("Can open context menu with a keyboard input ", async () => {
-      const selector = ".o-grid>input";
+      const selector = ".o-grid div.o-composer";
       const target = document.querySelector(selector)! as HTMLElement;
       target.focus();
       triggerMouseEvent(selector, "contextmenu", 0, 0, { button: 1, bubbles: true });
