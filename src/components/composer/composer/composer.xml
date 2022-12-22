@@ -15,7 +15,7 @@
         t-on-mousedown="onMousedown"
         t-on-click="onClick"
         t-on-keyup="onKeyup"
-        t-on-paste.stop=""
+        t-on-paste="onPaste"
         t-on-compositionstart="onCompositionStart"
         t-on-compositionend="onCompositionEnd"
         t-on-dblclick="onDblClick"

@@ -356,9 +356,12 @@ describe("composer Assistant", () => {
   test("render below the cell by default", async () => {
     ({ model, fixture, parent } = await mountComposerWrapper());
     await typeInComposer("=s");
+    expect(fixture.querySelectorAll(".o-composer-assistant").length).toBe(1);
     const assistantEl = fixture.querySelector(".o-composer-assistant")! as HTMLElement;
     expect(assistantEl).toMatchSnapshot();
     expect(assistantEl.style.width).toBe("300px");
+    expect(assistantEl.style.top).toBe("");
+    expect(assistantEl.style.transform).toBe("");
   });
 
   test("render above the cell when not enough place below", async () => {
