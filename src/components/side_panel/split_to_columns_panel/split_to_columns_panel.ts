@@ -1,11 +1,10 @@
 import { Component, onMounted, useEffect, useState } from "@odoo/owl";
 import { NEWLINE } from "../../../constants";
 import { interactiveSplitToColumns } from "../../../helpers/ui/split_to_columns_interactive";
-import { interactiveStopEdition } from "../../../helpers/ui/stop_edition_interactive";
-import { ComposerStore } from "../../../plugins/ui_stateful";
 import { useStore } from "../../../store_engine";
 import { _t } from "../../../translation";
 import { CommandResult, SpreadsheetChildEnv } from "../../../types/index";
+import { ComposerStore } from "../../composer/composer/composer_store";
 import { SplitToColumnsTerms } from "../../translations_terms";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { Checkbox } from "../components/checkbox/checkbox";
@@ -51,7 +50,7 @@ export class SplitIntoColumnsPanel extends Component<Props, SpreadsheetChildEnv>
     useEffect(this.props.onCloseSidePanel, () => [composerStore.editionMode]);
 
     onMounted(() => {
-      interactiveStopEdition(this.env);
+      composerStore.stopEdition();
     });
   }
 

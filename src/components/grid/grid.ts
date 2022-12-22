@@ -24,8 +24,6 @@ import { isInside } from "../../helpers/index";
 import { openLink } from "../../helpers/links";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
 import { interactivePaste, interactivePasteFromOS } from "../../helpers/ui/paste_interactive";
-import { interactiveStopEdition } from "../../helpers/ui/stop_edition_interactive";
-import { ComposerSelection, ComposerStore } from "../../plugins/ui_stateful";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import {
@@ -34,6 +32,7 @@ import {
 } from "../../registries/menus/header_group_registry";
 import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
 import { Store, useStore } from "../../store_engine";
+import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { HighlightStore } from "../../stores/highlight_store";
 import { _t } from "../../translation";
 import {
@@ -53,6 +52,7 @@ import {
 } from "../../types/index";
 import { Autofill } from "../autofill/autofill";
 import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag";
+import { ComposerSelection, ComposerStore } from "../composer/composer/composer_store";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { GridComposer } from "../composer/grid_composer/grid_composer";
 import { FilterIconsOverlay } from "../filters/filter_icons_overlay/filter_icons_overlay";
@@ -132,11 +132,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   readonly HEADER_WIDTH = HEADER_WIDTH;
   private menuState!: MenuState;
   private gridRef!: Ref<HTMLElement>;
-  private hiddenInput!: Ref<HTMLElement>;
   private highlightStore!: Store<HighlightStore>;
   private cellPopovers!: Store<CellPopoverStore>;
   private composerStore!: Store<ComposerStore>;
   private composerFocusStore!: Store<ComposerFocusStore>;
+  private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
@@ -150,18 +150,18 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       menuItems: [],
     });
     this.gridRef = useRef("grid");
-    this.hiddenInput = useRef("hiddenInput");
     this.canvasPosition = useAbsoluteBoundingRect(this.gridRef);
     this.hoveredCell = useStore(HoveredCellStore);
     this.composerStore = useStore(ComposerStore);
     this.composerFocusStore = useStore(ComposerFocusStore);
+    this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
 
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);
-    onMounted(() => this.focus());
-    this.props.exposeFocus(() => this.focus());
+    onMounted(() => this.focusDefaultElement());
+    this.props.exposeFocus(() => this.focusDefaultElement());
     useGridDrawing("canvas", this.env.model, () =>
       this.env.model.getters.getSheetViewDimensionWithHeaders()
     );
@@ -193,7 +193,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     if (this.cellPopovers.isOpen) {
       this.cellPopovers.close();
     }
-    this.focus();
+    this.focusDefaultElement();
   }
 
   // this map will handle most of the actions that should happen on key down. The arrow keys are managed in the key
@@ -384,12 +384,12 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     "Alt+Shift+ArrowDown": () => this.processHeaderGroupingKey("down"),
   };
 
-  focus() {
+  focusDefaultElement() {
     if (
       !this.env.model.getters.getSelectedFigureId() &&
       this.composerStore.editionMode === "inactive"
     ) {
-      this.hiddenInput.el?.focus();
+      this.DOMFocusableElementStore.focus();
     }
   }
 
@@ -462,7 +462,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.cellPopovers.close();
     }
     if (this.composerStore.editionMode === "editing") {
-      interactiveStopEdition(this.env);
+      this.composerStore.stopEdition();
     }
     if (expandZone) {
       this.env.model.selection.setAnchorCorner(col, row);
@@ -542,20 +542,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  onInput(ev: InputEvent) {
-    // the user meant to paste in the sheet, not open the composer with the pasted content
-    if (!ev.isComposing && ev.inputType === "insertFromPaste") {
-      return;
-    }
-    if (ev.data) {
-      // if the user types a character on the grid, it means he wants to start composing the selected cell with that
-      // character
-      ev.preventDefault();
-      ev.stopPropagation();
-      this.onComposerCellFocused(ev.data);
-    }
-  }
-
   // ---------------------------------------------------------------------------
   // Context Menu
   // ---------------------------------------------------------------------------
@@ -565,7 +551,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const lastZone = this.env.model.getters.getSelectedZone();
     const { left: col, top: row } = lastZone;
     let type: ContextMenuType = "CELL";
-    interactiveStopEdition(this.env);
+    this.composerStore.stopEdition();
     if (this.env.model.getters.getActiveCols().has(col)) {
       type = "COL";
     } else if (this.env.model.getters.getActiveRows().has(row)) {
@@ -678,7 +664,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   closeMenu() {
     this.menuState.isOpen = false;
-    this.focus();
+    this.focusDefaultElement();
   }
 
   private processHeaderGroupingKey(direction: Direction) {
@@ -781,7 +767,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onComposerCellFocused(content?: string, selection?: ComposerSelection) {
-    this.composerFocusStore.focusGridComposer(content, selection);
+    this.composerFocusStore.focusGridComposerCell(content, selection);
   }
 
   onComposerContentFocused() {

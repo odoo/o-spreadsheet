@@ -1,7 +1,7 @@
 import { Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
 import { Model } from "../../src";
+import { ComposerStore } from "../../src/components/composer/composer/composer_store";
 import { SplitIntoColumnsPanel } from "../../src/components/side_panel/split_to_columns_panel/split_to_columns_panel";
-import { ComposerStore } from "../../src/plugins/ui_stateful";
 import { SpreadsheetChildEnv } from "../../src/types";
 import { setCellContent, setSelection } from "../test_helpers/commands_helpers";
 import {

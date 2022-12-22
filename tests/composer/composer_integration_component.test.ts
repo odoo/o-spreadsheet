@@ -1,4 +1,5 @@
 import { Model } from "../../src";
+import { ComposerStore } from "../../src/components/composer/composer/composer_store";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -7,7 +8,6 @@ import {
   HEADER_WIDTH,
 } from "../../src/constants";
 import { colors, toHex, toZone } from "../../src/helpers";
-import { ComposerStore } from "../../src/plugins/ui_stateful";
 import { Store } from "../../src/store_engine";
 import { SpreadsheetChildEnv } from "../../src/types";
 import { ContentEditableHelper } from "../__mocks__/content_editable_helper";
@@ -121,7 +121,7 @@ describe("Composer interactions", () => {
 
     // Focus grid composer and type
     await click(fixture, ".o-grid .o-composer");
-    await typeInComposerGrid("from grid");
+    await typeInComposerGrid("from grid", false);
     expect(topBarComposer!.textContent).toBe("from topbarfrom grid");
     expect(gridComposer!.textContent).toBe("from topbarfrom grid");
   });
@@ -232,6 +232,14 @@ describe("Composer interactions", () => {
     expect(composerEl.textContent).toBe("=C7");
   });
 
+  test("grid composer is not visible when not editing", async () => {
+    expect(composerStore.editionMode).toBe("inactive");
+    const gridComposerEl = fixture.querySelector(".o-grid-composer") as HTMLDivElement;
+    expect(gridComposerEl.style.zIndex).toBe("-1000");
+    await startComposition();
+    expect(gridComposerEl.style.zIndex).toBe("");
+  });
+
   test("starting the edition with enter, the composer should have the focus", async () => {
     await startComposition();
     expect(composerStore.editionMode).toBe("editing");
@@ -277,6 +285,24 @@ describe("Composer interactions", () => {
     expect(reference!.textContent).toBe("'My beautiful name'!A1");
   });
 
+  test("Stopping the edition resets the cell reference visibility", async () => {
+    await startComposition();
+    model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: 0,
+      offsetY: DEFAULT_CELL_HEIGHT * 5,
+    });
+    await nextTick();
+    const referenceSelector = ".o-grid div.o-cell-reference";
+    const reference = fixture.querySelector(referenceSelector);
+    expect(reference).not.toBeNull();
+    expect(reference!.textContent).toBe("A1");
+    composerStore.stopEdition();
+    await nextTick();
+    expect(fixture.querySelector(referenceSelector)).toBeNull();
+    await startComposition();
+    expect(fixture.querySelector(referenceSelector)).toBeNull();
+  });
+
   test("starting the edition with a key stroke =, the composer should have the focus after the key input", async () => {
     const composerEl = await startComposition("=");
     expect(composerEl.textContent).toBe("=");
@@ -297,7 +323,7 @@ describe("Composer interactions", () => {
     composerEl.dispatchEvent(new Event("keyup"));
     await clickCell(model, "C8");
     expect(getSelectionAnchorCellXc(model)).toBe("C8");
-    expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(0);
+    expect(composerStore.editionMode).toBe("inactive");
   });
 
   test("ArrowKeys will move to neighbour cell, if not in contentFocus mode (left/right)", async () => {
@@ -328,8 +354,8 @@ describe("Composer interactions", () => {
   test("Arrow keys will not move to neighbor cell when a formula", async () => {
     let composerEl: Element;
     composerEl = await startComposition("=");
-    await typeInComposerGrid(`"`);
-    await typeInComposerGrid(`"`);
+    await typeInComposerGrid(`"`, false);
+    await typeInComposerGrid(`"`, false);
     expect(composerEl.textContent).toBe(`=""`);
     await keyDown({ key: "ArrowLeft" });
     expect(composerStore.editionMode).not.toBe("inactive");
@@ -364,14 +390,13 @@ describe("Composer interactions", () => {
     await typeInComposerGrid("=");
     await rightClickCell(model, "C8");
     expect(composerStore.editionMode).toBe("inactive");
-    expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(0);
   });
 
   test("The composer should be closed before selecting headers", async () => {
     await typeInComposerGrid("Hello");
-    expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(1);
+    expect(composerStore.editionMode).not.toBe("inactive");
     await selectColumnByClicking(model, "C");
-    expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(0);
+    expect(composerStore.editionMode).toBe("inactive");
   });
 
   test("The content in the composer should be kept after selecting headers", async () => {
@@ -431,30 +456,32 @@ describe("Composer interactions", () => {
 });
 
 describe("Grid composer", () => {
+  let env: SpreadsheetChildEnv;
   beforeEach(async () => {
-    ({ model, fixture } = await mountSpreadsheet({
+    ({ model, env, fixture } = await mountSpreadsheet({
       model: new Model(modelData),
     }));
   });
 
   test("Composer is closed when changing sheet while not editing a formula", async () => {
+    const composerStore = env.getStore(ComposerStore);
     const baseSheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", name: "Sheet2" });
     await nextTick();
 
     // Editing text
     await typeInComposerGrid("hey");
-    expect(fixture.querySelector(".o-grid .o-composer")).toBeTruthy();
+    expect(composerStore.editionMode).not.toBe("inactive");
     activateSheet(model, "42");
     await nextTick();
-    expect(fixture.querySelector(".o-grid .o-composer")).toBeFalsy();
+    expect(composerStore.editionMode).toBe("inactive");
 
     // Editing formula
     await typeInComposerGrid("=");
-    expect(fixture.querySelector(".o-grid .o-composer")).toBeTruthy();
+    expect(composerStore.editionMode).not.toBe("inactive");
     activateSheet(model, baseSheetId);
     await nextTick();
-    expect(fixture.querySelector(".o-grid .o-composer")).toBeTruthy();
+    expect(composerStore.editionMode).not.toBe("inactive");
   });
 
   test("the composer should keep the focus after changing sheet", async () => {
@@ -470,7 +497,6 @@ describe("Grid composer", () => {
 
   describe("grid composer basic style", () => {
     const composerContainerSelector = ".o-grid .o-grid-composer";
-    const composerSelector = composerContainerSelector + " .o-composer";
 
     test("Grid composer snapshot", async () => {
       await typeInComposerGrid("A");
@@ -512,8 +538,12 @@ describe("Grid composer", () => {
       const expectedMaxHeight = sheetViewDims.height - 2 * DEFAULT_CELL_HEIGHT;
       const expectedMaxWidth = sheetViewDims.width - 2 * DEFAULT_CELL_WIDTH;
 
-      expect(getElComputedStyle(composerSelector, "max-height")).toBe(expectedMaxHeight + "px");
-      expect(getElComputedStyle(composerSelector, "max-width")).toBe(expectedMaxWidth + "px");
+      expect(getElComputedStyle(composerContainerSelector, "max-height")).toBe(
+        expectedMaxHeight + "px"
+      );
+      expect(getElComputedStyle(composerContainerSelector, "max-width")).toBe(
+        expectedMaxWidth + "px"
+      );
     });
   });
 

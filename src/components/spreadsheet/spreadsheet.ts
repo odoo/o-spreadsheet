@@ -296,7 +296,9 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       openSidePanel: this.openSidePanel.bind(this),
       toggleSidePanel: this.toggleSidePanel.bind(this),
       clipboard: this.env.clipboard || instantiateClipboard(),
-      startCellEdition: (content?: string) => this.composerFocusStore.focusGridComposer(content),
+      startCellEdition: (content?: string) =>
+        this.composerFocusStore.focusGridComposerCell(content),
+      //TODORAR: make a store out of this
     });
 
     useEffect(

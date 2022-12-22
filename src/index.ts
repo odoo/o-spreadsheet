@@ -1,6 +1,7 @@
 import { createAction, createActions } from "./actions/action";
 import { clipboardHandlersRegistries } from "./clipboard_handlers/index";
 import { transformRangeData } from "./collaborative/ot/ot_helpers";
+import { ComposerStore } from "./components/composer/composer/composer_store";
 import { ComposerFocusStore } from "./components/composer/composer_focus_store";
 import { ChartJsComponent } from "./components/figures/chart/chartJs/chartjs";
 import { ScorecardChart } from "./components/figures/chart/scorecard/chart_scorecard";
@@ -91,7 +92,6 @@ import {
   featurePluginRegistry,
   statefulUIPluginRegistry,
 } from "./plugins/index";
-import { ComposerStore } from "./plugins/ui_stateful";
 import { clickableCellRegistry } from "./registries/cell_clickable_registry";
 import {
   autofillModifiersRegistry,

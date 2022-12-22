@@ -1,6 +1,6 @@
+import { ComposerStore } from "../../src/components/composer/composer/composer_store";
 import { SelectionInputStore } from "../../src/components/selection_input/selection_input_store";
 import { toZone, zoneToXc } from "../../src/helpers";
-import { ComposerStore } from "../../src/plugins/ui_stateful";
 import { DependencyContainer } from "../../src/store_engine";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import {

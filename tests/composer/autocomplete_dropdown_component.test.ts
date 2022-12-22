@@ -1,7 +1,7 @@
+import { ComposerStore } from "../../src/components/composer/composer/composer_store";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
-import { ComposerStore } from "../../src/plugins/ui_stateful";
 import { Store } from "../../src/store_engine";
 import { ContentEditableHelper } from "../__mocks__/content_editable_helper";
 import { selectCell } from "../test_helpers/commands_helpers";
@@ -361,9 +361,12 @@ describe("composer Assistant", () => {
   test("render below the cell by default", async () => {
     ({ model, fixture, parent } = await mountComposerWrapper());
     await typeInComposer("=s");
+    expect(fixture.querySelectorAll(".o-composer-assistant").length).toBe(1);
     const assistantEl = fixture.querySelector(".o-composer-assistant")! as HTMLElement;
     expect(assistantEl).toMatchSnapshot();
     expect(assistantEl.style.width).toBe("300px");
+    expect(assistantEl.style.top).toBe("");
+    expect(assistantEl.style.transform).toBe("");
   });
 
   test("render above the cell when not enough place below", async () => {

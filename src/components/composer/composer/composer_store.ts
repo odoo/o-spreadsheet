@@ -127,7 +127,7 @@ export class ComposerStore extends SpreadsheetStore {
   }
 
   stopComposerRangeSelection() {
-    if (this.isSelectingForComposer) {
+    if (this.isSelectingRange) {
       this.editionMode = "editing";
     }
   }
@@ -223,7 +223,7 @@ export class ComposerStore extends SpreadsheetStore {
       case "START_CHANGE_HIGHLIGHT":
         const { left, top } = cmd.zone;
         // changing the highlight can conflit with the 'selecting' mode
-        if (this.isSelectingForComposer) {
+        if (this.isSelectingRange) {
           this.editionMode = "editing";
         }
         this.model.selection.resetAnchor(toRaw(this), {
@@ -287,12 +287,12 @@ export class ComposerStore extends SpreadsheetStore {
     };
   }
 
-  get isSelectingForComposer(): boolean {
+  get isSelectingRange(): boolean {
     return this.editionMode === "selecting";
   }
 
   get showSelectionIndicator(): boolean {
-    return this.isSelectingForComposer && this.canStartComposerRangeSelection();
+    return this.isSelectingRange && this.canStartComposerRangeSelection();
   }
 
   /**

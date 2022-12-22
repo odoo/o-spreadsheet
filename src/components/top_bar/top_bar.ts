@@ -17,14 +17,15 @@ import {
   SEPARATOR_COLOR,
   TOPBAR_TOOLBAR_HEIGHT,
 } from "../../constants";
-import { interactiveStopEdition } from "../../helpers/ui/stop_edition_interactive";
 import { formatNumberMenuItemSpec, topbarComponentRegistry } from "../../registries/index";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
+import { Store, useStore } from "../../store_engine";
 import { Color, Pixel, SpreadsheetChildEnv } from "../../types/index";
 import { ActionButton } from "../action_button/action_button";
 import { BorderEditorWidget } from "../border_editor/border_editor_widget";
 import { ColorPicker } from "../color_picker/color_picker";
 import { ColorPickerWidget } from "../color_picker/color_picker_widget";
+import { ComposerStore } from "../composer/composer/composer_store";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { FontSizeEditor } from "../font_size_editor/font_size_editor";
 import { css } from "../helpers/css";
@@ -167,8 +168,10 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   VIEW = ACTION_VIEW;
   formatNumberMenuItemSpec = formatNumberMenuItemSpec;
   isntToolbarMenu = false;
+  composerStore!: Store<ComposerStore>;
 
   setup() {
+    this.composerStore = useStore(ComposerStore);
     useExternalListener(window, "click", this.onExternalClick);
     onWillStart(() => this.updateCellState());
     onWillUpdateProps(() => this.updateCellState());
@@ -240,7 +243,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.state.menuState.parentMenu = menu;
     this.isSelectingMenu = true;
     this.openedEl = ev.target as HTMLElement;
-    interactiveStopEdition(this.env);
+    this.composerStore.stopEdition();
   }
 
   closeMenus() {

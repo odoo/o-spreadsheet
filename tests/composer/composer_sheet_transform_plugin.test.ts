@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { ComposerStore } from "../../src/plugins/ui_stateful";
+import type { ComposerStore } from "../../src/components/composer/composer/composer_store";
 import { Store } from "../../src/store_engine";
 import { NotificationStore } from "../../src/stores/notification_store";
 import {

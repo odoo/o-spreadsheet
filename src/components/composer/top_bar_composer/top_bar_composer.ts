@@ -5,11 +5,11 @@ import {
   SEPARATOR_COLOR,
   TOPBAR_TOOLBAR_HEIGHT,
 } from "../../../constants";
-import { ComposerSelection } from "../../../plugins/ui_stateful";
 import { Store, useStore } from "../../../store_engine";
 import { CSSProperties, SpreadsheetChildEnv } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
 import { Composer } from "../composer/composer";
+import { ComposerSelection } from "../composer/composer_store";
 import { ComposerFocusStore } from "../composer_focus_store";
 
 const COMPOSER_MAX_HEIGHT = 100;

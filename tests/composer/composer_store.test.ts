@@ -1,6 +1,6 @@
+import type { ComposerStore } from "../../src/components/composer/composer/composer_store";
 import { DateTime, getCanonicalSheetName, jsDateToRoundNumber, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { ComposerStore } from "../../src/plugins/ui_stateful";
 import { Store } from "../../src/store_engine";
 import { NotificationStore } from "../../src/stores/notification_store";
 import { CellValueType, DEFAULT_LOCALE } from "../../src/types";

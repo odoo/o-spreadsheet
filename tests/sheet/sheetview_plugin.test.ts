@@ -1,4 +1,5 @@
 import { CommandResult } from "../../src";
+import { ComposerStore } from "../../src/components/composer/composer/composer_store";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -6,7 +7,6 @@ import {
 } from "../../src/constants";
 import { isDefined, numberToLetters, range, toXC, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { ComposerStore } from "../../src/plugins/ui_stateful";
 import { SheetViewPlugin } from "../../src/plugins/ui_stateful/sheetview";
 import { Zone } from "../../src/types";
 import {

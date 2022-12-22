@@ -3,9 +3,10 @@
     <div
       class="o-grid w-100 h-100"
       tabindex="-1"
-      t-on-click="focus"
+      t-on-click="focusDefaultElement"
       t-on-keydown="onKeydown"
       t-on-wheel="onMouseWheel"
+      t-on-contextmenu="onInputContextMenu"
       t-ref="grid">
       <GridOverlay
         onCellClicked.bind="onCellClicked"
@@ -15,25 +16,10 @@
         onGridResized.bind="onGridResized"
         onGridMoved.bind="moveCanvas"
         gridOverlayDimensions="gridOverlayDimensions"
-        onFigureDeleted.bind="focus"
+        onFigureDeleted.bind="focusDefaultElement"
       />
       <HeadersOverlay onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)"/>
-
-      <t t-if="composerStore.editionMode !== 'inactive'">
-        <GridComposer
-          onComposerUnmounted="() => this.focus()"
-          gridDims="env.model.getters.getSheetViewDimensionWithHeaders()"
-        />
-      </t>
-      <t else="1">
-        <input
-          class="position-absolute"
-          style="z-index:-1000;"
-          t-on-input="onInput"
-          t-on-contextmenu="onInputContextMenu"
-          t-ref="hiddenInput"
-        />
-      </t>
+      <GridComposer gridDims="env.model.getters.getSheetViewDimensionWithHeaders()"/>
       <canvas t-ref="canvas"/>
       <t
         t-foreach="env.model.getters.getClientsToDisplay()"
