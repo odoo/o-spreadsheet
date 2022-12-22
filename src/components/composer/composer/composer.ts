@@ -445,6 +445,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     this.shouldProcessInputEvents = false;
 
     if (this.props.focus !== "inactive") {
+      this.contentHelper.el.focus();
       this.contentHelper.selectRange(0, 0); // move the cursor inside the composer at 0 0.
     }
     const content = this.getContent();

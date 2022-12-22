@@ -1,9 +1,10 @@
 import { HtmlContent } from "./composer/composer";
 
 export class ContentEditableHelper {
+  // todo make el private and expose dedicated methods
   el: HTMLElement;
-  constructor(el: HTMLElement | null) {
-    this.el = el!;
+  constructor(el: HTMLElement) {
+    this.el = el;
   }
 
   updateEl(el: HTMLElement) {
