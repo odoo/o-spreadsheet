@@ -14,7 +14,7 @@
         t-on-keyup="onKeyup"
         t-on-click="onClick"
         t-on-blur="onBlur"
-        t-on-paste.stop=""
+        t-on-paste="onPaste"
         t-on-compositionstart="onCompositionStart"
         t-on-compositionend="onCompositionEnd"
       />
