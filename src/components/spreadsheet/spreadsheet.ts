@@ -31,6 +31,7 @@ import {
   TOPBAR_HEIGHT,
 } from "../../constants";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
+import { FocusableElement } from "../../helpers/focus_manager";
 import { Model } from "../../model";
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
 import { _t } from "../../translation";
@@ -303,6 +304,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       toggleSidePanel: this.toggleSidePanel.bind(this),
       clipboard: this.env.clipboard || instantiateClipboard(),
       startCellEdition: (content?: string) => this.onGridComposerCellFocused(content),
+      focusableElement: new FocusableElement(),
     });
 
     useEffect(
@@ -448,18 +450,19 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     }
     this.composer.topBarFocus = "contentFocus";
     this.composer.gridFocusMode = "inactive";
-    this.setComposerContent({ selection } || {});
+    this.setComposerContent({ selection });
   }
 
-  onGridComposerContentFocused() {
+  onGridComposerContentFocused(selection: ComposerSelection) {
     if (this.model.getters.isReadonly()) {
       return;
     }
     this.composer.topBarFocus = "inactive";
     this.composer.gridFocusMode = "contentFocus";
-    this.setComposerContent({});
+    this.setComposerContent({ selection });
   }
 
+  // TODO: either both are defined or none of them. change those args to an object
   onGridComposerCellFocused(content?: string, selection?: ComposerSelection) {
     if (this.model.getters.isReadonly()) {
       return;

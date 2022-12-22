@@ -84,10 +84,10 @@ describe("edition", () => {
     const sheet1 = model.getters.getSheetIds()[0];
     model.dispatch("START_EDITION", { text: "=" });
     expect(model.getters.getEditionMode()).toBe("selecting");
-    expect(model.getters.getCurrentEditedCell().sheetId).toBe(sheet1);
+    expect(model.getters.getCurrentEditedCell()?.sheetId).toBe(sheet1);
     createSheet(model, { activate: true, sheetId: "42" });
     expect(model.getters.getEditionMode()).toBe("selecting");
-    expect(model.getters.getCurrentEditedCell().sheetId).toBe(sheet1);
+    expect(model.getters.getCurrentEditedCell()?.sheetId).toBe(sheet1);
     model.dispatch("STOP_EDITION");
     expect(model.getters.getActiveSheetId()).toBe(sheet1);
     expect(getCellText(model, "A1")).toBe("=");
