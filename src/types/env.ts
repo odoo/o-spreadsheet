@@ -1,4 +1,5 @@
 import { Model } from "..";
+import { FocusableElement } from "../helpers/focus_manager";
 import { TranslationFunction } from "../translation";
 import { Currency } from "./currency";
 
@@ -33,4 +34,5 @@ export interface SpreadsheetChildEnv extends SpreadsheetEnv {
   toggleSidePanel: (panel: string, panelProps?: any) => void;
   clipboard: Clipboard;
   _t: TranslationFunction;
+  focusableElement: FocusableElement;
 }

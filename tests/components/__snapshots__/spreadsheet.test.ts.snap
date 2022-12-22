@@ -456,11 +456,31 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
       />
     </div>
     
+    <div
+      class="o-grid-composer"
+      style="
+        position: absolute;
+        z-index: -1000;
+      "
+    >
+      <div
+        class="o-composer-container"
+      >
+        <div
+          class="o-composer"
+          contenteditable="true"
+          spellcheck="false"
+          style="
+      line-height: 23px;
+      max-height: inherit;
+      overflow: hidden;
+    "
+          tabindex="1"
+        />
+        
+      </div>
+    </div>
     
-    <input
-      class="position-absolute"
-      style="z-index:-1000;"
-    />
     <canvas
       height="1011"
       style="width:1033px;height:1011px;"

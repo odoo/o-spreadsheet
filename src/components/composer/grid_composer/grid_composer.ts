@@ -1,18 +1,16 @@
-import { Component, onMounted, useRef, useState } from "@odoo/owl";
+import { Component, onWillUpdateProps } from "@odoo/owl";
 import {
   ComponentsImportance,
   DEFAULT_CELL_HEIGHT,
   SELECTION_BORDER_COLOR,
 } from "../../../constants";
 import { fontSizeMap } from "../../../fonts";
-import { DOMDimension, Rect, Ref, SpreadsheetChildEnv, Zone } from "../../../types/index";
+import { positionToZone } from "../../../helpers";
+import { Rect, SpreadsheetChildEnv } from "../../../types/index";
 import { getTextDecoration } from "../../helpers";
 import { css } from "../../helpers/css";
-import { Composer } from "../composer/composer";
+import { Composer, ComposerProps } from "../composer/composer";
 import { Style } from "./../../../types/misc";
-
-const SCROLLBAR_WIDTH = 14;
-const SCROLLBAR_HIGHT = 15;
 
 const COMPOSER_BORDER_WIDTH = 3 * 0.4 * window.devicePixelRatio || 1;
 css/* scss */ `
@@ -24,15 +22,11 @@ css/* scss */ `
   }
 `;
 
-interface ComposerState {
-  rect: Rect | null;
-  delimitation: DOMDimension | null;
-}
-
 interface Props {
   focus: "inactive" | "cellFocus" | "contentFocus";
   content: string;
-  onComposerUnmounted: () => void;
+  onComposerContentFocused: () => void;
+  onComposerCellFocused: () => void;
 }
 
 /**
@@ -43,53 +37,59 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridComposer";
   static components = { Composer };
 
-  private gridComposerRef!: Ref<HTMLElement>;
+  private rect: Rect | undefined = undefined;
+  private isEditing: boolean = false;
 
-  private zone!: Zone;
-  private rect!: Rect;
-
-  private composerState!: ComposerState;
+  get defaultRect() {
+    return { x: 0, y: 0, width: 0, height: 0 };
+  }
 
   setup() {
-    this.gridComposerRef = useRef("gridComposer");
-    this.composerState = useState({
-      rect: null,
-      delimitation: null,
-    });
-    const { col, row } = this.env.model.getters.getPosition();
-    this.zone = this.env.model.getters.expandZone(this.env.model.getters.getActiveSheetId(), {
-      left: col,
-      right: col,
-      top: row,
-      bottom: row,
-    });
-    this.rect = this.env.model.getters.getVisibleRect(this.zone);
-    onMounted(() => {
-      const el = this.gridComposerRef.el!;
-
-      //TODO Should be more correct to have a props that give the parent's clientHeight and clientWidth
-      const maxHeight = el.parentElement!.clientHeight - this.rect.y - SCROLLBAR_HIGHT;
-      el.style.maxHeight = (maxHeight + "px") as string;
-
-      const maxWidth = el.parentElement!.clientWidth - this.rect.x - SCROLLBAR_WIDTH;
-      el.style.maxWidth = (maxWidth + "px") as string;
-
-      this.composerState.rect = {
-        x: this.rect.x,
-        y: this.rect.y,
-        width: el!.clientWidth,
-        height: el!.clientHeight,
-      };
-      this.composerState.delimitation = {
-        width: el!.parentElement!.clientWidth,
-        height: el!.parentElement!.clientHeight,
-      };
+    onWillUpdateProps(() => {
+      const isEditing = this.env.model.getters.getEditionMode() !== "inactive";
+      if (this.isEditing !== isEditing) {
+        this.isEditing = isEditing;
+        if (!isEditing) {
+          this.rect = undefined;
+          this.env.focusableElement.focus();
+          return;
+        }
+        const position = this.env.model.getters.getPosition();
+        const zone = this.env.model.getters.expandZone(
+          this.env.model.getters.getActiveSheetId(),
+          positionToZone(position)
+        );
+        this.rect = this.env.model.getters.getVisibleRect(zone);
+      }
     });
   }
 
+  get composerProps(): ComposerProps {
+    const { width, height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
+    return {
+      rect: this.rect && { ...this.rect },
+      delimitation: {
+        width,
+        height,
+      },
+      inputStyle: this.composerStyle,
+      focus: this.props.focus,
+      isDefaultFocus: true,
+      onComposerContentFocused: this.props.onComposerContentFocused,
+      onComposerCellFocused: this.props.onComposerCellFocused,
+    };
+  }
+
   get containerStyle(): string {
+    if (this.env.model.getters.getEditionMode() === "inactive" || !this.rect) {
+      return `
+        position: absolute;
+        z-index: -1000;
+      `;
+    }
     const isFormula = this.env.model.getters.getCurrentContent().startsWith("=");
     const cell = this.env.model.getters.getActiveCell();
+
     let style: Style = {};
     if (cell) {
       const cellPosition = this.env.model.getters.getCellPosition(cell.id);
@@ -119,12 +119,19 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     if (!isFormula) {
       textAlign = style.align || cell?.defaultAlign || "left";
     }
+    const sheetDimensions = this.env.model.getters.getSheetViewDimensionWithHeaders();
+
+    const maxWidth = sheetDimensions.width - this.rect.x;
+    const maxHeight = sheetDimensions.height - this.rect.y;
 
     return `
       left: ${left - 1}px;
       top: ${top}px;
       min-width: ${width + 2}px;
       min-height: ${height + 1}px;
+
+      max-width: ${maxWidth}px;
+      max-height: ${maxHeight}px;
 
       background: ${background};
       color: ${color};
