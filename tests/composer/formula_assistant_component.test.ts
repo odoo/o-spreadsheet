@@ -1,6 +1,6 @@
 import { setTranslationMethod } from "../../src";
+import { ComposerStore } from "../../src/components/composer/composer/composer_store";
 import { arg, functionRegistry } from "../../src/functions/index";
-import { ComposerStore } from "../../src/plugins/ui_stateful";
 import { Store } from "../../src/store_engine";
 import { _t } from "../../src/translation";
 import { registerCleanup } from "../setup/jest.setup";
@@ -334,7 +334,7 @@ describe("formula assistant", () => {
 
     test("=FUNC1(42 then add ',' focus index on 2nd arg", async () => {
       await typeInComposer("=FUNC1(42");
-      await typeInComposer(",");
+      await typeInComposer(",", false);
       expect(
         fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
           .textContent

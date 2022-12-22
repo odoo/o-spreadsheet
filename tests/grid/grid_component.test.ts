@@ -1,4 +1,5 @@
 import { Spreadsheet, TransportService } from "../../src";
+import { ComposerStore } from "../../src/components/composer/composer/composer_store";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { CellPopoverStore } from "../../src/components/popover";
 import {
@@ -15,7 +16,6 @@ import {
 import { buildSheetLink, toCartesian, toHex, toZone, zoneToXc } from "../../src/helpers";
 import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
-import { ComposerStore } from "../../src/plugins/ui_stateful";
 import { Store } from "../../src/store_engine";
 import { Align, ClipboardMIMEType, SpreadsheetChildEnv } from "../../src/types";
 import { FileStore } from "../__mocks__/mock_file_store";
@@ -893,21 +893,21 @@ describe("Grid component", () => {
     await rightClickCell(model, "B2");
     await simulateClick(".o-menu div[data-name='add_row_before']");
     expect(fixture.querySelector(".o-menu div[data-name='add_row_before']")).toBeFalsy();
-    expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
   });
 
   test("Duplicating sheet in the bottom bar focus the grid afterward", async () => {
-    expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
 
     // open and close sheet context menu
     await simulateClick(".o-spreadsheet-bottom-bar .o-all-sheets .o-sheet .o-icon");
     await simulateClick(".o-menu-item[title='Duplicate']");
 
-    expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
   });
 
   test("Can open context menu with a keyboard input ", async () => {
-    const selector = ".o-grid>input";
+    const selector = ".o-grid div.o-composer";
     const target = document.querySelector(selector)! as HTMLElement;
     target.focus();
     triggerMouseEvent(selector, "contextmenu", 0, 0, { button: 1, bubbles: true });
@@ -921,7 +921,7 @@ describe("Grid component", () => {
   });
 
   test("input event triggered from a paste should not open composer", async () => {
-    const input = fixture.querySelector(".o-grid>input");
+    const input = fixture.querySelector(".o-grid div.o-composer");
     input?.dispatchEvent(
       new InputEvent("input", {
         data: "d",

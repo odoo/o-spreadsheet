@@ -11,6 +11,10 @@ import type { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { Action } from "../../src/actions/action";
 import { Composer, ComposerProps } from "../../src/components/composer/composer/composer";
+import {
+  ComposerSelection,
+  ComposerStore,
+} from "../../src/components/composer/composer/composer_store";
 import { ComposerFocusType } from "../../src/components/composer/composer_focus_store";
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
 import { matrixMap } from "../../src/functions/helpers";
@@ -21,7 +25,6 @@ import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { CorePluginConstructor } from "../../src/plugins/core_plugin";
 import { UIPluginConstructor } from "../../src/plugins/ui_plugin";
-import { ComposerSelection, ComposerStore } from "../../src/plugins/ui_stateful";
 import { topbarMenuRegistry } from "../../src/registries";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { Registry } from "../../src/registries/registry";
@@ -563,7 +566,7 @@ export async function typeInComposerHelper(selector: string, text: string, fromS
 }
 
 export async function typeInComposerGrid(text: string, fromScratch: boolean = true) {
-  return await typeInComposerHelper(".o-grid .o-composer", text, fromScratch);
+  return await typeInComposerHelper(".o-grid div.o-composer", text, fromScratch);
 }
 
 export async function typeInComposerTopBar(text: string, fromScratch: boolean = true) {
@@ -573,14 +576,16 @@ export async function typeInComposerTopBar(text: string, fromScratch: boolean = 
 }
 
 export async function startGridComposition(key?: string) {
+  const gridComposerTarget = document.querySelector(".o-grid .o-composer")!;
   if (key) {
-    const gridInputEl = document.querySelector(".o-grid>input");
-    gridInputEl!.dispatchEvent(
+    gridComposerTarget!.dispatchEvent(
       new InputEvent("input", { data: key, bubbles: true, cancelable: true })
     );
   } else {
-    const gridInputEl = document.querySelector(".o-grid");
-    gridInputEl!.dispatchEvent(
+    gridComposerTarget!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true })
+    );
+    gridComposerTarget!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true })
     );
   }
@@ -765,10 +770,9 @@ export class ComposerWrapper extends Component<ComposerWrapperProps, Spreadsheet
 
   get composerProps(): ComposerProps {
     return {
-      onComposerContentFocused: (selection) => {
+      onComposerContentFocused: () => {
         this.state.focusComposer = "contentFocus";
-        this.setEdition({ selection });
-        this.composerStore.changeComposerCursorSelection(selection.start, selection.end);
+        this.setEdition({});
       },
       focus: this.state.focusComposer,
       ...this.props.composerProps,

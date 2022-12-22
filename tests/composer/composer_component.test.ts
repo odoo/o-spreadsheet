@@ -2,9 +2,9 @@ import {
   selectionIndicatorClass,
   tokenColors,
 } from "../../src/components/composer/composer/composer";
+import { ComposerStore } from "../../src/components/composer/composer/composer_store";
 import { colors, toCartesian, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { ComposerStore } from "../../src/plugins/ui_stateful";
 import { Store } from "../../src/store_engine";
 import { ContentEditableHelper } from "../__mocks__/content_editable_helper";
 import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard";
@@ -388,7 +388,7 @@ describe("ranges and highlights", () => {
       await nextTick();
       expect(composerEl.textContent).toBe("=C1");
 
-      composerEl = await typeInComposer("+B2");
+      composerEl = await typeInComposer("+B2", false);
       model.dispatch("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B1:B2"),
       });
@@ -591,7 +591,7 @@ describe("composer", () => {
           composerEl = await startComposition();
           await typeInComposer(matchingValue);
           await moveToStart();
-          composerEl = await typeInComposer(formula + ",");
+          composerEl = await typeInComposer(formula + ",", false);
           expect(composerStore.editionMode).toBe("selecting");
           expect(composerEl.textContent).toBe(formula + "," + matchingValue);
           expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
@@ -605,7 +605,7 @@ describe("composer", () => {
           composerEl = await startComposition();
           await typeInComposer(mismatchingValue);
           await moveToStart();
-          await typeInComposer(formula + ",");
+          await typeInComposer(formula + ",", false);
           expect(composerStore.editionMode).not.toBe("selecting");
           expect(composerEl.textContent).toBe(formula + "," + mismatchingValue);
         }
@@ -618,7 +618,7 @@ describe("composer", () => {
           await typeInComposer(matchingValue);
           await moveToStart();
           const formulaInput = formula + ",  ";
-          composerEl = await typeInComposer(formulaInput);
+          composerEl = await typeInComposer(formulaInput, false);
           expect(composerStore.editionMode).toBe("selecting");
           expect(composerEl.textContent).toBe(formulaInput + matchingValue);
           expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
@@ -632,7 +632,7 @@ describe("composer", () => {
           composerEl = await startComposition();
           await typeInComposer(mismatchingValue);
           await moveToStart();
-          await typeInComposer(formula + ",  ");
+          await typeInComposer(formula + ",  ", false);
           expect(composerStore.editionMode).not.toBe("selecting");
           expect(composerEl.textContent).toBe(formula + ",  " + mismatchingValue);
           expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
@@ -645,7 +645,7 @@ describe("composer", () => {
           composerEl = await startComposition();
           await typeInComposer("   " + matchingValue);
           await moveToStart();
-          composerEl = await typeInComposer(formula + ",");
+          composerEl = await typeInComposer(formula + ",", false);
           expect(composerStore.editionMode).toBe("selecting");
           expect(composerEl.textContent).toBe(formula + ",   " + matchingValue);
           expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
@@ -659,7 +659,7 @@ describe("composer", () => {
           composerEl = await startComposition();
           await typeInComposer("   " + mismatchingValue);
           await moveToStart();
-          composerEl = await typeInComposer(formula + ",");
+          composerEl = await typeInComposer(formula + ",", false);
           expect(composerStore.editionMode).not.toBe("selecting");
           expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
           expect(composerEl.textContent).toBe(formula + ",   " + mismatchingValue);
@@ -817,7 +817,7 @@ describe("composer", () => {
   test("Add a character changing the edition mode to 'selecting' correctly renders the composer", async () => {
     await typeInComposer("=sum(4");
     expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
-    await typeInComposer(",");
+    await typeInComposer(",", false);
     expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
   });
 

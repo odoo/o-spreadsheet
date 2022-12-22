@@ -1,9 +1,9 @@
 import { Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
 import { Model } from "../src";
+import { ComposerStore } from "../src/components/composer/composer/composer_store";
 import { TopBar } from "../src/components/top_bar/top_bar";
 import { DEFAULT_FONT_SIZE } from "../src/constants";
 import { toZone, zoneToXc } from "../src/helpers";
-import { ComposerStore } from "../src/plugins/ui_stateful";
 import { topbarComponentRegistry, topbarMenuRegistry } from "../src/registries";
 import { ConditionalFormat, Currency, Pixel, SpreadsheetChildEnv, Style } from "../src/types";
 import { FileStore } from "./__mocks__/mock_file_store";

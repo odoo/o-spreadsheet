@@ -1,3 +1,4 @@
+import { ComposerStore } from "../../src/components/composer/composer/composer_store";
 import { ColResizer, RowResizer } from "../../src/components/headers_overlay/headers_overlay";
 import {
   DEFAULT_CELL_HEIGHT,
@@ -9,6 +10,7 @@ import {
 } from "../../src/constants";
 import { lettersToNumber, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
+import { SpreadsheetChildEnv } from "../../src/types";
 import {
   deleteColumns,
   deleteRows,
@@ -26,10 +28,13 @@ import {
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import { getEvaluatedCell, getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
-import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
-
+import { mountSpreadsheet, nextTick, typeInComposerGrid } from "../test_helpers/helpers";
+jest.mock("../../src/components/composer/content_editable_helper", () =>
+  require("../__mocks__/content_editable_helper")
+);
 let fixture: HTMLElement;
 let model: Model;
+let env: SpreadsheetChildEnv;
 
 ColResizer.prototype._getMaxSize = () => 1000;
 RowResizer.prototype._getMaxSize = () => 1000;
@@ -147,7 +152,7 @@ describe("Resizer component", () => {
       ],
     };
     model = new Model(data);
-    ({ fixture } = await mountSpreadsheet({ model }));
+    ({ fixture, env } = await mountSpreadsheet({ model }));
   });
 
   test("can click on a header to select a column", async () => {
@@ -209,6 +214,14 @@ describe("Resizer component", () => {
     expect(model.getters.getSelectedZones()[1]).toEqual({ left: 0, top: 3, right: 9, bottom: 3 });
     expect(model.getters.getSelectedZones()[2]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
     expect(getSelectionAnchorCellXc(model)).toBe("C1");
+  });
+
+  test("The composer should be closed before selecting headers", async () => {
+    const composerStore = env.getStore(ComposerStore);
+    await typeInComposerGrid("Hello");
+    expect(composerStore.editionMode).not.toBe("inactive");
+    await selectColumnByClicking(model, "C");
+    expect(composerStore.editionMode).toBe("inactive");
   });
 
   test("Can resize a column", async () => {

@@ -7,7 +7,6 @@ import {
   MIN_ROW_HEIGHT,
   SELECTION_BORDER_COLOR,
 } from "../../constants";
-import { ComposerStore } from "../../plugins/ui_stateful";
 import { Store, useStore } from "../../store_engine";
 import {
   CommandResult,
@@ -18,6 +17,7 @@ import {
   Ref,
   SpreadsheetChildEnv,
 } from "../../types/index";
+import { ComposerStore } from "../composer/composer/composer_store";
 import { ContextMenuType } from "../grid/grid";
 import { css, cssPropertiesToCss } from "../helpers/css";
 import { isCtrlKey } from "../helpers/dom_helpers";

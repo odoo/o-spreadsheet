@@ -1,9 +1,9 @@
 import { Model } from "../../src";
+import { ComposerStore } from "../../src/components/composer/composer/composer_store";
 import { FONT_SIZES } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
 import { zoneToXc } from "../../src/helpers";
 import { interactivePaste } from "../../src/helpers/ui/paste_interactive";
-import { ComposerStore } from "../../src/plugins/ui_stateful";
 import { colMenuRegistry, rowMenuRegistry, topbarMenuRegistry } from "../../src/registries/index";
 import { SpreadsheetChildEnv, UID } from "../../src/types";
 import { DEFAULT_LOCALES } from "../../src/types/locale";

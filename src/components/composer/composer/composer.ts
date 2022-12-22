@@ -1,12 +1,12 @@
-import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, onMounted, useEffect, useRef, useState } from "@odoo/owl";
 import { COMPOSER_ASSISTANT_COLOR, DEFAULT_FONT, NEWLINE } from "../../../constants";
 import { functionRegistry } from "../../../functions/index";
 import { clip, fuzzyLookup, getZoneArea, isEqual, splitReference } from "../../../helpers/index";
-import { interactiveStopEdition } from "../../../helpers/ui/stop_edition_interactive";
-import { ComposerSelection, ComposerStore } from "./composer_store";
+import { ComposerStore } from "./composer_store";
 
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { Store, useStore } from "../../../store_engine";
+import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
 import {
   CSSProperties,
   Color,
@@ -107,11 +107,12 @@ export interface AutocompleteValue {
 
 export interface ComposerProps {
   focus: ComposerFocusType;
-  onComposerContentFocused: (selection: ComposerSelection) => void;
   inputStyle?: string;
   rect?: Rect;
   delimitation?: DOMDimension;
-  onComposerUnmounted?: () => void;
+  onComposerContentFocused: () => void;
+  onComposerCellFocused?: (content: String) => void;
+  isDefaultFocus?: boolean;
 }
 
 interface ComposerState {
@@ -140,18 +141,21 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     focus: {
       validate: (value: string) => ["inactive", "cellFocus", "contentFocus"].includes(value),
     },
-    onComposerContentFocused: Function,
     inputStyle: { type: String, optional: true },
     rect: { type: Object, optional: true },
     delimitation: { type: Object, optional: true },
-    onComposerUnmounted: { type: Function, optional: true },
+    onComposerCellFocused: { type: Function, optional: true },
+    onComposerContentFocused: Function,
+    isDefaultFocus: { type: Boolean, optional: true },
   };
   static components = { TextValueProvider, FunctionDescriptionProvider };
   static defaultProps = {
     inputStyle: "",
+    isDefaultFocus: false,
   };
 
   private composerStore!: Store<ComposerStore>;
+  private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 
   composerRef = useRef("o_composer");
 
@@ -225,14 +229,14 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
 
   setup() {
     this.composerStore = useStore(ComposerStore);
+    this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     onMounted(() => {
       const el = this.composerRef.el!;
+      if (this.props.isDefaultFocus) {
+        this.DOMFocusableElementStore.setFocusableElement(el);
+      }
       this.contentHelper.updateEl(el);
       this.processTokenAtCursor();
-    });
-
-    onWillUnmount(() => {
-      this.props.onComposerUnmounted?.();
     });
 
     useEffect(() => {
@@ -245,7 +249,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   // ---------------------------------------------------------------------------
 
   private processArrowKeys(ev: KeyboardEvent) {
-    if (this.composerStore.isSelectingForComposer) {
+    if (this.composerStore.isSelectingRange || this.composerStore.editionMode === "inactive") {
       this.functionDescriptionState.showDescription = false;
       // Prevent the default content editable behavior which moves the cursor
       ev.preventDefault();
@@ -259,7 +263,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       !this.autoCompleteState.showProvider &&
       !content.startsWith("=")
     ) {
-      interactiveStopEdition(this.env);
+      this.composerStore.stopEdition();
       return;
     }
     // All arrow keys are processed: up and down should move autocomplete, left
@@ -291,16 +295,17 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   private processTabKey(ev: KeyboardEvent, direction: Direction) {
     ev.preventDefault();
     ev.stopPropagation();
-    const state = this.autoCompleteState;
-    if (state.showProvider && state.selectedIndex !== undefined) {
-      const autoCompleteValue = this.autoCompleteState.values[state.selectedIndex]?.text;
-      if (autoCompleteValue) {
-        this.autoComplete(autoCompleteValue);
-        return;
+    if (this.composerStore.editionMode !== "inactive") {
+      const state = this.autoCompleteState;
+      if (state.showProvider && state.selectedIndex !== undefined) {
+        const autoCompleteValue = this.autoCompleteState.values[state.selectedIndex]?.text;
+        if (autoCompleteValue) {
+          this.autoComplete(autoCompleteValue);
+          return;
+        }
       }
+      this.composerStore.stopEdition();
     }
-
-    interactiveStopEdition(this.env);
     this.env.model.selection.moveAnchorCell(direction, 1);
   }
 
@@ -316,7 +321,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
         return;
       }
     }
-    interactiveStopEdition(this.env);
+    this.composerStore.stopEdition();
     this.env.model.selection.moveAnchorCell(direction, 1);
   }
 
@@ -376,6 +381,9 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   }
 
   onKeydown(ev: KeyboardEvent) {
+    if (this.composerStore.editionMode === "inactive") {
+      return;
+    }
     if (ev.key.startsWith("Arrow")) {
       this.processArrowKeys(ev);
       return;
@@ -390,14 +398,32 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     }
   }
 
+  onPaste(ev: ClipboardEvent) {
+    if (this.composerStore.editionMode !== "inactive") {
+      ev.stopPropagation();
+    }
+  }
+
   /*
    * Triggered automatically by the content-editable between the keydown and key up
    * */
   onInput(ev: InputEvent) {
-    if (this.props.focus === "inactive" || !this.shouldProcessInputEvents) {
+    if (!this.shouldProcessInputEvents) {
       return;
     }
-    let content = this.contentHelper.getText();
+    if (ev.inputType === "insertFromPaste" && this.composerStore.editionMode === "inactive") {
+      return;
+    }
+    ev.stopPropagation();
+    let content: string;
+    if (this.composerStore.editionMode === "inactive") {
+      content = ev.data || "";
+    } else {
+      content = this.contentHelper.getText();
+    }
+    if (this.props.focus === "inactive") {
+      return this.props.onComposerCellFocused?.(content);
+    }
     let selection = this.contentHelper.getCurrentSelection();
     this.composerStore.stopComposerRangeSelection();
     this.composerStore.setCurrentContent(content, selection);
@@ -410,7 +436,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
         return;
       }
 
-      if (this.composerStore.isSelectingForComposer && ev.key?.startsWith("Arrow")) {
+      if (this.composerStore.isSelectingRange && ev.key?.startsWith("Arrow")) {
         return;
       }
 
@@ -484,9 +510,8 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     const newSelection = this.contentHelper.getCurrentSelection();
 
     this.composerStore.stopComposerRangeSelection();
-    if (this.props.focus === "inactive") {
-      this.props.onComposerContentFocused(newSelection);
-    }
+    this.props.onComposerContentFocused();
+
     this.composerStore.changeComposerCursorSelection(newSelection.start, newSelection.end);
     this.processTokenAtCursor();
   }

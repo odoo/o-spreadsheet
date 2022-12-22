@@ -1,5 +1,5 @@
-import { ComposerSelection, ComposerStore } from "../../plugins/ui_stateful";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
+import { ComposerSelection, ComposerStore } from "./composer/composer_store";
 
 export type ComposerFocusType = "inactive" | "cellFocus" | "contentFocus";
 
@@ -35,7 +35,7 @@ export class ComposerFocusStore extends SpreadsheetStore {
     this.setComposerContent({});
   }
 
-  focusGridComposer(content?: string, selection?: ComposerSelection) {
+  focusGridComposerCell(content?: string, selection?: ComposerSelection) {
     if (this.getters.isReadonly()) {
       return;
     }

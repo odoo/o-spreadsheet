@@ -1,11 +1,11 @@
 import { Model } from "../../src";
+import { ComposerStore } from "../../src/components/composer/composer/composer_store";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
 } from "../../src/constants";
-import { ComposerStore } from "../../src/plugins/ui_stateful";
 import { IsValueInListCriterion, SpreadsheetChildEnv, UID } from "../../src/types";
 import { addDataValidation, setCellContent, setSelection } from "../test_helpers/commands_helpers";
 import { click, keyDown, setInputValueAndTrigger } from "../test_helpers/dom_helper";
