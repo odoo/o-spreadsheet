@@ -1,5 +1,6 @@
 import { Model } from "..";
 import { ClipboardInterface } from "../helpers/clipboard/navigator_clipboard_wrapper";
+import { FocusableElement } from "../helpers/focus_manager";
 import { TranslationFunction } from "../translation";
 import { Currency } from "./currency";
 import { ImageProviderInterface } from "./files";
@@ -39,4 +40,5 @@ export interface SpreadsheetChildEnv extends SpreadsheetEnv {
   startCellEdition: (content: string) => void;
   loadCurrencies?: () => Promise<Currency[]>;
   loadLocales: () => Promise<Locale[]>;
+  focusableElement: FocusableElement;
 }
