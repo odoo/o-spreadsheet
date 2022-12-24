@@ -21,8 +21,12 @@ export async function simulateClick(
   }
   triggerMouseEvent(selector, "mousedown", x, y, extra);
   if (target !== document.activeElement) {
-    (document.activeElement as HTMLElement | null)?.blur();
-    target.focus();
+    const oldActiveEl = document.activeElement;
+    (document.activeElement as HTMLElement | null)?.dispatchEvent(
+      new FocusEvent("blur", { relatedTarget: target })
+    );
+
+    target.dispatchEvent(new FocusEvent("focus", { relatedTarget: oldActiveEl }));
   }
   triggerMouseEvent(selector, "mouseup", x, y, extra);
   triggerMouseEvent(selector, "click", x, y, extra);
