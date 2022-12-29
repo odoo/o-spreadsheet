@@ -573,7 +573,7 @@ describe("edition", () => {
     expect(model.getters.getCurrentContent()).toBe("=Sheet2!A2+Sheet2!A3");
   });
 
-  test("composer selection is reset only when changing sheet", () => {
+  test("When changing sheet, composer selection is reset if there's no saved selection for activated sheet", () => {
     const model = new Model();
     createSheet(model, { sheetId: "42", name: "Sheet2" });
     selectCell(model, "D3");
@@ -586,6 +586,21 @@ describe("edition", () => {
     activateSheet(model, "42");
     moveAnchorCell(model, "down");
     expect(model.getters.getCurrentContent()).toEqual("=Sheet2!A3");
+  });
+
+  test("When changing sheet, composer selection will be set to saved selection (if any) of activated sheet", () => {
+    const model = new Model();
+    createSheet(model, { sheetId: "42", name: "Sheet2" });
+    const sheet1 = model.getters.getSheetIds()[0];
+    const sheet2 = model.getters.getSheetIds()[1];
+    selectCell(model, "B2"); // Sheet1!B2
+    activateSheet(model, sheet2);
+    selectCell(model, "D3"); // Sheet2!D3
+    activateSheet(model, sheet1);
+    model.dispatch("START_EDITION", { text: "=" });
+    activateSheet(model, sheet2);
+    moveAnchorCell(model, "down");
+    expect(model.getters.getCurrentContent()).toEqual("=Sheet2!D4");
   });
 
   test("select an empty cell, start selecting mode at the composer position", () => {
