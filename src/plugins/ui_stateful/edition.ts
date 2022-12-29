@@ -201,10 +201,11 @@ export class EditionPlugin extends UIPlugin {
           this.resetContent();
         }
         if (cmd.sheetIdFrom !== cmd.sheetIdTo) {
+          const activePosition = this.getters.getActivePosition();
           const { col, row } = this.getters.getNextVisibleCellPosition({
             sheetId: cmd.sheetIdTo,
-            col: 0,
-            row: 0,
+            col: activePosition.col,
+            row: activePosition.row,
           });
           const zone = this.getters.expandZone(cmd.sheetIdTo, positionToZone({ col, row }));
           this.selection.resetAnchor(this, { cell: { col, row }, zone });
