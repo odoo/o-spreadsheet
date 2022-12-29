@@ -70,7 +70,7 @@ export function usePopoverContainer(): Rect {
     const newRect =
       "getPopoverContainerRect" in env ? env.getPopoverContainerRect() : spreadsheetRect;
     container.x = newRect.x;
-    container.y = newRect.x;
+    container.y = newRect.y;
     container.width = newRect.width;
     container.height = newRect.height;
   }
