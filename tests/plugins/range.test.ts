@@ -13,7 +13,7 @@ import {
 } from "../test_helpers/commands_helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
-let m;
+let m; // any because we add a getter, which is not typed
 
 export interface UseRange {
   type: "USE_RANGE";
@@ -390,11 +390,14 @@ describe("range plugin", () => {
       expect(m.getters.getRangeString(undefined, "not there")).toBe(INCORRECT_RANGE_STRING);
     });
 
-    test.each(["Sheet 0", "<Sheet1>", "&Sheet2", "Sheet4;", "Sheet5🐻"])(
+    test.each(["Sheet 0", "<Sheet1>", "&Sheet2", "Sheet4;", "Sheet5🐻", "She!et2"])(
       "sheet name with special character %s",
       (name) => {
         renameSheet(m, "s1", name);
-        const range = m.getters.getRangeFromSheetXC("s1", "A1");
+        let range: Range;
+        range = m.getters.getRangeFromSheetXC("s1", "A1");
+        expect(m.getters.getRangeString(range, "tao")).toBe(`'${name}'!A1`);
+        range = m.getters.getRangeFromSheetXC("s1", `'${name}'!A1`);
         expect(m.getters.getRangeString(range, "tao")).toBe(`'${name}'!A1`);
       }
     );

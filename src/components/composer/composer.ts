@@ -2,7 +2,14 @@ import * as owl from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { EnrichedToken } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
-import { DEBUG, isEqual, rangeReference, toZone, zoneToDimension } from "../../helpers/index";
+import {
+  DEBUG,
+  isEqual,
+  rangeReference,
+  splitReference,
+  toZone,
+  zoneToDimension,
+} from "../../helpers/index";
 import { ComposerSelection, SelectionIndicator } from "../../plugins/ui/edition";
 import { FunctionDescription, Rect, SpreadsheetEnv } from "../../types/index";
 import { TextValueProvider, TextValueProviderApi } from "./autocomplete_dropdown";
@@ -482,8 +489,8 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
           result.push({ value: token.value, color: tokenColor[token.type] || "#000" });
           break;
         case "REFERENCE":
-          const [xc, sheet] = token.value.split("!").reverse() as [string, string | undefined];
-          result.push({ value: token.value, color: this.rangeColor(xc, sheet) || "#000" });
+          const { xc, sheetName } = splitReference(token.value);
+          result.push({ value: token.value, color: this.rangeColor(xc, sheetName) || "#000" });
           break;
         case "SYMBOL":
           let value = token.value;
@@ -550,7 +557,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     if (content.startsWith("=")) {
       const tokenAtCursor = this.getters.getTokenAtCursor();
       if (tokenAtCursor) {
-        const [xc] = tokenAtCursor.value.split("!").reverse();
+        const { xc } = splitReference(tokenAtCursor.value);
         if (
           tokenAtCursor.type === "FUNCTION" ||
           (tokenAtCursor.type === "SYMBOL" && !rangeReference.test(xc))

@@ -2,6 +2,7 @@ import {
   getComposerSheetName,
   getNextColor,
   rangeReference,
+  splitReference,
   UuidGenerator,
   zoneToXc,
 } from "../../helpers/index";
@@ -155,14 +156,14 @@ export class SelectionInputPlugin extends UIPlugin {
     );
   }
 
-  isRangeValid(xc: string): boolean {
-    if (!xc) {
+  isRangeValid(reference: string): boolean {
+    if (!reference) {
       return false;
     }
-    const [rangeXc, sheetName] = xc.split("!").reverse();
+    const { xc, sheetName } = splitReference(reference);
     return (
-      rangeXc.match(rangeReference) !== null &&
-      (sheetName === undefined || this.getters.getSheetIdByName(sheetName) !== undefined)
+      xc.match(rangeReference) !== null &&
+      (!sheetName || this.getters.getSheetIdByName(sheetName) !== undefined)
     );
   }
 
@@ -316,7 +317,7 @@ export class SelectionInputPlugin extends UIPlugin {
    * the current active sheet.
    */
   private shouldBeHighlighted(inputSheetId: UID, reference: string): boolean {
-    const sheetName = reference.split("!").reverse()[1];
+    const { sheetName } = splitReference(reference);
     const sheetId = this.getters.getSheetIdByName(sheetName);
     const activeSheetId = this.getters.getActiveSheet().id;
     const valid = this.isRangeValid(reference);
