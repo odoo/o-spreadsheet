@@ -10,6 +10,7 @@ import {
   markdownLink,
   positionToZone,
   rangeReference,
+  splitReference,
   toZone,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
@@ -158,7 +159,7 @@ export class EditionPlugin extends UIPlugin {
           .filter((token) => token.type === "REFERENCE")
           .find((token) => {
             let value = token.value;
-            const [xc, sheet] = value.split("!").reverse();
+            const { xc, sheetName: sheet } = splitReference(value);
             const sheetName = sheet || this.getters.getSheetName(this.sheetId);
             const activeSheetId = this.getters.getActiveSheetId();
             return (
@@ -558,10 +559,12 @@ export class EditionPlugin extends UIPlugin {
 
     for (let token of this.currentTokens.filter((token) => token.type === "REFERENCE")) {
       let value = token.value;
-      const [xc, sheet] = value.split("!").reverse();
+      const { xc, sheetName } = splitReference(value);
       if (rangeReference.test(xc)) {
         const refSanitized =
-          (sheet ? `${sheet}!` : `${this.getters.getSheetName(this.getters.getEditionSheet())}!`) +
+          (sheetName
+            ? `${sheetName}!`
+            : `${this.getters.getSheetName(this.getters.getEditionSheet())}!`) +
           xc.replace(/\$/g, "");
 
         ranges.push(refSanitized);

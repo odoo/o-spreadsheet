@@ -3,6 +3,7 @@ import {
   getNextColor,
   getNextVisibleCellCoords,
   positionToZone,
+  splitReference,
   UuidGenerator,
   zoneToXc,
 } from "../../helpers/index";
@@ -263,7 +264,7 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
    * the current active sheet.
    */
   private shouldBeHighlighted(inputSheetId: UID, reference: string): boolean {
-    const sheetName = reference.split("!").reverse()[1];
+    const { sheetName } = splitReference(reference);
     const sheetId = this.getters.getSheetIdByName(sheetName);
     const activeSheetId = this.getters.getActiveSheet().id;
     const valid = this.getters.isRangeValid(reference);

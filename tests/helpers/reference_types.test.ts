@@ -32,6 +32,7 @@ describe("loopThroughReferenceType", () => {
     expect(loopThroughReferenceType(refToken("Sheet2!$A$1"))).toEqual(refToken("Sheet2!A$1"));
     expect(loopThroughReferenceType(refToken("Sheet2!A$1"))).toEqual(refToken("Sheet2!$A1"));
     expect(loopThroughReferenceType(refToken("Sheet2!$A1"))).toEqual(refToken("Sheet2!A1"));
+    expect(loopThroughReferenceType(refToken("She!et2!$A1"))).toEqual(refToken("She!et2!A1"));
   });
 
   test("can have sheet reference on range", () => {

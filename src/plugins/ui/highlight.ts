@@ -1,4 +1,4 @@
-import { isEqual, toZone, zoneToDimension } from "../../helpers/index";
+import { isEqual, splitReference, toZone, zoneToDimension } from "../../helpers/index";
 import { Mode } from "../../model";
 import { GridRenderingContext, Highlight, LAYERS } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
@@ -32,8 +32,8 @@ export class HighlightPlugin extends UIPlugin {
     const activeSheetId = this.getters.getActiveSheetId();
     const preparedHighlights: Highlight[] = [];
     for (let [r1c1, color] of ranges) {
-      const [xc, sheet] = r1c1.split("!").reverse();
-      const sheetId = sheet ? this.getters.getSheetIdByName(sheet) : activeSheetId;
+      const { xc, sheetName } = splitReference(r1c1);
+      const sheetId = sheetName ? this.getters.getSheetIdByName(sheetName) : activeSheetId;
       if (sheetId) {
         let zone = toZone(xc);
         const { height, width } = zoneToDimension(zone);

@@ -567,18 +567,21 @@ describe("selection input plugin", () => {
     expect(model.getters.getSelectionInput(id)[1].xc).toBe("C5");
   });
 
-  test("highlights are set when activating another sheet", () => {
-    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
-    model.dispatch("CHANGE_RANGE", {
-      id,
-      rangeId: idOfRange(model, id, 0),
-      value: "Sheet2!B3, A1",
-    });
-    expect(highlightedZones(model)).toEqual(["A1"]);
-    activateSheet(model, "42");
-    expect(highlightedZones(model)).toEqual(["B3"]);
-  });
+  test.each(["Sheet2", "She!et2"])(
+    "highlights are set when activating another sheet",
+    (sheetName) => {
+      model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
+      model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1, name: sheetName });
+      model.dispatch("CHANGE_RANGE", {
+        id,
+        rangeId: idOfRange(model, id, 0),
+        value: `${sheetName}!B3, A1`,
+      });
+      expect(highlightedZones(model)).toEqual(["A1"]);
+      activateSheet(model, "42");
+      expect(highlightedZones(model)).toEqual(["B3"]);
+    }
+  );
 
   test("input not focused when changing sheet", () => {
     model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });

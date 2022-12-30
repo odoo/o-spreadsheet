@@ -1,4 +1,4 @@
-import { positionToZone, rangeReference } from "../../helpers/index";
+import { positionToZone, rangeReference, splitReference } from "../../helpers/index";
 import { Mode, ModelConfig } from "../../model";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
 import { StateObserver } from "../../state_observer";
@@ -129,7 +129,7 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
     if (!xc) {
       return false;
     }
-    const [rangeXc, sheetName] = xc.split("!").reverse();
+    const { xc: rangeXc, sheetName } = splitReference(xc);
     return (
       rangeXc.match(rangeReference) !== null &&
       (sheetName === undefined || this.getters.getSheetIdByName(sheetName) !== undefined)
