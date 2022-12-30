@@ -6,6 +6,7 @@ import {
   isZoneValid,
   numberToLetters,
   rangeReference,
+  splitReference,
   toZoneWithoutBoundaryChanges,
 } from "../../helpers/index";
 import {
@@ -271,7 +272,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
    */
   getRangeFromSheetXC(defaultSheetId: UID, sheetXC: string): Range {
     let xc = sheetXC;
-    let sheetName: string = "";
+    let sheetName: string | undefined;
     let sheetId: UID | undefined;
     let invalidSheetName: string | undefined;
     let prefixSheet: boolean = false;
@@ -279,7 +280,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       return this.buildInvalidRange(sheetXC);
     }
     if (sheetXC.includes("!")) {
-      [xc, sheetName] = sheetXC.split("!").reverse();
+      ({ xc, sheetName } = splitReference(sheetXC));
       if (sheetName) {
         sheetId = this.getters.getSheetIdByName(sheetName);
         prefixSheet = true;

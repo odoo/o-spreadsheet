@@ -5,7 +5,7 @@ import {
   tokenColor,
 } from "../../src/components/composer/composer";
 import { fontSizes } from "../../src/fonts";
-import { colors, toZone } from "../../src/helpers/index";
+import { colors, getComposerSheetName, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { LinkCell } from "../../src/types";
 import {
@@ -137,6 +137,25 @@ describe("ranges and highlights", () => {
       // @ts-ignore
       (window.mockContentHelper as ContentEditableHelper).colors[ref]
     ).toBe(colors[0]);
+  });
+
+  describe("handle exlamation mark in sheetName", () => {
+    beforeEach(async () => {
+      createSheet(model, { position: 1, name: "She!et2" });
+      await nextTick();
+    });
+    test.each(["She!et2!A1", "She!et2!A1:B2", "'She!et2'!A1", "She!et2!$A$1"])(
+      "reference %s should be colored",
+      async (ref) => {
+        createSheet(model, { position: 1, name: "She!et2" });
+        await nextTick();
+        await typeInComposer(`=SUM(${ref})`);
+        expect(
+          // @ts-ignore
+          (window.mockContentHelper as ContentEditableHelper).colors[ref]
+        ).toBe(colors[0]);
+      }
+    );
   });
 
   test("=Key DOWN in A1, should select and highlight A2", async () => {
@@ -292,13 +311,13 @@ describe("ranges and highlights", () => {
       expect(composerEl.textContent).toBe("=SUM(B1:B2)");
     });
 
-    test("can change references with sheetname", async () => {
-      await typeInComposer("=Sheet42!B1");
-      createSheetWithName(model, { sheetId: "42", activate: true }, "Sheet42");
+    test.each(["Sheet2", "She!et2"])("can change references with sheetname", async (sheetName) => {
+      await typeInComposer(`=${sheetName}!B1`);
+      createSheetWithName(model, { sheetId: "42", activate: true }, sheetName);
       model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
       model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("B2") });
       await nextTick();
-      expect(composerEl.textContent).toBe("=Sheet42!B2");
+      expect(composerEl.textContent).toBe(`=${getComposerSheetName(sheetName)}!B2`);
     });
 
     test("change references of the current sheet", async () => {
