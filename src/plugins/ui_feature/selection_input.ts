@@ -116,10 +116,6 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
     }
   }
 
-  unsubscribe() {
-    this.unfocus();
-  }
-
   // ---------------------------------------------------------------------------
   // Getters || only callable by the parent
   // ---------------------------------------------------------------------------
