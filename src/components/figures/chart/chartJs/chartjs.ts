@@ -1,5 +1,6 @@
 import { Component, onMounted, onPatched, useRef } from "@odoo/owl";
 import Chart, { ChartConfiguration } from "chart.js";
+import { deepEquals } from "../../../../helpers";
 import { chartComponentRegistry } from "../../../../registries/chart_types";
 import { Figure, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
@@ -37,25 +38,14 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
       this.createChart(runtime.chartJsConfig);
     });
 
+    let previousRuntime = this.chartRuntime;
     onPatched(() => {
-      const chartData = this.chartRuntime.chartJsConfig;
-      if (chartData.data && chartData.data.datasets) {
-        this.chart!.data = chartData.data;
-        if (chartData.options?.title) {
-          this.chart!.config.options!.title = chartData.options.title;
-        }
-        if (chartData.options && "valueLabel" in chartData.options) {
-          if (chartData.options?.valueLabel) {
-            (this.chart!.config.options! as GaugeChartOptions).valueLabel =
-              chartData.options.valueLabel;
-          }
-        }
-      } else {
-        this.chart!.data.datasets = undefined;
+      const chartRuntime = this.chartRuntime;
+      if (deepEquals(previousRuntime, chartRuntime)) {
+        return;
       }
-      this.chart!.config.options!.legend = chartData.options?.legend;
-      this.chart!.config.options!.scales = chartData.options?.scales;
-      this.chart!.update({ duration: 0 });
+      this.updateChartJs(chartRuntime);
+      previousRuntime = chartRuntime;
     });
   }
 
@@ -63,6 +53,27 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     const canvas = this.canvas.el as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
     this.chart = new window.Chart(ctx, chartData);
+  }
+
+  private updateChartJs(chartRuntime: ChartJSRuntime) {
+    const chartData = chartRuntime.chartJsConfig;
+    if (chartData.data && chartData.data.datasets) {
+      this.chart!.data = chartData.data;
+      if (chartData.options?.title) {
+        this.chart!.config.options!.title = chartData.options.title;
+      }
+      if (chartData.options && "valueLabel" in chartData.options) {
+        if (chartData.options?.valueLabel) {
+          (this.chart!.config.options! as GaugeChartOptions).valueLabel =
+            chartData.options.valueLabel;
+        }
+      }
+    } else {
+      this.chart!.data.datasets = undefined;
+    }
+    this.chart!.config.options!.legend = chartData.options?.legend;
+    this.chart!.config.options!.scales = chartData.options?.scales;
+    this.chart!.update({ duration: 0 });
   }
 }
 
