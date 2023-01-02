@@ -21,6 +21,7 @@ import {
   FilterId,
   Position,
   UID,
+  Zone,
 } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 import { UpdateFilterCommand } from "./../../types/commands";
@@ -114,21 +115,14 @@ export class FilterEvaluationPlugin extends UIPlugin {
     let filterBorder: Border | undefined = undefined;
     for (let filters of this.getters.getFilterTables(sheetId)) {
       const zone = filters.zone;
-
-      // The borders should be at the edges of the visible zone of the filter
-      const colsRange = range(zone.left, zone.right + 1);
-      const rowsRange = range(zone.top, zone.bottom + 1);
-      const visibleLeft = this.getters.findVisibleHeader(sheetId, "COL", colsRange);
-      const visibleRight = this.getters.findVisibleHeader(sheetId, "COL", colsRange.reverse());
-      const visibleTop = this.getters.findVisibleHeader(sheetId, "ROW", rowsRange);
-      const visibleBottom = this.getters.findVisibleHeader(sheetId, "ROW", rowsRange.reverse());
-
       if (isInside(col, row, zone)) {
+        // The borders should be at the edges of the visible zone of the filter
+        const visibleZone = this.intersectZoneWithViewport(sheetId, zone);
         filterBorder = {
-          top: row === visibleTop ? DEFAULT_FILTER_BORDER_DESC : undefined,
-          bottom: row === visibleBottom ? DEFAULT_FILTER_BORDER_DESC : undefined,
-          left: col === visibleLeft ? DEFAULT_FILTER_BORDER_DESC : undefined,
-          right: col === visibleRight ? DEFAULT_FILTER_BORDER_DESC : undefined,
+          top: row === visibleZone.top ? DEFAULT_FILTER_BORDER_DESC : undefined,
+          bottom: row === visibleZone.bottom ? DEFAULT_FILTER_BORDER_DESC : undefined,
+          left: col === visibleZone.left ? DEFAULT_FILTER_BORDER_DESC : undefined,
+          right: col === visibleZone.right ? DEFAULT_FILTER_BORDER_DESC : undefined,
         };
       }
     }
@@ -175,6 +169,17 @@ export class FilterEvaluationPlugin extends UIPlugin {
     const id = this.getters.getFilterId(position);
     const sheetId = position.sheetId;
     return Boolean(id && this.filterValues[sheetId]?.[id]?.length);
+  }
+
+  private intersectZoneWithViewport(sheetId: UID, zone: Zone) {
+    const colsRange = range(zone.left, zone.right + 1);
+    const rowsRange = range(zone.top, zone.bottom + 1);
+    return {
+      left: this.getters.findVisibleHeader(sheetId, "COL", colsRange),
+      right: this.getters.findVisibleHeader(sheetId, "COL", colsRange.reverse()),
+      top: this.getters.findVisibleHeader(sheetId, "ROW", rowsRange),
+      bottom: this.getters.findVisibleHeader(sheetId, "ROW", rowsRange.reverse()),
+    };
   }
 
   private updateFilter({ col, row, values, sheetId }: UpdateFilterCommand) {
