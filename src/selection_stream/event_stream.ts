@@ -1,5 +1,9 @@
 export interface StreamCallbacks<Event> {
   handleEvent: (event: Event) => void;
+  /** this callback will only be called when another consumer captures the stream,
+   * not when the current consumer decides to release the stream itself as it could
+   * have react differently to both situations.
+   *  */
   release?: () => void;
 }
 
@@ -10,7 +14,7 @@ interface StreamSubscription<Event> {
 
 interface SpyStreamSubscription<Event> {
   owner: unknown;
-  callbacks: Omit<StreamCallbacks<Event>, "unsubscribe">;
+  callbacks: StreamCallbacks<Event>;
 }
 
 /**
@@ -42,7 +46,7 @@ interface SpyStreamSubscription<Event> {
 export class EventStream<Event> {
   private observers: SpyStreamSubscription<Event>[] = [];
   /**
-   * the one we default to when someone unsubscribes
+   * the one we default to when someone releases the stream by themeselves
    */
   private defaultSubscription?: StreamSubscription<Event>;
   private mainSubscription?: StreamSubscription<Event>;
@@ -57,7 +61,7 @@ export class EventStream<Event> {
   /**
    * Register callbacks to observe the stream
    */
-  observe(owner: unknown, callbacks: Omit<StreamCallbacks<Event>, "unsubscribe">) {
+  observe(owner: unknown, callbacks: StreamCallbacks<Event>) {
     this.observers.push({ owner, callbacks });
   }
 
@@ -68,7 +72,7 @@ export class EventStream<Event> {
     if (this.observers.find((sub) => sub.owner === owner)) {
       throw new Error("You are already subscribed forever");
     }
-    if (this.mainSubscription?.owner) {
+    if (this.mainSubscription?.owner && this.mainSubscription.owner !== owner) {
       this.mainSubscription.callbacks.release?.();
     }
     this.mainSubscription = { owner, callbacks };
@@ -81,7 +85,6 @@ export class EventStream<Event> {
     ) {
       return;
     }
-    this.mainSubscription?.callbacks.release?.();
     this.mainSubscription = this.defaultSubscription;
   }
 
