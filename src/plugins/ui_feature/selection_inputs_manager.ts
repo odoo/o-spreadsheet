@@ -115,10 +115,6 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
     this.currentInput?.handle(cmd);
   }
 
-  unsubscribe() {
-    this.unfocus();
-  }
-
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
