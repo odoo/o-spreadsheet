@@ -1,5 +1,7 @@
 export interface StreamCallbacks<Event> {
   handleEvent: (event: Event) => void;
+  /** this callback will only be called when another consumer captures the stream,
+   * not when the current consumer decides to release itself */
   release?: () => void;
 }
 
@@ -68,7 +70,7 @@ export class EventStream<Event> {
     if (this.observers.find((sub) => sub.owner === owner)) {
       throw new Error("You are already subscribed forever");
     }
-    if (this.mainSubscription?.owner) {
+    if (this.mainSubscription?.owner && this.mainSubscription.owner !== owner) {
       this.mainSubscription.callbacks.release?.();
     }
     this.mainSubscription = { owner, callbacks };
@@ -81,7 +83,6 @@ export class EventStream<Event> {
     ) {
       return;
     }
-    this.mainSubscription?.callbacks.release?.();
     this.mainSubscription = this.defaultSubscription;
   }
 
