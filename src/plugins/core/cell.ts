@@ -23,7 +23,6 @@ import {
   HeaderIndex,
   LiteralCell,
   Range,
-  RangePart,
   Style,
   UID,
   UpdateCellData,
@@ -325,7 +324,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   zoneToXC(
     sheetId: UID,
     zone: Zone,
-    fixedParts: RangePart[] = [{ colFixed: false, rowFixed: false }]
+    fixedParts: Range["parts"] = [{ colFixed: false, rowFixed: false }]
   ): string {
     zone = this.getters.expandZone(sheetId, zone);
     const topLeft = toXC(zone.left, zone.top, fixedParts[0]);

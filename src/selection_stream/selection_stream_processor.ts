@@ -44,6 +44,7 @@ interface SelectionProcessor {
   moveAnchorCell(direction: SelectionDirection, step: SelectionStep): DispatchResult;
   setAnchorCorner(col: number, row: number): DispatchResult;
   addCellToSelection(col: number, row: number): DispatchResult;
+  moveZone(anchor: AnchorZone): DispatchResult;
   resizeAnchorZone(direction: SelectionDirection, step: SelectionStep): DispatchResult;
   selectColumn(index: number, mode: SelectionEvent["mode"]): DispatchResult;
   selectRow(index: number, mode: SelectionEvent["mode"]): DispatchResult;
@@ -126,20 +127,8 @@ export class SelectionStreamProcessor
   /**
    * Select a new anchor
    */
-  selectZone(
-    anchor: AnchorZone,
-    mode: SelectionEvent["mode"] = "overrideSelection"
-  ): DispatchResult {
-    const sheetId = this.getters.getActiveSheetId();
-    anchor = {
-      ...anchor,
-      zone: this.getters.expandZone(sheetId, anchor.zone),
-    };
-    return this.processEvent({
-      type: "ZonesSelected",
-      anchor,
-      mode,
-    });
+  selectZone(anchor: AnchorZone): DispatchResult {
+    return this._setZone(anchor);
   }
 
   /**
@@ -195,6 +184,10 @@ export class SelectionStreamProcessor
       anchor: { zone, cell: { col, row } },
       mode: "newAnchor",
     });
+  }
+
+  moveZone(anchor: AnchorZone) {
+    return this._setZone(anchor, "updateAnchor");
   }
 
   /**
@@ -355,7 +348,7 @@ export class SelectionStreamProcessor
    */
   selectTableAroundSelection(): DispatchResult {
     const tableZone = this.expandZoneToTable(this.anchor.zone);
-    return this.selectZone({ ...this.anchor, zone: tableZone }, "updateAnchor");
+    return this._setZone({ ...this.anchor, zone: tableZone }, "updateAnchor");
   }
 
   /**
@@ -370,6 +363,26 @@ export class SelectionStreamProcessor
       type: "HeadersSelected",
       mode: "overrideSelection",
       anchor: { zone, cell: this.anchor.cell },
+    });
+  }
+
+  /**
+   *  ---- PRIVATE ----
+   */
+
+  private _setZone(
+    anchor: AnchorZone,
+    mode: SelectionEvent["mode"] = "overrideSelection"
+  ): DispatchResult {
+    const sheetId = this.getters.getActiveSheetId();
+    anchor = {
+      ...anchor,
+      zone: this.getters.expandZone(sheetId, anchor.zone),
+    };
+    return this.processEvent({
+      type: "ZonesSelected",
+      anchor,
+      mode,
     });
   }
 
@@ -414,10 +427,6 @@ export class SelectionStreamProcessor
       throw new Error(_t("The provided anchor is invalid. The cell must be part of the zone."));
     }
   }
-
-  /**
-   *  ---- PRIVATE ----
-   */
 
   /** Computes the next cell position in the direction of deltaX and deltaY
    * by crossing through merges and skipping hidden cells.

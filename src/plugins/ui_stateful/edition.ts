@@ -4,7 +4,6 @@ import {
   colors,
   concat,
   getComposerSheetName,
-  getZoneArea,
   isDateTimeFormat,
   isEqual,
   isNumber,
@@ -16,16 +15,7 @@ import {
 } from "../../helpers/index";
 import { loopThroughReferenceType } from "../../helpers/reference_type";
 import { _lt } from "../../translation";
-import {
-  CellPosition,
-  CellValueType,
-  Format,
-  Highlight,
-  Range,
-  RangePart,
-  UID,
-  Zone,
-} from "../../types";
+import { CellPosition, CellValueType, Format, Highlight, Range, UID, Zone } from "../../types";
 import { SelectionEvent } from "../../types/event_stream";
 import {
   AddColumnsRowsCommand,
@@ -163,16 +153,24 @@ export class EditionPlugin extends UIPlugin {
   }
 
   private handleEvent(event: SelectionEvent) {
-    if (this.state.mode !== "selecting") {
+    if (this.state.mode === "inactive") {
       return;
     }
     switch (event.mode) {
-      case "newAnchor":
-        this.insertSelectedRange(event.anchor.zone);
-        break;
-      default:
-        this.replaceSelectedRanges(event.anchor.zone);
-        break;
+      case "updateAnchor":
+        this.updateRange(event.anchor.zone);
+        return;
+    }
+    if (this.state.mode === "selecting") {
+      switch (event.mode) {
+        case "newAnchor":
+          this.insertSelectedRange(event.anchor.zone);
+          break;
+        case "overrideSelection":
+          // TODO: rename this. Since e are selecting, we have (at best) one selected range.
+          this.replaceSelectedRanges(event.anchor.zone);
+          break;
+      }
     }
   }
 
@@ -244,23 +242,11 @@ export class EditionPlugin extends UIPlugin {
           this.state.previousRef
         );
         this.state.selectionInitialStart = previousRefToken!.start;
-        break;
-      case "CHANGE_HIGHLIGHT":
-        if (this.state.mode !== "inactive") {
-          const cmdRange = this.getters.getRangeFromRangeData(cmd.range);
-          const newRef = this.getRangeReference(
-            cmdRange,
-            this.state.previousRange!.parts,
-            this.state.sheetId
-          );
-          this.state.selectionStart = this.state.selectionInitialStart;
-          this.state.selectionEnd =
-            this.state.selectionInitialStart + this.state.previousRef.length;
-          this.replaceSelection(newRef);
-          this.state.previousRef = newRef;
-          this.state.selectionStart = this.state.currentContent.length;
-          this.state.selectionEnd = this.state.currentContent.length;
-        }
+        // update selection accordingly
+        this.selection.resetAnchor(this, {
+          cell: { col: range.zone.left, row: range.zone.top },
+          zone: range.zone,
+        });
         break;
       case "ACTIVATE_SHEET":
         /** TODO: the condition should be more precise:
@@ -278,6 +264,7 @@ export class EditionPlugin extends UIPlugin {
             row: activePosition.row,
           });
           const zone = this.getters.expandZone(cmd.sheetIdTo, positionToZone({ col, row }));
+          // might need th update previousrange and rpeviousref aswell
           this.selection.resetAnchor(this, { cell: { col, row }, zone });
         }
         break;
@@ -675,19 +662,48 @@ export class EditionPlugin extends UIPlugin {
       this.insertText("," + ref, start);
       this.state.selectionInitialStart = start + 1;
     }
+    this.state.previousRef = ref;
+    this.state.previousRange = this.getters.getRangeFromSheetXC(
+      this.getters.getActiveSheetId(),
+      this.state.previousRef
+    );
   }
+
+  /** Update the old reference (matching oldZone in the current sheet) with the new one
+   * Will replace the last occurence of the reference.
+   */
+  private updateRange(newZone: Zone) {
+    const state = this.state as EditingState;
+    const newText = this.getZoneReference(newZone, state.previousRange!.parts);
+    this.replaceText(
+      newText,
+      state.selectionInitialStart,
+      state.selectionInitialStart + state.previousRef.length
+    );
+    this.state.previousRef = newText;
+    this.state.previousRange = this.getters.getRangeFromSheetXC(
+      this.getters.getActiveSheetId(),
+      this.state.previousRef
+    );
+  }
+
   /**
    * Replace the current reference selected by the new one.
    * */
-  private replaceSelectedRanges(zone: Zone) {
+  private replaceSelectedRanges(newZone: Zone) {
     // implies state in "selecting" mode and that selectionInitialStart is defined
-    const ref = this.getZoneReference(zone);
+    const ref = this.getZoneReference(newZone);
     this.replaceText(ref, this.state.selectionInitialStart, this.state.selectionEnd);
+    this.state.previousRef = ref;
+    this.state.previousRange = this.getters.getRangeFromSheetXC(
+      this.getters.getActiveSheetId(),
+      this.state.previousRef
+    );
   }
 
   private getZoneReference(
     zone: Zone,
-    fixedParts: RangePart[] = [{ colFixed: false, rowFixed: false }]
+    fixedParts: Range["parts"] = [{ colFixed: false, rowFixed: false }]
   ): string {
     const sheetId = this.getters.getActiveSheetId();
     let selectedXc = this.getters.zoneToXC(sheetId, zone, fixedParts);
@@ -698,21 +714,6 @@ export class EditionPlugin extends UIPlugin {
       selectedXc = `${sheetName}!${selectedXc}`;
     }
     return selectedXc;
-  }
-
-  private getRangeReference(
-    range: Range,
-    fixedParts: Range["parts"] = [{ colFixed: false, rowFixed: false }],
-    sheetId: UID
-  ) {
-    let _fixedParts = [...fixedParts];
-    if (fixedParts.length === 1 && getZoneArea(range.zone) > 1) {
-      _fixedParts.push({ ...fixedParts[0] });
-    } else if (fixedParts.length === 2 && getZoneArea(range.zone) === 1) {
-      _fixedParts.pop();
-    }
-    const newRange = range.clone({ parts: _fixedParts });
-    return this.getters.getSelectionRangeString(newRange, sheetId);
   }
 
   /**

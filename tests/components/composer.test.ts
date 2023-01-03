@@ -254,6 +254,7 @@ describe("ranges and highlights", () => {
   });
 
   describe("change highlight position in the grid", () => {
+    // TODORAR: this hans nothing to do with the composer, move it to edition plugin tests
     test("change the associated range in the composer ", async () => {
       composerEl = await typeInComposerGrid("=SUM(B2)");
       model.dispatch("START_CHANGE_HIGHLIGHT", {
