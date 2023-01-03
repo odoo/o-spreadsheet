@@ -331,6 +331,40 @@ describe("Autofill", () => {
       expect(getCellContent(model, "A4")).toBe("test");
     });
 
+    describe("Autofill alphanumeric values", () => {
+      test("same prefix", () => {
+        setCellContent(model, "A1", "prefix1");
+        setCellContent(model, "A2", "prefix4");
+        autofill("A1:A2", "A4");
+        expect(getCellContent(model, "A3")).toBe("prefix7");
+        expect(getCellContent(model, "A4")).toBe("prefix10");
+      });
+
+      test("different prefix", () => {
+        setCellContent(model, "A1", "prefixa1");
+        setCellContent(model, "A2", "prefixb10");
+        autofill("A1:A2", "A4");
+        expect(getCellContent(model, "A3")).toBe("prefixa2");
+        expect(getCellContent(model, "A4")).toBe("prefixb11");
+      });
+
+      test("padding zeros of number at the end", () => {
+        setCellContent(model, "A1", "prefix005");
+        setCellContent(model, "A2", "prefix007");
+        autofill("A1:A2", "A4");
+        expect(getCellContent(model, "A3")).toBe("prefix009");
+        expect(getCellContent(model, "A4")).toBe("prefix011");
+      });
+
+      test("prefix with numbers", () => {
+        setCellContent(model, "A1", "prefix123and5");
+        setCellContent(model, "A2", "prefix123and7");
+        autofill("A1:A2", "A4");
+        expect(getCellContent(model, "A3")).toBe("prefix123and9");
+        expect(getCellContent(model, "A4")).toBe("prefix123and11");
+      });
+    });
+
     test.each([
       ["=A1", "=#REF"],
       ["=SUM(A1:B1)", "=SUM(#REF)"],
