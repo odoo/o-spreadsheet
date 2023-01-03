@@ -110,6 +110,7 @@ export function addMetaInfoFromArg(addDescr: AddFunctionDescription): FunctionDe
   descr.maxArgPossible = repeatingArg ? Infinity : countArg;
   descr.nbrArgRepeating = repeatingArg;
   descr.getArgToFocus = argTargeting(countArg, repeatingArg);
+  descr.hidden = addDescr.hidden || false;
 
   return descr;
 }

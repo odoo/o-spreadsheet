@@ -407,12 +407,14 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
 
   showAutocomplete(searchTerm: string) {
     this.autoCompleteState.showProvider = true;
-    let values = Object.entries(functionRegistry.content).map(([text, { description }]) => {
-      return {
-        text,
-        description,
-      };
-    });
+    let values = Object.entries(functionRegistry.content)
+      .filter(([_, { hidden }]) => !hidden)
+      .map(([text, { description }]) => {
+        return {
+          text,
+          description,
+        };
+      });
     if (searchTerm) {
       values = fuzzyLookup(searchTerm, values, (t) => t.text);
     } else {
