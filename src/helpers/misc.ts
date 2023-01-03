@@ -20,6 +20,14 @@ export function stringify(obj: any): string {
 }
 
 /**
+ * Escapes a string to use as a literal string in a RegExp.
+ * @url https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#Escaping
+ */
+export function escapeRegExp(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
  * Deep copy arrays, plain objects and primitive values.
  * Throws an error for other types such as class instances.
  * Sparse arrays remain sparse.
