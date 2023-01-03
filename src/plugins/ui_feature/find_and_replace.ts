@@ -1,3 +1,4 @@
+import { escapeRegExp } from "../../helpers";
 import {
   CellPosition,
   Command,
@@ -129,7 +130,7 @@ export class FindAndReplacePlugin extends UIPlugin {
    * the value toSearch
    */
   private updateRegex() {
-    let searchValue = this.toSearch;
+    let searchValue = escapeRegExp(this.toSearch);
     const flags = !this.searchOptions.matchCase ? "i" : "";
     if (this.searchOptions.exactMatch) {
       searchValue = `^${searchValue}$`;
