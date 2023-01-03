@@ -36,6 +36,7 @@ export interface AddFunctionDescription {
   args: ArgDefinition[];
   returns: [ArgType];
   isExported?: boolean;
+  hidden?: boolean;
 }
 
 export interface FunctionDescription extends AddFunctionDescription {

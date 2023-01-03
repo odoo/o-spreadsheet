@@ -73,6 +73,13 @@ describe("Functions autocomplete", () => {
       compute: () => 1,
       returns: ["ANY"],
     });
+    functionRegistry.add("HIDDEN", {
+      description: "do something",
+      args: args(``),
+      compute: () => 1,
+      returns: ["ANY"],
+      hidden: true,
+    });
   });
 
   afterAll(() => {
@@ -82,6 +89,13 @@ describe("Functions autocomplete", () => {
   describe("autocomplete", () => {
     test("= do not show autocomplete", async () => {
       await typeInComposerGrid("=");
+      const activeElement = document.activeElement;
+      expect(activeElement).toBe(composerEl);
+      expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
+    });
+
+    test("=HI do not show autocomplete when entering hidden function names", async () => {
+      await typeInComposerGrid("=HI");
       const activeElement = document.activeElement;
       expect(activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
