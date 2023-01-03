@@ -147,13 +147,25 @@
       />
     </svg>
   </t>
+  <t t-name="o-spreadsheet-Icon.ALIGN_TOP" owl="1">
+    <svg class="o-icon align-top" width="20" height="20">
+      <rect x="3" y="2" width="12" height="2"/>
+      <rect x="8" y="9" width="2" height="7"/>
+      <polygon points="5.5 9 12.5 9 9 5.5"/>
+    </svg>
+  </t>
   <t t-name="o-spreadsheet-Icon.ALIGN_MIDDLE" owl="1">
-    <svg class="o-icon">
-      <path
-        fill="#000000"
-        d="M9.5,3 L7,3 L7,0 L5,0 L5,3 L2.5,3 L6,6.5 L9.5,3 L9.5,3 Z M0,8 L0,10 L12,10 L12,8 L0,8 L0,8 Z M2.5,15 L5,15 L5,18 L7,18 L7,15 L9.5,15 L6,11.5 L2.5,15 L2.5,15 Z"
-        transform="translate(3)"
-      />
+    <svg class="o-icon align-middle" width="20" height="20">
+      <polygon points="12.5 3 10 3 10 0 8 0 8 3 5.5 3 9 6.5"/>
+      <polygon points="5.5 15 8 15 8 18 10 18 10 15 12.5 15 9 11.5"/>
+      <rect x="3" y="8" width="12" height="2"/>
+    </svg>
+  </t>
+  <t t-name="o-spreadsheet-Icon.ALIGN_BOTTOM" owl="1">
+    <svg class="o-icon align-bottom" width="20" height="20">
+      <rect x="3" y="14" width="12" height="2"/>
+      <rect x="8" y="2" width="2" height="7"/>
+      <polygon points="5.5 9 12.5 9 9 12.5"/>
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.TEXT_WRAPPING" owl="1">

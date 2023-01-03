@@ -2,7 +2,6 @@ import { App, Component, onMounted, onWillUnmount, useState, xml } from "@odoo/o
 import { ComposerFocusType } from "../../src/components/spreadsheet/spreadsheet";
 import { TopBar } from "../../src/components/top_bar/top_bar";
 import { DEFAULT_FONT_SIZE } from "../../src/constants";
-import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { topbarComponentRegistry } from "../../src/registries";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
@@ -15,6 +14,7 @@ import {
   setAnchorCorner,
   setCellContent,
   setSelection,
+  setStyle,
 } from "../test_helpers/commands_helpers";
 import { click, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getBorder, getCell, getStyle } from "../test_helpers/getters_helpers";
@@ -25,7 +25,6 @@ import {
   makeTestFixture,
   mountSpreadsheet,
   nextTick,
-  target,
   toRangesData,
   typeInComposerTopBar,
 } from "../test_helpers/helpers";
@@ -172,12 +171,7 @@ describe("TopBar component", () => {
 
     expect(undoTool.classList.contains("o-disabled")).toBeTruthy();
     expect(redoTool.classList.contains("o-disabled")).toBeTruthy();
-
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
-      style: { bold: true },
-    });
+    setStyle(model, "A1", { bold: true });
     await nextTick();
 
     expect(undoTool.classList.contains("o-disabled")).toBeFalsy();
@@ -290,45 +284,83 @@ describe("TopBar component", () => {
     app.destroy();
   });
 
-  test.each([
-    ["align-left", { align: "left" }],
-    ["align-center", { align: "center" }],
-    ["align-right", { align: "right" }],
-  ])("can set horizontal alignment with the toolbar", async (iconClass, expectedStyle) => {
-    const { app, model } = await mountParent();
-    await click(fixture, ".o-tool[title='Horizontal align']");
-
-    const alignButtons = fixture.querySelectorAll("div.o-dropdown-item")!;
-    const button = [...alignButtons].find((element) =>
-      element.children[0]!.classList.contains(iconClass)
-    )!;
-
-    await click(button);
-    expect(model.getters.getCurrentStyle()).toEqual(expectedStyle);
-    app.destroy();
+  describe("horizontal align", () => {
+    test.each([
+      ["align-left", { align: "left" }],
+      ["align-center", { align: "center" }],
+      ["align-right", { align: "right" }],
+    ])(
+      "can set horizontal alignment with the toolbar (iconClass: %s)",
+      async (iconClass, expectedStyle) => {
+        const { app, model } = await mountParent();
+        await click(fixture, ".o-tool[title='Horizontal align']");
+        const alignButtons = fixture.querySelectorAll("div.o-dropdown-item")!;
+        const button = [...alignButtons].find((element) =>
+          element.children[0]!.classList.contains(iconClass)
+        )!;
+        await click(button);
+        expect(model.getters.getCurrentStyle()).toEqual(expectedStyle);
+        app.destroy();
+      }
+    );
+    test.each([
+      ["text", {}, "align-left"],
+      ["0", {}, "align-right"],
+      ["0", { align: "left" }, "align-left"],
+      ["0", { align: "center" }, "align-center"],
+      ["0", { align: "right" }, "align-right"],
+    ])(
+      "alignment icon in top bar matches the selected cell (content: %s, style: %s)",
+      async (content, style, expectedIconClass) => {
+        const model = new Model();
+        setCellContent(model, "A1", content);
+        setStyle(model, "A1", style as Style);
+        const { app } = await mountParent(model);
+        const alignTool = fixture.querySelector('.o-tool[title="Horizontal align"]')!;
+        expect(alignTool.querySelector("svg")!.classList).toContain(expectedIconClass);
+        app.destroy();
+      }
+    );
   });
-  test.each([
-    ["text", {}, "align-left"],
-    ["0", {}, "align-right"],
-    ["0", { align: "left" }, "align-left"],
-    ["0", { align: "center" }, "align-center"],
-    ["0", { align: "right" }, "align-right"],
-  ])(
-    "alignment icon in top bar match the selected cell",
-    async (content, style, expectedIconClass) => {
-      const model = new Model();
-      setCellContent(model, "A1", content);
-      model.dispatch("SET_FORMATTING", {
-        sheetId: model.getters.getActiveSheetId(),
-        target: [toZone("A1")],
-        style: style as Style,
-      });
-      const { app } = await mountParent(model);
-      const alignTool = fixture.querySelector('.o-tool[title="Horizontal align"]')!;
-      expect(alignTool.querySelector("svg")!.classList).toContain(expectedIconClass);
-      app.destroy();
-    }
-  );
+
+  describe("vertical align", () => {
+    test.each([
+      ["align-top", { verticalAlign: "top" }],
+      ["align-middle", { verticalAlign: "middle" }],
+      ["align-bottom", { verticalAlign: "bottom" }],
+    ])(
+      "can set vertical alignment with the toolbar (iconClass: %s)",
+      async (iconClass, expectedStyle) => {
+        const { app, model } = await mountParent();
+        await click(fixture, ".o-tool[title='Vertical align']");
+        const alignButtons = fixture.querySelectorAll("div.o-dropdown-item")!;
+        const button = [...alignButtons].find((element) =>
+          element.children[0]!.classList.contains(iconClass)
+        )!;
+        await click(button);
+        expect(model.getters.getCurrentStyle()).toEqual(expectedStyle);
+        app.destroy();
+      }
+    );
+    test.each([
+      ["text", {}, "align-middle"],
+      ["0", {}, "align-middle"],
+      ["0", { verticalAlign: "top" }, "align-top"],
+      ["0", { verticalAlign: "middle" }, "align-middle"],
+      ["0", { verticalAlign: "bottom" }, "align-bottom"],
+    ])(
+      "alignment icon in top bar matches the selected cell (content: %s, style: %s)",
+      async (content, style, expectedIconClass) => {
+        const model = new Model();
+        setCellContent(model, "A1", content);
+        setStyle(model, "A1", style as Style);
+        const { app } = await mountParent(model);
+        const alignTool = fixture.querySelector('.o-tool[title="Vertical align"]')!;
+        expect(alignTool.querySelector("svg")!.classList).toContain(expectedIconClass);
+        app.destroy();
+      }
+    );
+  });
 
   test("opening, then closing same menu", async () => {
     const model = new Model();
@@ -494,6 +526,7 @@ describe("TopBar component", () => {
 
   test.each([
     ["Horizontal align", ".o-dropdown-content"],
+    ["Vertical align", ".o-dropdown-content"],
     ["Borders", ".o-dropdown-content"],
     ["Font Size", ".o-dropdown-content"],
     ["Fill Color", ".o-color-picker"],
@@ -576,12 +609,7 @@ describe("TopBar - Custom currency", () => {
 describe("Format", () => {
   test("can clear format", async () => {
     const { app, model } = await mountSpreadsheet(fixture);
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("SET_FORMATTING", {
-      sheetId,
-      target: target("A1, B2:B3"),
-      style: { fillColor: "#000000" },
-    });
+    setStyle(model, "A1, B2:B3", { fillColor: "#000000" });
     selectCell(model, "A1");
     addCellToSelection(model, "B2");
     setAnchorCorner(model, "B3");

@@ -478,6 +478,49 @@ exports[`TopBar component can set cell format 1`] = `
               
             </div>
             <div
+              class="o-dropdown"
+            >
+              <div
+                class="o-tool o-dropdown-button"
+                title="Vertical align"
+              >
+                <span>
+                  
+                  
+                  <svg
+                    class="o-icon align-middle"
+                    height="20"
+                    width="20"
+                  >
+                    <polygon
+                      points="12.5 3 10 3 10 0 8 0 8 3 5.5 3 9 6.5"
+                    />
+                    <polygon
+                      points="5.5 15 8 15 8 18 10 18 10 15 12.5 15 9 11.5"
+                    />
+                    <rect
+                      height="2"
+                      width="12"
+                      x="3"
+                      y="8"
+                    />
+                  </svg>
+                  
+                  <svg
+                    class="o-icon"
+                  >
+                    <polygon
+                      fill="#000000"
+                      points="0 0 4 4 8 0"
+                      transform="translate(5 7)"
+                    />
+                  </svg>
+                  
+                </span>
+              </div>
+              
+            </div>
+            <div
               class="o-divider"
             />
             
@@ -869,6 +912,49 @@ exports[`TopBar component simple rendering 1`] = `
                   d="M0,14 L10,14 L10,12 L0,12 L0,14 Z M10,4 L0,4 L0,6 L10,6 L10,4 Z M0,0 L0,2 L14,2 L14,0 L0,0 Z M0,10 L14,10 L14,8 L0,8 L0,10 Z"
                   fill="#000000"
                   transform="translate(2 2)"
+                />
+              </svg>
+              
+              <svg
+                class="o-icon"
+              >
+                <polygon
+                  fill="#000000"
+                  points="0 0 4 4 8 0"
+                  transform="translate(5 7)"
+                />
+              </svg>
+              
+            </span>
+          </div>
+          
+        </div>
+        <div
+          class="o-dropdown"
+        >
+          <div
+            class="o-tool o-dropdown-button"
+            title="Vertical align"
+          >
+            <span>
+              
+              
+              <svg
+                class="o-icon align-middle"
+                height="20"
+                width="20"
+              >
+                <polygon
+                  points="12.5 3 10 3 10 0 8 0 8 3 5.5 3 9 6.5"
+                />
+                <polygon
+                  points="5.5 15 8 15 8 18 10 18 10 15 12.5 15 9 11.5"
+                />
+                <rect
+                  height="2"
+                  width="12"
+                  x="3"
+                  y="8"
                 />
               </svg>
               

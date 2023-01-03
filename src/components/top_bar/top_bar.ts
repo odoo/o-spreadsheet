@@ -27,6 +27,7 @@ import {
   SetDecimalStep,
   SpreadsheetChildEnv,
   Style,
+  VerticalAlign,
 } from "../../types/index";
 import { ColorPicker } from "../color_picker/color_picker";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
@@ -389,8 +390,13 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     setFormatter(this.env, value);
   }
 
-  toggleAlign(align: Align) {
-    setStyle(this.env, { ["align"]: align });
+  toggleHorizontalAlign(align: Align) {
+    setStyle(this.env, { align });
+    this.onClick();
+  }
+
+  toggleVerticalAlign(verticalAlign: VerticalAlign) {
+    setStyle(this.env, { verticalAlign });
     this.onClick();
   }
 
