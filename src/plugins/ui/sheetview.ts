@@ -235,6 +235,10 @@ export class SheetViewPlugin extends UIPlugin {
       case "UNFREEZE_COLUMNS_ROWS":
         this.resetViewports(this.getters.getActiveSheetId());
         break;
+      case "START_EDITION":
+        const { col, row } = this.getters.getPosition();
+        this.refreshViewport(this.getters.getActiveSheetId(), { col, row });
+        break;
     }
   }
 

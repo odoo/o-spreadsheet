@@ -1384,4 +1384,21 @@ describe("shift viewport up/down", () => {
       expect(model.getters.getSelectedZone()).toEqual(toZone(selectedCell));
     }
   );
+
+  test("Ensure the cell is in the viewport when starting the edition of a cell", async () => {
+    model.dispatch("RESIZE_SHEETVIEW", {
+      width: 100,
+      height: 100,
+      gridOffsetX: 0,
+      gridOffsetY: 0,
+    });
+    setCellContent(model, "A1", "apple");
+    selectCell(model, "A1");
+    const sheetId = model.getters.getActiveSheetId();
+    const { col, row } = model.getters.getPosition();
+    model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 200 });
+    expect(model.getters.isVisibleInViewport(sheetId, col, row)).toBeFalsy();
+    model.dispatch("START_EDITION");
+    expect(model.getters.isVisibleInViewport(sheetId, col, row)).toBeTruthy();
+  });
 });
