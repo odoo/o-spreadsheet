@@ -35,6 +35,13 @@ describe("basic search", () => {
     expect(matches[3]).toStrictEqual({ col: 0, row: 4, selected: false });
   });
 
+  test("search with a regexp characters", () => {
+    setCellContent(model, "A1", "hello (world).*");
+    model.dispatch("UPDATE_SEARCH", { toSearch: "(world", searchOptions });
+    const matches = model.getters.getSearchMatches();
+    expect(matches).toStrictEqual([{ col: 0, row: 0, selected: true }]);
+  });
+
   test("Update search automatically select the first match", () => {
     model.dispatch("UPDATE_SEARCH", { toSearch: "2", searchOptions });
     expect(model.getters.getSelection().zones).toEqual([toZone("A6")]);

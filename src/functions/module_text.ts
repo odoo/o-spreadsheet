@@ -1,3 +1,4 @@
+import { escapeRegExp } from "../helpers";
 import { _lt } from "../translation";
 import { AddFunctionDescription, Argument, ArgValue } from "../types";
 import { args } from "./arguments";
@@ -312,7 +313,7 @@ export const SUBSTITUTE: AddFunctionDescription = {
     }
 
     const _replaceWith = toString(replaceWith);
-    const reg = new RegExp(_searchFor, "g");
+    const reg = new RegExp(escapeRegExp(_searchFor), "g");
     if (_occurrenceNumber === 0) {
       return _textToSearch.replace(reg, _replaceWith);
     }
