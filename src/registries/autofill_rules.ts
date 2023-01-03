@@ -1,6 +1,7 @@
 import { DATETIME_FORMAT } from "../constants";
 import { evaluateLiteral } from "../helpers/cells";
 import { AutofillModifier, Cell, CellValueType } from "../types/index";
+import { EvaluatedCell } from "./../types/cells";
 import { Registry } from "./registry";
 
 /**
@@ -18,20 +19,28 @@ interface AutofillRule {
 
 export const autofillRulesRegistry = new Registry<AutofillRule>();
 
+const numberPostfixRegExp = /(\d+)$/;
+const stringPrefixRegExp = /^(.*\D+)/;
+const alphaNumericValueRegExp = /^(.*\D+)(\d+)$/;
+
 /**
- * Get the consecutive xc that are of type "number" or "date".
+ * Get the consecutive evaluated cells that can pass the filter function (e.g. certain type filter).
  * Return the one which contains the given cell
  */
-function getGroup(cell: Cell, cells: (Cell | undefined)[]): number[] {
-  let group: number[] = [];
+function getGroup(
+  cell: Cell,
+  cells: (Cell | undefined)[],
+  filter: (evaluatedCell: EvaluatedCell) => boolean
+) {
+  let group: EvaluatedCell[] = [];
   let found: boolean = false;
   for (let x of cells) {
     if (x === cell) {
       found = true;
     }
     const cellValue = evaluateLiteral(x?.content);
-    if (cellValue.type === CellValueType.number) {
-      group.push(cellValue.value);
+    if (filter(cellValue)) {
+      group.push(cellValue);
     } else {
       if (found) {
         return group;
@@ -56,6 +65,17 @@ function getAverageIncrement(group: number[]) {
   return averages.reduce((a, b) => a + b, 0) / averages.length;
 }
 
+/**
+ * Get the step for a group
+ */
+function calculateIncrementBasedOnGroup(group: number[]) {
+  let increment = 1;
+  if (group.length >= 2) {
+    increment = getAverageIncrement(group) * group.length;
+  }
+  return increment;
+}
+
 autofillRulesRegistry
   .add("simple_value_copy", {
     condition: (cell: Cell, cells: (Cell | undefined)[]) => {
@@ -65,6 +85,35 @@ autofillRulesRegistry
       return { type: "COPY_MODIFIER" };
     },
     sequence: 10,
+  })
+  .add("increment_alphanumeric_value", {
+    condition: (cell: Cell) =>
+      !cell.isFormula &&
+      evaluateLiteral(cell.content).type === CellValueType.text &&
+      alphaNumericValueRegExp.test(cell.content),
+    generateRule: (cell: Cell, cells: Cell[]) => {
+      const numberPostfix = parseInt(cell.content.match(numberPostfixRegExp)![0]);
+      const prefix = cell.content.match(stringPrefixRegExp)![0];
+      const numberPostfixLength = cell.content.length - prefix.length;
+      const group = getGroup(
+        cell,
+        cells,
+        (evaluatedCell) =>
+          evaluatedCell.type === CellValueType.text &&
+          alphaNumericValueRegExp.test(evaluatedCell.value)
+      ) // get consecutive alphanumeric cells, no matter what the prefix is
+        .filter((cell) => prefix === cell.value.toString().match(stringPrefixRegExp)![0])
+        .map((cell) => parseInt(cell.value.toString().match(numberPostfixRegExp)![0]));
+      const increment = calculateIncrementBasedOnGroup(group);
+      return {
+        type: "ALPHANUMERIC_INCREMENT_MODIFIER",
+        prefix,
+        current: numberPostfix,
+        increment,
+        numberPostfixLength,
+      };
+    },
+    sequence: 15,
   })
   .add("copy_text", {
     condition: (cell: Cell) =>
@@ -85,13 +134,12 @@ autofillRulesRegistry
     condition: (cell: Cell) =>
       !cell.isFormula && evaluateLiteral(cell.content).type === CellValueType.number,
     generateRule: (cell: Cell, cells: (Cell | undefined)[]) => {
-      const group = getGroup(cell, cells);
-      let increment: number = 1;
-      if (group.length == 2) {
-        increment = (group[1] - group[0]) * 2;
-      } else if (group.length > 2) {
-        increment = getAverageIncrement(group) * group.length;
-      }
+      const group = getGroup(
+        cell,
+        cells,
+        (evaluatedCell) => evaluatedCell.type === CellValueType.number
+      ).map((cell) => Number(cell.value));
+      const increment = calculateIncrementBasedOnGroup(group);
       const evaluation = evaluateLiteral(cell.content);
       return {
         type: "INCREMENT_MODIFIER",

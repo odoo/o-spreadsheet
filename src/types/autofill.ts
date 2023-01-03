@@ -18,6 +18,14 @@ export interface IncrementModifier {
   current: number;
 }
 
+export interface AlphanumericIncrementModifier {
+  type: "ALPHANUMERIC_INCREMENT_MODIFIER";
+  increment: number;
+  current: number;
+  prefix: string;
+  numberPostfixLength: number; // the length of the number post fix string, e.g. "0001" is four but "1" is one
+}
+
 export interface CopyModifier {
   type: "COPY_MODIFIER";
 }
@@ -28,7 +36,11 @@ export interface FormulaModifier {
   current: number;
 }
 
-export type AutofillModifier = IncrementModifier | CopyModifier | FormulaModifier;
+export type AutofillModifier =
+  | IncrementModifier
+  | AlphanumericIncrementModifier
+  | CopyModifier
+  | FormulaModifier;
 
 export interface Tooltip {
   props: any;

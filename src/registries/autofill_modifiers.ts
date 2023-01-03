@@ -9,6 +9,7 @@ import {
   Getters,
   IncrementModifier,
 } from "../types/index";
+import { AlphanumericIncrementModifier } from "./../types/autofill";
 import { Registry } from "./registry";
 
 /**
@@ -19,6 +20,23 @@ import { Registry } from "./registry";
 export const autofillModifiersRegistry = new Registry<AutofillModifierImplementation>();
 
 autofillModifiersRegistry
+  .add("ALPHANUMERIC_INCREMENT_MODIFIER", {
+    apply: (rule: AlphanumericIncrementModifier, data: AutofillData) => {
+      rule.current += rule.increment;
+      const content = `${rule.prefix}${rule.current
+        .toString()
+        .padStart(rule.numberPostfixLength || 0, "0")}`;
+      return {
+        cellData: {
+          border: data.border,
+          style: data.cell && data.cell.style,
+          format: data.cell && data.cell.format,
+          content,
+        },
+        tooltip: { props: { content } },
+      };
+    },
+  })
   .add("INCREMENT_MODIFIER", {
     apply: (rule: IncrementModifier, data: AutofillData) => {
       rule.current += rule.increment;
