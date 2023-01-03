@@ -446,6 +446,10 @@ describe("SUBSTITUTE formula", () => {
     expect(evaluateCell("A1", { A1: '=SUBSTITUTE("AAAA", "", "B")' })).toBe("AAAA");
   });
 
+  test("functional tests on argument with regexp characters", () => {
+    expect(evaluateCell("A1", { A1: '=SUBSTITUTE("(hello)", "(" , ")")' })).toBe(")hello)");
+  });
+
   test("functional tests on cell arguments", () => {
     expect(
       evaluateCell("A1", {
