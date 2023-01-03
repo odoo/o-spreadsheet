@@ -657,6 +657,7 @@ export class EditionPlugin extends UIPlugin {
         }
       }
     }
+    // TODO do the same stuff when moving cursor?
     if (this.canStartComposerRangeSelection()) {
       this.startComposerRangeSelection();
     }
@@ -755,6 +756,10 @@ export class EditionPlugin extends UIPlugin {
       this.getters.getRangeString(range, editionSheetId)
     );
     const colorsToKeep = {};
+    /**
+     * TODORAR: Unify - sheet1!A1 has a differnet xc and color than A1 which is then
+     * correctded in highlight plugin drawgrid but not in the actual highlights
+     */
     for (const xc of XCs) {
       if (this.state.colorIndexByRange[xc] !== undefined) {
         colorsToKeep[xc] = this.state.colorIndexByRange[xc];
