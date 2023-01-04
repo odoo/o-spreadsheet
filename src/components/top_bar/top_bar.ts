@@ -28,6 +28,7 @@ import {
   SpreadsheetChildEnv,
   Style,
   VerticalAlign,
+  Wrapping,
 } from "../../types/index";
 import { ColorPicker } from "../color_picker/color_picker";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
@@ -397,6 +398,11 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   toggleVerticalAlign(verticalAlign: VerticalAlign) {
     setStyle(this.env, { verticalAlign });
+    this.onClick();
+  }
+
+  toggleTextWrapping(wrapping: Wrapping) {
+    setStyle(this.env, { wrapping });
     this.onClick();
   }
 

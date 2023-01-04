@@ -352,6 +352,42 @@ describe("TopBar component", () => {
     );
   });
 
+  describe("text wrapping", () => {
+    test.each([
+      ["wrapping-overflow", { wrapping: "overflow" }],
+      ["wrapping-wrap", { wrapping: "wrap" }],
+      ["wrapping-clip", { wrapping: "clip" }],
+    ])("can set the wrapping state '%s' with the toolbar", async (iconClass, expectedStyle) => {
+      const { app, model } = await mountParent();
+      await click(fixture, ".o-tool[title='Text wrapping']");
+      const alignButtons = fixture.querySelectorAll("div.o-dropdown-item")!;
+      const button = [...alignButtons].find((element) =>
+        element.children[0]!.classList.contains(iconClass)
+      )!;
+      await click(button);
+      expect(model.getters.getCurrentStyle()).toEqual(expectedStyle);
+      app.destroy();
+    });
+    test.each([
+      ["text", {}, "wrapping-overflow"],
+      ["0", {}, "wrapping-overflow"],
+      ["0", { wrapping: "overflow" }, "wrapping-overflow"],
+      ["0", { wrapping: "wrap" }, "wrapping-wrap"],
+      ["0", { wrapping: "clip" }, "wrapping-clip"],
+    ])(
+      "wrapping icon in top bar matches the selected cell (content: %s, style: %s)",
+      async (content, style, expectedIconClass) => {
+        const model = new Model();
+        setCellContent(model, "A1", content);
+        setStyle(model, "A1", style as Style);
+        const { app } = await mountParent(model);
+        const wrapTool = fixture.querySelector('.o-tool[title="Text wrapping"]')!;
+        expect(wrapTool.querySelector("svg")!.classList).toContain(expectedIconClass);
+        app.destroy();
+      }
+    );
+  });
+
   test("opening, then closing same menu", async () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
@@ -517,6 +553,7 @@ describe("TopBar component", () => {
   test.each([
     ["Horizontal align", ".o-dropdown-content"],
     ["Vertical align", ".o-dropdown-content"],
+    ["Text wrapping", ".o-dropdown-content"],
     ["Borders", ".o-dropdown-content"],
     ["Font Size", ".o-dropdown-content"],
     ["Fill Color", ".o-color-picker"],

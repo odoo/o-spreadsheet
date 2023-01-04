@@ -327,6 +327,45 @@
                 </div>
               </div>
             </div>
+            <div class="o-dropdown">
+              <div
+                class="o-tool o-dropdown-button"
+                title="Text wrapping"
+                t-on-click="(ev) => this.toggleDropdownTool('textWrappingTool', ev)">
+                <span>
+                  <t t-if="style.wrapping === 'wrap'">
+                    <t t-call="o-spreadsheet-Icon.WRAPPING_WRAP"/>
+                  </t>
+                  <t t-elif="style.wrapping === 'clip'">
+                    <t t-call="o-spreadsheet-Icon.WRAPPING_CLIP"/>
+                  </t>
+                  <t t-else="">
+                    <t t-call="o-spreadsheet-Icon.WRAPPING_OVERFLOW"/>
+                  </t>
+                  <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
+                </span>
+              </div>
+              <div
+                t-if="state.activeTool === 'textWrappingTool'"
+                class="o-dropdown-content"
+                t-on-click.stop="">
+                <div
+                  class="o-dropdown-item o-dropdown-align-item"
+                  t-on-click="() => this.toggleTextWrapping('overflow')">
+                  <t t-call="o-spreadsheet-Icon.WRAPPING_OVERFLOW"/>
+                </div>
+                <div
+                  class="o-dropdown-item o-dropdown-align-item"
+                  t-on-click="() => this.toggleTextWrapping('wrap')">
+                  <t t-call="o-spreadsheet-Icon.WRAPPING_WRAP"/>
+                </div>
+                <div
+                  class="o-dropdown-item o-dropdown-align-item"
+                  t-on-click="() => this.toggleTextWrapping('clip')">
+                  <t t-call="o-spreadsheet-Icon.WRAPPING_CLIP"/>
+                </div>
+              </div>
+            </div>
             <div class="o-divider"/>
             <div
               t-if="selectionContainsFilter"

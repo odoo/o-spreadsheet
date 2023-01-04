@@ -521,6 +521,58 @@ exports[`TopBar component can set cell format 1`] = `
               
             </div>
             <div
+              class="o-dropdown"
+            >
+              <div
+                class="o-tool o-dropdown-button"
+                title="Text wrapping"
+              >
+                <span>
+                  
+                  
+                  <svg
+                    class="o-icon wrapping-overflow"
+                    height="20"
+                    width="20"
+                  >
+                    <rect
+                      height="14"
+                      width="2"
+                      x="2"
+                      y="2"
+                    />
+                    <rect
+                      height="4"
+                      width="2"
+                      x="9"
+                      y="2"
+                    />
+                    <rect
+                      height="4"
+                      width="2"
+                      x="9"
+                      y="12"
+                    />
+                    <polygon
+                      points="13 8 6 8 6 10 13 10 13 12 16 9 13 6"
+                    />
+                  </svg>
+                  
+                  <svg
+                    class="o-icon"
+                  >
+                    <polygon
+                      fill="#000000"
+                      points="0 0 4 4 8 0"
+                      transform="translate(5 7)"
+                    />
+                  </svg>
+                  
+                </span>
+              </div>
+              
+            </div>
+            <div
               class="o-divider"
             />
             
@@ -955,6 +1007,58 @@ exports[`TopBar component simple rendering 1`] = `
                   width="12"
                   x="3"
                   y="8"
+                />
+              </svg>
+              
+              <svg
+                class="o-icon"
+              >
+                <polygon
+                  fill="#000000"
+                  points="0 0 4 4 8 0"
+                  transform="translate(5 7)"
+                />
+              </svg>
+              
+            </span>
+          </div>
+          
+        </div>
+        <div
+          class="o-dropdown"
+        >
+          <div
+            class="o-tool o-dropdown-button"
+            title="Text wrapping"
+          >
+            <span>
+              
+              
+              <svg
+                class="o-icon wrapping-overflow"
+                height="20"
+                width="20"
+              >
+                <rect
+                  height="14"
+                  width="2"
+                  x="2"
+                  y="2"
+                />
+                <rect
+                  height="4"
+                  width="2"
+                  x="9"
+                  y="2"
+                />
+                <rect
+                  height="4"
+                  width="2"
+                  x="9"
+                  y="12"
+                />
+                <polygon
+                  points="13 8 6 8 6 10 13 10 13 12 16 9 13 6"
                 />
               </svg>
               
