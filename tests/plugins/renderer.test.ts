@@ -14,7 +14,7 @@ import {
   SELECTION_BORDER_COLOR,
 } from "../../src/constants";
 import { fontSizeMap } from "../../src/fonts";
-import { toHex, toZone } from "../../src/helpers";
+import { colorToRGBA, rgbaToHex, toHex, toZone } from "../../src/helpers";
 import { Mode, Model } from "../../src/model";
 import { RendererPlugin } from "../../src/plugins/ui_feature/renderer";
 import { Align, BorderCommand, Box, GridRenderingContext, Viewport, Zone } from "../../src/types";
@@ -389,7 +389,15 @@ describe("renderer", () => {
     });
 
     model.drawGrid(ctx);
-    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 }]);
+    expect(fillStyle).toEqual([
+      {
+        color: "#DC6CDF",
+        h: 23 + ctx.thinLineWidth,
+        w: 96 + ctx.thinLineWidth,
+        x: 0 - ctx.thinLineWidth / 2,
+        y: 0 - ctx.thinLineWidth / 2,
+      },
+    ]);
 
     fillStyle = [];
     model.dispatch("SET_FORMATTING", {
@@ -398,8 +406,265 @@ describe("renderer", () => {
       style: { fillColor: "#DC6CDE" },
     });
     model.drawGrid(ctx);
-    expect(fillStyle).toEqual([{ color: "#DC6CDE", h: 23, w: 96, x: 0, y: 0 }]);
+    expect(fillStyle).toEqual([
+      {
+        color: "#DC6CDE",
+        h: 23 + ctx.thinLineWidth,
+        w: 96 + ctx.thinLineWidth,
+        x: 0 - ctx.thinLineWidth / 2,
+        y: 0 - ctx.thinLineWidth / 2,
+      },
+    ]);
   });
+
+  test("fillstyle of cell whose content is not overflowing will have colorful borders if grid lines are visible", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 1,
+          rowNumber: 3,
+        },
+      ],
+    });
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: target("A1"),
+      style: { fillColor: "#DC6CDF" },
+    });
+
+    const { r: r1, g: g1, b: b1 } = colorToRGBA("#DC6CDF");
+    const { r: r2, g: g2, b: b2 } = colorToRGBA("#DC6CDE");
+    const borderColor1 = rgbaToHex({
+      r: r1 - 30 < 0 ? 0 : r1 - 30,
+      g: g1 - 30 < 0 ? 0 : g1 - 30,
+      b: b1 - 30 < 0 ? 0 : b1 - 30,
+      a: 1,
+    });
+    const borderColor2 = rgbaToHex({
+      r: r2 - 30 < 0 ? 0 : r2 - 30,
+      g: g2 - 30 < 0 ? 0 : g2 - 30,
+      b: b2 - 30 < 0 ? 0 : b2 - 30,
+      a: 1,
+    });
+    let strokeStyleColor1Called = false;
+    let strokeStyleColor2Called = false;
+    let borderStyle: any[] = [];
+
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "strokeStyle" && value === borderColor1) {
+          strokeStyleColor1Called = true;
+          strokeStyleColor2Called = false;
+        }
+        if (key === "strokeStyle" && value === borderColor2) {
+          strokeStyleColor2Called = true;
+          strokeStyleColor1Called = false;
+        }
+      },
+      onFunctionCall: (val, args) => {
+        if (val === "strokeRect" && strokeStyleColor1Called) {
+          borderStyle.push({ color: borderColor1, x: args[0], y: args[1], w: args[2], h: args[3] });
+          strokeStyleColor1Called = false;
+          strokeStyleColor2Called = false;
+        }
+        if (val === "strokeRect" && strokeStyleColor2Called) {
+          borderStyle.push({ color: borderColor2, x: args[0], y: args[1], w: args[2], h: args[3] });
+          strokeStyleColor1Called = false;
+          strokeStyleColor2Called = false;
+        }
+      },
+    });
+
+    model.drawGrid(ctx);
+    expect(borderStyle).toEqual([{ color: borderColor1, h: 23, w: 96, x: 0, y: 0 }]);
+
+    borderStyle = [];
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: [toZone("A1")],
+      style: { fillColor: "#DC6CDE" },
+    });
+    model.drawGrid(ctx);
+    expect(borderStyle).toEqual([
+      { color: borderColor2, h: DEFAULT_CELL_HEIGHT, w: DEFAULT_CELL_WIDTH, x: 0, y: 0 },
+    ]);
+  });
+
+  test("fillstyle of cell will not have colorful borders if grid lines are invisible", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 1,
+          rowNumber: 3,
+        },
+      ],
+    });
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: [toZone("A1")],
+      style: { fillColor: "#DC6CDF" },
+    });
+
+    const { r, g, b } = colorToRGBA("#DC6CDF");
+    const borderColor = rgbaToHex({
+      r: r - 30 < 0 ? 0 : r - 30,
+      b: b - 30 < 0 ? 0 : b - 30,
+      g: g - 30 < 0 ? 0 : g - 30,
+      a: 1,
+    });
+    let strokeStyleColorCalled = false;
+    let borderStyle: any[] = [];
+
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "strokeStyle" && value === borderColor) {
+          strokeStyleColorCalled = true;
+        }
+      },
+      onFunctionCall: (val, args) => {
+        if (val === "strokeRect" && strokeStyleColorCalled) {
+          borderStyle.push({ color: borderColor, x: args[0], y: args[1], w: args[2], h: args[3] });
+          strokeStyleColorCalled = false;
+        }
+      },
+    });
+
+    model.drawGrid(ctx);
+    expect(borderStyle).toEqual([{ color: borderColor, h: 23, w: 96, x: 0, y: 0 }]);
+
+    model.updateMode("dashboard");
+    borderStyle = [];
+    model.drawGrid(ctx);
+    expect(borderStyle).toEqual([]);
+  });
+
+  test.each([
+    ["left", "left", { x1: 96, y1: -0.2 }, { x2: 96, y2: 23.2 }],
+    ["right", "right", { x1: 96 + 5, y1: -0.2 }, { x2: 96 + 5, y2: 23.2 }],
+    ["center", "center", undefined, undefined],
+  ])(
+    "fillstyle of cell whose content is overflowing and %s-aligned will have %s, top and bottom colorful borders if grid lines are visible",
+    (align, _, expectedSingleMoveTo, expectedSingleLineTo) => {
+      const COL_WIDTH = 5;
+      const model = new Model({
+        sheets: [
+          {
+            colNumber: 3,
+            rowNumber: 1,
+            cols: { 1: { size: COL_WIDTH } },
+            cells: { B1: { content: "I am a very long long long text", style: 1 } },
+          },
+        ],
+        styles: { 1: { align } },
+      });
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("B1")],
+        style: { fillColor: "#DC6CDF" },
+      });
+
+      const { r, g, b } = colorToRGBA("#DC6CDF");
+      const borderColor = rgbaToHex({
+        r: r - 30 < 0 ? 0 : r - 30,
+        b: b - 30 < 0 ? 0 : b - 30,
+        g: g - 30 < 0 ? 0 : g - 30,
+        a: 1,
+      });
+      let strokeStyleColorCalled = false;
+      const moveTo: any[] = [];
+      const lineTo: any[] = [];
+
+      let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+        onSet: (key, value) => {
+          if (key === "strokeStyle" && value === borderColor) {
+            strokeStyleColorCalled = true;
+          }
+        },
+        onFunctionCall: (val, args, renderingContext) => {
+          if (val === "moveTo" && strokeStyleColorCalled) {
+            moveTo.push({ x1: args[0], y1: args[1] });
+          } else if (val === "lineTo" && strokeStyleColorCalled) {
+            lineTo.push({ x2: args[0], y2: args[1] });
+            strokeStyleColorCalled = false;
+          }
+        },
+      });
+
+      model.drawGrid(ctx);
+      const expectedMoveTo = [
+        { x1: DEFAULT_CELL_WIDTH - ctx.thinLineWidth / 2, y1: 0 },
+        { x1: DEFAULT_CELL_WIDTH - ctx.thinLineWidth / 2, y1: DEFAULT_CELL_HEIGHT },
+      ];
+      const expectedLineTo = [
+        { x2: DEFAULT_CELL_WIDTH + COL_WIDTH + ctx.thinLineWidth / 2, y2: 0 },
+        { x2: DEFAULT_CELL_WIDTH + COL_WIDTH + ctx.thinLineWidth / 2, y2: DEFAULT_CELL_HEIGHT },
+      ];
+      if (expectedSingleMoveTo !== undefined) expectedMoveTo.push(expectedSingleMoveTo);
+      if (expectedSingleLineTo !== undefined) expectedLineTo.push(expectedSingleLineTo);
+      expect(moveTo).toEqual(expectedMoveTo);
+      expect(lineTo).toEqual(expectedLineTo);
+    }
+  );
+
+  test.each(["left", "right", "center"])(
+    "fillstyle of cell whose content is %s-aligned, overflowing and cut by neighboring cells will have all four colorful borders if grid lines are visible",
+    (align) => {
+      const COL_WIDTH = 5;
+      const model = new Model({
+        sheets: [
+          {
+            colNumber: 3,
+            rowNumber: 1,
+            cols: { 1: { size: COL_WIDTH } },
+            cells: {
+              A1: { content: "A1" },
+              B1: { content: "I am a very long long long text", style: 1 },
+              C1: { content: "C1" },
+            },
+          },
+        ],
+        styles: { 1: { align } },
+      });
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("B1")],
+        style: { fillColor: "#DC6CDF" },
+      });
+
+      const { r, g, b } = colorToRGBA("#DC6CDF");
+      const borderColor = rgbaToHex({
+        r: r - 30 < 0 ? 0 : r - 30,
+        b: b - 30 < 0 ? 0 : b - 30,
+        g: g - 30 < 0 ? 0 : g - 30,
+        a: 1,
+      });
+      let strokeStyleColorCalled = false;
+      let strokeRectArgs = {};
+
+      let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+        onSet: (key, value) => {
+          if (key === "strokeStyle" && value === borderColor) {
+            strokeStyleColorCalled = true;
+          }
+        },
+        onFunctionCall: (val, args, renderingContext) => {
+          if (val === "strokeRect" && strokeStyleColorCalled) {
+            strokeRectArgs = { x: args[0], y: args[1], width: args[2], height: args[3] };
+            strokeStyleColorCalled = false;
+          }
+        },
+      });
+
+      model.drawGrid(ctx);
+      const expectedStrokeRect = {
+        x: DEFAULT_CELL_WIDTH,
+        y: 0,
+        width: COL_WIDTH,
+        height: DEFAULT_CELL_HEIGHT,
+      };
+      expect(strokeRectArgs).toEqual(expectedStrokeRect);
+    }
+  );
 
   test("fillstyle of merge will be rendered for all cells in merge", () => {
     const model = new Model({
@@ -447,7 +712,15 @@ describe("renderer", () => {
     });
 
     model.drawGrid(ctx);
-    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 3 * 23, w: 96, x: 0, y: 0 }]);
+    expect(fillStyle).toEqual([
+      {
+        color: "#DC6CDF",
+        h: 3 * 23 + ctx.thinLineWidth,
+        w: 96 + ctx.thinLineWidth,
+        x: 0 - ctx.thinLineWidth / 2,
+        y: 0 - ctx.thinLineWidth / 2,
+      },
+    ]);
 
     fillStyle = [];
     model.dispatch("SET_FORMATTING", {
@@ -456,7 +729,15 @@ describe("renderer", () => {
       style: { fillColor: "#DC6CDE" },
     });
     model.drawGrid(ctx);
-    expect(fillStyle).toEqual([{ color: "#DC6CDE", h: 3 * 23, w: 96, x: 0, y: 0 }]);
+    expect(fillStyle).toEqual([
+      {
+        color: "#DC6CDE",
+        h: 3 * 23 + ctx.thinLineWidth,
+        w: 96 + ctx.thinLineWidth,
+        x: 0 - ctx.thinLineWidth / 2,
+        y: 0 - ctx.thinLineWidth / 2,
+      },
+    ]);
   });
 
   test("fillstyle of cell works with CF", () => {
@@ -497,7 +778,15 @@ describe("renderer", () => {
     fillStyle = [];
     setCellContent(model, "A1", "1");
     model.drawGrid(ctx);
-    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 }]);
+    expect(fillStyle).toEqual([
+      {
+        color: "#DC6CDF",
+        h: 23 + ctx.thinLineWidth,
+        w: 96 + ctx.thinLineWidth,
+        x: 0 - ctx.thinLineWidth / 2,
+        y: 0 - ctx.thinLineWidth / 2,
+      },
+    ]);
   });
 
   test("fillstyle of merge works with CF", () => {
@@ -538,7 +827,15 @@ describe("renderer", () => {
     fillStyle = [];
     setCellContent(model, "A1", "1");
     model.drawGrid(ctx);
-    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23 * 3, w: 96, x: 0, y: 0 }]);
+    expect(fillStyle).toEqual([
+      {
+        color: "#DC6CDF",
+        h: 23 * 3 + ctx.thinLineWidth,
+        w: 96 + ctx.thinLineWidth,
+        x: 0 - ctx.thinLineWidth / 2,
+        y: 0 - ctx.thinLineWidth / 2,
+      },
+    ]);
   });
 
   test("formulas in a merge, evaluating to a string are properly aligned", () => {
@@ -809,7 +1106,15 @@ describe("renderer", () => {
     });
     expect(result).toBeSuccessfullyDispatched();
     model.drawGrid(ctx);
-    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 }]);
+    expect(fillStyle).toEqual([
+      {
+        color: "#DC6CDF",
+        h: 23 + ctx.thinLineWidth,
+        w: 96 + ctx.thinLineWidth,
+        x: 0 - ctx.thinLineWidth / 2,
+        y: 0 - ctx.thinLineWidth / 2,
+      },
+    ]);
   });
 
   test.each(["I am a very long text", "100000000000000"])(

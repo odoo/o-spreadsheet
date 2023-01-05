@@ -21,6 +21,7 @@ import {
   TEXT_HEADER_COLOR,
 } from "../../constants";
 import {
+  colorToRGBA,
   computeTextFont,
   computeTextFontSizeInPixels,
   computeTextLinesHeight,
@@ -30,6 +31,7 @@ import {
   numberToLetters,
   overlap,
   positionToZone,
+  rgbaToHex,
   union,
 } from "../../helpers/index";
 import { CellErrorLevel } from "../../types/errors";
@@ -48,12 +50,25 @@ import {
   Zone,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
+import { Rect } from "./../../types/rendering";
 
 // -----------------------------------------------------------------------------
 // Constants, types, helpers, ...
 // -----------------------------------------------------------------------------
 
 export const CELL_BACKGROUND_GRIDLINE_STROKE_STYLE = "#111";
+enum GridLineDirection {
+  Left,
+  Right,
+  Top,
+  Bottom,
+}
+interface LineEndPoints {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+}
 
 export class RendererPlugin extends UIPlugin {
   static layers = [LAYERS.Background, LAYERS.Headers];
@@ -145,24 +160,83 @@ export class RendererPlugin extends UIPlugin {
     const areGridLinesVisible =
       !this.getters.isDashboard() &&
       this.getters.getGridLinesVisibility(this.getters.getActiveSheetId());
-    const inset = areGridLinesVisible ? 0.1 * thinLineWidth : 0;
 
     if (areGridLinesVisible) {
       for (const box of this.boxes) {
-        ctx.strokeStyle = CELL_BORDER_COLOR;
-        ctx.lineWidth = thinLineWidth;
-        ctx.strokeRect(box.x + inset, box.y + inset, box.width - 2 * inset, box.height - 2 * inset);
+        const { x, y, width, height } = box;
+        this.drawGridLines(
+          ctx,
+          CELL_BORDER_COLOR,
+          thinLineWidth,
+          [
+            GridLineDirection.Left,
+            GridLineDirection.Right,
+            GridLineDirection.Top,
+            GridLineDirection.Bottom,
+          ],
+          { x, y, width, height }
+        );
       }
     }
   }
 
   private drawCellBackground(renderingContext: GridRenderingContext) {
-    const { ctx } = renderingContext;
-    for (const box of this.boxes) {
+    const { ctx, thinLineWidth } = renderingContext;
+    const areGridLinesVisible =
+      !this.getters.isDashboard() &&
+      this.getters.getGridLinesVisibility(this.getters.getActiveSheetId());
+    const numOfBoxes = this.boxes.length;
+    for (let i = 0; i < numOfBoxes; i++) {
+      const box = this.boxes[i];
       let style = box.style;
       if (style.fillColor && style.fillColor !== "#ffffff") {
         ctx.fillStyle = style.fillColor || "#ffffff";
-        ctx.fillRect(box.x, box.y, box.width, box.height);
+        ctx.fillRect(
+          box.x - thinLineWidth / 2,
+          box.y - thinLineWidth / 2,
+          box.width + thinLineWidth,
+          box.height + thinLineWidth
+        );
+        if (areGridLinesVisible) {
+          const { r, g, b } = colorToRGBA(style.fillColor || "#ffffff");
+          const borderColor = rgbaToHex({
+            r: r - 30 < 0 ? 0 : r - 30,
+            b: b - 30 < 0 ? 0 : b - 30,
+            g: g - 30 < 0 ? 0 : g - 30,
+            a: 1,
+          });
+          let borderDirections: GridLineDirection[] = [
+            GridLineDirection.Top,
+            GridLineDirection.Bottom,
+          ];
+          if (!box.isOverflow) {
+            borderDirections.push(GridLineDirection.Left, GridLineDirection.Right);
+          } else if (box.content?.align === "left") {
+            borderDirections.push(GridLineDirection.Left);
+            if (i < numOfBoxes - 1 && this.boxes[i + 1].content?.textLines.length) {
+              borderDirections.push(GridLineDirection.Right);
+            }
+          } else if (box.content?.align === "right") {
+            borderDirections.push(GridLineDirection.Right);
+            if (i > 0 && this.boxes[i - 1].content?.textLines.length) {
+              borderDirections.push(GridLineDirection.Left);
+            }
+          } else if (box.content?.align === "center") {
+            if (i > 0 && this.boxes[i - 1].content?.textLines.length) {
+              borderDirections.push(GridLineDirection.Left);
+            }
+            if (i < numOfBoxes - 1 && this.boxes[i + 1].content?.textLines.length) {
+              borderDirections.push(GridLineDirection.Right);
+            }
+          }
+          const { x, y, width, height } = box;
+          this.drawGridLines(ctx, borderColor, thinLineWidth, borderDirections, {
+            x,
+            y,
+            width,
+            height,
+          }); // line width should be the same as the background grid line width
+        }
       }
       if (box.error) {
         ctx.fillStyle = "red";
@@ -204,32 +278,88 @@ export class RendererPlugin extends UIPlugin {
 
   private drawBorders(renderingContext: GridRenderingContext) {
     const { ctx, thinLineWidth } = renderingContext;
+    const drawBorder = ([style, color], x1, y1, x2, y2) => {
+      const lineWidth = (style === "thin" ? 1 : 2) * thinLineWidth;
+      this.drawSingleGridLine(ctx, color, lineWidth, { x1, y1, x2, y2 });
+    };
     for (let box of this.boxes) {
       const border = box.border;
       if (border) {
         const { x, y, width, height } = box;
         if (border.left) {
-          drawBorder(border.left, x, y, x, y + height);
+          drawBorder(border.left, x, y - thinLineWidth / 2, x, y + height + thinLineWidth / 2);
         }
         if (border.top) {
-          drawBorder(border.top, x, y, x + width, y);
+          drawBorder(border.top, x - thinLineWidth / 2, y, x + width + thinLineWidth / 2, y);
         }
         if (border.right) {
           drawBorder(border.right, x + width, y, x + width, y + height);
         }
         if (border.bottom) {
-          drawBorder(border.bottom, x, y + height, x + width, y + height);
+          drawBorder(
+            border.bottom,
+            x - thinLineWidth / 2,
+            y + height,
+            x - thinLineWidth / 2 + width,
+            y + height
+          );
         }
       }
     }
+  }
 
-    function drawBorder([style, color], x1, y1, x2, y2) {
+  private drawSingleGridLine(
+    ctx: CanvasRenderingContext2D,
+    color: string,
+    lineWidth: number,
+    { x1, y1, x2, y2 }: LineEndPoints
+  ) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  }
+
+  private drawGridLines(
+    ctx: CanvasRenderingContext2D,
+    color: string,
+    lineWidth: number,
+    gridLineDirections: GridLineDirection[],
+    { x, y, width, height }: Rect
+  ) {
+    if (gridLineDirections.length === 4) {
+      ctx.lineWidth = lineWidth;
       ctx.strokeStyle = color;
-      ctx.lineWidth = (style === "thin" ? 2 : 3) * thinLineWidth;
-      ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
-      ctx.stroke();
+      ctx.strokeRect(x, y, width, height);
+      return;
+    }
+    for (const gridLine of gridLineDirections) {
+      let x1, x2, y1, y2: number;
+      switch (gridLine) {
+        case GridLineDirection.Left:
+          x1 = x2 = x;
+          y1 = y - lineWidth / 2;
+          y2 = y + height + lineWidth / 2;
+          break;
+        case GridLineDirection.Right:
+          x1 = x2 = x + width;
+          y1 = y - lineWidth / 2;
+          y2 = y + height + lineWidth / 2;
+          break;
+        case GridLineDirection.Top:
+          x1 = x - lineWidth / 2;
+          x2 = x + width + lineWidth / 2;
+          y1 = y2 = y;
+          break;
+        case GridLineDirection.Bottom:
+          x1 = x - lineWidth / 2;
+          x2 = x + width + lineWidth / 2;
+          y1 = y2 = y + height;
+          break;
+      }
+      this.drawSingleGridLine(ctx, color, lineWidth, { x1, y1, x2, y2 });
     }
   }
 
@@ -271,7 +401,12 @@ export class RendererPlugin extends UIPlugin {
           ctx.save();
           ctx.beginPath();
           const { x, y, width, height } = box.clipRect;
-          ctx.rect(x, y, width, height);
+          ctx.rect(
+            x + thinLineWidth / 2,
+            y + thinLineWidth / 2,
+            width - thinLineWidth,
+            height - thinLineWidth
+          );
           ctx.clip();
         }
 
