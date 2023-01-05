@@ -204,7 +204,7 @@ function tokenizeSymbol(chars: string[]): Token | null {
 
 function tokenizeSpace(chars: string[]): Token | null {
   let length = 0;
-  while (chars[0] === "\n") {
+  while (chars[0] === NEWLINE) {
     length++;
     chars.shift();
   }
