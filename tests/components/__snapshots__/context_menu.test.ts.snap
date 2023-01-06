@@ -10,17 +10,19 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     data-name="cut"
     title="Cut"
   >
-    <span
-      class="o-menu-item-name"
-    >
-      Cut
+    <span>
+      
+      <span
+        class="o-menu-item-name align-middle"
+      >
+        Cut
+      </span>
     </span>
     <span
       class="o-menu-item-description"
     >
       Ctrl+X
     </span>
-    
     
     
   </div>
@@ -30,17 +32,19 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     data-name="copy"
     title="Copy"
   >
-    <span
-      class="o-menu-item-name"
-    >
-      Copy
+    <span>
+      
+      <span
+        class="o-menu-item-name align-middle"
+      >
+        Copy
+      </span>
     </span>
     <span
       class="o-menu-item-description"
     >
       Ctrl+C
     </span>
-    
     
     
   </div>
@@ -50,17 +54,19 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     data-name="paste"
     title="Paste"
   >
-    <span
-      class="o-menu-item-name"
-    >
-      Paste
+    <span>
+      
+      <span
+        class="o-menu-item-name align-middle"
+      >
+        Paste
+      </span>
     </span>
     <span
       class="o-menu-item-description"
     >
       Ctrl+V
     </span>
-    
     
     
   </div>
@@ -70,13 +76,18 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     data-name="paste_special"
     title="Paste special"
   >
-    <span
-      class="o-menu-item-name"
-    >
-      Paste special
+    <span>
+      
+      <span
+        class="o-menu-item-name align-middle"
+      >
+        Paste special
+      </span>
     </span>
     
-    <span>
+    <span
+      class="o-menu-item-root align-middle"
+    >
       <svg
         class="o-icon"
       >
@@ -87,7 +98,6 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
         />
       </svg>
     </span>
-    
     
   </div>
   <div
@@ -100,12 +110,14 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     data-name="add_row_before"
     title="Insert row"
   >
-    <span
-      class="o-menu-item-name"
-    >
-      Insert row
+    <span>
+      
+      <span
+        class="o-menu-item-name align-middle"
+      >
+        Insert row
+      </span>
     </span>
-    
     
     
   </div>
@@ -115,12 +127,14 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     data-name="add_column_before"
     title="Insert column"
   >
-    <span
-      class="o-menu-item-name"
-    >
-      Insert column
+    <span>
+      
+      <span
+        class="o-menu-item-name align-middle"
+      >
+        Insert column
+      </span>
     </span>
-    
     
     
   </div>
@@ -130,13 +144,18 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     data-name="insert_cell"
     title="Insert cells"
   >
-    <span
-      class="o-menu-item-name"
-    >
-      Insert cells
+    <span>
+      
+      <span
+        class="o-menu-item-name align-middle"
+      >
+        Insert cells
+      </span>
     </span>
     
-    <span>
+    <span
+      class="o-menu-item-root align-middle"
+    >
       <svg
         class="o-icon"
       >
@@ -147,7 +166,6 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
         />
       </svg>
     </span>
-    
     
   </div>
   <div
@@ -160,12 +178,14 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     data-name="delete_row"
     title="Delete row 8"
   >
-    <span
-      class="o-menu-item-name"
-    >
-      Delete row 8
+    <span>
+      
+      <span
+        class="o-menu-item-name align-middle"
+      >
+        Delete row 8
+      </span>
     </span>
-    
     
     
   </div>
@@ -175,12 +195,14 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     data-name="delete_column"
     title="Delete column C"
   >
-    <span
-      class="o-menu-item-name"
-    >
-      Delete column C
+    <span>
+      
+      <span
+        class="o-menu-item-name align-middle"
+      >
+        Delete column C
+      </span>
     </span>
-    
     
     
   </div>
@@ -190,13 +212,18 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     data-name="delete_cell"
     title="Delete cells"
   >
-    <span
-      class="o-menu-item-name"
-    >
-      Delete cells
+    <span>
+      
+      <span
+        class="o-menu-item-name align-middle"
+      >
+        Delete cells
+      </span>
     </span>
     
-    <span>
+    <span
+      class="o-menu-item-root align-middle"
+    >
       <svg
         class="o-icon"
       >
@@ -208,7 +235,6 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       </svg>
     </span>
     
-    
   </div>
   
   <div
@@ -216,12 +242,14 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     data-name="insert_link"
     title="Insert link"
   >
-    <span
-      class="o-menu-item-name"
-    >
-      Insert link
+    <span>
+      
+      <span
+        class="o-menu-item-name align-middle"
+      >
+        Insert link
+      </span>
     </span>
-    
     
     
   </div>

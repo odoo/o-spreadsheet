@@ -11,6 +11,7 @@ import {
   BG_HOVER_COLOR,
   ComponentsImportance,
   FILTERS_COLOR,
+  ICONS_COLOR,
   SEPARATOR_COLOR,
   TOPBAR_TOOLBAR_HEIGHT,
 } from "../../constants";
@@ -90,8 +91,6 @@ interface Props {
   onComposerContentFocused: (selection: ComposerSelection) => void;
   dropdownMaxHeight: Pixel;
 }
-
-const ICONS_COLOR = "#4A4F59";
 
 // If we ever change these colors, make sure the filter tool stays green to match the icon in the grid
 const ACTIVE_BG_COLOR = BACKGROUND_HEADER_FILTER_COLOR;

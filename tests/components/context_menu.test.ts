@@ -552,23 +552,31 @@ describe("Context Menu internal tests", () => {
       {
         id: "root1",
         name: "root1",
-        icon: "not-displayed-class",
+        icon: "o-spreadsheet-Icon.BOLD",
         children: [
           () => [
             {
               id: "root2",
               name: "root2",
               action() {},
-              icon: "my-class",
+              icon: "o-spreadsheet-Icon.ITALIC",
+            },
+          ],
+          () => [
+            {
+              id: "root3",
+              name: "root3",
+              action() {},
             },
           ],
         ],
       },
     ]);
     await renderContextMenu(300, 990, { menuItems });
-    expect(fixture.querySelector("div[data-name='root1'] > i")).toBeNull();
+    expect(fixture.querySelector("div[data-name='root1'] svg")).not.toBeNull();
     await simulateClick("div[data-name='root1']");
-    expect(fixture.querySelector("div[data-name='root2'] > i")?.classList).toContain("my-class");
+    expect(fixture.querySelector("div[data-name='root2'] svg")).not.toBeNull();
+    expect(fixture.querySelector("div[data-name='root3'] svg")).toBeNull();
   });
 
   test("Can color menu items", async () => {
@@ -760,7 +768,7 @@ describe("Context Menu position on large screen 1000px/1000px", () => {
   });
 
   test("it renders submenu on the top right if not enough space", async () => {
-    const [clickX, clickY] = await renderContextMenu(300, 960, { menuItems: subMenu });
+    const [clickX, clickY] = await renderContextMenu(300, 980, { menuItems: subMenu });
     await simulateClick("div[data-name='root']");
     const { left, top } = getSubMenuPosition();
     const { height } = getSubMenuSize();

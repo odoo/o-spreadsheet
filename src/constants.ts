@@ -23,6 +23,7 @@ export const FILTERS_COLOR = "#188038";
 export const BACKGROUND_HEADER_FILTER_COLOR = "#E6F4EA";
 export const BACKGROUND_HEADER_SELECTED_FILTER_COLOR = "#CEEAD6";
 export const SEPARATOR_COLOR = "#E0E2E4";
+export const ICONS_COLOR = "#4A4F59";
 
 // Color picker defaults as upper case HEX to match `toHex`helper
 export const COLOR_PICKER_DEFAULTS: Color[] = [
@@ -132,8 +133,10 @@ export const FILTER_ICON_EDGE_LENGTH = 17;
 
 // Menus
 export const MENU_WIDTH = 250;
-export const MENU_VERTICAL_PADDING = 8;
-export const MENU_ITEM_HEIGHT = 28;
+export const MENU_VERTICAL_PADDING = 6;
+export const MENU_ITEM_HEIGHT = 26;
+export const MENU_ITEM_PADDING_HORIZONTAL = 13;
+export const MENU_ITEM_PADDING_VERTICAL = 4;
 export const MENU_SEPARATOR_BORDER_WIDTH = 1;
 export const MENU_SEPARATOR_PADDING = 5;
 export const MENU_SEPARATOR_HEIGHT = MENU_SEPARATOR_BORDER_WIDTH + 2 * MENU_SEPARATOR_PADDING;

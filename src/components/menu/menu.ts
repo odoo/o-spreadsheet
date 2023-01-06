@@ -1,8 +1,11 @@
 import { Component, onWillUpdateProps, useExternalListener, useRef, useState } from "@odoo/owl";
 import {
   BG_HOVER_COLOR,
+  ICONS_COLOR,
   MENU_ITEM_DISABLED_COLOR,
   MENU_ITEM_HEIGHT,
+  MENU_ITEM_PADDING_HORIZONTAL,
+  MENU_ITEM_PADDING_VERTICAL,
   MENU_VERTICAL_PADDING,
   MENU_WIDTH,
 } from "../../constants";
@@ -30,7 +33,7 @@ css/* scss */ `
       align-items: center;
       box-sizing: border-box;
       height: ${MENU_ITEM_HEIGHT}px;
-      padding: 4px 16px;
+      padding: ${MENU_ITEM_PADDING_VERTICAL}px ${MENU_ITEM_PADDING_HORIZONTAL}px;
       cursor: pointer;
       user-select: none;
 
@@ -44,11 +47,18 @@ css/* scss */ `
         display: flex;
         justify-content: space-between;
       }
+
       .o-menu-item-icon {
-        margin-top: auto;
-        margin-bottom: auto;
+        display: inline-block;
+        margin-right: calc(${MENU_ITEM_PADDING_HORIZONTAL}px * 3 / 5);
+        width: ${MENU_ITEM_HEIGHT - 2 * MENU_ITEM_PADDING_VERTICAL}px;
+        line-height: ${MENU_ITEM_HEIGHT - 2 * MENU_ITEM_PADDING_VERTICAL}px;
+
+        .o-icon {
+          color: ${ICONS_COLOR};
+        }
       }
-      .o-icon {
+      .o-menu-item-root {
         width: 10px;
       }
 
@@ -155,6 +165,22 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
       onPopoverHidden: () => this.closeSubMenu(),
       onPopoverMoved: () => this.closeSubMenu(),
     };
+  }
+
+  get childrenHaveIcon(): boolean {
+    return this.props.menuItems.some((menuItem) => !!menuItem.icon || !!menuItem.isActive);
+  }
+
+  getIconName(menu: MenuItem) {
+    if (menu.icon) {
+      return menu.icon;
+    }
+
+    if (menu.isActive?.(this.env)) {
+      return "o-spreadsheet-Icon.CHECK";
+    }
+
+    return "";
   }
 
   getColor(menu: MenuItem) {
