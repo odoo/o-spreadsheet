@@ -10,12 +10,14 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     data-name="Sum"
     title="Sum: 24"
   >
-    <span
-      class="o-menu-item-name"
-    >
-      Sum: 24
+    <span>
+      
+      <span
+        class="o-menu-item-name align-middle"
+      >
+        Sum: 24
+      </span>
     </span>
-    
     
     
   </div>
@@ -25,12 +27,14 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     data-name="Avg"
     title="Avg: 24"
   >
-    <span
-      class="o-menu-item-name"
-    >
-      Avg: 24
+    <span>
+      
+      <span
+        class="o-menu-item-name align-middle"
+      >
+        Avg: 24
+      </span>
     </span>
-    
     
     
   </div>
@@ -40,12 +44,14 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     data-name="Min"
     title="Min: 24"
   >
-    <span
-      class="o-menu-item-name"
-    >
-      Min: 24
+    <span>
+      
+      <span
+        class="o-menu-item-name align-middle"
+      >
+        Min: 24
+      </span>
     </span>
-    
     
     
   </div>
@@ -55,12 +61,14 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     data-name="Max"
     title="Max: 24"
   >
-    <span
-      class="o-menu-item-name"
-    >
-      Max: 24
+    <span>
+      
+      <span
+        class="o-menu-item-name align-middle"
+      >
+        Max: 24
+      </span>
     </span>
-    
     
     
   </div>
@@ -70,12 +78,14 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     data-name="Count"
     title="Count: 1"
   >
-    <span
-      class="o-menu-item-name"
-    >
-      Count: 1
+    <span>
+      
+      <span
+        class="o-menu-item-name align-middle"
+      >
+        Count: 1
+      </span>
     </span>
-    
     
     
   </div>
@@ -85,12 +95,14 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     data-name="Count Numbers"
     title="Count Numbers: 1"
   >
-    <span
-      class="o-menu-item-name"
-    >
-      Count Numbers: 1
+    <span>
+      
+      <span
+        class="o-menu-item-name align-middle"
+      >
+        Count Numbers: 1
+      </span>
     </span>
-    
     
     
   </div>

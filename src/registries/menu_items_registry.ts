@@ -33,27 +33,29 @@ export interface MenuItemSpec {
   id?: string;
   isVisible?: (env: SpreadsheetChildEnv) => boolean;
   isEnabled?: (env: SpreadsheetChildEnv) => boolean;
+  isActive?: (env: SpreadsheetChildEnv) => boolean;
+  icon?: string;
   isReadonlyAllowed?: boolean;
   action?: (env: SpreadsheetChildEnv) => unknown;
   children?: MenuChildren;
   separator?: boolean;
-  icon?: string;
   textColor?: Color;
 }
 
 export interface MenuItem {
-  id: string;
-  sequence: number;
   name: (env: SpreadsheetChildEnv) => string;
+  description: string;
+  sequence: number;
+  id: string;
   isVisible: (env: SpreadsheetChildEnv) => boolean;
   isEnabled: (env: SpreadsheetChildEnv) => boolean;
+  isActive?: (env: SpreadsheetChildEnv) => boolean;
+  icon: string;
   isReadonlyAllowed: boolean;
   action?: (env: SpreadsheetChildEnv) => unknown;
   children: (env: SpreadsheetChildEnv) => MenuItem[];
   separator: boolean;
-  description: string;
-  textColor?: string;
-  icon?: string;
+  textColor?: Color;
 }
 
 type MenuItemsBuilder = (env: SpreadsheetChildEnv) => MenuItemSpec[];
@@ -73,6 +75,7 @@ function createMenuItem(item: MenuItemSpec): MenuItem {
     name: typeof name === "function" ? name : () => name,
     isVisible: item.isVisible ? item.isVisible : () => true,
     isEnabled: item.isEnabled ? item.isEnabled : () => true,
+    isActive: item.isActive,
     action: item.action,
     children: children
       ? (env) => {
@@ -84,7 +87,7 @@ function createMenuItem(item: MenuItemSpec): MenuItem {
       : () => [],
     isReadonlyAllowed: item.isReadonlyAllowed || false,
     separator: item.separator || false,
-    icon: item.icon,
+    icon: item.icon || "",
     description: item.description || "",
     textColor: item.textColor,
     sequence: item.sequence || 0,
