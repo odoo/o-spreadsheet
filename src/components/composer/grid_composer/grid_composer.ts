@@ -7,6 +7,7 @@ import { DOMDimension, Rect, Ref, SpreadsheetChildEnv, Zone } from "../../../typ
 import { getTextDecoration } from "../../helpers";
 import { css } from "../../helpers/css";
 import { Composer } from "../composer/composer";
+import { ZoneDimension } from "./../../../types/misc";
 
 const COMPOSER_BORDER_WIDTH = 3 * 0.4 * window.devicePixelRatio || 1;
 css/* scss */ `
@@ -30,6 +31,7 @@ interface Props {
   focus: "inactive" | "cellFocus" | "contentFocus";
   onComposerUnmounted: () => void;
   onComposerContentFocused: (selection: ComposerSelection) => void;
+  gridDims: ZoneDimension;
 }
 
 /**
@@ -124,13 +126,9 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get composerStyle(): string {
-    const sheetViewDims = this.env.model.getters.getSheetViewDimensionWithHeaders();
-    const maxHeight = sheetViewDims.height - this.rect.y;
-    const maxWidth = sheetViewDims.width - this.rect.x;
+    const maxHeight = this.props.gridDims.height - this.rect.y;
+    const maxWidth = this.props.gridDims.width - this.rect.x;
 
-    /**
-     * max-size size should be put on the composer, not its container, because we don't want it to affect the autocomplete dropdown
-     */
     return `
       max-width : ${maxWidth}px;
       max-height : ${maxHeight}px;
@@ -142,4 +140,5 @@ GridComposer.props = {
   focus: { validate: (value: string) => ["inactive", "cellFocus", "contentFocus"].includes(value) },
   onComposerUnmounted: Function,
   onComposerContentFocused: Function,
+  gridDims: Object,
 };

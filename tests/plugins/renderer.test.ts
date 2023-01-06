@@ -994,8 +994,9 @@ describe("renderer", () => {
     model.drawGrid(ctx);
 
     const centeredBox = getBoxFromText(model, overflowingContent);
+    const cell = model.getters.getCell({ sheetId: "sheet1", row: 0, col: 2 })!;
     const contentWidth =
-      model.getters.getTextWidth({ sheetId: "sheet1", row: 0, col: 2 }) + MIN_CELL_TEXT_MARGIN;
+      model.getters.getTextWidth(cell.content, cell.style || {}) + MIN_CELL_TEXT_MARGIN;
     const expectedClipX = 2 * DEFAULT_CELL_WIDTH + colSize / 2 - contentWidth / 2;
     expect(centeredBox.clipRect).toEqual({
       x: expectedClipX,
@@ -1316,7 +1317,8 @@ describe("renderer", () => {
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
       model.drawGrid(ctx);
       const box = getBoxFromText(model, cellContent);
-      const textWidth = model.getters.getTextWidth({ sheetId: "sheet1", row: 1, col: 1 });
+      const cell = model.getters.getCell({ sheetId: "sheet1", row: 1, col: 1 })!;
+      const textWidth = model.getters.getTextWidth(cell.content, cell.style || {});
       const expectedClipRect = model.getters.getVisibleRect({
         left: 0,
         right: 1,

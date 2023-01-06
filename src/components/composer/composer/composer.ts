@@ -212,6 +212,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
 
       this.contentHelper.updateEl(el);
       this.processContent();
+      this.contentHelper.scrollSelectionIntoView();
     });
 
     onWillUnmount(() => {

@@ -25,6 +25,7 @@
           onComposerUnmounted="() => this.focus()"
           onComposerContentFocused="props.onComposerContentFocused"
           focus="props.focusComposer"
+          gridDims="env.model.getters.getSheetViewDimensionWithHeaders()"
         />
       </t>
       <t else="1">
