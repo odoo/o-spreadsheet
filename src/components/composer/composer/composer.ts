@@ -67,6 +67,15 @@ css/* scss */ `
         pointer-events: none;
       }
 
+      span {
+        white-space: pre-wrap;
+        &.${selectionIndicatorClass}:after {
+          content: "${selectionIndicator}";
+          color: ${selectionIndicatorColor};
+        }
+      }
+
+      // not sure of p
       p {
         margin-bottom: 0px;
 
@@ -462,16 +471,16 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
       this.contentHelper.selectRange(0, 0); // move the cursor inside the composer at 0 0.
     }
     const content = this.getContentLines();
-    if (content.length !== 0 && content.length[0] !== 0) {
-      this.contentHelper.setText(content);
-      const { start, end } = this.env.model.getters.getComposerSelection();
+    this.contentHelper.setText(content);
+    const { start, end } = this.env.model.getters.getComposerSelection();
 
-      if (this.props.focus !== "inactive") {
-        // Put the cursor back where it was before the rendering
-        this.contentHelper.selectRange(start, end);
-      }
-      setElementScrollTop(this.composerRef.el, oldScroll);
+    if (this.props.focus !== "inactive") {
+      // Put the cursor back where it was before the rendering
+      this.contentHelper.selectRange(start, end);
     }
+    setElementScrollTop(this.composerRef.el, oldScroll);
+    // if (content.length !== 0 && content.length[0] !== 0) {
+    // }
 
     this.shouldProcessInputEvents = true;
   }
@@ -479,7 +488,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
   /**
    * Get the HTML content corresponding to the current composer token, divided by lines.
    */
-  private getContentLines(): HtmlContent[][] {
+  private getContentLines(): HtmlContent[] {
     let value = this.env.model.getters.getCurrentContent();
     const isValidFormula =
       value.startsWith("=") && this.env.model.getters.getCurrentTokens().length > 0;
@@ -487,9 +496,9 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     if (value === "") {
       return [];
     } else if (isValidFormula && this.props.focus !== "inactive") {
-      return this.splitHtmlContentIntoLines(this.getColoredTokens());
+      return this.getColoredTokens();
     }
-    return this.splitHtmlContentIntoLines([{ value }]);
+    return [{ value }];
   }
 
   private getColoredTokens(): HtmlContent[] {
@@ -547,7 +556,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
    * Split an array of HTMLContents into lines. Each NEWLINE character encountered will create a new
    * line. Contents can be split into multiple parts if they contain multiple NEWLINE characters.
    */
-  private splitHtmlContentIntoLines(contents: HtmlContent[]): HtmlContent[][] {
+  splitHtmlContentIntoLines(contents: HtmlContent[]): HtmlContent[][] {
     const contentSplitInLines: HtmlContent[][] = [];
     let currentLine: HtmlContent[] = [];
 

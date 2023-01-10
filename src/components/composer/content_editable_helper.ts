@@ -34,6 +34,12 @@ export class ContentEditableHelper {
       }
       let startNode = this.findChildAtCharacterIndex(start);
       let endNode = this.findChildAtCharacterIndex(end);
+      // if (startNode.node.nodeName === "BR") {
+      //   startNode.offset = 0;
+      // }
+      // if (endNode.node.nodeName === "BR") {
+      //   endNode.offset = 0;
+      // }
       range.setStart(startNode.node, startNode.offset);
       selection.addRange(range);
       selection.extend(endNode.node, endNode.offset);
@@ -83,37 +89,59 @@ export class ContentEditableHelper {
    *
    * Each span will have its own fontcolor and specific class if provided in the HtmlContent object.
    */
-  setText(contents: HtmlContent[][]) {
-    this.el.innerHTML = "";
+  setText(contents: HtmlContent[]) {
     if (contents.length === 0) {
-      return;
+      const span = document.createElement("span");
+      span.innerText = "​";
+      this.el.appendChild(span);
     }
-
-    for (const line of contents) {
-      const p = document.createElement("p");
-
-      // Empty line
-      if (line.length === 0 || line.every((content) => !content.value && !content.class)) {
-        p.appendChild(document.createElement("br"));
-        this.el.appendChild(p);
-        continue;
-      }
-
-      for (const content of line) {
-        if (!content.value && !content.class) {
-          continue;
+    for (const content of contents) {
+      let elem: HTMLElement;
+      if (content.value === NEWLINE) {
+        elem = document.createElement("br");
+      } else {
+        elem = document.createElement("span");
+        elem.innerText = content.value;
+        if (content.color) {
+          elem.style.color = content.color;
         }
-        const span = document.createElement("span");
-        span.innerText = content.value;
-        span.style.color = content.color || "";
         if (content.class) {
-          span.classList.add(content.class);
+          elem.classList.add(content.class);
         }
-        p.appendChild(span);
       }
-
-      this.el.appendChild(p);
+      this.el.appendChild(elem);
     }
+    this.el.appendChild(document.createElement("br"));
+    // this.el.innerHTML = "";
+    // if (contents.length === 0) {
+    //   return;
+    // }
+
+    // for (const line of contents) {
+    //   const p = document.createElement("p");
+
+    //   // Empty line
+    //   if (line.length === 0 || line.every((content) => !content.value && !content.class)) {
+    //     p.appendChild(document.createElement("br"));
+    //     this.el.appendChild(p);
+    //     continue;
+    //   }
+
+    //   for (const content of line) {
+    //     if (!content.value && !content.class) {
+    //       continue;
+    //     }
+    //     const span = document.createElement("span");
+    //     span.innerText = content.value;
+    //     span.style.color = content.color || "";
+    //     if (content.class) {
+    //       span.classList.add(content.class);
+    //     }
+    //     p.appendChild(span);
+    //   }
+
+    //   this.el.appendChild(p);
+    // }
   }
 
   scrollSelectionIntoView() {
@@ -200,6 +228,9 @@ export class ContentEditableHelper {
   }
 
   getText(): string {
+    let text2 = this.el.innerText;
+    text2 = text2.replace(/\u200B/g, "");
+    return text2.slice(0, -1); // Remove the last newline
     let text = "";
 
     let it = iterateChildren(this.el);
