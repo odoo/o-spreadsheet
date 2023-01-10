@@ -4,7 +4,6 @@ import { DEFAULT_FONT_SIZE } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { topbarComponentRegistry } from "../../src/registries";
-import { getMenuChildren } from "../../src/registries/menus/helpers";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { ConditionalFormat, Style } from "../../src/types";
 import { OWL_TEMPLATES } from "../setup/jest.setup";
@@ -20,6 +19,7 @@ import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getBorder, getCell, getStyle } from "../test_helpers/getters_helpers";
 import {
   getFigureIds,
+  getNode,
   makeTestFixture,
   mountSpreadsheet,
   nextTick,
@@ -361,16 +361,16 @@ describe("TopBar component", () => {
   test("Can open a Topbar menu", async () => {
     const { app, parent } = await mountParent();
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
-    const items = topbarMenuRegistry.getAll();
-    const number = items.filter((item) => item.children.length !== 0).length;
+    const items = topbarMenuRegistry.getMenuItems();
+    const number = items.filter((item) => item.children(parent.env).length !== 0).length;
     expect(fixture.querySelectorAll(".o-topbar-menu")).toHaveLength(number);
     triggerMouseEvent(".o-topbar-menu[data-id='file']", "click");
     await nextTick();
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
-    const file = topbarMenuRegistry.get("file");
-    const numberChild = getMenuChildren(file, parent.env).filter(
-      (item) => item.children.length !== 0 || item.action
-    ).length;
+    const file = getNode(["file"], topbarMenuRegistry);
+    const numberChild = file
+      .children(parent.env)
+      .filter((item) => item.children.length !== 0 || item.action).length;
     expect(fixture.querySelectorAll(".o-menu-item")).toHaveLength(numberChild);
     triggerMouseEvent(".o-spreadsheet-topbar", "click");
     await nextTick();
@@ -382,18 +382,20 @@ describe("TopBar component", () => {
     const { app, parent } = await mountParent();
     triggerMouseEvent(".o-topbar-menu[data-id='file']", "click");
     await nextTick();
-    const file = topbarMenuRegistry.get("file");
-    let numberChild = getMenuChildren(file, parent.env).filter(
-      (item) => item.children.length !== 0 || item.action
-    ).length;
+    const file = getNode(["file"], topbarMenuRegistry);
+    let numberChild = file
+      .children(parent.env)
+      .filter((item) => item.children.length !== 0 || item.action).length;
     expect(fixture.querySelectorAll(".o-menu-item")).toHaveLength(numberChild);
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
     triggerMouseEvent(".o-topbar-menu[data-id='insert']", "mouseover");
     await nextTick();
-    const insert = topbarMenuRegistry.get("insert");
-    numberChild = getMenuChildren(insert, parent.env).filter(
-      (item) => (item.children.length !== 0 || item.action) && item.isVisible(parent.env)
-    ).length;
+    const insert = getNode(["insert"], topbarMenuRegistry);
+    numberChild = insert
+      ?.children(parent.env)
+      .filter(
+        (item) => (item.children.length !== 0 || item.action) && item.isVisible(parent.env)
+      ).length;
     expect(fixture.querySelectorAll(".o-menu-item")).toHaveLength(numberChild);
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
     app.destroy();

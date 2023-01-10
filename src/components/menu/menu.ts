@@ -6,8 +6,7 @@ import {
   MENU_VERTICAL_PADDING,
   MENU_WIDTH,
 } from "../../constants";
-import { getMenuChildren, getMenuDescription, getMenuName } from "../../registries/menus/helpers";
-import { FullMenuItem, MenuItem } from "../../registries/menu_items_registry";
+import { MenuItem } from "../../registries/menu_items_registry";
 import { DOMCoordinates, Pixel, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 import { isChildEvent } from "../helpers/dom_helpers";
@@ -72,7 +71,7 @@ css/* scss */ `
 
 interface Props {
   position: DOMCoordinates;
-  menuItems: FullMenuItem[];
+  menuItems: MenuItem[];
   depth: number;
   onClose: () => void;
   onMenuClicked?: (ev: CustomEvent) => void;
@@ -80,10 +79,10 @@ interface Props {
 
 export interface MenuState {
   isOpen: boolean;
-  parentMenu?: FullMenuItem;
+  parentMenu?: MenuItem;
   position: null | DOMCoordinates;
   scrollOffset?: Pixel;
-  menuItems: FullMenuItem[];
+  menuItems: MenuItem[];
 }
 export class Menu extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Menu";
@@ -111,6 +110,10 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
+  get visibleMenuItems(): MenuItem[] {
+    return this.props.menuItems.filter((x) => x.isVisible(this.env));
+  }
+
   get subMenuPosition(): DOMCoordinates {
     const position = Object.assign({}, this.subMenu.position);
     position.y -= this.subMenu.scrollOffset || 0;
@@ -118,7 +121,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get menuHeight(): Pixel {
-    const menuItems = this.props.menuItems;
+    const menuItems = this.visibleMenuItems;
 
     let menuItemsHeight = this.getMenuItemsHeight(menuItems);
 
@@ -144,12 +147,12 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     };
   }
 
-  getColor(menu: FullMenuItem) {
+  getColor(menu: MenuItem) {
     return menu.textColor ? `color: ${menu.textColor}` : undefined;
   }
 
-  async activateMenu(menu: FullMenuItem) {
-    const result = await menu.action(this.env);
+  async activateMenu(menu: MenuItem) {
+    const result = await menu.action?.(this.env);
     this.close();
     this.props.onMenuClicked?.({ detail: result } as CustomEvent);
   }
@@ -164,7 +167,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
    * and the menu item at a given index.
    */
   private subMenuVerticalPosition(menuIndex: number): Pixel {
-    const menusAbove = this.props.menuItems.slice(0, menuIndex);
+    const menusAbove = this.visibleMenuItems.slice(0, menuIndex);
     return this.position.y + this.getMenuItemsHeight(menusAbove) + MENU_VERTICAL_PADDING;
   }
 
@@ -191,18 +194,15 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     return MENU_ITEM_HEIGHT * menuItems.length + MENU_SEPARATOR_HEIGHT * numberOfSeparators;
   }
 
-  getName(menu: FullMenuItem) {
-    return getMenuName(menu, this.env);
-  }
-  getDescription(menu: FullMenuItem) {
-    return getMenuDescription(menu);
+  getName(menu: MenuItem) {
+    return menu.name(this.env);
   }
 
-  isRoot(menu: FullMenuItem) {
+  isRoot(menu: MenuItem) {
     return !menu.action;
   }
 
-  isEnabled(menu: FullMenuItem) {
+  isEnabled(menu: MenuItem) {
     if (menu.isEnabled(this.env)) {
       return this.env.model.getters.isReadonly() ? menu.isReadonlyAllowed : true;
     }
@@ -217,20 +217,18 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
    * If the given menu is not disabled, open it's submenu at the
    * correct position according to available surrounding space.
    */
-  openSubMenu(menu: FullMenuItem, menuIndex: number) {
+  openSubMenu(menu: MenuItem, menuIndex: number) {
     const y = this.subMenuVerticalPosition(menuIndex);
     this.subMenu.position = {
       x: this.position.x + MENU_WIDTH,
       y: y - (this.subMenu.scrollOffset || 0),
     };
-    this.subMenu.menuItems = getMenuChildren(menu, this.env).filter(
-      (item) => !item.isVisible || item.isVisible(this.env)
-    );
+    this.subMenu.menuItems = menu.children(this.env);
     this.subMenu.isOpen = true;
     this.subMenu.parentMenu = menu;
   }
 
-  isParentMenu(subMenu: MenuState, menuItem: FullMenuItem) {
+  isParentMenu(subMenu: MenuState, menuItem: MenuItem) {
     return subMenu.parentMenu?.id === menuItem.id;
   }
 
@@ -239,7 +237,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     this.subMenu.parentMenu = undefined;
   }
 
-  onClickMenu(menu: FullMenuItem, menuIndex: number) {
+  onClickMenu(menu: MenuItem, menuIndex: number) {
     if (this.isEnabled(menu)) {
       if (this.isRoot(menu)) {
         this.openSubMenu(menu, menuIndex);
@@ -249,7 +247,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  onMouseOver(menu: FullMenuItem, position: Pixel) {
+  onMouseOver(menu: MenuItem, position: Pixel) {
     if (menu.isEnabled(this.env)) {
       if (this.isRoot(menu)) {
         this.openSubMenu(menu, position);

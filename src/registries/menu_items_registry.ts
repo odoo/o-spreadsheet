@@ -1,4 +1,5 @@
-import { SpreadsheetChildEnv } from "../types";
+import { UuidGenerator } from "../helpers";
+import { SpreadsheetChildEnv } from "../types/env";
 import { Registry } from "./registry";
 
 //------------------------------------------------------------------------------
@@ -24,56 +25,84 @@ import { Registry } from "./registry";
  *    NB: a separator defined on the last item is not displayed !
  *
  */
-export interface MenuItem {
+interface MenuItemSpec {
   name: string | ((env: SpreadsheetChildEnv) => string);
   description?: string;
-  sequence: number;
+  sequence?: number;
   id?: string;
   isVisible?: (env: SpreadsheetChildEnv) => boolean;
   isEnabled?: (env: SpreadsheetChildEnv) => boolean;
   isReadonlyAllowed?: boolean;
   action?: (env: SpreadsheetChildEnv) => unknown;
-  children?: menuChildren;
+  children?: MenuChildren;
   separator?: boolean;
   icon?: string;
   textColor?: string;
 }
 
-export type FullMenuItem = Required<MenuItem>;
-
-type MenuItemsBuilder = (env: SpreadsheetChildEnv) => FullMenuItem[];
-type menuChildren = (FullMenuItem | MenuItemsBuilder)[];
-
-const DEFAULT_MENU_ITEM = (key: string) => ({
-  isVisible: () => true,
-  isEnabled: () => true,
-  isReadonlyAllowed: false,
-  description: "",
-  action: false,
-  children: [],
-  separator: false,
-  icon: false,
-  id: key,
-});
-
-export function createFullMenuItem(key: string, value: MenuItem): FullMenuItem {
-  return Object.assign({}, DEFAULT_MENU_ITEM(key), value);
+export interface MenuItem {
+  id: string;
+  sequence: number;
+  name: (env: SpreadsheetChildEnv) => string;
+  isVisible: (env: SpreadsheetChildEnv) => boolean;
+  isEnabled: (env: SpreadsheetChildEnv) => boolean;
+  isReadonlyAllowed: boolean;
+  action?: (env: SpreadsheetChildEnv) => unknown;
+  children: (env: SpreadsheetChildEnv) => MenuItem[];
+  separator: boolean;
+  description: string;
+  textColor?: string;
+  icon?: string;
 }
 
-function isMenuItem(value: FullMenuItem | MenuItemsBuilder): value is FullMenuItem {
-  return typeof value !== "function";
+type MenuItemsBuilder = (env: SpreadsheetChildEnv) => MenuItemSpec[];
+type MenuChildren = (MenuItemSpec | MenuItemsBuilder)[];
+
+export function createMenu(menuItems: MenuItemSpec[]): MenuItem[] {
+  return menuItems.map(createMenuItem).sort((a, b) => a.sequence - b.sequence);
+}
+
+const uuidGenerator = new UuidGenerator();
+
+function createMenuItem(item: MenuItemSpec): MenuItem {
+  const name = item.name;
+  const children = item.children;
+  return {
+    id: item.id || uuidGenerator.uuidv4(),
+    name: typeof name === "function" ? name : () => name,
+    isVisible: item.isVisible ? item.isVisible : () => true,
+    isEnabled: item.isEnabled ? item.isEnabled : () => true,
+    action: item.action,
+    children: children
+      ? (env) => {
+          return children
+            .map((child) => (typeof child === "function" ? child(env) : child))
+            .flat()
+            .map(createMenuItem);
+        }
+      : () => [],
+    isReadonlyAllowed: item.isReadonlyAllowed || false,
+    separator: item.separator || false,
+    icon: item.icon,
+    description: item.description || "",
+    textColor: item.textColor,
+    sequence: item.sequence || 0,
+  };
 }
 
 /**
  * The class Registry is extended in order to add the function addChild
  *
  */
-export class MenuItemRegistry extends Registry<FullMenuItem> {
+export class MenuItemRegistry extends Registry<MenuItemSpec> {
   /**
    * @override
    */
-  add(key: string, value: MenuItem): MenuItemRegistry {
-    this.content[key] = createFullMenuItem(key, value);
+  add(key: string, value: MenuItemSpec): MenuItemRegistry {
+    if (value.id === undefined) {
+      value.id = key;
+    }
+    this.content[key] = value;
     return this;
   }
   /**
@@ -81,32 +110,34 @@ export class MenuItemRegistry extends Registry<FullMenuItem> {
    * @param path Path of items to add this subitem
    * @param value Subitem to add
    */
-  addChild(key: string, path: string[], value: MenuItem | MenuItemsBuilder): MenuItemRegistry {
+  addChild(key: string, path: string[], value: MenuItemSpec | MenuItemsBuilder): MenuItemRegistry {
+    if (typeof value !== "function" && value.id === undefined) {
+      value.id = key;
+    }
     const root = path.splice(0, 1)[0];
-    let node: FullMenuItem | undefined = this.content[root];
+    let node: MenuItemSpec | undefined = this.content[root];
     if (!node) {
       throw new Error(`Path ${root + ":" + path.join(":")} not found`);
     }
     for (let p of path) {
-      node = node.children.filter(isMenuItem).find((elt) => elt.id === p);
+      const children = node.children;
+      if (!children || typeof children === "function") {
+        throw new Error(`${p} is either not a node or it's dynamically computed`);
+      }
+      node = children.find((elt) => elt.id === p);
 
       if (!node) {
         throw new Error(`Path ${root + ":" + path.join(":")} not found`);
       }
     }
-    if (typeof value !== "function") {
-      node.children.push(createFullMenuItem(key, value));
-    } else {
-      node.children.push(value);
+    if (!node.children) {
+      node.children = [];
     }
+    node.children.push(value);
     return this;
   }
 
-  /**
-   * Get a list of all elements in the registry, ordered by sequence
-   * @override
-   */
-  getAll(): FullMenuItem[] {
-    return super.getAll().sort((a, b) => a.sequence - b.sequence);
+  getMenuItems(): MenuItem[] {
+    return createMenu(this.getAll());
   }
 }

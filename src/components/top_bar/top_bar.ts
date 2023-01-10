@@ -12,9 +12,8 @@ import { interactiveAddFilter } from "../../helpers/ui/filter_interactive";
 import { interactiveAddMerge } from "../../helpers/ui/merge_interactive";
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
 import { setFormatter, setStyle, topbarComponentRegistry } from "../../registries/index";
-import { getMenuChildren, getMenuName } from "../../registries/menus/helpers";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
-import { FullMenuItem } from "../../registries/menu_items_registry";
+import { MenuItem } from "../../registries/menu_items_registry";
 import {
   Align,
   BorderCommand,
@@ -319,7 +318,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   paintFormatTool = false;
   fillColor: string = "#ffffff";
   textColor: string = "#000000";
-  menus: FullMenuItem[] = [];
+  menus: MenuItem[] = [];
   composerStyle = `
     line-height: 34px;
     padding-left: 8px;
@@ -371,7 +370,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.onClick();
   }
 
-  onMenuMouseOver(menu: FullMenuItem, ev: MouseEvent) {
+  onMenuMouseOver(menu: MenuItem, ev: MouseEvent) {
     if (this.isSelectingMenu) {
       this.toggleContextMenu(menu, ev);
     }
@@ -384,14 +383,12 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.openedEl = isOpen ? null : (ev.target as HTMLElement);
   }
 
-  toggleContextMenu(menu: FullMenuItem, ev: MouseEvent) {
+  toggleContextMenu(menu: MenuItem, ev: MouseEvent) {
     this.closeMenus();
     const { left, top, height } = (ev.target as HTMLElement).getBoundingClientRect();
     this.state.menuState.isOpen = true;
     this.state.menuState.position = { x: left, y: top + height };
-    this.state.menuState.menuItems = getMenuChildren(menu, this.env).filter(
-      (item) => !item.isVisible || item.isVisible(this.env)
-    );
+    this.state.menuState.menuItems = menu.children(this.env);
     this.state.menuState.parentMenu = menu;
     this.isSelectingMenu = true;
     this.openedEl = ev.target as HTMLElement;
@@ -435,13 +432,11 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.fillColor = this.style.fillColor || "#ffffff";
     this.textColor = this.style.textColor || "#000000";
 
-    this.menus = topbarMenuRegistry
-      .getAll()
-      .filter((item) => !item.isVisible || item.isVisible(this.env));
+    this.menus = topbarMenuRegistry.getMenuItems();
   }
 
-  getMenuName(menu: FullMenuItem) {
-    return getMenuName(menu, this.env);
+  getMenuName(menu: MenuItem) {
+    return menu.name(this.env);
   }
 
   toggleMerge() {

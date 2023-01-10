@@ -4,7 +4,7 @@ import { MENU_ITEM_HEIGHT, MENU_VERTICAL_PADDING, MENU_WIDTH } from "../../src/c
 import { toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
-import { createFullMenuItem, FullMenuItem } from "../../src/registries/menu_items_registry";
+import { createMenu, MenuItem } from "../../src/registries/menu_items_registry";
 import { OWL_TEMPLATES } from "../setup/jest.setup";
 import { MockClipboard } from "../test_helpers/clipboard";
 import { setCellContent } from "../test_helpers/commands_helpers";
@@ -121,7 +121,7 @@ describe("Standalone context menu tests", () => {
 
   interface ContextMenuTestConfig {
     onClose?: () => void;
-    menuItems?: FullMenuItem[];
+    menuItems?: MenuItem[];
   }
 
   async function renderContextMenu(
@@ -150,26 +150,26 @@ describe("Standalone context menu tests", () => {
     return [x, y];
   }
 
-  const subMenu: FullMenuItem[] = [
-    createFullMenuItem("root", {
+  const subMenu: MenuItem[] = createMenu([
+    {
+      id: "root",
       name: "root",
-      sequence: 1,
       children: [
         () => [
-          createFullMenuItem("subMenu1", {
+          {
+            id: "subMenu1",
             name: "subMenu1",
-            sequence: 1,
             action() {},
-          }),
-          createFullMenuItem("subMenu2", {
+          },
+          {
+            id: "subMenu2",
             name: "subMenu2",
-            sequence: 1,
             action() {},
-          }),
+          },
         ],
       ],
-    }),
-  ];
+    },
+  ]);
 
   class ContextMenuParent extends Component {
     static template = xml/* xml */ `
@@ -182,7 +182,7 @@ describe("Standalone context menu tests", () => {
     </div>
   `;
     static components = { Menu };
-    menus!: FullMenuItem[];
+    menus!: MenuItem[];
     position!: { x: number; y: number; width: number; height: number };
     onClose!: () => void;
 
@@ -202,13 +202,15 @@ describe("Standalone context menu tests", () => {
         width: this.props.width,
         height: this.props.height,
       };
-      this.menus = this.props.config.menuItems || [
-        createFullMenuItem("Action", {
-          name: "Action",
-          sequence: 1,
-          action() {},
-        }),
-      ];
+      this.menus =
+        this.props.config.menuItems ||
+        createMenu([
+          {
+            id: "Action",
+            name: "Action",
+            action() {},
+          },
+        ]);
       this.props.model.dispatch("RESIZE_SHEETVIEW", {
         height: this.props.height,
         width: this.props.width,
@@ -323,13 +325,11 @@ describe("Standalone context menu tests", () => {
       cellMenuRegistry
         .add("visible_action", {
           name: "visible_action",
-          sequence: 1,
           isVisible: (env) => getEvaluatedCell(model, "B1").value === "b1",
           action() {},
         })
         .add("hidden_action", {
           name: "hidden_action",
-          sequence: 2,
           isVisible: (env) => getEvaluatedCell(model, "B1").value !== "b1",
           action() {},
         });
@@ -341,26 +341,26 @@ describe("Standalone context menu tests", () => {
     });
 
     test("submenu opens and close when (un)overed", async () => {
-      const menuItems: FullMenuItem[] = [
-        createFullMenuItem("action", {
+      const menuItems = createMenu([
+        {
+          id: "action",
           name: "action",
-          sequence: 1,
           action() {},
-        }),
-        createFullMenuItem("root", {
+        },
+        {
+          id: "root",
           name: "root",
-          sequence: 2,
           children: [
             () => [
-              createFullMenuItem("subMenu", {
+              {
+                id: "subMenu",
                 name: "subMenu",
-                sequence: 1,
                 action() {},
-              }),
+              },
             ],
           ],
-        }),
-      ];
+        },
+      ]);
       await renderContextMenu(300, 300, { menuItems });
       triggerMouseEvent(".o-menu div[data-name='root']", "mouseover");
       await nextTick();
@@ -371,7 +371,7 @@ describe("Standalone context menu tests", () => {
     });
 
     test("Submenu parent is highlighted", async () => {
-      await renderContextMenu(300, 300, { menuItems: cellMenuRegistry.getAll() });
+      await renderContextMenu(300, 300, { menuItems: cellMenuRegistry.getMenuItems() });
       const menuItem = fixture.querySelector(".o-menu div[data-name='paste_special']");
       expect(menuItem?.classList).not.toContain("o-menu-item-active");
       triggerMouseEvent(menuItem, "mouseover");
@@ -383,22 +383,20 @@ describe("Standalone context menu tests", () => {
     });
 
     test("submenu does not open when disabled", async () => {
-      const menuItems: FullMenuItem[] = [
-        createFullMenuItem("root", {
+      const menuItems: MenuItem[] = createMenu([
+        {
+          id: "root",
           name: "root",
-          sequence: 1,
           isEnabled: () => false,
           children: [
-            () => [
-              createFullMenuItem("subMenu", {
-                name: "subMenu",
-                sequence: 1,
-                action() {},
-              }),
-            ],
+            {
+              name: "subMenu",
+              id: "subMenu",
+              action() {},
+            },
           ],
-        }),
-      ];
+        },
+      ]);
       await renderContextMenu(300, 300, { menuItems });
       expect(fixture.querySelector(".o-menu div[data-name='root']")!.classList).toContain(
         "disabled"
@@ -437,29 +435,29 @@ describe("Standalone context menu tests", () => {
     });
 
     test("it renders subsubmenus", async () => {
-      const menuItems: FullMenuItem[] = [
-        createFullMenuItem("root1", {
+      const menuItems = createMenu([
+        {
+          id: "root1",
           name: "root1",
-          sequence: 1,
           children: [
             () => [
-              createFullMenuItem("root2", {
+              {
+                id: "root2",
                 name: "root2",
-                sequence: 1,
                 children: [
                   () => [
-                    createFullMenuItem("subMenu", {
+                    {
+                      id: "subMenu",
                       name: "subMenu",
-                      sequence: 1,
                       action() {},
-                    }),
+                    },
                   ],
                 ],
-              }),
+              },
             ],
           ],
-        }),
-      ];
+        },
+      ]);
       await renderContextMenu(300, 990, { menuItems });
       await simulateClick("div[data-name='root1']");
       await simulateClick("div[data-name='root2']");
@@ -467,23 +465,23 @@ describe("Standalone context menu tests", () => {
     });
 
     test("Menu with icon is correctly displayed", async () => {
-      const menuItems: FullMenuItem[] = [
-        createFullMenuItem("root1", {
+      const menuItems: MenuItem[] = createMenu([
+        {
+          id: "root1",
           name: "root1",
-          sequence: 1,
           icon: "not-displayed-class",
           children: [
             () => [
-              createFullMenuItem("root2", {
+              {
+                id: "root2",
                 name: "root2",
-                sequence: 1,
                 action() {},
                 icon: "my-class",
-              }),
+              },
             ],
           ],
-        }),
-      ];
+        },
+      ]);
       await renderContextMenu(300, 990, { menuItems });
       expect(fixture.querySelector("div[data-name='root1'] > i")).toBeNull();
       await simulateClick("div[data-name='root1']");
@@ -491,19 +489,19 @@ describe("Standalone context menu tests", () => {
     });
 
     test("Can color menu items", async () => {
-      const menuItems: FullMenuItem[] = [
-        createFullMenuItem("black", {
+      const menuItems: MenuItem[] = createMenu([
+        {
+          id: "black",
           name: "black",
-          sequence: 1,
           action() {},
-        }),
-        createFullMenuItem("orange", {
+        },
+        {
+          id: "orange",
           name: "orange",
-          sequence: 2,
           action() {},
           textColor: "orange",
-        }),
-      ];
+        },
+      ]);
       await renderContextMenu(0, 0, { menuItems });
       expect((fixture.querySelector("div[data-name='black']") as HTMLElement).style.color).toEqual(
         ""
@@ -514,50 +512,50 @@ describe("Standalone context menu tests", () => {
     });
 
     test("Only submenus of the current parent are visible", async () => {
-      const menuItems: FullMenuItem[] = [
-        createFullMenuItem("root_1", {
+      const menuItems = createMenu([
+        {
+          id: "root_1",
           name: "root_1",
-          sequence: 1,
           children: [
             () => [
-              createFullMenuItem("root_1_1", {
+              {
+                id: "root_1_1",
                 name: "root_1_1",
-                sequence: 1,
                 children: [
                   () => [
-                    createFullMenuItem("subMenu_1", {
+                    {
+                      id: "subMenu_1",
                       name: "subMenu_1",
-                      sequence: 1,
                       action() {},
-                    }),
+                    },
                   ],
                 ],
-              }),
+              },
             ],
           ],
-        }),
-        createFullMenuItem("root_2", {
+        },
+        {
+          id: "root_2",
           name: "root_2",
-          sequence: 2,
           children: [
             () => [
-              createFullMenuItem("root_2_1", {
+              {
+                id: "root_2_1",
                 name: "root_2_1",
-                sequence: 1,
                 children: [
                   () => [
-                    createFullMenuItem("subMenu_2", {
+                    {
+                      id: "subMenu_2",
                       name: "subMenu_2",
-                      sequence: 1,
                       action() {},
-                    }),
+                    },
                   ],
                 ],
-              }),
+              },
             ],
           ],
-        }),
-      ];
+        },
+      ]);
       await renderContextMenu(300, 300, { menuItems });
 
       triggerMouseEvent(".o-menu div[data-name='root_1']", "mouseover");
@@ -572,36 +570,36 @@ describe("Standalone context menu tests", () => {
     });
 
     test("Submenu visibility is taken into account", async () => {
-      const menuItems: FullMenuItem[] = [
-        createFullMenuItem("root", {
+      const menuItems = createMenu([
+        {
+          id: "root",
           name: "root_1",
-          sequence: 1,
           children: [
             () => [
-              createFullMenuItem("menu_1", {
+              {
+                id: "menu_1",
                 name: "root_1_1",
-                sequence: 1,
                 children: [
                   () => [
-                    createFullMenuItem("visible_submenu_1", {
+                    {
+                      id: "visible_submenu_1",
                       name: "visible_submenu_1",
-                      sequence: 1,
                       action() {},
                       isVisible: () => true,
-                    }),
-                    createFullMenuItem("invisible_submenu_1", {
+                    },
+                    {
+                      id: "invisible_submenu_1",
                       name: "invisible_submenu_1",
-                      sequence: 1,
                       action() {},
                       isVisible: () => false,
-                    }),
+                    },
                   ],
                 ],
-              }),
+              },
             ],
           ],
-        }),
-      ];
+        },
+      ]);
       await renderContextMenu(300, 300, { menuItems });
       triggerMouseEvent(".o-menu div[data-name='root']", "mouseover");
       await nextTick();
