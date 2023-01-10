@@ -18,7 +18,7 @@
     <Menu
       t-if="menuState.isOpen"
       position="menuState.position"
-      menuItems="menuState.menuItems"
+      menuItems="menuItems"
       onClose="() => this.menuState.isOpen=false"
     />
   </t>

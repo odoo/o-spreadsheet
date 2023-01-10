@@ -4,8 +4,7 @@ import { fontSizes } from "../src/fonts";
 import { zoneToXc } from "../src/helpers";
 import { interactivePaste } from "../src/helpers/ui/paste_interactive";
 import { colMenuRegistry, rowMenuRegistry, topbarMenuRegistry } from "../src/registries/index";
-import { getMenuChildren } from "../src/registries/menus/helpers";
-import { createFullMenuItem, FullMenuItem } from "../src/registries/menu_items_registry";
+import { MenuItem } from "../src/registries/menu_items_registry";
 import { SpreadsheetChildEnv } from "../src/types";
 import {
   copy,
@@ -25,6 +24,7 @@ import {
   doAction,
   getName,
   getNode,
+  makeTestEnv,
   makeTestFixture,
   mockUuidV4To,
   mountSpreadsheet,
@@ -53,31 +53,31 @@ describe("Menu Item Registry", () => {
     });
     topbarMenuRegistry.addChild("child3", ["root", "child1"], (env) => {
       const menus = ["test1", "test2"];
-      return menus.map((name, i) =>
-        createFullMenuItem(name, {
-          name: name,
-          sequence: i + 5,
-          action: () => {},
-        })
-      );
+      return menus.map((name) => ({
+        id: name,
+        name: name,
+        action: () => {},
+      }));
     });
-    const item = topbarMenuRegistry.get("root");
-    expect(item.children).toHaveLength(1);
-    const child = item.children[0] as FullMenuItem;
-    expect(child.name).toBe("Child1");
+    const env = makeTestEnv();
+    const [item] = topbarMenuRegistry.getMenuItems();
+
+    const children = item.children && item.children(env);
+    expect(children).toHaveLength(1);
+    const child = children[0] as MenuItem;
+    expect(child.name(env)).toBe("Child1");
     expect(child.id).toBe("child1");
-    expect(child.children).toHaveLength(2);
-    const subChild = child.children[0] as FullMenuItem;
-    expect(subChild.name).toBe("Child2");
+    expect(child.children(env)).toHaveLength(3);
+    const subChild = child.children(env)[0] as MenuItem;
+    expect(subChild.name(env)).toBe("Child2");
     expect(subChild.description).toBe("coucou");
     expect(subChild.id).toBe("child2");
-    expect(typeof child.children[1]).toEqual("function");
 
-    const allChildren = getMenuChildren(child, {} as SpreadsheetChildEnv);
+    const allChildren = child.children(env);
     expect(allChildren).toHaveLength(3);
-    expect(allChildren[0].name).toBe("Child2");
-    expect(allChildren[1].name).toBe("test1");
-    expect(allChildren[2].name).toBe("test2");
+    expect(allChildren[0].name(env)).toBe("Child2");
+    expect(allChildren[1].name(env)).toBe("test1");
+    expect(allChildren[2].name(env)).toBe("test2");
   });
 
   test("Adding a child to non-existing item throws", () => {
@@ -1079,19 +1079,19 @@ describe("Menu Item actions", () => {
 
     test("Unfreeze columns and rows", () => {
       const sheetId = model.getters.getActiveSheetId();
-      const view = topbarMenuRegistry.getAll().find((item) => item.id === "view")!;
-      const unfreeze_panes = (view.children as FullMenuItem[]).find(
-        (item) => item.id === "unfreeze_panes"
-      )!;
+      const view = topbarMenuRegistry.getMenuItems().find((item) => item.id === "view")!;
+      const unfreeze_panes = view
+        .children({} as SpreadsheetChildEnv)
+        .find((item) => item.id === "unfreeze_panes")!;
       expect(unfreeze_panes.isVisible(env)).toBe(false);
       freezeColumns(model, 1);
       expect(unfreeze_panes.isVisible(env)).toBe(true);
-      unfreeze_panes.action(env);
+      unfreeze_panes.action?.(env);
       expect(model.getters.getPaneDivisions(sheetId));
       expect(unfreeze_panes.isVisible(env)).toBe(false);
       freezeRows(model, 3);
       expect(unfreeze_panes.isVisible(env)).toBe(true);
-      unfreeze_panes.action(env);
+      unfreeze_panes.action?.(env);
       expect(model.getters.getPaneDivisions(sheetId));
       expect(unfreeze_panes.isVisible(env)).toBe(false);
     });

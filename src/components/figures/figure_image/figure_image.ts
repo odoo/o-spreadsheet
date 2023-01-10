@@ -1,7 +1,7 @@
 import { Component, useRef, useState } from "@odoo/owl";
 import { MENU_WIDTH } from "../../../constants";
 import { getMaxFigureSize } from "../../../helpers/figures/figure/figure";
-import { MenuItemRegistry } from "../../../registries/menu_items_registry";
+import { createMenu } from "../../../registries/menu_items_registry";
 import { _lt } from "../../../translation";
 import { DOMCoordinates, Figure, SpreadsheetChildEnv, UID } from "../../../types";
 import { useAbsolutePosition } from "../../helpers/position_hook";
@@ -15,38 +15,40 @@ interface Props {
 export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ImageFigure";
   static components = { Menu };
-  private menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
+  private menuState: Pick<MenuState, "isOpen" | "position"> = useState({
+    isOpen: false,
+    position: null,
+  });
 
   private imageContainerRef = useRef("o-image");
   private menuButtonRef = useRef("menuButton");
   private menuButtonPosition = useAbsolutePosition(this.menuButtonRef);
   private position = useAbsolutePosition(this.imageContainerRef);
 
-  private getMenuItemRegistry(): MenuItemRegistry {
-    const registry = new MenuItemRegistry();
-    registry.add("copy", {
+  readonly menuItems = createMenu([
+    {
+      id: "copy",
       name: _lt("Copy"),
       description: "Ctrl+C",
-      sequence: 1,
       action: async () => {
         this.env.model.dispatch("SELECT_FIGURE", { id: this.figureId });
         this.env.model.dispatch("COPY");
         await this.env.clipboard.clear();
       },
-    });
-    registry.add("cut", {
+    },
+    {
+      id: "cut",
       name: _lt("Cut"),
       description: "Ctrl+X",
-      sequence: 2,
       action: async () => {
         this.env.model.dispatch("SELECT_FIGURE", { id: this.figureId });
         this.env.model.dispatch("CUT");
         await this.env.clipboard.clear();
       },
-    });
-    registry.add("reset_size", {
+    },
+    {
+      id: "reset_size",
       name: _lt("Reset size"),
-      sequence: 3,
       action: () => {
         const size = this.env.model.getters.getImageSize(this.figureId);
         const { height, width } = getMaxFigureSize(this.env.model.getters, size);
@@ -57,20 +59,19 @@ export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
           width,
         });
       },
-    });
-    registry.add("delete", {
+    },
+    {
+      id: "delete",
       name: _lt("Delete image"),
       description: "delete",
-      sequence: 5,
       action: () => {
         this.env.model.dispatch("DELETE_FIGURE", {
           sheetId: this.env.model.getters.getActiveSheetId(),
           id: this.figureId,
         });
       },
-    });
-    return registry;
-  }
+    },
+  ]);
 
   onContextMenu(ev: MouseEvent) {
     const position = {
@@ -89,9 +90,7 @@ export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private openContextMenu(position: DOMCoordinates) {
-    const registry = this.getMenuItemRegistry();
     this.menuState.isOpen = true;
-    this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
     this.menuState.position = position;
   }
 

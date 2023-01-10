@@ -7,7 +7,7 @@ import { toCartesian, toUnboundedZone, toXC, toZone } from "../../src/helpers/in
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { topbarMenuRegistry } from "../../src/registries";
-import { FullMenuItem, MenuItemRegistry } from "../../src/registries/menu_items_registry";
+import { MenuItem, MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import {
   ChartDefinition,
   ColorScaleMidPointThreshold,
@@ -90,7 +90,7 @@ export function makeTestFixture() {
   return fixture;
 }
 
-export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv>): SpreadsheetChildEnv {
+export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): SpreadsheetChildEnv {
   return {
     model: mockEnv.model || new Model(),
     isDashboard: mockEnv.isDashboard || (() => false),
@@ -492,22 +492,27 @@ export function doAction(
   menuRegistry: MenuItemRegistry = topbarMenuRegistry
 ): void {
   const node = getNode(path, menuRegistry);
-  node.action(env);
+  node.action?.(env);
 }
 
 export function getNode(
   _path: string[],
   menuRegistry: MenuItemRegistry = topbarMenuRegistry
-): FullMenuItem {
+): MenuItem {
   const path = [..._path];
-  const root = path.splice(0, 1)[0];
-  let node = menuRegistry.get(root);
-  for (let p of path) {
-    node = node.children
-      .filter((item): item is FullMenuItem => typeof item !== "function")
-      .find((child) => child.id === p)!;
+  let items = menuRegistry.getMenuItems();
+  while (items.length && path.length) {
+    const id = path.shift()!;
+    const item = items.find((item) => item.id === id);
+    if (!item) {
+      throw new Error(`Menu item ${id} not found`);
+    }
+    if (path.length === 0) {
+      return item;
+    }
+    items = item.children({} as SpreadsheetChildEnv);
   }
-  return node;
+  throw new Error(`Menu item not found`);
 }
 
 export function getName(
@@ -516,7 +521,7 @@ export function getName(
   menuRegistry: MenuItemRegistry = topbarMenuRegistry
 ): string {
   const node = getNode(path, menuRegistry);
-  return typeof node.name === "function" ? node.name(env).toString() : node.name.toString();
+  return node.name(env).toString();
 }
 
 export function getFigureIds(model: Model, sheetId: UID, type?: string): UID[] {

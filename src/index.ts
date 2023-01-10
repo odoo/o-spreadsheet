@@ -81,8 +81,6 @@ import {
   topbarComponentRegistry,
   topbarMenuRegistry,
 } from "./registries/index";
-import { getMenuChildren } from "./registries/menus/helpers";
-import { createFullMenuItem } from "./registries/menu_items_registry";
 import { FunctionDescription } from "./types";
 import { CellErrorLevel, EvaluationError } from "./types/errors";
 
@@ -170,7 +168,6 @@ export const helpers = {
   toZone,
   toCartesian,
   numberToLetters,
-  createFullMenuItem,
   UuidGenerator,
   formatValue,
   computeTextWidth,
@@ -179,7 +176,6 @@ export const helpers = {
   createEmptyExcelSheet,
   getDefaultChartJsRuntime,
   chartFontColor,
-  getMenuChildren,
   ChartColors,
   EvaluationError,
   CellErrorLevel,

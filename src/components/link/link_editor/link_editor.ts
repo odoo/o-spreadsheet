@@ -103,7 +103,7 @@ interface State {
 export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-LinkEditor";
   static components = { Menu };
-  menuItems = linkMenuRegistry.getAll();
+  menuItems = linkMenuRegistry.getMenuItems();
   private link: State = useState(this.defaultState);
   private menu = useState({
     isOpen: false,

@@ -99,7 +99,7 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   private openContextMenu(position: DOMCoordinates) {
     const registry = this.getMenuItemRegistry();
     this.menuState.isOpen = true;
-    this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
+    this.menuState.menuItems = registry.getMenuItems();
     this.menuState.position = position;
   }
 

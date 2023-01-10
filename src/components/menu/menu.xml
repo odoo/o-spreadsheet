@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-Menu" owl="1">
     <Popover
-      t-if="props.menuItems.length"
+      t-if="visibleMenuItems.length"
       anchorRect="popover.anchorRect"
       positioning="popover.positioning"
       verticalOffset="popover.verticalOffset"
@@ -15,7 +15,7 @@
         t-on-wheel.stop=""
         t-on-click.stop=""
         t-on-contextmenu.prevent="">
-        <t t-foreach="props.menuItems" t-as="menuItem" t-key="menuItem.id">
+        <t t-foreach="visibleMenuItems" t-as="menuItem" t-key="menuItem.id">
           <t t-set="isMenuRoot" t-value="isRoot(menuItem)"/>
           <t t-set="isMenuEnabled" t-value="isEnabled(menuItem)"/>
           <div
@@ -28,9 +28,9 @@
             t-att-style="getColor(menuItem)">
             <span class="o-menu-item-name" t-esc="getName(menuItem)"/>
             <span
-              t-if="getDescription(menuItem)"
+              t-if="menuItem.description"
               class="o-menu-item-description"
-              t-esc="getDescription(menuItem)"
+              t-esc="menuItem.description"
             />
             <t t-if="isMenuRoot">
               <span t-call="o-spreadsheet-Icon.TRIANGLE_RIGHT"/>
