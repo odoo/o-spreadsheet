@@ -9,23 +9,32 @@ export function startDnd(
   onMouseUp: EventFn,
   onMouseDown: EventFn = () => {}
 ) {
+  const _onMouseDown = (ev: MouseEvent) => {
+    ev.preventDefault();
+    onMouseDown(ev);
+  };
+  const _onMouseMove = (ev: MouseEvent) => {
+    ev.preventDefault();
+    onMouseMove(ev);
+  };
   const _onMouseUp = (ev: MouseEvent) => {
+    ev.preventDefault();
     onMouseUp(ev);
 
-    window.removeEventListener("mousedown", onMouseDown);
+    window.removeEventListener("mousedown", _onMouseDown);
     window.removeEventListener("mouseup", _onMouseUp);
     window.removeEventListener("dragstart", _onDragStart);
-    window.removeEventListener("mousemove", onMouseMove);
-    window.removeEventListener("wheel", onMouseMove);
+    window.removeEventListener("mousemove", _onMouseMove);
+    window.removeEventListener("wheel", _onMouseMove);
   };
   function _onDragStart(ev: DragEvent) {
     ev.preventDefault();
   }
-  window.addEventListener("mousedown", onMouseDown);
+  window.addEventListener("mousedown", _onMouseDown);
   window.addEventListener("mouseup", _onMouseUp);
   window.addEventListener("dragstart", _onDragStart);
-  window.addEventListener("mousemove", onMouseMove);
-  window.addEventListener("wheel", onMouseMove);
+  window.addEventListener("mousemove", _onMouseMove);
+  window.addEventListener("wheel", _onMouseMove);
 }
 
 /**
