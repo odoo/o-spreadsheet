@@ -2,7 +2,7 @@ import { App } from "@odoo/owl";
 import { args, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import { selectCell } from "../test_helpers/commands_helpers";
-import { clickCell } from "../test_helpers/dom_helper";
+import { clickCell, keyDown, keyUp, simulateClick } from "../test_helpers/dom_helper";
 import { getCellText } from "../test_helpers/getters_helpers";
 import {
   clearFunctions,
@@ -27,6 +27,7 @@ async function typeInComposerGrid(text: string, fromScratch: boolean = true) {
   const composerEl = await typeInComposerGridHelper(text, fromScratch);
   // @ts-ignore
   cehMock = window.mockContentHelper;
+  // TODO: Is it necesary?
   await nextTick();
   return composerEl;
 }
@@ -36,8 +37,7 @@ beforeEach(async () => {
   ({ app, model } = await mountSpreadsheet(fixture));
 
   // start composition
-  fixture.querySelector(".o-grid")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-  await nextTick();
+  await keyDown("Enter");
   composerEl = fixture.querySelector(".o-grid div.o-composer")!;
 });
 
@@ -95,8 +95,7 @@ describe("Functions autocomplete", () => {
 
     test("=S+TAB complete the function --> =SUM(␣", async () => {
       await typeInComposerGrid("=S");
-      composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
-      await nextTick();
+      await keyDown("Tab");
       expect(composerEl.textContent).toBe("=SUM(");
       expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
       expect(cehMock.selectionState.position).toBe(5);
@@ -104,8 +103,7 @@ describe("Functions autocomplete", () => {
 
     test("=S+ENTER complete the function --> =SUM(␣", async () => {
       await typeInComposerGrid("=S");
-      composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-      await nextTick();
+      await keyDown("Enter");
       expect(composerEl.textContent).toBe("=SUM(");
       expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
       expect(cehMock.selectionState.position).toBe(5);
@@ -118,8 +116,7 @@ describe("Functions autocomplete", () => {
 
     test("=SX+ENTER does not autocomplete anything and moves to the cell down", async () => {
       await typeInComposerGrid("=SX");
-      composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
-      await nextTick();
+      await keyDown("Tab");
       expect(getCellText(model, "A1")).toBe("=SX");
     });
 
@@ -128,8 +125,7 @@ describe("Functions autocomplete", () => {
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SUM");
-      composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp" }));
-      await nextTick();
+      await keyDown("ArrowUp");
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SZZ");
@@ -140,13 +136,11 @@ describe("Functions autocomplete", () => {
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SUM");
-      composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown" }));
-      await nextTick();
+      await keyDown("ArrowDown");
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SZZ");
-      composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp" }));
-      await nextTick();
+      await keyDown("ArrowUp");
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SUM");
@@ -157,13 +151,11 @@ describe("Functions autocomplete", () => {
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SUM");
-      composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown" }));
-      await nextTick();
+      await keyDown("ArrowDown");
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SZZ");
-      composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown" }));
-      await nextTick();
+      await keyDown("ArrowDown");
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SUM");
@@ -220,23 +212,19 @@ describe("Functions autocomplete", () => {
     });
     test("= and CTRL+Space show autocomplete", async () => {
       await typeInComposerGrid("=");
-      composerEl.dispatchEvent(new KeyboardEvent("keyup", { key: " ", ctrlKey: true }));
-      await nextTick();
+      await keyUp(" ", { ctrlKey: true });
       //TODO Need a second nextTick to wait the re-render of SelectionInput (onMounted => uuid assignation). But why not before ?
       await nextTick();
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(3);
-      composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
-      await nextTick();
+      await keyDown("Tab");
       expect(composerEl.textContent).toBe("=IF(");
       expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
       expect(cehMock.selectionState.position).toBe(4);
     });
     test("= and CTRL+Space & DOWN move to next autocomplete", async () => {
       await typeInComposerGrid("=");
-      composerEl.dispatchEvent(new KeyboardEvent("keyup", { key: " ", ctrlKey: true }));
-      await nextTick();
-      composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown" }));
-      await nextTick();
+      await keyUp(" ", { ctrlKey: true });
+      await keyDown("ArrowDown");
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SUM");
@@ -273,19 +261,16 @@ describe("Autocomplete parenthesis", () => {
 
   test("=sum(1,2 + enter adds closing parenthesis", async () => {
     await typeInComposerGrid("=sum(1,2");
-    composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-    await nextTick();
+    await keyDown("Enter");
     expect(getCellText(model, "A1")).toBe("=sum(1,2)");
   });
 
   test("=sum(1,2) + enter + edit sum does not add parenthesis", async () => {
     await typeInComposerGrid("=sum(1,2)");
-    composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-    await nextTick();
+    await keyDown("Enter");
     selectCell(model, "A1");
     //edit A1
-    fixture.querySelector(".o-grid")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-    await nextTick();
+    await keyDown("Enter");
     composerEl = fixture.querySelector(".o-grid div.o-composer")!;
     // @ts-ignore
     const cehMock = window.mockContentHelper as ContentEditableHelper;
@@ -293,6 +278,7 @@ describe("Autocomplete parenthesis", () => {
     cehMock.selectRange(1, 4);
     // replace SUM with if
     cehMock.insertText("if", { color: "black" });
+    // TODORAR change
     composerEl.dispatchEvent(new KeyboardEvent("keydown"));
     composerEl.dispatchEvent(new Event("input"));
     composerEl.dispatchEvent(new KeyboardEvent("keyup"));
@@ -313,8 +299,7 @@ describe("Autocomplete parenthesis", () => {
     expect(document.activeElement).toBe(composerEl);
     expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(1);
     // select the SUM function
-    fixture.querySelector(".o-autocomplete-value-focus")!.dispatchEvent(new MouseEvent("click"));
-    await nextTick();
+    await simulateClick(fixture.querySelector(".o-autocomplete-value")!);
     expect(composerEl.textContent).toBe("=SUM(");
     expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
     expect(cehMock.selectionState.position).toBe(5);
@@ -323,36 +308,31 @@ describe("Autocomplete parenthesis", () => {
 
   test("=sum(sum(1,2 + enter add 2 closing parenthesis", async () => {
     await typeInComposerGrid("=sum(sum(1,2");
-    composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-    await nextTick();
+    await keyDown("Enter");
     expect(getCellText(model, "A1")).toBe("=sum(sum(1,2))");
   });
 
   test("=sum(sum(1,2) + enter add 1 closing parenthesis", async () => {
     await typeInComposerGrid("=sum(sum(1,2");
-    composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-    await nextTick();
+    await keyDown("Enter");
     expect(getCellText(model, "A1")).toBe("=sum(sum(1,2))");
   });
 
   test("=sum(sum(1,2) + click outside composer should add the missing parenthesis", async () => {
     await typeInComposerGrid("=sum(sum(1,2");
-    clickCell(model, "B2");
-    await nextTick();
+    await clickCell(model, "B2");
     expect(getCellText(model, "A1")).toBe("=sum(sum(1,2))");
   });
 
   test('=sum("((((((((") + enter should not complete the parenthesis in the string', async () => {
     await typeInComposerGrid('=sum("((((((((")');
-    composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-    await nextTick();
+    await keyDown("Enter");
     expect(getCellText(model, "A1")).toBe('=sum("((((((((")');
   });
 
   test("=s + tab should allow to select a ref", async () => {
     await typeInComposerGrid("=s");
-    composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
-    await nextTick();
+    await keyDown("Tab");
     expect(model.getters.getEditionMode()).toBe("selecting");
   });
 });
