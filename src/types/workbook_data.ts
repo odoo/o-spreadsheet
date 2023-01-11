@@ -1,6 +1,7 @@
 import { CellValue, Format } from ".";
 import { ExcelChartDefinition } from "./chart/chart";
 import { ConditionalFormat } from "./conditional_formatting";
+import { Image } from "./image";
 import { Border, PaneDivision, Pixel, Style, UID } from "./misc";
 
 export interface Dependencies {
@@ -70,6 +71,7 @@ export interface ExcelCellData extends CellData {
 export interface ExcelSheetData extends Omit<SheetData, "figureTables"> {
   cells: { [key: string]: ExcelCellData | undefined };
   charts: FigureData<ExcelChartDefinition>[];
+  images: FigureData<Image>[];
   filterTables: ExcelFilterTableData[];
 }
 

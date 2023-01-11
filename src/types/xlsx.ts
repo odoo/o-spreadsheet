@@ -147,10 +147,17 @@ export interface XLSXRelFile {
   rels: XLSXRel[];
 }
 
-export interface XLSXExportFile {
+export type XLSXExportFile = XLSXExportImageFile | XLSXExportXMLFile;
+
+export interface XLSXExportXMLFile {
   path: string;
   content: string;
   contentType?: string;
+}
+
+export interface XLSXExportImageFile {
+  path: string;
+  imagePath: string;
 }
 
 export interface XLSXExport {

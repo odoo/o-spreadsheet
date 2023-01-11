@@ -8,6 +8,7 @@ import { escapeXml, parseXML } from "../src/xlsx/helpers/xml_helpers";
 import {
   createChart,
   createFilter,
+  createImage,
   createSheet,
   merge,
   setCellContent,
@@ -953,6 +954,71 @@ describe("Test XLSX export", () => {
         sheetId: "Sheet1",
         id: "1",
         x: end + 5,
+      });
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
+  });
+
+  describe("Images", () => {
+    const getModelData = () => ({
+      sheets: [
+        {
+          name: "Sheet1",
+          colNumber: 25,
+          rowNumber: 25,
+        },
+      ],
+    });
+
+    test("simple image", async () => {
+      const model = new Model(getModelData());
+      createImage(model, {});
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
+
+    test("multiple images in the same sheet", async () => {
+      const model = new Model(getModelData());
+      createImage(model, {});
+      createImage(model, { position: { x: 2, y: 2 } });
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
+
+    test("images in different sheets", async () => {
+      const model = new Model(getModelData());
+      createSheet(model, { sheetId: "42" });
+      createImage(model, {});
+      createImage(model, {
+        sheetId: "42",
+      });
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
+
+    test("image overflowing outside the sheet", async () => {
+      const model = new Model(getModelData());
+      createImage(model, {});
+      const sheetId = model.getters.getActiveSheetId();
+      const end = model.getters.getColDimensions(
+        sheetId,
+        model.getters.getNumberCols(sheetId) - 1
+      ).end;
+      model.dispatch("UPDATE_FIGURE", {
+        sheetId,
+        id: "1",
+        x: end + 5,
+      });
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
+
+    test("image larger than the sheet", async () => {
+      const model = new Model(getModelData());
+      const maxSheetSize = model.getters.getMainViewportRect();
+      createImage(model, {
+        definition: {
+          size: {
+            width: 100000 + maxSheetSize.width,
+            height: 100000 + maxSheetSize.height,
+          },
+        },
       });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });

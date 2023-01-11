@@ -8,6 +8,7 @@ import {
   XMLAttributes,
   XMLString,
 } from "../types/xlsx";
+import { XLSXExportXMLFile } from "./../types/xlsx";
 import { CONTENT_TYPES, NAMESPACE, RELATIONSHIP_NSR, XLSX_RELATION_TYPE } from "./constants";
 import { createChart } from "./functions/charts";
 import { addConditionalFormatting } from "./functions/conditional_formatting";
@@ -32,6 +33,7 @@ import {
   addRelsToFile,
   convertChartId,
   convertHeightToExcel,
+  convertImageId,
   convertWidthToExcel,
 } from "./helpers/content_helpers";
 import {
@@ -116,29 +118,48 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
 
     // Figures and Charts
     let drawingNode = escapeXml``;
+    const drawingRelIds: string[] = [];
     const charts = sheet.charts;
-    if (charts.length) {
-      const chartRelIds: string[] = [];
-      for (const chart of charts) {
-        const xlsxChartId = convertChartId(chart.id);
-        const chartRelId = addRelsToFile(
-          construct.relsFiles,
-          `xl/drawings/_rels/drawing${sheetIndex}.xml.rels`,
-          {
-            target: `../charts/chart${xlsxChartId}.xml`,
-            type: XLSX_RELATION_TYPE.chart,
-          }
-        );
-        chartRelIds.push(chartRelId);
-        files.push(
-          createXMLFile(
-            createChart(chart, sheetIndex, data),
-            `xl/charts/chart${xlsxChartId}.xml`,
-            "chart"
-          )
-        );
-      }
+    for (const chart of charts) {
+      const xlsxChartId = convertChartId(chart.id);
+      const chartRelId = addRelsToFile(
+        construct.relsFiles,
+        `xl/drawings/_rels/drawing${sheetIndex}.xml.rels`,
+        {
+          target: `../charts/chart${xlsxChartId}.xml`,
+          type: XLSX_RELATION_TYPE.chart,
+        }
+      );
+      drawingRelIds.push(chartRelId);
+      files.push(
+        createXMLFile(
+          createChart(chart, sheetIndex, data),
+          `xl/charts/chart${xlsxChartId}.xml`,
+          "chart"
+        )
+      );
+    }
 
+    const images = sheet.images;
+    for (const image of images) {
+      const xlsxImageId = convertImageId(image.id);
+      const imageRelId = addRelsToFile(
+        construct.relsFiles,
+        `xl/drawings/_rels/drawing${sheetIndex}.xml.rels`,
+        {
+          target: `../media/image${xlsxImageId}`,
+          type: XLSX_RELATION_TYPE.image,
+        }
+      );
+      drawingRelIds.push(imageRelId);
+      files.push({
+        path: `xl/media/image${xlsxImageId}`,
+        imagePath: image.data.path,
+      });
+    }
+
+    const drawings = [...charts, ...images];
+    if (drawings.length) {
       const drawingRelId = addRelsToFile(
         construct.relsFiles,
         `xl/worksheets/_rels/sheet${sheetIndex}.xml.rels`,
@@ -149,13 +170,14 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
       );
       files.push(
         createXMLFile(
-          createDrawing(chartRelIds, sheet, charts),
+          createDrawing(drawingRelIds, sheet, drawings),
           `xl/drawings/drawing${sheetIndex}.xml`,
           "drawing"
         )
       );
       drawingNode = escapeXml/*xml*/ `<drawing r:id="${drawingRelId}" />`;
     }
+
     const sheetXml = escapeXml/*xml*/ `
       <worksheet ${formatAttributes(namespaces)}>
         ${addSheetViews(sheet)}
@@ -286,10 +308,10 @@ function createRelsFiles(relsFiles: XLSXRelFile[]): XLSXExportFile[] {
   return XMLRelsFiles;
 }
 
-function createContentTypes(files: XLSXExportFile[]): XLSXExportFile {
+function createContentTypes(files: XLSXExportFile[]): XLSXExportXMLFile {
   const overrideNodes: XMLString[] = [];
   for (const file of files) {
-    if (file.contentType) {
+    if ("contentType" in file && file.contentType) {
       overrideNodes.push(createOverride("/" + file.path, CONTENT_TYPES[file.contentType]));
     }
   }

@@ -22,6 +22,7 @@ import {
 } from "../../src/types";
 import { Image } from "../../src/types/image";
 import { XLSXExport } from "../../src/types/xlsx";
+import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
 import { ImageProvider } from "../components/__mocks__/mock_image_provider";
 import { OWL_TEMPLATES, registerCleanup } from "../setup/jest.setup";
 import { FileStore } from "../__mocks__/mock_file_store";
@@ -452,7 +453,15 @@ export async function exportPrettifiedXlsx(model: Model): Promise<XLSXExport> {
   const xlsxExport = await model.exportXLSX();
   return {
     ...xlsxExport,
-    files: xlsxExport.files.map((file) => ({ ...file, content: format(file.content) })),
+    files: xlsxExport.files.map((file) => {
+      if (isXLSXExportXMLFile(file)) {
+        return {
+          ...file,
+          content: format(file.content),
+        };
+      }
+      return { ...file };
+    }),
   };
 }
 
