@@ -50,6 +50,7 @@ export const XLSX_RELATION_TYPE = {
   theme: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme",
   table: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/table",
   hyperlink: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
+  image: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
 } as const;
 
 export const RELATIONSHIP_NSR =

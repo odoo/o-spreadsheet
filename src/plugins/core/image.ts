@@ -5,7 +5,9 @@ import { Image } from "../../types/image";
 import {
   CommandResult,
   CoreCommand,
+  ExcelWorkbookData,
   Figure,
+  FigureData,
   FigureSize,
   Pixel,
   UID,
@@ -149,6 +151,25 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
       for (const image of images) {
         image.data = this.images[sheet.id]?.[image.id];
       }
+    }
+  }
+
+  exportForExcel(data: ExcelWorkbookData) {
+    for (const sheet of data.sheets) {
+      const figures = this.getters.getFigures(sheet.id);
+      const images: FigureData<Image>[] = [];
+      for (const figure of figures) {
+        if (figure?.tag === "image") {
+          const image = this.getImage(figure.id);
+          if (image) {
+            images.push({
+              ...figure,
+              data: deepCopy(image),
+            });
+          }
+        }
+      }
+      sheet.images = images;
     }
   }
 

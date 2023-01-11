@@ -49,7 +49,12 @@ topbarMenuRegistry.addChild("xlsx", ["file"], {
     const doc = await env.model.exportXLSX();
     const zip = new JSZip();
     for (const file of doc.files) {
-      zip.file(file.path, file.content.replaceAll(` xmlns=""`, ""));
+      if (file.imagePath) {
+        const fetchedImage = await fetch(file.imagePath).then((response) => response.blob());
+        zip.file(file.path, fetchedImage);
+      } else {
+        zip.file(file.path, file.content.replaceAll(` xmlns=""`, ""));
+      }
     }
     zip.generateAsync({ type: "blob" }).then(function (blob) {
       saveAs(blob, doc.name);

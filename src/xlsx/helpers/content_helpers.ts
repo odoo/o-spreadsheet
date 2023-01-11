@@ -72,12 +72,8 @@ export function getCellType(value: number | string | boolean): string {
   }
 }
 
-/**
- * For some reason, Excel will only take the devicePixelRatio (i.e. interface scale on Windows desktop)
- * into account for the height.
- */
 export function convertHeightToExcel(height: number): number {
-  return Math.round(HEIGHT_FACTOR * height * window.devicePixelRatio * 100) / 100;
+  return Math.round(HEIGHT_FACTOR * height * 100) / 100;
 }
 
 export function convertWidthToExcel(width: number): number {
@@ -234,6 +230,21 @@ export function convertChartId(chartId: UID) {
   if (xlsxId === -1) {
     chartIds.push(chartId);
     return chartIds.length;
+  }
+  return xlsxId + 1;
+}
+
+const imageIds: UID[] = [];
+
+/**
+ * Convert a image o-spreadsheet id to a xlsx id which
+ * are unsigned integers (starting from 1).
+ */
+export function convertImageId(imageId: UID) {
+  const xlsxId = imageIds.findIndex((id) => id === imageId);
+  if (xlsxId === -1) {
+    imageIds.push(imageId);
+    return imageIds.length;
   }
   return xlsxId + 1;
 }

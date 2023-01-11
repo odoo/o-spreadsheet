@@ -2,6 +2,7 @@ import { Model } from "../src";
 import { FIGURE_BORDER_SIZE } from "../src/constants";
 import { buildSheetLink, toZone } from "../src/helpers";
 import { Align, BorderDescr, ConditionalFormatRule, Style } from "../src/types";
+import { isXLSXExportXMLFile } from "../src/xlsx/helpers/xlsx_helper";
 import {
   createChart,
   createSheet,
@@ -38,7 +39,7 @@ function exportToXlsxThenImport(model: Model) {
   const exported = model.exportXLSX();
   const dataToImport = {};
   for (let file of exported.files) {
-    dataToImport[file.path] = file.content;
+    dataToImport[file.path] = isXLSXExportXMLFile(file) ? file.content : file.imagePath;
   }
   const imported = new Model(dataToImport, undefined, undefined, undefined, false);
   return imported;

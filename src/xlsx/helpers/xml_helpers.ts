@@ -1,12 +1,7 @@
 import { DEFAULT_FONT_SIZE } from "../../constants";
 import { concat } from "../../helpers";
-import {
-  XLSXExportFile,
-  XLSXStructure,
-  XMLAttributes,
-  XMLAttributeValue,
-  XMLString,
-} from "../../types/xlsx";
+import { XLSXStructure, XMLAttributes, XMLAttributeValue, XMLString } from "../../types/xlsx";
+import { XLSXExportXMLFile } from "./../../types/xlsx";
 
 // -------------------------------------
 //            XML HELPERS
@@ -16,7 +11,7 @@ export function createXMLFile(
   doc: XMLDocument,
   path: string,
   contentType?: string
-): XLSXExportFile {
+): XLSXExportXMLFile {
   return {
     content: new XMLSerializer().serializeToString(doc),
     path,
