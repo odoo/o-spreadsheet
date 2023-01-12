@@ -328,6 +328,7 @@ export function repairInitialMessages(
   initialMessages = fixTranslatedSheetIds(data, initialMessages);
   initialMessages = dropCommands(initialMessages, "SORT_CELLS");
   initialMessages = dropCommands(initialMessages, "SET_DECIMAL");
+  initialMessages = fixChartDefinitions(data, initialMessages);
   return initialMessages;
 }
 
@@ -368,13 +369,60 @@ function fixTranslatedSheetIds(
   return messages;
 }
 
-function dropCommands(initialMessages, commandType: string) {
+function dropCommands(initialMessages: StateUpdateMessage[], commandType: string) {
   const messages: StateUpdateMessage[] = [];
   for (const message of initialMessages) {
     if (message.type === "REMOTE_REVISION") {
       messages.push({
         ...message,
         commands: message.commands.filter((command) => command.type !== commandType),
+      });
+    } else {
+      messages.push(message);
+    }
+  }
+  return messages;
+}
+
+function fixChartDefinitions(data: Partial<WorkbookData>, initialMessages: StateUpdateMessage[]) {
+  const messages: StateUpdateMessage[] = [];
+  const map = {};
+  for (const sheet of data.sheets || []) {
+    sheet.figures?.forEach((figure) => {
+      if (figure.tag === "chart") {
+        // chart definition
+        map[figure.id] = figure.data;
+      }
+    });
+  }
+  for (const message of initialMessages) {
+    if (message.type === "REMOTE_REVISION") {
+      const commands: CoreCommand[] = [];
+      for (const cmd of message.commands) {
+        let command = cmd;
+        switch (cmd.type) {
+          case "CREATE_CHART":
+            map[cmd.id] = cmd.definition;
+            break;
+          case "UPDATE_CHART":
+            if (!map[cmd.id]) {
+              /** the chart does not exist on the map, it might have been created after a duplicate sheet.
+               * We don't have access to the definition, so we skip the command.
+               */
+              console.log(`Fix chart definition: chart with id ${cmd.id} not found.`);
+              continue;
+            }
+            const definition = map[cmd.id];
+            const newDefinition = { ...definition, ...cmd.definition };
+            command = { ...cmd, definition: newDefinition };
+            map[cmd.id] = newDefinition;
+            break;
+        }
+        commands.push(command);
+      }
+      messages.push({
+        ...message,
+        commands,
       });
     } else {
       messages.push(message);

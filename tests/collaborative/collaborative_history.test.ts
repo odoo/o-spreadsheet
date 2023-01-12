@@ -3,6 +3,7 @@ import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { uiPluginRegistry } from "../../src/plugins";
 import { CommandResult, UpdateCellCommand } from "../../src/types";
+import { LineChartDefinition } from "../../src/types/chart/line_chart";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
 import {
   addColumns,
@@ -385,6 +386,86 @@ describe("Collaborative local history", () => {
     };
     const model = new Model(data, {}, initialMessages);
     expect(getCell(model, "A1")?.format).toBeUndefined();
+  });
+
+  test("Update chart revisions contain the full definition", () => {
+    const initialMessages: StateUpdateMessage[] = [
+      {
+        type: "REMOTE_REVISION",
+        version: MESSAGE_VERSION,
+        nextRevisionId: "1",
+        clientId: "bob",
+        commands: [
+          {
+            type: "UPDATE_CHART",
+            id: "fig1",
+            //@ts-ignore the old command would handle a partial definition
+            definition: { dataSets: ["A1:A3"] },
+          },
+          {
+            type: "CREATE_CHART",
+            sheetId: "sheet1",
+            id: "fig2",
+            position: {
+              x: 0,
+              y: 0,
+            },
+            size: {
+              width: 100,
+              height: 100,
+            },
+            definition: {
+              title: "",
+              dataSets: ["A1"],
+              type: "bar",
+              stacked: false,
+              dataSetsHaveTitle: false,
+              verticalAxisPosition: "left",
+              legendPosition: "none",
+            },
+          },
+          {
+            type: "UPDATE_CHART",
+            id: "fig2",
+            //@ts-ignore the old command would handle a partial definition
+            definition: { dataSets: ["B1:B3"] },
+          },
+        ],
+        serverRevisionId: "initial_revision",
+      },
+    ];
+    const data = {
+      revisionId: "initial_revision",
+      sheets: [
+        {
+          id: "sheet1",
+          figures: [
+            {
+              id: "fig1",
+              tag: "chart",
+              width: 400,
+              height: 300,
+              x: 100,
+              y: 100,
+              data: {
+                type: "line",
+                dataSetsHaveTitle: false,
+                dataSets: ["Sheet1!B26:B35", "Sheet1!C26:C35"],
+                legendPosition: "top",
+                verticalAxisPosition: "left",
+                title: "Line",
+                stacked: false,
+              },
+            },
+          ],
+        },
+      ],
+    };
+    const model = new Model(data, {}, initialMessages);
+    const definition1 = model.getters.getChartDefinition("fig1") as LineChartDefinition;
+    expect(definition1.dataSets).toEqual(["A1:A3"]);
+    const definition2 = model.getters.getChartDefinition("fig2") as LineChartDefinition;
+    expect(definition2.dataSets).toEqual(["B1:B3"]);
   });
 
   test("Undo/redo your own change only", () => {
