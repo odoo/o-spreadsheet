@@ -11,6 +11,7 @@ import {
   markdownLink,
   numberToString,
   positionToZone,
+  splitReference,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
 } from "../../helpers/index";
@@ -168,8 +169,7 @@ export class EditionPlugin extends UIPlugin {
         const previousRefToken = this.currentTokens
           .filter((token) => token.type === "REFERENCE")
           .find((token) => {
-            let value = token.value;
-            const [xc, sheet] = value.split("!").reverse();
+            const { xc, sheetName: sheet } = splitReference(token.value);
             const sheetName = sheet || this.getters.getSheetName(this.sheetId);
             const activeSheetId = this.getters.getActiveSheetId();
             if (this.getters.getSheetName(activeSheetId) !== sheetName) {
