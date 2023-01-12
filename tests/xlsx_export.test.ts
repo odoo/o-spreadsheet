@@ -816,6 +816,7 @@ describe("Test XLSX export", () => {
 
     test("chart font color is white with a dark background color", async () => {
       const model = new Model(chartData);
+      createSheet(model, { sheetId: "42", name: "She!et2" });
       createChart(
         model,
         {
@@ -845,6 +846,16 @@ describe("Test XLSX export", () => {
           background: "#DDDDDD",
         },
         "3"
+      );
+      createChart(
+        model,
+        {
+          dataSets: ["She!et2!B2:B4", "She!et2!C12:C4"],
+          labelRange: "She!et2!A2:A4",
+          type: "pie",
+          background: "#EEEEEE",
+        },
+        "4"
       );
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });

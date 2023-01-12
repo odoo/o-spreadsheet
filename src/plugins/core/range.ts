@@ -8,6 +8,7 @@ import {
   numberToLetters,
   RangeImpl,
   rangeReference,
+  splitReference,
   toUnboundedZone,
 } from "../../helpers/index";
 import {
@@ -300,16 +301,17 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       );
     }
 
-    let sheetName = "";
+    let sheetName: string | undefined;
+    let xc = sheetXC;
     let prefixSheet = false;
     if (sheetXC.includes("!")) {
-      [sheetXC, sheetName] = sheetXC.split("!").reverse();
+      ({ xc, sheetName } = splitReference(sheetXC));
       if (sheetName) {
         prefixSheet = true;
       }
     }
-    const zone = toUnboundedZone(sheetXC);
-    const parts = RangeImpl.getRangeParts(sheetXC, zone);
+    const zone = toUnboundedZone(xc);
+    const parts = RangeImpl.getRangeParts(xc, zone);
     const invalidSheetName =
       sheetName && !this.getters.getSheetIdByName(sheetName) ? sheetName : undefined;
     const sheetId = this.getters.getSheetIdByName(sheetName) || defaultSheetId;

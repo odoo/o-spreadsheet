@@ -438,10 +438,9 @@ describe("range plugin", () => {
 
     test.each([
       ["s1!!!A1:A9", "'s1!!'!A1:A9"],
-      // TODO: the output is incorrect - should be fixed in task 3112299
-      // ["'s1!!'!A1:A9", "'!A1:A9"],
-      ["s1!!!A1:s1!!!A9", "'s1!!'!A9"],
-      ["s1!!!A1:s1!!!A9", "'s1!!'!A9"],
+      ["'s1!!'!A1:A9", "'s1!!'!A1:A9"],
+      ["s1!!!A1:s1!!!A9", "s1!!!A1:s1!!!A9"],
+      ["s1!!!A1:s1!!!A9", "s1!!!A1:s1!!!A9"],
     ])(
       "xc with more than one exclamation mark does not throw error",
       (rangeString, expectedString) => {

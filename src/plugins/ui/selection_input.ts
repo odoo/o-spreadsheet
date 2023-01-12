@@ -2,6 +2,7 @@ import {
   getComposerSheetName,
   getNextColor,
   positionToZone,
+  splitReference,
   UuidGenerator,
   zoneToXc,
 } from "../../helpers/index";
@@ -242,7 +243,7 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
       .filter((range) => this.getters.isRangeValid(range))
       .filter((reference) => this.shouldBeHighlighted(this.activeSheet, reference));
     return XCs.map((xc) => {
-      const [, sheetName] = xc.split("!").reverse();
+      const { sheetName } = splitReference(xc);
       return {
         zone: this.getters.getRangeFromSheetXC(this.activeSheet, xc).zone,
         sheetId: (sheetName && this.getters.getSheetIdByName(sheetName)) || this.activeSheet,
@@ -267,7 +268,7 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
    * the current active sheet.
    */
   private shouldBeHighlighted(inputSheetId: UID, reference: string): boolean {
-    const sheetName = reference.split("!").reverse()[1];
+    const { sheetName } = splitReference(reference);
     const sheetId = this.getters.getSheetIdByName(sheetName);
     const activeSheetId = this.getters.getActiveSheet().id;
     const valid = this.getters.isRangeValid(reference);
