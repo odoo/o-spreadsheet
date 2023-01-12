@@ -1,9 +1,11 @@
 import { Model } from "../src";
 import { FIGURE_BORDER_SIZE } from "../src/constants";
-import { toZone } from "../src/helpers";
+import { buildSheetLink, toZone } from "../src/helpers";
+import { LinkCell } from "../src/helpers/cells";
 import { Align, BorderDescr, ConditionalFormatRule, Style } from "../src/types";
 import {
   createChart,
+  createSheet,
   hideColumns,
   hideRows,
   hideSheet,
@@ -13,6 +15,7 @@ import {
   resizeRows,
   setCellContent,
 } from "./test_helpers/commands_helpers";
+import { getCell } from "./test_helpers/getters_helpers";
 import { target, toRangesData } from "./test_helpers/helpers";
 
 /**
@@ -262,5 +265,17 @@ describe("Export data to xlsx then import it", () => {
     const newChartId = importedModel.getters.getChartIds(sheetId)[0];
     const newChart = importedModel.getters.getChartDefinition(newChartId);
     expect(newChart).toMatchObject(chartDef);
+  });
+
+  test("hyperlinks", () => {
+    createSheet(model, { sheetId: "42", name: "she!et2" });
+    const sheetLink = buildSheetLink("42");
+    setCellContent(model, "A1", `[my label](${sheetLink})`);
+    const importedModel = exportToXlsxThenImport(model);
+    const cell = getCell(importedModel, "A1") as LinkCell;
+    const newSheetId = importedModel.getters.getSheetIdByName("she!et2");
+    const sheetLink2 = buildSheetLink(newSheetId!);
+    expect(cell.link.label).toBe("my label");
+    expect(cell.link.url).toBe(sheetLink2);
   });
 });
