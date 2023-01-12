@@ -2,7 +2,13 @@ import { Component, onMounted, onPatched, onWillUnmount, useRef, useState } from
 import { NEWLINE } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/index";
 import { functionRegistry } from "../../../functions/index";
-import { fuzzyLookup, isEqual, rangeReference, zoneToDimension } from "../../../helpers/index";
+import {
+  fuzzyLookup,
+  isEqual,
+  rangeReference,
+  splitReference,
+  zoneToDimension,
+} from "../../../helpers/index";
 import { ComposerSelection } from "../../../plugins/ui_stateful/edition";
 import { DOMDimension, FunctionDescription, Rect, SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
@@ -489,8 +495,8 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
           result.push({ value: token.value, color: tokenColors[token.type] || "#000" });
           break;
         case "REFERENCE":
-          const [xc, sheet] = token.value.split("!").reverse() as [string, string | undefined];
-          result.push({ value: token.value, color: this.rangeColor(xc, sheet) || "#000" });
+          const { xc, sheetName } = splitReference(token.value);
+          result.push({ value: token.value, color: this.rangeColor(xc, sheetName) || "#000" });
           break;
         case "SYMBOL":
           let value = token.value;
@@ -602,7 +608,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     if (content.startsWith("=")) {
       const tokenAtCursor = this.env.model.getters.getTokenAtCursor();
       if (tokenAtCursor) {
-        const [xc] = tokenAtCursor.value.split("!").reverse();
+        const { xc } = splitReference(tokenAtCursor.value);
         if (
           tokenAtCursor.type === "FUNCTION" ||
           (tokenAtCursor.type === "SYMBOL" && !rangeReference.test(xc))

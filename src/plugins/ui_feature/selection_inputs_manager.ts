@@ -1,4 +1,4 @@
-import { positionToZone, rangeReference } from "../../helpers/index";
+import { positionToZone, rangeReference, splitReference } from "../../helpers/index";
 import { Command, CommandResult, Highlight, LAYERS, UID } from "../../types/index";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 import { RangeInputValue, SelectionInputPlugin } from "./selection_input";
@@ -122,14 +122,14 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
     );
   }
 
-  isRangeValid(xc: string): boolean {
-    if (!xc) {
+  isRangeValid(reference: string): boolean {
+    if (!reference) {
       return false;
     }
-    const [rangeXc, sheetName] = xc.split("!").reverse();
+    const { xc, sheetName } = splitReference(reference);
     return (
-      rangeXc.match(rangeReference) !== null &&
-      (sheetName === undefined || this.getters.getSheetIdByName(sheetName) !== undefined)
+      xc.match(rangeReference) !== null &&
+      (!sheetName || this.getters.getSheetIdByName(sheetName) !== undefined)
     );
   }
 

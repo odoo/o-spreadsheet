@@ -1,5 +1,5 @@
 import { DEFAULT_FONT_SIZE } from "../../constants";
-import { toUnboundedZone } from "../../helpers";
+import { splitReference, toUnboundedZone } from "../../helpers";
 import {
   BorderDescr,
   CellData,
@@ -251,16 +251,21 @@ export function convertDotValueToEMU(value: number) {
   return Math.round((value * 914400) / DPI);
 }
 
-export function getRangeSize(xc: string, defaultSheetIndex: string, data: ExcelWorkbookData) {
-  const xcSplit = xc.split("!");
+export function getRangeSize(
+  reference: string,
+  defaultSheetIndex: string,
+  data: ExcelWorkbookData
+) {
+  let xc = reference;
+  let sheetName: string | undefined = undefined;
+  ({ xc, sheetName } = splitReference(reference));
   let rangeSheetIndex: number;
-  if (xcSplit.length > 1) {
-    const index = data.sheets.findIndex((sheet) => sheet.name === xcSplit[0]);
+  if (sheetName) {
+    const index = data.sheets.findIndex((sheet) => sheet.name === sheetName);
     if (index < 0) {
-      throw new Error("Unable to find a sheet with the name " + xcSplit[0]);
+      throw new Error("Unable to find a sheet with the name " + sheetName);
     }
     rangeSheetIndex = index;
-    xc = xcSplit[1];
   } else {
     rangeSheetIndex = Number(defaultSheetIndex);
   }
