@@ -50,7 +50,7 @@ export class BarChart extends AbstractChart {
   readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
   readonly stacked: boolean;
-  readonly aggregated: boolean;
+  readonly aggregated?: boolean;
   readonly type = "bar";
 
   constructor(definition: BarChartDefinition, sheetId: UID, getters: CoreGetters) {
