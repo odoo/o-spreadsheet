@@ -56,7 +56,7 @@ export class PieChart extends AbstractChart {
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
   readonly type = "pie";
-  readonly aggregated: boolean;
+  readonly aggregated?: boolean;
 
   constructor(definition: PieChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);

@@ -12,7 +12,7 @@ export interface BarChartDefinition {
   readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
   readonly stacked: boolean;
-  readonly aggregated: boolean;
+  readonly aggregated?: boolean;
 }
 
 export type BarChartRuntime = {

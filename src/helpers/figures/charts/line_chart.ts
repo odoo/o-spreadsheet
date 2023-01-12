@@ -59,7 +59,7 @@ export class LineChart extends AbstractChart {
   readonly legendPosition: LegendPosition;
   readonly labelsAsText: boolean;
   readonly stacked: boolean;
-  readonly aggregated: boolean;
+  readonly aggregated?: boolean;
   readonly type = "line";
 
   constructor(definition: LineChartDefinition, sheetId: UID, getters: CoreGetters) {
