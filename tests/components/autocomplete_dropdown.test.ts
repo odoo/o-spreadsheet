@@ -195,6 +195,25 @@ describe("Functions autocomplete", () => {
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
     });
+
+    test("autocomplete fuzzy search", async () => {
+      for (const f of ["TEST_FUZZY", "FUZZY", "FUZZY_TEST", "TEST_FUZZY_TEST"]) {
+        functionRegistry.add(f, {
+          description: "",
+          args: args(``),
+          compute: () => 1,
+          returns: ["ANY"],
+        });
+      }
+      await typeInComposerGrid("=FUZZY");
+      expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(4);
+      expect(fixture.querySelectorAll(".o-autocomplete-value")[0].textContent).toBe("FUZZY");
+      expect(fixture.querySelectorAll(".o-autocomplete-value")[1].textContent).toBe("FUZZY_TEST");
+      expect(fixture.querySelectorAll(".o-autocomplete-value")[2].textContent).toBe("TEST_FUZZY");
+      expect(fixture.querySelectorAll(".o-autocomplete-value")[3].textContent).toBe(
+        "TEST_FUZZY_TEST"
+      );
+    });
   });
 
   describe("autocomplete functions SUM IF", () => {

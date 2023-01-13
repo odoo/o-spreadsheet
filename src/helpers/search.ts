@@ -38,7 +38,7 @@ export function fuzzyMatch(pattern: string, str: string) {
  * higher score first). An higher score means that the match is better. For
  * example, consecutive letters are considered a better match.
  */
-export function fuzzyLookup<T>(pattern: string, list: T[], fn: (t: T) => string) {
+export function fuzzyLookup<T>(pattern: string, list: T[], fn: (t: T) => string): T[] {
   const results: { score: number; elem: T }[] = [];
   list.forEach((data) => {
     const score = fuzzyMatch(pattern, fn(data));
