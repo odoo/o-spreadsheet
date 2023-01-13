@@ -2,7 +2,7 @@ import { Component, onMounted, onPatched, onWillUnmount, useRef, useState } from
 import { ComponentsImportance, SELECTION_BORDER_COLOR } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/index";
 import { functionRegistry } from "../../../functions/index";
-import { isEqual, rangeReference, zoneToDimension } from "../../../helpers/index";
+import { fuzzyLookup, isEqual, rangeReference, zoneToDimension } from "../../../helpers/index";
 import { ComposerSelection, SelectionIndicator } from "../../../plugins/ui_stateful/edition";
 import { DOMDimension, FunctionDescription, Rect, SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
@@ -376,10 +376,12 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
         description,
       };
     });
-
-    values = values
-      .filter((t) => t.text.toUpperCase().startsWith(searchTerm.toUpperCase()))
-      .sort((l, r) => (l.text < r.text ? -1 : l.text > r.text ? 1 : 0));
+    if (searchTerm) {
+      values = fuzzyLookup(searchTerm, values, (t) => t.text);
+    } else {
+      // alphabetical order
+      values = values.sort((a, b) => a.text.localeCompare(b.text));
+    }
     this.autoCompleteState.values = values.slice(0, 10);
     this.autoCompleteState.selectedIndex = 0;
   }
