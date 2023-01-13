@@ -168,6 +168,7 @@ exports[`TopBar component can set cell format 1`] = `
             </div>
             <div
               class="o-dropdown-content o-text-options  o-format-tool "
+              style="max-height:1000px"
             >
               <div
                 class="o-dropdown-item active"

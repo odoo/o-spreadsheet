@@ -22,7 +22,7 @@ import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
 import { _lt } from "../../translation";
-import { SpreadsheetChildEnv } from "../../types";
+import { Pixel, SpreadsheetChildEnv } from "../../types";
 import { NotifyUIEvent } from "../../types/ui";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
@@ -337,6 +337,11 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     } else if (content) {
       this.model.dispatch("SET_CURRENT_CONTENT", { content, selection });
     }
+  }
+
+  get gridHeight(): Pixel {
+    const { height } = this.env.model.getters.getSheetViewDimension();
+    return height;
   }
 }
 

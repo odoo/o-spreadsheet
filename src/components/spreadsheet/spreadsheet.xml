@@ -12,6 +12,7 @@
           onClick="() => this.focusGrid()"
           onComposerContentFocused="(selection) => this.onTopBarComposerFocused(selection)"
           focusComposer="focusTopBarComposer"
+          dropdownMaxHeight="gridHeight"
         />
         <Grid
           sidePanelIsOpen="sidePanel.isOpen"

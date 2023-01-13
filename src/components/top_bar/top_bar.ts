@@ -19,6 +19,7 @@ import {
   Align,
   BorderCommand,
   Format,
+  Pixel,
   SetDecimalStep,
   SpreadsheetChildEnv,
   Style,
@@ -84,6 +85,7 @@ interface Props {
   onClick: () => void;
   focusComposer: Omit<ComposerFocusType, "cellFocus">;
   onComposerContentFocused: (selection: ComposerSelection) => void;
+  dropdownMaxHeight: Pixel;
 }
 
 // -----------------------------------------------------------------------------
@@ -230,6 +232,8 @@ css/* scss */ `
             position: absolute;
             top: 100%;
             left: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
             z-index: ${ComponentsImportance.Dropdown};
             box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
             background-color: white;
@@ -304,6 +308,10 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   customFormats = CUSTOM_FORMATS;
   currentFormatName = "automatic";
   fontSizes = fontSizes;
+
+  get dropdownStyle() {
+    return `max-height:${this.props.dropdownMaxHeight}px`;
+  }
 
   style: Style = {};
   state: State = useState({
@@ -565,4 +573,5 @@ TopBar.props = {
   onClick: Function,
   focusComposer: String,
   onComposerContentFocused: Function,
+  dropdownMaxHeight: Number,
 };

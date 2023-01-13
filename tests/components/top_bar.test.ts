@@ -6,7 +6,7 @@ import { Model } from "../../src/model";
 import { topbarComponentRegistry } from "../../src/registries";
 import { getMenuChildren } from "../../src/registries/menus/helpers";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
-import { ConditionalFormat, Style } from "../../src/types";
+import { ConditionalFormat, Pixel, Style } from "../../src/types";
 import { OWL_TEMPLATES } from "../setup/jest.setup";
 import {
   addCellToSelection,
@@ -16,7 +16,7 @@ import {
   setCellContent,
   setSelection,
 } from "../test_helpers/commands_helpers";
-import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
+import { getElComputedStyle, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getBorder, getCell, getStyle } from "../test_helpers/getters_helpers";
 import {
   getFigureIds,
@@ -43,7 +43,7 @@ const t = (s: string): string => s;
 class Parent extends Component {
   static template = xml/* xml */ `
     <div class="o-spreadsheet">
-      <TopBar focusComposer="state.focusComposer" onClick="() => {}"/>
+      <TopBar focusComposer="state.focusComposer" dropdownMaxHeight="gridHeight" onClick="() => {}"/>
     </div>
   `;
   static components = { TopBar };
@@ -62,6 +62,11 @@ class Parent extends Component {
     this.state.focusComposer = this.props.focusComposer || false;
     onMounted(() => this.props.model.on("update", this, this.render));
     onWillUnmount(() => this.props.model.off("update", this));
+  }
+
+  get gridHeight(): Pixel {
+    const { height } = this.env.model.getters.getSheetViewDimension();
+    return height;
   }
 
   setFocusComposer(isFocused: boolean) {
@@ -800,6 +805,62 @@ describe("Topbar - View", () => {
     );
     await nextTick();
     expect(model.getters.shouldShowFormulas()).toBe(true);
+    app.destroy();
+  });
+});
+
+describe("Topbar - menu item resizing with viewport", () => {
+  test("font size dropdown in top bar is resized with screen size change", async () => {
+    const model = new Model();
+    const { app } = await mountParent(model);
+    triggerMouseEvent('.o-tool[title="Font Size"]', "click");
+    await nextTick();
+    let height = getElComputedStyle(".o-dropdown-content.o-text-options", "maxHeight");
+    expect(parseInt(height)).toBe(
+      model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
+    );
+    model.dispatch("RESIZE_SHEETVIEW", { width: 300, height: 100 });
+    await nextTick();
+    height = getElComputedStyle(".o-dropdown-content.o-text-options", "maxHeight");
+    expect(parseInt(height)).toBe(
+      model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
+    );
+    app.destroy();
+  });
+
+  test("color picker of fill color in top bar is resized with screen size change", async () => {
+    const model = new Model();
+    const { app } = await mountParent(model);
+    triggerMouseEvent('.o-tool[title="Fill Color"]', "click");
+    await nextTick();
+    let height = getElComputedStyle(".o-color-picker.right", "maxHeight");
+    expect(parseInt(height)).toBe(
+      model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
+    );
+    model.dispatch("RESIZE_SHEETVIEW", { width: 300, height: 100 });
+    await nextTick();
+    height = getElComputedStyle(".o-color-picker.right", "maxHeight");
+    expect(parseInt(height)).toBe(
+      model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
+    );
+    app.destroy();
+  });
+
+  test("color picker of text color in top bar is resized with screen size change", async () => {
+    const model = new Model();
+    const { app } = await mountParent(model);
+    triggerMouseEvent('.o-tool[title="Text Color"]', "click");
+    await nextTick();
+    let height = getElComputedStyle(".o-color-picker.right", "maxHeight");
+    expect(parseInt(height)).toBe(
+      model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
+    );
+    model.dispatch("RESIZE_SHEETVIEW", { width: 300, height: 100 });
+    await nextTick();
+    height = getElComputedStyle(".o-color-picker.right", "maxHeight");
+    expect(parseInt(height)).toBe(
+      model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
+    );
     app.destroy();
   });
 });
