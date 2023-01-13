@@ -31,6 +31,7 @@ async function mountColorPicker(
       dropdownDirection: props.dropdownDirection,
       onColorPicked: props.onColorPicked || (() => {}),
       currentColor: props.currentColor || "#000000",
+      maxHeight: props.maxHeight || 1000,
     },
     env: {
       model,
