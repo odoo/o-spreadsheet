@@ -93,6 +93,7 @@
               <div
                 class="o-dropdown-content o-text-options  o-format-tool "
                 t-if="state.activeTool === 'formatTool'"
+                t-att-style="dropdownStyle"
                 t-on-click.stop="">
                 <t t-foreach="commonFormats" t-as="commonFormat" t-key="commonFormat.name">
                   <div
@@ -126,6 +127,7 @@
               <div
                 class="o-dropdown-content o-text-options "
                 t-if="state.activeTool === 'fontSizeTool'"
+                t-att-style="dropdownStyle"
                 t-on-click.stop="">
                 <t t-foreach="fontSizes" t-as="font" t-key="font_index">
                   <div
@@ -173,6 +175,7 @@
                 onColorPicked="(color) => this.setColor('textColor', color)"
                 currentColor="textColor"
                 t-key="textColor"
+                maxHeight="this.props.dropdownMaxHeight"
               />
             </div>
             <div class="o-divider"/>
@@ -190,6 +193,7 @@
                 onColorPicked="(color) => this.setColor('fillColor', color)"
                 currentColor="fillColor"
                 t-key="fillColor"
+                maxHeight="this.props.dropdownMaxHeight"
               />
             </div>
             <div class="o-dropdown">
@@ -204,6 +208,7 @@
               <div
                 class="o-dropdown-content o-border-dropdown"
                 t-if="state.activeTool === 'borderTool'"
+                t-att-style="dropdownStyle"
                 t-on-click.stop="">
                 <div class="o-dropdown-line">
                   <span class="o-line-item" t-on-click="(ev) => this.setBorder('all')">
@@ -270,6 +275,7 @@
               <div
                 t-if="state.activeTool === 'horizontalAlignTool'"
                 class="o-dropdown-content"
+                t-att-style="dropdownStyle"
                 t-on-click.stop="">
                 <div
                   class="o-dropdown-item o-dropdown-align-item"
@@ -309,6 +315,7 @@
               <div
                 t-if="state.activeTool === 'verticalAlignTool'"
                 class="o-dropdown-content"
+                t-att-style="dropdownStyle"
                 t-on-click.stop="">
                 <div
                   class="o-dropdown-item o-dropdown-align-item"
@@ -348,6 +355,7 @@
               <div
                 t-if="state.activeTool === 'textWrappingTool'"
                 class="o-dropdown-content"
+                t-att-style="dropdownStyle"
                 t-on-click.stop="">
                 <div
                   class="o-dropdown-item o-dropdown-align-item"

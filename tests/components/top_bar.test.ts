@@ -5,7 +5,7 @@ import { DEFAULT_FONT_SIZE } from "../../src/constants";
 import { Model } from "../../src/model";
 import { topbarComponentRegistry } from "../../src/registries";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
-import { ConditionalFormat, SpreadsheetChildEnv, Style } from "../../src/types";
+import { ConditionalFormat, Pixel, SpreadsheetChildEnv, Style } from "../../src/types";
 import {
   addCellToSelection,
   createFilter,
@@ -15,7 +15,12 @@ import {
   setSelection,
   setStyle,
 } from "../test_helpers/commands_helpers";
-import { click, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
+import {
+  click,
+  getElComputedStyle,
+  simulateClick,
+  triggerMouseEvent,
+} from "../test_helpers/dom_helper";
 import { getBorder, getCell, getStyle } from "../test_helpers/getters_helpers";
 import {
   getFigureIds,
@@ -46,7 +51,11 @@ type Props = {
 class Parent extends Component<Props, SpreadsheetChildEnv> {
   static template = xml/* xml */ `
     <div class="o-spreadsheet">
-      <TopBar focusComposer="state.focusComposer" onClick="() => {}" onComposerContentFocused="() => {}"/>
+      <TopBar
+        focusComposer="state.focusComposer"
+        onClick="() => {}"
+        onComposerContentFocused="() => {}"
+        dropdownMaxHeight="gridHeight"/>
     </div>
   `;
   static components = { TopBar };
@@ -57,6 +66,11 @@ class Parent extends Component<Props, SpreadsheetChildEnv> {
     this.state.focusComposer = this.props.focusComposer;
     onMounted(() => this.env.model.on("update", this, () => this.render(true)));
     onWillUnmount(() => this.env.model.off("update", this));
+  }
+
+  get gridHeight(): Pixel {
+    const { height } = this.env.model.getters.getSheetViewDimension();
+    return height;
   }
 
   setFocusComposer(type: ComposerFocusType) {
@@ -761,5 +775,58 @@ describe("Topbar - View", () => {
     expect(model.getters.shouldShowFormulas()).toBe(false);
     await click(fixture, ".o-sidePanel .o-sidePanelHeader .o-sidePanelClose");
     expect(model.getters.shouldShowFormulas()).toBe(true);
+  });
+});
+
+describe("Topbar - menu item resizing with viewport", () => {
+  test("font size dropdown in top bar is resized with screen size change", async () => {
+    const model = new Model();
+    await mountParent(model);
+    triggerMouseEvent('.o-tool[title="Font Size"]', "click");
+    await nextTick();
+    let height = getElComputedStyle(".o-dropdown-content.o-text-options", "maxHeight");
+    expect(parseInt(height)).toBe(
+      model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
+    );
+    model.dispatch("RESIZE_SHEETVIEW", { width: 300, height: 100 });
+    await nextTick();
+    height = getElComputedStyle(".o-dropdown-content.o-text-options", "maxHeight");
+    expect(parseInt(height)).toBe(
+      model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
+    );
+  });
+
+  test("color picker of fill color in top bar is resized with screen size change", async () => {
+    const model = new Model();
+    await mountParent(model);
+    triggerMouseEvent('.o-tool[title="Fill Color"]', "click");
+    await nextTick();
+    let height = getElComputedStyle(".o-color-picker.right", "maxHeight");
+    expect(parseInt(height)).toBe(
+      model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
+    );
+    model.dispatch("RESIZE_SHEETVIEW", { width: 300, height: 100 });
+    await nextTick();
+    height = getElComputedStyle(".o-color-picker.right", "maxHeight");
+    expect(parseInt(height)).toBe(
+      model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
+    );
+  });
+
+  test("color picker of text color in top bar is resized with screen size change", async () => {
+    const model = new Model();
+    await mountParent(model);
+    triggerMouseEvent('.o-tool[title="Text Color"]', "click");
+    await nextTick();
+    let height = getElComputedStyle(".o-color-picker.right", "maxHeight");
+    expect(parseInt(height)).toBe(
+      model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
+    );
+    model.dispatch("RESIZE_SHEETVIEW", { width: 300, height: 100 });
+    await nextTick();
+    height = getElComputedStyle(".o-color-picker.right", "maxHeight");
+    expect(parseInt(height)).toBe(
+      model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
+    );
   });
 });
