@@ -375,6 +375,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   onCellDoubleClicked(col: HeaderIndex, row: HeaderIndex) {
     const sheetId = this.env.model.getters.getActiveSheetId();
+    ({ col, row } = this.env.model.getters.getMainCellPosition(sheetId, col, row));
     const cell = this.env.model.getters.getCell(sheetId, col, row);
     if (!cell || cell.isEmpty()) {
       this.props.onGridComposerCellFocused();

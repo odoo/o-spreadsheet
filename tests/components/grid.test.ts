@@ -1511,4 +1511,47 @@ describe("Copy paste keyboard shortcut", () => {
     expect(model.getters.getEditionMode()).toBe("editing");
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
   });
+
+  test("Double clicking on gridOverlay opens composer in different edition modes", async () => {
+    setCellContent(model, "A1", "things");
+    merge(model, "A1:A2", model.getters.getActiveSheetId(), true);
+    await nextTick();
+    // double click A1
+    triggerMouseEvent(
+      ".o-grid-overlay",
+      "dblclick",
+      0.5 * DEFAULT_CELL_WIDTH,
+      0.5 * DEFAULT_CELL_HEIGHT
+    );
+    await nextTick();
+    expect(parent.focusGridComposer).toBe("contentFocus");
+
+    model.dispatch("STOP_EDITION");
+    await nextTick();
+    expect(parent.focusGridComposer).toBe("inactive");
+
+    // double click A2 - still in a non empty cell (in merge)
+    triggerMouseEvent(
+      ".o-grid-overlay",
+      "dblclick",
+      0.5 * DEFAULT_CELL_WIDTH,
+      1.5 * DEFAULT_CELL_HEIGHT
+    );
+    await nextTick();
+    expect(parent.focusGridComposer).toBe("contentFocus");
+
+    model.dispatch("STOP_EDITION");
+    await nextTick();
+    expect(parent.focusGridComposer).toBe("inactive");
+
+    // double click B2
+    triggerMouseEvent(
+      ".o-grid-overlay",
+      "dblclick",
+      1.5 * DEFAULT_CELL_WIDTH,
+      1.5 * DEFAULT_CELL_HEIGHT
+    );
+    await nextTick();
+    expect(parent.focusGridComposer).toBe("cellFocus");
+  });
 });
