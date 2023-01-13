@@ -47,9 +47,12 @@ export class Popover extends Component<Props, SpreadsheetChildEnv> {
     // within our control and to avoid leaking into external DOM
     const horizontalPosition = `left:${this.horizontalPosition() - this.spreadsheetPosition.x}`;
     const verticalPosition = `top:${this.verticalPosition() - this.spreadsheetPosition.y}`;
-    const height = `max-height:${
+    const maxHeight = Math.max(
+      0,
       this.viewportDimension.height - BOTTOMBAR_HEIGHT - SCROLLBAR_WIDTH
-    }`;
+    );
+    const height = `max-height:${maxHeight}`;
+    const shadow = maxHeight !== 0 ? "box-shadow: 1px 2px 5px 2px rgb(51 51 51 / 15%);" : "";
     return `
       position: absolute;
       z-index: ${ComponentsImportance.Popover};
@@ -59,7 +62,7 @@ export class Popover extends Component<Props, SpreadsheetChildEnv> {
       width:${this.props.childWidth}px;
       overflow-y: auto;
       overflow-x: hidden;
-      box-shadow: 1px 2px 5px 2px rgb(51 51 51 / 15%);
+      ${shadow}
     `;
   }
 
