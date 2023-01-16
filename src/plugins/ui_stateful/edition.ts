@@ -60,6 +60,7 @@ export class EditionPlugin extends UIPlugin {
     "getCurrentTokens",
     "getTokenAtCursor",
     "getComposerHighlights",
+    "getCurrentEditedCell",
   ] as const;
 
   private col: HeaderIndex = 0;
@@ -262,6 +263,14 @@ export class EditionPlugin extends UIPlugin {
     };
   }
 
+  getCurrentEditedCell(): CellPosition {
+    return {
+      sheetId: this.sheetId,
+      col: this.col,
+      row: this.row,
+    };
+  }
+
   isSelectingForComposer(): boolean {
     return this.mode === "selecting";
   }
@@ -403,8 +412,7 @@ export class EditionPlugin extends UIPlugin {
       selection = selection || { start: str.length, end: str.length };
       str = `${str}%`;
     }
-    const sheetId = this.getters.getActiveSheetId();
-    const { col, row } = this.getters.getActivePosition();
+    const { col, row, sheetId } = this.getters.getActivePosition();
     this.col = col;
     this.sheetId = sheetId;
     this.row = row;

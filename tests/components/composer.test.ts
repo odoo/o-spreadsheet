@@ -14,6 +14,7 @@ import {
   createSheet,
   createSheetWithName,
   merge,
+  renameSheet,
   resizeAnchorZone,
   resizeColumns,
   resizeRows,
@@ -453,6 +454,44 @@ describe("composer", () => {
     expect(model.getters.getEditionMode()).toBe("editing");
     expect(getActivePosition(model)).toBe("A1");
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer")!);
+  });
+
+  test("Starting the edition should not display the cell reference", async () => {
+    await startComposition();
+    expect(fixture.querySelector(".o-grid div.o-cell-reference")).toBeNull();
+  });
+
+  test("Starting the edition and scroll should display the cell reference", async () => {
+    await startComposition();
+    model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: 0,
+      offsetY: DEFAULT_CELL_HEIGHT * 5,
+    });
+    await nextTick();
+    const reference = fixture.querySelector(".o-grid div.o-cell-reference");
+    expect(reference).not.toBeNull();
+    expect(reference!.textContent).toBe("A1");
+  });
+
+  test("Starting the edition and change sheet should display the cell reference with the sheet name", async () => {
+    createSheet(model, { sheetId: "sheet2" });
+    await startComposition("=");
+    activateSheet(model, "sheet2");
+    await nextTick();
+    const reference = fixture.querySelector(".o-grid div.o-cell-reference");
+    expect(reference).not.toBeNull();
+    expect(reference!.textContent).toBe("Sheet1!A1");
+  });
+
+  test("Starting the edition and change sheet should display the cell reference with the sheet name, with quotes if needed", async () => {
+    renameSheet(model, model.getters.getActiveSheetId(), "My beautiful name");
+    createSheet(model, { sheetId: "sheet2" });
+    await startComposition("=");
+    activateSheet(model, "sheet2");
+    await nextTick();
+    const reference = fixture.querySelector(".o-grid div.o-cell-reference");
+    expect(reference).not.toBeNull();
+    expect(reference!.textContent).toBe("'My beautiful name'!A1");
   });
 
   test("starting the edition with a key stroke =, the composer should have the focus after the key input", async () => {

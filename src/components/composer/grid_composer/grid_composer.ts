@@ -1,7 +1,7 @@
-import { Component, onMounted, useRef, useState } from "@odoo/owl";
+import { Component, onMounted, onWillUpdateProps, useRef, useState } from "@odoo/owl";
 import { ComponentsImportance, SELECTION_BORDER_COLOR } from "../../../constants";
 import { fontSizeMap } from "../../../fonts";
-import { positionToZone } from "../../../helpers";
+import { deepEquals, getComposerSheetName, positionToZone, toXC } from "../../../helpers";
 import { ComposerSelection } from "../../../plugins/ui_stateful/edition";
 import { DOMDimension, Rect, Ref, SpreadsheetChildEnv, Zone } from "../../../types/index";
 import { getTextDecoration } from "../../helpers";
@@ -10,6 +10,8 @@ import { Composer } from "../composer/composer";
 import { ZoneDimension } from "./../../../types/misc";
 
 const COMPOSER_BORDER_WIDTH = 3 * 0.4 * window.devicePixelRatio || 1;
+const GRID_CELL_REFERENCE_TOP_OFFSET = 28;
+
 css/* scss */ `
   div.o-grid-composer {
     z-index: ${ComponentsImportance.GridComposer};
@@ -19,6 +21,17 @@ css/* scss */ `
 
     display: flex;
     align-items: center;
+  }
+
+  div.o-cell-reference {
+    position: absolute;
+    z-index: ${ComponentsImportance.GridComposer};
+    background: ${SELECTION_BORDER_COLOR};
+    color: white;
+    font-size: 12px;
+    line-height: 14px;
+    padding: 6px 7px;
+    border-radius: 4px;
   }
 `;
 
@@ -46,6 +59,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
 
   private zone!: Zone;
   private rect!: Rect;
+  private isCellReferenceVisible!: boolean;
 
   private composerState!: ComposerState;
 
@@ -58,6 +72,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     const { sheetId, col, row } = this.env.model.getters.getActivePosition();
     this.zone = this.env.model.getters.expandZone(sheetId, positionToZone({ col, row }));
     this.rect = this.env.model.getters.getVisibleRect(this.zone);
+    this.isCellReferenceVisible = false;
     onMounted(() => {
       const el = this.gridComposerRef.el!;
 
@@ -72,6 +87,40 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
         height: el!.parentElement!.clientHeight,
       };
     });
+    onWillUpdateProps(() => {
+      if (this.isCellReferenceVisible) {
+        return;
+      }
+      const sheetId = this.env.model.getters.getActiveSheetId();
+      const zone = this.env.model.getters.getSelectedZone();
+      const rect = this.env.model.getters.getVisibleRect(zone);
+      if (
+        !deepEquals(rect, this.rect) ||
+        sheetId !== this.env.model.getters.getCurrentEditedCell().sheetId
+      ) {
+        this.isCellReferenceVisible = true;
+      }
+    });
+  }
+
+  get shouldDisplayCellReference(): boolean {
+    return this.isCellReferenceVisible;
+  }
+
+  get cellReference(): string {
+    const { col, row, sheetId } = this.env.model.getters.getCurrentEditedCell();
+    const prefixSheet = sheetId !== this.env.model.getters.getActiveSheetId();
+    return `${
+      prefixSheet ? getComposerSheetName(this.env.model.getters.getSheetName(sheetId)) + "!" : ""
+    }${toXC(col, row)}`;
+  }
+
+  get cellReferenceStyle(): string {
+    const { x: left, y: top } = this.rect;
+    return `
+      left: ${left - COMPOSER_BORDER_WIDTH}px;
+      top: ${top - GRID_CELL_REFERENCE_TOP_OFFSET}px;
+    `;
   }
 
   get containerStyle(): string {
