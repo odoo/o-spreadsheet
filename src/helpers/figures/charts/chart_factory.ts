@@ -1,5 +1,4 @@
 import {
-  BACKGROUND_CHART_COLOR,
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
@@ -130,7 +129,7 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
     return {
       type: "scorecard",
       title: "",
-      background: BACKGROUND_CHART_COLOR,
+      background: topLeftCell.style?.fillColor || undefined,
       keyValue: zoneToXc(zone),
       baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
       baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
@@ -180,7 +179,6 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
       aggregated: false,
       labelRange: labelRangeXc,
       type: "line",
-      background: BACKGROUND_CHART_COLOR,
       dataSetsHaveTitle,
       verticalAxisPosition: "left",
       legendPosition: newLegendPos,
@@ -191,7 +189,6 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
     dataSets,
     labelRange: labelRangeXc,
     type: "bar",
-    background: BACKGROUND_CHART_COLOR,
     stacked: false,
     aggregated: false,
     dataSetsHaveTitle,
