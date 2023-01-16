@@ -378,7 +378,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     if (this.env.model.getters.hasOpenedPopover()) {
       this.closeOpenedPopover();
     }
-    if (this.env.model.getters.getEditionMode() === "editing") {
+    if (["contentEditing", "cellEditing"].includes(this.env.model.getters.getEditionMode())) {
       this.env.model.dispatch("STOP_EDITION");
     }
     if (shiftKey) {
@@ -586,7 +586,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 Grid.props = {
   sidePanelIsOpen: Boolean,
   exposeFocus: Function,
-  focusComposer: String,
+  focusComposer: Boolean,
   onComposerContentFocused: Function,
   onGridComposerCellFocused: Function,
 };

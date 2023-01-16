@@ -556,8 +556,6 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
 TopBar.props = {
   onClick: Function,
-  focusComposer: {
-    validate: (value: string) => ["inactive", "cellFocus", "contentFocus"].includes(value),
-  },
+  focusComposer: Boolean,
   onComposerContentFocused: Function,
 };

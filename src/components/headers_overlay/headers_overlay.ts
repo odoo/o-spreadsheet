@@ -200,7 +200,8 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
       this.startMovement(ev);
       return;
     }
-    if (this.env.model.getters.getEditionMode() === "editing") {
+    // TODORAR make a getters for this iscomposerEditingText
+    if (["contentEditing", "cellEditing"].includes(this.env.model.getters.getEditionMode())) {
       this.env.model.selection.getBackToDefault();
     }
     this.startSelection(ev, index);

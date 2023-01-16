@@ -22,7 +22,7 @@ import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
 import { _lt } from "../../translation";
-import { SpreadsheetChildEnv } from "../../types";
+import { EditionMode, SpreadsheetChildEnv } from "../../types";
 import { NotifyUIEvent } from "../../types/ui";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
@@ -125,8 +125,7 @@ interface SidePanelState {
 }
 
 interface ComposerState {
-  topBarFocus: ComposerFocusType;
-  gridFocusMode: ComposerFocusType;
+  focus: "topbar" | "grid" | "inactive";
 }
 
 export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv> {
@@ -157,8 +156,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   setup() {
     this.sidePanel = useState({ isOpen: false, panelProps: {} });
     this.composer = useState({
-      topBarFocus: "inactive",
-      gridFocusMode: "inactive",
+      focus: "inactive",
     });
     this.keyDownMapping = {
       "CTRL+H": () => this.toggleSidePanel("FindAndReplace", {}),
@@ -189,16 +187,16 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     });
   }
 
-  get focusTopBarComposer(): Omit<ComposerFocusType, "cellFocus"> {
+  get focusTopBarComposer(): boolean {
     return this.model.getters.getEditionMode() === "inactive"
-      ? "inactive"
-      : this.composer.topBarFocus;
+      ? false
+      : this.composer.focus === "topbar";
   }
 
-  get focusGridComposer(): ComposerFocusType {
+  get focusGridComposer(): boolean {
     return this.model.getters.getEditionMode() === "inactive"
-      ? "inactive"
-      : this.composer.gridFocusMode;
+      ? false
+      : this.composer.focus === "grid";
   }
 
   private bindModelEvents() {
@@ -286,9 +284,8 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       return;
     }
     this.model.dispatch("UNFOCUS_SELECTION_INPUT");
-    this.composer.topBarFocus = "contentFocus";
-    this.composer.gridFocusMode = "inactive";
-    this.setComposerContent({ selection } || {});
+    this.composer.focus = "topbar";
+    this.setComposerContent({ selection, mode: "contentEditing" });
   }
 
   onGridComposerContentFocused() {
@@ -296,9 +293,8 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       return;
     }
     this.model.dispatch("UNFOCUS_SELECTION_INPUT");
-    this.composer.topBarFocus = "inactive";
-    this.composer.gridFocusMode = "contentFocus";
-    this.setComposerContent({});
+    this.composer.focus = "grid";
+    this.setComposerContent({ mode: "contentEditing" });
   }
 
   onGridComposerCellFocused(content?: string, selection?: ComposerSelection) {
@@ -306,9 +302,8 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       return;
     }
     this.model.dispatch("UNFOCUS_SELECTION_INPUT");
-    this.composer.topBarFocus = "inactive";
-    this.composer.gridFocusMode = "cellFocus";
-    this.setComposerContent({ content, selection } || {});
+    this.composer.focus = "grid";
+    this.setComposerContent({ content, selection, mode: "cellEditing" });
   }
 
   /**
@@ -317,14 +312,16 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   private setComposerContent({
     content,
     selection,
+    mode,
   }: {
     content?: string | undefined;
     selection?: ComposerSelection;
+    mode?: EditionMode;
   }) {
     if (this.model.getters.getEditionMode() === "inactive") {
-      this.model.dispatch("START_EDITION", { text: content, selection });
+      this.model.dispatch("START_EDITION", { text: content, selection, preferredMode: mode });
     } else if (content) {
-      this.model.dispatch("SET_CURRENT_CONTENT", { content, selection });
+      this.model.dispatch("SET_CURRENT_CONTENT", { content, selection, preferredMode: mode });
     }
   }
 }

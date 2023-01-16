@@ -19,6 +19,7 @@ import { _lt } from "../../translation";
 import {
   CellPosition,
   CellValueType,
+  EditionMode,
   Format,
   Highlight,
   Range,
@@ -35,11 +36,6 @@ import {
 } from "../../types/index";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
-type EditionMode =
-  | "editing"
-  | "selecting" // should tell if you need to underline the current range selected.
-  | "inactive";
-
 const CELL_DELETED_MESSAGE = _lt("The cell you are trying to edit has been deleted.");
 
 export interface ComposerSelection {
@@ -50,7 +46,7 @@ export interface ComposerSelection {
 interface EditingState {
   col: number;
   row: number;
-  mode: "editing" | "selecting";
+  mode: Exclude<EditionMode, "inactive">;
   sheetId: UID;
   currentContent: string;
   currentTokens: EnrichedToken[];
@@ -162,7 +158,7 @@ export class EditionPlugin extends UIPlugin {
   }
 
   private handleEvent(event: SelectionEvent) {
-    if (this.state.mode !== "selecting") {
+    if (this.state.mode !== "contentSelecting") {
       return;
     }
     switch (event.mode) {
@@ -183,11 +179,11 @@ export class EditionPlugin extends UIPlugin {
         break;
       case "STOP_COMPOSER_RANGE_SELECTION":
         if (this.isSelectingForComposer()) {
-          this.state.mode = "editing";
+          this.state.mode = "contentEditing";
         }
         break;
       case "START_EDITION":
-        this.startEdition(cmd.text, cmd.selection);
+        this.startEdition(cmd.text, cmd.selection, cmd.preferredMode);
         break;
       case "STOP_EDITION":
         if (cmd.cancel) {
@@ -198,6 +194,7 @@ export class EditionPlugin extends UIPlugin {
         this.state.colorIndexByRange = {};
         break;
       case "SET_CURRENT_CONTENT":
+        this.state.mode = cmd.preferredMode || this.state.mode;
         this.setContent(cmd.content, cmd.selection, true);
         break;
       case "REPLACE_COMPOSER_CURSOR_SELECTION":
@@ -323,7 +320,7 @@ export class EditionPlugin extends UIPlugin {
   }
 
   isSelectingForComposer(): boolean {
-    return this.state.mode === "selecting";
+    return this.state.mode === "contentSelecting";
   }
 
   showSelectionIndicator(): boolean {
@@ -491,7 +488,7 @@ export class EditionPlugin extends UIPlugin {
         zone,
       });
     }
-    this.state.mode = "selecting";
+    this.state.mode = "contentSelecting";
     this.state.selectionInitialStart = this.state.selectionStart;
   }
 
@@ -501,7 +498,11 @@ export class EditionPlugin extends UIPlugin {
    * @param selection
    * @private
    */
-  private startEdition(str?: string, selection?: ComposerSelection) {
+  private startEdition(
+    str?: string,
+    selection?: ComposerSelection,
+    mode: EditionMode = "contentEditing"
+  ) {
     const evaluatedCell = this.getters.getActiveCell();
     if (str && evaluatedCell.format?.includes("%") && isNumber(str)) {
       selection = selection || { start: str.length, end: str.length };
@@ -513,7 +514,8 @@ export class EditionPlugin extends UIPlugin {
     this.state.col = col;
     this.state.row = row;
     this.state.initialContent = this.getComposerContent({ sheetId, col, row });
-    this.state.mode = "editing";
+    // TODORAR depends on the start Edition mode
+    this.state.mode = mode;
     this.state.colorIndexByRange = {};
 
     const zone = positionToZone({ col, row });
@@ -621,6 +623,9 @@ export class EditionPlugin extends UIPlugin {
       this.state.selectionStart = this.state.selectionEnd = text.length;
     }
     if (isNewCurrentContent || this.state.mode !== "inactive") {
+      // change state mode to editing if it is not already
+      // should only occur on setcontent command, not all the time
+      // this.state.mode = this.state.mode === "contentSelecting" ? "contentEditing" : this.state.mode;
       this.state.currentTokens = text.startsWith("=") ? composerTokenize(text) : [];
       if (this.state.currentTokens.length > 100) {
         if (raise) {

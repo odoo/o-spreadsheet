@@ -11,6 +11,7 @@ import {
   Border,
   CellPosition,
   Dimension,
+  EditionMode,
   HeaderIndex,
   Pixel,
   SetDecimalStep,
@@ -594,6 +595,7 @@ export interface StartEditionCommand {
   type: "START_EDITION";
   text?: string;
   selection?: ComposerSelection;
+  preferredMode?: Exclude<EditionMode, "'inactive">;
 }
 
 export interface StopEditionCommand {
@@ -605,6 +607,7 @@ export interface SetCurrentContentCommand {
   type: "SET_CURRENT_CONTENT";
   content: string;
   selection?: ComposerSelection;
+  preferredMode?: Exclude<EditionMode, "'inactive">;
 }
 
 export interface ChangeComposerSelectionCommand {

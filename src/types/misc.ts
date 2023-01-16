@@ -221,6 +221,12 @@ export interface PaneDivision {
   ySplit: number;
 }
 
+export type EditionMode =
+  | "contentEditing"
+  | "contentSelecting" // should tell if you need to underline the current range selected.
+  | "cellEditing"
+  | "inactive";
+
 export type BorderCommand =
   | "all"
   | "hv"
