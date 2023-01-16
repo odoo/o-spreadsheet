@@ -26,6 +26,7 @@ import {
   AutomaticSumPlugin,
   CellPopoverPlugin,
   CollaborativePlugin,
+  DataCleanupPlugin,
   FindAndReplacePlugin,
   FormatPlugin,
   HeaderVisibilityUIPlugin,
@@ -77,7 +78,8 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("split_to_columns", SplitToColumnsPlugin)
   .add("cell_popovers", CellPopoverPlugin)
   .add("collaborative", CollaborativePlugin)
-  .add("history", HistoryPlugin);
+  .add("history", HistoryPlugin)
+  .add("data_cleanup", DataCleanupPlugin);
 
 // Plugins which have a state, but which should not be shared in collaborative
 export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()

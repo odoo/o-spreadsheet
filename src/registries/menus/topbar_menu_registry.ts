@@ -377,6 +377,14 @@ topbarMenuRegistry
     ...ACTION_DATA.sortDescending,
     sequence: 20,
   })
+  .addChild("data_cleanup", ["data"], {
+    ...ACTION_DATA.dataCleanup,
+    sequence: 15,
+  })
+  .addChild("remove_duplicates", ["data", "data_cleanup"], {
+    ...ACTION_DATA.removeDuplicates,
+    sequence: 10,
+  })
   .addChild("split_to_columns", ["data"], {
     ...ACTION_DATA.splitToColumns,
     sequence: 20,

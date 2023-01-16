@@ -1,4 +1,4 @@
-import { areZonesContinuous } from "../helpers/index";
+import { areZonesContinuous, getZoneArea } from "../helpers/index";
 import { interactiveSortSelection } from "../helpers/sort";
 import { interactiveAddFilter } from "../helpers/ui/filter_interactive";
 import { _t } from "../translation";
@@ -19,6 +19,21 @@ export const sortAscending: ActionSpec = {
     interactiveSortSelection(env, sheetId, anchor.cell, zones[0], "ascending");
   },
   icon: "o-spreadsheet-Icon.SORT_ASCENDING",
+};
+
+export const dataCleanup: ActionSpec = {
+  name: _t("Data cleanup"),
+  icon: "o-spreadsheet-Icon.DATA_CLEANUP",
+};
+
+export const removeDuplicates: ActionSpec = {
+  name: _t("Remove duplicates"),
+  execute: (env) => {
+    if (getZoneArea(env.model.getters.getSelectedZone()) === 1) {
+      env.model.selection.selectTableAroundSelection();
+    }
+    env.openSidePanel("RemoveDuplicates", {});
+  },
 };
 
 export const sortDescending: ActionSpec = {

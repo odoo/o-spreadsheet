@@ -39,7 +39,7 @@ describe("find and replace sidePanel component", () => {
       parent.env.openSidePanel("FindAndReplace");
       await nextTick();
     });
-    test("Can close the find and replace side panel", async () => {
+    test("Can close the remove duplicate side panel", async () => {
       expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
       await click(fixture, selectors.closeSidepanel);
       expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
