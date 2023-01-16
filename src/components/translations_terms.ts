@@ -1,3 +1,4 @@
+import { PasteInteractiveContent } from "../helpers/ui/paste_interactive";
 import { _t } from "../translation";
 import { CommandResult } from "../types/index";
 
@@ -92,5 +93,16 @@ export const SplitToColumnsTerms = {
       "Only a selection from a single column can be split"
     ),
     [CommandResult.SplitWillOverwriteContent]: _t("Splitting will overwrite existing content"),
+  },
+};
+
+export const RemoveDuplicateTerms = {
+  Errors: {
+    Unexpected: _t("Cannot remove duplicates for an unknown reason"),
+    [CommandResult.MoreThanOneRangeSelected]: _t("Please select only one range of cells"),
+    [CommandResult.EmptyTarget]: _t("Please select a range of cells containing values."),
+    [CommandResult.NoColumnsProvided]: _t("Please select at latest one column to analyze."),
+    //TODO: Remove it when accept to copy and paste merge cells
+    [CommandResult.WillRemoveExistingMerge]: PasteInteractiveContent.willRemoveExistingMerge,
   },
 };

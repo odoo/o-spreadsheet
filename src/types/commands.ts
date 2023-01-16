@@ -496,6 +496,16 @@ export interface UpdateLocaleCommand {
   locale: Locale;
 }
 
+// ------------------------------------------------
+// DATA CLEANUP
+// ------------------------------------------------
+
+export interface RemoveDuplicatesCommand {
+  type: "REMOVE_DUPLICATES";
+  columns: HeaderIndex[];
+  hasHeader: boolean;
+}
+
 //#endregion
 
 //#region Local Commands
@@ -1022,7 +1032,8 @@ export type LocalCommand =
   | ActivateNextSheetCommand
   | ActivatePreviousSheetCommand
   | UpdateFilterCommand
-  | SplitTextIntoColumnsCommand;
+  | SplitTextIntoColumnsCommand
+  | RemoveDuplicatesCommand;
 
 export type Command = CoreCommand | LocalCommand;
 
@@ -1163,6 +1174,10 @@ export const enum CommandResult {
   NoActiveSheet = "NoActiveSheet",
   InvalidLocale = "InvalidLocale",
   AlreadyInPaintingFormatMode = "AlreadyInPaintingFormatMode",
+  MoreThanOneRangeSelected = "MoreThanOneRangeSelected",
+  NoColumnsProvided = "NoColumnsProvided",
+  ColumnsNotIncludedInZone = "ColumnsNotIncludedInZone",
+  DuplicatesColumnsSelected = "DuplicatesColumnsSelected",
 }
 
 export interface CommandHandler<T> {

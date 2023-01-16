@@ -2,6 +2,7 @@ import { ChartPanel } from "../components/side_panel/chart/main_chart_panel/main
 import { ConditionalFormattingPanel } from "../components/side_panel/conditional_formatting/conditional_formatting";
 import { CustomCurrencyPanel } from "../components/side_panel/custom_currency/custom_currency";
 import { FindAndReplacePanel } from "../components/side_panel/find_and_replace/find_and_replace";
+import { RemoveDuplicatesPanel } from "../components/side_panel/remove_duplicates/remove_duplicates";
 import { SettingsPanel } from "../components/side_panel/settings/settings_panel";
 import { SplitIntoColumnsPanel } from "../components/side_panel/split_to_columns_panel/split_to_columns_panel";
 import { _t } from "../translation";
@@ -47,4 +48,9 @@ sidePanelRegistry.add("SplitToColumns", {
 sidePanelRegistry.add("Settings", {
   title: _t("Spreadsheet settings"),
   Body: SettingsPanel,
+});
+
+sidePanelRegistry.add("RemoveDuplicates", {
+  title: _t("Remove duplicates"),
+  Body: RemoveDuplicatesPanel,
 });
