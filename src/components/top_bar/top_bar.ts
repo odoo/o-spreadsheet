@@ -587,6 +587,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     if (this.cannotCreateFilter) {
       return;
     }
+    this.env.model.selection.selectTableAroundSelection();
     const sheetId = this.env.model.getters.getActiveSheetId();
     const selection = this.env.model.getters.getSelectedZones();
     interactiveAddFilter(this.env, sheetId, selection);

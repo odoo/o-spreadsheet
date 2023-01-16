@@ -2,6 +2,7 @@ import { Component, onMounted, onWillUnmount, useState, xml } from "@odoo/owl";
 import { ComposerFocusType } from "../../src/components/spreadsheet/spreadsheet";
 import { TopBar } from "../../src/components/top_bar/top_bar";
 import { DEFAULT_FONT_SIZE } from "../../src/constants";
+import { toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { topbarComponentRegistry } from "../../src/registries";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
@@ -21,7 +22,7 @@ import {
   simulateClick,
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
-import { getBorder, getCell, getStyle } from "../test_helpers/getters_helpers";
+import { getBorder, getCell, getFilterTable, getStyle } from "../test_helpers/getters_helpers";
 import {
   getFigureIds,
   getNode,
@@ -235,6 +236,22 @@ describe("TopBar component", () => {
       filterTool = fixture.querySelector(".o-filter-tool")!;
       expect(filterTool.querySelectorAll(".filter-icon-active").length).toEqual(1);
       expect(filterTool.querySelectorAll(".filter-icon-inactive").length).toEqual(0);
+    });
+
+    test("Adjacent cells selection while applying filter on single cell", async () => {
+      setCellContent(model, "A1", "A");
+      setCellContent(model, "A2", "A3");
+      setCellContent(model, "B2", "B");
+      setCellContent(model, "B3", "3");
+      setCellContent(model, "C3", "B4");
+      setCellContent(model, "C4", "Hello");
+      setCellContent(model, "D4", "2");
+      selectCell(model, "A1");
+      await simulateClick(".o-tool.o-filter-tool");
+      await nextTick();
+      const selection = model.getters.getSelectedZone();
+      expect(zoneToXc(selection)).toEqual("A1:D4");
+      expect(getFilterTable(model, "A1")!.zone).toEqual(toZone("A1:D4"));
     });
   });
 
