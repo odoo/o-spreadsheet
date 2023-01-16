@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { args, functionRegistry } from "../../src/functions";
-import { toCartesian, toZone } from "../../src/helpers";
+import { range, toCartesian, toZone } from "../../src/helpers";
 import { CommandResult, CoreCommand } from "../../src/types";
 import { CollaborationMessage } from "../../src/types/collaborative/transport_service";
 import {
@@ -16,6 +16,8 @@ import {
   deleteColumns,
   deleteRows,
   deleteSheet,
+  hideRows,
+  hideSheet,
   merge,
   moveConditionalFormat,
   paste,
@@ -24,7 +26,7 @@ import {
   setCellContent,
   undo,
 } from "../test_helpers/commands_helpers";
-import { getBorder, getCell, getCellContent } from "../test_helpers/getters_helpers";
+import { getBorder, getCell, getCellContent, getMerges } from "../test_helpers/getters_helpers";
 import { createEqualCF, target, toRangesData } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
@@ -211,8 +213,11 @@ describe("Multi users synchronisation", () => {
         target: target("A1:B2"),
       });
     });
-
-    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "B2"), undefined);
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "B2"),
+      "Hi Bob"
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getMerges(user), {});
   });
 
   test("copy/paste style", () => {
@@ -431,6 +436,45 @@ describe("Multi users synchronisation", () => {
     expect(alice.getters.getActiveSheetId()).toBe("42");
     expect(bob.getters.getActiveSheetId()).toBe(firstSheetId);
     expect(charlie.getters.getActiveSheetId()).toBe(firstSheetId);
+  });
+
+  test("cannot delete all sheets concurrently", () => {
+    const firstSheetId = alice.getters.getActiveSheetId();
+    createSheet(alice, { sheetId: "sheet2" });
+    network.concurrent(() => {
+      deleteSheet(alice, firstSheetId);
+      deleteSheet(bob, "sheet2");
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getVisibleSheetIds(),
+      ["sheet2"]
+    );
+  });
+
+  test("hide all sheets concurrently", () => {
+    const firstSheetId = alice.getters.getActiveSheetId();
+    createSheet(charlie, { sheetId: "sheet2" });
+    network.concurrent(() => {
+      hideSheet(alice, firstSheetId);
+      hideSheet(bob, "sheet2");
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getVisibleSheetIds(),
+      ["sheet2"]
+    );
+  });
+
+  test("hide all columns concurrently", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    const nRows = alice.getters.getNumberRows(sheetId);
+    network.concurrent(() => {
+      hideRows(alice, range(0, 10));
+      hideRows(bob, range(10, nRows));
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getHiddenRowsGroups(sheetId),
+      [range(0, 10)]
+    );
   });
 
   test("Do not resend pending revisions with a non-core command", () => {
