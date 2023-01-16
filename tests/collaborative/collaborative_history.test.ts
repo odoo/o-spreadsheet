@@ -9,6 +9,7 @@ import {
   createSheet,
   deleteColumns,
   deleteRows,
+  deleteSheet,
   redo,
   setCellContent,
   snapshot,
@@ -792,6 +793,14 @@ describe("Collaborative local history", () => {
       setCellContent(charlie, "B2", "Alice");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
+  test("dont remove last sheet with undo", () => {
+    const firstSheetId = alice.getters.getActiveSheetId();
+    createSheet(alice, {});
+    deleteSheet(bob, firstSheetId);
+    undo(alice);
+    expect(all).toHaveSynchronizedValue((user) => user.getters.getVisibleSheets(), [firstSheetId]);
   });
 
   test("transform target command with column addition before the target edge", () => {

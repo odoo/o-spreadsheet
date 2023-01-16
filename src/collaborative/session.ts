@@ -39,6 +39,11 @@ export class Session extends EventBus<CollaborativeEvent> {
   private pendingMessages: StateUpdateMessage[] = [];
 
   private waitingAck: boolean = false;
+  /**
+   * Flag used to block all commands when an undo or redo is triggered, until
+   * it is accepted on the server
+   */
+  private waitingUndoRedoAck: boolean = false;
   private isReplayingInitialRevisions = false;
 
   private processedRevisions: Set<UID> = new Set();
@@ -70,12 +75,16 @@ export class Session extends EventBus<CollaborativeEvent> {
     ) as Session["move"];
   }
 
+  canApplyOptimisticUpdate() {
+    return !this.waitingUndoRedoAck;
+  }
+
   /**
    * Add a new revision to the collaborative session.
    * It will be transmitted to all other connected clients.
    */
   save(commands: CoreCommand[], changes: HistoryChange[]) {
-    if (!commands.length || !changes.length) return;
+    if (!commands.length || !changes.length || !this.canApplyOptimisticUpdate()) return;
     const revision = new Revision(this.uuidGenerator.uuidv4(), this.clientId, commands, changes);
     this.revisions.append(revision.id, revision);
     this.trigger("new-local-state-update", { id: revision.id });
@@ -90,6 +99,7 @@ export class Session extends EventBus<CollaborativeEvent> {
   }
 
   undo(revisionId: UID) {
+    this.waitingUndoRedoAck = true;
     this.sendUpdateMessage({
       type: "REVISION_UNDONE",
       version: MESSAGE_VERSION,
@@ -100,6 +110,7 @@ export class Session extends EventBus<CollaborativeEvent> {
   }
 
   redo(revisionId: UID) {
+    this.waitingUndoRedoAck = true;
     this.sendUpdateMessage({
       type: "REVISION_REDONE",
       version: MESSAGE_VERSION,
@@ -225,7 +236,6 @@ export class Session extends EventBus<CollaborativeEvent> {
         this.onClientLeft(message);
         break;
       case "REVISION_REDONE": {
-        this.waitingAck = false;
         this.revisions.redo(
           message.redoneRevisionId,
           message.nextRevisionId,
@@ -238,7 +248,6 @@ export class Session extends EventBus<CollaborativeEvent> {
         break;
       }
       case "REVISION_UNDONE":
-        this.waitingAck = false;
         this.revisions.undo(
           message.undoneRevisionId,
           message.nextRevisionId,
@@ -250,7 +259,6 @@ export class Session extends EventBus<CollaborativeEvent> {
         });
         break;
       case "REMOTE_REVISION":
-        this.waitingAck = false;
         if (message.serverRevisionId !== this.serverRevisionId) {
           this.trigger("unexpected-revision-id", { revisionId: message.serverRevisionId });
           return;
@@ -269,7 +277,6 @@ export class Session extends EventBus<CollaborativeEvent> {
         }
         break;
       case "SNAPSHOT_CREATED": {
-        this.waitingAck = false;
         const revision = new Revision(message.nextRevisionId, "server", []);
         this.revisions.insert(revision.id, revision, message.serverRevisionId);
         this.dropPendingHistoryMessages();
@@ -341,6 +348,8 @@ export class Session extends EventBus<CollaborativeEvent> {
           .filter((message) => message.type === "REMOTE_REVISION")
           .map((message) => message.nextRevisionId);
         this.trigger("pending-revisions-dropped", { revisionIds });
+        this.waitingAck = false;
+        this.waitingUndoRedoAck = false;
         this.pendingMessages = [];
         return;
       }
@@ -361,11 +370,15 @@ export class Session extends EventBus<CollaborativeEvent> {
   }
 
   private acknowledge(message: CollaborationMessage) {
+    if (message.type === "REVISION_UNDONE" || message.type === "REVISION_REDONE") {
+      this.waitingUndoRedoAck = false;
+    }
     switch (message.type) {
       case "REMOTE_REVISION":
       case "REVISION_REDONE":
       case "REVISION_UNDONE":
       case "SNAPSHOT_CREATED":
+        this.waitingAck = false;
         this.pendingMessages = this.pendingMessages.filter(
           (msg) => msg.nextRevisionId !== message.nextRevisionId
         );
@@ -388,6 +401,7 @@ export class Session extends EventBus<CollaborativeEvent> {
   }
 
   private dropPendingHistoryMessages() {
+    this.waitingUndoRedoAck = false;
     this.pendingMessages = this.pendingMessages.filter(
       ({ type }) => type !== "REVISION_REDONE" && type !== "REVISION_UNDONE"
     );
