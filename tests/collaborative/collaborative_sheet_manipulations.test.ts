@@ -239,6 +239,15 @@ describe("Collaborative Sheet manipulation", () => {
     expect(charlie.getters.getSelectedZone()).toEqual(toZone("A9"));
   });
 
+  test("selection is correctly updated with concurrent add rows", () => {
+    network.concurrent(() => {
+      addRows(alice, "before", 1, 1);
+      addRows(bob, "after", 0, 1);
+      selectCell(bob, "A2");
+    });
+    expect(bob.getters.getSelectedZone()).toEqual(toZone("A2"));
+  });
+
   test("remove the selected row and all following rows", () => {
     const sheetId = alice.getters.getActiveSheetId();
     selectCell(bob, "A10");
