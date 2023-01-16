@@ -258,11 +258,6 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
         this.autoComplete(autoCompleteValue);
         return;
       }
-    } else {
-      // when completing with tab, if there is no value to complete, the active cell will be moved to the right.
-      // we can't let the model think that it is for a ref selection.
-      // todo: check if this can be removed someday
-      this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     }
 
     const direction = ev.shiftKey ? "left" : "right";
