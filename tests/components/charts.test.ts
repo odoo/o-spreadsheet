@@ -1,6 +1,7 @@
 import { App } from "@odoo/owl";
 import { CommandResult, Model, Spreadsheet } from "../../src";
 import { ChartTerms } from "../../src/components/translations_terms";
+import { BACKGROUND_CHART_COLOR } from "../../src/constants";
 import { toHex, toZone } from "../../src/helpers";
 import { ChartDefinition } from "../../src/types";
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
@@ -9,6 +10,7 @@ import {
   createChart,
   createGaugeChart,
   createScorecardChart,
+  setStyle,
   updateChart,
 } from "../test_helpers/commands_helpers";
 import { TEST_CHART_DATA } from "../test_helpers/constants";
@@ -1012,5 +1014,35 @@ describe("charts with multiple sheets", () => {
     expect(runtimeChart).toBeDefined();
     await nextTick();
     expect(fixture.querySelector(".o-chart-container")).not.toBeNull();
+  });
+});
+
+describe("Default background on runtime tests", () => {
+  beforeEach(async () => {
+    fixture = makeTestFixture();
+    ({ app, parent } = await mountSpreadsheet(fixture, { model: new Model() }));
+    model = parent.model;
+    await nextTick();
+  });
+  afterEach(() => {
+    app.destroy();
+  });
+  test("Creating a 'basicChart' without background should have default background on runtime", async () => {
+    createChart(model, { dataSets: ["A1"] }, "1", sheetId);
+    expect(model.getters.getChartDefinition("1")?.background).toBeUndefined();
+    expect(model.getters.getChartRuntime("1").background).toBe(BACKGROUND_CHART_COLOR);
+  });
+  test("Creating a 'basicChart' without background and updating its type should have default background on runtime", async () => {
+    createChart(model, { dataSets: ["A1"] }, "1", sheetId);
+    updateChart(model, "1", { type: "line" }, sheetId);
+    expect(model.getters.getChartDefinition("1")?.background).toBeUndefined();
+    expect(model.getters.getChartRuntime("1").background).toBe(BACKGROUND_CHART_COLOR);
+  });
+  test("Creating a 'basicChart' on a single cell with style and converting into scorecard should have cell background as chart background", () => {
+    setStyle(model, "A1", { fillColor: "#FA0000" }, sheetId);
+    createChart(model, { dataSets: ["A1"] }, "1", sheetId);
+    updateChart(model, "1", { type: "scorecard", keyValue: "A1" }, sheetId);
+    expect(model.getters.getChartDefinition("1")?.background).toBeUndefined();
+    expect(model.getters.getChartRuntime("1").background).toBe("#FA0000");
   });
 });

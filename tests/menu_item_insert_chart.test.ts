@@ -1,7 +1,6 @@
 import { App } from "@odoo/owl";
 import { Model, Spreadsheet } from "../src";
 import {
-  BACKGROUND_CHART_COLOR,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   DEFAULT_FIGURE_HEIGHT,
@@ -119,7 +118,6 @@ describe("Insert chart menu item", () => {
       sheetId: expect.any(String),
       definition: {
         dataSets: ["A1"],
-        background: BACKGROUND_CHART_COLOR,
         dataSetsHaveTitle: false,
         labelRange: undefined,
         legendPosition: "none",
@@ -450,7 +448,6 @@ describe("Insert chart menu item", () => {
     const payload = { ...defaultPayload };
     payload.definition = {
       keyValue: "K5",
-      background: BACKGROUND_CHART_COLOR,
       title: expect.any(String),
       type: "scorecard",
       baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
