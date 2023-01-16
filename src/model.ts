@@ -333,6 +333,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         revisionId,
         this.state.recordChanges.bind(this.state),
         (command: CoreCommand) => {
+          const result = this.checkDispatchAllowed(command);
+          if (!result.isSuccessful) {
+            return;
+          }
           this.isReplayingCommand = true;
           this.dispatchToHandlers(
             [this.range, ...this.corePlugins, ...this.coreViewsPlugins],
@@ -443,6 +447,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     let status: Status = this.status;
     if (this.getters.isReadonly() && !canExecuteInReadonly(command)) {
       return new DispatchResult(CommandResult.Readonly);
+    }
+    if (!this.session.canApplyOptimisticUpdate()) {
+      return new DispatchResult(CommandResult.WaitingSessionConfirmation);
     }
     switch (status) {
       case Status.Ready:
