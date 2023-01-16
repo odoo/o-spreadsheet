@@ -798,6 +798,7 @@ export function createFilter(
   range: string,
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
+  model.selection.selectTableAroundSelection();
   return model.dispatch("CREATE_FILTER_TABLE", {
     sheetId,
     target: target(range),
