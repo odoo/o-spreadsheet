@@ -804,6 +804,14 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
+  test("dont remove last sheet with undo", () => {
+    const firstSheetId = alice.getters.getActiveSheetId();
+    createSheet(alice, {});
+    deleteSheet(bob, firstSheetId);
+    undo(alice);
+    expect(all).toHaveSynchronizedValue((user) => user.getters.getSheetIds(), [firstSheetId]);
+  });
+
   test("transform target command with column addition before the target edge", () => {
     addColumns(charlie, "before", "B", 1);
     network.concurrent(() => {
