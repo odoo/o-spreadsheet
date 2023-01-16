@@ -15,6 +15,7 @@ import {
   createSheet,
   deleteColumns,
   deleteRows,
+  deleteSheet,
   merge,
   moveConditionalFormat,
   paste,
@@ -356,6 +357,15 @@ describe("Multi users synchronisation", () => {
     expect(spy).toHaveBeenCalledTimes(0);
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "");
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
+  test("UI remote commands are transformed with the pending ones.", () => {
+    createSheet(charlie, {});
+    network.concurrent(() => {
+      setCellContent(bob, "A1", "coucou", "Sheet1");
+      addRows(alice, "after", 14, 1);
+      deleteSheet(bob, "Sheet1");
+    });
   });
 
   test("Updatecell & composer on different cells", () => {
