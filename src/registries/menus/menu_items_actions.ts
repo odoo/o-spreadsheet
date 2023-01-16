@@ -1,8 +1,4 @@
-import {
-  BACKGROUND_CHART_COLOR,
-  DEFAULT_FIGURE_HEIGHT,
-  DEFAULT_FIGURE_WIDTH,
-} from "../../constants";
+import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH } from "../../constants";
 import { areZonesContinuous, numberToLetters, zoneToXc } from "../../helpers/index";
 import { interactiveSortSelection } from "../../helpers/sort";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
@@ -623,7 +619,6 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
       dataSets,
       labelRange,
       type: "bar",
-      background: BACKGROUND_CHART_COLOR,
       stacked: false,
       dataSetsHaveTitle,
       verticalAxisPosition: "left",

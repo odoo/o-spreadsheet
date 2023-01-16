@@ -1,4 +1,3 @@
-import { BACKGROUND_CHART_COLOR } from "../../src/constants";
 import { isInside, lettersToNumber, toCartesian, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import {
@@ -109,7 +108,7 @@ export function createChart(
       dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
       labelRange: data.labelRange,
       type: data.type || "bar",
-      background: data.background || BACKGROUND_CHART_COLOR,
+      background: data.background,
       verticalAxisPosition: ("verticalAxisPosition" in data && data.verticalAxisPosition) || "left",
       legendPosition: data.legendPosition || "top",
       stacked: ("stacked" in data && data.stacked) || false,
