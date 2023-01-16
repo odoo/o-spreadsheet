@@ -28,12 +28,6 @@ export class LocalHistory extends owl.core.EventBus implements CommandHandler<Co
    */
   private redoStack: UID[] = [];
 
-  /**
-   * Flag used to block all commands when an undo or redo is triggered, until
-   * it is accepted on the server
-   */
-  private isWaitingForUndoRedo: boolean = false;
-
   constructor(protected dispatch: CommandDispatcher["dispatch"], private session: Session) {
     super();
     this.session.on("new-local-state-update", this, this.onNewLocalStateUpdate);
@@ -43,14 +37,10 @@ export class LocalHistory extends owl.core.EventBus implements CommandHandler<Co
     this.session.on("snapshot", this, () => {
       this.undoStack = [];
       this.redoStack = [];
-      this.isWaitingForUndoRedo = false;
     });
   }
 
   allowDispatch(cmd: Command): CommandResult {
-    if (this.isWaitingForUndoRedo) {
-      return CommandResult.WaitingSessionConfirmation;
-    }
     switch (cmd.type) {
       case "REQUEST_UNDO":
         if (!this.canUndo()) {
@@ -86,7 +76,6 @@ export class LocalHistory extends owl.core.EventBus implements CommandHandler<Co
     if (!id) {
       return;
     }
-    this.isWaitingForUndoRedo = true;
     if (type === "UNDO") {
       this.session.undo(id);
       this.redoStack.push(id);
@@ -107,7 +96,6 @@ export class LocalHistory extends owl.core.EventBus implements CommandHandler<Co
   private drop(revisionIds: UID[]) {
     this.undoStack = this.undoStack.filter((id) => !revisionIds.includes(id));
     this.redoStack = [];
-    this.isWaitingForUndoRedo = false;
   }
 
   private onNewLocalStateUpdate({ id }: { id: UID }) {
@@ -120,11 +108,9 @@ export class LocalHistory extends owl.core.EventBus implements CommandHandler<Co
 
   private selectiveUndo(commands: readonly CoreCommand[]) {
     this.dispatch("UNDO", { commands });
-    this.isWaitingForUndoRedo = false;
   }
 
   private selectiveRedo(commands: readonly CoreCommand[]) {
     this.dispatch("REDO", { commands });
-    this.isWaitingForUndoRedo = false;
   }
 }

@@ -20,7 +20,7 @@ import {
   setCellContent,
   undo,
 } from "../test_helpers/commands_helpers";
-import { getBorder, getCell, getCellContent } from "../test_helpers/getters_helpers";
+import { getBorder, getCell, getCellContent, getMerges } from "../test_helpers/getters_helpers";
 import { target, toPosition } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
@@ -207,8 +207,11 @@ describe("Multi users synchronisation", () => {
         target: target("A1:B2"),
       });
     });
-
-    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "B2"), undefined);
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "B2"),
+      "Hi Bob"
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getMerges(user), {});
   });
 
   test("copy/paste style", () => {
@@ -420,6 +423,19 @@ describe("Multi users synchronisation", () => {
     expect(alice.getters.getActiveSheetId()).toBe("42");
     expect(bob.getters.getActiveSheetId()).toBe(firstSheetId);
     expect(charlie.getters.getActiveSheetId()).toBe(firstSheetId);
+  });
+
+  test("cannot delete all sheets concurrently", () => {
+    const firstSheetId = alice.getters.getActiveSheetId();
+    createSheet(alice, { sheetId: "sheet2" });
+    network.concurrent(() => {
+      deleteSheet(alice, firstSheetId);
+      deleteSheet(bob, "sheet2");
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getVisibleSheets(),
+      ["sheet2"]
+    );
   });
 
   test("Do not resend pending revisions with a non-core command", () => {
