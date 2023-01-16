@@ -15,9 +15,11 @@ import {
   ClientLeftMessage,
   ClientMovedMessage,
   CollaborationMessage,
+  RemoteRevisionMessage,
   StateUpdateMessage,
   TransportService,
 } from "../types/collaborative/transport_service";
+import { transformAll } from "./ot/ot";
 import { Revision } from "./revisions";
 
 export class ClientDisconnectedError extends Error {}
@@ -253,7 +255,13 @@ export class Session extends EventBus<CollaborativeEvent> {
         const revision = new Revision(message.nextRevisionId, clientId, commands);
         if (revision.clientId !== this.clientId) {
           this.revisions.insert(revision.id, revision, message.serverRevisionId);
-          this.trigger("remote-revision-received", { commands });
+          const pendingCommands = this.pendingMessages
+            .filter((msg) => msg.type === "REMOTE_REVISION")
+            .map((msg) => (msg as RemoteRevisionMessage).commands)
+            .flat();
+          this.trigger("remote-revision-received", {
+            commands: transformAll(commands, pendingCommands),
+          });
         }
         break;
       case "SNAPSHOT_CREATED": {

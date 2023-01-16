@@ -6,9 +6,11 @@ import { CommandResult, UpdateCellCommand } from "../../src/types";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
 import {
   addColumns,
+  addRows,
   createSheet,
   deleteColumns,
   deleteRows,
+  deleteSheet,
   redo,
   setCellContent,
   snapshot,
@@ -70,6 +72,15 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "B1"), "hello");
     expect(all).toHaveSynchronizedExportedData();
+  });
+
+  test("UI remote commands are transformed with the pending ones.", () => {
+    createSheet(charlie, {});
+    network.concurrent(() => {
+      setCellContent(bob, "A1", "coucou", "Sheet1");
+      addRows(alice, "after", 14, 1);
+      deleteSheet(bob, "Sheet1");
+    });
   });
 
   test("Concurrent undo, undo first", () => {
