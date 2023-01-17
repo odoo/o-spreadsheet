@@ -7,7 +7,7 @@
           Select a color...
           <span
             title="Background Color"
-            t-attf-style="border-color:{{props.definition.background}}"
+            t-att-style="props.definition.background ? `border-color: ${props.definition.background}` : 'border-bottom-style: hidden'"
             t-on-click.stop="() => this.toggleMenu('backgroundColor', ev)">
             <t t-call="o-spreadsheet-Icon.FILL_COLOR"/>
           </span>
