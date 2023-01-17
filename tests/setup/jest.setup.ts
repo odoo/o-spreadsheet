@@ -7,6 +7,7 @@ import "./jest_extend";
 import "./resize_observer.mock";
 
 export let OWL_TEMPLATES: Document;
+
 beforeAll(async () => {
   OWL_TEMPLATES = await getParsedOwlTemplateBundle();
 });
