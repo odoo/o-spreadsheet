@@ -6,7 +6,7 @@
         <div class="o-with-color-picker">
           Select a color...
           <span
-            t-attf-style="border-color:{{props.definition.background}}"
+            t-att-style="props.definition.background ? `border-color: ${props.definition.background}` : 'border-bottom-style: hidden'"
             t-on-click.stop="toggleColorPicker">
             <t t-call="o-spreadsheet-Icon.FILL_COLOR"/>
           </span>
