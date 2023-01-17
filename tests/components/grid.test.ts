@@ -1285,8 +1285,9 @@ describe("Events on Grid update viewport correctly", () => {
     // mock a resizing of the grid DOM element. can occur if resizing the browser or opening the sidePanel
     jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 800);
     jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 650);
-    // force a rerendering to pass through patched() of the Grid component.
-    parent.render(true);
+    // force a triggering of all resizeObservers to ensure the grid is resized
+    //@ts-ignore
+    window.resizers.resize();
     await nextTick();
 
     expect(model.getters.getSheetViewDimension()).toMatchObject({
@@ -1313,11 +1314,6 @@ describe("Events on Grid update viewport correctly", () => {
     expect(model.getters.getActiveMainViewport()).toMatchObject(viewport);
     await clickCell(model, "Y1", { shiftKey: true });
     expect(model.getters.getActiveMainViewport()).toMatchObject(viewport);
-  });
-
-  test("resize event handler is removed", () => {
-    app.destroy();
-    window.dispatchEvent(new Event("resize"));
   });
 });
 
