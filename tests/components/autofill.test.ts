@@ -1,15 +1,15 @@
 import { Component, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
-import {
-  DEFAULT_CELL_HEIGHT,
-  DEFAULT_CELL_WIDTH,
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
-} from "../../src/constants";
+import { DEFAULT_CELL_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
 import { setCellContent, setSelection, setViewportOffset } from "../test_helpers/commands_helpers";
-import { clickCell, triggerMouseEvent } from "../test_helpers/dom_helper";
-import { mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
+import { clickCell, edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
+import {
+  getStylePropertyInPx,
+  mountSpreadsheet,
+  nextTick,
+  spyDispatch,
+} from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 let model: Model;
@@ -22,7 +22,7 @@ beforeEach(async () => {
 describe("Autofill component", () => {
   test("Can drag and drop autofill on columns", async () => {
     const dispatch = spyDispatch(parent);
-    const autofill = fixture.querySelector(".o-autofill");
+    const autofill = fixture.querySelector(".o-autofill-handler");
     triggerMouseEvent(autofill, "mousedown", 4, 4);
     await nextTick();
     triggerMouseEvent(
@@ -40,7 +40,7 @@ describe("Autofill component", () => {
 
   test("Can drag and drop autofill on rows", async () => {
     const dispatch = spyDispatch(parent);
-    const autofill = fixture.querySelector(".o-autofill");
+    const autofill = fixture.querySelector(".o-autofill-handler");
     triggerMouseEvent(autofill, "mousedown", 4, 4);
     await nextTick();
     triggerMouseEvent(
@@ -58,14 +58,14 @@ describe("Autofill component", () => {
 
   test("Can auto-autofill with dblclick", async () => {
     const dispatch = spyDispatch(parent);
-    const autofill = fixture.querySelector(".o-autofill");
+    const autofill = fixture.querySelector(".o-autofill-handler");
     triggerMouseEvent(autofill, "dblclick", 4, 4);
     await nextTick();
     expect(dispatch).toHaveBeenCalledWith("AUTOFILL_AUTO");
   });
 
   test("tooltip position when moving the mouse", async () => {
-    const autofill = fixture.querySelector(".o-autofill");
+    const autofill = fixture.querySelector(".o-autofill-handler");
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
     setCellContent(model, "A1", "test");
     await nextTick();
@@ -81,7 +81,7 @@ describe("Autofill component", () => {
     expect(fixture.querySelector(".o-autofill-nextvalue")).toMatchInlineSnapshot(`
       <div
         class="o-autofill-nextvalue"
-        style="top:-15px;left:235px;"
+        style="top:30px; left:375px;"
       >
         <div>
           test
@@ -91,7 +91,7 @@ describe("Autofill component", () => {
   });
 
   test("tooltip position when scrolling", async () => {
-    const autofill = fixture.querySelector(".o-autofill");
+    const autofill = fixture.querySelector(".o-autofill-handler");
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
     setCellContent(model, "A1", "test");
     await nextTick();
@@ -113,7 +113,7 @@ describe("Autofill component", () => {
     expect(fixture.querySelector(".o-autofill-nextvalue")).toMatchInlineSnapshot(`
       <div
         class="o-autofill-nextvalue"
-        style="top:-15px;left:235px;"
+        style="top:30px; left:375px;"
       >
         <div>
           test
@@ -123,7 +123,7 @@ describe("Autofill component", () => {
   });
 
   test("tooltip position when viewport is not at the top", async () => {
-    const autofill = fixture.querySelector(".o-autofill");
+    const autofill = fixture.querySelector(".o-autofill-handler");
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
     setViewportOffset(model, 500, 500);
     setCellContent(model, "F22", "test");
@@ -142,7 +142,7 @@ describe("Autofill component", () => {
     expect(fixture.querySelector(".o-autofill-nextvalue")).toMatchInlineSnapshot(`
       <div
         class="o-autofill-nextvalue"
-        style="top:-15px;left:235px;"
+        style="top:30px; left:375px;"
       >
         <div>
           test
@@ -152,7 +152,7 @@ describe("Autofill component", () => {
   });
 
   test("Can display tooltip with autofill", async () => {
-    const autofill = fixture.querySelector(".o-autofill");
+    const autofill = fixture.querySelector(".o-autofill-handler");
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
     setCellContent(model, "A1", "test");
     await nextTick();
@@ -164,7 +164,6 @@ describe("Autofill component", () => {
       HEADER_WIDTH +
         model.getters.getColDimensions(model.getters.getActiveSheetId(), 0)!.start +
         10,
-
       model.getters.getRowDimensions(model.getters.getActiveSheetId(), 1)!.end + 10
     );
     await nextTick();
@@ -173,7 +172,7 @@ describe("Autofill component", () => {
   });
 
   test("Tooltip is removed when cancelling autofill", async () => {
-    const autofill = fixture.querySelector(".o-autofill");
+    const autofill = fixture.querySelector(".o-autofill-handler");
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
     setCellContent(model, "A1", "test");
     await nextTick();
@@ -185,7 +184,6 @@ describe("Autofill component", () => {
       HEADER_WIDTH +
         model.getters.getColDimensions(model.getters.getActiveSheetId(), 0)!.start +
         10,
-
       model.getters.getRowDimensions(model.getters.getActiveSheetId(), 1)!.end + 10
     );
     await nextTick();
@@ -196,7 +194,6 @@ describe("Autofill component", () => {
       HEADER_WIDTH +
         model.getters.getColDimensions(model.getters.getActiveSheetId(), 0)!.start +
         10,
-
       model.getters.getRowDimensions(model.getters.getActiveSheetId(), 0)!.start + 10
     );
     await nextTick();
@@ -238,36 +235,7 @@ describe("Autofill component", () => {
     expect(fixture.querySelector(".custom_tooltip")!.textContent).toBe("blabla");
   });
 
-  test("Autofill on the last col/row", async () => {
-    const dispatch = spyDispatch(parent);
-    const autofill = fixture.querySelector(".o-autofill");
-    triggerMouseEvent(autofill, "mousedown", 4, 4);
-    await nextTick();
-    triggerMouseEvent(
-      autofill,
-      "mousemove",
-      HEADER_WIDTH +
-        model.getters.getColDimensions(model.getters.getActiveSheetId(), 0)!.start +
-        10000,
-
-      model.getters.getRowDimensions(model.getters.getActiveSheetId(), 1)!.start + 10000
-    );
-    await nextTick();
-    expect(dispatch).not.toHaveBeenCalled();
-  });
-
-  test("Autofill component is hidden when the bottom right selection is out of the viewport", async () => {
-    await clickCell(model, "A1");
-    expect(fixture.querySelector(".o-autofill")).not.toBeNull();
-    setViewportOffset(model, DEFAULT_CELL_WIDTH, 0);
-    await nextTick();
-    expect(fixture.querySelector(".o-autofill")).toBeNull();
-    setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT);
-    await nextTick();
-    expect(fixture.querySelector(".o-autofill")).toBeNull();
-  });
-
-  test("Autofill does not reset the viewport position", async () => {
+  test("Autofill does not reset the viewport position if not near the viewport edge", async () => {
     setSelection(parent.model, ["A1:A100"]);
     parent.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 400, offsetY: 400 });
     const firstViewport = parent.model.getters.getActiveMainViewport();
@@ -285,3 +253,147 @@ describe("Autofill component", () => {
     expect(firstViewport).toMatchObject(parent.model.getters.getActiveMainViewport());
   });
 });
+
+describe("Autofill edge scrolling", () => {
+  beforeEach(async () => {
+    jest.useFakeTimers();
+  });
+
+  test("Can edge scroll horizontally", () => {
+    const { width, height } = model.getters.getSheetViewDimension();
+    const y = height / 2;
+    const autofill = fixture.querySelector(".o-autofill-handler");
+    triggerMouseEvent(autofill, "mousedown", width / 2, y);
+    triggerMouseEvent(autofill, "mousemove", 1.5 * width, y);
+    const advanceTimer = edgeScrollDelay(0.5 * width, 5);
+
+    jest.advanceTimersByTime(advanceTimer);
+    triggerMouseEvent(autofill, "mouseup", 1.5 * width, y);
+    expect(model.getters.getActiveMainViewport()).toMatchObject({
+      left: 6,
+      right: 16,
+      top: 0,
+      bottom: 42,
+    });
+
+    triggerMouseEvent(autofill, "mousedown", width / 2, y);
+    triggerMouseEvent(autofill, "mousemove", -0.5 * width, y);
+    const advanceTimer2 = edgeScrollDelay(0.5 * width, 2);
+
+    jest.advanceTimersByTime(advanceTimer2);
+    triggerMouseEvent(autofill, "mouseup", -0.5 * width, y);
+
+    expect(model.getters.getActiveMainViewport()).toMatchObject({
+      left: 3,
+      right: 13,
+      top: 0,
+      bottom: 42,
+    });
+  });
+
+  test("Can edge-scroll vertically", async () => {
+    const { width, height } = model.getters.getSheetViewDimensionWithHeaders();
+    const x = width / 2;
+    const autofill = fixture.querySelector(".o-autofill-handler");
+    triggerMouseEvent(autofill, "mousedown", x, height / 2);
+    triggerMouseEvent(autofill, "mousemove", x, 1.5 * height);
+    const advanceTimer = edgeScrollDelay(0.5 * height, 5);
+
+    jest.advanceTimersByTime(advanceTimer);
+    triggerMouseEvent(autofill, "mouseup", x, 1.5 * height);
+
+    expect(model.getters.getActiveMainViewport()).toMatchObject({
+      left: 0,
+      right: 10,
+      top: 6,
+      bottom: 48,
+    });
+
+    triggerMouseEvent(autofill, "mousedown", x, height / 2);
+    triggerMouseEvent(autofill, "mousemove", x, -0.5 * height);
+    const advanceTimer2 = edgeScrollDelay(0.5 * height, 2);
+
+    jest.advanceTimersByTime(advanceTimer2);
+    triggerMouseEvent(autofill, "mouseup", x, -0.5 * height);
+
+    expect(model.getters.getActiveMainViewport()).toMatchObject({
+      left: 0,
+      right: 10,
+      top: 3,
+      bottom: 45,
+    });
+  });
+
+  test("Can show and remove tooltip correctly when edge scroll horizontally", async () => {
+    setCellContent(model, "A1", "test");
+    expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
+    const { width } = model.getters.getSheetViewDimensionWithHeaders();
+    const autofill = fixture.querySelector(".o-autofill-handler");
+
+    triggerMouseEvent(autofill, "mousedown", width / 2, 0);
+    triggerMouseEvent(autofill, "mousemove", width * 1.5, 0);
+    const advanceTimer = edgeScrollDelay(width / 2, 5);
+    jest.advanceTimersByTime(advanceTimer);
+    await nextTick(); // now the cursor is out of the sheet
+    const tooltipElement = fixture.querySelector(".o-autofill-nextvalue")! as HTMLElement;
+    expect(tooltipElement).not.toBeNull();
+    expect(tooltipElement.textContent).toBe("test");
+    expect(isVisibleInViewport(tooltipElement, model)).toBeFalsy();
+
+    triggerMouseEvent(autofill, "mousemove", width / 2, 0);
+    const advanceTimer2 = edgeScrollDelay(width / 2, 5);
+    jest.advanceTimersByTime(advanceTimer2);
+    await nextTick();
+    expect(isVisibleInViewport(tooltipElement, model)).toBeTruthy();
+
+    triggerMouseEvent(autofill, "mouseup", width / 2, 0);
+    await nextTick();
+    expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
+  });
+
+  test("Can show and remove tooltip when edge scroll vertically", async () => {
+    setCellContent(model, "A1", "test");
+    expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
+    const { height } = model.getters.getSheetViewDimensionWithHeaders();
+    const autofill = fixture.querySelector(".o-autofill-handler");
+
+    triggerMouseEvent(autofill, "mousedown", 0, height / 2);
+    triggerMouseEvent(autofill, "mousemove", 0, height * 1.5);
+    const advanceTimer = edgeScrollDelay(height / 2, 5);
+    jest.advanceTimersByTime(advanceTimer);
+    await nextTick(); // now the cursor is out of the viewport
+
+    const tooltipElement = fixture.querySelector(".o-autofill-nextvalue")! as HTMLElement;
+    expect(tooltipElement).not.toBeNull();
+    expect(tooltipElement.textContent).toBe("test");
+    expect(isVisibleInViewport(tooltipElement, model)).toBeFalsy();
+
+    triggerMouseEvent(autofill, "mousemove", 0, height / 2);
+    /**
+     * We have a time out when dragging
+     * (see line 162 in `drag_and_drop.ts`)
+     * so we need to wait for the time out
+     */
+    const timerToTriggerLastMouseMove = edgeScrollDelay(height / 2, 0);
+    jest.advanceTimersByTime(timerToTriggerLastMouseMove);
+    await nextTick();
+    expect(isVisibleInViewport(tooltipElement, model)).toBeTruthy();
+
+    triggerMouseEvent(autofill, "mouseup", 0, height / 2);
+    await nextTick();
+    expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
+  });
+});
+
+function isVisibleInViewport(element: HTMLElement | null, model: Model) {
+  if (element === null) return false;
+  const activeSheetViewDimension = model.getters.getSheetViewDimensionWithHeaders();
+  const top = getStylePropertyInPx(element, "top") || -Infinity;
+  const left = getStylePropertyInPx(element, "left") || -Infinity;
+  return (
+    top >= 0 &&
+    top < activeSheetViewDimension.height &&
+    left >= 0 &&
+    left < activeSheetViewDimension.width
+  );
+}

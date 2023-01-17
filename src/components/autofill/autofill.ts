@@ -2,9 +2,8 @@ import { Component, useState, xml } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH } from "../../constants";
 import { clip } from "../../helpers";
 import { HeaderIndex, SpreadsheetChildEnv } from "../../types";
-import { css } from "../helpers/css";
-import { gridOverlayPosition } from "../helpers/dom_helpers";
-import { startDnd } from "../helpers/drag_and_drop";
+import { css, cssPropertiesToCss } from "../helpers/css";
+import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
 
 // -----------------------------------------------------------------------------
 // Autofill
@@ -12,35 +11,36 @@ import { startDnd } from "../helpers/drag_and_drop";
 
 css/* scss */ `
   .o-autofill {
-    height: 6px;
-    width: 6px;
-    border: 1px solid white;
     position: absolute;
+    height: ${AUTOFILL_EDGE_LENGTH}px;
+    width: ${AUTOFILL_EDGE_LENGTH}px;
+    border: 1px solid white;
+    box-sizing: border-box !important;
     background-color: #1a73e8;
+  }
 
-    .o-autofill-handler {
-      position: absolute;
-      height: ${AUTOFILL_EDGE_LENGTH}px;
-      width: ${AUTOFILL_EDGE_LENGTH}px;
-
-      &:hover {
-        cursor: crosshair;
-      }
+  .o-autofill-handler {
+    position: absolute;
+    height: ${AUTOFILL_EDGE_LENGTH}px;
+    width: ${AUTOFILL_EDGE_LENGTH}px;
+    &:hover {
+      cursor: crosshair;
     }
+  }
 
-    .o-autofill-nextvalue {
-      position: absolute;
-      background-color: #ffffff;
-      border: 1px solid black;
-      padding: 5px;
-      font-size: 12px;
-      pointer-events: none;
-      white-space: nowrap;
-    }
+  .o-autofill-nextvalue {
+    position: absolute;
+    background-color: #ffffff;
+    border: 1px solid black;
+    padding: 5px;
+    font-size: 12px;
+    pointer-events: none;
+    white-space: nowrap;
   }
 `;
 
 interface Props {
+  isVisible: boolean;
   position: Position;
 }
 
@@ -63,17 +63,26 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
 
   get style() {
     const { left, top } = this.props.position;
-    return `top:${top}px;left:${left}px`;
+    return cssPropertiesToCss({
+      top: `${top}px`,
+      left: `${left}px`,
+      visibility: this.props.isVisible ? "visible" : "hidden",
+    });
+  }
+  get handlerStyle() {
+    const { left, top } = this.state.handler ? this.state.position : this.props.position;
+    return cssPropertiesToCss({
+      top: `${top}px`,
+      left: `${left}px`,
+    });
   }
 
-  get styleHandler() {
-    let position: Position = this.state.handler ? this.state.position : { left: 0, top: 0 };
-    return `top:${position.top}px;left:${position.left}px;`;
-  }
-
-  get styleNextvalue() {
-    let position: Position = this.state.handler ? this.state.position : { left: 0, top: 0 };
-    return `top:${position.top + 5}px;left:${position.left + 15}px;`;
+  get styleNextValue() {
+    const { left, top } = this.state.position;
+    return cssPropertiesToCss({
+      top: `${top + 5}px`,
+      left: `${left + 15}px`,
+    });
   }
 
   getTooltip() {
@@ -86,29 +95,24 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
 
   onMouseDown(ev: MouseEvent) {
     this.state.handler = true;
-    this.state.position = { left: 0, top: 0 };
-    const { scrollY, scrollX } = this.env.model.getters.getActiveSheetScrollInfo();
-    const start = {
-      left: ev.clientX + scrollX,
-      top: ev.clientY + scrollY,
-    };
+
     let lastCol: HeaderIndex | undefined;
     let lastRow: HeaderIndex | undefined;
-
+    const start = {
+      left: ev.clientX - this.props.position.left,
+      top: ev.clientY - this.props.position.top,
+    };
     const onMouseUp = () => {
       this.state.handler = false;
+      this.state.position = { ...this.props.position };
       this.env.model.dispatch("AUTOFILL");
     };
 
-    const onMouseMove = (ev: MouseEvent) => {
-      const position = gridOverlayPosition();
-      const { scrollY, scrollX } = this.env.model.getters.getActiveSheetScrollInfo();
+    const onMouseMove = (col: HeaderIndex, row: HeaderIndex, ev: MouseEvent) => {
       this.state.position = {
-        left: ev.clientX - start.left + scrollX,
-        top: ev.clientY - start.top + scrollY,
+        left: ev.clientX - start.left,
+        top: ev.clientY - start.top,
       };
-      const col = this.env.model.getters.getColIndex(ev.clientX - position.left);
-      const row = this.env.model.getters.getRowIndex(ev.clientY - position.top);
       if (lastCol !== col || lastRow !== row) {
         const activeSheetId = this.env.model.getters.getActiveSheetId();
         const numberOfCols = this.env.model.getters.getNumberCols(activeSheetId);
@@ -120,7 +124,7 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
         }
       }
     };
-    startDnd(onMouseMove, onMouseUp);
+    dragAndDropBeyondTheViewport(this.env, onMouseMove, onMouseUp);
   }
 
   onDblClick() {
@@ -130,6 +134,7 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
 
 Autofill.props = {
   position: Object,
+  isVisible: Boolean,
 };
 
 class TooltipComponent extends Component<Props> {

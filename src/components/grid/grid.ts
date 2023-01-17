@@ -322,7 +322,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     };
   }
 
-  isAutoFillActive(): boolean {
+  get isAutofillVisible(): boolean {
     const zone = this.env.model.getters.getSelectedZone();
     const rect = this.env.model.getters.getVisibleRect({
       left: zone.right,

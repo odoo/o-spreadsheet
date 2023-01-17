@@ -57,8 +57,8 @@
         onMouseWheel.bind="onMouseWheel"
         onClosePopover.bind="onClosePopover"
       />
-      <t t-if="env.model.getters.getEditionMode() === 'inactive' and isAutoFillActive()">
-        <Autofill position="getAutofillPosition()"/>
+      <t t-if="env.model.getters.getEditionMode() === 'inactive'">
+        <Autofill position="getAutofillPosition()" isVisible="isAutofillVisible"/>
       </t>
       <t t-if="env.model.getters.getEditionMode() !== 'inactive'">
         <t t-foreach="env.model.getters.getHighlights()" t-as="highlight" t-key="highlight_index">
