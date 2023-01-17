@@ -175,12 +175,12 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     this.props.openContextMenu(this.contextMenuRegistry, ev);
   }
 
-  private getInputContent(): string | undefined {
-    return this.sheetNameRef.el?.innerHTML;
+  private getInputContent(): string | undefined | null {
+    return this.sheetNameRef.el?.textContent;
   }
 
   private setInputContent(content: string) {
-    if (this.sheetNameRef.el) this.sheetNameRef.el.innerHTML = content;
+    if (this.sheetNameRef.el) this.sheetNameRef.el.textContent = content;
   }
 
   get contextMenuRegistry() {

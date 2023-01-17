@@ -273,7 +273,7 @@ describe("BottomBar component", () => {
       const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
       triggerMouseEvent(sheetName, "dblclick");
       await nextTick();
-      sheetName.innerHTML = "New name";
+      sheetName.textContent = "New name";
       await keyDown("Enter");
       expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toEqual("New name");
     });
@@ -282,7 +282,7 @@ describe("BottomBar component", () => {
       const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
       triggerMouseEvent(sheetName, "dblclick");
       await nextTick();
-      sheetName.innerHTML = "New name";
+      sheetName.textContent = "New name";
       sheetName.blur();
       expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toEqual("New name");
     });
@@ -291,9 +291,9 @@ describe("BottomBar component", () => {
       const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
       triggerMouseEvent(sheetName, "dblclick");
       await nextTick();
-      sheetName.innerHTML = "New name";
+      sheetName.textContent = "New name";
       await keyDown("Escape");
-      expect(sheetName.innerHTML).toEqual("Sheet1");
+      expect(sheetName.textContent).toEqual("Sheet1");
       expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toEqual("Sheet1");
     });
 
@@ -301,7 +301,7 @@ describe("BottomBar component", () => {
       const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
       triggerMouseEvent(sheetName, "dblclick");
       await nextTick();
-      sheetName.innerHTML = "";
+      sheetName.textContent = "";
       await keyDown("Enter");
       expect(raiseError).toHaveBeenCalled();
     });
@@ -311,7 +311,7 @@ describe("BottomBar component", () => {
       const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
       triggerMouseEvent(sheetName, "dblclick");
       await nextTick();
-      sheetName.innerHTML = "ThisIsASheet";
+      sheetName.textContent = "ThisIsASheet";
       expect(window.getSelection()?.toString()).toEqual("");
       await keyDown("Enter");
       expect(raiseError).toHaveBeenCalled();
