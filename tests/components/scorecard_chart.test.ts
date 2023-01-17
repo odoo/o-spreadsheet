@@ -75,6 +75,9 @@ async function createScorecardChart(
   createScorecardChartHelper(model, data, chartId, sheetId);
   await nextTick();
   // second tick required for the useEffect to be effective
+  // force a triggering of all resizeObservers to ensure the chart is resized
+  //@ts-ignore
+  window.resizers.resize();
   await nextTick();
 }
 
@@ -89,6 +92,9 @@ async function updateScorecardChartSize(width: number, height: number) {
   });
   figureRect.width = width;
   figureRect.height = height;
+  // force a triggering of all resizeObservers to ensure the chart is resized
+  //@ts-ignore
+  window.resizers.resize();
   await nextTick();
 }
 
@@ -159,6 +165,10 @@ describe("Scorecard charts", () => {
     await dragElement(".o-fig-resizer.o-topLeft", 300, 200);
     expect(getElComputedStyle(".o-figure-wrapper", "width")).toBe("236px");
     expect(getElComputedStyle(".o-figure-wrapper", "height")).toBe("135px");
+    // force a triggering of all resizeObservers to ensure the grid is resized
+    //@ts-ignore
+    window.resizers.resize();
+    await nextTick();
     expect(getChartElement()).toMatchSnapshot();
   });
 
