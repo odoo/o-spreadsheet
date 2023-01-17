@@ -58,14 +58,13 @@ exports[`Grid component simple rendering snapshot 1`] = `
   
   <div
     class="o-autofill"
-    style="top:45px;left:140px"
-  >
-    <div
-      class="o-autofill-handler"
-      style="top:0px;left:0px;"
-    />
-    
-  </div>
+    style="top:45px; left:140px; visibility:visible;"
+  />
+  <div
+    class="o-autofill-handler"
+    style="top:45px; left:140px;"
+  />
+  
   
   
   
