@@ -91,6 +91,12 @@ interface Props {
   onComposerContentFocused: (selection: ComposerSelection) => void;
 }
 
+const FONT_COLOR = "#4a4f59";
+const ACTIVE_BG_COLOR = "#E6F4EA";
+const ACTIVE_FG_COLOR = "#188038";
+const HOVERED_BG_COLOR = "#f6f7fa";
+const HOVERED_FG_COLOR = "#000000";
+
 // -----------------------------------------------------------------------------
 // TopBar
 // -----------------------------------------------------------------------------
@@ -103,6 +109,8 @@ css/* scss */ `
     font-size: 13px;
     line-height: 1.2;
     user-select: none;
+    font-weight: 500;
+    color: ${FONT_COLOR};
 
     .o-topbar-top {
       border-bottom: 1px solid ${SEPARATOR_COLOR};
@@ -155,17 +163,22 @@ css/* scss */ `
         display: flex;
         flex-shrink: 0;
         margin-left: 16px;
-        color: #333;
         cursor: default;
 
         .o-tool {
           display: flex;
+          justify-content: center;
           align-items: center;
           margin: 2px;
           padding: 0px 3px;
           border-radius: 2px;
           cursor: pointer;
-          min-width: fit-content;
+          min-width: 20px;
+          svg path,
+          polygon,
+          rect {
+            fill: ${FONT_COLOR};
+          }
         }
 
         .o-tool-outlined {
@@ -176,9 +189,21 @@ css/* scss */ `
           margin-right: 8px;
         }
 
-        .o-tool.active,
+        .o-tool.active {
+          background-color: ${ACTIVE_BG_COLOR};
+          svg path,
+          polygon,
+          rect {
+            fill: ${ACTIVE_FG_COLOR};
+          }
+        }
         .o-tool:not(.o-disabled):hover {
-          background-color: #f1f3f4;
+          background-color: ${HOVERED_BG_COLOR};
+          svg path,
+          polygon,
+          rect {
+            fill: ${HOVERED_FG_COLOR};
+          }
         }
 
         .o-with-color > span {
