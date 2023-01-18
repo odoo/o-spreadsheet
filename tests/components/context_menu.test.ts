@@ -68,8 +68,8 @@ function getMenuPosition() {
   return { left, top: top };
 }
 
-function getSubMenuPosition() {
-  const { left, top } = getElPosition(fixture.querySelectorAll(".o-menu")[1]);
+function getSubMenuPosition(depth = 1) {
+  const { left, top } = getElPosition(fixture.querySelectorAll(".o-menu")[depth]);
   return { left, top: top };
 }
 
@@ -90,8 +90,8 @@ function getMenuSize() {
   return getSize(menuItems.length);
 }
 
-function getSubMenuSize() {
-  const menu = fixture.querySelectorAll(".o-menu")[1];
+function getSubMenuSize(depth = 1) {
+  const menu = fixture.querySelectorAll(".o-menu")[depth];
   const menuItems = menu!.querySelectorAll(".o-menu-item");
   return getSize(menuItems.length);
 }
@@ -767,6 +767,37 @@ describe("Standalone context menu tests", () => {
       expect(rootTop).toBe(clickY - rootHeight);
       expect(top).toBe(clickY - height);
       expect(left).toBe(clickX + width);
+    });
+
+    test("multi depth menu is properly placed on the screen", async () => {
+      const subMenus: FullMenuItem[] = [
+        createFullMenuItem("root", {
+          name: "root",
+          sequence: 1,
+          children: [
+            () => [
+              createFullMenuItem("subMenu", {
+                name: "subMenu",
+                sequence: 1,
+                children: [
+                  createFullMenuItem("subSubMenu", {
+                    name: "subSubMenu",
+                    sequence: 1,
+                    action() {},
+                  }),
+                ],
+              }),
+            ],
+          ],
+        }),
+      ];
+      const [clickX] = await renderContextMenu(100, 100, { menuItems: subMenus });
+      await simulateClick("div[data-name='root']");
+      await simulateClick("div[data-name='subMenu']");
+      const { left: secondSubLeft } = getSubMenuPosition(2);
+      const { width: subMenuWidth } = getSubMenuSize();
+      const { width: rootWidth } = getMenuSize();
+      expect(secondSubLeft).toBe(clickX + rootWidth + subMenuWidth);
     });
   });
 });
