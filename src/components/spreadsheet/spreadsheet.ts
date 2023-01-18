@@ -66,7 +66,6 @@ css/* scss */ `
   .o-icon {
     width: ${ICON_EDGE_LENGTH}px;
     height: ${ICON_EDGE_LENGTH}px;
-    opacity: 0.6;
     vertical-align: middle;
   }
 
