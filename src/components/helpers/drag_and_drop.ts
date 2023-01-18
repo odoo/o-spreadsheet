@@ -34,7 +34,10 @@ export function startDnd(
   window.addEventListener("mouseup", _onMouseUp);
   window.addEventListener("dragstart", _onDragStart);
   window.addEventListener("mousemove", _onMouseMove);
-  window.addEventListener("wheel", _onMouseMove);
+  // mouse wheel on window is by default a passive event.
+  // preventDefault() is not allowed in passive event handler.
+  // https://chromestatus.com/feature/6662647093133312
+  window.addEventListener("wheel", _onMouseMove, { passive: false });
 }
 
 /**
