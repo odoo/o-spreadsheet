@@ -220,7 +220,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   openSubMenu(menu: FullMenuItem, menuIndex: number) {
     const y = this.subMenuVerticalPosition(menuIndex);
     this.subMenu.position = {
-      x: this.position.x + MENU_WIDTH,
+      x: this.position.x + this.props.depth * MENU_WIDTH,
       y: y - (this.subMenu.scrollOffset || 0),
     };
     this.subMenu.menuItems = getMenuChildren(menu, this.env).filter(
