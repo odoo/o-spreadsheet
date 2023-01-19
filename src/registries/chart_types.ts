@@ -58,6 +58,7 @@ interface ChartBuilder {
   ): ChartDefinition;
   getChartDefinitionFromContextCreation(context: ChartCreationContext): ChartDefinition;
   name: string;
+  sequence: number;
 }
 
 /**
@@ -79,6 +80,7 @@ chartRegistry.add("bar", {
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     BarChart.getDefinitionFromContextCreation(context),
   name: "Bar",
+  sequence: 10,
 });
 chartRegistry.add("line", {
   match: (type) => type === "line",
@@ -94,6 +96,7 @@ chartRegistry.add("line", {
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     LineChart.getDefinitionFromContextCreation(context),
   name: "Line",
+  sequence: 20,
 });
 chartRegistry.add("pie", {
   match: (type) => type === "pie",
@@ -109,6 +112,7 @@ chartRegistry.add("pie", {
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     PieChart.getDefinitionFromContextCreation(context),
   name: "Pie",
+  sequence: 30,
 });
 chartRegistry.add("scorecard", {
   match: (type) => type === "scorecard",
@@ -124,6 +128,7 @@ chartRegistry.add("scorecard", {
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     ScorecardChart.getDefinitionFromContextCreation(context),
   name: "Scorecard",
+  sequence: 40,
 });
 chartRegistry.add("gauge", {
   match: (type) => type === "gauge",
@@ -139,6 +144,7 @@ chartRegistry.add("gauge", {
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     GaugeChart.getDefinitionFromContextCreation(context),
   name: "Gauge",
+  sequence: 50,
 });
 
 export const chartComponentRegistry = new Registry<new (...args: any) => Component>();

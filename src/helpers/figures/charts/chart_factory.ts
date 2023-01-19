@@ -29,7 +29,7 @@ import { canChartParseLabels } from "./line_chart";
  * Create a function used to create a Chart based on the definition
  */
 export function chartFactory(getters: CoreGetters) {
-  const builders = chartRegistry.getAll();
+  const builders = chartRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
   function createChart(id: UID, definition: ChartDefinition, sheetId: UID): AbstractChart {
     const builder = builders.find((builder) => builder.match(definition.type));
     if (!builder) {
@@ -46,7 +46,7 @@ export function chartFactory(getters: CoreGetters) {
  * instance
  */
 export function chartRuntimeFactory(getters: Getters) {
-  const builders = chartRegistry.getAll();
+  const builders = chartRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
   function createRuntimeChart(chart: AbstractChart): ChartRuntime {
     const builder = builders.find((builder) => builder.match(chart.type));
     if (!builder) {
