@@ -373,7 +373,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   onMenuMouseOver(menu: FullMenuItem, ev: MouseEvent) {
     if (this.isSelectingMenu) {
-      this.toggleContextMenu(menu, ev);
+      this.openMenu(menu, ev);
     }
   }
 
@@ -385,7 +385,14 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   toggleContextMenu(menu: FullMenuItem, ev: MouseEvent) {
-    this.closeMenus();
+    if (this.state.menuState.isOpen) {
+      this.closeMenus();
+    } else {
+      this.openMenu(menu, ev);
+    }
+  }
+
+  private openMenu(menu: FullMenuItem, ev: MouseEvent) {
     const { left, top, height } = (ev.target as HTMLElement).getBoundingClientRect();
     this.state.menuState.isOpen = true;
     this.state.menuState.position = { x: left, y: top + height };
