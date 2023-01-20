@@ -558,6 +558,17 @@ describe("merges", () => {
     expect(merge(model, "A1:A2", "invalid")).toBeCancelledBecause(CommandResult.InvalidSheetId);
   });
 
+  test("un-merge zone when there is none is refused", () => {
+    const model = new Model();
+    expect(unMerge(model, "A1:A2")).toBeCancelledBecause(CommandResult.InvalidTarget);
+  });
+
+  test("un-merge zone overlapping another merge is refused", () => {
+    const model = new Model();
+    merge(model, "A2:A3");
+    expect(unMerge(model, "A1:A2")).toBeCancelledBecause(CommandResult.InvalidTarget);
+  });
+
   test("import merge with style", () => {
     const model = new Model({
       sheets: [
