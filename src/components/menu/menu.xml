@@ -1,13 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-Menu" owl="1">
-    <Popover
-      t-if="props.menuItems.length"
-      anchorRect="popover.anchorRect"
-      positioning="popover.positioning"
-      verticalOffset="popover.verticalOffset"
-      onPopoverHidden="() => this.closeSubMenu()"
-      onPopoverMoved="() => this.closeSubMenu()"
-      maxHeight="menuHeight">
+    <Popover t-if="props.menuItems.length" t-props="popoverProps">
       <div
         t-ref="menu"
         class="o-menu"

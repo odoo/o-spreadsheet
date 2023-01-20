@@ -130,7 +130,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     return 2 * MENU_VERTICAL_PADDING + menuItemsHeight;
   }
 
-  get popover(): PopoverProps {
+  get popoverProps(): PopoverProps {
     const isRoot = this.props.depth === 1;
     return {
       anchorRect: {
@@ -141,6 +141,9 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
       },
       positioning: "TopRight",
       verticalOffset: isRoot ? 0 : MENU_VERTICAL_PADDING,
+      onPopoverHidden: () => this.closeSubMenu(),
+      onPopoverMoved: () => this.closeSubMenu(),
+      maxHeight: this.menuHeight,
     };
   }
 

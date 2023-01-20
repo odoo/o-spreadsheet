@@ -26,9 +26,9 @@ export interface PopoverProps {
   /** Offset to apply to the vertical position of the popover.*/
   verticalOffset: number;
 
-  onMouseWheel?: () => {};
-  onPopoverMoved?: () => {};
-  onPopoverHidden?: () => {};
+  onMouseWheel?: () => void;
+  onPopoverMoved?: () => void;
+  onPopoverHidden?: () => void;
 }
 
 css/* scss */ `
