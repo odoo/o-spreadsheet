@@ -617,6 +617,9 @@ export class SheetViewPlugin extends UIPlugin {
   }
 
   private resetViewports(sheetId: UID) {
+    if (!this.getters.tryGetSheet(sheetId)) {
+      return;
+    }
     const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
     const nCols = this.getters.getNumberCols(sheetId);
     const nRows = this.getters.getNumberRows(sheetId);
