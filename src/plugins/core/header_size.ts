@@ -36,6 +36,13 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
         break;
       }
       case "DUPLICATE_SHEET":
+        // make sure the values are computed in case the original sheet is deleted
+        for (const row of this.sizes[cmd.sheetId].ROW) {
+          row.computedSize();
+        }
+        for (const col of this.sizes[cmd.sheetId].COL) {
+          col.computedSize();
+        }
         this.history.update("sizes", cmd.sheetIdTo, deepCopy(this.sizes[cmd.sheetId]));
         break;
       case "DELETE_SHEET":
