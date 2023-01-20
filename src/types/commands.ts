@@ -1061,6 +1061,7 @@ export const enum CommandResult {
   WillRemoveExistingMerge,
   MergeIsDestructive,
   CellIsMerged,
+  InvalidTarget,
   EmptyUndoStack,
   EmptyRedoStack,
   NotEnoughElements,
