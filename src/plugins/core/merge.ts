@@ -10,7 +10,7 @@ import {
   zoneToDimension,
   zoneToXc,
 } from "../../helpers/index";
-import { _lt } from "../../translation";
+import { TargetCommand } from "../../types/collaborative/ot_types";
 import {
   AddMergeCommand,
   ApplyRangeChange,
@@ -71,6 +71,8 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
         return this.checkValidations(cmd, this.checkDestructiveMerge, this.checkOverlap);
       case "UPDATE_CELL":
         return this.checkMergedContentUpdate(cmd);
+      case "REMOVE_MERGE":
+        return this.checkMergeExists(cmd);
       default:
         return CommandResult.Success;
     }
@@ -311,6 +313,18 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     return CommandResult.CellIsMerged;
   }
 
+  private checkMergeExists(cmd: TargetCommand): CommandResult {
+    const { sheetId, target } = cmd;
+    for (const zone of target) {
+      const { left, top } = zone;
+      const merge = this.getMerge(sheetId, left, top);
+      if (merge === undefined || !isEqual(zone, merge)) {
+        return CommandResult.InvalidTarget;
+      }
+    }
+    return CommandResult.Success;
+  }
+
   /**
    * Merge the current selection. Note that:
    * - it assumes that we have a valid selection (no intersection with other
@@ -378,7 +392,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     const { left, top, bottom, right } = zone;
     const merge = this.getMerge(sheetId, left, top);
     if (merge === undefined || !isEqual(zone, merge)) {
-      throw new Error(_lt("Invalid merge zone"));
+      return;
     }
     this.history.update("merges", sheetId, merge.id, undefined);
     for (let r = top; r <= bottom; r++) {
