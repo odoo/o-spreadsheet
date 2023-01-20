@@ -79,14 +79,13 @@ export class FilterEvaluationPlugin extends UIPlugin {
         break;
       case "DUPLICATE_SHEET":
         const filterValues: Record<FilterId, string[]> = {};
-        for (const copiedFilter of this.getters.getFilters(cmd.sheetId)) {
-          const zone = copiedFilter.zoneWithHeaders;
-          const newFilter = this.getters.getFilter({
-            sheetId: cmd.sheetIdTo,
+        for (const newFilter of this.getters.getFilters(cmd.sheetIdTo)) {
+          const zone = newFilter.zoneWithHeaders;
+          filterValues[newFilter.id] = this.getFilterValues({
+            sheetId: cmd.sheetId,
             col: zone.left,
             row: zone.top,
-          })!;
-          filterValues[newFilter.id] = this.filterValues[cmd.sheetId]?.[copiedFilter.id] || [];
+          });
         }
         this.filterValues[cmd.sheetIdTo] = filterValues;
         break;
