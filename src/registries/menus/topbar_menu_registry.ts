@@ -23,12 +23,14 @@ topbarMenuRegistry
     description: "Ctrl+Z",
     sequence: 10,
     action: ACTIONS.UNDO_ACTION,
+    icon: "o-spreadsheet-Icon.UNDO",
   })
   .addChild("redo", ["edit"], {
     name: _lt("Redo"),
     description: "Ctrl+Y",
     sequence: 20,
     action: ACTIONS.REDO_ACTION,
+    icon: "o-spreadsheet-Icon.REDO",
     separator: true,
   })
   .addChild("copy", ["edit"], {
@@ -416,23 +418,27 @@ topbarMenuRegistry
     sequence: 20,
     description: "Ctrl+B",
     action: ACTIONS.FORMAT_BOLD_ACTION,
+    icon: "o-spreadsheet-Icon.BOLD",
   })
   .addChild("format_italic", ["format"], {
     name: _lt("Italic"),
     sequence: 30,
     description: "Ctrl+I",
     action: ACTIONS.FORMAT_ITALIC_ACTION,
+    icon: "o-spreadsheet-Icon.ITALIC",
   })
   .addChild("format_underline", ["format"], {
     name: _lt("Underline"),
     description: "Ctrl+U",
     sequence: 40,
     action: ACTIONS.FORMAT_UNDERLINE_ACTION,
+    icon: "o-spreadsheet-Icon.UNDERLINE",
   })
   .addChild("format_strikethrough", ["format"], {
     name: _lt("Strikethrough"),
     sequence: 50,
     action: ACTIONS.FORMAT_STRIKETHROUGH_ACTION,
+    icon: "o-spreadsheet-Icon.STRIKE",
     separator: true,
   })
   .addChild("format_font_size", ["format"], {
@@ -443,58 +449,69 @@ topbarMenuRegistry
   .addChild("format_alignment", ["format"], {
     name: _lt("Alignment"),
     sequence: 70,
+    icon: "o-spreadsheet-Icon.ALIGN_LEFT",
   })
   .addChild("format_alignment_left", ["format", "format_alignment"], {
     name: "Left",
     sequence: 10,
     action: (env: SpreadsheetChildEnv) => setStyle(env, { align: "left" }),
+    icon: "o-spreadsheet-Icon.ALIGN_LEFT",
   })
   .addChild("format_alignment_center", ["format", "format_alignment"], {
     name: "Center",
     sequence: 20,
     action: (env: SpreadsheetChildEnv) => setStyle(env, { align: "center" }),
+    icon: "o-spreadsheet-Icon.ALIGN_CENTER",
   })
   .addChild("format_alignment_right", ["format", "format_alignment"], {
     name: "Right",
     sequence: 30,
     action: (env: SpreadsheetChildEnv) => setStyle(env, { align: "right" }),
+    icon: "o-spreadsheet-Icon.ALIGN_RIGHT",
     separator: true,
   })
   .addChild("format_alignment_top", ["format", "format_alignment"], {
     name: "Top",
     sequence: 40,
     action: (env: SpreadsheetChildEnv) => setStyle(env, { verticalAlign: "top" }),
+    icon: "o-spreadsheet-Icon.ALIGN_TOP",
   })
   .addChild("format_alignment_middle", ["format", "format_alignment"], {
     name: "Middle",
     sequence: 50,
     action: (env: SpreadsheetChildEnv) => setStyle(env, { verticalAlign: "middle" }),
+    icon: "o-spreadsheet-Icon.ALIGN_MIDDLE",
   })
   .addChild("format_alignment_bottom", ["format", "format_alignment"], {
     name: "Bottom",
     sequence: 60,
     action: (env: SpreadsheetChildEnv) => setStyle(env, { verticalAlign: "bottom" }),
+    icon: "o-spreadsheet-Icon.ALIGN_BOTTOM",
     separator: true,
   })
   .addChild("format_wrapping", ["format"], {
     name: _lt("Wrapping"),
     sequence: 80,
+    icon: "o-spreadsheet-Icon.WRAPPING_OVERFLOW",
     separator: true,
   })
   .addChild("format_wrapping_overflow", ["format", "format_wrapping"], {
     name: _lt("Overflow"),
     sequence: 10,
     action: (env: SpreadsheetChildEnv) => setStyle(env, { wrapping: "overflow" }),
+    icon: "o-spreadsheet-Icon.WRAPPING_OVERFLOW",
   })
   .addChild("format_wrapping_wrap", ["format", "format_wrapping"], {
     name: _lt("Wrap"),
     sequence: 20,
     action: (env: SpreadsheetChildEnv) => setStyle(env, { wrapping: "wrap" }),
+    icon: "o-spreadsheet-Icon.WRAPPING_WRAP",
   })
   .addChild("format_wrapping_clip", ["format", "format_wrapping"], {
     name: _lt("Clip"),
     sequence: 30,
     action: (env: SpreadsheetChildEnv) => setStyle(env, { wrapping: "clip" }),
+    icon: "o-spreadsheet-Icon.WRAPPING_CLIP",
   })
   .addChild("format_cf", ["format"], {
     name: _lt("Conditional formatting"),
@@ -506,6 +523,7 @@ topbarMenuRegistry
     name: _lt("Clear formatting"),
     sequence: 100,
     action: ACTIONS.FORMAT_CLEARFORMAT_ACTION,
+    icon: "o-spreadsheet-Icon.CLEAR_FORMAT",
     separator: true,
   })
   .addChild("add_data_filter", ["data"], {
@@ -514,12 +532,14 @@ topbarMenuRegistry
     action: ACTIONS.FILTERS_CREATE_FILTER_TABLE,
     isVisible: (env) => !ACTIONS.SELECTION_CONTAINS_FILTER(env),
     isEnabled: (env) => ACTIONS.SELECTION_IS_CONTINUOUS(env),
+    icon: "o-spreadsheet-Icon.FILTER_ICON_INACTIVE",
   })
   .addChild("remove_data_filter", ["data"], {
     name: _lt("Remove filter"),
     sequence: 10,
     action: ACTIONS.FILTERS_REMOVE_FILTER_TABLE,
     isVisible: ACTIONS.SELECTION_CONTAINS_FILTER,
+    icon: "o-spreadsheet-Icon.FILTER_ICON_INACTIVE",
   });
 
 // Font-sizes
