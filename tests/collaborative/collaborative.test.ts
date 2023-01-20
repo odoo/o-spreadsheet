@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { args, functionRegistry } from "../../src/functions";
-import { range, toCartesian, toZone } from "../../src/helpers";
+import { getDefaultCellHeight, range, toCartesian, toZone } from "../../src/helpers";
 import { CommandResult, CoreCommand } from "../../src/types";
 import { CollaborationMessage } from "../../src/types/collaborative/transport_service";
 import {
@@ -24,6 +24,7 @@ import {
   redo,
   selectCell,
   setCellContent,
+  setStyle,
   undo,
 } from "../test_helpers/commands_helpers";
 import {
@@ -989,6 +990,22 @@ describe("Multi users synchronisation", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getFilterValues({ sheetId: "sheet2", col: 0, row: 0 }),
       []
+    );
+  });
+
+  test("row size for a duplicated sheet and the original sheet deleted", () => {
+    const firstSheetId = alice.getters.getActiveSheetId();
+    network.concurrent(() => {
+      setStyle(bob, "A1", { fontSize: 36 });
+      charlie.dispatch("DUPLICATE_SHEET", {
+        sheetId: firstSheetId,
+        sheetIdTo: "sheet2",
+      });
+      charlie.dispatch("DELETE_SHEET", { sheetId: firstSheetId });
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getRowSize("sheet2", 0),
+      getDefaultCellHeight({ fontSize: 36 })
     );
   });
 });
