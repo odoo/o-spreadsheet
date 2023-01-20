@@ -11,10 +11,12 @@ import {
   deleteColumns,
   deleteRows,
   deleteSheet,
+  freezeColumns,
   redo,
   setCellContent,
   snapshot,
   undo,
+  unfreezeColumns,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getStyle } from "../test_helpers/getters_helpers";
 import { getPlugin, target } from "../test_helpers/helpers";
@@ -1024,5 +1026,20 @@ describe("Collaborative local history", () => {
     });
     expect(redo(charlie)).toBeCancelledBecause(CommandResult.EmptyRedoStack);
     expect(all).toHaveSynchronizedExportedData();
+  });
+
+  test("undo operation before unfreeze and sheet creation", () => {
+    const firstSheetId = alice.getters.getActiveSheetId();
+    freezeColumns(alice, 1, firstSheetId);
+    setCellContent(alice, "A1", "hello");
+    unfreezeColumns(charlie, firstSheetId);
+    // charlies's active sheet is "sheet2" but "sheet2" does not exists when
+    // "UNFREEZE_COLUMNS" is replayed.
+    createSheet(charlie, { sheetId: "sheet2", activate: true });
+    undo(alice);
+    expect(all).toHaveSynchronizedValue((user) => user.getters.getPaneDivisions(firstSheetId), {
+      xSplit: 0,
+      ySplit: 0,
+    });
   });
 });
