@@ -15,6 +15,7 @@ import {
   freezeRows,
   hideColumns,
   hideRows,
+  merge,
   moveSheet,
   renameSheet,
   selectCell,
@@ -865,6 +866,28 @@ describe("Collaborative Sheet manipulation", () => {
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      {
+        xSplit: 0,
+        ySplit: 0,
+      }
+    );
+  });
+
+  test("merge does not prevent freeze in other sheet", () => {
+    const firstSheetId = alice.getters.getActiveSheetId();
+    createSheet(bob, { sheetId: "sheet2", activate: true });
+    merge(alice, "A1:A10");
+    // Bob's active sheet is sheet2, Alice's is sheet1
+    freezeRows(bob, 4, "sheet2");
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getPaneDivisions("sheet2"),
+      {
+        xSplit: 0,
+        ySplit: 4,
+      }
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getPaneDivisions(firstSheetId),
       {
         xSplit: 0,
         ySplit: 0,
