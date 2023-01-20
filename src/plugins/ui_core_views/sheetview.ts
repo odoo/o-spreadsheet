@@ -122,26 +122,6 @@ export class SheetViewPlugin extends UIPlugin {
           this.checkValuesAreDifferent,
           this.checkPositiveDimension
         )(cmd);
-      case "FREEZE_COLUMNS": {
-        const sheetId = this.getters.getActiveSheetId();
-        const merges = this.getters.getMerges(sheetId);
-        for (let merge of merges) {
-          if (merge.left < cmd.quantity && cmd.quantity <= merge.right) {
-            return CommandResult.MergeOverlap;
-          }
-        }
-        return CommandResult.Success;
-      }
-      case "FREEZE_ROWS": {
-        const sheetId = this.getters.getActiveSheetId();
-        const merges = this.getters.getMerges(sheetId);
-        for (let merge of merges) {
-          if (merge.top < cmd.quantity && cmd.quantity <= merge.bottom) {
-            return CommandResult.MergeOverlap;
-          }
-        }
-        return CommandResult.Success;
-      }
       default:
         return CommandResult.Success;
     }
