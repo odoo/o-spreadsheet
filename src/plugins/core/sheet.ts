@@ -19,6 +19,8 @@ import {
   CreateSheetCommand,
   Dimension,
   ExcelWorkbookData,
+  FreezeColumnsCommand,
+  FreezeRowsCommand,
   HeaderIndex,
   PaneDivision,
   RenameSheetCommand,
@@ -125,14 +127,18 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           : CommandResult.NotEnoughElements;
       }
       case "FREEZE_ROWS": {
-        return cmd.quantity >= 1 && cmd.quantity < this.getNumberRows(cmd.sheetId)
-          ? CommandResult.Success
-          : CommandResult.InvalidFreezeQuantity;
+        return this.checkValidations(
+          cmd,
+          this.checkRowFreezeQuantity,
+          this.checkRowFreezeOverlapMerge
+        );
       }
       case "FREEZE_COLUMNS": {
-        return cmd.quantity >= 1 && cmd.quantity < this.getNumberCols(cmd.sheetId)
-          ? CommandResult.Success
-          : CommandResult.InvalidFreezeQuantity;
+        return this.checkValidations(
+          cmd,
+          this.checkColFreezeQuantity,
+          this.checkColFreezeOverlapMerge
+        );
       }
       default:
         return CommandResult.Success;
@@ -599,6 +605,38 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     const { orderedSheetIds } = this;
     if (cmd.position > orderedSheetIds.length || cmd.position < 0) {
       return CommandResult.WrongSheetPosition;
+    }
+    return CommandResult.Success;
+  }
+
+  private checkRowFreezeQuantity(cmd: FreezeRowsCommand): CommandResult {
+    return cmd.quantity >= 1 && cmd.quantity < this.getNumberRows(cmd.sheetId)
+      ? CommandResult.Success
+      : CommandResult.InvalidFreezeQuantity;
+  }
+
+  private checkColFreezeQuantity(cmd: FreezeColumnsCommand): CommandResult {
+    return cmd.quantity >= 1 && cmd.quantity < this.getNumberCols(cmd.sheetId)
+      ? CommandResult.Success
+      : CommandResult.InvalidFreezeQuantity;
+  }
+
+  private checkRowFreezeOverlapMerge(cmd: FreezeRowsCommand): CommandResult {
+    const merges = this.getters.getMerges(cmd.sheetId);
+    for (let merge of merges) {
+      if (merge.top < cmd.quantity && cmd.quantity <= merge.bottom) {
+        return CommandResult.MergeOverlap;
+      }
+    }
+    return CommandResult.Success;
+  }
+
+  private checkColFreezeOverlapMerge(cmd: FreezeColumnsCommand): CommandResult {
+    const merges = this.getters.getMerges(cmd.sheetId);
+    for (let merge of merges) {
+      if (merge.left < cmd.quantity && cmd.quantity <= merge.right) {
+        return CommandResult.MergeOverlap;
+      }
     }
     return CommandResult.Success;
   }
