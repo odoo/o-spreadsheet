@@ -78,10 +78,9 @@ export class FilterEvaluationPlugin extends UIPlugin {
         break;
       case "DUPLICATE_SHEET":
         const filterValues: Record<FilterId, string[]> = {};
-        for (const copiedFilter of this.getters.getFilters(cmd.sheetId)) {
-          const zone = copiedFilter.zoneWithHeaders;
-          const newFilter = this.getters.getFilter(cmd.sheetIdTo, zone.left, zone.top)!;
-          filterValues[newFilter.id] = this.filterValues[cmd.sheetId]?.[copiedFilter.id] || [];
+        for (const newFilter of this.getters.getFilters(cmd.sheetIdTo)) {
+          const zone = newFilter.zoneWithHeaders;
+          filterValues[newFilter.id] = this.getFilterValues(cmd.sheetId, zone.left, zone.top);
         }
         this.filterValues[cmd.sheetIdTo] = filterValues;
         break;
