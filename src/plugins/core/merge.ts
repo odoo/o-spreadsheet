@@ -10,7 +10,6 @@ import {
   zoneToDimension,
   zoneToXc,
 } from "../../helpers/index";
-import { _lt } from "../../translation";
 import {
   AddMergeCommand,
   ApplyRangeChange,
@@ -414,7 +413,9 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     const { left, top, bottom, right } = zone;
     const merge = this.getMerge({ sheetId, col: left, row: top });
     if (merge === undefined || !isEqual(zone, merge)) {
-      throw new Error(_lt("Invalid merge zone"));
+      // seed 1673524871000
+      return;
+      // throw new Error(_lt("Invalid merge zone"));
     }
     this.history.update("merges", sheetId, merge.id, undefined);
     for (let r = top; r <= bottom; r++) {

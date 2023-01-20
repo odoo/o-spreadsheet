@@ -2,6 +2,7 @@ import seedrandom from "seedrandom";
 import { Model } from "../../src";
 import { deepCopy, range } from "../../src/helpers";
 import { Command } from "../../src/types";
+import { createSheet, setCellContent, undo } from "../test_helpers/commands_helpers";
 // import { redo, undo } from "../test_helpers/commands_helpers";
 import { printDebugModel } from "../test_helpers/debug_helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
@@ -78,8 +79,8 @@ describe("monkey party", () => {
   //1643365577223
   // 1643639531275 1643639531325
   // export cells 1643724900272
-  test.each(["1673524871000"])("monkey party with seed %s", (seed) => {
-    //   test.each(seeds)("monkey party with seed %s", (seed) => {
+  // test.each(["1674142171098"])("monkey party with seed %s", (seed) => {
+  test.each(seeds)("monkey party with seed %s", (seed) => {
     // test("monkey party with seed %s", () => {
     seedrandom(seed, { global: true });
     shuffle;
@@ -112,15 +113,16 @@ describe("monkey party", () => {
                 command.type
               }", ${JSON.stringify({ ...command, type: undefined })});`
             );
+            // if (count === 17) {
+            //   console.log(x.join("\n"));
+            // }
             user.dispatch(command.type, deepCopy(command));
           }
         }
-        if (count === 12) {
-          // console.log(x.join("\n"));
-        }
+        // console.log(count);
       });
       x.push("});");
-      // console.log(count);
+      count;
       // printDebugModel(alice);
       // printDebugModel(bob);
       // if (count === 15) {
@@ -130,7 +132,16 @@ describe("monkey party", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
+  undo;
+
   test("Tu dois foirer", () => {
-    seedrandom("1643639531275", { global: true });
+    seedrandom("1674142171098", { global: true });
+
+    setCellContent(alice, "A1", "hello");
+    charlie.dispatch("UNFREEZE_COLUMNS", { sheetId: "Sheet1" });
+    createSheet(charlie, { sheetId: "sheet2", activate: true });
+    printDebugModel(alice);
+    printDebugModel(charlie);
+    undo(alice);
   });
 });
