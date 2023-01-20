@@ -972,4 +972,23 @@ describe("Multi users synchronisation", () => {
       0
     );
   });
+
+  test("duplicate sheet and create data filter concurrently", () => {
+    const firstSheetId = alice.getters.getActiveSheetId();
+    network.concurrent(() => {
+      alice.dispatch("DUPLICATE_SHEET", {
+        sheetId: "Sheet1",
+        sheetIdTo: "sheet2",
+      });
+      createFilter(charlie, "A1:B4", firstSheetId);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getFilterTables("sheet2"),
+      []
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getFilterValues({ sheetId: "sheet2", col: 0, row: 0 }),
+      []
+    );
+  });
 });
