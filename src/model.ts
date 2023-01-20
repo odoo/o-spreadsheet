@@ -321,7 +321,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     for (let command of commands) {
       const previousStatus = this.status;
       this.status = Status.RunningCore;
-      this.dispatchToHandlers(this.allUIPlugins, command);
+      this.dispatchToHandlers(this.statefulUIPlugins, command);
       this.status = previousStatus;
     }
     this.finalize();
