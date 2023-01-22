@@ -1,5 +1,5 @@
 import { NumberFormatTerms } from "../../components/translations_terms";
-import { FONT_SIZES } from "../../constants";
+import { DEFAULT_FONT_SIZE, FONT_SIZES } from "../../constants";
 import { functionRegistry } from "../../functions/index";
 import { isDefined } from "../../helpers";
 import { interactiveFreezeColumnsRows } from "../../helpers/ui/freeze_interactive";
@@ -355,12 +355,14 @@ topbarMenuRegistry
     sequence: 10,
     separator: true,
     action: ACTIONS.FORMAT_AUTOMATIC_ACTION,
+    isActive: (env) => isAutomaticFormatSelected(env),
   })
   .addChild("format_number_number", ["format", "format_number"], {
     name: NumberFormatTerms.Number,
     description: "1,000.12",
     sequence: 20,
     action: ACTIONS.FORMAT_NUMBER_ACTION,
+    isActive: (env) => isFormatSelected(env, "#,##0.00"),
   })
   .addChild("format_number_percent", ["format", "format_number"], {
     name: NumberFormatTerms.Percent,
@@ -368,18 +370,21 @@ topbarMenuRegistry
     sequence: 30,
     separator: true,
     action: ACTIONS.FORMAT_PERCENT_ACTION,
+    isActive: (env) => isFormatSelected(env, "0.00%"),
   })
   .addChild("format_number_currency", ["format", "format_number"], {
     name: NumberFormatTerms.Currency,
     description: "$1,000.12",
     sequence: 37,
     action: ACTIONS.FORMAT_CURRENCY_ACTION,
+    isActive: (env) => isFormatSelected(env, "[$$]#,##0.00"),
   })
   .addChild("format_number_currency_rounded", ["format", "format_number"], {
     name: NumberFormatTerms.CurrencyRounded,
     description: "$1,000",
     sequence: 38,
     action: ACTIONS.FORMAT_CURRENCY_ROUNDED_ACTION,
+    isActive: (env) => isFormatSelected(env, "[$$]#,##0"),
   })
   .addChild("format_custom_currency", ["format", "format_number"], {
     name: NumberFormatTerms.CustomCurrency,
@@ -393,18 +398,21 @@ topbarMenuRegistry
     description: "9/26/2008",
     sequence: 40,
     action: ACTIONS.FORMAT_DATE_ACTION,
+    isActive: (env) => isFormatSelected(env, "m/d/yyyy"),
   })
   .addChild("format_number_time", ["format", "format_number"], {
     name: NumberFormatTerms.Time,
     description: "10:43:00 PM",
     sequence: 50,
     action: ACTIONS.FORMAT_TIME_ACTION,
+    isActive: (env) => isFormatSelected(env, "hh:mm:ss a"),
   })
   .addChild("format_number_date_time", ["format", "format_number"], {
     name: NumberFormatTerms.DateTime,
     description: "9/26/2008 22:43:00",
     sequence: 60,
     action: ACTIONS.FORMAT_DATE_TIME_ACTION,
+    isActive: (env) => isFormatSelected(env, "m/d/yyyy hh:mm:ss"),
   })
   .addChild("format_number_duration", ["format", "format_number"], {
     name: NumberFormatTerms.Duration,
@@ -412,6 +420,7 @@ topbarMenuRegistry
     sequence: 70,
     separator: true,
     action: ACTIONS.FORMAT_DURATION_ACTION,
+    isActive: (env) => isFormatSelected(env, "hhhh:mm:ss"),
   })
   .addChild("format_bold", ["format"], {
     name: _lt("Bold"),
@@ -548,6 +557,7 @@ for (let fs of FONT_SIZES) {
     name: fs.toString(),
     sequence: fs,
     action: (env: SpreadsheetChildEnv) => ACTIONS.setStyle(env, { fontSize: fs }),
+    isActive: (env: SpreadsheetChildEnv) => isFontSizeSelected(env, fs),
   });
 }
 
@@ -559,4 +569,19 @@ function createFormulaFunctionMenuItems(fnNames: string[]): MenuItemSpec[] {
       action: (env) => env.startCellEdition(`=${fnName}(`),
     };
   });
+}
+
+function isAutomaticFormatSelected(env: SpreadsheetChildEnv) {
+  const activeCell = env.model.getters.getActiveCell();
+  return !activeCell || !activeCell.format;
+}
+
+function isFormatSelected(env: SpreadsheetChildEnv, format: string): boolean {
+  const activeCell = env.model.getters.getActiveCell();
+  return activeCell && activeCell.format === format;
+}
+
+function isFontSizeSelected(env: SpreadsheetChildEnv, fontSize: number) {
+  const currentFontSize = env.model.getters.getCurrentStyle().fontSize || DEFAULT_FONT_SIZE;
+  return currentFontSize === fontSize;
 }
