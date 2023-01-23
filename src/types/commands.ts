@@ -423,6 +423,7 @@ export interface CreateChartCommand extends SheetDependentCommand {
   id: UID;
   position?: { x: number; y: number };
   size?: FigureSize;
+  sourceChartId?: string;
   definition: ChartDefinition;
 }
 

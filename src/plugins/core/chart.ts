@@ -93,6 +93,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
                 size: { width: fig.width, height: fig.height },
                 definition: chart.getDefinition(),
                 sheetId: cmd.sheetIdTo,
+                sourceChartId: fig.id,
               });
             }
           }

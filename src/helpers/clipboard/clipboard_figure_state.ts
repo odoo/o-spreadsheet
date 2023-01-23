@@ -116,6 +116,7 @@ export class ClipboardFigureState implements ClipboardState {
 
 export class ClipboardFigureChart {
   private readonly copiedChart: AbstractChart;
+  private readonly sourceChartId: string;
 
   constructor(
     private dispatch: CommandDispatcher["dispatch"],
@@ -128,6 +129,7 @@ export class ClipboardFigureChart {
       throw new Error(`No chart for the given id: ${copiedFigureId}`);
     }
     this.copiedChart = chart.copyInSheetId(sheetId);
+    this.sourceChartId = copiedFigureId;
   }
 
   paste(sheetId: UID, figureId: UID, position: { x: number; y: number }, size: FigureSize) {
@@ -137,6 +139,7 @@ export class ClipboardFigureChart {
       sheetId,
       position,
       size,
+      sourceChartId: this.sourceChartId,
       definition: copy.getDefinition(),
     });
   }
