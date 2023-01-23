@@ -16,7 +16,7 @@ import {
   setCellContent,
   setSelection,
 } from "../test_helpers/commands_helpers";
-import { triggerMouseEvent } from "../test_helpers/dom_helper";
+import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getBorder, getCell } from "../test_helpers/getters_helpers";
 import {
   makeTestFixture,
@@ -105,6 +105,23 @@ describe("TopBar component", () => {
     await nextTick();
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
     expect(fixture.querySelectorAll(".o-color-line").length).toBe(0);
+    app.destroy();
+  });
+
+  test("Menu should be closed while clicking on composer", async () => {
+    const { app } = await mountParent();
+
+    expect(fixture.querySelectorAll(".o-menu").length).toBe(0);
+    fixture
+      .querySelector(".o-topbar-menu[data-id='file']")!
+      .dispatchEvent(new Event("click", { bubbles: true }));
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu").length).toBe(1);
+    const topbarComposerElement = fixture.querySelector(
+      ".o-topbar-toolbar .o-composer-container div"
+    )!;
+    await simulateClick(topbarComposerElement);
+    expect(fixture.querySelectorAll(".o-menu").length).toBe(0);
     app.destroy();
   });
 

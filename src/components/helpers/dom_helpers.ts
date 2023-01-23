@@ -14,3 +14,7 @@ export function gridOverlayPosition() {
   }
   throw new Error("Can't find spreadsheet position");
 }
+
+export function getOpenedMenus(): HTMLElement[] {
+  return Array.from(document.querySelectorAll<HTMLElement>(".o-spreadsheet .o-menu"));
+}
