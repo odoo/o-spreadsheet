@@ -14,7 +14,7 @@
         t-on-mousewheel.stop=""
         t-on-input="onInput"
         t-on-keyup="onKeyup"
-        t-on-click.stop="onClick"
+        t-on-click="onClick"
         t-on-blur="onBlur"
         t-on-paste.stop=""
         t-on-compositionstart="onCompositionStart"

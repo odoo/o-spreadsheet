@@ -43,6 +43,7 @@
         maxHeight="props.maxHeight"
         onMenuClicked="props.onMenuClicked"
         onClose="() => this.close()"
+        menuId="props.menuId"
       />
     </Popover>
   </t>

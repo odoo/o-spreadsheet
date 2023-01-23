@@ -1,7 +1,7 @@
 import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
 import { BACKGROUND_GRAY_COLOR, HEADER_WIDTH } from "../../constants";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
-import { Pixel, SpreadsheetChildEnv } from "../../types";
+import { MenuMouseEvent, Pixel, SpreadsheetChildEnv, UID } from "../../types";
 import { Ripple } from "../animation/ripple";
 import { BottomBarSheet } from "../bottom_bar_sheet/bottom_bar_sheet";
 import { BottomBarStatistic } from "../bottom_bar_statistic/bottom_bar_statistic";
@@ -77,7 +77,7 @@ interface Props {
 }
 
 interface BottomBarMenuState extends MenuState {
-  menuId?: string;
+  menuId: UID | undefined;
 }
 
 export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
@@ -154,14 +154,14 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     this.menuState.position = { x, y };
   }
 
-  onSheetContextMenu(sheet: string, registry: MenuItemRegistry, ev: MouseEvent) {
+  onSheetContextMenu(sheetId: UID, registry: MenuItemRegistry, ev: MenuMouseEvent) {
     const target = ev.currentTarget as HTMLElement;
     const { top, left } = target.getBoundingClientRect();
-    if (this.menuState.isOpen && this.menuState.menuId === sheet) {
+    if (ev.closedMenuId === sheetId) {
       this.closeMenu();
       return;
     }
-    this.openContextMenu(left, top, sheet, registry);
+    this.openContextMenu(left, top, sheetId, registry);
   }
 
   closeMenu() {

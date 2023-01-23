@@ -46,3 +46,7 @@ export function setElementScrollTop(el: HTMLElement | null, scroll: number) {
   if (!el) return;
   el.scrollTop = scroll;
 }
+
+export function getOpenedMenus(): HTMLElement[] {
+  return Array.from(document.querySelectorAll<HTMLElement>(".o-spreadsheet .o-menu"));
+}
