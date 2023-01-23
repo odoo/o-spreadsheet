@@ -48,7 +48,7 @@ type Props = {
 class Parent extends Component<Props, SpreadsheetChildEnv> {
   static template = xml/* xml */ `
     <div class="o-spreadsheet">
-      <TopBar focusComposer="state.focusComposer" onClick="() => {}"/>
+      <TopBar focusComposer="state.focusComposer" onClick="() => {}" onComposerContentFocused="() => {}"/>
     </div>
   `;
   static components = { TopBar };
@@ -107,6 +107,16 @@ describe("TopBar component", () => {
     await click(fixture, ".o-tool[title='Horizontal align'] span");
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
     expect(fixture.querySelectorAll(".o-color-line").length).toBe(0);
+    app.destroy();
+  });
+
+  test("Menu should be closed while clicking on composer", async () => {
+    const { app } = await mountParent();
+    expect(fixture.querySelectorAll(".o-menu").length).toBe(0);
+    await click(fixture, ".o-topbar-menu[data-id='file']");
+    expect(fixture.querySelectorAll(".o-menu").length).toBe(1);
+    await click(fixture, ".o-spreadsheet-topbar div.o-composer");
+    expect(fixture.querySelectorAll(".o-menu").length).toBe(0);
     app.destroy();
   });
 
