@@ -49,6 +49,7 @@
         depth="props.depth + 1"
         onMenuClicked="props.onMenuClicked"
         onClose="() => this.close()"
+        menuId="props.menuId"
       />
     </Popover>
   </t>

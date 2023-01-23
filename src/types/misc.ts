@@ -298,3 +298,7 @@ export interface SortOptions {
   /** If true treat empty cells as "0" instead of undefined */
   emptyCellAsZero?: boolean;
 }
+
+export interface MenuMouseEvent extends MouseEvent {
+  closedMenuId?: UID;
+}

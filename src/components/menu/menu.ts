@@ -9,9 +9,9 @@ import {
 } from "../../constants";
 import { FullMenuItem, MenuItem } from "../../registries";
 import { getMenuChildren, getMenuDescription, getMenuName } from "../../registries/menus/helpers";
-import { DOMCoordinates, Pixel, SpreadsheetChildEnv } from "../../types";
+import { DOMCoordinates, MenuMouseEvent, Pixel, SpreadsheetChildEnv, UID } from "../../types";
 import { css } from "../helpers/css";
-import { isChildEvent } from "../helpers/dom_helpers";
+import { getOpenedMenus, isChildEvent } from "../helpers/dom_helpers";
 import { useAbsolutePosition } from "../helpers/position_hook";
 import { Popover } from "../popover/popover";
 
@@ -74,6 +74,7 @@ interface Props {
   depth: number;
   onClose: () => void;
   onMenuClicked?: (ev: CustomEvent) => void;
+  menuId?: UID;
 }
 
 export interface MenuState {
@@ -101,8 +102,8 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   private position = useAbsolutePosition(this.menuRef);
 
   setup() {
-    useExternalListener(window, "click", this.onClick);
-    useExternalListener(window, "contextmenu", this.onContextMenu);
+    useExternalListener(window, "click", this.onExternalClick, { capture: true });
+    useExternalListener(window, "contextmenu", this.onExternalClick, { capture: true });
     onWillUpdateProps((nextProps: Props) => {
       if (nextProps.menuItems !== this.props.menuItems) {
         this.closeSubMenu();
@@ -162,22 +163,14 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     return this.menuComponentHeight(menusAbove) + this.position.y;
   }
 
-  private onClick(ev: MouseEvent) {
+  private onExternalClick(ev: MenuMouseEvent) {
     // Don't close a root menu when clicked to open the submenus.
     const el = this.menuRef.el;
-    if (el && isChildEvent(el, ev)) {
+    if (el && getOpenedMenus().some((el) => isChildEvent(el, ev))) {
       return;
     }
+    ev.closedMenuId = this.props.menuId;
     this.close();
-  }
-
-  private onContextMenu(ev: MouseEvent) {
-    // Don't close a root menu when clicked to open the submenus.
-    const el = this.menuRef.el;
-    if (el && isChildEvent(el, ev)) {
-      return;
-    }
-    this.closeSubMenu();
   }
 
   /**
