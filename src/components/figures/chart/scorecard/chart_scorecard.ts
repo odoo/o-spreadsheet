@@ -1,15 +1,7 @@
-import { Component, useEffect, useRef, useState } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { DEFAULT_FONT } from "../../../../constants";
 import { getFontSizeMatchingWidth, relativeLuminance } from "../../../../helpers";
-import {
-  Color,
-  DOMDimension,
-  Figure,
-  Pixel,
-  Ref,
-  SpreadsheetChildEnv,
-  Style,
-} from "../../../../types";
+import { Color, Figure, Pixel, SpreadsheetChildEnv, Style } from "../../../../types";
 import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
 import { cellTextStyleToCss, cssPropertiesToCss } from "../../../helpers";
 import { css } from "../../../helpers/css";
@@ -92,26 +84,6 @@ interface Props {
 export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ScorecardChart";
   private ctx = document.createElement("canvas").getContext("2d")!;
-  private chartRef!: Ref<HTMLDivElement>;
-
-  private state: DOMDimension = useState({ width: 0, height: 0 });
-
-  setup() {
-    this.chartRef = useRef("chart");
-    const resizeObserver = new ResizeObserver(() => {
-      const { width, height } = this.chartRef.el!.getBoundingClientRect();
-      this.state.width = width;
-      this.state.height = height;
-    });
-    useEffect(
-      () => {
-        const el = this.chartRef.el!;
-        resizeObserver.observe(el);
-        return () => resizeObserver.unobserve(el);
-      },
-      () => [this.chartRef.el]
-    );
-  }
 
   get runtime(): ScorecardChartRuntime {
     return this.env.model.getters.getChartRuntime(this.props.figure.id) as ScorecardChartRuntime;
@@ -168,12 +140,12 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get chartPadding() {
-    return this.state.width * CHART_PADDING_RATIO;
+    return this.props.figure.width * CHART_PADDING_RATIO;
   }
 
   getTextStyles() {
     // If the widest text overflows horizontally, scale it down, and apply the same scaling factors to all the other fonts.
-    const maxLineWidth = this.state.width * (1 - 2 * CHART_PADDING_RATIO);
+    const maxLineWidth = this.props.figure.width * (1 - 2 * CHART_PADDING_RATIO);
     const widestElement = this.getWidestElement();
     const baseFontSize = widestElement.getElementMaxFontSize(this.getDrawableHeight(), this);
     const fontSizeMatchingWidth = getFontSizeMatchingWidth(
@@ -229,7 +201,7 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   /** Get the height of the chart minus all the vertical paddings */
   private getDrawableHeight(): number {
     const verticalPadding = 2 * this.chartPadding;
-    let availableHeight = this.state.height - verticalPadding;
+    let availableHeight = this.props.figure.height - verticalPadding;
     availableHeight -= this.title ? TITLE_FONT_SIZE * LINE_HEIGHT : 0;
     return availableHeight;
   }

@@ -1,8 +1,7 @@
 import { App } from "@odoo/owl";
 import { Model } from "../../src";
-import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH } from "../../src/constants";
 import { toHex } from "../../src/helpers";
-import { Rect, UID } from "../../src/types";
+import { UID } from "../../src/types";
 import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
 import {
   createScorecardChart as createScorecardChartHelper,
@@ -19,21 +18,6 @@ let chartId: string;
 let sheetId: string;
 
 let app: App;
-
-const figureRect: Rect = { x: 0, y: 0, width: 0, height: 0 };
-const defaultRect = { x: 0, y: 0, width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
-
-const originalGetBoundingClientRect = HTMLDivElement.prototype.getBoundingClientRect;
-// @ts-ignore the mock should return a complete DOMRect, not only { top, left }
-jest
-  .spyOn(HTMLDivElement.prototype, "getBoundingClientRect")
-  .mockImplementation(function (this: HTMLDivElement) {
-    const isScoreCard = this.className.includes("o-scorecard");
-    if (isScoreCard) {
-      return figureRect;
-    }
-    return originalGetBoundingClientRect.call(this);
-  });
 
 function getChartElement(): HTMLElement {
   return fixture.querySelector(".o-figure")!;
@@ -70,14 +54,7 @@ async function createScorecardChart(
   chartId?: UID,
   sheetId?: UID
 ) {
-  figureRect.width = DEFAULT_FIGURE_WIDTH;
-  figureRect.height = DEFAULT_FIGURE_HEIGHT;
   createScorecardChartHelper(model, data, chartId, sheetId);
-  await nextTick();
-  // second tick required for the useEffect to be effective
-  // force a triggering of all resizeObservers to ensure the chart is resized
-  //@ts-ignore
-  window.resizers.resize();
   await nextTick();
 }
 
@@ -90,11 +67,6 @@ async function updateScorecardChartSize(width: number, height: number) {
     width,
     height,
   });
-  figureRect.width = width;
-  figureRect.height = height;
-  // force a triggering of all resizeObservers to ensure the chart is resized
-  //@ts-ignore
-  window.resizers.resize();
   await nextTick();
 }
 
@@ -132,13 +104,11 @@ describe("Scorecard charts", () => {
       ],
     };
     ({ app, model } = await mountSpreadsheet(fixture, { model: new Model(data) }));
-    Object.assign(figureRect, defaultRect);
   });
 
   afterEach(() => {
     app.destroy();
     fixture.remove();
-    Object.assign(figureRect, defaultRect);
   });
 
   test("Scorecard snapshot", async () => {
@@ -159,11 +129,7 @@ describe("Scorecard charts", () => {
     await simulateClick(".o-figure");
     expect(getElComputedStyle(".o-figure-wrapper", "width")).toBe("536px");
     expect(getElComputedStyle(".o-figure-wrapper", "height")).toBe("335px");
-    // required to mock getBoundingClientRect
-    figureRect.width -= 300;
-    figureRect.height -= 200;
     await dragElement(".o-fig-anchor.o-topLeft", 300, 200);
-    await nextTick(); // wait for useEffect() of scorecard
     expect(getElComputedStyle(".o-figure-wrapper", "width")).toBe("236px");
     expect(getElComputedStyle(".o-figure-wrapper", "height")).toBe("135px");
     // force a triggering of all resizeObservers to ensure the grid is resized
