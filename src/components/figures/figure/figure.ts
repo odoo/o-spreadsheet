@@ -40,16 +40,14 @@ css/*SCSS*/ `
     height: 100%;
     user-select: none;
 
-    border: solid ${FIGURE_BORDER_COLOR};
     &:focus {
       outline: none;
     }
   }
 
-  div.o-active-figure-border {
+  div.o-figure-border {
     box-sizing: border-box;
     z-index: 1;
-    border: ${ACTIVE_BORDER_WIDTH}px solid ${SELECTION_BORDER_COLOR};
   }
 
   .o-figure-wrapper {
@@ -139,11 +137,14 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private getBorderWidth(): Pixel {
-    return this.env.isDashboard() ? 0 : this.borderWidth;
+    if (this.env.isDashboard()) return 0;
+    return this.isSelected ? ACTIVE_BORDER_WIDTH : this.borderWidth;
   }
 
-  get figureStyle() {
-    return this.props.style + `border-width: ${this.getBorderWidth()}px;`;
+  get borderStyle() {
+    const borderWidth = this.getBorderWidth();
+    const borderColor = this.isSelected ? SELECTION_BORDER_COLOR : FIGURE_BORDER_COLOR;
+    return `border: ${borderWidth}px solid ${borderColor};`;
   }
 
   get wrapperStyle() {
