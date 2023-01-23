@@ -113,6 +113,23 @@ describe("TopBar component", () => {
     app.destroy();
   });
 
+  test("Menu should be closed while clicking on composer", async () => {
+    const { app } = await mountParent();
+
+    expect(fixture.querySelectorAll(".o-menu").length).toBe(0);
+    fixture
+      .querySelector(".o-topbar-menu[data-id='file']")!
+      .dispatchEvent(new Event("click", { bubbles: true }));
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu").length).toBe(1);
+    const topbarComposerElement = fixture.querySelector(
+      ".o-topbar-toolbar .o-composer-container div"
+    )!;
+    await simulateClick(topbarComposerElement);
+    expect(fixture.querySelectorAll(".o-menu").length).toBe(0);
+    app.destroy();
+  });
+
   test("merging cell button state is correct", async () => {
     const model = new Model({
       sheets: [

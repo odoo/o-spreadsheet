@@ -27,7 +27,7 @@
               t-esc="sheet.name"
               t-on-dblclick="(ev) => this.onDblClick(sheet.id, ev)"
             />
-            <span class="o-sheet-icon" t-on-click.stop="(ev) => this.onIconClick(sheet.id, ev)">
+            <span class="o-sheet-icon" t-on-click="(ev) => this.onIconClick(sheet.id, ev)">
               <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
             </span>
           </div>
@@ -50,6 +50,7 @@
         position="menuState.position"
         menuItems="menuState.menuItems"
         onClose="() => this.menuState.isOpen=false"
+        menuId="menuState.menuId"
       />
     </div>
   </t>
