@@ -1,6 +1,12 @@
 import { App, Component, xml } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../src";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, MIN_FIG_SIZE } from "../../src/constants";
+import {
+  DEFAULT_CELL_HEIGHT,
+  DEFAULT_CELL_WIDTH,
+  FIGURE_BORDER_COLOR,
+  MIN_FIG_SIZE,
+  SELECTION_BORDER_COLOR,
+} from "../../src/constants";
 import { figureRegistry } from "../../src/registries";
 import { CreateFigureCommand, Figure, SpreadsheetChildEnv, UID } from "../../src/types";
 import {
@@ -12,7 +18,12 @@ import {
   selectCell,
   setCellContent,
 } from "../test_helpers/commands_helpers";
-import { dragElement, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
+import {
+  dragElement,
+  getElComputedStyle,
+  simulateClick,
+  triggerMouseEvent,
+} from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
 import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
@@ -410,17 +421,32 @@ describe("figures", () => {
     expect(figure.classList).not.toContain("o-dragging");
   });
 
-  test("Figure border disabled on dashboard mode", async () => {
-    const figureId = "someuuid";
-    createFigure(model, { id: figureId, y: 200 });
-    await nextTick();
-    let figure = fixture.querySelector(".o-figure")! as HTMLElement;
-    expect(window.getComputedStyle(figure)["border-width"]).toEqual("1px");
+  describe("Figure border", () => {
+    test("Border for figure", async () => {
+      createFigure(model);
+      await nextTick();
+      expect(getElComputedStyle(".o-figure-border", "border")).toEqual(
+        `1px solid ${FIGURE_BORDER_COLOR}`
+      );
+    });
 
-    model.updateMode("dashboard");
-    await nextTick();
-    figure = fixture.querySelector(".o-figure")! as HTMLElement;
-    expect(window.getComputedStyle(figure)["border-width"]).toEqual("0px");
+    test("Border for selected chart", async () => {
+      createFigure(model, { id: "figureId" });
+      model.dispatch("SELECT_FIGURE", { id: "figureId" });
+      await nextTick();
+      expect(getElComputedStyle(".o-figure-border", "border")).toEqual(
+        `2px solid ${SELECTION_BORDER_COLOR}`
+      );
+    });
+
+    test("No border in dashboard mode", async () => {
+      createFigure(model, { id: "figureId" });
+      await nextTick();
+      expect(getElComputedStyle(".o-figure-border", "border-width")).toEqual("1px");
+      model.updateMode("dashboard");
+      await nextTick();
+      expect(getElComputedStyle(".o-figure-border", "border-width")).toEqual("0px");
+    });
   });
 
   test("Selected figure isn't removed by scroll", async () => {
