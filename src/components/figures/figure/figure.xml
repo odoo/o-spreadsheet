@@ -5,7 +5,7 @@
         class="o-figure w-100 h-100"
         t-on-mousedown.stop="(ev) => this.onMouseDown(ev)"
         t-ref="figure"
-        t-att-style="figureStyle"
+        t-att-style="props.style"
         tabindex="0"
         t-on-keydown="(ev) => this.onKeyDown(ev)"
         t-on-keyup.stop="">
@@ -16,8 +16,8 @@
           figure="props.figure"
         />
       </div>
+      <div class="o-figure-border w-100 h-100 position-absolute pe-none" t-att-style="borderStyle"/>
       <t t-if="isSelected">
-        <div class="w-100 h-100 o-active-figure-border position-absolute pe-none"/>
         <div
           class="o-fig-anchor o-top"
           t-att-style="this.getResizerPosition('top')"
