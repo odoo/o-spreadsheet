@@ -7,7 +7,7 @@ exports[`figures selected figure snapshot 1`] = `
 >
   <div
     class="o-figure w-100 h-100"
-    style="border-width: 1px;"
+    style=""
     tabindex="0"
   >
     <div
@@ -17,7 +17,8 @@ exports[`figures selected figure snapshot 1`] = `
     </div>
   </div>
   <div
-    class="w-100 h-100 o-active-figure-border position-absolute pe-none"
+    class="o-figure-border w-100 h-100 position-absolute pe-none"
+    style="border: 2px solid #3266ca;"
   />
   <div
     class="o-fig-anchor o-top"
