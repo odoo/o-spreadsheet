@@ -39,6 +39,8 @@ css/* scss */ `
 `;
 
 interface Props {
+  // props figure is necessary scorecards, we need the chart dimension at render to avoid having to force the
+  // style by hand in the useEffect()
   figure: Figure;
   sidePanelIsOpen: boolean;
   onFigureDeleted: () => void;
