@@ -306,7 +306,7 @@ describe("Popover positioning", () => {
     });
     const popover = fixture.querySelector(".o-popover")! as HTMLElement;
     expect(popover).toBeTruthy();
-    expect(popover.style.visibility).toEqual("hidden");
+    expect(popover.style.display).toEqual("none");
   });
 
   test("The containerRect is the spreadsheet element if it is not explicitly in the popover props", async () => {
@@ -320,7 +320,7 @@ describe("Popover positioning", () => {
       childWidth: 100,
     });
     let popover = fixture.querySelector(".o-popover")! as HTMLElement;
-    expect(popover.style.visibility).toEqual("hidden");
+    expect(popover.style.display).toEqual("none");
 
     app.destroy();
     await mountTestPopover({
@@ -330,7 +330,7 @@ describe("Popover positioning", () => {
       childWidth: 100,
     });
     popover = fixture.querySelector(".o-popover")! as HTMLElement;
-    expect(popover.style.visibility).toEqual("visible");
+    expect(popover.style.display).toEqual("block");
 
     app.destroy();
     await mountTestPopover({
@@ -340,6 +340,6 @@ describe("Popover positioning", () => {
       childWidth: 100,
     });
     popover = fixture.querySelector(".o-popover")! as HTMLElement;
-    expect(popover.style.visibility).toEqual("hidden");
+    expect(popover.style.display).toEqual("none");
   });
 });

@@ -8,7 +8,7 @@ import { usePopoverContainer, useSpreadsheetRect } from "../helpers/position_hoo
 import { CSSProperties } from "./../../types/misc";
 
 type PopoverPosition = "TopLeft" | "TopRight" | "BottomLeft" | "BottomRight";
-type Visibility = "hidden" | "visible";
+type DisplayValue = "none" | "block";
 
 export interface PopoverProps {
   /**
@@ -54,7 +54,7 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
 
   private popoverRef = useRef("popover");
   private currentPosition: PopoverPosition | undefined = undefined;
-  private currentVisibility: Visibility | undefined = undefined;
+  private currentDisplayValue: DisplayValue | undefined = undefined;
 
   private spreadsheetRect = useSpreadsheetRect();
   private containerRect: Rect | undefined;
@@ -66,27 +66,25 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
     // the element in rendered, so we can still set its position
     useEffect(() => {
       if (!this.containerRect) throw new Error("Popover container is not defined");
-      this.resetPopoverElStyle();
       const el = this.popoverRef.el!;
 
-      const propsMaxSize = { width: this.props.maxWidth, height: this.props.maxHeight };
+      const anchor = rectIntersection(this.props.anchorRect, this.containerRect);
+      const newDisplay: DisplayValue = anchor ? "block" : "none";
+      if (this.currentDisplayValue !== "none" && newDisplay === "none") {
+        this.props.onPopoverHidden?.();
+      }
+      el.style.display = newDisplay;
+      this.currentDisplayValue = newDisplay;
 
+      if (!anchor) return;
+
+      const propsMaxSize = { width: this.props.maxWidth, height: this.props.maxHeight };
       const elDims = {
         width: el.getBoundingClientRect().width,
         height: el.getBoundingClientRect().height,
       };
 
       const spreadsheetRect = this.spreadsheetRect;
-
-      const anchor = rectIntersection(this.props.anchorRect, this.containerRect);
-      const newVisibility: Visibility = anchor ? "visible" : "hidden";
-      if (this.currentVisibility !== "hidden" && newVisibility === "hidden") {
-        this.props.onPopoverHidden?.();
-      }
-      el.style.visibility = newVisibility;
-      this.currentVisibility = newVisibility;
-
-      if (!anchor) return;
 
       const popoverPositionHelper =
         this.props.positioning === "BottomLeft"
@@ -104,14 +102,6 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
       }
       this.currentPosition = newPosition;
     });
-  }
-
-  private resetPopoverElStyle() {
-    const el = this.popoverRef.el;
-    if (!el) return;
-    el.style["visibility"] = "visible";
-    el.style["max-height"] = el.style["max-width"] = "";
-    el.style["bottom"] = el.style["top"] = el.style["right"] = el.style["left"] = "";
   }
 }
 
