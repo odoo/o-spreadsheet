@@ -139,6 +139,39 @@ describe("BottomBar component", () => {
     app.destroy();
   });
 
+  test("Can open context menu of a sheet with the arrow if another menu is already open", async () => {
+    const { app } = await mountBottomBar();
+
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
+
+    triggerMouseEvent(".o-sheet-item.o-list-sheets", "click");
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    expect(fixture.querySelector(".o-menu-item")!.textContent).toEqual("Sheet1");
+
+    triggerMouseEvent(".o-sheet-icon", "click");
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    expect(fixture.querySelector(".o-menu-item")!.textContent).toEqual("Duplicate");
+    app.destroy();
+  });
+
+  test("Can open list of sheet menu if another menu is already open", async () => {
+    const { app } = await mountBottomBar();
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
+
+    triggerMouseEvent(".o-sheet-icon", "click");
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    expect(fixture.querySelector(".o-menu-item")!.textContent).toEqual("Duplicate");
+
+    triggerMouseEvent(".o-sheet-item.o-list-sheets", "click");
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    expect(fixture.querySelector(".o-menu-item")!.textContent).toEqual("Sheet1");
+    app.destroy();
+  });
+
   test("Can move right a sheet", async () => {
     const { app, model } = await mountBottomBar();
     const dispatch = jest.spyOn(model, "dispatch");
@@ -349,6 +382,25 @@ describe("BottomBar component", () => {
     triggerMouseEvent(".o-selection-statistic", "click");
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toMatchSnapshot();
+    app.destroy();
+  });
+
+  test("Can open the list of statistics if another menu is already open", async () => {
+    const model = new Model();
+    const nonMockedDispatch = model.dispatch;
+    const { app } = await mountBottomBar(model);
+    model.dispatch = nonMockedDispatch;
+    setCellContent(model, "A2", "24");
+    selectCell(model, "A2");
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
+    triggerMouseEvent(".o-sheet-icon", "click");
+    await nextTick();
+    expect(fixture.querySelector(".o-menu-item")!.textContent).toEqual("Duplicate");
+
+    triggerMouseEvent(".o-selection-statistic", "click");
+    await nextTick();
+    expect(fixture.querySelector(".o-menu-item")!.textContent).toEqual("Sum: 24");
     app.destroy();
   });
 

@@ -4,7 +4,7 @@ import { formatValue } from "../../helpers/format";
 import { interactiveRenameSheet } from "../../helpers/ui/sheet_interactive";
 import { sheetMenuRegistry } from "../../registries";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
-import { Pixel, SpreadsheetChildEnv, UID } from "../../types";
+import { MenuMouseEvent, Pixel, SpreadsheetChildEnv, UID } from "../../types";
 import { css } from "../helpers/css";
 import { Menu, MenuState } from "../menu/menu";
 
@@ -107,13 +107,22 @@ interface Props {
   onClick: () => void;
 }
 
+interface BottomBarMenuState extends MenuState {
+  menuId: UID | undefined;
+}
+
 export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BottomBar";
   static components = { Menu };
 
   private bottomBarRef = useRef("bottomBar");
 
-  menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
+  menuState = useState<BottomBarMenuState>({
+    isOpen: false,
+    menuId: undefined,
+    position: null,
+    menuItems: [],
+  });
   selectedStatisticFn: string = "";
 
   setup() {
@@ -179,32 +188,34 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     interactiveRenameSheet(this.env, sheetId);
   }
 
-  openContextMenu(x: Pixel, y: Pixel, registry: MenuItemRegistry) {
+  openContextMenu(x: Pixel, y: Pixel, registry: MenuItemRegistry, menuId?: UID) {
     this.menuState.isOpen = true;
     this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
     this.menuState.position = { x, y };
+    this.menuState.menuId = menuId;
   }
 
-  onIconClick(sheet: string, ev: MouseEvent) {
-    if (this.env.model.getters.getActiveSheetId() !== sheet) {
-      this.activateSheet(sheet);
+  onIconClick(sheetId: UID, ev: MenuMouseEvent) {
+    if (this.env.model.getters.getActiveSheetId() !== sheetId) {
+      this.activateSheet(sheetId);
     }
-    if (this.menuState.isOpen) {
+    if (ev.closedMenuId === sheetId) {
       this.menuState.isOpen = false;
+      this.menuState.menuId = undefined;
     } else {
       const target = (ev.currentTarget as HTMLElement).parentElement as HTMLElement;
       const { top, left } = target.getBoundingClientRect();
-      this.openContextMenu(left, top, sheetMenuRegistry);
+      this.openContextMenu(left, top, sheetMenuRegistry, sheetId);
     }
   }
 
-  onContextMenu(sheet: string, ev: MouseEvent) {
-    if (this.env.model.getters.getActiveSheetId() !== sheet) {
-      this.activateSheet(sheet);
+  onContextMenu(sheetId: UID, ev: MouseEvent) {
+    if (this.env.model.getters.getActiveSheetId() !== sheetId) {
+      this.activateSheet(sheetId);
     }
     const target = ev.currentTarget as HTMLElement;
     const { top, left } = target.getBoundingClientRect();
-    this.openContextMenu(left, top, sheetMenuRegistry);
+    this.openContextMenu(left, top, sheetMenuRegistry, sheetId);
   }
 
   getSelectedStatistic() {
