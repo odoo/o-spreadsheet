@@ -1,4 +1,4 @@
-import { Component, useRef } from "@odoo/owl";
+import { Component, onWillUnmount, useRef } from "@odoo/owl";
 import { MENU_WIDTH } from "../../../constants";
 import { getMaxFigureSize } from "../../../helpers/figures/figure/figure";
 import { createMenu } from "../../../registries/menu_items_registry";
@@ -21,6 +21,14 @@ export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
   private menuButtonPosition = useAbsolutePosition(this.menuButtonRef);
   private position = useAbsolutePosition(this.imageContainerRef);
   private gridRect = useGridRect();
+
+  private menuId: UID | undefined;
+
+  setup() {
+    onWillUnmount(() => {
+      this.env.menuService.unregisterMenu(this.menuId);
+    });
+  }
 
   readonly menuItems = createMenu([
     {
@@ -87,7 +95,7 @@ export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private openContextMenu(position: DOMCoordinates) {
-    this.env.menuService.registerMenu({
+    this.menuId = this.env.menuService.registerMenu({
       position,
       menuItems: this.menuItems,
       containerRect: this.gridRect,

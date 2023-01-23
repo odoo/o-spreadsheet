@@ -1,4 +1,12 @@
-import { Component, onMounted, onPatched, useRef, useState } from "@odoo/owl";
+import {
+  Component,
+  onMounted,
+  onPatched,
+  onWillUnmount,
+  onWillUpdateProps,
+  useRef,
+  useState,
+} from "@odoo/owl";
 import { BOTTOMBAR_HEIGHT } from "../../constants";
 import { interactiveRenameSheet } from "../../helpers/ui/sheet_interactive";
 import { getSheetMenuRegistry } from "../../registries";
@@ -78,6 +86,15 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
         this.editionState = "editing";
         this.focusInputAndSelectContent();
       }
+    });
+    onWillUpdateProps((nextProps: Props) => {
+      if (nextProps.sheetId !== this.props.sheetId) {
+        this.env.menuService.unregisterMenu(this.contextMenuId);
+        this.contextMenuId = undefined;
+      }
+    });
+    onWillUnmount(() => {
+      this.env.menuService.unregisterMenu(this.contextMenuId);
     });
   }
 

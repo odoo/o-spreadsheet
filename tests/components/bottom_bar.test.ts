@@ -7,6 +7,7 @@ import { OWL_TEMPLATES } from "../setup/jest.setup";
 import {
   activateSheet,
   createSheet,
+  deleteSheet,
   hideSheet,
   selectCell,
   setCellContent,
@@ -125,6 +126,21 @@ describe("BottomBar component", () => {
     triggerMouseEvent(".o-sheet-icon", "click");
     await nextTick();
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    app.destroy();
+  });
+
+  test("Context menu is closed when sheet is deleted", async () => {
+    const { app, model } = await mountBottomBar();
+    createSheet(model, { name: "Sheet2" });
+    triggerMouseEvent(".o-sheet", "contextmenu");
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    deleteSheet(model, model.getters.getActiveSheetId());
+    await nextTick();
+    // first render unmount the sheet and updates the menuService, second render uses updated menuService
+    await nextTick();
+
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     app.destroy();
   });
 

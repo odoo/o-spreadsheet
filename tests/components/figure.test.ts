@@ -365,6 +365,15 @@ describe("figures", () => {
         }
         await nextTick();
       });
+
+      function getContextMenuContainer() {
+        return type === "image" ? ".o-figure img" : ".o-chart-container";
+      }
+
+      function getFirstMenuItemTitle() {
+        return type === "image" ? "Copy" : "Edit";
+      }
+
       test(`Click on Delete button will delete the figure ${type}`, async () => {
         expect(fixture.querySelector(".o-figure")).not.toBeNull();
         await simulateClick(".o-figure");
@@ -424,14 +433,17 @@ describe("figures", () => {
       });
 
       test("Can open context menu on right click", async () => {
-        triggerMouseEvent(".o-figure", "contextmenu");
+        triggerMouseEvent(getContextMenuContainer(), "contextmenu");
         await nextTick();
         expect(document.querySelectorAll(".o-menu").length).toBe(1);
+        expect(document.querySelector<HTMLElement>(".o-menu-item")!.title).toBe(
+          getFirstMenuItemTitle()
+        );
       });
 
       test("Cannot open context menu on right click in dashboard mode", async () => {
         model.updateMode("dashboard");
-        triggerMouseEvent(".o-figure", "contextmenu");
+        triggerMouseEvent(getContextMenuContainer(), "contextmenu");
         await nextTick();
         expect(document.querySelector(".o-menu")).toBeFalsy();
       });
@@ -451,6 +463,17 @@ describe("figures", () => {
         const menuPopover = fixture.querySelector(".o-menu")?.parentElement;
         expect(menuPopover?.style.top).toBe(`${500 - 100}px`);
         expect(menuPopover?.style.left).toBe(`${500 - 200 - MENU_WIDTH}px`);
+      });
+
+      test("Context menu is closed on figure deletion", async () => {
+        triggerMouseEvent(getContextMenuContainer(), "contextmenu");
+        await nextTick();
+        expect(document.querySelectorAll(".o-menu").length).toBe(1);
+        model.dispatch("DELETE_FIGURE", { sheetId, id: figureId });
+        await nextTick();
+        // first render unmount the figure and updates the menuService, second render uses updated menuService
+        await nextTick();
+        expect(document.querySelectorAll(".o-menu").length).toBe(0);
       });
 
       test("Selecting a figure and hitting Ctrl does not unselect it", async () => {
