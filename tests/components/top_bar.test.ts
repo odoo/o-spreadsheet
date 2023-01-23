@@ -1,7 +1,18 @@
-import { App, Component, onMounted, onWillUnmount, useState, useSubEnv, xml } from "@odoo/owl";
+import {
+  App,
+  Component,
+  onMounted,
+  onWillUnmount,
+  reactive,
+  useState,
+  useSubEnv,
+  xml,
+} from "@odoo/owl";
+import { MenuContainer } from "../../src/components/menu_container/menu_container";
 import { TopBar } from "../../src/components/top_bar/top_bar";
 import { DEFAULT_FONT_SIZE } from "../../src/constants";
 import { toZone } from "../../src/helpers";
+import { MenuService } from "../../src/helpers/menu_service";
 import { Model } from "../../src/model";
 import { topbarComponentRegistry } from "../../src/registries";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
@@ -44,9 +55,10 @@ class Parent extends Component {
   static template = xml/* xml */ `
     <div class="o-spreadsheet">
       <TopBar focusComposer="state.focusComposer" onClick="() => {}"/>
+      <MenuContainer/>
     </div>
   `;
-  static components = { TopBar };
+  static components = { TopBar, MenuContainer };
 
   static _t = t;
   state = useState({ focusComposer: <boolean>false });
@@ -58,6 +70,7 @@ class Parent extends Component {
       askConfirmation: jest.fn(),
       _t: Parent._t,
       isDashboard: () => this.props.model.getters.isDashboard(),
+      menuService: reactive(new MenuService()),
     });
     this.state.focusComposer = this.props.focusComposer || false;
     onMounted(() => this.props.model.on("update", this, this.render));

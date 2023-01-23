@@ -6,7 +6,7 @@
       maxHeight="cellPopover.Component.size and cellPopover.Component.size.maxHeight"
       maxWidth="cellPopover.Component.size and cellPopover.Component.size.maxHidth"
       anchorRect="cellPopover.anchorRect"
-      containerRect="env.getPopoverContainerRect()"
+      containerRect="props.gridRect"
       onMouseWheel="props.onMouseWheel">
       <t
         t-component="cellPopover.Component"

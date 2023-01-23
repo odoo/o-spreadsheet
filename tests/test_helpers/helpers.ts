@@ -1,9 +1,10 @@
-import { App, Component, xml } from "@odoo/owl";
+import { App, Component, reactive, xml } from "@odoo/owl";
 import { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
 import { functionRegistry } from "../../src/functions/index";
 import { toCartesian, toUnboundedZone, toXC, toZone } from "../../src/helpers/index";
+import { MenuService } from "../../src/helpers/menu_service";
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { topbarMenuRegistry } from "../../src/registries";
@@ -89,8 +90,9 @@ export function makeTestFixture() {
 }
 
 export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): SpreadsheetChildEnv {
+  const model = mockEnv.model || new Model();
   return {
-    model: mockEnv.model || new Model(),
+    model,
     isDashboard: mockEnv.isDashboard || (() => false),
     openSidePanel: mockEnv.openSidePanel || (() => {}),
     toggleSidePanel: mockEnv.toggleSidePanel || (() => {}),
@@ -107,6 +109,7 @@ export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): Spreads
       (async () => {
         return [] as Currency[];
       }),
+    menuService: reactive(new MenuService()),
   };
 }
 

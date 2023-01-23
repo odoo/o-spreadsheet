@@ -8,19 +8,13 @@
             <div
               t-if="menu.children.length !== 0"
               class="o-topbar-menu"
-              t-att-class="{'o-topbar-menu-active': state.menuState.parentMenu and state.menuState.parentMenu.id === menu.id}"
+              t-att-class="{'o-topbar-menu-active': state.activeMenu and state.activeMenu.id === menu.id}"
               t-on-click="(ev) => this.toggleContextMenu(menu, ev)"
               t-on-mouseover="(ev) => this.onMenuMouseOver(menu, ev)"
               t-att-data-id="menu.id">
               <t t-esc="getMenuName(menu)"/>
             </div>
           </t>
-          <Menu
-            t-if="state.menuState.isOpen"
-            position="state.menuState.position"
-            menuItems="state.menuState.menuItems"
-            onClose="() => this.closeMenus()"
-          />
         </div>
         <div class="o-topbar-topright">
           <div t-foreach="topbarComponents" t-as="comp" t-key="comp.id">

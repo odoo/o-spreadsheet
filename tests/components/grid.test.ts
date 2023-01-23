@@ -13,6 +13,7 @@ import {
 } from "../../src/constants";
 import { toCartesian, toHex, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
+import { SpreadsheetChildEnv } from "../../src/types";
 import { getClipboardEvent, MockClipboardData } from "../test_helpers/clipboard";
 import {
   copy,
@@ -50,7 +51,9 @@ import {
   getStyle,
 } from "../test_helpers/getters_helpers";
 import { makeTestFixture, mountSpreadsheet, nextTick, Touch } from "../test_helpers/helpers";
+import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
+import { cellMenuRegistry } from "./../../src/registries/menus/cell_menu_registry";
 import { mockChart } from "./__mocks__/chart";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
@@ -70,8 +73,13 @@ let fixture: HTMLElement;
 let model: Model;
 let parent: Spreadsheet;
 let app: App;
+let env: SpreadsheetChildEnv;
 
 jest.useFakeTimers();
+
+mockGetBoundingClientRect({
+  "o-grid": () => ({ top: 0, left: 0, height: 1000, width: 1000 }),
+});
 
 beforeEach(async () => {
   fixture = makeTestFixture();
@@ -85,6 +93,7 @@ describe("Grid component", () => {
   beforeEach(async () => {
     fixture = makeTestFixture();
     ({ app, parent, model } = await mountSpreadsheet(fixture));
+    env = parent.env;
   });
 
   afterEach(() => {
@@ -651,6 +660,42 @@ describe("Grid component", () => {
       await nextTick();
       await simulateClick(".o-filter-icon");
       expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
+    });
+
+    describe("Persistent popovers and menus interactions", () => {
+      beforeEach(async () => {
+        createFilter(model, "A1:A2");
+        await nextTick();
+      });
+
+      test("Opening a menu closes existing popover", async () => {
+        await simulateClick(".o-filter-icon");
+        expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
+        expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
+        env.menuService.registerMenu({
+          position: { x: 0, y: 0 },
+          menuItems: cellMenuRegistry.getMenuItems(),
+        });
+        await nextTick();
+        await nextTick();
+        expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(0);
+        expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+      });
+
+      test("Opening a popover closes existing menu", async () => {
+        env.menuService.registerMenu({
+          position: { x: 0, y: 0 },
+          menuItems: cellMenuRegistry.getMenuItems(),
+        });
+        await nextTick();
+        expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(0);
+        expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+        await simulateClick(".o-filter-icon");
+        await nextTick();
+        await nextTick();
+        expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
+        expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
+      });
     });
   });
 

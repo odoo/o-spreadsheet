@@ -76,7 +76,6 @@ exports[`Grid component simple rendering snapshot 1`] = `
   
   
   
-  
   <div
     class="o-scrollbar vertical"
     style="
@@ -120,7 +119,7 @@ height: 1px;
 exports[`error tooltip can display error tooltip 1`] = `
 <div
   class="o-popover"
-  style="visibility: visible; max-height: 824px; max-width: 697px; top: 187px; left: 336px;"
+  style="visibility: visible; max-height: 813px; max-width: 664px; top: 187px; left: 336px;"
 >
   <div
     class="o-error-tooltip"

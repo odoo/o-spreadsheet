@@ -22,7 +22,7 @@
         />
         <span
           class="o-sheet-icon position-relative ms-1"
-          t-on-click.stop="(ev) => this.onIconClick(ev)">
+          t-on-click.stop="(ev) => this.onContextMenu(ev)">
           <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
         </span>
       </div>

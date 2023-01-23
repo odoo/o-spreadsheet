@@ -1,4 +1,4 @@
-import { Component } from "@odoo/owl";
+import { Component, useState } from "@odoo/owl";
 import { formatValue } from "../../helpers/format";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
 import { SpreadsheetChildEnv } from "../../types";
@@ -21,15 +21,13 @@ css/* scss */ `
   }
 `;
 
-interface Props {
-  openContextMenu: (x: number, y: number, registry: MenuItemRegistry) => void;
-}
+interface Props {}
 
 export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BottomBarStatisic";
   static components = { Ripple };
 
-  selectedStatisticFn: string = "";
+  state = useState({ selectedStatisticFn: "" });
 
   getSelectedStatistic() {
     const statisticFnResults = this.env.model.getters.getStatisticFnResults();
@@ -37,12 +35,12 @@ export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
     if (Object.values(statisticFnResults).every((result) => result === undefined)) {
       return undefined;
     }
-    if (this.selectedStatisticFn === "") {
-      this.selectedStatisticFn = Object.keys(statisticFnResults)[0];
+    if (this.state.selectedStatisticFn === "") {
+      this.state.selectedStatisticFn = Object.keys(statisticFnResults)[0];
     }
     return this.getComposedFnName(
-      this.selectedStatisticFn,
-      statisticFnResults[this.selectedStatisticFn]
+      this.state.selectedStatisticFn,
+      statisticFnResults[this.state.selectedStatisticFn]
     );
   }
 
@@ -55,14 +53,21 @@ export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
         sequence: i,
         isReadonlyAllowed: true,
         action: () => {
-          this.selectedStatisticFn = fnName;
+          this.state.selectedStatisticFn = fnName;
         },
       });
       i++;
     }
     const target = ev.currentTarget as HTMLElement;
     const { top, left, width } = target.getBoundingClientRect();
-    this.props.openContextMenu(left + width, top, registry);
+    this.openContextMenu(left + width, top, registry);
+  }
+
+  private openContextMenu(x: number, y: number, registry: MenuItemRegistry) {
+    this.env.menuService.registerMenu({
+      position: { x, y },
+      menuItems: registry.getMenuItems(),
+    });
   }
 
   private getComposedFnName(fnName: string, fnValue: number | undefined): string {
@@ -70,6 +75,4 @@ export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
   }
 }
 
-BottomBarStatistic.props = {
-  openContextMenu: Function,
-};
+BottomBarStatistic.props = {};

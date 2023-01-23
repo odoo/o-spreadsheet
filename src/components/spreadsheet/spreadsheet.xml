@@ -27,6 +27,7 @@
           panelProps="sidePanel.panelProps"
         />
         <BottomBar onClick="() => this.focusGrid()"/>
+        <MenuContainer/>
       </t>
     </div>
   </t>

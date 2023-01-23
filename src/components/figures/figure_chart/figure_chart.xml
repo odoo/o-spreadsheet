@@ -18,13 +18,6 @@
         figure="this.props.figure"
         t-key="this.props.figure.id + '-' + chartType"
       />
-
-      <Menu
-        t-if="menuState.isOpen"
-        position="menuState.position"
-        menuItems="menuState.menuItems"
-        onClose="() => this.menuState.isOpen=false"
-      />
     </div>
   </t>
 </templates>

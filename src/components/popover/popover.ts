@@ -4,7 +4,7 @@ import { rectIntersection } from "../../helpers/rectangle";
 import { DOMCoordinates, DOMDimension, Pixel, Rect, SpreadsheetChildEnv } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
 import { css } from "../helpers/css";
-import { usePopoverContainer, useSpreadsheetRect } from "../helpers/position_hook";
+import { useSpreadsheetRect } from "../helpers/position_hook";
 import { CSSProperties } from "./../../types/misc";
 
 type PopoverPosition = "TopLeft" | "TopRight" | "BottomLeft" | "BottomRight";
@@ -16,6 +16,12 @@ export interface PopoverProps {
    * Coordinates are expressed as absolute DOM position.
    */
   anchorRect: Rect;
+
+  /**
+   * Rectangle around which the popover is displayed (in absolute DOM position).
+   * If undefined, the popover will take the o-spreadsheet element as container.
+   */
+  containerRect?: Rect;
 
   /** The popover can be positioned below the anchor Rectangle, or to the right of the rectangle */
   positioning: PopoverPropsPosition;
@@ -57,11 +63,7 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
   private currentVisibility: Visibility | undefined = undefined;
 
   private spreadsheetRect = useSpreadsheetRect();
-  private containerRect: Rect | undefined;
-
   setup() {
-    this.containerRect = usePopoverContainer();
-
     // useEffect occurs after the DOM is created and the element width/height are computed, but before
     // the element in rendered, so we can still set its position
     useEffect(() => {
@@ -112,6 +114,10 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
     el.style["visibility"] = "visible";
     el.style["max-height"] = el.style["max-width"] = "";
     el.style["bottom"] = el.style["top"] = el.style["right"] = el.style["left"] = "";
+  }
+
+  get containerRect(): Rect | undefined {
+    return this.props.containerRect || this.spreadsheetRect;
   }
 }
 

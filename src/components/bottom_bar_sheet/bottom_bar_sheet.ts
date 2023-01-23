@@ -2,8 +2,7 @@ import { Component, onMounted, onPatched, useRef, useState } from "@odoo/owl";
 import { BOTTOMBAR_HEIGHT } from "../../constants";
 import { interactiveRenameSheet } from "../../helpers/ui/sheet_interactive";
 import { getSheetMenuRegistry } from "../../registries";
-import { MenuItemRegistry } from "../../registries/menu_items_registry";
-import { SpreadsheetChildEnv } from "../../types";
+import { SpreadsheetChildEnv, UID } from "../../types";
 import { Ripple } from "../animation/ripple";
 import { css } from "../helpers/css";
 
@@ -50,7 +49,6 @@ css/* scss */ `
 
 interface Props {
   sheetId: string;
-  openContextMenu: (registry: MenuItemRegistry, ev: MouseEvent) => void;
 }
 
 interface State {
@@ -67,6 +65,7 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   private sheetNameRef = useRef("sheetNameSpan");
 
   private editionState: "initializing" | "editing" = "initializing";
+  private contextMenuId: UID | undefined = undefined;
 
   setup() {
     onMounted(() => {
@@ -161,18 +160,25 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     this.setInputContent(this.sheetName);
   }
 
-  onIconClick(ev: MouseEvent) {
-    if (!this.isSheetActive) {
-      this.activateSheet();
-    }
-    this.props.openContextMenu(this.contextMenuRegistry, ev);
-  }
-
   onContextMenu(ev: MouseEvent) {
     if (!this.isSheetActive) {
       this.activateSheet();
     }
-    this.props.openContextMenu(this.contextMenuRegistry, ev);
+    this.toggleContextMenu(ev);
+  }
+
+  private toggleContextMenu(ev: MouseEvent) {
+    if (this.contextMenuId && this.contextMenuId === this.env.menuService.getCurrentMenuId()) {
+      this.env.menuService.closeActiveMenu();
+      this.contextMenuId = undefined;
+      return;
+    }
+    const target = ev.currentTarget as HTMLElement;
+    const { x, y } = target.getBoundingClientRect();
+    this.contextMenuId = this.env.menuService.registerMenu({
+      position: { x, y },
+      menuItems: this.contextMenuRegistry.getMenuItems(),
+    });
   }
 
   private getInputContent(): string | undefined | null {
@@ -202,5 +208,4 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
 }
 BottomBarSheet.props = {
   sheetId: String,
-  openContextMenu: Function,
 };

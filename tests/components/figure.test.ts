@@ -2,7 +2,7 @@ import { App, Component, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { ChartJsComponent } from "../../src/components/figures/chart/chartJs/chartjs";
 import { ScorecardChart } from "../../src/components/figures/chart/scorecard/chart_scorecard";
-import { MENU_WIDTH, MIN_FIG_SIZE } from "../../src/constants";
+import { MENU_WIDTH, MIN_FIG_SIZE, TOPBAR_HEIGHT } from "../../src/constants";
 import { chartComponentRegistry, figureRegistry } from "../../src/registries";
 import { CreateFigureCommand, Figure, SpreadsheetChildEnv, UID } from "../../src/types";
 import {
@@ -86,6 +86,7 @@ mockChart();
 mockGetBoundingClientRect({
   "o-popover": () => ({ height: 0, width: 0 }),
   "o-spreadsheet": () => ({ top: 100, left: 200, height: 1000, width: 1000 }),
+  "o-grid": () => ({ top: 100 + TOPBAR_HEIGHT, left: 0, height: 1000, width: 1000 }),
   "o-figure-menu-item": () => ({ top: 500, left: 500 }),
 });
 

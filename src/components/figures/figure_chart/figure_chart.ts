@@ -1,12 +1,12 @@
-import { Component, useRef, useState } from "@odoo/owl";
+import { Component, useRef } from "@odoo/owl";
 import { MENU_WIDTH } from "../../../constants";
 import { chartComponentRegistry } from "../../../registries/chart_types";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { _lt } from "../../../translation";
 import { ChartType, DOMCoordinates, Figure, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
-import { useAbsolutePosition } from "../../helpers/position_hook";
-import { Menu, MenuState } from "../../menu/menu";
+import { useAbsolutePosition, useGridRect } from "../../helpers/position_hook";
+import { Menu } from "../../menu/menu";
 
 // -----------------------------------------------------------------------------
 // STYLE
@@ -27,12 +27,12 @@ interface Props {
 export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartFigure";
   static components = { Menu };
-  private menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
 
   private chartContainerRef = useRef("chartContainer");
   private menuButtonRef = useRef("menuButton");
   private menuButtonPosition = useAbsolutePosition(this.menuButtonRef);
   private position = useAbsolutePosition(this.chartContainerRef);
+  private gridRect = useGridRect();
 
   private getMenuItemRegistry(): MenuItemRegistry {
     const registry = new MenuItemRegistry();
@@ -97,10 +97,11 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private openContextMenu(position: DOMCoordinates) {
-    const registry = this.getMenuItemRegistry();
-    this.menuState.isOpen = true;
-    this.menuState.menuItems = registry.getMenuItems();
-    this.menuState.position = position;
+    this.env.menuService.registerMenu({
+      position,
+      menuItems: this.getMenuItemRegistry().getMenuItems(),
+      containerRect: this.gridRect,
+    });
   }
 
   get chartComponent(): new (...args: any) => Component {

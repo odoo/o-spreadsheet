@@ -51,9 +51,8 @@
         />
       </t>
       <GridPopover
-        t-if="!menuState.isOpen"
         hoveredCell="hoveredCell"
-        gridRect="getGridRect()"
+        gridRect="gridRect"
         onMouseWheel.bind="onMouseWheel"
         onClosePopover.bind="onClosePopover"
       />
@@ -67,12 +66,6 @@
           </t>
         </t>
       </t>
-      <Menu
-        t-if="menuState.isOpen"
-        menuItems="menuState.menuItems"
-        position="menuState.position"
-        onClose="() => this.closeMenu()"
-      />
       <FilterIconsOverlay gridPosition="{ x: HEADER_WIDTH, y : HEADER_HEIGHT }"/>
       <VerticalScrollBar topOffset="HEADER_HEIGHT"/>
       <HorizontalScrollBar leftOffset="HEADER_WIDTH"/>

@@ -1,5 +1,6 @@
 import { App, Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
 import { BottomBar } from "../../src/components/bottom_bar/bottom_bar";
+import { MenuContainer } from "../../src/components/menu_container/menu_container";
 import { Model } from "../../src/model";
 import { SpreadsheetChildEnv } from "../../src/types";
 import { OWL_TEMPLATES } from "../setup/jest.setup";
@@ -20,12 +21,13 @@ class Parent extends Component<any, any> {
   static template = xml/* xml */ `
     <div class="o-spreadsheet">
       <BottomBar onClick="()=>{}"/>
+      <MenuContainer/>
     </div>
   `;
-  static components = { BottomBar };
+  static components = { BottomBar, MenuContainer };
 
   setup() {
-    onMounted(() => this.props.model.on("update", this, this.render));
+    onMounted(() => this.props.model.on("update", this, () => this.render(true)));
     onWillUnmount(() => this.props.model.off("update", this));
   }
   getSubEnv() {
