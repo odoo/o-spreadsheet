@@ -15,6 +15,7 @@ const {
   useState,
   onWillUnmount,
   useExternalListener,
+  onError,
 } = owl;
 
 const { Spreadsheet, Model } = o_spreadsheet;
@@ -146,6 +147,10 @@ class Demo extends Component {
 
     onMounted(() => console.log("Mounted: ", Date.now() - start));
     onWillUnmount(this.leaveCollaborativeSession.bind(this));
+    onError((error) => {
+      console.error(error);
+      console.error(error.cause);
+    });
   }
 
   async initiateConnection(data = undefined) {
