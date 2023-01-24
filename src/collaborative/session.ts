@@ -386,6 +386,9 @@ export class Session extends EventBus<CollaborativeEvent> {
   }
 
   private isAlreadyProcessed(message: CollaborationMessage): boolean {
+    if (message.type === "CLIENT_MOVED" && message.client.id === this.clientId) {
+      return true;
+    }
     switch (message.type) {
       case "REMOTE_REVISION":
       case "REVISION_REDONE":
