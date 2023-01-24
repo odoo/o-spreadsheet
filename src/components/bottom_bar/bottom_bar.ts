@@ -171,6 +171,12 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     this.menuState.position = null;
   }
 
+  closeContextMenuWithId(menuId: UID) {
+    if (this.menuState.menuId === menuId) {
+      this.closeMenu();
+    }
+  }
+
   onWheel(ev: WheelEvent) {
     this.targetScroll = undefined;
     const target = ev.currentTarget as HTMLElement;

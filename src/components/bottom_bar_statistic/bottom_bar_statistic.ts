@@ -1,4 +1,5 @@
-import { Component } from "@odoo/owl";
+import { Component, onWillUpdateProps } from "@odoo/owl";
+import { deepEquals } from "../../helpers";
 import { formatValue } from "../../helpers/format";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
 import { SpreadsheetChildEnv } from "../../types";
@@ -23,6 +24,7 @@ css/* scss */ `
 
 interface Props {
   openContextMenu: (x: number, y: number, registry: MenuItemRegistry) => void;
+  closeContextMenu: () => void;
 }
 
 export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
@@ -30,26 +32,40 @@ export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
   static components = { Ripple };
 
   selectedStatisticFn: string = "";
+  private statisticFnResults: { [name: string]: number | undefined } = {};
+
+  setup() {
+    this.statisticFnResults = this.env.model.getters.getStatisticFnResults();
+
+    onWillUpdateProps(() => {
+      const newStatisticFnResults = this.env.model.getters.getStatisticFnResults();
+
+      if (!deepEquals(newStatisticFnResults, this.statisticFnResults)) {
+        this.props.closeContextMenu();
+      }
+
+      this.statisticFnResults = newStatisticFnResults;
+    });
+  }
 
   getSelectedStatistic() {
-    const statisticFnResults = this.env.model.getters.getStatisticFnResults();
     // don't display button if no function has a result
-    if (Object.values(statisticFnResults).every((result) => result === undefined)) {
+    if (Object.values(this.statisticFnResults).every((result) => result === undefined)) {
       return undefined;
     }
     if (this.selectedStatisticFn === "") {
-      this.selectedStatisticFn = Object.keys(statisticFnResults)[0];
+      this.selectedStatisticFn = Object.keys(this.statisticFnResults)[0];
     }
     return this.getComposedFnName(
       this.selectedStatisticFn,
-      statisticFnResults[this.selectedStatisticFn]
+      this.statisticFnResults[this.selectedStatisticFn]
     );
   }
 
   listSelectionStatistics(ev: MouseEvent) {
     const registry = new MenuItemRegistry();
     let i = 0;
-    for (let [fnName, fnValue] of Object.entries(this.env.model.getters.getStatisticFnResults())) {
+    for (let [fnName, fnValue] of Object.entries(this.statisticFnResults)) {
       registry.add(fnName, {
         name: this.getComposedFnName(fnName, fnValue),
         sequence: i,
@@ -72,4 +88,5 @@ export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
 
 BottomBarStatistic.props = {
   openContextMenu: Function,
+  closeContextMenu: Function,
 };
