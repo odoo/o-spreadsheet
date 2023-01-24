@@ -14,8 +14,8 @@ export interface HeadersSelected extends SelectionEventPayload {
   type: "HeadersSelected";
 }
 
-export interface AlterZoneCorner extends SelectionEventPayload {
-  type: "AlterZoneCorner";
+export interface AlterZone extends SelectionEventPayload {
+  type: "AlterZone";
 }
 
-export type SelectionEvent = Readonly<ZonesSelected | HeadersSelected | AlterZoneCorner>;
+export type SelectionEvent = Readonly<ZonesSelected | HeadersSelected | AlterZone>;

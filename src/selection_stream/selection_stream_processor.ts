@@ -33,6 +33,7 @@ type StatefulStream<Event, State> = {
   resetAnchor: (owner: unknown, state: State) => void;
   observe: (owner: unknown, callbacks: StreamCallbacks<Event>) => void;
   release: (owner: unknown) => void;
+  getBackToDefault(): void;
 };
 
 /**
@@ -126,9 +127,14 @@ export class SelectionStreamProcessor
   /**
    * Select a new anchor
    */
-  selectZone(
+  selectZone(anchor: AnchorZone): DispatchResult {
+    return this.modifyAnchor(anchor, "overrideSelection", "ZonesSelected");
+  }
+
+  private modifyAnchor(
     anchor: AnchorZone,
-    mode: SelectionEvent["mode"] = "overrideSelection"
+    mode: SelectionEvent["mode"],
+    eventType: SelectionEvent["type"]
   ): DispatchResult {
     const sheetId = this.getters.getActiveSheetId();
     anchor = {
@@ -136,7 +142,7 @@ export class SelectionStreamProcessor
       zone: this.getters.expandZone(sheetId, anchor.zone),
     };
     return this.processEvent({
-      type: "ZonesSelected",
+      type: eventType,
       anchor,
       mode,
     });
@@ -177,7 +183,7 @@ export class SelectionStreamProcessor
     const expandedZone = this.getters.expandZone(sheetId, zone);
     const anchor = { zone: expandedZone, cell: { col: anchorCol, row: anchorRow } };
     return this.processEvent({
-      type: "AlterZoneCorner",
+      type: "AlterZone",
       mode: "updateAnchor",
       anchor: anchor,
     });
@@ -338,13 +344,17 @@ export class SelectionStreamProcessor
 
     // The whole sheet is selected, select the anchor cell
     if (isEqual(this.anchor.zone, this.getters.getSheetZone(sheetId))) {
-      return this.selectZone({ ...anchor, zone: positionToZone(anchor.cell) });
+      return this.modifyAnchor(
+        { ...anchor, zone: positionToZone(anchor.cell) },
+        "updateAnchor",
+        "AlterZone"
+      );
     }
 
     const tableZone = this.expandZoneToTable(anchor.zone);
 
     return !deepEquals(tableZone, anchor.zone)
-      ? this.selectZone({ ...anchor, zone: tableZone })
+      ? this.modifyAnchor({ ...anchor, zone: tableZone }, "updateAnchor", "AlterZone")
       : this.selectAll();
   }
 
@@ -355,7 +365,7 @@ export class SelectionStreamProcessor
    */
   selectTableAroundSelection(): DispatchResult {
     const tableZone = this.expandZoneToTable(this.anchor.zone);
-    return this.selectZone({ ...this.anchor, zone: tableZone }, "updateAnchor");
+    return this.modifyAnchor({ ...this.anchor, zone: tableZone }, "updateAnchor", "AlterZone");
   }
 
   /**

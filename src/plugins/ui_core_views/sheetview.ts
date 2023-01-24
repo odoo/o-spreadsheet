@@ -130,7 +130,7 @@ export class SheetViewPlugin extends UIPlugin {
   private handleEvent(event: SelectionEvent) {
     switch (event.type) {
       case "HeadersSelected":
-      case "AlterZoneCorner":
+      case "AlterZone":
         break;
       case "ZonesSelected":
         let { col, row } = findCellInNewZone(event.previousAnchor.zone, event.anchor.zone);
