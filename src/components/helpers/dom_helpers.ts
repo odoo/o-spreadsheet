@@ -38,15 +38,6 @@ export function* iterateChildren(el: Node): Generator<Node> {
   }
 }
 
-export function getElementScrollTop(el: HTMLElement | null): number {
-  return el?.scrollTop || 0;
-}
-
-export function setElementScrollTop(el: HTMLElement | null, scroll: number) {
-  if (!el) return;
-  el.scrollTop = scroll;
-}
-
 export function getOpenedMenus(): HTMLElement[] {
   return Array.from(document.querySelectorAll<HTMLElement>(".o-spreadsheet .o-menu"));
 }

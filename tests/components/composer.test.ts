@@ -480,7 +480,7 @@ describe("composer", () => {
 
   test("clicking on the composer while typing text (not formula) does not duplicates text", async () => {
     composerEl = await typeInComposer("a");
-    await click(composerEl);
+    await simulateClick(composerEl);
     expect(composerEl.textContent).toBe("a");
   });
 
@@ -825,6 +825,12 @@ describe("composer", () => {
     expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
   });
 
+  test("Hitting 'Tab' without the autocomplete open should move the cursor to the next cell", async () => {
+    await startComposition("test");
+    await keyDown({ key: "Tab" });
+    expect(model.getters.getEditionMode()).toBe("inactive");
+  });
+
   describe("F4 shorcut will loop through reference combinations", () => {
     test("f4 shortcut on cell symbol", async () => {
       composerEl = await typeInComposer("=A1");
@@ -859,6 +865,21 @@ describe("composer", () => {
     await keyDown({ key: "Enter" });
     expect(getCellContent(model, "A1")).toEqual("A\n\nC");
   });
+
+  test.each(["alt", "ctrl"])(
+    "Hitting %s + enter replace current selection with a new line",
+    async (key) => {
+      await typeInComposer("Azerty");
+      expect(model.getters.getCurrentContent()).toEqual("Azerty");
+      expect(model.getters.getComposerSelection()).toEqual({ start: 6, end: 6 });
+
+      model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 6, end: 4 });
+      await nextTick();
+      await keyDown({ key: "Enter", bubbles: true, [`${key}Key`]: true });
+      expect(model.getters.getCurrentContent()).toEqual("Azer\n");
+      expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
+    }
+  );
 });
 
 describe("composer formula color", () => {
@@ -978,7 +999,7 @@ describe("composer highlights color", () => {
     expect(highlights[1].zone).toEqual({ left: 0, right: 0, top: 0, bottom: 0 });
   });
 
-  test("grid composer is resized when top bar composer grows", async () => {});
+  test.skip("grid composer is resized when top bar composer grows", async () => {});
 });
 
 describe("Composer string is correctly translated to HtmlContents[][] for the contentEditableHelper", () => {

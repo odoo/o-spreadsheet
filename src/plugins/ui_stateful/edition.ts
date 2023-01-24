@@ -36,7 +36,7 @@ import {
 import { SelectionEvent } from "../../types/event_stream";
 import { UIPlugin } from "../ui_plugin";
 
-type EditionMode =
+export type EditionMode =
   | "editing"
   | "selecting" // should tell if you need to underline the current range selected.
   | "inactive";

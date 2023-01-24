@@ -2,7 +2,7 @@ import { functionRegistry } from "../../src/functions/index";
 import { toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { selectCell } from "../test_helpers/commands_helpers";
-import { click, clickCell, keyDown, keyUp, simulateClick } from "../test_helpers/dom_helper";
+import { click, clickCell, keyDown, simulateClick } from "../test_helpers/dom_helper";
 import { getCellText } from "../test_helpers/getters_helpers";
 import {
   clearFunctions,
@@ -36,6 +36,7 @@ async function typeInComposerTopBar(text: string, fromScratch: boolean = true) {
   return composerEl;
 }
 
+// TODO improve the test setup to only instantiate a composer
 beforeEach(async () => {
   ({ model, fixture } = await mountSpreadsheet());
 
@@ -126,7 +127,7 @@ describe("Functions autocomplete", () => {
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
     });
 
-    test("=SX+ENTER does not autocomplete anything and moves to the cell down", async () => {
+    test("=SX+TAB does not autocomplete anything and moves to the cell down", async () => {
       await typeInComposerGrid("=SX");
       await keyDown({ key: "Tab" });
       expect(getCellText(model, "A1")).toBe("=SX");
@@ -226,25 +227,15 @@ describe("Functions autocomplete", () => {
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
     });
 
-    test("Mouse events on the autocomplete dropdown don't make the composer lose focus", async () => {
+    test("Mouse events on the autocomplete dropdown don't make the composer loose focus", async () => {
       await typeInComposerGrid("=S");
       const activeElement = document.activeElement;
       expect(activeElement?.classList).toContain("o-composer");
 
       const dropDownEl = fixture.querySelector(".o-autocomplete-dropdown")!;
-
-      await nextTick();
       expect(document.activeElement).toEqual(activeElement);
 
-      dropDownEl.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
-      await nextTick();
-      expect(document.activeElement).toEqual(activeElement);
-
-      dropDownEl.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
-      await nextTick();
-      expect(document.activeElement).toEqual(activeElement);
-
-      await click(dropDownEl);
+      await simulateClick(dropDownEl);
       expect(document.activeElement).toEqual(activeElement);
     });
   });
@@ -272,7 +263,7 @@ describe("Functions autocomplete", () => {
     });
     test("= and CTRL+Space show autocomplete", async () => {
       await typeInComposerGrid("=");
-      await keyUp({ key: " ", ctrlKey: true });
+      await keyDown({ key: " ", ctrlKey: true });
       //TODO Need a second nextTick to wait the re-render of SelectionInput (onMounted => uuid assignation). But why not before ?
       await nextTick();
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(3);
@@ -283,7 +274,7 @@ describe("Functions autocomplete", () => {
     });
     test("= and CTRL+Space & DOWN move to next autocomplete", async () => {
       await typeInComposerGrid("=");
-      await keyUp({ key: " ", ctrlKey: true });
+      await keyDown({ key: " ", ctrlKey: true });
       await keyDown({ key: "ArrowDown" });
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
