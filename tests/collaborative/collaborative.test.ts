@@ -997,6 +997,7 @@ describe("Multi users synchronisation", () => {
     const firstSheetId = alice.getters.getActiveSheetId();
     network.concurrent(() => {
       setStyle(bob, "A1", { fontSize: 36 });
+      setCellContent(bob, "A1", "text");
       charlie.dispatch("DUPLICATE_SHEET", {
         sheetId: firstSheetId,
         sheetIdTo: "sheet2",
@@ -1005,7 +1006,7 @@ describe("Multi users synchronisation", () => {
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getRowSize("sheet2", 0),
-      getDefaultCellHeight({ fontSize: 36 })
+      getDefaultCellHeight(getCell(alice, "A1"))
     );
   });
 });

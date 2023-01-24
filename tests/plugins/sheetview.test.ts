@@ -868,6 +868,9 @@ describe("Viewport of Simple sheet", () => {
       top: 0,
     });
     setStyle(model, "A1:A20", { fontSize: 36 });
+    for (let i = 1; i <= 20; ++i) {
+      setCellContent(model, `A${i}`, "test"); // Requires non-empty cells. Otherwise, the fontsize is not considered when computing the row height
+    }
     expect(model.getters.getActiveMainViewport()).toEqual({
       bottom: 18,
       left: 0,

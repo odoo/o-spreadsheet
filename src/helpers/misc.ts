@@ -2,6 +2,7 @@
 // Miscellaneous
 //------------------------------------------------------------------------------
 import {
+  DEFAULT_CELL_HEIGHT,
   DEFAULT_FONT,
   DEFAULT_FONT_SIZE,
   DEFAULT_FONT_WEIGHT,
@@ -11,7 +12,7 @@ import {
   PADDING_AUTORESIZE_VERTICAL,
 } from "../constants";
 import { fontSizeMap } from "../fonts";
-import { ConsecutiveIndexes, Lazy, Style, UID } from "../types";
+import { Cell, ConsecutiveIndexes, Lazy, Style, UID } from "../types";
 import { Cloneable, Pixel } from "./../types/misc";
 import { parseDateTime } from "./dates";
 /**
@@ -124,10 +125,13 @@ export function computeTextLinesHeight(textLineHeight: number, numberOfLines: nu
 /**
  * Get the default height of the cell given its style.
  */
-export function getDefaultCellHeight(style: Style | undefined): Pixel {
-  // TO DO: take multi text line into account to compute the real cell height in case of wrapping cell
-  const fontSize = computeTextFontSizeInPixels(style);
-  return computeTextLinesHeight(fontSize) + 2 * PADDING_AUTORESIZE_VERTICAL;
+export function getDefaultCellHeight(cell: Cell | undefined): Pixel {
+  if (!cell || !cell.content) {
+    return DEFAULT_CELL_HEIGHT;
+  }
+  const fontSize = computeTextFontSizeInPixels(cell.style);
+  const multiLineText = cell.content.split(NEWLINE);
+  return computeTextLinesHeight(fontSize, multiLineText.length) + 2 * PADDING_AUTORESIZE_VERTICAL;
 }
 
 export function computeTextWidth(context: CanvasRenderingContext2D, text: string, style: Style) {
