@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ContentEditableHelper setText only applies a diff to the current content Adding some text 1`] = `
+<div>
+  <p>
+    <span>
+      hello
+    </span>
+  </p>
+</div>
+`;
+
+exports[`ContentEditableHelper setText only applies a diff to the current content Adding some text 2`] = `
+<div>
+  <p>
+    <span>
+      hello
+    </span>
+    <span>
+      test
+    </span>
+  </p>
+</div>
+`;
+
+exports[`ContentEditableHelper setText only applies a diff to the current content Removing some text 1`] = `
+<div>
+  <p>
+    <span>
+      hello
+    </span>
+    <span>
+      test
+    </span>
+  </p>
+</div>
+`;
+
+exports[`ContentEditableHelper setText only applies a diff to the current content Removing some text 2`] = `
+<div>
+  <p>
+    <span>
+      hello
+    </span>
+  </p>
+</div>
+`;

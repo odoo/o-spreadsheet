@@ -1,3 +1,4 @@
+import { deepEquals, toHex } from "../../helpers";
 import { iterateChildren } from "../helpers/dom_helpers";
 import { NEWLINE } from "./../../constants";
 import { HtmlContent } from "./composer/composer";
@@ -18,12 +19,23 @@ export class ContentEditableHelper {
    */
   selectRange(start: number, end: number) {
     let selection = window.getSelection()!;
-    this.removeSelection();
-    let range = document.createRange();
+    const { start: currentStart, end: currentEnd } = this.getCurrentSelection();
+
+    if (currentStart === start && currentEnd === end) {
+      return;
+    }
+    const currentRange = selection.getRangeAt(0);
+    let range: Range;
+    if (this.el.contains(currentRange.startContainer)) {
+      range = currentRange;
+    } else {
+      range = document.createRange();
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
     if (start == end && start === 0) {
       range.setStart(this.el, 0);
       range.setEnd(this.el, 0);
-      selection.addRange(range);
     } else {
       const textLength = this.getText().length;
       if (start < 0 || end > textLength) {
@@ -37,7 +49,6 @@ export class ContentEditableHelper {
       let startNode = this.findChildAtCharacterIndex(start);
       let endNode = this.findChildAtCharacterIndex(end);
       range.setStart(startNode.node, startNode.offset);
-      selection.addRange(range);
       selection.extend(endNode.node, endNode.offset);
     }
   }
@@ -80,29 +91,57 @@ export class ContentEditableHelper {
   }
 
   /**
-   * Sets (or Replaces all) the text inside the root element in the form of distinctive
+   * Sets (or Replaces all) the text inside the root element in the form of distinctive paragraphs and
    * span for each element provided in `contents`.
    *
+   * The function will apply the diff between the current content and the new content to avoid the systematic
+   * destruction of DOM elements which interferes with IME[1]
+   *
+   * Each line of text will be encapsulated in a paragraph element.
    * Each span will have its own fontcolor and specific class if provided in the HtmlContent object.
+   *
+   * [1] https://developer.mozilla.org/en-US/docs/Glossary/Input_method_editor
    */
   setText(contents: HtmlContent[][]) {
-    this.el.innerHTML = "";
     if (contents.length === 0) {
+      this.removeAll();
       return;
     }
 
-    for (const line of contents) {
-      const p = document.createElement("p");
+    const childElements = Array.from(this.el.childNodes);
+    const contentLength = contents.length;
 
-      // Empty line
-      if (line.length === 0 || line.every((content) => !content.value && !content.class)) {
-        p.appendChild(document.createElement("br"));
-        this.el.appendChild(p);
-        continue;
+    for (let i = 0; i < contentLength; i++) {
+      const line = contents[i];
+      const childElement = childElements[i];
+
+      let newChild = false;
+      let p: HTMLParagraphElement;
+      if (childElement && childElement.nodeName === "P") {
+        p = childElement as HTMLParagraphElement;
+      } else {
+        newChild = true;
+        p = document.createElement("p");
       }
 
-      for (const content of line) {
+      const lineLength = line.length;
+      const existingChildren = Array.from(p.childNodes);
+
+      for (let j = 0; j < lineLength; j++) {
+        const content = line[j];
+        const child = existingChildren[j];
+        // child nodes can be multiple types of nodes: Span, Text, Div, etc...
+        // We can only modify a node in place if it has the same type as the content
+        // that we would insert, which are spans.
+        // Otherwise, it means that the node has been input by the user, through the keyboard or a copy/paste
+        // @ts-ignore (somehow required because jest does not like child.tagName despite the prior check)
+        const childIsSpan = child && "tagName" in child && child.tagName === "SPAN";
+        if (childIsSpan && compareContentToSpanElement(content, child as HTMLSpanElement)) {
+          continue;
+        }
+        // this is an empty line in the content
         if (!content.value && !content.class) {
+          if (child) p.removeChild(child);
           continue;
         }
         const span = document.createElement("span");
@@ -111,10 +150,39 @@ export class ContentEditableHelper {
         if (content.class) {
           span.classList.add(content.class);
         }
+        if (child) {
+          p.replaceChild(span, child);
+        } else {
+          p.appendChild(span);
+        }
+      }
+
+      if (existingChildren.length > lineLength) {
+        for (let i = lineLength; i < existingChildren.length; i++) {
+          p.removeChild(existingChildren[i]);
+        }
+      }
+
+      // Empty line
+      if (!p.hasChildNodes()) {
+        const span = document.createElement("span");
+        span.appendChild(document.createElement("br"));
         p.appendChild(span);
       }
 
-      this.el.appendChild(p);
+      // replace p if necessary
+      if (newChild) {
+        if (childElement) {
+          this.el.replaceChild(p, childElement);
+        } else {
+          this.el.appendChild(p);
+        }
+      }
+    }
+    if (childElements.length > contentLength) {
+      for (let i = contentLength; i < childElements.length; i++) {
+        this.el.removeChild(childElements[i]);
+      }
     }
   }
 
@@ -125,15 +193,7 @@ export class ContentEditableHelper {
     element?.scrollIntoView({ block: "nearest" });
   }
 
-  /**
-   * remove the current selection of the user
-   * */
-  removeSelection() {
-    let selection = window.getSelection()!;
-    selection.removeAllRanges();
-  }
-
-  removeAll() {
+  private removeAll() {
     if (this.el) {
       while (this.el.firstChild) {
         this.el.removeChild(this.el.firstChild);
@@ -268,4 +328,14 @@ export class ContentEditableHelper {
     }
     return text;
   }
+}
+
+function compareContentToSpanElement(content: HtmlContent, node: HTMLElement): boolean {
+  const contentColor = content.color ? toHex(content.color) : "";
+  const nodeColor = node.style?.color ? toHex(node.style.color) : "";
+
+  const sameColor = contentColor === nodeColor;
+  const sameClass = deepEquals([content.class], [...node.classList]);
+  const sameContent = node.innerText === content.value;
+  return sameColor && sameClass && sameContent;
 }
