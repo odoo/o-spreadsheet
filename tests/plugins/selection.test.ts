@@ -24,7 +24,9 @@ import {
   selectColumn,
   selectRow,
   setAnchorCorner,
+  setCellContent,
   setSelection,
+  setViewportOffset,
   undo,
 } from "../test_helpers/commands_helpers";
 import { getActivePosition, getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
@@ -1010,57 +1012,102 @@ describe("move elements(s)", () => {
 });
 
 describe("Selection loop (ctrl + a)", () => {
-  let model: Model;
-  beforeEach(() => {
-    model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          // prettier-ignore
-          cells: {
-                      B1: { style: 1},
-                      B2: { content: "a" }, C2: { content: "a" },
-                                            C3: { content: "merged" }, D3: { content: "merged" }, E3: { content: "a" },
-                                            C4: { content: "a"},
-            A6: { content : "a" }
+  describe("Selection content", () => {
+    let model: Model;
+    beforeEach(() => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 10,
+            rowNumber: 10,
+            // prettier-ignore
+            cells: {
+                        B1: { style: 1},
+                        B2: { content: "a" }, C2: { content: "a" },
+                                              C3: { content: "merged" }, D3: { content: "merged" }, E3: { content: "a" },
+                                              C4: { content: "a"},
+              A6: { content : "a" }
+            },
+            merges: ["C3:D3"],
+            styles: { 1: { textColor: "#fe0000" } },
           },
-          merges: ["C3:D3"],
-          styles: { 1: { textColor: "#fe0000" } },
-        },
-      ],
+        ],
+      });
+    });
+
+    test.each([
+      ["B2", ["B2:E4", "A1:J10", "B2"]],
+      ["A2", ["A2:E4", "A1:J10", "A2"]],
+      ["B1", ["B1:E4", "A1:J10", "B1"]],
+      ["E3", ["B2:E4", "A1:J10", "E3"]],
+      ["A1", ["A1:J10", "A1"]],
+      ["A6", ["A1:J10", "A6"]],
+    ])("Selection loop with anchor %s", (anchor: string, expectedZones: string[]) => {
+      selectCell(model, anchor);
+      for (const zone of expectedZones) {
+        model.selection.loopSelection();
+        const selection = model.getters.getSelectedZone();
+        expect(zoneToXc(selection)).toEqual(zone);
+        expect(zoneToXc(toZone(getActivePosition(model)))).toEqual(anchor);
+      }
+    });
+
+    test.each([
+      ["B2", "B2:E4"],
+      ["A2", "A2:E4"],
+      ["B1", "B1:E4"],
+      ["E3", "B2:E4"],
+      ["A1", "A1"],
+      ["A6", "A6"],
+    ])("Select table around the anchor %s", (anchor: string, expectedZone: string) => {
+      selectCell(model, anchor);
+      model.selection.selectTableAroundSelection();
+      const selection = model.getters.getSelectedZone();
+      expect(zoneToXc(selection)).toEqual(expectedZone);
+      expect(zoneToXc(positionToZone(model.getters.getActivePosition()))).toEqual(anchor);
     });
   });
 
-  test.each([
-    ["B2", ["B2:E4", "A1:J10", "B2"]],
-    ["A2", ["A2:E4", "A1:J10", "A2"]],
-    ["B1", ["B1:E4", "A1:J10", "B1"]],
-    ["E3", ["B2:E4", "A1:J10", "E3"]],
-    ["A1", ["A1:J10", "A1"]],
-    ["A6", ["A1:J10", "A6"]],
-  ])("Selection loop with anchor %s", (anchor: string, expectedZones: string[]) => {
-    selectCell(model, anchor);
-    for (const zone of expectedZones) {
-      model.selection.loopSelection();
-      const selection = model.getters.getSelectedZone();
-      expect(zoneToXc(selection)).toEqual(zone);
-      expect(zoneToXc(toZone(getActivePosition(model)))).toEqual(anchor);
-    }
-  });
+  describe("Viewport doesn't move", () => {
+    let model: Model;
+    beforeEach(() => {
+      model = new Model();
+    });
 
-  test.each([
-    ["B2", "B2:E4"],
-    ["A2", "A2:E4"],
-    ["B1", "B1:E4"],
-    ["E3", "B2:E4"],
-    ["A1", "A1"],
-    ["A6", "A6"],
-  ])("Select table around the anchor %s", (anchor: string, expectedZone: string) => {
-    selectCell(model, anchor);
-    model.selection.selectTableAroundSelection();
-    const selection = model.getters.getSelectedZone();
-    expect(zoneToXc(selection)).toEqual(expectedZone);
-    expect(zoneToXc(positionToZone(model.getters.getActivePosition()))).toEqual(anchor);
+    function initModel() {
+      setCellContent(model, "A1", "a");
+      setCellContent(model, "A2", "a");
+      setCellContent(model, "A3", "a");
+      setCellContent(model, "A4", "a");
+
+      selectCell(model, "A4");
+      setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT);
+    }
+
+    test("Selection loop doesn't scroll the viewport", () => {
+      initModel();
+      const initialScroll = model.getters.getActiveSheetScrollInfo();
+
+      model.selection.loopSelection();
+      expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A1:A4");
+      expect(model.getters.getActiveSheetScrollInfo()).toEqual(initialScroll);
+
+      model.selection.loopSelection();
+      expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A1:Z100");
+      expect(model.getters.getActiveSheetScrollInfo()).toEqual(initialScroll);
+
+      model.selection.loopSelection();
+      expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A4");
+      expect(model.getters.getActiveSheetScrollInfo()).toEqual(initialScroll);
+    });
+
+    test("selectTableAroundSelection doesn't scroll the viewport", () => {
+      initModel();
+      const initialScroll = model.getters.getActiveSheetScrollInfo();
+
+      model.selection.selectTableAroundSelection();
+      expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A1:A4");
+      expect(model.getters.getActiveSheetScrollInfo()).toEqual(initialScroll);
+    });
   });
 });
