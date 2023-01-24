@@ -583,4 +583,27 @@ describe("BottomBar component", () => {
     await click(fixture, ".o-menu-item[data-name='Count Numbers'");
     expect(fixture.querySelector(".o-selection-statistic")?.textContent).toBe("Count Numbers: 1");
   });
+
+  test("The list of statistics menu closes if the selection or the cell value change", async () => {
+    const { model } = await mountBottomBar();
+    // Change value of cell
+    setCellContent(model, "A1", "24");
+    await nextTick();
+    triggerMouseEvent(".o-selection-statistic", "click");
+    await nextTick();
+    expect(fixture.querySelector(".o-menu")).toBeTruthy();
+
+    setCellContent(model, "A1", "42");
+    await nextTick();
+    expect(fixture.querySelector(".o-menu")).toBeFalsy();
+
+    // Change selection
+    triggerMouseEvent(".o-selection-statistic", "click");
+    await nextTick();
+    expect(fixture.querySelector(".o-menu")).toBeTruthy();
+
+    selectCell(model, "A2");
+    await nextTick();
+    expect(fixture.querySelector(".o-menu")).toBeFalsy();
+  });
 });
