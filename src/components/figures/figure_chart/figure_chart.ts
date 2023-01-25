@@ -1,10 +1,11 @@
-import { Component, onWillUnmount, useRef } from "@odoo/owl";
+import { Component, useRef } from "@odoo/owl";
 import { MENU_WIDTH } from "../../../constants";
 import { chartComponentRegistry } from "../../../registries/chart_types";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { _lt } from "../../../translation";
-import { ChartType, DOMCoordinates, Figure, SpreadsheetChildEnv, UID } from "../../../types";
+import { ChartType, DOMCoordinates, Figure, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
+import { MenuInterface, useMenu } from "../../helpers/menu_hook";
 import { useAbsolutePosition, useGridRect } from "../../helpers/position_hook";
 import { Menu } from "../../menu/menu";
 
@@ -34,12 +35,10 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   private position = useAbsolutePosition(this.chartContainerRef);
   private gridRect = useGridRect();
 
-  private menuId: UID | undefined;
+  private menu!: MenuInterface;
 
   setup() {
-    onWillUnmount(() => {
-      this.env.menuService.unregisterMenu(this.menuId);
-    });
+    this.menu = useMenu();
   }
 
   private getMenuItemRegistry(): MenuItemRegistry {
@@ -105,7 +104,7 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private openContextMenu(position: DOMCoordinates) {
-    this.menuId = this.env.menuService.registerMenu({
+    this.menu.open({
       position,
       menuItems: this.getMenuItemRegistry().getMenuItems(),
       containerRect: this.gridRect,

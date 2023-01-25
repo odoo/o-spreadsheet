@@ -1,9 +1,10 @@
-import { Component, onWillUnmount, useRef } from "@odoo/owl";
+import { Component, useRef } from "@odoo/owl";
 import { MENU_WIDTH } from "../../../constants";
 import { getMaxFigureSize } from "../../../helpers/figures/figure/figure";
 import { createMenu } from "../../../registries/menu_items_registry";
 import { _lt } from "../../../translation";
 import { DOMCoordinates, Figure, SpreadsheetChildEnv, UID } from "../../../types";
+import { MenuInterface, useMenu } from "../../helpers/menu_hook";
 import { useAbsolutePosition, useGridRect } from "../../helpers/position_hook";
 import { Menu } from "../../menu/menu";
 
@@ -22,12 +23,10 @@ export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
   private position = useAbsolutePosition(this.imageContainerRef);
   private gridRect = useGridRect();
 
-  private menuId: UID | undefined;
+  private menu!: MenuInterface;
 
   setup() {
-    onWillUnmount(() => {
-      this.env.menuService.unregisterMenu(this.menuId);
-    });
+    this.menu = useMenu();
   }
 
   readonly menuItems = createMenu([
@@ -95,7 +94,7 @@ export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private openContextMenu(position: DOMCoordinates) {
-    this.menuId = this.env.menuService.registerMenu({
+    this.menu.open({
       position,
       menuItems: this.menuItems,
       containerRect: this.gridRect,

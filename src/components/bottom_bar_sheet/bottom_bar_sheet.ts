@@ -1,18 +1,11 @@
-import {
-  Component,
-  onMounted,
-  onPatched,
-  onWillUnmount,
-  onWillUpdateProps,
-  useRef,
-  useState,
-} from "@odoo/owl";
+import { Component, onMounted, onPatched, onWillUpdateProps, useRef, useState } from "@odoo/owl";
 import { BOTTOMBAR_HEIGHT } from "../../constants";
 import { interactiveRenameSheet } from "../../helpers/ui/sheet_interactive";
 import { getSheetMenuRegistry } from "../../registries";
-import { SpreadsheetChildEnv, UID } from "../../types";
+import { SpreadsheetChildEnv } from "../../types";
 import { Ripple } from "../animation/ripple";
 import { css } from "../helpers/css";
+import { MenuInterface, useMenu } from "../helpers/menu_hook";
 
 css/* scss */ `
   .o-sheet {
@@ -73,9 +66,10 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   private sheetNameRef = useRef("sheetNameSpan");
 
   private editionState: "initializing" | "editing" = "initializing";
-  private contextMenuId: UID | undefined = undefined;
+  private menu!: MenuInterface;
 
   setup() {
+    this.menu = useMenu();
     onMounted(() => {
       if (this.isSheetActive) {
         this.scrollToSheet();
@@ -89,12 +83,8 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     });
     onWillUpdateProps((nextProps: Props) => {
       if (nextProps.sheetId !== this.props.sheetId) {
-        this.env.menuService.unregisterMenu(this.contextMenuId);
-        this.contextMenuId = undefined;
+        this.menu.close();
       }
-    });
-    onWillUnmount(() => {
-      this.env.menuService.unregisterMenu(this.contextMenuId);
     });
   }
 
@@ -185,14 +175,9 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private toggleContextMenu(ev: MouseEvent) {
-    if (this.contextMenuId && this.contextMenuId === this.env.menuService.getCurrentMenuId()) {
-      this.env.menuService.closeActiveMenu();
-      this.contextMenuId = undefined;
-      return;
-    }
     const target = ev.currentTarget as HTMLElement;
     const { x, y } = target.getBoundingClientRect();
-    this.contextMenuId = this.env.menuService.registerMenu({
+    this.menu.toggle({
       position: { x, y },
       menuItems: this.contextMenuRegistry.getMenuItems(),
     });

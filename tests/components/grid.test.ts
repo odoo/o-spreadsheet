@@ -672,7 +672,7 @@ describe("Grid component", () => {
         await simulateClick(".o-filter-icon");
         expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
         expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
-        env.menuService.registerMenu({
+        env.menuService.openMenu({
           position: { x: 0, y: 0 },
           menuItems: cellMenuRegistry.getMenuItems(),
         });
@@ -683,7 +683,7 @@ describe("Grid component", () => {
       });
 
       test("Opening a popover closes existing menu", async () => {
-        env.menuService.registerMenu({
+        env.menuService.openMenu({
           position: { x: 0, y: 0 },
           menuItems: cellMenuRegistry.getMenuItems(),
         });

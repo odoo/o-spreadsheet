@@ -17,7 +17,7 @@ describe("Menu Service tests", () => {
   });
 
   test("Can register a menu in the service", () => {
-    menuService.registerMenu({
+    menuService.openMenu({
       position: { x: 0, y: 0 },
       menuItems: testRegistry.getMenuItems(),
     });
@@ -25,14 +25,14 @@ describe("Menu Service tests", () => {
   });
 
   test("Can register a new menu over an existing one ", () => {
-    const id = menuService.registerMenu({
+    const id = menuService.openMenu({
       position: { x: 0, y: 0 },
       menuItems: testRegistry.getMenuItems(),
     });
     expect(menuService.getCurrentMenuProps()?.position).toEqual({ x: 0, y: 0 });
     expect(menuService.getCurrentMenuId()).toEqual(id);
 
-    const newId = menuService.registerMenu({
+    const newId = menuService.openMenu({
       position: { x: 10, y: 10 },
       menuItems: testRegistry.getMenuItems(),
     });
@@ -42,7 +42,7 @@ describe("Menu Service tests", () => {
 
   test("Closing the menu triggers its onClose", () => {
     const onClose = jest.fn();
-    menuService.registerMenu({
+    menuService.openMenu({
       position: { x: 0, y: 0 },
       menuItems: testRegistry.getMenuItems(),
       onClose,
@@ -53,12 +53,12 @@ describe("Menu Service tests", () => {
 
   test("Opening a new menu triggers the onClose of the old menu", () => {
     const onClose = jest.fn();
-    menuService.registerMenu({
+    menuService.openMenu({
       position: { x: 0, y: 0 },
       menuItems: testRegistry.getMenuItems(),
       onClose,
     });
-    menuService.registerMenu({
+    menuService.openMenu({
       position: { x: 10, y: 10 },
       menuItems: testRegistry.getMenuItems(),
     });

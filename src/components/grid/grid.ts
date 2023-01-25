@@ -36,6 +36,7 @@ import { GridPopover } from "../grid_popover/grid_popover";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
 import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
+import { MenuInterface, useMenu } from "../helpers/menu_hook";
 import { useGridRect } from "../helpers/position_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { useWheelHandler } from "../helpers/wheel_hook";
@@ -95,12 +96,14 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   readonly HEADER_WIDTH = HEADER_WIDTH;
   private gridRef!: Ref<HTMLElement>;
   private hiddenInput!: Ref<HTMLElement>;
+  private menu!: MenuInterface;
 
   onMouseWheel!: (ev: WheelEvent) => void;
   gridRect!: Rect;
   hoveredCell!: Partial<Position>;
 
   setup() {
+    this.menu = useMenu();
     this.gridRef = useRef("grid");
     this.hiddenInput = useRef("hiddenInput");
     this.gridRect = useGridRect();
@@ -179,7 +182,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       /** TODO: Clean once we introduce proper focus on sub components. Grid should not have to handle all this logic */
       if (this.env.model.getters.hasOpenedPopover()) {
         this.closeOpenedPopover();
-      } else if (this.env.menuService.hasOpenMenu()) {
+      } else if (this.menu.hasOpenMenu()) {
         this.closeMenu();
       } else {
         this.env.model.dispatch("CLEAN_CLIPBOARD_HIGHLIGHT");
@@ -496,7 +499,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     if (this.env.model.getters.hasOpenedPopover()) {
       this.closeOpenedPopover();
     }
-    this.env.menuService.registerMenu({
+    this.menu.open({
       position: { x, y },
       menuItems: registries[type].getMenuItems(),
       onClose: () => this.closeMenu(),
@@ -560,7 +563,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   closeMenu() {
-    this.env.menuService.closeActiveMenu();
+    this.menu.closeAny();
     this.focus();
   }
 }

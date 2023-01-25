@@ -2,11 +2,11 @@ import { MenuProps } from "../components/menu/menu";
 import { UID } from "../types";
 import { UuidGenerator } from "./uuid";
 
-interface RegisterMenuArgs extends Omit<MenuProps, "onClose" | "depth"> {
+export interface OpenMenuArgs extends Omit<MenuProps, "onClose" | "depth"> {
   onClose?: () => void;
 }
 
-interface InternalMenu extends RegisterMenuArgs {
+interface InternalMenu extends OpenMenuArgs {
   id: string;
 }
 
@@ -17,7 +17,7 @@ export class MenuService {
 
   constructor() {}
 
-  registerMenu(menu: RegisterMenuArgs): UID {
+  openMenu(menu: OpenMenuArgs): UID {
     if (this.activeMenu) {
       this.activeMenu.onClose?.();
     }
@@ -55,7 +55,7 @@ export class MenuService {
     return !!this.activeMenu;
   }
 
-  unregisterMenu(id: string | undefined) {
+  closeMenu(id: string | undefined) {
     if (id && this.activeMenu?.id === id) {
       // call onClose after setting activeMenu to undefined to avoid possible infinite recursion
       const onClose = this.activeMenu.onClose;
@@ -66,6 +66,6 @@ export class MenuService {
 
   closeActiveMenu() {
     if (!this.activeMenu) return;
-    this.unregisterMenu(this.activeMenu.id);
+    this.closeMenu(this.activeMenu.id);
   }
 }

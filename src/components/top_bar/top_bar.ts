@@ -31,6 +31,7 @@ import {
 import { ColorPicker } from "../color_picker/color_picker";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { css } from "../helpers/css";
+import { MenuInterface, useMenu } from "../helpers/menu_hook";
 import { Menu } from "../menu/menu";
 import { ComposerFocusType } from "../spreadsheet/spreadsheet";
 import { NumberFormatTerms } from "../translations_terms";
@@ -325,7 +326,10 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   textColor: string = "#000000";
   menus: MenuItem[] = [];
 
+  private menu!: MenuInterface;
+
   setup() {
+    this.menu = useMenu();
     useExternalListener(window as any, "click", this.onExternalClick);
     onWillStart(() => this.updateCellState());
     onWillUpdateProps(() => this.updateCellState());
@@ -385,7 +389,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   toggleContextMenu(menu: MenuItem, ev: MouseEvent) {
     this.closeMenus();
     const { left, top, height } = (ev.target as HTMLElement).getBoundingClientRect();
-    this.env.menuService.registerMenu({
+    this.menu.open({
       position: { x: left, y: top + height },
       menuItems: menu.children(this.env),
       onClose: () => this.closeMenus(),

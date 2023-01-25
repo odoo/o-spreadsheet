@@ -6,6 +6,7 @@ import { Ripple } from "../animation/ripple";
 import { BottomBarSheet } from "../bottom_bar_sheet/bottom_bar_sheet";
 import { BottomBarStatistic } from "../bottom_bar_statistic/bottom_bar_statistic";
 import { css } from "../helpers/css";
+import { MenuInterface, useMenu } from "../helpers/menu_hook";
 import { Menu } from "../menu/menu";
 
 // -----------------------------------------------------------------------------
@@ -91,7 +92,10 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
 
   menuMaxHeight = MENU_MAX_HEIGHT;
 
+  private menu!: MenuInterface;
+
   setup() {
+    this.menu = useMenu();
     onWillUpdateProps(() => {
       this.updateScrollState();
     });
@@ -137,7 +141,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   openContextMenu(x: Pixel, y: Pixel, registry: MenuItemRegistry) {
-    this.env.menuService.registerMenu({
+    this.menu.open({
       position: { x, y },
       menuItems: registry.getMenuItems(),
     });

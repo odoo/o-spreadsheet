@@ -4,6 +4,7 @@ import { MenuItemRegistry } from "../../registries/menu_items_registry";
 import { SpreadsheetChildEnv } from "../../types";
 import { Ripple } from "../animation/ripple";
 import { css } from "../helpers/css";
+import { MenuInterface, useMenu } from "../helpers/menu_hook";
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -28,6 +29,11 @@ export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
   static components = { Ripple };
 
   state = useState({ selectedStatisticFn: "" });
+  private menu!: MenuInterface;
+
+  setup() {
+    this.menu = useMenu();
+  }
 
   getSelectedStatistic() {
     const statisticFnResults = this.env.model.getters.getStatisticFnResults();
@@ -64,7 +70,7 @@ export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private openContextMenu(x: number, y: number, registry: MenuItemRegistry) {
-    this.env.menuService.registerMenu({
+    this.menu.open({
       position: { x, y },
       menuItems: registry.getMenuItems(),
     });
