@@ -275,7 +275,7 @@ export type PropsOf<C> = C extends ComponentConstructor<infer Props> ? Props : n
 export interface Lazy<T> {
   /**
    * Return the computed value.
-   * The value is computed only once and memoized.
+   * The value is computed only once and memorized.
    */
   (): T;
   /**

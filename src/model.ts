@@ -100,7 +100,6 @@ export interface ModelConfig {
   readonly client: Client;
   readonly snapshotRequested: boolean;
   readonly notifyUI: (payload: NotifyUIEvent) => void;
-  readonly lazyEvaluation: boolean;
 }
 
 const enum Status {
@@ -375,7 +374,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       moveClient: () => {},
       snapshotRequested: false,
       notifyUI: (payload: NotifyUIEvent) => this.trigger("notify-ui", payload),
-      lazyEvaluation: "lazyEvaluation" in config ? config.lazyEvaluation! : true,
     };
   }
 
@@ -400,7 +398,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       moveClient: this.session.move.bind(this.session),
       custom: this.config.custom,
       uiActions: this.config,
-      lazyEvaluation: this.config.lazyEvaluation,
     };
   }
 

@@ -5,7 +5,6 @@ import {
   intersection,
   isDefined,
   isZoneValid,
-  lazy,
   positions,
   toCartesian,
   toXC,
@@ -34,7 +33,6 @@ import {
   FormulaCell,
   HeaderIndex,
   invalidateEvaluationCommands,
-  Lazy,
   MatrixArg,
   PrimitiveArg,
   Range,
@@ -63,17 +61,15 @@ export class EvaluationPlugin extends UIPlugin {
   private evaluatedCells: {
     [sheetId: UID]:
       | {
-          [col: HeaderIndex]: { [row: HeaderIndex]: Lazy<EvaluatedCell> | undefined } | undefined;
+          [col: HeaderIndex]: { [row: HeaderIndex]: EvaluatedCell | undefined } | undefined;
         }
       | undefined;
   } = {};
   private readonly evalContext: EvalContext;
-  private readonly lazyEvaluation: boolean;
 
   constructor(config: UIPluginConfig) {
     super(config);
     this.evalContext = config.custom;
-    this.lazyEvaluation = config.lazyEvaluation;
   }
 
   // ---------------------------------------------------------------------------
@@ -147,7 +143,7 @@ export class EvaluationPlugin extends UIPlugin {
     }
     // the cell might have been created by a command in the current
     // dispatch but the evaluation is not done yet.
-    return this.evaluatedCells[sheetId]?.[col]?.[row]?.() || createEvaluatedCell("");
+    return this.evaluatedCells[sheetId]?.[col]?.[row] || createEvaluatedCell("");
   }
 
   getEvaluatedCells(sheetId: UID): Record<UID, EvaluatedCell> {
@@ -164,9 +160,7 @@ export class EvaluationPlugin extends UIPlugin {
    * Returns all the evaluated cells of a col
    */
   getColEvaluatedCells(sheetId: UID, col: HeaderIndex): EvaluatedCell[] {
-    return Object.values(this.evaluatedCells[sheetId]?.[col] || [])
-      .filter(isDefined)
-      .map((lazyCell) => lazyCell());
+    return Object.values(this.evaluatedCells[sheetId]?.[col] || []).filter(isDefined);
   }
 
   getEvaluatedCellsInZone(sheetId: UID, zone: Zone): EvaluatedCell[] {
@@ -179,7 +173,7 @@ export class EvaluationPlugin extends UIPlugin {
   // Evaluator
   // ---------------------------------------------------------------------------
 
-  private setEvaluatedCell(cellId: UID, evaluatedCell: Lazy<EvaluatedCell>) {
+  private setEvaluatedCell(cellId: UID, evaluatedCell: EvaluatedCell) {
     const { col, row, sheetId } = this.getters.getCellPosition(cellId);
     if (!this.evaluatedCells[sheetId]) {
       this.evaluatedCells[sheetId] = {};
@@ -188,9 +182,6 @@ export class EvaluationPlugin extends UIPlugin {
       this.evaluatedCells[sheetId]![col] = {};
     }
     this.evaluatedCells[sheetId]![col]![row] = evaluatedCell;
-    if (!this.lazyEvaluation) {
-      this.evaluatedCells[sheetId]![col]![row]!();
-    }
   }
 
   private *getAllCells(): Iterable<Cell> {
@@ -206,25 +197,23 @@ export class EvaluationPlugin extends UIPlugin {
   private evaluate() {
     this.evaluatedCells = {};
     const cellsBeingComputed = new Set<UID>();
-    const computeCell = (cell: Cell): Lazy<EvaluatedCell> => {
+    const computeCell = (cell: Cell): EvaluatedCell => {
       const cellId = cell.id;
       const { col, row, sheetId } = this.getters.getCellPosition(cellId);
-      const lazyEvaluation = this.evaluatedCells[sheetId]?.[col]?.[row];
-      if (lazyEvaluation) {
-        return lazyEvaluation; // already computed
+      const evaluation = this.evaluatedCells[sheetId]?.[col]?.[row];
+      if (evaluation) {
+        return evaluation; // already computed
       }
-      return lazy(() => {
-        try {
-          switch (cell.isFormula) {
-            case true:
-              return computeFormulaCell(cell);
-            case false:
-              return evaluateLiteral(cell.content, cell.format);
-          }
-        } catch (e) {
-          return handleError(e, cell);
+      try {
+        switch (cell.isFormula) {
+          case true:
+            return computeFormulaCell(cell);
+          case false:
+            return evaluateLiteral(cell.content, cell.format);
         }
-      });
+      } catch (e) {
+        return handleError(e, cell);
+      }
     };
 
     const handleError = (e: Error | any, cell: Cell): EvaluatedCell => {
@@ -265,7 +254,7 @@ export class EvaluationPlugin extends UIPlugin {
       return createEvaluatedCell(computedCell.value, cellData.format || computedCell.format);
     };
 
-    const compilationParameters = this.getCompilationParameters((cell) => computeCell(cell)());
+    const compilationParameters = this.getCompilationParameters((cell) => computeCell(cell));
 
     for (const cell of this.getAllCells()) {
       this.setEvaluatedCell(cell.id, computeCell(cell));
