@@ -10,8 +10,14 @@ import {
   zoneToDimension,
 } from "../../../helpers/index";
 import { ComposerSelection } from "../../../plugins/ui_stateful/edition";
-import { DOMDimension, FunctionDescription, Rect, SpreadsheetChildEnv } from "../../../types/index";
-import { css } from "../../helpers/css";
+import {
+  CSSProperties,
+  DOMDimension,
+  FunctionDescription,
+  Rect,
+  SpreadsheetChildEnv,
+} from "../../../types/index";
+import { css, cssPropertiesToCss } from "../../helpers/css";
 import { getElementScrollTop, setElementScrollTop } from "../../helpers/dom_helpers";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
 import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdown";
@@ -158,21 +164,20 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     if (this.props.delimitation && this.props.rect) {
       const { x: cellX, y: cellY, height: cellHeight } = this.props.rect;
       const remainingHeight = this.props.delimitation.height - (cellY + cellHeight);
-      let assistantStyle = "";
+      let assistantStyle: CSSProperties = {};
       if (cellY > remainingHeight) {
         // render top
-        assistantStyle += `
-          top: -3px;
-          transform: translate(0, -100%);
-        `;
+        assistantStyle.top = `$-3px`;
+        assistantStyle.transform = `translate(0, -100%)`;
       }
       if (cellX + ASSISTANT_WIDTH > this.props.delimitation.width) {
         // render left
-        assistantStyle += `right:0px;`;
+        assistantStyle.right = `0px`;
       }
-      return (assistantStyle += `width:${ASSISTANT_WIDTH}px;`);
+      assistantStyle.width = `${ASSISTANT_WIDTH}px`;
+      return cssPropertiesToCss(assistantStyle);
     }
-    return `width:${ASSISTANT_WIDTH}px;`;
+    return cssPropertiesToCss({ width: `${ASSISTANT_WIDTH}px` });
   }
 
   // we can't allow input events to be triggered while we remove and add back the content of the composer in processContent

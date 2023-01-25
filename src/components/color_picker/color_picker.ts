@@ -10,7 +10,7 @@ import { hslaToRGBA, isColorValid, rgbaToHex } from "../../helpers";
 import { chartFontColor } from "../../helpers/figures/charts";
 import { Color } from "../../types";
 import { SpreadsheetChildEnv } from "../../types/env";
-import { css } from "../helpers/css";
+import { css, cssPropertiesToCss } from "../helpers/css";
 
 const PICKER_PADDING = 6;
 
@@ -263,9 +263,12 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
 
   get magnifyingGlassStyle() {
     const { display, background, left, top } = this.state.style;
-    return `display:${display};${
-      display === "block" ? `background-color:${background};left:${left};top:${top};` : ""
-    }`;
+    return cssPropertiesToCss({
+      display,
+      "background-color": display === "block" ? background : undefined,
+      left,
+      top,
+    });
   }
 }
 

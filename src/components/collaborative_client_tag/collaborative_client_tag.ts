@@ -1,7 +1,7 @@
 import { Component } from "@odoo/owl";
 import { DEFAULT_FONT_SIZE } from "../../constants";
 import { HeaderIndex, SpreadsheetChildEnv } from "../../types";
-import { css } from "../helpers/css";
+import { css, cssPropertiesToCss } from "../helpers/css";
 
 interface ClientTagProps {
   active: boolean;
@@ -33,11 +33,14 @@ export class ClientTag extends Component<ClientTagProps, SpreadsheetChildEnv> {
       right: col,
       bottom: row,
     });
-    return `bottom: ${height - y + 15}px;left: ${
-      x - 1
-    }px;border: 1px solid ${color};background-color: ${color};${
-      this.props.active ? "opacity:1 !important" : ""
-    }`;
+
+    return cssPropertiesToCss({
+      bottom: `${height - y + 15}px`,
+      left: `${x - 1}px`,
+      border: `1px solid ${color}`,
+      "background-color": color,
+      opacity: this.props.active ? "opacity:1 !important" : undefined,
+    });
   }
 }
 

@@ -13,7 +13,7 @@ import {
 } from "../../types/index";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
-import { css } from "../helpers/css";
+import { css, cssPropertiesToCss } from "../helpers/css";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useAbsolutePosition } from "../helpers/position_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
@@ -77,25 +77,23 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     const sheetId = this.env.model.getters.getActiveSheetId();
     const { right } = this.env.model.getters.getSheetZone(sheetId);
     const { end } = this.env.model.getters.getColDimensions(sheetId, right);
-    return `
-      max-width: ${end}px;
-    `;
+    return cssPropertiesToCss({ "max-width": `${end}px` });
   }
 
   get gridOverlayDimensions() {
-    return `
-      height: 100%;
-      width: 100%
-    `;
+    return cssPropertiesToCss({
+      height: "100%",
+      width: "100%",
+    });
   }
 
   getCellClickableStyle(coordinates: Rect) {
-    return `
-      top: ${coordinates.y}px;
-      left: ${coordinates.x}px;
-      width: ${coordinates.width}px;
-      height: ${coordinates.height}px;
-    `;
+    return cssPropertiesToCss({
+      top: `${coordinates.y}px`,
+      left: `${coordinates.x}px`,
+      width: `${coordinates.width}px`,
+      height: `${coordinates.height}px`,
+    });
   }
 
   /**

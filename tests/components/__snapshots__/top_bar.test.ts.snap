@@ -504,9 +504,7 @@ exports[`TopBar component can set cell format 1`] = `
         </div>
         <div
           class="o-topbar-composer bg-white"
-          style="
-border-color: #3266ca;
-"
+          style="border-color:#3266ca;"
         >
           <div
             class="o-composer-container w-100 h-100"
@@ -515,12 +513,7 @@ border-color: #3266ca;
               class="o-composer w-100 text-start"
               contenteditable="true"
               spellcheck="false"
-              style="
-padding: 5px 0px 5px 8px;
-max-height: 100px;
-line-height: 24px;
-height: fit-content;
-"
+              style="padding:5px 0px 5px 8px; max-height:100px; line-height:24px; height:fit-content;"
               tabindex="1"
             />
             
@@ -920,9 +913,7 @@ exports[`TopBar component simple rendering 1`] = `
     </div>
     <div
       class="o-topbar-composer bg-white"
-      style="
-border-color: #3266ca;
-"
+      style="border-color:#3266ca;"
     >
       <div
         class="o-composer-container w-100 h-100"
@@ -931,12 +922,7 @@ border-color: #3266ca;
           class="o-composer w-100 text-start"
           contenteditable="true"
           spellcheck="false"
-          style="
-padding: 5px 0px 5px 8px;
-max-height: 100px;
-line-height: 24px;
-height: fit-content;
-"
+          style="padding:5px 0px 5px 8px; max-height:100px; line-height:24px; height:fit-content;"
           tabindex="1"
         />
         

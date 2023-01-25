@@ -5,8 +5,8 @@ import {
   SELECTION_BORDER_COLOR,
 } from "../../../constants";
 import { figureRegistry } from "../../../registries/index";
-import { Figure, Pixel, SpreadsheetChildEnv, UID } from "../../../types/index";
-import { css } from "../../helpers/css";
+import { CSSProperties, Figure, Pixel, SpreadsheetChildEnv, UID } from "../../../types/index";
+import { css, cssPropertiesToCss } from "../../helpers/css";
 import { gridOverlayPosition } from "../../helpers/dom_helpers";
 import { startDnd } from "../../helpers/drag_and_drop";
 
@@ -243,12 +243,12 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     const top = figureY >= y ? y : 0;
     const height = viewHeight - top;
 
-    return `
-      left: ${left}px;
-      top: ${top}px;
-      width: ${width}px;
-      height: ${height}px
-    `;
+    return cssPropertiesToCss({
+      left: `${left}px`,
+      top: `${top}px`,
+      width: `${width}px`,
+      height: `${height}px`,
+    });
   }
 
   get inverseViewportPositionStyle(): string {
@@ -259,10 +259,10 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     const left = figureX >= x ? -(x + offsetX) : 0;
     const top = figureY >= y ? -(y + offsetY) : 0;
 
-    return `
-      left: ${left}px;
-      top: ${top}px;
-    `;
+    return cssPropertiesToCss({
+      left: `${left}px`,
+      top: `${top}px`,
+    });
   }
 
   private getBorderWidth(): Pixel {
@@ -275,34 +275,34 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 
   get wrapperStyle() {
     const { x, y, width, height } = this.displayedFigure;
-    return (
-      `top:${y}px;` +
-      `left:${x}px;` +
-      `width:${width}px;` +
-      `height:${height}px;` +
-      `z-index: ${ComponentsImportance.Figure + (this.isSelected ? 1 : 0)}`
-    );
+    return cssPropertiesToCss({
+      left: `${x}px`,
+      top: `${y}px`,
+      width: `${width}px`,
+      height: `${height}px`,
+      "z-index": String(ComponentsImportance.Figure + (this.isSelected ? 1 : 0)),
+    });
   }
 
-  getResizerPosition(resizer: ResizeAnchor) {
+  getResizerPosition(resizer: ResizeAnchor): string {
     const anchorCenteringOffset = (ANCHOR_SIZE - ACTIVE_BORDER_WIDTH) / 2;
-    let style = "";
+    let style: CSSProperties = {};
     if (resizer.includes("top")) {
-      style += `top: ${-anchorCenteringOffset}px;`;
+      style.top = `${-anchorCenteringOffset}px`;
     } else if (resizer.includes("bottom")) {
-      style += `bottom: ${-anchorCenteringOffset}px;`;
+      style.bottom = `${-anchorCenteringOffset}px;`;
     } else {
-      style += ` bottom: calc(50% - ${anchorCenteringOffset}px);`;
+      style.bottom = `calc(50% - ${anchorCenteringOffset}px)`;
     }
 
     if (resizer.includes("left")) {
-      style += `left: ${-anchorCenteringOffset}px;`;
+      style.left = `${-anchorCenteringOffset}px;`;
     } else if (resizer.includes("right")) {
-      style += `right: ${-anchorCenteringOffset}px;`;
+      style.right += `${-anchorCenteringOffset}px;`;
     } else {
-      style += ` right: calc(50% - ${anchorCenteringOffset}px);`;
+      style.right += ` calc(50% - ${anchorCenteringOffset}px);`;
     }
-    return style;
+    return cssPropertiesToCss(style);
   }
 
   resize(dirX: number, dirY: number, ev: MouseEvent) {

@@ -42,6 +42,7 @@ import { FilterIconsOverlay } from "../filters/filter_icons_overlay/fitler_icons
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
+import { cssPropertiesToCss } from "../helpers";
 import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useAbsolutePosition } from "../helpers/position_hook";
@@ -146,12 +147,12 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get gridOverlayDimensions() {
-    return `
-      top: ${HEADER_HEIGHT}px;
-      left: ${HEADER_WIDTH}px;
-      height: calc(100% - ${HEADER_HEIGHT + SCROLLBAR_WIDTH}px);
-      width: calc(100% - ${HEADER_WIDTH + SCROLLBAR_WIDTH}px);
-    `;
+    return cssPropertiesToCss({
+      top: `${HEADER_HEIGHT}px`,
+      left: `${HEADER_WIDTH}px`,
+      height: `calc(100% - ${HEADER_HEIGHT + SCROLLBAR_WIDTH}px)`,
+      width: `calc(100% - ${HEADER_WIDTH + SCROLLBAR_WIDTH}px)`,
+    });
   }
 
   onClosePopover() {

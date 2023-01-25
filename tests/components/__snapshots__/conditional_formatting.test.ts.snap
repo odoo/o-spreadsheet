@@ -34,11 +34,7 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
             
             <div
               class="o-cf-preview-image"
-              style="font-weight:normal;
-               text-decoration:none;
-               font-style:normal;
-               color:none;
-               background-color:#FF0000;"
+              style="font-weight:normal; text-decoration:none; font-style:normal; color:none; background-color:#FF0000;"
             >
               123
             </div>

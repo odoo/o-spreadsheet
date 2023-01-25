@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 import { Pixel, SpreadsheetChildEnv, Zone } from "../../../types";
-import { css } from "../../helpers/css";
+import { css, cssPropertiesToCss } from "../../helpers/css";
 
 css/* scss */ `
   .o-border {
@@ -47,12 +47,12 @@ export class Border extends Component<Props, SpreadsheetChildEnv> {
     const widthValue = isHorizontal ? right - left : lineWidth;
     const heightValue = isVertical ? bottom - top : lineWidth;
 
-    return `
-        left:${leftValue}px;
-        top:${topValue}px;
-        width:${widthValue}px;
-        height:${heightValue}px;
-    `;
+    return cssPropertiesToCss({
+      left: `${leftValue}px`,
+      top: `${topValue}px`,
+      width: `${widthValue}px`,
+      height: `${heightValue}px`,
+    });
   }
 
   onMouseDown(ev: MouseEvent) {

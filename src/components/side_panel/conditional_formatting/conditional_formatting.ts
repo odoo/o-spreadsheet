@@ -19,7 +19,7 @@ import {
 } from "../../../types";
 import { ColorPicker } from "../../color_picker/color_picker";
 import { getTextDecoration } from "../../helpers";
-import { css } from "../../helpers/css";
+import { css, cssPropertiesToCss } from "../../helpers/css";
 import { ICONS, ICON_SETS } from "../../icons/icons";
 import { IconPicker } from "../../icon_picker/icon_picker";
 import { SelectionInput } from "../../selection_input/selection_input";
@@ -402,16 +402,13 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
 
   getStyle(rule: SingleColorRules | ColorScaleRule): string {
     if (rule.type === "CellIsRule") {
-      const fontWeight = rule.style.bold ? "bold" : "normal";
-      const fontDecoration = getTextDecoration(rule.style);
-      const fontStyle = rule.style.italic ? "italic" : "normal";
-      const color = rule.style.textColor || "none";
-      const backgroundColor = rule.style.fillColor || "none";
-      return `font-weight:${fontWeight};
-               text-decoration:${fontDecoration};
-               font-style:${fontStyle};
-               color:${color};
-               background-color:${backgroundColor};`;
+      return cssPropertiesToCss({
+        "font-weight": rule.style.bold ? "bold" : "normal",
+        "text-decoration": getTextDecoration(rule.style),
+        "font-style": rule.style.italic ? "italic" : "normal",
+        color: rule.style.textColor || "none",
+        "background-color": rule.style.fillColor || "none",
+      });
     } else if (rule.type === "ColorScaleRule") {
       const minColor = colorNumberString(rule.minimum.color);
       const midColor = rule.midpoint ? colorNumberString(rule.midpoint.color) : null;

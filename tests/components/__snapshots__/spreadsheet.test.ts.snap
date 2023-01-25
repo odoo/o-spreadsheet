@@ -392,10 +392,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
       </div>
       <div
         class="o-topbar-composer bg-white"
-        style="
-border-color: #E0E2E4;
-border-right: none;
-"
+        style="border-color:#E0E2E4; border-right:none;"
       >
         <div
           class="o-composer-container w-100 h-100"
@@ -404,12 +401,7 @@ border-right: none;
             class="o-composer w-100 text-start"
             contenteditable="true"
             spellcheck="false"
-            style="
-padding: 5px 0px 5px 8px;
-max-height: 100px;
-line-height: 24px;
-height: 34px;
-"
+            style="padding:5px 0px 5px 8px; max-height:100px; line-height:24px; height:34px;"
             tabindex="1"
           />
           
@@ -424,12 +416,7 @@ height: 34px;
   >
     <div
       class="o-grid-overlay overflow-hidden"
-      style="
-      top: 26px;
-      left: 48px;
-      height: calc(100% - 41px);
-      width: calc(100% - 63px);
-    "
+      style="top:26px; left:48px; height:calc(100% - 41px); width:calc(100% - 63px);"
     >
       <div>
         
@@ -496,35 +483,19 @@ height: 34px;
     
     <div
       class="o-scrollbar vertical"
-      style="
-top: 26px;
-right: 0px;
-width: 15px;
-bottom: 0px;
-"
+      style="top:26px; right:0px; width:15px; bottom:0px;"
     >
       <div
-        style="
-width: 1px;
-height: 2328px;
-"
+        style="width:1px; height:2328px;"
       />
     </div>
     
     <div
       class="o-scrollbar horizontal"
-      style="
-left: 48px;
-bottom: 0px;
-height: 15px;
-right: 0px;
-"
+      style="left:48px; bottom:0px; height:15px; right:0px;"
     >
       <div
-        style="
-width: 2592px;
-height: 1px;
-"
+        style="width:2592px; height:1px;"
       />
     </div>
     
@@ -541,12 +512,7 @@ height: 1px;
     >
       <div
         class="position-absolute"
-        style="
-top: 0px;
-left: 0px;
-width: 0px;
-height: 0px;
-"
+        style="top:0px; left:0px; width:0px; height:0px;"
       >
         
       </div>
@@ -571,12 +537,7 @@ height: 0px;
     >
       <div
         class="position-absolute"
-        style="
-top: 0px;
-left: 0px;
-width: 0px;
-height: 0px;
-"
+        style="top:0px; left:0px; width:0px; height:0px;"
       >
         
       </div>
@@ -623,12 +584,7 @@ height: 0px;
         >
           <div
             class="position-absolute"
-            style="
-top: 0px;
-left: 0px;
-width: 0px;
-height: 0px;
-"
+            style="top:0px; left:0px; width:0px; height:0px;"
           >
             
           </div>

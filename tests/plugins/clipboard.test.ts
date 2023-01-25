@@ -521,8 +521,8 @@ describe("clipboard", () => {
         .replace(/\n/g, "")
         .match(/<td style="(.*?)">.*?<\/td>/)![1];
 
-      expect(firstCellStyle).toContain("font-weight: bold;");
-      expect(firstCellStyle).toContain("background: #123456;");
+      expect(firstCellStyle).toContain("font-weight:bold;");
+      expect(firstCellStyle).toContain("background:#123456;");
     });
 
     test("Copied cells have their content escaped", async () => {

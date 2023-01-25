@@ -7,12 +7,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
 >
   <div
     class="o-grid-overlay overflow-hidden"
-    style="
-      top: 26px;
-      left: 48px;
-      height: calc(100% - 41px);
-      width: calc(100% - 63px);
-    "
+    style="top:26px; left:48px; height:calc(100% - 41px); width:calc(100% - 63px);"
   >
     <div>
       
@@ -79,35 +74,19 @@ exports[`Grid component simple rendering snapshot 1`] = `
   
   <div
     class="o-scrollbar vertical"
-    style="
-top: 26px;
-right: 0px;
-width: 15px;
-bottom: 0px;
-"
+    style="top:26px; right:0px; width:15px; bottom:0px;"
   >
     <div
-      style="
-width: 1px;
-height: 2328px;
-"
+      style="width:1px; height:2328px;"
     />
   </div>
   
   <div
     class="o-scrollbar horizontal"
-    style="
-left: 48px;
-bottom: 0px;
-height: 15px;
-right: 0px;
-"
+    style="left:48px; bottom:0px; height:15px; right:0px;"
   >
     <div
-      style="
-width: 2592px;
-height: 1px;
-"
+      style="width:2592px; height:1px;"
     />
   </div>
   

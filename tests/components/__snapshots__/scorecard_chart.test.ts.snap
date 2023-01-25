@@ -43,45 +43,29 @@ exports[`Scorecard charts Scorecard snapshot 1`] = `
     
     <div
       class="o-scorecard w-100 h-100"
-      style="
-      padding:10.72px;
-      background:#FFFFFF;
-    "
+      style="padding:10.72px; background:#FFFFFF;"
     >
       <div
         class="o-title-text"
-        style="
-font-size: 18px;
-display: inline-block;
-color: #757575;
-"
+        style="font-size:18px; display:inline-block; color:#757575;"
       >
         hello
       </div>
       
       <div
         class="o-scorecard-content"
-        style="
-      height:291.96px;
-    "
+        style="height:291.96px;"
       >
         <div
           class="o-key-text"
-          style="
-font-size: 69.24101876395092px;
-display: inline-block;
-color: #000000;
-"
+          style="font-size:69.24101876395092px; display:inline-block; color:#000000;"
         >
           2
         </div>
         
         <div
           class="o-baseline-text"
-          style="
-font-size: 37.28362548828126px;
-display: inline-block;
-"
+          style="font-size:37.28362548828126px; display:inline-block;"
         >
           <svg
             class="o-cf-icon arrow-up"
@@ -99,22 +83,14 @@ display: inline-block;
           
           <span
             class="o-baseline-text-value"
-            style="
-font-size: 37.28362548828126px;
-display: inline-block;
-color: #00A04A;
-"
+            style="font-size:37.28362548828126px; display:inline-block; color:#00A04A;"
           >
             1
           </span>
           
           <span
             class="o-baseline-text-description"
-            style="
-font-size: 33.55526293945314px;
-display: inline-block;
-color: #757575;
-"
+            style="font-size:33.55526293945314px; display:inline-block; color:#757575;"
           >
              description
           </span>
@@ -171,45 +147,29 @@ exports[`Scorecard charts scorecard text is resized while figure is resized 1`] 
     
     <div
       class="o-scorecard w-100 h-100"
-      style="
-      padding:4.72px;
-      background:#FFFFFF;
-    "
+      style="padding:4.72px; background:#FFFFFF;"
     >
       <div
         class="o-title-text"
-        style="
-font-size: 18px;
-display: inline-block;
-color: #757575;
-"
+        style="font-size:18px; display:inline-block; color:#757575;"
       >
         hello
       </div>
       
       <div
         class="o-scorecard-content"
-        style="
-      height:103.96000000000001px;
-    "
+        style="height:103.96000000000001px;"
       >
         <div
           class="o-key-text"
-          style="
-font-size: 30.46703915550596px;
-display: inline-block;
-color: #000000;
-"
+          style="font-size:30.46703915550596px; display:inline-block; color:#000000;"
         >
           2
         </div>
         
         <div
           class="o-baseline-text"
-          style="
-font-size: 16.405328776041667px;
-display: inline-block;
-"
+          style="font-size:16.405328776041667px; display:inline-block;"
         >
           <svg
             class="o-cf-icon arrow-up"
@@ -227,22 +187,14 @@ display: inline-block;
           
           <span
             class="o-baseline-text-value"
-            style="
-font-size: 16.405328776041667px;
-display: inline-block;
-color: #00A04A;
-"
+            style="font-size:16.405328776041667px; display:inline-block; color:#00A04A;"
           >
             1
           </span>
           
           <span
             class="o-baseline-text-description"
-            style="
-font-size: 14.764795898437502px;
-display: inline-block;
-color: #757575;
-"
+            style="font-size:14.764795898437502px; display:inline-block; color:#757575;"
           >
              description
           </span>
