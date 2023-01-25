@@ -1,95 +1,64 @@
-import { _lt } from "../../translation";
-import { SpreadsheetChildEnv } from "../../types";
 import { MenuItemRegistry } from "../menu_items_registry";
-import * as ACTIONS from "./menu_items_actions";
+import * as ACTION_EDIT from "./items/edit_menu_items";
+import * as ACTION_FORMAT from "./items/format_menu_items";
+import * as ACTION_INSERT from "./items/insert_menu_items";
+import * as ACTION_VIEW from "./items/view_menu_items";
 
 export const rowMenuRegistry = new MenuItemRegistry();
 
 rowMenuRegistry
   .add("cut", {
-    name: _lt("Cut"),
+    ...ACTION_EDIT.cutMenuItem,
     sequence: 10,
-    description: "Ctrl+X",
-    action: ACTIONS.CUT_ACTION,
   })
   .add("copy", {
-    name: _lt("Copy"),
-    description: "Ctrl+C",
+    ...ACTION_EDIT.copyMenuItem,
     sequence: 20,
-    isReadonlyAllowed: true,
-    action: ACTIONS.COPY_ACTION,
   })
   .add("paste", {
-    name: _lt("Paste"),
-    description: "Ctrl+V",
+    ...ACTION_EDIT.pasteMenuItem,
     sequence: 30,
-    action: ACTIONS.PASTE_ACTION,
   })
   .add("paste_special", {
-    name: _lt("Paste special"),
+    ...ACTION_EDIT.pasteSpecialMenuItem,
     sequence: 40,
     separator: true,
-    isVisible: ACTIONS.IS_NOT_CUT_OPERATION,
   })
   .addChild("paste_value_only", ["paste_special"], {
-    name: _lt("Paste value only"),
+    ...ACTION_EDIT.pasteSpecialValueMenuItem,
     sequence: 10,
-    action: ACTIONS.PASTE_VALUE_ACTION,
   })
   .addChild("paste_format_only", ["paste_special"], {
-    name: _lt("Paste format only"),
+    ...ACTION_EDIT.pasteSpecialFormatMenuItem,
     sequence: 20,
-    action: ACTIONS.PASTE_FORMAT_ACTION,
   })
   .add("add_row_before", {
-    name: ACTIONS.ROW_INSERT_ROWS_BEFORE_NAME,
+    ...ACTION_INSERT.rowInsertRowBeforeMenuItem,
     sequence: 50,
-    action: ACTIONS.INSERT_ROWS_BEFORE_ACTION,
   })
   .add("add_row_after", {
-    name: ACTIONS.ROW_INSERT_ROWS_AFTER_NAME,
+    ...ACTION_INSERT.rowInsertRowsAfterMenuItem,
     sequence: 60,
-    action: ACTIONS.INSERT_ROWS_AFTER_ACTION,
   })
   .add("delete_row", {
-    name: ACTIONS.REMOVE_ROWS_NAME,
+    ...ACTION_EDIT.deleteRowsMenuItem,
     sequence: 70,
-    action: ACTIONS.REMOVE_ROWS_ACTION,
   })
   .add("clear_row", {
-    name: ACTIONS.DELETE_CONTENT_ROWS_NAME,
+    ...ACTION_EDIT.clearRowsMenuItem,
     sequence: 80,
-    action: ACTIONS.DELETE_CONTENT_ROWS_ACTION,
   })
   .add("hide_rows", {
-    name: ACTIONS.HIDE_ROWS_NAME,
+    ...ACTION_VIEW.hideRowsMenuItem,
     sequence: 85,
-    action: ACTIONS.HIDE_ROWS_ACTION,
-    isVisible: (env: SpreadsheetChildEnv) => {
-      const sheetId = env.model.getters.getActiveSheetId();
-      const hiddenRows = env.model.getters.getHiddenRowsGroups(sheetId).flat();
-      return (
-        env.model.getters.getNumberRows(sheetId) >
-        hiddenRows.length + env.model.getters.getElementsFromSelection("ROW").length
-      );
-    },
     separator: true,
   })
   .add("unhide_rows", {
-    name: _lt("Unhide rows"),
+    ...ACTION_VIEW.unhideRowsMenuItem,
     sequence: 86,
-    action: ACTIONS.UNHIDE_ROWS_ACTION,
-    isVisible: (env: SpreadsheetChildEnv) => {
-      const hiddenRows = env.model.getters
-        .getHiddenRowsGroups(env.model.getters.getActiveSheetId())
-        .flat();
-      const currentRows = env.model.getters.getElementsFromSelection("ROW");
-      return currentRows.some((col) => hiddenRows.includes(col));
-    },
     separator: true,
   })
   .add("conditional_formatting", {
-    name: _lt("Conditional formatting"),
+    ...ACTION_FORMAT.formatCFMenuItem,
     sequence: 90,
-    action: ACTIONS.OPEN_CF_SIDEPANEL_ACTION,
   });

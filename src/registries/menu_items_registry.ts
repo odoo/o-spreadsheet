@@ -58,7 +58,7 @@ export interface MenuItem {
   textColor?: Color;
 }
 
-type MenuItemsBuilder = (env: SpreadsheetChildEnv) => MenuItemSpec[];
+export type MenuItemsBuilder = (env: SpreadsheetChildEnv) => MenuItemSpec[];
 type MenuChildren = (MenuItemSpec | MenuItemsBuilder)[];
 
 export function createMenu(menuItems: MenuItemSpec[]): MenuItem[] {

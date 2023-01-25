@@ -666,7 +666,7 @@ describe("Menu Item actions", () => {
 
   test("Format -> font-size", () => {
     const fontSize = FONT_SIZES[0];
-    doAction(["format", "format_font_size", `format_font_size_${fontSize}`], env);
+    doAction(["format", "format_font_size", `font_size_${fontSize}`], env);
     expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
       sheetId: env.model.getters.getActiveSheetId(),
       target: env.model.getters.getSelectedZones(),

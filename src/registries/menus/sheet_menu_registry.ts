@@ -1,72 +1,33 @@
-import { _lt } from "../../translation";
 import { MenuItemRegistry } from "../menu_items_registry";
+import * as ACTION_SHEET from "./items/sheet_menu_items";
 
 export function getSheetMenuRegistry(args: { renameSheetCallback: () => void }): MenuItemRegistry {
   const sheetMenuRegistry = new MenuItemRegistry();
 
   sheetMenuRegistry
     .add("delete", {
-      name: _lt("Delete"),
+      ...ACTION_SHEET.deleteSheetMenuItem,
       sequence: 10,
-      isVisible: (env) => {
-        return env.model.getters.getSheetIds().length > 1;
-      },
-      action: (env) =>
-        env.askConfirmation(_lt("Are you sure you want to delete this sheet ?"), () => {
-          env.model.dispatch("DELETE_SHEET", { sheetId: env.model.getters.getActiveSheetId() });
-        }),
     })
     .add("duplicate", {
-      name: _lt("Duplicate"),
+      ...ACTION_SHEET.duplicateSheetMenuItem,
       sequence: 20,
-      action: (env) => {
-        const sheetIdFrom = env.model.getters.getActiveSheetId();
-        const sheetIdTo = env.model.uuidGenerator.uuidv4();
-        env.model.dispatch("DUPLICATE_SHEET", {
-          sheetId: sheetIdFrom,
-          sheetIdTo,
-        });
-        env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom, sheetIdTo });
-      },
     })
     .add("rename", {
-      name: _lt("Rename"),
+      ...ACTION_SHEET.renameSheetMenuItem(args),
       sequence: 30,
-      action: () => args.renameSheetCallback(),
     })
     .add("move_right", {
-      name: _lt("Move right"),
+      ...ACTION_SHEET.sheetMoveRightMenuItem,
       sequence: 40,
-      isVisible: (env) => {
-        const sheetId = env.model.getters.getActiveSheetId();
-        const sheetIds = env.model.getters.getVisibleSheetIds();
-        return sheetIds.indexOf(sheetId) !== sheetIds.length - 1;
-      },
-      action: (env) =>
-        env.model.dispatch("MOVE_SHEET", {
-          sheetId: env.model.getters.getActiveSheetId(),
-          delta: 1,
-        }),
     })
     .add("move_left", {
-      name: _lt("Move left"),
+      ...ACTION_SHEET.sheetMoveLeftMenuItem,
       sequence: 50,
-      isVisible: (env) => {
-        const sheetId = env.model.getters.getActiveSheetId();
-        return env.model.getters.getVisibleSheetIds()[0] !== sheetId;
-      },
-      action: (env) =>
-        env.model.dispatch("MOVE_SHEET", {
-          sheetId: env.model.getters.getActiveSheetId(),
-          delta: -1,
-        }),
     })
     .add("hide_sheet", {
-      name: _lt("Hide sheet"),
+      ...ACTION_SHEET.hideSheetMenuItem,
       sequence: 60,
-      isVisible: (env) => env.model.getters.getVisibleSheetIds().length !== 1,
-      action: (env) =>
-        env.model.dispatch("HIDE_SHEET", { sheetId: env.model.getters.getActiveSheetId() }),
     });
 
   return sheetMenuRegistry;
