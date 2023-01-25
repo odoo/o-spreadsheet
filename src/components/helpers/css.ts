@@ -136,13 +136,13 @@ export function cellTextStyleToCss(style: Style | undefined): CSSProperties {
   return attributes;
 }
 
-export function cssPropertiesToCss(attributes: CSSProperties, newLine = true): string {
-  const separator = newLine ? "\n" : "";
+export function cssPropertiesToCss(attributes: CSSProperties): string {
   const str = Object.entries(attributes)
-    .map(([attName, attValue]) => `${attName}: ${attValue};`)
-    .join(separator);
+    .filter(([attName, attValue]) => attValue !== undefined)
+    .map(([attName, attValue]) => `${attName}:${attValue};`)
+    .join(" ");
 
-  return str ? "\n" + str + "\n" : "";
+  return str;
 }
 
 export function getElementMargins(el: Element) {

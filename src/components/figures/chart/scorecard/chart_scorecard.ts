@@ -155,16 +155,14 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get chartStyle() {
-    return `
-      padding:${this.chartPadding}px;
-      background:${this.backgroundColor};
-    `;
+    return cssPropertiesToCss({
+      padding: `${this.chartPadding}px`,
+      background: this.backgroundColor,
+    });
   }
 
   get chartContentStyle() {
-    return `
-      height:${this.getDrawableHeight()}px;
-    `;
+    return cssPropertiesToCss({ height: `${this.getDrawableHeight()}px` });
   }
 
   get chartPadding() {

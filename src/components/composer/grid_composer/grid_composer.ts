@@ -5,7 +5,7 @@ import { deepEquals, getComposerSheetName, positionToZone, toXC } from "../../..
 import { ComposerSelection } from "../../../plugins/ui_stateful/edition";
 import { DOMDimension, Rect, Ref, SpreadsheetChildEnv, Zone } from "../../../types/index";
 import { getTextDecoration } from "../../helpers";
-import { css } from "../../helpers/css";
+import { css, cssPropertiesToCss } from "../../helpers/css";
 import { Composer } from "../composer/composer";
 import { ZoneDimension } from "./../../../types/misc";
 
@@ -117,10 +117,10 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
 
   get cellReferenceStyle(): string {
     const { x: left, y: top } = this.rect;
-    return `
-      left: ${left - COMPOSER_BORDER_WIDTH}px;
-      top: ${top - GRID_CELL_REFERENCE_TOP_OFFSET}px;
-    `;
+    return cssPropertiesToCss({
+      left: `${left - COMPOSER_BORDER_WIDTH}px`,
+      top: `${top - GRID_CELL_REFERENCE_TOP_OFFSET}px`,
+    });
   }
 
   get containerStyle(): string {
@@ -155,33 +155,33 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
      *
      * The +-1 are there to include cell borders in the composer sizing/positioning
      */
-    return `
-      left: ${left - 1}px;
-      top: ${top}px;
+    return cssPropertiesToCss({
+      left: `${left - 1}px`,
+      top: `${top}px`,
 
-      min-width: ${width + 1}px;
-      min-height: ${height + 1}px;
+      "min-width": `${width + 1}px`,
+      "min-height": `${height + 1}px`,
 
-      background: ${background};
-      color: ${color};
+      background,
+      color,
 
-      font-size: ${fontSizeMap[fontSize]}px;
-      font-weight: ${fontWeight};
-      font-style: ${fontStyle};
-      text-decoration: ${textDecoration};
+      "font-size": `${fontSizeMap[fontSize]}px`,
+      "font-weight": String(fontWeight),
+      "font-style": fontStyle,
+      "text-decoration": textDecoration,
 
-      text-align: ${textAlign};
-    `;
+      "text-align": textAlign,
+    });
   }
 
   get composerStyle(): string {
     const maxHeight = this.props.gridDims.height - this.rect.y;
     const maxWidth = this.props.gridDims.width - this.rect.x;
 
-    return `
-      max-width : ${maxWidth}px;
-      max-height : ${maxHeight}px;
-    `;
+    return cssPropertiesToCss({
+      "max-width": `${maxWidth}px`,
+      "max-height": `${maxHeight}px`,
+    });
   }
 }
 

@@ -1,7 +1,7 @@
 import { Component } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH } from "../../../constants";
 import { SpreadsheetChildEnv, Zone } from "../../../types";
-import { css } from "../../helpers/css";
+import { css, cssPropertiesToCss } from "../../helpers/css";
 
 css/* scss */ `
   .o-corner {
@@ -62,11 +62,11 @@ export class Corner extends Component<Props, SpreadsheetChildEnv> {
     const leftValue = this.isLeft ? rect.x : rect.x + rect.width;
     const topValue = this.isTop ? rect.y : rect.y + rect.height;
 
-    return `
-      left:${leftValue - AUTOFILL_EDGE_LENGTH / 2}px;
-      top:${topValue - AUTOFILL_EDGE_LENGTH / 2}px;
-      background-color:${this.props.color};
-    `;
+    return cssPropertiesToCss({
+      left: `${leftValue - AUTOFILL_EDGE_LENGTH / 2}px`,
+      top: `${topValue - AUTOFILL_EDGE_LENGTH / 2}px`,
+      backgroundColor: this.props.color,
+    });
   }
 
   onMouseDown(ev: MouseEvent) {
