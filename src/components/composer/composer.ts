@@ -74,6 +74,8 @@ const TEMPLATE = xml/* xml */ `
     t-on-click.stop="onClick"
     t-on-blur="onBlur"
     t-on-paste.stop=""
+    t-on-compositionstart="onCompositionStart"
+    t-on-compositionend="onCompositionEnd"
   />
 
   <div t-if="props.focus !== 'inactive' and (autoCompleteState.showProvider or functionDescriptionState.showDescription)"
@@ -197,6 +199,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     argToFocus: 0,
   });
   private isKeyStillDown: boolean = false;
+  private compositionActive: boolean = false;
 
   get assistantStyle(): string {
     if (this.props.delimitation && this.props.rect) {
@@ -333,6 +336,13 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     this.dispatch("STOP_EDITION", { cancel: true });
   }
 
+  onCompositionStart() {
+    this.compositionActive = true;
+  }
+  onCompositionEnd() {
+    this.compositionActive = false;
+  }
+
   onKeydown(ev: KeyboardEvent) {
     let handler = this.keyMapping[ev.key];
     if (handler) {
@@ -437,6 +447,9 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   // ---------------------------------------------------------------------------
 
   private processContent() {
+    if (this.compositionActive) {
+      return;
+    }
     this.contentHelper.removeAll(); // removes the content of the composer, to be added just after
     this.shouldProcessInputEvents = false;
 
