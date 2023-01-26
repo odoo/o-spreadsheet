@@ -147,6 +147,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     argToFocus: 0,
   });
   private isKeyStillDown: boolean = false;
+  private compositionActive: boolean = false;
 
   get assistantStyle(): string {
     if (this.props.delimitation && this.props.rect) {
@@ -296,6 +297,13 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     this.processContent();
   }
 
+  onCompositionStart() {
+    this.compositionActive = true;
+  }
+  onCompositionEnd() {
+    this.compositionActive = false;
+  }
+
   onKeydown(ev: KeyboardEvent) {
     let handler = this.keyMapping[ev.key];
     if (handler) {
@@ -415,6 +423,9 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
   // ---------------------------------------------------------------------------
 
   private processContent() {
+    if (this.compositionActive) {
+      return;
+    }
     this.contentHelper.removeAll(); // removes the content of the composer, to be added just after
     this.shouldProcessInputEvents = false;
 
