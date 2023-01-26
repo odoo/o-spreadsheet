@@ -223,6 +223,13 @@ describe("figures", () => {
     expect(anchors).toHaveLength(8);
   });
 
+  test("selected figure snapshot", async () => {
+    createFigure(model);
+    model.dispatch("SELECT_FIGURE", { id: "someuuid" });
+    await nextTick();
+    expect(fixture.querySelector(".o-figure-parent")).toMatchSnapshot();
+  });
+
   test("Can undo/redo with a figure focused", async () => {
     createFigure(model);
     await nextTick();

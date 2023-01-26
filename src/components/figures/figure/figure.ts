@@ -290,17 +290,17 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     if (resizer.includes("top")) {
       style.top = `${-anchorCenteringOffset}px`;
     } else if (resizer.includes("bottom")) {
-      style.bottom = `${-anchorCenteringOffset}px;`;
+      style.bottom = `${-anchorCenteringOffset}px`;
     } else {
       style.bottom = `calc(50% - ${anchorCenteringOffset}px)`;
     }
 
     if (resizer.includes("left")) {
-      style.left = `${-anchorCenteringOffset}px;`;
+      style.left = `${-anchorCenteringOffset}px`;
     } else if (resizer.includes("right")) {
-      style.right += `${-anchorCenteringOffset}px;`;
+      style.right = `${-anchorCenteringOffset}px`;
     } else {
-      style.right += ` calc(50% - ${anchorCenteringOffset}px);`;
+      style.right = `calc(50% - ${anchorCenteringOffset}px)`;
     }
     return cssPropertiesToCss(style);
   }
