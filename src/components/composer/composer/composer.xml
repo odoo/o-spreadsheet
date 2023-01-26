@@ -17,6 +17,8 @@
         t-on-click.stop="onClick"
         t-on-blur="onBlur"
         t-on-paste.stop=""
+        t-on-compositionstart="onCompositionStart"
+        t-on-compositionend="onCompositionEnd"
       />
 
       <div
