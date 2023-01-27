@@ -5,13 +5,18 @@ import { ScorecardChart } from "../../src/components/figures/chart/scorecard/cha
 import { MENU_WIDTH, MIN_FIG_SIZE } from "../../src/constants";
 import { chartComponentRegistry, figureRegistry } from "../../src/registries";
 import { CreateFigureCommand, Figure, SpreadsheetChildEnv, UID } from "../../src/types";
+
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import {
   activateSheet,
+  addColumns,
   createChart,
   createGaugeChart,
   createImage,
   createScorecardChart,
   createSheet,
+  freezeColumns,
+  freezeRows,
   paste,
   selectCell,
   setCellContent,
@@ -55,18 +60,17 @@ function createFigure(
 }
 
 const anchorSelectors = {
-  top: ".o-fig-resizer.o-top",
-  topRight: ".o-fig-resizer.o-topRight",
-  right: ".o-fig-resizer.o-right",
-  bottomRight: ".o-fig-resizer.o-bottomRight",
-  bottom: ".o-fig-resizer.o-bottom",
-  bottomLeft: ".o-fig-resizer.o-bottomLeft",
-  left: ".o-fig-resizer.o-left",
-  topLeft: ".o-fig-resizer.o-topLeft",
+  top: ".o-fig-anchor.o-top",
+  topRight: ".o-fig-anchor.o-topRight",
+  right: ".o-fig-anchor.o-right",
+  bottomRight: ".o-fig-anchor.o-bottomRight",
+  bottom: ".o-fig-anchor.o-bottom",
+  bottomLeft: ".o-fig-anchor.o-bottomLeft",
+  left: ".o-fig-anchor.o-left",
+  topLeft: ".o-fig-anchor.o-topLeft",
 };
 async function dragAnchor(anchor: string, dragX: number, dragY: number, mouseUp = false) {
-  const anchorElement = fixture.querySelector(anchorSelectors[anchor])!;
-  await dragElement(anchorElement, dragX, dragY, mouseUp);
+  await dragElement(anchorSelectors[anchor], dragX, dragY, mouseUp);
 }
 
 //Test Component required as we don't especially want/need to load an entire chart
@@ -220,7 +224,7 @@ describe("figures", () => {
     createFigure(model);
     model.dispatch("SELECT_FIGURE", { id: "someuuid" });
     await nextTick();
-    const anchors = fixture.querySelectorAll(".o-fig-resizer");
+    const anchors = fixture.querySelectorAll(".o-fig-anchor");
     expect(anchors).toHaveLength(8);
   });
 
@@ -233,6 +237,25 @@ describe("figures", () => {
       .querySelector(".o-figure")
       ?.dispatchEvent(new KeyboardEvent("keydown", { key: "z", ctrlKey: true, bubbles: true }));
     expect(getCellText(model, "A1")).toBe("");
+  });
+
+  test.each([
+    ["top", { mouseOffsetX: 0, mouseOffsetY: -50 }, { width: 100, height: 150 }],
+    ["topRight", { mouseOffsetX: 50, mouseOffsetY: -50 }, { width: 150, height: 150 }],
+    ["right", { mouseOffsetX: 50, mouseOffsetY: 0 }, { width: 150, height: 100 }],
+    ["bottomRight", { mouseOffsetX: 50, mouseOffsetY: 50 }, { width: 150, height: 150 }],
+    ["bottom", { mouseOffsetX: 0, mouseOffsetY: 50 }, { width: 100, height: 150 }],
+    ["bottomLeft", { mouseOffsetX: -50, mouseOffsetY: 50 }, { width: 150, height: 150 }],
+    ["left", { mouseOffsetX: -50, mouseOffsetY: 0 }, { width: 150, height: 100 }],
+    ["topLeft", { mouseOffsetX: -50, mouseOffsetY: -50 }, { width: 150, height: 150 }],
+  ])("Can resize a figure through its anchors", async (anchor: string, mouseMove, expectedSize) => {
+    const figureId = "someuuid";
+    createFigure(model, { id: figureId, y: 200, x: 200, width: 100, height: 100 });
+    await nextTick();
+    await simulateClick(".o-figure");
+    await dragAnchor(anchor, mouseMove.mouseOffsetX, mouseMove.mouseOffsetY, true);
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.getFigure(sheetId, figureId)).toMatchObject(expectedSize);
   });
 
   test.each([
@@ -286,22 +309,118 @@ describe("figures", () => {
     expect(model.getters.getFigure(sheetId, figureId)).toMatchObject(expectedSize);
   });
 
-  test("Can resize a figure through its anchors", async () => {
-    const figureId = "someuuid";
-    createFigure(model, { id: figureId, y: 200 });
-    await nextTick();
-    await simulateClick(".o-figure");
-    expect(model.getters.getSelectedFigureId()).toBe(figureId);
-    expect(model.getters.getFigure(model.getters.getActiveSheetId(), figureId)!.height).toBe(100);
-    // increase height by 50 pixels from the top anchor
-    const resizeTopSelector = fixture.querySelector(".o-fig-resizer.o-top");
-    triggerMouseEvent(resizeTopSelector, "mousedown", 0, 200);
-    await nextTick();
-    triggerMouseEvent(resizeTopSelector, "mousemove", 0, 150);
-    await nextTick();
-    triggerMouseEvent(resizeTopSelector, "mouseup");
-    await nextTick();
-    expect(model.getters.getFigure(model.getters.getActiveSheetId(), figureId)!.height).toBe(150);
+  describe("Move a figure with drag & drop ", () => {
+    test("Can move a figure with drag & drop", async () => {
+      createFigure(model, { id: "someuuid", x: 200, y: 100 });
+      await nextTick();
+      await dragElement(".o-figure", 150, 100, true);
+      await nextTick();
+      expect(model.getters.getFigure(model.getters.getActiveSheetId(), "someuuid")).toMatchObject({
+        x: 350,
+        y: 200,
+      });
+    });
+
+    describe("Figure drag & drop with frozen pane", () => {
+      const cellWidth = DEFAULT_CELL_WIDTH;
+      const cellHeight = DEFAULT_CELL_HEIGHT;
+      const id = "someId";
+      const figureSelector = ".o-figure";
+      let sheetId: UID;
+
+      beforeEach(async () => {
+        sheetId = model.getters.getActiveSheetId();
+        freezeRows(model, 5);
+        freezeColumns(model, 5);
+        model.dispatch("SET_VIEWPORT_OFFSET", {
+          offsetX: 10 * cellWidth,
+          offsetY: 10 * cellHeight,
+        });
+      });
+      test("Figure in frozen rows can be dragged to main viewport", async () => {
+        createFigure(model, { id, x: 16 * cellWidth, y: 4 * cellHeight });
+        await nextTick();
+        await dragElement(figureSelector, 0, 3 * cellHeight, true);
+        expect(model.getters.getFigure(sheetId, id)).toMatchObject({
+          x: 16 * cellWidth,
+          y: 17 * cellHeight, // initial position + drag offset + scroll offset
+        });
+      });
+      test("Figure in main viewport can be dragged to frozen rows", async () => {
+        createFigure(model, { id, x: 16 * cellWidth, y: 16 * cellHeight });
+        await nextTick();
+        await dragElement(figureSelector, 0, -3 * cellHeight, true);
+        expect(model.getters.getFigure(sheetId, id)).toMatchObject({
+          x: 16 * cellWidth,
+          y: 3 * cellHeight, // initial position + drag offset - scroll offset
+        });
+      });
+      test("Dragging figure that is half hidden by frozen rows will put in on top of the freeze pane", async () => {
+        createFigure(model, { id, x: 16 * cellWidth, y: 14 * cellHeight, height: 5 * cellHeight });
+        await nextTick();
+        await dragElement(figureSelector, 1, 0, true);
+        expect(model.getters.getFigure(sheetId, id)).toMatchObject({
+          x: 16 * cellWidth + 1,
+          y: 4 * cellHeight, // initial position - scroll offset
+        });
+      });
+      test("Figure in frozen cols can be dragged to main viewport", async () => {
+        createFigure(model, { id, x: 4 * cellWidth, y: 16 * cellHeight });
+        await nextTick();
+        await dragElement(figureSelector, 3 * cellWidth, 0, true);
+        expect(model.getters.getFigure(sheetId, id)).toMatchObject({
+          x: 17 * cellWidth, // initial position + drag offset + scroll offset
+          y: 16 * cellHeight,
+        });
+      });
+      test("Figure in main viewport can be dragged to frozen cols", async () => {
+        createFigure(model, { id, x: 16 * cellWidth, y: 16 * cellHeight });
+        await nextTick();
+        await dragElement(figureSelector, -3 * cellWidth, 0, true);
+        expect(model.getters.getFigure(sheetId, id)).toMatchObject({
+          x: 3 * cellWidth, // initial position + drag offset - scroll offset
+          y: 16 * cellHeight,
+        });
+      });
+      test("Dragging figure that is half hidden by frozen cols will put in on top of the freeze pane", async () => {
+        createFigure(model, { id, x: 14 * cellWidth, y: 16 * cellHeight, width: 5 * cellWidth });
+        await nextTick();
+        await dragElement(figureSelector, 0, 1, true);
+        expect(model.getters.getFigure(sheetId, id)).toMatchObject({
+          x: 4 * cellWidth, // initial position - scroll offset
+          y: 16 * cellHeight + 1,
+        });
+      });
+    });
+
+    test.each([
+      [{ wheelX: 0, wheelY: 10 * DEFAULT_CELL_HEIGHT }],
+      [{ wheelX: 10 * DEFAULT_CELL_WIDTH, wheelY: 0 }],
+      [{ wheelX: 0, wheelY: 50 * DEFAULT_CELL_HEIGHT }], // scroll out of original viewport
+      [{ wheelX: 40 * DEFAULT_CELL_WIDTH, wheelY: 0 }], // scroll out of original viewport
+    ])(
+      "Can scroll while dragging a figure",
+      async ({ wheelX, wheelY }: { wheelX: number; wheelY: number }) => {
+        addColumns(model, "after", "A", 50);
+        createFigure(model, { id: "someuuid", x: 200, y: 100 });
+        await nextTick();
+        const figureEl = fixture.querySelector(".o-figure")!;
+
+        triggerMouseEvent(figureEl, "mousedown");
+        figureEl.dispatchEvent(
+          new WheelEvent("wheel", { deltaY: wheelY, deltaX: wheelX, bubbles: true })
+        );
+        triggerMouseEvent(figureEl, "mouseup");
+        await nextTick();
+
+        expect(model.getters.getFigure(model.getters.getActiveSheetId(), "someuuid")).toMatchObject(
+          {
+            x: 200 + wheelX,
+            y: 100 + wheelY,
+          }
+        );
+      }
+    );
   });
 
   test("Cannot select/move figure in readonly mode", async () => {
@@ -312,7 +431,7 @@ describe("figures", () => {
     const figure = fixture.querySelector(".o-figure")!;
     await simulateClick(".o-figure");
     expect(document.activeElement).not.toBe(figure);
-    expect(fixture.querySelector(".o-fig-resizer")).toBeNull();
+    expect(fixture.querySelector(".o-fig-anchor")).toBeNull();
 
     triggerMouseEvent(figure, "mousedown", 300, 200);
     await nextTick();
