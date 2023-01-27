@@ -162,7 +162,8 @@ describe("Scorecard charts", () => {
     // required to mock getBoundingClientRect
     figureRect.width -= 300;
     figureRect.height -= 200;
-    await dragElement(".o-fig-resizer.o-topLeft", 300, 200);
+    await dragElement(".o-fig-anchor.o-topLeft", 300, 200);
+    await nextTick(); // wait for useEffect() of scorecard
     expect(getElComputedStyle(".o-figure-wrapper", "width")).toBe("236px");
     expect(getElComputedStyle(".o-figure-wrapper", "height")).toBe("135px");
     // force a triggering of all resizeObservers to ensure the grid is resized
