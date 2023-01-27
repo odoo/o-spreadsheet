@@ -130,8 +130,11 @@ color: #757575;
 
 exports[`Scorecard charts scorecard text is resized while figure is resized 1`] = `
 <div
-  class="o-figure w-100 h-100 o-dragging"
-  style="border-width: 1px;"
+  class="o-figure w-100 h-100"
+  style="
+opacity: 0.9;
+cursor: grabbing;
+border-width: 1px;"
   tabindex="0"
 >
   <div
