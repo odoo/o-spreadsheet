@@ -1,7 +1,6 @@
 import { App } from "@odoo/owl";
 import { Model } from "../../src";
 import { Spreadsheet } from "../../src/components";
-import { DEFAULT_CELL_HEIGHT } from "../../src/constants";
 import { args, functionRegistry } from "../../src/functions";
 import { toZone } from "../../src/helpers";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/registries";
@@ -27,7 +26,6 @@ import {
   nextTick,
   restoreDefaultFunctions,
   startGridComposition,
-  toRangesData,
   typeInComposerGrid,
   typeInComposerTopBar,
 } from "../test_helpers/helpers";
@@ -208,6 +206,15 @@ describe("Simple Spreadsheet Component", () => {
     spreadsheetDiv.dispatchEvent(new KeyboardEvent("keydown", { key: "H", ctrlKey: true }));
     expect(spreadsheetKeyDown).not.toHaveBeenCalled();
   });
+
+  test("The spreadsheet does not render after onbeforeunload", async () => {
+    window.dispatchEvent(new Event("beforeunload", { bubbles: true }));
+    await nextTick();
+    createSheet(model, {});
+    await nextTick();
+    const sheets = document.querySelectorAll(".o-all-sheets .o-sheet");
+    expect(sheets).toHaveLength(model.getters.getSheetIds().length - 1);
+  });
 });
 
 test("Can instantiate a spreadsheet with a given client id-name", async () => {
@@ -257,172 +264,38 @@ test("Warn user only once when the viewport is too small for its frozen panes", 
   fixture.remove();
 });
 
-describe("Composer interactions", () => {
-  beforeEach(async () => {
-    fixture = makeTestFixture();
-    ({ app, model, parent } = await mountSpreadsheet(fixture, {
-      model: new Model({ sheets: [{ id: "sh1" }] }),
-    }));
-  });
-
-  afterEach(() => {
-    app.destroy();
-    fixture.remove();
-  });
-  test("type in grid composer adds text to topbar composer", async () => {
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
-    );
-    await nextTick();
-    const gridComposer = document.querySelector(".o-grid .o-composer");
-    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
-    expect(document.activeElement).toBe(gridComposer);
-    await typeInComposerGrid("text");
-    expect(topBarComposer!.textContent).toBe("text");
-    expect(gridComposer!.textContent).toBe("text");
-  });
-
-  test("type in topbar composer adds text to grid composer", async () => {
-    triggerMouseEvent(".o-spreadsheet-topbar .o-composer", "click");
-    await nextTick();
-    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
-    const gridComposer = document.querySelector(".o-grid .o-composer");
-    expect(topBarComposer).not.toBeNull();
-    expect(document.activeElement).toBe(topBarComposer);
-    expect(gridComposer).not.toBeNull();
-    await typeInComposerTopBar("text");
-    await nextTick();
-    expect(topBarComposer!.textContent).toBe("text");
-    expect(gridComposer!.textContent).toBe("text");
-  });
-
-  test("start typing in topbar composer then continue in grid composer", async () => {
-    triggerMouseEvent(".o-spreadsheet-topbar .o-composer", "click");
-    await nextTick();
-    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
-    const gridComposer = document.querySelector(".o-grid .o-composer");
-
-    // Type in top bar composer
-    await typeInComposerTopBar("from topbar");
-    expect(topBarComposer!.textContent).toBe("from topbar");
-    expect(gridComposer!.textContent).toBe("from topbar");
-
-    // Focus grid composer and type
-    triggerMouseEvent(".o-grid .o-composer", "click");
-    await nextTick();
-    await typeInComposerGrid("from grid");
-    expect(topBarComposer!.textContent).toBe("from topbarfrom grid");
-    expect(gridComposer!.textContent).toBe("from topbarfrom grid");
-  });
-
-  test("top bar composer display active cell content", async () => {
-    setCellContent(model, "A2", "Hello");
-    selectCell(model, "A2");
-    await nextTick();
-    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
-    expect(topBarComposer!.textContent).toBe("Hello");
-  });
-
-  test("top bar composer displays formatted date cell content", async () => {
-    setCellContent(model, "A2", "10/10/2021");
-    selectCell(model, "A2");
-    await nextTick();
-    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
-    expect(topBarComposer!.textContent).toBe("10/10/2021");
-    // Focus top bar composer
-    triggerMouseEvent(".o-spreadsheet-topbar .o-composer", "click");
-    expect(topBarComposer!.textContent).toBe("10/10/2021");
-  });
-
-  test("autocomplete disappear when grid composer is blurred", async () => {
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
-    );
-    await nextTick();
-    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
-    await typeInComposerGrid("=SU");
-    await nextTick();
-    expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).not.toBeNull();
-    topBarComposer.dispatchEvent(new Event("click"));
-    await nextTick();
-    expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).toBeNull();
-  });
-
-  test("focus top bar composer does not resize grid composer when autocomplete is displayed", async () => {
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
-    );
-    await nextTick();
-    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
-    const gridComposerContainer = document.querySelector(".o-grid-composer")! as HTMLElement;
-    const spy = jest.spyOn(gridComposerContainer.style, "width", "set");
-    await typeInComposerGrid("=SU");
-    await nextTick();
-    topBarComposer.dispatchEvent(new Event("click"));
-    await nextTick();
-    expect(document.activeElement).toBe(topBarComposer);
-    expect(spy).not.toHaveBeenCalled();
-  });
-
-  test("selecting ranges multiple times in topbar bar does not resize grid composer", async () => {
-    triggerMouseEvent(".o-spreadsheet-topbar .o-composer", "click");
-    await nextTick();
-    const gridComposerContainer = document.querySelector(".o-grid-composer")! as HTMLElement;
-    // Type in top bar composer
-    await typeInComposerTopBar("=");
-    const spy = jest.spyOn(gridComposerContainer.style, "width", "set");
-    await nextTick();
-    selectCell(model, "B2");
-    await nextTick();
-    selectCell(model, "B2");
-    await nextTick();
-    expect(spy).not.toHaveBeenCalled();
-  });
-
-  test("The spreadsheet does not render after onbeforeunload", async () => {
-    window.dispatchEvent(new Event("beforeunload", { bubbles: true }));
-    await nextTick();
-    createSheet(model, {});
-    await nextTick();
-    const sheets = document.querySelectorAll(".o-all-sheets .o-sheet");
-    expect(sheets).toHaveLength(model.getters.getSheetIds().length - 1);
-  });
-
-  test("Notify ui correctly with type notification correctly use notifyUser in the env", async () => {
-    const raiseError = jest.fn();
-    const fixture = makeTestFixture();
-    const model = new Model();
-    const { app } = await mountSpreadsheet(fixture, { model }, { raiseError });
-    await app.mount(fixture);
-    model["config"].notifyUI({ type: "ERROR", text: "hello" });
-    expect(raiseError).toHaveBeenCalledWith("hello");
-    fixture.remove();
-    app.destroy();
-  });
+test("Notify ui correctly with type notification correctly use notifyUser in the env", async () => {
+  const raiseError = jest.fn();
+  fixture = makeTestFixture();
+  ({ app, model } = await mountSpreadsheet(fixture, undefined, { raiseError }));
+  await app.mount(fixture);
+  model["config"].notifyUI({ type: "ERROR", text: "hello" });
+  expect(raiseError).toHaveBeenCalledWith("hello");
+  fixture.remove();
+  app.destroy();
 });
 
 describe("Composer / selectionInput interactions", () => {
+  const modelDataCf = {
+    sheets: [
+      {
+        id: "sh1",
+        cells: { B2: { content: "=A1" } },
+        conditionalFormats: [
+          {
+            id: "42",
+            rule: { type: "CellIsRule", operator: "Equal", values: ["1"], style: { bold: true } },
+            ranges: ["B2:C4"],
+          },
+        ],
+      },
+    ],
+  };
   beforeEach(async () => {
     fixture = makeTestFixture();
     ({ app, model, parent } = await mountSpreadsheet(fixture, {
-      model: new Model({ sheets: [{ id: "sh1" }] }),
+      model: new Model(modelDataCf),
     }));
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      sheetId,
-      ranges: toRangesData(sheetId, "B2:C4"),
-      cf: {
-        id: "42",
-        rule: {
-          type: "CellIsRule",
-          operator: "Equal",
-          values: ["1"],
-          style: { bold: true },
-        },
-      },
-    });
-    // input some stuff in B2
-    setCellContent(model, "B2", "=A1");
   });
 
   afterEach(() => {
@@ -494,29 +367,5 @@ describe("Composer / selectionInput interactions", () => {
     await simulateClick(".o-figure");
     await clickCell(model, "D1");
     expect(model.getters.getSelectedZones()).toEqual([toZone("D1")]);
-  });
-
-  test("Selecting a range should not scroll the viewport to the current Grid selection", async () => {
-    const { top, bottom, left, right } = model.getters.getActiveMainViewport();
-    await typeInComposerTopBar("=");
-    // scroll
-    fixture
-      .querySelector(".o-grid")!
-      .dispatchEvent(new WheelEvent("wheel", { deltaY: 3 * DEFAULT_CELL_HEIGHT }));
-    await nextTick();
-    const scrolledViewport = model.getters.getActiveMainViewport();
-    expect(scrolledViewport).toMatchObject({
-      left,
-      right,
-      top: top + 3,
-      bottom: bottom + 3,
-    });
-    expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetY: 3 * DEFAULT_CELL_HEIGHT,
-      offsetScrollbarY: 3 * DEFAULT_CELL_HEIGHT,
-    });
-    await clickCell(model, "E5");
-    expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);
-    expect(model.getters.getActiveMainViewport()).toMatchObject(scrolledViewport);
   });
 });

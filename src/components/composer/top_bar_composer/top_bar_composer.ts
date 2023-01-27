@@ -8,6 +8,7 @@ import {
 import { ComposerSelection } from "../../../plugins/ui_stateful/edition";
 import { CSSProperties, SpreadsheetChildEnv } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
+import { ComposerFocusType } from "../../spreadsheet/spreadsheet";
 import { Composer } from "../composer/composer";
 
 const COMPOSER_MAX_HEIGHT = 100;
@@ -22,7 +23,7 @@ css/* scss */ `
 `;
 
 interface Props {
-  focus: "inactive" | "cellFocus" | "contentFocus";
+  focus: ComposerFocusType;
   onComposerContentFocused: (selection: ComposerSelection) => void;
 }
 

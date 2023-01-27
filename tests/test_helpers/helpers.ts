@@ -315,17 +315,19 @@ export function createColorScale(
   };
 }
 
-async function typeInComposerHelper(selector: string, text: string, fromScratch: boolean) {
+export async function typeInComposerHelper(selector: string, text: string, fromScratch: boolean) {
   let composerEl: Element = document.querySelector(selector)!;
   if (fromScratch) {
     composerEl = await startGridComposition();
   }
+
+  (composerEl as HTMLElement).focus();
   // @ts-ignore
   const cehMock = window.mockContentHelper as ContentEditableHelper;
-  cehMock.insertText(text);
   composerEl.dispatchEvent(new Event("keydown", { bubbles: true }));
   await nextTick();
-  composerEl.dispatchEvent(new Event("input", { bubbles: true }));
+  cehMock.insertText(text);
+  composerEl.dispatchEvent(new InputEvent("input", { data: text, bubbles: true }));
   await nextTick();
   composerEl.dispatchEvent(new Event("keyup", { bubbles: true }));
   await nextTick();

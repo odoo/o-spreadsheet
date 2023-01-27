@@ -294,6 +294,8 @@ export class SheetViewPlugin extends UIPlugin {
   getSheetViewVisibleCols(): HeaderIndex[] {
     const sheetId = this.getters.getActiveSheetId();
     const viewports = this.getSubViewports(sheetId);
+
+    //TODO ake another commit to eimprove this
     return [...new Set(viewports.map((v) => range(v.left, v.right + 1)).flat())].filter(
       (col) => !this.getters.isHeaderHidden(sheetId, "COL", col)
     );
