@@ -2,65 +2,55 @@
 
 exports[`figures selected figure snapshot 1`] = `
 <div
-  class="o-figure-parent position-absolute pe-none overflow-hidden"
-  style="left:0px; top:0px; width:2592px; height:2328px;"
+  class="o-figure-wrapper pe-auto"
+  style="left:1px; top:1px; width:100px; height:100px; z-index:11;"
 >
   <div
-    class="o-figure-viewport-inverse w-0 h-0 overflow-visible position-absolute"
-    style="left:0px; top:0px;"
+    class="o-figure w-100 h-100"
+    style="border-width: 1px;"
+    tabindex="0"
   >
     <div
-      class="o-figure-wrapper pe-auto"
-      style="left:1px; top:1px; width:100px; height:100px; z-index:11;"
+      class="o-fig-text"
     >
-      <div
-        class="o-figure w-100 h-100"
-        style="border-width: 1px;"
-        tabindex="0"
-      >
-        <div
-          class="o-fig-text"
-        >
-          coucou
-        </div>
-      </div>
-      <div
-        class="w-100 h-100 o-active-figure-border position-absolute pe-none"
-      />
-      <div
-        class="o-fig-resizer o-top"
-        style="top:-3px; right:calc(50% - 3px);"
-      />
-      <div
-        class="o-fig-resizer o-topRight"
-        style="top:-3px; right:-3px;"
-      />
-      <div
-        class="o-fig-resizer o-right"
-        style="bottom:calc(50% - 3px); right:-3px;"
-      />
-      <div
-        class="o-fig-resizer o-bottomRight"
-        style="bottom:-3px; right:-3px;"
-      />
-      <div
-        class="o-fig-resizer o-bottom"
-        style="bottom:-3px; right:calc(50% - 3px);"
-      />
-      <div
-        class="o-fig-resizer o-bottomLeft"
-        style="bottom:-3px; left:-3px;"
-      />
-      <div
-        class="o-fig-resizer o-left"
-        style="bottom:calc(50% - 3px); left:-3px;"
-      />
-      <div
-        class="o-fig-resizer o-topLeft"
-        style="top:-3px; left:-3px;"
-      />
-      
+      coucou
     </div>
   </div>
+  <div
+    class="w-100 h-100 o-active-figure-border position-absolute pe-none"
+  />
+  <div
+    class="o-fig-anchor o-top"
+    style="top:-3px; right:calc(50% - 3px);"
+  />
+  <div
+    class="o-fig-anchor o-topRight"
+    style="top:-3px; right:-3px;"
+  />
+  <div
+    class="o-fig-anchor o-right"
+    style="bottom:calc(50% - 3px); right:-3px;"
+  />
+  <div
+    class="o-fig-anchor o-bottomRight"
+    style="bottom:-3px; right:-3px;"
+  />
+  <div
+    class="o-fig-anchor o-bottom"
+    style="bottom:-3px; right:calc(50% - 3px);"
+  />
+  <div
+    class="o-fig-anchor o-bottomLeft"
+    style="bottom:-3px; left:-3px;"
+  />
+  <div
+    class="o-fig-anchor o-left"
+    style="bottom:calc(50% - 3px); left:-3px;"
+  />
+  <div
+    class="o-fig-anchor o-topLeft"
+    style="top:-3px; left:-3px;"
+  />
+  
 </div>
 `;
