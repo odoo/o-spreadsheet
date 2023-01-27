@@ -13,9 +13,9 @@
         t-on-change="setSizeFromInput"
         t-ref="inputFontSize"
       />
-      <span title="Font Size" t-on-click="() => this.toggleFontList()">
+      <div title="Font Size" t-on-click="() => this.toggleFontList()">
         <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
-      </span>
+      </div>
       <div
         class="o-dropdown-content o-text-options"
         t-if="dropdown.isOpen"
@@ -24,7 +24,6 @@
           <div
             t-esc="fontSize"
             t-att-data-size="fontSize"
-            class="o-dropdown-item"
             t-on-click="() => this.setSizeFromList(fontSize)"
           />
         </t>

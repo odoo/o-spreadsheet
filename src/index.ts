@@ -76,6 +76,7 @@ import {
   figureRegistry,
   inverseCommandRegistry,
   linkMenuRegistry,
+  numberFormatMenuRegistry,
   otRegistry,
   rowMenuRegistry,
   sidePanelRegistry,
@@ -157,6 +158,7 @@ export const registries = {
   inverseCommandRegistry,
   urlRegistry,
   cellPopoverRegistry,
+  numberFormatMenuRegistry,
 };
 export const helpers = {
   arg,

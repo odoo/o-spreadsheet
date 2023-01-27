@@ -118,7 +118,7 @@ describe("Simple Spreadsheet Component", () => {
 
   test("typing opens composer after toolbar clicked", async () => {
     ({ model, parent, fixture } = await mountSpreadsheet());
-    await simulateClick(`div[title="Bold (Ctrl+B)"]`);
+    await simulateClick(`span[title="Bold (Ctrl+B)"]`);
     expect(document.activeElement).not.toBeNull();
     document.activeElement?.dispatchEvent(new InputEvent("input", { data: "d", bubbles: true }));
     await nextTick();
@@ -165,7 +165,7 @@ describe("Simple Spreadsheet Component", () => {
     const hScrollbarZIndex = getZIndex(".o-scrollbar.horizontal");
     const scrollbarCornerZIndex = getZIndex(".o-scrollbar.corner");
 
-    const dropdownEL = fixture.querySelector(".o-dropdown-button")!;
+    const dropdownEL = fixture.querySelector(".o-menu-item-button[title='Borders']")!;
     await click(dropdownEL);
     const dropDownZIndex = getZIndex(".o-dropdown-content");
 

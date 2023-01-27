@@ -5,6 +5,7 @@ import * as ACTION_EDIT from "./items/edit_menu_items";
 import * as ACTION_FORMAT from "./items/format_menu_items";
 import * as ACTION_INSERT from "./items/insert_menu_items";
 import * as ACTION_VIEW from "./items/view_menu_items";
+import { formatNumberMenuItemSpec } from "./number_format_menu_registry";
 
 export const topbarMenuRegistry = new MenuItemRegistry();
 
@@ -248,52 +249,9 @@ topbarMenuRegistry
 
   .add("format", { name: _lt("Format"), sequence: 50 })
   .addChild("format_number", ["format"], {
-    ...ACTION_FORMAT.formatNumberMenuItem,
+    ...formatNumberMenuItemSpec,
+    name: _lt("Number"),
     sequence: 10,
-    separator: true,
-  })
-  .addChild("format_number_automatic", ["format", "format_number"], {
-    ...ACTION_FORMAT.formatNumberAutomaticMenuItem,
-    sequence: 10,
-    separator: true,
-  })
-  .addChild("format_number_number", ["format", "format_number"], {
-    ...ACTION_FORMAT.formatNumberNumberMenuItem,
-    sequence: 20,
-  })
-  .addChild("format_number_percent", ["format", "format_number"], {
-    ...ACTION_FORMAT.formatNumberPercentMenuItem,
-    sequence: 30,
-    separator: true,
-  })
-  .addChild("format_number_currency", ["format", "format_number"], {
-    ...ACTION_FORMAT.formatNumberCurrencyMenuItem,
-    sequence: 37,
-  })
-  .addChild("format_number_currency_rounded", ["format", "format_number"], {
-    ...ACTION_FORMAT.formatNumberCurrencyRoundedMenuItem,
-    sequence: 38,
-  })
-  .addChild("format_custom_currency", ["format", "format_number"], {
-    ...ACTION_FORMAT.formatCustomCurrencyMenuItem,
-    sequence: 39,
-    separator: true,
-  })
-  .addChild("format_number_date", ["format", "format_number"], {
-    ...ACTION_FORMAT.formatNumberDateMenuItem,
-    sequence: 40,
-  })
-  .addChild("format_number_time", ["format", "format_number"], {
-    ...ACTION_FORMAT.formatNumberTimeMenuItem,
-    sequence: 50,
-  })
-  .addChild("format_number_date_time", ["format", "format_number"], {
-    ...ACTION_FORMAT.formatNumberDateTimeMenuItem,
-    sequence: 60,
-  })
-  .addChild("format_number_duration", ["format", "format_number"], {
-    ...ACTION_FORMAT.formatNumberDurationMenuItem,
-    sequence: 70,
     separator: true,
   })
   .addChild("format_bold", ["format"], {

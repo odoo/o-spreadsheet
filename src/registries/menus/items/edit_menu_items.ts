@@ -1,4 +1,7 @@
+import { isEqual, positionToZone } from "../../../helpers";
+import { interactiveAddMerge } from "../../../helpers/ui/merge_interactive";
 import { _lt } from "../../../translation";
+import { SpreadsheetChildEnv } from "../../../types";
 import { MenuItemSpec } from "../../menu_items_registry";
 import * as ACTIONS from "./../menu_items_actions";
 
@@ -6,6 +9,7 @@ export const undoMenuItem: MenuItemSpec = {
   name: _lt("Undo"),
   description: "Ctrl+Z",
   action: ACTIONS.UNDO_ACTION,
+  isEnabled: (env) => env.model.getters.canUndo(),
   icon: "o-spreadsheet-Icon.UNDO",
 };
 
@@ -13,6 +17,7 @@ export const redoMenuItem: MenuItemSpec = {
   name: _lt("Redo"),
   description: "Ctrl+Y",
   action: ACTIONS.REDO_ACTION,
+  isEnabled: (env) => env.model.getters.canRedo(),
   icon: "o-spreadsheet-Icon.REDO",
 };
 
@@ -106,3 +111,48 @@ export const deleteCellShiftLeftMenuItem: MenuItemSpec = {
   name: _lt("Delete cell and shift left"),
   action: ACTIONS.DELETE_CELL_SHIFT_LEFT,
 };
+
+export const mergeCellsMenuItem: MenuItemSpec = {
+  name: _lt("Merge cells"),
+  isEnabled: (env) => !cannotMerge(env),
+  isActive: (env) => isInMerge(env),
+  action: (env) => toggleMerge(env),
+  icon: "o-spreadsheet-Icon.MERGE_CELL",
+};
+
+function cannotMerge(env: SpreadsheetChildEnv): boolean {
+  const zones = env.model.getters.getSelectedZones();
+  const { top, left, right, bottom } = env.model.getters.getSelectedZone();
+  const { sheetId } = env.model.getters.getActivePosition();
+  const { xSplit, ySplit } = env.model.getters.getPaneDivisions(sheetId);
+  return (
+    zones.length > 1 ||
+    (top === bottom && left === right) ||
+    (left < xSplit && xSplit <= right) ||
+    (top < ySplit && ySplit <= bottom)
+  );
+}
+
+function isInMerge(env: SpreadsheetChildEnv): boolean {
+  if (!cannotMerge(env)) {
+    const zones = env.model.getters.getSelectedZones();
+    const { col, row, sheetId } = env.model.getters.getActivePosition();
+    const zone = env.model.getters.expandZone(sheetId, positionToZone({ col, row }));
+    return isEqual(zones[0], zone);
+  }
+  return false;
+}
+
+function toggleMerge(env: SpreadsheetChildEnv) {
+  if (cannotMerge(env)) {
+    return;
+  }
+  const zones = env.model.getters.getSelectedZones();
+  const target = [zones[zones.length - 1]];
+  const sheetId = env.model.getters.getActiveSheetId();
+  if (isInMerge(env)) {
+    env.model.dispatch("REMOVE_MERGE", { sheetId, target });
+  } else {
+    interactiveAddMerge(env, sheetId, target);
+  }
+}

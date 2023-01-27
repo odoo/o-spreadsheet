@@ -88,6 +88,10 @@ css/* scss */ `
     height: ${CF_ICON_EDGE_LENGTH}px;
     vertical-align: sub;
   }
+
+  .o-text-icon {
+    vertical-align: middle;
+  }
 `;
 
 // -----------------------------------------------------------------------------
