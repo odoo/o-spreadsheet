@@ -40,6 +40,7 @@ import {
   formatValue,
   isDefined,
   isMarkdownLink,
+  lazy,
   markdownLink,
   numberToLetters,
   parseMarkdownLink,
@@ -182,6 +183,7 @@ export const helpers = {
   colorToRGBA,
   positionToZone,
   isDefined,
+  lazy,
 };
 
 export const links = {
