@@ -1,11 +1,12 @@
-import { App, Component, onMounted, onWillUnmount, useState, useSubEnv, xml } from "@odoo/owl";
+import { App, Component, onMounted, onWillUnmount, useState, xml } from "@odoo/owl";
+import { ComposerFocusType } from "../../src/components/spreadsheet/spreadsheet";
 import { TopBar } from "../../src/components/top_bar/top_bar";
 import { DEFAULT_FONT_SIZE } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { topbarComponentRegistry } from "../../src/registries";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
-import { ConditionalFormat, Style } from "../../src/types";
+import { ConditionalFormat, SpreadsheetChildEnv, Style } from "../../src/types";
 import { OWL_TEMPLATES } from "../setup/jest.setup";
 import {
   addCellToSelection,
@@ -20,6 +21,7 @@ import { getBorder, getCell, getStyle } from "../test_helpers/getters_helpers";
 import {
   getFigureIds,
   getNode,
+  makeTestEnv,
   makeTestFixture,
   mountSpreadsheet,
   nextTick,
@@ -38,9 +40,12 @@ jest.mock("../../src/helpers/figures/images/image_provider", () =>
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let fixture: HTMLElement;
-const t = (s: string): string => s;
 
-class Parent extends Component {
+type Props = {
+  focusComposer: ComposerFocusType;
+};
+
+class Parent extends Component<Props, SpreadsheetChildEnv> {
   static template = xml/* xml */ `
     <div class="o-spreadsheet">
       <TopBar focusComposer="state.focusComposer" onClick="() => {}"/>
@@ -48,35 +53,31 @@ class Parent extends Component {
   `;
   static components = { TopBar };
 
-  static _t = t;
-  state = useState({ focusComposer: <boolean>false });
+  state = useState({ focusComposer: <ComposerFocusType>"inactive" });
 
   setup() {
-    useSubEnv({
-      openSidePanel: () => {},
-      model: this.props.model,
-      askConfirmation: jest.fn(),
-      _t: Parent._t,
-      isDashboard: () => this.props.model.getters.isDashboard(),
-    });
-    this.state.focusComposer = this.props.focusComposer || false;
-    onMounted(() => this.props.model.on("update", this, this.render));
-    onWillUnmount(() => this.props.model.off("update", this));
+    this.state.focusComposer = this.props.focusComposer;
+    onMounted(() => this.env.model.on("update", this, () => this.render(true)));
+    onWillUnmount(() => this.env.model.off("update", this));
   }
 
-  setFocusComposer(isFocused: boolean) {
-    this.state.focusComposer = isFocused;
+  setFocusComposer(type: ComposerFocusType) {
+    this.state.focusComposer = type;
   }
 }
 
 async function mountParent(
   model: Model = new Model(),
-  focusComposer: boolean = false
-): Promise<{ parent: Parent; app: App }> {
-  const app = new App(Parent, { props: { model, focusComposer } });
+  focusComposer: ComposerFocusType = "inactive"
+): Promise<{ parent: Parent; app: App; model: Model }> {
+  const env = makeTestEnv({
+    model,
+    isDashboard: () => model.getters.isDashboard(),
+  });
+  const app = new App(Parent, { props: { focusComposer }, env });
   app.addTemplates(OWL_TEMPLATES);
-  const parent = await app.mount(fixture);
-  return { app, parent };
+  const parent: Parent = await app.mount(fixture);
+  return { app, parent, model };
 }
 
 beforeEach(() => {
@@ -159,9 +160,7 @@ describe("TopBar component", () => {
   });
 
   test("undo/redo tools", async () => {
-    const model = new Model();
-
-    const { app } = await mountParent(model);
+    const { app, model } = await mountParent();
     const undoTool = fixture.querySelector('.o-tool[title="Undo"]')!;
     const redoTool = fixture.querySelector('.o-tool[title="Redo"]')!;
 
@@ -189,9 +188,7 @@ describe("TopBar component", () => {
   });
 
   test("paint format tools", async () => {
-    const model = new Model();
-
-    const { app } = await mountParent(model);
+    const { app } = await mountParent();
     const paintFormatTool = fixture.querySelector('.o-tool[title="Paint Format"]')!;
 
     expect(paintFormatTool.classList.contains("active")).toBeFalsy();
@@ -208,8 +205,7 @@ describe("TopBar component", () => {
     let app: App;
 
     beforeEach(async () => {
-      model = new Model();
-      ({ app } = await mountParent(model));
+      ({ app, model } = await mountParent());
     });
 
     afterEach(() => {
@@ -269,9 +265,8 @@ describe("TopBar component", () => {
   });
 
   test("can set cell format", async () => {
-    const model = new Model();
+    const { app, model } = await mountParent();
     expect(getCell(model, "A1")).toBeUndefined();
-    const { app } = await mountParent(model);
     const formatTool = fixture.querySelector('.o-tool[title="More formats"]')!;
     formatTool.dispatchEvent(new Event("click"));
     await nextTick();
@@ -285,8 +280,7 @@ describe("TopBar component", () => {
   });
 
   test("can set font size", async () => {
-    const model = new Model();
-    const { app } = await mountParent(model);
+    const { app, model } = await mountParent();
     const fontSizeTool = fixture.querySelector('.o-tool[title="Font Size"]')!;
     expect(fontSizeTool.textContent!.trim()).toBe(DEFAULT_FONT_SIZE.toString());
     fontSizeTool.dispatchEvent(new Event("click"));
@@ -303,9 +297,7 @@ describe("TopBar component", () => {
     ["align-center", { align: "center" }],
     ["align-right", { align: "right" }],
   ])("can set horizontal alignment with the toolbar", async (iconClass, expectedStyle) => {
-    const model = new Model();
-    selectCell(model, "A1");
-    const { app } = await mountParent(model);
+    const { app, model } = await mountParent();
     const alignTool = fixture.querySelector('.o-tool[title="Horizontal align"]')!;
     alignTool.dispatchEvent(new Event("click"));
     await nextTick();
@@ -483,8 +475,7 @@ describe("TopBar component", () => {
   });
 
   test("Readonly spreadsheet has a specific top bar", async () => {
-    const model = new Model();
-    const { app } = await mountParent(model);
+    const { app, model } = await mountParent();
 
     expect(fixture.querySelectorAll(".o-readonly-toolbar")).toHaveLength(0);
     model.updateMode("readonly");
@@ -506,7 +497,7 @@ describe("TopBar component", () => {
     expect(composerEl.classList.contains("unfocusable")).toBeTruthy();
     expect(composerEl.attributes.getNamedItem("contentEditable")!.value).toBe("false");
 
-    parent.setFocusComposer(true);
+    parent.setFocusComposer("contentFocus");
     await nextTick();
     // Won't update the current content
     const content = model.getters.getCurrentContent();
@@ -526,8 +517,7 @@ describe("TopBar component", () => {
   ])(
     "Clicking a static element inside a dropdown '%s' don't close the dropdown",
     async (toolName: string, dropdownContentSelector: string) => {
-      const model = new Model();
-      const { app } = await mountParent(model);
+      const { app } = await mountParent();
 
       await simulateClick(`.o-tool[title="${toolName}"]`);
       await nextTick();
@@ -551,6 +541,17 @@ describe("TopBar component", () => {
     expect(getFigureIds(model, sheetId)).toHaveLength(1);
     app.destroy();
     fixture.remove();
+  });
+
+  test("top bar composer displays formula", async () => {
+    const { app, model } = await mountParent();
+    const topbarComposerElement = fixture.querySelector(
+      ".o-spreadsheet-topbar .o-composer-container div"
+    )!;
+    setCellContent(model, "A1", "=A1+A2");
+    await nextTick();
+    expect(topbarComposerElement.textContent).toBe("=A1+A2");
+    app.destroy();
   });
 });
 

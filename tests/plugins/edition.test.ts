@@ -849,4 +849,178 @@ describe("edition", () => {
     model.dispatch("START_EDITION", { text: "=DB(" });
     expect(model.getters.getCurrentContent()).toBe("=DB(");
   });
+
+  test("type '=', select twice a cell", () => {
+    const model = new Model();
+    model.dispatch("START_EDITION", { text: "=" });
+    selectCell(model, "C8");
+    selectCell(model, "C8");
+    expect(model.getters.getCurrentContent()).toBe("=C8");
+  });
+
+  test.each([
+    ["Sheet2", "=Sheet2!C8"],
+    ["Sheet 2", "='Sheet 2'!C8"],
+  ])("type '=', select a cell in another sheet", async (sheetName, expectedContent) => {
+    const model = new Model();
+    model.dispatch("START_EDITION", { text: "=" });
+    createSheetWithName(model, { sheetId: "42", activate: true }, sheetName);
+    selectCell(model, "C8");
+    expect(model.getters.getCurrentContent()).toBe(expectedContent);
+  });
+
+  test("type '=', select a cell in another sheet, select a cell in the active sheet", async () => {
+    const model = new Model();
+    model.dispatch("START_EDITION", { text: "=" });
+    const sheetId = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "42", activate: true });
+    selectCell(model, "C8");
+    activateSheet(model, sheetId);
+    selectCell(model, "C8");
+    expect(model.getters.getCurrentContent()).toBe("=C8");
+  });
+
+  describe("Loop through reference combinations", () => {
+    let model: Model;
+    beforeEach(() => {
+      model = new Model();
+    });
+    test("Loop references on cell symbol", async () => {
+      model.dispatch("START_EDITION", { text: "=A1" });
+      model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 1 });
+      model.dispatch("CYCLE_EDITION_REFERENCES");
+      expect(model.getters.getCurrentContent()).toBe("=$A$1");
+      model.dispatch("CYCLE_EDITION_REFERENCES");
+      expect(model.getters.getCurrentContent()).toBe("=A$1");
+      model.dispatch("CYCLE_EDITION_REFERENCES");
+      expect(model.getters.getCurrentContent()).toBe("=$A1");
+      model.dispatch("CYCLE_EDITION_REFERENCES");
+      expect(model.getters.getCurrentContent()).toBe("=A1");
+    });
+
+    test("Loop references on range symbol", async () => {
+      model.dispatch("START_EDITION", { text: "=A1:B1" });
+      model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 1 });
+      model.dispatch("CYCLE_EDITION_REFERENCES");
+      expect(model.getters.getCurrentContent()).toEqual("=$A$1:$B$1");
+      model.dispatch("CYCLE_EDITION_REFERENCES");
+      expect(model.getters.getCurrentContent()).toEqual("=A$1:B$1");
+      model.dispatch("CYCLE_EDITION_REFERENCES");
+      expect(model.getters.getCurrentContent()).toEqual("=$A1:$B1");
+      model.dispatch("CYCLE_EDITION_REFERENCES");
+      expect(model.getters.getCurrentContent()).toEqual("=A1:B1");
+    });
+
+    test("Loop references on mixed selection", async () => {
+      model.dispatch("START_EDITION", { text: "=SUM(A1,34,42+3,B$1:C$2,$A1+B$2)" });
+      model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 0, end: 30 });
+      model.dispatch("CYCLE_EDITION_REFERENCES");
+      expect(model.getters.getCurrentContent()).toEqual("=SUM($A$1,34,42+3,$B1:$C2,A1+$B2)");
+    });
+
+    test("Loop references on reference to another sheet", async () => {
+      model.dispatch("START_EDITION", { text: "=SUM(s2!A1:B1, s2!$A$1)" });
+      model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 20 });
+      model.dispatch("CYCLE_EDITION_REFERENCES");
+      expect(model.getters.getCurrentContent()).toEqual("=SUM(s2!$A$1:$B$1, s2!A$1)");
+    });
+
+    test("Loop references on range with cell that have different fixed mode", async () => {
+      model.dispatch("START_EDITION", { text: "=A$1:B2" });
+      model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 1 });
+      model.dispatch("CYCLE_EDITION_REFERENCES");
+      expect(model.getters.getCurrentContent()).toEqual("=$A1:$B$2");
+    });
+
+    test("Loop references set composer selection to entire cell symbol on which we loop", async () => {
+      model.dispatch("START_EDITION", { text: "=AA1" });
+      model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 2 });
+      model.dispatch("CYCLE_EDITION_REFERENCES");
+      expect(model.getters.getCurrentContent()).toEqual("=$AA$1");
+      expect(model.getters.getComposerSelection()).toEqual({ start: 1, end: 6 });
+    });
+
+    test("Loop references set composer selection to entire range symbol on which we loop", async () => {
+      model.dispatch("START_EDITION", { text: "=A1:B2" });
+      model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 2 });
+      model.dispatch("CYCLE_EDITION_REFERENCES");
+      expect(model.getters.getCurrentContent()).toEqual("=$A$1:$B$2");
+      expect(model.getters.getComposerSelection()).toEqual({ start: 1, end: 10 });
+    });
+
+    test("Loop references set selection from the first range/cell symbol to the last", async () => {
+      model.dispatch("START_EDITION", { text: "=SUM(A1,34,42+3,B$1:C$2)" });
+      model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 0, end: 20 });
+      model.dispatch("CYCLE_EDITION_REFERENCES");
+      expect(model.getters.getCurrentContent()).toEqual("=SUM($A$1,34,42+3,$B1:$C2)");
+      expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 25 });
+    });
+
+    test("Loop references changes adjacent references", async () => {
+      model.dispatch("START_EDITION", { text: "=A1+A2" });
+      // cursor just before +
+      model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 3, end: 6 });
+      model.dispatch("CYCLE_EDITION_REFERENCES");
+      expect(model.getters.getCurrentContent()).toEqual("=$A$1+$A$2");
+      expect(model.getters.getComposerSelection()).toEqual({ start: 1, end: 10 });
+    });
+
+    test("Loop references only change selected elements", async () => {
+      model.dispatch("START_EDITION", { text: "=A1+A2" });
+      // cursor just after +
+      model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 4, end: 6 });
+      model.dispatch("CYCLE_EDITION_REFERENCES");
+      expect(model.getters.getCurrentContent()).toEqual("=A1+$A$2");
+      expect(model.getters.getComposerSelection()).toEqual({ start: 4, end: 8 });
+    });
+
+    test("Loop references reduces selection to select references only", async () => {
+      model.dispatch("START_EDITION", { text: "=SUM(A1+A2)+SUM(B1)" });
+      // selection in the middle of SUMs
+      model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 6, end: 13 });
+      model.dispatch("CYCLE_EDITION_REFERENCES");
+      expect(model.getters.getCurrentContent()).toEqual("=SUM($A$1+$A$2)+SUM(B1)");
+      expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 14 });
+    });
+
+    test("Loop references when no range is selected", async () => {
+      model.dispatch("START_EDITION", { text: "=A1+1" });
+      model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 4, end: 5 });
+      model.dispatch("CYCLE_EDITION_REFERENCES");
+      expect(model.getters.getCurrentContent()).toEqual("=A1+1");
+      expect(model.getters.getComposerSelection()).toEqual({ start: 4, end: 5 });
+    });
+
+    test("Loop references doesn't switch to 'selecting' edition mode", async () => {
+      model.dispatch("START_EDITION", { text: "=SUM(A1,C2)" });
+      model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 0, end: 10 });
+      model.dispatch("CYCLE_EDITION_REFERENCES");
+      expect(model.getters.getCurrentContent()).toEqual("=SUM($A$1,$C$2)");
+      expect(model.getters.getEditionMode()).toEqual("editing");
+    });
+
+    test("f4 put selection at the end of looped token when the original selection was of size 0", async () => {
+      model.dispatch("START_EDITION", { text: "=A1" });
+      model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 1 });
+      model.dispatch("CYCLE_EDITION_REFERENCES");
+      expect(model.getters.getCurrentContent()).toEqual("=$A$1");
+      expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
+
+      model.dispatch("CYCLE_EDITION_REFERENCES");
+      expect(model.getters.getCurrentContent()).toEqual("=A$1");
+      expect(model.getters.getComposerSelection()).toEqual({ start: 4, end: 4 });
+    });
+  });
+
+  test("Setting the selection processor back to default properly stops the edition", () => {
+    const model = new Model();
+    model.dispatch("START_EDITION", { text: '="test"' });
+    expect(model.getters.getEditionMode()).toEqual("editing");
+    expect(getCell(model, "A1")?.content).toBeUndefined();
+
+    model.selection.getBackToDefault();
+
+    expect(model.getters.getEditionMode()).toEqual("inactive");
+    expect(getCell(model, "A1")?.content).toEqual('="test"');
+  });
 });

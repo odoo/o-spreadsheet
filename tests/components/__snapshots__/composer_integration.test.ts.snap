@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`composer grid composer basic style Grid composer snapshot 1`] = `
+exports[`Grid composer grid composer basic style Grid composer snapshot 1`] = `
 <div
   class="o-grid-composer"
   style="left:47px; top:26px; min-width:97px; min-height:24px; background:#ffffff; color:#000000; font-size:13px; font-weight:500; font-style:normal; text-decoration:none; text-align:left;"

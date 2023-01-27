@@ -6,6 +6,7 @@ import { ComposerSelection } from "../../../plugins/ui_stateful/edition";
 import { DOMDimension, Rect, Ref, SpreadsheetChildEnv, Zone } from "../../../types/index";
 import { getTextDecoration } from "../../helpers";
 import { css, cssPropertiesToCss } from "../../helpers/css";
+import { ComposerFocusType } from "../../spreadsheet/spreadsheet";
 import { Composer } from "../composer/composer";
 import { ZoneDimension } from "./../../../types/misc";
 
@@ -41,7 +42,7 @@ interface ComposerState {
 }
 
 interface Props {
-  focus: "inactive" | "cellFocus" | "contentFocus";
+  focus: ComposerFocusType;
   onComposerUnmounted: () => void;
   onComposerContentFocused: (selection: ComposerSelection) => void;
   gridDims: ZoneDimension;

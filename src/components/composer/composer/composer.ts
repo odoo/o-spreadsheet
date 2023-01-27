@@ -20,6 +20,7 @@ import {
 import { css, cssPropertiesToCss } from "../../helpers/css";
 import { getElementScrollTop, setElementScrollTop } from "../../helpers/dom_helpers";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
+import { ComposerFocusType } from "../../spreadsheet/spreadsheet";
 import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdown";
 import { ContentEditableHelper } from "../content_editable_helper";
 import { FunctionDescriptionProvider } from "../formula_assistant/formula_assistant";
@@ -103,13 +104,13 @@ export interface AutocompleteValue {
   description: string;
 }
 
-interface Props {
-  inputStyle: string;
+export interface ComposerProps {
+  focus: ComposerFocusType;
+  onComposerContentFocused: (selection: ComposerSelection) => void;
+  inputStyle?: string;
   rect?: Rect;
   delimitation?: DOMDimension;
-  focus: "inactive" | "cellFocus" | "contentFocus";
   onComposerUnmounted?: () => void;
-  onComposerContentFocused: (selection: ComposerSelection) => void;
 }
 
 interface ComposerState {
@@ -130,7 +131,7 @@ interface FunctionDescriptionState {
   argToFocus: number;
 }
 
-export class Composer extends Component<Props, SpreadsheetChildEnv> {
+export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Composer";
   static components = { TextValueProvider, FunctionDescriptionProvider };
   static defaultProps = {
@@ -689,10 +690,10 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
 }
 
 Composer.props = {
+  focus: { validate: (value: string) => ["inactive", "cellFocus", "contentFocus"].includes(value) },
+  onComposerContentFocused: Function,
   inputStyle: { type: String, optional: true },
   rect: { type: Object, optional: true },
   delimitation: { type: Object, optional: true },
-  focus: { validate: (value: string) => ["inactive", "cellFocus", "contentFocus"].includes(value) },
   onComposerUnmounted: { type: Function, optional: true },
-  onComposerContentFocused: Function,
 };
