@@ -1,11 +1,12 @@
-import { Component, useRef, useState } from "@odoo/owl";
+import { Component, useRef } from "@odoo/owl";
 import { MENU_WIDTH } from "../../../constants";
 import { getMaxFigureSize } from "../../../helpers/figures/figure/figure";
 import { createMenu } from "../../../registries/menu_items_registry";
 import { _lt } from "../../../translation";
 import { DOMCoordinates, Figure, SpreadsheetChildEnv, UID } from "../../../types";
-import { useAbsolutePosition } from "../../helpers/position_hook";
-import { Menu, MenuState } from "../../menu/menu";
+import { MenuInterface, useMenu } from "../../helpers/menu_hook";
+import { useAbsolutePosition, useGridRect } from "../../helpers/position_hook";
+import { Menu } from "../../menu/menu";
 
 interface Props {
   figure: Figure;
@@ -15,15 +16,18 @@ interface Props {
 export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ImageFigure";
   static components = { Menu };
-  private menuState: Pick<MenuState, "isOpen" | "position"> = useState({
-    isOpen: false,
-    position: null,
-  });
 
   private imageContainerRef = useRef("o-image");
   private menuButtonRef = useRef("menuButton");
   private menuButtonPosition = useAbsolutePosition(this.menuButtonRef);
   private position = useAbsolutePosition(this.imageContainerRef);
+  private gridRect = useGridRect();
+
+  private menu!: MenuInterface;
+
+  setup() {
+    this.menu = useMenu();
+  }
 
   readonly menuItems = createMenu([
     {
@@ -90,8 +94,11 @@ export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private openContextMenu(position: DOMCoordinates) {
-    this.menuState.isOpen = true;
-    this.menuState.position = position;
+    this.menu.open({
+      position,
+      menuItems: this.menuItems,
+      containerRect: this.gridRect,
+    });
   }
 
   // ---------------------------------------------------------------------------

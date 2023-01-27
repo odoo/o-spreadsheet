@@ -6,7 +6,8 @@ import { Ripple } from "../animation/ripple";
 import { BottomBarSheet } from "../bottom_bar_sheet/bottom_bar_sheet";
 import { BottomBarStatistic } from "../bottom_bar_statistic/bottom_bar_statistic";
 import { css } from "../helpers/css";
-import { Menu, MenuState } from "../menu/menu";
+import { MenuInterface, useMenu } from "../helpers/menu_hook";
+import { Menu } from "../menu/menu";
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -76,10 +77,6 @@ interface Props {
   onClick: () => void;
 }
 
-interface BottomBarMenuState extends MenuState {
-  menuId?: string;
-}
-
 export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BottomBar";
   static components = { Menu, Ripple, BottomBarSheet, BottomBarStatistic };
@@ -95,14 +92,10 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
 
   menuMaxHeight = MENU_MAX_HEIGHT;
 
-  menuState: BottomBarMenuState = useState({
-    isOpen: false,
-    menuId: undefined,
-    position: null,
-    menuItems: [],
-  });
+  private menu!: MenuInterface;
 
   setup() {
+    this.menu = useMenu();
     onWillUpdateProps(() => {
       this.updateScrollState();
     });
@@ -144,31 +137,14 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     const target = ev.currentTarget as HTMLElement;
     const { left } = target.getBoundingClientRect();
     const top = this.bottomBarRef.el!.getBoundingClientRect().top;
-    this.openContextMenu(left, top, "listSheets", registry);
+    this.openContextMenu(left, top, registry);
   }
 
-  openContextMenu(x: Pixel, y: Pixel, menuId: string, registry: MenuItemRegistry) {
-    this.menuState.isOpen = true;
-    this.menuState.menuId = menuId;
-    this.menuState.menuItems = registry.getMenuItems();
-    this.menuState.position = { x, y };
-  }
-
-  onSheetContextMenu(sheet: string, registry: MenuItemRegistry, ev: MouseEvent) {
-    const target = ev.currentTarget as HTMLElement;
-    const { top, left } = target.getBoundingClientRect();
-    if (this.menuState.isOpen && this.menuState.menuId === sheet) {
-      this.closeMenu();
-      return;
-    }
-    this.openContextMenu(left, top, sheet, registry);
-  }
-
-  closeMenu() {
-    this.menuState.isOpen = false;
-    this.menuState.menuId = undefined;
-    this.menuState.menuItems = [];
-    this.menuState.position = null;
+  openContextMenu(x: Pixel, y: Pixel, registry: MenuItemRegistry) {
+    this.menu.open({
+      position: { x, y },
+      menuItems: registry.getMenuItems(),
+    });
   }
 
   onWheel(ev: WheelEvent) {

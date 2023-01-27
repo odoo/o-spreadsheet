@@ -53,8 +53,6 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           Data
         </div>
         
-        
-        
       </div>
       <div
         class="o-topbar-topright"
@@ -480,7 +478,6 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
     
     
     
-    
     <div
       class="o-scrollbar vertical"
       style="top:26px; right:0px; width:15px; bottom:0px;"
@@ -620,8 +617,8 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
     
     
     
-    
   </div>
+  
   
 </div>
 `;

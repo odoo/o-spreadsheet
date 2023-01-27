@@ -31,7 +31,8 @@ import {
 import { ColorPicker } from "../color_picker/color_picker";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { css } from "../helpers/css";
-import { Menu, MenuState } from "../menu/menu";
+import { MenuInterface, useMenu } from "../helpers/menu_hook";
+import { Menu } from "../menu/menu";
 import { ComposerFocusType } from "../spreadsheet/spreadsheet";
 import { NumberFormatTerms } from "../translations_terms";
 
@@ -45,8 +46,8 @@ type Tool =
   | "fontSizeTool";
 
 interface State {
-  menuState: MenuState;
   activeTool: Tool;
+  activeMenu: MenuItem | undefined;
 }
 
 const FORMATS = [
@@ -311,8 +312,8 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   style: Style = {};
   state: State = useState({
-    menuState: { isOpen: false, position: null, menuItems: [] },
     activeTool: "",
+    activeMenu: undefined,
   });
   isSelectingMenu = false;
   openedEl: HTMLElement | null = null;
@@ -325,7 +326,10 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   textColor: string = "#000000";
   menus: MenuItem[] = [];
 
+  private menu!: MenuInterface;
+
   setup() {
+    this.menu = useMenu();
     useExternalListener(window as any, "click", this.onExternalClick);
     onWillStart(() => this.updateCellState());
     onWillUpdateProps(() => this.updateCellState());
@@ -385,18 +389,21 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   toggleContextMenu(menu: MenuItem, ev: MouseEvent) {
     this.closeMenus();
     const { left, top, height } = (ev.target as HTMLElement).getBoundingClientRect();
-    this.state.menuState.isOpen = true;
-    this.state.menuState.position = { x: left, y: top + height };
-    this.state.menuState.menuItems = menu.children(this.env);
-    this.state.menuState.parentMenu = menu;
+    this.menu.open({
+      position: { x: left, y: top + height },
+      menuItems: menu.children(this.env),
+      onClose: () => this.closeMenus(),
+    });
+    ev.stopPropagation();
+
+    this.state.activeMenu = menu;
     this.isSelectingMenu = true;
     this.openedEl = ev.target as HTMLElement;
   }
 
   closeMenus() {
     this.state.activeTool = "";
-    this.state.menuState.isOpen = false;
-    this.state.menuState.parentMenu = undefined;
+    this.state.activeMenu = undefined;
     this.isSelectingMenu = false;
     this.openedEl = null;
   }

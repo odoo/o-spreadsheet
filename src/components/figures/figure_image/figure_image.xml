@@ -15,11 +15,5 @@
       class="w-100 h-100"
       t-on-contextmenu.prevent.stop="(ev) => !env.isDashboard() and this.onContextMenu(ev)"
     />
-    <Menu
-      t-if="menuState.isOpen"
-      position="menuState.position"
-      menuItems="menuItems"
-      onClose="() => this.menuState.isOpen=false"
-    />
   </t>
 </templates>

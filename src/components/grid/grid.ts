@@ -1,12 +1,4 @@
-import {
-  Component,
-  onMounted,
-  useChildSubEnv,
-  useEffect,
-  useExternalListener,
-  useRef,
-  useState,
-} from "@odoo/owl";
+import { Component, onMounted, useEffect, useExternalListener, useRef, useState } from "@odoo/owl";
 import {
   AUTOFILL_EDGE_LENGTH,
   HEADER_HEIGHT,
@@ -45,11 +37,12 @@ import { HeadersOverlay } from "../headers_overlay/headers_overlay";
 import { cssPropertiesToCss } from "../helpers";
 import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
-import { useAbsolutePosition } from "../helpers/position_hook";
+import { MenuInterface, useMenu } from "../helpers/menu_hook";
+import { useGridRect } from "../helpers/position_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { Highlight } from "../highlight/highlight/highlight";
-import { Menu, MenuState } from "../menu/menu";
+import { Menu } from "../menu/menu";
 import { Popover } from "../popover/popover";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
 import { ComposerFocusType } from "../spreadsheet/spreadsheet";
@@ -102,26 +95,21 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   };
   readonly HEADER_HEIGHT = HEADER_HEIGHT;
   readonly HEADER_WIDTH = HEADER_WIDTH;
-  private menuState!: MenuState;
   private gridRef!: Ref<HTMLElement>;
   private hiddenInput!: Ref<HTMLElement>;
+  private menu!: MenuInterface;
 
   onMouseWheel!: (ev: WheelEvent) => void;
-  canvasPosition!: DOMCoordinates;
+  gridRect!: Rect;
   hoveredCell!: Partial<Position>;
 
   setup() {
-    this.menuState = useState({
-      isOpen: false,
-      position: null,
-      menuItems: [],
-    });
+    this.menu = useMenu();
     this.gridRef = useRef("grid");
     this.hiddenInput = useRef("hiddenInput");
-    this.canvasPosition = useAbsolutePosition(this.gridRef);
+    this.gridRect = useGridRect();
     this.hoveredCell = useState({ col: undefined, row: undefined });
 
-    useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);
@@ -195,7 +183,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       /** TODO: Clean once we introduce proper focus on sub components. Grid should not have to handle all this logic */
       if (this.env.model.getters.hasOpenedPopover()) {
         this.closeOpenedPopover();
-      } else if (this.menuState.isOpen) {
+      } else if (this.menu.hasOpenMenu()) {
         this.closeMenu();
       } else {
         this.env.model.dispatch("CLEAN_CLIPBOARD_HIGHLIGHT");
@@ -359,10 +347,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     return this.hoveredCell.col === col && this.hoveredCell.row === row;
   }
 
-  private getGridRect(): Rect {
-    return { ...this.canvasPosition, ...this.env.model.getters.getSheetViewDimensionWithHeaders() };
-  }
-
   // ---------------------------------------------------------------------------
   // Zone selection with mouse
   // ---------------------------------------------------------------------------
@@ -517,9 +501,12 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     if (this.env.model.getters.hasOpenedPopover()) {
       this.closeOpenedPopover();
     }
-    this.menuState.isOpen = true;
-    this.menuState.position = { x, y };
-    this.menuState.menuItems = registries[type].getMenuItems();
+    this.menu.open({
+      position: { x, y },
+      menuItems: registries[type].getMenuItems(),
+      onClose: () => this.closeMenu(),
+      containerRect: this.gridRect,
+    });
   }
 
   copy(cut: boolean, ev: ClipboardEvent) {
@@ -578,7 +565,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   closeMenu() {
-    this.menuState.isOpen = false;
+    this.menu.closeAny();
     this.focus();
   }
 }

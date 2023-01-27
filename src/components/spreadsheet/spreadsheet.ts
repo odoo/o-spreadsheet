@@ -3,6 +3,7 @@ import {
   onMounted,
   onPatched,
   onWillUnmount,
+  reactive,
   useExternalListener,
   useState,
   useSubEnv,
@@ -20,6 +21,7 @@ import {
   TOPBAR_HEIGHT,
 } from "../../constants";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
+import { MenuService } from "../../helpers/menu_service";
 import { Model } from "../../model";
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
 import { _lt } from "../../translation";
@@ -29,6 +31,7 @@ import { BottomBar } from "../bottom_bar/bottom_bar";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
 import { Grid } from "../grid/grid";
 import { css } from "../helpers/css";
+import { MenuContainer } from "../menu_container/menu_container";
 import { SidePanel } from "../side_panel/side_panel/side_panel";
 import { TopBar } from "../top_bar/top_bar";
 import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipboard_wrapper";
@@ -132,7 +135,7 @@ interface ComposerState {
 
 export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Spreadsheet";
-  static components = { TopBar, Grid, BottomBar, SidePanel, SpreadsheetDashboard };
+  static components = { TopBar, Grid, BottomBar, SidePanel, SpreadsheetDashboard, MenuContainer };
   static _t = t;
 
   sidePanel!: SidePanelState;
@@ -176,6 +179,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       _t: Spreadsheet._t,
       clipboard: this.env.clipboard || instantiateClipboard(),
       startCellEdition: (content: string) => this.onGridComposerCellFocused(content),
+      menuService: reactive(new MenuService()),
     });
 
     useExternalListener(window as any, "resize", () => this.render(true));

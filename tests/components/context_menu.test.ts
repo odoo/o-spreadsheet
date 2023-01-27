@@ -38,6 +38,10 @@ mockGetBoundingClientRect({
     return getMenuSize();
   },
   "o-spreadsheet": () => ({ top: 0, left: 0, height: 1000, width: 1000 }),
+  "o-grid": () => {
+    const dims = model?.getters.getSheetViewDimensionWithHeaders() || { height: 1000, width: 1000 };
+    return { top: 0, left: 0, height: dims.height, width: dims.width };
+  },
 });
 
 function getElPosition(element: string | Element): {
@@ -800,8 +804,9 @@ describe("Standalone context menu tests", () => {
 
 describe("Context menu react to grid size changes", () => {
   beforeEach(async () => {
+    model = new Model();
     fixture = makeTestFixture();
-    ({ app, model } = await mountSpreadsheet(fixture));
+    ({ app } = await mountSpreadsheet(fixture, { model }));
   });
 
   afterEach(() => {

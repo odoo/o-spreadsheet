@@ -3,6 +3,7 @@
     <Popover
       t-if="visibleMenuItems.length"
       anchorRect="popover.anchorRect"
+      containerRect="props.containerRect"
       positioning="popover.positioning"
       verticalOffset="popover.verticalOffset"
       onPopoverHidden="() => this.closeSubMenu()"
@@ -50,6 +51,7 @@
         maxHeight="props.maxHeight"
         onMenuClicked="props.onMenuClicked"
         onClose="() => this.close()"
+        containerRect="props.containerRect"
       />
     </Popover>
   </t>

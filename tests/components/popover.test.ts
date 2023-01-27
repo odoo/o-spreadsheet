@@ -35,15 +35,13 @@ async function mountTestPopover(args: MountPopoverArgs) {
         model: this.props.model,
         isDashboard: () => false,
       };
-      if (args.containerRect) {
-        env.getPopoverContainerRect = () => args.containerRect;
-      }
       useSubEnv(env);
     }
 
     get popoverProps() {
       return {
         anchorRect: args.anchorRect || { x: 0, y: 0, width: 10, height: 10 },
+        containerRect: args.containerRect,
         positioning: args.positioning || "right",
         maxWidth: args.maxHeight,
         maxHeight: args.maxHeight,

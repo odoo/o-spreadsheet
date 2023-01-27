@@ -1,0 +1,5 @@
+<templates>
+  <t t-name="o-spreadsheet-MenuContainer" owl="1">
+    <Menu t-if="hasMenu" t-props="menuProps"/>
+  </t>
+</templates>

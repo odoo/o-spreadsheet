@@ -31,10 +31,7 @@
           t-on-wheel="onWheel"
           t-on-scroll="onScroll">
           <t t-foreach="getVisibleSheets()" t-as="sheet" t-key="sheet.id">
-            <BottomBarSheet
-              sheetId="sheet.id"
-              openContextMenu="(registry, ev) => this.onSheetContextMenu(sheet.id, registry, ev)"
-            />
+            <BottomBarSheet sheetId="sheet.id"/>
           </t>
         </div>
         <div
@@ -75,17 +72,7 @@
         </Ripple>
       </div>
 
-      <BottomBarStatistic
-        openContextMenu="(x, y, registry) => this.openContextMenu(x, y, 'listSelectionStatistics', registry)"
-      />
-
-      <Menu
-        t-if="menuState.isOpen"
-        position="menuState.position"
-        menuItems="menuState.menuItems"
-        maxHeight="menuMaxHeight"
-        onClose="() => this.closeMenu()"
-      />
+      <BottomBarStatistic/>
     </div>
   </t>
 </templates>

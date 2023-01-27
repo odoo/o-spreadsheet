@@ -2,7 +2,7 @@ import { App, Component, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { ChartJsComponent } from "../../src/components/figures/chart/chartJs/chartjs";
 import { ScorecardChart } from "../../src/components/figures/chart/scorecard/chart_scorecard";
-import { MENU_WIDTH, MIN_FIG_SIZE } from "../../src/constants";
+import { MENU_WIDTH, MIN_FIG_SIZE, TOPBAR_HEIGHT } from "../../src/constants";
 import { chartComponentRegistry, figureRegistry } from "../../src/registries";
 import { CreateFigureCommand, Figure, SpreadsheetChildEnv, UID } from "../../src/types";
 import {
@@ -86,6 +86,7 @@ mockChart();
 mockGetBoundingClientRect({
   "o-popover": () => ({ height: 0, width: 0 }),
   "o-spreadsheet": () => ({ top: 100, left: 200, height: 1000, width: 1000 }),
+  "o-grid": () => ({ top: 100 + TOPBAR_HEIGHT, left: 0, height: 1000, width: 1000 }),
   "o-figure-menu-item": () => ({ top: 500, left: 500 }),
 });
 
@@ -371,6 +372,15 @@ describe("figures", () => {
         }
         await nextTick();
       });
+
+      function getContextMenuContainer() {
+        return type === "image" ? ".o-figure img" : ".o-chart-container";
+      }
+
+      function getFirstMenuItemTitle() {
+        return type === "image" ? "Copy" : "Edit";
+      }
+
       test(`Click on Delete button will delete the figure ${type}`, async () => {
         expect(fixture.querySelector(".o-figure")).not.toBeNull();
         await simulateClick(".o-figure");
@@ -430,14 +440,17 @@ describe("figures", () => {
       });
 
       test("Can open context menu on right click", async () => {
-        triggerMouseEvent(".o-figure", "contextmenu");
+        triggerMouseEvent(getContextMenuContainer(), "contextmenu");
         await nextTick();
         expect(document.querySelectorAll(".o-menu").length).toBe(1);
+        expect(document.querySelector<HTMLElement>(".o-menu-item")!.title).toBe(
+          getFirstMenuItemTitle()
+        );
       });
 
       test("Cannot open context menu on right click in dashboard mode", async () => {
         model.updateMode("dashboard");
-        triggerMouseEvent(".o-figure", "contextmenu");
+        triggerMouseEvent(getContextMenuContainer(), "contextmenu");
         await nextTick();
         expect(document.querySelector(".o-menu")).toBeFalsy();
       });
@@ -457,6 +470,17 @@ describe("figures", () => {
         const menuPopover = fixture.querySelector(".o-menu")?.parentElement;
         expect(menuPopover?.style.top).toBe(`${500 - 100}px`);
         expect(menuPopover?.style.left).toBe(`${500 - 200 - MENU_WIDTH}px`);
+      });
+
+      test("Context menu is closed on figure deletion", async () => {
+        triggerMouseEvent(getContextMenuContainer(), "contextmenu");
+        await nextTick();
+        expect(document.querySelectorAll(".o-menu").length).toBe(1);
+        model.dispatch("DELETE_FIGURE", { sheetId, id: figureId });
+        await nextTick();
+        // first render unmount the figure and updates the menuService, second render uses updated menuService
+        await nextTick();
+        expect(document.querySelectorAll(".o-menu").length).toBe(0);
       });
 
       test("Selecting a figure and hitting Ctrl does not unselect it", async () => {

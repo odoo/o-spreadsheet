@@ -7,7 +7,7 @@ import {
   MENU_WIDTH,
 } from "../../constants";
 import { MenuItem } from "../../registries/menu_items_registry";
-import { DOMCoordinates, Pixel, SpreadsheetChildEnv } from "../../types";
+import { DOMCoordinates, Pixel, Rect, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 import { isChildEvent } from "../helpers/dom_helpers";
 import { useAbsolutePosition } from "../helpers/position_hook";
@@ -69,13 +69,14 @@ css/* scss */ `
   }
 `;
 
-interface Props {
+export interface MenuProps {
   position: DOMCoordinates;
   menuItems: MenuItem[];
   depth: number;
   maxHeight?: Pixel;
   onClose: () => void;
   onMenuClicked?: (ev: CustomEvent) => void;
+  containerRect?: Rect;
 }
 
 export interface MenuState {
@@ -85,7 +86,7 @@ export interface MenuState {
   scrollOffset?: Pixel;
   menuItems: MenuItem[];
 }
-export class Menu extends Component<Props, SpreadsheetChildEnv> {
+export class Menu extends Component<MenuProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Menu";
 
   static components = { Menu, Popover };
@@ -104,7 +105,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   setup() {
     useExternalListener(window, "click", this.onClick);
     useExternalListener(window, "contextmenu", this.onContextMenu);
-    onWillUpdateProps((nextProps: Props) => {
+    onWillUpdateProps((nextProps: MenuProps) => {
       if (nextProps.menuItems !== this.props.menuItems) {
         this.closeSubMenu();
       }
@@ -267,4 +268,5 @@ Menu.props = {
   maxHeight: { type: Number, optional: true },
   onClose: Function,
   onMenuClicked: { type: Function, optional: true },
+  containerRect: { type: Object, optional: true },
 };

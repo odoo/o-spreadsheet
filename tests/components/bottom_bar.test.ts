@@ -1,11 +1,13 @@
 import { App, Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
 import { BottomBar } from "../../src/components/bottom_bar/bottom_bar";
+import { MenuContainer } from "../../src/components/menu_container/menu_container";
 import { Model } from "../../src/model";
 import { SpreadsheetChildEnv } from "../../src/types";
 import { OWL_TEMPLATES } from "../setup/jest.setup";
 import {
   activateSheet,
   createSheet,
+  deleteSheet,
   hideSheet,
   selectCell,
   setCellContent,
@@ -20,12 +22,13 @@ class Parent extends Component<any, any> {
   static template = xml/* xml */ `
     <div class="o-spreadsheet">
       <BottomBar onClick="()=>{}"/>
+      <MenuContainer/>
     </div>
   `;
-  static components = { BottomBar };
+  static components = { BottomBar, MenuContainer };
 
   setup() {
-    onMounted(() => this.props.model.on("update", this, this.render));
+    onMounted(() => this.props.model.on("update", this, () => this.render(true)));
     onWillUnmount(() => this.props.model.off("update", this));
   }
   getSubEnv() {
@@ -123,6 +126,21 @@ describe("BottomBar component", () => {
     triggerMouseEvent(".o-sheet-icon", "click");
     await nextTick();
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    app.destroy();
+  });
+
+  test("Context menu is closed when sheet is deleted", async () => {
+    const { app, model } = await mountBottomBar();
+    createSheet(model, { name: "Sheet2" });
+    triggerMouseEvent(".o-sheet", "contextmenu");
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    deleteSheet(model, model.getters.getActiveSheetId());
+    await nextTick();
+    // first render unmount the sheet and updates the menuService, second render uses updated menuService
+    await nextTick();
+
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     app.destroy();
   });
 

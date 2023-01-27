@@ -99,7 +99,6 @@ exports[`Scorecard charts Scorecard snapshot 1`] = `
       </div>
     </div>
     
-    
   </div>
 </div>
 `;
@@ -202,7 +201,6 @@ exports[`Scorecard charts scorecard text is resized while figure is resized 1`] 
         
       </div>
     </div>
-    
     
   </div>
 </div>
