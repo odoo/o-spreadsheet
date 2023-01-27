@@ -67,7 +67,7 @@ export function createMenu(menuItems: MenuItemSpec[]): MenuItem[] {
 
 const uuidGenerator = new UuidGenerator();
 
-function createMenuItem(item: MenuItemSpec): MenuItem {
+export function createMenuItem(item: MenuItemSpec): MenuItem {
   const name = item.name;
   const children = item.children;
   return {

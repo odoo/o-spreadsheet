@@ -4,9 +4,8 @@ import { TopBar } from "../../src/components/top_bar/top_bar";
 import { DEFAULT_FONT_SIZE } from "../../src/constants";
 import { toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { topbarComponentRegistry } from "../../src/registries";
-import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
-import { ConditionalFormat, Pixel, SpreadsheetChildEnv, Style } from "../../src/types";
+import { topbarComponentRegistry, topbarMenuRegistry } from "../../src/registries";
+import { ConditionalFormat, Currency, Pixel, SpreadsheetChildEnv, Style } from "../../src/types";
 import {
   addCellToSelection,
   createFilter,
@@ -108,14 +107,15 @@ describe("TopBar component", () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
     await mountParent(model);
-
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
-    await click(fixture, ".o-tool[title='Borders']");
+    await click(fixture, ".o-menu-item-button[title='Borders']");
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
-    expect(fixture.querySelectorAll(".o-line-item").length).not.toBe(0);
-    await click(fixture, ".o-tool[title='Horizontal align'] span");
+    expect(fixture.querySelectorAll(".o-menu-item-button[title='All borders']").length).toBe(1);
+    expect(fixture.querySelectorAll(".o-menu-item-button[title='Left']").length).toBe(0);
+    await click(fixture, ".o-menu-item-button[title='Horizontal align']");
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
-    expect(fixture.querySelectorAll(".o-color-line").length).toBe(0);
+    expect(fixture.querySelectorAll(".o-menu-item-button[title='All borders']").length).toBe(0);
+    expect(fixture.querySelectorAll(".o-menu-item-button[title='Left']").length).toBe(1);
   });
 
   test("Menu should be closed while clicking on composer", async () => {
@@ -139,7 +139,7 @@ describe("TopBar component", () => {
       ],
     });
     await mountParent(model);
-    const mergeTool = fixture.querySelector('.o-tool[title="Merge Cells"]')!;
+    const mergeTool = fixture.querySelector('.o-menu-item-button[title="Merge cells"]')!;
     expect(mergeTool.classList.contains("active")).toBeTruthy();
 
     // increase the selection to A2 (so, it is now A1:B2) => merge tool
@@ -154,7 +154,7 @@ describe("TopBar component", () => {
     setCellContent(model, "B2", "b2");
 
     await mountParent(model);
-    const mergeTool = fixture.querySelector('.o-tool[title="Merge Cells"]')!;
+    const mergeTool = fixture.querySelector('.o-menu-item-button[title="Merge cells"]')!;
 
     // should be disabled, because the selection is just one cell
     expect(mergeTool.classList.contains("o-disabled")).toBeTruthy();
@@ -172,8 +172,8 @@ describe("TopBar component", () => {
 
   test("undo/redo tools", async () => {
     const { model } = await mountParent();
-    const undoTool = fixture.querySelector('.o-tool[title="Undo (Ctrl+Z)"]')!;
-    const redoTool = fixture.querySelector('.o-tool[title="Redo (Ctrl+Y)"]')!;
+    const undoTool = fixture.querySelector('.o-menu-item-button[title="Undo (Ctrl+Z)"]')!;
+    const redoTool = fixture.querySelector('.o-menu-item-button[title="Redo (Ctrl+Y)"]')!;
 
     expect(undoTool.classList.contains("o-disabled")).toBeTruthy();
     expect(redoTool.classList.contains("o-disabled")).toBeTruthy();
@@ -193,7 +193,7 @@ describe("TopBar component", () => {
 
   test("paint format tools", async () => {
     await mountParent();
-    const paintFormatTool = fixture.querySelector('.o-tool[title="Paint Format"]')!;
+    const paintFormatTool = fixture.querySelector('.o-menu-item-button[title="Paint Format"]')!;
 
     expect(paintFormatTool.classList.contains("active")).toBeFalsy();
 
@@ -204,6 +204,8 @@ describe("TopBar component", () => {
 
   describe("Filter Tool", () => {
     let model: Model;
+    const createFilterTool = '.o-menu-item-button[title="Create filter"]';
+    const removeFilterTool = '.o-menu-item-button[title="Remove selected filters"]';
 
     beforeEach(async () => {
       ({ model } = await mountParent());
@@ -212,36 +214,34 @@ describe("TopBar component", () => {
     test("Filter tool is enabled with single selection", async () => {
       setSelection(model, ["A2:B3"]);
       await nextTick();
-      const filterTool = fixture.querySelector(".o-filter-tool")!;
+      const filterTool = fixture.querySelector(createFilterTool)!;
       expect(filterTool.classList.contains("o-disabled")).toBeFalsy();
     });
 
     test("Filter tool is enabled with selection of multiple continuous zones", async () => {
       setSelection(model, ["A1", "A2"]);
       await nextTick();
-      const filterTool = fixture.querySelector(".o-filter-tool")!;
+      const filterTool = fixture.querySelector(createFilterTool)!;
       expect(filterTool.classList.contains("o-disabled")).toBeFalsy();
     });
 
     test("Filter tool is disabled with selection of multiple non-continuous zones", async () => {
       setSelection(model, ["A1", "B5"]);
       await nextTick();
-      const filterTool = fixture.querySelector(".o-filter-tool")!;
+      const filterTool = fixture.querySelector(createFilterTool)!;
       expect(filterTool.classList.contains("o-disabled")).toBeTruthy();
     });
 
     test("Filter tool change from create filter to remove filter when a filter is selected", async () => {
       createFilter(model, "A2:B3");
       await nextTick();
-      let filterTool = fixture.querySelector(".o-filter-tool")!;
-      expect(filterTool.querySelectorAll(".filter-icon-active").length).toEqual(0);
-      expect(filterTool.querySelectorAll(".filter-icon-inactive").length).toEqual(1);
+      expect(fixture.querySelectorAll(removeFilterTool).length).toEqual(0);
+      expect(fixture.querySelectorAll(createFilterTool).length).toEqual(1);
 
       setSelection(model, ["A1", "B2"]);
       await nextTick();
-      filterTool = fixture.querySelector(".o-filter-tool")!;
-      expect(filterTool.querySelectorAll(".filter-icon-active").length).toEqual(1);
-      expect(filterTool.querySelectorAll(".filter-icon-inactive").length).toEqual(0);
+      expect(fixture.querySelectorAll(removeFilterTool).length).toEqual(1);
+      expect(fixture.querySelectorAll(createFilterTool).length).toEqual(0);
     });
 
     test("Adjacent cells selection while applying filter on single cell", async () => {
@@ -253,7 +253,7 @@ describe("TopBar component", () => {
       setCellContent(model, "C4", "Hello");
       setCellContent(model, "D4", "2");
       selectCell(model, "A1");
-      await simulateClick(".o-tool.o-filter-tool");
+      await simulateClick(createFilterTool);
       await nextTick();
       const selection = model.getters.getSelectedZone();
       expect(zoneToXc(selection)).toEqual("A1:D4");
@@ -271,7 +271,7 @@ describe("TopBar component", () => {
     });
     expect(getBorder(model, "B1")).toBeDefined();
     await mountParent(model);
-    const clearFormatTool = fixture.querySelector('.o-tool[title="Clear Format"]')!;
+    const clearFormatTool = fixture.querySelector('.o-menu-item-button[title="Clear formatting"]')!;
     await click(clearFormatTool);
     expect(getCell(model, "B1")).toBeUndefined();
   });
@@ -279,10 +279,10 @@ describe("TopBar component", () => {
   test("can set cell format", async () => {
     const { model } = await mountParent();
     expect(getCell(model, "A1")).toBeUndefined();
-    const formatTool = fixture.querySelector('.o-tool[title="More formats"]')!;
+    const formatTool = fixture.querySelector('.o-menu-item-button[title="More formats"]')!;
     await click(formatTool);
     expect(fixture).toMatchSnapshot();
-    await click(fixture, `[data-format="percent"]`);
+    await click(fixture, `.o-menu-item[title="Percent"]`);
     expect(getCell(model, "A1")!.format).toEqual("0.00%");
   });
 
@@ -290,7 +290,7 @@ describe("TopBar component", () => {
     const { model } = await mountParent();
     const fontSizeText = fixture.querySelector("input.o-font-size")! as HTMLInputElement;
     expect(fontSizeText.value.trim()).toBe(DEFAULT_FONT_SIZE.toString());
-    const fontSizeTool = fixture.querySelector('span[title="Font Size"]')!;
+    const fontSizeTool = fixture.querySelector('div[title="Font Size"]')!;
     fontSizeTool.dispatchEvent(new Event("click"));
     await nextTick();
     const fontSizeList = fixture.querySelector(".o-font-size-editor div.o-dropdown-content")!;
@@ -304,108 +304,99 @@ describe("TopBar component", () => {
 
   describe("horizontal align", () => {
     test.each([
-      ["align-left", { align: "left" }],
-      ["align-center", { align: "center" }],
-      ["align-right", { align: "right" }],
-    ])(
-      "can set horizontal alignment with the toolbar (iconClass: %s)",
-      async (iconClass, expectedStyle) => {
-        const { model } = await mountParent();
-        await click(fixture, ".o-tool[title='Horizontal align']");
-        const alignButtons = fixture.querySelectorAll("div.o-dropdown-item")!;
-        const button = [...alignButtons].find((element) =>
-          element.children[0]!.classList.contains(iconClass)
-        )!;
-        await click(button);
-        expect(model.getters.getCurrentStyle()).toEqual(expectedStyle);
-      }
-    );
+      ["Left", { align: "left" }],
+      ["Center", { align: "center" }],
+      ["Right", { align: "right" }],
+    ])("can set horizontal alignment '%s' with the toolbar", async (iconTitle, expectedStyle) => {
+      const { model } = await mountParent();
+      await click(fixture, '.o-menu-item-button[title="Horizontal align"]');
+      await click(fixture, `.o-menu-item-button[title="${iconTitle}"]`);
+      expect(model.getters.getCurrentStyle()).toEqual(expectedStyle);
+    });
     test.each([
-      ["text", {}, "align-left"],
-      ["0", {}, "align-right"],
-      ["0", { align: "left" }, "align-left"],
-      ["0", { align: "center" }, "align-center"],
-      ["0", { align: "right" }, "align-right"],
+      ["text", {}, "Left"],
+      ["0", {}, "Right"],
+      ["0", { align: "left" }, "Left"],
+      ["0", { align: "center" }, "Center"],
+      ["0", { align: "right" }, "Right"],
     ])(
-      "alignment icon in top bar matches the selected cell (content: %s, style: %s)",
-      async (content, style, expectedIconClass) => {
+      "alignment icon options in top bar matches the selected cell (content: %s, style: %s)",
+      async (content, style, expectedTitleActive) => {
         const model = new Model();
         setCellContent(model, "A1", content);
         setStyle(model, "A1", style as Style);
         await mountParent(model);
-        const alignTool = fixture.querySelector('.o-tool[title="Horizontal align"]')!;
-        expect(alignTool.querySelector("svg")!.classList).toContain(expectedIconClass);
+        await click(fixture, '.o-menu-item-button[title="Horizontal align"]');
+        const expectedButtonActive = fixture.querySelector(
+          `.o-menu-item-button[title="${expectedTitleActive}"]`
+        )!;
+        expect(expectedButtonActive!.classList).toContain("active");
       }
     );
   });
 
   describe("vertical align", () => {
     test.each([
-      ["align-top", { verticalAlign: "top" }],
-      ["align-middle", { verticalAlign: "middle" }],
-      ["align-bottom", { verticalAlign: "bottom" }],
-    ])(
-      "can set vertical alignment with the toolbar (iconClass: %s)",
-      async (iconClass, expectedStyle) => {
-        const { model } = await mountParent();
-        await click(fixture, ".o-tool[title='Vertical align']");
-        const alignButtons = fixture.querySelectorAll("div.o-dropdown-item")!;
-        const button = [...alignButtons].find((element) =>
-          element.children[0]!.classList.contains(iconClass)
-        )!;
-        await click(button);
-        expect(model.getters.getCurrentStyle()).toEqual(expectedStyle);
-      }
-    );
+      ["Top", { verticalAlign: "top" }],
+      ["Middle", { verticalAlign: "middle" }],
+      ["Bottom", { verticalAlign: "bottom" }],
+    ])("can set vertical alignmen '%s't with the toolbar", async (iconTitle, expectedStyle) => {
+      const { model } = await mountParent();
+      await click(fixture, '.o-menu-item-button[title="Vertical align"]');
+      await click(fixture, `.o-menu-item-button[title="${iconTitle}"]`);
+      expect(model.getters.getCurrentStyle()).toEqual(expectedStyle);
+    });
     test.each([
-      ["text", {}, "align-middle"],
-      ["0", {}, "align-middle"],
-      ["0", { verticalAlign: "top" }, "align-top"],
-      ["0", { verticalAlign: "middle" }, "align-middle"],
-      ["0", { verticalAlign: "bottom" }, "align-bottom"],
+      ["text", {}, "Middle"],
+      ["0", {}, "Middle"],
+      ["0", { verticalAlign: "top" }, "Top"],
+      ["0", { verticalAlign: "middle" }, "Middle"],
+      ["0", { verticalAlign: "bottom" }, "Bottom"],
     ])(
-      "alignment icon in top bar matches the selected cell (content: %s, style: %s)",
-      async (content, style, expectedIconClass) => {
+      "alignment icon options in top bar matches the selected cell (content: %s, style: %s)",
+      async (content, style, expectedTitleActive) => {
         const model = new Model();
         setCellContent(model, "A1", content);
         setStyle(model, "A1", style as Style);
         await mountParent(model);
-        const alignTool = fixture.querySelector('.o-tool[title="Vertical align"]')!;
-        expect(alignTool.querySelector("svg")!.classList).toContain(expectedIconClass);
+        await click(fixture, '.o-menu-item-button[title="Vertical align"]');
+        const expectedButtonActive = fixture.querySelector(
+          `.o-menu-item-button[title="${expectedTitleActive}"]`
+        )!;
+        expect(expectedButtonActive!.classList).toContain("active");
       }
     );
   });
 
   describe("text wrapping", () => {
     test.each([
-      ["wrapping-overflow", { wrapping: "overflow" }],
-      ["wrapping-wrap", { wrapping: "wrap" }],
-      ["wrapping-clip", { wrapping: "clip" }],
-    ])("can set the wrapping state '%s' with the toolbar", async (iconClass, expectedStyle) => {
+      ["Overflow", { wrapping: "overflow" }],
+      ["Wrap", { wrapping: "wrap" }],
+      ["Clip", { wrapping: "clip" }],
+    ])("can set the wrapping state '%s' with the toolbar", async (iconTitle, expectedStyle) => {
       const { model } = await mountParent();
-      await click(fixture, ".o-tool[title='Text wrapping']");
-      const alignButtons = fixture.querySelectorAll("div.o-dropdown-item")!;
-      const button = [...alignButtons].find((element) =>
-        element.children[0]!.classList.contains(iconClass)
-      )!;
-      await click(button);
+      await click(fixture, '.o-menu-item-button[title="Wrapping"]');
+      await click(fixture, `.o-menu-item-button[title="${iconTitle}"]`);
       expect(model.getters.getCurrentStyle()).toEqual(expectedStyle);
     });
     test.each([
-      ["text", {}, "wrapping-overflow"],
-      ["0", {}, "wrapping-overflow"],
-      ["0", { wrapping: "overflow" }, "wrapping-overflow"],
-      ["0", { wrapping: "wrap" }, "wrapping-wrap"],
-      ["0", { wrapping: "clip" }, "wrapping-clip"],
+      ["text", {}, "Overflow"],
+      ["0", {}, "Overflow"],
+      ["0", { wrapping: "overflow" }, "Overflow"],
+      ["0", { wrapping: "wrap" }, "Wrap"],
+      ["0", { wrapping: "clip" }, "Clip"],
     ])(
-      "wrapping icon in top bar matches the selected cell (content: %s, style: %s)",
-      async (content, style, expectedIconClass) => {
+      "wrapping icon options in the top bar matches the selected cell (content: %s, style: %s)",
+      async (content, style, expectedTitleActive) => {
         const model = new Model();
         setCellContent(model, "A1", content);
         setStyle(model, "A1", style as Style);
         await mountParent(model);
-        const wrapTool = fixture.querySelector('.o-tool[title="Text wrapping"]')!;
-        expect(wrapTool.querySelector("svg")!.classList).toContain(expectedIconClass);
+        await click(fixture, '.o-menu-item-button[title="Wrapping"]');
+        const expectedButtonActive = fixture.querySelector(
+          `.o-menu-item-button[title="${expectedTitleActive}"]`
+        );
+        expect(expectedButtonActive!.classList).toContain("active");
       }
     );
   });
@@ -416,9 +407,9 @@ describe("TopBar component", () => {
     await mountParent(model);
 
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
-    await click(fixture, '.o-tool[title="Borders"]');
+    await click(fixture, '.o-menu-item-button[title="Borders"]');
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
-    await click(fixture, '.o-tool[title="Borders"]');
+    await click(fixture, '.o-menu-item-button[title="Borders"]');
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
   });
 
@@ -483,7 +474,8 @@ describe("TopBar component", () => {
     await click(fixture, ".o-topbar-menu[data-id='edit']");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
     expect(menuItem?.classList).toContain("active");
-    await click(fixture.querySelectorAll(".o-menu-item")[0]);
+    // close the menu by clicking on menu item
+    await click(fixture.querySelector('.o-menu-item[title="Copy"]')!);
     expect(menuItem?.classList).not.toContain("active");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
   });
@@ -563,17 +555,15 @@ describe("TopBar component", () => {
   test.each([
     ["Horizontal align", ".o-dropdown-content"],
     ["Vertical align", ".o-dropdown-content"],
-    ["Text wrapping", ".o-dropdown-content"],
+    ["Wrapping", ".o-dropdown-content"],
     ["Borders", ".o-dropdown-content"],
     ["Font Size", ".o-dropdown-content"],
-    ["More formats", ".o-dropdown-content"],
+    ["More formats", ".o-menu"],
   ])(
     "Clicking a static element inside a dropdown '%s' don't close the dropdown",
     async (toolName: string, dropdownContentSelector: string) => {
       ({ fixture } = await mountParent());
-
-      await simulateClick(`[title="${toolName}"]`);
-      await nextTick();
+      await click(fixture, `[title="${toolName}"]`);
       expect(fixture.querySelector(dropdownContentSelector)).toBeTruthy();
       await simulateClick(dropdownContentSelector);
       await nextTick();
@@ -586,7 +576,7 @@ describe("TopBar component", () => {
     async (toolName: string) => {
       await mountParent();
 
-      await simulateClick(`.o-color-picker-widget .o-color-picker-button[title="${toolName}"]`);
+      await simulateClick(`.o-menu-item-button[title="${toolName}"]`);
       await nextTick();
       expect(fixture.querySelector(".o-color-picker")).toBeTruthy();
       await simulateClick(".o-color-picker");
@@ -640,9 +630,11 @@ test("Can show/hide a TopBarComponent based on condition", async () => {
 
 describe("TopBar - Custom currency", () => {
   test("can open custom currency sidepanel from tool", async () => {
-    const { fixture } = await mountSpreadsheet();
-    await click(fixture, ".o-tool[title='More formats']");
-    await click(fixture, ".o-format-tool div[data-custom='custom_currency']");
+    const { fixture } = await mountSpreadsheet({
+      model: new Model({}, { external: { loadCurrencies: async () => [] as Currency[] } }),
+    });
+    await click(fixture, ".o-menu-item-button[title='More formats']");
+    await click(fixture, ".o-menu-item[title='Custom currency']");
     expect(fixture.querySelector(".o-custom-currency")).toBeTruthy();
   });
 });
@@ -816,24 +808,9 @@ describe("Topbar - View", () => {
 });
 
 describe("Topbar - menu item resizing with viewport", () => {
-  test("Number format dropdown in top bar is resized with screen size change", async () => {
-    const { model, fixture } = await mountParent();
-    await click(fixture, '.o-tool[title="More formats"]');
-    let height = getElComputedStyle(".o-dropdown-content.o-text-options", "maxHeight");
-    expect(parseInt(height)).toBe(
-      model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
-    );
-    model.dispatch("RESIZE_SHEETVIEW", { width: 300, height: 100 });
-    await nextTick();
-    height = getElComputedStyle(".o-dropdown-content.o-text-options", "maxHeight");
-    expect(parseInt(height)).toBe(
-      model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
-    );
-  });
-
   test("color picker of fill color in top bar is resized with screen size change", async () => {
     const { model, fixture } = await mountParent();
-    await click(fixture, '.o-tool[title="Fill Color"]');
+    await click(fixture, '.o-menu-item-button[title="Fill Color"]');
     let height = getElComputedStyle(".o-popover", "maxHeight");
     expect(parseInt(height)).toBe(
       model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
@@ -848,7 +825,7 @@ describe("Topbar - menu item resizing with viewport", () => {
 
   test("color picker of text color in top bar is resized with screen size change", async () => {
     const { model, fixture } = await mountParent();
-    await click(fixture, '.o-tool[title="Text Color"]');
+    await click(fixture, '.o-menu-item-button[title="Text Color"]');
     let height = getElComputedStyle(".o-popover", "maxHeight");
     expect(parseInt(height)).toBe(
       model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height

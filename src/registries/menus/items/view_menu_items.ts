@@ -1,3 +1,5 @@
+import { areZonesContinuous } from "../../../helpers";
+import { interactiveAddFilter } from "../../../helpers/ui/filter_interactive";
 import { interactiveFreezeColumnsRows } from "../../../helpers/ui/freeze_interactive";
 import { _lt } from "../../../translation";
 import { SpreadsheetChildEnv } from "../../../types";
@@ -164,3 +166,40 @@ export const viewFormulasMenuItem: MenuItemSpec = {
   action: ACTIONS.SET_FORMULA_VISIBILITY_ACTION,
   isReadonlyAllowed: true,
 };
+
+export const createRemoveFilterMenuItem: MenuItemSpec = {
+  name: (env) =>
+    selectionContainsFilter(env) ? _lt("Remove selected filters") : _lt("Create filter"),
+  isActive: (env) => selectionContainsFilter(env),
+  isEnabled: (env) => !cannotCreateFilter(env),
+  action: (env) => createRemoveFilter(env),
+  icon: "o-spreadsheet-Icon.FILTER_ICON_INACTIVE",
+};
+
+function selectionContainsFilter(env: SpreadsheetChildEnv): boolean {
+  const sheetId = env.model.getters.getActiveSheetId();
+  const selectedZones = env.model.getters.getSelectedZones();
+  return env.model.getters.doesZonesContainFilter(sheetId, selectedZones);
+}
+
+function cannotCreateFilter(env: SpreadsheetChildEnv): boolean {
+  return !areZonesContinuous(...env.model.getters.getSelectedZones());
+}
+
+function createRemoveFilter(env: SpreadsheetChildEnv) {
+  if (selectionContainsFilter(env)) {
+    env.model.dispatch("REMOVE_FILTER_TABLE", {
+      sheetId: env.model.getters.getActiveSheetId(),
+      target: env.model.getters.getSelectedZones(),
+    });
+    return;
+  }
+
+  if (cannotCreateFilter(env)) {
+    return;
+  }
+  env.model.selection.selectTableAroundSelection();
+  const sheetId = env.model.getters.getActiveSheetId();
+  const selection = env.model.getters.getSelectedZones();
+  interactiveAddFilter(env, sheetId, selection);
+}

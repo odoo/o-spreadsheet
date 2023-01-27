@@ -32,6 +32,14 @@ css/* scss */ `
     input::-webkit-inner-spin-button {
       -webkit-appearance: none;
     }
+
+    .o-text-options > div {
+      line-height: 26px;
+      padding: 3px 12px;
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.08);
+      }
+    }
   }
 `;
 

@@ -541,4 +541,16 @@
       />
     </svg>
   </t>
+  <t t-name="o-spreadsheet-Icon.PERCENT" owl="1">
+    <span class="o-text-icon">%</span>
+  </t>
+  <t t-name="o-spreadsheet-Icon.DECRASE_DECIMAL" owl="1">
+    <span class="o-text-icon">.0</span>
+  </t>
+  <t t-name="o-spreadsheet-Icon.INCREASE_DECIMAL" owl="1">
+    <span class="o-text-icon">.00</span>
+  </t>
+  <t t-name="o-spreadsheet-Icon.NUMBER_FORMATS" owl="1">
+    <span class="o-text-icon">123</span>
+  </t>
 </templates>

@@ -11,7 +11,12 @@ import { Model } from "../../src/model";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
 import { createMenu, MenuItem } from "../../src/registries/menu_items_registry";
 import { setCellContent } from "../test_helpers/commands_helpers";
-import { rightClickCell, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
+import {
+  click,
+  rightClickCell,
+  simulateClick,
+  triggerMouseEvent,
+} from "../test_helpers/dom_helper";
 import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
 
 import {
@@ -285,25 +290,21 @@ describe("Context Menu integration tests", () => {
   test("close contextmenu when clicking on menubar", async () => {
     await rightClickCell(model, "B1");
     expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeTruthy();
-    triggerMouseEvent(".o-topbar-topleft", "click");
-    await nextTick();
+    await click(fixture, ".o-topbar-topleft");
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
   });
 
   test("close contextmenu when clicking on menubar item", async () => {
     await rightClickCell(model, "B1");
     expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeTruthy();
-    triggerMouseEvent(".o-topbar-menu[data-id='insert']", "click");
-    await nextTick();
+    await click(fixture, ".o-topbar-menu[data-id='insert']");
     expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeFalsy();
   });
 
   test("close contextmenu when clicking on tools bar", async () => {
     await rightClickCell(model, "B1");
     expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeTruthy();
-    const boldTool = fixture.querySelector('.o-tool[title="Bold (Ctrl+B)"]')!;
-    triggerMouseEvent(boldTool, "click");
-    await nextTick();
+    await click(fixture, ".o-menu-item-button[title='Bold (Ctrl+B)']");
     expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeFalsy();
   });
 

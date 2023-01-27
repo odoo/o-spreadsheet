@@ -74,19 +74,6 @@ export const ChartTerms = {
   },
 };
 
-export const NumberFormatTerms = {
-  Automatic: _lt("Automatic"),
-  Number: _lt("Number"),
-  Percent: _lt("Percent"),
-  Currency: _lt("Currency"),
-  CurrencyRounded: _lt("Currency rounded"),
-  Date: _lt("Date"),
-  Time: _lt("Time"),
-  DateTime: _lt("Date time"),
-  Duration: _lt("Duration"),
-  CustomCurrency: _lt("Custom currency"),
-};
-
 export const CustomCurrencyTerms = {
   Custom: _lt("Custom"),
 };

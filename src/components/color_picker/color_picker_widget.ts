@@ -17,8 +17,9 @@ interface Props {
 
 css/* scss */ `
   .o-color-picker-widget {
-    display: inline-block;
+    display: flex;
     position: relative;
+    align-items: center;
 
     .o-color-picker-button-style {
       display: flex;
@@ -34,6 +35,7 @@ css/* scss */ `
     }
 
     .o-color-picker-button {
+      height: 30px;
       > span {
         border-bottom: 4px solid;
         height: 16px;
