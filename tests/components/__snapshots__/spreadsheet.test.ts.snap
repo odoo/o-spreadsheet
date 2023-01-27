@@ -511,8 +511,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
       class="o-ripple-container position-relative"
     >
       <div
-        class="position-absolute"
-        style="top:0px; left:0px; width:0px; height:0px;"
+        class="position-absolute w-100 h-100"
       >
         
       </div>
@@ -536,8 +535,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
       class="o-ripple-container position-relative"
     >
       <div
-        class="position-absolute"
-        style="top:0px; left:0px; width:0px; height:0px;"
+        class="position-absolute w-100 h-100"
       >
         
       </div>
@@ -583,8 +581,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           class="o-ripple-container position-relative"
         >
           <div
-            class="position-absolute"
-            style="top:0px; left:0px; width:0px; height:0px;"
+            class="position-absolute w-100 h-100"
           >
             
           </div>

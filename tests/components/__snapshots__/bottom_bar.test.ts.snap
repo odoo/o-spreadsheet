@@ -106,8 +106,7 @@ exports[`BottomBar component simple rendering 1`] = `
     class="o-ripple-container position-relative"
   >
     <div
-      class="position-absolute"
-      style=""
+      class="position-absolute w-100 h-100"
     >
       
     </div>
@@ -131,8 +130,7 @@ exports[`BottomBar component simple rendering 1`] = `
     class="o-ripple-container position-relative"
   >
     <div
-      class="position-absolute"
-      style=""
+      class="position-absolute w-100 h-100"
     >
       
     </div>
@@ -178,8 +176,7 @@ exports[`BottomBar component simple rendering 1`] = `
         class="o-ripple-container position-relative"
       >
         <div
-          class="position-absolute"
-          style=""
+          class="position-absolute w-100 h-100"
         >
           
         </div>

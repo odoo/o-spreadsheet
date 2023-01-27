@@ -41,6 +41,7 @@ interface RippleEffectProps
   extends Omit<Required<RippleProps>, "ignoreClickPosition" | "enabled" | "class"> {
   x: string;
   y: string;
+  style: string;
 }
 
 interface RippleDef {
@@ -108,6 +109,7 @@ RippleEffect.props = {
   offsetX: Number,
   allowOverflow: Boolean,
   onAnimationEnd: Function,
+  style: String,
 };
 
 export class Ripple extends Component<RippleProps, SpreadsheetChildEnv> {
@@ -146,7 +148,7 @@ export class Ripple extends Component<RippleProps, SpreadsheetChildEnv> {
     this.state.ripples.push({ rippleRect, id: this.currentId++ });
   }
 
-  getStyle(): string {
+  private getRippleStyle(): string {
     const containerEl = this.childContainer.el;
 
     if (!containerEl || containerEl.childElementCount !== 1 || !containerEl.firstElementChild) {
@@ -202,6 +204,7 @@ export class Ripple extends Component<RippleProps, SpreadsheetChildEnv> {
       offsetX: this.props.offsetX || 0,
       offsetY: this.props.offsetY || 0,
       allowOverflow: this.props.allowOverflow || false,
+      style: this.getRippleStyle(),
       onAnimationEnd: () => this.removeRipple(id),
     };
   }
