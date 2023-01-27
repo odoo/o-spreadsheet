@@ -33,6 +33,7 @@ import {
   setAnchorCorner,
   setCellContent,
   setFormat,
+  setSelection,
   setStyle,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
@@ -361,51 +362,6 @@ describe("formatting values (when change decimal)", () => {
     expect(getCell(model, "C1")!.format).toBe(twentyZerosC1);
   });
 
-  test("Change decimal format on a range gives the same format for all cells", () => {
-    const model = new Model();
-
-    // give values ​​with different formats
-
-    setCellContent(model, "A2", "9");
-    selectCell(model, "A2");
-    setFormat(model, "0.00%");
-    expect(getCellContent(model, "A2")).toBe("900.00%");
-
-    setCellContent(model, "A3", "4567.8");
-    selectCell(model, "A3");
-    setFormat(model, "#,##0");
-    expect(getCellContent(model, "A3")).toBe("4,568");
-
-    setCellContent(model, "C1", "42.42");
-    selectCell(model, "C1");
-    setFormat(model, "0.000");
-    expect(getCellContent(model, "C1")).toBe("42.420");
-
-    // select A1, then expand selection to A1:C3
-
-    selectCell(model, "A1");
-
-    setAnchorCorner(model, "C3");
-
-    // increase decimalFormat on the selection
-
-    setDecimal(model, 1);
-
-    expect(getCellContent(model, "A2")).toBe("9.0000");
-    expect(getCellContent(model, "A3")).toBe("4567.8000");
-    expect(getCellContent(model, "C1")).toBe("42.4200");
-
-    expect(getCell(model, "A1")!.format).toBe("0.0000");
-    expect(getCell(model, "A2")!.format).toBe("0.0000");
-    expect(getCell(model, "A3")!.format).toBe("0.0000");
-    expect(getCell(model, "B1")!.format).toBe("0.0000");
-    expect(getCell(model, "B2")!.format).toBe("0.0000");
-    expect(getCell(model, "B3")!.format).toBe("0.0000");
-    expect(getCell(model, "C1")!.format).toBe("0.0000");
-    expect(getCell(model, "C2")!.format).toBe("0.0000");
-    expect(getCell(model, "C3")!.format).toBe("0.0000");
-  });
-
   test("Change decimal format on a range does nothing if there isn't 'number' type", () => {
     const model = new Model();
 
@@ -439,6 +395,36 @@ describe("formatting values (when change decimal)", () => {
     expect(getCell(model, "A2")!.format).toBe("0.00%");
     expect(getCell(model, "A3")!.format).toBe("m/d/yyyy");
     expect(getCell(model, "C1")!.format).toBe(undefined);
+  });
+
+  test("Check multiple format in selected zone", async () => {
+    let model = new Model();
+    setCellContent(model, "A1", "100%");
+    setCellContent(model, "B1", "$190.12");
+    setCellContent(model, "C1", "$21");
+    setSelection(model, ["A1:C1"]);
+    setDecimal(model, 1);
+    expect(getCellContent(model, "A1")).toEqual("100.0%");
+    expect(getCellContent(model, "B1")).toEqual("$190.120");
+    expect(getCellContent(model, "C1")).toEqual("$21.0");
+  });
+
+  test("Check multiple format in multiple zone", async () => {
+    let model = new Model();
+    setCellContent(model, "A1", "100%");
+    setCellContent(model, "B1", "$190.12");
+    setCellContent(model, "C1", "$21");
+    setCellContent(model, "A3", "100%");
+    setCellContent(model, "B3", "$190.12");
+    setCellContent(model, "C3", "$21");
+    setSelection(model, ["A1:C1", "A3:C3"]);
+    setDecimal(model, 1);
+    expect(getCellContent(model, "A1")).toEqual("100.0%");
+    expect(getCellContent(model, "B1")).toEqual("$190.120");
+    expect(getCellContent(model, "C1")).toEqual("$21.0");
+    expect(getCellContent(model, "A3")).toEqual("100.0%");
+    expect(getCellContent(model, "B3")).toEqual("$190.120");
+    expect(getCellContent(model, "C3")).toEqual("$21.0");
   });
 });
 

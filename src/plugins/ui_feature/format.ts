@@ -1,6 +1,14 @@
 import { DATETIME_FORMAT } from "../../constants";
-import { changeDecimalPlaces, createDefaultFormat } from "../../helpers";
-import { CellValueType, Command, Format, SetDecimalStep, UID, Zone } from "../../types/index";
+import { changeDecimalPlaces, createDefaultFormat, positions, positionToZone } from "../../helpers";
+import {
+  CellPosition,
+  CellValueType,
+  Command,
+  Format,
+  SetDecimalStep,
+  UID,
+  Zone,
+} from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 export class FormatPlugin extends UIPlugin {
@@ -24,22 +32,26 @@ export class FormatPlugin extends UIPlugin {
    * The change of the decimal quantity is done one by one, the sign of the step
    * variable indicates whether we are increasing or decreasing.
    *
-   * If several cells are in the zone, the format resulting from the change of the
-   * first cell (with number type) will be applied to the whole zone.
+   * If several cells are in the zone, each cell's format will be individually
+   * evaluated and updated with the number type.
    */
   private setDecimal(sheetId: UID, zones: Zone[], step: SetDecimalStep) {
-    // Find the first cell with a number value and get the format
-    const numberFormat = this.searchNumberFormat(sheetId, zones);
-    if (numberFormat !== undefined) {
-      // Depending on the step sign, increase or decrease the decimal representation
-      // of the format
-      const newFormat = changeDecimalPlaces(numberFormat, step);
-      // Apply the new format on the whole zone
-      this.dispatch("SET_FORMATTING", {
-        sheetId,
-        target: zones,
-        format: newFormat,
-      });
+    // Find the each cell with a number value and get the format
+    for (const zone of zones) {
+      for (const position of positions(zone)) {
+        const numberFormat = this.getCellNumberFormat({ sheetId, ...position });
+        if (numberFormat !== undefined) {
+          // Depending on the step sign, increase or decrease the decimal representation
+          // of the format
+          const newFormat = changeDecimalPlaces(numberFormat, step);
+          // Apply the new format on the whole zone
+          this.dispatch("SET_FORMATTING", {
+            sheetId,
+            target: [positionToZone(position)],
+            format: newFormat,
+          });
+        }
+      }
     }
   }
 
@@ -48,18 +60,14 @@ export class FormatPlugin extends UIPlugin {
    * number value. Returns a default format if the cell hasn't format. Returns
    * undefined if no number value in the range.
    */
-  private searchNumberFormat(sheetId: UID, zones: Zone[]): Format | undefined {
-    for (let zone of zones) {
-      for (let row = zone.top; row <= zone.bottom; row++) {
-        for (let col = zone.left; col <= zone.right; col++) {
-          const cell = this.getters.getEvaluatedCell({ sheetId, col, row });
-          if (
-            cell.type === CellValueType.number &&
-            !cell.format?.match(DATETIME_FORMAT) // reject dates
-          ) {
-            return cell.format || createDefaultFormat(cell.value);
-          }
-        }
+  private getCellNumberFormat(position: CellPosition): Format | undefined {
+    for (const pos of [position]) {
+      const cell = this.getters.getEvaluatedCell(pos);
+      if (
+        cell.type === CellValueType.number &&
+        !cell.format?.match(DATETIME_FORMAT) // reject dates
+      ) {
+        return cell.format || createDefaultFormat(cell.value);
       }
     }
     return undefined;
