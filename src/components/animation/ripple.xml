@@ -4,7 +4,7 @@
       class="o-ripple-container position-relative"
       t-att-class="props.class"
       t-on-click="onClick">
-      <div class="position-absolute" t-att-style="getStyle()">
+      <div class="position-absolute w-100 h-100">
         <t t-foreach="state.ripples" t-as="ripple" t-key="ripple.id">
           <RippleEffect t-props="getRippleEffectProps(ripple.id)"/>
         </t>
@@ -17,14 +17,10 @@
 
   <t t-name="o-spreadsheet-RippleEffect" owl="1">
     <div
-      class="position-absolute h-100 w-100"
-      t-att-class="{ 'overflow-hidden': !props.allowOverflow }">
-      <div
-        class="o-ripple position-relative pe-none"
-        t-ref="ripple"
-        t-att-style="rippleStyle"
-        t-on-animationend="onAnimationEnd"
-      />
+      class="position-absolute"
+      t-att-class="{ 'overflow-hidden': !props.allowOverflow }"
+      t-att-style="props.style">
+      <div class="o-ripple position-relative pe-none" t-ref="ripple" t-att-style="rippleStyle"/>
     </div>
   </t>
 </templates>
