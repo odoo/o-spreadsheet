@@ -46,7 +46,39 @@ import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 const functionMap = functionRegistry.mapping;
 
 type CompilationParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
+type CoordinateDict<T> = { [col: HeaderIndex]: { [row: HeaderIndex]: T } };
+type PositionDict<T> = { [sheetID: UID]: CoordinateDict<T> };
 
+// function setObjectAtCellsPosition<T>(
+//   dict: PositionDict<T>,
+//   { sheetId, col, row }: CellPosition,
+//   type: T
+// ) {
+//   if (!dict[sheetId]) {
+//     dict[sheetId] = {};
+//   }
+//   if (!dict[sheetId]![col]) {
+//     dict[sheetId]![col] = {};
+//   }
+//   dict[sheetId]![col]![row] = type;
+// }
+
+function pushObjectAtPosition<T>(
+  dict: PositionDict<Set<T>>,
+  { sheetId, col, row }: CellPosition,
+  type: T
+) {
+  if (!dict[sheetId]) {
+    dict[sheetId] = {};
+  }
+  if (!dict[sheetId]![col]) {
+    dict[sheetId]![col] = {};
+  }
+  if (!dict[sheetId][col][row]) {
+    dict[sheetId][col][row] = new Set<T>();
+  }
+  dict[sheetId]![col]![row]!.add(type);
+}
 export class EvaluationPlugin extends UIPlugin {
   static getters = [
     "evaluateFormula",
@@ -59,13 +91,7 @@ export class EvaluationPlugin extends UIPlugin {
   ] as const;
 
   private isUpToDate = false;
-  private evaluatedCells: {
-    [sheetId: UID]:
-      | {
-          [col: HeaderIndex]: { [row: HeaderIndex]: EvaluatedCell | undefined } | undefined;
-        }
-      | undefined;
-  } = {};
+  private evaluatedCells: PositionDict<EvaluatedCell> = {};
   private readonly evalContext: EvalContext;
 
   constructor(config: UIPluginConfig) {
@@ -204,11 +230,27 @@ export class EvaluationPlugin extends UIPlugin {
   }
 
   private evaluate() {
+    const tricycle: PositionDict<Set<UID>> = {};
     this.evaluatedCells = {};
     const cellsBeingComputed = new Set<UID>();
-    const computeCell = ({ col, row, sheetId }: CellPosition): EvaluatedCell => {
+
+    const updateTricycle = (formulaCell: FormulaCell) => {
+      for (const range of formulaCell.dependencies) {
+        const sheetId = range.sheetId;
+        for (let col = range.zone.left; col <= range.zone.right; ++col) {
+          for (let row = range.zone.top; row <= range.zone.bottom; ++row) {
+            pushObjectAtPosition(tricycle, { sheetId, col, row }, formulaCell.id);
+          }
+        }
+      }
+    };
+
+    const computeCell = (
+      { col, row, sheetId }: CellPosition,
+      force: boolean = false
+    ): EvaluatedCell => {
       let evaluation = this.evaluatedCells[sheetId]?.[col]?.[row];
-      if (evaluation) {
+      if (!force && evaluation) {
         return evaluation;
       }
       const cell = this.getters.getCell({ sheetId, col, row });
@@ -218,6 +260,7 @@ export class EvaluationPlugin extends UIPlugin {
       try {
         switch (cell.isFormula) {
           case true:
+            updateTricycle(cell);
             evaluation = computeFormulaCell(cell);
             break;
           case false:
@@ -261,7 +304,6 @@ export class EvaluationPlugin extends UIPlugin {
         cellData.dependencies,
         ...compilationParameters
       );
-      cellsBeingComputed.delete(cellId);
 
       if (isMatrix(computedCell.value)) {
         const { col, row, sheetId } = this.getters.getCellPosition(cellId);
@@ -282,6 +324,8 @@ export class EvaluationPlugin extends UIPlugin {
             }
           }
         }
+        let toUpdate = new Set<UID>();
+
         for (let i = 0; i < computedCell.value.length; ++i) {
           for (let j = 0; j < computedCell.value[i].length; ++j) {
             const evaluatedCell = createEvaluatedCell(
@@ -289,13 +333,23 @@ export class EvaluationPlugin extends UIPlugin {
               cellData.format || computedCell.format
             );
             this.setEvaluatedCell({ col: i + col, row: j + row, sheetId }, evaluatedCell);
+            toUpdate = new Set([...toUpdate, ...(tricycle[sheetId]?.[i + col]?.[j + row] || [])]);
           }
         }
+
+        for (const cellId of toUpdate) {
+          const position = this.getters.getCellPosition(cellId);
+          computeCell(position, true);
+        }
+
+        cellsBeingComputed.delete(cellId);
+
         return createEvaluatedCell(
           computedCell.value[0][0],
           cellData.format || computedCell.format
         );
       }
+      cellsBeingComputed.delete(cellId);
       return createEvaluatedCell(computedCell.value, cellData.format || computedCell.format);
     };
 

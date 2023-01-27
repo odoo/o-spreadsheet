@@ -3,6 +3,7 @@ import {
   AddFunctionDescription,
   Arg,
   ArgValue,
+  isMatrix,
   MatrixArgValue,
   PrimitiveArg,
   PrimitiveArgValue,
@@ -1279,6 +1280,71 @@ export const TRUNC: AddFunctionDescription = {
       _places = Math.trunc(_places);
     }
     return Math.trunc(_value * Math.pow(10, _places)) / Math.pow(10, _places);
+  },
+  isExported: true,
+};
+
+export const MUNIT: AddFunctionDescription = {
+  description: _lt("Return an n*n identity matrix."),
+  args: args(`
+    n (number) ${_lt("size of the unit matrix")}
+  `),
+  returns: ["RANGE<NUMBER>"],
+  compute: function (n: PrimitiveArgValue): number[][] {
+    return Array.from({ length: toNumber(n) }, (_, i) =>
+      Array.from({ length: toNumber(n) }, (_, j) => (i == j ? 1 : 0))
+    );
+  },
+  isExported: true,
+};
+
+export const MFILL: AddFunctionDescription = {
+  description: _lt("Return an n*n matrix filled with n."),
+  args: args(`
+    n (number) ${_lt("number of column of the matrix")}
+    m (number) ${_lt("number of row of the matrix")}
+    v (number) ${_lt("value to fill matrix")}
+  `),
+  returns: ["RANGE<NUMBER>"],
+  compute: function (n: PrimitiveArgValue, m: PrimitiveArgValue, v: PrimitiveArgValue): any[][] {
+    return Array.from({ length: toNumber(n) }, (_, i) =>
+      Array.from({ length: toNumber(m) }, (_, j) => v)
+    );
+  },
+  isExported: true,
+};
+
+export const RANDARRAY: AddFunctionDescription = {
+  description: _lt("Return an n*n identity matrix."),
+  args: args(`
+    n (number, default=1) ${_lt("size of the unit matrix")}
+    m (number, default=1) ${_lt("size of the unit matrix")}
+  `),
+  returns: ["RANGE<NUMBER>"],
+  compute: function (n: PrimitiveArgValue = 1, m: PrimitiveArgValue = 1): number[][] {
+    return Array.from({ length: toNumber(n) }, (_, i) =>
+      Array.from({ length: toNumber(m) }, (_, j) => Math.random())
+    );
+  },
+  isExported: true,
+};
+
+export const TRANSPOSE: AddFunctionDescription = {
+  description: _lt("Transpose a matrix."),
+  args: args(`
+      matrix (range<number>) ${_lt("The matrix to be transposed.")}
+    `),
+  returns: ["NUMBER"],
+  computeFormat: (value1: Arg) => {
+    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+  },
+  compute: function (values: PrimitiveArgValue): any[][] {
+    if (isMatrix(values)) {
+      return Array.from({ length: values[0].length }, (_, i) =>
+        Array.from({ length: values.length }, (_, j) => values[j][i])
+      );
+    }
+    return [[values]];
   },
   isExported: true,
 };
