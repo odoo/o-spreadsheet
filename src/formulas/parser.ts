@@ -1,8 +1,7 @@
 import { DEFAULT_ERROR_MESSAGE } from "../constants";
 import { parseNumber, removeStringQuotes } from "../helpers/index";
 import { _lt } from "../translation";
-import { BadExpressionError, InvalidReferenceError } from "../types/errors";
-import { UnknownFunctionError } from "./../types/errors";
+import { BadExpressionError, InvalidReferenceError, UnknownFunctionError } from "../types/errors";
 import { Token, tokenize } from "./tokenizer";
 
 const functionRegex = /[a-zA-Z0-9\_]+(\.[a-zA-Z0-9\_]+)*/;
@@ -90,27 +89,18 @@ const OP_PRIORITY = {
   "=": 10,
 };
 
-const FUNCTION_BP = 6;
-
-function bindingPower(token: Token): number {
-  switch (token.type) {
-    case "NUMBER":
-    case "SYMBOL":
-    case "REFERENCE":
-      return 0;
-    case "COMMA":
-      return 3;
-    case "LEFT_PAREN":
-      return 5;
-    case "RIGHT_PAREN":
-      return 5;
-    case "OPERATOR":
-      return OP_PRIORITY[token.value] || 15;
+/**
+ * Parse the next operand in an arithmetic expression.
+ * e.g.
+ *  for 1+2*3, the next operand is 1
+ *  for (1+2)*3, the next operand is (1+2)
+ *  for SUM(1,2)+3, the next operand is SUM(1,2)
+ */
+function parseOperand(tokens: Token[]): AST {
+  const current = tokens.shift();
+  if (!current) {
+    throw new BadExpressionError(DEFAULT_ERROR_MESSAGE);
   }
-  throw new BadExpressionError(_lt("Unknown token: %s", token.value));
-}
-
-function parsePrefix(current: Token, tokens: Token[]): AST {
   switch (current.type) {
     case "DEBUGGER":
       const next = parseExpression(tokens, 1000);
@@ -121,35 +111,8 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
     case "STRING":
       return { type: "STRING", value: removeStringQuotes(current.value) };
     case "FUNCTION":
-      if (tokens.shift()!.type !== "LEFT_PAREN") {
-        throw new BadExpressionError(_lt("Wrong function call"));
-      } else {
-        const args: AST[] = [];
-        if (tokens[0] && tokens[0].type !== "RIGHT_PAREN") {
-          if (tokens[0].type === "COMMA") {
-            args.push({ type: "UNKNOWN", value: "" });
-          } else {
-            args.push(parseExpression(tokens, FUNCTION_BP));
-          }
-          while (tokens[0]?.type === "COMMA") {
-            tokens.shift();
-            const token = tokens[0] as Token | undefined;
-            if (token?.type === "RIGHT_PAREN") {
-              args.push({ type: "UNKNOWN", value: "" });
-              break;
-            } else if (token?.type === "COMMA") {
-              args.push({ type: "UNKNOWN", value: "" });
-            } else {
-              args.push(parseExpression(tokens, FUNCTION_BP));
-            }
-          }
-        }
-        const closingToken = tokens.shift();
-        if (!closingToken || closingToken.type !== "RIGHT_PAREN") {
-          throw new BadExpressionError(_lt("Wrong function call"));
-        }
-        return { type: "FUNCALL", value: current.value, args };
-      }
+      const args = parseFunctionArgs(tokens);
+      return { type: "FUNCALL", value: current.value, args };
     case "INVALID_REFERENCE":
       throw new InvalidReferenceError();
     case "REFERENCE":
@@ -168,67 +131,93 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
     case "SYMBOL":
       if (["TRUE", "FALSE"].includes(current.value.toUpperCase())) {
         return { type: "BOOLEAN", value: current.value.toUpperCase() === "TRUE" } as AST;
-      } else {
-        if (current.value) {
-          if (functionRegex.test(current.value) && tokens[0]?.type === "LEFT_PAREN") {
-            throw new UnknownFunctionError(current.value);
-          }
-          throw new BadExpressionError(_lt("Invalid formula"));
+      }
+      if (current.value) {
+        if (functionRegex.test(current.value) && tokens[0]?.type === "LEFT_PAREN") {
+          throw new UnknownFunctionError(current.value);
         }
-        return { type: "STRING", value: current.value };
       }
+      throw new BadExpressionError(_lt("Invalid formula"));
+
     case "LEFT_PAREN":
-      const result = parseExpression(tokens, 5);
-      if (!tokens.length || tokens[0].type !== "RIGHT_PAREN") {
-        throw new BadExpressionError(_lt("Unmatched left parenthesis"));
-      }
-      tokens.shift();
+      const result = parseExpression(tokens);
+      consumeOrThrow(tokens, "RIGHT_PAREN", _lt("Unmatched left parenthesis"));
       return result;
-    default:
-      if (current.type === "OPERATOR" && UNARY_OPERATORS_PREFIX.includes(current.value)) {
+    case "OPERATOR":
+      const operator = current.value;
+      if (UNARY_OPERATORS_PREFIX.includes(operator)) {
         return {
           type: "UNARY_OPERATION",
-          value: current.value,
-          operand: parseExpression(tokens, OP_PRIORITY[current.value]),
+          value: operator,
+          operand: parseExpression(tokens, OP_PRIORITY[operator]),
         };
       }
+      throw new BadExpressionError(_lt("Unexpected token: %s", current.value));
+    default:
       throw new BadExpressionError(_lt("Unexpected token: %s", current.value));
   }
 }
 
-function parseInfix(left: AST, current: Token, tokens: Token[]): AST {
-  if (current.type === "OPERATOR") {
-    const bp = bindingPower(current);
-    if (UNARY_OPERATORS_POSTFIX.includes(current.value)) {
-      return {
+function parseFunctionArgs(tokens: Token[]): AST[] {
+  consumeOrThrow(tokens, "LEFT_PAREN", _lt("Wrong function call"));
+  const nextToken = tokens[0];
+  if (nextToken?.type === "RIGHT_PAREN") {
+    consumeOrThrow(tokens, "RIGHT_PAREN");
+    return [];
+  }
+  const args: AST[] = [];
+  args.push(parseOneFunctionArg(tokens));
+  while (tokens[0]?.type !== "RIGHT_PAREN") {
+    consumeOrThrow(tokens, "COMMA", _lt("Wrong function call"));
+    args.push(parseOneFunctionArg(tokens));
+  }
+  consumeOrThrow(tokens, "RIGHT_PAREN", _lt("Wrong function call"));
+  return args;
+}
+
+function parseOneFunctionArg(tokens: Token[]): AST {
+  const nextToken = tokens[0];
+  if (nextToken?.type === "COMMA" || nextToken?.type === "RIGHT_PAREN") {
+    // arg is empty: "sum(1,,2)" "sum(,1)" "sum(1,)"
+    return { type: "UNKNOWN", value: "" };
+  }
+  return parseExpression(tokens);
+}
+
+function consumeOrThrow(tokens, type, message = DEFAULT_ERROR_MESSAGE) {
+  const token = tokens.shift();
+  if (!token || token.type !== type) {
+    throw new BadExpressionError(message);
+  }
+}
+
+function parseExpression(tokens: Token[], parent_priority: number = 0): AST {
+  if (tokens.length === 0) {
+    throw new BadExpressionError(DEFAULT_ERROR_MESSAGE);
+  }
+  let left = parseOperand(tokens);
+  // as long as we have operators with higher priority than the parent one,
+  // continue parsing the expression because it is a child sub-expression
+  while (tokens[0]?.type === "OPERATOR" && OP_PRIORITY[tokens[0].value] > parent_priority) {
+    const operator = tokens.shift()!.value;
+    if (UNARY_OPERATORS_POSTFIX.includes(operator)) {
+      left = {
         type: "UNARY_OPERATION",
-        value: current.value,
+        value: operator,
         operand: left,
         postfix: true,
       };
     } else {
-      const right = parseExpression(tokens, bp);
-      return {
+      const right = parseExpression(tokens, OP_PRIORITY[operator]);
+      left = {
         type: "BIN_OPERATION",
-        value: current.value,
+        value: operator,
         left,
         right,
       };
     }
   }
-  throw new BadExpressionError(DEFAULT_ERROR_MESSAGE);
-}
-
-function parseExpression(tokens: Token[], bp: number): AST {
-  const token = tokens.shift();
-  if (!token) {
-    throw new BadExpressionError(DEFAULT_ERROR_MESSAGE);
-  }
-  let expr = parsePrefix(token, tokens);
-  while (tokens[0] && bindingPower(tokens[0]) > bp) {
-    expr = parseInfix(expr, tokens.shift()!, tokens);
-  }
-  return expr;
+  return left;
 }
 
 /**
@@ -240,10 +229,10 @@ export function parse(str: string): AST {
 
 export function parseTokens(tokens: Token[]): AST {
   tokens = tokens.filter((x) => x.type !== "SPACE");
-  if (tokens[0].type === "OPERATOR" && tokens[0].value === "=") {
+  if (tokens[0].value === "=") {
     tokens.splice(0, 1);
   }
-  const result = parseExpression(tokens, 0);
+  const result = parseExpression(tokens);
   if (tokens.length) {
     throw new BadExpressionError(DEFAULT_ERROR_MESSAGE);
   }

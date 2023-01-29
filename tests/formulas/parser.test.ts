@@ -40,7 +40,7 @@ describe("parser", () => {
   });
 
   test("function without argument nor a closing parenthesis", () => {
-    expect(() => parse(`SUM(`)).toThrow("Wrong function call");
+    expect(() => parse(`SUM(`)).toThrow("Invalid expression");
   });
 
   test("function with empty first argument nor a closing parenthesis", () => {
