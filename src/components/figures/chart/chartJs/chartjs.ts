@@ -70,6 +70,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     } else {
       this.chart!.data.datasets = undefined;
     }
+    this.chart!.config.options!.tooltips = chartData.options?.tooltips;
     this.chart!.config.options!.legend = chartData.options?.legend;
     this.chart!.config.options!.scales = chartData.options?.scales;
     this.chart!.update({ duration: 0 });

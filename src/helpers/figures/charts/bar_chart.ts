@@ -6,6 +6,7 @@ import {
   Color,
   CommandResult,
   CoreGetters,
+  Format,
   Getters,
   Range,
   RemoveColumnsRowsCommand,
@@ -21,6 +22,7 @@ import {
 import { LegendPosition, VerticalAxisPosition } from "../../../types/chart/common_chart";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
+import { formatValue } from "../../format";
 import { createRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
@@ -38,6 +40,7 @@ import {
 import {
   aggregateDataForLabels,
   filterEmptyDataPoints,
+  getChartDatasetFormat,
   getChartDatasetValues,
   getChartLabelValues,
   getDefaultChartJsRuntime,
@@ -183,9 +186,18 @@ export class BarChart extends AbstractChart {
   }
 }
 
-function getBarConfiguration(chart: BarChart, labels: string[]): ChartConfiguration {
+function getBarConfiguration(
+  chart: BarChart,
+  labels: string[],
+  dataSetFormat: Format | undefined
+): ChartConfiguration {
   const fontColor = chartFontColor(chart.background);
-  const config: ChartConfiguration = getDefaultChartJsRuntime(chart, labels, fontColor);
+  const config: ChartConfiguration = getDefaultChartJsRuntime(
+    chart,
+    labels,
+    fontColor,
+    dataSetFormat
+  );
   const legend: ChartLegendOptions = {
     labels: { fontColor },
   };
@@ -219,6 +231,11 @@ function getBarConfiguration(chart: BarChart, labels: string[]): ChartConfigurat
           fontColor,
           // y axis configuration
           beginAtZero: true, // the origin of the y axis is always zero
+          callback: (value) => {
+            return dataSetFormat
+              ? formatValue(value, dataSetFormat)
+              : value?.toLocaleString() || value;
+          },
         },
       },
     ],
@@ -240,7 +257,8 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
     ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
   }
 
-  const config = getBarConfiguration(chart, labels);
+  const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
+  const config = getBarConfiguration(chart, labels, dataSetFormat);
   const colors = new ChartColors();
 
   for (let { label, data } of dataSetsValues) {

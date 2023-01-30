@@ -93,6 +93,7 @@ Object {
             "position": "left",
             "ticks": Object {
               "beginAtZero": true,
+              "callback": [Function],
               "fontColor": "#FFFFFF",
             },
           },
@@ -104,6 +105,12 @@ Object {
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
+      },
+      "tooltips": Object {
+        "callbacks": Object {
+          "label": [Function],
+          "title": [Function],
+        },
       },
     },
     "type": "line",
@@ -211,6 +218,7 @@ Object {
             "position": "left",
             "ticks": Object {
               "beginAtZero": true,
+              "callback": [Function],
               "fontColor": "#000000",
             },
           },
@@ -222,6 +230,11 @@ Object {
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
+      },
+      "tooltips": Object {
+        "callbacks": Object {
+          "label": [Function],
+        },
       },
     },
     "type": "line",
@@ -322,6 +335,7 @@ Object {
             "position": "left",
             "ticks": Object {
               "beginAtZero": true,
+              "callback": [Function],
               "fontColor": "#000000",
             },
           },
@@ -333,6 +347,12 @@ Object {
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
+      },
+      "tooltips": Object {
+        "callbacks": Object {
+          "label": [Function],
+          "title": [Function],
+        },
       },
     },
     "type": "line",
@@ -411,6 +431,7 @@ Object {
             "stacked": true,
             "ticks": Object {
               "beginAtZero": true,
+              "callback": [Function],
               "fontColor": "#000000",
             },
           },
@@ -422,6 +443,11 @@ Object {
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
+      },
+      "tooltips": Object {
+        "callbacks": Object {
+          "label": [Function],
+        },
       },
     },
     "type": "bar",
@@ -502,6 +528,7 @@ Object {
             "position": "left",
             "ticks": Object {
               "beginAtZero": true,
+              "callback": [Function],
               "fontColor": "#000000",
             },
           },
@@ -513,6 +540,11 @@ Object {
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
+      },
+      "tooltips": Object {
+        "callbacks": Object {
+          "label": [Function],
+        },
       },
     },
     "type": "line",
@@ -610,6 +642,7 @@ Object {
             "position": "left",
             "ticks": Object {
               "beginAtZero": true,
+              "callback": [Function],
               "fontColor": "#000000",
             },
           },
@@ -621,6 +654,11 @@ Object {
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
+      },
+      "tooltips": Object {
+        "callbacks": Object {
+          "label": [Function],
+        },
       },
     },
     "type": "line",
@@ -718,6 +756,7 @@ Object {
             "position": "left",
             "ticks": Object {
               "beginAtZero": true,
+              "callback": [Function],
               "fontColor": "#000000",
             },
           },
@@ -729,6 +768,11 @@ Object {
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
+      },
+      "tooltips": Object {
+        "callbacks": Object {
+          "label": [Function],
+        },
       },
     },
     "type": "line",
@@ -799,6 +843,7 @@ Object {
             "position": "left",
             "ticks": Object {
               "beginAtZero": true,
+              "callback": [Function],
               "fontColor": "#000000",
             },
           },
@@ -810,6 +855,11 @@ Object {
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
+      },
+      "tooltips": Object {
+        "callbacks": Object {
+          "label": [Function],
+        },
       },
     },
     "type": "line",
@@ -907,6 +957,7 @@ Object {
             "position": "left",
             "ticks": Object {
               "beginAtZero": true,
+              "callback": [Function],
               "fontColor": "#000000",
             },
           },
@@ -918,6 +969,11 @@ Object {
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
+      },
+      "tooltips": Object {
+        "callbacks": Object {
+          "label": [Function],
+        },
       },
     },
     "type": "line",
@@ -1015,6 +1071,7 @@ Object {
             "position": "left",
             "ticks": Object {
               "beginAtZero": true,
+              "callback": [Function],
               "fontColor": "#000000",
             },
           },
@@ -1026,6 +1083,11 @@ Object {
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
+      },
+      "tooltips": Object {
+        "callbacks": Object {
+          "label": [Function],
+        },
       },
     },
     "type": "line",
@@ -1123,6 +1185,7 @@ Object {
             "position": "left",
             "ticks": Object {
               "beginAtZero": true,
+              "callback": [Function],
               "fontColor": "#000000",
             },
           },
@@ -1134,6 +1197,11 @@ Object {
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
+      },
+      "tooltips": Object {
+        "callbacks": Object {
+          "label": [Function],
+        },
       },
     },
     "type": "line",

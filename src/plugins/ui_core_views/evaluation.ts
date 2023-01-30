@@ -53,6 +53,7 @@ export class EvaluationPlugin extends UIPlugin {
     "evaluateFormula",
     "getRangeFormattedValues",
     "getRangeValues",
+    "getRangeFormats",
     "getEvaluatedCell",
     "getEvaluatedCells",
     "getColEvaluatedCells",
@@ -138,6 +139,15 @@ export class EvaluationPlugin extends UIPlugin {
     const sheet = this.getters.tryGetSheet(range.sheetId);
     if (sheet === undefined) return [];
     return this.getters.getEvaluatedCellsInZone(sheet.id, range.zone).map((cell) => cell.value);
+  }
+
+  /**
+   * Return the format of each cell in the range.
+   */
+  getRangeFormats(range: Range): (Format | undefined)[] {
+    const sheet = this.getters.tryGetSheet(range.sheetId);
+    if (sheet === undefined) return [];
+    return this.getters.getEvaluatedCellsInZone(sheet.id, range.zone).map((cell) => cell.format);
   }
 
   getEvaluatedCell({ sheetId, col, row }: CellPosition): EvaluatedCell {

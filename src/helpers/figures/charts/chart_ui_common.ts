@@ -4,6 +4,7 @@ import { MAX_CHAR_LABEL } from "../../../constants";
 import { _t } from "../../../translation";
 import { Color, Format, Getters, Range } from "../../../types";
 import { DataSet, DatasetValues, LabelValues } from "../../../types/chart/chart";
+import { formatValue, isDateTimeFormat } from "../../format";
 import { range } from "../../misc";
 import { recomputeZones, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
@@ -96,7 +97,8 @@ export function truncateLabel(label: string | undefined): string {
 export function getDefaultChartJsRuntime(
   chart: AbstractChart,
   labels: string[],
-  fontColor: Color
+  fontColor: Color,
+  dataSetsFormat?: Format | undefined
 ): ChartConfiguration {
   return {
     type: chart.type,
@@ -134,6 +136,24 @@ export function getDefaultChartJsRuntime(
         // If we want to re-enable this in the future, we need to override the default onClick to stop the event propagation
         onClick: undefined,
       },
+      tooltips: {
+        callbacks: {
+          label: function (tooltipItem: Chart.ChartTooltipItem, data: Chart.ChartData) {
+            let xLabel = data.datasets?.[tooltipItem.datasetIndex || 0]?.label;
+
+            const yLabel =
+              tooltipItem.yLabel !== ""
+                ? tooltipItem.yLabel
+                : data.datasets?.[tooltipItem.datasetIndex || 0]?.data?.[tooltipItem.index || 0];
+            const yLabelStr =
+              dataSetsFormat && typeof yLabel === "number"
+                ? formatValue(yLabel, dataSetsFormat)
+                : yLabel?.toLocaleString() || "";
+
+            return xLabel ? `${xLabel}: ${yLabelStr}` : yLabelStr;
+          },
+        },
+      },
     },
     data: {
       labels: labels.map(truncateLabel),
@@ -142,7 +162,10 @@ export function getDefaultChartJsRuntime(
   };
 }
 
-export function getLabelFormat(getters: Getters, range: Range | undefined): Format | undefined {
+export function getChartLabelFormat(
+  getters: Getters,
+  range: Range | undefined
+): Format | undefined {
   if (!range) return undefined;
   return getters.getEvaluatedCell({
     sheetId: range.sheetId,
@@ -179,6 +202,19 @@ export function getChartLabelValues(
     }
   }
   return labels;
+}
+
+/**
+ * Get the format to apply to the the dataset values. This format is defined as the first format
+ * found in the dataset ranges that isn't a date format.
+ */
+export function getChartDatasetFormat(getters: Getters, dataSets: DataSet[]): Format | undefined {
+  for (const ds of dataSets) {
+    const formatsInDataset = getters.getRangeFormats(ds.dataRange);
+    const format = formatsInDataset.find((f) => f !== undefined && !isDateTimeFormat(f));
+    if (format) return format;
+  }
+  return undefined;
 }
 
 export function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetValues[] {
