@@ -1,5 +1,5 @@
 import { App, Component, xml } from "@odoo/owl";
-import { Model } from "../../src";
+import { Model, Spreadsheet } from "../../src";
 import { ChartJsComponent } from "../../src/components/figures/chart/chartJs/chartjs";
 import { ScorecardChart } from "../../src/components/figures/chart/scorecard/chart_scorecard";
 import { MENU_WIDTH, MIN_FIG_SIZE } from "../../src/constants";
@@ -32,6 +32,7 @@ import { TEST_CHART_DATA } from "./../test_helpers/constants";
 let fixture: HTMLElement;
 let model: Model;
 let app: App;
+let parent: Spreadsheet;
 
 function createFigure(
   model: Model,
@@ -105,7 +106,7 @@ afterAll(() => {
 describe("figures", () => {
   beforeEach(async () => {
     fixture = makeTestFixture();
-    ({ app, model } = await mountSpreadsheet(fixture));
+    ({ app, model, parent } = await mountSpreadsheet(fixture));
   });
 
   afterEach(() => {
@@ -387,6 +388,12 @@ describe("figures", () => {
         await simulateClick(".o-figure");
         await simulateClick(".o-figure-menu-item");
         await simulateClick(".o-menu div[data-name='copy']");
+        const envClipBoardContent = await parent.env.clipboard.readText();
+        if (envClipBoardContent.status === "ok") {
+          expect(envClipBoardContent.content).toEqual(
+            model.getters.getClipboardContent()["text/plain"]
+          );
+        }
         paste(model, "A4");
         expect(getFigureIds(model, sheetId)).toHaveLength(2);
         const figureIds = getFigureIds(model, sheetId);
@@ -399,6 +406,12 @@ describe("figures", () => {
         await simulateClick(".o-figure");
         await simulateClick(".o-figure-menu-item");
         await simulateClick(".o-menu div[data-name='cut']");
+        const envClipBoardContent = await parent.env.clipboard.readText();
+        if (envClipBoardContent.status === "ok") {
+          expect(envClipBoardContent.content).toEqual(
+            model.getters.getClipboardContent()["text/plain"]
+          );
+        }
         paste(model, "A1");
         expect(getFigureIds(model, sheetId)).toHaveLength(1);
         const figureIds = getFigureIds(model, sheetId);

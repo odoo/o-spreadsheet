@@ -18,10 +18,6 @@ export class MockClipboard implements ClipboardInterface {
   async write(content: ClipboardContent) {
     this.content = content[ClipboardMIMEType.PlainText];
   }
-
-  async clear(): Promise<void> {
-    this.content = "";
-  }
 }
 
 export class MockClipboardData {

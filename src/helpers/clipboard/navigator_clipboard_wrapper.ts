@@ -8,7 +8,6 @@ export interface ClipboardInterface {
   write(clipboardContent: ClipboardContent): Promise<void>;
   writeText(text: string): Promise<void>;
   readText(): Promise<ClipboardReadResult>;
-  clear(): Promise<void>;
 }
 
 export function instantiateClipboard(): ClipboardInterface {
@@ -44,12 +43,6 @@ class WebClipboardWrapper implements ClipboardInterface {
       const status = permissionResult?.state === "denied" ? "permissionDenied" : "notImplemented";
       return { status };
     }
-  }
-
-  async clear(): Promise<void> {
-    try {
-      this.clipboard?.write([]);
-    } catch (e) {}
   }
 
   private getClipboardItems(content: ClipboardContent): ClipboardItems {
