@@ -58,9 +58,9 @@ export interface ASTFuncall extends ASTBase {
   args: AST[];
 }
 
-interface ASTUnknown extends ASTBase {
-  type: "UNKNOWN";
-  value: string;
+interface ASTEmpty extends ASTBase {
+  type: "EMPTY";
+  value: "";
 }
 
 export type AST =
@@ -71,7 +71,7 @@ export type AST =
   | ASTBoolean
   | ASTString
   | ASTReference
-  | ASTUnknown;
+  | ASTEmpty;
 
 const OP_PRIORITY = {
   "^": 30,
@@ -179,7 +179,7 @@ function parseOneFunctionArg(tokens: Token[]): AST {
   const nextToken = tokens[0];
   if (nextToken?.type === "COMMA" || nextToken?.type === "RIGHT_PAREN") {
     // arg is empty: "sum(1,,2)" "sum(,1)" "sum(1,)"
-    return { type: "UNKNOWN", value: "" };
+    return { type: "EMPTY", value: "" };
   }
   return parseExpression(tokens);
 }
