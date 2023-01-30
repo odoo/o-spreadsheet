@@ -1328,7 +1328,7 @@ describe("evaluate formulas that return an array", () => {
       expect(getEvaluatedCell(model, "B2").value).toBe("kikou");
     });
 
-    describe.skip("collision tests on several limit positions", () => {
+    describe("collision tests on several limit positions", () => {
       test("limit located on the formula column", () => {
         setCellContent(model, "A1", "=RESULT.ARRAY(3,3)");
         setCellContent(model, "A4", "kikou");
@@ -1467,7 +1467,110 @@ describe("evaluate formulas that return an array", () => {
       expect(getEvaluatedCell(model, "C1").value).toBe("#CYCLE");
     });
 
-    describe.skip("collision tests on several limit positions", () => {
+    describe("throw error regardless the order we set the formula''", () => {
+      test("set A1 -> C1 -> E1", () => {
+        setCellContent(model, "A1", "=MFILL(2,1,F1=42)");
+        setCellContent(model, "C1", "=MFILL(2,1,B1=42)");
+        setCellContent(model, "E1", "=MFILL(2,1,D1=42)");
+        setCellContent(model, "D2", "=D1");
+        expect(getEvaluatedCell(model, "A1").value).toBe("#CYCLE");
+        expect(getEvaluatedCell(model, "B1").value).toBe("");
+        expect(getEvaluatedCell(model, "C1").value).toBe("#CYCLE");
+        expect(getEvaluatedCell(model, "D1").value).toBe("");
+        expect(getEvaluatedCell(model, "E1").value).toBe("#CYCLE");
+        expect(getEvaluatedCell(model, "F1").value).toBe("");
+
+        expect(getEvaluatedCell(model, "D2").value).toBe(0);
+      });
+
+      test("set A1 -> E1 -> C1", () => {
+        setCellContent(model, "A1", "=MFILL(2,1,F1=42)");
+        setCellContent(model, "E1", "=MFILL(2,1,D1=42)");
+        setCellContent(model, "C1", "=MFILL(2,1,B1=42)");
+        setCellContent(model, "D2", "=D1");
+        expect(getEvaluatedCell(model, "A1").value).toBe("#CYCLE");
+        expect(getEvaluatedCell(model, "B1").value).toBe("");
+        expect(getEvaluatedCell(model, "C1").value).toBe("#CYCLE");
+        expect(getEvaluatedCell(model, "D1").value).toBe("");
+        expect(getEvaluatedCell(model, "E1").value).toBe("#CYCLE");
+        expect(getEvaluatedCell(model, "F1").value).toBe("");
+
+        expect(getEvaluatedCell(model, "D2").value).toBe(0);
+      });
+
+      test("set E1 -> A1 -> C1", () => {
+        setCellContent(model, "E1", "=MFILL(2,1,D1=42)");
+        setCellContent(model, "A1", "=MFILL(2,1,F1=42)");
+        setCellContent(model, "C1", "=MFILL(2,1,B1=42)");
+        setCellContent(model, "D2", "=D1");
+        expect(getEvaluatedCell(model, "A1").value).toBe("#CYCLE");
+        expect(getEvaluatedCell(model, "B1").value).toBe("");
+        expect(getEvaluatedCell(model, "C1").value).toBe("#CYCLE");
+        expect(getEvaluatedCell(model, "D1").value).toBe("");
+        expect(getEvaluatedCell(model, "E1").value).toBe("#CYCLE");
+        expect(getEvaluatedCell(model, "F1").value).toBe("");
+
+        expect(getEvaluatedCell(model, "D2").value).toBe(0);
+      });
+
+      test("set E1 -> C1 -> A1", () => {
+        setCellContent(model, "E1", "=MFILL(2,1,D1=42)");
+        setCellContent(model, "C1", "=MFILL(2,1,B1=42)");
+        setCellContent(model, "A1", "=MFILL(2,1,F1=42)");
+        setCellContent(model, "D2", "=D1");
+        expect(getEvaluatedCell(model, "A1").value).toBe("#CYCLE");
+        expect(getEvaluatedCell(model, "B1").value).toBe("");
+        expect(getEvaluatedCell(model, "C1").value).toBe("#CYCLE");
+        expect(getEvaluatedCell(model, "D1").value).toBe("");
+        expect(getEvaluatedCell(model, "E1").value).toBe("#CYCLE");
+        expect(getEvaluatedCell(model, "F1").value).toBe("");
+
+        expect(getEvaluatedCell(model, "D2").value).toBe(0);
+      });
+
+      test("set C1 -> A1 -> E1", () => {
+        setCellContent(model, "C1", "=MFILL(2,1,B1=42)");
+        setCellContent(model, "A1", "=MFILL(2,1,F1=42)");
+        setCellContent(model, "E1", "=MFILL(2,1,D1=42)");
+        setCellContent(model, "D2", "=D1");
+        expect(getEvaluatedCell(model, "A1").value).toBe("#CYCLE");
+        expect(getEvaluatedCell(model, "B1").value).toBe("");
+        expect(getEvaluatedCell(model, "C1").value).toBe("#CYCLE");
+        expect(getEvaluatedCell(model, "D1").value).toBe("");
+        expect(getEvaluatedCell(model, "E1").value).toBe("#CYCLE");
+        expect(getEvaluatedCell(model, "F1").value).toBe("");
+
+        expect(getEvaluatedCell(model, "D2").value).toBe(0);
+      });
+
+      test("set C1 -> E1 -> A1", () => {
+        setCellContent(model, "C1", "=MFILL(2,1,B1=42)");
+        setCellContent(model, "E1", "=MFILL(2,1,D1=42)");
+        setCellContent(model, "A1", "=MFILL(2,1,F1=42)");
+        setCellContent(model, "D2", "=D1");
+        expect(getEvaluatedCell(model, "A1").value).toBe("#CYCLE");
+        expect(getEvaluatedCell(model, "B1").value).toBe("");
+        expect(getEvaluatedCell(model, "C1").value).toBe("#CYCLE");
+        expect(getEvaluatedCell(model, "D1").value).toBe("");
+        expect(getEvaluatedCell(model, "E1").value).toBe("#CYCLE");
+        expect(getEvaluatedCell(model, "F1").value).toBe("");
+
+        expect(getEvaluatedCell(model, "D2").value).toBe(0);
+      });
+    });
+
+    test("rewrite values over unspreadable zone due to cycling", () => {
+      setCellContent(model, "A2", "=MFILL(2,1,B3)");
+      setCellContent(model, "A3", "=MFILL(2,1,B2)");
+      setCellContent(model, "B1", "=MFILL(1,3,42)");
+      expect(getEvaluatedCell(model, "A2").value).toBe("#CYCLE");
+      expect(getEvaluatedCell(model, "A3").value).toBe("#CYCLE");
+      expect(getEvaluatedCell(model, "B1").value).toBe(42);
+      expect(getEvaluatedCell(model, "B2").value).toBe(42);
+      expect(getEvaluatedCell(model, "B3").value).toBe(42);
+    });
+
+    describe("collision tests on several limit positions", () => {
       test("ref located on the formula columns", () => {
         setCellContent(model, "A1", "=RESULT.ARRAY2(A4)");
         expect(getEvaluatedCell(model, "A1").value).toBe("res 1-1");
@@ -1519,6 +1622,11 @@ describe("evaluate formulas that return an array", () => {
         expect(getEvaluatedCell(model, "A1").value).toBe(0);
         expect(getEvaluatedCell(model, "B2").value).toBe("res 1-1");
       });
+    });
+
+    test("write result with no data on own reference throw cycle error", () => {
+      setCellContent(model, "A1", "=TRANSPOSE(B2:C3)");
+      expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe("Circular reference");
     });
   });
 
