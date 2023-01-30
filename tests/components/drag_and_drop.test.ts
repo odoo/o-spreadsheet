@@ -40,6 +40,9 @@ interface Props {
   model: Model;
 }
 
+let selectedCol: number | undefined = undefined;
+let selectedRow: number | undefined = undefined;
+
 class FakeGridComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
 
@@ -52,7 +55,10 @@ class FakeGridComponent extends Component<Props, SpreadsheetChildEnv> {
   onMouseDown(ev: MouseEvent) {
     dragAndDropBeyondTheViewport(
       this.env,
-      () => {},
+      (col, row) => {
+        selectedCol = col;
+        selectedRow = row;
+      },
       () => {}
     );
   }
@@ -68,6 +74,7 @@ afterAll(() => {
 beforeEach(async () => {
   model = new Model();
   app = new App(FakeGridComponent, { props: { model } });
+  selectedCol = selectedRow = undefined;
   fixture = makeTestFixture();
   await app.mount(fixture);
   sheetId = model.getters.getActiveSheetId();
@@ -191,6 +198,25 @@ describe("Drag And Drop horizontal tests", () => {
       right: 17,
     });
   });
+
+  test("Drag&Drop beyond the grid: correct col value is given to the callback", async () => {
+    freezeColumns(model, 4, sheetId);
+    setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+    await nextTick();
+    const { x: offsetCorrectionX } = model.getters.getMainViewportCoordinates();
+    const x = offsetCorrectionX + DEFAULT_CELL_WIDTH;
+    triggerMouseEvent(".o-fake-grid", "mousedown", x, 0);
+    triggerMouseEvent(".o-fake-grid", "mousemove", -50, 0);
+    const advanceTimer = edgeScrollDelay(offsetCorrectionX + 50, 6);
+
+    jest.advanceTimersByTime(advanceTimer);
+    triggerMouseEvent(".o-fake-grid", "mouseup", -50, 0);
+    expect(model.getters.getActiveMainViewport()).toMatchObject({
+      left: 4,
+      right: 10,
+    });
+    expect(selectedCol).toEqual(0);
+  });
 });
 
 describe("Drag And Drop vertical tests", () => {
@@ -277,6 +303,25 @@ describe("Drag And Drop vertical tests", () => {
       top: 9,
       bottom: 48,
     });
+  });
+
+  test("Drag&Drop beyond the grid: correct row value is given to the callback", async () => {
+    freezeRows(model, 4, sheetId);
+    setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+    await nextTick();
+    const { y: offsetCorrectionY } = model.getters.getMainViewportCoordinates();
+    const y = offsetCorrectionY + DEFAULT_CELL_HEIGHT;
+    triggerMouseEvent(".o-fake-grid", "mousedown", 0, y);
+    triggerMouseEvent(".o-fake-grid", "mousemove", 0, -50);
+    const advanceTimer = edgeScrollDelay(offsetCorrectionY + 50, 6);
+
+    jest.advanceTimersByTime(advanceTimer);
+    triggerMouseEvent(".o-fake-grid", "mouseup", 0, -50);
+    expect(model.getters.getActiveMainViewport()).toMatchObject({
+      top: 4,
+      bottom: 43,
+    });
+    expect(selectedRow).toEqual(0);
   });
 });
 
