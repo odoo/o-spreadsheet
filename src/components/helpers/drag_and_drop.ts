@@ -148,6 +148,15 @@ export function dragAndDropBeyondTheViewport(
       }
     }
 
+    if (!canEdgeScroll) {
+      if (rowIndex === -1) {
+        rowIndex = y < 0 ? 0 : getters.getNumberRows(sheetId) - 1;
+      }
+      if (colIndex === -1 && x < 0) {
+        colIndex = x < 0 ? 0 : getters.getNumberCols(sheetId) - 1;
+      }
+    }
+
     cbMouseMove(colIndex, rowIndex, currentEv);
     if (canEdgeScroll) {
       env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
