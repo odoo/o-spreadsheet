@@ -32,7 +32,11 @@ describe("parser", () => {
   });
 
   test("function without a opening parenthesis", () => {
-    expect(() => parse(`SUM 5`)).toThrow("Wrong function call");
+    expect(() => parse(`SUM 5`)).toThrow("Missing opening parenthesis");
+  });
+
+  test("function without closing parenthesis", () => {
+    expect(() => parse(`SUM(5,`)).toThrow("Invalid expression");
   });
 
   test("function without a closing parenthesis", () => {
@@ -139,6 +143,19 @@ describe("parser", () => {
       left: { type: "NUMBER", value: 2 },
       right: { type: "NUMBER", value: 3 },
     });
+  });
+
+  test("can parse expression with parenthesis", () => {
+    expect(parse("(2+3)")).toEqual({
+      type: "BIN_OPERATION",
+      value: "+",
+      left: { type: "NUMBER", value: 2 },
+      right: { type: "NUMBER", value: 3 },
+    });
+  });
+
+  test("binary operation without a closing parenthesis", () => {
+    expect(() => parse("(2+3")).toThrow("Missing closing parenthesis");
   });
 
   test("can parse concat operator", () => {

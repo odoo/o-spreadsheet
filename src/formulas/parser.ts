@@ -141,7 +141,7 @@ function parseOperand(tokens: Token[]): AST {
 
     case "LEFT_PAREN":
       const result = parseExpression(tokens);
-      consumeOrThrow(tokens, "RIGHT_PAREN", _lt("Unmatched left parenthesis"));
+      consumeOrThrow(tokens, "RIGHT_PAREN", _lt("Missing closing parenthesis"));
       return result;
     case "OPERATOR":
       const operator = current.value;
@@ -159,7 +159,7 @@ function parseOperand(tokens: Token[]): AST {
 }
 
 function parseFunctionArgs(tokens: Token[]): AST[] {
-  consumeOrThrow(tokens, "LEFT_PAREN", _lt("Wrong function call"));
+  consumeOrThrow(tokens, "LEFT_PAREN", _lt("Missing opening parenthesis"));
   const nextToken = tokens[0];
   if (nextToken?.type === "RIGHT_PAREN") {
     consumeOrThrow(tokens, "RIGHT_PAREN");
@@ -171,7 +171,7 @@ function parseFunctionArgs(tokens: Token[]): AST[] {
     consumeOrThrow(tokens, "COMMA", _lt("Wrong function call"));
     args.push(parseOneFunctionArg(tokens));
   }
-  consumeOrThrow(tokens, "RIGHT_PAREN", _lt("Wrong function call"));
+  consumeOrThrow(tokens, "RIGHT_PAREN");
   return args;
 }
 
