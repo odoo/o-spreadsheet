@@ -50,7 +50,7 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
       action: async () => {
         this.env.model.dispatch("SELECT_FIGURE", { id: this.props.figure.id });
         this.env.model.dispatch("COPY");
-        await this.env.clipboard.clear();
+        await this.env.clipboard.write(this.env.model.getters.getClipboardContent());
       },
     });
     registry.add("cut", {
@@ -59,7 +59,7 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
       action: async () => {
         this.env.model.dispatch("SELECT_FIGURE", { id: this.props.figure.id });
         this.env.model.dispatch("CUT");
-        await this.env.clipboard.clear();
+        await this.env.clipboard.write(this.env.model.getters.getClipboardContent());
       },
     });
     registry.add("delete", {
