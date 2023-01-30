@@ -12,6 +12,7 @@ import {
   Color,
   CommandResult,
   CoreGetters,
+  Format,
   Getters,
   Range,
   RemoveColumnsRowsCommand,
@@ -45,6 +46,7 @@ import {
 import {
   aggregateDataForLabels,
   filterEmptyDataPoints,
+  getChartDatasetFormat,
   getChartDatasetValues,
   getChartLabelValues,
   getDefaultChartJsRuntime,
@@ -183,9 +185,18 @@ export class PieChart extends AbstractChart {
   }
 }
 
-function getPieConfiguration(chart: PieChart, labels: string[]): ChartConfiguration {
+function getPieConfiguration(
+  chart: PieChart,
+  labels: string[],
+  dataSetFormat: Format | undefined
+): ChartConfiguration {
   const fontColor = chartFontColor(chart.background);
-  const config: ChartConfiguration = getDefaultChartJsRuntime(chart, labels, fontColor);
+  const config: ChartConfiguration = getDefaultChartJsRuntime(
+    chart,
+    labels,
+    fontColor,
+    dataSetFormat
+  );
   const legend: ChartLegendOptions = {
     labels: { fontColor },
   };
@@ -198,12 +209,11 @@ function getPieConfiguration(chart: PieChart, labels: string[]): ChartConfigurat
   config.options!.layout = {
     padding: { left: 20, right: 20, top: chart.title ? 10 : 25, bottom: 10 },
   };
-  config.options!.tooltips = {
-    callbacks: {
-      title: function (tooltipItems: ChartTooltipItem[], data: ChartData) {
-        return data.datasets![tooltipItems[0]!.datasetIndex!].label!;
-      },
-    },
+  config.options!.tooltips!.callbacks!.title = function (
+    tooltipItems: ChartTooltipItem[],
+    data: ChartData
+  ) {
+    return data.datasets![tooltipItems[0]!.datasetIndex!].label!;
   };
   return config;
 }
@@ -228,7 +238,8 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
   if (chart.aggregated) {
     ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
   }
-  const config = getPieConfiguration(chart, labels);
+  const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
+  const config = getPieConfiguration(chart, labels, dataSetFormat);
   const colors = new ChartColors();
   for (let { label, data } of dataSetsValues) {
     const backgroundColor = getPieColors(colors, dataSetsValues);

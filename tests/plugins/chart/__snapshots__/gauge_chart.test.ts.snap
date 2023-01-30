@@ -64,6 +64,11 @@ Object {
         "fontStyle": "normal",
         "text": "Title",
       },
+      "tooltips": Object {
+        "callbacks": Object {
+          "label": [Function],
+        },
+      },
       "valueLabel": Object {
         "backgroundColor": "#000000",
         "borderRadius": 5,
@@ -148,6 +153,11 @@ Object {
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "",
+      },
+      "tooltips": Object {
+        "callbacks": Object {
+          "label": [Function],
+        },
       },
       "valueLabel": Object {
         "backgroundColor": "#000000",

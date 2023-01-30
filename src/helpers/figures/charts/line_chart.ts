@@ -6,6 +6,7 @@ import {
   Color,
   CommandResult,
   CoreGetters,
+  Format,
   Getters,
   Range,
   RemoveColumnsRowsCommand,
@@ -44,11 +45,12 @@ import {
 import {
   aggregateDataForLabels,
   filterEmptyDataPoints,
+  getChartDatasetFormat,
   getChartDatasetValues,
+  getChartLabelFormat,
   getChartLabelValues,
   getDefaultChartJsRuntime,
   getFillingMode,
-  getLabelFormat,
 } from "./chart_ui_common";
 
 export class LineChart extends AbstractChart {
@@ -265,9 +267,18 @@ function canBeLinearChart(labelRange: Range | undefined, getters: Getters): bool
   return true;
 }
 
-function getLineConfiguration(chart: LineChart, labels: string[]): ChartConfiguration {
+function getLineConfiguration(
+  chart: LineChart,
+  labels: string[],
+  dataSetFormat: Format | undefined
+): ChartConfiguration {
   const fontColor = chartFontColor(chart.background);
-  const config: ChartConfiguration = getDefaultChartJsRuntime(chart, labels, fontColor);
+  const config: ChartConfiguration = getDefaultChartJsRuntime(
+    chart,
+    labels,
+    fontColor,
+    dataSetFormat
+  );
   const legend: ChartLegendOptions = {
     labels: {
       fontColor,
@@ -311,6 +322,11 @@ function getLineConfiguration(chart: LineChart, labels: string[]): ChartConfigur
           fontColor,
           // y axis configuration
           beginAtZero: true, // the origin of the y axis is always zero
+          callback: (value) => {
+            return dataSetFormat
+              ? formatValue(value, dataSetFormat)
+              : value?.toLocaleString() || value;
+          },
         },
       },
     ],
@@ -335,8 +351,9 @@ export function createLineChartRuntime(chart: LineChart, getters: Getters): Line
     ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
   }
 
-  const config = getLineConfiguration(chart, labels);
-  const labelFormat = getLabelFormat(getters, chart.labelRange)!;
+  const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
+  const config = getLineConfiguration(chart, labels, dataSetFormat);
+  const labelFormat = getChartLabelFormat(getters, chart.labelRange)!;
   if (axisType === "time") {
     config.options!.scales!.xAxes![0].type = "time";
     config.options!.scales!.xAxes![0].time = getChartTimeOptions(labels, labelFormat);
@@ -344,6 +361,9 @@ export function createLineChartRuntime(chart: LineChart, getters: Getters): Line
   } else if (axisType === "linear") {
     config.options!.scales!.xAxes![0].type = "linear";
     config.options!.scales!.xAxes![0].ticks!.callback = (value) => formatValue(value, labelFormat);
+    config.options!.tooltips!.callbacks!.title = (tooltipItem) => {
+      return formatValue(tooltipItem[0]?.xLabel || "", labelFormat);
+    };
   }
 
   const colors = new ChartColors();

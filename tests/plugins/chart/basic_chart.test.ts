@@ -25,6 +25,7 @@ import {
   updateChart,
 } from "../../test_helpers/commands_helpers";
 import { getPlugin, nextTick, target } from "../../test_helpers/helpers";
+import { ChartDefinition } from "./../../../src/types/chart/chart";
 jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
 
 let model: Model;
@@ -1221,7 +1222,7 @@ describe("Chart without labels", () => {
 });
 
 describe("Chart design configuration", () => {
-  const defaultChart: BarChartDefinition = {
+  const defaultChart: ChartDefinition = {
     background: "#FFFFFF",
     dataSets: ["A1:A2"],
     dataSetsHaveTitle: true,
@@ -1229,7 +1230,7 @@ describe("Chart design configuration", () => {
     title: "My chart",
     type: "bar",
     verticalAxisPosition: "left",
-    labelRange: "A1",
+    labelRange: "A3",
     stacked: false,
     aggregated: false,
   };
@@ -1445,6 +1446,92 @@ describe("Chart design configuration", () => {
     setCellFormat(model, "A2", "m/d/yyyy");
     chart = model.getters.getChartRuntime("1") as BarChartRuntime;
     expect(chart.chartJsConfig.data!.labels).toEqual(["3/1/2022", "2022/03/02"]);
+  });
+
+  describe("Format of Y values at Runtime", () => {
+    function getTooltipItem(value: number | string, chartType: string): Chart.ChartTooltipItem {
+      return {
+        xLabel: "",
+        // yLabel is empty for pie charts for whatever reason, we will find the value with the index/datasetIndex
+        yLabel: chartType === "pie" ? "" : value,
+        datasetIndex: 0,
+        index: 0,
+      };
+    }
+
+    test.each(["bar", "line"])(
+      "Bar/Line chart Y axis, cell without format: thousand separator",
+      (chartType) => {
+        createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
+        const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
+        //@ts-ignore
+        expect(runtime.chartJsConfig.options.scales.yAxes![0].ticks.callback!(60000000)).toEqual(
+          (60000000).toLocaleString()
+        );
+      }
+    );
+
+    test.each(["bar", "line"])("Bar/Line chart Y axis, cell with format", (chartType) => {
+      setCellFormat(model, "A2", "[$$]#,##0.00");
+      createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
+      const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
+      //@ts-ignore
+      expect(runtime.chartJsConfig.options.scales.yAxes![0].ticks.callback!(60000000)).toEqual(
+        "$60,000,000.00"
+      );
+    });
+
+    test.each(["bar", "line"])("Bar/Line chart Y axis, date format is ignored", (chartType) => {
+      setCellFormat(model, "A2", "m/d/yyyy");
+      createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
+      const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
+      //@ts-ignore
+      expect(runtime.chartJsConfig.options.scales.yAxes![0].ticks.callback!(600)).toEqual("600");
+    });
+
+    test.each(["bar", "line", "pie"])(
+      "Basic chart tooltip label, cell without format: thousand separator",
+      (chartType) => {
+        setCellContent(model, "A2", "60000000");
+        createChart(model, { ...defaultChart, type: chartType as "bar" | "line" | "pie" }, "42");
+        const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
+        const data = runtime.chartJsConfig.data!;
+        const tooltipItem = getTooltipItem(data.datasets![0].data![0] as number, chartType);
+        expect(
+          runtime.chartJsConfig.options!.tooltips!.callbacks!.label!(tooltipItem, data)
+        ).toEqual((60000000).toLocaleString());
+      }
+    );
+
+    test.each(["bar", "line", "pie"])(
+      "Basic chart tooltip label, cell with format",
+      (chartType) => {
+        setCellContent(model, "A2", "6000");
+        setCellFormat(model, "A2", "[$$]#,##0.00");
+        createChart(model, { ...defaultChart, type: chartType as "bar" | "line" | "pie" }, "42");
+        const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
+        const data = runtime.chartJsConfig.data!;
+        const tooltipItem = getTooltipItem(data.datasets![0].data![0] as number, chartType);
+        expect(
+          runtime.chartJsConfig.options!.tooltips!.callbacks!.label!(tooltipItem, data)
+        ).toEqual("$6,000.00");
+      }
+    );
+
+    test.each(["bar", "line", "pie"])(
+      "Basic chart tooltip label, date format is ignored",
+      (chartType) => {
+        setCellContent(model, "A2", "6000");
+        setCellFormat(model, "A2", "m/d/yyyy");
+        createChart(model, { ...defaultChart, type: chartType as "bar" | "line" | "pie" }, "42");
+        const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
+        const data = runtime.chartJsConfig.data!;
+        const tooltipItem = getTooltipItem(data.datasets![0].data![0] as number, chartType);
+        expect(
+          runtime.chartJsConfig.options!.tooltips!.callbacks!.label!(tooltipItem, data)
+        ).toEqual((6000).toLocaleString());
+      }
+    );
   });
 });
 
