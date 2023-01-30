@@ -62,7 +62,7 @@ export function compile(formula: string): CompiledFormula {
     if (ast.type === "BIN_OPERATION" && ast.value === ":") {
       throw new BadExpressionError(_lt("Invalid formula"));
     }
-    if (ast.type === "UNKNOWN") {
+    if (ast.type === "EMPTY") {
       throw new BadExpressionError(_lt("Invalid formula"));
     }
     const compiledAST = compileAST(ast);
@@ -271,7 +271,7 @@ export function compile(formula: string): CompiledFormula {
             `ctx['${fnName}'](${left.returnExpression}, ${right.returnExpression})`
           );
         }
-        case "UNKNOWN":
+        case "EMPTY":
           return code.return("undefined");
       }
     }
