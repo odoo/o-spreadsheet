@@ -1,4 +1,4 @@
-import { toZone } from "../../src/helpers";
+import { getComposerSheetName, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import {
@@ -1022,5 +1022,20 @@ describe("edition", () => {
 
     expect(model.getters.getEditionMode()).toEqual("inactive");
     expect(getCell(model, "A1")?.content).toEqual('="test"');
+  });
+
+  test.each(["sheet2", "sheet 2"])("Loop references on references with sheet name", (sheetName) => {
+    const model = new Model({});
+    createSheet(model, { name: sheetName });
+    const composerSheetName = getComposerSheetName(sheetName);
+    model.dispatch("START_EDITION", { text: `=${composerSheetName}!A1` });
+    model.dispatch("CYCLE_EDITION_REFERENCES");
+    expect(model.getters.getCurrentContent()).toBe(`=${composerSheetName}!$A$1`);
+    model.dispatch("CYCLE_EDITION_REFERENCES");
+    expect(model.getters.getCurrentContent()).toBe(`=${composerSheetName}!A$1`);
+    model.dispatch("CYCLE_EDITION_REFERENCES");
+    expect(model.getters.getCurrentContent()).toBe(`=${composerSheetName}!$A1`);
+    model.dispatch("CYCLE_EDITION_REFERENCES");
+    expect(model.getters.getCurrentContent()).toBe(`=${composerSheetName}!A1`);
   });
 });

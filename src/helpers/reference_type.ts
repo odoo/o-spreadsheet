@@ -1,5 +1,6 @@
 // Helper file for the reference types in Xcs (the $ symbol, eg. A$1)
 import { Token } from "../formulas";
+import { getComposerSheetName } from "./misc";
 import { splitReference } from "./references";
 
 type FixedReferenceType = "col" | "row" | "colrow" | "none";
@@ -16,7 +17,7 @@ export function loopThroughReferenceType(token: Readonly<Token>): Token {
   const { xc, sheetName } = splitReference(token.value);
   const [left, right] = xc.split(":") as [string, string | undefined];
 
-  const sheetRef = sheetName ? `${sheetName}!` : "";
+  const sheetRef = sheetName ? `${getComposerSheetName(sheetName)}!` : "";
   const updatedLeft = getTokenNextReferenceType(left);
   const updatedRight = right ? `:${getTokenNextReferenceType(right)}` : "";
   return { ...token, value: sheetRef + updatedLeft + updatedRight };
