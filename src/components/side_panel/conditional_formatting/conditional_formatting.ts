@@ -17,7 +17,7 @@ import {
   UpDown,
   Zone,
 } from "../../../types";
-import { ColorPicker } from "../../color_picker/color_picker";
+import { ColorPickerWidget } from "../../color_picker/color_picker_widget";
 import { getTextDecoration } from "../../helpers";
 import { css, cssPropertiesToCss } from "../../helpers/css";
 import { ICONS, ICON_SETS } from "../../icons/icons";
@@ -190,14 +190,17 @@ css/* scss */ `
       margin-bottom: 5px;
       width: 96%;
     }
-    .o-color-picker {
+    .o-color-picker-widget .o-color-picker-button {
       pointer-events: all;
+      cursor: default;
     }
   }
   .o-cf-color-scale-editor {
     .o-threshold {
       display: flex;
-      flex-direction: horizontal;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
       select {
         width: 100%;
       }
@@ -330,7 +333,7 @@ interface State {
 
 export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ConditionalFormattingPanel";
-  static components = { SelectionInput, IconPicker, ColorPicker };
+  static components = { SelectionInput, IconPicker, ColorPickerWidget };
 
   icons = ICONS;
   cellIsOperators = CellIsOperators;

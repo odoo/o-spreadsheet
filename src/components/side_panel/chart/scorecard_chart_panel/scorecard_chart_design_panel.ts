@@ -1,7 +1,7 @@
-import { Component, useState } from "@odoo/owl";
+import { Component, useExternalListener, useState } from "@odoo/owl";
 import { ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
 import { DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
-import { ColorPicker } from "../../../color_picker/color_picker";
+import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 
 type ColorPickerId = undefined | "backgroundColor" | "baselineColorUp" | "baselineColorDown";
 
@@ -17,11 +17,15 @@ interface PanelState {
 
 export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ScorecardChartDesignPanel";
-  static components = { ColorPicker };
+  static components = { ColorPickerWidget };
 
   private state: PanelState = useState({
     openedColorPicker: undefined,
   });
+
+  setup() {
+    useExternalListener(window, "click", this.closeMenus);
+  }
 
   updateTitle(ev) {
     this.props.updateChart({
@@ -33,8 +37,12 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
     this.props.updateChart({ baselineDescr: ev.target.value });
   }
 
-  openColorPicker(colorPickerId: ColorPickerId) {
-    this.state.openedColorPicker = colorPickerId;
+  toggleColorPicker(colorPickerId: ColorPickerId) {
+    if (this.state.openedColorPicker === colorPickerId) {
+      this.state.openedColorPicker = undefined;
+    } else {
+      this.state.openedColorPicker = colorPickerId;
+    }
   }
 
   setColor(color: string, colorPickerId: ColorPickerId) {
@@ -49,6 +57,10 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
         this.props.updateChart({ baselineColorUp: color });
         break;
     }
+    this.closeMenus();
+  }
+
+  private closeMenus() {
     this.state.openedColorPicker = undefined;
   }
 }

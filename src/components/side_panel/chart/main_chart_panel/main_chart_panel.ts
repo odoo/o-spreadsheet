@@ -31,13 +31,6 @@ css/* scss */ `
         border-right: none;
       }
     }
-
-    .o-with-color-picker {
-      position: relative;
-    }
-    .o-with-color-picker > span {
-      border-bottom: 4px solid;
-    }
   }
 `;
 

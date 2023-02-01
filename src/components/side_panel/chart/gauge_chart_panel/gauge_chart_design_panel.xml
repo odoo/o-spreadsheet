@@ -1,23 +1,17 @@
 <templates>
   <t t-name="o-spreadsheet-GaugeChartDesignPanel" owl="1">
     <div>
-      <div class="o-section">
+      <div class="o-section o-chart-background-color">
         <div class="o-section-title">Background color</div>
-        <div class="o-with-color-picker">
-          Select a color...
-          <span
-            title="Background Color"
-            t-att-style="props.definition.background ? `border-color: ${props.definition.background}` : 'border-bottom-style: hidden'"
-            t-on-click.stop="() => this.toggleMenu('backgroundColor', ev)">
-            <t t-call="o-spreadsheet-Icon.FILL_COLOR"/>
-          </span>
-          <ColorPicker
-            t-if="state.openedMenu === 'backgroundColor'"
-            onColorPicked="(color) => this.updateBackgroundColor(color)"
-            currentColor="props.definition.background"
-            t-key="backgroundColor"
-          />
-        </div>
+        Select a color...
+        <ColorPickerWidget
+          currentColor="props.definition.background"
+          toggleColorPicker="() => this.toggleMenu('backgroundColor', ev)"
+          showColorPicker="state.openedMenu === 'backgroundColor'"
+          onColorPicked="(color) => this.updateBackgroundColor(color)"
+          title="env._t('Background Color')"
+          icon="'o-spreadsheet-Icon.FILL_COLOR'"
+        />
       </div>
 
       <div class="o-section o-chart-title">
@@ -96,22 +90,13 @@
 
         <tr>
           <td>
-            <div class="o-tools">
-              <div class="o-tool o-dropdown o-with-color">
-                <span
-                  title="Fill Color"
-                  t-attf-style="border-color:{{sectionRule.colors.upperColor}}"
-                  t-on-click.stop="(ev) => this.toggleMenu('sectionColor-upperColor', ev)">
-                  <t t-call="o-spreadsheet-Icon.FILL_COLOR"/>
-                </span>
-                <ColorPicker
-                  t-if="state.openedMenu === 'sectionColor-upperColor'"
-                  onColorPicked="(color) => this.updateSectionColor('upperColor', color)"
-                  currentColor="sectionRule.colors.upperColor"
-                  dropdownDirection="'right'"
-                />
-              </div>
-            </div>
+            <ColorPickerWidget
+              currentColor="sectionRule.colors.upperColor"
+              toggleColorPicker="(ev) => this.toggleMenu('sectionColor-upperColor', ev)"
+              showColorPicker="state.openedMenu === 'sectionColor-upperColor'"
+              onColorPicked="(color) => this.updateSectionColor('upperColor', color)"
+              icon="'o-spreadsheet-Icon.FILL_COLOR'"
+            />
           </td>
           <td>Else</td>
           <td/>
@@ -125,22 +110,13 @@
   <t t-name="o-spreadsheet-GaugeChartColorSectionTemplateRow" owl="1">
     <tr>
       <td>
-        <div class="o-tools">
-          <div class="o-tool o-dropdown o-with-color">
-            <span
-              title="Fill Color"
-              t-attf-style="border-color:{{sectionColor}}"
-              t-on-click.stop="(ev) => this.toggleMenu('sectionColor-'+sectionType, ev)">
-              <t t-call="o-spreadsheet-Icon.FILL_COLOR"/>
-            </span>
-            <ColorPicker
-              t-if="state.openedMenu === 'sectionColor-'+sectionType"
-              onColorPicked="(color) => this.updateSectionColor(sectionType, color)"
-              currentColor="sectionColor"
-              dropdownDirection="'right'"
-            />
-          </div>
-        </div>
+        <ColorPickerWidget
+          currentColor="sectionColor"
+          toggleColorPicker="(ev) => this.toggleMenu('sectionColor-'+sectionType, ev)"
+          showColorPicker="state.openedMenu === 'sectionColor-'+sectionType"
+          onColorPicked="(color) => this.updateSectionColor(sectionType, color)"
+          icon="'o-spreadsheet-Icon.FILL_COLOR'"
+        />
       </td>
       <td>When value is below</td>
       <td>
