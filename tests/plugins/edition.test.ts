@@ -1,4 +1,4 @@
-import { toCartesian, toZone } from "../../src/helpers";
+import { getComposerSheetName, toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import {
@@ -790,5 +790,20 @@ describe("edition", () => {
     model.dispatch("STOP_EDITION");
 
     expect(spyNotify).toHaveBeenCalled();
+  });
+
+  test.each(["sheet2", "sheet 2"])("Loop references on references with sheet name", (sheetName) => {
+    const model = new Model({});
+    createSheet(model, { name: sheetName });
+    const composerSheetName = getComposerSheetName(sheetName);
+    model.dispatch("START_EDITION", { text: `=${composerSheetName}!A1` });
+    model.dispatch("CYCLE_EDITION_REFERENCES");
+    expect(model.getters.getCurrentContent()).toBe(`=${composerSheetName}!$A$1`);
+    model.dispatch("CYCLE_EDITION_REFERENCES");
+    expect(model.getters.getCurrentContent()).toBe(`=${composerSheetName}!A$1`);
+    model.dispatch("CYCLE_EDITION_REFERENCES");
+    expect(model.getters.getCurrentContent()).toBe(`=${composerSheetName}!$A1`);
+    model.dispatch("CYCLE_EDITION_REFERENCES");
+    expect(model.getters.getCurrentContent()).toBe(`=${composerSheetName}!A1`);
   });
 });
