@@ -253,11 +253,11 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 
   get inverseViewportPositionStyle(): string {
     const { x: figureX, y: figureY } = this.props.figure;
-    const { offsetX, offsetY } = this.env.model.getters.getActiveSheetScrollInfo();
+    const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
     const { x, y } = this.env.model.getters.getMainViewportCoordinates();
 
-    const left = figureX >= x ? -(x + offsetX) : 0;
-    const top = figureY >= y ? -(y + offsetY) : 0;
+    const left = figureX >= x ? -(x + scrollX) : 0;
+    const top = figureY >= y ? -(y + scrollY) : 0;
 
     return cssPropertiesToCss({
       left: `${left}px`,
@@ -383,7 +383,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     const position = gridOverlayPosition();
     const { x: offsetCorrectionX, y: offsetCorrectionY } =
       this.env.model.getters.getMainViewportCoordinates();
-    const { offsetX, offsetY } = this.env.model.getters.getActiveSheetScrollInfo();
+    const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
     const sheetId = this.env.model.getters.getActiveSheetId();
 
     const initialX = ev.clientX - position.left;
@@ -407,14 +407,14 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       let { x, y } = this.dnd;
       // Correct position in case of moving to/from a frozen pane
       if (this.dnd.x > offsetCorrectionX && figure.x < offsetCorrectionX) {
-        x += offsetX;
+        x += scrollX;
       } else if (this.dnd.x < offsetCorrectionX && figure.x > offsetCorrectionX) {
-        x -= offsetX;
+        x -= scrollX;
       }
       if (this.dnd.y > offsetCorrectionY && figure.y < offsetCorrectionY) {
-        y += offsetY;
+        y += scrollY;
       } else if (this.dnd.y < offsetCorrectionY && figure.y > offsetCorrectionY) {
-        y -= offsetY;
+        y -= scrollY;
       }
       this.dnd.isActive = false;
       this.env.model.dispatch("UPDATE_FIGURE", { sheetId, id: figure.id, x, y });

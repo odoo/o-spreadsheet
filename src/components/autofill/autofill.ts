@@ -87,10 +87,10 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
   onMouseDown(ev: MouseEvent) {
     this.state.handler = true;
     this.state.position = { left: 0, top: 0 };
-    const { offsetY, offsetX } = this.env.model.getters.getActiveSheetScrollInfo();
+    const { scrollY, scrollX } = this.env.model.getters.getActiveSheetScrollInfo();
     const start = {
-      left: ev.clientX + offsetX,
-      top: ev.clientY + offsetY,
+      left: ev.clientX + scrollX,
+      top: ev.clientY + scrollY,
     };
     let lastCol: HeaderIndex | undefined;
     let lastRow: HeaderIndex | undefined;
@@ -102,10 +102,10 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
 
     const onMouseMove = (ev: MouseEvent) => {
       const position = gridOverlayPosition();
-      const { offsetY, offsetX } = this.env.model.getters.getActiveSheetScrollInfo();
+      const { scrollY, scrollX } = this.env.model.getters.getActiveSheetScrollInfo();
       this.state.position = {
-        left: ev.clientX - start.left + offsetX,
-        top: ev.clientY - start.top + offsetY,
+        left: ev.clientX - start.left + scrollX,
+        top: ev.clientY - start.top + scrollY,
       };
       const col = this.env.model.getters.getColIndex(ev.clientX - position.left);
       const row = this.env.model.getters.getRowIndex(ev.clientY - position.top);
