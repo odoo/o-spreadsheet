@@ -43,6 +43,17 @@ css/* scss */ `
     position: relative;
     display: grid;
     grid-template-columns: auto 350px;
+    color: #333;
+    input {
+      background-color: white;
+    }
+    .text-muted {
+      color: grey !important;
+    }
+    button {
+      color: #333;
+    }
+
     * {
       font-family: "Roboto", "RobotoDraft", Helvetica, Arial, sans-serif;
     }
