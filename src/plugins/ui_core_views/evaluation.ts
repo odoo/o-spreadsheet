@@ -321,90 +321,93 @@ export class EvaluationPlugin extends UIPlugin {
         ...compilationParameters
       );
 
-      // check colision
-      if (isMatrix(computedCell.value)) {
-        for (let i = 0; i < computedCell.value.length; ++i) {
-          for (let j = 0; j < computedCell.value[i].length; ++j) {
-            if (i == 0 && j == 0) {
-              continue;
-            }
-            const rawCell = this.getters.getCell({ sheetId, col: col + i, row: row + j });
-            if (
-              ![undefined, ""].includes(rawCell?.content) ||
-              this.getEvaluatedCell({ sheetId, col: col + i, row: row + j }).type !== "empty"
-            ) {
-              throw `Array result was not expanded because it would overwrite data in ${toXC(
-                col + i,
-                row + j
-              )}.`;
-            }
-          }
-        }
-
-        let cellsToRecompute: CellPosition[] = [];
-
-        for (let i = 0; i < computedCell.value.length; ++i) {
-          for (let j = 0; j < computedCell.value[i].length; ++j) {
-            const evaluatedCell = createEvaluatedCell(
-              computedCell.value[i][j],
-              cellData.format || computedCell.format
-            );
-
-            const position = { sheetId, col: i + col, row: j + row };
-
-            // update evaluatedCells
-            this.setEvaluatedCell(position, evaluatedCell);
-
-            // update spreadDependencies
-            if (i !== 0 || j !== 0) {
-              pushObjectAtPosition(spreadDependencies, { sheetId, col, row }, position);
-            }
-
-            // check if formula dependencies present in the spreaded zone
-            // if so, they need to be recomputed
-            for (const position of formulaDependencies[sheetId]?.[i + col]?.[j + row] || []) {
-              if (!cellsToRecompute.includes(position)) {
-                cellsToRecompute.push(position);
-              }
-            }
-          }
-        }
-
-        for (const position of cellsToRecompute) {
-          const evaluation = computeCell(position, true);
-
-          this.setEvaluatedCell(position, evaluation);
-          if (evaluation.type === "error" && evaluation.error.errorType === "#CYCLE") {
-            // remove spreaded values
-            for (const subPosition of spreadDependencies[position.sheetId]?.[position.col]?.[
-              position.row
-            ] || []) {
-              removeObjectAtPosition(this.evaluatedCells, subPosition);
-
-              // recompute formula dependencing of removed spreaded values
-              for (const subDependencies of formulaDependencies[subPosition.sheetId]?.[
-                subPosition.col
-              ]?.[subPosition.row] || []) {
-                const subEvaluation = computeCell(subDependencies, true);
-                this.setEvaluatedCell(subDependencies, subEvaluation);
-              }
-              removeObjectAtPosition(formulaDependencies, subPosition);
-            }
-
-            removeObjectAtPosition(spreadDependencies, position);
-            throw evaluation.error;
-          }
-        }
-
+      // provisoire
+      if (computedCell.value === null) {
         cellsBeingComputed.delete(cellId);
-
-        return createEvaluatedCell(
-          computedCell.value[0][0],
-          cellData.format || computedCell.format
-        );
+        return createEvaluatedCell(computedCell.value, cellData.format || computedCell.format);
       }
+
+      if (!isMatrix(computedCell.value)) {
+        computedCell.value = [[computedCell.value]];
+      }
+
+      // check colision
+      for (let i = 0; i < computedCell.value.length; ++i) {
+        for (let j = 0; j < computedCell.value[i].length; ++j) {
+          if (i == 0 && j == 0) {
+            continue;
+          }
+          const rawCell = this.getters.getCell({ sheetId, col: col + i, row: row + j });
+          if (
+            ![undefined, ""].includes(rawCell?.content) ||
+            this.getEvaluatedCell({ sheetId, col: col + i, row: row + j }).type !== "empty"
+          ) {
+            throw `Array result was not expanded because it would overwrite data in ${toXC(
+              col + i,
+              row + j
+            )}.`;
+          }
+        }
+      }
+
+      let cellsToRecompute: CellPosition[] = [];
+
+      for (let i = 0; i < computedCell.value.length; ++i) {
+        for (let j = 0; j < computedCell.value[i].length; ++j) {
+          const evaluatedCell = createEvaluatedCell(
+            computedCell.value[i][j],
+            cellData.format || computedCell.format
+          );
+
+          const position = { sheetId, col: i + col, row: j + row };
+
+          // update evaluatedCells
+          this.setEvaluatedCell(position, evaluatedCell);
+
+          // update spreadDependencies
+          if (i !== 0 || j !== 0) {
+            pushObjectAtPosition(spreadDependencies, { sheetId, col, row }, position);
+          }
+
+          // check if formula dependencies present in the spreaded zone
+          // if so, they need to be recomputed
+          for (const position of formulaDependencies[sheetId]?.[i + col]?.[j + row] || []) {
+            if (!cellsToRecompute.includes(position)) {
+              cellsToRecompute.push(position);
+            }
+          }
+        }
+      }
+
+      for (const position of cellsToRecompute) {
+        const evaluation = computeCell(position, true);
+
+        this.setEvaluatedCell(position, evaluation);
+        if (evaluation.type === "error" && evaluation.error.errorType === "#CYCLE") {
+          // remove spreaded values
+          for (const subPosition of spreadDependencies[position.sheetId]?.[position.col]?.[
+            position.row
+          ] || []) {
+            removeObjectAtPosition(this.evaluatedCells, subPosition);
+
+            // recompute formula dependencing of removed spreaded values
+            for (const subDependencies of formulaDependencies[subPosition.sheetId]?.[
+              subPosition.col
+            ]?.[subPosition.row] || []) {
+              const subEvaluation = computeCell(subDependencies, true);
+              this.setEvaluatedCell(subDependencies, subEvaluation);
+            }
+            removeObjectAtPosition(formulaDependencies, subPosition);
+          }
+
+          removeObjectAtPosition(spreadDependencies, position);
+          throw evaluation.error;
+        }
+      }
+
       cellsBeingComputed.delete(cellId);
-      return createEvaluatedCell(computedCell.value, cellData.format || computedCell.format);
+
+      return createEvaluatedCell(computedCell.value[0][0], cellData.format || computedCell.format);
     };
 
     const compilationParameters = this.getCompilationParameters((position) =>
