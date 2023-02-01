@@ -342,11 +342,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private moveCanvas(deltaX: number, deltaY: number) {
-    const { offsetScrollbarX, offsetScrollbarY } =
-      this.env.model.getters.getActiveSheetScrollInfo();
+    const { scrollX, scrollY } = this.env.model.getters.getActiveSheetDOMScrollInfo();
     this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: offsetScrollbarX + deltaX,
-      offsetY: offsetScrollbarY + deltaY,
+      offsetX: scrollX + deltaX,
+      offsetY: scrollY + deltaY,
     });
   }
 

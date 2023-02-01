@@ -177,3 +177,12 @@ export function getClipboardVisibleZones(model: Model): Zone[] {
     ? (clipboardPlugin["state"]! as ClipboardCellsState)["zones"]
     : [];
 }
+
+export function getActiveSheetFullScrollInfo(model: Model) {
+  const scrollBarScroll = model.getters.getActiveSheetDOMScrollInfo();
+  return {
+    ...model.getters.getActiveSheetScrollInfo(),
+    scrollbarScrollX: scrollBarScroll.scrollX,
+    scrollbarScrollY: scrollBarScroll.scrollY,
+  };
+}
