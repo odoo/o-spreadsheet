@@ -149,7 +149,7 @@ interface Props {
   onFigureDeleted: () => void;
 }
 
-export class GridOverlay extends Component<Props> {
+export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridOverlay";
   static components = { FiguresContainer };
   static defaultProps = {
@@ -175,8 +175,8 @@ export class GridOverlay extends Component<Props> {
       () => [this.gridOverlayEl.clientHeight, this.gridOverlayEl.clientWidth]
     );
     useTouchMove(this.gridOverlay, this.props.onGridMoved, () => {
-      const { offsetScrollbarY } = this.env.model.getters.getActiveSheetScrollInfo();
-      return offsetScrollbarY > 0;
+      const { scrollY } = this.env.model.getters.getActiveSheetDOMScrollInfo();
+      return scrollY > 0;
     });
   }
 

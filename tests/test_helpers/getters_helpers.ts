@@ -125,3 +125,12 @@ export function automaticSumMulti(
   setSelection(model, xcs, { anchor });
   return model.dispatch("SUM_SELECTION");
 }
+
+export function getActiveSheetFullScrollInfo(model: Model) {
+  const scrollBarScroll = model.getters.getActiveSheetDOMScrollInfo();
+  return {
+    ...model.getters.getActiveSheetScrollInfo(),
+    scrollbarScrollX: scrollBarScroll.scrollX,
+    scrollbarScrollY: scrollBarScroll.scrollY,
+  };
+}

@@ -16,6 +16,7 @@ import {
   Rect,
   ResizeViewportCommand,
   ScrollDirection,
+  SheetDOMScrollInfo,
   SheetScrollInfo,
   UID,
   Viewport,
@@ -89,6 +90,7 @@ export class SheetViewPlugin extends UIPlugin {
     "getColRowOffsetInViewport",
     "getMainViewportCoordinates",
     "getActiveSheetScrollInfo",
+    "getActiveSheetDOMScrollInfo",
     "getSheetViewVisibleCols",
     "getSheetViewVisibleRows",
     "getFrozenSheetViewRatio",
@@ -282,9 +284,30 @@ export class SheetViewPlugin extends UIPlugin {
     return this.getMainViewport(sheetId);
   }
 
+  /**
+   * Return the scroll info of the active sheet, ie. the offset between the viewport left/top side and
+   * the grid left/top side, snapped to the columns/rows.
+   */
   getActiveSheetScrollInfo(): SheetScrollInfo {
     const sheetId = this.getters.getActiveSheetId();
-    return this.getSheetScrollInfo(sheetId);
+    const viewport = this.getMainInternalViewport(sheetId);
+    return {
+      scrollX: viewport.offsetX,
+      scrollY: viewport.offsetY,
+    };
+  }
+
+  /**
+   * Return the DOM scroll info of the active sheet, ie. the offset between the viewport left/top side and
+   * the grid left/top side, corresponding to the scroll of the scrollbars and not snapped to the grid.
+   */
+  getActiveSheetDOMScrollInfo(): SheetDOMScrollInfo {
+    const sheetId = this.getters.getActiveSheetId();
+    const viewport = this.getMainInternalViewport(sheetId);
+    return {
+      scrollX: viewport.offsetScrollbarX,
+      scrollY: viewport.offsetScrollbarY,
+    };
   }
 
   getSheetViewVisibleCols(): HeaderIndex[] {
@@ -374,7 +397,7 @@ export class SheetViewPlugin extends UIPlugin {
     const { xSplit } = this.getters.getPaneDivisions(this.getters.getActiveSheetId());
     const { width } = this.getSheetViewDimension();
     const { x: offsetCorrectionX } = this.getMainViewportCoordinates();
-    const currentOffsetX = this.getActiveSheetScrollInfo().offsetX;
+    const currentOffsetX = this.getActiveSheetScrollInfo().scrollX;
 
     if (x > width) {
       // 3 & 5
@@ -410,7 +433,7 @@ export class SheetViewPlugin extends UIPlugin {
 
     const { height } = this.getSheetViewDimension();
     const { y: offsetCorrectionY } = this.getMainViewportCoordinates();
-    const currentOffsetY = this.getActiveSheetScrollInfo().offsetY;
+    const currentOffsetY = this.getActiveSheetScrollInfo().scrollY;
 
     if (y > height) {
       // 4 & 6
@@ -533,16 +556,6 @@ export class SheetViewPlugin extends UIPlugin {
   private getMainInternalViewport(sheetId: UID): InternalViewport {
     this.ensureMainViewportExist(sheetId);
     return this.viewports[sheetId]!.bottomRight;
-  }
-
-  private getSheetScrollInfo(sheetId: UID): SheetScrollInfo {
-    const viewport = this.getMainInternalViewport(sheetId);
-    return {
-      offsetX: viewport.offsetX,
-      offsetY: viewport.offsetY,
-      offsetScrollbarX: viewport.offsetScrollbarX,
-      offsetScrollbarY: viewport.offsetScrollbarY,
-    };
   }
 
   /** gets rid of deprecated sheetIds */
@@ -693,8 +706,8 @@ export class SheetViewPlugin extends UIPlugin {
    */
   private shiftVertically(offset: Pixel) {
     const { top } = this.getActiveMainViewport();
-    const { offsetX } = this.getActiveSheetScrollInfo();
-    this.setSheetViewOffset(offsetX, offset);
+    const { scrollX } = this.getActiveSheetScrollInfo();
+    this.setSheetViewOffset(scrollX, offset);
     const { anchor } = this.getters.getSelection();
     const deltaRow = this.getActiveMainViewport().top - top;
     this.selection.selectCell(anchor.cell.col, anchor.cell.row + deltaRow);
@@ -704,7 +717,7 @@ export class SheetViewPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const result: Figure[] = [];
     const figures = this.getters.getFigures(sheetId);
-    const { offsetX, offsetY } = this.getSheetScrollInfo(sheetId);
+    const { scrollX, scrollY } = this.getActiveSheetScrollInfo();
     const { x: offsetCorrectionX, y: offsetCorrectionY } =
       this.getters.getMainViewportCoordinates();
     const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
@@ -712,15 +725,15 @@ export class SheetViewPlugin extends UIPlugin {
     for (const figure of figures) {
       if (
         figure.x >= offsetCorrectionX &&
-        (figure.x + figure.width <= offsetCorrectionX + offsetX ||
-          figure.x >= width + offsetX + offsetCorrectionX)
+        (figure.x + figure.width <= offsetCorrectionX + scrollX ||
+          figure.x >= width + scrollX + offsetCorrectionX)
       ) {
         continue;
       }
       if (
         figure.y >= offsetCorrectionY &&
-        (figure.y + figure.height <= offsetCorrectionY + offsetY ||
-          figure.y >= height + offsetY + offsetCorrectionY)
+        (figure.y + figure.height <= offsetCorrectionY + scrollY ||
+          figure.y >= height + scrollY + offsetCorrectionY)
       ) {
         continue;
       }
