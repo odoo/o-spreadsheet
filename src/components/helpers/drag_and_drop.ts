@@ -68,8 +68,7 @@ export function dragAndDropBeyondTheViewport(
 
     const { x: offsetCorrectionX, y: offsetCorrectionY } = getters.getMainViewportCoordinates();
     let { top, left, bottom, right } = getters.getActiveMainViewport();
-    let { offsetScrollbarX: offsetX, offsetScrollbarY: offsetY } =
-      getters.getActiveSheetScrollInfo();
+    let { scrollX, scrollY } = getters.getActiveSheetDOMScrollInfo();
     const { xSplit, ySplit } = getters.getPaneDivisions(sheetId);
     let canEdgeScroll = false;
     let timeoutDelay = MAX_DELAY;
@@ -101,7 +100,7 @@ export function dragAndDropBeyondTheViewport(
             newTarget = colIndex;
             break;
         }
-        offsetX = getters.getColDimensions(sheetId, newTarget!).start - offsetCorrectionX;
+        scrollX = getters.getColDimensions(sheetId, newTarget!).start - offsetCorrectionX;
       }
     }
 
@@ -132,13 +131,13 @@ export function dragAndDropBeyondTheViewport(
             newTarget = rowIndex;
             break;
         }
-        offsetY = env.model.getters.getRowDimensions(sheetId, newTarget!).start - offsetCorrectionY;
+        scrollY = env.model.getters.getRowDimensions(sheetId, newTarget!).start - offsetCorrectionY;
       }
     }
 
     cbMouseMove(colIndex, rowIndex, currentEv);
     if (canEdgeScroll) {
-      env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
+      env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: scrollX, offsetY: scrollY });
       timeOutId = setTimeout(() => {
         timeOutId = null;
         onMouseMove(currentEv);

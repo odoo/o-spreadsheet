@@ -20,7 +20,7 @@ import {
   simulateClick,
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
-import { getCellContent } from "../test_helpers/getters_helpers";
+import { getActiveSheetFullScrollInfo, getCellContent } from "../test_helpers/getters_helpers";
 import {
   makeTestFixture,
   MockClipboard,
@@ -444,9 +444,9 @@ describe("Composer / selectionInput interactions", () => {
       top: top + 3,
       bottom: bottom + 3,
     });
-    expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetY: 3 * DEFAULT_CELL_HEIGHT,
-      offsetScrollbarY: 3 * DEFAULT_CELL_HEIGHT,
+    expect(getActiveSheetFullScrollInfo(model)).toMatchObject({
+      scrollY: 3 * DEFAULT_CELL_HEIGHT,
+      scrollbarScrollY: 3 * DEFAULT_CELL_HEIGHT,
     });
     await clickCell(model, "E5");
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);

@@ -38,6 +38,7 @@ import {
   unfreezeRows,
   updateFilter,
 } from "../test_helpers/commands_helpers";
+import { getActiveSheetFullScrollInfo } from "../test_helpers/getters_helpers";
 import { getPlugin, target } from "../test_helpers/helpers";
 
 let model: Model;
@@ -75,8 +76,8 @@ describe("Viewport of Simple sheet", () => {
       right: 16,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 6 * DEFAULT_CELL_WIDTH,
-      offsetY: 0,
+      scrollX: 6 * DEFAULT_CELL_WIDTH,
+      scrollY: 0,
     });
 
     selectCell(model, "A79");
@@ -87,8 +88,8 @@ describe("Viewport of Simple sheet", () => {
       right: 10,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetY: 36 * DEFAULT_CELL_HEIGHT,
+      scrollX: 0,
+      scrollY: 36 * DEFAULT_CELL_HEIGHT,
     });
 
     // back to topleft
@@ -100,8 +101,8 @@ describe("Viewport of Simple sheet", () => {
       right: 10,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetY: 0,
+      scrollX: 0,
+      scrollY: 0,
     });
 
     selectCell(model, "U51");
@@ -112,8 +113,8 @@ describe("Viewport of Simple sheet", () => {
       right: 21,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 11 * DEFAULT_CELL_WIDTH,
-      offsetY: 8 * DEFAULT_CELL_HEIGHT,
+      scrollX: 11 * DEFAULT_CELL_WIDTH,
+      scrollY: 8 * DEFAULT_CELL_HEIGHT,
     });
   });
   test("Can Undo/Redo action that alters viewport structure (add/delete rows or cols)", () => {
@@ -127,8 +128,8 @@ describe("Viewport of Simple sheet", () => {
       bottom: 169,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 127,
+      scrollX: 0,
+      scrollY: DEFAULT_CELL_HEIGHT * 127,
     });
 
     undo(model);
@@ -139,8 +140,8 @@ describe("Viewport of Simple sheet", () => {
       bottom: 99,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 57,
+      scrollX: 0,
+      scrollY: DEFAULT_CELL_HEIGHT * 57,
     });
 
     redo(model); // should not alter offset
@@ -151,8 +152,8 @@ describe("Viewport of Simple sheet", () => {
       bottom: 100,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 57,
+      scrollX: 0,
+      scrollY: DEFAULT_CELL_HEIGHT * 57,
     });
   });
 
@@ -186,8 +187,8 @@ describe("Viewport of Simple sheet", () => {
       right: 12,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: DEFAULT_CELL_WIDTH * 2,
-      offsetY: 0,
+      scrollX: DEFAULT_CELL_WIDTH * 2,
+      scrollY: 0,
     });
 
     setViewportOffset(model, DEFAULT_CELL_WIDTH * 16, 0);
@@ -198,8 +199,8 @@ describe("Viewport of Simple sheet", () => {
       right: 25,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: DEFAULT_CELL_WIDTH * 16,
-      offsetY: 0,
+      scrollX: DEFAULT_CELL_WIDTH * 16,
+      scrollY: 0,
     });
 
     setViewportOffset(model, DEFAULT_CELL_WIDTH * 12.6, 0);
@@ -209,11 +210,11 @@ describe("Viewport of Simple sheet", () => {
       left: 12,
       right: 22,
     });
-    expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: DEFAULT_CELL_WIDTH * 12,
-      offsetScrollbarX: DEFAULT_CELL_WIDTH * 12.6,
-      offsetY: 0,
-      offsetScrollbarY: 0,
+    expect(getActiveSheetFullScrollInfo(model)).toMatchObject({
+      scrollX: DEFAULT_CELL_WIDTH * 12,
+      scrollbarScrollX: DEFAULT_CELL_WIDTH * 12.6,
+      scrollY: 0,
+      scrollbarScrollY: 0,
     });
   });
 
@@ -235,8 +236,8 @@ describe("Viewport of Simple sheet", () => {
       right: 12,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: DEFAULT_CELL_WIDTH * 2,
-      offsetY: 0,
+      scrollX: DEFAULT_CELL_WIDTH * 2,
+      scrollY: 0,
     });
 
     setViewportOffset(model, DEFAULT_CELL_WIDTH * 16, 0);
@@ -255,8 +256,8 @@ describe("Viewport of Simple sheet", () => {
       right: 25,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: DEFAULT_CELL_WIDTH * 16,
-      offsetY: 0,
+      scrollX: DEFAULT_CELL_WIDTH * 16,
+      scrollY: 0,
     });
   });
 
@@ -272,8 +273,8 @@ describe("Viewport of Simple sheet", () => {
       right: 12,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: DEFAULT_CELL_WIDTH * 2,
-      offsetY: 0,
+      scrollX: DEFAULT_CELL_WIDTH * 2,
+      scrollY: 0,
     });
   });
 
@@ -286,8 +287,8 @@ describe("Viewport of Simple sheet", () => {
       right: 10,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 2,
+      scrollX: 0,
+      scrollY: DEFAULT_CELL_HEIGHT * 2,
     });
 
     setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 57);
@@ -298,8 +299,8 @@ describe("Viewport of Simple sheet", () => {
       right: 10,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 57,
+      scrollX: 0,
+      scrollY: DEFAULT_CELL_HEIGHT * 57,
     });
 
     setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 12.6);
@@ -309,11 +310,11 @@ describe("Viewport of Simple sheet", () => {
       left: 0,
       right: 10,
     });
-    expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetScrollbarX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 12,
-      offsetScrollbarY: DEFAULT_CELL_HEIGHT * 12.6,
+    expect(getActiveSheetFullScrollInfo(model)).toMatchObject({
+      scrollX: 0,
+      scrollbarScrollX: 0,
+      scrollY: DEFAULT_CELL_HEIGHT * 12,
+      scrollbarScrollY: DEFAULT_CELL_HEIGHT * 12.6,
     });
   });
 
@@ -329,8 +330,8 @@ describe("Viewport of Simple sheet", () => {
       right: 10,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 2,
+      scrollX: 0,
+      scrollY: DEFAULT_CELL_HEIGHT * 2,
     });
     expect(getSheetViewBoundaries(model)).toMatchObject({
       top: 0,
@@ -347,8 +348,8 @@ describe("Viewport of Simple sheet", () => {
       right: 10,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 57,
+      scrollX: 0,
+      scrollY: DEFAULT_CELL_HEIGHT * 57,
     });
     expect(getSheetViewBoundaries(model)).toMatchObject({
       top: 0,
@@ -364,11 +365,11 @@ describe("Viewport of Simple sheet", () => {
       left: 4,
       right: 10,
     });
-    expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetScrollbarX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 12,
-      offsetScrollbarY: DEFAULT_CELL_HEIGHT * 12.6,
+    expect(getActiveSheetFullScrollInfo(model)).toMatchObject({
+      scrollX: 0,
+      scrollbarScrollX: 0,
+      scrollY: DEFAULT_CELL_HEIGHT * 12,
+      scrollbarScrollY: DEFAULT_CELL_HEIGHT * 12.6,
     });
     expect(getSheetViewBoundaries(model)).toMatchObject({
       top: 0,
@@ -390,19 +391,19 @@ describe("Viewport of Simple sheet", () => {
       right: 1,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 2,
+      scrollX: 0,
+      scrollY: DEFAULT_CELL_HEIGHT * 2,
     });
   });
 
   test("cannot set offset outside of the grid", () => {
     // negative
     setViewportOffset(model, -1, -1);
-    expect(model.getters.getActiveSheetScrollInfo()).toEqual({
-      offsetScrollbarX: 0,
-      offsetScrollbarY: 0,
-      offsetX: 0,
-      offsetY: 0,
+    expect(getActiveSheetFullScrollInfo(model)).toEqual({
+      scrollbarScrollX: 0,
+      scrollbarScrollY: 0,
+      scrollX: 0,
+      scrollY: 0,
     });
 
     // too large
@@ -419,18 +420,18 @@ describe("Viewport of Simple sheet", () => {
 
     const maxOffsetX = DEFAULT_CELL_WIDTH * (nCols - 10 + 1);
     const maxOffsetY = DEFAULT_CELL_HEIGHT * (nRows - 10 + 1);
-    expect(model.getters.getActiveSheetScrollInfo()).toEqual({
-      offsetScrollbarX: maxOffsetX + 1,
-      offsetScrollbarY: maxOffsetY + 1 + 5,
-      offsetX: maxOffsetX,
-      offsetY: maxOffsetY,
+    expect(getActiveSheetFullScrollInfo(model)).toEqual({
+      scrollbarScrollX: maxOffsetX + 1,
+      scrollbarScrollY: maxOffsetY + 1 + 5,
+      scrollX: maxOffsetX,
+      scrollY: maxOffsetY,
     });
   });
 
   test("Resize (increase) columns correctly affects viewport without changing the offset", () => {
     const sheetId = model.getters.getActiveSheetId();
     setViewportOffset(model, DEFAULT_CELL_WIDTH * 2, 0);
-    const { offsetX } = model.getters.getActiveSheetScrollInfo();
+    const { scrollX } = model.getters.getActiveSheetScrollInfo();
     resizeColumns(
       model,
       range(0, model.getters.getNumberCols(sheetId)).map(numberToLetters),
@@ -443,8 +444,8 @@ describe("Viewport of Simple sheet", () => {
       right: 6,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX,
-      offsetY: 0,
+      scrollX,
+      scrollY: 0,
     });
   });
 
@@ -472,15 +473,15 @@ describe("Viewport of Simple sheet", () => {
       right: 25,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: (DEFAULT_CELL_WIDTH / 2) * 7,
-      offsetY: 0,
+      scrollX: (DEFAULT_CELL_WIDTH / 2) * 7,
+      scrollY: 0,
     });
   });
 
   test("Resize rows correctly affects viewport without changing the offset", () => {
     const numberRows = model.getters.getNumberRows(model.getters.getActiveSheetId());
     setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 2);
-    const { offsetY } = model.getters.getActiveSheetScrollInfo();
+    const { scrollY } = model.getters.getActiveSheetScrollInfo();
     resizeRows(model, [...Array(numberRows).keys()], DEFAULT_CELL_HEIGHT * 2);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 1,
@@ -489,8 +490,8 @@ describe("Viewport of Simple sheet", () => {
       right: 10,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetY,
+      scrollX: 0,
+      scrollY,
     });
   });
 
@@ -513,8 +514,8 @@ describe("Viewport of Simple sheet", () => {
       right: 10,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetY: Math.round(DEFAULT_CELL_HEIGHT / 2) * 19,
+      scrollX: 0,
+      scrollY: Math.round(DEFAULT_CELL_HEIGHT / 2) * 19,
     });
   });
 
@@ -527,8 +528,8 @@ describe("Viewport of Simple sheet", () => {
       right: 15,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetY: 0,
+      scrollX: 0,
+      scrollY: 0,
     });
   });
 
@@ -544,8 +545,8 @@ describe("Viewport of Simple sheet", () => {
       right: viewport.right,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: DEFAULT_CELL_WIDTH * 3,
-      offsetY: 0,
+      scrollX: DEFAULT_CELL_WIDTH * 3,
+      scrollY: 0,
     });
   });
   test("Hide/unhide Row from top row", () => {
@@ -557,8 +558,8 @@ describe("Viewport of Simple sheet", () => {
       right: 10,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetY: 0,
+      scrollX: 0,
+      scrollY: 0,
     });
   });
   test("Hide/unhide Rows from bottom row", () => {
@@ -573,8 +574,8 @@ describe("Viewport of Simple sheet", () => {
       right: viewport.right,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 17,
+      scrollX: 0,
+      scrollY: DEFAULT_CELL_HEIGHT * 17,
     });
   });
   test("Horizontally move position to top right then back to top left correctly affects offset", () => {
@@ -588,8 +589,8 @@ describe("Viewport of Simple sheet", () => {
       right: 11,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: DEFAULT_CELL_WIDTH,
-      offsetY: 0,
+      scrollX: DEFAULT_CELL_WIDTH,
+      scrollY: 0,
     });
     moveAnchorCell(model, "right");
     moveAnchorCell(model, "right");
@@ -600,8 +601,8 @@ describe("Viewport of Simple sheet", () => {
       right: 13,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: DEFAULT_CELL_WIDTH * 3,
-      offsetY: 0,
+      scrollX: DEFAULT_CELL_WIDTH * 3,
+      scrollY: 0,
     });
     const { left } = model.getters.getActiveMainViewport();
     selectCell(model, toXC(left, 0));
@@ -614,8 +615,8 @@ describe("Viewport of Simple sheet", () => {
       right: 11,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: DEFAULT_CELL_WIDTH,
-      offsetY: 0,
+      scrollX: DEFAULT_CELL_WIDTH,
+      scrollY: 0,
     });
   });
 
@@ -630,8 +631,8 @@ describe("Viewport of Simple sheet", () => {
       right: 10,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT,
+      scrollX: 0,
+      scrollY: DEFAULT_CELL_HEIGHT,
     });
     moveAnchorCell(model, "down");
     moveAnchorCell(model, "down");
@@ -642,8 +643,8 @@ describe("Viewport of Simple sheet", () => {
       right: 10,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 3,
+      scrollX: 0,
+      scrollY: DEFAULT_CELL_HEIGHT * 3,
     });
     const { top } = model.getters.getActiveMainViewport();
     selectCell(model, toXC(0, top));
@@ -656,8 +657,8 @@ describe("Viewport of Simple sheet", () => {
       right: 10,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT,
+      scrollX: 0,
+      scrollY: DEFAULT_CELL_HEIGHT,
     });
   });
 
@@ -691,8 +692,8 @@ describe("Viewport of Simple sheet", () => {
       right: 10,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetY: 0,
+      scrollX: 0,
+      scrollY: 0,
     });
     moveAnchorCell(model, "down");
     expect(model.getters.getActiveMainViewport()).toMatchObject({
@@ -702,8 +703,8 @@ describe("Viewport of Simple sheet", () => {
       right: 10,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetY: height + 50, // row1 + row2
+      scrollX: 0,
+      scrollY: height + 50, // row1 + row2
     });
   });
 
@@ -717,8 +718,8 @@ describe("Viewport of Simple sheet", () => {
       right: 0,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetY: 0,
+      scrollX: 0,
+      scrollY: 0,
     });
     moveAnchorCell(model, "right");
     expect(model.getters.getActiveMainViewport()).toMatchObject({
@@ -728,8 +729,8 @@ describe("Viewport of Simple sheet", () => {
       right: 11,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: width + 50, // colA + colB
-      offsetY: 0,
+      scrollX: width + 50, // colA + colB
+      scrollY: 0,
     });
   });
   test("Select Column while updating range does not update viewport", () => {
@@ -782,9 +783,9 @@ describe("Viewport of Simple sheet", () => {
     ({ width, height } = model.getters.getSheetViewDimensionWithHeaders());
     ({ width: gridWidth, height: gridHeight } = model.getters.getMainViewportRect());
 
-    expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetScrollbarX: gridWidth - width,
-      offsetScrollbarY: gridHeight - height,
+    expect(model.getters.getActiveSheetDOMScrollInfo()).toMatchObject({
+      scrollX: gridWidth - width,
+      scrollY: gridHeight - height,
     });
   });
 
@@ -1006,11 +1007,11 @@ describe("Multi Panes viewport", () => {
     });
     setViewportOffset(model, 0, 5 * DEFAULT_CELL_HEIGHT);
     freezeRows(model, 11);
-    expect(model.getters.getActiveSheetScrollInfo()).toEqual({
-      offsetX: 0,
-      offsetY: 0,
-      offsetScrollbarX: 0,
-      offsetScrollbarY: 0,
+    expect(getActiveSheetFullScrollInfo(model)).toEqual({
+      scrollX: 0,
+      scrollY: 0,
+      scrollbarScrollX: 0,
+      scrollbarScrollY: 0,
     });
     expect(setViewportOffset(model, 0, 5 * DEFAULT_CELL_HEIGHT)).toBeCancelledBecause(
       CommandResult.InvalidScrollingDirection
@@ -1026,11 +1027,11 @@ describe("Multi Panes viewport", () => {
     });
     setViewportOffset(model, 5 * DEFAULT_CELL_WIDTH, 0);
     freezeColumns(model, 10);
-    expect(model.getters.getActiveSheetScrollInfo()).toEqual({
-      offsetX: 0,
-      offsetY: 0,
-      offsetScrollbarX: 0,
-      offsetScrollbarY: 0,
+    expect(getActiveSheetFullScrollInfo(model)).toEqual({
+      scrollX: 0,
+      scrollY: 0,
+      scrollbarScrollX: 0,
+      scrollbarScrollY: 0,
     });
     expect(setViewportOffset(model, 5 * DEFAULT_CELL_WIDTH, 0)).toBeCancelledBecause(
       CommandResult.InvalidScrollingDirection
@@ -1069,8 +1070,8 @@ describe("multi sheet with different sizes", () => {
       right: 1,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetY: 0,
+      scrollX: 0,
+      scrollY: 0,
     });
     activateSheet(model, "big");
     expect(model.getters.getActiveMainViewport()).toMatchObject({
@@ -1080,8 +1081,8 @@ describe("multi sheet with different sizes", () => {
       right: 4,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetY: 0,
+      scrollX: 0,
+      scrollY: 0,
     });
   });
 
@@ -1231,9 +1232,9 @@ describe("shift viewport up/down", () => {
     selectCell(model, "D1");
     setViewportOffset(model, DEFAULT_CELL_WIDTH * 3, 0);
     model.dispatch("SHIFT_VIEWPORT_DOWN");
-    expect(model.getters.getActiveSheetScrollInfo().offsetX).toBe(DEFAULT_CELL_WIDTH * 3);
+    expect(model.getters.getActiveSheetScrollInfo().scrollX).toBe(DEFAULT_CELL_WIDTH * 3);
     model.dispatch("SHIFT_VIEWPORT_UP");
-    expect(model.getters.getActiveSheetScrollInfo().offsetX).toBe(DEFAULT_CELL_WIDTH * 3);
+    expect(model.getters.getActiveSheetScrollInfo().scrollX).toBe(DEFAULT_CELL_WIDTH * 3);
   });
 
   test("anchor cell at the viewport top is shifted", () => {

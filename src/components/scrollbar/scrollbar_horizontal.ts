@@ -23,7 +23,7 @@ export class HorizontalScrollBar extends Component<Props, SpreadsheetChildEnv> {
   };
 
   get offset() {
-    return this.env.model.getters.getActiveSheetScrollInfo().offsetScrollbarX;
+    return this.env.model.getters.getActiveSheetDOMScrollInfo().scrollX;
   }
 
   get width() {
@@ -48,10 +48,10 @@ export class HorizontalScrollBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onScroll(offset) {
-    const { offsetScrollbarY } = this.env.model.getters.getActiveSheetScrollInfo();
+    const { scrollY } = this.env.model.getters.getActiveSheetDOMScrollInfo();
     this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
       offsetX: offset,
-      offsetY: offsetScrollbarY, // offsetY is the same
+      offsetY: scrollY, // offsetY is the same
     });
   }
 }

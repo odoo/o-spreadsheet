@@ -39,7 +39,13 @@ import {
   simulateClick,
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
-import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
+import {
+  getActiveSheetFullScrollInfo,
+  getActiveXc,
+  getCell,
+  getCellContent,
+  getCellText,
+} from "../test_helpers/getters_helpers";
 import {
   makeTestFixture,
   MockClipboard,
@@ -936,11 +942,11 @@ describe("Events on Grid update viewport correctly", () => {
       left: 0,
       right: 10,
     });
-    expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 0,
-      offsetScrollbarX: 0,
-      offsetY: 1196,
-      offsetScrollbarY: 1200,
+    expect(getActiveSheetFullScrollInfo(model)).toMatchObject({
+      scrollX: 0,
+      scrollbarScrollX: 0,
+      scrollY: 1196,
+      scrollbarScrollY: 1200,
     });
   });
   test("Horizontal scroll", async () => {
@@ -954,11 +960,11 @@ describe("Events on Grid update viewport correctly", () => {
       left: 2,
       right: 12,
     });
-    expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 192,
-      offsetScrollbarX: 200,
-      offsetY: 0,
-      offsetScrollbarY: 0,
+    expect(getActiveSheetFullScrollInfo(model)).toMatchObject({
+      scrollX: 192,
+      scrollbarScrollX: 200,
+      scrollY: 0,
+      scrollbarScrollY: 0,
     });
   });
   test("Move selection with keyboard", async () => {
@@ -979,9 +985,9 @@ describe("Events on Grid update viewport correctly", () => {
       left: 1,
       right: 11,
     });
-    expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 96,
-      offsetScrollbarX: 96,
+    expect(getActiveSheetFullScrollInfo(model)).toMatchObject({
+      scrollX: 96,
+      scrollbarScrollX: 96,
     });
   });
   test("Move selection horizontally (left to right) through pane division resets the scroll", async () => {
@@ -998,13 +1004,13 @@ describe("Events on Grid update viewport correctly", () => {
     );
     await clickCell(model, "C1");
     expect(model.getters.getActiveMainViewport().left).toEqual(7);
-    expect(model.getters.getActiveSheetScrollInfo().offsetX).toEqual(4 * DEFAULT_CELL_WIDTH);
+    expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(4 * DEFAULT_CELL_WIDTH);
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowRight", shiftKey: false, bubbles: true })
     );
     expect(model.getters.getSelectedZone()).toEqual(toZone("D1"));
     expect(model.getters.getActiveMainViewport().left).toEqual(3);
-    expect(model.getters.getActiveSheetScrollInfo().offsetX).toEqual(0);
+    expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(0);
   });
 
   test("Move selection horizontally (right to left) through pane division does not reset the scroll", async () => {
@@ -1021,13 +1027,13 @@ describe("Events on Grid update viewport correctly", () => {
     );
     await clickCell(model, "H1");
     expect(model.getters.getActiveMainViewport().left).toEqual(7);
-    expect(model.getters.getActiveSheetScrollInfo().offsetX).toEqual(4 * DEFAULT_CELL_WIDTH);
+    expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(4 * DEFAULT_CELL_WIDTH);
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowLeft", shiftKey: false, bubbles: true })
     );
     expect(model.getters.getSelectedZone()).toEqual(toZone("G1"));
     expect(model.getters.getActiveMainViewport().left).toEqual(6);
-    expect(model.getters.getActiveSheetScrollInfo().offsetX).toEqual(3 * DEFAULT_CELL_WIDTH);
+    expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(3 * DEFAULT_CELL_WIDTH);
     document.activeElement!.dispatchEvent(
       // scroll completely to the right
       new WheelEvent("wheel", {
@@ -1044,7 +1050,7 @@ describe("Events on Grid update viewport correctly", () => {
     );
     expect(model.getters.getSelectedZone()).toEqual(toZone("C1"));
     expect(model.getters.getActiveMainViewport().left).toEqual(3);
-    expect(model.getters.getActiveSheetScrollInfo().offsetX).toEqual(0);
+    expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(0);
   });
 
   test("Move selection vertically (top to bottom) through pane division resets the scroll", async () => {
@@ -1061,13 +1067,13 @@ describe("Events on Grid update viewport correctly", () => {
     );
     await clickCell(model, "A3");
     expect(model.getters.getActiveMainViewport().top).toEqual(7);
-    expect(model.getters.getActiveSheetScrollInfo().offsetY).toEqual(4 * DEFAULT_CELL_HEIGHT);
+    expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(4 * DEFAULT_CELL_HEIGHT);
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowDown", shiftKey: false, bubbles: true })
     );
     expect(model.getters.getSelectedZone()).toEqual(toZone("A4"));
     expect(model.getters.getActiveMainViewport().top).toEqual(3);
-    expect(model.getters.getActiveSheetScrollInfo().offsetY).toEqual(0);
+    expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(0);
   });
 
   test("Move selection vertically (bottom to to) through pane division does not reset the scroll", async () => {
@@ -1084,13 +1090,13 @@ describe("Events on Grid update viewport correctly", () => {
     );
     await clickCell(model, "A8");
     expect(model.getters.getActiveMainViewport().top).toEqual(7);
-    expect(model.getters.getActiveSheetScrollInfo().offsetY).toEqual(4 * DEFAULT_CELL_HEIGHT);
+    expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(4 * DEFAULT_CELL_HEIGHT);
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowUp", shiftKey: false, bubbles: true })
     );
     expect(model.getters.getSelectedZone()).toEqual(toZone("A7"));
     expect(model.getters.getActiveMainViewport().top).toEqual(6);
-    expect(model.getters.getActiveSheetScrollInfo().offsetY).toEqual(3 * DEFAULT_CELL_HEIGHT);
+    expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(3 * DEFAULT_CELL_HEIGHT);
     document.activeElement!.dispatchEvent(
       // scroll completely to the right
       new WheelEvent("wheel", {
@@ -1107,7 +1113,7 @@ describe("Events on Grid update viewport correctly", () => {
     );
     expect(model.getters.getSelectedZone()).toEqual(toZone("A3"));
     expect(model.getters.getActiveMainViewport().top).toEqual(3);
-    expect(model.getters.getActiveSheetScrollInfo().offsetY).toEqual(0);
+    expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(0);
   });
 
   test("Alter selection with keyboard", async () => {
@@ -1128,9 +1134,9 @@ describe("Events on Grid update viewport correctly", () => {
       left: 1,
       right: 11,
     });
-    expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetX: 96,
-      offsetScrollbarX: 96,
+    expect(getActiveSheetFullScrollInfo(model)).toMatchObject({
+      scrollX: 96,
+      scrollbarScrollX: 96,
     });
   });
 
@@ -1148,13 +1154,13 @@ describe("Events on Grid update viewport correctly", () => {
     );
     await clickCell(model, "C1");
     expect(model.getters.getActiveMainViewport().left).toEqual(7);
-    expect(model.getters.getActiveSheetScrollInfo().offsetX).toEqual(4 * DEFAULT_CELL_WIDTH);
+    expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(4 * DEFAULT_CELL_WIDTH);
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowRight", shiftKey: true, bubbles: true })
     );
     expect(model.getters.getSelectedZone()).toEqual(toZone("C1:D1"));
     expect(model.getters.getActiveMainViewport().left).toEqual(3);
-    expect(model.getters.getActiveSheetScrollInfo().offsetX).toEqual(0);
+    expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(0);
   });
 
   test("Alter selection horizontally (right to left) through pane division does not reset the scroll", async () => {
@@ -1171,13 +1177,13 @@ describe("Events on Grid update viewport correctly", () => {
     );
     await clickCell(model, "H1");
     expect(model.getters.getActiveMainViewport().left).toEqual(7);
-    expect(model.getters.getActiveSheetScrollInfo().offsetX).toEqual(4 * DEFAULT_CELL_WIDTH);
+    expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(4 * DEFAULT_CELL_WIDTH);
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowLeft", shiftKey: true, bubbles: true })
     );
     expect(model.getters.getSelectedZone()).toEqual(toZone("G1:H1"));
     expect(model.getters.getActiveMainViewport().left).toEqual(6);
-    expect(model.getters.getActiveSheetScrollInfo().offsetX).toEqual(3 * DEFAULT_CELL_WIDTH);
+    expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(3 * DEFAULT_CELL_WIDTH);
     document.activeElement!.dispatchEvent(
       // scroll completely to the right
       new WheelEvent("wheel", {
@@ -1194,7 +1200,7 @@ describe("Events on Grid update viewport correctly", () => {
     );
     expect(model.getters.getSelectedZone()).toEqual(toZone("C1:D1"));
     expect(model.getters.getActiveMainViewport().left).toEqual(3);
-    expect(model.getters.getActiveSheetScrollInfo().offsetX).toEqual(0);
+    expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(0);
   });
 
   test("Alter selection vertically (top to bottom) through pane division resets the scroll", async () => {
@@ -1211,13 +1217,13 @@ describe("Events on Grid update viewport correctly", () => {
     );
     await clickCell(model, "A3");
     expect(model.getters.getActiveMainViewport().top).toEqual(7);
-    expect(model.getters.getActiveSheetScrollInfo().offsetY).toEqual(4 * DEFAULT_CELL_HEIGHT);
+    expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(4 * DEFAULT_CELL_HEIGHT);
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowDown", shiftKey: true, bubbles: true })
     );
     expect(model.getters.getSelectedZone()).toEqual(toZone("A3:A4"));
     expect(model.getters.getActiveMainViewport().top).toEqual(3);
-    expect(model.getters.getActiveSheetScrollInfo().offsetY).toEqual(0);
+    expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(0);
   });
 
   test("Alter selection vertically (bottom to to) through pane division does not reset the scroll", async () => {
@@ -1234,13 +1240,13 @@ describe("Events on Grid update viewport correctly", () => {
     );
     await clickCell(model, "A8");
     expect(model.getters.getActiveMainViewport().top).toEqual(7);
-    expect(model.getters.getActiveSheetScrollInfo().offsetY).toEqual(4 * DEFAULT_CELL_HEIGHT);
+    expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(4 * DEFAULT_CELL_HEIGHT);
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowUp", shiftKey: true, bubbles: true })
     );
     expect(model.getters.getSelectedZone()).toEqual(toZone("A7:A8"));
     expect(model.getters.getActiveMainViewport().top).toEqual(6);
-    expect(model.getters.getActiveSheetScrollInfo().offsetY).toEqual(3 * DEFAULT_CELL_HEIGHT);
+    expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(3 * DEFAULT_CELL_HEIGHT);
     document.activeElement!.dispatchEvent(
       // scroll completely to the left
       new WheelEvent("wheel", {
@@ -1257,7 +1263,7 @@ describe("Events on Grid update viewport correctly", () => {
     );
     expect(model.getters.getSelectedZone()).toEqual(toZone("A3:A4"));
     expect(model.getters.getActiveMainViewport().top).toEqual(3);
-    expect(model.getters.getActiveSheetScrollInfo().offsetY).toEqual(0);
+    expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(0);
   });
 
   test("Scroll viewport then alter selection with keyboard from penultimate cell to last cell does not shift viewport", async () => {
