@@ -23,7 +23,7 @@ export class VerticalScrollBar extends Component<Props, SpreadsheetChildEnv> {
   };
 
   get offset() {
-    return this.env.model.getters.getActiveSheetScrollInfo().offsetScrollbarY;
+    return this.env.model.getters.getActiveSheetDOMScrollInfo().scrollY;
   }
 
   get height() {
@@ -48,9 +48,9 @@ export class VerticalScrollBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onScroll(offset) {
-    const { offsetScrollbarX } = this.env.model.getters.getActiveSheetScrollInfo();
+    const { scrollX } = this.env.model.getters.getActiveSheetDOMScrollInfo();
     this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: offsetScrollbarX, // offsetX is the same
+      offsetX: scrollX, // offsetX is the same
       offsetY: offset,
     });
   }

@@ -29,6 +29,7 @@ import {
 } from "../test_helpers/dom_helper";
 import {
   getActivePosition,
+  getActiveSheetFullScrollInfo,
   getCellText,
   getSelectionAnchorCellXc,
 } from "../test_helpers/getters_helpers";
@@ -189,9 +190,9 @@ describe("Composer interactions", () => {
       top: top + 3,
       bottom: bottom + 3,
     });
-    expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      offsetY: 3 * DEFAULT_CELL_HEIGHT,
-      offsetScrollbarY: 3 * DEFAULT_CELL_HEIGHT,
+    expect(getActiveSheetFullScrollInfo(model)).toMatchObject({
+      scrollY: 3 * DEFAULT_CELL_HEIGHT,
+      scrollbarScrollY: 3 * DEFAULT_CELL_HEIGHT,
     });
     await clickCell(model, "E5");
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);
