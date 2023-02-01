@@ -3,7 +3,7 @@ import { deepCopy } from "../../misc";
 
 export function centerFigurePosition(getters: Getters, size: FigureSize) {
   const { x: offsetCorrectionX, y: offsetCorrectionY } = getters.getMainViewportCoordinates();
-  const { offsetX, offsetY } = getters.getActiveSheetScrollInfo();
+  const { scrollX, scrollY } = getters.getActiveSheetScrollInfo();
   const dim = getters.getSheetViewDimension();
   const rect = getters.getVisibleRect(getters.getActiveMainViewport());
 
@@ -11,8 +11,8 @@ export function centerFigurePosition(getters: Getters, size: FigureSize) {
   const scrollableViewportHeight = Math.min(rect.height, dim.height - offsetCorrectionY);
 
   const position = {
-    x: offsetCorrectionX + offsetX + Math.max(0, (scrollableViewportWidth - size.width) / 2),
-    y: offsetCorrectionY + offsetY + Math.max(0, (scrollableViewportHeight - size.height) / 2),
+    x: offsetCorrectionX + scrollX + Math.max(0, (scrollableViewportWidth - size.width) / 2),
+    y: offsetCorrectionY + scrollY + Math.max(0, (scrollableViewportHeight - size.height) / 2),
   }; // Position at the center of the scrollable viewport
   return position;
 }
