@@ -140,38 +140,28 @@
               <t t-call="o-spreadsheet-Icon.STRIKE"/>
             </div>
             <div class="o-dropdown">
-              <div
-                class="o-tool o-dropdown-button o-with-color"
-                title="Text Color"
-                t-on-click="(ev) => this.toggleDropdownTool('textColorTool', ev)">
-                <span t-attf-style="border-color:{{textColor}}">
-                  <t t-call="o-spreadsheet-Icon.TEXT_COLOR"/>
-                </span>
-              </div>
-              <ColorPicker
-                t-if="state.activeTool === 'textColorTool'"
-                onColorPicked="(color) => this.setColor('textColor', color)"
+              <ColorPickerWidget
                 currentColor="textColor"
-                t-key="textColor"
-                maxHeight="this.props.dropdownMaxHeight"
+                toggleColorPicker="(ev) => this.toggleDropdownTool('textColorTool', ev)"
+                showColorPicker="state.activeTool === 'textColorTool'"
+                onColorPicked="(color) => this.setColor('textColor', color)"
+                title="env._t('Text Color')"
+                icon="'o-spreadsheet-Icon.TEXT_COLOR'"
+                dropdownMaxHeight="this.props.dropdownMaxHeight"
+                class="'o-tool o-dropdown-button'"
               />
             </div>
             <div class="o-divider"/>
-            <div class="o-dropdown ">
-              <div
-                class="o-tool o-dropdown-button o-with-color"
-                title="Fill Color"
-                t-on-click="(ev) => this.toggleDropdownTool('fillColorTool', ev)">
-                <span t-attf-style="border-color:{{fillColor}}">
-                  <t t-call="o-spreadsheet-Icon.FILL_COLOR"/>
-                </span>
-              </div>
-              <ColorPicker
-                t-if="state.activeTool === 'fillColorTool'"
-                onColorPicked="(color) => this.setColor('fillColor', color)"
+            <div class="o-dropdown">
+              <ColorPickerWidget
                 currentColor="fillColor"
-                t-key="fillColor"
-                maxHeight="this.props.dropdownMaxHeight"
+                toggleColorPicker="(ev) => this.toggleDropdownTool('fillColorTool', ev)"
+                showColorPicker="state.activeTool === 'fillColorTool'"
+                onColorPicked="(color) => this.setColor('fillColor', color)"
+                title="env._t('Fill Color')"
+                icon="'o-spreadsheet-Icon.FILL_COLOR'"
+                dropdownMaxHeight="this.props.dropdownMaxHeight"
+                class="'o-tool o-dropdown-button'"
               />
             </div>
             <div class="o-dropdown">

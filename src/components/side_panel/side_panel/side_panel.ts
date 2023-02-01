@@ -1,5 +1,5 @@
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
-import { BACKGROUND_HEADER_COLOR, ComponentsImportance } from "../../../constants";
+import { BACKGROUND_HEADER_COLOR } from "../../../constants";
 import { SidePanelContent, sidePanelRegistry } from "../../../registries/side_panel_registry";
 import { SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
@@ -175,38 +175,7 @@ css/* scss */ `
       }
     }
 
-    .o-dropdown {
-      position: relative;
-      .o-dropdown-content {
-        position: absolute;
-        top: calc(100% + 5px);
-        left: 0;
-        z-index: ${ComponentsImportance.Dropdown};
-        box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
-        background-color: #f6f6f6;
-
-        .o-dropdown-item {
-          padding: 7px 10px;
-        }
-        .o-dropdown-item:hover {
-          background-color: rgba(0, 0, 0, 0.08);
-        }
-        .o-dropdown-line {
-          display: flex;
-          padding: 3px 6px;
-          .o-line-item {
-            width: 16px;
-            height: 16px;
-            margin: 1px 3px;
-            &:hover {
-              background-color: rgba(0, 0, 0, 0.08);
-            }
-          }
-        }
-      }
-    }
-
-    .o-tools {
+    .o-sidePanel-tools {
       color: #333;
       font-size: 13px;
       cursor: default;
@@ -218,23 +187,12 @@ css/* scss */ `
         margin: 2px;
         padding: 0 3px;
         border-radius: 2px;
-      }
 
-      .o-tool.active,
-      .o-tool:not(.o-disabled):hover {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-
-      .o-with-color > span {
-        border-bottom: 4px solid;
-        height: 16px;
-        margin-top: 2px;
-      }
-      .o-with-color {
-        .o-line-item:hover {
-          outline: 1px solid gray;
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.08);
         }
       }
+
       .o-border {
         .o-line-item {
           padding: 4px;

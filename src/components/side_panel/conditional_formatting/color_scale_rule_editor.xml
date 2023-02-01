@@ -36,22 +36,16 @@
         t-if="threshold !== undefined and threshold.type !== 'value'"
       />
       <input type="text" class="o-input o-threshold-value" t-else="" disabled="1"/>
-      <div class="o-tools">
-        <div class="o-tool o-dropdown o-with-color" t-att-disabled="threshold === undefined">
-          <span
-            title="Fill Color"
-            t-attf-style="border-color:{{getThresholdColor(threshold)}}"
-            t-on-click.stop="(ev) => this.toggleMenu('colorScale-'+thresholdType+'Color', ev)">
-            <t t-call="o-spreadsheet-Icon.FILL_COLOR"/>
-          </span>
-          <ColorPicker
-            t-if="state.openedMenu === 'colorScale-'+thresholdType+'Color'"
-            dropdownDirection="'left'"
-            onColorPicked="(color) => this.setColorScaleColor(thresholdType, color)"
-            currentColor="getThresholdColor(threshold)"
-          />
-        </div>
-      </div>
+      <ColorPickerWidget
+        currentColor="getThresholdColor(threshold)"
+        toggleColorPicker="(ev) => this.toggleMenu('colorScale-'+thresholdType+'Color', ev)"
+        showColorPicker="state.openedMenu === 'colorScale-'+thresholdType+'Color'"
+        onColorPicked="(color) => this.setColorScaleColor(thresholdType, color)"
+        title="env._t('Fill Color')"
+        dropdownDirection="'left'"
+        icon="'o-spreadsheet-Icon.FILL_COLOR'"
+        disabled="threshold === undefined"
+      />
     </div>
   </t>
 

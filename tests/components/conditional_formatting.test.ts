@@ -46,12 +46,14 @@ describe("UI of conditional formats", () => {
       editor: {
         operatorInput: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-cell-is-operator",
         valueInput: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-cell-is-value",
-        bold: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-tools div.o-tool[title='Bold']",
-        italic: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-tools div.o-tool[title='Italic']",
-        underline: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-tools div.o-tool[title='Underline']",
+        bold: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-tool[title='Bold']",
+        italic: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-tool[title='Italic']",
+        underline:
+          ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-tool[title='Underline']",
         strikethrough:
-          ".o-cf .o-cf-ruleEditor .o-cf-editor .o-tools div.o-tool[title='Strikethrough']",
-        colorDropdown: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-tools .o-with-color span",
+          ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-tool[title='Strikethrough']",
+        colorDropdown:
+          ".o-cf .o-cf-ruleEditor .o-cf-editor .o-color-picker-widget .o-color-picker-button",
         iconSetRule: {
           container: ".o-cf .o-cf-iconset-rule",
           iconsets: ".o-cf .o-cf-iconset-rule .o-cf-iconsets .o-cf-iconset",
@@ -71,15 +73,15 @@ describe("UI of conditional formats", () => {
       range: ".o-cf-preview-range",
     },
     colorScaleEditor: {
-      minColor: ".o-threshold-minimum .o-tool.o-dropdown.o-with-color span",
+      minColor: ".o-threshold-minimum .o-color-picker-widget .o-color-picker-button",
       minType: ".o-threshold-minimum > select",
       minValue: ".o-threshold-minimum .o-threshold-value",
 
-      midColor: ".o-threshold-midpoint .o-tool.o-dropdown.o-with-color span",
+      midColor: ".o-threshold-midpoint .o-color-picker-widget .o-color-picker-button",
       midType: ".o-threshold-midpoint > select",
       midValue: ".o-threshold-midpoint .o-threshold-value",
 
-      maxColor: ".o-threshold-maximum .o-tool.o-dropdown.o-with-color span",
+      maxColor: ".o-threshold-maximum .o-color-picker-widget .o-color-picker-button",
       maxType: ".o-threshold-maximum > select",
       maxValue: ".o-threshold-maximum .o-threshold-value",
 

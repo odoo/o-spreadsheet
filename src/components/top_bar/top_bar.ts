@@ -29,7 +29,7 @@ import {
   VerticalAlign,
   Wrapping,
 } from "../../types/index";
-import { ColorPicker } from "../color_picker/color_picker";
+import { ColorPickerWidget } from "../color_picker/color_picker_widget";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { FontSizeEditor } from "../font_size_editor/font_size_editor";
 import { css } from "../helpers/css";
@@ -202,18 +202,6 @@ css/* scss */ `
           }
         }
 
-        .o-with-color > span {
-          border-bottom: 4px solid;
-          height: 16px;
-          margin-top: 2px;
-        }
-
-        .o-with-color {
-          .o-line-item:hover {
-            outline: 1px solid gray;
-          }
-        }
-
         .o-border-dropdown {
           padding: 4px;
         }
@@ -324,7 +312,7 @@ css/* scss */ `
 `;
 export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TopBar";
-  static components = { ColorPicker, Menu, TopBarComposer, FontSizeEditor };
+  static components = { ColorPickerWidget, Menu, TopBarComposer, FontSizeEditor };
   commonFormats = FORMATS;
   customFormats = CUSTOM_FORMATS;
   currentFormatName = "automatic";

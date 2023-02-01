@@ -44,7 +44,7 @@
       <t t-call="o-spreadsheet-CellIsRuleEditorPreview">
         <t t-set="currentStyle" t-value="rule.style"/>
       </t>
-      <div class="o-tools">
+      <div class="o-sidePanel-tools">
         <div
           class="o-tool"
           title="Bold"
@@ -73,37 +73,27 @@
           t-on-click="(ev) => this.toggleStyle('strikethrough', ev)">
           <t t-call="o-spreadsheet-Icon.STRIKE"/>
         </div>
-        <div class="o-tool o-dropdown o-with-color">
-          <span
-            title="TextColor"
-            t-attf-style="border-color:{{rule.style.textColor}}"
-            t-on-click.stop="(ev) => this.toggleMenu('cellIsRule-textColor', ev)">
-            <t t-call="o-spreadsheet-Icon.TEXT_COLOR"/>
-          </span>
-          <ColorPicker
-            t-if="state.openedMenu === 'cellIsRule-textColor'"
-            dropdownDirection="'center'"
-            onColorPicked="(color) => this.setColor('textColor', color)"
-            currentColor="rule.style.textColor"
-            t-key="textColor"
-          />
-        </div>
+        <ColorPickerWidget
+          currentColor="rule.style.textColor || '#000000'"
+          toggleColorPicker="(ev) => this.toggleMenu('cellIsRule-textColor', ev)"
+          showColorPicker="state.openedMenu === 'cellIsRule-textColor'"
+          onColorPicked="(color) => this.setColor('textColor', color)"
+          title="env._t('Text Color')"
+          icon="'o-spreadsheet-Icon.TEXT_COLOR'"
+          dropdownDirection="'center'"
+          class="'o-tool'"
+        />
         <div class="o-divider"/>
-        <div class="o-tool o-dropdown o-with-color">
-          <span
-            title="FillColor"
-            t-attf-style="border-color:{{rule.style.fillColor}}"
-            t-on-click.stop="(ev) => this.toggleMenu('cellIsRule-fillColor', ev)">
-            <t t-call="o-spreadsheet-Icon.FILL_COLOR"/>
-          </span>
-          <ColorPicker
-            t-if="state.openedMenu === 'cellIsRule-fillColor'"
-            dropdownDirection="'center'"
-            onColorPicked="(color) => this.setColor('fillColor', color)"
-            currentColor="rule.style.fillColor"
-            t-key="fillColor"
-          />
-        </div>
+        <ColorPickerWidget
+          currentColor="rule.style.fillColor"
+          toggleColorPicker="(ev) => this.toggleMenu('cellIsRule-fillColor', ev)"
+          showColorPicker="state.openedMenu === 'cellIsRule-fillColor'"
+          onColorPicked="(color) => this.setColor('fillColor', color)"
+          title="env._t('Fill Color')"
+          dropdownDirection="'center'"
+          icon="'o-spreadsheet-Icon.FILL_COLOR'"
+          class="'o-tool'"
+        />
       </div>
     </div>
   </t>

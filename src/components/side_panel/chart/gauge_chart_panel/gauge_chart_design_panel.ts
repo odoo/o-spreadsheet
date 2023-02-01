@@ -1,10 +1,10 @@
-import { Component, useState } from "@odoo/owl";
+import { Component, useExternalListener, useState } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/index";
 import { GaugeChartDefinition, SectionRule } from "../../../../types/chart/gauge_chart";
 import { CommandResult, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
-import { ColorPicker } from "../../../color_picker/color_picker";
 import { css } from "../../../helpers/css";
 import { ChartTerms } from "../../../translations_terms";
+import { ColorPickerWidget } from "./../../../color_picker/color_picker_widget";
 
 css/* scss */ `
   .o-gauge-color-set {
@@ -67,12 +67,16 @@ interface PanelState {
 
 export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GaugeChartDesignPanel";
-  static components = { ColorPicker };
+  static components = { ColorPickerWidget };
 
   private state: PanelState = useState({
     openedMenu: undefined,
     sectionRuleDispatchResult: undefined,
   });
+
+  setup() {
+    useExternalListener(window, "click", this.closeMenus);
+  }
 
   get designErrorMessages(): string[] {
     const cancelledReasons = [...(this.state.sectionRuleDispatchResult?.reasons || [])];

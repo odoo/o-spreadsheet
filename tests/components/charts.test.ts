@@ -291,7 +291,9 @@ describe("figures", () => {
       await simulateClick(".o-panel-element.inactive");
       await nextTick();
       expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
-      const colorpickerButton = fixture.querySelector(".o-with-color-picker span");
+      const colorpickerButton = fixture.querySelector(
+        ".o-chart-background-color .o-color-picker-widget .o-color-picker-button"
+      );
       await simulateClick(colorpickerButton);
       await nextTick();
       const colorpickerItems = fixture.querySelectorAll(
@@ -316,6 +318,22 @@ describe("figures", () => {
         expect(figureCanvas!.classList).toContain("w-100");
         expect(figureCanvas!.classList).toContain("h-100");
       }
+    }
+  );
+
+  test.each(["basicChart", "scorecard", "gauge"])(
+    "can close color picker when click elsewhere %s",
+    async (chartType: string) => {
+      createTestChart(chartType);
+      await nextTick();
+      await simulateClick(".o-figure");
+      await simulateClick(".o-figure-menu-item");
+      await simulateClick(".o-menu div[data-name='edit']");
+      await simulateClick(".o-panel-element.inactive");
+      await simulateClick(".o-color-picker-widget .o-color-picker-button");
+      expect(fixture.querySelector(".o-color-picker")).toBeTruthy();
+      await simulateClick(".o-section-title");
+      expect(fixture.querySelector(".o-color-picker")).toBeFalsy();
     }
   );
 
@@ -793,7 +811,9 @@ describe("figures", () => {
       expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
 
       // Change color of "up" value of baseline
-      const colorpickerUpButton = fixture.querySelectorAll(".o-with-color-picker span")[1];
+      const colorpickerUpButton = fixture.querySelectorAll(
+        ".o-chart-baseline-color .o-color-picker-button"
+      )[0];
       await simulateClick(colorpickerUpButton);
       await nextTick();
       const colorpickerUpItems = fixture.querySelectorAll(
@@ -815,7 +835,9 @@ describe("figures", () => {
       });
 
       // Change color of "down" value of baseline
-      const colorpickerDownButton = fixture.querySelectorAll(".o-with-color-picker span")[2];
+      const colorpickerDownButton = fixture.querySelectorAll(
+        ".o-chart-baseline-color .o-color-picker-button"
+      )[1];
       await simulateClick(colorpickerDownButton);
       await nextTick();
       const colorpickerDownItems = fixture.querySelectorAll(

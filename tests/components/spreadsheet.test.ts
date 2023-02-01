@@ -168,7 +168,7 @@ describe("Simple Spreadsheet Component", () => {
     const gridComposerZIndex = getZIndex("div.o-grid-composer");
     const highlighZIndex = getZIndex(".o-highlight");
 
-    await click(fixture.querySelectorAll(".o-tool.o-dropdown-button.o-with-color")[0]);
+    await click(fixture.querySelectorAll(".o-color-picker-widget .o-color-picker-button")[0]);
     const colorPickerZIndex = getZIndex("div.o-color-picker");
 
     createChart(model, {}, "thisIsAnId");

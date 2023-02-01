@@ -1,23 +1,17 @@
 <templates>
   <t t-name="o-spreadsheet-ScorecardChartDesignPanel" owl="1">
     <div>
-      <div class="o-section">
+      <div class="o-section o-chart-background-color">
         <div class="o-section-title">Background color</div>
-        <div class="o-with-color-picker">
-          Select a color...
-          <span
-            title="Background Color"
-            t-att-style="props.definition.background ? `border-color: ${props.definition.background}` : 'border-bottom-style: hidden'"
-            t-on-click.stop="() => this.openColorPicker('backgroundColor')">
-            <t t-call="o-spreadsheet-Icon.FILL_COLOR"/>
-          </span>
-          <ColorPicker
-            t-if="state.openedColorPicker === 'backgroundColor'"
-            onColorPicked="(color) => this.setColor(color, 'backgroundColor')"
-            currentColor="props.definition.brackground"
-            t-key="backgroundColor"
-          />
-        </div>
+        Select a color...
+        <ColorPickerWidget
+          currentColor="props.definition.background"
+          toggleColorPicker="() => this.toggleColorPicker('backgroundColor')"
+          showColorPicker="state.openedColorPicker === 'backgroundColor'"
+          onColorPicked="(color) => this.setColor(color, 'backgroundColor')"
+          title="env._t('Background Color')"
+          icon="'o-spreadsheet-Icon.FILL_COLOR'"
+        />
       </div>
 
       <div class="o-section o-chart-title">
@@ -40,39 +34,29 @@
         />
       </div>
     </div>
-    <div class="o-section">
+    <div class="o-section o-chart-baseline-color">
       <div class="o-section-title">Baseline color</div>
-      <div class="o-with-color-picker">
-        Color on value increase
-        <span
-          title="Color Up"
-          t-attf-style="border-color:{{props.definition.baselineColorUp}}"
-          t-on-click.stop="() => this.openColorPicker('baselineColorUp')">
-          <t t-call="o-spreadsheet-Icon.FILL_COLOR"/>
-        </span>
-        <ColorPicker
-          t-if="state.openedColorPicker === 'baselineColorUp'"
-          onColorPicked="(color) => this.setColor(color, 'baselineColorUp')"
-          currentColor="props.definition.baselineColorUp"
-          t-key="baselineColorUp"
-        />
-      </div>
+      Color on value increase
+      <ColorPickerWidget
+        currentColor="props.definition.baselineColorUp"
+        toggleColorPicker="() => this.toggleColorPicker('baselineColorUp')"
+        showColorPicker="state.openedColorPicker === 'baselineColorUp'"
+        onColorPicked="(color) => this.setColor(color, 'baselineColorUp')"
+        dropdownDirection="'center'"
+        title="env._t('Color Up')"
+        icon="'o-spreadsheet-Icon.FILL_COLOR'"
+      />
       <br/>
-      <div class="o-with-color-picker">
-        Color on value decrease
-        <span
-          title="Background Color"
-          t-attf-style="border-color:{{props.definition.baselineColorDown}}"
-          t-on-click.stop="() => this.openColorPicker('baselineColorDown')">
-          <t t-call="o-spreadsheet-Icon.FILL_COLOR"/>
-        </span>
-        <ColorPicker
-          t-if="state.openedColorPicker === 'baselineColorDown'"
-          onColorPicked="(color) => this.setColor(color, 'baselineColorDown')"
-          currentColor="props.definition.baselineColorDown"
-          t-key="baselineColorDown"
-        />
-      </div>
+      Color on value decrease
+      <ColorPickerWidget
+        currentColor="props.definition.baselineColorDown"
+        toggleColorPicker="() => this.toggleColorPicker('baselineColorDown')"
+        showColorPicker="state.openedColorPicker === 'baselineColorDown'"
+        onColorPicked="(color) => this.setColor(color, 'baselineColorDown')"
+        dropdownDirection="'center'"
+        title="env._t('Color Down')"
+        icon="'o-spreadsheet-Icon.FILL_COLOR'"
+      />
     </div>
   </t>
 </templates>

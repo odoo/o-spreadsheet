@@ -563,8 +563,6 @@ describe("TopBar component", () => {
     ["Text wrapping", ".o-dropdown-content"],
     ["Borders", ".o-dropdown-content"],
     ["Font Size", ".o-dropdown-content"],
-    ["Fill Color", ".o-color-picker"],
-    ["Text Color", ".o-color-picker"],
     ["More formats", ".o-dropdown-content"],
   ])(
     "Clicking a static element inside a dropdown '%s' don't close the dropdown",
@@ -577,6 +575,20 @@ describe("TopBar component", () => {
       await simulateClick(dropdownContentSelector);
       await nextTick();
       expect(fixture.querySelector(dropdownContentSelector)).toBeTruthy();
+    }
+  );
+
+  test.each([["Fill Color", "Text Color"]])(
+    "Clicking a static element inside the color picker '%s' don't close the color picker dropdown",
+    async (toolName: string) => {
+      await mountParent();
+
+      await simulateClick(`.o-color-picker-widget .o-color-picker-button[title="${toolName}"]`);
+      await nextTick();
+      expect(fixture.querySelector(".o-color-picker")).toBeTruthy();
+      await simulateClick(".o-color-picker");
+      await nextTick();
+      expect(fixture.querySelector(".o-color-picker")).toBeTruthy();
     }
   );
 
