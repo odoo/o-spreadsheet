@@ -10,7 +10,7 @@ import {
   selectCell,
   setCellContent,
 } from "../test_helpers/commands_helpers";
-import { keyDown, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
+import { click, keyDown, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { makeTestEnv, makeTestFixture, mockUuidV4To, nextTick } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
@@ -66,7 +66,7 @@ describe("BottomBar component", () => {
     const dispatch = jest.spyOn(model, "dispatch");
     mockUuidV4To(model, 42);
     const activeSheetId = model.getters.getActiveSheetId();
-    triggerMouseEvent(".o-add-sheet", "click");
+    await click(fixture, ".o-add-sheet");
     expect(dispatch).toHaveBeenNthCalledWith(1, "CREATE_SHEET", {
       name: "Sheet2",
       sheetId: "42",
@@ -84,7 +84,7 @@ describe("BottomBar component", () => {
     const { app } = await mountBottomBar(model);
     const dispatch = jest.spyOn(model, "dispatch");
     expect(model.getters.getSheetIds().map(model.getters.getSheetName)).toEqual(["Sheet2"]);
-    triggerMouseEvent(".o-add-sheet", "click");
+    await click(fixture, ".o-add-sheet");
     expect(dispatch).toHaveBeenNthCalledWith(1, "CREATE_SHEET", {
       sheetId: expect.any(String),
       name: "Sheet1",
@@ -96,7 +96,7 @@ describe("BottomBar component", () => {
   test("Can activate a sheet", async () => {
     const { app, parent } = await mountBottomBar();
     const dispatch = jest.spyOn(parent.props.model, "dispatch");
-    triggerMouseEvent(".o-sheet", "click");
+    await click(fixture, ".o-sheet");
     const sheetIdFrom = parent.props.model.getters.getActiveSheetId();
     const sheetIdTo = sheetIdFrom;
     expect(dispatch).toHaveBeenCalledWith("ACTIVATE_SHEET", {
@@ -120,8 +120,7 @@ describe("BottomBar component", () => {
     const { app } = await mountBottomBar();
 
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
-    triggerMouseEvent(".o-sheet-icon", "click");
-    await nextTick();
+    await click(fixture, ".o-sheet-icon");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
     app.destroy();
   });
@@ -130,11 +129,9 @@ describe("BottomBar component", () => {
     const { app } = await mountBottomBar();
 
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
-    triggerMouseEvent(".o-sheet-icon", "click");
-    await nextTick();
+    await click(fixture, ".o-sheet-icon");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
-    triggerMouseEvent(".o-sheet-icon", "click");
-    await nextTick();
+    await click(fixture, ".o-sheet-icon");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     app.destroy();
   });
@@ -144,13 +141,11 @@ describe("BottomBar component", () => {
 
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
 
-    triggerMouseEvent(".o-sheet-item.o-list-sheets", "click");
-    await nextTick();
+    await click(fixture, ".o-sheet-item.o-list-sheets");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
     expect(fixture.querySelector(".o-menu-item")!.textContent).toEqual("Sheet1");
 
-    triggerMouseEvent(".o-sheet-icon", "click");
-    await nextTick();
+    await click(fixture, ".o-sheet-icon");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
     expect(fixture.querySelector(".o-menu-item")!.textContent).toEqual("Duplicate");
     app.destroy();
@@ -164,7 +159,7 @@ describe("BottomBar component", () => {
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
     const sheetId = model.getters.getActiveSheetId();
-    triggerMouseEvent(".o-menu-item[data-name='move_right'", "click");
+    await click(fixture, ".o-menu-item[data-name='move_right'");
     expect(dispatch).toHaveBeenCalledWith("MOVE_SHEET", {
       sheetId,
       direction: "right",
@@ -181,7 +176,7 @@ describe("BottomBar component", () => {
     triggerMouseEvent(".o-sheet[data-id='42']", "contextmenu");
     await nextTick();
     const sheetId = model.getters.getActiveSheetId();
-    triggerMouseEvent(".o-menu-item[data-name='move_left'", "click");
+    await click(fixture, ".o-menu-item[data-name='move_left'");
     expect(dispatch).toHaveBeenCalledWith("MOVE_SHEET", {
       sheetId,
       direction: "left",
@@ -198,7 +193,7 @@ describe("BottomBar component", () => {
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
     const sheetId = model.getters.getActiveSheetId();
-    triggerMouseEvent(".o-menu-item[data-name='hide_sheet']", "click");
+    await click(fixture, ".o-menu-item[data-name='hide_sheet']");
     expect(dispatch).toHaveBeenCalledWith("HIDE_SHEET", {
       sheetId,
     });
@@ -255,8 +250,7 @@ describe("BottomBar component", () => {
     test("Rename sheet with context menu makes sheet name editable and give it the focus", async () => {
       triggerMouseEvent(".o-sheet", "contextmenu");
       await nextTick();
-      triggerMouseEvent(".o-menu-item[data-name='rename'", "click");
-      await nextTick();
+      await click(fixture, ".o-menu-item[data-name='rename'");
       const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
       expect(sheetName.getAttribute("contenteditable")).toEqual("true");
       expect(document.activeElement).toEqual(sheetName);
@@ -328,7 +322,7 @@ describe("BottomBar component", () => {
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
     const sheet = model.getters.getActiveSheetId();
-    triggerMouseEvent(".o-menu-item[data-name='duplicate'", "click");
+    await click(fixture, ".o-menu-item[data-name='duplicate'");
     expect(dispatch).toHaveBeenCalledWith("DUPLICATE_SHEET", {
       sheetId: sheet,
       sheetIdTo: "123",
@@ -346,7 +340,7 @@ describe("BottomBar component", () => {
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
     const sheetId = model.getters.getActiveSheetId();
-    triggerMouseEvent(".o-menu-item[data-name='delete'", "click");
+    await click(fixture, ".o-menu-item[data-name='delete'");
     expect(dispatch).toHaveBeenCalledWith("DELETE_SHEET", { sheetId });
     app.destroy();
   });
@@ -364,8 +358,7 @@ describe("BottomBar component", () => {
     const { app } = await mountBottomBar();
 
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
-    triggerMouseEvent(".o-list-sheets", "click");
-    await nextTick();
+    await click(fixture, ".o-list-sheets");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
     app.destroy();
   });
@@ -375,8 +368,7 @@ describe("BottomBar component", () => {
     const sheet = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42" });
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
-    triggerMouseEvent(".o-list-sheets", "click");
-    await nextTick();
+    await click(fixture, ".o-list-sheets");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
     const sheets = fixture.querySelectorAll(".o-menu-item");
     expect(sheets.length).toBe(2);
@@ -391,9 +383,8 @@ describe("BottomBar component", () => {
     const sheet = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42" });
 
-    triggerMouseEvent(".o-list-sheets", "click");
-    await nextTick();
-    triggerMouseEvent(".o-menu-item[data-name='42'", "click");
+    await click(fixture, ".o-list-sheets");
+    await click(fixture, ".o-menu-item[data-name='42'");
     expect(dispatch).toHaveBeenCalledWith("ACTIVATE_SHEET", {
       sheetIdFrom: sheet,
       sheetIdTo: "42",
@@ -585,8 +576,7 @@ describe("BottomBar component", () => {
     selectCell(model, "A2");
     await nextTick();
 
-    triggerMouseEvent(".o-selection-statistic", "click");
-    await nextTick();
+    await click(fixture, ".o-selection-statistic");
     expect(fixture.querySelector(".o-menu")).toMatchSnapshot();
     app.destroy();
   });
@@ -599,10 +589,8 @@ describe("BottomBar component", () => {
 
     expect(fixture.querySelector(".o-selection-statistic")?.textContent).toBe("Sum: 24");
 
-    triggerMouseEvent(".o-selection-statistic", "click");
-    await nextTick();
-    triggerMouseEvent(".o-menu-item[data-name='Count Numbers'", "click");
-    await nextTick();
+    await click(fixture, ".o-selection-statistic");
+    await click(fixture, ".o-menu-item[data-name='Count Numbers'");
     expect(fixture.querySelector(".o-selection-statistic")?.textContent).toBe("Count Numbers: 1");
     app.destroy();
   });

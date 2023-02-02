@@ -9,6 +9,7 @@ import { OWL_TEMPLATES } from "../setup/jest.setup";
 import { MockClipboard } from "../test_helpers/clipboard";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import {
+  click,
   keyDown,
   rightClickCell,
   simulateClick,
@@ -299,24 +300,20 @@ describe("Standalone context menu tests", () => {
     test("close contextmenu when clicking on menubar", async () => {
       await rightClickCell(model, "B1");
       expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeTruthy();
-      triggerMouseEvent(".o-topbar-topleft", "click");
-      await nextTick();
+      await click(fixture, ".o-topbar-topleft");
       expect(fixture.querySelector(".o-menu")).toBeFalsy();
     });
 
     test("close contextmenu when clicking on menubar item", async () => {
       await rightClickCell(model, "B1");
       expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeTruthy();
-      triggerMouseEvent(".o-topbar-menu[data-id='insert']", "click");
-      await nextTick();
+      await click(fixture, ".o-topbar-menu[data-id='insert']");
       expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeFalsy();
     });
     test("close contextmenu when clicking on tools bar", async () => {
       await rightClickCell(model, "B1");
       expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeTruthy();
-      const fontSizeTool = fixture.querySelector('.o-tool[title="Font Size"]')!;
-      triggerMouseEvent(fontSizeTool, "click");
-      await nextTick();
+      await click(fixture, '.o-tool[title="Font Size"]');
       expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeFalsy();
     });
 

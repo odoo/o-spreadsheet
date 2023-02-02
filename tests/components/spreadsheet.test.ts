@@ -13,11 +13,11 @@ import {
   setCellContent,
 } from "../test_helpers/commands_helpers";
 import {
+  click,
   clickCell,
   getElComputedStyle,
   rightClickCell,
   simulateClick,
-  triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
 import {
@@ -60,8 +60,7 @@ describe("Simple Spreadsheet Component", () => {
 
   test("focus is properly set, initially and after switching sheet", async () => {
     expect(document.activeElement!.tagName).toEqual("INPUT");
-    document.querySelector(".o-add-sheet")!.dispatchEvent(new Event("click"));
-    await nextTick();
+    await click(fixture, ".o-add-sheet");
     expect(document.querySelectorAll(".o-sheet").length).toBe(2);
     expect(document.activeElement!.tagName).toEqual("INPUT");
     await simulateClick(document.querySelectorAll(".o-sheet")[1]);
@@ -174,8 +173,7 @@ describe("Simple Spreadsheet Component", () => {
     const gridComposerZIndex = getZIndex("div.o-grid-composer");
     const highlighZIndex = getZIndex(".o-highlight");
 
-    triggerMouseEvent(".o-tool.o-dropdown-button.o-with-color", "click");
-    await nextTick();
+    await click(fixture.querySelectorAll(".o-tool.o-dropdown-button.o-with-color")[0]);
     const colorPickerZIndex = getZIndex("div.o-color-picker");
 
     createChart(model, {}, "thisIsAnId");

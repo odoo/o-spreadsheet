@@ -10,7 +10,7 @@ import {
   paste,
   setSelection,
 } from "../test_helpers/commands_helpers";
-import { setInputValueAndTrigger, triggerMouseEvent } from "../test_helpers/dom_helper";
+import { click, setInputValueAndTrigger } from "../test_helpers/dom_helper";
 import {
   createColorScale,
   createEqualCF,
@@ -155,8 +155,7 @@ describe("UI of conditional formats", () => {
       // TODO VSC: see how we can test the gradient background image
     });
     test("can edit an existing CellIsRule", async () => {
-      triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[0], "click");
-      await nextTick();
+      await click(fixture.querySelectorAll(selectors.listPreview)[0]);
       await nextTick();
 
       // change every value
@@ -165,15 +164,14 @@ describe("UI of conditional formats", () => {
       setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "BeginsWith", "change");
       setInputValueAndTrigger(selectors.ruleEditor.editor.valueInput, "3", "input");
 
-      triggerMouseEvent(selectors.ruleEditor.editor.bold, "click");
-      triggerMouseEvent(selectors.ruleEditor.editor.italic, "click");
-      triggerMouseEvent(selectors.ruleEditor.editor.underline, "click");
-      triggerMouseEvent(selectors.ruleEditor.editor.strikethrough, "click");
+      await click(fixture, selectors.ruleEditor.editor.bold);
+      await click(fixture, selectors.ruleEditor.editor.italic);
+      await click(fixture, selectors.ruleEditor.editor.underline);
+      await click(fixture, selectors.ruleEditor.editor.strikethrough);
 
       const dispatch = spyDispatch(parent);
       //  click save
-      triggerMouseEvent(selectors.buttonSave, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonSave);
 
       const sheetId = model.getters.getActiveSheetId();
       expect(dispatch).toHaveBeenNthCalledWith(1, "ADD_CONDITIONAL_FORMAT", {
@@ -216,8 +214,7 @@ describe("UI of conditional formats", () => {
       });
       // let the sidePanel reload the CF values
       await nextTick();
-      triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[0], "click");
-      await nextTick();
+      await click(fixture.querySelectorAll(selectors.listPreview)[0]);
       await nextTick();
 
       const previewLine = document.querySelector(".o-cf-preview-line")! as HTMLDivElement;
@@ -246,23 +243,19 @@ describe("UI of conditional formats", () => {
     });
 
     test("can edit an existing ColorScaleRule", async () => {
-      triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[1], "click");
-      await nextTick();
+      await click(fixture.querySelectorAll(selectors.listPreview)[1]);
       await nextTick();
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
 
-      triggerMouseEvent(selectors.colorScaleEditor.minColor, "click");
-      await nextTick();
-      triggerMouseEvent(selectors.colorScaleEditor.colorPickerBlue, "click");
-      triggerMouseEvent(selectors.colorScaleEditor.maxColor, "click");
-      await nextTick();
-      triggerMouseEvent(selectors.colorScaleEditor.colorPickerYellow, "click");
+      await click(fixture, selectors.colorScaleEditor.minColor);
+      await click(fixture, selectors.colorScaleEditor.colorPickerBlue);
+      await click(fixture, selectors.colorScaleEditor.maxColor);
+      await click(fixture, selectors.colorScaleEditor.colorPickerYellow);
 
       const dispatch = spyDispatch(parent);
       //  click save
-      triggerMouseEvent(selectors.buttonSave, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonSave);
 
       const sheetId = model.getters.getActiveSheetId();
       expect(dispatch).toHaveBeenNthCalledWith(1, "ADD_CONDITIONAL_FORMAT", {
@@ -288,37 +281,24 @@ describe("UI of conditional formats", () => {
     });
 
     test("toggle color-picker", async () => {
-      triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[0], "click");
-      await nextTick();
-      triggerMouseEvent(
-        document.querySelectorAll(selectors.ruleEditor.editor.colorDropdown)[0],
-        "click"
-      );
-      await nextTick();
+      await click(fixture.querySelectorAll(selectors.listPreview)[0]);
+      await click(fixture.querySelectorAll(selectors.ruleEditor.editor.colorDropdown)[0]);
       expect(fixture.querySelector(".o-color-picker")).toBeTruthy();
-      triggerMouseEvent(
-        document.querySelectorAll(selectors.ruleEditor.editor.colorDropdown)[0],
-        "click"
-      );
-      await nextTick();
+      await click(fixture.querySelectorAll(selectors.ruleEditor.editor.colorDropdown)[0]);
       expect(fixture.querySelector(".o-color-picker")).toBeFalsy();
     });
 
     test("color-picker closes when click elsewhere", async () => {
-      triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[0], "click");
-      await nextTick();
-      triggerMouseEvent(selectors.ruleEditor.editor.colorDropdown, "click");
-      await nextTick();
+      await click(fixture.querySelectorAll(selectors.listPreview)[0]);
+      await click(fixture.querySelectorAll(selectors.ruleEditor.editor.colorDropdown)[0]);
       expect(fixture.querySelector(".o-color-picker")).toBeTruthy();
-      triggerMouseEvent(".o-cf-preview-line", "click");
-      await nextTick();
+      await click(fixture, ".o-cf-preview-line");
       expect(fixture.querySelector(".o-color-picker")).toBeFalsy();
     });
 
     test("can create a new CellIsRule", async () => {
       mockUuidV4To(model, "42");
-      triggerMouseEvent(selectors.buttonAdd, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonAdd);
       await nextTick();
 
       // change every value
@@ -327,15 +307,14 @@ describe("UI of conditional formats", () => {
       await nextTick();
       setInputValueAndTrigger(selectors.ruleEditor.editor.valueInput, "3", "input");
 
-      triggerMouseEvent(selectors.ruleEditor.editor.bold, "click");
-      triggerMouseEvent(selectors.ruleEditor.editor.italic, "click");
-      triggerMouseEvent(selectors.ruleEditor.editor.underline, "click");
-      triggerMouseEvent(selectors.ruleEditor.editor.strikethrough, "click");
+      await click(fixture, selectors.ruleEditor.editor.bold);
+      await click(fixture, selectors.ruleEditor.editor.italic);
+      await click(fixture, selectors.ruleEditor.editor.underline);
+      await click(fixture, selectors.ruleEditor.editor.strikethrough);
 
       const dispatch = spyDispatch(parent);
       //  click save
-      triggerMouseEvent(selectors.buttonSave, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonSave);
       const sheetId = model.getters.getActiveSheetId();
       expect(dispatch).toHaveBeenNthCalledWith(1, "ADD_CONDITIONAL_FORMAT", {
         cf: {
@@ -359,16 +338,14 @@ describe("UI of conditional formats", () => {
     });
 
     test("cannot create a new CF with invalid range", async () => {
-      triggerMouseEvent(selectors.buttonAdd, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonAdd);
       await nextTick();
 
       setInputValueAndTrigger(selectors.ruleEditor.range, "hello", "change");
 
       const dispatch = spyDispatch(parent);
       //  click save
-      triggerMouseEvent(selectors.buttonSave, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonSave);
       expect(dispatch).not.toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT");
       const errorString = document.querySelector(selectors.error);
       expect(errorString!.textContent).toBe("The range is invalid");
@@ -387,8 +364,7 @@ describe("UI of conditional formats", () => {
     test("can delete Rule", async () => {
       const dispatch = spyDispatch(parent);
       const previews = document.querySelectorAll(selectors.listPreview);
-      triggerMouseEvent(previews[0].querySelector(selectors.buttonDelete), "click");
-      await nextTick();
+      await click(previews[0], selectors.buttonDelete);
       expect(dispatch).toHaveBeenCalledWith("REMOVE_CONDITIONAL_FORMAT", {
         id: "1",
         sheetId: model.getters.getActiveSheetId(),
@@ -402,8 +378,7 @@ describe("UI of conditional formats", () => {
       expect(document.querySelector(selectors.cfReorder.buttonUp)).toBeFalsy();
       expect(document.querySelector(selectors.cfReorder.buttonDown)).toBeFalsy();
 
-      triggerMouseEvent(selectors.buttonReoder, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonReoder);
 
       expect(document.querySelector(selectors.buttonExitReorder)).toBeTruthy();
       // Minus one because top rule has no up button, bottom rule no down button
@@ -414,8 +389,7 @@ describe("UI of conditional formats", () => {
         previews.length - 1
       );
 
-      triggerMouseEvent(selectors.buttonExitReorder, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonExitReorder);
 
       expect(document.querySelector(selectors.buttonExitReorder)).toBeFalsy();
       expect(document.querySelector(selectors.cfReorder.buttonUp)).toBeFalsy();
@@ -425,41 +399,33 @@ describe("UI of conditional formats", () => {
     test("can reorder CF rules with up/down buttons", async () => {
       const sheetId = model.getters.getActiveSheetId();
 
-      triggerMouseEvent(selectors.buttonReoder, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonReoder);
 
       let previews = document.querySelectorAll(selectors.listPreview);
-      triggerMouseEvent(previews[0].querySelector(selectors.cfReorder.buttonDown), "click");
-      await nextTick();
+      await click(previews[0], selectors.cfReorder.buttonDown);
       expect(model.getters.getConditionalFormats(sheetId)[0].id).toEqual("2");
 
       previews = document.querySelectorAll(selectors.listPreview);
-      triggerMouseEvent(previews[1].querySelector(selectors.cfReorder.buttonUp), "click");
-      await nextTick();
+      await click(previews[1], selectors.cfReorder.buttonUp);
       expect(model.getters.getConditionalFormats(sheetId)[0].id).toEqual("1");
     });
   });
 
   test("can create a new ColorScaleRule with cell values", async () => {
     mockUuidV4To(model, "43");
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
-    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
-    await nextTick();
+    await click(fixture, selectors.buttonAdd);
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
     // change every value
     setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
-    triggerMouseEvent(selectors.colorScaleEditor.minColor, "click");
-    await nextTick();
-    triggerMouseEvent(selectors.colorScaleEditor.colorPickerBlue, "click");
-    triggerMouseEvent(selectors.colorScaleEditor.maxColor, "click");
-    await nextTick();
-    triggerMouseEvent(selectors.colorScaleEditor.colorPickerYellow, "click");
+    await click(fixture, selectors.colorScaleEditor.minColor);
+    await click(fixture, selectors.colorScaleEditor.colorPickerBlue);
+    await click(fixture, selectors.colorScaleEditor.maxColor);
+    await click(fixture, selectors.colorScaleEditor.colorPickerYellow);
 
     const dispatch = spyDispatch(parent);
     //  click save
-    triggerMouseEvent(selectors.buttonSave, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonSave);
 
     expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
@@ -483,32 +449,27 @@ describe("UI of conditional formats", () => {
 
   test("can create a new ColorScaleRule with fixed values", async () => {
     mockUuidV4To(model, "44");
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonAdd);
 
-    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
-    await nextTick();
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
     // change every value
     setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
 
-    triggerMouseEvent(selectors.colorScaleEditor.minColor, "click");
-    await nextTick();
-    triggerMouseEvent(selectors.colorScaleEditor.colorPickerBlue, "click");
+    await click(fixture, selectors.colorScaleEditor.minColor);
+    await click(fixture, selectors.colorScaleEditor.colorPickerBlue);
     setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number", "change");
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "10", "input");
-    triggerMouseEvent(selectors.colorScaleEditor.maxColor, "click");
-    await nextTick();
-    triggerMouseEvent(selectors.colorScaleEditor.colorPickerYellow, "click");
+    await click(fixture, selectors.colorScaleEditor.maxColor);
+    await click(fixture, selectors.colorScaleEditor.colorPickerYellow);
     setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number", "change");
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "20", "input");
 
     const dispatch = spyDispatch(parent);
     //  click save
-    triggerMouseEvent(selectors.buttonSave, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonSave);
 
     const sheetId = model.getters.getActiveSheetId();
     expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
@@ -535,32 +496,27 @@ describe("UI of conditional formats", () => {
 
   test("can create a new ColorScaleRule with percent values", async () => {
     mockUuidV4To(model, "44");
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonAdd);
 
-    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
-    await nextTick();
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
     // change every value
     setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
 
-    triggerMouseEvent(selectors.colorScaleEditor.minColor, "click");
-    await nextTick();
-    triggerMouseEvent(selectors.colorScaleEditor.colorPickerBlue, "click");
+    await click(fixture, selectors.colorScaleEditor.minColor);
+    await click(fixture, selectors.colorScaleEditor.colorPickerBlue);
     setInputValueAndTrigger(selectors.colorScaleEditor.minType, "percentage", "change");
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "10", "input");
-    triggerMouseEvent(selectors.colorScaleEditor.maxColor, "click");
-    await nextTick();
-    triggerMouseEvent(selectors.colorScaleEditor.colorPickerYellow, "click");
+    await click(fixture, selectors.colorScaleEditor.maxColor);
+    await click(fixture, selectors.colorScaleEditor.colorPickerYellow);
     setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "percentage", "change");
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "90", "input");
 
     const dispatch = spyDispatch(parent);
     //  click save
-    triggerMouseEvent(selectors.buttonSave, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonSave);
 
     const sheetId = model.getters.getActiveSheetId();
     expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
@@ -587,32 +543,27 @@ describe("UI of conditional formats", () => {
 
   test("can create a new ColorScaleRule with percentile values", async () => {
     mockUuidV4To(model, "44");
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonAdd);
 
-    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
-    await nextTick();
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
     // change every value
     setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
 
-    triggerMouseEvent(selectors.colorScaleEditor.minColor, "click");
-    await nextTick();
-    triggerMouseEvent(selectors.colorScaleEditor.colorPickerBlue, "click");
+    await click(fixture, selectors.colorScaleEditor.minColor);
+    await click(fixture, selectors.colorScaleEditor.colorPickerBlue);
     setInputValueAndTrigger(selectors.colorScaleEditor.minType, "percentile", "change");
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "10", "input");
-    triggerMouseEvent(selectors.colorScaleEditor.maxColor, "click");
-    await nextTick();
-    triggerMouseEvent(selectors.colorScaleEditor.colorPickerYellow, "click");
+    await click(fixture, selectors.colorScaleEditor.maxColor);
+    await click(fixture, selectors.colorScaleEditor.colorPickerYellow);
     setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "percentile", "change");
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "90", "input");
 
     const dispatch = spyDispatch(parent);
     //  click save
-    triggerMouseEvent(selectors.buttonSave, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonSave);
 
     const sheetId = model.getters.getActiveSheetId();
     expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
@@ -639,40 +590,34 @@ describe("UI of conditional formats", () => {
 
   test("can create a new ColorScaleRule with a midpoint", async () => {
     mockUuidV4To(model, "44");
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonAdd);
 
-    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
-    await nextTick();
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
     // change every value
     setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
 
-    triggerMouseEvent(selectors.colorScaleEditor.minColor, "click");
-    await nextTick();
-    triggerMouseEvent(selectors.colorScaleEditor.colorPickerBlue, "click");
+    await click(fixture, selectors.colorScaleEditor.minColor);
+    await click(fixture, selectors.colorScaleEditor.colorPickerBlue);
     setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number", "change");
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "0", "input");
 
     setInputValueAndTrigger(selectors.colorScaleEditor.midType, "number", "change");
     await nextTick();
-    triggerMouseEvent(selectors.colorScaleEditor.midColor, "click");
-    await nextTick();
-    triggerMouseEvent(selectors.colorScaleEditor.colorPickerOrange, "click");
+    await click(fixture, selectors.colorScaleEditor.midColor);
+    await click(fixture, selectors.colorScaleEditor.colorPickerOrange);
     setInputValueAndTrigger(selectors.colorScaleEditor.midValue, "50", "input");
 
-    triggerMouseEvent(selectors.colorScaleEditor.maxColor, "click");
-    await nextTick();
-    triggerMouseEvent(selectors.colorScaleEditor.colorPickerYellow, "click");
+    await click(fixture, selectors.colorScaleEditor.maxColor);
+    await click(fixture, selectors.colorScaleEditor.colorPickerYellow);
     setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number", "change");
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "100", "input");
 
     const dispatch = spyDispatch(parent);
     //  click save
-    triggerMouseEvent(selectors.buttonSave, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonSave);
 
     const sheetId = model.getters.getActiveSheetId();
     expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
@@ -703,13 +648,11 @@ describe("UI of conditional formats", () => {
   });
 
   test("Make a multiple selection, open CF panel, create a rule => Should create one line per selection", async () => {
-    triggerMouseEvent(selectors.closePanel, "click");
-    await nextTick();
+    await click(fixture, selectors.closePanel);
     setSelection(model, ["B2", "C3"]);
     parent.env.openSidePanel("ConditionalFormatting");
     await nextTick();
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonAdd);
     await nextTick();
     const ranges = document.querySelectorAll(selectors.ruleEditor.range);
     expect(ranges).toHaveLength(2);
@@ -719,8 +662,7 @@ describe("UI of conditional formats", () => {
 
   test("Open CF panel, make a multiple selection, open CF panel, create a rule => Should create one line per selection", async () => {
     setSelection(model, ["B2", "C3"]);
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonAdd);
     const ranges = document.querySelectorAll(selectors.ruleEditor.range);
     expect(ranges).toHaveLength(2);
     expect(ranges[0]["value"]).toBe("B2");
@@ -729,7 +671,7 @@ describe("UI of conditional formats", () => {
 
   test("switching sheet resets CF Editor to list", async () => {
     const sheetId = model.getters.getActiveSheetId();
-    triggerMouseEvent(selectors.closePanel, "click");
+    await click(fixture, selectors.closePanel);
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99"),
       ranges: toRangesData(sheetId, "A1:A2"),
@@ -748,23 +690,19 @@ describe("UI of conditional formats", () => {
     expect(fixture.querySelector(selectors.listPreview)).toBeDefined();
   });
   test("error if range is empty", async () => {
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonAdd);
     await nextTick();
     setInputValueAndTrigger(selectors.ruleEditor.range, "", "change");
     await nextTick();
-    triggerMouseEvent(selectors.buttonSave, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonSave);
     expect(errorMessages()).toEqual(["A range needs to be defined"]);
     expect(fixture.querySelector(selectors.ruleEditor.range)?.className).toContain("o-invalid");
   });
 
   test("will not dispatch if minvalue > maxvalue", async () => {
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonAdd);
 
-    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
-    await nextTick();
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
     // change every value
     setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
@@ -778,8 +716,7 @@ describe("UI of conditional formats", () => {
 
     expect(errorMessages()).toHaveLength(0);
 
-    triggerMouseEvent(selectors.buttonSave, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonSave);
 
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
     expect(errorMessages()).toEqual(["Minimum must be smaller then Maximum"]);
@@ -795,11 +732,9 @@ describe("UI of conditional formats", () => {
   });
 
   test("will show error if minvalue > midvalue", async () => {
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonAdd);
 
-    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
-    await nextTick();
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
     // change every value
     setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
@@ -819,8 +754,7 @@ describe("UI of conditional formats", () => {
     expect(errorMessages()).toHaveLength(0);
 
     //  click save
-    triggerMouseEvent(selectors.buttonSave, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonSave);
 
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
     expect(errorMessages()).toEqual([
@@ -840,11 +774,9 @@ describe("UI of conditional formats", () => {
   });
 
   test("will show error if midvalue > maxvalue", async () => {
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonAdd);
 
-    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
-    await nextTick();
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
     // change every value
     setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
@@ -861,8 +793,7 @@ describe("UI of conditional formats", () => {
     expect(errorMessages()).toHaveLength(0);
 
     //  click save
-    triggerMouseEvent(selectors.buttonSave, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonSave);
 
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
     expect(errorMessages()).toEqual(["Midpoint must be smaller then Maximum"]);
@@ -880,11 +811,9 @@ describe("UI of conditional formats", () => {
   test.each(["", "aaaa", "=SUM(1, 2)"])(
     "will display error if wrong minValue",
     async (invalidValue) => {
-      triggerMouseEvent(selectors.buttonAdd, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonAdd);
 
-      triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
-      await nextTick();
+      await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
@@ -899,8 +828,7 @@ describe("UI of conditional formats", () => {
 
       expect(errorMessages()).toHaveLength(0);
 
-      triggerMouseEvent(selectors.buttonSave, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonSave);
       expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
       expect(errorMessages()).toEqual(["The minpoint must be a number"]);
       expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).toContain(
@@ -918,11 +846,9 @@ describe("UI of conditional formats", () => {
   test.each(["", "aaaa", "=SUM(1, 2)"])(
     "will display error if wrong midValue",
     async (invalidValue) => {
-      triggerMouseEvent(selectors.buttonAdd, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonAdd);
 
-      triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
-      await nextTick();
+      await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
@@ -938,8 +864,7 @@ describe("UI of conditional formats", () => {
 
       expect(errorMessages()).toHaveLength(0);
 
-      triggerMouseEvent(selectors.buttonSave, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonSave);
       expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
       expect(errorMessages()).toEqual(["The midpoint must be a number"]);
       expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).not.toContain(
@@ -957,11 +882,9 @@ describe("UI of conditional formats", () => {
   test.each(["", "aaaa", "=SUM(1, 2)"])(
     "will display error if wrong maxValue",
     async (invalidValue) => {
-      triggerMouseEvent(selectors.buttonAdd, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonAdd);
 
-      triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
-      await nextTick();
+      await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
@@ -976,8 +899,7 @@ describe("UI of conditional formats", () => {
 
       expect(errorMessages()).toHaveLength(0);
 
-      triggerMouseEvent(selectors.buttonSave, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonSave);
       expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
       expect(errorMessages()).toEqual(["The maxpoint must be a number"]);
       expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).not.toContain(
@@ -993,11 +915,9 @@ describe("UI of conditional formats", () => {
   );
 
   test("will display error if there is an invalid formula for the min", async () => {
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonAdd);
 
-    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
-    await nextTick();
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
     // change every value
     setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
@@ -1012,8 +932,7 @@ describe("UI of conditional formats", () => {
 
     expect(errorMessages()).toHaveLength(0);
 
-    triggerMouseEvent(selectors.buttonSave, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonSave);
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
     expect(errorMessages()).toEqual(["Invalid Minpoint formula"]);
     expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).toContain(
@@ -1028,11 +947,9 @@ describe("UI of conditional formats", () => {
   });
 
   test("will display error if there is an invalid formula for the mid", async () => {
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonAdd);
 
-    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
-    await nextTick();
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
     // change every value
     setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
@@ -1048,8 +965,7 @@ describe("UI of conditional formats", () => {
 
     expect(errorMessages()).toHaveLength(0);
 
-    triggerMouseEvent(selectors.buttonSave, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonSave);
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
     expect(errorMessages()).toEqual(["Invalid Midpoint formula"]);
     expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).not.toContain(
@@ -1064,54 +980,44 @@ describe("UI of conditional formats", () => {
   });
 
   test("single color missing a single value", async () => {
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonAdd);
     setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "GreaterThan", "change");
     expect(fixture.querySelector(".o-invalid")).toBeNull();
-    triggerMouseEvent(selectors.buttonSave, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonSave);
     expect(fixture.querySelector(".o-invalid")).not.toBeNull();
     expect(errorMessages()).toEqual(["The argument is missing. Please provide a value"]);
   });
 
   test("single color missing two values", async () => {
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonAdd);
     setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "Between", "change");
     expect(fixture.querySelector(".o-invalid")).toBeNull();
-    triggerMouseEvent(selectors.buttonSave, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonSave);
     expect([...fixture.querySelectorAll(".o-invalid")]).toHaveLength(2);
     expect(errorMessages()).toEqual([
       "The argument is missing. Please provide a value",
       "The second argument is missing. Please provide a value",
     ]);
     setInputValueAndTrigger(selectors.ruleEditor.editor.valueInput, "25", "input");
-    triggerMouseEvent(selectors.buttonSave, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonSave);
     expect([...fixture.querySelectorAll(".o-invalid")]).toHaveLength(1);
     expect(errorMessages()).toEqual(["The second argument is missing. Please provide a value"]);
   });
 
   test("changing rule type resets errors", async () => {
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonAdd);
     setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "GreaterThan", "change");
-    triggerMouseEvent(selectors.buttonSave, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonSave);
     expect(errorMessages()).not.toHaveLength(0);
-    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
-    await nextTick();
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
     expect(errorMessages()).toHaveLength(0);
     expect([...fixture.querySelectorAll(".o-invalid")]).toHaveLength(0);
   });
 
   test("will display error if there is an invalid formula for the max", async () => {
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonAdd);
 
-    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
-    await nextTick();
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
     // change every value
     setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
@@ -1126,50 +1032,37 @@ describe("UI of conditional formats", () => {
 
     expect(errorMessages()).toHaveLength(0);
 
-    triggerMouseEvent(selectors.buttonSave, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonSave);
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
     expect(errorMessages()).toEqual(["Invalid Maxpoint formula"]);
   });
 
   describe("Icon set CF", () => {
     test("can select the Icon set tab", async () => {
-      triggerMouseEvent(selectors.buttonAdd, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonAdd);
 
-      triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
-      await nextTick();
+      await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
       expect(
         document.querySelector(selectors.ruleEditor.editor.iconSetRule.container)
       ).toBeDefined();
     });
 
     test("can apply different iconSet", async () => {
-      triggerMouseEvent(selectors.buttonAdd, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonAdd);
 
-      triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
-      await nextTick();
+      await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
       let icons = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.icons);
       expect(icons[0].classList.value).toBe("o-cf-icon arrow-up");
       expect(icons[1].classList.value).toBe("o-cf-icon arrow-right");
       expect(icons[2].classList.value).toBe("o-cf-icon arrow-down");
 
-      triggerMouseEvent(
-        document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.iconsets)[1],
-        "click"
-      );
-      await nextTick();
+      await click(fixture.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.iconsets)[1]);
       icons = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.icons);
       expect(icons[0].classList.value).toBe("o-cf-icon smile");
       expect(icons[1].classList.value).toBe("o-cf-icon meh");
       expect(icons[2].classList.value).toBe("o-cf-icon frown");
 
-      triggerMouseEvent(
-        document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.iconsets)[2],
-        "click"
-      );
-      await nextTick();
+      await click(fixture.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.iconsets)[2]);
       icons = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.icons);
       expect(icons[0].classList.value).toBe("o-cf-icon green-dot");
       expect(icons[1].classList.value).toBe("o-cf-icon yellow-dot");
@@ -1177,19 +1070,16 @@ describe("UI of conditional formats", () => {
     });
 
     test("inverse checkbox will inverse icons", async () => {
-      triggerMouseEvent(selectors.buttonAdd, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonAdd);
 
-      triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
-      await nextTick();
+      await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
 
       let icons = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.icons);
       expect(icons[0].classList.value).toBe("o-cf-icon arrow-up");
       expect(icons[1].classList.value).toBe("o-cf-icon arrow-right");
       expect(icons[2].classList.value).toBe("o-cf-icon arrow-down");
 
-      triggerMouseEvent(selectors.ruleEditor.editor.iconSetRule.reverse, "click");
-      await nextTick();
+      await click(fixture, selectors.ruleEditor.editor.iconSetRule.reverse);
       icons = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.icons);
       expect(icons[2].classList.value).toBe("o-cf-icon arrow-up");
       expect(icons[1].classList.value).toBe("o-cf-icon arrow-right");
@@ -1198,19 +1088,16 @@ describe("UI of conditional formats", () => {
 
     test("can create a new IconsetRule", async () => {
       mockUuidV4To(model, "44");
-      triggerMouseEvent(selectors.buttonAdd, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonAdd);
 
-      triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
-      await nextTick();
+      await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
 
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
 
       const dispatch = spyDispatch(parent);
       //  click save
-      triggerMouseEvent(selectors.buttonSave, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonSave);
 
       const sheetId = model.getters.getActiveSheetId();
       expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
@@ -1242,11 +1129,9 @@ describe("UI of conditional formats", () => {
 
     test("can change inputs", async () => {
       mockUuidV4To(model, "44");
-      triggerMouseEvent(selectors.buttonAdd, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonAdd);
 
-      triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
-      await nextTick();
+      await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
       const rows = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.rows);
       const typeinflectionLower = rows[1].querySelectorAll("select")[1];
       const operatorinflectionLower = rows[1].querySelectorAll("select")[0];
@@ -1271,8 +1156,7 @@ describe("UI of conditional formats", () => {
 
       const dispatch = spyDispatch(parent);
       //  click save
-      triggerMouseEvent(selectors.buttonSave, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonSave);
 
       const sheetId = model.getters.getActiveSheetId();
       expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
@@ -1309,25 +1193,20 @@ describe("UI of conditional formats", () => {
     [2, { lower: "dotNeutral", middle: "arrowNeutral", upper: "arrowGood" }],
   ])("can change each icon individually", async (iconIndex, expectedIcons) => {
     mockUuidV4To(model, "44");
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonAdd);
 
-    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
-    await nextTick();
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
 
     const row = document.querySelectorAll(".o-inflection tr")[1 + iconIndex]; // +1 for the <table> headers
     const iconElement = row.querySelectorAll("div")[0];
-    triggerMouseEvent(iconElement, "click");
-    await nextTick();
+    await click(iconElement);
 
     const newIcon = document.querySelectorAll(".o-icon-picker-item")[7];
-    triggerMouseEvent(newIcon, "click");
-    await nextTick();
+    await click(newIcon);
 
     const dispatch = spyDispatch(parent);
     //  click save
-    triggerMouseEvent(selectors.buttonSave, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonSave);
 
     const sheetId = model.getters.getActiveSheetId();
     expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
@@ -1360,16 +1239,13 @@ describe("UI of conditional formats", () => {
   ])(
     "Show right lowerInflection point error message (Command result: %s , Message: %s)",
     async (error: CommandResult, errorMessage: string) => {
-      triggerMouseEvent(selectors.buttonAdd, "click");
-      await nextTick();
-      triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
-      await nextTick();
+      await click(fixture, selectors.buttonAdd);
+      await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
 
       const cfPlugin = getPlugin(parent.props.model, ConditionalFormatPlugin);
       cfPlugin.allowDispatch = jest.fn(() => error);
 
-      triggerMouseEvent(selectors.buttonSave, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonSave);
       const rows = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.rows);
       const inputInflectionLower = rows[1].querySelectorAll("input")[0];
       const inputInflectionUpper = rows[2].querySelectorAll("input")[0];
@@ -1384,17 +1260,14 @@ describe("UI of conditional formats", () => {
   ])(
     "Show right upperInflection point error message (Command result: %s , Message: %s)",
     async (error: CommandResult, errorMessage: string) => {
-      triggerMouseEvent(selectors.buttonAdd, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonAdd);
 
-      triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
-      await nextTick();
+      await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
 
       const cfPlugin = getPlugin(parent.props.model, ConditionalFormatPlugin);
       cfPlugin.allowDispatch = jest.fn(() => error);
 
-      triggerMouseEvent(selectors.buttonSave, "click");
-      await nextTick();
+      await click(fixture, selectors.buttonSave);
       const rows = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.rows);
       const inputInflectionLower = rows[1].querySelectorAll("input")[0];
       const inputInflectionUpper = rows[2].querySelectorAll("input")[0];
@@ -1405,23 +1278,19 @@ describe("UI of conditional formats", () => {
   );
 
   test("display both inflection point errors", async () => {
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
-    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
-    await nextTick();
+    await click(fixture, selectors.buttonAdd);
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
     const rows = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.rows);
     const inputInflectionLower = rows[1].querySelectorAll("input")[0];
     const inputInflectionUpper = rows[2].querySelectorAll("input")[0];
     setInputValueAndTrigger(inputInflectionLower, "hello", "input");
-    triggerMouseEvent(selectors.buttonSave, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonSave);
     expect(inputInflectionLower.classList).toContain("o-invalid");
     expect(inputInflectionUpper.classList).not.toContain("o-invalid");
     expect(errorMessages()).toEqual(["The first value must be a number"]);
 
     setInputValueAndTrigger(inputInflectionUpper, "hello", "input");
-    triggerMouseEvent(selectors.buttonSave, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonSave);
     expect(inputInflectionLower.classList).toContain("o-invalid");
     expect(inputInflectionUpper.classList).toContain("o-invalid");
     expect(errorMessages()).toEqual([
@@ -1431,10 +1300,8 @@ describe("UI of conditional formats", () => {
   });
 
   test("lower point bigger than upper displays both input as invalid", async () => {
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
-    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
-    await nextTick();
+    await click(fixture, selectors.buttonAdd);
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
     const rows = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.rows);
     const inputInflectionLower = rows[1].querySelectorAll("input")[0];
     const inputInflectionUpper = rows[2].querySelectorAll("input")[0];
@@ -1442,8 +1309,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
     setInputValueAndTrigger(inputInflectionLower, "1", "input");
     await nextTick();
-    triggerMouseEvent(selectors.buttonSave, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonSave);
     expect(inputInflectionLower.classList).toContain("o-invalid");
     expect(inputInflectionUpper.classList).toContain("o-invalid");
     expect(errorMessages()).toEqual([
@@ -1452,8 +1318,7 @@ describe("UI of conditional formats", () => {
   });
 
   test("Configuration is locally saved when switching cf type", async () => {
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonAdd);
 
     setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "BeginsWith", "change");
     await nextTick();
@@ -1465,11 +1330,9 @@ describe("UI of conditional formats", () => {
       ).value
     ).toBe("BeginsWith");
 
-    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
-    await nextTick();
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
-    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[0], "click");
-    await nextTick();
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[0]);
     expect(
       (
         document.querySelector(
@@ -1480,16 +1343,13 @@ describe("UI of conditional formats", () => {
   });
 
   test("switching to list resets the rules to their default value", async () => {
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonAdd);
     setInputValueAndTrigger(selectors.ruleEditor.range, "B5:C7", "change");
     setInputValueAndTrigger(selectors.ruleEditor.range, "B5:C7", "input");
     setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "BeginsWith", "change");
     await nextTick();
-    triggerMouseEvent(selectors.buttonCancel, "click");
-    await nextTick();
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
+    await click(fixture, selectors.buttonCancel);
+    await click(fixture, selectors.buttonAdd);
     expect((document.querySelector(selectors.ruleEditor.range) as HTMLInputElement).value).toBe(
       "A1"
     );

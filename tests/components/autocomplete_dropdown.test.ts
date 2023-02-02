@@ -2,7 +2,7 @@ import { App } from "@odoo/owl";
 import { args, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import { selectCell } from "../test_helpers/commands_helpers";
-import { clickCell, keyDown, keyUp, simulateClick } from "../test_helpers/dom_helper";
+import { click, clickCell, keyDown, keyUp, simulateClick } from "../test_helpers/dom_helper";
 import { getCellText } from "../test_helpers/getters_helpers";
 import {
   clearFunctions,
@@ -197,10 +197,7 @@ describe("Functions autocomplete", () => {
 
     test("click on a autocomplete does the autocomplete", async () => {
       await typeInComposerGrid("=S");
-      fixture
-        .querySelector(".o-autocomplete-dropdown")!
-        .children[1].dispatchEvent(new MouseEvent("click"));
-      await nextTick();
+      await click(fixture, ".o-autocomplete-dropdown > div:nth-child(2)");
       expect(composerEl.textContent).toBe("=SZZ(");
       expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
       expect(cehMock.selectionState.position).toBe(5);
@@ -229,10 +226,7 @@ describe("Functions autocomplete", () => {
 
     test("click on a autocomplete with multi-line topbar composer does the autocomplete", async () => {
       await typeInComposerTopBar("=\nS");
-      fixture
-        .querySelector(".o-autocomplete-dropdown")!
-        .children[1].dispatchEvent(new MouseEvent("click"));
-      await nextTick();
+      await click(fixture, ".o-autocomplete-dropdown > div:nth-child(2)");
       expect(composerEl.textContent).toBe("=\nSZZ(");
       expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
       expect(cehMock.selectionState.position).toBe(6);
@@ -258,8 +252,7 @@ describe("Functions autocomplete", () => {
       await nextTick();
       expect(document.activeElement).toEqual(activeElement);
 
-      dropDownEl.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-      await nextTick();
+      await click(dropDownEl);
       expect(document.activeElement).toEqual(activeElement);
     });
   });

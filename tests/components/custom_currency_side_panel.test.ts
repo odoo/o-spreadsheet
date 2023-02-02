@@ -3,7 +3,7 @@ import { Model, Spreadsheet } from "../../src";
 import { currenciesRegistry } from "../../src/registries/currencies_registry";
 import { Currency } from "../../src/types/currency";
 import { setSelection } from "../test_helpers/commands_helpers";
-import { setInputValueAndTrigger, triggerMouseEvent } from "../test_helpers/dom_helper";
+import { click, setInputValueAndTrigger } from "../test_helpers/dom_helper";
 import { makeTestFixture, mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 jest.useFakeTimers();
@@ -76,8 +76,7 @@ describe("custom currency sidePanel component", () => {
     // -------------------------------------------------------------------------
     test("Can close the custom currency side panel", async () => {
       expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
-      triggerMouseEvent(document.querySelector(selectors.closeSidepanel), "click");
-      await nextTick();
+      await click(fixture, selectors.closeSidepanel);
       expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
     });
 
@@ -204,8 +203,7 @@ describe("custom currency sidePanel component", () => {
       expect((document.querySelector(selectors.applyFormat) as HTMLButtonElement).disabled).toBe(
         false
       );
-      triggerMouseEvent(document.querySelector(selectors.applyFormat), "click");
-      await nextTick();
+      await click(fixture, selectors.applyFormat);
       expect((document.querySelector(selectors.applyFormat) as HTMLButtonElement).disabled).toBe(
         true
       );
@@ -217,8 +215,7 @@ describe("custom currency sidePanel component", () => {
       );
       setInputValueAndTrigger(selectors.inputSymbol, "€", "input");
       await nextTick();
-      triggerMouseEvent(document.querySelector(selectors.applyFormat), "click");
-      await nextTick();
+      await click(fixture, selectors.applyFormat);
       setSelection(model, ["A1", "A2"]);
 
       await nextTick();
@@ -233,8 +230,7 @@ describe("custom currency sidePanel component", () => {
       await nextTick();
       setInputValueAndTrigger(selectors.formatProposals, "1", "change");
       await nextTick();
-      triggerMouseEvent(document.querySelector(selectors.applyFormat), "click");
-      await nextTick();
+      await click(fixture, selectors.applyFormat);
       expect((document.querySelector(selectors.applyFormat) as HTMLButtonElement).disabled).toBe(
         true
       );
@@ -255,8 +251,7 @@ describe("custom currency sidePanel component", () => {
     test("not disable formatProposals/applyFormat if apply proposal and select other currency", async () => {
       setInputValueAndTrigger(selectors.availableCurrencies, "1", "change");
       await nextTick();
-      triggerMouseEvent(document.querySelector(selectors.applyFormat), "click");
-      await nextTick();
+      await click(fixture, selectors.applyFormat);
       expect((document.querySelector(selectors.applyFormat) as HTMLButtonElement).disabled).toBe(
         true
       );
@@ -358,8 +353,7 @@ describe("custom currency sidePanel component", () => {
       await nextTick();
       setInputValueAndTrigger(selectors.formatProposals, proposalIndex, "change");
       await nextTick();
-      triggerMouseEvent(document.querySelector(selectors.applyFormat), "click");
-      await nextTick();
+      await click(fixture, selectors.applyFormat);
       expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: parent.env.model.getters.getActiveSheetId(),
         target: parent.env.model.getters.getSelectedZones(),
@@ -391,8 +385,7 @@ describe("custom currency sidePanel component", () => {
           await nextTick();
           setInputValueAndTrigger(selectors.formatProposals, concernedIndex, "change");
           await nextTick();
-          triggerMouseEvent(document.querySelector(selectors.applyFormat), "click");
-          await nextTick();
+          await click(fixture, selectors.applyFormat);
           expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
             sheetId: parent.env.model.getters.getActiveSheetId(),
             target: parent.env.model.getters.getSelectedZones(),
@@ -426,8 +419,7 @@ describe("custom currency sidePanel component", () => {
           await nextTick();
           setInputValueAndTrigger(selectors.formatProposals, concernedIndex, "change");
           await nextTick();
-          triggerMouseEvent(document.querySelector(selectors.applyFormat), "click");
-          await nextTick();
+          await click(fixture, selectors.applyFormat);
           expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
             sheetId: parent.env.model.getters.getActiveSheetId(),
             target: parent.env.model.getters.getSelectedZones(),
@@ -449,8 +441,7 @@ describe("custom currency sidePanel component", () => {
           await nextTick();
           setInputValueAndTrigger(selectors.formatProposals, concernedIndex, "change");
           await nextTick();
-          triggerMouseEvent(document.querySelector(selectors.applyFormat), "click");
-          await nextTick();
+          await click(fixture, selectors.applyFormat);
           expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
             sheetId: parent.env.model.getters.getActiveSheetId(),
             target: parent.env.model.getters.getSelectedZones(),
@@ -479,8 +470,7 @@ describe("custom currency sidePanel component", () => {
           await nextTick();
           setInputValueAndTrigger(selectors.formatProposals, concernedIndex, "change");
           await nextTick();
-          triggerMouseEvent(document.querySelector(selectors.applyFormat), "click");
-          await nextTick();
+          await click(fixture, selectors.applyFormat);
           expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
             sheetId: parent.env.model.getters.getActiveSheetId(),
             target: parent.env.model.getters.getSelectedZones(),

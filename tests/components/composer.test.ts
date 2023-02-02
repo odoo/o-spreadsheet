@@ -20,7 +20,7 @@ import {
   selectCell,
   setCellContent,
 } from "../test_helpers/commands_helpers";
-import { keyDown, keyUp, simulateClick } from "../test_helpers/dom_helper";
+import { click, keyDown, keyUp, simulateClick } from "../test_helpers/dom_helper";
 import {
   getCellContent,
   getCellText,
@@ -495,8 +495,7 @@ describe("composer", () => {
 
   test("clicking on the composer while typing text (not formula) does not duplicates text", async () => {
     composerEl = await typeInComposer("a");
-    composerEl.dispatchEvent(new MouseEvent("click"));
-    await nextTick();
+    await click(composerEl);
     expect(composerEl.textContent).toBe("a");
   });
 
@@ -814,8 +813,7 @@ describe("composer", () => {
   test("clicking on the composer while in selecting mode should put the composer in edition mode", async () => {
     composerEl = await typeInComposer("=");
     expect(model.getters.getEditionMode()).toBe("selecting");
-    composerEl.dispatchEvent(new MouseEvent("click"));
-    await nextTick();
+    await click(composerEl);
     expect(model.getters.getEditionMode()).toBe("editing");
   });
 

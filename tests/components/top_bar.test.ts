@@ -16,7 +16,7 @@ import {
   setCellContent,
   setSelection,
 } from "../test_helpers/commands_helpers";
-import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
+import { click, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getBorder, getCell, getStyle } from "../test_helpers/getters_helpers";
 import {
   getFigureIds,
@@ -101,14 +101,10 @@ describe("TopBar component", () => {
     const { app } = await mountParent(model);
 
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
-    fixture.querySelector('.o-tool[title="Borders"]')!.dispatchEvent(new Event("click"));
-    await nextTick();
+    await click(fixture, ".o-tool[title='Borders']");
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
     expect(fixture.querySelectorAll(".o-line-item").length).not.toBe(0);
-    fixture
-      .querySelector('.o-tool[title="Horizontal align"] span')!
-      .dispatchEvent(new Event("click"));
-    await nextTick();
+    await click(fixture, ".o-tool[title='Horizontal align'] span");
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
     expect(fixture.querySelectorAll(".o-color-line").length).toBe(0);
     app.destroy();
@@ -178,8 +174,7 @@ describe("TopBar component", () => {
     expect(redoTool.classList.contains("o-disabled")).toBeTruthy();
     expect(getCell(model, "A1")!.style).toBeDefined();
 
-    undoTool.dispatchEvent(new Event("click"));
-    await nextTick();
+    await click(undoTool);
     expect(undoTool.classList.contains("o-disabled")).toBeTruthy();
     expect(redoTool.classList.contains("o-disabled")).toBeFalsy();
 
@@ -193,8 +188,7 @@ describe("TopBar component", () => {
 
     expect(paintFormatTool.classList.contains("active")).toBeFalsy();
 
-    paintFormatTool.dispatchEvent(new Event("click"));
-    await nextTick();
+    await click(paintFormatTool);
 
     expect(paintFormatTool.classList.contains("active")).toBeTruthy();
     app.destroy();
@@ -259,7 +253,7 @@ describe("TopBar component", () => {
     expect(getBorder(model, "B1")).toBeDefined();
     const { app } = await mountParent(model);
     const clearFormatTool = fixture.querySelector('.o-tool[title="Clear Format"]')!;
-    clearFormatTool.dispatchEvent(new Event("click"));
+    await click(clearFormatTool);
     expect(getCell(model, "B1")).toBeUndefined();
     app.destroy();
   });
@@ -268,13 +262,9 @@ describe("TopBar component", () => {
     const { app, model } = await mountParent();
     expect(getCell(model, "A1")).toBeUndefined();
     const formatTool = fixture.querySelector('.o-tool[title="More formats"]')!;
-    formatTool.dispatchEvent(new Event("click"));
-    await nextTick();
+    await click(formatTool);
     expect(fixture).toMatchSnapshot();
-    fixture
-      .querySelector('[data-format="percent"]')!
-      .dispatchEvent(new Event("click", { bubbles: true }));
-    await nextTick();
+    await click(fixture, `[data-format="percent"]`);
     expect(getCell(model, "A1")!.format).toEqual("0.00%");
     app.destroy();
   });
@@ -283,10 +273,8 @@ describe("TopBar component", () => {
     const { app, model } = await mountParent();
     const fontSizeTool = fixture.querySelector('.o-tool[title="Font Size"]')!;
     expect(fontSizeTool.textContent!.trim()).toBe(DEFAULT_FONT_SIZE.toString());
-    fontSizeTool.dispatchEvent(new Event("click"));
-    await nextTick();
-    fixture.querySelector('[data-size="8"]')!.dispatchEvent(new Event("click", { bubbles: true }));
-    await nextTick();
+    await click(fontSizeTool);
+    await click(fixture, "[data-size='8']");
     expect(fontSizeTool.textContent!.trim()).toBe("8");
     expect(getStyle(model, "A1").fontSize).toBe(8);
     app.destroy();
@@ -298,17 +286,14 @@ describe("TopBar component", () => {
     ["align-right", { align: "right" }],
   ])("can set horizontal alignment with the toolbar", async (iconClass, expectedStyle) => {
     const { app, model } = await mountParent();
-    const alignTool = fixture.querySelector('.o-tool[title="Horizontal align"]')!;
-    alignTool.dispatchEvent(new Event("click"));
-    await nextTick();
+    await click(fixture, ".o-tool[title='Horizontal align']");
 
     const alignButtons = fixture.querySelectorAll("div.o-dropdown-item")!;
     const button = [...alignButtons].find((element) =>
       element.children[0]!.classList.contains(iconClass)
     )!;
 
-    button.dispatchEvent(new Event("click"));
-    await nextTick();
+    await click(button);
     expect(model.getters.getCurrentStyle()).toEqual(expectedStyle);
     app.destroy();
   });
@@ -341,11 +326,9 @@ describe("TopBar component", () => {
     const { app } = await mountParent(model);
 
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
-    fixture.querySelector('.o-tool[title="Borders"]')!.dispatchEvent(new Event("click"));
-    await nextTick();
+    await click(fixture, '.o-tool[title="Borders"]');
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
-    fixture.querySelector('.o-tool[title="Borders"]')!.dispatchEvent(new Event("click"));
-    await nextTick();
+    await click(fixture, '.o-tool[title="Borders"]');
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
     app.destroy();
   });
@@ -356,24 +339,21 @@ describe("TopBar component", () => {
     const items = topbarMenuRegistry.getMenuItems();
     const number = items.filter((item) => item.children(parent.env).length !== 0).length;
     expect(fixture.querySelectorAll(".o-topbar-menu")).toHaveLength(number);
-    triggerMouseEvent(".o-topbar-menu[data-id='file']", "click");
-    await nextTick();
+    await click(fixture, ".o-topbar-menu[data-id='file']");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
     const file = getNode(["file"], topbarMenuRegistry);
     const numberChild = file
       .children(parent.env)
       .filter((item) => item.children.length !== 0 || item.action).length;
     expect(fixture.querySelectorAll(".o-menu-item")).toHaveLength(numberChild);
-    triggerMouseEvent(".o-spreadsheet-topbar", "click");
-    await nextTick();
+    await click(fixture, ".o-spreadsheet-topbar");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     app.destroy();
   });
 
   test("Can open a Topbar menu with mousemove", async () => {
     const { app, parent } = await mountParent();
-    triggerMouseEvent(".o-topbar-menu[data-id='file']", "click");
-    await nextTick();
+    await click(fixture, ".o-topbar-menu[data-id='file']");
     const file = getNode(["file"], topbarMenuRegistry);
     let numberChild = file
       .children(parent.env)
@@ -405,10 +385,8 @@ describe("TopBar component", () => {
       },
     });
     const { app } = await mountParent();
-    triggerMouseEvent(".o-topbar-menu[data-id='test']", "click");
-    await nextTick();
-    triggerMouseEvent(".o-menu-item", "click");
-    await nextTick();
+    await click(fixture, ".o-topbar-menu[data-id='test']");
+    await click(fixture, ".o-menu-item");
     expect(fixture.querySelectorAll(".o-menu-dropdown-content")).toHaveLength(0);
     expect(number).toBe(1);
     topbarMenuRegistry.content = menuDefinitions;
@@ -420,12 +398,10 @@ describe("TopBar component", () => {
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     const menuItem = fixture.querySelector(".o-topbar-menu[data-id='edit']");
     expect(menuItem?.classList).not.toContain("o-topbar-menu-active");
-    triggerMouseEvent(menuItem, "click");
-    await nextTick();
+    await click(fixture, ".o-topbar-menu[data-id='edit']");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
     expect(menuItem?.classList).toContain("o-topbar-menu-active");
-    triggerMouseEvent(".o-menu-item", "click");
-    await nextTick();
+    await click(fixture.querySelectorAll(".o-menu-item")[0]);
     expect(menuItem?.classList).not.toContain("o-topbar-menu-active");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     app.destroy();
@@ -481,8 +457,7 @@ describe("TopBar component", () => {
     model.updateMode("readonly");
     await nextTick();
     expect(fixture.querySelectorAll(".o-readonly-toolbar")).toHaveLength(1);
-    triggerMouseEvent(".o-topbar-menu[data-id='insert']", "click");
-    await nextTick();
+    await click(fixture, ".o-topbar-menu[data-id='insert']");
     const insertMenuItems = fixture.querySelectorAll(".o-menu div.o-menu-item");
     expect([...insertMenuItems].every((item) => item.classList.contains("disabled"))).toBeTruthy();
     app.destroy();
@@ -581,10 +556,8 @@ test("Can show/hide a TopBarComponent based on condition", async () => {
 describe("TopBar - Custom currency", () => {
   test("can open custom currency sidepanel from tool", async () => {
     const { app } = await mountSpreadsheet(fixture);
-    triggerMouseEvent(".o-tool[title='More formats']", "click");
-    await nextTick();
-    triggerMouseEvent(".o-format-tool div[data-custom='custom_currency']", "click");
-    await nextTick();
+    await click(fixture, ".o-tool[title='More formats']");
+    await click(fixture, ".o-format-tool div[data-custom='custom_currency']");
     expect(fixture.querySelector(".o-custom-currency")).toBeTruthy();
     app.destroy();
   });
@@ -605,10 +578,8 @@ describe("Format", () => {
     expect(getCell(model, "A1")?.style).toEqual({ fillColor: "#000000" });
     expect(getCell(model, "B2")?.style).toEqual({ fillColor: "#000000" });
     expect(getCell(model, "B3")?.style).toEqual({ fillColor: "#000000" });
-    triggerMouseEvent(".o-topbar-menu[data-id='format']", "click");
-    await nextTick();
-    triggerMouseEvent(".o-menu-item[data-name='format_clearFormat']", "click");
-    await nextTick();
+    await click(fixture, ".o-topbar-menu[data-id='format']");
+    await click(fixture, ".o-menu-item[data-name='format_clearFormat']");
     expect(getCell(model, "A1")?.style).toBeUndefined();
     expect(getCell(model, "B2")?.style).toBeUndefined();
     expect(getCell(model, "B3")?.style).toBeUndefined();
@@ -619,10 +590,8 @@ describe("Format", () => {
 describe("TopBar - CF", () => {
   test("open sidepanel with no CF in selected zone", async () => {
     const { app } = await mountSpreadsheet(fixture);
-    triggerMouseEvent(".o-topbar-menu[data-id='format']", "click");
-    await nextTick();
-    triggerMouseEvent(".o-menu-item[data-name='format_cf']", "click");
-    await nextTick();
+    await click(fixture, ".o-topbar-menu[data-id='format']");
+    await click(fixture, ".o-menu-item[data-name='format_cf']");
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
     ).toBeTruthy();
@@ -653,10 +622,8 @@ describe("TopBar - CF", () => {
     });
     setSelection(model, ["A1:K11"]);
 
-    triggerMouseEvent(".o-topbar-menu[data-id='format']", "click");
-    await nextTick();
-    triggerMouseEvent(".o-menu-item[data-name='format_cf']", "click");
-    await nextTick();
+    await click(fixture, ".o-topbar-menu[data-id='format']");
+    await click(fixture, ".o-menu-item[data-name='format_cf']");
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
     ).toBeFalsy();
@@ -702,10 +669,8 @@ describe("TopBar - CF", () => {
     });
     setSelection(model, ["A1:K11"]);
 
-    triggerMouseEvent(".o-topbar-menu[data-id='format']", "click");
-    await nextTick();
-    triggerMouseEvent(".o-menu-item[data-name='format_cf']", "click");
-    await nextTick();
+    await click(fixture, ".o-topbar-menu[data-id='format']");
+    await click(fixture, ".o-menu-item[data-name='format_cf']");
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
     ).toBeTruthy();
@@ -735,10 +700,8 @@ describe("TopBar - CF", () => {
       ranges: toRangesData(sheetId, cfRule1.ranges.join(",")),
     });
     setSelection(model, ["A1:A11"]);
-    triggerMouseEvent(".o-topbar-menu[data-id='format']", "click");
-    await nextTick();
-    triggerMouseEvent(".o-menu-item[data-name='format_cf']", "click");
-    await nextTick();
+    await click(fixture, ".o-topbar-menu[data-id='format']");
+    await click(fixture, ".o-menu-item[data-name='format_cf']");
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
     ).toBeFalsy();
@@ -747,10 +710,8 @@ describe("TopBar - CF", () => {
     ).toBeTruthy();
 
     setSelection(model, ["F6"]);
-    triggerMouseEvent(".o-topbar-menu[data-id='format']", "click");
-    await nextTick();
-    triggerMouseEvent(".o-menu-item[data-name='format_cf']", "click");
-    await nextTick();
+    await click(fixture, ".o-topbar-menu[data-id='format']");
+    await click(fixture, ".o-menu-item[data-name='format_cf']");
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
     ).toBeTruthy();
@@ -763,28 +724,19 @@ describe("TopBar - CF", () => {
 describe("Topbar - View", () => {
   test("Setting show formula from topbar should retain its state even it's changed via f&r side panel upon closing", async () => {
     const { app, parent, model } = await mountSpreadsheet(fixture);
-    triggerMouseEvent(".o-topbar-menu[data-id='view']", "click");
-    await nextTick();
-    triggerMouseEvent(".o-menu-item[data-name='view_formulas']", "click");
-    await nextTick();
+    await click(fixture, ".o-topbar-menu[data-id='view']");
+    await click(fixture, ".o-menu-item[data-name='view_formulas']");
     expect(model.getters.shouldShowFormulas()).toBe(true);
     parent.env.openSidePanel("FindAndReplace");
     await nextTick();
     expect(model.getters.shouldShowFormulas()).toBe(true);
     await nextTick();
-    triggerMouseEvent(
-      document.querySelector(
-        ".o-sidePanel .o-sidePanelBody .o-find-and-replace .o-section:nth-child(1) .o-far-item:nth-child(3) input"
-      ),
-      "click"
+    await click(
+      fixture,
+      ".o-sidePanel .o-sidePanelBody .o-find-and-replace .o-section:nth-child(1) .o-far-item:nth-child(3) input"
     );
-    await nextTick();
     expect(model.getters.shouldShowFormulas()).toBe(false);
-    triggerMouseEvent(
-      document.querySelector(".o-sidePanel .o-sidePanelHeader .o-sidePanelClose"),
-      "click"
-    );
-    await nextTick();
+    await click(fixture, ".o-sidePanel .o-sidePanelHeader .o-sidePanelClose");
     expect(model.getters.shouldShowFormulas()).toBe(true);
     app.destroy();
   });
