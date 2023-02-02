@@ -1,6 +1,6 @@
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { formatValue } from "../../helpers/cells/index";
-import { clip, mergeOverlappingZones, overlap, positions } from "../../helpers/index";
+import { clip, isZoneValid, mergeOverlappingZones, overlap, positions } from "../../helpers/index";
 import { Mode } from "../../model";
 import {
   CellPosition,
@@ -94,6 +94,12 @@ export class ClipboardPlugin extends UIPlugin {
         break;
       case "DELETE_CELL": {
         const { cut, paste } = this.getDeleteCellsTargets(cmd.zone, cmd.shiftDimension);
+        if (!isZoneValid(cut[0])) {
+          for (const [col, row] of positions(cmd.zone)) {
+            this.dispatch("CLEAR_CELL", { col, row, sheetId: this.getters.getActiveSheetId() });
+          }
+          break;
+        }
         const state = this.getClipboardState(cut, "CUT");
         this.paste(state, paste);
         break;
