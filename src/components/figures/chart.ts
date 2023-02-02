@@ -16,7 +16,7 @@ const { useRef, onMounted, onPatched } = hooks;
 const TEMPLATE = xml/* xml */ `
 <div class="o-chart-container">
   <div class="o-chart-menu" t-on-click="showMenu">${LIST}</div>
-  <canvas t-att-style="canvasStyle" t-ref="graphContainer"/>
+  <canvas class="w-100 h-100" t-att-style="canvasStyle" t-ref="graphContainer"/>
   <Menu t-if="menuState.isOpen"
     position="menuState.position"
     menuItems="menuState.menuItems"
