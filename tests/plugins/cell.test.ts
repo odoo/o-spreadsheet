@@ -56,6 +56,17 @@ describe("getCellText", () => {
     });
     expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
   });
+
+  test("clear cell outside of sheet", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    const result = model.dispatch("CLEAR_CELL", {
+      sheetId,
+      col: 9999,
+      row: 9999,
+    });
+    expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
+  });
 });
 
 describe("link cell", () => {
