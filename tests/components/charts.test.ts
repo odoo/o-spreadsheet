@@ -15,6 +15,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import { TEST_CHART_DATA } from "../test_helpers/constants";
 import {
+  click,
   setInputValueAndTrigger,
   simulateClick,
   triggerMouseEvent,
@@ -210,8 +211,7 @@ describe("figures", () => {
       const dispatch = spyDispatch(parent);
       switch (chartType) {
         case "basicChart":
-          const hasTitle = dataSeries.querySelector("input[type=checkbox]") as HTMLInputElement;
-          triggerMouseEvent(hasTitle, "click");
+          await click(dataSeries!.querySelector("input[type=checkbox]")!);
           expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
             id: chartId,
             sheetId,
@@ -363,8 +363,7 @@ describe("figures", () => {
     setInputValueAndTrigger(chartType, "pie", "change");
     await nextTick();
     setInputValueAndTrigger(dataSeriesValues, "B2:B5", "change");
-    triggerMouseEvent(hasTitle, "click");
-    await nextTick();
+    await click(hasTitle);
     // dataSetsHaveTitle is not propagated
     expect((mockChartData.data! as any).datasets[0].data).toEqual([
       "first column dataset",
@@ -425,7 +424,7 @@ describe("figures", () => {
           expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
 
           if (selectMethod === "click") {
-            await simulateClick(figures[1] as HTMLElement);
+            await simulateClick(figures[1]);
           } else {
             model.dispatch("SELECT_FIGURE", { id: "secondChartId" });
           }

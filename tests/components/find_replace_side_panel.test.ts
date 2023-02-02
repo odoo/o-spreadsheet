@@ -1,7 +1,7 @@
 import { App } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../src";
 import { setCellContent } from "../test_helpers/commands_helpers";
-import { setInputValueAndTrigger, triggerMouseEvent } from "../test_helpers/dom_helper";
+import { click, setInputValueAndTrigger } from "../test_helpers/dom_helper";
 import { makeTestFixture, mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
@@ -48,8 +48,7 @@ describe("find and replace sidePanel component", () => {
   describe("Sidepanel", () => {
     test("Can close the find and replace side panel", async () => {
       expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
-      triggerMouseEvent(document.querySelector(selectors.closeSidepanel), "click");
-      await nextTick();
+      await click(fixture, selectors.closeSidepanel);
       expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
     });
 
@@ -113,8 +112,7 @@ describe("find and replace sidePanel component", () => {
 
     test("clicking on next", async () => {
       setInputValueAndTrigger(selectors.inputSearch, "1", "input");
-      triggerMouseEvent(document.querySelector(selectors.nextButton), "click");
-      await nextTick();
+      await click(fixture, selectors.nextButton);
       expect(dispatch).toHaveBeenCalledWith("SELECT_SEARCH_NEXT_MATCH");
     });
 
@@ -129,8 +127,7 @@ describe("find and replace sidePanel component", () => {
 
     test("clicking on previous", async () => {
       setInputValueAndTrigger(selectors.inputSearch, "1", "input");
-      triggerMouseEvent(document.querySelector(selectors.previousButton), "click");
-      await nextTick();
+      await click(fixture, selectors.previousButton);
       expect(dispatch).toHaveBeenCalledWith("SELECT_SEARCH_PREVIOUS_MATCH");
     });
 
@@ -191,8 +188,7 @@ describe("find and replace sidePanel component", () => {
       const dispatch = spyDispatch(parent);
 
       setInputValueAndTrigger(selectors.inputSearch, "Hell", "input");
-      triggerMouseEvent(document.querySelector(selectors.checkBoxMatchingCase), "click");
-      await nextTick();
+      await click(fixture, selectors.checkBoxMatchingCase);
       expect(dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
         searchOptions: { exactMatch: false, matchCase: true, searchFormulas: false },
         toSearch: "Hell",
@@ -203,8 +199,7 @@ describe("find and replace sidePanel component", () => {
       const dispatch = spyDispatch(parent);
 
       setInputValueAndTrigger(selectors.inputSearch, "Hell", "input");
-      triggerMouseEvent(document.querySelector(selectors.checkBoxExactMatch), "click");
-      await nextTick();
+      await click(fixture, selectors.checkBoxExactMatch);
       expect(dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
         searchOptions: { exactMatch: true, matchCase: false, searchFormulas: false },
         toSearch: "Hell",
@@ -215,8 +210,7 @@ describe("find and replace sidePanel component", () => {
       const dispatch = spyDispatch(parent);
 
       setInputValueAndTrigger(selectors.inputSearch, "Hell", "input");
-      triggerMouseEvent(document.querySelector(selectors.checkBoxSearchFormulas), "click");
-      await nextTick();
+      await click(fixture, selectors.checkBoxSearchFormulas);
       expect(dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
         searchOptions: { exactMatch: false, matchCase: false, searchFormulas: true },
         toSearch: "Hell",
@@ -224,16 +218,13 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("search in formulas shows formulas", async () => {
-      triggerMouseEvent(document.querySelector(selectors.checkBoxSearchFormulas), "click");
-      await nextTick();
+      await click(document.querySelector(selectors.checkBoxSearchFormulas)!);
       expect(model.getters.shouldShowFormulas()).toBe(true);
     });
 
     test("search in formulas should not show formula after closing the sidepanel", async () => {
-      triggerMouseEvent(document.querySelector(selectors.checkBoxSearchFormulas), "click");
-      await nextTick();
-      triggerMouseEvent(document.querySelector(selectors.closeSidepanel), "click");
-      await nextTick();
+      await click(fixture, selectors.checkBoxSearchFormulas);
+      await click(fixture, selectors.closeSidepanel);
       expect(model.getters.shouldShowFormulas()).toBe(false);
     });
   });
@@ -242,18 +233,16 @@ describe("find and replace sidePanel component", () => {
       setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "hello", "input");
       setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "kikou", "input");
       const dispatch = spyDispatch(parent);
-      triggerMouseEvent(document.querySelector(selectors.replaceButton), "click");
-      await nextTick();
+      await click(fixture, selectors.replaceButton);
       expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", { replaceWith: "kikou" });
     });
 
     test("Can replace a value in a formula", async () => {
       setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "2", "input");
-      triggerMouseEvent(document.querySelector(selectors.checkBoxSearchFormulas), "click");
+      await click(fixture, selectors.checkBoxSearchFormulas);
       setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "4", "input");
       const dispatch = spyDispatch(parent);
-      triggerMouseEvent(document.querySelector(selectors.replaceButton), "click");
-      await nextTick();
+      await click(fixture, selectors.replaceButton);
       expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", { replaceWith: "4" });
     });
 
@@ -261,8 +250,7 @@ describe("find and replace sidePanel component", () => {
       setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "4", "input");
       setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "2", "input");
       const dispatch = spyDispatch(parent);
-      triggerMouseEvent(document.querySelector(selectors.replaceButton), "click");
-      await nextTick();
+      await click(fixture, selectors.replaceButton);
       expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", { replaceWith: "2" });
     });
 
@@ -270,8 +258,7 @@ describe("find and replace sidePanel component", () => {
       setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "hell", "input");
       setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "kikou", "input");
       const dispatch = spyDispatch(parent);
-      triggerMouseEvent(document.querySelector(selectors.replaceAllButton), "click");
-      await nextTick();
+      await click(fixture, selectors.replaceAllButton);
       expect(dispatch).toHaveBeenCalledWith("REPLACE_ALL_SEARCH", { replaceWith: "kikou" });
     });
 

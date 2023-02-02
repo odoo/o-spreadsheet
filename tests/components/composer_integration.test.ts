@@ -18,6 +18,7 @@ import {
   setCellContent,
 } from "../test_helpers/commands_helpers";
 import {
+  click,
   clickCell,
   getElComputedStyle,
   gridMouseEvent,
@@ -25,7 +26,6 @@ import {
   rightClickCell,
   selectColumnByClicking,
   simulateClick,
-  triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import {
   getActivePosition,
@@ -92,8 +92,7 @@ describe("Composer interactions", () => {
   });
 
   test("type in topbar composer adds text to grid composer", async () => {
-    triggerMouseEvent(".o-spreadsheet-topbar .o-composer", "click");
-    await nextTick();
+    await click(fixture, ".o-spreadsheet-topbar .o-composer");
     const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
     const gridComposer = document.querySelector(".o-grid .o-composer");
     expect(topBarComposer).not.toBeNull();
@@ -105,8 +104,7 @@ describe("Composer interactions", () => {
   });
 
   test("start typing in topbar composer then continue in grid composer", async () => {
-    triggerMouseEvent(".o-spreadsheet-topbar .o-composer", "click");
-    await nextTick();
+    await click(fixture, ".o-spreadsheet-topbar .o-composer");
     const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
     const gridComposer = document.querySelector(".o-grid .o-composer");
 
@@ -116,8 +114,7 @@ describe("Composer interactions", () => {
     expect(gridComposer!.textContent).toBe("from topbar");
 
     // Focus grid composer and type
-    triggerMouseEvent(".o-grid .o-composer", "click");
-    await nextTick();
+    await click(fixture, ".o-grid .o-composer");
     await typeInComposerGrid("from grid");
     expect(topBarComposer!.textContent).toBe("from topbarfrom grid");
     expect(gridComposer!.textContent).toBe("from topbarfrom grid");
@@ -138,7 +135,7 @@ describe("Composer interactions", () => {
     const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
     expect(topBarComposer.textContent).toBe("10/10/2021");
     // Focus top bar composer
-    triggerMouseEvent(topBarComposer, "click");
+    await click(topBarComposer);
     expect(topBarComposer!.textContent).toBe("10/10/2021");
   });
 
@@ -147,8 +144,7 @@ describe("Composer interactions", () => {
     const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
     await typeInComposerGrid("=SU");
     expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).not.toBeNull();
-    triggerMouseEvent(topBarComposer, "click");
-    await nextTick();
+    await click(topBarComposer);
     expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).toBeNull();
   });
 
@@ -159,15 +155,13 @@ describe("Composer interactions", () => {
     const spy = jest.spyOn(gridComposerContainer.style, "width", "set");
     await typeInComposerGrid("=SU");
     await nextTick();
-    topBarComposer.dispatchEvent(new Event("click"));
-    await nextTick();
+    await click(topBarComposer);
     expect(document.activeElement).toBe(topBarComposer);
     expect(spy).not.toHaveBeenCalled();
   });
 
   test("selecting ranges multiple times in topbar bar does not resize grid composer", async () => {
-    triggerMouseEvent(".o-spreadsheet-topbar .o-composer", "click");
-    await nextTick();
+    await click(fixture, ".o-spreadsheet-topbar .o-composer");
     const gridComposerContainer = document.querySelector(".o-grid-composer")! as HTMLElement;
     // Type in top bar composer
     await typeInComposerTopBar("=");

@@ -33,6 +33,28 @@ export async function simulateClick(
   await nextTick();
 }
 
+function findElement(el: Element, selector: string): Element {
+  let target = el;
+  if (selector) {
+    const els = el.querySelectorAll(selector);
+    if (els.length === 0) {
+      throw new Error(`No element found (selector: ${selector})`);
+    }
+    if (els.length > 1) {
+      throw new Error(`Found ${els.length} elements, instead of 1 (selector: ${selector})`);
+    }
+    target = els[0];
+  }
+  return target;
+}
+
+export async function click(el: Element, selector: string = "") {
+  const event = new MouseEvent("click", { bubbles: true, cancelable: true });
+  const target = findElement(el, selector);
+  target.dispatchEvent(event);
+  await nextTick();
+}
+
 /**
  * Simulate hovering a cell for a given amount of time.
  * Don't forget to use `jest.useFakeTimers();` when using
