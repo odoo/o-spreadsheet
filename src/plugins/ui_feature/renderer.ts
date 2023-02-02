@@ -44,6 +44,7 @@ import {
   HeaderIndex,
   LAYERS,
   UID,
+  Viewport,
   Zone,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
@@ -554,10 +555,8 @@ export class RendererPlugin extends UIPlugin {
     return align || evaluatedCell.defaultAlign;
   }
 
-  private createZoneBox(sheetId: UID, zone: Zone): Box {
-    const visibleCols = this.getters.getSheetViewVisibleCols();
-    const left = visibleCols[0];
-    const right = visibleCols[visibleCols.length - 1];
+  private createZoneBox(sheetId: UID, zone: Zone, viewport: Viewport): Box {
+    const { left, right } = viewport;
     const col: HeaderIndex = zone.left;
     const row: HeaderIndex = zone.top;
     const position = { sheetId, col, row };
@@ -715,7 +714,7 @@ export class RendererPlugin extends UIPlugin {
         if (this.getters.isInMerge(position)) {
           continue;
         }
-        boxes.push(this.createZoneBox(sheetId, positionToZone(position)));
+        boxes.push(this.createZoneBox(sheetId, positionToZone(position), viewport));
       }
     }
     for (const merge of this.getters.getMerges(sheetId)) {
@@ -723,7 +722,7 @@ export class RendererPlugin extends UIPlugin {
         continue;
       }
       if (overlap(merge, viewport)) {
-        const box = this.createZoneBox(sheetId, merge);
+        const box = this.createZoneBox(sheetId, merge, viewport);
         const borderBottomRight = this.getters.getCellBorder({
           sheetId,
           col: merge.right,
