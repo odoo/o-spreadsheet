@@ -22,7 +22,10 @@ import {
   statefulUIPluginRegistry,
 } from "./plugins/index";
 import { UIPlugin, UIPluginConfig, UIPluginConstructor } from "./plugins/ui_plugin";
-import { SelectionStreamProcessor } from "./selection_stream/selection_stream_processor";
+import {
+  SelectionStreamProcessor,
+  SelectionStreamProcessorImpl,
+} from "./selection_stream/selection_stream_processor";
 import { StateObserver } from "./state_observer";
 import { _lt } from "./translation";
 import { StateUpdateMessage, TransportService } from "./types/collaborative/transport_service";
@@ -218,7 +221,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.uuidGenerator.setIsFastStrategy(true);
 
     // Initiate stream processor
-    this.selection = new SelectionStreamProcessor(this.getters);
+    this.selection = new SelectionStreamProcessorImpl(this.getters);
 
     this.corePluginConfig = this.setupCorePluginConfig();
     this.uiPluginConfig = this.setupUiPluginConfig();
