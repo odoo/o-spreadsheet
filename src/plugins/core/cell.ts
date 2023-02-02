@@ -82,6 +82,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   allowDispatch(cmd: CoreCommand): CommandResult {
     switch (cmd.type) {
       case "UPDATE_CELL":
+      case "CLEAR_CELL":
         return this.checkCellOutOfSheet(cmd.sheetId, cmd.col, cmd.row);
       default:
         return CommandResult.Success;

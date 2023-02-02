@@ -1940,6 +1940,17 @@ describe("Delete cell", () => {
     });
     testUndoRedo(model, expect, "DELETE_CELL", { zone: toZone("A1"), dimension: "ROW" });
   });
+
+  test.each(["up", "left"] as const)("can delete the last cell of the grid", (direction) => {
+    const sheetId = model.getters.getActiveSheetId();
+    const col = model.getters.getNumberCols(sheetId) - 1;
+    const row = model.getters.getNumberRows(sheetId) - 1;
+    const xc = toXC(col, row);
+    model.dispatch("UPDATE_CELL", { sheetId, col, row, content: "test", style: { bold: true } });
+    deleteCells(model, xc, direction);
+    const cell = getCell(model, xc);
+    expect(cell).toBeUndefined();
+  });
 });
 
 describe("Insert cell", () => {
