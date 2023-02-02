@@ -53,13 +53,13 @@ interface SelectionProcessor {
   selectTableAroundSelection(): DispatchResult;
 }
 
+export type SelectionStreamProcessor = SelectionProcessor &
+  StatefulStream<SelectionEvent, AnchorZone>;
 /**
  * Processes all selection updates (usually from user inputs) and emits an event
  * with the new selected anchor
  */
-export class SelectionStreamProcessor
-  implements SelectionProcessor, StatefulStream<SelectionEvent, AnchorZone>
-{
+export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
   private stream: EventStream<SelectionEvent>;
   /**
    * "Active" anchor used as a reference to compute new anchors

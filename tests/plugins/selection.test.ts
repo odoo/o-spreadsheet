@@ -1074,22 +1074,15 @@ describe("Selection loop (ctrl + a)", () => {
       model = new Model();
     });
 
-    function initModel() {
+    test("Selection loop doesn't scroll the viewport", () => {
       setCellContent(model, "A1", "a");
       setCellContent(model, "A2", "a");
-      setCellContent(model, "A3", "a");
-      setCellContent(model, "A4", "a");
-
-      selectCell(model, "A4");
+      selectCell(model, "A2");
       setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT);
-    }
-
-    test("Selection loop doesn't scroll the viewport", () => {
-      initModel();
       const initialScroll = model.getters.getActiveSheetScrollInfo();
 
       model.selection.loopSelection();
-      expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A1:A4");
+      expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A1:A2");
       expect(model.getters.getActiveSheetScrollInfo()).toEqual(initialScroll);
 
       model.selection.loopSelection();
@@ -1097,16 +1090,19 @@ describe("Selection loop (ctrl + a)", () => {
       expect(model.getters.getActiveSheetScrollInfo()).toEqual(initialScroll);
 
       model.selection.loopSelection();
-      expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A4");
+      expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A2");
       expect(model.getters.getActiveSheetScrollInfo()).toEqual(initialScroll);
     });
 
     test("selectTableAroundSelection doesn't scroll the viewport", () => {
-      initModel();
+      setCellContent(model, "A1", "a");
+      setCellContent(model, "A2", "a");
+      selectCell(model, "A2");
+      setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT);
       const initialScroll = model.getters.getActiveSheetScrollInfo();
 
       model.selection.selectTableAroundSelection();
-      expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A1:A4");
+      expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A1:A2");
       expect(model.getters.getActiveSheetScrollInfo()).toEqual(initialScroll);
     });
   });
