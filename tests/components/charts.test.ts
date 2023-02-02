@@ -255,6 +255,31 @@ describe("figures", () => {
     });
   });
 
+  test("can edit chart background color", async () => {
+    const chartId = "someuuid";
+    const sheetId = model.getters.getActiveSheetId();
+    await simulateClick(".o-figure");
+    await simulateClick(".o-chart-menu");
+    await simulateClick(".o-menu div[data-name='edit']");
+
+    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+    await simulateClick(".o-panel .inactive");
+    await simulateClick(".o-with-color-picker span");
+    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-color-picker")).toBeTruthy();
+    await simulateClick(
+      ".o-color-picker .o-color-picker-line .o-color-picker-line-item[data-color='#00ffff']"
+    );
+    expect(parent.env.dispatch).toHaveBeenCalledWith("UPDATE_CHART", {
+      id: chartId,
+      sheetId,
+      definition: {
+        background: "#00ffff",
+      },
+    });
+    expect(fixture.querySelector(".o-chart-container canvas")!.classList).toContain("w-100");
+    expect(fixture.querySelector(".o-chart-container canvas")!.classList).toContain("h-100");
+  });
+
   test("remove labels", async () => {
     const model = parent.model;
     const sheetId = model.getters.getActiveSheetId();
