@@ -1,9 +1,7 @@
-import { App } from "@odoo/owl";
 import { args, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import {
   clearFunctions,
-  makeTestFixture,
   mountSpreadsheet,
   nextTick,
   restoreDefaultFunctions,
@@ -16,21 +14,14 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 let model: Model;
 let composerEl: Element;
 let fixture: HTMLElement;
-let app: App;
 
 beforeEach(async () => {
-  fixture = makeTestFixture();
-  ({ app, model } = await mountSpreadsheet(fixture));
+  ({ model, fixture } = await mountSpreadsheet());
 
   // start composition
   document.querySelector(".o-grid")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
   await nextTick();
   composerEl = fixture.querySelector(".o-grid div.o-composer")!;
-});
-
-afterEach(() => {
-  app.destroy();
-  fixture.remove();
 });
 
 describe("formula assistant", () => {

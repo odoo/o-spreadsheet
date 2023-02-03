@@ -1,4 +1,4 @@
-import { App, Component, useSubEnv, xml } from "@odoo/owl";
+import { Component, useSubEnv, xml } from "@odoo/owl";
 import { Highlight } from "../../src/components/highlight/highlight/highlight";
 import {
   DEFAULT_CELL_HEIGHT,
@@ -8,11 +8,10 @@ import {
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { DispatchResult } from "../../src/types/commands";
-import { OWL_TEMPLATES } from "../setup/jest.setup";
 import { merge } from "../test_helpers/commands_helpers";
 import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
-  makeTestFixture,
+  mountComponent,
   mountSpreadsheet,
   nextTick,
   startGridComposition,
@@ -95,9 +94,7 @@ async function moveToCell(el: Element, xc: string) {
 }
 
 let model: Model;
-let app: App;
 let fixture: HTMLElement;
-let parent: Parent;
 let cornerEl: Element;
 let borderEl: Element;
 
@@ -119,13 +116,14 @@ class Parent extends Component {
 }
 
 async function mountHighlight(zone: string, color: string): Promise<Parent> {
-  app = new App(Parent, { props: { zone: toZone(zone), color, model } });
-  app.addTemplates(OWL_TEMPLATES);
-  return await app.mount(fixture);
+  let parent: Component;
+  ({ fixture, parent } = await mountComponent(Parent, {
+    props: { zone: toZone(zone), color, model },
+  }));
+  return parent as Parent;
 }
 
 const genericBeforeEach = async () => {
-  fixture = makeTestFixture();
   model = new Model();
   model.dispatch("RESIZE_SHEETVIEW", {
     width: DEFAULT_SHEETVIEW_SIZE,
@@ -135,17 +133,11 @@ const genericBeforeEach = async () => {
   });
 };
 
-const genericAfterEach = () => {
-  app.destroy();
-  fixture.remove();
-};
-
 describe("Corner component", () => {
   beforeEach(genericBeforeEach);
-  afterEach(genericAfterEach);
   describe("can drag all corners", () => {
     test("start on nw corner", async () => {
-      parent = await mountHighlight("B2", "#666");
+      await mountHighlight("B2", "#666");
       cornerEl = fixture.querySelector(".o-corner-nw")!;
 
       // select B2 nw corner
@@ -161,7 +153,7 @@ describe("Corner component", () => {
     });
 
     test("start on ne corner", async () => {
-      parent = await mountHighlight("B2", "#666");
+      const parent = await mountHighlight("B2", "#666");
       cornerEl = fixture.querySelector(".o-corner-ne")!;
 
       // select B2 ne corner
@@ -178,7 +170,7 @@ describe("Corner component", () => {
     });
 
     test("start on sw corner", async () => {
-      parent = await mountHighlight("B2", "#666");
+      const parent = await mountHighlight("B2", "#666");
       cornerEl = fixture.querySelector(".o-corner-sw")!;
 
       // select B2 sw corner
@@ -195,7 +187,7 @@ describe("Corner component", () => {
     });
 
     test("start on se corner", async () => {
-      parent = await mountHighlight("B2", "#666");
+      const parent = await mountHighlight("B2", "#666");
       cornerEl = fixture.querySelector(".o-corner-se")!;
 
       // select B2 se corner
@@ -213,7 +205,7 @@ describe("Corner component", () => {
   });
 
   test("do nothing if drag outside the grid", async () => {
-    parent = await mountHighlight("A1", "#666");
+    const parent = await mountHighlight("A1", "#666");
     cornerEl = fixture.querySelector(".o-corner-nw")!;
 
     // select A1 nw corner
@@ -235,7 +227,7 @@ describe("Corner component", () => {
 
   test("drag highlight corner on merged cells expands the final highlight zone", async () => {
     merge(model, "B1:C1");
-    parent = await mountHighlight("B2", "#666");
+    const parent = await mountHighlight("B2", "#666");
     cornerEl = fixture.querySelector(".o-corner-nw")!;
 
     // select B2 se corner
@@ -259,7 +251,7 @@ describe("Corner component", () => {
       elements: [0, 1],
       size: width / 2,
     });
-    parent = await mountHighlight("B1", "#666");
+    const parent = await mountHighlight("B1", "#666");
     cornerEl = fixture.querySelector(".o-corner-nw")!;
 
     // select B1 nw corner
@@ -284,7 +276,7 @@ describe("Corner component", () => {
       elements: [0, 1],
       size: height / 2,
     });
-    parent = await mountHighlight("A2", "#666");
+    const parent = await mountHighlight("A2", "#666");
     cornerEl = fixture.querySelector(".o-corner-nw")!;
 
     // select A2 nw corner
@@ -304,10 +296,9 @@ describe("Corner component", () => {
 
 describe("Border component", () => {
   beforeEach(genericBeforeEach);
-  afterEach(genericAfterEach);
   describe("can drag all borders", () => {
     test("start on top border", async () => {
-      parent = await mountHighlight("B2", "#666");
+      const parent = await mountHighlight("B2", "#666");
       borderEl = fixture.querySelector(".o-border-n")!;
 
       // select B2 top border
@@ -324,7 +315,7 @@ describe("Border component", () => {
     });
 
     test("start on left border", async () => {
-      parent = await mountHighlight("B2", "#666");
+      const parent = await mountHighlight("B2", "#666");
       borderEl = fixture.querySelector(".o-border-w")!;
 
       // select B2 left border
@@ -341,7 +332,7 @@ describe("Border component", () => {
     });
 
     test("start on right border", async () => {
-      parent = await mountHighlight("B2", "#666");
+      const parent = await mountHighlight("B2", "#666");
       borderEl = fixture.querySelector(".o-border-w")!;
 
       // select B2 right border
@@ -358,7 +349,7 @@ describe("Border component", () => {
     });
 
     test("start on bottom border", async () => {
-      parent = await mountHighlight("B2", "#666");
+      const parent = await mountHighlight("B2", "#666");
       borderEl = fixture.querySelector(".o-border-w")!;
 
       // select B2 bottom border
@@ -376,7 +367,7 @@ describe("Border component", () => {
   });
 
   test("drag the A1:B2 highlight, start on A1 top border, finish on C1 --> set C1:D2 highlight", async () => {
-    parent = await mountHighlight("A1:B2", "#666");
+    const parent = await mountHighlight("A1:B2", "#666");
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select A1 top border
@@ -399,7 +390,7 @@ describe("Border component", () => {
   });
 
   test("drag the A1:B2 highlight, start on B1 top border, finish on C1 --> set B1:C2 highlight", async () => {
-    parent = await mountHighlight("A1:B2", "#666");
+    const parent = await mountHighlight("A1:B2", "#666");
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select B1 top border
@@ -416,7 +407,7 @@ describe("Border component", () => {
   });
 
   test("cannot drag highlight zone if already beside limit border", async () => {
-    parent = await mountHighlight("A1:B2", "#666");
+    const parent = await mountHighlight("A1:B2", "#666");
     borderEl = fixture.querySelector(".o-border-s")!;
 
     // select B2 bottom border
@@ -432,7 +423,7 @@ describe("Border component", () => {
 
   test("drag highlight order on merged cells expands the final highlight zone", async () => {
     merge(model, "B1:C1");
-    parent = await mountHighlight("A1", "#666");
+    const parent = await mountHighlight("A1", "#666");
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select A1 top border
@@ -450,7 +441,7 @@ describe("Border component", () => {
 
   test("drag highlight on merged cells expands the highlight zone", async () => {
     merge(model, "B1:C1");
-    parent = await mountHighlight("A1", "#666");
+    const parent = await mountHighlight("A1", "#666");
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select A1 top border
@@ -474,7 +465,7 @@ describe("Border component", () => {
       elements: [0, 1],
       size: width / 2,
     });
-    parent = await mountHighlight("B1", "#666");
+    const parent = await mountHighlight("B1", "#666");
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select B1 top border
@@ -499,7 +490,7 @@ describe("Border component", () => {
       elements: [0, 1],
       size: height / 2,
     });
-    parent = await mountHighlight("A2", "#666");
+    const parent = await mountHighlight("A2", "#666");
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select A2 top border
@@ -520,17 +511,12 @@ describe("Border component", () => {
 describe("Edge-Scrolling on mouseMove of hightlights", () => {
   beforeEach(async () => {
     jest.useFakeTimers();
-    fixture = makeTestFixture();
-    ({ app, model } = await mountSpreadsheet(fixture));
+    ({ model, fixture } = await mountSpreadsheet());
     // ensure that highlights exist
     await startGridComposition();
     await typeInComposerGrid("=A1");
   });
 
-  afterEach(() => {
-    app.destroy();
-    fixture.remove();
-  });
   test("Can edge-scroll border horizontally", async () => {
     const { width } = model.getters.getSheetViewDimensionWithHeaders();
     const y = DEFAULT_CELL_HEIGHT;

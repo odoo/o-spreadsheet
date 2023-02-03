@@ -1,5 +1,4 @@
-import { App } from "@odoo/owl";
-import { Model, Spreadsheet } from "../src";
+import { Model } from "../src";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -22,7 +21,6 @@ import {
 import {
   doAction,
   makeTestEnv,
-  makeTestFixture,
   mockChart,
   mountSpreadsheet,
   nextTick,
@@ -84,7 +82,6 @@ describe("Insert chart menu item", () => {
   let dispatchSpy: jest.SpyInstance;
   let defaultPayload: any;
   let model: Model;
-  let app: App;
   let env: SpreadsheetChildEnv;
   let openSidePanelSpy: jest.Mock<any, any>;
 
@@ -93,11 +90,7 @@ describe("Insert chart menu item", () => {
   }
 
   async function mountTestSpreadsheet() {
-    const fixture = makeTestFixture();
-    let parent: Spreadsheet;
-    ({ app, model, parent } = await mountSpreadsheet(fixture, { model: new Model(data) }));
-    env = parent.env;
-    model = env.model;
+    ({ model, env } = await mountSpreadsheet({ model: new Model(data) }));
     dispatchSpy = spyModelDispatch(model);
   }
 
@@ -128,10 +121,6 @@ describe("Insert chart menu item", () => {
         verticalAxisPosition: "left",
       },
     };
-  });
-
-  afterEach(() => {
-    app?.destroy();
   });
 
   test("Chart is inserted at correct position", () => {

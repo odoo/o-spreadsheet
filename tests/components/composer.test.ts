@@ -1,4 +1,3 @@
-import { App } from "@odoo/owl";
 import {
   MatchingParenColor,
   NumberColor,
@@ -37,7 +36,6 @@ import {
 } from "../test_helpers/getters_helpers";
 import {
   createEqualCF,
-  makeTestFixture,
   mountSpreadsheet,
   nextTick,
   startGridComposition,
@@ -53,7 +51,6 @@ let model: Model;
 let composerEl: Element;
 let gridInputEl: Element;
 let fixture: HTMLElement;
-let app: App;
 let cehMock: ContentEditableHelper;
 
 function getHighlights(model: Model): Highlight[] {
@@ -76,14 +73,8 @@ async function typeInComposerGrid(text: string, fromScratch: boolean = true) {
 
 beforeEach(async () => {
   jest.useFakeTimers();
-  fixture = makeTestFixture();
-  ({ app, model } = await mountSpreadsheet(fixture));
-  gridInputEl = document.querySelector(".o-grid>input")!;
-});
-
-afterEach(() => {
-  app.destroy();
-  fixture.remove();
+  ({ model, fixture } = await mountSpreadsheet());
+  gridInputEl = fixture.querySelector(".o-grid>input")!;
 });
 
 describe("ranges and highlights", () => {
