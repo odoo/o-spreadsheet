@@ -46,6 +46,7 @@ describe("isZoneValid", () => {
 
 describe("mergePositionsIntoColumns", () => {
   function p(xc: string): Position {
+    return { col: 0, row: 0 };
     const zone = toZone(xc);
     return { col: zone.left, row: zone.top };
   }

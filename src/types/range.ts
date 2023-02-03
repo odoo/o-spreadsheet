@@ -1,4 +1,4 @@
-import { Cloneable, UID, UnboundedZone, Zone } from "./misc";
+import { Cloneable, HeaderIndex, UID, UnboundedZone, Zone } from "./misc";
 
 export interface RangePart {
   readonly colFixed: boolean;
@@ -15,6 +15,18 @@ export interface Range extends Cloneable<Range> {
   readonly invalidSheetName?: string;
   /** the sheet on which the range is defined */
   readonly sheetId: UID;
+}
+
+export interface StandAloneRange {
+  sheetName: string | undefined;
+  top: HeaderIndex | undefined;
+  bottom: HeaderIndex | undefined;
+  left: HeaderIndex | undefined;
+  right: HeaderIndex | undefined;
+  topIsFixed: boolean;
+  bottomIsFixed: boolean;
+  leftIsFixed: boolean;
+  rightIsFixed: boolean;
 }
 
 export interface RangeData {

@@ -34,6 +34,7 @@ export function numberToLetters(n: number): string {
  *     'AA' => 26
  */
 export function lettersToNumber(letters: string): number {
+  letters = letters.toUpperCase();
   let result = 0;
   const l = letters.length;
   for (let i = 0; i < l; i++) {

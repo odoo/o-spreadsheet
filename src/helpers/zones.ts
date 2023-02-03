@@ -1,8 +1,171 @@
 import { _lt } from "../translation";
-import { Position, UnboundedZone, Zone, ZoneDimension } from "../types";
-import { lettersToNumber, numberToLetters, toCartesian, toXC } from "./coordinates";
+import { Position, StandAloneRange, UnboundedZone, Zone, ZoneDimension } from "../types";
+import { lettersToNumber, numberToLetters, toXC } from "./coordinates";
 import { range } from "./misc";
-import { isColReference, isRowReference } from "./references";
+import { splitReference } from "./references";
+
+interface SheetNameToken {
+  type: "SHEET_NAME";
+  value: string;
+}
+
+interface LettersToken {
+  type: "LETTERS";
+  value: string;
+}
+interface NumbersToken {
+  type: "NUMBERS";
+  value: string;
+}
+
+interface DollarToken {
+  type: "DOLLAR";
+  value: "$";
+}
+
+interface SeparatorToken {
+  type: "SEPARATOR";
+  value: ":";
+}
+
+type Token = SheetNameToken | LettersToken | NumbersToken | DollarToken | SeparatorToken;
+
+function* tokenizeReference(ref: string): Iterable<Token> {
+  const { sheetName, xc } = splitReference(ref);
+  if (sheetName) {
+    yield {
+      type: "SHEET_NAME",
+      value: sheetName,
+    };
+  }
+  const chars = xc.replace(/\s/g, "").split("");
+  yield* tokenizeSingleCellReference(chars);
+  const separator = tokenizeChars(chars, SEPARATOR, "SEPARATOR");
+  if (separator) {
+    yield separator;
+    yield* tokenizeSingleCellReference(chars);
+  }
+  if (chars.length) {
+    throw new Error(_lt("Invalid reference %s", ref));
+  }
+}
+
+const NUMBERS = new Set(range(0, 10).map(String));
+const LETTERS = new Set([
+  ...range(0, 26).map((x) => String.fromCharCode(x + 65)), // uppercase
+  ...range(0, 26).map((x) => String.fromCharCode(x + 97)), // lowercase
+]);
+const DOLLAR = new Set(["$"]);
+const SEPARATOR = new Set([":"]);
+
+function tokenizeSingleCellReference(chars: string[]): Token[] {
+  const columnsDollar = tokenizeChars(chars, DOLLAR, "DOLLAR");
+  const columns = tokenizeChars(chars, LETTERS, "LETTERS");
+  const rowsDollar = tokenizeChars(chars, DOLLAR, "DOLLAR");
+  const rows = tokenizeChars(chars, NUMBERS, "NUMBERS");
+  const tokens: Token[] = [];
+  if (columnsDollar) tokens.push(columnsDollar);
+  if (columns) tokens.push(columns);
+  if (rowsDollar) tokens.push(rowsDollar);
+  if (rows) tokens.push(rows);
+  return tokens;
+}
+
+function tokenizeChars(
+  chars: string[],
+  characterSet: Set<string>,
+  tokenType: Token["type"]
+): Token | null {
+  let value = "";
+  while (characterSet.has(chars[0])) {
+    value += chars.shift();
+  }
+  if (value) {
+    return { type: tokenType, value } as Token;
+  }
+  return null;
+}
+
+function parseReference(ref: string): StandAloneRange {
+  const tokens = [...tokenizeReference(ref)];
+  const range: Partial<StandAloneRange> = {};
+  range.sheetName = undefined;
+  if (tokens[0].type === "SHEET_NAME") {
+    range.sheetName = tokens.shift()?.value;
+  }
+  const left = parseCellReference(tokens);
+  range.top = left.row;
+  range.bottom = left.row;
+  range.left = left.col;
+  range.right = left.col;
+  range.topIsFixed = left.rowIsFixed;
+  range.bottomIsFixed = left.rowIsFixed;
+  range.leftIsFixed = left.colIsFixed;
+  range.rightIsFixed = left.colIsFixed;
+  if (tokens[0]?.type === "SEPARATOR") {
+    tokens.shift();
+    const right = parseCellReference(tokens);
+    range.bottom = right.row;
+    range.right = right.col;
+    range.bottomIsFixed = right.rowIsFixed;
+    range.rightIsFixed = right.colIsFixed;
+  }
+  if (tokens.length) {
+    throw new Error(_lt("Invalid reference"));
+  }
+  return range as StandAloneRange;
+}
+
+interface Coucou {
+  row: number | undefined;
+  col: number | undefined;
+  rowIsFixed: boolean;
+  colIsFixed: boolean;
+}
+
+// the name is wrong. Since it could be a single number
+function parseCellReference(tokens: Token[]): Coucou {
+  const range: Coucou = {
+    row: undefined,
+    col: undefined,
+    rowIsFixed: false,
+    colIsFixed: false,
+  };
+  let isFixed = false;
+  if (tokens[0]?.type === "DOLLAR") {
+    tokens.shift();
+    isFixed = true;
+  }
+  if (tokens[0]?.type === "LETTERS") {
+    range.col = lettersToNumber(tokens.shift()!.value);
+    range.colIsFixed = isFixed;
+    isFixed = false;
+  }
+  if (tokens[0]?.type === "DOLLAR") {
+    tokens.shift();
+    isFixed = true;
+  }
+  if (tokens[0]?.type === "NUMBERS") {
+    range.row = parseInt(tokens.shift()!.value) - 1;
+    range.rowIsFixed = isFixed;
+  }
+  return range;
+}
+
+// function order(range: StandAloneRange): StandAloneRange {
+//   if (range.left === undefined && range.right === undefined) {
+//     return range;
+//   }
+//   else if (range.left > range.right) {
+//     [range.left, range.right] = [range.right, range.left];
+//     [range.leftIsFixed, range.rightIsFixed] = [range.rightIsFixed, range.leftIsFixed];
+//   }
+//   if (range.top > range.bottom) {
+//     [range.top, range.bottom] = [range.bottom, range.top];
+//     [range.topIsFixed, range.bottomIsFixed] = [range.bottomIsFixed, range.topIsFixed];
+//   }
+//   return range;
+// }
 
 /**
  * Convert from a cartesian reference to a Zone
@@ -21,64 +184,69 @@ import { isColReference, isRowReference } from "./references";
  *
  */
 export function toZoneWithoutBoundaryChanges(xc: string): UnboundedZone {
-  xc = xc.split("!").pop()!;
-  const ranges = xc
-    .replace(/\$/g, "")
-    .split(":")
-    .map((x) => x.trim());
-
-  let top: number, bottom: number, left: number, right: number;
-  let fullCol = false;
-  let fullRow = false;
-  let hasHeader = false;
-  const firstRangePart = ranges[0];
-  const secondRangePart = ranges[1] && ranges[1];
-
-  if (isColReference(firstRangePart)) {
-    left = right = lettersToNumber(firstRangePart);
-    top = bottom = 0;
-    fullCol = true;
-  } else if (isRowReference(firstRangePart)) {
-    top = bottom = parseInt(firstRangePart, 10) - 1;
-    left = right = 0;
-    fullRow = true;
-  } else {
-    const c = toCartesian(firstRangePart);
-    left = right = c.col;
-    top = bottom = c.row;
-    hasHeader = true;
-  }
-  if (ranges.length === 2) {
-    if (isColReference(secondRangePart)) {
-      right = lettersToNumber(secondRangePart);
-      fullCol = true;
-    } else if (isRowReference(secondRangePart)) {
-      bottom = parseInt(secondRangePart, 10) - 1;
-      fullRow = true;
-    } else {
-      const c = toCartesian(secondRangePart);
-      right = c.col;
-      bottom = c.row;
-      top = fullCol ? bottom : top;
-      left = fullRow ? right : left;
-      hasHeader = true;
-    }
-  }
-
+  const { bottom, left, right, top } = parseReference(xc);
+  const fullCol = top === undefined || bottom === undefined;
+  const fullRow = left === undefined || right === undefined;
   if (fullCol && fullRow) {
     throw new Error(
       "Wrong zone xc. The zone cannot be at the same time a full column and a full row"
     );
   }
+  // xc = xc.split("!").pop()!;
+  // const ranges = xc
+  //   .replace(/\$/g, "")
+  //   .split(":")
+  //   .map((x) => x.trim());
+
+  // let top: number, bottom: number, left: number, right: number;
+  // let fullCol = false;
+  // let fullRow = false;
+  // let hasHeader = false;
+  // const firstRangePart = ranges[0];
+  // const secondRangePart = ranges[1] && ranges[1];
+
+  // if (isColReference(firstRangePart)) {
+  //   left = right = lettersToNumber(firstRangePart);
+  //   top = bottom = 0;
+  //   fullCol = true;
+  // } else if (isRowReference(firstRangePart)) {
+  //   top = bottom = parseInt(firstRangePart, 10) - 1;
+  //   left = right = 0;
+  //   fullRow = true;
+  // } else {
+  //   const c = toCartesian(firstRangePart);
+  //   left = right = c.col;
+  //   top = bottom = c.row;
+  //   hasHeader = true;
+  // }
+  // if (ranges.length === 2) {
+  //   if (isColReference(secondRangePart)) {
+  //     right = lettersToNumber(secondRangePart);
+  //     fullCol = true;
+  //   } else if (isRowReference(secondRangePart)) {
+  //     bottom = parseInt(secondRangePart, 10) - 1;
+  //     fullRow = true;
+  //   } else {
+  //     const c = toCartesian(secondRangePart);
+  //     right = c.col;
+  //     bottom = c.row;
+  //     top = fullCol ? bottom : top;
+  //     left = fullRow ? right : left;
+  //     hasHeader = true;
+  //   }
+  // }
 
   const zone: UnboundedZone = {
-    top,
-    left,
+    top: fullCol ? 0 : top,
+    left: fullRow ? 0 : left,
     bottom: fullCol ? undefined : bottom,
     right: fullRow ? undefined : right,
   };
 
-  hasHeader = hasHeader && (fullRow || fullCol);
+  // ordering...
+  const hasHeader =
+    (fullCol && (top !== undefined || bottom !== undefined)) ||
+    (fullRow && (left !== undefined || right !== undefined));
   if (hasHeader) {
     zone.hasHeader = hasHeader;
   }
