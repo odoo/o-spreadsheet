@@ -1,5 +1,4 @@
-import { App } from "@odoo/owl";
-import { Model, Spreadsheet } from "../../../src";
+import { Model } from "../../../src";
 import { buildSheetLink } from "../../../src/helpers";
 import { LinkCell } from "../../../src/types";
 import {
@@ -15,13 +14,11 @@ import {
   simulateClick,
 } from "../../test_helpers/dom_helper";
 import { getCell } from "../../test_helpers/getters_helpers";
-import { makeTestFixture, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
+import { mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 
 describe("link editor component", () => {
   let fixture: HTMLElement;
   let model: Model;
-  let grid: Spreadsheet;
-  let app: App;
 
   async function openLinkEditor(model: Model, xc: string) {
     await rightClickCell(model, xc);
@@ -43,14 +40,7 @@ describe("link editor component", () => {
   }
 
   beforeEach(async () => {
-    fixture = makeTestFixture();
-    ({ app, parent: grid } = await mountSpreadsheet(fixture));
-    model = grid.model;
-  });
-
-  afterEach(() => {
-    app.destroy();
-    fixture.remove();
+    ({ model, fixture } = await mountSpreadsheet());
   });
 
   test("open link editor from cell context menu", async () => {

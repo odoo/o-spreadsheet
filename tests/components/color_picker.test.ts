@@ -1,44 +1,24 @@
-import { App } from "@odoo/owl";
 import { Model } from "../../src";
 import { ColorPicker, ColorPickerProps } from "../../src/components/color_picker/color_picker";
 import { toHex } from "../../src/helpers";
-import { SpreadsheetChildEnv } from "../../src/types";
-import { OWL_TEMPLATES } from "../setup/jest.setup";
 import { setStyle } from "../test_helpers/commands_helpers";
 import {
   getElComputedStyle,
   setInputValueAndTrigger,
   simulateClick,
 } from "../test_helpers/dom_helper";
-import { makeTestFixture, nextTick } from "../test_helpers/helpers";
+import { mountComponent, nextTick } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
-beforeEach(async () => {
-  fixture = makeTestFixture();
-});
-
-afterEach(() => {
-  fixture.remove();
-});
-
-async function mountColorPicker(
-  props: Partial<ColorPickerProps> = {},
-  model = new Model()
-): Promise<ColorPicker> {
-  const app = new App(ColorPicker, {
-    props: {
-      dropdownDirection: props.dropdownDirection,
-      onColorPicked: props.onColorPicked || (() => {}),
-      currentColor: props.currentColor || "#000000",
-      maxHeight: props.maxHeight !== undefined ? props.maxHeight : 1000,
-    },
-    env: {
-      model,
-    } as SpreadsheetChildEnv,
-  });
-  app.addTemplates(OWL_TEMPLATES);
-  return await app.mount(fixture);
+async function mountColorPicker(partialProps: Partial<ColorPickerProps> = {}, model = new Model()) {
+  const props = {
+    dropdownDirection: partialProps.dropdownDirection,
+    onColorPicked: partialProps.onColorPicked || (() => {}),
+    currentColor: partialProps.currentColor || "#000000",
+    maxHeight: partialProps.maxHeight !== undefined ? partialProps.maxHeight : 1000,
+  };
+  ({ fixture } = await mountComponent(ColorPicker, { model, props }));
 }
 
 describe("Color Picker position tests", () => {

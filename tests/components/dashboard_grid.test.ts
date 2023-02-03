@@ -1,4 +1,3 @@
-import { App } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
 import {
   DEFAULT_CELL_HEIGHT,
@@ -10,12 +9,11 @@ import { Model } from "../../src/model";
 import { createFilter, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick } from "../test_helpers/dom_helper";
 import { getActiveXc } from "../test_helpers/getters_helpers";
-import { makeTestFixture, mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
+import { mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 let parent: Spreadsheet;
 let model: Model;
-let app: App;
 
 function getEmptyClipboardEvent(type: "copy" | "paste" | "cut") {
   const event = new Event(type, { bubbles: true });
@@ -30,15 +28,8 @@ function getEmptyClipboardEvent(type: "copy" | "paste" | "cut") {
 
 describe("Grid component in dashboard mode", () => {
   beforeEach(async () => {
-    fixture = makeTestFixture();
-    ({ app, parent } = await mountSpreadsheet(fixture));
-    model = parent.model;
+    ({ parent, fixture, model } = await mountSpreadsheet());
     await nextTick();
-  });
-
-  afterEach(() => {
-    app.destroy();
-    fixture.remove();
   });
 
   test("simple dashboard rendering snapshot", async () => {

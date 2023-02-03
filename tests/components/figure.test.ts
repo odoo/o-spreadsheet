@@ -1,5 +1,5 @@
-import { App, Component, xml } from "@odoo/owl";
-import { Model, Spreadsheet } from "../../src";
+import { Component, xml } from "@odoo/owl";
+import { Model } from "../../src";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -25,12 +25,10 @@ import {
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
-import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
+import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 let model: Model;
-let parent: Spreadsheet;
-let app: App;
 let sheetId: UID;
 
 function createFigure(
@@ -47,7 +45,7 @@ function createFigure(
     tag: "text",
   };
 
-  model.dispatch("CREATE_FIGURE", {
+  return model.dispatch("CREATE_FIGURE", {
     sheetId,
     figure: { ...defaultParameters, ...figureParameters },
   });
@@ -90,14 +88,8 @@ afterAll(() => {
 
 describe("figures", () => {
   beforeEach(async () => {
-    fixture = makeTestFixture();
-    ({ app, parent } = await mountSpreadsheet(fixture));
-    model = parent.model;
+    ({ model, fixture } = await mountSpreadsheet());
     sheetId = model.getters.getActiveSheetId();
-  });
-
-  afterEach(() => {
-    app.destroy();
   });
 
   test("can create a figure with some data", () => {

@@ -1,4 +1,4 @@
-import { App, Component, xml } from "@odoo/owl";
+import { Component, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
 import {
   DEFAULT_CELL_HEIGHT,
@@ -9,22 +9,14 @@ import {
 import { Model } from "../../src/model";
 import { setCellContent, setSelection, setViewportOffset } from "../test_helpers/commands_helpers";
 import { clickCell, triggerMouseEvent } from "../test_helpers/dom_helper";
-import { makeTestFixture, mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
+import { mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 let model: Model;
 let parent: Spreadsheet;
-let app: App;
 
 beforeEach(async () => {
-  fixture = makeTestFixture();
-  ({ app, parent } = await mountSpreadsheet(fixture));
-  model = parent.model;
-});
-
-afterEach(() => {
-  fixture.remove();
-  app.destroy();
+  ({ parent, model, fixture } = await mountSpreadsheet());
 });
 
 describe("Autofill component", () => {

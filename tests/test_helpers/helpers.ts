@@ -1,4 +1,4 @@
-import { App, Component, xml } from "@odoo/owl";
+import { App, Component, ComponentConstructor, xml } from "@odoo/owl";
 import { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
@@ -6,12 +6,12 @@ import { functionRegistry } from "../../src/functions/index";
 import { toCartesian, toUnboundedZone, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
-import { _t } from "../../src/translation";
 import {
   ColorScaleMidPointThreshold,
   ColorScaleThreshold,
   CommandTypes,
   ConditionalFormat,
+  Currency,
   RangeData,
   SpreadsheetChildEnv,
   Style,
@@ -19,7 +19,7 @@ import {
   Zone,
 } from "../../src/types";
 import { XLSXExport } from "../../src/types/xlsx";
-import { OWL_TEMPLATES } from "../setup/jest.setup";
+import { OWL_TEMPLATES, registerCleanup } from "../setup/jest.setup";
 import { CellEvaluation } from "./../../src/types/cells";
 import { redo, setCellContent, undo } from "./commands_helpers";
 import { getCell, getCellContent } from "./getters_helpers";
@@ -108,6 +108,26 @@ export class MockClipboard implements Clipboard {
   }
 }
 
+export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): SpreadsheetChildEnv {
+  return {
+    model: mockEnv.model || new Model(),
+    isDashboard: mockEnv.isDashboard || (() => false),
+    openSidePanel: mockEnv.openSidePanel || (() => {}),
+    toggleSidePanel: mockEnv.toggleSidePanel || (() => {}),
+    clipboard: mockEnv.clipboard || new MockClipboard(),
+    _t: mockEnv._t || ((str: string, ...values: any) => str),
+    notifyUser: mockEnv.notifyUser || (() => {}),
+    raiseError: mockEnv.raiseError || (() => {}),
+    askConfirmation: mockEnv.askConfirmation || (() => {}),
+    editText: mockEnv.editText || (() => {}),
+    loadCurrencies:
+      mockEnv.loadCurrencies ||
+      (async () => {
+        return [] as Currency[];
+      }),
+  };
+}
+
 export function testUndoRedo(model: Model, expect: jest.Expect, command: CommandTypes, args: any) {
   const before = model.exportData();
   model.dispatch(command, args);
@@ -118,35 +138,60 @@ export function testUndoRedo(model: Model, expect: jest.Expect, command: Command
   expect(model).toExport(after);
 }
 
+export async function mountComponent<Props extends { [key: string]: any }>(
+  component: ComponentConstructor<Props, SpreadsheetChildEnv>,
+  optionalArgs: {
+    props?: Props;
+    env?: Partial<SpreadsheetChildEnv>;
+    model?: Model;
+    fixture?: HTMLElement;
+  } = {}
+): Promise<{
+  app: App;
+  parent: Component<Props, SpreadsheetChildEnv>;
+  model: Model;
+  fixture: HTMLElement;
+  env: SpreadsheetChildEnv;
+}> {
+  const model = optionalArgs.model || optionalArgs?.env?.model || new Model();
+  const env = makeTestEnv({ ...optionalArgs.env, model: model });
+  const props = optionalArgs.props || ({} as Props);
+  const app = new App(component, { props, env, test: true });
+  app.addTemplates(OWL_TEMPLATES);
+  const fixture = optionalArgs?.fixture || makeTestFixture();
+  const parent = await app.mount(fixture);
+
+  registerCleanup(() => {
+    app.destroy();
+    fixture.remove();
+  });
+
+  return { app, parent, model, fixture, env: parent.env };
+}
+
 // Requires to be called wit jest realTimers
 export async function mountSpreadsheet(
-  fixture: HTMLElement,
   props: SpreadsheetProps = { model: new Model() },
-  env: Partial<SpreadsheetChildEnv> = {}
-): Promise<{ app: App; parent: Spreadsheet }> {
-  const mockEnv: SpreadsheetChildEnv = {
+  partialEnv: Partial<SpreadsheetChildEnv> = {}
+): Promise<{
+  app: App;
+  parent: Spreadsheet;
+  model: Model;
+  fixture: HTMLElement;
+  env: SpreadsheetChildEnv;
+}> {
+  const { app, parent, model, fixture, env } = await mountComponent(Spreadsheet, {
+    props,
+    env: partialEnv,
     model: props.model,
-    _t: _t,
-    clipboard: new MockClipboard(),
-    openSidePanel: () => {},
-    toggleSidePanel: () => {},
-    loadCurrencies: async () => [],
-    editText: () => {},
-    notifyUser: () => {},
-    raiseError: () => {},
-    askConfirmation: () => {},
-    isDashboard: () => false,
-    ...env,
-  };
-  const app = new App(Spreadsheet, { props, env: mockEnv, test: true });
-  app.addTemplates(OWL_TEMPLATES);
-  const parent = (await app.mount(fixture)) as Spreadsheet;
+  });
+
   /**
    * The following nextTick is necessary to ensure that a re-render is correctly
    * done after the resize of the sheet view.
    */
   await nextTick();
-  return { app, parent };
+  return { app, parent: parent as Spreadsheet, model, fixture, env };
 }
 
 type GridDescr = { [xc: string]: string | undefined };

@@ -1,5 +1,3 @@
-import { App } from "@odoo/owl";
-import { Spreadsheet } from "../../src";
 import {
   MatchingParenColor,
   NumberColor,
@@ -31,7 +29,6 @@ import {
 import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import {
   createEqualCF,
-  makeTestFixture,
   MockClipboard,
   mountSpreadsheet,
   nextTick,
@@ -48,8 +45,6 @@ let model: Model;
 let composerEl: Element;
 let gridInputEl: Element;
 let fixture: HTMLElement;
-let parent: Spreadsheet;
-let app: App;
 let cehMock: ContentEditableHelper;
 
 function getHighlights(model: Model): Highlight[] {
@@ -72,15 +67,8 @@ async function typeInComposerGrid(text: string, fromScratch: boolean = true) {
 
 beforeEach(async () => {
   jest.useFakeTimers();
-  fixture = makeTestFixture();
-  ({ app, parent } = await mountSpreadsheet(fixture));
-  model = parent.model;
-  gridInputEl = document.querySelector(".o-grid>input")!;
-});
-
-afterEach(() => {
-  app.destroy();
-  fixture.remove();
+  ({ model, fixture } = await mountSpreadsheet());
+  gridInputEl = fixture.querySelector(".o-grid>input")!;
 });
 
 describe("ranges and highlights", () => {
@@ -1550,14 +1538,14 @@ describe("Copy/paste in composer", () => {
   });
 
   test("Can copy random content inside the composer", async () => {
-    const sypeDispatch = jest.spyOn(parent.model, "dispatch");
+    const sypeDispatch = jest.spyOn(model, "dispatch");
     await startComposition();
     const clipboardEvent = new Event("paste", { bubbles: true, cancelable: true });
     //@ts-ignore
     clipboardEvent.clipboardData = { getData: () => "unimportant" };
     fixture.querySelector(".o-grid-composer .o-composer")!.dispatchEvent(clipboardEvent);
     await nextTick();
-    expect(parent.model.getters.getEditionMode()).not.toBe("inactive");
+    expect(model.getters.getEditionMode()).not.toBe("inactive");
     expect(fixture.querySelectorAll(".o-grid-composer .o-composer")).toHaveLength(1);
     expect(sypeDispatch).not.toBeCalledWith("PASTE_FROM_OS_CLIPBOARD", expect.any);
     expect(sypeDispatch).not.toBeCalledWith("PASTE", expect.any);

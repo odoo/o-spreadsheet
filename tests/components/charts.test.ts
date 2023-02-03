@@ -1,4 +1,3 @@
-import { App } from "@odoo/owl";
 import { CommandResult, Model, Spreadsheet } from "../../src";
 import { ChartTerms } from "../../src/components/translations_terms";
 import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../src/constants";
@@ -21,7 +20,6 @@ import {
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import {
-  makeTestFixture,
   mockChart,
   MockClipboard,
   mountSpreadsheet,
@@ -112,7 +110,7 @@ let chartId: string;
 let sheetId: string;
 
 let parent: Spreadsheet;
-let app: App;
+
 describe("figures", () => {
   beforeEach(async () => {
     const clipboard = new MockClipboard();
@@ -122,7 +120,6 @@ describe("figures", () => {
       },
       configurable: true,
     });
-    fixture = makeTestFixture();
     mockChartData = mockChart();
     chartId = "someuuid";
     sheetId = "Sheet1";
@@ -151,16 +148,12 @@ describe("figures", () => {
         },
       ],
     };
-    ({ app, parent } = await mountSpreadsheet(fixture, { model: new Model(data) }));
-    model = parent.model;
+    ({ parent, model, fixture } = await mountSpreadsheet({ model: new Model(data) }));
     await nextTick();
     await nextTick();
     await nextTick();
   });
-  afterEach(() => {
-    app.destroy();
-    fixture.remove();
-  });
+
   test.each(["basicChart", "scorecard", "gauge"])("can export a chart %s", (chartType: string) => {
     createTestChart(chartType);
     const data = model.exportData();
@@ -1184,7 +1177,6 @@ describe("figures", () => {
 
 describe("charts with multiple sheets", () => {
   beforeEach(async () => {
-    fixture = makeTestFixture();
     mockChartData = mockChart();
     const data = {
       sheets: [
@@ -1241,14 +1233,10 @@ describe("charts with multiple sheets", () => {
         },
       ],
     };
-    ({ app, parent } = await mountSpreadsheet(fixture, { model: new Model(data) }));
-    model = parent.model;
+    ({ parent, model, fixture } = await mountSpreadsheet({ model: new Model(data) }));
     await nextTick();
   });
-  afterEach(() => {
-    fixture.remove();
-    app.destroy();
-  });
+
   test("delete sheet containing chart data does not crash", async () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet1");
     model.dispatch("DELETE_SHEET", { sheetId: model.getters.getActiveSheetId() });
@@ -1261,14 +1249,10 @@ describe("charts with multiple sheets", () => {
 
 describe("Default background on runtime tests", () => {
   beforeEach(async () => {
-    fixture = makeTestFixture();
-    ({ app, parent } = await mountSpreadsheet(fixture, { model: new Model() }));
-    model = parent.model;
+    ({ parent, fixture, model } = await mountSpreadsheet({ model: new Model() }));
     await nextTick();
   });
-  afterEach(() => {
-    app.destroy();
-  });
+
   test("Creating a 'basicChart' without background should have default background on runtime", async () => {
     createChart(model, { dataSets: ["A1"] }, "1", sheetId);
     expect(model.getters.getChartDefinition("1")?.background).toBeUndefined();

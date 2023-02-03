@@ -1,11 +1,10 @@
-import { App } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
 import { selectColumn, selectRow } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc } from "../test_helpers/getters_helpers";
-import { makeTestFixture, mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
+import { mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
 
 const COLUMN_D = { x: 340, y: 10 };
 const ROW_5 = { x: 30, y: 100 };
@@ -14,17 +13,9 @@ const OUTSIDE_CM = { x: 50, y: 50 };
 let fixture: HTMLElement;
 let model: Model;
 let parent: Spreadsheet;
-let app: App;
 
 beforeEach(async () => {
-  fixture = makeTestFixture();
-  ({ app, parent } = await mountSpreadsheet(fixture));
-  model = parent.model;
-});
-
-afterEach(() => {
-  app.destroy();
-  fixture.remove();
+  ({ parent, model, fixture } = await mountSpreadsheet());
 });
 
 function simulateContextMenu(selector: string, coord: { x: number; y: number }) {
