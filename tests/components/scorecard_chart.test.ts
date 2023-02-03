@@ -1,5 +1,4 @@
-import { App } from "@odoo/owl";
-import { Model, Spreadsheet } from "../../src";
+import { Model } from "../../src";
 import { toHex } from "../../src/helpers";
 import { UID } from "../../src/types";
 import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
@@ -10,15 +9,12 @@ import {
 } from "../test_helpers/commands_helpers";
 import { dragElement, getElComputedStyle, simulateClick } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
-import { makeTestFixture, mountSpreadsheet, nextTick, target } from "../test_helpers/helpers";
+import { mountSpreadsheet, nextTick, target } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 let model: Model;
 let chartId: string;
 let sheetId: string;
-
-let parent: Spreadsheet;
-let app: App;
 
 function getChartElement(): HTMLElement {
   return fixture.querySelector(".o-figure")!;
@@ -83,7 +79,6 @@ function getChartBaselineTextContent() {
 
 describe("Scorecard charts", () => {
   beforeEach(async () => {
-    fixture = makeTestFixture();
     chartId = "someuuid";
     sheetId = "Sheet1";
     const data = {
@@ -104,13 +99,7 @@ describe("Scorecard charts", () => {
         },
       ],
     };
-    ({ app, parent } = await mountSpreadsheet(fixture, { model: new Model(data) }));
-    model = parent.model;
-  });
-
-  afterEach(() => {
-    app.destroy();
-    fixture.remove();
+    ({ model, fixture } = await mountSpreadsheet({ model: new Model(data) }));
   });
 
   test("Scorecard snapshot", async () => {

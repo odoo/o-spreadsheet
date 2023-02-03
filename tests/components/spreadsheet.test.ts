@@ -1,10 +1,10 @@
-import { App } from "@odoo/owl";
 import { Model } from "../../src";
 import { Spreadsheet } from "../../src/components";
 import { DEFAULT_CELL_HEIGHT } from "../../src/constants";
 import { args, functionRegistry } from "../../src/functions";
 import { toZone } from "../../src/helpers";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/registries";
+import { SpreadsheetChildEnv } from "../../src/types";
 import {
   addRows,
   createChart,
@@ -22,7 +22,6 @@ import {
 } from "../test_helpers/dom_helper";
 import { getActiveSheetFullScrollInfo, getCellContent } from "../test_helpers/getters_helpers";
 import {
-  makeTestFixture,
   MockClipboard,
   mountSpreadsheet,
   nextTick,
@@ -40,7 +39,8 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 
 let fixture: HTMLElement;
 let parent: Spreadsheet;
-let app: App;
+let model: Model;
+let env: SpreadsheetChildEnv;
 const clipboard = new MockClipboard();
 
 Object.defineProperty(navigator, "clipboard", {
@@ -50,23 +50,18 @@ Object.defineProperty(navigator, "clipboard", {
   configurable: true,
 });
 
-beforeEach(async () => {
-  fixture = makeTestFixture();
-  const model = new Model({ sheets: [{ id: "sh1" }] });
-  ({ app, parent } = await mountSpreadsheet(fixture, { model }));
-});
-
-afterEach(() => {
-  app.destroy();
-  fixture.remove();
-});
-
 describe("Spreadsheet", () => {
   test("simple rendering snapshot", async () => {
+    ({ model, parent, fixture } = await mountSpreadsheet({
+      model: new Model({ sheets: [{ id: "sh1" }] }),
+    }));
     expect(fixture.querySelector(".o-spreadsheet")).toMatchSnapshot();
   });
 
   test("focus is properly set, initially and after switching sheet", async () => {
+    ({ model, parent, fixture } = await mountSpreadsheet({
+      model: new Model({ sheets: [{ id: "sh1" }] }),
+    }));
     // TODO check
     expect(document.activeElement!.tagName).toEqual("INPUT");
     document.querySelector(".o-add-sheet")!.dispatchEvent(new Event("click"));
@@ -103,7 +98,7 @@ describe("Spreadsheet", () => {
     });
 
     test("Can use the env in a function at model start", async () => {
-      await mountSpreadsheet(fixture, {
+      await mountSpreadsheet({
         model: new Model(
           {
             version: 2,
@@ -127,20 +122,29 @@ describe("Spreadsheet", () => {
     });
   });
 
-  test("Clipboard is in spreadsheet env", () => {
-    expect(parent.env.clipboard).toBe(clipboard);
+  test("Clipboard is in spreadsheet env", async () => {
+    ({ model, parent, fixture, env } = await mountSpreadsheet({
+      model: new Model({ sheets: [{ id: "sh1" }] }),
+    }));
+    expect(env.clipboard).toBe(clipboard);
   });
 
   test("typing opens composer after toolbar clicked", async () => {
+    ({ model, parent, fixture } = await mountSpreadsheet({
+      model: new Model({ sheets: [{ id: "sh1" }] }),
+    }));
     await simulateClick(`div[title="Bold"]`);
     expect(document.activeElement).not.toBeNull();
     document.activeElement?.dispatchEvent(new InputEvent("input", { data: "d", bubbles: true }));
     await nextTick();
-    expect(parent.model.getters.getEditionMode()).toBe("editing");
-    expect(parent.model.getters.getCurrentContent()).toBe("d");
+    expect(model.getters.getEditionMode()).toBe("editing");
+    expect(model.getters.getCurrentContent()).toBe("d");
   });
 
   test("can open/close search with ctrl+h", async () => {
+    ({ model, parent, fixture } = await mountSpreadsheet({
+      model: new Model({ sheets: [{ id: "sh1" }] }),
+    }));
     await nextTick();
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "H", ctrlKey: true, bubbles: true })
@@ -155,6 +159,9 @@ describe("Spreadsheet", () => {
   });
 
   test("can open/close search with ctrl+f", async () => {
+    ({ model, parent, fixture } = await mountSpreadsheet({
+      model: new Model({ sheets: [{ id: "sh1" }] }),
+    }));
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "F", ctrlKey: true, bubbles: true })
     );
@@ -170,52 +177,54 @@ describe("Spreadsheet", () => {
 
   test("Can instantiate a spreadsheet with a given client id-name", async () => {
     const client = { id: "alice", name: "Alice" };
-    ({ app, parent } = await mountSpreadsheet(fixture, { model: new Model({}, { client }) }));
-    expect(parent.model.getters.getClient()).toEqual(client);
-    app.destroy();
+    ({ model } = await mountSpreadsheet({ model: new Model({}, { client }) }));
+    expect(model.getters.getClient()).toEqual(client);
   });
 
   test("Spreadsheet detects frozen panes that exceed the limit size at start", async () => {
     const notifyUser = jest.fn();
     const model = new Model({ sheets: [{ panes: { xSplit: 12, ySplit: 50 } }] });
-    ({ app, parent } = await mountSpreadsheet(fixture, { model }, { notifyUser }));
+    await mountSpreadsheet({ model }, { notifyUser });
     expect(notifyUser).toHaveBeenCalled();
-    app.destroy();
   });
 
   test("Warn user only once when the viewport is too small for its frozen panes", async () => {
     const notifyUser = jest.fn();
-    ({ app, parent } = await mountSpreadsheet(fixture, undefined, { notifyUser }));
+    ({ model } = await mountSpreadsheet(undefined, { notifyUser }));
     expect(notifyUser).not.toHaveBeenCalled();
-    freezeRows(parent.model, 51);
+    freezeRows(model, 51);
     await nextTick();
     expect(notifyUser).toHaveBeenCalledTimes(1);
     //dispatching commands that do not alter the viewport/pane status and rerendering won't notify
-    addRows(parent.model, "after", 0, 1);
+    addRows(model, "after", 0, 1);
     await nextTick();
     expect(notifyUser).toHaveBeenCalledTimes(1);
 
     // resetting the status - the panes no longer exceed limit size
-    freezeRows(parent.model, 3);
+    freezeRows(model, 3);
     await nextTick();
     expect(notifyUser).toHaveBeenCalledTimes(1);
 
     // dispatching that makes the panes exceed the limit size in viewport notifies again
-    freezeRows(parent.model, 51);
+    freezeRows(model, 51);
     await nextTick();
     expect(notifyUser).toHaveBeenCalledTimes(2);
-    app.destroy();
   });
 });
 
 describe("Composer interactions", () => {
+  beforeEach(async () => {
+    ({ model, fixture } = await mountSpreadsheet({
+      model: new Model({ sheets: [{ id: "sh1" }] }),
+    }));
+  });
   test("type in grid composer adds text to topbar composer", async () => {
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
     );
     await nextTick();
-    const gridComposer = document.querySelector(".o-grid .o-composer");
-    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
+    const gridComposer = fixture.querySelector(".o-grid .o-composer");
+    const topBarComposer = fixture.querySelector(".o-spreadsheet-topbar .o-composer");
     expect(document.activeElement).toBe(gridComposer);
     await typeInComposerGrid("text");
     expect(topBarComposer!.textContent).toBe("text");
@@ -225,8 +234,8 @@ describe("Composer interactions", () => {
   test("type in topbar composer adds text to grid composer", async () => {
     triggerMouseEvent(".o-spreadsheet-topbar .o-composer", "click");
     await nextTick();
-    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
-    const gridComposer = document.querySelector(".o-grid .o-composer");
+    const topBarComposer = fixture.querySelector(".o-spreadsheet-topbar .o-composer");
+    const gridComposer = fixture.querySelector(".o-grid .o-composer");
     expect(topBarComposer).not.toBeNull();
     expect(document.activeElement).toBe(topBarComposer);
     expect(gridComposer).not.toBeNull();
@@ -239,8 +248,8 @@ describe("Composer interactions", () => {
   test("start typing in topbar composer then continue in grid composer", async () => {
     triggerMouseEvent(".o-spreadsheet-topbar .o-composer", "click");
     await nextTick();
-    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
-    const gridComposer = document.querySelector(".o-grid .o-composer");
+    const topBarComposer = fixture.querySelector(".o-spreadsheet-topbar .o-composer");
+    const gridComposer = fixture.querySelector(".o-grid .o-composer");
 
     // Type in top bar composer
     await typeInComposerTopBar("from topbar");
@@ -256,18 +265,18 @@ describe("Composer interactions", () => {
   });
 
   test("top bar composer display active cell content", async () => {
-    setCellContent(parent.model, "A2", "Hello");
-    selectCell(parent.model, "A2");
+    setCellContent(model, "A2", "Hello");
+    selectCell(model, "A2");
     await nextTick();
-    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
+    const topBarComposer = fixture.querySelector(".o-spreadsheet-topbar .o-composer");
     expect(topBarComposer!.textContent).toBe("Hello");
   });
 
   test("top bar composer displays formatted date cell content", async () => {
-    setCellContent(parent.model, "A2", "10/10/2021");
-    selectCell(parent.model, "A2");
+    setCellContent(model, "A2", "10/10/2021");
+    selectCell(model, "A2");
     await nextTick();
-    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
+    const topBarComposer = fixture.querySelector(".o-spreadsheet-topbar .o-composer");
     expect(topBarComposer!.textContent).toBe("10/10/2021");
     // Focus top bar composer
     triggerMouseEvent(".o-spreadsheet-topbar .o-composer", "click");
@@ -279,7 +288,7 @@ describe("Composer interactions", () => {
       new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
     );
     await nextTick();
-    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
+    const topBarComposer = fixture.querySelector(".o-spreadsheet-topbar .o-composer")!;
     await typeInComposerGrid("=SU");
     await nextTick();
     expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).not.toBeNull();
@@ -293,8 +302,8 @@ describe("Composer interactions", () => {
       new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
     );
     await nextTick();
-    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
-    const gridComposerContainer = document.querySelector(".o-grid-composer")! as HTMLElement;
+    const topBarComposer = fixture.querySelector(".o-spreadsheet-topbar .o-composer")!;
+    const gridComposerContainer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
     const spy = jest.spyOn(gridComposerContainer.style, "width", "set");
     await typeInComposerGrid("=SU");
     await nextTick();
@@ -307,14 +316,14 @@ describe("Composer interactions", () => {
   test("selecting ranges multiple times in topbar bar does not resize grid composer", async () => {
     triggerMouseEvent(".o-spreadsheet-topbar .o-composer", "click");
     await nextTick();
-    const gridComposerContainer = document.querySelector(".o-grid-composer")! as HTMLElement;
+    const gridComposerContainer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
     // Type in top bar composer
     await typeInComposerTopBar("=");
     const spy = jest.spyOn(gridComposerContainer.style, "width", "set");
     await nextTick();
-    selectCell(parent.model, "B2");
+    selectCell(model, "B2");
     await nextTick();
-    selectCell(parent.model, "B2");
+    selectCell(model, "B2");
     await nextTick();
     expect(spy).not.toHaveBeenCalled();
   });
@@ -322,38 +331,38 @@ describe("Composer interactions", () => {
   test("The spreadsheet does not render after onbeforeunload", async () => {
     window.dispatchEvent(new Event("beforeunload", { bubbles: true }));
     await nextTick();
-    createSheet(parent.model, {});
+    createSheet(model, {});
     await nextTick();
-    const sheets = document.querySelectorAll(".o-all-sheets .o-sheet");
-    expect(sheets).toHaveLength(parent.model.getters.getSheetIds().length - 1);
+    const sheets = fixture.querySelectorAll(".o-all-sheets .o-sheet");
+    expect(sheets).toHaveLength(model.getters.getSheetIds().length - 1);
   });
 
   test("Notify ui correctly with type notification correctly use notifyUser in the env", async () => {
     const raiseError = jest.fn();
-    const fixture = makeTestFixture();
     const model = new Model();
-    const { app } = await mountSpreadsheet(fixture, { model }, { raiseError });
-    await app.mount(fixture);
+    await mountSpreadsheet({ model }, { raiseError });
     model["config"].notifyUI({ type: "ERROR", text: "hello" });
     expect(raiseError).toHaveBeenCalledWith("hello");
-    fixture.remove();
-    app.destroy();
   });
 
   test("The composer helper should be closed on toggle topbar context menu", async () => {
     await typeInComposerGrid("=sum(");
-    expect(parent.model.getters.getEditionMode()).not.toBe("inactive");
+    expect(model.getters.getEditionMode()).not.toBe("inactive");
     expect(fixture.querySelectorAll(".o-composer-assistant")).toHaveLength(1);
     await simulateClick(".o-topbar-topleft .o-topbar-menu");
-    expect(parent.model.getters.getEditionMode()).toBe("inactive");
+    expect(model.getters.getEditionMode()).toBe("inactive");
     expect(fixture.querySelectorAll(".o-composer-assistant")).toHaveLength(0);
   });
 });
 
 describe("Composer / selectionInput interactions", () => {
   beforeEach(async () => {
-    const sheetId = parent.model.getters.getActiveSheetId();
-    parent.model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model = new Model({ sheets: [{ id: "sh1" }] });
+    ({ fixture, env, parent } = await mountSpreadsheet({
+      model,
+    }));
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
       sheetId,
       ranges: toRangesData(sheetId, "B2:C4"),
       cf: {
@@ -367,60 +376,59 @@ describe("Composer / selectionInput interactions", () => {
       },
     });
     // input some stuff in B2
-    setCellContent(parent.model, "B2", "=A1");
+    setCellContent(model, "B2", "=A1");
   });
 
   test("Switching from selection input to composer should update the highlihts", async () => {
     //open cf sidepanel
-    selectCell(parent.model, "B2");
-    OPEN_CF_SIDEPANEL_ACTION(parent.env);
+    selectCell(model, "B2");
+    OPEN_CF_SIDEPANEL_ACTION(env);
     await nextTick();
     await simulateClick(".o-selection-input input");
 
-    expect(parent.model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("B2:C4")]);
-    expect(document.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(0);
+    expect(model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("B2:C4")]);
+    expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(0);
 
     // select Composer
     await simulateClick(".o-spreadsheet-topbar .o-composer");
 
-    expect(parent.model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("A1")]);
-    expect(document.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
+    expect(model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("A1")]);
+    expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
   });
   test.each(["A", "="])(
     "Switching from grid composer to selection input should update the highlights and hide the highlight components",
     async (composerContent) => {
-      selectCell(parent.model, "B2");
+      selectCell(model, "B2");
       OPEN_CF_SIDEPANEL_ACTION(parent.env);
       await nextTick();
 
       await startGridComposition(composerContent);
-      expect(document.querySelectorAll(".o-grid-composer")).toHaveLength(1);
+      expect(fixture.querySelectorAll(".o-grid-composer")).toHaveLength(1);
 
       // focus selection input
       await simulateClick(".o-selection-input input");
 
-      expect(document.querySelectorAll(".o-grid-composer")).toHaveLength(0);
+      expect(fixture.querySelectorAll(".o-grid-composer")).toHaveLength(0);
     }
   );
 
   test("Switching from composer to selection input should update the highlights and hide the highlight components", async () => {
-    selectCell(parent.model, "B2");
-    OPEN_CF_SIDEPANEL_ACTION(parent.env);
+    selectCell(model, "B2");
+    OPEN_CF_SIDEPANEL_ACTION(env);
     await nextTick();
 
     await simulateClick(".o-spreadsheet-topbar .o-composer");
-    expect(parent.model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("A1")]);
-    expect(document.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
+    expect(model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("A1")]);
+    expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
 
     //open cf sidepanel
     await simulateClick(".o-selection-input input");
 
-    expect(parent.model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("B2:C4")]);
-    expect(document.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(0);
+    expect(model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("B2:C4")]);
+    expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(0);
   });
 
   test("Switching from composer to focusing a figure should resubscribe grid_selection", async () => {
-    const model = parent.model;
     mockChart();
     createChart(
       model,
@@ -438,7 +446,6 @@ describe("Composer / selectionInput interactions", () => {
   });
 
   test("Selecting a range should not scroll the viewport to the current Grid selection", async () => {
-    const model = parent.model;
     const { top, bottom, left, right } = model.getters.getActiveMainViewport();
     await typeInComposerTopBar("=");
     // scroll
@@ -465,7 +472,6 @@ describe("Composer / selectionInput interactions", () => {
   test("Z-indexes of the various spreadsheet components", async () => {
     const getZIndex = (selector: string) => Number(getElComputedStyle(selector, "zIndex")) || 0;
     mockChart();
-    const model = parent.model;
 
     const gridZIndex = getZIndex(".o-grid");
     const vScrollbarZIndex = getZIndex(".o-scrollbar.vertical");

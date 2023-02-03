@@ -1,4 +1,3 @@
-import { App } from "@odoo/owl";
 import { Model, Spreadsheet } from "../src";
 import { fontSizes } from "../src/fonts";
 import { zoneToXc } from "../src/helpers";
@@ -36,7 +35,6 @@ import {
 } from "./test_helpers/commands_helpers";
 import { getCellContent } from "./test_helpers/getters_helpers";
 import {
-  makeTestFixture,
   mockChart,
   MockClipboard,
   mockUuidV4To,
@@ -79,6 +77,16 @@ function getName(
   const node = getNode(path, menuRegistry);
   return typeof node.name === "function" ? node.name(env).toString() : node.name.toString();
 }
+
+beforeEach(async () => {
+  const clipboard = new MockClipboard();
+  Object.defineProperty(navigator, "clipboard", {
+    get() {
+      return clipboard;
+    },
+    configurable: true,
+  });
+});
 
 describe("Menu Item Registry", () => {
   let menuDefinitions;
@@ -141,30 +149,14 @@ describe("Menu Item Registry", () => {
 });
 
 describe("Menu Item actions", () => {
-  let fixture: HTMLElement;
   let model: Model;
   let parent: Spreadsheet;
-  let app: App;
   let env: SpreadsheetChildEnv;
-  let dispatch;
+  let dispatch: jest.SpyInstance;
 
   beforeEach(async () => {
-    const clipboard = new MockClipboard();
-    Object.defineProperty(navigator, "clipboard", {
-      get() {
-        return clipboard;
-      },
-      configurable: true,
-    });
-    fixture = makeTestFixture();
-    ({ app, parent } = await mountSpreadsheet(fixture));
-    model = parent.model;
-    env = parent.env;
+    ({ parent, model, env } = await mountSpreadsheet());
     dispatch = spyDispatch(parent);
-  });
-
-  afterEach(() => {
-    app.destroy();
   });
 
   test("Edit -> undo", () => {
@@ -1106,10 +1098,7 @@ describe("Menu Item actions", () => {
     let defaultPayload: any;
 
     beforeEach(async () => {
-      fixture = makeTestFixture();
-      ({ app, parent } = await mountSpreadsheet(fixture, { model: new Model(data) }));
-      model = parent.model;
-      env = parent.env;
+      ({ model, env, parent } = await mountSpreadsheet({ model: new Model(data) }));
       mockChart();
       dispatchSpy = spyDispatch(parent);
       defaultPayload = {
@@ -1128,10 +1117,6 @@ describe("Menu Item actions", () => {
           verticalAxisPosition: "left",
         },
       };
-    });
-
-    afterEach(() => {
-      app.destroy();
     });
 
     test("Chart is inserted at correct position", () => {

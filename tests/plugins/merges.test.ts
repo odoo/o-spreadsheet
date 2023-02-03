@@ -1,9 +1,6 @@
-import { App, Component, useSubEnv, xml } from "@odoo/owl";
-import { Spreadsheet } from "../../src";
 import { toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { CommandResult, Style } from "../../src/types/index";
-import { OWL_TEMPLATES } from "../setup/jest.setup";
 import {
   addColumns,
   deleteRows,
@@ -19,7 +16,6 @@ import {
   undo,
   unMerge,
 } from "../test_helpers/commands_helpers";
-import { simulateClick } from "../test_helpers/dom_helper";
 import {
   getActiveXc,
   getBorder,
@@ -27,14 +23,7 @@ import {
   getCellContent,
   getMerges,
 } from "../test_helpers/getters_helpers";
-import {
-  getChildFromComponent,
-  getMergeCellMap,
-  makeTestFixture,
-  nextTick,
-  target,
-  XCToMergeCellMap,
-} from "../test_helpers/helpers";
+import { getMergeCellMap, target, XCToMergeCellMap } from "../test_helpers/helpers";
 
 function getCellsXC(model: Model): string[] {
   return Object.values(model.getters.getCells(model.getters.getActiveSheetId())).map((cell) => {
@@ -306,40 +295,6 @@ describe("merges", () => {
       styles: { 1: {} },
     });
     expect(merge(model, "A1:C4")).toBeSuccessfullyDispatched();
-  });
-
-  test("merging destructively a selection ask for confirmation", async () => {
-    const askConfirmation = jest.fn();
-    class Parent extends Component<any> {
-      static template = xml/* xml */ `<Spreadsheet model="_model"/>`;
-      static components = { Spreadsheet };
-      private _model!: Model;
-      setup() {
-        this._model = new Model();
-        useSubEnv({
-          askConfirmation,
-        });
-      }
-
-      get spreadsheet(): Spreadsheet {
-        return getChildFromComponent(this, Spreadsheet);
-      }
-
-      get model(): Model {
-        return this._model;
-      }
-    }
-    const fixture = makeTestFixture();
-    const app = new App(Parent);
-    app.addTemplates(OWL_TEMPLATES);
-    const parent = await app.mount(fixture);
-    const model = parent.model;
-    setCellContent(model, "B2", "b2");
-
-    setAnchorCorner(model, "F6");
-    await nextTick();
-    await simulateClick(".o-merge-tool");
-    expect(askConfirmation).toHaveBeenCalled();
   });
 
   test("merging cells with values will do nothing if not forced", () => {

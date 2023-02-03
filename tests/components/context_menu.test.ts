@@ -1,26 +1,22 @@
-import { App, Component, useSubEnv, xml } from "@odoo/owl";
-import { Spreadsheet } from "../../src";
+import { Component, useSubEnv, xml } from "@odoo/owl";
 import { Menu } from "../../src/components/menu/menu";
 import { MENU_ITEM_HEIGHT, MENU_WIDTH, TOPBAR_HEIGHT } from "../../src/constants";
 import { toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { createFullMenuItem, FullMenuItem } from "../../src/registries";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
-import { OWL_TEMPLATES } from "../setup/jest.setup";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import { rightClickCell, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 import {
-  makeTestFixture,
   MockClipboard,
+  mountComponent,
   mountSpreadsheet,
   nextTick,
   Touch,
 } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
-let parent: Component;
-let app: App;
 let model: Model;
 
 beforeEach(async () => {
@@ -31,14 +27,6 @@ beforeEach(async () => {
     },
     configurable: true,
   });
-  fixture = makeTestFixture();
-  ({ app, parent } = await mountSpreadsheet(fixture));
-  model = (parent as Spreadsheet).model;
-});
-
-afterEach(() => {
-  app.destroy();
-  fixture.remove();
 });
 
 function getActiveXc(model: Model): string {
@@ -103,7 +91,7 @@ async function renderContextMenu(
   // x, y are relative to the upper left grid corner, but the menu
   // props must take the top bar into account.
 
-  app = new App(ContextMenuParent, {
+  ({ fixture, model } = await mountComponent(ContextMenuParent, {
     props: {
       x,
       y: y + TOPBAR_HEIGHT,
@@ -112,11 +100,8 @@ async function renderContextMenu(
       model: new Model(),
       config: testConfig,
     },
-  });
-  app.addTemplates(OWL_TEMPLATES);
-  parent = await app.mount(fixture);
+  }));
 
-  await nextTick();
   return [x, y];
 }
 
@@ -200,7 +185,10 @@ class ContextMenuParent extends Component {
   }
 }
 
-describe("Context Menu", () => {
+describe("Context Menu integration tests", () => {
+  beforeEach(async () => {
+    ({ fixture, model } = await mountSpreadsheet());
+  });
   test("context menu simple rendering", async () => {
     await rightClickCell(model, "C8");
     expect(fixture.querySelector(".o-menu")).toMatchSnapshot();
@@ -318,6 +306,77 @@ describe("Context Menu", () => {
     cellMenuRegistry.content = menuDefinitions;
   });
 
+  test("scroll through the menu with the wheel / scrollbar prevents the grid from scrolling", async () => {
+    const verticalScrollBar = fixture.querySelector(".o-scrollbar.vertical") as HTMLElement;
+    const horizontalScrollBar = fixture.querySelector(".o-scrollbar.horizontal") as HTMLElement;
+    expect(verticalScrollBar.scrollTop).toBe(0);
+    expect(horizontalScrollBar.scrollLeft).toBe(0);
+
+    await rightClickCell(model, "C8");
+
+    const menu = fixture.querySelector(".o-menu")!;
+    // scroll
+    menu.dispatchEvent(
+      new WheelEvent("wheel", { deltaY: 300, deltaX: 300, deltaMode: 0, bubbles: true })
+    );
+    menu.dispatchEvent(new Event("scroll", { bubbles: true }));
+    await nextTick();
+
+    // grid always at (0, 0) scroll position
+    expect(verticalScrollBar.scrollTop).toBe(0);
+    expect(horizontalScrollBar.scrollLeft).toBe(0);
+  });
+
+  test("scroll through the menu with the touch device prevents the grid from scrolling", async () => {
+    const verticalScrollBar = fixture.querySelector(".o-scrollbar.vertical") as HTMLElement;
+    const horizontalScrollBar = fixture.querySelector(".o-scrollbar.horizontal") as HTMLElement;
+
+    expect(verticalScrollBar.scrollTop).toBe(0);
+    expect(horizontalScrollBar.scrollLeft).toBe(0);
+
+    await rightClickCell(model, "C8");
+
+    const menu = fixture.querySelector(".o-menu")!;
+
+    // start move at (310, 210) touch position
+    menu.dispatchEvent(
+      new TouchEvent("touchstart", {
+        bubbles: true,
+        cancelable: true,
+        touches: [
+          new Touch({
+            clientX: 310,
+            clientY: 210,
+            identifier: 1,
+            target: menu,
+          }),
+        ],
+      })
+    );
+    // move down;
+    menu.dispatchEvent(
+      new TouchEvent("touchmove", {
+        bubbles: true,
+        cancelable: true,
+        touches: [
+          new Touch({
+            clientX: 310,
+            clientY: 180,
+            identifier: 2,
+            target: menu,
+          }),
+        ],
+      })
+    );
+
+    await nextTick();
+    // grid always at (0, 0) scroll position
+    expect(verticalScrollBar.scrollTop).toBe(0);
+    expect(horizontalScrollBar.scrollLeft).toBe(0);
+  });
+});
+
+describe("Context Menu internal tests", () => {
   test("submenu opens and close when (un)overed", async () => {
     const menuItems: FullMenuItem[] = [
       createFullMenuItem("action", {
@@ -586,75 +645,6 @@ describe("Context Menu", () => {
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='visible_submenu_1']")).toBeTruthy();
     expect(fixture.querySelector(".o-menu div[data-name='invisible_submenu_1']")).toBeFalsy();
-  });
-
-  test("scroll through the menu with the wheel / scrollbar prevents the grid from scrolling", async () => {
-    const verticalScrollBar = fixture.querySelector(".o-scrollbar.vertical") as HTMLElement;
-    const horizontalScrollBar = fixture.querySelector(".o-scrollbar.horizontal") as HTMLElement;
-    expect(verticalScrollBar.scrollTop).toBe(0);
-    expect(horizontalScrollBar.scrollLeft).toBe(0);
-
-    await rightClickCell(model, "C8");
-
-    const menu = fixture.querySelector(".o-menu")!;
-    // scroll
-    menu.dispatchEvent(
-      new WheelEvent("wheel", { deltaY: 300, deltaX: 300, deltaMode: 0, bubbles: true })
-    );
-    menu.dispatchEvent(new Event("scroll", { bubbles: true }));
-    await nextTick();
-
-    // grid always at (0, 0) scroll position
-    expect(verticalScrollBar.scrollTop).toBe(0);
-    expect(horizontalScrollBar.scrollLeft).toBe(0);
-  });
-
-  test("scroll through the menu with the touch device prevents the grid from scrolling", async () => {
-    const verticalScrollBar = fixture.querySelector(".o-scrollbar.vertical") as HTMLElement;
-    const horizontalScrollBar = fixture.querySelector(".o-scrollbar.horizontal") as HTMLElement;
-
-    expect(verticalScrollBar.scrollTop).toBe(0);
-    expect(horizontalScrollBar.scrollLeft).toBe(0);
-
-    await rightClickCell(model, "C8");
-
-    const menu = fixture.querySelector(".o-menu")!;
-
-    // start move at (310, 210) touch position
-    menu.dispatchEvent(
-      new TouchEvent("touchstart", {
-        bubbles: true,
-        cancelable: true,
-        touches: [
-          new Touch({
-            clientX: 310,
-            clientY: 210,
-            identifier: 1,
-            target: menu,
-          }),
-        ],
-      })
-    );
-    // move down;
-    menu.dispatchEvent(
-      new TouchEvent("touchmove", {
-        bubbles: true,
-        cancelable: true,
-        touches: [
-          new Touch({
-            clientX: 310,
-            clientY: 180,
-            identifier: 2,
-            target: menu,
-          }),
-        ],
-      })
-    );
-
-    await nextTick();
-    // grid always at (0, 0) scroll position
-    expect(verticalScrollBar.scrollTop).toBe(0);
-    expect(horizontalScrollBar.scrollLeft).toBe(0);
   });
 });
 
