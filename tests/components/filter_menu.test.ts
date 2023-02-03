@@ -1,4 +1,3 @@
-import { App } from "@odoo/owl";
 import { Model } from "../../src";
 import { UID } from "../../src/types";
 import {
@@ -9,13 +8,7 @@ import {
   updateFilter,
 } from "../test_helpers/commands_helpers";
 import { keyDown, simulateClick } from "../test_helpers/dom_helper";
-import {
-  getCellsObject,
-  makeTestFixture,
-  mountSpreadsheet,
-  nextTick,
-  target,
-} from "../test_helpers/helpers";
+import { getCellsObject, mountSpreadsheet, nextTick, target } from "../test_helpers/helpers";
 
 async function openFilterMenu() {
   await simulateClick(".o-filter-icon");
@@ -25,7 +18,6 @@ describe("Filter menu component", () => {
   let fixture: HTMLElement;
   let model: Model;
   let sheetId: UID;
-  let app: App;
 
   function getFilterMenuValues() {
     const values: { value: string; isChecked: boolean }[] = [];
@@ -40,14 +32,8 @@ describe("Filter menu component", () => {
   }
 
   beforeEach(async () => {
-    fixture = makeTestFixture();
-    ({ app, model } = await mountSpreadsheet(fixture));
+    ({ model, fixture } = await mountSpreadsheet());
     sheetId = model.getters.getActiveSheetId();
-  });
-
-  afterEach(() => {
-    fixture.remove();
-    app.destroy();
   });
 
   describe("Filter Tests", () => {

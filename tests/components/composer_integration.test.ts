@@ -1,4 +1,3 @@
-import { App } from "@odoo/owl";
 import { Model } from "../../src";
 import {
   DEFAULT_CELL_HEIGHT,
@@ -34,7 +33,6 @@ import {
 } from "../test_helpers/getters_helpers";
 import {
   createEqualCF,
-  makeTestFixture,
   mountSpreadsheet,
   nextTick,
   startGridComposition,
@@ -50,7 +48,6 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 
 let fixture: HTMLElement;
 let model: Model;
-let app: App;
 let cehMock: ContentEditableHelper;
 
 async function startComposition(key?: string) {
@@ -71,16 +68,11 @@ const modelData = { sheets: [{ id: "sh1" }] };
 
 describe("Composer interactions", () => {
   beforeEach(async () => {
-    fixture = makeTestFixture();
-    ({ app, model } = await mountSpreadsheet(fixture, {
+    ({ model, fixture } = await mountSpreadsheet({
       model: new Model(modelData),
     }));
   });
 
-  afterEach(() => {
-    app.destroy();
-    fixture.remove();
-  });
   test("type in grid composer adds text to topbar composer", async () => {
     await keyDown("Enter");
     const gridComposer = document.querySelector(".o-grid .o-composer");
@@ -422,15 +414,9 @@ describe("Composer interactions", () => {
 
 describe("Grid composer", () => {
   beforeEach(async () => {
-    fixture = makeTestFixture();
-    ({ app, model } = await mountSpreadsheet(fixture, {
+    ({ model, fixture } = await mountSpreadsheet({
       model: new Model(modelData),
     }));
-  });
-
-  afterEach(() => {
-    app.destroy();
-    fixture.remove();
   });
 
   test("Composer is closed when changing sheet while not editing a formula", async () => {

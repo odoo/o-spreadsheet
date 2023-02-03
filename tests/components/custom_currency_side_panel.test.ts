@@ -1,10 +1,9 @@
-import { App } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../src";
 import { currenciesRegistry } from "../../src/registries/currencies_registry";
 import { Currency } from "../../src/types/currency";
 import { setSelection } from "../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger } from "../test_helpers/dom_helper";
-import { makeTestFixture, mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
+import { mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 jest.useFakeTimers();
 
@@ -45,16 +44,14 @@ const loadCurrencies = async () => {
 
 let fixture: HTMLElement;
 let parent: Spreadsheet;
-let app: App;
 let dispatch;
 let currenciesContent: { [key: string]: Currency };
 let model: Model;
 
 beforeEach(async () => {
-  fixture = makeTestFixture();
   currenciesContent = Object.assign({}, currenciesRegistry.content);
 
-  ({ app, parent, model } = await mountSpreadsheet(fixture, {
+  ({ parent, model, fixture } = await mountSpreadsheet({
     model: new Model({}, { external: { loadCurrencies } }),
   }));
   dispatch = spyDispatch(parent);
@@ -64,8 +61,6 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
-  app.destroy();
-  fixture.remove();
   currenciesRegistry.content = currenciesContent;
 });
 
@@ -91,13 +86,10 @@ describe("custom currency sidePanel component", () => {
     test("if currencies aren't provided in spreadsheet --> remove 'available currencies' section", async () => {
       // create spreadsheet without loadCurrencies in env
       currenciesRegistry.content = {};
-      const fixture = makeTestFixture();
-      const { app, parent } = await mountSpreadsheet(fixture);
+      const { parent, fixture } = await mountSpreadsheet();
       parent.env.openSidePanel("CustomCurrency");
       await nextTick();
       expect(fixture.querySelector(selectors.availableCurrencies)).toBe(null);
-      fixture.remove();
-      app.destroy();
     });
 
     // -------------------------------------------------------------------------

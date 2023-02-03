@@ -1,11 +1,10 @@
-import { App, Component, useSubEnv, xml } from "@odoo/owl";
+import { Component, useSubEnv, xml } from "@odoo/owl";
 import { Menu } from "../../src/components/menu/menu";
 import { MENU_ITEM_HEIGHT, MENU_VERTICAL_PADDING, MENU_WIDTH } from "../../src/constants";
 import { toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
 import { createMenu, MenuItem } from "../../src/registries/menu_items_registry";
-import { OWL_TEMPLATES } from "../setup/jest.setup";
 import { MockClipboard } from "../test_helpers/clipboard";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import {
@@ -18,7 +17,7 @@ import {
 import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import {
   getStylePropertyInPx,
-  makeTestFixture,
+  mountComponent,
   mountSpreadsheet,
   nextTick,
   Touch,
@@ -26,7 +25,6 @@ import {
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 let fixture: HTMLElement;
-let app: App;
 let model: Model;
 
 mockGetBoundingClientRect({
@@ -106,13 +104,8 @@ describe("Standalone context menu tests", () => {
       },
       configurable: true,
     });
-    fixture = makeTestFixture();
-    ({ app, model } = await mountSpreadsheet(fixture));
-  });
 
-  afterEach(() => {
-    app.destroy();
-    fixture.remove();
+    ({ model, fixture } = await mountSpreadsheet());
   });
 
   function getSelectionAnchorCellXc(model: Model): string {
@@ -135,18 +128,9 @@ describe("Standalone context menu tests", () => {
     // x, y are relative to the upper left grid corner, but the menu
     // props must take the top bar into account.
 
-    app = new App(ContextMenuParent, {
-      props: {
-        x,
-        y,
-        width,
-        height,
-        model: new Model(),
-        config: testConfig,
-      },
-    });
-    app.addTemplates(OWL_TEMPLATES);
-    parent = await app.mount(fixture);
+    const model = new Model();
+    const props = { x, y, width, height, model, config: testConfig };
+    ({ fixture } = await mountComponent(ContextMenuParent, { props, fixture, model }));
     await nextTick();
     return [x, y];
   }
@@ -797,13 +781,7 @@ describe("Standalone context menu tests", () => {
 
 describe("Context menu react to grid size changes", () => {
   beforeEach(async () => {
-    fixture = makeTestFixture();
-    ({ app, model } = await mountSpreadsheet(fixture));
-  });
-
-  afterEach(() => {
-    fixture.remove();
-    app.destroy();
+    ({ model, fixture } = await mountSpreadsheet());
   });
 
   test("Submenu is closed when grid size change make the parent menu hidden", async () => {

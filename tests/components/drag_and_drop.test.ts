@@ -1,4 +1,4 @@
-import { App, Component, useSubEnv, xml } from "@odoo/owl";
+import { Component, useSubEnv, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { dragAndDropBeyondTheViewport } from "../../src/components/helpers/drag_and_drop";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
@@ -14,7 +14,7 @@ import {
   setViewportOffset,
 } from "../test_helpers/commands_helpers";
 import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
-import { makeTestFixture, nextTick } from "../test_helpers/helpers";
+import { mountComponent, nextTick } from "../test_helpers/helpers";
 
 // As we test an isolated component, grid and gridOverlay won't exist
 jest.mock("../../src/components/helpers/dom_helpers", () => {
@@ -24,9 +24,7 @@ jest.mock("../../src/components/helpers/dom_helpers", () => {
   };
 });
 
-let fixture: HTMLElement;
 let model: Model;
-let app: App;
 let sheetId: UID;
 
 //Test Component required
@@ -73,16 +71,10 @@ afterAll(() => {
 
 beforeEach(async () => {
   model = new Model();
-  app = new App(FakeGridComponent, { props: { model } });
+  await mountComponent(FakeGridComponent, { model, props: { model } });
   selectedCol = selectedRow = undefined;
-  fixture = makeTestFixture();
-  await app.mount(fixture);
   sheetId = model.getters.getActiveSheetId();
   await nextTick();
-});
-
-afterEach(() => {
-  app.destroy();
 });
 
 describe("Drag And Drop horizontal tests", () => {

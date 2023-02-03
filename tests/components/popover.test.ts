@@ -2,8 +2,7 @@ import { App, Component, useSubEnv, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { Popover, PopoverProps } from "../../src/components/popover/popover";
 import { Pixel, Rect } from "../../src/types";
-import { OWL_TEMPLATES } from "../setup/jest.setup";
-import { getStylePropertyInPx, makeTestFixture } from "../test_helpers/helpers";
+import { getStylePropertyInPx, mountComponent } from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 const POPOVER_HEIGHT = 200;
@@ -51,9 +50,7 @@ async function mountTestPopover(args: MountPopoverArgs) {
     }
   }
 
-  app = new App(Parent, { props: { model } });
-  app.addTemplates(OWL_TEMPLATES);
-  await app.mount(fixture);
+  ({ fixture, app } = await mountComponent(Parent, { props: { model } }));
 }
 
 mockGetBoundingClientRect({
@@ -71,13 +68,7 @@ mockGetBoundingClientRect({
 });
 
 beforeEach(async () => {
-  fixture = makeTestFixture();
   model = new Model();
-});
-
-afterEach(() => {
-  app?.destroy();
-  fixture.remove();
 });
 
 describe("Popover sizing", () => {

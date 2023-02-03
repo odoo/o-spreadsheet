@@ -1,4 +1,3 @@
-import { App } from "@odoo/owl";
 import { ColResizer, RowResizer } from "../../src/components/headers_overlay/headers_overlay";
 import {
   DEFAULT_CELL_HEIGHT,
@@ -25,11 +24,10 @@ import {
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import { getEvaluatedCell, getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
-import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
+import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 let model: Model;
-let app: App;
 
 ColResizer.prototype._getMaxSize = () => 1000;
 RowResizer.prototype._getMaxSize = () => 1000;
@@ -138,7 +136,6 @@ async function dblClickRow(index: number) {
 
 describe("Resizer component", () => {
   beforeEach(async () => {
-    fixture = makeTestFixture();
     const data = {
       sheets: [
         {
@@ -148,12 +145,7 @@ describe("Resizer component", () => {
       ],
     };
     model = new Model(data);
-    ({ app } = await mountSpreadsheet(fixture, { model }));
-  });
-
-  afterEach(() => {
-    app.destroy();
-    fixture.remove();
+    ({ fixture } = await mountSpreadsheet({ model }));
   });
 
   test("can click on a header to select a column", async () => {
@@ -751,14 +743,10 @@ describe("Resizer component", () => {
 describe("Edge-Scrolling on mouseMove in selection", () => {
   beforeEach(async () => {
     jest.useFakeTimers();
-    fixture = makeTestFixture();
-    ({ app, model } = await mountSpreadsheet(fixture));
+
+    ({ model, fixture } = await mountSpreadsheet());
   });
 
-  afterEach(() => {
-    app.destroy();
-    fixture.remove();
-  });
   test("Can edge-scroll horizontally", async () => {
     const { width } = model.getters.getSheetViewDimension();
     const y = DEFAULT_CELL_HEIGHT;
@@ -829,7 +817,6 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
 
 describe("move selected element(s)", () => {
   beforeEach(async () => {
-    fixture = makeTestFixture();
     const data = {
       sheets: [
         {
@@ -840,12 +827,7 @@ describe("move selected element(s)", () => {
       ],
     };
     model = new Model(data);
-    ({ app } = await mountSpreadsheet(fixture, { model }));
-  });
-
-  afterEach(() => {
-    app.destroy();
-    fixture.remove();
+    ({ fixture } = await mountSpreadsheet({ model }));
   });
 
   test("select the last selected cols/rows keep all selected zone active", async () => {
