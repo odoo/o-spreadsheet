@@ -1,13 +1,12 @@
-import { App, Component, xml } from "@odoo/owl";
+import { Component, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
 import { sidePanelRegistry } from "../../src/registries/index";
 import { SidePanelContent } from "../../src/registries/side_panel_registry";
 import { simulateClick } from "../test_helpers/dom_helper";
-import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
+import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 let parent: Spreadsheet;
-let app: App;
 let sidePanelContent: { [key: string]: SidePanelContent };
 
 class Body extends Component<any, any> {
@@ -27,14 +26,11 @@ class Body2 extends Component<any, any> {
 }
 
 beforeEach(async () => {
-  fixture = makeTestFixture();
-  ({ app, parent } = await mountSpreadsheet(fixture));
+  ({ parent, fixture } = await mountSpreadsheet());
   sidePanelContent = Object.assign({}, sidePanelRegistry.content);
 });
 
 afterEach(() => {
-  app.destroy();
-  fixture.remove();
   sidePanelRegistry.content = sidePanelContent;
 });
 

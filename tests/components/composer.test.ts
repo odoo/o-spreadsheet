@@ -1,4 +1,4 @@
-import { App, Component, onMounted, onWillUnmount, useState, xml } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, useState, xml } from "@odoo/owl";
 import {
   Composer,
   ComposerProps,
@@ -10,7 +10,6 @@ import { colors, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { ComposerSelection } from "../../src/plugins/ui_stateful";
 import { Highlight, SpreadsheetChildEnv } from "../../src/types";
-import { OWL_TEMPLATES } from "../setup/jest.setup";
 import { getClipboardEvent, MockClipboardData } from "../test_helpers/clipboard";
 import {
   createSheet,
@@ -27,12 +26,7 @@ import {
   getEvaluatedCell,
   getSelectionAnchorCellXc,
 } from "../test_helpers/getters_helpers";
-import {
-  makeTestEnv,
-  makeTestFixture,
-  nextTick,
-  typeInComposerHelper,
-} from "../test_helpers/helpers";
+import { mountComponent, nextTick, typeInComposerHelper } from "../test_helpers/helpers";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
@@ -40,8 +34,7 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 
 let model: Model;
 let composerEl: Element;
-let fixture: HTMLDivElement;
-let app: App;
+let fixture: HTMLElement;
 let cehMock: ContentEditableHelper;
 let parent: Parent;
 
@@ -88,19 +81,17 @@ class Parent extends Component<Props, SpreadsheetChildEnv> {
 }
 
 async function mountParent(
-  fixture: HTMLDivElement,
   model: Model = new Model(),
   composerProps: Partial<ComposerProps> = {},
   focusComposer: ComposerFocusType = "inactive"
-): Promise<{ parent: Parent; app: App; model: Model }> {
-  const env = makeTestEnv({
+): Promise<{ parent: Parent; model: Model }> {
+  let parent: Component;
+  ({ parent, fixture } = await mountComponent(Parent, {
+    props: { composerProps, focusComposer },
     model,
-  });
-  const app = new App(Parent, { props: { composerProps, focusComposer }, env });
-  app.addTemplates(OWL_TEMPLATES);
-  const parent: Parent = await app.mount(fixture);
+  }));
 
-  return { app, parent, model };
+  return { parent: parent as Parent, model };
 }
 
 function getHighlights(model: Model): Highlight[] {
@@ -136,13 +127,7 @@ async function moveToEnd() {
 }
 
 beforeEach(async () => {
-  fixture = makeTestFixture();
-  ({ app, model, parent } = await mountParent(fixture));
-});
-
-afterEach(() => {
-  app.destroy();
-  fixture.remove();
+  ({ model, parent } = await mountParent());
 });
 
 describe("ranges and highlights", () => {

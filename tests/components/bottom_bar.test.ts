@@ -1,8 +1,7 @@
-import { App, Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
 import { BottomBar } from "../../src/components/bottom_bar/bottom_bar";
 import { Model } from "../../src/model";
 import { SpreadsheetChildEnv } from "../../src/types";
-import { OWL_TEMPLATES } from "../setup/jest.setup";
 import {
   activateSheet,
   createSheet,
@@ -11,7 +10,7 @@ import {
   setCellContent,
 } from "../test_helpers/commands_helpers";
 import { click, keyDown, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
-import { makeTestEnv, makeTestFixture, mockUuidV4To, nextTick } from "../test_helpers/helpers";
+import { mockUuidV4To, mountComponent, nextTick } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let fixture: HTMLElement;
@@ -36,32 +35,21 @@ class Parent extends Component<any, any> {
 async function mountBottomBar(
   model: Model = new Model(),
   env: Partial<SpreadsheetChildEnv> = {}
-): Promise<{ parent: Parent; app: App; model: Model }> {
-  const mockEnv = makeTestEnv({ ...env, model });
-  const app = new App(Parent, { props: { model }, env: mockEnv });
-  app.addTemplates(OWL_TEMPLATES);
-  const parent = await app.mount(fixture);
-  return { app, parent, model: parent.props.model };
+): Promise<{ parent: Parent; model: Model }> {
+  let parent: Component;
+  ({ fixture, parent } = await mountComponent(Parent, { model, env, props: { model } }));
+  return { parent: parent as Parent, model: parent.props.model };
 }
-
-beforeEach(() => {
-  fixture = makeTestFixture();
-});
-
-afterEach(() => {
-  fixture.remove();
-});
 
 describe("BottomBar component", () => {
   test("simple rendering", async () => {
-    const { app } = await mountBottomBar();
+    await mountBottomBar();
 
     expect(fixture.querySelector(".o-spreadsheet-bottom-bar")).toMatchSnapshot();
-    app.destroy();
   });
 
   test("Can create a new sheet", async () => {
-    const { app, model } = await mountBottomBar();
+    const { model } = await mountBottomBar();
 
     const dispatch = jest.spyOn(model, "dispatch");
     mockUuidV4To(model, 42);
@@ -76,12 +64,11 @@ describe("BottomBar component", () => {
       sheetIdTo: "42",
       sheetIdFrom: activeSheetId,
     });
-    app.destroy();
   });
 
   test("create a second sheet while the first one is called Sheet2", async () => {
     const model = new Model({ sheets: [{ name: "Sheet2" }] });
-    const { app } = await mountBottomBar(model);
+    await mountBottomBar(model);
     const dispatch = jest.spyOn(model, "dispatch");
     expect(model.getters.getSheetIds().map(model.getters.getSheetName)).toEqual(["Sheet2"]);
     await click(fixture, ".o-add-sheet");
@@ -90,11 +77,10 @@ describe("BottomBar component", () => {
       name: "Sheet1",
       position: 1,
     });
-    app.destroy();
   });
 
   test("Can activate a sheet", async () => {
-    const { app, parent } = await mountBottomBar();
+    const { parent } = await mountBottomBar();
     const dispatch = jest.spyOn(parent.props.model, "dispatch");
     await click(fixture, ".o-sheet");
     const sheetIdFrom = parent.props.model.getters.getActiveSheetId();
@@ -103,41 +89,37 @@ describe("BottomBar component", () => {
       sheetIdFrom,
       sheetIdTo,
     });
-    app.destroy();
   });
 
   test("Can open context menu of a sheet", async () => {
-    const { app } = await mountBottomBar();
+    await mountBottomBar();
 
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
-    app.destroy();
   });
 
   test("Can open context menu of a sheet with the arrow", async () => {
-    const { app } = await mountBottomBar();
+    await mountBottomBar();
 
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     await click(fixture, ".o-sheet-icon");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
-    app.destroy();
   });
 
   test("Click on the arrow when the context menu is open should close it", async () => {
-    const { app } = await mountBottomBar();
+    await mountBottomBar();
 
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     await click(fixture, ".o-sheet-icon");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
     await click(fixture, ".o-sheet-icon");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
-    app.destroy();
   });
 
   test("Can open context menu of a sheet with the arrow if another menu is already open", async () => {
-    const { app } = await mountBottomBar();
+    await mountBottomBar();
 
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
 
@@ -148,11 +130,10 @@ describe("BottomBar component", () => {
     await click(fixture, ".o-sheet-icon");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
     expect(fixture.querySelector(".o-menu-item")!.textContent).toEqual("Duplicate");
-    app.destroy();
   });
 
   test("Can open list of sheet menu if another menu is already open", async () => {
-    const { app } = await mountBottomBar();
+    await mountBottomBar();
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
 
     await click(fixture, ".o-sheet-icon");
@@ -162,11 +143,10 @@ describe("BottomBar component", () => {
     await click(fixture, ".o-sheet-item.o-list-sheets");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
     expect(fixture.querySelector(".o-menu-item")!.textContent).toEqual("Sheet1");
-    app.destroy();
   });
 
   test("Can move right a sheet", async () => {
-    const { app, model } = await mountBottomBar();
+    const { model } = await mountBottomBar();
     const dispatch = jest.spyOn(model, "dispatch");
     createSheet(model, { sheetId: "42" });
     await nextTick();
@@ -178,11 +158,10 @@ describe("BottomBar component", () => {
       sheetId,
       direction: "right",
     });
-    app.destroy();
   });
 
   test("Can move left a sheet", async () => {
-    const { app, model } = await mountBottomBar();
+    const { model } = await mountBottomBar();
     const dispatch = jest.spyOn(model, "dispatch");
     createSheet(model, { sheetId: "42" });
     activateSheet(model, "42");
@@ -195,11 +174,10 @@ describe("BottomBar component", () => {
       sheetId,
       direction: "left",
     });
-    app.destroy();
   });
 
   test("Can hide a sheet", async () => {
-    const { app, model } = await mountBottomBar();
+    const { model } = await mountBottomBar();
     const dispatch = jest.spyOn(model, "dispatch");
     createSheet(model, { sheetId: "42" });
     activateSheet(model, "42");
@@ -211,11 +189,10 @@ describe("BottomBar component", () => {
     expect(dispatch).toHaveBeenCalledWith("HIDE_SHEET", {
       sheetId,
     });
-    app.destroy();
   });
 
   test("Hide sheet menu is not visible if there's only one visible sheet", async () => {
-    const { app, model } = await mountBottomBar();
+    const { model } = await mountBottomBar();
     createSheet(model, { sheetId: "42" });
     hideSheet(model, "42");
 
@@ -223,33 +200,26 @@ describe("BottomBar component", () => {
     await nextTick();
     expect(fixture.querySelector(".o-menu")).not.toBeNull();
     expect(fixture.querySelector(".o-menu-item[data-name='hide_sheet']")).toBeNull();
-    app.destroy();
   });
 
   test("Move right and left are not visible when it's not possible to move", async () => {
-    const { app } = await mountBottomBar();
+    await mountBottomBar();
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
     expect(fixture.querySelector(".o-menu-item[data-name='move_left'")).toBeNull();
     expect(fixture.querySelector(".o-menu-item[data-name='move_right'")).toBeNull();
-    app.destroy();
   });
 
   describe("Rename a sheet", () => {
-    let app: App;
     let model: Model;
     let raiseError: jest.Mock;
     beforeEach(async () => {
       raiseError = jest.fn((string, callback) => {
         callback();
       });
-      ({ app, model } = await mountBottomBar(new Model(), { raiseError }));
+      ({ model } = await mountBottomBar(new Model(), { raiseError }));
       model;
-    });
-
-    afterEach(() => {
-      app.destroy();
     });
 
     test("Double click on the sheet name make it editable and give it the focus", async () => {
@@ -329,7 +299,7 @@ describe("BottomBar component", () => {
   });
 
   test("Can duplicate a sheet", async () => {
-    const { app, model } = await mountBottomBar();
+    const { model } = await mountBottomBar();
     const dispatch = jest.spyOn(model, "dispatch");
     mockUuidV4To(model, 123);
 
@@ -341,11 +311,10 @@ describe("BottomBar component", () => {
       sheetId: sheet,
       sheetIdTo: "123",
     });
-    app.destroy();
   });
 
   test("Can delete a sheet", async () => {
-    const { app, model } = await mountBottomBar(new Model(), {
+    const { model } = await mountBottomBar(new Model(), {
       askConfirmation: jest.fn((title, callback) => callback()),
     });
     const dispatch = jest.spyOn(model, "dispatch");
@@ -356,29 +325,26 @@ describe("BottomBar component", () => {
     const sheetId = model.getters.getActiveSheetId();
     await click(fixture, ".o-menu-item[data-name='delete'");
     expect(dispatch).toHaveBeenCalledWith("DELETE_SHEET", { sheetId });
-    app.destroy();
   });
 
   test("Delete sheet is not visible when there is only one sheet", async () => {
-    const { app } = await mountBottomBar();
+    await mountBottomBar();
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
     expect(fixture.querySelector(".o-menu-item[data-name='delete'")).toBeNull();
-    app.destroy();
   });
 
   test("Can open the list of sheets", async () => {
-    const { app } = await mountBottomBar();
+    await mountBottomBar();
 
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     await click(fixture, ".o-list-sheets");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
-    app.destroy();
   });
 
   test("Can open the list of sheets", async () => {
-    const { app, model } = await mountBottomBar();
+    const { model } = await mountBottomBar();
     const sheet = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42" });
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
@@ -388,11 +354,10 @@ describe("BottomBar component", () => {
     expect(sheets.length).toBe(2);
     expect((sheets[0] as HTMLElement).dataset.name).toBe(sheet);
     expect((sheets[1] as HTMLElement).dataset.name).toBe("42");
-    app.destroy();
   });
 
   test("Can activate a sheet from the list of sheets", async () => {
-    const { app, model } = await mountBottomBar();
+    const { model } = await mountBottomBar();
     const dispatch = jest.spyOn(model, "dispatch");
     const sheet = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42" });
@@ -403,12 +368,10 @@ describe("BottomBar component", () => {
       sheetIdFrom: sheet,
       sheetIdTo: "42",
     });
-    app.destroy();
   });
 
   describe("Scroll on the list of sheets", () => {
     let model: Model;
-    let app: App;
     let parent: Parent;
     let sheetListEl: HTMLElement;
 
@@ -430,7 +393,7 @@ describe("BottomBar component", () => {
           { name: "Sheet6" },
         ],
       });
-      ({ app, parent } = await mountBottomBar(model));
+      ({ parent } = await mountBottomBar(model));
       sheetListEl = fixture.querySelector<HTMLElement>(".o-sheet-list")!;
       //@ts-ignore - scrollTo is not defined in JSDOM
       sheetListEl.scrollTo = (arg: ScrollToOptions) => {
@@ -440,7 +403,6 @@ describe("BottomBar component", () => {
 
     afterEach(() => {
       parent;
-      app.destroy();
     });
 
     test("Can scroll on the list of sheets", async () => {
@@ -557,7 +519,7 @@ describe("BottomBar component", () => {
   });
 
   test("Display the statistic button only if no-empty cells are selected", async () => {
-    const { app, model } = await mountBottomBar();
+    const { model } = await mountBottomBar();
     setCellContent(model, "A2", "24");
     setCellContent(model, "A3", "=A1");
 
@@ -572,7 +534,6 @@ describe("BottomBar component", () => {
     selectCell(model, "A3");
     await nextTick();
     expect(fixture.querySelector(".o-selection-statistic")?.textContent).toBe("Sum: 0");
-    app.destroy();
   });
 
   test("Display empty information if the statistic function doesn't handle the types of the selected cells", async () => {
@@ -585,20 +546,19 @@ describe("BottomBar component", () => {
   });
 
   test("Can open the list of statistics", async () => {
-    const { app, model } = await mountBottomBar();
+    const { model } = await mountBottomBar();
     setCellContent(model, "A2", "24");
     selectCell(model, "A2");
     await nextTick();
 
     await click(fixture, ".o-selection-statistic");
     expect(fixture.querySelector(".o-menu")).toMatchSnapshot();
-    app.destroy();
   });
 
   test("Can open the list of statistics if another menu is already open", async () => {
     const model = new Model();
     const nonMockedDispatch = model.dispatch;
-    const { app } = await mountBottomBar(model);
+    await mountBottomBar(model);
     model.dispatch = nonMockedDispatch;
     setCellContent(model, "A2", "24");
     selectCell(model, "A2");
@@ -609,11 +569,10 @@ describe("BottomBar component", () => {
 
     await click(fixture, ".o-selection-statistic");
     expect(fixture.querySelector(".o-menu-item")!.textContent).toEqual("Sum: 24");
-    app.destroy();
   });
 
   test("Can activate a statistic from the list of statistics", async () => {
-    const { app, model } = await mountBottomBar();
+    const { model } = await mountBottomBar();
     setCellContent(model, "A2", "24");
     selectCell(model, "A2");
     await nextTick();
@@ -623,6 +582,5 @@ describe("BottomBar component", () => {
     await click(fixture, ".o-selection-statistic");
     await click(fixture, ".o-menu-item[data-name='Count Numbers'");
     expect(fixture.querySelector(".o-selection-statistic")?.textContent).toBe("Count Numbers: 1");
-    app.destroy();
   });
 });

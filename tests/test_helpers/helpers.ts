@@ -1,4 +1,4 @@
-import { App, Component, xml } from "@odoo/owl";
+import { App, Component, ComponentConstructor, xml } from "@odoo/owl";
 import { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
@@ -23,7 +23,7 @@ import {
 import { Image } from "../../src/types/image";
 import { XLSXExport } from "../../src/types/xlsx";
 import { ImageProvider } from "../components/__mocks__/mock_image_provider";
-import { OWL_TEMPLATES } from "../setup/jest.setup";
+import { OWL_TEMPLATES, registerCleanup } from "../setup/jest.setup";
 import { FileStore } from "../__mocks__/mock_file_store";
 import { Currency } from "./../../src/types/currency";
 import { MockClipboard } from "./clipboard";
@@ -120,22 +120,58 @@ export function testUndoRedo(model: Model, expect: jest.Expect, command: Command
   expect(model).toExport(after);
 }
 
+export async function mountComponent<Props extends { [key: string]: any }>(
+  component: ComponentConstructor<Props, SpreadsheetChildEnv>,
+  optionalArgs: {
+    props?: Props;
+    env?: Partial<SpreadsheetChildEnv>;
+    model?: Model;
+    fixture?: HTMLElement;
+  } = {}
+): Promise<{
+  app: App;
+  parent: Component<Props, SpreadsheetChildEnv>;
+  model: Model;
+  fixture: HTMLElement;
+  env: SpreadsheetChildEnv;
+}> {
+  const model = optionalArgs.model || optionalArgs?.env?.model || new Model();
+  const env = makeTestEnv({ ...optionalArgs.env, model: model });
+  const props = optionalArgs.props || ({} as Props);
+  const app = new App(component, { props, env, test: true });
+  app.addTemplates(OWL_TEMPLATES);
+  const fixture = optionalArgs?.fixture || makeTestFixture();
+  const parent = await app.mount(fixture);
+
+  registerCleanup(() => app.destroy());
+  registerCleanup(() => fixture.remove());
+
+  return { app, parent, model, fixture, env: parent.env };
+}
+
 // Requires to be called wit jest realTimers
 export async function mountSpreadsheet(
-  fixture: HTMLElement,
   props: SpreadsheetProps = { model: new Model() },
-  env: Partial<SpreadsheetChildEnv> = {}
-): Promise<{ app: App; parent: Spreadsheet; model: Model }> {
-  const mockEnv = makeTestEnv({ ...env, model: props.model });
-  const app = new App(Spreadsheet, { props, env: mockEnv, test: true });
-  app.addTemplates(OWL_TEMPLATES);
-  const parent = (await app.mount(fixture)) as Spreadsheet;
+  partialEnv: Partial<SpreadsheetChildEnv> = {}
+): Promise<{
+  app: App;
+  parent: Spreadsheet;
+  model: Model;
+  fixture: HTMLElement;
+  env: SpreadsheetChildEnv;
+}> {
+  const { app, parent, model, fixture, env } = await mountComponent(Spreadsheet, {
+    props,
+    env: partialEnv,
+    model: props.model,
+  });
+
   /**
    * The following nextTick is necessary to ensure that a re-render is correctly
    * done after the resize of the sheet view.
    */
   await nextTick();
-  return { app, parent, model: parent.props.model };
+  return { app, parent: parent as Spreadsheet, model, fixture, env };
 }
 
 type GridDescr = { [xc: string]: string | undefined };

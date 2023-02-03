@@ -1,4 +1,4 @@
-import { App, Component, xml } from "@odoo/owl";
+import { Component, xml } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../src";
 import { ChartJsComponent } from "../../src/components/figures/chart/chartJs/chartjs";
 import { ScorecardChart } from "../../src/components/figures/chart/scorecard/chart_scorecard";
@@ -26,7 +26,6 @@ import { getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import {
   getFigureDefinition,
   getFigureIds,
-  makeTestFixture,
   mockChart,
   mountSpreadsheet,
   nextTick,
@@ -36,7 +35,6 @@ import { TEST_CHART_DATA } from "./../test_helpers/constants";
 
 let fixture: HTMLElement;
 let model: Model;
-let app: App;
 let parent: Spreadsheet;
 
 function createFigure(
@@ -109,12 +107,7 @@ afterAll(() => {
 
 describe("figures", () => {
   beforeEach(async () => {
-    fixture = makeTestFixture();
-    ({ app, model, parent } = await mountSpreadsheet(fixture));
-  });
-
-  afterEach(() => {
-    app.destroy();
+    ({ model, parent, fixture } = await mountSpreadsheet());
   });
 
   test("can create a figure with some data", () => {

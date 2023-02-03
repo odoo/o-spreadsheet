@@ -1,4 +1,3 @@
-import { App } from "@odoo/owl";
 import { Spreadsheet, TransportService } from "../../src";
 import {
   BACKGROUND_GRAY_COLOR,
@@ -50,7 +49,7 @@ import {
   getSelectionAnchorCellXc,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import { makeTestFixture, mountSpreadsheet, nextTick, Touch } from "../test_helpers/helpers";
+import { mountSpreadsheet, nextTick, Touch } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { mockChart } from "./__mocks__/chart";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
@@ -70,27 +69,12 @@ function getHorizontalScroll(): number {
 let fixture: HTMLElement;
 let model: Model;
 let parent: Spreadsheet;
-let app: App;
 
 jest.useFakeTimers();
 
-beforeEach(async () => {
-  fixture = makeTestFixture();
-});
-
-afterEach(() => {
-  fixture.remove();
-});
-
 describe("Grid component", () => {
   beforeEach(async () => {
-    fixture = makeTestFixture();
-    ({ app, parent, model } = await mountSpreadsheet(fixture));
-  });
-
-  afterEach(() => {
-    app.destroy();
-    fixture.remove();
+    ({ parent, model, fixture } = await mountSpreadsheet());
   });
 
   test("simple rendering snapshot", async () => {
@@ -782,14 +766,9 @@ describe("Multi User selection", () => {
   let transportService: TransportService;
   beforeEach(async () => {
     transportService = new MockTransportService();
-    fixture = makeTestFixture();
-    model = new Model({}, { transportService });
-    ({ app, parent } = await mountSpreadsheet(fixture, { model }));
-  });
 
-  afterEach(() => {
-    app.destroy();
-    fixture.remove();
+    model = new Model({}, { transportService });
+    ({ parent, fixture } = await mountSpreadsheet({ model }));
   });
 
   test("Do not render multi user selection with invalid sheet", async () => {
@@ -836,12 +815,11 @@ describe("Multi User selection", () => {
 describe("error tooltip", () => {
   beforeEach(async () => {
     jest.useFakeTimers();
-    ({ app, parent, model } = await mountSpreadsheet(fixture));
+    ({ parent, model, fixture } = await mountSpreadsheet());
   });
 
   afterEach(() => {
     jest.useRealTimers();
-    app.destroy();
   });
 
   test("can display error on A1", async () => {
@@ -913,13 +891,9 @@ describe("error tooltip", () => {
 
 describe("Events on Grid update viewport correctly", () => {
   beforeEach(async () => {
-    fixture = makeTestFixture();
-    ({ app, parent, model } = await mountSpreadsheet(fixture));
+    ({ parent, model, fixture } = await mountSpreadsheet());
   });
-  afterEach(() => {
-    app.destroy();
-    fixture.remove();
-  });
+
   test("Vertical scroll", async () => {
     fixture.querySelector(".o-grid")!.dispatchEvent(new WheelEvent("wheel", { deltaY: 1200 }));
     await nextTick();
@@ -1321,13 +1295,8 @@ describe("Events on Grid update viewport correctly", () => {
 describe("Edge-Scrolling on mouseMove in selection", () => {
   beforeEach(async () => {
     jest.useFakeTimers();
-    fixture = makeTestFixture();
-    ({ app, parent, model } = await mountSpreadsheet(fixture));
-  });
 
-  afterEach(() => {
-    app.destroy();
-    fixture.remove();
+    ({ parent, model, fixture } = await mountSpreadsheet());
   });
 
   test("Can edge-scroll horizontally", async () => {
@@ -1409,15 +1378,9 @@ describe("Copy paste keyboard shortcut", () => {
   let sheetId: string;
 
   beforeEach(async () => {
-    fixture = makeTestFixture();
     clipboardData = new MockClipboardData();
-    ({ app, parent, model } = await mountSpreadsheet(fixture));
+    ({ parent, model, fixture } = await mountSpreadsheet());
     sheetId = model.getters.getActiveSheetId();
-  });
-
-  afterEach(() => {
-    app.destroy();
-    fixture.remove();
   });
 
   test("Can paste from OS", async () => {

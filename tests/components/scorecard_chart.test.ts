@@ -1,4 +1,3 @@
-import { App } from "@odoo/owl";
 import { Model } from "../../src";
 import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH } from "../../src/constants";
 import { toHex } from "../../src/helpers";
@@ -11,14 +10,12 @@ import {
 } from "../test_helpers/commands_helpers";
 import { dragElement, getElComputedStyle, simulateClick } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
-import { makeTestFixture, mountSpreadsheet, nextTick, target } from "../test_helpers/helpers";
+import { mountSpreadsheet, nextTick, target } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 let model: Model;
 let chartId: string;
 let sheetId: string;
-
-let app: App;
 
 const figureRect: Rect = { x: 0, y: 0, width: 0, height: 0 };
 const defaultRect = { x: 0, y: 0, width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
@@ -110,7 +107,6 @@ function getChartBaselineTextContent() {
 
 describe("Scorecard charts", () => {
   beforeEach(async () => {
-    fixture = makeTestFixture();
     chartId = "someuuid";
     sheetId = "Sheet1";
     const data = {
@@ -131,13 +127,11 @@ describe("Scorecard charts", () => {
         },
       ],
     };
-    ({ app, model } = await mountSpreadsheet(fixture, { model: new Model(data) }));
+    ({ model, fixture } = await mountSpreadsheet({ model: new Model(data) }));
     Object.assign(figureRect, defaultRect);
   });
 
   afterEach(() => {
-    app.destroy();
-    fixture.remove();
     Object.assign(figureRect, defaultRect);
   });
 

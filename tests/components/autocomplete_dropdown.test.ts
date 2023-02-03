@@ -1,4 +1,3 @@
-import { App } from "@odoo/owl";
 import { args, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import { selectCell } from "../test_helpers/commands_helpers";
@@ -6,7 +5,6 @@ import { click, clickCell, keyDown, keyUp, simulateClick } from "../test_helpers
 import { getCellText } from "../test_helpers/getters_helpers";
 import {
   clearFunctions,
-  makeTestFixture,
   mountSpreadsheet,
   nextTick,
   restoreDefaultFunctions,
@@ -21,7 +19,6 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 let model: Model;
 let composerEl: Element;
 let fixture: HTMLElement;
-let app: App;
 let cehMock: ContentEditableHelper;
 
 async function typeInComposerGrid(text: string, fromScratch: boolean = true) {
@@ -39,17 +36,11 @@ async function typeInComposerTopBar(text: string, fromScratch: boolean = true) {
 }
 
 beforeEach(async () => {
-  fixture = makeTestFixture();
-  ({ app, model } = await mountSpreadsheet(fixture));
+  ({ model, fixture } = await mountSpreadsheet());
 
   // start composition
   await keyDown("Enter");
   composerEl = fixture.querySelector(".o-grid div.o-composer")!;
-});
-
-afterEach(() => {
-  fixture.remove();
-  app.destroy();
 });
 
 describe("Functions autocomplete", () => {

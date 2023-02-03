@@ -1,4 +1,3 @@
-import { App } from "@odoo/owl";
 import { Model } from "../../src";
 import { Spreadsheet } from "../../src/components";
 import { args, functionRegistry } from "../../src/functions";
@@ -21,7 +20,6 @@ import {
 } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
 import {
-  makeTestFixture,
   mountSpreadsheet,
   nextTick,
   restoreDefaultFunctions,
@@ -38,20 +36,13 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 let fixture: HTMLElement;
 let parent: Spreadsheet;
 let model: Model;
-let app: App;
 
 describe("Simple Spreadsheet Component", () => {
   // default model and env
   beforeEach(async () => {
-    fixture = makeTestFixture();
-    ({ app, model, parent } = await mountSpreadsheet(fixture, {
+    ({ model, parent, fixture } = await mountSpreadsheet({
       model: new Model({ sheets: [{ id: "sh1" }] }),
     }));
-  });
-
-  afterEach(() => {
-    app.destroy();
-    fixture.remove();
   });
 
   test("simple rendering snapshot", async () => {
@@ -93,7 +84,7 @@ describe("Simple Spreadsheet Component", () => {
     });
 
     test("Can use an external dependency in a function at model start", async () => {
-      await mountSpreadsheet(fixture, {
+      await mountSpreadsheet({
         model: new Model(
           {
             version: 2,
@@ -217,29 +208,23 @@ describe("Simple Spreadsheet Component", () => {
 
 test("Can instantiate a spreadsheet with a given client id-name", async () => {
   const client = { id: "alice", name: "Alice" };
-  fixture = makeTestFixture();
-  ({ app, parent, model } = await mountSpreadsheet(fixture, {
+
+  ({ parent, model, fixture } = await mountSpreadsheet({
     model: new Model({}, { client }),
   }));
   expect(model.getters.getClient()).toEqual(client);
-  app.destroy();
-  fixture.remove();
 });
 
 test("Spreadsheet detects frozen panes that exceed the limit size at start", async () => {
   const notifyUser = jest.fn();
-  fixture = makeTestFixture();
   const model = new Model({ sheets: [{ panes: { xSplit: 12, ySplit: 50 } }] });
-  ({ app, parent } = await mountSpreadsheet(fixture, { model }, { notifyUser }));
+  ({ parent, fixture } = await mountSpreadsheet({ model }, { notifyUser }));
   expect(notifyUser).toHaveBeenCalled();
-  app.destroy();
-  fixture.remove();
 });
 
 test("Warn user only once when the viewport is too small for its frozen panes", async () => {
   const notifyUser = jest.fn();
-  fixture = makeTestFixture();
-  ({ app, parent, model } = await mountSpreadsheet(fixture, undefined, { notifyUser }));
+  ({ parent, model, fixture } = await mountSpreadsheet(undefined, { notifyUser }));
   expect(notifyUser).not.toHaveBeenCalled();
   freezeRows(model, 51);
   await nextTick();
@@ -258,19 +243,13 @@ test("Warn user only once when the viewport is too small for its frozen panes", 
   freezeRows(model, 51);
   await nextTick();
   expect(notifyUser).toHaveBeenCalledTimes(2);
-  app.destroy();
-  fixture.remove();
 });
 
 test("Notify ui correctly with type notification correctly use notifyUser in the env", async () => {
   const raiseError = jest.fn();
-  fixture = makeTestFixture();
-  ({ app, model } = await mountSpreadsheet(fixture, undefined, { raiseError }));
-  await app.mount(fixture);
+  ({ model, fixture } = await mountSpreadsheet(undefined, { raiseError }));
   model["config"].notifyUI({ type: "ERROR", text: "hello" });
   expect(raiseError).toHaveBeenCalledWith("hello");
-  fixture.remove();
-  app.destroy();
 });
 
 describe("Composer / selectionInput interactions", () => {
@@ -290,15 +269,9 @@ describe("Composer / selectionInput interactions", () => {
     ],
   };
   beforeEach(async () => {
-    fixture = makeTestFixture();
-    ({ app, model, parent } = await mountSpreadsheet(fixture, {
+    ({ model, parent, fixture } = await mountSpreadsheet({
       model: new Model(modelDataCf),
     }));
-  });
-
-  afterEach(() => {
-    app.destroy();
-    fixture.remove();
   });
 
   test("Switching from selection input to composer should update the highlihts", async () => {

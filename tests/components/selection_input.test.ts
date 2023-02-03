@@ -2,12 +2,12 @@ import { App, Component, onMounted, onWillUnmount, useSubEnv, xml } from "@odoo/
 import { Model } from "../../src";
 import { SelectionInput } from "../../src/components/selection_input/selection_input";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/registries";
-import { OWL_TEMPLATES } from "../setup/jest.setup";
 import { activateSheet, createSheet, selectCell, undo } from "../test_helpers/commands_helpers";
 import { clickCell, keyDown, keyUp, simulateClick } from "../test_helpers/dom_helper";
 import {
   getChildFromComponent,
   makeTestFixture,
+  mountComponent,
   mountSpreadsheet,
   nextTick,
 } from "../test_helpers/helpers";
@@ -38,7 +38,7 @@ interface SelectionInputTestConfig {
 class Parent extends Component<any> {
   static template = xml/* xml */ `
     <SelectionInput
-      ranges="initialRanges"
+      ranges="initialRanges || []"
       hasSingleRange="hasSingleRange"
       onSelectionChanged="(ranges) => this.onChanged(ranges)" />
   `;
@@ -73,10 +73,10 @@ class MultiParent extends Component<any> {
   static template = xml/* xml */ `
     <div>
       <div class="input-1">
-        <SelectionInput/>
+        <SelectionInput ranges="[]"/>
       </div>
       <div class="input-2">
-        <SelectionInput/>
+        <SelectionInput ranges="[]"/>
       </div>
     </div>
   `;
@@ -94,46 +94,42 @@ class MultiParent extends Component<any> {
   }
 }
 
-async function createSelectionInput(config: SelectionInputTestConfig = {}) {
+async function createSelectionInput(
+  config: SelectionInputTestConfig = {},
+  fixtureEl?: HTMLElement
+) {
   model = new Model();
-  const app = new App(Parent, { props: { model, config } });
-  app.addTemplates(OWL_TEMPLATES);
-  const parent = await app.mount(fixture);
+  let parent: Component;
+  let app: App;
+  ({ fixture, parent, app } = await mountComponent(Parent, {
+    model,
+    fixture: fixtureEl,
+    props: { model, config },
+  }));
   await nextTick();
-  const id = parent.id;
-  return { parent, model, id, app };
+  const id = (parent as Parent).id;
+  return { parent: parent as Parent, model, id, app };
 }
 
 describe("Selection Input", () => {
-  beforeEach(async () => {
-    fixture = makeTestFixture();
-  });
-
-  afterEach(() => {
-    fixture.remove();
-  });
-
   test("empty input is not colored", async () => {
-    const { app } = await createSelectionInput();
+    await createSelectionInput();
     expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #000;");
-    app.destroy();
   });
 
   test("remove button is not displayed with a single input", async () => {
-    const { app } = await createSelectionInput();
+    await createSelectionInput();
     expect(fixture.querySelectorAll(".o-remove-selection").length).toBeFalsy();
-    app.destroy();
   });
 
   test("remove button is displayed with more than one input", async () => {
-    const { app } = await createSelectionInput();
+    await createSelectionInput();
     await simulateClick(".o-add-selection");
     expect(fixture.querySelectorAll(".o-remove-selection").length).toBe(2);
-    app.destroy();
   });
 
   test("input is filled when new cells are selected", async () => {
-    const { app, model } = await createSelectionInput();
+    const { model } = await createSelectionInput();
     selectCell(model, "B4");
     await nextTick();
     expect(fixture.querySelector("input")!.value).toBe("B4");
@@ -147,11 +143,10 @@ describe("Selection Input", () => {
     expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe(`color: ${color};`);
     expect(fixture.querySelectorAll("input")[1].value).toBe("B5");
     expect(fixture.querySelectorAll("input")[1].getAttribute("style")).toBe(`color: ${color2};`);
-    app.destroy();
   });
 
   test("ctrl + select cell --> add new input", async () => {
-    const { app, parent, model } = await mountSpreadsheet(fixture);
+    const { parent, model, fixture } = await mountSpreadsheet();
     OPEN_CF_SIDEPANEL_ACTION(parent.env);
     await nextTick();
     await simulateClick(".o-cf-add");
@@ -168,11 +163,10 @@ describe("Selection Input", () => {
     expect(inputs.length).toBe(2);
     expect(inputs[0].value).toBe("B4");
     expect(inputs[1].value).toBe("B5");
-    app.destroy();
   });
 
   test("input is not filled with highlight when maximum ranges reached", async () => {
-    const { app, model } = await createSelectionInput({ hasSingleRange: true });
+    const { model } = await createSelectionInput({ hasSingleRange: true });
     expect(fixture.querySelectorAll("input")).toHaveLength(1);
     model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
     selectCell(model, "B2");
@@ -180,81 +174,73 @@ describe("Selection Input", () => {
     expect(fixture.querySelectorAll("input")).toHaveLength(1);
     expect(fixture.querySelector("input")!.value).toBe("B2");
     expect(fixture.querySelector(".o-add-selection")).toBeNull();
-    app.destroy();
   });
 
   test("new range is added when button clicked", async () => {
-    const { app } = await createSelectionInput();
+    await createSelectionInput();
     expect(fixture.querySelectorAll("input").length).toBe(1);
     await simulateClick(".o-add-selection");
     expect(fixture.querySelectorAll("input").length).toBe(2);
-    app.destroy();
   });
 
   test("can set initial ranges", async () => {
-    const { app } = await createSelectionInput({ initialRanges: ["C4", "A1"] });
+    await createSelectionInput({ initialRanges: ["C4", "A1"] });
     expect(fixture.querySelectorAll("input").length).toBe(2);
     expect(fixture.querySelectorAll("input")[0].value).toBe("C4");
     expect(fixture.querySelectorAll("input")[1].value).toBe("A1");
-    app.destroy();
   });
 
   test("can focus a range", async () => {
-    const { app } = await createSelectionInput();
+    await createSelectionInput();
     await simulateClick(".o-add-selection"); // last input is now focused
     expect(fixture.querySelectorAll("input")[0].classList).not.toContain("o-focused");
     expect(fixture.querySelectorAll("input")[1].classList).toContain("o-focused");
     await simulateClick("input"); // focus the first input
     expect(fixture.querySelectorAll("input")[0].classList).toContain("o-focused");
     expect(fixture.querySelectorAll("input")[1].classList).not.toContain("o-focused");
-    app.destroy();
   });
 
   test("unmounting deletes the state", async () => {
-    const { app, model, id } = await createSelectionInput();
+    const { model, id, app } = await createSelectionInput();
     expect(model.getters.getSelectionInput(id).length).toBe(1);
     app.destroy();
     expect(model.getters.getSelectionInput(id).length).toBe(0);
   });
 
   test("can unfocus all inputs with the OK button", async () => {
-    const { app } = await createSelectionInput();
+    await createSelectionInput();
     expect(fixture.querySelector(".o-focused")).toBeTruthy();
     await simulateClick(".o-selection-ok");
     expect(fixture.querySelector(".o-focused")).toBeFalsy();
-    app.destroy();
   });
 
   test("manually input a single cell", async () => {
-    const { app, model, id } = await createSelectionInput();
+    const { model, id } = await createSelectionInput();
     await writeInput(0, "C2");
     expect(fixture.querySelectorAll("input")[0].value).toBe("C2");
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("C2");
-    app.destroy();
   });
 
   test("manually input multiple cells", async () => {
-    const { app, model, id } = await createSelectionInput();
+    const { model, id } = await createSelectionInput();
     await writeInput(0, "C2,A1");
     expect(fixture.querySelectorAll("input")[0].value).toBe("C2");
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("C2");
     expect(fixture.querySelectorAll("input")[1].value).toBe("A1");
     expect(model.getters.getSelectionInput(id)[1].xc).toBe("A1");
-    app.destroy();
   });
 
   test("manually add another cell", async () => {
-    const { app, model, id } = await createSelectionInput({ initialRanges: ["C2"] });
+    const { model, id } = await createSelectionInput({ initialRanges: ["C2"] });
     await writeInput(0, "C2,A1");
     expect(fixture.querySelectorAll("input")[0].value).toBe("C2");
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("C2");
     expect(fixture.querySelectorAll("input")[1].value).toBe("A1");
     expect(model.getters.getSelectionInput(id)[1].xc).toBe("A1");
-    app.destroy();
   });
 
   test("F2 alters edition mode", async () => {
-    const { app } = await createSelectionInput({ initialRanges: ["C2"] });
+    await createSelectionInput({ initialRanges: ["C2"] });
     const selectionInputEl: HTMLInputElement = fixture.querySelector(".o-selection-input input")!;
     focus(0);
     await nextTick();
@@ -268,7 +254,6 @@ describe("Selection Input", () => {
     await nextTick();
     expect(document.activeElement).toBe(selectionInputEl);
     expect(selectionInputEl?.value).toEqual("B2");
-    app.destroy();
   });
 
   test("changed event is triggered when input changed", async () => {
@@ -276,11 +261,10 @@ describe("Selection Input", () => {
     const onChanged = jest.fn((ranges) => {
       newRanges = ranges;
     });
-    const { app } = await createSelectionInput({ onChanged });
+    await createSelectionInput({ onChanged });
     await writeInput(0, "C2");
     expect(onChanged).toHaveBeenCalled();
     expect(newRanges).toStrictEqual(["C2"]);
-    app.destroy();
   });
 
   test("changed event is triggered when cell is selected", async () => {
@@ -288,48 +272,45 @@ describe("Selection Input", () => {
     const onChanged = jest.fn((ranges) => {
       newRanges = ranges;
     });
-    const { app, model } = await createSelectionInput({ onChanged });
+    const { model } = await createSelectionInput({ onChanged });
     selectCell(model, "B4");
     await nextTick();
     expect(onChanged).toHaveBeenCalled();
     expect(newRanges).toStrictEqual(["B4"]);
-    app.destroy();
   });
 
   test("focus is transferred from one input to another", async () => {
     model = new Model();
-    const app = new App(MultiParent, { props: { model } });
-    app.addTemplates(OWL_TEMPLATES);
-    await app.mount(fixture);
+    ({ fixture } = await mountComponent(MultiParent, { props: { model }, model }));
     await nextTick();
     expect(fixture.querySelector(".input-1 .o-focused")).toBeTruthy();
     expect(fixture.querySelector(".input-2 .o-focused")).toBeFalsy();
     await simulateClick(".input-2 input");
     expect(fixture.querySelector(".input-1 .o-focused")).toBeFalsy();
     expect(fixture.querySelector(".input-2 .o-focused")).toBeTruthy();
-    app.destroy();
   });
 
   test("go back to initial sheet when selection is finished", async () => {
-    const { app, model } = await createSelectionInput();
+    const fixture = makeTestFixture();
+    const { model } = await createSelectionInput({}, fixture);
     const sheet1Id = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", activate: true });
-    const { app: app1 } = await createSelectionInput();
+    await createSelectionInput({}, fixture);
     activateSheet(model, "42");
     selectCell(model, "B4");
     await nextTick();
     expect(fixture.querySelector("input")!.value).toBe("Sheet2!B4");
     await simulateClick(".o-selection-ok");
     expect(model.getters.getActiveSheetId()).toBe(sheet1Id);
-    app.destroy();
-    app1.destroy();
+    fixture.remove();
   });
 
   test("undo after selection won't change active sheet", async () => {
-    const { app, model } = await createSelectionInput();
+    const fixture = makeTestFixture();
+    const { model } = await createSelectionInput({}, fixture);
     const sheet1Id = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42" });
-    const { app: app1 } = await createSelectionInput();
+    await createSelectionInput({}, fixture);
     activateSheet(model, "42");
     selectCell(model, "B4");
     await nextTick();
@@ -337,11 +318,10 @@ describe("Selection Input", () => {
     expect(model.getters.getActiveSheetId()).toBe(sheet1Id);
     undo(model);
     expect(model.getters.getActiveSheetId()).toBe(sheet1Id);
-    app.destroy();
-    app1.destroy();
+    fixture.remove();
   });
   test("show red border if and only if invalid range", async () => {
-    const { app } = await createSelectionInput();
+    await createSelectionInput();
     await writeInput(0, "A1");
     expect(fixture.querySelectorAll("input")[0].value).toBe("A1");
     expect(fixture.querySelectorAll("input")[0].getAttribute("style")).not.toBe("color: #000;");
@@ -354,16 +334,14 @@ describe("Selection Input", () => {
     expect(fixture.querySelectorAll("input")[0].value).toBe("B1");
     expect(fixture.querySelectorAll("input")[0].getAttribute("style")).not.toBe("color: #000;");
     expect(fixture.querySelectorAll("input")[0].classList).not.toContain("o-invalid");
-    app.destroy();
   });
   test("don't show red border initially", async () => {
-    const { app } = await createSelectionInput();
+    await createSelectionInput();
     expect(fixture.querySelectorAll("input")[0].classList).not.toContain("o-invalid");
-    app.destroy();
   });
 
   test("pressing and releasing control has no effect on future clicks", async () => {
-    const { app, parent, model } = await mountSpreadsheet(fixture);
+    const { parent, model, fixture } = await mountSpreadsheet();
     OPEN_CF_SIDEPANEL_ACTION(parent.env);
     await nextTick();
     await simulateClick(".o-cf-add");
@@ -377,6 +355,5 @@ describe("Selection Input", () => {
     expect(fixture.querySelectorAll(".o-selection-input input")).toHaveLength(1);
     input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
     expect(input.value).toBe("A2");
-    app.destroy();
   });
 });

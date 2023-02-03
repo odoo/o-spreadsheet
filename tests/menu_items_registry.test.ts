@@ -1,4 +1,3 @@
-import { App } from "@odoo/owl";
 import { Model, Spreadsheet } from "../src";
 import { fontSizes } from "../src/fonts";
 import { zoneToXc } from "../src/helpers";
@@ -25,7 +24,6 @@ import {
   getName,
   getNode,
   makeTestEnv,
-  makeTestFixture,
   mockUuidV4To,
   mountSpreadsheet,
   nextTick,
@@ -95,22 +93,14 @@ describe("Menu Item Registry", () => {
 });
 
 describe("Menu Item actions", () => {
-  let fixture: HTMLElement;
   let model: Model;
   let parent: Spreadsheet;
-  let app: App;
   let env: SpreadsheetChildEnv;
   let dispatch;
 
   beforeEach(async () => {
-    fixture = makeTestFixture();
-    ({ app, parent, model } = await mountSpreadsheet(fixture));
-    env = parent.env;
+    ({ parent, model, env } = await mountSpreadsheet());
     dispatch = spyDispatch(parent);
-  });
-
-  afterEach(() => {
-    app.destroy();
   });
 
   test("Edit -> undo", () => {
