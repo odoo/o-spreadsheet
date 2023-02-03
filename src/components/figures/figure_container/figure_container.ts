@@ -249,6 +249,9 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       this.dnd.y = Math.max(dndInitialY + deltaY, minY);
     };
     const onMouseUp = (ev: MouseEvent) => {
+      if (!this.dnd.figId) {
+        return;
+      }
       let { x, y } = this.screenCoordinatesToInternal(this.dnd);
       this.dnd.figId = undefined;
       this.env.model.dispatch("UPDATE_FIGURE", { sheetId, id: figure.id, x, y });
@@ -283,6 +286,9 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     };
 
     const onMouseUp = (ev: MouseEvent) => {
+      if (!this.dnd.figId) {
+        return;
+      }
       this.dnd.figId = undefined;
       let { x, y } = this.screenCoordinatesToInternal(this.dnd);
       const update: Partial<Figure> = { x, y };

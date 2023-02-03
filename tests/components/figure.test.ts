@@ -269,6 +269,23 @@ describe("figures", () => {
     expect(model.getters.getFigure(sheetId, figureId)).toMatchObject(expectedSize);
   });
 
+  test("clicking the sheet without dragging it does not update the figure", async () => {
+    const spyDispatch = jest.spyOn(model, "dispatch");
+    createFigure(model);
+    await nextTick();
+    await simulateClick(".o-figure");
+    expect(spyDispatch).not.toHaveBeenLastCalledWith("UPDATE_FIGURE", expect.anything());
+  });
+
+  test("clicking the resizers without dragging it does not update the figure", async () => {
+    const spyDispatch = jest.spyOn(model, "dispatch");
+    createFigure(model);
+    await nextTick();
+    await simulateClick(".o-figure");
+    await simulateClick(".o-fig-anchor.o-top");
+    expect(spyDispatch).not.toHaveBeenLastCalledWith("UPDATE_FIGURE", expect.anything());
+  });
+
   describe("Move a figure with drag & drop ", () => {
     test("Can move a figure with drag & drop", async () => {
       createFigure(model, { id: "someuuid", x: 200, y: 100 });
