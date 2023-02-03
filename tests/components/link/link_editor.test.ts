@@ -1,4 +1,3 @@
-import { App } from "@odoo/owl";
 import { Model } from "../../../src";
 import { buildSheetLink } from "../../../src/helpers";
 import {
@@ -14,7 +13,7 @@ import {
   simulateClick,
 } from "../../test_helpers/dom_helper";
 import { getCell, getEvaluatedCell } from "../../test_helpers/getters_helpers";
-import { makeTestFixture, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
+import { mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 
 mockGetBoundingClientRect({
@@ -24,7 +23,6 @@ mockGetBoundingClientRect({
 describe("link editor component", () => {
   let fixture: HTMLElement;
   let model: Model;
-  let app: App;
 
   async function openLinkEditor(model: Model, xc: string) {
     await rightClickCell(model, xc);
@@ -46,13 +44,7 @@ describe("link editor component", () => {
   }
 
   beforeEach(async () => {
-    fixture = makeTestFixture();
-    ({ app, model } = await mountSpreadsheet(fixture));
-  });
-
-  afterEach(() => {
-    app.destroy();
-    fixture.remove();
+    ({ model, fixture } = await mountSpreadsheet());
   });
 
   test("open link editor from cell context menu", async () => {

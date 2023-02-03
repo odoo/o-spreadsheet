@@ -1,26 +1,18 @@
-import { App } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../../src";
 import { buildSheetLink } from "../../../src/helpers";
 import { clearCell, createSheet, merge, setCellContent } from "../../test_helpers/commands_helpers";
 import { clickCell, hoverCell, rightClickCell, simulateClick } from "../../test_helpers/dom_helper";
 import { getCell, getEvaluatedCell } from "../../test_helpers/getters_helpers";
-import { makeTestFixture, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
+import { mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 
 describe("link display component", () => {
   let fixture: HTMLElement;
   let model: Model;
-  let app: App;
   let parent: Spreadsheet;
 
   beforeEach(async () => {
     jest.useFakeTimers();
-    fixture = makeTestFixture();
-    ({ app, parent, model } = await mountSpreadsheet(fixture));
-  });
-
-  afterEach(() => {
-    app.destroy();
-    fixture.remove();
+    ({ parent, model, fixture } = await mountSpreadsheet());
   });
 
   test("simple snapshot", async () => {

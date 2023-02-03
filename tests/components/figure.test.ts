@@ -1,4 +1,4 @@
-import { App, Component, xml } from "@odoo/owl";
+import { Component, xml } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../src";
 import { ChartJsComponent } from "../../src/components/figures/chart/chartJs/chartjs";
 import { ScorecardChart } from "../../src/components/figures/chart/scorecard/chart_scorecard";
@@ -36,7 +36,6 @@ import { getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import {
   getFigureDefinition,
   getFigureIds,
-  makeTestFixture,
   mockChart,
   mountSpreadsheet,
   nextTick,
@@ -44,10 +43,10 @@ import {
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 import { TEST_CHART_DATA } from "./../test_helpers/constants";
 
+let env: SpreadsheetChildEnv;
+let parent: Spreadsheet;
 let fixture: HTMLElement;
 let model: Model;
-let app: App;
-let parent: Spreadsheet;
 
 function createFigure(
   model: Model,
@@ -63,7 +62,7 @@ function createFigure(
     tag: "text",
   };
 
-  model.dispatch("CREATE_FIGURE", {
+  return model.dispatch("CREATE_FIGURE", {
     sheetId,
     figure: { ...defaultParameters, ...figureParameters },
   });
@@ -122,14 +121,9 @@ afterAll(() => {
 
 describe("figures", () => {
   beforeEach(async () => {
-    fixture = makeTestFixture();
-    ({ app, model, parent } = await mountSpreadsheet(fixture));
+    ({ model, env, parent, fixture } = await mountSpreadsheet());
     mockSpreadsheetRect = { top: 100, left: 200, height: 1000, width: 1000 };
     mockFigureMenuItemRect = { top: 500, left: 500 };
-  });
-
-  afterEach(() => {
-    app.destroy();
   });
 
   test("can create a figure with some data", () => {
@@ -564,7 +558,7 @@ describe("figures", () => {
         await simulateClick(".o-figure");
         await simulateClick(".o-figure-menu-item");
         await simulateClick(".o-menu div[data-name='copy']");
-        const envClipBoardContent = await parent.env.clipboard.readText();
+        const envClipBoardContent = await env.clipboard.readText();
         if (envClipBoardContent.status === "ok") {
           expect(envClipBoardContent.content).toEqual(
             model.getters.getClipboardContent()["text/plain"]
@@ -582,7 +576,7 @@ describe("figures", () => {
         await simulateClick(".o-figure");
         await simulateClick(".o-figure-menu-item");
         await simulateClick(".o-menu div[data-name='cut']");
-        const envClipBoardContent = await parent.env.clipboard.readText();
+        const envClipBoardContent = await env.clipboard.readText();
         if (envClipBoardContent.status === "ok") {
           expect(envClipBoardContent.content).toEqual(
             model.getters.getClipboardContent()["text/plain"]

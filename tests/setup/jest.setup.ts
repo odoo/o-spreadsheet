@@ -35,4 +35,18 @@ beforeEach(() => {
 afterEach(() => {
   //@ts-ignore
   global.resizers.removeAll();
+  executeCleanups();
 });
+
+const cleanUps: (() => void)[] = [];
+
+export function registerCleanup(cleanupFn: () => void) {
+  cleanUps.push(cleanupFn);
+}
+
+function executeCleanups() {
+  let cleanupFn: (() => void) | undefined;
+  while ((cleanupFn = cleanUps.pop())) {
+    cleanupFn();
+  }
+}

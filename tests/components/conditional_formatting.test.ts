@@ -1,4 +1,3 @@
-import { App } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../src";
 import { toZone } from "../../src/helpers/zones";
 import { ConditionalFormatPlugin } from "../../src/plugins/core/conditional_format";
@@ -15,7 +14,6 @@ import {
   createColorScale,
   createEqualCF,
   getPlugin,
-  makeTestFixture,
   mockUuidV4To,
   mountSpreadsheet,
   nextTick,
@@ -30,18 +28,11 @@ let model: Model;
 describe("UI of conditional formats", () => {
   let fixture: HTMLElement;
   let parent: Spreadsheet;
-  let app: App;
 
   beforeEach(async () => {
-    fixture = makeTestFixture();
-    ({ app, parent, model } = await mountSpreadsheet(fixture));
+    ({ parent, model, fixture } = await mountSpreadsheet());
     parent.env.openSidePanel("ConditionalFormatting");
     await nextTick();
-  });
-
-  afterEach(() => {
-    fixture.remove();
-    app.destroy();
   });
 
   function errorMessages(): string[] {
