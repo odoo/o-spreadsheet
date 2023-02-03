@@ -237,8 +237,8 @@ export function toZoneWithoutBoundaryChanges(xc: string): UnboundedZone {
   // }
 
   const zone: UnboundedZone = {
-    top: top || 0,
-    left: left || 0,
+    top: fullCol ? top || bottom || 0 : top,
+    left: fullRow ? left || right || 0 : left,
     bottom: fullCol ? undefined : bottom,
     right: fullRow ? undefined : right,
   };
