@@ -311,6 +311,11 @@ describe("figures", () => {
           background: "#000000",
         },
       });
+      if (chartType === "basicChart") {
+        const figureCanvas = fixture.querySelector(".o-figure-canvas");
+        expect(figureCanvas!.classList).toContain("w-100");
+        expect(figureCanvas!.classList).toContain("h-100");
+      }
     }
   );
 
