@@ -169,7 +169,8 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       let assistantStyle: CSSProperties = {};
       if (cellY > remainingHeight) {
         // render top
-        assistantStyle.top = `$-3px`;
+        // We compensate 2 px of margin on the assistant style + 1px for design reasons
+        assistantStyle.top = `-3px`;
         assistantStyle.transform = `translate(0, -100%)`;
       }
       if (cellX + ASSISTANT_WIDTH > this.props.delimitation.width) {

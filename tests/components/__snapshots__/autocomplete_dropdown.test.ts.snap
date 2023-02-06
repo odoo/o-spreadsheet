@@ -30,3 +30,207 @@ exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
   
 </div>
 `;
+
+exports[`composer Assistant render above the cell when not enough place below 1`] = `
+<div
+  class="o-composer-assistant"
+  style="top:-3px; transform:translate(0, -100%); right:0px; width:300px;"
+>
+  <div
+    class="o-autocomplete-dropdown"
+  >
+    <div
+      class="o-autocomplete-value-focus"
+    >
+      <div
+        class="o-autocomplete-value"
+      >
+        SECOND
+      </div>
+      <div
+        class="o-autocomplete-description"
+      >
+        Minute component of a specific time.
+      </div>
+      
+    </div>
+    <div>
+      <div
+        class="o-autocomplete-value"
+      >
+        SLN
+      </div>
+      
+    </div>
+    <div>
+      <div
+        class="o-autocomplete-value"
+      >
+        SYD
+      </div>
+      
+    </div>
+    <div>
+      <div
+        class="o-autocomplete-value"
+      >
+        SEC
+      </div>
+      
+    </div>
+    <div>
+      <div
+        class="o-autocomplete-value"
+      >
+        SECH
+      </div>
+      
+    </div>
+    <div>
+      <div
+        class="o-autocomplete-value"
+      >
+        SIN
+      </div>
+      
+    </div>
+    <div>
+      <div
+        class="o-autocomplete-value"
+      >
+        SINH
+      </div>
+      
+    </div>
+    <div>
+      <div
+        class="o-autocomplete-value"
+      >
+        SQRT
+      </div>
+      
+    </div>
+    <div>
+      <div
+        class="o-autocomplete-value"
+      >
+        SUM
+      </div>
+      
+    </div>
+    <div>
+      <div
+        class="o-autocomplete-value"
+      >
+        SUMIF
+      </div>
+      
+    </div>
+    
+  </div>
+  
+  
+</div>
+`;
+
+exports[`composer Assistant render below the cell by default 1`] = `
+<div
+  class="o-composer-assistant"
+  style="top:-3px; transform:translate(0, -100%); right:0px; width:300px;"
+>
+  <div
+    class="o-autocomplete-dropdown"
+  >
+    <div
+      class="o-autocomplete-value-focus"
+    >
+      <div
+        class="o-autocomplete-value"
+      >
+        SECOND
+      </div>
+      <div
+        class="o-autocomplete-description"
+      >
+        Minute component of a specific time.
+      </div>
+      
+    </div>
+    <div>
+      <div
+        class="o-autocomplete-value"
+      >
+        SLN
+      </div>
+      
+    </div>
+    <div>
+      <div
+        class="o-autocomplete-value"
+      >
+        SYD
+      </div>
+      
+    </div>
+    <div>
+      <div
+        class="o-autocomplete-value"
+      >
+        SEC
+      </div>
+      
+    </div>
+    <div>
+      <div
+        class="o-autocomplete-value"
+      >
+        SECH
+      </div>
+      
+    </div>
+    <div>
+      <div
+        class="o-autocomplete-value"
+      >
+        SIN
+      </div>
+      
+    </div>
+    <div>
+      <div
+        class="o-autocomplete-value"
+      >
+        SINH
+      </div>
+      
+    </div>
+    <div>
+      <div
+        class="o-autocomplete-value"
+      >
+        SQRT
+      </div>
+      
+    </div>
+    <div>
+      <div
+        class="o-autocomplete-value"
+      >
+        SUM
+      </div>
+      
+    </div>
+    <div>
+      <div
+        class="o-autocomplete-value"
+      >
+        SUMIF
+      </div>
+      
+    </div>
+    
+  </div>
+  
+  
+</div>
+`;
