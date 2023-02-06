@@ -1,4 +1,5 @@
 import { args, functionRegistry } from "../../src/functions/index";
+import { toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { selectCell } from "../test_helpers/commands_helpers";
 import { click, clickCell, keyDown, keyUp, simulateClick } from "../test_helpers/dom_helper";
@@ -386,6 +387,26 @@ describe("Autocomplete parenthesis", () => {
     await typeInComposerGrid("=s");
     await keyDown("Tab");
     expect(model.getters.getEditionMode()).toBe("selecting");
+  });
+});
+
+describe("composer Assistant", () => {
+  test("render below the cell by default", async () => {
+    await typeInComposerGrid("=s");
+    const assistantEl = fixture.querySelector(".o-composer-assistant")! as HTMLElement;
+    expect(assistantEl).toMatchSnapshot();
+    expect(assistantEl.style.width).toBe("300px");
+  });
+
+  test("render above the cell when not enough place below", async () => {
+    const { left, bottom } = model.getters.getActiveMainViewport();
+    selectCell(model, toXC(left, bottom));
+    await typeInComposerGrid("=s");
+    const assistantEL = fixture.querySelector(".o-composer-assistant")! as HTMLElement;
+    expect(assistantEL).toMatchSnapshot();
+    expect(assistantEL.style.width).toBe("300px");
+    expect(assistantEL.style.top).toBe("-3px");
+    expect(assistantEL.style.transform).toBe("translate(0, -100%)");
   });
 });
 
