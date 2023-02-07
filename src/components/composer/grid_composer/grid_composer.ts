@@ -88,8 +88,8 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
         height: el!.clientHeight,
       };
       this.composerState.delimitation = {
-        width: el!.parentElement!.clientWidth,
-        height: el!.parentElement!.clientHeight,
+        width: this.props.gridDims.width,
+        height: this.props.gridDims.height,
       };
     });
     onWillUpdateProps(() => {

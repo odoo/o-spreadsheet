@@ -100,6 +100,20 @@ describe("edition", () => {
     expect(model.getters.getEditionMode()).toBe("inactive");
   });
 
+  test("Stopping the edition should complete the missing parenthesis of a formula", async () => {
+    const model = new Model();
+    model.dispatch("START_EDITION", { text: "=sum(sum(1,2" });
+    model.dispatch("STOP_EDITION");
+    expect(getCellText(model, "A1")).toBe("=sum(sum(1,2))");
+  });
+
+  test("Stopping the edition should not complete parenthesis in a string", async () => {
+    const model = new Model();
+    model.dispatch("START_EDITION", { text: '=sum("((((((((")' });
+    model.dispatch("STOP_EDITION");
+    expect(getCellText(model, "A1")).toBe('=sum("((((((((")');
+  });
+
   test("select cells in another sheet", () => {
     const model = new Model();
     const sheet2 = "42";

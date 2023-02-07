@@ -1,13 +1,27 @@
-import { App, Component, ComponentConstructor, xml } from "@odoo/owl";
+import {
+  App,
+  Component,
+  ComponentConstructor,
+  onMounted,
+  onWillUnmount,
+  useState,
+  xml,
+} from "@odoo/owl";
 import { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { Action } from "../../src/actions/action";
-import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
+import { Composer, ComposerProps } from "../../src/components/composer/composer/composer";
+import {
+  ComposerFocusType,
+  Spreadsheet,
+  SpreadsheetProps,
+} from "../../src/components/spreadsheet/spreadsheet";
 import { functionRegistry } from "../../src/functions/index";
 import { ImageProvider } from "../../src/helpers/figures/images/image_provider";
 import { toCartesian, toUnboundedZone, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
+import { ComposerSelection } from "../../src/plugins/ui_stateful";
 import { topbarMenuRegistry } from "../../src/registries";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import {
@@ -440,6 +454,8 @@ export async function typeInComposerGrid(text: string, fromScratch: boolean = tr
 }
 
 export async function typeInComposerTopBar(text: string, fromScratch: boolean = true) {
+  // TODO: fix this helper. From scratch does not do what we expect.
+  // It will start the composition on the grid and then type in the topbar
   return await typeInComposerHelper(".o-spreadsheet-topbar .o-composer", text, fromScratch);
 }
 
@@ -623,4 +639,59 @@ export function getStylePropertyInPx(el: HTMLElement, property: string): number 
   const styleProperty = el.style[property] as string;
   if (!styleProperty) return undefined;
   return Number(styleProperty.replace("px", ""));
+}
+
+type ComposerWrapperProps = {
+  focusComposer: ComposerFocusType;
+  composerProps: Partial<ComposerProps>;
+};
+export class ComposerWrapper extends Component<ComposerWrapperProps, SpreadsheetChildEnv> {
+  static components = { Composer };
+  static template = xml/*xml*/ `
+    <Composer t-props="composerProps"/>
+  `;
+  state = useState({ focusComposer: <ComposerFocusType>"inactive" });
+  setup() {
+    this.state.focusComposer = this.props.focusComposer;
+    onMounted(() => this.env.model.on("update", this, () => this.render(true)));
+    onWillUnmount(() => this.env.model.off("update", this));
+  }
+
+  get composerProps(): ComposerProps {
+    return {
+      onComposerContentFocused: (selection) => {
+        this.state.focusComposer = "contentFocus";
+        this.setEdition({ selection });
+        this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", selection);
+      },
+      focus: this.state.focusComposer,
+      ...this.props.composerProps,
+    };
+  }
+
+  setEdition({ text, selection }: { text?: string; selection?: ComposerSelection }) {
+    if (this.env.model.getters.getEditionMode() === "inactive") {
+      this.env.model.dispatch("START_EDITION", { text, selection });
+    } else if (text) {
+      this.env.model.dispatch("SET_CURRENT_CONTENT", { content: text, selection });
+    }
+  }
+
+  startComposition(text?: string) {
+    this.state.focusComposer = text ? "contentFocus" : "cellFocus";
+    this.setEdition({ text });
+  }
+}
+
+export async function mountComposerWrapper(
+  model: Model = new Model(),
+  composerProps: Partial<ComposerProps> = {},
+  focusComposer: ComposerFocusType = "inactive"
+): Promise<{ parent: ComposerWrapper; model: Model; fixture: HTMLElement }> {
+  const { parent, fixture } = await mountComponent(ComposerWrapper, {
+    props: { composerProps, focusComposer },
+    model,
+  });
+
+  return { parent: parent as ComposerWrapper, model, fixture };
 }
