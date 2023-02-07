@@ -121,7 +121,7 @@ exports[`BottomBar component simple rendering 1`] = `
         >
           <path
             d="M8,0 L10,0 L10,8 L18,8 L18,10 L10,10 L10,18 L8,18 L8,10 L0,10 L0,8 L8,8"
-            fill="#000000"
+            fill="currentColor"
           />
         </svg>
       </div>
@@ -147,18 +147,21 @@ exports[`BottomBar component simple rendering 1`] = `
           viewBox="0 0 384 384"
         >
           <rect
+            fill="currentColor"
             height="42.667"
             width="384"
             x="0"
             y="277.333"
           />
           <rect
+            fill="currentColor"
             height="42.667"
             width="384"
             x="0"
             y="170.667"
           />
           <rect
+            fill="currentColor"
             height="42.667"
             width="384"
             x="0"
@@ -206,7 +209,7 @@ exports[`BottomBar component simple rendering 1`] = `
                 class="o-icon"
               >
                 <polygon
-                  fill="#000000"
+                  fill="currentColor"
                   points="0 0 4 4 8 0"
                   transform="translate(5 7)"
                 />

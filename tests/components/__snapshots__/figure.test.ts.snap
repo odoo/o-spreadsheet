@@ -27,18 +27,21 @@ exports[`figures selected figure snapshot 1`] = `
           viewBox="0 0 384 384"
         >
           <rect
+            fill="currentColor"
             height="42.667"
             width="384"
             x="0"
             y="277.333"
           />
           <rect
+            fill="currentColor"
             height="42.667"
             width="384"
             x="0"
             y="170.667"
           />
           <rect
+            fill="currentColor"
             height="42.667"
             width="384"
             x="0"

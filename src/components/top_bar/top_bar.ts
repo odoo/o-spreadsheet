@@ -7,7 +7,10 @@ import {
 } from "@odoo/owl";
 import {
   BACKGROUND_HEADER_COLOR,
+  BACKGROUND_HEADER_FILTER_COLOR,
+  BG_HOVER_COLOR,
   ComponentsImportance,
+  FILTERS_COLOR,
   SEPARATOR_COLOR,
   TOPBAR_TOOLBAR_HEIGHT,
 } from "../../constants";
@@ -87,52 +90,55 @@ interface Props {
   dropdownMaxHeight: Pixel;
 }
 
-const FONT_COLOR = "#4a4f59";
-const ACTIVE_BG_COLOR = "#E6F4EA";
-const ACTIVE_FG_COLOR = "#188038";
-const HOVERED_BG_COLOR = "#f6f7fa";
-const HOVERED_FG_COLOR = "#000000";
+const ICONS_COLOR = "#4A4F59";
+
+// If we ever change these colors, make sure the filter tool stays green to match the icon in the grid
+const ACTIVE_BG_COLOR = BACKGROUND_HEADER_FILTER_COLOR;
+const ACTIVE_FONT_COLOR = FILTERS_COLOR;
+
+const HOVERED_BG_COLOR = BG_HOVER_COLOR;
+const HOVERED_FONT_COLOR = "#000";
 
 // -----------------------------------------------------------------------------
 // TopBar
 // -----------------------------------------------------------------------------
 css/* scss */ `
   .o-spreadsheet-topbar {
-    background-color: white;
     line-height: 1.2;
-    display: flex;
-    flex-direction: column;
     font-size: 13px;
-    line-height: 1.2;
-    user-select: none;
     font-weight: 500;
-    color: ${FONT_COLOR};
+
+    .o-topbar-hoverable {
+      cursor: pointer;
+      .o-icon {
+        color: ${ICONS_COLOR};
+      }
+      &:not(.o-disabled):not(.active):hover {
+        background-color: ${HOVERED_BG_COLOR};
+        color: ${HOVERED_FONT_COLOR};
+        .o-icon {
+          color: ${HOVERED_FONT_COLOR};
+        }
+      }
+      &.active {
+        background-color: ${ACTIVE_BG_COLOR};
+        color: ${ACTIVE_FONT_COLOR};
+        .o-icon {
+          color: ${ACTIVE_FONT_COLOR};
+        }
+      }
+    }
 
     .o-topbar-top {
       border-bottom: 1px solid ${SEPARATOR_COLOR};
-      display: flex;
       padding: 2px 10px;
-      justify-content: space-between;
 
       /* Menus */
       .o-topbar-topleft {
-        display: flex;
         .o-topbar-menu {
           padding: 4px 6px;
           margin: 0 2px;
-          cursor: pointer;
         }
-
-        .o-topbar-menu:hover,
-        .o-topbar-menu-active {
-          background-color: #f1f3f4;
-          border-radius: 2px;
-        }
-      }
-
-      .o-topbar-topright {
-        display: flex;
-        justify-content: flex-end;
       }
     }
 
@@ -142,13 +148,9 @@ css/* scss */ `
 
     /* Toolbar */
     .o-topbar-toolbar {
-      flex-shrink: 0;
-      display: flex;
       height: ${TOPBAR_TOOLBAR_HEIGHT}px;
 
       .o-readonly-toolbar {
-        display: flex;
-        align-items: center;
         background-color: ${BACKGROUND_HEADER_COLOR};
         padding-left: 18px;
         padding-right: 18px;
@@ -156,11 +158,6 @@ css/* scss */ `
 
       /* Toolbar */
       .o-toolbar-tools {
-        display: flex;
-        flex-shrink: 0;
-        margin-left: 16px;
-        cursor: default;
-
         .o-tool {
           display: flex;
           justify-content: center;
@@ -168,38 +165,11 @@ css/* scss */ `
           margin: 2px;
           padding: 0px 3px;
           border-radius: 2px;
-          cursor: pointer;
           min-width: 20px;
-          svg path,
-          polygon,
-          rect {
-            fill: ${FONT_COLOR};
-          }
-        }
-
-        .o-tool-outlined {
-          background-color: rgba(0, 0, 0, 0.08);
         }
 
         .o-filter-tool {
           margin-right: 8px;
-        }
-
-        .o-tool.active {
-          background-color: ${ACTIVE_BG_COLOR};
-          svg path,
-          polygon,
-          rect {
-            fill: ${ACTIVE_FG_COLOR};
-          }
-        }
-        .o-tool:not(.o-disabled):hover {
-          background-color: ${HOVERED_BG_COLOR};
-          svg path,
-          polygon,
-          rect {
-            fill: ${HOVERED_FG_COLOR};
-          }
         }
 
         .o-border-dropdown {
@@ -227,10 +197,6 @@ css/* scss */ `
             height: 30px;
           }
 
-          .o-text-icon {
-            line-height: 30px;
-          }
-
           .o-text-options > div {
             line-height: 26px;
             padding: 3px 12px;
@@ -249,14 +215,6 @@ css/* scss */ `
             box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
             background-color: white;
 
-            .o-dropdown-item {
-              cursor: pointer;
-            }
-
-            .o-dropdown-item:hover {
-              background-color: rgba(0, 0, 0, 0.08);
-            }
-
             .o-dropdown-line {
               display: flex;
               margin: 1px;
@@ -265,11 +223,6 @@ css/* scss */ `
                 padding: 4px;
                 width: 18px;
                 height: 18px;
-                cursor: pointer;
-
-                &:hover {
-                  background-color: rgba(0, 0, 0, 0.08);
-                }
               }
             }
 
@@ -281,7 +234,7 @@ css/* scss */ `
                 padding: 0 20px;
                 white-space: nowrap;
 
-                &.active:before {
+                &.o-dropdown-active:before {
                   content: "✓";
                   font-weight: bold;
                   position: absolute;

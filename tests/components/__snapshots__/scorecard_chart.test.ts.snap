@@ -79,18 +79,21 @@ exports[`Scorecard charts Scorecard snapshot 1`] = `
         viewBox="0 0 384 384"
       >
         <rect
+          fill="currentColor"
           height="42.667"
           width="384"
           x="0"
           y="277.333"
         />
         <rect
+          fill="currentColor"
           height="42.667"
           width="384"
           x="0"
           y="170.667"
         />
         <rect
+          fill="currentColor"
           height="42.667"
           width="384"
           x="0"
@@ -183,18 +186,21 @@ exports[`Scorecard charts scorecard text is resized while figure is resized 1`] 
         viewBox="0 0 384 384"
       >
         <rect
+          fill="currentColor"
           height="42.667"
           width="384"
           x="0"
           y="277.333"
         />
         <rect
+          fill="currentColor"
           height="42.667"
           width="384"
           x="0"
           y="170.667"
         />
         <rect
+          fill="currentColor"
           height="42.667"
           width="384"
           x="0"

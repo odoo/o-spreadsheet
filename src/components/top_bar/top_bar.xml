@@ -1,14 +1,16 @@
 <templates>
   <t t-name="o-spreadsheet-TopBar" owl="1">
-    <div class="o-spreadsheet-topbar o-two-columns" t-on-click="props.onClick">
-      <div class="o-topbar-top">
+    <div
+      class="o-spreadsheet-topbar o-two-columns bg-white d-flex flex-column user-select-none"
+      t-on-click="props.onClick">
+      <div class="o-topbar-top d-flex justify-content-between">
         <!-- Menus -->
-        <div class="o-topbar-topleft">
+        <div class="o-topbar-topleft d-flex">
           <t t-foreach="menus" t-as="menu" t-key="menu_index">
             <div
               t-if="menu.children.length !== 0"
-              class="o-topbar-menu"
-              t-att-class="{'o-topbar-menu-active': state.menuState.parentMenu and state.menuState.parentMenu.id === menu.id}"
+              class="o-topbar-menu o-topbar-hoverable rounded"
+              t-att-class="{'active': state.menuState.parentMenu and state.menuState.parentMenu.id === menu.id}"
               t-on-click="(ev) => this.toggleContextMenu(menu, ev)"
               t-on-mouseover="(ev) => this.onMenuMouseOver(menu, ev)"
               t-att-data-id="menu.id">
@@ -22,7 +24,7 @@
             onClose="() => this.closeMenus()"
           />
         </div>
-        <div class="o-topbar-topright">
+        <div class="o-topbar-topright d-flex justify-content-end">
           <div t-foreach="topbarComponents" t-as="comp" t-key="comp.id">
             <t t-component="comp.component"/>
           </div>
@@ -30,61 +32,66 @@
       </div>
       <!-- Toolbar and Cell Content -->
       <div class="d-flex">
-        <div class="o-topbar-toolbar">
+        <div class="o-topbar-toolbar d-flex flex-shrink-0">
           <!-- Toolbar -->
-          <div t-if="env.model.getters.isReadonly()" class="o-readonly-toolbar text-muted">
+          <div
+            t-if="env.model.getters.isReadonly()"
+            class="o-readonly-toolbar d-flex align-items-center text-muted">
             <span>
               <i class="fa fa-eye"/>
               Readonly Access
             </span>
           </div>
-          <div t-else="" class="o-toolbar-tools">
+          <div t-else="" class="o-toolbar-tools d-flex flex-shrink-0 ms-4">
             <div
-              class="o-tool"
+              class="o-tool o-topbar-hoverable"
               title="Undo (Ctrl+Z)"
               t-att-class="{'o-disabled': !undoTool}"
               t-on-click="undo">
               <t t-call="o-spreadsheet-Icon.UNDO"/>
             </div>
             <div
-              class="o-tool"
+              class="o-tool o-topbar-hoverable"
               t-att-class="{'o-disabled': !redoTool}"
               title="Redo (Ctrl+Y)"
               t-on-click="redo">
               <t t-call="o-spreadsheet-Icon.REDO"/>
             </div>
             <div
-              class="o-tool"
+              class="o-tool o-topbar-hoverable"
               title="Paint Format"
               t-att-class="{active:paintFormatTool}"
               t-on-click="paintFormat">
               <t t-call="o-spreadsheet-Icon.PAINT_FORMAT"/>
             </div>
-            <div class="o-tool" title="Clear Format" t-on-click="clearFormatting">
+            <div
+              class="o-tool o-topbar-hoverable"
+              title="Clear Format"
+              t-on-click="clearFormatting">
               <t t-call="o-spreadsheet-Icon.CLEAR_FORMAT"/>
             </div>
             <div class="o-divider"/>
             <div
-              class="o-tool"
+              class="o-tool o-topbar-hoverable"
               title="Format as percent"
               t-on-click="(ev) => this.toggleFormat('percent', ev)">
               %
             </div>
             <div
-              class="o-tool"
+              class="o-tool o-topbar-hoverable"
               title="Decrease decimal places"
               t-on-click="(ev) => this.setDecimal(-1, ev)">
               .0
             </div>
             <div
-              class="o-tool"
+              class="o-tool o-topbar-hoverable"
               title="Increase decimal places"
               t-on-click="(ev) => this.setDecimal(+1, ev)">
               .00
             </div>
             <div class="o-dropdown">
               <div
-                class="o-tool o-dropdown-button o-text-icon"
+                class="o-tool o-topbar-hoverable o-dropdown-button"
                 title="More formats"
                 t-on-click="(ev) => this.toggleDropdownTool('formatTool', ev)">
                 123
@@ -97,10 +104,10 @@
                 t-on-click.stop="">
                 <t t-foreach="commonFormats" t-as="commonFormat" t-key="commonFormat.name">
                   <div
-                    class="o-dropdown-item"
+                    class="o-dropdown-item o-topbar-hoverable"
                     t-att-data-format="commonFormat.name"
                     t-on-click="() => this.setFormat(commonFormat.name)"
-                    t-att-class="{active: currentFormatName === commonFormat.name}">
+                    t-att-class="{'o-dropdown-active': currentFormatName === commonFormat.name}">
                     <t t-esc="commonFormat.text"/>
                     <span class="float-end text-muted" t-esc="commonFormat.description"/>
                   </div>
@@ -108,7 +115,7 @@
                 <t t-foreach="customFormats" t-as="customFormat" t-key="customFormat.name">
                   <div
                     t-att-data-custom="customFormat.name"
-                    class="o-dropdown-item"
+                    class="o-dropdown-item o-topbar-hoverable"
                     t-on-click="() => this.setFormat(customFormat.name, true)">
                     <t t-esc="customFormat.text"/>
                   </div>
@@ -119,21 +126,21 @@
             <FontSizeEditor onToggle="() => this.onClick()" dropdownStyle="this.dropdownStyle"/>
             <div class="o-divider"/>
             <div
-              class="o-tool"
+              class="o-tool o-topbar-hoverable"
               title="Bold (Ctrl+B)"
               t-att-class="{active:style.bold}"
               t-on-click="(ev) => this.toggleStyle('bold', ev)">
               <t t-call="o-spreadsheet-Icon.BOLD"/>
             </div>
             <div
-              class="o-tool"
+              class="o-tool o-topbar-hoverable"
               title="Italic (Ctrl+I)"
               t-att-class="{active:style.italic}"
               t-on-click="(ev) => this.toggleStyle('italic', ev)">
               <t t-call="o-spreadsheet-Icon.ITALIC"/>
             </div>
             <div
-              class="o-tool"
+              class="o-tool o-topbar-hoverable"
               title="Strikethrough"
               t-att-class="{active:style.strikethrough}"
               t-on-click="(ev) => this.toggleStyle('strikethrough', ev)">
@@ -148,7 +155,7 @@
                 title="env._t('Text Color')"
                 icon="'o-spreadsheet-Icon.TEXT_COLOR'"
                 dropdownMaxHeight="this.props.dropdownMaxHeight"
-                class="'o-tool o-dropdown-button'"
+                class="'o-tool o-dropdown-button o-topbar-hoverable'"
               />
             </div>
             <div class="o-divider"/>
@@ -161,12 +168,12 @@
                 title="env._t('Fill Color')"
                 icon="'o-spreadsheet-Icon.FILL_COLOR'"
                 dropdownMaxHeight="this.props.dropdownMaxHeight"
-                class="'o-tool o-dropdown-button'"
+                class="'o-tool o-dropdown-button o-topbar-hoverable'"
               />
             </div>
             <div class="o-dropdown">
               <div
-                class="o-tool o-dropdown-button"
+                class="o-tool o-topbar-hoverable o-dropdown-button"
                 title="Borders"
                 t-on-click="(ev) => this.toggleDropdownTool('borderTool', ev)">
                 <span>
@@ -179,43 +186,63 @@
                 t-att-style="dropdownStyle"
                 t-on-click.stop="">
                 <div class="o-dropdown-line">
-                  <span class="o-line-item" t-on-click="(ev) => this.setBorder('all')">
+                  <span
+                    class="o-line-item o-topbar-hoverable"
+                    t-on-click="(ev) => this.setBorder('all')">
                     <t t-call="o-spreadsheet-Icon.BORDERS"/>
                   </span>
-                  <span class="o-line-item" t-on-click="(ev) => this.setBorder('hv')">
+                  <span
+                    class="o-line-item o-topbar-hoverable"
+                    t-on-click="(ev) => this.setBorder('hv')">
                     <t t-call="o-spreadsheet-Icon.BORDER_HV"/>
                   </span>
-                  <span class="o-line-item" t-on-click="(ev) => this.setBorder('h')">
+                  <span
+                    class="o-line-item o-topbar-hoverable"
+                    t-on-click="(ev) => this.setBorder('h')">
                     <t t-call="o-spreadsheet-Icon.BORDER_H"/>
                   </span>
-                  <span class="o-line-item" t-on-click="(ev) => this.setBorder('v')">
+                  <span
+                    class="o-line-item o-topbar-hoverable"
+                    t-on-click="(ev) => this.setBorder('v')">
                     <t t-call="o-spreadsheet-Icon.BORDER_V"/>
                   </span>
-                  <span class="o-line-item" t-on-click="(ev) => this.setBorder('external')">
+                  <span
+                    class="o-line-item o-topbar-hoverable"
+                    t-on-click="(ev) => this.setBorder('external')">
                     <t t-call="o-spreadsheet-Icon.BORDER_EXTERNAL"/>
                   </span>
                 </div>
                 <div class="o-dropdown-line">
-                  <span class="o-line-item" t-on-click="(ev) => this.setBorder('left')">
+                  <span
+                    class="o-line-item o-topbar-hoverable"
+                    t-on-click="(ev) => this.setBorder('left')">
                     <t t-call="o-spreadsheet-Icon.BORDER_LEFT"/>
                   </span>
-                  <span class="o-line-item" t-on-click="(ev) => this.setBorder('top')">
+                  <span
+                    class="o-line-item o-topbar-hoverable"
+                    t-on-click="(ev) => this.setBorder('top')">
                     <t t-call="o-spreadsheet-Icon.BORDER_TOP"/>
                   </span>
-                  <span class="o-line-item" t-on-click="(ev) => this.setBorder('right')">
+                  <span
+                    class="o-line-item o-topbar-hoverable"
+                    t-on-click="(ev) => this.setBorder('right')">
                     <t t-call="o-spreadsheet-Icon.BORDER_RIGHT"/>
                   </span>
-                  <span class="o-line-item" t-on-click="(ev) => this.setBorder('bottom')">
+                  <span
+                    class="o-line-item o-topbar-hoverable"
+                    t-on-click="(ev) => this.setBorder('bottom')">
                     <t t-call="o-spreadsheet-Icon.BORDER_BOTTOM"/>
                   </span>
-                  <span class="o-line-item" t-on-click="(ev) => this.setBorder('clear')">
+                  <span
+                    class="o-line-item o-topbar-hoverable"
+                    t-on-click="(ev) => this.setBorder('clear')">
                     <t t-call="o-spreadsheet-Icon.BORDER_CLEAR"/>
                   </span>
                 </div>
               </div>
             </div>
             <div
-              class="o-tool o-merge-tool"
+              class="o-tool o-topbar-hoverable o-merge-tool"
               title="Merge Cells"
               t-att-class="{active:inMerge, 'o-disabled': cannotMerge}"
               t-on-click="toggleMerge">
@@ -224,7 +251,7 @@
             <div class="o-divider"/>
             <div class="o-dropdown">
               <div
-                class="o-tool o-dropdown-button"
+                class="o-tool o-topbar-hoverable o-dropdown-button"
                 title="Horizontal align"
                 t-on-click="(ev) => this.toggleDropdownTool('horizontalAlignTool', ev)">
                 <span>
@@ -246,19 +273,18 @@
                 t-att-style="dropdownStyle"
                 t-on-click.stop="">
                 <div
-                  class="o-dropdown-item o-dropdown-align-item"
-                  title="Left"
+                  class="o-dropdown-item o-topbar-hoverable o-dropdown-align-item"
                   t-on-click="() => this.toggleHorizontalAlign('left')">
                   <t t-call="o-spreadsheet-Icon.ALIGN_LEFT"/>
                 </div>
                 <div
-                  class="o-dropdown-item o-dropdown-align-item"
+                  class="o-dropdown-item o-dropdown-align-item o-topbar-hoverable"
                   title="Center"
                   t-on-click="() => this.toggleHorizontalAlign('center')">
                   <t t-call="o-spreadsheet-Icon.ALIGN_CENTER"/>
                 </div>
                 <div
-                  class="o-dropdown-item o-dropdown-align-item"
+                  class="o-dropdown-item o-dropdown-align-item o-topbar-hoverable"
                   title="Right"
                   t-on-click="() => this.toggleHorizontalAlign('right')">
                   <t t-call="o-spreadsheet-Icon.ALIGN_RIGHT"/>
@@ -267,7 +293,7 @@
             </div>
             <div class="o-dropdown">
               <div
-                class="o-tool o-dropdown-button"
+                class="o-tool o-topbar-hoverable o-dropdown-button"
                 title="Vertical align"
                 t-on-click="(ev) => this.toggleDropdownTool('verticalAlignTool', ev)">
                 <span>
@@ -289,19 +315,19 @@
                 t-att-style="dropdownStyle"
                 t-on-click.stop="">
                 <div
-                  class="o-dropdown-item o-dropdown-align-item"
+                  class="o-dropdown-item o-dropdown-align-item o-topbar-hoverable"
                   title="Top"
                   t-on-click="() => this.toggleVerticalAlign('top')">
                   <t t-call="o-spreadsheet-Icon.ALIGN_TOP"/>
                 </div>
                 <div
-                  class="o-dropdown-item o-dropdown-align-item"
+                  class="o-dropdown-item o-dropdown-align-item o-topbar-hoverable"
                   title="Middle"
                   t-on-click="() => this.toggleVerticalAlign('middle')">
                   <t t-call="o-spreadsheet-Icon.ALIGN_MIDDLE"/>
                 </div>
                 <div
-                  class="o-dropdown-item o-dropdown-align-item"
+                  class="o-dropdown-item o-dropdown-align-item o-topbar-hoverable"
                   title="Bottom"
                   t-on-click="() => this.toggleVerticalAlign('bottom')">
                   <t t-call="o-spreadsheet-Icon.ALIGN_BOTTOM"/>
@@ -310,7 +336,7 @@
             </div>
             <div class="o-dropdown">
               <div
-                class="o-tool o-dropdown-button"
+                class="o-tool o-topbar-hoverable o-dropdown-button"
                 title="Text wrapping"
                 t-on-click="(ev) => this.toggleDropdownTool('textWrappingTool', ev)">
                 <span>
@@ -332,19 +358,19 @@
                 t-att-style="dropdownStyle"
                 t-on-click.stop="">
                 <div
-                  class="o-dropdown-item o-dropdown-align-item"
+                  class="o-dropdown-item o-dropdown-align-item o-topbar-hoverable"
                   title="Overflow"
                   t-on-click="() => this.toggleTextWrapping('overflow')">
                   <t t-call="o-spreadsheet-Icon.WRAPPING_OVERFLOW"/>
                 </div>
                 <div
-                  class="o-dropdown-item o-dropdown-align-item"
+                  class="o-dropdown-item o-dropdown-align-item o-topbar-hoverable"
                   title="Wrap"
                   t-on-click="() => this.toggleTextWrapping('wrap')">
                   <t t-call="o-spreadsheet-Icon.WRAPPING_WRAP"/>
                 </div>
                 <div
-                  class="o-dropdown-item o-dropdown-align-item"
+                  class="o-dropdown-item o-dropdown-align-item o-topbar-hoverable"
                   title="Clip"
                   t-on-click="() => this.toggleTextWrapping('clip')">
                   <t t-call="o-spreadsheet-Icon.WRAPPING_CLIP"/>
@@ -354,14 +380,14 @@
             <div class="o-divider"/>
             <div
               t-if="selectionContainsFilter"
-              class="o-tool o-filter-tool o-tool-outlined"
+              class="o-tool o-topbar-hoverable o-filter-tool active"
               title="Remove selected filters"
               t-on-click="removeFilter">
               <t t-call="o-spreadsheet-Icon.FILTER_ICON_ACTIVE"/>
             </div>
             <div
               t-else=""
-              class="o-tool o-filter-tool"
+              class="o-tool o-topbar-hoverable o-filter-tool"
               t-att-class="{'o-disabled': cannotCreateFilter}"
               title="Create a filter"
               t-on-click="createFilter">

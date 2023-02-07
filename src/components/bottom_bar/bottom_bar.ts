@@ -1,5 +1,5 @@
 import { Component, onWillUnmount, onWillUpdateProps, useRef, useState } from "@odoo/owl";
-import { BACKGROUND_GRAY_COLOR, HEADER_WIDTH } from "../../constants";
+import { BACKGROUND_GRAY_COLOR, HEADER_WIDTH, TEXT_HEADER_COLOR } from "../../constants";
 import { deepEquals } from "../../helpers";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
 import { MenuMouseEvent, Pixel, Rect, SpreadsheetChildEnv, UID } from "../../types";
@@ -19,6 +19,7 @@ const MENU_MAX_HEIGHT = 250;
 
 css/* scss */ `
   .o-spreadsheet-bottom-bar {
+    color: ${TEXT_HEADER_COLOR};
     background-color: ${BACKGROUND_GRAY_COLOR};
     padding-left: ${HEADER_WIDTH}px;
     font-size: 15px;

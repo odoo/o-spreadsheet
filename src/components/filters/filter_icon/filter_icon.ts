@@ -12,20 +12,10 @@ const CSS = css/* scss */ `
     justify-content: center;
     width: ${FILTER_ICON_EDGE_LENGTH}px;
     height: ${FILTER_ICON_EDGE_LENGTH}px;
-
-    svg {
-      path {
-        fill: ${FILTERS_COLOR};
-      }
-    }
   }
   .o-filter-icon:hover {
     background: ${FILTERS_COLOR};
-    svg {
-      path {
-        fill: white;
-      }
-    }
+    color: #fff;
   }
 `;
 

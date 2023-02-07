@@ -80,7 +80,7 @@ exports[`Standalone context menu tests Context Menu context menu simple renderin
         class="o-icon"
       >
         <polygon
-          fill="#000000"
+          fill="currentColor"
           points="0 0 4 4 0 8"
           transform="translate(5 5)"
         />
@@ -138,7 +138,7 @@ exports[`Standalone context menu tests Context Menu context menu simple renderin
         class="o-icon"
       >
         <polygon
-          fill="#000000"
+          fill="currentColor"
           points="0 0 4 4 0 8"
           transform="translate(5 5)"
         />
@@ -196,7 +196,7 @@ exports[`Standalone context menu tests Context Menu context menu simple renderin
         class="o-icon"
       >
         <polygon
-          fill="#000000"
+          fill="currentColor"
           points="0 0 4 4 0 8"
           transform="translate(5 5)"
         />
