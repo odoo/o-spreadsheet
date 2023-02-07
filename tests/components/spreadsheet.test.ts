@@ -169,6 +169,10 @@ describe("Simple Spreadsheet Component", () => {
     const hScrollbarZIndex = getZIndex(".o-scrollbar.horizontal");
     const scrollbarCornerZIndex = getZIndex(".o-scrollbar.corner");
 
+    triggerMouseEvent(".o-dropdown-button", "click");
+    await nextTick();
+    const dropDownZIndex = getZIndex(".o-dropdown-content");
+
     await rightClickCell(model, "A1");
     const contextMenuZIndex = getZIndex(".o-popover");
 
@@ -191,7 +195,8 @@ describe("Simple Spreadsheet Component", () => {
     expect(figureZIndex).toBeLessThan(vScrollbarZIndex);
     expect(vScrollbarZIndex).toEqual(hScrollbarZIndex);
     expect(hScrollbarZIndex).toEqual(scrollbarCornerZIndex);
-    expect(scrollbarCornerZIndex).toBeLessThan(gridComposerZIndex);
+    expect(scrollbarCornerZIndex).toBeLessThan(dropDownZIndex);
+    expect(dropDownZIndex).toBeLessThan(gridComposerZIndex);
     expect(gridComposerZIndex).toBeLessThan(colorPickerZIndex);
     expect(colorPickerZIndex).toBeLessThan(contextMenuZIndex);
     expect(contextMenuZIndex).toBeLessThan(figureAnchorZIndex);
