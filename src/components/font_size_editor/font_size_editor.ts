@@ -1,5 +1,5 @@
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
-import { DEFAULT_FONT_SIZE, FONT_SIZES } from "../../constants";
+import { DEFAULT_FONT_SIZE, FONT_SIZES, SELECTION_BORDER_COLOR } from "../../constants";
 import { clip } from "../../helpers/index";
 import { setStyle } from "../../registries/index";
 import { SpreadsheetChildEnv } from "../../types/index";
@@ -21,6 +21,7 @@ interface Props {
 css/* scss */ `
   .o-font-size-editor {
     input.o-font-size {
+      outline-color: ${SELECTION_BORDER_COLOR};
       height: 20px;
       width: 23px;
     }

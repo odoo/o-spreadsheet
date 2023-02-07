@@ -40,6 +40,7 @@ const CSS = css/* scss */ `
     .o-search-icon {
       right: 5px;
       top: 4px;
+      opacity: 0.4;
 
       svg {
         height: 16px;

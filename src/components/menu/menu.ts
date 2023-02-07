@@ -1,5 +1,6 @@
 import { Component, onWillUpdateProps, useExternalListener, useRef, useState } from "@odoo/owl";
 import {
+  BG_HOVER_COLOR,
   MENU_ITEM_DISABLED_COLOR,
   MENU_ITEM_HEIGHT,
   MENU_SEPARATOR_HEIGHT,
@@ -55,7 +56,7 @@ css/* scss */ `
       &:not(.disabled) {
         &:hover,
         &.o-menu-item-active {
-          background-color: #ebebeb;
+          background-color: ${BG_HOVER_COLOR};
         }
         .o-menu-item-description {
           color: grey;

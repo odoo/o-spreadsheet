@@ -483,12 +483,12 @@ describe("TopBar component", () => {
     await mountParent();
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     const menuItem = fixture.querySelector(".o-topbar-menu[data-id='edit']");
-    expect(menuItem?.classList).not.toContain("o-topbar-menu-active");
+    expect(menuItem?.classList).not.toContain("active");
     await click(fixture, ".o-topbar-menu[data-id='edit']");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
-    expect(menuItem?.classList).toContain("o-topbar-menu-active");
+    expect(menuItem?.classList).toContain("active");
     await click(fixture.querySelectorAll(".o-menu-item")[0]);
-    expect(menuItem?.classList).not.toContain("o-topbar-menu-active");
+    expect(menuItem?.classList).not.toContain("active");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
   });
 

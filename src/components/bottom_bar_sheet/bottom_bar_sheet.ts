@@ -9,7 +9,6 @@ import { css } from "../helpers/css";
 
 css/* scss */ `
   .o-sheet {
-    color: #666;
     padding: 0 15px;
     padding-right: 10px;
     height: ${BOTTOMBAR_HEIGHT}px;
