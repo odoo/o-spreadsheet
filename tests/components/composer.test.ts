@@ -1,15 +1,10 @@
-import { Component, onMounted, onWillUnmount, useState, xml } from "@odoo/owl";
 import {
-  Composer,
-  ComposerProps,
   selectionIndicatorClass,
   tokenColors,
 } from "../../src/components/composer/composer/composer";
-import { ComposerFocusType } from "../../src/components/spreadsheet/spreadsheet";
 import { colors, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { ComposerSelection } from "../../src/plugins/ui_stateful";
-import { Highlight, SpreadsheetChildEnv } from "../../src/types";
+import { Highlight } from "../../src/types";
 import { getClipboardEvent, MockClipboardData } from "../test_helpers/clipboard";
 import {
   createSheet,
@@ -26,7 +21,12 @@ import {
   getEvaluatedCell,
   getSelectionAnchorCellXc,
 } from "../test_helpers/getters_helpers";
-import { mountComponent, nextTick, typeInComposerHelper } from "../test_helpers/helpers";
+import {
+  ComposerWrapper,
+  mountComposerWrapper,
+  nextTick,
+  typeInComposerHelper,
+} from "../test_helpers/helpers";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
@@ -36,63 +36,7 @@ let model: Model;
 let composerEl: Element;
 let fixture: HTMLElement;
 let cehMock: ContentEditableHelper;
-let parent: Parent;
-
-type Props = {
-  focusComposer: ComposerFocusType;
-  composerProps: Partial<ComposerProps>;
-};
-class Parent extends Component<Props, SpreadsheetChildEnv> {
-  static components = { Composer };
-  static template = xml/*xml*/ `
-    <Composer t-props="composerProps"/>
-  `;
-  state = useState({ focusComposer: <ComposerFocusType>"inactive" });
-  setup() {
-    this.state.focusComposer = this.props.focusComposer;
-    onMounted(() => this.env.model.on("update", this, () => this.render(true)));
-    onWillUnmount(() => this.env.model.off("update", this));
-  }
-
-  get composerProps(): ComposerProps {
-    return {
-      onComposerContentFocused: (selection) => {
-        this.state.focusComposer = "contentFocus";
-        this.setEdition({ selection });
-        this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", selection);
-      },
-      focus: this.state.focusComposer,
-      ...this.props.composerProps,
-    };
-  }
-
-  setEdition({ text, selection }: { text?: string; selection?: ComposerSelection }) {
-    if (this.env.model.getters.getEditionMode() === "inactive") {
-      this.env.model.dispatch("START_EDITION", { text, selection });
-    } else if (text) {
-      this.env.model.dispatch("SET_CURRENT_CONTENT", { content: text, selection });
-    }
-  }
-
-  startComposition(text?: string) {
-    this.state.focusComposer = text ? "contentFocus" : "cellFocus";
-    this.setEdition({ text });
-  }
-}
-
-async function mountParent(
-  model: Model = new Model(),
-  composerProps: Partial<ComposerProps> = {},
-  focusComposer: ComposerFocusType = "inactive"
-): Promise<{ parent: Parent; model: Model }> {
-  let parent: Component;
-  ({ parent, fixture } = await mountComponent(Parent, {
-    props: { composerProps, focusComposer },
-    model,
-  }));
-
-  return { parent: parent as Parent, model };
-}
+let parent: ComposerWrapper;
 
 function getHighlights(model: Model): Highlight[] {
   return model.getters.getHighlights();
@@ -127,7 +71,7 @@ async function moveToEnd() {
 }
 
 beforeEach(async () => {
-  ({ model, parent } = await mountParent());
+  ({ model, parent, fixture } = await mountComposerWrapper());
 });
 
 describe("ranges and highlights", () => {

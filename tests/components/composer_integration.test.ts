@@ -40,7 +40,7 @@ import {
   startGridComposition,
   toRangesData,
   typeInComposerGrid as typeInComposerGridHelper,
-  typeInComposerTopBar,
+  typeInComposerTopBar as typeInComposerTopBarHelper,
 } from "../test_helpers/helpers";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 
@@ -61,6 +61,13 @@ async function startComposition(key?: string) {
 
 async function typeInComposerGrid(text: string, fromScratch: boolean = true) {
   const composerEl = await typeInComposerGridHelper(text, fromScratch);
+  // @ts-ignore
+  cehMock = window.mockContentHelper;
+  return composerEl;
+}
+
+async function typeInComposerTopBar(text: string, fromScratch: boolean = true) {
+  const composerEl = await typeInComposerTopBarHelper(text, fromScratch);
   // @ts-ignore
   cehMock = window.mockContentHelper;
   return composerEl;
@@ -410,6 +417,12 @@ describe("Composer interactions", () => {
     await simulateClick(gridComposerElement);
     expect(document.activeElement).toBe(gridComposerElement);
   });
+
+  test("=sum(sum(1,2) + click outside composer should add the missing parenthesis", async () => {
+    await typeInComposerGrid("=sum(sum(1,2");
+    await clickCell(model, "B2");
+    expect(getCellText(model, "A1")).toBe("=sum(sum(1,2))");
+  });
 });
 
 describe("Grid composer", () => {
@@ -614,5 +627,18 @@ describe("Grid composer", () => {
       expect(toHex(gridComposer.style.color)).toBe("#000000");
       expect(toHex(gridComposer.style.background)).toBe("#FFFFFF");
     });
+  });
+});
+
+describe("TopBar composer", () => {
+  test("click on a autocomplete with multi-line topbar composer does the autocomplete", async () => {
+    ({ model, fixture } = await mountSpreadsheet());
+    const composerEl = await typeInComposerTopBar("=\nS");
+    await click(fixture, ".o-autocomplete-dropdown > div:nth-child(2)");
+    expect(composerEl.textContent).toBe("=\nSLN(");
+    expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
+    expect(cehMock.selectionState.position).toBe(6);
+    expect(document.activeElement).toBe(composerEl);
+    expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
   });
 });

@@ -1,16 +1,16 @@
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/index";
-import { toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { selectCell } from "../test_helpers/commands_helpers";
-import { click, clickCell, keyDown, simulateClick } from "../test_helpers/dom_helper";
+import { click, keyDown, simulateClick } from "../test_helpers/dom_helper";
 import { getCellText } from "../test_helpers/getters_helpers";
 import {
   clearFunctions,
-  mountSpreadsheet,
+  ComposerWrapper,
+  mountComposerWrapper,
   nextTick,
   restoreDefaultFunctions,
-  typeInComposerGrid as typeInComposerGridHelper,
-  typeInComposerTopBar as typeInComposerTopBarHelper,
+  typeInComposerHelper,
 } from "../test_helpers/helpers";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
@@ -21,32 +21,25 @@ let model: Model;
 let composerEl: Element;
 let fixture: HTMLElement;
 let cehMock: ContentEditableHelper;
+let parent: ComposerWrapper;
 
-async function typeInComposerGrid(text: string, fromScratch: boolean = true) {
-  const composerEl = await typeInComposerGridHelper(text, fromScratch);
+async function typeInComposer(text: string, fromScratch: boolean = true) {
+  if (fromScratch) {
+    parent.startComposition();
+  }
+  const composerEl = await typeInComposerHelper("div.o-composer", text, false);
   // @ts-ignore
   cehMock = window.mockContentHelper;
   return composerEl;
 }
-
-async function typeInComposerTopBar(text: string, fromScratch: boolean = true) {
-  const composerEl = await typeInComposerTopBarHelper(text, fromScratch);
-  // @ts-ignore
-  cehMock = window.mockContentHelper;
-  return composerEl;
-}
-
-// TODO improve the test setup to only instantiate a composer
-beforeEach(async () => {
-  ({ model, fixture } = await mountSpreadsheet());
-
-  // start composition
-  await keyDown({ key: "Enter" });
-  composerEl = fixture.querySelector(".o-grid div.o-composer")!;
-});
 
 describe("Functions autocomplete", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    ({ model, fixture, parent } = await mountComposerWrapper());
+    // start composition
+    parent.startComposition();
+    await nextTick();
+    composerEl = fixture.querySelector("div.o-composer")!;
     clearFunctions();
     functionRegistry.add("IF", {
       description: "do if",
@@ -81,33 +74,33 @@ describe("Functions autocomplete", () => {
 
   describe("autocomplete", () => {
     test("= do not show autocomplete", async () => {
-      await typeInComposerGrid("=");
+      await typeInComposer("=");
       const activeElement = document.activeElement;
       expect(activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
     });
 
     test("=HI do not show autocomplete when entering hidden function names", async () => {
-      await typeInComposerGrid("=HI");
+      await typeInComposer("=HI");
       const activeElement = document.activeElement;
       expect(activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
     });
 
     test("simple snapshot with =S", async () => {
-      await typeInComposerGrid("=S");
+      await typeInComposer("=S");
       expect(fixture.querySelector(".o-autocomplete-dropdown")).toMatchSnapshot();
     });
 
     test("=S show autocomplete functions starting with S", async () => {
-      await typeInComposerGrid("=S");
+      await typeInComposer("=S");
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(2);
       expect(fixture.querySelectorAll(".o-autocomplete-value")[0].textContent).toBe("SUM");
       expect(fixture.querySelectorAll(".o-autocomplete-value")[1].textContent).toBe("SZZ");
     });
 
     test("=S+TAB complete the function --> =SUM(␣", async () => {
-      await typeInComposerGrid("=S");
+      await typeInComposer("=S");
       await keyDown({ key: "Tab" });
       expect(composerEl.textContent).toBe("=SUM(");
       expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
@@ -115,7 +108,7 @@ describe("Functions autocomplete", () => {
     });
 
     test("=S+ENTER complete the function --> =SUM(␣", async () => {
-      await typeInComposerGrid("=S");
+      await typeInComposer("=S");
       await keyDown({ key: "Enter" });
       expect(composerEl.textContent).toBe("=SUM(");
       expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
@@ -123,18 +116,18 @@ describe("Functions autocomplete", () => {
     });
 
     test("=SX not show autocomplete (nothing matches SX)", async () => {
-      await typeInComposerGrid("=SX");
+      await typeInComposer("=SX");
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
     });
 
     test("=SX+TAB does not autocomplete anything and moves to the cell down", async () => {
-      await typeInComposerGrid("=SX");
+      await typeInComposer("=SX");
       await keyDown({ key: "Tab" });
       expect(getCellText(model, "A1")).toBe("=SX");
     });
 
     test("=S+UP cycle to the last item", async () => {
-      await typeInComposerGrid("=S");
+      await typeInComposer("=S");
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SUM");
@@ -145,7 +138,7 @@ describe("Functions autocomplete", () => {
     });
 
     test("=+DOWN+UP move to next/previous autocomplete", async () => {
-      await typeInComposerGrid("=S");
+      await typeInComposer("=S");
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SUM");
@@ -160,7 +153,7 @@ describe("Functions autocomplete", () => {
     });
 
     test("=+DOWN+DOWN cycle to the first item", async () => {
-      await typeInComposerGrid("=S");
+      await typeInComposer("=S");
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SUM");
@@ -184,12 +177,12 @@ describe("Functions autocomplete", () => {
         });
       }
 
-      await typeInComposerGrid("=S");
+      await typeInComposer("=S");
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(10);
     });
 
     test("click on a autocomplete does the autocomplete", async () => {
-      await typeInComposerGrid("=S");
+      await typeInComposer("=S");
       await click(fixture, ".o-autocomplete-dropdown > div:nth-child(2)");
       expect(composerEl.textContent).toBe("=SZZ(");
       expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
@@ -207,7 +200,7 @@ describe("Functions autocomplete", () => {
           returns: ["ANY"],
         });
       }
-      await typeInComposerGrid("=FUZZY");
+      await typeInComposer("=FUZZY");
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(4);
       expect(fixture.querySelectorAll(".o-autocomplete-value")[0].textContent).toBe("FUZZY");
       expect(fixture.querySelectorAll(".o-autocomplete-value")[1].textContent).toBe("FUZZY_TEST");
@@ -217,18 +210,8 @@ describe("Functions autocomplete", () => {
       );
     });
 
-    test("click on a autocomplete with multi-line topbar composer does the autocomplete", async () => {
-      await typeInComposerTopBar("=\nS");
-      await click(fixture, ".o-autocomplete-dropdown > div:nth-child(2)");
-      expect(composerEl.textContent).toBe("=\nSZZ(");
-      expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-      expect(cehMock.selectionState.position).toBe(6);
-      expect(document.activeElement).toBe(composerEl);
-      expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
-    });
-
     test("Mouse events on the autocomplete dropdown don't make the composer loose focus", async () => {
-      await typeInComposerGrid("=S");
+      await typeInComposer("=S");
       const activeElement = document.activeElement;
       expect(activeElement?.classList).toContain("o-composer");
 
@@ -242,27 +225,27 @@ describe("Functions autocomplete", () => {
 
   describe("autocomplete functions SUM IF", () => {
     test("empty not show autocomplete", async () => {
-      await typeInComposerGrid("");
+      await typeInComposer("");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
     });
     test("=a3 not show autocomplete (its a ref)", async () => {
-      await typeInComposerGrid("=a3");
+      await typeInComposer("=a3");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
     });
     test("=a3+ does not show autocomplete (we didn't start typing on the next token", async () => {
-      await typeInComposerGrid("=a3+");
+      await typeInComposer("=a3+");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
     });
     test("=sum(s show autocomplete", async () => {
-      await typeInComposerGrid("=sum(s");
+      await typeInComposer("=sum(s");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(2);
     });
     test("= and CTRL+Space show autocomplete", async () => {
-      await typeInComposerGrid("=");
+      await typeInComposer("=");
       await keyDown({ key: " ", ctrlKey: true });
       //TODO Need a second nextTick to wait the re-render of SelectionInput (onMounted => uuid assignation). But why not before ?
       await nextTick();
@@ -273,7 +256,7 @@ describe("Functions autocomplete", () => {
       expect(cehMock.selectionState.position).toBe(4);
     });
     test("= and CTRL+Space & DOWN move to next autocomplete", async () => {
-      await typeInComposerGrid("=");
+      await typeInComposer("=");
       await keyDown({ key: " ", ctrlKey: true });
       await keyDown({ key: "ArrowDown" });
       expect(
@@ -306,37 +289,45 @@ describe("Autocomplete parenthesis", () => {
     });
   });
 
+  beforeEach(async () => {
+    ({ model, fixture, parent } = await mountComposerWrapper());
+    // start composition
+    parent.startComposition();
+    await nextTick();
+    composerEl = fixture.querySelector("div.o-composer")!;
+  });
+
   afterAll(() => {
     restoreDefaultFunctions();
   });
 
   test("=sum(1,2 + enter adds closing parenthesis", async () => {
-    await typeInComposerGrid("=sum(1,2");
+    await typeInComposer("=sum(1,2");
     await keyDown({ key: "Enter" });
     expect(getCellText(model, "A1")).toBe("=sum(1,2)");
   });
 
   test("=sum(1,2) + enter + edit sum does not add parenthesis", async () => {
-    await typeInComposerGrid("=sum(1,2)");
+    await typeInComposer("=sum(1,2)");
     await keyDown({ key: "Enter" });
     selectCell(model, "A1");
     //edit A1
-    await keyDown({ key: "Enter" });
-
+    parent.setEdition({});
     model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 4 });
     await nextTick();
-    await typeInComposerGrid("if");
+
+    await typeInComposer("if", false);
     expect(model.getters.getCurrentContent()).toBe("=if(1,2)");
   });
 
   test("=S( + edit S with autocomplete does not add left parenthesis", async () => {
-    await typeInComposerGrid("=S(");
+    await typeInComposer("=S(");
     // go behind the letter "S"
     model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 2, end: 2 });
     await nextTick();
     // show autocomplete
-    await typeInComposerGrid("U", false);
+    await typeInComposer("U", false);
     expect(model.getters.getCurrentContent()).toBe("=SU(");
     expect(model.getters.getComposerSelection()).toEqual({ start: 3, end: 3 });
     expect(document.activeElement).toBe(composerEl);
@@ -350,31 +341,25 @@ describe("Autocomplete parenthesis", () => {
   });
 
   test("=sum(sum(1,2 + enter add 2 closing parenthesis", async () => {
-    await typeInComposerGrid("=sum(sum(1,2");
+    await typeInComposer("=sum(sum(1,2");
     await keyDown({ key: "Enter" });
     expect(getCellText(model, "A1")).toBe("=sum(sum(1,2))");
   });
 
   test("=sum(sum(1,2) + enter add 1 closing parenthesis", async () => {
-    await typeInComposerGrid("=sum(sum(1,2");
+    await typeInComposer("=sum(sum(1,2");
     await keyDown({ key: "Enter" });
     expect(getCellText(model, "A1")).toBe("=sum(sum(1,2))");
   });
 
-  test("=sum(sum(1,2) + click outside composer should add the missing parenthesis", async () => {
-    await typeInComposerGrid("=sum(sum(1,2");
-    await clickCell(model, "B2");
-    expect(getCellText(model, "A1")).toBe("=sum(sum(1,2))");
-  });
-
   test('=sum("((((((((") + enter should not complete the parenthesis in the string', async () => {
-    await typeInComposerGrid('=sum("((((((((")');
+    await typeInComposer('=sum("((((((((")');
     await keyDown({ key: "Enter" });
     expect(getCellText(model, "A1")).toBe('=sum("((((((((")');
   });
 
   test("=s + tab should allow to select a ref", async () => {
-    await typeInComposerGrid("=s");
+    await typeInComposer("=s");
     await keyDown({ key: "Tab" });
     expect(model.getters.getEditionMode()).toBe("selecting");
   });
@@ -382,16 +367,19 @@ describe("Autocomplete parenthesis", () => {
 
 describe("composer Assistant", () => {
   test("render below the cell by default", async () => {
-    await typeInComposerGrid("=s");
+    ({ model, fixture, parent } = await mountComposerWrapper());
+    await typeInComposer("=s");
     const assistantEl = fixture.querySelector(".o-composer-assistant")! as HTMLElement;
     expect(assistantEl).toMatchSnapshot();
     expect(assistantEl.style.width).toBe("300px");
   });
 
   test("render above the cell when not enough place below", async () => {
-    const { left, bottom } = model.getters.getActiveMainViewport();
-    selectCell(model, toXC(left, bottom));
-    await typeInComposerGrid("=s");
+    ({ model, fixture, parent } = await mountComposerWrapper(new Model(), {
+      delimitation: { width: 200, height: 200 },
+      rect: { width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT, x: 150, y: 150 },
+    }));
+    await typeInComposer("=s");
     const assistantEL = fixture.querySelector(".o-composer-assistant")! as HTMLElement;
     expect(assistantEL).toMatchSnapshot();
     expect(assistantEL.style.width).toBe("300px");

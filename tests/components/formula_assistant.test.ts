@@ -3,9 +3,11 @@ import { Model } from "../../src/model";
 import { keyDown, keyUp } from "../test_helpers/dom_helper";
 import {
   clearFunctions,
-  mountSpreadsheet,
+  ComposerWrapper,
+  mountComposerWrapper,
+  nextTick,
   restoreDefaultFunctions,
-  typeInComposerGrid,
+  typeInComposerHelper,
 } from "../test_helpers/helpers";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
@@ -14,13 +16,21 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 let model: Model;
 let composerEl: Element;
 let fixture: HTMLElement;
+let parent: ComposerWrapper;
+
+async function typeInComposer(text: string, fromScratch: boolean = true) {
+  if (fromScratch) {
+    parent.startComposition();
+  }
+  await typeInComposerHelper("div.o-composer", text, false);
+}
 
 beforeEach(async () => {
-  ({ model, fixture } = await mountSpreadsheet());
-
+  ({ model, fixture, parent } = await mountComposerWrapper());
   // start composition
-  await keyDown({ key: "Enter" });
-  composerEl = fixture.querySelector(".o-grid div.o-composer")!;
+  parent.startComposition();
+  await nextTick();
+  composerEl = fixture.querySelector("div.o-composer")!;
 });
 
 describe("formula assistant", () => {
@@ -74,85 +84,85 @@ describe("formula assistant", () => {
 
   describe("appearance", () => {
     test("empty not show autocomplete", async () => {
-      await typeInComposerGrid("");
+      await typeInComposer("");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(0);
     });
 
     test("= do not show formula assistant", async () => {
-      await typeInComposerGrid("=");
+      await typeInComposer("=");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(0);
     });
 
     test("=FUNC1( show formula assistant", async () => {
-      await typeInComposerGrid("=FUNC1(");
+      await typeInComposer("=FUNC1(");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(1);
     });
 
     test("=func1( show formula assistant", async () => {
-      await typeInComposerGrid("=func1(");
+      await typeInComposer("=func1(");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(1);
     });
 
     test("FUNC1( do not show formula assistant", async () => {
-      await typeInComposerGrid("FUNC1");
+      await typeInComposer("FUNC1");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(0);
     });
 
     test("=FUNC1 do not show formula assistant", async () => {
-      await typeInComposerGrid("=FUNC1");
+      await typeInComposer("=FUNC1");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(0);
     });
 
     test("=FUN( do not show formula assistant (nothing matches FUN)", async () => {
-      await typeInComposerGrid("=FUN(");
+      await typeInComposer("=FUN(");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(0);
     });
 
     test("=FUNC1) do not show formula assistant", async () => {
-      await typeInComposerGrid("=FUNC1)");
+      await typeInComposer("=FUNC1)");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(0);
     });
 
     test("=FUNC1() do not show formula assistant", async () => {
-      await typeInComposerGrid("=FUNC1()");
+      await typeInComposer("=FUNC1()");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(0);
     });
 
     test("=FUNC1(( do not show formula assistant", async () => {
-      await typeInComposerGrid("=FUNC1((");
+      await typeInComposer("=FUNC1((");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(0);
     });
 
     test("=FUNC1)( do not show formula assistant", async () => {
-      await typeInComposerGrid("=FUNC1)(");
+      await typeInComposer("=FUNC1)(");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(0);
     });
 
     test("=FUNC1(() show formula assistant", async () => {
-      await typeInComposerGrid("=FUNC1(()");
+      await typeInComposer("=FUNC1(()");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(1);
     });
 
     test("=FUNC1()( do not show formula assistant", async () => {
-      await typeInComposerGrid("=FUNC1()(");
+      await typeInComposer("=FUNC1()(");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(0);
     });
 
     test("=FUNC1(FUNC2( show formula assistant for 2nd function", async () => {
-      await typeInComposerGrid("=FUNC1(FUNC2(");
+      await typeInComposer("=FUNC1(FUNC2(");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(1);
       expect(fixture.querySelectorAll(".o-formula-assistant-head span")[0].textContent).toBe(
@@ -161,7 +171,7 @@ describe("formula assistant", () => {
     });
 
     test("=FUNC1(FUNC2() show formula assistant for 1st function", async () => {
-      await typeInComposerGrid("=FUNC1(FUNC2()");
+      await typeInComposer("=FUNC1(FUNC2()");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(1);
       expect(fixture.querySelectorAll(".o-formula-assistant-head span")[0].textContent).toBe(
@@ -170,30 +180,30 @@ describe("formula assistant", () => {
     });
 
     test("=FUNC1(FUNC2 do not show formula assistant", async () => {
-      await typeInComposerGrid("=FUNC1(FUNC2");
+      await typeInComposer("=FUNC1(FUNC2");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(0);
     });
 
     test("=FUNC1(A2 show formula assistant (A2 is a ref)", async () => {
-      await typeInComposerGrid("=FUNC1(A2");
+      await typeInComposer("=FUNC1(A2");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(1);
     });
 
     test("=FUNC1('a, do not show formula assistant (A2 is a ref)", async () => {
-      await typeInComposerGrid("=FUNC1('a,");
+      await typeInComposer("=FUNC1('a,");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(0);
     });
 
     test("simple snapshot with =FUNC1(", async () => {
-      await typeInComposerGrid("=FUNC1(");
+      await typeInComposer("=FUNC1(");
       expect(fixture.querySelector(".o-formula-assistant-container")).toMatchSnapshot();
     });
 
     test("use arrowKey when selection in a function should not display formula assistant", async () => {
-      await typeInComposerGrid("=FUNC1(1,");
+      await typeInComposer("=FUNC1(1,");
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(1);
       await keyDown({ key: "ArrowRight" });
       await keyUp({ key: "ArrowRight" });
@@ -202,35 +212,35 @@ describe("formula assistant", () => {
     });
 
     test("use arrowKey during 'editing' mode in a function should display formula assistant", async () => {
-      await typeInComposerGrid("=FUNC1(1");
+      await typeInComposer("=FUNC1(1");
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(1);
       expect(model.getters.getEditionMode()).toBe("editing");
     });
 
     describe("function definition", () => {
       test("function without argument", async () => {
-        await typeInComposerGrid("=FUNC0(");
+        await typeInComposer("=FUNC0(");
         expect(fixture.querySelectorAll(".o-formula-assistant-head")[0].textContent).toBe(
           "FUNC0 (  ) "
         );
       });
 
       test("normal function", async () => {
-        await typeInComposerGrid("=FUNC1(");
+        await typeInComposer("=FUNC1(");
         expect(fixture.querySelectorAll(".o-formula-assistant-head")[0].textContent).toBe(
           "FUNC1 ( f1Arg1, f1Arg2 ) "
         );
       });
 
       test("function with default argument", async () => {
-        await typeInComposerGrid("=FUNC2(");
+        await typeInComposer("=FUNC2(");
         expect(fixture.querySelectorAll(".o-formula-assistant-head")[0].textContent).toBe(
           "FUNC2 ( f2Arg1, [f2Arg2] ) "
         );
       });
 
       test("function with repeatable argument", async () => {
-        await typeInComposerGrid("=FUNC3(");
+        await typeInComposer("=FUNC3(");
         expect(fixture.querySelectorAll(".o-formula-assistant-head")[0].textContent).toBe(
           "FUNC3 ( f3Arg1, [f3Arg2, ...] ) "
         );
@@ -239,12 +249,12 @@ describe("formula assistant", () => {
 
     describe("arguments description", () => {
       test("function without argument", async () => {
-        await typeInComposerGrid("=FUNC0(");
+        await typeInComposer("=FUNC0(");
         expect(fixture.querySelectorAll(".o-formula-assistant-arg")).toHaveLength(0);
       });
 
       test("normal argument", async () => {
-        await typeInComposerGrid("=FUNC1(");
+        await typeInComposer("=FUNC1(");
         expect(fixture.querySelectorAll(".o-formula-assistant-arg")).toHaveLength(2);
         expect(fixture.querySelectorAll(".o-formula-assistant-arg div")[2].textContent).toBe(
           "f1Arg2"
@@ -255,7 +265,7 @@ describe("formula assistant", () => {
       });
 
       test("function with default argument", async () => {
-        await typeInComposerGrid("=FUNC2(");
+        await typeInComposer("=FUNC2(");
         expect(fixture.querySelectorAll(".o-formula-assistant-arg")).toHaveLength(2);
         expect(fixture.querySelectorAll(".o-formula-assistant-arg div")[2].textContent).toBe(
           "f2Arg2 - [optional] default: TRUE"
@@ -266,7 +276,7 @@ describe("formula assistant", () => {
       });
 
       test("function with repeatable argument", async () => {
-        await typeInComposerGrid("=FUNC3(");
+        await typeInComposer("=FUNC3(");
         expect(fixture.querySelectorAll(".o-formula-assistant-arg")).toHaveLength(2);
         expect(fixture.querySelectorAll(".o-formula-assistant-arg div")[2].textContent).toBe(
           "f3Arg2 - [optional] repeatable"
@@ -280,7 +290,7 @@ describe("formula assistant", () => {
 
   describe("focus argument", () => {
     test("=FUNC1( focus index on 1st arg", async () => {
-      await typeInComposerGrid("=FUNC1(");
+      await typeInComposer("=FUNC1(");
       expect(
         fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
           .textContent
@@ -288,7 +298,7 @@ describe("formula assistant", () => {
     });
 
     test("=FUNC1(42 focus index on 1st arg", async () => {
-      await typeInComposerGrid("=FUNC1(42");
+      await typeInComposer("=FUNC1(42");
       expect(
         fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
           .textContent
@@ -296,8 +306,8 @@ describe("formula assistant", () => {
     });
 
     test("=FUNC1(42 then add ',' focus index on 2nd arg", async () => {
-      await typeInComposerGrid("=FUNC1(42");
-      await typeInComposerGrid(",");
+      await typeInComposer("=FUNC1(42");
+      await typeInComposer(",");
       expect(
         fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
           .textContent
@@ -305,7 +315,7 @@ describe("formula assistant", () => {
     });
 
     test("=FUNC1(42, focus index on 2nd arg", async () => {
-      await typeInComposerGrid("=FUNC1(42,");
+      await typeInComposer("=FUNC1(42,");
       expect(
         fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
           .textContent
@@ -313,7 +323,7 @@ describe("formula assistant", () => {
     });
 
     test("functions with more arguments than allowed do not have focus", async () => {
-      await typeInComposerGrid("=FUNC1(42, 24, 22");
+      await typeInComposer("=FUNC1(42, 24, 22");
       expect(
         fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")
       ).toHaveLength(0);
@@ -321,7 +331,7 @@ describe("formula assistant", () => {
 
     describe("functions with repeatable argument always have a focus", () => {
       test("=FUNC3(84, focus on 2nd argument", async () => {
-        await typeInComposerGrid("=FUNC3(84,");
+        await typeInComposer("=FUNC3(84,");
         expect(
           fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
             .textContent
@@ -329,7 +339,7 @@ describe("formula assistant", () => {
       });
 
       test("=FUNC3(84, 42, focus on 2nd argument", async () => {
-        await typeInComposerGrid("=FUNC3(84, 42,");
+        await typeInComposer("=FUNC3(84, 42,");
         expect(
           fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
             .textContent
@@ -339,7 +349,7 @@ describe("formula assistant", () => {
 
     describe("functions with more than one repeatable argument have an alternate focus", () => {
       test("=UPTOWNFUNC(1, 2, focus on 3th argument", async () => {
-        await typeInComposerGrid("=UPTOWNFUNC(1, 2,");
+        await typeInComposer("=UPTOWNFUNC(1, 2,");
         expect(
           fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
             .textContent
@@ -347,7 +357,7 @@ describe("formula assistant", () => {
       });
 
       test("=UPTOWNFUNC(1, 2, 3, focus on 2nd argument", async () => {
-        await typeInComposerGrid("=UPTOWNFUNC(1, 2, 3,");
+        await typeInComposer("=UPTOWNFUNC(1, 2, 3,");
         expect(
           fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
             .textContent
@@ -355,7 +365,7 @@ describe("formula assistant", () => {
       });
 
       test("=UPTOWNFUNC(1, 2, 3, 4,  focus on 3th argument", async () => {
-        await typeInComposerGrid("=UPTOWNFUNC(1, 2, 3, 4,");
+        await typeInComposer("=UPTOWNFUNC(1, 2, 3, 4,");
         expect(
           fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
             .textContent
@@ -363,7 +373,7 @@ describe("formula assistant", () => {
       });
 
       test("=UPTOWNFUNC(1, 2, 3, 4, 5, focus on 4th argument", async () => {
-        await typeInComposerGrid("=UPTOWNFUNC(1, 2, 3, 4, 5,");
+        await typeInComposer("=UPTOWNFUNC(1, 2, 3, 4, 5,");
         expect(
           fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
             .textContent
