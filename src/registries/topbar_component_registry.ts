@@ -6,7 +6,7 @@ import { SpreadsheetChildEnv } from "../types/env";
 //------------------------------------------------------------------------------
 // Topbar Component Registry
 //------------------------------------------------------------------------------
-interface TopbarComponent {
+export interface TopbarComponent {
   id: UID;
   component: any;
   isVisible?: (env: SpreadsheetChildEnv) => boolean;

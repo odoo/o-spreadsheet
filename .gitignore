@@ -2,6 +2,7 @@ node_modules/
 .idea/
 .vscode/
 dist/
+build/
 .npmrc
 /coverage/
 logs/

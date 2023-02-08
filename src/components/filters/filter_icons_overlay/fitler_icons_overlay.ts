@@ -1,10 +1,8 @@
-import * as owl from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { FILTER_ICON_EDGE_LENGTH, FILTER_ICON_MARGIN } from "../../../constants";
 import { DOMCoordinates, HeaderIndex, Position, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
 import { FilterIcon } from "../filter_icon/filter_icon";
-
-const { Component } = owl;
 
 const CSS = css/* scss */ ``;
 
