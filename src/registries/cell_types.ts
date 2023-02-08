@@ -8,7 +8,7 @@ import { Cell, CellDisplayProperties, CoreGetters, Format, UID } from "../types"
 /**
  * Instanciate a cell object based on a raw string content.
  */
-interface CellBuilder {
+export interface CellBuilder {
   sequence: number;
   /**
    * Check if this factory should be used

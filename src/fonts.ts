@@ -1,4 +1,4 @@
-interface FontSize {
+export interface FontSize {
   pt: number;
   px: number;
 }

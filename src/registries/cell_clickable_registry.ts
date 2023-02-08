@@ -2,7 +2,7 @@ import { LinkCell } from "../helpers/cells";
 import { Registry } from "../registry";
 import { Cell, SpreadsheetChildEnv } from "../types";
 
-interface CellClickableItem {
+export interface CellClickableItem {
   condition: (cell: Cell, env: SpreadsheetChildEnv) => boolean;
   action: (cell: Cell, env: SpreadsheetChildEnv) => void;
   sequence: number;
