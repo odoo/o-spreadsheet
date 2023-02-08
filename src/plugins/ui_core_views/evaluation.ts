@@ -1,4 +1,5 @@
 import { compile } from "../../formulas/index";
+import { toNumber } from "../../functions/helpers";
 import { functionRegistry } from "../../functions/index";
 import { createEvaluatedCell, errorCell, evaluateLiteral } from "../../helpers/cells";
 import {
@@ -80,7 +81,7 @@ export class EvaluationPlugin extends UIPlugin {
   constructor(config: UIPluginConfig) {
     super(config);
     this.evalContext = config.custom;
-    this.lazyEvaluation = false; // config.lazyEvaluation;
+    this.lazyEvaluation = config.lazyEvaluation;
   }
 
   // ---------------------------------------------------------------------------
@@ -133,14 +134,17 @@ export class EvaluationPlugin extends UIPlugin {
   }
 
   private cellPositionToXc(position: CellPosition): string {
-    const sheetName = this.getters.getSheetName(position.sheetId);
-    return `${sheetName}!${toXC(position.col, position.row)}`;
+    //const sheetName = this.getters.getSheetName(position.sheetId);
+    //return `${sheetName}!${toXC(position.col, position.row)}`;
+    return `${position.sheetId}-${position.col}-${position.row}`;
   }
 
   private XcToCell(xc: string): Cell | undefined {
-    const sheetId = this.getters.getSheetIdByName(xc.split("!")[0]) || "";
-    const { col, row } = toCartesian(xc.split("!")[1]);
-    return this.getters.getCell({ sheetId, col, row });
+    const [sheetId, col, row] = xc.split("-");
+    return this.getters.getCell({ sheetId, col: toNumber(col), row: toNumber(row) });
+    //const sheetId = this.getters.getSheetIdByName(xc.split("!")[0]) || "";
+    //const { col, row } = toCartesian(xc.split("!")[1]);
+    //return this.getters.getCell({ sheetId, col, row });
   }
 
   private setEvaluatedCell(xc: string, evaluatedCell: Lazy<EvaluatedCell>) {
