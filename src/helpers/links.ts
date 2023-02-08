@@ -14,7 +14,7 @@ export function withHttps(url: string): string {
 // URL Registry
 //------------------------------------------------------------------------------
 
-interface LinkSpec {
+export interface LinkSpec {
   readonly match: (url: string) => boolean;
   readonly createLink: (url: string, label: string) => Link;
   /**

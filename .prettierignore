@@ -8,6 +8,8 @@ LICENSE
 .idea/
 .vscode/
 dist/
+build/
+.gitignore
 .npmrc
 coverage/
 logs/

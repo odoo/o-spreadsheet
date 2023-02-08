@@ -6,7 +6,7 @@ import { Registry } from "./registry";
 //------------------------------------------------------------------------------
 // Topbar Component Registry
 //------------------------------------------------------------------------------
-interface TopbarComponent {
+export interface TopbarComponent {
   id: UID;
   component: any;
   isVisible?: (env: SpreadsheetChildEnv) => boolean;

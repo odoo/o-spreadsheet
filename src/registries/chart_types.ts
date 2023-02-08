@@ -41,7 +41,7 @@ import { Registry } from "./registry";
 /**
  * Instantiate a chart object based on a definition
  */
-interface ChartBuilder {
+export interface ChartBuilder {
   /**
    * Check if this factory should be used
    */
