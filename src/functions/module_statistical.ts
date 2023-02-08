@@ -186,7 +186,7 @@ export const AVERAGE: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   computeFormat: (value1: Arg) => {
-    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+    return Array.isArray(value1?.format) ? value1.format[0][0] : value1?.format;
   },
   compute: function (...values: ArgValue[]): number {
     let count = 0;
@@ -228,7 +228,7 @@ export const AVERAGE_WEIGHTED: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   computeFormat: (values: Arg) => {
-    return Array.isArray(values) ? values[0][0]?.format : values?.format;
+    return Array.isArray(values?.format) ? values.format[0][0] : values?.format;
   },
   compute: function (...values: ArgValue[]): number {
     let sum = 0;
@@ -308,7 +308,7 @@ export const AVERAGEA: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   computeFormat: (value1: Arg) => {
-    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+    return Array.isArray(value1?.format) ? value1.format[0][0] : value1?.format;
   },
   compute: function (...values: ArgValue[]): number {
     let count = 0;
@@ -543,7 +543,7 @@ export const LARGE: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   computeFormat: (data: Arg) => {
-    return Array.isArray(data) ? data[0][0]?.format : data?.format;
+    return Array.isArray(data?.format) ? data.format[0][0] : data?.format;
   },
   compute: function (data: ArgValue, n: PrimitiveArgValue): number {
     const _n = Math.trunc(toNumber(n));
@@ -596,7 +596,7 @@ export const MAX: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   computeFormat: (value1: Arg) => {
-    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+    return Array.isArray(value1?.format) ? value1.format[0][0] : value1?.format;
   },
   compute: function (...values: ArgValue[]): number {
     const result = reduceNumbers(values, (acc, a) => (acc < a ? a : acc), -Infinity);
@@ -622,7 +622,7 @@ export const MAXA: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   computeFormat: (value1: Arg) => {
-    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+    return Array.isArray(value1?.format) ? value1.format[0][0] : value1?.format;
   },
   compute: function (...values: ArgValue[]): number {
     const maxa = reduceNumbersTextAs0(
@@ -690,7 +690,7 @@ export const MEDIAN: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   computeFormat: (value1: Arg) => {
-    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+    return Array.isArray(value1?.format) ? value1.format[0][0] : value1?.format;
   },
   compute: function (...values: ArgValue[]): number {
     let data: ArgValue[] = [];
@@ -719,7 +719,7 @@ export const MIN: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   computeFormat: (value1: Arg) => {
-    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+    return Array.isArray(value1?.format) ? value1.format[0][0] : value1?.format;
   },
   compute: function (...values: ArgValue[]): number {
     const result = reduceNumbers(values, (acc, a) => (a < acc ? a : acc), Infinity);
@@ -745,7 +745,7 @@ export const MINA: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   computeFormat: (value1: Arg) => {
-    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+    return Array.isArray(value1?.format) ? value1.format[0][0] : value1?.format;
   },
   compute: function (...values: ArgValue[]): number {
     const mina: number = reduceNumbersTextAs0(
@@ -810,7 +810,7 @@ export const PERCENTILE: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   computeFormat: (data: Arg) => {
-    return Array.isArray(data) ? data[0][0]?.format : data?.format;
+    return Array.isArray(data?.format) ? data.format[0][0] : data?.format;
   },
   compute: function (data: ArgValue, percentile: PrimitiveArgValue): number {
     return PERCENTILE_INC.compute(data, percentile) as number;
@@ -834,7 +834,7 @@ export const PERCENTILE_EXC: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   computeFormat: (data: Arg) => {
-    return Array.isArray(data) ? data[0][0]?.format : data?.format;
+    return Array.isArray(data?.format) ? data.format[0][0] : data?.format;
   },
   compute: function (data: ArgValue, percentile: PrimitiveArgValue): number {
     return centile([data], percentile, false);
@@ -856,7 +856,7 @@ export const PERCENTILE_INC: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   computeFormat: (data: Arg) => {
-    return Array.isArray(data) ? data[0][0]?.format : data?.format;
+    return Array.isArray(data?.format) ? data.format[0][0] : data?.format;
   },
   compute: function (data: ArgValue, percentile: PrimitiveArgValue): number {
     return centile([data], percentile, true);
@@ -875,7 +875,7 @@ export const QUARTILE: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   computeFormat: (data: Arg) => {
-    return Array.isArray(data) ? data[0][0]?.format : data?.format;
+    return Array.isArray(data?.format) ? data.format[0][0] : data?.format;
   },
   compute: function (data: ArgValue, quartileNumber: PrimitiveArgValue): number {
     return QUARTILE_INC.compute(data, quartileNumber) as number;
@@ -894,7 +894,7 @@ export const QUARTILE_EXC: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   computeFormat: (data: Arg) => {
-    return Array.isArray(data) ? data[0][0]?.format : data?.format;
+    return Array.isArray(data?.format) ? data.format[0][0] : data?.format;
   },
   compute: function (data: ArgValue, quartileNumber: PrimitiveArgValue): number {
     const _quartileNumber = Math.trunc(toNumber(quartileNumber));
@@ -914,7 +914,7 @@ export const QUARTILE_INC: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   computeFormat: (data: Arg) => {
-    return Array.isArray(data) ? data[0][0]?.format : data?.format;
+    return Array.isArray(data?.format) ? data.format[0][0] : data?.format;
   },
   compute: function (data: ArgValue, quartileNumber: PrimitiveArgValue): number {
     const _quartileNumber = Math.trunc(toNumber(quartileNumber));
@@ -934,7 +934,7 @@ export const SMALL: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   computeFormat: (data: Arg) => {
-    return Array.isArray(data) ? data[0][0]?.format : data?.format;
+    return Array.isArray(data?.format) ? data.format[0][0] : data?.format;
   },
   compute: function (data: ArgValue, n: PrimitiveArgValue): number {
     const _n = Math.trunc(toNumber(n));

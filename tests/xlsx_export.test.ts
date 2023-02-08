@@ -1,3 +1,4 @@
+import { functionRegistry } from "../src/functions";
 import { buildSheetLink } from "../src/helpers";
 import { createEmptyExcelWorkbookData } from "../src/migrations/data";
 import { Model } from "../src/model";
@@ -670,6 +671,81 @@ describe("Test XLSX export", () => {
         sheets: [{ cells: { A1: { content: "=MULTIPLY(100,0)" }, A2: { content: "=EQ(2,4)" } } }],
       });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
+
+    test("can export value and format from non-exportable formulas", async () => {
+      const model = new Model();
+
+      functionRegistry.add("NON.EXPORTABLE", {
+        description: "a non exportable formula",
+        args: [],
+        returns: ["NUMBER"],
+        compute: function (): number {
+          return 42;
+        },
+        computeFormat: function (): string {
+          return "0.00%";
+        },
+        isExported: false,
+      });
+
+      setCellContent(model, "A1", "=1+NON.EXPORTABLE()");
+
+      const exported = getExportedExcelData(model);
+
+      expect(exported.sheets[0].cells["A1"]?.content).toEqual("43");
+      const formatId = exported.sheets[0].cells["A1"]?.format;
+      expect(formatId).toEqual(1);
+      expect(exported.formats[formatId!]).toEqual("0.00%");
+
+      functionRegistry.remove("NON.EXPORTABLE");
+    });
+
+    test("can export value and format from non-exportable formulas that spread", async () => {
+      const model = new Model();
+
+      functionRegistry.add("NON.EXPORTABLE.ARRAY.FORMULA", {
+        description: "a non exportable formula that spread",
+        args: [],
+        returns: ["RANGE<NUMBER>"],
+        compute: function (): number[][] {
+          return [
+            [1, 2],
+            [3, 4],
+          ];
+        },
+        computeFormat: function (): string[][] {
+          return [
+            ["0.00%", "0"],
+            ["0.00", "0%"],
+          ];
+        },
+        isExported: false,
+      });
+
+      setCellContent(model, "A1", "=NON.EXPORTABLE.ARRAY.FORMULA()");
+
+      const exported = getExportedExcelData(model);
+      const cells = exported.sheets[0].cells;
+
+      expect(cells["A1"]?.content).toEqual("1");
+      expect(cells["A2"]?.content).toEqual("2");
+      expect(cells["B1"]?.content).toEqual("3");
+      expect(cells["B2"]?.content).toEqual("4");
+
+      const formatId1 = cells["A1"]?.format;
+      expect(exported.formats[formatId1!]).toEqual("0.00%");
+
+      const formatId2 = cells["A2"]?.format;
+      expect(exported.formats[formatId2!]).toEqual("0");
+
+      const formatId3 = cells["B1"]?.format;
+      expect(exported.formats[formatId3!]).toEqual("0.00");
+
+      const formatId4 = cells["B2"]?.format;
+      expect(exported.formats[formatId4!]).toEqual("0%");
+
+      functionRegistry.remove("NON.EXPORTABLE.ARRAY.FORMULA");
     });
 
     test("Multi-Sheets exportable functions", async () => {
