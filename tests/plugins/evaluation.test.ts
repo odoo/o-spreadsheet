@@ -1225,40 +1225,4 @@ describe("evaluate formula getter", () => {
     expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe("Error2");
     functionRegistry.remove("GETVALUE");
   });
-
-  test("Cell are directly evaluated in non-lazy mode", () => {
-    let evaluated = false;
-    const model = new Model({}, { lazyEvaluation: false });
-    functionRegistry.add("FN", {
-      description: "",
-      compute: () => {
-        evaluated = true;
-        return true;
-      },
-      args: [],
-      returns: ["ANY"],
-    });
-    setCellContent(model, "A1", "=FN()");
-    expect(evaluated).toBe(true);
-    functionRegistry.remove("FN");
-  });
-
-  test("Cell are lazily evaluated in lazy mode (default mode)", () => {
-    let evaluated = false;
-    const model = new Model();
-    functionRegistry.add("FN", {
-      description: "",
-      compute: () => {
-        evaluated = true;
-        return true;
-      },
-      args: [],
-      returns: ["ANY"],
-    });
-    setCellContent(model, "A1", "=FN()");
-    expect(evaluated).toBe(false);
-    getCellContent(model, "A1");
-    expect(evaluated).toBe(true);
-    functionRegistry.remove("FN");
-  });
 });

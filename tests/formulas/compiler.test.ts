@@ -252,6 +252,25 @@ describe("compile functions", () => {
         args: [{ name: "arg1", description: "", type: ["RANGE"] }],
         returns: ["ANY"],
       });
+
+      functionRegistry.add("FORMULA_RETURNING_RANGE", {
+        description: "function returning range",
+        compute: (arg) => {
+          return [["cucumber"]];
+        },
+        args: [],
+        returns: ["RANGE"],
+      });
+
+      functionRegistry.add("FORMULA_NOT_RETURNING_RANGE", {
+        description: "function returning range",
+        compute: (arg) => {
+          return "cucumber";
+        },
+        args: [],
+        returns: ["STRING"],
+      });
+
       expect(() => compiledBaseFunction("=RANGEEXPECTED(42)")).toThrowError(
         "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a number."
       );
@@ -261,12 +280,18 @@ describe("compile functions", () => {
       expect(() => compiledBaseFunction("=RANGEEXPECTED(TRUE)")).toThrowError(
         "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a boolean."
       );
+      expect(() =>
+        compiledBaseFunction("=RANGEEXPECTED(FORMULA_NOT_RETURNING_RANGE())")
+      ).toThrowError(
+        "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a funcall."
+      );
 
       expect(() => compiledBaseFunction("=RANGEEXPECTED(A1)")).not.toThrow();
       expect(() => compiledBaseFunction("=RANGEEXPECTED(A1:A1)")).not.toThrow();
       expect(() => compiledBaseFunction("=RANGEEXPECTED(A1:A2)")).not.toThrow();
       expect(() => compiledBaseFunction("=RANGEEXPECTED(A1:A$2)")).not.toThrow();
       expect(() => compiledBaseFunction("=RANGEEXPECTED(sheet2!A1:A$2)")).not.toThrow();
+      expect(() => compiledBaseFunction("=RANGEEXPECTED(FORMULA_RETURNING_RANGE())")).not.toThrow();
     });
 
     test("reject range when expecting only non-range argument", () => {

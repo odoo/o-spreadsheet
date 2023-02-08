@@ -63,17 +63,6 @@ export function convertOperator(operator: ConditionalFormattingOperatorValues): 
 //        WORKSHEET HELPERS
 // -------------------------------------
 
-export function getCellType(value: number | string | boolean): string {
-  switch (typeof value) {
-    case "boolean":
-      return "b";
-    case "string":
-      return "str";
-    case "number":
-      return "n";
-  }
-}
-
 export function convertHeightToExcel(height: number): number {
   return Math.round(HEIGHT_FACTOR * height * 100) / 100;
 }

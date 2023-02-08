@@ -94,17 +94,10 @@ function extractArgValuesFromArgs(args: ComputeFunctionArg<Arg>[]): ComputeFunct
       return undefined;
     }
     if (typeof arg === "function") {
-      return () => _extractArgValuesFromArgs(arg());
+      return () => arg()?.value;
     }
-    return _extractArgValuesFromArgs(arg);
+    return arg.value;
   });
-}
-
-function _extractArgValuesFromArgs(arg: Arg): ArgValue {
-  if (Array.isArray(arg)) {
-    return arg.map((col) => col.map((simpleArg) => simpleArg?.value));
-  }
-  return arg?.value;
 }
 
 export const functionRegistry = new FunctionRegistry();

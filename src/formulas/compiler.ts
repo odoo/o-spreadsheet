@@ -91,99 +91,46 @@ export function compile(formula: string): CompiledFormula {
      * between a cell value and a non cell value.
      */
     function compileFunctionArgs(ast: ASTFuncall): FunctionCode[] {
-      const functionDefinition = functions[ast.value.toUpperCase()];
-      const currentFunctionArguments = ast.args;
+      const { args } = ast;
+      const functionName = ast.value.toUpperCase();
+      const functionDefinition = functions[functionName];
 
-      // check if arguments are supplied in the correct quantities
+      assertEnoughArgs(ast);
 
-      const nbrArg = currentFunctionArguments.length;
+      const compiledArgs: FunctionCode[] = [];
 
-      if (nbrArg < functionDefinition.minArgRequired) {
-        throw new BadExpressionError(
-          _lt(
-            "Invalid number of arguments for the %s function. Expected %s minimum, but got %s instead.",
-            ast.value.toUpperCase(),
-            functionDefinition.minArgRequired.toString(),
-            nbrArg.toString()
-          )
-        );
-      }
+      for (let i = 0; i < args.length; i++) {
+        const argToFocus = functionDefinition.getArgToFocus(i + 1) - 1;
+        const argDefinition = functionDefinition.args[argToFocus];
+        const currentArg = args[i];
+        const argTypes = argDefinition.type || [];
 
-      if (nbrArg > functionDefinition.maxArgPossible) {
-        throw new BadExpressionError(
-          _lt(
-            "Invalid number of arguments for the %s function. Expected %s maximum, but got %s instead.",
-            ast.value.toUpperCase(),
-            functionDefinition.maxArgPossible.toString(),
-            nbrArg.toString()
-          )
-        );
-      }
+        // detect when an argument need to be evaluated as a meta argument
+        const isMeta = argTypes.includes("META");
+        // detect when an argument need to be evaluated as a lazy argument
+        const isLazy = argDefinition.lazy;
 
-      const repeatingArg = functionDefinition.nbrArgRepeating;
-      if (repeatingArg > 1) {
-        const argBeforeRepeat = functionDefinition.args.length - repeatingArg;
-        const nbrRepeatingArg = nbrArg - argBeforeRepeat;
-        if (nbrRepeatingArg % repeatingArg !== 0) {
-          throw new BadExpressionError(
-            _lt(
-              "Invalid number of arguments for the %s function. Expected all arguments after position %s to be supplied by groups of %s arguments",
-              ast.value.toUpperCase(),
-              argBeforeRepeat.toString(),
-              repeatingArg.toString()
-            )
-          );
-        }
-      }
+        const hasRange = argTypes.some((t) => isRangeType(t));
+        const isRangeOnly = argTypes.every((t) => isRangeType(t));
 
-      let compiledArgs: FunctionCode[] = [];
-      for (let i = 0; i < nbrArg; i++) {
-        const argPosition = functionDefinition.getArgToFocus(i + 1) - 1;
-        if (0 <= argPosition && argPosition < functionDefinition.args.length) {
-          const currentArg = currentFunctionArguments[i];
-          const argDefinition = functionDefinition.args[argPosition];
-          const argTypes = argDefinition.type || [];
-
-          // detect when an argument need to be evaluated as a meta argument
-          const isMeta = argTypes.includes("META");
-          // detect when an argument need to be evaluated as a lazy argument
-          const isLazy = argDefinition.lazy;
-
-          const hasRange = argTypes.some(
-            (t) =>
-              t === "RANGE" ||
-              t === "RANGE<BOOLEAN>" ||
-              t === "RANGE<DATE>" ||
-              t === "RANGE<NUMBER>" ||
-              t === "RANGE<STRING>"
-          );
-          const isRangeOnly = argTypes.every(
-            (t) =>
-              t === "RANGE" ||
-              t === "RANGE<BOOLEAN>" ||
-              t === "RANGE<DATE>" ||
-              t === "RANGE<NUMBER>" ||
-              t === "RANGE<STRING>"
-          );
-          if (isRangeOnly) {
-            if (currentArg.type !== "REFERENCE") {
-              throw new BadExpressionError(
-                _lt(
-                  "Function %s expects the parameter %s to be reference to a cell or range, not a %s.",
-                  ast.value.toUpperCase(),
-                  (i + 1).toString(),
-                  currentArg.type.toLowerCase()
-                )
-              );
-            }
+        if (isRangeOnly) {
+          if (!isRangeInput(currentArg)) {
+            throw new BadExpressionError(
+              _lt(
+                "Function %s expects the parameter %s to be reference to a cell or range, not a %s.",
+                functionName,
+                (i + 1).toString(),
+                currentArg.type.toLowerCase()
+              )
+            );
           }
-
-          const compiledAST = compileAST(currentArg, isMeta, hasRange, {
-            functionName: ast.value.toUpperCase(),
-            paramIndex: i + 1,
-          });
-          compiledArgs.push(isLazy ? compiledAST.wrapInClosure() : compiledAST);
         }
+
+        const compiledAST = compileAST(currentArg, isMeta, hasRange, {
+          functionName,
+          paramIndex: i + 1,
+        });
+        compiledArgs.push(isLazy ? compiledAST.wrapInClosure() : compiledAST);
       }
 
       return compiledArgs;
@@ -354,4 +301,67 @@ function formulaArguments(tokens: Token[]) {
     dependencies,
     constantValues,
   };
+}
+
+/**
+ * Check if arguments are supplied in the correct quantities
+ */
+function assertEnoughArgs(ast: ASTFuncall) {
+  const nbrArg = ast.args.length;
+  const functionName = ast.value.toUpperCase();
+  const functionDefinition = functions[functionName];
+
+  if (nbrArg < functionDefinition.minArgRequired) {
+    throw new BadExpressionError(
+      _lt(
+        "Invalid number of arguments for the %s function. Expected %s minimum, but got %s instead.",
+        functionName,
+        functionDefinition.minArgRequired.toString(),
+        nbrArg.toString()
+      )
+    );
+  }
+
+  if (nbrArg > functionDefinition.maxArgPossible) {
+    throw new BadExpressionError(
+      _lt(
+        "Invalid number of arguments for the %s function. Expected %s maximum, but got %s instead.",
+        functionName,
+        functionDefinition.maxArgPossible.toString(),
+        nbrArg.toString()
+      )
+    );
+  }
+
+  const repeatableArgs = functionDefinition.nbrArgRepeating;
+  if (repeatableArgs > 1) {
+    const unrepeatableArgs = functionDefinition.args.length - repeatableArgs;
+    const repeatingArgs = nbrArg - unrepeatableArgs;
+    if (repeatingArgs % repeatableArgs !== 0) {
+      throw new BadExpressionError(
+        _lt(
+          "Invalid number of arguments for the %s function. Expected all arguments after position %s to be supplied by groups of %s arguments",
+          functionName,
+          unrepeatableArgs.toString(),
+          repeatableArgs.toString()
+        )
+      );
+    }
+  }
+}
+
+function isRangeType(type: string) {
+  return type.startsWith("RANGE");
+}
+
+function isRangeInput(arg: AST) {
+  if (arg.type === "REFERENCE") {
+    return true;
+  }
+  if (arg.type === "FUNCALL") {
+    const fnDef = functions[arg.value.toUpperCase()];
+    return fnDef && isRangeType(fnDef.returns[0]);
+  }
+
+  return false;
 }

@@ -22,7 +22,6 @@ export interface UIPluginConfig {
   readonly moveClient: (position: ClientPosition) => void;
   readonly uiActions: UIActions;
   readonly custom: ModelConfig["custom"];
-  readonly lazyEvaluation: boolean;
   readonly session: Session;
 }
 
