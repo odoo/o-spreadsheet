@@ -239,7 +239,7 @@ describe("UI of conditional formats", () => {
       await click(fixture.querySelectorAll(selectors.listPreview)[1]);
       await nextTick();
       // change every value
-      setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
+      setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "input");
 
       await click(fixture, selectors.colorScaleEditor.minColor);
       await click(fixture, selectors.colorScaleEditor.colorPickerBlue);
@@ -295,7 +295,7 @@ describe("UI of conditional formats", () => {
       await nextTick();
 
       // change every value
-      setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3", "change");
+      setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3", "input");
       setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "BeginsWith", "change");
       await nextTick();
       setInputValueAndTrigger(selectors.ruleEditor.editor.valueInput, "3", "input");
@@ -334,7 +334,7 @@ describe("UI of conditional formats", () => {
       await click(fixture, selectors.buttonAdd);
       await nextTick();
 
-      setInputValueAndTrigger(selectors.ruleEditor.range, "hello", "change");
+      setInputValueAndTrigger(selectors.ruleEditor.range, "hello", "input");
 
       const dispatch = spyDispatch(parent);
       //  click save
@@ -410,7 +410,7 @@ describe("UI of conditional formats", () => {
     await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
     // change every value
-    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "input");
     await click(fixture, selectors.colorScaleEditor.minColor);
     await click(fixture, selectors.colorScaleEditor.colorPickerBlue);
     await click(fixture, selectors.colorScaleEditor.maxColor);
@@ -447,7 +447,7 @@ describe("UI of conditional formats", () => {
     await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
     // change every value
-    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "input");
 
     await click(fixture, selectors.colorScaleEditor.minColor);
     await click(fixture, selectors.colorScaleEditor.colorPickerBlue);
@@ -494,7 +494,7 @@ describe("UI of conditional formats", () => {
     await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
     // change every value
-    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "input");
 
     await click(fixture, selectors.colorScaleEditor.minColor);
     await click(fixture, selectors.colorScaleEditor.colorPickerBlue);
@@ -541,7 +541,7 @@ describe("UI of conditional formats", () => {
     await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
     // change every value
-    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "input");
 
     await click(fixture, selectors.colorScaleEditor.minColor);
     await click(fixture, selectors.colorScaleEditor.colorPickerBlue);
@@ -588,7 +588,7 @@ describe("UI of conditional formats", () => {
     await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
     // change every value
-    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "input");
 
     await click(fixture, selectors.colorScaleEditor.minColor);
     await click(fixture, selectors.colorScaleEditor.colorPickerBlue);
@@ -685,7 +685,7 @@ describe("UI of conditional formats", () => {
   test("error if range is empty", async () => {
     await click(fixture, selectors.buttonAdd);
     await nextTick();
-    setInputValueAndTrigger(selectors.ruleEditor.range, "", "change");
+    setInputValueAndTrigger(selectors.ruleEditor.range, "", "input");
     await nextTick();
     await click(fixture, selectors.buttonSave);
     expect(errorMessages()).toEqual(["A range needs to be defined"]);
@@ -1086,7 +1086,7 @@ describe("UI of conditional formats", () => {
       await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
 
       // change every value
-      setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
+      setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "input");
 
       const dispatch = spyDispatch(parent);
       //  click save

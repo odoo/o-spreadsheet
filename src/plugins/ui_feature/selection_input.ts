@@ -83,7 +83,8 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
           this.focus(index);
         }
         if (index !== null) {
-          const values = cmd.value.split(",").map((reference) => reference.trim());
+          const valueWithoutLeadingComma = cmd.value.replace(/^,+/, "");
+          const values = valueWithoutLeadingComma.split(",").map((reference) => reference.trim());
           this.setRange(index, values);
         }
         break;
@@ -181,13 +182,14 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
    * Insert new inputs after the given index.
    */
   private insertNewRange(index: number, values: string[]) {
+    const currentMaxId = Math.max(0, ...this.ranges.map((range) => Number(range.id)));
     this.ranges.splice(
       index,
       0,
       ...values.map((xc, i) => ({
         xc,
-        id: (this.ranges.length + i + 1).toString(),
-        color: colors[(this.ranges.length + i) % colors.length],
+        id: (currentMaxId + i + 1).toString(),
+        color: colors[(currentMaxId + 1 + i) % colors.length],
       }))
     );
   }

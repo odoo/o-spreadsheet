@@ -400,8 +400,14 @@ describe("selection input plugin", () => {
 
   test("trailing commas and spaces are removed", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
-    model.dispatch("CHANGE_RANGE", { id, rangeId: idOfRange(model, id, 0), value: " ,C2, " });
+    model.dispatch("CHANGE_RANGE", { id, rangeId: idOfRange(model, id, 0), value: "C2, " });
     expect(model.getters.getSelectionInputValue(id)).toStrictEqual(["C2"]);
+  });
+
+  test("leading commas and spaces are removed", () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
+    model.dispatch("CHANGE_RANGE", { id, rangeId: idOfRange(model, id, 0), value: " ,C2,B3" });
+    expect(model.getters.getSelectionInputValue(id)).toStrictEqual(["C2", "B3"]);
   });
 
   test("new state does not keep previous range focus", () => {
