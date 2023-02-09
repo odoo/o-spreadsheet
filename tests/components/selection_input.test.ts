@@ -25,7 +25,6 @@ async function writeInput(index: number, text: string) {
   const input = fixture.querySelectorAll("input")[index];
   input.value = text;
   input.dispatchEvent(new Event("input"));
-  input.dispatchEvent(new Event("change"));
   await nextTick();
 }
 
@@ -230,14 +229,28 @@ describe("Selection Input", () => {
     expect(model.getters.getSelectionInput(id)[1].xc).toBe("A1");
   });
 
-  test("manually add another cell", async () => {
+  test("manually add another range via trailing comma", async () => {
     const { model, id } = await createSelectionInput({ initialRanges: ["C2"] });
-    await writeInput(0, "C2,A1");
+    await writeInput(0, "C2,");
     expect(fixture.querySelectorAll("input")[0].value).toBe("C2");
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("C2");
-    expect(fixture.querySelectorAll("input")[1].value).toBe("A1");
-    expect(model.getters.getSelectionInput(id)[1].xc).toBe("A1");
+    expect(fixture.querySelectorAll("input")[1].value).toBe("");
+    expect(model.getters.getSelectionInput(id)[1].xc).toBe("");
   });
+
+  test.each([
+    [",", ""],
+    [",C1", "C1"],
+  ])(
+    "leading comma will not split the input into multiple ranges",
+    async (inputString, rangeValue) => {
+      const { model, id } = await createSelectionInput();
+      await writeInput(0, inputString);
+      expect(fixture.querySelectorAll("input").length).toEqual(1);
+      expect(fixture.querySelectorAll("input")[0].value).toBe(rangeValue);
+      expect(model.getters.getSelectionInput(id)[0].xc).toBe(rangeValue);
+    }
+  );
 
   test("F2 alters edition mode", async () => {
     await createSelectionInput({ initialRanges: ["C2"] });
@@ -288,6 +301,16 @@ describe("Selection Input", () => {
     await simulateClick(".input-2 input");
     expect(fixture.querySelector(".input-1 .o-focused")).toBeFalsy();
     expect(fixture.querySelector(".input-2 .o-focused")).toBeTruthy();
+  });
+
+  test("focus is transferred into the newly added input automatically when typing comma at the end", async () => {
+    await createSelectionInput({ initialRanges: ["C2"] });
+    await simulateClick("input");
+    expect(fixture.querySelectorAll("input")[0].classList).toContain("o-focused");
+    await writeInput(0, "C2,");
+    expect(fixture.querySelectorAll("input")[0].classList).not.toContain("o-focused");
+    expect(fixture.querySelectorAll("input")[1].classList).toContain("o-focused");
+    expect(document.activeElement).toBe(fixture.querySelectorAll("input")[1]);
   });
 
   test("go back to initial sheet when selection is finished", async () => {

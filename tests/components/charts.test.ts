@@ -216,7 +216,7 @@ describe("figures", () => {
           });
           break;
         case "scorecard":
-          setInputValueAndTrigger(dataSeriesValues, "B2:B4", "change");
+          setInputValueAndTrigger(dataSeriesValues, "B2:B4", "input");
           expect(dispatch).toHaveBeenLastCalledWith("CHANGE_RANGE", {
             value: "B2:B4",
             id: expect.anything(),
@@ -334,7 +334,7 @@ describe("figures", () => {
       parent.env.openSidePanel("ChartPanel");
       await nextTick();
       await simulateClick(domClass + " input");
-      setInputValueAndTrigger(domClass + " input", "", "change");
+      setInputValueAndTrigger(domClass + " input", "", "input");
       await nextTick();
       await simulateClick(domClass + " .o-selection-ok");
       expect(
@@ -462,7 +462,7 @@ describe("figures", () => {
     await simulateClick(".o-menu div[data-name='edit']");
     await simulateClick(".o-data-series .o-add-selection");
     const element = document.querySelectorAll(".o-data-series input")[1];
-    setInputValueAndTrigger(element, "C1:C4", "change");
+    setInputValueAndTrigger(element, "C1:C4", "input");
     await nextTick();
     await simulateClick(".o-data-series .o-selection-ok");
     expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
@@ -491,7 +491,7 @@ describe("figures", () => {
         await simulateClick(".o-menu div[data-name='edit']");
 
         await simulateClick(".o-data-labels input");
-        setInputValueAndTrigger(".o-data-labels input", "", "change");
+        setInputValueAndTrigger(".o-data-labels input", "", "input");
         await nextTick();
         await simulateClick(".o-data-labels .o-selection-ok");
 
@@ -517,7 +517,7 @@ describe("figures", () => {
         await simulateClick(".o-figure-menu-item");
         await simulateClick(".o-menu div[data-name='edit']");
         await simulateClick(".o-data-series input");
-        setInputValueAndTrigger(".o-data-series input", "This is not valid", "change");
+        setInputValueAndTrigger(".o-data-series input", "This is not valid", "input");
         await nextTick();
         await simulateClick(".o-data-series .o-selection-ok");
         expect(errorMessages()).toEqual(
@@ -539,7 +539,7 @@ describe("figures", () => {
         await simulateClick(".o-figure-menu-item");
         await simulateClick(".o-menu div[data-name='edit']");
         await simulateClick(".o-data-labels input");
-        setInputValueAndTrigger(".o-data-labels input", "this is not valid", "change");
+        setInputValueAndTrigger(".o-data-labels input", "this is not valid", "input");
         await nextTick();
         await simulateClick(".o-data-labels .o-selection-ok");
         expect(errorMessages()).toEqual(
@@ -643,7 +643,7 @@ describe("figures", () => {
 
       // empty dataset/key value
       await simulateClick(".o-data-series input");
-      setInputValueAndTrigger(".o-data-series input", "", "change");
+      setInputValueAndTrigger(".o-data-series input", "", "input");
       await nextTick();
       await simulateClick(".o-data-series .o-selection-ok");
       expect(document.querySelector(".o-data-series input")?.classList).toContain("o-invalid");
@@ -651,7 +651,7 @@ describe("figures", () => {
 
       // invalid labels/baseline
       await simulateClick(".o-data-labels input");
-      setInputValueAndTrigger(".o-data-labels input", "Invalid Label Range", "change");
+      setInputValueAndTrigger(".o-data-labels input", "Invalid Label Range", "input");
       await simulateClick(".o-data-labels .o-selection-ok");
       expect(document.querySelector(".o-data-series input")?.classList).toContain("o-invalid");
       expect(document.querySelector(".o-data-labels input")?.classList).toContain("o-invalid");

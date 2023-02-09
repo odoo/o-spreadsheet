@@ -1,4 +1,12 @@
-import { Component, onMounted, onPatched, onWillUnmount, useState } from "@odoo/owl";
+import {
+  Component,
+  onMounted,
+  onPatched,
+  onWillUnmount,
+  useEffect,
+  useRef,
+  useState,
+} from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { UuidGenerator } from "../../helpers/index";
 import { RangeInputValue } from "../../plugins/ui_feature/selection_input";
@@ -93,6 +101,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     isMissing: false,
     mode: "select-range",
   });
+  private focusedInput = useRef("focusedInput");
 
   get ranges(): SelectionRange[] {
     const existingSelectionRange = this.env.model.getters.getSelectionInput(this.id);
@@ -124,6 +133,10 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   setup() {
+    useEffect(
+      () => this.focusedInput.el?.focus(),
+      () => [this.focusedInput.el]
+    );
     onMounted(() => this.enableNewSelectionInput());
     onWillUnmount(async () => this.disableNewSelectionInput());
     onPatched(() => this.checkChange());
@@ -170,6 +183,9 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
         ev.preventDefault();
         updateSelectionWithArrowKeys(ev, this.env.model.selection);
       }
+    } else if (ev.key === "Enter") {
+      const target = ev.target as HTMLInputElement;
+      target.blur();
     }
   }
 
@@ -199,7 +215,6 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
       rangeId,
       value: target.value,
     });
-    target.blur();
     this.triggerChange();
   }
 
