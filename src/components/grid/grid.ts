@@ -45,7 +45,7 @@ import { HeadersOverlay } from "../headers_overlay/headers_overlay";
 import { cssPropertiesToCss } from "../helpers";
 import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
-import { useAbsolutePosition } from "../helpers/position_hook";
+import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { Highlight } from "../highlight/highlight/highlight";
@@ -118,7 +118,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     });
     this.gridRef = useRef("grid");
     this.hiddenInput = useRef("hiddenInput");
-    this.canvasPosition = useAbsolutePosition(this.gridRef);
+    this.canvasPosition = useAbsoluteBoundingRect(this.gridRef);
     this.hoveredCell = useState({ col: undefined, row: undefined });
 
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });

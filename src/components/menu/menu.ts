@@ -10,7 +10,7 @@ import { MenuItem } from "../../registries/menu_items_registry";
 import { DOMCoordinates, MenuMouseEvent, Pixel, SpreadsheetChildEnv, UID } from "../../types";
 import { css } from "../helpers/css";
 import { getOpenedMenus, isChildEvent } from "../helpers/dom_helpers";
-import { useAbsolutePosition } from "../helpers/position_hook";
+import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { Popover, PopoverProps } from "../popover/popover";
 
 //------------------------------------------------------------------------------
@@ -100,7 +100,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     menuItems: [],
   });
   private menuRef = useRef("menu");
-  private position = useAbsolutePosition(this.menuRef);
+  private position: DOMCoordinates = useAbsoluteBoundingRect(this.menuRef);
 
   setup() {
     useExternalListener(window, "click", this.onExternalClick, { capture: true });
