@@ -16,6 +16,7 @@ async function mountColorPicker(partialProps: Partial<ColorPickerProps> = {}, mo
     dropdownDirection: partialProps.dropdownDirection,
     onColorPicked: partialProps.onColorPicked || (() => {}),
     currentColor: partialProps.currentColor || "#000000",
+    maxHeight: partialProps.maxHeight !== undefined ? partialProps.maxHeight : 1000,
   };
   ({ fixture } = await mountComponent(ColorPicker, { model, props }));
 }
@@ -149,5 +150,11 @@ describe("Color Picker buttons", () => {
     await simulateClick(".o-color-picker-toggler");
     const inputCodeEl = fixture.querySelector(".o-custom-input-preview input") as HTMLInputElement;
     expect(inputCodeEl.value).toBe("");
+  });
+
+  test("color picker disappears when maxHeight is 0", async () => {
+    await mountColorPicker({ currentColor: "#45818e", maxHeight: 0 });
+    const picker = fixture.querySelector<HTMLElement>(".o-color-picker")!;
+    expect(picker.style["display"]).toEqual("none");
   });
 });
