@@ -10,7 +10,6 @@ import { chartFontColor } from "../../helpers/figures/charts";
 import { Color, Pixel } from "../../types";
 import { SpreadsheetChildEnv } from "../../types/env";
 import { css, cssPropertiesToCss } from "../helpers/css";
-import { CSSProperties } from "./../../types/misc";
 
 const PICKER_PADDING = 6;
 
@@ -34,6 +33,7 @@ css/* scss */ `
     position: absolute;
     top: calc(100% + 5px);
     z-index: ${ComponentsImportance.ColorPicker};
+    padding: ${PICKER_PADDING}px 0px;
     box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
     background-color: white;
     line-height: 1.2;
@@ -215,14 +215,14 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
     },
   });
 
-  get dropdownStyle() {
-    const height = this.props.maxHeight;
-    const cssProperties: CSSProperties = {};
-    cssProperties.padding = height !== undefined && height <= 0 ? "0px" : `${PICKER_PADDING}px 0px`;
-    if (height) {
-      cssProperties["max-height"] = `${height}px`;
+  get colorPickerStyle(): string {
+    if (this.props.maxHeight === undefined) return "";
+    if (this.props.maxHeight <= 0) {
+      return cssPropertiesToCss({ display: "none" });
     }
-    return cssPropertiesToCss(cssProperties);
+    return cssPropertiesToCss({
+      "max-height": `${this.props.maxHeight}px`,
+    });
   }
 
   onColorClick(color: Color) {
