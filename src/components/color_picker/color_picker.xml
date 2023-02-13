@@ -4,7 +4,7 @@
       class="o-color-picker"
       t-att-class="props.dropdownDirection || 'right'"
       t-on-click.stop=""
-      t-att-style="dropdownStyle">
+      t-att-style="colorPickerStyle">
       <div class="o-color-picker-section-name">Standard</div>
       <div class="colors-grid">
         <div
