@@ -5,7 +5,7 @@ import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { _lt } from "../../../translation";
 import { ChartType, DOMCoordinates, Figure, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
-import { useAbsolutePosition } from "../../helpers/position_hook";
+import { useAbsolutePosition, useBoundingRect } from "../../helpers/position_hook";
 import { Menu, MenuState } from "../../menu/menu";
 
 // -----------------------------------------------------------------------------
@@ -31,7 +31,7 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
 
   private chartContainerRef = useRef("chartContainer");
   private menuButtonRef = useRef("menuButton");
-  private menuButtonPosition = useAbsolutePosition(this.menuButtonRef);
+  private menuButtonRect = useBoundingRect(this.menuButtonRef);
   private position = useAbsolutePosition(this.chartContainerRef);
 
   private getMenuItemRegistry(): MenuItemRegistry {
@@ -89,11 +89,12 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   showMenu() {
-    const position = {
-      x: this.menuButtonPosition.x - MENU_WIDTH,
-      y: this.menuButtonPosition.y,
+    const { x, y, width } = this.menuButtonRect;
+    const menuPosition = {
+      x: x >= MENU_WIDTH ? x - MENU_WIDTH : x + width,
+      y: y,
     };
-    this.openContextMenu(position);
+    this.openContextMenu(menuPosition);
   }
 
   private openContextMenu(position: DOMCoordinates) {

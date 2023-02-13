@@ -1,7 +1,7 @@
 import { App } from "@odoo/owl";
 import { CommandResult, Model, Spreadsheet } from "../../src";
 import { ChartTerms } from "../../src/components/translations_terms";
-import { BACKGROUND_CHART_COLOR } from "../../src/constants";
+import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../src/constants";
 import { toHex, toZone } from "../../src/helpers";
 import { ChartDefinition } from "../../src/types";
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
@@ -138,6 +138,38 @@ describe("figures", () => {
       await nextTick();
       expect(fixture.querySelector(".o-figure")).not.toBeNull();
       expect(fixture.querySelector(".o-figure-menu-item")).toBeNull();
+    }
+  );
+
+  test.each(["basicChart", "scorecard", "gauge"])(
+    "chart menu position is correct when clicking on menu button",
+    async (chartType: string) => {
+      mockGetBoundingClientRect({
+        "o-spreadsheet": () => ({ top: 25, left: 25, height: 1000, width: 1000 }),
+        "o-figure-menu-item": () => ({ top: 500, left: 500 }),
+      });
+      createTestChart(chartType);
+      await nextTick();
+      await simulateClick(".o-figure-menu-item");
+      const menuPopover = fixture.querySelector<HTMLElement>(".o-popover")!;
+      expect(menuPopover.style.top).toBe(`${500 - 25}px`); // 25 : spreadsheet offset
+      expect(menuPopover.style.left).toBe(`${500 - 25 - MENU_WIDTH}px`);
+    }
+  );
+
+  test.each(["basicChart", "scorecard", "gauge"])(
+    "chart menu position is correct menu button position < MENU_WIDTH",
+    async (chartType: string) => {
+      mockGetBoundingClientRect({
+        "o-spreadsheet": () => ({ top: 25, left: 25, height: 1000, width: 1000 }),
+        "o-figure-menu-item": () => ({ top: 500, left: MENU_WIDTH - 50, width: 32 }),
+      });
+      createTestChart(chartType);
+      await nextTick();
+      await simulateClick(".o-figure-menu-item");
+      const menuPopover = fixture.querySelector<HTMLElement>(".o-popover")!;
+      expect(menuPopover.style.top).toBe(`${500 - 25}px`); // 25 : spreadsheet offset
+      expect(menuPopover.style.left).toBe(`${MENU_WIDTH - 50 - 25 + 32}px`);
     }
   );
 

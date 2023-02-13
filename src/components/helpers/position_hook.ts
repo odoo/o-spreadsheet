@@ -44,14 +44,37 @@ export function useAbsolutePosition(ref: Ref): DOMCoordinates {
       return;
     }
     const { top, left } = el.getBoundingClientRect();
-    if (left !== position.x || top !== position.y) {
-      position.x = left;
-      position.y = top;
-    }
+    position.x = left;
+    position.y = top;
   }
   onMounted(updateElPosition);
   onPatched(updateElPosition);
   return position;
+}
+
+/**
+ * Return the component (or ref's component) BoundingRect, relative
+ * to the upper left corner of the screen (<body> element).
+ *
+ * Note: when used with a <Portal/> component, it will
+ * return the portal position, not the teleported position.
+ */
+export function useBoundingRect(ref: Ref): Rect {
+  const rect = useState({ x: 0, y: 0, width: 0, height: 0 });
+  function updateElRect() {
+    const el = ref.el;
+    if (el === null) {
+      return;
+    }
+    const { top, left, width, height } = el.getBoundingClientRect();
+    rect.x = left;
+    rect.y = top;
+    rect.width = width;
+    rect.height = height;
+  }
+  onMounted(updateElRect);
+  onPatched(updateElRect);
+  return rect;
 }
 
 /**
