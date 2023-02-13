@@ -94,10 +94,13 @@ class TextFigure extends Component<Props, SpreadsheetChildEnv> {
 }
 
 mockChart();
+
+let mockSpreadsheetRect: Partial<DOMRect>;
+let mockFigureMenuItemRect: Partial<DOMRect>;
 mockGetBoundingClientRect({
   "o-popover": () => ({ height: 0, width: 0 }),
-  "o-spreadsheet": () => ({ top: 100, left: 200, height: 1000, width: 1000 }),
-  "o-figure-menu-item": () => ({ top: 500, left: 500 }),
+  "o-spreadsheet": () => ({ ...mockSpreadsheetRect }),
+  "o-figure-menu-item": () => ({ ...mockFigureMenuItemRect }),
 });
 
 beforeAll(() => {
@@ -110,6 +113,8 @@ afterAll(() => {
 describe("figures", () => {
   beforeEach(async () => {
     ({ model, parent, fixture } = await mountSpreadsheet());
+    mockSpreadsheetRect = { top: 100, left: 200, height: 1000, width: 1000 };
+    mockFigureMenuItemRect = { top: 500, left: 500 };
   });
 
   test("can create a figure with some data", () => {
@@ -609,6 +614,28 @@ describe("figures", () => {
         triggerMouseEvent(".o-figure", "contextmenu");
         await nextTick();
         expect(document.querySelectorAll(".o-menu").length).toBe(1);
+      });
+
+      test(`figure menu position is correct when clicking on menu button for ${type}`, async () => {
+        mockSpreadsheetRect = { top: 25, left: 25, height: 1000, width: 1000 };
+        mockFigureMenuItemRect = { top: 500, left: 500 };
+        parent.render(true); // force a render to update `useAbsoluteBoundingRect` with new mocked values
+        await nextTick();
+        await simulateClick(".o-figure-menu-item");
+        const menuPopover = fixture.querySelector<HTMLElement>(".o-popover")!;
+        expect(menuPopover.style.top).toBe(`${500 - 25}px`); // 25 : spreadsheet offset of the mockGetBoundingClientRect
+        expect(menuPopover.style.left).toBe(`${500 - 25 - MENU_WIDTH}px`);
+      });
+
+      test(`figure menu position is correct when menu button position < MENU_WIDTH for ${type}`, async () => {
+        mockSpreadsheetRect = { top: 25, left: 25, height: 1000, width: 1000 };
+        mockFigureMenuItemRect = { top: 500, left: MENU_WIDTH - 50, width: 32 };
+        parent.render(true); // force a render to update `useAbsoluteBoundingRect` with new mocked values
+        await nextTick();
+        await simulateClick(".o-figure-menu-item");
+        const menuPopover = fixture.querySelector<HTMLElement>(".o-popover")!;
+        expect(menuPopover.style.top).toBe(`${500 - 25}px`); // 25 : spreadsheet offset of the mockGetBoundingClientRect
+        expect(menuPopover.style.left).toBe(`${MENU_WIDTH - 50 - 25 + 32}px`);
       });
 
       test("Cannot open context menu on right click in dashboard mode", async () => {
