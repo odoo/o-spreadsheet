@@ -5,7 +5,7 @@ import { linkMenuRegistry } from "../../../registries/menus/link_menu_registry";
 import { DOMCoordinates, Link, Position, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { css } from "../../helpers/css";
-import { useAbsolutePosition } from "../../helpers/position_hook";
+import { useAbsoluteBoundingRect } from "../../helpers/position_hook";
 import { Menu } from "../../menu/menu";
 
 const MENU_OFFSET_X = 320;
@@ -109,7 +109,7 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
     isOpen: false,
   });
   private linkEditorRef = useRef("linkEditor");
-  private position = useAbsolutePosition(this.linkEditorRef);
+  private position: DOMCoordinates = useAbsoluteBoundingRect(this.linkEditorRef);
   urlInput = useRef("urlInput");
 
   setup() {
