@@ -15,7 +15,7 @@ import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { css } from "../helpers/css";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
-import { useAbsolutePosition } from "../helpers/position_hook";
+import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { Popover } from "../popover/popover";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
@@ -56,7 +56,7 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
 
   setup() {
     const gridRef = useRef("grid");
-    this.canvasPosition = useAbsolutePosition(gridRef);
+    this.canvasPosition = useAbsoluteBoundingRect(gridRef);
     this.hoveredCell = useState({ col: undefined, row: undefined });
 
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });

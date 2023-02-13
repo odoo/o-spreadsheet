@@ -4,7 +4,7 @@ import { getMaxFigureSize } from "../../../helpers/figures/figure/figure";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { _lt } from "../../../translation";
 import { DOMCoordinates, Figure, SpreadsheetChildEnv, UID } from "../../../types";
-import { useAbsolutePosition } from "../../helpers/position_hook";
+import { useAbsoluteBoundingRect } from "../../helpers/position_hook";
 import { Menu, MenuState } from "../../menu/menu";
 
 interface Props {
@@ -19,8 +19,8 @@ export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
 
   private imageContainerRef = useRef("o-image");
   private menuButtonRef = useRef("menuButton");
-  private menuButtonPosition = useAbsolutePosition(this.menuButtonRef);
-  private position = useAbsolutePosition(this.imageContainerRef);
+  private menuButtonRect = useAbsoluteBoundingRect(this.menuButtonRef);
+  private position: DOMCoordinates = useAbsoluteBoundingRect(this.imageContainerRef);
 
   private getMenuItemRegistry(): MenuItemRegistry {
     const registry = new MenuItemRegistry();
@@ -81,11 +81,12 @@ export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   showMenu() {
-    const position = {
-      x: this.menuButtonPosition.x - MENU_WIDTH,
-      y: this.menuButtonPosition.y,
+    const { x, y, width } = this.menuButtonRect;
+    const menuPosition = {
+      x: x >= MENU_WIDTH ? x - MENU_WIDTH : x + width,
+      y: y,
     };
-    this.openContextMenu(position);
+    this.openContextMenu(menuPosition);
   }
 
   private openContextMenu(position: DOMCoordinates) {
