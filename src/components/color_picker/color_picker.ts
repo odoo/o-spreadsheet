@@ -33,6 +33,7 @@ css/* scss */ `
     position: absolute;
     top: calc(100% + 5px);
     z-index: ${ComponentsImportance.ColorPicker};
+    padding: ${PICKER_PADDING}px 0px;
     box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
     background-color: white;
     line-height: 1.2;
@@ -177,7 +178,7 @@ function computeCustomColor(ev: MouseEvent) {
 }
 
 export interface ColorPickerProps {
-  maxHeight: Pixel;
+  maxHeight?: Pixel;
   dropdownDirection?: "left" | "right" | "center";
   onColorPicked: (color: Color) => void;
   currentColor: Color;
@@ -211,11 +212,13 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
     },
   });
 
-  get dropdownStyle() {
-    const height = this.props.maxHeight;
+  get colorPickerStyle(): string {
+    if (this.props.maxHeight === undefined) return "";
+    if (this.props.maxHeight <= 0) {
+      return cssPropertiesToCss({ display: "none" });
+    }
     return cssPropertiesToCss({
-      padding: height <= 0 ? "0px" : `${PICKER_PADDING}px 0px`,
-      "max-height": `${height}px`,
+      "max-height": `${this.props.maxHeight}px`,
     });
   }
 
