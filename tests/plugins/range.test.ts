@@ -13,6 +13,7 @@ import {
   renameSheet,
 } from "../test_helpers/commands_helpers";
 import { addTestPlugin } from "../test_helpers/helpers";
+import { coreTypes } from "./../../src/types/commands";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let m;
@@ -30,6 +31,10 @@ export interface UseTransientRange {
 }
 
 type TestCommands = Command | UseRange | UseTransientRange;
+//@ts-ignore
+coreTypes.add("USE_RANGE");
+//@ts-ignore
+coreTypes.add("USE_TRANSIENT_RANGE");
 
 class PluginTestRange extends CorePlugin {
   static getters = ["getUsedRanges", "getRanges"];

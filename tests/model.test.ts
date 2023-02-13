@@ -126,6 +126,19 @@ describe("Model", () => {
     expect(receivedCommands).not.toContain("COPY");
   });
 
+  test("Core plugins handle don't receive UI commands", () => {
+    const receivedCommands: CommandTypes[] = [];
+    class MyCorePlugin extends CorePlugin {
+      handle(cmd: CoreCommand) {
+        receivedCommands.push(cmd.type);
+      }
+    }
+    addTestPlugin(corePluginRegistry, MyCorePlugin);
+    const model = new Model();
+    model.dispatch("COPY");
+    expect(receivedCommands).not.toContain("COPY");
+  });
+
   test("canDispatch method is exposed and works", () => {
     class MyCorePlugin extends CorePlugin {
       allowDispatch(cmd: CoreCommand) {
