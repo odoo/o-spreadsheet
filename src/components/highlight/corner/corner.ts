@@ -65,7 +65,7 @@ export class Corner extends Component<Props, SpreadsheetChildEnv> {
     return cssPropertiesToCss({
       left: `${leftValue - AUTOFILL_EDGE_LENGTH / 2}px`,
       top: `${topValue - AUTOFILL_EDGE_LENGTH / 2}px`,
-      backgroundColor: this.props.color,
+      "background-color": this.props.color,
     });
   }
 
