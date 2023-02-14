@@ -5,7 +5,7 @@ import {
   DEFAULT_CELL_WIDTH,
   DEFAULT_SHEETVIEW_SIZE,
 } from "../../src/constants";
-import { toZone } from "../../src/helpers";
+import { toHex, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { DispatchResult } from "../../src/types/commands";
 import { merge } from "../test_helpers/commands_helpers";
@@ -296,6 +296,12 @@ describe("Corner component", () => {
       offsetX: 0,
       offsetY: height / 2,
     });
+  });
+
+  test("Corner is colored with the same color as the highlight", async () => {
+    await mountHighlight("A1", "#666666");
+    const cornerEl = fixture.querySelector(".o-corner-nw")! as HTMLElement;
+    expect(toHex(cornerEl.style.backgroundColor)).toBe("#666666");
   });
 });
 
