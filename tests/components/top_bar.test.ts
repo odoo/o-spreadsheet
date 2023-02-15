@@ -871,3 +871,13 @@ describe("Topbar - menu item resizing with viewport", () => {
     );
   });
 });
+
+test("The composer helper should be closed on toggle topbar context menu", async () => {
+  const { model, fixture } = await mountSpreadsheet();
+  await typeInComposerTopBar("=sum(");
+  expect(model.getters.getEditionMode()).not.toBe("inactive");
+  expect(fixture.querySelectorAll(".o-composer-assistant")).toHaveLength(1);
+  await simulateClick(".o-topbar-topleft .o-topbar-menu");
+  expect(model.getters.getEditionMode()).toBe("inactive");
+  expect(fixture.querySelectorAll(".o-composer-assistant")).toHaveLength(0);
+});

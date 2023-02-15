@@ -205,6 +205,15 @@ describe("Simple Spreadsheet Component", () => {
     const sheets = document.querySelectorAll(".o-all-sheets .o-sheet");
     expect(sheets).toHaveLength(model.getters.getSheetIds().length - 1);
   });
+
+  test("The composer helper should be closed on toggle topbar context menu", async () => {
+    await typeInComposerGrid("=sum(");
+    expect(parent.model.getters.getEditionMode()).not.toBe("inactive");
+    expect(fixture.querySelectorAll(".o-composer-assistant")).toHaveLength(1);
+    await simulateClick(".o-topbar-topleft .o-topbar-menu");
+    expect(parent.model.getters.getEditionMode()).toBe("inactive");
+    expect(fixture.querySelectorAll(".o-composer-assistant")).toHaveLength(0);
+  });
 });
 
 test("Can instantiate a spreadsheet with a given client id-name", async () => {
