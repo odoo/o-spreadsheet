@@ -1,9 +1,12 @@
 import { CommandResult } from "../../src";
 import { DEFAULT_CELL_WIDTH } from "../../src/constants";
+import { numberToLetters, range } from "../../src/helpers";
 import { Model } from "../../src/model";
 import {
   activateSheet,
   createSheet,
+  deleteColumns,
+  deleteRows,
   freezeColumns,
   freezeRows,
   selectCell,
@@ -393,5 +396,69 @@ describe("figure plugin", () => {
       figure,
     });
     expect(cmd3).toBeCancelledBecause(CommandResult.DuplicatedFigureId);
+  });
+
+  test("Figure stay in grid after removing the rows and columns", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    const figureId = "someuuid";
+
+    const colSize = model.getters.getColDimensions(sheetId, 1).size;
+    const rowSize = model.getters.getRowDimensions(sheetId, 1).size;
+
+    const maxX = model.getters.getColDimensions(
+      sheetId,
+      model.getters.getNumberCols(sheetId) - 1
+    ).end;
+    const maxY = model.getters.getRowDimensions(
+      sheetId,
+      model.getters.getNumberRows(sheetId) - 1
+    ).end;
+
+    const figure = {
+      id: figureId,
+      x: maxX - rowSize,
+      y: maxY - colSize,
+      tag: "hey",
+      width: 500,
+      height: 500,
+    };
+    model.dispatch("CREATE_FIGURE", {
+      sheetId,
+      figure,
+    });
+
+    deleteColumns(model, ["B"]);
+    deleteRows(model, [1]);
+    const figureAfter = model.getters.getFigure(sheetId, figureId)!;
+    expect(figureAfter.x).toBe(maxX - colSize - figureAfter.width);
+    expect(figureAfter.y).toBe(maxY - rowSize - figureAfter.height);
+  });
+
+  test("Move image at (0,0) if not enough space after removing rows and columns", async () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    const figureId = "someuuid";
+    const figureDef = {
+      id: figureId,
+      x: 800,
+      y: 1200,
+      tag: "hey",
+      width: 800,
+      height: 1100,
+    };
+    model.dispatch("CREATE_FIGURE", {
+      sheetId,
+      figure: figureDef,
+    });
+
+    const figure = model.getters.getFigure(sheetId, figureId)!;
+    expect(figure.x).toBe(800);
+    expect(figure.y).toBe(1200);
+    deleteColumns(model, range(8, model.getters.getNumberCols(sheetId)).map(numberToLetters));
+    deleteRows(model, range(8, model.getters.getNumberRows(sheetId)));
+    const figureAfter = model.getters.getFigure(sheetId, figureId)!;
+    expect(figureAfter.x).toBe(0);
+    expect(figureAfter.y).toBe(0);
   });
 });

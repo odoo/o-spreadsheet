@@ -128,6 +128,29 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     expect(model.getters.getFigures(sheetId)).toHaveLength(0);
   });
 
+  test("Figure is copied to edge of the sheet", () => {
+    model.dispatch("UPDATE_FIGURE", {
+      sheetId,
+      id: figureId,
+      height: 256,
+      width: 257,
+    });
+    model.dispatch("SELECT_FIGURE", { id: figureId });
+    copy(model);
+    paste(model, "Z100");
+    const copiedFigure = model.getters.getFigure(sheetId, getCopiedFigureId())!;
+    const maxX = model.getters.getColDimensions(
+      sheetId,
+      model.getters.getNumberCols(sheetId) - 1
+    ).end;
+    const maxY = model.getters.getRowDimensions(
+      sheetId,
+      model.getters.getNumberRows(sheetId) - 1
+    ).end;
+    expect(copiedFigure.x).toBe(maxX - copiedFigure.width);
+    expect(copiedFigure.y).toBe(maxY - copiedFigure.height);
+  });
+
   describe("Paste command result", () => {
     test("Cannot paste with empty target", () => {
       model.dispatch("SELECT_FIGURE", { id: figureId });

@@ -262,6 +262,17 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
 
     const initialMousePosition = { x: ev.clientX, y: ev.clientY };
 
+    const maxDimensions = {
+      maxX: this.env.model.getters.getColDimensions(
+        sheetId,
+        this.env.model.getters.getNumberCols(sheetId) - 1
+      ).end,
+      maxY: this.env.model.getters.getRowDimensions(
+        sheetId,
+        this.env.model.getters.getNumberRows(sheetId) - 1
+      ).end,
+    };
+
     const { x, y } = internalFigureToScreen(this.env.model.getters, figure);
 
     const initialFig = { ...figure, x, y };
@@ -274,6 +285,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
         initialMousePosition,
         initialFig,
         this.env.model.getters.getMainViewportCoordinates(),
+        maxDimensions,
         getters.getActiveSheetScrollInfo()
       );
 

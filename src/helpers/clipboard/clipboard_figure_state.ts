@@ -84,14 +84,19 @@ export class ClipboardFigureState implements ClipboardState {
    */
   paste(target: Zone[]) {
     const sheetId = this.getters.getActiveSheetId();
+    const { width, height } = this.copiedFigure;
+    const numCols = this.getters.getNumberCols(sheetId);
+    const numRows = this.getters.getNumberRows(sheetId);
+    const targetX = this.getters.getColDimensions(sheetId, target[0].left).start;
+    const targetY = this.getters.getRowDimensions(sheetId, target[0].top).start;
+    const maxX = this.getters.getColDimensions(sheetId, numCols - 1).end;
+    const maxY = this.getters.getRowDimensions(sheetId, numRows - 1).end;
     const position = {
-      x: this.getters.getColDimensions(sheetId, target[0].left).start,
-      y: this.getters.getRowDimensions(sheetId, target[0].top).start,
+      x: maxX < width ? 0 : Math.min(targetX, maxX - width),
+      y: maxY < height ? 0 : Math.min(targetY, maxY - height),
     };
-    const size = { height: this.copiedFigure.height, width: this.copiedFigure.width };
-
     const newId = new UuidGenerator().uuidv4();
-    this.copiedFigureContent.paste(sheetId, newId, position, size);
+    this.copiedFigureContent.paste(sheetId, newId, position, { height, width });
 
     if (this.operation === "CUT") {
       this.dispatch("DELETE_FIGURE", {

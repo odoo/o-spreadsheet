@@ -5,17 +5,20 @@ export function dragFigureForMove(
   { x: mouseInitialX, y: mouseInitialY }: PixelPosition,
   initialFigure: Figure,
   { x: viewportX, y: viewportY }: PixelPosition,
+  { maxX, maxY }: { maxX: number; maxY: number },
   { scrollX, scrollY }: SheetScrollInfo
 ): Figure {
   const minX = viewportX ? 0 : -scrollX;
   const minY = viewportY ? 0 : -scrollY;
-
-  let deltaX = mouseX - mouseInitialX;
-  const newX = Math.max(initialFigure.x + deltaX, minX);
-  let deltaY = mouseY - mouseInitialY;
-  const newY = Math.max(initialFigure.y + deltaY, minY);
-
+  const deltaX = mouseX - mouseInitialX;
+  const newX = clamp(initialFigure.x + deltaX, minX, maxX - initialFigure.width - scrollX);
+  const deltaY = mouseY - mouseInitialY;
+  const newY = clamp(initialFigure.y + deltaY, minY, maxY - initialFigure.height - scrollY);
   return { ...initialFigure, x: newX, y: newY };
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
 }
 
 export function dragFigureForResize(
