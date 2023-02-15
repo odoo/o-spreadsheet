@@ -362,6 +362,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.state.menuState.parentMenu = menu;
     this.isSelectingMenu = true;
     this.openedEl = ev.target as HTMLElement;
+    this.env.model.dispatch("STOP_EDITION");
   }
 
   closeMenus() {
