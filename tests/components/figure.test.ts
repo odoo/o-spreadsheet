@@ -953,8 +953,14 @@ describe("figures", () => {
 
       test("No Y snap with bottom border below the viewport", async () => {
         const { height: viewportHeight } = model.getters.getMainViewportRect();
-        createFigure(model, { id: "f1", x: 0, y: 100, width: 100, height: viewportHeight });
-        createFigure(model, { id: "f2", x: 0, y: 0, width: 100, height: viewportHeight + 100 });
+        createFigure(model, { id: "f1", x: 0, y: 100, width: 100, height: 0.85 * viewportHeight });
+        createFigure(model, {
+          id: "f2",
+          x: 0,
+          y: 0,
+          width: 100,
+          height: 0.85 * viewportHeight + 100,
+        });
         await nextTick();
         await dragElement(".o-figure[data-id=f1]", { x: 0, y: 1 }, undefined, true);
         expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({ x: 0, y: 101 });
@@ -962,8 +968,14 @@ describe("figures", () => {
 
       test("No X snap with right border right of the viewport", async () => {
         const { width: viewportWidth } = model.getters.getMainViewportRect();
-        createFigure(model, { id: "f1", x: 100, y: 0, width: viewportWidth, height: 100 });
-        createFigure(model, { id: "f2", x: 0, y: 0, width: viewportWidth + 100, height: 100 });
+        createFigure(model, { id: "f1", x: 100, y: 0, width: 0.85 * viewportWidth, height: 100 });
+        createFigure(model, {
+          id: "f2",
+          x: 0,
+          y: 0,
+          width: 0.85 * viewportWidth + 100,
+          height: 100,
+        });
         await nextTick();
         await dragElement(".o-figure[data-id=f1]", { x: 1, y: 0 }, undefined, true);
         expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({ x: 101, y: 0 });

@@ -53,6 +53,42 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
       case "DELETE_FIGURE":
         this.removeFigure(cmd.id, cmd.sheetId);
         break;
+      case "REMOVE_COLUMNS_ROWS":
+        this.onRowColDelete(cmd.sheetId, cmd.dimension);
+    }
+  }
+
+  private onRowColDelete(sheetId: string, dimension: string) {
+    dimension === "ROW" ? this.onRowDeletion(sheetId) : this.onColDeletion(sheetId);
+  }
+
+  private onRowDeletion(sheetId: string) {
+    const numHeader = this.getters.getNumberRows(sheetId);
+    let gridHeight = 0;
+    for (let i = 0; i < numHeader; i++) {
+      gridHeight += this.getters.getRowSize(sheetId, i);
+    }
+    const figures = this.getters.getFigures(sheetId);
+    for (const figure of figures) {
+      const newY = Math.min(figure.y, gridHeight - figure.height);
+      if (newY !== figure.y) {
+        this.dispatch("UPDATE_FIGURE", { sheetId, id: figure.id, y: newY });
+      }
+    }
+  }
+
+  private onColDeletion(sheetId: string) {
+    const numHeader = this.getters.getNumberCols(sheetId);
+    let gridWidth = 0;
+    for (let i = 0; i < numHeader; i++) {
+      gridWidth += this.getters.getColSize(sheetId, i);
+    }
+    const figures = this.getters.getFigures(sheetId);
+    for (const figure of figures) {
+      const newX = Math.min(figure.x, gridWidth - figure.width);
+      if (newX !== figure.x) {
+        this.dispatch("UPDATE_FIGURE", { sheetId, id: figure.id, x: newX });
+      }
     }
   }
 
