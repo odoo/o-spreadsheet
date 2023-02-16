@@ -46,8 +46,8 @@ export class Graph {
     return node;
   }
 
-  getAdjacentNodes(xc: string): Node[] | undefined {
-    return this.nodes.get(xc)?.adjacent;
+  getAdjacentNodes(xc: string): Node[] {
+    return this.nodes.get(xc)?.adjacent || [];
   }
 
   /**
@@ -129,5 +129,64 @@ export class Graph {
 
   hasNode(xc: string): boolean {
     return this.nodes.has(xc);
+  }
+}
+/**
+ * This class is an implementation of an undirect graph.
+ */
+export class BiDirectionalGraph {
+  topDown: Graph = new Graph();
+  bottomUp: Graph = new Graph();
+
+  addNode(xc: string): Node {
+    return this.topDown.addNode(xc);
+  }
+
+  getTopDownAdjacentNodes(xc: string): Node[] {
+    return this.topDown.getAdjacentNodes(xc);
+  }
+
+  getBottomUpAdjacentNodes(xc: string): Node[] {
+    return this.bottomUp.getAdjacentNodes(xc);
+  }
+
+  /**
+   * Remove a node, also remove it from other nodes adjacency list
+   */
+  removeNode(xc: string): Node | undefined {
+    const topDownNode = this.topDown.removeNode(xc);
+    const bottomUpNode = this.bottomUp.removeNode(xc);
+    return topDownNode || bottomUpNode;
+  }
+
+  /**
+   * Create an edge between two nodes
+   *
+   */
+  addEdge(source: string, destination: string): void {
+    this.topDown.addEdge(source, destination);
+    this.bottomUp.addEdge(destination, source);
+  }
+
+  /**
+   * Remove an edge between two nodes
+   */
+  removeEdge(source: string, destination: string): void {
+    this.topDown.removeEdge(source, destination);
+    this.bottomUp.removeEdge(destination, source);
+  }
+
+  hasRelationBetween(root: string, target: string): boolean {
+    return (
+      this.topDown.hasRelationBetween(root, target) ||
+      this.bottomUp.hasRelationBetween(root, target)
+    );
+  }
+
+  hasTopDownNode(xc: string): boolean {
+    return this.topDown.nodes.has(xc);
+  }
+  hasBottomUpNode(xc: string): boolean {
+    return this.bottomUp.nodes.has(xc);
   }
 }

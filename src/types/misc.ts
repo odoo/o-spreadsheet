@@ -165,13 +165,13 @@ export interface CompiledFormula {
   tokens: Token[];
   dependencies: string[];
 }
-
+export type Matrix<KeanuReeves> = KeanuReeves[][];
 export type Arg = MatrixArg | PrimitiveArg;
 export type MatrixArg = ({ value: CellValue; format?: Format } | undefined)[][];
 export type PrimitiveArg = { value: PrimitiveArgValue; format?: Format };
 
 export type ArgValue = PrimitiveArgValue | MatrixArgValue;
-export type MatrixArgValue = (CellValue | undefined)[][];
+export type MatrixArgValue = (CellValue | undefined)[][]; // TODO: replace undefined by null
 export type PrimitiveArgValue = string | number | boolean | null;
 
 export type FunctionReturn = { value: FunctionReturnValue; format?: Format };
@@ -179,7 +179,12 @@ interface FormulaReturn extends Omit<FunctionReturn, "value"> {
   value: FunctionReturnValue | null; // Formulas can return a cell value that can be null for empty cells
   format?: Format;
 }
-export type FunctionReturnValue = string | number | boolean;
+export type FunctionReturnValue = ScalarValue | MatrixValue;
+export type ScalarValue = CellValue;
+export type MatrixValue = Matrix<ScalarValue>;
+export function isMatrix(x: any): x is Matrix<any> {
+  return Array.isArray(x) && Array.isArray(x[0]);
+}
 
 export interface ClipboardCell {
   cell?: Cell;

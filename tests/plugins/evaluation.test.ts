@@ -1,4 +1,5 @@
 import { arg, functionRegistry } from "../../src/functions";
+import { toNumber } from "../../src/functions/helpers";
 import { Model } from "../../src/model";
 import {
   ArgValue,
@@ -6,13 +7,16 @@ import {
   ComputeFunction,
   ErrorCell,
   FunctionReturnValue,
+  isMatrix,
   MatrixArgValue,
+  PrimitiveArgValue,
 } from "../../src/types";
 import {
   activateSheet,
   addColumns,
   copy,
   createSheet,
+  cut,
   deleteColumns,
   paste,
   setCellContent,
@@ -1224,5 +1228,494 @@ describe("evaluate formula getter", () => {
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
     expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe("Error2");
     functionRegistry.remove("GETVALUE");
+  });
+});
+
+describe("evaluate formulas that return an array", () => {
+  let model: Model = new Model();
+
+  beforeEach(() => {
+    model = new Model();
+    functionRegistry.add("MFILL", {
+      description: "Return an n*n matrix filled with n.",
+      args: [
+        arg("n (number)", "number of column of the matrix"),
+        arg("m (number)", "number of row of the matrix"),
+        arg("v (number)", "value to fill matrix"),
+      ],
+      returns: ["RANGE<NUMBER>"],
+      compute: function (
+        n: PrimitiveArgValue,
+        m: PrimitiveArgValue,
+        v: PrimitiveArgValue
+      ): any[][] {
+        return Array.from({ length: toNumber(n) }, (_, i) =>
+          Array.from({ length: toNumber(m) }, (_, j) => v)
+        );
+      } as ComputeFunction<ArgValue, FunctionReturnValue>,
+    });
+
+    functionRegistry.add("TRANSPOSE", {
+      description: "Transpose a matrix.",
+      args: [arg("matrix (range<number>)", "The matrix to be transposed.")],
+      returns: ["NUMBER"],
+      compute: function (values) {
+        if (isMatrix(values)) {
+          return Array.from({ length: values[0].length }, (_, i) =>
+            Array.from({ length: values.length }, (_, j) => values[j][i])
+          );
+        }
+        return [[values]];
+      } as ComputeFunction<ArgValue, FunctionReturnValue>,
+      isExported: true,
+    });
+  });
+
+  test("a simple reference to a range cannot return an array", () => {
+    setCellContent(model, "A1", "=A2:A3");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+  });
+
+  test("formula with function that return array can return array", () => {
+    setCellContent(model, "A1", "=MFILL(2, 2, 42)");
+    expect(getEvaluatedCell(model, "A1").value).toBe(42);
+    expect(getEvaluatedCell(model, "A2").value).toBe(42);
+    expect(getEvaluatedCell(model, "B1").value).toBe(42);
+    expect(getEvaluatedCell(model, "B2").value).toBe(42);
+  });
+
+  test("reference to a formula result array is possible", () => {
+    setCellContent(model, "A1", "=MFILL(3,3,42)");
+    setCellContent(model, "D4", "=C3");
+    expect(getEvaluatedCell(model, "D4").value).toBe(42);
+  });
+
+  describe("cut/past reference", () => {
+    test("Reference to a spread is keep when we cut/past the spread formula", () => {
+      setCellContent(model, "A1", "=MFILL(2,2,42)");
+      setCellContent(model, "A3", "=B2");
+      expect(getEvaluatedCell(model, "A3").value).toBe(42);
+      cut(model, "A1:B2");
+      paste(model, "C1");
+      expect(getEvaluatedCell(model, "A3").value).toBe(42);
+      setCellContent(model, "C1", "=MFILL(2,2,24)");
+      expect(getEvaluatedCell(model, "A3").value).toBe(24);
+    });
+
+    test("References to a spread are keep when we cut/past the spread formula", () => {
+      setCellContent(model, "A1", "=MFILL(2,2,42)");
+      setCellContent(model, "A3", "=TRANSPOSE(A1:B2)");
+      expect(getEvaluatedCell(model, "A3").value).toBe(42);
+      expect(getEvaluatedCell(model, "B4").value).toBe(42);
+      cut(model, "A1:B2");
+      paste(model, "C1");
+      expect(getEvaluatedCell(model, "A3").value).toBe(42);
+      expect(getEvaluatedCell(model, "B4").value).toBe(42);
+      setCellContent(model, "C1", "=MFILL(2,2,24)");
+      expect(getEvaluatedCell(model, "A3").value).toBe(24);
+      expect(getEvaluatedCell(model, "B4").value).toBe(24);
+    });
+
+    test("Reference to a spread is keep when we cut/past the reference", () => {
+      setCellContent(model, "A1", "=MFILL(2,2,42)");
+      setCellContent(model, "A3", "=B2");
+      expect(getEvaluatedCell(model, "A3").value).toBe(42);
+      cut(model, "A3");
+      paste(model, "C3");
+      expect(getEvaluatedCell(model, "C3").value).toBe(42);
+      setCellContent(model, "A1", "=MFILL(2,2,24)");
+      expect(getEvaluatedCell(model, "C3").value).toBe(24);
+    });
+
+    test("References to a spread are keep when we cut/past the references", () => {
+      setCellContent(model, "A1", "=MFILL(2,2,42)");
+      setCellContent(model, "A3", "=TRANSPOSE(A1:B2)");
+      expect(getEvaluatedCell(model, "A3").value).toBe(42);
+      expect(getEvaluatedCell(model, "B4").value).toBe(42);
+      cut(model, "A3:B4");
+      paste(model, "C3");
+      expect(getEvaluatedCell(model, "C3").value).toBe(42);
+      expect(getEvaluatedCell(model, "D4").value).toBe(42);
+      setCellContent(model, "A1", "=MFILL(2,2,24)");
+      expect(getEvaluatedCell(model, "C3").value).toBe(24);
+      expect(getEvaluatedCell(model, "D4").value).toBe(24);
+    });
+  });
+
+  // TO DO : test result with format
+
+  describe("result array can collides with other cell", () => {
+    test("throw error on the formula when collide with cell having content", () => {
+      setCellContent(model, "B2", "kikou");
+      setCellContent(model, "A1", "=MFILL(2,2, 42)");
+      expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+        "Array result was not expanded because it would overwrite data in B2."
+      );
+
+      setCellContent(model, "A4", "kikou");
+      setCellContent(model, "A3", "=MFILL(2,2, 42)");
+      expect(getEvaluatedCell(model, "A3").value).toBe("#ERROR");
+      expect((getEvaluatedCell(model, "A3") as ErrorCell).error.message).toBe(
+        "Array result was not expanded because it would overwrite data in A4."
+      );
+    });
+
+    test("throw error on the formula when collide with other formula ", () => {
+      setCellContent(model, "B2", "=SUM(42+24)");
+      setCellContent(model, "A1", "=MFILL(2,2, 42)");
+      expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+        "Array result was not expanded because it would overwrite data in B2."
+      );
+    });
+
+    test("throw error message concerning the first cell encountered vertically", () => {
+      setCellContent(model, "A1", "=MFILL(1,3, 42)");
+      setCellContent(model, "A2", "kikou");
+      setCellContent(model, "A3", "kikou");
+      expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+        "Array result was not expanded because it would overwrite data in A2."
+      );
+    });
+
+    test("throw error message concerning the first cell encountered horizontally", () => {
+      setCellContent(model, "A1", "=MFILL(3,1, 42)");
+      setCellContent(model, "B1", "kikou");
+      setCellContent(model, "C1", "kikou");
+      expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+        "Array result was not expanded because it would overwrite data in B1."
+      );
+    });
+
+    test("don't spread result when collide", () => {
+      setCellContent(model, "B2", "kikou");
+      setCellContent(model, "A1", "=MFILL(2,2, 42)");
+      expect(getEvaluatedCell(model, "A2").value).toBe("");
+      expect(getEvaluatedCell(model, "B1").value).toBe("");
+      expect(getEvaluatedCell(model, "B2").value).toBe("kikou");
+    });
+
+    test("spread result when remove collision", () => {
+      setCellContent(model, "B2", "kikou");
+      setCellContent(model, "A1", "=MFILL(2,2, 42)");
+      setCellContent(model, "B2", "");
+      expect(getEvaluatedCell(model, "A1").value).toBe(42);
+      expect(getEvaluatedCell(model, "A2").value).toBe(42);
+      expect(getEvaluatedCell(model, "B1").value).toBe(42);
+      expect(getEvaluatedCell(model, "B2").value).toBe(42);
+    });
+
+    test("keep collide when change collision", () => {
+      setCellContent(model, "B2", "kikou");
+      setCellContent(model, "A1", "=MFILL(2,2, 42)");
+      setCellContent(model, "B2", "Aquecoucou");
+      expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      expect(getEvaluatedCell(model, "A2").value).toBe("");
+      expect(getEvaluatedCell(model, "B1").value).toBe("");
+      expect(getEvaluatedCell(model, "B2").value).toBe("Aquecoucou");
+    });
+
+    describe("collision tests on several limit positions", () => {
+      test("limit located on the formula column", () => {
+        setCellContent(model, "A1", "=MFILL(3,3,42)");
+        setCellContent(model, "A4", "kikou");
+        expect(getEvaluatedCell(model, "A1").value).toBe(42);
+
+        setCellContent(model, "A3", "kikou");
+        expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      });
+
+      test("limit located on the formula row", () => {
+        setCellContent(model, "A1", "=MFILL(3,3,42)");
+        setCellContent(model, "D1", "kikou");
+        expect(getEvaluatedCell(model, "A1").value).toBe(42);
+
+        setCellContent(model, "C1", "kikou");
+        expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      });
+
+      test("limit located before the formula column", () => {
+        setCellContent(model, "B1", "=MFILL(3,3,42)");
+        setCellContent(model, "A3", "kikou");
+        expect(getEvaluatedCell(model, "B1").value).toBe(42);
+      });
+
+      test("limit located before the formula row", () => {
+        setCellContent(model, "A2", "=MFILL(3,3,42)");
+        setCellContent(model, "C1", "kikou");
+        expect(getEvaluatedCell(model, "A2").value).toBe(42);
+      });
+
+      test("limit located adter the formula column", () => {
+        setCellContent(model, "A1", "=MFILL(1,3,42)");
+        setCellContent(model, "B3", "kikou");
+        expect(getEvaluatedCell(model, "A1").value).toBe(42);
+
+        setCellContent(model, "A1", "=MFILL(2,3,42)");
+        expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      });
+
+      test("limit located after the formula row", () => {
+        setCellContent(model, "A1", "=MFILL(1,3,42)");
+        setCellContent(model, "C2", "kikou");
+        expect(getEvaluatedCell(model, "A1").value).toBe(42);
+
+        setCellContent(model, "A1", "=MFILL(3,2,42)");
+        expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      });
+
+      test("multiple limit test", () => {
+        setCellContent(model, "A1", "=MFILL(5,3,42)");
+        setCellContent(model, "B4", "kikou");
+        expect(getEvaluatedCell(model, "A1").value).toBe(42);
+        setCellContent(model, "C5", "kikou");
+        expect(getEvaluatedCell(model, "A1").value).toBe(42);
+        setCellContent(model, "D3", "colision");
+        expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      });
+    });
+  });
+
+  describe("a formula that refers to a result array must always have the same result", () => {
+    const ref = "=C3";
+    const formula = "=MFILL(3,3,42)";
+    const result = 42;
+
+    describe("regardless the position of the result array", () => {
+      test("reference located at the top/left of the result array", () => {
+        setCellContent(model, "A1", ref);
+        setCellContent(model, "B2", formula);
+        expect(getEvaluatedCell(model, "A1").value).toBe(result);
+      });
+
+      test("reference located at the top/right of the result array", () => {
+        setCellContent(model, "E1", ref);
+        setCellContent(model, "B2", formula);
+        expect(getEvaluatedCell(model, "E1").value).toBe(result);
+      });
+
+      test("reference located at the bottom/left of the result array", () => {
+        setCellContent(model, "A5", ref);
+        setCellContent(model, "B2", formula);
+        expect(getEvaluatedCell(model, "A5").value).toBe(result);
+      });
+
+      test("reference located at the bottom/right of the result array", () => {
+        setCellContent(model, "E5", ref);
+        setCellContent(model, "B2", formula);
+        expect(getEvaluatedCell(model, "E5").value).toBe(result);
+      });
+    });
+
+    describe("regardless the order we set the formulas", () => {
+      test("reference located at the top/left of the result array, set the formula ref first", () => {
+        setCellContent(model, "A1", ref);
+        setCellContent(model, "B2", formula);
+        expect(getEvaluatedCell(model, "A1").value).toBe(result);
+      });
+
+      test("reference located at the top/left of the result array, set the result array first", () => {
+        setCellContent(model, "B2", formula);
+        setCellContent(model, "A1", ref);
+        expect(getEvaluatedCell(model, "A1").value).toBe(result);
+      });
+
+      test("reference located at the bottom/right of the result array, set the formula ref first", () => {
+        setCellContent(model, "E5", ref);
+        setCellContent(model, "B2", formula);
+        expect(getEvaluatedCell(model, "E5").value).toBe(result);
+      });
+
+      test("reference located at the bottom/right of the result array, set the result array first", () => {
+        setCellContent(model, "B2", formula);
+        setCellContent(model, "E5", ref);
+        expect(getEvaluatedCell(model, "E5").value).toBe(result);
+      });
+    });
+  });
+
+  describe("formula with spread dependencies", () => {
+    test("formula with own spread dependencies have only one cycle", () => {
+      setCellContent(model, "A1", "=MFILL(2,2,B1+1)");
+      expect(getEvaluatedCell(model, "A1").value).toBe(1);
+      expect(getEvaluatedCell(model, "A2").value).toBe(1);
+      expect(getEvaluatedCell(model, "B1").value).toBe(1);
+      expect(getEvaluatedCell(model, "B2").value).toBe(1);
+    });
+
+    test("formulas with cross spread dependencies depends on a cycle limit", () => {
+      setCellContent(model, "A1", "=MFILL(2,1,D1+1)");
+      setCellContent(model, "C1", "=MFILL(2,1,B1+1)");
+      expect(getEvaluatedCell(model, "A1").value).toBe(101);
+      expect(getEvaluatedCell(model, "B1").value).toBe(101);
+      expect(getEvaluatedCell(model, "C1").value).toBe(100);
+      expect(getEvaluatedCell(model, "D1").value).toBe(100);
+    });
+
+    test("have collision when spreaded size zone change", () => {
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "B1", "=MFILL(1,A1+1,42)");
+      setCellContent(model, "A3", "=TRANSPOSE(B1:B2)");
+
+      expect(getEvaluatedCell(model, "B1").value).toBe(42);
+      expect(getEvaluatedCell(model, "B2").value).toBe(42);
+
+      expect(getEvaluatedCell(model, "A3").value).toBe(42);
+      expect(getEvaluatedCell(model, "B3").value).toBe(42);
+
+      setCellContent(model, "A1", "2");
+
+      expect(getEvaluatedCell(model, "B1").value).toBe(42);
+      expect(getEvaluatedCell(model, "B2").value).toBe(42);
+      expect(getEvaluatedCell(model, "B3").value).toBe(42);
+
+      expect(getEvaluatedCell(model, "A3").value).toBe("#ERROR");
+    });
+  });
+
+  describe("result array can collides with other result array", () => {
+    test("throw error on the formula when collide", () => {
+      const formula = "=MFILL(2,2,42)";
+      setCellContent(model, "B1", formula);
+      setCellContent(model, "A2", formula);
+      expect(getEvaluatedCell(model, "B1").value).toBe(42);
+      expect(getEvaluatedCell(model, "A2").value).toBe("#ERROR");
+      expect((getEvaluatedCell(model, "A2") as ErrorCell).error.message).toBe(
+        "Array result was not expanded because it would overwrite data in B2."
+      );
+    });
+
+    test("throw error message concerning the first cell encountered vertically", () => {
+      setCellContent(model, "A2", "=MFILL(2,2,42)");
+      setCellContent(model, "B1", "=MFILL(1,3,42)");
+      expect(getEvaluatedCell(model, "B1").value).toBe("#ERROR");
+      expect(getEvaluatedCell(model, "A2").value).toBe(42);
+      expect((getEvaluatedCell(model, "B1") as ErrorCell).error.message).toBe(
+        "Array result was not expanded because it would overwrite data in B2."
+      );
+    });
+
+    test("throw error message concerning the first cell encountered horizontally", () => {
+      setCellContent(model, "A2", "=MFILL(3,1,42)");
+      setCellContent(model, "B1", "=MFILL(2,2,42)");
+      expect(getEvaluatedCell(model, "B1").value).toBe("#ERROR");
+      expect(getEvaluatedCell(model, "A2").value).toBe(42);
+      expect((getEvaluatedCell(model, "B1") as ErrorCell).error.message).toBe(
+        "Array result was not expanded because it would overwrite data in B2."
+      );
+    });
+
+    test("don't spread result when collide", () => {
+      const formula = "=MFILL(2,2,42)";
+      setCellContent(model, "B1", formula);
+      setCellContent(model, "A2", formula);
+      expect(getEvaluatedCell(model, "B1").value).toBe(42);
+      expect(getEvaluatedCell(model, "B2").value).toBe(42);
+      expect(getEvaluatedCell(model, "A2").value).toBe("#ERROR");
+      expect(getEvaluatedCell(model, "A3").value).toBe("");
+      expect(getEvaluatedCell(model, "B3").value).toBe("");
+    });
+
+    test("spread result when remove collision", () => {
+      setCellContent(model, "B1", "=MFILL(2,2,24)");
+      setCellContent(model, "A2", "=MFILL(2,2,42)");
+      expect(getEvaluatedCell(model, "B1").value).toBe(24);
+      expect(getEvaluatedCell(model, "B2").value).toBe(24);
+      expect(getEvaluatedCell(model, "A2").value).toBe("#ERROR");
+      expect(getEvaluatedCell(model, "A3").value).toBe("");
+      expect(getEvaluatedCell(model, "B3").value).toBe("");
+      setCellContent(model, "B1", "");
+      expect(getEvaluatedCell(model, "B1").value).toBe("");
+      expect(getEvaluatedCell(model, "A2").value).toBe(42);
+      expect(getEvaluatedCell(model, "A3").value).toBe(42);
+      expect(getEvaluatedCell(model, "B2").value).toBe(42);
+      expect(getEvaluatedCell(model, "B3").value).toBe(42);
+    });
+
+    describe("collision tests on several limit positions", () => {
+      const result = 42;
+      const formula = "=MFILL(2,2,42)";
+
+      test("covering formula located on the covered formula columns", () => {
+        setCellContent(model, "B4", formula);
+        setCellContent(model, "C3", formula);
+        expect(getEvaluatedCell(model, "B4").value).toBe(result);
+        expect(getEvaluatedCell(model, "C3").value).toBe("#ERROR");
+      });
+
+      test("covering formula located on the covered formula rows", () => {
+        setCellContent(model, "C3", formula);
+        setCellContent(model, "D2", formula);
+        expect(getEvaluatedCell(model, "C3").value).toBe(result);
+        expect(getEvaluatedCell(model, "D2").value).toBe("#ERROR");
+      });
+
+      test("covering formula located before the covered formula columns", () => {
+        setCellContent(model, "A4", formula);
+        setCellContent(model, "C3", formula);
+        expect(getEvaluatedCell(model, "A4").value).toBe(result);
+        expect(getEvaluatedCell(model, "C3").value).toBe(result);
+      });
+
+      test("covering formula located before the covered formula rows", () => {
+        setCellContent(model, "C3", formula);
+        setCellContent(model, "D1", formula);
+        expect(getEvaluatedCell(model, "D1").value).toBe(result);
+        expect(getEvaluatedCell(model, "C3").value).toBe(result);
+      });
+
+      test("covering formula located after the covered formula columns", () => {
+        setCellContent(model, "C3", formula);
+        setCellContent(model, "E4", formula);
+        expect(getEvaluatedCell(model, "E4").value).toBe(result);
+        expect(getEvaluatedCell(model, "C3").value).toBe(result);
+      });
+
+      test("covering formula located after the covered formula rows", () => {
+        setCellContent(model, "C3", formula);
+        setCellContent(model, "D5", formula);
+        expect(getEvaluatedCell(model, "D5").value).toBe(result);
+        expect(getEvaluatedCell(model, "C3").value).toBe(result);
+      });
+    });
+
+    describe("throw error according to the order we set the formula", () => {
+      const result = 42;
+      const formula = "=MFILL(2,2,42)";
+      test("order 1: set A2, set B1 --> error on B1", () => {
+        setCellContent(model, "A2", formula);
+        setCellContent(model, "B1", formula);
+        expect(getEvaluatedCell(model, "A2").value).toBe(result);
+        expect(getEvaluatedCell(model, "B1").value).toBe("#ERROR");
+      });
+
+      test("order 2: set B1, set A2 --> error on A2", () => {
+        setCellContent(model, "B1", formula);
+        setCellContent(model, "A2", formula);
+        expect(getEvaluatedCell(model, "A2").value).toBe("#ERROR");
+        expect(getEvaluatedCell(model, "B1").value).toBe(result);
+      });
+    });
+
+    describe("throw error regardless the order we get the result", () => {
+      const result = 42;
+      const formula = "=MFILL(2,2,42)";
+      test("order 1: get A2, get B1", () => {
+        setCellContent(model, "A2", formula);
+        setCellContent(model, "B1", formula);
+        expect(getEvaluatedCell(model, "A2").value).toBe(result);
+        expect(getEvaluatedCell(model, "B1").value).toBe("#ERROR");
+      });
+
+      test("order 2: get B1, get A2", () => {
+        setCellContent(model, "A2", formula);
+        setCellContent(model, "B1", formula);
+        expect(getEvaluatedCell(model, "B1").value).toBe("#ERROR");
+        expect(getEvaluatedCell(model, "A2").value).toBe(result);
+      });
+    });
   });
 });
