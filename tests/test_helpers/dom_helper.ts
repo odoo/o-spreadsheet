@@ -130,7 +130,7 @@ export function triggerMouseEvent(
   offsetX?: number,
   offsetY?: number,
   extra: MouseEventInit = { bubbles: true }
-): void {
+) {
   const ev = new MouseEvent(type, {
     // this is only correct if we assume the target is positioned
     // at the very top left corner of the screen
@@ -143,6 +143,23 @@ export function triggerMouseEvent(
   (ev as any).offsetY = offsetY;
   const target = getTarget(selector);
   target.dispatchEvent(ev);
+}
+
+export function triggerWheelEvent(
+  selector: string | EventTarget,
+  extra: WheelEventInit = {
+    bubbles: true,
+    deltaMode: WheelEvent.DOM_DELTA_PIXEL, // = 0
+    deltaX: 0,
+    deltaY: 0,
+  }
+) {
+  const ev = new WheelEvent("wheel", { bubbles: true, ...extra });
+  if (typeof selector === "string") {
+    document.querySelector(selector)!.dispatchEvent(ev);
+  } else {
+    selector.dispatchEvent(ev);
+  }
 }
 
 export function setInputValueAndTrigger(

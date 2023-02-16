@@ -31,6 +31,7 @@ import {
   getElStyle,
   simulateClick,
   triggerMouseEvent,
+  triggerWheelEvent,
 } from "../test_helpers/dom_helper";
 import { getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import {
@@ -170,7 +171,7 @@ describe("figures", () => {
   test("Add a figure on sheet2, scroll down on sheet 1, switch to sheet 2, the figure should be displayed", async () => {
     createSheet(model, { sheetId: "42", position: 1 });
     createFigure(model, {}, "42");
-    fixture.querySelector(".o-grid")!.dispatchEvent(new WheelEvent("wheel", { deltaX: 1500 }));
+    triggerWheelEvent(".o-grid", { deltaX: 1500 });
     fixture.querySelector(".o-scrollbar.vertical")!.dispatchEvent(new Event("scroll"));
     await nextTick();
     activateSheet(model, "42");
@@ -374,9 +375,7 @@ describe("figures", () => {
         const figureEl = fixture.querySelector(".o-figure")!;
 
         triggerMouseEvent(figureEl, "mousedown");
-        figureEl.dispatchEvent(
-          new WheelEvent("wheel", { deltaY: wheelY, deltaX: wheelX, bubbles: true })
-        );
+        triggerWheelEvent(figureEl, { deltaY: wheelY, deltaX: wheelX });
         triggerMouseEvent(figureEl, "mouseup");
         await nextTick();
 
@@ -450,7 +449,7 @@ describe("figures", () => {
     createFigure(model);
     model.dispatch("SELECT_FIGURE", { id: "someuuid" });
     await nextTick();
-    fixture.querySelector(".o-grid")!.dispatchEvent(new WheelEvent("wheel", { deltaX: 1500 }));
+    triggerWheelEvent(".o-grid", { deltaY: 1500 });
     fixture.querySelector(".o-scrollbar.vertical")!.dispatchEvent(new Event("scroll"));
     expect(model.getters.getSelectedFigureId()).toEqual("someuuid");
   });

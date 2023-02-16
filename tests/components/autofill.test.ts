@@ -3,7 +3,12 @@ import { Spreadsheet } from "../../src";
 import { DEFAULT_CELL_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
 import { setCellContent, setSelection, setViewportOffset } from "../test_helpers/commands_helpers";
-import { clickCell, edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
+import {
+  clickCell,
+  edgeScrollDelay,
+  triggerMouseEvent,
+  triggerWheelEvent,
+} from "../test_helpers/dom_helper";
 import {
   getStylePropertyInPx,
   mountSpreadsheet,
@@ -100,13 +105,7 @@ describe("Autofill component", () => {
     const sheetId = model.getters.getActiveSheetId();
     const x = HEADER_WIDTH + model.getters.getColDimensions(sheetId, 1)!.end + 20;
     const y = model.getters.getRowDimensions(sheetId, 0)!.start + 20;
-    fixture.querySelector(".o-grid")!.dispatchEvent(
-      new WheelEvent("wheel", {
-        clientX: x,
-        clientY: y,
-        bubbles: true,
-      })
-    );
+    triggerWheelEvent(".o-grid", { clientX: x, clientY: y });
     await nextTick();
     expect(fixture.querySelector(".o-autofill")).not.toBeNull();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toMatchInlineSnapshot(`
