@@ -135,6 +135,7 @@ export class EvaluationPlugin extends UIPlugin {
     for (const cell of this.getAllCells()) {
       computeCell(cell);
     }
+
     this.isUpToDate = true;
 
     function handleError(e: Error | any): EvaluationError {
@@ -254,14 +255,28 @@ export class EvaluationPlugin extends UIPlugin {
         return result;
       }
 
+      let evalError: Error | undefined = undefined;
       // Performance issue: nested loop is faster than a map here
       for (let col = zone.left; col <= zone.right; col++) {
         const rowValues: ({ value: CellValue; format?: Format } | undefined)[] = [];
         for (let row = zone.top; row <= zone.bottom; row++) {
-          const cell = evalContext.getters.getCell(range.sheetId, col, row);
-          rowValues.push(cell ? getEvaluatedCell(cell) : undefined);
+          const cell = evalContext.getters.getCell(range.sheetId, col, row) as Cell | undefined;
+          let evalCell: { value: CellValue; format?: Format } | undefined = undefined;
+          try {
+            evalCell = cell ? getEvaluatedCell(cell) : undefined;
+          } catch (e) {
+            if (!evalError) {
+              evalError = e;
+            }
+          } finally {
+            rowValues.push(evalCell);
+          }
         }
         result.push(rowValues);
+
+        if (evalError) {
+          throw evalError;
+        }
       }
       return result;
     }

@@ -259,6 +259,19 @@ describe("evaluateCells", () => {
     expect(evaluation.value).toBe(value);
   });
 
+  test("formula returns the first error of its dependencies", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=sum(A2:A3)");
+    setCellContent(model, "A2", "=1/0"); // bad evaluation
+    setCellContent(model, "A3", "=qsd"); // bad expression
+    const cellA1 = getCell(model, "A1")?.evaluated as InvalidEvaluation;
+    const cellA2 = getCell(model, "A2")?.evaluated as InvalidEvaluation;
+    expect(cellA1.type).toBe(CellValueType.error);
+    expect(cellA2.type).toBe(CellValueType.error);
+    expect(cellA1.error.message).toBe(cellA2.error.message);
+    expect(cellA1.value).toBe(cellA2.value);
+  });
+
   test("range", () => {
     const model = new Model();
     setCellContent(model, "D4", "42");
