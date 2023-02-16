@@ -45,6 +45,7 @@ import {
   rightClickCell,
   simulateClick,
   triggerMouseEvent,
+  triggerWheelEvent,
 } from "../test_helpers/dom_helper";
 import {
   getActiveSheetFullScrollInfo,
@@ -973,14 +974,7 @@ describe("Grid component", () => {
 
   describe("Grid Scroll", () => {
     async function scrollGrid(args: { deltaY?: number; shiftKey?: boolean }) {
-      fixture.querySelector(".o-grid")!.dispatchEvent(
-        new WheelEvent("wheel", {
-          deltaY: args.deltaY || 0,
-          shiftKey: args.shiftKey,
-          deltaMode: 0,
-          bubbles: true,
-        })
-      );
+      triggerWheelEvent(".o-grid", { deltaY: args.deltaY || 0, shiftKey: args.shiftKey });
       await nextTick();
     }
 
@@ -1227,8 +1221,7 @@ describe("error tooltip", () => {
   test("Wheel events on error tooltip are scrolling the grid", async () => {
     setCellContent(model, "C1", "=0/0");
     await hoverCell(model, "C1", 400);
-    const ev = new WheelEvent("wheel", { deltaY: 300, deltaX: 300, deltaMode: 0, bubbles: true });
-    document.querySelector(".o-error-tooltip")!.dispatchEvent(ev);
+    triggerWheelEvent(".o-error-tooltip", { deltaY: 300, deltaX: 300 });
     await nextTick();
     expect(getVerticalScroll()).toBe(300);
     expect(getHorizontalScroll()).toBe(300);
@@ -1241,7 +1234,7 @@ describe("Events on Grid update viewport correctly", () => {
   });
 
   test("Vertical scroll", async () => {
-    fixture.querySelector(".o-grid")!.dispatchEvent(new WheelEvent("wheel", { deltaY: 1200 }));
+    triggerWheelEvent(".o-grid", { deltaY: 1200 });
     await nextTick();
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 52,
@@ -1257,9 +1250,7 @@ describe("Events on Grid update viewport correctly", () => {
     });
   });
   test("Horizontal scroll", async () => {
-    fixture
-      .querySelector(".o-grid")!
-      .dispatchEvent(new WheelEvent("wheel", { deltaY: 200, shiftKey: true }));
+    triggerWheelEvent(".o-grid", { deltaY: 200, shiftKey: true });
     await nextTick();
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 0,
@@ -1299,16 +1290,8 @@ describe("Events on Grid update viewport correctly", () => {
   });
   test("Move selection horizontally (left to right) through pane division resets the scroll", async () => {
     freezeColumns(model, 3);
-    document.activeElement!.dispatchEvent(
-      // scroll completely to the right
-      new WheelEvent("wheel", {
-        deltaX: 0,
-        deltaY: 4 * DEFAULT_CELL_WIDTH,
-        shiftKey: true,
-        deltaMode: 0,
-        bubbles: true,
-      })
-    );
+    triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_WIDTH, shiftKey: true });
+
     await clickCell(model, "C1");
     expect(model.getters.getActiveMainViewport().left).toEqual(7);
     expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(4 * DEFAULT_CELL_WIDTH);
@@ -1322,16 +1305,7 @@ describe("Events on Grid update viewport correctly", () => {
 
   test("Move selection horizontally (right to left) through pane division does not reset the scroll", async () => {
     freezeColumns(model, 3);
-    document.activeElement!.dispatchEvent(
-      // scroll completely to the right
-      new WheelEvent("wheel", {
-        deltaX: 0,
-        deltaY: 4 * DEFAULT_CELL_WIDTH,
-        shiftKey: true,
-        deltaMode: 0,
-        bubbles: true,
-      })
-    );
+    triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_WIDTH, shiftKey: true });
     await clickCell(model, "H1");
     expect(model.getters.getActiveMainViewport().left).toEqual(7);
     expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(4 * DEFAULT_CELL_WIDTH);
@@ -1341,16 +1315,7 @@ describe("Events on Grid update viewport correctly", () => {
     expect(model.getters.getSelectedZone()).toEqual(toZone("G1"));
     expect(model.getters.getActiveMainViewport().left).toEqual(6);
     expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(3 * DEFAULT_CELL_WIDTH);
-    document.activeElement!.dispatchEvent(
-      // scroll completely to the right
-      new WheelEvent("wheel", {
-        deltaX: 0,
-        deltaY: -4 * DEFAULT_CELL_WIDTH,
-        shiftKey: true,
-        deltaMode: 0,
-        bubbles: true,
-      })
-    );
+    triggerWheelEvent(document.activeElement!, { deltaY: -4 * DEFAULT_CELL_WIDTH, shiftKey: true });
     await clickCell(model, "D1");
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowLeft", shiftKey: false, bubbles: true })
@@ -1362,16 +1327,7 @@ describe("Events on Grid update viewport correctly", () => {
 
   test("Move selection vertically (top to bottom) through pane division resets the scroll", async () => {
     freezeRows(model, 3);
-    document.activeElement!.dispatchEvent(
-      // scroll completely to the right
-      new WheelEvent("wheel", {
-        deltaX: 0,
-        deltaY: 4 * DEFAULT_CELL_HEIGHT,
-        shiftKey: false,
-        deltaMode: 0,
-        bubbles: true,
-      })
-    );
+    triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_HEIGHT });
     await clickCell(model, "A3");
     expect(model.getters.getActiveMainViewport().top).toEqual(7);
     expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(4 * DEFAULT_CELL_HEIGHT);
@@ -1385,16 +1341,7 @@ describe("Events on Grid update viewport correctly", () => {
 
   test("Move selection vertically (bottom to to) through pane division does not reset the scroll", async () => {
     freezeRows(model, 3);
-    document.activeElement!.dispatchEvent(
-      // scroll completely to the right
-      new WheelEvent("wheel", {
-        deltaX: 0,
-        deltaY: 4 * DEFAULT_CELL_HEIGHT,
-        shiftKey: false,
-        deltaMode: 0,
-        bubbles: true,
-      })
-    );
+    triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_HEIGHT });
     await clickCell(model, "A8");
     expect(model.getters.getActiveMainViewport().top).toEqual(7);
     expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(4 * DEFAULT_CELL_HEIGHT);
@@ -1404,16 +1351,7 @@ describe("Events on Grid update viewport correctly", () => {
     expect(model.getters.getSelectedZone()).toEqual(toZone("A7"));
     expect(model.getters.getActiveMainViewport().top).toEqual(6);
     expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(3 * DEFAULT_CELL_HEIGHT);
-    document.activeElement!.dispatchEvent(
-      // scroll completely to the right
-      new WheelEvent("wheel", {
-        deltaX: 0,
-        deltaY: -4 * DEFAULT_CELL_HEIGHT,
-        shiftKey: false,
-        deltaMode: 0,
-        bubbles: true,
-      })
-    );
+    triggerWheelEvent(document.activeElement!, { deltaY: -4 * DEFAULT_CELL_HEIGHT });
     await clickCell(model, "A4");
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowUp", shiftKey: false, bubbles: true })
@@ -1449,16 +1387,7 @@ describe("Events on Grid update viewport correctly", () => {
 
   test("Alter selection horizontally (left to right) through pane division resets the scroll", async () => {
     freezeColumns(model, 3);
-    document.activeElement!.dispatchEvent(
-      // scroll completely to the right
-      new WheelEvent("wheel", {
-        deltaX: 0,
-        deltaY: 4 * DEFAULT_CELL_WIDTH,
-        shiftKey: true,
-        deltaMode: 0,
-        bubbles: true,
-      })
-    );
+    triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_WIDTH, shiftKey: true });
     await clickCell(model, "C1");
     expect(model.getters.getActiveMainViewport().left).toEqual(7);
     expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(4 * DEFAULT_CELL_WIDTH);
@@ -1472,16 +1401,7 @@ describe("Events on Grid update viewport correctly", () => {
 
   test("Alter selection horizontally (right to left) through pane division does not reset the scroll", async () => {
     freezeColumns(model, 3);
-    document.activeElement!.dispatchEvent(
-      // scroll completely to the right
-      new WheelEvent("wheel", {
-        deltaX: 0,
-        deltaY: 4 * DEFAULT_CELL_WIDTH,
-        shiftKey: true,
-        deltaMode: 0,
-        bubbles: true,
-      })
-    );
+    triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_WIDTH, shiftKey: true });
     await clickCell(model, "H1");
     expect(model.getters.getActiveMainViewport().left).toEqual(7);
     expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(4 * DEFAULT_CELL_WIDTH);
@@ -1491,16 +1411,7 @@ describe("Events on Grid update viewport correctly", () => {
     expect(model.getters.getSelectedZone()).toEqual(toZone("G1:H1"));
     expect(model.getters.getActiveMainViewport().left).toEqual(6);
     expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(3 * DEFAULT_CELL_WIDTH);
-    document.activeElement!.dispatchEvent(
-      // scroll completely to the right
-      new WheelEvent("wheel", {
-        deltaX: 0,
-        deltaY: -4 * DEFAULT_CELL_WIDTH,
-        shiftKey: true,
-        deltaMode: 0,
-        bubbles: true,
-      })
-    );
+    triggerWheelEvent(document.activeElement!, { deltaY: -4 * DEFAULT_CELL_WIDTH, shiftKey: true });
     await clickCell(model, "D1");
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowLeft", shiftKey: true, bubbles: true })
@@ -1512,16 +1423,7 @@ describe("Events on Grid update viewport correctly", () => {
 
   test("Alter selection vertically (top to bottom) through pane division resets the scroll", async () => {
     freezeRows(model, 3);
-    document.activeElement!.dispatchEvent(
-      // scroll completely to the right
-      new WheelEvent("wheel", {
-        deltaX: 0,
-        deltaY: 4 * DEFAULT_CELL_HEIGHT,
-        shiftKey: false,
-        deltaMode: 0,
-        bubbles: true,
-      })
-    );
+    triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_HEIGHT });
     await clickCell(model, "A3");
     expect(model.getters.getActiveMainViewport().top).toEqual(7);
     expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(4 * DEFAULT_CELL_HEIGHT);
@@ -1535,16 +1437,7 @@ describe("Events on Grid update viewport correctly", () => {
 
   test("Alter selection vertically (bottom to to) through pane division does not reset the scroll", async () => {
     freezeRows(model, 3);
-    document.activeElement!.dispatchEvent(
-      // scroll completely to the right
-      new WheelEvent("wheel", {
-        deltaX: 0,
-        deltaY: 4 * DEFAULT_CELL_HEIGHT,
-        shiftKey: false,
-        deltaMode: 0,
-        bubbles: true,
-      })
-    );
+    triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_HEIGHT });
     await clickCell(model, "A8");
     expect(model.getters.getActiveMainViewport().top).toEqual(7);
     expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(4 * DEFAULT_CELL_HEIGHT);
@@ -1554,16 +1447,7 @@ describe("Events on Grid update viewport correctly", () => {
     expect(model.getters.getSelectedZone()).toEqual(toZone("A7:A8"));
     expect(model.getters.getActiveMainViewport().top).toEqual(6);
     expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(3 * DEFAULT_CELL_HEIGHT);
-    document.activeElement!.dispatchEvent(
-      // scroll completely to the left
-      new WheelEvent("wheel", {
-        deltaX: 0,
-        deltaY: -4 * DEFAULT_CELL_HEIGHT,
-        shiftKey: false,
-        deltaMode: 0,
-        bubbles: true,
-      })
-    );
+    triggerWheelEvent(document.activeElement!, { deltaY: -4 * DEFAULT_CELL_HEIGHT });
     await clickCell(model, "A4");
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowUp", shiftKey: true, bubbles: true })
@@ -1577,16 +1461,7 @@ describe("Events on Grid update viewport correctly", () => {
     await simulateClick(".o-grid-overlay"); // gain focus on grid element
     const { width } = model.getters.getMainViewportRect();
     const { width: viewportWidth } = model.getters.getSheetViewDimensionWithHeaders();
-    document.activeElement!.dispatchEvent(
-      // scroll completely to the right
-      new WheelEvent("wheel", {
-        deltaY: width - viewportWidth,
-        deltaX: 0,
-        shiftKey: true,
-        deltaMode: 0,
-        bubbles: true,
-      })
-    );
+    triggerWheelEvent(document.activeElement!, { deltaY: width - viewportWidth, shiftKey: true });
     const viewport = model.getters.getActiveMainViewport();
     selectCell(model, "Y1");
     await nextTick();
@@ -1621,16 +1496,10 @@ describe("Events on Grid update viewport correctly", () => {
     await simulateClick(".o-grid-overlay"); // gain focus on grid element
     const { width } = model.getters.getMainViewportRect();
     const { width: viewportWidth } = model.getters.getSheetViewDimensionWithHeaders();
-    document.activeElement!.dispatchEvent(
-      // scroll completely to the right
-      new WheelEvent("wheel", {
-        deltaY: width - viewportWidth + HEADER_WIDTH,
-        deltaX: 0,
-        shiftKey: true,
-        deltaMode: 0,
-        bubbles: true,
-      })
-    );
+    triggerWheelEvent(document.activeElement!, {
+      deltaY: width - viewportWidth + HEADER_WIDTH,
+      shiftKey: true,
+    });
     const viewport = model.getters.getActiveMainViewport();
     expect(model.getters.getActiveMainViewport()).toMatchObject(viewport);
     await clickCell(model, "Y1", { shiftKey: true });

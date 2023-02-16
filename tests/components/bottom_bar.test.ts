@@ -22,6 +22,7 @@ import {
   keyDown,
   simulateClick,
   triggerMouseEvent,
+  triggerWheelEvent,
 } from "../test_helpers/dom_helper";
 import { mockUuidV4To, mountComponent, nextTick } from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
@@ -432,9 +433,9 @@ describe("BottomBar component", () => {
 
     test("Can scroll on the list of sheets", async () => {
       expect(sheetListEl.scrollLeft).toBe(0);
-      sheetListEl.dispatchEvent(new WheelEvent("wheel", { deltaY: 100 }));
+      triggerWheelEvent(sheetListEl, { deltaY: 100 });
       expect(sheetListEl.scrollLeft).toBe(50);
-      sheetListEl.dispatchEvent(new WheelEvent("wheel", { deltaY: -100 }));
+      triggerWheelEvent(sheetListEl, { deltaY: -100 });
       expect(sheetListEl.scrollLeft).toBe(0);
     });
 

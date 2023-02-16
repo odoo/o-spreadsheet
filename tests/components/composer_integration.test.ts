@@ -25,6 +25,7 @@ import {
   rightClickCell,
   selectColumnByClicking,
   simulateClick,
+  triggerWheelEvent,
 } from "../test_helpers/dom_helper";
 import {
   getActivePosition,
@@ -171,9 +172,7 @@ describe("Composer interactions", () => {
     const { top, bottom, left, right } = model.getters.getActiveMainViewport();
     await typeInComposerTopBar("=");
     // scroll
-    fixture
-      .querySelector(".o-grid")!
-      .dispatchEvent(new WheelEvent("wheel", { deltaY: 3 * DEFAULT_CELL_HEIGHT }));
+    triggerWheelEvent(".o-grid", { deltaY: 3 * DEFAULT_CELL_HEIGHT });
     await nextTick();
     const scrolledViewport = model.getters.getActiveMainViewport();
     expect(scrolledViewport).toMatchObject({
