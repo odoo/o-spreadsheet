@@ -36,6 +36,12 @@ export class CircularDependencyError extends EvaluationError {
   }
 }
 
+export class CircularSpreadedDependencyError extends EvaluationError {
+  constructor() {
+    super(CellErrorType.CircularDependency, _lt("Circular reference to spreaded range"));
+  }
+}
+
 export class InvalidReferenceError extends EvaluationError {
   constructor() {
     super(CellErrorType.InvalidReference, _lt("Invalid reference"));

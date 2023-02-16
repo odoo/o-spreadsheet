@@ -5,7 +5,6 @@ import { createEvaluatedCell, errorCell, evaluateLiteral } from "../../helpers/c
 import {
   intersection,
   isZoneValid,
-  lazy,
   positions,
   toCartesian,
   toXC,
@@ -16,6 +15,7 @@ import {
   CellErrorLevel,
   CellErrorType,
   CircularDependencyError,
+  CircularSpreadedDependencyError,
   EvaluationError,
   InvalidReferenceError,
 } from "../../types/errors";
@@ -34,7 +34,6 @@ import {
   FormulaCell,
   HeaderIndex,
   invalidateEvaluationCommands,
-  Lazy,
   MatrixArg,
   PrimitiveArg,
   Range,
@@ -64,17 +63,18 @@ export class EvaluationPlugin extends UIPlugin {
 
   private isUpToDate = false;
   private readonly evalContext: EvalContext;
-  private readonly lazyEvaluation: boolean;
 
-  private evaluatedCells: PositionDict<Lazy<EvaluatedCell>> = {};
-  private xcsToUpdate: Set<string> = new Set<string>();
+  private evaluatedCells: PositionDict<EvaluatedCell> = {};
+  private nextXcsToUpdate: Set<string> = new Set<string>();
+  private currentXcsToUpdate: Set<string> = new Set<string>();
 
   private formulaDependencies: PositionDict<Set<string>> = {};
+
+  private maxCycle = 1;
 
   constructor(config: UIPluginConfig) {
     super(config);
     this.evalContext = config.custom;
-    this.lazyEvaluation = config.lazyEvaluation;
   }
 
   // ---------------------------------------------------------------------------
@@ -103,23 +103,23 @@ export class EvaluationPlugin extends UIPlugin {
 
   finalize() {
     if (!this.isUpToDate) {
-      this.xcsToUpdate = new Set(
+      this.nextXcsToUpdate = new Set(
         Array.from(this.getAllCells()).map((c) =>
           this.cellPositionToXc(this.getters.getCellPosition(c.id))
         )
       );
-      for (const xc of this.xcsToUpdate) {
+      for (const xc of this.nextXcsToUpdate) {
         this.updateFormulaDependencies(xc);
       }
       this.isUpToDate = true;
     }
     this.evaluate();
-    this.xcsToUpdate.clear();
+    this.nextXcsToUpdate.clear();
   }
 
   private fillUpdateList(xc: string) {
-    if (!this.xcsToUpdate.has(xc)) {
-      this.xcsToUpdate.add(xc);
+    if (!this.nextXcsToUpdate.has(xc)) {
+      this.nextXcsToUpdate.add(xc);
       for (const reference of this.formulaDependencies[xc] || []) {
         this.fillUpdateList(reference);
       }
@@ -127,22 +127,22 @@ export class EvaluationPlugin extends UIPlugin {
   }
 
   private cellPositionToXc(position: CellPosition): string {
-    return `${position.sheetId}-${position.col}-${position.row}`;
+    return `${position.sheetId}!${position.col}!${position.row}`;
   }
 
   private XcToCell(xc: string): Cell | undefined {
-    const [sheetId, col, row] = xc.split("-");
+    const [sheetId, col, row] = xc.split("!");
     return this.getters.getCell({ sheetId, col: toNumber(col), row: toNumber(row) });
   }
 
-  private setEvaluatedCell(xc: string, evaluatedCell: Lazy<EvaluatedCell>) {
-    if (this.xcsToUpdate.has(xc)) {
-      this.xcsToUpdate.delete(xc);
+  private setEvaluatedCell(xc: string, evaluatedCell: EvaluatedCell) {
+    if (this.nextXcsToUpdate.has(xc)) {
+      this.nextXcsToUpdate.delete(xc);
+    }
+    if (this.currentXcsToUpdate.has(xc)) {
+      this.currentXcsToUpdate.delete(xc);
     }
     this.evaluatedCells[xc] = evaluatedCell;
-    if (!this.lazyEvaluation) {
-      this.evaluatedCells[xc]();
-    }
   }
 
   // ---------------------------------------------------------------------------
@@ -197,7 +197,7 @@ export class EvaluationPlugin extends UIPlugin {
       return createEvaluatedCell("");
     }
     const xc = this.cellPositionToXc(cellPosition);
-    return this.evaluatedCells[xc]?.() || createEvaluatedCell("");
+    return this.evaluatedCells[xc] || createEvaluatedCell("");
   }
 
   getEvaluatedCells(sheetId: UID): Record<UID, EvaluatedCell> {
@@ -219,7 +219,7 @@ export class EvaluationPlugin extends UIPlugin {
         const position = this.getters.getCellPosition(this.XcToCell(xc)!.id);
         return position.sheetId === sheetId && position.col === col;
       })
-      .map((xc) => this.evaluatedCells[xc]());
+      .map((xc) => this.evaluatedCells[xc]);
   }
 
   getEvaluatedCellsInZone(sheetId: UID, zone: Zone): EvaluatedCell[] {
@@ -231,7 +231,6 @@ export class EvaluationPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
   // Evaluator
   // ---------------------------------------------------------------------------
-
   private updateFormulaDependencies = (thisXC: string) => {
     const cell = this.XcToCell(thisXC);
     const newDependencies: string[] = [];
@@ -277,31 +276,30 @@ export class EvaluationPlugin extends UIPlugin {
 
   private evaluate() {
     const cellsBeingComputed = new Set<UID>();
-    const computeCell = (cell: Cell): Lazy<EvaluatedCell> => {
+    const computeCell = (cell: Cell): EvaluatedCell => {
       if (cell === undefined) {
-        return lazy(() => createEvaluatedCell(""));
+        return createEvaluatedCell("");
       }
       const cellId = cell.id;
       const { col, row, sheetId } = this.getters.getCellPosition(cellId);
       const xc = this.cellPositionToXc({ sheetId, col, row });
-      if (!this.xcsToUpdate.has(xc)) {
-        const lazyEvaluation = this.evaluatedCells[xc];
-        if (lazyEvaluation) {
-          return lazyEvaluation; // already computed
+      if (!this.currentXcsToUpdate.has(xc)) {
+        const evaluation = this.evaluatedCells[xc];
+        if (evaluation) {
+          return evaluation; // already computed
         }
       }
-      return lazy(() => {
-        try {
-          switch (cell.isFormula) {
-            case true:
-              return computeFormulaCell(cell);
-            case false:
-              return evaluateLiteral(cell.content, cell.format);
-          }
-        } catch (e) {
-          return handleError(e, cell);
+
+      try {
+        switch (cell.isFormula) {
+          case true:
+            return computeFormulaCell(cell);
+          case false:
+            return evaluateLiteral(cell.content, cell.format);
         }
-      });
+      } catch (e) {
+        return handleError(e, cell);
+      }
     };
 
     const handleError = (e: Error | any, cell: Cell): EvaluatedCell => {
@@ -342,11 +340,29 @@ export class EvaluationPlugin extends UIPlugin {
       return createEvaluatedCell(computedCell.value, cellData.format || computedCell.format);
     };
 
-    const compilationParameters = this.getCompilationParameters((cell) => computeCell(cell)());
+    const compilationParameters = this.getCompilationParameters((cell) => computeCell(cell));
 
-    while (this.xcsToUpdate.size) {
-      const [cell] = this.xcsToUpdate;
+    let currentCycle = 0;
+    this.currentXcsToUpdate = new Set([...this.nextXcsToUpdate]);
+    this.nextXcsToUpdate.clear();
+
+    while (this.currentXcsToUpdate.size && currentCycle < this.maxCycle) {
+      const [cell] = this.currentXcsToUpdate;
       this.setEvaluatedCell(cell, computeCell(this.XcToCell(cell)!));
+      if (this.currentXcsToUpdate.size === 0 && this.nextXcsToUpdate.size) {
+        this.currentXcsToUpdate = new Set([...this.nextXcsToUpdate]);
+        this.nextXcsToUpdate.clear();
+        currentCycle++;
+      }
+    }
+
+    if (this.currentXcsToUpdate.size) {
+      for (const cell of this.currentXcsToUpdate) {
+        this.setEvaluatedCell(
+          cell,
+          handleError(new CircularSpreadedDependencyError(), this.XcToCell(cell)!)
+        );
+      }
     }
   }
 
