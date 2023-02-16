@@ -1,4 +1,4 @@
-import { args, functionRegistry } from "../../src/functions";
+import { arg, functionRegistry } from "../../src/functions";
 import { Model } from "../../src/model";
 import {
   ArgValue,
@@ -1109,7 +1109,7 @@ describe("evaluate formula getter", () => {
     functionRegistry.add("GETVALUE", {
       description: "Get value",
       compute: () => value,
-      args: args(``),
+      args: [],
       returns: ["NUMBER"],
     });
     setCellContent(model, "A1", "=GETVALUE()");
@@ -1135,7 +1135,7 @@ describe("evaluate formula getter", () => {
     functionRegistry.add("GETVALUE", {
       description: "Get value",
       compute: mockCompute,
-      args: args(``),
+      args: [],
       returns: ["NUMBER"],
     });
     setCellContent(model, "A1", "=GETVALUE()");
@@ -1150,7 +1150,7 @@ describe("evaluate formula getter", () => {
     functionRegistry.add("GETVALUE", {
       description: "Get value",
       compute: mockCompute,
-      args: args(`value (any) bla`),
+      args: [arg("value (any)", "bla")],
       returns: ["NUMBER"],
     });
     setCellContent(model, "A1", "=GETVALUE(A2)");
@@ -1168,7 +1168,7 @@ describe("evaluate formula getter", () => {
     functionRegistry.add("GETVALUE", {
       description: "Get value",
       compute: () => value,
-      args: args(``),
+      args: [],
       returns: ["ANY"],
     });
     setCellContent(model, "A1", "=SUM(A2)");
@@ -1187,7 +1187,7 @@ describe("evaluate formula getter", () => {
     functionRegistry.add("GETVALUE", {
       description: "Get value",
       compute: () => value,
-      args: args(``),
+      args: [],
       returns: ["ANY"],
     });
     createSheet(model, { sheetId: "sheet2" });
@@ -1217,7 +1217,7 @@ describe("evaluate formula getter", () => {
       compute: () => {
         throw new Error(`Error${value}`);
       },
-      args: args(``),
+      args: [],
       returns: ["ANY"],
     });
     setCellContent(model, "A1", "=GETVALUE()");
@@ -1239,7 +1239,7 @@ describe("evaluate formula getter", () => {
         evaluated = true;
         return true;
       },
-      args: args(``),
+      args: [],
       returns: ["ANY"],
     });
     setCellContent(model, "A1", "=FN()");
@@ -1256,7 +1256,7 @@ describe("evaluate formula getter", () => {
         evaluated = true;
         return true;
       },
-      args: args(``),
+      args: [],
       returns: ["ANY"],
     });
     setCellContent(model, "A1", "=FN()");

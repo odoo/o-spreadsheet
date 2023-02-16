@@ -7,7 +7,7 @@ import {
   MatrixArgValue,
   PrimitiveArgValue,
 } from "../types";
-import { args } from "./arguments";
+import { arg } from "./arguments";
 import { assert, toString, visitMatchingRanges } from "./helpers";
 import { PRODUCT, SUM } from "./module_math";
 import { AVERAGE, COUNT, COUNTA, MAX, MIN, STDEV, STDEVP, VAR, VARP } from "./module_statistical";
@@ -139,17 +139,24 @@ function getMatchingCells(
   return matchingCells;
 }
 
-const databaseArgs = args(`
-  database (range) ${_lt(
-    "The array or range containing the data to consider, structured in such a way that the first row contains the labels for each column's values."
-  )}
-  field (any) ${_lt(
-    "Indicates which column in database contains the values to be extracted and operated on."
-  )}
-  criteria (range) ${_lt(
-    "An array or range containing zero or more criteria to filter the database values by before operating."
-  )}
-`);
+const databaseArgs = [
+  arg(
+    "database (range)",
+    _lt(
+      "The array or range containing the data to consider, structured in such a way that the first row contains the labels for each column's values."
+    )
+  ),
+  arg(
+    "field (any)",
+    _lt("Indicates which column in database contains the values to be extracted and operated on.")
+  ),
+  arg(
+    "criteria (range)",
+    _lt(
+      "An array or range containing zero or more criteria to filter the database values by before operating."
+    )
+  ),
+];
 
 // -----------------------------------------------------------------------------
 // DAVERAGE

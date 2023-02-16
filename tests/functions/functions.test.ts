@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { toNumber } from "../../src/functions/helpers";
-import { args, functionRegistry } from "../../src/functions/index";
+import { arg, functionRegistry } from "../../src/functions/index";
 import {
   Arg,
   ArgValue,
@@ -24,7 +24,7 @@ describe("functions", () => {
     functionRegistry.add("DOUBLEDOUBLE", {
       description: "Double the first argument",
       compute: ((arg: number) => 2 * arg) as ComputeFunction<ArgValue, FunctionReturnValue>,
-      args: args(`number (number) my number`),
+      args: [arg("number (number)", "my number")],
       returns: ["NUMBER"],
     });
     expect(evaluateCell("A1", { A1: "=DOUBLEDOUBLE(3)" })).toBe(6);
@@ -63,7 +63,7 @@ describe("functions", () => {
       compute: function (arg: PrimitiveArgValue) {
         return toNumber(arg) * 2;
       } as ComputeFunction<ArgValue, FunctionReturnValue>,
-      args: args(`number (number) blabla`),
+      args: [arg("number (number)", "blabla")],
       returns: ["NUMBER"],
     });
     setCellContent(model, "A1", "21");
@@ -84,7 +84,7 @@ describe("functions", () => {
       compute: function (arg: PrimitiveArgValue) {
         return arg;
       } as ComputeFunction<ArgValue, FunctionReturnValue>,
-      args: args(`number (number) blabla`),
+      args: [arg("number (number)", "blabla")],
       returns: ["NUMBER"],
     });
     setCellContent(model, "A1", "42");
@@ -107,7 +107,7 @@ describe("functions", () => {
       compute: function (arg: PrimitiveArgValue) {
         return arg;
       } as ComputeFunction<ArgValue, FunctionReturnValue>,
-      args: args(`number (number) blabla`),
+      args: [arg("number (number)", "blabla")],
       returns: ["NUMBER"],
     });
     setCellContent(model, "A1", "42");
@@ -132,7 +132,7 @@ describe("functions", () => {
       compute: function () {
         return (this as any).coucou;
       },
-      args: args(``),
+      args: [],
       returns: ["STRING"],
     });
     setCellContent(model, "A1", "=GETCOUCOU()");
@@ -147,7 +147,7 @@ describe("functions", () => {
         const sheetId = (this as any).getters.getActiveSheetId();
         return (this as any).getters.getNumberCols(sheetId);
       },
-      args: args(``),
+      args: [],
       returns: ["STRING"],
     });
     expect(evaluateCell("A1", { A1: "=GETNUMBERCOLS()" })).toBe(
@@ -162,7 +162,7 @@ describe("functions", () => {
       compute: function () {
         return undefined;
       },
-      args: args(``),
+      args: [],
       returns: ["STRING"],
     });
     expect(evaluateCell("A1", { A1: "=UNDEFINED()" })).toBe("");

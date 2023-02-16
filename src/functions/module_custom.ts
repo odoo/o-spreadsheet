@@ -1,7 +1,7 @@
 import { createLargeNumberFormat } from "../helpers";
 import { _lt } from "../translation";
 import { AddFunctionDescription, PrimitiveArg, PrimitiveArgValue } from "../types";
-import { args } from "./arguments";
+import { arg } from "./arguments";
 import { toNumber } from "./helpers";
 
 // -----------------------------------------------------------------------------
@@ -9,10 +9,13 @@ import { toNumber } from "./helpers";
 // -----------------------------------------------------------------------------
 export const FORMAT_LARGE_NUMBER: AddFunctionDescription = {
   description: _lt(`Apply a large number format`),
-  args: args(`
-      value (number) ${_lt("The number.")}
-      unit (string, optional) ${_lt("The formatting unit. Use 'k', 'm', or 'b' to force the unit")}
-    `),
+  args: [
+    arg("value (number)", _lt("The number.")),
+    arg(
+      "unit (string, optional)",
+      _lt("The formatting unit. Use 'k', 'm', or 'b' to force the unit")
+    ),
+  ],
   returns: ["NUMBER"],
   computeFormat: (arg: PrimitiveArg, unit: PrimitiveArg | undefined) => {
     const value = Math.abs(toNumber(arg.value));

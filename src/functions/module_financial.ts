@@ -9,7 +9,7 @@ import {
 } from "../helpers";
 import { _lt } from "../translation";
 import { AddFunctionDescription, ArgValue, MatrixArgValue, PrimitiveArgValue } from "../types";
-import { args } from "./arguments";
+import { arg } from "./arguments";
 import {
   assert,
   reduceAny,
@@ -56,18 +56,26 @@ const DEFAULT_DAY_COUNT_CONVENTION = 0;
 const DEFAULT_END_OR_BEGINNING = 0;
 const DEFAULT_FUTURE_VALUE = 0;
 
-const COUPON_FUNCTION_ARGS = args(`
-settlement (date) ${_lt(
-  "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
-)}
-maturity (date) ${_lt(
-  "The maturity or end date of the security, when it can be redeemed at face, or par value."
-)}
-frequency (number) ${_lt("The number of interest or coupon payments per year (1, 2, or 4).")}
-day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
-  "An indicator of what day count method to use."
-)}
-`);
+const COUPON_FUNCTION_ARGS = [
+  arg(
+    "settlement (date)",
+    _lt(
+      "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
+    )
+  ),
+  arg(
+    "maturity (date)",
+    _lt("The maturity or end date of the security, when it can be redeemed at face, or par value.")
+  ),
+  arg(
+    "frequency (number)",
+    _lt("The number of interest or coupon payments per year (1, 2, or 4).")
+  ),
+  arg(
+    `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
+    _lt("An indicator of what day count method to use.")
+  ),
+];
 
 /**
  * Use the Newton–Raphson method to find a root of the given function in an iterative manner.
@@ -123,15 +131,16 @@ function newtonMethod(
 // -----------------------------------------------------------------------------
 export const ACCRINTM: AddFunctionDescription = {
   description: _lt("Accrued interest of security paying at maturity."),
-  args: args(`
-        issue (date) ${_lt("The date the security was initially issued.")}
-        maturity (date) ${_lt("The maturity date of the security.")}
-        rate (number) ${_lt("The annualized rate of interest.")}
-        redemption (number) ${_lt("The redemption amount per 100 face value, or par.")}
-        day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
-    "An indicator of what day count method to use."
-  )}
-    `),
+  args: [
+    arg("issue (date)", _lt("The date the security was initially issued.")),
+    arg("maturity (date)", _lt("The maturity date of the security.")),
+    arg("rate (number)", _lt("The annualized rate of interest.")),
+    arg("redemption (number)", _lt("The redemption amount per 100 face value, or par.")),
+    arg(
+      `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
+      _lt("An indicator of what day count method to use.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     issue: PrimitiveArgValue,
@@ -163,17 +172,18 @@ export const ACCRINTM: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const AMORLINC: AddFunctionDescription = {
   description: _lt("Depreciation for an accounting period."),
-  args: args(`
-        cost (number) ${_lt("The initial cost of the asset.")}
-        purchase_date (date) ${_lt("The date the asset was purchased.")}
-        first_period_end (date) ${_lt("The date the first period ended.")}
-        salvage (number) ${_lt("The value of the asset at the end of depreciation.")}
-        period (number) ${_lt("The single period within life for which to calculate depreciation.")}
-        rate (number) ${_lt("The deprecation rate.")}
-        day_count_convention  (number, optional) ${_lt(
-          "An indicator of what day count method to use."
-        )}
-    `),
+  args: [
+    arg("cost (number)", _lt("The initial cost of the asset.")),
+    arg("purchase_date (date)", _lt("The date the asset was purchased.")),
+    arg("first_period_end (date)", _lt("The date the first period ended.")),
+    arg("salvage (number)", _lt("The value of the asset at the end of depreciation.")),
+    arg(
+      "period (number)",
+      _lt("The single period within life for which to calculate depreciation.")
+    ),
+    arg("rate (number)", _lt("The deprecation rate.")),
+    arg(" (number, optional)", _lt("An indicator of what day count method to use.")),
+  ],
   returns: ["NUMBER"],
   compute: function (
     cost: PrimitiveArgValue,
@@ -509,18 +519,23 @@ export const COUPPCD: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const CUMIPMT: AddFunctionDescription = {
   description: _lt("Cumulative interest paid over a set of periods."),
-  args: args(`
-  rate (number) ${_lt("The interest rate.")}
-  number_of_periods (number) ${_lt("The number of payments to be made.")}
-  present_value (number) ${_lt("The current value of the annuity.")}
-  first_period (number) ${_lt(
-    "The number of the payment period to begin the cumulative calculation."
-  )}
-  last_period (number) ${_lt("The number of the payment period to end the cumulative calculation.")}
-  end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt(
-    "Whether payments are due at the end (0) or beginning (1) of each period."
-  )}
-  `),
+  args: [
+    arg("rate (number)", _lt("The interest rate.")),
+    arg("number_of_periods (number)", _lt("The number of payments to be made.")),
+    arg("present_value (number)", _lt("The current value of the annuity.")),
+    arg(
+      "first_period (number)",
+      _lt("The number of the payment period to begin the cumulative calculation.")
+    ),
+    arg(
+      "last_period (number)",
+      _lt("The number of the payment period to end the cumulative calculation.")
+    ),
+    arg(
+      `end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING})`,
+      _lt("Whether payments are due at the end (0) or beginning (1) of each period.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     rate: PrimitiveArgValue,
@@ -556,18 +571,23 @@ export const CUMIPMT: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const CUMPRINC: AddFunctionDescription = {
   description: _lt("Cumulative principal paid over a set of periods."),
-  args: args(`
-  rate (number) ${_lt("The interest rate.")}
-  number_of_periods (number) ${_lt("The number of payments to be made.")}
-  present_value (number) ${_lt("The current value of the annuity.")}
-  first_period (number) ${_lt(
-    "The number of the payment period to begin the cumulative calculation."
-  )}
-  last_period (number) ${_lt("The number of the payment period to end the cumulative calculation.")}
-  end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt(
-    "Whether payments are due at the end (0) or beginning (1) of each period."
-  )}
-  `),
+  args: [
+    arg("rate (number)", _lt("The interest rate.")),
+    arg("number_of_periods (number)", _lt("The number of payments to be made.")),
+    arg("present_value (number)", _lt("The current value of the annuity.")),
+    arg(
+      "first_period (number)",
+      _lt("The number of the payment period to begin the cumulative calculation.")
+    ),
+    arg(
+      "last_period (number)",
+      _lt("The number of the payment period to end the cumulative calculation.")
+    ),
+    arg(
+      `end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING})`,
+      _lt("Whether payments are due at the end (0) or beginning (1) of each period.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     rate: PrimitiveArgValue,
@@ -603,13 +623,16 @@ export const CUMPRINC: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const DB: AddFunctionDescription = {
   description: _lt("Depreciation via declining balance method."),
-  args: args(`
-        cost (number) ${_lt("The initial cost of the asset.")}
-        salvage (number) ${_lt("The value of the asset at the end of depreciation.")}
-        life (number) ${_lt("The number of periods over which the asset is depreciated.")}
-        period (number) ${_lt("The single period within life for which to calculate depreciation.")}
-        month (number, optional) ${_lt("The number of months in the first year of depreciation.")}
-    `),
+  args: [
+    arg("cost (number)", _lt("The initial cost of the asset.")),
+    arg("salvage (number)", _lt("The value of the asset at the end of depreciation.")),
+    arg("life (number)", _lt("The number of periods over which the asset is depreciated.")),
+    arg(
+      "period (number)",
+      _lt("The single period within life for which to calculate depreciation.")
+    ),
+    arg("month (number, optional)", _lt("The number of months in the first year of depreciation.")),
+  ],
   returns: ["NUMBER"],
   // to do: replace by dollar format
   computeFormat: () => "#,##0.00",
@@ -672,15 +695,19 @@ export const DB: AddFunctionDescription = {
 const DEFAULT_DDB_DEPRECIATION_FACTOR = 2;
 export const DDB: AddFunctionDescription = {
   description: _lt("Depreciation via double-declining balance method."),
-  args: args(`
-        cost (number) ${_lt("The initial cost of the asset.")}
-        salvage (number) ${_lt("The value of the asset at the end of depreciation.")}
-        life (number) ${_lt("The number of periods over which the asset is depreciated.")}
-        period (number) ${_lt("The single period within life for which to calculate depreciation.")}
-        factor (number, default=${DEFAULT_DDB_DEPRECIATION_FACTOR}) ${_lt(
-    "The factor by which depreciation decreases."
-  )}
-    `),
+  args: [
+    arg("cost (number)", _lt("The initial cost of the asset.")),
+    arg("salvage (number)", _lt("The value of the asset at the end of depreciation.")),
+    arg("life (number)", _lt("The number of periods over which the asset is depreciated.")),
+    arg(
+      "period (number)",
+      _lt("The single period within life for which to calculate depreciation.")
+    ),
+    arg(
+      `factor (number, default=${DEFAULT_DDB_DEPRECIATION_FACTOR})`,
+      _lt("The factor by which depreciation decreases.")
+    ),
+  ],
   returns: ["NUMBER"],
   computeFormat: () => "#,##0.00",
   compute: function (
@@ -729,19 +756,26 @@ export const DDB: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const DISC: AddFunctionDescription = {
   description: _lt("Discount rate of a security based on price."),
-  args: args(`
-      settlement (date) ${_lt(
+  args: [
+    arg(
+      "settlement (date)",
+      _lt(
         "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
-      )}
-      maturity (date) ${_lt(
+      )
+    ),
+    arg(
+      "maturity (date)",
+      _lt(
         "The maturity or end date of the security, when it can be redeemed at face, or par value."
-      )}
-      price (number) ${_lt("The price at which the security is bought per 100 face value.")}
-      redemption (number) ${_lt("The redemption amount per 100 face value, or par.")}
-      day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
-    "An indicator of what day count method to use."
-  )}
-    `),
+      )
+    ),
+    arg("price (number)", _lt("The price at which the security is bought per 100 face value.")),
+    arg("redemption (number)", _lt("The redemption amount per 100 face value, or par.")),
+    arg(
+      `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
+      _lt("An indicator of what day count method to use.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     settlement: PrimitiveArgValue,
@@ -783,12 +817,13 @@ export const DISC: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const DOLLARDE: AddFunctionDescription = {
   description: _lt("Convert a decimal fraction to decimal value."),
-  args: args(`
-      fractional_price (number) ${_lt(
-        "The price quotation given using fractional decimal conventions."
-      )}
-      unit (number) ${_lt("The units of the fraction, e.g. 8 for 1/8ths or 32 for 1/32nds.")}
-    `),
+  args: [
+    arg(
+      "fractional_price (number)",
+      _lt("The price quotation given using fractional decimal conventions.")
+    ),
+    arg("unit (number)", _lt("The units of the fraction, e.g. 8 for 1/8ths or 32 for 1/32nds.")),
+  ],
   returns: ["NUMBER"],
   compute: function (fractionalPrice: PrimitiveArgValue, unit: PrimitiveArgValue): number {
     const price = toNumber(fractionalPrice);
@@ -811,12 +846,13 @@ export const DOLLARDE: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const DOLLARFR: AddFunctionDescription = {
   description: _lt("Convert a decimal value to decimal fraction."),
-  args: args(`
-  decimal_price (number) ${_lt("The price quotation given as a decimal value.")}
-      unit (number) ${_lt(
-        "The units of the desired fraction, e.g. 8 for 1/8ths or 32 for 1/32nds."
-      )}
-    `),
+  args: [
+    arg("decimal_price (number)", _lt("The price quotation given as a decimal value.")),
+    arg(
+      "unit (number)",
+      _lt("The units of the desired fraction, e.g. 8 for 1/8ths or 32 for 1/32nds.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (decimalPrice: PrimitiveArgValue, unit: PrimitiveArgValue): number {
     const price = toNumber(decimalPrice);
@@ -839,22 +875,30 @@ export const DOLLARFR: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const DURATION: AddFunctionDescription = {
   description: _lt("Number of periods for an investment to reach a value."),
-  args: args(`
-        settlement (date) ${_lt(
-          "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
-        )}
-        maturity (date) ${_lt(
-          "The maturity or end date of the security, when it can be redeemed at face, or par value."
-        )}
-        rate (number) ${_lt("The annualized rate of interest.")}
-        yield (number) ${_lt("The expected annual yield of the security.")}
-        frequency (number) ${_lt(
-          "The number of interest or coupon payments per year (1, 2, or 4)."
-        )}
-        day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
-    "An indicator of what day count method to use."
-  )}
-    `),
+  args: [
+    arg(
+      "settlement (date)",
+      _lt(
+        "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
+      )
+    ),
+    arg(
+      "maturity (date)",
+      _lt(
+        "The maturity or end date of the security, when it can be redeemed at face, or par value."
+      )
+    ),
+    arg("rate (number)", _lt("The annualized rate of interest.")),
+    arg("yield (number)", _lt("The expected annual yield of the security.")),
+    arg(
+      "frequency (number)",
+      _lt("The number of interest or coupon payments per year (1, 2, or 4).")
+    ),
+    arg(
+      `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
+      _lt("An indicator of what day count method to use.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     settlement: PrimitiveArgValue,
@@ -909,10 +953,10 @@ export const DURATION: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const EFFECT: AddFunctionDescription = {
   description: _lt("Annual effective interest rate."),
-  args: args(`
-  nominal_rate (number) ${_lt("The nominal interest rate per year.")}
-  periods_per_year (number) ${_lt("The number of compounding periods per year.")}
-  `),
+  args: [
+    arg("nominal_rate (number)", _lt("The nominal interest rate per year.")),
+    arg("periods_per_year (number)", _lt("The number of compounding periods per year.")),
+  ],
   returns: ["NUMBER"],
   compute: function (nominal_rate: PrimitiveArgValue, periods_per_year: PrimitiveArgValue): number {
     const nominal = toNumber(nominal_rate);
@@ -939,17 +983,19 @@ export const EFFECT: AddFunctionDescription = {
 const DEFAULT_PRESENT_VALUE = 0;
 export const FV: AddFunctionDescription = {
   description: _lt("Future value of an annuity investment."),
-  args: args(`
-  rate (number) ${_lt("The interest rate.")}
-  number_of_periods (number) ${_lt("The number of payments to be made.")}
-  payment_amount (number) ${_lt("The amount per period to be paid.")}
-  present_value (number, default=${DEFAULT_PRESENT_VALUE}) ${_lt(
-    "The current value of the annuity."
-  )}
-  end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt(
-    "Whether payments are due at the end (0) or beginning (1) of each period."
-  )}
-  `),
+  args: [
+    arg("rate (number)", _lt("The interest rate.")),
+    arg("number_of_periods (number)", _lt("The number of payments to be made.")),
+    arg("payment_amount (number)", _lt("The amount per period to be paid.")),
+    arg(
+      `present_value (number, default=${DEFAULT_PRESENT_VALUE})`,
+      _lt("The current value of the annuity.")
+    ),
+    arg(
+      `end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING})`,
+      _lt("Whether payments are due at the end (0) or beginning (1) of each period.")
+    ),
+  ],
   returns: ["NUMBER"],
   // to do: replace by dollar format
   computeFormat: () => "#,##0.00",
@@ -977,12 +1023,13 @@ export const FV: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const FVSCHEDULE: AddFunctionDescription = {
   description: _lt("Future value of principal from series of rates."),
-  args: args(`
-  principal (number) ${_lt("The amount of initial capital or value to compound against.")}
-  rate_schedule (number, range<number>) ${_lt(
-    "A series of interest rates to compound against the principal."
-  )}
-  `),
+  args: [
+    arg("principal (number)", _lt("The amount of initial capital or value to compound against.")),
+    arg(
+      "rate_schedule (number, range<number>)",
+      _lt("A series of interest rates to compound against the principal.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (principalAmount: PrimitiveArgValue, rateSchedule: ArgValue): number {
     const principal = toNumber(principalAmount);
@@ -996,19 +1043,26 @@ export const FVSCHEDULE: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const INTRATE: AddFunctionDescription = {
   description: _lt("Calculates effective interest rate."),
-  args: args(`
-      settlement (date) ${_lt(
+  args: [
+    arg(
+      "settlement (date)",
+      _lt(
         "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
-      )}
-      maturity (date) ${_lt(
+      )
+    ),
+    arg(
+      "maturity (date)",
+      _lt(
         "The maturity or end date of the security, when it can be redeemed at face, or par value."
-      )}
-      investment (number) ${_lt("The amount invested in the security.")}
-      redemption (number) ${_lt("The amount to be received at maturity.")}
-      day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
-    "An indicator of what day count method to use."
-  )}
-    `),
+      )
+    ),
+    arg("investment (number)", _lt("The amount invested in the security.")),
+    arg("redemption (number)", _lt("The amount to be received at maturity.")),
+    arg(
+      `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
+      _lt("An indicator of what day count method to use.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     settlement: PrimitiveArgValue,
@@ -1044,18 +1098,20 @@ export const INTRATE: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const IPMT: AddFunctionDescription = {
   description: _lt("Payment on the principal of an investment."),
-  args: args(`
-  rate (number) ${_lt("The annualized rate of interest.")}
-  period (number) ${_lt("The amortization period, in terms of number of periods.")}
-  number_of_periods (number) ${_lt("The number of payments to be made.")}
-  present_value (number) ${_lt("The current value of the annuity.")}
-  future_value (number, default=${DEFAULT_FUTURE_VALUE}) ${_lt(
-    "The future value remaining after the final payment has been made."
-  )}
-  end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt(
-    "Whether payments are due at the end (0) or beginning (1) of each period."
-  )}
-  `),
+  args: [
+    arg("rate (number)", _lt("The annualized rate of interest.")),
+    arg("period (number)", _lt("The amortization period, in terms of number of periods.")),
+    arg("number_of_periods (number)", _lt("The number of payments to be made.")),
+    arg("present_value (number)", _lt("The current value of the annuity.")),
+    arg(
+      `future_value (number, default=${DEFAULT_FUTURE_VALUE})`,
+      _lt("The future value remaining after the final payment has been made.")
+    ),
+    arg(
+      `end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING})`,
+      _lt("Whether payments are due at the end (0) or beginning (1) of each period.")
+    ),
+  ],
   returns: ["NUMBER"],
   computeFormat: () => "#,##0.00",
   compute: function (
@@ -1092,14 +1148,16 @@ export const IPMT: AddFunctionDescription = {
 const DEFAULT_RATE_GUESS = 0.1;
 export const IRR: AddFunctionDescription = {
   description: _lt("Internal rate of return given periodic cashflows."),
-  args: args(`
-  cashflow_amounts (number, range<number>) ${_lt(
-    "An array or range containing the income or payments associated with the investment."
-  )}
-  rate_guess (number, default=${DEFAULT_RATE_GUESS}) ${_lt(
-    "An estimate for what the internal rate of return will be."
-  )}
-  `),
+  args: [
+    arg(
+      "cashflow_amounts (number, range<number>)",
+      _lt("An array or range containing the income or payments associated with the investment.")
+    ),
+    arg(
+      `rate_guess (number, default=${DEFAULT_RATE_GUESS})`,
+      _lt("An estimate for what the internal rate of return will be.")
+    ),
+  ],
   returns: ["NUMBER"],
   computeFormat: () => "0%",
   compute: function (
@@ -1171,12 +1229,12 @@ export const IRR: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const ISPMT: AddFunctionDescription = {
   description: _lt("Returns the interest paid at a particular period of an investment."),
-  args: args(`
-  rate (number) ${_lt("The interest rate.")}
-  period (number) ${_lt("The period for which you want to view the interest payment.")}
-  number_of_periods (number) ${_lt("The number of payments to be made.")}
-  present_value (number) ${_lt("The current value of the annuity.")}
-  `),
+  args: [
+    arg("rate (number)", _lt("The interest rate.")),
+    arg("period (number)", _lt("The period for which you want to view the interest payment.")),
+    arg("number_of_periods (number)", _lt("The number of payments to be made.")),
+    arg("present_value (number)", _lt("The current value of the annuity.")),
+  ],
   returns: ["NUMBER"],
   compute: function (
     rate: PrimitiveArgValue,
@@ -1205,22 +1263,30 @@ export const ISPMT: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MDURATION: AddFunctionDescription = {
   description: _lt("Modified Macaulay duration."),
-  args: args(`
-        settlement (date) ${_lt(
-          "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
-        )}
-        maturity (date) ${_lt(
-          "The maturity or end date of the security, when it can be redeemed at face, or par value."
-        )}
-        rate (number) ${_lt("The annualized rate of interest.")}
-        yield (number) ${_lt("The expected annual yield of the security.")}
-        frequency (number) ${_lt(
-          "The number of interest or coupon payments per year (1, 2, or 4)."
-        )}
-        day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
-    "An indicator of what day count method to use."
-  )}
-    `),
+  args: [
+    arg(
+      "settlement (date)",
+      _lt(
+        "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
+      )
+    ),
+    arg(
+      "maturity (date)",
+      _lt(
+        "The maturity or end date of the security, when it can be redeemed at face, or par value."
+      )
+    ),
+    arg("rate (number)", _lt("The annualized rate of interest.")),
+    arg("yield (number)", _lt("The expected annual yield of the security.")),
+    arg(
+      "frequency (number)",
+      _lt("The number of interest or coupon payments per year (1, 2, or 4).")
+    ),
+    arg(
+      `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
+      _lt("An indicator of what day count method to use.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     settlement: PrimitiveArgValue,
@@ -1250,15 +1316,21 @@ export const MDURATION: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MIRR: AddFunctionDescription = {
   description: _lt("Modified internal rate of return."),
-  args: args(`
-  cashflow_amounts (range<number>) ${_lt(
-    "A range containing the income or payments associated with the investment. The array should contain bot payments and incomes."
-  )}
-  financing_rate (number) ${_lt("The interest rate paid on funds invested.")}
-  reinvestment_return_rate (number) ${_lt(
-    "The return (as a percentage) earned on reinvestment of income received from the investment."
-  )}
-  `),
+  args: [
+    arg(
+      "cashflow_amounts (range<number>)",
+      _lt(
+        "A range containing the income or payments associated with the investment. The array should contain bot payments and incomes."
+      )
+    ),
+    arg("financing_rate (number)", _lt("The interest rate paid on funds invested.")),
+    arg(
+      "reinvestment_return_rate (number)",
+      _lt(
+        "The return (as a percentage) earned on reinvestment of income received from the investment."
+      )
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     cashflowAmount: MatrixArgValue,
@@ -1316,10 +1388,10 @@ export const MIRR: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const NOMINAL: AddFunctionDescription = {
   description: _lt("Annual nominal interest rate."),
-  args: args(`
-  effective_rate (number) ${_lt("The effective interest rate per year.")}
-  periods_per_year (number) ${_lt("The number of compounding periods per year.")}
-  `),
+  args: [
+    arg("effective_rate (number)", _lt("The effective interest rate per year.")),
+    arg("periods_per_year (number)", _lt("The number of compounding periods per year.")),
+  ],
   returns: ["NUMBER"],
   compute: function (
     effective_rate: PrimitiveArgValue,
@@ -1348,17 +1420,19 @@ export const NOMINAL: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const NPER: AddFunctionDescription = {
   description: _lt("Number of payment periods for an investment."),
-  args: args(`
-  rate (number) ${_lt("The interest rate.")}
-  payment_amount (number) ${_lt("The amount of each payment made.")}
-  present_value (number) ${_lt("The current value of the annuity.")}
-  future_value (number, default=${DEFAULT_FUTURE_VALUE}) ${_lt(
-    "The future value remaining after the final payment has been made."
-  )}
-  end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt(
-    "Whether payments are due at the end (0) or beginning (1) of each period."
-  )}
-  `),
+  args: [
+    arg("rate (number)", _lt("The interest rate.")),
+    arg("payment_amount (number)", _lt("The amount of each payment made.")),
+    arg("present_value (number)", _lt("The current value of the annuity.")),
+    arg(
+      `future_value (number, default=${DEFAULT_FUTURE_VALUE})`,
+      _lt("The future value remaining after the final payment has been made.")
+    ),
+    arg(
+      `end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING})`,
+      _lt("Whether payments are due at the end (0) or beginning (1) of each period.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     rate: PrimitiveArgValue,
@@ -1418,11 +1492,11 @@ export const NPV: AddFunctionDescription = {
   description: _lt(
     "The net present value of an investment based on a series of periodic cash flows and a discount rate."
   ),
-  args: args(`
-  discount (number) ${_lt("The discount rate of the investment over one period.")}
-  cashflow1 (number, range<number>) ${_lt("The first future cash flow.")}
-  cashflow2 (number, range<number>, repeating) ${_lt("Additional future cash flows.")}
-  `),
+  args: [
+    arg("discount (number)", _lt("The discount rate of the investment over one period.")),
+    arg("cashflow1 (number, range<number>)", _lt("The first future cash flow.")),
+    arg("cashflow2 (number, range<number>, repeating)", _lt("Additional future cash flows.")),
+  ],
   returns: ["NUMBER"],
   // to do: replace by dollar format
   computeFormat: () => "#,##0.00",
@@ -1444,11 +1518,11 @@ export const NPV: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const PDURATION: AddFunctionDescription = {
   description: _lt("Computes the number of periods needed for an investment to reach a value."),
-  args: args(`
-  rate (number) ${_lt("The rate at which the investment grows each period.")}
-  present_value (number) ${_lt("The investment's current value.")}
-  future_value (number) ${_lt("The investment's desired future value.")}
-  `),
+  args: [
+    arg("rate (number)", _lt("The rate at which the investment grows each period.")),
+    arg("present_value (number)", _lt("The investment's current value.")),
+    arg("future_value (number)", _lt("The investment's desired future value.")),
+  ],
   returns: ["NUMBER"],
   compute: function (
     rate: PrimitiveArgValue,
@@ -1479,17 +1553,19 @@ export const PDURATION: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const PMT: AddFunctionDescription = {
   description: _lt("Periodic payment for an annuity investment."),
-  args: args(`
-  rate (number) ${_lt("The annualized rate of interest.")}
-  number_of_periods (number) ${_lt("The number of payments to be made.")}
-  present_value (number) ${_lt("The current value of the annuity.")}
-  future_value (number, default=${DEFAULT_FUTURE_VALUE}) ${_lt(
-    "The future value remaining after the final payment has been made."
-  )}
-  end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt(
-    "Whether payments are due at the end (0) or beginning (1) of each period."
-  )}
-  `),
+  args: [
+    arg("rate (number)", _lt("The annualized rate of interest.")),
+    arg("number_of_periods (number)", _lt("The number of payments to be made.")),
+    arg("present_value (number)", _lt("The current value of the annuity.")),
+    arg(
+      `future_value (number, default=${DEFAULT_FUTURE_VALUE})`,
+      _lt("The future value remaining after the final payment has been made.")
+    ),
+    arg(
+      `end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING})`,
+      _lt("Whether payments are due at the end (0) or beginning (1) of each period.")
+    ),
+  ],
   returns: ["NUMBER"],
   computeFormat: () => "#,##0.00",
   compute: function (
@@ -1532,18 +1608,20 @@ export const PMT: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const PPMT: AddFunctionDescription = {
   description: _lt("Payment on the principal of an investment."),
-  args: args(`
-  rate (number) ${_lt("The annualized rate of interest.")}
-  period (number) ${_lt("The amortization period, in terms of number of periods.")}
-  number_of_periods (number) ${_lt("The number of payments to be made.")}
-  present_value (number) ${_lt("The current value of the annuity.")}
-  future_value (number, default=${DEFAULT_FUTURE_VALUE}) ${_lt(
-    "The future value remaining after the final payment has been made."
-  )}
-  end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt(
-    "Whether payments are due at the end (0) or beginning (1) of each period."
-  )}
-  `),
+  args: [
+    arg("rate (number)", _lt("The annualized rate of interest.")),
+    arg("period (number)", _lt("The amortization period, in terms of number of periods.")),
+    arg("number_of_periods (number)", _lt("The number of payments to be made.")),
+    arg("present_value (number)", _lt("The current value of the annuity.")),
+    arg(
+      `future_value (number, default=${DEFAULT_FUTURE_VALUE})`,
+      _lt("The future value remaining after the final payment has been made.")
+    ),
+    arg(
+      `end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING})`,
+      _lt("Whether payments are due at the end (0) or beginning (1) of each period.")
+    ),
+  ],
   returns: ["NUMBER"],
   computeFormat: () => "#,##0.00",
   compute: function (
@@ -1587,17 +1665,19 @@ export const PPMT: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const PV: AddFunctionDescription = {
   description: _lt("Present value of an annuity investment."),
-  args: args(`
-  rate (number) ${_lt("The interest rate.")}
-  number_of_periods (number) ${_lt("The number of payments to be made.")}
-  payment_amount (number) ${_lt("The amount per period to be paid.")}
-  future_value (number, default=${DEFAULT_FUTURE_VALUE}) ${_lt(
-    "The future value remaining after the final payment has been made."
-  )}
-  end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt(
-    "Whether payments are due at the end (0) or beginning (1) of each period."
-  )}
-  `),
+  args: [
+    arg("rate (number)", _lt("The interest rate.")),
+    arg("number_of_periods (number)", _lt("The number of payments to be made.")),
+    arg("payment_amount (number)", _lt("The amount per period to be paid.")),
+    arg(
+      `future_value (number, default=${DEFAULT_FUTURE_VALUE})`,
+      _lt("The future value remaining after the final payment has been made.")
+    ),
+    arg(
+      `end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING})`,
+      _lt("Whether payments are due at the end (0) or beginning (1) of each period.")
+    ),
+  ],
   returns: ["NUMBER"],
   // to do: replace by dollar format
   computeFormat: () => "#,##0.00",
@@ -1626,21 +1706,31 @@ export const PV: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const PRICE: AddFunctionDescription = {
   description: _lt("Price of a security paying periodic interest."),
-  args: args(`
-      settlement (date) ${_lt(
+  args: [
+    arg(
+      "settlement (date)",
+      _lt(
         "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
-      )}
-      maturity (date) ${_lt(
+      )
+    ),
+    arg(
+      "maturity (date)",
+      _lt(
         "The maturity or end date of the security, when it can be redeemed at face, or par value."
-      )}
-      rate (number) ${_lt("The annualized rate of interest.")}
-      yield (number) ${_lt("The expected annual yield of the security.")}
-      redemption (number) ${_lt("The redemption amount per 100 face value, or par.")}
-      frequency (number) ${_lt("The number of interest or coupon payments per year (1, 2, or 4).")}
-      day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
-    "An indicator of what day count method to use."
-  )}
-    `),
+      )
+    ),
+    arg("rate (number)", _lt("The annualized rate of interest.")),
+    arg("yield (number)", _lt("The expected annual yield of the security.")),
+    arg("redemption (number)", _lt("The redemption amount per 100 face value, or par.")),
+    arg(
+      "frequency (number)",
+      _lt("The number of interest or coupon payments per year (1, 2, or 4).")
+    ),
+    arg(
+      `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
+      _lt("An indicator of what day count method to use.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     settlement: PrimitiveArgValue,
@@ -1704,19 +1794,26 @@ export const PRICE: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const PRICEDISC: AddFunctionDescription = {
   description: _lt("Price of a discount security."),
-  args: args(`
-      settlement (date) ${_lt(
+  args: [
+    arg(
+      "settlement (date)",
+      _lt(
         "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
-      )}
-      maturity (date) ${_lt(
+      )
+    ),
+    arg(
+      "maturity (date)",
+      _lt(
         "The maturity or end date of the security, when it can be redeemed at face, or par value."
-      )}
-      discount (number) ${_lt("The discount rate of the security at time of purchase.")}
-      redemption (number) ${_lt("The redemption amount per 100 face value, or par.")}
-      day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
-    "An indicator of what day count method to use."
-  )}
-    `),
+      )
+    ),
+    arg("discount (number)", _lt("The discount rate of the security at time of purchase.")),
+    arg("redemption (number)", _lt("The redemption amount per 100 face value, or par.")),
+    arg(
+      `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
+      _lt("An indicator of what day count method to use.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     settlement: PrimitiveArgValue,
@@ -1759,20 +1856,27 @@ export const PRICEMAT: AddFunctionDescription = {
   description: _lt(
     "Calculates the price of a security paying interest at maturity, based on expected yield."
   ),
-  args: args(`
-      settlement (date) ${_lt(
+  args: [
+    arg(
+      "settlement (date)",
+      _lt(
         "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
-      )}
-      maturity (date) ${_lt(
+      )
+    ),
+    arg(
+      "maturity (date)",
+      _lt(
         "The maturity or end date of the security, when it can be redeemed at face, or par value."
-      )}
-      issue (date) ${_lt("The date the security was initially issued.")}
-      rate (number) ${_lt("The annualized rate of interest.")}
-      yield (number) ${_lt("The expected annual yield of the security.")}
-      day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
-    "An indicator of what day count method to use."
-  )}
-    `),
+      )
+    ),
+    arg("issue (date)", _lt("The date the security was initially issued.")),
+    arg("rate (number)", _lt("The annualized rate of interest.")),
+    arg("yield (number)", _lt("The expected annual yield of the security.")),
+    arg(
+      `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
+      _lt("An indicator of what day count method to use.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     settlement: PrimitiveArgValue,
@@ -1841,20 +1945,23 @@ export const PRICEMAT: AddFunctionDescription = {
 const RATE_GUESS_DEFAULT = 0.1;
 export const RATE: AddFunctionDescription = {
   description: _lt("Interest rate of an annuity investment."),
-  args: args(`
-  number_of_periods (number) ${_lt("The number of payments to be made.")}
-  payment_per_period (number) ${_lt("The amount per period to be paid.")}
-  present_value (number) ${_lt("The current value of the annuity.")}
-  future_value (number, default=${DEFAULT_FUTURE_VALUE}) ${_lt(
-    "The future value remaining after the final payment has been made."
-  )}
-  end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt(
-    "Whether payments are due at the end (0) or beginning (1) of each period."
-  )}
-  rate_guess (number, default=${RATE_GUESS_DEFAULT}) ${_lt(
-    "An estimate for what the interest rate will be."
-  )}
-  `),
+  args: [
+    arg("number_of_periods (number)", _lt("The number of payments to be made.")),
+    arg("payment_per_period (number)", _lt("The amount per period to be paid.")),
+    arg("present_value (number)", _lt("The current value of the annuity.")),
+    arg(
+      `future_value (number, default=${DEFAULT_FUTURE_VALUE})`,
+      _lt("The future value remaining after the final payment has been made.")
+    ),
+    arg(
+      `end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING})`,
+      _lt("Whether payments are due at the end (0) or beginning (1) of each period.")
+    ),
+    arg(
+      `rate_guess (number, default=${RATE_GUESS_DEFAULT})`,
+      _lt("An estimate for what the interest rate will be.")
+    ),
+  ],
   returns: ["NUMBER"],
   computeFormat: () => "0%",
   compute: function (
@@ -1913,21 +2020,29 @@ export const RATE: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const RECEIVED: AddFunctionDescription = {
   description: _lt("Amount received at maturity for a security."),
-  args: args(`
-      settlement (date) ${_lt(
+  args: [
+    arg(
+      "settlement (date)",
+      _lt(
         "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
-      )}
-      maturity (date) ${_lt(
+      )
+    ),
+    arg(
+      "maturity (date)",
+      _lt(
         "The maturity or end date of the security, when it can be redeemed at face, or par value."
-      )}
-      investment (number) ${_lt(
-        "The amount invested (irrespective of face value of each security)."
-      )}
-      discount (number) ${_lt("The discount rate of the security invested in.")}
-      day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
-    "An indicator of what day count method to use."
-  )}
-    `),
+      )
+    ),
+    arg(
+      "investment (number)",
+      _lt("The amount invested (irrespective of face value of each security).")
+    ),
+    arg("discount (number)", _lt("The discount rate of the security invested in.")),
+    arg(
+      `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
+      _lt("An indicator of what day count method to use.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     settlement: PrimitiveArgValue,
@@ -1972,11 +2087,11 @@ export const RRI: AddFunctionDescription = {
   description: _lt(
     "Computes the rate needed for an investment to reach a specific value within a specific number of periods."
   ),
-  args: args(`
-      number_of_periods (number) ${_lt("The number of periods.")}
-      present_value (number) ${_lt("The present value of the investment.")}
-      future_value (number) ${_lt("The future value of the investment.")}
-    `),
+  args: [
+    arg("number_of_periods (number)", _lt("The number of periods.")),
+    arg("present_value (number)", _lt("The present value of the investment.")),
+    arg("future_value (number)", _lt("The future value of the investment.")),
+  ],
   returns: ["NUMBER"],
   compute: function (
     numberOfPeriods: PrimitiveArgValue,
@@ -2004,11 +2119,11 @@ export const RRI: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const SLN: AddFunctionDescription = {
   description: _lt("Depreciation of an asset using the straight-line method."),
-  args: args(`
-        cost (number) ${_lt("The initial cost of the asset.")}
-        salvage (number) ${_lt("The value of the asset at the end of depreciation.")}
-        life (number) ${_lt("The number of periods over which the asset is depreciated.")}
-    `),
+  args: [
+    arg("cost (number)", _lt("The initial cost of the asset.")),
+    arg("salvage (number)", _lt("The value of the asset at the end of depreciation.")),
+    arg("life (number)", _lt("The number of periods over which the asset is depreciated.")),
+  ],
   returns: ["NUMBER"],
   computeFormat: () => "#,##0.00",
   compute: function (
@@ -2033,12 +2148,15 @@ export const SLN: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const SYD: AddFunctionDescription = {
   description: _lt("Depreciation via sum of years digit method."),
-  args: args(`
-        cost (number) ${_lt("The initial cost of the asset.")}
-        salvage (number) ${_lt("The value of the asset at the end of depreciation.")}
-        life (number) ${_lt("The number of periods over which the asset is depreciated.")}
-        period (number) ${_lt("The single period within life for which to calculate depreciation.")}
-    `),
+  args: [
+    arg("cost (number)", _lt("The initial cost of the asset.")),
+    arg("salvage (number)", _lt("The value of the asset at the end of depreciation.")),
+    arg("life (number)", _lt("The number of periods over which the asset is depreciated.")),
+    arg(
+      "period (number)",
+      _lt("The single period within life for which to calculate depreciation.")
+    ),
+  ],
   returns: ["NUMBER"],
   computeFormat: () => "#,##0.00",
   compute: function (
@@ -2078,15 +2196,21 @@ export const SYD: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const TBILLPRICE: AddFunctionDescription = {
   description: _lt("Price of a US Treasury bill."),
-  args: args(`
-      settlement (date) ${_lt(
+  args: [
+    arg(
+      "settlement (date)",
+      _lt(
         "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
-      )}
-      maturity (date) ${_lt(
+      )
+    ),
+    arg(
+      "maturity (date)",
+      _lt(
         "The maturity or end date of the security, when it can be redeemed at face, or par value."
-      )}
-      discount (number) ${_lt("The discount rate of the bill at time of purchase.")}
-    `),
+      )
+    ),
+    arg("discount (number)", _lt("The discount rate of the bill at time of purchase.")),
+  ],
   returns: ["NUMBER"],
   compute: function (
     settlement: PrimitiveArgValue,
@@ -2122,15 +2246,21 @@ export const TBILLPRICE: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const TBILLEQ: AddFunctionDescription = {
   description: _lt("Equivalent rate of return for a US Treasury bill."),
-  args: args(`
-      settlement (date) ${_lt(
+  args: [
+    arg(
+      "settlement (date)",
+      _lt(
         "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
-      )}
-      maturity (date) ${_lt(
+      )
+    ),
+    arg(
+      "maturity (date)",
+      _lt(
         "The maturity or end date of the security, when it can be redeemed at face, or par value."
-      )}
-      discount (number) ${_lt("The discount rate of the bill at time of purchase.")}
-    `),
+      )
+    ),
+    arg("discount (number)", _lt("The discount rate of the bill at time of purchase.")),
+  ],
   returns: ["NUMBER"],
   compute: function (
     settlement: PrimitiveArgValue,
@@ -2195,15 +2325,21 @@ export const TBILLEQ: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const TBILLYIELD: AddFunctionDescription = {
   description: _lt("The yield of a US Treasury bill based on price."),
-  args: args(`
-      settlement (date) ${_lt(
+  args: [
+    arg(
+      "settlement (date)",
+      _lt(
         "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
-      )}
-      maturity (date) ${_lt(
+      )
+    ),
+    arg(
+      "maturity (date)",
+      _lt(
         "The maturity or end date of the security, when it can be redeemed at face, or par value."
-      )}
-      price (number) ${_lt("The price at which the security is bought per 100 face value.")}
-    `),
+      )
+    ),
+    arg("price (number)", _lt("The price at which the security is bought per 100 face value.")),
+  ],
   returns: ["NUMBER"],
   compute: function (
     settlement: PrimitiveArgValue,
@@ -2243,19 +2379,23 @@ export const TBILLYIELD: AddFunctionDescription = {
 const DEFAULT_VDB_NO_SWITCH = false;
 export const VDB: AddFunctionDescription = {
   description: _lt("Variable declining balance. WARNING : does not handle decimal periods."),
-  args: args(`
-        cost (number) ${_lt("The initial cost of the asset.")}
-        salvage (number) ${_lt("The value of the asset at the end of depreciation.")}
-        life (number) ${_lt("The number of periods over which the asset is depreciated.")}
-        start (number) ${_lt("Starting period to calculate depreciation.")}
-        end (number) ${_lt("Ending period to calculate depreciation.")}
-        factor (number, default=${DEFAULT_DDB_DEPRECIATION_FACTOR}) ${_lt(
-    "The number of months in the first year of depreciation."
-  )}
-  no_switch (number, default=${DEFAULT_VDB_NO_SWITCH}) ${_lt(
-    "Whether to switch to straight-line depreciation when the depreciation is greater than the declining balance calculation."
-  )}
-    `),
+  args: [
+    arg("cost (number)", _lt("The initial cost of the asset.")),
+    arg("salvage (number)", _lt("The value of the asset at the end of depreciation.")),
+    arg("life (number)", _lt("The number of periods over which the asset is depreciated.")),
+    arg("start (number)", _lt("Starting period to calculate depreciation.")),
+    arg("end (number)", _lt("Ending period to calculate depreciation.")),
+    arg(
+      `factor (number, default=${DEFAULT_DDB_DEPRECIATION_FACTOR})`,
+      _lt("The number of months in the first year of depreciation.")
+    ),
+    arg(
+      `no_switch (number, default=${DEFAULT_VDB_NO_SWITCH})`,
+      _lt(
+        "Whether to switch to straight-line depreciation when the depreciation is greater than the declining balance calculation."
+      )
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     cost: PrimitiveArgValue,
@@ -2331,17 +2471,20 @@ export const VDB: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const XIRR: AddFunctionDescription = {
   description: _lt("Internal rate of return given non-periodic cash flows."),
-  args: args(`
-  cashflow_amounts (range<number>) ${_lt(
-    "An range containing the income or payments associated with the investment."
-  )}
-  cashflow_dates (range<number>) ${_lt(
-    "An range with dates corresponding to the cash flows in cashflow_amounts."
-  )}
-  rate_guess (number, default=${RATE_GUESS_DEFAULT}) ${_lt(
-    "An estimate for what the internal rate of return will be."
-  )}
-  `),
+  args: [
+    arg(
+      "cashflow_amounts (range<number>)",
+      _lt("An range containing the income or payments associated with the investment.")
+    ),
+    arg(
+      "cashflow_dates (range<number>)",
+      _lt("An range with dates corresponding to the cash flows in cashflow_amounts.")
+    ),
+    arg(
+      `rate_guess (number, default=${RATE_GUESS_DEFAULT})`,
+      _lt("An estimate for what the internal rate of return will be.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     cashflowAmounts: MatrixArgValue,
@@ -2416,15 +2559,17 @@ export const XIRR: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const XNPV: AddFunctionDescription = {
   description: _lt("Net present value given to non-periodic cash flows.."),
-  args: args(`
-  discount (number) ${_lt("The discount rate of the investment over one period.")}
-  cashflow_amounts (number, range<number>) ${_lt(
-    "An range containing the income or payments associated with the investment."
-  )}
-  cashflow_dates (number, range<number>) ${_lt(
-    "An range with dates corresponding to the cash flows in cashflow_amounts."
-  )}
-  `),
+  args: [
+    arg("discount (number)", _lt("The discount rate of the investment over one period.")),
+    arg(
+      "cashflow_amounts (number, range<number>)",
+      _lt("An range containing the income or payments associated with the investment.")
+    ),
+    arg(
+      "cashflow_dates (number, range<number>)",
+      _lt("An range with dates corresponding to the cash flows in cashflow_amounts.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     discount: PrimitiveArgValue,
@@ -2493,23 +2638,31 @@ export const XNPV: AddFunctionDescription = {
 
 export const YIELD: AddFunctionDescription = {
   description: _lt("Annual yield of a security paying periodic interest."),
-  args: args(`
-        settlement (date) ${_lt(
-          "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
-        )}
-        maturity (date) ${_lt(
-          "The maturity or end date of the security, when it can be redeemed at face, or par value."
-        )}
-        rate (number) ${_lt("The annualized rate of interest.")}
-        price (number) ${_lt("The price at which the security is bought per 100 face value.")}
-        redemption (number) ${_lt("The redemption amount per 100 face value, or par.")}
-        frequency (number) ${_lt(
-          "The number of interest or coupon payments per year (1, 2, or 4)."
-        )}
-        day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
-    "An indicator of what day count method to use."
-  )}
-    `),
+  args: [
+    arg(
+      "settlement (date)",
+      _lt(
+        "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
+      )
+    ),
+    arg(
+      "maturity (date)",
+      _lt(
+        "The maturity or end date of the security, when it can be redeemed at face, or par value."
+      )
+    ),
+    arg("rate (number)", _lt("The annualized rate of interest.")),
+    arg("price (number)", _lt("The price at which the security is bought per 100 face value.")),
+    arg("redemption (number)", _lt("The redemption amount per 100 face value, or par.")),
+    arg(
+      "frequency (number)",
+      _lt("The number of interest or coupon payments per year (1, 2, or 4).")
+    ),
+    arg(
+      `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
+      _lt("An indicator of what day count method to use.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     settlement: PrimitiveArgValue,
@@ -2624,19 +2777,26 @@ export const YIELD: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const YIELDDISC: AddFunctionDescription = {
   description: _lt("Annual yield of a discount security."),
-  args: args(`
-        settlement (date) ${_lt(
-          "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
-        )}
-        maturity (date) ${_lt(
-          "The maturity or end date of the security, when it can be redeemed at face, or par value."
-        )}
-        price (number) ${_lt("The price at which the security is bought per 100 face value.")}
-        redemption (number) ${_lt("The redemption amount per 100 face value, or par.")}
-        day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
-    "An indicator of what day count method to use."
-  )}
-    `),
+  args: [
+    arg(
+      "settlement (date)",
+      _lt(
+        "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
+      )
+    ),
+    arg(
+      "maturity (date)",
+      _lt(
+        "The maturity or end date of the security, when it can be redeemed at face, or par value."
+      )
+    ),
+    arg("price (number)", _lt("The price at which the security is bought per 100 face value.")),
+    arg("redemption (number)", _lt("The redemption amount per 100 face value, or par.")),
+    arg(
+      `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
+      _lt("An indicator of what day count method to use.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     settlement: PrimitiveArgValue,
@@ -2676,20 +2836,27 @@ export const YIELDDISC: AddFunctionDescription = {
 
 export const YIELDMAT: AddFunctionDescription = {
   description: _lt("Annual yield of a security paying interest at maturity."),
-  args: args(`
-        settlement (date) ${_lt(
-          "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
-        )}
-        maturity (date) ${_lt(
-          "The maturity or end date of the security, when it can be redeemed at face, or par value."
-        )}
-        issue (date) ${_lt("The date the security was initially issued.")}
-        rate (number) ${_lt("The annualized rate of interest.")}
-        price (number) ${_lt("The price at which the security is bought.")}
-        day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
-    "An indicator of what day count method to use."
-  )}
-    `),
+  args: [
+    arg(
+      "settlement (date)",
+      _lt(
+        "The settlement date of the security, the date after issuance when the security is delivered to the buyer."
+      )
+    ),
+    arg(
+      "maturity (date)",
+      _lt(
+        "The maturity or end date of the security, when it can be redeemed at face, or par value."
+      )
+    ),
+    arg("issue (date)", _lt("The date the security was initially issued.")),
+    arg("rate (number)", _lt("The annualized rate of interest.")),
+    arg("price (number)", _lt("The price at which the security is bought.")),
+    arg(
+      `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
+      _lt("An indicator of what day count method to use.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     settlement: PrimitiveArgValue,

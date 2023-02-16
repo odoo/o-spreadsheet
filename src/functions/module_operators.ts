@@ -5,7 +5,7 @@ import {
   PrimitiveArg,
   PrimitiveArgValue,
 } from "../types";
-import { args } from "./arguments";
+import { arg } from "./arguments";
 import { assert, toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
 
@@ -14,10 +14,10 @@ import { POWER } from "./module_math";
 // -----------------------------------------------------------------------------
 export const ADD: AddFunctionDescription = {
   description: _lt(`Sum of two numbers.`),
-  args: args(`
-      value1 (number) ${_lt("The first addend.")}
-      value2 (number) ${_lt("The second addend.")}
-    `),
+  args: [
+    arg("value1 (number)", _lt("The first addend.")),
+    arg("value2 (number)", _lt("The second addend.")),
+  ],
   returns: ["NUMBER"],
   computeFormat: (value1: PrimitiveArg, value2: PrimitiveArg) => value1?.format || value2?.format,
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): number {
@@ -30,10 +30,10 @@ export const ADD: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const CONCAT: AddFunctionDescription = {
   description: _lt(`Concatenation of two values.`),
-  args: args(`
-      value1 (string) ${_lt("The value to which value2 will be appended.")}
-      value2 (string) ${_lt("The value to append to value1.")}
-    `),
+  args: [
+    arg("value1 (string)", _lt("The value to which value2 will be appended.")),
+    arg("value2 (string)", _lt("The value to append to value1.")),
+  ],
   returns: ["STRING"],
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): string {
     return toString(value1) + toString(value2);
@@ -46,10 +46,10 @@ export const CONCAT: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const DIVIDE: AddFunctionDescription = {
   description: _lt(`One number divided by another.`),
-  args: args(`
-      dividend (number) ${_lt("The number to be divided.")}
-      divisor (number) ${_lt("The number to divide by.")}
-    `),
+  args: [
+    arg("dividend (number)", _lt("The number to be divided.")),
+    arg("divisor (number)", _lt("The number to divide by.")),
+  ],
   returns: ["NUMBER"],
   computeFormat: (dividend: PrimitiveArg, divisor: PrimitiveArg) =>
     dividend?.format || divisor?.format,
@@ -71,10 +71,10 @@ const getNeutral = { number: 0, string: "", boolean: false };
 
 export const EQ: AddFunctionDescription = {
   description: _lt(`Equal.`),
-  args: args(`
-      value1 (any) ${_lt("The first value.")}
-      value2 (any) ${_lt("The value to test against value1 for equality.")}
-    `),
+  args: [
+    arg("value1 (any)", _lt("The first value.")),
+    arg("value2 (any)", _lt("The value to test against value1 for equality.")),
+  ],
   returns: ["BOOLEAN"],
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): boolean {
     value1 = isEmpty(value1) ? getNeutral[typeof value2] : value1;
@@ -118,10 +118,10 @@ function applyRelationalOperator(
 
 export const GT: AddFunctionDescription = {
   description: _lt(`Strictly greater than.`),
-  args: args(`
-      value1 (any) ${_lt("The value to test as being greater than value2.")}
-      value2 (any) ${_lt("The second value.")}
-    `),
+  args: [
+    arg("value1 (any)", _lt("The value to test as being greater than value2.")),
+    arg("value2 (any)", _lt("The second value.")),
+  ],
   returns: ["BOOLEAN"],
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): boolean {
     return applyRelationalOperator(value1, value2, (v1, v2) => {
@@ -135,10 +135,10 @@ export const GT: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const GTE: AddFunctionDescription = {
   description: _lt(`Greater than or equal to.`),
-  args: args(`
-      value1 (any) ${_lt("The value to test as being greater than or equal to value2.")}
-      value2 (any) ${_lt("The second value.")}
-    `),
+  args: [
+    arg("value1 (any)", _lt("The value to test as being greater than or equal to value2.")),
+    arg("value2 (any)", _lt("The second value.")),
+  ],
   returns: ["BOOLEAN"],
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): boolean {
     return applyRelationalOperator(value1, value2, (v1, v2) => {
@@ -152,10 +152,10 @@ export const GTE: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const LT: AddFunctionDescription = {
   description: _lt(`Less than.`),
-  args: args(`
-      value1 (any) ${_lt("The value to test as being less than value2.")}
-      value2 (any) ${_lt("The second value.")}
-    `),
+  args: [
+    arg("value1 (any)", _lt("The value to test as being less than value2.")),
+    arg("value2 (any)", _lt("The second value.")),
+  ],
   returns: ["BOOLEAN"],
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): boolean {
     return !GTE.compute(value1, value2);
@@ -167,10 +167,10 @@ export const LT: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const LTE: AddFunctionDescription = {
   description: _lt(`Less than or equal to.`),
-  args: args(`
-      value1 (any) ${_lt("The value to test as being less than or equal to value2.")}
-      value2 (any) ${_lt("The second value.")}
-    `),
+  args: [
+    arg("value1 (any)", _lt("The value to test as being less than or equal to value2.")),
+    arg("value2 (any)", _lt("The second value.")),
+  ],
   returns: ["BOOLEAN"],
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): boolean {
     return !GT.compute(value1, value2);
@@ -182,10 +182,10 @@ export const LTE: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MINUS: AddFunctionDescription = {
   description: _lt(`Difference of two numbers.`),
-  args: args(`
-      value1 (number) ${_lt("The minuend, or number to be subtracted from.")}
-      value2 (number) ${_lt("The subtrahend, or number to subtract from value1.")}
-    `),
+  args: [
+    arg("value1 (number)", _lt("The minuend, or number to be subtracted from.")),
+    arg("value2 (number)", _lt("The subtrahend, or number to subtract from value1.")),
+  ],
   returns: ["NUMBER"],
   computeFormat: (value1: PrimitiveArg, value2: PrimitiveArg) => value1?.format || value2?.format,
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): number {
@@ -198,10 +198,10 @@ export const MINUS: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MULTIPLY: AddFunctionDescription = {
   description: _lt(`Product of two numbers`),
-  args: args(`
-      factor1 (number) ${_lt("The first multiplicand.")}
-      factor2 (number) ${_lt("The second multiplicand.")}
-    `),
+  args: [
+    arg("factor1 (number)", _lt("The first multiplicand.")),
+    arg("factor2 (number)", _lt("The second multiplicand.")),
+  ],
   returns: ["NUMBER"],
   computeFormat: (factor1: PrimitiveArg, factor2: PrimitiveArg) =>
     factor1?.format || factor2?.format,
@@ -215,10 +215,10 @@ export const MULTIPLY: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const NE: AddFunctionDescription = {
   description: _lt(`Not equal.`),
-  args: args(`
-      value1 (any) ${_lt("The first value.")}
-      value2 (any) ${_lt("The value to test against value1 for inequality.")}
-    `),
+  args: [
+    arg("value1 (any)", _lt("The first value.")),
+    arg("value2 (any)", _lt("The value to test against value1 for inequality.")),
+  ],
   returns: ["BOOLEAN"],
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): boolean {
     return !EQ.compute(value1, value2);
@@ -230,10 +230,10 @@ export const NE: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const POW: AddFunctionDescription = {
   description: _lt(`A number raised to a power.`),
-  args: args(`
-      base (number) ${_lt("The number to raise to the exponent power.")}
-      exponent (number) ${_lt("The exponent to raise base to.")}
-    `),
+  args: [
+    arg("base (number)", _lt("The number to raise to the exponent power.")),
+    arg("exponent (number)", _lt("The exponent to raise base to.")),
+  ],
   returns: ["BOOLEAN"],
   compute: function (base: PrimitiveArgValue, exponent: PrimitiveArgValue): number {
     return POWER.compute(base, exponent) as number;
@@ -245,11 +245,12 @@ export const POW: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const UMINUS: AddFunctionDescription = {
   description: _lt(`A number with the sign reversed.`),
-  args: args(`
-      value (number) ${_lt(
-        "The number to have its sign reversed. Equivalently, the number to multiply by -1."
-      )}
-    `),
+  args: [
+    arg(
+      "value (number)",
+      _lt("The number to have its sign reversed. Equivalently, the number to multiply by -1.")
+    ),
+  ],
   computeFormat: (value: PrimitiveArg) => value?.format,
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
@@ -262,9 +263,7 @@ export const UMINUS: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const UNARY_PERCENT: AddFunctionDescription = {
   description: _lt(`Value interpreted as a percentage.`),
-  args: args(`
-      percentage (number) ${_lt("The value to interpret as a percentage.")}
-    `),
+  args: [arg("percentage (number)", _lt("The value to interpret as a percentage."))],
   returns: ["NUMBER"],
   compute: function (percentage: PrimitiveArgValue): number {
     return toNumber(percentage) / 100;
@@ -276,9 +275,7 @@ export const UNARY_PERCENT: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const UPLUS: AddFunctionDescription = {
   description: _lt(`A specified number, unchanged.`),
-  args: args(`
-      value (any) ${_lt("The number to return.")}
-    `),
+  args: [arg("value (any)", _lt("The number to return."))],
   returns: ["ANY"],
   computeFormat: (value: PrimitiveArg) => value?.format,
   compute: function (value: PrimitiveArgValue): FunctionReturnValue {

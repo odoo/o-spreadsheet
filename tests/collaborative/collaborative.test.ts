@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
-import { args, functionRegistry } from "../../src/functions";
+import { functionRegistry } from "../../src/functions";
 import { getDefaultCellHeight, range, toCartesian, toZone } from "../../src/helpers";
 import { CommandResult, CoreCommand } from "../../src/types";
 import { CollaborationMessage } from "../../src/types/collaborative/transport_service";
@@ -812,7 +812,7 @@ describe("Multi users synchronisation", () => {
       functionRegistry.add("GET.ASYNC.VALUE", {
         description: "Get value",
         compute: () => value,
-        args: args(``),
+        args: [],
         returns: ["ANY"],
       });
       const firstSheetId = alice.getters.getActiveSheetId();
@@ -838,7 +838,7 @@ describe("Multi users synchronisation", () => {
       functionRegistry.add("GET.ASYNC.VALUE", {
         description: "Get value",
         compute: () => value,
-        args: args(``),
+        args: [],
         returns: ["ANY"],
       });
       const firstSheetId = alice.getters.getActiveSheetId();

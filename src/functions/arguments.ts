@@ -20,22 +20,8 @@ const ARG_TYPES: ArgType[] = [
   "META",
 ];
 
-/**
- * This function is meant to be used as a tag for a template strings.
- *
- * Its job is to convert a textual description of the list of arguments into an
- * actual array of Arg, suitable for consumption.
- */
-export function args(strings: string): ArgDefinition[] {
-  let lines = strings.split("\n");
-  const result: ArgDefinition[] = [];
-  for (let l of lines) {
-    l = l.trim();
-    if (l) {
-      result.push(makeArg(l));
-    }
-  }
-  return result;
+export function arg(definition: string, description: string = ""): ArgDefinition {
+  return makeArg(`${definition} ${description}`);
 }
 
 function makeArg(str: string): ArgDefinition {

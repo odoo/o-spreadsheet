@@ -7,7 +7,7 @@ import {
   PADDING_AUTORESIZE_HORIZONTAL,
   PADDING_AUTORESIZE_VERTICAL,
 } from "../../src/constants";
-import { args, functionRegistry } from "../../src/functions";
+import { arg, functionRegistry } from "../../src/functions";
 import { toString } from "../../src/functions/helpers";
 import { fontSizeInPixels, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
@@ -172,10 +172,7 @@ describe("formatting values (with formatters)", () => {
   test("SET_DECIMAL considers the evaluated format to infer the decimal position", () => {
     functionRegistry.add("SET.DYN.FORMAT", {
       description: "Returns the value set to the provided format",
-      args: args(`
-          value (any) "value to format",
-          format (any) "format to set."
-      `),
+      args: [arg("value (any)", "value to format"), arg("format (any)", "format to set.")],
       compute: function (value: PrimitiveArgValue, format: PrimitiveArgValue) {
         return value || 0;
       } as ComputeFunction<ArgValue, FunctionReturnValue>,
