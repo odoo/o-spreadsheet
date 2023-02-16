@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { Spreadsheet } from "../../src/components";
-import { args, functionRegistry } from "../../src/functions";
+import { functionRegistry } from "../../src/functions";
 import { toZone } from "../../src/helpers";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/registries";
 import {
@@ -67,7 +67,7 @@ describe("Simple Spreadsheet Component", () => {
           env = this.env;
           return "Sheet";
         },
-        args: args(``),
+        args: [],
         returns: ["STRING"],
       });
     });

@@ -2,7 +2,7 @@ import { parseDateTime } from "../helpers/dates";
 import { isNumber, percentile } from "../helpers/index";
 import { _lt } from "../translation";
 import { AddFunctionDescription, Arg, ArgValue, MatrixArgValue, PrimitiveArgValue } from "../types";
-import { args } from "./arguments";
+import { arg } from "./arguments";
 import {
   assert,
   dichotomicSearch,
@@ -141,12 +141,13 @@ function centile(data: ArgValue[], percent: PrimitiveArgValue, isInclusive: bool
 // -----------------------------------------------------------------------------
 export const AVEDEV: AddFunctionDescription = {
   description: _lt("Average magnitude of deviations from mean."),
-  args: args(`
-    value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
-    value2 (number, range<number>, repeating) ${_lt(
-      "Additional values or ranges to include in the sample."
-    )}
-  `),
+  args: [
+    arg("value1 (number, range<number>)", _lt("The first value or range of the sample.")),
+    arg(
+      "value2 (number, range<number>, repeating)",
+      _lt("Additional values or ranges to include in the sample.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
     let count = 0;
@@ -173,14 +174,16 @@ export const AVEDEV: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const AVERAGE: AddFunctionDescription = {
   description: _lt(`Numerical average value in a dataset, ignoring text.`),
-  args: args(`
-      value1 (number, range<number>) ${_lt(
-        "The first value or range to consider when calculating the average value."
-      )}
-      value2 (number, range<number>, repeating) ${_lt(
-        "Additional values or ranges to consider when calculating the average value."
-      )}
-    `),
+  args: [
+    arg(
+      "value1 (number, range<number>)",
+      _lt("The first value or range to consider when calculating the average value.")
+    ),
+    arg(
+      "value2 (number, range<number>, repeating)",
+      _lt("Additional values or ranges to consider when calculating the average value.")
+    ),
+  ],
   returns: ["NUMBER"],
   computeFormat: (value1: Arg) => {
     return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
@@ -214,12 +217,15 @@ const negativeWeightError = _lt(
 
 export const AVERAGE_WEIGHTED: AddFunctionDescription = {
   description: _lt(`Weighted average.`),
-  args: args(`
-      values (number, range<number>) ${_lt("Values to average.")}
-      weights (number, range<number>) ${_lt("Weights for each corresponding value.")}
-      additional_values (number, range<number>, repeating) ${_lt("Additional values to average.")}
-      additional_weights (number, range<number>, repeating) ${_lt("Additional weights.")}
-    `),
+  args: [
+    arg("values (number, range<number>)", _lt("Values to average.")),
+    arg("weights (number, range<number>)", _lt("Weights for each corresponding value.")),
+    arg(
+      "additional_values (number, range<number>, repeating)",
+      _lt("Additional values to average.")
+    ),
+    arg("additional_weights (number, range<number>, repeating)", _lt("Additional weights.")),
+  ],
   returns: ["NUMBER"],
   computeFormat: (values: Arg) => {
     return Array.isArray(values) ? values[0][0]?.format : values?.format;
@@ -290,14 +296,16 @@ export const AVERAGE_WEIGHTED: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const AVERAGEA: AddFunctionDescription = {
   description: _lt(`Numerical average value in a dataset.`),
-  args: args(`
-      value1 (number, range<number>) ${_lt(
-        "The first value or range to consider when calculating the average value."
-      )}
-      value2 (number, range<number>, repeating) ${_lt(
-        "Additional values or ranges to consider when calculating the average value."
-      )}
-    `),
+  args: [
+    arg(
+      "value1 (number, range<number>)",
+      _lt("The first value or range to consider when calculating the average value.")
+    ),
+    arg(
+      "value2 (number, range<number>, repeating)",
+      _lt("Additional values or ranges to consider when calculating the average value.")
+    ),
+  ],
   returns: ["NUMBER"],
   computeFormat: (value1: Arg) => {
     return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
@@ -326,13 +334,14 @@ export const AVERAGEA: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const AVERAGEIF: AddFunctionDescription = {
   description: _lt(`Average of values depending on criteria.`),
-  args: args(`
-      criteria_range (range) ${_lt("The range to check against criterion.")}
-      criterion (string) ${_lt("The pattern or test to apply to criteria_range.")}
-      average_range (range, default=criteria_range) ${_lt(
-        "The range to average. If not included, criteria_range is used for the average instead."
-      )}
-    `),
+  args: [
+    arg("criteria_range (range)", _lt("The range to check against criterion.")),
+    arg("criterion (string)", _lt("The pattern or test to apply to criteria_range.")),
+    arg(
+      "average_range (range, default=criteria_range)",
+      _lt("The range to average. If not included, criteria_range is used for the average instead.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     criteriaRange: MatrixArgValue,
@@ -369,15 +378,16 @@ export const AVERAGEIF: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const AVERAGEIFS: AddFunctionDescription = {
   description: _lt(`Average of values depending on multiple criteria.`),
-  args: args(`
-      average_range (range) ${_lt("The range to average.")}
-      criteria_range1 (range) ${_lt("The range to check against criterion1.")}
-      criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1.")}
-      criteria_range2 (any, range, repeating) ${_lt(
-        "Additional criteria_range and criterion to check."
-      )}
-      criterion2 (string, repeating) ${_lt("The pattern or test to apply to criteria_range2.")}
-    `),
+  args: [
+    arg("average_range (range)", _lt("The range to average.")),
+    arg("criteria_range1 (range)", _lt("The range to check against criterion1.")),
+    arg("criterion1 (string)", _lt("The pattern or test to apply to criteria_range1.")),
+    arg(
+      "criteria_range2 (any, range, repeating)",
+      _lt("Additional criteria_range and criterion to check.")
+    ),
+    arg("criterion2 (string, repeating)", _lt("The pattern or test to apply to criteria_range2.")),
+  ],
   returns: ["NUMBER"],
   compute: function (averageRange: MatrixArgValue, ...values: ArgValue[]): number {
     let count = 0;
@@ -403,12 +413,16 @@ export const AVERAGEIFS: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const COUNT: AddFunctionDescription = {
   description: _lt(`The number of numeric values in dataset.`),
-  args: args(`
-    value1 (number, range<number>) ${_lt("The first value or range to consider when counting.")}
-    value2 (number, range<number>, repeating) ${_lt(
-      "Additional values or ranges to consider when counting."
-    )}
-  `),
+  args: [
+    arg(
+      "value1 (number, range<number>)",
+      _lt("The first value or range to consider when counting.")
+    ),
+    arg(
+      "value2 (number, range<number>, repeating)",
+      _lt("Additional values or ranges to consider when counting.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
     let count = 0;
@@ -435,10 +449,13 @@ export const COUNT: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const COUNTA: AddFunctionDescription = {
   description: _lt(`The number of values in a dataset.`),
-  args: args(`
-    value1 (any, range) ${_lt("The first value or range to consider when counting.")}
-    value2 (any, range, repeating) ${_lt("Additional values or ranges to consider when counting.")}
-  `),
+  args: [
+    arg("value1 (any, range)", _lt("The first value or range to consider when counting.")),
+    arg(
+      "value2 (any, range, repeating)",
+      _lt("Additional values or ranges to consider when counting.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
     return reduceAny(values, (acc, a) => (a !== undefined && a !== null ? acc + 1 : acc), 0);
@@ -454,10 +471,16 @@ export const COUNTA: AddFunctionDescription = {
 // the COVAR function corresponds to the covariance over an entire population (COVAR.P)
 export const COVAR: AddFunctionDescription = {
   description: _lt(`The covariance of a dataset.`),
-  args: args(`
-    data_y (any, range) ${_lt("The range representing the array or matrix of dependent data.")}
-    data_x (any, range) ${_lt("The range representing the array or matrix of independent data.")}
-  `),
+  args: [
+    arg(
+      "data_y (any, range)",
+      _lt("The range representing the array or matrix of dependent data.")
+    ),
+    arg(
+      "data_x (any, range)",
+      _lt("The range representing the array or matrix of independent data.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (dataY: ArgValue, dataX: ArgValue): number {
     return covariance(dataY, dataX, false);
@@ -470,10 +493,16 @@ export const COVAR: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const COVARIANCE_P: AddFunctionDescription = {
   description: _lt(`The covariance of a dataset.`),
-  args: args(`
-    data_y (any, range) ${_lt("The range representing the array or matrix of dependent data.")}
-    data_x (any, range) ${_lt("The range representing the array or matrix of independent data.")}
-  `),
+  args: [
+    arg(
+      "data_y (any, range)",
+      _lt("The range representing the array or matrix of dependent data.")
+    ),
+    arg(
+      "data_x (any, range)",
+      _lt("The range representing the array or matrix of independent data.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (dataY: ArgValue, dataX: ArgValue): number {
     return covariance(dataY, dataX, false);
@@ -486,10 +515,16 @@ export const COVARIANCE_P: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const COVARIANCE_S: AddFunctionDescription = {
   description: _lt(`The sample covariance of a dataset.`),
-  args: args(`
-    data_y (any, range) ${_lt("The range representing the array or matrix of dependent data.")}
-    data_x (any, range) ${_lt("The range representing the array or matrix of independent data.")}
-  `),
+  args: [
+    arg(
+      "data_y (any, range)",
+      _lt("The range representing the array or matrix of dependent data.")
+    ),
+    arg(
+      "data_x (any, range)",
+      _lt("The range representing the array or matrix of independent data.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (dataY: ArgValue, dataX: ArgValue): number {
     return covariance(dataY, dataX, true);
@@ -502,10 +537,10 @@ export const COVARIANCE_S: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const LARGE: AddFunctionDescription = {
   description: _lt("Nth largest element from a data set."),
-  args: args(`
-      data (any, range) ${_lt("Array or range containing the dataset to consider.")}
-      n (number) ${_lt("The rank from largest to smallest of the element to return.")}
-    `),
+  args: [
+    arg("data (any, range)", _lt("Array or range containing the dataset to consider.")),
+    arg("n (number)", _lt("The rank from largest to smallest of the element to return.")),
+  ],
   returns: ["NUMBER"],
   computeFormat: (data: Arg) => {
     return Array.isArray(data) ? data[0][0]?.format : data?.format;
@@ -549,14 +584,16 @@ export const LARGE: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MAX: AddFunctionDescription = {
   description: _lt("Maximum value in a numeric dataset."),
-  args: args(`
-      value1 (number, range<number>) ${_lt(
-        "The first value or range to consider when calculating the maximum value."
-      )}
-      value2 (number, range<number>, repeating) ${_lt(
-        "Additional values or ranges to consider when calculating the maximum value."
-      )}
-    `),
+  args: [
+    arg(
+      "value1 (number, range<number>)",
+      _lt("The first value or range to consider when calculating the maximum value.")
+    ),
+    arg(
+      "value2 (number, range<number>, repeating)",
+      _lt("Additional values or ranges to consider when calculating the maximum value.")
+    ),
+  ],
   returns: ["NUMBER"],
   computeFormat: (value1: Arg) => {
     return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
@@ -573,14 +610,16 @@ export const MAX: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MAXA: AddFunctionDescription = {
   description: _lt("Maximum numeric value in a dataset."),
-  args: args(`
-      value1 (any, range) ${_lt(
-        "The first value or range to consider when calculating the maximum value."
-      )}
-      value2 (any, range, repeating) ${_lt(
-        "Additional values or ranges to consider when calculating the maximum value."
-      )}
-    `),
+  args: [
+    arg(
+      "value1 (any, range)",
+      _lt("The first value or range to consider when calculating the maximum value.")
+    ),
+    arg(
+      "value2 (any, range, repeating)",
+      _lt("Additional values or ranges to consider when calculating the maximum value.")
+    ),
+  ],
   returns: ["NUMBER"],
   computeFormat: (value1: Arg) => {
     return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
@@ -603,17 +642,23 @@ export const MAXA: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MAXIFS: AddFunctionDescription = {
   description: _lt("Returns the maximum value in a range of cells, filtered by a set of criteria."),
-  args: args(`
-      range (range) ${_lt("The range of cells from which the maximum will be determined.")}
-      criteria_range1 (range) ${_lt("The range of cells over which to evaluate criterion1.")}
-      criterion1 (string) ${_lt(
+  args: [
+    arg("range (range)", _lt("The range of cells from which the maximum will be determined.")),
+    arg("criteria_range1 (range)", _lt("The range of cells over which to evaluate criterion1.")),
+    arg(
+      "criterion1 (string)",
+      _lt(
         "The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set."
-      )}
-      criteria_range2 (any, range, repeating) ${_lt(
+      )
+    ),
+    arg(
+      "criteria_range2 (any, range, repeating)",
+      _lt(
         "Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair."
-      )}
-      criterion2 (string, repeating) ${_lt("The pattern or test to apply to criteria_range2.")}
-    `),
+      )
+    ),
+    arg("criterion2 (string, repeating)", _lt("The pattern or test to apply to criteria_range2.")),
+  ],
   returns: ["NUMBER"],
   compute: function (range: MatrixArgValue, ...args: ArgValue[]): number {
     let result = -Infinity;
@@ -633,14 +678,16 @@ export const MAXIFS: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MEDIAN: AddFunctionDescription = {
   description: _lt("Median value in a numeric dataset."),
-  args: args(`
-      value1 (any, range) ${_lt(
-        "The first value or range to consider when calculating the median value."
-      )}
-      value2 (any, range, repeating) ${_lt(
-        "Additional values or ranges to consider when calculating the median value."
-      )}
-    `),
+  args: [
+    arg(
+      "value1 (any, range)",
+      _lt("The first value or range to consider when calculating the median value.")
+    ),
+    arg(
+      "value2 (any, range, repeating)",
+      _lt("Additional values or ranges to consider when calculating the median value.")
+    ),
+  ],
   returns: ["NUMBER"],
   computeFormat: (value1: Arg) => {
     return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
@@ -660,14 +707,16 @@ export const MEDIAN: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MIN: AddFunctionDescription = {
   description: _lt("Minimum value in a numeric dataset."),
-  args: args(`
-      value1 (number, range<number>) ${_lt(
-        "The first value or range to consider when calculating the minimum value."
-      )}
-      value2 (number, range<number>, repeating) ${_lt(
-        "Additional values or ranges to consider when calculating the minimum value."
-      )}
-    `),
+  args: [
+    arg(
+      "value1 (number, range<number>)",
+      _lt("The first value or range to consider when calculating the minimum value.")
+    ),
+    arg(
+      "value2 (number, range<number>, repeating)",
+      _lt("Additional values or ranges to consider when calculating the minimum value.")
+    ),
+  ],
   returns: ["NUMBER"],
   computeFormat: (value1: Arg) => {
     return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
@@ -684,14 +733,16 @@ export const MIN: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MINA: AddFunctionDescription = {
   description: _lt("Minimum numeric value in a dataset."),
-  args: args(`
-      value1 (number, range<number>) ${_lt(
-        "The first value or range to consider when calculating the minimum value."
-      )}
-      value2 (number, range<number>, repeating) ${_lt(
-        "Additional values or ranges to consider when calculating the minimum value."
-      )}
-    `),
+  args: [
+    arg(
+      "value1 (number, range<number>)",
+      _lt("The first value or range to consider when calculating the minimum value.")
+    ),
+    arg(
+      "value2 (number, range<number>, repeating)",
+      _lt("Additional values or ranges to consider when calculating the minimum value.")
+    ),
+  ],
   returns: ["NUMBER"],
   computeFormat: (value1: Arg) => {
     return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
@@ -714,17 +765,23 @@ export const MINA: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MINIFS: AddFunctionDescription = {
   description: _lt("Returns the minimum value in a range of cells, filtered by a set of criteria."),
-  args: args(`
-      range (range) ${_lt("The range of cells from which the minimum will be determined.")}
-      criteria_range1 (range) ${_lt("The range of cells over which to evaluate criterion1.")}
-      criterion1 (string) ${_lt(
+  args: [
+    arg("range (range)", _lt("The range of cells from which the minimum will be determined.")),
+    arg("criteria_range1 (range)", _lt("The range of cells over which to evaluate criterion1.")),
+    arg(
+      "criterion1 (string)",
+      _lt(
         "The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set."
-      )}
-      criteria_range2 (any, range, repeating) ${_lt(
+      )
+    ),
+    arg(
+      "criteria_range2 (any, range, repeating)",
+      _lt(
         "Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair."
-      )}
-      criterion2 (string, repeating) ${_lt("The pattern or test to apply to criteria_range2.")}
-    `),
+      )
+    ),
+    arg("criterion2 (string, repeating)", _lt("The pattern or test to apply to criteria_range2.")),
+  ],
   returns: ["NUMBER"],
   compute: function (range: MatrixArgValue, ...args: ArgValue[]): number {
     let result = Infinity;
@@ -744,12 +801,13 @@ export const MINIFS: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const PERCENTILE: AddFunctionDescription = {
   description: _lt("Value at a given percentile of a dataset."),
-  args: args(`
-      data (any, range) ${_lt("The array or range containing the dataset to consider.")}
-      percentile (number) ${_lt(
-        "The percentile whose value within data will be calculated and returned."
-      )}
-    `),
+  args: [
+    arg("data (any, range)", _lt("The array or range containing the dataset to consider.")),
+    arg(
+      "percentile (number)",
+      _lt("The percentile whose value within data will be calculated and returned.")
+    ),
+  ],
   returns: ["NUMBER"],
   computeFormat: (data: Arg) => {
     return Array.isArray(data) ? data[0][0]?.format : data?.format;
@@ -765,12 +823,15 @@ export const PERCENTILE: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const PERCENTILE_EXC: AddFunctionDescription = {
   description: _lt("Value at a given percentile of a dataset exclusive of 0 and 1."),
-  args: args(`
-      data (any, range) ${_lt("The array or range containing the dataset to consider.")}
-      percentile (number) ${_lt(
+  args: [
+    arg("data (any, range)", _lt("The array or range containing the dataset to consider.")),
+    arg(
+      "percentile (number)",
+      _lt(
         "The percentile, exclusive of 0 and 1, whose value within 'data' will be calculated and returned."
-      )}
-    `),
+      )
+    ),
+  ],
   returns: ["NUMBER"],
   computeFormat: (data: Arg) => {
     return Array.isArray(data) ? data[0][0]?.format : data?.format;
@@ -786,12 +847,13 @@ export const PERCENTILE_EXC: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const PERCENTILE_INC: AddFunctionDescription = {
   description: _lt("Value at a given percentile of a dataset."),
-  args: args(`
-      data (any, range) ${_lt("The array or range containing the dataset to consider.")}
-      percentile (number) ${_lt(
-        "The percentile whose value within data will be calculated and returned."
-      )}
-    `),
+  args: [
+    arg("data (any, range)", _lt("The array or range containing the dataset to consider.")),
+    arg(
+      "percentile (number)",
+      _lt("The percentile whose value within data will be calculated and returned.")
+    ),
+  ],
   returns: ["NUMBER"],
   computeFormat: (data: Arg) => {
     return Array.isArray(data) ? data[0][0]?.format : data?.format;
@@ -807,10 +869,10 @@ export const PERCENTILE_INC: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const QUARTILE: AddFunctionDescription = {
   description: _lt("Value nearest to a specific quartile of a dataset."),
-  args: args(`
-      data (any, range) ${_lt("The array or range containing the dataset to consider.")}
-      quartile_number (number) ${_lt("Which quartile value to return.")}
-    `),
+  args: [
+    arg("data (any, range)", _lt("The array or range containing the dataset to consider.")),
+    arg("quartile_number (number)", _lt("Which quartile value to return.")),
+  ],
   returns: ["NUMBER"],
   computeFormat: (data: Arg) => {
     return Array.isArray(data) ? data[0][0]?.format : data?.format;
@@ -826,10 +888,10 @@ export const QUARTILE: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const QUARTILE_EXC: AddFunctionDescription = {
   description: _lt("Value nearest to a specific quartile of a dataset exclusive of 0 and 4."),
-  args: args(`
-      data (any, range) ${_lt("The array or range containing the dataset to consider.")}
-      quartile_number (number) ${_lt("Which quartile value, exclusive of 0 and 4, to return.")}
-    `),
+  args: [
+    arg("data (any, range)", _lt("The array or range containing the dataset to consider.")),
+    arg("quartile_number (number)", _lt("Which quartile value, exclusive of 0 and 4, to return.")),
+  ],
   returns: ["NUMBER"],
   computeFormat: (data: Arg) => {
     return Array.isArray(data) ? data[0][0]?.format : data?.format;
@@ -846,10 +908,10 @@ export const QUARTILE_EXC: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const QUARTILE_INC: AddFunctionDescription = {
   description: _lt("Value nearest to a specific quartile of a dataset."),
-  args: args(`
-      data (any, range) ${_lt("The array or range containing the dataset to consider.")}
-      quartile_number (number) ${_lt("Which quartile value to return.")}
-    `),
+  args: [
+    arg("data (any, range)", _lt("The array or range containing the dataset to consider.")),
+    arg("quartile_number (number)", _lt("Which quartile value to return.")),
+  ],
   returns: ["NUMBER"],
   computeFormat: (data: Arg) => {
     return Array.isArray(data) ? data[0][0]?.format : data?.format;
@@ -866,10 +928,10 @@ export const QUARTILE_INC: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const SMALL: AddFunctionDescription = {
   description: _lt("Nth smallest element in a data set."),
-  args: args(`
-      data (any, range) ${_lt("The array or range containing the dataset to consider.")}
-      n (number) ${_lt("The rank from smallest to largest of the element to return.")}
-    `),
+  args: [
+    arg("data (any, range)", _lt("The array or range containing the dataset to consider.")),
+    arg("n (number)", _lt("The rank from smallest to largest of the element to return.")),
+  ],
   returns: ["NUMBER"],
   computeFormat: (data: Arg) => {
     return Array.isArray(data) ? data[0][0]?.format : data?.format;
@@ -913,12 +975,13 @@ export const SMALL: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const STDEV: AddFunctionDescription = {
   description: _lt("Standard deviation."),
-  args: args(`
-      value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
-      value2 (number, range<number>, repeating) ${_lt(
-        "Additional values or ranges to include in the sample."
-      )}
-    `),
+  args: [
+    arg("value1 (number, range<number>)", _lt("The first value or range of the sample.")),
+    arg(
+      "value2 (number, range<number>, repeating)",
+      _lt("Additional values or ranges to include in the sample.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
     return Math.sqrt(VAR.compute(...values) as number);
@@ -931,12 +994,13 @@ export const STDEV: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const STDEV_P: AddFunctionDescription = {
   description: _lt("Standard deviation of entire population."),
-  args: args(`
-      value1 (number, range<number>) ${_lt("The first value or range of the population.")}
-      value2 (number, range<number>, repeating) ${_lt(
-        "Additional values or ranges to include in the population."
-      )}
-    `),
+  args: [
+    arg("value1 (number, range<number>)", _lt("The first value or range of the population.")),
+    arg(
+      "value2 (number, range<number>, repeating)",
+      _lt("Additional values or ranges to include in the population.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
     return Math.sqrt(VAR_P.compute(...values) as number);
@@ -949,12 +1013,13 @@ export const STDEV_P: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const STDEV_S: AddFunctionDescription = {
   description: _lt("Standard deviation."),
-  args: args(`
-      value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
-      value2 (number, range<number>, repeating) ${_lt(
-        "Additional values or ranges to include in the sample."
-      )}
-    `),
+  args: [
+    arg("value1 (number, range<number>)", _lt("The first value or range of the sample.")),
+    arg(
+      "value2 (number, range<number>, repeating)",
+      _lt("Additional values or ranges to include in the sample.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
     return Math.sqrt(VAR_S.compute(...values) as number);
@@ -967,12 +1032,13 @@ export const STDEV_S: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const STDEVA: AddFunctionDescription = {
   description: _lt("Standard deviation of sample (text as 0)."),
-  args: args(`
-    value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
-    value2 (number, range<number>, repeating) ${_lt(
-      "Additional values or ranges to include in the sample."
-    )}
-  `),
+  args: [
+    arg("value1 (number, range<number>)", _lt("The first value or range of the sample.")),
+    arg(
+      "value2 (number, range<number>, repeating)",
+      _lt("Additional values or ranges to include in the sample.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
     return Math.sqrt(VARA.compute(...values) as number);
@@ -985,12 +1051,13 @@ export const STDEVA: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const STDEVP: AddFunctionDescription = {
   description: _lt("Standard deviation of entire population."),
-  args: args(`
-    value1 (number, range<number>) ${_lt("The first value or range of the population.")}
-    value2 (number, range<number>, repeating) ${_lt(
-      "Additional values or ranges to include in the population."
-    )}
-  `),
+  args: [
+    arg("value1 (number, range<number>)", _lt("The first value or range of the population.")),
+    arg(
+      "value2 (number, range<number>, repeating)",
+      _lt("Additional values or ranges to include in the population.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
     return Math.sqrt(VARP.compute(...values) as number);
@@ -1003,12 +1070,13 @@ export const STDEVP: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const STDEVPA: AddFunctionDescription = {
   description: _lt("Standard deviation of entire population (text as 0)."),
-  args: args(`
-    value1 (number, range<number>) ${_lt("The first value or range of the population.")}
-    value2 (number, range<number>, repeating) ${_lt(
-      "Additional values or ranges to include in the population."
-    )}
-  `),
+  args: [
+    arg("value1 (number, range<number>)", _lt("The first value or range of the population.")),
+    arg(
+      "value2 (number, range<number>, repeating)",
+      _lt("Additional values or ranges to include in the population.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
     return Math.sqrt(VARPA.compute(...values) as number);
@@ -1021,12 +1089,13 @@ export const STDEVPA: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const VAR: AddFunctionDescription = {
   description: _lt("Variance."),
-  args: args(`
-      value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
-      value2 (number, range<number>, repeating) ${_lt(
-        "Additional values or ranges to include in the sample."
-      )}
-    `),
+  args: [
+    arg("value1 (number, range<number>)", _lt("The first value or range of the sample.")),
+    arg(
+      "value2 (number, range<number>, repeating)",
+      _lt("Additional values or ranges to include in the sample.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
     return variance(values, true, false);
@@ -1039,12 +1108,13 @@ export const VAR: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const VAR_P: AddFunctionDescription = {
   description: _lt("Variance of entire population."),
-  args: args(`
-      value1 (number, range<number>) ${_lt("The first value or range of the population.")}
-      value2 (number, range<number>, repeating) ${_lt(
-        "Additional values or ranges to include in the population."
-      )}
-    `),
+  args: [
+    arg("value1 (number, range<number>)", _lt("The first value or range of the population.")),
+    arg(
+      "value2 (number, range<number>, repeating)",
+      _lt("Additional values or ranges to include in the population.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
     return variance(values, false, false);
@@ -1057,12 +1127,13 @@ export const VAR_P: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const VAR_S: AddFunctionDescription = {
   description: _lt("Variance."),
-  args: args(`
-      value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
-      value2 (number, range<number>, repeating) ${_lt(
-        "Additional values or ranges to include in the sample."
-      )}
-    `),
+  args: [
+    arg("value1 (number, range<number>)", _lt("The first value or range of the sample.")),
+    arg(
+      "value2 (number, range<number>, repeating)",
+      _lt("Additional values or ranges to include in the sample.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
     return variance(values, true, false);
@@ -1075,12 +1146,13 @@ export const VAR_S: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const VARA: AddFunctionDescription = {
   description: _lt("Variance of sample (text as 0)."),
-  args: args(`
-    value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
-    value2 (number, range<number>, repeating) ${_lt(
-      "Additional values or ranges to include in the sample."
-    )}
-  `),
+  args: [
+    arg("value1 (number, range<number>)", _lt("The first value or range of the sample.")),
+    arg(
+      "value2 (number, range<number>, repeating)",
+      _lt("Additional values or ranges to include in the sample.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
     return variance(values, true, true);
@@ -1093,12 +1165,13 @@ export const VARA: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const VARP: AddFunctionDescription = {
   description: _lt("Variance of entire population."),
-  args: args(`
-    value1 (number, range<number>) ${_lt("The first value or range of the population.")}
-    value2 (number, range<number>, repeating) ${_lt(
-      "Additional values or ranges to include in the population."
-    )}
-  `),
+  args: [
+    arg("value1 (number, range<number>)", _lt("The first value or range of the population.")),
+    arg(
+      "value2 (number, range<number>, repeating)",
+      _lt("Additional values or ranges to include in the population.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
     return variance(values, false, false);
@@ -1111,12 +1184,13 @@ export const VARP: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const VARPA: AddFunctionDescription = {
   description: _lt("Variance of entire population (text as 0)."),
-  args: args(`
-    value1 (number, range<number>) ${_lt("The first value or range of the population.")}
-    value2 (number, range<number>, repeating) ${_lt(
-      "Additional values or ranges to include in the population."
-    )}
-  `),
+  args: [
+    arg("value1 (number, range<number>)", _lt("The first value or range of the population.")),
+    arg(
+      "value2 (number, range<number>, repeating)",
+      _lt("Additional values or ranges to include in the population.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
     return variance(values, false, true);

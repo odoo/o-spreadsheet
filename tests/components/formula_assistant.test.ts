@@ -1,4 +1,4 @@
-import { args, functionRegistry } from "../../src/functions/index";
+import { arg, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import {
   clearFunctions,
@@ -29,44 +29,41 @@ describe("formula assistant", () => {
     clearFunctions();
     functionRegistry.add("FUNC0", {
       description: "func without args",
-      args: args(``),
+      args: [],
       compute: () => 1,
       returns: ["ANY"],
     });
     functionRegistry.add("FUNC1", {
       description: "func1 def",
-      args: args(`
-              f1Arg1 (any) f1 Arg1 def
-              f1Arg2 (any) f1 Arg2 def
-          `),
+      args: [arg("f1Arg1 (any)", "f1 Arg1 def"), arg("f1Arg2 (any)", "f1 Arg2 def")],
       compute: () => 1,
       returns: ["ANY"],
     });
     functionRegistry.add("FUNC2", {
       description: "func2 def",
-      args: args(`
-              f2Arg1 (any) f2 Arg1 def
-              f2Arg2 (any, optional, default=TRUE) f2 Arg2 def
-          `),
+      args: [
+        arg("f2Arg1 (any)", "f2 Arg1 def"),
+        arg("f2Arg2 (any, optional, default=TRUE)", "f2 Arg2 def"),
+      ],
       compute: () => 1,
       returns: ["ANY"],
     });
     functionRegistry.add("FUNC3", {
       description: "func3 def",
-      args: args(`
-                f3Arg1 (any) f3 Arg1 def
-                f3Arg2 (any, optional, repeating) f3 Arg2 def
-            `),
+      args: [
+        arg("f3Arg1 (any)", "f3 Arg1 def"),
+        arg("f3Arg2 (any, optional, repeating)", "f3 Arg2 def"),
+      ],
       compute: () => 1,
       returns: ["ANY"],
     });
     functionRegistry.add("UPTOWNFUNC", {
       description: "a Bruno Mars song ?",
-      args: args(`
-              f4Arg1 (any) f4 Arg1 def
-              f4Arg2 (any, optional, repeating) f4 Arg2 def
-              f4Arg3 (any, optional, repeating) f4 Arg3 def
-          `),
+      args: [
+        arg("f4Arg1 (any)", "f4 Arg1 def"),
+        arg("f4Arg2 (any, optional, repeating)", "f4 Arg2 def"),
+        arg("f4Arg3 (any, optional, repeating)", "f4 Arg3 def"),
+      ],
       compute: () => 1,
       returns: ["ANY"],
     });
@@ -264,7 +261,7 @@ describe("formula assistant", () => {
         await typeInComposerGrid("=FUNC2(");
         expect(fixture.querySelectorAll(".o-formula-assistant-arg")).toHaveLength(2);
         expect(fixture.querySelectorAll(".o-formula-assistant-arg div")[2].textContent).toBe(
-          "f2Arg2 - [optional] TRUE by default"
+          "f2Arg2 - [optional] default: TRUE"
         );
         expect(fixture.querySelectorAll(".o-formula-assistant-arg div")[3].textContent).toBe(
           "f2 Arg2 def"

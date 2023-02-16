@@ -1,14 +1,14 @@
 import { _lt } from "../translation";
 import { AddFunctionDescription, PrimitiveArgValue } from "../types";
 import { CellErrorType, NotAvailableError } from "../types/errors";
-import { args } from "./arguments";
+import { arg } from "./arguments";
 
 // -----------------------------------------------------------------------------
 // ISERR
 // -----------------------------------------------------------------------------
 export const ISERR: AddFunctionDescription = {
   description: _lt("Whether a value is an error other than #N/A."),
-  args: args(`value (any, lazy) ${_lt("The value to be verified as an error type.")}`),
+  args: [arg("value (any, lazy)", _lt("The value to be verified as an error type."))],
   returns: ["BOOLEAN"],
   compute: function (value: () => PrimitiveArgValue): boolean {
     try {
@@ -26,7 +26,7 @@ export const ISERR: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const ISERROR: AddFunctionDescription = {
   description: _lt("Whether a value is an error."),
-  args: args(`value (any, lazy) ${_lt("The value to be verified as an error type.")}`),
+  args: [arg("value (any, lazy)", _lt("The value to be verified as an error type."))],
   returns: ["BOOLEAN"],
   compute: function (value: () => PrimitiveArgValue): boolean {
     try {
@@ -44,7 +44,7 @@ export const ISERROR: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const ISLOGICAL: AddFunctionDescription = {
   description: _lt("Whether a value is `true` or `false`."),
-  args: args(`value (any, lazy) ${_lt("The value to be verified as a logical TRUE or FALSE.")}`),
+  args: [arg("value (any, lazy)", _lt("The value to be verified as a logical TRUE or FALSE."))],
   returns: ["BOOLEAN"],
   compute: function (value: () => PrimitiveArgValue): boolean {
     try {
@@ -61,7 +61,7 @@ export const ISLOGICAL: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const ISNA: AddFunctionDescription = {
   description: _lt("Whether a value is the error #N/A."),
-  args: args(`value (any, lazy) ${_lt("The value to be verified as an error type.")}`),
+  args: [arg("value (any, lazy)", _lt("The value to be verified as an error type."))],
   returns: ["BOOLEAN"],
   compute: function (value: () => PrimitiveArgValue): boolean {
     try {
@@ -79,7 +79,7 @@ export const ISNA: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const ISNONTEXT: AddFunctionDescription = {
   description: _lt("Whether a value is non-textual."),
-  args: args(`value (any, lazy) ${_lt("The value to be checked.")}`),
+  args: [arg("value (any, lazy)", _lt("The value to be checked."))],
   returns: ["BOOLEAN"],
   compute: function (value: () => PrimitiveArgValue): boolean {
     try {
@@ -97,7 +97,7 @@ export const ISNONTEXT: AddFunctionDescription = {
 
 export const ISNUMBER: AddFunctionDescription = {
   description: _lt("Whether a value is a number."),
-  args: args(`value (any, lazy) ${_lt("The value to be verified as a number.")}`),
+  args: [arg("value (any, lazy)", _lt("The value to be verified as a number."))],
   returns: ["BOOLEAN"],
   compute: function (value: () => PrimitiveArgValue): boolean {
     try {
@@ -114,7 +114,7 @@ export const ISNUMBER: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const ISTEXT: AddFunctionDescription = {
   description: _lt("Whether a value is text."),
-  args: args(`value (any, lazy) ${_lt("The value to be verified as text.")}`),
+  args: [arg("value (any, lazy)", _lt("The value to be verified as text."))],
   returns: ["BOOLEAN"],
   compute: function (value: () => PrimitiveArgValue): boolean {
     try {
@@ -131,9 +131,9 @@ export const ISTEXT: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const ISBLANK: AddFunctionDescription = {
   description: _lt("Whether the referenced cell is empty"),
-  args: args(
-    `value (any, lazy) ${_lt("Reference to the cell that will be checked for emptiness.")}`
-  ),
+  args: [
+    arg("value (any, lazy)", _lt("Reference to the cell that will be checked for emptiness.")),
+  ],
   returns: ["BOOLEAN"],
   compute: function (value: () => PrimitiveArgValue): boolean {
     try {
@@ -151,7 +151,7 @@ export const ISBLANK: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const NA: AddFunctionDescription = {
   description: _lt("Returns the error value #N/A."),
-  args: args(``),
+  args: [],
   returns: ["BOOLEAN"],
   compute: function (value: PrimitiveArgValue): boolean {
     throw new NotAvailableError();

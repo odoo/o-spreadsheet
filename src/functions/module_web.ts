@@ -1,7 +1,7 @@
 import { markdownLink } from "../helpers";
 import { _lt } from "../translation";
 import { AddFunctionDescription, PrimitiveArgValue } from "../types";
-import { args } from "./arguments";
+import { arg } from "./arguments";
 import { toString } from "./helpers";
 
 // -----------------------------------------------------------------------------
@@ -9,12 +9,13 @@ import { toString } from "./helpers";
 // -----------------------------------------------------------------------------
 export const HYPERLINK: AddFunctionDescription = {
   description: _lt("Creates a hyperlink in a cell."),
-  args: args(`
-    url (string) ${_lt("The full URL of the link enclosed in quotation marks.")}
-    link_label (string, optional) ${_lt(
-      "The text to display in the cell, enclosed in quotation marks."
-    )}
-  `),
+  args: [
+    arg("url (string)", _lt("The full URL of the link enclosed in quotation marks.")),
+    arg(
+      "link_label (string, optional)",
+      _lt("The text to display in the cell, enclosed in quotation marks.")
+    ),
+  ],
   returns: ["STRING"],
   compute: function (url: PrimitiveArgValue, linkLabel: PrimitiveArgValue): string {
     const processedUrl = toString(url).trim();

@@ -46,8 +46,8 @@
               <span
                 t-if="arg.optional || arg.repeating || arg.default ">&#xA0;- [optional]&#xA0;</span>
               <span t-if="arg.default">
+                <span>default:&#xA0;</span>
                 <t t-esc="arg.defaultValue"/>
-                <span>&#xA0;by default</span>
               </span>
               <span t-if="arg.repeating">repeatable</span>
             </div>

@@ -8,7 +8,7 @@ import {
 } from "../helpers/dates";
 import { _lt } from "../translation";
 import { AddFunctionDescription, ArgValue, PrimitiveArgValue } from "../types";
-import { args } from "./arguments";
+import { arg } from "./arguments";
 import { assert, toBoolean, toJsDate, toNumber, toString, visitAny } from "./helpers";
 
 const DEFAULT_TYPE = 1;
@@ -19,11 +19,11 @@ const DEFAULT_WEEKEND = 1;
 // -----------------------------------------------------------------------------
 export const DATE: AddFunctionDescription = {
   description: _lt("Converts year/month/day into a date."),
-  args: args(`
-    year (number) ${_lt("The year component of the date.")}
-    month (number) ${_lt("The month component of the date.")}
-    day (number) ${_lt("The day component of the date.")}
-    `),
+  args: [
+    arg("year (number)", _lt("The year component of the date.")),
+    arg("month (number)", _lt("The month component of the date.")),
+    arg("day (number)", _lt("The day component of the date.")),
+  ],
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
   compute: function (
@@ -64,9 +64,7 @@ export const DATE: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const DATEVALUE: AddFunctionDescription = {
   description: _lt("Converts a date string to a date value."),
-  args: args(`
-      date_string (string) ${_lt("The string representing the date.")}
-    `),
+  args: [arg("date_string (string)", _lt("The string representing the date."))],
   returns: ["NUMBER"],
   compute: function (dateString: PrimitiveArgValue): number {
     const _dateString = toString(dateString);
@@ -87,9 +85,7 @@ export const DATEVALUE: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const DAY: AddFunctionDescription = {
   description: _lt("Day of the month that a specific date falls on."),
-  args: args(`
-      date (string) ${_lt("The date from which to extract the day.")}
-    `),
+  args: [arg("date (string)", _lt("The date from which to extract the day."))],
   returns: ["NUMBER"],
   compute: function (date: PrimitiveArgValue): number {
     return toJsDate(date).getDate();
@@ -102,10 +98,10 @@ export const DAY: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const DAYS: AddFunctionDescription = {
   description: _lt("Number of days between two dates."),
-  args: args(`
-      end_date (date) ${_lt("The end of the date range.")}
-      start_date (date) ${_lt("The start of the date range.")}
-    `),
+  args: [
+    arg("end_date (date)", _lt("The end of the date range.")),
+    arg("start_date (date)", _lt("The start of the date range.")),
+  ],
   returns: ["NUMBER"],
   compute: function (endDate: PrimitiveArgValue, startDate: PrimitiveArgValue): number {
     const _endDate = toJsDate(endDate);
@@ -122,13 +118,14 @@ export const DAYS: AddFunctionDescription = {
 const DEFAULT_DAY_COUNT_METHOD = 0;
 export const DAYS360: AddFunctionDescription = {
   description: _lt("Number of days between two dates on a 360-day year (months of 30 days)."),
-  args: args(`
-      start_date (date) ${_lt("The start date to consider in the calculation.")}
-      end_date (date) ${_lt("The end date to consider in the calculation.")}
-      method (number, default=${DEFAULT_DAY_COUNT_METHOD}) ${_lt(
-    "An indicator of what day count method to use. (0) US NASD method (1) European method"
-  )}
-    `),
+  args: [
+    arg("start_date (date)", _lt("The start date to consider in the calculation.")),
+    arg("end_date (date)", _lt("The end date to consider in the calculation.")),
+    arg(
+      `method (number, default=${DEFAULT_DAY_COUNT_METHOD})`,
+      _lt("An indicator of what day count method to use. (0) US NASD method (1) European method")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     startDate: PrimitiveArgValue,
@@ -150,12 +147,13 @@ export const DAYS360: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const EDATE: AddFunctionDescription = {
   description: _lt("Date a number of months before/after another date."),
-  args: args(`
-    start_date (date) ${_lt("The date from which to calculate the result.")}
-    months (number) ${_lt(
-      "The number of months before (negative) or after (positive) 'start_date' to calculate."
-    )}
-    `),
+  args: [
+    arg("start_date (date)", _lt("The date from which to calculate the result.")),
+    arg(
+      "months (number)",
+      _lt("The number of months before (negative) or after (positive) 'start_date' to calculate.")
+    ),
+  ],
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
   compute: function (startDate: PrimitiveArgValue, months: PrimitiveArgValue): number {
@@ -173,12 +171,13 @@ export const EDATE: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const EOMONTH: AddFunctionDescription = {
   description: _lt("Last day of a month before or after a date."),
-  args: args(`
-    start_date (date) ${_lt("The date from which to calculate the result.")}
-    months (number) ${_lt(
-      "The number of months before (negative) or after (positive) 'start_date' to consider."
-    )}
-    `),
+  args: [
+    arg("start_date (date)", _lt("The date from which to calculate the result.")),
+    arg(
+      "months (number)",
+      _lt("The number of months before (negative) or after (positive) 'start_date' to consider.")
+    ),
+  ],
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
   compute: function (startDate: PrimitiveArgValue, months: PrimitiveArgValue): number {
@@ -198,9 +197,7 @@ export const EOMONTH: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const HOUR: AddFunctionDescription = {
   description: _lt("Hour component of a specific time."),
-  args: args(`
-    time (date) ${_lt("The time from which to calculate the hour component.")}
-    `),
+  args: [arg("time (date)", _lt("The time from which to calculate the hour component."))],
   returns: ["NUMBER"],
   compute: function (date: PrimitiveArgValue): number {
     return toJsDate(date).getHours();
@@ -213,11 +210,14 @@ export const HOUR: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const ISOWEEKNUM: AddFunctionDescription = {
   description: _lt("ISO week number of the year."),
-  args: args(`
-    date (date) ${_lt(
-      "The date for which to determine the ISO week number. Must be a reference to a cell containing a date, a function returning a date type, or a number."
-    )}
-    `),
+  args: [
+    arg(
+      "date (date)",
+      _lt(
+        "The date for which to determine the ISO week number. Must be a reference to a cell containing a date, a function returning a date type, or a number."
+      )
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (date: PrimitiveArgValue): number {
     const _date = toJsDate(date);
@@ -299,9 +299,7 @@ export const ISOWEEKNUM: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MINUTE: AddFunctionDescription = {
   description: _lt("Minute component of a specific time."),
-  args: args(`
-      time (date) ${_lt("The time from which to calculate the minute component.")}
-    `),
+  args: [arg("time (date)", _lt("The time from which to calculate the minute component."))],
   returns: ["NUMBER"],
   compute: function (date: PrimitiveArgValue): number {
     return toJsDate(date).getMinutes();
@@ -314,9 +312,7 @@ export const MINUTE: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MONTH: AddFunctionDescription = {
   description: _lt("Month of the year a specific date falls in"),
-  args: args(`
-      date (date) ${_lt("The date from which to extract the month.")}
-    `),
+  args: [arg("date (date)", _lt("The date from which to extract the month."))],
   returns: ["NUMBER"],
   compute: function (date: PrimitiveArgValue): number {
     return toJsDate(date).getMonth() + 1;
@@ -329,17 +325,20 @@ export const MONTH: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const NETWORKDAYS: AddFunctionDescription = {
   description: _lt("Net working days between two provided days."),
-  args: args(`
-      start_date (date) ${_lt(
-        "The start date of the period from which to calculate the number of net working days."
-      )}
-      end_date (date) ${_lt(
-        "The end date of the period from which to calculate the number of net working days."
-      )}
-      holidays (date, range<date>, optional) ${_lt(
-        "A range or array constant containing the date serial numbers to consider holidays."
-      )}
-    `),
+  args: [
+    arg(
+      "start_date (date)",
+      _lt("The start date of the period from which to calculate the number of net working days.")
+    ),
+    arg(
+      "end_date (date)",
+      _lt("The end date of the period from which to calculate the number of net working days.")
+    ),
+    arg(
+      "holidays (date, range<date>, optional)",
+      _lt("A range or array constant containing the date serial numbers to consider holidays.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     startDate: PrimitiveArgValue,
@@ -433,20 +432,24 @@ function weekendToDayNumber(weekend: PrimitiveArgValue): number[] {
 
 export const NETWORKDAYS_INTL: AddFunctionDescription = {
   description: _lt("Net working days between two dates (specifying weekends)."),
-  args: args(`
-      start_date (date) ${_lt(
-        "The start date of the period from which to calculate the number of net working days."
-      )}
-      end_date (date) ${_lt(
-        "The end date of the period from which to calculate the number of net working days."
-      )}
-      weekend (any, default=${DEFAULT_WEEKEND}) ${_lt(
-    "A number or string representing which days of the week are considered weekends."
-  )}
-      holidays (date, range<date>, optional) ${_lt(
-        "A range or array constant containing the dates to consider as holidays."
-      )}
-    `),
+  args: [
+    arg(
+      "start_date (date)",
+      _lt("The start date of the period from which to calculate the number of net working days.")
+    ),
+    arg(
+      "end_date (date)",
+      _lt("The end date of the period from which to calculate the number of net working days.")
+    ),
+    arg(
+      `weekend (any, default=${DEFAULT_WEEKEND})`,
+      _lt("A number or string representing which days of the week are considered weekends.")
+    ),
+    arg(
+      "holidays (date, range<date>, optional)",
+      _lt("A range or array constant containing the dates to consider as holidays.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     startDate: PrimitiveArgValue,
@@ -510,9 +513,7 @@ export const NOW: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const SECOND: AddFunctionDescription = {
   description: _lt("Minute component of a specific time."),
-  args: args(`
-      time (date) ${_lt("The time from which to calculate the second component.")}
-    `),
+  args: [arg("time (date)", _lt("The time from which to calculate the second component."))],
   returns: ["NUMBER"],
   compute: function (date: PrimitiveArgValue): number {
     return toJsDate(date).getSeconds();
@@ -525,11 +526,11 @@ export const SECOND: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const TIME: AddFunctionDescription = {
   description: _lt("Converts hour/minute/second into a time."),
-  args: args(`
-    hour (number) ${_lt("The hour component of the time.")}
-    minute (number) ${_lt("The minute component of the time.")}
-    second (number) ${_lt("The second component of the time.")}
-    `),
+  args: [
+    arg("hour (number)", _lt("The hour component of the time.")),
+    arg("minute (number)", _lt("The minute component of the time.")),
+    arg("second (number)", _lt("The second component of the time.")),
+  ],
   returns: ["DATE"],
   computeFormat: () => "hh:mm:ss a",
   compute: function (
@@ -561,9 +562,7 @@ export const TIME: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const TIMEVALUE: AddFunctionDescription = {
   description: _lt("Converts a time string into its serial number representation."),
-  args: args(`
-      time_string (string) ${_lt("The string that holds the time representation.")}
-    `),
+  args: [arg("time_string (string)", _lt("The string that holds the time representation."))],
   returns: ["NUMBER"],
   compute: function (timeString: PrimitiveArgValue): number {
     const _timeString = toString(timeString);
@@ -601,14 +600,20 @@ export const TODAY: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const WEEKDAY: AddFunctionDescription = {
   description: _lt("Day of the week of the date provided (as number)."),
-  args: args(`
-    date (date) ${_lt(
-      "The date for which to determine the day of the week. Must be a reference to a cell containing a date, a function returning a date type, or a number."
-    )}
-    type (number, default=${DEFAULT_TYPE}) ${_lt(
-    "A number indicating which numbering system to use to represent weekdays. By default, counts starting with Sunday = 1."
-  )}
-  `),
+  args: [
+    arg(
+      "date (date)",
+      _lt(
+        "The date for which to determine the day of the week. Must be a reference to a cell containing a date, a function returning a date type, or a number."
+      )
+    ),
+    arg(
+      `type (number, default=${DEFAULT_TYPE})`,
+      _lt(
+        "A number indicating which numbering system to use to represent weekdays. By default, counts starting with Sunday = 1."
+      )
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (date: PrimitiveArgValue, type: PrimitiveArgValue = DEFAULT_TYPE): number {
     const _date = toJsDate(date);
@@ -631,14 +636,18 @@ export const WEEKDAY: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const WEEKNUM: AddFunctionDescription = {
   description: _lt("Week number of the year."),
-  args: args(`
-    date (date) ${_lt(
-      "The date for which to determine the week number. Must be a reference to a cell containing a date, a function returning a date type, or a number."
-    )}
-    type (number, default=${DEFAULT_TYPE}) ${_lt(
-    "A number representing the day that a week starts on. Sunday = 1."
-  )}
-    `),
+  args: [
+    arg(
+      "date (date)",
+      _lt(
+        "The date for which to determine the week number. Must be a reference to a cell containing a date, a function returning a date type, or a number."
+      )
+    ),
+    arg(
+      `type (number, default=${DEFAULT_TYPE})`,
+      _lt("A number representing the day that a week starts on. Sunday = 1.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (date: PrimitiveArgValue, type: PrimitiveArgValue = DEFAULT_TYPE): number {
     const _date = toJsDate(date);
@@ -685,15 +694,17 @@ export const WEEKNUM: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const WORKDAY: AddFunctionDescription = {
   description: _lt("Date after a number of workdays."),
-  args: args(`
-      start_date (date) ${_lt("The date from which to begin counting.")}
-      num_days (number) ${_lt(
-        "The number of working days to advance from start_date. If negative, counts backwards."
-      )}
-      holidays (date, range<date>, optional) ${_lt(
-        "A range or array constant containing the dates to consider holidays."
-      )}
-      `),
+  args: [
+    arg("start_date (date)", _lt("The date from which to begin counting.")),
+    arg(
+      "num_days (number)",
+      _lt("The number of working days to advance from start_date. If negative, counts backwards.")
+    ),
+    arg(
+      "holidays (date, range<date>, optional)",
+      _lt("A range or array constant containing the dates to consider holidays.")
+    ),
+  ],
   returns: ["NUMBER"],
   computeFormat: () => "m/d/yyyy",
   compute: function (
@@ -711,18 +722,21 @@ export const WORKDAY: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const WORKDAY_INTL: AddFunctionDescription = {
   description: _lt("Date after a number of workdays (specifying weekends)."),
-  args: args(`
-      start_date (date) ${_lt("The date from which to begin counting.")}
-      num_days (number) ${_lt(
-        "The number of working days to advance from start_date. If negative, counts backwards."
-      )}
-      weekend (any, default=${DEFAULT_WEEKEND}) ${_lt(
-    "A number or string representing which days of the week are considered weekends."
-  )}
-      holidays (date, range<date>, optional) ${_lt(
-        "A range or array constant containing the dates to consider holidays."
-      )}
-    `),
+  args: [
+    arg("start_date (date)", _lt("The date from which to begin counting.")),
+    arg(
+      "num_days (number)",
+      _lt("The number of working days to advance from start_date. If negative, counts backwards.")
+    ),
+    arg(
+      `weekend (any, default=${DEFAULT_WEEKEND})`,
+      _lt("A number or string representing which days of the week are considered weekends.")
+    ),
+    arg(
+      "holidays (date, range<date>, optional)",
+      _lt("A range or array constant containing the dates to consider holidays.")
+    ),
+  ],
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
   compute: function (
@@ -776,9 +790,7 @@ export const WORKDAY_INTL: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const YEAR: AddFunctionDescription = {
   description: _lt("Year specified by a given date."),
-  args: args(`
-    date (date) ${_lt("The date from which to extract the year.")}
-    `),
+  args: [arg("date (date)", _lt("The date from which to extract the year."))],
   returns: ["NUMBER"],
   compute: function (date: PrimitiveArgValue): number {
     return toJsDate(date).getFullYear();
@@ -792,17 +804,24 @@ export const YEAR: AddFunctionDescription = {
 const DEFAULT_DAY_COUNT_CONVENTION = 0;
 export const YEARFRAC: AddFunctionDescription = {
   description: _lt("Exact number of years between two dates."),
-  args: args(`
-    start_date (date) ${_lt(
-      "The start date to consider in the calculation. Must be a reference to a cell containing a date, a function returning a date type, or a number."
-    )}
-    end_date (date) ${_lt(
-      "The end date to consider in the calculation. Must be a reference to a cell containing a date, a function returning a date type, or a number."
-    )}
-    day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION}) ${_lt(
-    "An indicator of what day count method to use."
-  )}
-    `),
+  args: [
+    arg(
+      "start_date (date)",
+      _lt(
+        "The start date to consider in the calculation. Must be a reference to a cell containing a date, a function returning a date type, or a number."
+      )
+    ),
+    arg(
+      "end_date (date)",
+      _lt(
+        "The end date to consider in the calculation. Must be a reference to a cell containing a date, a function returning a date type, or a number."
+      )
+    ),
+    arg(
+      `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION})`,
+      _lt("An indicator of what day count method to use.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     startDate: PrimitiveArgValue,
@@ -838,9 +857,7 @@ export const YEARFRAC: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MONTH_START: AddFunctionDescription = {
   description: _lt("First day of the month preceding a date."),
-  args: args(`
-    date (date) ${_lt("The date from which to calculate the result.")}
-    `),
+  args: [arg("date (date)", _lt("The date from which to calculate the result."))],
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
   compute: function (date: PrimitiveArgValue): number {
@@ -857,9 +874,7 @@ export const MONTH_START: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MONTH_END: AddFunctionDescription = {
   description: _lt("Last day of the month following a date."),
-  args: args(`
-    date (date) ${_lt("The date from which to calculate the result.")}
-    `),
+  args: [arg("date (date)", _lt("The date from which to calculate the result."))],
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
   compute: function (date: PrimitiveArgValue): number {
@@ -872,9 +887,7 @@ export const MONTH_END: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const QUARTER: AddFunctionDescription = {
   description: _lt("Quarter of the year a specific date falls in"),
-  args: args(`
-    date (date) ${_lt("The date from which to extract the quarter.")}
-    `),
+  args: [arg("date (date)", _lt("The date from which to extract the quarter."))],
   returns: ["NUMBER"],
   compute: function (date: PrimitiveArgValue): number {
     return Math.ceil((toJsDate(date).getMonth() + 1) / 3);
@@ -886,9 +899,7 @@ export const QUARTER: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const QUARTER_START: AddFunctionDescription = {
   description: _lt("First day of the quarter of the year a specific date falls in."),
-  args: args(`
-    date (date) ${_lt("The date from which to calculate the start of quarter.")}
-    `),
+  args: [arg("date (date)", _lt("The date from which to calculate the start of quarter."))],
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
   compute: function (date: PrimitiveArgValue): number {
@@ -904,9 +915,7 @@ export const QUARTER_START: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const QUARTER_END: AddFunctionDescription = {
   description: _lt("Last day of the quarter of the year a specific date falls in."),
-  args: args(`
-    date (date) ${_lt("The date from which to calculate the end of quarter.")}
-    `),
+  args: [arg("date (date)", _lt("The date from which to calculate the end of quarter."))],
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
   compute: function (date: PrimitiveArgValue): number {
@@ -922,9 +931,7 @@ export const QUARTER_END: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const YEAR_START: AddFunctionDescription = {
   description: _lt("First day of the year a specific date falls in."),
-  args: args(`
-    date (date) ${_lt("The date from which to calculate the start of the year.")}
-    `),
+  args: [arg("date (date)", _lt("The date from which to calculate the start of the year."))],
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
   compute: function (date: PrimitiveArgValue): number {
@@ -939,9 +946,7 @@ export const YEAR_START: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const YEAR_END: AddFunctionDescription = {
   description: _lt("Last day of the year a specific date falls in."),
-  args: args(`
-    date (date) ${_lt("The date from which to calculate the end of the year.")}
-    `),
+  args: [arg("date (date)", _lt("The date from which to calculate the end of the year."))],
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
   compute: function (date: PrimitiveArgValue): number {

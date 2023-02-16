@@ -25,7 +25,7 @@ import * as statistical from "./module_statistical";
 import * as text from "./module_text";
 import * as web from "./module_web";
 
-export { args } from "./arguments";
+export { arg } from "./arguments";
 
 type Functions = { [functionName: string]: AddFunctionDescription };
 type Category = { name: string; functions: Functions };

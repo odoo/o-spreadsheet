@@ -27,7 +27,7 @@ import {
   TOPBAR_HEIGHT,
 } from "./constants";
 import { toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
-import { args, functionRegistry } from "./functions/index";
+import { arg, functionRegistry } from "./functions/index";
 import {
   ChartColors,
   chartFontColor,
@@ -158,7 +158,7 @@ export const registries = {
   cellPopoverRegistry,
 };
 export const helpers = {
-  args,
+  arg,
   toBoolean,
   toJsDate,
   toNumber,

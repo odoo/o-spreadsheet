@@ -1,4 +1,4 @@
-import { args, functionRegistry } from "../../src/functions/index";
+import { functionRegistry } from "../../src/functions/index";
 import { toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { selectCell } from "../test_helpers/commands_helpers";
@@ -49,25 +49,25 @@ describe("Functions autocomplete", () => {
     clearFunctions();
     functionRegistry.add("IF", {
       description: "do if",
-      args: args(``),
+      args: [],
       compute: () => 1,
       returns: ["ANY"],
     });
     functionRegistry.add("SUM", {
       description: "do sum",
-      args: args(``),
+      args: [],
       compute: () => 1,
       returns: ["ANY"],
     });
     functionRegistry.add("SZZ", {
       description: "do something",
-      args: args(``),
+      args: [],
       compute: () => 1,
       returns: ["ANY"],
     });
     functionRegistry.add("HIDDEN", {
       description: "do something",
-      args: args(``),
+      args: [],
       compute: () => 1,
       returns: ["ANY"],
       hidden: true,
@@ -177,7 +177,7 @@ describe("Functions autocomplete", () => {
       for (let i = 0; i < 20; i++) {
         functionRegistry.add(`SUM${i + 1}`, {
           description: "do sum",
-          args: args(``),
+          args: [],
           compute: () => 1,
           returns: ["ANY"],
         });
@@ -201,7 +201,7 @@ describe("Functions autocomplete", () => {
       for (const f of ["TEST_FUZZY", "FUZZY", "FUZZY_TEST", "TEST_FUZZY_TEST"]) {
         functionRegistry.add(f, {
           description: "",
-          args: args(``),
+          args: [],
           compute: () => 1,
           returns: ["ANY"],
         });
@@ -297,19 +297,19 @@ describe("Autocomplete parenthesis", () => {
     clearFunctions();
     functionRegistry.add("IF", {
       description: "do if",
-      args: args(``),
+      args: [],
       compute: () => 1,
       returns: ["ANY"],
     });
     functionRegistry.add("SUM", {
       description: "do sum",
-      args: args(``),
+      args: [],
       compute: () => 1,
       returns: ["ANY"],
     });
     functionRegistry.add("SZZ", {
       description: "do something",
-      args: args(``),
+      args: [],
       compute: () => 1,
       returns: ["ANY"],
     });

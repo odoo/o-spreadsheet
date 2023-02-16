@@ -7,7 +7,7 @@ import {
   PrimitiveArgValue,
 } from "../types";
 import { CellErrorType } from "../types/errors";
-import { args } from "./arguments";
+import { arg } from "./arguments";
 import { assert, conditionalVisitBoolean, toBoolean } from "./helpers";
 
 // -----------------------------------------------------------------------------
@@ -15,14 +15,18 @@ import { assert, conditionalVisitBoolean, toBoolean } from "./helpers";
 // -----------------------------------------------------------------------------
 export const AND: AddFunctionDescription = {
   description: _lt("Logical `and` operator."),
-  args: args(`
-      logical_expression1 (boolean, range<boolean>) ${_lt(
+  args: [
+    arg(
+      "logical_expression1 (boolean, range<boolean>)",
+      _lt(
         "An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE, or an expression that can be coerced to a logical value."
-      )}
-      logical_expression2 (boolean, range<boolean>, repeating) ${_lt(
-        "More expressions that represent logical values."
-      )}
-    `),
+      )
+    ),
+    arg(
+      "logical_expression2 (boolean, range<boolean>, repeating)",
+      _lt("More expressions that represent logical values.")
+    ),
+  ],
   returns: ["BOOLEAN"],
   compute: function (...logicalExpressions: ArgValue[]): boolean {
     let foundBoolean = false;
@@ -43,17 +47,22 @@ export const AND: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const IF: AddFunctionDescription = {
   description: _lt("Returns value depending on logical expression."),
-  args: args(`
-      logical_expression (boolean) ${_lt(
+  args: [
+    arg(
+      "logical_expression (boolean)",
+      _lt(
         "An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE."
-      )}
-      value_if_true (any, lazy) ${_lt(
-        "The value the function returns if logical_expression is TRUE."
-      )}
-      value_if_false (any, lazy, default=FALSE) ${_lt(
-        "The value the function returns if logical_expression is FALSE."
-      )}
-    `),
+      )
+    ),
+    arg(
+      "value_if_true (any, lazy)",
+      _lt("The value the function returns if logical_expression is TRUE.")
+    ),
+    arg(
+      "value_if_false (any, lazy, default=FALSE)",
+      _lt("The value the function returns if logical_expression is FALSE.")
+    ),
+  ],
   returns: ["ANY"],
   compute: function (
     logicalExpression: PrimitiveArgValue,
@@ -71,12 +80,13 @@ export const IF: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const IFERROR: AddFunctionDescription = {
   description: _lt("Value if it is not an error, otherwise 2nd argument."),
-  args: args(`
-    value (any, lazy) ${_lt("The value to return if value itself is not an error.")}
-    value_if_error (any, lazy, default=${_lt("An empty value")}) ${_lt(
-    "The value the function returns if value is an error."
-  )}
-  `),
+  args: [
+    arg("value (any, lazy)", _lt("The value to return if value itself is not an error.")),
+    arg(
+      `value_if_error (any, lazy, default="empty")`,
+      _lt("The value the function returns if value is an error.")
+    ),
+  ],
   returns: ["ANY"],
   computeFormat: (
     value: () => PrimitiveArg,
@@ -108,12 +118,13 @@ export const IFERROR: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const IFNA: AddFunctionDescription = {
   description: _lt("Value if it is not an #N/A error, otherwise 2nd argument."),
-  args: args(`
-    value (any, lazy) ${_lt("The value to return if value itself is not #N/A an error.")}
-    value_if_error (any, lazy, default=${_lt("An empty value")}) ${_lt(
-    "The value the function returns if value is an #N/A error."
-  )}
-  `),
+  args: [
+    arg("value (any, lazy)", _lt("The value to return if value itself is not #N/A an error.")),
+    arg(
+      `value_if_error (any, lazy, default="empty")`,
+      _lt("The value the function returns if value is an #N/A error.")
+    ),
+  ],
   returns: ["ANY"],
   compute: function (
     value: () => PrimitiveArgValue,
@@ -139,18 +150,23 @@ export const IFNA: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const IFS: AddFunctionDescription = {
   description: _lt("Returns a value depending on multiple logical expressions."),
-  args: args(`
-      condition1 (boolean, lazy) ${_lt(
+  args: [
+    arg(
+      "condition1 (boolean, lazy)",
+      _lt(
         "The first condition to be evaluated. This can be a boolean, a number, an array, or a reference to any of those."
-      )}
-      value1 (any, lazy) ${_lt("The returned value if condition1 is TRUE.")}
-      condition2 (boolean, lazy, repeating) ${_lt(
-        "Additional conditions to be evaluated if the previous ones are FALSE."
-      )}
-      value2 (any, lazy, repeating) ${_lt(
-        "Additional values to be returned if their corresponding conditions are TRUE."
-      )}
-  `),
+      )
+    ),
+    arg("value1 (any, lazy)", _lt("The returned value if condition1 is TRUE.")),
+    arg(
+      "condition2 (boolean, lazy, repeating)",
+      _lt("Additional conditions to be evaluated if the previous ones are FALSE.")
+    ),
+    arg(
+      "value2 (any, lazy, repeating)",
+      _lt("Additional values to be returned if their corresponding conditions are TRUE.")
+    ),
+  ],
   returns: ["ANY"],
   compute: function (...values: (() => PrimitiveArgValue)[]): FunctionReturnValue {
     assert(
@@ -173,12 +189,14 @@ export const IFS: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const NOT: AddFunctionDescription = {
   description: _lt("Returns opposite of provided logical value."),
-  args: args(
-    `logical_expression (boolean) ${_lt(
-      "An expression or reference to a cell holding an expression that represents some logical value."
-    )}
-    `
-  ),
+  args: [
+    arg(
+      "logical_expression (boolean)",
+      _lt(
+        "An expression or reference to a cell holding an expression that represents some logical value."
+      )
+    ),
+  ],
   returns: ["BOOLEAN"],
   compute: function (logicalExpression: PrimitiveArgValue): boolean {
     return !toBoolean(logicalExpression);
@@ -191,14 +209,18 @@ export const NOT: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const OR: AddFunctionDescription = {
   description: _lt("Logical `or` operator."),
-  args: args(`
-      logical_expression1 (boolean, range<boolean>) ${_lt(
+  args: [
+    arg(
+      "logical_expression1 (boolean, range<boolean>)",
+      _lt(
         "An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE, or an expression that can be coerced to a logical value."
-      )}
-      logical_expression2 (boolean, range<boolean>, repeating) ${_lt(
-        "More expressions that evaluate to logical values."
-      )}
-    `),
+      )
+    ),
+    arg(
+      "logical_expression2 (boolean, range<boolean>, repeating)",
+      _lt("More expressions that evaluate to logical values.")
+    ),
+  ],
   returns: ["BOOLEAN"],
   compute: function (...logicalExpressions: ArgValue[]): boolean {
     let foundBoolean = false;
@@ -219,14 +241,18 @@ export const OR: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const XOR: AddFunctionDescription = {
   description: _lt("Logical `xor` operator."),
-  args: args(`
-      logical_expression1 (boolean, range<boolean>) ${_lt(
+  args: [
+    arg(
+      "logical_expression1 (boolean, range<boolean>)",
+      _lt(
         "An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE, or an expression that can be coerced to a logical value."
-      )}
-      logical_expression2 (boolean, range<boolean>, repeating) ${_lt(
-        "More expressions that evaluate to logical values."
-      )}
-    `),
+      )
+    ),
+    arg(
+      "logical_expression2 (boolean, range<boolean>, repeating)",
+      _lt("More expressions that evaluate to logical values.")
+    ),
+  ],
   returns: ["BOOLEAN"],
   compute: function (...logicalExpressions: ArgValue[]): boolean {
     let foundBoolean = false;

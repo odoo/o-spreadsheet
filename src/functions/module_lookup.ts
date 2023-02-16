@@ -7,7 +7,7 @@ import {
   PrimitiveArgValue,
 } from "../types";
 import { NotAvailableError } from "../types/errors";
-import { args } from "./arguments";
+import { arg } from "./arguments";
 import {
   assert,
   dichotomicSearch,
@@ -38,12 +38,14 @@ function assertAvailable(variable, searchKey) {
 
 export const COLUMN: AddFunctionDescription = {
   description: _lt("Column number of a specified cell."),
-  args: args(
-    `cell_reference (meta, default=${_lt("The cell in which the formula is entered")}) ${_lt(
-      "The cell whose column number will be returned. Column A corresponds to 1."
-    )}
-    `
-  ),
+  args: [
+    arg(
+      "cell_reference (meta, default='this cell')",
+      _lt(
+        "The cell whose column number will be returned. Column A corresponds to 1. By default, the function use the cell in which the formula is entered."
+      )
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (cellReference: string): number {
     const _cellReference = cellReference || this.__originCellXC?.();
@@ -63,7 +65,7 @@ export const COLUMN: AddFunctionDescription = {
 
 export const COLUMNS: AddFunctionDescription = {
   description: _lt("Number of columns in a specified array or range."),
-  args: args(`range (meta) ${_lt("The range whose column count will be returned.")}`),
+  args: [arg("range (meta)", _lt("The range whose column count will be returned."))],
   returns: ["NUMBER"],
   compute: function (range: string): number {
     const zone = toZone(range);
@@ -78,18 +80,25 @@ export const COLUMNS: AddFunctionDescription = {
 
 export const HLOOKUP: AddFunctionDescription = {
   description: _lt(`Horizontal lookup`),
-  args: args(`
-      search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}
-      range (range) ${_lt(
+  args: [
+    arg("search_key (any)", _lt("The value to search for. For example, 42, 'Cats', or I24.")),
+    arg(
+      "range (range)",
+      _lt(
         "The range to consider for the search. The first row in the range is searched for the key specified in search_key."
-      )}
-      index (number) ${_lt(
-        "The row index of the value to be returned, where the first row in range is numbered 1."
-      )}
-      is_sorted (boolean, default=${DEFAULT_IS_SORTED}) ${_lt(
-    "Indicates whether the row to be searched (the first row of the specified range) is sorted, in which case the closest match for search_key will be returned."
-  )}
-  `),
+      )
+    ),
+    arg(
+      "index (number)",
+      _lt("The row index of the value to be returned, where the first row in range is numbered 1.")
+    ),
+    arg(
+      `is_sorted (boolean, default=${DEFAULT_IS_SORTED})`,
+      _lt(
+        "Indicates whether the row to be searched (the first row of the specified range) is sorted, in which case the closest match for search_key will be returned."
+      )
+    ),
+  ],
   returns: ["ANY"],
   compute: function (
     searchKey: PrimitiveArgValue,
@@ -138,15 +147,21 @@ export const HLOOKUP: AddFunctionDescription = {
 
 export const LOOKUP: AddFunctionDescription = {
   description: _lt(`Look up a value.`),
-  args: args(`
-      search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}
-      search_array (range) ${_lt(
+  args: [
+    arg("search_key (any)", _lt("The value to search for. For example, 42, 'Cats', or I24.")),
+    arg(
+      "search_array (range)",
+      _lt(
         "One method of using this function is to provide a single sorted row or column search_array to look through for the search_key with a second argument result_range. The other way is to combine these two arguments into one search_array where the first row or column is searched and a value is returned from the last row or column in the array. If search_key is not found, a non-exact match may be returned."
-      )}
-      result_range (range, optional) ${_lt(
+      )
+    ),
+    arg(
+      "result_range (range, optional)",
+      _lt(
         "The range from which to return a result. The value returned corresponds to the location where search_key is found in search_range. This range must be only a single row or column and should not be used if using the search_result_array method."
-      )}
-  `),
+      )
+    ),
+  ],
   returns: ["ANY"],
   compute: function (
     searchKey: PrimitiveArgValue,
@@ -209,13 +224,16 @@ export const LOOKUP: AddFunctionDescription = {
 const DEFAULT_SEARCH_TYPE = 1;
 export const MATCH: AddFunctionDescription = {
   description: _lt(`Position of item in range that matches value.`),
-  args: args(`
-      search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}
-      range (any, range) ${_lt("The one-dimensional array to be searched.")}
-      search_type (number, default=${DEFAULT_SEARCH_TYPE}) ${_lt(
-    "The search method. 1 (default) finds the largest value less than or equal to search_key when range is sorted in ascending order. 0 finds the exact value when range is unsorted. -1 finds the smallest value greater than or equal to search_key when range is sorted in descending order."
-  )}
-  `),
+  args: [
+    arg("search_key (any)", _lt("The value to search for. For example, 42, 'Cats', or I24.")),
+    arg("range (any, range)", _lt("The one-dimensional array to be searched.")),
+    arg(
+      `search_type (number, default=${DEFAULT_SEARCH_TYPE})`,
+      _lt(
+        "The search method. 1 (default) finds the largest value less than or equal to search_key when range is sorted in ascending order. 0 finds the exact value when range is unsorted. -1 finds the smallest value greater than or equal to search_key when range is sorted in descending order."
+      )
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     searchKey: PrimitiveArgValue,
@@ -262,11 +280,14 @@ export const MATCH: AddFunctionDescription = {
 
 export const ROW: AddFunctionDescription = {
   description: _lt("Row number of a specified cell."),
-  args: args(
-    `cell_reference (meta, default=${_lt(
-      "The cell in which the formula is entered by default"
-    )}) ${_lt("The cell whose row number will be returned.")}`
-  ),
+  args: [
+    arg(
+      "cell_reference (meta, default='this cell')",
+      _lt(
+        "The cell whose row number will be returned. By default, this function uses the cell in which the formula is entered."
+      )
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (cellReference?: string): number {
     cellReference = cellReference || this.__originCellXC?.();
@@ -286,7 +307,7 @@ export const ROW: AddFunctionDescription = {
 
 export const ROWS: AddFunctionDescription = {
   description: _lt("Number of rows in a specified array or range."),
-  args: args(`range (meta) ${_lt("The range whose row count will be returned.")}`),
+  args: [arg("range (meta)", _lt("The range whose row count will be returned."))],
   returns: ["NUMBER"],
   compute: function (range: string): number {
     const zone = toZone(range);
@@ -301,18 +322,27 @@ export const ROWS: AddFunctionDescription = {
 
 export const VLOOKUP: AddFunctionDescription = {
   description: _lt(`Vertical lookup.`),
-  args: args(`
-      search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}
-      range (any, range) ${_lt(
+  args: [
+    arg("search_key (any)", _lt("The value to search for. For example, 42, 'Cats', or I24.")),
+    arg(
+      "range (any, range)",
+      _lt(
         "The range to consider for the search. The first column in the range is searched for the key specified in search_key."
-      )}
-      index (number) ${_lt(
+      )
+    ),
+    arg(
+      "index (number)",
+      _lt(
         "The column index of the value to be returned, where the first column in range is numbered 1."
-      )}
-      is_sorted (boolean, default=${DEFAULT_IS_SORTED}) ${_lt(
-    "Indicates whether the column to be searched (the first column of the specified range) is sorted, in which case the closest match for search_key will be returned."
-  )}
-  `),
+      )
+    ),
+    arg(
+      `is_sorted (boolean, default=${DEFAULT_IS_SORTED})`,
+      _lt(
+        "Indicates whether the column to be searched (the first column of the specified range) is sorted, in which case the closest match for search_key will be returned."
+      )
+    ),
+  ],
   returns: ["ANY"],
   compute: function (
     searchKey: PrimitiveArgValue,
@@ -362,27 +392,37 @@ export const XLOOKUP: AddFunctionDescription = {
   description: _lt(
     `Search a range for a match and return the corresponding item from a second range.`
   ),
-  args: args(`
-      search_key (any) ${_lt("The value to search for.")}
-      lookup_range (any, range) ${_lt(
-        "The range to consider for the search. Should be a single column or a single row."
-      )}
-      return_range (any, range) ${_lt(
-        "The range containing the return value. Should have the same dimensions as lookup_range."
-      )}
-      if_not_found (any, lazy, optional) ${_lt("If a valid match is not found, return this value.")}
-      match_mode (any, default=${DEFAULT_MATCH_MODE}) ${_lt(
-    "(0) Exact match. (-1) Return next smaller item if no match. (1) Return next greater item if no match."
-  )}
-      search_mode (any, default=${DEFAULT_SEARCH_MODE}) ${_lt(
-    "(1) Search starting at first item. \
-    (-1) Search starting at last item. \
-    (2) Perform a binary search that relies on lookup_array being sorted in ascending order. If not sorted, invalid results will be returned. \
-    (-2) Perform a binary search that relies on lookup_array being sorted in descending order. If not sorted, invalid results will be returned.\
-    "
-  )}
-
-  `),
+  args: [
+    arg("search_key (any)", _lt("The value to search for.")),
+    arg(
+      "lookup_range (any, range)",
+      _lt("The range to consider for the search. Should be a single column or a single row.")
+    ),
+    arg(
+      "return_range (any, range)",
+      _lt("The range containing the return value. Should have the same dimensions as lookup_range.")
+    ),
+    arg(
+      "if_not_found (any, lazy, optional)",
+      _lt("If a valid match is not found, return this value.")
+    ),
+    arg(
+      `match_mode (any, default=${DEFAULT_MATCH_MODE})`,
+      _lt(
+        "(0) Exact match. (-1) Return next smaller item if no match. (1) Return next greater item if no match."
+      )
+    ),
+    arg(
+      `search_mode (any, default=${DEFAULT_SEARCH_MODE})`,
+      _lt(
+        "(1) Search starting at first item. \
+      (-1) Search starting at last item. \
+      (2) Perform a binary search that relies on lookup_array being sorted in ascending order. If not sorted, invalid results will be returned. \
+      (-2) Perform a binary search that relies on lookup_array being sorted in descending order. If not sorted, invalid results will be returned.\
+      "
+      )
+    ),
+  ],
   returns: ["ANY"],
   compute: function (
     searchKey: PrimitiveArgValue,

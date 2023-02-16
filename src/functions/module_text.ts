@@ -1,7 +1,7 @@
 import { escapeRegExp, formatValue } from "../helpers";
 import { _lt } from "../translation";
 import { AddFunctionDescription, ArgValue, PrimitiveArgValue } from "../types";
-import { args } from "./arguments";
+import { arg } from "./arguments";
 import { assert, reduceAny, toBoolean, toNumber, toString } from "./helpers";
 
 const DEFAULT_STARTING_AT = 1;
@@ -14,11 +14,14 @@ const wordRegex = /[A-Za-zÀ-ÖØ-öø-ÿ]+/g;
 // -----------------------------------------------------------------------------
 export const CHAR: AddFunctionDescription = {
   description: _lt("Gets character associated with number."),
-  args: args(`
-      table_number (number) ${_lt(
+  args: [
+    arg(
+      "table_number (number)",
+      _lt(
         "The number of the character to look up from the current Unicode table in decimal format."
-      )}
-  `),
+      )
+    ),
+  ],
   returns: ["STRING"],
   compute: function (tableNumber: PrimitiveArgValue): string {
     const _tableNumber = Math.trunc(toNumber(tableNumber));
@@ -36,9 +39,7 @@ export const CHAR: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const CLEAN: AddFunctionDescription = {
   description: _lt("Remove non-printable characters from a piece of text."),
-  args: args(`
-      text (string) ${_lt("The text whose non-printable characters are to be removed.")}
-  `),
+  args: [arg("text (string)", _lt("The text whose non-printable characters are to be removed."))],
   returns: ["STRING"],
   compute: function (text: PrimitiveArgValue): string {
     const _text = toString(text);
@@ -58,10 +59,10 @@ export const CLEAN: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const CONCATENATE: AddFunctionDescription = {
   description: _lt("Appends strings to one another."),
-  args: args(`
-      string1 (string, range<string>) ${_lt("The initial string.")}
-      string2 (string, range<string>, repeating) ${_lt("More strings to append in sequence.")}
-  `),
+  args: [
+    arg("string1 (string, range<string>)", _lt("The initial string.")),
+    arg("string2 (string, range<string>, repeating)", _lt("More strings to append in sequence.")),
+  ],
   returns: ["STRING"],
   compute: function (...values: ArgValue[]): string {
     return reduceAny(values, (acc, a) => acc + toString(a), "");
@@ -74,10 +75,10 @@ export const CONCATENATE: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const EXACT: AddFunctionDescription = {
   description: _lt("Tests whether two strings are identical."),
-  args: args(`
-      string1 (string) ${_lt("The first string to compare.")}
-      string2 (string) ${_lt("The second string to compare.")}
-  `),
+  args: [
+    arg("string1 (string)", _lt("The first string to compare.")),
+    arg("string2 (string)", _lt("The second string to compare.")),
+  ],
   returns: ["BOOLEAN"],
   compute: function (string1: PrimitiveArgValue, string2: PrimitiveArgValue): boolean {
     return toString(string1) === toString(string2);
@@ -90,13 +91,17 @@ export const EXACT: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const FIND: AddFunctionDescription = {
   description: _lt("First position of string found in text, case-sensitive."),
-  args: args(`
-      search_for (string) ${_lt("The string to look for within text_to_search.")}
-      text_to_search (string) ${_lt("The text to search for the first occurrence of search_for.")}
-      starting_at (number, default=${DEFAULT_STARTING_AT}) ${_lt(
-    "The character within text_to_search at which to start the search."
-  )}
-  `),
+  args: [
+    arg("search_for (string)", _lt("The string to look for within text_to_search.")),
+    arg(
+      "text_to_search (string)",
+      _lt("The text to search for the first occurrence of search_for.")
+    ),
+    arg(
+      `starting_at (number, default=${DEFAULT_STARTING_AT})`,
+      _lt("The character within text_to_search at which to start the search.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     searchFor: PrimitiveArgValue,
@@ -134,15 +139,20 @@ export const FIND: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const JOIN: AddFunctionDescription = {
   description: _lt("Concatenates elements of arrays with delimiter."),
-  args: args(`
-      delimiter (string) ${_lt("The character or string to place between each concatenated value.")}
-      value_or_array1 (string, range<string>) ${_lt(
-        "The value or values to be appended using delimiter."
-      )}
-      value_or_array2 (string, range<string>, repeating) ${_lt(
-        "More values to be appended using delimiter."
-      )}
-  `),
+  args: [
+    arg(
+      "delimiter (string)",
+      _lt("The character or string to place between each concatenated value.")
+    ),
+    arg(
+      "value_or_array1 (string, range<string>)",
+      _lt("The value or values to be appended using delimiter.")
+    ),
+    arg(
+      "value_or_array2 (string, range<string>, repeating)",
+      _lt("More values to be appended using delimiter.")
+    ),
+  ],
   returns: ["STRING"],
   compute: function (delimiter: PrimitiveArgValue, ...valuesOrArrays: ArgValue[]): string {
     const _delimiter = toString(delimiter);
@@ -155,12 +165,13 @@ export const JOIN: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const LEFT: AddFunctionDescription = {
   description: _lt("Substring from beginning of specified string."),
-  args: args(`
-      text (string) ${_lt("The string from which the left portion will be returned.")}
-      number_of_characters (number, optional) ${_lt(
-        "The number of characters to return from the left side of string."
-      )}
-  `),
+  args: [
+    arg("text (string)", _lt("The string from which the left portion will be returned.")),
+    arg(
+      "number_of_characters (number, optional)",
+      _lt("The number of characters to return from the left side of string.")
+    ),
+  ],
   returns: ["STRING"],
   compute: function (text: PrimitiveArgValue, ...args: PrimitiveArgValue[]): string {
     const _numberOfCharacters = args.length ? toNumber(args[0]) : 1;
@@ -178,9 +189,7 @@ export const LEFT: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const LEN: AddFunctionDescription = {
   description: _lt("Length of a string."),
-  args: args(`
-      text (string) ${_lt("The string whose length will be returned.")}
-  `),
+  args: [arg("text (string)", _lt("The string whose length will be returned."))],
   returns: ["NUMBER"],
   compute: function (text: PrimitiveArgValue): number {
     return toString(text).length;
@@ -193,9 +202,7 @@ export const LEN: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const LOWER: AddFunctionDescription = {
   description: _lt("Converts a specified string to lowercase."),
-  args: args(`
-      text (string) ${_lt("The string to convert to lowercase.")}
-  `),
+  args: [arg("text (string)", _lt("The string to convert to lowercase."))],
   returns: ["STRING"],
   compute: function (text: PrimitiveArgValue): string {
     return toString(text).toLowerCase();
@@ -208,13 +215,16 @@ export const LOWER: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MID: AddFunctionDescription = {
   description: _lt("A segment of a string."),
-  args: args(`
-      text (string) ${_lt("The string to extract a segment from.")}
-      starting_at  (number) ${_lt(
+  args: [
+    arg("text (string)", _lt("The string to extract a segment from.")),
+    arg(
+      " (number)",
+      _lt(
         "The index from the left of string from which to begin extracting. The first character in string has the index 1."
-      )}
-      extract_length  (number) ${_lt("The length of the segment to extract.")}
-  `),
+      )
+    ),
+    arg(" (number)", _lt("The length of the segment to extract.")),
+  ],
   returns: ["STRING"],
   compute: function (
     text: PrimitiveArgValue,
@@ -247,11 +257,14 @@ export const MID: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const PROPER: AddFunctionDescription = {
   description: _lt("Capitalizes each word in a specified string."),
-  args: args(`
-  text_to_capitalize (string) ${_lt(
-    "The text which will be returned with the first letter of each word in uppercase and all other letters in lowercase."
-  )}
-  `),
+  args: [
+    arg(
+      "text_to_capitalize (string)",
+      _lt(
+        "The text which will be returned with the first letter of each word in uppercase and all other letters in lowercase."
+      )
+    ),
+  ],
   returns: ["STRING"],
   compute: function (text: PrimitiveArgValue): string {
     const _text = toString(text);
@@ -267,12 +280,15 @@ export const PROPER: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const REPLACE: AddFunctionDescription = {
   description: _lt("Replaces part of a text string with different text."),
-  args: args(`
-      text (string) ${_lt("The text, a part of which will be replaced.")}
-      position (number) ${_lt("The position where the replacement will begin (starting from 1).")}
-      length (number) ${_lt("The number of characters in the text to be replaced.")}
-      new_text (string) ${_lt("The text which will be inserted into the original text.")}
-  `),
+  args: [
+    arg("text (string)", _lt("The text, a part of which will be replaced.")),
+    arg(
+      "position (number)",
+      _lt("The position where the replacement will begin (starting from 1).")
+    ),
+    arg("length (number)", _lt("The number of characters in the text to be replaced.")),
+    arg("new_text (string)", _lt("The text which will be inserted into the original text.")),
+  ],
   returns: ["STRING"],
   compute: function (
     text: PrimitiveArgValue,
@@ -299,12 +315,13 @@ export const REPLACE: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const RIGHT: AddFunctionDescription = {
   description: _lt("A substring from the end of a specified string."),
-  args: args(`
-      text (string) ${_lt("The string from which the right portion will be returned.")}
-      number_of_characters (number, optional) ${_lt(
-        "The number of characters to return from the right side of string."
-      )}
-  `),
+  args: [
+    arg("text (string)", _lt("The string from which the right portion will be returned.")),
+    arg(
+      "number_of_characters (number, optional)",
+      _lt("The number of characters to return from the right side of string.")
+    ),
+  ],
   returns: ["STRING"],
   compute: function (text: PrimitiveArgValue, ...args: PrimitiveArgValue[]): string {
     const _numberOfCharacters = args.length ? toNumber(args[0]) : 1;
@@ -324,13 +341,17 @@ export const RIGHT: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const SEARCH: AddFunctionDescription = {
   description: _lt("First position of string found in text, ignoring case."),
-  args: args(`
-      search_for (string) ${_lt("The string to look for within text_to_search.")}
-      text_to_search (string) ${_lt("The text to search for the first occurrence of search_for.")}
-      starting_at (number, default=${DEFAULT_STARTING_AT}) ${_lt(
-    "The character within text_to_search at which to start the search."
-  )}
-  `),
+  args: [
+    arg("search_for (string)", _lt("The string to look for within text_to_search.")),
+    arg(
+      "text_to_search (string)",
+      _lt("The text to search for the first occurrence of search_for.")
+    ),
+    arg(
+      `starting_at (number, default=${DEFAULT_STARTING_AT})`,
+      _lt("The character within text_to_search at which to start the search.")
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     searchFor: PrimitiveArgValue,
@@ -368,14 +389,17 @@ export const SEARCH: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const SUBSTITUTE: AddFunctionDescription = {
   description: _lt("Replaces existing text with new text in a string."),
-  args: args(`
-      text_to_search (string) ${_lt("The text within which to search and replace.")}
-      search_for (string) ${_lt("The string to search for within text_to_search.")}
-      replace_with (string) ${_lt("The string that will replace search_for.")}
-      occurrence_number (number, optional) ${_lt(
+  args: [
+    arg("text_to_search (string)", _lt("The text within which to search and replace.")),
+    arg("search_for (string)", _lt("The string to search for within text_to_search.")),
+    arg("replace_with (string)", _lt("The string that will replace search_for.")),
+    arg(
+      "occurrence_number (number, optional)",
+      _lt(
         "The instance of search_for within text_to_search to replace with replace_with. By default, all occurrences of search_for are replaced; however, if occurrence_number is specified, only the indicated instance of search_for is replaced."
-      )}
-  `),
+      )
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (
     textToSearch: PrimitiveArgValue,
@@ -413,18 +437,25 @@ export const SUBSTITUTE: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const TEXTJOIN: AddFunctionDescription = {
   description: _lt("Combines text from multiple strings and/or arrays."),
-  args: args(`
-      delimiter (string) ${_lt(
+  args: [
+    arg(
+      "delimiter (string)",
+      _lt(
         " A string, possible empty, or a reference to a valid string. If empty, the text will be simply concatenated."
-      )}
-      ignore_empty (boolean) ${_lt(
+      )
+    ),
+    arg(
+      "ignore_empty (boolean)",
+      _lt(
         "A boolean; if TRUE, empty cells selected in the text arguments won't be included in the result."
-      )}
-      text1 (string, range<string>) ${_lt(
-        "Any text item. This could be a string, or an array of strings in a range."
-      )}
-      text2 (string, range<string>, repeating) ${_lt("Additional text item(s).")}
-  `),
+      )
+    ),
+    arg(
+      "text1 (string, range<string>)",
+      _lt("Any text item. This could be a string, or an array of strings in a range.")
+    ),
+    arg("text2 (string, range<string>, repeating)", _lt("Additional text item(s).")),
+  ],
   returns: ["STRING"],
   compute: function (
     delimiter: PrimitiveArgValue,
@@ -449,9 +480,9 @@ export const TEXTJOIN: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const TRIM: AddFunctionDescription = {
   description: _lt("Removes space characters."),
-  args: args(`
-      text (string) ${_lt("The text or reference to a cell containing text to be trimmed.")}
-  `),
+  args: [
+    arg("text (string)", _lt("The text or reference to a cell containing text to be trimmed.")),
+  ],
   returns: ["STRING"],
   compute: function (text: PrimitiveArgValue): string {
     return toString(text).trim();
@@ -464,9 +495,7 @@ export const TRIM: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const UPPER: AddFunctionDescription = {
   description: _lt("Converts a specified string to uppercase."),
-  args: args(`
-      text (string) ${_lt("The string to convert to uppercase.")}
-  `),
+  args: [arg("text (string)", _lt("The string to convert to uppercase."))],
   returns: ["STRING"],
   compute: function (text: PrimitiveArgValue): string {
     return toString(text).toUpperCase();
@@ -479,12 +508,13 @@ export const UPPER: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 export const TEXT: AddFunctionDescription = {
   description: _lt("Converts a number to text according to a specified format."),
-  args: args(`
-      number (number) ${_lt("The number, date or time to format.")}
-      format (string) ${_lt(
-        "The pattern by which to format the number, enclosed in quotation marks."
-      )}
-  `),
+  args: [
+    arg("number (number)", _lt("The number, date or time to format.")),
+    arg(
+      "format (string)",
+      _lt("The pattern by which to format the number, enclosed in quotation marks.")
+    ),
+  ],
   returns: ["STRING"],
   compute: function (number: PrimitiveArgValue, format: PrimitiveArgValue): string {
     const _number = toNumber(number);
