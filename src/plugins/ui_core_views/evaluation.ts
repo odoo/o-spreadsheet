@@ -63,6 +63,7 @@ export class EvaluationPlugin extends UIPlugin {
   ] as const;
 
   private isUpToDate = false;
+  private isGraphUpToDate = false;
   //private evaluatedCells: {
   //  [sheetId: UID]:
   //    | {
@@ -91,13 +92,14 @@ export class EvaluationPlugin extends UIPlugin {
   handle(cmd: Command) {
     if (invalidateEvaluationCommands.has(cmd.type)) {
       this.isUpToDate = false;
+      this.isGraphUpToDate = false;
     }
     switch (cmd.type) {
       case "UPDATE_CELL":
         if ("content" in cmd || "format" in cmd) {
           const position = { sheetId: cmd.sheetId, col: cmd.col, row: cmd.row };
           const targetedXC = this.cellPositionToXc(position);
-          this.updateFormulaDependencies(targetedXC);
+          this.updateFormulaDependencies(targetedXC, false);
           this.fillUpdateList(targetedXC);
         }
         break;
@@ -115,8 +117,12 @@ export class EvaluationPlugin extends UIPlugin {
           this.cellPositionToXc(this.getters.getCellPosition(c.id))
         )
       );
-      for (const xc of this.xcsToUpdate) {
-        this.updateFormulaDependencies(xc);
+      if (!this.isGraphUpToDate) {
+        this.formulaDependencies = {};
+        for (const xc of this.xcsToUpdate) {
+          this.updateFormulaDependencies(xc, true);
+        }
+        this.isGraphUpToDate = true;
       }
       this.isUpToDate = true;
     }
@@ -252,7 +258,7 @@ export class EvaluationPlugin extends UIPlugin {
     }
   }*/
 
-  private updateFormulaDependencies = (thisXC: string) => {
+  private updateFormulaDependencies = (thisXC: string, graphCreation: boolean) => {
     const cell = this.XcToCell(thisXC);
     const newDependencies: string[] = [];
     if (cell !== undefined && cell.isFormula) {
@@ -269,10 +275,18 @@ export class EvaluationPlugin extends UIPlugin {
       }
     }
 
-    for (const dependencie of Object.keys(this.formulaDependencies)) {
-      if (this.formulaDependencies[dependencie].has(thisXC)) {
-        if (!newDependencies.includes(dependencie)) {
-          this.formulaDependencies[dependencie].delete(thisXC);
+    /**
+     * If we are not creating the graph, we need to remove the old dependencies
+     * from the graph. But if we are creating the graph, we don't need to do it
+     * because we are creating the graph from scratch. Not doing it increase
+     * notably the performance of the graph creation.
+     */
+    if (!graphCreation) {
+      for (const dependencie of Object.keys(this.formulaDependencies)) {
+        if (this.formulaDependencies[dependencie].has(thisXC)) {
+          if (!newDependencies.includes(dependencie)) {
+            this.formulaDependencies[dependencie].delete(thisXC);
+          }
         }
       }
     }
