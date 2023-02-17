@@ -2,6 +2,7 @@ import { compile } from "../../formulas/index";
 import { toNumber } from "../../functions/helpers";
 import { functionRegistry } from "../../functions/index";
 import { createEvaluatedCell, errorCell, evaluateLiteral } from "../../helpers/cells";
+import { Graph } from "../../helpers/graph";
 import {
   intersection,
   isZoneValid,
@@ -77,7 +78,7 @@ export class EvaluationPlugin extends UIPlugin {
   private evaluatedCells: PositionDict<Lazy<EvaluatedCell>> = {};
   private xcsToUpdate: Set<string> = new Set<string>();
 
-  private formulaDependencies: PositionDict<Set<string>> = {};
+  private graph = new Graph();
 
   constructor(config: UIPluginConfig) {
     super(config);
@@ -100,7 +101,7 @@ export class EvaluationPlugin extends UIPlugin {
           const position = { sheetId: cmd.sheetId, col: cmd.col, row: cmd.row };
           const targetedXC = this.cellPositionToXc(position);
           this.updateFormulaDependencies(targetedXC, false);
-          this.fillUpdateList(targetedXC);
+          this.computeCellsToCompute(targetedXC);
         }
         break;
 
@@ -118,7 +119,7 @@ export class EvaluationPlugin extends UIPlugin {
         )
       );
       if (!this.isGraphUpToDate) {
-        this.formulaDependencies = {};
+        this.graph = new Graph();
         for (const xc of this.xcsToUpdate) {
           this.updateFormulaDependencies(xc, true);
         }
@@ -130,13 +131,9 @@ export class EvaluationPlugin extends UIPlugin {
     this.xcsToUpdate.clear();
   }
 
-  private fillUpdateList(xc: string) {
-    if (!this.xcsToUpdate.has(xc)) {
-      this.xcsToUpdate.add(xc);
-      for (const reference of this.formulaDependencies[xc] || []) {
-        this.fillUpdateList(reference);
-      }
-    }
+  private computeCellsToCompute(mainXC: string) {
+    this.xcsToUpdate.add(mainXC);
+    this.graph.depthFirstSearch(mainXC, (xc: string) => this.xcsToUpdate.add(xc));
   }
 
   private cellPositionToXc(position: CellPosition): string {
@@ -282,20 +279,15 @@ export class EvaluationPlugin extends UIPlugin {
      * notably the performance of the graph creation.
      */
     if (!graphCreation) {
-      for (const dependencie of Object.keys(this.formulaDependencies)) {
-        if (this.formulaDependencies[dependencie].has(thisXC)) {
-          if (!newDependencies.includes(dependencie)) {
-            this.formulaDependencies[dependencie].delete(thisXC);
-          }
+      for (const dependency of this.graph.nodes.keys()) {
+        if (!newDependencies.includes(dependency)) {
+          this.graph.removeEdge(dependency, thisXC);
         }
       }
     }
 
-    for (const dependencie of newDependencies) {
-      if (!(dependencie in this.formulaDependencies)) {
-        this.formulaDependencies[dependencie] = new Set<string>();
-      }
-      this.formulaDependencies[dependencie].add(thisXC);
+    for (const dependency of newDependencies) {
+      this.graph.addEdge(dependency, thisXC);
     }
   };
 
