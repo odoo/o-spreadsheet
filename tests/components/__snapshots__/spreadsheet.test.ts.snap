@@ -76,7 +76,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         >
           <div
             class="o-tool o-disabled"
-            title="Undo"
+            title="Undo (Ctrl+Z)"
           >
             <svg
               class="o-icon"
@@ -90,7 +90,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           </div>
           <div
             class="o-tool o-disabled"
-            title="Redo"
+            title="Redo (Ctrl+Y)"
           >
             <svg
               class="o-icon"
@@ -205,7 +205,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           />
           <div
             class="o-tool"
-            title="Bold"
+            title="Bold (Ctrl+B)"
           >
             <svg
               class="o-icon"
@@ -220,7 +220,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           </div>
           <div
             class="o-tool"
-            title="Italic"
+            title="Italic (Ctrl+I)"
           >
             <svg
               class="o-icon"
@@ -476,7 +476,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           
           <div
             class="o-tool o-filter-tool"
-            title="Create filter"
+            title="Create a filter"
           >
             <svg
               class="o-cf-icon filter-icon-inactive"

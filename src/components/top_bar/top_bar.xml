@@ -41,7 +41,7 @@
           <div t-else="" class="o-toolbar-tools">
             <div
               class="o-tool"
-              title="Undo"
+              title="Undo (Ctrl+Z)"
               t-att-class="{'o-disabled': !undoTool}"
               t-on-click="undo">
               <t t-call="o-spreadsheet-Icon.UNDO"/>
@@ -49,7 +49,7 @@
             <div
               class="o-tool"
               t-att-class="{'o-disabled': !redoTool}"
-              title="Redo"
+              title="Redo (Ctrl+Y)"
               t-on-click="redo">
               <t t-call="o-spreadsheet-Icon.REDO"/>
             </div>
@@ -120,14 +120,14 @@
             <div class="o-divider"/>
             <div
               class="o-tool"
-              title="Bold"
+              title="Bold (Ctrl+B)"
               t-att-class="{active:style.bold}"
               t-on-click="(ev) => this.toggleStyle('bold', ev)">
               <t t-call="o-spreadsheet-Icon.BOLD"/>
             </div>
             <div
               class="o-tool"
-              title="Italic"
+              title="Italic (Ctrl+I)"
               t-att-class="{active:style.italic}"
               t-on-click="(ev) => this.toggleStyle('italic', ev)">
               <t t-call="o-spreadsheet-Icon.ITALIC"/>
@@ -247,16 +247,19 @@
                 t-on-click.stop="">
                 <div
                   class="o-dropdown-item o-dropdown-align-item"
+                  title="Left"
                   t-on-click="() => this.toggleHorizontalAlign('left')">
                   <t t-call="o-spreadsheet-Icon.ALIGN_LEFT"/>
                 </div>
                 <div
                   class="o-dropdown-item o-dropdown-align-item"
+                  title="Center"
                   t-on-click="() => this.toggleHorizontalAlign('center')">
                   <t t-call="o-spreadsheet-Icon.ALIGN_CENTER"/>
                 </div>
                 <div
                   class="o-dropdown-item o-dropdown-align-item"
+                  title="Right"
                   t-on-click="() => this.toggleHorizontalAlign('right')">
                   <t t-call="o-spreadsheet-Icon.ALIGN_RIGHT"/>
                 </div>
@@ -287,16 +290,19 @@
                 t-on-click.stop="">
                 <div
                   class="o-dropdown-item o-dropdown-align-item"
+                  title="Top"
                   t-on-click="() => this.toggleVerticalAlign('top')">
                   <t t-call="o-spreadsheet-Icon.ALIGN_TOP"/>
                 </div>
                 <div
                   class="o-dropdown-item o-dropdown-align-item"
+                  title="Middle"
                   t-on-click="() => this.toggleVerticalAlign('middle')">
                   <t t-call="o-spreadsheet-Icon.ALIGN_MIDDLE"/>
                 </div>
                 <div
                   class="o-dropdown-item o-dropdown-align-item"
+                  title="Bottom"
                   t-on-click="() => this.toggleVerticalAlign('bottom')">
                   <t t-call="o-spreadsheet-Icon.ALIGN_BOTTOM"/>
                 </div>
@@ -327,16 +333,19 @@
                 t-on-click.stop="">
                 <div
                   class="o-dropdown-item o-dropdown-align-item"
+                  title="Overflow"
                   t-on-click="() => this.toggleTextWrapping('overflow')">
                   <t t-call="o-spreadsheet-Icon.WRAPPING_OVERFLOW"/>
                 </div>
                 <div
                   class="o-dropdown-item o-dropdown-align-item"
+                  title="Wrap"
                   t-on-click="() => this.toggleTextWrapping('wrap')">
                   <t t-call="o-spreadsheet-Icon.WRAPPING_WRAP"/>
                 </div>
                 <div
                   class="o-dropdown-item o-dropdown-align-item"
+                  title="Clip"
                   t-on-click="() => this.toggleTextWrapping('clip')">
                   <t t-call="o-spreadsheet-Icon.WRAPPING_CLIP"/>
                 </div>
@@ -354,7 +363,7 @@
               t-else=""
               class="o-tool o-filter-tool"
               t-att-class="{'o-disabled': cannotCreateFilter}"
-              title="Create filter"
+              title="Create a filter"
               t-on-click="createFilter">
               <t t-call="o-spreadsheet-Icon.FILTER_ICON_INACTIVE"/>
             </div>
