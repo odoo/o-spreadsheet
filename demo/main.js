@@ -169,9 +169,18 @@ class Demo extends Component {
       this.transportService = undefined;
       this.stateUpdateMessages = [];
     }
+    // this.createModel(data || demoData);
+    this.perfs();
     this.createModel(data || demoData);
-    // this.createModel(makeLargeDataset(26, 10_000, ["numbers"]));
     // this.createModel({});
+  }
+
+  perfs() {
+    console.time("Perfs");
+    for (const i of Array(10).keys()) {
+      new Model(makeLargeDataset(26, 500));
+    }
+    console.timeEnd("Perfs");
   }
 
   createModel(data) {
