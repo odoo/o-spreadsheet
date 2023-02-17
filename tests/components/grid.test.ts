@@ -45,6 +45,7 @@ import {
   rightClickCell,
   simulateClick,
   triggerMouseEvent,
+  triggerTouchEvent,
   triggerWheelEvent,
 } from "../test_helpers/dom_helper";
 import {
@@ -61,7 +62,6 @@ import {
   mountSpreadsheet,
   nextTick,
   target,
-  Touch,
   typeInComposerGrid,
 } from "../test_helpers/helpers";
 import { FileStore } from "../__mocks__/mock_file_store";
@@ -144,45 +144,12 @@ describe("Grid component", () => {
     const grid = fixture.querySelector(".o-grid-overlay")!;
     expect(getHorizontalScroll()).toBe(0);
     expect(getVerticalScroll()).toBe(0);
-    grid.dispatchEvent(
-      new TouchEvent("touchstart", {
-        touches: [
-          new Touch({
-            clientX: 150,
-            clientY: 150,
-            identifier: 1,
-            target: grid,
-          }),
-        ],
-      })
-    );
-    grid.dispatchEvent(
-      new TouchEvent("touchmove", {
-        touches: [
-          new Touch({
-            clientX: 100,
-            clientY: 120,
-            identifier: 2,
-            target: grid,
-          }),
-        ],
-      })
-    );
+    triggerTouchEvent(grid, "touchstart", { clientX: 150, clientY: 150, identifier: 1 });
+    triggerTouchEvent(grid, "touchmove", { clientX: 100, clientY: 120, identifier: 2 });
     await nextTick();
     expect(getHorizontalScroll()).toBe(50);
     expect(getVerticalScroll()).toBe(30);
-    grid.dispatchEvent(
-      new TouchEvent("touchmove", {
-        touches: [
-          new Touch({
-            clientX: 80,
-            clientY: 100,
-            identifier: 2,
-            target: grid,
-          }),
-        ],
-      })
-    );
+    triggerTouchEvent(grid, "touchmove", { clientX: 80, clientY: 100, identifier: 2 });
     await nextTick();
     expect(getHorizontalScroll()).toBe(70);
     expect(getVerticalScroll()).toBe(50);
@@ -195,65 +162,15 @@ describe("Grid component", () => {
     const mockCallback = jest.fn(() => {});
     fixture.addEventListener("touchmove", mockCallback);
 
-    grid.dispatchEvent(
-      new TouchEvent("touchstart", {
-        touches: [
-          new Touch({
-            clientX: 0,
-            clientY: 150,
-            identifier: 1,
-            target: grid,
-          }),
-        ],
-      })
-    );
+    triggerTouchEvent(grid, "touchstart", { clientX: 0, clientY: 150, identifier: 1 });
     // move down; we are at the top: ev not prevented
-    grid.dispatchEvent(
-      new TouchEvent("touchmove", {
-        cancelable: true,
-        bubbles: true,
-        touches: [
-          new Touch({
-            clientX: 0,
-            clientY: 120,
-            identifier: 2,
-            target: grid,
-          }),
-        ],
-      })
-    );
+    triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 120, identifier: 2 });
     expect(mockCallback).toBeCalledTimes(1);
     // move up:; we are not at the top: ev prevented
-    grid.dispatchEvent(
-      new TouchEvent("touchmove", {
-        cancelable: true,
-        bubbles: true,
-        touches: [
-          new Touch({
-            clientX: 0,
-            clientY: 150,
-            identifier: 3,
-            target: grid,
-          }),
-        ],
-      })
-    );
+    triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 150, identifier: 3 });
     expect(mockCallback).toBeCalledTimes(1);
     // move up again but we are at the stop: ev not prevented
-    grid.dispatchEvent(
-      new TouchEvent("touchmove", {
-        cancelable: true,
-        bubbles: true,
-        touches: [
-          new Touch({
-            clientX: 0,
-            clientY: 150,
-            identifier: 4,
-            target: grid,
-          }),
-        ],
-      })
-    );
+    triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 150, identifier: 4 });
     expect(mockCallback).toBeCalledTimes(2);
   });
 
