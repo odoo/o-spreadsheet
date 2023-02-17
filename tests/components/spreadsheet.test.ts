@@ -113,7 +113,7 @@ describe("Simple Spreadsheet Component", () => {
   });
 
   test("typing opens composer after toolbar clicked", async () => {
-    await simulateClick(`div[title="Bold"]`);
+    await simulateClick(`div[title="Bold (Ctrl+B)"]`);
     expect(document.activeElement).not.toBeNull();
     document.activeElement?.dispatchEvent(new InputEvent("input", { data: "d", bubbles: true }));
     await nextTick();

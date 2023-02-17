@@ -166,8 +166,8 @@ describe("TopBar component", () => {
 
   test("undo/redo tools", async () => {
     const { model } = await mountParent();
-    const undoTool = fixture.querySelector('.o-tool[title="Undo"]')!;
-    const redoTool = fixture.querySelector('.o-tool[title="Redo"]')!;
+    const undoTool = fixture.querySelector('.o-tool[title="Undo (Ctrl+Z)"]')!;
+    const redoTool = fixture.querySelector('.o-tool[title="Redo (Ctrl+Y)"]')!;
 
     expect(undoTool.classList.contains("o-disabled")).toBeTruthy();
     expect(redoTool.classList.contains("o-disabled")).toBeTruthy();
