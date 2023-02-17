@@ -287,3 +287,67 @@ export async function dragElement(
 export function edgeScrollDelay(scrollDistance: Pixel, iterations: number) {
   return scrollDelay(Math.abs(Math.round(scrollDistance))) * (iterations + 1) - MIN_DELAY / 2;
 }
+
+/**
+ * The Touch API is defined in typescript ^3.7.7 and implemented in most major browsers, but isn't implemented in JSDOM.
+ * This implementation is used in test to easily trigger TouchEvents.
+ * (TouchEvent is supported by almost all major browsers.)
+ *
+ * https://developer.mozilla.org/en-US/docs/Web/API/Touch
+ */
+export class Touch {
+  readonly altitudeAngle: number;
+  readonly azimuthAngle: number;
+  readonly clientX: number;
+  readonly clientY: number;
+  readonly force: number;
+  readonly identifier: number;
+  readonly pageX: number;
+  readonly pageY: number;
+  readonly radiusX: number;
+  readonly radiusY: number;
+  readonly rotationAngle: number;
+  readonly screenX: number;
+  readonly screenY: number;
+  readonly target: EventTarget;
+  readonly touchType: TouchType;
+  constructor(touchInitDict: TouchInit) {
+    this.identifier = touchInitDict.identifier;
+    this.target = touchInitDict.target;
+    this.altitudeAngle = touchInitDict.altitudeAngle || 0;
+    this.azimuthAngle = touchInitDict.azimuthAngle || 0;
+    this.clientX = touchInitDict.clientX || 0;
+    this.clientY = touchInitDict.clientY || 0;
+    this.force = touchInitDict.force || 0;
+    this.pageX = touchInitDict.pageX || 0;
+    this.pageY = touchInitDict.pageY || 0;
+    this.radiusX = touchInitDict.radiusX || 0;
+    this.radiusY = touchInitDict.radiusY || 0;
+    this.rotationAngle = touchInitDict.rotationAngle || 0;
+    this.screenX = touchInitDict.screenX || 0;
+    this.screenY = touchInitDict.screenY || 0;
+    this.touchType = touchInitDict.touchType || "direct";
+  }
+}
+
+export function triggerTouchEvent(
+  selector: string | EventTarget,
+  type: "touchstart" | "touchend" | "touchmove",
+  extra: Partial<Touch>
+) {
+  const target = typeof selector === "string" ? document.querySelector(selector) : selector;
+  if (!target) throw new Error(`"${selector}" does not match any element.`);
+
+  const ev = new TouchEvent(type, {
+    cancelable: true,
+    bubbles: true,
+    touches: [
+      new Touch({
+        identifier: 1,
+        target: target,
+        ...extra,
+      }),
+    ],
+  });
+  target.dispatchEvent(ev);
+}

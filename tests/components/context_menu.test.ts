@@ -16,6 +16,7 @@ import {
   rightClickCell,
   simulateClick,
   triggerMouseEvent,
+  triggerTouchEvent,
 } from "../test_helpers/dom_helper";
 import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
 
@@ -25,7 +26,6 @@ import {
   mountComponent,
   mountSpreadsheet,
   nextTick,
-  Touch,
 } from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
@@ -364,35 +364,10 @@ describe("Context Menu integration tests", () => {
     const menu = fixture.querySelector(".o-menu")!;
 
     // start move at (310, 210) touch position
-    menu.dispatchEvent(
-      new TouchEvent("touchstart", {
-        bubbles: true,
-        cancelable: true,
-        touches: [
-          new Touch({
-            clientX: 310,
-            clientY: 210,
-            identifier: 1,
-            target: menu,
-          }),
-        ],
-      })
-    );
+    triggerTouchEvent(menu, "touchstart", { clientX: 310, clientY: 210, identifier: 1 });
+
     // move down;
-    menu.dispatchEvent(
-      new TouchEvent("touchmove", {
-        bubbles: true,
-        cancelable: true,
-        touches: [
-          new Touch({
-            clientX: 310,
-            clientY: 180,
-            identifier: 2,
-            target: menu,
-          }),
-        ],
-      })
-    );
+    triggerTouchEvent(menu, "touchstart", { clientX: 310, clientY: 180, identifier: 1 });
 
     await nextTick();
     // grid always at (0, 0) scroll position
