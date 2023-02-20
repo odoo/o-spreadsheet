@@ -2,6 +2,7 @@ import { compile } from "../../formulas/index";
 import { toNumber } from "../../functions/helpers";
 import { functionRegistry } from "../../functions/index";
 import { createEvaluatedCell, errorCell, evaluateLiteral } from "../../helpers/cells";
+import { Graph } from "../../helpers/graph";
 import {
   intersection,
   isZoneValid,
@@ -61,14 +62,15 @@ export class EvaluationPlugin extends UIPlugin {
     "getEvaluatedCellsInZone",
   ] as const;
 
-  private isUpToDate = false;
+  private shouldRebuildDependenciesGraph = true;
+  private shouldRecomputeCellsEvaluation = true;
   private readonly evalContext: EvalContext;
 
   private evaluatedCells: PositionDict<EvaluatedCell> = {};
   private nextXcsToUpdate: Set<string> = new Set<string>();
   private currentXcsToUpdate: Set<string> = new Set<string>();
 
-  private formulaDependencies: PositionDict<Set<string>> = {};
+  private formulaDependencies = new Graph();
 
   private maxCycle = 1;
 
@@ -83,47 +85,48 @@ export class EvaluationPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     if (invalidateEvaluationCommands.has(cmd.type)) {
-      this.isUpToDate = false;
+      this.shouldRecomputeCellsEvaluation = true;
+      this.shouldRebuildDependenciesGraph = true;
     }
     switch (cmd.type) {
       case "UPDATE_CELL":
         if ("content" in cmd || "format" in cmd) {
           const position = { sheetId: cmd.sheetId, col: cmd.col, row: cmd.row };
           const targetedXC = this.cellPositionToXc(position);
-          this.updateFormulaDependencies(targetedXC);
-          this.fillUpdateList(targetedXC);
+          this.updateFormulaDependencies(targetedXC, false);
+          this.findCellsToCompute(targetedXC);
         }
         break;
 
       case "EVALUATE_CELLS":
-        this.isUpToDate = false;
+        this.shouldRecomputeCellsEvaluation = true;
         break;
     }
   }
 
   finalize() {
-    if (!this.isUpToDate) {
+    if (this.shouldRecomputeCellsEvaluation) {
       this.nextXcsToUpdate = new Set(
         Array.from(this.getAllCells()).map((c) =>
           this.cellPositionToXc(this.getters.getCellPosition(c.id))
         )
       );
-      for (const xc of this.nextXcsToUpdate) {
-        this.updateFormulaDependencies(xc);
+      if (this.shouldRebuildDependenciesGraph) {
+        this.formulaDependencies = new Graph();
+        for (const xc of this.nextXcsToUpdate) {
+          this.updateFormulaDependencies(xc, true);
+        }
+        this.shouldRebuildDependenciesGraph = false;
       }
-      this.isUpToDate = true;
+      this.shouldRecomputeCellsEvaluation = false;
     }
     this.evaluate();
     this.nextXcsToUpdate.clear();
   }
 
-  private fillUpdateList(xc: string) {
-    if (!this.nextXcsToUpdate.has(xc)) {
-      this.nextXcsToUpdate.add(xc);
-      for (const reference of this.formulaDependencies[xc] || []) {
-        this.fillUpdateList(reference);
-      }
-    }
+  private findCellsToCompute(mainXC: string) {
+    this.nextXcsToUpdate.add(mainXC);
+    this.formulaDependencies.depthFirstSearch(mainXC, (xc: string) => this.nextXcsToUpdate.add(xc));
   }
 
   private cellPositionToXc(position: CellPosition): string {
@@ -231,7 +234,7 @@ export class EvaluationPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
   // Evaluator
   // ---------------------------------------------------------------------------
-  private updateFormulaDependencies = (thisXC: string) => {
+  private updateFormulaDependencies = (thisXC: string, graphCreation: boolean) => {
     const cell = this.XcToCell(thisXC);
     const newDependencies: string[] = [];
     if (cell !== undefined && cell.isFormula) {
@@ -248,19 +251,22 @@ export class EvaluationPlugin extends UIPlugin {
       }
     }
 
-    for (const dependencie of Object.keys(this.formulaDependencies)) {
-      if (this.formulaDependencies[dependencie].has(thisXC)) {
-        if (!newDependencies.includes(dependencie)) {
-          this.formulaDependencies[dependencie].delete(thisXC);
+    /**
+     * If we are not creating the graph, we need to remove the old dependencies
+     * from the graph. But if we are creating the graph, we don't need to do it
+     * because we are creating the graph from scratch. Not doing it increase
+     * notably the performance of the graph creation.
+     */
+    if (!graphCreation) {
+      for (const dependency of this.formulaDependencies.nodes.keys()) {
+        if (!newDependencies.includes(dependency)) {
+          this.formulaDependencies.removeEdge(dependency, thisXC);
         }
       }
     }
 
-    for (const dependencie of newDependencies) {
-      if (!(dependencie in this.formulaDependencies)) {
-        this.formulaDependencies[dependencie] = new Set<string>();
-      }
-      this.formulaDependencies[dependencie].add(thisXC);
+    for (const dependency of newDependencies) {
+      this.formulaDependencies.addEdge(dependency, thisXC);
     }
   };
 
