@@ -888,7 +888,7 @@ describe("Change selection to next clusters", () => {
     ["C16", "C16", "up", ["C14:C16", "C13:C16", "C11:C16", "B2:D16", "B1:D16"]],
     ["F16", "F16", "up", ["F1:F16"]],
     ["B13", "B13:D15", "up", ["B13:D14", "B13:D13"]],
-    // ["D13", "B13:D15", "up", ["B13:D13"]], //TODO
+    ["D13", "B13:D15", "up", ["B13:D13"]],
     ["A1", "A1", "up", ["A1", "A1"]],
   ])(
     "Alter selection vertically",
