@@ -1,6 +1,6 @@
 import { transformZone } from "../../collaborative/ot/ot_helpers";
 import { chartRegistry } from "../../registries/chart_types";
-import { _t } from "../../translation";
+import { _lt, _t } from "../../translation";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -47,7 +47,7 @@ chartRegistry.add("scorecard", {
   ) => ScorecardChart.transformDefinition(definition, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     ScorecardChart.getDefinitionFromContextCreation(context),
-  name: "Scorecard",
+  name: _lt("Scorecard"),
 });
 
 function checkKeyValue(definition: ScorecardChartDefinition): CommandResult {

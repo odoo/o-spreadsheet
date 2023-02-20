@@ -1,6 +1,7 @@
 import { ChartConfiguration, ChartDataSets, ChartLegendOptions } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../constants";
 import { chartRegistry } from "../../registries/chart_types";
+import { _lt } from "../../translation";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -56,7 +57,7 @@ chartRegistry.add("bar", {
   ) => BarChart.transformDefinition(definition, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     BarChart.getDefinitionFromContextCreation(context),
-  name: "Bar",
+  name: _lt("Bar"),
 });
 
 export class BarChart extends AbstractChart {

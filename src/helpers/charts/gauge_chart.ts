@@ -6,6 +6,7 @@ import {
 } from "../../constants";
 import { BasePlugin } from "../../plugins/base_plugin";
 import { chartRegistry } from "../../registries/chart_types";
+import { _lt } from "../../translation";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -49,7 +50,7 @@ chartRegistry.add("gauge", {
   ) => GaugeChart.transformDefinition(definition, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     GaugeChart.getDefinitionFromContextCreation(context),
-  name: "Gauge",
+  name: _lt("Gauge"),
 });
 
 type RangeLimitsValidation = (rangeLimit: string, rangeLimitName: string) => CommandResult;

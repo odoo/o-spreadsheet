@@ -7,6 +7,7 @@ import {
 } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../constants";
 import { chartRegistry } from "../../registries/chart_types";
+import { _lt } from "../../translation";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -62,7 +63,7 @@ chartRegistry.add("pie", {
   ) => PieChart.transformDefinition(definition, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     PieChart.getDefinitionFromContextCreation(context),
-  name: "Pie",
+  name: _lt("Pie"),
 });
 
 export class PieChart extends AbstractChart {
