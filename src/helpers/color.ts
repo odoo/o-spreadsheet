@@ -1,6 +1,9 @@
 import { Color, HSLA, RGBA } from "../types";
 import { concat } from "./misc";
 
+const RBA_REGEX = /rgba?\(|\s+|\)/gi;
+const HEX_MATCH = /^#([A-F\d]{2}){3,4}$/g;
+
 export const colors = [
   "#eb6d00",
   "#0074d9",
@@ -28,7 +31,10 @@ export function colorNumberString(color: number): Color {
 
 /**
  * Converts any CSS color value to a standardized hex6 value.
- * Accepts: hex3, hex6, hex8 and rgb (rgba is not supported)
+ * Accepts: hex3, hex6, hex8, rgb[1] and rgba[1].
+ *
+ * [1] under the form rgb(r, g, b, a?) or rgba(r, g, b, a?)
+ * with r,g,b ∈ [0, 255] and a ∈ [0, 1]
  *
  * toHex("#ABC")
  * >> "#AABBCC"
@@ -39,30 +45,31 @@ export function colorNumberString(color: number): Color {
  * toHex("rgb(30, 80, 16)")
  * >> "#1E5010"
  *
+ *  * toHex("rgb(30, 80, 16, 0.5)")
+ * >> "#1E501080"
+ *
  */
 export function toHex(color: Color): Color {
-  if (color.includes("rgba")) {
-    throw new Error(`rgba() conversion currently not supported: ${color}`);
+  let hexColor = color;
+  if (color.startsWith("rgb")) {
+    hexColor = rgbaStringToHex(color);
+  } else {
+    hexColor = color.replace("#", "").toUpperCase();
+    if (hexColor.length === 3 || hexColor.length === 4) {
+      hexColor = hexColor.split("").reduce((acc, h) => acc + h + h, "");
+    }
+    hexColor = `#${hexColor}`;
   }
-  if (color.includes("rgb")) {
-    return rgbToHex6(color);
+  if (!hexColor.match(HEX_MATCH)) {
+    throw new Error(`invalid color input: ${color}`);
   }
-  color = color.replace("#", "").toUpperCase();
-  if (color.length === 3 || color.length === 4) {
-    color = color.split("").reduce((acc, h) => acc + h + h, "");
-  }
-  if (color.replace(/[a-f0-9]/gi, "") !== "") {
-    throw new Error("invalid color");
-  }
-  return "#" + color;
+  return hexColor;
 }
 
 export function isColorValid(color: Color): boolean {
   try {
-    const { r, g, b, a } = colorToRGBA(color);
-    return (
-      isColorValueValid(r) && isColorValueValid(g) && isColorValueValid(b) && isColorValueValid(a)
-    );
+    toHex(color);
+    return true;
   } catch (error) {
     return false;
   }
@@ -99,19 +106,28 @@ export function relativeLuminance(color: Color): number {
 /**
  * Convert a CSS rgb color string to a standardized hex6 color value.
  *
- * rgbToHex6("rgb(30, 80, 16)")
+ * rgbaStringToHex("rgb(30, 80, 16)")
  * >> "#1E5010"
+ *
+ * rgbaStringToHex("rgba(30, 80, 16, 0.5)")
+ * >> "#1E501080"
+ *
+ * DOES NOT SUPPORT NON INTEGER RGB VALUES
  */
-function rgbToHex6(color: Color): Color {
-  return (
-    "#" +
-    concat(
-      color
-        .slice(4, -1)
-        .split(",")
-        .map((valueString) => parseInt(valueString, 10).toString(16).padStart(2, "0"))
-    ).toUpperCase()
-  );
+function rgbaStringToHex(color: Color): Color {
+  const stringVals = color.replace(RBA_REGEX, "").split(",");
+  let alphaHex: number = 255;
+  if (stringVals.length !== 3 && stringVals.length !== 4) {
+    throw new Error("invalid color");
+  } else if (stringVals.length === 4) {
+    const alpha = parseFloat(stringVals.pop() || "1");
+    alphaHex = Math.round((alpha || 1) * 255);
+  }
+  const vals = stringVals.map((val) => parseInt(val, 10));
+  if (alphaHex !== 255) {
+    vals.push(alphaHex);
+  }
+  return "#" + concat(vals.map((value) => value.toString(16).padStart(2, "0"))).toUpperCase();
 }
 
 /**
@@ -131,7 +147,7 @@ export function rgbaToHex(rgba: RGBA): Color {
   if (a.length == 1) a = "0" + a;
   if (a === "ff") a = "";
 
-  return "#" + r + g + b + a;
+  return ("#" + r + g + b + a).toUpperCase();
 }
 
 /**
@@ -256,4 +272,8 @@ export function rgbaToHSLA(rgba: RGBA): HSLA {
   l = +(l * 100).toFixed(1);
 
   return { a: rgba.a, h, s, l };
+}
+
+export function isSameColor(color1: Color, color2: Color): boolean {
+  return isColorValid(color1) && isColorValid(color2) && toHex(color1) === toHex(color2);
 }
