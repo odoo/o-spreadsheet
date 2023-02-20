@@ -52,15 +52,23 @@ const testColors: { input: Color; hex: Color; rgba: RGBA; hsla: HSLA }[] = [
     rgba: { a: 1, r: 30, g: 80, b: 16 },
     hsla: { a: 1, h: 107, s: 66.67, l: 18.8 },
   },
+  {
+    input: "rgb(30, 80, 16, 0.5)",
+    hex: "#1E501080",
+    rgba: { a: 0.502, r: 30, g: 80, b: 16 },
+    hsla: { a: 0.502, h: 107, s: 66.67, l: 18.8 },
+  },
+  {
+    input: "rgba(30, 80, 16, 0.5)",
+    hex: "#1E501080",
+    rgba: { a: 0.502, r: 30, g: 80, b: 16 },
+    hsla: { a: 0.502, h: 107, s: 66.67, l: 18.8 },
+  },
 ];
 
 describe("toHex", () => {
   test.each(testColors)("toHex() %s", ({ input, hex }) => {
-    expect(toHex(input)).toBe(hex);
-  });
-
-  test("toHex with rgba string representation", () => {
-    expect(() => toHex("rgba(30, 80, 16, 0.2)")).toThrow();
+    expect(toHex(input)).toBeSameColorAs(hex);
   });
 });
 
@@ -72,7 +80,7 @@ describe("colorToRGBA", () => {
 
 describe("rgbaToHex", () => {
   test.each(testColors)("basic functionality", ({ rgba, hex }) => {
-    expect(rgbaToHex(rgba).toLowerCase()).toEqual(hex.toLowerCase());
+    expect(rgbaToHex(rgba)).toBeSameColorAs(hex);
   });
 });
 

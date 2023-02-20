@@ -1,5 +1,4 @@
 import { Model } from "../../src";
-import { toHex } from "../../src/helpers";
 import { UID } from "../../src/types";
 import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
 import {
@@ -166,10 +165,9 @@ describe("Scorecard charts", () => {
       { keyValue: "A1", baseline: "B1", baselineMode: "text" },
       chartId
     );
-
     expect(getChartElement()).toBeTruthy();
     expect(getChartBaselineTextContent()).toEqual("1");
-    expect(toHex(getChartBaselineTextElement()!.style["color"])).toEqual("#525252");
+    expect(getChartBaselineTextElement()!.style["color"]).toBeSameColorAs("#525252");
   });
 
   test("Key < baseline display in red with down arrow", async () => {
@@ -177,7 +175,7 @@ describe("Scorecard charts", () => {
 
     const baselineElement = getChartBaselineElement();
     expect(baselineElement.querySelector("svg.arrow-down")).toBeTruthy();
-    expect(toHex(baselineElement.querySelector("span")!.style["color"])).toEqual("#DC6965");
+    expect(baselineElement.querySelector("span")!.style["color"]).toBeSameColorAs("#DC6965");
     expect(getChartBaselineTextContent()).toEqual("1");
   });
 
@@ -186,7 +184,7 @@ describe("Scorecard charts", () => {
 
     const baselineElement = getChartBaselineElement();
     expect(baselineElement.querySelector("svg.arrow-up")).toBeTruthy();
-    expect(toHex(baselineElement.querySelector("span")!.style["color"])).toEqual("#00A04A");
+    expect(baselineElement.querySelector("span")!.style["color"]).toBeSameColorAs("#00A04A");
     expect(getChartBaselineTextContent()).toEqual("1");
   });
 
@@ -195,7 +193,7 @@ describe("Scorecard charts", () => {
 
     const baselineElement = getChartBaselineElement();
     expect(baselineElement.querySelector("svg")).toBeFalsy();
-    expect(toHex(baselineElement.querySelector("span")!.style["color"])).toEqual("#525252");
+    expect(baselineElement.querySelector("span")!.style["color"]).toBeSameColorAs("#525252");
     expect(getChartBaselineTextContent()).toEqual("0");
   });
 
@@ -274,7 +272,7 @@ describe("Scorecard charts", () => {
       const style = el!.style;
       expect(style["font-style"]).toEqual("italic");
       expect(style["font-weight"]).toEqual("bold");
-      expect(toHex(style["color"])).toEqual("#FF0000");
+      expect(style["color"]).toBeSameColorAs("#FF0000");
       expect(style["text-decoration"]).toEqual("line-through underline");
     }
   });
@@ -308,10 +306,10 @@ describe("Scorecard charts", () => {
       chartId
     );
 
-    expect(toHex(getChartTitleElement()!.style["color"])).toEqual("#C8C8C8");
-    expect(toHex(getChartBaselineTextElement()!.style["color"])).toEqual("#C8C8C8");
-    expect(toHex(getChartBaselineDescrElement()!.style["color"])).toEqual("#C8C8C8");
-    expect(toHex(getChartKeyElement()!.style["color"])).toEqual("#FFFFFF");
+    expect(getChartTitleElement()!.style["color"]).toBeSameColorAs("#C8C8C8");
+    expect(getChartBaselineTextElement()!.style["color"]).toBeSameColorAs("#C8C8C8");
+    expect(getChartBaselineDescrElement()!.style["color"]).toBeSameColorAs("#C8C8C8");
+    expect(getChartKeyElement()!.style["color"]).toBeSameColorAs("#FFFFFF");
   });
 
   test("Increasing size of the chart scale up the font sizes", async () => {

@@ -26,22 +26,22 @@ describe("custom colors are correctly handled when formatting cells", () => {
   });
 
   test("Removing style to cell keep custom colors in the plugin", () => {
-    setStyle(model, "A1", { fillColor: "#123456", textColor: "#2468bd" });
-    expect(model.getters.getCustomColors()).toEqual(["#2468bd", "#123456"]);
+    setStyle(model, "A1", { fillColor: "#123456", textColor: "#2468BD" });
+    expect(model.getters.getCustomColors()).toEqual(["#2468BD", "#123456"]);
     model.dispatch("CLEAR_FORMATTING", {
       sheetId,
       target: target("A1"),
     });
-    expect(model.getters.getCustomColors()).toEqual(["#2468bd", "#123456"]);
+    expect(model.getters.getCustomColors()).toEqual(["#2468BD", "#123456"]);
   });
 
   test("Adding conditional formatting add custom colors in the plugin", () => {
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("1", { fillColor: "#123456", textColor: "#2468bd" }, "1"),
+      cf: createEqualCF("1", { fillColor: "#123456", textColor: "#2468BD" }, "1"),
       sheetId,
       ranges: toRangesData(sheetId, "A1:A3,C1:D3,F1:F3"),
     });
-    expect(model.getters.getCustomColors()).toEqual(["#2468bd", "#123456"]);
+    expect(model.getters.getCustomColors()).toEqual(["#2468BD", "#123456"]);
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createColorScale(
         "2",
@@ -51,13 +51,13 @@ describe("custom colors are correctly handled when formatting cells", () => {
       ranges: toRangesData(sheetId, "B1:B5"),
       sheetId,
     });
-    expect(model.getters.getCustomColors()).toEqual(["#2468bd", "#f500ff", "#123456"]);
+    expect(model.getters.getCustomColors()).toEqual(["#2468BD", "#F500FF", "#123456"]);
   });
 
   test("Non-HEX6 lowercase colors are correctly converted", () => {
     expect(model.getters.getCustomColors()).toEqual([]);
     setStyle(model, "A1", { fillColor: "#123", textColor: "#F0F000" });
-    expect(model.getters.getCustomColors()).toEqual(["#f0f000", "#112233"]);
+    expect(model.getters.getCustomColors()).toEqual(["#F0F000", "#112233"]);
   });
 
   test("duplicated colors on cells only appears once", () => {
@@ -124,7 +124,7 @@ describe("custom colors are correctly handled when editing charts", () => {
           colors: {
             lowerColor: "#112233",
             middleColor: "#123456",
-            upperColor: "#2468bd",
+            upperColor: "#2468BD",
           },
           lowerInflectionPoint: {
             type: "number" as const,
@@ -137,7 +137,7 @@ describe("custom colors are correctly handled when editing charts", () => {
         },
       },
     });
-    expect(model.getters.getCustomColors()).toEqual(["#2468bd", "#112233", "#123456"]);
+    expect(model.getters.getCustomColors()).toEqual(["#2468BD", "#112233", "#123456"]);
   });
 
   test("Scorecard colors are taken into account", () => {
