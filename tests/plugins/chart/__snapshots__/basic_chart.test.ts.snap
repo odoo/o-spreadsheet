@@ -7,7 +7,7 @@ Object {
     "data": Object {
       "datasets": Array [
         Object {
-          "backgroundColor": "#1f77b4",
+          "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
           "data": Array [
             Object {
@@ -125,7 +125,7 @@ Object {
     "data": Object {
       "datasets": Array [
         Object {
-          "backgroundColor": "#1f77b4",
+          "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
           "data": Array [
             Object {
@@ -249,7 +249,7 @@ Object {
     "data": Object {
       "datasets": Array [
         Object {
-          "backgroundColor": "#1f77b4",
+          "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
           "data": Array [
             Object {
@@ -462,7 +462,7 @@ Object {
     "data": Object {
       "datasets": Array [
         Object {
-          "backgroundColor": "#1f77b4",
+          "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
           "data": Array [
             30,
@@ -559,7 +559,7 @@ Object {
     "data": Object {
       "datasets": Array [
         Object {
-          "backgroundColor": "#1f77b4",
+          "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
           "data": Array [
             10,
@@ -572,7 +572,7 @@ Object {
           "pointBackgroundColor": "rgb(31,119,180)",
         },
         Object {
-          "backgroundColor": "#ff7f0e",
+          "backgroundColor": "#FF7F0E",
           "borderColor": "rgb(255,127,14)",
           "data": Array [
             20,
@@ -673,7 +673,7 @@ Object {
     "data": Object {
       "datasets": Array [
         Object {
-          "backgroundColor": "#1f77b4",
+          "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
           "data": Array [
             10,
@@ -686,7 +686,7 @@ Object {
           "pointBackgroundColor": "rgb(31,119,180)",
         },
         Object {
-          "backgroundColor": "#ff7f0e",
+          "backgroundColor": "#FF7F0E",
           "borderColor": "rgb(255,127,14)",
           "data": Array [
             20,
@@ -874,7 +874,7 @@ Object {
     "data": Object {
       "datasets": Array [
         Object {
-          "backgroundColor": "#1f77b4",
+          "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
           "data": Array [
             10,
@@ -887,7 +887,7 @@ Object {
           "pointBackgroundColor": "rgb(31,119,180)",
         },
         Object {
-          "backgroundColor": "#ff7f0e",
+          "backgroundColor": "#FF7F0E",
           "borderColor": "rgb(255,127,14)",
           "data": Array [
             20,
@@ -988,7 +988,7 @@ Object {
     "data": Object {
       "datasets": Array [
         Object {
-          "backgroundColor": "#1f77b4",
+          "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
           "data": Array [
             30,
@@ -1001,7 +1001,7 @@ Object {
           "pointBackgroundColor": "rgb(31,119,180)",
         },
         Object {
-          "backgroundColor": "#ff7f0e",
+          "backgroundColor": "#FF7F0E",
           "borderColor": "rgb(255,127,14)",
           "data": Array [
             40,
@@ -1102,7 +1102,7 @@ Object {
     "data": Object {
       "datasets": Array [
         Object {
-          "backgroundColor": "#1f77b4",
+          "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
           "data": Array [
             30,
@@ -1115,7 +1115,7 @@ Object {
           "pointBackgroundColor": "rgb(31,119,180)",
         },
         Object {
-          "backgroundColor": "#ff7f0e",
+          "backgroundColor": "#FF7F0E",
           "borderColor": "rgb(255,127,14)",
           "data": Array [
             40,
