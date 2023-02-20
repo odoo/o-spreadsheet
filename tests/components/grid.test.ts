@@ -1380,9 +1380,9 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     // Without background color, elements could be displayed above the scrollbars placeholders
     const getColor = (selector: string) => toHex(getElComputedStyle(selector, "background"));
 
-    expect(getColor(".o-scrollbar.corner")).toEqual(toHex(BACKGROUND_GRAY_COLOR));
-    expect(getColor(".o-scrollbar.horizontal")).toEqual(toHex(BACKGROUND_GRAY_COLOR));
-    expect(getColor(".o-scrollbar.vertical")).toEqual(toHex(BACKGROUND_GRAY_COLOR));
+    expect(getColor(".o-scrollbar.corner")).toBeSameColorAs(BACKGROUND_GRAY_COLOR);
+    expect(getColor(".o-scrollbar.horizontal")).toBeSameColorAs(BACKGROUND_GRAY_COLOR);
+    expect(getColor(".o-scrollbar.vertical")).toBeSameColorAs(BACKGROUND_GRAY_COLOR);
   });
 });
 

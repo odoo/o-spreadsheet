@@ -85,9 +85,9 @@ describe("UI of conditional formats", () => {
       maxType: ".o-threshold-maximum > select",
       maxValue: ".o-threshold-maximum .o-threshold-value",
 
-      colorPickerBlue: ".o-color-picker div[data-color='#0000ff']",
-      colorPickerOrange: ".o-color-picker div[data-color='#ff9900']",
-      colorPickerYellow: ".o-color-picker div[data-color='#ffff00']",
+      colorPickerBlue: ".o-color-picker div[data-color='#0000FF']",
+      colorPickerOrange: ".o-color-picker div[data-color='#FF9900']",
+      colorPickerYellow: ".o-color-picker div[data-color='#FFFF00']",
     },
     cfReorder: {
       buttonUp: ".o-cf-reorder-button-up",

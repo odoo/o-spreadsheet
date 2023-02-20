@@ -1,4 +1,5 @@
 import { Model } from "../../src";
+import { isSameColor } from "../../src/helpers/color";
 import { CancelledReason, DispatchResult } from "../../src/types";
 
 declare global {
@@ -22,6 +23,7 @@ declare global {
       toBeCancelledBecause(...expected: CancelledReason[]): R;
       toBeSuccessfullyDispatched(): R;
       toBeBetween(lower: number, upper: number): R;
+      toBeSameColorAs(expected: string): R;
     }
   }
 }
@@ -130,5 +132,13 @@ CancelledReasons: ${this.utils.printReceived(dispatchResult.reasons)}
       };
     }
     return { pass: true, message: () => "" };
+  },
+  toBeSameColorAs(received: string, expected: string) {
+    const pass = isSameColor(received, expected); //
+    const message = () => (pass ? "" : `Expected ${received} to be equivalent to ${expected}`);
+    return {
+      pass,
+      message,
+    };
   },
 });
