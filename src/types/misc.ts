@@ -13,7 +13,7 @@ import { Range } from "./range";
  * Intellisense from resolving it.
  * See https://github.com/microsoft/TypeScript/issues/31940#issuecomment-841712377
  */
-export type Alias = {};
+export type Alias = {} & {};
 
 // Col/row Index
 export type HeaderIndex = number & Alias;
