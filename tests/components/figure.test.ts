@@ -1,14 +1,12 @@
 import { Component, xml } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../src";
-import { ChartJsComponent } from "../../src/components/figures/chart/chartJs/chartjs";
-import { ScorecardChart } from "../../src/components/figures/chart/scorecard/chart_scorecard";
 import {
   FIGURE_BORDER_COLOR,
   MENU_WIDTH,
   MIN_FIG_SIZE,
   SELECTION_BORDER_COLOR,
 } from "../../src/constants";
-import { chartComponentRegistry, figureRegistry } from "../../src/registries";
+import { figureRegistry } from "../../src/registries";
 import { CreateFigureCommand, Figure, SpreadsheetChildEnv, UID } from "../../src/types";
 
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
@@ -104,12 +102,6 @@ mockGetBoundingClientRect({
 
 beforeAll(() => {
   figureRegistry.add("text", { Component: TextFigure });
-  // TODO : remove this once #1861 is merged
-  chartComponentRegistry.add("line", ChartJsComponent);
-  chartComponentRegistry.add("bar", ChartJsComponent);
-  chartComponentRegistry.add("pie", ChartJsComponent);
-  chartComponentRegistry.add("gauge", ChartJsComponent);
-  chartComponentRegistry.add("scorecard", ScorecardChart);
 });
 afterAll(() => {
   figureRegistry.remove("text");
