@@ -1,4 +1,4 @@
-import { ExcelChartDefinition } from "../../types";
+import { ExcelChartDefinition, ExcelFigureSize } from "../../types";
 import { ExcelImage } from "../../types/image";
 import { XLSXFigure, XLSXFigureAnchor } from "../../types/xlsx";
 import { IMAGE_EXTENSION_TO_MIMETYPE_MAPPING } from "../conversion";
@@ -6,15 +6,16 @@ import { removeTagEscapedNamespaces } from "../helpers/xml_helpers";
 import { XlsxBaseExtractor } from "./base_extractor";
 import { XlsxChartExtractor } from "./chart_extractor";
 
+const ONE_CELL_ANCHOR = "oneCellAnchor";
+const TWO_CELL_ANCHOR = "twoCellAnchor";
+
 export class XlsxFigureExtractor extends XlsxBaseExtractor {
   extractFigures(): XLSXFigure[] {
     return this.mapOnElements(
       { parent: this.rootFile.file.xml, query: "xdr:wsDr", children: true },
       (figureElement): XLSXFigure => {
         const anchorType = removeTagEscapedNamespaces(figureElement.tagName);
-        if (anchorType !== "twoCellAnchor") {
-          throw new Error("Only twoCellAnchor are supported for xlsx drawings.");
-        }
+        const anchors = this.extractFigureAnchorsByType(figureElement, anchorType);
 
         const chartElement = this.querySelector(figureElement, "c:chart");
         const imageElement = this.querySelector(figureElement, "a:blip");
@@ -23,14 +24,43 @@ export class XlsxFigureExtractor extends XlsxBaseExtractor {
         }
 
         return {
-          anchors: [
-            this.extractFigureAnchor("xdr:from", figureElement),
-            this.extractFigureAnchor("xdr:to", figureElement),
-          ],
+          anchors,
           data: chartElement ? this.extractChart(chartElement) : this.extractImage(figureElement),
+          figureSize:
+            anchorType === ONE_CELL_ANCHOR
+              ? this.extractFigureSizeFromSizeTag(figureElement, "xdr:ext")
+              : undefined,
         };
       }
     );
+  }
+
+  private extractFigureAnchorsByType(
+    figureElement: Element,
+    anchorType: string
+  ): XLSXFigureAnchor[] {
+    switch (anchorType) {
+      case ONE_CELL_ANCHOR:
+        return [this.extractFigureAnchor("xdr:from", figureElement)];
+      case TWO_CELL_ANCHOR:
+        return [
+          this.extractFigureAnchor("xdr:from", figureElement),
+          this.extractFigureAnchor("xdr:to", figureElement),
+        ];
+      default:
+        throw new Error(`${anchorType} is not supported for xlsx drawings. `);
+    }
+  }
+
+  private extractFigureSizeFromSizeTag(figureElement: Element, sizeTag: string): ExcelFigureSize {
+    const sizeElement = this.querySelector(figureElement, sizeTag);
+    if (!sizeElement) {
+      throw new Error(`Missing size element '${sizeTag}'`);
+    }
+    return {
+      cx: this.extractAttr(sizeElement, "cx", { required: true })!.asNum(),
+      cy: this.extractAttr(sizeElement, "cy", { required: true })!.asNum(),
+    };
   }
 
   private extractFigureAnchor(anchorTag: string, figureElement: Element): XLSXFigureAnchor {
@@ -71,16 +101,17 @@ export class XlsxFigureExtractor extends XlsxBaseExtractor {
       throw new Error("Unable to extract image");
     }
 
-    const shapePropertyElement = this.querySelector(figureElement, "a:xfrm")!;
     const extension = image.fileName.split(".").at(-1);
+    const anchorType = removeTagEscapedNamespaces(figureElement.tagName);
+    const sizeElement =
+      anchorType === TWO_CELL_ANCHOR ? this.querySelector(figureElement, "a:xfrm")! : figureElement;
+    const sizeTag = anchorType === TWO_CELL_ANCHOR ? "a:ext" : "xdr:ext";
+    const size = this.extractFigureSizeFromSizeTag(sizeElement, sizeTag);
 
     return {
       imageSrc: image.imageSrc,
       mimetype: extension ? IMAGE_EXTENSION_TO_MIMETYPE_MAPPING[extension] : undefined,
-      size: {
-        cx: this.extractChildAttr(shapePropertyElement, "a:ext", "cx", { required: true })!.asNum(),
-        cy: this.extractChildAttr(shapePropertyElement, "a:ext", "cy", { required: true })!.asNum(),
-      },
+      size,
     };
   }
 }

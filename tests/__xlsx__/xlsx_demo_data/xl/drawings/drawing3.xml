@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xdr:wsDr
+  xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"
+  xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+  xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart"
+  xmlns:cx="http://schemas.microsoft.com/office/drawing/2014/chartex"
+  xmlns:cx1="http://schemas.microsoft.com/office/drawing/2015/9/8/chartex"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:dgm="http://schemas.openxmlformats.org/drawingml/2006/diagram"
+  xmlns:x3Unk="http://schemas.microsoft.com/office/drawing/2010/slicer"
+  xmlns:sle15="http://schemas.microsoft.com/office/drawing/2012/slicer">
+  <xdr:oneCellAnchor>
+    <xdr:from>
+      <xdr:col>0</xdr:col>
+      <xdr:colOff>0</xdr:colOff>
+      <xdr:row>0</xdr:row>
+      <xdr:rowOff>0</xdr:rowOff>
+    </xdr:from>
+    <xdr:ext cx="5657850" cy="3495675"/>
+    <xdr:graphicFrame>
+      <xdr:nvGraphicFramePr>
+        <xdr:cNvPr id="5" name="Chart 5" title="Chart"/>
+        <xdr:cNvGraphicFramePr/>
+      </xdr:nvGraphicFramePr>
+      <xdr:xfrm>
+        <a:off x="0" y="0"/>
+        <a:ext cx="0" cy="0"/>
+      </xdr:xfrm>
+      <a:graphic>
+        <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/chart">
+          <c:chart r:id="rId1"/>
+        </a:graphicData>
+      </a:graphic>
+    </xdr:graphicFrame>
+    <xdr:clientData fLocksWithSheet="0"/>
+  </xdr:oneCellAnchor>
+  <xdr:oneCellAnchor>
+    <xdr:from>
+      <xdr:col>7</xdr:col>
+      <xdr:colOff>57150</xdr:colOff>
+      <xdr:row>0</xdr:row>
+      <xdr:rowOff>0</xdr:rowOff>
+    </xdr:from>
+    <xdr:ext cx="3733800" cy="3733800"/>
+    <xdr:pic>
+      <xdr:nvPicPr>
+        <xdr:cNvPr id="0" name="image2.png" title="Image"/>
+        <xdr:cNvPicPr preferRelativeResize="0"/>
+      </xdr:nvPicPr>
+      <xdr:blipFill>
+        <a:blip cstate="print" r:embed="rId2"/>
+        <a:stretch>
+          <a:fillRect/>
+        </a:stretch>
+      </xdr:blipFill>
+      <xdr:spPr>
+        <a:prstGeom prst="rect">
+          <a:avLst/>
+        </a:prstGeom>
+        <a:noFill/>
+      </xdr:spPr>
+    </xdr:pic>
+    <xdr:clientData fLocksWithSheet="0"/>
+  </xdr:oneCellAnchor>
+</xdr:wsDr>

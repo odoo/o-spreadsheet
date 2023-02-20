@@ -14,4 +14,9 @@ export interface FigureSize {
   height: Pixel;
 }
 
+export interface ExcelFigureSize {
+  cx: number;
+  cy: number;
+}
+
 export type ResizeDirection = -1 | 0 | 1;

@@ -1,5 +1,6 @@
 import { Alias, ExcelChartDefinition, Format, PaneDivision } from ".";
 import { ExcelImage } from "../types/image";
+import { ExcelFigureSize } from "./figure";
 
 /**
  * Most of the times we tried to create Objects that matched quite closely with the data in the XLSX files.
@@ -520,6 +521,7 @@ export interface XLSXFigureSize {
 export interface XLSXFigure {
   anchors: XLSXFigureAnchor[];
   data: ExcelChartDefinition | ExcelImage;
+  figureSize?: ExcelFigureSize;
 }
 
 export const XLSX_CHART_TYPES = [
