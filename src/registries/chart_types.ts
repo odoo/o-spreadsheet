@@ -10,6 +10,7 @@ import {
   createScorecardChartRuntime,
   ScorecardChart,
 } from "../helpers/figures/charts/scorecard_chart";
+import { _lt } from "../translation";
 import {
   AddColumnsRowsCommand,
   CommandResult,
@@ -78,7 +79,7 @@ chartRegistry.add("bar", {
   ) => BarChart.transformDefinition(definition, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     BarChart.getDefinitionFromContextCreation(context),
-  name: "Bar",
+  name: _lt("Bar"),
 });
 chartRegistry.add("line", {
   match: (type) => type === "line",
@@ -93,7 +94,7 @@ chartRegistry.add("line", {
   ) => LineChart.transformDefinition(definition, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     LineChart.getDefinitionFromContextCreation(context),
-  name: "Line",
+  name: _lt("Line"),
 });
 chartRegistry.add("pie", {
   match: (type) => type === "pie",
@@ -108,7 +109,7 @@ chartRegistry.add("pie", {
   ) => PieChart.transformDefinition(definition, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     PieChart.getDefinitionFromContextCreation(context),
-  name: "Pie",
+  name: _lt("Pie"),
 });
 chartRegistry.add("scorecard", {
   match: (type) => type === "scorecard",
@@ -123,7 +124,7 @@ chartRegistry.add("scorecard", {
   ) => ScorecardChart.transformDefinition(definition, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     ScorecardChart.getDefinitionFromContextCreation(context),
-  name: "Scorecard",
+  name: _lt("Scorecard"),
 });
 chartRegistry.add("gauge", {
   match: (type) => type === "gauge",
@@ -138,7 +139,7 @@ chartRegistry.add("gauge", {
   ) => GaugeChart.transformDefinition(definition, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     GaugeChart.getDefinitionFromContextCreation(context),
-  name: "Gauge",
+  name: _lt("Gauge"),
 });
 
 export const chartComponentRegistry = new Registry<new (...args: any) => Component>();

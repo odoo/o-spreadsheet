@@ -431,17 +431,17 @@ topbarMenuRegistry
     separator: true,
   })
   .addChild("format_wrapping_overflow", ["format", "format_wrapping"], {
-    name: "Overflow",
+    name: _lt("Overflow"),
     sequence: 10,
     action: (env: SpreadsheetChildEnv) => setStyle(env, { wrapping: "overflow" }),
   })
   .addChild("format_wrapping_wrap", ["format", "format_wrapping"], {
-    name: "Wrap",
+    name: _lt("Wrap"),
     sequence: 20,
     action: (env: SpreadsheetChildEnv) => setStyle(env, { wrapping: "wrap" }),
   })
   .addChild("format_wrapping_clip", ["format", "format_wrapping"], {
-    name: "Clip",
+    name: _lt("Clip"),
     sequence: 30,
     action: (env: SpreadsheetChildEnv) => setStyle(env, { wrapping: "clip" }),
   })

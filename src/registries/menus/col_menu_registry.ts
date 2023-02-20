@@ -93,7 +93,7 @@ colMenuRegistry
     separator: true,
   })
   .add("unhide_columns", {
-    name: "Unhide columns",
+    name: _lt("Unhide columns"),
     sequence: 86,
     action: ACTIONS.UNHIDE_COLUMNS_ACTION,
     isVisible: (env: SpreadsheetChildEnv) => {
