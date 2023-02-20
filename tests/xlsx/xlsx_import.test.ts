@@ -793,6 +793,31 @@ describe("Import xlsx data", () => {
     }
   );
 
+  test.each([
+    ["chart", "A1:F19"],
+    ["image", "H1:K20"],
+  ])("Can import figure %s which uses oneCellAnchor", (figureType, figureZone) => {
+    const testSheet = getWorkbookSheet("jestOneCellAnchor", convertedData)!;
+    const figZone = toZone(figureZone);
+    const figure = testSheet.figures.find((figure) => figure.tag === figureType)!;
+    expect(figure.x).toBeBetween(
+      getColPosition(figZone.left, testSheet),
+      getColPosition(figZone.left + 1, testSheet)
+    );
+    expect(figure.y).toBeBetween(
+      getRowPosition(figZone.top, testSheet),
+      getRowPosition(figZone.top + 1, testSheet)
+    );
+    expect(figure.width).toBeBetween(
+      getColPosition(figZone.right, testSheet) - getColPosition(figZone.left, testSheet),
+      getColPosition(figZone.right + 1, testSheet) - getColPosition(figZone.left, testSheet)
+    );
+    expect(figure.height).toBeBetween(
+      getRowPosition(figZone.bottom, testSheet) - getRowPosition(figZone.top, testSheet),
+      getRowPosition(figZone.bottom + 1, testSheet) - getRowPosition(figZone.top, testSheet)
+    );
+  });
+
   test("Can import images", () => {
     const testSheet = getWorkbookSheet("jestImages", convertedData)!;
     const figure = testSheet.figures.find((figure) => figure.tag === "image")!;

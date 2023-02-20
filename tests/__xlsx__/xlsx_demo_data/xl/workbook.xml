@@ -24,6 +24,7 @@
     <sheet name="jestHiddenSheet" sheetId="13" state="hidden" r:id="rId10"/>
     <sheet name="jestFreezePane" sheetId="14" r:id="rId11"/>
     <sheet name="jestImages" sheetId="15" r:id="rId18"/>
+    <sheet name="jestOneCellAnchor" sheetId="16" r:id="rId19"/>
   </sheets>
   <externalReferences>
     <externalReference r:id="rId12"/>

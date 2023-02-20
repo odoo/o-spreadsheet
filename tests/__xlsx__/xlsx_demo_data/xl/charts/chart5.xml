@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<c:chartSpace
+  xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+  xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart"
+  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:mv="urn:schemas-microsoft-com:mac:vml"
+  xmlns:c14="http://schemas.microsoft.com/office/drawing/2007/8/2/chart">
+  <c:chart>
+    <c:plotArea>
+      <c:layout/>
+      <c:barChart>
+        <c:barDir val="col"/>
+        <c:ser>
+          <c:idx val="0"/>
+          <c:order val="0"/>
+          <c:tx>
+            <c:strRef>
+              <c:f>Sheet1!$B$26</c:f>
+            </c:strRef>
+          </c:tx>
+          <c:spPr>
+            <a:solidFill>
+              <a:schemeClr val="accent1"/>
+            </a:solidFill>
+            <a:ln cmpd="sng">
+              <a:solidFill>
+                <a:srgbClr val="000000"/>
+              </a:solidFill>
+            </a:ln>
+          </c:spPr>
+          <c:cat>
+            <c:strRef>
+              <c:f>Sheet1!$A$27:$A$35</c:f>
+            </c:strRef>
+          </c:cat>
+          <c:val>
+            <c:numRef>
+              <c:f>Sheet1!$B$27:$B$35</c:f>
+              <c:numCache/>
+            </c:numRef>
+          </c:val>
+        </c:ser>
+        <c:ser>
+          <c:idx val="1"/>
+          <c:order val="1"/>
+          <c:tx>
+            <c:strRef>
+              <c:f>Sheet1!$C$26</c:f>
+            </c:strRef>
+          </c:tx>
+          <c:spPr>
+            <a:solidFill>
+              <a:schemeClr val="accent2"/>
+            </a:solidFill>
+            <a:ln cmpd="sng">
+              <a:solidFill>
+                <a:srgbClr val="000000"/>
+              </a:solidFill>
+            </a:ln>
+          </c:spPr>
+          <c:cat>
+            <c:strRef>
+              <c:f>Sheet1!$A$27:$A$35</c:f>
+            </c:strRef>
+          </c:cat>
+          <c:val>
+            <c:numRef>
+              <c:f>Sheet1!$C$27:$C$35</c:f>
+              <c:numCache/>
+            </c:numRef>
+          </c:val>
+        </c:ser>
+        <c:axId val="998664793"/>
+        <c:axId val="344680958"/>
+      </c:barChart>
+      <c:catAx>
+        <c:axId val="998664793"/>
+        <c:scaling>
+          <c:orientation val="minMax"/>
+        </c:scaling>
+        <c:delete val="0"/>
+        <c:axPos val="b"/>
+        <c:title>
+          <c:tx>
+            <c:rich>
+              <a:bodyPr/>
+              <a:lstStyle/>
+              <a:p>
+                <a:pPr lvl="0">
+                  <a:defRPr b="0">
+                    <a:solidFill>
+                      <a:srgbClr val="000000"/>
+                    </a:solidFill>
+                    <a:latin typeface="+mn-lt"/>
+                  </a:defRPr>
+                </a:pPr>
+                <a:r>
+                  <a:rPr b="0">
+                    <a:solidFill>
+                      <a:srgbClr val="000000"/>
+                    </a:solidFill>
+                    <a:latin typeface="+mn-lt"/>
+                  </a:rPr>
+                  <a:t/>
+                </a:r>
+              </a:p>
+            </c:rich>
+          </c:tx>
+          <c:overlay val="0"/>
+        </c:title>
+        <c:numFmt formatCode="General" sourceLinked="1"/>
+        <c:majorTickMark val="none"/>
+        <c:minorTickMark val="none"/>
+        <c:spPr/>
+        <c:txPr>
+          <a:bodyPr/>
+          <a:lstStyle/>
+          <a:p>
+            <a:pPr lvl="0">
+              <a:defRPr b="0">
+                <a:solidFill>
+                  <a:srgbClr val="000000"/>
+                </a:solidFill>
+                <a:latin typeface="+mn-lt"/>
+              </a:defRPr>
+            </a:pPr>
+          </a:p>
+        </c:txPr>
+        <c:crossAx val="344680958"/>
+      </c:catAx>
+      <c:valAx>
+        <c:axId val="344680958"/>
+        <c:scaling>
+          <c:orientation val="minMax"/>
+        </c:scaling>
+        <c:delete val="0"/>
+        <c:axPos val="l"/>
+        <c:majorGridlines>
+          <c:spPr>
+            <a:ln>
+              <a:solidFill>
+                <a:srgbClr val="B7B7B7"/>
+              </a:solidFill>
+            </a:ln>
+          </c:spPr>
+        </c:majorGridlines>
+        <c:minorGridlines>
+          <c:spPr>
+            <a:ln>
+              <a:solidFill>
+                <a:srgbClr val="CCCCCC">
+                  <a:alpha val="0"/>
+                </a:srgbClr>
+              </a:solidFill>
+            </a:ln>
+          </c:spPr>
+        </c:minorGridlines>
+        <c:title>
+          <c:tx>
+            <c:rich>
+              <a:bodyPr/>
+              <a:lstStyle/>
+              <a:p>
+                <a:pPr lvl="0">
+                  <a:defRPr b="0">
+                    <a:solidFill>
+                      <a:srgbClr val="000000"/>
+                    </a:solidFill>
+                    <a:latin typeface="+mn-lt"/>
+                  </a:defRPr>
+                </a:pPr>
+                <a:r>
+                  <a:rPr b="0">
+                    <a:solidFill>
+                      <a:srgbClr val="000000"/>
+                    </a:solidFill>
+                    <a:latin typeface="+mn-lt"/>
+                  </a:rPr>
+                  <a:t/>
+                </a:r>
+              </a:p>
+            </c:rich>
+          </c:tx>
+          <c:overlay val="0"/>
+        </c:title>
+        <c:numFmt formatCode="General" sourceLinked="1"/>
+        <c:majorTickMark val="none"/>
+        <c:minorTickMark val="none"/>
+        <c:tickLblPos val="nextTo"/>
+        <c:spPr>
+          <a:ln/>
+        </c:spPr>
+        <c:txPr>
+          <a:bodyPr/>
+          <a:lstStyle/>
+          <a:p>
+            <a:pPr lvl="0">
+              <a:defRPr b="0">
+                <a:solidFill>
+                  <a:srgbClr val="000000"/>
+                </a:solidFill>
+                <a:latin typeface="+mn-lt"/>
+              </a:defRPr>
+            </a:pPr>
+          </a:p>
+        </c:txPr>
+        <c:crossAx val="998664793"/>
+      </c:valAx>
+    </c:plotArea>
+    <c:legend>
+      <c:legendPos val="r"/>
+      <c:overlay val="0"/>
+      <c:txPr>
+        <a:bodyPr/>
+        <a:lstStyle/>
+        <a:p>
+          <a:pPr lvl="0">
+            <a:defRPr b="0">
+              <a:solidFill>
+                <a:srgbClr val="1A1A1A"/>
+              </a:solidFill>
+              <a:latin typeface="+mn-lt"/>
+            </a:defRPr>
+          </a:pPr>
+        </a:p>
+      </c:txPr>
+    </c:legend>
+    <c:plotVisOnly val="1"/>
+  </c:chart>
+</c:chartSpace>
