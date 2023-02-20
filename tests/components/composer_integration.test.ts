@@ -552,8 +552,8 @@ describe("Grid composer", () => {
       const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
       expect(gridComposer.style.textDecoration).toBe("line-through underline");
       expect(gridComposer.style.fontWeight).toBe("bold");
-      expect(toHex(gridComposer.style.background)).toBe("#0000FF");
-      expect(toHex(gridComposer.style.color)).toBe("#FF0000");
+      expect(gridComposer.style.background).toBeSameColorAs("#0000FF");
+      expect(gridComposer.style.color).toBeSameColorAs("#FF0000");
     });
   });
 

@@ -13,7 +13,7 @@
             t-on-click="() => this.onColorClick(color)"
             t-attf-style="background-color:{{color}};">
             <div
-              t-if="props.currentColor === color"
+              t-if="isSameColor(props.currentColor, color)"
               align="center"
               t-attf-style="color:{{getCheckMarkColor()}}">
             &#10004;

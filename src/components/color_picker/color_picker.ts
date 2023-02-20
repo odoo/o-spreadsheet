@@ -5,7 +5,7 @@ import {
   MENU_SEPARATOR_PADDING,
   SEPARATOR_COLOR,
 } from "../../constants";
-import { hslaToRGBA, isColorValid, rgbaToHex, toHex } from "../../helpers";
+import { hslaToRGBA, isColorValid, isSameColor, rgbaToHex, toHex } from "../../helpers";
 import { chartFontColor } from "../../helpers/figures/charts";
 import { Color, Pixel, Rect } from "../../types";
 import { SpreadsheetChildEnv } from "../../types/env";
@@ -278,6 +278,10 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
       left,
       top,
     });
+  }
+
+  isSameColor(color1: Color, color2: Color): boolean {
+    return isSameColor(color1, color2);
   }
 }
 
