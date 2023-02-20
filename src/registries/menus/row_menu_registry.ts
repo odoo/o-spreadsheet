@@ -76,7 +76,7 @@ rowMenuRegistry
     separator: true,
   })
   .add("unhide_rows", {
-    name: "Unhide rows",
+    name: _lt("Unhide rows"),
     sequence: 86,
     action: ACTIONS.UNHIDE_ROWS_ACTION,
     isVisible: (env: SpreadsheetChildEnv) => {

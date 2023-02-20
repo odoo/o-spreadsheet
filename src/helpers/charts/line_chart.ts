@@ -1,6 +1,7 @@
 import { ChartConfiguration, ChartDataSets, ChartLegendOptions } from "chart.js";
 import { BACKGROUND_CHART_COLOR, LINE_FILL_TRANSPARENCY } from "../../constants";
 import { chartRegistry } from "../../registries/chart_types";
+import { _lt } from "../../translation";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -64,7 +65,7 @@ chartRegistry.add("line", {
   ) => LineChart.transformDefinition(definition, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     LineChart.getDefinitionFromContextCreation(context),
-  name: "Line",
+  name: _lt("Line"),
 });
 
 export class LineChart extends AbstractChart {
