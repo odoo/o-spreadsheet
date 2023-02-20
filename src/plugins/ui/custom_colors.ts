@@ -102,9 +102,7 @@ export class CustomColorsPlugin extends UIPlugin {
         // remove duplicates first to check validity on a reduced
         // set of colors, then normalize to HEX and remove duplicates
         // again
-        [...new Set([...usedColors, ...this.customColors])]
-          .filter(isColorValid)
-          .map((c) => toHex(c).toLowerCase())
+        [...new Set([...usedColors, ...this.customColors])].filter(isColorValid).map(toHex)
       ),
     ]).filter((color) => !COLOR_PICKER_DEFAULTS.includes(color));
   }
@@ -168,7 +166,7 @@ export class CustomColorsPlugin extends UIPlugin {
   }
 
   private tryToAddColor(color: Color) {
-    const formattedColor = toHex(color).toLowerCase();
+    const formattedColor = toHex(color);
     if (color && !COLOR_PICKER_DEFAULTS.includes(formattedColor)) {
       this.customColors.add(formattedColor);
     }

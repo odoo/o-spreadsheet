@@ -4,7 +4,7 @@ import {
   tokenColor,
 } from "../../src/components/composer/composer/composer";
 import { fontSizes } from "../../src/fonts";
-import { colors, toCartesian, toHex, toZone } from "../../src/helpers/index";
+import { colors, toCartesian, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { Highlight, LinkCell } from "../../src/types";
 import {
@@ -1107,8 +1107,8 @@ describe("composer", () => {
       const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
       expect(gridComposer.style.textDecoration).toBe("line-through underline");
       expect(gridComposer.style.fontWeight).toBe("bold");
-      expect(toHex(gridComposer.style.background)).toBe("#0000FF");
-      expect(toHex(gridComposer.style.color)).toBe("#FF0000");
+      expect(gridComposer.style.background).toBeSameColorAs("#0000FF");
+      expect(gridComposer.style.color).toBeSameColorAs("#FF0000");
     });
   });
 

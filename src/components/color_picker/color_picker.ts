@@ -5,7 +5,7 @@ import {
   MENU_SEPARATOR_BORDER_WIDTH,
   MENU_SEPARATOR_PADDING,
 } from "../../constants";
-import { hslaToRGBA, isColorValid, rgbaToHex, toHex } from "../../helpers";
+import { hslaToRGBA, isColorValid, isSameColor, rgbaToHex, toHex } from "../../helpers";
 import { chartFontColor } from "../../helpers/charts";
 import { Color, Pixel } from "../../types";
 import { SpreadsheetChildEnv } from "../../types/env";
@@ -277,5 +277,9 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
     return `display:${display};${
       display === "block" ? `background-color:${background};left:${left};top:${top};` : ""
     }`;
+  }
+
+  isSameColor(color1: Color, color2: Color): boolean {
+    return isSameColor(color1, color2);
   }
 }
