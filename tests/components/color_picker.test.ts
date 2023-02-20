@@ -70,7 +70,7 @@ describe("Color Picker buttons", () => {
   test("Can pick a standard color", async () => {
     const onColorPicked = jest.fn();
     await mountColorPicker({ onColorPicked });
-    await simulateClick("div[data-color='#ff9900']");
+    await simulateClick("div[data-color='#FF9900']");
     expect(onColorPicked).toHaveBeenCalledWith("#FF9900");
   });
 
@@ -81,8 +81,8 @@ describe("Color Picker buttons", () => {
     await simulateClick(".o-gradient");
     const inputCodeEl = fixture.querySelector(".o-custom-input-preview input") as HTMLInputElement;
     const previewColor = toHex(getElComputedStyle(".o-color-preview", "backgroundColor"));
-    const inputColorCode = toHex(inputCodeEl.value);
-    expect(previewColor).toEqual(inputColorCode);
+    const inputColorCode = inputCodeEl.value;
+    expect(previewColor).toBeSameColorAs(inputColorCode);
     await simulateClick(".o-add-button");
     expect(onColorPicked).toHaveBeenCalledWith(inputColorCode);
   });
@@ -141,7 +141,7 @@ describe("Color Picker buttons", () => {
 
   test("initial standard color", async () => {
     await mountColorPicker({ currentColor: "#45818e" });
-    const color = fixture.querySelector("div[data-color='#45818e']") as HTMLElement;
+    const color = fixture.querySelector("div[data-color='#45818E']") as HTMLElement;
     expect(color?.textContent).toBe(" ✔ ");
   });
 
