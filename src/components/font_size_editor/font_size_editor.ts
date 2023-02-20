@@ -103,3 +103,8 @@ export class FontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 }
+
+FontSizeEditor.props = {
+  onToggle: Function,
+  dropdownStyle: String,
+};
