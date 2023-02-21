@@ -17,7 +17,7 @@ jobs:
         # should work with le latest stable node
         # parse-message will fail on invalid commit title/body
         run: |
-          npm i @actions/core && npm i @actions/github &&\
+          npm i @actions/core @actions/github --no-save &&\
           echo "data=$(node tools/parse_message.js)" >> $GITHUB_OUTPUT
       # generate all builds
       - name: Build
@@ -27,7 +27,7 @@ jobs:
         with:
           tag: ${{ fromJSON(steps.parse.outputs.data).version }}
           body: ${{ fromJSON(steps.parse.outputs.data).body }}
-          artifacts: "./dist/*"
+          artifacts: "./dist/*.*"
       - name: Publish
         run: npm publish
         env:
