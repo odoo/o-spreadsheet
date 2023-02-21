@@ -1,17 +1,17 @@
 <templates>
   <t t-name="o-spreadsheet-FunctionDescriptionProvider" owl="1">
     <div
-      class="o-formula-assistant-container"
+      class="o-formula-assistant-container user-select-none shadow"
       t-att-class="{
-          'o-formula-assistant-event-none': assistantState.allowCellSelectionBehind,
-          'o-formula-assistant-event-auto': !assistantState.allowCellSelectionBehind
+          'pe-none': assistantState.allowCellSelectionBehind,
+          'pe-auto': !assistantState.allowCellSelectionBehind
           }">
       <t t-set="context" t-value="getContext()"/>
       <div
-        class="o-formula-assistant"
+        class="o-formula-assistant bg-white"
         t-if="context.functionName"
         t-on-mousemove="onMouseMove"
-        t-att-class="{'o-formula-assistant-transparency': assistantState.allowCellSelectionBehind}">
+        t-att-class="{'opacity-25': assistantState.allowCellSelectionBehind}">
         <div class="o-formula-assistant-head">
           <span t-esc="context.functionName"/>
           (
@@ -29,14 +29,14 @@
           )
         </div>
 
-        <div class="o-formula-assistant-core">
+        <div class="o-formula-assistant-core pb-3 m-3">
           <div class="o-formula-assistant-gray">ABOUT</div>
           <div t-esc="context.functionDescription.description"/>
         </div>
 
         <t t-foreach="context.functionDescription.args" t-as="arg" t-key="arg.name">
           <div
-            class="o-formula-assistant-arg"
+            class="o-formula-assistant-arg p-3 pt-0 display-flex flex-column"
             t-att-class="{
                 'o-formula-assistant-gray': context.argToFocus >= '0',
                 'o-formula-assistant-focus': context.argToFocus === arg_index,

@@ -8,21 +8,12 @@ import { css } from "../../helpers/css";
 
 css/* scss */ `
   .o-formula-assistant {
-    white-space: normal;
-    background-color: #fff;
     .o-formula-assistant-head {
       background-color: #f2f2f2;
       padding: 10px;
     }
     .o-formula-assistant-core {
-      padding: 0px 0px 10px 0px;
-      margin: 10px;
       border-bottom: 1px solid gray;
-    }
-    .o-formula-assistant-arg {
-      padding: 0px 10px 10px 10px;
-      display: flex;
-      flex-direction: column;
     }
     .o-formula-assistant-arg-description {
       font-size: 85%;
@@ -40,18 +31,6 @@ css/* scss */ `
     .o-formula-assistant-gray {
       color: gray;
     }
-  }
-  .o-formula-assistant-container {
-    user-select: none;
-  }
-  .o-formula-assistant-event-none {
-    pointer-events: none;
-  }
-  .o-formula-assistant-event-auto {
-    pointer-events: auto;
-  }
-  .o-formula-assistant-transparency {
-    opacity: 0.3;
   }
 `;
 

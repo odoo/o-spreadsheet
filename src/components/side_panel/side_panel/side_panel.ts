@@ -133,16 +133,6 @@ css/* scss */ `
     }
 
     .o-inflection {
-      .o-inflection-icon-button {
-        display: inline-block;
-        border: 1px solid #dadce0;
-        border-radius: 4px;
-        cursor: pointer;
-        padding: 1px 2px;
-      }
-      .o-inflection-icon-button:hover {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
       table {
         table-layout: fixed;
         margin-top: 2%;
@@ -151,21 +141,6 @@ css/* scss */ `
         font-size: 12px;
         line-height: 18px;
         width: 100%;
-      }
-      th.o-inflection-iconset-icons {
-        width: 8%;
-      }
-      th.o-inflection-iconset-text {
-        width: 28%;
-      }
-      th.o-inflection-iconset-operator {
-        width: 14%;
-      }
-      th.o-inflection-iconset-type {
-        width: 28%;
-      }
-      th.o-inflection-iconset-value {
-        width: 26%;
       }
       input,
       select {
@@ -190,13 +165,6 @@ css/* scss */ `
 
         &:hover {
           background-color: rgba(0, 0, 0, 0.08);
-        }
-      }
-
-      .o-border {
-        .o-line-item {
-          padding: 4px;
-          margin: 1px;
         }
       }
     }

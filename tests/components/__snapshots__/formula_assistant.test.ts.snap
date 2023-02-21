@@ -2,10 +2,10 @@
 
 exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
 <div
-  class="o-formula-assistant-container o-formula-assistant-event-auto"
+  class="o-formula-assistant-container user-select-none shadow pe-auto"
 >
   <div
-    class="o-formula-assistant"
+    class="o-formula-assistant bg-white"
   >
     <div
       class="o-formula-assistant-head"
@@ -45,7 +45,7 @@ exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
        ) 
     </div>
     <div
-      class="o-formula-assistant-core"
+      class="o-formula-assistant-core pb-3 m-3"
     >
       <div
         class="o-formula-assistant-gray"
@@ -57,7 +57,7 @@ exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
       </div>
     </div>
     <div
-      class="o-formula-assistant-arg o-formula-assistant-gray o-formula-assistant-focus"
+      class="o-formula-assistant-arg p-3 pt-0 display-flex flex-column o-formula-assistant-gray o-formula-assistant-focus"
     >
       <div>
         <span>
@@ -74,7 +74,7 @@ exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
       </div>
     </div>
     <div
-      class="o-formula-assistant-arg o-formula-assistant-gray"
+      class="o-formula-assistant-arg p-3 pt-0 display-flex flex-column o-formula-assistant-gray"
     >
       <div>
         <span>

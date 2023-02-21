@@ -8,16 +8,6 @@ import { ColorPickerWidget } from "./../../../color_picker/color_picker_widget";
 
 css/* scss */ `
   .o-gauge-color-set {
-    .o-gauge-color-set-color-button {
-      display: inline-block;
-      border: 1px solid #dadce0;
-      border-radius: 4px;
-      cursor: pointer;
-      padding: 1px 2px;
-    }
-    .o-gauge-color-set-color-button:hover {
-      background-color: rgba(0, 0, 0, 0.08);
-    }
     table {
       table-layout: fixed;
       margin-top: 2%;

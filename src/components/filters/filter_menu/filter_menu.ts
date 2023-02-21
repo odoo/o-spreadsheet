@@ -66,15 +66,6 @@ const CSS = css/* scss */ `
       overflow-y: auto;
       border: 1px solid #949494;
 
-      .o-filter-menu-value {
-        padding: 4px;
-        line-height: 20px;
-        height: 28px;
-        .o-filter-menu-value-checked {
-          width: 20px;
-        }
-      }
-
       .o-filter-menu-no-values {
         color: #949494;
         font-style: italic;
