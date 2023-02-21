@@ -10,6 +10,7 @@ import {
 } from "../../src/constants";
 import { figureRegistry } from "../../src/registries";
 import { CreateFigureCommand, Figure, SpreadsheetChildEnv, UID } from "../../src/types";
+
 import {
   activateSheet,
   addColumns,
@@ -104,7 +105,10 @@ mockGetBoundingClientRect({
 });
 
 beforeAll(() => {
-  figureRegistry.add("text", { Component: TextFigure });
+  figureRegistry.add("text", {
+    Component: TextFigure,
+    menuBuilder: () => [],
+  });
 });
 afterAll(() => {
   figureRegistry.remove("text");
