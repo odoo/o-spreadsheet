@@ -1,12 +1,14 @@
-import { Component, useEffect, useRef } from "@odoo/owl";
+import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import {
   ComponentsImportance,
   FIGURE_BORDER_COLOR,
+  MENU_WIDTH,
   SELECTION_BORDER_COLOR,
 } from "../../../constants";
 import { figureRegistry } from "../../../registries/index";
 import {
   CSSProperties,
+  DOMCoordinates,
   Figure,
   Pixel,
   ResizeDirection,
@@ -14,6 +16,8 @@ import {
   UID,
 } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
+import { useAbsoluteBoundingRect } from "../../helpers/position_hook";
+import { Menu, MenuState } from "../../menu/menu";
 
 type ResizeAnchor =
   | "top left"
@@ -90,9 +94,8 @@ css/*SCSS*/ `
 
     .o-figure-menu {
       right: 0px;
+      top: 0px;
       display: none;
-      position: absolute;
-      padding: 5px;
     }
 
     .o-figure-menu-item {
@@ -118,15 +121,20 @@ interface Props {
 
 export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FigureComponent";
-  static components = {};
+  static components = { Menu };
   static defaultProps = {
     onFigureDeleted: () => {},
     onMouseDown: () => {},
     onClickAnchor: () => {},
   };
 
-  private borderWidth!: number;
+  private menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
+
   private figureRef = useRef("figure");
+  private menuButtonRef = useRef("menuButton");
+  private menuButtonRect = useAbsoluteBoundingRect(this.menuButtonRef);
+
+  private borderWidth!: number;
 
   get isSelected(): boolean {
     return this.env.model.getters.getSelectedFigureId() === this.props.figure.id;
@@ -242,6 +250,32 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
         ev.preventDefault();
         break;
     }
+  }
+
+  onContextMenu(ev: MouseEvent) {
+    if (this.env.isDashboard()) return;
+    const position = {
+      x: ev.clientX,
+      y: ev.clientY,
+    };
+    this.openContextMenu(position);
+  }
+
+  showMenu() {
+    const { x, y, width } = this.menuButtonRect;
+    const menuPosition = {
+      x: x >= MENU_WIDTH ? x - MENU_WIDTH : x + width,
+      y: y,
+    };
+    this.openContextMenu(menuPosition);
+  }
+
+  private openContextMenu(position: DOMCoordinates) {
+    this.menuState.isOpen = true;
+    this.menuState.position = position;
+    this.menuState.menuItems = figureRegistry
+      .get(this.props.figure.tag)
+      .menuBuilder(this.props.figure.id, this.props.onFigureDeleted, this.env);
   }
 }
 

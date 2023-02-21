@@ -15,6 +15,40 @@ exports[`figures selected figure snapshot 1`] = `
     >
       coucou
     </div>
+    
+    <div
+      class="o-figure-menu position-absolute m-2"
+    >
+      <div
+        class="o-figure-menu-item"
+      >
+        <svg
+          class="o-icon"
+          viewBox="0 0 384 384"
+        >
+          <rect
+            height="42.667"
+            width="384"
+            x="0"
+            y="277.333"
+          />
+          <rect
+            height="42.667"
+            width="384"
+            x="0"
+            y="170.667"
+          />
+          <rect
+            height="42.667"
+            width="384"
+            x="0"
+            y="64"
+          />
+        </svg>
+      </div>
+      
+    </div>
+    
   </div>
   <div
     class="o-figure-border w-100 h-100 position-absolute pe-none"
