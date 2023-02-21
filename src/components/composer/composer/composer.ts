@@ -91,11 +91,6 @@ css/* scss */ `
       margin: 1px 4px;
       pointer-events: none;
     }
-
-    .o-autocomplete-dropdown,
-    .o-formula-assistant-container {
-      box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
-    }
   }
 `;
 

@@ -1,13 +1,17 @@
 <templates>
   <t t-name="o-spreadsheet-TextValueProvider" owl="1">
-    <div t-att-class="{'o-autocomplete-dropdown':props.values.length}">
+    <div
+      t-att-class="{
+          'o-autocomplete-dropdown':props.values.length,
+          'shadow':props.values.length}">
       <t t-foreach="props.values" t-as="v" t-key="v.text">
         <div
+          class="d-flex flex-column"
           t-att-class="{'o-autocomplete-value-focus': props.selectedIndex === v_index}"
           t-on-click="() => this.props.onValueSelected(v.text)">
           <div class="o-autocomplete-value" t-esc="v.text"/>
           <div
-            class="o-autocomplete-description"
+            class="o-autocomplete-description text-truncate"
             t-esc="v.description"
             t-if="props.selectedIndex === v_index"
           />

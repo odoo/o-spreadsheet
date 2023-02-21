@@ -14,15 +14,10 @@ css/* scss */ `
     }
 
     & > div {
-      display: flex;
-      flex-direction: column;
       padding: 1px 0 5px 5px;
       .o-autocomplete-description {
-        padding: 0 0 0 5px;
+        padding-left: 5px;
         font-size: 11px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
       }
     }
   }
