@@ -1,5 +1,5 @@
 export class FileStore {
-  serverUrl = "http://localhost:9000/upload-image";
+  serverUrl = "http://localhost:9090/upload-image";
 
   /**
    * Upload a file to the server to be saved. Returns the path of the file
