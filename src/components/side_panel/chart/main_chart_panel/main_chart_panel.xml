@@ -40,6 +40,7 @@
           t-component="chartPanel.configuration"
           definition="definition"
           figureId="figureId"
+          sheetId="sheetId"
           updateChart.bind="updateChart"
           t-key="figureId + definition.type"
         />

@@ -10,14 +10,12 @@ import {
 import { CorePlugin } from "../core_plugin";
 
 interface FigureState {
-  readonly figures: { [sheet: string]: Record<UID, Figure | undefined> | undefined };
+  readonly figures: { [sheet: UID]: Record<UID, Figure | undefined> | undefined };
 }
 
 export class FigurePlugin extends CorePlugin<FigureState> implements FigureState {
   static getters = ["getFigures", "getFigure"] as const;
-  readonly figures: {
-    [sheet: string]: Record<UID, Figure | undefined> | undefined;
-  } = {};
+  readonly figures: FigureState["figures"] = {};
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------

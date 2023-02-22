@@ -1,6 +1,7 @@
 import { CommandResult, Model } from "../../../src";
 import { zoneToXc } from "../../../src/helpers";
 import { ScorecardChart } from "../../../src/helpers/charts";
+import { UID } from "../../../src/types";
 import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
@@ -17,6 +18,7 @@ import {
 } from "../../test_helpers/commands_helpers";
 
 let model: Model;
+let sheetId: UID;
 
 beforeEach(() => {
   model = new Model({
@@ -30,6 +32,7 @@ beforeEach(() => {
       },
     ],
   });
+  sheetId = model.getters.getActiveSheetId();
 });
 
 describe("datasource tests", function () {
@@ -45,7 +48,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(model.getters.getChartRuntime("1")).toMatchObject({
+    expect(model.getters.getChartRuntime(sheetId, "1")).toMatchObject({
       keyValue: "",
       baselineDisplay: "",
       baselineDescr: "Description",
@@ -64,7 +67,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(model.getters.getChartRuntime("1")).toMatchObject({
+    expect(model.getters.getChartRuntime(sheetId, "1")).toMatchObject({
       keyValue: "",
       baselineDisplay: "",
       baselineDescr: "",
@@ -84,7 +87,7 @@ describe("datasource tests", function () {
       "1"
     );
     addColumns(model, "before", "A", 2);
-    const chart = model.getters.getChartDefinition("1") as ScorecardChartDefinition;
+    const chart = model.getters.getChartDefinition(sheetId, "1") as ScorecardChartDefinition;
     expect(chart.keyValue!).toStrictEqual("Sheet1!D1:D4");
     expect(chart.baseline!).toStrictEqual("Sheet1!C2:C4");
   });
@@ -102,10 +105,10 @@ describe("datasource tests", function () {
     const exportedData = model.exportData();
     const newModel = new Model(exportedData);
     expect(newModel.getters.getVisibleFigures()).toHaveLength(1);
-    expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
-    newModel.dispatch("DELETE_FIGURE", { sheetId: model.getters.getActiveSheetId(), id: "1" });
+    expect(newModel.getters.getChartRuntime(sheetId, "1")).toBeTruthy();
+    newModel.dispatch("DELETE_FIGURE", { sheetId, id: "1" });
     expect(newModel.getters.getVisibleFigures()).toHaveLength(0);
-    expect(() => newModel.getters.getChartRuntime("1")).toThrow();
+    expect(() => newModel.getters.getChartRuntime(sheetId, "1")).toThrow();
   });
 
   test("update scorecard chart", () => {
@@ -124,7 +127,7 @@ describe("datasource tests", function () {
       baselineDescr: "description",
       title: "hello1",
     });
-    expect(model.getters.getChartDefinition("1")).toMatchObject({
+    expect(model.getters.getChartDefinition(sheetId, "1")).toMatchObject({
       keyValue: "A7",
       baseline: "E3",
       baselineMode: "percentage",
@@ -163,9 +166,9 @@ describe("datasource tests", function () {
       "1",
       "2"
     );
-    expect(model.getters.getChartRuntime("1")).not.toBeUndefined();
+    expect(model.getters.getChartRuntime("2", "1")).not.toBeUndefined();
     model.dispatch("DELETE_SHEET", { sheetId: "2" });
-    expect(() => model.getters.getChartRuntime("1")).toThrow();
+    expect(() => model.getters.getChartRuntime("2", "1")).toThrow();
   });
 
   test("Scorecard chart is copied on sheet duplication", () => {
@@ -189,7 +192,7 @@ describe("datasource tests", function () {
     expect(model.getters.getFigures(secondSheetId)).toHaveLength(1);
     const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];
 
-    const newChart = model.getters.getChart(duplicatedFigure.id) as ScorecardChart;
+    const newChart = model.getters.getChart(secondSheetId, duplicatedFigure.id) as ScorecardChart;
     expect(newChart.title).toEqual("test");
     expect(newChart.keyValue?.sheetId).toEqual(secondSheetId);
     expect(zoneToXc(newChart.keyValue!.zone)).toEqual("B1:B4");
@@ -213,7 +216,7 @@ describe("datasource tests", function () {
       baselineMode: "percentage",
     });
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
-    expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
+    expect(model.getters.getChartRuntime(sheetId, scorecardId)).toMatchObject({
       baselineArrow: "down",
       baselineColor: "#DC6965",
       baselineDisplay: "60%",
@@ -230,7 +233,7 @@ describe("datasource tests", function () {
       baselineMode: "percentage",
     });
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
-    expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
+    expect(model.getters.getChartRuntime(sheetId, scorecardId)).toMatchObject({
       baselineArrow: "up",
       baselineColor: "#00A04A",
       baselineDisplay: "40%",
@@ -247,7 +250,7 @@ describe("datasource tests", function () {
       baselineMode: "percentage",
     });
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
-    expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
+    expect(model.getters.getChartRuntime(sheetId, scorecardId)).toMatchObject({
       baselineArrow: "neutral",
       baselineColor: undefined,
       baselineDisplay: "0%",
@@ -263,7 +266,7 @@ describe("datasource tests", function () {
       baselineMode: "percentage",
     });
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
-    expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
+    expect(model.getters.getChartRuntime(sheetId, scorecardId)).toMatchObject({
       baselineArrow: "neutral",
       baselineColor: undefined,
       baselineDisplay: "140",
@@ -279,7 +282,7 @@ describe("datasource tests", function () {
       baselineMode: "percentage",
     });
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
-    expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
+    expect(model.getters.getChartRuntime(sheetId, scorecardId)).toMatchObject({
       baselineArrow: "neutral",
       baselineColor: undefined,
       baselineDisplay: "",
@@ -294,7 +297,7 @@ describe("datasource tests", function () {
       baselineMode: "percentage",
     });
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
-    expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
+    expect(model.getters.getChartRuntime(sheetId, scorecardId)).toMatchObject({
       baselineArrow: "neutral",
       baselineColor: undefined,
       baselineDisplay: "",
@@ -311,7 +314,7 @@ describe("datasource tests", function () {
       baselineMode: "percentage",
     });
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
-    expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
+    expect(model.getters.getChartRuntime(sheetId, scorecardId)).toMatchObject({
       baselineArrow: "up",
       baselineColor: "#00A04A",
       baselineDisplay: "∞%",
@@ -327,7 +330,7 @@ describe("datasource tests", function () {
       baselineMode: "percentage",
     });
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
-    expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
+    expect(model.getters.getChartRuntime(sheetId, scorecardId)).toMatchObject({
       baselineArrow: "neutral",
       baselineColor: undefined,
       baselineDisplay: "0%",
@@ -385,7 +388,7 @@ describe("multiple sheets", () => {
       },
       "28"
     );
-    const chart = model.getters.getChartDefinition("28") as ScorecardChartDefinition;
+    const chart = model.getters.getChartDefinition("42", "28") as ScorecardChartDefinition;
     expect(chart.keyValue).toEqual("Sheet1!B1");
     expect(chart.baseline).toEqual("Sheet1!C1");
   });
@@ -410,18 +413,19 @@ describe("undo/redo", () => {
       },
       "27"
     );
-    let chart = model.getters.getChartRuntime("27") as ScorecardChartRuntime;
+    const sheetId = model.getters.getActiveSheetId();
+    let chart = model.getters.getChartRuntime(sheetId, "27") as ScorecardChartRuntime;
     setCellContent(model, "A2", "99");
-    chart = model.getters.getChartRuntime("27") as ScorecardChartRuntime;
+    chart = model.getters.getChartRuntime(sheetId, "27") as ScorecardChartRuntime;
     expect(chart.keyValue).toEqual("99");
     setCellContent(model, "A2", "12");
-    chart = model.getters.getChartRuntime("27") as ScorecardChartRuntime;
+    chart = model.getters.getChartRuntime(sheetId, "27") as ScorecardChartRuntime;
     expect(chart.keyValue).toEqual("12");
     undo(model);
-    chart = model.getters.getChartRuntime("27") as ScorecardChartRuntime;
+    chart = model.getters.getChartRuntime(sheetId, "27") as ScorecardChartRuntime;
     expect(chart.keyValue).toEqual("99");
     redo(model);
-    chart = model.getters.getChartRuntime("27") as ScorecardChartRuntime;
+    chart = model.getters.getChartRuntime(sheetId, "27") as ScorecardChartRuntime;
     expect(chart.keyValue).toEqual("12");
   });
 });
@@ -435,7 +439,7 @@ test("font color is white with a dark background color", () => {
     },
     "1"
   );
-  expect((model.getters.getChartRuntime("1") as ScorecardChartRuntime).fontColor).toEqual(
+  expect((model.getters.getChartRuntime(sheetId, "1") as ScorecardChartRuntime).fontColor).toEqual(
     "#FFFFFF"
   );
 });
@@ -452,7 +456,7 @@ test("Scorecard with formula cell", () => {
     },
     "1"
   );
-  const runtime = model.getters.getChartRuntime("1") as ScorecardChartRuntime;
+  const runtime = model.getters.getChartRuntime(sheetId, "1") as ScorecardChartRuntime;
   expect(runtime.keyValue).toEqual("4");
   expect(runtime.baselineDisplay).toEqual("100%");
 });
