@@ -1,5 +1,11 @@
 import { FIGURE_ID_SPLITTER, INCORRECT_RANGE_STRING } from "../../constants";
-import { deepCopy, rangeReference, zoneToDimension, zoneToXc } from "../../helpers/index";
+import {
+  deepCopy,
+  isDefined,
+  rangeReference,
+  zoneToDimension,
+  zoneToXc,
+} from "../../helpers/index";
 import {
   ApplyRangeChange,
   ChartDefinition,
@@ -29,23 +35,34 @@ import { CorePlugin } from "../core_plugin";
  * */
 
 interface ChartState {
-  readonly chartFigures: Record<UID, ChartDefinition | undefined>;
+  readonly chartFigures: { [sheetId: UID]: Record<UID, ChartDefinition | undefined> | undefined };
 }
 
 export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
-  static getters = ["getChartDefinition", "getChartDefinitionUI", "getChartsIdBySheet"] as const;
-  readonly chartFigures: Record<UID, ChartDefinition> = {};
+  static getters = [
+    "getChartDefinition",
+    "getChartDefinitionUI",
+    "getChartDefinitionsBySheet",
+  ] as const;
+  readonly chartFigures: ChartState["chartFigures"] = {};
 
   adaptRanges(applyChange: ApplyRangeChange) {
-    for (let [chartId, chart] of Object.entries(this.chartFigures)) {
-      if (chart) {
-        this.adaptDataSetRanges(chart, chartId, applyChange);
-        this.adaptLabelRanges(chart, chartId, applyChange);
+    for (const sheetId of Object.keys(this.chartFigures)) {
+      for (const [chartId, chart] of Object.entries(this.chartFigures[sheetId] || {})) {
+        if (chart) {
+          this.adaptDataSetRanges(sheetId, chart, chartId, applyChange);
+          this.adaptLabelRanges(sheetId, chart, chartId, applyChange);
+        }
       }
     }
   }
 
-  private adaptDataSetRanges(chart: ChartDefinition, chartId: UID, applyChange: ApplyRangeChange) {
+  private adaptDataSetRanges(
+    sheetId: UID,
+    chart: ChartDefinition,
+    chartId: UID,
+    applyChange: ApplyRangeChange
+  ) {
     for (let ds of chart.dataSets) {
       if (ds.labelCell) {
         const labelCellChange = applyChange(ds.labelCell);
@@ -53,6 +70,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
           case "REMOVE":
             this.history.update(
               "chartFigures",
+              sheetId,
               chartId,
               "dataSets",
               chart.dataSets.indexOf(ds),
@@ -65,6 +83,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
           case "CHANGE":
             this.history.update(
               "chartFigures",
+              sheetId,
               chartId,
               "dataSets",
               chart.dataSets.indexOf(ds),
@@ -77,7 +96,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       switch (dataRangeChange.changeType) {
         case "REMOVE":
           const newDataSets = chart.dataSets.filter((dataset) => dataset !== ds);
-          this.history.update("chartFigures", chartId, "dataSets", newDataSets);
+          this.history.update("chartFigures", sheetId, chartId, "dataSets", newDataSets);
           break;
         case "RESIZE":
         case "MOVE":
@@ -89,6 +108,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
           ) {
             this.history.update(
               "chartFigures",
+              sheetId,
               chartId,
               "dataSets",
               chart.dataSets.indexOf(ds),
@@ -97,23 +117,34 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
             );
           } else {
             const newDataSets = chart.dataSets.filter((dataset) => dataset !== ds);
-            this.history.update("chartFigures", chartId, "dataSets", newDataSets);
+            this.history.update("chartFigures", sheetId, chartId, "dataSets", newDataSets);
           }
           break;
       }
     }
   }
-  private adaptLabelRanges(chart: ChartDefinition, chartId: UID, applyChange: ApplyRangeChange) {
+  private adaptLabelRanges(
+    sheetId: UID,
+    chart: ChartDefinition,
+    chartId: UID,
+    applyChange: ApplyRangeChange
+  ) {
     if (chart.labelRange) {
       const labelRangeChange = applyChange(chart.labelRange);
       switch (labelRangeChange.changeType) {
         case "REMOVE":
-          this.history.update("chartFigures", chartId, "labelRange", undefined);
+          this.history.update("chartFigures", sheetId, chartId, "labelRange", undefined);
           break;
         case "RESIZE":
         case "MOVE":
         case "CHANGE":
-          this.history.update("chartFigures", chartId, "labelRange", labelRangeChange.range);
+          this.history.update(
+            "chartFigures",
+            sheetId,
+            chartId,
+            "labelRange",
+            labelRangeChange.range
+          );
           break;
       }
     }
@@ -153,7 +184,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         });
         break;
       case "UPDATE_CHART": {
-        this.updateChartDefinition(cmd.id, cmd.definition);
+        this.updateChartDefinition(cmd.sheetId, cmd.id, cmd.definition);
         break;
       }
       case "DUPLICATE_SHEET": {
@@ -164,7 +195,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
             const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
 
             const chartDefinition = {
-              ...deepCopy(this.chartFigures[fig.id]),
+              ...deepCopy(this.chartFigures[cmd.sheetId]![fig.id]!),
               id: duplicatedFigureId,
             };
             chartDefinition.sheetId = cmd.sheetIdTo;
@@ -194,14 +225,10 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         break;
       }
       case "DELETE_FIGURE":
-        this.history.update("chartFigures", cmd.id, undefined);
+        this.history.update("chartFigures", cmd.sheetId, cmd.id, undefined);
         break;
       case "DELETE_SHEET":
-        for (let id of Object.keys(this.chartFigures)) {
-          if (this.chartFigures[id]?.sheetId === cmd.sheetId) {
-            this.history.update("chartFigures", id, undefined);
-          }
-        }
+        this.history.update("chartFigures", cmd.sheetId, undefined);
         break;
     }
   }
@@ -210,22 +237,23 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getChartDefinition(figureId: UID): ChartDefinition | undefined {
-    return this.chartFigures[figureId];
+  getChartDefinition(sheetId: UID, figureId: UID): ChartDefinition | undefined {
+    return this.chartFigures[sheetId]?.[figureId];
   }
 
-  getChartsIdBySheet(sheetId: UID) {
-    return Object.entries(this.chartFigures)
-      .filter((chart) => {
-        return chart[1].sheetId === sheetId;
-      })
-      .map((chart) => chart[0]);
+  getChartDefinitionsBySheet(sheetId: UID) {
+    return Object.values(this.chartFigures[sheetId] || {}).filter(isDefined);
   }
 
-  getChartDefinitionUI(sheetId: UID, figureId: UID): ChartUIDefinition {
-    const data: ChartDefinition = this.chartFigures[figureId];
+  getChartDefinitionUI(
+    sheetId: UID,
+    figureId: UID,
+    forceSheetName: boolean = false
+  ): ChartUIDefinition {
+    const data: ChartDefinition = this.chartFigures[sheetId]![figureId]!;
+    const rangeSheetId = forceSheetName ? "forceSheetReference" : sheetId;
     const dataSets: string[] = data.dataSets
-      .map((ds: DataSet) => (ds ? this.getters.getRangeString(ds.dataRange, sheetId) : ""))
+      .map((ds: DataSet) => (ds ? this.getters.getRangeString(ds.dataRange, rangeSheetId) : ""))
       .filter((ds) => {
         return ds !== ""; // && range !== INCORRECT_RANGE_STRING ? show incorrect #ref ?
       });
@@ -233,7 +261,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       title: data && data.title ? data.title : "",
       dataSets,
       labelRange: data.labelRange
-        ? this.getters.getRangeString(data.labelRange, sheetId)
+        ? this.getters.getRangeString(data.labelRange, rangeSheetId)
         : undefined,
       type: data ? data.type : "bar",
       dataSetsHaveTitle:
@@ -246,12 +274,12 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   }
 
   private getChartDefinitionExcel(sheetId: UID, figureId: UID): ExcelChartDefinition {
-    const data: ChartDefinition = this.chartFigures[figureId];
+    const data: ChartDefinition = this.chartFigures[sheetId]![figureId]!;
     const dataSets: ExcelChartDataset[] = data.dataSets
       .map((ds: DataSet) => this.toExcelDataset(ds))
       .filter((ds) => ds.range !== ""); // && range !== INCORRECT_RANGE_STRING ? show incorrect #ref ?
     return {
-      ...this.getChartDefinitionUI("forceSheetReference", figureId),
+      ...this.getChartDefinitionUI(sheetId, figureId, true),
       backgroundColor: data.background,
       dataSets,
     };
@@ -289,15 +317,17 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   import(data: WorkbookData) {
     for (let sheet of data.sheets) {
       if (sheet.figures) {
+        const charts = {};
         for (let figure of sheet.figures) {
           if (figure.tag === "chart") {
             const figureData: ChartUIDefinition = {
               ...figure.data,
             };
-            this.chartFigures[figure.id] = this.createChartDefinition(figureData, sheet.id);
+            charts[figure.id] = this.createChartDefinition(figureData, sheet.id);
             delete figure.data;
           }
         }
+        this.chartFigures[sheet.id] = charts;
       }
     }
   }
@@ -352,44 +382,45 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
    * Update the chart definition linked to the given id with the attributes
    * given in the partial UI definition
    */
-  private updateChartDefinition(id: UID, definition: ChartUIDefinitionUpdate) {
-    const chart = this.chartFigures[id];
+  private updateChartDefinition(sheetId: UID, id: UID, definition: ChartUIDefinitionUpdate) {
+    const chart = this.chartFigures[sheetId]![id];
     if (!chart) {
       throw new Error(`There is no chart with the given id: ${id}`);
     }
     if (definition.title !== undefined) {
-      this.history.update("chartFigures", id, "title", definition.title);
+      this.history.update("chartFigures", sheetId, id, "title", definition.title);
     }
     if (definition.type) {
-      this.history.update("chartFigures", id, "type", definition.type);
+      this.history.update("chartFigures", sheetId, id, "type", definition.type);
     }
     if (definition.dataSets) {
       const dataSetsHaveTitle = !!definition.dataSetsHaveTitle;
       const dataSets = this.createDataSets(definition.dataSets, chart.sheetId, dataSetsHaveTitle);
-      this.history.update("chartFigures", id, "dataSets", dataSets);
+      this.history.update("chartFigures", sheetId, id, "dataSets", dataSets);
     }
     if (definition.labelRange !== undefined) {
       const labelRange = definition.labelRange
         ? this.getters.getRangeFromSheetXC(chart.sheetId, definition.labelRange)
         : undefined;
-      this.history.update("chartFigures", id, "labelRange", labelRange);
+      this.history.update("chartFigures", sheetId, id, "labelRange", labelRange);
     }
     if (definition.background) {
-      this.history.update("chartFigures", id, "background", definition.background);
+      this.history.update("chartFigures", sheetId, id, "background", definition.background);
     }
     if (definition.verticalAxisPosition) {
       this.history.update(
         "chartFigures",
+        sheetId,
         id,
         "verticalAxisPosition",
         definition.verticalAxisPosition
       );
     }
     if (definition.legendPosition) {
-      this.history.update("chartFigures", id, "legendPosition", definition.legendPosition);
+      this.history.update("chartFigures", sheetId, id, "legendPosition", definition.legendPosition);
     }
     if (definition.stackedBar !== undefined) {
-      this.history.update("chartFigures", id, "stackedBar", definition.stackedBar);
+      this.history.update("chartFigures", sheetId, id, "stackedBar", definition.stackedBar);
     }
   }
 
@@ -460,7 +491,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       sheetId,
       figure,
     });
-    this.history.update("chartFigures", figure.id, data);
+    this.history.update("chartFigures", sheetId, figure.id, data);
   }
 
   private createDataSet(sheetId: UID, fullZone: Zone, titleZone: Zone | undefined): DataSet {
