@@ -400,6 +400,7 @@ describe("Collaborative local history", () => {
           {
             type: "UPDATE_CHART",
             id: "fig1",
+            sheetId: "sheet1",
             //@ts-ignore the old command would handle a partial definition
             definition: { dataSets: ["A1:A3"] },
           },
@@ -428,6 +429,7 @@ describe("Collaborative local history", () => {
           {
             type: "UPDATE_CHART",
             id: "fig2",
+            sheetId: "sheet1",
             //@ts-ignore the old command would handle a partial definition
             definition: { dataSets: ["B1:B3"] },
           },
@@ -463,9 +465,10 @@ describe("Collaborative local history", () => {
       ],
     };
     const model = new Model(data, {}, initialMessages);
-    const definition1 = model.getters.getChartDefinition("fig1") as LineChartDefinition;
+    const sheetId = model.getters.getActiveSheetId();
+    const definition1 = model.getters.getChartDefinition(sheetId, "fig1") as LineChartDefinition;
     expect(definition1.dataSets).toEqual(["A1:A3"]);
-    const definition2 = model.getters.getChartDefinition("fig2") as LineChartDefinition;
+    const definition2 = model.getters.getChartDefinition(sheetId, "fig2") as LineChartDefinition;
     expect(definition2.dataSets).toEqual(["B1:B3"]);
   });
 

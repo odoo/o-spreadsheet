@@ -12,7 +12,7 @@ import { UIPlugin } from "../ui_plugin";
 export class EvaluationChartPlugin extends UIPlugin {
   static getters = ["getChartRuntime", "getBackgroundOfSingleCellChart"] as const;
 
-  readonly charts: Record<UID, ChartRuntime | undefined> = {};
+  readonly charts: { [sheetId: UID]: Record<UID, ChartRuntime | undefined> | undefined } = {};
 
   private createRuntimeChart = chartRuntimeFactory(this.getters);
 
@@ -23,8 +23,10 @@ export class EvaluationChartPlugin extends UIPlugin {
       cmd.type === "EVALUATE_CELLS" ||
       cmd.type === "UPDATE_CELL"
     ) {
-      for (const chartId in this.charts) {
-        this.charts[chartId] = undefined;
+      for (const sheetId in this.charts) {
+        for (const chartId in this.charts[sheetId]) {
+          this.charts[sheetId]![chartId] = undefined;
+        }
       }
     }
 
@@ -32,27 +34,26 @@ export class EvaluationChartPlugin extends UIPlugin {
       case "UPDATE_CHART":
       case "CREATE_CHART":
       case "DELETE_FIGURE":
-        this.charts[cmd.id] = undefined;
+        if (this.charts[cmd.sheetId]) {
+          this.charts[cmd.sheetId]![cmd.id] = undefined;
+        }
         break;
       case "DELETE_SHEET":
-        for (let chartId in this.charts) {
-          if (!this.getters.isChartDefined(chartId)) {
-            this.charts[chartId] = undefined;
-          }
-        }
+        delete this.charts[cmd.sheetId];
         break;
     }
   }
 
-  getChartRuntime(figureId: UID): ChartRuntime {
-    if (!this.charts[figureId]) {
-      const chart = this.getters.getChart(figureId);
+  getChartRuntime(sheetId: UID, figureId: UID): ChartRuntime {
+    if (!this.charts[sheetId]?.[figureId]) {
+      const chart = this.getters.getChart(sheetId, figureId);
       if (!chart) {
         throw new Error(`No chart for the given id: ${figureId}`);
       }
-      this.charts[figureId] = this.createRuntimeChart(chart);
+      if (!this.charts[sheetId]) this.charts[sheetId] = {};
+      this.charts[sheetId]![figureId] = this.createRuntimeChart(chart);
     }
-    return this.charts[figureId]!;
+    return this.charts[sheetId]![figureId]!;
   }
 
   /**
