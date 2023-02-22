@@ -121,9 +121,9 @@ export class ClipboardFigureChart {
     private dispatch: CommandDispatcher["dispatch"],
     getters: Getters,
     readonly sheetId: UID,
-    copiedFigureId: string
+    copiedFigureId: UID
   ) {
-    const chart = getters.getChart(copiedFigureId);
+    const chart = getters.getChart(sheetId, copiedFigureId);
     if (!chart) {
       throw new Error(`No chart for the given id: ${copiedFigureId}`);
     }
@@ -149,9 +149,9 @@ export class ClipboardFigureImage {
     private dispatch: CommandDispatcher["dispatch"],
     getters: Getters,
     readonly sheetId: UID,
-    copiedFigureId: string
+    copiedFigureId: UID
   ) {
-    const image = getters.getImage(copiedFigureId);
+    const image = getters.getImage(sheetId, copiedFigureId);
     this.copiedImage = deepCopy(image);
   }
 

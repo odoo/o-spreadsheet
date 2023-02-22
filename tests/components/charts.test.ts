@@ -216,7 +216,7 @@ describe("figures", () => {
             id: chartId,
             sheetId,
             definition: {
-              ...model.getters.getChartDefinition(chartId),
+              ...model.getters.getChartDefinition(sheetId, chartId),
               dataSetsHaveTitle: false,
             },
           });
@@ -236,7 +236,7 @@ describe("figures", () => {
         id: chartId,
         sheetId,
         definition: {
-          ...model.getters.getChartDefinition(chartId),
+          ...model.getters.getChartDefinition(sheetId, chartId),
           title: "hello",
         },
       });
@@ -276,8 +276,8 @@ describe("figures", () => {
     setInputValueAndTrigger(".o-chart-title input", "first_title", "input");
 
     await simulateClick(figures[1] as HTMLElement);
-    expect(model.getters.getChartDefinition("1").title).toBe("old_title_1");
-    expect(model.getters.getChartDefinition("2").title).toBe("old_title_2");
+    expect(model.getters.getChartDefinition(sheetId, "1").title).toBe("old_title_1");
+    expect(model.getters.getChartDefinition(sheetId, "2").title).toBe("old_title_2");
   });
 
   test.each(["basicChart", "scorecard"])(
@@ -313,7 +313,7 @@ describe("figures", () => {
         id: chartId,
         sheetId,
         definition: {
-          ...model.getters.getChartDefinition(chartId),
+          ...model.getters.getChartDefinition(sheetId, chartId),
           background: "#000000",
         },
       });
@@ -335,7 +335,7 @@ describe("figures", () => {
     for (let i = 0; i < rangesDomClasses.length; i++) {
       const domClass = rangesDomClasses[i];
       const attrName = nameInChartDef[i];
-      expect(model.getters.getChartDefinition(chartId)?.[attrName]).not.toBeUndefined();
+      expect(model.getters.getChartDefinition(sheetId, chartId)?.[attrName]).not.toBeUndefined();
       model.dispatch("SELECT_FIGURE", { id: chartId });
       parent.env.openSidePanel("ChartPanel");
       await nextTick();
@@ -344,7 +344,7 @@ describe("figures", () => {
       await nextTick();
       await simulateClick(domClass + " .o-selection-ok");
       expect(
-        (model.getters.getChartDefinition(chartId) as ChartDefinition)[attrName]
+        (model.getters.getChartDefinition(sheetId, chartId) as ChartDefinition)[attrName]
       ).toBeUndefined();
     }
   });
@@ -396,7 +396,9 @@ describe("figures", () => {
       await simulateClick(".o-figure");
       await simulateClick(".o-figure-menu-item");
       await simulateClick(".o-menu div[data-name='delete']");
-      expect(() => model.getters.getChartRuntime("someuuid")).toThrow();
+      expect(() =>
+        model.getters.getChartRuntime(model.getters.getActiveSheetId(), "someuuid")
+      ).toThrow();
       await nextTick();
       expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
     }
@@ -472,15 +474,14 @@ describe("figures", () => {
     setInputValueAndTrigger(element, "C1:C4", "change");
     await nextTick();
     await simulateClick(".o-data-series .o-selection-ok");
-    expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
-      "B1:B4",
-      "C1:C4",
-    ]);
+    expect(
+      (model.getters.getChartDefinition(sheetId, chartId) as BarChartDefinition).dataSets
+    ).toEqual(["B1:B4", "C1:C4"]);
     const remove = document.querySelectorAll(".o-data-series .o-remove-selection")[1];
     await simulateClick(remove);
-    expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
-      "B1:B4",
-    ]);
+    expect(
+      (model.getters.getChartDefinition(sheetId, chartId) as BarChartDefinition).dataSets
+    ).toEqual(["B1:B4"]);
   });
 
   describe("Chart error messages", () => {
@@ -816,7 +817,7 @@ describe("figures", () => {
         id: chartId,
         sheetId,
         definition: {
-          ...model.getters.getChartDefinition(chartId),
+          ...model.getters.getChartDefinition(sheetId, chartId),
           baselineColorUp: "#0000ff",
         },
       });
@@ -838,7 +839,7 @@ describe("figures", () => {
         id: chartId,
         sheetId,
         definition: {
-          ...model.getters.getChartDefinition(chartId),
+          ...model.getters.getChartDefinition(sheetId, chartId),
           baselineColorDown: "#ff0000",
         },
       });
@@ -908,14 +909,14 @@ describe("figures", () => {
       updateChart(model, chartId, { type: "line", labelRange: "C2:C4", dataSets: ["B2:B4"] });
       await nextTick();
       expect(
-        (model.getters.getChartDefinition(chartId) as LineChartDefinition).labelsAsText
+        (model.getters.getChartDefinition(sheetId, chartId) as LineChartDefinition).labelsAsText
       ).toBeFalsy();
       await simulateClick(".o-figure");
       await simulateClick(".o-figure-menu-item");
       await simulateClick(".o-menu div[data-name='edit']");
       await simulateClick("input[name='labelsAsText']");
       expect(
-        (model.getters.getChartDefinition(chartId) as LineChartDefinition).labelsAsText
+        (model.getters.getChartDefinition(sheetId, chartId) as LineChartDefinition).labelsAsText
       ).toBeTruthy();
     });
 
@@ -1015,7 +1016,7 @@ describe("charts with multiple sheets", () => {
   test("delete sheet containing chart data does not crash", async () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet1");
     model.dispatch("DELETE_SHEET", { sheetId: model.getters.getActiveSheetId() });
-    const runtimeChart = model.getters.getChartRuntime("1");
+    const runtimeChart = model.getters.getChartRuntime("Sheet2", "1");
     expect(runtimeChart).toBeDefined();
     await nextTick();
     expect(fixture.querySelector(".o-chart-container")).not.toBeNull();
@@ -1034,20 +1035,20 @@ describe("Default background on runtime tests", () => {
   });
   test("Creating a 'basicChart' without background should have default background on runtime", async () => {
     createChart(model, { dataSets: ["A1"] }, "1", sheetId);
-    expect(model.getters.getChartDefinition("1")?.background).toBeUndefined();
-    expect(model.getters.getChartRuntime("1").background).toBe(BACKGROUND_CHART_COLOR);
+    expect(model.getters.getChartDefinition(sheetId, "1")?.background).toBeUndefined();
+    expect(model.getters.getChartRuntime(sheetId, "1").background).toBe(BACKGROUND_CHART_COLOR);
   });
   test("Creating a 'basicChart' without background and updating its type should have default background on runtime", async () => {
     createChart(model, { dataSets: ["A1"] }, "1", sheetId);
     updateChart(model, "1", { type: "line" }, sheetId);
-    expect(model.getters.getChartDefinition("1")?.background).toBeUndefined();
-    expect(model.getters.getChartRuntime("1").background).toBe(BACKGROUND_CHART_COLOR);
+    expect(model.getters.getChartDefinition(sheetId, "1")?.background).toBeUndefined();
+    expect(model.getters.getChartRuntime(sheetId, "1").background).toBe(BACKGROUND_CHART_COLOR);
   });
   test("Creating a 'basicChart' on a single cell with style and converting into scorecard should have cell background as chart background", () => {
     setStyle(model, "A1", { fillColor: "#FA0000" }, sheetId);
     createChart(model, { dataSets: ["A1"] }, "1", sheetId);
     updateChart(model, "1", { type: "scorecard", keyValue: "A1" }, sheetId);
-    expect(model.getters.getChartDefinition("1")?.background).toBeUndefined();
-    expect(model.getters.getChartRuntime("1").background).toBe("#FA0000");
+    expect(model.getters.getChartDefinition(sheetId, "1")?.background).toBeUndefined();
+    expect(model.getters.getChartRuntime(sheetId, "1").background).toBe("#FA0000");
   });
 });

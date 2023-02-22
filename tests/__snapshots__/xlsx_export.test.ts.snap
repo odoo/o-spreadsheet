@@ -3473,16 +3473,18 @@ Object {
         <c:plotArea>
             <!-- how the chart element is placed on the chart -->
             <c:layout/>
-            <c:barChart>
-                <c:barDir val=\\"col\\"/>
-                <c:grouping val=\\"clustered\\"/>
-                <c:overlap val=\\"-20\\"/>
-                <c:gapWidth val=\\"70\\"/>
+            <c:lineChart>
+                <c:grouping val=\\"standard\\"/>
                 <!-- each data marker in the series does not have a different color -->
                 <c:varyColors val=\\"0\\"/>
                 <c:ser>
                     <c:idx val=\\"0\\"/>
                     <c:order val=\\"0\\"/>
+                    <c:smooth val=\\"0\\"/>
+                    <c:marker>
+                        <c:symbol val=\\"circle\\"/>
+                        <c:size val=\\"5\\"/>
+                    </c:marker>
                     <c:tx>
                         <c:strRef>
                             <c:f>
@@ -3491,13 +3493,11 @@ Object {
                         </c:strRef>
                     </c:tx>
                     <c:spPr>
-                        <a:solidFill>
-                            <a:srgbClr val=\\"1F77B4\\"/>
-                        </a:solidFill>
-                        <a:ln cmpd=\\"sng\\">
+                        <a:ln cmpd=\\"sng\\" w=\\"23813\\">
                             <a:solidFill>
                                 <a:srgbClr val=\\"1F77B4\\"/>
                             </a:solidFill>
+                            <a:prstDash val=\\"solid\\"/>
                         </a:ln>
                     </c:spPr>
                     <c:cat>
@@ -3521,6 +3521,11 @@ Object {
                 <c:ser>
                     <c:idx val=\\"1\\"/>
                     <c:order val=\\"1\\"/>
+                    <c:smooth val=\\"0\\"/>
+                    <c:marker>
+                        <c:symbol val=\\"circle\\"/>
+                        <c:size val=\\"5\\"/>
+                    </c:marker>
                     <c:tx>
                         <c:strRef>
                             <c:f>
@@ -3529,13 +3534,11 @@ Object {
                         </c:strRef>
                     </c:tx>
                     <c:spPr>
-                        <a:solidFill>
-                            <a:srgbClr val=\\"FF7F0E\\"/>
-                        </a:solidFill>
-                        <a:ln cmpd=\\"sng\\">
+                        <a:ln cmpd=\\"sng\\" w=\\"23813\\">
                             <a:solidFill>
                                 <a:srgbClr val=\\"FF7F0E\\"/>
                             </a:solidFill>
+                            <a:prstDash val=\\"solid\\"/>
                         </a:ln>
                     </c:spPr>
                     <c:cat>
@@ -3558,7 +3561,7 @@ Object {
                 </c:ser>
                 <c:axId val=\\"17781237\\"/>
                 <c:axId val=\\"88853993\\"/>
-            </c:barChart>
+            </c:lineChart>
             <c:catAx>
                 <c:axId val=\\"17781237\\"/>
                 <c:crossAx val=\\"88853993\\"/>

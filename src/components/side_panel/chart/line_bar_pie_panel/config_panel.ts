@@ -7,6 +7,7 @@ import { SelectionInput } from "../../../selection_input/selection_input";
 import { ChartTerms } from "../../../translations_terms";
 
 interface Props {
+  sheetId: UID;
   figureId: UID;
   definition: LineChartDefinition | BarChartDefinition | PieChartDefinition;
   updateChart: (
@@ -96,6 +97,7 @@ export class LineBarPieConfigPanel extends Component<Props, SpreadsheetChildEnv>
 }
 
 LineBarPieConfigPanel.props = {
+  sheetId: String,
   figureId: String,
   definition: Object,
   updateChart: Function,

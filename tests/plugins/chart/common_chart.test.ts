@@ -48,11 +48,15 @@ describe("Single cell chart background color", () => {
     "chart %s background color change with main cell CF background color",
     (chartType: string) => {
       createTestChart(chartType, "A1");
-      expect(model.getters.getChartRuntime(chartId).background).toEqual(BACKGROUND_CHART_COLOR);
+      expect(model.getters.getChartRuntime(sheetId, chartId).background).toEqual(
+        BACKGROUND_CHART_COLOR
+      );
       addCfToA1("#FF0000");
-      expect(model.getters.getChartRuntime(chartId).background).toEqual("#FF0000");
+      expect(model.getters.getChartRuntime(sheetId, chartId).background).toEqual("#FF0000");
       setCellContent(model, "A1", "random value not in CF");
-      expect(model.getters.getChartRuntime(chartId).background).toEqual(BACKGROUND_CHART_COLOR);
+      expect(model.getters.getChartRuntime(sheetId, chartId).background).toEqual(
+        BACKGROUND_CHART_COLOR
+      );
     }
   );
 
@@ -60,9 +64,11 @@ describe("Single cell chart background color", () => {
     "chart %s background color change with main cell background color",
     (chartType: string) => {
       createTestChart(chartType, "A1");
-      expect(model.getters.getChartRuntime(chartId).background).toEqual(BACKGROUND_CHART_COLOR);
+      expect(model.getters.getChartRuntime(sheetId, chartId).background).toEqual(
+        BACKGROUND_CHART_COLOR
+      );
       addFillToA1("#00FF00");
-      expect(model.getters.getChartRuntime(chartId).background).toEqual("#00FF00");
+      expect(model.getters.getChartRuntime(sheetId, chartId).background).toEqual("#00FF00");
     }
   );
 
@@ -72,7 +78,7 @@ describe("Single cell chart background color", () => {
       addCfToA1("#FF0000");
       addFillToA1("#00FF00");
       createTestChart(chartType, "A1");
-      expect(model.getters.getChartRuntime(chartId).background).toEqual("#FF0000");
+      expect(model.getters.getChartRuntime(sheetId, chartId).background).toEqual("#FF0000");
     }
   );
 
@@ -81,7 +87,7 @@ describe("Single cell chart background color", () => {
     (chartType: string) => {
       addCfToA1("#FF0000");
       createTestChart(chartType, "A1", "#0000FF");
-      expect(model.getters.getChartRuntime(chartId).background).toEqual("#0000FF");
+      expect(model.getters.getChartRuntime(sheetId, chartId).background).toEqual("#0000FF");
     }
   );
 

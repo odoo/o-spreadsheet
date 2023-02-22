@@ -79,7 +79,10 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get chartType(): ChartType {
-    return this.env.model.getters.getChartType(this.props.figure.id);
+    return this.env.model.getters.getChartType(
+      this.env.model.getters.getActiveSheetId(),
+      this.props.figure.id
+    );
   }
 
   onContextMenu(ev: MouseEvent) {
