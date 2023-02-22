@@ -3,6 +3,8 @@ import { ClientId, CoreCommand, HistoryChange, RevisionData, UID } from "../type
 export class Revision implements RevisionData {
   public readonly id: UID;
   public readonly clientId: ClientId;
+  public readonly timestamp: number | undefined;
+
   private _commands: readonly CoreCommand[] = [];
   private _changes: readonly HistoryChange[] = [];
 
@@ -19,12 +21,14 @@ export class Revision implements RevisionData {
     id: UID,
     clientId: ClientId,
     commands: readonly CoreCommand[],
-    changes?: readonly HistoryChange[]
+    changes?: readonly HistoryChange[],
+    timestamp?: number
   ) {
     this.id = id;
     this.clientId = clientId;
     this._commands = [...commands];
     this._changes = changes ? [...changes] : [];
+    this.timestamp = timestamp;
   }
 
   setChanges(changes: readonly HistoryChange[]) {

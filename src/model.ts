@@ -174,6 +174,14 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   uuidGenerator: UuidGenerator;
 
+  partialConfig: Partial<ModelConfig>;
+  beforeData: any;
+
+  getCopyWithMode(mode: Mode) {
+    const config = { ...this.partialConfig, mode: mode };
+    return new Model(this.beforeData, config, [], this.uuidGenerator, false);
+  }
+
   constructor(
     data: any = {},
     config: Partial<ModelConfig> = {},
@@ -183,6 +191,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   ) {
     super();
 
+    this.beforeData = data;
     stateUpdateMessages = repairInitialMessages(data, stateUpdateMessages);
 
     const workbookData = load(data, verboseImport);
@@ -191,6 +200,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     this.uuidGenerator = uuidGenerator;
 
+    this.partialConfig = config;
     this.config = this.setupConfig(config);
 
     this.session = this.setupSession(workbookData.revisionId);
@@ -602,5 +612,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     for (const plugin of this.corePlugins) {
       plugin.garbageCollectExternalResources();
     }
+  }
+
+  getSession() {
+    return this.session;
   }
 }

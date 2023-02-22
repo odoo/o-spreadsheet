@@ -81,7 +81,13 @@ export class Session extends EventBus<CollaborativeEvent> {
    */
   save(commands: CoreCommand[], changes: HistoryChange[]) {
     if (!commands.length || !changes.length || !this.canApplyOptimisticUpdate()) return;
-    const revision = new Revision(this.uuidGenerator.uuidv4(), this.clientId, commands, changes);
+    const revision = new Revision(
+      this.uuidGenerator.uuidv4(),
+      this.clientId,
+      commands,
+      changes,
+      Date.now()
+    );
     this.revisions.append(revision.id, revision);
     this.trigger("new-local-state-update", { id: revision.id });
     this.sendUpdateMessage({
@@ -91,6 +97,7 @@ export class Session extends EventBus<CollaborativeEvent> {
       nextRevisionId: revision.id,
       clientId: revision.clientId,
       commands: revision.commands,
+      timestamp: revision.timestamp,
     });
   }
 
@@ -259,8 +266,14 @@ export class Session extends EventBus<CollaborativeEvent> {
           this.trigger("unexpected-revision-id", { revisionId: message.serverRevisionId });
           return;
         }
-        const { clientId, commands } = message;
-        const revision = new Revision(message.nextRevisionId, clientId, commands);
+        const { clientId, commands, timestamp } = message;
+        const revision = new Revision(
+          message.nextRevisionId,
+          clientId,
+          commands,
+          undefined,
+          timestamp
+        );
         if (revision.clientId !== this.clientId) {
           this.revisions.insert(revision.id, revision, message.serverRevisionId);
           const pendingCommands = this.pendingMessages
@@ -404,5 +417,9 @@ export class Session extends EventBus<CollaborativeEvent> {
     this.pendingMessages = this.pendingMessages.filter(
       ({ type }) => type !== "REVISION_REDONE" && type !== "REVISION_UNDONE"
     );
+  }
+
+  getRevisions() {
+    return this.revisions;
   }
 }

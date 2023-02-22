@@ -114,7 +114,7 @@ export class SelectiveHistory<T = unknown> {
   /**
    * Revert the state as it was *after* the given operation was executed.
    */
-  private revertTo(operationId: UID | null) {
+  revertTo(operationId: UID | null) {
     const execution = operationId
       ? this.tree.revertedExecution(this.HEAD_BRANCH).stopBefore(operationId)
       : this.tree.revertedExecution(this.HEAD_BRANCH);
@@ -139,7 +139,7 @@ export class SelectiveHistory<T = unknown> {
   /**
    * Replay the operations between the current HEAD_BRANCH and the end of the tree
    */
-  private fastForward() {
+  fastForward() {
     const operations = this.HEAD_OPERATION
       ? this.tree.execution(this.HEAD_BRANCH).startAfter(this.HEAD_OPERATION.id)
       : this.tree.execution(this.HEAD_BRANCH);
@@ -150,5 +150,17 @@ export class SelectiveHistory<T = unknown> {
       this.HEAD_OPERATION = operation;
       this.HEAD_BRANCH = branch;
     }
+  }
+
+  getTree() {
+    return this.tree;
+  }
+
+  getHeadBranch() {
+    return this.HEAD_BRANCH;
+  }
+
+  getHeadOperation() {
+    return this.HEAD_OPERATION;
   }
 }
