@@ -48,7 +48,10 @@ export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
       name: _lt("Reset size"),
       sequence: 3,
       action: () => {
-        const size = this.env.model.getters.getImageSize(this.figureId);
+        const size = this.env.model.getters.getImage(
+          this.env.model.getters.getActiveSheetId(),
+          this.figureId
+        ).size;
         const { height, width } = getMaxFigureSize(this.env.model.getters, size);
         this.env.model.dispatch("UPDATE_FIGURE", {
           sheetId: this.env.model.getters.getActiveSheetId(),
@@ -104,7 +107,8 @@ export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get getImagePath(): string {
-    return this.env.model.getters.getImagePath(this.figureId);
+    return this.env.model.getters.getImage(this.env.model.getters.getActiveSheetId(), this.figureId)
+      .path;
   }
 }
 

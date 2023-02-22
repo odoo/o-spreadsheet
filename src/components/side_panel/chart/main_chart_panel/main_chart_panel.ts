@@ -47,6 +47,7 @@ interface Props {
 
 interface State {
   panel: "configuration" | "design";
+  sheetId: UID;
   figureId: UID;
 }
 
@@ -60,6 +61,10 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
     return this.state.figureId;
   }
 
+  get sheetId(): UID {
+    return this.state.sheetId;
+  }
+
   setup(): void {
     const selectedFigureId = this.env.model.getters.getSelectedFigureId();
     if (!selectedFigureId) {
@@ -68,17 +73,19 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
     this.state = useState({
       panel: "configuration",
       figureId: selectedFigureId,
+      sheetId: this.env.model.getters.getActiveSheetId(),
     });
 
     onWillUpdateProps(() => {
       const selectedFigureId = this.env.model.getters.getSelectedFigureId();
       if (selectedFigureId && selectedFigureId !== this.state.figureId) {
         this.state.figureId = selectedFigureId;
+        this.state.sheetId = this.env.model.getters.getActiveSheetId();
         this.shouldUpdateChart = false;
       } else {
         this.shouldUpdateChart = true;
       }
-      if (!this.env.model.getters.isChartDefined(this.figureId)) {
+      if (!this.env.model.getters.isChartDefined(this.sheetId, this.figureId)) {
         this.props.onCloseSidePanel();
         return;
       }
@@ -93,28 +100,30 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
       ...(this.getChartDefinition() as T),
       ...updateDefinition,
     };
+    // TODORAR add a putain de test - c'est faux de nouveau ...
     return this.env.model.dispatch("UPDATE_CHART", {
       definition,
       id: this.figureId,
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.sheetId,
     });
   }
 
   onTypeChange(type: ChartType) {
-    const context = this.env.model.getters.getContextCreationChart(this.figureId);
+    const context = this.env.model.getters.getContextCreationChart(this.sheetId, this.figureId);
     if (!context) {
       throw new Error("Chart not defined.");
     }
     const definition = getChartDefinitionFromContextCreation(context, type);
+    // TODORAR add a putain de test - c'est faux de nouveau ...
     this.env.model.dispatch("UPDATE_CHART", {
       definition,
       id: this.figureId,
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.sheetId,
     });
   }
 
   get chartPanel(): ChartSidePanel {
-    const type = this.env.model.getters.getChartType(this.figureId);
+    const type = this.env.model.getters.getChartType(this.sheetId, this.figureId);
     if (!type) {
       throw new Error("Chart not defined.");
     }
@@ -125,8 +134,8 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
     return chartPanel;
   }
 
-  private getChartDefinition(figureId: UID = this.figureId): ChartDefinition {
-    return this.env.model.getters.getChartDefinition(figureId);
+  private getChartDefinition(): ChartDefinition {
+    return this.env.model.getters.getChartDefinition(this.sheetId, this.figureId);
   }
 
   get chartTypes() {
