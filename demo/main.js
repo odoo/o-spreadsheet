@@ -36,7 +36,7 @@ topbarMenuRegistry.addChild("clear", ["file"], {
   name: "Clear & reload",
   sequence: 10,
   action: async (env) => {
-    await fetch("http://localhost:9000/clear");
+    await fetch("http://localhost:9090/clear");
     document.location.reload();
   },
 });
@@ -247,7 +247,7 @@ class Demo extends Component {
    * @returns {Promise}
    */
   async fetchHistory() {
-    const result = await fetch("http://localhost:9000");
+    const result = await fetch("http://localhost:9090");
     return result.json();
   }
 }
