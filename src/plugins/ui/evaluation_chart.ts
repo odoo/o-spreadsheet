@@ -23,7 +23,8 @@ export class EvaluationChartPlugin extends UIPlugin {
   static modes: Mode[] = ["normal"];
   // contains the configuration of the chart with it's values like they should be displayed,
   // as well as all the options needed for the chart library to work correctly
-  readonly chartRuntime: { [figureId: string]: ChartConfiguration } = {};
+  readonly chartRuntime: { [sheetId: UID]: { [figureId: UID]: ChartConfiguration } | undefined } =
+    {};
   private outOfDate: Set<UID> = new Set<UID>();
 
   handle(cmd: Command) {
@@ -32,33 +33,36 @@ export class EvaluationChartPlugin extends UIPlugin {
       cmd.type === "EVALUATE_CELLS" ||
       (cmd.type === "UPDATE_CELL" && "content" in cmd)
     ) {
-      for (let chartId of Object.keys(this.chartRuntime)) {
-        this.outOfDate.add(chartId);
+      for (const sheetId of Object.keys(this.chartRuntime)) {
+        for (const chartId of Object.keys(this.chartRuntime[sheetId] || {})) {
+          this.outOfDate.add(chartId);
+        }
       }
     }
     switch (cmd.type) {
       case "UPDATE_CHART":
-      case "CREATE_CHART":
-        const chartDefinition = this.getters.getChartDefinition(cmd.id)!;
-        this.chartRuntime[cmd.id] = this.mapDefinitionToRuntime(chartDefinition);
+      case "CREATE_CHART": {
+        const chartDefinition = this.getters.getChartDefinition(cmd.sheetId, cmd.id)!;
+        if (!this.chartRuntime[cmd.sheetId]) this.chartRuntime[cmd.sheetId] = {};
+        this.chartRuntime[cmd.sheetId]![cmd.id] = this.mapDefinitionToRuntime(chartDefinition);
         break;
+      }
       case "DELETE_FIGURE":
-        delete this.chartRuntime[cmd.id];
+        delete this.chartRuntime[cmd.sheetId]?.[cmd.id];
         break;
-      case "REFRESH_CHART":
-        this.evaluateUsedSheets([cmd.id]);
+      case "REFRESH_CHART": {
+        const chartDefinition = this.getters.getChartDefinition(cmd.sheetId, cmd.id)!;
+        this.evaluateUsedSheets([chartDefinition]);
         this.outOfDate.add(cmd.id);
         break;
-      case "ACTIVATE_SHEET":
-        const chartsIds = this.getters.getChartsIdBySheet(cmd.sheetIdTo);
-        this.evaluateUsedSheets(chartsIds);
+      }
+      case "ACTIVATE_SHEET": {
+        const chartsDefinitions = this.getters.getChartDefinitionsBySheet(cmd.sheetIdTo);
+        this.evaluateUsedSheets(chartsDefinitions);
         break;
+      }
       case "DELETE_SHEET":
-        for (let chartId of Object.keys(this.chartRuntime)) {
-          if (!this.getters.getChartDefinition(chartId)) {
-            delete this.chartRuntime[chartId];
-          }
-        }
+        delete this.chartRuntime[cmd.sheetId];
         break;
     }
   }
@@ -67,14 +71,19 @@ export class EvaluationChartPlugin extends UIPlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getChartRuntime(figureId: string): ChartConfiguration | undefined {
-    if (this.outOfDate.has(figureId) || !(figureId in this.chartRuntime)) {
-      const chartDefinition = this.getters.getChartDefinition(figureId);
+  getChartRuntime(sheetId: UID, figureId: string): ChartConfiguration | undefined {
+    if (
+      this.outOfDate.has(figureId) ||
+      !(sheetId in this.chartRuntime) ||
+      !(figureId in this.chartRuntime[sheetId]!)
+    ) {
+      const chartDefinition = this.getters.getChartDefinition(sheetId, figureId);
       if (chartDefinition === undefined) return;
-      this.chartRuntime[figureId] = this.mapDefinitionToRuntime(chartDefinition);
+      if (!this.chartRuntime[sheetId]) this.chartRuntime[sheetId] = {};
+      this.chartRuntime[sheetId]![figureId] = this.mapDefinitionToRuntime(chartDefinition);
       this.outOfDate.delete(figureId);
     }
-    return this.chartRuntime[figureId];
+    return this.chartRuntime[sheetId]![figureId];
   }
 
   private truncateLabel(label: string | undefined): string {
@@ -185,10 +194,9 @@ export class EvaluationChartPlugin extends UIPlugin {
     return sheetIds;
   }
 
-  private evaluateUsedSheets(chartsIds: UID[]) {
+  private evaluateUsedSheets(chartsDefinitions: ChartDefinition[]) {
     const usedSheetsId: Set<UID> = new Set();
-    for (let chartId of chartsIds) {
-      const chartDefinition = this.getters.getChartDefinition(chartId);
+    for (const chartDefinition of chartsDefinitions) {
       const sheetsIds =
         chartDefinition !== undefined ? this.getSheetIdsUsedInChart(chartDefinition) : [];
       sheetsIds.forEach((sheetId) => {

@@ -367,7 +367,7 @@ export interface UpdateChartCommand extends BaseCommand, SheetDependentCommand {
   definition: ChartUIDefinitionUpdate;
 }
 
-export interface RefreshChartCommand extends BaseCommand {
+export interface RefreshChartCommand extends BaseCommand, SheetDependentCommand {
   type: "REFRESH_CHART";
   id: UID;
 }
