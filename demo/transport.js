@@ -14,7 +14,7 @@ export class WebsocketTransport {
    */
   connect() {
     return new Promise((resolve, reject) => {
-      const socket = new WebSocket(`ws://localhost:9000`);
+      const socket = new WebSocket(`ws://localhost:9090`);
       socket.addEventListener("open", () => {
         this.socket = socket;
         this.isConnected = true;
