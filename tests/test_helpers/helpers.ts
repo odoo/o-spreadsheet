@@ -571,6 +571,7 @@ export function getFigureIds(model: Model, sheetId: UID, type?: string): UID[] {
 
 export function getFigureDefinition(
   model: Model,
+  sheetId: UID,
   figureId: UID,
   type: string
 ): ChartDefinition | Image {
@@ -579,9 +580,9 @@ export function getFigureDefinition(
     case "basicChart":
     case "scorecard":
     case "gauge":
-      return model.getters.getChartDefinition(figureId);
+      return model.getters.getChartDefinition(sheetId, figureId);
     case "image":
-      return model.getters.getImage(figureId);
+      return model.getters.getImage(sheetId, figureId);
     default:
       throw new Error(`Invalide figure type: ${type}`);
   }
