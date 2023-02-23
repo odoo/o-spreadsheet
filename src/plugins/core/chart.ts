@@ -1,4 +1,4 @@
-import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH } from "../../constants";
+import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH, FIGURE_ID_SPLITTER } from "../../constants";
 import { AbstractChart } from "../../helpers/charts/abstract_chart";
 import { chartFactory, validateChartDefinition } from "../../helpers/charts/chart_factory";
 import {
@@ -29,7 +29,6 @@ import { CorePlugin } from "../core_plugin";
 
 interface ChartState {
   readonly charts: Record<UID, AbstractChart | undefined>;
-  readonly nextId: number;
 }
 
 export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
@@ -43,7 +42,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   ] as const;
 
   readonly charts: Record<UID, AbstractChart | undefined> = {};
-  readonly nextId = 1;
 
   private createChart = chartFactory(this.getters);
   private validateChartDefinition = (definition: ChartDefinition) =>
@@ -83,12 +81,12 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
         for (const fig of sheetFiguresFrom) {
           if (fig.tag === "chart") {
-            const id = this.nextId.toString();
-            this.history.update("nextId", this.nextId + 1);
+            const figureIdBase = fig.id.split(FIGURE_ID_SPLITTER).pop();
+            const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
             const chart = this.charts[fig.id]?.copyForSheetId(cmd.sheetIdTo);
             if (chart) {
               this.dispatch("CREATE_CHART", {
-                id,
+                id: duplicatedFigureId,
                 position: { x: fig.x, y: fig.y },
                 size: { width: fig.width, height: fig.height },
                 definition: chart.getDefinition(),
@@ -160,7 +158,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
           // figure data should be external IMO => chart should be in sheet.chart
           // instead of in figure.data
           if (figure.tag === "chart") {
-            this.history.update("nextId", this.nextId + 1);
             this.charts[figure.id] = this.createChart(figure.id, figure.data, sheet.id);
           }
         }
