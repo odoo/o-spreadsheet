@@ -77,6 +77,7 @@ export const DEFAULT_REVISION_ID = "START_REVISION";
 
 // Chart
 export const MAX_CHAR_LABEL = 20;
+export const FIGURE_ID_SPLITTER = "??";
 
 export const DEBOUNCE_TIME = 200;
 

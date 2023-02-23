@@ -1,4 +1,4 @@
-import { INCORRECT_RANGE_STRING } from "../../constants";
+import { FIGURE_ID_SPLITTER, INCORRECT_RANGE_STRING } from "../../constants";
 import { deepCopy, rangeReference, zoneToDimension, zoneToXc } from "../../helpers/index";
 import {
   ApplyRangeChange,
@@ -30,13 +30,11 @@ import { CorePlugin } from "../core_plugin";
 
 interface ChartState {
   readonly chartFigures: Record<UID, ChartDefinition | undefined>;
-  readonly nextId: number;
 }
 
 export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   static getters = ["getChartDefinition", "getChartDefinitionUI", "getChartsIdBySheet"] as const;
   readonly chartFigures: Record<UID, ChartDefinition> = {};
-  readonly nextId = 1;
 
   adaptRanges(applyChange: ApplyRangeChange) {
     for (let [chartId, chart] of Object.entries(this.chartFigures)) {
@@ -162,9 +160,13 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
         for (const fig of sheetFiguresFrom) {
           if (fig.tag === "chart") {
-            const id = this.nextId.toString();
-            this.history.update("nextId", this.nextId + 1);
-            const chartDefinition = { ...deepCopy(this.chartFigures[fig.id]), id };
+            const figureIdBase = fig.id.split(FIGURE_ID_SPLITTER).pop();
+            const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
+
+            const chartDefinition = {
+              ...deepCopy(this.chartFigures[fig.id]),
+              id: duplicatedFigureId,
+            };
             chartDefinition.sheetId = cmd.sheetIdTo;
             chartDefinition.dataSets.forEach((dataset) => {
               if (dataset.dataRange.sheetId === cmd.sheetId) {
@@ -179,7 +181,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
             }
 
             const figure: Figure = {
-              id: id,
+              id: duplicatedFigureId,
               x: fig.x,
               y: fig.y,
               height: fig.height,
@@ -289,7 +291,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       if (sheet.figures) {
         for (let figure of sheet.figures) {
           if (figure.tag === "chart") {
-            this.history.update("nextId", this.nextId + 1);
             const figureData: ChartUIDefinition = {
               ...figure.data,
             };
