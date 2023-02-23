@@ -11,7 +11,7 @@ import { Command, CommandResult, Highlight, LAYERS, UID } from "../../types/inde
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
 export interface RangeInputValue {
-  id: UID;
+  id: number;
   xc: string;
   color: string;
 }
@@ -188,8 +188,8 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
       0,
       ...values.map((xc, i) => ({
         xc,
-        id: (currentMaxId + i + 1).toString(),
-        color: colors[(currentMaxId + 1 + i) % colors.length],
+        id: currentMaxId + i + 1,
+        color: colors[(currentMaxId + i) % colors.length],
       }))
     );
   }
@@ -264,7 +264,7 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
    * Return the index of a range given its id
    * or `null` if the range is not found.
    */
-  getIndex(rangeId: string | null): number | null {
+  getIndex(rangeId: number | null): number | null {
     const index = this.ranges.findIndex((range) => range.id === rangeId);
     return index >= 0 ? index : null;
   }

@@ -108,9 +108,9 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     const ranges = existingSelectionRange.length
       ? existingSelectionRange
       : this.props.ranges
-      ? this.props.ranges.map((xc, i) => ({
+      ? this.props.ranges.map((xc, id) => ({
           xc,
-          id: i.toString(),
+          id,
           isFocused: false,
         }))
       : [];
@@ -186,10 +186,11 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     } else if (ev.key === "Enter") {
       const target = ev.target as HTMLInputElement;
       target.blur();
+      this.confirm();
     }
   }
 
-  focus(rangeId: string) {
+  focus(rangeId: number) {
     this.state.isMissing = false;
     this.state.mode = "select-range";
     this.env.model.dispatch("FOCUS_RANGE", {
@@ -202,13 +203,13 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     this.env.model.dispatch("ADD_EMPTY_RANGE", { id: this.id });
   }
 
-  removeInput(rangeId: string) {
+  removeInput(rangeId: number) {
     this.env.model.dispatch("REMOVE_RANGE", { id: this.id, rangeId });
     this.triggerChange();
     this.props.onSelectionConfirmed?.();
   }
 
-  onInputChanged(rangeId: string, ev: InputEvent) {
+  onInputChanged(rangeId: number, ev: InputEvent) {
     const target = ev.target as HTMLInputElement;
     this.env.model.dispatch("CHANGE_RANGE", {
       id: this.id,
@@ -218,7 +219,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     this.triggerChange();
   }
 
-  disable() {
+  confirm() {
     this.env.model.dispatch("UNFOCUS_SELECTION_INPUT");
     const ranges = this.env.model.getters.getSelectionInputValue(this.id);
     if (this.props.required && ranges.length === 0) {

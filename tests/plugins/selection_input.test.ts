@@ -29,7 +29,7 @@ function highlightedZones(model: Model) {
     .map(zoneToXc);
 }
 
-function idOfRange(model: Model, id: string, rangeIndex: number): string {
+function idOfRange(model: Model, id: string, rangeIndex: number): number {
   return model.getters.getSelectionInput(id)[rangeIndex].id;
 }
 
@@ -663,5 +663,16 @@ describe("selection input plugin", () => {
     const [newFirstColor, newSecondColor] = model.getters.getSelectionInput(id).map((i) => i.color);
     expect(initialFirstColor).toBe(newFirstColor);
     expect(initalSecondColor).toBe(newSecondColor);
+  });
+
+  test("no duplicate range ids when creating and deleting ranges frequently", () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, initialRanges: ["B1:B5", "C1:C5"] });
+    model.dispatch("ADD_EMPTY_RANGE", { id }); // id: 3
+    model.dispatch("ADD_EMPTY_RANGE", { id }); // id: 4
+    model.dispatch("REMOVE_RANGE", { id, rangeId: idOfRange(model, id, 2) });
+    model.dispatch("ADD_EMPTY_RANGE", { id }); // id: 5
+    const selectionInput = model.getters.getSelectionInput(id);
+    expect(selectionInput.length).toEqual(4);
+    expect(selectionInput.map((input) => input.id)).toStrictEqual([1, 2, 4, 5]);
   });
 });

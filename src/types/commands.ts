@@ -719,7 +719,7 @@ export interface FocusInputCommand {
   /**
    * Range to focus
    */
-  rangeId: string;
+  rangeId: number;
 }
 
 /**
@@ -740,7 +740,7 @@ export interface RemoveRangeCommand {
   /** SelectionComponent id */
   id: string;
   /** The range to be removed */
-  rangeId: string;
+  rangeId: number;
 }
 
 /**
@@ -751,7 +751,7 @@ export interface ChangeRangeCommand {
   /** SelectionComponent id */
   id: string;
   /** The range to be changed */
-  rangeId: string;
+  rangeId: number;
   /**
    * Range to set in the input. Invalid ranges are also accepted.
    * e.g. "B2:B3" or the invalid "A5:"

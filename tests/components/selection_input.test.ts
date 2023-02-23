@@ -32,6 +32,7 @@ interface SelectionInputTestConfig {
   initialRanges?: string[];
   hasSingleRange?: boolean;
   onChanged?: jest.Mock<void, [any]>;
+  onConfirmed?: jest.Mock<void, []>;
 }
 
 class Parent extends Component<any> {
@@ -39,13 +40,15 @@ class Parent extends Component<any> {
     <SelectionInput
       ranges="initialRanges || []"
       hasSingleRange="hasSingleRange"
-      onSelectionChanged="(ranges) => this.onChanged(ranges)" />
+      onSelectionChanged="(ranges) => this.onChanged(ranges)"
+      onSelectionConfirmed="onConfirmed" />
   `;
   static components = { SelectionInput };
   model!: Model;
   initialRanges: string[] | undefined;
   hasSingleRange: boolean | undefined;
   onChanged!: jest.Mock<void, [any]>;
+  onConfirmed!: jest.Mock<void, []>;
 
   get id(): string {
     const selectionInput = getChildFromComponent(this, SelectionInput);
@@ -60,6 +63,7 @@ class Parent extends Component<any> {
     this.hasSingleRange = this.props.config.hasSingleRange;
     this.model = model;
     this.onChanged = this.props.config.onChanged || jest.fn();
+    this.onConfirmed = this.props.config.onConfirmed || jest.fn();
     onMounted(() => {
       this.model.on("update", this, () => this.render(true));
       this.render(true);
@@ -125,6 +129,20 @@ describe("Selection Input", () => {
     await createSelectionInput();
     await simulateClick(".o-add-selection");
     expect(fixture.querySelectorAll(".o-remove-selection").length).toBe(2);
+  });
+
+  test("hitting enter key acts the same as clicking confirm button", async () => {
+    let isConfirmed = false;
+    const onConfirmed = jest.fn(() => {
+      isConfirmed = true;
+    });
+    await createSelectionInput({ onConfirmed });
+    expect(fixture.querySelector(".o-focused")).toBeTruthy();
+    expect(isConfirmed).toBeFalsy();
+    await keyDown("Enter");
+    expect(fixture.querySelector(".o-focused")).toBeFalsy();
+    expect(onConfirmed).toHaveBeenCalled();
+    expect(isConfirmed).toBeTruthy();
   });
 
   test("input is filled when new cells are selected", async () => {
