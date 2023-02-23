@@ -1,5 +1,6 @@
 import { Model } from "../../../src";
 import { ChartTerms } from "../../../src/components/translations_terms";
+import { FIGURE_ID_SPLITTER } from "../../../src/constants";
 import { BarChart } from "../../../src/helpers/figures/charts";
 import { toZone, zoneToXc } from "../../../src/helpers/zones";
 import { ChartPlugin } from "../../../src/plugins/core/chart";
@@ -821,6 +822,7 @@ describe("datasource tests", function () {
         dataSets: ["B1:B4", "C1:C4"],
         labelRange: "A2:A4",
       },
+      "myChart",
       firstSheetId
     );
     model.dispatch("DUPLICATE_SHEET", {
@@ -845,6 +847,10 @@ describe("datasource tests", function () {
     expect(newModel.getters.getChartIds(firstSheetId).length).toEqual(1);
     expect(newModel.getters.getChartIds(secondSheetId).length).toEqual(1);
     expect(newModel.getters.getChartIds(thirdSheetId).length).toEqual(1);
+
+    expect(figuresSh1[0].id).toEqual("myChart");
+    expect(figuresSh2[0].id).toEqual(secondSheetId + FIGURE_ID_SPLITTER + "myChart");
+    expect(figuresSh3[0].id).toEqual(thirdSheetId + FIGURE_ID_SPLITTER + "myChart");
 
     const chartSh1 = newModel.getters.getChart(figuresSh1[0].id);
     const chartSh2 = newModel.getters.getChart(figuresSh2[0].id);
