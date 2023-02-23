@@ -12,11 +12,13 @@ import {
   Command,
   CommandResult,
   CoreCommand,
+  CreateChartCommand,
   ExcelWorkbookData,
   Figure,
   FigureData,
   Pixel,
   UID,
+  UpdateChartCommand,
   WorkbookData,
 } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
@@ -44,8 +46,8 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   readonly charts: ChartState["charts"] = {};
 
   private createChart = chartFactory(this.getters);
-  private validateChartDefinition = (definition: ChartDefinition) =>
-    validateChartDefinition(this, definition);
+  private validateChartDefinition = (cmd: CreateChartCommand | UpdateChartCommand) =>
+    validateChartDefinition(this, cmd.definition);
 
   adaptRanges(applyChange: ApplyRangeChange) {
     for (const sheetId of Object.keys(this.charts)) {
@@ -62,8 +64,12 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   allowDispatch(cmd: Command) {
     switch (cmd.type) {
       case "CREATE_CHART":
+        return this.checkValidations(
+          cmd,
+          this.chainValidations(this.validateChartDefinition, this.checkChartDuplicate)
+        );
       case "UPDATE_CHART":
-        return this.validateChartDefinition(cmd.definition);
+        return this.validateChartDefinition(cmd);
       default:
         return CommandResult.Success;
     }
@@ -239,5 +245,12 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
    */
   private addChart(id: UID, sheetId: UID, definition: ChartDefinition) {
     this.history.update("charts", sheetId, id, this.createChart(id, definition, sheetId));
+  }
+
+  private checkChartDuplicate(cmd: CreateChartCommand): CommandResult {
+    if (this.charts[cmd.sheetId]?.[cmd.id]) {
+      return CommandResult.DuplicatedChartId;
+    }
+    return CommandResult.Success;
   }
 }
