@@ -1,5 +1,6 @@
 import { Session } from "../../collaborative/session";
 import { MAX_HISTORY_STEPS } from "../../constants";
+import { canRepeatRevision, repeatRevision } from "../../history/repeat_commands/repeat_revision";
 import { Command, CommandResult, UID } from "../../types";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
@@ -67,6 +68,24 @@ export class HistoryPlugin extends UIPlugin {
   private requestHistoryChange(type: "UNDO" | "REDO") {
     const id = type === "UNDO" ? this.undoStack.pop() : this.redoStack.pop();
     if (!id) {
+      const lastNonRedoRevision = this.getPossibleRevisionToRepeat();
+      if (!lastNonRedoRevision) {
+        return;
+      }
+
+      const repeatedCommands = repeatRevision(lastNonRedoRevision, this.getters);
+      if (!repeatedCommands) {
+        return;
+      }
+
+      if (!Array.isArray(repeatedCommands)) {
+        this.dispatch(repeatedCommands.type, repeatedCommands);
+        return;
+      }
+
+      for (const command of repeatedCommands) {
+        this.dispatch(command.type, command);
+      }
       return;
     }
     if (type === "UNDO") {
@@ -83,7 +102,9 @@ export class HistoryPlugin extends UIPlugin {
   }
 
   canRedo(): boolean {
-    return this.redoStack.length > 0;
+    if (this.redoStack.length > 0) return true;
+    const lastNonRedoRevision = this.getPossibleRevisionToRepeat();
+    return canRepeatRevision(lastNonRedoRevision);
   }
 
   private drop(revisionIds: UID[]) {
@@ -97,5 +118,15 @@ export class HistoryPlugin extends UIPlugin {
     if (this.undoStack.length > MAX_HISTORY_STEPS) {
       this.undoStack.shift();
     }
+  }
+
+  /**
+   * Fetch the last revision which is not empty and not a repeated command
+   *
+   * Ignore repeated commands (REQUEST_REDO command as root command)
+   * Ignore standard undo/redo revisions (that are empty)
+   */
+  private getPossibleRevisionToRepeat() {
+    return this.session.getLastLocalNonEmptyRevision(["REQUEST_REDO"]);
   }
 }

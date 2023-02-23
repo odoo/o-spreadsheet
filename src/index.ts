@@ -83,6 +83,11 @@ import {
   topbarComponentRegistry,
   topbarMenuRegistry,
 } from "./registries/index";
+import {
+  genericRepeat,
+  repeatCommandTransformRegistry,
+  repeatLocalCommandTransformRegistry,
+} from "./registries/repeat_commands_registry";
 import { FunctionDescription } from "./types";
 import { CellErrorLevel, EvaluationError } from "./types/errors";
 
@@ -159,6 +164,8 @@ export const registries = {
   urlRegistry,
   cellPopoverRegistry,
   numberFormatMenuRegistry,
+  repeatLocalCommandTransformRegistry,
+  repeatCommandTransformRegistry,
 };
 export const helpers = {
   arg,
@@ -187,6 +194,7 @@ export const helpers = {
   positionToZone,
   isDefined,
   lazy,
+  genericRepeat,
 };
 
 export const links = {

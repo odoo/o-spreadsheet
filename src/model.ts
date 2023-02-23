@@ -28,6 +28,7 @@ import {
 import { StateObserver } from "./state_observer";
 import { _lt } from "./translation";
 import { StateUpdateMessage, TransportService } from "./types/collaborative/transport_service";
+import { CommandTypes } from "./types/commands";
 import { FileStore } from "./types/files";
 import {
   canExecuteInReadonly,
@@ -471,7 +472,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    *    component)
    * 2. This allows us to define its type by using the interface CommandDispatcher
    */
-  dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
+  dispatch: CommandDispatcher["dispatch"] = (type: CommandTypes, payload?: any) => {
     const command: Command = { ...payload, type };
     let status: Status = this.status;
     if (this.getters.isReadonly() && !canExecuteInReadonly(command)) {
@@ -494,7 +495,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
           this.dispatchToHandlers(this.handlers, command);
           this.finalize();
         });
-        this.session.save(commands, changes);
+        this.session.save(command, commands, changes);
         this.status = Status.Ready;
         this.trigger("update");
         break;

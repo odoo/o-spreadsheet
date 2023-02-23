@@ -34,3 +34,59 @@ To declare that a new command should be executed in readonly mode, its type shou
 const { readonlyAllowedCommands } = o_spreadsheet;
 readonlyAllowedCommands.add("MY_COMMAND_NAME");
 ```
+
+### Repeat Commands
+
+Some commands can be repeated. A command will be repeated if the user tries to REDO while the redo stack is empty. In this case, the history plugin will check if the last command locally dispatched is repeatable. If this is the case, the command will be adapted to the current selection and the current active sheet before being dispatched again.
+
+#### Repeat Core Commands
+
+To declare that a core command is repeatable, it should be added to the `repeatCommandTransformRegistry`
+
+```js
+const { repeatCommandTransformRegistry, genericRepeat } = o_spreadsheet;
+repeatCommandTransformRegistry.add("MY_CORE_COMMAND", genericRepeat);
+```
+
+The second argument is a transform function that takes the original command as argument, will adapt this command to the current selection and active sheet and return the repeated command.
+
+The `genericRepeat` function is a generic function that can be used for most commands. It will transform common command payload (sheetId/target/zone/position) to the current selection and active sheet.
+
+If a command need a more specific transformation, a custom transform function can be defined. Here is the transform of `ADD_COL_ROW_COMMAND` for example:
+
+```js
+type RepeatTransform = (getters: Getters, cmd: CoreCommand) => CoreCommand | undefined;
+
+export function repeatAddColumnsRowsCommand(
+  getters: Getters,
+  cmd: AddColumnsRowsCommand
+): AddColumnsRowsCommand {
+  const currentPosition = getters.getActivePosition();
+  const currentSheetId = getters.getActiveSheetId();
+  return {
+    ...deepCopy(cmd),
+    sheetId: currentSheetId,
+    base: cmd.dimension === "COL" ? currentPosition.col : currentPosition.row,
+  };
+}
+repeatCommandTransformRegistry.add("ADD_COL_ROW_COMMAND", repeatAddColumnsRowsCommand);
+```
+
+#### Repeat Local Commands
+
+Similarly to the core commands, local commands can be repeated too. To declare that a local command is repeatable, it should be added to the `repeatLocalCommandTransformRegistry`
+
+```js
+const { repeatLocalCommandTransformRegistry, genericRepeat } = o_spreadsheet;
+repeatLocalCommandTransformRegistry.add("MY_LOCAL_COMMAND", genericRepeat);
+```
+
+The difference with the core commands lies in the presence of a third argument in the transformation function: the core commands that were dispatched during the handling of the local command. This is useful if the result of the command depends on the state of an UI Plugin. In this case there's no guarantee that the state of the UI Plugin will be the same when the command is repeated. Adapting the child core commands is then sometimes a valid way to adapt the local command, as they don't depend on any internal state.
+
+```js
+type LocalRepeatTransform = (
+  getters: Getters,
+  cmd: LocalCommand,
+  childCommands: readonly CoreCommand[]
+) => CoreCommand[] | LocalCommand | undefined;
+```

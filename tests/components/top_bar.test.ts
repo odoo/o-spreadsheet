@@ -177,11 +177,16 @@ describe("TopBar component", () => {
 
     expect(undoTool.classList.contains("o-disabled")).toBeTruthy();
     expect(redoTool.classList.contains("o-disabled")).toBeTruthy();
+
+    setSelection(model, ["A2"]); // non repeatable command
+    await nextTick();
+    expect(undoTool.classList.contains("o-disabled")).toBeTruthy();
+    expect(redoTool.classList.contains("o-disabled")).toBeTruthy();
+
     setStyle(model, "A1", { bold: true });
     await nextTick();
-
     expect(undoTool.classList.contains("o-disabled")).toBeFalsy();
-    expect(redoTool.classList.contains("o-disabled")).toBeTruthy();
+    expect(redoTool.classList.contains("o-disabled")).toBeFalsy();
     expect(getCell(model, "A1")!.style).toBeDefined();
 
     await click(undoTool);

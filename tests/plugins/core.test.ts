@@ -515,21 +515,17 @@ describe("history", () => {
     const model = new Model();
 
     expect(model.getters.canUndo()).toBe(false);
-    expect(model.getters.canRedo()).toBe(false);
 
     setCellContent(model, "A1", "abc");
     expect(model.getters.canUndo()).toBe(true);
-    expect(model.getters.canRedo()).toBe(false);
 
     undo(model);
     expect(getCell(model, "A1")).toBeUndefined();
     expect(model.getters.canUndo()).toBe(false);
-    expect(model.getters.canRedo()).toBe(true);
 
     redo(model);
     expect(getCellContent(model, "A1")).toBe("abc");
     expect(model.getters.canUndo()).toBe(true);
-    expect(model.getters.canRedo()).toBe(false);
   });
 
   test("can undo and redo a cell update", () => {
@@ -538,24 +534,20 @@ describe("history", () => {
     });
 
     expect(model.getters.canUndo()).toBe(false);
-    expect(model.getters.canRedo()).toBe(false);
 
     model.dispatch("START_EDITION", { text: "abc" });
     model.dispatch("STOP_EDITION");
 
     expect(getCellContent(model, "A1")).toBe("abc");
     expect(model.getters.canUndo()).toBe(true);
-    expect(model.getters.canRedo()).toBe(false);
 
     undo(model);
     expect(getCellContent(model, "A1")).toBe("1");
     expect(model.getters.canUndo()).toBe(false);
-    expect(model.getters.canRedo()).toBe(true);
 
     redo(model);
     expect(getCellContent(model, "A1")).toBe("abc");
     expect(model.getters.canUndo()).toBe(true);
-    expect(model.getters.canRedo()).toBe(false);
   });
 
   test("can undo and redo a delete cell operation", () => {

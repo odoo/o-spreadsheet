@@ -23,20 +23,22 @@ export function buildRevisionLog(
       revision.setChanges(changes);
     },
     (revision: Revision) => revertChanges([revision]),
-    (id: UID) => new Revision(id, "empty", [], []),
+    (id: UID) => new Revision(id, "empty", []),
     {
       with: (revision: Revision) => (toTransform: Revision) => {
         return new Revision(
           toTransform.id,
           toTransform.clientId,
-          transformAll(toTransform.commands, revision.commands)
+          transformAll(toTransform.commands, revision.commands),
+          toTransform.rootCommand
         );
       },
       without: (revision: Revision) => (toTransform: Revision) => {
         return new Revision(
           toTransform.id,
           toTransform.clientId,
-          transformAll(toTransform.commands, revision.commands.map(inverseCommand).flat())
+          transformAll(toTransform.commands, revision.commands.map(inverseCommand).flat()),
+          toTransform.rootCommand
         );
       },
     }
