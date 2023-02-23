@@ -14,6 +14,7 @@ import {
   freezeColumns,
   redo,
   setCellContent,
+  setSelection,
   snapshot,
   undo,
   unfreezeColumns,
@@ -116,7 +117,7 @@ describe("Collaborative local history", () => {
   test("Concurrent redo, undo first", () => {
     setCellContent(alice, "A1", "hello");
     setCellContent(bob, "B1", "hello");
-    undo(alice);
+    undo(bob);
     network.concurrent(() => {
       redo(bob);
       undo(alice);
@@ -730,7 +731,7 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "F1"), "hello");
   });
 
-  test("local history is cleared", () => {
+  test("local history is cleared and cannot repeat last command after snapshot", () => {
     setCellContent(alice, "A1", "hello");
     setCellContent(alice, "A2", "hello");
     undo(alice);
@@ -1000,7 +1001,8 @@ describe("Collaborative local history", () => {
     });
     const result = redo(charlie);
     expect(result).not.toBeCancelledBecause(CommandResult.WaitingSessionConfirmation);
-    expect(result).toBeCancelledBecause(CommandResult.EmptyRedoStack);
+    expect(getCellContent(charlie, "C5")).not.toBe("hi");
+    expect(getCellContent(charlie, "A1")).toBe("hi");
     expect(all).toHaveSynchronizedExportedData();
   });
 
@@ -1024,7 +1026,8 @@ describe("Collaborative local history", () => {
       deleteRows(bob, [6, 5, 4, 3, 2]);
       setCellContent(charlie, "C5", "hi");
     });
-    expect(redo(charlie)).toBeCancelledBecause(CommandResult.EmptyRedoStack);
+
+    redo(charlie);
     expect(all).toHaveSynchronizedExportedData();
   });
 
@@ -1041,5 +1044,23 @@ describe("Collaborative local history", () => {
       xSplit: 0,
       ySplit: 0,
     });
+  });
+
+  test("can repeat command after receiving remote revisions", () => {
+    setCellContent(alice, "A1", "hello there");
+    setCellContent(bob, "A2", "general kenobi");
+    setSelection(alice, ["A3"]);
+    redo(alice);
+    expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A3"), "hello there");
+  });
+
+  test("can repeat command concurrently with remote revisions", () => {
+    setCellContent(alice, "A1", "hello there");
+    setSelection(alice, ["A3"]);
+    network.concurrent(() => {
+      setCellContent(bob, "A3", "general kenobi");
+      redo(alice);
+    });
+    expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A3"), "hello there");
   });
 });

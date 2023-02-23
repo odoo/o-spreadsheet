@@ -7,6 +7,7 @@ import { CommandResult, UpdateCellCommand } from "../../src/types/commands";
 import {
   activateSheet,
   createSheet,
+  freezeRows,
   redo,
   selectCell,
   setCellContent,
@@ -194,21 +195,21 @@ describe("Model history", () => {
     expect(getCellContent(model, "A2")).toBe("5");
   });
 
-  test("redo stack is nuked when new operation is performed", () => {
+  test("Cannot redo when when the redo stack is empty", () => {
     const model = new Model();
-    setCellContent(model, "A2", "3");
+    expect(model.getters.canRedo()).toBeFalsy();
+  });
 
-    expect(getCellContent(model, "A2")).toBe("3");
+  test("Cannot redo when when the redo stack is empty and last command is not repeatable", () => {
+    const model = new Model();
+    freezeRows(model, 2);
+    expect(model.getters.canRedo()).toBeFalsy();
+  });
 
-    undo(model);
-    expect(getCell(model, "A2")).toBeUndefined();
-
-    expect(model.getters.canUndo()).toBe(false);
-    expect(model.getters.canRedo()).toBe(true);
-
-    setCellContent(model, "A4", "5");
-    expect(model.getters.canUndo()).toBe(true);
-    expect(model.getters.canRedo()).toBe(false);
+  test("Can redo when when the redo stack is empty and last command is repeatable", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "5");
+    expect(model.getters.canRedo()).toBeTruthy();
   });
 
   test("two identical changes do not count as two undo steps", () => {

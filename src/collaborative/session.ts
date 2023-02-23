@@ -19,6 +19,7 @@ import {
   StateUpdateMessage,
   TransportService,
 } from "../types/collaborative/transport_service";
+import { Command, CommandTypes } from "./../types/commands";
 import { transformAll } from "./ot/ot";
 import { Revision } from "./revisions";
 
@@ -79,9 +80,15 @@ export class Session extends EventBus<CollaborativeEvent> {
    * Add a new revision to the collaborative session.
    * It will be transmitted to all other connected clients.
    */
-  save(commands: CoreCommand[], changes: HistoryChange[]) {
+  save(rootCommand: Command, commands: CoreCommand[], changes: HistoryChange[]) {
     if (!commands.length || !changes.length || !this.canApplyOptimisticUpdate()) return;
-    const revision = new Revision(this.uuidGenerator.uuidv4(), this.clientId, commands, changes);
+    const revision = new Revision(
+      this.uuidGenerator.uuidv4(),
+      this.clientId,
+      commands,
+      rootCommand,
+      changes
+    );
     this.revisions.append(revision.id, revision);
     this.trigger("new-local-state-update", { id: revision.id });
     this.sendUpdateMessage({
@@ -193,6 +200,19 @@ export class Session extends EventBus<CollaborativeEvent> {
     return this.pendingMessages.length === 0;
   }
 
+  /**
+   * Get the last local revision whose root command isn't in the given list of ignored commands
+   * */
+  getLastLocalNonEmptyRevision(ignoredRootCommands: CommandTypes[]): Revision | undefined {
+    const revisions = this.revisions.getRevertedExecution();
+    for (const rev of revisions) {
+      if (rev.rootCommand === "SNAPSHOT") return undefined;
+      if (!rev.rootCommand || rev.rootCommand === "REMOTE") continue;
+      if (!ignoredRootCommands.includes(rev.rootCommand?.type) && rev.commands.length) return rev;
+    }
+    return undefined;
+  }
+
   private _move(position: ClientPosition) {
     // this method is debounced and might be called after the client
     // left the session.
@@ -260,7 +280,7 @@ export class Session extends EventBus<CollaborativeEvent> {
           return;
         }
         const { clientId, commands } = message;
-        const revision = new Revision(message.nextRevisionId, clientId, commands);
+        const revision = new Revision(message.nextRevisionId, clientId, commands, "REMOTE");
         if (revision.clientId !== this.clientId) {
           this.revisions.insert(revision.id, revision, message.serverRevisionId);
           const pendingCommands = this.pendingMessages
@@ -273,7 +293,7 @@ export class Session extends EventBus<CollaborativeEvent> {
         }
         break;
       case "SNAPSHOT_CREATED": {
-        const revision = new Revision(message.nextRevisionId, "server", []);
+        const revision = new Revision(message.nextRevisionId, "server", [], "SNAPSHOT");
         this.revisions.insert(revision.id, revision, message.serverRevisionId);
         this.dropPendingHistoryMessages();
         this.trigger("snapshot");

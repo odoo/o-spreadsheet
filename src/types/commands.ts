@@ -502,6 +502,12 @@ export interface PasteCommand {
   pasteOption?: ClipboardPasteOptions;
 }
 
+export interface RepeatPasteCommand {
+  type: "REPEAT_PASTE";
+  target: Zone[];
+  pasteOption?: ClipboardPasteOptions;
+}
+
 export interface CleanClipBoardHighlightCommand {
   type: "CLEAN_CLIPBOARD_HIGHLIGHT";
 }
@@ -634,11 +640,8 @@ export interface DeleteContentCommand {
   target: Zone[];
 }
 
-export interface ClearCellCommand {
+export interface ClearCellCommand extends PositionDependentCommand {
   type: "CLEAR_CELL";
-  sheetId: UID;
-  col: HeaderIndex;
-  row: HeaderIndex;
 }
 
 export interface UndoCommand {
@@ -964,6 +967,7 @@ export type LocalCommand =
   | CopyCommand
   | CutCommand
   | PasteCommand
+  | RepeatPasteCommand
   | CleanClipBoardHighlightCommand
   | AutoFillCellCommand
   | PasteFromOSClipboardCommand

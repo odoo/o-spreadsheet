@@ -42,6 +42,8 @@ export class ClipboardPlugin extends UIPlugin {
 
   private status: "visible" | "invisible" = "invisible";
   private state?: ClipboardState;
+  private lastPasteState?: ClipboardState;
+
   private _isPaintingFormat: boolean = false;
 
   // ---------------------------------------------------------------------------
@@ -96,6 +98,7 @@ export class ClipboardPlugin extends UIPlugin {
         if (this.state.operation === "CUT") {
           this.state = undefined;
         }
+        this.lastPasteState = this.state;
         this.status = "invisible";
         break;
       case "CLEAN_CLIPBOARD_HIGHLIGHT":
@@ -153,10 +156,19 @@ export class ClipboardPlugin extends UIPlugin {
         break;
       }
       case "PASTE_FROM_OS_CLIPBOARD":
-        const state = new ClipboardOsState(cmd.text, this.getters, this.dispatch, this.selection);
-        state.paste(cmd.target);
+        this.state = new ClipboardOsState(cmd.text, this.getters, this.dispatch, this.selection);
+        this.state.paste(cmd.target);
+        this.lastPasteState = this.state;
         this.status = "invisible";
         break;
+      case "REPEAT_PASTE": {
+        this.lastPasteState?.paste(cmd.target, {
+          pasteOption: cmd.pasteOption,
+          shouldPasteCF: true,
+          selectTarget: true,
+        });
+        break;
+      }
       case "ACTIVATE_PAINT_FORMAT": {
         const zones = this.getters.getSelectedZones();
         this.state = this.getClipboardStateForCopyCells(zones, "COPY");
