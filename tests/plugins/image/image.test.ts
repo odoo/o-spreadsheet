@@ -1,6 +1,6 @@
-import { Model } from "../../../src";
+import { CommandResult, Model } from "../../../src";
 import { FIGURE_ID_SPLITTER } from "../../../src/constants";
-import { createImage, paste, redo, undo } from "../../test_helpers/commands_helpers";
+import { createImage, createSheet, paste, redo, undo } from "../../test_helpers/commands_helpers";
 import { getFigureIds } from "../../test_helpers/helpers";
 
 describe("image plugin", function () {
@@ -61,6 +61,24 @@ describe("image plugin", function () {
     expect(images).toHaveLength(1);
     const image = model.getters.getImage(sheetId, images[0]);
     expect(image).toEqual(definition);
+  });
+
+  test("cannot duplicate images ids on the same sheet", () => {
+    const model = new Model();
+    const imageId = "Image1";
+    const definition = {
+      path: "image path",
+      size: { width: 100, height: 100 },
+    };
+    const sheetId = model.getters.getActiveSheetId();
+    const cmd1 = createImage(model, { figureId: imageId, sheetId, definition: definition });
+    expect(cmd1).toBeSuccessfullyDispatched();
+
+    const cmd2 = createImage(model, { figureId: imageId, sheetId, definition: definition });
+    expect(cmd2).toBeCancelledBecause(CommandResult.DuplicatedImageId);
+    createSheet(model, { sheetId: "42" });
+    const cmd3 = createImage(model, { figureId: imageId, sheetId: "42", definition: definition });
+    expect(cmd3).toBeSuccessfullyDispatched();
   });
 });
 
