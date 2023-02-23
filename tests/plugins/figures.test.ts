@@ -326,7 +326,7 @@ describe("figure plugin", () => {
     expect(model.getters.getActiveCell()?.evaluated.value).toBeUndefined();
   });
 
-  test("cannot duplicate figure ids", () => {
+  test("cannot duplicate figure ids on the same sheet", () => {
     const model = new Model();
     const figure = {
       id: "someuuid",
@@ -344,9 +344,15 @@ describe("figure plugin", () => {
     createSheet(model, { sheetId: "42" });
 
     const cmd2 = model.dispatch("CREATE_FIGURE", {
-      sheetId: "42",
+      sheetId: model.getters.getActiveSheetId(),
       figure,
     });
     expect(cmd2).toBeCancelledBecause(CommandResult.DuplicatedFigureId);
+
+    const cmd3 = model.dispatch("CREATE_FIGURE", {
+      sheetId: "42",
+      figure,
+    });
+    expect(cmd3).toBeSuccessfullyDispatched();
   });
 });

@@ -157,8 +157,17 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   allowDispatch(cmd: Command) {
     const success: CommandResult = CommandResult.Success;
     switch (cmd.type) {
-      case "UPDATE_CHART":
       case "CREATE_CHART":
+        return this.checkValidations(
+          cmd,
+          this.chainValidations(
+            this.checkChartDuplicate,
+            this.checkEmptyDataset,
+            this.checkDataset
+          ),
+          this.checkLabelRange
+        );
+      case "UPDATE_CHART":
         return this.checkValidations(
           cmd,
           this.chainValidations(this.checkEmptyDataset, this.checkDataset),
@@ -534,5 +543,12 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     }
     const invalidLabels = !rangeReference.test(cmd.definition.labelRange || "");
     return invalidLabels ? CommandResult.InvalidLabelRange : CommandResult.Success;
+  }
+
+  private checkChartDuplicate(cmd: CreateChartCommand): CommandResult {
+    if (this.chartFigures[cmd.sheetId]?.[cmd.id]) {
+      return CommandResult.DuplicatedChartId;
+    }
+    return CommandResult.Success;
   }
 }
