@@ -1,4 +1,5 @@
 import { Model } from "../../../src";
+import { FIGURE_ID_SPLITTER } from "../../../src/constants";
 import { createImage, paste, redo, undo } from "../../test_helpers/commands_helpers";
 import { getFigureIds } from "../../test_helpers/helpers";
 
@@ -90,6 +91,43 @@ describe("test image in sheet", function () {
     model.dispatch("DELETE_SHEET", { sheetId: newSheetId });
     const images = getFigureIds(model, newSheetId);
     expect(images).toHaveLength(0);
+  });
+
+  test("Duplicate sheet > export > import > duplicate sheet contains 2 distinct charts", () => {
+    const model = new Model();
+    const firstSheetId = model.getters.getActiveSheetId();
+    const secondSheetId = "42";
+    const thirdSheetId = "third";
+    createImage(model, { sheetId: firstSheetId, figureId: "myImage" });
+    model.dispatch("DUPLICATE_SHEET", {
+      sheetId: firstSheetId,
+      sheetIdTo: secondSheetId,
+    });
+    const newModel = new Model(model.exportData());
+    newModel.dispatch("DUPLICATE_SHEET", {
+      sheetId: secondSheetId,
+      sheetIdTo: thirdSheetId,
+    });
+
+    const figuresSh1 = newModel.getters.getFigures(firstSheetId);
+    const figuresSh2 = newModel.getters.getFigures(secondSheetId);
+    const figuresSh3 = newModel.getters.getFigures(thirdSheetId);
+
+    expect(figuresSh1.length).toEqual(1);
+    expect(figuresSh2.length).toEqual(1);
+    expect(figuresSh3.length).toEqual(1);
+
+    expect(figuresSh1[0].id).toEqual("myImage");
+    expect(figuresSh2[0].id).toEqual(secondSheetId + FIGURE_ID_SPLITTER + "myImage");
+    expect(figuresSh3[0].id).toEqual(thirdSheetId + FIGURE_ID_SPLITTER + "myImage");
+
+    const imageSh1 = newModel.getters.getImage(figuresSh1[0].id);
+    const imageSh2 = newModel.getters.getImage(figuresSh2[0].id);
+    const imageSh3 = newModel.getters.getImage(figuresSh3[0].id);
+
+    expect(imageSh1).not.toBe(imageSh2);
+    expect(imageSh2).not.toBe(imageSh3);
+    expect(imageSh3).not.toBe(imageSh1);
   });
 });
 

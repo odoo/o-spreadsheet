@@ -167,6 +167,7 @@ export const DEFAULT_FIGURE_WIDTH = 536;
 
 // Chart
 export const MAX_CHAR_LABEL = 20;
+export const FIGURE_ID_SPLITTER = "??";
 
 export const DEFAULT_GAUGE_LOWER_COLOR = "#cc0000";
 export const DEFAULT_GAUGE_MIDDLE_COLOR = "#f1c232";

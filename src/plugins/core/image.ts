@@ -1,3 +1,4 @@
+import { FIGURE_ID_SPLITTER } from "../../constants";
 import { deepCopy, isDefined } from "../../helpers";
 import { FileStore } from "../../types/files";
 import { Image } from "../../types/image";
@@ -14,7 +15,6 @@ import { CorePlugin, CorePluginConfig } from "../core_plugin";
 
 interface ImageState {
   readonly images: Record<UID, Record<UID, Image | undefined> | undefined>;
-  readonly nextId: number;
 }
 
 export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
@@ -25,7 +25,6 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
    * paths of images synced with the file store server.
    */
   readonly syncedImages: Set<Image["path"]> = new Set();
-  readonly nextId = 1;
 
   constructor(config: CorePluginConfig) {
     super(config);
@@ -59,14 +58,14 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
         const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
         for (const fig of sheetFiguresFrom) {
           if (fig.tag === "image") {
-            const id = `image-${this.nextId}`;
-            this.history.update("nextId", this.nextId + 1);
+            const figureIdBase = fig.id.split(FIGURE_ID_SPLITTER).pop();
+            const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
             const image = this.getImage(fig.id);
             if (image) {
               const size = { width: fig.width, height: fig.height };
               this.dispatch("CREATE_IMAGE", {
                 sheetId: cmd.sheetIdTo,
-                figureId: id,
+                figureId: duplicatedFigureId,
                 position: { x: fig.x, y: fig.y },
                 size,
                 definition: deepCopy(image),
@@ -138,7 +137,6 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
     for (const sheet of data.sheets) {
       const images = (sheet.figures || []).filter((figure) => figure.tag === "image");
       for (const image of images) {
-        this.history.update("nextId", this.nextId + 1);
         this.history.update("images", sheet.id, image.id, image.data);
         this.syncedImages.add(image.data.path);
       }
