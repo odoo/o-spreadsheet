@@ -23,7 +23,7 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   allowDispatch(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_FIGURE":
-        return this.checkFigureDuplicate(cmd.figure.id);
+        return this.checkFigureDuplicate(cmd.sheetId, cmd.figure.id);
       case "UPDATE_FIGURE":
       case "DELETE_FIGURE":
         return this.checkFigureExists(cmd.sheetId, cmd.id);
@@ -95,8 +95,8 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
     return CommandResult.Success;
   }
 
-  private checkFigureDuplicate(figureId: UID): CommandResult {
-    if (Object.values(this.figures).find((sheet) => sheet?.[figureId])) {
+  private checkFigureDuplicate(sheetId: UID, figureId: UID): CommandResult {
+    if (this.figures[sheetId]?.[figureId]) {
       return CommandResult.DuplicatedFigureId;
     }
     return CommandResult.Success;
