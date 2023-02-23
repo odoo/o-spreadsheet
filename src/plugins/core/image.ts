@@ -39,7 +39,7 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
     switch (cmd.type) {
       case "CREATE_IMAGE":
         if (this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
-          return CommandResult.InvalidFigureId;
+          return CommandResult.DuplicatedImageId;
         }
         return CommandResult.Success;
       default:
