@@ -422,7 +422,7 @@ export interface DeleteFigureCommand extends SheetDependentCommand {
 export interface CreateChartCommand extends SheetDependentCommand {
   type: "CREATE_CHART";
   id: UID;
-  position?: { x: number; y: number };
+  position?: { x: Pixel; y: Pixel };
   size?: FigureSize;
   definition: ChartDefinition;
 }
@@ -440,7 +440,7 @@ export interface UpdateChartCommand extends SheetDependentCommand {
 export interface CreateImageOverCommand extends SheetDependentCommand {
   type: "CREATE_IMAGE";
   figureId: UID;
-  position: { x: number; y: number };
+  position: { x: Pixel; y: Pixel };
   size: FigureSize;
   definition: Image;
 }
