@@ -86,6 +86,7 @@ export function compile(formula: string): CompiledFormula {
   const tokens = rangeTokenize(formula);
   const { dependencies, constantValues } = formulaArguments(tokens);
   const cacheKey = compilationCacheKey(tokens, dependencies, constantValues);
+  let byPassLazyEvaluation = false;
   if (!functionCache[cacheKey]) {
     const ast = parseTokens([...tokens]);
     let nextId = 1;
@@ -113,6 +114,7 @@ export function compile(formula: string): CompiledFormula {
     functionCache[cacheKey] = {
       // @ts-ignore
       execute: baseFunction,
+      byPassLazyEvaluation,
     };
     /**
      * This function compile the function arguments. It is mostly straightforward,
@@ -298,6 +300,10 @@ export function compile(formula: string): CompiledFormula {
           fnName = ast.value.toUpperCase();
           codeBlocks.push(`ctx.__lastFnCalled = '${fnName}';`);
           statement = `ctx['${fnName}'](${args.map((arg) => arg.id)})`;
+          const fn = functions[fnName];
+          if (fn.byPassLazyEvaluation) {
+            byPassLazyEvaluation = true;
+          }
           break;
         case "UNARY_OPERATION": {
           id = nextId++;
@@ -348,6 +354,7 @@ export function compile(formula: string): CompiledFormula {
   }
   const compiledFormula: InternalCompiledFormula = {
     execute: functionCache[cacheKey].execute,
+    byPassLazyEvaluation: functionCache[cacheKey].byPassLazyEvaluation,
     dependencies,
     constantValues,
     tokens,

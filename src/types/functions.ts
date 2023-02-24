@@ -36,6 +36,7 @@ export interface AddFunctionDescription {
   args: ArgDefinition[];
   returns: [ArgType];
   isExported?: boolean;
+  byPassLazyEvaluation?: boolean;
 }
 
 export interface FunctionDescription extends AddFunctionDescription {

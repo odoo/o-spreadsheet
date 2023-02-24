@@ -160,6 +160,7 @@ export interface CompiledFormula {
   execute: _CompiledFormula;
   tokens: Token[];
   dependencies: string[];
+  byPassLazyEvaluation: boolean;
 }
 
 export type Arg = MatrixArg | PrimitiveArg;

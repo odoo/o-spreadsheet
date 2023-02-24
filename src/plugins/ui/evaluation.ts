@@ -186,6 +186,9 @@ export class EvaluationPlugin extends UIPlugin {
           return handleError(error);
         }
       });
+      if (cell.compiledFormula.byPassLazyEvaluation) {
+        computedCell();
+      }
       cell.assignEvaluation(computedCell);
     }
   }

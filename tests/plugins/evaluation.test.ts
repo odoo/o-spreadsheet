@@ -289,6 +289,40 @@ describe("evaluateCells", () => {
     functionRegistry.remove("RANGE.COUNT.FUNCTION");
   });
 
+  test("Formula with a function non-lazy is evaluated non-lazily", () => {
+    let evaluated = false;
+    functionRegistry.add("FUNCTION.WITHOUT.LAZY", {
+      description: "any function",
+      compute: () => {
+        evaluated = true;
+        return 42;
+      },
+      args: [],
+      returns: ["NUMBER"],
+      byPassLazyEvaluation: true,
+    });
+    const model = new Model();
+    setCellContent(model, "A1", "=FUNCTION.WITHOUT.LAZY()");
+    expect(evaluated).toBe(true);
+  });
+
+  test("Formula with a function non-lazy as argument is evaluated non-lazily", () => {
+    let evaluated = false;
+    functionRegistry.add("FUNCTION.WITHOUT.LAZY", {
+      description: "any function",
+      compute: () => {
+        evaluated = true;
+        return 42;
+      },
+      args: [],
+      returns: ["NUMBER"],
+      byPassLazyEvaluation: true,
+    });
+    const model = new Model();
+    setCellContent(model, "A1", "=SUM(1, FUNCTION.WITHOUT.LAZY())");
+    expect(evaluated).toBe(true);
+  });
+
   test("range totally outside of sheet", () => {
     const model = new Model();
     setCellContent(model, "A1", "=sum(AB1:AZ999)");
