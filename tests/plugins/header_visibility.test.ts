@@ -80,6 +80,7 @@ describe("Hide Columns", () => {
 
   test("hide/unhide Column on small sheet", () => {
     model = new Model({ sheets: [{ colNumber: 5, rowNumber: 1 }] });
+    model.dispatch("RESIZE_SHEETVIEW", { width: DEFAULT_CELL_WIDTH, height: 1000 });
     const sheet = model.getters.getActiveSheet();
     const dimensions = model.getters.getMainViewportRect();
     hideColumns(model, ["B", "C", "D"], sheet.id);
@@ -174,6 +175,7 @@ describe("Hide Rows", () => {
 
   test("hide/unhide Row on small sheet", () => {
     model = new Model({ sheets: [{ colNumber: 1, rowNumber: 5 }] });
+    model.dispatch("RESIZE_SHEETVIEW", { width: 1000, height: DEFAULT_CELL_HEIGHT });
     const sheet = model.getters.getActiveSheet();
     const dimensions = model.getters.getMainViewportRect();
     hideRows(model, [1, 2, 3], sheet.id);
