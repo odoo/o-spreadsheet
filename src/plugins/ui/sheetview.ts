@@ -327,8 +327,7 @@ export class SheetViewPlugin extends UIPlugin {
   }
 
   /**
-   * Return the main viewport maximum size. That is the zone dimension
-   * with some bottom and right padding.
+   * Return the main viewport maximum size relative to the client size.
    */
   getMainViewportRect(): Rect {
     const sheetId = this.getters.getActiveSheetId();
@@ -345,8 +344,8 @@ export class SheetViewPlugin extends UIPlugin {
     const { width, height } = this.getMainViewportRect();
     const viewport = this.getMainInternalViewport(sheetId);
     return {
-      maxOffsetX: Math.max(0, width - viewport.width + 1),
-      maxOffsetY: Math.max(0, height - viewport.height + 1),
+      maxOffsetX: Math.max(0, width - viewport.viewportWidth + 1),
+      maxOffsetY: Math.max(0, height - viewport.viewportHeight + 1),
     };
   }
 

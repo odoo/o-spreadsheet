@@ -1021,9 +1021,18 @@ describe("Rows", () => {
       expect(model.getters.getRowSize(sheetId, 3)).toBe(10);
       expect(model.getters.getRowSize(sheetId, 4)).toBe(20);
       expect(model.getters.getRowSize(sheetId, 5)).toBe(size);
-      const dimensions = model.getters.getMainViewportRect();
-      expect(dimensions).toMatchObject({ width: 192, height: 124 });
       expect(model.getters.getNumberRows(sheetId)).toBe(6);
+      const dimensions = model.getters.getMainViewportRect();
+      expect(dimensions).toMatchObject({ width: 1000, height: 1000 });
+      model.dispatch("RESIZE_SHEETVIEW", {
+        width: DEFAULT_CELL_WIDTH,
+        height: DEFAULT_CELL_HEIGHT,
+      });
+      const newDimensions = model.getters.getMainViewportRect();
+      expect(newDimensions).toMatchObject({
+        width: 192, // col size + 1 DEFAULT_CELL_WIDTH for spacing
+        height: 124, // sum of row sizes + 1 DEFAULT_CELL_HEIGHT  and 5px for spacing
+      });
     });
     test("On addition after", () => {
       addRows(model, "after", 2, 2);
@@ -1036,7 +1045,16 @@ describe("Rows", () => {
       expect(model.getters.getRowSize(sheetId, 4)).toBe(20);
       expect(model.getters.getRowSize(sheetId, 5)).toBe(size);
       const dimensions = model.getters.getMainViewportRect();
-      expect(dimensions).toMatchObject({ width: 192, height: 144 });
+      expect(dimensions).toMatchObject({ width: 1000, height: 1000 });
+      model.dispatch("RESIZE_SHEETVIEW", {
+        width: DEFAULT_CELL_WIDTH,
+        height: DEFAULT_CELL_HEIGHT,
+      });
+      const newDimensions = model.getters.getMainViewportRect();
+      expect(newDimensions).toMatchObject({
+        width: 192, // col size + 1 DEFAULT_CELL_WIDTH for spacing
+        height: 144, // sum of row sizes + 1 DEFAULT_CELL_HEIGHT  and 5px for spacing
+      });
       expect(model.getters.getNumberRows(sheetId)).toBe(6);
     });
     test("cannot delete column in invalid sheet", () => {
@@ -1048,13 +1066,23 @@ describe("Rows", () => {
 
     test("activate Sheet: same size", () => {
       addRows(model, "after", 2, 1);
+      model.dispatch("RESIZE_SHEETVIEW", {
+        width: DEFAULT_CELL_WIDTH,
+        height: DEFAULT_CELL_HEIGHT,
+      });
       let dimensions = model.getters.getMainViewportRect();
-      expect(dimensions).toMatchObject({ width: 192, height: 124 });
+      expect(dimensions).toMatchObject({
+        width: 192, // col size + 1 DEFAULT_CELL_WIDTH for spacing
+        height: 124, // sum of row sizes + 1 DEFAULT_CELL_HEIGHT  and 5px for spacing
+      });
       const to = model.getters.getActiveSheetId();
       createSheet(model, { activate: true, sheetId: "42" });
       activateSheet(model, to);
       dimensions = model.getters.getMainViewportRect();
-      expect(dimensions).toMatchObject({ width: 192, height: 124 });
+      expect(dimensions).toMatchObject({
+        width: 192, // col size + 1 DEFAULT_CELL_WIDTH for spacing
+        height: 124, // sum of row sizes + 1 DEFAULT_CELL_HEIGHT  and 5px for spacing
+      });
     });
   });
 
