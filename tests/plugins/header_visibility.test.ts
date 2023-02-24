@@ -95,6 +95,7 @@ describe("Hide Columns", () => {
         },
       ],
     });
+    model.dispatch("RESIZE_SHEETVIEW", { width: DEFAULT_CELL_WIDTH, height: 1000 });
     const sheet = model.getters.getActiveSheet();
     const dimensions = model.getters.getMainViewportRect();
     hideColumns(model, ["B", "C", "D"], sheet.id);
@@ -204,6 +205,7 @@ describe("Hide Rows", () => {
         },
       ],
     });
+    model.dispatch("RESIZE_SHEETVIEW", { width: 1000, height: DEFAULT_CELL_HEIGHT });
     const sheet = model.getters.getActiveSheet();
     const dimensions = model.getters.getMainViewportRect();
     hideRows(model, [1, 2, 3], sheet.id);
