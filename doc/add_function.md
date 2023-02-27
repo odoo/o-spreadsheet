@@ -54,7 +54,7 @@ It receives its arguments' values and should return the function result.
 
 ```ts
 const CELSIUS_TO_FAHRENHEIT = {
-  args(`temperature_in_celsius (number) a temperature, expressed in celsius.`)
+  args: [arg("temperature_in_celsius (number)", "a temperature, expressed in celsius.")],
   compute: function (temperatureInCelsius) {
     return (temperatureInCelsius * 1.8) + 32;
   }
@@ -94,11 +94,11 @@ It can be used to
 ```ts
 const DATE = {
   description: "Converts year/month/day into a date.",
-  args: args(`
-    year (number) The year component of the date.
-    month (number) The month component of the date.
-    day (number) The day component of the date.
-  `),
+  args: [
+    arg("year (number)", "The year component of the date."),
+    arg("month (number)", "The month component of the date."),
+    arg("day (number)", "The day component of the date."),
+  ],
   computeFormat: () => "m/d/yyyy",
   returns: ["DATE"],
   compute: function(year, month, day) { ... },
@@ -113,9 +113,12 @@ const DATE = {
 ```ts
 const UMINUS = {
   description: "A number with the sign reversed.",
-  args: args(`
-    value (number) The number to have its sign reversed. Equivalently, the number to multiply by -1.
-  `),
+  args: [
+    arg(
+      "value (number)",
+      "The number to have its sign reversed. Equivalently, the number to multiply by -1."
+    ),
+  ],
   computeFormat: (value) => value?.format,
   returns: ["NUMBER"],
   compute: function (value) {
@@ -126,17 +129,17 @@ const UMINUS = {
 
 ### Argument definition
 
-Arguments are declared using a string-based syntax `"<arg name> (<arg type>, <other attributes>) <description>"`
-which is interpreted by the `args` function.
+Arguments are declared using an array of `Argument`, which can be created with
+`arg` function (`[arg("<arg name> (<arg type>, <other attributes>)", "<description>")]`)
 
 ```ts
 const { args } = spreadsheet.helpers.args; // get the args function
 
 const MY_FUNC = {
-  args: args(`
-    first_param (string) description of first parameter
-    second_param (boolean, optional, default=false) description of second parameter
-  `),
+  args: [
+    arg("first_param (string)", "description of first parameter"),
+    arg("second_param (boolean, optional, default=false)", "description of second parameter"),
+  ],
   compute: function (firstParam, secondParam) {
     ...
   }
@@ -158,13 +161,13 @@ Arguments without additional attribute must be first, then with `optional` or `d
 
 > With `repeating` and `default` attributes, `optional` can be omitted.
 
-Note that you can use a long version of these parameters without using the `args` function.
+Note that you can use a long version of these parameters without using the `arg` function.
 
 ```ts
-args(`
-  first_param (string) description of first parameter
-  second_param (boolean, default=false) description of second parameter
-`);
+[
+  arg("first_param (string)", "description of first parameter"),
+  arg("second_param (boolean, default=false)", "description of second parameter"),
+];
 ```
 
 is equivalent to
@@ -202,11 +205,20 @@ It can be used to
 ```ts
 const IF = {
   description: "Returns value depending on logical expression.",
-  args: args(`
-    logical_expression (boolean) An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE.
-    value_if_true (any, lazy) The value the function returns if logical_expression is TRUE.
-    value_if_false (any, lazy) The value the function returns if logical_expression is FALSE.
-  `),
+  args: [
+    arg(
+      "logical_expression (boolean)",
+      "An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE."
+    ),
+    arg(
+      "value_if_true (any, lazy)",
+      "The value the function returns if logical_expression is TRUE."
+    ),
+    arg(
+      "value_if_false (any, lazy)",
+      "The value the function returns if logical_expression is FALSE."
+    ),
+  ],
   returns: ["ANY"],
   compute: function (logicalExpression, valueIfTrue, valueIfFalse) {
     const result = toBoolean(logicalExpression) ? valueIfTrue() : valueIfFalse();
@@ -223,7 +235,7 @@ const IF = {
 ```ts
 export const IFERROR = {
   description: "Whether a value is an error.",
-  args: args(`value (any, lazy) The value to be verified as an error type.`),
+  args: [arg("value (any, lazy)", "The value to be verified as an error type.")],
   returns: ["BOOLEAN"],
   compute: function (value): boolean {
     try {
@@ -246,10 +258,10 @@ The `SUM` function below receives one argument (`value1`) and any number of addi
 ```ts
 const SUM = {
   description: "Sum of a series of numbers and/or cells.",
-  args: args(`
-      value1 (number, range<number>) The first number or range to add together.
-      value2 (number, range<number>, repeating) Additional numbers or ranges to add to value1.
-    `),
+  args: [
+      arg("value1 (number, range<number>)", "The first number or range to add together."),
+      arg("value2 (number, range<number>, repeating)", "Additional numbers or ranges to add to value1."),
+  ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
     ...
@@ -330,12 +342,12 @@ These helpers will treat all cases and call a sub-function on every value refere
 ```javascript
 export const WORKDAY_INTL = {
   description: Net working days between two dates (specifying weekends).,
-  args: args(`
-    start_date (date) The date from which to begin counting.
-    num_days (number) The number of working days to advance from start_date. If negative, counts backwards.
-    weekend (any, default=1) A number or string representing which days of the week are considered weekends.
-    holidays (date, range<date>, optional) A range or array constant containing the dates to consider holidays. // <--
-  `),
+  args: [
+    arg("start_date (date)", "The date from which to begin counting."),
+    arg("num_days (number)", "The number of working days to advance from start_date. If negative, counts backwards."),
+    arg("weekend (any, default=1)", "A number or string representing which days of the week are considered weekends."),
+    arg("holidays (date, range<date>, optional)", "A range or array constant containing the dates to consider holidays."), // <--
+  ],
   returns: ["DATE"],
   compute: function (startDate: any, numDays: any, weekend: any = 1, holidays: any = undefined): number {
     // [...]
@@ -359,10 +371,16 @@ Useful when all arguments must have the same processing, and ignore values that 
 ```javascript
 export const MEDIAN: AddFunctionDescription = {
   description: "Median value in a numeric dataset.",
-  args: args(`
-    value1 (any, range) The first value or range to consider when calculating the median value.
-    value2 (any, range, repeating) Additional values or ranges to consider when calculating the median value.
-  `),
+  args: [
+    arg(
+      "value1 (any, range)",
+      "The first value or range to consider when calculating the median value."
+    ),
+    arg(
+      "value2 (any, range, repeating)",
+      "Additional values or ranges to consider when calculating the median value."
+    ),
+  ],
   returns: ["NUMBER"],
   compute: function (value1: ArgValue, value2: ArgValue): number {
     let data: any[] = [];
@@ -397,7 +415,7 @@ addFunction("USER.NAME", {
   compute: function () {
     return this.userService.getUserName();
   },
-  args: args(``),
+  args: [],
   returns: ["STRING"],
 });
 ```
@@ -420,10 +438,10 @@ addFunction("CURRENCY.RATE", {
     }
     return currencyRate.value;
   },
-  args: args(`
-    currency_from (string) First currency code.
-    currency_to (string) Second currency code.
-  `),
+  args: [
+    arg("currency_from (string)", "First currency code."),
+    arg("currency_to (string)", "Second currency code."),
+  ],
   returns: ["NUMBER"],
 });
 ```
