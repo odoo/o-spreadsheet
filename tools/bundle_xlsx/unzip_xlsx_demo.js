@@ -1,4 +1,4 @@
-const { exec } = require("child_process");
+import { exec } from "child_process";
 
 let unzipXlsxCommand = "sh ./tools/bundle_xlsx/unzip_xlsx_demo.sh";
 if (process.platform === "win32") {

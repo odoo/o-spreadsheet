@@ -2,11 +2,13 @@
  * This is not suitable for production use!
  * This is only a simplified implementation for demonstration purposes.
  */
-const express = require("express");
-const cors = require("cors");
-const fs = require("fs");
-const expressWS = require("express-ws")(express());
-const app = expressWS.app;
+import cors from "cors";
+import express from "express";
+import expressWS from "express-ws";
+import fs from "fs";
+
+const app = express();
+const wsApp = expressWS(app);
 
 app.use(cors());
 app.use(express.json());
@@ -41,8 +43,8 @@ if (fs.existsSync(currentSessionFile)) {
 
 // setup the socket connection for the clients to connect
 
-const aWss = expressWS.getWss("/");
-expressWS.getWss().on("connection", (ws) => {
+const aWss = wsApp.getWss("/");
+wsApp.getWss().on("connection", (ws) => {
   log(`Connection: ${messages.length} messages have been sent`);
 });
 

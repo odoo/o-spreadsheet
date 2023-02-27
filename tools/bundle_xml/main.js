@@ -1,3 +1,3 @@
-const bundle = require("./bundle_xml_templates");
+import * as bundle from "./bundle_xml_templates.js";
 
 bundle.writeOwlTemplateBundleToFile();

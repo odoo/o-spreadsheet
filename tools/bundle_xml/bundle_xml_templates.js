@@ -1,13 +1,16 @@
-const fs = require("fs");
-const path = require("path");
-const prettier = require("prettier");
+import fs from "fs";
+import path from "path";
+import prettier from "prettier";
 
-const config = require("../../package.json");
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+
+const config = JSON.parse(readFileSync(new URL("../../package.json", import.meta.url)));
 
 /**
  * Returns a bundle of all the xml templates, as a parsed xml Document
  */
-async function getParsedOwlTemplateBundle() {
+export async function getParsedOwlTemplateBundle() {
   const xml = await getOwlTemplatesBundle();
   const parser = new DOMParser();
   const doc = parser.parseFromString(xml, "text/xml");
@@ -20,7 +23,7 @@ async function getParsedOwlTemplateBundle() {
  * @param {boolean} removeRootTags : remove the unnecessary <templates> root tags for export to Odoo. Slightly slower.
  */
 async function getOwlTemplatesBundle(removeRootTags = false) {
-  const srcPath = path.join(__dirname, "../../src");
+  const srcPath = fileURLToPath(new URL("../../src", import.meta.url));
   const files = await getXmlTemplatesFiles(srcPath);
   const templateBundle = await createOwlTemplateBundle(files, removeRootTags);
   return templateBundle;
@@ -57,11 +60,12 @@ async function createOwlTemplateBundle(files, removeRootTags) {
 /**
  * Write the xml bundle to the `dist` directory
  */
-async function writeOwlTemplateBundleToFile() {
+export async function writeOwlTemplateBundleToFile() {
   process.stdout.write("Building xml template bundle...");
   let templateBundle = await getOwlTemplatesBundle(true);
   templateBundle = prettify(templateBundle);
-  writeToFile(path.join(__dirname, "../../dist/o_spreadsheet.xml"), templateBundle);
+  const filePath = fileURLToPath(new URL("../../dist/o_spreadsheet.xml", import.meta.url));
+  writeToFile(filePath, templateBundle);
   process.stdout.write("done\n");
 }
 
@@ -85,6 +89,3 @@ function writeToFile(filepath, data) {
     }
   });
 }
-
-exports.getParsedOwlTemplateBundle = getParsedOwlTemplateBundle;
-exports.writeOwlTemplateBundleToFile = writeOwlTemplateBundleToFile;

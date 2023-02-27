@@ -2,6 +2,7 @@
   "name": "@odoo/o-spreadsheet",
   "version": "16.0.0",
   "description": "A spreadsheet component",
+  "type": "module",
   "main": "dist/o-spreadsheet.cjs.js",
   "browser": "dist/o-spreadsheet.iife.js",
   "module": "dist/o-spreadsheet.es.js",
