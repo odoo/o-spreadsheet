@@ -1,134 +1,6 @@
 (function (exports, owl) {
     'use strict';
-
-    /**
-     * Registry
-     *
-     * The Registry class is basically just a mapping from a string key to an object.
-     * It is really not much more than an object. It is however useful for the
-     * following reasons:
-     *
-     * 1. it let us react and execute code when someone add something to the registry
-     *   (for example, the FunctionRegistry subclass this for this purpose)
-     * 2. it throws an error when the get operation fails
-     * 3. it provides a chained API to add items to the registry.
-     */
-    class Registry {
-        constructor() {
-            this.content = {};
-        }
-        /**
-         * Add an item to the registry
-         *
-         * Note that this also returns the registry, so another add method call can
-         * be chained
-         */
-        add(key, value) {
-            this.content[key] = value;
-            return this;
-        }
-        /**
-         * Get an item from the registry
-         */
-        get(key) {
-            /**
-             * Note: key in {} is ~12 times slower than {}[key].
-             * So, we check the absence of key only when the direct access returns
-             * a falsy value. It's done to ensure that the registry can contains falsy values
-             */
-            const content = this.content[key];
-            if (!content) {
-                if (!(key in this.content)) {
-                    throw new Error(`Cannot find ${key} in this registry!`);
-                }
-            }
-            return content;
-        }
-        /**
-         * Get a list of all elements in the registry
-         */
-        getAll() {
-            return Object.values(this.content);
-        }
-        /**
-         * Get a list of all keys in the registry
-         */
-        getKeys() {
-            return Object.keys(this.content);
-        }
-        /**
-         * Remove an item from the registry
-         */
-        remove(key) {
-            delete this.content[key];
-        }
-    }
-
-    /**
-     * This registry is intended to map a cell content (raw string) to
-     * an instance of a cell.
-     */
-    const chartRegistry = new Registry();
-    const chartComponentRegistry = new Registry();
-
-    class ChartJsComponent extends owl.Component {
-        constructor() {
-            super(...arguments);
-            this.canvas = owl.useRef("graphContainer");
-        }
-        get background() {
-            return this.chartRuntime.background;
-        }
-        get canvasStyle() {
-            return `background-color: ${this.background}`;
-        }
-        get chartRuntime() {
-            const runtime = this.env.model.getters.getChartRuntime(this.props.figure.id);
-            if (!("chartJsConfig" in runtime)) {
-                throw new Error("Unsupported chart runtime");
-            }
-            return runtime;
-        }
-        setup() {
-            owl.onMounted(() => {
-                const runtime = this.chartRuntime;
-                this.createChart(runtime.chartJsConfig);
-            });
-            owl.onPatched(() => {
-                var _a, _b, _c, _d;
-                const chartData = this.chartRuntime.chartJsConfig;
-                if (chartData.data && chartData.data.datasets) {
-                    this.chart.data = chartData.data;
-                    if ((_a = chartData.options) === null || _a === void 0 ? void 0 : _a.title) {
-                        this.chart.config.options.title = chartData.options.title;
-                    }
-                    if (chartData.options && "valueLabel" in chartData.options) {
-                        if ((_b = chartData.options) === null || _b === void 0 ? void 0 : _b.valueLabel) {
-                            this.chart.config.options.valueLabel =
-                                chartData.options.valueLabel;
-                        }
-                    }
-                }
-                else {
-                    this.chart.data.datasets = undefined;
-                }
-                this.chart.config.options.legend = (_c = chartData.options) === null || _c === void 0 ? void 0 : _c.legend;
-                this.chart.config.options.scales = (_d = chartData.options) === null || _d === void 0 ? void 0 : _d.scales;
-                this.chart.update({ duration: 0 });
-            });
-        }
-        createChart(chartData) {
-            const canvas = this.canvas.el;
-            const ctx = canvas.getContext("2d");
-            this.chart = new window.Chart(ctx, chartData);
-        }
-    }
-    ChartJsComponent.template = "o-spreadsheet-ChartJsComponent";
-    chartComponentRegistry.add("line", ChartJsComponent);
-    chartComponentRegistry.add("bar", ChartJsComponent);
-    chartComponentRegistry.add("pie", ChartJsComponent);
-    chartComponentRegistry.add("gauge", ChartJsComponent);
-
+  
     /*
      * usage: every string should be translated either with _lt if they are registered with a registry at
      *  the load of the app or with Spreadsheet._t in the templates. Spreadsheet._t is exposed in the
@@ -174,7 +46,7 @@
             return this.valueOf();
         }
     }
-
+  
     var CellErrorType;
     (function (CellErrorType) {
         CellErrorType["NotAvailable"] = "#N/A";
@@ -221,7 +93,7 @@
             super(CellErrorType.UnknownFunction, _lt('Unknown function: "%s"', fctName));
         }
     }
-
+  
     const CANVAS_SHIFT = 0.5;
     // Colors
     const BACKGROUND_GRAY_COLOR = "#f5f5f5";
@@ -237,6 +109,9 @@
     const MENU_ITEM_DISABLED_COLOR = "#CACACA";
     const DEFAULT_COLOR_SCALE_MIDPOINT_COLOR = 0xb6d7a8;
     const LINK_COLOR = "#01666b";
+    const FILTERS_COLOR = "#188038";
+    const BACKGROUND_HEADER_FILTER_COLOR = "#E6F4EA";
+    const BACKGROUND_HEADER_SELECTED_FILTER_COLOR = "#CEEAD6";
     // Color picker
     const COLOR_PICKER_DEFAULTS = [
         "#000000",
@@ -338,6 +213,8 @@
     const CF_ICON_EDGE_LENGTH = 15;
     const PADDING_AUTORESIZE_VERTICAL = 3;
     const PADDING_AUTORESIZE_HORIZONTAL = MIN_CELL_TEXT_MARGIN;
+    const FILTER_ICON_MARGIN = 2;
+    const FILTER_ICON_EDGE_LENGTH = 17;
     // Menus
     const MENU_WIDTH = 250;
     const MENU_ITEM_HEIGHT = 28;
@@ -352,6 +229,7 @@
     const DEFAULT_FONT = "'Roboto', arial";
     // Borders
     const DEFAULT_BORDER_DESC = ["thin", "#000"];
+    const DEFAULT_FILTER_BORDER_DESC = ["thin", FILTERS_COLOR];
     // DateTimeRegex
     const DATETIME_FORMAT = /[ymd:]/;
     // Ranges
@@ -365,10 +243,12 @@
     const DEFAULT_FIGURE_WIDTH = 536;
     // Chart
     const MAX_CHAR_LABEL = 20;
+    const FIGURE_ID_SPLITTER = "??";
     const DEFAULT_GAUGE_LOWER_COLOR = "#cc0000";
     const DEFAULT_GAUGE_MIDDLE_COLOR = "#f1c232";
     const DEFAULT_GAUGE_UPPER_COLOR = "#6aa84f";
     const LINE_FILL_TRANSPARENCY = 0.4;
+    const MIN_FIG_SIZE = 80;
     // session
     const DEBOUNCE_TIME = 200;
     const MESSAGE_VERSION = 1;
@@ -386,8 +266,8 @@
         ComponentsImportance[ComponentsImportance["Grid"] = 0] = "Grid";
         ComponentsImportance[ComponentsImportance["Highlight"] = 5] = "Highlight";
         ComponentsImportance[ComponentsImportance["Figure"] = 10] = "Figure";
-        ComponentsImportance[ComponentsImportance["Dropdown"] = 12] = "Dropdown";
         ComponentsImportance[ComponentsImportance["ScrollBar"] = 15] = "ScrollBar";
+        ComponentsImportance[ComponentsImportance["Dropdown"] = 16] = "Dropdown";
         ComponentsImportance[ComponentsImportance["Composer"] = 20] = "Composer";
         ComponentsImportance[ComponentsImportance["ColorPicker"] = 25] = "ColorPicker";
         ComponentsImportance[ComponentsImportance["IconPicker"] = 25] = "IconPicker";
@@ -396,7 +276,7 @@
     })(ComponentsImportance || (ComponentsImportance = {}));
     const DEFAULT_SHEETVIEW_SIZE = 1000;
     const MAXIMAL_FREEZABLE_RATIO = 0.85;
-
+  
     const fontSizes = [
         { pt: 7.5, px: 10 },
         { pt: 8, px: 11 },
@@ -418,7 +298,7 @@
     for (let font of fontSizes) {
         fontSizeMap[font.pt] = font.px;
     }
-
+  
     // -----------------------------------------------------------------------------
     // Date Type
     // -----------------------------------------------------------------------------
@@ -582,7 +462,153 @@
         const delta = date.getTime() - INITIAL_1900_DAY.getTime();
         return Math.round(delta / MS_PER_DAY);
     }
-
+    /** Return the number of days in the current month of the given date */
+    function getDaysInMonth(date) {
+        return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    }
+    function isLastDayOfMonth(date) {
+        return getDaysInMonth(date) === date.getDate();
+    }
+    /**
+     * Add a certain number of months to a date. This will adapt the month number, and possibly adapt
+     * the day of the month to keep it in the month.
+     *
+     * For example "31/12/2020" minus one month will be "30/11/2020", and not "31/11/2020"
+     *
+     * @param keepEndOfMonth if true, if the given date was the last day of a month, the returned date will
+     *          also always be the last day of a month.
+     */
+    function addMonthsToDate(date, months, keepEndOfMonth) {
+        const yStart = date.getFullYear();
+        const mStart = date.getMonth();
+        const dStart = date.getDate();
+        const jsDate = new Date(yStart, mStart + months);
+        if (keepEndOfMonth && dStart === getDaysInMonth(date)) {
+            jsDate.setDate(getDaysInMonth(jsDate));
+        }
+        else if (dStart > getDaysInMonth(jsDate)) {
+            // 31/03 minus one month should be 28/02, not 31/02
+            jsDate.setDate(getDaysInMonth(jsDate));
+        }
+        else {
+            jsDate.setDate(dStart);
+        }
+        return jsDate;
+    }
+    function isLeapYear(year) {
+        const _year = Math.trunc(year);
+        return (_year % 4 === 0 && _year % 100 != 0) || _year % 400 == 0;
+    }
+    function getYearFrac(startDate, endDate, _dayCountConvention) {
+        if (startDate === endDate) {
+            return 0;
+        }
+        if (startDate > endDate) {
+            const stack = endDate;
+            endDate = startDate;
+            startDate = stack;
+        }
+        const jsStartDate = numberToJsDate(startDate);
+        const jsEndDate = numberToJsDate(endDate);
+        let dayStart = jsStartDate.getDate();
+        let dayEnd = jsEndDate.getDate();
+        const monthStart = jsStartDate.getMonth(); // january is 0
+        const monthEnd = jsEndDate.getMonth(); // january is 0
+        const yearStart = jsStartDate.getFullYear();
+        const yearEnd = jsEndDate.getFullYear();
+        let yearsStart = 0;
+        let yearsEnd = 0;
+        switch (_dayCountConvention) {
+            // 30/360 US convention --------------------------------------------------
+            case 0:
+                if (dayStart === 31)
+                    dayStart = 30;
+                if (dayStart === 30 && dayEnd === 31)
+                    dayEnd = 30;
+                // If jsStartDate is the last day of February
+                if (monthStart === 1 && dayStart === (isLeapYear(yearStart) ? 29 : 28)) {
+                    dayStart = 30;
+                    // If jsEndDate is the last day of February
+                    if (monthEnd === 1 && dayEnd === (isLeapYear(yearEnd) ? 29 : 28)) {
+                        dayEnd = 30;
+                    }
+                }
+                yearsStart = yearStart + (monthStart * 30 + dayStart) / 360;
+                yearsEnd = yearEnd + (monthEnd * 30 + dayEnd) / 360;
+                break;
+            // actual/actual convention ----------------------------------------------
+            case 1:
+                let daysInYear = 365;
+                const isSameYear = yearStart === yearEnd;
+                const isOneDeltaYear = yearStart + 1 === yearEnd;
+                const isMonthEndBigger = monthStart < monthEnd;
+                const isSameMonth = monthStart === monthEnd;
+                const isDayEndBigger = dayStart < dayEnd;
+                // |-----|  <-- one Year
+                // 'A' is start date
+                // 'B' is end date
+                if ((!isSameYear && !isOneDeltaYear) ||
+                    (!isSameYear && isMonthEndBigger) ||
+                    (!isSameYear && isSameMonth && isDayEndBigger)) {
+                    // |---A-|-----|-B---|  <-- !isSameYear && !isOneDeltaYear
+                    // |---A-|----B|-----|  <-- !isSameYear && isMonthEndBigger
+                    // |---A-|---B-|-----|  <-- !isSameYear && isSameMonth && isDayEndBigger
+                    let countYears = 0;
+                    let countDaysInYears = 0;
+                    for (let y = yearStart; y <= yearEnd; y++) {
+                        countYears++;
+                        countDaysInYears += isLeapYear(y) ? 366 : 365;
+                    }
+                    daysInYear = countDaysInYears / countYears;
+                }
+                else if (!isSameYear) {
+                    // |-AF--|B----|-----|
+                    if (isLeapYear(yearStart) && monthStart < 2) {
+                        daysInYear = 366;
+                    }
+                    // |--A--|FB---|-----|
+                    if (isLeapYear(yearEnd) && (monthEnd > 1 || (monthEnd === 1 && dayEnd === 29))) {
+                        daysInYear = 366;
+                    }
+                }
+                else {
+                    // remaining cases:
+                    //
+                    // |-F-AB|-----|-----|
+                    // |AB-F-|-----|-----|
+                    // |A-F-B|-----|-----|
+                    // if February 29 occurs between date1 (exclusive) and date2 (inclusive)
+                    // daysInYear --> 366
+                    if (isLeapYear(yearStart)) {
+                        daysInYear = 366;
+                    }
+                }
+                yearsStart = startDate / daysInYear;
+                yearsEnd = endDate / daysInYear;
+                break;
+            // actual/360 convention -------------------------------------------------
+            case 2:
+                yearsStart = startDate / 360;
+                yearsEnd = endDate / 360;
+                break;
+            // actual/365 convention -------------------------------------------------
+            case 3:
+                yearsStart = startDate / 365;
+                yearsEnd = endDate / 365;
+                break;
+            // 30/360 European convention --------------------------------------------
+            case 4:
+                if (dayStart === 31)
+                    dayStart = 30;
+                if (dayEnd === 31)
+                    dayEnd = 30;
+                yearsStart = yearStart + (monthStart * 30 + dayStart) / 360;
+                yearsEnd = yearEnd + (monthEnd * 30 + dayEnd) / 360;
+                break;
+        }
+        return yearsEnd - yearsStart;
+    }
+  
     //------------------------------------------------------------------------------
     /**
      * Stringify an object, like JSON.stringify, except that the first level of keys
@@ -609,6 +635,13 @@
     }
     function isCloneable(obj) {
         return "clone" in obj && obj.clone instanceof Function;
+    }
+    /**
+     * Escapes a string to use as a literal string in a RegExp.
+     * @url https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#Escaping
+     */
+    function escapeRegExp(str) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     }
     /**
      * Deep copy arrays, plain objects and primitive values.
@@ -994,7 +1027,16 @@
         Object.keys(cleanObject).forEach((key) => !cleanObject[key] && delete cleanObject[key]);
         return cleanObject;
     }
-
+    /** Transform a string to lower case. If the string is undefined, return an empty string */
+    function toLowerCase(str) {
+        return str ? str.toLowerCase() : "";
+    }
+    function transpose2dArray(matrix) {
+        if (!matrix.length)
+            return matrix;
+        return matrix[0].map((_, i) => matrix.map((row) => row[i]));
+    }
+  
     const colors$1 = [
         "#eb6d00",
         "#0074d9",
@@ -1241,7 +1283,7 @@
         l = +(l * 100).toFixed(1);
         return { a: rgba.a, h, s, l };
     }
-
+  
     /** Reference of a cell (eg. A1, $B$5) */
     const cellReference = new RegExp(/\$?([A-Z]{1,3})\$?([0-9]{1,7})/, "i");
     // Same as above, but matches the exact string (nothing before or after)
@@ -1284,7 +1326,13 @@
     function isSingleCellReference(xc) {
         return singleCellReference.test(xc);
     }
-
+    function splitReference(ref) {
+        const parts = ref.split("!");
+        const xc = parts.pop();
+        const sheetName = getUnquotedSheetName(parts.join("!")) || undefined;
+        return { sheetName, xc };
+    }
+  
     //------------------------------------------------------------------------------
     /**
      * Convert a (col) number to the corresponding letter.
@@ -1360,7 +1408,7 @@
             (rangePart.rowFixed ? "$" : "") +
             String(row + 1));
     }
-
+  
     const MAX_DELAY = 140;
     const MIN_DELAY = 20;
     const ACCELERATION = 0.035;
@@ -1374,7 +1422,7 @@
         // decreasing exponential from MAX_DELAY to MIN_DELAY
         return MIN_DELAY + (MAX_DELAY - MIN_DELAY) * Math.exp(-ACCELERATION * (value - 1));
     }
-
+  
     /**
      *  Constant used to indicate the maximum of digits that is possible to display
      *  in a cell with standard size.
@@ -1781,7 +1829,7 @@
         }
         return format;
     }
-
+  
     /**
      * This regexp is supposed to be as close as possible as the numberRegexp, but
      * its purpose is to be used by the tokenizer.
@@ -1850,7 +1898,7 @@
         return (sortedValues[indexSup] * (percentIndex - indexLow) +
             sortedValues[indexLow] * (indexSup - percentIndex));
     }
-
+  
     class RangeImpl {
         constructor(args, getSheetSize) {
             this.getSheetSize = getSheetSize;
@@ -1982,7 +2030,56 @@
     function createRange(getters, sheetId, range) {
         return range ? getters.getRangeFromSheetXC(sheetId, range) : undefined;
     }
-
+  
+    /** Methods from Odoo Web Utils  */
+    /**
+     * This function computes a score that represent the fact that the
+     * string contains the pattern, or not
+     *
+     * - If the score is 0, the string does not contain the letters of the pattern in
+     *   the correct order.
+     * - if the score is > 0, it actually contains the letters.
+     *
+     * Better matches will get a higher score: consecutive letters are better,
+     * and a match closer to the beginning of the string is also scored higher.
+     */
+    function fuzzyMatch(pattern, str) {
+        pattern = pattern.toLocaleLowerCase();
+        str = str.toLocaleLowerCase();
+        let totalScore = 0;
+        let currentScore = 0;
+        let len = str.length;
+        let patternIndex = 0;
+        for (let i = 0; i < len; i++) {
+            if (str[i] === pattern[patternIndex]) {
+                patternIndex++;
+                currentScore += 100 + currentScore - i / 200;
+            }
+            else {
+                currentScore = 0;
+            }
+            totalScore = totalScore + currentScore;
+        }
+        return patternIndex === pattern.length ? totalScore : 0;
+    }
+    /**
+     * Return a list of things that matches a pattern, ordered by their 'score' (
+     * higher score first). An higher score means that the match is better. For
+     * example, consecutive letters are considered a better match.
+     */
+    function fuzzyLookup(pattern, list, fn) {
+        const results = [];
+        list.forEach((data) => {
+            const score = fuzzyMatch(pattern, fn(data));
+            if (score > 0) {
+                results.push({ score, elem: data });
+            }
+        });
+        // we want better matches first
+        results.sort((a, b) => b.score - a.score);
+        return results.map((r) => r.elem);
+    }
+  
     function createDefaultRows(rowNumber) {
         const rows = [];
         for (let i = 0; i < rowNumber; i++) {
@@ -1993,7 +2090,7 @@
         }
         return rows;
     }
-
+  
     /*
      * https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
      * */
@@ -2024,7 +2121,7 @@
             }
         }
     }
-
+  
     /**
      * Convert from a cartesian reference to a Zone
      * The range boundaries will be kept in the same order as the
@@ -2194,17 +2291,15 @@
     }
     /**
      * Expand a zone after inserting columns or rows.
+     *
+     * Don't resize the zone if a col/row was added right before/after the row but only move the zone.
      */
     function expandZoneOnInsertion(zone, start, base, position, quantity) {
         const dimension = start === "left" ? "columns" : "rows";
         const baseElement = position === "before" ? base - 1 : base;
         const end = start === "left" ? "right" : "bottom";
         const zoneEnd = zone[end];
-        let shouldIncludeEnd = false;
-        if (zoneEnd) {
-            shouldIncludeEnd = position === "before" ? zoneEnd > baseElement : zoneEnd >= baseElement;
-        }
-        if (zone[start] <= baseElement && shouldIncludeEnd) {
+        if (zone[start] <= baseElement && zoneEnd && zoneEnd > baseElement) {
             return createAdaptedZone(zone, dimension, "RESIZE", quantity);
         }
         if (baseElement < zone[start]) {
@@ -2551,6 +2646,7 @@
             col = right;
         }
         else {
+            // left and right don't change
             col = left;
         }
         if (top != oldTop) {
@@ -2560,6 +2656,7 @@
             row = bottom;
         }
         else {
+            // top and bottom don't change
             row = top;
         }
         return { col, row };
@@ -2581,10 +2678,183 @@
     function isFullCol(zone) {
         return zone.bottom === undefined;
     }
+    /** Returns the area of a zone */
     function getZoneArea(zone) {
         return (zone.bottom - zone.top + 1) * (zone.right - zone.left + 1);
     }
-
+    /**
+     * Check if the zones are continuous, ie. if they can be merged into a single zone without
+     * including cells outside the zones
+     * */
+    function areZonesContinuous(...zones) {
+        if (zones.length < 2)
+            return true;
+        return recomputeZones(zones.map(zoneToXc), []).length === 1;
+    }
+    /** Return all the columns in the given list of zones */
+    function getZonesCols(zones) {
+        const set = new Set();
+        for (let zone of zones) {
+            for (let col of range(zone.left, zone.right + 1)) {
+                set.add(col);
+            }
+        }
+        return set;
+    }
+    /** Return all the rows in the given list of zones */
+    function getZonesRows(zones) {
+        const set = new Set();
+        for (let zone of zones) {
+            for (let row of range(zone.top, zone.bottom + 1)) {
+                set.add(row);
+            }
+        }
+        return set;
+    }
+  
+    /**
+     * Registry
+     *
+     * The Registry class is basically just a mapping from a string key to an object.
+     * It is really not much more than an object. It is however useful for the
+     * following reasons:
+     *
+     * 1. it let us react and execute code when someone add something to the registry
+     *   (for example, the FunctionRegistry subclass this for this purpose)
+     * 2. it throws an error when the get operation fails
+     * 3. it provides a chained API to add items to the registry.
+     */
+    class Registry {
+        constructor() {
+            this.content = {};
+        }
+        /**
+         * Add an item to the registry
+         *
+         * Note that this also returns the registry, so another add method call can
+         * be chained
+         */
+        add(key, value) {
+            this.content[key] = value;
+            return this;
+        }
+        /**
+         * Get an item from the registry
+         */
+        get(key) {
+            /**
+             * Note: key in {} is ~12 times slower than {}[key].
+             * So, we check the absence of key only when the direct access returns
+             * a falsy value. It's done to ensure that the registry can contains falsy values
+             */
+            const content = this.content[key];
+            if (!content) {
+                if (!(key in this.content)) {
+                    throw new Error(`Cannot find ${key} in this registry!`);
+                }
+            }
+            return content;
+        }
+        /**
+         * Check if the key is already in the registry
+         */
+        contains(key) {
+            return key in this.content;
+        }
+        /**
+         * Get a list of all elements in the registry
+         */
+        getAll() {
+            return Object.values(this.content);
+        }
+        /**
+         * Get a list of all keys in the registry
+         */
+        getKeys() {
+            return Object.keys(this.content);
+        }
+        /**
+         * Remove an item from the registry
+         */
+        remove(key) {
+            delete this.content[key];
+        }
+    }
+  
+    /**
+     * This registry is intended to map a cell content (raw string) to
+     * an instance of a cell.
+     */
+    const chartRegistry = new Registry();
+    const chartComponentRegistry = new Registry();
+  
+    class ChartJsComponent extends owl.Component {
+        constructor() {
+            super(...arguments);
+            this.canvas = owl.useRef("graphContainer");
+        }
+        get background() {
+            return this.chartRuntime.background;
+        }
+        get canvasStyle() {
+            return `background-color: ${this.background}`;
+        }
+        get chartRuntime() {
+            const runtime = this.env.model.getters.getChartRuntime(this.env.model.getters.getActiveSheetId(), this.props.figure.id);
+            if (!("chartJsConfig" in runtime)) {
+                throw new Error("Unsupported chart runtime");
+            }
+            return runtime;
+        }
+        setup() {
+            owl.onMounted(() => {
+                const runtime = this.chartRuntime;
+                this.createChart(runtime.chartJsConfig);
+            });
+            let previousRuntime = this.chartRuntime;
+            owl.onPatched(() => {
+                const chartRuntime = this.chartRuntime;
+                if (deepEquals(previousRuntime, chartRuntime)) {
+                    return;
+                }
+                this.updateChartJs(chartRuntime);
+                previousRuntime = chartRuntime;
+            });
+        }
+        createChart(chartData) {
+            const canvas = this.canvas.el;
+            const ctx = canvas.getContext("2d");
+            this.chart = new window.Chart(ctx, chartData);
+        }
+        updateChartJs(chartRuntime) {
+            var _a, _b, _c, _d;
+            const chartData = chartRuntime.chartJsConfig;
+            if (chartData.data && chartData.data.datasets) {
+                this.chart.data = chartData.data;
+                if ((_a = chartData.options) === null || _a === void 0 ? void 0 : _a.title) {
+                    this.chart.config.options.title = chartData.options.title;
+                }
+                if (chartData.options && "valueLabel" in chartData.options) {
+                    if ((_b = chartData.options) === null || _b === void 0 ? void 0 : _b.valueLabel) {
+                        this.chart.config.options.valueLabel =
+                            chartData.options.valueLabel;
+                    }
+                }
+            }
+            else {
+                this.chart.data.datasets = undefined;
+            }
+            this.chart.config.options.legend = (_c = chartData.options) === null || _c === void 0 ? void 0 : _c.legend;
+            this.chart.config.options.scales = (_d = chartData.options) === null || _d === void 0 ? void 0 : _d.scales;
+            this.chart.update({ duration: 0 });
+        }
+    }
+    ChartJsComponent.template = "o-spreadsheet-ChartJsComponent";
+    chartComponentRegistry.add("line", ChartJsComponent);
+    chartComponentRegistry.add("bar", ChartJsComponent);
+    chartComponentRegistry.add("pie", ChartJsComponent);
+    chartComponentRegistry.add("gauge", ChartJsComponent);
+  
     /**
      * An AutofillModifierImplementation is used to describe how to handle a
      * AutofillModifier.
@@ -2629,19 +2899,19 @@
             let x = 0;
             let y = 0;
             switch (direction) {
-                case 0 /* DIRECTION.UP */:
+                case "up" /* DIRECTION.UP */:
                     x = 0;
                     y = -rule.current;
                     break;
-                case 1 /* DIRECTION.DOWN */:
+                case "down" /* DIRECTION.DOWN */:
                     x = 0;
                     y = rule.current;
                     break;
-                case 2 /* DIRECTION.LEFT */:
+                case "left" /* DIRECTION.LEFT */:
                     x = -rule.current;
                     y = 0;
                     break;
-                case 3 /* DIRECTION.RIGHT */:
+                case "right" /* DIRECTION.RIGHT */:
                     x = rule.current;
                     y = 0;
                     break;
@@ -2663,7 +2933,7 @@
             };
         },
     });
-
+  
     var CellValueType;
     (function (CellValueType) {
         CellValueType["boolean"] = "boolean";
@@ -2672,7 +2942,7 @@
         CellValueType["empty"] = "empty";
         CellValueType["error"] = "error";
     })(CellValueType || (CellValueType = {}));
-
+  
     function isSheetDependent(cmd) {
         return "sheetId" in cmd;
     }
@@ -2723,6 +2993,9 @@
         "EVALUATE_CELLS",
         "SET_CURRENT_CONTENT",
         "SET_FORMULA_VISIBILITY",
+        "OPEN_CELL_POPOVER",
+        "CLOSE_CELL_POPOVER",
+        "UPDATE_FILTER",
     ]);
     const coreTypes = new Set([
         /** CELLS */
@@ -2767,10 +3040,12 @@
         "SET_FORMATTING",
         "CLEAR_FORMATTING",
         "SET_BORDER",
-        "SET_DECIMAL",
         /** CHART */
         "CREATE_CHART",
         "UPDATE_CHART",
+        /** FILTERS */
+        "CREATE_FILTER_TABLE",
+        "REMOVE_FILTER_TABLE",
     ]);
     function isCoreCommand(cmd) {
         return coreTypes.has(cmd.type);
@@ -2815,85 +3090,95 @@
         CommandResult[CommandResult["WillRemoveExistingMerge"] = 2] = "WillRemoveExistingMerge";
         CommandResult[CommandResult["MergeIsDestructive"] = 3] = "MergeIsDestructive";
         CommandResult[CommandResult["CellIsMerged"] = 4] = "CellIsMerged";
-        CommandResult[CommandResult["EmptyUndoStack"] = 5] = "EmptyUndoStack";
-        CommandResult[CommandResult["EmptyRedoStack"] = 6] = "EmptyRedoStack";
-        CommandResult[CommandResult["NotEnoughElements"] = 7] = "NotEnoughElements";
-        CommandResult[CommandResult["NotEnoughSheets"] = 8] = "NotEnoughSheets";
-        CommandResult[CommandResult["MissingSheetName"] = 9] = "MissingSheetName";
-        CommandResult[CommandResult["DuplicatedSheetName"] = 10] = "DuplicatedSheetName";
-        CommandResult[CommandResult["ForbiddenCharactersInSheetName"] = 11] = "ForbiddenCharactersInSheetName";
-        CommandResult[CommandResult["WrongSheetMove"] = 12] = "WrongSheetMove";
-        CommandResult[CommandResult["WrongSheetPosition"] = 13] = "WrongSheetPosition";
-        CommandResult[CommandResult["InvalidAnchorZone"] = 14] = "InvalidAnchorZone";
-        CommandResult[CommandResult["SelectionOutOfBound"] = 15] = "SelectionOutOfBound";
-        CommandResult[CommandResult["TargetOutOfSheet"] = 16] = "TargetOutOfSheet";
-        CommandResult[CommandResult["WrongCutSelection"] = 17] = "WrongCutSelection";
-        CommandResult[CommandResult["WrongPasteSelection"] = 18] = "WrongPasteSelection";
-        CommandResult[CommandResult["WrongPasteOption"] = 19] = "WrongPasteOption";
-        CommandResult[CommandResult["WrongFigurePasteOption"] = 20] = "WrongFigurePasteOption";
-        CommandResult[CommandResult["EmptyClipboard"] = 21] = "EmptyClipboard";
-        CommandResult[CommandResult["EmptyRange"] = 22] = "EmptyRange";
-        CommandResult[CommandResult["InvalidRange"] = 23] = "InvalidRange";
-        CommandResult[CommandResult["InvalidZones"] = 24] = "InvalidZones";
-        CommandResult[CommandResult["InvalidSheetId"] = 25] = "InvalidSheetId";
-        CommandResult[CommandResult["InputAlreadyFocused"] = 26] = "InputAlreadyFocused";
-        CommandResult[CommandResult["MaximumRangesReached"] = 27] = "MaximumRangesReached";
-        CommandResult[CommandResult["InvalidChartDefinition"] = 28] = "InvalidChartDefinition";
-        CommandResult[CommandResult["InvalidDataSet"] = 29] = "InvalidDataSet";
-        CommandResult[CommandResult["InvalidLabelRange"] = 30] = "InvalidLabelRange";
-        CommandResult[CommandResult["InvalidScorecardKeyValue"] = 31] = "InvalidScorecardKeyValue";
-        CommandResult[CommandResult["InvalidScorecardBaseline"] = 32] = "InvalidScorecardBaseline";
-        CommandResult[CommandResult["InvalidGaugeDataRange"] = 33] = "InvalidGaugeDataRange";
-        CommandResult[CommandResult["EmptyGaugeRangeMin"] = 34] = "EmptyGaugeRangeMin";
-        CommandResult[CommandResult["GaugeRangeMinNaN"] = 35] = "GaugeRangeMinNaN";
-        CommandResult[CommandResult["EmptyGaugeRangeMax"] = 36] = "EmptyGaugeRangeMax";
-        CommandResult[CommandResult["GaugeRangeMaxNaN"] = 37] = "GaugeRangeMaxNaN";
-        CommandResult[CommandResult["GaugeRangeMinBiggerThanRangeMax"] = 38] = "GaugeRangeMinBiggerThanRangeMax";
-        CommandResult[CommandResult["GaugeLowerInflectionPointNaN"] = 39] = "GaugeLowerInflectionPointNaN";
-        CommandResult[CommandResult["GaugeUpperInflectionPointNaN"] = 40] = "GaugeUpperInflectionPointNaN";
-        CommandResult[CommandResult["GaugeLowerBiggerThanUpper"] = 41] = "GaugeLowerBiggerThanUpper";
-        CommandResult[CommandResult["InvalidAutofillSelection"] = 42] = "InvalidAutofillSelection";
-        CommandResult[CommandResult["WrongComposerSelection"] = 43] = "WrongComposerSelection";
-        CommandResult[CommandResult["MinBiggerThanMax"] = 44] = "MinBiggerThanMax";
-        CommandResult[CommandResult["LowerBiggerThanUpper"] = 45] = "LowerBiggerThanUpper";
-        CommandResult[CommandResult["MidBiggerThanMax"] = 46] = "MidBiggerThanMax";
-        CommandResult[CommandResult["MinBiggerThanMid"] = 47] = "MinBiggerThanMid";
-        CommandResult[CommandResult["FirstArgMissing"] = 48] = "FirstArgMissing";
-        CommandResult[CommandResult["SecondArgMissing"] = 49] = "SecondArgMissing";
-        CommandResult[CommandResult["MinNaN"] = 50] = "MinNaN";
-        CommandResult[CommandResult["MidNaN"] = 51] = "MidNaN";
-        CommandResult[CommandResult["MaxNaN"] = 52] = "MaxNaN";
-        CommandResult[CommandResult["ValueUpperInflectionNaN"] = 53] = "ValueUpperInflectionNaN";
-        CommandResult[CommandResult["ValueLowerInflectionNaN"] = 54] = "ValueLowerInflectionNaN";
-        CommandResult[CommandResult["MinInvalidFormula"] = 55] = "MinInvalidFormula";
-        CommandResult[CommandResult["MidInvalidFormula"] = 56] = "MidInvalidFormula";
-        CommandResult[CommandResult["MaxInvalidFormula"] = 57] = "MaxInvalidFormula";
-        CommandResult[CommandResult["ValueUpperInvalidFormula"] = 58] = "ValueUpperInvalidFormula";
-        CommandResult[CommandResult["ValueLowerInvalidFormula"] = 59] = "ValueLowerInvalidFormula";
-        CommandResult[CommandResult["InvalidSortZone"] = 60] = "InvalidSortZone";
-        CommandResult[CommandResult["WaitingSessionConfirmation"] = 61] = "WaitingSessionConfirmation";
-        CommandResult[CommandResult["MergeOverlap"] = 62] = "MergeOverlap";
-        CommandResult[CommandResult["TooManyHiddenElements"] = 63] = "TooManyHiddenElements";
-        CommandResult[CommandResult["Readonly"] = 64] = "Readonly";
-        CommandResult[CommandResult["InvalidViewportSize"] = 65] = "InvalidViewportSize";
-        CommandResult[CommandResult["InvalidScrollingDirection"] = 66] = "InvalidScrollingDirection";
-        CommandResult[CommandResult["FigureDoesNotExist"] = 67] = "FigureDoesNotExist";
-        CommandResult[CommandResult["InvalidConditionalFormatId"] = 68] = "InvalidConditionalFormatId";
-        CommandResult[CommandResult["InvalidCellPopover"] = 69] = "InvalidCellPopover";
-        CommandResult[CommandResult["EmptyTarget"] = 70] = "EmptyTarget";
-        CommandResult[CommandResult["InvalidFreezeQuantity"] = 71] = "InvalidFreezeQuantity";
-        CommandResult[CommandResult["FrozenPaneOverlap"] = 72] = "FrozenPaneOverlap";
-        CommandResult[CommandResult["ValuesNotChanged"] = 73] = "ValuesNotChanged";
+        CommandResult[CommandResult["InvalidTarget"] = 5] = "InvalidTarget";
+        CommandResult[CommandResult["EmptyUndoStack"] = 6] = "EmptyUndoStack";
+        CommandResult[CommandResult["EmptyRedoStack"] = 7] = "EmptyRedoStack";
+        CommandResult[CommandResult["NotEnoughElements"] = 8] = "NotEnoughElements";
+        CommandResult[CommandResult["NotEnoughSheets"] = 9] = "NotEnoughSheets";
+        CommandResult[CommandResult["MissingSheetName"] = 10] = "MissingSheetName";
+        CommandResult[CommandResult["DuplicatedSheetName"] = 11] = "DuplicatedSheetName";
+        CommandResult[CommandResult["DuplicatedSheetId"] = 12] = "DuplicatedSheetId";
+        CommandResult[CommandResult["ForbiddenCharactersInSheetName"] = 13] = "ForbiddenCharactersInSheetName";
+        CommandResult[CommandResult["WrongSheetMove"] = 14] = "WrongSheetMove";
+        CommandResult[CommandResult["WrongSheetPosition"] = 15] = "WrongSheetPosition";
+        CommandResult[CommandResult["InvalidAnchorZone"] = 16] = "InvalidAnchorZone";
+        CommandResult[CommandResult["SelectionOutOfBound"] = 17] = "SelectionOutOfBound";
+        CommandResult[CommandResult["TargetOutOfSheet"] = 18] = "TargetOutOfSheet";
+        CommandResult[CommandResult["WrongCutSelection"] = 19] = "WrongCutSelection";
+        CommandResult[CommandResult["WrongPasteSelection"] = 20] = "WrongPasteSelection";
+        CommandResult[CommandResult["WrongPasteOption"] = 21] = "WrongPasteOption";
+        CommandResult[CommandResult["WrongFigurePasteOption"] = 22] = "WrongFigurePasteOption";
+        CommandResult[CommandResult["EmptyClipboard"] = 23] = "EmptyClipboard";
+        CommandResult[CommandResult["EmptyRange"] = 24] = "EmptyRange";
+        CommandResult[CommandResult["InvalidRange"] = 25] = "InvalidRange";
+        CommandResult[CommandResult["InvalidZones"] = 26] = "InvalidZones";
+        CommandResult[CommandResult["InvalidSheetId"] = 27] = "InvalidSheetId";
+        CommandResult[CommandResult["InputAlreadyFocused"] = 28] = "InputAlreadyFocused";
+        CommandResult[CommandResult["MaximumRangesReached"] = 29] = "MaximumRangesReached";
+        CommandResult[CommandResult["InvalidChartDefinition"] = 30] = "InvalidChartDefinition";
+        CommandResult[CommandResult["InvalidDataSet"] = 31] = "InvalidDataSet";
+        CommandResult[CommandResult["InvalidLabelRange"] = 32] = "InvalidLabelRange";
+        CommandResult[CommandResult["InvalidScorecardKeyValue"] = 33] = "InvalidScorecardKeyValue";
+        CommandResult[CommandResult["InvalidScorecardBaseline"] = 34] = "InvalidScorecardBaseline";
+        CommandResult[CommandResult["InvalidGaugeDataRange"] = 35] = "InvalidGaugeDataRange";
+        CommandResult[CommandResult["EmptyGaugeRangeMin"] = 36] = "EmptyGaugeRangeMin";
+        CommandResult[CommandResult["GaugeRangeMinNaN"] = 37] = "GaugeRangeMinNaN";
+        CommandResult[CommandResult["EmptyGaugeRangeMax"] = 38] = "EmptyGaugeRangeMax";
+        CommandResult[CommandResult["GaugeRangeMaxNaN"] = 39] = "GaugeRangeMaxNaN";
+        CommandResult[CommandResult["GaugeRangeMinBiggerThanRangeMax"] = 40] = "GaugeRangeMinBiggerThanRangeMax";
+        CommandResult[CommandResult["GaugeLowerInflectionPointNaN"] = 41] = "GaugeLowerInflectionPointNaN";
+        CommandResult[CommandResult["GaugeUpperInflectionPointNaN"] = 42] = "GaugeUpperInflectionPointNaN";
+        CommandResult[CommandResult["GaugeLowerBiggerThanUpper"] = 43] = "GaugeLowerBiggerThanUpper";
+        CommandResult[CommandResult["InvalidAutofillSelection"] = 44] = "InvalidAutofillSelection";
+        CommandResult[CommandResult["WrongComposerSelection"] = 45] = "WrongComposerSelection";
+        CommandResult[CommandResult["MinBiggerThanMax"] = 46] = "MinBiggerThanMax";
+        CommandResult[CommandResult["LowerBiggerThanUpper"] = 47] = "LowerBiggerThanUpper";
+        CommandResult[CommandResult["MidBiggerThanMax"] = 48] = "MidBiggerThanMax";
+        CommandResult[CommandResult["MinBiggerThanMid"] = 49] = "MinBiggerThanMid";
+        CommandResult[CommandResult["FirstArgMissing"] = 50] = "FirstArgMissing";
+        CommandResult[CommandResult["SecondArgMissing"] = 51] = "SecondArgMissing";
+        CommandResult[CommandResult["MinNaN"] = 52] = "MinNaN";
+        CommandResult[CommandResult["MidNaN"] = 53] = "MidNaN";
+        CommandResult[CommandResult["MaxNaN"] = 54] = "MaxNaN";
+        CommandResult[CommandResult["ValueUpperInflectionNaN"] = 55] = "ValueUpperInflectionNaN";
+        CommandResult[CommandResult["ValueLowerInflectionNaN"] = 56] = "ValueLowerInflectionNaN";
+        CommandResult[CommandResult["MinInvalidFormula"] = 57] = "MinInvalidFormula";
+        CommandResult[CommandResult["MidInvalidFormula"] = 58] = "MidInvalidFormula";
+        CommandResult[CommandResult["MaxInvalidFormula"] = 59] = "MaxInvalidFormula";
+        CommandResult[CommandResult["ValueUpperInvalidFormula"] = 60] = "ValueUpperInvalidFormula";
+        CommandResult[CommandResult["ValueLowerInvalidFormula"] = 61] = "ValueLowerInvalidFormula";
+        CommandResult[CommandResult["InvalidSortZone"] = 62] = "InvalidSortZone";
+        CommandResult[CommandResult["WaitingSessionConfirmation"] = 63] = "WaitingSessionConfirmation";
+        CommandResult[CommandResult["MergeOverlap"] = 64] = "MergeOverlap";
+        CommandResult[CommandResult["TooManyHiddenElements"] = 65] = "TooManyHiddenElements";
+        CommandResult[CommandResult["Readonly"] = 66] = "Readonly";
+        CommandResult[CommandResult["InvalidViewportSize"] = 67] = "InvalidViewportSize";
+        CommandResult[CommandResult["InvalidScrollingDirection"] = 68] = "InvalidScrollingDirection";
+        CommandResult[CommandResult["FigureDoesNotExist"] = 69] = "FigureDoesNotExist";
+        CommandResult[CommandResult["InvalidConditionalFormatId"] = 70] = "InvalidConditionalFormatId";
+        CommandResult[CommandResult["InvalidCellPopover"] = 71] = "InvalidCellPopover";
+        CommandResult[CommandResult["EmptyTarget"] = 72] = "EmptyTarget";
+        CommandResult[CommandResult["InvalidFreezeQuantity"] = 73] = "InvalidFreezeQuantity";
+        CommandResult[CommandResult["FrozenPaneOverlap"] = 74] = "FrozenPaneOverlap";
+        CommandResult[CommandResult["ValuesNotChanged"] = 75] = "ValuesNotChanged";
+        CommandResult[CommandResult["InvalidFilterZone"] = 76] = "InvalidFilterZone";
+        CommandResult[CommandResult["FilterOverlap"] = 77] = "FilterOverlap";
+        CommandResult[CommandResult["FilterNotFound"] = 78] = "FilterNotFound";
+        CommandResult[CommandResult["MergeInFilter"] = 79] = "MergeInFilter";
+        CommandResult[CommandResult["NonContinuousTargets"] = 80] = "NonContinuousTargets";
+        CommandResult[CommandResult["DuplicatedFigureId"] = 81] = "DuplicatedFigureId";
+        CommandResult[CommandResult["InvalidSelectionStep"] = 82] = "InvalidSelectionStep";
+        CommandResult[CommandResult["DuplicatedChartId"] = 83] = "DuplicatedChartId";
     })(exports.CommandResult || (exports.CommandResult = {}));
-
+  
     var DIRECTION;
     (function (DIRECTION) {
-        DIRECTION[DIRECTION["UP"] = 0] = "UP";
-        DIRECTION[DIRECTION["DOWN"] = 1] = "DOWN";
-        DIRECTION[DIRECTION["LEFT"] = 2] = "LEFT";
-        DIRECTION[DIRECTION["RIGHT"] = 3] = "RIGHT";
+        DIRECTION["UP"] = "up";
+        DIRECTION["DOWN"] = "down";
+        DIRECTION["LEFT"] = "left";
+        DIRECTION["RIGHT"] = "right";
     })(DIRECTION || (DIRECTION = {}));
-
+  
     var LAYERS;
     (function (LAYERS) {
         LAYERS[LAYERS["Background"] = 0] = "Background";
@@ -2905,7 +3190,7 @@
         LAYERS[LAYERS["Autofill"] = 6] = "Autofill";
         LAYERS[LAYERS["Headers"] = 7] = "Headers";
     })(LAYERS || (LAYERS = {}));
-
+  
     const autofillRulesRegistry = new Registry();
     /**
      * Get the consecutive xc that are of type "number" or "date".
@@ -2987,7 +3272,7 @@
         },
         sequence: 40,
     });
-
+  
     /**
      * This file is largely inspired by owl 1.
      * `css` tag has been removed from owl 2 without workaround to manage css.
@@ -3103,17 +3388,17 @@
             .join("\n");
         return "\n" + str + "\n";
     }
-
+  
     const ERROR_TOOLTIP_HEIGHT = 40;
     const ERROR_TOOLTIP_WIDTH = 180;
     css /* scss */ `
-  .o-error-tooltip {
-    font-size: 13px;
-    background-color: white;
-    border-left: 3px solid red;
-    padding: 10px;
-  }
-`;
+    .o-error-tooltip {
+      font-size: 13px;
+      background-color: white;
+      border-left: 3px solid red;
+      padding: 10px;
+    }
+  `;
     class ErrorToolTip extends owl.Component {
     }
     ErrorToolTip.size = { width: ERROR_TOOLTIP_WIDTH, height: ERROR_TOOLTIP_HEIGHT };
@@ -3134,7 +3419,302 @@
             return { isOpen: false };
         },
     };
-
+  
+    class FilterMenuValueItem extends owl.Component {
+        constructor() {
+            super(...arguments);
+            this.itemRef = owl.useRef("menuValueItem");
+        }
+        setup() {
+            owl.onWillPatch(() => {
+                if (this.props.scrolledTo) {
+                    this.scrollListToSelectedValue();
+                }
+            });
+        }
+        scrollListToSelectedValue() {
+            var _a, _b;
+            if (!this.itemRef.el) {
+                return;
+            }
+            (_b = (_a = this.itemRef.el).scrollIntoView) === null || _b === void 0 ? void 0 : _b.call(_a, {
+                block: this.props.scrolledTo === "bottom" ? "end" : "start",
+            });
+        }
+    }
+    FilterMenuValueItem.template = "o-spreadsheet-FilterMenuValueItem";
+  
+    const FILTER_MENU_HEIGHT = 295;
+    const CSS$2 = css /* scss */ `
+    .o-filter-menu {
+      box-sizing: border-box;
+      padding: 8px 16px;
+      height: ${FILTER_MENU_HEIGHT}px;
+      line-height: 1;
+  
+      .o-filter-menu-item {
+        display: flex;
+        box-sizing: border-box;
+        height: ${MENU_ITEM_HEIGHT}px;
+        padding: 4px 4px 4px 0px;
+        cursor: pointer;
+        user-select: none;
+  
+        &.selected {
+          background-color: rgba(0, 0, 0, 0.08);
+        }
+      }
+  
+      input {
+        box-sizing: border-box;
+        margin-bottom: 5px;
+        border: 1px solid #949494;
+        height: 24px;
+        padding-right: 28px;
+      }
+  
+      .o-search-icon {
+        right: 5px;
+        top: 4px;
+  
+        svg {
+          height: 16px;
+          width: 16px;
+          vertical-align: middle;
+        }
+      }
+  
+      .o-filter-menu-actions {
+        display: flex;
+        flex-direction: row;
+        margin-bottom: 4px;
+  
+        .o-filter-menu-action-text {
+          cursor: pointer;
+          margin-right: 10px;
+          color: blue;
+          text-decoration: underline;
+        }
+      }
+  
+      .o-filter-menu-list {
+        flex: auto;
+        overflow-y: auto;
+        border: 1px solid #949494;
+  
+        .o-filter-menu-value {
+          padding: 4px;
+          line-height: 20px;
+          height: 28px;
+          .o-filter-menu-value-checked {
+            width: 20px;
+          }
+        }
+  
+        .o-filter-menu-no-values {
+          color: #949494;
+          font-style: italic;
+        }
+      }
+  
+      .o-filter-menu-buttons {
+        margin-top: 9px;
+  
+        .o-filter-menu-button {
+          border: 1px solid lightgrey;
+          padding: 6px 10px;
+          cursor: pointer;
+          border-radius: 4px;
+          font-weight: 500;
+          line-height: 16px;
+        }
+  
+        .o-filter-menu-button-cancel {
+          background: white;
+          &:hover {
+            background-color: rgba(0, 0, 0, 0.08);
+          }
+        }
+  
+        .o-filter-menu-button-primary {
+          background-color: #188038;
+          &:hover {
+            background-color: #1d9641;
+          }
+          color: white;
+          font-weight: bold;
+          margin-left: 10px;
+        }
+      }
+    }
+  `;
+    class FilterMenu extends owl.Component {
+        constructor() {
+            super(...arguments);
+            this.state = owl.useState({
+                values: [],
+                textFilter: "",
+                selectedValue: undefined,
+            });
+            this.searchBar = owl.useRef("filterMenuSearchBar");
+        }
+        setup() {
+            owl.onWillUpdateProps((nextProps) => {
+                if (!deepEquals(nextProps.filterPosition, this.props.filterPosition)) {
+                    this.state.values = this.getFilterValues(nextProps.filterPosition);
+                }
+            });
+            this.state.values = this.getFilterValues(this.props.filterPosition);
+        }
+        getFilterValues(position) {
+            const sheetId = this.env.model.getters.getActiveSheetId();
+            const filter = this.env.model.getters.getFilter(sheetId, position.col, position.row);
+            if (!filter) {
+                return [];
+            }
+            const cellValues = (filter.filteredZone ? positions(filter.filteredZone) : [])
+                .filter(({ row }) => !this.env.model.getters.isRowHidden(sheetId, row))
+                .map(({ col, row }) => { var _a; return (_a = this.env.model.getters.getCell(sheetId, col, row)) === null || _a === void 0 ? void 0 : _a.formattedValue; });
+            const filterValues = this.env.model.getters.getFilterValues(sheetId, position.col, position.row);
+            const strValues = [...cellValues, ...filterValues];
+            const normalizedFilteredValues = filterValues.map(toLowerCase);
+            // Set with lowercase values to avoid duplicates
+            const normalizedValues = [...new Set(strValues.map(toLowerCase))];
+            const sortedValues = normalizedValues.sort((val1, val2) => val1.localeCompare(val2, undefined, { numeric: true, sensitivity: "base" }));
+            return sortedValues.map((normalizedValue) => {
+                const checked = normalizedFilteredValues.findIndex((filteredValue) => filteredValue === normalizedValue) ===
+                    -1;
+                return {
+                    checked,
+                    string: strValues.find((val) => toLowerCase(val) === normalizedValue) || "",
+                };
+            });
+        }
+        checkValue(value) {
+            var _a;
+            this.state.selectedValue = value.string;
+            value.checked = !value.checked;
+            (_a = this.searchBar.el) === null || _a === void 0 ? void 0 : _a.focus();
+        }
+        onMouseMove(value) {
+            this.state.selectedValue = value.string;
+        }
+        selectAll() {
+            this.state.values.forEach((value) => (value.checked = true));
+        }
+        clearAll() {
+            this.state.values.forEach((value) => (value.checked = false));
+        }
+        get filterTable() {
+            const sheetId = this.env.model.getters.getActiveSheetId();
+            const position = this.props.filterPosition;
+            return this.env.model.getters.getFilterTable(sheetId, position.col, position.row);
+        }
+        get displayedValues() {
+            if (!this.state.textFilter) {
+                return this.state.values;
+            }
+            return fuzzyLookup(this.state.textFilter, this.state.values, (val) => val.string);
+        }
+        confirm() {
+            var _a, _b;
+            const position = this.props.filterPosition;
+            this.env.model.dispatch("UPDATE_FILTER", {
+                ...position,
+                sheetId: this.env.model.getters.getActiveSheetId(),
+                values: this.state.values.filter((val) => !val.checked).map((val) => val.string),
+            });
+            (_b = (_a = this.props).onClosed) === null || _b === void 0 ? void 0 : _b.call(_a);
+        }
+        cancel() {
+            var _a, _b;
+            (_b = (_a = this.props).onClosed) === null || _b === void 0 ? void 0 : _b.call(_a);
+        }
+        onKeyDown(ev) {
+            const displayedValues = this.displayedValues;
+            if (displayedValues.length === 0)
+                return;
+            let selectedIndex = undefined;
+            if (this.state.selectedValue !== undefined) {
+                const index = displayedValues.findIndex((val) => val.string === this.state.selectedValue);
+                selectedIndex = index === -1 ? undefined : index;
+            }
+            switch (ev.key) {
+                case "ArrowDown":
+                    if (selectedIndex === undefined) {
+                        selectedIndex = 0;
+                    }
+                    else {
+                        selectedIndex = Math.min(selectedIndex + 1, displayedValues.length - 1);
+                    }
+                    ev.preventDefault();
+                    break;
+                case "ArrowUp":
+                    if (selectedIndex === undefined) {
+                        selectedIndex = displayedValues.length - 1;
+                    }
+                    else {
+                        selectedIndex = Math.max(selectedIndex - 1, 0);
+                    }
+                    ev.preventDefault();
+                    break;
+                case "Enter":
+                    if (selectedIndex !== undefined) {
+                        this.checkValue(displayedValues[selectedIndex]);
+                    }
+                    ev.preventDefault();
+                    break;
+            }
+            this.state.selectedValue =
+                selectedIndex !== undefined ? displayedValues[selectedIndex].string : undefined;
+            if (ev.key === "ArrowUp" || ev.key === "ArrowDown") {
+                this.scrollListToSelectedValue(ev.key);
+            }
+        }
+        clearScrolledToValue() {
+            this.state.values.forEach((val) => (val.scrolledTo = undefined));
+        }
+        scrollListToSelectedValue(arrow) {
+            this.clearScrolledToValue();
+            const selectedValue = this.state.values.find((val) => val.string === this.state.selectedValue);
+            if (selectedValue) {
+                selectedValue.scrolledTo = arrow === "ArrowUp" ? "top" : "bottom";
+            }
+        }
+        sortFilterZone(sortDirection) {
+            var _a, _b;
+            const filterPosition = this.props.filterPosition;
+            const filterTable = this.filterTable;
+            if (!filterPosition || !filterTable || !filterTable.contentZone) {
+                return;
+            }
+            const sheetId = this.env.model.getters.getActiveSheetId();
+            this.env.model.dispatch("SORT_CELLS", {
+                sheetId,
+                col: filterPosition.col,
+                row: filterTable.contentZone.top,
+                zone: filterTable.contentZone,
+                sortDirection,
+                sortOptions: { emptyCellAsZero: true, sortHeaders: true },
+            });
+            (_b = (_a = this.props).onClosed) === null || _b === void 0 ? void 0 : _b.call(_a);
+        }
+    }
+    FilterMenu.size = { width: MENU_WIDTH, height: FILTER_MENU_HEIGHT };
+    FilterMenu.template = "o-spreadsheet-FilterMenu";
+    FilterMenu.style = CSS$2;
+    FilterMenu.components = { FilterMenuValueItem };
+    const FilterMenuPopoverBuilder = {
+        onOpen: (position, getters) => {
+            return {
+                isOpen: true,
+                props: { filterPosition: position },
+                Component: FilterMenu,
+                cellCorner: "BottomLeft",
+            };
+        },
+    };
+  
     function getMenuChildren(node, env) {
         const children = [];
         for (const child of node.children) {
@@ -3156,7 +3736,7 @@
     function getMenuDescription(node) {
         return node.description ? node.description : "";
     }
-
+  
     /**
      * Return true if the event was triggered from
      * a child element.
@@ -3172,7 +3752,10 @@
         }
         throw new Error("Can't find spreadsheet position");
     }
-
+    function getOpenedMenus() {
+        return Array.from(document.querySelectorAll(".o-spreadsheet .o-menu"));
+    }
+  
     /**
      * Return the o-spreadsheet element position relative
      * to the browser viewport.
@@ -3219,7 +3802,7 @@
         owl.onPatched(updateElPosition);
         return position;
     }
-
+  
     class Popover extends owl.Component {
         constructor() {
             super(...arguments);
@@ -3231,18 +3814,20 @@
             // within our control and to avoid leaking into external DOM
             const horizontalPosition = `left:${this.horizontalPosition() - this.spreadsheetPosition.x}`;
             const verticalPosition = `top:${this.verticalPosition() - this.spreadsheetPosition.y}`;
-            const height = `max-height:${this.viewportDimension.height - BOTTOMBAR_HEIGHT - SCROLLBAR_WIDTH$1}`;
+            const maxHeight = Math.max(0, this.viewportDimension.height - BOTTOMBAR_HEIGHT - SCROLLBAR_WIDTH$1);
+            const height = `max-height:${maxHeight}`;
+            const shadow = maxHeight !== 0 ? "box-shadow: 1px 2px 5px 2px rgb(51 51 51 / 15%);" : "";
             return `
-      position: absolute;
-      z-index: ${ComponentsImportance.Popover};
-      ${verticalPosition}px;
-      ${horizontalPosition}px;
-      ${height}px;
-      width:${this.props.childWidth}px;
-      overflow-y: auto;
-      overflow-x: hidden;
-      box-shadow: 1px 2px 5px 2px rgb(51 51 51 / 15%);
-    `;
+        position: absolute;
+        z-index: ${ComponentsImportance.Popover};
+        ${verticalPosition}px;
+        ${horizontalPosition}px;
+        ${height}px;
+        width:${this.props.childWidth}px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        ${shadow}
+      `;
         }
         get viewportDimension() {
             return this.env.model.getters.getSheetViewDimensionWithHeaders();
@@ -3279,64 +3864,58 @@
         marginTop: 0,
         onMouseWheel: () => { },
     };
-
+  
     //------------------------------------------------------------------------------
     // Context Menu Component
     //------------------------------------------------------------------------------
     css /* scss */ `
-  .o-menu {
-    background-color: white;
-    padding: 5px 0px;
-    .o-menu-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-sizing: border-box;
-      height: ${MENU_ITEM_HEIGHT}px;
-      padding: 4px 16px;
-      cursor: pointer;
-      user-select: none;
-
-      .o-menu-item-name {
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-      }
-
-      &.o-menu-root {
+    .o-menu {
+      background-color: white;
+      padding: 5px 0px;
+      .o-menu-item {
         display: flex;
         justify-content: space-between;
-      }
-      .o-menu-item-icon {
-        margin-top: auto;
-        margin-bottom: auto;
-      }
-      .o-icon {
-        width: 10px;
-      }
-
-      &:not(.disabled) {
-        &:hover,
-        &.o-menu-item-active {
-          background-color: #ebebeb;
+        align-items: center;
+        box-sizing: border-box;
+        height: ${MENU_ITEM_HEIGHT}px;
+        padding: 4px 16px;
+        cursor: pointer;
+        user-select: none;
+  
+        .o-menu-item-name {
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
         }
-        .o-menu-item-description {
-          color: grey;
+  
+        &.o-menu-root {
+          display: flex;
+          justify-content: space-between;
         }
-      }
-      &.disabled {
-        color: ${MENU_ITEM_DISABLED_COLOR};
-        cursor: not-allowed;
+        .o-menu-item-icon {
+          margin-top: auto;
+          margin-bottom: auto;
+        }
+        .o-icon {
+          width: 10px;
+        }
+  
+        &:not(.disabled) {
+          &:hover,
+          &.o-menu-item-active {
+            background-color: #ebebeb;
+          }
+          .o-menu-item-description {
+            color: grey;
+          }
+        }
+        &.disabled {
+          color: ${MENU_ITEM_DISABLED_COLOR};
+          cursor: not-allowed;
+        }
       }
     }
-
-    .o-separator {
-      border-bottom: ${MENU_SEPARATOR_BORDER_WIDTH}px solid #e0e2e4;
-      margin-top: ${MENU_SEPARATOR_PADDING}px;
-      margin-bottom: ${MENU_SEPARATOR_PADDING}px;
-    }
-  }
-`;
+  `;
     class Menu extends owl.Component {
         constructor() {
             super(...arguments);
@@ -3351,8 +3930,8 @@
             this.position = useAbsolutePosition(this.menuRef);
         }
         setup() {
-            owl.useExternalListener(window, "click", this.onClick);
-            owl.useExternalListener(window, "contextmenu", this.onContextMenu);
+            owl.useExternalListener(window, "click", this.onExternalClick, { capture: true });
+            owl.useExternalListener(window, "contextmenu", this.onExternalClick, { capture: true });
             owl.onWillUpdateProps((nextProps) => {
                 if (nextProps.menuItems !== this.props.menuItems) {
                     this.closeSubMenu();
@@ -3404,21 +3983,14 @@
             const menusAbove = this.props.menuItems.slice(0, position);
             return this.menuComponentHeight(menusAbove) + this.position.y;
         }
-        onClick(ev) {
+        onExternalClick(ev) {
             // Don't close a root menu when clicked to open the submenus.
             const el = this.menuRef.el;
-            if (el && isChildEvent(el, ev)) {
+            if (el && getOpenedMenus().some((el) => isChildEvent(el, ev))) {
                 return;
             }
+            ev.closedMenuId = this.props.menuId;
             this.close();
-        }
-        onContextMenu(ev) {
-            // Don't close a root menu when clicked to open the submenus.
-            const el = this.menuRef.el;
-            if (el && isChildEvent(el, ev)) {
-                return;
-            }
-            this.closeSubMenu();
         }
         /**
          * Return the total height (in pixels) needed for some
@@ -3495,55 +4067,54 @@
     Menu.defaultProps = {
         depth: 1,
     };
-
+  
     const LINK_TOOLTIP_HEIGHT = 43;
     const LINK_TOOLTIP_WIDTH = 220;
     css /* scss */ `
-  .o-link-tool {
-    font-size: 13px;
-    background-color: white;
-    box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
-    padding: 6px 12px;
-    border-radius: 4px;
-    display: flex;
-    justify-content: space-between;
-
-    img {
-      margin-right: 3px;
-      width: 16px;
-      height: 16px;
+    .o-link-tool {
+      font-size: 13px;
+      background-color: white;
+      box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
+      padding: 6px 12px;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+  
+      img {
+        margin-right: 3px;
+        width: 16px;
+        height: 16px;
+      }
+  
+      a.o-link {
+        color: #01666b;
+        text-decoration: none;
+        flex-grow: 2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      a.o-link:hover {
+        text-decoration: none;
+        color: #001d1f;
+        cursor: pointer;
+      }
     }
-
-    a.o-link {
-      color: #01666b;
-      text-decoration: none;
-      flex-grow: 2;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .o-link-icon {
+      float: right;
+      padding-left: 5px;
+      .o-icon {
+        height: 16px;
+      }
     }
-    a.o-link:hover {
-      text-decoration: none;
-      color: #001d1f;
+    .o-link-icon .o-icon {
+      height: 13px;
+    }
+    .o-link-icon:hover {
       cursor: pointer;
+      color: #000;
     }
-  }
-  .o-link-icon {
-    float: right;
-    padding-left: 4%;
-    .o-icon {
-      height: 16px;
-    }
-  }
-  .o-link-icon .o-icon {
-    padding-top: 3px;
-    height: 13px;
-  }
-  .o-link-icon:hover {
-    cursor: pointer;
-    color: #000;
-  }
-`;
+  `;
     class LinkDisplay extends owl.Component {
         get cell() {
             const { col, row } = this.props.cellPosition;
@@ -3599,7 +4170,7 @@
             };
         },
     };
-
+  
     const DEFAULT_MENU_ITEM = (key) => ({
         isVisible: () => true,
         isEnabled: () => true,
@@ -3662,7 +4233,7 @@
             return super.getAll().sort((a, b) => a.sequence - b.sequence);
         }
     }
-
+  
     //------------------------------------------------------------------------------
     // Link Menu Registry
     //------------------------------------------------------------------------------
@@ -3686,83 +4257,83 @@
             }),
         }));
     });
-
+  
     const MENU_OFFSET_X = 320;
     const MENU_OFFSET_Y = 100;
     const PADDING = 12;
     const LINK_EDITOR_WIDTH = 340;
     const LINK_EDITOR_HEIGHT = 180;
     css /* scss */ `
-  .o-link-editor {
-    font-size: 13px;
-    background-color: white;
-    box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
-    padding: ${PADDING}px;
-    display: flex;
-    flex-direction: column;
-    border-radius: 4px;
-    .o-section {
-      .o-section-title {
-        font-weight: bold;
-        color: dimgrey;
-        margin-bottom: 5px;
-      }
-    }
-    .o-buttons {
-      padding-left: 16px;
-      padding-top: 16px;
-      padding-bottom: 16px;
-      text-align: right;
-      .o-button {
-        border: 1px solid lightgrey;
-        padding: 0px 20px 0px 20px;
-        border-radius: 4px;
-        font-weight: 500;
-        font-size: 14px;
-        height: 30px;
-        line-height: 16px;
-        background: white;
-        margin-right: 8px;
-        &:hover:enabled {
-          background-color: rgba(0, 0, 0, 0.08);
+    .o-link-editor {
+      font-size: 13px;
+      background-color: white;
+      box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
+      padding: ${PADDING}px;
+      display: flex;
+      flex-direction: column;
+      border-radius: 4px;
+      .o-section {
+        .o-section-title {
+          font-weight: bold;
+          color: dimgrey;
+          margin-bottom: 5px;
         }
       }
-      .o-button:enabled {
-        cursor: pointer;
+      .o-buttons {
+        padding-left: 16px;
+        padding-top: 16px;
+        padding-bottom: 16px;
+        text-align: right;
+        .o-button {
+          border: 1px solid lightgrey;
+          padding: 0px 20px 0px 20px;
+          border-radius: 4px;
+          font-weight: 500;
+          font-size: 14px;
+          height: 30px;
+          line-height: 16px;
+          background: white;
+          margin-right: 8px;
+          &:hover:enabled {
+            background-color: rgba(0, 0, 0, 0.08);
+          }
+        }
+        .o-button:enabled {
+          cursor: pointer;
+        }
+        .o-button:last-child {
+          margin-right: 0px;
+        }
       }
-      .o-button:last-child {
-        margin-right: 0px;
-      }
-    }
-    input {
-      box-sizing: border-box;
-      width: 100%;
-      border-radius: 4px;
-      padding: 4px 23px 4px 10px;
-      border: none;
-      height: 24px;
-      border: 1px solid lightgrey;
-    }
-    .o-link-url {
-      position: relative;
-      flex-grow: 1;
-      button {
-        position: absolute;
-        right: 0px;
-        top: 0px;
+      input {
+        box-sizing: border-box;
+        width: 100%;
+        border-radius: 4px;
+        padding: 4px 23px 4px 10px;
         border: none;
-        height: 20px;
-        width: 20px;
-        background-color: #fff;
-        margin: 2px 3px 1px 0px;
-        padding: 0px 1px 0px 0px;
+        height: 24px;
+        border: 1px solid lightgrey;
       }
-      button:hover {
-        cursor: pointer;
+      .o-link-url {
+        position: relative;
+        flex-grow: 1;
+        button {
+          position: absolute;
+          right: 0px;
+          top: 0px;
+          border: none;
+          height: 20px;
+          width: 20px;
+          background-color: #fff;
+          margin: 2px 3px 1px 0px;
+          padding: 0px 1px 0px 0px;
+        }
+        button:hover {
+          cursor: pointer;
+        }
       }
     }
-  }
-`;
+  `;
     class LinkEditor extends owl.Component {
         constructor() {
             super(...arguments);
@@ -3858,27 +4429,28 @@
             };
         },
     };
-
+  
     const cellPopoverRegistry = new Registry();
     cellPopoverRegistry
         .add("ErrorToolTip", ErrorToolTipPopoverBuilder)
         .add("LinkCell", LinkCellPopoverBuilder)
-        .add("LinkEditor", LinkEditorPopoverBuilder);
-
+        .add("LinkEditor", LinkEditorPopoverBuilder)
+        .add("FilterMenu", FilterMenuPopoverBuilder);
+  
     /**
      * This registry is intended to map a cell content (raw string) to
      * an instance of a cell.
      */
     const cellRegistry = new Registry();
-
+  
     /**
      * Registry intended to support usual currencies. It is mainly used to create
      * currency formats that can be selected or modified when customizing formats.
      */
     const currenciesRegistry = new Registry();
-
+  
     const figureRegistry = new Registry();
-
+  
     const inverseCommandRegistry = new Registry()
         .add("ADD_COLUMNS_ROWS", inverseAddColumnsRows)
         .add("REMOVE_COLUMNS_ROWS", inverseRemoveColumnsRows)
@@ -3892,10 +4464,7 @@
         .add("HIDE_COLUMNS_ROWS", inverseHideColumnsRows)
         .add("UNHIDE_COLUMNS_ROWS", inverseUnhideColumnsRows);
     for (const cmd of coreTypes.values()) {
-        try {
-            inverseCommandRegistry.get(cmd);
-        }
-        catch (_) {
+        if (!inverseCommandRegistry.contains(cmd)) {
             inverseCommandRegistry.add(cmd, identity);
         }
     }
@@ -3978,7 +4547,7 @@
             },
         ];
     }
-
+  
     const SORT_TYPES = [
         CellValueType.number,
         CellValueType.error,
@@ -3992,10 +4561,14 @@
             value: cell ? cell.evaluated.value : "",
         };
     }
-    function sortCells(cells, sortDirection) {
+    function sortCells(cells, sortDirection, emptyCellAsZero) {
         const cellsWithIndex = cells.map(convertCell);
-        const emptyCells = cellsWithIndex.filter((x) => x.type === CellValueType.empty);
-        const nonEmptyCells = cellsWithIndex.filter((x) => x.type !== CellValueType.empty);
+        let emptyCells = cellsWithIndex.filter((x) => x.type === CellValueType.empty);
+        let nonEmptyCells = cellsWithIndex.filter((x) => x.type !== CellValueType.empty);
+        if (emptyCellAsZero) {
+            nonEmptyCells.push(...emptyCells.map((emptyCell) => ({ ...emptyCell, type: CellValueType.number, value: 0 })));
+            emptyCells = [];
+        }
         const inverse = sortDirection === "descending" ? -1 : 1;
         return nonEmptyCells
             .sort((left, right) => {
@@ -4070,22 +4643,40 @@
                 });
             }
         }
-        if (result.isCancelledBecause(60 /* CommandResult.InvalidSortZone */)) {
+        if (result.isCancelledBecause(62 /* CommandResult.InvalidSortZone */)) {
             const { col, row } = anchor;
             env.model.selection.selectZone({ cell: { col, row }, zone });
             env.raiseError(_lt("Cannot sort. To sort, select only cells or only merges that have the same size."));
         }
     }
-
+  
     function interactiveCut(env) {
         const result = env.model.dispatch("CUT");
         if (!result.isSuccessful) {
-            if (result.isCancelledBecause(17 /* CommandResult.WrongCutSelection */)) {
+            if (result.isCancelledBecause(19 /* CommandResult.WrongCutSelection */)) {
                 env.raiseError(_lt("This operation is not allowed with multiple selections."));
             }
         }
     }
-
+  
+    const AddFilterInteractiveContent = {
+        filterOverlap: _lt("You cannot create overlapping filters."),
+        nonContinuousTargets: _lt("A filter can only be created on a continuous selection."),
+        mergeInFilter: _lt("You can't create a filter over a range that contains a merge."),
+    };
+    function interactiveAddFilter(env, sheetId, target) {
+        const result = env.model.dispatch("CREATE_FILTER_TABLE", { target, sheetId });
+        if (result.isCancelledBecause(77 /* CommandResult.FilterOverlap */)) {
+            env.raiseError(AddFilterInteractiveContent.filterOverlap);
+        }
+        else if (result.isCancelledBecause(79 /* CommandResult.MergeInFilter */)) {
+            env.raiseError(AddFilterInteractiveContent.mergeInFilter);
+        }
+        else if (result.isCancelledBecause(80 /* CommandResult.NonContinuousTargets */)) {
+            env.raiseError(AddFilterInteractiveContent.nonContinuousTargets);
+        }
+    }
+  
     const PasteInteractiveContent = {
         wrongPasteSelection: _lt("This operation is not allowed with multiple selections."),
         willRemoveExistingMerge: _lt("This operation is not possible due to a merge. Please remove the merges first than try again."),
@@ -4094,16 +4685,16 @@
     };
     function handlePasteResult(env, result) {
         if (!result.isSuccessful) {
-            if (result.reasons.includes(18 /* CommandResult.WrongPasteSelection */)) {
+            if (result.reasons.includes(20 /* CommandResult.WrongPasteSelection */)) {
                 env.raiseError(PasteInteractiveContent.wrongPasteSelection);
             }
             else if (result.reasons.includes(2 /* CommandResult.WillRemoveExistingMerge */)) {
                 env.raiseError(PasteInteractiveContent.willRemoveExistingMerge);
             }
-            else if (result.reasons.includes(20 /* CommandResult.WrongFigurePasteOption */)) {
+            else if (result.reasons.includes(22 /* CommandResult.WrongFigurePasteOption */)) {
                 env.raiseError(PasteInteractiveContent.wrongFigurePasteOption);
             }
-            else if (result.reasons.includes(72 /* CommandResult.FrozenPaneOverlap */)) {
+            else if (result.reasons.includes(74 /* CommandResult.FrozenPaneOverlap */)) {
                 env.raiseError(PasteInteractiveContent.frozenPaneOverlap);
             }
         }
@@ -4116,7 +4707,7 @@
         const result = env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", { target, text });
         handlePasteResult(env, result);
     }
-
+  
     //------------------------------------------------------------------------------
     // Helpers
     //------------------------------------------------------------------------------
@@ -4619,20 +5210,13 @@
         }
         const dataSets = [zoneToXc(dataSetZone)];
         const sheetId = getters.getActiveSheetId();
-        const { x: offsetCorrectionX, y: offsetCorrectionY } = getters.getMainViewportCoordinates();
-        const { offsetX, offsetY } = getters.getActiveSheetScrollInfo();
-        const { width, height } = getters.getSheetViewDimension();
         const size = { width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
-        const rect = getters.getVisibleRect(getters.getActiveMainViewport());
-        const scrollableViewportWidth = Math.min(rect.width, width - offsetCorrectionX);
-        const scrollableViewportHeight = Math.min(rect.height, height - offsetCorrectionY);
+        const { x, y } = getters.getMainViewportCoordinates();
+        const { scrollX, scrollY } = getters.getActiveSheetScrollInfo();
+        const { width, height } = getters.getVisibleRect(getters.getActiveMainViewport());
         const position = {
-            x: offsetCorrectionX +
-                offsetX +
-                Math.max(0, (scrollableViewportWidth - DEFAULT_FIGURE_WIDTH) / 2),
-            y: offsetCorrectionY +
-                offsetY +
-                Math.max(0, (scrollableViewportHeight - DEFAULT_FIGURE_HEIGHT) / 2),
+            x: x + scrollX + Math.max(0, (width - size.width) / 2),
+            y: y + scrollY + Math.max(0, (height - size.height) / 2),
         }; // Position at the center of the scrollable viewport
         let title = "";
         const cells = env.model.getters.getCellsInZone(sheetId, {
@@ -4672,7 +5256,6 @@
                 dataSets,
                 labelRange,
                 type: "bar",
-                background: BACKGROUND_CHART_COLOR,
                 stacked: false,
                 dataSetsHaveTitle,
                 verticalAxisPosition: "left",
@@ -4721,6 +5304,30 @@
         env.model.dispatch("OPEN_CELL_POPOVER", { col, row, popoverType: "LinkEditor" });
     };
     //------------------------------------------------------------------------------
+    // Filters action
+    //------------------------------------------------------------------------------
+    const FILTERS_CREATE_FILTER_TABLE = (env) => {
+        const sheetId = env.model.getters.getActiveSheetId();
+        const selection = env.model.getters.getSelection().zones;
+        interactiveAddFilter(env, sheetId, selection);
+    };
+    const FILTERS_REMOVE_FILTER_TABLE = (env) => {
+        const sheetId = env.model.getters.getActiveSheetId();
+        env.model.dispatch("REMOVE_FILTER_TABLE", {
+            sheetId,
+            target: env.model.getters.getSelectedZones(),
+        });
+    };
+    const SELECTION_CONTAINS_FILTER = (env) => {
+        const sheetId = env.model.getters.getActiveSheetId();
+        const selectedZones = env.model.getters.getSelectedZones();
+        return env.model.getters.doesZonesContainFilter(sheetId, selectedZones);
+    };
+    const SELECTION_IS_CONTINUOUS = (env) => {
+        const selectedZones = env.model.getters.getSelectedZones();
+        return areZonesContinuous(...selectedZones);
+    };
+    //------------------------------------------------------------------------------
     // Sorting action
     //------------------------------------------------------------------------------
     const SORT_CELLS_ASCENDING = (env) => {
@@ -4736,7 +5343,7 @@
     const IS_ONLY_ONE_RANGE = (env) => {
         return env.model.getters.getSelectedZones().length === 1;
     };
-
+  
     //------------------------------------------------------------------------------
     // Context Menu Registry
     //------------------------------------------------------------------------------
@@ -4838,7 +5445,7 @@
         sequence: 150,
         action: INSERT_LINK,
     });
-
+  
     const colMenuRegistry = new MenuItemRegistry();
     colMenuRegistry
         .add("cut", {
@@ -4925,7 +5532,7 @@
         separator: true,
     })
         .add("unhide_columns", {
-        name: "Unhide columns",
+        name: _lt("Unhide columns"),
         sequence: 86,
         action: UNHIDE_COLUMNS_ACTION,
         isVisible: (env) => {
@@ -4942,7 +5549,7 @@
         sequence: 110,
         action: OPEN_CF_SIDEPANEL_ACTION,
     });
-
+  
     const rowMenuRegistry = new MenuItemRegistry();
     rowMenuRegistry
         .add("cut", {
@@ -5013,7 +5620,7 @@
         separator: true,
     })
         .add("unhide_rows", {
-        name: "Unhide rows",
+        name: _lt("Unhide rows"),
         sequence: 86,
         action: UNHIDE_ROWS_ACTION,
         isVisible: (env) => {
@@ -5030,7 +5637,7 @@
         sequence: 90,
         action: OPEN_CF_SIDEPANEL_ACTION,
     });
-
+  
     function interactiveRenameSheet(env, sheetId, errorText) {
         const placeholder = env.model.getters.getSheetName(sheetId);
         const title = _lt("Rename Sheet");
@@ -5043,10 +5650,10 @@
             }
             const result = env.model.dispatch("RENAME_SHEET", { sheetId, name });
             if (!result.isSuccessful) {
-                if (result.reasons.includes(10 /* CommandResult.DuplicatedSheetName */)) {
+                if (result.reasons.includes(11 /* CommandResult.DuplicatedSheetName */)) {
                     interactiveRenameSheet(env, sheetId, _lt("A sheet with the name %s already exists. Please select another name.", name));
                 }
-                if (result.reasons.includes(11 /* CommandResult.ForbiddenCharactersInSheetName */)) {
+                if (result.reasons.includes(13 /* CommandResult.ForbiddenCharactersInSheetName */)) {
                     interactiveRenameSheet(env, sheetId, _lt("Some used characters are not allowed in a sheet name (Forbidden characters are %s).", FORBIDDEN_SHEET_CHARS.join(" ")));
                 }
             }
@@ -5056,7 +5663,7 @@
             error: errorText,
         });
     }
-
+  
     const sheetMenuRegistry = new MenuItemRegistry();
     sheetMenuRegistry
         .add("delete", {
@@ -5118,27 +5725,27 @@
         isVisible: (env) => env.model.getters.getVisibleSheetIds().length !== 1,
         action: (env) => env.model.dispatch("HIDE_SHEET", { sheetId: env.model.getters.getActiveSheetId() }),
     });
-
+  
     const CfTerms = {
         Errors: {
-            [23 /* CommandResult.InvalidRange */]: _lt("The range is invalid"),
-            [48 /* CommandResult.FirstArgMissing */]: _lt("The argument is missing. Please provide a value"),
-            [49 /* CommandResult.SecondArgMissing */]: _lt("The second argument is missing. Please provide a value"),
-            [50 /* CommandResult.MinNaN */]: _lt("The minpoint must be a number"),
-            [51 /* CommandResult.MidNaN */]: _lt("The midpoint must be a number"),
-            [52 /* CommandResult.MaxNaN */]: _lt("The maxpoint must be a number"),
-            [53 /* CommandResult.ValueUpperInflectionNaN */]: _lt("The first value must be a number"),
-            [54 /* CommandResult.ValueLowerInflectionNaN */]: _lt("The second value must be a number"),
-            [44 /* CommandResult.MinBiggerThanMax */]: _lt("Minimum must be smaller then Maximum"),
-            [47 /* CommandResult.MinBiggerThanMid */]: _lt("Minimum must be smaller then Midpoint"),
-            [46 /* CommandResult.MidBiggerThanMax */]: _lt("Midpoint must be smaller then Maximum"),
-            [45 /* CommandResult.LowerBiggerThanUpper */]: _lt("Lower inflection point must be smaller than upper inflection point"),
-            [55 /* CommandResult.MinInvalidFormula */]: _lt("Invalid Minpoint formula"),
-            [57 /* CommandResult.MaxInvalidFormula */]: _lt("Invalid Maxpoint formula"),
-            [56 /* CommandResult.MidInvalidFormula */]: _lt("Invalid Midpoint formula"),
-            [58 /* CommandResult.ValueUpperInvalidFormula */]: _lt("Invalid upper inflection point formula"),
-            [59 /* CommandResult.ValueLowerInvalidFormula */]: _lt("Invalid lower inflection point formula"),
-            [22 /* CommandResult.EmptyRange */]: _lt("A range needs to be defined"),
+            [25 /* CommandResult.InvalidRange */]: _lt("The range is invalid"),
+            [50 /* CommandResult.FirstArgMissing */]: _lt("The argument is missing. Please provide a value"),
+            [51 /* CommandResult.SecondArgMissing */]: _lt("The second argument is missing. Please provide a value"),
+            [52 /* CommandResult.MinNaN */]: _lt("The minpoint must be a number"),
+            [53 /* CommandResult.MidNaN */]: _lt("The midpoint must be a number"),
+            [54 /* CommandResult.MaxNaN */]: _lt("The maxpoint must be a number"),
+            [55 /* CommandResult.ValueUpperInflectionNaN */]: _lt("The first value must be a number"),
+            [56 /* CommandResult.ValueLowerInflectionNaN */]: _lt("The second value must be a number"),
+            [46 /* CommandResult.MinBiggerThanMax */]: _lt("Minimum must be smaller then Maximum"),
+            [49 /* CommandResult.MinBiggerThanMid */]: _lt("Minimum must be smaller then Midpoint"),
+            [48 /* CommandResult.MidBiggerThanMax */]: _lt("Midpoint must be smaller then Maximum"),
+            [47 /* CommandResult.LowerBiggerThanUpper */]: _lt("Lower inflection point must be smaller than upper inflection point"),
+            [57 /* CommandResult.MinInvalidFormula */]: _lt("Invalid Minpoint formula"),
+            [59 /* CommandResult.MaxInvalidFormula */]: _lt("Invalid Maxpoint formula"),
+            [58 /* CommandResult.MidInvalidFormula */]: _lt("Invalid Midpoint formula"),
+            [60 /* CommandResult.ValueUpperInvalidFormula */]: _lt("Invalid upper inflection point formula"),
+            [61 /* CommandResult.ValueLowerInvalidFormula */]: _lt("Invalid lower inflection point formula"),
+            [24 /* CommandResult.EmptyRange */]: _lt("A range needs to be defined"),
             Unexpected: _lt("The rule is invalid for an unknown reason"),
         },
         ColorScale: _lt("Color scale"),
@@ -5165,20 +5772,20 @@
         Errors: {
             Unexpected: _lt("The chart definition is invalid for an unknown reason"),
             // BASIC CHART ERRORS (LINE | BAR | PIE)
-            [29 /* CommandResult.InvalidDataSet */]: _lt("The dataset is invalid"),
-            [30 /* CommandResult.InvalidLabelRange */]: _lt("Labels are invalid"),
+            [31 /* CommandResult.InvalidDataSet */]: _lt("The dataset is invalid"),
+            [32 /* CommandResult.InvalidLabelRange */]: _lt("Labels are invalid"),
             // SCORECARD CHART ERRORS
-            [31 /* CommandResult.InvalidScorecardKeyValue */]: _lt("The key value is invalid"),
-            [32 /* CommandResult.InvalidScorecardBaseline */]: _lt("The baseline value is invalid"),
+            [33 /* CommandResult.InvalidScorecardKeyValue */]: _lt("The key value is invalid"),
+            [34 /* CommandResult.InvalidScorecardBaseline */]: _lt("The baseline value is invalid"),
             // GAUGE CHART ERRORS
-            [33 /* CommandResult.InvalidGaugeDataRange */]: _lt("The data range is invalid"),
-            [34 /* CommandResult.EmptyGaugeRangeMin */]: _lt("A minimum range limit value is needed"),
-            [35 /* CommandResult.GaugeRangeMinNaN */]: _lt("The minimum range limit value must be a number"),
-            [36 /* CommandResult.EmptyGaugeRangeMax */]: _lt("A maximum range limit value is needed"),
-            [37 /* CommandResult.GaugeRangeMaxNaN */]: _lt("The maximum range limit value must be a number"),
-            [38 /* CommandResult.GaugeRangeMinBiggerThanRangeMax */]: _lt("Minimum range limit must be smaller than maximum range limit"),
-            [39 /* CommandResult.GaugeLowerInflectionPointNaN */]: _lt("The lower inflection point value must be a number"),
-            [40 /* CommandResult.GaugeUpperInflectionPointNaN */]: _lt("The upper inflection point value must be a number"),
+            [35 /* CommandResult.InvalidGaugeDataRange */]: _lt("The data range is invalid"),
+            [36 /* CommandResult.EmptyGaugeRangeMin */]: _lt("A minimum range limit value is needed"),
+            [37 /* CommandResult.GaugeRangeMinNaN */]: _lt("The minimum range limit value must be a number"),
+            [38 /* CommandResult.EmptyGaugeRangeMax */]: _lt("A maximum range limit value is needed"),
+            [39 /* CommandResult.GaugeRangeMaxNaN */]: _lt("The maximum range limit value must be a number"),
+            [40 /* CommandResult.GaugeRangeMinBiggerThanRangeMax */]: _lt("Minimum range limit must be smaller than maximum range limit"),
+            [41 /* CommandResult.GaugeLowerInflectionPointNaN */]: _lt("The lower inflection point value must be a number"),
+            [42 /* CommandResult.GaugeUpperInflectionPointNaN */]: _lt("The upper inflection point value must be a number"),
         },
     };
     const NumberFormatTerms = {
@@ -5197,16 +5804,16 @@
         Custom: _lt("Custom"),
     };
     const MergeErrorMessage = _lt("Merged cells are preventing this operation. Unmerge those cells and try again.");
-
+  
     function interactiveFreezeColumnsRows(env, dimension, base) {
         const sheetId = env.model.getters.getActiveSheetId();
         const cmd = dimension === "COL" ? "FREEZE_COLUMNS" : "FREEZE_ROWS";
         const result = env.model.dispatch(cmd, { sheetId, quantity: base });
-        if (result.isCancelledBecause(62 /* CommandResult.MergeOverlap */)) {
+        if (result.isCancelledBecause(64 /* CommandResult.MergeOverlap */)) {
             env.raiseError(MergeErrorMessage);
         }
     }
-
+  
     const topbarMenuRegistry = new MenuItemRegistry();
     topbarMenuRegistry
         .add("file", { name: _lt("File"), sequence: 10 })
@@ -5272,7 +5879,7 @@
         .addChild("sort_range", ["data"], {
         name: _lt("Sort range"),
         sequence: 62,
-        isEnabled: IS_ONLY_ONE_RANGE,
+        isVisible: IS_ONLY_ONE_RANGE,
         separator: true,
     })
         .addChild("sort_ascending", ["data", "sort_range"], {
@@ -5575,17 +6182,17 @@
         separator: true,
     })
         .addChild("format_wrapping_overflow", ["format", "format_wrapping"], {
-        name: "Overflow",
+        name: _lt("Overflow"),
         sequence: 10,
         action: (env) => setStyle(env, { wrapping: "overflow" }),
     })
         .addChild("format_wrapping_wrap", ["format", "format_wrapping"], {
-        name: "Wrap",
+        name: _lt("Wrap"),
         sequence: 20,
         action: (env) => setStyle(env, { wrapping: "wrap" }),
     })
         .addChild("format_wrapping_clip", ["format", "format_wrapping"], {
-        name: "Clip",
+        name: _lt("Clip"),
         sequence: 30,
         action: (env) => setStyle(env, { wrapping: "clip" }),
     })
@@ -5600,6 +6207,19 @@
         sequence: 90,
         action: FORMAT_CLEARFORMAT_ACTION,
         separator: true,
+    })
+        .addChild("add_data_filter", ["data"], {
+        name: _lt("Add Filter"),
+        sequence: 20,
+        action: FILTERS_CREATE_FILTER_TABLE,
+        isVisible: (env) => !SELECTION_CONTAINS_FILTER(env),
+        isEnabled: (env) => SELECTION_IS_CONTINUOUS(env),
+    })
+        .addChild("remove_data_filter", ["data"], {
+        name: _lt("Remove Filter"),
+        sequence: 20,
+        action: FILTERS_REMOVE_FILTER_TABLE,
+        isVisible: SELECTION_CONTAINS_FILTER,
     });
     // Font-sizes
     for (let fs of fontSizes) {
@@ -5609,7 +6229,7 @@
             action: (env) => setStyle(env, { fontSize: fs.pt }),
         });
     }
-
+  
     class OTRegistry extends Registry {
         /**
          * Add a transformation function to the registry. When the executed command
@@ -5634,53 +6254,53 @@
         }
     }
     const otRegistry = new OTRegistry();
-
+  
     const uuidGenerator$1 = new UuidGenerator();
     css /* scss */ `
-  .o-selection {
-    .o-selection-input {
-      display: flex;
-      flex-direction: row;
-
-      input {
-        padding: 4px 6px;
-        border-radius: 4px;
-        box-sizing: border-box;
-        flex-grow: 2;
-      }
-      input:focus {
-        outline: none;
-      }
-      input.o-required,
-      input.o-focused {
-        border-width: 2px;
-        padding: 3px 5px;
-      }
-      input.o-focused {
-        border-color: ${SELECTION_BORDER_COLOR};
-      }
-      input.o-invalid {
-        border-color: red;
-      }
-      button.o-btn {
-        background: transparent;
-        border: none;
-        color: #333;
-        cursor: pointer;
-      }
-      button.o-btn-action {
-        margin: 8px 1px;
-        border-radius: 4px;
-        background: transparent;
-        border: 1px solid #dadce0;
-        color: #188038;
-        font-weight: bold;
-        font-size: 14px;
-        height: 25px;
+    .o-selection {
+      .o-selection-input {
+        display: flex;
+        flex-direction: row;
+  
+        input {
+          padding: 4px 6px;
+          border-radius: 4px;
+          box-sizing: border-box;
+          flex-grow: 2;
+        }
+        input:focus {
+          outline: none;
+        }
+        input.o-required,
+        input.o-focused {
+          border-width: 2px;
+          padding: 3px 5px;
+        }
+        input.o-focused {
+          border-color: ${SELECTION_BORDER_COLOR};
+        }
+        input.o-invalid {
+          border-color: red;
+        }
+        button.o-btn {
+          background: transparent;
+          border: none;
+          color: #333;
+          cursor: pointer;
+        }
+        button.o-btn-action {
+          margin: 8px 1px;
+          border-radius: 4px;
+          background: transparent;
+          border: 1px solid #dadce0;
+          color: #188038;
+          font-weight: bold;
+          font-size: 14px;
+          height: 25px;
+        }
       }
     }
-  }
-`;
+  `;
     /**
      * This component can be used when the user needs to input some
      * ranges. He can either input the ranges with the regular DOM `<input/>`
@@ -5799,7 +6419,7 @@
         }
     }
     SelectionInput.template = "o-spreadsheet-SelectionInput";
-
+  
     class LineBarPieConfigPanel extends owl.Component {
         constructor() {
             super(...arguments);
@@ -5823,11 +6443,11 @@
         }
         get isDatasetInvalid() {
             var _a;
-            return !!((_a = this.state.datasetDispatchResult) === null || _a === void 0 ? void 0 : _a.isCancelledBecause(29 /* CommandResult.InvalidDataSet */));
+            return !!((_a = this.state.datasetDispatchResult) === null || _a === void 0 ? void 0 : _a.isCancelledBecause(31 /* CommandResult.InvalidDataSet */));
         }
         get isLabelInvalid() {
             var _a;
-            return !!((_a = this.state.labelsDispatchResult) === null || _a === void 0 ? void 0 : _a.isCancelledBecause(30 /* CommandResult.InvalidLabelRange */));
+            return !!((_a = this.state.labelsDispatchResult) === null || _a === void 0 ? void 0 : _a.isCancelledBecause(32 /* CommandResult.InvalidLabelRange */));
         }
         onUpdateDataSetsHaveTitle(ev) {
             this.props.updateChart({
@@ -5861,7 +6481,7 @@
     }
     LineBarPieConfigPanel.template = "o-spreadsheet-LineBarPieConfigPanel";
     LineBarPieConfigPanel.components = { SelectionInput };
-
+  
     class BarConfigPanel extends LineBarPieConfigPanel {
         onUpdateStacked(ev) {
             this.props.updateChart({
@@ -5870,7 +6490,7 @@
         }
     }
     BarConfigPanel.template = "o-spreadsheet-BarConfigPanel";
-
+  
     /**
      * AbstractChart is the class from which every Chart should inherit.
      * The role of this class is to maintain the state of each chart.
@@ -5902,7 +6522,7 @@
             throw new Error("This method should be implemented by sub class");
         }
     }
-
+  
     /**
      * Convert a JS color hexadecimal to an excel compatible color.
      *
@@ -5916,7 +6536,7 @@
         }
         return color;
     }
-
+  
     function transformZone(zone, executed) {
         if (executed.type === "REMOVE_COLUMNS_ROWS") {
             return reduceZoneOnDeletion(zone, executed.dimension === "COL" ? "left" : "top", executed.elements);
@@ -5926,7 +6546,7 @@
         }
         return { ...zone };
     }
-
+  
     /**
      * This file contains helpers that are common to different charts (mainly
      * line, bar and pie charts)
@@ -6175,11 +6795,11 @@
         if (definition.dataSets) {
             const invalidRanges = definition.dataSets.find((range) => !rangeReference.test(range)) !== undefined;
             if (invalidRanges) {
-                return 29 /* CommandResult.InvalidDataSet */;
+                return 31 /* CommandResult.InvalidDataSet */;
             }
             const zones = definition.dataSets.map(toUnboundedZone);
             if (zones.some((zone) => zone.top !== zone.bottom && isFullRow(zone))) {
-                return 29 /* CommandResult.InvalidDataSet */;
+                return 31 /* CommandResult.InvalidDataSet */;
             }
         }
         return 0 /* CommandResult.Success */;
@@ -6188,7 +6808,7 @@
         if (definition.labelRange) {
             const invalidLabels = !rangeReference.test(definition.labelRange || "");
             if (invalidLabels) {
-                return 30 /* CommandResult.InvalidLabelRange */;
+                return 32 /* CommandResult.InvalidLabelRange */;
             }
         }
         return 0 /* CommandResult.Success */;
@@ -6248,7 +6868,7 @@
         }
         return "neutral";
     }
-
+  
     /**
      * This file contains helpers that are common to different runtime charts (mainly
      * line, bar and pie charts)
@@ -6405,7 +7025,7 @@
             return index - 1;
         }
     }
-
+  
     chartRegistry.add("bar", {
         match: (type) => type === "bar",
         createChart: (definition, sheetId, getters) => new BarChart(definition, sheetId, getters),
@@ -6413,7 +7033,7 @@
         validateChartDefinition: (validator, definition) => BarChart.validateChartDefinition(validator, definition),
         transformDefinition: (definition, executed) => BarChart.transformDefinition(definition, executed),
         getChartDefinitionFromContextCreation: (context) => BarChart.getDefinitionFromContextCreation(context),
-        name: "Bar",
+        name: _lt("Bar"),
     });
     class BarChart extends AbstractChart {
         constructor(definition, sheetId, getters) {
@@ -6569,7 +7189,7 @@
         }
         return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
     }
-
+  
     /**
      * Create a function used to create a Chart based on the definition
      */
@@ -6634,7 +7254,7 @@
         }
         return result;
     }
-
+  
     chartRegistry.add("gauge", {
         match: (type) => type === "gauge",
         createChart: (definition, sheetId, getters) => new GaugeChart(definition, sheetId, getters),
@@ -6642,11 +7262,11 @@
         validateChartDefinition: (validator, definition) => GaugeChart.validateChartDefinition(validator, definition),
         transformDefinition: (definition, executed) => GaugeChart.transformDefinition(definition, executed),
         getChartDefinitionFromContextCreation: (context) => GaugeChart.getDefinitionFromContextCreation(context),
-        name: "Gauge",
+        name: _lt("Gauge"),
     });
     function isDataRangeValid(definition) {
         return definition.dataRange && !rangeReference.test(definition.dataRange)
-            ? 33 /* CommandResult.InvalidGaugeDataRange */
+            ? 35 /* CommandResult.InvalidGaugeDataRange */
             : 0 /* CommandResult.Success */;
     }
     function checkRangeLimits(check, batchValidations) {
@@ -6678,7 +7298,7 @@
     function checkRangeMinBiggerThanRangeMax(definition) {
         if (definition.sectionRule) {
             if (Number(definition.sectionRule.rangeMin) >= Number(definition.sectionRule.rangeMax)) {
-                return 38 /* CommandResult.GaugeRangeMinBiggerThanRangeMax */;
+                return 40 /* CommandResult.GaugeRangeMinBiggerThanRangeMax */;
             }
         }
         return 0 /* CommandResult.Success */;
@@ -6687,9 +7307,9 @@
         if (value === "") {
             switch (valueName) {
                 case "rangeMin":
-                    return 34 /* CommandResult.EmptyGaugeRangeMin */;
+                    return 36 /* CommandResult.EmptyGaugeRangeMin */;
                 case "rangeMax":
-                    return 36 /* CommandResult.EmptyGaugeRangeMax */;
+                    return 38 /* CommandResult.EmptyGaugeRangeMax */;
             }
         }
         return 0 /* CommandResult.Success */;
@@ -6698,13 +7318,13 @@
         if (isNaN(value)) {
             switch (valueName) {
                 case "rangeMin":
-                    return 35 /* CommandResult.GaugeRangeMinNaN */;
+                    return 37 /* CommandResult.GaugeRangeMinNaN */;
                 case "rangeMax":
-                    return 37 /* CommandResult.GaugeRangeMaxNaN */;
+                    return 39 /* CommandResult.GaugeRangeMaxNaN */;
                 case "lowerInflectionPointValue":
-                    return 39 /* CommandResult.GaugeLowerInflectionPointNaN */;
+                    return 41 /* CommandResult.GaugeLowerInflectionPointNaN */;
                 case "upperInflectionPointValue":
-                    return 40 /* CommandResult.GaugeUpperInflectionPointNaN */;
+                    return 42 /* CommandResult.GaugeUpperInflectionPointNaN */;
             }
         }
         return 0 /* CommandResult.Success */;
@@ -6905,7 +7525,7 @@
             background: getters.getBackgroundOfSingleCellChart(chart.background, dataRange),
         };
     }
-
+  
     const UNIT_LENGTH = {
         second: 1000,
         minute: 1000 * 60,
@@ -7029,7 +7649,7 @@
         }
         return "year";
     }
-
+  
     chartRegistry.add("line", {
         match: (type) => type === "line",
         createChart: (definition, sheetId, getters) => new LineChart(definition, sheetId, getters),
@@ -7037,7 +7657,7 @@
         validateChartDefinition: (validator, definition) => LineChart.validateChartDefinition(validator, definition),
         transformDefinition: (definition, executed) => LineChart.transformDefinition(definition, executed),
         getChartDefinitionFromContextCreation: (context) => LineChart.getDefinitionFromContextCreation(context),
-        name: "Line",
+        name: _lt("Line"),
     });
     class LineChart extends AbstractChart {
         constructor(definition, sheetId, getters) {
@@ -7286,7 +7906,7 @@
         }
         return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
     }
-
+  
     chartRegistry.add("pie", {
         match: (type) => type === "pie",
         createChart: (definition, sheetId, getters) => new PieChart(definition, sheetId, getters),
@@ -7294,7 +7914,7 @@
         validateChartDefinition: (validator, definition) => PieChart.validateChartDefinition(validator, definition),
         transformDefinition: (definition, executed) => PieChart.transformDefinition(definition, executed),
         getChartDefinitionFromContextCreation: (context) => PieChart.getDefinitionFromContextCreation(context),
-        name: "Pie",
+        name: _lt("Pie"),
     });
     class PieChart extends AbstractChart {
         constructor(definition, sheetId, getters) {
@@ -7432,7 +8052,7 @@
         }
         return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
     }
-
+  
     chartRegistry.add("scorecard", {
         match: (type) => type === "scorecard",
         createChart: (definition, sheetId, getters) => new ScorecardChart$1(definition, sheetId, getters),
@@ -7440,16 +8060,16 @@
         validateChartDefinition: (validator, definition) => ScorecardChart$1.validateChartDefinition(validator, definition),
         transformDefinition: (definition, executed) => ScorecardChart$1.transformDefinition(definition, executed),
         getChartDefinitionFromContextCreation: (context) => ScorecardChart$1.getDefinitionFromContextCreation(context),
-        name: "Scorecard",
+        name: _lt("Scorecard"),
     });
     function checkKeyValue(definition) {
         return definition.keyValue && !rangeReference.test(definition.keyValue)
-            ? 31 /* CommandResult.InvalidScorecardKeyValue */
+            ? 33 /* CommandResult.InvalidScorecardKeyValue */
             : 0 /* CommandResult.Success */;
     }
     function checkBaseline(definition) {
         return definition.baseline && !rangeReference.test(definition.baseline)
-            ? 32 /* CommandResult.InvalidScorecardBaseline */
+            ? 34 /* CommandResult.InvalidScorecardBaseline */
             : 0 /* CommandResult.Success */;
     }
     class ScorecardChart$1 extends AbstractChart {
@@ -7570,14 +8190,14 @@
             baselineDisplay: getBaselineText(baselineCell, keyValueCell === null || keyValueCell === void 0 ? void 0 : keyValueCell.evaluated, chart.baselineMode),
             baselineArrow: getBaselineArrowDirection(baselineCell === null || baselineCell === void 0 ? void 0 : baselineCell.evaluated, keyValueCell === null || keyValueCell === void 0 ? void 0 : keyValueCell.evaluated, chart.baselineMode),
             baselineColor: getBaselineColor(baselineCell === null || baselineCell === void 0 ? void 0 : baselineCell.evaluated, chart.baselineMode, keyValueCell === null || keyValueCell === void 0 ? void 0 : keyValueCell.evaluated, chart.baselineColorUp, chart.baselineColorDown),
-            baselineDescr: _t(chart.baselineDescr || ""),
+            baselineDescr: chart.baselineDescr ? _t(chart.baselineDescr) : "",
             fontColor: chartFontColor(background),
             background,
             baselineStyle: chart.baselineMode !== "percentage" ? baselineCell === null || baselineCell === void 0 ? void 0 : baselineCell.style : undefined,
             keyValueStyle: keyValueCell === null || keyValueCell === void 0 ? void 0 : keyValueCell.style,
         };
     }
-
+  
     const PICKER_PADDING = 6;
     const LINE_VERTICAL_PADDING = 1;
     const LINE_HORIZONTAL_PADDING = 6;
@@ -7590,140 +8210,142 @@
     const GRADIENT_WIDTH = PICKER_WIDTH - 2 * LINE_HORIZONTAL_PADDING - 2 * ITEM_BORDER_WIDTH;
     const GRADIENT_HEIGHT = PICKER_WIDTH - 50;
     css /* scss */ `
-  .o-color-picker {
-    position: absolute;
-    top: calc(100% + 5px);
-    z-index: ${ComponentsImportance.ColorPicker};
-    box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
-    background-color: white;
-    padding: ${PICKER_PADDING}px 0px;
-    line-height: 1.2;
-    width: ${GRADIENT_WIDTH + 2 * PICKER_PADDING}px;
-
-    .o-color-picker-section-name {
-      margin: 0px ${ITEM_HORIZONTAL_MARGIN}px;
-      padding: 4px ${LINE_HORIZONTAL_PADDING}px;
-    }
-    .colors-grid {
-      display: grid;
-      padding: ${LINE_VERTICAL_PADDING}px ${LINE_HORIZONTAL_PADDING}px;
-      grid-template-columns: repeat(${ITEMS_PER_LINE}, 1fr);
-      grid-gap: ${ITEM_HORIZONTAL_MARGIN * 2}px;
-    }
-    .o-color-picker-line-item {
-      width: ${ITEM_EDGE_LENGTH}px;
-      height: ${ITEM_EDGE_LENGTH}px;
-      margin: 0px;
-      border-radius: 50px;
-      border: ${ITEM_BORDER_WIDTH}px solid #666666;
-      padding: 0px;
-      font-size: 16px;
-      background: white;
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.08);
-        outline: 1px solid gray;
-        cursor: pointer;
-      }
-    }
-    .o-buttons {
-      padding: 6px;
-      display: flex;
-      .o-cancel {
+    .o-color-picker {
+      position: absolute;
+      top: calc(100% + 5px);
+      z-index: ${ComponentsImportance.ColorPicker};
+      padding: ${PICKER_PADDING}px 0px;
+      box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
+      background-color: white;
+      line-height: 1.2;
+      overflow-y: auto;
+      overflow-x: hidden;
+      width: ${GRADIENT_WIDTH + 2 * PICKER_PADDING}px;
+  
+      .o-color-picker-section-name {
         margin: 0px ${ITEM_HORIZONTAL_MARGIN}px;
+        padding: 4px ${LINE_HORIZONTAL_PADDING}px;
+      }
+      .colors-grid {
+        display: grid;
+        padding: ${LINE_VERTICAL_PADDING}px ${LINE_HORIZONTAL_PADDING}px;
+        grid-template-columns: repeat(${ITEMS_PER_LINE}, 1fr);
+        grid-gap: ${ITEM_HORIZONTAL_MARGIN * 2}px;
+      }
+      .o-color-picker-line-item {
+        width: ${ITEM_EDGE_LENGTH}px;
+        height: ${ITEM_EDGE_LENGTH}px;
+        margin: 0px;
+        border-radius: 50px;
+        border: ${ITEM_BORDER_WIDTH}px solid #666666;
+        padding: 0px;
+        font-size: 16px;
+        background: white;
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.08);
+          outline: 1px solid gray;
+          cursor: pointer;
+        }
+      }
+      .o-buttons {
+        padding: 6px;
+        display: flex;
+        .o-cancel {
+          margin: 0px ${ITEM_HORIZONTAL_MARGIN}px;
+          border: ${ITEM_BORDER_WIDTH}px solid #c0c0c0;
+          width: 100%;
+          padding: 5px;
+          font-size: 14px;
+          background: white;
+          border-radius: 4px;
+          &:hover:enabled {
+            background-color: rgba(0, 0, 0, 0.08);
+          }
+        }
+      }
+      .o-add-button {
         border: ${ITEM_BORDER_WIDTH}px solid #c0c0c0;
-        width: 100%;
-        padding: 5px;
-        font-size: 14px;
+        padding: 4px;
         background: white;
         border-radius: 4px;
         &:hover:enabled {
           background-color: rgba(0, 0, 0, 0.08);
         }
       }
-    }
-    .o-add-button {
-      border: ${ITEM_BORDER_WIDTH}px solid #c0c0c0;
-      padding: 4px;
-      background: white;
-      border-radius: 4px;
-      &:hover:enabled {
-        background-color: rgba(0, 0, 0, 0.08);
+      .o-separator {
+        border-bottom: ${MENU_SEPARATOR_BORDER_WIDTH}px solid #e0e2e4;
+        margin-top: ${MENU_SEPARATOR_PADDING}px;
+        margin-bottom: ${MENU_SEPARATOR_PADDING}px;
       }
-    }
-    .o-separator {
-      border-bottom: ${MENU_SEPARATOR_BORDER_WIDTH}px solid #e0e2e4;
-      margin-top: ${MENU_SEPARATOR_PADDING}px;
-      margin-bottom: ${MENU_SEPARATOR_PADDING}px;
-    }
-    input {
-      box-sizing: border-box;
-      width: 100%;
-      border-radius: 4px;
-      padding: 4px 23px 4px 10px;
-      height: 24px;
-      border: 1px solid #c0c0c0;
-      margin: 0 2px 0 0;
-    }
-    input.o-wrong-color {
-      border-color: red;
-    }
-    .o-custom-selector {
-      padding: ${LINE_HORIZONTAL_PADDING}px;
-      position: relative;
-      .o-gradient {
-        background: linear-gradient(to bottom, hsl(0 100% 0%), transparent, hsl(0 0% 100%)),
-          linear-gradient(
-            to right,
-            hsl(0 100% 50%) 0%,
-            hsl(0.2turn 100% 50%) 20%,
-            hsl(0.3turn 100% 50%) 30%,
-            hsl(0.4turn 100% 50%) 40%,
-            hsl(0.5turn 100% 50%) 50%,
-            hsl(0.6turn 100% 50%) 60%,
-            hsl(0.7turn 100% 50%) 70%,
-            hsl(0.8turn 100% 50%) 80%,
-            hsl(0.9turn 100% 50%) 90%,
-            hsl(1turn 100% 50%) 100%
-          );
-        border: ${ITEM_BORDER_WIDTH}px solid #c0c0c0;
-        width: ${GRADIENT_WIDTH}px;
-        height: ${GRADIENT_HEIGHT}px;
-        &:hover {
-          cursor: crosshair;
+      input {
+        box-sizing: border-box;
+        width: 100%;
+        border-radius: 4px;
+        padding: 4px 23px 4px 10px;
+        height: 24px;
+        border: 1px solid #c0c0c0;
+        margin: 0 2px 0 0;
+      }
+      input.o-wrong-color {
+        border-color: red;
+      }
+      .o-custom-selector {
+        padding: ${LINE_HORIZONTAL_PADDING}px;
+        position: relative;
+        .o-gradient {
+          background: linear-gradient(to bottom, hsl(0 100% 0%), transparent, hsl(0 0% 100%)),
+            linear-gradient(
+              to right,
+              hsl(0 100% 50%) 0%,
+              hsl(0.2turn 100% 50%) 20%,
+              hsl(0.3turn 100% 50%) 30%,
+              hsl(0.4turn 100% 50%) 40%,
+              hsl(0.5turn 100% 50%) 50%,
+              hsl(0.6turn 100% 50%) 60%,
+              hsl(0.7turn 100% 50%) 70%,
+              hsl(0.8turn 100% 50%) 80%,
+              hsl(0.9turn 100% 50%) 90%,
+              hsl(1turn 100% 50%) 100%
+            );
+          border: ${ITEM_BORDER_WIDTH}px solid #c0c0c0;
+          width: ${GRADIENT_WIDTH}px;
+          height: ${GRADIENT_HEIGHT}px;
+          &:hover {
+            cursor: crosshair;
+          }
+        }
+        .o-custom-input-preview {
+          padding: 2px ${LINE_VERTICAL_PADDING}px;
+          display: flex;
+        }
+        .o-custom-input-buttons {
+          padding: 2px ${LINE_VERTICAL_PADDING}px;
+          text-align: right;
+        }
+        .o-color-preview {
+          border: 1px solid #c0c0c0;
+          border-radius: 4px;
+          width: 100%;
         }
       }
-      .o-custom-input-preview {
-        padding: 2px ${LINE_VERTICAL_PADDING}px;
-        display: flex;
+      &.right {
+        left: 0;
       }
-      .o-custom-input-buttons {
-        padding: 2px ${LINE_VERTICAL_PADDING}px;
-        text-align: right;
+      &.left {
+        right: 0;
       }
-      .o-color-preview {
-        border: 1px solid #c0c0c0;
-        border-radius: 4px;
-        width: 100%;
+      &.center {
+        left: calc(50% - ${PICKER_WIDTH / 2}px);
       }
     }
-    &.right {
-      left: 0;
+    .o-magnifier-glass {
+      position: absolute;
+      border: ${ITEM_BORDER_WIDTH}px solid #c0c0c0;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
     }
-    &.left {
-      right: 0;
-    }
-    &.center {
-      left: calc(50% - ${PICKER_WIDTH / 2}px);
-    }
-  }
-  .o-magnifier-glass {
-    position: absolute;
-    border: ${ITEM_BORDER_WIDTH}px solid #c0c0c0;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-  }
-`;
+  `;
     function computeCustomColor(ev) {
         return rgbaToHex(hslaToRGBA({
             h: (360 * ev.offsetX) / GRADIENT_WIDTH,
@@ -7746,6 +8368,16 @@
                     left: "0",
                     top: "0",
                 },
+            });
+        }
+        get colorPickerStyle() {
+            if (this.props.maxHeight === undefined)
+                return "";
+            if (this.props.maxHeight <= 0) {
+                return cssPropertiesToCss({ display: "none" });
+            }
+            return cssPropertiesToCss({
+                "max-height": `${this.props.maxHeight}px`,
             });
         }
         onColorClick(color) {
@@ -7793,7 +8425,7 @@
         }
     }
     ColorPicker.template = "o-spreadsheet-ColorPicker";
-
+  
     class LineBarPieDesignPanel extends owl.Component {
         constructor() {
             super(...arguments);
@@ -7828,11 +8460,11 @@
     }
     LineBarPieDesignPanel.template = "o-spreadsheet-LineBarPieDesignPanel";
     LineBarPieDesignPanel.components = { ColorPicker };
-
+  
     class BarChartDesignPanel extends LineBarPieDesignPanel {
     }
     BarChartDesignPanel.template = "o-spreadsheet-BarChartDesignPanel";
-
+  
     class GaugeChartConfigPanel extends owl.Component {
         constructor() {
             super(...arguments);
@@ -7848,7 +8480,7 @@
         }
         get isDataRangeInvalid() {
             var _a;
-            return !!((_a = this.state.dataRangeDispatchResult) === null || _a === void 0 ? void 0 : _a.isCancelledBecause(33 /* CommandResult.InvalidGaugeDataRange */));
+            return !!((_a = this.state.dataRangeDispatchResult) === null || _a === void 0 ? void 0 : _a.isCancelledBecause(35 /* CommandResult.InvalidGaugeDataRange */));
         }
         onDataRangeChanged(ranges) {
             this.dataRange = ranges[0];
@@ -7861,48 +8493,48 @@
     }
     GaugeChartConfigPanel.template = "o-spreadsheet-GaugeChartConfigPanel";
     GaugeChartConfigPanel.components = { SelectionInput };
-
+  
     css /* scss */ `
-  .o-gauge-color-set {
-    .o-gauge-color-set-color-button {
-      display: inline-block;
-      border: 1px solid #dadce0;
-      border-radius: 4px;
-      cursor: pointer;
-      padding: 1px 2px;
+    .o-gauge-color-set {
+      .o-gauge-color-set-color-button {
+        display: inline-block;
+        border: 1px solid #dadce0;
+        border-radius: 4px;
+        cursor: pointer;
+        padding: 1px 2px;
+      }
+      .o-gauge-color-set-color-button:hover {
+        background-color: rgba(0, 0, 0, 0.08);
+      }
+      table {
+        table-layout: fixed;
+        margin-top: 2%;
+        display: table;
+        text-align: left;
+        font-size: 12px;
+        line-height: 18px;
+        width: 100%;
+      }
+      th.o-gauge-color-set-colorPicker {
+        width: 8%;
+      }
+      th.o-gauge-color-set-text {
+        width: 40%;
+      }
+      th.o-gauge-color-set-value {
+        width: 22%;
+      }
+      th.o-gauge-color-set-type {
+        width: 30%;
+      }
+      input,
+      select {
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+      }
     }
-    .o-gauge-color-set-color-button:hover {
-      background-color: rgba(0, 0, 0, 0.08);
-    }
-    table {
-      table-layout: fixed;
-      margin-top: 2%;
-      display: table;
-      text-align: left;
-      font-size: 12px;
-      line-height: 18px;
-      width: 100%;
-    }
-    th.o-gauge-color-set-colorPicker {
-      width: 8%;
-    }
-    th.o-gauge-color-set-text {
-      width: 40%;
-    }
-    th.o-gauge-color-set-value {
-      width: 22%;
-    }
-    th.o-gauge-color-set-type {
-      width: 30%;
-    }
-    input,
-    select {
-      width: 100%;
-      height: 100%;
-      box-sizing: border-box;
-    }
-  }
-`;
+  `;
     class GaugeChartDesignPanel extends owl.Component {
         constructor() {
             super(...arguments);
@@ -7929,28 +8561,28 @@
         }
         isRangeMinInvalid() {
             var _a, _b, _c;
-            return !!(((_a = this.state.sectionRuleDispatchResult) === null || _a === void 0 ? void 0 : _a.isCancelledBecause(34 /* CommandResult.EmptyGaugeRangeMin */)) ||
-                ((_b = this.state.sectionRuleDispatchResult) === null || _b === void 0 ? void 0 : _b.isCancelledBecause(35 /* CommandResult.GaugeRangeMinNaN */)) ||
-                ((_c = this.state.sectionRuleDispatchResult) === null || _c === void 0 ? void 0 : _c.isCancelledBecause(38 /* CommandResult.GaugeRangeMinBiggerThanRangeMax */)));
+            return !!(((_a = this.state.sectionRuleDispatchResult) === null || _a === void 0 ? void 0 : _a.isCancelledBecause(36 /* CommandResult.EmptyGaugeRangeMin */)) ||
+                ((_b = this.state.sectionRuleDispatchResult) === null || _b === void 0 ? void 0 : _b.isCancelledBecause(37 /* CommandResult.GaugeRangeMinNaN */)) ||
+                ((_c = this.state.sectionRuleDispatchResult) === null || _c === void 0 ? void 0 : _c.isCancelledBecause(40 /* CommandResult.GaugeRangeMinBiggerThanRangeMax */)));
         }
         isRangeMaxInvalid() {
             var _a, _b, _c;
-            return !!(((_a = this.state.sectionRuleDispatchResult) === null || _a === void 0 ? void 0 : _a.isCancelledBecause(36 /* CommandResult.EmptyGaugeRangeMax */)) ||
-                ((_b = this.state.sectionRuleDispatchResult) === null || _b === void 0 ? void 0 : _b.isCancelledBecause(37 /* CommandResult.GaugeRangeMaxNaN */)) ||
-                ((_c = this.state.sectionRuleDispatchResult) === null || _c === void 0 ? void 0 : _c.isCancelledBecause(38 /* CommandResult.GaugeRangeMinBiggerThanRangeMax */)));
+            return !!(((_a = this.state.sectionRuleDispatchResult) === null || _a === void 0 ? void 0 : _a.isCancelledBecause(38 /* CommandResult.EmptyGaugeRangeMax */)) ||
+                ((_b = this.state.sectionRuleDispatchResult) === null || _b === void 0 ? void 0 : _b.isCancelledBecause(39 /* CommandResult.GaugeRangeMaxNaN */)) ||
+                ((_c = this.state.sectionRuleDispatchResult) === null || _c === void 0 ? void 0 : _c.isCancelledBecause(40 /* CommandResult.GaugeRangeMinBiggerThanRangeMax */)));
         }
         // ---------------------------------------------------------------------------
         // COLOR_SECTION_TEMPLATE
         // ---------------------------------------------------------------------------
         get isLowerInflectionPointInvalid() {
             var _a, _b;
-            return !!(((_a = this.state.sectionRuleDispatchResult) === null || _a === void 0 ? void 0 : _a.isCancelledBecause(39 /* CommandResult.GaugeLowerInflectionPointNaN */)) ||
-                ((_b = this.state.sectionRuleDispatchResult) === null || _b === void 0 ? void 0 : _b.isCancelledBecause(41 /* CommandResult.GaugeLowerBiggerThanUpper */)));
+            return !!(((_a = this.state.sectionRuleDispatchResult) === null || _a === void 0 ? void 0 : _a.isCancelledBecause(41 /* CommandResult.GaugeLowerInflectionPointNaN */)) ||
+                ((_b = this.state.sectionRuleDispatchResult) === null || _b === void 0 ? void 0 : _b.isCancelledBecause(43 /* CommandResult.GaugeLowerBiggerThanUpper */)));
         }
         get isUpperInflectionPointInvalid() {
             var _a, _b;
-            return !!(((_a = this.state.sectionRuleDispatchResult) === null || _a === void 0 ? void 0 : _a.isCancelledBecause(40 /* CommandResult.GaugeUpperInflectionPointNaN */)) ||
-                ((_b = this.state.sectionRuleDispatchResult) === null || _b === void 0 ? void 0 : _b.isCancelledBecause(41 /* CommandResult.GaugeLowerBiggerThanUpper */)));
+            return !!(((_a = this.state.sectionRuleDispatchResult) === null || _a === void 0 ? void 0 : _a.isCancelledBecause(42 /* CommandResult.GaugeUpperInflectionPointNaN */)) ||
+                ((_b = this.state.sectionRuleDispatchResult) === null || _b === void 0 ? void 0 : _b.isCancelledBecause(43 /* CommandResult.GaugeLowerBiggerThanUpper */)));
         }
         updateInflectionPointValue(attr, ev) {
             const sectionRule = deepCopy(this.props.definition.sectionRule);
@@ -8002,10 +8634,10 @@
     }
     GaugeChartDesignPanel.template = "o-spreadsheet-GaugeChartDesignPanel";
     GaugeChartDesignPanel.components = { ColorPicker };
-
+  
     class LineConfigPanel extends LineBarPieConfigPanel {
         get canTreatLabelsAsText() {
-            const chart = this.env.model.getters.getChart(this.props.figureId);
+            const chart = this.env.model.getters.getChart(this.props.sheetId, this.props.figureId);
             if (chart && chart instanceof LineChart) {
                 return canChartParseLabels(chart, this.env.model.getters);
             }
@@ -8023,11 +8655,11 @@
         }
     }
     LineConfigPanel.template = "o-spreadsheet-LineConfigPanel";
-
+  
     class LineChartDesignPanel extends LineBarPieDesignPanel {
     }
     LineChartDesignPanel.template = "o-spreadsheet-LineChartDesignPanel";
-
+  
     class ScorecardChartConfigPanel extends owl.Component {
         constructor() {
             super(...arguments);
@@ -8048,11 +8680,11 @@
         }
         get isKeyValueInvalid() {
             var _a;
-            return !!((_a = this.state.keyValueDispatchResult) === null || _a === void 0 ? void 0 : _a.isCancelledBecause(31 /* CommandResult.InvalidScorecardKeyValue */));
+            return !!((_a = this.state.keyValueDispatchResult) === null || _a === void 0 ? void 0 : _a.isCancelledBecause(33 /* CommandResult.InvalidScorecardKeyValue */));
         }
         get isBaselineInvalid() {
             var _a;
-            return !!((_a = this.state.keyValueDispatchResult) === null || _a === void 0 ? void 0 : _a.isCancelledBecause(32 /* CommandResult.InvalidScorecardBaseline */));
+            return !!((_a = this.state.keyValueDispatchResult) === null || _a === void 0 ? void 0 : _a.isCancelledBecause(34 /* CommandResult.InvalidScorecardBaseline */));
         }
         onKeyValueRangeChanged(ranges) {
             this.keyValue = ranges[0];
@@ -8076,7 +8708,7 @@
     }
     ScorecardChartConfigPanel.template = "o-spreadsheet-ScorecardChartConfigPanel";
     ScorecardChartConfigPanel.components = { SelectionInput };
-
+  
     class ScorecardChartDesignPanel extends owl.Component {
         constructor() {
             super(...arguments);
@@ -8112,7 +8744,7 @@
     }
     ScorecardChartDesignPanel.template = "o-spreadsheet-ScorecardChartDesignPanel";
     ScorecardChartDesignPanel.components = { ColorPicker };
-
+  
     const chartSidePanelComponentRegistry = new Registry();
     chartSidePanelComponentRegistry
         .add("line", {
@@ -8135,41 +8767,48 @@
         configuration: ScorecardChartConfigPanel,
         design: ScorecardChartDesignPanel,
     });
-
+  
     css /* scss */ `
-  .o-chart {
-    .o-panel {
-      display: flex;
-      .o-panel-element {
-        flex: 1 0 auto;
-        padding: 8px 0px;
-        text-align: center;
-        cursor: pointer;
-        border-right: 1px solid darkgray;
-        &.inactive {
-          background-color: ${BACKGROUND_HEADER_COLOR};
-          border-bottom: 1px solid darkgray;
+    .o-chart {
+      .o-panel {
+        display: flex;
+        .o-panel-element {
+          flex: 1 0 auto;
+          padding: 8px 0px;
+          text-align: center;
+          cursor: pointer;
+          border-right: 1px solid darkgray;
+          &.inactive {
+            background-color: ${BACKGROUND_HEADER_COLOR};
+            border-bottom: 1px solid darkgray;
+          }
+          .fa {
+            margin-right: 4px;
+          }
         }
-        .fa {
-          margin-right: 4px;
+        .o-panel-element:last-child {
+          border-right: none;
         }
       }
-      .o-panel-element:last-child {
-        border-right: none;
+  
+      .o-with-color-picker {
+        position: relative;
+      }
+      .o-with-color-picker > span {
+        border-bottom: 4px solid;
       }
     }
-
-    .o-with-color-picker {
-      position: relative;
-    }
-    .o-with-color-picker > span {
-      border-bottom: 4px solid;
-    }
-  }
-`;
+  `;
     class ChartPanel extends owl.Component {
+        constructor() {
+            super(...arguments);
+            this.shouldUpdateChart = true;
+        }
         get figureId() {
             return this.state.figureId;
+        }
+        get sheetId() {
+            return this.state.sheetId;
         }
         setup() {
             const selectedFigureId = this.env.model.getters.getSelectedFigureId();
@@ -8179,43 +8818,54 @@
             this.state = owl.useState({
                 panel: "configuration",
                 figureId: selectedFigureId,
+                sheetId: this.env.model.getters.getActiveSheetId(),
             });
             owl.onWillUpdateProps(() => {
                 const selectedFigureId = this.env.model.getters.getSelectedFigureId();
                 if (selectedFigureId && selectedFigureId !== this.state.figureId) {
                     this.state.figureId = selectedFigureId;
+                    this.state.sheetId = this.env.model.getters.getActiveSheetId();
+                    this.shouldUpdateChart = false;
                 }
-                if (!this.env.model.getters.isChartDefined(this.figureId)) {
+                else {
+                    this.shouldUpdateChart = true;
+                }
+                if (!this.env.model.getters.isChartDefined(this.sheetId, this.figureId)) {
                     this.props.onCloseSidePanel();
                     return;
                 }
             });
         }
         updateChart(updateDefinition) {
+            if (!this.shouldUpdateChart) {
+                return;
+            }
             const definition = {
                 ...this.getChartDefinition(),
                 ...updateDefinition,
             };
+            // TODORAR add a putain de test - c'est faux de nouveau ...
             return this.env.model.dispatch("UPDATE_CHART", {
                 definition,
                 id: this.figureId,
-                sheetId: this.env.model.getters.getActiveSheetId(),
+                sheetId: this.sheetId,
             });
         }
         onTypeChange(type) {
-            const context = this.env.model.getters.getContextCreationChart(this.figureId);
+            const context = this.env.model.getters.getContextCreationChart(this.sheetId, this.figureId);
             if (!context) {
                 throw new Error("Chart not defined.");
             }
             const definition = getChartDefinitionFromContextCreation(context, type);
+            // TODORAR add a putain de test - c'est faux de nouveau ...
             this.env.model.dispatch("UPDATE_CHART", {
                 definition,
                 id: this.figureId,
-                sheetId: this.env.model.getters.getActiveSheetId(),
+                sheetId: this.sheetId,
             });
         }
         get chartPanel() {
-            const type = this.env.model.getters.getChartType(this.figureId);
+            const type = this.env.model.getters.getChartType(this.sheetId, this.figureId);
             if (!type) {
                 throw new Error("Chart not defined.");
             }
@@ -8225,8 +8875,8 @@
             }
             return chartPanel;
         }
-        getChartDefinition(figureId = this.figureId) {
-            return this.env.model.getters.getChartDefinition(figureId);
+        getChartDefinition() {
+            return this.env.model.getters.getChartDefinition(this.sheetId, this.figureId);
         }
         get chartTypes() {
             return getChartTypes();
@@ -8236,7 +8886,7 @@
         }
     }
     ChartPanel.template = "o-spreadsheet-ChartPanel";
-
+  
     // -----------------------------------------------------------------------------
     // We need here the svg of the icons that we need to convert to images for the renderer
     // -----------------------------------------------------------------------------
@@ -8311,27 +8961,27 @@
             bad: "dotBad",
         },
     };
-
+  
     css /* scss */ `
-  .o-icon-picker {
-    position: absolute;
-    z-index: ${ComponentsImportance.IconPicker};
-    box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
-    background-color: white;
-    padding: 2px 1px;
-  }
-  .o-cf-icon-line {
-    display: flex;
-    padding: 3px 6px;
-  }
-  .o-icon-picker-item {
-    margin: 0px 2px;
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.08);
-      outline: 1px solid gray;
+    .o-icon-picker {
+      position: absolute;
+      z-index: ${ComponentsImportance.IconPicker};
+      box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
+      background-color: white;
+      padding: 2px 1px;
     }
-  }
-`;
+    .o-cf-icon-line {
+      display: flex;
+      padding: 3px 6px;
+    }
+    .o-icon-picker-item {
+      margin: 0px 2px;
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.08);
+        outline: 1px solid gray;
+      }
+    }
+  `;
     class IconPicker extends owl.Component {
         constructor() {
             super(...arguments);
@@ -8345,276 +8995,276 @@
         }
     }
     IconPicker.template = "o-spreadsheet-IconPicker";
-
+  
     // TODO vsc: add ordering of rules
     css /* scss */ `
-  label {
-    vertical-align: middle;
-  }
-  .o_cf_radio_item {
-    margin-right: 10%;
-  }
-  .radio input:checked {
-    color: #e9ecef;
-    border-color: #00a09d;
-    background-color: #00a09d;
-  }
-  .o-cf-editor {
-    border-bottom: solid;
-    border-color: lightgrey;
-  }
-  .o-cf {
-    .o-cf-type-selector {
-      *,
-      ::after,
-      ::before {
-        box-sizing: border-box;
-      }
-      margin-top: 10px;
-      display: flex;
+    label {
+      vertical-align: middle;
     }
-    .o-section-subtitle:first-child {
-      margin-top: 0px;
+    .o_cf_radio_item {
+      margin-right: 10%;
     }
-    .o-cf-cursor-ptr {
-      cursor: pointer;
+    .radio input:checked {
+      color: #e9ecef;
+      border-color: #00a09d;
+      background-color: #00a09d;
     }
-    .o-cf-preview {
-      background-color: #fff;
-      border-bottom: 1px solid #ccc;
-      display: flex;
-      height: 60px;
-      padding: 10px;
-      position: relative;
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-      &:not(:hover) .o-cf-delete-button {
-        display: none;
-      }
-      .o-cf-preview-image {
-        border: 1px solid lightgrey;
-        height: 50px;
-        line-height: 50px;
-        margin-right: 15px;
-        margin-top: 3px;
-        position: absolute;
-        text-align: center;
-        width: 50px;
-      }
-      .o-cf-preview-icon {
-        border: 1px solid lightgrey;
-        position: absolute;
-        height: 50px;
-        line-height: 50px;
-        margin-right: 15px;
-        margin-top: 3px;
+    .o-cf-editor {
+      border-bottom: solid;
+      border-color: lightgrey;
+    }
+    .o-cf {
+      .o-cf-type-selector {
+        *,
+        ::after,
+        ::before {
+          box-sizing: border-box;
+        }
+        margin-top: 10px;
         display: flex;
-        justify-content: space-around;
-        align-items: center;
       }
-      .o-cf-preview-description {
-        left: 65px;
-        margin-bottom: auto;
-        margin-right: 8px;
-        margin-top: auto;
+      .o-section-subtitle:first-child {
+        margin-top: 0px;
+      }
+      .o-cf-cursor-ptr {
+        cursor: pointer;
+      }
+      .o-cf-preview {
+        background-color: #fff;
+        border-bottom: 1px solid #ccc;
+        display: flex;
+        height: 60px;
+        padding: 10px;
         position: relative;
-        width: 142px;
-        .o-cf-preview-description-rule {
-          margin-bottom: 4px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          font-weight: 600;
-          color: #303030;
-          max-height: 2.8em;
-          line-height: 1.4em;
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.08);
         }
-        .o-cf-preview-range {
-          text-overflow: ellipsis;
+        &:not(:hover) .o-cf-delete-button {
+          display: none;
+        }
+        .o-cf-preview-image {
+          border: 1px solid lightgrey;
+          height: 50px;
+          line-height: 50px;
+          margin-right: 15px;
+          margin-top: 3px;
+          position: absolute;
+          text-align: center;
+          width: 50px;
+        }
+        .o-cf-preview-icon {
+          border: 1px solid lightgrey;
+          position: absolute;
+          height: 50px;
+          line-height: 50px;
+          margin-right: 15px;
+          margin-top: 3px;
+          display: flex;
+          justify-content: space-around;
+          align-items: center;
+        }
+        .o-cf-preview-description {
+          left: 65px;
+          margin-bottom: auto;
+          margin-right: 8px;
+          margin-top: auto;
+          position: relative;
+          width: 142px;
+          .o-cf-preview-description-rule {
+            margin-bottom: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 600;
+            color: #303030;
+            max-height: 2.8em;
+            line-height: 1.4em;
+          }
+          .o-cf-preview-range {
+            text-overflow: ellipsis;
+            font-size: 12px;
+            overflow: hidden;
+          }
+        }
+        .o-cf-delete {
+          color: dimgrey;
+          left: 90%;
+          top: 39%;
+          position: absolute;
+        }
+        .o-cf-reorder {
+          color: gray;
+          left: 90%;
+          position: absolute;
+          height: 100%;
+          width: 10%;
+        }
+        .o-cf-reorder-button:hover {
+          cursor: pointer;
+          background-color: rgba(0, 0, 0, 0.08);
+        }
+        .o-cf-reorder-button-up {
+          width: 15px;
+          height: 20px;
+          padding: 5px;
+          padding-top: 0px;
+        }
+        .o-cf-reorder-button-down {
+          width: 15px;
+          height: 20px;
+          bottom: 20px;
+          padding: 5px;
+          padding-top: 0px;
+          position: absolute;
+        }
+      }
+      .o-cf-ruleEditor {
+        font-size: 12px;
+        line-height: 1.5;
+        .o-selection-cf {
+          margin-bottom: 3%;
+        }
+        .o-cell-content {
           font-size: 12px;
-          overflow: hidden;
+          font-weight: 500;
+          padding: 0 12px;
+          margin: 0;
+          line-height: 35px;
         }
       }
-      .o-cf-delete {
-        color: dimgrey;
-        left: 90%;
-        top: 39%;
-        position: absolute;
-      }
-      .o-cf-reorder {
-        color: gray;
-        left: 90%;
-        position: absolute;
-        height: 100%;
-        width: 10%;
-      }
-      .o-cf-reorder-button:hover {
+      .o-cf-btn-link {
+        font-size: 14px;
+        padding: 20px 24px 11px 24px;
+        height: 44px;
         cursor: pointer;
-        background-color: rgba(0, 0, 0, 0.08);
+        text-decoration: none;
       }
-      .o-cf-reorder-button-up {
-        width: 15px;
-        height: 20px;
-        padding: 5px;
-        padding-top: 0px;
+      .o-cf-btn-link:hover {
+        color: #003a39;
+        text-decoration: none;
       }
-      .o-cf-reorder-button-down {
-        width: 15px;
-        height: 20px;
-        bottom: 20px;
-        padding: 5px;
-        padding-top: 0px;
-        position: absolute;
+      .o-cf-error {
+        color: red;
+        margin-top: 10px;
       }
     }
-    .o-cf-ruleEditor {
-      font-size: 12px;
-      line-height: 1.5;
-      .o-selection-cf {
-        margin-bottom: 3%;
+    .o-cf-cell-is-rule {
+      .o-cf-preview-line {
+        border: 1px solid darkgrey;
+        padding: 10px;
       }
-      .o-cell-content {
-        font-size: 12px;
-        font-weight: 500;
-        padding: 0 12px;
-        margin: 0;
-        line-height: 35px;
+      .o-cell-is-operator {
+        margin-bottom: 5px;
+        width: 96%;
       }
-    }
-    .o-cf-btn-link {
-      font-size: 14px;
-      padding: 20px 24px 11px 24px;
-      height: 44px;
-      cursor: pointer;
-      text-decoration: none;
-    }
-    .o-cf-btn-link:hover {
-      color: #003a39;
-      text-decoration: none;
-    }
-    .o-cf-error {
-      color: red;
-      margin-top: 10px;
-    }
-  }
-  .o-cf-cell-is-rule {
-    .o-cf-preview-line {
-      border: 1px solid darkgrey;
-      padding: 10px;
-    }
-    .o-cell-is-operator {
-      margin-bottom: 5px;
-      width: 96%;
-    }
-    .o-cell-is-value {
-      margin-bottom: 5px;
-      width: 96%;
-    }
-    .o-color-picker {
-      pointer-events: all;
-    }
-  }
-  .o-cf-color-scale-editor {
-    .o-threshold {
-      display: flex;
-      flex-direction: horizontal;
-      select {
-        width: 100%;
+      .o-cell-is-value {
+        margin-bottom: 5px;
+        width: 96%;
       }
-      .o-threshold-value {
-        margin-left: 2%;
-        width: 20%;
-        min-width: 0px; // input overflows in Firefox otherwise
-      }
-      .o-threshold-value:disabled {
-        background-color: #edebed;
+      .o-color-picker {
+        pointer-events: all;
       }
     }
-    .o-cf-preview-gradient {
-      border: 1px solid darkgrey;
-      padding: 10px;
-      border-radius: 4px;
-    }
-  }
-  .o-cf-iconset-rule {
-    font-size: 12;
-    .o-cf-iconsets {
-      display: flex;
-      justify-content: space-between;
-      .o-cf-iconset {
-        border: 1px solid #dadce0;
+    .o-cf-color-scale-editor {
+      .o-threshold {
+        display: flex;
+        flex-direction: horizontal;
+        select {
+          width: 100%;
+        }
+        .o-threshold-value {
+          margin-left: 2%;
+          width: 20%;
+          min-width: 0px; // input overflows in Firefox otherwise
+        }
+        .o-threshold-value:disabled {
+          background-color: #edebed;
+        }
+      }
+      .o-cf-preview-gradient {
+        border: 1px solid darkgrey;
+        padding: 10px;
         border-radius: 4px;
-        display: inline-flex;
-        padding: 5px 8px;
-        width: 25%;
-        cursor: pointer;
+      }
+    }
+    .o-cf-iconset-rule {
+      font-size: 12;
+      .o-cf-iconsets {
+        display: flex;
         justify-content: space-between;
-        .o-cf-icon {
-          display: inline;
-          margin-left: 1%;
-          margin-right: 1%;
+        .o-cf-iconset {
+          border: 1px solid #dadce0;
+          border-radius: 4px;
+          display: inline-flex;
+          padding: 5px 8px;
+          width: 25%;
+          cursor: pointer;
+          justify-content: space-between;
+          .o-cf-icon {
+            display: inline;
+            margin-left: 1%;
+            margin-right: 1%;
+          }
+          svg {
+            vertical-align: baseline;
+          }
         }
-        svg {
-          vertical-align: baseline;
+        .o-cf-iconset:hover {
+          background-color: rgba(0, 0, 0, 0.08);
         }
       }
-      .o-cf-iconset:hover {
-        background-color: rgba(0, 0, 0, 0.08);
+      .o-inflection {
+        .o-cf-icon-button {
+          display: inline-block;
+          border: 1px solid #dadce0;
+          border-radius: 4px;
+          cursor: pointer;
+          padding: 1px 2px;
+        }
+        .o-cf-icon-button:hover {
+          background-color: rgba(0, 0, 0, 0.08);
+        }
+        table {
+          table-layout: fixed;
+          margin-top: 2%;
+          display: table;
+          text-align: left;
+          font-size: 12px;
+          line-height: 18px;
+          width: 100%;
+        }
+        th.o-cf-iconset-icons {
+          width: 8%;
+        }
+        th.o-cf-iconset-text {
+          width: 28%;
+        }
+        th.o-cf-iconset-operator {
+          width: 14%;
+        }
+        th.o-cf-iconset-type {
+          width: 28%;
+        }
+        th.o-cf-iconset-value {
+          width: 26%;
+        }
+        input,
+        select {
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+        }
       }
-    }
-    .o-inflection {
-      .o-cf-icon-button {
-        display: inline-block;
-        border: 1px solid #dadce0;
-        border-radius: 4px;
-        cursor: pointer;
-        padding: 1px 2px;
-      }
-      .o-cf-icon-button:hover {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-      table {
-        table-layout: fixed;
+      .o-cf-iconset-reverse {
+        margin-bottom: 2%;
         margin-top: 2%;
-        display: table;
-        text-align: left;
-        font-size: 12px;
-        line-height: 18px;
-        width: 100%;
-      }
-      th.o-cf-iconset-icons {
-        width: 8%;
-      }
-      th.o-cf-iconset-text {
-        width: 28%;
-      }
-      th.o-cf-iconset-operator {
-        width: 14%;
-      }
-      th.o-cf-iconset-type {
-        width: 28%;
-      }
-      th.o-cf-iconset-value {
-        width: 26%;
-      }
-      input,
-      select {
-        width: 100%;
-        height: 100%;
-        box-sizing: border-box;
+        .o-cf-label {
+          display: inline-block;
+          vertical-align: bottom;
+          margin-bottom: 2px;
+        }
       }
     }
-    .o-cf-iconset-reverse {
-      margin-bottom: 2%;
-      margin-top: 2%;
-      .o-cf-label {
-        display: inline-block;
-        vertical-align: bottom;
-        margin-bottom: 2px;
-      }
-    }
-  }
-`;
+  `;
     class ConditionalFormattingPanel extends owl.Component {
         constructor() {
             super(...arguments);
@@ -8665,7 +9315,7 @@
             return this.env.model.getters.getConditionalFormats(this.env.model.getters.getActiveSheetId());
         }
         get isRangeValid() {
-            return this.state.errors.includes(22 /* CommandResult.EmptyRange */);
+            return this.state.errors.includes(24 /* CommandResult.EmptyRange */);
         }
         errorMessage(error) {
             return CfTerms.Errors[error] || CfTerms.Errors.Unexpected;
@@ -8688,10 +9338,10 @@
                 const color = rule.style.textColor || "none";
                 const backgroundColor = rule.style.fillColor || "none";
                 return `font-weight:${fontWeight};
-               text-decoration:${fontDecoration};
-               font-style:${fontStyle};
-               color:${color};
-               background-color:${backgroundColor};`;
+                 text-decoration:${fontDecoration};
+                 font-style:${fontStyle};
+                 color:${color};
+                 background-color:${backgroundColor};`;
             }
             else if (rule.type === "ColorScaleRule") {
                 const minColor = colorNumberString(rule.minimum.color);
@@ -8727,7 +9377,7 @@
             if (this.state.currentCF) {
                 const invalidRanges = this.state.currentCF.ranges.some((xc) => !xc.match(rangeReference));
                 if (invalidRanges) {
-                    this.state.errors = [23 /* CommandResult.InvalidRange */];
+                    this.state.errors = [25 /* CommandResult.InvalidRange */];
                     return;
                 }
                 const sheetId = this.env.model.getters.getActiveSheetId();
@@ -8883,11 +9533,11 @@
          ****************************************************************************/
         get isValue1Invalid() {
             var _a;
-            return !!((_a = this.state.errors) === null || _a === void 0 ? void 0 : _a.includes(48 /* CommandResult.FirstArgMissing */));
+            return !!((_a = this.state.errors) === null || _a === void 0 ? void 0 : _a.includes(50 /* CommandResult.FirstArgMissing */));
         }
         get isValue2Invalid() {
             var _a;
-            return !!((_a = this.state.errors) === null || _a === void 0 ? void 0 : _a.includes(49 /* CommandResult.SecondArgMissing */));
+            return !!((_a = this.state.errors) === null || _a === void 0 ? void 0 : _a.includes(51 /* CommandResult.SecondArgMissing */));
         }
         toggleStyle(tool) {
             const style = this.state.rules.cellIs.style;
@@ -8904,17 +9554,17 @@
         isValueInvalid(threshold) {
             switch (threshold) {
                 case "minimum":
-                    return (this.state.errors.includes(55 /* CommandResult.MinInvalidFormula */) ||
-                        this.state.errors.includes(47 /* CommandResult.MinBiggerThanMid */) ||
-                        this.state.errors.includes(44 /* CommandResult.MinBiggerThanMax */) ||
-                        this.state.errors.includes(50 /* CommandResult.MinNaN */));
+                    return (this.state.errors.includes(57 /* CommandResult.MinInvalidFormula */) ||
+                        this.state.errors.includes(49 /* CommandResult.MinBiggerThanMid */) ||
+                        this.state.errors.includes(46 /* CommandResult.MinBiggerThanMax */) ||
+                        this.state.errors.includes(52 /* CommandResult.MinNaN */));
                 case "midpoint":
-                    return (this.state.errors.includes(56 /* CommandResult.MidInvalidFormula */) ||
-                        this.state.errors.includes(51 /* CommandResult.MidNaN */) ||
-                        this.state.errors.includes(46 /* CommandResult.MidBiggerThanMax */));
+                    return (this.state.errors.includes(58 /* CommandResult.MidInvalidFormula */) ||
+                        this.state.errors.includes(53 /* CommandResult.MidNaN */) ||
+                        this.state.errors.includes(48 /* CommandResult.MidBiggerThanMax */));
                 case "maximum":
-                    return (this.state.errors.includes(57 /* CommandResult.MaxInvalidFormula */) ||
-                        this.state.errors.includes(52 /* CommandResult.MaxNaN */));
+                    return (this.state.errors.includes(59 /* CommandResult.MaxInvalidFormula */) ||
+                        this.state.errors.includes(54 /* CommandResult.MaxNaN */));
                 default:
                     return false;
             }
@@ -8963,13 +9613,13 @@
         isInflectionPointInvalid(inflectionPoint) {
             switch (inflectionPoint) {
                 case "lowerInflectionPoint":
-                    return (this.state.errors.includes(54 /* CommandResult.ValueLowerInflectionNaN */) ||
-                        this.state.errors.includes(59 /* CommandResult.ValueLowerInvalidFormula */) ||
-                        this.state.errors.includes(45 /* CommandResult.LowerBiggerThanUpper */));
+                    return (this.state.errors.includes(56 /* CommandResult.ValueLowerInflectionNaN */) ||
+                        this.state.errors.includes(61 /* CommandResult.ValueLowerInvalidFormula */) ||
+                        this.state.errors.includes(47 /* CommandResult.LowerBiggerThanUpper */));
                 case "upperInflectionPoint":
-                    return (this.state.errors.includes(53 /* CommandResult.ValueUpperInflectionNaN */) ||
-                        this.state.errors.includes(58 /* CommandResult.ValueUpperInvalidFormula */) ||
-                        this.state.errors.includes(45 /* CommandResult.LowerBiggerThanUpper */));
+                    return (this.state.errors.includes(55 /* CommandResult.ValueUpperInflectionNaN */) ||
+                        this.state.errors.includes(60 /* CommandResult.ValueUpperInvalidFormula */) ||
+                        this.state.errors.includes(47 /* CommandResult.LowerBiggerThanUpper */));
                 default:
                     return true;
             }
@@ -8992,14 +9642,14 @@
     }
     ConditionalFormattingPanel.template = "o-spreadsheet-ConditionalFormattingPanel";
     ConditionalFormattingPanel.components = { SelectionInput, IconPicker, ColorPicker };
-
+  
     css /* scss */ `
-  .o-custom-currency {
-    .o-format-proposals {
-      color: black;
+    .o-custom-currency {
+      .o-format-proposals {
+        color: black;
+      }
     }
-  }
-`;
+  `;
     class CustomCurrencyPanel extends owl.Component {
         setup() {
             this.availableCurrencies = [];
@@ -9131,41 +9781,41 @@
         }
     }
     CustomCurrencyPanel.template = "o-spreadsheet-CustomCurrencyPanel";
-
+  
     css /* scss */ `
-  .o-find-and-replace {
-    .o-far-item {
-      display: block;
-      .o-far-checkbox {
-        display: inline-block;
-        .o-far-input {
-          vertical-align: middle;
+    .o-find-and-replace {
+      .o-far-item {
+        display: block;
+        .o-far-checkbox {
+          display: inline-block;
+          .o-far-input {
+            vertical-align: middle;
+          }
+          .o-far-label {
+            position: relative;
+            top: 1.5px;
+            padding-left: 4px;
+          }
         }
-        .o-far-label {
-          position: relative;
-          top: 1.5px;
-          padding-left: 4px;
+      }
+      outline: none;
+      height: 100%;
+      .o-input-search-container {
+        display: flex;
+        .o-input-with-count {
+          flex-grow: 1;
+          width: auto;
+        }
+        .o-input-without-count {
+          width: 100%;
+        }
+        .o-input-count {
+          width: fit-content;
+          padding: 4 0 4 4;
         }
       }
     }
-    outline: none;
-    height: 100%;
-    .o-input-search-container {
-      display: flex;
-      .o-input-with-count {
-        flex-grow: 1;
-        width: auto;
-      }
-      .o-input-without-count {
-        width: 100%;
-      }
-      .o-input-count {
-        width: fit-content;
-        padding: 4 0 4 4;
-      }
-    }
-  }
-`;
+  `;
     class FindAndReplacePanel extends owl.Component {
         constructor() {
             super(...arguments);
@@ -9217,12 +9867,10 @@
             this.env.model.dispatch("SELECT_SEARCH_NEXT_MATCH");
         }
         updateSearch() {
-            if (this.state.toSearch) {
-                this.env.model.dispatch("UPDATE_SEARCH", {
-                    toSearch: this.state.toSearch,
-                    searchOptions: this.state.searchOptions,
-                });
-            }
+            this.env.model.dispatch("UPDATE_SEARCH", {
+                toSearch: this.state.toSearch,
+                searchOptions: this.state.searchOptions,
+            });
         }
         debouncedUpdateSearch() {
             clearTimeout(this.inDebounce);
@@ -9261,7 +9909,7 @@
         }
     }
     FindAndReplacePanel.template = "o-spreadsheet-FindAndReplacePanel";
-
+  
     const sidePanelRegistry = new Registry();
     sidePanelRegistry.add("ConditionalFormatting", {
         title: _lt("Conditional formatting"),
@@ -9279,7 +9927,7 @@
         title: _lt("Custom currency format"),
         Body: CustomCurrencyPanel,
     });
-
+  
     class TopBarComponentRegistry extends Registry {
         constructor() {
             super(...arguments);
@@ -9292,7 +9940,7 @@
         }
     }
     const topbarComponentRegistry = new TopBarComponentRegistry();
-
+  
     /* Sizes of boxes containing the texts, in percentage of the Chart size */
     const TITLE_FONT_SIZE = 18;
     const BASELINE_BOX_HEIGHT_RATIO = 0.35;
@@ -9307,93 +9955,86 @@
      */
     const LINE_HEIGHT = 1.2;
     css /* scss */ `
-  div.o-scorecard {
-    user-select: none;
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-
-    .o-scorecard-content {
+    div.o-scorecard {
+      user-select: none;
+      background-color: white;
       display: flex;
       flex-direction: column;
-      height: 100%;
-      justify-content: center;
-      text-align: center;
-    }
-
-    .o-title-text {
-      text-align: left;
-      height: ${LINE_HEIGHT + "em"};
-      line-height: ${LINE_HEIGHT + "em"};
-      overflow: hidden;
-      white-space: nowrap;
-    }
-
-    .o-key-text {
-      line-height: ${LINE_HEIGHT + "em"};
-      height: ${LINE_HEIGHT + "em"};
-      overflow: hidden;
-      white-space: nowrap;
-    }
-
-    .o-cf-icon {
-      display: inline-block;
-      width: 0.65em;
-      height: 1em;
-      line-height: 1em;
-      padding-bottom: 0.07em;
-      padding-right: 3px;
-    }
-
-    .o-baseline-text {
-      line-height: ${LINE_HEIGHT + "em"};
-      height: ${LINE_HEIGHT + "em"};
-      overflow: hidden;
-      white-space: nowrap;
-
-      .o-baseline-text-description {
-        white-space: pre;
+      box-sizing: border-box;
+  
+      .o-scorecard-content {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        justify-content: center;
+        text-align: center;
+      }
+  
+      .o-title-text {
+        text-align: left;
+        height: ${LINE_HEIGHT + "em"};
+        line-height: ${LINE_HEIGHT + "em"};
+        overflow: hidden;
+        white-space: nowrap;
+      }
+  
+      .o-key-text {
+        line-height: ${LINE_HEIGHT + "em"};
+        height: ${LINE_HEIGHT + "em"};
+        overflow: hidden;
+        white-space: nowrap;
+      }
+  
+      .o-cf-icon {
+        display: inline-block;
+        width: 0.65em;
+        height: 1em;
+        line-height: 1em;
+        padding-bottom: 0.07em;
+        padding-right: 3px;
+      }
+  
+      .o-baseline-text {
+        line-height: ${LINE_HEIGHT + "em"};
+        height: ${LINE_HEIGHT + "em"};
+        overflow: hidden;
+        white-space: nowrap;
+  
+        .o-baseline-text-description {
+          white-space: pre;
+        }
       }
     }
-  }
-`;
+  `;
     class ScorecardChart extends owl.Component {
         constructor() {
             super(...arguments);
             this.ctx = document.createElement("canvas").getContext("2d");
         }
         get runtime() {
-            return this.env.model.getters.getChartRuntime(this.props.figure.id);
+            return this.env.model.getters.getChartRuntime(this.env.model.getters.getActiveSheetId(), this.props.figure.id);
         }
         get title() {
-            var _a;
-            return ((_a = this.runtime) === null || _a === void 0 ? void 0 : _a.title) || "";
+            return this.runtime.title;
         }
         get keyValue() {
-            var _a;
-            return ((_a = this.runtime) === null || _a === void 0 ? void 0 : _a.keyValue) || "";
+            return this.runtime.keyValue;
         }
         get baseline() {
-            var _a;
-            return ((_a = this.runtime) === null || _a === void 0 ? void 0 : _a.baselineDisplay) || "";
+            return this.runtime.baselineDisplay;
         }
         get baselineDescr() {
-            var _a;
-            const baselineDescr = ((_a = this.runtime) === null || _a === void 0 ? void 0 : _a.baselineDescr) || "";
+            const baselineDescr = this.runtime.baselineDescr || "";
             return this.baseline && baselineDescr ? " " + baselineDescr : baselineDescr;
         }
         get baselineArrowDirection() {
-            var _a;
-            return ((_a = this.runtime) === null || _a === void 0 ? void 0 : _a.baselineArrow) || "neutral";
+            return this.runtime.baselineArrow;
         }
         get backgroundColor() {
-            var _a;
-            return ((_a = this.runtime) === null || _a === void 0 ? void 0 : _a.background) || "#ffffff";
+            return this.runtime.background;
         }
         get primaryFontColor() {
-            var _a;
-            return ((_a = this.runtime) === null || _a === void 0 ? void 0 : _a.fontColor) || "#000000";
+            return this.runtime.fontColor;
         }
         get secondaryFontColor() {
             return relativeLuminance(this.primaryFontColor) <= 0.3 ? "#757575" : "#bbbbbb";
@@ -9403,24 +10044,22 @@
         }
         get chartStyle() {
             return `
-      height:${this.figure.height}px;
-      width:${this.figure.width}px;
-      padding:${this.chartPadding}px;
-      background:${this.backgroundColor};
-    `;
+        padding:${this.chartPadding}px;
+        background:${this.backgroundColor};
+      `;
         }
         get chartContentStyle() {
             return `
-      height:${this.getDrawableHeight()}px;
-    `;
+        height:${this.getDrawableHeight()}px;
+      `;
         }
         get chartPadding() {
-            return this.figure.width * CHART_PADDING_RATIO;
+            return this.props.figure.width * CHART_PADDING_RATIO;
         }
         getTextStyles() {
             var _a, _b, _c;
             // If the widest text overflows horizontally, scale it down, and apply the same scaling factors to all the other fonts.
-            const maxLineWidth = this.figure.width * (1 - 2 * CHART_PADDING_RATIO);
+            const maxLineWidth = this.props.figure.width * (1 - 2 * CHART_PADDING_RATIO);
             const widestElement = this.getWidestElement();
             const baseFontSize = widestElement.getElementMaxFontSize(this.getDrawableHeight(), this);
             const fontSizeMatchingWidth = getFontSizeMatchingWidth(maxLineWidth, baseFontSize, (fontSize) => widestElement.getElementWidth(fontSize, this.ctx, this));
@@ -9465,7 +10104,7 @@
         /** Get the height of the chart minus all the vertical paddings */
         getDrawableHeight() {
             const verticalPadding = 2 * this.chartPadding;
-            let availableHeight = this.figure.height - verticalPadding;
+            let availableHeight = this.props.figure.height - verticalPadding;
             availableHeight -= this.title ? TITLE_FONT_SIZE * LINE_HEIGHT : 0;
             return availableHeight;
         }
@@ -9519,36 +10158,36 @@
         }
     }
     chartComponentRegistry.add("scorecard", ScorecardChart);
-
+  
     // -----------------------------------------------------------------------------
     // STYLE
     // -----------------------------------------------------------------------------
     css /* scss */ `
-  .o-chart-container {
-    width: 100%;
-    height: 100%;
-    position: relative;
-
-    .o-chart-menu {
-      right: 0px;
-      display: none;
-      position: absolute;
-      padding: 5px;
-    }
-
-    .o-chart-menu-item {
-      cursor: pointer;
-    }
-  }
-  .o-figure.active:focus,
-  .o-figure:hover {
     .o-chart-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+  
       .o-chart-menu {
-        display: flex;
+        right: 0px;
+        display: none;
+        position: absolute;
+        padding: 5px;
+      }
+  
+      .o-chart-menu-item {
+        cursor: pointer;
       }
     }
-  }
-`;
+    .o-figure.active:focus,
+    .o-figure:hover {
+      .o-chart-container {
+        .o-chart-menu {
+          display: flex;
+        }
+      }
+    }
+  `;
     class ChartFigure extends owl.Component {
         constructor() {
             super(...arguments);
@@ -9603,7 +10242,7 @@
             return registry;
         }
         get chartType() {
-            return this.env.model.getters.getChartType(this.props.figure.id);
+            return this.env.model.getters.getChartType(this.env.model.getters.getActiveSheetId(), this.props.figure.id);
         }
         onContextMenu(ev) {
             const position = {
@@ -9636,7 +10275,7 @@
     }
     ChartFigure.template = "o-spreadsheet-ChartFigure";
     ChartFigure.components = { Menu };
-
+  
     function startDnd(onMouseMove, onMouseUp, onMouseDown = () => { }) {
         const _onMouseUp = (ev) => {
             onMouseUp(ev);
@@ -9689,7 +10328,7 @@
             }
             const { x: offsetCorrectionX, y: offsetCorrectionY } = getters.getMainViewportCoordinates();
             let { top, left, bottom, right } = getters.getActiveMainViewport();
-            let { offsetScrollbarX: offsetX, offsetScrollbarY: offsetY } = getters.getActiveSheetScrollInfo();
+            let { scrollX, scrollY } = getters.getActiveSheetDOMScrollInfo();
             const { xSplit, ySplit } = getters.getPaneDivisions(sheetId);
             let canEdgeScroll = false;
             let timeoutDelay = MAX_DELAY;
@@ -9713,10 +10352,13 @@
                             break;
                         case -1:
                             colIndex = left - 1;
-                            newTarget = left - 1;
+                            while (env.model.getters.isColHidden(sheetId, colIndex)) {
+                                colIndex--;
+                            }
+                            newTarget = colIndex;
                             break;
                     }
-                    offsetX = getters.getColDimensions(sheetId, newTarget).start - offsetCorrectionX;
+                    scrollX = getters.getColDimensions(sheetId, newTarget).start - offsetCorrectionX;
                 }
             }
             const y = currentEv.clientY - position.top;
@@ -9739,15 +10381,26 @@
                             break;
                         case -1:
                             rowIndex = top - 1;
-                            newTarget = top + edgeScrollInfoY.direction;
+                            while (env.model.getters.isRowHidden(sheetId, rowIndex)) {
+                                rowIndex--;
+                            }
+                            newTarget = rowIndex;
                             break;
                     }
-                    offsetY = env.model.getters.getRowDimensions(sheetId, newTarget).start - offsetCorrectionY;
+                    scrollY = env.model.getters.getRowDimensions(sheetId, newTarget).start - offsetCorrectionY;
+                }
+            }
+            if (!canEdgeScroll) {
+                if (rowIndex === -1) {
+                    rowIndex = y < 0 ? 0 : getters.getNumberRows(sheetId) - 1;
+                }
+                if (colIndex === -1 && x < 0) {
+                    colIndex = x < 0 ? 0 : getters.getNumberCols(sheetId) - 1;
                 }
             }
             cbMouseMove(colIndex, rowIndex, currentEv);
             if (canEdgeScroll) {
-                env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
+                env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: scrollX, offsetY: scrollY });
                 timeOutId = setTimeout(() => {
                     timeOutId = null;
                     onMouseMove(currentEv);
@@ -9761,39 +10414,39 @@
         };
         startDnd(onMouseMove, onMouseUp, onMouseDown);
     }
-
+  
     // -----------------------------------------------------------------------------
     // Autofill
     // -----------------------------------------------------------------------------
     css /* scss */ `
-  .o-autofill {
-    height: 6px;
-    width: 6px;
-    border: 1px solid white;
-    position: absolute;
-    background-color: #1a73e8;
-
-    .o-autofill-handler {
+    .o-autofill {
+      height: 6px;
+      width: 6px;
+      border: 1px solid white;
       position: absolute;
-      height: ${AUTOFILL_EDGE_LENGTH}px;
-      width: ${AUTOFILL_EDGE_LENGTH}px;
-
-      &:hover {
-        cursor: crosshair;
+      background-color: #1a73e8;
+  
+      .o-autofill-handler {
+        position: absolute;
+        height: ${AUTOFILL_EDGE_LENGTH}px;
+        width: ${AUTOFILL_EDGE_LENGTH}px;
+  
+        &:hover {
+          cursor: crosshair;
+        }
+      }
+  
+      .o-autofill-nextvalue {
+        position: absolute;
+        background-color: #ffffff;
+        border: 1px solid black;
+        padding: 5px;
+        font-size: 12px;
+        pointer-events: none;
+        white-space: nowrap;
       }
     }
-
-    .o-autofill-nextvalue {
-      position: absolute;
-      background-color: #ffffff;
-      border: 1px solid black;
-      padding: 5px;
-      font-size: 12px;
-      pointer-events: none;
-      white-space: nowrap;
-    }
-  }
-`;
+  `;
     class Autofill extends owl.Component {
         constructor() {
             super(...arguments);
@@ -9824,10 +10477,10 @@
         onMouseDown(ev) {
             this.state.handler = true;
             this.state.position = { left: 0, top: 0 };
-            const { offsetY, offsetX } = this.env.model.getters.getActiveSheetScrollInfo();
+            const { scrollY, scrollX } = this.env.model.getters.getActiveSheetScrollInfo();
             const start = {
-                left: ev.clientX + offsetX,
-                top: ev.clientY + offsetY,
+                left: ev.clientX + scrollX,
+                top: ev.clientY + scrollY,
             };
             let lastCol;
             let lastRow;
@@ -9837,10 +10490,10 @@
             };
             const onMouseMove = (ev) => {
                 const position = gridOverlayPosition();
-                const { offsetY, offsetX } = this.env.model.getters.getActiveSheetScrollInfo();
+                const { scrollY, scrollX } = this.env.model.getters.getActiveSheetScrollInfo();
                 this.state.position = {
-                    left: ev.clientX - start.left + offsetX,
-                    top: ev.clientY - start.top + offsetY,
+                    left: ev.clientX - start.left + scrollX,
+                    top: ev.clientY - start.top + scrollY,
                 };
                 const col = this.env.model.getters.getColIndex(ev.clientX - position.left);
                 const row = this.env.model.getters.getRowIndex(ev.clientY - position.top);
@@ -9865,20 +10518,20 @@
     class TooltipComponent extends owl.Component {
     }
     TooltipComponent.template = owl.xml /* xml */ `
-    <div t-esc="props.content"/>
-  `;
-
+      <div t-esc="props.content"/>
+    `;
+  
     css /* scss */ `
-  .o-client-tag {
-    position: absolute;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-    font-size: ${DEFAULT_FONT_SIZE};
-    color: white;
-    opacity: 0;
-    pointer-events: none;
-  }
-`;
+    .o-client-tag {
+      position: absolute;
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+      font-size: ${DEFAULT_FONT_SIZE};
+      color: white;
+      opacity: 0;
+      pointer-events: none;
+    }
+  `;
     class ClientTag extends owl.Component {
         get tagStyle() {
             const { col, row, color } = this.props;
@@ -9893,7 +10546,7 @@
         }
     }
     ClientTag.template = "o-spreadsheet-ClientTag";
-
+  
     //------------------------------------------------------------------------------
     // Arg description DSL
     //------------------------------------------------------------------------------
@@ -10070,7 +10723,7 @@
             previousArgDefault = current.default;
         }
     }
-
+  
     // HELPERS
     const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
     function assert(condition, message) {
@@ -10494,7 +11147,7 @@
             currentVal = getValueInData(data, currentIndex);
             currentType = typeof currentVal;
             // 1 - linear search to find value with the same type
-            while (indexLeft <= currentIndex && targetType !== currentType) {
+            while (indexLeft < currentIndex && targetType !== currentType) {
                 currentIndex--;
                 currentVal = getValueInData(data, currentIndex);
                 currentType = typeof currentVal;
@@ -10555,7 +11208,7 @@
      * @param numberOfValues the number of elements to consider in the search array.
      * @param getValueInData function returning the element at index i in the search array.
      * @param reverseSearch if true, search in the array starting from the end.
-
+  
      */
     function linearSearch(data, target, mode, numberOfValues, getValueInData, reverseSearch = false) {
         if (target === null || target === undefined)
@@ -10602,16 +11255,16 @@
         }
         return typeOrder;
     }
-
+  
     // -----------------------------------------------------------------------------
     // FORMAT.LARGE.NUMBER
     // -----------------------------------------------------------------------------
     const FORMAT_LARGE_NUMBER = {
         description: _lt(`Apply a large number format`),
         args: args(`
-      value (number) ${_lt("The number.")}
-      unit (string, optional) ${_lt("The formatting unit. Use 'k', 'm', or 'b' to force the unit")}
-    `),
+        value (number) ${_lt("The number.")}
+        unit (string, optional) ${_lt("The formatting unit. Use 'k', 'm', or 'b' to force the unit")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (arg, unit) => {
             const value = Math.abs(toNumber(arg.value));
@@ -10644,12 +11297,12 @@
             return toNumber(value);
         },
     };
-
+  
     var misc$1 = /*#__PURE__*/Object.freeze({
-        __proto__: null,
-        FORMAT_LARGE_NUMBER: FORMAT_LARGE_NUMBER
+      __proto__: null,
+      FORMAT_LARGE_NUMBER: FORMAT_LARGE_NUMBER
     });
-
+  
     const DEFAULT_FACTOR = 1;
     const DEFAULT_MODE = 0;
     const DEFAULT_PLACES = 0;
@@ -10660,8 +11313,8 @@
     const ABS = {
         description: _lt("Absolute value of a number."),
         args: args(`
-    value (number) ${_lt("The number of which to return the absolute value.")}
-  `),
+      value (number) ${_lt("The number of which to return the absolute value.")}
+    `),
         returns: ["NUMBER"],
         compute: function (value) {
             return Math.abs(toNumber(value));
@@ -10674,8 +11327,8 @@
     const ACOS = {
         description: _lt("Inverse cosine of a value, in radians."),
         args: args(`
-    value (number) ${_lt("The value for which to calculate the inverse cosine. Must be between -1 and 1, inclusive.")}
-  `),
+      value (number) ${_lt("The value for which to calculate the inverse cosine. Must be between -1 and 1, inclusive.")}
+    `),
         returns: ["NUMBER"],
         compute: function (value) {
             const _value = toNumber(value);
@@ -10690,8 +11343,8 @@
     const ACOSH = {
         description: _lt("Inverse hyperbolic cosine of a number."),
         args: args(`
-    value (number) ${_lt("The value for which to calculate the inverse hyperbolic cosine. Must be greater than or equal to 1.")}
-  `),
+      value (number) ${_lt("The value for which to calculate the inverse hyperbolic cosine. Must be greater than or equal to 1.")}
+    `),
         returns: ["NUMBER"],
         compute: function (value) {
             const _value = toNumber(value);
@@ -10706,8 +11359,8 @@
     const ACOT = {
         description: _lt("Inverse cotangent of a value."),
         args: args(`
-    value (number) ${_lt("The value for which to calculate the inverse cotangent.")}
-  `),
+      value (number) ${_lt("The value for which to calculate the inverse cotangent.")}
+    `),
         returns: ["NUMBER"],
         compute: function (value) {
             const _value = toNumber(value);
@@ -10725,8 +11378,8 @@
     const ACOTH = {
         description: _lt("Inverse hyperbolic cotangent of a value."),
         args: args(`
-    value (number) ${_lt("The value for which to calculate the inverse hyperbolic cotangent. Must not be between -1 and 1, inclusive.")}
-  `),
+      value (number) ${_lt("The value for which to calculate the inverse hyperbolic cotangent. Must not be between -1 and 1, inclusive.")}
+    `),
         returns: ["NUMBER"],
         compute: function (value) {
             const _value = toNumber(value);
@@ -10741,8 +11394,8 @@
     const ASIN = {
         description: _lt("Inverse sine of a value, in radians."),
         args: args(`
-    value (number) ${_lt("The value for which to calculate the inverse sine. Must be between -1 and 1, inclusive.")}
-  `),
+      value (number) ${_lt("The value for which to calculate the inverse sine. Must be between -1 and 1, inclusive.")}
+    `),
         returns: ["NUMBER"],
         compute: function (value) {
             const _value = toNumber(value);
@@ -10757,8 +11410,8 @@
     const ASINH = {
         description: _lt("Inverse hyperbolic sine of a number."),
         args: args(`
-    value (number) ${_lt("The value for which to calculate the inverse hyperbolic sine.")}
-  `),
+      value (number) ${_lt("The value for which to calculate the inverse hyperbolic sine.")}
+    `),
         returns: ["NUMBER"],
         compute: function (value) {
             return Math.asinh(toNumber(value));
@@ -10771,8 +11424,8 @@
     const ATAN = {
         description: _lt("Inverse tangent of a value, in radians."),
         args: args(`
-    value (number) ${_lt("The value for which to calculate the inverse tangent.")}
-  `),
+      value (number) ${_lt("The value for which to calculate the inverse tangent.")}
+    `),
         returns: ["NUMBER"],
         compute: function (value) {
             return Math.atan(toNumber(value));
@@ -10785,9 +11438,9 @@
     const ATAN2 = {
         description: _lt("Angle from the X axis to a point (x,y), in radians."),
         args: args(`
-    x (number) ${_lt("The x coordinate of the endpoint of the line segment for which to calculate the angle from the x-axis.")}
-    y (number) ${_lt("The y coordinate of the endpoint of the line segment for which to calculate the angle from the x-axis.")}
-  `),
+      x (number) ${_lt("The x coordinate of the endpoint of the line segment for which to calculate the angle from the x-axis.")}
+      y (number) ${_lt("The y coordinate of the endpoint of the line segment for which to calculate the angle from the x-axis.")}
+    `),
         returns: ["NUMBER"],
         compute: function (x, y) {
             const _x = toNumber(x);
@@ -10803,8 +11456,8 @@
     const ATANH = {
         description: _lt("Inverse hyperbolic tangent of a number."),
         args: args(`
-    value (number) ${_lt("The value for which to calculate the inverse hyperbolic tangent. Must be between -1 and 1, exclusive.")}
-  `),
+      value (number) ${_lt("The value for which to calculate the inverse hyperbolic tangent. Must be between -1 and 1, exclusive.")}
+    `),
         returns: ["NUMBER"],
         compute: function (value) {
             const _value = toNumber(value);
@@ -10819,9 +11472,9 @@
     const CEILING = {
         description: _lt(`Rounds number up to nearest multiple of factor.`),
         args: args(`
-    value (number) ${_lt("The value to round up to the nearest integer multiple of factor.")}
-    factor (number, default=${DEFAULT_FACTOR}) ${_lt("The number to whose multiples value will be rounded.")}
-  `),
+      value (number) ${_lt("The value to round up to the nearest integer multiple of factor.")}
+      factor (number, default=${DEFAULT_FACTOR}) ${_lt("The number to whose multiples value will be rounded.")}
+    `),
         returns: ["NUMBER"],
         computeFormat: (value) => value === null || value === void 0 ? void 0 : value.format,
         compute: function (value, factor = DEFAULT_FACTOR) {
@@ -10838,10 +11491,10 @@
     const CEILING_MATH = {
         description: _lt(`Rounds number up to nearest multiple of factor.`),
         args: args(`
-    number (number) ${_lt("The value to round up to the nearest integer multiple of significance.")}
-    significance (number, default=${DEFAULT_SIGNIFICANCE}) ${_lt("The number to whose multiples number will be rounded. The sign of significance will be ignored.")}
-    mode (number, default=${DEFAULT_MODE}) ${_lt("If number is negative, specifies the rounding direction. If 0 or blank, it is rounded towards zero. Otherwise, it is rounded away from zero.")}
-  `),
+      number (number) ${_lt("The value to round up to the nearest integer multiple of significance.")}
+      significance (number, default=${DEFAULT_SIGNIFICANCE}) ${_lt("The number to whose multiples number will be rounded. The sign of significance will be ignored.")}
+      mode (number, default=${DEFAULT_MODE}) ${_lt("If number is negative, specifies the rounding direction. If 0 or blank, it is rounded towards zero. Otherwise, it is rounded away from zero.")}
+    `),
         returns: ["NUMBER"],
         computeFormat: (number) => number === null || number === void 0 ? void 0 : number.format,
         compute: function (number, significance = DEFAULT_SIGNIFICANCE, mode = DEFAULT_MODE) {
@@ -10868,9 +11521,9 @@
     const CEILING_PRECISE = {
         description: _lt(`Rounds number up to nearest multiple of factor.`),
         args: args(`
-    number (number) ${_lt("The value to round up to the nearest integer multiple of significance.")}
-    significance (number, default=${DEFAULT_SIGNIFICANCE}) ${_lt("The number to whose multiples number will be rounded.")}
-  `),
+      number (number) ${_lt("The value to round up to the nearest integer multiple of significance.")}
+      significance (number, default=${DEFAULT_SIGNIFICANCE}) ${_lt("The number to whose multiples number will be rounded.")}
+    `),
         returns: ["NUMBER"],
         computeFormat: (number) => number === null || number === void 0 ? void 0 : number.format,
         compute: function (number, significance) {
@@ -10884,8 +11537,8 @@
     const COS = {
         description: _lt("Cosine of an angle provided in radians."),
         args: args(`
-    angle (number) ${_lt("The angle to find the cosine of, in radians.")}
-  `),
+      angle (number) ${_lt("The angle to find the cosine of, in radians.")}
+    `),
         returns: ["NUMBER"],
         compute: function (angle) {
             return Math.cos(toNumber(angle));
@@ -10898,8 +11551,8 @@
     const COSH = {
         description: _lt("Hyperbolic cosine of any real number."),
         args: args(`
-    value (number) ${_lt("Any real value to calculate the hyperbolic cosine of.")}
-  `),
+      value (number) ${_lt("Any real value to calculate the hyperbolic cosine of.")}
+    `),
         returns: ["NUMBER"],
         compute: function (value) {
             return Math.cosh(toNumber(value));
@@ -10912,8 +11565,8 @@
     const COT = {
         description: _lt("Cotangent of an angle provided in radians."),
         args: args(`
-    angle (number) ${_lt("The angle to find the cotangent of, in radians.")}
-  `),
+      angle (number) ${_lt("The angle to find the cotangent of, in radians.")}
+    `),
         returns: ["NUMBER"],
         compute: function (angle) {
             const _angle = toNumber(angle);
@@ -10928,8 +11581,8 @@
     const COTH = {
         description: _lt("Hyperbolic cotangent of any real number."),
         args: args(`
-    value (number) ${_lt("Any real value to calculate the hyperbolic cotangent of.")}
-  `),
+      value (number) ${_lt("Any real value to calculate the hyperbolic cotangent of.")}
+    `),
         returns: ["NUMBER"],
         compute: function (value) {
             const _value = toNumber(value);
@@ -10944,9 +11597,9 @@
     const COUNTBLANK = {
         description: _lt("Number of empty values."),
         args: args(`
-    value1 (any, range) ${_lt("The first value or range in which to count the number of blanks.")}
-    value2 (any, range, repeating) ${_lt("Additional values or ranges in which to count the number of blanks.")}
-  `),
+      value1 (any, range) ${_lt("The first value or range in which to count the number of blanks.")}
+      value2 (any, range, repeating) ${_lt("Additional values or ranges in which to count the number of blanks.")}
+    `),
         returns: ["NUMBER"],
         compute: function (...argsValues) {
             return reduceAny(argsValues, (acc, a) => (a === null || a === undefined || a === "" ? acc + 1 : acc), 0);
@@ -10959,9 +11612,9 @@
     const COUNTIF = {
         description: _lt("A conditional count across a range."),
         args: args(`
-    range (range) ${_lt("The range that is tested against criterion.")}
-    criterion (string) ${_lt("The pattern or test to apply to range.")}
-  `),
+      range (range) ${_lt("The range that is tested against criterion.")}
+      criterion (string) ${_lt("The pattern or test to apply to range.")}
+    `),
         returns: ["NUMBER"],
         compute: function (...argsValues) {
             let count = 0;
@@ -10978,11 +11631,11 @@
     const COUNTIFS = {
         description: _lt("Count values depending on multiple criteria."),
         args: args(`
-    criteria_range1 (range) ${_lt("The range to check against criterion1.")}
-    criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1.")}
-    criteria_range2 (any, range, repeating) ${_lt("Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair.")}
-    criterion2 (string, repeating) ${_lt("Additional criteria to check.")}
-  `),
+      criteria_range1 (range) ${_lt("The range to check against criterion1.")}
+      criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1.")}
+      criteria_range2 (any, range, repeating) ${_lt("Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair.")}
+      criterion2 (string, repeating) ${_lt("Additional criteria to check.")}
+    `),
         returns: ["NUMBER"],
         compute: function (...argsValues) {
             let count = 0;
@@ -11011,9 +11664,9 @@
     const COUNTUNIQUE = {
         description: _lt("Counts number of unique values in a range."),
         args: args(`
-    value1 (any, range) ${_lt("The first value or range to consider for uniqueness.")}
-    value2 (any, range, repeating) ${_lt("Additional values or ranges to consider for uniqueness.")}
-  `),
+      value1 (any, range) ${_lt("The first value or range to consider for uniqueness.")}
+      value2 (any, range, repeating) ${_lt("Additional values or ranges to consider for uniqueness.")}
+    `),
         returns: ["NUMBER"],
         compute: function (...argsValues) {
             return reduceAny(argsValues, (acc, a) => (isDefined(a) ? acc.add(a) : acc), new Set()).size;
@@ -11025,12 +11678,12 @@
     const COUNTUNIQUEIFS = {
         description: _lt("Counts number of unique values in a range, filtered by a set of criteria."),
         args: args(`
-    range (range) ${_lt("The range of cells from which the number of unique values will be counted.")}
-    criteria_range1 (range) ${_lt("The range of cells over which to evaluate criterion1.")}
-    criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set.")}
-    criteria_range2 (any, range, repeating) ${_lt("Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair.")}
-    criterion2 (string, repeating) ${_lt("The pattern or test to apply to criteria_range2.")}
-  `),
+      range (range) ${_lt("The range of cells from which the number of unique values will be counted.")}
+      criteria_range1 (range) ${_lt("The range of cells over which to evaluate criterion1.")}
+      criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set.")}
+      criteria_range2 (any, range, repeating) ${_lt("Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair.")}
+      criterion2 (string, repeating) ${_lt("The pattern or test to apply to criteria_range2.")}
+    `),
         returns: ["NUMBER"],
         compute: function (range, ...argsValues) {
             let uniqueValues = new Set();
@@ -11049,8 +11702,8 @@
     const CSC = {
         description: _lt("Cosecant of an angle provided in radians."),
         args: args(`
-    angle (number) ${_lt("The angle to find the cosecant of, in radians.")}
-  `),
+      angle (number) ${_lt("The angle to find the cosecant of, in radians.")}
+    `),
         returns: ["NUMBER"],
         compute: function (angle) {
             const _angle = toNumber(angle);
@@ -11065,8 +11718,8 @@
     const CSCH = {
         description: _lt("Hyperbolic cosecant of any real number."),
         args: args(`
-    value (number) ${_lt("Any real value to calculate the hyperbolic cosecant of.")}
-  `),
+      value (number) ${_lt("Any real value to calculate the hyperbolic cosecant of.")}
+    `),
         returns: ["NUMBER"],
         compute: function (value) {
             const _value = toNumber(value);
@@ -11081,9 +11734,9 @@
     const DECIMAL = {
         description: _lt("Converts from another base to decimal."),
         args: args(`
-    value (string) ${_lt("The number to convert.")},
-    base (number) ${_lt("The base to convert the value from.")},
-  `),
+      value (string) ${_lt("The number to convert.")},
+      base (number) ${_lt("The base to convert the value from.")},
+    `),
         returns: ["NUMBER"],
         compute: function (value, base) {
             let _base = toNumber(base);
@@ -11111,8 +11764,8 @@
     const DEGREES = {
         description: _lt(`Converts an angle value in radians to degrees.`),
         args: args(`
-    angle (number)  ${_lt("The angle to convert from radians to degrees.")}
-  `),
+      angle (number)  ${_lt("The angle to convert from radians to degrees.")}
+    `),
         returns: ["NUMBER"],
         compute: function (angle) {
             return (toNumber(angle) * 180) / Math.PI;
@@ -11125,8 +11778,8 @@
     const EXP = {
         description: _lt(`Euler's number, e (~2.718) raised to a power.`),
         args: args(`
-    value (number) ${_lt("The exponent to raise e.")}
-  `),
+      value (number) ${_lt("The exponent to raise e.")}
+    `),
         returns: ["NUMBER"],
         compute: function (value) {
             return Math.exp(toNumber(value));
@@ -11139,9 +11792,9 @@
     const FLOOR = {
         description: _lt(`Rounds number down to nearest multiple of factor.`),
         args: args(`
-    value (number) ${_lt("The value to round down to the nearest integer multiple of factor.")}
-    factor (number, default=${DEFAULT_FACTOR}) ${_lt("The number to whose multiples value will be rounded.")}
-  `),
+      value (number) ${_lt("The value to round down to the nearest integer multiple of factor.")}
+      factor (number, default=${DEFAULT_FACTOR}) ${_lt("The number to whose multiples value will be rounded.")}
+    `),
         returns: ["NUMBER"],
         computeFormat: (value) => value === null || value === void 0 ? void 0 : value.format,
         compute: function (value, factor = DEFAULT_FACTOR) {
@@ -11158,10 +11811,10 @@
     const FLOOR_MATH = {
         description: _lt(`Rounds number down to nearest multiple of factor.`),
         args: args(`
-    number (number) ${_lt("The value to round down to the nearest integer multiple of significance.")}
-    significance (number, default=${DEFAULT_SIGNIFICANCE}) ${_lt("The number to whose multiples number will be rounded. The sign of significance will be ignored.")}
-    mode (number, default=${DEFAULT_MODE}) ${_lt("If number is negative, specifies the rounding direction. If 0 or blank, it is rounded away from zero. Otherwise, it is rounded towards zero.")}
-  `),
+      number (number) ${_lt("The value to round down to the nearest integer multiple of significance.")}
+      significance (number, default=${DEFAULT_SIGNIFICANCE}) ${_lt("The number to whose multiples number will be rounded. The sign of significance will be ignored.")}
+      mode (number, default=${DEFAULT_MODE}) ${_lt("If number is negative, specifies the rounding direction. If 0 or blank, it is rounded away from zero. Otherwise, it is rounded towards zero.")}
+    `),
         returns: ["NUMBER"],
         computeFormat: (number) => number === null || number === void 0 ? void 0 : number.format,
         compute: function (number, significance = DEFAULT_SIGNIFICANCE, mode = DEFAULT_MODE) {
@@ -11188,9 +11841,9 @@
     const FLOOR_PRECISE = {
         description: _lt(`Rounds number down to nearest multiple of factor.`),
         args: args(`
-    number (number) ${_lt("The value to round down to the nearest integer multiple of significance.")}
-    significance (number, default=${DEFAULT_SIGNIFICANCE}) ${_lt("The number to whose multiples number will be rounded.")}
-  `),
+      number (number) ${_lt("The value to round down to the nearest integer multiple of significance.")}
+      significance (number, default=${DEFAULT_SIGNIFICANCE}) ${_lt("The number to whose multiples number will be rounded.")}
+    `),
         returns: ["NUMBER"],
         computeFormat: (number) => number === null || number === void 0 ? void 0 : number.format,
         compute: function (number, significance = DEFAULT_SIGNIFICANCE) {
@@ -11204,8 +11857,8 @@
     const ISEVEN = {
         description: _lt(`Whether the provided value is even.`),
         args: args(`
-    value (number) ${_lt("The value to be verified as even.")}
-  `),
+      value (number) ${_lt("The value to be verified as even.")}
+    `),
         returns: ["BOOLEAN"],
         compute: function (value) {
             const _value = strictToNumber(value);
@@ -11219,9 +11872,9 @@
     const ISO_CEILING = {
         description: _lt(`Rounds number up to nearest multiple of factor.`),
         args: args(`
-      number (number) ${_lt("The value to round up to the nearest integer multiple of significance.")}
-      significance (number, default=${DEFAULT_SIGNIFICANCE}) ${_lt("The number to whose multiples number will be rounded.")}
-    `),
+        number (number) ${_lt("The value to round up to the nearest integer multiple of significance.")}
+        significance (number, default=${DEFAULT_SIGNIFICANCE}) ${_lt("The number to whose multiples number will be rounded.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (number) => number === null || number === void 0 ? void 0 : number.format,
         compute: function (number, significance = DEFAULT_SIGNIFICANCE) {
@@ -11235,8 +11888,8 @@
     const ISODD = {
         description: _lt(`Whether the provided value is even.`),
         args: args(`
-    value (number) ${_lt("The value to be verified as even.")}
-  `),
+      value (number) ${_lt("The value to be verified as even.")}
+    `),
         returns: ["BOOLEAN"],
         compute: function (value) {
             const _value = strictToNumber(value);
@@ -11250,8 +11903,8 @@
     const LN = {
         description: _lt(`The logarithm of a number, base e (euler's number).`),
         args: args(`
-    value (number) ${_lt("The value for which to calculate the logarithm, base e.")}
-  `),
+      value (number) ${_lt("The value for which to calculate the logarithm, base e.")}
+    `),
         returns: ["NUMBER"],
         compute: function (value) {
             const _value = toNumber(value);
@@ -11266,9 +11919,9 @@
     const MOD = {
         description: _lt(`Modulo (remainder) operator.`),
         args: args(`
-      dividend (number) ${_lt("The number to be divided to find the remainder.")}
-      divisor (number) ${_lt("The number to divide by.")}
-    `),
+        dividend (number) ${_lt("The number to be divided to find the remainder.")}
+        divisor (number) ${_lt("The number to divide by.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (dividend) => dividend === null || dividend === void 0 ? void 0 : dividend.format,
         compute: function (dividend, divisor) {
@@ -11290,8 +11943,8 @@
     const ODD = {
         description: _lt(`Rounds a number up to the nearest odd integer.`),
         args: args(`
-      value (number) ${_lt("The value to round to the next greatest odd number.")}
-    `),
+        value (number) ${_lt("The value to round to the next greatest odd number.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (number) => number === null || number === void 0 ? void 0 : number.format,
         compute: function (value) {
@@ -11320,9 +11973,9 @@
     const POWER = {
         description: _lt(`A number raised to a power.`),
         args: args(`
-      base (number) ${_lt("The number to raise to the exponent power.")}
-      exponent (number) ${_lt("The exponent to raise base to.")}
-    `),
+        base (number) ${_lt("The number to raise to the exponent power.")}
+        exponent (number) ${_lt("The exponent to raise base to.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (base) => base === null || base === void 0 ? void 0 : base.format,
         compute: function (base, exponent) {
@@ -11339,9 +11992,9 @@
     const PRODUCT = {
         description: _lt("Result of multiplying a series of numbers together."),
         args: args(`
-      factor1 (number, range<number>) ${_lt("The first number or range to calculate for the product.")}
-      factor2 (number, range<number>, repeating) ${_lt("More numbers or ranges to calculate for the product.")}
-    `),
+        factor1 (number, range<number>) ${_lt("The first number or range to calculate for the product.")}
+        factor2 (number, range<number>, repeating) ${_lt("More numbers or ranges to calculate for the product.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (factor1) => {
             var _a;
@@ -11391,9 +12044,9 @@
     const RANDBETWEEN = {
         description: _lt("Random integer between two values, inclusive."),
         args: args(`
-      low (number) ${_lt("The low end of the random range.")}
-      high (number) ${_lt("The high end of the random range.")}
-    `),
+        low (number) ${_lt("The low end of the random range.")}
+        high (number) ${_lt("The high end of the random range.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (low) => low === null || low === void 0 ? void 0 : low.format,
         compute: function (low, high) {
@@ -11416,9 +12069,9 @@
     const ROUND = {
         description: _lt("Rounds a number according to standard rules."),
         args: args(`
-      value (number) ${_lt("The value to round to places number of places.")}
-      places (number, default=${DEFAULT_PLACES}) ${_lt("The number of decimal places to which to round.")}
-    `),
+        value (number) ${_lt("The value to round to places number of places.")}
+        places (number, default=${DEFAULT_PLACES}) ${_lt("The number of decimal places to which to round.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (value) => value === null || value === void 0 ? void 0 : value.format,
         compute: function (value, places = DEFAULT_PLACES) {
@@ -11445,9 +12098,9 @@
     const ROUNDDOWN = {
         description: _lt(`Rounds down a number.`),
         args: args(`
-      value (number) ${_lt("The value to round to places number of places, always rounding down.")}
-      places (number, default=${DEFAULT_PLACES}) ${_lt("The number of decimal places to which to round.")}
-    `),
+        value (number) ${_lt("The value to round to places number of places, always rounding down.")}
+        places (number, default=${DEFAULT_PLACES}) ${_lt("The number of decimal places to which to round.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (value) => value === null || value === void 0 ? void 0 : value.format,
         compute: function (value, places = DEFAULT_PLACES) {
@@ -11474,9 +12127,9 @@
     const ROUNDUP = {
         description: _lt(`Rounds up a number.`),
         args: args(`
-      value (number) ${_lt("The value to round to places number of places, always rounding up.")}
-      places (number, default=${DEFAULT_PLACES}) ${_lt("The number of decimal places to which to round.")}
-    `),
+        value (number) ${_lt("The value to round to places number of places, always rounding up.")}
+        places (number, default=${DEFAULT_PLACES}) ${_lt("The number of decimal places to which to round.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (value) => value === null || value === void 0 ? void 0 : value.format,
         compute: function (value, places = DEFAULT_PLACES) {
@@ -11503,8 +12156,8 @@
     const SEC = {
         description: _lt("Secant of an angle provided in radians."),
         args: args(`
-    angle (number) ${_lt("The angle to find the secant of, in radians.")}
-  `),
+      angle (number) ${_lt("The angle to find the secant of, in radians.")}
+    `),
         returns: ["NUMBER"],
         compute: function (angle) {
             return 1 / Math.cos(toNumber(angle));
@@ -11517,8 +12170,8 @@
     const SECH = {
         description: _lt("Hyperbolic secant of any real number."),
         args: args(`
-    value (number) ${_lt("Any real value to calculate the hyperbolic secant of.")}
-  `),
+      value (number) ${_lt("Any real value to calculate the hyperbolic secant of.")}
+    `),
         returns: ["NUMBER"],
         compute: function (value) {
             return 1 / Math.cosh(toNumber(value));
@@ -11531,8 +12184,8 @@
     const SIN = {
         description: _lt("Sine of an angle provided in radians."),
         args: args(`
-      angle (number) ${_lt("The angle to find the sine of, in radians.")}
-    `),
+        angle (number) ${_lt("The angle to find the sine of, in radians.")}
+      `),
         returns: ["NUMBER"],
         compute: function (angle) {
             return Math.sin(toNumber(angle));
@@ -11545,8 +12198,8 @@
     const SINH = {
         description: _lt("Hyperbolic sine of any real number."),
         args: args(`
-    value (number) ${_lt("Any real value to calculate the hyperbolic sine of.")}
-  `),
+      value (number) ${_lt("Any real value to calculate the hyperbolic sine of.")}
+    `),
         returns: ["NUMBER"],
         compute: function (value) {
             return Math.sinh(toNumber(value));
@@ -11559,8 +12212,8 @@
     const SQRT = {
         description: _lt("Positive square root of a positive number."),
         args: args(`
-      value (number) ${_lt("The number for which to calculate the positive square root.")}
-    `),
+        value (number) ${_lt("The number for which to calculate the positive square root.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (value) => value === null || value === void 0 ? void 0 : value.format,
         compute: function (value) {
@@ -11576,9 +12229,9 @@
     const SUM = {
         description: _lt("Sum of a series of numbers and/or cells."),
         args: args(`
-      value1 (number, range<number>) ${_lt("The first number or range to add together.")}
-      value2 (number, range<number>, repeating) ${_lt("Additional numbers or ranges to add to value1.")}
-    `),
+        value1 (number, range<number>) ${_lt("The first number or range to add together.")}
+        value2 (number, range<number>, repeating) ${_lt("Additional numbers or ranges to add to value1.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (value1) => {
             var _a;
@@ -11595,10 +12248,10 @@
     const SUMIF = {
         description: _lt("A conditional sum across a range."),
         args: args(`
-      criteria_range (range) ${_lt("The range which is tested against criterion.")}
-      criterion (string) ${_lt("The pattern or test to apply to range.")}
-      sum_range (range, default=criteria_range) ${_lt("The range to be summed, if different from range.")}
-    `),
+        criteria_range (range) ${_lt("The range which is tested against criterion.")}
+        criterion (string) ${_lt("The pattern or test to apply to range.")}
+        sum_range (range, default=criteria_range) ${_lt("The range to be summed, if different from range.")}
+      `),
         returns: ["NUMBER"],
         compute: function (criteriaRange, criterion, sumRange = undefined) {
             if (sumRange === undefined) {
@@ -11621,12 +12274,12 @@
     const SUMIFS = {
         description: _lt("Sums a range depending on multiple criteria."),
         args: args(`
-      sum_range (range) ${_lt("The range to sum.")}
-      criteria_range1 (range) ${_lt("The range to check against criterion1.")}
-      criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1.")}
-      criteria_range2 (any, range, repeating) ${_lt("Additional ranges to check.")}
-      criterion2 (string, repeating) ${_lt("Additional criteria to check.")}
-    `),
+        sum_range (range) ${_lt("The range to sum.")}
+        criteria_range1 (range) ${_lt("The range to check against criterion1.")}
+        criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1.")}
+        criteria_range2 (any, range, repeating) ${_lt("Additional ranges to check.")}
+        criterion2 (string, repeating) ${_lt("Additional criteria to check.")}
+      `),
         returns: ["NUMBER"],
         compute: function (sumRange, ...criters) {
             let sum = 0;
@@ -11646,8 +12299,8 @@
     const TAN = {
         description: _lt("Tangent of an angle provided in radians."),
         args: args(`
-    angle (number) ${_lt("The angle to find the tangent of, in radians.")}
-  `),
+      angle (number) ${_lt("The angle to find the tangent of, in radians.")}
+    `),
         returns: ["NUMBER"],
         compute: function (angle) {
             return Math.tan(toNumber(angle));
@@ -11660,8 +12313,8 @@
     const TANH = {
         description: _lt("Hyperbolic tangent of any real number."),
         args: args(`
-    value (number) ${_lt("Any real value to calculate the hyperbolic tangent of.")}
-  `),
+      value (number) ${_lt("Any real value to calculate the hyperbolic tangent of.")}
+    `),
         returns: ["NUMBER"],
         compute: function (value) {
             return Math.tanh(toNumber(value));
@@ -11674,9 +12327,9 @@
     const TRUNC = {
         description: _lt("Truncates a number."),
         args: args(`
-      value (number) ${_lt("The value to be truncated.")}
-      places (number, default=${DEFAULT_PLACES}) ${_lt("The number of significant digits to the right of the decimal point to retain.")}
-    `),
+        value (number) ${_lt("The value to be truncated.")}
+        places (number, default=${DEFAULT_PLACES}) ${_lt("The number of significant digits to the right of the decimal point to retain.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (value) => value === null || value === void 0 ? void 0 : value.format,
         compute: function (value, places = DEFAULT_PLACES) {
@@ -11692,66 +12345,66 @@
         },
         isExported: true,
     };
-
+  
     var math = /*#__PURE__*/Object.freeze({
-        __proto__: null,
-        ABS: ABS,
-        ACOS: ACOS,
-        ACOSH: ACOSH,
-        ACOT: ACOT,
-        ACOTH: ACOTH,
-        ASIN: ASIN,
-        ASINH: ASINH,
-        ATAN: ATAN,
-        ATAN2: ATAN2,
-        ATANH: ATANH,
-        CEILING: CEILING,
-        CEILING_MATH: CEILING_MATH,
-        CEILING_PRECISE: CEILING_PRECISE,
-        COS: COS,
-        COSH: COSH,
-        COT: COT,
-        COTH: COTH,
-        COUNTBLANK: COUNTBLANK,
-        COUNTIF: COUNTIF,
-        COUNTIFS: COUNTIFS,
-        COUNTUNIQUE: COUNTUNIQUE,
-        COUNTUNIQUEIFS: COUNTUNIQUEIFS,
-        CSC: CSC,
-        CSCH: CSCH,
-        DECIMAL: DECIMAL,
-        DEGREES: DEGREES,
-        EXP: EXP,
-        FLOOR: FLOOR,
-        FLOOR_MATH: FLOOR_MATH,
-        FLOOR_PRECISE: FLOOR_PRECISE,
-        ISEVEN: ISEVEN,
-        ISO_CEILING: ISO_CEILING,
-        ISODD: ISODD,
-        LN: LN,
-        MOD: MOD,
-        ODD: ODD,
-        PI: PI,
-        POWER: POWER,
-        PRODUCT: PRODUCT,
-        RAND: RAND,
-        RANDBETWEEN: RANDBETWEEN,
-        ROUND: ROUND,
-        ROUNDDOWN: ROUNDDOWN,
-        ROUNDUP: ROUNDUP,
-        SEC: SEC,
-        SECH: SECH,
-        SIN: SIN,
-        SINH: SINH,
-        SQRT: SQRT,
-        SUM: SUM,
-        SUMIF: SUMIF,
-        SUMIFS: SUMIFS,
-        TAN: TAN,
-        TANH: TANH,
-        TRUNC: TRUNC
+      __proto__: null,
+      ABS: ABS,
+      ACOS: ACOS,
+      ACOSH: ACOSH,
+      ACOT: ACOT,
+      ACOTH: ACOTH,
+      ASIN: ASIN,
+      ASINH: ASINH,
+      ATAN: ATAN,
+      ATAN2: ATAN2,
+      ATANH: ATANH,
+      CEILING: CEILING,
+      CEILING_MATH: CEILING_MATH,
+      CEILING_PRECISE: CEILING_PRECISE,
+      COS: COS,
+      COSH: COSH,
+      COT: COT,
+      COTH: COTH,
+      COUNTBLANK: COUNTBLANK,
+      COUNTIF: COUNTIF,
+      COUNTIFS: COUNTIFS,
+      COUNTUNIQUE: COUNTUNIQUE,
+      COUNTUNIQUEIFS: COUNTUNIQUEIFS,
+      CSC: CSC,
+      CSCH: CSCH,
+      DECIMAL: DECIMAL,
+      DEGREES: DEGREES,
+      EXP: EXP,
+      FLOOR: FLOOR,
+      FLOOR_MATH: FLOOR_MATH,
+      FLOOR_PRECISE: FLOOR_PRECISE,
+      ISEVEN: ISEVEN,
+      ISO_CEILING: ISO_CEILING,
+      ISODD: ISODD,
+      LN: LN,
+      MOD: MOD,
+      ODD: ODD,
+      PI: PI,
+      POWER: POWER,
+      PRODUCT: PRODUCT,
+      RAND: RAND,
+      RANDBETWEEN: RANDBETWEEN,
+      ROUND: ROUND,
+      ROUNDDOWN: ROUNDDOWN,
+      ROUNDUP: ROUNDUP,
+      SEC: SEC,
+      SECH: SECH,
+      SIN: SIN,
+      SINH: SINH,
+      SQRT: SQRT,
+      SUM: SUM,
+      SUMIF: SUMIF,
+      SUMIFS: SUMIFS,
+      TAN: TAN,
+      TANH: TANH,
+      TRUNC: TRUNC
     });
-
+  
     // Note: dataY and dataX may not have the same dimension
     function covariance(dataY, dataX, isSample) {
         let flatDataY = [];
@@ -11831,9 +12484,9 @@
     const AVEDEV = {
         description: _lt("Average magnitude of deviations from mean."),
         args: args(`
-    value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
-    value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the sample.")}
-  `),
+      value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
+      value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the sample.")}
+    `),
         returns: ["NUMBER"],
         compute: function (...values) {
             let count = 0;
@@ -11853,9 +12506,9 @@
     const AVERAGE = {
         description: _lt(`Numerical average value in a dataset, ignoring text.`),
         args: args(`
-      value1 (number, range<number>) ${_lt("The first value or range to consider when calculating the average value.")}
-      value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to consider when calculating the average value.")}
-    `),
+        value1 (number, range<number>) ${_lt("The first value or range to consider when calculating the average value.")}
+        value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to consider when calculating the average value.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (value1) => {
             var _a;
@@ -11880,11 +12533,11 @@
     const AVERAGE_WEIGHTED = {
         description: _lt(`Weighted average.`),
         args: args(`
-      values (number, range<number>) ${_lt("Values to average.")}
-      weights (number, range<number>) ${_lt("Weights for each corresponding value.")}
-      additional_values (number, range<number>, repeating) ${_lt("Additional values to average.")}
-      additional_weights (number, range<number>, repeating) ${_lt("Additional weights.")}
-    `),
+        values (number, range<number>) ${_lt("Values to average.")}
+        weights (number, range<number>) ${_lt("Weights for each corresponding value.")}
+        additional_values (number, range<number>, repeating) ${_lt("Additional values to average.")}
+        additional_weights (number, range<number>, repeating) ${_lt("Additional weights.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (values) => {
             var _a;
@@ -11941,9 +12594,9 @@
     const AVERAGEA = {
         description: _lt(`Numerical average value in a dataset.`),
         args: args(`
-      value1 (number, range<number>) ${_lt("The first value or range to consider when calculating the average value.")}
-      value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to consider when calculating the average value.")}
-    `),
+        value1 (number, range<number>) ${_lt("The first value or range to consider when calculating the average value.")}
+        value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to consider when calculating the average value.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (value1) => {
             var _a;
@@ -11966,10 +12619,10 @@
     const AVERAGEIF = {
         description: _lt(`Average of values depending on criteria.`),
         args: args(`
-      criteria_range (range) ${_lt("The range to check against criterion.")}
-      criterion (string) ${_lt("The pattern or test to apply to criteria_range.")}
-      average_range (range, default=criteria_range) ${_lt("The range to average. If not included, criteria_range is used for the average instead.")}
-    `),
+        criteria_range (range) ${_lt("The range to check against criterion.")}
+        criterion (string) ${_lt("The pattern or test to apply to criteria_range.")}
+        average_range (range, default=criteria_range) ${_lt("The range to average. If not included, criteria_range is used for the average instead.")}
+      `),
         returns: ["NUMBER"],
         compute: function (criteriaRange, criterion, averageRange) {
             if (averageRange === undefined || averageRange === null) {
@@ -11995,12 +12648,12 @@
     const AVERAGEIFS = {
         description: _lt(`Average of values depending on multiple criteria.`),
         args: args(`
-      average_range (range) ${_lt("The range to average.")}
-      criteria_range1 (range) ${_lt("The range to check against criterion1.")}
-      criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1.")}
-      criteria_range2 (any, range, repeating) ${_lt("Additional criteria_range and criterion to check.")}
-      criterion2 (string, repeating) ${_lt("The pattern or test to apply to criteria_range2.")}
-    `),
+        average_range (range) ${_lt("The range to average.")}
+        criteria_range1 (range) ${_lt("The range to check against criterion1.")}
+        criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1.")}
+        criteria_range2 (any, range, repeating) ${_lt("Additional criteria_range and criterion to check.")}
+        criterion2 (string, repeating) ${_lt("The pattern or test to apply to criteria_range2.")}
+      `),
         returns: ["NUMBER"],
         compute: function (averageRange, ...values) {
             let count = 0;
@@ -12023,9 +12676,9 @@
     const COUNT = {
         description: _lt(`The number of numeric values in dataset.`),
         args: args(`
-    value1 (number, range<number>) ${_lt("The first value or range to consider when counting.")}
-    value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to consider when counting.")}
-  `),
+      value1 (number, range<number>) ${_lt("The first value or range to consider when counting.")}
+      value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to consider when counting.")}
+    `),
         returns: ["NUMBER"],
         compute: function (...values) {
             let count = 0;
@@ -12053,9 +12706,9 @@
     const COUNTA = {
         description: _lt(`The number of values in a dataset.`),
         args: args(`
-    value1 (any, range) ${_lt("The first value or range to consider when counting.")}
-    value2 (any, range, repeating) ${_lt("Additional values or ranges to consider when counting.")}
-  `),
+      value1 (any, range) ${_lt("The first value or range to consider when counting.")}
+      value2 (any, range, repeating) ${_lt("Additional values or ranges to consider when counting.")}
+    `),
         returns: ["NUMBER"],
         compute: function (...values) {
             return reduceAny(values, (acc, a) => (a !== undefined && a !== null ? acc + 1 : acc), 0);
@@ -12070,9 +12723,9 @@
     const COVAR = {
         description: _lt(`The covariance of a dataset.`),
         args: args(`
-    data_y (any, range) ${_lt("The range representing the array or matrix of dependent data.")}
-    data_x (any, range) ${_lt("The range representing the array or matrix of independent data.")}
-  `),
+      data_y (any, range) ${_lt("The range representing the array or matrix of dependent data.")}
+      data_x (any, range) ${_lt("The range representing the array or matrix of independent data.")}
+    `),
         returns: ["NUMBER"],
         compute: function (dataY, dataX) {
             return covariance(dataY, dataX, false);
@@ -12085,9 +12738,9 @@
     const COVARIANCE_P = {
         description: _lt(`The covariance of a dataset.`),
         args: args(`
-    data_y (any, range) ${_lt("The range representing the array or matrix of dependent data.")}
-    data_x (any, range) ${_lt("The range representing the array or matrix of independent data.")}
-  `),
+      data_y (any, range) ${_lt("The range representing the array or matrix of dependent data.")}
+      data_x (any, range) ${_lt("The range representing the array or matrix of independent data.")}
+    `),
         returns: ["NUMBER"],
         compute: function (dataY, dataX) {
             return covariance(dataY, dataX, false);
@@ -12100,9 +12753,9 @@
     const COVARIANCE_S = {
         description: _lt(`The sample covariance of a dataset.`),
         args: args(`
-    data_y (any, range) ${_lt("The range representing the array or matrix of dependent data.")}
-    data_x (any, range) ${_lt("The range representing the array or matrix of independent data.")}
-  `),
+      data_y (any, range) ${_lt("The range representing the array or matrix of dependent data.")}
+      data_x (any, range) ${_lt("The range representing the array or matrix of independent data.")}
+    `),
         returns: ["NUMBER"],
         compute: function (dataY, dataX) {
             return covariance(dataY, dataX, true);
@@ -12115,9 +12768,9 @@
     const LARGE = {
         description: _lt("Nth largest element from a data set."),
         args: args(`
-      data (any, range) ${_lt("Array or range containing the dataset to consider.")}
-      n (number) ${_lt("The rank from largest to smallest of the element to return.")}
-    `),
+        data (any, range) ${_lt("Array or range containing the dataset to consider.")}
+        n (number) ${_lt("The rank from largest to smallest of the element to return.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (data) => {
             var _a;
@@ -12152,9 +12805,9 @@
     const MAX = {
         description: _lt("Maximum value in a numeric dataset."),
         args: args(`
-      value1 (number, range<number>) ${_lt("The first value or range to consider when calculating the maximum value.")}
-      value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to consider when calculating the maximum value.")}
-    `),
+        value1 (number, range<number>) ${_lt("The first value or range to consider when calculating the maximum value.")}
+        value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to consider when calculating the maximum value.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (value1) => {
             var _a;
@@ -12172,9 +12825,9 @@
     const MAXA = {
         description: _lt("Maximum numeric value in a dataset."),
         args: args(`
-      value1 (any, range) ${_lt("The first value or range to consider when calculating the maximum value.")}
-      value2 (any, range, repeating) ${_lt("Additional values or ranges to consider when calculating the maximum value.")}
-    `),
+        value1 (any, range) ${_lt("The first value or range to consider when calculating the maximum value.")}
+        value2 (any, range, repeating) ${_lt("Additional values or ranges to consider when calculating the maximum value.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (value1) => {
             var _a;
@@ -12194,12 +12847,12 @@
     const MAXIFS = {
         description: _lt("Returns the maximum value in a range of cells, filtered by a set of criteria."),
         args: args(`
-      range (range) ${_lt("The range of cells from which the maximum will be determined.")}
-      criteria_range1 (range) ${_lt("The range of cells over which to evaluate criterion1.")}
-      criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set.")}
-      criteria_range2 (any, range, repeating) ${_lt("Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair.")}
-      criterion2 (string, repeating) ${_lt("The pattern or test to apply to criteria_range2.")}
-    `),
+        range (range) ${_lt("The range of cells from which the maximum will be determined.")}
+        criteria_range1 (range) ${_lt("The range of cells over which to evaluate criterion1.")}
+        criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set.")}
+        criteria_range2 (any, range, repeating) ${_lt("Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair.")}
+        criterion2 (string, repeating) ${_lt("The pattern or test to apply to criteria_range2.")}
+      `),
         returns: ["NUMBER"],
         compute: function (range, ...args) {
             let result = -Infinity;
@@ -12219,9 +12872,9 @@
     const MEDIAN = {
         description: _lt("Median value in a numeric dataset."),
         args: args(`
-      value1 (any, range) ${_lt("The first value or range to consider when calculating the median value.")}
-      value2 (any, range, repeating) ${_lt("Additional values or ranges to consider when calculating the median value.")}
-    `),
+        value1 (any, range) ${_lt("The first value or range to consider when calculating the median value.")}
+        value2 (any, range, repeating) ${_lt("Additional values or ranges to consider when calculating the median value.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (value1) => {
             var _a;
@@ -12242,9 +12895,9 @@
     const MIN = {
         description: _lt("Minimum value in a numeric dataset."),
         args: args(`
-      value1 (number, range<number>) ${_lt("The first value or range to consider when calculating the minimum value.")}
-      value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to consider when calculating the minimum value.")}
-    `),
+        value1 (number, range<number>) ${_lt("The first value or range to consider when calculating the minimum value.")}
+        value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to consider when calculating the minimum value.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (value1) => {
             var _a;
@@ -12262,9 +12915,9 @@
     const MINA = {
         description: _lt("Minimum numeric value in a dataset."),
         args: args(`
-      value1 (number, range<number>) ${_lt("The first value or range to consider when calculating the minimum value.")}
-      value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to consider when calculating the minimum value.")}
-    `),
+        value1 (number, range<number>) ${_lt("The first value or range to consider when calculating the minimum value.")}
+        value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to consider when calculating the minimum value.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (value1) => {
             var _a;
@@ -12284,12 +12937,12 @@
     const MINIFS = {
         description: _lt("Returns the minimum value in a range of cells, filtered by a set of criteria."),
         args: args(`
-      range (range) ${_lt("The range of cells from which the minimum will be determined.")}
-      criteria_range1 (range) ${_lt("The range of cells over which to evaluate criterion1.")}
-      criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set.")}
-      criteria_range2 (any, range, repeating) ${_lt("Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair.")}
-      criterion2 (string, repeating) ${_lt("The pattern or test to apply to criteria_range2.")}
-    `),
+        range (range) ${_lt("The range of cells from which the minimum will be determined.")}
+        criteria_range1 (range) ${_lt("The range of cells over which to evaluate criterion1.")}
+        criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set.")}
+        criteria_range2 (any, range, repeating) ${_lt("Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair.")}
+        criterion2 (string, repeating) ${_lt("The pattern or test to apply to criteria_range2.")}
+      `),
         returns: ["NUMBER"],
         compute: function (range, ...args) {
             let result = Infinity;
@@ -12309,9 +12962,9 @@
     const PERCENTILE = {
         description: _lt("Value at a given percentile of a dataset."),
         args: args(`
-      data (any, range) ${_lt("The array or range containing the dataset to consider.")}
-      percentile (number) ${_lt("The percentile whose value within data will be calculated and returned.")}
-    `),
+        data (any, range) ${_lt("The array or range containing the dataset to consider.")}
+        percentile (number) ${_lt("The percentile whose value within data will be calculated and returned.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (data) => {
             var _a;
@@ -12328,9 +12981,9 @@
     const PERCENTILE_EXC = {
         description: _lt("Value at a given percentile of a dataset exclusive of 0 and 1."),
         args: args(`
-      data (any, range) ${_lt("The array or range containing the dataset to consider.")}
-      percentile (number) ${_lt("The percentile, exclusive of 0 and 1, whose value within 'data' will be calculated and returned.")}
-    `),
+        data (any, range) ${_lt("The array or range containing the dataset to consider.")}
+        percentile (number) ${_lt("The percentile, exclusive of 0 and 1, whose value within 'data' will be calculated and returned.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (data) => {
             var _a;
@@ -12347,9 +13000,9 @@
     const PERCENTILE_INC = {
         description: _lt("Value at a given percentile of a dataset."),
         args: args(`
-      data (any, range) ${_lt("The array or range containing the dataset to consider.")}
-      percentile (number) ${_lt("The percentile whose value within data will be calculated and returned.")}
-    `),
+        data (any, range) ${_lt("The array or range containing the dataset to consider.")}
+        percentile (number) ${_lt("The percentile whose value within data will be calculated and returned.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (data) => {
             var _a;
@@ -12366,9 +13019,9 @@
     const QUARTILE = {
         description: _lt("Value nearest to a specific quartile of a dataset."),
         args: args(`
-      data (any, range) ${_lt("The array or range containing the dataset to consider.")}
-      quartile_number (number) ${_lt("Which quartile value to return.")}
-    `),
+        data (any, range) ${_lt("The array or range containing the dataset to consider.")}
+        quartile_number (number) ${_lt("Which quartile value to return.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (data) => {
             var _a;
@@ -12385,9 +13038,9 @@
     const QUARTILE_EXC = {
         description: _lt("Value nearest to a specific quartile of a dataset exclusive of 0 and 4."),
         args: args(`
-      data (any, range) ${_lt("The array or range containing the dataset to consider.")}
-      quartile_number (number) ${_lt("Which quartile value, exclusive of 0 and 4, to return.")}
-    `),
+        data (any, range) ${_lt("The array or range containing the dataset to consider.")}
+        quartile_number (number) ${_lt("Which quartile value, exclusive of 0 and 4, to return.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (data) => {
             var _a;
@@ -12405,9 +13058,9 @@
     const QUARTILE_INC = {
         description: _lt("Value nearest to a specific quartile of a dataset."),
         args: args(`
-      data (any, range) ${_lt("The array or range containing the dataset to consider.")}
-      quartile_number (number) ${_lt("Which quartile value to return.")}
-    `),
+        data (any, range) ${_lt("The array or range containing the dataset to consider.")}
+        quartile_number (number) ${_lt("Which quartile value to return.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (data) => {
             var _a;
@@ -12425,9 +13078,9 @@
     const SMALL = {
         description: _lt("Nth smallest element in a data set."),
         args: args(`
-      data (any, range) ${_lt("The array or range containing the dataset to consider.")}
-      n (number) ${_lt("The rank from smallest to largest of the element to return.")}
-    `),
+        data (any, range) ${_lt("The array or range containing the dataset to consider.")}
+        n (number) ${_lt("The rank from smallest to largest of the element to return.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (data) => {
             var _a;
@@ -12462,9 +13115,9 @@
     const STDEV = {
         description: _lt("Standard deviation."),
         args: args(`
-      value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
-      value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the sample.")}
-    `),
+        value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
+        value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the sample.")}
+      `),
         returns: ["NUMBER"],
         compute: function (...values) {
             return Math.sqrt(VAR.compute(...values));
@@ -12477,9 +13130,9 @@
     const STDEV_P = {
         description: _lt("Standard deviation of entire population."),
         args: args(`
-      value1 (number, range<number>) ${_lt("The first value or range of the population.")}
-      value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the population.")}
-    `),
+        value1 (number, range<number>) ${_lt("The first value or range of the population.")}
+        value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the population.")}
+      `),
         returns: ["NUMBER"],
         compute: function (...values) {
             return Math.sqrt(VAR_P.compute(...values));
@@ -12492,9 +13145,9 @@
     const STDEV_S = {
         description: _lt("Standard deviation."),
         args: args(`
-      value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
-      value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the sample.")}
-    `),
+        value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
+        value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the sample.")}
+      `),
         returns: ["NUMBER"],
         compute: function (...values) {
             return Math.sqrt(VAR_S.compute(...values));
@@ -12507,9 +13160,9 @@
     const STDEVA = {
         description: _lt("Standard deviation of sample (text as 0)."),
         args: args(`
-    value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
-    value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the sample.")}
-  `),
+      value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
+      value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the sample.")}
+    `),
         returns: ["NUMBER"],
         compute: function (...values) {
             return Math.sqrt(VARA.compute(...values));
@@ -12522,9 +13175,9 @@
     const STDEVP = {
         description: _lt("Standard deviation of entire population."),
         args: args(`
-    value1 (number, range<number>) ${_lt("The first value or range of the population.")}
-    value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the population.")}
-  `),
+      value1 (number, range<number>) ${_lt("The first value or range of the population.")}
+      value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the population.")}
+    `),
         returns: ["NUMBER"],
         compute: function (...values) {
             return Math.sqrt(VARP.compute(...values));
@@ -12537,9 +13190,9 @@
     const STDEVPA = {
         description: _lt("Standard deviation of entire population (text as 0)."),
         args: args(`
-    value1 (number, range<number>) ${_lt("The first value or range of the population.")}
-    value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the population.")}
-  `),
+      value1 (number, range<number>) ${_lt("The first value or range of the population.")}
+      value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the population.")}
+    `),
         returns: ["NUMBER"],
         compute: function (...values) {
             return Math.sqrt(VARPA.compute(...values));
@@ -12552,9 +13205,9 @@
     const VAR = {
         description: _lt("Variance."),
         args: args(`
-      value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
-      value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the sample.")}
-    `),
+        value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
+        value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the sample.")}
+      `),
         returns: ["NUMBER"],
         compute: function (...values) {
             return variance(values, true, false);
@@ -12567,9 +13220,9 @@
     const VAR_P = {
         description: _lt("Variance of entire population."),
         args: args(`
-      value1 (number, range<number>) ${_lt("The first value or range of the population.")}
-      value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the population.")}
-    `),
+        value1 (number, range<number>) ${_lt("The first value or range of the population.")}
+        value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the population.")}
+      `),
         returns: ["NUMBER"],
         compute: function (...values) {
             return variance(values, false, false);
@@ -12582,9 +13235,9 @@
     const VAR_S = {
         description: _lt("Variance."),
         args: args(`
-      value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
-      value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the sample.")}
-    `),
+        value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
+        value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the sample.")}
+      `),
         returns: ["NUMBER"],
         compute: function (...values) {
             return variance(values, true, false);
@@ -12597,9 +13250,9 @@
     const VARA = {
         description: _lt("Variance of sample (text as 0)."),
         args: args(`
-    value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
-    value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the sample.")}
-  `),
+      value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
+      value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the sample.")}
+    `),
         returns: ["NUMBER"],
         compute: function (...values) {
             return variance(values, true, true);
@@ -12612,9 +13265,9 @@
     const VARP = {
         description: _lt("Variance of entire population."),
         args: args(`
-    value1 (number, range<number>) ${_lt("The first value or range of the population.")}
-    value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the population.")}
-  `),
+      value1 (number, range<number>) ${_lt("The first value or range of the population.")}
+      value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the population.")}
+    `),
         returns: ["NUMBER"],
         compute: function (...values) {
             return variance(values, false, false);
@@ -12627,58 +13280,58 @@
     const VARPA = {
         description: _lt("Variance of entire population (text as 0)."),
         args: args(`
-    value1 (number, range<number>) ${_lt("The first value or range of the population.")}
-    value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the population.")}
-  `),
+      value1 (number, range<number>) ${_lt("The first value or range of the population.")}
+      value2 (number, range<number>, repeating) ${_lt("Additional values or ranges to include in the population.")}
+    `),
         returns: ["NUMBER"],
         compute: function (...values) {
             return variance(values, false, true);
         },
         isExported: true,
     };
-
+  
     var statistical = /*#__PURE__*/Object.freeze({
-        __proto__: null,
-        AVEDEV: AVEDEV,
-        AVERAGE: AVERAGE,
-        AVERAGE_WEIGHTED: AVERAGE_WEIGHTED,
-        AVERAGEA: AVERAGEA,
-        AVERAGEIF: AVERAGEIF,
-        AVERAGEIFS: AVERAGEIFS,
-        COUNT: COUNT,
-        COUNTA: COUNTA,
-        COVAR: COVAR,
-        COVARIANCE_P: COVARIANCE_P,
-        COVARIANCE_S: COVARIANCE_S,
-        LARGE: LARGE,
-        MAX: MAX,
-        MAXA: MAXA,
-        MAXIFS: MAXIFS,
-        MEDIAN: MEDIAN,
-        MIN: MIN,
-        MINA: MINA,
-        MINIFS: MINIFS,
-        PERCENTILE: PERCENTILE,
-        PERCENTILE_EXC: PERCENTILE_EXC,
-        PERCENTILE_INC: PERCENTILE_INC,
-        QUARTILE: QUARTILE,
-        QUARTILE_EXC: QUARTILE_EXC,
-        QUARTILE_INC: QUARTILE_INC,
-        SMALL: SMALL,
-        STDEV: STDEV,
-        STDEV_P: STDEV_P,
-        STDEV_S: STDEV_S,
-        STDEVA: STDEVA,
-        STDEVP: STDEVP,
-        STDEVPA: STDEVPA,
-        VAR: VAR,
-        VAR_P: VAR_P,
-        VAR_S: VAR_S,
-        VARA: VARA,
-        VARP: VARP,
-        VARPA: VARPA
+      __proto__: null,
+      AVEDEV: AVEDEV,
+      AVERAGE: AVERAGE,
+      AVERAGE_WEIGHTED: AVERAGE_WEIGHTED,
+      AVERAGEA: AVERAGEA,
+      AVERAGEIF: AVERAGEIF,
+      AVERAGEIFS: AVERAGEIFS,
+      COUNT: COUNT,
+      COUNTA: COUNTA,
+      COVAR: COVAR,
+      COVARIANCE_P: COVARIANCE_P,
+      COVARIANCE_S: COVARIANCE_S,
+      LARGE: LARGE,
+      MAX: MAX,
+      MAXA: MAXA,
+      MAXIFS: MAXIFS,
+      MEDIAN: MEDIAN,
+      MIN: MIN,
+      MINA: MINA,
+      MINIFS: MINIFS,
+      PERCENTILE: PERCENTILE,
+      PERCENTILE_EXC: PERCENTILE_EXC,
+      PERCENTILE_INC: PERCENTILE_INC,
+      QUARTILE: QUARTILE,
+      QUARTILE_EXC: QUARTILE_EXC,
+      QUARTILE_INC: QUARTILE_INC,
+      SMALL: SMALL,
+      STDEV: STDEV,
+      STDEV_P: STDEV_P,
+      STDEV_S: STDEV_S,
+      STDEVA: STDEVA,
+      STDEVP: STDEVP,
+      STDEVPA: STDEVPA,
+      VAR: VAR,
+      VAR_P: VAR_P,
+      VAR_S: VAR_S,
+      VARA: VARA,
+      VARP: VARP,
+      VARPA: VARPA
     });
-
+  
     function getMatchingCells(database, field, criteria) {
         // Example
         var _a;
@@ -12767,10 +13420,10 @@
         return matchingCells;
     }
     const databaseArgs = args(`
-  database (range) ${_lt("The array or range containing the data to consider, structured in such a way that the first row contains the labels for each column's values.")}
-  field (any) ${_lt("Indicates which column in database contains the values to be extracted and operated on.")}
-  criteria (range) ${_lt("An array or range containing zero or more criteria to filter the database values by before operating.")}
-`);
+    database (range) ${_lt("The array or range containing the data to consider, structured in such a way that the first row contains the labels for each column's values.")}
+    field (any) ${_lt("Indicates which column in database contains the values to be extracted and operated on.")}
+    criteria (range) ${_lt("An array or range containing zero or more criteria to filter the database values by before operating.")}
+  `);
     // -----------------------------------------------------------------------------
     // DAVERAGE
     // -----------------------------------------------------------------------------
@@ -12928,39 +13581,35 @@
         },
         isExported: true,
     };
-
+  
     var database = /*#__PURE__*/Object.freeze({
-        __proto__: null,
-        DAVERAGE: DAVERAGE,
-        DCOUNT: DCOUNT,
-        DCOUNTA: DCOUNTA,
-        DGET: DGET,
-        DMAX: DMAX,
-        DMIN: DMIN,
-        DPRODUCT: DPRODUCT,
-        DSTDEV: DSTDEV,
-        DSTDEVP: DSTDEVP,
-        DSUM: DSUM,
-        DVAR: DVAR,
-        DVARP: DVARP
+      __proto__: null,
+      DAVERAGE: DAVERAGE,
+      DCOUNT: DCOUNT,
+      DCOUNTA: DCOUNTA,
+      DGET: DGET,
+      DMAX: DMAX,
+      DMIN: DMIN,
+      DPRODUCT: DPRODUCT,
+      DSTDEV: DSTDEV,
+      DSTDEVP: DSTDEVP,
+      DSUM: DSUM,
+      DVAR: DVAR,
+      DVARP: DVARP
     });
-
+  
     const DEFAULT_TYPE = 1;
     const DEFAULT_WEEKEND = 1;
-    function isLeapYear(year) {
-        const _year = Math.trunc(year);
-        return (_year % 4 === 0 && _year % 100 != 0) || _year % 400 == 0;
-    }
     // -----------------------------------------------------------------------------
     // DATE
     // -----------------------------------------------------------------------------
     const DATE = {
         description: _lt("Converts year/month/day into a date."),
         args: args(`
-    year (number) ${_lt("The year component of the date.")}
-    month (number) ${_lt("The month component of the date.")}
-    day (number) ${_lt("The day component of the date.")}
-    `),
+      year (number) ${_lt("The year component of the date.")}
+      month (number) ${_lt("The month component of the date.")}
+      day (number) ${_lt("The day component of the date.")}
+      `),
         returns: ["DATE"],
         computeFormat: () => "m/d/yyyy",
         compute: function (year, month, day) {
@@ -12986,8 +13635,8 @@
     const DATEVALUE = {
         description: _lt("Converts a date string to a date value."),
         args: args(`
-      date_string (string) ${_lt("The string representing the date.")}
-    `),
+        date_string (string) ${_lt("The string representing the date.")}
+      `),
         returns: ["NUMBER"],
         compute: function (dateString) {
             const _dateString = toString(dateString);
@@ -13003,8 +13652,8 @@
     const DAY = {
         description: _lt("Day of the month that a specific date falls on."),
         args: args(`
-      date (string) ${_lt("The date from which to extract the day.")}
-    `),
+        date (string) ${_lt("The date from which to extract the day.")}
+      `),
         returns: ["NUMBER"],
         compute: function (date) {
             return toJsDate(date).getDate();
@@ -13017,9 +13666,9 @@
     const DAYS = {
         description: _lt("Number of days between two dates."),
         args: args(`
-      end_date (date) ${_lt("The end of the date range.")}
-      start_date (date) ${_lt("The start of the date range.")}
-    `),
+        end_date (date) ${_lt("The end of the date range.")}
+        start_date (date) ${_lt("The start of the date range.")}
+      `),
         returns: ["NUMBER"],
         compute: function (endDate, startDate) {
             const _endDate = toJsDate(endDate);
@@ -13030,23 +13679,41 @@
         isExported: true,
     };
     // -----------------------------------------------------------------------------
+    // DAYS360
+    // -----------------------------------------------------------------------------
+    const DEFAULT_DAY_COUNT_METHOD = 0;
+    const DAYS360 = {
+        description: _lt("Number of days between two dates on a 360-day year (months of 30 days)."),
+        args: args(`
+        start_date (date) ${_lt("The start date to consider in the calculation.")}
+        end_date (date) ${_lt("The end date to consider in the calculation.")}
+        method (number, default=${DEFAULT_DAY_COUNT_METHOD}) ${_lt("An indicator of what day count method to use. (0) US NASD method (1) European method")}
+      `),
+        returns: ["NUMBER"],
+        compute: function (startDate, endDate, method = DEFAULT_DAY_COUNT_METHOD) {
+            const _startDate = toNumber(startDate);
+            const _endDate = toNumber(endDate);
+            const dayCountConvention = toBoolean(method) ? 4 : 0;
+            const yearFrac = YEARFRAC.compute(startDate, endDate, dayCountConvention);
+            return Math.sign(_endDate - _startDate) * Math.round(yearFrac * 360);
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
     // EDATE
     // -----------------------------------------------------------------------------
     const EDATE = {
         description: _lt("Date a number of months before/after another date."),
         args: args(`
-    start_date (date) ${_lt("The date from which to calculate the result.")}
-    months (number) ${_lt("The number of months before (negative) or after (positive) 'start_date' to calculate.")}
-    `),
+      start_date (date) ${_lt("The date from which to calculate the result.")}
+      months (number) ${_lt("The number of months before (negative) or after (positive) 'start_date' to calculate.")}
+      `),
         returns: ["DATE"],
         computeFormat: () => "m/d/yyyy",
         compute: function (startDate, months) {
             const _startDate = toJsDate(startDate);
             const _months = Math.trunc(toNumber(months));
-            const yStart = _startDate.getFullYear();
-            const mStart = _startDate.getMonth();
-            const dStart = _startDate.getDate();
-            const jsDate = new Date(yStart, mStart + _months, dStart);
+            const jsDate = addMonthsToDate(_startDate, _months, false);
             return jsDateToRoundNumber(jsDate);
         },
         isExported: true,
@@ -13057,9 +13724,9 @@
     const EOMONTH = {
         description: _lt("Last day of a month before or after a date."),
         args: args(`
-    start_date (date) ${_lt("The date from which to calculate the result.")}
-    months (number) ${_lt("The number of months before (negative) or after (positive) 'start_date' to consider.")}
-    `),
+      start_date (date) ${_lt("The date from which to calculate the result.")}
+      months (number) ${_lt("The number of months before (negative) or after (positive) 'start_date' to consider.")}
+      `),
         returns: ["DATE"],
         computeFormat: () => "m/d/yyyy",
         compute: function (startDate, months) {
@@ -13078,8 +13745,8 @@
     const HOUR = {
         description: _lt("Hour component of a specific time."),
         args: args(`
-    time (date) ${_lt("The time from which to calculate the hour component.")}
-    `),
+      time (date) ${_lt("The time from which to calculate the hour component.")}
+      `),
         returns: ["NUMBER"],
         compute: function (date) {
             return toJsDate(date).getHours();
@@ -13092,8 +13759,8 @@
     const ISOWEEKNUM = {
         description: _lt("ISO week number of the year."),
         args: args(`
-    date (date) ${_lt("The date for which to determine the ISO week number. Must be a reference to a cell containing a date, a function returning a date type, or a number.")}
-    `),
+      date (date) ${_lt("The date for which to determine the ISO week number. Must be a reference to a cell containing a date, a function returning a date type, or a number.")}
+      `),
         returns: ["NUMBER"],
         compute: function (date) {
             const _date = toJsDate(date);
@@ -13166,8 +13833,8 @@
     const MINUTE = {
         description: _lt("Minute component of a specific time."),
         args: args(`
-      time (date) ${_lt("The time from which to calculate the minute component.")}
-    `),
+        time (date) ${_lt("The time from which to calculate the minute component.")}
+      `),
         returns: ["NUMBER"],
         compute: function (date) {
             return toJsDate(date).getMinutes();
@@ -13180,8 +13847,8 @@
     const MONTH = {
         description: _lt("Month of the year a specific date falls in"),
         args: args(`
-      date (date) ${_lt("The date from which to extract the month.")}
-    `),
+        date (date) ${_lt("The date from which to extract the month.")}
+      `),
         returns: ["NUMBER"],
         compute: function (date) {
             return toJsDate(date).getMonth() + 1;
@@ -13194,10 +13861,10 @@
     const NETWORKDAYS = {
         description: _lt("Net working days between two provided days."),
         args: args(`
-      start_date (date) ${_lt("The start date of the period from which to calculate the number of net working days.")}
-      end_date (date) ${_lt("The end date of the period from which to calculate the number of net working days.")}
-      holidays (date, range<date>, optional) ${_lt("A range or array constant containing the date serial numbers to consider holidays.")}
-    `),
+        start_date (date) ${_lt("The start date of the period from which to calculate the number of net working days.")}
+        end_date (date) ${_lt("The end date of the period from which to calculate the number of net working days.")}
+        holidays (date, range<date>, optional) ${_lt("A range or array constant containing the date serial numbers to consider holidays.")}
+      `),
         returns: ["NUMBER"],
         compute: function (startDate, endDate, holidays) {
             return NETWORKDAYS_INTL.compute(startDate, endDate, 1, holidays);
@@ -13273,11 +13940,11 @@
     const NETWORKDAYS_INTL = {
         description: _lt("Net working days between two dates (specifying weekends)."),
         args: args(`
-      start_date (date) ${_lt("The start date of the period from which to calculate the number of net working days.")}
-      end_date (date) ${_lt("The end date of the period from which to calculate the number of net working days.")}
-      weekend (any, default=${DEFAULT_WEEKEND}) ${_lt("A number or string representing which days of the week are considered weekends.")}
-      holidays (date, range<date>, optional) ${_lt("A range or array constant containing the dates to consider as holidays.")}
-    `),
+        start_date (date) ${_lt("The start date of the period from which to calculate the number of net working days.")}
+        end_date (date) ${_lt("The end date of the period from which to calculate the number of net working days.")}
+        weekend (any, default=${DEFAULT_WEEKEND}) ${_lt("A number or string representing which days of the week are considered weekends.")}
+        holidays (date, range<date>, optional) ${_lt("A range or array constant containing the dates to consider as holidays.")}
+      `),
         returns: ["NUMBER"],
         compute: function (startDate, endDate, weekend = DEFAULT_WEEKEND, holidays) {
             const _startDate = toJsDate(startDate);
@@ -13330,8 +13997,8 @@
     const SECOND = {
         description: _lt("Minute component of a specific time."),
         args: args(`
-      time (date) ${_lt("The time from which to calculate the second component.")}
-    `),
+        time (date) ${_lt("The time from which to calculate the second component.")}
+      `),
         returns: ["NUMBER"],
         compute: function (date) {
             return toJsDate(date).getSeconds();
@@ -13344,10 +14011,10 @@
     const TIME = {
         description: _lt("Converts hour/minute/second into a time."),
         args: args(`
-    hour (number) ${_lt("The hour component of the time.")}
-    minute (number) ${_lt("The minute component of the time.")}
-    second (number) ${_lt("The second component of the time.")}
-    `),
+      hour (number) ${_lt("The hour component of the time.")}
+      minute (number) ${_lt("The minute component of the time.")}
+      second (number) ${_lt("The second component of the time.")}
+      `),
         returns: ["DATE"],
         computeFormat: () => "hh:mm:ss a",
         compute: function (hour, minute, second) {
@@ -13370,8 +14037,8 @@
     const TIMEVALUE = {
         description: _lt("Converts a time string into its serial number representation."),
         args: args(`
-      time_string (string) ${_lt("The string that holds the time representation.")}
-    `),
+        time_string (string) ${_lt("The string that holds the time representation.")}
+      `),
         returns: ["NUMBER"],
         compute: function (timeString) {
             const _timeString = toString(timeString);
@@ -13403,9 +14070,9 @@
     const WEEKDAY = {
         description: _lt("Day of the week of the date provided (as number)."),
         args: args(`
-    date (date) ${_lt("The date for which to determine the day of the week. Must be a reference to a cell containing a date, a function returning a date type, or a number.")}
-    type (number, default=${DEFAULT_TYPE}) ${_lt("A number indicating which numbering system to use to represent weekdays. By default, counts starting with Sunday = 1.")}
-  `),
+      date (date) ${_lt("The date for which to determine the day of the week. Must be a reference to a cell containing a date, a function returning a date type, or a number.")}
+      type (number, default=${DEFAULT_TYPE}) ${_lt("A number indicating which numbering system to use to represent weekdays. By default, counts starting with Sunday = 1.")}
+    `),
         returns: ["NUMBER"],
         compute: function (date, type = DEFAULT_TYPE) {
             const _date = toJsDate(date);
@@ -13426,9 +14093,9 @@
     const WEEKNUM = {
         description: _lt("Week number of the year."),
         args: args(`
-    date (date) ${_lt("The date for which to determine the week number. Must be a reference to a cell containing a date, a function returning a date type, or a number.")}
-    type (number, default=${DEFAULT_TYPE}) ${_lt("A number representing the day that a week starts on. Sunday = 1.")}
-    `),
+      date (date) ${_lt("The date for which to determine the week number. Must be a reference to a cell containing a date, a function returning a date type, or a number.")}
+      type (number, default=${DEFAULT_TYPE}) ${_lt("A number representing the day that a week starts on. Sunday = 1.")}
+      `),
         returns: ["NUMBER"],
         compute: function (date, type = DEFAULT_TYPE) {
             const _date = toJsDate(date);
@@ -13466,10 +14133,10 @@
     const WORKDAY = {
         description: _lt("Date after a number of workdays."),
         args: args(`
-      start_date (date) ${_lt("The date from which to begin counting.")}
-      num_days (number) ${_lt("The number of working days to advance from start_date. If negative, counts backwards.")}
-      holidays (date, range<date>, optional) ${_lt("A range or array constant containing the dates to consider holidays.")}
-      `),
+        start_date (date) ${_lt("The date from which to begin counting.")}
+        num_days (number) ${_lt("The number of working days to advance from start_date. If negative, counts backwards.")}
+        holidays (date, range<date>, optional) ${_lt("A range or array constant containing the dates to consider holidays.")}
+        `),
         returns: ["NUMBER"],
         computeFormat: () => "m/d/yyyy",
         compute: function (startDate, numDays, holidays = undefined) {
@@ -13483,11 +14150,11 @@
     const WORKDAY_INTL = {
         description: _lt("Date after a number of workdays (specifying weekends)."),
         args: args(`
-      start_date (date) ${_lt("The date from which to begin counting.")}
-      num_days (number) ${_lt("The number of working days to advance from start_date. If negative, counts backwards.")}
-      weekend (any, default=${DEFAULT_WEEKEND}) ${_lt("A number or string representing which days of the week are considered weekends.")}
-      holidays (date, range<date>, optional) ${_lt("A range or array constant containing the dates to consider holidays.")}
-    `),
+        start_date (date) ${_lt("The date from which to begin counting.")}
+        num_days (number) ${_lt("The number of working days to advance from start_date. If negative, counts backwards.")}
+        weekend (any, default=${DEFAULT_WEEKEND}) ${_lt("A number or string representing which days of the week are considered weekends.")}
+        holidays (date, range<date>, optional) ${_lt("A range or array constant containing the dates to consider holidays.")}
+      `),
         returns: ["DATE"],
         computeFormat: () => "m/d/yyyy",
         compute: function (startDate, numDays, weekend = DEFAULT_WEEKEND, holidays) {
@@ -13526,8 +14193,8 @@
     const YEAR = {
         description: _lt("Year specified by a given date."),
         args: args(`
-    date (date) ${_lt("The date from which to extract the year.")}
-    `),
+      date (date) ${_lt("The date from which to extract the year.")}
+      `),
         returns: ["NUMBER"],
         compute: function (date) {
             return toJsDate(date).getFullYear();
@@ -13541,10 +14208,10 @@
     const YEARFRAC = {
         description: _lt("Exact number of years between two dates."),
         args: args(`
-    start_date (date) ${_lt("The start date to consider in the calculation. Must be a reference to a cell containing a date, a function returning a date type, or a number.")}
-    end_date (date) ${_lt("The end date to consider in the calculation. Must be a reference to a cell containing a date, a function returning a date type, or a number.")}
-    day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION$1}) ${_lt("An indicator of what day count method to use.")}
-    `),
+      start_date (date) ${_lt("The start date to consider in the calculation. Must be a reference to a cell containing a date, a function returning a date type, or a number.")}
+      end_date (date) ${_lt("The end date to consider in the calculation. Must be a reference to a cell containing a date, a function returning a date type, or a number.")}
+      day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION$1}) ${_lt("An indicator of what day count method to use.")}
+      `),
         returns: ["NUMBER"],
         compute: function (startDate, endDate, dayCountConvention = DEFAULT_DAY_COUNT_CONVENTION$1) {
             let _startDate = Math.trunc(toNumber(startDate));
@@ -13553,113 +14220,7 @@
             assert(() => _startDate >= 0, _lt("The start_date (%s) must be positive or null.", _startDate.toString()));
             assert(() => _endDate >= 0, _lt("The end_date (%s) must be positive or null.", _endDate.toString()));
             assert(() => 0 <= _dayCountConvention && _dayCountConvention <= 4, _lt("The day_count_convention (%s) must be between 0 and 4 inclusive.", _dayCountConvention.toString()));
-            if (_startDate === _endDate) {
-                return 0;
-            }
-            if (_startDate > _endDate) {
-                const stack = _endDate;
-                _endDate = _startDate;
-                _startDate = stack;
-            }
-            const jsStartDate = toJsDate(_startDate);
-            const jsEndDate = toJsDate(_endDate);
-            let dayStart = jsStartDate.getDate();
-            let dayEnd = jsEndDate.getDate();
-            const monthStart = jsStartDate.getMonth(); // january is 0
-            const monthEnd = jsEndDate.getMonth(); // january is 0
-            const yearStart = jsStartDate.getFullYear();
-            const yearEnd = jsEndDate.getFullYear();
-            let yearsStart = 0;
-            let yearsEnd = 0;
-            switch (_dayCountConvention) {
-                // 30/360 US convention --------------------------------------------------
-                case 0:
-                    if (dayStart === 31)
-                        dayStart = 30;
-                    if (dayStart === 30 && dayEnd === 31)
-                        dayEnd = 30;
-                    // If jsStartDate is the last day of February
-                    if (monthStart === 1 && dayStart === (isLeapYear(yearStart) ? 29 : 28)) {
-                        dayStart = 30;
-                        // If jsEndDate is the last day of February
-                        if (monthEnd === 1 && dayEnd === (isLeapYear(yearEnd) ? 29 : 28)) {
-                            dayEnd = 30;
-                        }
-                    }
-                    yearsStart = yearStart + (monthStart * 30 + dayStart) / 360;
-                    yearsEnd = yearEnd + (monthEnd * 30 + dayEnd) / 360;
-                    break;
-                // actual/actual convention ----------------------------------------------
-                case 1:
-                    let daysInYear = 365;
-                    const isSameYear = yearStart === yearEnd;
-                    const isOneDeltaYear = yearStart + 1 === yearEnd;
-                    const isMonthEndBigger = monthStart < monthEnd;
-                    const isSameMonth = monthStart === monthEnd;
-                    const isDayEndBigger = dayStart < dayEnd;
-                    // |-----|  <-- one Year
-                    // 'A' is start date
-                    // 'B' is end date
-                    if ((!isSameYear && !isOneDeltaYear) ||
-                        (!isSameYear && isMonthEndBigger) ||
-                        (!isSameYear && isSameMonth && isDayEndBigger)) {
-                        // |---A-|-----|-B---|  <-- !isSameYear && !isOneDeltaYear
-                        // |---A-|----B|-----|  <-- !isSameYear && isMonthEndBigger
-                        // |---A-|---B-|-----|  <-- !isSameYear && isSameMonth && isDayEndBigger
-                        let countYears = 0;
-                        let countDaysInYears = 0;
-                        for (let y = yearStart; y <= yearEnd; y++) {
-                            countYears++;
-                            countDaysInYears += isLeapYear(y) ? 366 : 365;
-                        }
-                        daysInYear = countDaysInYears / countYears;
-                    }
-                    else if (!isSameYear) {
-                        // |-AF--|B----|-----|
-                        if (isLeapYear(yearStart) && monthStart < 2) {
-                            daysInYear = 366;
-                        }
-                        // |--A--|FB---|-----|
-                        if (isLeapYear(yearEnd) && (monthEnd > 1 || (monthEnd === 1 && dayEnd === 29))) {
-                            daysInYear = 366;
-                        }
-                    }
-                    else {
-                        // remaining cases:
-                        //
-                        // |-F-AB|-----|-----|
-                        // |AB-F-|-----|-----|
-                        // |A-F-B|-----|-----|
-                        // if February 29 occurs between date1 (exclusive) and date2 (inclusive)
-                        // daysInYear --> 366
-                        if (isLeapYear(yearStart)) {
-                            daysInYear = 366;
-                        }
-                    }
-                    yearsStart = _startDate / daysInYear;
-                    yearsEnd = _endDate / daysInYear;
-                    break;
-                // actual/360 convention -------------------------------------------------
-                case 2:
-                    yearsStart = _startDate / 360;
-                    yearsEnd = _endDate / 360;
-                    break;
-                // actual/365 convention -------------------------------------------------
-                case 3:
-                    yearsStart = _startDate / 365;
-                    yearsEnd = _endDate / 365;
-                    break;
-                // 30/360 European convention --------------------------------------------
-                case 4:
-                    if (dayStart === 31)
-                        dayStart = 30;
-                    if (dayEnd === 31)
-                        dayEnd = 30;
-                    yearsStart = yearStart + (monthStart * 30 + dayStart) / 360;
-                    yearsEnd = yearEnd + (monthEnd * 30 + dayEnd) / 360;
-                    break;
-            }
-            return yearsEnd - yearsStart;
+            return getYearFrac(_startDate, _endDate, _dayCountConvention);
         },
     };
     // -----------------------------------------------------------------------------
@@ -13668,8 +14229,8 @@
     const MONTH_START = {
         description: _lt("First day of the month preceding a date."),
         args: args(`
-    date (date) ${_lt("The date from which to calculate the result.")}
-    `),
+      date (date) ${_lt("The date from which to calculate the result.")}
+      `),
         returns: ["DATE"],
         computeFormat: () => "m/d/yyyy",
         compute: function (date) {
@@ -13686,8 +14247,8 @@
     const MONTH_END = {
         description: _lt("Last day of the month following a date."),
         args: args(`
-    date (date) ${_lt("The date from which to calculate the result.")}
-    `),
+      date (date) ${_lt("The date from which to calculate the result.")}
+      `),
         returns: ["DATE"],
         computeFormat: () => "m/d/yyyy",
         compute: function (date) {
@@ -13700,8 +14261,8 @@
     const QUARTER = {
         description: _lt("Quarter of the year a specific date falls in"),
         args: args(`
-    date (date) ${_lt("The date from which to extract the quarter.")}
-    `),
+      date (date) ${_lt("The date from which to extract the quarter.")}
+      `),
         returns: ["NUMBER"],
         compute: function (date) {
             return Math.ceil((toJsDate(date).getMonth() + 1) / 3);
@@ -13713,8 +14274,8 @@
     const QUARTER_START = {
         description: _lt("First day of the quarter of the year a specific date falls in."),
         args: args(`
-    date (date) ${_lt("The date from which to calculate the start of quarter.")}
-    `),
+      date (date) ${_lt("The date from which to calculate the start of quarter.")}
+      `),
         returns: ["DATE"],
         computeFormat: () => "m/d/yyyy",
         compute: function (date) {
@@ -13730,8 +14291,8 @@
     const QUARTER_END = {
         description: _lt("Last day of the quarter of the year a specific date falls in."),
         args: args(`
-    date (date) ${_lt("The date from which to calculate the end of quarter.")}
-    `),
+      date (date) ${_lt("The date from which to calculate the end of quarter.")}
+      `),
         returns: ["DATE"],
         computeFormat: () => "m/d/yyyy",
         compute: function (date) {
@@ -13747,8 +14308,8 @@
     const YEAR_START = {
         description: _lt("First day of the year a specific date falls in."),
         args: args(`
-    date (date) ${_lt("The date from which to calculate the start of the year.")}
-    `),
+      date (date) ${_lt("The date from which to calculate the start of the year.")}
+      `),
         returns: ["DATE"],
         computeFormat: () => "m/d/yyyy",
         compute: function (date) {
@@ -13763,8 +14324,8 @@
     const YEAR_END = {
         description: _lt("Last day of the year a specific date falls in."),
         args: args(`
-    date (date) ${_lt("The date from which to calculate the end of the year.")}
-    `),
+      date (date) ${_lt("The date from which to calculate the end of the year.")}
+      `),
         returns: ["DATE"],
         computeFormat: () => "m/d/yyyy",
         compute: function (date) {
@@ -13773,41 +14334,42 @@
             return jsDateToRoundNumber(jsDate);
         },
     };
-
+  
     var date = /*#__PURE__*/Object.freeze({
-        __proto__: null,
-        DATE: DATE,
-        DATEVALUE: DATEVALUE,
-        DAY: DAY,
-        DAYS: DAYS,
-        EDATE: EDATE,
-        EOMONTH: EOMONTH,
-        HOUR: HOUR,
-        ISOWEEKNUM: ISOWEEKNUM,
-        MINUTE: MINUTE,
-        MONTH: MONTH,
-        NETWORKDAYS: NETWORKDAYS,
-        NETWORKDAYS_INTL: NETWORKDAYS_INTL,
-        NOW: NOW,
-        SECOND: SECOND,
-        TIME: TIME,
-        TIMEVALUE: TIMEVALUE,
-        TODAY: TODAY,
-        WEEKDAY: WEEKDAY,
-        WEEKNUM: WEEKNUM,
-        WORKDAY: WORKDAY,
-        WORKDAY_INTL: WORKDAY_INTL,
-        YEAR: YEAR,
-        YEARFRAC: YEARFRAC,
-        MONTH_START: MONTH_START,
-        MONTH_END: MONTH_END,
-        QUARTER: QUARTER,
-        QUARTER_START: QUARTER_START,
-        QUARTER_END: QUARTER_END,
-        YEAR_START: YEAR_START,
-        YEAR_END: YEAR_END
+      __proto__: null,
+      DATE: DATE,
+      DATEVALUE: DATEVALUE,
+      DAY: DAY,
+      DAYS: DAYS,
+      DAYS360: DAYS360,
+      EDATE: EDATE,
+      EOMONTH: EOMONTH,
+      HOUR: HOUR,
+      ISOWEEKNUM: ISOWEEKNUM,
+      MINUTE: MINUTE,
+      MONTH: MONTH,
+      NETWORKDAYS: NETWORKDAYS,
+      NETWORKDAYS_INTL: NETWORKDAYS_INTL,
+      NOW: NOW,
+      SECOND: SECOND,
+      TIME: TIME,
+      TIMEVALUE: TIMEVALUE,
+      TODAY: TODAY,
+      WEEKDAY: WEEKDAY,
+      WEEKNUM: WEEKNUM,
+      WORKDAY: WORKDAY,
+      WORKDAY_INTL: WORKDAY_INTL,
+      YEAR: YEAR,
+      YEARFRAC: YEARFRAC,
+      MONTH_START: MONTH_START,
+      MONTH_END: MONTH_END,
+      QUARTER: QUARTER,
+      QUARTER_START: QUARTER_START,
+      QUARTER_END: QUARTER_END,
+      YEAR_START: YEAR_START,
+      YEAR_END: YEAR_END
     });
-
+  
     const DEFAULT_DELTA_ARG = 0;
     // -----------------------------------------------------------------------------
     // DELTA
@@ -13815,9 +14377,9 @@
     const DELTA = {
         description: _lt("Compare two numeric values, returning 1 if they're equal."),
         args: args(`
-  number1  (number) ${_lt("The first number to compare.")}
-  number2  (number, default=${DEFAULT_DELTA_ARG}) ${_lt("The second number to compare.")}
-  `),
+    number1  (number) ${_lt("The first number to compare.")}
+    number2  (number, default=${DEFAULT_DELTA_ARG}) ${_lt("The second number to compare.")}
+    `),
         returns: ["NUMBER"],
         compute: function (number1, number2 = DEFAULT_DELTA_ARG) {
             const _number1 = toNumber(number1);
@@ -13826,44 +14388,526 @@
         },
         isExported: true,
     };
-
+  
     var engineering = /*#__PURE__*/Object.freeze({
-        __proto__: null,
-        DELTA: DELTA
+      __proto__: null,
+      DELTA: DELTA
     });
-
+  
+    /** Assert maturity date > settlement date */
+    function assertMaturityAndSettlementDatesAreValid(settlement, maturity) {
+        assert(() => settlement < maturity, _lt("The maturity (%s) must be strictly greater than the settlement (%s).", maturity.toString(), settlement.toString()));
+    }
+    /** Assert settlement date > issue date */
+    function assertSettlementAndIssueDatesAreValid(settlement, issue) {
+        assert(() => issue < settlement, _lt("The settlement date (%s) must be strictly greater than the issue date (%s).", settlement.toString(), issue.toString()));
+    }
+    /** Assert coupon frequency is in [1, 2, 4] */
+    function assertCouponFrequencyIsValid(frequency) {
+        assert(() => [1, 2, 4].includes(frequency), _lt("The frequency (%s) must be one of %s", frequency.toString(), [1, 2, 4].toString()));
+    }
+    /** Assert dayCountConvention is between 0 and 4 */
+    function assertDayCountConventionIsValid(dayCountConvention) {
+        assert(() => 0 <= dayCountConvention && dayCountConvention <= 4, _lt("The day_count_convention (%s) must be between 0 and 4 inclusive.", dayCountConvention.toString()));
+    }
+    function assertRedemptionStrictlyPositive(redemption) {
+        assert(() => redemption > 0, _lt("The redemption (%s) must be strictly positive.", redemption.toString()));
+    }
+    function assertPriceStrictlyPositive(price) {
+        assert(() => price > 0, _lt("The price (%s) must be strictly positive.", price.toString()));
+    }
+    function assertNumberOfPeriodsStrictlyPositive(nPeriods) {
+        assert(() => nPeriods > 0, _lt("The number_of_periods (%s) must be greater than 0.", nPeriods.toString()));
+    }
+    function assertRateStrictlyPositive(rate) {
+        assert(() => rate > 0, _lt("The rate (%s) must be strictly positive.", rate.toString()));
+    }
+    function assertLifeStrictlyPositive(life) {
+        assert(() => life > 0, _lt("The life (%s) must be strictly positive.", life.toString()));
+    }
+    function assertCostStrictlyPositive(cost) {
+        assert(() => cost > 0, _lt("The cost (%s) must be strictly positive.", cost.toString()));
+    }
+    function assertCostPositiveOrZero(cost) {
+        assert(() => cost >= 0, _lt("The cost (%s) must be positive or null.", cost.toString()));
+    }
+    function assertPeriodStrictlyPositive(period) {
+        assert(() => period > 0, _lt("The period (%s) must be strictly positive.", period.toString()));
+    }
+    function assertPeriodPositiveOrZero(period) {
+        assert(() => period >= 0, _lt("The period (%s) must be positive or null.", period.toString()));
+    }
+    function assertSalvagePositiveOrZero(salvage) {
+        assert(() => salvage >= 0, _lt("The salvage (%s) must be positive or null.", salvage.toString()));
+    }
+    function assertSalvageSmallerOrEqualThanCost(salvage, cost) {
+        assert(() => salvage <= cost, _lt("The salvage (%s) must be smaller or equal than the cost (%s).", salvage.toString(), cost.toString()));
+    }
+    function assertPresentValueStrictlyPositive(pv) {
+        assert(() => pv > 0, _lt("The present value (%s) must be strictly positive.", pv.toString()));
+    }
+    function assertPeriodSmallerOrEqualToLife(period, life) {
+        assert(() => period <= life, _lt("The period (%s) must be less than or equal life (%.", period.toString(), life.toString()));
+    }
+    function assertInvestmentStrictlyPositive(investment) {
+        assert(() => investment > 0, _lt("The investment (%s) must be strictly positive.", investment.toString()));
+    }
+    function assertDiscountStrictlyPositive(discount) {
+        assert(() => discount > 0, _lt("The discount (%s) must be strictly positive.", discount.toString()));
+    }
+    function assertDiscountStrictlySmallerThanOne(discount) {
+        assert(() => discount < 1, _lt("The discount (%s) must be smaller than 1.", discount.toString()));
+    }
+    function assertDeprecationFactorStrictlyPositive(factor) {
+        assert(() => factor > 0, _lt("The depreciation factor (%s) must be strictly positive.", factor.toString()));
+    }
+    function assertSettlementLessThanOneYearBeforeMaturity(settlement, maturity) {
+        const startDate = toJsDate(settlement);
+        const endDate = toJsDate(maturity);
+        const startDatePlusOneYear = new Date(startDate);
+        startDatePlusOneYear.setFullYear(startDate.getFullYear() + 1);
+        assert(() => endDate.getTime() <= startDatePlusOneYear.getTime(), _lt("The settlement date (%s) must at most one year after the maturity date (%s).", settlement.toString(), maturity.toString()));
+    }
+    /**
+     * Check if the given periods are valid. This will assert :
+     *
+     * - 0 < numberOfPeriods
+     * - 0 < firstPeriod <= lastPeriod
+     * - 0 < lastPeriod <= numberOfPeriods
+     *
+     */
+    function assertFirstAndLastPeriodsAreValid(firstPeriod, lastPeriod, numberOfPeriods) {
+        assertNumberOfPeriodsStrictlyPositive(numberOfPeriods);
+        assert(() => firstPeriod > 0, _lt("The first_period (%s) must be strictly positive.", firstPeriod.toString()));
+        assert(() => lastPeriod > 0, _lt("The last_period (%s) must be strictly positive.", lastPeriod.toString()));
+        assert(() => firstPeriod <= lastPeriod, _lt("The first_period (%s) must be smaller or equal to the last_period (%s).", firstPeriod.toString(), lastPeriod.toString()));
+        assert(() => lastPeriod <= numberOfPeriods, _lt("The last_period (%s) must be smaller or equal to the number_of_periods (%s).", firstPeriod.toString(), numberOfPeriods.toString()));
+    }
+    /**
+     * Check if the given periods are valid. This will assert :
+     *
+     * - 0 < life
+     * - 0 <= startPeriod <= endPeriod
+     * - 0 <= endPeriod <= life
+     *
+     */
+    function assertStartAndEndPeriodAreValid(startPeriod, endPeriod, life) {
+        assertLifeStrictlyPositive(life);
+        assert(() => startPeriod >= 0, _lt("The start_period (%s) must be greater or equal than 0.", startPeriod.toString()));
+        assert(() => endPeriod >= 0, _lt("The end_period (%s) must be greater or equal than 0.", endPeriod.toString()));
+        assert(() => startPeriod <= endPeriod, _lt("The start_period (%s) must be smaller or equal to the end_period (%s).", startPeriod.toString(), endPeriod.toString()));
+        assert(() => endPeriod <= life, _lt("The end_period (%s) must be smaller or equal to the life (%s).", startPeriod.toString(), life.toString()));
+    }
+    function assertRateGuessStrictlyGreaterThanMinusOne(guess) {
+        assert(() => guess > -1, _lt("The rate_guess (%s) must be strictly greater than -1.", guess.toString()));
+    }
+    function assertCashFlowsAndDatesHaveSameDimension(cashFlows, dates) {
+        assert(() => cashFlows.length === dates.length && cashFlows[0].length === dates[0].length, _lt("The cashflow_amounts and cashflow_dates ranges must have the same dimensions."));
+    }
+    function assertCashFlowsHavePositiveAndNegativesValues(cashFlow) {
+        assert(() => cashFlow.some((val) => val > 0) && cashFlow.some((val) => val < 0), _lt("There must be both positive and negative values in cashflow_amounts."));
+    }
+    function assertEveryDateGreaterThanFirstDateOfCashFlowDates(dates) {
+        assert(() => dates.every((date) => date >= dates[0]), _lt("All the dates should be greater or equal to the first date in cashflow_dates (%s).", dates[0].toString()));
+    }
+  
     const DEFAULT_DAY_COUNT_CONVENTION = 0;
     const DEFAULT_END_OR_BEGINNING = 0;
-    function newtonMethod(func, derivFunc, startValue, interMax, epsMax = 1e-10) {
+    const DEFAULT_FUTURE_VALUE = 0;
+    const COUPON_FUNCTION_ARGS = args(`
+  settlement (date) ${_lt("The settlement date of the security, the date after issuance when the security is delivered to the buyer.")}
+  maturity (date) ${_lt("The maturity or end date of the security, when it can be redeemed at face, or par value.")}
+  frequency (number) ${_lt("The number of interest or coupon payments per year (1, 2, or 4).")}
+  day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt("An indicator of what day count method to use.")}
+  `);
+    /**
+     * Use the Newton–Raphson method to find a root of the given function in an iterative manner.
+     *
+     * @param func the function to find a root of
+     * @param derivFunc the derivative of the function
+     * @param startValue the initial value for the first iteration of the algorithm
+     * @param maxIterations the maximum number of iterations
+     * @param epsMax the epsilon for the root
+     * @param nanFallback a function giving a fallback value to use if func(x) returns NaN. Useful if the
+     *                       function is not defined for some range, but we know approximately where the root is when the Newton
+     *                       algorithm ends up in this range.
+     */
+    function newtonMethod(func, derivFunc, startValue, maxIterations, epsMax = 1e-10, nanFallback) {
         let x = startValue;
         let newX;
         let xDelta;
         let y;
         let yEqual0 = false;
         let count = 0;
+        let previousFallback = undefined;
         do {
             y = func(x);
+            if (isNaN(y)) {
+                assert(() => count < maxIterations && nanFallback !== undefined, _lt(`Function [[FUNCTION_NAME]] didn't find any result.`));
+                count++;
+                x = nanFallback(previousFallback);
+                previousFallback = x;
+                continue;
+            }
             newX = x - y / derivFunc(x);
             xDelta = Math.abs(newX - x);
             x = newX;
             yEqual0 = xDelta < epsMax || Math.abs(y) < epsMax;
-            assert(() => count < interMax, _lt(`Function [[FUNCTION_NAME]] didn't find any result`));
+            assert(() => count < maxIterations, _lt(`Function [[FUNCTION_NAME]] didn't find any result.`));
             count++;
         } while (!yEqual0);
         return x;
     }
+    // -----------------------------------------------------------------------------
+    // ACCRINTM
+    // -----------------------------------------------------------------------------
+    const ACCRINTM = {
+        description: _lt("Accrued interest of security paying at maturity."),
+        args: args(`
+          issue (date) ${_lt("The date the security was initially issued.")}
+          maturity (date) ${_lt("The maturity date of the security.")}
+          rate (number) ${_lt("The annualized rate of interest.")}
+          redemption (number) ${_lt("The redemption amount per 100 face value, or par.")}
+          day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt("An indicator of what day count method to use.")}
+      `),
+        returns: ["NUMBER"],
+        compute: function (issue, maturity, rate, redemption, dayCountConvention = DEFAULT_DAY_COUNT_CONVENTION) {
+            dayCountConvention = dayCountConvention || 0;
+            const start = Math.trunc(toNumber(issue));
+            const end = Math.trunc(toNumber(maturity));
+            const _redemption = toNumber(redemption);
+            const _rate = toNumber(rate);
+            const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+            assertSettlementAndIssueDatesAreValid(end, start);
+            assertDayCountConventionIsValid(_dayCountConvention);
+            assertRedemptionStrictlyPositive(_redemption);
+            assertRateStrictlyPositive(_rate);
+            const yearFrac = YEARFRAC.compute(start, end, dayCountConvention);
+            return _redemption * _rate * yearFrac;
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // AMORLINC
+    // -----------------------------------------------------------------------------
+    const AMORLINC = {
+        description: _lt("Depreciation for an accounting period."),
+        args: args(`
+          cost (number) ${_lt("The initial cost of the asset.")}
+          purchase_date (date) ${_lt("The date the asset was purchased.")}
+          first_period_end (date) ${_lt("The date the first period ended.")}
+          salvage (number) ${_lt("The value of the asset at the end of depreciation.")}
+          period (number) ${_lt("The single period within life for which to calculate depreciation.")}
+          rate (number) ${_lt("The deprecation rate.")}
+          day_count_convention  (number, optional) ${_lt("An indicator of what day count method to use.")}
+      `),
+        returns: ["NUMBER"],
+        compute: function (cost, purchaseDate, firstPeriodEnd, salvage, period, rate, dayCountConvention = DEFAULT_DAY_COUNT_CONVENTION) {
+            dayCountConvention = dayCountConvention || 0;
+            const _cost = toNumber(cost);
+            const _purchaseDate = Math.trunc(toNumber(purchaseDate));
+            const _firstPeriodEnd = Math.trunc(toNumber(firstPeriodEnd));
+            const _salvage = toNumber(salvage);
+            const _period = toNumber(period);
+            const _rate = toNumber(rate);
+            const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+            assertCostStrictlyPositive(_cost);
+            assertSalvagePositiveOrZero(_salvage);
+            assertSalvageSmallerOrEqualThanCost(_salvage, _cost);
+            assertPeriodPositiveOrZero(_period);
+            assertRateStrictlyPositive(_rate);
+            assertDayCountConventionIsValid(_dayCountConvention);
+            assert(() => _purchaseDate <= _firstPeriodEnd, _lt("The purchase_date (%s) must be before the first_period_end (%s).", _purchaseDate.toString(), _firstPeriodEnd.toString()));
+            /**
+             * https://wiki.documentfoundation.org/Documentation/Calc_Functions/AMORLINC
+             *
+             * AMORLINC period 0 = cost * rate * YEARFRAC(purchase date, first period end)
+             * AMORLINC period n = cost * rate
+             * AMORLINC at the last period is such that the remaining deprecated cost is equal to the salvage value.
+             *
+             * The period is and rounded to 1 if < 1 truncated if > 1,
+             *
+             * Compatibility note :
+             * If (purchase date) === (first period end), on GSheet the deprecation at the first period is 0, and on Excel
+             * it is a full period deprecation. We choose to use the Excel behaviour.
+             */
+            const roundedPeriod = _period < 1 && _period > 0 ? 1 : Math.trunc(_period);
+            const deprec = _cost * _rate;
+            const yearFrac = YEARFRAC.compute(_purchaseDate, _firstPeriodEnd, _dayCountConvention);
+            const firstDeprec = _purchaseDate === _firstPeriodEnd ? deprec : deprec * yearFrac;
+            const valueAtPeriod = _cost - firstDeprec - deprec * roundedPeriod;
+            if (valueAtPeriod >= _salvage) {
+                return roundedPeriod === 0 ? firstDeprec : deprec;
+            }
+            return _salvage - valueAtPeriod < deprec ? deprec - (_salvage - valueAtPeriod) : 0;
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // COUPDAYS
+    // -----------------------------------------------------------------------------
+    const COUPDAYS = {
+        description: _lt("Days in coupon period containing settlement date."),
+        args: COUPON_FUNCTION_ARGS,
+        returns: ["NUMBER"],
+        compute: function (settlement, maturity, frequency, dayCountConvention = DEFAULT_DAY_COUNT_CONVENTION) {
+            dayCountConvention = dayCountConvention || 0;
+            const start = Math.trunc(toNumber(settlement));
+            const end = Math.trunc(toNumber(maturity));
+            const _frequency = Math.trunc(toNumber(frequency));
+            const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+            assertMaturityAndSettlementDatesAreValid(start, end);
+            assertCouponFrequencyIsValid(_frequency);
+            assertDayCountConventionIsValid(_dayCountConvention);
+            // https://wiki.documentfoundation.org/Documentation/Calc_Functions/COUPDAYS
+            if (_dayCountConvention === 1) {
+                const before = COUPPCD.compute(settlement, maturity, frequency, dayCountConvention);
+                const after = COUPNCD.compute(settlement, maturity, frequency, dayCountConvention);
+                return after - before;
+            }
+            const daysInYear = _dayCountConvention === 3 ? 365 : 360;
+            return daysInYear / _frequency;
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // COUPDAYBS
+    // -----------------------------------------------------------------------------
+    const COUPDAYBS = {
+        description: _lt("Days from settlement until next coupon."),
+        args: COUPON_FUNCTION_ARGS,
+        returns: ["NUMBER"],
+        compute: function (settlement, maturity, frequency, dayCountConvention = DEFAULT_DAY_COUNT_CONVENTION) {
+            dayCountConvention = dayCountConvention || 0;
+            const start = Math.trunc(toNumber(settlement));
+            const end = Math.trunc(toNumber(maturity));
+            const _frequency = Math.trunc(toNumber(frequency));
+            const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+            assertMaturityAndSettlementDatesAreValid(start, end);
+            assertCouponFrequencyIsValid(_frequency);
+            assertDayCountConventionIsValid(_dayCountConvention);
+            const couponBeforeStart = COUPPCD.compute(start, end, frequency, dayCountConvention);
+            if ([1, 2, 3].includes(_dayCountConvention)) {
+                return start - couponBeforeStart;
+            }
+            if (_dayCountConvention === 4) {
+                const yearFrac = getYearFrac(couponBeforeStart, start, _dayCountConvention);
+                return Math.round(yearFrac * 360);
+            }
+            const startDate = toJsDate(start);
+            const dateCouponBeforeStart = toJsDate(couponBeforeStart);
+            const y1 = dateCouponBeforeStart.getFullYear();
+            const y2 = startDate.getFullYear();
+            const m1 = dateCouponBeforeStart.getMonth() + 1; // +1 because months in js start at 0 and it's confusing
+            const m2 = startDate.getMonth() + 1;
+            let d1 = dateCouponBeforeStart.getDate();
+            let d2 = startDate.getDate();
+            /**
+             * Rules based on https://en.wikipedia.org/wiki/Day_count_convention#30/360_US
+             *
+             * These are slightly modified (no mention of if investment is EOM and rules order is modified),
+             * but from my testing this seems the rules used by Excel/GSheet.
+             */
+            if (m1 === 2 &&
+                m2 === 2 &&
+                isLastDayOfMonth(dateCouponBeforeStart) &&
+                isLastDayOfMonth(startDate)) {
+                d2 = 30;
+            }
+            if (d2 === 31 && (d1 === 30 || d1 === 31)) {
+                d2 = 30;
+            }
+            if (m1 === 2 && isLastDayOfMonth(dateCouponBeforeStart)) {
+                d1 = 30;
+            }
+            if (d1 === 31) {
+                d1 = 30;
+            }
+            return (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1);
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // COUPDAYSNC
+    // -----------------------------------------------------------------------------
+    const COUPDAYSNC = {
+        description: _lt("Days from settlement until next coupon."),
+        args: COUPON_FUNCTION_ARGS,
+        returns: ["NUMBER"],
+        compute: function (settlement, maturity, frequency, dayCountConvention = DEFAULT_DAY_COUNT_CONVENTION) {
+            dayCountConvention = dayCountConvention || 0;
+            const start = Math.trunc(toNumber(settlement));
+            const end = Math.trunc(toNumber(maturity));
+            const _frequency = Math.trunc(toNumber(frequency));
+            const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+            assertMaturityAndSettlementDatesAreValid(start, end);
+            assertCouponFrequencyIsValid(_frequency);
+            assertDayCountConventionIsValid(_dayCountConvention);
+            const couponAfterStart = COUPNCD.compute(start, end, frequency, dayCountConvention);
+            if ([1, 2, 3].includes(_dayCountConvention)) {
+                return couponAfterStart - start;
+            }
+            if (_dayCountConvention === 4) {
+                const yearFrac = getYearFrac(start, couponAfterStart, _dayCountConvention);
+                return Math.round(yearFrac * 360);
+            }
+            const coupDayBs = COUPDAYBS.compute(settlement, maturity, frequency, _dayCountConvention);
+            const coupDays = COUPDAYS.compute(settlement, maturity, frequency, _dayCountConvention);
+            return coupDays - coupDayBs;
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // COUPNCD
+    // -----------------------------------------------------------------------------
+    const COUPNCD = {
+        description: _lt("Next coupon date after the settlement date."),
+        args: COUPON_FUNCTION_ARGS,
+        returns: ["NUMBER"],
+        computeFormat: () => "m/d/yyyy",
+        compute: function (settlement, maturity, frequency, dayCountConvention = DEFAULT_DAY_COUNT_CONVENTION) {
+            dayCountConvention = dayCountConvention || 0;
+            const start = Math.trunc(toNumber(settlement));
+            const end = Math.trunc(toNumber(maturity));
+            const _frequency = Math.trunc(toNumber(frequency));
+            const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+            assertMaturityAndSettlementDatesAreValid(start, end);
+            assertCouponFrequencyIsValid(_frequency);
+            assertDayCountConventionIsValid(_dayCountConvention);
+            const monthsPerPeriod = 12 / _frequency;
+            const coupNum = COUPNUM.compute(settlement, maturity, frequency, dayCountConvention);
+            const date = addMonthsToDate(toJsDate(end), -(coupNum - 1) * monthsPerPeriod, true);
+            return jsDateToRoundNumber(date);
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // COUPNUM
+    // -----------------------------------------------------------------------------
+    const COUPNUM = {
+        description: _lt("Number of coupons between settlement and maturity."),
+        args: COUPON_FUNCTION_ARGS,
+        returns: ["NUMBER"],
+        compute: function (settlement, maturity, frequency, dayCountConvention = DEFAULT_DAY_COUNT_CONVENTION) {
+            dayCountConvention = dayCountConvention || 0;
+            const start = Math.trunc(toNumber(settlement));
+            const end = Math.trunc(toNumber(maturity));
+            const _frequency = Math.trunc(toNumber(frequency));
+            const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+            assertMaturityAndSettlementDatesAreValid(start, end);
+            assertCouponFrequencyIsValid(_frequency);
+            assertDayCountConventionIsValid(_dayCountConvention);
+            let num = 1;
+            let currentDate = end;
+            const monthsPerPeriod = 12 / _frequency;
+            while (currentDate > start) {
+                currentDate = jsDateToRoundNumber(addMonthsToDate(toJsDate(currentDate), -monthsPerPeriod, false));
+                num++;
+            }
+            return num - 1;
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // COUPPCD
+    // -----------------------------------------------------------------------------
+    const COUPPCD = {
+        description: _lt("Last coupon date prior to or on the settlement date."),
+        args: COUPON_FUNCTION_ARGS,
+        returns: ["NUMBER"],
+        computeFormat: () => "m/d/yyyy",
+        compute: function (settlement, maturity, frequency, dayCountConvention = DEFAULT_DAY_COUNT_CONVENTION) {
+            dayCountConvention = dayCountConvention || 0;
+            const start = Math.trunc(toNumber(settlement));
+            const end = Math.trunc(toNumber(maturity));
+            const _frequency = Math.trunc(toNumber(frequency));
+            const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+            assertMaturityAndSettlementDatesAreValid(start, end);
+            assertCouponFrequencyIsValid(_frequency);
+            assertDayCountConventionIsValid(_dayCountConvention);
+            const monthsPerPeriod = 12 / _frequency;
+            const coupNum = COUPNUM.compute(settlement, maturity, frequency, dayCountConvention);
+            const date = addMonthsToDate(toJsDate(end), -coupNum * monthsPerPeriod, true);
+            return jsDateToRoundNumber(date);
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // CUMIPMT
+    // -----------------------------------------------------------------------------
+    const CUMIPMT = {
+        description: _lt("Cumulative interest paid over a set of periods."),
+        args: args(`
+    rate (number) ${_lt("The interest rate.")}
+    number_of_periods (number) ${_lt("The number of payments to be made.")}
+    present_value (number) ${_lt("The current value of the annuity.")}
+    first_period (number) ${_lt("The number of the payment period to begin the cumulative calculation.")}
+    last_period (number) ${_lt("The number of the payment period to end the cumulative calculation.")}
+    end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt("Whether payments are due at the end (0) or beginning (1) of each period.")}
+    `),
+        returns: ["NUMBER"],
+        compute: function (rate, numberOfPeriods, presentValue, firstPeriod, lastPeriod, endOrBeginning = DEFAULT_END_OR_BEGINNING) {
+            const first = toNumber(firstPeriod);
+            const last = toNumber(lastPeriod);
+            const _rate = toNumber(rate);
+            const pv = toNumber(presentValue);
+            const nOfPeriods = toNumber(numberOfPeriods);
+            assertFirstAndLastPeriodsAreValid(first, last, nOfPeriods);
+            assertRateStrictlyPositive(_rate);
+            assertPresentValueStrictlyPositive(pv);
+            let cumSum = 0;
+            for (let i = first; i <= last; i++) {
+                const impt = IPMT.compute(rate, i, nOfPeriods, presentValue, 0, endOrBeginning);
+                cumSum += impt;
+            }
+            return cumSum;
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // CUMPRINC
+    // -----------------------------------------------------------------------------
+    const CUMPRINC = {
+        description: _lt("Cumulative principal paid over a set of periods."),
+        args: args(`
+    rate (number) ${_lt("The interest rate.")}
+    number_of_periods (number) ${_lt("The number of payments to be made.")}
+    present_value (number) ${_lt("The current value of the annuity.")}
+    first_period (number) ${_lt("The number of the payment period to begin the cumulative calculation.")}
+    last_period (number) ${_lt("The number of the payment period to end the cumulative calculation.")}
+    end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt("Whether payments are due at the end (0) or beginning (1) of each period.")}
+    `),
+        returns: ["NUMBER"],
+        compute: function (rate, numberOfPeriods, presentValue, firstPeriod, lastPeriod, endOrBeginning = DEFAULT_END_OR_BEGINNING) {
+            const first = toNumber(firstPeriod);
+            const last = toNumber(lastPeriod);
+            const _rate = toNumber(rate);
+            const pv = toNumber(presentValue);
+            const nOfPeriods = toNumber(numberOfPeriods);
+            assertFirstAndLastPeriodsAreValid(first, last, nOfPeriods);
+            assertRateStrictlyPositive(_rate);
+            assertPresentValueStrictlyPositive(pv);
+            let cumSum = 0;
+            for (let i = first; i <= last; i++) {
+                const ppmt = PPMT.compute(rate, i, nOfPeriods, presentValue, 0, endOrBeginning);
+                cumSum += ppmt;
+            }
+            return cumSum;
+        },
+        isExported: true,
+    };
     // -----------------------------------------------------------------------------
     // DB
     // -----------------------------------------------------------------------------
     const DB = {
         description: _lt("Depreciation via declining balance method."),
         args: args(`
-        cost (number) ${_lt("The initial cost of the asset.")}
-        salvage (number) ${_lt("The value of the asset at the end of depreciation.")}
-        life (number) ${_lt("The number of periods over which the asset is depreciated.")}
-        period (number) ${_lt("The single period within life for which to calculate depreciation.")}
-        month (number, optional) ${_lt("The number of months in the first year of depreciation.")}
-    `),
+          cost (number) ${_lt("The initial cost of the asset.")}
+          salvage (number) ${_lt("The value of the asset at the end of depreciation.")}
+          life (number) ${_lt("The number of periods over which the asset is depreciated.")}
+          period (number) ${_lt("The single period within life for which to calculate depreciation.")}
+          month (number, optional) ${_lt("The number of months in the first year of depreciation.")}
+      `),
         returns: ["NUMBER"],
         // to do: replace by dollar format
         computeFormat: () => "#,##0.00",
@@ -13874,10 +14918,10 @@
             const _period = Math.trunc(toNumber(period));
             const _month = args.length ? Math.trunc(toNumber(args[0])) : 12;
             const lifeLimit = _life + (_month === 12 ? 0 : 1);
-            assert(() => _cost > 0, _lt("The cost (%s) must be strictly positive.", _cost.toString()));
-            assert(() => _salvage >= 0, _lt("The salvage (%s) must be positive or null.", _salvage.toString()));
-            assert(() => _life > 0, _lt("The life (%s) must be strictly positive.", _life.toString()));
-            assert(() => _period > 0, _lt("The period (%s) must be strictly positive.", _period.toString()));
+            assertCostPositiveOrZero(_cost);
+            assertSalvagePositiveOrZero(_salvage);
+            assertPeriodStrictlyPositive(_period);
+            assertLifeStrictlyPositive(_life);
             assert(() => 1 <= _month && _month <= 12, _lt("The month (%s) must be between 1 and 12 inclusive.", _month.toString()));
             assert(() => _period <= lifeLimit, _lt("The period (%s) must be less than or equal to %s.", _period.toString(), lifeLimit.toString()));
             const monthPart = _month / 12;
@@ -13895,6 +14939,132 @@
             }
             return before - after;
         },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // DDB
+    // -----------------------------------------------------------------------------
+    const DEFAULT_DDB_DEPRECIATION_FACTOR = 2;
+    const DDB = {
+        description: _lt("Depreciation via double-declining balance method."),
+        args: args(`
+          cost (number) ${_lt("The initial cost of the asset.")}
+          salvage (number) ${_lt("The value of the asset at the end of depreciation.")}
+          life (number) ${_lt("The number of periods over which the asset is depreciated.")}
+          period (number) ${_lt("The single period within life for which to calculate depreciation.")}
+          factor (number, default=${DEFAULT_DDB_DEPRECIATION_FACTOR}) ${_lt("The factor by which depreciation decreases.")}
+      `),
+        returns: ["NUMBER"],
+        computeFormat: () => "#,##0.00",
+        compute: function (cost, salvage, life, period, factor = DEFAULT_DDB_DEPRECIATION_FACTOR) {
+            factor = factor || 0;
+            const _cost = toNumber(cost);
+            const _salvage = toNumber(salvage);
+            const _life = toNumber(life);
+            const _period = toNumber(period);
+            const _factor = toNumber(factor);
+            assertCostPositiveOrZero(_cost);
+            assertSalvagePositiveOrZero(_salvage);
+            assertPeriodStrictlyPositive(_period);
+            assertLifeStrictlyPositive(_life);
+            assertPeriodSmallerOrEqualToLife(_period, _life);
+            assertDeprecationFactorStrictlyPositive(_factor);
+            if (_cost === 0 || _salvage >= _cost)
+                return 0;
+            const deprecFactor = _factor / _life;
+            if (deprecFactor > 1) {
+                return period === 1 ? _cost - _salvage : 0;
+            }
+            if (_period <= 1) {
+                return _cost * deprecFactor;
+            }
+            const previousCost = _cost * Math.pow(1 - deprecFactor, _period - 1);
+            const nextCost = _cost * Math.pow(1 - deprecFactor, _period);
+            const deprec = nextCost < _salvage ? previousCost - _salvage : previousCost - nextCost;
+            return Math.max(deprec, 0);
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // DISC
+    // -----------------------------------------------------------------------------
+    const DISC = {
+        description: _lt("Discount rate of a security based on price."),
+        args: args(`
+        settlement (date) ${_lt("The settlement date of the security, the date after issuance when the security is delivered to the buyer.")}
+        maturity (date) ${_lt("The maturity or end date of the security, when it can be redeemed at face, or par value.")}
+        price (number) ${_lt("The price at which the security is bought per 100 face value.")}
+        redemption (number) ${_lt("The redemption amount per 100 face value, or par.")}
+        day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt("An indicator of what day count method to use.")}
+      `),
+        returns: ["NUMBER"],
+        compute: function (settlement, maturity, price, redemption, dayCountConvention = DEFAULT_DAY_COUNT_CONVENTION) {
+            dayCountConvention = dayCountConvention || 0;
+            const _settlement = Math.trunc(toNumber(settlement));
+            const _maturity = Math.trunc(toNumber(maturity));
+            const _price = toNumber(price);
+            const _redemption = toNumber(redemption);
+            const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+            assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
+            assertDayCountConventionIsValid(_dayCountConvention);
+            assertPriceStrictlyPositive(_price);
+            assertRedemptionStrictlyPositive(_redemption);
+            /**
+             * https://support.microsoft.com/en-us/office/disc-function-71fce9f3-3f05-4acf-a5a3-eac6ef4daa53
+             *
+             * B = number of days in year, depending on year basis
+             * DSM = number of days from settlement to maturity
+             *
+             *        redemption - price          B
+             * DISC = ____________________  *    ____
+             *            redemption             DSM
+             */
+            const yearsFrac = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention);
+            return (_redemption - _price) / _redemption / yearsFrac;
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // DOLLARDE
+    // -----------------------------------------------------------------------------
+    const DOLLARDE = {
+        description: _lt("Convert a decimal fraction to decimal value."),
+        args: args(`
+        fractional_price (number) ${_lt("The price quotation given using fractional decimal conventions.")}
+        unit (number) ${_lt("The units of the fraction, e.g. 8 for 1/8ths or 32 for 1/32nds.")}
+      `),
+        returns: ["NUMBER"],
+        compute: function (fractionalPrice, unit) {
+            const price = toNumber(fractionalPrice);
+            const _unit = Math.trunc(toNumber(unit));
+            assert(() => _unit > 0, _lt("The unit (%s) must be strictly positive.", _unit.toString()));
+            const truncatedPrice = Math.trunc(price);
+            const priceFractionalPart = price - truncatedPrice;
+            const frac = 10 ** Math.ceil(Math.log10(_unit)) / _unit;
+            return truncatedPrice + priceFractionalPart * frac;
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // DOLLARFR
+    // -----------------------------------------------------------------------------
+    const DOLLARFR = {
+        description: _lt("Convert a decimal value to decimal fraction."),
+        args: args(`
+    decimal_price (number) ${_lt("The price quotation given as a decimal value.")}
+        unit (number) ${_lt("The units of the desired fraction, e.g. 8 for 1/8ths or 32 for 1/32nds.")}
+      `),
+        returns: ["NUMBER"],
+        compute: function (decimalPrice, unit) {
+            const price = toNumber(decimalPrice);
+            const _unit = Math.trunc(toNumber(unit));
+            assert(() => _unit > 0, _lt("The unit (%s) must be strictly positive.", _unit.toString()));
+            const truncatedPrice = Math.trunc(price);
+            const priceFractionalPart = price - truncatedPrice;
+            const frac = _unit / 10 ** Math.ceil(Math.log10(_unit));
+            return truncatedPrice + priceFractionalPart * frac;
+        },
+        isExported: true,
     };
     // -----------------------------------------------------------------------------
     // DURATION
@@ -13902,13 +15072,13 @@
     const DURATION = {
         description: _lt("Number of periods for an investment to reach a value."),
         args: args(`
-        settlement (date) ${_lt("The settlement date of the security, the date after issuance when the security is delivered to the buyer.")}
-        maturity (date) ${_lt("The maturity or end date of the security, when it can be redeemed at face, or par value.")}
-        rate (number) ${_lt("The annualized rate of interest.")}
-        yield (number) ${_lt("The expected annual yield of the security.")}
-        frequency (number) ${_lt("The number of interest or coupon payments per year (1, 2, or 4).")}
-        day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt("An indicator of what day count method to use.")}
-    `),
+          settlement (date) ${_lt("The settlement date of the security, the date after issuance when the security is delivered to the buyer.")}
+          maturity (date) ${_lt("The maturity or end date of the security, when it can be redeemed at face, or par value.")}
+          rate (number) ${_lt("The annualized rate of interest.")}
+          yield (number) ${_lt("The expected annual yield of the security.")}
+          frequency (number) ${_lt("The number of interest or coupon payments per year (1, 2, or 4).")}
+          day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt("An indicator of what day count method to use.")}
+      `),
         returns: ["NUMBER"],
         compute: function (settlement, maturity, rate, securityYield, frequency, dayCountConvention = DEFAULT_DAY_COUNT_CONVENTION) {
             dayCountConvention = dayCountConvention || 0;
@@ -13918,11 +15088,11 @@
             const _yield = toNumber(securityYield);
             const _frequency = Math.trunc(toNumber(frequency));
             const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
-            assert(() => start < end, _lt("The maturity (%s) must be strictly greater than the settlement (%s).", end.toString(), start.toString()));
+            assertMaturityAndSettlementDatesAreValid(start, end);
+            assertCouponFrequencyIsValid(_frequency);
+            assertDayCountConventionIsValid(_dayCountConvention);
             assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
             assert(() => _yield >= 0, _lt("The yield (%s) must be positive or null.", _yield.toString()));
-            assert(() => [1, 2, 4].includes(_frequency), _lt("The frequency (%s) must be one of %s", _frequency.toString(), [1, 2, 4].toString()));
-            assert(() => 0 <= _dayCountConvention && _dayCountConvention <= 4, _lt("The day_count_convention (%s) must be between 0 and 4 inclusive.", _dayCountConvention.toString()));
             const years = YEARFRAC.compute(start, end, _dayCountConvention);
             const timeFirstYear = years - Math.trunc(years) || 1 / _frequency;
             const nbrCoupons = Math.ceil(years * _frequency);
@@ -13940,6 +15110,27 @@
             }
             return count === 0 ? 0 : sum / count;
         },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // EFFECT
+    // -----------------------------------------------------------------------------
+    const EFFECT = {
+        description: _lt("Annual effective interest rate."),
+        args: args(`
+    nominal_rate (number) ${_lt("The nominal interest rate per year.")}
+    periods_per_year (number) ${_lt("The number of compounding periods per year.")}
+    `),
+        returns: ["NUMBER"],
+        compute: function (nominal_rate, periods_per_year) {
+            const nominal = toNumber(nominal_rate);
+            const periods = Math.trunc(toNumber(periods_per_year));
+            assert(() => nominal > 0, _lt("The nominal rate (%s) must be strictly greater than 0.", nominal.toString()));
+            assert(() => periods > 0, _lt("The number of periods by year (%s) must strictly greater than 0.", periods.toString()));
+            // https://en.wikipedia.org/wiki/Nominal_interest_rate#Nominal_versus_effective_interest_rate
+            return Math.pow(1 + nominal / periods, periods) - 1;
+        },
+        isExported: true,
     };
     // -----------------------------------------------------------------------------
     // FV
@@ -13948,12 +15139,12 @@
     const FV = {
         description: _lt("Future value of an annuity investment."),
         args: args(`
-  rate (number) ${_lt("The interest rate.")}
-  number_of_periods (number) ${_lt("The number of payments to be made.")}
-  payment_amount (number) ${_lt("The amount per period to be paid.")}
-  present_value (number, default=${DEFAULT_PRESENT_VALUE}) ${_lt("The current value of the annuity.")}
-  end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt("Whether payments are due at the end (0) or beginning (1) of each period.")}
-  `),
+    rate (number) ${_lt("The interest rate.")}
+    number_of_periods (number) ${_lt("The number of payments to be made.")}
+    payment_amount (number) ${_lt("The amount per period to be paid.")}
+    present_value (number, default=${DEFAULT_PRESENT_VALUE}) ${_lt("The current value of the annuity.")}
+    end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt("Whether payments are due at the end (0) or beginning (1) of each period.")}
+    `),
         returns: ["NUMBER"],
         // to do: replace by dollar format
         computeFormat: () => "#,##0.00",
@@ -13967,6 +15158,78 @@
             const type = toBoolean(endOrBeginning) ? 1 : 0;
             return r ? -pv * (1 + r) ** n - (p * (1 + r * type) * ((1 + r) ** n - 1)) / r : -(pv + p * n);
         },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // FVSCHEDULE
+    // -----------------------------------------------------------------------------
+    const FVSCHEDULE = {
+        description: _lt("Future value of principal from series of rates."),
+        args: args(`
+    principal (number) ${_lt("The amount of initial capital or value to compound against.")}
+    rate_schedule (number, range<number>) ${_lt("A series of interest rates to compound against the principal.")}
+    `),
+        returns: ["NUMBER"],
+        compute: function (principalAmount, rateSchedule) {
+            const principal = toNumber(principalAmount);
+            return reduceAny([rateSchedule], (acc, rate) => acc * (1 + toNumber(rate)), principal);
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // INTRATE
+    // -----------------------------------------------------------------------------
+    const INTRATE = {
+        description: _lt("Calculates effective interest rate."),
+        args: args(`
+        settlement (date) ${_lt("The settlement date of the security, the date after issuance when the security is delivered to the buyer.")}
+        maturity (date) ${_lt("The maturity or end date of the security, when it can be redeemed at face, or par value.")}
+        investment (number) ${_lt("The amount invested in the security.")}
+        redemption (number) ${_lt("The amount to be received at maturity.")}
+        day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt("An indicator of what day count method to use.")}
+      `),
+        returns: ["NUMBER"],
+        compute: function (settlement, maturity, investment, redemption, dayCountConvention = DEFAULT_DAY_COUNT_CONVENTION) {
+            const _settlement = Math.trunc(toNumber(settlement));
+            const _maturity = Math.trunc(toNumber(maturity));
+            const _redemption = toNumber(redemption);
+            const _investment = toNumber(investment);
+            assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
+            assertInvestmentStrictlyPositive(_investment);
+            assertRedemptionStrictlyPositive(_redemption);
+            /**
+             * https://wiki.documentfoundation.org/Documentation/Calc_Functions/INTRATE
+             *
+             *             (Redemption  - Investment) / Investment
+             * INTRATE =  _________________________________________
+             *              YEARFRAC(settlement, maturity, basis)
+             */
+            const yearFrac = YEARFRAC.compute(_settlement, _maturity, dayCountConvention);
+            return (_redemption - _investment) / _investment / yearFrac;
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // IPMT
+    // -----------------------------------------------------------------------------
+    const IPMT = {
+        description: _lt("Payment on the principal of an investment."),
+        args: args(`
+    rate (number) ${_lt("The annualized rate of interest.")}
+    period (number) ${_lt("The amortization period, in terms of number of periods.")}
+    number_of_periods (number) ${_lt("The number of payments to be made.")}
+    present_value (number) ${_lt("The current value of the annuity.")}
+    future_value (number, default=${DEFAULT_FUTURE_VALUE}) ${_lt("The future value remaining after the final payment has been made.")}
+    end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt("Whether payments are due at the end (0) or beginning (1) of each period.")}
+    `),
+        returns: ["NUMBER"],
+        computeFormat: () => "#,##0.00",
+        compute: function (rate, currentPeriod, numberOfPeriods, presentValue, futureValue = DEFAULT_FUTURE_VALUE, endOrBeginning = DEFAULT_END_OR_BEGINNING) {
+            const payment = PMT.compute(rate, numberOfPeriods, presentValue, futureValue, endOrBeginning);
+            const ppmt = PPMT.compute(rate, currentPeriod, numberOfPeriods, presentValue, futureValue, endOrBeginning);
+            return payment - ppmt;
+        },
+        isExported: true,
     };
     // -----------------------------------------------------------------------------
     // IRR
@@ -13975,14 +15238,14 @@
     const IRR = {
         description: _lt("Internal rate of return given periodic cashflows."),
         args: args(`
-  cashflow_amounts (number, range<number>) ${_lt("An array or range containing the income or payments associated with the investment.")}
-  rate_guess (number, default=${DEFAULT_RATE_GUESS}) ${_lt("An estimate for what the internal rate of return will be.")}
-  `),
+    cashflow_amounts (number, range<number>) ${_lt("An array or range containing the income or payments associated with the investment.")}
+    rate_guess (number, default=${DEFAULT_RATE_GUESS}) ${_lt("An estimate for what the internal rate of return will be.")}
+    `),
         returns: ["NUMBER"],
         computeFormat: () => "0%",
         compute: function (cashFlowAmounts, rateGuess = DEFAULT_RATE_GUESS) {
             const _rateGuess = toNumber(rateGuess);
-            assert(() => _rateGuess > -1, _lt("The rate_guess (%s) must be strictly greater than -1.", _rateGuess.toString()));
+            assertRateGuessStrictlyGreaterThanMinusOne(_rateGuess);
             // check that values contains at least one positive value and one negative value
             // and extract number present in the cashFlowAmount argument
             let positive = false;
@@ -14025,6 +15288,30 @@
             }
             return newtonMethod(func, derivFunc, _rateGuess + 1, 20, 1e-5) - 1;
         },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // ISPMT
+    // -----------------------------------------------------------------------------
+    const ISPMT = {
+        description: _lt("Returns the interest paid at a particular period of an investment."),
+        args: args(`
+    rate (number) ${_lt("The interest rate.")}
+    period (number) ${_lt("The period for which you want to view the interest payment.")}
+    number_of_periods (number) ${_lt("The number of payments to be made.")}
+    present_value (number) ${_lt("The current value of the annuity.")}
+    `),
+        returns: ["NUMBER"],
+        compute: function (rate, currentPeriod, numberOfPeriods, presentValue) {
+            const interestRate = toNumber(rate);
+            const period = toNumber(currentPeriod);
+            const nOfPeriods = toNumber(numberOfPeriods);
+            const investment = toNumber(presentValue);
+            assert(() => nOfPeriods !== 0, _lt("The number of periods must be different than 0.", nOfPeriods.toString()));
+            const currentInvestment = investment - investment * (period / nOfPeriods);
+            return -1 * currentInvestment * interestRate;
+        },
+        isExported: true,
     };
     // -----------------------------------------------------------------------------
     // MDURATION
@@ -14032,13 +15319,13 @@
     const MDURATION = {
         description: _lt("Modified Macaulay duration."),
         args: args(`
-        settlement (date) ${_lt("The settlement date of the security, the date after issuance when the security is delivered to the buyer.")}
-        maturity (date) ${_lt("The maturity or end date of the security, when it can be redeemed at face, or par value.")}
-        rate (number) ${_lt("The annualized rate of interest.")}
-        yield (number) ${_lt("The expected annual yield of the security.")}
-        frequency (number) ${_lt("The number of interest or coupon payments per year (1, 2, or 4).")}
-        day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt("An indicator of what day count method to use.")}
-    `),
+          settlement (date) ${_lt("The settlement date of the security, the date after issuance when the security is delivered to the buyer.")}
+          maturity (date) ${_lt("The maturity or end date of the security, when it can be redeemed at face, or par value.")}
+          rate (number) ${_lt("The annualized rate of interest.")}
+          yield (number) ${_lt("The expected annual yield of the security.")}
+          frequency (number) ${_lt("The number of interest or coupon payments per year (1, 2, or 4).")}
+          day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt("An indicator of what day count method to use.")}
+      `),
         returns: ["NUMBER"],
         compute: function (settlement, maturity, rate, securityYield, frequency, dayCountConvention = DEFAULT_DAY_COUNT_CONVENTION) {
             const duration = DURATION.compute(settlement, maturity, rate, securityYield, frequency, dayCountConvention);
@@ -14046,6 +15333,120 @@
             const k = Math.trunc(toNumber(frequency));
             return duration / (1 + y / k);
         },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // MIRR
+    // -----------------------------------------------------------------------------
+    const MIRR = {
+        description: _lt("Modified internal rate of return."),
+        args: args(`
+    cashflow_amounts (range<number>) ${_lt("A range containing the income or payments associated with the investment. The array should contain bot payments and incomes.")}
+    financing_rate (number) ${_lt("The interest rate paid on funds invested.")}
+    reinvestment_return_rate (number) ${_lt("The return (as a percentage) earned on reinvestment of income received from the investment.")}
+    `),
+        returns: ["NUMBER"],
+        compute: function (cashflowAmount, financingRate, reinvestmentRate) {
+            const fRate = toNumber(financingRate);
+            const rRate = toNumber(reinvestmentRate);
+            const cashFlow = transpose2dArray(cashflowAmount).flat().filter(isDefined$1).map(toNumber);
+            const n = cashFlow.length;
+            /**
+             * https://en.wikipedia.org/wiki/Modified_internal_rate_of_return
+             *
+             *         /  FV(positive cash flows, reinvestment rate) \  ^ (1 / (n - 1))
+             * MIRR = |  ___________________________________________  |                 - 1
+             *         \   - PV(negative cash flows, finance rate)   /
+             *
+             * with n the number of cash flows.
+             *
+             * You can compute FV and PV as :
+             *
+             * FV =    SUM      [ (cashFlow[i]>0 ? cashFlow[i] : 0) * (1 + rRate)**(n - i-1) ]
+             *       i= 0 => n
+             *
+             * PV =    SUM      [ (cashFlow[i]<0 ? cashFlow[i] : 0) / (1 + fRate)**i ]
+             *       i= 0 => n
+             */
+            let fv = 0;
+            let pv = 0;
+            for (const i of range(0, n)) {
+                const amount = cashFlow[i];
+                if (amount >= 0) {
+                    fv += amount * (rRate + 1) ** (n - i - 1);
+                }
+                else {
+                    pv += amount / (fRate + 1) ** i;
+                }
+            }
+            assert(() => pv !== 0 && fv !== 0, _lt("There must be both positive and negative values in cashflow_amounts."));
+            const exponent = 1 / (n - 1);
+            return (-fv / pv) ** exponent - 1;
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // NOMINAL
+    // -----------------------------------------------------------------------------
+    const NOMINAL = {
+        description: _lt("Annual nominal interest rate."),
+        args: args(`
+    effective_rate (number) ${_lt("The effective interest rate per year.")}
+    periods_per_year (number) ${_lt("The number of compounding periods per year.")}
+    `),
+        returns: ["NUMBER"],
+        compute: function (effective_rate, periods_per_year) {
+            const effective = toNumber(effective_rate);
+            const periods = Math.trunc(toNumber(periods_per_year));
+            assert(() => effective > 0, _lt("The effective rate (%s) must must strictly greater than 0.", effective.toString()));
+            assert(() => periods > 0, _lt("The number of periods by year (%s) must strictly greater than 0.", periods.toString()));
+            // https://en.wikipedia.org/wiki/Nominal_interest_rate#Nominal_versus_effective_interest_rate
+            return (Math.pow(effective + 1, 1 / periods) - 1) * periods;
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // NPER
+    // -----------------------------------------------------------------------------
+    const NPER = {
+        description: _lt("Number of payment periods for an investment."),
+        args: args(`
+    rate (number) ${_lt("The interest rate.")}
+    payment_amount (number) ${_lt("The amount of each payment made.")}
+    present_value (number) ${_lt("The current value of the annuity.")}
+    future_value (number, default=${DEFAULT_FUTURE_VALUE}) ${_lt("The future value remaining after the final payment has been made.")}
+    end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt("Whether payments are due at the end (0) or beginning (1) of each period.")}
+    `),
+        returns: ["NUMBER"],
+        compute: function (rate, paymentAmount, presentValue, futureValue = DEFAULT_FUTURE_VALUE, endOrBeginning = DEFAULT_END_OR_BEGINNING) {
+            futureValue = futureValue || 0;
+            endOrBeginning = endOrBeginning || 0;
+            const r = toNumber(rate);
+            const p = toNumber(paymentAmount);
+            const pv = toNumber(presentValue);
+            const fv = toNumber(futureValue);
+            const t = toBoolean(endOrBeginning) ? 1 : 0;
+            /**
+             * https://wiki.documentfoundation.org/Documentation/Calc_Functions/NPER
+             *
+             * 0 = pv * (1 + r)^N + fv + [ p * (1 + r * t) * ((1 + r)^N - 1) ] / r
+             *
+             * We solve the equation for N:
+             *
+             * with C = [ p * (1 + r * t)] / r and
+             *      R = 1 + r
+             *
+             * => 0 = pv * R^N + C * R^N - C + fv
+             * <=> (C - fv) = R^N * (pv + C)
+             * <=> log[(C - fv) / (pv + C)] = N * log(R)
+             */
+            if (r === 0) {
+                return -(fv + pv) / p;
+            }
+            const c = (p * (1 + r * t)) / r;
+            return Math.log((c - fv) / (pv + c)) / Math.log(1 + r);
+        },
+        isExported: true,
     };
     // -----------------------------------------------------------------------------
     // NPV
@@ -14060,10 +15461,10 @@
     const NPV = {
         description: _lt("The net present value of an investment based on a series of periodic cash flows and a discount rate."),
         args: args(`
-  discount (number) ${_lt("The discount rate of the investment over one period.")}
-  cashflow1 (number, range<number>) ${_lt("The first future cash flow.")}
-  cashflow2 (number, range<number>, repeating) ${_lt("Additional future cash flows.")}
-  `),
+    discount (number) ${_lt("The discount rate of the investment over one period.")}
+    cashflow1 (number, range<number>) ${_lt("The first future cash flow.")}
+    cashflow2 (number, range<number>, repeating) ${_lt("Additional future cash flows.")}
+    `),
         returns: ["NUMBER"],
         // to do: replace by dollar format
         computeFormat: () => "#,##0.00",
@@ -14072,6 +15473,7 @@
             assert(() => _discount !== -1, _lt("The discount (%s) must be different from -1.", _discount.toString()));
             return npvResult(_discount, 0, values);
         },
+        isExported: true,
     };
     // -----------------------------------------------------------------------------
     // PDURATION
@@ -14079,34 +15481,110 @@
     const PDURATION = {
         description: _lt("Computes the number of periods needed for an investment to reach a value."),
         args: args(`
-  rate (number) ${_lt("The rate at which the investment grows each period.")}
-  present_value (number) ${_lt("The investment's current value.")}
-  future_value (number) ${_lt("The investment's desired future value.")}
-  `),
+    rate (number) ${_lt("The rate at which the investment grows each period.")}
+    present_value (number) ${_lt("The investment's current value.")}
+    future_value (number) ${_lt("The investment's desired future value.")}
+    `),
         returns: ["NUMBER"],
         compute: function (rate, presentValue, futureValue) {
             const _rate = toNumber(rate);
             const _presentValue = toNumber(presentValue);
             const _futureValue = toNumber(futureValue);
-            assert(() => _rate > 0, _lt("The rate (%s) must be strictly positive.", _rate.toString()));
+            assertRateStrictlyPositive(_rate);
             assert(() => _presentValue > 0, _lt("The present_value (%s) must be strictly positive.", _presentValue.toString()));
             assert(() => _futureValue > 0, _lt("The future_value (%s) must be strictly positive.", _futureValue.toString()));
             return (Math.log(_futureValue) - Math.log(_presentValue)) / Math.log(1 + _rate);
         },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // PMT
+    // -----------------------------------------------------------------------------
+    const PMT = {
+        description: _lt("Periodic payment for an annuity investment."),
+        args: args(`
+    rate (number) ${_lt("The annualized rate of interest.")}
+    number_of_periods (number) ${_lt("The number of payments to be made.")}
+    present_value (number) ${_lt("The current value of the annuity.")}
+    future_value (number, default=${DEFAULT_FUTURE_VALUE}) ${_lt("The future value remaining after the final payment has been made.")}
+    end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt("Whether payments are due at the end (0) or beginning (1) of each period.")}
+    `),
+        returns: ["NUMBER"],
+        computeFormat: () => "#,##0.00",
+        compute: function (rate, numberOfPeriods, presentValue, futureValue = DEFAULT_FUTURE_VALUE, endOrBeginning = DEFAULT_END_OR_BEGINNING) {
+            futureValue = futureValue || 0;
+            endOrBeginning = endOrBeginning || 0;
+            const n = toNumber(numberOfPeriods);
+            const r = toNumber(rate);
+            const t = toBoolean(endOrBeginning) ? 1 : 0;
+            let fv = toNumber(futureValue);
+            let pv = toNumber(presentValue);
+            assertNumberOfPeriodsStrictlyPositive(n);
+            /**
+             * https://wiki.documentfoundation.org/Documentation/Calc_Functions/PMT
+             *
+             * 0 = pv * (1 + r)^N + fv + [ p * (1 + r * t) * ((1 + r)^N - 1) ] / r
+             *
+             * We simply the equation for p
+             */
+            if (r === 0) {
+                return -(fv + pv) / n;
+            }
+            let payment = -(pv * (1 + r) ** n + fv);
+            payment = (payment * r) / ((1 + r * t) * ((1 + r) ** n - 1));
+            return payment;
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // PPMT
+    // -----------------------------------------------------------------------------
+    const PPMT = {
+        description: _lt("Payment on the principal of an investment."),
+        args: args(`
+    rate (number) ${_lt("The annualized rate of interest.")}
+    period (number) ${_lt("The amortization period, in terms of number of periods.")}
+    number_of_periods (number) ${_lt("The number of payments to be made.")}
+    present_value (number) ${_lt("The current value of the annuity.")}
+    future_value (number, default=${DEFAULT_FUTURE_VALUE}) ${_lt("The future value remaining after the final payment has been made.")}
+    end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt("Whether payments are due at the end (0) or beginning (1) of each period.")}
+    `),
+        returns: ["NUMBER"],
+        computeFormat: () => "#,##0.00",
+        compute: function (rate, currentPeriod, numberOfPeriods, presentValue, futureValue = DEFAULT_FUTURE_VALUE, endOrBeginning = DEFAULT_END_OR_BEGINNING) {
+            futureValue = futureValue || 0;
+            endOrBeginning = endOrBeginning || 0;
+            const n = toNumber(numberOfPeriods);
+            const r = toNumber(rate);
+            const period = toNumber(currentPeriod);
+            const type = toBoolean(endOrBeginning) ? 1 : 0;
+            const fv = toNumber(futureValue);
+            const pv = toNumber(presentValue);
+            assertNumberOfPeriodsStrictlyPositive(n);
+            assert(() => period > 0 && period <= n, _lt("The period must be between 1 and number_of_periods", n.toString()));
+            const payment = PMT.compute(r, n, pv, fv, endOrBeginning);
+            if (type === 1 && period === 1)
+                return payment;
+            const eqPeriod = type === 0 ? period - 1 : period - 2;
+            const eqPv = pv + payment * type;
+            const capitalAtPeriod = -FV.compute(r, eqPeriod, payment, eqPv, 0);
+            const currentInterest = capitalAtPeriod * r;
+            return payment + currentInterest;
+        },
+        isExported: true,
     };
     // -----------------------------------------------------------------------------
     // PV
     // -----------------------------------------------------------------------------
-    const DEFAULT_FUTURE_VALUE = 0;
     const PV = {
         description: _lt("Present value of an annuity investment."),
         args: args(`
-  rate (number) ${_lt("The interest rate.")}
-  number_of_periods (number) ${_lt("The number of payments to be made.")}
-  payment_amount (number) ${_lt("The amount per period to be paid.")}
-  future_value (number, default=${DEFAULT_FUTURE_VALUE}) ${_lt("The future value remaining after the final payment has been made.")}
-  end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt("Whether payments are due at the end (0) or beginning (1) of each period.")}
-  `),
+    rate (number) ${_lt("The interest rate.")}
+    number_of_periods (number) ${_lt("The number of payments to be made.")}
+    payment_amount (number) ${_lt("The amount per period to be paid.")}
+    future_value (number, default=${DEFAULT_FUTURE_VALUE}) ${_lt("The future value remaining after the final payment has been made.")}
+    end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt("Whether payments are due at the end (0) or beginning (1) of each period.")}
+    `),
         returns: ["NUMBER"],
         // to do: replace by dollar format
         computeFormat: () => "#,##0.00",
@@ -14118,8 +15596,10 @@
             const p = toNumber(paymentAmount);
             const fv = toNumber(futureValue);
             const type = toBoolean(endOrBeginning) ? 1 : 0;
+            // https://wiki.documentfoundation.org/Documentation/Calc_Functions/PV
             return r ? -((p * (1 + r * type) * ((1 + r) ** n - 1)) / r + fv) / (1 + r) ** n : -(fv + p * n);
         },
+        isExported: true,
     };
     // -----------------------------------------------------------------------------
     // PRICE
@@ -14127,14 +15607,14 @@
     const PRICE = {
         description: _lt("Price of a security paying periodic interest."),
         args: args(`
-      settlement (date) ${_lt("The settlement date of the security, the date after issuance when the security is delivered to the buyer.")}
-      maturity (date) ${_lt("The maturity or end date of the security, when it can be redeemed at face, or par value.")}
-      rate (number) ${_lt("The annualized rate of interest.")}
-      yield (number) ${_lt("The expected annual yield of the security.")}
-      redemption (number) ${_lt("The redemption amount per 100 face value, or par.")}
-      frequency (number) ${_lt("The number of interest or coupon payments per year (1, 2, or 4).")}
-      day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt("An indicator of what day count method to use.")}
-    `),
+        settlement (date) ${_lt("The settlement date of the security, the date after issuance when the security is delivered to the buyer.")}
+        maturity (date) ${_lt("The maturity or end date of the security, when it can be redeemed at face, or par value.")}
+        rate (number) ${_lt("The annualized rate of interest.")}
+        yield (number) ${_lt("The expected annual yield of the security.")}
+        redemption (number) ${_lt("The redemption amount per 100 face value, or par.")}
+        frequency (number) ${_lt("The number of interest or coupon payments per year (1, 2, or 4).")}
+        day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt("An indicator of what day count method to use.")}
+      `),
         returns: ["NUMBER"],
         compute: function (settlement, maturity, rate, securityYield, redemption, frequency, dayCountConvention = DEFAULT_DAY_COUNT_CONVENTION) {
             dayCountConvention = dayCountConvention || 0;
@@ -14145,12 +15625,12 @@
             const _redemption = toNumber(redemption);
             const _frequency = Math.trunc(toNumber(frequency));
             const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
-            assert(() => _maturity > _settlement, _lt("The maturity (%s) must be strictly greater than the settlement (%s).", _maturity.toString(), _settlement.toString()));
+            assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
+            assertCouponFrequencyIsValid(_frequency);
+            assertDayCountConventionIsValid(_dayCountConvention);
             assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
             assert(() => _yield >= 0, _lt("The yield (%s) must be positive or null.", _yield.toString()));
-            assert(() => _redemption > 0, _lt("The redemption (%s) must be strictly positive.", _redemption.toString()));
-            assert(() => [1, 2, 4].includes(_frequency), _lt("The frequency (%s) must be one of %s.", _frequency.toString(), [1, 2, 4].toString()));
-            assert(() => 0 <= _dayCountConvention && _dayCountConvention <= 4, _lt("The day_count_convention (%s) must be between 0 and 4 inclusive.", _dayCountConvention.toString()));
+            assertRedemptionStrictlyPositive(_redemption);
             const years = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention);
             const nbrRealCoupons = years * _frequency;
             const nbrFullCoupons = Math.ceil(nbrRealCoupons);
@@ -14169,6 +15649,609 @@
             const redemptionPresentValue = _redemption / yieldFactorPerPeriod ** (nbrFullCoupons - 1 + timeFirstCoupon);
             return (redemptionPresentValue + cashFlowsPresentValue - cashFlowFromCoupon * (1 - timeFirstCoupon));
         },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // PRICEDISC
+    // -----------------------------------------------------------------------------
+    const PRICEDISC = {
+        description: _lt("Price of a discount security."),
+        args: args(`
+        settlement (date) ${_lt("The settlement date of the security, the date after issuance when the security is delivered to the buyer.")}
+        maturity (date) ${_lt("The maturity or end date of the security, when it can be redeemed at face, or par value.")}
+        discount (number) ${_lt("The discount rate of the security at time of purchase.")}
+        redemption (number) ${_lt("The redemption amount per 100 face value, or par.")}
+        day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt("An indicator of what day count method to use.")}
+      `),
+        returns: ["NUMBER"],
+        compute: function (settlement, maturity, discount, redemption, dayCountConvention = DEFAULT_DAY_COUNT_CONVENTION) {
+            dayCountConvention = dayCountConvention || 0;
+            const _settlement = Math.trunc(toNumber(settlement));
+            const _maturity = Math.trunc(toNumber(maturity));
+            const _discount = toNumber(discount);
+            const _redemption = toNumber(redemption);
+            const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+            assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
+            assertDayCountConventionIsValid(_dayCountConvention);
+            assertDiscountStrictlyPositive(_discount);
+            assertRedemptionStrictlyPositive(_redemption);
+            /**
+             * https://support.microsoft.com/en-us/office/pricedisc-function-d06ad7c1-380e-4be7-9fd9-75e3079acfd3
+             *
+             * B = number of days in year, depending on year basis
+             * DSM = number of days from settlement to maturity
+             *
+             * PRICEDISC = redemption - discount * redemption * (DSM/B)
+             */
+            const yearsFrac = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention);
+            return _redemption - _discount * _redemption * yearsFrac;
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // PRICEMAT
+    // -----------------------------------------------------------------------------
+    const PRICEMAT = {
+        description: _lt("Calculates the price of a security paying interest at maturity, based on expected yield."),
+        args: args(`
+        settlement (date) ${_lt("The settlement date of the security, the date after issuance when the security is delivered to the buyer.")}
+        maturity (date) ${_lt("The maturity or end date of the security, when it can be redeemed at face, or par value.")}
+        issue (date) ${_lt("The date the security was initially issued.")}
+        rate (number) ${_lt("The annualized rate of interest.")}
+        yield (number) ${_lt("The expected annual yield of the security.")}
+        day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt("An indicator of what day count method to use.")}
+      `),
+        returns: ["NUMBER"],
+        compute: function (settlement, maturity, issue, rate, securityYield, dayCountConvention = DEFAULT_DAY_COUNT_CONVENTION) {
+            dayCountConvention = dayCountConvention || 0;
+            const _settlement = Math.trunc(toNumber(settlement));
+            const _maturity = Math.trunc(toNumber(maturity));
+            const _issue = Math.trunc(toNumber(issue));
+            const _rate = toNumber(rate);
+            const _yield = toNumber(securityYield);
+            const _dayCount = Math.trunc(toNumber(dayCountConvention));
+            assertSettlementAndIssueDatesAreValid(_settlement, _issue);
+            assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
+            assertDayCountConventionIsValid(_dayCount);
+            assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
+            assert(() => _yield >= 0, _lt("The yield (%s) must be positive or null.", _yield.toString()));
+            /**
+             * https://support.microsoft.com/en-us/office/pricemat-function-52c3b4da-bc7e-476a-989f-a95f675cae77
+             *
+             * B = number of days in year, depending on year basis
+             * DSM = number of days from settlement to maturity
+             * DIM = number of days from issue to maturity
+             * DIS = number of days from issue to settlement
+             *
+             *             100 + (DIM/B * rate * 100)
+             *  PRICEMAT =  __________________________   - (DIS/B * rate * 100)
+             *              1 + (DSM/B * yield)
+             *
+             * The ratios number_of_days / days_in_year are computed using the YEARFRAC function, that handle
+             * differences due to day count conventions.
+             *
+             * Compatibility note :
+             *
+             * Contrary to GSheet and OpenOffice, Excel doesn't seems to always use its own YEARFRAC function
+             * to compute PRICEMAT, and give different values for some combinations of dates and day count
+             * conventions ( notably for leap years and dayCountConvention = 1 (Actual/Actual)).
+             *
+             * Our function PRICEMAT give us the same results as LibreOffice Calc.
+             * Google Sheet use the formula with YEARFRAC, but its YEARFRAC function results are different
+             * from the results of Excel/LibreOffice, thus we get different values with PRICEMAT.
+             *
+             */
+            const settlementToMaturity = YEARFRAC.compute(_settlement, _maturity, _dayCount);
+            const issueToSettlement = YEARFRAC.compute(_settlement, _issue, _dayCount);
+            const issueToMaturity = YEARFRAC.compute(_issue, _maturity, _dayCount);
+            const numerator = 100 + issueToMaturity * _rate * 100;
+            const denominator = 1 + settlementToMaturity * _yield;
+            const term2 = issueToSettlement * _rate * 100;
+            return numerator / denominator - term2;
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // RATE
+    // -----------------------------------------------------------------------------
+    const RATE_GUESS_DEFAULT = 0.1;
+    const RATE = {
+        description: _lt("Interest rate of an annuity investment."),
+        args: args(`
+    number_of_periods (number) ${_lt("The number of payments to be made.")}
+    payment_per_period (number) ${_lt("The amount per period to be paid.")}
+    present_value (number) ${_lt("The current value of the annuity.")}
+    future_value (number, default=${DEFAULT_FUTURE_VALUE}) ${_lt("The future value remaining after the final payment has been made.")}
+    end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt("Whether payments are due at the end (0) or beginning (1) of each period.")}
+    rate_guess (number, default=${RATE_GUESS_DEFAULT}) ${_lt("An estimate for what the interest rate will be.")}
+    `),
+        returns: ["NUMBER"],
+        computeFormat: () => "0%",
+        compute: function (numberOfPeriods, paymentPerPeriod, presentValue, futureValue = DEFAULT_FUTURE_VALUE, endOrBeginning = DEFAULT_END_OR_BEGINNING, rateGuess = RATE_GUESS_DEFAULT) {
+            futureValue = futureValue || 0;
+            endOrBeginning = endOrBeginning || 0;
+            rateGuess = rateGuess || RATE_GUESS_DEFAULT;
+            const n = toNumber(numberOfPeriods);
+            const payment = toNumber(paymentPerPeriod);
+            const type = toBoolean(endOrBeginning) ? 1 : 0;
+            const guess = toNumber(rateGuess);
+            let fv = toNumber(futureValue);
+            let pv = toNumber(presentValue);
+            assertNumberOfPeriodsStrictlyPositive(n);
+            assert(() => [payment, pv, fv].some((val) => val > 0) && [payment, pv, fv].some((val) => val < 0), _lt("There must be both positive and negative values in [payment_amount, present_value, future_value].", n.toString()));
+            assertRateGuessStrictlyGreaterThanMinusOne(guess);
+            fv -= payment * type;
+            pv += payment * type;
+            // https://github.com/apache/openoffice/blob/trunk/main/sc/source/core/tool/interpr2.cxx
+            const func = (rate) => {
+                const powN = Math.pow(1 + rate, n);
+                const intResult = (powN - 1) / rate;
+                return fv + pv * powN + payment * intResult;
+            };
+            const derivFunc = (rate) => {
+                const powNMinus1 = Math.pow(1 + rate, n - 1);
+                const powN = Math.pow(1 + rate, n);
+                const intResult = (powN - 1) / rate;
+                const intResultDeriv = (n * powNMinus1) / rate - intResult / rate;
+                const fTermDerivation = pv * n * powNMinus1 + payment * intResultDeriv;
+                return fTermDerivation;
+            };
+            return newtonMethod(func, derivFunc, guess, 40, 1e-5);
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // RECEIVED
+    // -----------------------------------------------------------------------------
+    const RECEIVED = {
+        description: _lt("Amount received at maturity for a security."),
+        args: args(`
+        settlement (date) ${_lt("The settlement date of the security, the date after issuance when the security is delivered to the buyer.")}
+        maturity (date) ${_lt("The maturity or end date of the security, when it can be redeemed at face, or par value.")}
+        investment (number) ${_lt("The amount invested (irrespective of face value of each security).")}
+        discount (number) ${_lt("The discount rate of the security invested in.")}
+        day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt("An indicator of what day count method to use.")}
+      `),
+        returns: ["NUMBER"],
+        compute: function (settlement, maturity, investment, discount, dayCountConvention = DEFAULT_DAY_COUNT_CONVENTION) {
+            dayCountConvention = dayCountConvention || 0;
+            const _settlement = Math.trunc(toNumber(settlement));
+            const _maturity = Math.trunc(toNumber(maturity));
+            const _investment = toNumber(investment);
+            const _discount = toNumber(discount);
+            const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+            assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
+            assertDayCountConventionIsValid(_dayCountConvention);
+            assertInvestmentStrictlyPositive(_investment);
+            assertDiscountStrictlyPositive(_discount);
+            /**
+             * https://support.microsoft.com/en-us/office/received-function-7a3f8b93-6611-4f81-8576-828312c9b5e5
+             *
+             *                    investment
+             * RECEIVED = _________________________
+             *              1 - discount * DSM / B
+             *
+             * with DSM = number of days from settlement to maturity and B = number of days in a year
+             *
+             * The ratio DSM/B can be computed with the YEARFRAC function to take the dayCountConvention into account.
+             */
+            const yearsFrac = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention);
+            return _investment / (1 - _discount * yearsFrac);
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // RRI
+    // -----------------------------------------------------------------------------
+    const RRI = {
+        description: _lt("Computes the rate needed for an investment to reach a specific value within a specific number of periods."),
+        args: args(`
+        number_of_periods (number) ${_lt("The number of periods.")}
+        present_value (number) ${_lt("The present value of the investment.")}
+        future_value (number) ${_lt("The future value of the investment.")}
+      `),
+        returns: ["NUMBER"],
+        compute: function (numberOfPeriods, presentValue, futureValue) {
+            const n = toNumber(numberOfPeriods);
+            const pv = toNumber(presentValue);
+            const fv = toNumber(futureValue);
+            assertNumberOfPeriodsStrictlyPositive(n);
+            /**
+             * https://support.microsoft.com/en-us/office/rri-function-6f5822d8-7ef1-4233-944c-79e8172930f4
+             *
+             * RRI = (future value / present value) ^ (1 / number of periods) - 1
+             */
+            return (fv / pv) ** (1 / n) - 1;
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // SLN
+    // -----------------------------------------------------------------------------
+    const SLN = {
+        description: _lt("Depreciation of an asset using the straight-line method."),
+        args: args(`
+          cost (number) ${_lt("The initial cost of the asset.")}
+          salvage (number) ${_lt("The value of the asset at the end of depreciation.")}
+          life (number) ${_lt("The number of periods over which the asset is depreciated.")}
+      `),
+        returns: ["NUMBER"],
+        computeFormat: () => "#,##0.00",
+        compute: function (cost, salvage, life) {
+            const _cost = toNumber(cost);
+            const _salvage = toNumber(salvage);
+            const _life = toNumber(life);
+            // No assertion is done on the values of the arguments to be compatible with Excel/Gsheet that don't check the values.
+            // It's up to the user to make sure the arguments make sense, which is good design because the user is smart.
+            return (_cost - _salvage) / _life;
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // SYD
+    // -----------------------------------------------------------------------------
+    const SYD = {
+        description: _lt("Depreciation via sum of years digit method."),
+        args: args(`
+          cost (number) ${_lt("The initial cost of the asset.")}
+          salvage (number) ${_lt("The value of the asset at the end of depreciation.")}
+          life (number) ${_lt("The number of periods over which the asset is depreciated.")}
+          period (number) ${_lt("The single period within life for which to calculate depreciation.")}
+      `),
+        returns: ["NUMBER"],
+        computeFormat: () => "#,##0.00",
+        compute: function (cost, salvage, life, period) {
+            const _cost = toNumber(cost);
+            const _salvage = toNumber(salvage);
+            const _life = toNumber(life);
+            const _period = toNumber(period);
+            assertPeriodStrictlyPositive(_period);
+            assertLifeStrictlyPositive(_life);
+            assertPeriodSmallerOrEqualToLife(_period, _life);
+            /**
+             * This deprecation method use the sum of digits of the periods of the life as the deprecation factor.
+             * For example for a life = 5, we have a deprecation factor or 1 + 2 + 3 + 4 + 5 = 15 = life * (life + 1) / 2 = F.
+             *
+             * The deprecation for a period p is then computed based on F and the remaining lifetime at the period P.
+             *
+             * deprecation = (cost - salvage) * (number of remaining periods / F)
+             */
+            const deprecFactor = (_life * (_life + 1)) / 2;
+            const remainingPeriods = _life - _period + 1;
+            return (_cost - _salvage) * (remainingPeriods / deprecFactor);
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // TBILLPRICE
+    // -----------------------------------------------------------------------------
+    const TBILLPRICE = {
+        description: _lt("Price of a US Treasury bill."),
+        args: args(`
+        settlement (date) ${_lt("The settlement date of the security, the date after issuance when the security is delivered to the buyer.")}
+        maturity (date) ${_lt("The maturity or end date of the security, when it can be redeemed at face, or par value.")}
+        discount (number) ${_lt("The discount rate of the bill at time of purchase.")}
+      `),
+        returns: ["NUMBER"],
+        compute: function (settlement, maturity, discount) {
+            const start = Math.trunc(toNumber(settlement));
+            const end = Math.trunc(toNumber(maturity));
+            const disc = toNumber(discount);
+            assertMaturityAndSettlementDatesAreValid(start, end);
+            assertSettlementLessThanOneYearBeforeMaturity(start, end);
+            assertDiscountStrictlyPositive(disc);
+            assertDiscountStrictlySmallerThanOne(disc);
+            /**
+             * https://support.microsoft.com/en-us/office/tbillprice-function-eacca992-c29d-425a-9eb8-0513fe6035a2
+             *
+             * TBILLPRICE = 100 * (1 - discount * DSM / 360)
+             *
+             * with DSM = number of days from settlement to maturity
+             *
+             * The ratio DSM/360 can be computed with the YEARFRAC function with dayCountConvention = 2 (actual/360).
+             */
+            const yearFrac = YEARFRAC.compute(start, end, 2);
+            return 100 * (1 - disc * yearFrac);
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // TBILLEQ
+    // -----------------------------------------------------------------------------
+    const TBILLEQ = {
+        description: _lt("Equivalent rate of return for a US Treasury bill."),
+        args: args(`
+        settlement (date) ${_lt("The settlement date of the security, the date after issuance when the security is delivered to the buyer.")}
+        maturity (date) ${_lt("The maturity or end date of the security, when it can be redeemed at face, or par value.")}
+        discount (number) ${_lt("The discount rate of the bill at time of purchase.")}
+      `),
+        returns: ["NUMBER"],
+        compute: function (settlement, maturity, discount) {
+            const start = Math.trunc(toNumber(settlement));
+            const end = Math.trunc(toNumber(maturity));
+            const disc = toNumber(discount);
+            assertMaturityAndSettlementDatesAreValid(start, end);
+            assertSettlementLessThanOneYearBeforeMaturity(start, end);
+            assertDiscountStrictlyPositive(disc);
+            assertDiscountStrictlySmallerThanOne(disc);
+            /**
+             * https://support.microsoft.com/en-us/office/tbilleq-function-2ab72d90-9b4d-4efe-9fc2-0f81f2c19c8c
+             *
+             *               365 * discount
+             * TBILLEQ = ________________________
+             *            360 - discount * DSM
+             *
+             * with DSM = number of days from settlement to maturity
+             *
+             * What is not indicated in the Excel documentation is that this formula only works for duration between settlement
+             * and maturity that are less than 6 months (182 days). This is because US Treasury bills use semi-annual interest,
+             * and thus we have to take into account the compound interest for the calculation.
+             *
+             * For this case, the formula becomes (Treasury Securities and Derivatives, by Frank J. Fabozzi, page 49)
+             *
+             *            -2X + 2* SQRT[ X² - (2X - 1) * (1 - 100/p) ]
+             * TBILLEQ = ________________________________________________
+             *                            2X - 1
+             *
+             * with X = DSM / (number of days in a year),
+             *  and p is the price, computed with TBILLPRICE
+             *
+             * Note that from my tests in Excel, we take (number of days in a year) = 366 ONLY if DSM is 366, not if
+             * the settlement year is a leap year.
+             *
+             */
+            const nDays = DAYS.compute(end, start);
+            if (nDays <= 182) {
+                return (365 * disc) / (360 - disc * nDays);
+            }
+            const p = TBILLPRICE.compute(start, end, disc) / 100;
+            const daysInYear = nDays === 366 ? 366 : 365;
+            const x = nDays / daysInYear;
+            const num = -2 * x + 2 * Math.sqrt(x ** 2 - (2 * x - 1) * (1 - 1 / p));
+            const denom = 2 * x - 1;
+            return num / denom;
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // TBILLYIELD
+    // -----------------------------------------------------------------------------
+    const TBILLYIELD = {
+        description: _lt("The yield of a US Treasury bill based on price."),
+        args: args(`
+        settlement (date) ${_lt("The settlement date of the security, the date after issuance when the security is delivered to the buyer.")}
+        maturity (date) ${_lt("The maturity or end date of the security, when it can be redeemed at face, or par value.")}
+        price (number) ${_lt("The price at which the security is bought per 100 face value.")}
+      `),
+        returns: ["NUMBER"],
+        compute: function (settlement, maturity, price) {
+            const start = Math.trunc(toNumber(settlement));
+            const end = Math.trunc(toNumber(maturity));
+            const p = toNumber(price);
+            assertMaturityAndSettlementDatesAreValid(start, end);
+            assertSettlementLessThanOneYearBeforeMaturity(start, end);
+            assertPriceStrictlyPositive(p);
+            /**
+             * https://support.microsoft.com/en-us/office/tbillyield-function-6d381232-f4b0-4cd5-8e97-45b9c03468ba
+             *
+             *              100 - price     360
+             * TBILLYIELD = ____________ * _____
+             *                 price        DSM
+             *
+             * with DSM = number of days from settlement to maturity
+             *
+             * The ratio DSM/360 can be computed with the YEARFRAC function with dayCountConvention = 2 (actual/360).
+             *
+             */
+            const yearFrac = YEARFRAC.compute(start, end, 2);
+            return ((100 - p) / p) * (1 / yearFrac);
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // VDB
+    // -----------------------------------------------------------------------------
+    const DEFAULT_VDB_NO_SWITCH = false;
+    const VDB = {
+        description: _lt("Variable declining balance. WARNING : does not handle decimal periods."),
+        args: args(`
+          cost (number) ${_lt("The initial cost of the asset.")}
+          salvage (number) ${_lt("The value of the asset at the end of depreciation.")}
+          life (number) ${_lt("The number of periods over which the asset is depreciated.")}
+          start (number) ${_lt("Starting period to calculate depreciation.")}
+          end (number) ${_lt("Ending period to calculate depreciation.")}
+          factor (number, default=${DEFAULT_DDB_DEPRECIATION_FACTOR}) ${_lt("The number of months in the first year of depreciation.")}
+    no_switch (number, default=${DEFAULT_VDB_NO_SWITCH}) ${_lt("Whether to switch to straight-line depreciation when the depreciation is greater than the declining balance calculation.")}
+      `),
+        returns: ["NUMBER"],
+        compute: function (cost, salvage, life, startPeriod, endPeriod, factor = DEFAULT_DDB_DEPRECIATION_FACTOR, noSwitch = DEFAULT_VDB_NO_SWITCH) {
+            factor = factor || 0;
+            const _cost = toNumber(cost);
+            const _salvage = toNumber(salvage);
+            const _life = toNumber(life);
+            /* TODO : handle decimal periods
+             * on end_period it looks like it is a simple linear function, but I cannot understand exactly how
+             * decimals periods are handled with start_period.
+             */
+            const _startPeriod = Math.trunc(toNumber(startPeriod));
+            const _endPeriod = Math.trunc(toNumber(endPeriod));
+            const _factor = toNumber(factor);
+            const _noSwitch = toBoolean(noSwitch);
+            assertCostPositiveOrZero(_cost);
+            assertSalvagePositiveOrZero(_salvage);
+            assertStartAndEndPeriodAreValid(_startPeriod, _endPeriod, _life);
+            assertDeprecationFactorStrictlyPositive(_factor);
+            if (_cost === 0)
+                return 0;
+            if (_salvage >= _cost) {
+                return _startPeriod < 1 ? _cost - _salvage : 0;
+            }
+            const doubleDeprecFactor = _factor / _life;
+            if (doubleDeprecFactor >= 1) {
+                return _startPeriod < 1 ? _cost - _salvage : 0;
+            }
+            let previousCost = _cost;
+            let currentDeprec = 0;
+            let resultDeprec = 0;
+            let isLinearDeprec = false;
+            for (let i = 0; i < _endPeriod; i++) {
+                // compute the current deprecation, or keep the last one if we reached a stage of linear deprecation
+                if (!isLinearDeprec || _noSwitch) {
+                    const doubleDeprec = previousCost * doubleDeprecFactor;
+                    const remainingPeriods = _life - i;
+                    const linearDeprec = (previousCost - _salvage) / remainingPeriods;
+                    if (!_noSwitch && linearDeprec > doubleDeprec) {
+                        isLinearDeprec = true;
+                        currentDeprec = linearDeprec;
+                    }
+                    else {
+                        currentDeprec = doubleDeprec;
+                    }
+                }
+                const nextCost = Math.max(previousCost - currentDeprec, _salvage);
+                if (i >= _startPeriod) {
+                    resultDeprec += previousCost - nextCost;
+                }
+                previousCost = nextCost;
+            }
+            return resultDeprec;
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // XIRR
+    // -----------------------------------------------------------------------------
+    const XIRR = {
+        description: _lt("Internal rate of return given non-periodic cash flows."),
+        args: args(`
+    cashflow_amounts (range<number>) ${_lt("An range containing the income or payments associated with the investment.")}
+    cashflow_dates (range<number>) ${_lt("An range with dates corresponding to the cash flows in cashflow_amounts.")}
+    rate_guess (number, default=${RATE_GUESS_DEFAULT}) ${_lt("An estimate for what the internal rate of return will be.")}
+    `),
+        returns: ["NUMBER"],
+        compute: function (cashflowAmounts, cashflowDates, rateGuess = RATE_GUESS_DEFAULT) {
+            rateGuess = rateGuess || 0;
+            const guess = toNumber(rateGuess);
+            const _cashFlows = cashflowAmounts.flat().map(toNumber);
+            const _dates = cashflowDates.flat().map(toNumber);
+            assertCashFlowsAndDatesHaveSameDimension(cashflowAmounts, cashflowDates);
+            assertCashFlowsHavePositiveAndNegativesValues(_cashFlows);
+            assertEveryDateGreaterThanFirstDateOfCashFlowDates(_dates);
+            assertRateGuessStrictlyGreaterThanMinusOne(guess);
+            const map = new Map();
+            for (const i of range(0, _dates.length)) {
+                const date = _dates[i];
+                if (map.has(date))
+                    map.set(date, map.get(date) + _cashFlows[i]);
+                else
+                    map.set(date, _cashFlows[i]);
+            }
+            const dates = Array.from(map.keys());
+            const values = dates.map((date) => map.get(date));
+            /**
+             * https://support.microsoft.com/en-us/office/xirr-function-de1242ec-6477-445b-b11b-a303ad9adc9d
+             *
+             * The rate is computed iteratively by trying to solve the equation
+             *
+             *
+             * 0 =    SUM     [ P_i * (1 + rate) ^((d_0 - d_i) / 365) ]  + P_0
+             *     i = 1 => n
+             *
+             * with P_i = price number i
+             *      d_i = date number i
+             *
+             * This function is not defined for rate < -1. For the case where we get rates < -1 in the Newton method, add
+             * a fallback for a number very close to -1 to continue the Newton method.
+             *
+             */
+            const func = (rate) => {
+                let value = values[0];
+                for (const i of range(1, values.length)) {
+                    const dateDiff = (dates[0] - dates[i]) / 365;
+                    value += values[i] * (1 + rate) ** dateDiff;
+                }
+                return value;
+            };
+            const derivFunc = (rate) => {
+                let deriv = 0;
+                for (const i of range(1, values.length)) {
+                    const dateDiff = (dates[0] - dates[i]) / 365;
+                    deriv += dateDiff * values[i] * (1 + rate) ** (dateDiff - 1);
+                }
+                return deriv;
+            };
+            const nanFallback = (previousFallback) => {
+                // -0.9 => -0.99 => -0.999 => ...
+                if (!previousFallback)
+                    return -0.9;
+                return previousFallback / 10 - 0.9;
+            };
+            return newtonMethod(func, derivFunc, guess, 40, 1e-5, nanFallback);
+        },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // XNPV
+    // -----------------------------------------------------------------------------
+    const XNPV = {
+        description: _lt("Net present value given to non-periodic cash flows.."),
+        args: args(`
+    discount (number) ${_lt("The discount rate of the investment over one period.")}
+    cashflow_amounts (number, range<number>) ${_lt("An range containing the income or payments associated with the investment.")}
+    cashflow_dates (number, range<number>) ${_lt("An range with dates corresponding to the cash flows in cashflow_amounts.")}
+    `),
+        returns: ["NUMBER"],
+        compute: function (discount, cashflowAmounts, cashflowDates) {
+            const rate = toNumber(discount);
+            const _cashFlows = Array.isArray(cashflowAmounts)
+                ? cashflowAmounts.flat().map(strictToNumber)
+                : [strictToNumber(cashflowAmounts)];
+            const _dates = Array.isArray(cashflowDates)
+                ? cashflowDates.flat().map(strictToNumber)
+                : [strictToNumber(cashflowDates)];
+            if (Array.isArray(cashflowDates) && Array.isArray(cashflowAmounts)) {
+                assertCashFlowsAndDatesHaveSameDimension(cashflowAmounts, cashflowDates);
+            }
+            else {
+                assert(() => _cashFlows.length === _dates.length, _lt("There must be the same number of values in cashflow_amounts and cashflow_dates."));
+            }
+            assertEveryDateGreaterThanFirstDateOfCashFlowDates(_dates);
+            assertRateStrictlyPositive(rate);
+            if (_cashFlows.length === 1)
+                return _cashFlows[0];
+            // aggregate values of the same date
+            const map = new Map();
+            for (const i of range(0, _dates.length)) {
+                const date = _dates[i];
+                if (map.has(date))
+                    map.set(date, map.get(date) + _cashFlows[i]);
+                else
+                    map.set(date, _cashFlows[i]);
+            }
+            const dates = Array.from(map.keys());
+            const values = dates.map((date) => map.get(date));
+            /**
+             * https://support.microsoft.com/en-us/office/xirr-function-de1242ec-6477-445b-b11b-a303ad9adc9d
+             *
+             * The present value is computed using
+             *
+             *
+             * NPV =    SUM     [ P_i *(1 + rate) ^((d_0 - d_i) / 365) ]  + P_0
+             *       i = 1 => n
+             *
+             * with P_i = price number i
+             *      d_i = date number i
+             *
+             *
+             */
+            let pv = values[0];
+            for (const i of range(1, values.length)) {
+                const dateDiff = (dates[0] - dates[i]) / 365;
+                pv += values[i] * (1 + rate) ** dateDiff;
+            }
+            return pv;
+        },
+        isExported: true,
     };
     // -----------------------------------------------------------------------------
     // YIELD
@@ -14176,14 +16259,14 @@
     const YIELD = {
         description: _lt("Annual yield of a security paying periodic interest."),
         args: args(`
-        settlement (date) ${_lt("The settlement date of the security, the date after issuance when the security is delivered to the buyer.")}
-        maturity (date) ${_lt("The maturity or end date of the security, when it can be redeemed at face, or par value.")}
-        rate (number) ${_lt("The annualized rate of interest.")}
-        price (number) ${_lt("The price at which the security is bought per 100 face value.")}
-        redemption (number) ${_lt("The redemption amount per 100 face value, or par.")}
-        frequency (number) ${_lt("The number of interest or coupon payments per year (1, 2, or 4).")}
-        day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt("An indicator of what day count method to use.")}
-    `),
+          settlement (date) ${_lt("The settlement date of the security, the date after issuance when the security is delivered to the buyer.")}
+          maturity (date) ${_lt("The maturity or end date of the security, when it can be redeemed at face, or par value.")}
+          rate (number) ${_lt("The annualized rate of interest.")}
+          price (number) ${_lt("The price at which the security is bought per 100 face value.")}
+          redemption (number) ${_lt("The redemption amount per 100 face value, or par.")}
+          frequency (number) ${_lt("The number of interest or coupon payments per year (1, 2, or 4).")}
+          day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt("An indicator of what day count method to use.")}
+      `),
         returns: ["NUMBER"],
         compute: function (settlement, maturity, rate, price, redemption, frequency, dayCountConvention = DEFAULT_DAY_COUNT_CONVENTION) {
             dayCountConvention = dayCountConvention || 0;
@@ -14194,12 +16277,12 @@
             const _redemption = toNumber(redemption);
             const _frequency = Math.trunc(toNumber(frequency));
             const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
-            assert(() => _maturity > _settlement, _lt("The maturity (%s) must be strictly greater than the settlement (%s).", _maturity.toString(), _settlement.toString()));
+            assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
+            assertCouponFrequencyIsValid(_frequency);
+            assertDayCountConventionIsValid(_dayCountConvention);
             assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
-            assert(() => _price > 0, _lt("The price (%s) must be strictly positive.", _price.toString()));
-            assert(() => _redemption > 0, _lt("The redemption (%s) must be strictly positive.", _redemption.toString()));
-            assert(() => [1, 2, 4].includes(_frequency), _lt("The frequency (%s) must be one of %s.", _frequency.toString(), [1, 2, 4].toString()));
-            assert(() => 0 <= _dayCountConvention && _dayCountConvention <= 4, _lt("The day_count_convention (%s) must between 0 and 4 inclusive.", _dayCountConvention.toString()));
+            assertPriceStrictlyPositive(_price);
+            assertRedemptionStrictlyPositive(_redemption);
             const years = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention);
             const nbrRealCoupons = years * _frequency;
             const nbrFullCoupons = Math.ceil(nbrRealCoupons);
@@ -14245,6 +16328,43 @@
             const methodResult = newtonMethod(func, derivFunc, initYieldFactorPerPeriod, 100, 1e-5);
             return (methodResult - 1) * _frequency;
         },
+        isExported: true,
+    };
+    // -----------------------------------------------------------------------------
+    // YIELDDISC
+    // -----------------------------------------------------------------------------
+    const YIELDDISC = {
+        description: _lt("Annual yield of a discount security."),
+        args: args(`
+          settlement (date) ${_lt("The settlement date of the security, the date after issuance when the security is delivered to the buyer.")}
+          maturity (date) ${_lt("The maturity or end date of the security, when it can be redeemed at face, or par value.")}
+          price (number) ${_lt("The price at which the security is bought per 100 face value.")}
+          redemption (number) ${_lt("The redemption amount per 100 face value, or par.")}
+          day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt("An indicator of what day count method to use.")}
+      `),
+        returns: ["NUMBER"],
+        compute: function (settlement, maturity, price, redemption, dayCountConvention = DEFAULT_DAY_COUNT_CONVENTION) {
+            dayCountConvention = dayCountConvention || 0;
+            const _settlement = Math.trunc(toNumber(settlement));
+            const _maturity = Math.trunc(toNumber(maturity));
+            const _price = toNumber(price);
+            const _redemption = toNumber(redemption);
+            const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+            assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
+            assertDayCountConventionIsValid(_dayCountConvention);
+            assertPriceStrictlyPositive(_price);
+            assertRedemptionStrictlyPositive(_redemption);
+            /**
+             * https://wiki.documentfoundation.org/Documentation/Calc_Functions/YIELDDISC
+             *
+             *                    (redemption / price) - 1
+             * YIELDDISC = _____________________________________
+             *             YEARFRAC(settlement, maturity, basis)
+             */
+            const yearFrac = YEARFRAC.compute(settlement, maturity, dayCountConvention);
+            return (_redemption / _price - 1) / yearFrac;
+        },
+        isExported: true,
     };
     // -----------------------------------------------------------------------------
     // YIELDMAT
@@ -14252,13 +16372,13 @@
     const YIELDMAT = {
         description: _lt("Annual yield of a security paying interest at maturity."),
         args: args(`
-        settlement (date) ${_lt("The settlement date of the security, the date after issuance when the security is delivered to the buyer.")}
-        maturity (date) ${_lt("The maturity or end date of the security, when it can be redeemed at face, or par value.")}
-        issue (date) ${_lt("The date the security was initially issued.")}
-        rate (number) ${_lt("The annualized rate of interest.")}
-        price (number) ${_lt("The price at which the security is bought.")}
-        day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt("An indicator of what day count method to use.")}
-    `),
+          settlement (date) ${_lt("The settlement date of the security, the date after issuance when the security is delivered to the buyer.")}
+          maturity (date) ${_lt("The maturity or end date of the security, when it can be redeemed at face, or par value.")}
+          issue (date) ${_lt("The date the security was initially issued.")}
+          rate (number) ${_lt("The annualized rate of interest.")}
+          price (number) ${_lt("The price at which the security is bought.")}
+          day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt("An indicator of what day count method to use.")}
+      `),
         returns: ["NUMBER"],
         compute: function (settlement, maturity, issue, rate, price, dayCountConvention = DEFAULT_DAY_COUNT_CONVENTION) {
             dayCountConvention = dayCountConvention || 0;
@@ -14268,34 +16388,73 @@
             const _rate = toNumber(rate);
             const _price = toNumber(price);
             const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+            assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
+            assertDayCountConventionIsValid(_dayCountConvention);
             assert(() => _settlement >= _issue, _lt("The settlement (%s) must be greater than or equal to the issue (%s).", _settlement.toString(), _issue.toString()));
-            assert(() => _maturity > _settlement, _lt("The maturity (%s) must be strictly greater than the settlement (%s).", _maturity.toString(), _settlement.toString()));
             assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
-            assert(() => _price > 0, _lt("The price (%s) must be strictly positive.", _price.toString()));
-            assert(() => 0 <= _dayCountConvention && _dayCountConvention <= 4, _lt("The day_count_convention (%s) must be between 0 and 4 inclusive.", _dayCountConvention.toString()));
+            assertPriceStrictlyPositive(_price);
             const issueToMaturity = YEARFRAC.compute(_issue, _maturity, _dayCountConvention);
             const issueToSettlement = YEARFRAC.compute(_issue, _settlement, _dayCountConvention);
             const settlementToMaturity = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention);
             const numerator = (100 * (1 + _rate * issueToMaturity)) / (_price + 100 * _rate * issueToSettlement) - 1;
             return numerator / settlementToMaturity;
         },
+        isExported: true,
     };
-
+  
     var financial = /*#__PURE__*/Object.freeze({
-        __proto__: null,
-        DB: DB,
-        DURATION: DURATION,
-        FV: FV,
-        IRR: IRR,
-        MDURATION: MDURATION,
-        NPV: NPV,
-        PDURATION: PDURATION,
-        PV: PV,
-        PRICE: PRICE,
-        YIELD: YIELD,
-        YIELDMAT: YIELDMAT
+      __proto__: null,
+      ACCRINTM: ACCRINTM,
+      AMORLINC: AMORLINC,
+      COUPDAYS: COUPDAYS,
+      COUPDAYBS: COUPDAYBS,
+      COUPDAYSNC: COUPDAYSNC,
+      COUPNCD: COUPNCD,
+      COUPNUM: COUPNUM,
+      COUPPCD: COUPPCD,
+      CUMIPMT: CUMIPMT,
+      CUMPRINC: CUMPRINC,
+      DB: DB,
+      DDB: DDB,
+      DISC: DISC,
+      DOLLARDE: DOLLARDE,
+      DOLLARFR: DOLLARFR,
+      DURATION: DURATION,
+      EFFECT: EFFECT,
+      FV: FV,
+      FVSCHEDULE: FVSCHEDULE,
+      INTRATE: INTRATE,
+      IPMT: IPMT,
+      IRR: IRR,
+      ISPMT: ISPMT,
+      MDURATION: MDURATION,
+      MIRR: MIRR,
+      NOMINAL: NOMINAL,
+      NPER: NPER,
+      NPV: NPV,
+      PDURATION: PDURATION,
+      PMT: PMT,
+      PPMT: PPMT,
+      PV: PV,
+      PRICE: PRICE,
+      PRICEDISC: PRICEDISC,
+      PRICEMAT: PRICEMAT,
+      RATE: RATE,
+      RECEIVED: RECEIVED,
+      RRI: RRI,
+      SLN: SLN,
+      SYD: SYD,
+      TBILLPRICE: TBILLPRICE,
+      TBILLEQ: TBILLEQ,
+      TBILLYIELD: TBILLYIELD,
+      VDB: VDB,
+      XIRR: XIRR,
+      XNPV: XNPV,
+      YIELD: YIELD,
+      YIELDDISC: YIELDDISC,
+      YIELDMAT: YIELDMAT
     });
-
+  
     // -----------------------------------------------------------------------------
     // ISERR
     // -----------------------------------------------------------------------------
@@ -14448,29 +16607,29 @@
         },
         isExported: true,
     };
-
+  
     var info = /*#__PURE__*/Object.freeze({
-        __proto__: null,
-        ISERR: ISERR,
-        ISERROR: ISERROR,
-        ISLOGICAL: ISLOGICAL,
-        ISNA: ISNA,
-        ISNONTEXT: ISNONTEXT,
-        ISNUMBER: ISNUMBER,
-        ISTEXT: ISTEXT,
-        ISBLANK: ISBLANK,
-        NA: NA
+      __proto__: null,
+      ISERR: ISERR,
+      ISERROR: ISERROR,
+      ISLOGICAL: ISLOGICAL,
+      ISNA: ISNA,
+      ISNONTEXT: ISNONTEXT,
+      ISNUMBER: ISNUMBER,
+      ISTEXT: ISTEXT,
+      ISBLANK: ISBLANK,
+      NA: NA
     });
-
+  
     // -----------------------------------------------------------------------------
     // AND
     // -----------------------------------------------------------------------------
     const AND = {
         description: _lt("Logical `and` operator."),
         args: args(`
-      logical_expression1 (boolean, range<boolean>) ${_lt("An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE, or an expression that can be coerced to a logical value.")}
-      logical_expression2 (boolean, range<boolean>, repeating) ${_lt("More expressions that represent logical values.")}
-    `),
+        logical_expression1 (boolean, range<boolean>) ${_lt("An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE, or an expression that can be coerced to a logical value.")}
+        logical_expression2 (boolean, range<boolean>, repeating) ${_lt("More expressions that represent logical values.")}
+      `),
         returns: ["BOOLEAN"],
         compute: function (...logicalExpressions) {
             let foundBoolean = false;
@@ -14491,10 +16650,10 @@
     const IF = {
         description: _lt("Returns value depending on logical expression."),
         args: args(`
-      logical_expression (boolean) ${_lt("An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE.")}
-      value_if_true (any, lazy) ${_lt("The value the function returns if logical_expression is TRUE.")}
-      value_if_false (any, lazy, default=FALSE) ${_lt("The value the function returns if logical_expression is FALSE.")}
-    `),
+        logical_expression (boolean) ${_lt("An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE.")}
+        value_if_true (any, lazy) ${_lt("The value the function returns if logical_expression is TRUE.")}
+        value_if_false (any, lazy, default=FALSE) ${_lt("The value the function returns if logical_expression is FALSE.")}
+      `),
         returns: ["ANY"],
         compute: function (logicalExpression, valueIfTrue, valueIfFalse = () => false) {
             const result = toBoolean(logicalExpression) ? valueIfTrue() : valueIfFalse();
@@ -14508,9 +16667,9 @@
     const IFERROR = {
         description: _lt("Value if it is not an error, otherwise 2nd argument."),
         args: args(`
-    value (any, lazy) ${_lt("The value to return if value itself is not an error.")}
-    value_if_error (any, lazy, default=${_lt("An empty value")}) ${_lt("The value the function returns if value is an error.")}
-  `),
+      value (any, lazy) ${_lt("The value to return if value itself is not an error.")}
+      value_if_error (any, lazy, default=${_lt("An empty value")}) ${_lt("The value the function returns if value is an error.")}
+    `),
         returns: ["ANY"],
         computeFormat: (value, valueIfError = () => ({ value: "" })) => {
             var _a;
@@ -14539,9 +16698,9 @@
     const IFNA = {
         description: _lt("Value if it is not an #N/A error, otherwise 2nd argument."),
         args: args(`
-    value (any, lazy) ${_lt("The value to return if value itself is not #N/A an error.")}
-    value_if_error (any, lazy, default=${_lt("An empty value")}) ${_lt("The value the function returns if value is an #N/A error.")}
-  `),
+      value (any, lazy) ${_lt("The value to return if value itself is not #N/A an error.")}
+      value_if_error (any, lazy, default=${_lt("An empty value")}) ${_lt("The value the function returns if value is an #N/A error.")}
+    `),
         returns: ["ANY"],
         compute: function (value, valueIfError = () => "") {
             let result;
@@ -14566,11 +16725,11 @@
     const IFS = {
         description: _lt("Returns a value depending on multiple logical expressions."),
         args: args(`
-      condition1 (boolean, lazy) ${_lt("The first condition to be evaluated. This can be a boolean, a number, an array, or a reference to any of those.")}
-      value1 (any, lazy) ${_lt("The returned value if condition1 is TRUE.")}
-      condition2 (boolean, lazy, repeating) ${_lt("Additional conditions to be evaluated if the previous ones are FALSE.")}
-      value2 (any, lazy, repeating) ${_lt("Additional values to be returned if their corresponding conditions are TRUE.")}
-  `),
+        condition1 (boolean, lazy) ${_lt("The first condition to be evaluated. This can be a boolean, a number, an array, or a reference to any of those.")}
+        value1 (any, lazy) ${_lt("The returned value if condition1 is TRUE.")}
+        condition2 (boolean, lazy, repeating) ${_lt("Additional conditions to be evaluated if the previous ones are FALSE.")}
+        value2 (any, lazy, repeating) ${_lt("Additional values to be returned if their corresponding conditions are TRUE.")}
+    `),
         returns: ["ANY"],
         compute: function (...values) {
             assert(() => values.length % 2 === 0, _lt(`Wrong number of arguments. Expected an even number of arguments.`));
@@ -14590,7 +16749,7 @@
     const NOT = {
         description: _lt("Returns opposite of provided logical value."),
         args: args(`logical_expression (boolean) ${_lt("An expression or reference to a cell holding an expression that represents some logical value.")}
-    `),
+      `),
         returns: ["BOOLEAN"],
         compute: function (logicalExpression) {
             return !toBoolean(logicalExpression);
@@ -14603,9 +16762,9 @@
     const OR = {
         description: _lt("Logical `or` operator."),
         args: args(`
-      logical_expression1 (boolean, range<boolean>) ${_lt("An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE, or an expression that can be coerced to a logical value.")}
-      logical_expression2 (boolean, range<boolean>, repeating) ${_lt("More expressions that evaluate to logical values.")}
-    `),
+        logical_expression1 (boolean, range<boolean>) ${_lt("An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE, or an expression that can be coerced to a logical value.")}
+        logical_expression2 (boolean, range<boolean>, repeating) ${_lt("More expressions that evaluate to logical values.")}
+      `),
         returns: ["BOOLEAN"],
         compute: function (...logicalExpressions) {
             let foundBoolean = false;
@@ -14626,9 +16785,9 @@
     const XOR = {
         description: _lt("Logical `xor` operator."),
         args: args(`
-      logical_expression1 (boolean, range<boolean>) ${_lt("An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE, or an expression that can be coerced to a logical value.")}
-      logical_expression2 (boolean, range<boolean>, repeating) ${_lt("More expressions that evaluate to logical values.")}
-    `),
+        logical_expression1 (boolean, range<boolean>) ${_lt("An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE, or an expression that can be coerced to a logical value.")}
+        logical_expression2 (boolean, range<boolean>, repeating) ${_lt("More expressions that evaluate to logical values.")}
+      `),
         returns: ["BOOLEAN"],
         compute: function (...logicalExpressions) {
             let foundBoolean = false;
@@ -14643,19 +16802,19 @@
         },
         isExported: true,
     };
-
+  
     var logical = /*#__PURE__*/Object.freeze({
-        __proto__: null,
-        AND: AND,
-        IF: IF,
-        IFERROR: IFERROR,
-        IFNA: IFNA,
-        IFS: IFS,
-        NOT: NOT,
-        OR: OR,
-        XOR: XOR
+      __proto__: null,
+      AND: AND,
+      IF: IF,
+      IFERROR: IFERROR,
+      IFNA: IFNA,
+      IFS: IFS,
+      NOT: NOT,
+      OR: OR,
+      XOR: XOR
     });
-
+  
     const DEFAULT_IS_SORTED = true;
     const DEFAULT_MATCH_MODE = 0;
     const DEFAULT_SEARCH_MODE = 1;
@@ -14665,7 +16824,7 @@
     const COLUMN = {
         description: _lt("Column number of a specified cell."),
         args: args(`cell_reference (meta, default=${_lt("The cell in which the formula is entered")}) ${_lt("The cell whose column number will be returned. Column A corresponds to 1.")}
-    `),
+      `),
         returns: ["NUMBER"],
         compute: function (cellReference) {
             var _a;
@@ -14695,11 +16854,11 @@
     const HLOOKUP = {
         description: _lt(`Horizontal lookup`),
         args: args(`
-      search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}
-      range (range) ${_lt("The range to consider for the search. The first row in the range is searched for the key specified in search_key.")}
-      index (number) ${_lt("The row index of the value to be returned, where the first row in range is numbered 1.")}
-      is_sorted (boolean, default=${DEFAULT_IS_SORTED}) ${_lt("Indicates whether the row to be searched (the first row of the specified range) is sorted, in which case the closest match for search_key will be returned.")}
-  `),
+        search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}
+        range (range) ${_lt("The range to consider for the search. The first row in the range is searched for the key specified in search_key.")}
+        index (number) ${_lt("The row index of the value to be returned, where the first row in range is numbered 1.")}
+        is_sorted (boolean, default=${DEFAULT_IS_SORTED}) ${_lt("Indicates whether the row to be searched (the first row of the specified range) is sorted, in which case the closest match for search_key will be returned.")}
+    `),
         returns: ["ANY"],
         compute: function (searchKey, range, index, isSorted = DEFAULT_IS_SORTED) {
             const _index = Math.trunc(toNumber(index));
@@ -14724,10 +16883,10 @@
     const LOOKUP = {
         description: _lt(`Look up a value.`),
         args: args(`
-      search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}
-      search_array (range) ${_lt("One method of using this function is to provide a single sorted row or column search_array to look through for the search_key with a second argument result_range. The other way is to combine these two arguments into one search_array where the first row or column is searched and a value is returned from the last row or column in the array. If search_key is not found, a non-exact match may be returned.")}
-      result_range (range, optional) ${_lt("The range from which to return a result. The value returned corresponds to the location where search_key is found in search_range. This range must be only a single row or column and should not be used if using the search_result_array method.")}
-  `),
+        search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}
+        search_array (range) ${_lt("One method of using this function is to provide a single sorted row or column search_array to look through for the search_key with a second argument result_range. The other way is to combine these two arguments into one search_array where the first row or column is searched and a value is returned from the last row or column in the array. If search_key is not found, a non-exact match may be returned.")}
+        result_range (range, optional) ${_lt("The range from which to return a result. The value returned corresponds to the location where search_key is found in search_range. This range must be only a single row or column and should not be used if using the search_result_array method.")}
+    `),
         returns: ["ANY"],
         compute: function (searchKey, searchArray, resultRange) {
             let nbCol = searchArray.length;
@@ -14762,10 +16921,10 @@
     const MATCH = {
         description: _lt(`Position of item in range that matches value.`),
         args: args(`
-      search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}
-      range (any, range) ${_lt("The one-dimensional array to be searched.")}
-      search_type (number, default=${DEFAULT_SEARCH_TYPE}) ${_lt("The search method. 1 (default) finds the largest value less than or equal to search_key when range is sorted in ascending order. 0 finds the exact value when range is unsorted. -1 finds the smallest value greater than or equal to search_key when range is sorted in descending order.")}
-  `),
+        search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}
+        range (any, range) ${_lt("The one-dimensional array to be searched.")}
+        search_type (number, default=${DEFAULT_SEARCH_TYPE}) ${_lt("The search method. 1 (default) finds the largest value less than or equal to search_key when range is sorted in ascending order. 0 finds the exact value when range is unsorted. -1 finds the smallest value greater than or equal to search_key when range is sorted in descending order.")}
+    `),
         returns: ["NUMBER"],
         compute: function (searchKey, range, searchType = DEFAULT_SEARCH_TYPE) {
             let _searchType = toNumber(searchType);
@@ -14828,11 +16987,11 @@
     const VLOOKUP = {
         description: _lt(`Vertical lookup.`),
         args: args(`
-      search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}
-      range (any, range) ${_lt("The range to consider for the search. The first column in the range is searched for the key specified in search_key.")}
-      index (number) ${_lt("The column index of the value to be returned, where the first column in range is numbered 1.")}
-      is_sorted (boolean, default=${DEFAULT_IS_SORTED}) ${_lt("Indicates whether the column to be searched (the first column of the specified range) is sorted, in which case the closest match for search_key will be returned.")}
-  `),
+        search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}
+        range (any, range) ${_lt("The range to consider for the search. The first column in the range is searched for the key specified in search_key.")}
+        index (number) ${_lt("The column index of the value to be returned, where the first column in range is numbered 1.")}
+        is_sorted (boolean, default=${DEFAULT_IS_SORTED}) ${_lt("Indicates whether the column to be searched (the first column of the specified range) is sorted, in which case the closest match for search_key will be returned.")}
+    `),
         returns: ["ANY"],
         compute: function (searchKey, range, index, isSorted = DEFAULT_IS_SORTED) {
             const _index = Math.trunc(toNumber(index));
@@ -14857,18 +17016,18 @@
     const XLOOKUP = {
         description: _lt(`Search a range for a match and return the corresponding item from a second range.`),
         args: args(`
-      search_key (any) ${_lt("The value to search for.")}
-      lookup_range (any, range) ${_lt("The range to consider for the search. Should be a single column or a single row.")}
-      return_range (any, range) ${_lt("The range containing the return value. Should have the same dimensions as lookup_range.")}
-      if_not_found (any, lazy, optional) ${_lt("If a valid match is not found, return this value.")}
-      match_mode (any, default=${DEFAULT_MATCH_MODE}) ${_lt("(0) Exact match. (-1) Return next smaller item if no match. (1) Return next greater item if no match.")}
-      search_mode (any, default=${DEFAULT_SEARCH_MODE}) ${_lt("(1) Search starting at first item. \
-    (-1) Search starting at last item. \
-    (2) Perform a binary search that relies on lookup_array being sorted in ascending order. If not sorted, invalid results will be returned. \
-    (-2) Perform a binary search that relies on lookup_array being sorted in descending order. If not sorted, invalid results will be returned.\
-    ")}
-
-  `),
+        search_key (any) ${_lt("The value to search for.")}
+        lookup_range (any, range) ${_lt("The range to consider for the search. Should be a single column or a single row.")}
+        return_range (any, range) ${_lt("The range containing the return value. Should have the same dimensions as lookup_range.")}
+        if_not_found (any, lazy, optional) ${_lt("If a valid match is not found, return this value.")}
+        match_mode (any, default=${DEFAULT_MATCH_MODE}) ${_lt("(0) Exact match. (-1) Return next smaller item if no match. (1) Return next greater item if no match.")}
+        search_mode (any, default=${DEFAULT_SEARCH_MODE}) ${_lt("(1) Search starting at first item. \
+      (-1) Search starting at last item. \
+      (2) Perform a binary search that relies on lookup_array being sorted in ascending order. If not sorted, invalid results will be returned. \
+      (-2) Perform a binary search that relies on lookup_array being sorted in descending order. If not sorted, invalid results will be returned.\
+      ")}
+  
+    `),
         returns: ["ANY"],
         compute: function (searchKey, lookupRange, returnRange, defaultValue, matchMode = DEFAULT_MATCH_MODE, searchMode = DEFAULT_SEARCH_MODE) {
             const _matchMode = Math.trunc(toNumber(matchMode));
@@ -14901,29 +17060,29 @@
         },
         isExported: true,
     };
-
+  
     var lookup = /*#__PURE__*/Object.freeze({
-        __proto__: null,
-        COLUMN: COLUMN,
-        COLUMNS: COLUMNS,
-        HLOOKUP: HLOOKUP,
-        LOOKUP: LOOKUP,
-        MATCH: MATCH,
-        ROW: ROW,
-        ROWS: ROWS,
-        VLOOKUP: VLOOKUP,
-        XLOOKUP: XLOOKUP
+      __proto__: null,
+      COLUMN: COLUMN,
+      COLUMNS: COLUMNS,
+      HLOOKUP: HLOOKUP,
+      LOOKUP: LOOKUP,
+      MATCH: MATCH,
+      ROW: ROW,
+      ROWS: ROWS,
+      VLOOKUP: VLOOKUP,
+      XLOOKUP: XLOOKUP
     });
-
+  
     // -----------------------------------------------------------------------------
     // ADD
     // -----------------------------------------------------------------------------
     const ADD = {
         description: _lt(`Sum of two numbers.`),
         args: args(`
-      value1 (number) ${_lt("The first addend.")}
-      value2 (number) ${_lt("The second addend.")}
-    `),
+        value1 (number) ${_lt("The first addend.")}
+        value2 (number) ${_lt("The second addend.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (value1, value2) => (value1 === null || value1 === void 0 ? void 0 : value1.format) || (value2 === null || value2 === void 0 ? void 0 : value2.format),
         compute: function (value1, value2) {
@@ -14936,9 +17095,9 @@
     const CONCAT = {
         description: _lt(`Concatenation of two values.`),
         args: args(`
-      value1 (string) ${_lt("The value to which value2 will be appended.")}
-      value2 (string) ${_lt("The value to append to value1.")}
-    `),
+        value1 (string) ${_lt("The value to which value2 will be appended.")}
+        value2 (string) ${_lt("The value to append to value1.")}
+      `),
         returns: ["STRING"],
         compute: function (value1, value2) {
             return toString(value1) + toString(value2);
@@ -14951,9 +17110,9 @@
     const DIVIDE = {
         description: _lt(`One number divided by another.`),
         args: args(`
-      dividend (number) ${_lt("The number to be divided.")}
-      divisor (number) ${_lt("The number to divide by.")}
-    `),
+        dividend (number) ${_lt("The number to be divided.")}
+        divisor (number) ${_lt("The number to divide by.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (dividend, divisor) => (dividend === null || dividend === void 0 ? void 0 : dividend.format) || (divisor === null || divisor === void 0 ? void 0 : divisor.format),
         compute: function (dividend, divisor) {
@@ -14972,9 +17131,9 @@
     const EQ = {
         description: _lt(`Equal.`),
         args: args(`
-      value1 (any) ${_lt("The first value.")}
-      value2 (any) ${_lt("The value to test against value1 for equality.")}
-    `),
+        value1 (any) ${_lt("The first value.")}
+        value2 (any) ${_lt("The value to test against value1 for equality.")}
+      `),
         returns: ["BOOLEAN"],
         compute: function (value1, value2) {
             value1 = isEmpty(value1) ? getNeutral[typeof value2] : value1;
@@ -15013,9 +17172,9 @@
     const GT = {
         description: _lt(`Strictly greater than.`),
         args: args(`
-      value1 (any) ${_lt("The value to test as being greater than value2.")}
-      value2 (any) ${_lt("The second value.")}
-    `),
+        value1 (any) ${_lt("The value to test as being greater than value2.")}
+        value2 (any) ${_lt("The second value.")}
+      `),
         returns: ["BOOLEAN"],
         compute: function (value1, value2) {
             return applyRelationalOperator(value1, value2, (v1, v2) => {
@@ -15029,9 +17188,9 @@
     const GTE = {
         description: _lt(`Greater than or equal to.`),
         args: args(`
-      value1 (any) ${_lt("The value to test as being greater than or equal to value2.")}
-      value2 (any) ${_lt("The second value.")}
-    `),
+        value1 (any) ${_lt("The value to test as being greater than or equal to value2.")}
+        value2 (any) ${_lt("The second value.")}
+      `),
         returns: ["BOOLEAN"],
         compute: function (value1, value2) {
             return applyRelationalOperator(value1, value2, (v1, v2) => {
@@ -15045,9 +17204,9 @@
     const LT = {
         description: _lt(`Less than.`),
         args: args(`
-      value1 (any) ${_lt("The value to test as being less than value2.")}
-      value2 (any) ${_lt("The second value.")}
-    `),
+        value1 (any) ${_lt("The value to test as being less than value2.")}
+        value2 (any) ${_lt("The second value.")}
+      `),
         returns: ["BOOLEAN"],
         compute: function (value1, value2) {
             return !GTE.compute(value1, value2);
@@ -15059,9 +17218,9 @@
     const LTE = {
         description: _lt(`Less than or equal to.`),
         args: args(`
-      value1 (any) ${_lt("The value to test as being less than or equal to value2.")}
-      value2 (any) ${_lt("The second value.")}
-    `),
+        value1 (any) ${_lt("The value to test as being less than or equal to value2.")}
+        value2 (any) ${_lt("The second value.")}
+      `),
         returns: ["BOOLEAN"],
         compute: function (value1, value2) {
             return !GT.compute(value1, value2);
@@ -15073,9 +17232,9 @@
     const MINUS = {
         description: _lt(`Difference of two numbers.`),
         args: args(`
-      value1 (number) ${_lt("The minuend, or number to be subtracted from.")}
-      value2 (number) ${_lt("The subtrahend, or number to subtract from value1.")}
-    `),
+        value1 (number) ${_lt("The minuend, or number to be subtracted from.")}
+        value2 (number) ${_lt("The subtrahend, or number to subtract from value1.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (value1, value2) => (value1 === null || value1 === void 0 ? void 0 : value1.format) || (value2 === null || value2 === void 0 ? void 0 : value2.format),
         compute: function (value1, value2) {
@@ -15088,9 +17247,9 @@
     const MULTIPLY = {
         description: _lt(`Product of two numbers`),
         args: args(`
-      factor1 (number) ${_lt("The first multiplicand.")}
-      factor2 (number) ${_lt("The second multiplicand.")}
-    `),
+        factor1 (number) ${_lt("The first multiplicand.")}
+        factor2 (number) ${_lt("The second multiplicand.")}
+      `),
         returns: ["NUMBER"],
         computeFormat: (factor1, factor2) => (factor1 === null || factor1 === void 0 ? void 0 : factor1.format) || (factor2 === null || factor2 === void 0 ? void 0 : factor2.format),
         compute: function (factor1, factor2) {
@@ -15103,9 +17262,9 @@
     const NE = {
         description: _lt(`Not equal.`),
         args: args(`
-      value1 (any) ${_lt("The first value.")}
-      value2 (any) ${_lt("The value to test against value1 for inequality.")}
-    `),
+        value1 (any) ${_lt("The first value.")}
+        value2 (any) ${_lt("The value to test against value1 for inequality.")}
+      `),
         returns: ["BOOLEAN"],
         compute: function (value1, value2) {
             return !EQ.compute(value1, value2);
@@ -15117,9 +17276,9 @@
     const POW = {
         description: _lt(`A number raised to a power.`),
         args: args(`
-      base (number) ${_lt("The number to raise to the exponent power.")}
-      exponent (number) ${_lt("The exponent to raise base to.")}
-    `),
+        base (number) ${_lt("The number to raise to the exponent power.")}
+        exponent (number) ${_lt("The exponent to raise base to.")}
+      `),
         returns: ["BOOLEAN"],
         compute: function (base, exponent) {
             return POWER.compute(base, exponent);
@@ -15131,8 +17290,8 @@
     const UMINUS = {
         description: _lt(`A number with the sign reversed.`),
         args: args(`
-      value (number) ${_lt("The number to have its sign reversed. Equivalently, the number to multiply by -1.")}
-    `),
+        value (number) ${_lt("The number to have its sign reversed. Equivalently, the number to multiply by -1.")}
+      `),
         computeFormat: (value) => value === null || value === void 0 ? void 0 : value.format,
         returns: ["NUMBER"],
         compute: function (value) {
@@ -15145,8 +17304,8 @@
     const UNARY_PERCENT = {
         description: _lt(`Value interpreted as a percentage.`),
         args: args(`
-      percentage (number) ${_lt("The value to interpret as a percentage.")}
-    `),
+        percentage (number) ${_lt("The value to interpret as a percentage.")}
+      `),
         returns: ["NUMBER"],
         compute: function (percentage) {
             return toNumber(percentage) / 100;
@@ -15158,34 +17317,34 @@
     const UPLUS = {
         description: _lt(`A specified number, unchanged.`),
         args: args(`
-      value (any) ${_lt("The number to return.")}
-    `),
+        value (any) ${_lt("The number to return.")}
+      `),
         returns: ["ANY"],
         computeFormat: (value) => value === null || value === void 0 ? void 0 : value.format,
         compute: function (value) {
             return value === null ? "" : value;
         },
     };
-
+  
     var operators = /*#__PURE__*/Object.freeze({
-        __proto__: null,
-        ADD: ADD,
-        CONCAT: CONCAT,
-        DIVIDE: DIVIDE,
-        EQ: EQ,
-        GT: GT,
-        GTE: GTE,
-        LT: LT,
-        LTE: LTE,
-        MINUS: MINUS,
-        MULTIPLY: MULTIPLY,
-        NE: NE,
-        POW: POW,
-        UMINUS: UMINUS,
-        UNARY_PERCENT: UNARY_PERCENT,
-        UPLUS: UPLUS
+      __proto__: null,
+      ADD: ADD,
+      CONCAT: CONCAT,
+      DIVIDE: DIVIDE,
+      EQ: EQ,
+      GT: GT,
+      GTE: GTE,
+      LT: LT,
+      LTE: LTE,
+      MINUS: MINUS,
+      MULTIPLY: MULTIPLY,
+      NE: NE,
+      POW: POW,
+      UMINUS: UMINUS,
+      UNARY_PERCENT: UNARY_PERCENT,
+      UPLUS: UPLUS
     });
-
+  
     const DEFAULT_STARTING_AT = 1;
     /** Regex matching all the words in a string */
     const wordRegex = /[A-Za-zÀ-ÖØ-öø-ÿ]+/g;
@@ -15195,8 +17354,8 @@
     const CHAR = {
         description: _lt("Gets character associated with number."),
         args: args(`
-      table_number (number) ${_lt("The number of the character to look up from the current Unicode table in decimal format.")}
-  `),
+        table_number (number) ${_lt("The number of the character to look up from the current Unicode table in decimal format.")}
+    `),
         returns: ["STRING"],
         compute: function (tableNumber) {
             const _tableNumber = Math.trunc(toNumber(tableNumber));
@@ -15211,8 +17370,8 @@
     const CLEAN = {
         description: _lt("Remove non-printable characters from a piece of text."),
         args: args(`
-      text (string) ${_lt("The text whose non-printable characters are to be removed.")}
-  `),
+        text (string) ${_lt("The text whose non-printable characters are to be removed.")}
+    `),
         returns: ["STRING"],
         compute: function (text) {
             const _text = toString(text);
@@ -15232,9 +17391,9 @@
     const CONCATENATE = {
         description: _lt("Appends strings to one another."),
         args: args(`
-      string1 (string, range<string>) ${_lt("The initial string.")}
-      string2 (string, range<string>, repeating) ${_lt("More strings to append in sequence.")}
-  `),
+        string1 (string, range<string>) ${_lt("The initial string.")}
+        string2 (string, range<string>, repeating) ${_lt("More strings to append in sequence.")}
+    `),
         returns: ["STRING"],
         compute: function (...values) {
             return reduceAny(values, (acc, a) => acc + toString(a), "");
@@ -15247,9 +17406,9 @@
     const EXACT = {
         description: _lt("Tests whether two strings are identical."),
         args: args(`
-      string1 (string) ${_lt("The first string to compare.")}
-      string2 (string) ${_lt("The second string to compare.")}
-  `),
+        string1 (string) ${_lt("The first string to compare.")}
+        string2 (string) ${_lt("The second string to compare.")}
+    `),
         returns: ["BOOLEAN"],
         compute: function (string1, string2) {
             return toString(string1) === toString(string2);
@@ -15262,10 +17421,10 @@
     const FIND = {
         description: _lt("First position of string found in text, case-sensitive."),
         args: args(`
-      search_for (string) ${_lt("The string to look for within text_to_search.")}
-      text_to_search (string) ${_lt("The text to search for the first occurrence of search_for.")}
-      starting_at (number, default=${DEFAULT_STARTING_AT}) ${_lt("The character within text_to_search at which to start the search.")}
-  `),
+        search_for (string) ${_lt("The string to look for within text_to_search.")}
+        text_to_search (string) ${_lt("The text to search for the first occurrence of search_for.")}
+        starting_at (number, default=${DEFAULT_STARTING_AT}) ${_lt("The character within text_to_search at which to start the search.")}
+    `),
         returns: ["NUMBER"],
         compute: function (searchFor, textToSearch, startingAt = DEFAULT_STARTING_AT) {
             const _searchFor = toString(searchFor);
@@ -15285,10 +17444,10 @@
     const JOIN = {
         description: _lt("Concatenates elements of arrays with delimiter."),
         args: args(`
-      delimiter (string) ${_lt("The character or string to place between each concatenated value.")}
-      value_or_array1 (string, range<string>) ${_lt("The value or values to be appended using delimiter.")}
-      value_or_array2 (string, range<string>, repeating) ${_lt("More values to be appended using delimiter.")}
-  `),
+        delimiter (string) ${_lt("The character or string to place between each concatenated value.")}
+        value_or_array1 (string, range<string>) ${_lt("The value or values to be appended using delimiter.")}
+        value_or_array2 (string, range<string>, repeating) ${_lt("More values to be appended using delimiter.")}
+    `),
         returns: ["STRING"],
         compute: function (delimiter, ...valuesOrArrays) {
             const _delimiter = toString(delimiter);
@@ -15301,9 +17460,9 @@
     const LEFT = {
         description: _lt("Substring from beginning of specified string."),
         args: args(`
-      text (string) ${_lt("The string from which the left portion will be returned.")}
-      number_of_characters (number, optional) ${_lt("The number of characters to return from the left side of string.")}
-  `),
+        text (string) ${_lt("The string from which the left portion will be returned.")}
+        number_of_characters (number, optional) ${_lt("The number of characters to return from the left side of string.")}
+    `),
         returns: ["STRING"],
         compute: function (text, ...args) {
             const _numberOfCharacters = args.length ? toNumber(args[0]) : 1;
@@ -15318,8 +17477,8 @@
     const LEN = {
         description: _lt("Length of a string."),
         args: args(`
-      text (string) ${_lt("The string whose length will be returned.")}
-  `),
+        text (string) ${_lt("The string whose length will be returned.")}
+    `),
         returns: ["NUMBER"],
         compute: function (text) {
             return toString(text).length;
@@ -15332,8 +17491,8 @@
     const LOWER = {
         description: _lt("Converts a specified string to lowercase."),
         args: args(`
-      text (string) ${_lt("The string to convert to lowercase.")}
-  `),
+        text (string) ${_lt("The string to convert to lowercase.")}
+    `),
         returns: ["STRING"],
         compute: function (text) {
             return toString(text).toLowerCase();
@@ -15346,10 +17505,10 @@
     const MID = {
         description: _lt("A segment of a string."),
         args: args(`
-      text (string) ${_lt("The string to extract a segment from.")}
-      starting_at  (number) ${_lt("The index from the left of string from which to begin extracting. The first character in string has the index 1.")}
-      extract_length  (number) ${_lt("The length of the segment to extract.")}
-  `),
+        text (string) ${_lt("The string to extract a segment from.")}
+        starting_at  (number) ${_lt("The index from the left of string from which to begin extracting. The first character in string has the index 1.")}
+        extract_length  (number) ${_lt("The length of the segment to extract.")}
+    `),
         returns: ["STRING"],
         compute: function (text, starting_at, extract_length) {
             const _text = toString(text);
@@ -15367,8 +17526,8 @@
     const PROPER = {
         description: _lt("Capitalizes each word in a specified string."),
         args: args(`
-  text_to_capitalize (string) ${_lt("The text which will be returned with the first letter of each word in uppercase and all other letters in lowercase.")}
-  `),
+    text_to_capitalize (string) ${_lt("The text which will be returned with the first letter of each word in uppercase and all other letters in lowercase.")}
+    `),
         returns: ["STRING"],
         compute: function (text) {
             const _text = toString(text);
@@ -15384,11 +17543,11 @@
     const REPLACE = {
         description: _lt("Replaces part of a text string with different text."),
         args: args(`
-      text (string) ${_lt("The text, a part of which will be replaced.")}
-      position (number) ${_lt("The position where the replacement will begin (starting from 1).")}
-      length (number) ${_lt("The number of characters in the text to be replaced.")}
-      new_text (string) ${_lt("The text which will be inserted into the original text.")}
-  `),
+        text (string) ${_lt("The text, a part of which will be replaced.")}
+        position (number) ${_lt("The position where the replacement will begin (starting from 1).")}
+        length (number) ${_lt("The number of characters in the text to be replaced.")}
+        new_text (string) ${_lt("The text which will be inserted into the original text.")}
+    `),
         returns: ["STRING"],
         compute: function (text, position, length, newText) {
             const _position = toNumber(position);
@@ -15406,9 +17565,9 @@
     const RIGHT = {
         description: _lt("A substring from the end of a specified string."),
         args: args(`
-      text (string) ${_lt("The string from which the right portion will be returned.")}
-      number_of_characters (number, optional) ${_lt("The number of characters to return from the right side of string.")}
-  `),
+        text (string) ${_lt("The string from which the right portion will be returned.")}
+        number_of_characters (number, optional) ${_lt("The number of characters to return from the right side of string.")}
+    `),
         returns: ["STRING"],
         compute: function (text, ...args) {
             const _numberOfCharacters = args.length ? toNumber(args[0]) : 1;
@@ -15425,10 +17584,10 @@
     const SEARCH = {
         description: _lt("First position of string found in text, ignoring case."),
         args: args(`
-      search_for (string) ${_lt("The string to look for within text_to_search.")}
-      text_to_search (string) ${_lt("The text to search for the first occurrence of search_for.")}
-      starting_at (number, default=${DEFAULT_STARTING_AT}) ${_lt("The character within text_to_search at which to start the search.")}
-  `),
+        search_for (string) ${_lt("The string to look for within text_to_search.")}
+        text_to_search (string) ${_lt("The text to search for the first occurrence of search_for.")}
+        starting_at (number, default=${DEFAULT_STARTING_AT}) ${_lt("The character within text_to_search at which to start the search.")}
+    `),
         returns: ["NUMBER"],
         compute: function (searchFor, textToSearch, startingAt = DEFAULT_STARTING_AT) {
             const _searchFor = toString(searchFor).toLowerCase();
@@ -15448,11 +17607,11 @@
     const SUBSTITUTE = {
         description: _lt("Replaces existing text with new text in a string."),
         args: args(`
-      text_to_search (string) ${_lt("The text within which to search and replace.")}
-      search_for (string) ${_lt("The string to search for within text_to_search.")}
-      replace_with (string) ${_lt("The string that will replace search_for.")}
-      occurrence_number (number, optional) ${_lt("The instance of search_for within text_to_search to replace with replace_with. By default, all occurrences of search_for are replaced; however, if occurrence_number is specified, only the indicated instance of search_for is replaced.")}
-  `),
+        text_to_search (string) ${_lt("The text within which to search and replace.")}
+        search_for (string) ${_lt("The string to search for within text_to_search.")}
+        replace_with (string) ${_lt("The string that will replace search_for.")}
+        occurrence_number (number, optional) ${_lt("The instance of search_for within text_to_search to replace with replace_with. By default, all occurrences of search_for are replaced; however, if occurrence_number is specified, only the indicated instance of search_for is replaced.")}
+    `),
         returns: ["NUMBER"],
         compute: function (textToSearch, searchFor, replaceWith, occurrenceNumber) {
             const _occurrenceNumber = toNumber(occurrenceNumber);
@@ -15463,7 +17622,7 @@
                 return _textToSearch;
             }
             const _replaceWith = toString(replaceWith);
-            const reg = new RegExp(_searchFor, "g");
+            const reg = new RegExp(escapeRegExp(_searchFor), "g");
             if (_occurrenceNumber === 0) {
                 return _textToSearch.replace(reg, _replaceWith);
             }
@@ -15478,11 +17637,11 @@
     const TEXTJOIN = {
         description: _lt("Combines text from multiple strings and/or arrays."),
         args: args(`
-      delimiter (string) ${_lt(" A string, possible empty, or a reference to a valid string. If empty, the text will be simply concatenated.")}
-      ignore_empty (boolean) ${_lt("A boolean; if TRUE, empty cells selected in the text arguments won't be included in the result.")}
-      text1 (string, range<string>) ${_lt("Any text item. This could be a string, or an array of strings in a range.")}
-      text2 (string, range<string>, repeating) ${_lt("Additional text item(s).")}
-  `),
+        delimiter (string) ${_lt(" A string, possible empty, or a reference to a valid string. If empty, the text will be simply concatenated.")}
+        ignore_empty (boolean) ${_lt("A boolean; if TRUE, empty cells selected in the text arguments won't be included in the result.")}
+        text1 (string, range<string>) ${_lt("Any text item. This could be a string, or an array of strings in a range.")}
+        text2 (string, range<string>, repeating) ${_lt("Additional text item(s).")}
+    `),
         returns: ["STRING"],
         compute: function (delimiter, ignoreEmpty, ...textsOrArrays) {
             const _delimiter = toString(delimiter);
@@ -15498,8 +17657,8 @@
     const TRIM = {
         description: _lt("Removes space characters."),
         args: args(`
-      text (string) ${_lt("The text or reference to a cell containing text to be trimmed.")}
-  `),
+        text (string) ${_lt("The text or reference to a cell containing text to be trimmed.")}
+    `),
         returns: ["STRING"],
         compute: function (text) {
             return toString(text).trim();
@@ -15512,8 +17671,8 @@
     const UPPER = {
         description: _lt("Converts a specified string to uppercase."),
         args: args(`
-      text (string) ${_lt("The string to convert to uppercase.")}
-  `),
+        text (string) ${_lt("The string to convert to uppercase.")}
+    `),
         returns: ["STRING"],
         compute: function (text) {
             return toString(text).toUpperCase();
@@ -15526,9 +17685,9 @@
     const TEXT = {
         description: _lt("Converts a number to text according to a specified format."),
         args: args(`
-      number (number) ${_lt("The number, date or time to format.")}
-      format (string) ${_lt("The pattern by which to format the number, enclosed in quotation marks.")}
-  `),
+        number (number) ${_lt("The number, date or time to format.")}
+        format (string) ${_lt("The pattern by which to format the number, enclosed in quotation marks.")}
+    `),
         returns: ["STRING"],
         compute: function (number, format) {
             const _number = toNumber(number);
@@ -15536,30 +17695,30 @@
         },
         isExported: true,
     };
-
+  
     var text = /*#__PURE__*/Object.freeze({
-        __proto__: null,
-        CHAR: CHAR,
-        CLEAN: CLEAN,
-        CONCATENATE: CONCATENATE,
-        EXACT: EXACT,
-        FIND: FIND,
-        JOIN: JOIN,
-        LEFT: LEFT,
-        LEN: LEN,
-        LOWER: LOWER,
-        MID: MID,
-        PROPER: PROPER,
-        REPLACE: REPLACE,
-        RIGHT: RIGHT,
-        SEARCH: SEARCH,
-        SUBSTITUTE: SUBSTITUTE,
-        TEXTJOIN: TEXTJOIN,
-        TRIM: TRIM,
-        UPPER: UPPER,
-        TEXT: TEXT
+      __proto__: null,
+      CHAR: CHAR,
+      CLEAN: CLEAN,
+      CONCATENATE: CONCATENATE,
+      EXACT: EXACT,
+      FIND: FIND,
+      JOIN: JOIN,
+      LEFT: LEFT,
+      LEN: LEN,
+      LOWER: LOWER,
+      MID: MID,
+      PROPER: PROPER,
+      REPLACE: REPLACE,
+      RIGHT: RIGHT,
+      SEARCH: SEARCH,
+      SUBSTITUTE: SUBSTITUTE,
+      TEXTJOIN: TEXTJOIN,
+      TRIM: TRIM,
+      UPPER: UPPER,
+      TEXT: TEXT
     });
-
+  
     const functions$4 = {
         database,
         date,
@@ -15630,7 +17789,7 @@
             functionRegistry.add(name, { isExported: false, ...addDescr });
         }
     }
-
+  
     /**
      * Tokenizer
      *
@@ -15653,12 +17812,7 @@
     function tokenize(str) {
         const chars = str.split("");
         const result = [];
-        let tokenCount = 0;
         while (chars.length) {
-            tokenCount++;
-            if (tokenCount > 100) {
-                throw new Error(_lt("This formula has over 100 parts. It can't be processed properly, consider splitting it into multiple cells"));
-            }
             let token = tokenizeSpace(chars) ||
                 tokenizeMisc(chars) ||
                 tokenizeOperator(chars) ||
@@ -15814,7 +17968,7 @@
         }
         return null;
     }
-
+  
     const functionRegex = /[a-zA-Z0-9\_]+(\.[a-zA-Z0-9\_]+)*/;
     const UNARY_OPERATORS_PREFIX = ["-", "+"];
     const UNARY_OPERATORS_POSTFIX = ["%"];
@@ -16092,7 +18246,7 @@
         }
         return needParenthesis ? `(${astToFormula(rightOperation)})` : astToFormula(rightOperation);
     }
-
+  
     var State;
     (function (State) {
         /**
@@ -16232,7 +18386,7 @@
         }
         return result;
     }
-
+  
     const functions$2 = functionRegistry.content;
     const OPERATOR_MAP = {
         "=": "EQ",
@@ -16541,7 +18695,7 @@
             constantValues,
         };
     }
-
+  
     /**
      * Add the following information on tokens:
      * - length
@@ -16633,7 +18787,7 @@
         const tokens = rangeTokenize(formula);
         return mapParentFunction(mapParenthesis(enrichTokens(tokens)));
     }
-
+  
     /**
      * Change the reference types inside the given token, if the token represent a range or a cell
      *
@@ -16644,9 +18798,9 @@
     function loopThroughReferenceType(token) {
         if (token.type !== "REFERENCE")
             return token;
-        const [range, sheet] = token.value.split("!").reverse();
-        const [left, right] = range.split(":");
-        const sheetRef = sheet ? `${sheet}!` : "";
+        const { xc, sheetName } = splitReference(token.value);
+        const [left, right] = xc.split(":");
+        const sheetRef = sheetName ? `${getComposerSheetName(sheetName)}!` : "";
         const updatedLeft = getTokenNextReferenceType(left);
         const updatedRight = right ? `:${getTokenNextReferenceType(right)}` : "";
         return { ...token, value: sheetRef + updatedLeft + updatedRight };
@@ -16719,7 +18873,7 @@
     function isColAndRowFixed(xc) {
         return xc.startsWith("$") && xc.length > 1 && xc.slice(1).includes("$");
     }
-
+  
     /**
      * BasePlugin
      *
@@ -16807,7 +18961,7 @@
         }
     }
     BasePlugin.getters = [];
-
+  
     /**
      * UI plugins handle any transient data required to display a spreadsheet.
      * They can draw on the grid canvas.
@@ -16825,7 +18979,7 @@
         drawGrid(ctx, layer) { }
     }
     UIPlugin.layers = [];
-
+  
     const CELL_DELETED_MESSAGE = _lt("The cell you are trying to edit has been deleted.");
     const SelectionIndicator = "␣";
     class EditionPlugin extends UIPlugin {
@@ -16902,7 +19056,7 @@
                     break;
                 case "STOP_EDITION":
                     if (cmd.cancel) {
-                        this.cancelEdition();
+                        this.cancelEditionAndActivateSheet();
                         this.resetContent();
                     }
                     else {
@@ -16911,14 +19065,14 @@
                     this.colorIndexByRange = {};
                     break;
                 case "SET_CURRENT_CONTENT":
-                    this.setContent(cmd.content, cmd.selection);
+                    this.setContent(cmd.content, cmd.selection, true);
                     this.updateRangeColor();
                     break;
                 case "REPLACE_COMPOSER_CURSOR_SELECTION":
                     this.replaceSelection(cmd.text);
                     break;
                 case "SELECT_FIGURE":
-                    this.cancelEdition();
+                    this.cancelEditionAndActivateSheet();
                     this.resetContent();
                     break;
                 case "ADD_COLUMNS_ROWS":
@@ -16938,8 +19092,7 @@
                     const previousRefToken = this.currentTokens
                         .filter((token) => token.type === "REFERENCE")
                         .find((token) => {
-                        let value = token.value;
-                        const [xc, sheet] = value.split("!").reverse();
+                        const { xc, sheetName: sheet } = splitReference(token.value);
                         const sheetName = sheet || this.getters.getSheetName(this.sheetId);
                         const activeSheetId = this.getters.getActiveSheetId();
                         if (this.getters.getSheetName(activeSheetId) !== sheetName) {
@@ -16963,6 +19116,10 @@
                     this.selectionEnd = this.currentContent.length;
                     break;
                 case "ACTIVATE_SHEET":
+                    if (!this.currentContent.startsWith("=")) {
+                        this.cancelEdition();
+                        this.resetContent();
+                    }
                     if (cmd.sheetIdFrom !== cmd.sheetIdTo) {
                         const { col, row } = this.getters.getNextVisibleCellPosition(cmd.sheetIdTo, 0, 0);
                         const zone = this.getters.expandZone(cmd.sheetIdTo, positionToZone({ col, row }));
@@ -16975,7 +19132,7 @@
                     const sheetIdExists = !!this.getters.tryGetSheet(this.sheetId);
                     if (!sheetIdExists && this.mode !== "inactive") {
                         this.sheetId = this.getters.getActiveSheetId();
-                        this.cancelEdition();
+                        this.cancelEditionAndActivateSheet();
                         this.resetContent();
                         this.ui.notifyUI({
                             type: "ERROR",
@@ -17067,7 +19224,7 @@
         validateSelection(length, start, end) {
             return start >= 0 && start <= length && end >= 0 && end <= length
                 ? 0 /* CommandResult.Success */
-                : 43 /* CommandResult.WrongComposerSelection */;
+                : 45 /* CommandResult.WrongComposerSelection */;
         }
         onColumnsRemoved(cmd) {
             if (cmd.elements.includes(this.col) && this.mode !== "inactive") {
@@ -17135,13 +19292,15 @@
             const zone = positionToZone({ col: this.col, row: this.row });
             this.selection.capture(this, { cell: { col: this.col, row: this.row }, zone }, {
                 handleEvent: this.handleEvent.bind(this),
-                release: () => (this.mode = "inactive"),
+                release: () => {
+                    this.stopEdition();
+                },
             });
         }
         stopEdition() {
             if (this.mode !== "inactive") {
                 const activeSheetId = this.getters.getActiveSheetId();
-                this.cancelEdition();
+                this.cancelEditionAndActivateSheet();
                 const { col, row } = this.getters.getMainCellPosition(this.sheetId, this.col, this.row);
                 let content = this.currentContent;
                 const didChange = this.initialContent !== content;
@@ -17179,12 +19338,11 @@
                 this.setContent("");
             }
         }
-        cancelEdition() {
+        cancelEditionAndActivateSheet() {
             if (this.mode === "inactive") {
                 return;
             }
-            this.mode = "inactive";
-            this.selection.release(this);
+            this.cancelEdition();
             const sheetId = this.getters.getActiveSheetId();
             if (sheetId !== this.sheetId) {
                 this.dispatch("ACTIVATE_SHEET", {
@@ -17193,13 +19351,20 @@
                 });
             }
         }
+        cancelEdition() {
+            if (this.mode === "inactive") {
+                return;
+            }
+            this.mode = "inactive";
+            this.selection.release(this);
+        }
         /**
          * Reset the current content to the active cell content
          */
         resetContent() {
             this.setContent(this.initialContent || "");
         }
-        setContent(text, selection) {
+        setContent(text, selection, raise) {
             const isNewCurrentContent = this.currentContent !== text;
             this.currentContent = text;
             if (selection) {
@@ -17211,6 +19376,14 @@
             }
             if (isNewCurrentContent || this.mode !== "inactive") {
                 this.currentTokens = text.startsWith("=") ? composerTokenize(text) : [];
+                if (this.currentTokens.length > 100) {
+                    if (raise) {
+                        this.ui.notifyUI({
+                            type: "ERROR",
+                            text: _lt("This formula has over 100 parts. It can't be processed properly, consider splitting it into multiple cells"),
+                        });
+                    }
+                }
             }
             if (this.canStartComposerRangeSelection()) {
                 this.startComposerRangeSelection();
@@ -17398,7 +19571,7 @@
         "getTokenAtCursor",
         "getComposerHighlights",
     ];
-
+  
     const functions$1 = functionRegistry.content;
     const providerRegistry = new Registry();
     providerRegistry.add("functions", () => {
@@ -17413,30 +19586,30 @@
     // Autocomplete DropDown component
     // -----------------------------------------------------------------------------
     css /* scss */ `
-  .o-autocomplete-dropdown {
-    pointer-events: auto;
-    background-color: #fff;
-    & > div:hover {
-      background-color: #f2f2f2;
-    }
-    .o-autocomplete-value-focus {
-      background-color: rgba(0, 0, 0, 0.08);
-    }
-
-    & > div {
-      display: flex;
-      flex-direction: column;
-      padding: 1px 0 5px 5px;
-      .o-autocomplete-description {
-        padding: 0 0 0 5px;
-        font-size: 11px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+    .o-autocomplete-dropdown {
+      pointer-events: auto;
+      background-color: #fff;
+      & > div:hover {
+        background-color: #f2f2f2;
+      }
+      .o-autocomplete-value-focus {
+        background-color: rgba(0, 0, 0, 0.08);
+      }
+  
+      & > div {
+        display: flex;
+        flex-direction: column;
+        padding: 1px 0 5px 5px;
+        .o-autocomplete-description {
+          padding: 0 0 0 5px;
+          font-size: 11px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
       }
     }
-  }
-`;
+  `;
     class TextValueProvider extends owl.Component {
         constructor() {
             super(...arguments);
@@ -17494,7 +19667,7 @@
         }
     }
     TextValueProvider.template = "o-spreadsheet-TextValueProvider";
-
+  
     class ContentEditableHelper {
         constructor(el) {
             this.el = el;
@@ -17636,58 +19809,58 @@
             };
         }
     }
-
+  
     // -----------------------------------------------------------------------------
     // Formula Assistant component
     // -----------------------------------------------------------------------------
     css /* scss */ `
-  .o-formula-assistant {
-    white-space: normal;
-    background-color: #fff;
-    .o-formula-assistant-head {
-      background-color: #f2f2f2;
-      padding: 10px;
-    }
-    .o-formula-assistant-core {
-      padding: 0px 0px 10px 0px;
-      margin: 10px;
-      border-bottom: 1px solid gray;
-    }
-    .o-formula-assistant-arg {
-      padding: 0px 10px 10px 10px;
-      display: flex;
-      flex-direction: column;
-    }
-    .o-formula-assistant-arg-description {
-      font-size: 85%;
-    }
-    .o-formula-assistant-focus {
-      div:first-child,
-      span {
-        color: purple;
-        text-shadow: 0px 0px 1px purple;
+    .o-formula-assistant {
+      white-space: normal;
+      background-color: #fff;
+      .o-formula-assistant-head {
+        background-color: #f2f2f2;
+        padding: 10px;
       }
-      div:last-child {
-        color: black;
+      .o-formula-assistant-core {
+        padding: 0px 0px 10px 0px;
+        margin: 10px;
+        border-bottom: 1px solid gray;
+      }
+      .o-formula-assistant-arg {
+        padding: 0px 10px 10px 10px;
+        display: flex;
+        flex-direction: column;
+      }
+      .o-formula-assistant-arg-description {
+        font-size: 85%;
+      }
+      .o-formula-assistant-focus {
+        div:first-child,
+        span {
+          color: purple;
+          text-shadow: 0px 0px 1px purple;
+        }
+        div:last-child {
+          color: black;
+        }
+      }
+      .o-formula-assistant-gray {
+        color: gray;
       }
     }
-    .o-formula-assistant-gray {
-      color: gray;
+    .o-formula-assistant-container {
+      user-select: none;
     }
-  }
-  .o-formula-assistant-container {
-    user-select: none;
-  }
-  .o-formula-assistant-event-none {
-    pointer-events: none;
-  }
-  .o-formula-assistant-event-auto {
-    pointer-events: auto;
-  }
-  .o-formula-assistant-transparency {
-    opacity: 0.3;
-  }
-`;
+    .o-formula-assistant-event-none {
+      pointer-events: none;
+    }
+    .o-formula-assistant-event-auto {
+      pointer-events: auto;
+    }
+    .o-formula-assistant-transparency {
+      opacity: 0.3;
+    }
+  `;
     class FunctionDescriptionProvider extends owl.Component {
         constructor() {
             super(...arguments);
@@ -17717,7 +19890,7 @@
         }
     }
     FunctionDescriptionProvider.template = "o-spreadsheet-FunctionDescriptionProvider";
-
+  
     const functions = functionRegistry.content;
     const ASSISTANT_WIDTH = 300;
     const FunctionColor = "#4a4e4d";
@@ -17738,44 +19911,44 @@
         COMMA: FunctionColor,
     };
     css /* scss */ `
-  .o-composer-container {
-    padding: 0;
-    margin: 0;
-    border: 0;
-    z-index: ${ComponentsImportance.Composer};
-    flex-grow: 1;
-    max-height: inherit;
-    .o-composer {
-      caret-color: black;
-      padding-left: 3px;
-      padding-right: 3px;
-      word-break: break-all;
-      &:focus {
-        outline: none;
-      }
-      &.unfocusable {
-        pointer-events: none;
-      }
-      span {
-        white-space: pre;
-        &.${SelectionIndicatorClass}:after {
-          content: "${SelectionIndicator}";
-          color: ${SelectionIndicatorColor};
+    .o-composer-container {
+      padding: 0;
+      margin: 0;
+      border: 0;
+      z-index: ${ComponentsImportance.Composer};
+      flex-grow: 1;
+      max-height: inherit;
+      .o-composer {
+        caret-color: black;
+        padding-left: 3px;
+        padding-right: 3px;
+        word-break: break-all;
+        &:focus {
+          outline: none;
+        }
+        &.unfocusable {
+          pointer-events: none;
+        }
+        span {
+          white-space: pre;
+          &.${SelectionIndicatorClass}:after {
+            content: "${SelectionIndicator}";
+            color: ${SelectionIndicatorColor};
+          }
         }
       }
+      .o-composer-assistant {
+        position: absolute;
+        margin: 4px;
+        pointer-events: none;
+      }
     }
-    .o-composer-assistant {
-      position: absolute;
-      margin: 4px;
-      pointer-events: none;
+  
+    /* Custom css to highlight topbar composer on focus */
+    .o-topbar-toolbar .o-composer-container:focus-within {
+      border: 1px solid ${SELECTION_BORDER_COLOR};
     }
-  }
-
-  /* Custom css to highlight topbar composer on focus */
-  .o-topbar-toolbar .o-composer-container:focus-within {
-    border: 1px solid ${SELECTION_BORDER_COLOR};
-  }
-`;
+  `;
     class Composer extends owl.Component {
         constructor() {
             super(...arguments);
@@ -17797,6 +19970,7 @@
                 argToFocus: 0,
             });
             this.isKeyStillDown = false;
+            this.compositionActive = false;
             this.borderStyle = `box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);`;
             // we can't allow input events to be triggered while we remove and add back the content of the composer in processContent
             this.shouldProcessInputEvents = false;
@@ -17821,9 +19995,9 @@
                 if (cellY > remainingHeight) {
                     // render top
                     assistantStyle += `
-          top: -8px;
-          transform: translate(0, -100%);
-        `;
+            top: -8px;
+            transform: translate(0, -100%);
+          `;
                 }
                 if (cellX + ASSISTANT_WIDTH > this.props.delimitation.width) {
                     // render left
@@ -17900,7 +20074,7 @@
             }
             const direction = ev.shiftKey ? "left" : "right";
             this.env.model.dispatch("STOP_EDITION");
-            this.env.model.selection.moveAnchorCell(direction, "one");
+            this.env.model.selection.moveAnchorCell(direction, 1);
         }
         processEnterKey(ev) {
             ev.preventDefault();
@@ -17915,7 +20089,7 @@
             }
             this.env.model.dispatch("STOP_EDITION");
             const direction = ev.shiftKey ? "up" : "down";
-            this.env.model.selection.moveAnchorCell(direction, "one");
+            this.env.model.selection.moveAnchorCell(direction, 1);
         }
         processEscapeKey() {
             this.env.model.dispatch("STOP_EDITION", { cancel: true });
@@ -17923,6 +20097,12 @@
         processF4Key() {
             this.env.model.dispatch("CYCLE_EDITION_REFERENCES");
             this.processContent();
+        }
+        onCompositionStart() {
+            this.compositionActive = true;
+        }
+        onCompositionEnd() {
+            this.compositionActive = false;
         }
         onKeydown(ev) {
             let handler = this.keyMapping[ev.key];
@@ -18011,6 +20191,9 @@
         // Private
         // ---------------------------------------------------------------------------
         processContent() {
+            if (this.compositionActive) {
+                return;
+            }
             this.contentHelper.removeAll(); // removes the content of the composer, to be added just after
             this.shouldProcessInputEvents = false;
             if (this.props.focus !== "inactive") {
@@ -18029,11 +20212,12 @@
         }
         getContent() {
             let content;
-            let value = this.env.model.getters.getCurrentContent();
+            const value = this.env.model.getters.getCurrentContent();
+            const isValidFormula = value.startsWith("=") && this.env.model.getters.getCurrentTokens().length > 0;
             if (value === "") {
                 content = [];
             }
-            else if (value.startsWith("=") && this.props.focus !== "inactive") {
+            else if (isValidFormula && this.props.focus !== "inactive") {
                 content = this.getColoredTokens();
             }
             else {
@@ -18045,8 +20229,8 @@
             const tokens = this.env.model.getters.getCurrentTokens();
             const tokenAtCursor = this.env.model.getters.getTokenAtCursor();
             const result = [];
-            const { end, start } = this.env.model.getters.getComposerSelection();
-            for (let token of tokens) {
+            const { start, end } = this.env.model.getters.getComposerSelection();
+            for (const token of tokens) {
                 switch (token.type) {
                     case "OPERATOR":
                     case "NUMBER":
@@ -18056,8 +20240,8 @@
                         result.push({ value: token.value, color: tokenColor[token.type] || "#000" });
                         break;
                     case "REFERENCE":
-                        const [xc, sheet] = token.value.split("!").reverse();
-                        result.push({ value: token.value, color: this.rangeColor(xc, sheet) || "#000" });
+                        const { xc, sheetName } = splitReference(token.value);
+                        result.push({ value: token.value, color: this.rangeColor(xc, sheetName) || "#000" });
                         break;
                     case "SYMBOL":
                         let value = token.value;
@@ -18122,7 +20306,7 @@
             if (content.startsWith("=")) {
                 const tokenAtCursor = this.env.model.getters.getTokenAtCursor();
                 if (tokenAtCursor) {
-                    const [xc] = tokenAtCursor.value.split("!").reverse();
+                    const { xc } = splitReference(tokenAtCursor.value);
                     if (tokenAtCursor.type === "FUNCTION" ||
                         (tokenAtCursor.type === "SYMBOL" && !rangeReference.test(xc))) {
                         // initialize Autocomplete Dropdown
@@ -18182,18 +20366,18 @@
         inputStyle: "",
         focus: "inactive",
     };
-
+  
     const SCROLLBAR_WIDTH = 14;
     const SCROLLBAR_HIGHT = 15;
     const COMPOSER_BORDER_WIDTH = 3 * 0.4 * window.devicePixelRatio || 1;
     css /* scss */ `
-  div.o-grid-composer {
-    z-index: ${ComponentsImportance.Composer};
-    box-sizing: border-box;
-    position: absolute;
-    border: ${COMPOSER_BORDER_WIDTH}px solid ${SELECTION_BORDER_COLOR};
-  }
-`;
+    div.o-grid-composer {
+      z-index: ${ComponentsImportance.Composer};
+      box-sizing: border-box;
+      position: absolute;
+      border: ${COMPOSER_BORDER_WIDTH}px solid ${SELECTION_BORDER_COLOR};
+    }
+  `;
     /**
      * This component is a composer which positions itself on the grid at the anchor cell.
      * It also applies the style of the cell to the composer input.
@@ -18256,337 +20440,255 @@
                 textAlign = style.align || (cell === null || cell === void 0 ? void 0 : cell.defaultAlign) || "left";
             }
             return `
-      left: ${left - 1}px;
-      top: ${top}px;
-      min-width: ${width + 2}px;
-      min-height: ${height + 1}px;
-
-      background: ${background};
-      color: ${color};
-
-      font-size: ${fontSizeMap[fontSize]}px;
-      font-weight: ${fontWeight};
-      font-style: ${fontStyle};
-      text-decoration: ${textDecoration};
-
-      text-align: ${textAlign};
-    `;
+        left: ${left - 1}px;
+        top: ${top}px;
+        min-width: ${width + 2}px;
+        min-height: ${height + 1}px;
+  
+        background: ${background};
+        color: ${color};
+  
+        font-size: ${fontSizeMap[fontSize]}px;
+        font-weight: ${fontWeight};
+        font-style: ${fontStyle};
+        text-decoration: ${textDecoration};
+  
+        text-align: ${textAlign};
+      `;
         }
         get composerStyle() {
             return `
-      line-height: ${DEFAULT_CELL_HEIGHT}px;
-      max-height: inherit;
-      overflow: hidden;
-    `;
+        line-height: ${DEFAULT_CELL_HEIGHT}px;
+        max-height: inherit;
+        overflow: hidden;
+      `;
         }
     }
     GridComposer.template = "o-spreadsheet-GridComposer";
     GridComposer.components = { Composer };
-
+  
+    const CSS$1 = css /* scss */ `
+    .o-filter-icon {
+      color: ${FILTERS_COLOR};
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: ${FILTER_ICON_EDGE_LENGTH}px;
+      height: ${FILTER_ICON_EDGE_LENGTH}px;
+  
+      svg {
+        path {
+          fill: ${FILTERS_COLOR};
+        }
+      }
+    }
+    .o-filter-icon:hover {
+      background: ${FILTERS_COLOR};
+      svg {
+        path {
+          fill: white;
+        }
+      }
+    }
+  `;
+    class FilterIcon extends owl.Component {
+        get style() {
+            const { x, y } = this.props.position;
+            return `top:${y}px;left:${x}px`;
+        }
+    }
+    FilterIcon.style = CSS$1;
+    FilterIcon.template = "o-spreadsheet-FilterIcon";
+  
+    const CSS = css /* scss */ ``;
+    class FilterIconsOverlay extends owl.Component {
+        getVisibleFilterHeaders() {
+            const sheetId = this.env.model.getters.getActiveSheetId();
+            const headerPositions = this.env.model.getters.getFilterHeaders(sheetId);
+            return headerPositions.filter((position) => this.isPositionVisible(position.col, position.row));
+        }
+        getFilterHeaderPosition(position) {
+            const sheetId = this.env.model.getters.getActiveSheetId();
+            const rowDims = this.env.model.getters.getRowDimensionsInViewport(sheetId, position.row);
+            const colDims = this.env.model.getters.getColDimensionsInViewport(sheetId, position.col);
+            // TODO : change this offset when we support vertical cell align
+            const centeringOffset = Math.floor((rowDims.size - FILTER_ICON_EDGE_LENGTH) / 2);
+            return {
+                x: colDims.end - FILTER_ICON_EDGE_LENGTH + this.props.gridPosition.x - FILTER_ICON_MARGIN - 1,
+                y: rowDims.end - FILTER_ICON_EDGE_LENGTH + this.props.gridPosition.y - centeringOffset,
+            };
+        }
+        isFilterActive(position) {
+            const sheetId = this.env.model.getters.getActiveSheetId();
+            return this.env.model.getters.isFilterActive(sheetId, position.col, position.row);
+        }
+        toggleFilterMenu(position) {
+            const activePopoverType = this.env.model.getters.getPersistentPopoverTypeAtPosition(position);
+            if (activePopoverType && activePopoverType === "FilterMenu") {
+                this.env.model.dispatch("CLOSE_CELL_POPOVER");
+                return;
+            }
+            const { col, row } = position;
+            this.env.model.dispatch("OPEN_CELL_POPOVER", {
+                col,
+                row,
+                popoverType: "FilterMenu",
+            });
+        }
+        isPositionVisible(x, y) {
+            const rect = this.env.model.getters.getVisibleRect({
+                left: x,
+                right: x,
+                top: y,
+                bottom: y,
+            });
+            return !(rect.width === 0 || rect.height === 0);
+        }
+    }
+    FilterIconsOverlay.style = CSS;
+    FilterIconsOverlay.template = "o-spreadsheet-FilterIconsOverlay";
+    FilterIconsOverlay.components = {
+        FilterIcon,
+    };
+    FilterIconsOverlay.defaultProps = {
+        gridPosition: { x: 0, y: 0 },
+    };
+  
     // -----------------------------------------------------------------------------
     // STYLE
     // -----------------------------------------------------------------------------
     const ANCHOR_SIZE = 8;
     const BORDER_WIDTH = 1;
     const ACTIVE_BORDER_WIDTH = 2;
-    const MIN_FIG_SIZE = 80;
     css /*SCSS*/ `
-  div.o-figure {
-    box-sizing: content-box;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-
-    bottom: 0px;
-    right: 0px;
-    border: solid ${FIGURE_BORDER_COLOR};
-    &:focus {
-      outline: none;
-    }
-    &.active {
-      border: solid ${SELECTION_BORDER_COLOR};
-    }
-
-    &.o-dragging {
-      opacity: 0.9;
-      cursor: grabbing;
-    }
-  }
-
-  .o-figure-wrapper {
-    position: absolute;
-    box-sizing: content-box;
-
-    .o-figure-overflow-wrapper {
+    div.o-figure {
+      box-sizing: border-box;
       position: absolute;
-      overflow: hidden;
       width: 100%;
       height: 100%;
+  
+      &:focus {
+        outline: none;
+      }
     }
-    .o-anchor {
-      z-index: ${ComponentsImportance.ChartAnchor};
+  
+    div.o-figure-border {
+      box-sizing: border-box;
+      z-index: 1;
+    }
+  
+    .o-figure-wrapper {
       position: absolute;
-      width: ${ANCHOR_SIZE}px;
-      height: ${ANCHOR_SIZE}px;
-      background-color: #1a73e8;
-      outline: ${BORDER_WIDTH}px solid white;
-
-      &.o-top {
-        cursor: n-resize;
-      }
-      &.o-topRight {
-        cursor: ne-resize;
-      }
-      &.o-right {
-        cursor: e-resize;
-      }
-      &.o-bottomRight {
-        cursor: se-resize;
-      }
-      &.o-bottom {
-        cursor: s-resize;
-      }
-      &.o-bottomLeft {
-        cursor: sw-resize;
-      }
-      &.o-left {
-        cursor: w-resize;
-      }
-      &.o-topLeft {
-        cursor: nw-resize;
+      box-sizing: content-box;
+  
+      .o-fig-anchor {
+        z-index: ${ComponentsImportance.ChartAnchor};
+        position: absolute;
+        width: ${ANCHOR_SIZE}px;
+        height: ${ANCHOR_SIZE}px;
+        background-color: #1a73e8;
+        outline: ${BORDER_WIDTH}px solid white;
+  
+        &.o-top {
+          cursor: n-resize;
+        }
+        &.o-topRight {
+          cursor: ne-resize;
+        }
+        &.o-right {
+          cursor: e-resize;
+        }
+        &.o-bottomRight {
+          cursor: se-resize;
+        }
+        &.o-bottom {
+          cursor: s-resize;
+        }
+        &.o-bottomLeft {
+          cursor: sw-resize;
+        }
+        &.o-left {
+          cursor: w-resize;
+        }
+        &.o-topLeft {
+          cursor: nw-resize;
+        }
       }
     }
-  }
-`;
+  `;
     class FigureComponent extends owl.Component {
         constructor() {
             super(...arguments);
             this.figureRegistry = figureRegistry;
             this.figureRef = owl.useRef("figure");
-            this.dnd = owl.useState({
-                isActive: false,
-                x: 0,
-                y: 0,
-                width: 0,
-                height: 0,
-            });
-        }
-        get displayedFigure() {
-            return this.dnd.isActive ? { ...this.props.figure, ...this.dnd } : this.props.figure;
         }
         get isSelected() {
             return this.env.model.getters.getSelectedFigureId() === this.props.figure.id;
         }
-        /** Get the current figure size, which is either the stored figure size of the DnD figure size */
-        getFigureSize() {
-            const { width, height } = this.displayedFigure;
-            return { width, height };
-        }
-        getFigureSizeWithBorders() {
-            const { width, height } = this.getFigureSize();
-            const borders = this.getBorderWidth() * 2;
-            return { width: width + borders, height: height + borders };
-        }
         getBorderWidth() {
-            return this.isSelected ? ACTIVE_BORDER_WIDTH : this.env.isDashboard() ? 0 : BORDER_WIDTH;
+            if (this.env.isDashboard())
+                return 0;
+            return this.isSelected ? ACTIVE_BORDER_WIDTH : BORDER_WIDTH;
         }
-        getFigureStyle() {
-            const { width, height } = this.displayedFigure;
-            return `width:${width}px;height:${height}px;border-width: ${this.getBorderWidth()}px;`;
+        get borderStyle() {
+            const borderWidth = this.getBorderWidth();
+            const borderColor = this.isSelected ? SELECTION_BORDER_COLOR : FIGURE_BORDER_COLOR;
+            return `border: ${borderWidth}px solid ${borderColor};`;
         }
-        getContainerStyle() {
-            const target = this.displayedFigure;
-            const { x: offsetCorrectionX, y: offsetCorrectionY } = this.env.model.getters.getMainViewportCoordinates();
-            const { offsetX, offsetY } = this.env.model.getters.getActiveSheetScrollInfo();
-            let { width, height } = this.getFigureSizeWithBorders();
-            let x, y;
-            // Visually, the content of the container is slightly shifted as it includes borders and/or corners.
-            // If we want to make assertions on the position of the content, we need to take this shift into account
-            const borderShift = ANCHOR_SIZE / 2;
-            if (target.x + borderShift < offsetCorrectionX) {
-                x = target.x;
-            }
-            else if (target.x + borderShift < offsetCorrectionX + offsetX) {
-                x = offsetCorrectionX;
-                width += target.x - offsetCorrectionX - offsetX;
-            }
-            else {
-                x = target.x - offsetX;
-            }
-            if (target.y + borderShift < offsetCorrectionY) {
-                y = target.y;
-            }
-            else if (target.y + borderShift < offsetCorrectionY + offsetY) {
-                y = offsetCorrectionY;
-                height += target.y - offsetCorrectionY - offsetY;
-            }
-            else {
-                y = target.y - offsetY;
-            }
-            if (width < 0 || height < 0) {
-                return `display:none;`;
-            }
-            const borderOffset = BORDER_WIDTH - this.getBorderWidth();
-            // TODO : remove the +1 once 2951210 is fixed
-            return (`top:${y + borderOffset + 1}px;` +
-                `left:${x + borderOffset}px;` +
-                `width:${width}px;` +
-                `height:${height}px;` +
-                `z-index: ${ComponentsImportance.Figure + (this.isSelected ? 1 : 0)}`);
+        get wrapperStyle() {
+            const { x, y, width, height } = this.props.figure;
+            return cssPropertiesToCss({
+                left: `${x}px`,
+                top: `${y}px`,
+                width: `${width}px`,
+                height: `${height}px`,
+                "z-index": String(ComponentsImportance.Figure + (this.isSelected ? 1 : 0)),
+            });
         }
-        getAnchorPosition(anchor) {
-            let { width, height } = this.getFigureSizeWithBorders();
+        getResizerPosition(resizer) {
             const anchorCenteringOffset = (ANCHOR_SIZE - ACTIVE_BORDER_WIDTH) / 2;
-            const target = this.displayedFigure;
-            let x = 0;
-            let y = 0;
-            const { x: offsetCorrectionX, y: offsetCorrectionY } = this.env.model.getters.getMainViewportCoordinates();
-            const { offsetX, offsetY } = this.env.model.getters.getActiveSheetScrollInfo();
-            const borderShift = ANCHOR_SIZE / 2;
-            if (target.x + borderShift < offsetCorrectionX) {
-                x = 0;
+            let style = "";
+            if (resizer.includes("top")) {
+                style += `top: ${-anchorCenteringOffset}px;`;
             }
-            else if (target.x + borderShift < offsetCorrectionX + offsetX) {
-                x = target.x - offsetCorrectionX - offsetX;
+            else if (resizer.includes("bottom")) {
+                style += `bottom: ${-anchorCenteringOffset}px;`;
             }
             else {
-                x = 0;
+                style += ` bottom: calc(50% - ${anchorCenteringOffset}px);`;
             }
-            if (target.y + borderShift < offsetCorrectionY) {
-                y = 0;
+            if (resizer.includes("left")) {
+                style += `left: ${-anchorCenteringOffset}px;`;
             }
-            else if (target.y + borderShift < offsetCorrectionY + offsetY) {
-                y = target.y - offsetCorrectionY - offsetY;
-            }
-            else {
-                y = 0;
-            }
-            if (anchor.includes("top")) {
-                y -= anchorCenteringOffset;
-            }
-            else if (anchor.includes("bottom")) {
-                y += height - ACTIVE_BORDER_WIDTH - anchorCenteringOffset;
+            else if (resizer.includes("right")) {
+                style += `right: ${-anchorCenteringOffset}px;`;
             }
             else {
-                y += (height - ACTIVE_BORDER_WIDTH) / 2 - anchorCenteringOffset;
+                style += ` right: calc(50% - ${anchorCenteringOffset}px);`;
             }
-            if (anchor.includes("left")) {
-                x += -anchorCenteringOffset;
-            }
-            else if (anchor.includes("right")) {
-                x += width - ACTIVE_BORDER_WIDTH - anchorCenteringOffset;
-            }
-            else {
-                x += (width - ACTIVE_BORDER_WIDTH) / 2 - anchorCenteringOffset;
-            }
-            let visibility = "visible";
-            if (x < -anchorCenteringOffset || y < -anchorCenteringOffset) {
-                visibility = "hidden";
-            }
-            return `visibility:${visibility};top:${y}px; left:${x}px;`;
+            return style;
         }
         setup() {
             owl.useEffect((selectedFigureId, thisFigureId, el) => {
                 if (selectedFigureId === thisFigureId) {
-                    el === null || el === void 0 ? void 0 : el.focus();
+                    /** Scrolling on a newly inserted figure that overflows outside the viewport
+                     * will break the whole layout.
+                     * NOTE: `preventScroll`does not work on mobile but then again,
+                     * mobile is not really supported ATM.
+                     *
+                     * TODO: When implementing proper mobile, we will need to scroll the viewport
+                     * correctly (and render?) before focusing the element.
+                     */
+                    el === null || el === void 0 ? void 0 : el.focus({ preventScroll: true });
                 }
             }, () => [this.env.model.getters.getSelectedFigureId(), this.props.figure.id, this.figureRef.el]);
         }
-        resize(dirX, dirY, ev) {
-            const figure = this.props.figure;
-            ev.stopPropagation();
-            const initialX = ev.clientX;
-            const initialY = ev.clientY;
-            this.dnd.isActive = true;
-            this.dnd.x = figure.x;
-            this.dnd.y = figure.y;
-            this.dnd.width = figure.width;
-            this.dnd.height = figure.height;
-            const onMouseMove = (ev) => {
-                const deltaX = dirX * (ev.clientX - initialX);
-                const deltaY = dirY * (ev.clientY - initialY);
-                this.dnd.width = Math.max(figure.width + deltaX, MIN_FIG_SIZE);
-                this.dnd.height = Math.max(figure.height + deltaY, MIN_FIG_SIZE);
-                if (dirX < 0) {
-                    this.dnd.x = figure.x - deltaX;
-                }
-                if (dirY < 0) {
-                    this.dnd.y = figure.y - deltaY;
-                }
-            };
-            const onMouseUp = (ev) => {
-                this.dnd.isActive = false;
-                const update = {
-                    x: this.dnd.x,
-                    y: this.dnd.y,
-                };
-                if (dirX) {
-                    update.width = this.dnd.width;
-                }
-                if (dirY) {
-                    update.height = this.dnd.height;
-                }
-                this.env.model.dispatch("UPDATE_FIGURE", {
-                    sheetId: this.env.model.getters.getActiveSheetId(),
-                    id: figure.id,
-                    ...update,
-                });
-            };
-            startDnd(onMouseMove, onMouseUp);
+        clickAnchor(dirX, dirY, ev) {
+            this.props.onClickAnchor(dirX, dirY, ev);
         }
         onMouseDown(ev) {
-            const figure = this.props.figure;
-            if (ev.button > 0 || this.env.model.getters.isReadonly()) {
-                // not main button, probably a context menu
-                return;
-            }
-            const selectResult = this.env.model.dispatch("SELECT_FIGURE", { id: figure.id });
-            if (!selectResult.isSuccessful) {
-                return;
-            }
-            if (this.props.sidePanelIsOpen) {
-                this.env.openSidePanel("ChartPanel");
-            }
-            const position = gridOverlayPosition();
-            const { x: offsetCorrectionX, y: offsetCorrectionY } = this.env.model.getters.getMainViewportCoordinates();
-            const { offsetX, offsetY } = this.env.model.getters.getActiveSheetScrollInfo();
-            const initialX = ev.clientX - position.left;
-            const initialY = ev.clientY - position.top;
-            this.dnd.isActive = true;
-            this.dnd.x = figure.x;
-            this.dnd.y = figure.y;
-            this.dnd.width = figure.width;
-            this.dnd.height = figure.height;
-            const onMouseMove = (ev) => {
-                const newX = ev.clientX - position.left;
-                let deltaX = newX - initialX;
-                if (newX > offsetCorrectionX && initialX < offsetCorrectionX) {
-                    deltaX += offsetX;
-                }
-                else if (newX < offsetCorrectionX && initialX > offsetCorrectionX) {
-                    deltaX -= offsetX;
-                }
-                this.dnd.x = Math.max(figure.x + deltaX, 0);
-                const newY = ev.clientY - position.top;
-                let deltaY = newY - initialY;
-                if (newY > offsetCorrectionY && initialY < offsetCorrectionY) {
-                    deltaY += offsetY;
-                }
-                else if (newY < offsetCorrectionY && initialY > offsetCorrectionY) {
-                    deltaY -= offsetY;
-                }
-                this.dnd.y = Math.max(figure.y + deltaY, 0);
-            };
-            const onMouseUp = (ev) => {
-                this.dnd.isActive = false;
-                this.env.model.dispatch("UPDATE_FIGURE", {
-                    sheetId: this.env.model.getters.getActiveSheetId(),
-                    id: figure.id,
-                    x: this.dnd.x,
-                    y: this.dnd.y,
-                });
-            };
-            startDnd(onMouseMove, onMouseUp);
+            this.props.onMouseDown(ev);
         }
         onKeyDown(ev) {
             const figure = this.props.figure;
@@ -18623,10 +20725,89 @@
     }
     FigureComponent.template = "o-spreadsheet-FigureComponent";
     FigureComponent.components = {};
-
+    FigureComponent.defaultProps = {
+        onFigureDeleted: () => { },
+        onMouseDown: () => { },
+        onClickAnchor: () => { },
+    };
+    FigureComponent.props = {
+        figure: Object,
+        style: { type: String, optional: true },
+        onFigureDeleted: { type: Function, optional: true },
+        onMouseDown: { type: Function, optional: true },
+        onClickAnchor: { type: Function, optional: true },
+    };
+  
+    /**
+     * Each figure ⭐ is positioned inside a container `div` placed and sized
+     * according to the split pane the figure is part of, or a separate container for the figure
+     * currently drag & dropped. Any part of the figure outside of the container is hidden
+     * thanks to its `overflow: hidden` property.
+     *
+     * Additionally, the figure is placed inside a "inverse viewport" `div` 🟥.
+     * Its position represents the viewport position in the grid: its top/left
+     * corner represents the top/left corner of the grid.
+     *
+     * It allows to position the figure inside this div regardless of the
+     * (possibly freezed) viewports and the scrolling position.
+     *
+     * --: container limits
+     * 🟥: inverse viewport
+     * ⭐: figure top/left position
+     *
+     *                     container
+     *                         ↓
+     * |🟥--------------------------------------------
+     * |  \                                          |
+     * |   \                                         |
+     * |    \                                        |
+     * |     \          visible area                 |  no scroll
+     * |      ⭐                                     |
+     * |                                             |
+     * |                                             |
+     * -----------------------------------------------
+     *
+     * the scrolling of the pane is applied as an inverse offset
+     * to the div which will in turn move the figure up and down
+     * inside the container.
+     * Hence, once the figure position is (resp. partly) out of
+     * the container dimensions, it will be (resp. partly) hidden.
+     *
+     * The same reasoning applies to the horizontal axis.
+     *
+     *  🟥 ························
+     *    \                       ↑
+     *     \                      |
+     *      \                     | inverse viewport = -1 * scroll of pane
+     *       \                    |
+     *        ⭐ <- not visible   |
+     *                            ↓
+     * -----------------------------------------------
+     * |                                             |
+     * |                                             |
+     * |                                             |
+     * |               visible area                  |
+     * |                                             |
+     * |                                             |
+     * |                                             |
+     * -----------------------------------------------
+     *
+     * In the case the d&d figure container, the container is the same as the "topLeft" container for
+     * frozen pane (unaffected by scroll and always visible). The figure coordinates are transformed
+     * for this container at the start of the d&d, and transformed back at the end to adapt to the scroll
+     * that occurred during the drag & drop, and to position the figure on the correct pane.
+     *
+     */
     class FiguresContainer extends owl.Component {
-        getVisibleFigures() {
-            return this.env.model.getters.getVisibleFigures();
+        constructor() {
+            super(...arguments);
+            this.dnd = owl.useState({
+                figId: undefined,
+                x: 0,
+                y: 0,
+                width: 0,
+                height: 0,
+            });
         }
         setup() {
             owl.onMounted(() => {
@@ -18640,11 +20821,207 @@
                 this.render();
             });
         }
+        getVisibleFigures() {
+            const visibleFigures = this.env.model.getters.getVisibleFigures();
+            if (this.dnd.figId && !visibleFigures.some((figure) => figure.id === this.dnd.figId)) {
+                visibleFigures.push(this.env.model.getters.getFigure(this.env.model.getters.getActiveSheetId(), this.dnd.figId));
+            }
+            return visibleFigures;
+        }
+        get containers() {
+            const visibleFigures = this.getVisibleFigures();
+            const containers = [];
+            for (const containerType of [
+                "topLeft",
+                "topRight",
+                "bottomLeft",
+                "bottomRight",
+            ]) {
+                const containerFigures = visibleFigures.filter((figure) => this.getFigureContainer(figure) === containerType);
+                if (containerFigures.length > 0) {
+                    containers.push({
+                        type: containerType,
+                        figures: containerFigures,
+                        style: this.getContainerStyle(containerType),
+                        inverseViewportStyle: this.getInverseViewportPositionStyle(containerType),
+                    });
+                }
+            }
+            if (this.dnd.figId) {
+                containers.push({
+                    type: "dnd",
+                    figures: [this.getDndFigure()],
+                    style: this.getContainerStyle("dnd"),
+                    inverseViewportStyle: this.getInverseViewportPositionStyle("dnd"),
+                });
+            }
+            return containers;
+        }
+        getContainerStyle(container) {
+            const { width: viewWidth, height: viewHeight } = this.env.model.getters.getMainViewportRect();
+            const { x: viewportX, y: viewportY } = this.env.model.getters.getMainViewportCoordinates();
+            const left = ["bottomRight", "topRight"].includes(container) ? viewportX : 0;
+            const width = viewWidth - left;
+            const top = ["bottomRight", "bottomLeft"].includes(container) ? viewportY : 0;
+            const height = viewHeight - top;
+            return cssPropertiesToCss({
+                left: `${left}px`,
+                top: `${top}px`,
+                width: `${width}px`,
+                height: `${height}px`,
+            });
+        }
+        getInverseViewportPositionStyle(container) {
+            const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+            const { x: viewportX, y: viewportY } = this.env.model.getters.getMainViewportCoordinates();
+            const left = ["bottomRight", "topRight"].includes(container) ? -(viewportX + scrollX) : 0;
+            const top = ["bottomRight", "bottomLeft"].includes(container) ? -(viewportY + scrollY) : 0;
+            return cssPropertiesToCss({
+                left: `${left}px`,
+                top: `${top}px`,
+            });
+        }
+        getFigureContainer(figure) {
+            const { x: viewportX, y: viewportY } = this.env.model.getters.getMainViewportCoordinates();
+            if (figure.id === this.dnd.figId) {
+                return "dnd";
+            }
+            else if (figure.x < viewportX && figure.y < viewportY) {
+                return "topLeft";
+            }
+            else if (figure.x < viewportX) {
+                return "bottomLeft";
+            }
+            else if (figure.y < viewportY) {
+                return "topRight";
+            }
+            else {
+                return "bottomRight";
+            }
+        }
+        startDraggingFigure(figure, ev) {
+            if (ev.button > 0 || this.env.model.getters.isReadonly()) {
+                // not main button, probably a context menu and no d&d in readonly mode
+                return;
+            }
+            const selectResult = this.env.model.dispatch("SELECT_FIGURE", { id: figure.id });
+            if (!selectResult.isSuccessful) {
+                return;
+            }
+            const sheetId = this.env.model.getters.getActiveSheetId();
+            const mouseInitialX = ev.clientX;
+            const mouseInitialY = ev.clientY;
+            const { x: dndInitialX, y: dndInitialY } = this.internalToScreenCoordinates(figure);
+            this.dnd.x = dndInitialX;
+            this.dnd.y = dndInitialY;
+            this.dnd.width = figure.width;
+            this.dnd.height = figure.height;
+            const onMouseMove = (ev) => {
+                const { x: viewportX, y: viewportY } = this.env.model.getters.getMainViewportCoordinates();
+                const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+                const minX = viewportX ? 0 : -scrollX;
+                const minY = viewportY ? 0 : -scrollY;
+                this.dnd.figId = figure.id;
+                const newX = ev.clientX;
+                let deltaX = newX - mouseInitialX;
+                this.dnd.x = Math.max(dndInitialX + deltaX, minX);
+                const newY = ev.clientY;
+                let deltaY = newY - mouseInitialY;
+                this.dnd.y = Math.max(dndInitialY + deltaY, minY);
+            };
+            const onMouseUp = (ev) => {
+                if (!this.dnd.figId) {
+                    return;
+                }
+                let { x, y } = this.screenCoordinatesToInternal(this.dnd);
+                this.dnd.figId = undefined;
+                this.env.model.dispatch("UPDATE_FIGURE", { sheetId, id: figure.id, x, y });
+            };
+            startDnd(onMouseMove, onMouseUp);
+        }
+        startResize(figure, dirX, dirY, ev) {
+            ev.stopPropagation();
+            const initialX = ev.clientX;
+            const initialY = ev.clientY;
+            const { x: dndInitialX, y: dndInitialY } = this.internalToScreenCoordinates(figure);
+            this.dnd.x = dndInitialX;
+            this.dnd.y = dndInitialY;
+            this.dnd.width = figure.width;
+            this.dnd.height = figure.height;
+            let onMouseMove;
+            onMouseMove = (ev) => {
+                this.dnd.figId = figure.id;
+                const deltaX = Math.max(dirX * (ev.clientX - initialX), MIN_FIG_SIZE - figure.width);
+                const deltaY = Math.max(dirY * (ev.clientY - initialY), MIN_FIG_SIZE - figure.height);
+                this.dnd.width = figure.width + deltaX;
+                this.dnd.height = figure.height + deltaY;
+                if (dirX < 0) {
+                    this.dnd.x = dndInitialX - deltaX;
+                }
+                if (dirY < 0) {
+                    this.dnd.y = dndInitialY - deltaY;
+                }
+            };
+            const onMouseUp = (ev) => {
+                if (!this.dnd.figId) {
+                    return;
+                }
+                this.dnd.figId = undefined;
+                let { x, y } = this.screenCoordinatesToInternal(this.dnd);
+                const update = { x, y };
+                if (dirX) {
+                    update.width = this.dnd.width;
+                }
+                if (dirY) {
+                    update.height = this.dnd.height;
+                }
+                this.env.model.dispatch("UPDATE_FIGURE", {
+                    sheetId: this.env.model.getters.getActiveSheetId(),
+                    id: figure.id,
+                    ...update,
+                });
+            };
+            startDnd(onMouseMove, onMouseUp);
+        }
+        getDndFigure() {
+            const figure = this.getVisibleFigures().find((fig) => fig.id === this.dnd.figId);
+            if (!figure)
+                throw new Error("Dnd figure not found");
+            return {
+                ...figure,
+                x: this.dnd.x,
+                y: this.dnd.y,
+                width: this.dnd.width,
+                height: this.dnd.height,
+            };
+        }
+        getFigureStyle(figure) {
+            if (figure.id !== this.dnd.figId)
+                return "";
+            return cssPropertiesToCss({
+                opacity: "0.9",
+                cursor: "grabbing",
+            });
+        }
+        internalToScreenCoordinates({ x, y }) {
+            const { x: viewportX, y: viewportY } = this.env.model.getters.getMainViewportCoordinates();
+            const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+            x = x < viewportX ? x : x - scrollX;
+            y = y < viewportY ? y : y - scrollY;
+            return { x, y };
+        }
+        screenCoordinatesToInternal({ x, y }) {
+            const { x: viewportX, y: viewportY } = this.env.model.getters.getMainViewportCoordinates();
+            const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+            x = viewportX && x < viewportX ? x : x + scrollX;
+            y = viewportY && y < viewportY ? y : y + scrollY;
+            return { x, y };
+        }
     }
     FiguresContainer.template = "o-spreadsheet-FiguresContainer";
     FiguresContainer.components = { FigureComponent };
     figureRegistry.add("chart", { Component: ChartFigure, SidePanelComponent: "ChartPanel" });
-
+  
     /**
      * Repeatedly calls a callback function with a time delay between calls.
      */
@@ -18667,7 +21044,7 @@
             },
         };
     }
-
+  
     function useCellHovered(env, gridRef, callback) {
         let hoveredPosition = {
             col: undefined,
@@ -18779,8 +21156,8 @@
                 width: this.gridOverlayEl.clientWidth,
             }), () => [this.gridOverlayEl.clientHeight, this.gridOverlayEl.clientWidth]);
             useTouchMove(this.gridOverlay, this.props.onGridMoved, () => {
-                const { offsetScrollbarY } = this.env.model.getters.getActiveSheetScrollInfo();
-                return offsetScrollbarY > 0;
+                const { scrollY } = this.env.model.getters.getActiveSheetDOMScrollInfo();
+                return scrollY > 0;
             });
         }
         get gridOverlayEl() {
@@ -18823,7 +21200,7 @@
         onFigureDeleted: () => { },
         sidePanelIsOpen: false,
     };
-
+  
     class GridPopover extends owl.Component {
         get cellPopover() {
             const popover = this.env.model.getters.getCellPopover(this.props.hoveredCell);
@@ -18843,7 +21220,7 @@
     }
     GridPopover.template = "o-spreadsheet-GridPopover";
     GridPopover.components = { Popover };
-
+  
     class AbstractResizer extends owl.Component {
         constructor() {
             super(...arguments);
@@ -18957,6 +21334,9 @@
                 this.startMovement(ev);
                 return;
             }
+            if (this.env.model.getters.getEditionMode() === "editing") {
+                this.env.model.selection.getBackToDefault();
+            }
             this.startSelection(ev, index);
         }
         startMovement(ev) {
@@ -19040,65 +21420,65 @@
         }
     }
     css /* scss */ `
-  .o-col-resizer {
-    position: absolute;
-    top: 0;
-    left: ${HEADER_WIDTH}px;
-    right: 0;
-    height: ${HEADER_HEIGHT}px;
-    &.o-dragging {
-      cursor: grabbing;
-    }
-    &.o-grab {
-      cursor: grab;
-    }
-    .dragging-col-line {
-      top: ${HEADER_HEIGHT}px;
+    .o-col-resizer {
       position: absolute;
-      width: 2px;
-      height: 10000px;
-      background-color: black;
-    }
-    .dragging-col-shadow {
-      top: ${HEADER_HEIGHT}px;
-      position: absolute;
-      height: 10000px;
-      background-color: black;
-      opacity: 0.1;
-    }
-    .o-handle {
-      position: absolute;
+      top: 0;
+      left: ${HEADER_WIDTH}px;
+      right: 0;
       height: ${HEADER_HEIGHT}px;
-      width: 4px;
-      cursor: e-resize;
-      background-color: ${SELECTION_BORDER_COLOR};
+      &.o-dragging {
+        cursor: grabbing;
+      }
+      &.o-grab {
+        cursor: grab;
+      }
+      .dragging-col-line {
+        top: ${HEADER_HEIGHT}px;
+        position: absolute;
+        width: 2px;
+        height: 10000px;
+        background-color: black;
+      }
+      .dragging-col-shadow {
+        top: ${HEADER_HEIGHT}px;
+        position: absolute;
+        height: 10000px;
+        background-color: black;
+        opacity: 0.1;
+      }
+      .o-handle {
+        position: absolute;
+        height: ${HEADER_HEIGHT}px;
+        width: 4px;
+        cursor: e-resize;
+        background-color: ${SELECTION_BORDER_COLOR};
+      }
+      .dragging-resizer {
+        top: ${HEADER_HEIGHT}px;
+        position: absolute;
+        margin-left: 2px;
+        width: 1px;
+        height: 10000px;
+        background-color: ${SELECTION_BORDER_COLOR};
+      }
+      .o-unhide {
+        width: ${UNHIDE_ICON_EDGE_LENGTH}px;
+        height: ${UNHIDE_ICON_EDGE_LENGTH}px;
+        position: absolute;
+        overflow: hidden;
+        border-radius: 2px;
+        top: calc(${HEADER_HEIGHT}px / 2 - ${UNHIDE_ICON_EDGE_LENGTH}px / 2);
+      }
+      .o-unhide:hover {
+        z-index: ${ComponentsImportance.Grid + 1};
+        background-color: lightgrey;
+      }
+      .o-unhide > svg {
+        position: relative;
+        top: calc(${UNHIDE_ICON_EDGE_LENGTH}px / 2 - ${ICON_EDGE_LENGTH}px / 2);
+      }
     }
-    .dragging-resizer {
-      top: ${HEADER_HEIGHT}px;
-      position: absolute;
-      margin-left: 2px;
-      width: 1px;
-      height: 10000px;
-      background-color: ${SELECTION_BORDER_COLOR};
-    }
-    .o-unhide {
-      width: ${UNHIDE_ICON_EDGE_LENGTH}px;
-      height: ${UNHIDE_ICON_EDGE_LENGTH}px;
-      position: absolute;
-      overflow: hidden;
-      border-radius: 2px;
-      top: calc(${HEADER_HEIGHT}px / 2 - ${UNHIDE_ICON_EDGE_LENGTH}px / 2);
-    }
-    .o-unhide:hover {
-      z-index: ${ComponentsImportance.Grid + 1};
-      background-color: lightgrey;
-    }
-    .o-unhide > svg {
-      position: relative;
-      top: calc(${UNHIDE_ICON_EDGE_LENGTH}px / 2 - ${ICON_EDGE_LENGTH}px / 2);
-    }
-  }
-`;
+  `;
     class ColResizer extends AbstractResizer {
         setup() {
             super.setup();
@@ -19207,67 +21587,67 @@
     }
     ColResizer.template = "o-spreadsheet-ColResizer";
     css /* scss */ `
-  .o-row-resizer {
-    position: absolute;
-    top: ${HEADER_HEIGHT}px;
-    left: 0;
-    right: 0;
-    width: ${HEADER_WIDTH}px;
-    height: 100%;
-    &.o-dragging {
-      cursor: grabbing;
-    }
-    &.o-grab {
-      cursor: grab;
-    }
-    .dragging-row-line {
-      left: ${HEADER_WIDTH}px;
+    .o-row-resizer {
       position: absolute;
-      width: 10000px;
-      height: 2px;
-      background-color: black;
-    }
-    .dragging-row-shadow {
-      left: ${HEADER_WIDTH}px;
-      position: absolute;
-      width: 10000px;
-      background-color: black;
-      opacity: 0.1;
-    }
-    .o-handle {
-      position: absolute;
-      height: 4px;
+      top: ${HEADER_HEIGHT}px;
+      left: 0;
+      right: 0;
       width: ${HEADER_WIDTH}px;
-      cursor: n-resize;
-      background-color: ${SELECTION_BORDER_COLOR};
+      height: 100%;
+      &.o-dragging {
+        cursor: grabbing;
+      }
+      &.o-grab {
+        cursor: grab;
+      }
+      .dragging-row-line {
+        left: ${HEADER_WIDTH}px;
+        position: absolute;
+        width: 10000px;
+        height: 2px;
+        background-color: black;
+      }
+      .dragging-row-shadow {
+        left: ${HEADER_WIDTH}px;
+        position: absolute;
+        width: 10000px;
+        background-color: black;
+        opacity: 0.1;
+      }
+      .o-handle {
+        position: absolute;
+        height: 4px;
+        width: ${HEADER_WIDTH}px;
+        cursor: n-resize;
+        background-color: ${SELECTION_BORDER_COLOR};
+      }
+      .dragging-resizer {
+        left: ${HEADER_WIDTH}px;
+        position: absolute;
+        margin-top: 2px;
+        width: 10000px;
+        height: 1px;
+        background-color: ${SELECTION_BORDER_COLOR};
+      }
+      .o-unhide {
+        width: ${UNHIDE_ICON_EDGE_LENGTH}px;
+        height: ${UNHIDE_ICON_EDGE_LENGTH}px;
+        position: absolute;
+        overflow: hidden;
+        border-radius: 2px;
+        left: calc(${HEADER_WIDTH}px - ${UNHIDE_ICON_EDGE_LENGTH}px - 2px);
+      }
+      .o-unhide > svg {
+        position: relative;
+        left: calc(${UNHIDE_ICON_EDGE_LENGTH}px / 2 - ${ICON_EDGE_LENGTH}px / 2);
+        top: calc(${UNHIDE_ICON_EDGE_LENGTH}px / 2 - ${ICON_EDGE_LENGTH}px / 2);
+      }
+      .o-unhide:hover {
+        z-index: ${ComponentsImportance.Grid + 1};
+        background-color: lightgrey;
+      }
     }
-    .dragging-resizer {
-      left: ${HEADER_WIDTH}px;
-      position: absolute;
-      margin-top: 2px;
-      width: 10000px;
-      height: 1px;
-      background-color: ${SELECTION_BORDER_COLOR};
-    }
-    .o-unhide {
-      width: ${UNHIDE_ICON_EDGE_LENGTH}px;
-      height: ${UNHIDE_ICON_EDGE_LENGTH}px;
-      position: absolute;
-      overflow: hidden;
-      border-radius: 2px;
-      left: calc(${HEADER_WIDTH}px - ${UNHIDE_ICON_EDGE_LENGTH}px - 2px);
-    }
-    .o-unhide > svg {
-      position: relative;
-      left: calc(${UNHIDE_ICON_EDGE_LENGTH}px / 2 - ${ICON_EDGE_LENGTH}px / 2);
-      top: calc(${UNHIDE_ICON_EDGE_LENGTH}px / 2 - ${ICON_EDGE_LENGTH}px / 2);
-    }
-    .o-unhide:hover {
-      z-index: ${ComponentsImportance.Grid + 1};
-      background-color: lightgrey;
-    }
-  }
-`;
+  `;
     class RowResizer extends AbstractResizer {
         setup() {
             super.setup();
@@ -19376,17 +21756,17 @@
     }
     RowResizer.template = "o-spreadsheet-RowResizer";
     css /* scss */ `
-  .o-overlay {
-    .all {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      width: ${HEADER_WIDTH}px;
-      height: ${HEADER_HEIGHT}px;
+    .o-overlay {
+      .all {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: ${HEADER_WIDTH}px;
+        height: ${HEADER_HEIGHT}px;
+      }
     }
-  }
-`;
+  `;
     class HeadersOverlay extends owl.Component {
         selectAll() {
             this.env.model.selection.selectAll();
@@ -19394,10 +21774,10 @@
     }
     HeadersOverlay.template = "o-spreadsheet-HeadersOverlay";
     HeadersOverlay.components = { ColResizer, RowResizer };
-
+  
     function useGridDrawing(refName, model, canvasSize) {
         const canvasRef = owl.useRef(refName);
-        owl.useEffect(() => drawGrid());
+        owl.useEffect(drawGrid);
         function drawGrid() {
             const canvas = canvasRef.el;
             const dpr = window.devicePixelRatio || 1;
@@ -19425,7 +21805,7 @@
             model.drawGrid(renderingContext);
         }
     }
-
+  
     function useWheelHandler(handler) {
         function normalize(val, deltaMode) {
             return val * (deltaMode === 0 ? 1 : DEFAULT_CELL_HEIGHT);
@@ -19437,18 +21817,18 @@
         };
         return onMouseWheel;
     }
-
+  
     css /* scss */ `
-  .o-border {
-    position: absolute;
-    &:hover {
-      cursor: grab;
+    .o-border {
+      position: absolute;
+      &:hover {
+        cursor: grab;
+      }
     }
-  }
-  .o-moving {
-    cursor: grabbing;
-  }
-`;
+    .o-moving {
+      cursor: grabbing;
+    }
+  `;
     class Border extends owl.Component {
         get style() {
             const isTop = ["n", "w", "e"].includes(this.props.orientation);
@@ -19468,41 +21848,41 @@
             const widthValue = isHorizontal ? right - left : lineWidth;
             const heightValue = isVertical ? bottom - top : lineWidth;
             return `
-        left:${leftValue}px;
-        top:${topValue}px;
-        width:${widthValue}px;
-        height:${heightValue}px;
-    `;
+          left:${leftValue}px;
+          top:${topValue}px;
+          width:${widthValue}px;
+          height:${heightValue}px;
+      `;
         }
         onMouseDown(ev) {
             this.props.onMoveHighlight(ev.clientX, ev.clientY);
         }
     }
     Border.template = "o-spreadsheet-Border";
-
+  
     css /* scss */ `
-  .o-corner {
-    position: absolute;
-    height: 6px;
-    width: 6px;
-    border: 1px solid white;
-  }
-  .o-corner-nw,
-  .o-corner-se {
-    &:hover {
-      cursor: nwse-resize;
+    .o-corner {
+      position: absolute;
+      height: 6px;
+      width: 6px;
+      border: 1px solid white;
     }
-  }
-  .o-corner-ne,
-  .o-corner-sw {
-    &:hover {
-      cursor: nesw-resize;
+    .o-corner-nw,
+    .o-corner-se {
+      &:hover {
+        cursor: nwse-resize;
+      }
     }
-  }
-  .o-resizing {
-    cursor: grabbing;
-  }
-`;
+    .o-corner-ne,
+    .o-corner-sw {
+      &:hover {
+        cursor: nesw-resize;
+      }
+    }
+    .o-resizing {
+      cursor: grabbing;
+    }
+  `;
     class Corner extends owl.Component {
         constructor() {
             super(...arguments);
@@ -19526,22 +21906,22 @@
             const leftValue = this.isLeft ? rect.x : rect.x + rect.width;
             const topValue = this.isTop ? rect.y : rect.y + rect.height;
             return `
-      left:${leftValue - AUTOFILL_EDGE_LENGTH / 2}px;
-      top:${topValue - AUTOFILL_EDGE_LENGTH / 2}px;
-      background-color:${this.props.color};
-    `;
+        left:${leftValue - AUTOFILL_EDGE_LENGTH / 2}px;
+        top:${topValue - AUTOFILL_EDGE_LENGTH / 2}px;
+        background-color:${this.props.color};
+      `;
         }
         onMouseDown(ev) {
             this.props.onResizeHighlight(this.isLeft, this.isTop);
         }
     }
     Corner.template = "o-spreadsheet-Corner";
-
+  
     css /*SCSS*/ `
-  .o-highlight {
-    z-index: ${ComponentsImportance.Highlight};
-  }
-`;
+    .o-highlight {
+      z-index: ${ComponentsImportance.Highlight};
+    }
+  `;
     class Highlight extends owl.Component {
         constructor() {
             super(...arguments);
@@ -19643,7 +22023,7 @@
         Corner,
         Border,
     };
-
+  
     class ScrollBar$1 {
         constructor(el, direction) {
             this.el = el;
@@ -19661,36 +22041,24 @@
             }
         }
     }
-
+  
     css /* scss */ `
-  .o-scrollbar {
-    position: absolute;
-    overflow: auto;
-    z-index: ${ComponentsImportance.ScrollBar};
-    background-color: ${BACKGROUND_GRAY_COLOR};
-
-    // &.vertical {
-    //   right: 0;
-    //   bottom: ${SCROLLBAR_WIDTH$1}px;
-    //   width: ${SCROLLBAR_WIDTH$1}px;
-    //   overflow-x: hidden;
-    // }
-    // &.horizontal {
-    //   bottom: 0;
-    //   height: ${SCROLLBAR_WIDTH$1}px;
-    //   right: ${SCROLLBAR_WIDTH$1}px;
-    //   overflow-y: hidden;
-    // }
-    &.corner {
-      right: 0px;
-      bottom: 0px;
-      height: ${SCROLLBAR_WIDTH$1}px;
-      width: ${SCROLLBAR_WIDTH$1}px;
-      border-top: 1px solid #e2e3e3;
-      border-left: 1px solid #e2e3e3;
+    .o-scrollbar {
+      position: absolute;
+      overflow: auto;
+      z-index: ${ComponentsImportance.ScrollBar};
+      background-color: ${BACKGROUND_GRAY_COLOR};
+  
+      &.corner {
+        right: 0px;
+        bottom: 0px;
+        height: ${SCROLLBAR_WIDTH$1}px;
+        width: ${SCROLLBAR_WIDTH$1}px;
+        border-top: 1px solid #e2e3e3;
+        border-left: 1px solid #e2e3e3;
+      }
     }
-  }
-`;
+  `;
     class ScrollBar extends owl.Component {
         setup() {
             this.scrollbarRef = owl.useRef("scrollbar");
@@ -19721,22 +22089,22 @@
         }
     }
     ScrollBar.template = owl.xml /*xml*/ `
-    <div
-        t-attf-class="o-scrollbar {{props.direction}}"
-        t-on-scroll="onScroll"
-        t-ref="scrollbar"
-        t-att-style="positionCss">
-      <div t-att-style="sizeCss"/>
-    </div>
-  `;
+      <div
+          t-attf-class="o-scrollbar {{props.direction}}"
+          t-on-scroll="onScroll"
+          t-ref="scrollbar"
+          t-att-style="positionCss">
+        <div t-att-style="sizeCss"/>
+      </div>
+    `;
     ScrollBar.defaultProps = {
         width: 1,
         height: 1,
     };
-
+  
     class HorizontalScrollBar extends owl.Component {
         get offset() {
-            return this.env.model.getters.getActiveSheetScrollInfo().offsetScrollbarX;
+            return this.env.model.getters.getActiveSheetDOMScrollInfo().scrollX;
         }
         get width() {
             return this.env.model.getters.getMainViewportRect().width;
@@ -19750,34 +22118,35 @@
             return {
                 left: `${this.props.position.left + x}px`,
                 bottom: "0px",
-                right: `${SCROLLBAR_WIDTH$1}px`,
+                height: `${SCROLLBAR_WIDTH$1}px`,
+                right: `0px`,
             };
         }
         onScroll(offset) {
-            const { offsetScrollbarY } = this.env.model.getters.getActiveSheetScrollInfo();
+            const { scrollY } = this.env.model.getters.getActiveSheetDOMScrollInfo();
             this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
                 offsetX: offset,
-                offsetY: offsetScrollbarY, // offsetY is the same
+                offsetY: scrollY, // offsetY is the same
             });
         }
     }
     HorizontalScrollBar.components = { ScrollBar };
     HorizontalScrollBar.template = owl.xml /*xml*/ `
-      <ScrollBar
-        t-if="isDisplayed"
-        width="width"
-        position="position"
-        offset="offset"
-        direction="'horizontal'"
-        onScroll.bind="onScroll"
-      />`;
+        <ScrollBar
+          t-if="isDisplayed"
+          width="width"
+          position="position"
+          offset="offset"
+          direction="'horizontal'"
+          onScroll.bind="onScroll"
+        />`;
     HorizontalScrollBar.defaultProps = {
         position: { left: 0 },
     };
-
+  
     class VerticalScrollBar extends owl.Component {
         get offset() {
-            return this.env.model.getters.getActiveSheetScrollInfo().offsetScrollbarY;
+            return this.env.model.getters.getActiveSheetDOMScrollInfo().scrollY;
         }
         get height() {
             return this.env.model.getters.getMainViewportRect().height;
@@ -19791,40 +22160,37 @@
             return {
                 top: `${this.props.position.top + y}px`,
                 right: "0px",
-                bottom: `${SCROLLBAR_WIDTH$1}px`,
+                width: `${SCROLLBAR_WIDTH$1}px`,
+                bottom: `0px`,
             };
         }
         onScroll(offset) {
-            const { offsetScrollbarX } = this.env.model.getters.getActiveSheetScrollInfo();
+            const { scrollX } = this.env.model.getters.getActiveSheetDOMScrollInfo();
             this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
-                offsetX: offsetScrollbarX,
+                offsetX: scrollX,
                 offsetY: offset,
             });
         }
     }
     VerticalScrollBar.components = { ScrollBar };
     VerticalScrollBar.template = owl.xml /*xml*/ `
-    <ScrollBar
-      t-if="isDisplayed"
-      height="height"
-      position="position"
-      offset="offset"
-      direction="'vertical'"
-      onScroll.bind="onScroll"
-    />`;
+      <ScrollBar
+        t-if="isDisplayed"
+        height="height"
+        position="position"
+        offset="offset"
+        direction="'vertical'"
+        onScroll.bind="onScroll"
+      />`;
     VerticalScrollBar.defaultProps = {
         position: { top: 0 },
     };
-
+  
     const registries$1 = {
         ROW: rowMenuRegistry,
         COL: colMenuRegistry,
         CELL: cellMenuRegistry,
     };
-    // copy and paste are specific events that should not be managed by the keydown event,
-    // but they shouldn't be preventDefault and stopped (else copy and paste events will not trigger)
-    // and also should not result in typing the character C or V in the composer
-    const keyDownMappingIgnore = ["CTRL+C", "CTRL+V"];
     // -----------------------------------------------------------------------------
     // JS
     // -----------------------------------------------------------------------------
@@ -19842,8 +22208,8 @@
                         ? this.props.onGridComposerCellFocused()
                         : this.props.onComposerContentFocused();
                 },
-                TAB: () => this.env.model.selection.moveAnchorCell("right", "one"),
-                "SHIFT+TAB": () => this.env.model.selection.moveAnchorCell("left", "one"),
+                TAB: () => this.env.model.selection.moveAnchorCell("right", 1),
+                "SHIFT+TAB": () => this.env.model.selection.moveAnchorCell("left", 1),
                 F2: () => {
                     const cell = this.env.model.getters.getActiveCell();
                     !cell || cell.isEmpty()
@@ -19851,6 +22217,12 @@
                         : this.props.onComposerContentFocused();
                 },
                 DELETE: () => {
+                    this.env.model.dispatch("DELETE_CONTENT", {
+                        sheetId: this.env.model.getters.getActiveSheetId(),
+                        target: this.env.model.getters.getSelectedZones(),
+                    });
+                },
+                BACKSPACE: () => {
                     this.env.model.dispatch("DELETE_CONTENT", {
                         sheetId: this.env.model.getters.getActiveSheetId(),
                         target: this.env.model.getters.getSelectedZones(),
@@ -19946,6 +22318,7 @@
                 menuItems: [],
             });
             this.gridRef = owl.useRef("grid");
+            this.hiddenInput = owl.useRef("hiddenInput");
             this.canvasPosition = useAbsolutePosition(this.gridRef);
             this.hoveredCell = owl.useState({ col: undefined, row: undefined });
             owl.useExternalListener(document.body, "cut", this.copy.bind(this, true));
@@ -19967,19 +22340,20 @@
         }
         get gridOverlayDimensions() {
             return `
-      top: ${HEADER_HEIGHT}px;
-      left: ${HEADER_WIDTH}px;
-      height: calc(100% - ${HEADER_HEIGHT + SCROLLBAR_WIDTH$1}px);
-      width: calc(100% - ${HEADER_WIDTH + SCROLLBAR_WIDTH$1}px);
-    `;
+        top: ${HEADER_HEIGHT}px;
+        left: ${HEADER_WIDTH}px;
+        height: calc(100% - ${HEADER_HEIGHT + SCROLLBAR_WIDTH$1}px);
+        width: calc(100% - ${HEADER_WIDTH + SCROLLBAR_WIDTH$1}px);
+      `;
         }
         onClosePopover() {
             this.closeOpenedPopover();
             this.focus();
         }
         focus() {
-            if (!this.env.model.getters.getSelectedFigureId()) {
-                this.gridRef.el.focus();
+            if (!this.env.model.getters.getSelectedFigureId() &&
+                this.env.model.getters.getEditionMode() === "inactive") {
+                this.hiddenInput.el.focus();
             }
         }
         get gridEl() {
@@ -20015,10 +22389,10 @@
             });
         }
         moveCanvas(deltaX, deltaY) {
-            const { offsetScrollbarX, offsetScrollbarY } = this.env.model.getters.getActiveSheetScrollInfo();
+            const { scrollX, scrollY } = this.env.model.getters.getActiveSheetDOMScrollInfo();
             this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
-                offsetX: Math.max(offsetScrollbarX + deltaX, 0),
-                offsetY: Math.max(offsetScrollbarY + deltaY, 0),
+                offsetX: Math.max(scrollX + deltaX, 0),
+                offsetY: Math.max(scrollY + deltaY, 0),
             });
         }
         getClientPositionKey(client) {
@@ -20069,6 +22443,7 @@
         }
         onCellDoubleClicked(col, row) {
             const sheetId = this.env.model.getters.getActiveSheetId();
+            ({ col, row } = this.env.model.getters.getMainCellPosition(sheetId, col, row));
             const cell = this.env.model.getters.getCell(sheetId, col, row);
             if (!cell || cell.isEmpty()) {
                 this.props.onGridComposerCellFocused();
@@ -20088,17 +22463,17 @@
             ev.stopPropagation();
             this.closeOpenedPopover();
             const arrowMap = {
-                ArrowDown: { direction: "down", delta: [0, 1] },
-                ArrowLeft: { direction: "left", delta: [-1, 0] },
-                ArrowRight: { direction: "right", delta: [1, 0] },
-                ArrowUp: { direction: "up", delta: [0, -1] },
+                ArrowDown: "down",
+                ArrowLeft: "left",
+                ArrowRight: "right",
+                ArrowUp: "up",
             };
-            const { direction } = arrowMap[ev.key];
+            const direction = arrowMap[ev.key];
             if (ev.shiftKey) {
-                this.env.model.selection.resizeAnchorZone(direction, ev.ctrlKey ? "end" : "one");
+                this.env.model.selection.resizeAnchorZone(direction, ev.ctrlKey ? "end" : 1);
             }
             else {
-                this.env.model.selection.moveAnchorCell(direction, ev.ctrlKey ? "end" : "one");
+                this.env.model.selection.moveAnchorCell(direction, ev.ctrlKey ? "end" : 1);
             }
             if (this.env.model.getters.isPaintingFormat()) {
                 this.env.model.dispatch("PASTE", {
@@ -20128,26 +22503,40 @@
                 handler();
                 return;
             }
-            if (!keyDownMappingIgnore.includes(keyDownString)) {
-                if (ev.key.length === 1 && !ev.ctrlKey && !ev.metaKey && !ev.altKey) {
-                    // if the user types a character on the grid, it means he wants to start composing the selected cell with that
-                    // character
-                    ev.preventDefault();
-                    ev.stopPropagation();
-                    this.props.onGridComposerCellFocused(ev.key);
-                }
+        }
+        onInput(ev) {
+            if (ev.data) {
+                // if the user types a character on the grid, it means he wants to start composing the selected cell with that
+                // character
+                ev.preventDefault();
+                ev.stopPropagation();
+                this.props.onGridComposerCellFocused(ev.data);
             }
         }
         // ---------------------------------------------------------------------------
         // Context Menu
         // ---------------------------------------------------------------------------
+        onInputContextMenu(ev) {
+            ev.preventDefault();
+            const lastZone = this.env.model.getters.getSelectedZone();
+            const { left: col, top: row } = lastZone;
+            let type = "CELL";
+            this.env.model.dispatch("STOP_EDITION");
+            if (this.env.model.getters.getActiveCols().has(col)) {
+                type = "COL";
+            }
+            else if (this.env.model.getters.getActiveRows().has(row)) {
+                type = "ROW";
+            }
+            const { x, y, width, height } = this.env.model.getters.getVisibleRect(lastZone);
+            this.toggleContextMenu(type, x + width, y + height);
+        }
         onCellRightClicked(col, row, { x, y }) {
             const zones = this.env.model.getters.getSelectedZones();
             const lastZone = zones[zones.length - 1];
             let type = "CELL";
             if (!isInside(col, row, lastZone)) {
-                this.env.model.dispatch("UNFOCUS_SELECTION_INPUT");
-                this.env.model.dispatch("STOP_EDITION");
+                this.env.model.selection.getBackToDefault();
                 this.env.model.selection.selectCell(col, row);
             }
             else {
@@ -20222,8 +22611,9 @@
         Popover,
         VerticalScrollBar,
         HorizontalScrollBar,
+        FilterIconsOverlay,
     };
-
+  
     /**
      * Abstract base implementation of a cell.
      * Concrete cell classes are responsible to build the raw cell `content` based on
@@ -20279,7 +22669,7 @@
                 case CellValueType.text:
                     return true;
                 case CellValueType.number:
-                    return !((_a = this.format) === null || _a === void 0 ? void 0 : _a.match(DATETIME_FORMAT));
+                    return !((_a = this.evaluated.format) === null || _a === void 0 ? void 0 : _a.match(DATETIME_FORMAT));
                 case CellValueType.error:
                 case CellValueType.boolean:
                     return false;
@@ -20424,7 +22814,7 @@
                 switch (typeof value) {
                     case "number":
                         return {
-                            value,
+                            value: value || 0,
                             format,
                             type: CellValueType.number,
                         };
@@ -20477,7 +22867,7 @@
             this.content = content;
         }
     }
-
+  
     cellRegistry
         .add("Formula", {
         sequence: 10,
@@ -20591,7 +22981,7 @@
         }
         return undefined;
     }
-
+  
     /**
      * Parse a string representing a primitive cell value
      */
@@ -20612,7 +23002,7 @@
             return content;
         }
     }
-
+  
     /**
      * Represent a raw XML string
      */
@@ -20645,7 +23035,7 @@
         "surface3DChart",
         "bubbleChart",
     ];
-
+  
     /** In XLSX color format (no #)  */
     const AUTO_COLOR = "000000";
     const XLSX_ICONSET_MAP = {
@@ -20661,6 +23051,10 @@
         worksheet: "http://schemas.openxmlformats.org/spreadsheetml/2006/main",
         workbook: "http://schemas.openxmlformats.org/spreadsheetml/2006/main",
         drawing: "http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing",
+        table: "http://schemas.openxmlformats.org/spreadsheetml/2006/main",
+        revision: "http://schemas.microsoft.com/office/spreadsheetml/2014/revision",
+        revision3: "http://schemas.microsoft.com/office/spreadsheetml/2016/revision3",
+        markupCompatibility: "http://schemas.openxmlformats.org/markup-compatibility/2006",
     };
     const DRAWING_NS_A = "http://schemas.openxmlformats.org/drawingml/2006/main";
     const DRAWING_NS_C = "http://schemas.openxmlformats.org/drawingml/2006/chart";
@@ -20675,6 +23069,17 @@
         table: "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml",
         pivot: "application/vnd.openxmlformats-officedocument.spreadsheetml.pivotTable+xml",
         externalLink: "application/vnd.openxmlformats-officedocument.spreadsheetml.externalLink+xml",
+    };
+    const XLSX_RELATION_TYPE = {
+        document: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument",
+        sheet: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet",
+        sharedStrings: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings",
+        styles: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles",
+        drawing: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing",
+        chart: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart",
+        theme: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme",
+        table: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/table",
+        hyperlink: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
     };
     const RELATIONSHIP_NSR = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
     const HEIGHT_FACTOR = 0.75; // 100px => 75 u
@@ -20819,7 +23224,7 @@
         "Z.TEST",
     ];
     const CONTENT_TYPES_FILE = "[Content_Types].xml";
-
+  
     /**
      * Map of the different types of conversions warnings and their name in error messages
      */
@@ -20871,7 +23276,7 @@
             }
         }
     }
-
+  
     const SUPPORTED_BORDER_STYLES = ["thin"];
     const SUPPORTED_HORIZONTAL_ALIGNMENTS = ["general", "left", "center", "right"];
     const SUPPORTED_FONTS = ["Arial"];
@@ -21177,7 +23582,7 @@
         64: "000000",
         65: "FFFFFF", // system background
     };
-
+  
     /**
      * Most of the functions could stay private, but are exported for testing purposes
      */
@@ -21255,7 +23660,7 @@
         }
         return parseInt(hex.replace("#", ""), 16);
     }
-
+  
     /**
      * Get the relative path between two files
      *
@@ -21314,7 +23719,7 @@
             return String.fromCharCode(parseInt(code, 16));
         });
     }
-
+  
     function convertBorders(data, warningManager) {
         const borderArray = data.borders.map((border) => {
             addBorderWarnings(border, warningManager);
@@ -21454,7 +23859,7 @@
             warningManager.generateNotSupportedWarning(WarningTypes.VerticalAlignmentNotSupported);
         }
     }
-
+  
     function convertConditionalFormats(xlsxCfs, dxfs, warningManager) {
         const cfs = [];
         let cfId = 1;
@@ -21676,7 +24081,7 @@
             }
         }
     }
-
+  
     // -------------------------------------
     //            CF HELPERS
     // -------------------------------------
@@ -21868,16 +24273,17 @@
         const DPI = 96;
         return Math.round((value * 914400) / DPI);
     }
-    function getRangeSize(xc, defaultSheetIndex, data) {
-        const xcSplit = xc.split("!");
+    function getRangeSize(reference, defaultSheetIndex, data) {
+        let xc = reference;
+        let sheetName = undefined;
+        ({ xc, sheetName } = splitReference(reference));
         let rangeSheetIndex;
-        if (xcSplit.length > 1) {
-            const index = data.sheets.findIndex((sheet) => sheet.name === xcSplit[0]);
+        if (sheetName) {
+            const index = data.sheets.findIndex((sheet) => sheet.name === sheetName);
             if (index < 0) {
-                throw new Error("Unable to find a sheet with the name " + xcSplit[0]);
+                throw new Error("Unable to find a sheet with the name " + sheetName);
             }
             rangeSheetIndex = index;
-            xc = xcSplit[1];
         }
         else {
             rangeSheetIndex = Number(defaultSheetIndex);
@@ -21935,7 +24341,7 @@
         }
         return position / HEIGHT_FACTOR;
     }
-
+  
     function convertFigures(sheetData) {
         let id = 1;
         return sheetData.figures
@@ -21987,7 +24393,7 @@
             labelsAsText: false,
         };
     }
-
+  
     /**
      * Match external reference (ex. '[1]Sheet 3'!$B$4)
      *
@@ -22090,7 +24496,7 @@
         } while (match);
         return newFormula;
     }
-
+  
     function convertSheets(data, warningManager) {
         return data.sheets.map((sheet) => {
             convertFormulasContent(sheet, data);
@@ -22112,6 +24518,7 @@
                 panes: sheetOptions
                     ? { xSplit: sheetOptions.pane.xSplit, ySplit: sheetOptions.pane.ySplit }
                     : { xSplit: 0, ySplit: 0 },
+                filterTables: [],
             };
         });
     }
@@ -22234,7 +24641,9 @@
         if (!link.relTarget && !link.location) {
             warningManager.generateNotSupportedWarning(WarningTypes.BadlyFormattedHyperlink);
         }
-        const url = link.relTarget ? link.relTarget : buildSheetLink(link.location.split("!")[0]);
+        const url = link.relTarget
+            ? link.relTarget
+            : buildSheetLink(splitReference(link.location).sheetName);
         return markdownLink(label, url);
     }
     function getSheetDims(sheet) {
@@ -22247,7 +24656,7 @@
         dims[1] = Math.max(dims[1], EXCEL_IMPORT_DEFAULT_NUMBER_OF_ROWS);
         return dims;
     }
-
+  
     const TABLE_HEADER_STYLE = {
         fillColor: "#000000",
         textColor: "#ffffff",
@@ -22260,12 +24669,22 @@
     /**
      * Convert the imported XLSX tables.
      *
-     * As we don't support a concept similar to the XLSX tables, we will settle for applying a style in all
-     * the cells of the table and converting the table-specific formula references into standard reference.
+     * We will create a FilterTable if the imported table have filters, then apply a style in all the cells of the table
+     * and convert the table-specific formula references into standard references.
      *
      * Change the converted data in-place.
      */
     function convertTables(convertedData, xlsxData) {
+        for (const xlsxSheet of xlsxData.sheets) {
+            for (const table of xlsxSheet.tables) {
+                const sheet = convertedData.sheets.find((sheet) => sheet.name === xlsxSheet.sheetName);
+                if (!sheet || !table.autoFilter)
+                    continue;
+                if (!sheet.filterTables)
+                    sheet.filterTables = [];
+                sheet.filterTables.push({ range: table.ref });
+            }
+        }
         applyTableStyle(convertedData, xlsxData);
         convertTableFormulaReferences(convertedData.sheets, xlsxData.sheets);
     }
@@ -22284,6 +24703,8 @@
         for (let xlsxSheet of xlsxData.sheets) {
             for (let table of xlsxSheet.tables) {
                 const sheet = convertedData.sheets.find((sheet) => sheet.name === xlsxSheet.sheetName);
+                if (!sheet)
+                    continue;
                 const tableZone = toZone(table.ref);
                 // Table style
                 for (let i = 0; i < table.headerRowCount; i++) {
@@ -22459,7 +24880,7 @@
         }
         return refZone.top !== refZone.bottom ? zoneToXc(refZone) : toXC(refZone.left, refZone.top);
     }
-
+  
     // -------------------------------------
     //            XML HELPERS
     // -------------------------------------
@@ -22525,8 +24946,8 @@
     }
     function createOverride(partName, contentType) {
         return escapeXml /*xml*/ `
-    <Override ContentType="${contentType}" PartName="${partName}" />
-  `;
+      <Override ContentType="${contentType}" PartName="${partName}" />
+    `;
     }
     function joinXmlNodes(xmlNodes) {
         return new XMLString(xmlNodes.join("\n"));
@@ -22572,7 +24993,7 @@
         const doc = new DOMParser().parseFromString("<t:test xmlns:t='a'/>", "text/xml");
         return doc.querySelector("test") !== null;
     }
-
+  
     class AttributeValue {
         constructor(value) {
             this.value = value;
@@ -22858,7 +25279,7 @@
             }
         }
     }
-
+  
     /**
      * XLSX Extractor class that can be used for either sharedString XML files or theme XML files.
      *
@@ -22902,7 +25323,7 @@
             });
         }
     }
-
+  
     class XlsxCfExtractor extends XlsxBaseExtractor {
         constructor(sheetFile, xlsxStructure, warningManager, theme) {
             super(sheetFile, xlsxStructure, warningManager);
@@ -23019,7 +25440,7 @@
             });
         }
     }
-
+  
     class XlsxChartExtractor extends XlsxBaseExtractor {
         extractChart() {
             return this.mapOnElements({ parent: this.rootFile.file.xml, query: "c:chartSpace" }, (rootChartElement) => {
@@ -23080,7 +25501,7 @@
             throw new Error("Unknown chart type");
         }
     }
-
+  
     class XlsxFigureExtractor extends XlsxBaseExtractor {
         extractFigures() {
             return this.mapOnElements({ parent: this.rootFile.file.xml, query: "xdr:wsDr", children: true }, (figureElement) => {
@@ -23123,7 +25544,7 @@
             return chartDefinition;
         }
     }
-
+  
     /**
      * We don't really support pivot tables, we'll just extract them as Tables.
      */
@@ -23152,7 +25573,7 @@
             })[0];
         }
     }
-
+  
     class XlsxTableExtractor extends XlsxBaseExtractor {
         getTable() {
             return this.mapOnElements({ query: "table", parent: this.rootFile.file.xml }, (tableElement) => {
@@ -23172,6 +25593,7 @@
                     }).asNum(),
                     cols: this.extractTableCols(tableElement),
                     style: this.extractTableStyleInfo(tableElement),
+                    autoFilter: this.extractTableAutoFilter(tableElement),
                 };
             })[0];
         }
@@ -23196,8 +25618,34 @@
                 };
             })[0];
         }
+        extractTableAutoFilter(tableElement) {
+            return this.mapOnElements({ query: "autoFilter", parent: tableElement }, (autoFilterElement) => {
+                return {
+                    columns: this.extractFilterColumns(autoFilterElement),
+                    zone: this.extractAttr(autoFilterElement, "ref", { required: true }).asString(),
+                };
+            })[0];
+        }
+        extractFilterColumns(autoFilterElement) {
+            return this.mapOnElements({ query: "tableColumn", parent: autoFilterElement }, (filterColumnElement) => {
+                return {
+                    colId: this.extractAttr(autoFilterElement, "colId", { required: true }).asNum(),
+                    hiddenButton: this.extractAttr(autoFilterElement, "hiddenButton", {
+                        default: false,
+                    }).asBool(),
+                    filters: this.extractSimpleFilter(filterColumnElement),
+                };
+            });
+        }
+        extractSimpleFilter(filterColumnElement) {
+            return this.mapOnElements({ query: "filter", parent: filterColumnElement }, (filterColumnElement) => {
+                return {
+                    val: this.extractAttr(filterColumnElement, "val", { required: true }).asString(),
+                };
+            });
+        }
     }
-
+  
     class XlsxSheetExtractor extends XlsxBaseExtractor {
         constructor(sheetFile, xlsxStructure, warningManager, theme) {
             super(sheetFile, xlsxStructure, warningManager);
@@ -23420,7 +25868,7 @@
             return sfs;
         }
     }
-
+  
     class XlsxStyleExtractor extends XlsxBaseExtractor {
         constructor(xlsxStructure, warningManager, theme) {
             super(xlsxStructure.styles, xlsxStructure, warningManager);
@@ -23583,7 +26031,7 @@
             });
         }
     }
-
+  
     class XlsxExternalBookExtractor extends XlsxBaseExtractor {
         getExternalBook() {
             return this.mapOnElements({ parent: this.rootFile.file.xml, query: "externalBook" }, (bookElement) => {
@@ -23615,7 +26063,7 @@
             });
         }
     }
-
+  
     /**
      * Return all the xmls converted to XLSXImportFile corresponding to the given content type.
      */
@@ -23670,7 +26118,7 @@
         }
         return relsFile;
     }
-
+  
     const EXCEL_IMPORT_VERSION = 12;
     class XlsxReader {
         constructor(files) {
@@ -23760,7 +26208,7 @@
             return convertedData;
         }
     }
-
+  
     /**
      * parses a formula (as a string) into the same formula,
      * but with the references to other cells extracted
@@ -23786,7 +26234,7 @@
         }));
         return { text: noRefFormula, dependencies };
     }
-
+  
     /**
      * This is the current state version number. It should be incremented each time
      * a breaking change is made in the way the state is handled, and an upgrade
@@ -24072,7 +26520,9 @@
      */
     function repairInitialMessages(data, initialMessages) {
         initialMessages = fixTranslatedSheetIds(data, initialMessages);
-        initialMessages = dropSortCommands(data, initialMessages);
+        initialMessages = dropCommands(initialMessages, "SORT_CELLS");
+        initialMessages = dropCommands(initialMessages, "SET_DECIMAL");
+        initialMessages = fixChartDefinitions(data, initialMessages);
         return initialMessages;
     }
     /**
@@ -24110,14 +26560,61 @@
         }
         return messages;
     }
-    function dropSortCommands(data, initialMessages) {
+    function dropCommands(initialMessages, commandType) {
         const messages = [];
         for (const message of initialMessages) {
             if (message.type === "REMOTE_REVISION") {
                 messages.push({
                     ...message,
-                    // @ts-ignore
-                    commands: message.commands.filter((command) => command.type !== "SORT_CELLS"),
+                    commands: message.commands.filter((command) => command.type !== commandType),
+                });
+            }
+            else {
+                messages.push(message);
+            }
+        }
+        return messages;
+    }
+    function fixChartDefinitions(data, initialMessages) {
+        var _a;
+        const messages = [];
+        const map = {};
+        for (const sheet of data.sheets || []) {
+            (_a = sheet.figures) === null || _a === void 0 ? void 0 : _a.forEach((figure) => {
+                if (figure.tag === "chart") {
+                    // chart definition
+                    map[figure.id] = figure.data;
+                }
+            });
+        }
+        for (const message of initialMessages) {
+            if (message.type === "REMOTE_REVISION") {
+                const commands = [];
+                for (const cmd of message.commands) {
+                    let command = cmd;
+                    switch (cmd.type) {
+                        case "CREATE_CHART":
+                            map[cmd.id] = cmd.definition;
+                            break;
+                        case "UPDATE_CHART":
+                            if (!map[cmd.id]) {
+                                /** the chart does not exist on the map, it might have been created after a duplicate sheet.
+                                 * We don't have access to the definition, so we skip the command.
+                                 */
+                                console.log(`Fix chart definition: chart with id ${cmd.id} not found.`);
+                                continue;
+                            }
+                            const definition = map[cmd.id];
+                            const newDefinition = { ...definition, ...cmd.definition };
+                            command = { ...cmd, definition: newDefinition };
+                            map[cmd.id] = newDefinition;
+                            break;
+                    }
+                    commands.push(command);
+                }
+                messages.push({
+                    ...message,
+                    commands,
                 });
             }
             else {
@@ -24141,6 +26638,7 @@
             merges: [],
             conditionalFormats: [],
             figures: [],
+            filterTables: [],
             isVisible: true,
         };
     }
@@ -24168,7 +26666,7 @@
             sheets: [createEmptyExcelSheet(INITIAL_SHEET_ID, "Sheet1")],
         };
     }
-
+  
     /**
      * Core plugins handle spreadsheet data.
      * They are responsible to import, export and maintain the spreadsheet
@@ -24201,7 +26699,7 @@
          */
         adaptRanges(applyChange, sheetId) { }
     }
-
+  
     /**
      * Formatting plugin.
      *
@@ -24678,7 +27176,7 @@
         }
     }
     BordersPlugin.getters = ["getCellBorder"];
-
+  
     const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
     /**
      * Core Plugin
@@ -24714,6 +27212,7 @@
         allowDispatch(cmd) {
             switch (cmd.type) {
                 case "UPDATE_CELL":
+                case "CLEAR_CELL":
                     return this.checkCellOutOfSheet(cmd.sheetId, cmd.col, cmd.row);
                 default:
                     return 0 /* CommandResult.Success */;
@@ -25052,9 +27551,9 @@
         checkCellOutOfSheet(sheetId, col, row) {
             const sheet = this.getters.tryGetSheet(sheetId);
             if (!sheet)
-                return 25 /* CommandResult.InvalidSheetId */;
+                return 27 /* CommandResult.InvalidSheetId */;
             const sheetZone = this.getters.getSheetZone(sheetId);
-            return isInside(col, row, sheetZone) ? 0 /* CommandResult.Success */ : 16 /* CommandResult.TargetOutOfSheet */;
+            return isInside(col, row, sheetZone) ? 0 /* CommandResult.Success */ : 18 /* CommandResult.TargetOutOfSheet */;
         }
     }
     CellPlugin.getters = [
@@ -25065,18 +27564,19 @@
         "buildFormulaContent",
         "getCellById",
     ];
-
+  
     class ChartPlugin extends CorePlugin {
         constructor() {
             super(...arguments);
             this.charts = {};
-            this.nextId = 1;
             this.createChart = chartFactory(this.getters);
-            this.validateChartDefinition = (definition) => validateChartDefinition(this, definition);
+            this.validateChartDefinition = (cmd) => validateChartDefinition(this, cmd.definition);
         }
         adaptRanges(applyChange) {
-            for (const [chartId, chart] of Object.entries(this.charts)) {
-                this.history.update("charts", chartId, chart === null || chart === void 0 ? void 0 : chart.updateRanges(applyChange));
+            for (const sheetId of Object.keys(this.charts)) {
+                for (const [chartId, chart] of Object.entries(this.charts[sheetId] || {})) {
+                    this.history.update("charts", sheetId, chartId, chart === null || chart === void 0 ? void 0 : chart.updateRanges(applyChange));
+                }
             }
         }
         // ---------------------------------------------------------------------------
@@ -25085,14 +27585,15 @@
         allowDispatch(cmd) {
             switch (cmd.type) {
                 case "CREATE_CHART":
+                    return this.checkValidations(cmd, this.chainValidations(this.validateChartDefinition, this.checkChartDuplicate));
                 case "UPDATE_CHART":
-                    return this.validateChartDefinition(cmd.definition);
+                    return this.validateChartDefinition(cmd);
                 default:
                     return 0 /* CommandResult.Success */;
             }
         }
         handle(cmd) {
-            var _a;
+            var _a, _b;
             switch (cmd.type) {
                 case "CREATE_CHART":
                     this.addFigure(cmd.id, cmd.sheetId, cmd.position, cmd.size);
@@ -25106,12 +27607,12 @@
                     const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
                     for (const fig of sheetFiguresFrom) {
                         if (fig.tag === "chart") {
-                            const id = this.nextId.toString();
-                            this.history.update("nextId", this.nextId + 1);
-                            const chart = (_a = this.charts[fig.id]) === null || _a === void 0 ? void 0 : _a.copyForSheetId(cmd.sheetIdTo);
+                            const figureIdBase = fig.id.split(FIGURE_ID_SPLITTER).pop();
+                            const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
+                            const chart = (_b = (_a = this.charts[cmd.sheetId]) === null || _a === void 0 ? void 0 : _a[fig.id]) === null || _b === void 0 ? void 0 : _b.copyForSheetId(cmd.sheetIdTo);
                             if (chart) {
                                 this.dispatch("CREATE_CHART", {
-                                    id,
+                                    id: duplicatedFigureId,
                                     position: { x: fig.x, y: fig.y },
                                     size: { width: fig.width, height: fig.height },
                                     definition: chart.getDefinition(),
@@ -25123,44 +27624,44 @@
                     break;
                 }
                 case "DELETE_FIGURE":
-                    this.history.update("charts", cmd.id, undefined);
+                    this.history.update("charts", cmd.sheetId, cmd.id, undefined);
                     break;
                 case "DELETE_SHEET":
-                    for (let id of this.getChartIds(cmd.sheetId)) {
-                        this.history.update("charts", id, undefined);
-                    }
+                    this.history.update("charts", cmd.sheetId, undefined);
                     break;
             }
         }
         // ---------------------------------------------------------------------------
         // Getters
         // ---------------------------------------------------------------------------
-        getContextCreationChart(figureId) {
-            var _a;
-            return (_a = this.charts[figureId]) === null || _a === void 0 ? void 0 : _a.getContextCreation();
+        getContextCreationChart(sheetId, figureId) {
+            var _a, _b;
+            return (_b = (_a = this.charts[sheetId]) === null || _a === void 0 ? void 0 : _a[figureId]) === null || _b === void 0 ? void 0 : _b.getContextCreation();
         }
-        getChart(figureId) {
-            return this.charts[figureId];
-        }
-        getChartType(figureId) {
+        getChart(sheetId, figureId) {
             var _a;
-            const type = (_a = this.charts[figureId]) === null || _a === void 0 ? void 0 : _a.type;
+            return (_a = this.charts[sheetId]) === null || _a === void 0 ? void 0 : _a[figureId];
+        }
+        getChartType(sheetId, figureId) {
+            var _a, _b;
+            const type = (_b = (_a = this.charts[sheetId]) === null || _a === void 0 ? void 0 : _a[figureId]) === null || _b === void 0 ? void 0 : _b.type;
             if (!type) {
                 throw new Error("Chart not defined.");
             }
             return type;
         }
-        isChartDefined(figureId) {
-            return figureId in this.charts && this.charts !== undefined;
+        isChartDefined(sheetId, figureId) {
+            return figureId in (this.charts[sheetId] || {});
         }
         getChartIds(sheetId) {
-            return Object.entries(this.charts)
-                .filter(([, chart]) => (chart === null || chart === void 0 ? void 0 : chart.sheetId) === sheetId)
-                .map(([id]) => id);
+            // TODORAR refaire ce shit truc
+            // on veut un  truc du genre Object.keys(this.charts[sheetId] || {} a mon avis
+            // return (Object.values(this.charts[sheetId] || {}).filter(isDefined) as AbstractChart[]).map((chart) => chart.id);
+            return Object.keys(this.charts[sheetId] || {});
         }
-        getChartDefinition(figureId) {
-            var _a;
-            const definition = (_a = this.charts[figureId]) === null || _a === void 0 ? void 0 : _a.getDefinition();
+        getChartDefinition(sheetId, figureId) {
+            var _a, _b;
+            const definition = (_b = (_a = this.charts[sheetId]) === null || _a === void 0 ? void 0 : _a[figureId]) === null || _b === void 0 ? void 0 : _b.getDefinition();
             if (!definition) {
                 throw new Error(`There is no chart with the given figureId: ${figureId}`);
             }
@@ -25172,14 +27673,16 @@
         import(data) {
             for (let sheet of data.sheets) {
                 if (sheet.figures) {
+                    const charts = {};
                     for (let figure of sheet.figures) {
                         // TODO:
                         // figure data should be external IMO => chart should be in sheet.chart
                         // instead of in figure.data
                         if (figure.tag === "chart") {
-                            this.charts[figure.id] = this.createChart(figure.id, figure.data, sheet.id);
+                            charts[figure.id] = this.createChart(figure.id, figure.data, sheet.id);
                         }
                     }
+                    this.charts[sheet.id] = charts;
                 }
             }
         }
@@ -25191,7 +27694,7 @@
                     const figures = sheetFigures;
                     for (let figure of figures) {
                         if (figure && figure.tag === "chart") {
-                            figure.data = this.getChartDefinition(figure.id);
+                            figure.data = this.getChartDefinition(sheet.id, figure.id);
                         }
                     }
                     sheet.figures = figures;
@@ -25199,13 +27702,13 @@
             }
         }
         exportForExcel(data) {
-            var _a;
+            var _a, _b;
             for (let sheet of data.sheets) {
                 const sheetFigures = this.getters.getFigures(sheet.id);
                 const figures = [];
                 for (let figure of sheetFigures) {
                     if (figure && figure.tag === "chart") {
-                        const figureData = (_a = this.charts[figure.id]) === null || _a === void 0 ? void 0 : _a.getDefinitionForExcel();
+                        const figureData = (_b = (_a = this.charts[sheet.id]) === null || _a === void 0 ? void 0 : _a[figure.id]) === null || _b === void 0 ? void 0 : _b.getDefinitionForExcel();
                         if (figureData) {
                             figures.push({
                                 ...figure,
@@ -25245,7 +27748,14 @@
          * replaced
          */
         addChart(id, sheetId, definition) {
-            this.history.update("charts", id, this.createChart(id, definition, sheetId));
+            this.history.update("charts", sheetId, id, this.createChart(id, definition, sheetId));
+        }
+        checkChartDuplicate(cmd) {
+            var _a;
+            if ((_a = this.charts[cmd.sheetId]) === null || _a === void 0 ? void 0 : _a[cmd.id]) {
+                return 83 /* CommandResult.DuplicatedChartId */;
+            }
+            return 0 /* CommandResult.Success */;
         }
     }
     ChartPlugin.getters = [
@@ -25256,7 +27766,7 @@
         "getChart",
         "getContextCreationChart",
     ];
-
+  
     // -----------------------------------------------------------------------------
     // Constants
     // -----------------------------------------------------------------------------
@@ -25444,18 +27954,18 @@
         }
         checkValidReordering(cfId, direction, sheetId) {
             if (!this.cfRules[sheetId])
-                return 25 /* CommandResult.InvalidSheetId */;
+                return 27 /* CommandResult.InvalidSheetId */;
             const ruleIndex = this.cfRules[sheetId].findIndex((cf) => cf.id === cfId);
             if (ruleIndex === -1)
-                return 68 /* CommandResult.InvalidConditionalFormatId */;
+                return 70 /* CommandResult.InvalidConditionalFormatId */;
             const cfIndex2 = direction === "up" ? ruleIndex - 1 : ruleIndex + 1;
             if (cfIndex2 < 0 || cfIndex2 >= this.cfRules[sheetId].length) {
-                return 68 /* CommandResult.InvalidConditionalFormatId */;
+                return 70 /* CommandResult.InvalidConditionalFormatId */;
             }
             return 0 /* CommandResult.Success */;
         }
         checkEmptyRange(cmd) {
-            return cmd.ranges.length ? 0 /* CommandResult.Success */ : 22 /* CommandResult.EmptyRange */;
+            return cmd.ranges.length ? 0 /* CommandResult.Success */ : 24 /* CommandResult.EmptyRange */;
         }
         checkCFRule(cmd) {
             const rule = cmd.cf.rule;
@@ -25491,10 +28001,10 @@
                     const errors = [];
                     const isEmpty = (value) => value === undefined || value === "";
                     if (expectedNumber >= 1 && isEmpty(rule.values[0])) {
-                        errors.push(48 /* CommandResult.FirstArgMissing */);
+                        errors.push(50 /* CommandResult.FirstArgMissing */);
                     }
                     if (expectedNumber >= 2 && isEmpty(rule.values[1])) {
-                        errors.push(49 /* CommandResult.SecondArgMissing */);
+                        errors.push(51 /* CommandResult.SecondArgMissing */);
                     }
                     return errors.length ? errors : 0 /* CommandResult.Success */;
                 }
@@ -25506,15 +28016,15 @@
                 (threshold.value === "" || isNaN(threshold.value))) {
                 switch (thresholdName) {
                     case "min":
-                        return 50 /* CommandResult.MinNaN */;
+                        return 52 /* CommandResult.MinNaN */;
                     case "max":
-                        return 52 /* CommandResult.MaxNaN */;
+                        return 54 /* CommandResult.MaxNaN */;
                     case "mid":
-                        return 51 /* CommandResult.MidNaN */;
+                        return 53 /* CommandResult.MidNaN */;
                     case "upperInflectionPoint":
-                        return 53 /* CommandResult.ValueUpperInflectionNaN */;
+                        return 55 /* CommandResult.ValueUpperInflectionNaN */;
                     case "lowerInflectionPoint":
-                        return 54 /* CommandResult.ValueLowerInflectionNaN */;
+                        return 56 /* CommandResult.ValueLowerInflectionNaN */;
                 }
             }
             return 0 /* CommandResult.Success */;
@@ -25528,15 +28038,15 @@
             catch (error) {
                 switch (thresholdName) {
                     case "min":
-                        return 55 /* CommandResult.MinInvalidFormula */;
+                        return 57 /* CommandResult.MinInvalidFormula */;
                     case "max":
-                        return 57 /* CommandResult.MaxInvalidFormula */;
+                        return 59 /* CommandResult.MaxInvalidFormula */;
                     case "mid":
-                        return 56 /* CommandResult.MidInvalidFormula */;
+                        return 58 /* CommandResult.MidInvalidFormula */;
                     case "upperInflectionPoint":
-                        return 58 /* CommandResult.ValueUpperInvalidFormula */;
+                        return 60 /* CommandResult.ValueUpperInvalidFormula */;
                     case "lowerInflectionPoint":
-                        return 59 /* CommandResult.ValueLowerInvalidFormula */;
+                        return 61 /* CommandResult.ValueLowerInvalidFormula */;
                 }
             }
             return 0 /* CommandResult.Success */;
@@ -25553,7 +28063,7 @@
             if (["number", "percentage", "percentile"].includes(rule.lowerInflectionPoint.type) &&
                 rule.lowerInflectionPoint.type === rule.upperInflectionPoint.type &&
                 Number(minValue) > Number(maxValue)) {
-                return 45 /* CommandResult.LowerBiggerThanUpper */;
+                return 47 /* CommandResult.LowerBiggerThanUpper */;
             }
             return 0 /* CommandResult.Success */;
         }
@@ -25563,7 +28073,7 @@
             if (["number", "percentage", "percentile"].includes(rule.minimum.type) &&
                 rule.minimum.type === rule.maximum.type &&
                 stringToNumber(minValue) >= stringToNumber(maxValue)) {
-                return 44 /* CommandResult.MinBiggerThanMax */;
+                return 46 /* CommandResult.MinBiggerThanMax */;
             }
             return 0 /* CommandResult.Success */;
         }
@@ -25575,7 +28085,7 @@
                 ["number", "percentage", "percentile"].includes(rule.midpoint.type) &&
                 rule.midpoint.type === rule.maximum.type &&
                 stringToNumber(midValue) >= stringToNumber(maxValue)) {
-                return 46 /* CommandResult.MidBiggerThanMax */;
+                return 48 /* CommandResult.MidBiggerThanMax */;
             }
             return 0 /* CommandResult.Success */;
         }
@@ -25587,7 +28097,7 @@
                 ["number", "percentage", "percentile"].includes(rule.midpoint.type) &&
                 rule.minimum.type === rule.midpoint.type &&
                 stringToNumber(minValue) >= stringToNumber(midValue)) {
-                return 47 /* CommandResult.MinBiggerThanMid */;
+                return 49 /* CommandResult.MinBiggerThanMid */;
             }
             return 0 /* CommandResult.Success */;
         }
@@ -25614,7 +28124,7 @@
         }
     }
     ConditionalFormatPlugin.getters = ["getConditionalFormats", "getRulesSelection", "getRulesByCell"];
-
+  
     class FigurePlugin extends CorePlugin {
         constructor() {
             super(...arguments);
@@ -25625,6 +28135,8 @@
         // ---------------------------------------------------------------------------
         allowDispatch(cmd) {
             switch (cmd.type) {
+                case "CREATE_FIGURE":
+                    return this.checkFigureDuplicate(cmd.sheetId, cmd.figure.id);
                 case "UPDATE_FIGURE":
                 case "DELETE_FIGURE":
                     return this.checkFigureExists(cmd.sheetId, cmd.id);
@@ -25686,7 +28198,14 @@
         checkFigureExists(sheetId, figureId) {
             var _a;
             if (((_a = this.figures[sheetId]) === null || _a === void 0 ? void 0 : _a[figureId]) === undefined) {
-                return 67 /* CommandResult.FigureDoesNotExist */;
+                return 69 /* CommandResult.FigureDoesNotExist */;
+            }
+            return 0 /* CommandResult.Success */;
+        }
+        checkFigureDuplicate(sheetId, figureId) {
+            var _a;
+            if ((_a = this.figures[sheetId]) === null || _a === void 0 ? void 0 : _a[figureId]) {
+                return 81 /* CommandResult.DuplicatedFigureId */;
             }
             return 0 /* CommandResult.Success */;
         }
@@ -25725,7 +28244,306 @@
         }
     }
     FigurePlugin.getters = ["getFigures", "getFigure"];
-
+  
+    class FilterTable {
+        constructor(zone) {
+            this.filters = [];
+            this.zone = zone;
+            const uuid = new UuidGenerator();
+            this.id = uuid.uuidv4();
+            for (const i of range(zone.left, zone.right + 1)) {
+                const filterZone = { ...this.zone, left: i, right: i };
+                this.filters.push(new Filter(uuid.uuidv4(), filterZone));
+            }
+        }
+        /** Get zone of the table without the headers */
+        get contentZone() {
+            if (this.zone.bottom === this.zone.top) {
+                return undefined;
+            }
+            return { ...this.zone, top: this.zone.top + 1 };
+        }
+        getFilterId(col) {
+            var _a;
+            return (_a = this.filters.find((filter) => filter.col === col)) === null || _a === void 0 ? void 0 : _a.id;
+        }
+        clone() {
+            return new FilterTable(this.zone);
+        }
+    }
+    class Filter {
+        constructor(id, zone) {
+            if (zone.left !== zone.right) {
+                throw new Error("Can only define a filter on a single column");
+            }
+            this.id = id;
+            this.zoneWithHeaders = zone;
+        }
+        get col() {
+            return this.zoneWithHeaders.left;
+        }
+        /** Filtered zone, ie. zone of the filter without the header */
+        get filteredZone() {
+            const zone = this.zoneWithHeaders;
+            if (zone.bottom === zone.top) {
+                return undefined;
+            }
+            return { ...zone, top: zone.top + 1 };
+        }
+    }
+  
+    class FiltersPlugin extends CorePlugin {
+        constructor() {
+            super(...arguments);
+            this.tables = {};
+        }
+        // ---------------------------------------------------------------------------
+        // Command Handling
+        // ---------------------------------------------------------------------------
+        allowDispatch(cmd) {
+            switch (cmd.type) {
+                case "CREATE_FILTER_TABLE":
+                    if (!areZonesContinuous(...cmd.target)) {
+                        return 80 /* CommandResult.NonContinuousTargets */;
+                    }
+                    const zone = union(...cmd.target);
+                    const checkFilterOverlap = () => {
+                        if (this.getFilterTables(cmd.sheetId).some((filter) => overlap(filter.zone, zone))) {
+                            return 77 /* CommandResult.FilterOverlap */;
+                        }
+                        return 0 /* CommandResult.Success */;
+                    };
+                    const checkMergeInFilter = () => {
+                        const mergesInTarget = this.getters.getMergesInZone(cmd.sheetId, zone);
+                        for (let merge of mergesInTarget) {
+                            if (overlap(zone, merge)) {
+                                return 79 /* CommandResult.MergeInFilter */;
+                            }
+                        }
+                        return 0 /* CommandResult.Success */;
+                    };
+                    return this.checkValidations(cmd, checkFilterOverlap, checkMergeInFilter);
+                case "ADD_MERGE":
+                    for (let merge of cmd.target) {
+                        for (let filterTable of this.getFilterTables(cmd.sheetId)) {
+                            if (overlap(filterTable.zone, merge)) {
+                                return 79 /* CommandResult.MergeInFilter */;
+                            }
+                        }
+                    }
+                    break;
+            }
+            return 0 /* CommandResult.Success */;
+        }
+        handle(cmd) {
+            switch (cmd.type) {
+                case "CREATE_SHEET":
+                    this.history.update("tables", cmd.sheetId, {});
+                    break;
+                case "DELETE_SHEET":
+                    const filterTables = { ...this.tables };
+                    delete filterTables[cmd.sheetId];
+                    this.history.update("tables", filterTables);
+                    break;
+                case "DUPLICATE_SHEET":
+                    this.history.update("tables", cmd.sheetIdTo, deepCopy(this.tables[cmd.sheetId]));
+                    break;
+                case "ADD_COLUMNS_ROWS":
+                    this.onAddColumnsRows(cmd);
+                    break;
+                case "REMOVE_COLUMNS_ROWS":
+                    this.onDeleteColumnsRows(cmd);
+                    break;
+                case "CREATE_FILTER_TABLE": {
+                    const zone = union(...cmd.target);
+                    const newFilterTable = this.createFilterTable(zone);
+                    this.history.update("tables", cmd.sheetId, newFilterTable.id, newFilterTable);
+                    break;
+                }
+                case "REMOVE_FILTER_TABLE": {
+                    const tables = {};
+                    for (const filterTable of this.getFilterTables(cmd.sheetId)) {
+                        if (cmd.target.every((zone) => !intersection(zone, filterTable.zone))) {
+                            tables[filterTable.id] = filterTable;
+                        }
+                    }
+                    this.history.update("tables", cmd.sheetId, tables);
+                    break;
+                }
+                case "UPDATE_CELL": {
+                    const sheetId = cmd.sheetId;
+                    for (let table of this.getFilterTables(sheetId)) {
+                        if (this.canUpdateCellCmdExtendTable(cmd, table)) {
+                            this.extendTableDown(sheetId, table);
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        getFilters(sheetId) {
+            return this.getFilterTables(sheetId)
+                .map((filterTable) => filterTable.filters)
+                .flat();
+        }
+        getFilterTables(sheetId) {
+            return this.tables[sheetId] ? Object.values(this.tables[sheetId]).filter(isDefined$1) : [];
+        }
+        getFilter(sheetId, col, row) {
+            var _a;
+            return (_a = this.getFilterTable(sheetId, col, row)) === null || _a === void 0 ? void 0 : _a.filters.find((filter) => filter.col === col);
+        }
+        getFilterId(sheetId, col, row) {
+            var _a;
+            return (_a = this.getFilter(sheetId, col, row)) === null || _a === void 0 ? void 0 : _a.id;
+        }
+        getFilterTable(sheetId, col, row) {
+            return this.getFilterTables(sheetId).find((filterTable) => isInside(col, row, filterTable.zone));
+        }
+        /** Get the filter tables that are fully inside the given zone */
+        getFilterTablesInZone(sheetId, zone) {
+            return this.getFilterTables(sheetId).filter((filterTable) => isZoneInside(filterTable.zone, zone));
+        }
+        doesZonesContainFilter(sheetId, zones) {
+            for (const zone of zones) {
+                for (const filterTable of this.getFilterTables(sheetId)) {
+                    if (intersection(zone, filterTable.zone)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        onAddColumnsRows(cmd) {
+            for (const filterTable of this.getFilterTables(cmd.sheetId)) {
+                const zone = expandZoneOnInsertion(filterTable.zone, cmd.dimension === "COL" ? "left" : "top", cmd.base, cmd.position, cmd.quantity);
+                const filters = [];
+                for (const filter of filterTable.filters) {
+                    const filterZone = expandZoneOnInsertion(filter.zoneWithHeaders, cmd.dimension === "COL" ? "left" : "top", cmd.base, cmd.position, cmd.quantity);
+                    filters.push(new Filter(filter.id, filterZone));
+                }
+                // Add filters for new columns
+                if (filters.length < zoneToDimension(zone).width) {
+                    for (let col = zone.left; col <= zone.right; col++) {
+                        if (!filters.find((filter) => filter.col === col)) {
+                            filters.push(new Filter(this.uuidGenerator.uuidv4(), { ...zone, left: col, right: col }));
+                        }
+                    }
+                    filters.sort((f1, f2) => f1.col - f2.col);
+                }
+                this.history.update("tables", cmd.sheetId, filterTable.id, "zone", zone);
+                this.history.update("tables", cmd.sheetId, filterTable.id, "filters", filters);
+            }
+        }
+        onDeleteColumnsRows(cmd) {
+            for (const table of this.getFilterTables(cmd.sheetId)) {
+                const zone = reduceZoneOnDeletion(table.zone, cmd.dimension === "COL" ? "left" : "top", cmd.elements);
+                if (!zone) {
+                    const tables = { ...this.tables[cmd.sheetId] };
+                    delete tables[table.id];
+                    this.history.update("tables", cmd.sheetId, tables);
+                }
+                else {
+                    if (zoneToXc(zone) !== zoneToXc(table.zone)) {
+                        const filters = [];
+                        for (const filter of table.filters) {
+                            const newFilterZone = reduceZoneOnDeletion(filter.zoneWithHeaders, cmd.dimension === "COL" ? "left" : "top", cmd.elements);
+                            if (newFilterZone) {
+                                filters.push(new Filter(filter.id, newFilterZone));
+                            }
+                        }
+                        this.history.update("tables", cmd.sheetId, table.id, "zone", zone);
+                        this.history.update("tables", cmd.sheetId, table.id, "filters", filters);
+                    }
+                }
+            }
+        }
+        createFilterTable(zone) {
+            return new FilterTable(zone);
+        }
+        /** Extend a table down one row */
+        extendTableDown(sheetId, table) {
+            const newZone = { ...table.zone, bottom: table.zone.bottom + 1 };
+            this.history.update("tables", sheetId, table.id, "zone", newZone);
+            for (let filterIndex = 0; filterIndex < table.filters.length; filterIndex++) {
+                const filter = table.filters[filterIndex];
+                const newFilterZone = {
+                    ...filter.zoneWithHeaders,
+                    bottom: filter.zoneWithHeaders.bottom + 1,
+                };
+                this.history.update("tables", sheetId, table.id, "filters", filterIndex, "zoneWithHeaders", newFilterZone);
+            }
+            return;
+        }
+        /**
+         * Check if an UpdateCell command should cause the given table to be extended by one row.
+         *
+         * The table should be extended if all of these conditions are true:
+         * 1) The updated cell is right below the table
+         * 2) The command adds a content to the cell
+         * 3) No cell right below the table had any content before the command
+         * 4) Extending the table down would not overlap with another filter
+         * 5) Extending the table down would not overlap with a merge
+         *
+         */
+        canUpdateCellCmdExtendTable({ content: newCellContent, sheetId, col, row }, table) {
+            var _a;
+            if (!newCellContent) {
+                return;
+            }
+            const zone = table.zone;
+            if (!(zone.bottom + 1 === row && col >= zone.left && col <= zone.right)) {
+                return false;
+            }
+            for (const col of range(zone.left, zone.right + 1)) {
+                // Since this plugin is loaded before CellPlugin, the getters still give us the old cell content
+                const cellContent = (_a = this.getters.getCell(sheetId, col, row)) === null || _a === void 0 ? void 0 : _a.content;
+                if (cellContent) {
+                    return false;
+                }
+                if (this.getters.getFilter(sheetId, col, row)) {
+                    return false;
+                }
+                if (this.getters.isInMerge(sheetId, col, row)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        // ---------------------------------------------------------------------------
+        // Import/Export
+        // ---------------------------------------------------------------------------
+        import(data) {
+            for (const sheet of data.sheets) {
+                for (const filterTableData of sheet.filterTables || []) {
+                    const table = this.createFilterTable(toZone(filterTableData.range));
+                    this.history.update("tables", sheet.id, table.id, table);
+                }
+            }
+        }
+        export(data) {
+            for (const sheet of data.sheets) {
+                for (const filterTable of this.getFilterTables(sheet.id)) {
+                    sheet.filterTables.push({
+                        range: zoneToXc(filterTable.zone),
+                    });
+                }
+            }
+        }
+        exportForExcel(data) {
+            this.export(data);
+        }
+    }
+    FiltersPlugin.getters = [
+        "doesZonesContainFilter",
+        "getFilter",
+        "getFilters",
+        "getFilterTable",
+        "getFilterTables",
+        "getFilterTablesInZone",
+        "getFilterId",
+    ];
+  
     class HeaderSizePlugin extends CorePlugin {
         constructor() {
             super(...arguments);
@@ -25750,6 +28568,13 @@
                     break;
                 }
                 case "DUPLICATE_SHEET":
+                    // make sure the values are computed in case the original sheet is deleted
+                    for (const row of this.sizes[cmd.sheetId].ROW) {
+                        row.computedSize();
+                    }
+                    for (const col of this.sizes[cmd.sheetId].COL) {
+                        col.computedSize();
+                    }
                     this.history.update("sizes", cmd.sheetIdTo, deepCopy(this.sizes[cmd.sheetId]));
                     break;
                 case "DELETE_SHEET":
@@ -25840,7 +28665,7 @@
         }
         getHeaderSize(sheetId, dimension, index) {
             var _a, _b, _c, _d;
-            return (((_b = (_a = this.sizes[sheetId]) === null || _a === void 0 ? void 0 : _a[dimension][index]) === null || _b === void 0 ? void 0 : _b.manualSize) ||
+            return Math.round(((_b = (_a = this.sizes[sheetId]) === null || _a === void 0 ? void 0 : _a[dimension][index]) === null || _b === void 0 ? void 0 : _b.manualSize) ||
                 ((_d = (_c = this.sizes[sheetId]) === null || _c === void 0 ? void 0 : _c[dimension][index]) === null || _d === void 0 ? void 0 : _d.computedSize()) ||
                 this.getDefaultHeaderSize(dimension));
         }
@@ -25963,7 +28788,7 @@
         }
     }
     HeaderSizePlugin.getters = ["getRowSize", "getColSize"];
-
+  
     class HeaderVisibilityPlugin extends CorePlugin {
         constructor() {
             super(...arguments);
@@ -25973,7 +28798,7 @@
             switch (cmd.type) {
                 case "HIDE_COLUMNS_ROWS": {
                     if (!this.hiddenHeaders[cmd.sheetId]) {
-                        return 25 /* CommandResult.InvalidSheetId */;
+                        return 27 /* CommandResult.InvalidSheetId */;
                     }
                     const hiddenGroup = cmd.dimension === "COL"
                         ? this.getHiddenColsGroups(cmd.sheetId)
@@ -25983,7 +28808,7 @@
                         : this.getters.getNumberRows(cmd.sheetId);
                     return (hiddenGroup || []).flat().concat(cmd.elements).length < elements
                         ? 0 /* CommandResult.Success */
-                        : 63 /* CommandResult.TooManyHiddenElements */;
+                        : 65 /* CommandResult.TooManyHiddenElements */;
                 }
             }
             return 0 /* CommandResult.Success */;
@@ -26031,16 +28856,11 @@
             }
             return;
         }
-        isRowHidden(sheetId, index) {
+        isRowHiddenByUser(sheetId, index) {
             return this.hiddenHeaders[sheetId].ROW[index];
         }
-        isColHidden(sheetId, index) {
+        isColHiddenByUser(sheetId, index) {
             return this.hiddenHeaders[sheetId].COL[index];
-        }
-        isHeaderHidden(sheetId, dimension, index) {
-            return dimension === "COL"
-                ? this.isColHidden(sheetId, index)
-                : this.isRowHidden(sheetId, index);
         }
         getHiddenColsGroups(sheetId) {
             const consecutiveIndexes = [[]];
@@ -26079,37 +28899,6 @@
                 consecutiveIndexes.pop();
             }
             return consecutiveIndexes;
-        }
-        getNextVisibleCellPosition(sheetId, col, row) {
-            return {
-                col: this.findVisibleHeader(sheetId, "COL", range(col, this.getters.getNumberCols(sheetId))),
-                row: this.findVisibleHeader(sheetId, "ROW", range(row, this.getters.getNumberRows(sheetId))),
-            };
-        }
-        findVisibleHeader(sheetId, dimension, indexes) {
-            return indexes.find((index) => this.getters.doesHeaderExist(sheetId, dimension, index) &&
-                !this.isHeaderHidden(sheetId, dimension, index));
-        }
-        findLastVisibleColRowIndex(sheetId, dimension, indexes) {
-            let lastIndex;
-            for (lastIndex = indexes.last; lastIndex >= indexes.first; lastIndex--) {
-                if (!this.isHeaderHidden(sheetId, dimension, lastIndex)) {
-                    return lastIndex;
-                }
-            }
-            return lastIndex;
-        }
-        findFirstVisibleColRowIndex(sheetId, dimension) {
-            const numberOfHeaders = this.getters.getNumberHeaders(sheetId, dimension);
-            for (let i = 0; i < numberOfHeaders - 1; i++) {
-                if (dimension === "COL" && !this.isColHidden(sheetId, i)) {
-                    return i;
-                }
-                if (dimension === "ROW" && !this.isRowHidden(sheetId, i)) {
-                    return i;
-                }
-            }
-            return undefined;
         }
         import(data) {
             var _a, _b;
@@ -26158,17 +28947,12 @@
         }
     }
     HeaderVisibilityPlugin.getters = [
-        "findFirstVisibleColRowIndex",
-        "findLastVisibleColRowIndex",
-        "findVisibleHeader",
         "getHiddenColsGroups",
         "getHiddenRowsGroups",
-        "getNextVisibleCellPosition",
-        "isRowHidden",
-        "isColHidden",
-        "isHeaderHidden",
+        "isRowHiddenByUser",
+        "isColHiddenByUser",
     ];
-
+  
     class MergePlugin extends CorePlugin {
         constructor() {
             super(...arguments);
@@ -26189,6 +28973,8 @@
                     return this.checkValidations(cmd, this.checkDestructiveMerge, this.checkOverlap, this.checkFrozenPanes);
                 case "UPDATE_CELL":
                     return this.checkMergedContentUpdate(cmd);
+                case "REMOVE_MERGE":
+                    return this.checkMergeExists(cmd);
                 default:
                     return 0 /* CommandResult.Success */;
             }
@@ -26405,7 +29191,7 @@
             for (const zone of target) {
                 for (const zone2 of target) {
                     if (zone !== zone2 && overlap(zone, zone2)) {
-                        return 62 /* CommandResult.MergeOverlap */;
+                        return 64 /* CommandResult.MergeOverlap */;
                     }
                 }
             }
@@ -26419,7 +29205,7 @@
             for (const zone of target) {
                 if ((zone.left < xSplit && zone.right >= xSplit) ||
                     (zone.top < ySplit && zone.bottom >= ySplit)) {
-                    return 72 /* CommandResult.FrozenPaneOverlap */;
+                    return 74 /* CommandResult.FrozenPaneOverlap */;
                 }
             }
             return 0 /* CommandResult.Success */;
@@ -26438,6 +29224,17 @@
                 return 0 /* CommandResult.Success */;
             }
             return 4 /* CommandResult.CellIsMerged */;
+        }
+        checkMergeExists(cmd) {
+            const { sheetId, target } = cmd;
+            for (const zone of target) {
+                const { left, top } = zone;
+                const merge = this.getMerge(sheetId, left, top);
+                if (merge === undefined || !isEqual(zone, merge)) {
+                    return 5 /* CommandResult.InvalidTarget */;
+                }
+            }
+            return 0 /* CommandResult.Success */;
         }
         /**
          * Merge the current selection. Note that:
@@ -26498,7 +29295,7 @@
             const { left, top, bottom, right } = zone;
             const merge = this.getMerge(sheetId, left, top);
             if (merge === undefined || !isEqual(zone, merge)) {
-                throw new Error(_lt("Invalid merge zone"));
+                return;
             }
             this.history.update("merges", sheetId, merge.id, undefined);
             for (let r = top; r <= bottom; r++) {
@@ -26599,7 +29396,7 @@
             id: mergeId,
         };
     }
-
+  
     class SheetPlugin extends CorePlugin {
         constructor() {
             super(...arguments);
@@ -26619,7 +29416,7 @@
             switch (cmd.type) {
                 case "HIDE_SHEET": {
                     if (this.getVisibleSheetIds().length === 1) {
-                        return 8 /* CommandResult.NotEnoughSheets */;
+                        return 9 /* CommandResult.NotEnoughSheets */;
                     }
                     return 0 /* CommandResult.Success */;
                 }
@@ -26633,7 +29430,7 @@
                             .slice(0, currentIndex)
                             .map((id) => !this.isSheetVisible(id));
                         return leftSheets.every((isHidden) => isHidden)
-                            ? 12 /* CommandResult.WrongSheetMove */
+                            ? 14 /* CommandResult.WrongSheetMove */
                             : 0 /* CommandResult.Success */;
                     }
                     else {
@@ -26641,7 +29438,7 @@
                             .slice(currentIndex + 1)
                             .map((id) => !this.isSheetVisible(id));
                         return rightSheets.every((isHidden) => isHidden)
-                            ? 12 /* CommandResult.WrongSheetMove */
+                            ? 14 /* CommandResult.WrongSheetMove */
                             : 0 /* CommandResult.Success */;
                     }
                 case "RENAME_SHEET":
@@ -26649,24 +29446,20 @@
                 case "DELETE_SHEET":
                     return this.orderedSheetIds.length > 1
                         ? 0 /* CommandResult.Success */
-                        : 8 /* CommandResult.NotEnoughSheets */;
+                        : 9 /* CommandResult.NotEnoughSheets */;
                 case "REMOVE_COLUMNS_ROWS": {
                     const length = cmd.dimension === "COL"
                         ? this.getNumberCols(cmd.sheetId)
                         : this.getNumberRows(cmd.sheetId);
                     return length > cmd.elements.length
                         ? 0 /* CommandResult.Success */
-                        : 7 /* CommandResult.NotEnoughElements */;
+                        : 8 /* CommandResult.NotEnoughElements */;
                 }
                 case "FREEZE_ROWS": {
-                    return cmd.quantity >= 1 && cmd.quantity < this.getNumberRows(cmd.sheetId)
-                        ? 0 /* CommandResult.Success */
-                        : 71 /* CommandResult.InvalidFreezeQuantity */;
+                    return this.checkValidations(cmd, this.checkRowFreezeQuantity, this.checkRowFreezeOverlapMerge);
                 }
                 case "FREEZE_COLUMNS": {
-                    return cmd.quantity >= 1 && cmd.quantity < this.getNumberCols(cmd.sheetId)
-                        ? 0 /* CommandResult.Success */
-                        : 71 /* CommandResult.InvalidFreezeQuantity */;
+                    return this.checkValidations(cmd, this.checkColFreezeQuantity, this.checkColFreezeOverlapMerge);
                 }
                 default:
                     return 0 /* CommandResult.Success */;
@@ -26782,6 +29575,7 @@
                     cells: {},
                     conditionalFormats: [],
                     figures: [],
+                    filterTables: [],
                     areGridLinesVisible: sheet.areGridLinesVisible === undefined ? true : sheet.areGridLinesVisible,
                     isVisible: sheet.isVisible,
                 };
@@ -27078,24 +29872,52 @@
             const { orderedSheetIds, sheets } = this;
             const name = cmd.name && cmd.name.trim().toLowerCase();
             if (orderedSheetIds.find((id) => { var _a; return ((_a = sheets[id]) === null || _a === void 0 ? void 0 : _a.name.toLowerCase()) === name; })) {
-                return 10 /* CommandResult.DuplicatedSheetName */;
+                return 11 /* CommandResult.DuplicatedSheetName */;
             }
             if (FORBIDDEN_IN_EXCEL_REGEX.test(name)) {
-                return 11 /* CommandResult.ForbiddenCharactersInSheetName */;
+                return 13 /* CommandResult.ForbiddenCharactersInSheetName */;
             }
             return 0 /* CommandResult.Success */;
         }
         checkSheetPosition(cmd) {
             const { orderedSheetIds } = this;
             if (cmd.position > orderedSheetIds.length || cmd.position < 0) {
-                return 13 /* CommandResult.WrongSheetPosition */;
+                return 15 /* CommandResult.WrongSheetPosition */;
+            }
+            return 0 /* CommandResult.Success */;
+        }
+        checkRowFreezeQuantity(cmd) {
+            return cmd.quantity >= 1 && cmd.quantity < this.getNumberRows(cmd.sheetId)
+                ? 0 /* CommandResult.Success */
+                : 73 /* CommandResult.InvalidFreezeQuantity */;
+        }
+        checkColFreezeQuantity(cmd) {
+            return cmd.quantity >= 1 && cmd.quantity < this.getNumberCols(cmd.sheetId)
+                ? 0 /* CommandResult.Success */
+                : 73 /* CommandResult.InvalidFreezeQuantity */;
+        }
+        checkRowFreezeOverlapMerge(cmd) {
+            const merges = this.getters.getMerges(cmd.sheetId);
+            for (let merge of merges) {
+                if (merge.top < cmd.quantity && cmd.quantity <= merge.bottom) {
+                    return 64 /* CommandResult.MergeOverlap */;
+                }
+            }
+            return 0 /* CommandResult.Success */;
+        }
+        checkColFreezeOverlapMerge(cmd) {
+            const merges = this.getters.getMerges(cmd.sheetId);
+            for (let merge of merges) {
+                if (merge.left < cmd.quantity && cmd.quantity <= merge.right) {
+                    return 64 /* CommandResult.MergeOverlap */;
+                }
             }
             return 0 /* CommandResult.Success */;
         }
         isRenameAllowed(cmd) {
             const name = cmd.name && cmd.name.trim().toLowerCase();
             if (!name) {
-                return 9 /* CommandResult.MissingSheetName */;
+                return 10 /* CommandResult.MissingSheetName */;
             }
             return this.checkSheetName(cmd);
         }
@@ -27401,7 +30223,10 @@
          */
         checkSheetExists(cmd) {
             if (cmd.type !== "CREATE_SHEET" && "sheetId" in cmd && this.sheets[cmd.sheetId] === undefined) {
-                return 25 /* CommandResult.InvalidSheetId */;
+                return 27 /* CommandResult.InvalidSheetId */;
+            }
+            else if (cmd.type === "CREATE_SHEET" && this.sheets[cmd.sheetId] !== undefined) {
+                return 12 /* CommandResult.DuplicatedSheetId */;
             }
             return 0 /* CommandResult.Success */;
         }
@@ -27421,13 +30246,13 @@
                 zones.push(...cmd.ranges.map((rangeData) => this.getters.getRangeFromRangeData(rangeData).zone));
             }
             if (!zones.every(isZoneValid)) {
-                return 23 /* CommandResult.InvalidRange */;
+                return 25 /* CommandResult.InvalidRange */;
             }
             else if (zones.length && "sheetId" in cmd) {
                 const sheetZone = this.getSheetZone(cmd.sheetId);
                 return zones.every((zone) => isZoneInside(zone, sheetZone))
                     ? 0 /* CommandResult.Success */
-                    : 16 /* CommandResult.TargetOutOfSheet */;
+                    : 18 /* CommandResult.TargetOutOfSheet */;
             }
             return 0 /* CommandResult.Success */;
         }
@@ -27460,7 +30285,7 @@
         "getSheetZone",
         "getPaneDivisions",
     ];
-
+  
     /**
      * This plugin manage the autofill.
      *
@@ -27538,7 +30363,7 @@
                     if (this.lastCellSelected.col !== undefined && this.lastCellSelected.row !== undefined) {
                         return 0 /* CommandResult.Success */;
                     }
-                    return 42 /* CommandResult.InvalidAutofillSelection */;
+                    return 44 /* CommandResult.InvalidAutofillSelection */;
                 case "AUTOFILL_AUTO":
                     const zone = this.getters.getSelectedZone();
                     return zone.top === zone.bottom
@@ -27592,14 +30417,14 @@
          *              useful to set it to false when we need to fill the tooltip
          */
         autofill(apply) {
-            if (!this.autofillZone || this.direction === undefined) {
+            if (!this.autofillZone || !this.steps || this.direction === undefined) {
                 this.tooltip = undefined;
                 return;
             }
             const source = this.getters.getSelectedZone();
             const target = this.autofillZone;
             switch (this.direction) {
-                case 1 /* DIRECTION.DOWN */:
+                case "down" /* DIRECTION.DOWN */:
                     for (let col = source.left; col <= source.right; col++) {
                         const xcs = [];
                         for (let row = source.top; row <= source.bottom; row++) {
@@ -27611,7 +30436,7 @@
                         }
                     }
                     break;
-                case 0 /* DIRECTION.UP */:
+                case "up" /* DIRECTION.UP */:
                     for (let col = source.left; col <= source.right; col++) {
                         const xcs = [];
                         for (let row = source.bottom; row >= source.top; row--) {
@@ -27623,7 +30448,7 @@
                         }
                     }
                     break;
-                case 2 /* DIRECTION.LEFT */:
+                case "left" /* DIRECTION.LEFT */:
                     for (let row = source.top; row <= source.bottom; row++) {
                         const xcs = [];
                         for (let col = source.right; col >= source.left; col--) {
@@ -27635,7 +30460,7 @@
                         }
                     }
                     break;
-                case 3 /* DIRECTION.RIGHT */:
+                case "right" /* DIRECTION.RIGHT */:
                     for (let row = source.top; row <= source.bottom; row++) {
                         const xcs = [];
                         for (let col = source.left; col <= source.right; col++) {
@@ -27649,12 +30474,12 @@
                     break;
             }
             if (apply) {
-                const zone = union(this.getters.getSelectedZone(), this.autofillZone);
                 this.autofillZone = undefined;
+                this.selection.resizeAnchorZone(this.direction, this.steps);
                 this.lastCellSelected = {};
                 this.direction = undefined;
+                this.steps = 0;
                 this.tooltip = undefined;
-                this.selection.selectZone({ cell: { col: zone.left, row: zone.top }, zone });
             }
         }
         /**
@@ -27668,17 +30493,21 @@
             }
             this.direction = this.getDirection(col, row);
             switch (this.direction) {
-                case 0 /* DIRECTION.UP */:
+                case "up" /* DIRECTION.UP */:
                     this.saveZone(row, source.top - 1, source.left, source.right);
+                    this.steps = source.top - row;
                     break;
-                case 1 /* DIRECTION.DOWN */:
+                case "down" /* DIRECTION.DOWN */:
                     this.saveZone(source.bottom + 1, row, source.left, source.right);
+                    this.steps = row - source.bottom;
                     break;
-                case 2 /* DIRECTION.LEFT */:
+                case "left" /* DIRECTION.LEFT */:
                     this.saveZone(source.top, source.bottom, col, source.left - 1);
+                    this.steps = source.left - col;
                     break;
-                case 3 /* DIRECTION.RIGHT */:
+                case "right" /* DIRECTION.RIGHT */:
                     this.saveZone(source.top, source.bottom, source.right + 1, col);
+                    this.steps = col - source.right;
                     break;
             }
             this.autofill(false);
@@ -27785,10 +30614,10 @@
         getDirection(col, row) {
             const source = this.getters.getSelectedZone();
             const position = {
-                up: { number: source.top - row, value: 0 /* DIRECTION.UP */ },
-                down: { number: row - source.bottom, value: 1 /* DIRECTION.DOWN */ },
-                left: { number: source.left - col, value: 2 /* DIRECTION.LEFT */ },
-                right: { number: col - source.right, value: 3 /* DIRECTION.RIGHT */ },
+                up: { number: source.top - row, value: "up" /* DIRECTION.UP */ },
+                down: { number: row - source.bottom, value: "down" /* DIRECTION.DOWN */ },
+                left: { number: source.left - col, value: "left" /* DIRECTION.LEFT */ },
+                right: { number: col - source.right, value: "right" /* DIRECTION.RIGHT */ },
             };
             if (Object.values(position)
                 .map((x) => (x.number > 0 ? 1 : 0))
@@ -27848,7 +30677,7 @@
     }
     AutofillPlugin.layers = [6 /* LAYERS.Autofill */];
     AutofillPlugin.getters = ["getAutofillTooltip"];
-
+  
     class AutomaticSumPlugin extends UIPlugin {
         handle(cmd) {
             switch (cmd.type) {
@@ -28001,7 +30830,8 @@
         }
         isNumber(cell) {
             var _a;
-            return (cell === null || cell === void 0 ? void 0 : cell.evaluated.type) === CellValueType.number && !((_a = cell.format) === null || _a === void 0 ? void 0 : _a.match(DATETIME_FORMAT));
+            return ((cell === null || cell === void 0 ? void 0 : cell.evaluated.type) === CellValueType.number &&
+                !((_a = cell.evaluated.format) === null || _a === void 0 ? void 0 : _a.match(DATETIME_FORMAT)));
         }
         isZoneValid(zone) {
             return zone.bottom >= zone.top && zone.right >= zone.left;
@@ -28121,7 +30951,7 @@
         }
     }
     AutomaticSumPlugin.getters = ["getAutomaticSums"];
-
+  
     /**
      * Plugin managing the display of components next to cells.
      */
@@ -28133,7 +30963,7 @@
                         cellPopoverRegistry.get(cmd.popoverType);
                     }
                     catch (error) {
-                        return 69 /* CommandResult.InvalidCellPopover */;
+                        return 71 /* CommandResult.InvalidCellPopover */;
                     }
                     return 0 /* CommandResult.Success */;
                 default:
@@ -28189,6 +31019,14 @@
                     ...this.computePopoverProps(mainPosition, popover.cellCorner),
                 };
         }
+        getPersistentPopoverTypeAtPosition({ col, row }) {
+            if (this.persistentPopover &&
+                this.persistentPopover.col === col &&
+                this.persistentPopover.row === row) {
+                return this.persistentPopover.type;
+            }
+            return undefined;
+        }
         computePopoverProps({ col, row }, corner) {
             const { width, height } = this.getters.getVisibleRect(positionToZone({ col, row }));
             return {
@@ -28214,9 +31052,9 @@
             }
         }
     }
-    CellPopoverPlugin.getters = ["getCellPopover"];
+    CellPopoverPlugin.getters = ["getCellPopover", "getPersistentPopoverTypeAtPosition"];
     CellPopoverPlugin.modes = ["normal"];
-
+  
     /** Abstract state of the clipboard when copying/cutting content that is pasted in cells of the sheet */
     class ClipboardCellsAbstractState {
         constructor(operation, getters, dispatch, selection) {
@@ -28264,7 +31102,7 @@
         }
         drawClipboard(renderingContext) { }
     }
-
+  
     /** State of the clipboard when copying/cutting cells */
     class ClipboardCellsState extends ClipboardCellsAbstractState {
         constructor(zones, operation, getters, dispatch, selection) {
@@ -28272,6 +31110,7 @@
             if (!zones.length) {
                 this.cells = [[]];
                 this.zones = [];
+                this.copiedTables = [];
                 return;
             }
             const lefts = new Set(zones.map((z) => z.left));
@@ -28300,12 +31139,23 @@
                 }
                 cellsInClipboard.push(cellsInRow);
             }
+            const tables = [];
+            for (const zone of zones) {
+                for (const table of this.getters.getFilterTablesInZone(sheetId, zone)) {
+                    const values = [];
+                    for (const col of range(table.zone.left, table.zone.right + 1)) {
+                        values.push(this.getters.getFilterValues(sheetId, col, table.zone.top));
+                    }
+                    tables.push({ filtersValues: values, zone: table.zone });
+                }
+            }
             this.cells = cellsInClipboard;
             this.zones = clippedZones;
+            this.copiedTables = tables;
         }
         isCutAllowed(target) {
             if (target.length !== 1) {
-                return 17 /* CommandResult.WrongCutSelection */;
+                return 19 /* CommandResult.WrongCutSelection */;
             }
             return 0 /* CommandResult.Success */;
         }
@@ -28313,13 +31163,13 @@
             const sheetId = this.getters.getActiveSheetId();
             if (this.operation === "CUT" && (clipboardOption === null || clipboardOption === void 0 ? void 0 : clipboardOption.pasteOption) !== undefined) {
                 // cannot paste only format or only value if the previous operation is a CUT
-                return 19 /* CommandResult.WrongPasteOption */;
+                return 21 /* CommandResult.WrongPasteOption */;
             }
             if (target.length > 1) {
                 // cannot paste if we have a clipped zone larger than a cell and multiple
                 // zones selected
                 if (this.cells.length > 1 || this.cells[0].length > 1) {
-                    return 18 /* CommandResult.WrongPasteSelection */;
+                    return 20 /* CommandResult.WrongPasteSelection */;
                 }
             }
             const clipboardHeight = this.cells.length;
@@ -28337,7 +31187,7 @@
             for (const zone of this.getPasteZones(target)) {
                 if ((zone.left < xSplit && zone.right >= xSplit) ||
                     (zone.top < ySplit && zone.bottom >= ySplit)) {
-                    return 72 /* CommandResult.FrozenPaneOverlap */;
+                    return 74 /* CommandResult.FrozenPaneOverlap */;
                 }
             }
             return 0 /* CommandResult.Success */;
@@ -28383,6 +31233,9 @@
                     }
                 }
             }
+            if ((options === null || options === void 0 ? void 0 : options.pasteOption) === undefined) {
+                this.pasteCopiedTables(target);
+            }
         }
         pasteFromCut(target, options) {
             this.clearClippedZones();
@@ -28395,6 +31248,13 @@
                 col: selection.left,
                 row: selection.top,
             });
+            for (const filterTable of this.copiedTables) {
+                this.dispatch("REMOVE_FILTER_TABLE", {
+                    sheetId: this.getters.getActiveSheetId(),
+                    target: [filterTable.zone],
+                });
+            }
+            this.pasteCopiedTables(target);
         }
         /**
          * The clipped zone is copied as many times as it fits in the target.
@@ -28599,6 +31459,28 @@
                 });
             }
         }
+        /** Paste the filter tables that are in the state */
+        pasteCopiedTables(target) {
+            const sheetId = this.getters.getActiveSheetId();
+            const selection = target[0];
+            const cutZone = this.zones[0];
+            const cutOffset = [
+                selection.left - cutZone.left,
+                selection.top - cutZone.top,
+            ];
+            for (const table of this.copiedTables) {
+                const newTableZone = createAdaptedZone(table.zone, "both", "MOVE", cutOffset);
+                this.dispatch("CREATE_FILTER_TABLE", { sheetId, target: [newTableZone] });
+                for (const i of range(0, table.filtersValues.length)) {
+                    this.dispatch("UPDATE_FILTER", {
+                        sheetId,
+                        col: newTableZone.left + i,
+                        row: newTableZone.top,
+                        values: table.filtersValues[i],
+                    });
+                }
+            }
+        }
         getClipboardContent() {
             return (this.cells
                 .map((cells) => {
@@ -28637,7 +31519,7 @@
             }
         }
     }
-
+  
     /** State of the clipboard when copying/cutting figures */
     class ClipboardFigureState {
         constructor(operation, getters, dispatch) {
@@ -28653,7 +31535,7 @@
                 throw new Error(`No figure for the given id: ${copiedFigureId}`);
             }
             this.copiedFigure = { ...figure };
-            const chart = getters.getChart(copiedFigureId);
+            const chart = getters.getChart(this.sheetId, copiedFigureId);
             if (!chart) {
                 throw new Error(`No chart for the given id: ${copiedFigureId}`);
             }
@@ -28665,10 +31547,10 @@
         }
         isPasteAllowed(target, option) {
             if (target.length === 0) {
-                return 70 /* CommandResult.EmptyTarget */;
+                return 72 /* CommandResult.EmptyTarget */;
             }
             if ((option === null || option === void 0 ? void 0 : option.pasteOption) !== undefined) {
-                return 20 /* CommandResult.WrongFigurePasteOption */;
+                return 22 /* CommandResult.WrongFigurePasteOption */;
             }
             return 0 /* CommandResult.Success */;
         }
@@ -28706,7 +31588,7 @@
         }
         drawClipboard(renderingContext) { }
     }
-
+  
     /** State of the clipboard when copying/cutting from the OS clipboard*/
     class ClipboardOsState extends ClipboardCellsAbstractState {
         constructor(content, getters, dispatch, selection) {
@@ -28764,7 +31646,7 @@
             };
         }
     }
-
+  
     /**
      * Clipboard Plugin
      *
@@ -28788,7 +31670,7 @@
                     return state.isCutAllowed(zones);
                 case "PASTE":
                     if (!this.state) {
-                        return 21 /* CommandResult.EmptyClipboard */;
+                        return 23 /* CommandResult.EmptyClipboard */;
                     }
                     const pasteOption = cmd.pasteOption || (this._isPaintingFormat ? "onlyFormat" : undefined);
                     return this.state.isPasteAllowed(cmd.target, { pasteOption });
@@ -28832,6 +31714,12 @@
                     break;
                 case "DELETE_CELL": {
                     const { cut, paste } = this.getDeleteCellsTargets(cmd.zone, cmd.shiftDimension);
+                    if (!isZoneValid(cut[0])) {
+                        for (const { col, row } of positions(cmd.zone)) {
+                            this.dispatch("CLEAR_CELL", { col, row, sheetId: this.getters.getActiveSheetId() });
+                        }
+                        break;
+                    }
                     const state = this.getClipboardStateForCopyCells(cut, "CUT");
                     state.paste(paste);
                     break;
@@ -28983,7 +31871,7 @@
     }
     ClipboardPlugin.layers = [2 /* LAYERS.Clipboard */];
     ClipboardPlugin.getters = ["getClipboardContent", "isCutOperation", "isPaintingFormat"];
-
+  
     /**
      * https://tomekdev.com/posts/sorting-colors-in-js
      */
@@ -29099,7 +31987,9 @@
             return formatColors.filter(isDefined$1);
         }
         getChartColors(sheetId) {
-            const charts = this.getters.getChartIds(sheetId).map((cid) => this.getters.getChart(cid));
+            const charts = this.getters
+                .getChartIds(sheetId)
+                .map((cid) => this.getters.getChart(sheetId, cid));
             let chartsColors = new Set();
             for (let chart of charts) {
                 if (chart === undefined) {
@@ -29133,7 +32023,7 @@
         }
     }
     CustomColorsPlugin.getters = ["getCustomColors"];
-
+  
     const functionMap = functionRegistry.mapping;
     class EvaluationPlugin extends UIPlugin {
         constructor(getters, state, dispatch, config, selection) {
@@ -29354,7 +32244,7 @@
         }
     }
     EvaluationPlugin.getters = ["evaluateFormula", "getRangeFormattedValues", "getRangeValues"];
-
+  
     class EvaluationChartPlugin extends UIPlugin {
         constructor() {
             super(...arguments);
@@ -29366,34 +32256,37 @@
                 invalidateCFEvaluationCommands.has(cmd.type) ||
                 cmd.type === "EVALUATE_CELLS" ||
                 cmd.type === "UPDATE_CELL") {
-                for (const chartId in this.charts) {
-                    this.charts[chartId] = undefined;
+                for (const sheetId in this.charts) {
+                    for (const chartId in this.charts[sheetId]) {
+                        this.charts[sheetId][chartId] = undefined;
+                    }
                 }
             }
             switch (cmd.type) {
                 case "UPDATE_CHART":
                 case "CREATE_CHART":
                 case "DELETE_FIGURE":
-                    this.charts[cmd.id] = undefined;
+                    if (this.charts[cmd.sheetId]) {
+                        this.charts[cmd.sheetId][cmd.id] = undefined;
+                    }
                     break;
                 case "DELETE_SHEET":
-                    for (let chartId in this.charts) {
-                        if (!this.getters.isChartDefined(chartId)) {
-                            this.charts[chartId] = undefined;
-                        }
-                    }
+                    delete this.charts[cmd.sheetId];
                     break;
             }
         }
-        getChartRuntime(figureId) {
-            if (!this.charts[figureId]) {
-                const chart = this.getters.getChart(figureId);
+        getChartRuntime(sheetId, figureId) {
+            var _a;
+            if (!((_a = this.charts[sheetId]) === null || _a === void 0 ? void 0 : _a[figureId])) {
+                const chart = this.getters.getChart(sheetId, figureId);
                 if (!chart) {
                     throw new Error(`No chart for the given id: ${figureId}`);
                 }
-                this.charts[figureId] = this.createRuntimeChart(chart);
+                if (!this.charts[sheetId])
+                    this.charts[sheetId] = {};
+                this.charts[sheetId][figureId] = this.createRuntimeChart(chart);
             }
-            return this.charts[figureId];
+            return this.charts[sheetId][figureId];
         }
         /**
          * Get the background color of a chart based on the color of the first cell of the main range
@@ -29417,7 +32310,7 @@
         }
     }
     EvaluationChartPlugin.getters = ["getChartRuntime", "getBackgroundOfSingleCellChart"];
-
+  
     // -----------------------------------------------------------------------------
     // Constants
     // -----------------------------------------------------------------------------
@@ -29532,10 +32425,14 @@
             const cell = this.getters.getCell(sheetId, col, row);
             const styles = this.computedStyles[sheetId];
             const cfStyle = styles && ((_a = styles[col]) === null || _a === void 0 ? void 0 : _a[row]);
-            return {
+            const computedStyle = {
                 ...cell === null || cell === void 0 ? void 0 : cell.style,
                 ...cfStyle,
             };
+            if (this.getters.isFilterHeader(sheetId, col, row)) {
+                computedStyle.bold = true;
+            }
+            return computedStyle;
         }
         getConditionalIcon(col, row) {
             var _a;
@@ -29787,7 +32684,228 @@
         }
     }
     EvaluationConditionalFormatPlugin.getters = ["getConditionalIcon", "getCellComputedStyle"];
-
+  
+    class FilterEvaluationPlugin extends UIPlugin {
+        constructor() {
+            super(...arguments);
+            this.filterValues = {};
+            this.hiddenRows = new Set();
+            this.isEvaluationDirty = false;
+        }
+        allowDispatch(cmd) {
+            switch (cmd.type) {
+                case "UPDATE_FILTER":
+                    if (!this.getters.getFilterId(cmd.sheetId, cmd.col, cmd.row)) {
+                        return 78 /* CommandResult.FilterNotFound */;
+                    }
+                    break;
+            }
+            return 0 /* CommandResult.Success */;
+        }
+        handle(cmd) {
+            switch (cmd.type) {
+                case "UNDO":
+                case "REDO":
+                case "UPDATE_CELL":
+                case "EVALUATE_CELLS":
+                case "ACTIVATE_SHEET":
+                case "REMOVE_FILTER_TABLE":
+                    this.isEvaluationDirty = true;
+                    break;
+                case "START":
+                    for (const sheetId of this.getters.getSheetIds()) {
+                        this.filterValues[sheetId] = {};
+                        for (const filter of this.getters.getFilters(sheetId)) {
+                            this.filterValues[sheetId][filter.id] = [];
+                        }
+                    }
+                    break;
+                case "CREATE_SHEET":
+                    this.filterValues[cmd.sheetId] = {};
+                    break;
+                case "UPDATE_FILTER":
+                    this.updateFilter(cmd);
+                    this.updateHiddenRows();
+                    break;
+                case "DUPLICATE_SHEET":
+                    const filterValues = {};
+                    for (const newFilter of this.getters.getFilters(cmd.sheetIdTo)) {
+                        const zone = newFilter.zoneWithHeaders;
+                        filterValues[newFilter.id] = this.getFilterValues(cmd.sheetId, zone.left, zone.top);
+                    }
+                    this.filterValues[cmd.sheetIdTo] = filterValues;
+                    break;
+                // If we don't handle DELETE_SHEET, on one hand we will have some residual data, on the other hand we keep the data
+                // on DELETE_SHEET followed by undo
+            }
+        }
+        finalize() {
+            if (this.isEvaluationDirty) {
+                this.updateHiddenRows();
+                this.isEvaluationDirty = false;
+            }
+        }
+        isRowFiltered(sheetId, row) {
+            if (sheetId !== this.getters.getActiveSheetId()) {
+                return false;
+            }
+            return this.hiddenRows.has(row);
+        }
+        getCellBorderWithFilterBorder(sheetId, col, row) {
+            let filterBorder = undefined;
+            for (let filters of this.getters.getFilterTables(sheetId)) {
+                const zone = filters.zone;
+                if (isInside(col, row, zone)) {
+                    // The borders should be at the edges of the visible zone of the filter
+                    const visibleZone = this.intersectZoneWithViewport(sheetId, zone);
+                    filterBorder = {
+                        top: row === visibleZone.top ? DEFAULT_FILTER_BORDER_DESC : undefined,
+                        bottom: row === visibleZone.bottom ? DEFAULT_FILTER_BORDER_DESC : undefined,
+                        left: col === visibleZone.left ? DEFAULT_FILTER_BORDER_DESC : undefined,
+                        right: col === visibleZone.right ? DEFAULT_FILTER_BORDER_DESC : undefined,
+                    };
+                }
+            }
+            const cellBorder = this.getters.getCellBorder(sheetId, col, row);
+            // Use removeFalsyAttributes to avoid overwriting filter borders with undefined values
+            const border = { ...filterBorder, ...removeFalsyAttributes(cellBorder || {}) };
+            return isObjectEmptyRecursive(border) ? null : border;
+        }
+        getFilterHeaders(sheetId) {
+            const headers = [];
+            for (let filters of this.getters.getFilterTables(sheetId)) {
+                const zone = filters.zone;
+                if (!zone) {
+                    continue;
+                }
+                const row = zone.top;
+                for (let col = zone.left; col <= zone.right; col++) {
+                    if (this.getters.isColHidden(sheetId, col) || this.getters.isRowHidden(sheetId, row)) {
+                        continue;
+                    }
+                    headers.push({ col, row });
+                }
+            }
+            return headers;
+        }
+        getFilterValues(sheetId, col, row) {
+            const id = this.getters.getFilterId(sheetId, col, row);
+            if (!id || !this.filterValues[sheetId])
+                return [];
+            return this.filterValues[sheetId][id] || [];
+        }
+        isFilterHeader(sheetId, col, row) {
+            const headers = this.getFilterHeaders(sheetId);
+            return headers.some((header) => header.col === col && header.row === row);
+        }
+        isFilterActive(sheetId, col, row) {
+            var _a, _b;
+            const id = this.getters.getFilterId(sheetId, col, row);
+            return Boolean(id && ((_b = (_a = this.filterValues[sheetId]) === null || _a === void 0 ? void 0 : _a[id]) === null || _b === void 0 ? void 0 : _b.length));
+        }
+        intersectZoneWithViewport(sheetId, zone) {
+            const colsRange = range(zone.left, zone.right + 1);
+            const rowsRange = range(zone.top, zone.bottom + 1);
+            return {
+                left: this.getters.findVisibleHeader(sheetId, "COL", colsRange),
+                right: this.getters.findVisibleHeader(sheetId, "COL", colsRange.reverse()),
+                top: this.getters.findVisibleHeader(sheetId, "ROW", rowsRange),
+                bottom: this.getters.findVisibleHeader(sheetId, "ROW", rowsRange.reverse()),
+            };
+        }
+        updateFilter({ col, row, values, sheetId }) {
+            const id = this.getters.getFilterId(sheetId, col, row);
+            if (!id)
+                return;
+            if (!this.filterValues[sheetId])
+                this.filterValues[sheetId] = {};
+            this.filterValues[sheetId][id] = values;
+        }
+        updateHiddenRows() {
+            var _a, _b;
+            const sheetId = this.getters.getActiveSheetId();
+            const filters = this.getters.getFilters(sheetId);
+            const hiddenRows = new Set();
+            for (let filter of filters) {
+                const filteredValues = (_b = (_a = this.filterValues[sheetId]) === null || _a === void 0 ? void 0 : _a[filter.id]) === null || _b === void 0 ? void 0 : _b.map(toLowerCase);
+                if (!filteredValues || !filter.filteredZone)
+                    continue;
+                for (let row = filter.filteredZone.top; row <= filter.filteredZone.bottom; row++) {
+                    const value = this.getCellValueAsString(sheetId, filter.col, row);
+                    if (filteredValues.includes(value)) {
+                        hiddenRows.add(row);
+                    }
+                }
+            }
+            this.hiddenRows = hiddenRows;
+        }
+        getCellValueAsString(sheetId, col, row) {
+            var _a;
+            const value = (_a = this.getters.getCell(sheetId, col, row)) === null || _a === void 0 ? void 0 : _a.formattedValue;
+            return (value === null || value === void 0 ? void 0 : value.toLowerCase()) || "";
+        }
+        exportForExcel(data) {
+            var _a;
+            for (const sheetData of data.sheets) {
+                for (const tableData of sheetData.filterTables) {
+                    const tableZone = toZone(tableData.range);
+                    const filters = [];
+                    const headerNames = [];
+                    for (const i of range(0, zoneToDimension(tableZone).width)) {
+                        const filteredValues = this.getFilterValues(sheetData.id, tableZone.left + i, tableZone.top);
+                        const filter = this.getters.getFilter(sheetData.id, tableZone.left + i, tableZone.top);
+                        if (!filter)
+                            continue;
+                        const valuesInFilterZone = filter.filteredZone
+                            ? positions(filter.filteredZone)
+                                .map((pos) => { var _a; return (_a = this.getters.getCell(sheetData.id, pos.col, pos.row)) === null || _a === void 0 ? void 0 : _a.formattedValue; })
+                                .filter(isDefined$1)
+                            : [];
+                        // In xlsx, filtered values = values that are displayed, not values that are hidden
+                        const xlsxFilteredValues = valuesInFilterZone.filter((val) => !filteredValues.includes(val));
+                        filters.push({ colId: i, filteredValues: [...new Set(xlsxFilteredValues)] });
+                        // In xlsx, filter header should ALWAYS be a string and should be unique
+                        const headerPosition = { col: filter.col, row: filter.zoneWithHeaders.top };
+                        const headerString = (_a = this.getters.getCell(sheetData.id, headerPosition.col, headerPosition.row)) === null || _a === void 0 ? void 0 : _a.formattedValue;
+                        const headerName = this.getUniqueColNameForExcel(i, headerString, headerNames);
+                        headerNames.push(headerName);
+                        sheetData.cells[toXC(headerPosition.col, headerPosition.row)] = {
+                            ...sheetData.cells[toXC(headerPosition.col, headerPosition.row)],
+                            content: headerName,
+                            value: headerName,
+                            isFormula: false,
+                        };
+                    }
+                    tableData.filters = filters;
+                }
+            }
+        }
+        /**
+         * Get an unique column name for the column at colIndex. If the column name is already in the array of used column names,
+         * concatenate a number to the name until we find a new unique name (eg. "ColName" => "ColName1" => "ColName2" ...)
+         */
+        getUniqueColNameForExcel(colIndex, colName, usedColNames) {
+            if (!colName) {
+                colName = `Column${colIndex}`;
+            }
+            let currentColName = colName;
+            let i = 2;
+            while (usedColNames.includes(currentColName)) {
+                currentColName = colName + String(i);
+                i++;
+            }
+            return currentColName;
+        }
+    }
+    FilterEvaluationPlugin.getters = [
+        "getCellBorderWithFilterBorder",
+        "getFilterHeaders",
+        "getFilterValues",
+        "isFilterHeader",
+        "isRowFiltered",
+        "isFilterActive",
+    ];
+  
     const BORDER_COLOR = "#8B008B";
     const BACKGROUND_COLOR = "#8B008B33";
     var Direction;
@@ -29891,7 +33009,7 @@
          * the value toSearch
          */
         updateRegex() {
-            let searchValue = this.toSearch;
+            let searchValue = escapeRegExp(this.toSearch);
             const flags = !this.searchOptions.matchCase ? "i" : "";
             if (this.searchOptions.exactMatch) {
                 searchValue = `^${searchValue}$`;
@@ -30051,7 +33169,7 @@
     }
     FindAndReplacePlugin.layers = [3 /* LAYERS.Search */];
     FindAndReplacePlugin.getters = ["getSearchMatches", "getCurrentSelectedMatchIndex"];
-
+  
     class FormatPlugin extends UIPlugin {
         // ---------------------------------------------------------------------------
         // Command Handling
@@ -30112,7 +33230,69 @@
         }
     }
     FormatPlugin.modes = ["normal"];
-
+  
+    class HeaderVisibilityUIPlugin extends UIPlugin {
+        isRowHidden(sheetId, index) {
+            return (this.getters.isRowHiddenByUser(sheetId, index) || this.getters.isRowFiltered(sheetId, index));
+        }
+        isColHidden(sheetId, index) {
+            return this.getters.isColHiddenByUser(sheetId, index);
+        }
+        isHeaderHidden(sheetId, dimension, index) {
+            return dimension === "COL"
+                ? this.isColHidden(sheetId, index)
+                : this.isRowHidden(sheetId, index);
+        }
+        getNextVisibleCellPosition(sheetId, col, row) {
+            return {
+                col: this.findVisibleHeader(sheetId, "COL", range(col, this.getters.getNumberCols(sheetId))),
+                row: this.findVisibleHeader(sheetId, "ROW", range(row, this.getters.getNumberRows(sheetId))),
+            };
+        }
+        findVisibleHeader(sheetId, dimension, indexes) {
+            return indexes.find((index) => this.getters.doesHeaderExist(sheetId, dimension, index) &&
+                !this.isHeaderHidden(sheetId, dimension, index));
+        }
+        findLastVisibleColRowIndex(sheetId, dimension, indexes) {
+            let lastIndex;
+            for (lastIndex = indexes.last; lastIndex >= indexes.first; lastIndex--) {
+                if (!this.isHeaderHidden(sheetId, dimension, lastIndex)) {
+                    return lastIndex;
+                }
+            }
+            return lastIndex;
+        }
+        findFirstVisibleColRowIndex(sheetId, dimension) {
+            const numberOfHeaders = this.getters.getNumberHeaders(sheetId, dimension);
+            for (let i = 0; i < numberOfHeaders - 1; i++) {
+                if (dimension === "COL" && !this.isColHidden(sheetId, i)) {
+                    return i;
+                }
+                if (dimension === "ROW" && !this.isRowHidden(sheetId, i)) {
+                    return i;
+                }
+            }
+            return undefined;
+        }
+        exportForExcel(data) {
+            for (const sheetData of data.sheets) {
+                for (const [row, rowData] of Object.entries(sheetData.rows)) {
+                    const isHidden = this.isRowHidden(sheetData.id, Number(row));
+                    rowData.isHidden = isHidden;
+                }
+            }
+        }
+    }
+    HeaderVisibilityUIPlugin.getters = [
+        "getNextVisibleCellPosition",
+        "findVisibleHeader",
+        "findLastVisibleColRowIndex",
+        "findFirstVisibleColRowIndex",
+        "isRowHidden",
+        "isColHidden",
+        "isHeaderHidden",
+    ];
+  
     /**
      * HighlightPlugin
      */
@@ -30177,7 +33357,7 @@
     }
     HighlightPlugin.layers = [1 /* LAYERS.Highlights */];
     HighlightPlugin.getters = ["getHighlights"];
-
+  
     class RendererPlugin extends UIPlugin {
         constructor() {
             super(...arguments);
@@ -30318,8 +33498,7 @@
         drawBorders(renderingContext) {
             const { ctx, thinLineWidth } = renderingContext;
             for (let box of this.boxes) {
-                // fill color
-                let border = box.border;
+                const border = box.border;
                 if (border) {
                     const { x, y, width, height } = box;
                     if (border.left) {
@@ -30365,7 +33544,11 @@
                         x = box.x + (box.image ? box.image.size + 2 * MIN_CF_ICON_MARGIN : MIN_CELL_TEXT_MARGIN);
                     }
                     else if (align === "right") {
-                        x = box.x + box.width - MIN_CELL_TEXT_MARGIN;
+                        x =
+                            box.x +
+                                box.width -
+                                MIN_CELL_TEXT_MARGIN -
+                                (box.isFilterHeader ? ICON_EDGE_LENGTH + FILTER_ICON_MARGIN : 0);
                     }
                     else {
                         x = box.x + box.width / 2;
@@ -30439,39 +33622,57 @@
             const bottom = visibleRows[visibleRows.length - 1];
             const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
             const selection = this.getters.getSelectedZones();
+            const selectedCols = getZonesCols(selection);
+            const selectedRows = getZonesRows(selection);
             const sheetId = this.getters.getActiveSheetId();
             const numberOfCols = this.getters.getNumberCols(sheetId);
             const numberOfRows = this.getters.getNumberRows(sheetId);
             const activeCols = this.getters.getActiveCols();
             const activeRows = this.getters.getActiveRows();
-            ctx.fillStyle = BACKGROUND_HEADER_COLOR;
             ctx.font = `400 ${HEADER_FONT_SIZE}px ${DEFAULT_FONT}`;
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.lineWidth = thinLineWidth;
             ctx.strokeStyle = "#333";
-            // background
-            ctx.fillRect(0, 0, width, HEADER_HEIGHT);
-            ctx.fillRect(0, 0, HEADER_WIDTH, height);
-            // selection background
-            ctx.fillStyle = BACKGROUND_HEADER_SELECTED_COLOR;
-            for (let zone of selection) {
-                const colZone = intersection(zone, { left, right, top: 0, bottom: numberOfRows - 1 });
-                if (colZone) {
-                    const { x, width } = this.getters.getVisibleRect(colZone);
-                    ctx.fillStyle = activeCols.has(zone.left)
-                        ? BACKGROUND_HEADER_ACTIVE_COLOR
-                        : BACKGROUND_HEADER_SELECTED_COLOR;
-                    ctx.fillRect(x, 0, width, HEADER_HEIGHT);
+            // Columns headers background
+            for (let col = left; col <= right; col++) {
+                const colZone = { left: col, right: col, top: 0, bottom: numberOfRows - 1 };
+                const { x, width } = this.getters.getVisibleRect(colZone);
+                const colHasFilter = this.getters.doesZonesContainFilter(sheetId, [colZone]);
+                const isColActive = activeCols.has(col);
+                const isColSelected = selectedCols.has(col);
+                if (isColActive) {
+                    ctx.fillStyle = colHasFilter ? FILTERS_COLOR : BACKGROUND_HEADER_ACTIVE_COLOR;
                 }
-                const rowZone = intersection(zone, { top, bottom, left: 0, right: numberOfCols - 1 });
-                if (rowZone) {
-                    const { y, height } = this.getters.getVisibleRect(rowZone);
-                    ctx.fillStyle = activeRows.has(zone.top)
-                        ? BACKGROUND_HEADER_ACTIVE_COLOR
+                else if (isColSelected) {
+                    ctx.fillStyle = colHasFilter
+                        ? BACKGROUND_HEADER_SELECTED_FILTER_COLOR
                         : BACKGROUND_HEADER_SELECTED_COLOR;
-                    ctx.fillRect(0, y, HEADER_WIDTH, height);
                 }
+                else {
+                    ctx.fillStyle = colHasFilter ? BACKGROUND_HEADER_FILTER_COLOR : BACKGROUND_HEADER_COLOR;
+                }
+                ctx.fillRect(x, 0, width, HEADER_HEIGHT);
+            }
+            // Rows headers background
+            for (let row = top; row <= bottom; row++) {
+                const rowZone = { top: row, bottom: row, left: 0, right: numberOfCols - 1 };
+                const { y, height } = this.getters.getVisibleRect(rowZone);
+                const rowHasFilter = this.getters.doesZonesContainFilter(sheetId, [rowZone]);
+                const isRowActive = activeRows.has(row);
+                const isRowSelected = selectedRows.has(row);
+                if (isRowActive) {
+                    ctx.fillStyle = rowHasFilter ? FILTERS_COLOR : BACKGROUND_HEADER_ACTIVE_COLOR;
+                }
+                else if (isRowSelected) {
+                    ctx.fillStyle = rowHasFilter
+                        ? BACKGROUND_HEADER_SELECTED_FILTER_COLOR
+                        : BACKGROUND_HEADER_SELECTED_COLOR;
+                }
+                else {
+                    ctx.fillStyle = rowHasFilter ? BACKGROUND_HEADER_FILTER_COLOR : BACKGROUND_HEADER_COLOR;
+                }
+                ctx.fillRect(0, y, HEADER_WIDTH, height);
             }
             // 2 main lines
             ctx.beginPath();
@@ -30576,10 +33777,8 @@
             }
             return align || cell.defaultAlign;
         }
-        createZoneBox(sheetId, zone) {
-            const visibleCols = this.getters.getSheetViewVisibleCols();
-            const left = visibleCols[0];
-            const right = visibleCols[visibleCols.length - 1];
+        createZoneBox(sheetId, zone, viewport) {
+            const { left, right } = viewport;
             const col = zone.left;
             const row = zone.top;
             const cell = this.getters.getCell(sheetId, col, row);
@@ -30590,7 +33789,7 @@
                 y,
                 width,
                 height,
-                border: this.getters.getCellBorder(sheetId, col, row) || undefined,
+                border: this.getters.getCellBorderWithFilterBorder(sheetId, col, row) || undefined,
                 style: this.getters.getCellComputedStyle(sheetId, col, row),
             };
             if (!cell) {
@@ -30608,6 +33807,9 @@
                     image: ICONS[cfIcon].img,
                 };
             }
+            /** Filter Header */
+            box.isFilterHeader = this.getters.isFilterHeader(sheetId, col, row);
+            const headerIconWidth = box.isFilterHeader ? FILTER_ICON_EDGE_LENGTH + FILTER_ICON_MARGIN : 0;
             /** Content */
             const text = this.getters.getCellText(cell, showFormula);
             const textWidth = this.getters.getTextWidth(cell);
@@ -30615,7 +33817,7 @@
             const multiLineText = wrapping === "wrap"
                 ? this.getters.getCellMultiLineText(cell, width - 2 * MIN_CELL_TEXT_MARGIN)
                 : [text];
-            const contentWidth = iconBoxWidth + textWidth;
+            const contentWidth = iconBoxWidth + textWidth + headerIconWidth;
             const align = this.computeCellAlignment(cell, contentWidth > width);
             box.content = {
                 multiLineText,
@@ -30629,11 +33831,11 @@
             }
             /** ClipRect */
             const isOverflowing = contentWidth > width || fontSizePX > height;
-            if (cfIcon) {
+            if (cfIcon || box.isFilterHeader) {
                 box.clipRect = {
                     x: box.x + iconBoxWidth,
                     y: box.y,
-                    width: Math.max(0, width - iconBoxWidth),
+                    width: Math.max(0, width - iconBoxWidth - headerIconWidth),
                     height,
                 };
             }
@@ -30708,7 +33910,7 @@
                     if (this.getters.isInMerge(sheetId, colNumber, rowNumber)) {
                         continue;
                     }
-                    boxes.push(this.createZoneBox(sheetId, positionToZone({ col: colNumber, row: rowNumber })));
+                    boxes.push(this.createZoneBox(sheetId, positionToZone({ col: colNumber, row: rowNumber }), viewport));
                 }
             }
             for (const merge of this.getters.getMerges(sheetId)) {
@@ -30716,7 +33918,7 @@
                     continue;
                 }
                 if (overlap(merge, viewport)) {
-                    const box = this.createZoneBox(sheetId, merge);
+                    const box = this.createZoneBox(sheetId, merge, viewport);
                     const borderBottomRight = this.getters.getCellBorder(sheetId, merge.right, merge.bottom);
                     box.border = {
                         ...box.border,
@@ -30732,7 +33934,7 @@
     }
     RendererPlugin.layers = [0 /* LAYERS.Background */, 7 /* LAYERS.Headers */];
     RendererPlugin.getters = ["getColDimensionsInViewport", "getRowDimensionsInViewport"];
-
+  
     const selectionStatisticFunctions = [
         {
             name: _lt("Sum"),
@@ -30796,7 +33998,7 @@
                         break;
                     }
                     catch (error) {
-                        return 25 /* CommandResult.InvalidSheetId */;
+                        return 27 /* CommandResult.InvalidSheetId */;
                     }
                 case "MOVE_COLUMNS_ROWS":
                     return this.isMoveElementAllowed(cmd);
@@ -30822,6 +34024,8 @@
                     break;
             }
             this.setSelectionMixin(event.anchor, zones);
+            /** Any change to the selection has to be  reflected in the selection processor. */
+            this.selection.resetDefaultAnchor(this, deepCopy(this.gridSelection.anchor));
             const { col, row } = this.gridSelection.anchor.cell;
             this.moveClient({
                 sheetId: this.getters.getActiveSheetId(),
@@ -30854,11 +34058,11 @@
                         sheetIdTo: firstSheetId,
                         sheetIdFrom: firstSheetId,
                     });
+                    const { col, row } = this.getters.getNextVisibleCellPosition(firstSheetId, 0, 0);
+                    this.selectCell(col, row);
                     this.selection.registerAsDefault(this, this.gridSelection.anchor, {
                         handleEvent: this.handleEvent.bind(this),
                     });
-                    const { col, row } = this.getters.getNextVisibleCellPosition(firstSheetId, 0, 0);
-                    this.selectCell(col, row);
                     this.moveClient({ sheetId: firstSheetId, col: 0, row: 0 });
                     break;
                 case "ACTIVATE_SHEET": {
@@ -30871,7 +34075,7 @@
                     };
                     if (cmd.sheetIdTo in this.sheetsData) {
                         Object.assign(this, this.sheetsData[cmd.sheetIdTo]);
-                        this.selection.resetDefaultAnchor(this, this.gridSelection.anchor);
+                        this.selection.resetDefaultAnchor(this, deepCopy(this.gridSelection.anchor));
                     }
                     else {
                         const { col, row } = this.getters.getNextVisibleCellPosition(cmd.sheetIdTo, 0, 0);
@@ -30957,8 +34161,11 @@
                     const sheetId = this.getters.getActiveSheetId();
                     this.gridSelection.zones = this.gridSelection.zones.map((z) => this.getters.expandZone(sheetId, z));
                     this.gridSelection.anchor.zone = this.getters.expandZone(sheetId, this.gridSelection.anchor.zone);
-                    this.ensureSelectionValidity();
+                    this.setSelectionMixin(this.gridSelection.anchor, this.gridSelection.zones);
+                    break;
             }
+            /** Any change to the selection has to be  reflected in the selection processor. */
+            this.selection.resetDefaultAnchor(this, deepCopy(this.gridSelection.anchor));
         }
         // ---------------------------------------------------------------------------
         // Getters
@@ -31106,11 +34313,13 @@
         // ---------------------------------------------------------------------------
         // Other
         // ---------------------------------------------------------------------------
+        /**
+         * Ensure selections are not outside sheet boundaries.
+         * They are clipped to fit inside the sheet if needed.
+         */
         setSelectionMixin(anchor, zones) {
             const { anchor: clippedAnchor, zones: clippedZones } = this.clipSelection(this.getters.getActiveSheetId(), { anchor, zones });
-            this.gridSelection.anchor.cell.col = clippedAnchor.cell.col;
-            this.gridSelection.anchor.cell.row = clippedAnchor.cell.row;
-            this.gridSelection.anchor.zone = clippedAnchor.zone;
+            this.gridSelection.anchor = clippedAnchor;
             this.gridSelection.zones = uniqueZones(clippedZones);
         }
         /**
@@ -31152,7 +34361,6 @@
                 zone: selectedZone,
             };
             this.setSelectionMixin(anchor, [selectedZone]);
-            this.ensureSelectionValidity();
         }
         onRowsRemoved(cmd) {
             const { cell, zone } = this.gridSelection.anchor;
@@ -31167,7 +34375,6 @@
                 zone: selectedZone,
             };
             this.setSelectionMixin(anchor, [selectedZone]);
-            this.ensureSelectionValidity();
         }
         onAddElements(cmd) {
             const selection = this.gridSelection.anchor.zone;
@@ -31248,17 +34455,6 @@
         //-------------------------------------------
         // Helpers for extensions
         // ------------------------------------------
-        /**
-         * Ensure selections are not outside sheet boundaries.
-         * They are clipped to fit inside the sheet if needed.
-         */
-        ensureSelectionValidity() {
-            let { anchor, zones } = this.clipSelection(this.getters.getActiveSheetId(), this.gridSelection);
-            this.gridSelection.zones = uniqueZones(zones);
-            this.gridSelection.anchor.cell.col = anchor.cell.col;
-            this.gridSelection.anchor.cell.row = anchor.cell.row;
-            this.gridSelection.anchor.zone = anchor.zone;
-        }
         /**
          * Clip the selection if it spans outside the sheet
          */
@@ -31353,7 +34549,7 @@
         "isSelected",
         "getElementsFromSelection",
     ];
-
+  
     const uuidGenerator = new UuidGenerator();
     /**
      * Selection input Plugin
@@ -31383,7 +34579,7 @@
             switch (cmd.type) {
                 case "ADD_EMPTY_RANGE":
                     if (this.inputHasSingleRange && this.ranges.length === 1) {
-                        return 27 /* CommandResult.MaximumRangesReached */;
+                        return 29 /* CommandResult.MaximumRangesReached */;
                     }
                     break;
             }
@@ -31533,7 +34729,7 @@
                 .filter((range) => this.getters.isRangeValid(range))
                 .filter((reference) => this.shouldBeHighlighted(this.activeSheet, reference));
             return XCs.map((xc) => {
-                const [, sheetName] = xc.split("!").reverse();
+                const { sheetName } = splitReference(xc);
                 return {
                     zone: this.getters.getRangeFromSheetXC(this.activeSheet, xc).zone,
                     sheetId: (sheetName && this.getters.getSheetIdByName(sheetName)) || this.activeSheet,
@@ -31556,7 +34752,7 @@
          * the current active sheet.
          */
         shouldBeHighlighted(inputSheetId, reference) {
-            const sheetName = reference.split("!").reverse()[1];
+            const { sheetName } = splitReference(reference);
             const sheetId = this.getters.getSheetIdByName(sheetName);
             const activeSheetId = this.getters.getActiveSheet().id;
             const valid = this.getters.isRangeValid(reference);
@@ -31574,7 +34770,7 @@
     }
     SelectionInputPlugin.layers = [1 /* LAYERS.Highlights */];
     SelectionInputPlugin.getters = [];
-
+  
     /**
      * Selection input Plugin
      *
@@ -31602,7 +34798,7 @@
                 case "FOCUS_RANGE":
                     const index = (_a = this.currentInput) === null || _a === void 0 ? void 0 : _a.getIndex(cmd.rangeId);
                     if (this.focusedInputId === cmd.id && ((_b = this.currentInput) === null || _b === void 0 ? void 0 : _b.focusedRangeIndex) === index) {
-                        return 26 /* CommandResult.InputAlreadyFocused */;
+                        return 28 /* CommandResult.InputAlreadyFocused */;
                     }
                     break;
             }
@@ -31662,13 +34858,13 @@
                 isFocused: this.focusedInputId === id && this.inputs[id].focusedRangeIndex === index,
             }));
         }
-        isRangeValid(xc) {
-            if (!xc) {
+        isRangeValid(reference) {
+            if (!reference) {
                 return false;
             }
-            const [rangeXc, sheetName] = xc.split("!").reverse();
-            return (rangeXc.match(rangeReference) !== null &&
-                (sheetName === undefined || this.getters.getSheetIdByName(sheetName) !== undefined));
+            const { xc, sheetName } = splitReference(reference);
+            return (xc.match(rangeReference) !== null &&
+                (!sheetName || this.getters.getSheetIdByName(sheetName) !== undefined));
         }
         getSelectionInputValue(id) {
             return this.inputs[id].getSelectionInputValue();
@@ -31706,7 +34902,7 @@
         "isRangeValid",
         "getSelectionInputHighlights",
     ];
-
+  
     /**
      * This is a generic event bus based on the Owl event bus.
      * This bus however ensures type safety across events and subscription callbacks.
@@ -31764,3166 +34960,7 @@
             this.subscriptions = {};
         }
     }
-
-    class Revision {
-        /**
-         * A revision represents a whole client action (Create a sheet, merge a Zone, Undo, ...).
-         * A revision contains the following information:
-         *  - id: ID of the revision
-         *  - commands: CoreCommands that are linked to the action, and should be
-         *              dispatched in other clients
-         *  - clientId: Client who initiated the action
-         *  - changes: List of changes applied on the state.
-         */
-        constructor(id, clientId, commands, changes) {
-            this._commands = [];
-            this._changes = [];
-            this.id = id;
-            this.clientId = clientId;
-            this._commands = [...commands];
-            this._changes = changes ? [...changes] : [];
-        }
-        setChanges(changes) {
-            this._changes = changes;
-        }
-        get commands() {
-            return this._commands;
-        }
-        get changes() {
-            return this._changes;
-        }
-    }
-
-    class ClientDisconnectedError extends Error {
-    }
-    class Session extends EventBus {
-        /**
-         * Manages the collaboration between multiple users on the same spreadsheet.
-         * It can forward local state changes to other users to ensure they all eventually
-         * reach the same state.
-         * It also manages the positions of each clients in the spreadsheet to provide
-         * a visual indication of what other users are doing in the spreadsheet.
-         *
-         * @param revisions
-         * @param transportService communication channel used to send and receive messages
-         * between all connected clients
-         * @param client the client connected locally
-         * @param serverRevisionId
-         */
-        constructor(revisions, transportService, serverRevisionId = DEFAULT_REVISION_ID) {
-            super();
-            this.revisions = revisions;
-            this.transportService = transportService;
-            this.serverRevisionId = serverRevisionId;
-            /**
-             * Positions of the others client.
-             */
-            this.clients = {};
-            this.clientId = "local";
-            this.pendingMessages = [];
-            this.waitingAck = false;
-            this.processedRevisions = new Set();
-            this.uuidGenerator = new UuidGenerator();
-            this.debouncedMove = debounce(this._move.bind(this), DEBOUNCE_TIME);
-        }
-        /**
-         * Add a new revision to the collaborative session.
-         * It will be transmitted to all other connected clients.
-         */
-        save(commands, changes) {
-            if (!commands.length || !changes.length)
-                return;
-            const revision = new Revision(this.uuidGenerator.uuidv4(), this.clientId, commands, changes);
-            this.revisions.append(revision.id, revision);
-            this.trigger("new-local-state-update", { id: revision.id });
-            this.sendUpdateMessage({
-                type: "REMOTE_REVISION",
-                version: MESSAGE_VERSION,
-                serverRevisionId: this.serverRevisionId,
-                nextRevisionId: revision.id,
-                clientId: revision.clientId,
-                commands: revision.commands,
-            });
-        }
-        undo(revisionId) {
-            this.sendUpdateMessage({
-                type: "REVISION_UNDONE",
-                version: MESSAGE_VERSION,
-                serverRevisionId: this.serverRevisionId,
-                nextRevisionId: this.uuidGenerator.uuidv4(),
-                undoneRevisionId: revisionId,
-            });
-        }
-        redo(revisionId) {
-            this.sendUpdateMessage({
-                type: "REVISION_REDONE",
-                version: MESSAGE_VERSION,
-                serverRevisionId: this.serverRevisionId,
-                nextRevisionId: this.uuidGenerator.uuidv4(),
-                redoneRevisionId: revisionId,
-            });
-        }
-        /**
-         * Notify that the position of the client has changed
-         */
-        move(position) {
-            this.debouncedMove(position);
-        }
-        join(client) {
-            if (client) {
-                this.clients[client.id] = client;
-                this.clientId = client.id;
-            }
-            else {
-                this.clients["local"] = { id: "local", name: "local" };
-                this.clientId = "local";
-            }
-            this.transportService.onNewMessage(this.clientId, this.onMessageReceived.bind(this));
-        }
-        loadInitialMessages(messages) {
-            this.on("unexpected-revision-id", this, ({ revisionId }) => {
-                throw new Error(`The spreadsheet could not be loaded. Revision ${revisionId} is corrupted.`);
-            });
-            for (const message of messages) {
-                this.onMessageReceived(message);
-            }
-            this.off("unexpected-revision-id", this);
-        }
-        /**
-         * Notify the server that the user client left the collaborative session
-         */
-        leave() {
-            delete this.clients[this.clientId];
-            this.transportService.leave(this.clientId);
-            this.transportService.sendMessage({
-                type: "CLIENT_LEFT",
-                clientId: this.clientId,
-                version: MESSAGE_VERSION,
-            });
-        }
-        /**
-         * Send a snapshot of the spreadsheet to the collaboration server
-         */
-        snapshot(data) {
-            const snapshotId = this.uuidGenerator.uuidv4();
-            this.transportService.sendMessage({
-                type: "SNAPSHOT",
-                nextRevisionId: snapshotId,
-                serverRevisionId: this.serverRevisionId,
-                data: { ...data, revisionId: snapshotId },
-                version: MESSAGE_VERSION,
-            });
-        }
-        getClient() {
-            const client = this.clients[this.clientId];
-            if (!client) {
-                throw new ClientDisconnectedError("The client left the session");
-            }
-            return client;
-        }
-        getConnectedClients() {
-            return new Set(Object.values(this.clients).filter(isDefined$1));
-        }
-        getRevisionId() {
-            return this.serverRevisionId;
-        }
-        isFullySynchronized() {
-            return this.pendingMessages.length === 0;
-        }
-        _move(position) {
-            var _a;
-            // this method is debounced and might be called after the client
-            // left the session.
-            if (!this.clients[this.clientId])
-                return;
-            const currentPosition = (_a = this.clients[this.clientId]) === null || _a === void 0 ? void 0 : _a.position;
-            if ((currentPosition === null || currentPosition === void 0 ? void 0 : currentPosition.col) === position.col &&
-                currentPosition.row === position.row &&
-                currentPosition.sheetId === position.sheetId) {
-                return;
-            }
-            const type = currentPosition ? "CLIENT_MOVED" : "CLIENT_JOINED";
-            const client = this.getClient();
-            this.clients[this.clientId] = { ...client, position };
-            this.transportService.sendMessage({
-                type,
-                version: MESSAGE_VERSION,
-                client: { ...client, position },
-            });
-        }
-        /**
-         * Handles messages received from other clients in the collaborative
-         * session.
-         */
-        onMessageReceived(message) {
-            if (this.isAlreadyProcessed(message))
-                return;
-            switch (message.type) {
-                case "CLIENT_MOVED":
-                    this.onClientMoved(message);
-                    break;
-                case "CLIENT_JOINED":
-                    this.onClientJoined(message);
-                    break;
-                case "CLIENT_LEFT":
-                    this.onClientLeft(message);
-                    break;
-                case "REVISION_REDONE": {
-                    this.waitingAck = false;
-                    this.revisions.redo(message.redoneRevisionId, message.nextRevisionId, message.serverRevisionId);
-                    this.trigger("revision-redone", {
-                        revisionId: message.redoneRevisionId,
-                        commands: this.revisions.get(message.redoneRevisionId).commands,
-                    });
-                    break;
-                }
-                case "REVISION_UNDONE":
-                    this.waitingAck = false;
-                    this.revisions.undo(message.undoneRevisionId, message.nextRevisionId, message.serverRevisionId);
-                    this.trigger("revision-undone", {
-                        revisionId: message.undoneRevisionId,
-                        commands: this.revisions.get(message.undoneRevisionId).commands,
-                    });
-                    break;
-                case "REMOTE_REVISION":
-                    this.waitingAck = false;
-                    if (message.serverRevisionId !== this.serverRevisionId) {
-                        this.trigger("unexpected-revision-id", { revisionId: message.serverRevisionId });
-                        return;
-                    }
-                    const { clientId, commands } = message;
-                    const revision = new Revision(message.nextRevisionId, clientId, commands);
-                    if (revision.clientId !== this.clientId) {
-                        this.revisions.insert(revision.id, revision, message.serverRevisionId);
-                        this.trigger("remote-revision-received", { commands });
-                    }
-                    break;
-                case "SNAPSHOT_CREATED": {
-                    this.waitingAck = false;
-                    const revision = new Revision(message.nextRevisionId, "server", []);
-                    this.revisions.insert(revision.id, revision, message.serverRevisionId);
-                    this.dropPendingHistoryMessages();
-                    this.trigger("snapshot");
-                    break;
-                }
-            }
-            this.acknowledge(message);
-            this.trigger("collaborative-event-received");
-        }
-        onClientMoved(message) {
-            if (message.client.id !== this.clientId) {
-                this.clients[message.client.id] = message.client;
-            }
-        }
-        /**
-         * Register the new client and send your
-         * own position back.
-         */
-        onClientJoined(message) {
-            if (message.client.id !== this.clientId) {
-                this.clients[message.client.id] = message.client;
-                const client = this.clients[this.clientId];
-                if (client) {
-                    const { position } = client;
-                    if (position) {
-                        this.transportService.sendMessage({
-                            type: "CLIENT_MOVED",
-                            version: MESSAGE_VERSION,
-                            client: { ...client, position },
-                        });
-                    }
-                }
-            }
-        }
-        onClientLeft(message) {
-            if (message.clientId !== this.clientId) {
-                delete this.clients[message.clientId];
-            }
-        }
-        sendUpdateMessage(message) {
-            this.pendingMessages.push(message);
-            if (this.waitingAck) {
-                return;
-            }
-            this.waitingAck = true;
-            this.sendPendingMessage();
-        }
-        /**
-         * Send the next pending message
-         */
-        sendPendingMessage() {
-            let message = this.pendingMessages[0];
-            if (!message)
-                return;
-            if (message.type === "REMOTE_REVISION") {
-                const revision = this.revisions.get(message.nextRevisionId);
-                if (revision.commands.length === 0) {
-                    /**
-                     * The command is empty, we have to drop all the next local revisions
-                     * to avoid issues with undo/redo
-                     */
-                    this.revisions.drop(revision.id);
-                    const revisionIds = this.pendingMessages
-                        .filter((message) => message.type === "REMOTE_REVISION")
-                        .map((message) => message.nextRevisionId);
-                    this.trigger("pending-revisions-dropped", { revisionIds });
-                    this.pendingMessages = [];
-                    return;
-                }
-                message = {
-                    ...message,
-                    clientId: revision.clientId,
-                    commands: revision.commands,
-                };
-            }
-            this.transportService.sendMessage({
-                ...message,
-                serverRevisionId: this.serverRevisionId,
-            });
-        }
-        acknowledge(message) {
-            switch (message.type) {
-                case "REMOTE_REVISION":
-                case "REVISION_REDONE":
-                case "REVISION_UNDONE":
-                case "SNAPSHOT_CREATED":
-                    this.pendingMessages = this.pendingMessages.filter((msg) => msg.nextRevisionId !== message.nextRevisionId);
-                    this.serverRevisionId = message.nextRevisionId;
-                    this.processedRevisions.add(message.nextRevisionId);
-                    this.sendPendingMessage();
-                    break;
-            }
-        }
-        isAlreadyProcessed(message) {
-            switch (message.type) {
-                case "REMOTE_REVISION":
-                case "REVISION_REDONE":
-                case "REVISION_UNDONE":
-                    return this.processedRevisions.has(message.nextRevisionId);
-                default:
-                    return false;
-            }
-        }
-        dropPendingHistoryMessages() {
-            this.pendingMessages = this.pendingMessages.filter(({ type }) => type !== "REVISION_REDONE" && type !== "REVISION_UNDONE");
-        }
-    }
-
-    function randomChoice(arr) {
-        return arr[Math.floor(Math.random() * arr.length)];
-    }
-    const colors = [
-        "#ff851b",
-        "#0074d9",
-        "#7fdbff",
-        "#b10dc9",
-        "#39cccc",
-        "#f012be",
-        "#3d9970",
-        "#111111",
-        "#ff4136",
-        "#aaaaaa",
-        "#85144b",
-        "#001f3f",
-    ];
-    class SelectionMultiUserPlugin extends UIPlugin {
-        constructor() {
-            super(...arguments);
-            this.availableColors = new Set(colors);
-            this.colors = {};
-        }
-        isPositionValid(position) {
-            return (position.row < this.getters.getNumberRows(position.sheetId) &&
-                position.col < this.getters.getNumberCols(position.sheetId));
-        }
-        chooseNewColor() {
-            if (this.availableColors.size === 0) {
-                this.availableColors = new Set(colors);
-            }
-            const color = randomChoice([...this.availableColors.values()]);
-            this.availableColors.delete(color);
-            return color;
-        }
-        /**
-         * Get the list of others connected clients which are present in the same sheet
-         * and with a valid position
-         */
-        getClientsToDisplay() {
-            try {
-                this.getters.getClient();
-            }
-            catch (e) {
-                if (e instanceof ClientDisconnectedError) {
-                    return [];
-                }
-                else {
-                    throw e;
-                }
-            }
-            const sheetId = this.getters.getActiveSheetId();
-            const clients = [];
-            for (const client of this.getters.getConnectedClients()) {
-                if (client.id !== this.getters.getClient().id &&
-                    client.position &&
-                    client.position.sheetId === sheetId &&
-                    this.isPositionValid(client.position)) {
-                    const position = client.position;
-                    if (!this.colors[client.id]) {
-                        this.colors[client.id] = this.chooseNewColor();
-                    }
-                    const color = this.colors[client.id];
-                    clients.push({ ...client, position, color });
-                }
-            }
-            return clients;
-        }
-        drawGrid(renderingContext) {
-            if (this.getters.isDashboard()) {
-                return;
-            }
-            const { ctx, thinLineWidth } = renderingContext;
-            const activeSheetId = this.getters.getActiveSheetId();
-            for (const client of this.getClientsToDisplay()) {
-                const { row, col } = client.position;
-                const zone = this.getters.expandZone(activeSheetId, {
-                    top: row,
-                    bottom: row,
-                    left: col,
-                    right: col,
-                });
-                const { x, y, width, height } = this.getters.getVisibleRect(zone);
-                if (width <= 0 || height <= 0) {
-                    continue;
-                }
-                const color = client.color;
-                /* Cell background */
-                const cellBackgroundColor = `${color}10`;
-                ctx.fillStyle = cellBackgroundColor;
-                ctx.lineWidth = 4 * thinLineWidth;
-                ctx.strokeStyle = color;
-                ctx.globalCompositeOperation = "multiply";
-                ctx.fillRect(x, y, width, height);
-                /* Cell border */
-                ctx.globalCompositeOperation = "source-over";
-                ctx.strokeRect(x, y, width, height);
-                /* client name background */
-                ctx.font = `bold ${DEFAULT_FONT_SIZE + 1}px ${DEFAULT_FONT}`;
-            }
-        }
-    }
-    SelectionMultiUserPlugin.getters = ["getClientsToDisplay"];
-    SelectionMultiUserPlugin.layers = [5 /* LAYERS.Selection */];
-
-    class InternalViewport {
-        constructor(getters, sheetId, boundaries, sizeInGrid, options, offsets) {
-            this.getters = getters;
-            this.sheetId = sheetId;
-            this.boundaries = boundaries;
-            this.width = sizeInGrid.width;
-            this.height = sizeInGrid.height;
-            this.offsetScrollbarX = offsets.x;
-            this.offsetScrollbarY = offsets.y;
-            this.canScrollVertically = options.canScrollVertically;
-            this.canScrollHorizontally = options.canScrollHorizontally;
-            this.offsetCorrectionX = this.getters.getColDimensions(this.sheetId, this.boundaries.left).start;
-            this.offsetCorrectionY = this.getters.getRowDimensions(this.sheetId, this.boundaries.top).start;
-            this.adjustViewportOffsetX();
-            this.adjustViewportOffsetY();
-        }
-        // PUBLIC
-        getMaxSize() {
-            const lastCol = this.getters.findLastVisibleColRowIndex(this.sheetId, "COL", {
-                first: this.boundaries.left,
-                last: this.boundaries.right,
-            });
-            const lastRow = this.getters.findLastVisibleColRowIndex(this.sheetId, "ROW", {
-                first: this.boundaries.top,
-                last: this.boundaries.bottom,
-            });
-            const { end: lastColEnd, size: lastColSize } = this.getters.getColDimensions(this.sheetId, lastCol);
-            const { end: lastRowEnd, size: lastRowSize } = this.getters.getRowDimensions(this.sheetId, lastRow);
-            const leftColIndex = this.searchHeaderIndex("COL", lastColEnd - this.width, 0);
-            const leftColSize = this.getters.getColSize(this.sheetId, leftColIndex);
-            const leftRowIndex = this.searchHeaderIndex("ROW", lastRowEnd - this.height, 0);
-            const topRowSize = this.getters.getRowSize(this.sheetId, leftRowIndex);
-            const width = lastColEnd -
-                this.offsetCorrectionX +
-                (this.canScrollHorizontally
-                    ? Math.max(DEFAULT_CELL_WIDTH, Math.min(leftColSize, this.width - lastColSize))
-                    : 0);
-            const height = lastRowEnd -
-                this.offsetCorrectionY +
-                (this.canScrollVertically
-                    ? Math.max(DEFAULT_CELL_HEIGHT + 5, Math.min(topRowSize, this.height - lastRowSize))
-                    : 0);
-            return { width, height };
-        }
-        /**
-         * Return the index of a column given an offset x, based on the pane left
-         * visible cell.
-         * It returns -1 if no column is found.
-         */
-        getColIndex(x, absolute = false) {
-            if (x < this.offsetCorrectionX || x > this.offsetCorrectionX + this.width) {
-                return -1;
-            }
-            return this.searchHeaderIndex("COL", x - this.offsetCorrectionX, this.left, absolute);
-        }
-        /**
-         * Return the index of a row given an offset y, based on the pane top
-         * visible cell.
-         * It returns -1 if no row is found.
-         */
-        getRowIndex(y, absolute = false) {
-            if (y < this.offsetCorrectionY || y > this.offsetCorrectionY + this.height) {
-                return -1;
-            }
-            return this.searchHeaderIndex("ROW", y - this.offsetCorrectionY, this.top, absolute);
-        }
-        /**
-         * This function will make sure that the provided cell position (or current selected position) is part of
-         * the pane that is actually displayed on the client. We therefore adjust the offset of the pane
-         * until it contains the cell completely.
-         */
-        adjustPosition(position) {
-            const sheetId = this.sheetId;
-            if (!position) {
-                position = this.getters.getSheetPosition(sheetId);
-            }
-            const mainCellPosition = this.getters.getMainCellPosition(sheetId, position.col, position.row);
-            const { col, row } = this.getters.getNextVisibleCellPosition(sheetId, mainCellPosition.col, mainCellPosition.row);
-            if (isInside(col, this.boundaries.top, this.boundaries)) {
-                this.adjustPositionX(col);
-            }
-            if (isInside(this.boundaries.left, row, this.boundaries)) {
-                this.adjustPositionY(row);
-            }
-        }
-        adjustPositionX(col) {
-            const sheetId = this.sheetId;
-            const { start, end } = this.getters.getColDimensions(sheetId, col);
-            while (end > this.offsetX + this.offsetCorrectionX + this.width &&
-                this.offsetX + this.offsetCorrectionX < start) {
-                this.offsetX = this.getters.getColDimensions(sheetId, this.left).end - this.offsetCorrectionX;
-                this.offsetScrollbarX = this.offsetX;
-                this.adjustViewportZoneX();
-            }
-            while (col < this.left) {
-                let leftCol;
-                for (leftCol = this.left; leftCol >= 0; leftCol--) {
-                    if (!this.getters.isColHidden(sheetId, leftCol)) {
-                        break;
-                    }
-                }
-                this.offsetX =
-                    this.getters.getColDimensions(sheetId, leftCol - 1).start - this.offsetCorrectionX;
-                this.offsetScrollbarX = this.offsetX;
-                this.adjustViewportZoneX();
-            }
-        }
-        adjustPositionY(row) {
-            const sheetId = this.sheetId;
-            while (this.getters.getRowDimensions(sheetId, row).end >
-                this.offsetY + this.height + this.offsetCorrectionY &&
-                this.offsetY + this.offsetCorrectionY < this.getters.getRowDimensions(sheetId, row).start) {
-                this.offsetY = this.getters.getRowDimensions(sheetId, this.top).end - this.offsetCorrectionY;
-                this.offsetScrollbarY = this.offsetY;
-                this.adjustViewportZoneY();
-            }
-            while (row < this.top) {
-                let topRow;
-                for (topRow = this.top; topRow >= 0; topRow--) {
-                    if (!this.getters.isRowHidden(sheetId, topRow)) {
-                        break;
-                    }
-                }
-                this.offsetY =
-                    this.getters.getRowDimensions(sheetId, topRow - 1).start - this.offsetCorrectionY;
-                this.offsetScrollbarY = this.offsetY;
-                this.adjustViewportZoneY();
-            }
-        }
-        setViewportOffset(offsetX, offsetY) {
-            this.setViewportOffsetX(offsetX);
-            this.setViewportOffsetY(offsetY);
-        }
-        adjustViewportZone() {
-            this.adjustViewportZoneX();
-            this.adjustViewportZoneY();
-        }
-        getRect(zone) {
-            const targetZone = intersection(zone, this.zone);
-            if (targetZone) {
-                return {
-                    x: this.getters.getColRowOffset("COL", this.zone.left, targetZone.left) +
-                        this.offsetCorrectionX,
-                    y: this.getters.getColRowOffset("ROW", this.zone.top, targetZone.top) +
-                        this.offsetCorrectionY,
-                    width: this.getters.getColRowOffset("COL", targetZone.left, targetZone.right + 1),
-                    height: this.getters.getColRowOffset("ROW", targetZone.top, targetZone.bottom + 1),
-                };
-            }
-            else {
-                return undefined;
-            }
-        }
-        isVisible(col, row) {
-            const isInside = row <= this.bottom && row >= this.top && col >= this.left && col <= this.right;
-            return (isInside &&
-                !this.getters.isColHidden(this.sheetId, col) &&
-                !this.getters.isRowHidden(this.sheetId, row));
-        }
-        // PRIVATE
-        searchHeaderIndex(dimension, position, startIndex = 0, absolute = false) {
-            let size = 0;
-            const sheetId = this.sheetId;
-            const headers = this.getters.getNumberHeaders(sheetId, dimension);
-            for (let i = startIndex; i <= headers - 1; i++) {
-                const isHiddenInViewport = !absolute && dimension === "COL"
-                    ? i < this.left && i > this.right
-                    : i < this.top && i > this.bottom;
-                if (this.getters.isHeaderHidden(sheetId, dimension, i) || isHiddenInViewport) {
-                    continue;
-                }
-                size +=
-                    dimension === "COL"
-                        ? this.getters.getColSize(sheetId, i)
-                        : this.getters.getRowSize(sheetId, i);
-                if (size > position) {
-                    return i;
-                }
-            }
-            return -1;
-        }
-        get zone() {
-            return { left: this.left, right: this.right, top: this.top, bottom: this.bottom };
-        }
-        setViewportOffsetX(offsetX) {
-            if (!this.canScrollHorizontally) {
-                return;
-            }
-            this.offsetScrollbarX = offsetX;
-            this.adjustViewportZoneX();
-        }
-        setViewportOffsetY(offsetY) {
-            if (!this.canScrollVertically) {
-                return;
-            }
-            this.offsetScrollbarY = offsetY;
-            this.adjustViewportZoneY();
-        }
-        /** Corrects the viewport's horizontal offset based on the current structure
-         *  To make sure that at least on column is visible inside the viewport.
-         */
-        adjustViewportOffsetX() {
-            if (this.canScrollHorizontally) {
-                const { width: viewportWidth } = this.getMaxSize();
-                if (this.width + this.offsetScrollbarX > viewportWidth) {
-                    this.offsetScrollbarX = Math.max(0, viewportWidth - this.width);
-                }
-            }
-            this.left = this.getColIndex(this.offsetScrollbarX, true);
-            this.right = this.getColIndex(this.offsetScrollbarX + this.width, true);
-            if (this.right === -1) {
-                this.right = this.boundaries.right;
-            }
-            this.adjustViewportZoneX();
-        }
-        /** Corrects the viewport's vertical offset based on the current structure
-         *  To make sure that at least on row is visible inside the viewport.
-         */
-        adjustViewportOffsetY() {
-            if (this.canScrollVertically) {
-                const { height: paneHeight } = this.getMaxSize();
-                if (this.height + this.offsetScrollbarY > paneHeight) {
-                    this.offsetScrollbarY = Math.max(0, paneHeight - this.height);
-                }
-            }
-            this.top = this.getRowIndex(this.offsetScrollbarY, true);
-            this.bottom = this.getRowIndex(this.offsetScrollbarY + this.width, true);
-            if (this.bottom === -1) {
-                this.bottom = this.boundaries.bottom;
-            }
-            this.adjustViewportZoneY();
-        }
-        /** Updates the pane zone and snapped offset based on its horizontal
-         * offset (will find Left) and its width (will find Right) */
-        adjustViewportZoneX() {
-            const sheetId = this.sheetId;
-            this.left = this.searchHeaderIndex("COL", this.offsetScrollbarX, this.boundaries.left);
-            this.right = Math.min(this.boundaries.right, this.searchHeaderIndex("COL", this.width, this.left));
-            if (this.right === -1) {
-                this.right = this.getters.getNumberCols(sheetId) - 1;
-            }
-            this.offsetX =
-                this.getters.getColDimensions(sheetId, this.left).start -
-                    this.getters.getColDimensions(sheetId, this.boundaries.left).start;
-        }
-        /** Updates the pane zone and snapped offset based on its vertical
-         * offset (will find Top) and its width (will find Bottom) */
-        adjustViewportZoneY() {
-            const sheetId = this.sheetId;
-            this.top = this.searchHeaderIndex("ROW", this.offsetScrollbarY, this.boundaries.top);
-            this.bottom = Math.min(this.boundaries.bottom, this.searchHeaderIndex("ROW", this.height, this.top));
-            if (this.bottom === -1) {
-                this.bottom = this.getters.getNumberRows(sheetId) - 1;
-            }
-            this.offsetY =
-                this.getters.getRowDimensions(sheetId, this.top).start -
-                    this.getters.getRowDimensions(sheetId, this.boundaries.top).start;
-        }
-    }
-
-    /**
-     *   EdgeScrollCases Schema
-     *
-     *  The dots/double dots represent a freeze (= a split of viewports)
-     *  In this example, we froze vertically between columns D and E
-     *  and horizontally between rows 4 and 5.
-     *
-     *  One can see that we scrolled horizontally from column E to G and
-     *  vertically from row 5 to 7.
-     *
-     *     A  B  C  D   G  H  I  J  K  L  M  N  O  P  Q  R  S  T
-     *     _______________________________________________________
-     *  1 |           :                                           |
-     *  2 |           :                                           |
-     *  3 |           :        B   ↑                 6            |
-     *  4 |           :        |   |                 |            |
-     *     ····················+···+·················+············|
-     *  7 |           :        |   |                 |            |
-     *  8 |           :        ↓   2                 |            |
-     *  9 |           :                              |            |
-     * 10 |       A --+--→                           |            |
-     * 11 |           :                              |            |
-     * 12 |           :                              |            |
-     * 13 |        ←--+-- 1                          |            |
-     * 14 |           :                              |        3 --+--→
-     * 15 |           :                              |            |
-     * 16 |           :                              |            |
-     * 17 |       5 --+-------------------------------------------+--→
-     * 18 |           :                              |            |
-     * 19 |           :                  4           |            |
-     * 20 |           :                  |           |            |
-     *     ______________________________+___________| ____________
-     *                                   |           |
-     *                                   ↓           ↓
-     */
-    /**
-     * Viewport plugin.
-     *
-     * This plugin manages all things related to all viewport states.
-     *
-     */
-    class SheetViewPlugin extends UIPlugin {
-        constructor() {
-            super(...arguments);
-            this.viewports = {};
-            /**
-             * The viewport dimensions are usually set by one of the components
-             * (i.e. when grid component is mounted) to properly reflect its state in the DOM.
-             * In the absence of a component (standalone model), is it mandatory to set reasonable default values
-             * to ensure the correct operation of this plugin.
-             */
-            this.sheetViewWidth = DEFAULT_SHEETVIEW_SIZE;
-            this.sheetViewHeight = DEFAULT_SHEETVIEW_SIZE;
-            this.gridOffsetX = 0;
-            this.gridOffsetY = 0;
-        }
-        // ---------------------------------------------------------------------------
-        // Command Handling
-        // ---------------------------------------------------------------------------
-        allowDispatch(cmd) {
-            switch (cmd.type) {
-                case "SET_VIEWPORT_OFFSET":
-                    return this.checkScrollingDirection(cmd);
-                case "RESIZE_SHEETVIEW":
-                    return this.chainValidations(this.checkValuesAreDifferent, this.checkPositiveDimension)(cmd);
-                case "FREEZE_COLUMNS": {
-                    const sheetId = this.getters.getActiveSheetId();
-                    const merges = this.getters.getMerges(sheetId);
-                    for (let merge of merges) {
-                        if (merge.left < cmd.quantity && cmd.quantity <= merge.right) {
-                            return 62 /* CommandResult.MergeOverlap */;
-                        }
-                    }
-                    return 0 /* CommandResult.Success */;
-                }
-                case "FREEZE_ROWS": {
-                    const sheetId = this.getters.getActiveSheetId();
-                    const merges = this.getters.getMerges(sheetId);
-                    for (let merge of merges) {
-                        if (merge.top < cmd.quantity && cmd.quantity <= merge.bottom) {
-                            return 62 /* CommandResult.MergeOverlap */;
-                        }
-                    }
-                    return 0 /* CommandResult.Success */;
-                }
-                default:
-                    return 0 /* CommandResult.Success */;
-            }
-        }
-        handleEvent(event) {
-            switch (event.type) {
-                case "HeadersSelected":
-                case "AlterZoneCorner":
-                    break;
-                case "ZonesSelected":
-                    // altering a zone should not move the viewport
-                    const sheetId = this.getters.getActiveSheetId();
-                    let { col, row } = findCellInNewZone(event.previousAnchor.zone, event.anchor.zone);
-                    col = Math.min(col, this.getters.getNumberCols(sheetId) - 1);
-                    row = Math.min(row, this.getters.getNumberRows(sheetId) - 1);
-                    this.refreshViewport(this.getters.getActiveSheetId(), { col, row });
-                    break;
-            }
-        }
-        handle(cmd) {
-            this.cleanViewports();
-            switch (cmd.type) {
-                case "START":
-                    this.selection.observe(this, {
-                        handleEvent: this.handleEvent.bind(this),
-                    });
-                    this.resetViewports(this.getters.getActiveSheetId());
-                    break;
-                case "UNDO":
-                case "REDO":
-                    this.resetSheetViews();
-                    break;
-                case "RESIZE_SHEETVIEW":
-                    this.resizeSheetView(cmd.height, cmd.width, cmd.gridOffsetX, cmd.gridOffsetY);
-                    break;
-                case "SET_VIEWPORT_OFFSET":
-                    this.setSheetViewOffset(cmd.offsetX, cmd.offsetY);
-                    break;
-                case "SHIFT_VIEWPORT_DOWN":
-                    const { top } = this.getActiveMainViewport();
-                    const sheetId = this.getters.getActiveSheetId();
-                    const shiftedOffsetY = this.clipOffsetY(this.getters.getRowDimensions(sheetId, top).start + this.sheetViewHeight);
-                    this.shiftVertically(shiftedOffsetY);
-                    break;
-                case "SHIFT_VIEWPORT_UP": {
-                    const { top } = this.getActiveMainViewport();
-                    const sheetId = this.getters.getActiveSheetId();
-                    const shiftedOffsetY = this.clipOffsetY(this.getters.getRowDimensions(sheetId, top).end - this.sheetViewHeight);
-                    this.shiftVertically(shiftedOffsetY);
-                    break;
-                }
-                case "REMOVE_COLUMNS_ROWS":
-                case "RESIZE_COLUMNS_ROWS":
-                case "HIDE_COLUMNS_ROWS":
-                case "ADD_COLUMNS_ROWS":
-                case "UNHIDE_COLUMNS_ROWS":
-                    this.resetViewports(cmd.sheetId);
-                    break;
-                case "ACTIVATE_SHEET":
-                    this.setViewports();
-                    this.refreshViewport(cmd.sheetIdTo);
-                    break;
-                case "UNFREEZE_ROWS":
-                case "UNFREEZE_COLUMNS":
-                case "FREEZE_COLUMNS":
-                case "FREEZE_ROWS":
-                case "UNFREEZE_COLUMNS_ROWS":
-                    this.resetViewports(this.getters.getActiveSheetId());
-                    break;
-            }
-        }
-        finalize() {
-            this.setViewports();
-        }
-        setViewports() {
-            var _a;
-            const sheetIds = this.getters.getSheetIds();
-            for (const sheetId of sheetIds) {
-                if (!((_a = this.viewports[sheetId]) === null || _a === void 0 ? void 0 : _a.bottomRight)) {
-                    this.resetViewports(sheetId);
-                }
-            }
-        }
-        // ---------------------------------------------------------------------------
-        // Getters
-        // ---------------------------------------------------------------------------
-        /**
-         * Return the index of a column given an offset x, based on the viewport left
-         * visible cell.
-         * It returns -1 if no column is found.
-         */
-        getColIndex(x) {
-            const sheetId = this.getters.getActiveSheetId();
-            return Math.max(...this.getSubViewports(sheetId).map((viewport) => viewport.getColIndex(x)));
-        }
-        /**
-         * Return the index of a row given an offset y, based on the viewport top
-         * visible cell.
-         * It returns -1 if no row is found.
-         */
-        getRowIndex(y) {
-            const sheetId = this.getters.getActiveSheetId();
-            return Math.max(...this.getSubViewports(sheetId).map((viewport) => viewport.getRowIndex(y)));
-        }
-        getSheetViewDimensionWithHeaders() {
-            return {
-                width: this.sheetViewWidth + this.gridOffsetX,
-                height: this.sheetViewHeight + this.gridOffsetY,
-            };
-        }
-        getSheetViewDimension() {
-            return {
-                width: this.sheetViewWidth,
-                height: this.sheetViewHeight,
-            };
-        }
-        /** type as pane, not viewport but basically pane extends viewport */
-        getActiveMainViewport() {
-            const sheetId = this.getters.getActiveSheetId();
-            return this.getMainViewport(sheetId);
-        }
-        getActiveSheetScrollInfo() {
-            const sheetId = this.getters.getActiveSheetId();
-            return this.getSheetScrollInfo(sheetId);
-        }
-        getSheetViewVisibleCols() {
-            const sheetId = this.getters.getActiveSheetId();
-            const viewports = this.getSubViewports(sheetId);
-            return [...new Set(viewports.map((v) => range(v.left, v.right + 1)).flat())].filter((col) => !this.getters.isHeaderHidden(sheetId, "COL", col));
-        }
-        getSheetViewVisibleRows() {
-            const sheetId = this.getters.getActiveSheetId();
-            const viewports = this.getSubViewports(sheetId);
-            return [...new Set(viewports.map((v) => range(v.top, v.bottom + 1)).flat())].filter((row) => !this.getters.isHeaderHidden(sheetId, "ROW", row));
-        }
-        /**
-         * Return the main viewport maximum size. That is the zone dimension
-         * with some bottom and right padding.
-         */
-        getMainViewportRect() {
-            const sheetId = this.getters.getActiveSheetId();
-            const viewport = this.getMainInternalViewport(sheetId);
-            const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
-            let { width, height } = viewport.getMaxSize();
-            const x = this.getters.getColDimensions(sheetId, xSplit).start;
-            const y = this.getters.getRowDimensions(sheetId, ySplit).start;
-            return { x, y, width, height };
-        }
-        getMaximumSheetOffset() {
-            const sheetId = this.getters.getActiveSheetId();
-            const { width, height } = this.getMainViewportRect();
-            const viewport = this.getMainInternalViewport(sheetId);
-            return {
-                maxOffsetX: Math.max(0, width - viewport.width + 1),
-                maxOffsetY: Math.max(0, height - viewport.height + 1),
-            };
-        }
-        getColRowOffsetInViewport(dimension, referenceIndex, index) {
-            const sheetId = this.getters.getActiveSheetId();
-            const visibleCols = this.getters.getSheetViewVisibleCols();
-            const visibleRows = this.getters.getSheetViewVisibleRows();
-            if (index < referenceIndex) {
-                return -this.getColRowOffsetInViewport(dimension, index, referenceIndex);
-            }
-            let offset = 0;
-            const visibleIndexes = dimension === "COL" ? visibleCols : visibleRows;
-            for (let i = referenceIndex; i < index; i++) {
-                if (!visibleIndexes.includes(i)) {
-                    continue;
-                }
-                offset +=
-                    dimension === "COL"
-                        ? this.getters.getColSize(sheetId, i)
-                        : this.getters.getRowSize(sheetId, i);
-            }
-            return offset;
-        }
-        /**
-         * Check if a given position is visible in the viewport.
-         */
-        isVisibleInViewport(sheetId, col, row) {
-            return this.getSubViewports(sheetId).some((pane) => pane.isVisible(col, row));
-        }
-        // => return s the new offset
-        getEdgeScrollCol(x, previousX, startingX) {
-            let canEdgeScroll = false;
-            let direction = 0;
-            let delay = 0;
-            /** 4 cases : See EdgeScrollCases Schema at the top
-             * 1. previous in XRight > XLeft
-             * 3. previous in XRight > outside
-             * 5. previous in Left > outside
-             * A. previous in Left > right
-             * with X a position taken in the bottomRIght (aka scrollable) viewport
-             */
-            const { xSplit } = this.getters.getPaneDivisions(this.getters.getActiveSheetId());
-            const { width } = this.getSheetViewDimension();
-            const { x: offsetCorrectionX } = this.getMainViewportCoordinates();
-            const currentOffsetX = this.getActiveSheetScrollInfo().offsetX;
-            if (x > width) {
-                // 3 & 5
-                canEdgeScroll = true;
-                delay = scrollDelay(x - width);
-                direction = 1;
-            }
-            else if (x < offsetCorrectionX && startingX >= offsetCorrectionX && currentOffsetX > 0) {
-                // 1
-                canEdgeScroll = true;
-                delay = scrollDelay(offsetCorrectionX - x);
-                direction = -1;
-            }
-            else if (xSplit && previousX < offsetCorrectionX && x > offsetCorrectionX) {
-                // A
-                canEdgeScroll = true;
-                delay = scrollDelay(x);
-                direction = "reset";
-            }
-            return { canEdgeScroll, direction, delay };
-        }
-        getEdgeScrollRow(y, previousY, tartingY) {
-            let canEdgeScroll = false;
-            let direction = 0;
-            let delay = 0;
-            /** 4 cases : See EdgeScrollCases Schema at the top
-             * 2. previous in XBottom > XTop
-             * 4. previous in XRight > outside
-             * 6. previous in Left > outside
-             * B. previous in Left > right
-             * with X a position taken in the bottomRIght (aka scrollable) viewport
-             */
-            const { ySplit } = this.getters.getPaneDivisions(this.getters.getActiveSheetId());
-            const { height } = this.getSheetViewDimension();
-            const { y: offsetCorrectionY } = this.getMainViewportCoordinates();
-            const currentOffsetY = this.getActiveSheetScrollInfo().offsetY;
-            if (y > height) {
-                // 4 & 6
-                canEdgeScroll = true;
-                delay = scrollDelay(y - height);
-                direction = 1;
-            }
-            else if (y < offsetCorrectionY && tartingY >= offsetCorrectionY && currentOffsetY > 0) {
-                // 2
-                canEdgeScroll = true;
-                delay = scrollDelay(offsetCorrectionY - y);
-                direction = -1;
-            }
-            else if (ySplit && previousY < offsetCorrectionY && y > offsetCorrectionY) {
-                // B
-                canEdgeScroll = true;
-                delay = scrollDelay(y);
-                direction = "reset";
-            }
-            return { canEdgeScroll, direction, delay };
-        }
-        /**
-         * Computes the coordinates and size to draw the zone on the canvas
-         */
-        getVisibleRect(zone) {
-            const sheetId = this.getters.getActiveSheetId();
-            const viewportRects = this.getSubViewports(sheetId)
-                .map((viewport) => viewport.getRect(zone))
-                .filter(isDefined$1);
-            if (viewportRects.length === 0) {
-                return { x: 0, y: 0, width: 0, height: 0 };
-            }
-            const x = Math.min(...viewportRects.map((rect) => rect.x));
-            const y = Math.min(...viewportRects.map((rect) => rect.y));
-            const width = Math.max(...viewportRects.map((rect) => rect.x + rect.width)) - x;
-            const height = Math.max(...viewportRects.map((rect) => rect.y + rect.height)) - y;
-            return {
-                x: x + this.gridOffsetX,
-                y: y + this.gridOffsetY,
-                width,
-                height,
-            };
-        }
-        /**
-         * Returns the position of the MainViewport relatively to the start of the grid (without headers)
-         * It corresponds to the summed dimensions of the visible cols/rows (in x/y respectively)
-         * situated before the pane divisions.
-         */
-        getMainViewportCoordinates() {
-            const sheetId = this.getters.getActiveSheetId();
-            const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
-            const x = this.getters.getColDimensions(sheetId, xSplit).start;
-            const y = this.getters.getRowDimensions(sheetId, ySplit).start;
-            return { x, y };
-        }
-        // ---------------------------------------------------------------------------
-        // Private
-        // ---------------------------------------------------------------------------
-        ensureMainViewportExist(sheetId) {
-            if (!this.viewports[sheetId]) {
-                this.resetViewports(sheetId);
-            }
-        }
-        getSubViewports(sheetId) {
-            this.ensureMainViewportExist(sheetId);
-            return Object.values(this.viewports[sheetId]).filter(isDefined$1);
-        }
-        checkPositiveDimension(cmd) {
-            if (cmd.width < 0 || cmd.height < 0) {
-                return 65 /* CommandResult.InvalidViewportSize */;
-            }
-            return 0 /* CommandResult.Success */;
-        }
-        checkValuesAreDifferent(cmd) {
-            const { height, width } = this.getSheetViewDimension();
-            if (cmd.gridOffsetX === this.gridOffsetX &&
-                cmd.gridOffsetY === this.gridOffsetY &&
-                cmd.width === width &&
-                cmd.height === height) {
-                return 73 /* CommandResult.ValuesNotChanged */;
-            }
-            return 0 /* CommandResult.Success */;
-        }
-        checkScrollingDirection({ offsetX, offsetY, }) {
-            const pane = this.getMainInternalViewport(this.getters.getActiveSheetId());
-            if ((!pane.canScrollHorizontally && offsetX > 0) ||
-                (!pane.canScrollVertically && offsetY > 0)) {
-                return 66 /* CommandResult.InvalidScrollingDirection */;
-            }
-            return 0 /* CommandResult.Success */;
-        }
-        getMainViewport(sheetId) {
-            const viewport = this.getMainInternalViewport(sheetId);
-            return {
-                top: viewport.top,
-                left: viewport.left,
-                bottom: viewport.bottom,
-                right: viewport.right,
-            };
-        }
-        getMainInternalViewport(sheetId) {
-            this.ensureMainViewportExist(sheetId);
-            return this.viewports[sheetId].bottomRight;
-        }
-        getSheetScrollInfo(sheetId) {
-            const viewport = this.getMainInternalViewport(sheetId);
-            return {
-                offsetX: viewport.offsetX,
-                offsetY: viewport.offsetY,
-                offsetScrollbarX: viewport.offsetScrollbarX,
-                offsetScrollbarY: viewport.offsetScrollbarY,
-            };
-        }
-        /** gets rid of deprecated sheetIds */
-        cleanViewports() {
-            const sheetIds = this.getters.getSheetIds();
-            for (let sheetId of Object.keys(this.viewports)) {
-                if (!sheetIds.includes(sheetId)) {
-                    delete this.viewports[sheetId];
-                }
-            }
-        }
-        resetSheetViews() {
-            for (let sheetId of Object.keys(this.viewports)) {
-                const position = this.getters.getSheetPosition(sheetId);
-                this.resetViewports(sheetId);
-                const viewports = this.getSubViewports(sheetId);
-                Object.values(viewports).forEach((viewport) => {
-                    viewport.adjustPosition(position);
-                });
-            }
-        }
-        resizeSheetView(height, width, gridOffsetX = 0, gridOffsetY = 0) {
-            this.sheetViewHeight = height;
-            this.sheetViewWidth = width;
-            this.gridOffsetX = gridOffsetX;
-            this.gridOffsetY = gridOffsetY;
-            this.recomputeViewports();
-        }
-        recomputeViewports() {
-            for (let sheetId of Object.keys(this.viewports)) {
-                this.resetViewports(sheetId);
-            }
-        }
-        setSheetViewOffset(offsetX, offsetY) {
-            const sheetId = this.getters.getActiveSheetId();
-            const { maxOffsetX, maxOffsetY } = this.getMaximumSheetOffset();
-            Object.values(this.getSubViewports(sheetId)).forEach((viewport) => viewport.setViewportOffset(clip(offsetX, 0, maxOffsetX), clip(offsetY, 0, maxOffsetY)));
-        }
-        /**
-         * Clip the vertical offset within the allowed range.
-         * Not above the sheet, nor below the sheet.
-         */
-        clipOffsetY(offsetY) {
-            const { height } = this.getMainViewportRect();
-            const maxOffset = height - this.sheetViewHeight;
-            offsetY = Math.min(offsetY, maxOffset);
-            offsetY = Math.max(offsetY, 0);
-            return offsetY;
-        }
-        getViewportOffset(sheetId) {
-            var _a, _b;
-            return {
-                x: ((_a = this.viewports[sheetId]) === null || _a === void 0 ? void 0 : _a.bottomRight.offsetScrollbarX) || 0,
-                y: ((_b = this.viewports[sheetId]) === null || _b === void 0 ? void 0 : _b.bottomRight.offsetScrollbarY) || 0,
-            };
-        }
-        resetViewports(sheetId) {
-            const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
-            const nCols = this.getters.getNumberCols(sheetId);
-            const nRows = this.getters.getNumberRows(sheetId);
-            const colOffset = this.getters.getColRowOffset("COL", 0, xSplit, sheetId);
-            const rowOffset = this.getters.getColRowOffset("ROW", 0, ySplit, sheetId);
-            const { xRatio, yRatio } = this.getFrozenSheetViewRatio(sheetId);
-            const canScrollHorizontally = xRatio < 1.0;
-            const canScrollVertically = yRatio < 1.0;
-            const previousOffset = this.getViewportOffset(sheetId);
-            const sheetViewports = {
-                topLeft: (ySplit &&
-                    xSplit &&
-                    new InternalViewport(this.getters, sheetId, { left: 0, right: xSplit - 1, top: 0, bottom: ySplit - 1 }, { width: colOffset, height: rowOffset }, { canScrollHorizontally: false, canScrollVertically: false }, { x: 0, y: 0 })) ||
-                    undefined,
-                topRight: (ySplit &&
-                    new InternalViewport(this.getters, sheetId, { left: xSplit, right: nCols - 1, top: 0, bottom: ySplit - 1 }, { width: this.sheetViewWidth - colOffset, height: rowOffset }, { canScrollHorizontally, canScrollVertically: false }, { x: canScrollHorizontally ? previousOffset.x : 0, y: 0 })) ||
-                    undefined,
-                bottomLeft: (xSplit &&
-                    new InternalViewport(this.getters, sheetId, { left: 0, right: xSplit - 1, top: ySplit, bottom: nRows - 1 }, { width: colOffset, height: this.sheetViewHeight - rowOffset }, { canScrollHorizontally: false, canScrollVertically }, { x: 0, y: canScrollVertically ? previousOffset.y : 0 })) ||
-                    undefined,
-                bottomRight: new InternalViewport(this.getters, sheetId, { left: xSplit, right: nCols - 1, top: ySplit, bottom: nRows - 1 }, {
-                    width: this.sheetViewWidth - colOffset,
-                    height: this.sheetViewHeight - rowOffset,
-                }, { canScrollHorizontally, canScrollVertically }, {
-                    x: canScrollHorizontally ? previousOffset.x : 0,
-                    y: canScrollVertically ? previousOffset.y : 0,
-                }),
-            };
-            this.viewports[sheetId] = sheetViewports;
-        }
-        /**
-         * Adjust the viewport such that the anchor position is visible
-         */
-        refreshViewport(sheetId, anchorPosition) {
-            Object.values(this.getSubViewports(sheetId)).forEach((viewport) => {
-                viewport.adjustViewportZone();
-                viewport.adjustPosition(anchorPosition);
-            });
-        }
-        /**
-         * Shift the viewport vertically and move the selection anchor
-         * such that it remains at the same place relative to the
-         * viewport top.
-         */
-        shiftVertically(offset) {
-            const { top } = this.getActiveMainViewport();
-            const { offsetX } = this.getActiveSheetScrollInfo();
-            this.setSheetViewOffset(offsetX, offset);
-            const { anchor } = this.getters.getSelection();
-            const deltaRow = this.getActiveMainViewport().top - top;
-            this.selection.selectCell(anchor.cell.col, anchor.cell.row + deltaRow);
-        }
-        getVisibleFigures() {
-            const sheetId = this.getters.getActiveSheetId();
-            const result = [];
-            const figures = this.getters.getFigures(sheetId);
-            const { offsetX, offsetY } = this.getSheetScrollInfo(sheetId);
-            const { x: offsetCorrectionX, y: offsetCorrectionY } = this.getters.getMainViewportCoordinates();
-            const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
-            for (const figure of figures) {
-                if (figure.x >= offsetCorrectionX &&
-                    (figure.x + figure.width <= offsetCorrectionX + offsetX ||
-                        figure.x >= width + offsetX + offsetCorrectionX)) {
-                    continue;
-                }
-                if (figure.y >= offsetCorrectionY &&
-                    (figure.y + figure.height <= offsetCorrectionY + offsetY ||
-                        figure.y >= height + offsetY + offsetCorrectionY)) {
-                    continue;
-                }
-                result.push(figure);
-            }
-            return result;
-        }
-        getFrozenSheetViewRatio(sheetId) {
-            const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
-            const offsetCorrectionX = this.getters.getColDimensions(sheetId, xSplit).start;
-            const offsetCorrectionY = this.getters.getRowDimensions(sheetId, ySplit).start;
-            const width = this.sheetViewWidth + this.gridOffsetX;
-            const height = this.sheetViewHeight + this.gridOffsetY;
-            return { xRatio: offsetCorrectionX / width, yRatio: offsetCorrectionY / height };
-        }
-    }
-    SheetViewPlugin.getters = [
-        "getColIndex",
-        "getRowIndex",
-        "getActiveMainViewport",
-        "getSheetViewDimension",
-        "getSheetViewDimensionWithHeaders",
-        "getMainViewportRect",
-        "isVisibleInViewport",
-        "getEdgeScrollCol",
-        "getEdgeScrollRow",
-        "getVisibleFigures",
-        "getVisibleRect",
-        "getColRowOffsetInViewport",
-        "getMainViewportCoordinates",
-        "getActiveSheetScrollInfo",
-        "getSheetViewVisibleCols",
-        "getSheetViewVisibleRows",
-        "getFrozenSheetViewRatio",
-    ];
-
-    class SortPlugin extends UIPlugin {
-        allowDispatch(cmd) {
-            switch (cmd.type) {
-                case "SORT_CELLS":
-                    if (!isInside(cmd.col, cmd.row, cmd.zone)) {
-                        throw new Error(_lt("The anchor must be part of the provided zone"));
-                    }
-                    return this.checkValidations(cmd, this.checkMerge, this.checkMergeSizes);
-            }
-            return 0 /* CommandResult.Success */;
-        }
-        handle(cmd) {
-            switch (cmd.type) {
-                case "SORT_CELLS":
-                    this.sortZone(cmd.sheetId, cmd, cmd.zone, cmd.sortDirection);
-                    break;
-            }
-        }
-        checkMerge({ sheetId, zone }) {
-            if (!this.getters.doesIntersectMerge(sheetId, zone)) {
-                return 0 /* CommandResult.Success */;
-            }
-            /*Test the presence of single cells*/
-            for (let row = zone.top; row <= zone.bottom; row++) {
-                for (let col = zone.left; col <= zone.right; col++) {
-                    if (!this.getters.isInMerge(sheetId, col, row)) {
-                        return 60 /* CommandResult.InvalidSortZone */;
-                    }
-                }
-            }
-            return 0 /* CommandResult.Success */;
-        }
-        checkMergeSizes({ sheetId, zone }) {
-            if (!this.getters.doesIntersectMerge(sheetId, zone)) {
-                return 0 /* CommandResult.Success */;
-            }
-            const merges = this.getters.getMerges(sheetId).filter((merge) => overlap(merge, zone));
-            /*Test the presence of merges of different sizes*/
-            const mergeDimension = zoneToDimension(merges[0]);
-            let [widthFirst, heightFirst] = [mergeDimension.width, mergeDimension.height];
-            if (!merges.every((merge) => {
-                let [widthCurrent, heightCurrent] = [
-                    merge.right - merge.left + 1,
-                    merge.bottom - merge.top + 1,
-                ];
-                return widthCurrent === widthFirst && heightCurrent === heightFirst;
-            })) {
-                return 60 /* CommandResult.InvalidSortZone */;
-            }
-            return 0 /* CommandResult.Success */;
-        }
-        // getContiguousZone helpers
-        /**
-         * safe-version of expandZone to make sure we don't get out of the grid
-         */
-        expand(sheetId, z) {
-            const { left, right, top, bottom } = this.getters.expandZone(sheetId, z);
-            return {
-                left: Math.max(0, left),
-                right: Math.min(this.getters.getNumberCols(sheetId) - 1, right),
-                top: Math.max(0, top),
-                bottom: Math.min(this.getters.getNumberRows(sheetId) - 1, bottom),
-            };
-        }
-        /**
-         * verifies the presence of at least one non-empty cell in the given zone
-         */
-        checkExpandedValues(sheetId, z) {
-            const expandedZone = this.expand(sheetId, z);
-            let cell;
-            if (this.getters.doesIntersectMerge(sheetId, expandedZone)) {
-                const { left, right, top, bottom } = expandedZone;
-                for (let c = left; c <= right; c++) {
-                    for (let r = top; r <= bottom; r++) {
-                        const { col: mainCellCol, row: mainCellRow } = this.getters.getMainCellPosition(sheetId, c, r);
-                        cell = this.getters.getCell(sheetId, mainCellCol, mainCellRow);
-                        if (cell === null || cell === void 0 ? void 0 : cell.formattedValue) {
-                            return true;
-                        }
-                    }
-                }
-            }
-            else {
-                for (let cell of this.getters.getCellsInZone(sheetId, expandedZone)) {
-                    if (cell === null || cell === void 0 ? void 0 : cell.formattedValue) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-        /**
-         * This function will expand the provided zone in directions (top, bottom, left, right) for which there
-         * are non-null cells on the external boundary of the zone in the given direction.
-         *
-         * Example:
-         *          A     B     C     D     E
-         *         ___   ___   ___   ___   ___
-         *    1  |     |  D  |     |     |     |
-         *         ___   ___   ___   ___   ___
-         *    2  |  5  |     |  1  |  D  |     |
-         *         ___   ___   ___   ___   ___
-         *    3  |     |     |  A  |  X  |     |
-         *         ___   ___   ___   ___   ___
-         *    4  |     |     |     |     |     |
-         *         ___   ___   ___   ___   ___
-         *
-         *  Let's consider a provided zone corresponding to (C2:D3) - (left:2, right: 3, top:1, bottom:2)
-         *  - the top external boundary is (B1:E1)
-         *    Since we have B1='D' != "", we expand to the top: => (C1:D3)
-         *    The top boundary having reached the top of the grid, we cannot expand in that direction anymore
-         *
-         *  - the left boundary is (B1:B4)
-         *    since we have B1 again, we expand to the left  => (B1:D3)
-         *
-         *  - the right and bottom boundaries are a dead end for now as (E1:E4) and (A4:E4) are empty.
-         *
-         *  - the left boundary is now (A1:A4)
-         *    Since we have A2=5 != "", we can therefore expand to the left => (A1:D3)
-         *
-         *  This will be the final zone as left and top have reached the boundaries of the grid and
-         *  the other boundaries (E1:E4) and (A4:E4) are empty.
-         *
-         * @param sheetId UID of concerned sheet
-         * @param zone Zone
-         *
-         */
-        getContiguousZone(sheetId, zone) {
-            let { top, bottom, left, right } = zone;
-            let canExpand;
-            let stop = false;
-            while (!stop) {
-                stop = true;
-                /** top row external boundary */
-                if (top > 0) {
-                    canExpand = this.checkExpandedValues(sheetId, {
-                        left: left - 1,
-                        right: right + 1,
-                        top: top - 1,
-                        bottom: top - 1,
-                    });
-                    if (canExpand) {
-                        stop = false;
-                        top--;
-                    }
-                }
-                /** left column external boundary */
-                if (left > 0) {
-                    canExpand = this.checkExpandedValues(sheetId, {
-                        left: left - 1,
-                        right: left - 1,
-                        top: top - 1,
-                        bottom: bottom + 1,
-                    });
-                    if (canExpand) {
-                        stop = false;
-                        left--;
-                    }
-                }
-                /** right column external boundary */
-                if (right < this.getters.getNumberCols(sheetId) - 1) {
-                    canExpand = this.checkExpandedValues(sheetId, {
-                        left: right + 1,
-                        right: right + 1,
-                        top: top - 1,
-                        bottom: bottom + 1,
-                    });
-                    if (canExpand) {
-                        stop = false;
-                        right++;
-                    }
-                }
-                /** bottom row external boundary */
-                if (bottom < this.getters.getNumberRows(sheetId) - 1) {
-                    canExpand = this.checkExpandedValues(sheetId, {
-                        left: left - 1,
-                        right: right + 1,
-                        top: bottom + 1,
-                        bottom: bottom + 1,
-                    });
-                    if (canExpand) {
-                        stop = false;
-                        bottom++;
-                    }
-                }
-            }
-            return { left, right, top, bottom };
-        }
-        /**
-         * This function evaluates if the top row of a provided zone can be considered as a `header`
-         * by checking the following criteria:
-         * * If the left-most column top row value (topLeft) is empty, we ignore it while evaluating the criteria.
-         * 1 - Apart from the left-most column, every element of the top row must be non-empty, i.e. a cell should be present in the sheet.
-         * 2 - There should be at least one column in which the type (CellValueType) of the rop row cell differs from the type of the cell below.
-         *  For the second criteria, we ignore columns on which the cell below is empty.
-         *
-         */
-        hasHeader(items) {
-            if (items[0].length === 1)
-                return false;
-            let cells = items.map((col) => col.map((cell) => (cell === null || cell === void 0 ? void 0 : cell.evaluated.type) || CellValueType.empty));
-            // ignore left-most column when topLeft cell is empty
-            const topLeft = cells[0][0];
-            if (topLeft === CellValueType.empty) {
-                cells = cells.slice(1);
-            }
-            if (cells.some((item) => item[0] === CellValueType.empty)) {
-                return false;
-            }
-            else if (cells.some((item) => item[1] !== CellValueType.empty && item[0] !== item[1])) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-        sortZone(sheetId, anchor, zone, sortDirection) {
-            const [stepX, stepY] = this.mainCellsSteps(sheetId, zone);
-            let sortingCol = this.getters.getMainCellPosition(sheetId, anchor.col, anchor.row).col; // fetch anchor
-            let sortZone = Object.assign({}, zone);
-            // Update in case of merges in the zone
-            let cells = this.mainCells(sheetId, zone);
-            if (this.hasHeader(cells)) {
-                sortZone.top += stepY;
-            }
-            cells = this.mainCells(sheetId, sortZone);
-            const sortingCells = cells[sortingCol - sortZone.left];
-            const sortedIndexOfSortTypeCells = sortCells(sortingCells, sortDirection);
-            const sortedIndex = sortedIndexOfSortTypeCells.map((x) => x.index);
-            const [width, height] = [cells.length, cells[0].length];
-            for (let c = 0; c < width; c++) {
-                for (let r = 0; r < height; r++) {
-                    let cell = cells[c][sortedIndex[r]];
-                    let newCol = sortZone.left + c * stepX;
-                    let newRow = sortZone.top + r * stepY;
-                    let newCellValues = {
-                        sheetId: sheetId,
-                        col: newCol,
-                        row: newRow,
-                        content: "",
-                        value: "",
-                    };
-                    if (cell) {
-                        let content = cell.content;
-                        if (cell.isFormula()) {
-                            const position = this.getters.getCellPosition(cell.id);
-                            const offsetY = newRow - position.row;
-                            // we only have a vertical offset
-                            const ranges = this.getters.createAdaptedRanges(cell.dependencies, 0, offsetY, sheetId);
-                            content = this.getters.buildFormulaContent(sheetId, cell, ranges);
-                        }
-                        newCellValues.style = cell.style;
-                        newCellValues.content = content;
-                        newCellValues.format = cell.format;
-                        newCellValues.value = cell.evaluated.value;
-                    }
-                    this.dispatch("UPDATE_CELL", newCellValues);
-                }
-            }
-        }
-        /**
-         * Return the distances between main merge cells in the zone.
-         * (1 if there are no merges).
-         * Note: it is assumed all merges are the same in the zone.
-         */
-        mainCellsSteps(sheetId, zone) {
-            const merge = this.getters.getMerge(sheetId, zone.left, zone.top);
-            const stepX = merge ? merge.right - merge.left + 1 : 1;
-            const stepY = merge ? merge.bottom - merge.top + 1 : 1;
-            return [stepX, stepY];
-        }
-        /**
-         * Return a 2D array of cells in the zone (main merge cells if there are merges)
-         */
-        mainCells(sheetId, zone) {
-            const [stepX, stepY] = this.mainCellsSteps(sheetId, zone);
-            const cells = [];
-            const cols = range(zone.left, zone.right + 1, stepX);
-            const rows = range(zone.top, zone.bottom + 1, stepY);
-            for (const col of cols) {
-                const colCells = [];
-                cells.push(colCells);
-                for (const row of rows) {
-                    colCells.push(this.getters.getCell(sheetId, col, row));
-                }
-            }
-            return cells;
-        }
-    }
-    SortPlugin.getters = ["getContiguousZone"];
-
-    class UIOptionsPlugin extends UIPlugin {
-        constructor() {
-            super(...arguments);
-            this.showFormulas = false;
-        }
-        // ---------------------------------------------------------------------------
-        // Command Handling
-        // ---------------------------------------------------------------------------
-        handle(cmd) {
-            switch (cmd.type) {
-                case "SET_FORMULA_VISIBILITY":
-                    this.showFormulas = cmd.show;
-                    break;
-            }
-        }
-        // ---------------------------------------------------------------------------
-        // Getters
-        // ---------------------------------------------------------------------------
-        shouldShowFormulas() {
-            return this.showFormulas;
-        }
-    }
-    UIOptionsPlugin.getters = ["shouldShowFormulas"];
-
-    class SheetUIPlugin extends UIPlugin {
-        constructor() {
-            super(...arguments);
-            this.ctx = document.createElement("canvas").getContext("2d");
-        }
-        // ---------------------------------------------------------------------------
-        // Command Handling
-        // ---------------------------------------------------------------------------
-        allowDispatch(cmd) {
-            switch (cmd.type) {
-                case "AUTORESIZE_ROWS":
-                case "AUTORESIZE_COLUMNS":
-                    try {
-                        this.getters.getSheet(cmd.sheetId);
-                        break;
-                    }
-                    catch (error) {
-                        return 25 /* CommandResult.InvalidSheetId */;
-                    }
-            }
-            return 0 /* CommandResult.Success */;
-        }
-        handle(cmd) {
-            switch (cmd.type) {
-                case "AUTORESIZE_COLUMNS":
-                    for (let col of cmd.cols) {
-                        const size = this.getColMaxWidth(cmd.sheetId, col);
-                        if (size !== 0) {
-                            this.dispatch("RESIZE_COLUMNS_ROWS", {
-                                elements: [col],
-                                dimension: "COL",
-                                size,
-                                sheetId: cmd.sheetId,
-                            });
-                        }
-                    }
-                    break;
-                case "AUTORESIZE_ROWS":
-                    for (let row of cmd.rows) {
-                        this.dispatch("RESIZE_COLUMNS_ROWS", {
-                            elements: [row],
-                            dimension: "ROW",
-                            size: null,
-                            sheetId: cmd.sheetId,
-                        });
-                    }
-                    break;
-            }
-        }
-        // ---------------------------------------------------------------------------
-        // Getters
-        // ---------------------------------------------------------------------------
-        getCellWidth(cell) {
-            let contentWidth = this.getTextWidth(cell);
-            const cellPosition = this.getters.getCellPosition(cell.id);
-            const icon = this.getters.getConditionalIcon(cellPosition.col, cellPosition.row);
-            if (icon) {
-                contentWidth += computeIconWidth(this.getters.getCellStyle(cell));
-            }
-            contentWidth += 2 * PADDING_AUTORESIZE_HORIZONTAL;
-            if (this.getters.getCellStyle(cell).wrapping === "wrap") {
-                const zone = positionToZone(this.getters.getCellPosition(cell.id));
-                const colWidth = this.getters.getColSize(this.getters.getActiveSheetId(), zone.left);
-                return Math.min(colWidth, contentWidth);
-            }
-            return contentWidth;
-        }
-        getTextWidth(cell) {
-            const text = this.getters.getCellText(cell, this.getters.shouldShowFormulas());
-            const { sheetId, col, row } = this.getters.getCellPosition(cell.id);
-            return computeTextWidth(this.ctx, text, this.getters.getCellComputedStyle(sheetId, col, row));
-        }
-        getCellText(cell, showFormula = false) {
-            if (showFormula && (cell.isFormula() || cell.evaluated.type === CellValueType.error)) {
-                return cell.content;
-            }
-            else {
-                return cell.formattedValue;
-            }
-        }
-        getCellMultiLineText(cell, width) {
-            const style = this.getters.getCellStyle(cell);
-            const text = this.getters.getCellText(cell);
-            const words = text.split(" ");
-            const brokenText = [];
-            let textLine = "";
-            let availableWidth = width;
-            for (let word of words) {
-                const splitWord = this.splitWordToSpecificWidth(this.ctx, word, width, style);
-                const lastPart = splitWord.pop();
-                const lastPartWidth = computeTextWidth(this.ctx, lastPart, style);
-                // At this step: "splitWord" is an array composed of parts of word whose
-                // length is at most equal to "width".
-                // Last part contains the end of the word.
-                // Note that: When word length is less than width, then lastPart is equal
-                // to word and splitWord is empty
-                if (splitWord.length) {
-                    if (textLine !== "") {
-                        brokenText.push(textLine);
-                        textLine = "";
-                        availableWidth = width;
-                    }
-                    splitWord.forEach((wordPart) => {
-                        brokenText.push(wordPart);
-                    });
-                    textLine = lastPart;
-                    availableWidth = width - lastPartWidth;
-                }
-                else {
-                    // here "lastPart" is equal to "word" and the "word" size is smaller than "width"
-                    const _word = textLine === "" ? lastPart : " " + lastPart;
-                    const wordWidth = computeTextWidth(this.ctx, _word, style);
-                    if (wordWidth <= availableWidth) {
-                        textLine += _word;
-                        availableWidth -= wordWidth;
-                    }
-                    else {
-                        brokenText.push(textLine);
-                        textLine = lastPart;
-                        availableWidth = width - lastPartWidth;
-                    }
-                }
-            }
-            if (textLine !== "") {
-                brokenText.push(textLine);
-            }
-            return brokenText;
-        }
-        /**
-         * Returns the size, start and end coordinates of a column on an unfolded sheet
-         */
-        getColDimensions(sheetId, col) {
-            const start = this.getColRowOffset("COL", 0, col, sheetId);
-            const size = this.getters.getColSize(sheetId, col);
-            const isColHidden = this.getters.isColHidden(sheetId, col);
-            return {
-                start,
-                size,
-                end: start + (isColHidden ? 0 : size),
-            };
-        }
-        /**
-         * Returns the size, start and end coordinates of a row an unfolded sheet
-         */
-        getRowDimensions(sheetId, row) {
-            const start = this.getColRowOffset("ROW", 0, row, sheetId);
-            const size = this.getters.getRowSize(sheetId, row);
-            const isRowHidden = this.getters.isRowHidden(sheetId, row);
-            return {
-                start,
-                size: size,
-                end: start + (isRowHidden ? 0 : size),
-            };
-        }
-        /**
-         * Returns the offset of a header (determined by the dimension) at the given index
-         * based on the referenceIndex given. If start === 0, this method will return
-         * the start attribute of the header.
-         *
-         * i.e. The size from A to B is the distance between A.start and B.end
-         */
-        getColRowOffset(dimension, referenceIndex, index, sheetId = this.getters.getActiveSheetId()) {
-            if (index < referenceIndex) {
-                return -this.getColRowOffset(dimension, index, referenceIndex);
-            }
-            let offset = 0;
-            for (let i = referenceIndex; i < index; i++) {
-                if (this.getters.isHeaderHidden(sheetId, dimension, i)) {
-                    continue;
-                }
-                offset +=
-                    dimension === "COL"
-                        ? this.getters.getColSize(sheetId, i)
-                        : this.getters.getRowSize(sheetId, i);
-            }
-            return offset;
-        }
-        // ---------------------------------------------------------------------------
-        // Grid manipulation
-        // ---------------------------------------------------------------------------
-        getColMaxWidth(sheetId, index) {
-            const cells = this.getters.getColCells(sheetId, index);
-            const sizes = cells.map((cell) => this.getCellWidth(cell));
-            return Math.max(0, ...sizes);
-        }
-        splitWordToSpecificWidth(ctx, word, width, style) {
-            const wordWidth = computeTextWidth(ctx, word, style);
-            if (wordWidth <= width) {
-                return [word];
-            }
-            const splitWord = [];
-            let wordPart = "";
-            for (let l of word) {
-                const wordPartWidth = computeTextWidth(ctx, wordPart + l, style);
-                if (wordPartWidth > width) {
-                    splitWord.push(wordPart);
-                    wordPart = l;
-                }
-                else {
-                    wordPart += l;
-                }
-            }
-            splitWord.push(wordPart);
-            return splitWord;
-        }
-    }
-    SheetUIPlugin.getters = [
-        "getCellWidth",
-        "getTextWidth",
-        "getCellText",
-        "getCellMultiLineText",
-        "getColDimensions",
-        "getRowDimensions",
-        "getColRowOffset",
-    ];
-
-    const corePluginRegistry = new Registry()
-        .add("sheet", SheetPlugin)
-        .add("header visibility", HeaderVisibilityPlugin)
-        .add("cell", CellPlugin)
-        .add("merge", MergePlugin)
-        .add("headerSize", HeaderSizePlugin)
-        .add("borders", BordersPlugin)
-        .add("conditional formatting", ConditionalFormatPlugin)
-        .add("figures", FigurePlugin)
-        .add("chart", ChartPlugin);
-    const uiPluginRegistry = new Registry()
-        .add("selection", GridSelectionPlugin)
-        .add("ui_sheet", SheetUIPlugin)
-        .add("ui_options", UIOptionsPlugin)
-        .add("evaluation", EvaluationPlugin)
-        .add("evaluation_cf", EvaluationConditionalFormatPlugin)
-        .add("evaluation_chart", EvaluationChartPlugin)
-        .add("clipboard", ClipboardPlugin)
-        .add("edition", EditionPlugin)
-        .add("selectionInputManager", SelectionInputsManagerPlugin)
-        .add("highlight", HighlightPlugin)
-        .add("viewport", SheetViewPlugin)
-        .add("grid renderer", RendererPlugin)
-        .add("autofill", AutofillPlugin)
-        .add("find_and_replace", FindAndReplacePlugin)
-        .add("sort", SortPlugin)
-        .add("automatic_sum", AutomaticSumPlugin)
-        .add("format", FormatPlugin)
-        .add("cell_popovers", CellPopoverPlugin)
-        .add("selection_multiuser", SelectionMultiUserPlugin)
-        .add("custom_colors", CustomColorsPlugin);
-
-    const clickableCellRegistry = new Registry();
-    clickableCellRegistry.add("link", {
-        condition: (cell) => cell.isLink(),
-        action: (cell, env) => {
-            cell.action(env);
-        },
-        sequence: 5,
-    });
-
-    // -----------------------------------------------------------------------------
-    // SpreadSheet
-    // -----------------------------------------------------------------------------
-    css /* scss */ `
-  .o-spreadsheet-bottom-bar {
-    background-color: ${BACKGROUND_GRAY_COLOR};
-    padding-left: ${HEADER_WIDTH}px;
-    display: flex;
-    align-items: center;
-    font-size: 15px;
-    border-top: 1px solid lightgrey;
-    overflow: hidden;
-
-    .o-add-sheet,
-    .o-list-sheets {
-      margin-right: 5px;
-    }
-
-    .o-add-sheet.disabled {
-      cursor: not-allowed;
-    }
-
-    .o-sheet-item {
-      display: flex;
-      align-items: center;
-      padding: 5px;
-      cursor: pointer;
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-    }
-
-    .o-all-sheets {
-      display: flex;
-      align-items: center;
-      max-width: 80%;
-      overflow: hidden;
-    }
-
-    .o-sheet {
-      color: #666;
-      padding: 0 15px;
-      padding-right: 10px;
-      height: ${BOTTOMBAR_HEIGHT}px;
-      line-height: ${BOTTOMBAR_HEIGHT}px;
-      user-select: none;
-      white-space: nowrap;
-      border-left: 1px solid #c1c1c1;
-
-      &:last-child {
-        border-right: 1px solid #c1c1c1;
-      }
-
-      &.active {
-        color: #484;
-        background-color: #ffffff;
-        box-shadow: 0 1px 3px 1px rgba(60, 64, 67, 0.15);
-      }
-
-      .o-sheet-icon {
-        margin-left: 5px;
-
-        &:hover {
-          background-color: rgba(0, 0, 0, 0.08);
-        }
-      }
-    }
-
-    .o-selection-statistic {
-      background-color: #ffffff;
-      margin-left: auto;
-      font-size: 14px;
-      margin-right: 20px;
-      padding: 4px 8px;
-      color: #333;
-      border-radius: 3px;
-      box-shadow: 0 1px 3px 1px rgba(60, 64, 67, 0.15);
-      user-select: none;
-      cursor: pointer;
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-    }
-
-    .fade-enter-active {
-      transition: opacity 0.5s;
-    }
-
-    .fade-enter {
-      opacity: 0;
-    }
-  }
-`;
-    class BottomBar extends owl.Component {
-        constructor() {
-            super(...arguments);
-            this.bottomBarRef = owl.useRef("bottomBar");
-            this.menuState = owl.useState({ isOpen: false, position: null, menuItems: [] });
-            this.selectedStatisticFn = "";
-        }
-        setup() {
-            owl.onMounted(() => this.focusSheet());
-            owl.onPatched(() => this.focusSheet());
-        }
-        focusSheet() {
-            const div = this.bottomBarRef.el.querySelector(`[data-id="${this.env.model.getters.getActiveSheetId()}"]`);
-            if (div && div.scrollIntoView) {
-                div.scrollIntoView();
-            }
-        }
-        addSheet() {
-            const activeSheetId = this.env.model.getters.getActiveSheetId();
-            const position = this.env.model.getters.getSheetIds().findIndex((sheetId) => sheetId === activeSheetId) + 1;
-            const sheetId = this.env.model.uuidGenerator.uuidv4();
-            const name = this.env.model.getters.getNextSheetName(this.env._t("Sheet"));
-            this.env.model.dispatch("CREATE_SHEET", { sheetId, position, name });
-            this.env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
-        }
-        getVisibleSheets() {
-            return this.env.model.getters
-                .getVisibleSheetIds()
-                .map((sheetId) => this.env.model.getters.getSheet(sheetId));
-        }
-        listSheets(ev) {
-            const registry = new MenuItemRegistry();
-            const from = this.env.model.getters.getActiveSheetId();
-            let i = 0;
-            for (const sheetId of this.env.model.getters.getSheetIds()) {
-                const sheet = this.env.model.getters.getSheet(sheetId);
-                registry.add(sheetId, {
-                    name: sheet.name,
-                    sequence: i,
-                    isReadonlyAllowed: true,
-                    textColor: sheet.isVisible ? undefined : "grey",
-                    action: (env) => {
-                        env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: sheetId });
-                    },
-                });
-                i++;
-            }
-            const target = ev.currentTarget;
-            const { top, left } = target.getBoundingClientRect();
-            this.openContextMenu(left, top, registry);
-        }
-        activateSheet(name) {
-            this.env.model.dispatch("ACTIVATE_SHEET", {
-                sheetIdFrom: this.env.model.getters.getActiveSheetId(),
-                sheetIdTo: name,
-            });
-        }
-        onDblClick(sheetId) {
-            interactiveRenameSheet(this.env, sheetId);
-        }
-        openContextMenu(x, y, registry) {
-            this.menuState.isOpen = true;
-            this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
-            this.menuState.position = { x, y };
-        }
-        onIconClick(sheet, ev) {
-            if (this.env.model.getters.getActiveSheetId() !== sheet) {
-                this.activateSheet(sheet);
-            }
-            if (this.menuState.isOpen) {
-                this.menuState.isOpen = false;
-            }
-            else {
-                const target = ev.currentTarget.parentElement;
-                const { top, left } = target.getBoundingClientRect();
-                this.openContextMenu(left, top, sheetMenuRegistry);
-            }
-        }
-        onContextMenu(sheet, ev) {
-            if (this.env.model.getters.getActiveSheetId() !== sheet) {
-                this.activateSheet(sheet);
-            }
-            const target = ev.currentTarget;
-            const { top, left } = target.getBoundingClientRect();
-            this.openContextMenu(left, top, sheetMenuRegistry);
-        }
-        getSelectedStatistic() {
-            const statisticFnResults = this.env.model.getters.getStatisticFnResults();
-            // don't display button if no function has a result
-            if (Object.values(statisticFnResults).every((result) => result === undefined)) {
-                return undefined;
-            }
-            if (this.selectedStatisticFn === "") {
-                this.selectedStatisticFn = Object.keys(statisticFnResults)[0];
-            }
-            return this.getComposedFnName(this.selectedStatisticFn, statisticFnResults[this.selectedStatisticFn]);
-        }
-        listSelectionStatistics(ev) {
-            const registry = new MenuItemRegistry();
-            let i = 0;
-            for (let [fnName, fnValue] of Object.entries(this.env.model.getters.getStatisticFnResults())) {
-                registry.add(fnName, {
-                    name: this.getComposedFnName(fnName, fnValue),
-                    sequence: i,
-                    isReadonlyAllowed: true,
-                    action: () => {
-                        this.selectedStatisticFn = fnName;
-                    },
-                });
-                i++;
-            }
-            const target = ev.currentTarget;
-            const { top, left, width } = target.getBoundingClientRect();
-            this.openContextMenu(left + width, top, registry);
-        }
-        getComposedFnName(fnName, fnValue) {
-            return fnName + ": " + (fnValue !== undefined ? formatValue(fnValue) : "__");
-        }
-    }
-    BottomBar.template = "o-spreadsheet-BottomBar";
-    BottomBar.components = { Menu };
-
-    css /* scss */ `
-  .o-dashboard-clickable-cell {
-    position: absolute;
-    cursor: pointer;
-  }
-`;
-    class SpreadsheetDashboard extends owl.Component {
-        setup() {
-            const gridRef = owl.useRef("grid");
-            this.canvasPosition = useAbsolutePosition(gridRef);
-            this.hoveredCell = owl.useState({ col: undefined, row: undefined });
-            useGridDrawing("canvas", this.env.model, () => this.env.model.getters.getSheetViewDimension());
-            this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
-                this.moveCanvas(deltaX, deltaY);
-                this.hoveredCell.col = undefined;
-                this.hoveredCell.row = undefined;
-            });
-        }
-        onCellHovered({ col, row }) {
-            this.hoveredCell.col = col;
-            this.hoveredCell.row = row;
-        }
-        get gridContainer() {
-            const sheetId = this.env.model.getters.getActiveSheetId();
-            const { right } = this.env.model.getters.getSheetZone(sheetId);
-            const { end } = this.env.model.getters.getColDimensions(sheetId, right);
-            return `
-      max-width: ${end}px;
-    `;
-        }
-        get gridOverlayDimensions() {
-            return `
-      height: 100%;
-      width: 100%
-    `;
-        }
-        getCellClickableStyle(coordinates) {
-            return `
-      top: ${coordinates.y}px;
-      left: ${coordinates.x}px;
-      width: ${coordinates.width}px;
-      height: ${coordinates.height}px;
-    `;
-        }
-        /**
-         * Get all the boxes for the cell in the sheet view that are clickable.
-         * This function is used to render an overlay over each clickable cell in
-         * order to display a pointer cursor.
-         *
-         */
-        getClickableCells() {
-            const cells = [];
-            const sheetId = this.env.model.getters.getActiveSheetId();
-            for (const col of this.env.model.getters.getSheetViewVisibleCols()) {
-                for (const row of this.env.model.getters.getSheetViewVisibleRows()) {
-                    const cell = this.env.model.getters.getCell(sheetId, col, row);
-                    if (cell) {
-                        const action = this.getClickableAction(cell);
-                        if (!action) {
-                            continue;
-                        }
-                        let zone;
-                        if (this.env.model.getters.isInMerge(sheetId, col, row)) {
-                            zone = this.env.model.getters.getMerge(sheetId, col, row);
-                        }
-                        else {
-                            zone = positionToZone({ col, row });
-                        }
-                        const rect = this.env.model.getters.getVisibleRect(zone);
-                        cells.push({
-                            coordinates: rect,
-                            cell,
-                            action,
-                        });
-                    }
-                }
-            }
-            return cells;
-        }
-        getClickableAction(cell) {
-            for (const items of clickableCellRegistry.getAll().sort((a, b) => a.sequence - b.sequence)) {
-                if (items.condition(cell, this.env)) {
-                    return items.action;
-                }
-            }
-            return false;
-        }
-        selectClickableCell(clickableCell) {
-            const { cell, action } = clickableCell;
-            action(cell, this.env);
-        }
-        onClosePopover() {
-            this.env.model.dispatch("CLOSE_CELL_POPOVER");
-        }
-        onGridResized({ height, width }) {
-            this.env.model.dispatch("RESIZE_SHEETVIEW", {
-                width: width,
-                height: height,
-                gridOffsetX: 0,
-                gridOffsetY: 0,
-            });
-        }
-        moveCanvas(deltaX, deltaY) {
-            const { offsetScrollbarX, offsetScrollbarY } = this.env.model.getters.getActiveSheetScrollInfo();
-            this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
-                offsetX: offsetScrollbarX + deltaX,
-                offsetY: offsetScrollbarY + deltaY,
-            });
-        }
-        copy(ev) {
-            this.env.model.dispatch("COPY");
-            const content = this.env.model.getters.getClipboardContent();
-            // TODO use env.clipboard
-            // TODO add a test
-            ev.clipboardData.setData("text/plain", content);
-            ev.preventDefault();
-        }
-    }
-    SpreadsheetDashboard.template = "o-spreadsheet-SpreadsheetDashboard";
-    SpreadsheetDashboard.components = {
-        GridOverlay,
-        GridPopover,
-        Popover,
-        VerticalScrollBar,
-        HorizontalScrollBar,
-    };
-
-    css /* scss */ `
-  .o-sidePanel {
-    display: flex;
-    flex-direction: column;
-    overflow-x: hidden;
-    background-color: white;
-    border: 1px solid darkgray;
-    user-select: none;
-    .o-sidePanelHeader {
-      padding: 6px;
-      height: 30px;
-      background-color: ${BACKGROUND_HEADER_COLOR};
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid darkgray;
-      border-top: 1px solid darkgray;
-      font-weight: bold;
-      .o-sidePanelTitle {
-        font-weight: bold;
-        padding: 5px 10px;
-        color: dimgrey;
-      }
-      .o-sidePanelClose {
-        font-size: 1.5rem;
-        padding: 5px 10px;
-        cursor: pointer;
-        &:hover {
-          background-color: WhiteSmoke;
-        }
-      }
-    }
-    .o-sidePanelBody {
-      overflow: auto;
-      width: 100%;
-      height: 100%;
-
-      .o-section {
-        padding: 16px;
-
-        .o-section-title {
-          font-weight: bold;
-          color: dimgrey;
-          margin-bottom: 5px;
-        }
-
-        .o-section-subtitle {
-          color: dimgrey;
-          font-weight: 500;
-          font-size: 12px;
-          line-height: 14px;
-          margin: 8px 0 4px 0;
-        }
-
-        .o-subsection-left {
-          display: inline-block;
-          width: 47%;
-          margin-right: 3%;
-        }
-
-        .o-subsection-right {
-          display: inline-block;
-          width: 47%;
-          margin-left: 3%;
-        }
-      }
-    }
-
-    .o-sidepanel-error {
-      color: red;
-      margin-top: 10px;
-    }
-
-    .o-sidePanelButtons {
-      padding: 16px;
-      text-align: right;
-    }
-
-    .o-sidePanelButton {
-      border: 1px solid lightgrey;
-      padding: 0px 20px 0px 20px;
-      border-radius: 4px;
-      font-weight: 500;
-      font-size: 14px;
-      height: 30px;
-      line-height: 16px;
-      background: white;
-      margin-right: 8px;
-      &:hover:enabled {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-    }
-    .o-sidePanelButton:enabled {
-      cursor: pointer;
-    }
-    .o-sidePanelButton:last-child {
-      margin-right: 0px;
-    }
-
-    .o-input {
-      color: #666666;
-      border-radius: 4px;
-      min-width: 0px;
-      padding: 4px 6px;
-      box-sizing: border-box;
-      line-height: 1;
-      width: 100%;
-      height: 28px;
-      .o-type-selector {
-        background-position: right 5px top 11px;
-      }
-    }
-    input.o-required,
-    select.o-required {
-      border-color: #4c4c4c;
-    }
-    input.o-optional,
-    select.o-optional {
-      border: 1px solid #a9a9a9;
-    }
-    input.o-invalid {
-      border-color: red;
-    }
-    select.o-input {
-      background-color: white;
-      text-align: left;
-    }
-
-    .o-inflection {
-      .o-inflection-icon-button {
-        display: inline-block;
-        border: 1px solid #dadce0;
-        border-radius: 4px;
-        cursor: pointer;
-        padding: 1px 2px;
-      }
-      .o-inflection-icon-button:hover {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-      table {
-        table-layout: fixed;
-        margin-top: 2%;
-        display: table;
-        text-align: left;
-        font-size: 12px;
-        line-height: 18px;
-        width: 100%;
-      }
-      th.o-inflection-iconset-icons {
-        width: 8%;
-      }
-      th.o-inflection-iconset-text {
-        width: 28%;
-      }
-      th.o-inflection-iconset-operator {
-        width: 14%;
-      }
-      th.o-inflection-iconset-type {
-        width: 28%;
-      }
-      th.o-inflection-iconset-value {
-        width: 26%;
-      }
-      input,
-      select {
-        width: 100%;
-        height: 100%;
-        box-sizing: border-box;
-      }
-    }
-
-    .o-dropdown {
-      position: relative;
-      .o-dropdown-content {
-        position: absolute;
-        top: calc(100% + 5px);
-        left: 0;
-        z-index: ${ComponentsImportance.Dropdown};
-        box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
-        background-color: #f6f6f6;
-
-        .o-dropdown-item {
-          padding: 7px 10px;
-        }
-        .o-dropdown-item:hover {
-          background-color: rgba(0, 0, 0, 0.08);
-        }
-        .o-dropdown-line {
-          display: flex;
-          padding: 3px 6px;
-          .o-line-item {
-            width: 16px;
-            height: 16px;
-            margin: 1px 3px;
-            &:hover {
-              background-color: rgba(0, 0, 0, 0.08);
-            }
-          }
-        }
-      }
-    }
-
-    .o-tools {
-      color: #333;
-      font-size: 13px;
-      cursor: default;
-      display: flex;
-
-      .o-tool {
-        display: flex;
-        align-items: center;
-        margin: 2px;
-        padding: 0 3px;
-        border-radius: 2px;
-      }
-
-      .o-tool.active,
-      .o-tool:not(.o-disabled):hover {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-
-      .o-with-color > span {
-        border-bottom: 4px solid;
-        height: 16px;
-        margin-top: 2px;
-      }
-      .o-with-color {
-        .o-line-item:hover {
-          outline: 1px solid gray;
-        }
-      }
-      .o-border {
-        .o-line-item {
-          padding: 4px;
-          margin: 1px;
-        }
-      }
-    }
-  }
-`;
-    class SidePanel extends owl.Component {
-        setup() {
-            this.state = owl.useState({
-                panel: sidePanelRegistry.get(this.props.component),
-            });
-            owl.onWillUpdateProps((nextProps) => (this.state.panel = sidePanelRegistry.get(nextProps.component)));
-        }
-        getTitle() {
-            return typeof this.state.panel.title === "function"
-                ? this.state.panel.title(this.env)
-                : this.state.panel.title;
-        }
-    }
-    SidePanel.template = "o-spreadsheet-SidePanel";
-
-    const AddMergeInteractiveContent = {
-        MergeIsDestructive: _lt("Merging these cells will only preserve the top-leftmost value. Merge anyway?"),
-    };
-    function interactiveAddMerge(env, sheetId, target) {
-        const result = env.model.dispatch("ADD_MERGE", { sheetId, target });
-        if (!result.isSuccessful) {
-            if (result.isCancelledBecause(3 /* CommandResult.MergeIsDestructive */)) {
-                env.askConfirmation(AddMergeInteractiveContent.MergeIsDestructive, () => {
-                    env.model.dispatch("ADD_MERGE", { sheetId, target, force: true });
-                });
-            }
-        }
-    }
-
-    const FORMATS = [
-        { name: "automatic", text: NumberFormatTerms.Automatic },
-        { name: "number", text: NumberFormatTerms.Number, description: "1,000.12", value: "#,##0.00" },
-        { name: "percent", text: NumberFormatTerms.Percent, description: "10.12%", value: "0.00%" },
-        {
-            name: "currency",
-            text: NumberFormatTerms.Currency,
-            description: "$1,000.12",
-            value: "[$$]#,##0.00",
-        },
-        {
-            name: "currency_rounded",
-            text: NumberFormatTerms.CurrencyRounded,
-            description: "$1,000",
-            value: "[$$]#,##0",
-        },
-        { name: "date", text: NumberFormatTerms.Date, description: "9/26/2008", value: "m/d/yyyy" },
-        { name: "time", text: NumberFormatTerms.Time, description: "10:43:00 PM", value: "hh:mm:ss a" },
-        {
-            name: "datetime",
-            text: NumberFormatTerms.DateTime,
-            description: "9/26/2008 22:43:00",
-            value: "m/d/yyyy hh:mm:ss",
-        },
-        {
-            name: "duration",
-            text: NumberFormatTerms.Duration,
-            description: "27:51:38",
-            value: "hhhh:mm:ss",
-        },
-    ];
-    const CUSTOM_FORMATS = [
-        { name: "custom_currency", text: NumberFormatTerms.CustomCurrency, sidePanel: "CustomCurrency" },
-    ];
-    // -----------------------------------------------------------------------------
-    // TopBar
-    // -----------------------------------------------------------------------------
-    css /* scss */ `
-  .o-spreadsheet-topbar {
-    background-color: white;
-    line-height: 1.2;
-    display: flex;
-    flex-direction: column;
-    font-size: 13px;
-    line-height: 1.2;
-    user-select: none;
-
-    .o-topbar-top {
-      border-bottom: 1px solid #e0e2e4;
-      display: flex;
-      padding: 2px 10px;
-      justify-content: space-between;
-
-      /* Menus */
-      .o-topbar-topleft {
-        display: flex;
-        .o-topbar-menu {
-          padding: 4px 6px;
-          margin: 0 2px;
-          cursor: pointer;
-        }
-
-        .o-topbar-menu:hover,
-        .o-topbar-menu-active {
-          background-color: #f1f3f4;
-          border-radius: 2px;
-        }
-      }
-
-      .o-topbar-topright {
-        display: flex;
-        justify-content: flex-end;
-      }
-    }
-    /* Toolbar + Cell Content */
-    .o-topbar-toolbar {
-      border-bottom: 1px solid #e0e2e4;
-      display: flex;
-
-      .o-readonly-toolbar {
-        display: flex;
-        align-items: center;
-        background-color: ${BACKGROUND_HEADER_COLOR};
-        padding-left: 18px;
-        padding-right: 18px;
-      }
-      .o-composer-container {
-        height: 34px;
-        border: 1px solid #e0e2e4;
-        margin-top: -1px;
-        margin-bottom: -1px;
-      }
-
-      /* Toolbar */
-      .o-toolbar-tools {
-        display: flex;
-        flex-shrink: 0;
-        margin-left: 16px;
-        color: #333;
-        cursor: default;
-
-        .o-tool {
-          display: flex;
-          align-items: center;
-          margin: 2px;
-          padding: 0 3px;
-          border-radius: 2px;
-          cursor: pointer;
-          min-width: fit-content;
-        }
-
-        .o-tool.active,
-        .o-tool:not(.o-disabled):hover {
-          background-color: #f1f3f4;
-        }
-
-        .o-with-color > span {
-          border-bottom: 4px solid;
-          height: 16px;
-          margin-top: 2px;
-        }
-
-        .o-with-color {
-          .o-line-item:hover {
-            outline: 1px solid gray;
-          }
-        }
-
-        .o-border-dropdown {
-          padding: 4px;
-        }
-
-        .o-divider {
-          display: inline-block;
-          border-right: 1px solid #e0e2e4;
-          width: 0;
-          margin: 0 6px;
-        }
-
-        .o-disabled {
-          opacity: 0.6;
-        }
-
-        .o-dropdown {
-          position: relative;
-
-          .o-text-icon {
-            height: 100%;
-            line-height: 30px;
-          }
-
-          .o-text-options > div {
-            line-height: 26px;
-            padding: 3px 12px;
-            &:hover {
-              background-color: rgba(0, 0, 0, 0.08);
-            }
-          }
-
-          .o-dropdown-content {
-            position: absolute;
-            top: calc(100% + 5px);
-            left: 0;
-            z-index: ${ComponentsImportance.Dropdown};
-            box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
-            background-color: white;
-
-            .o-dropdown-item {
-              padding: 7px 10px;
-            }
-
-            .o-dropdown-item:hover {
-              background-color: rgba(0, 0, 0, 0.08);
-            }
-
-            .o-dropdown-line {
-              display: flex;
-              margin: 1px;
-
-              .o-line-item {
-                padding: 4px;
-
-                &:hover {
-                  background-color: rgba(0, 0, 0, 0.08);
-                }
-              }
-            }
-
-            &.o-format-tool {
-              padding: 5px 0;
-              width: 250px;
-              font-size: 12px;
-              > div {
-                padding: 0 20px;
-                white-space: nowrap;
-
-                &.active:before {
-                  content: "✓";
-                  font-weight: bold;
-                  position: absolute;
-                  left: 5px;
-                }
-              }
-            }
-          }
-        }
-      }
-
-      /* Cell Content */
-      .o-toolbar-cell-content {
-        font-size: 12px;
-        font-weight: 500;
-        padding: 0 12px;
-        margin: 0;
-        line-height: 34px;
-        white-space: nowrap;
-        user-select: text;
-      }
-    }
-  }
-`;
-    class TopBar extends owl.Component {
-        constructor() {
-            super(...arguments);
-            this.DEFAULT_FONT_SIZE = DEFAULT_FONT_SIZE;
-            this.commonFormats = FORMATS;
-            this.customFormats = CUSTOM_FORMATS;
-            this.currentFormatName = "automatic";
-            this.fontSizes = fontSizes;
-            this.style = {};
-            this.state = owl.useState({
-                menuState: { isOpen: false, position: null, menuItems: [] },
-                activeTool: "",
-            });
-            this.isSelectingMenu = false;
-            this.openedEl = null;
-            this.inMerge = false;
-            this.cannotMerge = false;
-            this.undoTool = false;
-            this.redoTool = false;
-            this.paintFormatTool = false;
-            this.fillColor = "#ffffff";
-            this.textColor = "#000000";
-            this.menus = [];
-            this.composerStyle = `
-    line-height: 34px;
-    padding-left: 8px;
-    height: 34px;
-    background-color: white;
-  `;
-        }
-        setup() {
-            owl.useExternalListener(window, "click", this.onClick);
-            owl.onWillStart(() => this.updateCellState());
-            owl.onWillUpdateProps(() => this.updateCellState());
-        }
-        get topbarComponents() {
-            return topbarComponentRegistry
-                .getAll()
-                .filter((item) => !item.isVisible || item.isVisible(this.env));
-        }
-        onClick(ev) {
-            if (this.openedEl && isChildEvent(this.openedEl, ev)) {
-                return;
-            }
-            this.closeMenus();
-        }
-        toogleStyle(style) {
-            setStyle(this.env, { [style]: !this.style[style] });
-        }
-        toogleFormat(formatName) {
-            const formatter = FORMATS.find((f) => f.name === formatName);
-            const value = (formatter && formatter.value) || "";
-            setFormatter(this.env, value);
-        }
-        toggleAlign(align) {
-            setStyle(this.env, { ["align"]: align });
-        }
-        onMenuMouseOver(menu, ev) {
-            if (this.isSelectingMenu) {
-                this.toggleContextMenu(menu, ev);
-            }
-        }
-        toggleDropdownTool(tool, ev) {
-            const isOpen = this.state.activeTool === tool;
-            this.closeMenus();
-            this.state.activeTool = isOpen ? "" : tool;
-            this.openedEl = isOpen ? null : ev.target;
-        }
-        toggleContextMenu(menu, ev) {
-            this.closeMenus();
-            const { left, top, height } = ev.target.getBoundingClientRect();
-            this.state.menuState.isOpen = true;
-            this.state.menuState.position = { x: left, y: top + height };
-            this.state.menuState.menuItems = getMenuChildren(menu, this.env).filter((item) => !item.isVisible || item.isVisible(this.env));
-            this.state.menuState.parentMenu = menu;
-            this.isSelectingMenu = true;
-            this.openedEl = ev.target;
-        }
-        closeMenus() {
-            this.state.activeTool = "";
-            this.state.menuState.isOpen = false;
-            this.state.menuState.parentMenu = undefined;
-            this.isSelectingMenu = false;
-            this.openedEl = null;
-        }
-        updateCellState() {
-            const zones = this.env.model.getters.getSelectedZones();
-            const sheetId = this.env.model.getters.getActiveSheetId();
-            this.inMerge = false;
-            const { top, left, right, bottom } = this.env.model.getters.getSelectedZone();
-            const { xSplit, ySplit } = this.env.model.getters.getPaneDivisions(sheetId);
-            this.cannotMerge =
-                zones.length > 1 ||
-                    (top === bottom && left === right) ||
-                    (left < xSplit && xSplit <= right) ||
-                    (top < ySplit && ySplit <= bottom);
-            if (!this.cannotMerge) {
-                const { col, row } = this.env.model.getters.getPosition();
-                const zone = this.env.model.getters.expandZone(sheetId, {
-                    left: col,
-                    right: col,
-                    top: row,
-                    bottom: row,
-                });
-                this.inMerge = isEqual(zones[0], zone);
-            }
-            this.undoTool = this.env.model.getters.canUndo();
-            this.redoTool = this.env.model.getters.canRedo();
-            this.paintFormatTool = this.env.model.getters.isPaintingFormat();
-            const cell = this.env.model.getters.getActiveCell();
-            if (cell && cell.format) {
-                const currentFormat = this.commonFormats.find((f) => f.value === cell.format);
-                this.currentFormatName = currentFormat ? currentFormat.name : "";
-            }
-            else {
-                this.currentFormatName = "automatic";
-            }
-            this.style = { ...this.env.model.getters.getCurrentStyle() };
-            this.style.align = this.style.align || (cell === null || cell === void 0 ? void 0 : cell.defaultAlign);
-            this.fillColor = this.style.fillColor || "#ffffff";
-            this.textColor = this.style.textColor || "#000000";
-            this.menus = topbarMenuRegistry
-                .getAll()
-                .filter((item) => !item.isVisible || item.isVisible(this.env));
-        }
-        getMenuName(menu) {
-            return getMenuName(menu, this.env);
-        }
-        toggleMerge() {
-            if (this.cannotMerge) {
-                return;
-            }
-            const zones = this.env.model.getters.getSelectedZones();
-            const target = [zones[zones.length - 1]];
-            const sheetId = this.env.model.getters.getActiveSheetId();
-            if (this.inMerge) {
-                this.env.model.dispatch("REMOVE_MERGE", { sheetId, target });
-            }
-            else {
-                interactiveAddMerge(this.env, sheetId, target);
-            }
-        }
-        setColor(target, color) {
-            setStyle(this.env, { [target]: color });
-        }
-        setBorder(command) {
-            this.env.model.dispatch("SET_FORMATTING", {
-                sheetId: this.env.model.getters.getActiveSheetId(),
-                target: this.env.model.getters.getSelectedZones(),
-                border: command,
-            });
-        }
-        setFormat(ev) {
-            const format = ev.target.dataset.format;
-            if (format) {
-                this.toogleFormat(format);
-                return;
-            }
-            const custom = ev.target.dataset.custom;
-            if (custom) {
-                this.openCustomFormatSidePanel(custom);
-            }
-        }
-        openCustomFormatSidePanel(custom) {
-            const customFormatter = CUSTOM_FORMATS.find((c) => c.name === custom);
-            const sidePanel = (customFormatter && customFormatter.sidePanel) || "";
-            this.env.openSidePanel(sidePanel);
-        }
-        setDecimal(step) {
-            this.env.model.dispatch("SET_DECIMAL", {
-                sheetId: this.env.model.getters.getActiveSheetId(),
-                target: this.env.model.getters.getSelectedZones(),
-                step: step,
-            });
-        }
-        paintFormat() {
-            this.env.model.dispatch("ACTIVATE_PAINT_FORMAT", {
-                target: this.env.model.getters.getSelectedZones(),
-            });
-        }
-        clearFormatting() {
-            this.env.model.dispatch("CLEAR_FORMATTING", {
-                sheetId: this.env.model.getters.getActiveSheetId(),
-                target: this.env.model.getters.getSelectedZones(),
-            });
-        }
-        setSize(ev) {
-            const fontSize = parseFloat(ev.target.dataset.size);
-            setStyle(this.env, { fontSize });
-        }
-        doAction(action) {
-            action(this.env);
-            this.closeMenus();
-        }
-        undo() {
-            this.env.model.dispatch("REQUEST_UNDO");
-        }
-        redo() {
-            this.env.model.dispatch("REQUEST_REDO");
-        }
-    }
-    TopBar.template = "o-spreadsheet-TopBar";
-    TopBar.components = { ColorPicker, Menu, Composer };
-
-    css /* scss */ `
-  .o-spreadsheet {
-    position: relative;
-    display: grid;
-    grid-template-columns: auto 350px;
-    * {
-      font-family: "Roboto", "RobotoDraft", Helvetica, Arial, sans-serif;
-    }
-    &,
-    *,
-    *:before,
-    *:after {
-      box-sizing: content-box;
-    }
-  }
-
-  .o-two-columns {
-    grid-column: 1 / 3;
-  }
-
-  .o-icon {
-    width: ${ICON_EDGE_LENGTH}px;
-    height: ${ICON_EDGE_LENGTH}px;
-    opacity: 0.6;
-    vertical-align: middle;
-  }
-
-  .o-cf-icon {
-    width: ${CF_ICON_EDGE_LENGTH}px;
-    height: ${CF_ICON_EDGE_LENGTH}px;
-    vertical-align: sub;
-  }
-`;
-    // -----------------------------------------------------------------------------
-    // GRID STYLE
-    // -----------------------------------------------------------------------------
-    css /* scss */ `
-  .o-grid {
-    position: relative;
-    overflow: hidden;
-    background-color: ${BACKGROUND_GRAY_COLOR};
-    &:focus {
-      outline: none;
-    }
-
-    > canvas {
-      border-top: 1px solid #e2e3e3;
-      border-bottom: 1px solid #e2e3e3;
-    }
-    .o-scrollbar {
-      &.corner {
-        right: 0px;
-        bottom: 0px;
-        height: ${SCROLLBAR_WIDTH$1}px;
-        width: ${SCROLLBAR_WIDTH$1}px;
-        border-top: 1px solid #e2e3e3;
-        border-left: 1px solid #e2e3e3;
-      }
-    }
-
-    .o-grid-overlay {
-      position: absolute;
-      outline: none;
-    }
-  }
-`;
-    const t = (s) => s;
-    class Spreadsheet extends owl.Component {
-        constructor() {
-            super(...arguments);
-            this.isViewportTooSmall = false;
-        }
-        getStyle() {
-            if (this.env.isDashboard()) {
-                return `grid-template-rows: auto;`;
-            }
-            return `grid-template-rows: ${TOPBAR_HEIGHT}px auto ${BOTTOMBAR_HEIGHT + 1}px`;
-        }
-        setup() {
-            var _a, _b;
-            (_b = (_a = this.props).exposeSpreadsheet) === null || _b === void 0 ? void 0 : _b.call(_a, this);
-            this.model = this.props.model;
-            this.sidePanel = owl.useState({ isOpen: false, panelProps: {} });
-            this.composer = owl.useState({
-                topBarFocus: "inactive",
-                gridFocusMode: "inactive",
-            });
-            this.keyDownMapping = {
-                "CTRL+H": () => this.toggleSidePanel("FindAndReplace", {}),
-                "CTRL+F": () => this.toggleSidePanel("FindAndReplace", {}),
-            };
-            owl.useSubEnv({
-                model: this.model,
-                isDashboard: () => this.model.getters.isDashboard(),
-                openSidePanel: this.openSidePanel.bind(this),
-                toggleSidePanel: this.toggleSidePanel.bind(this),
-                _t: Spreadsheet._t,
-                clipboard: navigator.clipboard,
-            });
-            owl.useExternalListener(window, "resize", () => this.render(true));
-            owl.useExternalListener(window, "beforeunload", this.unbindModelEvents.bind(this));
-            owl.onMounted(() => {
-                this.bindModelEvents();
-                this.checkViewportSize();
-            });
-            owl.onWillUnmount(() => this.unbindModelEvents());
-            owl.onPatched(() => {
-                this.checkViewportSize();
-            });
-        }
-        get focusTopBarComposer() {
-            return this.model.getters.getEditionMode() === "inactive"
-                ? "inactive"
-                : this.composer.topBarFocus;
-        }
-        get focusGridComposer() {
-            return this.model.getters.getEditionMode() === "inactive"
-                ? "inactive"
-                : this.composer.gridFocusMode;
-        }
-        bindModelEvents() {
-            this.model.on("update", this, () => this.render(true));
-            this.model.on("notify-ui", this, this.onNotifyUI);
-        }
-        unbindModelEvents() {
-            this.model.off("update", this);
-            this.model.off("notify-ui", this);
-        }
-        checkViewportSize() {
-            const { xRatio, yRatio } = this.env.model.getters.getFrozenSheetViewRatio(this.env.model.getters.getActiveSheetId());
-            if (yRatio > MAXIMAL_FREEZABLE_RATIO || xRatio > MAXIMAL_FREEZABLE_RATIO) {
-                if (this.isViewportTooSmall) {
-                    return;
-                }
-                this.env.notifyUser({
-                    text: _lt("The current window is too small to display this sheet properly. Consider resizing your browser window or adjusting frozen rows and columns."),
-                    tag: "viewportTooSmall",
-                });
-                this.isViewportTooSmall = true;
-            }
-            else {
-                this.isViewportTooSmall = false;
-            }
-        }
-        onNotifyUI(payload) {
-            switch (payload.type) {
-                case "ERROR":
-                    this.env.raiseError(payload.text);
-                    break;
-            }
-        }
-        openSidePanel(panel, panelProps) {
-            this.sidePanel.component = panel;
-            this.sidePanel.panelProps = panelProps;
-            this.sidePanel.isOpen = true;
-        }
-        closeSidePanel() {
-            this.sidePanel.isOpen = false;
-            this.focusGrid();
-        }
-        toggleSidePanel(panel, panelProps) {
-            if (this.sidePanel.isOpen && panel === this.sidePanel.component) {
-                this.sidePanel.isOpen = false;
-                this.focusGrid();
-            }
-            else {
-                this.openSidePanel(panel, panelProps);
-            }
-        }
-        focusGrid() {
-            if (!this._focusGrid) {
-                throw new Error("_focusGrid should be exposed by the grid component");
-            }
-            this._focusGrid();
-        }
-        save() {
-            var _a, _b;
-            (_b = (_a = this.props).onContentSaved) === null || _b === void 0 ? void 0 : _b.call(_a, this.model.exportData());
-        }
-        onKeydown(ev) {
-            let keyDownString = "";
-            if (ev.ctrlKey || ev.metaKey) {
-                keyDownString += "CTRL+";
-            }
-            keyDownString += ev.key.toUpperCase();
-            let handler = this.keyDownMapping[keyDownString];
-            if (handler) {
-                ev.preventDefault();
-                ev.stopPropagation();
-                handler();
-                return;
-            }
-        }
-        onTopBarComposerFocused(selection) {
-            if (this.model.getters.isReadonly()) {
-                return;
-            }
-            this.model.dispatch("UNFOCUS_SELECTION_INPUT");
-            this.composer.topBarFocus = "contentFocus";
-            this.composer.gridFocusMode = "inactive";
-            this.setComposerContent({ selection } || {});
-        }
-        onGridComposerContentFocused() {
-            if (this.model.getters.isReadonly()) {
-                return;
-            }
-            this.model.dispatch("UNFOCUS_SELECTION_INPUT");
-            this.composer.topBarFocus = "inactive";
-            this.composer.gridFocusMode = "contentFocus";
-            this.setComposerContent({});
-        }
-        onGridComposerCellFocused(content, selection) {
-            if (this.model.getters.isReadonly()) {
-                return;
-            }
-            this.model.dispatch("UNFOCUS_SELECTION_INPUT");
-            this.composer.topBarFocus = "inactive";
-            this.composer.gridFocusMode = "cellFocus";
-            this.setComposerContent({ content, selection } || {});
-        }
-        /**
-         * Start the edition or update the content if it's already started.
-         */
-        setComposerContent({ content, selection, }) {
-            if (this.model.getters.getEditionMode() === "inactive") {
-                this.model.dispatch("START_EDITION", { text: content, selection });
-            }
-            else if (content) {
-                this.model.dispatch("SET_CURRENT_CONTENT", { content, selection });
-            }
-        }
-    }
-    Spreadsheet.template = "o-spreadsheet-Spreadsheet";
-    Spreadsheet.components = { TopBar, Grid, BottomBar, SidePanel, SpreadsheetDashboard };
-    Spreadsheet._t = t;
-
-    class LocalTransportService {
-        constructor() {
-            this.listeners = [];
-        }
-        sendMessage(message) {
-            for (const { callback } of this.listeners) {
-                callback(message);
-            }
-        }
-        onNewMessage(id, callback) {
-            this.listeners.push({ id, callback });
-        }
-        leave(id) {
-            this.listeners = this.listeners.filter((listener) => listener.id !== id);
-        }
-    }
-
+  
     /*
      * This file contains the specifics transformations
      */
@@ -34932,9 +34969,10 @@
     otRegistry.addTransformation("DELETE_SHEET", ["MOVE_RANGES"], transformTargetSheetId);
     otRegistry.addTransformation("DELETE_FIGURE", ["UPDATE_FIGURE", "UPDATE_CHART"], updateChartFigure);
     otRegistry.addTransformation("CREATE_SHEET", ["CREATE_SHEET"], createSheetTransformation);
-    otRegistry.addTransformation("ADD_MERGE", ["ADD_MERGE", "REMOVE_MERGE"], mergeTransformation);
+    otRegistry.addTransformation("ADD_MERGE", ["ADD_MERGE", "REMOVE_MERGE", "CREATE_FILTER_TABLE"], mergeTransformation);
     otRegistry.addTransformation("ADD_COLUMNS_ROWS", ["FREEZE_COLUMNS", "FREEZE_ROWS"], freezeTransformation);
     otRegistry.addTransformation("REMOVE_COLUMNS_ROWS", ["FREEZE_COLUMNS", "FREEZE_ROWS"], freezeTransformation);
+    otRegistry.addTransformation("CREATE_FILTER_TABLE", ["CREATE_FILTER_TABLE", "ADD_MERGE"], createTableTransformation);
     function transformTargetSheetId(cmd, executed) {
         const deletedSheetId = executed.sheetId;
         if (cmd.targetSheetId === deletedSheetId || cmd.sheetId === deletedSheetId) {
@@ -35007,7 +35045,23 @@
         }
         return quantity > 0 ? { ...cmd, quantity } : undefined;
     }
-
+    /**
+     * Cancel CREATE_FILTER_TABLE and ADD_MERGE commands if they overlap a filter
+     */
+    function createTableTransformation(cmd, executed) {
+        if (cmd.sheetId !== executed.sheetId) {
+            return cmd;
+        }
+        for (const cmdTarget of cmd.target) {
+            for (const executedCmdTarget of executed.target) {
+                if (overlap(executedCmdTarget, cmdTarget)) {
+                    return undefined;
+                }
+            }
+        }
+        return cmd;
+    }
+  
     const transformations = [
         { match: isSheetDependent, fn: transformSheetId },
         { match: isTargetDependent, fn: transformTarget },
@@ -35212,11 +35266,3297 @@
         }
         return cmd;
     }
-
+  
+    class Revision {
+        /**
+         * A revision represents a whole client action (Create a sheet, merge a Zone, Undo, ...).
+         * A revision contains the following information:
+         *  - id: ID of the revision
+         *  - commands: CoreCommands that are linked to the action, and should be
+         *              dispatched in other clients
+         *  - clientId: Client who initiated the action
+         *  - changes: List of changes applied on the state.
+         */
+        constructor(id, clientId, commands, changes) {
+            this._commands = [];
+            this._changes = [];
+            this.id = id;
+            this.clientId = clientId;
+            this._commands = [...commands];
+            this._changes = changes ? [...changes] : [];
+        }
+        setChanges(changes) {
+            this._changes = changes;
+        }
+        get commands() {
+            return this._commands;
+        }
+        get changes() {
+            return this._changes;
+        }
+    }
+  
+    class ClientDisconnectedError extends Error {
+    }
+    class Session extends EventBus {
+        /**
+         * Manages the collaboration between multiple users on the same spreadsheet.
+         * It can forward local state changes to other users to ensure they all eventually
+         * reach the same state.
+         * It also manages the positions of each clients in the spreadsheet to provide
+         * a visual indication of what other users are doing in the spreadsheet.
+         *
+         * @param revisions
+         * @param transportService communication channel used to send and receive messages
+         * between all connected clients
+         * @param client the client connected locally
+         * @param serverRevisionId
+         */
+        constructor(revisions, transportService, serverRevisionId = DEFAULT_REVISION_ID) {
+            super();
+            this.revisions = revisions;
+            this.transportService = transportService;
+            this.serverRevisionId = serverRevisionId;
+            /**
+             * Positions of the others client.
+             */
+            this.clients = {};
+            this.clientId = "local";
+            this.pendingMessages = [];
+            this.waitingAck = false;
+            /**
+             * Flag used to block all commands when an undo or redo is triggered, until
+             * it is accepted on the server
+             */
+            this.waitingUndoRedoAck = false;
+            this.isReplayingInitialRevisions = false;
+            this.processedRevisions = new Set();
+            this.uuidGenerator = new UuidGenerator();
+            this.debouncedMove = debounce(this._move.bind(this), DEBOUNCE_TIME);
+        }
+        canApplyOptimisticUpdate() {
+            return !this.waitingUndoRedoAck;
+        }
+        /**
+         * Add a new revision to the collaborative session.
+         * It will be transmitted to all other connected clients.
+         */
+        save(commands, changes) {
+            if (!commands.length || !changes.length || !this.canApplyOptimisticUpdate())
+                return;
+            const revision = new Revision(this.uuidGenerator.uuidv4(), this.clientId, commands, changes);
+            this.revisions.append(revision.id, revision);
+            this.trigger("new-local-state-update", { id: revision.id });
+            this.sendUpdateMessage({
+                type: "REMOTE_REVISION",
+                version: MESSAGE_VERSION,
+                serverRevisionId: this.serverRevisionId,
+                nextRevisionId: revision.id,
+                clientId: revision.clientId,
+                commands: revision.commands,
+            });
+        }
+        undo(revisionId) {
+            this.waitingUndoRedoAck = true;
+            this.sendUpdateMessage({
+                type: "REVISION_UNDONE",
+                version: MESSAGE_VERSION,
+                serverRevisionId: this.serverRevisionId,
+                nextRevisionId: this.uuidGenerator.uuidv4(),
+                undoneRevisionId: revisionId,
+            });
+        }
+        redo(revisionId) {
+            this.waitingUndoRedoAck = true;
+            this.sendUpdateMessage({
+                type: "REVISION_REDONE",
+                version: MESSAGE_VERSION,
+                serverRevisionId: this.serverRevisionId,
+                nextRevisionId: this.uuidGenerator.uuidv4(),
+                redoneRevisionId: revisionId,
+            });
+        }
+        /**
+         * Notify that the position of the client has changed
+         */
+        move(position) {
+            this.debouncedMove(position);
+        }
+        join(client) {
+            if (client) {
+                this.clients[client.id] = client;
+                this.clientId = client.id;
+            }
+            else {
+                this.clients["local"] = { id: "local", name: "local" };
+                this.clientId = "local";
+            }
+            this.transportService.onNewMessage(this.clientId, this.onMessageReceived.bind(this));
+        }
+        loadInitialMessages(messages) {
+            this.isReplayingInitialRevisions = true;
+            this.on("unexpected-revision-id", this, ({ revisionId }) => {
+                throw new Error(`The spreadsheet could not be loaded. Revision ${revisionId} is corrupted.`);
+            });
+            for (const message of messages) {
+                this.onMessageReceived(message);
+            }
+            this.off("unexpected-revision-id", this);
+            this.isReplayingInitialRevisions = false;
+        }
+        /**
+         * Notify the server that the user client left the collaborative session
+         */
+        leave() {
+            delete this.clients[this.clientId];
+            this.transportService.leave(this.clientId);
+            this.transportService.sendMessage({
+                type: "CLIENT_LEFT",
+                clientId: this.clientId,
+                version: MESSAGE_VERSION,
+            });
+        }
+        /**
+         * Send a snapshot of the spreadsheet to the collaboration server
+         */
+        snapshot(data) {
+            const snapshotId = this.uuidGenerator.uuidv4();
+            this.transportService.sendMessage({
+                type: "SNAPSHOT",
+                nextRevisionId: snapshotId,
+                serverRevisionId: this.serverRevisionId,
+                data: { ...data, revisionId: snapshotId },
+                version: MESSAGE_VERSION,
+            });
+        }
+        getClient() {
+            const client = this.clients[this.clientId];
+            if (!client) {
+                throw new ClientDisconnectedError("The client left the session");
+            }
+            return client;
+        }
+        getConnectedClients() {
+            return new Set(Object.values(this.clients).filter(isDefined$1));
+        }
+        getRevisionId() {
+            return this.serverRevisionId;
+        }
+        isFullySynchronized() {
+            return this.pendingMessages.length === 0;
+        }
+        _move(position) {
+            var _a;
+            // this method is debounced and might be called after the client
+            // left the session.
+            if (!this.clients[this.clientId])
+                return;
+            const currentPosition = (_a = this.clients[this.clientId]) === null || _a === void 0 ? void 0 : _a.position;
+            if ((currentPosition === null || currentPosition === void 0 ? void 0 : currentPosition.col) === position.col &&
+                currentPosition.row === position.row &&
+                currentPosition.sheetId === position.sheetId) {
+                return;
+            }
+            const type = currentPosition ? "CLIENT_MOVED" : "CLIENT_JOINED";
+            const client = this.getClient();
+            this.clients[this.clientId] = { ...client, position };
+            this.transportService.sendMessage({
+                type,
+                version: MESSAGE_VERSION,
+                client: { ...client, position },
+            });
+        }
+        /**
+         * Handles messages received from other clients in the collaborative
+         * session.
+         */
+        onMessageReceived(message) {
+            if (this.isAlreadyProcessed(message))
+                return;
+            switch (message.type) {
+                case "CLIENT_MOVED":
+                    this.onClientMoved(message);
+                    break;
+                case "CLIENT_JOINED":
+                    this.onClientJoined(message);
+                    break;
+                case "CLIENT_LEFT":
+                    this.onClientLeft(message);
+                    break;
+                case "REVISION_REDONE": {
+                    this.revisions.redo(message.redoneRevisionId, message.nextRevisionId, message.serverRevisionId);
+                    this.trigger("revision-redone", {
+                        revisionId: message.redoneRevisionId,
+                        commands: this.revisions.get(message.redoneRevisionId).commands,
+                    });
+                    break;
+                }
+                case "REVISION_UNDONE":
+                    this.revisions.undo(message.undoneRevisionId, message.nextRevisionId, message.serverRevisionId);
+                    this.trigger("revision-undone", {
+                        revisionId: message.undoneRevisionId,
+                        commands: this.revisions.get(message.undoneRevisionId).commands,
+                    });
+                    break;
+                case "REMOTE_REVISION":
+                    if (message.serverRevisionId !== this.serverRevisionId) {
+                        this.trigger("unexpected-revision-id", { revisionId: message.serverRevisionId });
+                        return;
+                    }
+                    const { clientId, commands } = message;
+                    const revision = new Revision(message.nextRevisionId, clientId, commands);
+                    if (revision.clientId !== this.clientId) {
+                        this.revisions.insert(revision.id, revision, message.serverRevisionId);
+                        const pendingCommands = this.pendingMessages
+                            .filter((msg) => msg.type === "REMOTE_REVISION")
+                            .map((msg) => msg.commands)
+                            .flat();
+                        this.trigger("remote-revision-received", {
+                            commands: transformAll(commands, pendingCommands),
+                        });
+                    }
+                    break;
+                case "SNAPSHOT_CREATED": {
+                    const revision = new Revision(message.nextRevisionId, "server", []);
+                    this.revisions.insert(revision.id, revision, message.serverRevisionId);
+                    this.dropPendingHistoryMessages();
+                    this.trigger("snapshot");
+                    break;
+                }
+            }
+            this.acknowledge(message);
+            this.trigger("collaborative-event-received");
+        }
+        onClientMoved(message) {
+            if (message.client.id !== this.clientId) {
+                this.clients[message.client.id] = message.client;
+            }
+        }
+        /**
+         * Register the new client and send your
+         * own position back.
+         */
+        onClientJoined(message) {
+            if (message.client.id !== this.clientId) {
+                this.clients[message.client.id] = message.client;
+                const client = this.clients[this.clientId];
+                if (client) {
+                    const { position } = client;
+                    if (position) {
+                        this.transportService.sendMessage({
+                            type: "CLIENT_MOVED",
+                            version: MESSAGE_VERSION,
+                            client: { ...client, position },
+                        });
+                    }
+                }
+            }
+        }
+        onClientLeft(message) {
+            if (message.clientId !== this.clientId) {
+                delete this.clients[message.clientId];
+            }
+        }
+        sendUpdateMessage(message) {
+            this.pendingMessages.push(message);
+            if (this.waitingAck) {
+                return;
+            }
+            this.waitingAck = true;
+            this.sendPendingMessage();
+        }
+        /**
+         * Send the next pending message
+         */
+        sendPendingMessage() {
+            let message = this.pendingMessages[0];
+            if (!message)
+                return;
+            if (message.type === "REMOTE_REVISION") {
+                const revision = this.revisions.get(message.nextRevisionId);
+                if (revision.commands.length === 0) {
+                    /**
+                     * The command is empty, we have to drop all the next local revisions
+                     * to avoid issues with undo/redo
+                     */
+                    this.revisions.drop(revision.id);
+                    const revisionIds = this.pendingMessages
+                        .filter((message) => message.type === "REMOTE_REVISION")
+                        .map((message) => message.nextRevisionId);
+                    this.trigger("pending-revisions-dropped", { revisionIds });
+                    this.waitingAck = false;
+                    this.waitingUndoRedoAck = false;
+                    this.pendingMessages = [];
+                    return;
+                }
+                message = {
+                    ...message,
+                    clientId: revision.clientId,
+                    commands: revision.commands,
+                };
+            }
+            if (this.isReplayingInitialRevisions) {
+                throw new Error(`Trying to send a new revision while replaying initial revision. This can lead to endless dispatches every time the spreadsheet is open.
+        ${JSON.stringify(message)}`);
+            }
+            this.transportService.sendMessage({
+                ...message,
+                serverRevisionId: this.serverRevisionId,
+            });
+        }
+        acknowledge(message) {
+            if (message.type === "REVISION_UNDONE" || message.type === "REVISION_REDONE") {
+                this.waitingUndoRedoAck = false;
+            }
+            switch (message.type) {
+                case "REMOTE_REVISION":
+                case "REVISION_REDONE":
+                case "REVISION_UNDONE":
+                case "SNAPSHOT_CREATED":
+                    this.waitingAck = false;
+                    this.pendingMessages = this.pendingMessages.filter((msg) => msg.nextRevisionId !== message.nextRevisionId);
+                    this.serverRevisionId = message.nextRevisionId;
+                    this.processedRevisions.add(message.nextRevisionId);
+                    this.sendPendingMessage();
+                    break;
+            }
+        }
+        isAlreadyProcessed(message) {
+            if (message.type === "CLIENT_MOVED" && message.client.id === this.clientId) {
+                return true;
+            }
+            switch (message.type) {
+                case "REMOTE_REVISION":
+                case "REVISION_REDONE":
+                case "REVISION_UNDONE":
+                    return this.processedRevisions.has(message.nextRevisionId);
+                default:
+                    return false;
+            }
+        }
+        dropPendingHistoryMessages() {
+            this.waitingUndoRedoAck = false;
+            this.pendingMessages = this.pendingMessages.filter(({ type }) => type !== "REVISION_REDONE" && type !== "REVISION_UNDONE");
+        }
+    }
+  
+    function randomChoice(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+    }
+    const colors = [
+        "#ff851b",
+        "#0074d9",
+        "#7fdbff",
+        "#b10dc9",
+        "#39cccc",
+        "#f012be",
+        "#3d9970",
+        "#111111",
+        "#ff4136",
+        "#aaaaaa",
+        "#85144b",
+        "#001f3f",
+    ];
+    class SelectionMultiUserPlugin extends UIPlugin {
+        constructor() {
+            super(...arguments);
+            this.availableColors = new Set(colors);
+            this.colors = {};
+        }
+        isPositionValid(position) {
+            return (position.row < this.getters.getNumberRows(position.sheetId) &&
+                position.col < this.getters.getNumberCols(position.sheetId));
+        }
+        chooseNewColor() {
+            if (this.availableColors.size === 0) {
+                this.availableColors = new Set(colors);
+            }
+            const color = randomChoice([...this.availableColors.values()]);
+            this.availableColors.delete(color);
+            return color;
+        }
+        /**
+         * Get the list of others connected clients which are present in the same sheet
+         * and with a valid position
+         */
+        getClientsToDisplay() {
+            try {
+                this.getters.getClient();
+            }
+            catch (e) {
+                if (e instanceof ClientDisconnectedError) {
+                    return [];
+                }
+                else {
+                    throw e;
+                }
+            }
+            const sheetId = this.getters.getActiveSheetId();
+            const clients = [];
+            for (const client of this.getters.getConnectedClients()) {
+                if (client.id !== this.getters.getClient().id &&
+                    client.position &&
+                    client.position.sheetId === sheetId &&
+                    this.isPositionValid(client.position)) {
+                    const position = client.position;
+                    if (!this.colors[client.id]) {
+                        this.colors[client.id] = this.chooseNewColor();
+                    }
+                    const color = this.colors[client.id];
+                    clients.push({ ...client, position, color });
+                }
+            }
+            return clients;
+        }
+        drawGrid(renderingContext) {
+            if (this.getters.isDashboard()) {
+                return;
+            }
+            const { ctx, thinLineWidth } = renderingContext;
+            const activeSheetId = this.getters.getActiveSheetId();
+            for (const client of this.getClientsToDisplay()) {
+                const { row, col } = client.position;
+                const zone = this.getters.expandZone(activeSheetId, {
+                    top: row,
+                    bottom: row,
+                    left: col,
+                    right: col,
+                });
+                const { x, y, width, height } = this.getters.getVisibleRect(zone);
+                if (width <= 0 || height <= 0) {
+                    continue;
+                }
+                const color = client.color;
+                /* Cell background */
+                const cellBackgroundColor = `${color}10`;
+                ctx.fillStyle = cellBackgroundColor;
+                ctx.lineWidth = 4 * thinLineWidth;
+                ctx.strokeStyle = color;
+                ctx.globalCompositeOperation = "multiply";
+                ctx.fillRect(x, y, width, height);
+                /* Cell border */
+                ctx.globalCompositeOperation = "source-over";
+                ctx.strokeRect(x, y, width, height);
+                /* client name background */
+                ctx.font = `bold ${DEFAULT_FONT_SIZE + 1}px ${DEFAULT_FONT}`;
+            }
+        }
+    }
+    SelectionMultiUserPlugin.getters = ["getClientsToDisplay"];
+    SelectionMultiUserPlugin.layers = [5 /* LAYERS.Selection */];
+  
+    class InternalViewport {
+        constructor(getters, sheetId, boundaries, sizeInGrid, options, offsets) {
+            this.getters = getters;
+            this.sheetId = sheetId;
+            this.boundaries = boundaries;
+            this.width = sizeInGrid.width;
+            this.height = sizeInGrid.height;
+            this.offsetScrollbarX = offsets.x;
+            this.offsetScrollbarY = offsets.y;
+            this.canScrollVertically = options.canScrollVertically;
+            this.canScrollHorizontally = options.canScrollHorizontally;
+            this.offsetCorrectionX = this.getters.getColDimensions(this.sheetId, this.boundaries.left).start;
+            this.offsetCorrectionY = this.getters.getRowDimensions(this.sheetId, this.boundaries.top).start;
+            this.adjustViewportOffsetX();
+            this.adjustViewportOffsetY();
+        }
+        // PUBLIC
+        getMaxSize() {
+            const lastCol = this.getters.findLastVisibleColRowIndex(this.sheetId, "COL", {
+                first: this.boundaries.left,
+                last: this.boundaries.right,
+            });
+            const lastRow = this.getters.findLastVisibleColRowIndex(this.sheetId, "ROW", {
+                first: this.boundaries.top,
+                last: this.boundaries.bottom,
+            });
+            const { end: lastColEnd, size: lastColSize } = this.getters.getColDimensions(this.sheetId, lastCol);
+            const { end: lastRowEnd, size: lastRowSize } = this.getters.getRowDimensions(this.sheetId, lastRow);
+            const leftColIndex = this.searchHeaderIndex("COL", lastColEnd - this.width, 0);
+            const leftColSize = this.getters.getColSize(this.sheetId, leftColIndex);
+            const leftRowIndex = this.searchHeaderIndex("ROW", lastRowEnd - this.height, 0);
+            const topRowSize = this.getters.getRowSize(this.sheetId, leftRowIndex);
+            const width = lastColEnd -
+                this.offsetCorrectionX +
+                (this.canScrollHorizontally
+                    ? Math.max(DEFAULT_CELL_WIDTH, Math.min(leftColSize, this.width - lastColSize))
+                    : 0);
+            const height = lastRowEnd -
+                this.offsetCorrectionY +
+                (this.canScrollVertically
+                    ? Math.max(DEFAULT_CELL_HEIGHT + 5, Math.min(topRowSize, this.height - lastRowSize))
+                    : 0);
+            return { width, height };
+        }
+        /**
+         * Return the index of a column given an offset x, based on the pane left
+         * visible cell.
+         * It returns -1 if no column is found.
+         */
+        getColIndex(x, absolute = false) {
+            if (x < this.offsetCorrectionX || x > this.offsetCorrectionX + this.width) {
+                return -1;
+            }
+            return this.searchHeaderIndex("COL", x - this.offsetCorrectionX, this.left, absolute);
+        }
+        /**
+         * Return the index of a row given an offset y, based on the pane top
+         * visible cell.
+         * It returns -1 if no row is found.
+         */
+        getRowIndex(y, absolute = false) {
+            if (y < this.offsetCorrectionY || y > this.offsetCorrectionY + this.height) {
+                return -1;
+            }
+            return this.searchHeaderIndex("ROW", y - this.offsetCorrectionY, this.top, absolute);
+        }
+        /**
+         * This function will make sure that the provided cell position (or current selected position) is part of
+         * the pane that is actually displayed on the client. We therefore adjust the offset of the pane
+         * until it contains the cell completely.
+         */
+        adjustPosition(position) {
+            const sheetId = this.sheetId;
+            if (!position) {
+                position = this.getters.getSheetPosition(sheetId);
+            }
+            const mainCellPosition = this.getters.getMainCellPosition(sheetId, position.col, position.row);
+            const { col, row } = this.getters.getNextVisibleCellPosition(sheetId, mainCellPosition.col, mainCellPosition.row);
+            if (isInside(col, this.boundaries.top, this.boundaries)) {
+                this.adjustPositionX(col);
+            }
+            if (isInside(this.boundaries.left, row, this.boundaries)) {
+                this.adjustPositionY(row);
+            }
+        }
+        adjustPositionX(col) {
+            const sheetId = this.sheetId;
+            const { start, end } = this.getters.getColDimensions(sheetId, col);
+            while (end > this.offsetX + this.offsetCorrectionX + this.width &&
+                this.offsetX + this.offsetCorrectionX < start) {
+                this.offsetX = this.getters.getColDimensions(sheetId, this.left).end - this.offsetCorrectionX;
+                this.offsetScrollbarX = this.offsetX;
+                this.adjustViewportZoneX();
+            }
+            while (col < this.left) {
+                let leftCol;
+                for (leftCol = this.left; leftCol >= 0; leftCol--) {
+                    if (!this.getters.isColHidden(sheetId, leftCol)) {
+                        break;
+                    }
+                }
+                this.offsetX =
+                    this.getters.getColDimensions(sheetId, leftCol - 1).start - this.offsetCorrectionX;
+                this.offsetScrollbarX = this.offsetX;
+                this.adjustViewportZoneX();
+            }
+        }
+        adjustPositionY(row) {
+            const sheetId = this.sheetId;
+            while (this.getters.getRowDimensions(sheetId, row).end >
+                this.offsetY + this.height + this.offsetCorrectionY &&
+                this.offsetY + this.offsetCorrectionY < this.getters.getRowDimensions(sheetId, row).start) {
+                this.offsetY = this.getters.getRowDimensions(sheetId, this.top).end - this.offsetCorrectionY;
+                this.offsetScrollbarY = this.offsetY;
+                this.adjustViewportZoneY();
+            }
+            while (row < this.top) {
+                let topRow;
+                for (topRow = this.top; topRow >= 0; topRow--) {
+                    if (!this.getters.isRowHidden(sheetId, topRow)) {
+                        break;
+                    }
+                }
+                this.offsetY =
+                    this.getters.getRowDimensions(sheetId, topRow - 1).start - this.offsetCorrectionY;
+                this.offsetScrollbarY = this.offsetY;
+                this.adjustViewportZoneY();
+            }
+        }
+        setViewportOffset(offsetX, offsetY) {
+            this.setViewportOffsetX(offsetX);
+            this.setViewportOffsetY(offsetY);
+        }
+        adjustViewportZone() {
+            this.adjustViewportZoneX();
+            this.adjustViewportZoneY();
+        }
+        /**
+         *
+         * @param zone
+         * @returns Computes the absolute coordinate of a given zone inside the viewport
+         */
+        getRect(zone) {
+            const targetZone = intersection(zone, this.zone);
+            if (targetZone) {
+                const x = this.getters.getColRowOffset("COL", this.zone.left, targetZone.left) +
+                    this.offsetCorrectionX;
+                const y = this.getters.getColRowOffset("ROW", this.zone.top, targetZone.top) + this.offsetCorrectionY;
+                const width = Math.min(this.getters.getColRowOffset("COL", targetZone.left, targetZone.right + 1), this.width);
+                const height = Math.min(this.getters.getColRowOffset("ROW", targetZone.top, targetZone.bottom + 1), this.height);
+                return {
+                    x,
+                    y,
+                    width,
+                    height,
+                };
+            }
+            else {
+                return undefined;
+            }
+        }
+        isVisible(col, row) {
+            const isInside = row <= this.bottom && row >= this.top && col >= this.left && col <= this.right;
+            return (isInside &&
+                !this.getters.isColHidden(this.sheetId, col) &&
+                !this.getters.isRowHidden(this.sheetId, row));
+        }
+        // PRIVATE
+        searchHeaderIndex(dimension, position, startIndex = 0, absolute = false) {
+            let size = 0;
+            const sheetId = this.sheetId;
+            const headers = this.getters.getNumberHeaders(sheetId, dimension);
+            for (let i = startIndex; i <= headers - 1; i++) {
+                const isHiddenInViewport = !absolute && dimension === "COL"
+                    ? i < this.left && i > this.right
+                    : i < this.top && i > this.bottom;
+                if (this.getters.isHeaderHidden(sheetId, dimension, i) || isHiddenInViewport) {
+                    continue;
+                }
+                size +=
+                    dimension === "COL"
+                        ? this.getters.getColSize(sheetId, i)
+                        : this.getters.getRowSize(sheetId, i);
+                if (size > position) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+        get zone() {
+            return { left: this.left, right: this.right, top: this.top, bottom: this.bottom };
+        }
+        setViewportOffsetX(offsetX) {
+            if (!this.canScrollHorizontally) {
+                return;
+            }
+            this.offsetScrollbarX = offsetX;
+            this.adjustViewportZoneX();
+        }
+        setViewportOffsetY(offsetY) {
+            if (!this.canScrollVertically) {
+                return;
+            }
+            this.offsetScrollbarY = offsetY;
+            this.adjustViewportZoneY();
+        }
+        /** Corrects the viewport's horizontal offset based on the current structure
+         *  To make sure that at least on column is visible inside the viewport.
+         */
+        adjustViewportOffsetX() {
+            if (this.canScrollHorizontally) {
+                const { width: viewportWidth } = this.getMaxSize();
+                if (this.width + this.offsetScrollbarX > viewportWidth) {
+                    this.offsetScrollbarX = Math.max(0, viewportWidth - this.width);
+                }
+            }
+            this.left = this.getColIndex(this.offsetScrollbarX, true);
+            this.right = this.getColIndex(this.offsetScrollbarX + this.width, true);
+            if (this.right === -1) {
+                this.right = this.boundaries.right;
+            }
+            this.adjustViewportZoneX();
+        }
+        /** Corrects the viewport's vertical offset based on the current structure
+         *  To make sure that at least on row is visible inside the viewport.
+         */
+        adjustViewportOffsetY() {
+            if (this.canScrollVertically) {
+                const { height: paneHeight } = this.getMaxSize();
+                if (this.height + this.offsetScrollbarY > paneHeight) {
+                    this.offsetScrollbarY = Math.max(0, paneHeight - this.height);
+                }
+            }
+            this.top = this.getRowIndex(this.offsetScrollbarY, true);
+            this.bottom = this.getRowIndex(this.offsetScrollbarY + this.width, true);
+            if (this.bottom === -1) {
+                this.bottom = this.boundaries.bottom;
+            }
+            this.adjustViewportZoneY();
+        }
+        /** Updates the pane zone and snapped offset based on its horizontal
+         * offset (will find Left) and its width (will find Right) */
+        adjustViewportZoneX() {
+            const sheetId = this.sheetId;
+            this.left = this.searchHeaderIndex("COL", this.offsetScrollbarX, this.boundaries.left);
+            this.right = Math.min(this.boundaries.right, this.searchHeaderIndex("COL", this.width, this.left));
+            if (this.right === -1) {
+                this.right = this.getters.getNumberCols(sheetId) - 1;
+            }
+            this.offsetX =
+                this.getters.getColDimensions(sheetId, this.left).start -
+                    this.getters.getColDimensions(sheetId, this.boundaries.left).start;
+        }
+        /** Updates the pane zone and snapped offset based on its vertical
+         * offset (will find Top) and its width (will find Bottom) */
+        adjustViewportZoneY() {
+            const sheetId = this.sheetId;
+            this.top = this.searchHeaderIndex("ROW", this.offsetScrollbarY, this.boundaries.top);
+            this.bottom = Math.min(this.boundaries.bottom, this.searchHeaderIndex("ROW", this.height, this.top));
+            if (this.bottom === -1) {
+                this.bottom = this.getters.getNumberRows(sheetId) - 1;
+            }
+            this.offsetY =
+                this.getters.getRowDimensions(sheetId, this.top).start -
+                    this.getters.getRowDimensions(sheetId, this.boundaries.top).start;
+        }
+    }
+  
+    /**
+     *   EdgeScrollCases Schema
+     *
+     *  The dots/double dots represent a freeze (= a split of viewports)
+     *  In this example, we froze vertically between columns D and E
+     *  and horizontally between rows 4 and 5.
+     *
+     *  One can see that we scrolled horizontally from column E to G and
+     *  vertically from row 5 to 7.
+     *
+     *     A  B  C  D   G  H  I  J  K  L  M  N  O  P  Q  R  S  T
+     *     _______________________________________________________
+     *  1 |           :                                           |
+     *  2 |           :                                           |
+     *  3 |           :        B   ↑                 6            |
+     *  4 |           :        |   |                 |            |
+     *     ····················+···+·················+············|
+     *  7 |           :        |   |                 |            |
+     *  8 |           :        ↓   2                 |            |
+     *  9 |           :                              |            |
+     * 10 |       A --+--→                           |            |
+     * 11 |           :                              |            |
+     * 12 |           :                              |            |
+     * 13 |        ←--+-- 1                          |            |
+     * 14 |           :                              |        3 --+--→
+     * 15 |           :                              |            |
+     * 16 |           :                              |            |
+     * 17 |       5 --+-------------------------------------------+--→
+     * 18 |           :                              |            |
+     * 19 |           :                  4           |            |
+     * 20 |           :                  |           |            |
+     *     ______________________________+___________| ____________
+     *                                   |           |
+     *                                   ↓           ↓
+     */
+    /**
+     * Viewport plugin.
+     *
+     * This plugin manages all things related to all viewport states.
+     *
+     */
+    class SheetViewPlugin extends UIPlugin {
+        constructor() {
+            super(...arguments);
+            this.viewports = {};
+            /**
+             * The viewport dimensions are usually set by one of the components
+             * (i.e. when grid component is mounted) to properly reflect its state in the DOM.
+             * In the absence of a component (standalone model), is it mandatory to set reasonable default values
+             * to ensure the correct operation of this plugin.
+             */
+            this.sheetViewWidth = DEFAULT_SHEETVIEW_SIZE;
+            this.sheetViewHeight = DEFAULT_SHEETVIEW_SIZE;
+            this.gridOffsetX = 0;
+            this.gridOffsetY = 0;
+            this.sheetsWithDirtyViewports = new Set();
+        }
+        // ---------------------------------------------------------------------------
+        // Command Handling
+        // ---------------------------------------------------------------------------
+        allowDispatch(cmd) {
+            switch (cmd.type) {
+                case "SET_VIEWPORT_OFFSET":
+                    return this.checkScrollingDirection(cmd);
+                case "RESIZE_SHEETVIEW":
+                    return this.chainValidations(this.checkValuesAreDifferent, this.checkPositiveDimension)(cmd);
+                default:
+                    return 0 /* CommandResult.Success */;
+            }
+        }
+        handleEvent(event) {
+            switch (event.type) {
+                case "HeadersSelected":
+                case "AlterZoneCorner":
+                    break;
+                case "ZonesSelected":
+                    let { col, row } = findCellInNewZone(event.previousAnchor.zone, event.anchor.zone);
+                    if (event.mode === "updateAnchor") {
+                        const oldZone = event.previousAnchor.zone;
+                        const newZone = event.anchor.zone;
+                        // altering a zone should not move the viewport in a dimension that wasn't changed
+                        const { top, bottom, left, right } = this.getters.getActiveMainViewport();
+                        if (oldZone.left === newZone.left && oldZone.right === newZone.right) {
+                            col = left > col || col > right ? left : col;
+                        }
+                        if (oldZone.top === newZone.top && oldZone.bottom === newZone.bottom) {
+                            row = top > row || row > bottom ? top : row;
+                        }
+                    }
+                    const sheetId = this.getters.getActiveSheetId();
+                    col = Math.min(col, this.getters.getNumberCols(sheetId) - 1);
+                    row = Math.min(row, this.getters.getNumberRows(sheetId) - 1);
+                    this.refreshViewport(this.getters.getActiveSheetId(), { col, row });
+                    break;
+            }
+        }
+        handle(cmd) {
+            var _a;
+            this.cleanViewports();
+            switch (cmd.type) {
+                case "START":
+                    this.selection.observe(this, {
+                        handleEvent: this.handleEvent.bind(this),
+                    });
+                    this.resetViewports(this.getters.getActiveSheetId());
+                    break;
+                case "UNDO":
+                case "REDO":
+                    this.resetSheetViews();
+                    break;
+                case "RESIZE_SHEETVIEW":
+                    this.resizeSheetView(cmd.height, cmd.width, cmd.gridOffsetX, cmd.gridOffsetY);
+                    break;
+                case "SET_VIEWPORT_OFFSET":
+                    this.setSheetViewOffset(cmd.offsetX, cmd.offsetY);
+                    break;
+                case "SHIFT_VIEWPORT_DOWN":
+                    const { top } = this.getActiveMainViewport();
+                    const sheetId = this.getters.getActiveSheetId();
+                    const shiftedOffsetY = this.clipOffsetY(this.getters.getRowDimensions(sheetId, top).start + this.sheetViewHeight);
+                    this.shiftVertically(shiftedOffsetY);
+                    break;
+                case "SHIFT_VIEWPORT_UP": {
+                    const { top } = this.getActiveMainViewport();
+                    const sheetId = this.getters.getActiveSheetId();
+                    const shiftedOffsetY = this.clipOffsetY(this.getters.getRowDimensions(sheetId, top).end - this.sheetViewHeight);
+                    this.shiftVertically(shiftedOffsetY);
+                    break;
+                }
+                case "REMOVE_COLUMNS_ROWS":
+                case "RESIZE_COLUMNS_ROWS":
+                case "HIDE_COLUMNS_ROWS":
+                case "ADD_COLUMNS_ROWS":
+                case "UNHIDE_COLUMNS_ROWS":
+                case "UPDATE_FILTER":
+                    this.resetViewports(cmd.sheetId);
+                    break;
+                case "UPDATE_CELL":
+                    // update cell content or format can change hidden rows because of data filters
+                    if ("content" in cmd || "format" in cmd || ((_a = cmd.style) === null || _a === void 0 ? void 0 : _a.fontSize) !== undefined) {
+                        this.sheetsWithDirtyViewports.add(cmd.sheetId);
+                    }
+                    break;
+                case "ACTIVATE_SHEET":
+                    this.setViewports();
+                    this.refreshViewport(cmd.sheetIdTo);
+                    break;
+                case "UNFREEZE_ROWS":
+                case "UNFREEZE_COLUMNS":
+                case "FREEZE_COLUMNS":
+                case "FREEZE_ROWS":
+                case "UNFREEZE_COLUMNS_ROWS":
+                    this.resetViewports(this.getters.getActiveSheetId());
+                    break;
+                case "START_EDITION":
+                    const { col, row } = this.getters.getPosition();
+                    this.refreshViewport(this.getters.getActiveSheetId(), { col, row });
+                    break;
+            }
+        }
+        finalize() {
+            for (const sheetId of this.sheetsWithDirtyViewports) {
+                this.resetViewports(sheetId);
+            }
+            this.sheetsWithDirtyViewports = new Set();
+            this.setViewports();
+        }
+        setViewports() {
+            var _a;
+            const sheetIds = this.getters.getSheetIds();
+            for (const sheetId of sheetIds) {
+                if (!((_a = this.viewports[sheetId]) === null || _a === void 0 ? void 0 : _a.bottomRight)) {
+                    this.resetViewports(sheetId);
+                }
+            }
+        }
+        // ---------------------------------------------------------------------------
+        // Getters
+        // ---------------------------------------------------------------------------
+        /**
+         * Return the index of a column given an offset x, based on the viewport left
+         * visible cell.
+         * It returns -1 if no column is found.
+         */
+        getColIndex(x) {
+            const sheetId = this.getters.getActiveSheetId();
+            return Math.max(...this.getSubViewports(sheetId).map((viewport) => viewport.getColIndex(x)));
+        }
+        /**
+         * Return the index of a row given an offset y, based on the viewport top
+         * visible cell.
+         * It returns -1 if no row is found.
+         */
+        getRowIndex(y) {
+            const sheetId = this.getters.getActiveSheetId();
+            return Math.max(...this.getSubViewports(sheetId).map((viewport) => viewport.getRowIndex(y)));
+        }
+        getSheetViewDimensionWithHeaders() {
+            return {
+                width: this.sheetViewWidth + this.gridOffsetX,
+                height: this.sheetViewHeight + this.gridOffsetY,
+            };
+        }
+        getSheetViewDimension() {
+            return {
+                width: this.sheetViewWidth,
+                height: this.sheetViewHeight,
+            };
+        }
+        /** type as pane, not viewport but basically pane extends viewport */
+        getActiveMainViewport() {
+            const sheetId = this.getters.getActiveSheetId();
+            return this.getMainViewport(sheetId);
+        }
+        /**
+         * Return the scroll info of the active sheet, ie. the offset between the viewport left/top side and
+         * the grid left/top side, snapped to the columns/rows.
+         */
+        getActiveSheetScrollInfo() {
+            const sheetId = this.getters.getActiveSheetId();
+            const viewport = this.getMainInternalViewport(sheetId);
+            return {
+                scrollX: viewport.offsetX,
+                scrollY: viewport.offsetY,
+            };
+        }
+        /**
+         * Return the DOM scroll info of the active sheet, ie. the offset between the viewport left/top side and
+         * the grid left/top side, corresponding to the scroll of the scrollbars and not snapped to the grid.
+         */
+        getActiveSheetDOMScrollInfo() {
+            const sheetId = this.getters.getActiveSheetId();
+            const viewport = this.getMainInternalViewport(sheetId);
+            return {
+                scrollX: viewport.offsetScrollbarX,
+                scrollY: viewport.offsetScrollbarY,
+            };
+        }
+        getSheetViewVisibleCols() {
+            const sheetId = this.getters.getActiveSheetId();
+            const viewports = this.getSubViewports(sheetId);
+            return [...new Set(viewports.map((v) => range(v.left, v.right + 1)).flat())].filter((col) => !this.getters.isHeaderHidden(sheetId, "COL", col));
+        }
+        getSheetViewVisibleRows() {
+            const sheetId = this.getters.getActiveSheetId();
+            const viewports = this.getSubViewports(sheetId);
+            return [...new Set(viewports.map((v) => range(v.top, v.bottom + 1)).flat())].filter((row) => !this.getters.isHeaderHidden(sheetId, "ROW", row));
+        }
+        /**
+         * Return the main viewport maximum size. That is the zone dimension
+         * with some bottom and right padding.
+         */
+        getMainViewportRect() {
+            const sheetId = this.getters.getActiveSheetId();
+            const viewport = this.getMainInternalViewport(sheetId);
+            const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
+            let { width, height } = viewport.getMaxSize();
+            const x = this.getters.getColDimensions(sheetId, xSplit).start;
+            const y = this.getters.getRowDimensions(sheetId, ySplit).start;
+            return { x, y, width, height };
+        }
+        getMaximumSheetOffset() {
+            const sheetId = this.getters.getActiveSheetId();
+            const { width, height } = this.getMainViewportRect();
+            const viewport = this.getMainInternalViewport(sheetId);
+            return {
+                maxOffsetX: Math.max(0, width - viewport.width + 1),
+                maxOffsetY: Math.max(0, height - viewport.height + 1),
+            };
+        }
+        getColRowOffsetInViewport(dimension, referenceIndex, index) {
+            const sheetId = this.getters.getActiveSheetId();
+            const visibleCols = this.getters.getSheetViewVisibleCols();
+            const visibleRows = this.getters.getSheetViewVisibleRows();
+            if (index < referenceIndex) {
+                return -this.getColRowOffsetInViewport(dimension, index, referenceIndex);
+            }
+            let offset = 0;
+            const visibleIndexes = dimension === "COL" ? visibleCols : visibleRows;
+            for (let i = referenceIndex; i < index; i++) {
+                if (!visibleIndexes.includes(i)) {
+                    continue;
+                }
+                offset +=
+                    dimension === "COL"
+                        ? this.getters.getColSize(sheetId, i)
+                        : this.getters.getRowSize(sheetId, i);
+            }
+            return offset;
+        }
+        /**
+         * Check if a given position is visible in the viewport.
+         */
+        isVisibleInViewport(sheetId, col, row) {
+            return this.getSubViewports(sheetId).some((pane) => pane.isVisible(col, row));
+        }
+        // => return s the new offset
+        getEdgeScrollCol(x, previousX, startingX) {
+            let canEdgeScroll = false;
+            let direction = 0;
+            let delay = 0;
+            /** 4 cases : See EdgeScrollCases Schema at the top
+             * 1. previous in XRight > XLeft
+             * 3. previous in XRight > outside
+             * 5. previous in Left > outside
+             * A. previous in Left > right
+             * with X a position taken in the bottomRIght (aka scrollable) viewport
+             */
+            const { xSplit } = this.getters.getPaneDivisions(this.getters.getActiveSheetId());
+            const { width } = this.getSheetViewDimension();
+            const { x: offsetCorrectionX } = this.getMainViewportCoordinates();
+            const currentOffsetX = this.getActiveSheetScrollInfo().scrollX;
+            if (x > width) {
+                // 3 & 5
+                canEdgeScroll = true;
+                delay = scrollDelay(x - width);
+                direction = 1;
+            }
+            else if (x < offsetCorrectionX && startingX >= offsetCorrectionX && currentOffsetX > 0) {
+                // 1
+                canEdgeScroll = true;
+                delay = scrollDelay(offsetCorrectionX - x);
+                direction = -1;
+            }
+            else if (xSplit && previousX < offsetCorrectionX && x > offsetCorrectionX) {
+                // A
+                canEdgeScroll = true;
+                delay = scrollDelay(x);
+                direction = "reset";
+            }
+            return { canEdgeScroll, direction, delay };
+        }
+        getEdgeScrollRow(y, previousY, tartingY) {
+            let canEdgeScroll = false;
+            let direction = 0;
+            let delay = 0;
+            /** 4 cases : See EdgeScrollCases Schema at the top
+             * 2. previous in XBottom > XTop
+             * 4. previous in XRight > outside
+             * 6. previous in Left > outside
+             * B. previous in Left > right
+             * with X a position taken in the bottomRIght (aka scrollable) viewport
+             */
+            const { ySplit } = this.getters.getPaneDivisions(this.getters.getActiveSheetId());
+            const { height } = this.getSheetViewDimension();
+            const { y: offsetCorrectionY } = this.getMainViewportCoordinates();
+            const currentOffsetY = this.getActiveSheetScrollInfo().scrollY;
+            if (y > height) {
+                // 4 & 6
+                canEdgeScroll = true;
+                delay = scrollDelay(y - height);
+                direction = 1;
+            }
+            else if (y < offsetCorrectionY && tartingY >= offsetCorrectionY && currentOffsetY > 0) {
+                // 2
+                canEdgeScroll = true;
+                delay = scrollDelay(offsetCorrectionY - y);
+                direction = -1;
+            }
+            else if (ySplit && previousY < offsetCorrectionY && y > offsetCorrectionY) {
+                // B
+                canEdgeScroll = true;
+                delay = scrollDelay(y);
+                direction = "reset";
+            }
+            return { canEdgeScroll, direction, delay };
+        }
+        /**
+         * Computes the coordinates and size to draw the zone on the canvas
+         */
+        getVisibleRect(zone) {
+            const sheetId = this.getters.getActiveSheetId();
+            const viewportRects = this.getSubViewports(sheetId)
+                .map((viewport) => viewport.getRect(zone))
+                .filter(isDefined$1);
+            if (viewportRects.length === 0) {
+                return { x: 0, y: 0, width: 0, height: 0 };
+            }
+            const x = Math.min(...viewportRects.map((rect) => rect.x));
+            const y = Math.min(...viewportRects.map((rect) => rect.y));
+            const width = Math.max(...viewportRects.map((rect) => rect.x + rect.width)) - x;
+            const height = Math.max(...viewportRects.map((rect) => rect.y + rect.height)) - y;
+            return {
+                x: x + this.gridOffsetX,
+                y: y + this.gridOffsetY,
+                width,
+                height,
+            };
+        }
+        /**
+         * Returns the position of the MainViewport relatively to the start of the grid (without headers)
+         * It corresponds to the summed dimensions of the visible cols/rows (in x/y respectively)
+         * situated before the pane divisions.
+         */
+        getMainViewportCoordinates() {
+            const sheetId = this.getters.getActiveSheetId();
+            const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
+            const x = this.getters.getColDimensions(sheetId, xSplit).start;
+            const y = this.getters.getRowDimensions(sheetId, ySplit).start;
+            return { x, y };
+        }
+        // ---------------------------------------------------------------------------
+        // Private
+        // ---------------------------------------------------------------------------
+        ensureMainViewportExist(sheetId) {
+            if (!this.viewports[sheetId]) {
+                this.resetViewports(sheetId);
+            }
+        }
+        getSubViewports(sheetId) {
+            this.ensureMainViewportExist(sheetId);
+            return Object.values(this.viewports[sheetId]).filter(isDefined$1);
+        }
+        checkPositiveDimension(cmd) {
+            if (cmd.width < 0 || cmd.height < 0) {
+                return 67 /* CommandResult.InvalidViewportSize */;
+            }
+            return 0 /* CommandResult.Success */;
+        }
+        checkValuesAreDifferent(cmd) {
+            const { height, width } = this.getSheetViewDimension();
+            if (cmd.gridOffsetX === this.gridOffsetX &&
+                cmd.gridOffsetY === this.gridOffsetY &&
+                cmd.width === width &&
+                cmd.height === height) {
+                return 75 /* CommandResult.ValuesNotChanged */;
+            }
+            return 0 /* CommandResult.Success */;
+        }
+        checkScrollingDirection({ offsetX, offsetY, }) {
+            const pane = this.getMainInternalViewport(this.getters.getActiveSheetId());
+            if ((!pane.canScrollHorizontally && offsetX > 0) ||
+                (!pane.canScrollVertically && offsetY > 0)) {
+                return 68 /* CommandResult.InvalidScrollingDirection */;
+            }
+            return 0 /* CommandResult.Success */;
+        }
+        getMainViewport(sheetId) {
+            const viewport = this.getMainInternalViewport(sheetId);
+            return {
+                top: viewport.top,
+                left: viewport.left,
+                bottom: viewport.bottom,
+                right: viewport.right,
+            };
+        }
+        getMainInternalViewport(sheetId) {
+            this.ensureMainViewportExist(sheetId);
+            return this.viewports[sheetId].bottomRight;
+        }
+        /** gets rid of deprecated sheetIds */
+        cleanViewports() {
+            const sheetIds = this.getters.getSheetIds();
+            for (let sheetId of Object.keys(this.viewports)) {
+                if (!sheetIds.includes(sheetId)) {
+                    delete this.viewports[sheetId];
+                }
+            }
+        }
+        resetSheetViews() {
+            for (let sheetId of Object.keys(this.viewports)) {
+                const position = this.getters.getSheetPosition(sheetId);
+                this.resetViewports(sheetId);
+                const viewports = this.getSubViewports(sheetId);
+                Object.values(viewports).forEach((viewport) => {
+                    viewport.adjustPosition(position);
+                });
+            }
+        }
+        resizeSheetView(height, width, gridOffsetX = 0, gridOffsetY = 0) {
+            this.sheetViewHeight = height;
+            this.sheetViewWidth = width;
+            this.gridOffsetX = gridOffsetX;
+            this.gridOffsetY = gridOffsetY;
+            this.recomputeViewports();
+        }
+        recomputeViewports() {
+            for (let sheetId of Object.keys(this.viewports)) {
+                this.resetViewports(sheetId);
+            }
+        }
+        setSheetViewOffset(offsetX, offsetY) {
+            const sheetId = this.getters.getActiveSheetId();
+            const { maxOffsetX, maxOffsetY } = this.getMaximumSheetOffset();
+            Object.values(this.getSubViewports(sheetId)).forEach((viewport) => viewport.setViewportOffset(clip(offsetX, 0, maxOffsetX), clip(offsetY, 0, maxOffsetY)));
+        }
+        /**
+         * Clip the vertical offset within the allowed range.
+         * Not above the sheet, nor below the sheet.
+         */
+        clipOffsetY(offsetY) {
+            const { height } = this.getMainViewportRect();
+            const maxOffset = height - this.sheetViewHeight;
+            offsetY = Math.min(offsetY, maxOffset);
+            offsetY = Math.max(offsetY, 0);
+            return offsetY;
+        }
+        getViewportOffset(sheetId) {
+            var _a, _b;
+            return {
+                x: ((_a = this.viewports[sheetId]) === null || _a === void 0 ? void 0 : _a.bottomRight.offsetScrollbarX) || 0,
+                y: ((_b = this.viewports[sheetId]) === null || _b === void 0 ? void 0 : _b.bottomRight.offsetScrollbarY) || 0,
+            };
+        }
+        resetViewports(sheetId) {
+            const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
+            const nCols = this.getters.getNumberCols(sheetId);
+            const nRows = this.getters.getNumberRows(sheetId);
+            const colOffset = this.getters.getColRowOffset("COL", 0, xSplit, sheetId);
+            const rowOffset = this.getters.getColRowOffset("ROW", 0, ySplit, sheetId);
+            const { xRatio, yRatio } = this.getFrozenSheetViewRatio(sheetId);
+            const canScrollHorizontally = xRatio < 1.0;
+            const canScrollVertically = yRatio < 1.0;
+            const previousOffset = this.getViewportOffset(sheetId);
+            const sheetViewports = {
+                topLeft: (ySplit &&
+                    xSplit &&
+                    new InternalViewport(this.getters, sheetId, { left: 0, right: xSplit - 1, top: 0, bottom: ySplit - 1 }, { width: colOffset, height: rowOffset }, { canScrollHorizontally: false, canScrollVertically: false }, { x: 0, y: 0 })) ||
+                    undefined,
+                topRight: (ySplit &&
+                    new InternalViewport(this.getters, sheetId, { left: xSplit, right: nCols - 1, top: 0, bottom: ySplit - 1 }, { width: this.sheetViewWidth - colOffset, height: rowOffset }, { canScrollHorizontally, canScrollVertically: false }, { x: canScrollHorizontally ? previousOffset.x : 0, y: 0 })) ||
+                    undefined,
+                bottomLeft: (xSplit &&
+                    new InternalViewport(this.getters, sheetId, { left: 0, right: xSplit - 1, top: ySplit, bottom: nRows - 1 }, { width: colOffset, height: this.sheetViewHeight - rowOffset }, { canScrollHorizontally: false, canScrollVertically }, { x: 0, y: canScrollVertically ? previousOffset.y : 0 })) ||
+                    undefined,
+                bottomRight: new InternalViewport(this.getters, sheetId, { left: xSplit, right: nCols - 1, top: ySplit, bottom: nRows - 1 }, {
+                    width: this.sheetViewWidth - colOffset,
+                    height: this.sheetViewHeight - rowOffset,
+                }, { canScrollHorizontally, canScrollVertically }, {
+                    x: canScrollHorizontally ? previousOffset.x : 0,
+                    y: canScrollVertically ? previousOffset.y : 0,
+                }),
+            };
+            this.viewports[sheetId] = sheetViewports;
+        }
+        /**
+         * Adjust the viewport such that the anchor position is visible
+         */
+        refreshViewport(sheetId, anchorPosition) {
+            Object.values(this.getSubViewports(sheetId)).forEach((viewport) => {
+                viewport.adjustViewportZone();
+                viewport.adjustPosition(anchorPosition);
+            });
+        }
+        /**
+         * Shift the viewport vertically and move the selection anchor
+         * such that it remains at the same place relative to the
+         * viewport top.
+         */
+        shiftVertically(offset) {
+            const { top } = this.getActiveMainViewport();
+            const { scrollX } = this.getActiveSheetScrollInfo();
+            this.setSheetViewOffset(scrollX, offset);
+            const { anchor } = this.getters.getSelection();
+            const deltaRow = this.getActiveMainViewport().top - top;
+            this.selection.selectCell(anchor.cell.col, anchor.cell.row + deltaRow);
+        }
+        getVisibleFigures() {
+            const sheetId = this.getters.getActiveSheetId();
+            const result = [];
+            const figures = this.getters.getFigures(sheetId);
+            const { scrollX, scrollY } = this.getActiveSheetScrollInfo();
+            const { x: offsetCorrectionX, y: offsetCorrectionY } = this.getters.getMainViewportCoordinates();
+            const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
+            for (const figure of figures) {
+                if (figure.x >= offsetCorrectionX &&
+                    (figure.x + figure.width <= offsetCorrectionX + scrollX ||
+                        figure.x >= width + scrollX + offsetCorrectionX)) {
+                    continue;
+                }
+                if (figure.y >= offsetCorrectionY &&
+                    (figure.y + figure.height <= offsetCorrectionY + scrollY ||
+                        figure.y >= height + scrollY + offsetCorrectionY)) {
+                    continue;
+                }
+                result.push(figure);
+            }
+            return result;
+        }
+        getFrozenSheetViewRatio(sheetId) {
+            const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
+            const offsetCorrectionX = this.getters.getColDimensions(sheetId, xSplit).start;
+            const offsetCorrectionY = this.getters.getRowDimensions(sheetId, ySplit).start;
+            const width = this.sheetViewWidth + this.gridOffsetX;
+            const height = this.sheetViewHeight + this.gridOffsetY;
+            return { xRatio: offsetCorrectionX / width, yRatio: offsetCorrectionY / height };
+        }
+    }
+    SheetViewPlugin.getters = [
+        "getColIndex",
+        "getRowIndex",
+        "getActiveMainViewport",
+        "getSheetViewDimension",
+        "getSheetViewDimensionWithHeaders",
+        "getMainViewportRect",
+        "isVisibleInViewport",
+        "getEdgeScrollCol",
+        "getEdgeScrollRow",
+        "getVisibleFigures",
+        "getVisibleRect",
+        "getColRowOffsetInViewport",
+        "getMainViewportCoordinates",
+        "getActiveSheetScrollInfo",
+        "getActiveSheetDOMScrollInfo",
+        "getSheetViewVisibleCols",
+        "getSheetViewVisibleRows",
+        "getFrozenSheetViewRatio",
+    ];
+  
+    class SortPlugin extends UIPlugin {
+        allowDispatch(cmd) {
+            switch (cmd.type) {
+                case "SORT_CELLS":
+                    if (!isInside(cmd.col, cmd.row, cmd.zone)) {
+                        throw new Error(_lt("The anchor must be part of the provided zone"));
+                    }
+                    return this.checkValidations(cmd, this.checkMerge, this.checkMergeSizes);
+            }
+            return 0 /* CommandResult.Success */;
+        }
+        handle(cmd) {
+            switch (cmd.type) {
+                case "SORT_CELLS":
+                    this.sortZone(cmd.sheetId, cmd, cmd.zone, cmd.sortDirection, cmd.sortOptions || {});
+                    break;
+            }
+        }
+        checkMerge({ sheetId, zone }) {
+            if (!this.getters.doesIntersectMerge(sheetId, zone)) {
+                return 0 /* CommandResult.Success */;
+            }
+            /*Test the presence of single cells*/
+            for (let row = zone.top; row <= zone.bottom; row++) {
+                for (let col = zone.left; col <= zone.right; col++) {
+                    if (!this.getters.isInMerge(sheetId, col, row)) {
+                        return 62 /* CommandResult.InvalidSortZone */;
+                    }
+                }
+            }
+            return 0 /* CommandResult.Success */;
+        }
+        checkMergeSizes({ sheetId, zone }) {
+            if (!this.getters.doesIntersectMerge(sheetId, zone)) {
+                return 0 /* CommandResult.Success */;
+            }
+            const merges = this.getters.getMerges(sheetId).filter((merge) => overlap(merge, zone));
+            /*Test the presence of merges of different sizes*/
+            const mergeDimension = zoneToDimension(merges[0]);
+            let [widthFirst, heightFirst] = [mergeDimension.width, mergeDimension.height];
+            if (!merges.every((merge) => {
+                let [widthCurrent, heightCurrent] = [
+                    merge.right - merge.left + 1,
+                    merge.bottom - merge.top + 1,
+                ];
+                return widthCurrent === widthFirst && heightCurrent === heightFirst;
+            })) {
+                return 62 /* CommandResult.InvalidSortZone */;
+            }
+            return 0 /* CommandResult.Success */;
+        }
+        // getContiguousZone helpers
+        /**
+         * safe-version of expandZone to make sure we don't get out of the grid
+         */
+        expand(sheetId, z) {
+            const { left, right, top, bottom } = this.getters.expandZone(sheetId, z);
+            return {
+                left: Math.max(0, left),
+                right: Math.min(this.getters.getNumberCols(sheetId) - 1, right),
+                top: Math.max(0, top),
+                bottom: Math.min(this.getters.getNumberRows(sheetId) - 1, bottom),
+            };
+        }
+        /**
+         * verifies the presence of at least one non-empty cell in the given zone
+         */
+        checkExpandedValues(sheetId, z) {
+            const expandedZone = this.expand(sheetId, z);
+            let cell;
+            if (this.getters.doesIntersectMerge(sheetId, expandedZone)) {
+                const { left, right, top, bottom } = expandedZone;
+                for (let c = left; c <= right; c++) {
+                    for (let r = top; r <= bottom; r++) {
+                        const { col: mainCellCol, row: mainCellRow } = this.getters.getMainCellPosition(sheetId, c, r);
+                        cell = this.getters.getCell(sheetId, mainCellCol, mainCellRow);
+                        if (cell === null || cell === void 0 ? void 0 : cell.formattedValue) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            else {
+                for (let cell of this.getters.getCellsInZone(sheetId, expandedZone)) {
+                    if (cell === null || cell === void 0 ? void 0 : cell.formattedValue) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        /**
+         * This function will expand the provided zone in directions (top, bottom, left, right) for which there
+         * are non-null cells on the external boundary of the zone in the given direction.
+         *
+         * Example:
+         *          A     B     C     D     E
+         *         ___   ___   ___   ___   ___
+         *    1  |     |  D  |     |     |     |
+         *         ___   ___   ___   ___   ___
+         *    2  |  5  |     |  1  |  D  |     |
+         *         ___   ___   ___   ___   ___
+         *    3  |     |     |  A  |  X  |     |
+         *         ___   ___   ___   ___   ___
+         *    4  |     |     |     |     |     |
+         *         ___   ___   ___   ___   ___
+         *
+         *  Let's consider a provided zone corresponding to (C2:D3) - (left:2, right: 3, top:1, bottom:2)
+         *  - the top external boundary is (B1:E1)
+         *    Since we have B1='D' != "", we expand to the top: => (C1:D3)
+         *    The top boundary having reached the top of the grid, we cannot expand in that direction anymore
+         *
+         *  - the left boundary is (B1:B4)
+         *    since we have B1 again, we expand to the left  => (B1:D3)
+         *
+         *  - the right and bottom boundaries are a dead end for now as (E1:E4) and (A4:E4) are empty.
+         *
+         *  - the left boundary is now (A1:A4)
+         *    Since we have A2=5 != "", we can therefore expand to the left => (A1:D3)
+         *
+         *  This will be the final zone as left and top have reached the boundaries of the grid and
+         *  the other boundaries (E1:E4) and (A4:E4) are empty.
+         *
+         * @param sheetId UID of concerned sheet
+         * @param zone Zone
+         *
+         */
+        getContiguousZone(sheetId, zone) {
+            let { top, bottom, left, right } = zone;
+            let canExpand;
+            let stop = false;
+            while (!stop) {
+                stop = true;
+                /** top row external boundary */
+                if (top > 0) {
+                    canExpand = this.checkExpandedValues(sheetId, {
+                        left: left - 1,
+                        right: right + 1,
+                        top: top - 1,
+                        bottom: top - 1,
+                    });
+                    if (canExpand) {
+                        stop = false;
+                        top--;
+                    }
+                }
+                /** left column external boundary */
+                if (left > 0) {
+                    canExpand = this.checkExpandedValues(sheetId, {
+                        left: left - 1,
+                        right: left - 1,
+                        top: top - 1,
+                        bottom: bottom + 1,
+                    });
+                    if (canExpand) {
+                        stop = false;
+                        left--;
+                    }
+                }
+                /** right column external boundary */
+                if (right < this.getters.getNumberCols(sheetId) - 1) {
+                    canExpand = this.checkExpandedValues(sheetId, {
+                        left: right + 1,
+                        right: right + 1,
+                        top: top - 1,
+                        bottom: bottom + 1,
+                    });
+                    if (canExpand) {
+                        stop = false;
+                        right++;
+                    }
+                }
+                /** bottom row external boundary */
+                if (bottom < this.getters.getNumberRows(sheetId) - 1) {
+                    canExpand = this.checkExpandedValues(sheetId, {
+                        left: left - 1,
+                        right: right + 1,
+                        top: bottom + 1,
+                        bottom: bottom + 1,
+                    });
+                    if (canExpand) {
+                        stop = false;
+                        bottom++;
+                    }
+                }
+            }
+            return { left, right, top, bottom };
+        }
+        /**
+         * This function evaluates if the top row of a provided zone can be considered as a `header`
+         * by checking the following criteria:
+         * * If the left-most column top row value (topLeft) is empty, we ignore it while evaluating the criteria.
+         * 1 - Apart from the left-most column, every element of the top row must be non-empty, i.e. a cell should be present in the sheet.
+         * 2 - There should be at least one column in which the type (CellValueType) of the rop row cell differs from the type of the cell below.
+         *  For the second criteria, we ignore columns on which the cell below is empty.
+         *
+         */
+        hasHeader(items) {
+            if (items[0].length === 1)
+                return false;
+            let cells = items.map((col) => col.map((cell) => (cell === null || cell === void 0 ? void 0 : cell.evaluated.type) || CellValueType.empty));
+            // ignore left-most column when topLeft cell is empty
+            const topLeft = cells[0][0];
+            if (topLeft === CellValueType.empty) {
+                cells = cells.slice(1);
+            }
+            if (cells.some((item) => item[0] === CellValueType.empty)) {
+                return false;
+            }
+            else if (cells.some((item) => item[1] !== CellValueType.empty && item[0] !== item[1])) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        sortZone(sheetId, anchor, zone, sortDirection, options) {
+            const [stepX, stepY] = this.mainCellsSteps(sheetId, zone);
+            let sortingCol = this.getters.getMainCellPosition(sheetId, anchor.col, anchor.row).col; // fetch anchor
+            let sortZone = Object.assign({}, zone);
+            // Update in case of merges in the zone
+            let cells = this.mainCells(sheetId, zone);
+            if (!options.sortHeaders && this.hasHeader(cells)) {
+                sortZone.top += stepY;
+            }
+            cells = this.mainCells(sheetId, sortZone);
+            const sortingCells = cells[sortingCol - sortZone.left];
+            const sortedIndexOfSortTypeCells = sortCells(sortingCells, sortDirection, Boolean(options.emptyCellAsZero));
+            const sortedIndex = sortedIndexOfSortTypeCells.map((x) => x.index);
+            const [width, height] = [cells.length, cells[0].length];
+            for (let c = 0; c < width; c++) {
+                for (let r = 0; r < height; r++) {
+                    let cell = cells[c][sortedIndex[r]];
+                    let newCol = sortZone.left + c * stepX;
+                    let newRow = sortZone.top + r * stepY;
+                    let newCellValues = {
+                        sheetId: sheetId,
+                        col: newCol,
+                        row: newRow,
+                        content: "",
+                        value: "",
+                    };
+                    if (cell) {
+                        let content = cell.content;
+                        if (cell.isFormula()) {
+                            const position = this.getters.getCellPosition(cell.id);
+                            const offsetY = newRow - position.row;
+                            // we only have a vertical offset
+                            const ranges = this.getters.createAdaptedRanges(cell.dependencies, 0, offsetY, sheetId);
+                            content = this.getters.buildFormulaContent(sheetId, cell, ranges);
+                        }
+                        newCellValues.style = cell.style;
+                        newCellValues.content = content;
+                        newCellValues.format = cell.format;
+                        newCellValues.value = cell.evaluated.value;
+                    }
+                    this.dispatch("UPDATE_CELL", newCellValues);
+                }
+            }
+        }
+        /**
+         * Return the distances between main merge cells in the zone.
+         * (1 if there are no merges).
+         * Note: it is assumed all merges are the same in the zone.
+         */
+        mainCellsSteps(sheetId, zone) {
+            const merge = this.getters.getMerge(sheetId, zone.left, zone.top);
+            const stepX = merge ? merge.right - merge.left + 1 : 1;
+            const stepY = merge ? merge.bottom - merge.top + 1 : 1;
+            return [stepX, stepY];
+        }
+        /**
+         * Return a 2D array of cells in the zone (main merge cells if there are merges)
+         */
+        mainCells(sheetId, zone) {
+            const [stepX, stepY] = this.mainCellsSteps(sheetId, zone);
+            const cells = [];
+            const cols = range(zone.left, zone.right + 1, stepX);
+            const rows = range(zone.top, zone.bottom + 1, stepY);
+            for (const col of cols) {
+                const colCells = [];
+                cells.push(colCells);
+                for (const row of rows) {
+                    colCells.push(this.getters.getCell(sheetId, col, row));
+                }
+            }
+            return cells;
+        }
+    }
+    SortPlugin.getters = ["getContiguousZone"];
+  
+    class UIOptionsPlugin extends UIPlugin {
+        constructor() {
+            super(...arguments);
+            this.showFormulas = false;
+        }
+        // ---------------------------------------------------------------------------
+        // Command Handling
+        // ---------------------------------------------------------------------------
+        handle(cmd) {
+            switch (cmd.type) {
+                case "SET_FORMULA_VISIBILITY":
+                    this.showFormulas = cmd.show;
+                    break;
+            }
+        }
+        // ---------------------------------------------------------------------------
+        // Getters
+        // ---------------------------------------------------------------------------
+        shouldShowFormulas() {
+            return this.showFormulas;
+        }
+    }
+    UIOptionsPlugin.getters = ["shouldShowFormulas"];
+  
+    class SheetUIPlugin extends UIPlugin {
+        constructor() {
+            super(...arguments);
+            this.ctx = document.createElement("canvas").getContext("2d");
+        }
+        // ---------------------------------------------------------------------------
+        // Command Handling
+        // ---------------------------------------------------------------------------
+        allowDispatch(cmd) {
+            switch (cmd.type) {
+                case "AUTORESIZE_ROWS":
+                case "AUTORESIZE_COLUMNS":
+                    try {
+                        this.getters.getSheet(cmd.sheetId);
+                        break;
+                    }
+                    catch (error) {
+                        return 27 /* CommandResult.InvalidSheetId */;
+                    }
+            }
+            return 0 /* CommandResult.Success */;
+        }
+        handle(cmd) {
+            switch (cmd.type) {
+                case "AUTORESIZE_COLUMNS":
+                    for (let col of cmd.cols) {
+                        const size = this.getColMaxWidth(cmd.sheetId, col);
+                        if (size !== 0) {
+                            this.dispatch("RESIZE_COLUMNS_ROWS", {
+                                elements: [col],
+                                dimension: "COL",
+                                size,
+                                sheetId: cmd.sheetId,
+                            });
+                        }
+                    }
+                    break;
+                case "AUTORESIZE_ROWS":
+                    for (let row of cmd.rows) {
+                        this.dispatch("RESIZE_COLUMNS_ROWS", {
+                            elements: [row],
+                            dimension: "ROW",
+                            size: null,
+                            sheetId: cmd.sheetId,
+                        });
+                    }
+                    break;
+            }
+        }
+        // ---------------------------------------------------------------------------
+        // Getters
+        // ---------------------------------------------------------------------------
+        getCellWidth(sheetId, { col, row }) {
+            const cell = this.getters.getCell(sheetId, col, row);
+            let contentWidth = 0;
+            if (cell) {
+                contentWidth += this.getTextWidth(cell);
+            }
+            const icon = this.getters.getConditionalIcon(col, row);
+            if (icon) {
+                contentWidth += computeIconWidth(this.getters.getCellStyle(cell));
+            }
+            const isFilterHeader = this.getters.isFilterHeader(sheetId, col, row);
+            if (isFilterHeader) {
+                contentWidth += ICON_EDGE_LENGTH + FILTER_ICON_MARGIN;
+            }
+            if (contentWidth > 0) {
+                contentWidth += 2 * PADDING_AUTORESIZE_HORIZONTAL;
+                if (this.getters.getCellStyle(cell).wrapping === "wrap") {
+                    const zone = positionToZone({ col, row });
+                    const colWidth = this.getters.getColSize(this.getters.getActiveSheetId(), zone.left);
+                    return Math.min(colWidth, contentWidth);
+                }
+            }
+            return contentWidth;
+        }
+        getTextWidth(cell) {
+            const text = this.getters.getCellText(cell, this.getters.shouldShowFormulas());
+            const { sheetId, col, row } = this.getters.getCellPosition(cell.id);
+            return computeTextWidth(this.ctx, text, this.getters.getCellComputedStyle(sheetId, col, row));
+        }
+        getCellText(cell, showFormula = false) {
+            if (showFormula && (cell.isFormula() || cell.evaluated.type === CellValueType.error)) {
+                return cell.content;
+            }
+            else {
+                return cell.formattedValue;
+            }
+        }
+        getCellMultiLineText(cell, width) {
+            const style = this.getters.getCellStyle(cell);
+            const text = this.getters.getCellText(cell);
+            const words = text.split(" ");
+            const brokenText = [];
+            let textLine = "";
+            let availableWidth = width;
+            for (let word of words) {
+                const splitWord = this.splitWordToSpecificWidth(this.ctx, word, width, style);
+                const lastPart = splitWord.pop();
+                const lastPartWidth = computeTextWidth(this.ctx, lastPart, style);
+                // At this step: "splitWord" is an array composed of parts of word whose
+                // length is at most equal to "width".
+                // Last part contains the end of the word.
+                // Note that: When word length is less than width, then lastPart is equal
+                // to word and splitWord is empty
+                if (splitWord.length) {
+                    if (textLine !== "") {
+                        brokenText.push(textLine);
+                        textLine = "";
+                        availableWidth = width;
+                    }
+                    splitWord.forEach((wordPart) => {
+                        brokenText.push(wordPart);
+                    });
+                    textLine = lastPart;
+                    availableWidth = width - lastPartWidth;
+                }
+                else {
+                    // here "lastPart" is equal to "word" and the "word" size is smaller than "width"
+                    const _word = textLine === "" ? lastPart : " " + lastPart;
+                    const wordWidth = computeTextWidth(this.ctx, _word, style);
+                    if (wordWidth <= availableWidth) {
+                        textLine += _word;
+                        availableWidth -= wordWidth;
+                    }
+                    else {
+                        brokenText.push(textLine);
+                        textLine = lastPart;
+                        availableWidth = width - lastPartWidth;
+                    }
+                }
+            }
+            if (textLine !== "") {
+                brokenText.push(textLine);
+            }
+            return brokenText;
+        }
+        /**
+         * Returns the size, start and end coordinates of a column on an unfolded sheet
+         */
+        getColDimensions(sheetId, col) {
+            const start = this.getColRowOffset("COL", 0, col, sheetId);
+            const size = this.getters.getColSize(sheetId, col);
+            const isColHidden = this.getters.isColHidden(sheetId, col);
+            return {
+                start,
+                size,
+                end: start + (isColHidden ? 0 : size),
+            };
+        }
+        /**
+         * Returns the size, start and end coordinates of a row an unfolded sheet
+         */
+        getRowDimensions(sheetId, row) {
+            const start = this.getColRowOffset("ROW", 0, row, sheetId);
+            const size = this.getters.getRowSize(sheetId, row);
+            const isRowHidden = this.getters.isRowHidden(sheetId, row);
+            return {
+                start,
+                size: size,
+                end: start + (isRowHidden ? 0 : size),
+            };
+        }
+        /**
+         * Returns the offset of a header (determined by the dimension) at the given index
+         * based on the referenceIndex given. If start === 0, this method will return
+         * the start attribute of the header.
+         *
+         * i.e. The size from A to B is the distance between A.start and B.end
+         */
+        getColRowOffset(dimension, referenceIndex, index, sheetId = this.getters.getActiveSheetId()) {
+            if (index < referenceIndex) {
+                return -this.getColRowOffset(dimension, index, referenceIndex);
+            }
+            let offset = 0;
+            for (let i = referenceIndex; i < index; i++) {
+                if (this.getters.isHeaderHidden(sheetId, dimension, i)) {
+                    continue;
+                }
+                offset +=
+                    dimension === "COL"
+                        ? this.getters.getColSize(sheetId, i)
+                        : this.getters.getRowSize(sheetId, i);
+            }
+            return offset;
+        }
+        // ---------------------------------------------------------------------------
+        // Grid manipulation
+        // ---------------------------------------------------------------------------
+        getColMaxWidth(sheetId, index) {
+            const cellsPositions = positions(this.getters.getColsZone(sheetId, index, index));
+            const sizes = cellsPositions.map((position) => this.getCellWidth(sheetId, position));
+            return Math.max(0, ...sizes);
+        }
+        splitWordToSpecificWidth(ctx, word, width, style) {
+            const wordWidth = computeTextWidth(ctx, word, style);
+            if (wordWidth <= width) {
+                return [word];
+            }
+            const splitWord = [];
+            let wordPart = "";
+            for (let l of word) {
+                const wordPartWidth = computeTextWidth(ctx, wordPart + l, style);
+                if (wordPartWidth > width) {
+                    splitWord.push(wordPart);
+                    wordPart = l;
+                }
+                else {
+                    wordPart += l;
+                }
+            }
+            splitWord.push(wordPart);
+            return splitWord;
+        }
+    }
+    SheetUIPlugin.getters = [
+        "getCellWidth",
+        "getTextWidth",
+        "getCellText",
+        "getCellMultiLineText",
+        "getColDimensions",
+        "getRowDimensions",
+        "getColRowOffset",
+    ];
+  
+    const corePluginRegistry = new Registry()
+        .add("sheet", SheetPlugin)
+        .add("header visibility", HeaderVisibilityPlugin)
+        .add("filters", FiltersPlugin)
+        .add("cell", CellPlugin)
+        .add("merge", MergePlugin)
+        .add("headerSize", HeaderSizePlugin)
+        .add("borders", BordersPlugin)
+        .add("conditional formatting", ConditionalFormatPlugin)
+        .add("figures", FigurePlugin)
+        .add("chart", ChartPlugin);
+    const uiPluginRegistry = new Registry()
+        .add("selection", GridSelectionPlugin)
+        .add("ui_sheet", SheetUIPlugin)
+        .add("header_visibility_ui", HeaderVisibilityUIPlugin)
+        .add("ui_options", UIOptionsPlugin)
+        .add("evaluation", EvaluationPlugin)
+        .add("evaluation_filter", FilterEvaluationPlugin)
+        .add("evaluation_cf", EvaluationConditionalFormatPlugin)
+        .add("evaluation_chart", EvaluationChartPlugin)
+        .add("clipboard", ClipboardPlugin)
+        .add("edition", EditionPlugin)
+        .add("selectionInputManager", SelectionInputsManagerPlugin)
+        .add("highlight", HighlightPlugin)
+        .add("viewport", SheetViewPlugin)
+        .add("grid renderer", RendererPlugin)
+        .add("autofill", AutofillPlugin)
+        .add("find_and_replace", FindAndReplacePlugin)
+        .add("sort", SortPlugin)
+        .add("automatic_sum", AutomaticSumPlugin)
+        .add("format", FormatPlugin)
+        .add("cell_popovers", CellPopoverPlugin)
+        .add("selection_multiuser", SelectionMultiUserPlugin)
+        .add("custom_colors", CustomColorsPlugin);
+  
+    const clickableCellRegistry = new Registry();
+    clickableCellRegistry.add("link", {
+        condition: (cell) => cell.isLink(),
+        action: (cell, env) => {
+            cell.action(env);
+        },
+        sequence: 5,
+    });
+  
+    // -----------------------------------------------------------------------------
+    // SpreadSheet
+    // -----------------------------------------------------------------------------
+    css /* scss */ `
+    .o-spreadsheet-bottom-bar {
+      background-color: ${BACKGROUND_GRAY_COLOR};
+      padding-left: ${HEADER_WIDTH}px;
+      display: flex;
+      align-items: center;
+      font-size: 15px;
+      border-top: 1px solid lightgrey;
+      overflow: hidden;
+  
+      .o-add-sheet,
+      .o-list-sheets {
+        margin-right: 5px;
+      }
+  
+      .o-add-sheet.disabled {
+        cursor: not-allowed;
+      }
+  
+      .o-sheet-item {
+        display: flex;
+        align-items: center;
+        padding: 5px;
+        cursor: pointer;
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.08);
+        }
+      }
+  
+      .o-all-sheets {
+        display: flex;
+        align-items: center;
+        max-width: 80%;
+        overflow: hidden;
+      }
+  
+      .o-sheet {
+        color: #666;
+        padding: 0 15px;
+        padding-right: 10px;
+        height: ${BOTTOMBAR_HEIGHT}px;
+        line-height: ${BOTTOMBAR_HEIGHT}px;
+        user-select: none;
+        white-space: nowrap;
+        border-left: 1px solid #c1c1c1;
+  
+        &:last-child {
+          border-right: 1px solid #c1c1c1;
+        }
+  
+        &.active {
+          color: #484;
+          background-color: #ffffff;
+          box-shadow: 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+        }
+  
+        .o-sheet-icon {
+          margin-left: 5px;
+  
+          &:hover {
+            background-color: rgba(0, 0, 0, 0.08);
+          }
+        }
+      }
+  
+      .o-selection-statistic {
+        background-color: #ffffff;
+        margin-left: auto;
+        font-size: 14px;
+        margin-right: 20px;
+        padding: 4px 8px;
+        color: #333;
+        border-radius: 3px;
+        box-shadow: 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+        user-select: none;
+        cursor: pointer;
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.08);
+        }
+      }
+  
+      .fade-enter-active {
+        transition: opacity 0.5s;
+      }
+  
+      .fade-enter {
+        opacity: 0;
+      }
+    }
+  `;
+    class BottomBar extends owl.Component {
+        constructor() {
+            super(...arguments);
+            this.bottomBarRef = owl.useRef("bottomBar");
+            this.menuState = owl.useState({
+                isOpen: false,
+                menuId: undefined,
+                position: null,
+                menuItems: [],
+            });
+            this.selectedStatisticFn = "";
+        }
+        setup() {
+            owl.onMounted(() => this.focusSheet());
+            owl.onPatched(() => this.focusSheet());
+        }
+        focusSheet() {
+            const div = this.bottomBarRef.el.querySelector(`[data-id="${this.env.model.getters.getActiveSheetId()}"]`);
+            if (div && div.scrollIntoView) {
+                div.scrollIntoView();
+            }
+        }
+        addSheet() {
+            const activeSheetId = this.env.model.getters.getActiveSheetId();
+            const position = this.env.model.getters.getSheetIds().findIndex((sheetId) => sheetId === activeSheetId) + 1;
+            const sheetId = this.env.model.uuidGenerator.uuidv4();
+            const name = this.env.model.getters.getNextSheetName(this.env._t("Sheet"));
+            this.env.model.dispatch("CREATE_SHEET", { sheetId, position, name });
+            this.env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
+        }
+        getVisibleSheets() {
+            return this.env.model.getters
+                .getVisibleSheetIds()
+                .map((sheetId) => this.env.model.getters.getSheet(sheetId));
+        }
+        listSheets(ev) {
+            const registry = new MenuItemRegistry();
+            const from = this.env.model.getters.getActiveSheetId();
+            let i = 0;
+            for (const sheetId of this.env.model.getters.getSheetIds()) {
+                const sheet = this.env.model.getters.getSheet(sheetId);
+                registry.add(sheetId, {
+                    name: sheet.name,
+                    sequence: i,
+                    isReadonlyAllowed: true,
+                    textColor: sheet.isVisible ? undefined : "grey",
+                    action: (env) => {
+                        env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: sheetId });
+                    },
+                });
+                i++;
+            }
+            const target = ev.currentTarget;
+            const { top, left } = target.getBoundingClientRect();
+            this.openContextMenu(left, top, registry);
+        }
+        activateSheet(name) {
+            this.env.model.dispatch("ACTIVATE_SHEET", {
+                sheetIdFrom: this.env.model.getters.getActiveSheetId(),
+                sheetIdTo: name,
+            });
+        }
+        onDblClick(sheetId) {
+            interactiveRenameSheet(this.env, sheetId);
+        }
+        openContextMenu(x, y, registry, menuId) {
+            this.menuState.isOpen = true;
+            this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
+            this.menuState.position = { x, y };
+            this.menuState.menuId = menuId;
+        }
+        onIconClick(sheetId, ev) {
+            if (this.env.model.getters.getActiveSheetId() !== sheetId) {
+                this.activateSheet(sheetId);
+            }
+            if (ev.closedMenuId === sheetId) {
+                this.menuState.isOpen = false;
+                this.menuState.menuId = undefined;
+            }
+            else {
+                const target = ev.currentTarget.parentElement;
+                const { top, left } = target.getBoundingClientRect();
+                this.openContextMenu(left, top, sheetMenuRegistry, sheetId);
+            }
+        }
+        onContextMenu(sheetId, ev) {
+            if (this.env.model.getters.getActiveSheetId() !== sheetId) {
+                this.activateSheet(sheetId);
+            }
+            const target = ev.currentTarget;
+            const { top, left } = target.getBoundingClientRect();
+            this.openContextMenu(left, top, sheetMenuRegistry, sheetId);
+        }
+        getSelectedStatistic() {
+            const statisticFnResults = this.env.model.getters.getStatisticFnResults();
+            // don't display button if no function has a result
+            if (Object.values(statisticFnResults).every((result) => result === undefined)) {
+                return undefined;
+            }
+            if (this.selectedStatisticFn === "") {
+                this.selectedStatisticFn = Object.keys(statisticFnResults)[0];
+            }
+            return this.getComposedFnName(this.selectedStatisticFn, statisticFnResults[this.selectedStatisticFn]);
+        }
+        listSelectionStatistics(ev) {
+            const registry = new MenuItemRegistry();
+            let i = 0;
+            for (let [fnName, fnValue] of Object.entries(this.env.model.getters.getStatisticFnResults())) {
+                registry.add(fnName, {
+                    name: this.getComposedFnName(fnName, fnValue),
+                    sequence: i,
+                    isReadonlyAllowed: true,
+                    action: () => {
+                        this.selectedStatisticFn = fnName;
+                    },
+                });
+                i++;
+            }
+            const target = ev.currentTarget;
+            const { top, left, width } = target.getBoundingClientRect();
+            this.openContextMenu(left + width, top, registry);
+        }
+        getComposedFnName(fnName, fnValue) {
+            return fnName + ": " + (fnValue !== undefined ? formatValue(fnValue) : "__");
+        }
+    }
+    BottomBar.template = "o-spreadsheet-BottomBar";
+    BottomBar.components = { Menu };
+  
+    css /* scss */ `
+    .o-dashboard-clickable-cell {
+      position: absolute;
+      cursor: pointer;
+    }
+  `;
+    class SpreadsheetDashboard extends owl.Component {
+        setup() {
+            const gridRef = owl.useRef("grid");
+            this.canvasPosition = useAbsolutePosition(gridRef);
+            this.hoveredCell = owl.useState({ col: undefined, row: undefined });
+            useGridDrawing("canvas", this.env.model, () => this.env.model.getters.getSheetViewDimension());
+            this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
+                this.moveCanvas(deltaX, deltaY);
+                this.hoveredCell.col = undefined;
+                this.hoveredCell.row = undefined;
+            });
+        }
+        onCellHovered({ col, row }) {
+            this.hoveredCell.col = col;
+            this.hoveredCell.row = row;
+        }
+        get gridContainer() {
+            const sheetId = this.env.model.getters.getActiveSheetId();
+            const { right } = this.env.model.getters.getSheetZone(sheetId);
+            const { end } = this.env.model.getters.getColDimensions(sheetId, right);
+            return `
+        max-width: ${end}px;
+      `;
+        }
+        get gridOverlayDimensions() {
+            return `
+        height: 100%;
+        width: 100%
+      `;
+        }
+        getCellClickableStyle(coordinates) {
+            return `
+        top: ${coordinates.y}px;
+        left: ${coordinates.x}px;
+        width: ${coordinates.width}px;
+        height: ${coordinates.height}px;
+      `;
+        }
+        /**
+         * Get all the boxes for the cell in the sheet view that are clickable.
+         * This function is used to render an overlay over each clickable cell in
+         * order to display a pointer cursor.
+         *
+         */
+        getClickableCells() {
+            const cells = [];
+            const sheetId = this.env.model.getters.getActiveSheetId();
+            for (const col of this.env.model.getters.getSheetViewVisibleCols()) {
+                for (const row of this.env.model.getters.getSheetViewVisibleRows()) {
+                    const cell = this.env.model.getters.getCell(sheetId, col, row);
+                    if (cell) {
+                        const action = this.getClickableAction(cell);
+                        if (!action) {
+                            continue;
+                        }
+                        let zone;
+                        if (this.env.model.getters.isInMerge(sheetId, col, row)) {
+                            zone = this.env.model.getters.getMerge(sheetId, col, row);
+                        }
+                        else {
+                            zone = positionToZone({ col, row });
+                        }
+                        const rect = this.env.model.getters.getVisibleRect(zone);
+                        cells.push({
+                            coordinates: rect,
+                            cell,
+                            action,
+                        });
+                    }
+                }
+            }
+            return cells;
+        }
+        getClickableAction(cell) {
+            for (const items of clickableCellRegistry.getAll().sort((a, b) => a.sequence - b.sequence)) {
+                if (items.condition(cell, this.env)) {
+                    return items.action;
+                }
+            }
+            return false;
+        }
+        selectClickableCell(clickableCell) {
+            const { cell, action } = clickableCell;
+            action(cell, this.env);
+        }
+        onClosePopover() {
+            this.env.model.dispatch("CLOSE_CELL_POPOVER");
+        }
+        onGridResized({ height, width }) {
+            this.env.model.dispatch("RESIZE_SHEETVIEW", {
+                width: width,
+                height: height,
+                gridOffsetX: 0,
+                gridOffsetY: 0,
+            });
+        }
+        moveCanvas(deltaX, deltaY) {
+            const { scrollX, scrollY } = this.env.model.getters.getActiveSheetDOMScrollInfo();
+            this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
+                offsetX: scrollX + deltaX,
+                offsetY: scrollY + deltaY,
+            });
+        }
+    }
+    SpreadsheetDashboard.template = "o-spreadsheet-SpreadsheetDashboard";
+    SpreadsheetDashboard.components = {
+        GridOverlay,
+        GridPopover,
+        Popover,
+        VerticalScrollBar,
+        HorizontalScrollBar,
+        FilterIconsOverlay,
+    };
+  
+    css /* scss */ `
+    .o-sidePanel {
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background-color: white;
+      border: 1px solid darkgray;
+      user-select: none;
+      .o-sidePanelHeader {
+        padding: 6px;
+        height: 30px;
+        background-color: ${BACKGROUND_HEADER_COLOR};
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid darkgray;
+        border-top: 1px solid darkgray;
+        font-weight: bold;
+        .o-sidePanelTitle {
+          font-weight: bold;
+          padding: 5px 10px;
+          color: dimgrey;
+        }
+        .o-sidePanelClose {
+          font-size: 1.5rem;
+          padding: 5px 10px;
+          cursor: pointer;
+          &:hover {
+            background-color: WhiteSmoke;
+          }
+        }
+      }
+      .o-sidePanelBody {
+        overflow: auto;
+        width: 100%;
+        height: 100%;
+  
+        .o-section {
+          padding: 16px;
+  
+          .o-section-title {
+            font-weight: bold;
+            color: dimgrey;
+            margin-bottom: 5px;
+          }
+  
+          .o-section-subtitle {
+            color: dimgrey;
+            font-weight: 500;
+            font-size: 12px;
+            line-height: 14px;
+            margin: 8px 0 4px 0;
+          }
+  
+          .o-subsection-left {
+            display: inline-block;
+            width: 47%;
+            margin-right: 3%;
+          }
+  
+          .o-subsection-right {
+            display: inline-block;
+            width: 47%;
+            margin-left: 3%;
+          }
+        }
+      }
+  
+      .o-sidepanel-error {
+        color: red;
+        margin-top: 10px;
+      }
+  
+      .o-sidePanelButtons {
+        padding: 16px;
+        text-align: right;
+      }
+  
+      .o-sidePanelButton {
+        border: 1px solid lightgrey;
+        padding: 0px 20px 0px 20px;
+        border-radius: 4px;
+        font-weight: 500;
+        font-size: 14px;
+        height: 30px;
+        line-height: 16px;
+        background: white;
+        margin-right: 8px;
+        &:hover:enabled {
+          background-color: rgba(0, 0, 0, 0.08);
+        }
+      }
+      .o-sidePanelButton:enabled {
+        cursor: pointer;
+      }
+      .o-sidePanelButton:last-child {
+        margin-right: 0px;
+      }
+  
+      .o-input {
+        color: #666666;
+        border-radius: 4px;
+        min-width: 0px;
+        padding: 4px 6px;
+        box-sizing: border-box;
+        line-height: 1;
+        width: 100%;
+        height: 28px;
+        .o-type-selector {
+          background-position: right 5px top 11px;
+        }
+      }
+      input.o-required,
+      select.o-required {
+        border-color: #4c4c4c;
+      }
+      input.o-optional,
+      select.o-optional {
+        border: 1px solid #a9a9a9;
+      }
+      input.o-invalid {
+        border-color: red;
+      }
+      select.o-input {
+        background-color: white;
+        text-align: left;
+      }
+  
+      .o-inflection {
+        .o-inflection-icon-button {
+          display: inline-block;
+          border: 1px solid #dadce0;
+          border-radius: 4px;
+          cursor: pointer;
+          padding: 1px 2px;
+        }
+        .o-inflection-icon-button:hover {
+          background-color: rgba(0, 0, 0, 0.08);
+        }
+        table {
+          table-layout: fixed;
+          margin-top: 2%;
+          display: table;
+          text-align: left;
+          font-size: 12px;
+          line-height: 18px;
+          width: 100%;
+        }
+        th.o-inflection-iconset-icons {
+          width: 8%;
+        }
+        th.o-inflection-iconset-text {
+          width: 28%;
+        }
+        th.o-inflection-iconset-operator {
+          width: 14%;
+        }
+        th.o-inflection-iconset-type {
+          width: 28%;
+        }
+        th.o-inflection-iconset-value {
+          width: 26%;
+        }
+        input,
+        select {
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+        }
+      }
+  
+      .o-dropdown {
+        position: relative;
+        .o-dropdown-content {
+          position: absolute;
+          top: calc(100% + 5px);
+          left: 0;
+          z-index: ${ComponentsImportance.Dropdown};
+          box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
+          background-color: #f6f6f6;
+  
+          .o-dropdown-item {
+            padding: 7px 10px;
+          }
+          .o-dropdown-item:hover {
+            background-color: rgba(0, 0, 0, 0.08);
+          }
+          .o-dropdown-line {
+            display: flex;
+            padding: 3px 6px;
+            .o-line-item {
+              width: 16px;
+              height: 16px;
+              margin: 1px 3px;
+              &:hover {
+                background-color: rgba(0, 0, 0, 0.08);
+              }
+            }
+          }
+        }
+      }
+  
+      .o-tools {
+        color: #333;
+        font-size: 13px;
+        cursor: default;
+        display: flex;
+  
+        .o-tool {
+          display: flex;
+          align-items: center;
+          margin: 2px;
+          padding: 0 3px;
+          border-radius: 2px;
+        }
+  
+        .o-tool.active,
+        .o-tool:not(.o-disabled):hover {
+          background-color: rgba(0, 0, 0, 0.08);
+        }
+  
+        .o-with-color > span {
+          border-bottom: 4px solid;
+          height: 16px;
+          margin-top: 2px;
+        }
+        .o-with-color {
+          .o-line-item:hover {
+            outline: 1px solid gray;
+          }
+        }
+        .o-border {
+          .o-line-item {
+            padding: 4px;
+            margin: 1px;
+          }
+        }
+      }
+    }
+  `;
+    class SidePanel extends owl.Component {
+        setup() {
+            this.state = owl.useState({
+                panel: sidePanelRegistry.get(this.props.component),
+            });
+            owl.onWillUpdateProps((nextProps) => (this.state.panel = sidePanelRegistry.get(nextProps.component)));
+        }
+        getTitle() {
+            return typeof this.state.panel.title === "function"
+                ? this.state.panel.title(this.env)
+                : this.state.panel.title;
+        }
+    }
+    SidePanel.template = "o-spreadsheet-SidePanel";
+  
+    const AddMergeInteractiveContent = {
+        MergeIsDestructive: _lt("Merging these cells will only preserve the top-leftmost value. Merge anyway?"),
+        MergeInFilter: _lt("You can't merge cells inside of an existing filter."),
+    };
+    function interactiveAddMerge(env, sheetId, target) {
+        const result = env.model.dispatch("ADD_MERGE", { sheetId, target });
+        if (result.isCancelledBecause(79 /* CommandResult.MergeInFilter */)) {
+            env.raiseError(AddMergeInteractiveContent.MergeInFilter);
+        }
+        else if (result.isCancelledBecause(3 /* CommandResult.MergeIsDestructive */)) {
+            env.askConfirmation(AddMergeInteractiveContent.MergeIsDestructive, () => {
+                env.model.dispatch("ADD_MERGE", { sheetId, target, force: true });
+            });
+        }
+    }
+  
+    const FORMATS = [
+        { name: "automatic", text: NumberFormatTerms.Automatic },
+        { name: "number", text: NumberFormatTerms.Number, description: "1,000.12", value: "#,##0.00" },
+        { name: "percent", text: NumberFormatTerms.Percent, description: "10.12%", value: "0.00%" },
+        {
+            name: "currency",
+            text: NumberFormatTerms.Currency,
+            description: "$1,000.12",
+            value: "[$$]#,##0.00",
+        },
+        {
+            name: "currency_rounded",
+            text: NumberFormatTerms.CurrencyRounded,
+            description: "$1,000",
+            value: "[$$]#,##0",
+        },
+        { name: "date", text: NumberFormatTerms.Date, description: "9/26/2008", value: "m/d/yyyy" },
+        { name: "time", text: NumberFormatTerms.Time, description: "10:43:00 PM", value: "hh:mm:ss a" },
+        {
+            name: "datetime",
+            text: NumberFormatTerms.DateTime,
+            description: "9/26/2008 22:43:00",
+            value: "m/d/yyyy hh:mm:ss",
+        },
+        {
+            name: "duration",
+            text: NumberFormatTerms.Duration,
+            description: "27:51:38",
+            value: "hhhh:mm:ss",
+        },
+    ];
+    const CUSTOM_FORMATS = [
+        { name: "custom_currency", text: NumberFormatTerms.CustomCurrency, sidePanel: "CustomCurrency" },
+    ];
+    // -----------------------------------------------------------------------------
+    // TopBar
+    // -----------------------------------------------------------------------------
+    css /* scss */ `
+    .o-spreadsheet-topbar {
+      background-color: white;
+      line-height: 1.2;
+      display: flex;
+      flex-direction: column;
+      font-size: 13px;
+      line-height: 1.2;
+      user-select: none;
+  
+      .o-topbar-top {
+        border-bottom: 1px solid #e0e2e4;
+        display: flex;
+        padding: 2px 10px;
+        justify-content: space-between;
+  
+        /* Menus */
+        .o-topbar-topleft {
+          display: flex;
+          .o-topbar-menu {
+            padding: 4px 6px;
+            margin: 0 2px;
+            cursor: pointer;
+          }
+  
+          .o-topbar-menu:hover,
+          .o-topbar-menu-active {
+            background-color: #f1f3f4;
+            border-radius: 2px;
+          }
+        }
+  
+        .o-topbar-topright {
+          display: flex;
+          justify-content: flex-end;
+        }
+      }
+      /* Toolbar + Cell Content */
+      .o-topbar-toolbar {
+        border-bottom: 1px solid #e0e2e4;
+        display: flex;
+  
+        .o-readonly-toolbar {
+          display: flex;
+          align-items: center;
+          background-color: ${BACKGROUND_HEADER_COLOR};
+          padding-left: 18px;
+          padding-right: 18px;
+        }
+        .o-composer-container {
+          height: 34px;
+          border: 1px solid #e0e2e4;
+          margin-top: -1px;
+          margin-bottom: -1px;
+        }
+  
+        /* Toolbar */
+        .o-toolbar-tools {
+          display: flex;
+          flex-shrink: 0;
+          margin-left: 16px;
+          color: #333;
+          cursor: default;
+  
+          .o-tool {
+            display: flex;
+            align-items: center;
+            margin: 2px;
+            padding: 0 3px;
+            border-radius: 2px;
+            cursor: pointer;
+            min-width: fit-content;
+          }
+  
+          .o-tool-outlined {
+            background-color: rgba(0, 0, 0, 0.08);
+          }
+  
+          .o-filter-tool {
+            margin-right: 8px;
+          }
+  
+          .o-tool.active,
+          .o-tool:not(.o-disabled):hover {
+            background-color: #f1f3f4;
+          }
+  
+          .o-with-color > span {
+            border-bottom: 4px solid;
+            height: 16px;
+            margin-top: 2px;
+          }
+  
+          .o-with-color {
+            .o-line-item:hover {
+              outline: 1px solid gray;
+            }
+          }
+  
+          .o-border-dropdown {
+            padding: 4px;
+          }
+  
+          .o-divider {
+            display: inline-block;
+            border-right: 1px solid #e0e2e4;
+            width: 0;
+            margin: 0 6px;
+          }
+  
+          .o-disabled {
+            opacity: 0.6;
+            cursor: default;
+          }
+  
+          .o-dropdown {
+            position: relative;
+  
+            .o-text-icon {
+              height: 100%;
+              line-height: 30px;
+            }
+  
+            .o-text-options > div {
+              line-height: 26px;
+              padding: 3px 12px;
+              &:hover {
+                background-color: rgba(0, 0, 0, 0.08);
+              }
+            }
+  
+            .o-dropdown-content {
+              position: absolute;
+              top: calc(100% + 5px);
+              left: 0;
+              overflow-y: auto;
+              overflow-x: hidden;
+              z-index: ${ComponentsImportance.Dropdown};
+              box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
+              background-color: white;
+  
+              .o-dropdown-item {
+                padding: 7px 10px;
+              }
+  
+              .o-dropdown-item:hover {
+                background-color: rgba(0, 0, 0, 0.08);
+              }
+  
+              .o-dropdown-line {
+                display: flex;
+                margin: 1px;
+  
+                .o-line-item {
+                  padding: 4px;
+  
+                  &:hover {
+                    background-color: rgba(0, 0, 0, 0.08);
+                  }
+                }
+              }
+  
+              &.o-format-tool {
+                padding: 5px 0;
+                width: 250px;
+                font-size: 12px;
+                > div {
+                  padding: 0 20px;
+                  white-space: nowrap;
+  
+                  &.active:before {
+                    content: "✓";
+                    font-weight: bold;
+                    position: absolute;
+                    left: 5px;
+                  }
+                }
+              }
+            }
+          }
+        }
+  
+        /* Cell Content */
+        .o-toolbar-cell-content {
+          font-size: 12px;
+          font-weight: 500;
+          padding: 0 12px;
+          margin: 0;
+          line-height: 34px;
+          white-space: nowrap;
+          user-select: text;
+        }
+      }
+    }
+  `;
+    class TopBar extends owl.Component {
+        constructor() {
+            super(...arguments);
+            this.DEFAULT_FONT_SIZE = DEFAULT_FONT_SIZE;
+            this.commonFormats = FORMATS;
+            this.customFormats = CUSTOM_FORMATS;
+            this.currentFormatName = "automatic";
+            this.fontSizes = fontSizes;
+            this.style = {};
+            this.state = owl.useState({
+                menuState: { isOpen: false, position: null, menuItems: [] },
+                activeTool: "",
+            });
+            this.isSelectingMenu = false;
+            this.openedEl = null;
+            this.inMerge = false;
+            this.cannotMerge = false;
+            this.undoTool = false;
+            this.redoTool = false;
+            this.paintFormatTool = false;
+            this.fillColor = "#ffffff";
+            this.textColor = "#000000";
+            this.menus = [];
+            this.composerStyle = `
+      line-height: 34px;
+      padding-left: 8px;
+      height: 34px;
+      background-color: white;
+    `;
+        }
+        get dropdownStyle() {
+            return `max-height:${this.props.dropdownMaxHeight}px`;
+        }
+        setup() {
+            owl.useExternalListener(window, "click", this.onClick);
+            owl.onWillStart(() => this.updateCellState());
+            owl.onWillUpdateProps(() => this.updateCellState());
+        }
+        get topbarComponents() {
+            return topbarComponentRegistry
+                .getAll()
+                .filter((item) => !item.isVisible || item.isVisible(this.env));
+        }
+        onClick(ev) {
+            if (this.openedEl && isChildEvent(this.openedEl, ev)) {
+                return;
+            }
+            this.closeMenus();
+        }
+        toogleStyle(style) {
+            setStyle(this.env, { [style]: !this.style[style] });
+        }
+        toogleFormat(formatName) {
+            const formatter = FORMATS.find((f) => f.name === formatName);
+            const value = (formatter && formatter.value) || "";
+            setFormatter(this.env, value);
+        }
+        toggleAlign(align) {
+            setStyle(this.env, { ["align"]: align });
+        }
+        onMenuMouseOver(menu, ev) {
+            if (this.isSelectingMenu) {
+                this.toggleContextMenu(menu, ev);
+            }
+        }
+        toggleDropdownTool(tool, ev) {
+            const isOpen = this.state.activeTool === tool;
+            this.closeMenus();
+            this.state.activeTool = isOpen ? "" : tool;
+            this.openedEl = isOpen ? null : ev.target;
+        }
+        toggleContextMenu(menu, ev) {
+            this.closeMenus();
+            const { left, top, height } = ev.target.getBoundingClientRect();
+            this.state.menuState.isOpen = true;
+            this.state.menuState.position = { x: left, y: top + height };
+            this.state.menuState.menuItems = getMenuChildren(menu, this.env).filter((item) => !item.isVisible || item.isVisible(this.env));
+            this.state.menuState.parentMenu = menu;
+            this.isSelectingMenu = true;
+            this.openedEl = ev.target;
+        }
+        closeMenus() {
+            this.state.activeTool = "";
+            this.state.menuState.isOpen = false;
+            this.state.menuState.parentMenu = undefined;
+            this.isSelectingMenu = false;
+            this.openedEl = null;
+        }
+        updateCellState() {
+            const zones = this.env.model.getters.getSelectedZones();
+            const sheetId = this.env.model.getters.getActiveSheetId();
+            this.inMerge = false;
+            const { top, left, right, bottom } = this.env.model.getters.getSelectedZone();
+            const { xSplit, ySplit } = this.env.model.getters.getPaneDivisions(sheetId);
+            this.cannotMerge =
+                zones.length > 1 ||
+                    (top === bottom && left === right) ||
+                    (left < xSplit && xSplit <= right) ||
+                    (top < ySplit && ySplit <= bottom);
+            if (!this.cannotMerge) {
+                const { col, row } = this.env.model.getters.getPosition();
+                const zone = this.env.model.getters.expandZone(sheetId, {
+                    left: col,
+                    right: col,
+                    top: row,
+                    bottom: row,
+                });
+                this.inMerge = isEqual(zones[0], zone);
+            }
+            this.undoTool = this.env.model.getters.canUndo();
+            this.redoTool = this.env.model.getters.canRedo();
+            this.paintFormatTool = this.env.model.getters.isPaintingFormat();
+            const cell = this.env.model.getters.getActiveCell();
+            if (cell && cell.format) {
+                const currentFormat = this.commonFormats.find((f) => f.value === cell.format);
+                this.currentFormatName = currentFormat ? currentFormat.name : "";
+            }
+            else {
+                this.currentFormatName = "automatic";
+            }
+            this.style = { ...this.env.model.getters.getCurrentStyle() };
+            this.style.align = this.style.align || (cell === null || cell === void 0 ? void 0 : cell.defaultAlign);
+            this.fillColor = this.style.fillColor || "#ffffff";
+            this.textColor = this.style.textColor || "#000000";
+            this.menus = topbarMenuRegistry
+                .getAll()
+                .filter((item) => !item.isVisible || item.isVisible(this.env));
+        }
+        getMenuName(menu) {
+            return getMenuName(menu, this.env);
+        }
+        toggleMerge() {
+            if (this.cannotMerge) {
+                return;
+            }
+            const zones = this.env.model.getters.getSelectedZones();
+            const target = [zones[zones.length - 1]];
+            const sheetId = this.env.model.getters.getActiveSheetId();
+            if (this.inMerge) {
+                this.env.model.dispatch("REMOVE_MERGE", { sheetId, target });
+            }
+            else {
+                interactiveAddMerge(this.env, sheetId, target);
+            }
+        }
+        setColor(target, color) {
+            setStyle(this.env, { [target]: color });
+        }
+        setBorder(command) {
+            this.env.model.dispatch("SET_FORMATTING", {
+                sheetId: this.env.model.getters.getActiveSheetId(),
+                target: this.env.model.getters.getSelectedZones(),
+                border: command,
+            });
+        }
+        setFormat(ev) {
+            const format = ev.target.dataset.format;
+            if (format) {
+                this.toogleFormat(format);
+                return;
+            }
+            const custom = ev.target.dataset.custom;
+            if (custom) {
+                this.openCustomFormatSidePanel(custom);
+            }
+        }
+        openCustomFormatSidePanel(custom) {
+            const customFormatter = CUSTOM_FORMATS.find((c) => c.name === custom);
+            const sidePanel = (customFormatter && customFormatter.sidePanel) || "";
+            this.env.openSidePanel(sidePanel);
+        }
+        setDecimal(step) {
+            this.env.model.dispatch("SET_DECIMAL", {
+                sheetId: this.env.model.getters.getActiveSheetId(),
+                target: this.env.model.getters.getSelectedZones(),
+                step: step,
+            });
+        }
+        paintFormat() {
+            this.env.model.dispatch("ACTIVATE_PAINT_FORMAT", {
+                target: this.env.model.getters.getSelectedZones(),
+            });
+        }
+        clearFormatting() {
+            this.env.model.dispatch("CLEAR_FORMATTING", {
+                sheetId: this.env.model.getters.getActiveSheetId(),
+                target: this.env.model.getters.getSelectedZones(),
+            });
+        }
+        setSize(ev) {
+            const fontSize = parseFloat(ev.target.dataset.size);
+            setStyle(this.env, { fontSize });
+        }
+        doAction(action) {
+            action(this.env);
+            this.closeMenus();
+        }
+        undo() {
+            this.env.model.dispatch("REQUEST_UNDO");
+        }
+        redo() {
+            this.env.model.dispatch("REQUEST_REDO");
+        }
+        get selectionContainsFilter() {
+            const sheetId = this.env.model.getters.getActiveSheetId();
+            const selectedZones = this.env.model.getters.getSelectedZones();
+            return this.env.model.getters.doesZonesContainFilter(sheetId, selectedZones);
+        }
+        get cannotCreateFilter() {
+            return !areZonesContinuous(...this.env.model.getters.getSelectedZones());
+        }
+        createFilter() {
+            if (this.cannotCreateFilter) {
+                return;
+            }
+            const sheetId = this.env.model.getters.getActiveSheetId();
+            const selection = this.env.model.getters.getSelectedZones();
+            interactiveAddFilter(this.env, sheetId, selection);
+        }
+        removeFilter() {
+            this.env.model.dispatch("REMOVE_FILTER_TABLE", {
+                sheetId: this.env.model.getters.getActiveSheetId(),
+                target: this.env.model.getters.getSelectedZones(),
+            });
+        }
+    }
+    TopBar.template = "o-spreadsheet-TopBar";
+    TopBar.components = { ColorPicker, Menu, Composer };
+  
+    css /* scss */ `
+    .o-spreadsheet {
+      position: relative;
+      display: grid;
+      grid-template-columns: auto 350px;
+      color: #333;
+      input {
+        background-color: white;
+      }
+      .text-muted {
+        color: grey !important;
+      }
+      button {
+        color: #333;
+      }
+  
+      * {
+        font-family: "Roboto", "RobotoDraft", Helvetica, Arial, sans-serif;
+      }
+      &,
+      *,
+      *:before,
+      *:after {
+        box-sizing: content-box;
+      }
+      .o-separator {
+        border-bottom: ${MENU_SEPARATOR_BORDER_WIDTH}px solid #e0e2e4;
+        margin-top: ${MENU_SEPARATOR_PADDING}px;
+        margin-bottom: ${MENU_SEPARATOR_PADDING}px;
+      }
+    }
+  
+    .o-two-columns {
+      grid-column: 1 / 3;
+    }
+  
+    .o-icon {
+      width: ${ICON_EDGE_LENGTH}px;
+      height: ${ICON_EDGE_LENGTH}px;
+      opacity: 0.6;
+      vertical-align: middle;
+    }
+  
+    .o-cf-icon {
+      width: ${CF_ICON_EDGE_LENGTH}px;
+      height: ${CF_ICON_EDGE_LENGTH}px;
+      vertical-align: sub;
+    }
+  `;
+    // -----------------------------------------------------------------------------
+    // GRID STYLE
+    // -----------------------------------------------------------------------------
+    css /* scss */ `
+    .o-grid {
+      position: relative;
+      overflow: hidden;
+      background-color: ${BACKGROUND_GRAY_COLOR};
+      &:focus {
+        outline: none;
+      }
+  
+      > canvas {
+        border-top: 1px solid #e2e3e3;
+        border-bottom: 1px solid #e2e3e3;
+      }
+      .o-scrollbar {
+        &.corner {
+          right: 0px;
+          bottom: 0px;
+          height: ${SCROLLBAR_WIDTH$1}px;
+          width: ${SCROLLBAR_WIDTH$1}px;
+          border-top: 1px solid #e2e3e3;
+          border-left: 1px solid #e2e3e3;
+        }
+      }
+  
+      .o-grid-overlay {
+        position: absolute;
+        outline: none;
+      }
+    }
+  `;
+    const t = (s) => s;
+    class Spreadsheet extends owl.Component {
+        constructor() {
+            super(...arguments);
+            this.isViewportTooSmall = false;
+        }
+        getStyle() {
+            if (this.env.isDashboard()) {
+                return `grid-template-rows: auto;`;
+            }
+            return `grid-template-rows: ${TOPBAR_HEIGHT}px auto ${BOTTOMBAR_HEIGHT + 1}px`;
+        }
+        setup() {
+            var _a, _b;
+            (_b = (_a = this.props).exposeSpreadsheet) === null || _b === void 0 ? void 0 : _b.call(_a, this);
+            this.model = this.props.model;
+            this.sidePanel = owl.useState({ isOpen: false, panelProps: {} });
+            this.composer = owl.useState({
+                topBarFocus: "inactive",
+                gridFocusMode: "inactive",
+            });
+            this.keyDownMapping = {
+                "CTRL+H": () => this.toggleSidePanel("FindAndReplace", {}),
+                "CTRL+F": () => this.toggleSidePanel("FindAndReplace", {}),
+            };
+            owl.useSubEnv({
+                model: this.model,
+                isDashboard: () => this.model.getters.isDashboard(),
+                openSidePanel: this.openSidePanel.bind(this),
+                toggleSidePanel: this.toggleSidePanel.bind(this),
+                _t: Spreadsheet._t,
+                clipboard: navigator.clipboard,
+            });
+            owl.useExternalListener(window, "resize", () => this.render(true));
+            owl.useExternalListener(window, "beforeunload", this.unbindModelEvents.bind(this));
+            this.bindModelEvents();
+            owl.onMounted(() => {
+                this.checkViewportSize();
+            });
+            owl.onWillUnmount(() => this.unbindModelEvents());
+            owl.onPatched(() => {
+                this.checkViewportSize();
+            });
+        }
+        get focusTopBarComposer() {
+            return this.model.getters.getEditionMode() === "inactive"
+                ? "inactive"
+                : this.composer.topBarFocus;
+        }
+        get focusGridComposer() {
+            return this.model.getters.getEditionMode() === "inactive"
+                ? "inactive"
+                : this.composer.gridFocusMode;
+        }
+        bindModelEvents() {
+            this.model.on("update", this, () => this.render(true));
+            this.model.on("notify-ui", this, this.onNotifyUI);
+        }
+        unbindModelEvents() {
+            this.model.off("update", this);
+            this.model.off("notify-ui", this);
+        }
+        checkViewportSize() {
+            const { xRatio, yRatio } = this.env.model.getters.getFrozenSheetViewRatio(this.env.model.getters.getActiveSheetId());
+            if (yRatio > MAXIMAL_FREEZABLE_RATIO || xRatio > MAXIMAL_FREEZABLE_RATIO) {
+                if (this.isViewportTooSmall) {
+                    return;
+                }
+                this.env.notifyUser({
+                    text: _lt("The current window is too small to display this sheet properly. Consider resizing your browser window or adjusting frozen rows and columns."),
+                    tag: "viewportTooSmall",
+                });
+                this.isViewportTooSmall = true;
+            }
+            else {
+                this.isViewportTooSmall = false;
+            }
+        }
+        onNotifyUI(payload) {
+            switch (payload.type) {
+                case "ERROR":
+                    this.env.raiseError(payload.text);
+                    break;
+            }
+        }
+        openSidePanel(panel, panelProps) {
+            this.sidePanel.component = panel;
+            this.sidePanel.panelProps = panelProps;
+            this.sidePanel.isOpen = true;
+        }
+        closeSidePanel() {
+            this.sidePanel.isOpen = false;
+            this.focusGrid();
+        }
+        toggleSidePanel(panel, panelProps) {
+            if (this.sidePanel.isOpen && panel === this.sidePanel.component) {
+                this.sidePanel.isOpen = false;
+                this.focusGrid();
+            }
+            else {
+                this.openSidePanel(panel, panelProps);
+            }
+        }
+        focusGrid() {
+            if (!this._focusGrid) {
+                throw new Error("_focusGrid should be exposed by the grid component");
+            }
+            this._focusGrid();
+        }
+        save() {
+            var _a, _b;
+            (_b = (_a = this.props).onContentSaved) === null || _b === void 0 ? void 0 : _b.call(_a, this.model.exportData());
+        }
+        onKeydown(ev) {
+            let keyDownString = "";
+            if (ev.ctrlKey || ev.metaKey) {
+                keyDownString += "CTRL+";
+            }
+            keyDownString += ev.key.toUpperCase();
+            let handler = this.keyDownMapping[keyDownString];
+            if (handler) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                handler();
+                return;
+            }
+        }
+        onTopBarComposerFocused(selection) {
+            if (this.model.getters.isReadonly()) {
+                return;
+            }
+            this.model.dispatch("UNFOCUS_SELECTION_INPUT");
+            this.composer.topBarFocus = "contentFocus";
+            this.composer.gridFocusMode = "inactive";
+            this.setComposerContent({ selection } || {});
+        }
+        onGridComposerContentFocused() {
+            if (this.model.getters.isReadonly()) {
+                return;
+            }
+            this.model.dispatch("UNFOCUS_SELECTION_INPUT");
+            this.composer.topBarFocus = "inactive";
+            this.composer.gridFocusMode = "contentFocus";
+            this.setComposerContent({});
+        }
+        onGridComposerCellFocused(content, selection) {
+            if (this.model.getters.isReadonly()) {
+                return;
+            }
+            this.model.dispatch("UNFOCUS_SELECTION_INPUT");
+            this.composer.topBarFocus = "inactive";
+            this.composer.gridFocusMode = "cellFocus";
+            this.setComposerContent({ content, selection } || {});
+        }
+        /**
+         * Start the edition or update the content if it's already started.
+         */
+        setComposerContent({ content, selection, }) {
+            if (this.model.getters.getEditionMode() === "inactive") {
+                this.model.dispatch("START_EDITION", { text: content, selection });
+            }
+            else if (content) {
+                this.model.dispatch("SET_CURRENT_CONTENT", { content, selection });
+            }
+        }
+        get gridHeight() {
+            const { height } = this.env.model.getters.getSheetViewDimension();
+            return height;
+        }
+    }
+    Spreadsheet.template = "o-spreadsheet-Spreadsheet";
+    Spreadsheet.components = { TopBar, Grid, BottomBar, SidePanel, SpreadsheetDashboard };
+    Spreadsheet._t = t;
+  
+    class LocalTransportService {
+        constructor() {
+            this.listeners = [];
+        }
+        sendMessage(message) {
+            for (const { callback } of this.listeners) {
+                callback(message);
+            }
+        }
+        onNewMessage(id, callback) {
+            this.listeners.push({ id, callback });
+        }
+        leave(id) {
+            this.listeners = this.listeners.filter((listener) => listener.id !== id);
+        }
+    }
+  
     function inverseCommand(cmd) {
         return inverseCommandRegistry.get(cmd.type)(cmd);
     }
-
+  
     /**
      * Create an empty structure according to the type of the node key:
      * string: object
@@ -35231,7 +38571,7 @@
         }
         throw new Error(`Cannot create new node`);
     }
-
+  
     /**
      * A branch holds a sequence of operations.
      * It can be represented as "A - B - C - D" if A, B, C and D are executed one
@@ -35353,7 +38693,7 @@
             };
         }
     }
-
+  
     /**
      * An Operation can be executed to change a data structure from state A
      * to state B.
@@ -35385,7 +38725,7 @@
             return new LazyOperation(this.id, this.lazyData.map(transformation));
         }
     }
-
+  
     /**
      * An execution object is a sequence of executionSteps (each execution step is an operation in a branch).
      *
@@ -35452,7 +38792,7 @@
             return new OperationSequence(filter(this.operations, operationId));
         }
     }
-
+  
     /**
      * The tree is a data structure used to maintain the different branches of the
      * SelectiveHistory.
@@ -35813,7 +39153,7 @@
             }
         }
     }
-
+  
     class SelectiveHistory {
         /**
          * The selective history is a data structure used to register changes/updates of a state.
@@ -35947,7 +39287,7 @@
             }
         }
     }
-
+  
     function buildRevisionLog(initialRevisionId, recordChanges, dispatch) {
         return new SelectiveHistory(initialRevisionId, (revision) => {
             const commands = revision.commands.slice();
@@ -35998,7 +39338,7 @@
             val[key] = change[target];
         }
     }
-
+  
     /**
      * Local History
      *
@@ -36019,11 +39359,6 @@
              * Ids of the revisions which can be redone
              */
             this.redoStack = [];
-            /**
-             * Flag used to block all commands when an undo or redo is triggered, until
-             * it is accepted on the server
-             */
-            this.isWaitingForUndoRedo = false;
             this.session.on("new-local-state-update", this, this.onNewLocalStateUpdate);
             this.session.on("revision-undone", this, ({ commands }) => this.selectiveUndo(commands));
             this.session.on("revision-redone", this, ({ commands }) => this.selectiveRedo(commands));
@@ -36031,22 +39366,18 @@
             this.session.on("snapshot", this, () => {
                 this.undoStack = [];
                 this.redoStack = [];
-                this.isWaitingForUndoRedo = false;
             });
         }
         allowDispatch(cmd) {
-            if (this.isWaitingForUndoRedo) {
-                return 61 /* CommandResult.WaitingSessionConfirmation */;
-            }
             switch (cmd.type) {
                 case "REQUEST_UNDO":
                     if (!this.canUndo()) {
-                        return 5 /* CommandResult.EmptyUndoStack */;
+                        return 6 /* CommandResult.EmptyUndoStack */;
                     }
                     break;
                 case "REQUEST_REDO":
                     if (!this.canRedo()) {
-                        return 6 /* CommandResult.EmptyRedoStack */;
+                        return 7 /* CommandResult.EmptyRedoStack */;
                     }
                     break;
             }
@@ -36069,7 +39400,6 @@
             if (!id) {
                 return;
             }
-            this.isWaitingForUndoRedo = true;
             if (type === "UNDO") {
                 this.session.undo(id);
                 this.redoStack.push(id);
@@ -36088,7 +39418,6 @@
         drop(revisionIds) {
             this.undoStack = this.undoStack.filter((id) => !revisionIds.includes(id));
             this.redoStack = [];
-            this.isWaitingForUndoRedo = false;
         }
         onNewLocalStateUpdate({ id }) {
             this.undoStack.push(id);
@@ -36099,14 +39428,12 @@
         }
         selectiveUndo(commands) {
             this.dispatch("UNDO", { commands });
-            this.isWaitingForUndoRedo = false;
         }
         selectiveRedo(commands) {
             this.dispatch("REDO", { commands });
-            this.isWaitingForUndoRedo = false;
         }
     }
-
+  
     class RangeAdapter {
         constructor(getters) {
             this.providers = [];
@@ -36117,7 +39444,7 @@
         // ---------------------------------------------------------------------------
         allowDispatch(cmd) {
             if (cmd.type === "MOVE_RANGES") {
-                return cmd.target.length === 1 ? 0 /* CommandResult.Success */ : 24 /* CommandResult.InvalidZones */;
+                return cmd.target.length === 1 ? 0 /* CommandResult.Success */ : 26 /* CommandResult.InvalidZones */;
             }
             return 0 /* CommandResult.Success */;
         }
@@ -36342,16 +39669,17 @@
                     prefixSheet: false,
                 }, this.getters.getSheetSize);
             }
-            let sheetName = "";
+            let sheetName;
+            let xc = sheetXC;
             let prefixSheet = false;
             if (sheetXC.includes("!")) {
-                [sheetName, sheetXC] = sheetXC.split("!");
+                ({ xc, sheetName } = splitReference(sheetXC));
                 if (sheetName) {
                     prefixSheet = true;
                 }
             }
-            const zone = toUnboundedZone(sheetXC);
-            const parts = RangeImpl.getRangeParts(sheetXC, zone);
+            const zone = toUnboundedZone(xc);
+            const parts = RangeImpl.getRangeParts(xc, zone);
             const invalidSheetName = sheetName && !this.getters.getSheetIdByName(sheetName) ? sheetName : undefined;
             const sheetId = this.getters.getSheetIdByName(sheetName) || defaultSheetId;
             const rangeInterface = { prefixSheet, zone, sheetId, invalidSheetName, parts };
@@ -36486,7 +39814,7 @@
         "getRangeDataFromZone",
         "getRangeFromRangeData",
     ];
-
+  
     /**
      * Stateless sequence of events that can be processed by consumers.
      *
@@ -36552,6 +39880,17 @@
             this.mainSubscription = this.defaultSubscription;
         }
         /**
+         * Release whichever subscription in charge and get back to the default subscription
+         */
+        getBackToDefault() {
+            var _a, _b, _c;
+            if (this.mainSubscription === this.defaultSubscription) {
+                return;
+            }
+            (_c = (_a = this.mainSubscription) === null || _a === void 0 ? void 0 : (_b = _a.callbacks).release) === null || _c === void 0 ? void 0 : _c.call(_b);
+            this.mainSubscription = this.defaultSubscription;
+        }
+        /**
          * Check if you are currently the main stream consumer
          */
         isListening(owner) {
@@ -36567,7 +39906,7 @@
             [...this.observers].forEach((sub) => sub.callbacks.handleEvent(event));
         }
     }
-
+  
     /**
      * Processes all selection updates (usually from user inputs) and emits an event
      * with the new selected anchor
@@ -36614,6 +39953,9 @@
                 this.anchor = this.defaultAnchor;
             }
         }
+        getBackToDefault() {
+            this.stream.getBackToDefault();
+        }
         /**
          * Select a new anchor
          */
@@ -36639,7 +39981,10 @@
         /**
          * Set the selection to one of the cells adjacent to the current anchor cell.
          */
-        moveAnchorCell(direction, step = "one") {
+        moveAnchorCell(direction, step = 1) {
+            if (step !== "end" && step <= 0) {
+                return new DispatchResult(82 /* CommandResult.InvalidSelectionStep */);
+            }
             const { col, row } = this.getNextAvailablePosition(direction, step);
             return this.selectCell(col, row);
         }
@@ -36670,7 +40015,7 @@
         addCellToSelection(col, row) {
             const sheetId = this.getters.getActiveSheetId();
             ({ col, row } = this.getters.getMainCellPosition(sheetId, col, row));
-            const zone = positionToZone({ col, row });
+            const zone = this.getters.expandZone(sheetId, positionToZone({ col, row }));
             return this.processEvent({
                 type: "ZonesSelected",
                 anchor: { zone, cell: { col, row } },
@@ -36682,7 +40027,10 @@
          * The anchor cell remains where it is. It's the opposite side
          * of the anchor zone which moves.
          */
-        resizeAnchorZone(direction, step = "one") {
+        resizeAnchorZone(direction, step = 1) {
+            if (step !== "end" && step <= 0) {
+                return new DispatchResult(82 /* CommandResult.InvalidSelectionStep */);
+            }
             const sheetId = this.getters.getActiveSheetId();
             const anchor = this.anchor;
             const { col: anchorCol, row: anchorRow } = anchor.cell;
@@ -36882,20 +40230,20 @@
         checkAnchorZone(anchor) {
             const { cell, zone } = anchor;
             if (!isInside(cell.col, cell.row, zone)) {
-                return 14 /* CommandResult.InvalidAnchorZone */;
+                return 16 /* CommandResult.InvalidAnchorZone */;
             }
             const { left, right, top, bottom } = zone;
             const sheetId = this.getters.getActiveSheetId();
             const refCol = this.getters.findVisibleHeader(sheetId, "COL", range(left, right + 1));
             const refRow = this.getters.findVisibleHeader(sheetId, "ROW", range(top, bottom + 1));
             if (refRow === undefined || refCol === undefined) {
-                return 15 /* CommandResult.SelectionOutOfBound */;
+                return 17 /* CommandResult.SelectionOutOfBound */;
             }
             return 0 /* CommandResult.Success */;
         }
         checkAnchorZoneOrThrow(anchor) {
             const result = this.checkAnchorZone(anchor);
-            if (result === 14 /* CommandResult.InvalidAnchorZone */) {
+            if (result === 16 /* CommandResult.InvalidAnchorZone */) {
                 throw new Error(_t("The provided anchor is invalid. The cell must be part of the zone."));
             }
         }
@@ -36906,7 +40254,7 @@
          * by crossing through merges and skipping hidden cells.
          * Note that the resulting position might be out of the sheet, it needs to be validated.
          */
-        getNextAvailablePosition(direction, step = "one") {
+        getNextAvailablePosition(direction, step = 1) {
             const { col, row } = this.anchor.cell;
             const delta = this.deltaToTarget({ col, row }, direction, step);
             return {
@@ -36972,20 +40320,20 @@
         deltaToTarget(position, direction, step) {
             switch (direction) {
                 case "up":
-                    return step === "one"
-                        ? [0, -1]
+                    return step !== "end"
+                        ? [0, -step]
                         : [0, this.getEndOfCluster(position, "rows", -1) - position.row];
                 case "down":
-                    return step === "one"
-                        ? [0, 1]
+                    return step !== "end"
+                        ? [0, step]
                         : [0, this.getEndOfCluster(position, "rows", 1) - position.row];
                 case "left":
-                    return step === "one"
-                        ? [-1, 0]
+                    return step !== "end"
+                        ? [-step, 0]
                         : [this.getEndOfCluster(position, "cols", -1) - position.col, 0];
                 case "right":
-                    return step === "one"
-                        ? [1, 0]
+                    return step !== "end"
+                        ? [step, 0]
                         : [this.getEndOfCluster(position, "cols", 1) - position.col, 0];
             }
         }
@@ -37069,7 +40417,7 @@
             return { ...this.anchor.cell };
         }
     }
-
+  
     class StateObserver {
         constructor() {
             this.changes = [];
@@ -37118,7 +40466,7 @@
             }
         }
     }
-
+  
     /**
      * Each axis present inside a graph needs to be identified by an unsigned integer
      * The value does not matter, it can be hardcoded.
@@ -37139,11 +40487,11 @@
         let title = escapeXml ``;
         if (chart.data.title) {
             title = escapeXml /*xml*/ `
-      <c:title>
-        ${insertText(chart.data.title, chart.data.fontColor)}
-        <c:overlay val="0" />
-      </c:title>
-    `;
+        <c:title>
+          ${insertText(chart.data.title, chart.data.fontColor)}
+          <c:overlay val="0" />
+        </c:title>
+      `;
         }
         // switch on chart type
         let plot = escapeXml ``;
@@ -37175,39 +40523,39 @@
         }
         const fontColor = chart.data.fontColor;
         const xml = escapeXml /*xml*/ `
-    <c:chartSpace ${formatAttributes(namespaces)}>
-      <c:roundedCorners val="0" />
-      <!-- <manualLayout/> to manually position the chart in the figure container -->
-      ${chartShapeProperty}
-      <c:chart>
-        ${title}
-        <c:autoTitleDeleted val="0" />
-        <c:plotArea>
-          <!-- how the chart element is placed on the chart -->
-          <c:layout />
-          ${plot}
-          ${shapeProperty({ backgroundColor: chart.data.backgroundColor })}
-        </c:plotArea>
-        ${addLegend(position, fontColor)}
-      </c:chart>
-    </c:chartSpace>
-  `;
+      <c:chartSpace ${formatAttributes(namespaces)}>
+        <c:roundedCorners val="0" />
+        <!-- <manualLayout/> to manually position the chart in the figure container -->
+        ${chartShapeProperty}
+        <c:chart>
+          ${title}
+          <c:autoTitleDeleted val="0" />
+          <c:plotArea>
+            <!-- how the chart element is placed on the chart -->
+            <c:layout />
+            ${plot}
+            ${shapeProperty({ backgroundColor: chart.data.backgroundColor })}
+          </c:plotArea>
+          ${addLegend(position, fontColor)}
+        </c:chart>
+      </c:chartSpace>
+    `;
         return parseXML(xml);
     }
     function shapeProperty(params) {
         return escapeXml /*xml*/ `
-    <c:spPr>
-      ${params.backgroundColor ? solidFill(params.backgroundColor) : ""}
-      ${params.line ? lineAttributes(params.line) : ""}
-    </c:spPr>
-  `;
+      <c:spPr>
+        ${params.backgroundColor ? solidFill(params.backgroundColor) : ""}
+        ${params.line ? lineAttributes(params.line) : ""}
+      </c:spPr>
+    `;
     }
     function solidFill(color) {
         return escapeXml /*xml*/ `
-    <a:solidFill>
-      <a:srgbClr val="${color}"/>
-    </a:solidFill>
-  `;
+      <a:solidFill>
+        <a:srgbClr val="${color}"/>
+      </a:solidFill>
+    `;
     }
     function lineAttributes(params) {
         const attrs = [["cmpd", "sng"]];
@@ -37216,33 +40564,33 @@
         }
         const lineStyle = params.style ? escapeXml /*xml*/ `<a:prstDash val="${params.style}"/>` : "";
         return escapeXml /*xml*/ `
-    <a:ln ${formatAttributes(attrs)}>
-      ${solidFill(params.color)}
-      ${lineStyle}
-    </a:ln>
-  `;
+      <a:ln ${formatAttributes(attrs)}>
+        ${solidFill(params.color)}
+        ${lineStyle}
+      </a:ln>
+    `;
     }
     function insertText(text, fontColor = "000000", fontsize = 22) {
         return escapeXml /*xml*/ `
-    <c:tx>
-      <c:rich>
-        <a:bodyPr />
-        <a:lstStyle />
-        <a:p>
-          <a:pPr lvl="0">
-            <a:defRPr b="0">
-              ${solidFill(fontColor)}
-              <a:latin typeface="+mn-lt"/>
-            </a:defRPr>
-          </a:pPr>
-          <a:r> <!-- Runs -->
-            <a:rPr sz="${fontsize * 100}"/>
-            <a:t>${text}</a:t>
-          </a:r>
-        </a:p>
-      </c:rich>
-    </c:tx>
-  `;
+      <c:tx>
+        <c:rich>
+          <a:bodyPr />
+          <a:lstStyle />
+          <a:p>
+            <a:pPr lvl="0">
+              <a:defRPr b="0">
+                ${solidFill(fontColor)}
+                <a:latin typeface="+mn-lt"/>
+              </a:defRPr>
+            </a:pPr>
+            <a:r> <!-- Runs -->
+              <a:rPr sz="${fontsize * 100}"/>
+              <a:t>${text}</a:t>
+            </a:r>
+          </a:p>
+        </c:rich>
+      </c:tx>
+    `;
     }
     function insertTextProperties(fontsize = 12, fontColor = "000000", bold = false, italic = false) {
         const defPropertiesAttributes = [
@@ -37251,19 +40599,19 @@
             ["sz", fontsize * 100],
         ];
         return escapeXml /*xml*/ `
-    <c:txPr>
-      <a:bodyPr/>
-      <a:lstStyle/>
-      <a:p>
-        <a:pPr lvl="0">
-          <a:defRPr ${formatAttributes(defPropertiesAttributes)}>
-            ${solidFill(fontColor)}
-            <a:latin typeface="+mn-lt"/>
-          </a:defRPr>
-        </a:pPr>
-      </a:p>
-    </c:txPr>
-  `;
+      <c:txPr>
+        <a:bodyPr/>
+        <a:lstStyle/>
+        <a:p>
+          <a:pPr lvl="0">
+            <a:defRPr ${formatAttributes(defPropertiesAttributes)}>
+              ${solidFill(fontColor)}
+              <a:latin typeface="+mn-lt"/>
+            </a:defRPr>
+          </a:pPr>
+        </a:p>
+      </c:txPr>
+    `;
     }
     function addBarChart(chart) {
         // gapWitdh and overlap that define the space between clusters (in %) and the overlap between datasets (from -100: completely scattered to 100, completely overlapped)
@@ -37281,37 +40629,37 @@
                 line: { color },
             });
             dataSetsNodes.push(escapeXml /*xml*/ `
-      <c:ser>
-        <c:idx val="${dsIndex}"/>
-        <c:order val="${dsIndex}"/>
-        ${dataset.label ? escapeXml /*xml*/ `<c:tx>${stringRef(dataset.label)}</c:tx>` : ""}
-        ${dataShapeProperty}
-        ${chart.labelRange ? escapeXml /*xml*/ `<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""} <!-- x-coordinate values -->
-        <c:val> <!-- x-coordinate values -->
-          ${numberRef(dataset.range)}
-        </c:val>
-      </c:ser>
-    `);
+        <c:ser>
+          <c:idx val="${dsIndex}"/>
+          <c:order val="${dsIndex}"/>
+          ${dataset.label ? escapeXml /*xml*/ `<c:tx>${stringRef(dataset.label)}</c:tx>` : ""}
+          ${dataShapeProperty}
+          ${chart.labelRange ? escapeXml /*xml*/ `<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""} <!-- x-coordinate values -->
+          <c:val> <!-- x-coordinate values -->
+            ${numberRef(dataset.range)}
+          </c:val>
+        </c:ser>
+      `);
         }
         // Excel does not support this feature
         const axisPos = chart.verticalAxisPosition === "left" ? "l" : "r";
         const grouping = chart.stacked ? "stacked" : "clustered";
         const overlap = chart.stacked ? 100 : -20;
         return escapeXml /*xml*/ `
-    <c:barChart>
-      <c:barDir val="col"/>
-      <c:grouping val="${grouping}"/>
-      <c:overlap val="${overlap}"/>
-      <c:gapWidth val="70"/>
-      <!-- each data marker in the series does not have a different color -->
-      <c:varyColors val="0"/>
-      ${joinXmlNodes(dataSetsNodes)}
-      <c:axId val="${catAxId}" />
-      <c:axId val="${valAxId}" />
-    </c:barChart>
-    ${addAx("b", "c:catAx", catAxId, valAxId, { fontColor: chart.fontColor })}
-    ${addAx(axisPos, "c:valAx", valAxId, catAxId, { fontColor: chart.fontColor })}
-  `;
+      <c:barChart>
+        <c:barDir val="col"/>
+        <c:grouping val="${grouping}"/>
+        <c:overlap val="${overlap}"/>
+        <c:gapWidth val="70"/>
+        <!-- each data marker in the series does not have a different color -->
+        <c:varyColors val="0"/>
+        ${joinXmlNodes(dataSetsNodes)}
+        <c:axId val="${catAxId}" />
+        <c:axId val="${valAxId}" />
+      </c:barChart>
+      ${addAx("b", "c:catAx", catAxId, valAxId, { fontColor: chart.fontColor })}
+      ${addAx(axisPos, "c:valAx", valAxId, catAxId, { fontColor: chart.fontColor })}
+    `;
     }
     function addLineChart(chart) {
         const colors = new ChartColors();
@@ -37325,38 +40673,38 @@
                 },
             });
             dataSetsNodes.push(escapeXml /*xml*/ `
-      <c:ser>
-        <c:idx val="${dsIndex}"/>
-        <c:order val="${dsIndex}"/>
-        <c:smooth val="0"/>
-        <c:marker>
-          <c:symbol val="circle" />
-          <c:size val="5"/>
-        </c:marker>
-        ${dataset.label ? escapeXml `<c:tx>${stringRef(dataset.label)}</c:tx>` : ""}
-        ${dataShapeProperty}
-        ${chart.labelRange ? escapeXml `<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""} <!-- x-coordinate values -->
-        <c:val> <!-- x-coordinate values -->
-          ${numberRef(dataset.range)}
-        </c:val>
-      </c:ser>
-    `);
+        <c:ser>
+          <c:idx val="${dsIndex}"/>
+          <c:order val="${dsIndex}"/>
+          <c:smooth val="0"/>
+          <c:marker>
+            <c:symbol val="circle" />
+            <c:size val="5"/>
+          </c:marker>
+          ${dataset.label ? escapeXml `<c:tx>${stringRef(dataset.label)}</c:tx>` : ""}
+          ${dataShapeProperty}
+          ${chart.labelRange ? escapeXml `<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""} <!-- x-coordinate values -->
+          <c:val> <!-- x-coordinate values -->
+            ${numberRef(dataset.range)}
+          </c:val>
+        </c:ser>
+      `);
         }
         // Excel does not support this feature
         const axisPos = chart.verticalAxisPosition === "left" ? "l" : "r";
         const grouping = chart.stacked ? "stacked" : "standard";
         return escapeXml /*xml*/ `
-    <c:lineChart>
-      <c:grouping val="${grouping}"/>
-      <!-- each data marker in the series does not have a different color -->
-      <c:varyColors val="0"/>
-      ${joinXmlNodes(dataSetsNodes)}
-      <c:axId val="${catAxId}" />
-      <c:axId val="${valAxId}" />
-    </c:lineChart>
-    ${addAx("b", "c:catAx", catAxId, valAxId, { fontColor: chart.fontColor })}
-    ${addAx(axisPos, "c:valAx", valAxId, catAxId, { fontColor: chart.fontColor })}
-  `;
+      <c:lineChart>
+        <c:grouping val="${grouping}"/>
+        <!-- each data marker in the series does not have a different color -->
+        <c:varyColors val="0"/>
+        ${joinXmlNodes(dataSetsNodes)}
+        <c:axId val="${catAxId}" />
+        <c:axId val="${valAxId}" />
+      </c:lineChart>
+      ${addAx("b", "c:catAx", catAxId, valAxId, { fontColor: chart.fontColor })}
+      ${addAx(axisPos, "c:valAx", valAxId, catAxId, { fontColor: chart.fontColor })}
+    `;
     }
     function addDoughnutChart(chart, chartSheetIndex, data, { holeSize } = { holeSize: 50 }) {
         const colors = new ChartColors();
@@ -37373,104 +40721,104 @@
                     line: { color: "FFFFFF", width: 1.5 },
                 });
                 dataPoints.push(escapeXml /*xml*/ `
-        <c:dPt>
-          <c:idx val="${index}"/>
-          ${pointShapeProperty}
-        </c:dPt>
-      `);
+          <c:dPt>
+            <c:idx val="${index}"/>
+            ${pointShapeProperty}
+          </c:dPt>
+        `);
             }
             dataSetsNodes.push(escapeXml /*xml*/ `
-      <c:ser>
-        <c:idx val="${dsIndex}"/>
-        <c:order val="${dsIndex}"/>
-        ${dataset.label ? escapeXml `<c:tx>${stringRef(dataset.label)}</c:tx>` : ""}
-        ${joinXmlNodes(dataPoints)}
-        ${insertDataLabels({ showLeaderLines: true })}
-        ${chart.labelRange ? escapeXml `<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""}
-        <c:val>
-          ${numberRef(dataset.range)}
-        </c:val>
-      </c:ser>
-    `);
+        <c:ser>
+          <c:idx val="${dsIndex}"/>
+          <c:order val="${dsIndex}"/>
+          ${dataset.label ? escapeXml `<c:tx>${stringRef(dataset.label)}</c:tx>` : ""}
+          ${joinXmlNodes(dataPoints)}
+          ${insertDataLabels({ showLeaderLines: true })}
+          ${chart.labelRange ? escapeXml `<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""}
+          <c:val>
+            ${numberRef(dataset.range)}
+          </c:val>
+        </c:ser>
+      `);
         }
         return escapeXml /*xml*/ `
-    <c:doughnutChart>
-      <c:varyColors val="1" />
-      <c:holeSize val="${holeSize}" />
-      ${insertDataLabels()}
-      ${joinXmlNodes(dataSetsNodes)}
-    </c:doughnutChart>
-  `;
+      <c:doughnutChart>
+        <c:varyColors val="1" />
+        <c:holeSize val="${holeSize}" />
+        ${insertDataLabels()}
+        ${joinXmlNodes(dataSetsNodes)}
+      </c:doughnutChart>
+    `;
     }
     function insertDataLabels({ showLeaderLines } = { showLeaderLines: false }) {
         return escapeXml /*xml*/ `
-    <dLbls>
-      <c:showLegendKey val="0"/>
-      <c:showVal val="0"/>
-      <c:showCatName val="0"/>
-      <c:showSerName val="0"/>
-      <c:showPercent val="0"/>
-      <c:showBubbleSize val="0"/>
-      <c:showLeaderLines val="${showLeaderLines ? "1" : "0"}"/>
-    </dLbls>
-  `;
+      <dLbls>
+        <c:showLegendKey val="0"/>
+        <c:showVal val="0"/>
+        <c:showCatName val="0"/>
+        <c:showSerName val="0"/>
+        <c:showPercent val="0"/>
+        <c:showBubbleSize val="0"/>
+        <c:showLeaderLines val="${showLeaderLines ? "1" : "0"}"/>
+      </dLbls>
+    `;
     }
     function addAx(position, axisName, axId, crossAxId, { fontColor }) {
         // Each Axis present inside a graph needs to be identified by an unsigned integer in order to be referenced by its crossAxis.
         // I.e. x-axis, will reference y-axis and vice-versa.
         return escapeXml /*xml*/ `
-    <${axisName}>
-      <c:axId val="${axId}"/>
-      <c:crossAx val="${crossAxId}"/> <!-- reference to the other axe of the chart -->
-      <c:delete val="0"/> <!-- by default, axis are not displayed -->
-      <c:scaling>
-        <c:orientation  val="minMax" />
-      </c:scaling>
-      <c:axPos val="${position}" />
-      ${insertMajorGridLines()}
-      <c:majorTickMark val="out" />
-      <c:minorTickMark val="none" />
-      <c:numFmt formatCode="General" sourceLinked="1" />
-      <c:title>
-        ${insertText("")}
-      </c:title>
-      ${insertTextProperties(10, fontColor)}
-    </${axisName}>
-    <!-- <tickLblPos/> omitted -->
-  `;
+      <${axisName}>
+        <c:axId val="${axId}"/>
+        <c:crossAx val="${crossAxId}"/> <!-- reference to the other axe of the chart -->
+        <c:delete val="0"/> <!-- by default, axis are not displayed -->
+        <c:scaling>
+          <c:orientation  val="minMax" />
+        </c:scaling>
+        <c:axPos val="${position}" />
+        ${insertMajorGridLines()}
+        <c:majorTickMark val="out" />
+        <c:minorTickMark val="none" />
+        <c:numFmt formatCode="General" sourceLinked="1" />
+        <c:title>
+          ${insertText("")}
+        </c:title>
+        ${insertTextProperties(10, fontColor)}
+      </${axisName}>
+      <!-- <tickLblPos/> omitted -->
+    `;
     }
     function addLegend(position, fontColor) {
         return escapeXml /*xml*/ `
-    <c:legend>
-      <c:legendPos val="${position}"/>
-      <c:overlay val="0"/>
-      ${insertTextProperties(10, fontColor)}
-    </c:legend>
-  `;
+      <c:legend>
+        <c:legendPos val="${position}"/>
+        <c:overlay val="0"/>
+        ${insertTextProperties(10, fontColor)}
+      </c:legend>
+    `;
     }
     function insertMajorGridLines(color = "B7B7B7") {
         return escapeXml /*xml*/ `
-    <c:majorGridlines>
-      ${shapeProperty({ line: { color } })}
-    </c:majorGridlines>
-  `;
+      <c:majorGridlines>
+        ${shapeProperty({ line: { color } })}
+      </c:majorGridlines>
+    `;
     }
     function stringRef(reference) {
         return escapeXml /*xml*/ `
-    <c:strRef>
-      <c:f>${reference}</c:f>
-    </c:strRef>
-  `;
+      <c:strRef>
+        <c:f>${reference}</c:f>
+      </c:strRef>
+    `;
     }
     function numberRef(reference) {
         return escapeXml /*xml*/ `
-    <c:numRef>
-      <c:f>${reference}</c:f>
-      <c:numCache />
-    </c:numRef>
-  `;
+      <c:numRef>
+        <c:f>${reference}</c:f>
+        <c:numCache />
+      </c:numRef>
+    `;
     }
-
+  
     function addFormula(cell) {
         const formula = cell.content;
         const functions = functionRegistry.content;
@@ -37490,11 +40838,11 @@
                 cycle = escapeXml /*xml*/ `<v>${cell.value}</v>`;
             }
             node = escapeXml /*xml*/ `
-      <f>
-        ${XlsxFormula}
-      </f>
-      ${cycle}
-    `;
+        <f>
+          ${XlsxFormula}
+        </f>
+        ${cycle}
+      `;
             return { attrs, node };
         }
         else {
@@ -37509,14 +40857,14 @@
             return { attrs, node };
         }
     }
-    function addContent(content, sharedStrings) {
+    function addContent(content, sharedStrings, forceString = false) {
         let value = content;
         const attrs = [];
-        if (["TRUE", "FALSE"].includes(value.trim())) {
+        if (!forceString && ["TRUE", "FALSE"].includes(value.trim())) {
             value = value === "TRUE" ? "1" : "0";
             attrs.push(["t", "b"]);
         }
-        else if (!isNumber(value)) {
+        else if (forceString || !isNumber(value)) {
             const { id } = pushElement(content, sharedStrings);
             value = id.toString();
             attrs.push(["t", "s"]);
@@ -37599,7 +40947,7 @@
             return { ...ast, value: ast.value.replace(/\\"/g, `""`) };
         }
     }
-
+  
     function addConditionalFormatting(dxfs, conditionalFormats) {
         // Conditional Formats
         const cfNodes = [];
@@ -37646,12 +40994,12 @@
         const { id } = pushElement(dxf, dxfs);
         ruleAttributes.push(["dxfId", id]);
         return escapeXml /*xml*/ `
-    <conditionalFormatting sqref="${cf.ranges.join(" ")}">
-      <cfRule ${formatAttributes(ruleAttributes)}>
-        ${joinXmlNodes(formulas)}
-      </cfRule>
-    </conditionalFormatting>
-  `;
+      <conditionalFormatting sqref="${cf.ranges.join(" ")}">
+        <cfRule ${formatAttributes(ruleAttributes)}>
+          ${joinXmlNodes(formulas)}
+        </cfRule>
+      </conditionalFormatting>
+    `;
     }
     function cellRuleFormula(ranges, rule) {
         const firstCell = ranges[0].split(":")[0];
@@ -37737,15 +41085,15 @@
             const cfValueObjectNodes = cfValueObject.map((attrs) => escapeXml /*xml*/ `<cfvo ${formatAttributes(attrs)}/>`);
             const cfColorNodes = colors.map((attrs) => escapeXml /*xml*/ `<color ${formatAttributes(attrs)}/>`);
             conditionalFormats.push(escapeXml /*xml*/ `
-      <conditionalFormatting sqref="${range}">
-        <cfRule ${formatAttributes(ruleAttributes)}>
-          <colorScale>
-            ${joinXmlNodes(cfValueObjectNodes)}
-            ${joinXmlNodes(cfColorNodes)}
-          </colorScale>
-        </cfRule>
-      </conditionalFormatting>
-    `);
+        <conditionalFormatting sqref="${range}">
+          <cfRule ${formatAttributes(ruleAttributes)}>
+            <colorScale>
+              ${joinXmlNodes(cfValueObjectNodes)}
+              ${joinXmlNodes(cfColorNodes)}
+            </colorScale>
+          </cfRule>
+        </conditionalFormatting>
+      `);
         }
         return joinXmlNodes(conditionalFormats);
     }
@@ -37782,14 +41130,14 @@
             }
             const cfValueObjectNodes = cfValueObject.map((attrs) => escapeXml /*xml*/ `<cfvo ${formatAttributes(attrs)} />`);
             conditionalFormats.push(escapeXml /*xml*/ `
-      <conditionalFormatting sqref="${range}">
-        <cfRule ${formatAttributes(ruleAttributes)}>
-          <iconSet iconSet="${getIconSet(rule.icons)}">
-            ${joinXmlNodes(cfValueObjectNodes)}
-          </iconSet>
-        </cfRule>
-      </conditionalFormatting>
-    `);
+        <conditionalFormatting sqref="${range}">
+          <cfRule ${formatAttributes(ruleAttributes)}>
+            <iconSet iconSet="${getIconSet(rule.icons)}">
+              ${joinXmlNodes(cfValueObjectNodes)}
+            </iconSet>
+          </cfRule>
+        </conditionalFormatting>
+      `);
         }
         return joinXmlNodes(conditionalFormats);
     }
@@ -37846,7 +41194,7 @@
                 return type;
         }
     }
-
+  
     function createDrawing(chartRelIds, sheet, figures) {
         const namespaces = [
             ["xmlns:xdr", NAMESPACE.drawing],
@@ -37865,43 +41213,43 @@
                 ["title", "Chart"],
             ];
             figuresNodes.push(escapeXml /*xml*/ `
-      <xdr:twoCellAnchor>
-        <xdr:from>
-          <xdr:col>${from.col}</xdr:col>
-          <xdr:colOff>${from.colOff}</xdr:colOff>
-          <xdr:row>${from.row}</xdr:row>
-          <xdr:rowOff>${from.rowOff}</xdr:rowOff>
-        </xdr:from>
-        <xdr:to>
-          <xdr:col>${to.col}</xdr:col>
-          <xdr:colOff>${to.colOff}</xdr:colOff>
-          <xdr:row>${to.row}</xdr:row>
-          <xdr:rowOff>${to.rowOff}</xdr:rowOff>
-        </xdr:to>
-        <xdr:graphicFrame>
-          <xdr:nvGraphicFramePr>
-            <xdr:cNvPr ${formatAttributes(cNvPrAttrs)} />
-            <xdr:cNvGraphicFramePr />
-          </xdr:nvGraphicFramePr>
-          <xdr:xfrm>
-            <a:off x="0" y="0"/>
-            <a:ext cx="0" cy="0"/>
-          </xdr:xfrm>
-          <a:graphic>
-            <a:graphicData uri="${DRAWING_NS_C}">
-              <c:chart r:id="${chartRelIds[figureIndex]}" />
-            </a:graphicData>
-          </a:graphic>
-        </xdr:graphicFrame>
-        <xdr:clientData fLocksWithSheet="0"/>
-      </xdr:twoCellAnchor>
-    `);
+        <xdr:twoCellAnchor>
+          <xdr:from>
+            <xdr:col>${from.col}</xdr:col>
+            <xdr:colOff>${from.colOff}</xdr:colOff>
+            <xdr:row>${from.row}</xdr:row>
+            <xdr:rowOff>${from.rowOff}</xdr:rowOff>
+          </xdr:from>
+          <xdr:to>
+            <xdr:col>${to.col}</xdr:col>
+            <xdr:colOff>${to.colOff}</xdr:colOff>
+            <xdr:row>${to.row}</xdr:row>
+            <xdr:rowOff>${to.rowOff}</xdr:rowOff>
+          </xdr:to>
+          <xdr:graphicFrame>
+            <xdr:nvGraphicFramePr>
+              <xdr:cNvPr ${formatAttributes(cNvPrAttrs)} />
+              <xdr:cNvGraphicFramePr />
+            </xdr:nvGraphicFramePr>
+            <xdr:xfrm>
+              <a:off x="0" y="0"/>
+              <a:ext cx="0" cy="0"/>
+            </xdr:xfrm>
+            <a:graphic>
+              <a:graphicData uri="${DRAWING_NS_C}">
+                <c:chart r:id="${chartRelIds[figureIndex]}" />
+              </a:graphicData>
+            </a:graphic>
+          </xdr:graphicFrame>
+          <xdr:clientData fLocksWithSheet="0"/>
+        </xdr:twoCellAnchor>
+      `);
         }
         const xml = escapeXml /*xml*/ `
-    <xdr:wsDr ${formatAttributes(namespaces)}>
-      ${joinXmlNodes(figuresNodes)}
-    </xdr:wsDr>
-  `;
+      <xdr:wsDr ${formatAttributes(namespaces)}>
+        ${joinXmlNodes(figuresNodes)}
+      </xdr:wsDr>
+    `;
         return parseXML(xml);
     }
     /**
@@ -37951,7 +41299,7 @@
             offset: convertDotValueToEMU(position - currentPosition + FIGURE_BORDER_SIZE),
         };
     }
-
+  
     function addNumberFormats(numFmts) {
         const numFmtNodes = [];
         for (let [index, numFmt] of Object.entries(numFmts)) {
@@ -37960,85 +41308,85 @@
                 ["formatCode", numFmt.format],
             ];
             numFmtNodes.push(escapeXml /*xml*/ `
-      <numFmt ${formatAttributes(numFmtAttrs)}/>
-    `);
+        <numFmt ${formatAttributes(numFmtAttrs)}/>
+      `);
         }
         return escapeXml /*xml*/ `
-    <numFmts count="${numFmts.length}">
-      ${joinXmlNodes(numFmtNodes)}
-    </numFmts>
-  `;
+      <numFmts count="${numFmts.length}">
+        ${joinXmlNodes(numFmtNodes)}
+      </numFmts>
+    `;
     }
     function addFont(font) {
         if (isObjectEmptyRecursive(font)) {
             return escapeXml /*xml*/ ``;
         }
         return escapeXml /*xml*/ `
-    <font>
-      ${font.bold ? escapeXml /*xml*/ `<b />` : ""}
-      ${font.italic ? escapeXml /*xml*/ `<i />` : ""}
-      ${font.underline ? escapeXml /*xml*/ `<u />` : ""}
-      ${font.strike ? escapeXml /*xml*/ `<strike />` : ""}
-      ${font.size ? escapeXml /*xml*/ `<sz val="${font.size}" />` : ""}
-      ${font.color && font.color.rgb
-        ? escapeXml /*xml*/ `<color rgb="${toXlsxHexColor(font.color.rgb)}" />`
-        : ""}
-      ${font.name ? escapeXml /*xml*/ `<name val="${font.name}" />` : ""}
-    </font>
-  `;
+      <font>
+        ${font.bold ? escapeXml /*xml*/ `<b />` : ""}
+        ${font.italic ? escapeXml /*xml*/ `<i />` : ""}
+        ${font.underline ? escapeXml /*xml*/ `<u />` : ""}
+        ${font.strike ? escapeXml /*xml*/ `<strike />` : ""}
+        ${font.size ? escapeXml /*xml*/ `<sz val="${font.size}" />` : ""}
+        ${font.color && font.color.rgb
+          ? escapeXml /*xml*/ `<color rgb="${toXlsxHexColor(font.color.rgb)}" />`
+          : ""}
+        ${font.name ? escapeXml /*xml*/ `<name val="${font.name}" />` : ""}
+      </font>
+    `;
     }
     function addFonts(fonts) {
         return escapeXml /*xml*/ `
-    <fonts count="${fonts.length}">
-      ${joinXmlNodes(Object.values(fonts).map(addFont))}
-    </fonts>
-  `;
+      <fonts count="${fonts.length}">
+        ${joinXmlNodes(Object.values(fonts).map(addFont))}
+      </fonts>
+    `;
     }
     function addFills(fills) {
         const fillNodes = [];
         for (let fill of Object.values(fills)) {
             if (fill.reservedAttribute !== undefined) {
                 fillNodes.push(escapeXml /*xml*/ `
-        <fill>
-          <patternFill patternType="${fill.reservedAttribute}" />
-        </fill>
-      `);
+          <fill>
+            <patternFill patternType="${fill.reservedAttribute}" />
+          </fill>
+        `);
             }
             else {
                 fillNodes.push(escapeXml /*xml*/ `
-        <fill>
-          <patternFill patternType="solid">
-            <fgColor rgb="${toXlsxHexColor(fill.fgColor.rgb)}" />
-            <bgColor indexed="64" />
-          </patternFill>
-        </fill>
-      `);
+          <fill>
+            <patternFill patternType="solid">
+              <fgColor rgb="${toXlsxHexColor(fill.fgColor.rgb)}" />
+              <bgColor indexed="64" />
+            </patternFill>
+          </fill>
+        `);
             }
         }
         return escapeXml /*xml*/ `
-    <fills count="${fills.length}">
-    ${joinXmlNodes(fillNodes)}
-    </fills>
-  `;
+      <fills count="${fills.length}">
+      ${joinXmlNodes(fillNodes)}
+      </fills>
+    `;
     }
     function addBorders(borders) {
         const borderNodes = [];
         for (let border of Object.values(borders)) {
             borderNodes.push(escapeXml /*xml*/ `
-      <border>
-        <left ${formatBorderAttribute(border["left"])} />
-        <right ${formatBorderAttribute(border["right"])} />
-        <top ${formatBorderAttribute(border["top"])} />
-        <bottom ${formatBorderAttribute(border["bottom"])} />
-        <diagonal ${formatBorderAttribute(border["diagonal"])} />
-      </border>
-    `);
+        <border>
+          <left ${formatBorderAttribute(border["left"])} />
+          <right ${formatBorderAttribute(border["right"])} />
+          <top ${formatBorderAttribute(border["top"])} />
+          <bottom ${formatBorderAttribute(border["bottom"])} />
+          <diagonal ${formatBorderAttribute(border["diagonal"])} />
+        </border>
+      `);
         }
         return escapeXml /*xml*/ `
-    <borders count="${borders.length}">
-      ${joinXmlNodes(borderNodes)}
-    </borders>
-  `;
+      <borders count="${borders.length}">
+        ${joinXmlNodes(borderNodes)}
+      </borders>
+    `;
     }
     function formatBorderAttribute(description) {
         if (!description) {
@@ -38067,16 +41415,16 @@
                 alignAttrs.push(["horizontal", style.alignment.horizontal]);
             }
             styleNodes.push(escapeXml /*xml*/ `
-      <xf ${formatAttributes(attributes)}>
-        ${alignAttrs ? escapeXml /*xml*/ `<alignment ${formatAttributes(alignAttrs)} />` : ""}
-      </xf>
-    `);
+        <xf ${formatAttributes(attributes)}>
+          ${alignAttrs ? escapeXml /*xml*/ `<alignment ${formatAttributes(alignAttrs)} />` : ""}
+        </xf>
+      `);
         }
         return escapeXml /*xml*/ `
-    <cellXfs count="${styles.length}">
-      ${joinXmlNodes(styleNodes)}
-    </cellXfs>
-  `;
+      <cellXfs count="${styles.length}">
+        ${joinXmlNodes(styleNodes)}
+      </cellXfs>
+    `;
     }
     /**
      * DXFS : Differential Formatting Records - Conditional formats
@@ -38092,27 +41440,101 @@
             let fillNode = escapeXml ``;
             if (dxf.fill) {
                 fillNode = escapeXml /*xml*/ `
-        <fill>
-          <patternFill>
-            <bgColor rgb="${toXlsxHexColor(dxf.fill.fgColor.rgb)}" />
-          </patternFill>
-        </fill>
-      `;
+          <fill>
+            <patternFill>
+              <bgColor rgb="${toXlsxHexColor(dxf.fill.fgColor.rgb)}" />
+            </patternFill>
+          </fill>
+        `;
             }
             dxfNodes.push(escapeXml /*xml*/ `
-      <dxf>
-        ${fontNode}
-        ${fillNode}
-      </dxf>
-    `);
+        <dxf>
+          ${fontNode}
+          ${fillNode}
+        </dxf>
+      `);
         }
         return escapeXml /*xml*/ `
-    <dxfs count="${dxfs.length}">
-      ${joinXmlNodes(dxfNodes)}
-    </dxfs>
+      <dxfs count="${dxfs.length}">
+        ${joinXmlNodes(dxfNodes)}
+      </dxfs>
+    `;
+    }
+  
+    const TABLE_DEFAULT_STYLE = escapeXml /*xml*/ `<tableStyleInfo name="TableStyleLight8" showFirstColumn="0" showLastColumn="0" showRowStripes="0" showColumnStripes="0"/>`;
+    function createTable(table, tableId, sheetData) {
+        const tableAttributes = [
+            ["id", tableId],
+            ["name", `Table${tableId}`],
+            ["displayName", `Table${tableId}`],
+            ["ref", table.range],
+            ["xmlns", NAMESPACE.table],
+            ["xmlns:xr", NAMESPACE.revision],
+            ["xmlns:xr3", NAMESPACE.revision3],
+            ["xmlns:mc", NAMESPACE.markupCompatibility],
+        ];
+        const xml = escapeXml /*xml*/ `
+      <table ${formatAttributes(tableAttributes)}>
+        ${addAutoFilter(table)}
+        ${addTableColumns(table, sheetData)}
+        ${TABLE_DEFAULT_STYLE}
+      </table>
+      `;
+        return parseXML(xml);
+    }
+    function addAutoFilter(table) {
+        const autoFilterAttributes = [["ref", table.range]];
+        return escapeXml /*xml*/ `
+    <autoFilter ${formatAttributes(autoFilterAttributes)}>
+      ${joinXmlNodes(addFilterColumns(table))}
+    </autoFilter>
+    `;
+    }
+    function addFilterColumns(table) {
+        const tableZone = toZone(table.range);
+        const columns = [];
+        for (const i of range(0, zoneToDimension(tableZone).width)) {
+            const filter = table.filters[i];
+            if (!filter || !filter.filteredValues.length) {
+                continue;
+            }
+            const colXml = escapeXml /*xml*/ `
+        <filterColumn ${formatAttributes([["colId", i]])}>
+          ${addFilter(filter)}
+        </filterColumn>
+        `;
+            columns.push(colXml);
+        }
+        return columns;
+    }
+    function addFilter(filter) {
+        const filterValues = filter.filteredValues.map((val) => escapeXml /*xml*/ `<filter ${formatAttributes([["val", val]])}/>`);
+        return escapeXml /*xml*/ `
+    <filters>
+        ${joinXmlNodes(filterValues)}
+    </filters>
   `;
     }
-
+    function addTableColumns(table, sheetData) {
+        var _a;
+        const tableZone = toZone(table.range);
+        const columns = [];
+        for (const i of range(0, zoneToDimension(tableZone).width)) {
+            const colHeaderXc = toXC(tableZone.left + i, tableZone.top);
+            const colName = ((_a = sheetData.cells[colHeaderXc]) === null || _a === void 0 ? void 0 : _a.content) || `col${i}`;
+            const colAttributes = [
+                ["id", i + 1],
+                ["name", colName],
+            ];
+            columns.push(escapeXml /*xml*/ `<tableColumn ${formatAttributes(colAttributes)}/>`);
+        }
+        return escapeXml /*xml*/ `
+          <tableColumns ${formatAttributes([["count", columns.length]])}>
+              ${joinXmlNodes(columns)}
+          </tableColumns>
+      `;
+    }
+  
     function addColumns(cols) {
         if (!Object.values(cols).length) {
             return escapeXml ``;
@@ -38128,14 +41550,14 @@
                 ["hidden", col.isHidden ? 1 : 0],
             ];
             colNodes.push(escapeXml /*xml*/ `
-      <col ${formatAttributes(attributes)}/>
-    `);
+        <col ${formatAttributes(attributes)}/>
+      `);
         }
         return escapeXml /*xml*/ `
-    <cols>
-      ${joinXmlNodes(colNodes)}
-    </cols>
-  `;
+      <cols>
+        ${joinXmlNodes(colNodes)}
+      </cols>
+    `;
     }
     function addRows(construct, data, sheet) {
         const rowNodes = [];
@@ -38164,29 +41586,37 @@
                         ({ attrs: additionalAttrs, node: cellNode } = addContent(label, construct.sharedStrings));
                     }
                     else if (cell.content && cell.content !== "") {
-                        ({ attrs: additionalAttrs, node: cellNode } = addContent(cell.content, construct.sharedStrings));
+                        const isTableHeader = isCellTableHeader(c, r, sheet);
+                        ({ attrs: additionalAttrs, node: cellNode } = addContent(cell.content, construct.sharedStrings, isTableHeader));
                     }
                     attributes.push(...additionalAttrs);
                     cellNodes.push(escapeXml /*xml*/ `
-          <c ${formatAttributes(attributes)}>
-            ${cellNode}
-          </c>
-        `);
+            <c ${formatAttributes(attributes)}>
+              ${cellNode}
+            </c>
+          `);
                 }
             }
             if (cellNodes.length || row.size !== DEFAULT_CELL_HEIGHT || row.isHidden) {
                 rowNodes.push(escapeXml /*xml*/ `
-        <row ${formatAttributes(rowAttrs)}>
-          ${joinXmlNodes(cellNodes)}
-        </row>
-      `);
+          <row ${formatAttributes(rowAttrs)}>
+            ${joinXmlNodes(cellNodes)}
+          </row>
+        `);
             }
         }
         return escapeXml /*xml*/ `
-    <sheetData>
-      ${joinXmlNodes(rowNodes)}
-    </sheetData>
-  `;
+      <sheetData>
+        ${joinXmlNodes(rowNodes)}
+      </sheetData>
+    `;
+    }
+    function isCellTableHeader(col, row, sheet) {
+        return sheet.filterTables.some((table) => {
+            const zone = toZone(table.range);
+            const headerZone = { ...zone, bottom: zone.top };
+            return isInside(col, row, headerZone);
+        });
     }
     function addHyperlinks(construct, data, sheetIndex) {
         var _a;
@@ -38202,18 +41632,18 @@
                     const sheet = data.sheets.find((sheet) => sheet.id === sheetId);
                     const location = sheet ? `${sheet.name}!A1` : INCORRECT_RANGE_STRING;
                     linkNodes.push(escapeXml /*xml*/ `
-          <hyperlink display="${label}" location="${location}" ref="${xc}"/>
-        `);
+            <hyperlink display="${label}" location="${location}" ref="${xc}"/>
+          `);
                 }
                 else {
                     const linkRelId = addRelsToFile(construct.relsFiles, `xl/worksheets/_rels/sheet${sheetIndex}.xml.rels`, {
                         target: url,
-                        type: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
+                        type: XLSX_RELATION_TYPE.hyperlink,
                         targetMode: "External",
                     });
                     linkNodes.push(escapeXml /*xml*/ `
-          <hyperlink r:id="${linkRelId}" ref="${xc}"/>
-        `);
+            <hyperlink r:id="${linkRelId}" ref="${xc}"/>
+          `);
                 }
             }
         }
@@ -38221,19 +41651,19 @@
             return escapeXml ``;
         }
         return escapeXml /*xml*/ `
-    <hyperlinks>
-      ${joinXmlNodes(linkNodes)}
-    </hyperlinks>
-  `;
+      <hyperlinks>
+        ${joinXmlNodes(linkNodes)}
+      </hyperlinks>
+    `;
     }
     function addMerges(merges) {
         if (merges.length) {
             const mergeNodes = merges.map((merge) => escapeXml /*xml*/ `<mergeCell ref="${merge}" />`);
             return escapeXml /*xml*/ `
-      <mergeCells count="${merges.length}">
-        ${joinXmlNodes(mergeNodes)}
-      </mergeCells>
-    `;
+        <mergeCells count="${merges.length}">
+          ${joinXmlNodes(mergeNodes)}
+        </mergeCells>
+      `;
         }
         else
             return escapeXml ``;
@@ -38250,27 +41680,27 @@
             const bottomLeft = panes.ySplit ? escapeXml `<selection pane="bottomLeft"/>` : "";
             const bottomRight = panes.xSplit && panes.ySplit ? escapeXml `<selection pane="bottomRight"/>` : "";
             splitPanes = escapeXml /*xml*/ `
-    <pane
-      ${xSplit}
-      ${ySplit}
-      topLeftCell="${xc}"
-      activePane="${panes.xSplit ? (panes.ySplit ? "bottomRight" : "topRight") : "bottomLeft"}"
-      state="frozen"/>
-      ${topRight}
-      ${bottomLeft}
-      ${bottomRight}
-    `;
+      <pane
+        ${xSplit}
+        ${ySplit}
+        topLeftCell="${xc}"
+        activePane="${panes.xSplit ? (panes.ySplit ? "bottomRight" : "topRight") : "bottomLeft"}"
+        state="frozen"/>
+        ${topRight}
+        ${bottomLeft}
+        ${bottomRight}
+      `;
         }
         let sheetView = escapeXml /*xml*/ `
-      <sheetViews>
-        <sheetView showGridLines="${sheet.areGridLinesVisible ? 1 : 0}" workbookViewId="0">
-          ${splitPanes}
-        </sheetView>
-      </sheetViews>
-    `;
+        <sheetViews>
+          <sheetView showGridLines="${sheet.areGridLinesVisible ? 1 : 0}" workbookViewId="0">
+            ${splitPanes}
+          </sheetView>
+        </sheetViews>
+      `;
         return sheetView;
     }
-
+  
     /**
      * Return the spreadsheet data in the Office Open XML file format.
      * See ECMA-376 standard.
@@ -38305,24 +41735,25 @@
                 ["r:id", `rId${parseInt(index) + 1}`],
             ];
             sheetNodes.push(escapeXml /*xml*/ `
-      <sheet ${formatAttributes(attributes)} />
-    `);
+        <sheet ${formatAttributes(attributes)} />
+      `);
             addRelsToFile(construct.relsFiles, "xl/_rels/workbook.xml.rels", {
-                type: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet",
+                type: XLSX_RELATION_TYPE.sheet,
                 target: `worksheets/sheet${index}.xml`,
             });
         }
         const xml = escapeXml /*xml*/ `
-    <workbook ${formatAttributes(namespaces)}>
-      <sheets>
-        ${joinXmlNodes(sheetNodes)}
-      </sheets>
-    </workbook>
-  `;
+      <workbook ${formatAttributes(namespaces)}>
+        <sheets>
+          ${joinXmlNodes(sheetNodes)}
+        </sheets>
+      </workbook>
+    `;
         return createXMLFile(parseXML(xml), "xl/workbook.xml", "workbook");
     }
     function createWorksheets(data, construct) {
         const files = [];
+        let currentTableIndex = 1;
         for (const [sheetIndex, sheet] of Object.entries(data.sheets)) {
             const namespaces = [
                 ["xmlns", NAMESPACE["worksheet"]],
@@ -38332,6 +41763,8 @@
                 ["defaultRowHeight", convertHeightToExcel(DEFAULT_CELL_HEIGHT)],
                 ["defaultColWidth", convertWidthToExcel(DEFAULT_CELL_WIDTH)],
             ];
+            const tablesNode = createTablesForSheet(sheet, sheetIndex, currentTableIndex, construct, files);
+            currentTableIndex += sheet.filterTables.length;
             // Figures and Charts
             let drawingNode = escapeXml ``;
             const charts = sheet.charts;
@@ -38341,41 +41774,68 @@
                     const xlsxChartId = convertChartId(chart.id);
                     const chartRelId = addRelsToFile(construct.relsFiles, `xl/drawings/_rels/drawing${sheetIndex}.xml.rels`, {
                         target: `../charts/chart${xlsxChartId}.xml`,
-                        type: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart",
+                        type: XLSX_RELATION_TYPE.chart,
                     });
                     chartRelIds.push(chartRelId);
                     files.push(createXMLFile(createChart(chart, sheetIndex, data), `xl/charts/chart${xlsxChartId}.xml`, "chart"));
                 }
                 const drawingRelId = addRelsToFile(construct.relsFiles, `xl/worksheets/_rels/sheet${sheetIndex}.xml.rels`, {
                     target: `../drawings/drawing${sheetIndex}.xml`,
-                    type: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing",
+                    type: XLSX_RELATION_TYPE.drawing,
                 });
                 files.push(createXMLFile(createDrawing(chartRelIds, sheet, charts), `xl/drawings/drawing${sheetIndex}.xml`, "drawing"));
                 drawingNode = escapeXml /*xml*/ `<drawing r:id="${drawingRelId}" />`;
             }
             const sheetXml = escapeXml /*xml*/ `
-      <worksheet ${formatAttributes(namespaces)}>
-        ${addSheetViews(sheet)}
-        <sheetFormatPr ${formatAttributes(sheetFormatAttributes)} />
-        ${addColumns(sheet.cols)}
-        ${addRows(construct, data, sheet)}
-        ${addMerges(sheet.merges)}
-        ${joinXmlNodes(addConditionalFormatting(construct.dxfs, sheet.conditionalFormats))}
-        ${addHyperlinks(construct, data, sheetIndex)}
-        ${drawingNode}
-      </worksheet>
-    `;
+        <worksheet ${formatAttributes(namespaces)}>
+          ${addSheetViews(sheet)}
+          <sheetFormatPr ${formatAttributes(sheetFormatAttributes)} />
+          ${addColumns(sheet.cols)}
+          ${addRows(construct, data, sheet)}
+          ${addMerges(sheet.merges)}
+          ${joinXmlNodes(addConditionalFormatting(construct.dxfs, sheet.conditionalFormats))}
+          ${addHyperlinks(construct, data, sheetIndex)}
+          ${drawingNode}
+          ${tablesNode}
+        </worksheet>
+      `;
             files.push(createXMLFile(parseXML(sheetXml), `xl/worksheets/sheet${sheetIndex}.xml`, "sheet"));
         }
         addRelsToFile(construct.relsFiles, "xl/_rels/workbook.xml.rels", {
-            type: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings",
+            type: XLSX_RELATION_TYPE.sharedStrings,
             target: "sharedStrings.xml",
         });
         addRelsToFile(construct.relsFiles, "xl/_rels/workbook.xml.rels", {
-            type: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles",
+            type: XLSX_RELATION_TYPE.styles,
             target: "styles.xml",
         });
         return files;
+    }
+    /**
+     * Create xlsx files for each tables contained in the given sheet, and add them to the XLSXStructure ans XLSXExportFiles.
+     *
+     * Return an XML string that should be added in the sheet to link these table to the sheet.
+     */
+    function createTablesForSheet(sheetData, sheetId, startingTableId, construct, files) {
+        let currentTableId = startingTableId;
+        if (!sheetData.filterTables.length)
+            return new XMLString("");
+        const sheetRelFile = `xl/worksheets/_rels/sheet${sheetId}.xml.rels`;
+        const tableParts = [];
+        for (const table of sheetData.filterTables) {
+            const tableRelId = addRelsToFile(construct.relsFiles, sheetRelFile, {
+                target: `../tables/table${currentTableId}.xml`,
+                type: XLSX_RELATION_TYPE.table,
+            });
+            files.push(createXMLFile(createTable(table, currentTableId, sheetData), `xl/tables/table${currentTableId}.xml`, "table"));
+            tableParts.push(escapeXml /*xml*/ `<tablePart r:id="${tableRelId}" />`);
+            currentTableId++;
+        }
+        return escapeXml /*xml*/ `
+      <tableParts count="${sheetData.filterTables.length}">
+        ${joinXmlNodes(tableParts)}
+      </tableParts>
+  `;
     }
     function createStylesSheet(construct) {
         const namespaces = [
@@ -38383,15 +41843,15 @@
             ["xmlns:r", RELATIONSHIP_NSR],
         ];
         const styleXml = escapeXml /*xml*/ `
-    <styleSheet ${formatAttributes(namespaces)}>
-      ${addNumberFormats(construct.numFmts)}
-      ${addFonts(construct.fonts)}
-      ${addFills(construct.fills)}
-      ${addBorders(construct.borders)}
-      ${addStyles(construct.styles)}
-      ${addCellWiseConditionalFormatting(construct.dxfs)}
-    </styleSheet>
-  `;
+      <styleSheet ${formatAttributes(namespaces)}>
+        ${addNumberFormats(construct.numFmts)}
+        ${addFonts(construct.fonts)}
+        ${addFills(construct.fills)}
+        ${addBorders(construct.borders)}
+        ${addStyles(construct.styles)}
+        ${addCellWiseConditionalFormatting(construct.dxfs)}
+      </styleSheet>
+    `;
         return createXMLFile(parseXML(styleXml), "xl/styles.xml", "styles");
     }
     function createSharedStrings(strings) {
@@ -38402,10 +41862,10 @@
         ];
         const stringNodes = strings.map((string) => escapeXml /*xml*/ `<si><t>${string}</t></si>`);
         const xml = escapeXml /*xml*/ `
-    <sst ${formatAttributes(namespaces)}>
-      ${joinXmlNodes(stringNodes)}
-    </sst>
-  `;
+      <sst ${formatAttributes(namespaces)}>
+        ${joinXmlNodes(stringNodes)}
+      </sst>
+    `;
         return createXMLFile(parseXML(xml), "xl/sharedStrings.xml", "sharedStrings");
     }
     function createRelsFiles(relsFiles) {
@@ -38422,14 +41882,14 @@
                     attributes.push(["TargetMode", rel.targetMode]);
                 }
                 relationNodes.push(escapeXml /*xml*/ `
-        <Relationship ${formatAttributes(attributes)} />
-      `);
+          <Relationship ${formatAttributes(attributes)} />
+        `);
             }
             const xml = escapeXml /*xml*/ `
-      <Relationships xmlns="${NAMESPACE["Relationships"]}">
-        ${joinXmlNodes(relationNodes)}
-      </Relationships>
-    `;
+        <Relationships xmlns="${NAMESPACE["Relationships"]}">
+          ${joinXmlNodes(relationNodes)}
+        </Relationships>
+      `;
             XMLRelsFiles.push(createXMLFile(parseXML(xml), relFile.path));
         }
         return XMLRelsFiles;
@@ -38442,28 +41902,28 @@
             }
         }
         const xml = escapeXml /*xml*/ `
-    <Types xmlns="${NAMESPACE["Types"]}">
-      <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml" />
-      <Default Extension="xml" ContentType="application/xml" />
-      ${joinXmlNodes(overrideNodes)}
-    </Types>
-  `;
+      <Types xmlns="${NAMESPACE["Types"]}">
+        <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml" />
+        <Default Extension="xml" ContentType="application/xml" />
+        ${joinXmlNodes(overrideNodes)}
+      </Types>
+    `;
         return createXMLFile(parseXML(xml), "[Content_Types].xml");
     }
     function createRelRoot() {
         const attributes = [
             ["Id", "rId1"],
-            ["Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"],
+            ["Type", XLSX_RELATION_TYPE.document],
             ["Target", "xl/workbook.xml"],
         ];
         const xml = escapeXml /*xml*/ `
-    <Relationships xmlns="${NAMESPACE["Relationships"]}">
-      <Relationship ${formatAttributes(attributes)} />
-    </Relationships>
-  `;
+      <Relationships xmlns="${NAMESPACE["Relationships"]}">
+        <Relationship ${formatAttributes(attributes)} />
+      </Relationships>
+    `;
         return createXMLFile(parseXML(xml), "_rels/.rels");
     }
-
+  
     var Status;
     (function (Status) {
         Status[Status["Ready"] = 0] = "Ready";
@@ -38476,6 +41936,11 @@
             super();
             this.corePlugins = [];
             this.uiPlugins = [];
+            /**
+             * In a collaborative context, some commands can be replayed, we have to ensure
+             * that these commands are not replayed on the UI plugins.
+             */
+            this.isReplayingCommand = false;
             /**
              * A plugin can draw some contents on the canvas. But even better: it can do
              * so multiple times.  The order of the render calls will determine a list of
@@ -38506,7 +41971,10 @@
                 const command = { type, ...payload };
                 let status = this.status;
                 if (this.getters.isReadonly() && !canExecuteInReadonly(command)) {
-                    return new DispatchResult(64 /* CommandResult.Readonly */);
+                    return new DispatchResult(66 /* CommandResult.Readonly */);
+                }
+                if (!this.session.canApplyOptimisticUpdate()) {
+                    return new DispatchResult(63 /* CommandResult.WaitingSessionConfirmation */);
                 }
                 switch (status) {
                     case 0 /* Status.Ready */:
@@ -38540,9 +42008,12 @@
                         }
                         break;
                     case 3 /* Status.Finalizing */:
-                        throw new Error(_lt("Cannot dispatch commands in the finalize state"));
+                        throw new Error("Cannot dispatch commands in the finalize state");
                     case 2 /* Status.RunningCore */:
-                        throw new Error("A UI plugin cannot dispatch while handling a core command");
+                        if (isCoreCommand(command)) {
+                            throw new Error(`A UI plugin cannot dispatch ${type} while handling a core command`);
+                        }
+                        this.dispatchToHandlers(this.handlers, command);
                 }
                 return DispatchResult.Success;
             };
@@ -38554,7 +42025,8 @@
                 const command = { type, ...payload };
                 const previousStatus = this.status;
                 this.status = 2 /* Status.RunningCore */;
-                this.dispatchToHandlers(this.handlers, command);
+                const handlers = this.isReplayingCommand ? [this.range, ...this.corePlugins] : this.handlers;
+                this.dispatchToHandlers(handlers, command);
                 this.status = previousStatus;
                 return DispatchResult.Success;
             };
@@ -38631,6 +42103,9 @@
                 if (!(name in plugin)) {
                     throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
                 }
+                if (name in this.getters) {
+                    throw new Error(`Getter "${name}" is already defined.`);
+                }
                 this.getters[name] = plugin[name].bind(plugin);
             }
             this.uiPlugins.push(plugin);
@@ -38650,6 +42125,9 @@
                 if (!(name in plugin)) {
                     throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
                 }
+                if (name in this.coreGetters) {
+                    throw new Error(`Getter "${name}" is already defined.`);
+                }
                 this.coreGetters[name] = plugin[name].bind(plugin);
             }
             plugin.import(data);
@@ -38657,12 +42135,23 @@
         }
         onRemoteRevisionReceived({ commands }) {
             for (let command of commands) {
+                const previousStatus = this.status;
+                this.status = 2 /* Status.RunningCore */;
                 this.dispatchToHandlers(this.uiPlugins, command);
+                this.status = previousStatus;
             }
             this.finalize();
         }
         setupSession(revisionId) {
-            const session = new Session(buildRevisionLog(revisionId, this.state.recordChanges.bind(this.state), (command) => this.dispatchToHandlers([this.range, ...this.corePlugins], command)), this.config.transportService, revisionId);
+            const session = new Session(buildRevisionLog(revisionId, this.state.recordChanges.bind(this.state), (command) => {
+                const result = this.checkDispatchAllowed(command);
+                if (!result.isSuccessful) {
+                    return;
+                }
+                this.isReplayingCommand = true;
+                this.dispatchToHandlers([this.range, ...this.corePlugins], command);
+                this.isReplayingCommand = false;
+            }), this.config.transportService, revisionId);
             return session;
         }
         setupSessionEvents() {
@@ -38791,7 +42280,7 @@
             return getXLSX(data);
         }
     }
-
+  
     /**
      * We export here all entities that needs to be accessed publicly by Odoo.
      *
@@ -38855,6 +42344,8 @@
         parseMarkdownLink,
         markdownLink,
         createEmptyWorkbookData,
+        createEmptySheet,
+        createEmptyExcelSheet,
         getDefaultChartJsRuntime,
         chartFontColor,
         getMenuChildren,
@@ -38882,7 +42373,10 @@
         ScorecardChartConfigPanel,
         ScorecardChartDesignPanel,
     };
-
+    function addFunction(functionName, functionDescription) {
+        functionRegistry.add(functionName, functionDescription);
+    }
+  
     exports.AbstractChart = AbstractChart;
     exports.CorePlugin = CorePlugin;
     exports.DATETIME_FORMAT = DATETIME_FORMAT;
@@ -38895,6 +42389,7 @@
     exports.Spreadsheet = Spreadsheet;
     exports.UIPlugin = UIPlugin;
     exports.__info__ = __info__;
+    exports.addFunction = addFunction;
     exports.astToFormula = astToFormula;
     exports.cellTypes = cellTypes;
     exports.compile = compile;
@@ -38911,12 +42406,14 @@
     exports.registries = registries;
     exports.setTranslationMethod = setTranslationMethod;
     exports.tokenize = tokenize;
-
+  
     Object.defineProperty(exports, '__esModule', { value: true });
-
-    exports.__info__.version = '2.0.0';
-    exports.__info__.date = '2022-10-06T09:08:47.754Z';
-    exports.__info__.hash = '808bd19';
-
-})(this.o_spreadsheet = this.o_spreadsheet || {}, owl);
-//# sourceMappingURL=o_spreadsheet.js.map
+  
+  
+    __info__.version = '16.0.0';
+    __info__.date = '2023-02-27T14:34:11.940Z';
+    __info__.hash = '7081532';
+  
+  
+  })(this.o_spreadsheet = this.o_spreadsheet || {}, owl);
+  
