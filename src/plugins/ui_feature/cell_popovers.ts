@@ -1,6 +1,6 @@
 import { positionToZone } from "../../helpers";
 import { cellPopoverRegistry } from "../../registries/cell_popovers_registry";
-import { CellPosition, Command, CommandResult, Position, Rect } from "../../types";
+import { CellPosition, Command, CommandResult, LocalCommand, Position, Rect } from "../../types";
 import {
   CellPopoverType,
   ClosedCellPopover,
@@ -20,7 +20,7 @@ export class CellPopoverPlugin extends UIPlugin {
 
   private persistentPopover?: CellPosition & { type: CellPopoverType };
 
-  allowDispatch(cmd: Command) {
+  allowDispatch(cmd: LocalCommand): CommandResult {
     switch (cmd.type) {
       case "OPEN_CELL_POPOVER":
         try {

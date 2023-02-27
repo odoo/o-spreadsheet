@@ -14,7 +14,6 @@ import {
   Border,
   CellPosition,
   CellValueType,
-  Command,
   CommandResult,
   ExcelFilterData,
   ExcelWorkbookData,
@@ -24,7 +23,7 @@ import {
   Zone,
 } from "../../types";
 import { UIPlugin } from "../ui_plugin";
-import { UpdateFilterCommand } from "./../../types/commands";
+import { Command, LocalCommand, UpdateFilterCommand } from "./../../types/commands";
 
 export class FilterEvaluationPlugin extends UIPlugin {
   static getters = [
@@ -41,7 +40,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
   hiddenRows: Set<number> = new Set();
   isEvaluationDirty = false;
 
-  allowDispatch(cmd: Command) {
+  allowDispatch(cmd: LocalCommand): CommandResult {
     switch (cmd.type) {
       case "UPDATE_FILTER":
         if (!this.getters.getFilterId(cmd)) {

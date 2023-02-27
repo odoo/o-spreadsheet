@@ -46,6 +46,7 @@ import {
   GridRenderingContext,
   isCoreCommand,
   LAYERS,
+  LocalCommand,
   UID,
 } from "./types/index";
 import { NotifyUIEvent } from "./types/ui";
@@ -267,7 +268,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   get handlers(): CommandHandler<Command>[] {
-    return [this.range, ...this.corePlugins, ...this.allUIPlugins, this.history];
+    return [...this.coreHandlers, ...this.allUIPlugins, this.history];
+  }
+
+  get coreHandlers(): CommandHandler<Command>[] {
+    return [this.range, ...this.corePlugins];
   }
 
   get allUIPlugins(): UIPlugin[] {
@@ -419,6 +424,18 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * Check if the given command is allowed by all the plugins and the history.
    */
   private checkDispatchAllowed(command: Command): DispatchResult {
+    if (isCoreCommand(command)) {
+      return this.checkDispatchAllowedCoreCommand(command);
+    }
+    return this.checkDispatchAllowedLocalCommand(command);
+  }
+
+  private checkDispatchAllowedCoreCommand(command: CoreCommand): DispatchResult {
+    const results = this.coreHandlers.map((handler) => handler.allowDispatch(command));
+    return new DispatchResult(results.flat());
+  }
+
+  private checkDispatchAllowedLocalCommand(command: LocalCommand): DispatchResult {
     const results = this.handlers.map((handler) => handler.allowDispatch(command));
     return new DispatchResult(results.flat());
   }

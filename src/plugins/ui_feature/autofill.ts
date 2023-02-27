@@ -14,6 +14,7 @@ import {
   GridRenderingContext,
   HeaderIndex,
   LAYERS,
+  LocalCommand,
   Tooltip,
   Zone,
 } from "../../types/index";
@@ -94,7 +95,7 @@ export class AutofillPlugin extends UIPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: Command): CommandResult {
+  allowDispatch(cmd: LocalCommand): CommandResult {
     switch (cmd.type) {
       case "AUTOFILL_SELECT":
         const sheetId = this.getters.getActiveSheetId();

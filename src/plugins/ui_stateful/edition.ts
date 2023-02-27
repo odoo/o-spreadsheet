@@ -18,23 +18,22 @@ import {
 import { loopThroughReferenceType } from "../../helpers/reference_type";
 import { _lt } from "../../translation";
 import {
+  AddColumnsRowsCommand,
   CellPosition,
   CellValueType,
+  Command,
+  CommandResult,
   Format,
+  HeaderIndex,
   Highlight,
+  LocalCommand,
   Range,
   RangePart,
+  RemoveColumnsRowsCommand,
   UID,
   Zone,
 } from "../../types";
 import { SelectionEvent } from "../../types/event_stream";
-import {
-  AddColumnsRowsCommand,
-  Command,
-  CommandResult,
-  HeaderIndex,
-  RemoveColumnsRowsCommand,
-} from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 type EditionMode =
@@ -81,7 +80,7 @@ export class EditionPlugin extends UIPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: Command): CommandResult {
+  allowDispatch(cmd: LocalCommand): CommandResult {
     switch (cmd.type) {
       case "CHANGE_COMPOSER_CURSOR_SELECTION":
         return this.validateSelection(this.currentContent.length, cmd.start, cmd.end);

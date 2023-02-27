@@ -94,6 +94,23 @@ describe("Model", () => {
     featurePluginRegistry.remove("myUIPlugin");
   });
 
+  test("UI plugins cannot refuse core commands", () => {
+    class MyUIPlugin extends UIPlugin {
+      allowDispatch(cmd: Command) {
+        if (cmd.type === "UPDATE_CELL") {
+          return CommandResult.CancelledForUnknownReason;
+        }
+        return CommandResult.Success;
+      }
+    }
+    featurePluginRegistry.add("myUIPlugin", MyUIPlugin);
+    const model = new Model();
+
+    setCellContent(model, "A1", "hello");
+    expect(getCellContent(model, "A1")).toBe("hello");
+    featurePluginRegistry.remove("myUIPlugin");
+  });
+
   test("Can open a model in readonly mode", () => {
     const model = new Model({}, { mode: "readonly" });
     expect(model.getters.isReadonly()).toBe(true);

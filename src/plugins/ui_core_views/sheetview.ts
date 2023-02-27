@@ -12,6 +12,7 @@ import {
   EdgeScrollInfo,
   Figure,
   HeaderIndex,
+  LocalCommand,
   Pixel,
   Position,
   Rect,
@@ -115,7 +116,7 @@ export class SheetViewPlugin extends UIPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: Command) {
+  allowDispatch(cmd: LocalCommand): CommandResult | CommandResult[] {
     switch (cmd.type) {
       case "SET_VIEWPORT_OFFSET":
         return this.checkScrollingDirection(cmd);

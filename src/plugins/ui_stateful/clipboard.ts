@@ -15,6 +15,7 @@ import {
   GridRenderingContext,
   isCoreCommand,
   LAYERS,
+  LocalCommand,
   Zone,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
@@ -47,7 +48,7 @@ export class ClipboardPlugin extends UIPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: Command): CommandResult {
+  allowDispatch(cmd: LocalCommand): CommandResult {
     switch (cmd.type) {
       case "CUT":
         const zones = cmd.target || this.getters.getSelectedZones();

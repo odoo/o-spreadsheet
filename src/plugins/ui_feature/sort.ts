@@ -8,6 +8,7 @@ import {
   CommandResult,
   EvaluatedCell,
   HeaderIndex,
+  LocalCommand,
   Position,
   SortCommand,
   SortDirection,
@@ -21,7 +22,7 @@ import { UIPlugin } from "../ui_plugin";
 export class SortPlugin extends UIPlugin {
   static getters = ["getContiguousZone"] as const;
 
-  allowDispatch(cmd: Command) {
+  allowDispatch(cmd: LocalCommand): CommandResult | CommandResult[] {
     switch (cmd.type) {
       case "SORT_CELLS":
         if (!isInside(cmd.col, cmd.row, cmd.zone)) {
