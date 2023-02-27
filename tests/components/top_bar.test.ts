@@ -864,4 +864,13 @@ describe("Topbar - menu item resizing with viewport", () => {
       model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
     );
   });
+
+  test("Rendering have by default placeholder in composer", async () => {
+    const model = new Model();
+    await mountParent(model);
+    const topbarComposerElement = fixture.querySelector(
+      ".o-spreadsheet-topbar .o-composer-container div"
+    )!;
+    expect(topbarComposerElement.getAttribute("placeholder")).toBe("fx");
+  });
 });

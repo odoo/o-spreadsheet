@@ -618,6 +618,7 @@ exports[`TopBar component can set cell format 1`] = `
             <div
               class="o-composer w-100 text-start"
               contenteditable="true"
+              placeholder="fx"
               spellcheck="false"
               style="padding:5px 0px 5px 8px; max-height:100px; line-height:24px; height:34px;"
               tabindex="1"
@@ -1132,6 +1133,7 @@ exports[`TopBar component simple rendering 1`] = `
         <div
           class="o-composer w-100 text-start"
           contenteditable="true"
+          placeholder="fx"
           spellcheck="false"
           style="padding:5px 0px 5px 8px; max-height:100px; line-height:24px; height:34px;"
           tabindex="1"

@@ -19,6 +19,7 @@
         t-on-paste.stop=""
         t-on-compositionstart="onCompositionStart"
         t-on-compositionend="onCompositionEnd"
+        t-att-placeholder="props.placeholder"
       />
 
       <div

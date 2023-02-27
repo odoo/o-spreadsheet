@@ -86,6 +86,13 @@ css/* scss */ `
       }
     }
 
+    .o-composer:empty:not(:focus)::before {
+      content: attr(placeholder);
+      color: lightgrey;
+      font-style: italic;
+      margin-left: 5px;
+    }
+
     .o-composer-assistant {
       position: absolute;
       margin: 1px 4px;
@@ -106,6 +113,7 @@ export interface ComposerProps {
   rect?: Rect;
   delimitation?: DOMDimension;
   onComposerUnmounted?: () => void;
+  placeholder?: string;
 }
 
 interface ComposerState {
@@ -692,4 +700,5 @@ Composer.props = {
   rect: { type: Object, optional: true },
   delimitation: { type: Object, optional: true },
   onComposerUnmounted: { type: Function, optional: true },
+  placeholder: { type: String, optional: true },
 };

@@ -5,6 +5,7 @@
         focus="props.focus"
         inputStyle="composerStyle"
         onComposerContentFocused="props.onComposerContentFocused"
+        placeholder="'fx'"
       />
     </div>
   </t>
