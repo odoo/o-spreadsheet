@@ -3,6 +3,7 @@
   "version": "2.0.0",
   "description": "A spreadsheet component",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "serve-static": "live-server --open=demo --watch=dist/o_spreadsheet.js,dist/o_spreadsheet.xml,demo",
     "dev": "npm-run-all build --parallel server serve-static watch:*",
@@ -37,7 +38,7 @@
   "license": "LGPL-3.0-or-later",
   "devDependencies": {
     "@prettier/plugin-xml": "^2.0.1",
-    "@rollup/plugin-node-resolve": "^11.0.1",
+    "@rollup/plugin-node-resolve": "^15.0.1",
     "@types/chart.js": "2.9.3",
     "@types/jest": "^27.0.1",
     "@types/node": "^13.13.23",
@@ -64,7 +65,7 @@
     "npm-run-all": "^4.1.5",
     "prettier": "^2.7.1",
     "prettier-plugin-organize-imports": "^3.1.1",
-    "rollup": "^2.38.5",
+    "rollup": "^3.17.3",
     "ts-jest": "^27.0.5",
     "typedoc": "0.23.15",
     "typedoc-plugin-markdown": "3.11.1",

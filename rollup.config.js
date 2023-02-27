@@ -1,7 +1,8 @@
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import git from "git-rev-sync";
-import { version } from "./package.json";
+import { readFileSync } from "node:fs";
 
+const version = JSON.parse(readFileSync(new URL("./package.json", import.meta.url)));
 let commitHash = "";
 
 try {
