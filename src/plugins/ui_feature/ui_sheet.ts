@@ -4,7 +4,7 @@ import {
   PADDING_AUTORESIZE_HORIZONTAL,
 } from "../../constants";
 import { computeIconWidth, computeTextWidth, positions } from "../../helpers/index";
-import { Command, CommandResult, UID } from "../../types";
+import { Command, CommandResult, LocalCommand, UID } from "../../types";
 import {
   CellPosition,
   Dimension,
@@ -32,7 +32,7 @@ export class SheetUIPlugin extends UIPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: Command): CommandResult {
+  allowDispatch(cmd: LocalCommand): CommandResult {
     switch (cmd.type) {
       case "AUTORESIZE_ROWS":
       case "AUTORESIZE_COLUMNS":

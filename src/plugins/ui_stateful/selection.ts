@@ -27,6 +27,7 @@ import {
   GridRenderingContext,
   HeaderIndex,
   LAYERS,
+  LocalCommand,
   MoveColumnsRowsCommand,
   RemoveColumnsRowsCommand,
   Selection,
@@ -132,7 +133,7 @@ export class GridSelectionPlugin extends UIPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: Command): CommandResult {
+  allowDispatch(cmd: LocalCommand): CommandResult {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
         try {

@@ -1,8 +1,9 @@
-import { Model } from "../../src";
+import { Model, UIPlugin } from "../../src";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
 import { getDefaultCellHeight, range, toCartesian, toZone } from "../../src/helpers";
-import { CommandResult, CoreCommand } from "../../src/types";
+import { featurePluginRegistry } from "../../src/plugins";
+import { Command, CommandResult, CoreCommand } from "../../src/types";
 import { CollaborationMessage } from "../../src/types/collaborative/transport_service";
 import {
   activateSheet,
@@ -1009,4 +1010,23 @@ describe("Multi users synchronisation", () => {
       getDefaultCellHeight(getCell(alice, "A1"))
     );
   });
+});
+
+test("UI plugins cannot refuse core command and de-synchronize the users", () => {
+  class MyUIPlugin extends UIPlugin {
+    allowDispatch(cmd: Command) {
+      if (cmd.type === "UPDATE_CELL") {
+        return this.getters.getClient().name === "Alice"
+          ? CommandResult.Success
+          : CommandResult.CancelledForUnknownReason;
+      }
+      return CommandResult.Success;
+    }
+  }
+  featurePluginRegistry.add("myUIPlugin", MyUIPlugin);
+  const { alice, bob } = setupCollaborativeEnv();
+
+  setCellContent(alice, "A1", "hello");
+  expect([alice, bob]).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
+  featurePluginRegistry.remove("myUIPlugin");
 });

@@ -1,5 +1,5 @@
 import { positionToZone, rangeReference, splitReference } from "../../helpers/index";
-import { Command, CommandResult, Highlight, LAYERS, UID } from "../../types/index";
+import { Command, CommandResult, Highlight, LAYERS, LocalCommand, UID } from "../../types/index";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 import { RangeInputValue, SelectionInputPlugin } from "./selection_input";
 
@@ -33,7 +33,7 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: Command): CommandResult {
+  allowDispatch(cmd: LocalCommand): CommandResult {
     switch (cmd.type) {
       case "FOCUS_RANGE":
         const index = this.currentInput?.getIndex(cmd.rangeId);
