@@ -14055,6 +14055,20 @@ Object {
                 </f>
             </c>
         </row>
+        <row r=\\"166\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
+            <c r=\\"A166\\" s=\\"1\\">
+                <f>
+                    ADDRESS(27,53,4,FALSE,\\"sheet!\\")
+                </f>
+            </c>
+        </row>
+        <row r=\\"167\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
+            <c r=\\"A167\\" s=\\"1\\">
+                <f>
+                    DATEDIF(\\"2002-01-01\\",\\"2002-01-02\\",\\"D\\")
+                </f>
+            </c>
+        </row>
     </sheetData>
 </worksheet>",
       "contentType": "sheet",
@@ -16446,6 +16460,20 @@ Object {
             <c r=\\"A165\\" s=\\"1\\">
                 <f>
                     HYPERLINK(\\"https://www.odoo.com\\",\\"Odoo\\")
+                </f>
+            </c>
+        </row>
+        <row r=\\"166\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
+            <c r=\\"A166\\" s=\\"1\\">
+                <f>
+                    ADDRESS(27,53,4,FALSE,\\"sheet!\\")
+                </f>
+            </c>
+        </row>
+        <row r=\\"167\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
+            <c r=\\"A167\\" s=\\"1\\">
+                <f>
+                    DATEDIF(\\"2002-01-01\\",\\"2002-01-02\\",\\"D\\")
                 </f>
             </c>
         </row>

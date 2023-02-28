@@ -21,6 +21,23 @@ const expectNumberValueError = (value: string) =>
     value
   );
 
+export const expectNumberRangeError = (lowerBound: number, upperBound: number, value: number) =>
+  _lt(
+    "The function [[FUNCTION_NAME]] expects a number value between %s and %s inclusive, but receives %s.",
+    lowerBound.toString(),
+    upperBound.toString(),
+    value.toString()
+  );
+
+export const expectStringSetError = (stringSet: string[], value: string) => {
+  const stringSetString = stringSet.map((str) => `'${str}'`).join(", ");
+  return _lt(
+    "The function [[FUNCTION_NAME]] has an argument with value '%s'. It should be one of: %s.",
+    value,
+    stringSetString
+  );
+};
+
 export function toNumber(value: string | number | boolean | null | undefined): number {
   switch (typeof value) {
     case "number":
@@ -46,6 +63,20 @@ export function strictToNumber(value: string | number | boolean | null | undefin
     throw new Error(expectNumberValueError(value));
   }
   return toNumber(value);
+}
+
+export function strictToInteger(value: string | number | boolean | null | undefined) {
+  return Math.trunc(strictToNumber(value));
+}
+
+export function assertNumberGreaterThanOrEqualToOne(value: number) {
+  assert(
+    () => value >= 1,
+    _lt(
+      "The function [[FUNCTION_NAME]] expects a number value to be greater than or equal to 1, but receives %s.",
+      value.toString()
+    )
+  );
 }
 
 export function toString(value: string | number | boolean | null | undefined): string {

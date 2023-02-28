@@ -1,4 +1,4 @@
-import { toZone } from "../helpers/index";
+import { getComposerSheetName, toXC, toZone } from "../helpers/index";
 import { _lt } from "../translation";
 import {
   AddFunctionDescription,
@@ -10,11 +10,14 @@ import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import {
   assert,
+  assertNumberGreaterThanOrEqualToOne,
   dichotomicSearch,
+  expectNumberRangeError,
   getNormalizedValueFromColumnRange,
   getNormalizedValueFromRowRange,
   linearSearch,
   normalizeValue,
+  strictToInteger,
   toBoolean,
   toNumber,
   toString,
@@ -23,6 +26,7 @@ import {
 const DEFAULT_IS_SORTED = true;
 const DEFAULT_MATCH_MODE = 0;
 const DEFAULT_SEARCH_MODE = 1;
+const DEFAULT_ABSOLUTE_RELATIVE_MODE = 1;
 
 function assertAvailable(variable, searchKey) {
   if (variable === undefined) {
@@ -31,6 +35,73 @@ function assertAvailable(variable, searchKey) {
     );
   }
 }
+
+// -----------------------------------------------------------------------------
+// ADDRESS
+// -----------------------------------------------------------------------------
+
+export const ADDRESS: AddFunctionDescription = {
+  description: _lt("Returns a cell reference as a string. "),
+  args: [
+    arg("row (number)", _lt("The row number of the cell reference. ")),
+    arg(
+      "column (number)",
+      _lt("The column number (not name) of the cell reference. A is column number 1. ")
+    ),
+    arg(
+      `absolute_relative_mode (number, default=${DEFAULT_ABSOLUTE_RELATIVE_MODE})`,
+      _lt(
+        "An indicator of whether the reference is row/column absolute. 1 is row and column absolute (e.g. $A$1), 2 is row absolute and column relative (e.g. A$1), 3 is row relative and column absolute (e.g. $A1), and 4 is row and column relative (e.g. A1)."
+      )
+    ),
+    arg(
+      "use_a1_notation (boolean, default=TRUE)",
+      _lt(
+        "A boolean indicating whether to use A1 style notation (TRUE) or R1C1 style notation (FALSE)."
+      )
+    ),
+    arg(
+      "sheet (string, optional)",
+      _lt("A string indicating the name of the sheet into which the address points.")
+    ),
+  ],
+  returns: ["STRING"],
+  compute: function (
+    row: PrimitiveArgValue,
+    column: PrimitiveArgValue,
+    absoluteRelativeMode: PrimitiveArgValue = DEFAULT_ABSOLUTE_RELATIVE_MODE,
+    useA1Notation: PrimitiveArgValue = true,
+    sheet: PrimitiveArgValue | undefined
+  ): string {
+    const rowNumber = strictToInteger(row);
+    const colNumber = strictToInteger(column);
+    assertNumberGreaterThanOrEqualToOne(rowNumber);
+    assertNumberGreaterThanOrEqualToOne(colNumber);
+    const _absoluteRelativeMode = strictToInteger(absoluteRelativeMode);
+    assert(
+      () => [1, 2, 3, 4].includes(_absoluteRelativeMode),
+      expectNumberRangeError(1, 4, _absoluteRelativeMode)
+    );
+    const _useA1Notation = toBoolean(useA1Notation);
+    let cellReference: string;
+    if (_useA1Notation) {
+      const rangePart = {
+        rowFixed: [1, 2].includes(_absoluteRelativeMode) ? true : false,
+        colFixed: [1, 3].includes(_absoluteRelativeMode) ? true : false,
+      };
+      cellReference = toXC(colNumber - 1, rowNumber - 1, rangePart);
+    } else {
+      const rowPart = [1, 2].includes(_absoluteRelativeMode) ? `R${rowNumber}` : `R[${rowNumber}]`;
+      const colPart = [1, 3].includes(_absoluteRelativeMode) ? `C${colNumber}` : `C[${colNumber}]`;
+      cellReference = rowPart + colPart;
+    }
+    if (sheet !== undefined) {
+      return `${getComposerSheetName(toString(sheet))}!${cellReference}`;
+    }
+    return cellReference;
+  },
+  isExported: true,
+};
 
 // -----------------------------------------------------------------------------
 // COLUMN

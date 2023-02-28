@@ -1356,6 +1356,14 @@ export const demoData = {
         B221: { content: '=DAYS360("01/01/2020", "12/31/2020")' },
         C221: { content: "360" },
         D221: { content: "=IF(B221=C221, 1, 0)" },
+        A222: { content: "DATEDIF" },
+        B222: { content: '=DATEDIF("2001/09/15", "2003/06/10", "MD")' },
+        C222: { content: "26" },
+        D222: { content: "=IF(B222=C222, 1, 0)" },
+        A223: { content: "ADDRESS" },
+        B223: { content: '=ADDRESS(27, 53, 1, TRUE, "sheet!")' },
+        C223: { content: "'sheet!'!$BA$27" },
+        D223: { content: "=IF(B223=C223, 1, 0)" },
 
         // DATA
         G1: { content: "Name", style: 8 },

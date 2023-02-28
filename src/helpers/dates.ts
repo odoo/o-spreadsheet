@@ -369,3 +369,41 @@ export function getYearFrac(startDate: number, endDate: number, _dayCountConvent
 
   return yearsEnd - yearsStart;
 }
+
+/**
+ * Get the number of whole months between two dates.
+ * e.g.
+ *  2002/01/01 -> 2002/02/01 = 1 month,
+ *  2002/01/01 -> 2003/02/01 = 13 months
+ * @param startDate
+ * @param endDate
+ * @returns
+ */
+export function getTimeDifferenceInWholeMonths(startDate: Date, endDate: Date) {
+  const months =
+    (endDate.getFullYear() - startDate.getFullYear()) * 12 +
+    endDate.getMonth() -
+    startDate.getMonth();
+  return startDate.getDate() > endDate.getDate() ? months - 1 : months;
+}
+
+export function getTimeDifferenceInWholeDays(startDate: Date, endDate: Date) {
+  const startUtc = startDate.getTime();
+  const endUtc = endDate.getTime();
+  return Math.floor((endUtc - startUtc) / MS_PER_DAY);
+}
+
+export function getTimeDifferenceInWholeYears(startDate: Date, endDate: Date) {
+  const years = endDate.getFullYear() - startDate.getFullYear();
+  const monthStart = startDate.getMonth();
+  const monthEnd = endDate.getMonth();
+  const dateStart = startDate.getDate();
+  const dateEnd = endDate.getDate();
+  const isEndMonthDateBigger =
+    monthEnd > monthStart || (monthEnd === monthStart && dateEnd >= dateStart);
+  return isEndMonthDateBigger ? years : years - 1;
+}
+
+export function areTwoDatesWithinOneYear(startDate: number, endDate: number) {
+  return getYearFrac(startDate, endDate, 1) < 1;
+}

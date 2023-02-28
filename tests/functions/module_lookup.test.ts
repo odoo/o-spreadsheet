@@ -2,6 +2,75 @@ import { Model } from "../../src/model";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import { evaluateCell, evaluateGrid } from "../test_helpers/helpers";
 
+describe("ADDRESS formula", () => {
+  test("functional tests without argument", () => {
+    expect(evaluateCell("A1", { A1: "=ADDRESS()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=ADDRESS(,)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE
+  });
+
+  test("functional test with negative arguments or zero", () => {
+    // @compatibility: on google sheets, all return #VALUE
+    expect(evaluateCell("A1", { A1: "=ADDRESS(1,0)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=ADDRESS(0,1)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=ADDRESS(-1,1)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=ADDRESS(1,-1)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=ADDRESS(-1,-1)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=ADDRESS(0,0)" })).toBe("#ERROR");
+  });
+
+  test("functional test with positive numbers or strings that can be parsed into positive numbers", () => {
+    expect(evaluateCell("A1", { A1: "=ADDRESS(1,4)" })).toBe("$D$1");
+    expect(evaluateCell("A1", { A1: '=ADDRESS("2",1)' })).toBe("$A$2");
+    expect(evaluateCell("A1", { A1: '=ADDRESS(3,"5")' })).toBe("$E$3");
+    expect(evaluateCell("A1", { A1: '=ADDRESS("27","53")' })).toBe("$BA$27");
+  });
+
+  test("functional test with strings that cannot be parsed into positive numbers", () => {
+    expect(evaluateCell("A1", { A1: '=ADDRESS("row",4)' })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=ADDRESS("row","col")' })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=ADDRESS(3,"col")' })).toBe("#ERROR");
+  });
+
+  test("functional tests on valid absolute/relative modes (1-4)", () => {
+    expect(evaluateCell("A1", { A1: "=ADDRESS(27,53)" })).toBe("$BA$27");
+    expect(evaluateCell("A1", { A1: "=ADDRESS(27,53,1)" })).toBe("$BA$27");
+    expect(evaluateCell("A1", { A1: "=ADDRESS(27,53,2)" })).toBe("BA$27");
+    expect(evaluateCell("A1", { A1: "=ADDRESS(27,53,3)" })).toBe("$BA27");
+    expect(evaluateCell("A1", { A1: "=ADDRESS(27,53,4)" })).toBe("BA27");
+  });
+
+  test("functional tests on invalid absolute/relative modes", () => {
+    expect(evaluateCell("A1", { A1: "=ADDRESS(27,53,5)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM
+    expect(evaluateCell("A1", { A1: "=ADDRESS(27,53,0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM
+    expect(evaluateCell("A1", { A1: '=ADDRESS(27,53,"string")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE
+  });
+
+  test("functional tests on using A1 notation or R1C1 notation", () => {
+    expect(evaluateCell("A1", { A1: "=ADDRESS(27,53,,)" })).toBe("$BA$27");
+    expect(evaluateCell("A1", { A1: "=ADDRESS(27,53,,true)" })).toBe("$BA$27");
+    expect(evaluateCell("A1", { A1: "=ADDRESS(27,53,,false)" })).toBe("R27C53");
+    expect(evaluateCell("A1", { A1: '=ADDRESS(27,53,,"TRUE")' })).toBe("$BA$27");
+    expect(evaluateCell("A1", { A1: '=ADDRESS(27,53,,"FALSE")' })).toBe("R27C53");
+    expect(evaluateCell("A1", { A1: "=ADDRESS(27,53,,1)" })).toBe("$BA$27");
+    expect(evaluateCell("A1", { A1: "=ADDRESS(27,53,,0)" })).toBe("R27C53");
+    expect(evaluateCell("A1", { A1: '=ADDRESS(27,53,,"")' })).toBe("R27C53");
+    expect(evaluateCell("A1", { A1: '=ADDRESS(27,53,," ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE
+  });
+
+  test("functional tests on using R1C1 notation and different absolute/relative modes", () => {
+    expect(evaluateCell("A1", { A1: "=ADDRESS(27,53,1,false)" })).toBe("R27C53");
+    expect(evaluateCell("A1", { A1: "=ADDRESS(27,53,2,false)" })).toBe("R27C[53]");
+    expect(evaluateCell("A1", { A1: "=ADDRESS(27,53,3,false)" })).toBe("R[27]C53");
+    expect(evaluateCell("A1", { A1: "=ADDRESS(27,53,4,false)" })).toBe("R[27]C[53]");
+  });
+
+  test("functional tests on sheet name", () => {
+    expect(evaluateCell("A1", { A1: '=ADDRESS(27,53,,,"sheet")' })).toBe("sheet!$BA$27");
+    expect(evaluateCell("A1", { A1: '=ADDRESS(27,53,,,"sheet!")' })).toBe("'sheet!'!$BA$27");
+    expect(evaluateCell("A1", { A1: '=ADDRESS(27,53,,,"")' })).toBe("''!$BA$27");
+  });
+});
+
 describe("COLUMN formula", () => {
   test("functional tests without argument", () => {
     expect(evaluateCell("A1", { A1: "=COLUMN()" })).toBe(1);
