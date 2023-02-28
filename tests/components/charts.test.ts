@@ -10,6 +10,7 @@ import {
   createChart,
   createGaugeChart,
   createScorecardChart,
+  createSheet,
   setStyle,
   updateChart,
 } from "../test_helpers/commands_helpers";
@@ -379,6 +380,34 @@ describe("figures", () => {
     ]);
     expect(mockChartData.type).toBe("pie");
     expect((mockChartData.options!.title as any).text).toBe("hello");
+  });
+
+  test("updating a chart from another sheet does not change it s sheetId", async () => {
+    createTestChart("basicChart");
+    await nextTick();
+
+    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
+    await simulateClick(".o-figure");
+    await simulateClick(".o-figure-menu-item");
+    await simulateClick(".o-menu div[data-name='edit']");
+
+    createSheet(model, { sheetId: "42", activate: true });
+    await nextTick();
+    const chartType = fixture.querySelectorAll(".o-input")[0] as HTMLSelectElement;
+    setInputValueAndTrigger(chartType, "pie", "change");
+    await nextTick();
+
+    expect(model.getters.getChart(sheetId, chartId)?.sheetId).toBe(sheetId);
+
+    const dataSeries = fixture.querySelectorAll(
+      ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
+    )[0] as HTMLInputElement;
+    const dataSeriesValues = dataSeries.querySelector("input");
+    const hasTitle = dataSeries.querySelector("input[type=checkbox]") as HTMLInputElement;
+    setInputValueAndTrigger(dataSeriesValues, "B2:B5", "change");
+    triggerMouseEvent(hasTitle, "click");
+    await nextTick();
+    expect(model.getters.getChart(sheetId, chartId)?.sheetId).toBe(sheetId);
   });
 
   test.each(["basicChart", "scorecard", "gauge"])(
