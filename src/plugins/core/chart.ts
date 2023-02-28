@@ -139,9 +139,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   }
 
   getChartIds(sheetId: UID) {
-    // TODORAR refaire ce shit truc
-    // on veut un  truc du genre Object.keys(this.charts[sheetId] || {} a mon avis
-    // return (Object.values(this.charts[sheetId] || {}).filter(isDefined) as AbstractChart[]).map((chart) => chart.id);
     return Object.keys(this.charts[sheetId] || {});
   }
 
