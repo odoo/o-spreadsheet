@@ -97,7 +97,6 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
       ...(this.getChartDefinition() as T),
       ...updateDefinition,
     };
-    // TODORAR add a putain de test - c'est faux de nouveau ...
     return this.env.model.dispatch("UPDATE_CHART", {
       definition,
       id: this.figureId,
@@ -111,7 +110,6 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
       throw new Error("Chart not defined.");
     }
     const definition = getChartDefinitionFromContextCreation(context, type);
-    // TODORAR add a putain de test - c'est faux de nouveau ...
     this.env.model.dispatch("UPDATE_CHART", {
       definition,
       id: this.figureId,
