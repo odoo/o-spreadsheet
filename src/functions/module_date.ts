@@ -1,18 +1,40 @@
 import {
   addMonthsToDate,
+  areTwoDatesWithinOneYear,
+  getDaysInMonth,
+  getTimeDifferenceInWholeDays,
+  getTimeDifferenceInWholeMonths,
+  getTimeDifferenceInWholeYears,
   getYearFrac,
   INITIAL_1900_DAY,
   jsDateToRoundNumber,
   MS_PER_DAY,
+  numberToJsDate,
   parseDateTime,
 } from "../helpers/dates";
 import { _lt } from "../translation";
 import { AddFunctionDescription, ArgValue, PrimitiveArgValue } from "../types";
 import { arg } from "./arguments";
-import { assert, toBoolean, toJsDate, toNumber, toString, visitAny } from "./helpers";
+import {
+  assert,
+  expectStringSetError,
+  toBoolean,
+  toJsDate,
+  toNumber,
+  toString,
+  visitAny,
+} from "./helpers";
 
 const DEFAULT_TYPE = 1;
 const DEFAULT_WEEKEND = 1;
+enum TIME_UNIT {
+  WHOLE_YEARS = "Y",
+  WHOLE_MONTHS = "M",
+  WHOLE_DAYS = "D",
+  DAYS_WITHOUT_WHOLE_MONTHS = "MD",
+  MONTH_WITHOUT_WHOLE_YEARS = "YM",
+  DAYS_BETWEEN_NO_MORE_THAN_ONE_YEAR = "YD",
+}
 
 // -----------------------------------------------------------------------------
 // DATE
@@ -55,6 +77,103 @@ export const DATE: AddFunctionDescription = {
     );
 
     return result;
+  },
+  isExported: true,
+};
+
+// -----------------------------------------------------------------------------
+// DATEDIF
+// -----------------------------------------------------------------------------
+export const DATEDIF: AddFunctionDescription = {
+  description: _lt("Calculates the number of days, months, or years between two dates."),
+  args: [
+    arg(
+      "start_date (date)",
+      _lt(
+        "The start date to consider in the calculation. Must be a reference to a cell containing a DATE, a function returning a DATE type, or a number."
+      )
+    ),
+    arg(
+      "end_date (date)",
+      _lt(
+        "The end date to consider in the calculation. Must be a reference to a cell containing a DATE, a function returning a DATE type, or a number."
+      )
+    ),
+    arg(
+      "unit (string)",
+      _lt(
+        `A text abbreviation for unit of time. Accepted values are "Y" (the number of whole years between start_date and end_date), "M" (the number of whole months between start_date and end_date), "D" (the number of days between start_date and end_date), "MD" (the number of days between start_date and end_date after subtracting whole months), "YM" (the number of whole months between start_date and end_date after subtracting whole years), "YD" (the number of days between start_date and end_date, assuming start_date and end_date were no more than one year apart).`
+      )
+    ),
+  ],
+  returns: ["NUMBER"],
+  compute: function (
+    startDate: PrimitiveArgValue,
+    endDate: PrimitiveArgValue,
+    unit: PrimitiveArgValue
+  ): number {
+    const _unit = toString(unit).toUpperCase() as TIME_UNIT;
+    assert(
+      () => Object.values(TIME_UNIT).includes(_unit),
+      expectStringSetError(Object.values(TIME_UNIT), toString(unit))
+    );
+    const _startDate = Math.trunc(toNumber(startDate));
+    const _endDate = Math.trunc(toNumber(endDate));
+    const jsStartDate = numberToJsDate(_startDate);
+    const jsEndDate = numberToJsDate(_endDate);
+    assert(
+      () => _endDate >= _startDate,
+      _lt(
+        "start_date (%s) should be on or before end_date (%s).",
+        jsStartDate.toLocaleDateString(),
+        jsEndDate.toLocaleDateString()
+      )
+    );
+    switch (_unit) {
+      case TIME_UNIT.WHOLE_YEARS:
+        return getTimeDifferenceInWholeYears(jsStartDate, jsEndDate);
+      case TIME_UNIT.WHOLE_MONTHS:
+        return getTimeDifferenceInWholeMonths(jsStartDate, jsEndDate);
+      case TIME_UNIT.WHOLE_DAYS: {
+        return getTimeDifferenceInWholeDays(jsStartDate, jsEndDate);
+      }
+      case TIME_UNIT.MONTH_WITHOUT_WHOLE_YEARS: {
+        return (
+          getTimeDifferenceInWholeMonths(jsStartDate, jsEndDate) -
+          getTimeDifferenceInWholeYears(jsStartDate, jsEndDate) * 12
+        );
+      }
+      case TIME_UNIT.DAYS_WITHOUT_WHOLE_MONTHS:
+        // Using "MD" may get incorrect result in Excel
+        // See: https://support.microsoft.com/en-us/office/datedif-function-25dba1a4-2812-480b-84dd-8b32a451b35c
+        let days = jsEndDate.getDate() - jsStartDate.getDate();
+        if (days < 0) {
+          const monthBeforeEndMonth = new Date(
+            jsEndDate.getFullYear(),
+            jsEndDate.getMonth() - 1,
+            1
+          );
+          const daysInMonthBeforeEndMonth = getDaysInMonth(monthBeforeEndMonth);
+          days = daysInMonthBeforeEndMonth - Math.abs(days);
+        }
+        return days;
+      case TIME_UNIT.DAYS_BETWEEN_NO_MORE_THAN_ONE_YEAR: {
+        if (areTwoDatesWithinOneYear(_startDate, _endDate)) {
+          return getTimeDifferenceInWholeDays(jsStartDate, jsEndDate);
+        }
+        const endDateWithinOneYear = new Date(
+          jsStartDate.getFullYear(),
+          jsEndDate.getMonth(),
+          jsEndDate.getDate()
+        );
+        let days = getTimeDifferenceInWholeDays(jsStartDate, endDateWithinOneYear);
+        if (days < 0) {
+          endDateWithinOneYear.setFullYear(jsStartDate.getFullYear() + 1);
+          days = getTimeDifferenceInWholeDays(jsStartDate, endDateWithinOneYear);
+        }
+        return days;
+      }
+    }
   },
   isExported: true,
 };

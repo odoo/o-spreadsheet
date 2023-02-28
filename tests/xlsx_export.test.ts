@@ -286,6 +286,8 @@ const allExportableFormulasData = {
         A163: { content: "=ISNA(A162)" },
         A164: { content: "=ISERR(A162)" },
         A165: { content: '=HYPERLINK("https://www.odoo.com", "Odoo")' },
+        A166: { content: '=ADDRESS(27,53,4,FALSE,"sheet!")' },
+        A167: { content: '=DATEDIF("2002/01/01","2002/01/02","D")' },
 
         // DATA
         G1: { content: "Name", style: 8 },

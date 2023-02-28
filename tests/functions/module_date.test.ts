@@ -93,6 +93,60 @@ describe("DATE formula", () => {
   });
 });
 
+describe("DATEDIF formula", () => {
+  test("takes 3 arguments", () => {
+    // @compatibility: on google sheets, all return #N/A
+    expect(evaluateCell("A1", { A1: "=DATEDIF()" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/01/01")' })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/01/01","2001/01/02")' })).toBe("#BAD_EXPR");
+  });
+
+  test("the first two arguments can be functions returning a DATE, or numbers", () => {
+    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/01/01","2001/01/02","D")' })).toBe(1);
+    expect(evaluateCell("A1", { A1: '=DATEDIF("2001-01-01","2001-01-02","D")' })).toBe(1);
+    expect(
+      evaluateCell("A1", { A1: '=DATEDIF("2001/01/01 23:10:30","2001/01/02 02:09:31","D")' })
+    ).toBe(1);
+    expect(evaluateCell("A1", { A1: '=DATEDIF(Date(2001,1,1),"2001/01/02","D")' })).toBe(1);
+    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/01/01",Date(2001,1,2),"D")' })).toBe(1);
+    expect(evaluateCell("A1", { A1: '=DATEDIF(1,2,"D")' })).toBe(1);
+    expect(evaluateCell("A1", { A1: '=DATEDIF(1.1,1.2,"D")' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=DATEDIF(FALSE,TRUE,"D")' })).toBe(1);
+  });
+
+  test("the first two arguments can be references to cells with DATE", () => {
+    expect(
+      evaluateCell("A3", {
+        A1: "=DATE(2002,1,1)",
+        A2: "=DATE(2002,1,2)",
+        A3: '=DATEDIF(A1,A2,"D")',
+      })
+    ).toBe(1);
+  });
+
+  test("invalid first two arguments", () => {
+    expect(evaluateCell("A1", { A1: '=DATEDIF("ABC","CDE","D")' })).toBe("#ERROR"); // @compatibility: on google sheets, all return #VALUE
+  });
+
+  test("start_date has to be on or before end_date", () => {
+    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/01/01","2000/12/31","D")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM
+  });
+
+  test("unit has to be one of the pre-defined units", () => {
+    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/01/01","2001/01/02",123)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM
+    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/01/01","2001/01/02","ABC")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM
+  });
+
+  test("functional tests on units", () => {
+    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/09/15","2003/06/10","D")' })).toBe(633);
+    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/09/15","2003/06/10","M")' })).toBe(20);
+    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/09/15","2003/06/10","Y")' })).toBe(1);
+    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/09/15","2003/06/10","YM")' })).toBe(8);
+    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/09/15","2003/06/10","MD")' })).toBe(26);
+    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/09/15","2003/06/10","YD")' })).toBe(268);
+  });
+});
+
 describe("DATEVALUE formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=DATEVALUE(40931)" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
