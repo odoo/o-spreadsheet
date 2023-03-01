@@ -57,6 +57,7 @@ try {
       title,
       version,
       body: commitLines.join("\n"),
+      prerelease: version.includes('alpha')
     })
   );
 } catch (error) {
