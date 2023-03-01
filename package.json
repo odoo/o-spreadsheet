@@ -130,5 +130,8 @@
   },
   "lint-staged": {
     "*": "prettier --write"
+  },
+  "publishConfig": {
+    "tag": "alpha"
   }
 }
