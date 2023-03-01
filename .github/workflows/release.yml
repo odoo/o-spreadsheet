@@ -28,6 +28,8 @@ jobs:
           tag: ${{ fromJSON(steps.parse.outputs.data).version }}
           body: ${{ fromJSON(steps.parse.outputs.data).body }}
           artifacts: "./dist/*.*"
+          makeLatest: false
+          prerelease: ${{ fromJSON(steps.parse.outputs.data).prerelease }}
       - name: Publish
         run: npm publish
         env:
