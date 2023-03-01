@@ -186,6 +186,19 @@ describe("figures", () => {
     }
   );
 
+  test.each(["scorecard", "basicChart", "gauge"])(
+    "Double click on graph will open sidepanel",
+    async (chartType: string) => {
+      createTestChart(chartType);
+      await nextTick();
+      expect(document.querySelector(".o-chart-container")).toBeTruthy();
+      triggerMouseEvent(".o-chart-container", "dblclick");
+      await nextTick();
+      expect(model.getters.getSelectedFigureId()).toBe("someuuid");
+      expect(document.querySelector(".o-sidePanel")).toBeTruthy();
+    }
+  );
+
   test.each(["basicChart", "scorecard", "gauge"])(
     "can edit charts %s",
     async (chartType: string) => {
