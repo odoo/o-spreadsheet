@@ -1,5 +1,5 @@
 import { Component, onMounted, onPatched, onWillUnmount, useRef, useState } from "@odoo/owl";
-import { ComponentsImportance, SELECTION_BORDER_COLOR } from "../../../constants";
+import { ComponentsImportance, DEFAULT_FONT, SELECTION_BORDER_COLOR } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/index";
 import { functionRegistry } from "../../../functions/index";
 import { isEqual, rangeReference, splitReference, zoneToDimension } from "../../../helpers/index";
@@ -50,6 +50,7 @@ css/* scss */ `
     flex-grow: 1;
     max-height: inherit;
     .o-composer {
+      font-family: ${DEFAULT_FONT};
       caret-color: black;
       padding-left: 3px;
       padding-right: 3px;
