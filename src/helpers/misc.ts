@@ -462,6 +462,11 @@ export function deepEquals<T extends Object>(o1: T, o2: T): boolean {
   return true;
 }
 
+/** Check if the given array contains all the values of the other array. */
+export function includesAll<T>(arr: T[], values: T[]): boolean {
+  return values.every((value) => arr.includes(value));
+}
+
 /**
  * Return an object with all the keys in the object that have a falsy value removed.
  */
