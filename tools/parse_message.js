@@ -56,7 +56,8 @@ try {
     JSON.stringify({
       title,
       version,
-      body: lines.join("\n"),
+      body: commitLines.join("\n"),
+      prerelease: version.includes('alpha')
     })
   );
 } catch (error) {
