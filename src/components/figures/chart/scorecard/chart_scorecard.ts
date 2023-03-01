@@ -27,6 +27,7 @@ const LINE_HEIGHT = 1.2;
 
 css/* scss */ `
   div.o-scorecard {
+    font-family: ${DEFAULT_FONT};
     user-select: none;
     background-color: white;
     display: flex;

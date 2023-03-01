@@ -52,9 +52,6 @@ css/* scss */ `
       color: #333;
     }
 
-    * {
-      font-family: "Roboto", "RobotoDraft", Helvetica, Arial, sans-serif;
-    }
     &,
     *,
     *:before,
