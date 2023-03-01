@@ -133,6 +133,7 @@ describe("Clear columns", () => {
     expect(getBorder(model, "C2")).toEqual(border);
   });
   test("cannot delete column in invalid sheet", () => {
+    model = new Model();
     expect(deleteColumns(model, ["A"], "INVALID")).toBeCancelledBecause(
       CommandResult.InvalidSheetId
     );
@@ -176,6 +177,7 @@ describe("Clear rows", () => {
     expect(getCell(model, "C2")).toMatchObject({ style });
   });
   test("cannot delete row in invalid sheet", () => {
+    model = new Model();
     expect(deleteRows(model, [0], "INVALID")).toBeCancelledBecause(CommandResult.InvalidSheetId);
   });
 });

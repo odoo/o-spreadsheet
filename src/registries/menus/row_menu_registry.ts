@@ -55,6 +55,11 @@ rowMenuRegistry
     name: ACTIONS.REMOVE_ROWS_NAME,
     sequence: 70,
     action: ACTIONS.REMOVE_ROWS_ACTION,
+    isVisible: (env: SpreadsheetChildEnv) => {
+      const sheetId = env.model.getters.getActiveSheetId();
+      const selectedRows = env.model.getters.getElementsFromSelection("ROW");
+      return env.model.getters.canRemoveHeaders(sheetId, "ROW", selectedRows);
+    },
   })
   .add("clear_row", {
     name: ACTIONS.DELETE_CONTENT_ROWS_NAME,
@@ -67,11 +72,8 @@ rowMenuRegistry
     action: ACTIONS.HIDE_ROWS_ACTION,
     isVisible: (env: SpreadsheetChildEnv) => {
       const sheetId = env.model.getters.getActiveSheetId();
-      const hiddenRows = env.model.getters.getHiddenRowsGroups(sheetId).flat();
-      return (
-        env.model.getters.getNumberRows(sheetId) >
-        hiddenRows.length + env.model.getters.getElementsFromSelection("ROW").length
-      );
+      const selectedRows = env.model.getters.getElementsFromSelection("ROW");
+      return env.model.getters.canRemoveHeaders(sheetId, "ROW", selectedRows);
     },
     separator: true,
   })
