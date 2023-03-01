@@ -25,6 +25,11 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartFigure";
   static components = {};
 
+  onDoubleClick() {
+    this.env.model.dispatch("SELECT_FIGURE", { id: this.props.figure.id });
+    this.env.openSidePanel("ChartPanel");
+  }
+
   get chartType(): ChartType {
     return this.env.model.getters.getChartType(this.props.figure.id);
   }

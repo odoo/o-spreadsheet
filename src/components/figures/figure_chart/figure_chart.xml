@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-ChartFigure" owl="1">
-    <div class="o-chart-container w-100 h-100">
+    <div class="o-chart-container w-100 h-100" t-on-dblclick="onDoubleClick">
       <t
         t-component="chartComponent"
         figure="this.props.figure"
