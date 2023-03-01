@@ -11,7 +11,7 @@
     "dist/*.d.ts"
   ],
   "scripts": {
-    "serve": "live-server --open=demo --watch=dist,demo",
+    "serve": "live-server --open=demo --watch=build,demo",
     "dev": "npm-run-all build --parallel server serve \"build:* -- --watch\"",
     "server": "node tools/server/main.js",
     "build:js": "tsc --module es6 --incremental",
