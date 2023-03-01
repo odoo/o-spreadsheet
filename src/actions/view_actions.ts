@@ -9,14 +9,7 @@ import * as ACTIONS from "./menu_items_actions";
 export const hideCols: ActionSpec = {
   name: ACTIONS.HIDE_COLUMNS_NAME,
   execute: ACTIONS.HIDE_COLUMNS_ACTION,
-  isVisible: (env: SpreadsheetChildEnv) => {
-    const sheetId = env.model.getters.getActiveSheetId();
-    const hiddenCols = env.model.getters.getHiddenColsGroups(sheetId).flat();
-    return (
-      env.model.getters.getNumberCols(sheetId) >
-      hiddenCols.length + env.model.getters.getElementsFromSelection("COL").length
-    );
-  },
+  isVisible: ACTIONS.NOT_ALL_VISIBLE_COLS_SELECTED,
 };
 
 export const unhideCols: ActionSpec = {
@@ -41,14 +34,7 @@ export const unhideAllCols: ActionSpec = {
 export const hideRows: ActionSpec = {
   name: ACTIONS.HIDE_ROWS_NAME,
   execute: ACTIONS.HIDE_ROWS_ACTION,
-  isVisible: (env: SpreadsheetChildEnv) => {
-    const sheetId = env.model.getters.getActiveSheetId();
-    const hiddenRows = env.model.getters.getHiddenRowsGroups(sheetId).flat();
-    return (
-      env.model.getters.getNumberRows(sheetId) >
-      hiddenRows.length + env.model.getters.getElementsFromSelection("ROW").length
-    );
-  },
+  isVisible: ACTIONS.NOT_ALL_VISIBLE_ROWS_SELECTED,
 };
 
 export const unhideRows: ActionSpec = {
