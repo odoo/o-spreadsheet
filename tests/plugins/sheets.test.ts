@@ -7,9 +7,11 @@ import {
   createChart,
   createSheet,
   createSheetWithName,
+  deleteColumns,
   deleteRows,
   freezeColumns,
   freezeRows,
+  hideColumns,
   hideRows,
   hideSheet,
   merge,
@@ -891,15 +893,25 @@ describe("sheets", () => {
   });
 
   test("Cannot remove more columns/rows than there are inside the sheet", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 1,
-          rowNumber: 3,
-        },
-      ],
-    });
-    expect(deleteRows(model, [1, 2, 3, 4])).toBeCancelledBecause(CommandResult.NotEnoughElements);
+    const model = new Model({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
+    expect(deleteRows(model, [0, 1, 2])).toBeCancelledBecause(CommandResult.NotEnoughElements);
+    expect(deleteColumns(model, ["A", "B", "C"])).toBeCancelledBecause(
+      CommandResult.NotEnoughElements
+    );
+  });
+
+  test("Cannot remove all the non-hidden columns/rows", () => {
+    const model = new Model({ sheets: [{ colNumber: 4, rowNumber: 4 }] });
+    hideRows(model, [1, 3]);
+    hideColumns(model, ["B", "D"]);
+
+    expect(deleteRows(model, [0, 2])).toBeCancelledBecause(CommandResult.NotEnoughElements);
+    expect(deleteRows(model, [0, 1, 2])).toBeCancelledBecause(CommandResult.NotEnoughElements);
+
+    expect(deleteColumns(model, ["A", "C"])).toBeCancelledBecause(CommandResult.NotEnoughElements);
+    expect(deleteColumns(model, ["A", "B", "C"])).toBeCancelledBecause(
+      CommandResult.NotEnoughElements
+    );
   });
 
   test("Cannot have all rows/columns hidden at once", () => {
