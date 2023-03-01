@@ -129,5 +129,8 @@
   },
   "lint-staged": {
     "*": "prettier --write"
+  },
+  "publishConfig": {
+    "tag": "16-0"
   }
 }
