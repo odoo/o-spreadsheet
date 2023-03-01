@@ -116,5 +116,8 @@
   },
   "lint-staged": {
     "{src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md,demo/*.js}": "prettier --write"
+  },
+  "publishConfig": {
+    "tag": "15-0"
   }
 }
