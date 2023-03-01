@@ -1,5 +1,5 @@
 import { Component, onMounted, onPatched, onWillUnmount, useRef, useState } from "@odoo/owl";
-import { NEWLINE } from "../../../constants";
+import { DEFAULT_FONT, NEWLINE } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/index";
 import { functionRegistry } from "../../../functions/index";
 import {
@@ -63,6 +63,7 @@ css/* scss */ `
       padding-right: 2px;
 
       box-sizing: border-box;
+      font-family: ${DEFAULT_FONT};
 
       caret-color: black;
       padding-left: 3px;
