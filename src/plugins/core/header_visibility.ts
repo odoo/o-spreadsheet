@@ -1,10 +1,11 @@
-import { deepCopy, getAddHeaderStartIndex } from "../../helpers";
+import { deepCopy, getAddHeaderStartIndex, includesAll, range } from "../../helpers";
 import { Command, CommandResult, ExcelWorkbookData, WorkbookData } from "../../types";
 import { ConsecutiveIndexes, Dimension, HeaderIndex, UID } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
 
 export class HeaderVisibilityPlugin extends CorePlugin {
   static getters = [
+    "canRemoveHeaders",
     "getHiddenColsGroups",
     "getHiddenRowsGroups",
     "isRowHiddenByUser",
@@ -16,7 +17,7 @@ export class HeaderVisibilityPlugin extends CorePlugin {
   allowDispatch(cmd: Command) {
     switch (cmd.type) {
       case "HIDE_COLUMNS_ROWS": {
-        if (!this.hiddenHeaders[cmd.sheetId]) {
+        if (!this.getters.tryGetSheet(cmd.sheetId)) {
           return CommandResult.InvalidSheetId;
         }
         const hiddenGroup =
@@ -31,6 +32,14 @@ export class HeaderVisibilityPlugin extends CorePlugin {
           ? CommandResult.Success
           : CommandResult.TooManyHiddenElements;
       }
+      case "REMOVE_COLUMNS_ROWS":
+        if (!this.getters.tryGetSheet(cmd.sheetId)) {
+          return CommandResult.InvalidSheetId;
+        }
+        if (!this.canRemoveHeaders(cmd.sheetId, cmd.dimension, cmd.elements)) {
+          return CommandResult.NotEnoughElements;
+        }
+        return CommandResult.Success;
     }
     return CommandResult.Success;
   }
@@ -83,6 +92,11 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     return;
   }
 
+  canRemoveHeaders(sheetId: UID, dimension: Dimension, elements: HeaderIndex[]): boolean {
+    const visibleHeaders = this.getAllVisibleHeaders(sheetId, dimension);
+    return !includesAll(elements, visibleHeaders);
+  }
+
   isRowHiddenByUser(sheetId: UID, index: HeaderIndex): boolean {
     return this.hiddenHeaders[sheetId].ROW[index];
   }
@@ -129,6 +143,12 @@ export class HeaderVisibilityPlugin extends CorePlugin {
       consecutiveIndexes.pop();
     }
     return consecutiveIndexes;
+  }
+
+  private getAllVisibleHeaders(sheetId: UID, dimension: Dimension): HeaderIndex[] {
+    return range(0, this.hiddenHeaders[sheetId][dimension].length).filter(
+      (i) => !this.hiddenHeaders[sheetId][dimension][i]
+    );
   }
 
   import(data: WorkbookData) {
