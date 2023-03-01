@@ -1,7 +1,14 @@
 import { Spreadsheet } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
+import { zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { selectColumn, selectRow } from "../test_helpers/commands_helpers";
+import {
+  hideColumns,
+  hideRows,
+  selectColumn,
+  selectRow,
+  setSelection,
+} from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
@@ -95,6 +102,24 @@ describe("Context Menu add/remove row/col", () => {
     });
   });
 
+  test("cannot delete nor hide all cols with contextmenu", async () => {
+    setSelection(model, [zoneToXc(model.getters.getSheetZone(model.getters.getActiveSheetId()))]);
+    simulateContextMenu(".o-col-resizer", COLUMN_D);
+    await nextTick();
+    expect(fixture.querySelector(".o-menu div[data-name='delete_column']")).toBeNull();
+    expect(fixture.querySelector(".o-menu div[data-name='hide_columns']")).toBeNull();
+  });
+
+  test("cannot delete nor hide all non-hidden cols with contextmenu", async () => {
+    const sheetZone = model.getters.getSheetZone(model.getters.getActiveSheetId());
+    setSelection(model, [zoneToXc({ ...sheetZone, left: sheetZone.left + 1 })]);
+    hideColumns(model, ["A"]);
+    simulateContextMenu(".o-col-resizer", COLUMN_D);
+    await nextTick();
+    expect(fixture.querySelector(".o-menu div[data-name='delete_column']")).toBeNull();
+    expect(fixture.querySelector(".o-menu div[data-name='hide_columns']")).toBeNull();
+  });
+
   test("can delete rows with contextmenu", async () => {
     simulateContextMenu(".o-row-resizer", ROW_5);
     await nextTick();
@@ -105,6 +130,24 @@ describe("Context Menu add/remove row/col", () => {
       dimension: "ROW",
       sheetId: model.getters.getActiveSheetId(),
     });
+  });
+
+  test("cannot delete nor hide all rows with contextmenu", async () => {
+    setSelection(model, [zoneToXc(model.getters.getSheetZone(model.getters.getActiveSheetId()))]);
+    simulateContextMenu(".o-row-resizer", ROW_5);
+    await nextTick();
+    expect(fixture.querySelector(".o-menu div[data-name='delete_row']")).toBeNull();
+    expect(fixture.querySelector(".o-menu div[data-name='hide_rows']")).toBeNull();
+  });
+
+  test("cannot delete nor hide all non-hidden rows with contextmenu", async () => {
+    const sheetZone = model.getters.getSheetZone(model.getters.getActiveSheetId());
+    setSelection(model, [zoneToXc({ ...sheetZone, top: sheetZone.top + 1 })]);
+    hideRows(model, [0]);
+    simulateContextMenu(".o-row-resizer", ROW_5);
+    await nextTick();
+    expect(fixture.querySelector(".o-menu div[data-name='delete_row']")).toBeNull();
+    expect(fixture.querySelector(".o-menu div[data-name='hide_rows']")).toBeNull();
   });
 
   test("can add before cols with contextmenu", async () => {

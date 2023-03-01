@@ -258,6 +258,12 @@ export const REMOVE_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
   return _lt("Delete columns %s - %s", numberToLetters(first), numberToLetters(last));
 };
 
+export const NOT_ALL_VISIBLE_ROWS_SELECTED = (env: SpreadsheetChildEnv) => {
+  const sheetId = env.model.getters.getActiveSheetId();
+  const selectedRows = env.model.getters.getElementsFromSelection("ROW");
+  return env.model.getters.canRemoveHeaders(sheetId, "ROW", selectedRows);
+};
+
 export const REMOVE_COLUMNS_ACTION = (env: SpreadsheetChildEnv) => {
   let columns = [...env.model.getters.getActiveCols()];
   if (!columns.length) {
@@ -271,6 +277,12 @@ export const REMOVE_COLUMNS_ACTION = (env: SpreadsheetChildEnv) => {
     dimension: "COL",
     elements: columns,
   });
+};
+
+export const NOT_ALL_VISIBLE_COLS_SELECTED = (env: SpreadsheetChildEnv) => {
+  const sheetId = env.model.getters.getActiveSheetId();
+  const selectedCols = env.model.getters.getElementsFromSelection("COL");
+  return env.model.getters.canRemoveHeaders(sheetId, "COL", selectedCols);
 };
 
 export const INSERT_CELL_SHIFT_DOWN = (env: SpreadsheetChildEnv) => {

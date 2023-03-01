@@ -70,6 +70,7 @@ export const deleteValues: ActionSpec = {
 export const deleteRows: ActionSpec = {
   name: ACTIONS.REMOVE_ROWS_NAME,
   execute: ACTIONS.REMOVE_ROWS_ACTION,
+  isVisible: ACTIONS.NOT_ALL_VISIBLE_ROWS_SELECTED,
 };
 
 export const deleteRow: ActionSpec = {
@@ -85,6 +86,7 @@ export const clearRows: ActionSpec = {
 export const deleteCols: ActionSpec = {
   name: ACTIONS.REMOVE_COLUMNS_NAME,
   execute: ACTIONS.REMOVE_COLUMNS_ACTION,
+  isVisible: ACTIONS.NOT_ALL_VISIBLE_COLS_SELECTED,
 };
 
 export const deleteCol: ActionSpec = {
