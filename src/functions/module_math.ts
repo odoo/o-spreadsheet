@@ -1376,7 +1376,7 @@ function transpose(values, callback: (value: any) => any) {
 export const TRANSPOSE: AddFunctionDescription = {
   description: _lt("Transpose a matrix."),
   args: [arg("matrix (range<number>)", _lt("The matrix to be transposed."))],
-  returns: ["NUMBER"],
+  returns: ["RANGE"],
   computeFormat: (values: Arg) => transpose(values.format, (x) => x),
   compute: (values: ArgValue) => transpose(values, (x) => x | 0),
   isExported: true,
