@@ -28,7 +28,7 @@ import { CorePlugin } from "../core_plugin";
  * */
 
 interface ChartState {
-  readonly charts: { [sheetId: UID]: Record<UID, AbstractChart | undefined> | undefined };
+  readonly charts: Record<UID, AbstractChart | undefined>;
 }
 
 export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
@@ -41,17 +41,15 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     "getContextCreationChart",
   ] as const;
 
-  readonly charts: ChartState["charts"] = {};
+  readonly charts: Record<UID, AbstractChart | undefined> = {};
 
   private createChart = chartFactory(this.getters);
   private validateChartDefinition = (definition: ChartDefinition) =>
     validateChartDefinition(this, definition);
 
   adaptRanges(applyChange: ApplyRangeChange) {
-    for (const sheetId of Object.keys(this.charts)) {
-      for (const [chartId, chart] of Object.entries(this.charts[sheetId] || {})) {
-        this.history.update("charts", sheetId, chartId, chart?.updateRanges(applyChange));
-      }
+    for (const [chartId, chart] of Object.entries(this.charts)) {
+      this.history.update("charts", chartId, chart?.updateRanges(applyChange));
     }
   }
 
@@ -85,7 +83,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
           if (fig.tag === "chart") {
             const figureIdBase = fig.id.split(FIGURE_ID_SPLITTER).pop();
             const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
-            const chart = this.charts[cmd.sheetId]?.[fig.id]?.copyForSheetId(cmd.sheetIdTo);
+            const chart = this.charts[fig.id]?.copyForSheetId(cmd.sheetIdTo);
             if (chart) {
               this.dispatch("CREATE_CHART", {
                 id: duplicatedFigureId,
@@ -100,10 +98,12 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         break;
       }
       case "DELETE_FIGURE":
-        this.history.update("charts", cmd.sheetId, cmd.id, undefined);
+        this.history.update("charts", cmd.id, undefined);
         break;
       case "DELETE_SHEET":
-        this.history.update("charts", cmd.sheetId, undefined);
+        for (let id of this.getChartIds(cmd.sheetId)) {
+          this.history.update("charts", id, undefined);
+        }
         break;
     }
   }
@@ -112,32 +112,34 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getContextCreationChart(sheetId: UID, figureId: UID): ChartCreationContext | undefined {
-    return this.charts[sheetId]?.[figureId]?.getContextCreation();
+  getContextCreationChart(figureId: UID): ChartCreationContext | undefined {
+    return this.charts[figureId]?.getContextCreation();
   }
 
-  getChart(sheetId: UID, figureId: UID): AbstractChart | undefined {
-    return this.charts[sheetId]?.[figureId];
+  getChart(figureId: UID): AbstractChart | undefined {
+    return this.charts[figureId];
   }
 
-  getChartType(sheetId: UID, figureId: UID): ChartType {
-    const type = this.charts[sheetId]?.[figureId]?.type;
+  getChartType(figureId: UID): ChartType {
+    const type = this.charts[figureId]?.type;
     if (!type) {
       throw new Error("Chart not defined.");
     }
     return type;
   }
 
-  isChartDefined(sheetId: UID, figureId: UID): boolean {
-    return figureId in (this.charts[sheetId] || {});
+  isChartDefined(figureId: UID): boolean {
+    return figureId in this.charts && this.charts !== undefined;
   }
 
   getChartIds(sheetId: UID) {
-    return Object.keys(this.charts[sheetId] || {});
+    return Object.entries(this.charts)
+      .filter(([, chart]) => chart?.sheetId === sheetId)
+      .map(([id]) => id);
   }
 
-  getChartDefinition(sheetId: UID, figureId: UID): ChartDefinition {
-    const definition = this.charts[sheetId]?.[figureId]?.getDefinition();
+  getChartDefinition(figureId: UID): ChartDefinition {
+    const definition = this.charts[figureId]?.getDefinition();
     if (!definition) {
       throw new Error(`There is no chart with the given figureId: ${figureId}`);
     }
@@ -151,16 +153,14 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   import(data: WorkbookData) {
     for (let sheet of data.sheets) {
       if (sheet.figures) {
-        const charts = {};
         for (let figure of sheet.figures) {
           // TODO:
           // figure data should be external IMO => chart should be in sheet.chart
           // instead of in figure.data
           if (figure.tag === "chart") {
-            charts[figure.id] = this.createChart(figure.id, figure.data, sheet.id);
+            this.charts[figure.id] = this.createChart(figure.id, figure.data, sheet.id);
           }
         }
-        this.charts[sheet.id] = charts;
       }
     }
   }
@@ -173,7 +173,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         const figures = sheetFigures as FigureData<any>[];
         for (let figure of figures) {
           if (figure && figure.tag === "chart") {
-            figure.data = this.getChartDefinition(sheet.id, figure.id);
+            figure.data = this.getChartDefinition(figure.id);
           }
         }
         sheet.figures = figures;
@@ -187,7 +187,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       const figures: FigureData<ExcelChartDefinition>[] = [];
       for (let figure of sheetFigures) {
         if (figure && figure.tag === "chart") {
-          const figureData = this.charts[sheet.id]?.[figure.id]?.getDefinitionForExcel();
+          const figureData = this.charts[figure.id]?.getDefinitionForExcel();
           if (figureData) {
             figures.push({
               ...figure,
@@ -235,6 +235,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
    * replaced
    */
   private addChart(id: UID, sheetId: UID, definition: ChartDefinition) {
-    this.history.update("charts", sheetId, id, this.createChart(id, definition, sheetId));
+    this.history.update("charts", id, this.createChart(id, definition, sheetId));
   }
 }

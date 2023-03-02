@@ -38,19 +38,19 @@ describe("Clipboard for figures", () => {
     paste(model, "A1");
     const chartIds = model.getters.getChartIds(sheetId);
     expect(chartIds).toHaveLength(2);
-    expect(model.getters.getChartDefinition(sheetId, chartId)).toEqual(
-      model.getters.getChartDefinition(sheetId, getCopiedFigureId())
+    expect(model.getters.getChartDefinition(chartId)).toEqual(
+      model.getters.getChartDefinition(getCopiedFigureId())
     );
   });
 
   test("Can cut and paste figure", () => {
     model.dispatch("SELECT_FIGURE", { id: chartId });
-    const chartDef = model.getters.getChartDefinition(sheetId, chartId);
+    const chartDef = model.getters.getChartDefinition(chartId);
     cut(model);
     paste(model, "A1");
     const chartIds = model.getters.getChartIds(sheetId);
     expect(chartIds).toHaveLength(1);
-    expect(model.getters.getChartDefinition(sheetId, getCopiedFigureId())).toEqual(chartDef);
+    expect(model.getters.getChartDefinition(getCopiedFigureId())).toEqual(chartDef);
   });
 
   test("Clipboard will copy figure instead of cells if a figure is selected", () => {
@@ -71,8 +71,8 @@ describe("Clipboard for figures", () => {
     paste(model, "A1");
     expect(model.getters.getChartIds(sheetId)).toHaveLength(1);
     expect(model.getters.getChartIds("42")).toHaveLength(1);
-    expect(model.getters.getChartDefinition(sheetId, chartId)).toEqual(
-      model.getters.getChartDefinition("42", getCopiedFigureId("42"))
+    expect(model.getters.getChartDefinition(chartId)).toEqual(
+      model.getters.getChartDefinition(getCopiedFigureId("42"))
     );
   });
 
@@ -101,27 +101,24 @@ describe("Clipboard for figures", () => {
   });
 
   test("Can paste deleted chart", () => {
-    const chartDef = model.getters.getChartDefinition(sheetId, chartId);
+    const chartDef = model.getters.getChartDefinition(chartId);
     model.dispatch("SELECT_FIGURE", { id: chartId });
     copy(model);
     model.dispatch("DELETE_FIGURE", { sheetId, id: chartId });
     paste(model, "A1");
-    expect(model.getters.getChartDefinition(sheetId, getCopiedFigureId())).toEqual(chartDef);
+    expect(model.getters.getChartDefinition(getCopiedFigureId())).toEqual(chartDef);
   });
 
   test("Can copy paste chart on another sheet", () => {
     updateChart(model, chartId, { dataSets: ["A1:A5"], labelRange: "B1" });
-    const chartDef = model.getters.getChartDefinition(
-      model.getters.getActiveSheetId(),
-      chartId
-    ) as BarChartDefinition;
+    const chartDef = model.getters.getChartDefinition(chartId) as BarChartDefinition;
     model.dispatch("SELECT_FIGURE", { id: chartId });
     copy(model);
     createSheet(model, { sheetId: "42" });
     activateSheet(model, "42");
     paste(model, "A1");
     const newChartId = model.getters.getFigures("42")[0].id;
-    expect(model.getters.getChartDefinition("42", newChartId)).toEqual({
+    expect(model.getters.getChartDefinition(newChartId)).toEqual({
       ...chartDef,
       dataSets: ["Sheet1!A1:A5"],
       labelRange: "Sheet1!B1",
@@ -129,17 +126,14 @@ describe("Clipboard for figures", () => {
   });
 
   test("Can cut paste chart on another sheet", () => {
-    const chartDef = model.getters.getChartDefinition(
-      model.getters.getActiveSheetId(),
-      chartId
-    ) as BarChartDefinition;
+    const chartDef = model.getters.getChartDefinition(chartId) as BarChartDefinition;
     model.dispatch("SELECT_FIGURE", { id: chartId });
     cut(model);
     createSheet(model, { sheetId: "42" });
     activateSheet(model, "42");
     paste(model, "A1");
     const newChartId = model.getters.getFigures("42")[0].id;
-    expect(model.getters.getChartDefinition("42", newChartId)).toEqual(chartDef);
+    expect(model.getters.getChartDefinition(newChartId)).toEqual(chartDef);
     expect(model.getters.getFigures(sheetId)).toHaveLength(0);
   });
 
