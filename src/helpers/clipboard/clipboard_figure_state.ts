@@ -36,7 +36,7 @@ export class ClipboardFigureState implements ClipboardState {
       throw new Error(`No figure for the given id: ${copiedFigureId}`);
     }
     this.copiedFigure = { ...figure };
-    const chart = getters.getChart(this.sheetId, copiedFigureId);
+    const chart = getters.getChart(copiedFigureId);
     if (!chart) {
       throw new Error(`No chart for the given id: ${copiedFigureId}`);
     }
