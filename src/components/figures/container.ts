@@ -260,10 +260,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetEnv> {
       return;
     }
     if (this.props.sidePanelIsOpen) {
-      this.env.openSidePanel("ChartPanel", {
-        sheetId: this.env.getters.getActiveSheetId(),
-        figure,
-      });
+      this.env.openSidePanel("ChartPanel", { figure });
     }
     const initialX = ev.clientX;
     const initialY = ev.clientY;

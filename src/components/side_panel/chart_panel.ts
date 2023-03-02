@@ -7,7 +7,6 @@ import {
   DispatchResult,
   Figure,
   SpreadsheetEnv,
-  UID,
 } from "../../types/index";
 import { ColorPicker } from "../color_picker";
 import * as icons from "../icons";
@@ -151,7 +150,6 @@ const STYLE = css/* scss */ `
 `;
 
 interface Props {
-  sheetId: UID;
   figure: Figure;
   onCloseSidePanel: () => void;
 }
@@ -174,7 +172,7 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
 
   setup() {
     onWillUpdateProps((nextProps: Props) => {
-      if (!this.getters.getChartDefinition(nextProps.sheetId, nextProps.figure.id)) {
+      if (!this.getters.getChartDefinition(nextProps.figure.id)) {
         this.props.onCloseSidePanel();
         return;
       }
@@ -245,7 +243,7 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
   private updateChart(definition: ChartUIDefinitionUpdate): DispatchResult {
     return this.env.dispatch("UPDATE_CHART", {
       id: this.props.figure.id,
-      sheetId: this.props.sheetId,
+      sheetId: this.getters.getActiveSheetId(),
       definition,
     });
   }
