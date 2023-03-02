@@ -86,10 +86,7 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   private ctx = document.createElement("canvas").getContext("2d")!;
 
   get runtime(): ScorecardChartRuntime {
-    return this.env.model.getters.getChartRuntime(
-      this.env.model.getters.getActiveSheetId(),
-      this.props.figure.id
-    ) as ScorecardChartRuntime;
+    return this.env.model.getters.getChartRuntime(this.props.figure.id) as ScorecardChartRuntime;
   }
 
   get title() {

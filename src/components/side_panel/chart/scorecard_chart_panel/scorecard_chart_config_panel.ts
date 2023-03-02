@@ -5,7 +5,6 @@ import { SelectionInput } from "../../../selection_input/selection_input";
 import { ChartTerms } from "../../../translations_terms";
 
 interface Props {
-  sheetId: UID;
   figureId: UID;
   definition: ScorecardChartDefinition;
   updateChart: (definition: Partial<ScorecardChartDefinition>) => DispatchResult;
@@ -76,7 +75,6 @@ export class ScorecardChartConfigPanel extends Component<Props, SpreadsheetChild
 }
 
 ScorecardChartConfigPanel.props = {
-  sheetId: String,
   figureId: String,
   definition: Object,
   updateChart: Function,

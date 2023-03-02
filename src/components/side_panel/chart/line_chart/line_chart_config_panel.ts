@@ -5,7 +5,7 @@ export class LineConfigPanel extends LineBarPieConfigPanel {
   static template = "o-spreadsheet-LineConfigPanel";
 
   get canTreatLabelsAsText() {
-    const chart = this.env.model.getters.getChart(this.props.sheetId, this.props.figureId);
+    const chart = this.env.model.getters.getChart(this.props.figureId);
     if (chart && chart instanceof LineChart) {
       return canChartParseLabels(chart.labelRange, this.env.model.getters);
     }
