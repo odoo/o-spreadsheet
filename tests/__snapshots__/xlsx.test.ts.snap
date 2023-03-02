@@ -1220,16 +1220,17 @@ Object {
         <c:plotArea>
             <!-- how the chart element is placed on the chart -->
             <c:layout/>
-            <c:barChart>
-                <c:barDir val=\\"col\\"/>
-                <c:grouping val=\\"clustered\\"/>
-                <c:overlap val=\\"-20\\"/>
-                <c:gapWidth val=\\"70\\"/>
+            <c:lineChart>
                 <!-- each data marker in the series does not have a different color -->
                 <c:varyColors val=\\"0\\"/>
                 <c:ser>
                     <c:idx val=\\"0\\"/>
                     <c:order val=\\"0\\"/>
+                    <c:smooth val=\\"0\\"/>
+                    <c:marker>
+                        <c:symbol val=\\"circle\\"/>
+                        <c:size val=\\"5\\"/>
+                    </c:marker>
                     <c:tx>
                         <c:strRef>
                             <c:f>
@@ -1238,13 +1239,11 @@ Object {
                         </c:strRef>
                     </c:tx>
                     <c:spPr>
-                        <a:solidFill>
-                            <a:srgbClr val=\\"1F77B4\\"/>
-                        </a:solidFill>
-                        <a:ln cmpd=\\"sng\\">
+                        <a:ln cmpd=\\"sng\\" w=\\"23813\\">
                             <a:solidFill>
                                 <a:srgbClr val=\\"1F77B4\\"/>
                             </a:solidFill>
+                            <a:prstDash val=\\"solid\\"/>
                         </a:ln>
                     </c:spPr>
                     <c:cat>
@@ -1268,6 +1267,11 @@ Object {
                 <c:ser>
                     <c:idx val=\\"1\\"/>
                     <c:order val=\\"1\\"/>
+                    <c:smooth val=\\"0\\"/>
+                    <c:marker>
+                        <c:symbol val=\\"circle\\"/>
+                        <c:size val=\\"5\\"/>
+                    </c:marker>
                     <c:tx>
                         <c:strRef>
                             <c:f>
@@ -1276,13 +1280,11 @@ Object {
                         </c:strRef>
                     </c:tx>
                     <c:spPr>
-                        <a:solidFill>
-                            <a:srgbClr val=\\"FF7F0E\\"/>
-                        </a:solidFill>
-                        <a:ln cmpd=\\"sng\\">
+                        <a:ln cmpd=\\"sng\\" w=\\"23813\\">
                             <a:solidFill>
                                 <a:srgbClr val=\\"FF7F0E\\"/>
                             </a:solidFill>
+                            <a:prstDash val=\\"solid\\"/>
                         </a:ln>
                     </c:spPr>
                     <c:cat>
@@ -1305,7 +1307,7 @@ Object {
                 </c:ser>
                 <c:axId val=\\"17781237\\"/>
                 <c:axId val=\\"88853993\\"/>
-            </c:barChart>
+            </c:lineChart>
             <c:catAx>
                 <c:axId val=\\"17781237\\"/>
                 <c:crossAx val=\\"88853993\\"/>
@@ -1906,7 +1908,7 @@ Object {
     </c:chart>
 </c:chartSpace>",
       "contentType": "chart",
-      "path": "xl/charts/chart1.xml",
+      "path": "xl/charts/chart2.xml",
     },
     Object {
       "content": "<xdr:wsDr xmlns:xdr=\\"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\" xmlns:a=\\"http://schemas.openxmlformats.org/drawingml/2006/main\\" xmlns:c=\\"http://schemas.openxmlformats.org/drawingml/2006/chart\\">
@@ -1941,7 +1943,7 @@ Object {
         </xdr:to>
         <xdr:graphicFrame>
             <xdr:nvGraphicFramePr>
-                <xdr:cNvPr id=\\"1\\" name=\\"Chart 1\\" title=\\"Chart\\"/>
+                <xdr:cNvPr id=\\"2\\" name=\\"Chart 2\\" title=\\"Chart\\"/>
                 <xdr:cNvGraphicFramePr/>
             </xdr:nvGraphicFramePr>
             <xdr:xfrm>
@@ -2107,7 +2109,7 @@ Object {
     },
     Object {
       "content": "<Relationships xmlns=\\"http://schemas.openxmlformats.org/package/2006/relationships\\">
-    <Relationship Id=\\"rId1\\" Target=\\"../charts/chart1.xml\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart\\"/>
+    <Relationship Id=\\"rId1\\" Target=\\"../charts/chart2.xml\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart\\"/>
 </Relationships>",
       "contentType": undefined,
       "path": "xl/drawings/_rels/drawing1.xml.rels",
@@ -2127,7 +2129,7 @@ Object {
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.drawingml.chart+xml\\" PartName=\\"/xl/charts/chart1.xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.drawing+xml\\" PartName=\\"/xl/drawings/drawing0.xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\\" PartName=\\"/xl/worksheets/sheet0.xml\\"/>
-    <Override ContentType=\\"application/vnd.openxmlformats-officedocument.drawingml.chart+xml\\" PartName=\\"/xl/charts/chart1.xml\\"/>
+    <Override ContentType=\\"application/vnd.openxmlformats-officedocument.drawingml.chart+xml\\" PartName=\\"/xl/charts/chart2.xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.drawing+xml\\" PartName=\\"/xl/drawings/drawing1.xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\\" PartName=\\"/xl/worksheets/sheet1.xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\\" PartName=\\"/xl/styles.xml\\"/>
@@ -2159,6 +2161,290 @@ Object {
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
+    },
+    Object {
+      "content": "<c:chartSpace xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\" xmlns:a=\\"http://schemas.openxmlformats.org/drawingml/2006/main\\" xmlns:c=\\"http://schemas.openxmlformats.org/drawingml/2006/chart\\">
+    <c:roundedCorners val=\\"0\\"/>
+    <!-- <manualLayout/> to manually position the chart in the figure container -->
+    <c:spPr>
+        <a:solidFill>
+            <a:srgbClr val=\\"FFFFFF\\"/>
+        </a:solidFill>
+        <a:ln cmpd=\\"sng\\">
+            <a:solidFill>
+                <a:srgbClr val=\\"000000\\"/>
+            </a:solidFill>
+        </a:ln>
+    </c:spPr>
+    <c:chart>
+        <c:title>
+            <c:tx>
+                <c:rich>
+                    <a:bodyPr/>
+                    <a:lstStyle/>
+                    <a:p>
+                        <a:pPr lvl=\\"0\\">
+                            <a:defRPr b=\\"0\\">
+                                <a:solidFill>
+                                    <a:srgbClr val=\\"000000\\"/>
+                                </a:solidFill>
+                                <a:latin typeface=\\"+mn-lt\\"/>
+                            </a:defRPr>
+                        </a:pPr>
+                        <a:r>
+                            <!-- Runs -->
+                            <a:rPr sz=\\"2200\\"/>
+                            <a:t>
+                                test
+                            </a:t>
+                        </a:r>
+                    </a:p>
+                </c:rich>
+            </c:tx>
+            <c:overlay val=\\"0\\"/>
+        </c:title>
+        <c:autoTitleDeleted val=\\"0\\"/>
+        <c:plotArea>
+            <!-- how the chart element is placed on the chart -->
+            <c:layout/>
+            <c:lineChart>
+                <!-- each data marker in the series does not have a different color -->
+                <c:varyColors val=\\"0\\"/>
+                <c:ser>
+                    <c:idx val=\\"0\\"/>
+                    <c:order val=\\"0\\"/>
+                    <c:smooth val=\\"0\\"/>
+                    <c:marker>
+                        <c:symbol val=\\"circle\\"/>
+                        <c:size val=\\"5\\"/>
+                    </c:marker>
+                    <c:tx>
+                        <c:strRef>
+                            <c:f>
+                                Sheet1!B1
+                            </c:f>
+                        </c:strRef>
+                    </c:tx>
+                    <c:spPr>
+                        <a:ln cmpd=\\"sng\\" w=\\"23813\\">
+                            <a:solidFill>
+                                <a:srgbClr val=\\"1F77B4\\"/>
+                            </a:solidFill>
+                            <a:prstDash val=\\"solid\\"/>
+                        </a:ln>
+                    </c:spPr>
+                    <c:cat>
+                        <c:strRef>
+                            <c:f>
+                                Sheet1!A2:A4
+                            </c:f>
+                        </c:strRef>
+                    </c:cat>
+                    <!-- x-coordinate values -->
+                    <c:val>
+                        <!-- x-coordinate values -->
+                        <c:numRef>
+                            <c:f>
+                                Sheet1!B2:B4
+                            </c:f>
+                            <c:numCache/>
+                        </c:numRef>
+                    </c:val>
+                </c:ser>
+                <c:ser>
+                    <c:idx val=\\"1\\"/>
+                    <c:order val=\\"1\\"/>
+                    <c:smooth val=\\"0\\"/>
+                    <c:marker>
+                        <c:symbol val=\\"circle\\"/>
+                        <c:size val=\\"5\\"/>
+                    </c:marker>
+                    <c:tx>
+                        <c:strRef>
+                            <c:f>
+                                Sheet1!C1
+                            </c:f>
+                        </c:strRef>
+                    </c:tx>
+                    <c:spPr>
+                        <a:ln cmpd=\\"sng\\" w=\\"23813\\">
+                            <a:solidFill>
+                                <a:srgbClr val=\\"FF7F0E\\"/>
+                            </a:solidFill>
+                            <a:prstDash val=\\"solid\\"/>
+                        </a:ln>
+                    </c:spPr>
+                    <c:cat>
+                        <c:strRef>
+                            <c:f>
+                                Sheet1!A2:A4
+                            </c:f>
+                        </c:strRef>
+                    </c:cat>
+                    <!-- x-coordinate values -->
+                    <c:val>
+                        <!-- x-coordinate values -->
+                        <c:numRef>
+                            <c:f>
+                                Sheet1!C2:C4
+                            </c:f>
+                            <c:numCache/>
+                        </c:numRef>
+                    </c:val>
+                </c:ser>
+                <c:axId val=\\"17781237\\"/>
+                <c:axId val=\\"88853993\\"/>
+            </c:lineChart>
+            <c:catAx>
+                <c:axId val=\\"17781237\\"/>
+                <c:crossAx val=\\"88853993\\"/>
+                <!-- reference to the other axe of the chart -->
+                <c:delete val=\\"0\\"/>
+                <!-- by default, axis are not displayed -->
+                <c:scaling>
+                    <c:orientation val=\\"minMax\\"/>
+                </c:scaling>
+                <c:axPos val=\\"b\\"/>
+                <c:majorGridlines>
+                    <c:spPr>
+                        <a:ln cmpd=\\"sng\\">
+                            <a:solidFill>
+                                <a:srgbClr val=\\"B7B7B7\\"/>
+                            </a:solidFill>
+                        </a:ln>
+                    </c:spPr>
+                </c:majorGridlines>
+                <c:majorTickMark val=\\"out\\"/>
+                <c:minorTickMark val=\\"none\\"/>
+                <c:numFmt formatCode=\\"General\\" sourceLinked=\\"1\\"/>
+                <c:title>
+                    <c:tx>
+                        <c:rich>
+                            <a:bodyPr/>
+                            <a:lstStyle/>
+                            <a:p>
+                                <a:pPr lvl=\\"0\\">
+                                    <a:defRPr b=\\"0\\">
+                                        <a:solidFill>
+                                            <a:srgbClr val=\\"000000\\"/>
+                                        </a:solidFill>
+                                        <a:latin typeface=\\"+mn-lt\\"/>
+                                    </a:defRPr>
+                                </a:pPr>
+                                <a:r>
+                                    <!-- Runs -->
+                                    <a:rPr sz=\\"2200\\"/>
+                                    <a:t/>
+                                </a:r>
+                            </a:p>
+                        </c:rich>
+                    </c:tx>
+                </c:title>
+                <c:txPr>
+                    <a:bodyPr/>
+                    <a:lstStyle/>
+                    <a:p>
+                        <a:pPr lvl=\\"0\\">
+                            <a:defRPr b=\\"0\\" i=\\"0\\" sz=\\"1000\\">
+                                <a:solidFill>
+                                    <a:srgbClr val=\\"000000\\"/>
+                                </a:solidFill>
+                                <a:latin typeface=\\"+mn-lt\\"/>
+                            </a:defRPr>
+                        </a:pPr>
+                    </a:p>
+                </c:txPr>
+            </c:catAx>
+            <!-- <tickLblPos/> omitted -->
+            <c:valAx>
+                <c:axId val=\\"88853993\\"/>
+                <c:crossAx val=\\"17781237\\"/>
+                <!-- reference to the other axe of the chart -->
+                <c:delete val=\\"0\\"/>
+                <!-- by default, axis are not displayed -->
+                <c:scaling>
+                    <c:orientation val=\\"minMax\\"/>
+                </c:scaling>
+                <c:axPos val=\\"l\\"/>
+                <c:majorGridlines>
+                    <c:spPr>
+                        <a:ln cmpd=\\"sng\\">
+                            <a:solidFill>
+                                <a:srgbClr val=\\"B7B7B7\\"/>
+                            </a:solidFill>
+                        </a:ln>
+                    </c:spPr>
+                </c:majorGridlines>
+                <c:majorTickMark val=\\"out\\"/>
+                <c:minorTickMark val=\\"none\\"/>
+                <c:numFmt formatCode=\\"General\\" sourceLinked=\\"1\\"/>
+                <c:title>
+                    <c:tx>
+                        <c:rich>
+                            <a:bodyPr/>
+                            <a:lstStyle/>
+                            <a:p>
+                                <a:pPr lvl=\\"0\\">
+                                    <a:defRPr b=\\"0\\">
+                                        <a:solidFill>
+                                            <a:srgbClr val=\\"000000\\"/>
+                                        </a:solidFill>
+                                        <a:latin typeface=\\"+mn-lt\\"/>
+                                    </a:defRPr>
+                                </a:pPr>
+                                <a:r>
+                                    <!-- Runs -->
+                                    <a:rPr sz=\\"2200\\"/>
+                                    <a:t/>
+                                </a:r>
+                            </a:p>
+                        </c:rich>
+                    </c:tx>
+                </c:title>
+                <c:txPr>
+                    <a:bodyPr/>
+                    <a:lstStyle/>
+                    <a:p>
+                        <a:pPr lvl=\\"0\\">
+                            <a:defRPr b=\\"0\\" i=\\"0\\" sz=\\"1000\\">
+                                <a:solidFill>
+                                    <a:srgbClr val=\\"000000\\"/>
+                                </a:solidFill>
+                                <a:latin typeface=\\"+mn-lt\\"/>
+                            </a:defRPr>
+                        </a:pPr>
+                    </a:p>
+                </c:txPr>
+            </c:valAx>
+            <!-- <tickLblPos/> omitted -->
+            <c:spPr>
+                <a:solidFill>
+                    <a:srgbClr val=\\"FFFFFF\\"/>
+                </a:solidFill>
+            </c:spPr>
+        </c:plotArea>
+        <c:legend>
+            <c:legendPos val=\\"t\\"/>
+            <c:overlay val=\\"0\\"/>
+            <c:txPr>
+                <a:bodyPr/>
+                <a:lstStyle/>
+                <a:p>
+                    <a:pPr lvl=\\"0\\">
+                        <a:defRPr b=\\"0\\" i=\\"0\\" sz=\\"1000\\">
+                            <a:solidFill>
+                                <a:srgbClr val=\\"000000\\"/>
+                            </a:solidFill>
+                            <a:latin typeface=\\"+mn-lt\\"/>
+                        </a:defRPr>
+                    </a:pPr>
+                </a:p>
+            </c:txPr>
+        </c:legend>
+    </c:chart>
+</c:chartSpace>",
+      "contentType": "chart",
+      "path": "xl/charts/chart1.xml",
     },
     Object {
       "content": "<c:chartSpace xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\" xmlns:a=\\"http://schemas.openxmlformats.org/drawingml/2006/main\\" xmlns:c=\\"http://schemas.openxmlformats.org/drawingml/2006/chart\\">
@@ -2440,7 +2726,7 @@ Object {
     </c:chart>
 </c:chartSpace>",
       "contentType": "chart",
-      "path": "xl/charts/chart1.xml",
+      "path": "xl/charts/chart2.xml",
     },
     Object {
       "content": "<xdr:wsDr xmlns:xdr=\\"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\" xmlns:a=\\"http://schemas.openxmlformats.org/drawingml/2006/main\\" xmlns:c=\\"http://schemas.openxmlformats.org/drawingml/2006/chart\\">
@@ -2485,6 +2771,52 @@ Object {
             <a:graphic>
                 <a:graphicData uri=\\"http://schemas.openxmlformats.org/drawingml/2006/chart\\">
                     <c:chart r:id=\\"rId1\\"/>
+                </a:graphicData>
+            </a:graphic>
+        </xdr:graphicFrame>
+        <xdr:clientData fLocksWithSheet=\\"0\\"/>
+    </xdr:twoCellAnchor>
+    <xdr:twoCellAnchor>
+        <xdr:from>
+            <xdr:col>
+                0
+            </xdr:col>
+            <xdr:colOff>
+                9525
+            </xdr:colOff>
+            <xdr:row>
+                0
+            </xdr:row>
+            <xdr:rowOff>
+                9525
+            </xdr:rowOff>
+        </xdr:from>
+        <xdr:to>
+            <xdr:col>
+                5
+            </xdr:col>
+            <xdr:colOff>
+                542925
+            </xdr:colOff>
+            <xdr:row>
+                14
+            </xdr:row>
+            <xdr:rowOff>
+                133350
+            </xdr:rowOff>
+        </xdr:to>
+        <xdr:graphicFrame>
+            <xdr:nvGraphicFramePr>
+                <xdr:cNvPr id=\\"2\\" name=\\"Chart 2\\" title=\\"Chart\\"/>
+                <xdr:cNvGraphicFramePr/>
+            </xdr:nvGraphicFramePr>
+            <xdr:xfrm>
+                <a:off x=\\"0\\" y=\\"0\\"/>
+                <a:ext cx=\\"0\\" cy=\\"0\\"/>
+            </xdr:xfrm>
+            <a:graphic>
+                <a:graphicData uri=\\"http://schemas.openxmlformats.org/drawingml/2006/chart\\">
+                    <c:chart r:id=\\"rId2\\"/>
                 </a:graphicData>
             </a:graphic>
         </xdr:graphicFrame>
@@ -2706,6 +3038,7 @@ Object {
     Object {
       "content": "<Relationships xmlns=\\"http://schemas.openxmlformats.org/package/2006/relationships\\">
     <Relationship Id=\\"rId1\\" Target=\\"../charts/chart1.xml\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart\\"/>
+    <Relationship Id=\\"rId2\\" Target=\\"../charts/chart2.xml\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart\\"/>
 </Relationships>",
       "contentType": undefined,
       "path": "xl/drawings/_rels/drawing0.xml.rels",
@@ -2723,6 +3056,7 @@ Object {
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.drawingml.chart+xml\\" PartName=\\"/xl/charts/chart1.xml\\"/>
+    <Override ContentType=\\"application/vnd.openxmlformats-officedocument.drawingml.chart+xml\\" PartName=\\"/xl/charts/chart2.xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.drawing+xml\\" PartName=\\"/xl/drawings/drawing0.xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\\" PartName=\\"/xl/worksheets/sheet0.xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\\" PartName=\\"/xl/styles.xml\\"/>

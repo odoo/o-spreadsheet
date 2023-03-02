@@ -128,6 +128,7 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
       name: _lt("Edit"),
       sequence: 1,
       action: () => this.env.openSidePanel("ChartPanel", { figure: this.props.figure }),
+      isVisible: () => !!this.env.getters.getChartDefinition(this.props.figure.id),
     });
     registry.add("delete", {
       name: _lt("Delete"),

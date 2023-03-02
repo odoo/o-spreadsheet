@@ -24,6 +24,7 @@ describe("load data", () => {
           figures: [],
         },
       ],
+      uniqueFigureIds: true,
     });
 
     expect(load({})).toEqual({
@@ -46,6 +47,7 @@ describe("load data", () => {
           figures: [],
         },
       ],
+      uniqueFigureIds: true,
     });
   });
 
@@ -74,6 +76,7 @@ describe("load data", () => {
           figures: [],
         },
       ],
+      uniqueFigureIds: true,
     });
   });
 
@@ -102,6 +105,7 @@ describe("load data", () => {
           figures: [],
         },
       ],
+      uniqueFigureIds: true,
     });
   });
 
@@ -167,6 +171,7 @@ describe("load data", () => {
           figures: [],
         },
       ],
+      uniqueFigureIds: true,
     });
   });
 });
