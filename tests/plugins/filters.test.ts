@@ -10,6 +10,7 @@ import {
   deleteColumns,
   deleteFilter,
   deleteRows,
+  hideRows,
   insertCells,
   merge,
   paste,
@@ -145,6 +146,29 @@ describe("Filters plugin", () => {
 
       expect(getFilterValues(model, sheetId)).toMatchObject([{ zone: "A1:A3", value: ["C"] }]);
       expect(getFilterValues(model, sheet2Id)).toMatchObject([{ zone: "A1:A3", value: ["D"] }]);
+    });
+
+    test("Filter is disabled if its header row is hidden by the user", () => {
+      createFilter(model, "A1:A3");
+      setCellContent(model, "A2", "28");
+      updateFilter(model, "A1", ["28"]);
+      expect(model.getters.isRowHidden(sheetId, 1)).toBe(true);
+
+      hideRows(model, [0]);
+      expect(model.getters.isRowHidden(sheetId, 1)).toBe(false);
+    });
+
+    test("Filter is disabled if its header row is hidden by another filter", () => {
+      createFilter(model, "A2:A3");
+      setCellContent(model, "A3", "15");
+      updateFilter(model, "A2", ["15"]);
+      expect(model.getters.isRowHidden(sheetId, 2)).toBe(true);
+
+      createFilter(model, "B1:B2");
+      setCellContent(model, "B2", "28");
+      updateFilter(model, "B1", ["28"]);
+      expect(model.getters.isRowHidden(sheetId, 1)).toBe(true);
+      expect(model.getters.isRowHidden(sheetId, 2)).toBe(false);
     });
   });
 
