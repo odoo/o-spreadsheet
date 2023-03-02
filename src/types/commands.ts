@@ -1114,7 +1114,6 @@ export const enum CommandResult {
   NonContinuousTargets,
   DuplicatedFigureId,
   InvalidSelectionStep,
-  DuplicatedChartId,
 }
 
 export interface CommandHandler<T> {
