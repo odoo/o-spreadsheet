@@ -127,10 +127,19 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     const success: CommandResult = CommandResult.Success;
     switch (cmd.type) {
       case "UPDATE_CHART":
+        return this.checkValidations(
+          cmd,
+          this.chainValidations(this.checkEmptyDataset, this.checkDataset, this.checkChartExists),
+          this.checkLabelRange
+        );
       case "CREATE_CHART":
         return this.checkValidations(
           cmd,
-          this.chainValidations(this.checkEmptyDataset, this.checkDataset),
+          this.chainValidations(
+            this.checkEmptyDataset,
+            this.checkDataset,
+            this.checkChartDuplicate
+          ),
           this.checkLabelRange
         );
       default:
@@ -222,8 +231,11 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       .map((chart) => chart[0]);
   }
 
-  getChartDefinitionUI(sheetId: UID, figureId: UID): ChartUIDefinition {
+  getChartDefinitionUI(sheetId: UID, figureId: UID): ChartUIDefinition | undefined {
     const data: ChartDefinition = this.chartFigures[figureId];
+    if (!data) {
+      return undefined;
+    }
     const dataSets: string[] = data.dataSets
       .map((ds: DataSet) => (ds ? this.getters.getRangeString(ds.dataRange, sheetId) : ""))
       .filter((ds) => {
@@ -245,13 +257,17 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     };
   }
 
-  private getChartDefinitionExcel(sheetId: UID, figureId: UID): ExcelChartDefinition {
+  private getChartDefinitionExcel(sheetId: UID, figureId: UID): ExcelChartDefinition | undefined {
     const data: ChartDefinition = this.chartFigures[figureId];
+    const dataUI = this.getChartDefinitionUI("forceSheetReference", figureId);
+    if (!data || !dataUI) {
+      return undefined;
+    }
     const dataSets: ExcelChartDataset[] = data.dataSets
       .map((ds: DataSet) => this.toExcelDataset(ds))
       .filter((ds) => ds.range !== ""); // && range !== INCORRECT_RANGE_STRING ? show incorrect #ref ?
     return {
-      ...this.getChartDefinitionUI("forceSheetReference", figureId),
+      ...dataUI,
       backgroundColor: data.background,
       dataSets,
     };
@@ -306,10 +322,17 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     if (data.sheets) {
       for (let sheet of data.sheets) {
         const sheetFigures = this.getters.getFigures(sheet.id);
-        const figures = sheetFigures as FigureData<any>[];
-        for (let figure of figures) {
+        const figures: FigureData<any>[] = [];
+        for (let sheetFigure of sheetFigures) {
+          const figure = sheetFigure as FigureData<any>;
           if (figure && figure.tag === "chart") {
-            figure.data = this.getChartDefinitionUI(sheet.id, figure.id);
+            const data = this.getChartDefinitionUI(sheet.id, figure.id);
+            if (data) {
+              figure.data = data;
+              figures.push(figure);
+            }
+          } else {
+            figures.push(figure);
           }
         }
         sheet.figures = figures;
@@ -320,10 +343,17 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   exportForExcel(data: ExcelWorkbookData) {
     for (let sheet of data.sheets) {
       const sheetFigures = this.getters.getFigures(sheet.id);
-      const figures = sheetFigures as FigureData<ExcelChartDefinition>[];
-      for (let figure of figures) {
+      const figures: FigureData<ExcelChartDefinition>[] = [];
+      for (let sheetFigure of sheetFigures) {
+        const figure = sheetFigure as FigureData<ExcelChartDefinition>;
         if (figure && figure.tag === "chart") {
-          figure.data = this.getChartDefinitionExcel(sheet.id, figure.id);
+          const data = this.getChartDefinitionExcel(sheet.id, figure.id);
+          if (data) {
+            figure.data = data;
+            figures.push(figure);
+          }
+        } else {
+          figures.push(figure);
         }
       }
       sheet.charts = figures;
@@ -503,5 +533,20 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     }
     const invalidLabels = !rangeReference.test(cmd.definition.labelRange || "");
     return invalidLabels ? CommandResult.InvalidLabelRange : CommandResult.Success;
+  }
+
+  private checkChartDuplicate(cmd: CreateChartCommand): CommandResult {
+    for (const sheet of this.getters.getSheets()) {
+      if (this.getters.getFigure(sheet.id, cmd.id)) {
+        return CommandResult.DuplicatedChartId;
+      }
+    }
+    return CommandResult.Success;
+  }
+
+  private checkChartExists(cmd: UpdateChartCommand): CommandResult {
+    return this.getters.getFigure(cmd.sheetId, cmd.id)
+      ? CommandResult.Success
+      : CommandResult.ChartDoesNotExist;
   }
 }

@@ -344,9 +344,15 @@ describe("figure plugin", () => {
     createSheet(model, { sheetId: "42" });
 
     const cmd2 = model.dispatch("CREATE_FIGURE", {
-      sheetId: "42",
+      sheetId: model.getters.getActiveSheetId(),
       figure,
     });
     expect(cmd2).toBeCancelledBecause(CommandResult.DuplicatedFigureId);
+
+    const cmd3 = model.dispatch("CREATE_FIGURE", {
+      sheetId: "42",
+      figure,
+    });
+    expect(cmd3).toBeCancelledBecause(CommandResult.DuplicatedFigureId);
   });
 });

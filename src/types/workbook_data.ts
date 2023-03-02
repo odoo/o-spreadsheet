@@ -52,6 +52,7 @@ export interface WorkbookData {
   borders: { [key: number]: Border };
   entities: { [key: string]: { [key: string]: any } };
   revisionId: UID;
+  uniqueFigureIds: boolean;
 }
 
 export interface ExcelWorkbookData extends WorkbookData {
