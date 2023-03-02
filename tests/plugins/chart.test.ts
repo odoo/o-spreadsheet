@@ -727,6 +727,57 @@ describe("datasource tests", function () {
     expect(result).toBeCancelledBecause(CommandResult.InvalidDataSet);
   });
 
+  test("cannot duplicate chart ids", () => {
+    const model = new Model();
+    const cmd1 = createChart(
+      model,
+      {
+        dataSets: ["Sheet1!B1:B4"],
+        labelRange: "Sheet1!A2:A4",
+        type: "line",
+      },
+      "1"
+    );
+    expect(cmd1).toBeSuccessfullyDispatched();
+
+    const cmd2 = createChart(
+      model,
+      {
+        dataSets: ["Sheet1!C1:C4"],
+        labelRange: "Sheet1!A2:A4",
+        type: "bar",
+      },
+      "1"
+    );
+    expect(cmd2).toBeCancelledBecause(CommandResult.DuplicatedChartId);
+    createSheet(model, { sheetId: "42" });
+    const cmd3 = createChart(
+      model,
+      {
+        dataSets: ["Sheet1!C1:C4"],
+        labelRange: "Sheet1!A2:A4",
+        type: "bar",
+      },
+      "1",
+      "42"
+    );
+    expect(cmd3).toBeCancelledBecause(CommandResult.DuplicatedChartId);
+  });
+
+  test("reject updates that target a chart on the wrong sheet", () => {
+    createChart(
+      model,
+      {
+        dataSets: ["Sheet1!B1:B4", "this is invalid"],
+        labelRange: "Sheet1!A2:A4",
+        type: "line",
+      },
+      "1"
+    );
+    const result = updateChart(model, "1", { legendPosition: "left" });
+    expect(result).toBeCancelledBecause(CommandResult.ChartDoesNotExist);
+  });
+
   test("chart is focused after creation and update", () => {
     const chartId = "1234";
     createChart(
@@ -1086,7 +1137,7 @@ describe("datasource tests", function () {
     );
     deleteColumns(model, ["A", "B"]);
     const sheetId = model.getters.getActiveSheetId();
-    const def = model.getters.getChartDefinitionUI(sheetId, "1");
+    const def = model.getters.getChartDefinitionUI(sheetId, "1")!;
     expect(def.dataSets).toHaveLength(1);
     expect(def.dataSets[0]).toEqual("A1:A4");
     expect(def.labelRange).toBeUndefined();
@@ -1483,12 +1534,12 @@ describe("Chart design configuration", () => {
   test("Background is correctly updated", () => {
     createChart(model, defaultChart, "42");
     expect(
-      model.getters.getChartDefinitionUI(model.getters.getActiveSheetId(), "42").background
+      model.getters.getChartDefinitionUI(model.getters.getActiveSheetId(), "42")!.background
     ).toBe("#FFFFFF");
 
     updateChart(model, "42", { background: "#000000" });
     expect(
-      model.getters.getChartDefinitionUI(model.getters.getActiveSheetId(), "42").background
+      model.getters.getChartDefinitionUI(model.getters.getActiveSheetId(), "42")!.background
     ).toBe("#000000");
   });
 

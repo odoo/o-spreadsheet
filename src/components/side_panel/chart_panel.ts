@@ -7,6 +7,7 @@ import {
   DispatchResult,
   Figure,
   SpreadsheetEnv,
+  UID,
 } from "../../types/index";
 import { ColorPicker } from "../color_picker";
 import * as icons from "../icons";
@@ -168,6 +169,8 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
   static components = { SelectionInput, ColorPicker };
   private getters = this.env.getters;
 
+  private chartSheetId: UID = this.findSheetId(this.props.figure.id);
+
   private state: ChartPanelState = useState(this.initialState(this.props.figure));
 
   setup() {
@@ -177,6 +180,7 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
         return;
       }
       if (nextProps.figure.id !== this.props.figure.id) {
+        this.chartSheetId = this.findSheetId(nextProps.figure.id);
         this.state.panel = "configuration";
         this.state.fillColorTool = false;
         this.state.datasetDispatchResult = undefined;
@@ -184,7 +188,7 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
         this.state.chart = this.env.getters.getChartDefinitionUI(
           this.env.getters.getActiveSheetId(),
           nextProps.figure.id
-        );
+        )!;
       }
     });
   }
@@ -243,7 +247,7 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
   private updateChart(definition: ChartUIDefinitionUpdate): DispatchResult {
     return this.env.dispatch("UPDATE_CHART", {
       id: this.props.figure.id,
-      sheetId: this.getters.getActiveSheetId(),
+      sheetId: this.chartSheetId,
       definition,
     });
   }
@@ -271,10 +275,14 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
   }
 
   private initialState(figure: Figure): ChartPanelState {
+    const sheetId = this.findSheetId(figure.id);
     return {
-      chart: this.env.getters.getChartDefinitionUI(this.env.getters.getActiveSheetId(), figure.id),
+      chart: this.env.getters.getChartDefinitionUI(sheetId, figure.id)!,
       panel: "configuration",
       fillColorTool: false,
     };
+  }
+  private findSheetId(figureId: string): string {
+    return this.env.getters.getFigureSheetId(figureId) || "";
   }
 }
