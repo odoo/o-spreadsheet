@@ -27,6 +27,7 @@ describe("load data", () => {
           isVisible: true,
         },
       ],
+      uniqueFigureIds: true,
     });
 
     expect(load({})).toEqual({
@@ -52,6 +53,7 @@ describe("load data", () => {
           isVisible: true,
         },
       ],
+      uniqueFigureIds: true,
     });
   });
 
@@ -83,6 +85,7 @@ describe("load data", () => {
           isVisible: true,
         },
       ],
+      uniqueFigureIds: true,
     });
   });
 
@@ -114,6 +117,7 @@ describe("load data", () => {
           isVisible: true,
         },
       ],
+      uniqueFigureIds: true,
     });
   });
 
@@ -186,6 +190,7 @@ describe("load data", () => {
           isVisible: true,
         },
       ],
+      uniqueFigureIds: true,
     });
   });
 });
