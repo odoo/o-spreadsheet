@@ -1,16 +1,16 @@
 import { Component, useState } from "@odoo/owl";
 import {
   COLOR_PICKER_DEFAULTS,
-  ComponentsImportance,
   MENU_SEPARATOR_BORDER_WIDTH,
   MENU_SEPARATOR_PADDING,
   SEPARATOR_COLOR,
 } from "../../constants";
 import { hslaToRGBA, isColorValid, rgbaToHex } from "../../helpers";
 import { chartFontColor } from "../../helpers/figures/charts";
-import { Color, Pixel } from "../../types";
+import { Color, Pixel, Rect } from "../../types";
 import { SpreadsheetChildEnv } from "../../types/env";
 import { css, cssPropertiesToCss } from "../helpers/css";
+import { Popover, PopoverProps } from "../popover/popover";
 
 const PICKER_PADDING = 6;
 
@@ -31,9 +31,6 @@ const GRADIENT_HEIGHT = PICKER_WIDTH - 50;
 
 css/* scss */ `
   .o-color-picker {
-    position: absolute;
-    top: calc(100% + 5px);
-    z-index: ${ComponentsImportance.ColorPicker};
     padding: ${PICKER_PADDING}px 0px;
     box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
     background-color: white;
@@ -148,15 +145,6 @@ css/* scss */ `
         width: 100%;
       }
     }
-    &.right {
-      left: 0;
-    }
-    &.left {
-      right: 0;
-    }
-    &.center {
-      left: calc(50% - ${PICKER_WIDTH / 2}px);
-    }
   }
   .o-magnifier-glass {
     position: absolute;
@@ -179,8 +167,8 @@ function computeCustomColor(ev: MouseEvent) {
 }
 
 export interface ColorPickerProps {
+  anchorRect: Rect;
   maxHeight?: Pixel;
-  dropdownDirection?: "left" | "right" | "center";
   onColorPicked: (color: Color) => void;
   currentColor: Color;
 }
@@ -202,6 +190,7 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
   static defaultProps = {
     currentColor: "", //TODO Change it to false instead of empty string
   };
+  static components = { Popover };
   COLORS = COLOR_PICKER_DEFAULTS;
 
   private state: State = useState({
@@ -217,15 +206,20 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
   });
 
   get colorPickerStyle(): string {
-    if (this.props.maxHeight === undefined) return "";
-    if (this.props.maxHeight <= 0) {
+    if (this.props.maxHeight !== undefined && this.props.maxHeight <= 0) {
       return cssPropertiesToCss({ display: "none" });
     }
-    return cssPropertiesToCss({
-      "max-height": `${this.props.maxHeight}px`,
-    });
+    return "";
   }
 
+  get popoverProps(): PopoverProps {
+    return {
+      anchorRect: this.props.anchorRect,
+      maxHeight: this.props.maxHeight,
+      positioning: "BottomLeft",
+      verticalOffset: 0,
+    };
+  }
   onColorClick(color: Color) {
     if (color) {
       this.props.onColorPicked(color);
@@ -286,8 +280,8 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
 }
 
 ColorPicker.props = {
-  dropdownDirection: { type: String, optional: true },
   onColorPicked: Function,
   currentColor: { type: String, optional: true },
   maxHeight: { type: Number, optional: true },
+  anchorRect: Object,
 };

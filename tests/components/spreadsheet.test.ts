@@ -162,14 +162,11 @@ describe("Simple Spreadsheet Component", () => {
     const dropDownZIndex = getZIndex(".o-dropdown-content");
 
     await rightClickCell(model, "A1");
-    const contextMenuZIndex = getZIndex(".o-popover");
+    const popoverZIndex = getZIndex(".o-popover");
 
     await typeInComposerGrid("=A1:B2");
     const gridComposerZIndex = getZIndex("div.o-grid-composer");
     const highlighZIndex = getZIndex(".o-highlight");
-
-    await click(fixture.querySelectorAll(".o-color-picker-widget .o-color-picker-button")[0]);
-    const colorPickerZIndex = getZIndex("div.o-color-picker");
 
     createChart(model, {}, "thisIsAnId");
     model.dispatch("SELECT_FIGURE", { id: "thisIsAnId" });
@@ -184,9 +181,8 @@ describe("Simple Spreadsheet Component", () => {
     expect(hScrollbarZIndex).toEqual(scrollbarCornerZIndex);
     expect(scrollbarCornerZIndex).toBeLessThan(dropDownZIndex);
     expect(dropDownZIndex).toBeLessThan(gridComposerZIndex);
-    expect(gridComposerZIndex).toBeLessThan(colorPickerZIndex);
-    expect(colorPickerZIndex).toBeLessThan(contextMenuZIndex);
-    expect(contextMenuZIndex).toBeLessThan(figureAnchorZIndex);
+    expect(gridComposerZIndex).toBeLessThan(popoverZIndex);
+    expect(popoverZIndex).toBeLessThan(figureAnchorZIndex);
   });
 
   test("Keydown is ineffective in dashboard mode", async () => {

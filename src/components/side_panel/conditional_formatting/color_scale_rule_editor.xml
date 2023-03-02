@@ -42,7 +42,6 @@
         showColorPicker="state.openedMenu === 'colorScale-'+thresholdType+'Color'"
         onColorPicked="(color) => this.setColorScaleColor(thresholdType, color)"
         title="env._t('Fill Color')"
-        dropdownDirection="'left'"
         icon="'o-spreadsheet-Icon.FILL_COLOR'"
         disabled="threshold === undefined"
       />

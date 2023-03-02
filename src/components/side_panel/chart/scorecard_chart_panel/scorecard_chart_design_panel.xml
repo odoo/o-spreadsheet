@@ -42,7 +42,6 @@
         toggleColorPicker="() => this.toggleColorPicker('baselineColorUp')"
         showColorPicker="state.openedColorPicker === 'baselineColorUp'"
         onColorPicked="(color) => this.setColor(color, 'baselineColorUp')"
-        dropdownDirection="'center'"
         title="env._t('Color Up')"
         icon="'o-spreadsheet-Icon.FILL_COLOR'"
       />
@@ -53,7 +52,6 @@
         toggleColorPicker="() => this.toggleColorPicker('baselineColorDown')"
         showColorPicker="state.openedColorPicker === 'baselineColorDown'"
         onColorPicked="(color) => this.setColor(color, 'baselineColorDown')"
-        dropdownDirection="'center'"
         title="env._t('Color Down')"
         icon="'o-spreadsheet-Icon.FILL_COLOR'"
       />

@@ -80,7 +80,6 @@
           onColorPicked="(color) => this.setColor('textColor', color)"
           title="env._t('Text Color')"
           icon="'o-spreadsheet-Icon.TEXT_COLOR'"
-          dropdownDirection="'center'"
           class="'o-tool'"
         />
         <div class="o-divider"/>
@@ -90,7 +89,6 @@
           showColorPicker="state.openedMenu === 'cellIsRule-fillColor'"
           onColorPicked="(color) => this.setColor('fillColor', color)"
           title="env._t('Fill Color')"
-          dropdownDirection="'center'"
           icon="'o-spreadsheet-Icon.FILL_COLOR'"
           class="'o-tool'"
         />
