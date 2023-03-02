@@ -91,7 +91,7 @@ export interface CoreGetters {
   getCellBorder: BordersPlugin["getCellBorder"];
 
   getChartDefinition: ChartPlugin["getChartDefinition"];
-  getChartDefinitionsBySheet: ChartPlugin["getChartDefinitionsBySheet"];
+  getChartsIdBySheet: ChartPlugin["getChartsIdBySheet"];
   getChartDefinitionUI: ChartPlugin["getChartDefinitionUI"];
 
   getRangeString: RangeAdapter["getRangeString"];

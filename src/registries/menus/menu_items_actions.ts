@@ -556,7 +556,7 @@ export const CREATE_CHART = (env: SpreadsheetEnv) => {
     },
   });
   const figure = env.getters.getFigure(sheetId, id);
-  env.openSidePanel("ChartPanel", { sheetId, figure });
+  env.openSidePanel("ChartPanel", { figure });
 };
 
 //------------------------------------------------------------------------------

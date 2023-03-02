@@ -75,10 +75,7 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
 
   mounted() {
     const figure = this.props.figure;
-    const chartData = this.env.getters.getChartRuntime(
-      this.env.getters.getActiveSheetId(),
-      figure.id
-    );
+    const chartData = this.env.getters.getChartRuntime(figure.id);
     if (chartData) {
       this.createChart(chartData);
     }
@@ -86,8 +83,7 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
 
   patched() {
     const figure = this.props.figure;
-    const sheetId = this.env.getters.getActiveSheetId();
-    const chartData = this.env.getters.getChartRuntime(sheetId, figure.id);
+    const chartData = this.env.getters.getChartRuntime(figure.id);
     if (chartData) {
       if (chartData.type !== this.chart!.config.type) {
         // Updating a chart type requires to update its options accordingly, if feasible at all.
@@ -110,7 +106,7 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
     } else {
       this.chart && this.chart.destroy();
     }
-    const def = this.env.getters.getChartDefinition(sheetId, figure.id);
+    const def = this.env.getters.getChartDefinition(figure.id);
     if (def) {
       this.state.background = def.background;
     }
@@ -120,10 +116,7 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
     const canvas = this.canvas.el as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
     this.chart = new window.Chart(ctx, chartData);
-    const def = this.env.getters.getChartDefinition(
-      this.env.getters.getActiveSheetId(),
-      this.props.figure.id
-    );
+    const def = this.env.getters.getChartDefinition(this.props.figure.id);
     if (def) {
       this.state.background = def.background;
     }
@@ -134,11 +127,7 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
     registry.add("edit", {
       name: _lt("Edit"),
       sequence: 1,
-      action: () =>
-        this.env.openSidePanel("ChartPanel", {
-          sheetId: this.env.getters.getActiveSheetId(),
-          figure: this.props.figure,
-        }),
+      action: () => this.env.openSidePanel("ChartPanel", { figure: this.props.figure }),
     });
     registry.add("delete", {
       name: _lt("Delete"),
@@ -149,10 +138,7 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
           id: this.props.figure.id,
         });
         if (this.props.sidePanelIsOpen) {
-          this.env.toggleSidePanel("ChartPanel", {
-            sheetId: this.env.getters.getActiveSheetId(),
-            figure: this.props.figure,
-          });
+          this.env.toggleSidePanel("ChartPanel", { figure: this.props.figure });
         }
         this.trigger("figure-deleted");
       },
@@ -162,7 +148,6 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
       sequence: 11,
       action: () => {
         this.env.dispatch("REFRESH_CHART", {
-          sheetId: this.env.getters.getActiveSheetId(),
           id: this.props.figure.id,
         });
       },
