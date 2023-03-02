@@ -12,11 +12,13 @@ import {
   Command,
   CommandResult,
   CoreCommand,
+  CreateChartCommand,
   ExcelWorkbookData,
   Figure,
   FigureData,
   Pixel,
   UID,
+  UpdateChartCommand,
   WorkbookData,
 } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
@@ -44,8 +46,8 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   readonly charts: Record<UID, AbstractChart | undefined> = {};
 
   private createChart = chartFactory(this.getters);
-  private validateChartDefinition = (definition: ChartDefinition) =>
-    validateChartDefinition(this, definition);
+  private validateChartDefinition = (cmd: CreateChartCommand | UpdateChartCommand) =>
+    validateChartDefinition(this, cmd.definition);
 
   adaptRanges(applyChange: ApplyRangeChange) {
     for (const [chartId, chart] of Object.entries(this.charts)) {
@@ -60,8 +62,15 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   allowDispatch(cmd: Command) {
     switch (cmd.type) {
       case "CREATE_CHART":
+        return this.checkValidations(
+          cmd,
+          this.chainValidations(this.validateChartDefinition, this.checkChartDuplicate)
+        );
       case "UPDATE_CHART":
-        return this.validateChartDefinition(cmd.definition);
+        return this.checkValidations(
+          cmd,
+          this.chainValidations(this.validateChartDefinition, this.checkChartExists)
+        );
       default:
         return CommandResult.Success;
     }
@@ -71,10 +80,10 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     switch (cmd.type) {
       case "CREATE_CHART":
         this.addFigure(cmd.id, cmd.sheetId, cmd.position, cmd.size);
-        this.addChart(cmd.id, cmd.sheetId, cmd.definition);
+        this.addChart(cmd.id, cmd.definition);
         break;
       case "UPDATE_CHART": {
-        this.addChart(cmd.id, cmd.sheetId, cmd.definition);
+        this.addChart(cmd.id, cmd.definition);
         break;
       }
       case "DUPLICATE_SHEET": {
@@ -170,10 +179,17 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       for (let sheet of data.sheets) {
         // TODO This code is false, if two plugins want ot insert figures on the sheet, it will crash !
         const sheetFigures = this.getters.getFigures(sheet.id);
-        const figures = sheetFigures as FigureData<any>[];
-        for (let figure of figures) {
+        const figures: FigureData<any>[] = [];
+        for (let sheetFigure of sheetFigures) {
+          const figure = sheetFigure as FigureData<any>;
           if (figure && figure.tag === "chart") {
-            figure.data = this.getChartDefinition(figure.id);
+            const data = this.charts[figure.id]?.getDefinition();
+            if (data) {
+              figure.data = data;
+              figures.push(figure);
+            }
+          } else {
+            figures.push(figure);
           }
         }
         sheet.figures = figures;
@@ -234,7 +250,22 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
    * Add a chart in the local state. If a chart already exists, this chart is
    * replaced
    */
-  private addChart(id: UID, sheetId: UID, definition: ChartDefinition) {
-    this.history.update("charts", id, this.createChart(id, definition, sheetId));
+  private addChart(id: UID, definition: ChartDefinition) {
+    const sheetId = this.getters.getFigureSheetId(id);
+    if (sheetId) {
+      this.history.update("charts", id, this.createChart(id, definition, sheetId));
+    }
+  }
+
+  private checkChartDuplicate(cmd: CreateChartCommand): CommandResult {
+    return this.getters.getFigureSheetId(cmd.id)
+      ? CommandResult.DuplicatedChartId
+      : CommandResult.Success;
+  }
+
+  private checkChartExists(cmd: UpdateChartCommand): CommandResult {
+    return this.getters.getFigureSheetId(cmd.id)
+      ? CommandResult.Success
+      : CommandResult.ChartDoesNotExist;
   }
 }

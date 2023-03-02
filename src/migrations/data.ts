@@ -4,7 +4,7 @@ import {
   FORBIDDEN_IN_EXCEL_REGEX,
   FORMULA_REF_IDENTIFIER,
 } from "../constants";
-import { getItemId, toXC, toZone } from "../helpers/index";
+import { getItemId, toXC, toZone, UuidGenerator } from "../helpers/index";
 import { StateUpdateMessage } from "../types/collaborative/transport_service";
 import {
   CoreCommand,
@@ -54,17 +54,7 @@ export function load(data?: any, verboseImport?: boolean): WorkbookData {
       data = migrate(data);
     }
   }
-
-  // sanity check: try to fix missing fields/corrupted state by providing
-  // sensible default values
-  data = Object.assign(createEmptyWorkbookData(), data, { version: CURRENT_VERSION });
-  data.sheets = data.sheets.map((s, i) =>
-    Object.assign(createEmptySheet(`Sheet${i + 1}`, `Sheet${i + 1}`), s)
-  );
-
-  if (data.sheets.length === 0) {
-    data.sheets.push(createEmptySheet(INITIAL_SHEET_ID, "Sheet1"));
-  }
+  data = repairData(data);
   return data;
 }
 
@@ -84,6 +74,7 @@ function migrate(data: any): WorkbookData {
   for (let i = index; i < MIGRATIONS.length; i++) {
     data = MIGRATIONS[i].applyMigration(data);
   }
+
   return data;
 }
 
@@ -317,6 +308,56 @@ const MIGRATIONS: Migration[] = [
 ];
 
 /**
+ * This function is used to repair faulty data independently of the migration.
+ */
+export function repairData(data: Partial<WorkbookData>): Partial<WorkbookData> {
+  data = forceUnicityOfFigure(data);
+  data = setDefaults(data);
+  return data;
+}
+
+/**
+ * Force the unicity of figure ids accross sheets
+ */
+function forceUnicityOfFigure(data: Partial<WorkbookData>): Partial<WorkbookData> {
+  if (data.uniqueFigureIds) {
+    return data;
+  }
+  const figureIds = new Set();
+  const uuidGenerator = new UuidGenerator();
+  for (const sheet of data.sheets || []) {
+    for (const figure of sheet.figures || []) {
+      if (figureIds.has(figure.id)) {
+        figure.id += uuidGenerator.uuidv4();
+      }
+      figureIds.add(figure.id);
+    }
+  }
+
+  data.uniqueFigureIds = true;
+  return data;
+}
+
+/**
+ * sanity check: try to fix missing fields/corrupted state by providing
+ * sensible default values
+ */
+function setDefaults(data: Partial<WorkbookData>): Partial<WorkbookData> {
+  data = Object.assign(createEmptyWorkbookData(), data, { version: CURRENT_VERSION });
+  data.sheets = data.sheets
+    ? data.sheets.map((s, i) =>
+        Object.assign(createEmptySheet(`Sheet${i + 1}`, `Sheet${i + 1}`), s)
+      )
+    : [];
+
+  if (data.sheets.length === 0) {
+    data.sheets.push(createEmptySheet(INITIAL_SHEET_ID, "Sheet1"));
+  }
+
+  return data;
+}
+
+/**
  * The goal of this function is to repair corrupted/wrong initial messages caused by
  * a bug.
  * The bug should obviously be fixed, but it's too late for existing spreadsheet.
@@ -460,6 +501,7 @@ export function createEmptyWorkbookData(sheetName = "Sheet1"): WorkbookData {
     formats: {},
     borders: {},
     revisionId: DEFAULT_REVISION_ID,
+    uniqueFigureIds: true,
   };
   return data;
 }
