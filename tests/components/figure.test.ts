@@ -556,11 +556,11 @@ describe("figures", () => {
         await simulateClick(".o-figure-menu-item");
         expect(fixture.querySelector(".o-menu")).not.toBeNull();
         await simulateClick(".o-menu div[data-name='delete']");
-        expect(() => getFigureDefinition(model, sheetId, figureId, type)).toThrow();
+        expect(() => model.getters.getImage(figureId)).toThrow();
       });
 
       test(`Can copy/paste a figure ${type} with its context menu`, async () => {
-        const figureDef = getFigureDefinition(model, sheetId, figureId, type);
+        const figureDef = getFigureDefinition(model, figureId, type);
         await simulateClick(".o-figure");
         await simulateClick(".o-figure-menu-item");
         await simulateClick(".o-menu div[data-name='copy']");
@@ -573,12 +573,12 @@ describe("figures", () => {
         paste(model, "A4");
         expect(getFigureIds(model, sheetId)).toHaveLength(2);
         const figureIds = getFigureIds(model, sheetId);
-        expect(getFigureDefinition(model, sheetId, figureIds[0], type)).toEqual(figureDef);
-        expect(getFigureDefinition(model, sheetId, figureIds[1], type)).toEqual(figureDef);
+        expect(getFigureDefinition(model, figureIds[0], type)).toEqual(figureDef);
+        expect(getFigureDefinition(model, figureIds[1], type)).toEqual(figureDef);
       });
 
       test(`Can cut/paste a figure ${type} with its context menu`, async () => {
-        const figureDef = getFigureDefinition(model, sheetId, figureId, type);
+        const figureDef = getFigureDefinition(model, figureId, type);
         await simulateClick(".o-figure");
         await simulateClick(".o-figure-menu-item");
         await simulateClick(".o-menu div[data-name='cut']");
@@ -591,7 +591,7 @@ describe("figures", () => {
         paste(model, "A1");
         expect(getFigureIds(model, sheetId)).toHaveLength(1);
         const figureIds = getFigureIds(model, sheetId);
-        expect(getFigureDefinition(model, sheetId, figureIds[0], type)).toEqual(figureDef);
+        expect(getFigureDefinition(model, figureIds[0], type)).toEqual(figureDef);
       });
 
       test(`Copied figure ${type} are selected`, async () => {
