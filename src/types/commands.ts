@@ -1031,7 +1031,6 @@ export const enum CommandResult {
   InvalidViewportSize,
   FigureDoesNotExist,
   DuplicatedFigureId,
-  DuplicatedChartId,
 }
 
 export interface CommandHandler<T> {
