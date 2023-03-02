@@ -900,24 +900,24 @@ export type CoreCommand =
   | HideColumnsRowsCommand
   | UnhideColumnsRowsCommand
   | SetGridLinesVisibilityCommand
-  | FreezeColumnsCommand
-  | FreezeRowsCommand
-  | UnfreezeColumnsRowsCommand
-  | UnfreezeColumnsCommand
-  | UnfreezeRowsCommand
+  | FreezeColumnsCommand // <-
+  | FreezeRowsCommand // <-
+  | UnfreezeColumnsRowsCommand // <-
+  | UnfreezeColumnsCommand // <-
+  | UnfreezeRowsCommand // <-
 
   /** MERGE */
   | AddMergeCommand
   | RemoveMergeCommand
 
   /** SHEETS MANIPULATION */
-  | CreateSheetCommand
+  | CreateSheetCommand // <-
   | DeleteSheetCommand
-  | DuplicateSheetCommand
-  | MoveSheetCommand
-  | RenameSheetCommand
-  | HideSheetCommand
-  | ShowSheetCommand
+  | DuplicateSheetCommand // <-
+  | MoveSheetCommand // <-
+  | RenameSheetCommand // <- Even worst, it should allow sub UPDATE_CELL
+  | HideSheetCommand // <-
+  | ShowSheetCommand // <-
 
   /** RANGES MANIPULATION */
   | MoveRangeCommand
@@ -928,9 +928,9 @@ export type CoreCommand =
   | MoveConditionalFormatCommand
 
   /** FIGURES */
-  | CreateFigureCommand
-  | DeleteFigureCommand
-  | UpdateFigureCommand
+  | CreateFigureCommand // <-
+  | DeleteFigureCommand // <-
+  | UpdateFigureCommand // <-
 
   /** FORMATTING */
   | SetFormattingCommand
@@ -938,8 +938,8 @@ export type CoreCommand =
   | SetBorderCommand
 
   /** CHART */
-  | CreateChartCommand
-  | UpdateChartCommand
+  | CreateChartCommand // <-
+  | UpdateChartCommand // <-
 
   /** Image */
   | CreateImageOverCommand
@@ -949,61 +949,61 @@ export type CoreCommand =
   | RemoveFilterTableCommand;
 
 export type LocalCommand =
-  | RequestUndoCommand
-  | RequestRedoCommand
-  | UndoCommand
-  | RedoCommand
-  | NewInputCommand
-  | RemoveInputCommand
-  | UnfocusInputCommand
-  | FocusInputCommand
-  | AddEmptyRangeCommand
-  | RemoveRangeCommand
-  | ChangeRangeCommand
-  | CopyCommand
+  | RequestUndoCommand // <-
+  | RequestRedoCommand // <-
+  | UndoCommand // <-
+  | RedoCommand // <-
+  | NewInputCommand // <-
+  | RemoveInputCommand // <-
+  | UnfocusInputCommand // <-
+  | FocusInputCommand // <-
+  | AddEmptyRangeCommand // <-
+  | RemoveRangeCommand // <-
+  | ChangeRangeCommand // <-
+  | CopyCommand // <-
   | CutCommand
   | PasteCommand
-  | CleanClipBoardHighlightCommand
+  | CleanClipBoardHighlightCommand // <-
   | AutoFillCellCommand
   | PasteFromOSClipboardCommand
-  | ActivatePaintFormatCommand
+  | ActivatePaintFormatCommand // <-
   | PasteCFCommand
   | AutoresizeColumnsCommand
   | AutoresizeRowsCommand
   | MoveColumnsRowsCommand
-  | ActivateSheetCommand
-  | PrepareExpansionCommand
-  | StopSelectionCommand
-  | EvaluateCellsCommand
-  | ChangeHighlightCommand
-  | StartChangeHighlightCommand
-  | SetColorCommand
-  | StopComposerSelectionCommand
-  | StartEditionCommand
+  | ActivateSheetCommand // <-
+  | PrepareExpansionCommand // <-
+  | StopSelectionCommand // <-
+  | EvaluateCellsCommand // <-
+  | ChangeHighlightCommand // <-
+  | StartChangeHighlightCommand // <-
+  | SetColorCommand // <-
+  | StopComposerSelectionCommand // <-
+  | StartEditionCommand // <-
   | StopEditionCommand
-  | SetCurrentContentCommand
-  | ChangeComposerSelectionCommand
-  | ReplaceComposerSelectionCommand
-  | CycleEditionReferencesCommand
-  | StartCommand
+  | SetCurrentContentCommand // <-
+  | ChangeComposerSelectionCommand // <-
+  | ReplaceComposerSelectionCommand // <-
+  | CycleEditionReferencesCommand // <-
+  | StartCommand // <-
   | AutofillCommand
-  | AutofillSelectCommand
-  | ShowFormulaCommand
+  | AutofillSelectCommand // <-
+  | ShowFormulaCommand // <-
   | AutofillAutoCommand
-  | SelectFigureCommand
-  | UpdateSearchCommand
-  | RefreshSearchCommand
-  | ClearSearchCommand
-  | SelectSearchPreviousCommand
-  | SelectSearchNextCommand
+  | SelectFigureCommand // <-
+  | UpdateSearchCommand // <-
+  | RefreshSearchCommand // <-
+  | ClearSearchCommand // <-
+  | SelectSearchPreviousCommand // <-
+  | SelectSearchNextCommand // <-
   | ReplaceSearchCommand
   | ReplaceAllSearchCommand
-  | SortCommand
-  | SetDecimalCommand
+  | SortCommand // <-
+  | SetDecimalCommand // <-
   | ResizeViewportCommand
   | SumSelectionCommand
-  | DeleteCellCommand
-  | InsertCellCommand
+  | DeleteCellCommand // <-
+  | InsertCellCommand // <-
   | SetViewportOffsetCommand
   | MoveViewportDownCommand
   | MoveViewportUpCommand

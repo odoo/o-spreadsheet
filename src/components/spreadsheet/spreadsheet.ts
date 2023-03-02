@@ -199,6 +199,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     onPatched(() => {
       this.checkViewportSize();
     });
+    this.openSidePanel("ProtectRangesEditor", {});
   }
 
   get focusTopBarComposer(): Omit<ComposerFocusType, "cellFocus"> {
