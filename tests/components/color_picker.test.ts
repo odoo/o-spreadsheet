@@ -1,6 +1,8 @@
+import { Component, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { ColorPicker, ColorPickerProps } from "../../src/components/color_picker/color_picker";
 import { toHex } from "../../src/helpers";
+import { SpreadsheetChildEnv } from "../../src/types";
 import { setStyle } from "../test_helpers/commands_helpers";
 import {
   getElComputedStyle,
@@ -8,47 +10,37 @@ import {
   simulateClick,
 } from "../test_helpers/dom_helper";
 import { mountComponent, nextTick } from "../test_helpers/helpers";
+import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
+
+mockGetBoundingClientRect({
+  "o-spreadsheet": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
+});
 
 let fixture: HTMLElement;
 
+class ColorPickerTestParent extends Component<ColorPickerProps, SpreadsheetChildEnv> {
+  static template = xml/* xml */ `
+    <div class="o-spreadsheet">
+      <ColorPicker t-props="props"/>
+    </div>
+  `;
+  static components = { ColorPicker };
+}
+
 async function mountColorPicker(partialProps: Partial<ColorPickerProps> = {}, model = new Model()) {
   const props = {
-    dropdownDirection: partialProps.dropdownDirection,
     onColorPicked: partialProps.onColorPicked || (() => {}),
     currentColor: partialProps.currentColor || "#000000",
     maxHeight: partialProps.maxHeight !== undefined ? partialProps.maxHeight : 1000,
+    anchorRect: partialProps.anchorRect || { x: 0, y: 0, width: 0, height: 0 },
   };
-  ({ fixture } = await mountComponent(ColorPicker, { model, props }));
+  ({ fixture } = await mountComponent(ColorPickerTestParent, { model, props }));
 }
 
-describe("Color Picker position tests", () => {
-  test("Color picker is correctly positioned right without props given", async () => {
-    await mountColorPicker();
-    expect(fixture.querySelector(".o-color-picker")?.classList).toContain("right");
-    expect(fixture.querySelector(".o-color-picker")?.classList).not.toContain("left");
-    expect(fixture.querySelector(".o-color-picker")?.classList).not.toContain("center");
-  });
-
-  test("Color picker is correctly positioned right", async () => {
-    await mountColorPicker({ dropdownDirection: "right" });
-    expect(fixture.querySelector(".o-color-picker")?.classList).toContain("right");
-    expect(fixture.querySelector(".o-color-picker")?.classList).not.toContain("left");
-    expect(fixture.querySelector(".o-color-picker")?.classList).not.toContain("center");
-  });
-
-  test("Color picker is correctly positioned left", async () => {
-    await mountColorPicker({ dropdownDirection: "left" });
-    expect(fixture.querySelector(".o-color-picker")?.classList).toContain("left");
-    expect(fixture.querySelector(".o-color-picker")?.classList).not.toContain("right");
-    expect(fixture.querySelector(".o-color-picker")?.classList).not.toContain("center");
-  });
-
-  test("Color picker is correctly centered", async () => {
-    await mountColorPicker({ dropdownDirection: "center" });
-    expect(fixture.querySelector(".o-color-picker")?.classList).toContain("center");
-    expect(fixture.querySelector(".o-color-picker")?.classList).not.toContain("right");
-    expect(fixture.querySelector(".o-color-picker")?.classList).not.toContain("left");
-  });
+test("Color picker is correctly positioned", async () => {
+  await mountColorPicker({ anchorRect: { x: 100, y: 100, width: 50, height: 50 } });
+  expect(getElComputedStyle(".o-popover", "left")).toEqual("100px");
+  expect(getElComputedStyle(".o-popover", "top")).toEqual("150px");
 });
 
 describe("Color Picker buttons", () => {

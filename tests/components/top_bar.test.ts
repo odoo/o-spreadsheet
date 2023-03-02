@@ -33,6 +33,7 @@ import {
   toRangesData,
   typeInComposerTopBar,
 } from "../test_helpers/helpers";
+import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 import { FileStore } from "../__mocks__/mock_file_store";
 
 jest.mock("../../src/components/composer/content_editable_helper", () =>
@@ -42,6 +43,11 @@ jest.mock("../../src/helpers/figures/images/image_provider", () =>
   require("./__mocks__/mock_image_provider")
 );
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
+
+mockGetBoundingClientRect({
+  "o-spreadsheet": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
+  "o-popover": () => ({ width: 50, height: 50 }),
+});
 
 let fixture: HTMLElement;
 
@@ -836,13 +842,13 @@ describe("Topbar - menu item resizing with viewport", () => {
     await mountParent(model);
     triggerMouseEvent('.o-tool[title="Fill Color"]', "click");
     await nextTick();
-    let height = getElComputedStyle(".o-color-picker.right", "maxHeight");
+    let height = getElComputedStyle(".o-popover", "maxHeight");
     expect(parseInt(height)).toBe(
       model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
     );
     model.dispatch("RESIZE_SHEETVIEW", { width: 300, height: 100 });
     await nextTick();
-    height = getElComputedStyle(".o-color-picker.right", "maxHeight");
+    height = getElComputedStyle(".o-popover", "maxHeight");
     expect(parseInt(height)).toBe(
       model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
     );
@@ -853,13 +859,13 @@ describe("Topbar - menu item resizing with viewport", () => {
     await mountParent(model);
     triggerMouseEvent('.o-tool[title="Text Color"]', "click");
     await nextTick();
-    let height = getElComputedStyle(".o-color-picker.right", "maxHeight");
+    let height = getElComputedStyle(".o-popover", "maxHeight");
     expect(parseInt(height)).toBe(
       model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
     );
     model.dispatch("RESIZE_SHEETVIEW", { width: 300, height: 100 });
     await nextTick();
-    height = getElComputedStyle(".o-color-picker.right", "maxHeight");
+    height = getElComputedStyle(".o-popover", "maxHeight");
     expect(parseInt(height)).toBe(
       model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
     );

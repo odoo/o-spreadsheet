@@ -3,6 +3,7 @@
     <div class="o-color-picker-widget">
       <div
         class="o-color-picker-button"
+        t-ref="colorPickerButton"
         t-on-click.stop="props.toggleColorPicker"
         t-att-title="props.title"
         t-att-class="props.class ? props.class : 'o-color-picker-button-style'"
@@ -13,9 +14,9 @@
       </div>
       <ColorPicker
         t-if="props.showColorPicker"
+        anchorRect="colorPickerAnchorRect"
         onColorPicked="props.onColorPicked"
         currentColor="props.currentColor"
-        dropdownDirection="props.dropdownDirection"
         maxHeight="props.dropdownMaxHeight"
       />
     </div>
