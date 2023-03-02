@@ -443,6 +443,59 @@ describe("Export", () => {
     const exp = model.exportData();
     expect(exp.sheets![0].cells!.A1!.format).toBe("0.00%");
   });
+
+  test("chart figures without a definition are not exported", () => {
+    const model = new Model({
+      sheets: [
+        {
+          id: "someuuid",
+          figures: [
+            {
+              id: "otheruuid",
+              x: 100,
+              y: 100,
+              width: 100,
+              height: 100,
+              tag: "chart",
+              data: {
+                type: "line",
+                title: "demo chart",
+                labelRange: "My sheet!A27:A35",
+                dataSets: [
+                  { labelCell: "My sheet!B26", dataRange: "My sheet!B27:B35" },
+                  { labelCell: "My sheet!C26", dataRange: "My sheet!C27:C35" },
+                ],
+              },
+            },
+            {
+              id: "id2",
+              x: 100,
+              y: 100,
+              width: 100,
+              height: 100,
+            },
+          ],
+        },
+      ],
+    });
+    model.dispatch("DELETE_FIGURE", { id: "otheruuid", sheetId: "someuuid" });
+    expect(model.exportData()).toMatchObject({
+      sheets: [
+        {
+          id: "someuuid",
+          figures: [
+            {
+              id: "id2",
+              x: 100,
+              y: 100,
+              width: 100,
+              height: 100,
+            },
+          ],
+        },
+      ],
+    });
+  });
 });
 
 test("complete import, then export", () => {
@@ -502,6 +555,7 @@ test("complete import, then export", () => {
         top: ["thin", "#000"] as BorderDescr,
       },
     },
+    uniqueFigureIds: true,
   };
   const model = new Model(modelData);
   expect(model).toExport(modelData);
@@ -567,6 +621,7 @@ test("import then export (figures)", () => {
     entities: {},
     styles: {},
     borders: {},
+    uniqueFigureIds: true,
   };
   const model = new Model(modelData);
   expect(model).toExport(modelData);

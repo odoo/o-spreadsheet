@@ -466,13 +466,13 @@ describe("figures", () => {
     await nextTick();
     await simulateClick(".o-data-series .o-selection-ok");
     const sheetId = model.getters.getActiveSheetId();
-    expect(model.getters.getChartDefinitionUI(sheetId, chartId).dataSets).toEqual([
+    expect(model.getters.getChartDefinitionUI(sheetId, chartId)!.dataSets).toEqual([
       "B1:B4",
       "C1:C4",
     ]);
     const remove = document.querySelectorAll(".o-data-series .o-remove-selection")[1];
     await simulateClick(remove);
-    expect(model.getters.getChartDefinitionUI(sheetId, chartId).dataSets).toEqual(["B1:B4"]);
+    expect(model.getters.getChartDefinitionUI(sheetId, chartId)!.dataSets).toEqual(["B1:B4"]);
   });
 });
 describe("charts with multiple sheets", () => {

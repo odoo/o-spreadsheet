@@ -14,7 +14,7 @@ interface FigureState {
 }
 
 export class FigurePlugin extends CorePlugin<FigureState> implements FigureState {
-  static getters = ["getFigures", "getFigure"];
+  static getters = ["getFigures", "getFigure", "getFigureSheetId"];
   readonly figures: {
     [sheet: string]: Record<UID, Figure | undefined> | undefined;
   } = {};
@@ -114,6 +114,12 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
 
   getFigure(sheetId: string, figureId: string): Figure | undefined {
     return this.figures[sheetId]?.[figureId];
+  }
+
+  getFigureSheetId(figureId: string): UID | undefined {
+    return Object.keys(this.figures).find(
+      (sheetId) => this.figures[sheetId]?.[figureId] !== undefined
+    );
   }
 
   // ---------------------------------------------------------------------------

@@ -87,6 +87,7 @@ export interface CoreGetters {
 
   getFigures: FigurePlugin["getFigures"];
   getFigure: FigurePlugin["getFigure"];
+  getFigureSheetId: FigurePlugin["getFigureSheetId"];
 
   getCellBorder: BordersPlugin["getCellBorder"];
 
