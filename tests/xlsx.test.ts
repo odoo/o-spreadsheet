@@ -726,7 +726,7 @@ describe("Test XLSX export", () => {
           labelRange: "Sheet1!A2:A4",
           type: "bar",
         },
-        "2"
+        "1"
       );
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
