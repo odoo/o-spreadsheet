@@ -5,7 +5,6 @@ import { SelectionInput } from "../../../selection_input/selection_input";
 import { ChartTerms } from "../../../translations_terms";
 
 interface Props {
-  sheetId: UID;
   figureId: UID;
   definition: GaugeChartDefinition;
   updateChart: (definition: Partial<GaugeChartDefinition>) => DispatchResult;
@@ -50,7 +49,6 @@ export class GaugeChartConfigPanel extends Component<Props, SpreadsheetChildEnv>
 }
 
 GaugeChartConfigPanel.props = {
-  sheetId: String,
   figureId: String,
   definition: Object,
   updateChart: Function,

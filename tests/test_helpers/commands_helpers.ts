@@ -222,7 +222,7 @@ export function updateChart(
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
   const def: ChartDefinition = {
-    ...model.getters.getChartDefinition(sheetId, chartId),
+    ...model.getters.getChartDefinition(chartId),
     ...definition,
   } as ChartDefinition;
   return model.dispatch("UPDATE_CHART", {

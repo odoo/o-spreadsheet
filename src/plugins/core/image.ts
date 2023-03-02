@@ -18,7 +18,7 @@ interface ImageState {
 }
 
 export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
-  static getters = ["getImage"] as const;
+  static getters = ["getImage", "getImagePath", "getImageSize"] as const;
   readonly fileStore?: FileStore;
   readonly images: Record<UID, Record<UID, Image | undefined> | undefined> = {};
   /**
@@ -60,7 +60,7 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
           if (fig.tag === "image") {
             const figureIdBase = fig.id.split(FIGURE_ID_SPLITTER).pop();
             const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
-            const image = this.getImage(cmd.sheetId, fig.id);
+            const image = this.getImage(fig.id);
             if (image) {
               const size = { width: fig.width, height: fig.height };
               this.dispatch("CREATE_IMAGE", {
@@ -100,12 +100,21 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getImage(sheetId: UID, figureId: UID): Image {
-    const image = this.images[sheetId]?.[figureId];
-    if (!image) {
-      throw new Error(`There is no image with the given figureId: ${figureId}`);
+  getImage(figureId: UID): Image {
+    for (const sheet of Object.values(this.images)) {
+      if (sheet && sheet[figureId]) {
+        return sheet[figureId]!;
+      }
     }
-    return image;
+    throw new Error(`There is no image with the given figureId: ${figureId}`);
+  }
+
+  getImagePath(figureId: UID): string {
+    return this.getImage(figureId).path;
+  }
+
+  getImageSize(figureId: UID): FigureSize {
+    return this.getImage(figureId).size;
   }
 
   // ---------------------------------------------------------------------------
