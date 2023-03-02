@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-BottomBarSheet" owl="1">
     <Ripple>
       <div
-        class="o-sheet position-relative d-flex align-items-center user-select-none text-nowrap "
+        class="o-sheet d-flex align-items-center user-select-none text-nowrap "
         t-on-mousedown="(ev) => this.onMouseDown(ev)"
         t-on-contextmenu.prevent="(ev) => this.onContextMenu(ev)"
         t-ref="sheetDiv"
@@ -21,9 +21,7 @@
           t-on-keydown="(ev) => this.onKeyDown(ev)"
           t-att-contenteditable="state.isEditing.toString()"
         />
-        <span
-          class="o-sheet-icon position-relative ms-1"
-          t-on-click.stop="(ev) => this.onIconClick(ev)">
+        <span class="o-sheet-icon ms-1" t-on-click.stop="(ev) => this.onIconClick(ev)">
           <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
         </span>
       </div>
