@@ -47,8 +47,8 @@ interface Props {
 
 interface State {
   panel: "configuration" | "design";
-  sheetId: UID;
   figureId: UID;
+  sheetId: UID;
 }
 
 export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
@@ -85,7 +85,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
       } else {
         this.shouldUpdateChart = true;
       }
-      if (!this.env.model.getters.isChartDefined(this.sheetId, this.figureId)) {
+      if (!this.env.model.getters.isChartDefined(this.figureId)) {
         this.props.onCloseSidePanel();
         return;
       }
@@ -108,7 +108,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onTypeChange(type: ChartType) {
-    const context = this.env.model.getters.getContextCreationChart(this.sheetId, this.figureId);
+    const context = this.env.model.getters.getContextCreationChart(this.figureId);
     if (!context) {
       throw new Error("Chart not defined.");
     }
@@ -121,7 +121,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get chartPanel(): ChartSidePanel {
-    const type = this.env.model.getters.getChartType(this.sheetId, this.figureId);
+    const type = this.env.model.getters.getChartType(this.figureId);
     if (!type) {
       throw new Error("Chart not defined.");
     }
@@ -132,8 +132,8 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
     return chartPanel;
   }
 
-  private getChartDefinition(): ChartDefinition {
-    return this.env.model.getters.getChartDefinition(this.sheetId, this.figureId);
+  private getChartDefinition(figureId: UID = this.figureId): ChartDefinition {
+    return this.env.model.getters.getChartDefinition(figureId);
   }
 
   get chartTypes() {

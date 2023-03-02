@@ -9,11 +9,12 @@ describe("image plugin", function () {
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
     const definition = {
+      sheetId,
       path: "image path",
       size: { width: 100, height: 100 },
     };
     createImage(model, { figureId: imageId, definition: definition });
-    expect(model.getters.getImage(sheetId, imageId)).toEqual(definition);
+    expect(model.getters.getImage(imageId)).toEqual(definition);
   });
 
   test("delete image", () => {
@@ -31,6 +32,7 @@ describe("image plugin", function () {
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
     const definition = {
+      sheetId,
       path: "image path",
       size: { width: 100, height: 100 },
     };
@@ -41,7 +43,7 @@ describe("image plugin", function () {
     const images = getFigureIds(model, sheetId);
     expect(images).toHaveLength(2);
     for (const nextImageId of images) {
-      expect(model.getters.getImage(sheetId, nextImageId)).toEqual(definition);
+      expect(model.getters.getImage(nextImageId)).toEqual(definition);
     }
   });
 
@@ -50,6 +52,7 @@ describe("image plugin", function () {
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
     const definition = {
+      sheetId,
       path: "image path",
       size: { width: 100, height: 100 },
     };
@@ -59,7 +62,7 @@ describe("image plugin", function () {
     paste(model, "D4");
     const images = getFigureIds(model, sheetId);
     expect(images).toHaveLength(1);
-    const image = model.getters.getImage(sheetId, images[0]);
+    const image = model.getters.getImage(images[0]);
     expect(image).toEqual(definition);
   });
 });
@@ -72,10 +75,10 @@ describe("test image in sheet", function () {
     createImage(model, { sheetId: sheetId, figureId: imageId });
     const newSheetId = "Sheet2";
     model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: newSheetId });
-    const original = model.getters.getImage(sheetId, imageId);
+    const original = model.getters.getImage(imageId);
     const newImages = getFigureIds(model, newSheetId);
     expect(newImages).toHaveLength(1);
-    const copy = model.getters.getImage(newSheetId, newImages[0]);
+    const copy = model.getters.getImage(newImages[0]);
     expect(copy).not.toBe(original);
   });
 
@@ -118,9 +121,9 @@ describe("test image in sheet", function () {
     expect(figuresSh2[0].id).toEqual(secondSheetId + FIGURE_ID_SPLITTER + "myImage");
     expect(figuresSh3[0].id).toEqual(thirdSheetId + FIGURE_ID_SPLITTER + "myImage");
 
-    const imageSh1 = newModel.getters.getImage(firstSheetId, figuresSh1[0].id);
-    const imageSh2 = newModel.getters.getImage(secondSheetId, figuresSh2[0].id);
-    const imageSh3 = newModel.getters.getImage(thirdSheetId, figuresSh3[0].id);
+    const imageSh1 = newModel.getters.getImage(figuresSh1[0].id);
+    const imageSh2 = newModel.getters.getImage(figuresSh2[0].id);
+    const imageSh3 = newModel.getters.getImage(figuresSh3[0].id);
 
     expect(imageSh1).not.toBe(imageSh2);
     expect(imageSh2).not.toBe(imageSh3);
@@ -144,7 +147,7 @@ describe("test image import & export", function () {
         width: 380,
         x: 0,
         y: 0,
-        data: model.getters.getImage("Sheet1", imageId),
+        data: model.getters.getImage(imageId),
       },
     ]);
   });
@@ -155,9 +158,7 @@ describe("test image import & export", function () {
     createImage(model, { sheetId, figureId: imageId });
     const importedData = model.exportData();
     const newModel = new Model(importedData);
-    expect(newModel.getters.getImage(sheetId, imageId)).toEqual(
-      model.getters.getImage(sheetId, imageId)
-    );
+    expect(newModel.getters.getImage(imageId)).toEqual(model.getters.getImage(imageId));
     expect(newModel.getters.getFigure(sheetId, imageId)).toEqual(
       model.getters.getFigure(sheetId, imageId)
     );

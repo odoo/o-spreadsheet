@@ -140,9 +140,7 @@ export class CustomColorsPlugin extends UIPlugin {
   }
 
   private getChartColors(sheetId: UID): Color[] {
-    const charts = this.getters
-      .getChartIds(sheetId)
-      .map((cid) => this.getters.getChart(sheetId, cid));
+    const charts = this.getters.getChartIds(sheetId).map((cid) => this.getters.getChart(cid));
     let chartsColors = new Set<Color>();
     for (let chart of charts) {
       if (chart === undefined) {
