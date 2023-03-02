@@ -7,16 +7,14 @@
       t-on-contextmenu.prevent="">
       <Ripple>
         <div
-          class="o-sheet-item o-add-sheet position-relative me-2 p-1"
+          class="o-sheet-item o-add-sheet me-2 p-1"
           t-att-class="{'disabled': env.model.getters.isReadonly()}"
           t-on-click="clickAddSheet">
           <t t-call="o-spreadsheet-Icon.PLUS"/>
         </div>
       </Ripple>
       <Ripple>
-        <div
-          class="o-sheet-item o-list-sheets position-relative me-2 p-1"
-          t-on-click="clickListSheets">
+        <div class="o-sheet-item o-list-sheets me-2 p-1" t-on-click="clickListSheets">
           <t t-call="o-spreadsheet-Icon.LIST"/>
         </div>
       </Ripple>

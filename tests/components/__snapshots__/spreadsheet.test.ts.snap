@@ -619,9 +619,11 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
       >
         
       </div>
-      <div>
+      <div
+        class="position-relative"
+      >
         <div
-          class="o-sheet-item o-add-sheet position-relative me-2 p-1"
+          class="o-sheet-item o-add-sheet me-2 p-1"
         >
           <svg
             class="o-icon"
@@ -643,9 +645,11 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
       >
         
       </div>
-      <div>
+      <div
+        class="position-relative"
+      >
         <div
-          class="o-sheet-item o-list-sheets position-relative me-2 p-1"
+          class="o-sheet-item o-list-sheets me-2 p-1"
         >
           <svg
             class="o-icon"
@@ -689,9 +693,11 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           >
             
           </div>
-          <div>
+          <div
+            class="position-relative"
+          >
             <div
-              class="o-sheet position-relative d-flex align-items-center user-select-none text-nowrap active"
+              class="o-sheet d-flex align-items-center user-select-none text-nowrap active"
               data-id="sh1"
               style=""
               title="Sheet1"
@@ -703,7 +709,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 Sheet1
               </span>
               <span
-                class="o-sheet-icon position-relative ms-1"
+                class="o-sheet-icon ms-1"
               >
                 <svg
                   class="o-icon"

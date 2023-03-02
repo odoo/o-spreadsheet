@@ -9,7 +9,7 @@
           <RippleEffect t-props="getRippleEffectProps(ripple.id)"/>
         </t>
       </div>
-      <div t-ref="childContainer">
+      <div class="position-relative" t-ref="childContainer">
         <t t-slot="default"/>
       </div>
     </div>
