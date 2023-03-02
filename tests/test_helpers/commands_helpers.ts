@@ -449,6 +449,17 @@ export function deleteCells(model: Model, range: string, shift: "left" | "up"): 
   });
 }
 
+export function deleteContent(
+  model: Model,
+  ranges: string[],
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  return model.dispatch("DELETE_CONTENT", {
+    sheetId,
+    target: ranges.map(toZone),
+  });
+}
+
 export function insertCells(model: Model, range: string, shift: "right" | "down"): DispatchResult {
   return model.dispatch("INSERT_CELL", {
     zone: toZone(range),

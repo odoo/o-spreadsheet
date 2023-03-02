@@ -35,8 +35,8 @@ import {
   HeaderIndex,
   invalidateDependenciesEvaluationCommands,
   isMatrix,
+  Matrix,
   MatrixArg,
-  MatrixValue,
   PrimitiveArg,
   Range,
   ReferenceDenormalizer,
@@ -97,7 +97,8 @@ export class EvaluationPlugin extends UIPlugin {
           const position = { sheetId: cmd.sheetId, col: cmd.col, row: cmd.row };
           const targetedXC = this.cellPositionToXc(position);
           this.updateFormulaDependencies(targetedXC, false);
-          this.findCellsToCompute(targetedXC, true);
+          this.currentXcsToUpdate.add(targetedXC);
+          this.findCellsToCompute(targetedXC, false);
 
           // in case we write on a spread dependency :
           //   we need to update the formula corresponding to the spread
@@ -381,7 +382,7 @@ export class EvaluationPlugin extends UIPlugin {
 
     const computeFormulaCell = (cellData: FormulaCell): EvaluatedCell => {
       const mapSpreadPositionInMatrix = (
-        matrix: MatrixValue,
+        matrix: Matrix<CellValue>,
         callback: (i: number, j: number) => void
       ) => {
         for (let i = 0; i < matrix.length; ++i) {
@@ -412,12 +413,14 @@ export class EvaluationPlugin extends UIPlugin {
       };
 
       const spreadValues = (i: number, j: number) => {
+        const position = { sheetId, col: i + col, row: j + row };
+        const cell = this.getters.getCell(position);
+        const format = cell?.format;
         const evaluatedCell = createEvaluatedCell(
           computedValue![i][j],
-          cellData.format || computedFormat
+          format || formatFromPosition(i, j)
         );
 
-        const position = { sheetId, col: i + col, row: j + row };
         const xc = this.cellPositionToXc(position);
 
         // update evaluatedCells
@@ -435,26 +438,53 @@ export class EvaluationPlugin extends UIPlugin {
         const position = compilationParameters[2].getters.getCellPosition(cellId);
         return toXC(position.col, position.row);
       };
-      let { value: computedValue, format: computedFormat } = cellData.compiledFormula.execute(
+      const { value: computedValue, format: computedFormat } = cellData.compiledFormula.execute(
         cellData.dependencies,
         ...compilationParameters
       );
 
-      if (computedValue === null) {
+      if (!isMatrix(computedValue)) {
+        if (isMatrix(computedFormat)) {
+          throw "A format matrix should never be associated with a scalar value";
+        }
         return createEvaluatedCell(computedValue, cellData.format || computedFormat);
       }
 
-      if (!isMatrix(computedValue)) {
-        computedValue = [[computedValue]];
+      let formatFromPosition: (i: number, j: number) => string | undefined;
+
+      if (isMatrix(computedFormat)) {
+        formatFromPosition = (i, j) => computedFormat[i][j];
+        const sameDimensions =
+          computedValue.length === computedFormat.length &&
+          computedValue[0].length === computedFormat[0].length;
+        if (!sameDimensions) {
+          throw "Formats and values should have the same dimensions !!!";
+        }
+      } else {
+        formatFromPosition = (i, j) => computedFormat;
       }
 
       const { sheetId, col, row } = this.getters.getCellPosition(cellId);
       const parentXC = this.cellPositionToXc({ sheetId, col, row });
 
+      const numberOfCols = this.getters.getNumberCols(sheetId);
+      const numberOfRows = this.getters.getNumberRows(sheetId);
+      const enoughCols = col + computedValue.length <= numberOfCols;
+      const enoughRows = row + computedValue[0].length <= numberOfRows;
+      if (!enoughCols || !enoughRows) {
+        if (enoughCols) {
+          throw "Result couldn't be automatically expanded. Please insert more rows.";
+        }
+        if (enoughRows) {
+          throw "Result couldn't be automatically expanded. Please insert more columns.";
+        }
+        throw "Result couldn't be automatically expanded. Please insert more columns and rows.";
+      }
+
       mapSpreadPositionInMatrix(computedValue, updateSpreadCandidates);
       mapSpreadPositionInMatrix(computedValue, checkCollision);
       mapSpreadPositionInMatrix(computedValue, spreadValues);
-      return createEvaluatedCell(computedValue[0][0], cellData.format || computedFormat);
+      return createEvaluatedCell(computedValue[0][0], cellData.format || formatFromPosition(0, 0));
     };
 
     const compilationParameters = this.getCompilationParameters(computeCell);
@@ -539,22 +569,27 @@ export class EvaluationPlugin extends UIPlugin {
       // Performance issue: Avoid fetching data on positions that are out of the spreadsheet
       // e.g. A1:ZZZ9999 in a sheet with 10 cols and 10 rows should ignore everything past J10 and return a 10x10 array
       const sheetZone = getters.getSheetZone(sheetId);
-      const result: MatrixArg = [];
+      const result: MatrixArg = { value: [], format: [] };
 
       const zone = intersection(range.zone, sheetZone);
       if (!zone) {
-        result.push([]);
+        result.value.push([]);
+        result.format?.push([]);
         return result;
       }
 
       // Performance issue: nested loop is faster than a map here
       for (let col = zone.left; col <= zone.right; col++) {
-        const rowValues: ({ value: CellValue; format?: Format } | undefined)[] = [];
+        const rowValues: (CellValue | undefined)[] = [];
+        const rowFormat: (Format | undefined)[] = [];
         for (let row = zone.top; row <= zone.bottom; row++) {
           const position = { sheetId: range.sheetId, col, row };
-          rowValues.push(getEvaluatedCellIfNotEmpty(position));
+          const evaluatedCell = getEvaluatedCellIfNotEmpty(position);
+          rowValues.push(evaluatedCell?.value);
+          rowFormat.push(evaluatedCell?.format);
         }
-        result.push(rowValues);
+        result.value.push(rowValues);
+        result.format?.push(rowFormat);
       }
       return result;
     }

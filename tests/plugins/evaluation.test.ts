@@ -2,24 +2,31 @@ import { arg, functionRegistry } from "../../src/functions";
 import { toNumber } from "../../src/functions/helpers";
 import { Model } from "../../src/model";
 import {
+  Arg,
   ArgValue,
   CellValueType,
   ComputeFunction,
   ErrorCell,
+  FunctionReturnFormat,
   FunctionReturnValue,
   isMatrix,
+  MatrixArg,
   MatrixArgValue,
   PrimitiveArgValue,
 } from "../../src/types";
 import {
   activateSheet,
   addColumns,
+  addRows,
   copy,
   createSheet,
   cut,
   deleteColumns,
+  deleteContent,
+  deleteRows,
   paste,
   setCellContent,
+  setFormat,
 } from "../test_helpers/commands_helpers";
 import {
   getCell,
@@ -1276,7 +1283,7 @@ describe("evaluate formulas that return an array", () => {
     expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
   });
 
-  test("formula with function that return array can return array", () => {
+  test("can spread array", () => {
     setCellContent(model, "A1", "=MFILL(2, 2, 42)");
     expect(getEvaluatedCell(model, "A1").value).toBe(42);
     expect(getEvaluatedCell(model, "A2").value).toBe(42);
@@ -1288,6 +1295,137 @@ describe("evaluate formulas that return an array", () => {
     setCellContent(model, "A1", "=MFILL(3,3,42)");
     setCellContent(model, "D4", "=C3");
     expect(getEvaluatedCell(model, "D4").value).toBe(42);
+  });
+
+  describe("spread matix with format", () => {
+    test("can spread matrix of values with matrix of format", () => {
+      functionRegistry.add("MATRIX.2.2", {
+        description: "Return an 2*2 matriw with some values",
+        args: [],
+        returns: ["RANGE<NUMBER>"],
+        compute: () => [
+          [1, 2],
+          [3, 4],
+        ],
+        computeFormat: () => [
+          ["0.00", undefined],
+          ["0.00", undefined],
+        ],
+      });
+
+      setFormat(model, "0%", target("A1:A2"));
+      setCellContent(model, "A1", "=MATRIX.2.2()");
+
+      expect(getCellContent(model, "A1")).toBe("100%");
+      expect(getCellContent(model, "A2")).toBe("200%");
+
+      expect(getCellContent(model, "B1")).toBe("3.00");
+      expect(getCellContent(model, "B2")).toBe("4");
+    });
+
+    test("can spread matrix of values with scalar format", () => {
+      functionRegistry.add("MATRIX.2.2", {
+        description: "Return an 2*2 matriw with some values",
+        args: [],
+        returns: ["RANGE<NUMBER>"],
+        compute: () => [
+          [1, 2],
+          [3, 4],
+        ],
+        computeFormat: () => "0.00",
+      });
+
+      setFormat(model, "0%", target("A1:A2"));
+      setCellContent(model, "A1", "=MATRIX.2.2()");
+
+      expect(getCellContent(model, "A1")).toBe("100%");
+      expect(getCellContent(model, "A2")).toBe("200%");
+
+      expect(getCellContent(model, "B1")).toBe("3.00");
+      expect(getCellContent(model, "B2")).toBe("4.00");
+    });
+
+    test("can't spread simple value with matrix of format", () => {
+      functionRegistry.add("SIMPLE.VALUE", {
+        description: "Return an 2*2 matriw with some values",
+        args: [],
+        returns: ["NUMBER"],
+        compute: () => 1,
+        computeFormat: () => [
+          ["0.00", undefined],
+          ["0.00", undefined],
+        ],
+      });
+
+      setCellContent(model, "A1", "=SIMPLE.VALUE()");
+      setCellContent(model, "A2", "42");
+      setCellContent(model, "B1", "24");
+      setCellContent(model, "B2", "22");
+
+      expect(getCellContent(model, "A1")).toBe("#ERROR");
+      expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+        "A format matrix should never be associated with a scalar value"
+      );
+      expect(getCellContent(model, "A2")).toBe("42");
+      expect(getCellContent(model, "B1")).toBe("24");
+      expect(getCellContent(model, "B2")).toBe("22");
+    });
+
+    test("can't spread matrix of value with matrix of format that haven't same dimension", () => {
+      functionRegistry.add("MATRIX.2.2", {
+        description: "Return an 2*2 matriw with some values",
+        args: [],
+        returns: ["RANGE<NUMBER>"],
+        compute: () => [
+          [1, 2],
+          [3, 4],
+        ],
+        computeFormat: () => [
+          ["0.00", undefined, undefined],
+          ["0.00", undefined, undefined],
+          ["0.00", undefined, undefined],
+        ],
+      });
+
+      setCellContent(model, "A1", "=MATRIX.2.2()");
+
+      expect(getCellContent(model, "A1")).toBe("#ERROR");
+      expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+        "Formats and values should have the same dimensions !!!"
+      );
+      expect(getCellContent(model, "A2")).toBe("");
+      expect(getCellContent(model, "B1")).toBe("");
+      expect(getCellContent(model, "B2")).toBe("");
+    });
+
+    test("can spread matrix of format depending on matrix of format", () => {
+      functionRegistry.add("MATRIX", {
+        description: "Return the matrix passed as argument",
+        args: [arg("matrix (range<number>)", "a matrix")],
+        returns: ["RANGE<NUMBER>"],
+        compute: ((matrix) => matrix) as ComputeFunction<ArgValue, FunctionReturnValue>,
+        computeFormat: ((matrix: MatrixArg) => matrix?.format) as ComputeFunction<
+          Arg,
+          FunctionReturnFormat
+        >,
+      });
+
+      setCellContent(model, "A1", "42");
+      setCellContent(model, "A2", "24");
+
+      setFormat(model, "0%", target("A1"));
+      setFormat(model, "0.00", target("A2"));
+
+      setCellContent(model, "B1", "=MATRIX(A1:A2)");
+
+      expect(getCellContent(model, "B1")).toBe("4200%");
+      expect(getCellContent(model, "B2")).toBe("24.00");
+
+      setCellContent(model, "C1", "=MATRIX(B1:B2)");
+
+      expect(getCellContent(model, "C1")).toBe("4200%");
+      expect(getCellContent(model, "C2")).toBe("24.00");
+    });
   });
 
   describe("cut/past reference", () => {
@@ -1341,8 +1479,6 @@ describe("evaluate formulas that return an array", () => {
       expect(getEvaluatedCell(model, "D4").value).toBe(24);
     });
   });
-
-  // TO DO : test result with format
 
   describe("result array can collides with other cell", () => {
     test("throw error on the formula when collide with cell having content", () => {
@@ -1402,6 +1538,17 @@ describe("evaluate formulas that return an array", () => {
       setCellContent(model, "B2", "kikou");
       setCellContent(model, "A1", "=MFILL(2,2, 42)");
       setCellContent(model, "B2", "");
+      expect(getEvaluatedCell(model, "A1").value).toBe(42);
+      expect(getEvaluatedCell(model, "A2").value).toBe(42);
+      expect(getEvaluatedCell(model, "B1").value).toBe(42);
+      expect(getEvaluatedCell(model, "B2").value).toBe(42);
+    });
+
+    test("spread result when remove several collision", () => {
+      setCellContent(model, "B1", "kikou 1");
+      setCellContent(model, "B2", "kikou 2");
+      setCellContent(model, "A1", "=MFILL(2,2, 42)");
+      deleteContent(model, ["B1:B2"]);
       expect(getEvaluatedCell(model, "A1").value).toBe(42);
       expect(getEvaluatedCell(model, "A2").value).toBe(42);
       expect(getEvaluatedCell(model, "B1").value).toBe(42);
@@ -1476,6 +1623,97 @@ describe("evaluate formulas that return an array", () => {
         setCellContent(model, "D3", "colision");
         expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
       });
+    });
+  });
+
+  describe("result array can collides with sheet borders", () => {
+    let model: Model;
+    beforeEach(() => {
+      model = new Model({
+        sheets: [
+          {
+            id: "sheet1",
+            colNumber: 3,
+            rowNumber: 3,
+          },
+        ],
+      });
+    });
+
+    test("throw error message concerning the column encountered horizontally", () => {
+      setCellContent(model, "B1", "=MFILL(3,3, 42)");
+      expect(getEvaluatedCell(model, "B1").value).toBe("#ERROR");
+      expect((getEvaluatedCell(model, "B1") as ErrorCell).error.message).toBe(
+        "Result couldn't be automatically expanded. Please insert more columns."
+      );
+    });
+
+    test("throw error message concerning the row encountered verticaly", () => {
+      setCellContent(model, "A2", "=MFILL(3,3, 42)");
+      expect(getEvaluatedCell(model, "A2").value).toBe("#ERROR");
+      expect((getEvaluatedCell(model, "A2") as ErrorCell).error.message).toBe(
+        "Result couldn't be automatically expanded. Please insert more rows."
+      );
+    });
+
+    test("throw error message concerning the row and column encountered", () => {
+      setCellContent(model, "B2", "=MFILL(3,3, 42)");
+      expect(getEvaluatedCell(model, "B2").value).toBe("#ERROR");
+      expect((getEvaluatedCell(model, "B2") as ErrorCell).error.message).toBe(
+        "Result couldn't be automatically expanded. Please insert more columns and rows."
+      );
+    });
+
+    test("don't spread result when collide", () => {
+      setCellContent(model, "B2", "=MFILL(3,3, 42)");
+      expect(getEvaluatedCell(model, "B2").value).toBe("#ERROR");
+      expect(getEvaluatedCell(model, "B3").value).toBe("");
+      expect(getEvaluatedCell(model, "C2").value).toBe("");
+      expect(getEvaluatedCell(model, "C3").value).toBe("");
+    });
+
+    test("spread result when add columns", () => {
+      setCellContent(model, "C1", "=MFILL(3,3, 42)");
+      expect(getEvaluatedCell(model, "C1").value).toBe("#ERROR");
+
+      addColumns(model, "after", "D", 1);
+      expect(getEvaluatedCell(model, "C1").value).toBe("#ERROR");
+
+      addColumns(model, "after", "E", 1);
+      expect(getEvaluatedCell(model, "C1").value).toBe(42);
+      expect(getEvaluatedCell(model, "E3").value).toBe(42);
+    });
+
+    test("spread result when add rows", () => {
+      setCellContent(model, "A3", "=MFILL(3,3, 42)");
+      expect(getEvaluatedCell(model, "A3").value).toBe("#ERROR");
+
+      addRows(model, "after", 3, 1);
+      expect(getEvaluatedCell(model, "A3").value).toBe("#ERROR");
+
+      addRows(model, "after", 4, 1);
+      expect(getEvaluatedCell(model, "A3").value).toBe(42);
+      expect(getEvaluatedCell(model, "C5").value).toBe(42);
+    });
+
+    test("Don't spread result when delete columns", () => {
+      setCellContent(model, "A1", "=MFILL(3,3, 42)");
+      expect(getEvaluatedCell(model, "A1").value).toBe(42);
+      expect(getEvaluatedCell(model, "C3").value).toBe(42);
+
+      deleteColumns(model, ["B"]);
+      expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      expect(getEvaluatedCell(model, "B1").value).toBe("");
+    });
+
+    test("Don't spread result when delete rows", () => {
+      setCellContent(model, "A1", "=MFILL(3,3, 42)");
+      expect(getEvaluatedCell(model, "A1").value).toBe(42);
+      expect(getEvaluatedCell(model, "C3").value).toBe(42);
+
+      deleteRows(model, [2]);
+      expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      expect(getEvaluatedCell(model, "A2").value).toBe("");
     });
   });
 
