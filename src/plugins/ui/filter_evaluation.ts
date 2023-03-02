@@ -72,6 +72,9 @@ export class FilterEvaluationPlugin extends UIPlugin {
       case "CREATE_SHEET":
         this.filterValues[cmd.sheetId] = {};
         break;
+      case "HIDE_COLUMNS_ROWS":
+        this.updateHiddenRows();
+        break;
       case "UPDATE_FILTER":
         this.updateFilter(cmd);
         this.updateHiddenRows();
@@ -182,10 +185,15 @@ export class FilterEvaluationPlugin extends UIPlugin {
 
   private updateHiddenRows() {
     const sheetId = this.getters.getActiveSheetId();
-    const filters = this.getters.getFilters(sheetId);
+    const filters = this.getters
+      .getFilters(sheetId)
+      .sort((filter1, filter2) => filter1.zoneWithHeaders.top - filter2.zoneWithHeaders.top);
 
     const hiddenRows = new Set<number>();
     for (let filter of filters) {
+      // Disable filters whose header are hidden
+      if (this.getters.isRowHiddenByUser(sheetId, filter.zoneWithHeaders.top)) continue;
+      if (hiddenRows.has(filter.zoneWithHeaders.top)) continue;
       const filteredValues = this.filterValues[sheetId]?.[filter.id]?.map(toLowerCase);
       if (!filteredValues || !filter.filteredZone) continue;
       for (let row = filter.filteredZone.top; row <= filter.filteredZone.bottom; row++) {
