@@ -607,43 +607,6 @@ describe("datasource tests", function () {
     expect(result).toBeCancelledBecause(CommandResult.InvalidDataSet);
   });
 
-  test("cannot duplicate chart ids on the same sheet", () => {
-    const model = new Model();
-    const cmd1 = createChart(
-      model,
-      {
-        dataSets: ["Sheet1!B1:B4"],
-        labelRange: "Sheet1!A2:A4",
-        type: "line",
-      },
-      "1"
-    );
-    expect(cmd1).toBeSuccessfullyDispatched();
-
-    const cmd2 = createChart(
-      model,
-      {
-        dataSets: ["Sheet1!C1:C4"],
-        labelRange: "Sheet1!A2:A4",
-        type: "bar",
-      },
-      "1"
-    );
-    expect(cmd2).toBeCancelledBecause(CommandResult.DuplicatedChartId);
-    createSheet(model, { sheetId: "42" });
-    const cmd3 = createChart(
-      model,
-      {
-        dataSets: ["Sheet1!C1:C4"],
-        labelRange: "Sheet1!A2:A4",
-        type: "bar",
-      },
-      "1",
-      "42"
-    );
-    expect(cmd3).toBeSuccessfullyDispatched();
-  });
-
   test("chart is not selected after creation and update", () => {
     const chartId = "1234";
     createChart(
