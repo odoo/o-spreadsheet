@@ -81,6 +81,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
               newRange = this.createAdaptedRange(newRange, dimension, changeType, -toRemove);
             } else if (range.zone[start] >= min && range.zone[end] <= max) {
               changeType = "REMOVE";
+              newRange = range.clone({ ...this.getInvalidRange() });
             } else if (range.zone[start] <= max && range.zone[end] >= max) {
               const toRemove = max - range.zone[start] + 1;
               changeType = "RESIZE";
@@ -150,9 +151,10 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
             return { changeType: "NONE" };
           }
           const invalidSheetName = this.getters.getSheetName(cmd.sheetId);
-          const sheetId = "";
-          range = range.clone({ sheetId, invalidSheetName });
-
+          range = range.clone({
+            ...this.getInvalidRange(),
+            invalidSheetName,
+          });
           return { changeType: "REMOVE", range };
         }, cmd.sheetId);
 
@@ -450,5 +452,15 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     }
 
     return str;
+  }
+
+  private getInvalidRange() {
+    return {
+      parts: [],
+      prefixSheet: false,
+      zone: { left: -1, top: -1, right: -1, bottom: -1 },
+      sheetId: "",
+      invalidXc: INCORRECT_RANGE_STRING,
+    };
   }
 }
