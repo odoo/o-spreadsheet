@@ -1,4 +1,4 @@
-import { escapeRegExp, formatValue } from "../helpers";
+import { escapeRegExp, formatValue, transpose2dArray } from "../helpers";
 import { _lt } from "../translation";
 import { AddFunctionDescription, ArgValue, PrimitiveArgValue } from "../types";
 import { arg } from "./arguments";
@@ -380,6 +380,57 @@ export const SEARCH: AddFunctionDescription = {
     );
 
     return result + 1;
+  },
+  isExported: true,
+};
+
+// -----------------------------------------------------------------------------
+// SPLIT
+// -----------------------------------------------------------------------------
+const SPLIT_DEFAULT_SPLIT_BY_EACH = true;
+const SPLIT_DEFAULT_REMOVE_EMPTY_TEXT = true;
+export const SPLIT: AddFunctionDescription = {
+  description: _lt("Split text by specific character delimiter(s)."),
+  args: [
+    arg("text (string)", _lt("The text to divide.")),
+    arg("delimiter (string)", _lt("The character or characters to use to split text.")),
+    arg(
+      `split_by_each (boolean, default=${SPLIT_DEFAULT_SPLIT_BY_EACH}})`,
+      _lt("Whether or not to divide text around each character contained in delimiter.")
+    ),
+    arg(
+      `remove_empty_text (boolean, default=${SPLIT_DEFAULT_REMOVE_EMPTY_TEXT})`,
+      _lt(
+        "Whether or not to remove empty text messages from the split results. The default behavior is to treat \
+        consecutive delimiters as one (if TRUE). If FALSE, empty cells values are added between consecutive delimiters."
+      )
+    ),
+  ],
+  returns: ["RANGE<STRING>"],
+  compute: function (
+    text: PrimitiveArgValue,
+    delimiter: PrimitiveArgValue,
+    splitByEach: PrimitiveArgValue = SPLIT_DEFAULT_SPLIT_BY_EACH,
+    removeEmptyText: PrimitiveArgValue = SPLIT_DEFAULT_REMOVE_EMPTY_TEXT
+  ): string[][] {
+    const _text = toString(text);
+    const _delimiter = escapeRegExp(toString(delimiter));
+    const _splitByEach = toBoolean(splitByEach);
+    const _removeEmptyText = toBoolean(removeEmptyText);
+
+    assert(
+      () => _delimiter.length > 0,
+      _lt("The _delimiter (%s) must be not be empty.", _delimiter)
+    );
+
+    const regex = _splitByEach ? new RegExp(`[${_delimiter}]`, "g") : new RegExp(_delimiter, "g");
+    let result = _text.split(regex);
+
+    if (_removeEmptyText) {
+      result = result.filter((text) => text !== "");
+    }
+
+    return transpose2dArray([result]);
   },
   isExported: true,
 };

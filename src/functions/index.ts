@@ -12,10 +12,12 @@ import {
   isMatrix,
 } from "../types";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
+import * as array from "./module_array";
 import * as misc from "./module_custom";
 import * as database from "./module_database";
 import * as date from "./module_date";
 import * as engineering from "./module_engineering";
+import * as filter from "./module_filter";
 import * as financial from "./module_financial";
 import * as info from "./module_info";
 import * as logical from "./module_logical";
@@ -31,8 +33,10 @@ export { arg } from "./arguments";
 type Functions = { [functionName: string]: AddFunctionDescription };
 type Category = { name: string; functions: Functions };
 const categories: Category[] = [
+  { name: _lt("Array"), functions: array },
   { name: _lt("Database"), functions: database },
   { name: _lt("Date"), functions: date },
+  { name: _lt("Filter"), functions: filter },
   { name: _lt("Financial"), functions: financial },
   { name: _lt("Info"), functions: info },
   { name: _lt("Lookup"), functions: lookup },

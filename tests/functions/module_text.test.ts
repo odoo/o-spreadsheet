@@ -1,4 +1,12 @@
-import { evaluateCell, evaluateGrid } from "../test_helpers/helpers";
+import { Model } from "../../src";
+import { setCellContent } from "../test_helpers/commands_helpers";
+import {
+  checkFunctionDoesntSpreadBeyondRange,
+  createModelFromGrid,
+  evaluateCell,
+  evaluateGrid,
+  getRangeValuesAsMatrix,
+} from "../test_helpers/helpers";
 
 describe("CHAR formula", () => {
   test("functional tests on simple arguments", () => {
@@ -487,6 +495,79 @@ describe("SEARCH formula", () => {
     expect(
       evaluateCell("A1", { A1: "=SEARCH(A2, A3, A4)", A2: "TRUE", A3: "FALSETRUE", A4: "1" })
     ).toBe(6);
+  });
+});
+
+describe("SPLIT function", () => {
+  test("SPLIT takes 2-4 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=SPLIT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: '=SPLIT("Hello")' })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: '=SPLIT("Hello", " ")' })).toBe("Hello");
+    expect(evaluateCell("A1", { A1: '=SPLIT("Hello", " ", 1)' })).toBe("Hello");
+    expect(evaluateCell("A1", { A1: '=SPLIT("Hello", " ", 1, 1)' })).toBe("Hello");
+    expect(evaluateCell("A1", { A1: '=SPLIT("Hello", " ", 1, 1, 0)' })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("delimiter argument should not be empty", () => {
+    expect(evaluateCell("A1", { A1: '=SPLIT("Hello", "", 1, 1)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=SPLIT("Hello", B1, 1, 1)', B1: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+  });
+
+  test("Simple split", () => {
+    const grid = { A1: "Hello there, General Kenobi" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A5", '=SPLIT(A1, " ")');
+    expect(getRangeValuesAsMatrix(model, "A5:D5")).toEqual([
+      ["Hello", "there,", "General", "Kenobi"],
+    ]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:D1")).toBeTruthy();
+  });
+
+  test("Split with multiple characters", () => {
+    const grid = { A1: "Hello there, General Kenobi" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A5", '=SPLIT(A1, " e")');
+    expect(getRangeValuesAsMatrix(model, "A5:J5")).toEqual([
+      ["H", "llo", "th", "r", ",", "G", "n", "ral", "K", "nobi"],
+    ]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:J1")).toBeTruthy();
+  });
+
+  test("split_by_each argument", () => {
+    const grid = { A1: "Hello there, General Kenobi" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A5", '=SPLIT(A1, ", ", 1)');
+    expect(getRangeValuesAsMatrix(model, "A5:D5")).toEqual([
+      ["Hello", "there", "General", "Kenobi"],
+    ]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:D1")).toBeTruthy();
+
+    setCellContent(model, "A5", '=SPLIT(A1, ", ", 0)');
+    expect(getRangeValuesAsMatrix(model, "A5:B5")).toEqual([["Hello there", "General Kenobi"]]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "A5:B5")).toBeTruthy();
+  });
+
+  test("remove_empty_text argument", () => {
+    const grid = { A1: "Hello     there" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A5", '=SPLIT(A1, " ", 1, 1)');
+    expect(getRangeValuesAsMatrix(model, "A5:B5")).toEqual([["Hello", "there"]]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "A5:B5")).toBeTruthy();
+
+    setCellContent(model, "A5", '=SPLIT(A1, " ", 1, 0)');
+    expect(getRangeValuesAsMatrix(model, "A5:F5")).toEqual([["Hello", "", "", "", "", "there"]]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "A5:F5")).toBeTruthy();
+  });
+
+  test("Split with regex characters", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "Hello.there");
+    setCellContent(model, "A5", '=SPLIT(A1, ".", 1, 1)');
+    expect(getRangeValuesAsMatrix(model, "A5:B5")).toEqual([["Hello", "there"]]);
+
+    setCellContent(model, "A1", "Hello\\nthere");
+    setCellContent(model, "A5", '=SPLIT(A1, "\\n", 1, 1)');
+    expect(getRangeValuesAsMatrix(model, "A5:B5")).toEqual([["Hello", "there"]]);
   });
 });
 

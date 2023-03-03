@@ -13,10 +13,14 @@ import {
   reduceAny,
   reduceNumbers,
   strictToNumber,
+  toBoolean,
+  toInteger,
   toNumber,
   toString,
   visitMatchingRanges,
 } from "./helpers";
+import { assertPositive } from "./helper_assert";
+import { getUnitMatrix } from "./helper_matrices";
 
 const DEFAULT_FACTOR = 1;
 const DEFAULT_MODE = 0;
@@ -863,6 +867,26 @@ export const MOD: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// MUNIT
+// -----------------------------------------------------------------------------
+export const MUNIT: AddFunctionDescription = {
+  description: _lt("Returns a n x n unit matrix, where n is the input dimension."),
+  args: [
+    arg(
+      "dimension (number)",
+      _lt("An integer specifying the dimension size of the unit matrix. It must be positive.")
+    ),
+  ],
+  returns: ["RANGE<NUMBER>"],
+  compute: function (n: PrimitiveArgValue): number[][] {
+    const _n = toInteger(n);
+    assertPositive(_lt("The argument dimension must be positive"), _n);
+    return getUnitMatrix(_n);
+  },
+  isExported: true,
+};
+
+// -----------------------------------------------------------------------------
 // ODD
 // -----------------------------------------------------------------------------
 export const ODD: AddFunctionDescription = {
@@ -970,6 +994,69 @@ export const RAND: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (): number {
     return Math.random();
+  },
+  isExported: true,
+};
+
+// -----------------------------------------------------------------------------
+// RANDARRAY
+// -----------------------------------------------------------------------------
+export const RANDARRAY: AddFunctionDescription = {
+  description: _lt("Returns a grid of random numbers between 0 inclusive and 1 exclusive."),
+  args: [
+    arg("rows (number, default=1)", _lt("The number of rows to be returned.")),
+    arg("columns (number, default=1)", _lt("The number of columns to be returned.")),
+    arg("min (number, default=0)", _lt("The minimum number you would like returned.")),
+    arg("max (number, default=1)", _lt("The maximum number you would like returned.")),
+    arg("whole_number (number, default=FALSE)", _lt("Return a whole number or a decimal value.")),
+  ],
+  returns: ["RANGE<NUMBER>"],
+  compute: function (
+    rows: PrimitiveArgValue = 1,
+    columns: PrimitiveArgValue = 1,
+    min: PrimitiveArgValue = 0,
+    max: PrimitiveArgValue = 1,
+    whole_number: PrimitiveArgValue = false
+  ): number[][] {
+    const _cols = toInteger(columns);
+    const _rows = toInteger(rows);
+    const _min = toNumber(min);
+    const _max = toNumber(max);
+    const _whole_number = toBoolean(whole_number);
+
+    assertPositive(_lt("The number columns (%s) must be positive.", _cols.toString()), _cols);
+    assertPositive(_lt("The number rows (%s) must be positive.", _rows.toString()), _rows);
+    assert(
+      () => _min <= _max,
+      _lt(
+        "The maximum (%s) must be greater than or equal to the minimum (%s).",
+        _max.toString(),
+        _min.toString()
+      )
+    );
+    if (_whole_number) {
+      assert(
+        () => Number.isInteger(_min) && Number.isInteger(_max),
+        _lt(
+          "The maximum (%s) and minimum (%s) must be integers when whole_number is TRUE.",
+          _max.toString(),
+          _min.toString()
+        )
+      );
+    }
+
+    const result: number[][] = Array(_cols);
+    for (let col = 0; col < _cols; col++) {
+      result[col] = Array(_rows);
+      for (let row = 0; row < _rows; row++) {
+        if (!_whole_number) {
+          result[col][row] = _min + Math.random() * (_max - _min);
+        } else {
+          result[col][row] = Math.floor(Math.random() * (_max - _min + 1) + _min);
+        }
+      }
+    }
+    return result;
   },
   isExported: true,
 };

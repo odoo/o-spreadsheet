@@ -16,9 +16,10 @@ import {
   Spreadsheet,
   SpreadsheetProps,
 } from "../../src/components/spreadsheet/spreadsheet";
+import { matrixMap } from "../../src/functions/helpers";
 import { functionRegistry } from "../../src/functions/index";
 import { ImageProvider } from "../../src/helpers/figures/images/image_provider";
-import { toCartesian, toUnboundedZone, toXC, toZone } from "../../src/helpers/index";
+import { range, toCartesian, toUnboundedZone, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { ComposerSelection } from "../../src/plugins/ui_stateful";
@@ -27,6 +28,7 @@ import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { _t } from "../../src/translation";
 import {
   CellPosition,
+  CellValue,
   ChartDefinition,
   ColorScaleMidPointThreshold,
   ColorScaleThreshold,
@@ -35,6 +37,7 @@ import {
   Currency,
   EvaluatedCell,
   Format,
+  Matrix,
   RangeData,
   SpreadsheetChildEnv,
   Style,
@@ -333,6 +336,50 @@ export function evaluateCell(xc: string, grid: GridDescr): any {
   return gridResult[xc];
 }
 
+export function getRangeValuesAsMatrix(
+  model: Model,
+  rangeXc: string,
+  sheetId: string = model.getters.getActiveSheetId()
+): Matrix<CellValue> {
+  return matrixMap(getRangeCellsAsMatrix(model, rangeXc, sheetId), (cell) => cell.value);
+}
+
+export function getRangeFormatsAsMatrix(
+  model: Model,
+  rangeXc: string,
+  sheetId: string = model.getters.getActiveSheetId()
+): string[][] {
+  return matrixMap(getRangeCellsAsMatrix(model, rangeXc, sheetId), (cell) => cell.format || "");
+}
+
+export function getRangeCellsAsMatrix(
+  model: Model,
+  rangeXc: string,
+  sheetId: string = model.getters.getActiveSheetId()
+): EvaluatedCell[][] {
+  const rangeValue: EvaluatedCell[][] = [];
+  const zone = toZone(rangeXc);
+  for (const row of range(zone.top, zone.bottom + 1)) {
+    const colValues: EvaluatedCell[] = [];
+    for (const col of range(zone.left, zone.right + 1)) {
+      const cell = model.getters.getEvaluatedCell({ sheetId, col, row });
+      colValues.push(cell);
+    }
+    rangeValue.push(colValues);
+  }
+  return rangeValue;
+}
+
+export function createModelFromGrid(grid: GridDescr): Model {
+  const model = new Model();
+  for (let xc in grid) {
+    if (grid[xc] !== undefined) {
+      setCellContent(model, xc, grid[xc]!);
+    }
+  }
+  return model;
+}
+
 export function evaluateCellText(xc: string, grid: GridDescr): string {
   const gridResult = evaluateGridText(grid);
   return gridResult[xc] || "";
@@ -341,6 +388,33 @@ export function evaluateCellText(xc: string, grid: GridDescr): string {
 export function evaluateCellFormat(xc: string, grid: GridDescr): string {
   const gridResult = evaluateGridFormat(grid);
   return gridResult[xc] || "";
+}
+
+/**
+ *  Check if there is value to the right/below the given range XC. This is useful to check if an array
+ *  formula has spread beyond the range it should have.
+ */
+export function checkFunctionDoesntSpreadBeyondRange(
+  model: Model,
+  rangeXc: string,
+  sheetId: string = model.getters.getActiveSheetId()
+): boolean {
+  const zone = toZone(rangeXc);
+  for (const row of range(zone.top, zone.bottom + 2)) {
+    const cell = model.getters.getEvaluatedCell({ sheetId, col: zone.right + 1, row });
+    if (cell.value) {
+      return false;
+    }
+  }
+
+  for (const col of range(zone.left, zone.right + 2)) {
+    const cell = model.getters.getEvaluatedCell({ sheetId, col, row: zone.bottom + 1 });
+    if (cell.value) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -397,12 +471,8 @@ export function XCToMergeCellMap(
   return mergeCellMap;
 }
 
-export function zone(str: string): Zone {
-  return toZone(str);
-}
-
 export function target(str: string): Zone[] {
-  return str.split(",").map(zone);
+  return str.split(",").map(toZone);
 }
 
 export function toRangeData(sheetId: UID, xc: string): RangeData {
@@ -555,15 +625,15 @@ export const mockChart = () => {
   return mockChartData;
 };
 
-interface CellValue {
+interface CellObject {
   value: string | number | boolean;
   style?: Style;
   format?: string;
   content: string;
 }
 
-export function getCellsObject(model: Model, sheetId: UID): Record<string, CellValue> {
-  const cells: Record<string, CellValue> = {};
+export function getCellsObject(model: Model, sheetId: UID): Record<string, CellObject> {
+  const cells: Record<string, CellObject> = {};
   for (const cell of Object.values(model.getters.getCells(sheetId))) {
     const { col, row } = model.getters.getCellPosition(cell.id);
     cells[toXC(col, row)] = {

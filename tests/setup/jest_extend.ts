@@ -22,6 +22,7 @@ declare global {
       toExport<T>(expected: T): R;
       toBeCancelledBecause(...expected: CancelledReason[]): R;
       toBeSuccessfullyDispatched(): R;
+      /** Check if a number is between 2 values (inclusive) */
       toBeBetween(lower: number, upper: number): R;
       toBeSameColorAs(expected: string, tolerance?: number): R;
     }
