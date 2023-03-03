@@ -15,6 +15,10 @@ const CSS = css/* scss */ `
     border-left: 3px solid red;
     padding: 10px;
   }
+
+  .o-popover:has(.o-error-tooltip) {
+    z-index: 4 !important;
+  }
 `;
 
 export interface ErrorToolTipProps {
