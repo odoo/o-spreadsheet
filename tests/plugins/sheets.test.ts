@@ -809,7 +809,7 @@ describe("sheets", () => {
     const sheet2 = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "42");
     model.dispatch("DELETE_SHEET", { sheetId: sheet2 });
-    expect(getCellText(model, "A1")).toBe("=NEW_NAME!A1");
+    expect(getCellText(model, "A1")).toBe("=#REF");
     expect(getCell(model, "A1")?.evaluated.value).toBe("#ERROR");
     undo(model);
     activateSheet(model, sheet1);
