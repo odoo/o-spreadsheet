@@ -65,6 +65,9 @@ export function isZoneValid(zone: Zone): boolean {
   if (isNaN(zone.bottom) || isNaN(zone.top) || isNaN(zone.left) || isNaN(zone.right)) {
     return false;
   }
+  if (zone.top < 0 || zone.left < 0 || zone.right < 0 || zone.bottom < 0) {
+    return false;
+  }
   return zone.bottom >= zone.top && zone.right >= zone.left;
 }
 
