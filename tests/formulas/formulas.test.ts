@@ -2,7 +2,13 @@ import { Model } from "../../src";
 import { INCORRECT_RANGE_STRING } from "../../src/constants";
 import { cellFactory } from "../../src/helpers/cells";
 import { FormulaCell } from "../../src/types";
-import { createSheetWithName } from "../test_helpers/commands_helpers";
+import {
+  createSheetWithName,
+  deleteColumns,
+  deleteRows,
+  setCellContent,
+} from "../test_helpers/commands_helpers";
+import { getCellContent, getCellText } from "../test_helpers/getters_helpers";
 
 function moveFormula(model: Model, formula: string, offsetX: number, offsetY: number): string {
   const sheetId = model.getters.getActiveSheetId();
@@ -99,5 +105,40 @@ describe("createAdaptedRanges", () => {
     const model = new Model();
     createSheetWithName(model, { sheetId: "42" }, "Sheet 2");
     expect(moveFormula(model, "='Sheet 2'!B2", 1, 10)).toEqual("='Sheet 2'!C12");
+  });
+});
+
+describe("Remove columns/rows that are references of formula", () => {
+  let model: Model;
+  beforeEach(() => {
+    model = new Model();
+  });
+
+  test("delete multiple columns, including the one in formula and the one before it", () => {
+    setCellContent(model, "A1", "=SUM(C1,D1)");
+    deleteColumns(model, ["B", "C"]);
+    expect(getCellContent(model, "A1")).toEqual("#REF");
+    expect(getCellText(model, "A1")).toEqual("=SUM(#REF,B1)");
+  });
+
+  test("delete multiple columns, including the one in formula and the one after it", () => {
+    setCellContent(model, "A1", "=SUM(C1,D1)");
+    deleteColumns(model, ["C", "D"]);
+    expect(getCellContent(model, "A1")).toEqual("#REF");
+    expect(getCellText(model, "A1")).toEqual("=SUM(#REF,#REF)");
+  });
+
+  test("delete multiple rows, including the one in formula and the one before it", () => {
+    setCellContent(model, "A1", "=SUM(C3,C4)");
+    deleteRows(model, [1, 2]);
+    expect(getCellContent(model, "A1")).toEqual("#REF");
+    expect(getCellText(model, "A1")).toEqual("=SUM(#REF,C2)");
+  });
+
+  test("delete multiple rows, including the one in formula and the one after it", () => {
+    setCellContent(model, "A1", "=SUM(C3,C4)");
+    deleteRows(model, [2, 3]);
+    expect(getCellContent(model, "A1")).toEqual("#REF");
+    expect(getCellText(model, "A1")).toEqual("=SUM(#REF,#REF)");
   });
 });

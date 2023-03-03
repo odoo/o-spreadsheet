@@ -73,11 +73,11 @@ describe("Collaborative range manipulation", () => {
     );
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCell(user, "A1", "Sheet2")?.content,
-      "=Sheet1!A2"
+      "=#REF"
     );
   });
 
-  test("cut and paste and delete target sheet concurrentlkjhgkjhg khg y", () => {
+  test("cut and paste and delete target sheet concurrently (delete first)", () => {
     setCellContent(alice, "A2", "=A1");
     cut(alice, "A1");
     createSheet(alice, { sheetId: "Sheet2", activate: true });
@@ -85,13 +85,13 @@ describe("Collaborative range manipulation", () => {
       deleteSheet(bob, "Sheet2");
       paste(alice, "D4");
     });
-    expect([alice]).toHaveSynchronizedValue(
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCell(user, "A2", "Sheet1")?.content,
       "=A1"
     );
   });
 
-  test("cut and paste and delete target sheet concurrently", () => {
+  test("cut and paste and delete target sheet concurrently (paste first)", () => {
     setCellContent(alice, "A2", "=A1");
     cut(alice, "A1");
     createSheet(alice, { sheetId: "Sheet2", activate: true });
@@ -101,7 +101,7 @@ describe("Collaborative range manipulation", () => {
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCell(user, "A2", "Sheet1")?.content,
-      "=Sheet2!D4"
+      "=#REF"
     );
   });
 
