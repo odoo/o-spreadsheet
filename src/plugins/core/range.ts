@@ -67,6 +67,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
               newRange = this.createAdaptedRange(newRange, dimension, changeType, -toRemove);
             } else if (range.zone[start] >= min && range.zone[end] <= max) {
               changeType = "REMOVE";
+              newRange = this.buildInvalidRange(INCORRECT_RANGE_STRING);
             } else if (range.zone[start] <= max && range.zone[end] >= max) {
               const toRemove = max - range.zone[start] + 1;
               changeType = "RESIZE";
@@ -136,10 +137,8 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
             return { changeType: "NONE" };
           }
           range = {
-            ...range,
-            zone: { ...range.zone },
+            ...this.buildInvalidRange(INCORRECT_RANGE_STRING),
             invalidSheetName: this.getters.getSheetName(cmd.sheetId),
-            sheetId: "",
           };
           return { changeType: "REMOVE", range };
         }, cmd.sheetId);
