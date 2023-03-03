@@ -7,7 +7,7 @@ const { xml } = tags;
 
 const TEMPLATE = xml/* xml */ `
   <Portal target="'.o-spreadsheet'">
-    <div t-att-style="style">
+    <div class="o-popover" t-att-style="style">
       <t t-slot="default"/>
     </div>
   </Portal>

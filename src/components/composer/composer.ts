@@ -102,7 +102,7 @@ const CSS = css/* scss */ `
     padding: 0;
     margin: 0;
     border: 0;
-    z-index: 5;
+    z-index: 6;
     flex-grow: 1;
     max-height: inherit;
     .o-composer {
