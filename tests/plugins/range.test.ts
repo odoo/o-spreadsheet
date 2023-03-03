@@ -41,7 +41,7 @@ class PluginTestRange extends CorePlugin {
       const change = applyChange(range);
       switch (change.changeType) {
         case "REMOVE":
-          this.ranges.splice(i, 1);
+          this.ranges[i] = change.range;
           break;
         case "RESIZE":
         case "MOVE":
@@ -87,9 +87,9 @@ describe("range plugin", () => {
   beforeEach(() => {
     m = new Model({
       sheets: [
-        { id: "s1", name: "s1", rows: 10, cols: 10 },
-        { id: "s2", name: "s 2", rows: 10, cols: 10 },
-        { id: "s1!!", name: "s1!!", rows: 10, cols: 10 },
+        { id: "s1", name: "s1" },
+        { id: "s2", name: "s 2" },
+        { id: "s1!!", name: "s1!!" },
       ],
     });
     m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["B2:D4"] });
@@ -132,6 +132,59 @@ describe("range plugin", () => {
       });
     });
 
+    describe("create a range and remove multiple columns", () => {
+      beforeEach(() => {
+        m = new Model({
+          sheets: [
+            { id: "s1", name: "s1" },
+            { id: "s2", name: "s 2" },
+          ],
+        });
+        m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["C2:F5"] });
+      });
+
+      test("in the middle", () => {
+        deleteColumns(m, ["D", "E"]);
+        expect(m.getters.getUsedRanges()).toEqual(["C2:D5"]);
+      });
+
+      test("in the start", () => {
+        deleteColumns(m, ["B", "C"]);
+        expect(m.getters.getUsedRanges()).toEqual(["B2:D5"]);
+      });
+
+      test("in the end", () => {
+        deleteColumns(m, ["E", "F"]);
+        expect(m.getters.getUsedRanges()).toEqual(["C2:D5"]);
+      });
+
+      test("before the start", () => {
+        deleteColumns(m, ["A", "B"]);
+        expect(m.getters.getUsedRanges()).toEqual(["A2:D5"]);
+      });
+
+      test("after the end", () => {
+        deleteColumns(m, ["G", "H"]);
+        expect(m.getters.getUsedRanges()).toEqual(["C2:F5"]);
+      });
+
+      test("including one column before the start and the first column", () => {
+        deleteColumns(m, ["C", "B"]);
+        expect(m.getters.getUsedRanges()).toEqual(["B2:D5"]);
+      });
+
+      test("including one column after the end and the last column", () => {
+        deleteColumns(m, ["G", "F"]);
+        expect(m.getters.getUsedRanges()).toEqual(["C2:E5"]);
+      });
+
+      test("delete columns causing invalid reference will be marked as #REF", () => {
+        m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["C1"] });
+        deleteColumns(m, ["B", "C"]);
+        expect(m.getters.getUsedRanges()[1]).toEqual("#REF");
+      });
+    });
+
     describe("create a range and remove a row", () => {
       test("in the middle", () => {
         deleteRows(m, [2]);
@@ -162,6 +215,61 @@ describe("range plugin", () => {
         createSheet(m, { sheetId: "42" });
         deleteRows(m, [0], "42");
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
+      });
+    });
+
+    describe("create a range and remove multiple rows", () => {
+      beforeEach(() => {
+        m = new Model({
+          sheets: [
+            { id: "s1", name: "s1" },
+            { id: "s2", name: "s 2" },
+          ],
+        });
+        m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["C3:F7"] });
+      });
+
+      test("in the middle", () => {
+        deleteRows(m, [3, 4]);
+        expect(m.getters.getUsedRanges()).toEqual(["C3:F5"]);
+      });
+
+      test("in the start", () => {
+        deleteRows(m, [2, 3]);
+        expect(m.getters.getUsedRanges()).toEqual(["C3:F5"]);
+      });
+
+      test("in the end", () => {
+        deleteRows(m, [5, 6]);
+        expect(m.getters.getUsedRanges()).toEqual(["C3:F5"]);
+      });
+
+      test("including one row before start and the first row", () => {
+        deleteRows(m, [1, 2]);
+        expect(m.getters.getUsedRanges()).toEqual(["C2:F5"]);
+      });
+
+      test("including one row after end and the last row", () => {
+        deleteRows(m, [6, 7]);
+        expect(m.getters.getUsedRanges()).toEqual(["C3:F6"]);
+      });
+
+      test("before the start", () => {
+        deleteRows(m, [0, 1]);
+        expect(m.getters.getUsedRanges()).toEqual(["C1:F5"]);
+      });
+
+      test("after the end", () => {
+        deleteRows(m, [7, 8]);
+        expect(m.getters.getUsedRanges()).toEqual(["C3:F7"]);
+      });
+
+      test("delete rows causing invalid reference will be marked as #REF", () => {
+        m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["C3"] });
+        deleteRows(m, [1, 2]);
+        expect(m.getters.getUsedRanges().length).toEqual(2);
+        expect(m.getters.getUsedRanges()[0]).toEqual("C2:F5");
+        expect(m.getters.getUsedRanges()[1]).toEqual("#REF");
       });
     });
 
@@ -291,7 +399,7 @@ describe("range plugin", () => {
         m.dispatch("USE_RANGE", { rangesXC: ["A1"], sheetId: "s2" });
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4", "'s 2'!A1"]);
         deleteSheet(m, "s2");
-        expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
+        expect(m.getters.getUsedRanges()).toEqual(["B2:D4", "#REF"]);
       });
     });
 
@@ -305,7 +413,7 @@ describe("range plugin", () => {
         m.dispatch("USE_RANGE", { rangesXC: ["A1"], sheetId: "s2" });
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4", "'s 2'!A1"]);
         deleteSheet(m, "s2");
-        expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
+        expect(m.getters.getUsedRanges()).toEqual(["B2:D4", "#REF"]);
       });
     });
   });

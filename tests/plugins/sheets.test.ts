@@ -850,8 +850,8 @@ describe("sheets", () => {
     const sheet2 = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "42");
     model.dispatch("DELETE_SHEET", { sheetId: sheet2 });
-    expect(getCellText(model, "A1")).toBe("=NEW_NAME!A1");
-    expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+    expect(getCellText(model, "A1")).toBe("=#REF");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#REF");
     undo(model);
     activateSheet(model, sheet1);
     expect(getCellText(model, "A1")).toBe("=NEW_NAME!A1");
