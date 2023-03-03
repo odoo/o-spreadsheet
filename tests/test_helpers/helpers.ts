@@ -403,8 +403,12 @@ export function target(str: string): Zone[] {
   return str.split(",").map(zone);
 }
 
+export function toRangeData(sheetId: UID, xc: string): RangeData {
+  return { _zone: toUnboundedZone(xc), _sheetId: sheetId };
+}
+
 export function toRangesData(sheetId: UID, str: string): RangeData[] {
-  return str.split(",").map((xc) => ({ _zone: toUnboundedZone(xc), _sheetId: sheetId }));
+  return str.split(",").map((xc) => toRangeData(sheetId, xc));
 }
 
 export function createEqualCF(

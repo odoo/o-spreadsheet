@@ -15,6 +15,7 @@ export interface Range extends Cloneable<Range> {
   readonly invalidSheetName?: string;
   /** the sheet on which the range is defined */
   readonly sheetId: UID;
+  readonly rangeData: RangeData;
 }
 
 export interface RangeData {

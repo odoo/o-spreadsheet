@@ -1,7 +1,7 @@
 import { Component, useState } from "@odoo/owl";
 import { ComponentsImportance } from "../../../constants";
 import { clip, isEqual } from "../../../helpers";
-import { Color, Pixel, SpreadsheetChildEnv, Zone } from "../../../types";
+import { Color, HeaderIndex, Pixel, SpreadsheetChildEnv, Zone } from "../../../types";
 import { css } from "../../helpers/css";
 import { gridOverlayPosition } from "../../helpers/dom_helpers";
 import { dragAndDropBeyondTheViewport } from "../../helpers/drag_and_drop";
@@ -34,7 +34,7 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
   });
 
   onResizeHighlight(isLeft: boolean, isTop: boolean) {
-    const activeSheet = this.env.model.getters.getActiveSheet();
+    const activeSheetId = this.env.model.getters.getActiveSheetId();
 
     this.highlightState.shiftingMode = "isResizing";
     const z = this.props.zone;
@@ -46,12 +46,11 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
     let currentZone = z;
 
     this.env.model.dispatch("START_CHANGE_HIGHLIGHT", {
-      range: this.env.model.getters.getRangeDataFromZone(activeSheet.id, currentZone),
+      range: this.env.model.getters.getRangeDataFromZone(activeSheetId, currentZone),
     });
 
-    const mouseMove = (col, row) => {
+    const mouseMove = (col: HeaderIndex, row: HeaderIndex) => {
       if (lastCol !== col || lastRow !== row) {
-        const activeSheetId = this.env.model.getters.getActiveSheetId();
         lastCol = clip(
           col === -1 ? lastCol : col,
           0,
@@ -74,7 +73,10 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
 
         if (!isEqual(newZone, currentZone)) {
           this.env.model.dispatch("CHANGE_HIGHLIGHT", {
-            range: this.env.model.getters.getRangeDataFromZone(activeSheet.id, newZone),
+            range: this.env.model.getters.getRangeFromZone(
+              activeSheetId,
+              this.env.model.getters.getUnboundedZone(activeSheetId, newZone)
+            ).rangeData,
           });
           currentZone = newZone;
         }
@@ -116,7 +118,7 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
     let lastCol = initCol;
     let lastRow = initRow;
 
-    const mouseMove = (col, row) => {
+    const mouseMove = (col: HeaderIndex, row: HeaderIndex) => {
       if (lastCol !== col || lastRow !== row) {
         lastCol = col === -1 ? lastCol : col;
         lastRow = row === -1 ? lastRow : row;
@@ -131,10 +133,12 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
         };
 
         newZone = this.env.model.getters.expandZone(activeSheetId, newZone);
-
         if (!isEqual(newZone, currentZone)) {
           this.env.model.dispatch("CHANGE_HIGHLIGHT", {
-            range: this.env.model.getters.getRangeDataFromZone(activeSheetId, newZone),
+            range: this.env.model.getters.getRangeFromZone(
+              activeSheetId,
+              this.env.model.getters.getUnboundedZone(activeSheetId, newZone)
+            ).rangeData,
           });
           currentZone = newZone;
         }

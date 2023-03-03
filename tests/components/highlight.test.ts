@@ -7,7 +7,7 @@ import {
 } from "../../src/constants";
 import { toHex, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { Color } from "../../src/types";
+import { Color, UID } from "../../src/types";
 import { DispatchResult } from "../../src/types/commands";
 import { merge } from "../test_helpers/commands_helpers";
 import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
@@ -16,6 +16,7 @@ import {
   mountSpreadsheet,
   nextTick,
   startGridComposition,
+  toRangeData,
   typeInComposerGrid,
 } from "../test_helpers/helpers";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
@@ -100,6 +101,7 @@ async function moveToCell(el: Element, xc: string) {
 }
 
 let model: Model;
+let activeSheetId: UID;
 let fixture: HTMLElement;
 let cornerEl: Element;
 let borderEl: Element;
@@ -137,6 +139,7 @@ const genericBeforeEach = async () => {
     gridOffsetX: 0,
     gridOffsetY: 0,
   });
+  activeSheetId = model.getters.getActiveSheetId();
 };
 
 describe("Corner component", () => {
@@ -149,12 +152,12 @@ describe("Corner component", () => {
       // select B2 nw corner
       selectNWCellCorner(cornerEl, "B2");
       expect(model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        range: { _zone: toZone("B2"), _sheetId: model.getters.getActiveSheetId() },
+        range: toRangeData(activeSheetId, "B2"),
       });
       // move to A1
       moveToCell(cornerEl, "A1");
       expect(model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-        range: { _zone: toZone("A1:B2"), _sheetId: model.getters.getActiveSheetId() },
+        range: toRangeData(activeSheetId, "A1:B2"),
       });
     });
 
@@ -165,13 +168,13 @@ describe("Corner component", () => {
       // select B2 ne corner
       selectNECellCorner(cornerEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        range: { _zone: toZone("B2"), _sheetId: model.getters.getActiveSheetId() },
+        range: toRangeData(activeSheetId, "B2"),
       });
 
       // move to C1
       moveToCell(cornerEl, "C1");
       expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-        range: { _zone: toZone("B1:C2"), _sheetId: model.getters.getActiveSheetId() },
+        range: toRangeData(activeSheetId, "B1:C2"),
       });
     });
 
@@ -182,13 +185,13 @@ describe("Corner component", () => {
       // select B2 sw corner
       selectSWCellCorner(cornerEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        range: { _zone: toZone("B2"), _sheetId: model.getters.getActiveSheetId() },
+        range: toRangeData(activeSheetId, "B2"),
       });
 
       // move to A3
       moveToCell(cornerEl, "A3");
       expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-        range: { _zone: toZone("A2:B3"), _sheetId: model.getters.getActiveSheetId() },
+        range: toRangeData(activeSheetId, "A2:B3"),
       });
     });
 
@@ -199,13 +202,110 @@ describe("Corner component", () => {
       // select B2 se corner
       selectSECellCorner(cornerEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        range: { _zone: toZone("B2"), _sheetId: model.getters.getActiveSheetId() },
+        range: toRangeData(activeSheetId, "B2"),
       });
 
       // move to C3
       moveToCell(cornerEl, "C3");
       expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-        range: { _zone: toZone("B2:C3"), _sheetId: model.getters.getActiveSheetId() },
+        range: toRangeData(activeSheetId, "B2:C3"),
+      });
+    });
+  });
+
+  describe("drag highlight corner to cover full columns/rows will make the final highlight zone to be unbounded", () => {
+    beforeEach(() => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 10,
+            rowNumber: 10,
+          },
+        ],
+      });
+      activeSheetId = model.getters.getActiveSheetId();
+    });
+    test("single full column", async () => {
+      const parent = await mountHighlight("B1", "#666");
+      cornerEl = fixture.querySelector(".o-corner-se")!;
+
+      selectSECellCorner(cornerEl, "B1");
+      moveToCell(cornerEl, "B10");
+
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "B:B"),
+      });
+    });
+
+    test("single full row", async () => {
+      const parent = await mountHighlight("A1", "#666");
+      cornerEl = fixture.querySelector(".o-corner-se")!;
+
+      selectSECellCorner(cornerEl, "A1");
+      moveToCell(cornerEl, "J1");
+
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "1:1"),
+      });
+    });
+
+    test("multiple full columns", async () => {
+      const parent = await mountHighlight("B1:C2", "#666");
+      cornerEl = fixture.querySelector(".o-corner-se")!;
+
+      selectSECellCorner(cornerEl, "C2");
+      moveToCell(cornerEl, "D10");
+
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "B:D"),
+      });
+    });
+
+    test("multiple full rows", async () => {
+      const parent = await mountHighlight("A1:B3", "#666");
+      cornerEl = fixture.querySelector(".o-corner-se")!;
+
+      selectSECellCorner(cornerEl, "B3");
+      moveToCell(cornerEl, "J4");
+
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "1:4"),
+      });
+    });
+
+    test("the whole sheet", async () => {
+      const parent = await mountHighlight("A1:B5", "#666");
+      cornerEl = fixture.querySelector(".o-corner-se")!;
+
+      selectSECellCorner(cornerEl, "B5");
+      moveToCell(cornerEl, "J10");
+
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "A:J"),
+      });
+    });
+
+    test("from full column to partially full column", async () => {
+      const parent = await mountHighlight("B1:B10", "#666");
+      cornerEl = fixture.querySelector(".o-corner-ne")!;
+
+      selectNECellCorner(cornerEl, "B1");
+      moveToCell(cornerEl, "B5");
+
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "B5:B10"),
+      });
+    });
+
+    test("from full row to partially full row", async () => {
+      const parent = await mountHighlight("A1:J1", "#666");
+      cornerEl = fixture.querySelector(".o-corner-sw")!;
+
+      selectSWCellCorner(cornerEl, "A1");
+      moveToCell(cornerEl, "D1");
+
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "D1:J1"),
       });
     });
   });
@@ -217,7 +317,7 @@ describe("Corner component", () => {
     // select A1 nw corner
     selectNWCellCorner(cornerEl, "A1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      range: { _zone: toZone("A1"), _sheetId: model.getters.getActiveSheetId() },
+      range: toRangeData(activeSheetId, "A1"),
     });
 
     // move outside the grid
@@ -231,21 +331,67 @@ describe("Corner component", () => {
     expect(parent.model.dispatch).toHaveBeenCalledTimes(1);
   });
 
-  test("drag highlight corner on merged cells expands the final highlight zone", async () => {
-    merge(model, "B1:C1");
-    const parent = await mountHighlight("B2", "#666");
-    cornerEl = fixture.querySelector(".o-corner-nw")!;
-
-    // select B2 se corner
-    selectNWCellCorner(cornerEl, "B2");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      range: { _zone: toZone("B2"), _sheetId: model.getters.getActiveSheetId() },
+  describe("dragging highlight corner on merged cells expands the final highlight zone", () => {
+    beforeEach(() => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 10,
+            rowNumber: 10,
+          },
+        ],
+      });
+      activeSheetId = model.getters.getActiveSheetId();
     });
 
-    // move to B1
-    moveToCell(cornerEl, "B1");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-      range: { _zone: toZone("B1:C2"), _sheetId: model.getters.getActiveSheetId() },
+    test("cells (not columns or rows)", async () => {
+      merge(model, "B1:C1");
+      const parent = await mountHighlight("B2", "#666");
+      cornerEl = fixture.querySelector(".o-corner-nw")!;
+
+      // select B2 ne corner
+      selectNWCellCorner(cornerEl, "B2");
+      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "B2"),
+      });
+
+      // move to B1
+      moveToCell(cornerEl, "B1");
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "B1:C2"),
+      });
+    });
+
+    test("full columns", async () => {
+      merge(model, "B1:C1");
+      const parent = await mountHighlight("A1:A10", "#666");
+      cornerEl = fixture.querySelector(".o-corner-ne")!;
+
+      selectNECellCorner(cornerEl, "A1");
+      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "A1:A10"),
+      });
+
+      moveToCell(cornerEl, "B1");
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "A:C"),
+      });
+    });
+
+    test("full rows", async () => {
+      merge(model, "B2:B3");
+      const parent = await mountHighlight("A1:J1", "#666");
+      cornerEl = fixture.querySelector(".o-corner-sw")!;
+
+      selectSWCellCorner(cornerEl, "A1");
+      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "A1:J1"),
+      });
+
+      moveToCell(cornerEl, "A2");
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "1:3"),
+      });
     });
   });
 
@@ -263,7 +409,7 @@ describe("Corner component", () => {
     // select B1 nw corner
     selectNWCellCorner(cornerEl, "B1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      range: { _zone: toZone("B1"), _sheetId: model.getters.getActiveSheetId() },
+      range: toRangeData(activeSheetId, "B1"),
     });
 
     // move to C1
@@ -316,7 +462,7 @@ describe("Border component", () => {
       // select B2 top border
       selectTopCellBorder(borderEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        range: { _zone: toZone("B2"), _sheetId: model.getters.getActiveSheetId() },
+        range: toRangeData(activeSheetId, "B2"),
       });
 
       // move to C2
@@ -333,47 +479,133 @@ describe("Border component", () => {
       // select B2 left border
       selectLeftCellBorder(borderEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        range: { _zone: toZone("B2"), _sheetId: model.getters.getActiveSheetId() },
+        range: toRangeData(activeSheetId, "B2"),
       });
 
       // move to C2
       moveToCell(borderEl, "C2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-        range: { _zone: toZone("C2"), _sheetId: model.getters.getActiveSheetId() },
+        range: toRangeData(activeSheetId, "C2"),
       });
     });
 
     test("start on right border", async () => {
       const parent = await mountHighlight("B2", "#666");
-      borderEl = fixture.querySelector(".o-border-w")!;
+      borderEl = fixture.querySelector(".o-border-e")!;
 
       // select B2 right border
       selectRightCellBorder(borderEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        range: { _zone: toZone("B2"), _sheetId: model.getters.getActiveSheetId() },
+        range: toRangeData(activeSheetId, "B2"),
       });
 
       // move to C2
       moveToCell(borderEl, "C2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-        range: { _zone: toZone("C2"), _sheetId: model.getters.getActiveSheetId() },
+        range: toRangeData(activeSheetId, "C2"),
       });
     });
 
     test("start on bottom border", async () => {
       const parent = await mountHighlight("B2", "#666");
-      borderEl = fixture.querySelector(".o-border-w")!;
+      borderEl = fixture.querySelector(".o-border-s")!;
 
       // select B2 bottom border
       selectBottomCellBorder(borderEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        range: { _zone: toZone("B2"), _sheetId: model.getters.getActiveSheetId() },
+        range: toRangeData(activeSheetId, "B2"),
       });
 
       // move to C2
       moveToCell(borderEl, "C2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-        range: { _zone: toZone("C2"), _sheetId: model.getters.getActiveSheetId() },
+        range: toRangeData(activeSheetId, "C2"),
+      });
+    });
+  });
+
+  describe("dragging borders will keep the unbounded zones", () => {
+    beforeEach(() => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 10,
+            rowNumber: 10,
+          },
+        ],
+      });
+      activeSheetId = model.getters.getActiveSheetId();
+    });
+
+    test("single full column", async () => {
+      const parent = await mountHighlight("B1:B10", "#666");
+      borderEl = fixture.querySelector(".o-border-e")!;
+
+      selectRightCellBorder(borderEl, "B2");
+      moveToCell(borderEl, "C2");
+
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "C:C"),
+      });
+    });
+
+    test("single full row", async () => {
+      const parent = await mountHighlight("A1:J1", "#666");
+      borderEl = fixture.querySelector(".o-border-s")!;
+
+      selectBottomCellBorder(borderEl, "A1");
+      moveToCell(borderEl, "A2");
+
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "2:2"),
+      });
+    });
+
+    test("multiple columns", async () => {
+      const parent = await mountHighlight("B1:C10", "#666");
+      borderEl = fixture.querySelector(".o-border-e")!;
+
+      selectRightCellBorder(borderEl, "C2");
+      moveToCell(borderEl, "F2");
+
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "E:F"),
+      });
+    });
+
+    test("multiple rows", async () => {
+      const parent = await mountHighlight("A1:J2", "#666");
+      borderEl = fixture.querySelector(".o-border-s")!;
+
+      selectBottomCellBorder(borderEl, "B2");
+      moveToCell(borderEl, "B4");
+
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "3:4"),
+      });
+    });
+
+    test("partially full column", async () => {
+      const parent = await mountHighlight("B5:B10", "#666");
+      borderEl = fixture.querySelector(".o-border-e")!;
+
+      selectRightCellBorder(borderEl, "B7");
+      moveToCell(borderEl, "C7");
+
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "C5:C10"),
+      });
+    });
+
+    test("partially full row", async () => {
+      const parent = await mountHighlight("C1:J1", "#666");
+      borderEl = fixture.querySelector(".o-border-s")!;
+
+      selectBottomCellBorder(borderEl, "D1");
+      moveToCell(borderEl, "D2");
+
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "C2:J2"),
       });
     });
   });
@@ -385,19 +617,19 @@ describe("Border component", () => {
     // select A1 top border
     selectTopCellBorder(borderEl, "A1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      range: { _zone: toZone("A1:B2"), _sheetId: model.getters.getActiveSheetId() },
+      range: toRangeData(activeSheetId, "A1:B2"),
     });
 
     // move to B1
     moveToCell(borderEl, "B1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-      range: { _zone: toZone("B1:C2"), _sheetId: model.getters.getActiveSheetId() },
+      range: toRangeData(activeSheetId, "B1:C2"),
     });
 
     // move to C1
     moveToCell(borderEl, "C1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-      range: { _zone: toZone("C1:D2"), _sheetId: model.getters.getActiveSheetId() },
+      range: toRangeData(activeSheetId, "C1:D2"),
     });
   });
 
@@ -408,13 +640,13 @@ describe("Border component", () => {
     // select B1 top border
     selectTopCellBorder(borderEl, "B1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      range: { _zone: toZone("A1:B2"), _sheetId: model.getters.getActiveSheetId() },
+      range: toRangeData(activeSheetId, "A1:B2"),
     });
 
     // move to C1
     moveToCell(borderEl, "C1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-      range: { _zone: toZone("B1:C2"), _sheetId: model.getters.getActiveSheetId() },
+      range: toRangeData(activeSheetId, "B1:C2"),
     });
   });
 
@@ -425,7 +657,7 @@ describe("Border component", () => {
     // select B2 bottom border
     selectBottomCellBorder(borderEl, "B2");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      range: { _zone: toZone("A1:B2"), _sheetId: model.getters.getActiveSheetId() },
+      range: toRangeData(activeSheetId, "A1:B2"),
     });
 
     // move to A2
@@ -433,39 +665,67 @@ describe("Border component", () => {
     expect(parent.model.dispatch).toHaveBeenCalledTimes(1);
   });
 
-  test("drag highlight order on merged cells expands the final highlight zone", async () => {
-    merge(model, "B1:C1");
-    const parent = await mountHighlight("A1", "#666");
-    borderEl = fixture.querySelector(".o-border-n")!;
-
-    // select A1 top border
-    selectTopCellBorder(borderEl, "A1");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      range: { _zone: toZone("A1"), _sheetId: model.getters.getActiveSheetId() },
+  describe("dragging highlight border on merged cells expands the final highlight zone", () => {
+    beforeEach(() => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 10,
+            rowNumber: 10,
+          },
+        ],
+      });
+      activeSheetId = model.getters.getActiveSheetId();
     });
 
-    // move to B1
-    moveToCell(borderEl, "B1");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-      range: { _zone: toZone("B1:C1"), _sheetId: model.getters.getActiveSheetId() },
+    test("cells (not columns or rows)", async () => {
+      merge(model, "B1:C1");
+      const parent = await mountHighlight("A1", "#666");
+      borderEl = fixture.querySelector(".o-border-n")!;
+
+      // select A1 top border
+      selectTopCellBorder(borderEl, "A1");
+      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "A1"),
+      });
+
+      // move to B1
+      moveToCell(borderEl, "B1");
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "B1:C1"),
+      });
     });
-  });
 
-  test("drag highlight on merged cells expands the highlight zone", async () => {
-    merge(model, "B1:C1");
-    const parent = await mountHighlight("A1", "#666");
-    borderEl = fixture.querySelector(".o-border-n")!;
+    test("full columns", async () => {
+      merge(model, "B1:C1");
+      const parent = await mountHighlight("A1:A10", "#666");
+      borderEl = fixture.querySelector(".o-border-n")!;
 
-    // select A1 top border
-    selectTopCellBorder(borderEl, "A1");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      range: { _zone: toZone("A1"), _sheetId: model.getters.getActiveSheetId() },
+      selectTopCellBorder(borderEl, "A1");
+      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "A1:A10"),
+      });
+
+      moveToCell(borderEl, "B1");
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "B:C"),
+      });
     });
 
-    // move to B1
-    moveToCell(borderEl, "B1");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-      range: { _zone: toZone("B1:C1"), _sheetId: model.getters.getActiveSheetId() },
+    test("full rows", async () => {
+      merge(model, "B2:B3");
+      const parent = await mountHighlight("A1:J1", "#666");
+      borderEl = fixture.querySelector(".o-border-n")!;
+
+      selectTopCellBorder(borderEl, "A1");
+      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "A1:J1"),
+      });
+
+      moveToCell(borderEl, "A2");
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+        range: toRangeData(activeSheetId, "2:3"),
+      });
     });
   });
 
@@ -483,7 +743,7 @@ describe("Border component", () => {
     // select B1 top border
     selectTopCellBorder(borderEl, "B1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      range: { _zone: toZone("B1"), _sheetId: model.getters.getActiveSheetId() },
+      range: toRangeData(activeSheetId, "B1"),
     });
 
     // move to C1
@@ -508,7 +768,7 @@ describe("Border component", () => {
     // select A2 top border
     selectTopCellBorder(borderEl, "A2");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      range: { _zone: toZone("A2"), _sheetId: model.getters.getActiveSheetId() },
+      range: toRangeData(activeSheetId, "A2"),
     });
 
     // move to A3

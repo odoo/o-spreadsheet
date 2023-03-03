@@ -382,11 +382,11 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     return this.getters.getRangeFromSheetXC(sheetId, xc).rangeData;
   }
 
-  getRangeDataFromZone(sheetId: UID, zone: Zone): RangeData {
+  getRangeDataFromZone(sheetId: UID, zone: Zone | UnboundedZone): RangeData {
     return { _sheetId: sheetId, _zone: zone };
   }
 
-  getRangeFromZone(sheetId: UID, zone: UnboundedZone): Range {
+  getRangeFromZone(sheetId: UID, zone: Zone | UnboundedZone): Range {
     return new RangeImpl(
       {
         sheetId,
