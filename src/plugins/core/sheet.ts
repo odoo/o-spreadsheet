@@ -456,8 +456,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     const isFullCol = zone.top === 0 && zone.bottom === this.getNumberRows(sheetId) - 1;
     return {
       ...zone,
-      right: isFullRow ? undefined : zone.right,
       bottom: isFullCol ? undefined : zone.bottom,
+      // cannot be unbounded in the 2 dimensions at once
+      right: isFullRow && !isFullCol ? undefined : zone.right,
     };
   }
 

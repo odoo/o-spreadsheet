@@ -30,6 +30,7 @@ import {
   RemoveColumnsRowsCommand,
   UID,
   UnboundedZone,
+  Zone,
 } from "../../types";
 import { SelectionEvent } from "../../types/event_stream";
 import { UIPlugin } from "../ui_plugin";
@@ -170,7 +171,9 @@ export class EditionPlugin extends UIPlugin {
         }
         break;
       case "START_CHANGE_HIGHLIGHT":
+        // FIXME: thiws whole ordeal could be handled with the Selection Processor which would extend the feature to selection inputs
         this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
+        // FIXME: we should check range SheetId compared to this.activeSheetId r maybe not have a sheetId in the payload ??
         const range = this.getters.getRangeFromRangeData(cmd.range);
         const previousRefToken = this.currentTokens
           .filter((token) => token.type === "REFERENCE")
@@ -556,7 +559,7 @@ export class EditionPlugin extends UIPlugin {
     }
   }
 
-  private insertSelectedRange(zone: UnboundedZone) {
+  private insertSelectedRange(zone: Zone | UnboundedZone) {
     // infer if range selected or selecting range from cursor position
     const start = Math.min(this.selectionStart, this.selectionEnd);
     const ref = this.getZoneReference(zone);
@@ -571,12 +574,12 @@ export class EditionPlugin extends UIPlugin {
   /**
    * Replace the current reference selected by the new one.
    * */
-  private replaceSelectedRanges(zone: UnboundedZone) {
+  private replaceSelectedRanges(zone: Zone | UnboundedZone) {
     const ref = this.getZoneReference(zone);
     this.replaceText(ref, this.selectionInitialStart, this.selectionEnd);
   }
 
-  private getZoneReference(zone: UnboundedZone): string {
+  private getZoneReference(zone: Zone | UnboundedZone): string {
     const inputSheetId = this.getters.getCurrentEditedCell().sheetId;
     const sheetId = this.getters.getActiveSheetId();
     const range = this.getters.getRangeFromZone(sheetId, zone);
