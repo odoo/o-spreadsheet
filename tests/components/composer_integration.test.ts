@@ -635,9 +635,9 @@ describe("TopBar composer", () => {
     ({ model, fixture } = await mountSpreadsheet());
     const composerEl = await typeInComposerTopBar("=\nS");
     await click(fixture, ".o-autocomplete-dropdown > div:nth-child(2)");
-    expect(composerEl.textContent).toBe("=\nSLN(");
+    expect(composerEl.textContent).toBe("=\nSUMX2MY2(");
     expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-    expect(cehMock.selectionState.position).toBe(6);
+    expect(cehMock.selectionState.position).toBe(11);
     expect(document.activeElement).toBe(composerEl);
     expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
   });

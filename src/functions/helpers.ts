@@ -2,7 +2,7 @@
 import { numberToJsDate, parseDateTime } from "../helpers/dates";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _lt } from "../translation";
-import { ArgValue, CellValue, MatrixArgValue, PrimitiveArgValue } from "../types";
+import { ArgValue, CellValue, isMatrix, Matrix, MatrixArgValue, PrimitiveArgValue } from "../types";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
 
@@ -63,6 +63,10 @@ export function strictToNumber(value: string | number | boolean | null | undefin
     throw new Error(expectNumberValueError(value));
   }
   return toNumber(value);
+}
+
+export function toInteger(value: string | number | boolean | null | undefined) {
+  return Math.trunc(toNumber(value));
 }
 
 export function strictToInteger(value: string | number | boolean | null | undefined) {
@@ -208,17 +212,27 @@ function reduceArgs<T>(
   args: ArgValue[],
   cellCb: (acc: T, a: CellValue | undefined) => T,
   dataCb: (acc: T, a: PrimitiveArgValue) => T,
-  initialValue: T
+  initialValue: T,
+  dir: "rowFirst" | "colFirst" = "rowFirst"
 ): T {
   let val = initialValue;
   for (let arg of args) {
     if (Array.isArray(arg)) {
       // arg is ref to a Cell/Range
-      const lenRow = arg.length;
-      const lenCol = arg[0].length;
-      for (let y = 0; y < lenCol; y++) {
-        for (let x = 0; x < lenRow; x++) {
-          val = cellCb(val, arg[x][y]);
+      const numberOfCols = arg.length;
+      const numberOfRows = arg[0].length;
+
+      if (dir === "rowFirst") {
+        for (let row = 0; row < numberOfRows; row++) {
+          for (let col = 0; col < numberOfCols; col++) {
+            val = cellCb(val, arg[col][row]);
+          }
+        }
+      } else {
+        for (let col = 0; col < numberOfCols; col++) {
+          for (let row = 0; row < numberOfRows; row++) {
+            val = cellCb(val, arg[col][row]);
+          }
         }
       }
     } else {
@@ -232,9 +246,10 @@ function reduceArgs<T>(
 export function reduceAny<T>(
   args: ArgValue[],
   cb: (acc: T, a: PrimitiveArgValue | undefined) => T,
-  initialValue: T
+  initialValue: T,
+  dir: "rowFirst" | "colFirst" = "rowFirst"
 ): T {
-  return reduceArgs(args, cb, cb, initialValue);
+  return reduceArgs(args, cb, cb, initialValue, dir);
 }
 
 export function reduceNumbers(
@@ -713,4 +728,54 @@ function compareCellValues(left: CellValue | undefined, right: CellValue | undef
     }
   }
   return typeOrder;
+}
+
+export function matrixMap<T, M>(matrix: Matrix<T>, fn: (value: T) => M): Matrix<M> {
+  let result: Matrix<M> = new Array(matrix.length);
+  for (let i = 0; i < matrix.length; i++) {
+    result[i] = new Array(matrix[i].length);
+    for (let j = 0; j < matrix[i].length; j++) {
+      result[i][j] = fn(matrix[i][j]);
+    }
+  }
+  return result;
+}
+
+export function toCellValueMatrix(values: Matrix<any>): Matrix<CellValue> {
+  return matrixMap(values, toCellValue);
+}
+
+export function toCellValue(value: any): CellValue {
+  if (value === null || value === undefined) return 0;
+  if (typeof value === "number") return value;
+  if (typeof value === "string") return value;
+  if (typeof value === "boolean") return value;
+  return String(value);
+}
+
+export function toMatrixArgValue(values: ArgValue): MatrixArgValue {
+  if (isMatrix(values)) return values;
+  return [[values === null ? 0 : values]];
+}
+
+/**
+ * Flatten an array of items, where each item can be a single value or a 2D array, and apply the
+ * callback to each element.
+ *
+ * The 2D array are flattened row first.
+ */
+export function flattenRowFirst<T, M>(items: Array<T | Matrix<T>>, callback: (val: T) => M): M[] {
+  const flattened: M[] = [];
+  for (const item of items) {
+    if (!Array.isArray(item)) {
+      flattened.push(callback(item));
+      continue;
+    }
+    for (let row = 0; row < item[0].length; row++) {
+      for (let col = 0; col < item.length; col++) {
+        flattened.push(callback(item[col][row]));
+      }
+    }
+  }
+  return flattened;
 }

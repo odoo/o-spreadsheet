@@ -11,6 +11,7 @@ export type ArgType =
   | "RANGE<NUMBER>"
   | "RANGE<DATE>"
   | "RANGE<STRING>"
+  | "RANGE<ANY>"
   | "META";
 
 export interface ArgDefinition {

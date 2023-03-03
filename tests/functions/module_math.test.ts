@@ -1,5 +1,14 @@
+import { Model } from "../../src";
 import { toNumber } from "../../src/functions/helpers";
-import { evaluateCell, evaluateCellFormat, evaluateGrid } from "../test_helpers/helpers";
+import { setCellContent } from "../test_helpers/commands_helpers";
+import { getEvaluatedCell } from "../test_helpers/getters_helpers";
+import {
+  checkFunctionDoesntSpreadBeyondRange,
+  evaluateCell,
+  evaluateCellFormat,
+  evaluateGrid,
+  getRangeValuesAsMatrix,
+} from "../test_helpers/helpers";
 
 describe("ABS formula", () => {
   test("take 1 argument", () => {
@@ -1564,6 +1573,31 @@ describe("MOD formula", () => {
   });
 });
 
+describe("MUNIT function", () => {
+  test("MUNIT takes 1 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=MUNIT()" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=MUNIT(2)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=MUNIT(2, 0)" })).toBe("#BAD_EXPR");
+  });
+
+  test("Argument should be a positive number", () => {
+    expect(evaluateCell("A1", { A1: "=MUNIT(0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=MUNIT(-1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MUNIT("hello")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+  });
+
+  test("Generate unit matrix", () => {
+    const model = new Model();
+    setCellContent(model, "D1", "=MUNIT(3)");
+    expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1],
+    ]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:F3")).toBeTruthy();
+  });
+});
+
 describe("ODD formula", () => {
   test.each([
     ["-3.9", -5],
@@ -1811,6 +1845,82 @@ describe("RAND formula", () => {
   test("return a number", () => {
     expect(evaluateCell("A1", { A1: "=RAND()" })).toBeGreaterThanOrEqual(0);
     expect(evaluateCell("A1", { A1: "=RAND()" })).toBeLessThan(1);
+  });
+});
+
+describe("RANDARRAY function", () => {
+  test("RANDARRAY takes 0-5 arguments", () => {
+    // @compatibility: on google sheets there is only 2 arguments
+    expect(evaluateCell("A1", { A1: "=RANDARRAY()" })).toBeBetween(0, 1);
+    expect(evaluateCell("A1", { A1: "=RANDARRAY(2)" })).toBeBetween(0, 1);
+    expect(evaluateCell("A1", { A1: "=RANDARRAY(2, 2)" })).toBeBetween(0, 1);
+    expect(evaluateCell("A1", { A1: "=RANDARRAY(2, 2, 0)" })).toBeBetween(0, 1);
+    expect(evaluateCell("A1", { A1: "=RANDARRAY(2, 2, 0, 1)" })).toBeBetween(0, 1);
+    expect(evaluateCell("A1", { A1: "=RANDARRAY(2, 2, 0, 1, FALSE)" })).toBeBetween(0, 1);
+    expect(evaluateCell("A1", { A1: "=RANDARRAY(2, 2, 0, 0, 1, FALSE, 5)" })).toBe("#BAD_EXPR");
+  });
+
+  test("cols and rows arguments must be > 0", () => {
+    expect(evaluateCell("A1", { A1: "=RANDARRAY(0, 1)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=RANDARRAY(-1, 1)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=RANDARRAY(1, 0)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=RANDARRAY(1, -1)" })).toBe("#ERROR");
+  });
+
+  test("Max argument must be >= min", () => {
+    expect(evaluateCell("A1", { A1: "=RANDARRAY(1, 1, 3, 1)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=RANDARRAY(1, 1, 3, 3)" })).not.toBe("#ERROR");
+  });
+
+  test("Min and max must be integer is whole_number is true", () => {
+    expect(evaluateCell("A1", { A1: "=RANDARRAY(1, 1, 0.1, 1, TRUE)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=RANDARRAY(1, 1, 0, 1.5, TRUE)" })).toBe("#ERROR");
+
+    expect(evaluateCell("A1", { A1: "=RANDARRAY(1, 1, 0.1, 0.5, FALSE)" })).not.toBe("#ERROR");
+  });
+
+  test("Random rows", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=RANDARRAY(2)");
+    expect(getEvaluatedCell(model, "A1").value).toBeBetween(0, 1);
+    expect(getEvaluatedCell(model, "A2").value).toBeBetween(0, 1);
+    expect(getEvaluatedCell(model, "B1").value).toBe("");
+    expect(getEvaluatedCell(model, "B21").value).toBe("");
+  });
+
+  test("Random columns", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=RANDARRAY(1, 2)");
+    expect(getEvaluatedCell(model, "A1").value).toBeBetween(0, 1);
+    expect(getEvaluatedCell(model, "A2").value).toBe("");
+    expect(getEvaluatedCell(model, "B1").value).toBeBetween(0, 1);
+    expect(getEvaluatedCell(model, "B2").value).toBe("");
+  });
+
+  test("Random rows and columns", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=RANDARRAY(2, 2)");
+    expect(getEvaluatedCell(model, "A1").value).toBeBetween(0, 1);
+    expect(getEvaluatedCell(model, "A2").value).toBeBetween(0, 1);
+    expect(getEvaluatedCell(model, "B1").value).toBeBetween(0, 1);
+    expect(getEvaluatedCell(model, "B2").value).toBeBetween(0, 1);
+  });
+
+  test("Max and min arguments", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=RANDARRAY(2, 2, -2, 2)");
+    expect(getEvaluatedCell(model, "A1").value).toBeBetween(-2, 2);
+    expect(getEvaluatedCell(model, "A2").value).toBeBetween(-2, 2);
+    expect(getEvaluatedCell(model, "B1").value).toBeBetween(-2, 2);
+    expect(getEvaluatedCell(model, "B2").value).toBeBetween(-2, 2);
+  });
+
+  test("whole_number argument", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=RANDARRAY(1, 1, -2, 2, TRUE)");
+    const val = getEvaluatedCell(model, "A1").value as number;
+    expect(val).toBeBetween(-2, 2);
+    expect(val).toEqual(Math.round(val));
   });
 });
 

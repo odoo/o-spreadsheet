@@ -497,9 +497,19 @@ export function toLowerCase(str: string | undefined): string {
   return str ? str.toLowerCase() : "";
 }
 
-export function transpose2dArray<T>(matrix: T[][]): T[][] {
-  if (!matrix.length) return matrix;
-  return matrix[0].map((_, i) => matrix.map((row) => row[i]));
+export function transpose2dArray<T, M>(
+  matrix: T[][],
+  callback: (val: T) => M = (val) => val as any
+): M[][] {
+  if (!matrix.length) return [];
+  const transposed: M[][] = Array(matrix[0].length);
+  for (let i = 0; i < matrix[0].length; i++) {
+    transposed[i] = Array(matrix.length);
+    for (let j = 0; j < matrix.length; j++) {
+      transposed[i][j] = callback(matrix[j][i]);
+    }
+  }
+  return transposed;
 }
 
 /**
