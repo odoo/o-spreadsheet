@@ -17,7 +17,7 @@
     "build:js": "tsc --module es6 --incremental",
     "bundle:js": "rollup -c -m dev",
     "bundle:xml": "node tools/bundle_xml/main.js",
-    "build": "npm-run-all build:js bundle:js 'bundle:xml -- --outDir build'",
+    "build": "npm-run-all build:js bundle:js \"bundle:xml -- --outDir build\"",
     "doc": "typedoc",
     "precommit": "npm run prettier && npm run doc",
     "test": "jest",
