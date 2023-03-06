@@ -56,9 +56,9 @@ export class RangeImpl implements Range {
     const { left, top, bottom, right } = this._zone;
     if (right !== undefined && bottom !== undefined) return { left, top, right, bottom };
     else if (bottom === undefined && right !== undefined) {
-      return { right, top, left, bottom: this.getSheetSize(this.sheetId).height - 1 };
+      return { right, top, left, bottom: this.getSheetSize(this.sheetId).numberOfRows - 1 };
     } else if (right === undefined && bottom !== undefined) {
-      return { bottom, left, top, right: this.getSheetSize(this.sheetId).width - 1 };
+      return { bottom, left, top, right: this.getSheetSize(this.sheetId).numberOfCols - 1 };
     }
     throw new Error(_lt("Bad zone format"));
   }

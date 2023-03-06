@@ -227,7 +227,7 @@ export class AutomaticSumPlugin extends UIPlugin {
   private dimensionsToSum(sheetId: UID, zone: Zone): Set<Dimension> {
     const dimensions = new Set<Dimension>();
     if (isOneDimensional(zone)) {
-      dimensions.add(zoneToDimension(zone).width === 1 ? "COL" : "ROW");
+      dimensions.add(zoneToDimension(zone).numberOfCols === 1 ? "COL" : "ROW");
       return dimensions;
     }
     if (this.lastColIsEmpty(sheetId, zone)) {

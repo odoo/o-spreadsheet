@@ -415,8 +415,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   getSheetSize(sheetId: UID): ZoneDimension {
     return {
-      height: this.getNumberRows(sheetId),
-      width: this.getNumberCols(sheetId),
+      numberOfRows: this.getNumberRows(sheetId),
+      numberOfCols: this.getNumberCols(sheetId),
     };
   }
 

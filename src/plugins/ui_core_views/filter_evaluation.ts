@@ -217,7 +217,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
         const tableZone = toZone(tableData.range);
         const filters: ExcelFilterData[] = [];
         const headerNames: string[] = [];
-        for (const i of range(0, zoneToDimension(tableZone).width)) {
+        for (const i of range(0, zoneToDimension(tableZone).numberOfCols)) {
           const position = {
             sheetId: sheetData.id,
             col: tableZone.left + i,

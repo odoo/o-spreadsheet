@@ -61,7 +61,7 @@ export class SortPlugin extends UIPlugin {
     const merges = this.getters.getMerges(sheetId).filter((merge) => overlap(merge, zone));
     /*Test the presence of merges of different sizes*/
     const mergeDimension = zoneToDimension(merges[0]);
-    let [widthFirst, heightFirst] = [mergeDimension.width, mergeDimension.height];
+    let [widthFirst, heightFirst] = [mergeDimension.numberOfCols, mergeDimension.numberOfRows];
     if (
       !merges.every((merge) => {
         let [widthCurrent, heightCurrent] = [

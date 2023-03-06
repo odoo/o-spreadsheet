@@ -200,7 +200,7 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
       }
 
       // Add filters for new columns
-      if (filters.length < zoneToDimension(zone).width) {
+      if (filters.length < zoneToDimension(zone).numberOfCols) {
         for (let col = zone.left; col <= zone.right; col++) {
           if (!filters.find((filter) => filter.col === col)) {
             filters.push(

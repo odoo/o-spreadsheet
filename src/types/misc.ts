@@ -85,8 +85,8 @@ export interface UnboundedZone {
 }
 
 export interface ZoneDimension {
-  height: HeaderIndex;
-  width: HeaderIndex;
+  numberOfRows: HeaderIndex;
+  numberOfCols: HeaderIndex;
 }
 
 export type Align = "left" | "right" | "center" | undefined;

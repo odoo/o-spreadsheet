@@ -40,9 +40,9 @@ export class ClipboardOsState extends ClipboardCellsAbstractState {
     const values = this.values;
     const pasteZone = this.getPasteZone(target);
     const { left: activeCol, top: activeRow } = pasteZone;
-    const { width, height } = zoneToDimension(pasteZone);
+    const { numberOfCols, numberOfRows } = zoneToDimension(pasteZone);
     const sheetId = this.getters.getActiveSheetId();
-    this.addMissingDimensions(width, height, activeCol, activeRow);
+    this.addMissingDimensions(numberOfCols, numberOfRows, activeCol, activeRow);
     for (let i = 0; i < values.length; i++) {
       for (let j = 0; j < values[i].length; j++) {
         this.dispatch("UPDATE_CELL", {
@@ -56,8 +56,8 @@ export class ClipboardOsState extends ClipboardCellsAbstractState {
     const zone = {
       left: activeCol,
       top: activeRow,
-      right: activeCol + width - 1,
-      bottom: activeRow + height - 1,
+      right: activeCol + numberOfCols - 1,
+      bottom: activeRow + numberOfRows - 1,
     };
     this.selection.selectZone({ cell: { col: activeCol, row: activeRow }, zone });
   }

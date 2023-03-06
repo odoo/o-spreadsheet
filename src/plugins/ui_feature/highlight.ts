@@ -33,9 +33,9 @@ export class HighlightPlugin extends UIPlugin {
           x.zone.right < this.getters.getNumberCols(x.sheetId)
       )
       .map((highlight) => {
-        const { height, width } = zoneToDimension(highlight.zone);
+        const { numberOfRows, numberOfCols } = zoneToDimension(highlight.zone);
         const zone =
-          height * width === 1
+          numberOfRows * numberOfCols === 1
             ? this.getters.expandZone(highlight.sheetId, highlight.zone)
             : highlight.zone;
         return {

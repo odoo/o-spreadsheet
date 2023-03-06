@@ -1,6 +1,7 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
 import {
   Dimension,
+  DOMDimension,
   Getters,
   HeaderIndex,
   Pixel,
@@ -8,7 +9,6 @@ import {
   Rect,
   UID,
   Zone,
-  ZoneDimension,
 } from "../types";
 import { intersection, isInside } from "./zones";
 
@@ -55,7 +55,7 @@ export class InternalViewport {
 
   // PUBLIC
 
-  getMaxSize(): ZoneDimension {
+  getMaxSize(): DOMDimension {
     const lastCol = this.getters.findLastVisibleColRowIndex(this.sheetId, "COL", {
       first: this.boundaries.left,
       last: this.boundaries.right,

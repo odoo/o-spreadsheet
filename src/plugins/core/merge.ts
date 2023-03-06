@@ -268,8 +268,8 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     if (merge) {
       return isEqual(zone, merge);
     }
-    const { width, height } = zoneToDimension(zone);
-    return width === 1 && height === 1;
+    const { numberOfCols, numberOfRows } = zoneToDimension(zone);
+    return numberOfCols === 1 && numberOfRows === 1;
   }
   // ---------------------------------------------------------------------------
   // Merges
@@ -454,8 +454,8 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
             this.removeMerge(sheetId, currentZone);
             break;
           default:
-            const { width, height } = zoneToDimension(result.range.zone);
-            if (width === 1 && height === 1) {
+            const { numberOfCols, numberOfRows } = zoneToDimension(result.range.zone);
+            if (numberOfCols === 1 && numberOfRows === 1) {
               this.removeMerge(sheetId, currentZone);
             } else {
               this.history.update("merges", sheetId, parseInt(mergeId, 10), result.range);
