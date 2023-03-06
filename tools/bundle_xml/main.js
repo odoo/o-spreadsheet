@@ -1,8 +1,22 @@
+const { version } = require("../../package.json");
+const git = require("git-rev-sync");
 const bundle = require("./bundle_xml_templates");
+const parseArgs = require("minimist");
 
 const DEFAULT_DIR = "dist";
 
-const outDirFlagIndex = process.argv.findIndex((arg) => arg === "--outDir");
-const outDir = outDirFlagIndex !== -1 ? process.argv[outDirFlagIndex + 1] : DEFAULT_DIR;
+const argv = parseArgs(process.argv.slice(2));
 
-bundle.writeOwlTemplateBundleToFile(outDir || DEFAULT_DIR);
+let commitHash = "";
+
+try {
+  commitHash = git.short();
+} catch (_) {}
+
+const OUTRO = `
+  __info__.version = '${version}';
+  __info__.date = '${new Date().toISOString()}';
+  __info__.hash = '${commitHash}';
+`;
+
+bundle.writeOwlTemplateBundleToFile(argv.outDir || DEFAULT_DIR, OUTRO);
