@@ -15,7 +15,7 @@
     "dev": "npm-run-all build --parallel server serve \"build:* -- --watch\"",
     "server": "node tools/server/main.js",
     "build:js": "tsc --module es6 --incremental",
-    "build:bundle": "rollup -c -m dev",
+    "build:bundle": "rollup -c -m --configDev",
     "build": "npm run build:js && npm run build:bundle",
     "doc": "typedoc",
     "precommit": "npm run prettier && npm run doc",

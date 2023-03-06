@@ -35,14 +35,14 @@ function getConfigForFormat(format, minified = false) {
   };
 }
 
-let output = [];
-let input = "";
-let plugins = [nodeResolve()];
-let config = {};
+export default (commandLineArgs) => {
+  let output = [];
+  let input = "";
+  let plugins = [nodeResolve()];
+  let config = {};
 
-switch (process.argv[4]) {
-  // Only build iife version to improve speed
-  case "dev":
+  if (commandLineArgs.configDev) {
+    // Only build iife version to improve speed
     input = "build/js/index.js";
     output = [
       {
@@ -60,8 +60,7 @@ switch (process.argv[4]) {
       output,
       plugins,
     };
-    break;
-  default:
+  } else {
     input = "src/index.ts";
     output = [
       getConfigForFormat("esm"),
@@ -83,7 +82,7 @@ switch (process.argv[4]) {
         plugins: [dts(), nodeResolve()],
       },
     ];
-    break;
-}
+  }
 
-export default config;
+  return config;
+};
