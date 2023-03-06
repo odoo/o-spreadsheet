@@ -1,12 +1,5 @@
 import { Alias, Align, Border, Pixel, Style, VerticalAlign, Zone } from "./misc";
 
-export type Rect = {
-  x: Pixel;
-  y: Pixel;
-  width: Pixel;
-  height: Pixel;
-};
-
 /**
  * Coordinate in pixels
  */
@@ -14,6 +7,13 @@ export interface DOMCoordinates {
   x: Pixel;
   y: Pixel;
 }
+
+export interface DOMDimension {
+  width: Pixel;
+  height: Pixel;
+}
+
+export type Rect = DOMCoordinates & DOMDimension;
 
 export interface BoxTextContent {
   textLines: string[];
@@ -38,11 +38,6 @@ export interface Image {
   size: Pixel;
   type: "icon"; //| "Picture"
   image: HTMLImageElement;
-}
-
-export interface DOMDimension {
-  width: Pixel;
-  height: Pixel;
 }
 
 /**

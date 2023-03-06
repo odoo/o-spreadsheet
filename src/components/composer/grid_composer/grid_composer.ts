@@ -13,7 +13,6 @@ import { getTextDecoration } from "../../helpers";
 import { css, cssPropertiesToCss } from "../../helpers/css";
 import { ComposerFocusType } from "../../spreadsheet/spreadsheet";
 import { Composer } from "../composer/composer";
-import { ZoneDimension } from "./../../../types/misc";
 
 const COMPOSER_BORDER_WIDTH = 3 * 0.4 * window.devicePixelRatio || 1;
 const GRID_CELL_REFERENCE_TOP_OFFSET = 28;
@@ -50,7 +49,7 @@ interface Props {
   focus: ComposerFocusType;
   onComposerUnmounted: () => void;
   onComposerContentFocused: (selection: ComposerSelection) => void;
-  gridDims: ZoneDimension;
+  gridDims: DOMDimension;
 }
 
 /**

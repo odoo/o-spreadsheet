@@ -9,6 +9,7 @@ import {
   CommandResult,
   Dimension,
   DOMCoordinates,
+  DOMDimension,
   EdgeScrollInfo,
   Figure,
   HeaderIndex,
@@ -22,7 +23,6 @@ import {
   UID,
   Viewport,
   Zone,
-  ZoneDimension,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
@@ -268,14 +268,14 @@ export class SheetViewPlugin extends UIPlugin {
     return Math.max(...this.getSubViewports(sheetId).map((viewport) => viewport.getRowIndex(y)));
   }
 
-  getSheetViewDimensionWithHeaders(): ZoneDimension {
+  getSheetViewDimensionWithHeaders(): DOMDimension {
     return {
       width: this.sheetViewWidth + this.gridOffsetX,
       height: this.sheetViewHeight + this.gridOffsetY,
     };
   }
 
-  getSheetViewDimension(): ZoneDimension {
+  getSheetViewDimension(): DOMDimension {
     return {
       width: this.sheetViewWidth,
       height: this.sheetViewHeight,

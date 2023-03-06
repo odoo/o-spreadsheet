@@ -477,14 +477,14 @@ function positionsDifference(positions: readonly Position[], toRemove: readonly 
 
 export function zoneToDimension(zone: Zone): ZoneDimension {
   return {
-    height: zone.bottom - zone.top + 1,
-    width: zone.right - zone.left + 1,
+    numberOfRows: zone.bottom - zone.top + 1,
+    numberOfCols: zone.right - zone.left + 1,
   };
 }
 
 export function isOneDimensional(zone: Zone): boolean {
-  const { width, height } = zoneToDimension(zone);
-  return width === 1 || height === 1;
+  const { numberOfCols, numberOfRows } = zoneToDimension(zone);
+  return numberOfCols === 1 || numberOfRows === 1;
 }
 
 /**

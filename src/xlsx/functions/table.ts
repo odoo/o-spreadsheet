@@ -44,7 +44,7 @@ function addAutoFilter(table: ExcelFilterTableData): XMLString {
 function addFilterColumns(table: ExcelFilterTableData): XMLString[] {
   const tableZone = toZone(table.range);
   const columns: XMLString[] = [];
-  for (const i of range(0, zoneToDimension(tableZone).width)) {
+  for (const i of range(0, zoneToDimension(tableZone).numberOfCols)) {
     const filter = table.filters[i];
     if (!filter || !filter.filteredValues.length) {
       continue;
@@ -73,7 +73,7 @@ function addFilter(filter: ExcelFilterData): XMLString {
 function addTableColumns(table: ExcelFilterTableData, sheetData: ExcelSheetData): XMLString {
   const tableZone = toZone(table.range);
   const columns: XMLString[] = [];
-  for (const i of range(0, zoneToDimension(tableZone).width)) {
+  for (const i of range(0, zoneToDimension(tableZone).numberOfCols)) {
     const colHeaderXc = toXC(tableZone.left + i, tableZone.top);
     const colName = sheetData.cells[colHeaderXc]?.content || `col${i}`;
     const colAttributes: XMLAttributes = [

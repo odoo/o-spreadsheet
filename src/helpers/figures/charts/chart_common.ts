@@ -242,10 +242,10 @@ export function toExcelDataset(getters: CoreGetters, ds: DataSet): ExcelChartDat
   const labelZone = ds.labelCell?.zone;
   let dataZone = ds.dataRange.zone;
   if (labelZone) {
-    const { height, width } = zoneToDimension(dataZone);
-    if (height === 1) {
+    const { numberOfRows, numberOfCols } = zoneToDimension(dataZone);
+    if (numberOfRows === 1) {
       dataZone = { ...dataZone, left: dataZone.left + 1 };
-    } else if (width === 1) {
+    } else if (numberOfCols === 1) {
       dataZone = { ...dataZone, top: dataZone.top + 1 };
     }
   }

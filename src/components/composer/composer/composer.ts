@@ -4,10 +4,10 @@ import { EnrichedToken } from "../../../formulas/index";
 import { functionRegistry } from "../../../functions/index";
 import {
   fuzzyLookup,
+  getZoneArea,
   isEqual,
   rangeReference,
   splitReference,
-  zoneToDimension,
 } from "../../../helpers/index";
 import { ComposerSelection } from "../../../plugins/ui_stateful/edition";
 import {
@@ -603,8 +603,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
 
       const range = this.env.model.getters.getRangeFromSheetXC(refSheet, xc);
       let zone = range.zone;
-      const { height, width } = zoneToDimension(zone);
-      zone = height * width === 1 ? this.env.model.getters.expandZone(refSheet, zone) : zone;
+      zone = getZoneArea(zone) === 1 ? this.env.model.getters.expandZone(refSheet, zone) : zone;
       return isEqual(zone, highlight.zone);
     });
     return highlight && highlight.color ? highlight.color : undefined;
