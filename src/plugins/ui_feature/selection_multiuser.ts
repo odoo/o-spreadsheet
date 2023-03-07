@@ -1,6 +1,6 @@
 import { ClientDisconnectedError } from "../../collaborative/session";
 import { DEFAULT_FONT, DEFAULT_FONT_SIZE } from "../../constants";
-import { Client, ClientPosition, GridRenderingContext, LAYERS, UID } from "../../types";
+import { Client, ClientPosition, Color, GridRenderingContext, LAYERS, UID } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 function randomChoice(arr: string[]): string {
@@ -23,14 +23,14 @@ const colors = [
 ];
 
 interface ClientToDisplay extends Required<Client> {
-  color: string;
+  color: Color;
 }
 
 export class SelectionMultiUserPlugin extends UIPlugin {
   static getters = ["getClientsToDisplay"] as const;
   static layers = [LAYERS.Selection];
   private availableColors = new Set(colors);
-  private colors: Record<UID, string> = {};
+  private colors: Record<UID, Color> = {};
 
   private isPositionValid(position: ClientPosition): boolean {
     return (
@@ -39,7 +39,7 @@ export class SelectionMultiUserPlugin extends UIPlugin {
     );
   }
 
-  private chooseNewColor(): string {
+  private chooseNewColor(): Color {
     if (this.availableColors.size === 0) {
       this.availableColors = new Set(colors);
     }

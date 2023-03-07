@@ -5,6 +5,7 @@ import { _t } from "../../../translation";
 import {
   CancelledReason,
   CellIsRule,
+  Color,
   ColorScaleRule,
   ColorScaleThreshold,
   CommandResult,
@@ -634,7 +635,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
     this.closeMenus();
   }
 
-  setColor(target: string, color: string) {
+  setColor(target: string, color: Color) {
     this.state.rules.cellIs.style[target] = color;
     this.closeMenus();
   }
@@ -669,7 +670,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
     }
   }
 
-  setColorScaleColor(target: string, color: string) {
+  setColorScaleColor(target: string, color: Color) {
     const point = this.state.rules.colorScale[target];
     if (point) {
       point.color = Number.parseInt(color.substr(1), 16);

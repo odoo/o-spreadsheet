@@ -7,6 +7,7 @@ import {
 } from "../../src/constants";
 import { toHex, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
+import { Color } from "../../src/types";
 import { DispatchResult } from "../../src/types/commands";
 import { merge } from "../test_helpers/commands_helpers";
 import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
@@ -120,7 +121,7 @@ class Parent extends Component {
   }
 }
 
-async function mountHighlight(zone: string, color: string): Promise<Parent> {
+async function mountHighlight(zone: string, color: Color): Promise<Parent> {
   let parent: Component;
   ({ fixture, parent } = await mountComponent(Parent, {
     props: { zone: toZone(zone), color, model },

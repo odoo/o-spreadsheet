@@ -10,7 +10,7 @@ import {
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { UuidGenerator } from "../../helpers/index";
 import { RangeInputValue } from "../../plugins/ui_feature/selection_input";
-import { SpreadsheetChildEnv } from "../../types";
+import { Color, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 
@@ -82,7 +82,7 @@ interface State {
 interface SelectionRange extends Omit<RangeInputValue, "color"> {
   isFocused: boolean;
   isValidRange: boolean;
-  color?: string;
+  color?: Color;
 }
 /**
  * This component can be used when the user needs to input some
