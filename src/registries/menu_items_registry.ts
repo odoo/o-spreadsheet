@@ -1,4 +1,5 @@
 import { Registry } from "../registry";
+import { Color } from "../types";
 import { SpreadsheetChildEnv } from "../types/env";
 
 //------------------------------------------------------------------------------
@@ -36,7 +37,7 @@ export interface MenuItem {
   children?: menuChildren;
   separator?: boolean;
   icon?: string;
-  textColor?: string;
+  textColor?: Color;
 }
 
 export type FullMenuItem = Required<MenuItem>;

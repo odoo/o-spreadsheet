@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH } from "../../../constants";
-import { SpreadsheetChildEnv, Zone } from "../../../types";
+import { Color, SpreadsheetChildEnv, Zone } from "../../../types";
 import { css } from "../../helpers/css";
 
 css/* scss */ `
@@ -31,7 +31,7 @@ type Orientation = "nw" | "ne" | "sw" | "se";
 
 interface Props {
   zone: Zone;
-  color: string;
+  color: Color;
   orientation: Orientation;
   isResizing: boolean;
   onResizeHighlight: (isLeft: boolean, isRight: boolean) => void;

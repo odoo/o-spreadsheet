@@ -1,7 +1,7 @@
 import { Component, useState } from "@odoo/owl";
 import { ComponentsImportance } from "../../../constants";
 import { clip, isEqual } from "../../../helpers";
-import { Pixel, SpreadsheetChildEnv, Zone } from "../../../types";
+import { Color, Pixel, SpreadsheetChildEnv, Zone } from "../../../types";
 import { css } from "../../helpers/css";
 import { gridOverlayPosition } from "../../helpers/dom_helpers";
 import { dragAndDropBeyondTheViewport } from "../../helpers/drag_and_drop";
@@ -16,7 +16,7 @@ css/*SCSS*/ `
 
 interface Props {
   zone: Zone;
-  color: string;
+  color: Color;
 }
 
 interface HighlightState {

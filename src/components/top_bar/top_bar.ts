@@ -18,6 +18,7 @@ import { FullMenuItem } from "../../registries/menu_items_registry";
 import {
   Align,
   BorderCommand,
+  Color,
   Pixel,
   SetDecimalStep,
   SpreadsheetChildEnv,
@@ -312,8 +313,8 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   undoTool = false;
   redoTool = false;
   paintFormatTool = false;
-  fillColor: string = "#ffffff";
-  textColor: string = "#000000";
+  fillColor: Color = "#ffffff";
+  textColor: Color = "#000000";
   menus: FullMenuItem[] = [];
   composerStyle = `
     line-height: 34px;
@@ -449,7 +450,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  setColor(target: string, color: string) {
+  setColor(target: string, color: Color) {
     setStyle(this.env, { [target]: color });
   }
 

@@ -1,5 +1,5 @@
 import { _lt } from "./translation";
-import { BorderDescr } from "./types";
+import { BorderDescr, Color } from "./types";
 import { CellErrorType } from "./types/errors";
 
 export const CANVAS_SHIFT = 0.5;
@@ -23,7 +23,7 @@ export const BACKGROUND_HEADER_FILTER_COLOR = "#E6F4EA";
 export const BACKGROUND_HEADER_SELECTED_FILTER_COLOR = "#CEEAD6";
 
 // Color picker defaults as upper case HEX to match `toHex`helper
-export const COLOR_PICKER_DEFAULTS = [
+export const COLOR_PICKER_DEFAULTS: Color[] = [
   "#000000",
   "#434343",
   "#666666",
