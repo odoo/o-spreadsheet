@@ -119,7 +119,7 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get secondaryFontColor() {
-    return relativeLuminance(this.primaryFontColor) <= 0.3 ? "#757575" : "#bbbbbb";
+    return relativeLuminance(this.backgroundColor) > 0.3 ? "#525252" : "#C8C8C8";
   }
 
   get figure() {
