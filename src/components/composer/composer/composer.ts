@@ -10,7 +10,9 @@ import {
   splitReference,
 } from "../../../helpers/index";
 import { ComposerSelection } from "../../../plugins/ui_stateful/edition";
+
 import {
+  Color,
   CSSProperties,
   DOMDimension,
   FunctionDescription,
@@ -35,7 +37,7 @@ const selectionIndicator = "␣";
 
 export type HtmlContent = {
   value: string;
-  color?: string;
+  color?: Color;
   class?: string;
 };
 
@@ -590,7 +592,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     return !(content.value || content.class);
   }
 
-  private rangeColor(xc: string, sheetName?: string): string | undefined {
+  private rangeColor(xc: string, sheetName?: string): Color | undefined {
     if (this.props.focus === "inactive") {
       return undefined;
     }

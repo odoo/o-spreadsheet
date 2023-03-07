@@ -1,6 +1,6 @@
 import { Component, useExternalListener, useState } from "@odoo/owl";
 import { ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
-import { DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 
 type ColorPickerId = undefined | "backgroundColor" | "baselineColorUp" | "baselineColorDown";
@@ -45,7 +45,7 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
     }
   }
 
-  setColor(color: string, colorPickerId: ColorPickerId) {
+  setColor(color: Color, colorPickerId: ColorPickerId) {
     switch (colorPickerId) {
       case "backgroundColor":
         this.props.updateChart({ background: color });

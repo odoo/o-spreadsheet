@@ -1,4 +1,5 @@
 import { UuidGenerator } from "../helpers";
+import { Color } from "../types";
 import { SpreadsheetChildEnv } from "../types/env";
 import { Registry } from "./registry";
 
@@ -37,7 +38,7 @@ export interface MenuItemSpec {
   children?: MenuChildren;
   separator?: boolean;
   icon?: string;
-  textColor?: string;
+  textColor?: Color;
 }
 
 export interface MenuItem {

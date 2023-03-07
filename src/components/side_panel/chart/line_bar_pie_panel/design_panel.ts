@@ -2,7 +2,7 @@ import { Component, useExternalListener, useState } from "@odoo/owl";
 import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import { LineChartDefinition } from "../../../../types/chart/line_chart";
 import { PieChartDefinition } from "../../../../types/chart/pie_chart";
-import { CommandResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import { Color, CommandResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 
 interface Props {
@@ -37,7 +37,7 @@ export class LineBarPieDesignPanel extends Component<Props, SpreadsheetChildEnv>
     this.state.fillColorTool = !this.state.fillColorTool;
   }
 
-  updateBackgroundColor(color: string) {
+  updateBackgroundColor(color: Color) {
     this.props.updateChart({
       background: color,
     });
