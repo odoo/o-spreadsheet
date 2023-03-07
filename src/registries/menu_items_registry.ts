@@ -1,4 +1,4 @@
-import { SpreadsheetChildEnv } from "../types";
+import { Color, SpreadsheetChildEnv } from "../types";
 import { Registry } from "./registry";
 
 //------------------------------------------------------------------------------
@@ -36,7 +36,7 @@ export interface MenuItem {
   children?: menuChildren;
   separator?: boolean;
   icon?: string;
-  textColor?: string;
+  textColor?: Color;
 }
 
 export type FullMenuItem = Required<MenuItem>;
