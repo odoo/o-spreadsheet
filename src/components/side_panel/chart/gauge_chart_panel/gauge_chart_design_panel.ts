@@ -1,7 +1,13 @@
 import { Component, useExternalListener, useState } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/index";
 import { GaugeChartDefinition, SectionRule } from "../../../../types/chart/gauge_chart";
-import { CommandResult, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import {
+  Color,
+  CommandResult,
+  DispatchResult,
+  SpreadsheetChildEnv,
+  UID,
+} from "../../../../types/index";
 import { css } from "../../../helpers/css";
 import { ChartTerms } from "../../../translations_terms";
 import { ColorPickerWidget } from "./../../../color_picker/color_picker_widget";
@@ -75,7 +81,7 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     );
   }
 
-  updateBackgroundColor(color: string) {
+  updateBackgroundColor(color: Color) {
     this.state.openedMenu = undefined;
     this.props.updateChart({
       background: color,
@@ -146,7 +152,7 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     this.updateSectionRule(sectionRule);
   }
 
-  updateSectionColor(target: string, color: string) {
+  updateSectionColor(target: string, color: Color) {
     const sectionRule = deepCopy(this.props.definition.sectionRule);
     sectionRule.colors[target] = color;
     this.updateSectionRule(sectionRule);

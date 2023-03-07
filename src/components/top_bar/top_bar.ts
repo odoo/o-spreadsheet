@@ -24,6 +24,7 @@ import { MenuItem } from "../../registries/menu_items_registry";
 import {
   Align,
   BorderCommand,
+  Color,
   Format,
   Pixel,
   SetDecimalStep,
@@ -275,8 +276,8 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   undoTool = false;
   redoTool = false;
   paintFormatTool = false;
-  fillColor: string = "#ffffff";
-  textColor: string = "#000000";
+  fillColor: Color = "#ffffff";
+  textColor: Color = "#000000";
   menus: MenuItem[] = [];
 
   setup() {
@@ -424,7 +425,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  setColor(target: string, color: string) {
+  setColor(target: string, color: Color) {
     setStyle(this.env, { [target]: color });
     this.onClick();
   }

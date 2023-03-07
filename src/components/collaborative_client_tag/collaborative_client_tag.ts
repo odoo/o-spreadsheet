@@ -1,12 +1,12 @@
 import { Component } from "@odoo/owl";
 import { DEFAULT_FONT_SIZE } from "../../constants";
-import { HeaderIndex, SpreadsheetChildEnv } from "../../types";
+import { Color, HeaderIndex, SpreadsheetChildEnv } from "../../types";
 import { css, cssPropertiesToCss } from "../helpers/css";
 
 interface ClientTagProps {
   active: boolean;
   name: string;
-  color: string;
+  color: Color;
   col: HeaderIndex;
   row: HeaderIndex;
 }
