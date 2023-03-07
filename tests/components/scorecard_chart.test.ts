@@ -173,7 +173,7 @@ describe("Scorecard charts", () => {
 
     expect(getChartElement()).toBeTruthy();
     expect(getChartBaselineTextContent()).toEqual("1");
-    expect(toHex(getChartBaselineTextElement()!.style["color"])).toEqual("#757575");
+    expect(toHex(getChartBaselineTextElement()!.style["color"])).toEqual("#525252");
   });
 
   test("Key < baseline display in red with down arrow", async () => {
@@ -199,7 +199,7 @@ describe("Scorecard charts", () => {
 
     const baselineElement = getChartBaselineElement();
     expect(baselineElement.querySelector("svg")).toBeFalsy();
-    expect(toHex(baselineElement.querySelector("span")!.style["color"])).toEqual("#757575");
+    expect(toHex(baselineElement.querySelector("span")!.style["color"])).toEqual("#525252");
     expect(getChartBaselineTextContent()).toEqual("0");
   });
 
@@ -312,9 +312,9 @@ describe("Scorecard charts", () => {
       chartId
     );
 
-    expect(toHex(getChartTitleElement()!.style["color"])).toEqual("#BBBBBB");
-    expect(toHex(getChartBaselineTextElement()!.style["color"])).toEqual("#BBBBBB");
-    expect(toHex(getChartBaselineDescrElement()!.style["color"])).toEqual("#BBBBBB");
+    expect(toHex(getChartTitleElement()!.style["color"])).toEqual("#C8C8C8");
+    expect(toHex(getChartBaselineTextElement()!.style["color"])).toEqual("#C8C8C8");
+    expect(toHex(getChartBaselineDescrElement()!.style["color"])).toEqual("#C8C8C8");
     expect(toHex(getChartKeyElement()!.style["color"])).toEqual("#FFFFFF");
   });
 

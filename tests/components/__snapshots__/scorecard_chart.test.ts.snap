@@ -15,7 +15,7 @@ exports[`Scorecard charts Scorecard snapshot 1`] = `
     >
       <div
         class="o-title-text"
-        style="font-size:18px; display:inline-block; color:#757575;"
+        style="font-size:18px; display:inline-block; color:#525252;"
       >
         hello
       </div>
@@ -58,7 +58,7 @@ exports[`Scorecard charts Scorecard snapshot 1`] = `
           
           <span
             class="o-baseline-text-description"
-            style="font-size:33.55526293945314px; display:inline-block; color:#757575;"
+            style="font-size:33.55526293945314px; display:inline-block; color:#525252;"
           >
              description
           </span>
@@ -119,7 +119,7 @@ exports[`Scorecard charts scorecard text is resized while figure is resized 1`] 
     >
       <div
         class="o-title-text"
-        style="font-size:18px; display:inline-block; color:#757575;"
+        style="font-size:18px; display:inline-block; color:#525252;"
       >
         hello
       </div>
@@ -162,7 +162,7 @@ exports[`Scorecard charts scorecard text is resized while figure is resized 1`] 
           
           <span
             class="o-baseline-text-description"
-            style="font-size:14.764795898437502px; display:inline-block; color:#757575;"
+            style="font-size:14.764795898437502px; display:inline-block; color:#525252;"
           >
              description
           </span>
