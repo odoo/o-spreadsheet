@@ -328,7 +328,7 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
   }
 
   const data: number[] = [];
-  const backgroundColor: string[] = [];
+  const backgroundColor: Color[] = [];
   needleInflectionPoint
     .sort((a, b) => a.value - b.value)
     .map((point) => {

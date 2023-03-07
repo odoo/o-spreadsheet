@@ -218,8 +218,8 @@ function getPieConfiguration(
   return config;
 }
 
-function getPieColors(colors: ChartColors, dataSetsValues: DatasetValues[]): string[] {
-  const pieColors: string[] = [];
+function getPieColors(colors: ChartColors, dataSetsValues: DatasetValues[]): Color[] {
+  const pieColors: Color[] = [];
   const maxLength = Math.max(...dataSetsValues.map((ds) => ds.data.length));
   for (let i = 0; i <= maxLength; i++) {
     pieColors.push(colors.next());
