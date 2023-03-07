@@ -1,9 +1,17 @@
 import { escapeRegExp } from "../../helpers";
-import { Cell, Command, GridRenderingContext, HeaderIndex, LAYERS, UID } from "../../types/index";
+import {
+  Cell,
+  Color,
+  Command,
+  GridRenderingContext,
+  HeaderIndex,
+  LAYERS,
+  UID,
+} from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
-const BORDER_COLOR: string = "#8B008B";
-const BACKGROUND_COLOR: string = "#8B008B33";
+const BORDER_COLOR: Color = "#8B008B";
+const BACKGROUND_COLOR: Color = "#8B008B33";
 
 export interface SearchOptions {
   matchCase: boolean;

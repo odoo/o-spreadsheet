@@ -99,8 +99,8 @@ export interface Style {
   underline?: boolean;
   align?: Align;
   wrapping?: Wrapping;
-  fillColor?: string;
-  textColor?: string;
+  fillColor?: Color;
+  textColor?: Color;
   fontSize?: number; // in pt, not in px!
 }
 
@@ -205,7 +205,7 @@ export interface Merge extends Zone {
 export interface Highlight {
   zone: Zone;
   sheetId: UID;
-  color: string | null;
+  color: Color | null;
 }
 
 export interface PaneDivision {

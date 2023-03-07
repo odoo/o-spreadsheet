@@ -12,6 +12,7 @@ import { SelectionStreamProcessor } from "../../selection_stream/selection_strea
 import { StateObserver } from "../../state_observer";
 import { SelectionEvent } from "../../types/event_stream";
 import {
+  Color,
   Command,
   CommandDispatcher,
   CommandResult,
@@ -27,7 +28,7 @@ const uuidGenerator = new UuidGenerator();
 export interface RangeInputValue {
   id: UID;
   xc: string;
-  color: string;
+  color: Color;
 }
 
 /**

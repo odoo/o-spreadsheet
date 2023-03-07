@@ -2,7 +2,7 @@ import { Component, onMounted, onPatched, onWillUnmount, useState } from "@odoo/
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { UuidGenerator } from "../../helpers/index";
 import { RangeInputValue } from "../../plugins/ui/selection_input";
-import { SpreadsheetChildEnv } from "../../types";
+import { Color, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 
 const uuidGenerator = new UuidGenerator();
@@ -65,7 +65,7 @@ interface Props {
 interface SelectionRange extends Omit<RangeInputValue, "color"> {
   isFocused: boolean;
   isValidRange: boolean;
-  color?: string;
+  color?: Color;
 }
 /**
  * This component can be used when the user needs to input some

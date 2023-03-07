@@ -18,9 +18,9 @@ export interface SectionRule {
 }
 
 interface ColorSet {
-  readonly lowerColor: string;
-  readonly middleColor: string;
-  readonly upperColor: string;
+  readonly lowerColor: Color;
+  readonly middleColor: Color;
+  readonly upperColor: Color;
 }
 
 interface SectionThreshold {
@@ -53,13 +53,13 @@ export interface GaugeChartOptions extends ChartOptions {
     radiusPercentage: number; // Needle circle radius as the percentage of the chart area width
     widthPercentage: number; // Needle width as the percentage of the chart area width
     lengthPercentage: number; // Needle length as the percentage of the interval between inner radius (0%) and outer radius (100%) of the arc
-    color: string; // The color of the needle
+    color: Color; // The color of the needle
   };
   valueLabel?: {
     formatter: (() => string) | null;
     display: boolean;
-    color: string;
-    backgroundColor: string;
+    color: Color;
+    backgroundColor: Color;
     borderRadius: number;
     fontSize: number;
     padding: {
