@@ -7,13 +7,13 @@ import {
 } from "../../helpers/index";
 import { StreamCallbacks } from "../../selection_stream/event_stream";
 import { SelectionEvent } from "../../types/event_stream";
-import { Command, CommandResult, Highlight, LAYERS, UID } from "../../types/index";
+import { Color, Command, CommandResult, Highlight, LAYERS, UID } from "../../types/index";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
 export interface RangeInputValue {
   id: UID;
   xc: string;
-  color: string;
+  color: Color;
 }
 
 /**

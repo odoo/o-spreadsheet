@@ -1,6 +1,6 @@
 import { range } from "../../helpers";
 import { ChartColors } from "../../helpers/figures/charts";
-import { ExcelWorkbookData, FigureData } from "../../types";
+import { Color, ExcelWorkbookData, FigureData } from "../../types";
 import { ExcelChartDefinition } from "../../types/chart/chart";
 import { XlsxHexColor, XMLAttributes, XMLString } from "../../types/xlsx";
 import { DRAWING_NS_A, DRAWING_NS_C, RELATIONSHIP_NSR } from "../constants";
@@ -24,7 +24,7 @@ type LineStyle =
   | "sysDot";
 
 interface LineAttributes {
-  color: string;
+  color: Color;
   width?: number;
   style?: LineStyle;
 }

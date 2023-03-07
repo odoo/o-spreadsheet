@@ -1,6 +1,7 @@
 import { escapeRegExp } from "../../helpers";
 import {
   CellPosition,
+  Color,
   Command,
   GridRenderingContext,
   HeaderIndex,
@@ -9,8 +10,8 @@ import {
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
-const BORDER_COLOR: string = "#8B008B";
-const BACKGROUND_COLOR: string = "#8B008B33";
+const BORDER_COLOR: Color = "#8B008B";
+const BACKGROUND_COLOR: Color = "#8B008B33";
 
 export interface SearchOptions {
   matchCase: boolean;

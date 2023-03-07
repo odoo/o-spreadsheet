@@ -4,7 +4,13 @@ import { EnrichedToken } from "../../../formulas/index";
 import { functionRegistry } from "../../../functions/index";
 import { isEqual, rangeReference, splitReference, zoneToDimension } from "../../../helpers/index";
 import { ComposerSelection, SelectionIndicator } from "../../../plugins/ui_stateful/edition";
-import { DOMDimension, FunctionDescription, Rect, SpreadsheetChildEnv } from "../../../types/index";
+import {
+  Color,
+  DOMDimension,
+  FunctionDescription,
+  Rect,
+  SpreadsheetChildEnv,
+} from "../../../types/index";
 import { css } from "../../helpers/css";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
 import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdown";
@@ -26,7 +32,7 @@ export const SelectionIndicatorClass = "selector-flag";
 
 export type HtmlContent = {
   value: string;
-  color?: string;
+  color?: Color;
   class?: string;
 };
 
@@ -516,7 +522,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     return result;
   }
 
-  private rangeColor(xc: string, sheetName?: string): string | undefined {
+  private rangeColor(xc: string, sheetName?: string): Color | undefined {
     if (this.props.focus === "inactive") {
       return undefined;
     }

@@ -10,6 +10,7 @@ import { BorderCommand, ConditionalFormat, Figure, Format, Style, Zone } from ".
 import {
   Border,
   CellPosition,
+  Color,
   Dimension,
   HeaderIndex,
   Pixel,
@@ -569,7 +570,7 @@ export interface StopSelectionCommand {
  */
 export interface SetColorCommand {
   type: "SET_HIGHLIGHT_COLOR";
-  color: string;
+  color: Color;
 }
 
 export interface EvaluateCellsCommand {
