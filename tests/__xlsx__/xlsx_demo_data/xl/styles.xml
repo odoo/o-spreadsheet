@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:x16r2="http://schemas.microsoft.com/office/spreadsheetml/2015/02/main" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" mc:Ignorable="x14ac x16r2 xr">
-  <numFmts count="8">
+  <numFmts count="7">
     <numFmt numFmtId="164" formatCode="m/d/yyyy"/>
     <numFmt numFmtId="165" formatCode="m/d/yyyy\ hh:mm:ss"/>
     <numFmt numFmtId="166" formatCode="#,##0.00\ &quot;€&quot;"/>
     <numFmt numFmtId="167" formatCode="[$$-409]#,##0.000"/>
-    <numFmt numFmtId="168" formatCode="d/m/yy;@"/>
     <numFmt numFmtId="169" formatCode="[$₪-40D]\ #,##0"/>
     <numFmt numFmtId="170" formatCode="#,##0&quot; EUR €&quot;"/>
     <numFmt numFmtId="171" formatCode="&quot;€&quot;#,##0.00\ &quot;€&quot;"/>
@@ -700,7 +699,7 @@
     <xf numFmtId="0" fontId="10" fillId="0" borderId="0"/>
     <xf numFmtId="0" fontId="22" fillId="0" borderId="0" applyNumberFormat="0" applyFill="0" applyBorder="0" applyAlignment="0" applyProtection="0"/>
   </cellStyleXfs>
-  <cellXfs count="132">
+  <cellXfs count="110">
     <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
     <xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1">
       <alignment vertical="center"/>
@@ -765,15 +764,10 @@
     <xf numFmtId="19" fontId="2" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1" applyAlignment="1">
       <alignment vertical="center"/>
     </xf>
-    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
-    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyFill="1"/>
     <xf numFmtId="0" fontId="10" fillId="0" borderId="0" xfId="0" applyFont="1"/>
     <xf numFmtId="0" fontId="11" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1">
       <alignment vertical="center"/>
     </xf>
-    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
-    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
-    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
     <xf numFmtId="0" fontId="10" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1">
       <alignment horizontal="left"/>
     </xf>
@@ -795,7 +789,6 @@
     <xf numFmtId="0" fontId="10" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1">
       <alignment horizontal="distributed"/>
     </xf>
-    <xf numFmtId="0" fontId="10" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"/>
     <xf numFmtId="0" fontId="10" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1">
       <alignment vertical="top"/>
     </xf>
@@ -808,17 +801,12 @@
     <xf numFmtId="0" fontId="10" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1">
       <alignment vertical="distributed"/>
     </xf>
-    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
     <xf numFmtId="0" fontId="8" fillId="0" borderId="0" xfId="0" applyFont="1"/>
     <xf numFmtId="0" fontId="8" fillId="0" borderId="21" xfId="0" applyFont="1" applyBorder="1"/>
     <xf numFmtId="0" fontId="0" fillId="0" borderId="21" xfId="0" applyBorder="1"/>
     <xf numFmtId="0" fontId="8" fillId="0" borderId="23" xfId="0" applyFont="1" applyBorder="1"/>
     <xf numFmtId="0" fontId="10" fillId="0" borderId="22" xfId="0" applyFont="1" applyBorder="1"/>
-    <xf numFmtId="0" fontId="10" fillId="0" borderId="0" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>
     <xf numFmtId="14" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
-    <xf numFmtId="0" fontId="10" fillId="0" borderId="22" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>
-    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
-    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
     <xf numFmtId="0" fontId="10" fillId="5" borderId="0" xfId="0" applyFont="1" applyFill="1"/>
     <xf numFmtId="0" fontId="10" fillId="6" borderId="0" xfId="0" applyFont="1" applyFill="1"/>
     <xf numFmtId="0" fontId="10" fillId="7" borderId="0" xfId="0" applyFont="1" applyFill="1"/>
@@ -848,10 +836,6 @@
     <xf numFmtId="0" fontId="10" fillId="0" borderId="19" xfId="0" applyFont="1" applyBorder="1"/>
     <xf numFmtId="0" fontId="10" fillId="0" borderId="20" xfId="0" applyFont="1" applyBorder="1"/>
     <xf numFmtId="0" fontId="12" fillId="0" borderId="0" xfId="0" applyFont="1"/>
-    <xf numFmtId="0" fontId="8" fillId="0" borderId="0" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>
-    <xf numFmtId="0" fontId="8" fillId="0" borderId="21" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>
-    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyBorder="1"/>
-    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
     <xf numFmtId="0" fontId="9" fillId="0" borderId="0" xfId="0" applyFont="1"/>
     <xf numFmtId="0" fontId="13" fillId="0" borderId="0" xfId="0" applyFont="1"/>
     <xf numFmtId="0" fontId="14" fillId="0" borderId="0" xfId="0" applyFont="1"/>
@@ -867,21 +851,10 @@
     <xf numFmtId="0" fontId="10" fillId="26" borderId="0" xfId="0" applyFont="1" applyFill="1"/>
     <xf numFmtId="0" fontId="10" fillId="27" borderId="0" xfId="0" applyFont="1" applyFill="1"/>
     <xf numFmtId="0" fontId="17" fillId="0" borderId="0" xfId="0" applyFont="1"/>
-    <xf numFmtId="0" fontId="18" fillId="0" borderId="0" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>
+    <xf numFmtId="0" fontId="18" fillId="0" borderId="0" xfId="0" applyFont="1"/>
     <xf numFmtId="0" fontId="19" fillId="0" borderId="0" xfId="0" applyFont="1"/>
     <xf numFmtId="0" fontId="20" fillId="0" borderId="0" xfId="0" applyFont="1"/>
-    <xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1">
-      <alignment vertical="center"/>
-    </xf>
-    <xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1">
-      <alignment vertical="center"/>
-    </xf>
-    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
     <xf numFmtId="0" fontId="22" fillId="0" borderId="0" xfId="2"/>
-    <xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1" applyAlignment="1">
-      <alignment vertical="center"/>
-    </xf>
-    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
     <xf numFmtId="0" fontId="10" fillId="0" borderId="8" xfId="0" applyFont="1" applyBorder="1"/>
     <xf numFmtId="0" fontId="10" fillId="0" borderId="24" xfId="0" applyFont="1" applyBorder="1"/>
     <xf numFmtId="0" fontId="10" fillId="0" borderId="25" xfId="0" applyFont="1" applyBorder="1"/>
@@ -889,7 +862,6 @@
     <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1">
       <alignment horizontal="left"/>
     </xf>
-    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
     <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1">
       <alignment horizontal="left" indent="1"/>
     </xf>
@@ -902,7 +874,6 @@
     <xf numFmtId="14" fontId="0" fillId="0" borderId="27" xfId="0" applyNumberFormat="1" applyBorder="1"/>
     <xf numFmtId="166" fontId="0" fillId="0" borderId="27" xfId="0" applyNumberFormat="1" applyBorder="1"/>
     <xf numFmtId="167" fontId="0" fillId="0" borderId="27" xfId="0" applyNumberFormat="1" applyBorder="1"/>
-    <xf numFmtId="168" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
     <xf numFmtId="0" fontId="10" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1">
       <alignment wrapText="1"/>
     </xf>
