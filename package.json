@@ -11,11 +11,13 @@
     "dist/*.d.ts"
   ],
   "scripts": {
-    "serve": "live-server --open=demo --watch=build,demo",
-    "dev": "npm-run-all build --parallel server serve \"build:* -- --watch\"",
+    "serve-static": "live-server --open=demo --watch=build,demo",
+    "dev": "npm-run-all --print-label build --parallel server serve-static watch:*",
     "server": "node tools/server/main.js",
     "build:js": "tsc --module es6 --incremental",
     "build:bundle": "rollup -c -m --configDev",
+    "watch:ts": "npm run build:js -- --watch",
+    "watch:bundle": "npm run build:bundle -- --watch",
     "build": "npm run build:js && npm run build:bundle",
     "doc": "typedoc",
     "precommit": "npm run prettier && npm run doc",
