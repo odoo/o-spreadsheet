@@ -25,7 +25,7 @@ __info__.hash = '${commitHash}';
  */
 function getConfigForFormat(format, minified = false) {
   return {
-    file: minified ? `dist/o_spreadsheet.${format}.min.js` : `dist/o_spreadsheet.${format}.js`,
+    file: minified ? `dist/o-spreadsheet.${format}.min.js` : `dist/o-spreadsheet.${format}.js`,
     format,
     name: "o_spreadsheet",
     extend: true,
@@ -79,7 +79,7 @@ switch (process.argv[4]) {
       },
       {
         input: "dist/types/index.d.ts",
-        output: [{ file: "dist/o_spreadsheet.d.ts", format: "es" }],
+        output: [{ file: "dist/o-spreadsheet.d.ts", format: "es" }],
         plugins: [dts(), nodeResolve()],
       },
     ];
