@@ -1,12 +1,12 @@
 import { ICON_SETS } from "../src/components/icons/icons";
-import { buildSheetLink, lettersToNumber, markdownLink, toZone } from "../src/helpers";
+import { buildSheetLink, formatValue, lettersToNumber, markdownLink, toZone } from "../src/helpers";
 import { Border, CellIsRule, IconSetRule, Style } from "../src/types";
 import { BarChartDefinition } from "../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../src/types/chart/line_chart";
 import { PieChartDefinition } from "../src/types/chart/pie_chart";
 import { XLSXCfOperatorType, XLSXSharedFormula } from "../src/types/xlsx";
-import { convertXlsxFormat } from "../src/xlsx/conversion";
 import { hexaToInt } from "../src/xlsx/conversion/color_conversion";
+import { convertXlsxFormat } from "../src/xlsx/conversion/format_conversion";
 import { adaptFormula } from "../src/xlsx/conversion/formula_conversion";
 import {
   TABLE_BORDER_STYLE,
@@ -180,8 +180,7 @@ describe("Import xlsx data", () => {
     ["[$$]#,##0.000", "M6"],
     ["[$₪] #,##0", "M7"],
     ["#,##0[$ EUR €]", "M8"],
-    ["not supported: non-standard date format", "M9"],
-    ["not supported: multiple escaped sequences", "M10"],
+    ["not supported: multiple escaped sequences", "M9"],
   ])("Can import format %s", (format, cellXc) => {
     const testSheet = getWorkbookSheet("jestStyles", convertedData)!;
     const formattedCell = testSheet.cells[cellXc]!;
@@ -779,21 +778,29 @@ test.each([
 });
 
 test.each([
-  ["0.00", "0.00"],
-  ["0.00;0.00%", "0.00"],
-  ["0.000%", "0.000%"],
-  ["#,##0.00", "#,##0.00"],
-  ["m/d/yyyy", "m/d/yyyy"],
-  ["m/d/yyyy\\ hh:mm:ss", "m/d/yyyy hh:mm:ss"],
-  ["hh:mm:ss a", "hh:mm:ss a"],
-  ['#,##0.00 "€"', "#,##0.00 [$€]"],
-  ["[$$-409]#,##0.000", "[$$]#,##0.000"],
-  ["[$-409]0.00", "0.00"],
-  ["d/m/yy;@", undefined],
-  ["[$₪-40D] #,##0", "[$₪] #,##0"],
-  ['"€"#,##0.00 "€"', undefined],
-])("convert format", async (excelFormat, convertedFormat) => {
+  ["0.00", "0.00", "0.00"],
+  ["0.00;0.00%", "0.00", "0.00"],
+  ["0.000%", "0.000%", "0.000%"],
+  ["#,##0.00", "#,##0.00", "0.00"],
+  ["m/d/yyyy", "m/d/yyyy", "12/30/1899"],
+  ["M/D/YYYY", "m/d/yyyy", "12/30/1899"],
+  ["mmmmm/dddd/yy", "mm/dd/yyyy", "12/30/1899"],
+  ["mmmm-ddd-yy", "mm-dd-yyyy", "12-30-1899"],
+  ["mmm dd yy", "mm dd yyyy", "12 30 1899"],
+  ["h AM/PM", "hh a", "12 AM"],
+  ["HHHH:MM a/m", "hh:mm a", "12:00 AM"],
+  ["m/d/yyyy\\ hh:mm:ss", "m/d/yyyy hh:mm:ss", "12/30/1899 00:00:00"],
+  ["hh:mm:ss a", "hh:mm:ss a", "12:00:00 AM"],
+  ['#,##0.00 "€"', "#,##0.00 [$€]", "0.00€"],
+  ["[$$-409]#,##0.000", "[$$]#,##0.000", "$0.000"],
+  ["[$-409]0.00", "0.00", "0.00"],
+  ["[$MM/DD/YYYY]0", "[$MM/DD/YYYY]0", "MM/DD/YYYY0"],
+  ["#,##0.00[$MM/DD/YYYY]", "#,##0.00[$MM/DD/YYYY]", "0.00MM/DD/YYYY"],
+  ["[$₪-40D] #,##0.00", "[$₪] #,##0.00", "₪0.00"],
+  ['"€"#,##0.00 "€"', undefined, "0"],
+])("convert format %s", async (excelFormat, convertedFormat, expectedValue) => {
   expect(
     convertXlsxFormat(80, [{ id: 80, format: excelFormat }], new XLSXImportWarningManager())
   ).toEqual(convertedFormat);
+  expect(formatValue(0, convertedFormat)).toEqual(expectedValue);
 });
