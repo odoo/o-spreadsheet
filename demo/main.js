@@ -121,7 +121,7 @@ class Demo extends Component {
             inputFiles[files[i]] = contents[i];
           }
           this.leaveCollaborativeSession();
-          await fetch("http://localhost:9000/clear");
+          await fetch("http://localhost:9090/clear");
           await this.initiateConnection(inputFiles);
           this.state.key = this.state.key + 1;
 
