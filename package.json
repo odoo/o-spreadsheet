@@ -5,7 +5,7 @@
   "main": "dist/o-spreadsheet.cjs.js",
   "browser": "dist/o-spreadsheet.iife.js",
   "module": "dist/o-spreadsheet.es.js",
-  "types": "dist/o_spreadsheet.d.ts",
+  "types": "dist/o-spreadsheet.d.ts",
   "files": [
     "dist/*.js",
     "dist/*.d.ts"
