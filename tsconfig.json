@@ -16,6 +16,7 @@
     "strictNullChecks": true,
     "esModuleInterop": true,
     "allowJs": true,
+    "preserveWatchOutput": true,
     "sourceMap": true
   },
   "include": ["src"]
