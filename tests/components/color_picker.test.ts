@@ -91,7 +91,7 @@ describe("Color Picker buttons", () => {
     const onColorPicked = jest.fn();
     await mountColorPicker({ onColorPicked });
     await simulateClick("div[data-color='#ff9900']");
-    expect(onColorPicked).toHaveBeenCalledWith("#ff9900");
+    expect(onColorPicked).toHaveBeenCalledWith("#FF9900");
   });
 
   test("Can pick a custom color in the gradient", async () => {
@@ -100,13 +100,11 @@ describe("Color Picker buttons", () => {
     await simulateClick(".o-color-picker-toggler");
     await simulateClick(".o-gradient");
     const inputCodeEl = fixture.querySelector(".o-custom-input-preview input") as HTMLInputElement;
-    const previewColor = toHex(
-      getElComputedStyle(".o-color-preview", "backgroundColor")
-    ).toLowerCase();
-    const inputColorCode = inputCodeEl.value;
-    expect(previewColor).toEqual(inputColorCode.toLowerCase());
+    const previewColor = toHex(getElComputedStyle(".o-color-preview", "backgroundColor"));
+    const inputColorCode = toHex(inputCodeEl.value);
+    expect(previewColor).toEqual(inputColorCode);
     await simulateClick(".o-add-button");
-    expect(onColorPicked).toHaveBeenCalledWith(previewColor);
+    expect(onColorPicked).toHaveBeenCalledWith(inputColorCode);
   });
 
   test("Can choose a custom color with the input", async () => {
@@ -114,15 +112,25 @@ describe("Color Picker buttons", () => {
     await mountColorPicker({ onColorPicked });
     await simulateClick(".o-color-picker-toggler");
     await simulateClick(".o-gradient");
-    const color = "#12ef78";
-    setInputValueAndTrigger(".o-custom-input-preview input", "#12ef78", "input");
+    const color = "#12EF78";
+    setInputValueAndTrigger(".o-custom-input-preview input", color, "input");
     await nextTick();
-    const previewColor = toHex(
-      getElComputedStyle(".o-color-preview", "backgroundColor")
-    ).toLowerCase();
+    const previewColor = toHex(getElComputedStyle(".o-color-preview", "backgroundColor"));
     expect(previewColor).toEqual(color);
     await simulateClick(".o-add-button");
     expect(onColorPicked).toHaveBeenCalledWith(color);
+  });
+
+  test("Color from the input is sanitized", async () => {
+    const onColorPicked = jest.fn();
+    await mountColorPicker({ onColorPicked });
+    await simulateClick(".o-color-picker-toggler");
+    await simulateClick(".o-gradient");
+    const color = "12ef78";
+    setInputValueAndTrigger(".o-custom-input-preview input", color, "input");
+    await nextTick();
+    await simulateClick(".o-add-button");
+    expect(onColorPicked).toHaveBeenCalledWith(toHex(color));
   });
 
   test("Cannot input an invalid color code", async () => {
