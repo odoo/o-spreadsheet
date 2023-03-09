@@ -5,7 +5,7 @@ import {
   MENU_SEPARATOR_BORDER_WIDTH,
   MENU_SEPARATOR_PADDING,
 } from "../../constants";
-import { hslaToRGBA, isColorValid, rgbaToHex } from "../../helpers";
+import { hslaToRGBA, isColorValid, rgbaToHex, toHex } from "../../helpers";
 import { chartFontColor } from "../../helpers/figures/charts";
 import { Color, Pixel } from "../../types";
 import { SpreadsheetChildEnv } from "../../types/env";
@@ -227,7 +227,7 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
 
   onColorClick(color: Color) {
     if (color) {
-      this.props.onColorPicked(color);
+      this.props.onColorPicked(toHex(color));
     }
   }
 
@@ -245,8 +245,10 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
       this.state.isCurrentColorInvalid = true;
       return;
     }
+    const color = toHex(this.state.currentColor);
     this.state.isCurrentColorInvalid = false;
-    this.props.onColorPicked(this.state.currentColor);
+    this.props.onColorPicked(color);
+    this.state.currentColor = color;
   }
 
   toggleColorPicker() {
