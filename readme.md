@@ -1,5 +1,7 @@
 # o-spreadsheet
 
+[![npm](https://img.shields.io/npm/v/@odoo/o-spreadsheet)](https://www.npmjs.com/package/@odoo/o-spreadsheet)
+
 A standalone spreadsheet for the web, easily integrable and extendable.
 
 a.k.a. "[Owly](https://github.com/odoo/owl) Sheet" 🦉
@@ -9,7 +11,7 @@ a.k.a. "[Owly](https://github.com/odoo/owl) Sheet" 🦉
 - Import/Export of excel file format
 - and more...
 
-Try it with the [live demo](https://odoo.github.io/o-spreadsheet/)!
+**Try it online** with the [live demo](https://odoo.github.io/o-spreadsheet/)!
 
 ![o-spreadsheet screenshot](doc/o-spreadsheet.png "o-spreadsheet demo")
 
