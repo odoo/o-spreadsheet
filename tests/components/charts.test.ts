@@ -859,7 +859,7 @@ describe("figures", () => {
         sheetId,
         definition: {
           ...model.getters.getChartDefinition(chartId),
-          baselineColorUp: "#0000ff",
+          baselineColorUp: "#0000FF",
         },
       });
 
@@ -883,7 +883,7 @@ describe("figures", () => {
         sheetId,
         definition: {
           ...model.getters.getChartDefinition(chartId),
-          baselineColorDown: "#ff0000",
+          baselineColorDown: "#FF0000",
         },
       });
     });
