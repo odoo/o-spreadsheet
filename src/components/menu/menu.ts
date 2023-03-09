@@ -50,6 +50,12 @@ css/* scss */ `
       .o-icon {
         width: 10px;
       }
+      &.o-menu-item.active::before {
+        left: 5px;
+        content: "✓";
+        font-weight: bold;
+        position: absolute;
+      }
 
       &:not(.disabled) {
         &:hover,
@@ -75,6 +81,8 @@ interface Props {
   onClose: () => void;
   onMenuClicked?: (ev: CustomEvent) => void;
   menuId?: UID;
+  currentFontSize?: number;
+  currentFormatName?: string;
 }
 
 export interface MenuState {
@@ -97,6 +105,8 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     position: null,
     scrollOffset: 0,
     menuItems: [],
+    currentFontSize: this.props.currentFontSize,
+    currentFormatName: this.props.currentFormatName,
   });
   private menuRef = useRef("menu");
   private position = useAbsolutePosition(this.menuRef);

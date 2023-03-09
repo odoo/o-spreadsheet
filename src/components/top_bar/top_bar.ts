@@ -41,6 +41,8 @@ type Tool =
   | "fontSizeTool";
 
 interface State {
+  currentFontSize: number;
+  currentFormatName: string;
   menuState: MenuState;
   activeTool: Tool;
 }
@@ -269,6 +271,11 @@ css/* scss */ `
                 }
               }
             }
+            &.o-font-size {
+              .active {
+                background-color: #efefef;
+              }
+            }
           }
         }
       }
@@ -293,7 +300,6 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   static components = { ColorPicker, Menu, Composer };
   commonFormats = FORMATS;
   customFormats = CUSTOM_FORMATS;
-  currentFormatName = "automatic";
   fontSizes = fontSizes;
 
   get dropdownStyle() {
@@ -302,6 +308,8 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   style: Style = {};
   state: State = useState({
+    currentFontSize: 10,
+    currentFormatName: "automatic",
     menuState: { isOpen: false, position: null, menuItems: [] },
     activeTool: "",
   });
@@ -414,12 +422,11 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.redoTool = this.env.model.getters.canRedo();
     this.paintFormatTool = this.env.model.getters.isPaintingFormat();
     const cell = this.env.model.getters.getActiveCell();
-    if (cell && cell.format) {
-      const currentFormat = this.commonFormats.find((f) => f.value === cell.format);
-      this.currentFormatName = currentFormat ? currentFormat.name : "";
-    } else {
-      this.currentFormatName = "automatic";
-    }
+    const { format, style } = cell || {};
+    const currentFormat = this.commonFormats.find((f) => f.value === format);
+    this.state.currentFormatName = currentFormat?.name || "automatic";
+    const currentFont = this.fontSizes.find((f) => f.pt === style?.fontSize);
+    this.state.currentFontSize = currentFont?.pt || 10;
     this.style = { ...this.env.model.getters.getCurrentStyle() };
     this.style.align = this.style.align || cell?.defaultAlign;
     this.fillColor = this.style.fillColor || "#ffffff";
