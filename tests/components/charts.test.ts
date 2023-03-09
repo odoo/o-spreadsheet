@@ -481,6 +481,32 @@ describe("figures", () => {
     }
   );
 
+  test.each(["basicChart", "scorecard", "gauge"])(
+    "Clicking in the design panel closes the color picker",
+    async (chartType: string) => {
+      createTestChart(chartType);
+      await nextTick();
+
+      await simulateClick(".o-figure");
+      await simulateClick(".o-chart-menu-item");
+      const editButton = fixture.querySelector(".o-menu div[data-name='edit']")!;
+      expect(editButton.textContent).toBe("Edit");
+      await simulateClick(".o-menu div[data-name='edit']");
+      await nextTick();
+      await simulateClick(".o-panel-element.inactive");
+      await nextTick();
+      const designPanelBody = fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart");
+      expect(designPanelBody).toBeTruthy();
+      const colorpickerButton = fixture.querySelector(".o-with-color-picker span");
+      await simulateClick(colorpickerButton);
+      await nextTick();
+      expect(fixture.querySelectorAll(".o-color-picker-line-item").length).not.toBe(0);
+
+      await simulateClick(designPanelBody);
+      expect(fixture.querySelectorAll(".o-color-picker-line-item").length).toBe(0);
+    }
+  );
+
   test.each([
     ["basicChart", [".o-data-labels"], ["labelRange"]],
     ["scorecard", [".o-data-labels"], ["baseline"]],

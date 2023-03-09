@@ -30,7 +30,7 @@ export class LineBarPieDesignPanel extends Component<Props, SpreadsheetChildEnv>
   }
 
   setup() {
-    useExternalListener(window as any, "click", this.onClick);
+    useExternalListener(window, "click", this.onClick);
   }
 
   toggleColorPicker() {
