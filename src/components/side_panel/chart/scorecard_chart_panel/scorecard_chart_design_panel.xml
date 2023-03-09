@@ -14,7 +14,7 @@
           <ColorPicker
             t-if="state.openedColorPicker === 'backgroundColor'"
             onColorPicked="(color) => this.setColor(color, 'backgroundColor')"
-            currentColor="props.definition.brackground"
+            currentColor="props.definition.background"
             t-key="backgroundColor"
           />
         </div>
