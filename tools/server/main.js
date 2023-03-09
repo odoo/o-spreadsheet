@@ -42,11 +42,11 @@ if (fs.existsSync(currentSessionFile)) {
 }
 
 // save the messages before exiting gracefully
-[`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `SIGTERM`].forEach((eventType) => {
-  process.on(eventType, () => {
+[`SIGINT`, `SIGUSR1`, `SIGUSR2`, `SIGTERM`].forEach((eventType) => {
+  process.on(eventType, (code) => {
     log(`writing ${messages.length} messages to ${currentSessionFile}`);
     fs.writeFileSync(currentSessionFile, JSON.stringify(messages));
-    process.exit();
+    process.exit(code);
   });
 });
 
