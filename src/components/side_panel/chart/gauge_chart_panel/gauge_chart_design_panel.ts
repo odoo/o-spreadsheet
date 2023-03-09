@@ -1,4 +1,4 @@
-import { Component, useState } from "@odoo/owl";
+import { Component, useExternalListener, useState } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/index";
 import { GaugeChartDefinition, SectionRule } from "../../../../types/chart/gauge_chart";
 import {
@@ -85,6 +85,14 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     return cancelledReasons.map(
       (error) => ChartTerms.Errors[error] || ChartTerms.Errors.Unexpected
     );
+  }
+
+  onClick(ev: MouseEvent) {
+    this.state.openedMenu = undefined;
+  }
+
+  setup() {
+    useExternalListener(window, "click", this.onClick);
   }
 
   updateBackgroundColor(color: Color) {

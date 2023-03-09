@@ -1,4 +1,4 @@
-import { Component, useState } from "@odoo/owl";
+import { Component, useExternalListener, useState } from "@odoo/owl";
 import { ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
 import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { ColorPicker } from "../../../color_picker/color_picker";
@@ -22,6 +22,14 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
   private state: PanelState = useState({
     openedColorPicker: undefined,
   });
+
+  onClick(ev: MouseEvent) {
+    this.state.openedColorPicker = undefined;
+  }
+
+  setup() {
+    useExternalListener(window, "click", this.onClick);
+  }
 
   updateTitle(ev) {
     this.props.updateChart({
