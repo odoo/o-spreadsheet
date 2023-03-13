@@ -175,7 +175,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   uuidGenerator: UuidGenerator;
 
   constructor(
-    data: any = {},
+    data: object = {},
     config: Partial<ModelConfig> = {},
     stateUpdateMessages: StateUpdateMessage[] = [],
     uuidGenerator: UuidGenerator = new UuidGenerator(),
