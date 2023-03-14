@@ -1152,6 +1152,14 @@ describe("Test XLSX export", () => {
       expect(exported.sheets[0].filterTables[0].filters[0].filteredValues).toEqual([]);
     });
 
+    test("Formulas evaluated to empty string are not added to filteredValues", () => {
+      const model = new Model();
+      createFilter(model, "A1:B4");
+      setCellContent(model, "A2", '=""');
+      const exported = getExportedExcelData(model);
+      expect(exported.sheets[0].filterTables[0].filters[0].filteredValues).toEqual([]);
+    });
+
     test("Export data filters snapshot", async () => {
       const model = new Model();
       setCellContent(model, "A1", "Hello");
