@@ -1,7 +1,7 @@
 import { DEFAULT_FILTER_BORDER_DESC } from "../../constants";
 import {
-  isDefined,
   isInside,
+  isNonEmptyString,
   isObjectEmptyRecursive,
   positions,
   range,
@@ -230,7 +230,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
           const valuesInFilterZone = filter.filteredZone
             ? positions(filter.filteredZone)
                 .map((pos) => this.getters.getCell(sheetData.id, pos.col, pos.row)?.formattedValue)
-                .filter(isDefined)
+                .filter(isNonEmptyString)
             : [];
 
           // In xlsx, filtered values = values that are displayed, not values that are hidden
