@@ -333,6 +333,10 @@ export function isDefined<T>(argument: T | undefined): argument is T {
   return argument !== undefined;
 }
 
+export function isNonEmptyString(str: string | undefined): str is string {
+  return str !== undefined && str !== "";
+}
+
 /**
  * Check if all the values of an object, and all the values of the objects inside of it, are undefined.
  */
