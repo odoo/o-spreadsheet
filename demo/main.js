@@ -66,7 +66,7 @@ let start;
 
 class Demo extends Component {
   setup() {
-    this.state = useState({ key: 0 });
+    this.state = useState({ key: 0, displayHeader: false });
     this.stateUpdateMessages = [];
     this.client = {
       id: uuidGenerator.uuidv4(),
@@ -92,6 +92,11 @@ class Demo extends Component {
       sequence: 13,
       isReadonlyAllowed: true,
       action: () => this.model.updateMode("normal"),
+    });
+    topbarMenuRegistry.addChild("read_write", ["file"], {
+      name: () => (this.state.displayHeader ? "Hide header" : "Show header"),
+      isReadonlyAllowed: true,
+      action: () => (this.state.displayHeader = !this.state.displayHeader),
     });
 
     topbarMenuRegistry.add("notify", {
@@ -262,9 +267,16 @@ class Demo extends Component {
 }
 
 Demo.template = xml/* xml */ `
-  <div>
+  <div t-if="state.displayHeader" class="d-flex flex flex-column justify-content vh-100">
+    <div class="p-3 border-bottom">A header</div>
+    <div class="flex-fill">
+      <Spreadsheet model="model" t-key="state.key"/>
+    </div>
+  </div>
+  <div t-else="">
     <Spreadsheet model="model" t-key="state.key"/>
-  </div>`;
+  </div>
+`;
 Demo.components = { Spreadsheet };
 
 // Setup code

@@ -2,7 +2,7 @@ import { CommandResult } from "../../src";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
-  DEFAULT_SHEETVIEW_SIZE,
+  getDefaultSheetViewSize,
 } from "../../src/constants";
 import { isDefined, numberToLetters, range, toXC, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
@@ -761,8 +761,8 @@ describe("Viewport of Simple sheet", () => {
   test("Resizing the viewport impacts current Offset", () => {
     // set coherent size and offset limit
     model.dispatch("RESIZE_SHEETVIEW", {
-      width: DEFAULT_SHEETVIEW_SIZE,
-      height: DEFAULT_SHEETVIEW_SIZE,
+      width: getDefaultSheetViewSize(),
+      height: getDefaultSheetViewSize(),
       gridOffsetX: 0,
       gridOffsetY: 0,
     });
@@ -1324,7 +1324,7 @@ describe("shift viewport up/down", () => {
     const { bottom } = model.getters.getActiveMainViewport();
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("RESIZE_SHEETVIEW", {
-      width: DEFAULT_SHEETVIEW_SIZE,
+      width: getDefaultSheetViewSize(),
       height: bottom * DEFAULT_CELL_HEIGHT,
       gridOffsetX: 0,
       gridOffsetY: 0,

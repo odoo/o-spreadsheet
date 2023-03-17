@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { DEFAULT_SHEETVIEW_SIZE } from "../../src/constants";
+import { getDefaultSheetViewSize } from "../../src/constants";
 import { GridRenderingContext, Viewport, Zone } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 
@@ -56,7 +56,7 @@ export class MockGridRenderingContext implements GridRenderingContext {
  * outline around copied zones
  */
 export function watchClipboardOutline(model: Model) {
-  const sheetViewSize = DEFAULT_SHEETVIEW_SIZE;
+  const sheetViewSize = getDefaultSheetViewSize();
   let lineDash = false;
   let outlinedRects: any[][] = [];
   const ctx = new MockGridRenderingContext(model, sheetViewSize, sheetViewSize, {

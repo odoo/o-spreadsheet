@@ -3,7 +3,7 @@ import { Highlight } from "../../src/components/highlight/highlight/highlight";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
-  DEFAULT_SHEETVIEW_SIZE,
+  getDefaultSheetViewSize,
 } from "../../src/constants";
 import { toHex, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
@@ -132,8 +132,8 @@ async function mountHighlight(zone: string, color: Color): Promise<Parent> {
 const genericBeforeEach = async () => {
   model = new Model();
   model.dispatch("RESIZE_SHEETVIEW", {
-    width: DEFAULT_SHEETVIEW_SIZE,
-    height: DEFAULT_SHEETVIEW_SIZE,
+    width: getDefaultSheetViewSize(),
+    height: getDefaultSheetViewSize(),
     gridOffsetX: 0,
     gridOffsetY: 0,
   });
