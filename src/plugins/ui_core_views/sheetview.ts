@@ -1,4 +1,4 @@
-import { DEFAULT_SHEETVIEW_SIZE } from "../../constants";
+import { getDefaultSheetViewSize } from "../../constants";
 import { clip, findCellInNewZone, isDefined, range } from "../../helpers";
 import { scrollDelay } from "../../helpers/index";
 import { InternalViewport } from "../../helpers/internal_viewport";
@@ -108,8 +108,8 @@ export class SheetViewPlugin extends UIPlugin {
    * In the absence of a component (standalone model), is it mandatory to set reasonable default values
    * to ensure the correct operation of this plugin.
    */
-  private sheetViewWidth: Pixel = DEFAULT_SHEETVIEW_SIZE;
-  private sheetViewHeight: Pixel = DEFAULT_SHEETVIEW_SIZE;
+  private sheetViewWidth: Pixel = getDefaultSheetViewSize();
+  private sheetViewHeight: Pixel = getDefaultSheetViewSize();
   private gridOffsetX: Pixel = 0;
   private gridOffsetY: Pixel = 0;
 

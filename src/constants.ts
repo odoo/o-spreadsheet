@@ -209,8 +209,15 @@ export enum ComponentsImportance {
   FigureAnchor = 1000,
   FigureSnapLine = 1001,
 }
+let DEFAULT_SHEETVIEW_SIZE = 0;
 
-export const DEFAULT_SHEETVIEW_SIZE = 1000;
+export function getDefaultSheetViewSize() {
+  return DEFAULT_SHEETVIEW_SIZE;
+}
+
+export function setDefaultSheetViewSize(size: number) {
+  DEFAULT_SHEETVIEW_SIZE = size;
+}
 
 export const MAXIMAL_FREEZABLE_RATIO = 0.85;
 
