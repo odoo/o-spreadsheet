@@ -7,7 +7,8 @@
       maxWidth="cellPopover.Component.size and cellPopover.Component.size.maxHidth"
       anchorRect="cellPopover.anchorRect"
       containerRect="env.getPopoverContainerRect()"
-      onMouseWheel="props.onMouseWheel">
+      onMouseWheel="props.onMouseWheel"
+      zIndex="zIndex">
       <t
         t-component="cellPopover.Component"
         t-props="{...cellPopover.props, onClosed : () => props.onClosePopover()}"
