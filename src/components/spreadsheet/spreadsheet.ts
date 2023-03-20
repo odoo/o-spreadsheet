@@ -260,6 +260,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   closeSidePanel() {
     this.sidePanel.isOpen = false;
     this.focusGrid();
+    this.sidePanel.panelProps?.onCloseSidePanel?.();
   }
 
   toggleSidePanel(panel: string, panelProps: any) {
