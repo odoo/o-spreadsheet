@@ -137,4 +137,17 @@ describe("Side Panel", () => {
     await nextTick();
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
   });
+
+  test("Closing a side panel executes the onCloseSidePanel callback", async () => {
+    const onCloseSidePanel = jest.fn();
+    sidePanelRegistry.add("CUSTOM_PANEL", {
+      title: "Custom Panel",
+      Body: Body,
+    });
+    parent.env.openSidePanel("CUSTOM_PANEL", { onCloseSidePanel });
+    await nextTick();
+    simulateClick(".o-sidePanelClose");
+    await nextTick();
+    expect(onCloseSidePanel).toHaveBeenCalled();
+  });
 });
