@@ -1,4 +1,5 @@
 import { Component } from "@odoo/owl";
+import { ComponentsImportance } from "../../constants";
 import { DOMCoordinates, Position, SpreadsheetChildEnv } from "../../types";
 import { ClosedCellPopover, PositionedCellPopover } from "../../types/cell_popovers";
 import { Popover } from "../popover/popover";
@@ -12,6 +13,7 @@ interface Props {
 export class GridPopover extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridPopover";
   static components = { Popover };
+  zIndex = ComponentsImportance.GridPopover;
 
   get cellPopover(): PositionedCellPopover | ClosedCellPopover {
     const popover = this.env.model.getters.getCellPopover(this.props.hoveredCell);

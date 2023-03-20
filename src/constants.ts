@@ -194,12 +194,13 @@ export enum ComponentsImportance {
   Highlight = 5,
   Figure = 10,
   ScrollBar = 15,
+  GridPopover = 19,
   GridComposer = 20,
-  Dropdown = 25,
+  Dropdown = 21,
   ColorPicker = 25,
   IconPicker = 25,
   TopBarComposer = 30,
-  Popover = 30,
+  Popover = 35,
   ChartAnchor = 1000,
 }
 

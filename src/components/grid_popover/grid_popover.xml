@@ -7,7 +7,8 @@
       childHeight="cellPopover.Component.size.height"
       flipHorizontalOffset="cellPopover.cellWidth"
       flipVerticalOffset="cellPopover.cellHeight"
-      onMouseWheel="props.onMouseWheel">
+      onMouseWheel="props.onMouseWheel"
+      zIndex="zIndex">
       <t
         t-component="cellPopover.Component"
         t-props="{...cellPopover.props, onClosed : () => props.onClosePopover()}"
