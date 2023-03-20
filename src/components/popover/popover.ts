@@ -3,7 +3,7 @@ import { ComponentsImportance } from "../../constants";
 import { rectIntersection } from "../../helpers/rectangle";
 import { DOMCoordinates, DOMDimension, Pixel, Rect, SpreadsheetChildEnv } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
-import { css } from "../helpers/css";
+import { css, cssPropertiesToCss } from "../helpers/css";
 import { usePopoverContainer, useSpreadsheetRect } from "../helpers/position_hook";
 import { CSSProperties } from "./../../types/misc";
 
@@ -29,6 +29,9 @@ export interface PopoverProps {
   onMouseWheel?: () => void;
   onPopoverMoved?: () => void;
   onPopoverHidden?: () => void;
+
+  /** Setting popover to allow dynamic zIndex */
+  zIndex?: Number;
 }
 
 css/* scss */ `
@@ -50,6 +53,7 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
     onMouseWheel: () => {},
     onPopoverMoved: () => {},
     onPopoverHidden: () => {},
+    zIndex: ComponentsImportance.Popover,
   };
 
   private popoverRef = useRef("popover");
@@ -103,6 +107,12 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
       this.currentPosition = newPosition;
     });
   }
+
+  get popoverStyle(): string {
+    return cssPropertiesToCss({
+      "z-index": `${this.props.zIndex}`,
+    });
+  }
 }
 
 Popover.props = {
@@ -115,6 +125,7 @@ Popover.props = {
   onMouseWheel: { type: Function, optional: true },
   onPopoverHidden: { type: Function, optional: true },
   onPopoverMoved: { type: Function, optional: true },
+  zIndex: { type: Number, optional: true },
   slots: Object,
 };
 

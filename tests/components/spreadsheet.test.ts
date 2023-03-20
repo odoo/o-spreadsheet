@@ -176,6 +176,9 @@ describe("Simple Spreadsheet Component", () => {
     const gridComposerZIndex = getZIndex("div.o-grid-composer");
     const highlighZIndex = getZIndex(".o-highlight");
 
+    await typeInComposerTopBar("=SUM(A1,A2)");
+    const topBarComposerZIndex = getZIndex(".o-topbar-composer");
+
     createChart(model, {}, "thisIsAnId");
     model.dispatch("SELECT_FIGURE", { id: "thisIsAnId" });
     await nextTick();
@@ -187,9 +190,10 @@ describe("Simple Spreadsheet Component", () => {
     expect(figureZIndex).toBeLessThan(vScrollbarZIndex);
     expect(vScrollbarZIndex).toEqual(hScrollbarZIndex);
     expect(hScrollbarZIndex).toEqual(scrollbarCornerZIndex);
-    expect(scrollbarCornerZIndex).toBeLessThan(dropDownZIndex);
-    expect(dropDownZIndex).toBeLessThan(gridComposerZIndex);
-    expect(gridComposerZIndex).toBeLessThan(popoverZIndex);
+    expect(scrollbarCornerZIndex).toBeLessThan(gridComposerZIndex);
+    expect(gridComposerZIndex).toBeLessThan(dropDownZIndex);
+    expect(dropDownZIndex).toBeLessThan(topBarComposerZIndex);
+    expect(topBarComposerZIndex).toBeLessThan(popoverZIndex);
     expect(popoverZIndex).toBeLessThan(figureAnchorZIndex);
   });
 
