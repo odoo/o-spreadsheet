@@ -561,4 +561,11 @@ describe("Autoresize", () => {
     model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(initialSize);
   });
+
+  test("row height does not take into account line breaks in the formula", async () => {
+    const initialSize = model.getters.getRowSize(sheetId, 0);
+    setCellContent(model, "A1", "=5\n\n-3\n\n-9");
+    expect(getCellContent(model, "A1")).toEqual("-7");
+    expect(model.getters.getRowSize(sheetId, 0)).toEqual(initialSize);
+  });
 });

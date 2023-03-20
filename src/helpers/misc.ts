@@ -129,8 +129,10 @@ export function getDefaultCellHeight(cell: Cell | undefined): Pixel {
     return DEFAULT_CELL_HEIGHT;
   }
   const fontSize = computeTextFontSizeInPixels(cell.style);
-  const multiLineText = cell.content.split(NEWLINE);
-  return computeTextLinesHeight(fontSize, multiLineText.length) + 2 * PADDING_AUTORESIZE_VERTICAL;
+
+  // the number of lines should be computed from the formula result, but it's not evaluated at this point
+  const numberOfLines = cell.isFormula ? 1 : cell.content.split(NEWLINE).length;
+  return computeTextLinesHeight(fontSize, numberOfLines) + 2 * PADDING_AUTORESIZE_VERTICAL;
 }
 
 export function computeTextWidth(context: CanvasRenderingContext2D, text: string, style: Style) {
