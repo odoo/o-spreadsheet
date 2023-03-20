@@ -100,7 +100,7 @@ class App extends Component {
     if (window.confirm(content)) {
       confirm();
     } else {
-      cancel();
+      cancel?.();
     }
   }
 
