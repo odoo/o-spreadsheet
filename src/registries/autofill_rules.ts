@@ -1,23 +1,8 @@
+import { registry } from ".";
 import { DATETIME_FORMAT } from "../constants";
 import { evaluateLiteral } from "../helpers/cells";
-import { AutofillModifier, Cell, CellValueType } from "../types/index";
+import { Cell, CellValueType } from "../types/index";
 import { EvaluatedCell } from "./../types/cells";
-import { Registry } from "./registry";
-
-/**
- * An AutofillRule is used to generate what to do when we need to autofill
- * a cell. (In a AutofillGenerator, see plugins/autofill.ts)
- *
- * When we generate the rules to autofill, we take the first matching rule
- * (ordered by sequence), and we generate the AutofillModifier with generateRule
- */
-export interface AutofillRule {
-  condition: (cell: Cell, cells: (Cell | undefined)[]) => boolean;
-  generateRule: (cell: Cell, cells: (Cell | undefined)[]) => AutofillModifier;
-  sequence: number;
-}
-
-export const autofillRulesRegistry = new Registry<AutofillRule>();
 
 const numberPostfixRegExp = /(\d+)$/;
 const stringPrefixRegExp = /^(.*\D+)/;
@@ -76,7 +61,7 @@ function calculateIncrementBasedOnGroup(group: number[]) {
   return increment;
 }
 
-autofillRulesRegistry
+registry("autofill_rule")
   .add("simple_value_copy", {
     condition: (cell: Cell, cells: (Cell | undefined)[]) => {
       return cells.length === 1 && !cell.isFormula && !cell.format?.match(DATETIME_FORMAT);

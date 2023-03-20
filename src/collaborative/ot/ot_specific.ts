@@ -1,6 +1,6 @@
 import { overlap } from "../../helpers";
 import { transformDefinition } from "../../helpers/figures/charts";
-import { otRegistry } from "../../registries";
+import { registry } from "../../registries";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
@@ -22,6 +22,8 @@ import {
 /*
  * This file contains the specifics transformations
  */
+
+const otRegistry = registry("ot_registry");
 
 otRegistry.addTransformation(
   "ADD_COLUMNS_ROWS",

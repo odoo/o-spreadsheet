@@ -12,6 +12,19 @@ import { Getters } from ".";
 import { Cell } from "./cells";
 import { Border, DIRECTION, UID, UpdateCellData } from "./misc";
 
+/**
+ * An AutofillRule is used to generate what to do when we need to autofill
+ * a cell. (In a AutofillGenerator, see plugins/autofill.ts)
+ *
+ * When we generate the rules to autofill, we take the first matching rule
+ * (ordered by sequence), and we generate the AutofillModifier with generateRule
+ */
+export interface AutofillRule {
+  condition: (cell: Cell, cells: (Cell | undefined)[]) => boolean;
+  generateRule: (cell: Cell, cells: (Cell | undefined)[]) => AutofillModifier;
+  sequence: number;
+}
+
 export interface IncrementModifier {
   type: "INCREMENT_MODIFIER";
   increment: number;

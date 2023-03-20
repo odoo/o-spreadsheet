@@ -1,5 +1,5 @@
 import { clip, isInside, toCartesian, toXC } from "../../helpers/index";
-import { autofillModifiersRegistry, autofillRulesRegistry } from "../../registries/index";
+import { autofillModifiersRegistry, registry } from "../../registries/index";
 import {
   AutofillData,
   AutofillModifier,
@@ -329,7 +329,9 @@ export class AutofillPlugin extends UIPlugin {
    * Get the rule associated to the current cell
    */
   private getRule(cell: Cell, cells: (Cell | undefined)[]): AutofillModifier | undefined {
-    const rules = autofillRulesRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
+    const rules = registry("autofill_rule")
+      .getAll()
+      .sort((a, b) => a.sequence - b.sequence);
     const rule = rules.find((rule) => rule.condition(cell, cells));
     return rule && rule.generateRule(cell, cells);
   }

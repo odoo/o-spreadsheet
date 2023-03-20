@@ -1,5 +1,5 @@
 import { isDefined, isInside } from "../../helpers/index";
-import { otRegistry } from "../../registries/ot_registry";
+import { registry } from "../../registries";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
@@ -52,7 +52,10 @@ export function transform(
   toTransform: CoreCommand,
   executed: CoreCommand
 ): CoreCommand | undefined {
-  const specificTransform = otRegistry.getTransformation(toTransform.type, executed.type);
+  const specificTransform = registry("ot_registry").getTransformation(
+    toTransform.type,
+    executed.type
+  );
   return specificTransform
     ? specificTransform(toTransform, executed)
     : genericTransform(toTransform, executed);

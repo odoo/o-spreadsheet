@@ -66,7 +66,6 @@ import {
 import { clickableCellRegistry } from "./registries/cell_clickable_registry";
 import {
   autofillModifiersRegistry,
-  autofillRulesRegistry,
   cellMenuRegistry,
   cellPopoverRegistry,
   chartComponentRegistry,
@@ -75,7 +74,6 @@ import {
   figureRegistry,
   inverseCommandRegistry,
   linkMenuRegistry,
-  otRegistry,
   rowMenuRegistry,
   sidePanelRegistry,
   topbarComponentRegistry,
@@ -134,7 +132,6 @@ export const SPREADSHEET_DIMENSIONS = {
 
 export const registries = {
   autofillModifiersRegistry,
-  autofillRulesRegistry,
   cellMenuRegistry,
   colMenuRegistry,
   linkMenuRegistry,
@@ -152,7 +149,6 @@ export const registries = {
   topbarMenuRegistry,
   topbarComponentRegistry,
   clickableCellRegistry,
-  otRegistry,
   inverseCommandRegistry,
   urlRegistry,
   cellPopoverRegistry,
