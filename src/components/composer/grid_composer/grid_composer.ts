@@ -17,7 +17,7 @@ const SCROLLBAR_HIGHT = 15;
 const COMPOSER_BORDER_WIDTH = 3 * 0.4 * window.devicePixelRatio || 1;
 css/* scss */ `
   div.o-grid-composer {
-    z-index: ${ComponentsImportance.Composer};
+    z-index: ${ComponentsImportance.GridComposer};
     box-sizing: border-box;
     position: absolute;
     border: ${COMPOSER_BORDER_WIDTH}px solid ${SELECTION_BORDER_COLOR};

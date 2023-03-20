@@ -487,6 +487,10 @@ describe("Composer / selectionInput interactions", () => {
 
     await typeInComposerGrid("=A1:B2");
     const gridComposerZIndex = getZIndex("div.o-grid-composer");
+
+    await typeInComposerTopBar("=SUM(A1,A2)");
+    const topBarComposerZIndex = getZIndex(".o-topbar-toolbar .o-composer-container");
+
     const highlighZIndex = getZIndex(".o-highlight");
 
     triggerMouseEvent(".o-tool.o-dropdown.o-with-color", "click");
@@ -507,7 +511,8 @@ describe("Composer / selectionInput interactions", () => {
     expect(scrollbarCornerZIndex).toBeLessThan(gridComposerZIndex);
     expect(gridComposerZIndex).toBeLessThan(dropDownZIndex);
     expect(dropDownZIndex).toEqual(colorPickerZIndex);
-    expect(colorPickerZIndex).toBeLessThan(contextMenuZIndex);
+    expect(colorPickerZIndex).toBeLessThan(topBarComposerZIndex);
+    expect(topBarComposerZIndex).toEqual(contextMenuZIndex);
     expect(contextMenuZIndex).toBeLessThan(figureAnchorZIndex);
   });
 
