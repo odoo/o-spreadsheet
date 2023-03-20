@@ -126,7 +126,7 @@ exports[`error tooltip can display error tooltip 1`] = `
   class="o-popover"
   style="
       position: absolute;
-      z-index: 30;
+      z-index: 19;
       top:187px;
       left:336px;
       max-height:960px;

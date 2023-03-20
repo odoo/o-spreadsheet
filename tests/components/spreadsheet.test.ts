@@ -503,16 +503,21 @@ describe("Composer / selectionInput interactions", () => {
     const figureZIndex = getZIndex(".o-figure-wrapper");
     const figureAnchorZIndex = getZIndex(".o-fig-anchor");
 
+    setCellContent(model, "A1", "=SUM()");
+    await clickCell(model, "A1");
+    const gridPopoverZIndex = getZIndex(".o-popover");
+
     expect(gridZIndex).toBeLessThan(highlighZIndex);
     expect(highlighZIndex).toBeLessThan(figureZIndex);
     expect(figureZIndex).toBeLessThan(vScrollbarZIndex);
     expect(vScrollbarZIndex).toEqual(hScrollbarZIndex);
     expect(hScrollbarZIndex).toEqual(scrollbarCornerZIndex);
-    expect(scrollbarCornerZIndex).toBeLessThan(gridComposerZIndex);
+    expect(scrollbarCornerZIndex).toBeLessThan(gridPopoverZIndex);
+    expect(gridPopoverZIndex).toBeLessThan(gridComposerZIndex);
     expect(gridComposerZIndex).toBeLessThan(dropDownZIndex);
-    expect(dropDownZIndex).toEqual(colorPickerZIndex);
+    expect(dropDownZIndex).toBeLessThan(colorPickerZIndex);
     expect(colorPickerZIndex).toBeLessThan(topBarComposerZIndex);
-    expect(topBarComposerZIndex).toEqual(contextMenuZIndex);
+    expect(topBarComposerZIndex).toBeLessThan(contextMenuZIndex);
     expect(contextMenuZIndex).toBeLessThan(figureAnchorZIndex);
   });
 

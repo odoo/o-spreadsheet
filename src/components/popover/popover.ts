@@ -27,6 +27,7 @@ interface Props {
    */
   flipVerticalOffset: Pixel;
   onMouseWheel: (ev: WheelEvent) => void;
+  zIndex: Number;
 }
 
 export class Popover extends Component<Props, SpreadsheetChildEnv> {
@@ -37,6 +38,7 @@ export class Popover extends Component<Props, SpreadsheetChildEnv> {
     verticalOffset: 0,
     marginTop: 0,
     onMouseWheel: () => {},
+    zIndex: ComponentsImportance.Popover,
   };
 
   private spreadsheetPosition = useSpreadsheetPosition();
@@ -55,7 +57,7 @@ export class Popover extends Component<Props, SpreadsheetChildEnv> {
     const shadow = maxHeight !== 0 ? "box-shadow: 1px 2px 5px 2px rgb(51 51 51 / 15%);" : "";
     return `
       position: absolute;
-      z-index: ${ComponentsImportance.Popover};
+      z-index: ${this.props.zIndex};
       ${verticalPosition}px;
       ${horizontalPosition}px;
       ${height}px;
