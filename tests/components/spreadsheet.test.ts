@@ -504,9 +504,9 @@ describe("Composer / selectionInput interactions", () => {
     expect(figureZIndex).toBeLessThan(vScrollbarZIndex);
     expect(vScrollbarZIndex).toEqual(hScrollbarZIndex);
     expect(hScrollbarZIndex).toEqual(scrollbarCornerZIndex);
-    expect(scrollbarCornerZIndex).toBeLessThan(dropDownZIndex);
-    expect(dropDownZIndex).toBeLessThan(gridComposerZIndex);
-    expect(gridComposerZIndex).toBeLessThan(colorPickerZIndex);
+    expect(scrollbarCornerZIndex).toBeLessThan(gridComposerZIndex);
+    expect(gridComposerZIndex).toBeLessThan(dropDownZIndex);
+    expect(dropDownZIndex).toEqual(colorPickerZIndex);
     expect(colorPickerZIndex).toBeLessThan(contextMenuZIndex);
     expect(contextMenuZIndex).toBeLessThan(figureAnchorZIndex);
   });
