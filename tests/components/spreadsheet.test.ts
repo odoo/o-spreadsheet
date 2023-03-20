@@ -179,6 +179,9 @@ describe("Simple Spreadsheet Component", () => {
     const gridComposerZIndex = getZIndex("div.o-grid-composer");
     const highlighZIndex = getZIndex(".o-highlight");
 
+    await typeInComposerTopBar("=SUM(A1,A2)");
+    const topBarComposerZIndex = getZIndex(".o-topbar-toolbar .o-composer-container");
+
     triggerMouseEvent(".o-tool.o-dropdown-button.o-with-color", "click");
     await nextTick();
     const colorPickerZIndex = getZIndex("div.o-color-picker");
@@ -194,10 +197,11 @@ describe("Simple Spreadsheet Component", () => {
     expect(figureZIndex).toBeLessThan(vScrollbarZIndex);
     expect(vScrollbarZIndex).toEqual(hScrollbarZIndex);
     expect(hScrollbarZIndex).toEqual(scrollbarCornerZIndex);
-    expect(scrollbarCornerZIndex).toBeLessThan(dropDownZIndex);
-    expect(dropDownZIndex).toBeLessThan(gridComposerZIndex);
-    expect(gridComposerZIndex).toBeLessThan(colorPickerZIndex);
-    expect(colorPickerZIndex).toBeLessThan(contextMenuZIndex);
+    expect(scrollbarCornerZIndex).toBeLessThan(gridComposerZIndex);
+    expect(gridComposerZIndex).toBeLessThan(dropDownZIndex);
+    expect(dropDownZIndex).toBeLessThan(colorPickerZIndex);
+    expect(colorPickerZIndex).toBeLessThan(topBarComposerZIndex);
+    expect(topBarComposerZIndex).toBeLessThan(contextMenuZIndex);
     expect(contextMenuZIndex).toBeLessThan(figureAnchorZIndex);
   });
 

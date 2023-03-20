@@ -120,7 +120,7 @@ height: 1px;
 exports[`error tooltip can display error tooltip 1`] = `
 <div
   class="o-popover"
-  style="display: block; max-height: 824px; max-width: 697px; top: 187px; left: 336px;"
+  style="z-index: 19; display: block; max-height: 824px; max-width: 697px; top: 187px; left: 336px;"
 >
   <div
     class="o-error-tooltip"
