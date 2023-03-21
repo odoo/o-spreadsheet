@@ -607,6 +607,18 @@ describe("composer", () => {
     await nextTick();
     expect(model.getters.getEditionMode()).toBe("inactive");
   });
+  test("input event triggered from a paste should not open composer", async () => {
+    gridInputEl.dispatchEvent(
+      new InputEvent("input", {
+        data: "d",
+        bubbles: true,
+        isComposing: false,
+        inputType: "insertFromPaste",
+      })
+    );
+    await nextTick();
+    expect(model.getters.getEditionMode()).toBe("inactive");
+  });
 
   test("edit link cell changes the label", async () => {
     setCellContent(model, "A1", "[label](http://odoo.com)");
