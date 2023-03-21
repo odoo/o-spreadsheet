@@ -30,6 +30,7 @@ export class ContentEditableHelper {
         );
         if (start < 0) start = 0;
         if (end > this.el!.textContent!.length) end = this.el!.textContent!.length;
+        if (start > this.el!.textContent!.length) start = this.el!.textContent!.length;
       }
       let startNode = this.findChildAtCharacterIndex(start);
       let endNode = this.findChildAtCharacterIndex(end);

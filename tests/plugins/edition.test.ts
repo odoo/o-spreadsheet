@@ -515,6 +515,12 @@ describe("edition", () => {
     expect(model.getters.getCurrentContent()).toBe("Hello from sheet1");
   });
 
+  test.each(["ABC\nDEF", "ABC\r\nDEF", "ABC\rDEF"])("carriage returns are cleaned", (text) => {
+    const model = new Model();
+    model.dispatch("START_EDITION", { text });
+    expect(model.getters.getCurrentContent()).toBe("ABCDEF");
+  });
+
   test("select another cell which is empty set the content to an empty string", () => {
     const model = new Model();
     setCellContent(model, "A1", "Hello sir");
