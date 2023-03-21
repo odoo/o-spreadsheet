@@ -157,7 +157,22 @@ describe("tokenizer", () => {
       { type: "OPERATOR", value: "=" },
       { type: "SYMBOL", value: "'a '' b'!A1" },
     ]);
-
+    expect(tokenize("=1name!A1")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "1name!A1" },
+    ]);
+    expect(tokenize("=123!A1")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "123!A1" },
+    ]);
+    expect(tokenize("='1name'!A1")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "'1name'!A1" },
+    ]);
+    expect(tokenize("='123'!A1")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "'123'!A1" },
+    ]);
     // note the missing ' in the following test:
     expect(tokenize("='Sheet1!A1")).toEqual([
       { type: "OPERATOR", value: "=" },
