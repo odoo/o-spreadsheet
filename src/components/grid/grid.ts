@@ -466,6 +466,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onInput(ev: InputEvent) {
+    // the user meant to paste in the sheet, not open the composer with the pasted content
+    if (!ev.isComposing && ev.inputType === "insertFromPaste") {
+      return;
+    }
     if (ev.data) {
       // if the user types a character on the grid, it means he wants to start composing the selected cell with that
       // character
