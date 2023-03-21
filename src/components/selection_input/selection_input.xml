@@ -22,7 +22,7 @@
             'o-invalid': isInvalid || !range.isValidRange,
             'text-decoration-underline': range.isFocused and state.mode === 'select-range'
           }"
-          t-ref="{{range.isFocused ? 'focused' : 'unfocused'}}Input"
+          t-ref="{{range.isFocused ? 'focusedInput' : 'unfocusedInput' + range_index}}"
         />
         <button
           class="o-btn o-remove-selection"

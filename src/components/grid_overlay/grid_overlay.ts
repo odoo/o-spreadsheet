@@ -173,6 +173,9 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     onMounted(() => {
       resizeObserver.observe(this.gridOverlayEl);
     });
+    onWillUnmount(() => {
+      resizeObserver.disconnect();
+    });
     useTouchMove(this.gridOverlay, this.props.onGridMoved, () => {
       const { scrollY } = this.env.model.getters.getActiveSheetDOMScrollInfo();
       return scrollY > 0;
