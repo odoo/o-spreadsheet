@@ -7,7 +7,7 @@
  * - it does not accept "," as thousand separator, because when we tokenize a
  *   formula, commas are used to separate arguments
  */
-export const formulaNumberRegexp = /^-?\d+(\.?\d*(e\d+)?)?(\s*%)?|^-?\.\d+(\s*%)?/;
+export const formulaNumberRegexp = /(^-?\d+(\.?\d*(e\d+)?)?(\s*%)?|^-?\.\d+(\s*%)?)(?!\w|!)/;
 
 export const numberRegexp = /^-?\d+(,\d+)*(\.?\d*(e\d+)?)?(\s*%)?$|^-?\.\d+(\s*%)?$/;
 
