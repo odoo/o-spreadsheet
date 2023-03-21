@@ -248,6 +248,22 @@ describe("tokenizer", () => {
       { type: "OPERATOR", value: "=" },
       { type: "REFERENCE", value: "'a '' b'!A1" },
     ]);
+    expect(tokenize("=1name!A1")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "REFERENCE", value: "1name!A1" },
+    ]);
+    expect(tokenize("=123!A1")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "REFERENCE", value: "123!A1" },
+    ]);
+    expect(tokenize("='1name'!A1")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "REFERENCE", value: "'1name'!A1" },
+    ]);
+    expect(tokenize("='123'!A1")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "REFERENCE", value: "'123'!A1" },
+    ]);
   });
 
   test("wrong references", () => {
