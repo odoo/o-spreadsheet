@@ -8,7 +8,7 @@
  *   formula, commas are used to separate arguments
  * - it does not support % symbol, in formulas % is an operator
  */
-export const formulaNumberRegexp = /^-?\d+(\.?\d*(e\d+)?)?|^-?\.\d+/;
+export const formulaNumberRegexp = /(^-?\d+(\.?\d*(e\d+)?)?|^-?\.\d+)(?!\w|!)/;
 
 const pIntegerAndDecimals = "(\\d+(,\\d{3,})*(\\.\\d*)?)"; // pattern that match integer number with or without decimal digits
 const pOnlyDecimals = "(\\.\\d+)"; // pattern that match only expression with decimal digits
