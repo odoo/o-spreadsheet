@@ -418,6 +418,7 @@ export class EditionPlugin extends UIPlugin {
   }
 
   private setContent(text: string, selection?: ComposerSelection, raise?: boolean) {
+    text = text.replace(/[\r\n]/g, "");
     const isNewCurrentContent = this.currentContent !== text;
     this.currentContent = text;
 
