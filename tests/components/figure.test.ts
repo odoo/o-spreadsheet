@@ -42,9 +42,10 @@ import {
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 import { TEST_CHART_DATA } from "./../test_helpers/constants";
 
+let env: SpreadsheetChildEnv;
+let parent: Spreadsheet;
 let fixture: HTMLElement;
 let model: Model;
-let parent: Spreadsheet;
 
 function createFigure(
   model: Model,
@@ -60,7 +61,7 @@ function createFigure(
     tag: "text",
   };
 
-  model.dispatch("CREATE_FIGURE", {
+  return model.dispatch("CREATE_FIGURE", {
     sheetId,
     figure: { ...defaultParameters, ...figureParameters },
   });
@@ -116,7 +117,7 @@ afterAll(() => {
 
 describe("figures", () => {
   beforeEach(async () => {
-    ({ model, parent, fixture } = await mountSpreadsheet());
+    ({ model, parent, fixture, env } = await mountSpreadsheet());
     mockSpreadsheetRect = { top: 100, left: 200, height: 1000, width: 1000 };
     mockFigureMenuItemRect = { top: 500, left: 500 };
   });
@@ -560,7 +561,7 @@ describe("figures", () => {
         await simulateClick(".o-figure");
         await simulateClick(".o-figure-menu-item");
         await simulateClick(".o-menu div[data-name='copy']");
-        const envClipBoardContent = await parent.env.clipboard.readText();
+        const envClipBoardContent = await env.clipboard.readText();
         if (envClipBoardContent.status === "ok") {
           expect(envClipBoardContent.content).toEqual(
             model.getters.getClipboardContent()["text/plain"]
@@ -578,7 +579,7 @@ describe("figures", () => {
         await simulateClick(".o-figure");
         await simulateClick(".o-figure-menu-item");
         await simulateClick(".o-menu div[data-name='cut']");
-        const envClipBoardContent = await parent.env.clipboard.readText();
+        const envClipBoardContent = await env.clipboard.readText();
         if (envClipBoardContent.status === "ok") {
           expect(envClipBoardContent.content).toEqual(
             model.getters.getClipboardContent()["text/plain"]

@@ -90,7 +90,7 @@ describe("Insert chart menu item", () => {
   }
 
   async function mountTestSpreadsheet() {
-    ({ model, env, model } = await mountSpreadsheet({ model: new Model(data) }));
+    ({ model, env } = await mountSpreadsheet({ model: new Model(data) }));
     dispatchSpy = spyModelDispatch(model);
   }
 

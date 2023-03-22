@@ -88,14 +88,14 @@ class Parent extends Component<Props, SpreadsheetChildEnv> {
 async function mountParent(
   model: Model = new Model(),
   focusComposer: ComposerFocusType = "inactive"
-): Promise<{ parent: Parent; model: Model }> {
+): Promise<{ parent: Parent; model: Model; fixture: HTMLElement }> {
   const env = makeTestEnv({
     model,
     isDashboard: () => model.getters.isDashboard(),
   });
   let parent: Component;
   ({ parent, fixture } = await mountComponent(Parent, { props: { focusComposer }, env }));
-  return { parent: parent as Parent, model };
+  return { parent: parent as Parent, model, fixture };
 }
 
 describe("TopBar component", () => {
@@ -471,7 +471,7 @@ describe("TopBar component", () => {
         number++;
       },
     });
-    await mountParent();
+    const { fixture } = await mountParent();
     await click(fixture, ".o-topbar-menu[data-id='test']");
     await click(fixture, ".o-menu-item");
     expect(fixture.querySelectorAll(".o-menu-dropdown-content")).toHaveLength(0);
@@ -547,7 +547,8 @@ describe("TopBar component", () => {
 
   test("Cannot edit cell in a readonly spreadsheet", async () => {
     const model = new Model({}, { mode: "readonly" });
-    const { parent } = await mountParent(model);
+    let parent: Parent;
+    ({ parent, fixture } = await mountParent(model));
 
     let composerEl = fixture.querySelector(".o-spreadsheet-topbar div.o-composer")!;
 
@@ -573,7 +574,7 @@ describe("TopBar component", () => {
   ])(
     "Clicking a static element inside a dropdown '%s' don't close the dropdown",
     async (toolName: string, dropdownContentSelector: string) => {
-      await mountParent();
+      ({ fixture } = await mountParent());
 
       await simulateClick(`[title="${toolName}"]`);
       await nextTick();
@@ -601,8 +602,7 @@ describe("TopBar component", () => {
   test("can insert an image", async () => {
     const fileStore = new FileStore();
     const model = new Model({}, { external: { fileStore } });
-    await mountSpreadsheet({ model });
-    await nextTick();
+    await mountParent(model);
     const sheetId = model.getters.getActiveSheetId();
     await simulateClick(".o-topbar-menu[data-id='insert']");
     await simulateClick(".o-menu-item[data-name='insert_image']");
@@ -801,11 +801,11 @@ describe("TopBar - CF", () => {
 });
 describe("Topbar - View", () => {
   test("Setting show formula from topbar should retain its state even it's changed via f&r side panel upon closing", async () => {
-    const { parent, model, fixture } = await mountSpreadsheet();
+    const { model, fixture, env } = await mountSpreadsheet();
     await click(fixture, ".o-topbar-menu[data-id='view']");
     await click(fixture, ".o-menu-item[data-name='view_formulas']");
     expect(model.getters.shouldShowFormulas()).toBe(true);
-    parent.env.openSidePanel("FindAndReplace");
+    env.openSidePanel("FindAndReplace");
     await nextTick();
     expect(model.getters.shouldShowFormulas()).toBe(true);
     await nextTick();
@@ -820,11 +820,9 @@ describe("Topbar - View", () => {
 });
 
 describe("Topbar - menu item resizing with viewport", () => {
-  test("font size dropdown in top bar is resized with screen size change", async () => {
-    const model = new Model();
-    await mountParent(model);
-    triggerMouseEvent('[title="Font Size"]', "click");
-    await nextTick();
+  test("Number format dropdown in top bar is resized with screen size change", async () => {
+    const { model, fixture } = await mountParent();
+    await click(fixture, '.o-tool[title="More formats"]');
     let height = getElComputedStyle(".o-dropdown-content.o-text-options", "maxHeight");
     expect(parseInt(height)).toBe(
       model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
@@ -838,10 +836,8 @@ describe("Topbar - menu item resizing with viewport", () => {
   });
 
   test("color picker of fill color in top bar is resized with screen size change", async () => {
-    const model = new Model();
-    await mountParent(model);
-    triggerMouseEvent('.o-tool[title="Fill Color"]', "click");
-    await nextTick();
+    const { model, fixture } = await mountParent();
+    await click(fixture, '.o-tool[title="Fill Color"]');
     let height = getElComputedStyle(".o-popover", "maxHeight");
     expect(parseInt(height)).toBe(
       model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
@@ -855,10 +851,8 @@ describe("Topbar - menu item resizing with viewport", () => {
   });
 
   test("color picker of text color in top bar is resized with screen size change", async () => {
-    const model = new Model();
-    await mountParent(model);
-    triggerMouseEvent('.o-tool[title="Text Color"]', "click");
-    await nextTick();
+    const { model, fixture } = await mountParent();
+    await click(fixture, '.o-tool[title="Text Color"]');
     let height = getElComputedStyle(".o-popover", "maxHeight");
     expect(parseInt(height)).toBe(
       model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
