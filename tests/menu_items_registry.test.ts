@@ -96,7 +96,7 @@ describe("Menu Item actions", () => {
   let model: Model;
   let parent: Spreadsheet;
   let env: SpreadsheetChildEnv;
-  let dispatch;
+  let dispatch: jest.SpyInstance;
 
   beforeEach(async () => {
     ({ parent, model, env } = await mountSpreadsheet());

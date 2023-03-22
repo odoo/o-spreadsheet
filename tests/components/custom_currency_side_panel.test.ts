@@ -42,11 +42,11 @@ const loadCurrencies = async () => {
   return currenciesData;
 };
 
-let fixture: HTMLElement;
 let parent: Spreadsheet;
-let dispatch;
+let dispatch: jest.SpyInstance;
 let currenciesContent: { [key: string]: Currency };
 let model: Model;
+let fixture: HTMLElement;
 
 beforeEach(async () => {
   currenciesContent = Object.assign({}, currenciesRegistry.content);

@@ -3,6 +3,7 @@ import { Spreadsheet } from "../../src/components";
 import { functionRegistry } from "../../src/functions";
 import { toZone } from "../../src/helpers";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/registries";
+import { SpreadsheetChildEnv } from "../../src/types";
 import {
   addRows,
   createChart,
@@ -36,20 +37,21 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 let fixture: HTMLElement;
 let parent: Spreadsheet;
 let model: Model;
+let env: SpreadsheetChildEnv;
 
 describe("Simple Spreadsheet Component", () => {
-  // default model and env
-  beforeEach(async () => {
+  test("simple rendering snapshot", async () => {
     ({ model, parent, fixture } = await mountSpreadsheet({
       model: new Model({ sheets: [{ id: "sh1" }] }),
     }));
-  });
-
-  test("simple rendering snapshot", async () => {
     expect(fixture.querySelector(".o-spreadsheet")).toMatchSnapshot();
   });
 
   test("focus is properly set, initially and after switching sheet", async () => {
+    ({ model, fixture } = await mountSpreadsheet({
+      model: new Model({ sheets: [{ id: "sh1" }] }),
+    }));
+    // TODO check
     expect(document.activeElement!.tagName).toEqual("INPUT");
     await click(fixture, ".o-add-sheet");
     expect(document.querySelectorAll(".o-sheet").length).toBe(2);
@@ -59,7 +61,6 @@ describe("Simple Spreadsheet Component", () => {
   });
 
   describe("Use of env in a function", () => {
-    let env;
     beforeAll(() => {
       functionRegistry.add("GETACTIVESHEET", {
         description: "Get the name of the current sheet",
@@ -108,11 +109,15 @@ describe("Simple Spreadsheet Component", () => {
     });
   });
 
-  test("Clipboard is in spreadsheet env", () => {
-    expect(parent.env.clipboard["clipboard"]).toBe(navigator.clipboard);
+  test("Clipboard is in spreadsheet env", async () => {
+    ({ env } = await mountSpreadsheet({
+      model: new Model({ sheets: [{ id: "sh1" }] }),
+    }));
+    expect(env.clipboard["clipboard"]).toBe(navigator.clipboard);
   });
 
   test("typing opens composer after toolbar clicked", async () => {
+    ({ model, parent, fixture } = await mountSpreadsheet());
     await simulateClick(`div[title="Bold (Ctrl+B)"]`);
     expect(document.activeElement).not.toBeNull();
     document.activeElement?.dispatchEvent(new InputEvent("input", { data: "d", bubbles: true }));
@@ -122,6 +127,7 @@ describe("Simple Spreadsheet Component", () => {
   });
 
   test("can open/close search with ctrl+h", async () => {
+    ({ model, parent, fixture } = await mountSpreadsheet());
     await nextTick();
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "H", ctrlKey: true, bubbles: true })
@@ -136,6 +142,7 @@ describe("Simple Spreadsheet Component", () => {
   });
 
   test("can open/close search with ctrl+f", async () => {
+    ({ model, parent, fixture } = await mountSpreadsheet());
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "F", ctrlKey: true, bubbles: true })
     );
@@ -150,6 +157,7 @@ describe("Simple Spreadsheet Component", () => {
   });
 
   test("Z-indexes of the various spreadsheet components", async () => {
+    ({ model, fixture } = await mountSpreadsheet());
     const getZIndex = (selector: string) => Number(getElComputedStyle(selector, "zIndex")) || 0;
     mockChart();
     const gridZIndex = getZIndex(".o-grid");
@@ -186,27 +194,30 @@ describe("Simple Spreadsheet Component", () => {
   });
 
   test("Keydown is ineffective in dashboard mode", async () => {
+    ({ model, parent, fixture } = await mountSpreadsheet());
     const spreadsheetKeyDown = jest.spyOn(parent, "onKeydown");
     const spreadsheetDiv = fixture.querySelector(".o-spreadsheet")!;
     spreadsheetDiv.dispatchEvent(new KeyboardEvent("keydown", { key: "H", ctrlKey: true }));
     expect(spreadsheetKeyDown).toHaveBeenCalled();
     jest.clearAllMocks();
-    parent.model.updateMode("dashboard");
+    model.updateMode("dashboard");
     await nextTick();
     spreadsheetDiv.dispatchEvent(new KeyboardEvent("keydown", { key: "H", ctrlKey: true }));
     expect(spreadsheetKeyDown).not.toHaveBeenCalled();
   });
 
   test("The spreadsheet does not render after onbeforeunload", async () => {
+    ({ model, parent, fixture } = await mountSpreadsheet());
     window.dispatchEvent(new Event("beforeunload", { bubbles: true }));
     await nextTick();
     createSheet(model, {});
     await nextTick();
-    const sheets = document.querySelectorAll(".o-all-sheets .o-sheet");
+    const sheets = fixture.querySelectorAll(".o-all-sheets .o-sheet");
     expect(sheets).toHaveLength(model.getters.getSheetIds().length - 1);
   });
 
   test("The composer helper should be closed on toggle topbar context menu", async () => {
+    ({ parent, fixture } = await mountSpreadsheet());
     await typeInComposerGrid("=sum(");
     expect(parent.model.getters.getEditionMode()).not.toBe("inactive");
     expect(fixture.querySelectorAll(".o-composer-assistant")).toHaveLength(1);
@@ -218,10 +229,7 @@ describe("Simple Spreadsheet Component", () => {
 
 test("Can instantiate a spreadsheet with a given client id-name", async () => {
   const client = { id: "alice", name: "Alice" };
-
-  ({ parent, model, fixture } = await mountSpreadsheet({
-    model: new Model({}, { client }),
-  }));
+  ({ model } = await mountSpreadsheet({ model: new Model({}, { client }) }));
   expect(model.getters.getClient()).toEqual(client);
 });
 
@@ -279,7 +287,7 @@ describe("Composer / selectionInput interactions", () => {
     ],
   };
   beforeEach(async () => {
-    ({ model, parent, fixture } = await mountSpreadsheet({
+    ({ model, parent, fixture, env } = await mountSpreadsheet({
       model: new Model(modelDataCf),
     }));
   });
@@ -287,50 +295,50 @@ describe("Composer / selectionInput interactions", () => {
   test("Switching from selection input to composer should update the highlihts", async () => {
     //open cf sidepanel
     selectCell(model, "B2");
-    OPEN_CF_SIDEPANEL_ACTION(parent.env);
+    OPEN_CF_SIDEPANEL_ACTION(env);
     await nextTick();
     await simulateClick(".o-selection-input input");
 
     expect(model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("B2:C4")]);
-    expect(document.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(0);
+    expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(0);
 
     // select Composer
     await simulateClick(".o-spreadsheet-topbar .o-composer");
 
     expect(model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("A1")]);
-    expect(document.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
+    expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
   });
   test.each(["A", "="])(
     "Switching from grid composer to selection input should update the highlights and hide the highlight components",
     async (composerContent) => {
       selectCell(model, "B2");
-      OPEN_CF_SIDEPANEL_ACTION(parent.env);
+      OPEN_CF_SIDEPANEL_ACTION(env);
       await nextTick();
 
       await startGridComposition(composerContent);
-      expect(document.querySelectorAll(".o-grid-composer")).toHaveLength(1);
+      expect(fixture.querySelectorAll(".o-grid-composer")).toHaveLength(1);
 
       // focus selection input
       await simulateClick(".o-selection-input input");
 
-      expect(document.querySelectorAll(".o-grid-composer")).toHaveLength(0);
+      expect(fixture.querySelectorAll(".o-grid-composer")).toHaveLength(0);
     }
   );
 
   test("Switching from composer to selection input should update the highlights and hide the highlight components", async () => {
     selectCell(model, "B2");
-    OPEN_CF_SIDEPANEL_ACTION(parent.env);
+    OPEN_CF_SIDEPANEL_ACTION(env);
     await nextTick();
 
     await simulateClick(".o-spreadsheet-topbar .o-composer");
     expect(model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("A1")]);
-    expect(document.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
+    expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
 
     //open cf sidepanel
     await simulateClick(".o-selection-input input");
 
     expect(model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("B2:C4")]);
-    expect(document.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(0);
+    expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(0);
   });
 
   test("Switching from composer to focusing a figure should resubscribe grid_selection", async () => {
