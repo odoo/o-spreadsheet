@@ -58,19 +58,17 @@ async function mountBottomBar(
 ): Promise<{ parent: Parent; model: Model }> {
   let parent: Component;
   ({ fixture, parent } = await mountComponent(Parent, { model, env, props: { model } }));
-  return { parent: parent as Parent, model: parent.props.model };
+  return { parent: parent as Parent, model };
 }
 
 describe("BottomBar component", () => {
   test("simple rendering", async () => {
     await mountBottomBar();
-
     expect(fixture.querySelector(".o-spreadsheet-bottom-bar")).toMatchSnapshot();
   });
 
   test("Can create a new sheet", async () => {
     const { model } = await mountBottomBar();
-
     const dispatch = jest.spyOn(model, "dispatch");
     mockUuidV4To(model, 42);
     const activeSheetId = model.getters.getActiveSheetId();
@@ -112,7 +110,6 @@ describe("BottomBar component", () => {
 
   test("Can open context menu of a sheet", async () => {
     await mountBottomBar();
-
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
@@ -121,7 +118,6 @@ describe("BottomBar component", () => {
 
   test("Can open context menu of a sheet with the arrow", async () => {
     await mountBottomBar();
-
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     await click(fixture, ".o-sheet-icon");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
@@ -129,7 +125,6 @@ describe("BottomBar component", () => {
 
   test("Click on the arrow when the context menu is open should close it", async () => {
     await mountBottomBar();
-
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     await click(fixture, ".o-sheet-icon");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
@@ -165,10 +160,11 @@ describe("BottomBar component", () => {
   });
 
   test("Can move right a sheet", async () => {
-    const { model } = await mountBottomBar();
-    const dispatch = jest.spyOn(model, "dispatch");
+    const model = new Model();
     createSheet(model, { sheetId: "42" });
-    await nextTick();
+    await mountBottomBar(model);
+    const dispatch = jest.spyOn(model, "dispatch");
+
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
     const sheetId = model.getters.getActiveSheetId();
@@ -180,12 +176,13 @@ describe("BottomBar component", () => {
   });
 
   test("Can move left a sheet", async () => {
-    const { model } = await mountBottomBar();
+    const model = new Model();
+    createSheet(model, { sheetId: "42", activate: true });
+    await mountBottomBar(model);
     const dispatch = jest.spyOn(model, "dispatch");
-    createSheet(model, { sheetId: "42" });
-    activateSheet(model, "42");
-    await nextTick();
-    triggerMouseEvent(".o-sheet[data-id='42']", "contextmenu");
+
+    const target = fixture.querySelectorAll(".o-sheet")[1]!;
+    triggerMouseEvent(target, "contextmenu");
     await nextTick();
     const sheetId = model.getters.getActiveSheetId();
     await click(fixture, ".o-menu-item[data-name='move_left'");
@@ -196,10 +193,10 @@ describe("BottomBar component", () => {
   });
 
   test("Can hide a sheet", async () => {
-    const { model } = await mountBottomBar();
-    const dispatch = jest.spyOn(model, "dispatch");
+    const model = new Model();
     createSheet(model, { sheetId: "42" });
-    activateSheet(model, "42");
+    await mountBottomBar(model);
+    const dispatch = jest.spyOn(model, "dispatch");
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
@@ -211,9 +208,10 @@ describe("BottomBar component", () => {
   });
 
   test("Hide sheet menu is not visible if there's only one visible sheet", async () => {
-    const { model } = await mountBottomBar();
+    const model = new Model();
     createSheet(model, { sheetId: "42" });
     hideSheet(model, "42");
+    await mountBottomBar(model);
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
@@ -366,6 +364,7 @@ describe("BottomBar component", () => {
     const { model } = await mountBottomBar();
     const sheet = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42" });
+
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     await click(fixture, ".o-list-sheets");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
