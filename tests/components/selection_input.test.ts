@@ -163,8 +163,8 @@ describe("Selection Input", () => {
   });
 
   test("ctrl + select cell --> add new input", async () => {
-    const { parent, model, fixture } = await mountSpreadsheet();
-    OPEN_CF_SIDEPANEL_ACTION(parent.env);
+    const { env, model, fixture } = await mountSpreadsheet();
+    OPEN_CF_SIDEPANEL_ACTION(env);
     await nextTick();
     await simulateClick(".o-cf-add");
     await nextTick();
@@ -382,8 +382,8 @@ describe("Selection Input", () => {
   });
 
   test("pressing and releasing control has no effect on future clicks", async () => {
-    const { parent, model, fixture } = await mountSpreadsheet();
-    OPEN_CF_SIDEPANEL_ACTION(parent.env);
+    const { env, model, fixture } = await mountSpreadsheet();
+    OPEN_CF_SIDEPANEL_ACTION(env);
     await nextTick();
     await simulateClick(".o-cf-add");
     await nextTick();

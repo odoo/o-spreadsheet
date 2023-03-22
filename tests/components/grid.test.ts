@@ -1295,7 +1295,6 @@ describe("Events on Grid update viewport correctly", () => {
 describe("Edge-Scrolling on mouseMove in selection", () => {
   beforeEach(async () => {
     jest.useFakeTimers();
-
     ({ parent, model, fixture } = await mountSpreadsheet());
   });
 
@@ -1382,14 +1381,12 @@ describe("Copy paste keyboard shortcut", () => {
     ({ parent, model, fixture } = await mountSpreadsheet());
     sheetId = model.getters.getActiveSheetId();
   });
-
   test("Can paste from OS", async () => {
     selectCell(model, "A1");
     clipboardData.setText("Excalibur");
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     expect(getCellContent(model, "A1")).toEqual("Excalibur");
   });
-
   test("Can copy/paste cells", async () => {
     setCellContent(model, "A1", "things");
     selectCell(model, "A1");

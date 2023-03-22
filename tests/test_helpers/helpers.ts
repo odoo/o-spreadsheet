@@ -3,6 +3,7 @@ import { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
 import { functionRegistry } from "../../src/functions/index";
+import { ImageProvider } from "../../src/helpers/figures/images/image_provider";
 import { toCartesian, toUnboundedZone, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
@@ -14,6 +15,7 @@ import {
   ColorScaleThreshold,
   CommandTypes,
   ConditionalFormat,
+  Currency,
   RangeData,
   SpreadsheetChildEnv,
   Style,
@@ -23,10 +25,8 @@ import {
 import { Image } from "../../src/types/image";
 import { XLSXExport } from "../../src/types/xlsx";
 import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
-import { ImageProvider } from "../components/__mocks__/mock_image_provider";
 import { OWL_TEMPLATES, registerCleanup } from "../setup/jest.setup";
 import { FileStore } from "../__mocks__/mock_file_store";
-import { Currency } from "./../../src/types/currency";
 import { MockClipboard } from "./clipboard";
 import { redo, setCellContent, undo } from "./commands_helpers";
 import { getCellContent, getEvaluatedCell } from "./getters_helpers";
@@ -96,6 +96,8 @@ export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): Spreads
     openSidePanel: mockEnv.openSidePanel || (() => {}),
     toggleSidePanel: mockEnv.toggleSidePanel || (() => {}),
     clipboard: mockEnv.clipboard || new MockClipboard(),
+    //FIXME : image provider is not built on top of the file store of the model if provided
+    // and imageProvider is defined even when there is no file store on the model
     imageProvider: new ImageProvider(new FileStore()),
     _t: mockEnv._t || ((str: string, ...values: any) => str),
     notifyUser: mockEnv.notifyUser || (() => {}),
@@ -144,8 +146,10 @@ export async function mountComponent<Props extends { [key: string]: any }>(
   const fixture = optionalArgs?.fixture || makeTestFixture();
   const parent = await app.mount(fixture);
 
-  registerCleanup(() => app.destroy());
-  registerCleanup(() => fixture.remove());
+  registerCleanup(() => {
+    app.destroy();
+    fixture.remove();
+  });
 
   return { app, parent, model, fixture, env: parent.env };
 }

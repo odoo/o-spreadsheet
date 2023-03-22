@@ -61,7 +61,7 @@ let sheetId: string;
 
 let parent: Spreadsheet;
 
-describe("figures", () => {
+describe("charts", () => {
   beforeEach(async () => {
     mockChartData = mockChart();
     chartId = "someuuid";
