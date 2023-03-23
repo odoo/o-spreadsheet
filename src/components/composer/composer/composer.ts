@@ -596,7 +596,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     const highlights = this.env.model.getters.getHighlights();
     const refSheet = sheetName
       ? this.env.model.getters.getSheetIdByName(sheetName)
-      : this.env.model.getters.getEditionSheet();
+      : this.env.model.getters.getCurrentEditedCell().sheetId;
 
     const highlight = highlights.find((highlight) => {
       if (highlight.sheetId !== refSheet) return false;
