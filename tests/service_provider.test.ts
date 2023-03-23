@@ -30,16 +30,16 @@ class MyService {
   }
 }
 
-class MyDerivedService {
-  constructor(get: Get) {
-    const myOtherService = get(MyService);
-    return computed(myOtherService, {
-      aComputedProperty: (myOtherService) => {
-        return 4;
-      },
-    });
-  }
-}
+// class MyDerivedService {
+//   constructor(get: Get) {
+//     const myOtherService = get(MyService);
+//     return computed(myOtherService, {
+//       aComputedProperty: (myOtherService) => {
+//         return 4;
+//       },
+//     });
+//   }
+// }
 
 class Test {
   constructor(readonly n: number) {
@@ -61,4 +61,51 @@ test("cccoucouc", () => {
   const s = services.get(MyService);
   services.get(MyService);
   console.log(s);
+});
+
+test("direct cycle", () => {
+  class A {
+    constructor(get: Get, a: A = get(A)) {
+      get(B);
+    }
+  }
+  class B {
+    constructor(get: Get) {
+      get(A);
+    }
+  }
+  const services = new DependencyContainer();
+  expect(() => services.get(A)).toThrowError(
+    new Error("Circular dependency detected: A -> B -> A")
+  );
+});
+test("cycle with third created in the middle", () => {
+  class A {
+    constructor(get: Get) {
+      get(B);
+    }
+  }
+  class B {
+    constructor(get: Get) {
+      get(C);
+      get(A);
+    }
+  }
+  class C {
+    constructor(get: Get) {}
+  }
+  const services = new DependencyContainer();
+  expect(() => services.get(A)).toThrowError(
+    new Error("Circular dependency detected: A -> B -> A")
+  );
+  expect(C).toBeCalledTimes(1);
+});
+test("self cycle", () => {
+  class A {
+    constructor(get: Get) {
+      get(A);
+    }
+  }
+  const services = new DependencyContainer();
+  expect(() => services.get(A)).toThrowError(new Error("Circular dependency detected: A -> A"));
 });

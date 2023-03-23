@@ -16,6 +16,7 @@ const get: Get = (constru) => new constru(get);
 
 export class DependencyContainer {
   private dependencies: Map<ServiceFactory<any>, any> = new Map();
+  private building: Set<ServiceFactory<any>> = new Set();
 
   inject<T extends ServiceFactory<any>>(service: T, instance: InstanceType<T>): void {
     this.dependencies.set(service, instance);
@@ -23,9 +24,23 @@ export class DependencyContainer {
 
   get<T>(service: ServiceFactory<T>): T {
     if (!this.dependencies.has(service)) {
-      this.dependencies.set(service, new service(this.get.bind(this)));
+      this.dependencies.set(service, this.create(service));
     }
     return this.dependencies.get(service);
+  }
+
+  private create<T>(service: ServiceFactory<T>): T {
+    if (this.building.has(service)) {
+      throw new Error(
+        `Circular dependency detected: ${[...this.building, service]
+          .map((s) => s.name)
+          .join(" -> ")}`
+      );
+    }
+    this.building.add(service);
+    const instance = new service(this.get.bind(this));
+    this.building.delete(service);
+    return instance;
   }
 }
 
