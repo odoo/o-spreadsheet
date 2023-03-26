@@ -3,7 +3,7 @@ import { useStore } from "./hooks";
 /**
  * An injectable store constructor
  */
-export interface StoreConstructor<T> {
+export interface StoreConstructor<T = any> {
   new (get: Get): T;
 }
 
@@ -14,8 +14,11 @@ export type Get = <T extends StoreConstructor<any>>(
   Store: T
 ) => T extends StoreConstructor<infer I> ? I : never;
 
+/**
+ * A type-safe dependency container
+ */
 export class DependencyContainer {
-  private dependencies: Map<StoreConstructor<any>, any> = new Map();
+  private dependencies: Map<StoreConstructor, any> = new Map();
   private factory = new StoreFactory(this.get.bind(this));
 
   /**
@@ -23,7 +26,7 @@ export class DependencyContainer {
    * Useful for injecting an external store that is not created by the container.
    * Also useful for mocking a store.
    */
-  inject<T extends StoreConstructor<any>>(Store: T, instance: InstanceType<T>): void {
+  inject<T extends StoreConstructor>(Store: T, instance: InstanceType<T>): void {
     this.dependencies.set(Store, instance);
   }
 
@@ -66,16 +69,16 @@ export function createMetaStore<T extends object>(value: T): StoreConstructor<T>
 }
 
 /**
- * Force any function to always return void, effectively
+ * Force any function to never return anything, effectively
  * making it write-only.
  */
-type ReturnVoid<T> = T extends (...args: any[]) => any ? (...args: Parameters<T>) => void : T;
+type NeverReturns<T> = T extends (...args: any[]) => any ? (...args: Parameters<T>) => never : T;
 
 /**
  * Command Query Separation [1,2] implementation with types.
  *
  * Mapped type that implements CQS by forcing
- * - methods (commands) to return void, effectively making them write-only,
+ * - methods (commands) to never return anything, effectively making them write-only,
  * - all properties (queries) to be read-only [3]
  *
  * [1] https://martinfowler.com/bliki/CommandQuerySeparation.html
@@ -83,7 +86,7 @@ type ReturnVoid<T> = T extends (...args: any[]) => any ? (...args: Parameters<T>
  * [3] in an ideal world, they would be deeply read-only, but that's not possible natively in TypeScript
  */
 export type CQS<T> = {
-  readonly [key in keyof T]: ReturnVoid<T[key]>;
+  readonly [key in keyof T]: NeverReturns<T[key]>;
 };
 
 // type CommandQueryStore<T> = OnlyReadonlyProperties<T> & WriteOnlyMethods<T>;
@@ -96,8 +99,8 @@ class CQSTEST {
   }
 }
 
-const ttt: CQS<CQSTEST> = new CQSTEST();
-ttt.getSomething();
+// const ttt: CQS<CQSTEST> = new CQSTEST();
+// ttt.getSomething();
 
 // const cqs: CQStore<CQSTEST> = new CQSTEST();
 // cqs.actions.setData(5);
@@ -107,6 +110,7 @@ ty.L = 0;
 // ty.actions.setData(5);
 
 const sss = useStore(CQSTEST);
+sss.getSomething();
 // @ts-expect-error
 sss.sss.L = 9;
 

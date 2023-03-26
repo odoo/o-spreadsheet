@@ -8,7 +8,7 @@ export function useStoreProvider() {
   });
 }
 
-export function useStore<T extends StoreConstructor<any>>(Store: T): CQS<InstanceType<T>> {
+export function useStore<T extends StoreConstructor>(Store: T): CQS<InstanceType<T>> {
   const env = useEnv();
   const container: DependencyContainer = env.__spreadsheet_stores__;
   if (!container) {
