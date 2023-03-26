@@ -10,8 +10,8 @@ export function useStoreProvider() {
 
 export function useStore<T extends StoreConstructor>(Store: T): CQS<InstanceType<T>> {
   const env = useEnv();
-  const container: DependencyContainer = env.__spreadsheet_stores__;
-  if (!container) {
+  const container = env.__spreadsheet_stores__;
+  if (!(container instanceof DependencyContainer)) {
     throw new Error("No store provider found. Did you forget to call useStoreProvider() ?");
   }
   return container.get(Store);

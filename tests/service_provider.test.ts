@@ -1,4 +1,8 @@
-import { createMetaDependency, DependencyContainer, Get } from "../src/store/dependency_container";
+import {
+  createValueStore,
+  DependencyContainer,
+  Get,
+} from "../src/store/dependency_container";
 
 class MyOtherService {
   constructor(get: Get) {
@@ -43,7 +47,7 @@ class Test {
   }
 }
 
-const TestProvider = createMetaDependency(new Test(4));
+const TestProvider = createValueStore(new Test(4));
 
 // const services = new DependencyContainer();
 // const s = services.get(MyService);
@@ -109,7 +113,7 @@ test("inject", () => {
   }
   const stores = new DependencyContainer();
   const a = new A(4);
-  const AStore = createMetaDependency(a);
+  const AStore = createValueStore(a);
   stores.inject(AStore, a);
   expect(stores.get(AStore)).toBe(a);
 });

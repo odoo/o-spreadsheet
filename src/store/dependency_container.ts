@@ -1,4 +1,5 @@
 import { useStore } from "./hooks";
+import { withComputedProperties } from "./reactivity";
 
 /**
  * An injectable store constructor
@@ -43,7 +44,7 @@ class StoreFactory {
 
   constructor(private get: Get) {}
   /**
-   * Build a store instance and all its dependencies
+   * Build a store instance and get all its dependencies
    * while detecting and preventing circular dependencies
    */
   build<T>(Store: StoreConstructor<T>): T {
@@ -59,7 +60,7 @@ class StoreFactory {
   }
 }
 
-export function createMetaStore<T extends object>(value: T): StoreConstructor<T> {
+export function createValueStore<T extends object>(value: T): StoreConstructor<T> {
   class MetaStore {
     constructor(get: Get) {
       return value;
@@ -77,7 +78,7 @@ type NeverReturns<T> = T extends (...args: any[]) => any ? (...args: Parameters<
 /**
  * Command Query Separation [1,2] implementation with types.
  *
- * Mapped type that implements CQS by forcing
+ * Mapped type applying CQS principles to an object by forcing
  * - methods (commands) to never return anything, effectively making them write-only,
  * - all properties (queries) to be read-only [3]
  *
@@ -91,13 +92,37 @@ export type CQS<T> = {
 
 // type CommandQueryStore<T> = OnlyReadonlyProperties<T> & WriteOnlyMethods<T>;
 // type CommandQueryStore<T> = WriteOnlyMethods<T>;
-class CQSTEST {
+interface Y {
+  y: number;
+}
+class CQSTEST{
   private n = 4;
+  constructor() {
+    return withComputedProperties(this, [this], {
+      y: (d) => {
+        return d.L * 2;
+      }
+    })
+  }
+
   L = 9;
   getSomething() {
     return this.n;
   }
 }
+
+// class TestComputed {
+//   constructor(public n = 4) {
+//     return withComputedProperties(this, [this], {
+//       comp(dep) {
+//         return this.n * 2;
+//       },
+//     });
+//   }
+// }
+// const aaa = new TestComputed();
+
+// aaa.comp
 
 // const ttt: CQS<CQSTEST> = new CQSTEST();
 // ttt.getSomething();
@@ -106,11 +131,12 @@ class CQSTEST {
 // cqs.actions.setData(5);
 
 const ty = new CQSTEST();
-ty.L = 0;
+ty.
 // ty.actions.setData(5);
 
 const sss = useStore(CQSTEST);
 sss.getSomething();
+sss.Y
 // @ts-expect-error
 sss.sss.L = 9;
 
