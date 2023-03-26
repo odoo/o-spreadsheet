@@ -127,15 +127,15 @@ class TestComputed {
 const t = new TestComputed();
 t.comp;
 
-type ReturnVoid<T> = T extends (...args: any[]) => any ? (...args: Parameters<T>) => void : void;
+type ReturnVoid<T> = T extends (...args: any[]) => any ? (...args: Parameters<T>) => void : T;
 
 /**
  * Mapped type to only allow properties (no methods) and force
  * them to be readonly.
  */
-type OnlyReadonlyProperties<T> = {
-  readonly [key in keyof T]: T[key] extends Function ? never : T[key];
-};
+// type OnlyReadonlyProperties<T> = {
+//   readonly [key in keyof T]: T[key];
+// };
 
 /**
  * Mapped type to force methods to always return void, effectively
@@ -146,33 +146,43 @@ type WriteOnlyActions<T extends { actions: any }> = {
     [key in keyof T["actions"]]: ReturnVoid<T["actions"][key]>;
   };
 };
+type WriteOnlyMethods<T> = {
+  readonly [key in keyof T]: T[key] extends (...args: any[]) => any
+    ? (...args: Parameters<T[key]>) => void
+    : T[key];
+};
 
-type CommandQueryStore<T extends { actions: any }> = OnlyReadonlyProperties<T> &
-  WriteOnlyActions<T>;
+// type CommandQueryStore<T> = OnlyReadonlyProperties<T> & WriteOnlyMethods<T>;
+type CommandQueryStore<T> = WriteOnlyMethods<T>;
 class CQSTEST {
   private n = 4;
   L = 9;
-  readonly actions = {
-    setData: (data: any) => {
-      return this.n;
-    },
-  };
+  // readonly actions = {
+  //   setData: (data: any) => {
+  //     return this.n;
+  //   },
+  // };
   getSomething() {
     return this.n;
   }
 }
+
+const ttt: CommandQueryStore<CQSTEST> = new CQSTEST();
+ttt.getSomething();
 
 // const cqs: CQStore<CQSTEST> = new CQSTEST();
 // cqs.actions.setData(5);
 
 const ty = new CQSTEST();
 ty.L = 0;
-ty.actions.setData(5);
+// ty.actions.setData(5);
 
 function useStore<T extends StoreConstructor<any>>(Store: T): CommandQueryStore<InstanceType<T>> {
   return 4 as any;
 }
 
 const sss = useStore(CQSTEST);
+sss.L;
+// @ts-expect-error
 sss.L = 9;
-sss.getSomething;
+const z = sss.getSomething();
