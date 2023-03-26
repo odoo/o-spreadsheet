@@ -1,56 +1,68 @@
 import { reactive } from "@odoo/owl";
 
-interface ServiceFactory<T> {
+/**
+ * An injectable store constructor
+ */
+interface StoreConstructor<T> {
   new (get: Get): T;
 }
 
-// interface Type<T> {
-//   new (...args: any[]): T;
-// }
-
-export type Get = <T extends ServiceFactory<any>>(
-  constru: T
-) => T extends ServiceFactory<infer I> ? I : never;
-
-const get: Get = (constru) => new constru(get);
+/**
+ * A function used to inject dependencies in a store constructor
+ */
+export type Get = <T extends StoreConstructor<any>>(
+  Store: T
+) => T extends StoreConstructor<infer I> ? I : never;
 
 export class DependencyContainer {
-  private dependencies: Map<ServiceFactory<any>, any> = new Map();
-  private building: Set<ServiceFactory<any>> = new Set();
+  private dependencies: Map<StoreConstructor<any>, any> = new Map();
+  private factory = new StoreFactory(this.get.bind(this));
 
-  inject<T extends ServiceFactory<any>>(service: T, instance: InstanceType<T>): void {
-    this.dependencies.set(service, instance);
+  /**
+   * Injects a store instance in the dependency container.
+   * Useful for injecting an external store that is not created by the container.
+   * Also useful for mocking a store.
+   */
+  inject<T extends StoreConstructor<any>>(Store: T, instance: InstanceType<T>): void {
+    this.dependencies.set(Store, instance);
   }
 
-  get<T>(service: ServiceFactory<T>): T {
-    if (!this.dependencies.has(service)) {
-      this.dependencies.set(service, this.create(service));
+  get<T>(Store: StoreConstructor<T>): T {
+    if (!this.dependencies.has(Store)) {
+      this.dependencies.set(Store, this.factory.build(Store));
     }
-    return this.dependencies.get(service);
+    return this.dependencies.get(Store);
   }
+}
 
-  private create<T>(service: ServiceFactory<T>): T {
-    if (this.building.has(service)) {
+class StoreFactory {
+  private building: Set<StoreConstructor<any>> = new Set();
+
+  constructor(private get: Get) {}
+  /**
+   * Build a store instance and all its dependencies
+   * while detecting and preventing circular dependencies
+   */
+  build<T>(Store: StoreConstructor<T>): T {
+    if (this.building.has(Store)) {
       throw new Error(
-        `Circular dependency detected: ${[...this.building, service]
-          .map((s) => s.name)
-          .join(" -> ")}`
+        `Circular dependency detected: ${[...this.building, Store].map((s) => s.name).join(" -> ")}`
       );
     }
-    this.building.add(service);
-    const instance = new service(this.get.bind(this));
-    this.building.delete(service);
+    this.building.add(Store);
+    const instance = new Store(this.get);
+    this.building.delete(Store);
     return instance;
   }
 }
 
-export function createProviderService<T extends object>(value: T): ServiceFactory<T> {
-  class MetaService {
+export function createMetaStore<T extends object>(value: T): StoreConstructor<T> {
+  class MetaStore {
     constructor(get: Get) {
       return value;
     }
   }
-  return MetaService as ServiceFactory<T>;
+  return MetaStore as StoreConstructor<T>;
 }
 
 /**
@@ -114,3 +126,32 @@ class TestComputed {
 
 const t = new TestComputed();
 t.comp;
+
+type ReturnVoid<T> = T extends (...args: any[]) => any ? (...args: Parameters<T>) => void : void;
+
+type OnlyProperties<T> = {
+  [key in keyof T]: T[key] extends Function ? never : T[key];
+};
+
+type WriteOnlyActions<T extends { actions: any }> = {
+  // [key in Exclude<keyof T, "actions">]: T[key];
+  actions: {
+    [key in keyof T["actions"]]: ReturnVoid<T["actions"][key]>;
+  };
+};
+
+type CQStore<T extends { actions: any }> = OnlyProperties<T> & WriteOnlyActions<T>;
+class CQSTEST {
+  private n = 4;
+  readonly actions = {
+    setData: (data: any) => {
+      return this.n;
+    },
+  };
+}
+
+const cqs: CQStore<CQSTEST> = new CQSTEST();
+cqs.actions.setData(5);
+
+const ty = new CQSTEST();
+ty.actions.setData(5);

@@ -1,5 +1,5 @@
 import {
-  createProviderService,
+  createMetaStore,
   DependencyContainer,
   Get,
 } from "../src/service_provider/service_provider";
@@ -47,7 +47,7 @@ class Test {
   }
 }
 
-const TestProvider = createProviderService(new Test(4));
+const TestProvider = createMetaStore(new Test(4));
 
 // const services = new DependencyContainer();
 // const s = services.get(MyService);
@@ -65,7 +65,7 @@ test("cccoucouc", () => {
 
 test("direct cycle", () => {
   class A {
-    constructor(get: Get, a: A = get(A)) {
+    constructor(get: Get) {
       get(B);
     }
   }
@@ -94,11 +94,8 @@ test("cycle with third created in the middle", () => {
   class C {
     constructor(get: Get) {}
   }
-  const services = new DependencyContainer();
-  expect(() => services.get(A)).toThrowError(
-    new Error("Circular dependency detected: A -> B -> A")
-  );
-  expect(C).toBeCalledTimes(1);
+  const stores = new DependencyContainer();
+  expect(() => stores.get(A)).toThrowError(new Error("Circular dependency detected: A -> B -> A"));
 });
 test("self cycle", () => {
   class A {
@@ -108,4 +105,15 @@ test("self cycle", () => {
   }
   const services = new DependencyContainer();
   expect(() => services.get(A)).toThrowError(new Error("Circular dependency detected: A -> A"));
+});
+
+test("inject", () => {
+  class A {
+    constructor(readonly n: number) {}
+  }
+  const stores = new DependencyContainer();
+  const a = new A(4);
+  const AStore = createMetaStore(a);
+  stores.inject(AStore, a);
+  expect(stores.get(AStore)).toBe(a);
 });
