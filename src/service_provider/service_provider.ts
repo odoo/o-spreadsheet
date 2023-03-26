@@ -129,29 +129,50 @@ t.comp;
 
 type ReturnVoid<T> = T extends (...args: any[]) => any ? (...args: Parameters<T>) => void : void;
 
-type OnlyProperties<T> = {
-  [key in keyof T]: T[key] extends Function ? never : T[key];
+/**
+ * Mapped type to only allow properties (no methods) and force
+ * them to be readonly.
+ */
+type OnlyReadonlyProperties<T> = {
+  readonly [key in keyof T]: T[key] extends Function ? never : T[key];
 };
 
+/**
+ * Mapped type to force methods to always return void, effectively
+ * making them write-only.
+ */
 type WriteOnlyActions<T extends { actions: any }> = {
-  // [key in Exclude<keyof T, "actions">]: T[key];
   actions: {
     [key in keyof T["actions"]]: ReturnVoid<T["actions"][key]>;
   };
 };
 
-type CQStore<T extends { actions: any }> = OnlyProperties<T> & WriteOnlyActions<T>;
+type CommandQueryStore<T extends { actions: any }> = OnlyReadonlyProperties<T> &
+  WriteOnlyActions<T>;
 class CQSTEST {
   private n = 4;
+  L = 9;
   readonly actions = {
     setData: (data: any) => {
       return this.n;
     },
   };
+  getSomething() {
+    return this.n;
+  }
 }
 
-const cqs: CQStore<CQSTEST> = new CQSTEST();
-cqs.actions.setData(5);
+// const cqs: CQStore<CQSTEST> = new CQSTEST();
+// cqs.actions.setData(5);
 
 const ty = new CQSTEST();
+ty.L = 0;
 ty.actions.setData(5);
+
+function useStore<T extends StoreConstructor<any>>(Store: T): CommandQueryStore<InstanceType<T>> {
+  return 4 as any;
+}
+
+const sss = useStore(CQSTEST);
+sss.L = 9;
+sss.getSomething;
