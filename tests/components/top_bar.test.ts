@@ -352,8 +352,8 @@ describe("TopBar component", () => {
       expect(model.getters.getCurrentStyle()).toEqual(expectedStyle);
     });
     test.each([
-      ["text", {}, "Middle"],
-      ["0", {}, "Middle"],
+      ["text", {}, "Bottom"],
+      ["0", {}, "Bottom"],
       ["0", { verticalAlign: "top" }, "Top"],
       ["0", { verticalAlign: "middle" }, "Middle"],
       ["0", { verticalAlign: "bottom" }, "Bottom"],

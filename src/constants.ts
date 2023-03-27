@@ -146,7 +146,7 @@ export const DEFAULT_FONT_WEIGHT = "400";
 export const DEFAULT_FONT_SIZE = 10;
 export const HEADER_FONT_SIZE = 11;
 export const DEFAULT_FONT = "'Roboto', arial";
-export const DEFAULT_VERTICAL_ALIGN = "middle";
+export const DEFAULT_VERTICAL_ALIGN = "bottom";
 
 // Borders
 export const DEFAULT_BORDER_DESC: BorderDescr = ["thin", "#000"];

@@ -24,6 +24,7 @@ import {
   convertCFCellIsOperator,
   H_ALIGNMENT_CONVERSION_MAP,
   ICON_SET_CONVERSION_MAP,
+  V_ALIGNMENT_CONVERSION_MAP,
 } from "./../src/xlsx/conversion/conversion_maps";
 import {
   getCFBeginningAt,
@@ -170,6 +171,21 @@ describe("Import xlsx data", () => {
     const styledCell = testSheet.cells[cellXc]!;
     const cellStyle = getWorkbookCellStyle(styledCell, convertedData);
     expect(cellStyle?.align).toEqual(H_ALIGNMENT_CONVERSION_MAP[alignType]);
+  });
+
+  test.each([
+    [undefined, "F12"],
+    ["top", "F13"],
+    ["center", "F14"],
+    ["justify", "F15"],
+    ["distributed", "F16"],
+  ])("Can import Vertical Alignment %s", (alignType, cellXc) => {
+    const testSheet = getWorkbookSheet("jestStyles", convertedData)!;
+    const styledCell = testSheet.cells[cellXc]!;
+    const cellStyle = getWorkbookCellStyle(styledCell, convertedData);
+    expect(cellStyle?.verticalAlign).toEqual(
+      alignType === undefined ? undefined : V_ALIGNMENT_CONVERSION_MAP[alignType]
+    );
   });
 
   test.each([

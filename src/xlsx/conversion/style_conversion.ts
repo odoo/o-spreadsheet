@@ -19,6 +19,8 @@ import {
   SUPPORTED_FILL_PATTERNS,
   SUPPORTED_FONTS,
   SUPPORTED_HORIZONTAL_ALIGNMENTS,
+  SUPPORTED_VERTICAL_ALIGNMENTS,
+  V_ALIGNMENT_CONVERSION_MAP,
 } from "./conversion_maps";
 import { convertXlsxFormat } from "./format_conversion";
 
@@ -90,6 +92,9 @@ export function convertStyle(
     italic: styleStruct.fontStyle?.italic,
     strikethrough: styleStruct.fontStyle?.strike,
     underline: styleStruct.fontStyle?.underline,
+    verticalAlign: styleStruct.alignment?.vertical
+      ? V_ALIGNMENT_CONVERSION_MAP[styleStruct.alignment.vertical]
+      : undefined,
     align: styleStruct.alignment?.horizontal
       ? H_ALIGNMENT_CONVERSION_MAP[styleStruct.alignment.horizontal]
       : undefined,
@@ -180,7 +185,11 @@ function addVerticalAlignmentWarnings(
   alignment: XLSXVerticalAlignment | undefined,
   warningManager: XLSXImportWarningManager
 ) {
-  if (alignment) {
-    warningManager.generateNotSupportedWarning(WarningTypes.VerticalAlignmentNotSupported);
+  if (alignment && !SUPPORTED_VERTICAL_ALIGNMENTS.includes(alignment)) {
+    warningManager.generateNotSupportedWarning(
+      WarningTypes.VerticalAlignmentNotSupported,
+      alignment,
+      SUPPORTED_VERTICAL_ALIGNMENTS
+    );
   }
 }

@@ -60,8 +60,10 @@ NW = no warning generated for these conversions.
   - most border styles. We only support thin borders, and will convert every other border style to thin border.
   - diagonal borders
 - Align :
-  - some horizontal alignments. We only support left/right/center.
-  - vertical alignement
+  - some horizontal alignments. We only support left/right/center. Other types will be converted as follows:
+    - fill/justify -> left
+    - centerContinuous/distributed -> center
+  - some vertical alignements. We only support top/center/bottom. Other types will be converted to center.
   - other align options (wrapText, indent, shrinkToFit, ...) (NW)
 - Fills :
   - we only support solid fill pattern. Convert all other patterns into solid fills.
