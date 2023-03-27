@@ -17,6 +17,8 @@ import {
   CommandTypes,
   ConditionalFormat,
   Currency,
+  EvaluatedCell,
+  Format,
   RangeData,
   SpreadsheetChildEnv,
   Style,
@@ -29,7 +31,7 @@ import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
 import { OWL_TEMPLATES, registerCleanup } from "../setup/jest.setup";
 import { FileStore } from "../__mocks__/mock_file_store";
 import { MockClipboard } from "./clipboard";
-import { redo, setCellContent, undo } from "./commands_helpers";
+import { redo, setCellContent, setFormat, setStyle, undo } from "./commands_helpers";
 import { getCellContent, getEvaluatedCell } from "./getters_helpers";
 
 const functionsContent = functionRegistry.content;
@@ -190,17 +192,66 @@ export async function mountSpreadsheet(
 
 type GridDescr = { [xc: string]: string | undefined };
 type FormattedGridDescr = GridDescr;
-type GridResult = { [xc: string]: any };
+type GridResult = { [xc: string]: string | number | boolean | undefined };
+type GridFormatDescr = { [xc: string]: Format | undefined };
+type GridStyleDescr = { [xc: string]: Style | undefined };
 
-export function getGrid(model: Model): GridResult {
+function getCellGrid(model: Model): { [xc: string]: EvaluatedCell } {
   const result = {};
   const sheetId = model.getters.getActiveSheetId();
   for (let cellId in model.getters.getEvaluatedCells(sheetId)) {
     const { col, row } = model.getters.getCellPosition(cellId);
     const cell = model.getters.getEvaluatedCell({ sheetId, col, row });
-    result[toXC(col, row)] = cell.value;
+    result[toXC(col, row)] = cell;
   }
   return result;
+}
+
+export function getGrid(model: Model): GridResult {
+  const result: GridResult = {};
+  for (const [xc, cell] of Object.entries(getCellGrid(model))) {
+    result[xc] = cell.value;
+  }
+  return result;
+}
+
+export function getGridFormat(model: Model): GridFormatDescr {
+  const result: GridFormatDescr = {};
+  for (const [xc, cell] of Object.entries(getCellGrid(model))) {
+    result[xc] = cell.format;
+  }
+  return result;
+}
+
+export function getGridStyle(model: Model): GridStyleDescr {
+  const result: GridStyleDescr = {};
+  const sheetId = model.getters.getActiveSheetId();
+  for (const [cellId, cell] of Object.entries(model.getters.getCells(sheetId))) {
+    const { col, row } = model.getters.getCellPosition(cellId);
+    result[toXC(col, row)] = cell.style;
+  }
+  return result;
+}
+
+export function setGrid(model: Model, grid: GridDescr) {
+  for (const [xc, value] of Object.entries(grid)) {
+    if (value === undefined) continue;
+    setCellContent(model, xc, value);
+  }
+}
+
+export function setGridFormat(model: Model, grid: GridFormatDescr) {
+  for (const [xc, format] of Object.entries(grid)) {
+    if (format === undefined) continue;
+    setFormat(model, format, target(xc));
+  }
+}
+
+export function setGridStyle(model: Model, grid: GridStyleDescr) {
+  for (const [xc, style] of Object.entries(grid)) {
+    if (style === undefined) continue;
+    setStyle(model, xc, style);
+  }
 }
 
 /**

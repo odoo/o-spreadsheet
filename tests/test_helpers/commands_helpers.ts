@@ -9,6 +9,7 @@ import {
   DispatchResult,
   SortDirection,
   SortOptions,
+  SplitTextIntoColumnsCommand,
   Style,
   UID,
   UpDown,
@@ -833,5 +834,21 @@ export function setFormat(
     sheetId,
     target,
     format,
+  });
+}
+
+export function splitTextToColumns(
+  model: Model,
+  separator: string,
+  target?: string,
+  options: Partial<Omit<SplitTextIntoColumnsCommand, "type" | "separator">> = {}
+) {
+  if (target) {
+    setSelection(model, [target]);
+  }
+  return model.dispatch("SPLIT_TEXT_INTO_COLUMNS", {
+    separator,
+    force: options.force || false,
+    addNewColumns: options.addNewColumns || false,
   });
 }

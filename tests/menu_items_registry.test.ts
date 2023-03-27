@@ -25,6 +25,7 @@ import {
   makeTestEnv,
   mockUuidV4To,
   nextTick,
+  spyModelDispatch,
   target,
 } from "./test_helpers/helpers";
 jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
@@ -97,7 +98,7 @@ describe("Menu Item actions", () => {
   beforeEach(async () => {
     env = makeTestEnv();
     model = env.model;
-    dispatch = jest.spyOn(model, "dispatch");
+    dispatch = spyModelDispatch(model);
   });
 
   test("Edit -> undo", () => {
@@ -745,6 +746,24 @@ describe("Menu Item actions", () => {
         style: { wrapping: "clip" },
       });
     });
+  });
+
+  test("Data -> Split to columns action", async () => {
+    const spyOpenSidePanel = jest.spyOn(env, "openSidePanel");
+    doAction(["data", "split_to_columns"], env);
+    await nextTick();
+    expect(spyOpenSidePanel).toHaveBeenCalledWith("SplitToColumns", {});
+  });
+
+  test("Data -> Split to columns is disabled when multiple cols are selected", () => {
+    setSelection(model, ["A1"]);
+    expect(getNode(["data", "split_to_columns"]).isEnabled(env)).toBeTruthy();
+
+    setSelection(model, ["A1:C1"]);
+    expect(getNode(["data", "split_to_columns"]).isEnabled(env)).toBeFalsy();
+
+    setSelection(model, ["A1", "B1"]);
+    expect(getNode(["data", "split_to_columns"]).isEnabled(env)).toBeFalsy();
   });
 
   test("Data -> Sort ascending", () => {

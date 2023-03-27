@@ -4,21 +4,15 @@ import { lettersToNumber, MIN_DELAY, scrollDelay, toZone } from "../../src/helpe
 import { Pixel } from "../../src/types";
 import { nextTick } from "./helpers";
 
+type DOMTarget = string | Element | Document | Window | null;
+
 export async function simulateClick(
-  selector: string | any,
+  selector: DOMTarget,
   x: number = 10,
   y: number = 10,
   extra: MouseEventInit = { bubbles: true }
 ) {
-  let target;
-  if (typeof selector === "string") {
-    target = document.querySelector(selector) as HTMLElement;
-    if (!target) {
-      throw new Error(`"${selector}" does not match any element.`);
-    }
-  } else {
-    target = selector;
-  }
+  const target = getTarget(selector);
   triggerMouseEvent(selector, "mousedown", x, y, extra);
   if (target !== document.activeElement) {
     const oldActiveEl = document.activeElement;
@@ -31,6 +25,22 @@ export async function simulateClick(
   triggerMouseEvent(selector, "mouseup", x, y, extra);
   triggerMouseEvent(selector, "click", x, y, extra);
   await nextTick();
+}
+
+function getTarget(target: DOMTarget): Element | Document | Window {
+  if (target === null) {
+    throw new Error("Target is null");
+  }
+  if (typeof target === "string") {
+    // TODO: use `findElement` instead, and fix tests w/ multiple matched elements
+    const els = document.querySelectorAll(target);
+    if (els.length === 0) {
+      throw new Error(`No element found (selector: ${target})`);
+    }
+    return els[0];
+  } else {
+    return target;
+  }
 }
 
 function findElement(el: Element, selector: string): Element {
@@ -115,7 +125,7 @@ export async function rightClickCell(
 }
 
 export function triggerMouseEvent(
-  selector: string | any,
+  selector: DOMTarget,
   type: string,
   offsetX?: number,
   offsetY?: number,
@@ -131,26 +141,28 @@ export function triggerMouseEvent(
   });
   (ev as any).offsetX = offsetX;
   (ev as any).offsetY = offsetY;
-  if (typeof selector === "string") {
-    document.querySelector(selector)!.dispatchEvent(ev);
-  } else {
-    selector!.dispatchEvent(ev);
-  }
+  const target = getTarget(selector);
+  target.dispatchEvent(ev);
 }
 
 export function setInputValueAndTrigger(
-  selector: string | any,
+  selector: DOMTarget,
   value: string,
   eventType: string
 ): void {
-  let rangeInput;
-  if (typeof selector === "string") {
-    rangeInput = document.querySelector(selector) as HTMLInputElement;
-  } else {
-    rangeInput = selector;
-  }
-  rangeInput.value = value;
-  rangeInput.dispatchEvent(new Event(eventType));
+  const input = getTarget(selector) as HTMLInputElement;
+  input.value = value;
+  input.dispatchEvent(new Event(eventType));
+}
+
+export function setCheckboxValueAndTrigger(
+  selector: string | any,
+  checked: boolean,
+  eventType: string
+): void {
+  const checkbox = getTarget(selector) as HTMLInputElement;
+  checkbox.checked = checked;
+  checkbox.dispatchEvent(new Event(eventType));
 }
 
 /** In the past, both keyDown and keyUp were awaiting two `nextTick` instead of one.

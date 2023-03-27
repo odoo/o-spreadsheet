@@ -72,9 +72,15 @@ css/* scss */ `
       }
     }
 
-    .o-sidepanel-error {
-      color: red;
+    .o-sidepanel-error,
+    .o-sidepanel-warning {
       margin-top: 10px;
+
+      .o-icon {
+        margin-right: 5px;
+        height: 1.2em;
+        width: 1.2em;
+      }
     }
 
     .o-sidePanelButtons {
@@ -130,6 +136,16 @@ css/* scss */ `
     select.o-input {
       background-color: white;
       text-align: left;
+    }
+
+    .o-checkbox {
+      label {
+        display: flex;
+        justify-items: center;
+        input {
+          margin-right: 5px;
+        }
+      }
     }
 
     .o-inflection {
