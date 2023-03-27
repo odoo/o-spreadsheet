@@ -54,6 +54,11 @@ css/* scss */ `
     button {
       color: #333;
     }
+    .o-disabled {
+      opacity: 0.4;
+      pointer: default;
+      pointer-events: none;
+    }
 
     &,
     *,

@@ -129,10 +129,13 @@ describe("Model", () => {
       CommandResult.CancelledForUnknownReason
     );
 
-    expect(model.canDispatch("UPDATE_CELL", { sheetId: "42", col: 0, row: 0, content: "hey" }))
-      .toBeSuccessfullyDispatched;
-    expect(model.dispatch("UPDATE_CELL", { sheetId: "42", col: 0, row: 0, content: "hey" }))
-      .toBeSuccessfullyDispatched;
+    const sheetId = model.getters.getActiveSheetId();
+    expect(
+      model.canDispatch("UPDATE_CELL", { sheetId, col: 0, row: 0, content: "hey" })
+    ).toBeSuccessfullyDispatched();
+    expect(
+      model.dispatch("UPDATE_CELL", { sheetId, col: 0, row: 0, content: "hey" })
+    ).toBeSuccessfullyDispatched();
     corePluginRegistry.remove("myCorePlugin");
   });
 
