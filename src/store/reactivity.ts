@@ -37,37 +37,55 @@ export function withComputedProperties<
   return obj as T & { [key in keyof V]: ReturnType<V[key]> };
 }
 
+// function Computed<T, V extends { [key: string]: (this: T) => unknown }>(source: T, descriptor): T & { readonly [key in keyof V]: ReturnType<V[key]> } {
+//   class Meta {
+
+//   }
+//   return source as T & { [key in keyof V]: ReturnType<V[key]> };
+// };
+
 // interface TestComputed {
 //   comp: number;
+//   comp2: number;
 //   n: number;
 // }
 
-class TestComputed {
+abstract class Computed<T> {
+  abstract computedProperties(): { [key: string]: (this: T) => unknown };
+}
+
+interface ComputedProperties {
+  comp: number;
+  comp2: number;
+}
+
+class TestComputed extends Computed<TestComputed> {
   constructor(public n = 4) {
+    super();
     // return {
     //   n: this.n,
     //   comp: this.n * 2,
     // }
     return withComputedProperties(this, [this], {
-      comp(dep) {
-        return dep.n * 2;
+      comp() {
+        return this.n * 2;
       },
     });
   }
-
-  static make() {
-    const a = new TestComputed();
-    return withComputedProperties(a, [a], {
-      comp(dep) {
-        return dep.n * 2;
+  computedProperties(): { [key: string]: (this: TestComputed) => unknown } {
+    return {
+      comp2() {
+        return this.n * 3;
       },
-    });
+    };
   }
 }
 
+function computedMeta() {}
+
 type A = InstanceType<typeof TestComputed>;
 
-const t = TestComputed.make();
+const t = new TestComputed();
 
 const uu = withComputedProperties(t, [t], {
   comp(dep) {
