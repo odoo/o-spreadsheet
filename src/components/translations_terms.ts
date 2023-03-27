@@ -81,3 +81,16 @@ export const CustomCurrencyTerms = {
 export const MergeErrorMessage = _lt(
   "Merged cells are preventing this operation. Unmerge those cells and try again."
 );
+
+export const SplitToColumnsTerms = {
+  Errors: {
+    Unexpected: _lt("Cannot split the selection for an unknown reason"),
+    [CommandResult.NoSplitSeparatorInSelection]: _lt(
+      "There is no match for the selected separator in the selection"
+    ),
+    [CommandResult.MoreThanOneColumnSelected]: _lt(
+      "Only a selection from a single column can be split"
+    ),
+    [CommandResult.SplitWillOverwriteContent]: _lt("Splitting will overwrite existing content"),
+  },
+};

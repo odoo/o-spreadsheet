@@ -355,6 +355,11 @@ topbarMenuRegistry
     ...ACTION_DATA.sortDescending,
     sequence: 20,
   })
+  .addChild("split_to_columns", ["data"], {
+    ...ACTION_DATA.splitToColumns,
+    sequence: 10,
+    separator: true,
+  })
   .addChild("add_data_filter", ["data"], {
     ...ACTION_DATA.addDataFilter,
     sequence: 10,

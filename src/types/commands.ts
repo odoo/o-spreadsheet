@@ -886,6 +886,13 @@ export interface CloseCellPopoverCommand {
   type: "CLOSE_CELL_POPOVER";
 }
 
+export interface SplitTextIntoColumnsCommand {
+  type: "SPLIT_TEXT_INTO_COLUMNS";
+  separator: string;
+  addNewColumns: boolean;
+  force?: boolean;
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -1016,7 +1023,8 @@ export type LocalCommand =
   | CloseCellPopoverCommand
   | ActivateNextSheetCommand
   | ActivatePreviousSheetCommand
-  | UpdateFilterCommand;
+  | UpdateFilterCommand
+  | SplitTextIntoColumnsCommand;
 
 export type Command = CoreCommand | LocalCommand;
 
@@ -1149,6 +1157,10 @@ export const enum CommandResult {
   ChartDoesNotExist,
   InvalidHeaderIndex,
   InvalidQuantity,
+  MoreThanOneColumnSelected,
+  EmptySplitSeparator,
+  SplitWillOverwriteContent,
+  NoSplitSeparatorInSelection,
 }
 
 export interface CommandHandler<T> {

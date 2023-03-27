@@ -37,6 +37,7 @@ import {
   UIOptionsPlugin,
 } from "./ui_feature";
 import { HistoryPlugin } from "./ui_feature/local_history";
+import { SplitToColumnsPlugin } from "./ui_feature/split_to_columns";
 import { UIPluginConstructor } from "./ui_plugin";
 import { ClipboardPlugin, EditionPlugin, GridSelectionPlugin } from "./ui_stateful";
 
@@ -66,6 +67,7 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("sort", SortPlugin)
   .add("automatic_sum", AutomaticSumPlugin)
   .add("format", FormatPlugin)
+  .add("split_to_columns", SplitToColumnsPlugin)
   .add("cell_popovers", CellPopoverPlugin)
   .add("collaborative", CollaborativePlugin)
   .add("history", HistoryPlugin);

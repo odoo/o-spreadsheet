@@ -95,6 +95,7 @@ export class GridSelectionPlugin extends UIPlugin {
     "getCurrentStyle",
     "getSelectedZones",
     "getSelectedZone",
+    "getSelectedCells",
     "getStatisticFnResults",
     "getAggregate",
     "getSelectedFigureId",
@@ -102,6 +103,7 @@ export class GridSelectionPlugin extends UIPlugin {
     "getActivePosition",
     "getSheetPosition",
     "isSelected",
+    "isSingleColSelected",
     "getElementsFromSelection",
   ] as const;
 
@@ -389,6 +391,15 @@ export class GridSelectionPlugin extends UIPlugin {
     return deepCopy(this.gridSelection);
   }
 
+  getSelectedCells(): EvaluatedCell[] {
+    const sheetId = this.getters.getActiveSheetId();
+    const cells: EvaluatedCell[] = [];
+    for (const zone of this.gridSelection.zones) {
+      cells.push(...this.getters.getEvaluatedCellsInZone(sheetId, zone));
+    }
+    return cells;
+  }
+
   getSelectedFigureId(): UID | null {
     return this.selectedFigureId;
   }
@@ -465,6 +476,14 @@ export class GridSelectionPlugin extends UIPlugin {
 
   isSelected(zone: Zone): boolean {
     return !!this.getters.getSelectedZones().find((z) => isEqual(z, zone));
+  }
+
+  isSingleColSelected() {
+    const selection = this.getters.getSelectedZones();
+    if (selection.length !== 1 || selection[0].left !== selection[0].right) {
+      return false;
+    }
+    return true;
   }
 
   /**

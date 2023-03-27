@@ -1,0 +1,64 @@
+<templates>
+  <t t-name="o-spreadsheet-SplitIntoColumnsPanel" owl="1">
+    <div class="o-split-to-cols-panel">
+      <div class="o-section">
+        <div class="o-section-title">Separator</div>
+        <select
+          class="o-input o-type-selector"
+          t-on-change="(ev) => this.onSeparatorChange(ev.target.value)">
+          <option
+            t-foreach="separators"
+            t-as="separator"
+            t-key="separator.value"
+            t-att-value="separator.value"
+            t-esc="separator.name"
+            t-att-selected="state.separatorValue === separator.value"
+          />
+        </select>
+
+        <input
+          class="o-input o-required mt-3"
+          type="text"
+          t-if="state.separatorValue === 'custom'"
+          t-att-value="state.customSeparator"
+          t-on-input="updateCustomSeparator"
+          placeholder="Add any characters or symbol"
+        />
+
+        <div class="o-checkbox">
+          <label>
+            <input
+              type="checkbox"
+              name="add columns"
+              t-att-checked="state.addNewColumns"
+              t-on-change="updateAddNewColumnsCheckbox"
+            />
+            Add new columns to avoid overwriting cells
+          </label>
+        </div>
+
+        <div class="o-sidePanelButtons">
+          <button
+            class="o-sidePanelButton"
+            t-att-class="{'o-disabled': isConfirmDisabled}"
+            t-on-click="confirm">
+            Confirm
+          </button>
+        </div>
+
+        <t t-foreach="errorMessages" t-as="error" t-key="error">
+          <div class="o-sidepanel-error d-flex align-items-center text-danger">
+            <t t-call="o-spreadsheet-Icon.TRIANGLE_EXCLAMATION"/>
+            <span t-esc="error"/>
+          </div>
+        </t>
+        <t t-foreach="warningMessages" t-as="warning" t-key="warning">
+          <div class="o-sidepanel-warning d-flex align-items-center text-warning">
+            <t t-call="o-spreadsheet-Icon.TRIANGLE_EXCLAMATION"/>
+            <span t-esc="warning"/>
+          </div>
+        </t>
+      </div>
+    </div>
+  </t>
+</templates>

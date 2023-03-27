@@ -31,3 +31,10 @@ export const removeDataFilter: ActionSpec = {
   isVisible: ACTIONS.SELECTION_CONTAINS_FILTER,
   icon: "o-spreadsheet-Icon.FILTER_ICON_INACTIVE",
 };
+
+export const splitToColumns: ActionSpec = {
+  name: _lt("Split text to columns"),
+  sequence: 1,
+  execute: (env) => env.openSidePanel("SplitToColumns", {}),
+  isEnabled: (env) => env.model.getters.isSingleColSelected(),
+};

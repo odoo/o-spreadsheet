@@ -27,6 +27,7 @@ import { HistoryPlugin } from "../plugins/ui_feature/local_history";
 import { RendererPlugin } from "../plugins/ui_feature/renderer";
 import { SelectionInputsManagerPlugin } from "../plugins/ui_feature/selection_inputs_manager";
 import { SortPlugin } from "../plugins/ui_feature/sort";
+import { SplitToColumnsPlugin } from "../plugins/ui_feature/split_to_columns";
 import { UIOptionsPlugin } from "../plugins/ui_feature/ui_options";
 import { SheetUIPlugin } from "../plugins/ui_feature/ui_sheet";
 import { ClipboardPlugin } from "../plugins/ui_stateful/clipboard";
@@ -135,6 +136,7 @@ type FilterEvaluationGetters = Pick<
   FilterEvaluationPlugin,
   GetterNames<typeof FilterEvaluationPlugin>
 >;
+type SplitToColumnsGetters = Pick<SplitToColumnsPlugin, GetterNames<typeof SplitToColumnsPlugin>>;
 
 export type Getters = {
   isReadonly: () => boolean;
@@ -161,4 +163,5 @@ export type Getters = {
   ViewportGetters &
   CellPopoverPluginGetters &
   FilterEvaluationGetters &
-  HeaderVisibilityIUIGetters;
+  HeaderVisibilityIUIGetters &
+  SplitToColumnsGetters;
