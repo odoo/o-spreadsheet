@@ -36,3 +36,44 @@ export function withComputedProperties<
   }
   return obj as T & { [key in keyof V]: ReturnType<V[key]> };
 }
+
+// interface TestComputed {
+//   comp: number;
+//   n: number;
+// }
+
+class TestComputed {
+  constructor(public n = 4) {
+    // return {
+    //   n: this.n,
+    //   comp: this.n * 2,
+    // }
+    return withComputedProperties(this, [this], {
+      comp(dep) {
+        return dep.n * 2;
+      },
+    });
+  }
+
+  static make() {
+    const a = new TestComputed();
+    return withComputedProperties(a, [a], {
+      comp(dep) {
+        return dep.n * 2;
+      },
+    });
+  }
+}
+
+type A = InstanceType<typeof TestComputed>;
+
+const t = TestComputed.make();
+
+const uu = withComputedProperties(t, [t], {
+  comp(dep) {
+    return dep.n * 2;
+  },
+});
+uu.comp;
+t.comp;
+t.comp;
