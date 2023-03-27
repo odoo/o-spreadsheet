@@ -184,11 +184,6 @@ css/* scss */ `
           margin: 0 6px;
         }
 
-        .o-disabled {
-          opacity: 0.6;
-          cursor: default;
-        }
-
         .o-dropdown {
           position: relative;
           display: flex;

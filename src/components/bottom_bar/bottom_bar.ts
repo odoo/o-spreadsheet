@@ -50,10 +50,6 @@ css/* scss */ `
     .o-bottom-bar-arrows {
       .o-bottom-bar-arrow {
         cursor: pointer;
-        &.o-disabled {
-          opacity: 0.4;
-          cursor: default;
-        }
         &:hover:not([class*="o-disabled"]) {
           .o-icon {
             opacity: 0.9;
