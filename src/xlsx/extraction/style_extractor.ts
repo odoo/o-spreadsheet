@@ -156,7 +156,7 @@ export class XlsxStyleExtractor extends XlsxBaseExtractor {
         default: "general",
       }).asString() as XLSXHorizontalAlignment,
       vertical: this.extractAttr(alignmentElement, "vertical", {
-        default: "center",
+        default: "bottom",
       }).asString() as XLSXVerticalAlignment,
       textRotation: this.extractAttr(alignmentElement, "textRotation")?.asNum(),
       wrapText: this.extractAttr(alignmentElement, "wrapText")?.asBool(),

@@ -5,6 +5,7 @@ import {
   ConditionalFormattingOperatorValues,
   ExcelChartType,
   ThresholdType,
+  VerticalAlign,
 } from "../../types";
 import { LegendPosition } from "../../types/chart/common_chart";
 import {
@@ -17,9 +18,16 @@ import {
   XLSXChartType,
   XLSXHorizontalAlignment,
 } from "../../types/xlsx";
+import { XLSXVerticalAlignment } from "./../../types/xlsx";
 
 export const SUPPORTED_BORDER_STYLES = ["thin"];
-export const SUPPORTED_HORIZONTAL_ALIGNMENTS = ["general", "left", "center", "right"];
+export const SUPPORTED_HORIZONTAL_ALIGNMENTS: XLSXHorizontalAlignment[] = [
+  "general",
+  "left",
+  "center",
+  "right",
+];
+export const SUPPORTED_VERTICAL_ALIGNMENTS: XLSXVerticalAlignment[] = ["top", "center", "bottom"];
 export const SUPPORTED_FONTS = ["Arial"];
 export const SUPPORTED_FILL_PATTERNS = ["solid"];
 export const SUPPORTED_CF_TYPES = [
@@ -74,6 +82,15 @@ export const H_ALIGNMENT_CONVERSION_MAP: Record<XLSXHorizontalAlignment, Align> 
   justify: "left",
   centerContinuous: "center",
   distributed: "center",
+};
+
+/** Conversion map Vertical Alignment in XLSX => Vertical Alignment in o_spreadsheet */
+export const V_ALIGNMENT_CONVERSION_MAP: Record<XLSXVerticalAlignment, VerticalAlign> = {
+  top: "top",
+  center: "middle",
+  bottom: "bottom",
+  justify: "middle",
+  distributed: "middle",
 };
 
 /** Convert the "CellIs" cf operator.

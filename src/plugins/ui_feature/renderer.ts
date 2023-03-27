@@ -8,6 +8,7 @@ import {
   CANVAS_SHIFT,
   CELL_BORDER_COLOR,
   DEFAULT_FONT,
+  DEFAULT_VERTICAL_ALIGN,
   FILTERS_COLOR,
   FILTER_ICON_EDGE_LENGTH,
   FILTER_ICON_MARGIN,
@@ -341,7 +342,7 @@ export class RendererPlugin extends UIPlugin {
     const y = box.y + 1;
     const textHeight = computeTextLinesHeight(textLineHeight, numberOfLines);
     const hasEnoughSpaces = box.height > textHeight + MIN_CELL_TEXT_MARGIN * 2;
-    const verticalAlign = box.verticalAlign || "middle";
+    const verticalAlign = box.verticalAlign || DEFAULT_VERTICAL_ALIGN;
 
     if (hasEnoughSpaces) {
       if (verticalAlign === "middle") {
