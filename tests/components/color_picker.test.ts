@@ -51,12 +51,15 @@ describe("Color Picker buttons", () => {
     expect(onColorPicked).toHaveBeenCalledWith("");
   });
 
-  test("Click on '+' button toggle the custom color part", async () => {
+  test("Clicking on '+', custom section except custom added colors must toggle the custom color picker", async () => {
     await mountColorPicker();
-    await simulateClick(".o-color-picker-toggler");
-    expect(fixture.querySelector(".o-custom-selector")).toBeDefined();
-    await simulateClick(".o-color-picker-toggler");
-    expect(fixture.querySelector(".o-custom-selector")).toBeNull();
+    const elements = fixture.querySelectorAll(".o-color-picker-toggler");
+    for (const element of elements) {
+      await simulateClick(element);
+      expect(fixture.querySelector(".o-custom-selector")).toBeDefined();
+      await simulateClick(element);
+      expect(fixture.querySelector(".o-custom-selector")).toBeNull();
+    }
   });
 
   test("Can pick a standard color", async () => {

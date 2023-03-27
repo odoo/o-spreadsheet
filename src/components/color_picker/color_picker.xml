@@ -21,13 +21,13 @@
           </div>
         </div>
         <div class="o-separator"/>
-        <div class="o-color-picker-section-name">
+        <div
+          class="o-color-picker-section-name o-color-picker-toggler"
+          t-on-click="toggleColorPicker">
           <span>Custom</span>
         </div>
-        <div class="colors-grid">
-          <div
-            class="o-color-picker-toggler o-color-picker-line-item"
-            t-on-click.stop="toggleColorPicker">
+        <div class="colors-grid o-color-picker-toggler" t-on-click.stop="toggleColorPicker">
+          <div class="o-color-picker-line-item o-color-picker-toggler">
             <div align="center">+</div>
           </div>
           <div
