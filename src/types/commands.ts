@@ -1160,6 +1160,10 @@ export interface CommandDispatcher {
     type: T,
     r: Omit<C, "type">
   ): DispatchResult;
+  canDispatch<T extends CommandTypes, C extends Extract<Command, { type: T }>>(
+    type: T,
+    r: Omit<C, "type">
+  ): DispatchResult;
 }
 
 export interface CoreCommandDispatcher {
@@ -1167,6 +1171,10 @@ export interface CoreCommandDispatcher {
     type: {} extends Omit<C, "type"> ? T : never
   ): DispatchResult;
   dispatch<T extends CoreCommandTypes, C extends Extract<CoreCommand, { type: T }>>(
+    type: T,
+    r: Omit<C, "type">
+  ): DispatchResult;
+  canDispatch<T extends CoreCommandTypes, C extends Extract<CoreCommand, { type: T }>>(
     type: T,
     r: Omit<C, "type">
   ): DispatchResult;

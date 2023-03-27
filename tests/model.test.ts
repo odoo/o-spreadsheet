@@ -111,6 +111,31 @@ describe("Model", () => {
     featurePluginRegistry.remove("myUIPlugin");
   });
 
+  test("canDispatch method is exposed and works", () => {
+    class MyCorePlugin extends CorePlugin {
+      allowDispatch(cmd: CoreCommand) {
+        if (cmd.type === "CREATE_SHEET") {
+          return CommandResult.CancelledForUnknownReason;
+        }
+        return CommandResult.Success;
+      }
+    }
+    corePluginRegistry.add("myCorePlugin", MyCorePlugin);
+    const model = new Model();
+    expect(model.canDispatch("CREATE_SHEET", { sheetId: "42", position: 1 })).toBeCancelledBecause(
+      CommandResult.CancelledForUnknownReason
+    );
+    expect(model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 })).toBeCancelledBecause(
+      CommandResult.CancelledForUnknownReason
+    );
+
+    expect(model.canDispatch("UPDATE_CELL", { sheetId: "42", col: 0, row: 0, content: "hey" }))
+      .toBeSuccessfullyDispatched;
+    expect(model.dispatch("UPDATE_CELL", { sheetId: "42", col: 0, row: 0, content: "hey" }))
+      .toBeSuccessfullyDispatched;
+    corePluginRegistry.remove("myCorePlugin");
+  });
+
   test("Can open a model in readonly mode", () => {
     const model = new Model({}, { mode: "readonly" });
     expect(model.getters.isReadonly()).toBe(true);

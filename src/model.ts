@@ -449,6 +449,14 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   /**
+   * Check if a command can be dispatched, and returns a DispatchResult object with the possible
+   * reasons the dispatch failed.
+   */
+  canDispatch: CommandDispatcher["canDispatch"] = (type: string, payload?: any) => {
+    return this.checkDispatchAllowed({ ...payload, type });
+  };
+
+  /**
    * The dispatch method is the only entry point to manipulate data in the model.
    * This is through this method that commands are dispatched most of the time
    * recursively until no plugin want to react anymore.
