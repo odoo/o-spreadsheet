@@ -102,7 +102,7 @@ export const invalidateEvaluationCommands = new Set<CommandTypes>([
   "ADD_MERGE",
 ]);
 
-export const invalidateDependenciesEvaluationCommands = new Set<CommandTypes>([
+export const invalidateDependenciesCommands = new Set<CommandTypes>([
   ...invalidateEvaluationCommands,
   "MOVE_RANGES",
 ]);

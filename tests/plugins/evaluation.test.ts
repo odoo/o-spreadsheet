@@ -1391,7 +1391,7 @@ describe("evaluate formulas that return an array", () => {
 
       expect(getCellContent(model, "A1")).toBe("#ERROR");
       expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
-        "Formats and values should have the same dimensions !!!"
+        "Formats and values should have the same dimensions!"
       );
       expect(getCellContent(model, "A2")).toBe("");
       expect(getCellContent(model, "B1")).toBe("");

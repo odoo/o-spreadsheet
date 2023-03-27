@@ -1,8 +1,7 @@
 import { compile } from "../../formulas/index";
-import { toNumber } from "../../functions/helpers";
 import { functionRegistry } from "../../functions/index";
 import { createEvaluatedCell, errorCell, evaluateLiteral } from "../../helpers/cells";
-import { BiDirectionalGraph, Graph } from "../../helpers/graph";
+import { FormulaDependencyGraph, SpreadingRelation } from "../../helpers/evaluation";
 import {
   intersection,
   isZoneValid,
@@ -32,8 +31,9 @@ import {
   Format,
   FormattedValue,
   FormulaCell,
+  FormulaReturn,
   HeaderIndex,
-  invalidateDependenciesEvaluationCommands,
+  invalidateDependenciesCommands,
   isMatrix,
   Matrix,
   MatrixArg,
@@ -49,7 +49,7 @@ const functionMap = functionRegistry.mapping;
 
 type CompilationParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
 
-type PositionDict<T> = { [xc: string]: T };
+type PositionDict<T> = { [rc: string]: T };
 
 export class EvaluationPlugin extends UIPlugin {
   static getters = [
@@ -68,14 +68,13 @@ export class EvaluationPlugin extends UIPlugin {
   private readonly evalContext: EvalContext;
 
   private evaluatedCells: PositionDict<EvaluatedCell> = {};
-  private nextXcsToUpdate: Set<string> = new Set<string>();
-  private currentXcsToUpdate: Set<string> = new Set<string>();
+  private rcsToUpdate = new Set<string>();
 
-  private formulaDependencies = new Graph();
-  private spreadDependencies = new Graph();
-  private spreadCandidates = new BiDirectionalGraph();
+  private formulaDependencies = new FormulaDependencyGraph();
+  private spreadingArraysFormulas = new Set<string>();
+  private spreadingRelations = new SpreadingRelation();
 
-  private maxCycle = 100;
+  private maxIteration = 100;
 
   constructor(config: UIPluginConfig) {
     super(config);
@@ -87,43 +86,26 @@ export class EvaluationPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   handle(cmd: Command) {
-    if (invalidateDependenciesEvaluationCommands.has(cmd.type)) {
-      this.shouldRecomputeCellsEvaluation = true;
+    if (invalidateDependenciesCommands.has(cmd.type)) {
       this.shouldRebuildDependenciesGraph = true;
+      this.shouldRecomputeCellsEvaluation = true;
+      return;
     }
     switch (cmd.type) {
       case "UPDATE_CELL":
-        if ("content" in cmd || "format" in cmd) {
-          const position = { sheetId: cmd.sheetId, col: cmd.col, row: cmd.row };
-          const targetedXC = this.cellPositionToXc(position);
-          this.updateFormulaDependencies(targetedXC, false);
-          this.currentXcsToUpdate.add(targetedXC);
-          this.findCellsToCompute(targetedXC, false);
+        if (!("content" in cmd || "format" in cmd)) {
+          return;
+        }
 
-          // in case we write on a spread dependency :
-          //   we need to update the formula corresponding to the spread
-          // in case we remove a cell :
-          //   we need to update the spreadCandidates
-          let shouldRecomputeSpreadCandidates: boolean = false;
-          if (cmd.content !== undefined && cmd.content !== "") {
-            for (const candidate of this.spreadCandidates.getTopDownAdjacentNodes(targetedXC)) {
-              if (this.spreadDependencies.hasRelationBetween(candidate.xc, targetedXC)) {
-                shouldRecomputeSpreadCandidates = true;
-                break;
-              }
-            }
-          } else {
-            shouldRecomputeSpreadCandidates = this.spreadCandidates.hasTopDownNode(targetedXC);
-          }
+        const targetedRc = cellPositionToRc(cmd);
+        this.rcsToUpdate.add(targetedRc);
 
-          if (shouldRecomputeSpreadCandidates) {
-            for (const candidate of this.spreadCandidates.getTopDownAdjacentNodes(targetedXC)) {
-              this.findCellsToCompute(candidate.xc, true);
-            }
-          }
+        if ("content" in cmd) {
+          // if the content change, formula dependencies may change. So we need to
+          // update the formula dependencies graph.
+          this.updateFormulaDependencies(targetedRc, false);
         }
         break;
-
       case "EVALUATE_CELLS":
         this.shouldRecomputeCellsEvaluation = true;
         break;
@@ -133,49 +115,50 @@ export class EvaluationPlugin extends UIPlugin {
   finalize() {
     if (this.shouldRecomputeCellsEvaluation) {
       this.evaluatedCells = {};
-      this.nextXcsToUpdate = new Set(
-        Array.from(this.getAllCells()).map((c) =>
-          this.cellPositionToXc(this.getters.getCellPosition(c.id))
-        )
-      );
+      this.rcsToUpdate = new Set(this.getAllCells());
       if (this.shouldRebuildDependenciesGraph) {
-        this.formulaDependencies = new Graph();
-        this.spreadDependencies = new Graph();
-        for (const xc of this.nextXcsToUpdate) {
-          this.updateFormulaDependencies(xc, true);
+        this.formulaDependencies = new FormulaDependencyGraph();
+        this.spreadingArraysFormulas = new Set<string>();
+        this.spreadingRelations = new SpreadingRelation();
+        for (const rc of this.rcsToUpdate) {
+          this.updateFormulaDependencies(rc, true);
         }
         this.shouldRebuildDependenciesGraph = false;
       }
       this.shouldRecomputeCellsEvaluation = false;
-    }
-    this.evaluate();
-    this.nextXcsToUpdate.clear();
-  }
+    } else if (this.rcsToUpdate.size) {
+      const rcsToUpdateBis = new Set<string>();
 
-  private findCellsToCompute(mainXC: string, selfInclude: boolean = true) {
-    if (selfInclude) {
-      this.nextXcsToUpdate.add(mainXC);
-    }
-    this.formulaDependencies.depthFirstSearch(mainXC, (xc: string) => this.nextXcsToUpdate.add(xc));
-  }
+      for (const rcToUpdate of this.rcsToUpdate) {
+        extendSet(rcsToUpdateBis, this.findCellsToCompute(rcToUpdate, false));
 
-  private cellPositionToXc(position: CellPosition): string {
-    return `${position.sheetId}!${position.col}!${position.row}`;
-  }
-
-  private XcToCell(xc: string): Cell | undefined {
-    const [sheetId, col, row] = xc.split("!");
-    return this.getters.getCell({ sheetId, col: toNumber(col), row: toNumber(row) });
-  }
-
-  private setEvaluatedCell(xc: string, evaluatedCell: EvaluatedCell) {
-    if (this.nextXcsToUpdate.has(xc)) {
-      this.nextXcsToUpdate.delete(xc);
+        const content = this.rcToCell(rcToUpdate)?.content;
+        // if the content of a cell changes, we need to check:
+        if (content) {
+          // 1) if we write in an empty cell containing the spread of a formula.
+          //    In this case, it is necessary to indicate to recalculate the concerned
+          //    formula to take into account the new collisions.
+          for (const arrayFormula of this.spreadingRelations.getArrayFormulasRc(rcToUpdate)) {
+            if (this.spreadingArraysFormulas.has(arrayFormula)) {
+              extendSet(rcsToUpdateBis, this.findCellsToCompute(arrayFormula, true));
+              break;
+            }
+          }
+        } else if (this.spreadingRelations.hasResult(rcToUpdate)) {
+          // 2) if we put an empty content on a cell which blocks the spread
+          //    of another formula.
+          //    In this case, it is necessary to indicate to recalculate formulas
+          //    that was blocked by the old content.
+          for (const arrayFormula of this.spreadingRelations.getArrayFormulasRc(rcToUpdate)) {
+            extendSet(rcsToUpdateBis, this.findCellsToCompute(arrayFormula, true));
+          }
+        }
+      }
+      extendSet(this.rcsToUpdate, rcsToUpdateBis);
     }
-    if (this.currentXcsToUpdate.has(xc)) {
-      this.currentXcsToUpdate.delete(xc);
+    if (this.rcsToUpdate.size) {
+      this.evaluate();
     }
-    this.evaluatedCells[xc] = evaluatedCell;
   }
 
   // ---------------------------------------------------------------------------
@@ -184,7 +167,7 @@ export class EvaluationPlugin extends UIPlugin {
 
   evaluateFormula(formulaString: string, sheetId: UID = this.getters.getActiveSheetId()): any {
     const compiledFormula = compile(formulaString);
-    const params = this.getCompilationParameters((cell) => this.getEvaluatedCellFromXC(cell));
+    const params = this.getCompilationParameters((cell) => this.getEvaluatedCellFromRc(cell));
 
     const ranges: Range[] = [];
     for (let xc of compiledFormula.dependencies) {
@@ -223,11 +206,11 @@ export class EvaluationPlugin extends UIPlugin {
   }
 
   getEvaluatedCell(cellPosition: CellPosition): EvaluatedCell {
-    return this.getEvaluatedCellFromXC(this.cellPositionToXc(cellPosition));
+    return this.getEvaluatedCellFromRc(cellPositionToRc(cellPosition));
   }
 
-  getEvaluatedCellFromXC(xc: string): EvaluatedCell {
-    return this.evaluatedCells[xc] || createEvaluatedCell("");
+  getEvaluatedCellFromRc(rc: string): EvaluatedCell {
+    return this.evaluatedCells[rc] || createEvaluatedCell("");
   }
 
   getEvaluatedCells(sheetId: UID): Record<UID, EvaluatedCell> {
@@ -245,11 +228,11 @@ export class EvaluationPlugin extends UIPlugin {
    */
   getColEvaluatedCells(sheetId: UID, col: HeaderIndex): EvaluatedCell[] {
     return Object.keys(this.evaluatedCells)
-      .filter((xc) => {
-        const position = this.getters.getCellPosition(this.XcToCell(xc)!.id);
+      .filter((rc) => {
+        const position = this.getters.getCellPosition(this.rcToCell(rc)!.id);
         return position.sheetId === sheetId && position.col === col;
       })
-      .map((xc) => this.evaluatedCells[xc]);
+      .map((rc) => this.evaluatedCells[rc]);
   }
 
   getEvaluatedCellsInZone(sheetId: UID, zone: Zone): EvaluatedCell[] {
@@ -261,8 +244,8 @@ export class EvaluationPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
   // Evaluator
   // ---------------------------------------------------------------------------
-  private updateFormulaDependencies = (thisXC: string, graphCreation: boolean) => {
-    const cell = this.XcToCell(thisXC);
+  private updateFormulaDependencies(thisRc: string, graphCreation: boolean) {
+    const cell = this.rcToCell(thisRc);
     const newDependencies: string[] = [];
     if (cell !== undefined && cell.isFormula) {
       for (const range of cell.dependencies) {
@@ -270,10 +253,8 @@ export class EvaluationPlugin extends UIPlugin {
           continue;
         }
         const sheetId = range.sheetId;
-        for (let col = range.zone.left; col <= range.zone.right; ++col) {
-          for (let row = range.zone.top; row <= range.zone.bottom; ++row) {
-            newDependencies.push(this.cellPositionToXc({ sheetId, col, row }));
-          }
+        for (const { col, row } of positions(range.zone)) {
+          newDependencies.push(cellPositionToRc({ sheetId, col, row }));
         }
       }
     }
@@ -285,61 +266,63 @@ export class EvaluationPlugin extends UIPlugin {
      * notably the performance of the graph creation.
      */
     if (!graphCreation) {
-      for (const dependency of this.formulaDependencies.nodes.keys()) {
-        if (!newDependencies.includes(dependency)) {
-          this.formulaDependencies.removeEdge(dependency, thisXC);
-        }
-      }
+      this.formulaDependencies.removeAllDependencies(thisRc);
     }
 
     for (const dependency of newDependencies) {
-      this.formulaDependencies.addEdge(dependency, thisXC);
-    }
-  };
-
-  private updateCellsToRecomputeAndRemoveRelatedSpreading() {
-    this.currentXcsToUpdate = new Set([...this.currentXcsToUpdate, ...this.nextXcsToUpdate]);
-    for (const xc of this.currentXcsToUpdate) {
-      for (const child of this.spreadCandidates.getBottomUpAdjacentNodes(xc)) {
-        this.spreadCandidates.removeEdge(child.xc, xc);
-      }
+      this.formulaDependencies.addDependency({ parameterRc: dependency, formulaRc: thisRc });
     }
   }
 
-  private *getAllCells(): Iterable<Cell> {
+  private *getAllCells(): Iterable<string> {
     // use a generator function to avoid re-building a new object
     for (const sheetId of this.getters.getSheetIds()) {
       const cells = this.getters.getCells(sheetId);
       for (const cellId in cells) {
-        yield cells[cellId];
+        yield cellPositionToRc(this.getters.getCellPosition(cellId));
       }
     }
   }
 
   private evaluate() {
     const cellsBeingComputed = new Set<UID>();
-    const computeCell = (xc: string): EvaluatedCell => {
-      if (!this.currentXcsToUpdate.has(xc)) {
-        const evaluation = this.evaluatedCells[xc];
+    const currentRcsToUpdate = new Set<string>();
+    const nextRcsToUpdate = new Set<string>();
+
+    const setEvaluatedCell = (rc: string, evaluatedCell: EvaluatedCell) => {
+      if (nextRcsToUpdate.has(rc)) {
+        nextRcsToUpdate.delete(rc);
+      }
+      if (currentRcsToUpdate.has(rc)) {
+        currentRcsToUpdate.delete(rc);
+      }
+      this.evaluatedCells[rc] = evaluatedCell;
+    };
+
+    const computeCell = (rc: string): EvaluatedCell => {
+      if (!currentRcsToUpdate.has(rc)) {
+        const evaluation = this.evaluatedCells[rc];
         if (evaluation) {
           return evaluation; // already computed
         }
       }
 
-      for (const child of this.spreadDependencies.getAdjacentNodes(xc)) {
-        delete this.evaluatedCells[child.xc];
-        this.findCellsToCompute(child.xc, false);
-        for (const candidate of this.spreadCandidates.getTopDownAdjacentNodes(child.xc)) {
-          this.findCellsToCompute(candidate.xc, true);
+      if (this.spreadingArraysFormulas.has(rc)) {
+        for (const child of this.spreadingRelations.getArrayResultsRc(rc)) {
+          delete this.evaluatedCells[child];
+          extendSet(nextRcsToUpdate, this.findCellsToCompute(child, false));
+          for (const candidate of this.spreadingRelations.getArrayFormulasRc(child)) {
+            extendSet(nextRcsToUpdate, this.findCellsToCompute(candidate, true));
+          }
         }
+        this.spreadingArraysFormulas.delete(rc);
       }
-      this.spreadDependencies.removeNode(xc);
+      this.spreadingRelations.removeNode(rc);
 
-      const cell = this.XcToCell(xc);
+      const cell = this.rcToCell(rc);
       if (cell === undefined) {
         return createEvaluatedCell("");
       }
-      //this.findCellsToCompute(xc, false); //TODO : really needed ?
 
       const cellId = cell.id;
       let result: EvaluatedCell;
@@ -381,21 +364,10 @@ export class EvaluationPlugin extends UIPlugin {
     };
 
     const computeFormulaCell = (cellData: FormulaCell): EvaluatedCell => {
-      const mapSpreadPositionInMatrix = (
-        matrix: Matrix<CellValue>,
-        callback: (i: number, j: number) => void
-      ) => {
-        for (let i = 0; i < matrix.length; ++i) {
-          for (let j = +!i; j < matrix[i].length; ++j) {
-            callback(i, j);
-          }
-        }
-      };
-
-      const updateSpreadCandidates = (i: number, j: number) => {
+      const updatePotentialSpreaders = (i: number, j: number) => {
         const position = { sheetId, col: i + col, row: j + row };
-        const xc = this.cellPositionToXc(position);
-        this.spreadCandidates.addEdge(xc, parentXC);
+        const rc = cellPositionToRc(position);
+        this.spreadingRelations.addRelation({ resultRc: rc, arrayFormulaRc: parentRc });
       };
 
       const checkCollision = (i: number, j: number) => {
@@ -405,10 +377,14 @@ export class EvaluationPlugin extends UIPlugin {
           this.getEvaluatedCell({ sheetId, col: col + i, row: row + j }).type !==
             CellValueType.empty
         ) {
-          throw `Array result was not expanded because it would overwrite data in ${toXC(
-            col + i,
-            row + j
-          )}.`;
+          throw new Error(
+            _lt(
+              `Array result was not expanded because it would overwrite data in ${toXC(
+                col + i,
+                row + j
+              )}.`
+            )
+          );
         }
       };
 
@@ -421,15 +397,15 @@ export class EvaluationPlugin extends UIPlugin {
           format || formatFromPosition(i, j)
         );
 
-        const xc = this.cellPositionToXc(position);
+        const rc = cellPositionToRc(position);
 
         // update evaluatedCells
-        this.setEvaluatedCell(xc, evaluatedCell);
-        this.spreadDependencies.addEdge(parentXC, xc);
+        setEvaluatedCell(rc, evaluatedCell);
+        this.spreadingArraysFormulas.add(parentRc);
 
         // check if formula dependencies present in the spread zone
         // if so, they need to be recomputed
-        this.findCellsToCompute(xc, false);
+        extendSet(nextRcsToUpdate, this.findCellsToCompute(rc, false));
       };
 
       const cellId = cellData.id;
@@ -438,70 +414,51 @@ export class EvaluationPlugin extends UIPlugin {
         const position = compilationParameters[2].getters.getCellPosition(cellId);
         return toXC(position.col, position.row);
       };
-      const { value: computedValue, format: computedFormat } = cellData.compiledFormula.execute(
+      const formulaReturn = cellData.compiledFormula.execute(
         cellData.dependencies,
         ...compilationParameters
       );
 
+      assertFormulaReturnHasConsistentDimensions(formulaReturn);
+
+      const { value: computedValue, format: computedFormat } = formulaReturn;
+
       if (!isMatrix(computedValue)) {
-        if (isMatrix(computedFormat)) {
-          throw "A format matrix should never be associated with a scalar value";
-        }
-        return createEvaluatedCell(computedValue, cellData.format || computedFormat);
+        return createEvaluatedCell(
+          computedValue,
+          cellData.format || (computedFormat as string | undefined)
+        ); // the case computedFormat as Matrix is handled by the assertFormulaReturnHasCoincidentDimensions
       }
 
-      let formatFromPosition: (i: number, j: number) => string | undefined;
-
-      if (isMatrix(computedFormat)) {
-        formatFromPosition = (i, j) => computedFormat[i][j];
-        const sameDimensions =
-          computedValue.length === computedFormat.length &&
-          computedValue[0].length === computedFormat[0].length;
-        if (!sameDimensions) {
-          throw "Formats and values should have the same dimensions !!!";
-        }
-      } else {
-        formatFromPosition = (i, j) => computedFormat;
-      }
-
+      // next constants are used in the functions updatePotentialSpreaders/checkCollision/spreadValues
       const { sheetId, col, row } = this.getters.getCellPosition(cellId);
-      const parentXC = this.cellPositionToXc({ sheetId, col, row });
+      const parentRc = cellPositionToRc({ sheetId, col, row });
+      const formatFromPosition = isMatrix(computedFormat)
+        ? (i: number, j: number) => computedFormat[i][j]
+        : () => computedFormat;
 
-      const numberOfCols = this.getters.getNumberCols(sheetId);
-      const numberOfRows = this.getters.getNumberRows(sheetId);
-      const enoughCols = col + computedValue.length <= numberOfCols;
-      const enoughRows = row + computedValue[0].length <= numberOfRows;
-      if (!enoughCols || !enoughRows) {
-        if (enoughCols) {
-          throw "Result couldn't be automatically expanded. Please insert more rows.";
-        }
-        if (enoughRows) {
-          throw "Result couldn't be automatically expanded. Please insert more columns.";
-        }
-        throw "Result couldn't be automatically expanded. Please insert more columns and rows.";
-      }
+      this.assertSheetHasEnoughSpaceToSpreadFormulaResult({ sheetId, col, row }, computedValue);
 
-      mapSpreadPositionInMatrix(computedValue, updateSpreadCandidates);
-      mapSpreadPositionInMatrix(computedValue, checkCollision);
-      mapSpreadPositionInMatrix(computedValue, spreadValues);
+      forEachSpreadPositionInMatrix(computedValue, updatePotentialSpreaders);
+      forEachSpreadPositionInMatrix(computedValue, checkCollision);
+      forEachSpreadPositionInMatrix(computedValue, spreadValues);
       return createEvaluatedCell(computedValue[0][0], cellData.format || formatFromPosition(0, 0));
     };
 
     const compilationParameters = this.getCompilationParameters(computeCell);
+    extendSet(nextRcsToUpdate, this.rcsToUpdate);
+    this.rcsToUpdate.clear();
 
-    for (let currentCycle = 0; currentCycle < this.maxCycle; ++currentCycle) {
-      this.updateCellsToRecomputeAndRemoveRelatedSpreading();
-      this.nextXcsToUpdate.clear();
-
-      while (this.currentXcsToUpdate.size) {
-        const [cell] = this.currentXcsToUpdate;
-        this.setEvaluatedCell(cell, computeCell(cell));
+    let currentCycle = 0;
+    while (nextRcsToUpdate.size && currentCycle < this.maxIteration) {
+      extendSet(currentRcsToUpdate, nextRcsToUpdate);
+      nextRcsToUpdate.clear();
+      while (currentRcsToUpdate.size) {
+        const [cell] = currentRcsToUpdate;
+        setEvaluatedCell(cell, computeCell(cell));
       }
-      if (!this.nextXcsToUpdate.size) {
-        break;
-      }
+      ++currentCycle;
     }
-    this.nextXcsToUpdate.clear();
   }
 
   /**
@@ -511,13 +468,12 @@ export class EvaluationPlugin extends UIPlugin {
    * - an evaluation context
    */
   private getCompilationParameters(
-    computeCell: (xc: string) => EvaluatedCell
+    computeCell: (rc: string) => EvaluatedCell
   ): CompilationParameters {
     const evalContext = Object.assign(Object.create(functionMap), this.evalContext, {
       getters: this.getters,
     });
     const getters = this.getters;
-    const cellPositionToXc = this.cellPositionToXc;
 
     function readCell(range: Range): PrimitiveArg {
       if (!getters.tryGetSheet(range.sheetId)) {
@@ -532,8 +488,8 @@ export class EvaluationPlugin extends UIPlugin {
     }
 
     const getEvaluatedCellIfNotEmpty = (position: CellPosition): EvaluatedCell | undefined => {
-      const xc = cellPositionToXc(position);
-      const evaluatedCell = getEvaluatedCell(xc);
+      const rc = cellPositionToRc(position);
+      const evaluatedCell = getEvaluatedCell(rc);
       if (evaluatedCell.type === CellValueType.empty) {
         const cell = getters.getCell(position);
         if (!cell || cell.content === "") {
@@ -543,8 +499,8 @@ export class EvaluationPlugin extends UIPlugin {
       return evaluatedCell;
     };
 
-    const getEvaluatedCell = (xc: string): EvaluatedCell => {
-      const evaluatedCell = computeCell(xc);
+    const getEvaluatedCell = (rc: string): EvaluatedCell => {
+      const evaluatedCell = computeCell(rc);
       if (evaluatedCell.type === CellValueType.error) {
         throw evaluatedCell.error;
       }
@@ -642,30 +598,114 @@ export class EvaluationPlugin extends UIPlugin {
     return [refFn, range, evalContext];
   }
 
+  private findCellsToCompute(mainRc: string, selfInclude: boolean = true): Iterable<string> {
+    const cellsToCompute = new Set<string>();
+    if (selfInclude) {
+      cellsToCompute.add(mainRc);
+    }
+    this.formulaDependencies.visitDeepReferences(mainRc, (rc: string) => cellsToCompute.add(rc));
+    return cellsToCompute;
+  }
+
+  private rcToCell(rc: string): Cell | undefined {
+    return this.getters.getCell(rcToCellPosition(rc));
+  }
+
+  private assertSheetHasEnoughSpaceToSpreadFormulaResult(
+    cellPosition: CellPosition,
+    matrixResult: Matrix<CellValue>
+  ) {
+    const { sheetId, col, row } = cellPosition;
+    const numberOfCols = this.getters.getNumberCols(sheetId);
+    const numberOfRows = this.getters.getNumberRows(sheetId);
+    const enoughCols = col + matrixResult.length <= numberOfCols;
+    const enoughRows = row + matrixResult[0].length <= numberOfRows;
+    if (!enoughCols || !enoughRows) {
+      if (enoughCols) {
+        throw new Error(_lt("Result couldn't be automatically expanded. Please insert more rows."));
+      }
+      if (enoughRows) {
+        throw new Error(
+          _lt("Result couldn't be automatically expanded. Please insert more columns.")
+        );
+      }
+      throw new Error(
+        _lt("Result couldn't be automatically expanded. Please insert more columns and rows.")
+      );
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Export
   // ---------------------------------------------------------------------------
 
   exportForExcel(data: ExcelWorkbookData) {
     for (let sheet of data.sheets) {
-      for (const xc in sheet.cells) {
-        const position = { sheetId: sheet.id, ...toCartesian(xc) };
+      for (const rc in sheet.cells) {
+        const position = { sheetId: sheet.id, ...toCartesian(rc) };
         const cell = this.getters.getCell(position);
         if (cell) {
-          const exportedCellData = sheet.cells[xc]!;
+          const exportedCellData = sheet.cells[rc]!;
           exportedCellData.value = this.getEvaluatedCell(position).value;
-          exportedCellData.isFormula = cell.isFormula && !this.isBadExpression(cell.content);
+          exportedCellData.isFormula = cell.isFormula && !isBadExpression(cell.content);
         }
       }
     }
   }
+}
 
-  private isBadExpression(formula: string): boolean {
-    try {
-      compile(formula);
-      return false;
-    } catch (error) {
-      return true;
+function cellPositionToRc(position: CellPosition): string {
+  return `${position.sheetId}!${position.col}!${position.row}`;
+}
+
+function rcToCellPosition(rc: string): CellPosition {
+  const [sheetId, col, row] = rc.split("!");
+  return { sheetId, col: Number(col), row: Number(row) };
+}
+
+function forEachSpreadPositionInMatrix(
+  matrix: Matrix<CellValue>,
+  callback: (i: number, j: number) => void
+) {
+  for (let i = 0; i < matrix.length; ++i) {
+    for (let j = 0; j < matrix[i].length; ++j) {
+      if (i === 0 && j === 0) {
+        continue;
+      }
+      callback(i, j);
     }
+  }
+}
+
+function isBadExpression(formula: string): boolean {
+  try {
+    compile(formula);
+    return false;
+  } catch (error) {
+    return true;
+  }
+}
+
+function assertFormulaReturnHasConsistentDimensions(formulaReturn: FormulaReturn) {
+  const { value: computedValue, format: computedFormat } = formulaReturn;
+  if (!isMatrix(computedValue)) {
+    if (isMatrix(computedFormat)) {
+      throw new Error("A format matrix should never be associated with a scalar value");
+    }
+    return;
+  }
+  if (isMatrix(computedFormat)) {
+    const sameDimensions =
+      computedValue.length === computedFormat.length &&
+      computedValue[0].length === computedFormat[0].length;
+    if (!sameDimensions) {
+      throw new Error("Formats and values should have the same dimensions!");
+    }
+  }
+}
+
+function extendSet<T>(destination: Set<T>, source: Iterable<T>) {
+  for (const element of source) {
+    destination.add(element);
   }
 }

@@ -166,7 +166,7 @@ export interface CompiledFormula {
   dependencies: string[];
 }
 
-export type Matrix<T> = T[][];
+export type Matrix<T = unknown> = T[][];
 
 // FORMULA FUNCTION INPUT
 
@@ -193,7 +193,7 @@ type PrimitiveFunctionReturn = { value: CellValue; format?: PrimitiveFormat };
 
 // FORMULA OUTPUT
 
-type FormulaReturn = MatrixFunctionReturn | PrimitiveFormulaReturn;
+export type FormulaReturn = MatrixFunctionReturn | PrimitiveFormulaReturn;
 type PrimitiveFormulaReturn = { value: CellValue | null; format?: PrimitiveFormat };
 
 export function isMatrix(x: any): x is Matrix<any> {
