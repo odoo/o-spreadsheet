@@ -136,11 +136,16 @@ export function addStyles(styles: XLSXStyle[]): XMLString {
       alignAttrs.push(["horizontal", style.alignment.horizontal]);
     }
 
-    styleNodes.push(escapeXml/*xml*/ `
-      <xf ${formatAttributes(attributes)}>
-        ${alignAttrs ? escapeXml/*xml*/ `<alignment ${formatAttributes(alignAttrs)} />` : ""}
-      </xf>
-    `);
+    if (alignAttrs.length > 0) {
+      attributes.push(["applyAlignment", "1"]); // for Libre Office
+      styleNodes.push(
+        escapeXml/*xml*/ `<xf ${formatAttributes(
+          attributes
+        )}>${escapeXml/*xml*/ `<alignment ${formatAttributes(alignAttrs)} />`}</xf> `
+      );
+    } else {
+      styleNodes.push(escapeXml/*xml*/ `<xf ${formatAttributes(attributes)} />`);
+    }
   }
   return escapeXml/*xml*/ `
     <cellXfs count="${styles.length}">

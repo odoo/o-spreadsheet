@@ -3,6 +3,7 @@ import { FIGURE_BORDER_WIDTH } from "../src/constants";
 import { buildSheetLink, toZone } from "../src/helpers";
 import { Align, BorderDescr, ConditionalFormatRule, Style } from "../src/types";
 import { isXLSXExportXMLFile } from "../src/xlsx/helpers/xlsx_helper";
+import { VerticalAlign } from "./../src/types/misc";
 import {
   createChart,
   createSheet,
@@ -102,6 +103,7 @@ describe("Export data to xlsx then import it", () => {
     { fontSize: 18 },
     { bold: true, underline: true, italic: true, strikethrough: true },
     { align: "right" as Align },
+    { verticalAlign: "top" as VerticalAlign },
     { fillColor: "#151515" },
   ])("Cell style %s", (style: Style) => {
     model.dispatch("SET_FORMATTING", { sheetId, target: target("A1"), style });

@@ -19,7 +19,6 @@ import {
   XLSXRelFile,
   XLSXStructure,
   XLSXStyle,
-  XLSXVerticalAlignment,
   XLSXWorksheet,
 } from "../../types/xlsx";
 import {
@@ -29,7 +28,7 @@ import {
   HEIGHT_FACTOR,
   WIDTH_FACTOR,
 } from "../constants";
-import { XLSX_FORMAT_MAP } from "../conversion/conversion_maps";
+import { V_ALIGNMENT_EXPORT_CONVERSION_MAP, XLSX_FORMAT_MAP } from "../conversion/conversion_maps";
 
 type PropertyPosition<T> = {
   id: number;
@@ -129,8 +128,10 @@ export function extractStyle(cell: CellData, data: WorkbookData): ExtractedStyle
     numFmt: format ? { format: format, id: 0 /* id not used for export */ } : undefined,
     border: exportedBorder || {},
     alignment: {
-      vertical: "center" as XLSXVerticalAlignment, // we always center vertically for now
       horizontal: style.align as XLSXHorizontalAlignment,
+      vertical: style.verticalAlign
+        ? V_ALIGNMENT_EXPORT_CONVERSION_MAP[style.verticalAlign]
+        : undefined,
     },
   };
 
