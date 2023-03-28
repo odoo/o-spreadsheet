@@ -61,7 +61,7 @@ export function getDefaultXLSXStructure(): XLSXStructure {
         fillId: 0,
         numFmtId: 0,
         borderId: 0,
-        alignment: { vertical: "center" },
+        alignment: { vertical: "bottom" },
       },
     ],
     fonts: [

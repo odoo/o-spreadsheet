@@ -93,6 +93,16 @@ export const V_ALIGNMENT_CONVERSION_MAP: Record<XLSXVerticalAlignment, VerticalA
   distributed: "middle",
 };
 
+/** Conversion map Vertical Alignment in o-spreadsheet => Vertical Alignment in XLSX */
+export const V_ALIGNMENT_EXPORT_CONVERSION_MAP: Record<
+  Exclude<VerticalAlign, undefined>,
+  XLSXVerticalAlignment
+> = {
+  top: "top",
+  middle: "center",
+  bottom: "bottom",
+};
+
 /** Convert the "CellIs" cf operator.
  * We have all the operators that the xlsx have, but ours begin with a uppercase character */
 export function convertCFCellIsOperator(
