@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 import { FILTER_ICON_EDGE_LENGTH, FILTER_ICON_MARGIN } from "../../../constants";
-import { DOMCoordinates, HeaderIndex, Position, SpreadsheetChildEnv } from "../../../types";
+import { Cell, DOMCoordinates, HeaderIndex, Position, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
 import { FilterIcon } from "../filter_icon/filter_icon";
 
@@ -31,13 +31,30 @@ export class FilterIconsOverlay extends Component<Props, SpreadsheetChildEnv> {
 
     const rowDims = this.env.model.getters.getRowDimensionsInViewport(sheetId, position.row);
     const colDims = this.env.model.getters.getColDimensionsInViewport(sheetId, position.col);
+    const cell = this.env.model.getters.getCell({ sheetId, ...position });
+    const verticalFilterIconPosition = this.getIconVerticalPosition(rowDims, cell!);
 
-    // TODO : change this offset when we support vertical cell align
-    const centeringOffset = Math.floor((rowDims.size - FILTER_ICON_EDGE_LENGTH) / 2);
     return {
       x: colDims.end - FILTER_ICON_EDGE_LENGTH + this.props.gridPosition.x - FILTER_ICON_MARGIN - 1, // -1 for cell border
-      y: rowDims.end - FILTER_ICON_EDGE_LENGTH + this.props.gridPosition.y - centeringOffset,
+      y: verticalFilterIconPosition + this.props.gridPosition.y,
     };
+  }
+
+  // Calculates the vertical position of the filter icon based on the row dimensions and cell styles.
+  private getIconVerticalPosition(
+    rowDims: { start: number; end: number; size: number },
+    cell: Cell
+  ): number {
+    const centeringOffset = Math.floor((rowDims.size - FILTER_ICON_EDGE_LENGTH) / 2);
+
+    switch (cell?.style?.verticalAlign) {
+      case "bottom":
+        return rowDims.end - FILTER_ICON_MARGIN - FILTER_ICON_EDGE_LENGTH;
+      case "top":
+        return rowDims.start + FILTER_ICON_MARGIN;
+      default:
+        return rowDims.end - FILTER_ICON_EDGE_LENGTH - centeringOffset;
+    }
   }
 
   isFilterActive(position: Position): boolean {
