@@ -38,6 +38,8 @@ class AttributeValue {
   }
 
   asBool(): boolean {
+    if (this.value === "true") return true; // for files exported from Libre Office
+    if (this.value === "false") return false;
     return Boolean(Number(this.value));
   }
 

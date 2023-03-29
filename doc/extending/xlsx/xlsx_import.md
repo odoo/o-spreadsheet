@@ -64,7 +64,8 @@ NW = no warning generated for these conversions.
     - fill/justify -> left
     - centerContinuous/distributed -> center
   - some vertical alignements. We only support top/center/bottom. Other types will be converted to center.
-  - other align options (wrapText, indent, shrinkToFit, ...) (NW)
+  - some wrappingText modes. We only support wrap/overflow imported from Google Sheets and Excel. Clip mode from Google Sheets will be converted to overflow mode, because even if o-spreadsheet support clip mode, it isn't supported by xlsx files.
+  - other align options (indent, shrinkToFit, ...) (NW)
 - Fills :
   - we only support solid fill pattern. Convert all other patterns into solid fills.
 - Font :
