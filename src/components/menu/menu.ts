@@ -112,6 +112,10 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
+  get visibleMenuItems(): MenuItem[] {
+    return this.props.menuItems.filter((x) => x.isVisible(this.env));
+  }
+
   get subMenuPosition(): DOMCoordinates {
     const position = Object.assign({}, this.subMenu.position);
     position.y -= this.subMenu.scrollOffset || 0;
@@ -119,7 +123,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get menuHeight(): Pixel {
-    const menuItems = this.props.menuItems;
+    const menuItems = this.visibleMenuItems;
 
     let menuItemsHeight = this.getMenuItemsHeight(menuItems);
 
@@ -168,7 +172,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
    * and the menu item at a given index.
    */
   private subMenuVerticalPosition(menuIndex: number): Pixel {
-    const menusAbove = this.props.menuItems.slice(0, menuIndex);
+    const menusAbove = this.visibleMenuItems.slice(0, menuIndex);
     return this.position.y + this.getMenuItemsHeight(menusAbove) + MENU_VERTICAL_PADDING;
   }
 

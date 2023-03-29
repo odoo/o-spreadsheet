@@ -190,7 +190,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
 
   openContextMenu(x: Pixel, y: Pixel, registry: MenuItemRegistry, menuId?: UID) {
     this.menuState.isOpen = true;
-    this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
+    this.menuState.menuItems = registry.getAll();
     this.menuState.position = { x, y };
     this.menuState.menuId = menuId;
   }

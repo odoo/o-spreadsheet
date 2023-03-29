@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-Menu" owl="1">
-    <Popover t-if="props.menuItems.length" t-props="popoverProps">
+    <Popover t-if="visibleMenuItems.length" t-props="popoverProps">
       <div
         t-ref="menu"
         class="o-menu"
@@ -8,7 +8,7 @@
         t-on-wheel.stop=""
         t-on-click.stop=""
         t-on-contextmenu.prevent="">
-        <t t-foreach="props.menuItems" t-as="menuItem" t-key="menuItem.id">
+        <t t-foreach="visibleMenuItems" t-as="menuItem" t-key="menuItem.id">
           <t t-set="isMenuRoot" t-value="isRoot(menuItem)"/>
           <t t-set="isMenuEnabled" t-value="isEnabled(menuItem)"/>
           <div
