@@ -20,6 +20,7 @@ import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 let fixture: HTMLElement;
 let model: Model;
+let parent: Component;
 
 mockGetBoundingClientRect({
   "o-menu": (el) => getElPosition(el),
@@ -104,7 +105,7 @@ async function renderContextMenu(
   // x, y are relative to the upper left grid corner, but the menu
   // props must take the top bar into account.
   fixture = makeTestFixture();
-  ({ fixture, model } = await mountComponent(ContextMenuParent, {
+  ({ fixture, model, parent } = await mountComponent(ContextMenuParent, {
     props: {
       x,
       y,
@@ -641,6 +642,42 @@ describe("Context Menu internal tests", () => {
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='visible_submenu_1']")).toBeTruthy();
     expect(fixture.querySelector(".o-menu div[data-name='invisible_submenu_1']")).toBeFalsy();
+  });
+
+  test("Enabled menus are updated at each render", async () => {
+    let enabled = true;
+    const menuItems: FullMenuItem[] = [
+      createFullMenuItem("menuItem", {
+        name: "menuItem",
+        sequence: 1,
+        isEnabled: () => enabled,
+      }),
+    ];
+    await renderContextMenu(300, 300, { menuItems });
+    expect(fixture.querySelector("div[data-name='menuItem']")?.classList).not.toContain("disabled");
+
+    enabled = false;
+    parent.render(true);
+    await nextTick();
+    expect(fixture.querySelector("div[data-name='menuItem']")?.classList).toContain("disabled");
+  });
+
+  test("Visible menus are updated at each render", async () => {
+    let visible = true;
+    const menuItems: FullMenuItem[] = [
+      createFullMenuItem("menuItem", {
+        name: "menuItem",
+        sequence: 1,
+        isVisible: () => visible,
+      }),
+    ];
+    await renderContextMenu(300, 300, { menuItems });
+    expect(fixture.querySelector("div[data-name='menuItem']")).toBeTruthy();
+
+    visible = false;
+    parent.render(true);
+    await nextTick();
+    expect(fixture.querySelector("div[data-name='menuItem']")).toBeFalsy();
   });
 });
 jest.setTimeout(300000);
