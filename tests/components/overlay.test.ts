@@ -10,6 +10,8 @@ import {
 import { lettersToNumber, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import {
+  deleteColumns,
+  deleteRows,
   hideColumns,
   hideRows,
   merge,
@@ -155,6 +157,14 @@ describe("Resizer component", () => {
     expect(model.getters.getSelectedZones()).toEqual([toZone("C1:C10")]);
   });
 
+  test("On a sheet with a single row, can click a header to select a column", async () => {
+    deleteRows(model, [1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(model.getters.getNumberRows(model.getters.getActiveSheetId())).toBe(1);
+    await selectColumn("C");
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 0 });
+    expect(getActiveXc(model)).toBe("C1");
+  });
+
   test("resizing a column does not change the selection", async () => {
     const index = lettersToNumber("C");
     const x = model.getters.getColDimensions(model.getters.getActiveSheetId(), index)!.start + 1;
@@ -174,6 +184,14 @@ describe("Resizer component", () => {
   test("can click on a row-header to select a row", async () => {
     await selectRow(2);
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
+    expect(getActiveXc(model)).toBe("A3");
+  });
+
+  test("In a sheet with a single column, can click on a row-header to select a row", async () => {
+    deleteColumns(model, ["B", "C", "D", "E", "F", "G", "H", "I", "J"]);
+    expect(model.getters.getNumberCols(model.getters.getActiveSheetId())).toBe(1);
+    await selectRow(2);
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 2, right: 0, bottom: 2 });
     expect(getActiveXc(model)).toBe("A3");
   });
 
