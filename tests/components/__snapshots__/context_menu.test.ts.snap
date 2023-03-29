@@ -4,6 +4,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
 <div
   class="o-menu"
 >
+  
   <div
     class="o-menu-item"
     data-name="cut"
@@ -92,6 +93,8 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
   <div
     class="o-separator"
   />
+  
+  
   <div
     class="o-menu-item"
     data-name="add_row_before"
@@ -150,6 +153,8 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
   <div
     class="o-separator"
   />
+  
+  
   <div
     class="o-menu-item"
     data-name="delete_row"
@@ -220,7 +225,6 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     
     
   </div>
-  
   
 </div>
 `;

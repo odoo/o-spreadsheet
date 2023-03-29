@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-Menu" owl="1">
-    <Popover t-if="visibleMenuItems.length" t-props="popoverProps">
+    <Popover t-if="menuItemsAndSeparators.length" t-props="popoverProps">
       <div
         t-ref="menu"
         class="o-menu"
@@ -8,31 +8,33 @@
         t-on-wheel.stop=""
         t-on-click.stop=""
         t-on-contextmenu.prevent="">
-        <t t-foreach="visibleMenuItems" t-as="menuItem" t-key="menuItem.id">
-          <t t-set="isMenuRoot" t-value="isRoot(menuItem)"/>
-          <t t-set="isMenuEnabled" t-value="isEnabled(menuItem)"/>
-          <div
-            t-att-title="getName(menuItem)"
-            t-att-data-name="menuItem.id"
-            t-on-click="() => this.onClickMenu(menuItem, menuItem_index)"
-            t-on-mouseover="() => this.onMouseOver(menuItem, menuItem_index)"
-            class="o-menu-item"
-            t-att-class="{ 'o-menu-root': isMenuRoot, 'disabled': !isMenuEnabled, 'o-menu-item-active': isParentMenu(subMenu, menuItem)}"
-            t-att-style="getColor(menuItem)">
-            <span class="o-menu-item-name" t-esc="getName(menuItem)"/>
-            <span
-              t-if="menuItem.description"
-              class="o-menu-item-description"
-              t-esc="menuItem.description"
-            />
-            <t t-if="isMenuRoot">
-              <span t-call="o-spreadsheet-Icon.TRIANGLE_RIGHT"/>
-            </t>
-            <t t-elif="menuItem.icon">
-              <i t-att-class="menuItem.icon" class="o-menu-item-icon"/>
-            </t>
-          </div>
-          <div t-if="menuItem.separator and !menuItem_last" class="o-separator"/>
+        <t t-foreach="menuItemsAndSeparators" t-as="menuItem" t-key="menuItem_index">
+          <div t-if="menuItem === 'separator'" class="o-separator"/>
+          <t t-else="">
+            <t t-set="isMenuRoot" t-value="isRoot(menuItem)"/>
+            <t t-set="isMenuEnabled" t-value="isEnabled(menuItem)"/>
+            <div
+              t-att-title="getName(menuItem)"
+              t-att-data-name="menuItem.id"
+              t-on-click="(ev) => this.onClickMenu(menuItem, menuItem_index, ev)"
+              t-on-mouseover="(ev) => this.onMouseOver(menuItem, menuItem_index, ev)"
+              class="o-menu-item"
+              t-att-class="{ 'o-menu-root': isMenuRoot, 'disabled': !isMenuEnabled, 'o-menu-item-active': isParentMenu(subMenu, menuItem)}"
+              t-att-style="getColor(menuItem)">
+              <span class="o-menu-item-name" t-esc="getName(menuItem)"/>
+              <span
+                t-if="menuItem.description"
+                class="o-menu-item-description"
+                t-esc="menuItem.description"
+              />
+              <t t-if="isMenuRoot">
+                <span t-call="o-spreadsheet-Icon.TRIANGLE_RIGHT"/>
+              </t>
+              <t t-elif="menuItem.icon">
+                <i t-att-class="menuItem.icon" class="o-menu-item-icon"/>
+              </t>
+            </div>
+          </t>
         </t>
       </div>
       <Menu

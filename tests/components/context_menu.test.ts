@@ -1,6 +1,11 @@
 import { Component, xml } from "@odoo/owl";
 import { Menu } from "../../src/components/menu/menu";
-import { MENU_ITEM_HEIGHT, MENU_VERTICAL_PADDING, MENU_WIDTH } from "../../src/constants";
+import {
+  MENU_ITEM_HEIGHT,
+  MENU_SEPARATOR_HEIGHT,
+  MENU_VERTICAL_PADDING,
+  MENU_WIDTH,
+} from "../../src/constants";
 import { toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
@@ -32,6 +37,25 @@ mockGetBoundingClientRect({
     return getMenuSize();
   },
   "o-spreadsheet": () => ({ top: 0, left: 0, height: 1000, width: 1000 }),
+  "o-menu-item": (el) => {
+    const parentPosition = getElPosition(el.parentElement!);
+    let offset = MENU_VERTICAL_PADDING;
+    for (let e of el.parentElement!.children) {
+      if (e === el) break;
+
+      if (el.classList.contains("o-menu-item")) {
+        offset += MENU_ITEM_HEIGHT;
+      } else if (el.classList.contains("o-separator")) {
+        offset += MENU_SEPARATOR_HEIGHT;
+      }
+    }
+    return {
+      top: parentPosition.top + offset,
+      left: parentPosition.left,
+      height: MENU_ITEM_HEIGHT,
+      width: MENU_WIDTH,
+    };
+  },
 });
 
 function getElPosition(element: string | Element): {
@@ -729,7 +753,7 @@ describe("Context Menu position on large screen 1000px/1000px", () => {
     const { height, width } = getSubMenuSize();
     const { height: rootHeight } = getMenuSize();
     expect(rootTop).toBe(clickY - rootHeight);
-    expect(top).toBe(clickY - height);
+    expect(top).toBe(clickY + MENU_ITEM_HEIGHT - height);
     expect(left).toBe(clickX + width);
   });
 

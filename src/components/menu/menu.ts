@@ -3,7 +3,6 @@ import {
   BG_HOVER_COLOR,
   MENU_ITEM_DISABLED_COLOR,
   MENU_ITEM_HEIGHT,
-  MENU_SEPARATOR_HEIGHT,
   MENU_VERTICAL_PADDING,
   MENU_WIDTH,
 } from "../../constants";
@@ -70,6 +69,8 @@ css/* scss */ `
   }
 `;
 
+type MenuItemOrSeparator = MenuItem | "separator";
+
 interface Props {
   position: DOMCoordinates;
   menuItems: MenuItem[];
@@ -113,28 +114,31 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  get visibleMenuItems(): MenuItem[] {
-    return this.props.menuItems.filter((x) => x.isVisible(this.env));
+  get menuItemsAndSeparators(): MenuItemOrSeparator[] {
+    const menuItemsAndSeparators: MenuItemOrSeparator[] = [];
+    for (let i = 0; i < this.props.menuItems.length; i++) {
+      const menuItem = this.props.menuItems[i];
+      if (menuItem.isVisible(this.env)) {
+        menuItemsAndSeparators.push(menuItem);
+      }
+      if (
+        menuItem.separator &&
+        i !== this.props.menuItems.length - 1 && // no separator at the end
+        menuItemsAndSeparators[menuItemsAndSeparators.length - 1] !== "separator" // no double separator
+      ) {
+        menuItemsAndSeparators.push("separator");
+      }
+    }
+    if (menuItemsAndSeparators.length === 1 && menuItemsAndSeparators[0] === "separator") {
+      return [];
+    }
+    return menuItemsAndSeparators;
   }
 
   get subMenuPosition(): DOMCoordinates {
     const position = Object.assign({}, this.subMenu.position);
     position.y -= this.subMenu.scrollOffset || 0;
     return position;
-  }
-
-  get menuHeight(): Pixel {
-    const menuItems = this.visibleMenuItems;
-
-    let menuItemsHeight = this.getMenuItemsHeight(menuItems);
-
-    // We don't display separator at the end of a menu
-    if (menuItems[menuItems.length - 1].separator) {
-      menuItemsHeight -= MENU_SEPARATOR_HEIGHT;
-    }
-
-    const menuHeight = 2 * MENU_VERTICAL_PADDING + menuItemsHeight;
-    return this.props.maxHeight ? Math.min(menuHeight, this.props.maxHeight) : menuHeight;
   }
 
   get popoverProps(): PopoverProps {
@@ -150,7 +154,6 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
       verticalOffset: isRoot ? 0 : MENU_VERTICAL_PADDING,
       onPopoverHidden: () => this.closeSubMenu(),
       onPopoverMoved: () => this.closeSubMenu(),
-      maxHeight: this.menuHeight,
     };
   }
 
@@ -169,15 +172,6 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     this.props.onClose();
   }
 
-  /**
-   * Return the number of pixels between the top of the menu
-   * and the menu item at a given index.
-   */
-  private subMenuVerticalPosition(menuIndex: number): Pixel {
-    const menusAbove = this.visibleMenuItems.slice(0, menuIndex);
-    return this.position.y + this.getMenuItemsHeight(menusAbove) + MENU_VERTICAL_PADDING;
-  }
-
   private onExternalClick(ev: MenuMouseEvent) {
     // Don't close a root menu when clicked to open the submenus.
     const el = this.menuRef.el;
@@ -186,11 +180,6 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     }
     ev.closedMenuId = this.props.menuId;
     this.close();
-  }
-
-  private getMenuItemsHeight(menuItems: MenuItem[]): Pixel {
-    const numberOfSeparators = menuItems.filter((m) => m.separator).length;
-    return MENU_ITEM_HEIGHT * menuItems.length + MENU_SEPARATOR_HEIGHT * numberOfSeparators;
   }
 
   getName(menu: MenuItem) {
@@ -216,8 +205,11 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
    * If the given menu is not disabled, open it's submenu at the
    * correct position according to available surrounding space.
    */
-  openSubMenu(menu: MenuItem, menuIndex: number) {
-    const y = this.subMenuVerticalPosition(menuIndex);
+  openSubMenu(menu: MenuItem, menuIndex: number, ev: MouseEvent) {
+    const parentMenuEl = ev.currentTarget as HTMLElement;
+    if (!parentMenuEl) return;
+    const y = parentMenuEl.getBoundingClientRect().top;
+
     this.subMenu.position = {
       x: this.position.x + this.props.depth * MENU_WIDTH,
       y: y - (this.subMenu.scrollOffset || 0),
@@ -236,20 +228,20 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     this.subMenu.parentMenu = undefined;
   }
 
-  onClickMenu(menu: MenuItem, menuIndex: number) {
+  onClickMenu(menu: MenuItem, menuIndex: number, ev: MouseEvent) {
     if (this.isEnabled(menu)) {
       if (this.isRoot(menu)) {
-        this.openSubMenu(menu, menuIndex);
+        this.openSubMenu(menu, menuIndex, ev);
       } else {
         this.activateMenu(menu);
       }
     }
   }
 
-  onMouseOver(menu: MenuItem, position: Pixel) {
+  onMouseOver(menu: MenuItem, position: Pixel, ev: MouseEvent) {
     if (menu.isEnabled(this.env)) {
       if (this.isRoot(menu)) {
-        this.openSubMenu(menu, position);
+        this.openSubMenu(menu, position, ev);
       } else {
         this.closeSubMenu();
       }

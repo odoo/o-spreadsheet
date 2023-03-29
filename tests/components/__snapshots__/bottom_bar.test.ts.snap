@@ -4,6 +4,7 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
 <div
   class="o-menu"
 >
+  
   <div
     class="o-menu-item"
     data-name="Sum"
@@ -93,7 +94,6 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     
     
   </div>
-  
   
 </div>
 `;
