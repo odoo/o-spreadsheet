@@ -105,6 +105,7 @@ export function convertStyle(
         : convertColor(styleStruct.fillStyle?.bgColor),
     textColor: convertColor(styleStruct.fontStyle?.color),
     fontSize: styleStruct.fontStyle?.size,
+    wrapping: styleStruct.alignment?.wrapText ? "wrap" : "overflow",
   };
 }
 

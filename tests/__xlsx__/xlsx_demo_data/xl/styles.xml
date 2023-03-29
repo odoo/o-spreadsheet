@@ -896,6 +896,10 @@
     <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1">
       <alignment horizontal="center"/>
     </xf>
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1" />
+    <xf numFmtId="0" fontId="10" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1">
+      <alignment horizontal="left" wrapText="1" />
+    </xf>
   </cellXfs>
   <cellStyles count="3">
     <cellStyle name="Hyperlink" xfId="2" builtinId="8"/>

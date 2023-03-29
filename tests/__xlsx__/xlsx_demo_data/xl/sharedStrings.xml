@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="457" uniqueCount="409">
+<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="465" uniqueCount="414">
   <si>
     <t>CF =42</t>
   </si>
@@ -1233,5 +1233,17 @@
   </si>
   <si>
     <t>DATEDIF</t>
+  </si>
+  <si>
+    <t>this is a very long text to wrap</t>
+  </si>
+  <si>
+    <t>Wrap text:</t>
+  </si>
+  <si>
+    <t>overflow</t>
+  </si>
+  <si>
+    <t>wrap</t>
   </si>
 </sst>

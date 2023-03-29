@@ -189,6 +189,16 @@ describe("Import xlsx data", () => {
   });
 
   test.each([
+    ["overflow", "F19"],
+    ["wrap", "F20"],
+  ])("Can import wrapping mode %s", (wrapType, cellXc) => {
+    const testSheet = getWorkbookSheet("jestStyles", convertedData)!;
+    const styledCell = testSheet.cells[cellXc]!;
+    const cellStyle = getWorkbookCellStyle(styledCell, convertedData);
+    expect(cellStyle?.wrapping).toEqual(wrapType);
+  });
+
+  test.each([
     ["0.00", "M2"],
     ["0.00%", "M3"],
     ["m/d/yyyy", "M4"],
