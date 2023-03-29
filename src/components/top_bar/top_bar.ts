@@ -374,9 +374,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     const { left, top, height } = (ev.target as HTMLElement).getBoundingClientRect();
     this.state.menuState.isOpen = true;
     this.state.menuState.position = { x: left, y: top + height };
-    this.state.menuState.menuItems = getMenuChildren(menu, this.env).filter(
-      (item) => !item.isVisible || item.isVisible(this.env)
-    );
+    this.state.menuState.menuItems = getMenuChildren(menu, this.env);
     this.state.menuState.parentMenu = menu;
     this.isSelectingMenu = true;
     this.openedEl = ev.target as HTMLElement;
@@ -427,9 +425,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.fillColor = this.style.fillColor || "#ffffff";
     this.textColor = this.style.textColor || "#000000";
 
-    this.menus = topbarMenuRegistry
-      .getAll()
-      .filter((item) => !item.isVisible || item.isVisible(this.env));
+    this.menus = topbarMenuRegistry.getAll();
   }
 
   getMenuName(menu: FullMenuItem) {
