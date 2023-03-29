@@ -86,7 +86,7 @@ export class HeaderVisibilityUIPlugin extends UIPlugin {
   findFirstVisibleColRowIndex(sheetId: UID, dimension: Dimension) {
     const numberOfHeaders = this.getters.getNumberHeaders(sheetId, dimension);
 
-    for (let i = 0; i < numberOfHeaders - 1; i++) {
+    for (let i = 0; i < numberOfHeaders; i++) {
       if (dimension === "COL" && !this.isColHidden(sheetId, i)) {
         return i;
       }
