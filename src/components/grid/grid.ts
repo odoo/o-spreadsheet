@@ -493,9 +493,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.closeOpenedPopover();
     this.menuState.isOpen = true;
     this.menuState.position = { x, y };
-    this.menuState.menuItems = registries[type]
-      .getAll()
-      .filter((item) => !item.isVisible || item.isVisible(this.env));
+    this.menuState.menuItems = registries[type].getAll();
   }
 
   copy(cut: boolean, ev: ClipboardEvent) {
