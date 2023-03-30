@@ -16,7 +16,7 @@
   </cols>
   <sheetData>
     <row r="1" spans="1:12" ht="38.25" customHeight="1" x14ac:dyDescent="0.2">
-      <c r="A1" s="24"/>
+      <c r="A1" s="22"/>
       <c r="C1" s="1" t="s">
         <v>0</v>
       </c>
@@ -25,7 +25,7 @@
       </c>
     </row>
     <row r="2" spans="1:12" ht="27.75" x14ac:dyDescent="0.2">
-      <c r="B2" s="25" t="s">
+      <c r="B2" s="23" t="s">
         <v>2</v>
       </c>
       <c r="F2" s="3" t="s">
@@ -34,10 +34,10 @@
       <c r="G2" s="2">
         <v>5</v>
       </c>
-      <c r="H2" s="126" t="s">
+      <c r="H2" s="104" t="s">
         <v>4</v>
       </c>
-      <c r="I2" s="127"/>
+      <c r="I2" s="105"/>
       <c r="K2" s="4"/>
     </row>
     <row r="3" spans="1:12" ht="17.25" customHeight="1" x14ac:dyDescent="0.2">
@@ -47,10 +47,10 @@
       <c r="G3" s="2">
         <v>8</v>
       </c>
-      <c r="H3" s="127"/>
-      <c r="I3" s="127"/>
+      <c r="H3" s="105"/>
+      <c r="I3" s="105"/>
       <c r="J3" s="6"/>
-      <c r="K3" s="128">
+      <c r="K3" s="106">
         <v>5</v>
       </c>
       <c r="L3" s="7"/>
@@ -68,10 +68,10 @@
       <c r="G4" s="2">
         <v>9</v>
       </c>
-      <c r="H4" s="127"/>
-      <c r="I4" s="127"/>
+      <c r="H4" s="105"/>
+      <c r="I4" s="105"/>
       <c r="J4" s="6"/>
-      <c r="K4" s="129"/>
+      <c r="K4" s="107"/>
       <c r="L4" s="7"/>
     </row>
     <row r="5" spans="1:12" ht="17.25" customHeight="1" x14ac:dyDescent="0.2">
@@ -81,10 +81,10 @@
       <c r="G5" s="2">
         <v>15</v>
       </c>
-      <c r="H5" s="127"/>
-      <c r="I5" s="127"/>
+      <c r="H5" s="105"/>
+      <c r="I5" s="105"/>
       <c r="J5" s="6"/>
-      <c r="K5" s="129"/>
+      <c r="K5" s="107"/>
       <c r="L5" s="7"/>
     </row>
     <row r="6" spans="1:12" ht="17.25" customHeight="1" x14ac:dyDescent="0.2">
@@ -92,7 +92,7 @@
         <v>22</v>
       </c>
       <c r="J6" s="6"/>
-      <c r="K6" s="129"/>
+      <c r="K6" s="107"/>
       <c r="L6" s="7"/>
     </row>
     <row r="7" spans="1:12" ht="17.25" customHeight="1" x14ac:dyDescent="0.2">
@@ -100,7 +100,7 @@
         <v>3</v>
       </c>
       <c r="J7" s="6"/>
-      <c r="K7" s="129"/>
+      <c r="K7" s="107"/>
       <c r="L7" s="7"/>
     </row>
     <row r="8" spans="1:12" ht="17.25" customHeight="1" x14ac:dyDescent="0.2">
@@ -108,7 +108,7 @@
         <v>30</v>
       </c>
       <c r="J8" s="6"/>
-      <c r="K8" s="130"/>
+      <c r="K8" s="108"/>
       <c r="L8" s="7"/>
     </row>
     <row r="9" spans="1:12" ht="17.25" customHeight="1" x14ac:dyDescent="0.2">
@@ -129,7 +129,6 @@
       <c r="D10" s="2" t="s">
         <v>9</v>
       </c>
-      <c r="F10" s="23"/>
     </row>
     <row r="11" spans="1:12" ht="17.25" customHeight="1" x14ac:dyDescent="0.2">
       <c r="C11" s="2">
@@ -160,7 +159,6 @@
         <f ca="1">C14</f>
         <v>#CYCLE</v>
       </c>
-      <c r="F14" s="22"/>
     </row>
     <row r="15" spans="1:12" ht="17.25" customHeight="1" x14ac:dyDescent="0.2">
       <c r="C15" s="2" t="s">
@@ -182,7 +180,6 @@
       <c r="C18" s="2" t="s">
         <v>14</v>
       </c>
-      <c r="H18" s="26"/>
     </row>
     <row r="19" spans="1:9" ht="17.25" customHeight="1" x14ac:dyDescent="0.2">
       <c r="E19" s="4"/>
@@ -409,7 +406,7 @@
     <mergeCell ref="K3:K8"/>
   </mergeCells>
   <conditionalFormatting sqref="C1:C100 B21">
-    <cfRule type="cellIs" dxfId="43" priority="1" operator="equal">
+    <cfRule type="cellIs" dxfId="25" priority="1" operator="equal">
       <formula>42</formula>
     </cfRule>
   </conditionalFormatting>
