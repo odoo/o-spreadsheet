@@ -47,12 +47,12 @@ exports[`composer Assistant render above the cell when not enough place below 1`
       <div
         class="o-autocomplete-value"
       >
-        SECOND
+        SUM
       </div>
       <div
         class="o-autocomplete-description text-truncate"
       >
-        Minute component of a specific time.
+        do sum
       </div>
       
     </div>
@@ -62,87 +62,7 @@ exports[`composer Assistant render above the cell when not enough place below 1`
       <div
         class="o-autocomplete-value"
       >
-        SLN
-      </div>
-      
-    </div>
-    <div
-      class="d-flex flex-column"
-    >
-      <div
-        class="o-autocomplete-value"
-      >
-        SYD
-      </div>
-      
-    </div>
-    <div
-      class="d-flex flex-column"
-    >
-      <div
-        class="o-autocomplete-value"
-      >
-        SEC
-      </div>
-      
-    </div>
-    <div
-      class="d-flex flex-column"
-    >
-      <div
-        class="o-autocomplete-value"
-      >
-        SECH
-      </div>
-      
-    </div>
-    <div
-      class="d-flex flex-column"
-    >
-      <div
-        class="o-autocomplete-value"
-      >
-        SIN
-      </div>
-      
-    </div>
-    <div
-      class="d-flex flex-column"
-    >
-      <div
-        class="o-autocomplete-value"
-      >
-        SINH
-      </div>
-      
-    </div>
-    <div
-      class="d-flex flex-column"
-    >
-      <div
-        class="o-autocomplete-value"
-      >
-        SQRT
-      </div>
-      
-    </div>
-    <div
-      class="d-flex flex-column"
-    >
-      <div
-        class="o-autocomplete-value"
-      >
-        SUM
-      </div>
-      
-    </div>
-    <div
-      class="d-flex flex-column"
-    >
-      <div
-        class="o-autocomplete-value"
-      >
-        SUMIF
+        SZZ
       </div>
       
     </div>
@@ -167,12 +87,12 @@ exports[`composer Assistant render below the cell by default 1`] = `
       <div
         class="o-autocomplete-value"
       >
-        SECOND
+        SUM
       </div>
       <div
         class="o-autocomplete-description text-truncate"
       >
-        Minute component of a specific time.
+        do sum
       </div>
       
     </div>
@@ -182,87 +102,7 @@ exports[`composer Assistant render below the cell by default 1`] = `
       <div
         class="o-autocomplete-value"
       >
-        SLN
-      </div>
-      
-    </div>
-    <div
-      class="d-flex flex-column"
-    >
-      <div
-        class="o-autocomplete-value"
-      >
-        SYD
-      </div>
-      
-    </div>
-    <div
-      class="d-flex flex-column"
-    >
-      <div
-        class="o-autocomplete-value"
-      >
-        SEC
-      </div>
-      
-    </div>
-    <div
-      class="d-flex flex-column"
-    >
-      <div
-        class="o-autocomplete-value"
-      >
-        SECH
-      </div>
-      
-    </div>
-    <div
-      class="d-flex flex-column"
-    >
-      <div
-        class="o-autocomplete-value"
-      >
-        SIN
-      </div>
-      
-    </div>
-    <div
-      class="d-flex flex-column"
-    >
-      <div
-        class="o-autocomplete-value"
-      >
-        SINH
-      </div>
-      
-    </div>
-    <div
-      class="d-flex flex-column"
-    >
-      <div
-        class="o-autocomplete-value"
-      >
-        SQRT
-      </div>
-      
-    </div>
-    <div
-      class="d-flex flex-column"
-    >
-      <div
-        class="o-autocomplete-value"
-      >
-        SUM
-      </div>
-      
-    </div>
-    <div
-      class="d-flex flex-column"
-    >
-      <div
-        class="o-autocomplete-value"
-      >
-        SUMIF
+        SZZ
       </div>
       
     </div>
