@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" mc:Ignorable="x14ac xr xr2 xr3" xr:uid="{F7CF5882-A593-4D5B-B09A-AA0321448511}">
-  <dimension ref="A1:M39"/>
+  <dimension ref="A1:L39"/>
   <sheetViews>
     <sheetView zoomScaleNormal="100" workbookViewId="0">
       <selection activeCell="D34" sqref="D34"/>
@@ -12,25 +12,25 @@
     <col min="7" max="7" width="15.85546875" customWidth="1"/>
   </cols>
   <sheetData>
-    <row r="1" spans="1:13" ht="13.5" thickBot="1" x14ac:dyDescent="0.25">
-      <c r="A1" s="45" t="s">
+    <row r="1" spans="1:10" ht="13.5" thickBot="1" x14ac:dyDescent="0.25">
+      <c r="A1" s="38" t="s">
         <v>347</v>
       </c>
-      <c r="B1" s="43" t="s">
+      <c r="B1" s="36" t="s">
         <v>228</v>
       </c>
-      <c r="C1" s="43" t="s">
+      <c r="C1" s="36" t="s">
         <v>229</v>
       </c>
-      <c r="G1" s="43" t="s">
+      <c r="G1" s="36" t="s">
         <v>318</v>
       </c>
-      <c r="H1" s="44"/>
-      <c r="I1" s="44"/>
-      <c r="J1" s="44"/>
+      <c r="H1" s="37"/>
+      <c r="I1" s="37"/>
+      <c r="J1" s="37"/>
     </row>
-    <row r="2" spans="1:13" x14ac:dyDescent="0.2">
-      <c r="A2" s="46" t="s">
+    <row r="2" spans="1:10" x14ac:dyDescent="0.2">
+      <c r="A2" s="39" t="s">
         <v>330</v>
       </c>
       <c r="B2">
@@ -39,30 +39,30 @@
       <c r="C2">
         <v>1</v>
       </c>
-      <c r="G2" s="42" t="s">
+      <c r="G2" s="35" t="s">
         <v>313</v>
       </c>
-      <c r="H2" s="24">
+      <c r="H2" s="22">
         <v>5</v>
       </c>
       <c r="I2">
         <v>3</v>
       </c>
-      <c r="J2" s="24">
+      <c r="J2" s="22">
         <v>1</v>
       </c>
     </row>
-    <row r="3" spans="1:13" x14ac:dyDescent="0.2">
-      <c r="A3" s="46" t="s">
+    <row r="3" spans="1:10" x14ac:dyDescent="0.2">
+      <c r="A3" s="39" t="s">
         <v>340</v>
       </c>
-      <c r="B3" s="24" t="s">
+      <c r="B3" s="22" t="s">
         <v>236</v>
       </c>
-      <c r="C3" s="24" t="s">
+      <c r="C3" s="22" t="s">
         <v>233</v>
       </c>
-      <c r="G3" s="42" t="s">
+      <c r="G3" s="35" t="s">
         <v>314</v>
       </c>
       <c r="H3">
@@ -75,14 +75,14 @@
         <v>1</v>
       </c>
     </row>
-    <row r="4" spans="1:13" x14ac:dyDescent="0.2">
-      <c r="A4" s="46" t="s">
+    <row r="4" spans="1:10" x14ac:dyDescent="0.2">
+      <c r="A4" s="39" t="s">
         <v>342</v>
       </c>
-      <c r="C4" s="24" t="s">
+      <c r="C4" s="22" t="s">
         <v>230</v>
       </c>
-      <c r="G4" s="42" t="s">
+      <c r="G4" s="35" t="s">
         <v>315</v>
       </c>
       <c r="H4">
@@ -95,8 +95,8 @@
         <v>1</v>
       </c>
     </row>
-    <row r="5" spans="1:13" x14ac:dyDescent="0.2">
-      <c r="A5" s="46" t="s">
+    <row r="5" spans="1:10" x14ac:dyDescent="0.2">
+      <c r="A5" s="39" t="s">
         <v>344</v>
       </c>
       <c r="B5" t="e">
@@ -106,7 +106,7 @@
       <c r="C5">
         <v>0</v>
       </c>
-      <c r="G5" s="42" t="s">
+      <c r="G5" s="35" t="s">
         <v>317</v>
       </c>
       <c r="H5">
@@ -119,17 +119,17 @@
         <v>1</v>
       </c>
     </row>
-    <row r="6" spans="1:13" x14ac:dyDescent="0.2">
-      <c r="A6" s="46" t="s">
+    <row r="6" spans="1:10" x14ac:dyDescent="0.2">
+      <c r="A6" s="39" t="s">
         <v>338</v>
       </c>
-      <c r="B6" s="24" t="s">
+      <c r="B6" s="22" t="s">
         <v>235</v>
       </c>
-      <c r="C6" s="24" t="s">
+      <c r="C6" s="22" t="s">
         <v>233</v>
       </c>
-      <c r="G6" s="42" t="s">
+      <c r="G6" s="35" t="s">
         <v>316</v>
       </c>
       <c r="H6">
@@ -142,20 +142,20 @@
         <v>1</v>
       </c>
     </row>
-    <row r="7" spans="1:13" x14ac:dyDescent="0.2">
-      <c r="A7" s="46" t="s">
+    <row r="7" spans="1:10" x14ac:dyDescent="0.2">
+      <c r="A7" s="39" t="s">
         <v>337</v>
       </c>
-      <c r="B7" s="24" t="s">
+      <c r="B7" s="22" t="s">
         <v>231</v>
       </c>
-      <c r="C7" s="47" t="s">
+      <c r="C7" s="22" t="s">
         <v>232</v>
       </c>
-      <c r="D7" s="47" t="s">
+      <c r="D7" s="22" t="s">
         <v>231</v>
       </c>
-      <c r="G7" s="42" t="s">
+      <c r="G7" s="35" t="s">
         <v>238</v>
       </c>
       <c r="H7">
@@ -168,28 +168,28 @@
         <v>1</v>
       </c>
     </row>
-    <row r="8" spans="1:13" x14ac:dyDescent="0.2">
-      <c r="A8" s="46" t="s">
+    <row r="8" spans="1:10" x14ac:dyDescent="0.2">
+      <c r="A8" s="39" t="s">
         <v>341</v>
       </c>
-      <c r="B8" s="24" t="s">
+      <c r="B8" s="22" t="s">
         <v>234</v>
       </c>
-      <c r="C8" s="24" t="s">
+      <c r="C8" s="22" t="s">
         <v>233</v>
       </c>
     </row>
-    <row r="9" spans="1:13" x14ac:dyDescent="0.2">
-      <c r="A9" s="46" t="s">
+    <row r="9" spans="1:10" x14ac:dyDescent="0.2">
+      <c r="A9" s="39" t="s">
         <v>343</v>
       </c>
-      <c r="B9" s="24" t="s">
+      <c r="B9" s="22" t="s">
         <v>230</v>
       </c>
-      <c r="C9" s="24"/>
+      <c r="C9" s="22"/>
     </row>
-    <row r="10" spans="1:13" ht="13.5" thickBot="1" x14ac:dyDescent="0.25">
-      <c r="A10" s="46" t="s">
+    <row r="10" spans="1:10" ht="13.5" thickBot="1" x14ac:dyDescent="0.25">
+      <c r="A10" s="39" t="s">
         <v>345</v>
       </c>
       <c r="B10">
@@ -199,26 +199,24 @@
         <f>0/0</f>
         <v>#DIV/0!</v>
       </c>
-      <c r="G10" s="43" t="s">
+      <c r="G10" s="36" t="s">
         <v>319</v>
       </c>
-      <c r="H10" s="44"/>
-      <c r="I10" s="44"/>
-      <c r="J10" s="44"/>
-      <c r="L10" s="51"/>
-      <c r="M10" s="51"/>
+      <c r="H10" s="37"/>
+      <c r="I10" s="37"/>
+      <c r="J10" s="37"/>
     </row>
-    <row r="11" spans="1:13" x14ac:dyDescent="0.2">
-      <c r="A11" s="46" t="s">
+    <row r="11" spans="1:10" x14ac:dyDescent="0.2">
+      <c r="A11" s="39" t="s">
         <v>339</v>
       </c>
-      <c r="B11" s="24" t="s">
+      <c r="B11" s="22" t="s">
         <v>233</v>
       </c>
-      <c r="C11" s="24" t="s">
+      <c r="C11" s="22" t="s">
         <v>234</v>
       </c>
-      <c r="G11" s="81" t="s">
+      <c r="G11" s="35" t="s">
         <v>320</v>
       </c>
       <c r="H11">
@@ -230,22 +228,20 @@
       <c r="J11">
         <v>1</v>
       </c>
-      <c r="L11" s="51"/>
-      <c r="M11" s="51"/>
     </row>
-    <row r="12" spans="1:13" x14ac:dyDescent="0.2">
-      <c r="A12" s="46" t="s">
+    <row r="12" spans="1:10" x14ac:dyDescent="0.2">
+      <c r="A12" s="39" t="s">
         <v>346</v>
       </c>
-      <c r="B12" s="48">
+      <c r="B12" s="40">
         <f ca="1">TODAY()</f>
-        <v>44659</v>
+        <v>45013</v>
       </c>
-      <c r="C12" s="48">
+      <c r="C12" s="40">
         <f>DATE(2010,10,2)</f>
         <v>40453</v>
       </c>
-      <c r="G12" s="81" t="s">
+      <c r="G12" s="35" t="s">
         <v>323</v>
       </c>
       <c r="H12">
@@ -257,11 +253,9 @@
       <c r="J12">
         <v>1</v>
       </c>
-      <c r="L12" s="51"/>
-      <c r="M12" s="51"/>
     </row>
-    <row r="13" spans="1:13" x14ac:dyDescent="0.2">
-      <c r="A13" s="46" t="s">
+    <row r="13" spans="1:10" x14ac:dyDescent="0.2">
+      <c r="A13" s="39" t="s">
         <v>335</v>
       </c>
       <c r="B13">
@@ -270,191 +264,191 @@
       <c r="C13">
         <v>5</v>
       </c>
-      <c r="G13" s="42" t="s">
+      <c r="G13" s="35" t="s">
         <v>321</v>
       </c>
-      <c r="H13" s="50">
+      <c r="H13">
         <v>5</v>
       </c>
-      <c r="I13" s="50">
+      <c r="I13">
         <v>3</v>
       </c>
-      <c r="J13" s="50">
+      <c r="J13">
         <v>1</v>
       </c>
     </row>
-    <row r="14" spans="1:13" x14ac:dyDescent="0.2">
-      <c r="A14" s="46" t="s">
+    <row r="14" spans="1:10" x14ac:dyDescent="0.2">
+      <c r="A14" s="39" t="s">
         <v>336</v>
       </c>
-      <c r="B14" s="24" t="s">
+      <c r="B14" s="22" t="s">
         <v>232</v>
       </c>
-      <c r="C14" s="47" t="s">
+      <c r="C14" s="22" t="s">
         <v>231</v>
       </c>
-      <c r="D14" s="47" t="s">
+      <c r="D14" s="22" t="s">
         <v>231</v>
       </c>
-      <c r="G14" s="81" t="s">
+      <c r="G14" s="35" t="s">
         <v>322</v>
       </c>
-      <c r="H14" s="50">
+      <c r="H14">
         <v>5</v>
       </c>
-      <c r="I14" s="50">
+      <c r="I14">
         <v>3</v>
       </c>
-      <c r="J14" s="50">
+      <c r="J14">
         <v>1</v>
       </c>
     </row>
-    <row r="15" spans="1:13" x14ac:dyDescent="0.2">
-      <c r="A15" s="46" t="s">
+    <row r="15" spans="1:10" x14ac:dyDescent="0.2">
+      <c r="A15" s="39" t="s">
         <v>331</v>
       </c>
       <c r="B15">
         <v>1</v>
       </c>
-      <c r="G15" s="81" t="s">
+      <c r="G15" s="35" t="s">
         <v>282</v>
       </c>
-      <c r="H15" s="50">
+      <c r="H15">
         <v>5</v>
       </c>
-      <c r="I15" s="50">
+      <c r="I15">
         <v>3</v>
       </c>
-      <c r="J15" s="50">
+      <c r="J15">
         <v>1</v>
       </c>
     </row>
-    <row r="16" spans="1:13" x14ac:dyDescent="0.2">
-      <c r="A16" s="49" t="s">
+    <row r="16" spans="1:10" x14ac:dyDescent="0.2">
+      <c r="A16" s="39" t="s">
         <v>352</v>
       </c>
-      <c r="B16" s="41">
+      <c r="B16">
         <v>2</v>
       </c>
-      <c r="C16" s="41">
+      <c r="C16">
         <v>1</v>
       </c>
-      <c r="G16" s="81" t="s">
+      <c r="G16" s="35" t="s">
         <v>283</v>
       </c>
-      <c r="H16" s="50">
+      <c r="H16">
         <v>5</v>
       </c>
-      <c r="I16" s="50">
+      <c r="I16">
         <v>3</v>
       </c>
-      <c r="J16" s="50">
+      <c r="J16">
         <v>1</v>
       </c>
     </row>
-    <row r="17" spans="1:12" s="50" customFormat="1" x14ac:dyDescent="0.2">
-      <c r="A17" s="49" t="s">
+    <row r="17" spans="1:12" x14ac:dyDescent="0.2">
+      <c r="A17" s="39" t="s">
         <v>353</v>
       </c>
-      <c r="B17" s="41">
+      <c r="B17">
         <v>0</v>
       </c>
-      <c r="C17" s="41">
+      <c r="C17">
         <v>2</v>
       </c>
-      <c r="G17" s="81" t="s">
+      <c r="G17" s="35" t="s">
         <v>284</v>
       </c>
-      <c r="H17" s="50">
+      <c r="H17">
         <v>5</v>
       </c>
-      <c r="I17" s="50">
+      <c r="I17">
         <v>3</v>
       </c>
-      <c r="J17" s="50">
+      <c r="J17">
         <v>1</v>
       </c>
     </row>
     <row r="18" spans="1:12" x14ac:dyDescent="0.2">
-      <c r="A18" s="49" t="s">
+      <c r="A18" s="39" t="s">
         <v>348</v>
       </c>
-      <c r="B18" s="84">
+      <c r="B18">
         <v>3</v>
       </c>
-      <c r="C18" s="84">
+      <c r="C18">
         <v>0</v>
       </c>
-      <c r="G18" s="81" t="s">
+      <c r="G18" s="35" t="s">
         <v>285</v>
       </c>
-      <c r="H18" s="83">
+      <c r="H18">
         <v>5</v>
       </c>
-      <c r="I18" s="83">
+      <c r="I18">
         <v>3</v>
       </c>
-      <c r="J18" s="83">
+      <c r="J18">
         <v>1</v>
       </c>
     </row>
     <row r="19" spans="1:12" x14ac:dyDescent="0.2">
-      <c r="A19" s="49" t="s">
+      <c r="A19" s="39" t="s">
         <v>349</v>
       </c>
-      <c r="B19" s="84">
+      <c r="B19">
         <v>2</v>
       </c>
-      <c r="C19" s="84">
+      <c r="C19">
         <v>0</v>
       </c>
-      <c r="G19" s="81" t="s">
+      <c r="G19" s="35" t="s">
         <v>287</v>
       </c>
-      <c r="H19" s="83">
+      <c r="H19">
         <v>5</v>
       </c>
-      <c r="I19" s="83">
+      <c r="I19">
         <v>3</v>
       </c>
-      <c r="J19" s="83">
+      <c r="J19">
         <v>1</v>
       </c>
     </row>
     <row r="20" spans="1:12" x14ac:dyDescent="0.2">
-      <c r="A20" s="49" t="s">
+      <c r="A20" s="39" t="s">
         <v>350</v>
       </c>
-      <c r="B20" s="84">
+      <c r="B20">
         <v>0</v>
       </c>
-      <c r="C20" s="84">
+      <c r="C20">
         <v>2</v>
       </c>
-      <c r="G20" s="81" t="s">
+      <c r="G20" s="35" t="s">
         <v>288</v>
       </c>
-      <c r="H20" s="83">
+      <c r="H20">
         <v>5</v>
       </c>
-      <c r="I20" s="83">
+      <c r="I20">
         <v>3</v>
       </c>
-      <c r="J20" s="83">
+      <c r="J20">
         <v>1</v>
       </c>
     </row>
     <row r="21" spans="1:12" x14ac:dyDescent="0.2">
-      <c r="A21" s="49" t="s">
+      <c r="A21" s="39" t="s">
         <v>351</v>
       </c>
-      <c r="B21" s="84">
+      <c r="B21">
         <v>2</v>
       </c>
-      <c r="C21" s="84">
+      <c r="C21">
         <v>3</v>
       </c>
-      <c r="G21" s="81" t="s">
+      <c r="G21" s="35" t="s">
         <v>289</v>
       </c>
       <c r="H21">
@@ -471,120 +465,114 @@
       </c>
     </row>
     <row r="22" spans="1:12" x14ac:dyDescent="0.2">
-      <c r="A22" s="49" t="s">
+      <c r="A22" s="39" t="s">
         <v>332</v>
       </c>
-      <c r="B22" s="84">
+      <c r="B22">
         <v>2</v>
       </c>
-      <c r="C22" s="84">
+      <c r="C22">
         <v>0</v>
       </c>
-      <c r="G22" s="81" t="s">
+      <c r="G22" s="35" t="s">
         <v>290</v>
       </c>
-      <c r="H22" s="51">
+      <c r="H22">
         <v>5</v>
       </c>
-      <c r="I22" s="51">
+      <c r="I22">
         <v>4</v>
       </c>
-      <c r="J22" s="51">
+      <c r="J22">
         <v>3</v>
       </c>
-      <c r="K22" s="51">
+      <c r="K22">
         <v>2</v>
       </c>
     </row>
     <row r="23" spans="1:12" x14ac:dyDescent="0.2">
-      <c r="A23" s="49" t="s">
+      <c r="A23" s="39" t="s">
         <v>333</v>
       </c>
-      <c r="B23" s="84">
+      <c r="B23">
         <v>1</v>
       </c>
-      <c r="C23" s="84">
+      <c r="C23">
         <v>2</v>
       </c>
-      <c r="G23" s="81" t="s">
+      <c r="G23" s="35" t="s">
         <v>291</v>
       </c>
-      <c r="H23" s="51">
+      <c r="H23">
         <v>5</v>
       </c>
-      <c r="I23" s="51">
+      <c r="I23">
         <v>4</v>
       </c>
-      <c r="J23" s="51">
+      <c r="J23">
         <v>3</v>
       </c>
-      <c r="K23" s="51">
+      <c r="K23">
         <v>2</v>
       </c>
     </row>
     <row r="24" spans="1:12" x14ac:dyDescent="0.2">
-      <c r="A24" s="84"/>
-      <c r="B24" s="84"/>
-      <c r="C24" s="84"/>
-      <c r="G24" s="81" t="s">
+      <c r="G24" s="35" t="s">
         <v>292</v>
       </c>
-      <c r="H24" s="51">
+      <c r="H24">
         <v>5</v>
       </c>
-      <c r="I24" s="51">
+      <c r="I24">
         <v>4</v>
       </c>
-      <c r="J24" s="51">
+      <c r="J24">
         <v>3</v>
       </c>
-      <c r="K24" s="51">
+      <c r="K24">
         <v>2</v>
       </c>
     </row>
     <row r="25" spans="1:12" x14ac:dyDescent="0.2">
-      <c r="A25" s="46" t="s">
+      <c r="A25" s="39" t="s">
         <v>334</v>
       </c>
-      <c r="B25" s="84">
+      <c r="B25">
         <v>5</v>
       </c>
-      <c r="C25" s="84">
+      <c r="C25">
         <v>2</v>
       </c>
-      <c r="G25" s="81" t="s">
+      <c r="G25" s="35" t="s">
         <v>293</v>
       </c>
-      <c r="H25" s="51">
+      <c r="H25">
         <v>5</v>
       </c>
-      <c r="I25" s="51">
+      <c r="I25">
         <v>4</v>
       </c>
-      <c r="J25" s="51">
+      <c r="J25">
         <v>3</v>
       </c>
-      <c r="K25" s="51">
+      <c r="K25">
         <v>2</v>
       </c>
     </row>
     <row r="26" spans="1:12" x14ac:dyDescent="0.2">
-      <c r="A26" s="84"/>
-      <c r="B26" s="84"/>
-      <c r="C26" s="84"/>
-      <c r="G26" s="81" t="s">
+      <c r="G26" s="35" t="s">
         <v>294</v>
       </c>
-      <c r="H26" s="51">
+      <c r="H26">
         <v>5</v>
       </c>
-      <c r="I26" s="51">
+      <c r="I26">
         <v>4</v>
       </c>
-      <c r="J26" s="51">
+      <c r="J26">
         <v>3</v>
       </c>
-      <c r="K26" s="51">
+      <c r="K26">
         <v>2</v>
       </c>
       <c r="L26">
@@ -592,26 +580,25 @@
       </c>
     </row>
     <row r="27" spans="1:12" x14ac:dyDescent="0.2">
-      <c r="A27" s="24" t="s">
+      <c r="A27" s="22" t="s">
         <v>237</v>
       </c>
-      <c r="B27" s="84">
+      <c r="B27">
         <v>2</v>
       </c>
-      <c r="C27" s="84"/>
-      <c r="G27" s="81" t="s">
+      <c r="G27" s="35" t="s">
         <v>295</v>
       </c>
-      <c r="H27" s="51">
+      <c r="H27">
         <v>5</v>
       </c>
-      <c r="I27" s="51">
+      <c r="I27">
         <v>4</v>
       </c>
-      <c r="J27" s="51">
+      <c r="J27">
         <v>3</v>
       </c>
-      <c r="K27" s="51">
+      <c r="K27">
         <v>2</v>
       </c>
       <c r="L27">
@@ -619,19 +606,19 @@
       </c>
     </row>
     <row r="28" spans="1:12" x14ac:dyDescent="0.2">
-      <c r="G28" s="81" t="s">
+      <c r="G28" s="35" t="s">
         <v>296</v>
       </c>
-      <c r="H28" s="51">
+      <c r="H28">
         <v>5</v>
       </c>
-      <c r="I28" s="51">
+      <c r="I28">
         <v>4</v>
       </c>
-      <c r="J28" s="51">
+      <c r="J28">
         <v>3</v>
       </c>
-      <c r="K28" s="51">
+      <c r="K28">
         <v>2</v>
       </c>
       <c r="L28">
@@ -639,19 +626,19 @@
       </c>
     </row>
     <row r="29" spans="1:12" x14ac:dyDescent="0.2">
-      <c r="G29" s="81" t="s">
+      <c r="G29" s="35" t="s">
         <v>297</v>
       </c>
-      <c r="H29" s="51">
+      <c r="H29">
         <v>5</v>
       </c>
-      <c r="I29" s="51">
+      <c r="I29">
         <v>4</v>
       </c>
-      <c r="J29" s="51">
+      <c r="J29">
         <v>3</v>
       </c>
-      <c r="K29" s="51">
+      <c r="K29">
         <v>2</v>
       </c>
       <c r="L29">
@@ -659,19 +646,19 @@
       </c>
     </row>
     <row r="30" spans="1:12" x14ac:dyDescent="0.2">
-      <c r="G30" s="81" t="s">
+      <c r="G30" s="35" t="s">
         <v>298</v>
       </c>
-      <c r="H30" s="51">
+      <c r="H30">
         <v>5</v>
       </c>
-      <c r="I30" s="51">
+      <c r="I30">
         <v>4</v>
       </c>
-      <c r="J30" s="51">
+      <c r="J30">
         <v>3</v>
       </c>
-      <c r="K30" s="51">
+      <c r="K30">
         <v>2</v>
       </c>
       <c r="L30">
@@ -679,173 +666,170 @@
       </c>
     </row>
     <row r="31" spans="1:12" ht="13.5" thickBot="1" x14ac:dyDescent="0.25">
-      <c r="G31" s="82" t="s">
+      <c r="G31" s="36" t="s">
         <v>324</v>
       </c>
-      <c r="H31" s="44">
+      <c r="H31" s="37">
         <v>5</v>
       </c>
-      <c r="I31" s="44">
+      <c r="I31" s="37">
         <v>3</v>
       </c>
-      <c r="J31" s="44">
+      <c r="J31" s="37">
         <v>1</v>
       </c>
     </row>
     <row r="32" spans="1:12" x14ac:dyDescent="0.2">
-      <c r="G32" s="81" t="s">
+      <c r="G32" s="35" t="s">
         <v>286</v>
       </c>
-      <c r="H32" s="50">
+      <c r="H32">
         <v>5</v>
       </c>
-      <c r="I32" s="50">
+      <c r="I32">
         <v>3</v>
       </c>
-      <c r="J32" s="50">
+      <c r="J32">
         <v>1</v>
       </c>
     </row>
     <row r="33" spans="7:10" x14ac:dyDescent="0.2">
-      <c r="G33" s="81" t="s">
+      <c r="G33" s="35" t="s">
         <v>325</v>
       </c>
-      <c r="H33" s="50">
+      <c r="H33">
         <v>5</v>
       </c>
-      <c r="I33" s="50">
+      <c r="I33">
         <v>3</v>
       </c>
-      <c r="J33" s="50">
+      <c r="J33">
         <v>1</v>
       </c>
     </row>
     <row r="34" spans="7:10" x14ac:dyDescent="0.2">
-      <c r="G34" s="81" t="s">
+      <c r="G34" s="35" t="s">
         <v>326</v>
       </c>
-      <c r="H34" s="50">
+      <c r="H34">
         <v>5</v>
       </c>
-      <c r="I34" s="50">
+      <c r="I34">
         <v>3</v>
       </c>
-      <c r="J34" s="50">
+      <c r="J34">
         <v>1</v>
       </c>
     </row>
     <row r="35" spans="7:10" x14ac:dyDescent="0.2">
-      <c r="G35" s="81" t="s">
+      <c r="G35" s="35" t="s">
         <v>327</v>
       </c>
-      <c r="H35" s="50">
+      <c r="H35">
         <v>5</v>
       </c>
-      <c r="I35" s="50">
+      <c r="I35">
         <v>3</v>
       </c>
-      <c r="J35" s="50">
+      <c r="J35">
         <v>1</v>
       </c>
     </row>
     <row r="36" spans="7:10" x14ac:dyDescent="0.2">
-      <c r="G36" s="81" t="s">
+      <c r="G36" s="35" t="s">
         <v>328</v>
       </c>
-      <c r="H36" s="50">
+      <c r="H36">
         <v>5</v>
       </c>
-      <c r="I36" s="50">
+      <c r="I36">
         <v>3</v>
       </c>
-      <c r="J36" s="50">
+      <c r="J36">
         <v>1</v>
       </c>
     </row>
     <row r="37" spans="7:10" x14ac:dyDescent="0.2">
-      <c r="G37" s="81" t="s">
+      <c r="G37" s="35" t="s">
         <v>329</v>
       </c>
-      <c r="H37" s="50">
+      <c r="H37">
         <v>5</v>
       </c>
-      <c r="I37" s="50">
+      <c r="I37">
         <v>3</v>
       </c>
-      <c r="J37" s="50">
+      <c r="J37">
         <v>1</v>
       </c>
     </row>
     <row r="39" spans="7:10" x14ac:dyDescent="0.2">
-      <c r="G39" s="81"/>
-      <c r="H39" s="50"/>
-      <c r="I39" s="50"/>
-      <c r="J39" s="50"/>
+      <c r="G39" s="35"/>
     </row>
   </sheetData>
   <phoneticPr fontId="21" type="noConversion"/>
   <conditionalFormatting sqref="B3:C3">
-    <cfRule type="beginsWith" dxfId="40" priority="73" operator="beginsWith" text="rule">
+    <cfRule type="beginsWith" dxfId="22" priority="73" operator="beginsWith" text="rule">
       <formula>LEFT(B3,LEN("rule"))="rule"</formula>
     </cfRule>
   </conditionalFormatting>
   <conditionalFormatting sqref="B4:C4">
-    <cfRule type="containsBlanks" dxfId="39" priority="71">
+    <cfRule type="containsBlanks" dxfId="21" priority="71">
       <formula>LEN(TRIM(B4))=0</formula>
     </cfRule>
   </conditionalFormatting>
   <conditionalFormatting sqref="B5:C5">
-    <cfRule type="containsErrors" dxfId="38" priority="70">
+    <cfRule type="containsErrors" dxfId="20" priority="70">
       <formula>ISERROR(B5)</formula>
     </cfRule>
   </conditionalFormatting>
   <conditionalFormatting sqref="B6:C6">
-    <cfRule type="containsText" dxfId="37" priority="69" operator="containsText" text="rule">
+    <cfRule type="containsText" dxfId="19" priority="69" operator="containsText" text="rule">
       <formula>NOT(ISERROR(SEARCH("rule",B6)))</formula>
     </cfRule>
   </conditionalFormatting>
   <conditionalFormatting sqref="B8:C8">
-    <cfRule type="endsWith" dxfId="36" priority="67" operator="endsWith" text="rule">
+    <cfRule type="endsWith" dxfId="18" priority="67" operator="endsWith" text="rule">
       <formula>RIGHT(B8,LEN("rule"))="rule"</formula>
     </cfRule>
   </conditionalFormatting>
   <conditionalFormatting sqref="B9:C9">
-    <cfRule type="notContainsBlanks" dxfId="35" priority="66">
+    <cfRule type="notContainsBlanks" dxfId="17" priority="66">
       <formula>LEN(TRIM(B9))&gt;0</formula>
     </cfRule>
   </conditionalFormatting>
   <conditionalFormatting sqref="B10:C10">
-    <cfRule type="notContainsErrors" dxfId="34" priority="65">
+    <cfRule type="notContainsErrors" dxfId="16" priority="65">
       <formula>NOT(ISERROR(B10))</formula>
     </cfRule>
   </conditionalFormatting>
   <conditionalFormatting sqref="B11:C11">
-    <cfRule type="notContainsText" dxfId="33" priority="64" operator="notContains" text="rule">
+    <cfRule type="notContainsText" dxfId="15" priority="64" operator="notContains" text="rule">
       <formula>ISERROR(SEARCH("rule",B11))</formula>
     </cfRule>
   </conditionalFormatting>
   <conditionalFormatting sqref="B12:C12">
-    <cfRule type="timePeriod" dxfId="32" priority="63" timePeriod="today">
+    <cfRule type="timePeriod" dxfId="14" priority="63" timePeriod="today">
       <formula>FLOOR(B12,1)=TODAY()</formula>
     </cfRule>
   </conditionalFormatting>
   <conditionalFormatting sqref="B15">
-    <cfRule type="expression" dxfId="31" priority="58">
+    <cfRule type="expression" dxfId="13" priority="58">
       <formula>ODD(B15)</formula>
     </cfRule>
   </conditionalFormatting>
   <conditionalFormatting sqref="B17:C17">
-    <cfRule type="cellIs" dxfId="30" priority="56" operator="notEqual">
+    <cfRule type="cellIs" dxfId="12" priority="56" operator="notEqual">
       <formula>2</formula>
     </cfRule>
   </conditionalFormatting>
   <conditionalFormatting sqref="B26:B27">
-    <cfRule type="cellIs" dxfId="29" priority="46" operator="equal">
+    <cfRule type="cellIs" dxfId="11" priority="46" operator="equal">
       <formula>2</formula>
     </cfRule>
   </conditionalFormatting>
   <conditionalFormatting sqref="B16:C16">
-    <cfRule type="cellIs" dxfId="28" priority="45" operator="equal">
+    <cfRule type="cellIs" dxfId="10" priority="45" operator="equal">
       <formula>2</formula>
     </cfRule>
   </conditionalFormatting>
@@ -1011,10 +995,10 @@
     </cfRule>
   </conditionalFormatting>
   <conditionalFormatting sqref="B7:D7">
-    <cfRule type="duplicateValues" dxfId="27" priority="82"/>
+    <cfRule type="duplicateValues" dxfId="9" priority="82"/>
   </conditionalFormatting>
   <conditionalFormatting sqref="B14:D14">
-    <cfRule type="uniqueValues" dxfId="26" priority="96"/>
+    <cfRule type="uniqueValues" dxfId="8" priority="96"/>
   </conditionalFormatting>
   <conditionalFormatting sqref="B24:C24">
     <cfRule type="dataBar" priority="100">
@@ -1031,10 +1015,10 @@
     </cfRule>
   </conditionalFormatting>
   <conditionalFormatting sqref="B2:C2">
-    <cfRule type="aboveAverage" dxfId="25" priority="114"/>
+    <cfRule type="aboveAverage" dxfId="7" priority="114"/>
   </conditionalFormatting>
   <conditionalFormatting sqref="B13:C13">
-    <cfRule type="top10" dxfId="24" priority="115" rank="1"/>
+    <cfRule type="top10" dxfId="6" priority="115" rank="1"/>
   </conditionalFormatting>
   <conditionalFormatting sqref="H21:K21">
     <cfRule type="iconSet" priority="18">
@@ -1131,33 +1115,33 @@
     </cfRule>
   </conditionalFormatting>
   <conditionalFormatting sqref="B18:C18">
-    <cfRule type="cellIs" dxfId="23" priority="6" operator="greaterThan">
+    <cfRule type="cellIs" dxfId="5" priority="6" operator="greaterThan">
       <formula>2</formula>
     </cfRule>
   </conditionalFormatting>
   <conditionalFormatting sqref="B19:C19">
-    <cfRule type="cellIs" dxfId="22" priority="5" operator="greaterThanOrEqual">
+    <cfRule type="cellIs" dxfId="4" priority="5" operator="greaterThanOrEqual">
       <formula>2</formula>
     </cfRule>
   </conditionalFormatting>
   <conditionalFormatting sqref="B20:C20">
-    <cfRule type="cellIs" dxfId="21" priority="4" operator="lessThan">
+    <cfRule type="cellIs" dxfId="3" priority="4" operator="lessThan">
       <formula>2</formula>
     </cfRule>
   </conditionalFormatting>
   <conditionalFormatting sqref="B21:C21">
-    <cfRule type="cellIs" dxfId="20" priority="3" operator="lessThanOrEqual">
+    <cfRule type="cellIs" dxfId="2" priority="3" operator="lessThanOrEqual">
       <formula>2</formula>
     </cfRule>
   </conditionalFormatting>
   <conditionalFormatting sqref="B22:C22">
-    <cfRule type="cellIs" dxfId="19" priority="2" operator="between">
+    <cfRule type="cellIs" dxfId="1" priority="2" operator="between">
       <formula>2</formula>
       <formula>4</formula>
     </cfRule>
   </conditionalFormatting>
   <conditionalFormatting sqref="B23:C23">
-    <cfRule type="cellIs" dxfId="18" priority="1" operator="notBetween">
+    <cfRule type="cellIs" dxfId="0" priority="1" operator="notBetween">
       <formula>2</formula>
       <formula>4</formula>
     </cfRule>

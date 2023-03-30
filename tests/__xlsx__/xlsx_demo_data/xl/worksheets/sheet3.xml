@@ -19,14 +19,14 @@
       <c r="C1" t="s">
         <v>355</v>
       </c>
-      <c r="D1" s="131" t="s">
+      <c r="D1" s="109" t="s">
         <v>358</v>
       </c>
-      <c r="E1" s="131"/>
+      <c r="E1" s="109"/>
       <c r="F1" t="s">
         <v>359</v>
       </c>
-      <c r="H1" s="42" t="s">
+      <c r="H1" s="35" t="s">
         <v>397</v>
       </c>
     </row>
@@ -35,18 +35,18 @@
         <f>SUM(A1)</f>
         <v>0</v>
       </c>
-      <c r="D2" s="131"/>
-      <c r="E2" s="131"/>
+      <c r="D2" s="109"/>
+      <c r="E2" s="109"/>
       <c r="H2" t="str">
         <f>[1]Feuil1!$A$1</f>
         <v>referenced string</v>
       </c>
     </row>
     <row r="3" spans="1:8" x14ac:dyDescent="0.2">
-      <c r="D3" s="104" t="s">
+      <c r="D3" s="86" t="s">
         <v>357</v>
       </c>
-      <c r="F3" s="104" t="s">
+      <c r="F3" s="86" t="s">
         <v>396</v>
       </c>
     </row>
