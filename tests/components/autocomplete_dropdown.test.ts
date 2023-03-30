@@ -33,6 +33,35 @@ async function typeInComposer(text: string, fromScratch: boolean = true) {
   return composerEl;
 }
 
+beforeEach(() => {
+  clearFunctions();
+  functionRegistry.add("IF", {
+    description: "do if",
+    args: [],
+    compute: () => 1,
+    returns: ["ANY"],
+  });
+  functionRegistry.add("SUM", {
+    description: "do sum",
+    args: [],
+    compute: () => 1,
+    returns: ["ANY"],
+  });
+  functionRegistry.add("SZZ", {
+    description: "do something",
+    args: [],
+    compute: () => 1,
+    returns: ["ANY"],
+  });
+  functionRegistry.add("HIDDEN", {
+    description: "do something",
+    args: [],
+    compute: () => 1,
+    returns: ["ANY"],
+    hidden: true,
+  });
+});
+
 describe("Functions autocomplete", () => {
   beforeEach(async () => {
     ({ model, fixture, parent } = await mountComposerWrapper());
@@ -40,32 +69,6 @@ describe("Functions autocomplete", () => {
     parent.startComposition();
     await nextTick();
     composerEl = fixture.querySelector("div.o-composer")!;
-    clearFunctions();
-    functionRegistry.add("IF", {
-      description: "do if",
-      args: [],
-      compute: () => 1,
-      returns: ["ANY"],
-    });
-    functionRegistry.add("SUM", {
-      description: "do sum",
-      args: [],
-      compute: () => 1,
-      returns: ["ANY"],
-    });
-    functionRegistry.add("SZZ", {
-      description: "do something",
-      args: [],
-      compute: () => 1,
-      returns: ["ANY"],
-    });
-    functionRegistry.add("HIDDEN", {
-      description: "do something",
-      args: [],
-      compute: () => 1,
-      returns: ["ANY"],
-      hidden: true,
-    });
   });
 
   afterAll(() => {
@@ -267,38 +270,12 @@ describe("Functions autocomplete", () => {
 });
 
 describe("Autocomplete parenthesis", () => {
-  beforeAll(() => {
-    clearFunctions();
-    functionRegistry.add("IF", {
-      description: "do if",
-      args: [],
-      compute: () => 1,
-      returns: ["ANY"],
-    });
-    functionRegistry.add("SUM", {
-      description: "do sum",
-      args: [],
-      compute: () => 1,
-      returns: ["ANY"],
-    });
-    functionRegistry.add("SZZ", {
-      description: "do something",
-      args: [],
-      compute: () => 1,
-      returns: ["ANY"],
-    });
-  });
-
   beforeEach(async () => {
     ({ model, fixture, parent } = await mountComposerWrapper());
     // start composition
     parent.startComposition();
     await nextTick();
     composerEl = fixture.querySelector("div.o-composer")!;
-  });
-
-  afterAll(() => {
-    restoreDefaultFunctions();
   });
 
   test("=sum(1,2 + enter adds closing parenthesis", async () => {
@@ -387,6 +364,3 @@ describe("composer Assistant", () => {
     expect(assistantEL.style.transform).toBe("translate(0, -100%)");
   });
 });
-
-describe("autocomplete parameters", () => {});
-describe("custom autocomplete", () => {});
