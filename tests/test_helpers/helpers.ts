@@ -154,6 +154,7 @@ export async function mountComponent<Props extends { [key: string]: any }>(
   env: SpreadsheetChildEnv;
 }> {
   const model = optionalArgs.model || optionalArgs?.env?.model || new Model();
+  model.drawGrid = () => {};
   const env = makeTestEnv({ ...optionalArgs.env, model: model });
   const props = optionalArgs.props || ({} as Props);
   const app = new App(component, { props, env, test: true });
