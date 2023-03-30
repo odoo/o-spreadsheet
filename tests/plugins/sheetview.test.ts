@@ -262,9 +262,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("can horizontal scroll on sheet smaller than viewport", () => {
-    model = new Model({
-      sheets: [{ rowNumber: 2 }],
-    });
+    model = new Model({ sheets: [{ rowNumber: 2 }] });
     setViewportOffset(model, DEFAULT_CELL_WIDTH * 2, 0);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 0,
@@ -380,9 +378,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("can vertical scroll on sheet smaller than viewport", () => {
-    model = new Model({
-      sheets: [{ colNumber: 2 }],
-    });
+    model = new Model({ sheets: [{ colNumber: 2 }] });
     setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 2);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 2,
@@ -1046,20 +1042,8 @@ describe("multi sheet with different sizes", () => {
   beforeEach(async () => {
     model = new Model({
       sheets: [
-        {
-          name: "small",
-          id: "small",
-          colNumber: 2,
-          rowNumber: 2,
-          cells: {},
-        },
-        {
-          name: "big",
-          id: "big",
-          colNumber: 5,
-          rowNumber: 5,
-          cells: {},
-        },
+        { name: "small", id: "small", colNumber: 2, rowNumber: 2 },
+        { name: "big", id: "big", colNumber: 5, rowNumber: 5 },
       ],
     });
   });

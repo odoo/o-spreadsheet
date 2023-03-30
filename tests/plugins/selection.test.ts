@@ -35,28 +35,12 @@ let model: Model;
 const hiddenContent = { content: "hidden content to be skipped" };
 describe("simple selection", () => {
   test("if A1 is in a merge, it is initially properly selected", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          merges: ["A1:B3"],
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B3"] }] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 1, bottom: 2 });
   });
 
   test("Adding a cell of a merge in the selection adds the whole merge", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          merges: ["A2:B3"],
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A2:B3"] }] });
 
     expect(model.getters.getSelectedZones()).toEqual([{ left: 0, top: 0, right: 0, bottom: 0 }]);
     addCellToSelection(model, "A2");
@@ -67,15 +51,7 @@ describe("simple selection", () => {
   });
 
   test("can select selection with shift-arrow", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          merges: ["B1:C2"],
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B1:C2"] }] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
     resizeAnchorZone(model, "right");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
@@ -91,14 +67,7 @@ describe("simple selection", () => {
   });
 
   test("cannot expand select selection with shift-arrow if it is out of bound", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     selectCell(model, "A2");
     resizeAnchorZone(model, "up");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 1 });
@@ -114,30 +83,14 @@ describe("simple selection", () => {
   });
 
   test("can expand selection with mouse", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          merges: ["B1:C2"],
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B1:C2"] }] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
     setAnchorCorner(model, "B1");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
   });
 
   test("move selection in and out of a merge (in opposite direction)", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          merges: ["C1:D2"],
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["C1:D2"] }] });
     selectCell(model, "B1");
 
     // move to the right, inside the merge
@@ -153,14 +106,7 @@ describe("simple selection", () => {
   });
 
   test("select a cell outside the sheet", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 3,
-          rowNumber: 3,
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
     selectCell(model, "D4");
     const A1Zone = toZone("A1");
     expect(model.getters.getSelection()).toEqual({
@@ -173,15 +119,7 @@ describe("simple selection", () => {
     expect(getActivePosition(model)).toBe("A1");
   });
   test("update selection in some different directions", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          merges: ["B2:C3"],
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B2:C3"] }] });
     // move sell to B4
     selectCell(model, "B4");
     expect(getSelectionAnchorCellXc(model)).toBe("B4");
@@ -198,13 +136,7 @@ describe("simple selection", () => {
 
   test("expand selection when encountering a merge", () => {
     const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          merges: ["B2:B3", "C2:D2"],
-        },
-      ],
+      sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B2:B3", "C2:D2"] }],
     });
     // move sell to B4
     selectCell(model, "B3");
@@ -217,13 +149,7 @@ describe("simple selection", () => {
 
   test("expand selection when starting from a merge", () => {
     const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          merges: ["B2:B3", "E2:G2"],
-        },
-      ],
+      sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B2:B3", "E2:G2"] }],
     });
     selectCell(model, "B2");
     resizeAnchorZone(model, "down");
@@ -261,11 +187,7 @@ describe("simple selection", () => {
   test("extend and reduce selection through hidden columns", () => {
     const model = new Model({
       sheets: [
-        {
-          colNumber: 5,
-          rowNumber: 1,
-          cols: { 2: { isHidden: true }, 3: { isHidden: true } },
-        },
+        { colNumber: 5, rowNumber: 1, cols: { 2: { isHidden: true }, 3: { isHidden: true } } },
       ],
     });
     selectCell(model, "B1");
@@ -278,11 +200,7 @@ describe("simple selection", () => {
   test("extend and reduce selection through hidden rows", () => {
     const model = new Model({
       sheets: [
-        {
-          colNumber: 1,
-          rowNumber: 5,
-          rows: { 2: { isHidden: true }, 3: { isHidden: true } },
-        },
+        { colNumber: 1, rowNumber: 5, rows: { 2: { isHidden: true }, 3: { isHidden: true } } },
       ],
     });
     selectCell(model, "A5");
@@ -293,14 +211,7 @@ describe("simple selection", () => {
   });
 
   test("can select a whole column", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     selectColumn(model, 4, "overrideSelection");
 
     expect(getSelectionAnchorCellXc(model)).toBe("E1");
@@ -309,15 +220,7 @@ describe("simple selection", () => {
   });
 
   test("can select a whole column with a merged cell", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          merges: ["A1:B1"],
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B1"] }] });
     selectColumn(model, 0, "overrideSelection");
 
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
@@ -325,9 +228,7 @@ describe("simple selection", () => {
   });
 
   test("selection is clipped to sheet size", () => {
-    const model = new Model({
-      sheets: [{ colNumber: 3, rowNumber: 3 }],
-    });
+    const model = new Model({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
     setSelection(model, ["A1:Z20"]);
     const zone = toZone("A1:C3");
     expect(model.getters.getSelection()).toEqual({
@@ -337,14 +238,7 @@ describe("simple selection", () => {
   });
 
   test("can select a whole row", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
 
     selectRow(model, 4, "overrideSelection");
     expect(getSelectionAnchorCellXc(model)).toBe("A5");
@@ -353,15 +247,7 @@ describe("simple selection", () => {
   });
 
   test("can select a whole row with a merged cell", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          merges: ["A1:A2"],
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:A2"] }] });
 
     selectRow(model, 0, "overrideSelection");
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
@@ -369,14 +255,7 @@ describe("simple selection", () => {
   });
 
   test("cannot select out of bound row", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     expect(selectRow(model, -1, "overrideSelection")).toBeCancelledBecause(
       CommandResult.SelectionOutOfBound
     );
@@ -386,14 +265,7 @@ describe("simple selection", () => {
   });
 
   test("cannot select out of bound column", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     expect(selectColumn(model, -1, "overrideSelection")).toBeCancelledBecause(
       CommandResult.SelectionOutOfBound
     );
@@ -403,14 +275,7 @@ describe("simple selection", () => {
   });
 
   test("can select the whole sheet", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     selectAll(model);
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
 
@@ -418,15 +283,7 @@ describe("simple selection", () => {
   });
 
   test("invalid selection is updated after undo", () => {
-    const model = new Model({
-      sheets: [
-        {
-          id: "42",
-          colNumber: 3,
-          rowNumber: 3,
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ id: "42", colNumber: 3, rowNumber: 3 }] });
     addColumns(model, "after", "A", 1);
     selectCell(model, "D1");
     undo(model);
@@ -435,15 +292,7 @@ describe("simple selection", () => {
   });
 
   test("invalid selection is updated after redo", () => {
-    const model = new Model({
-      sheets: [
-        {
-          id: "42",
-          colNumber: 3,
-          rowNumber: 3,
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ id: "42", colNumber: 3, rowNumber: 3 }] });
     deleteColumns(model, ["A"]);
     undo(model);
     selectCell(model, "C1");
@@ -477,14 +326,7 @@ describe("simple selection", () => {
 
 describe("multiple selections", () => {
   test("can select a new range", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     selectCell(model, "C3");
     let selection = model.getters.getSelection();
     expect(selection.zones.length).toBe(1);
@@ -563,9 +405,7 @@ describe("multiple sheets", () => {
   test("Activating an unvisited sheet selects its first visible cell", () => {
     const model = new Model({
       sheets: [
-        {
-          sheetId: "Sheet1",
-        },
+        { sheetId: "Sheet1" },
         {
           sheetId: "Sheet2",
           colNumber: 5,
@@ -584,14 +424,7 @@ describe("multiple sheets", () => {
 
 describe("Alter selection starting from hidden cells", () => {
   test("Cannot change selection if the current one is completely hidden", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 5,
-          rowNumber: 2,
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
     selectCell(model, "C1");
     hideColumns(model, ["C"]);
     hideRows(model, [0]);
@@ -603,14 +436,7 @@ describe("Alter selection starting from hidden cells", () => {
   });
 
   test("Cannot move position vertically from hidden column", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 5,
-          rowNumber: 2,
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
     selectCell(model, "C1");
     hideColumns(model, ["C"]);
     const move1 = moveAnchorCell(model, "down");
@@ -909,11 +735,7 @@ describe("Alter Selection with content in selection", () => {
         {
           colNumber: 9,
           rowNumber: 9,
-          cells: {
-            C3: { content: "1" },
-            C4: { content: "2" },
-            D3: { content: "3" },
-          },
+          cells: { C3: { content: "1" }, C4: { content: "2" }, D3: { content: "3" } },
         },
       ],
     });
@@ -962,14 +784,7 @@ describe("Alter Selection with content in selection", () => {
 
 describe("move elements(s)", () => {
   const model = new Model({
-    sheets: [
-      {
-        id: "1",
-        colNumber: 10,
-        rowNumber: 10,
-        merges: ["C3:D4", "G7:H8"],
-      },
-    ],
+    sheets: [{ id: "1", colNumber: 10, rowNumber: 10, merges: ["C3:D4", "G7:H8"] }],
   });
   test("can't move columns whose merges overflow from the selection", () => {
     const result = moveColumns(model, "F", ["B", "C"]);

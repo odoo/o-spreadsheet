@@ -250,18 +250,8 @@ describe("sheets", () => {
   test("evaluating multiple sheets", () => {
     const model = new Model({
       sheets: [
-        {
-          name: "ABC",
-          colNumber: 10,
-          rowNumber: 10,
-          cells: { B1: { content: "=DEF!B2" } },
-        },
-        {
-          name: "DEF",
-          colNumber: 10,
-          rowNumber: 10,
-          cells: { B2: { content: "3" } },
-        },
+        { name: "ABC", colNumber: 10, rowNumber: 10, cells: { B1: { content: "=DEF!B2" } } },
+        { name: "DEF", colNumber: 10, rowNumber: 10, cells: { B2: { content: "3" } } },
       ],
     });
 
@@ -272,20 +262,12 @@ describe("sheets", () => {
   test("evaluating multiple sheets, 2", () => {
     const model = new Model({
       sheets: [
-        {
-          name: "ABC",
-          colNumber: 10,
-          rowNumber: 10,
-          cells: { B1: { content: "=DEF!B2" } },
-        },
+        { name: "ABC", colNumber: 10, rowNumber: 10, cells: { B1: { content: "=DEF!B2" } } },
         {
           name: "DEF",
           colNumber: 10,
           rowNumber: 10,
-          cells: {
-            B2: { content: "=A4" },
-            A4: { content: "3" },
-          },
+          cells: { B2: { content: "=A4" }, A4: { content: "3" } },
         },
       ],
     });
@@ -299,21 +281,12 @@ describe("sheets", () => {
   test("evaluating multiple sheets, 3 (with range)", () => {
     const model = new Model({
       sheets: [
-        {
-          name: "ABC",
-          colNumber: 10,
-          rowNumber: 10,
-          cells: { B1: { content: "=DEF!B2" } },
-        },
+        { name: "ABC", colNumber: 10, rowNumber: 10, cells: { B1: { content: "=DEF!B2" } } },
         {
           name: "DEF",
           colNumber: 10,
           rowNumber: 10,
-          cells: {
-            B2: { content: "=SUM(A1:A5)" },
-            A1: { content: "2" },
-            A4: { content: "3" },
-          },
+          cells: { B2: { content: "=SUM(A1:A5)" }, A1: { content: "2" }, A4: { content: "3" } },
         },
       ],
     });
@@ -339,10 +312,7 @@ describe("sheets", () => {
           name: "DEF",
           colNumber: 10,
           rowNumber: 10,
-          cells: {
-            B2: { content: "=ABC!B1" },
-            C5: { content: "=ABC!C4 + 1" },
-          },
+          cells: { B2: { content: "=ABC!B1" }, C5: { content: "=ABC!C4 + 1" } },
         },
       ],
     });
@@ -360,19 +330,14 @@ describe("sheets", () => {
           id: "smallId",
           colNumber: 2,
           rowNumber: 2,
-          cells: {
-            A2: { content: "=big!A2" },
-          },
+          cells: { A2: { content: "=big!A2" } },
         },
         {
           name: "big",
           id: "bigId",
           colNumber: 5,
           rowNumber: 5,
-          cells: {
-            A1: { content: "23" },
-            A2: { content: "=A1" },
-          },
+          cells: { A1: { content: "23" }, A2: { content: "=A1" } },
         },
       ],
     });
@@ -712,15 +677,7 @@ describe("sheets", () => {
 
   test("Cells are correctly duplicated", () => {
     const model = new Model({
-      sheets: [
-        {
-          colNumber: 5,
-          rowNumber: 5,
-          cells: {
-            A1: { content: "42" },
-          },
-        },
-      ],
+      sheets: [{ colNumber: 5, rowNumber: 5, cells: { A1: { content: "42" } } }],
     });
     const sheet = model.getters.getActiveSheetId();
     model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: model.uuidGenerator.uuidv4() });
@@ -766,15 +723,7 @@ describe("sheets", () => {
   });
 
   test("Merges are correctly duplicated", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 5,
-          rowNumber: 5,
-          merges: ["A1:A2"],
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5, merges: ["A1:A2"] }] });
     const sheet = model.getters.getActiveSheetId();
     model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: model.uuidGenerator.uuidv4() });
     expect(model.getters.getSheetIds()).toHaveLength(2);
@@ -891,26 +840,13 @@ describe("sheets", () => {
   });
 
   test("Cannot remove more columns/rows than there are inside the sheet", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 1,
-          rowNumber: 3,
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] });
     expect(deleteRows(model, [1, 2, 3, 4])).toBeCancelledBecause(CommandResult.NotEnoughElements);
   });
 
   test("Cannot have all rows/columns hidden at once", () => {
     const model = new Model({
-      sheets: [
-        {
-          colNumber: 1,
-          rowNumber: 4,
-          rows: { 2: { isHidden: true } },
-        },
-      ],
+      sheets: [{ colNumber: 1, rowNumber: 4, rows: { 2: { isHidden: true } } }],
     });
     expect(hideRows(model, [0, 1, 3])).toBeCancelledBecause(CommandResult.TooManyHiddenElements);
   });

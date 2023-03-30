@@ -40,12 +40,8 @@ describe("Migrations", () => {
         {
           colNumber: 2,
           rowNumber: 2,
-          cols: {
-            0: { size: 42 },
-          },
-          rows: {
-            0: { size: 12 },
-          },
+          cols: { 0: { size: 42 } },
+          rows: { 0: { size: 12 } },
           cells: { A1: { content: "=a1" } },
           name: "My sheet",
           conditionalFormats: [],
@@ -91,12 +87,8 @@ describe("Migrations", () => {
         {
           colNumber: 2,
           rowNumber: 2,
-          cols: {
-            0: { size: 42 },
-          },
-          rows: {
-            0: { size: 12 },
-          },
+          cols: { 0: { size: 42 } },
+          rows: { 0: { size: 12 } },
           cells: { A1: { content: "=a1" } },
           name: "My sheet",
           conditionalFormats: [],
@@ -220,14 +212,7 @@ describe("Migrations", () => {
         { name: "My sheet" },
         {
           name: `sheetName${char}`,
-          cells: {
-            A1: {
-              formula: {
-                text: "=|0|",
-                dependencies: [`sheetName${char}!A2`],
-              },
-            },
-          },
+          cells: { A1: { formula: { text: "=|0|", dependencies: [`sheetName${char}!A2`] } } },
           figures: [
             {
               id: "1",
@@ -347,12 +332,7 @@ describe("Migrations", () => {
         {
           cells: {
             A1: { content: "1" },
-            A2: {
-              formula: {
-                text: "=|0|+|1|",
-                dependencies: ["A1", "A3"],
-              },
-            },
+            A2: { formula: { text: "=|0|+|1|", dependencies: ["A1", "A3"] } },
           },
         },
       ],
@@ -371,10 +351,7 @@ describe("Migrations", () => {
           id: "1",
           colNumber: 10,
           rowNumber: 10,
-          cells: {
-            A1: { content: "1000", format: "#,##0" },
-            A2: { content: "1000" },
-          },
+          cells: { A1: { content: "1000", format: "#,##0" }, A2: { content: "1000" } },
         },
         {
           id: "2",
@@ -403,16 +380,7 @@ describe("Import", () => {
   test("Import sheet with rows/cols size defined.", () => {
     const model = new Model({
       sheets: [
-        {
-          colNumber: 2,
-          rowNumber: 2,
-          cols: {
-            0: { size: 42 },
-          },
-          rows: {
-            1: { size: 13 },
-          },
-        },
+        { colNumber: 2, rowNumber: 2, cols: { 0: { size: 42 } }, rows: { 1: { size: 13 } } },
       ],
     });
     const sheet = model.getters.getActiveSheetId();
@@ -425,15 +393,8 @@ describe("Import", () => {
   test("Import 2 sheets with merges", () => {
     const model = new Model({
       sheets: [
-        {
-          colNumber: 2,
-          rowNumber: 2,
-          merges: ["A2:B2"],
-        },
-        {
-          colNumber: 2,
-          rowNumber: 2,
-        },
+        { colNumber: 2, rowNumber: 2, merges: ["A2:B2"] },
+        { colNumber: 2, rowNumber: 2 },
       ],
     });
     const sheet1 = model.getters.getSheetIds()[0];
@@ -447,17 +408,8 @@ describe("Import", () => {
 
   test("can import cell without content", () => {
     const model = new Model({
-      sheets: [
-        {
-          id: "1",
-          cells: {
-            A1: { format: 1 },
-          },
-        },
-      ],
-      formats: {
-        1: "0.00%",
-      },
+      sheets: [{ id: "1", cells: { A1: { format: 1 } } }],
+      formats: { 1: "0.00%" },
     });
     expect(getCell(model, "A1")?.content).toBe("");
     expect(getCell(model, "A1")?.format).toBe("0.00%");
@@ -466,28 +418,14 @@ describe("Import", () => {
 
 describe("Export", () => {
   test("Can export col size", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     resizeColumns(model, ["B"], 150);
     const exp = model.exportData();
     expect(exp.sheets![0].cols![1].size).toBe(150);
   });
 
   test("Can export row size", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     resizeRows(model, [1], 150);
     const exp = model.exportData();
     expect(exp.sheets![0].rows![1].size).toBe(150);
@@ -495,13 +433,7 @@ describe("Export", () => {
 
   test("Can export merges", () => {
     const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          merges: ["A1:A2", "B1:C1", "D1:E2"],
-        },
-      ],
+      sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:A2", "B1:C1", "D1:E2"] }],
     });
     const exp = model.exportData();
     expect(exp.sheets![0].merges).toHaveLength(3);
@@ -509,18 +441,8 @@ describe("Export", () => {
 
   test("Can export format", () => {
     const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          cells: {
-            A1: { content: "145", format: 1 },
-          },
-        },
-      ],
-      formats: {
-        1: "0.00%",
-      },
+      sheets: [{ colNumber: 10, rowNumber: 10, cells: { A1: { content: "145", format: 1 } } }],
+      formats: { 1: "0.00%" },
     });
     const exp = model.exportData();
     expect(exp.sheets![0].cells!.A1!.format).toBe(1);
@@ -553,13 +475,7 @@ describe("Export", () => {
                 dataSets: ["B1:B4", "C1:C4"],
               },
             },
-            {
-              id: "id2",
-              x: 100,
-              y: 100,
-              width: 100,
-              height: 100,
-            },
+            { id: "id2", x: 100, y: 100, width: 100, height: 100 },
           ],
         },
       ],

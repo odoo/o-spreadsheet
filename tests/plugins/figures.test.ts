@@ -323,16 +323,8 @@ describe("figure plugin", () => {
   test("change sheet deselect figure", () => {
     const model = new Model({
       sheets: [
-        {
-          id: "1",
-          colNumber: 2,
-          rowNumber: 2,
-        },
-        {
-          id: "2",
-          colNumber: 2,
-          rowNumber: 2,
-        },
+        { id: "1", colNumber: 2, rowNumber: 2 },
+        { id: "2", colNumber: 2, rowNumber: 2 },
       ],
     });
     model.dispatch("CREATE_FIGURE", {

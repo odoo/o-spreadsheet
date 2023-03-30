@@ -415,9 +415,7 @@ describe("core", () => {
   });
 
   test("xc is expanded to overlapping merges", () => {
-    const model = new Model({
-      sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2"] }],
-    });
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2"] }] });
     expect(
       model.getters.zoneToXC(
         model.getters.getActiveSheetId(),
@@ -439,9 +437,7 @@ describe("core", () => {
   });
 
   test("merge is considered as one single cell", () => {
-    const model = new Model({
-      sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2"] }],
-    });
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2"] }] });
     expect(
       model.getters.zoneToXC(
         model.getters.getActiveSheetId(),
@@ -710,10 +706,7 @@ describe("history", () => {
             },
           },
         ],
-        formats: {
-          "1": "#,##0",
-          "2": "mm/dd/yyyy",
-        },
+        formats: { "1": "#,##0", "2": "mm/dd/yyyy" },
       });
       activateSheet(model, sheet2Id); // evaluate Sheet2
       expect(getRangeFormattedValues(model, "A1:A3", sheet1Id)).toEqual(["1,000", "", "2,000"]);

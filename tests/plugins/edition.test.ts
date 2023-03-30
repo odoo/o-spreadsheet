@@ -46,16 +46,8 @@ describe("edition", () => {
 
   test("deleting a cell with style does not remove it", () => {
     const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          cells: { A2: { style: 1, content: "a2" } },
-        },
-      ],
-      styles: {
-        1: { fillColor: "red" },
-      },
+      sheets: [{ colNumber: 10, rowNumber: 10, cells: { A2: { style: 1, content: "a2" } } }],
+      styles: { 1: { fillColor: "red" } },
     });
 
     // removing
@@ -621,13 +613,7 @@ describe("edition", () => {
 
   test("default active cell content when model is started", () => {
     const model = new Model({
-      sheets: [
-        {
-          colNumber: 2,
-          rowNumber: 2,
-          cells: { A1: { content: "Hello" } },
-        },
-      ],
+      sheets: [{ colNumber: 2, rowNumber: 2, cells: { A1: { content: "Hello" } } }],
     });
     expect(model.getters.getCurrentContent()).toBe("Hello");
   });
@@ -643,13 +629,7 @@ describe("edition", () => {
 
   test("content is updated if cell content is updated", () => {
     const model = new Model({
-      sheets: [
-        {
-          colNumber: 2,
-          rowNumber: 2,
-          cells: { B1: { content: "Hello" } },
-        },
-      ],
+      sheets: [{ colNumber: 2, rowNumber: 2, cells: { B1: { content: "Hello" } } }],
     });
     selectCell(model, "B1");
     expect(model.getters.getCurrentContent()).toBe("Hello");

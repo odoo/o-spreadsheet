@@ -525,14 +525,7 @@ describe("Autofill", () => {
   });
 
   test("autofill with merge greater than the grid size", () => {
-    model = new Model({
-      sheets: [
-        {
-          colNumber: 1,
-          rowNumber: 5,
-        },
-      ],
-    });
+    model = new Model({ sheets: [{ colNumber: 1, rowNumber: 5 }] });
     merge(model, "A1:A2");
     autofill("A1:A2", "A5");
     expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["A1", "A2", "A3", "A4"]));
