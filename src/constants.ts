@@ -148,7 +148,7 @@ export const DEFAULT_BORDER_DESC: BorderDescr = ["thin", "#000"];
 export const DEFAULT_FILTER_BORDER_DESC: BorderDescr = ["thin", FILTERS_COLOR];
 
 // DateTimeRegex
-export const DATETIME_FORMAT = /[ymd:]/;
+export const DATETIME_FORMAT = /[ymdhs:]/;
 
 // Ranges
 export const INCORRECT_RANGE_STRING = CellErrorType.InvalidReference;
