@@ -1,5 +1,12 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { positionToZone, toCartesian, toZone, zoneToXc } from "../../src/helpers";
+import {
+  numberToLetters,
+  positionToZone,
+  toCartesian,
+  toXC,
+  toZone,
+  zoneToXc,
+} from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import { SelectionDirection } from "../../src/types/selection";
@@ -290,6 +297,58 @@ describe("simple selection", () => {
     expect(model.getters.getSelectedZone()).toEqual(toZone("A2:A5"));
     resizeAnchorZone(model, "down");
     expect(model.getters.getSelectedZone()).toEqual(toZone("A5"));
+  });
+
+  test("move selection left through hidden cols, with scrolling", () => {
+    const model = new Model({ sheets: [{ colNumber: 100, rowNumber: 1 }] });
+    hideColumns(model, ["B"]);
+    selectCell(model, "C1");
+    setViewportOffset(model, DEFAULT_CELL_WIDTH, 0);
+
+    moveAnchorCell(model, "left");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
+    expect(model.getters.getActiveSheetScrollInfo()).toEqual({ scrollX: 0, scrollY: 0 });
+  });
+
+  test("move selection right through hidden cols, with scrolling", () => {
+    const model = new Model({ sheets: [{ colNumber: 100, rowNumber: 1 }] });
+    const visibleCols = model.getters.getSheetViewVisibleCols();
+    const lastVisibleCol = visibleCols[visibleCols.length - 1];
+    hideColumns(model, [numberToLetters(lastVisibleCol + 1), numberToLetters(lastVisibleCol + 2)]);
+    selectCell(model, toXC(lastVisibleCol, 0));
+    moveAnchorCell(model, "right");
+
+    expect(model.getters.getSelectedZone()).toEqual(toZone(toXC(lastVisibleCol + 3, 0)));
+    expect(model.getters.getActiveSheetScrollInfo()).toEqual({
+      scrollX: DEFAULT_CELL_WIDTH * 2,
+      scrollY: 0,
+    });
+  });
+
+  test("move selection up through hidden rows, with scrolling", () => {
+    const model = new Model({ sheets: [{ colNumber: 1, rowNumber: 100 }] });
+    hideRows(model, [1]);
+    selectCell(model, "A3");
+    setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT);
+
+    moveAnchorCell(model, "up");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
+    expect(model.getters.getActiveSheetScrollInfo()).toEqual({ scrollX: 0, scrollY: 0 });
+  });
+
+  test("move selection down through hidden cols, with scrolling", () => {
+    const model = new Model({ sheets: [{ colNumber: 1, rowNumber: 100 }] });
+    const visibleRows = model.getters.getSheetViewVisibleRows();
+    const lastVisibleRow = visibleRows[visibleRows.length - 1];
+    hideRows(model, [lastVisibleRow + 1, lastVisibleRow + 2]);
+    selectCell(model, toXC(0, lastVisibleRow));
+
+    moveAnchorCell(model, "down");
+    expect(model.getters.getSelectedZone()).toEqual(toZone(toXC(0, lastVisibleRow + 3)));
+    expect(model.getters.getActiveSheetScrollInfo()).toEqual({
+      scrollX: 0,
+      scrollY: DEFAULT_CELL_HEIGHT * 2,
+    });
   });
 
   test("can select a whole column", () => {
