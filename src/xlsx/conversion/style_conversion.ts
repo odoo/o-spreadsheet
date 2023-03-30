@@ -1,4 +1,3 @@
-import { formatValue } from "../../helpers";
 import { Border, BorderDescr, Style } from "../../types";
 import {
   XLSXBorder,
@@ -8,7 +7,6 @@ import {
   XLSXFont,
   XLSXHorizontalAlignment,
   XLSXImportData,
-  XLSXNumFormat,
   XLSXVerticalAlignment,
 } from "../../types/xlsx";
 import { arrayToObject } from "../helpers/misc";
@@ -21,8 +19,8 @@ import {
   SUPPORTED_FILL_PATTERNS,
   SUPPORTED_FONTS,
   SUPPORTED_HORIZONTAL_ALIGNMENTS,
-  XLSX_FORMATS_CONVERSION_MAP,
 } from "./conversion_maps";
+import { convertXlsxFormat } from "./format_conversion";
 
 interface StyleStruct {
   fontStyle?: XLSXFont;
@@ -119,54 +117,6 @@ export function convertFormats(
   }
 
   return arrayToObject(formats, 1);
-}
-
-/**
- * Convert excel format to o_spreadsheet format
- *
- * Excel format are defined in openXML §18.8.31
- */
-export function convertXlsxFormat(
-  numFmtId: number,
-  formats: XLSXNumFormat[],
-  warningManager: XLSXImportWarningManager
-): string | undefined {
-  if (numFmtId === 0) {
-    return undefined;
-  }
-  // Format is either defined in the imported data, or the formatId is defined in openXML §18.8.30
-  let format =
-    XLSX_FORMATS_CONVERSION_MAP[numFmtId] || formats.find((f) => f.id === numFmtId)?.format;
-
-  if (format) {
-    try {
-      let convertedFormat = format.replace(/(.*?);.*/, "$1"); // only take first part of multi-part format
-      convertedFormat = convertedFormat.replace(/\[(.*)-[A-Z0-9]{3}\]/g, "[$1]"); // remove currency and locale/date system/number system info (ECMA §18.8.31)
-      convertedFormat = convertedFormat.replace(/\[\$\]/g, ""); // remove empty bocks
-
-      // Quotes in format escape sequences of characters. ATM we only support [$...] blocks to escape characters, and only one of them per format
-      const numberOfQuotes = convertedFormat.match(/"/g)?.length || 0;
-      const numberOfOpenBrackets = convertedFormat.match(/\[/g)?.length || 0;
-      if (numberOfQuotes / 2 + numberOfOpenBrackets > 1) {
-        throw new Error("Multiple escaped blocks in format");
-      }
-      convertedFormat = convertedFormat.replace(/"(.*)"/g, "[$$$1]"); // replace '"..."' by '[$...]'
-
-      convertedFormat = convertedFormat.replace(/_.{1}/g, ""); // _ == ignore with of next char for align purposes. Not supported ATM
-      convertedFormat = convertedFormat.replace(/\*.{1}/g, ""); // * == repeat next character enough to fill the line. Not supported ATM
-
-      convertedFormat = convertedFormat.replace(/\\ /g, " "); // unescape spaces
-
-      formatValue(0, convertedFormat);
-      return convertedFormat;
-    } catch (e) {}
-  }
-
-  warningManager.generateNotSupportedWarning(
-    WarningTypes.NumFmtIdNotSupported,
-    format || `nmFmtId ${numFmtId}`
-  );
-  return undefined;
 }
 
 // ---------------------------------------------------------------------------

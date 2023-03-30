@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="458" uniqueCount="410">
+<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="457" uniqueCount="409">
   <si>
     <t>CF =42</t>
   </si>
@@ -1209,9 +1209,6 @@
   </si>
   <si>
     <t>#,##0[$ EUR €]</t>
-  </si>
-  <si>
-    <t>d/m/yy</t>
   </si>
   <si>
     <t>not supported: multiple escaped sequences</t>
