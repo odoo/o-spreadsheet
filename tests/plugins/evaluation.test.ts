@@ -1022,11 +1022,7 @@ describe("evaluateCells", () => {
           id: "sheet1",
           colNumber: 4,
           rowNumber: 4,
-          cells: {
-            A1: { content: "old" },
-            A2: { content: "=a1" },
-            A3: { content: "=a2" },
-          },
+          cells: { A1: { content: "old" }, A2: { content: "=a1" }, A3: { content: "=a2" } },
         },
       ],
     });

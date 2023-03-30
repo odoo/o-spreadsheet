@@ -313,11 +313,7 @@ describe("renderer", () => {
                 type: "IconSetRule",
                 upperInflectionPoint: { type: "number", value: "1000", operator: "gt" },
                 lowerInflectionPoint: { type: "number", value: "0", operator: "gt" },
-                icons: {
-                  upper: "arrowGood",
-                  middle: "arrowNeutral",
-                  lower: "arrowBad",
-                },
+                icons: { upper: "arrowGood", middle: "arrowNeutral", lower: "arrowBad" },
               },
             },
           ],
@@ -345,14 +341,7 @@ describe("renderer", () => {
   });
 
   test("fillstyle of cell will be rendered", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 1,
-          rowNumber: 3,
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] });
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: [toZone("A1")],
@@ -401,14 +390,7 @@ describe("renderer", () => {
   });
 
   test("fillstyle of merge will be rendered for all cells in merge", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 1,
-          rowNumber: 3,
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] });
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("SET_FORMATTING", {
       sheetId,
@@ -459,14 +441,7 @@ describe("renderer", () => {
   });
 
   test("fillstyle of cell works with CF", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 1,
-          rowNumber: 3,
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] });
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#DC6CDF" }, "1"),
@@ -500,14 +475,7 @@ describe("renderer", () => {
   });
 
   test("fillstyle of merge works with CF", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 1,
-          rowNumber: 3,
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] });
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#DC6CDF" }, "1"),
@@ -616,11 +584,7 @@ describe("renderer", () => {
                 type: "IconSetRule",
                 upperInflectionPoint: { type: "number", value: "1000", operator: "gt" },
                 lowerInflectionPoint: { type: "number", value: "0", operator: "gt" },
-                icons: {
-                  upper: "arrowGood",
-                  middle: "arrowNeutral",
-                  lower: "arrowBad",
-                },
+                icons: { upper: "arrowGood", middle: "arrowNeutral", lower: "arrowBad" },
               },
             },
           ],
@@ -773,14 +737,7 @@ describe("renderer", () => {
     );
   });
   test("CF on empty cell", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 1,
-          rowNumber: 1,
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ colNumber: 1, rowNumber: 1 }] });
     let fillStyle: any[] = [];
     let fillStyleColor1Called = false;
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {
@@ -1204,11 +1161,7 @@ describe("renderer", () => {
                 type: "IconSetRule",
                 upperInflectionPoint: { type: "number", value: "1000", operator: "gt" },
                 lowerInflectionPoint: { type: "number", value: "0", operator: "gt" },
-                icons: {
-                  upper: "arrowGood",
-                  middle: "arrowNeutral",
-                  lower: "arrowBad",
-                },
+                icons: { upper: "arrowGood", middle: "arrowNeutral", lower: "arrowBad" },
               },
             },
           ],
@@ -1298,12 +1251,7 @@ describe("renderer", () => {
       const cellContent = "This is a long text larger than a cell";
       const model = new Model({
         sheets: [
-          {
-            id: "sheet1",
-            colNumber: 3,
-            rowNumber: 3,
-            cells: { B2: { content: cellContent } },
-          },
+          { id: "sheet1", colNumber: 3, rowNumber: 3, cells: { B2: { content: cellContent } } },
         ],
       });
 
@@ -1367,15 +1315,7 @@ describe("renderer", () => {
   );
   test("Box clip rect computation take the text margin into account", () => {
     let box: Box;
-    const model = new Model({
-      sheets: [
-        {
-          id: "sheet1",
-          colNumber: 1,
-          rowNumber: 1,
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ id: "sheet1", colNumber: 1, rowNumber: 1 }] });
     resizeColumns(model, ["A"], 10);
 
     // Text + MIN_CELL_TEXT_MARGIN  <= col size, no clip
@@ -1512,13 +1452,7 @@ describe("renderer", () => {
   test("Do not draw gridLines over colored cells in dashboard mode", () => {
     const CellFillColor = "#fe0000";
     const model = new Model({
-      sheets: [
-        {
-          id: "Sheet1",
-          name: "Sheet1",
-          cells: { A1: { style: 1 }, A2: { style: 1 } },
-        },
-      ],
+      sheets: [{ id: "Sheet1", name: "Sheet1", cells: { A1: { style: 1 }, A2: { style: 1 } } }],
       styles: { 1: { fillColor: CellFillColor } },
     });
 
@@ -1547,13 +1481,7 @@ describe("renderer", () => {
   test("Do not draw gridLines over colored cells while hiding grid lines", () => {
     const CellFillColor = "#fe0000";
     const model = new Model({
-      sheets: [
-        {
-          id: "Sheet1",
-          name: "Sheet1",
-          cells: { A1: { style: 1 }, A2: { style: 1 } },
-        },
-      ],
+      sheets: [{ id: "Sheet1", name: "Sheet1", cells: { A1: { style: 1 }, A2: { style: 1 } } }],
       styles: { 1: { fillColor: CellFillColor } },
     });
 
@@ -1590,9 +1518,7 @@ describe("renderer", () => {
           colNumber: 1,
           rowNumber: 1,
           rows: { 0: { size: DEFAULT_CELL_HEIGHT * 2 } },
-          cells: {
-            A1: { content: "kikou" },
-          },
+          cells: { A1: { content: "kikou" } },
         },
       ],
     });

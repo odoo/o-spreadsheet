@@ -567,10 +567,7 @@ describe("Helpers", () => {
   ])("copyRangeWithNewSheetId", (xc, sheetIdFrom, sheetIdTo, result) => {
     const model = new Model({
       sheets: [
-        {
-          id: "s1",
-          name: "Sheet1",
-        },
+        { id: "s1", name: "Sheet1" },
         { id: "s2", name: "Sheet2" },
       ],
     });
@@ -581,9 +578,7 @@ describe("Helpers", () => {
 });
 describe("full column range", () => {
   beforeEach(() => {
-    m = new Model({
-      sheets: [{ id: "s1", name: "s1", rows: 10, cols: 10 }],
-    });
+    m = new Model({ sheets: [{ id: "s1", name: "s1", rows: 10, cols: 10 }] });
     m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["B:C"] });
   });
   afterEach(() => {
@@ -634,9 +629,7 @@ describe("full column range", () => {
 
 describe("full row range", () => {
   beforeEach(() => {
-    m = new Model({
-      sheets: [{ id: "s1", name: "s1", rows: 10, cols: 10 }],
-    });
+    m = new Model({ sheets: [{ id: "s1", name: "s1", rows: 10, cols: 10 }] });
     m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["2:3"] });
   });
   afterEach(() => {

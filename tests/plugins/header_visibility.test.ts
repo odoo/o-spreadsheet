@@ -25,15 +25,7 @@ let model: Model;
 describe("Hide Columns", () => {
   const sheetId = "1";
   beforeEach(() => {
-    model = new Model({
-      sheets: [
-        {
-          id: sheetId,
-          colNumber: 6,
-          rowNumber: 2,
-        },
-      ],
-    });
+    model = new Model({ sheets: [{ id: sheetId, colNumber: 6, rowNumber: 2 }] });
   });
 
   test("hide single column", () => {
@@ -87,14 +79,7 @@ describe("Hide Columns", () => {
   });
 
   test("hide/unhide Column on small sheet", () => {
-    model = new Model({
-      sheets: [
-        {
-          colNumber: 5,
-          rowNumber: 1,
-        },
-      ],
-    });
+    model = new Model({ sheets: [{ colNumber: 5, rowNumber: 1 }] });
     const sheet = model.getters.getActiveSheet();
     const dimensions = model.getters.getMainViewportRect();
     hideColumns(model, ["B", "C", "D"], sheet.id);
@@ -164,15 +149,7 @@ describe("Hide Columns", () => {
 describe("Hide Rows", () => {
   const sheetId = "2";
   beforeEach(() => {
-    model = new Model({
-      sheets: [
-        {
-          id: sheetId,
-          colNumber: 2,
-          rowNumber: 6,
-        },
-      ],
-    });
+    model = new Model({ sheets: [{ id: sheetId, colNumber: 2, rowNumber: 6 }] });
   });
 
   test("hide single row", () => {
@@ -196,14 +173,7 @@ describe("Hide Rows", () => {
   });
 
   test("hide/unhide Row on small sheet", () => {
-    model = new Model({
-      sheets: [
-        {
-          colNumber: 1,
-          rowNumber: 5,
-        },
-      ],
-    });
+    model = new Model({ sheets: [{ colNumber: 1, rowNumber: 5 }] });
     const sheet = model.getters.getActiveSheet();
     const dimensions = model.getters.getMainViewportRect();
     hideRows(model, [1, 2, 3], sheet.id);

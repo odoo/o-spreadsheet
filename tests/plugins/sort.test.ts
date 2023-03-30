@@ -22,16 +22,7 @@ describe("Basic Sorting", () => {
       A5: { content: "16" },
       A6: { content: "15" },
     };
-    model = new Model({
-      sheets: [
-        {
-          id: sheetId,
-          colNumber: 1,
-          rowNumber: 6,
-          cells: cells,
-        },
-      ],
-    });
+    model = new Model({ sheets: [{ id: sheetId, colNumber: 1, rowNumber: 6, cells: cells }] });
     sort(model, {
       zone: "A1:A6",
       anchor: "A2",
@@ -347,15 +338,7 @@ describe("Trigger sort generic errors", () => {
   const sheetId: UID = "sheet2";
 
   test("Sort with anchor outside of the sorting zone", () => {
-    const model = new Model({
-      sheets: [
-        {
-          id: sheetId,
-          colNumber: 1,
-          rowNumber: 6,
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ id: sheetId, colNumber: 1, rowNumber: 6 }] });
     expect(() => {
       sort(model, {
         zone: "A1:A3",
