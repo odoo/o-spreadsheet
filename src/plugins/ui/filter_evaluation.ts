@@ -226,18 +226,23 @@ export class FilterEvaluationPlugin extends UIPlugin {
           if (!filter) continue;
 
           const valuesInFilterZone = filter.filteredZone
-            ? positions(filter.filteredZone)
-                .map((pos) => this.getters.getCell(sheetData.id, pos.col, pos.row)?.formattedValue)
-                .filter(isNonEmptyString)
+            ? positions(filter.filteredZone).map(
+                (pos) => this.getters.getCell(sheetData.id, pos.col, pos.row)?.formattedValue
+              )
             : [];
 
-          // In xlsx, filtered values = values that are displayed, not values that are hidden
-          const xlsxFilteredValues = valuesInFilterZone.filter(
-            (val) => !filteredValues.includes(val)
-          );
-          filters.push({ colId: i, filteredValues: [...new Set(xlsxFilteredValues)] });
+          if (filteredValues.length) {
+            const xlsxDisplayedValues = valuesInFilterZone
+              .filter(isNonEmptyString)
+              .filter((val) => !filteredValues.includes(val));
+            filters.push({
+              colId: i,
+              displayedValues: [...new Set(xlsxDisplayedValues)],
+              displayBlanks: !filteredValues.includes("") && valuesInFilterZone.some((val) => !val),
+            });
+          }
 
-          // In xlsx, filter header should ALWAYS be a string and should be unique
+          // In xlsx, filter header should ALWAYS be a string and should be unique in the table
           const headerPosition = { col: filter.col, row: filter.zoneWithHeaders.top };
           const headerString = this.getters.getCell(
             sheetData.id,
