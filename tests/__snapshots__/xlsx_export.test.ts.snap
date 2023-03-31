@@ -9316,6 +9316,14 @@ Object {
                 <filter val=\\"78\\"/>
             </filters>
         </filterColumn>
+        <filterColumn colId=\\"1\\">
+            <filters blank=\\"1\\">
+            </filters>
+        </filterColumn>
+        <filterColumn colId=\\"2\\">
+            <filters blank=\\"1\\">
+            </filters>
+        </filterColumn>
     </autoFilter>
     <tableColumns count=\\"3\\">
         <tableColumn id=\\"1\\" name=\\"Hello\\"/>
@@ -9386,9 +9394,24 @@ Object {
                     5
                 </v>
             </c>
+            <c r=\\"B2\\" s=\\"1\\">
+                <f>
+                    \\"\\"
+                </f>
+            </c>
+            <c r=\\"C2\\" s=\\"1\\">
+                <v>
+                    5
+                </v>
+            </c>
         </row>
         <row r=\\"3\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"1\\">
             <c r=\\"A3\\" s=\\"1\\">
+                <v>
+                    5
+                </v>
+            </c>
+            <c r=\\"B3\\" s=\\"1\\">
                 <v>
                     5
                 </v>
