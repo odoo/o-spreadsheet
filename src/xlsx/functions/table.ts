@@ -42,15 +42,10 @@ function addAutoFilter(table: ExcelFilterTableData): XMLString {
 }
 
 function addFilterColumns(table: ExcelFilterTableData): XMLString[] {
-  const tableZone = toZone(table.range);
   const columns: XMLString[] = [];
-  for (const i of range(0, zoneToDimension(tableZone).numberOfCols)) {
-    const filter = table.filters[i];
-    if (!filter || !filter.filteredValues.length) {
-      continue;
-    }
+  for (const filter of table.filters) {
     const colXml = escapeXml/*xml*/ `
-      <filterColumn ${formatAttributes([["colId", i]])}>
+      <filterColumn ${formatAttributes([["colId", filter.colId]])}>
         ${addFilter(filter)}
       </filterColumn>
       `;
@@ -60,11 +55,12 @@ function addFilterColumns(table: ExcelFilterTableData): XMLString[] {
 }
 
 function addFilter(filter: ExcelFilterData): XMLString {
-  const filterValues = filter.filteredValues.map(
+  const filterValues = filter.displayedValues.map(
     (val) => escapeXml/*xml*/ `<filter ${formatAttributes([["val", val]])}/>`
   );
+  const filterAttributes: XMLAttributes = filter.displayBlanks ? [["blank", 1]] : [];
   return escapeXml/*xml*/ `
-  <filters>
+  <filters ${formatAttributes(filterAttributes)}>
       ${joinXmlNodes(filterValues)}
   </filters>
 `;
