@@ -13,7 +13,7 @@ import {
 import {
   Border,
   CellPosition,
-  CellValueType,
+  Command,
   CommandResult,
   ExcelFilterData,
   ExcelWorkbookData,
@@ -23,7 +23,7 @@ import {
   Zone,
 } from "../../types";
 import { UIPlugin } from "../ui_plugin";
-import { Command, LocalCommand, UpdateFilterCommand } from "./../../types/commands";
+import { LocalCommand, UpdateFilterCommand } from "./../../types/commands";
 
 export class FilterEvaluationPlugin extends UIPlugin {
   static getters = [
@@ -218,6 +218,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
 
   exportForExcel(data: ExcelWorkbookData) {
     for (const sheetData of data.sheets) {
+      const sheetId = sheetData.id;
       for (const tableData of sheetData.filterTables) {
         const tableZone = toZone(tableData.range);
         const filters: ExcelFilterData[] = [];
@@ -234,26 +235,24 @@ export class FilterEvaluationPlugin extends UIPlugin {
           if (!filter) continue;
 
           const valuesInFilterZone = filter.filteredZone
-            ? positions(filter.filteredZone)
-                .map(({ col, row }) =>
-                  this.getters.getEvaluatedCell({ sheetId: sheetData.id, col, row })
-                )
-                .filter((cell) => cell.type !== CellValueType.empty)
-                .map((cell) => cell.formattedValue)
+            ? positions(filter.filteredZone).map(
+                (position) => this.getters.getEvaluatedCell({ sheetId, ...position }).formattedValue
+              )
             : [];
 
-          // In xlsx, filtered values = values that are displayed, not values that are hidden
-          const xlsxFilteredValues = valuesInFilterZone.filter(
-            (val) => !filteredValues.includes(val)
-          );
-          filters.push({ colId: i, filteredValues: [...new Set(xlsxFilteredValues)] });
+          if (filteredValues.length) {
+            const xlsxDisplayedValues = valuesInFilterZone
+              .filter((val) => val)
+              .filter((val) => !filteredValues.includes(val));
+            filters.push({
+              colId: i,
+              displayedValues: [...new Set(xlsxDisplayedValues)],
+              displayBlanks: !filteredValues.includes("") && valuesInFilterZone.some((val) => !val),
+            });
+          }
 
-          // In xlsx, filter header should ALWAYS be a string and should be unique
-          const headerPosition = {
-            col: filter.col,
-            row: filter.zoneWithHeaders.top,
-            sheetId: sheetData.id,
-          };
+          // In xlsx, filter header should ALWAYS be a string and should be unique in the table
+          const headerPosition = { col: filter.col, row: filter.zoneWithHeaders.top, sheetId };
           const headerString = this.getters.getEvaluatedCell(headerPosition).formattedValue;
           const headerName = this.getUniqueColNameForExcel(i, headerString, headerNames);
           headerNames.push(headerName);
