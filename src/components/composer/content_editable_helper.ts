@@ -105,16 +105,34 @@ export class ContentEditableHelper {
   getCurrentSelection() {
     let { startElement, endElement, startSelectionOffset, endSelectionOffset } =
       this.getStartAndEndSelection();
-    let startSizeBefore = this.findSizeBeforeElement(startElement!);
-    let endSizeBefore = this.findSizeBeforeElement(endElement!);
+
+    let startSizeBefore = this.findSelectionIndex(startElement!, startSelectionOffset);
+    let endSizeBefore = this.findSelectionIndex(endElement!, endSelectionOffset);
 
     return {
-      start: startSizeBefore + startSelectionOffset,
-      end: endSizeBefore + endSelectionOffset,
+      start: startSizeBefore,
+      end: endSizeBefore,
     };
   }
 
-  private findSizeBeforeElement(nodeToFind: Node): number {
+  /**
+   * Computes the text 'index' inside this.el based on the currently selected node and its offset.
+   * The selected node is either a Text node or an Element node.
+   *
+   * case 1 -Text node:
+   * the offset is the number of characters from the start of the node. We have to add this offset to the
+   * content length of all previous nodes.
+   *
+   * case 2 - Element node:
+   * the offset is the number of child nodes before the selected node. We have to add the content length of
+   * all the bnodes prior to the selected node as well as the content of the child node before the offset.
+   *
+   * See the MDN documentation for more details.
+   * https://developer.mozilla.org/en-US/docs/Web/API/Range/startOffset
+   * https://developer.mozilla.org/en-US/docs/Web/API/Range/endOffset
+   *
+   */
+  private findSelectionIndex(nodeToFind: Node, nodeOffset: number) {
     let it = this.iterateChildren(this.el);
     let usedCharacters = 0;
     let current = it.next();
@@ -126,6 +144,18 @@ export class ContentEditableHelper {
         }
       }
       current = it.next();
+    }
+
+    if (current.value === nodeToFind) {
+      if (!current.value.hasChildNodes()) {
+        usedCharacters += nodeOffset;
+      } else {
+        const children = [...current.value.childNodes].slice(0, nodeOffset);
+        for (const child of children) {
+          if (!child.textContent) continue;
+          usedCharacters += child.textContent.length;
+        }
+      }
     }
 
     return usedCharacters;
