@@ -11,6 +11,7 @@ import {
   SpreadsheetChildEnv,
   Zone,
 } from "../../types/index";
+import { FilterIconsOverlay } from "../filters/filter_icons_overlay/filter_icons_overlay";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { css } from "../helpers/css";
@@ -19,7 +20,6 @@ import { useAbsolutePosition } from "../helpers/position_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { Popover } from "../popover/popover";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
-import { FilterIconsOverlay } from "./../filters/filter_icons_overlay/fitler_icons_overlay";
 
 interface Props {}
 
