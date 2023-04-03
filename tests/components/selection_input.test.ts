@@ -1,7 +1,7 @@
 import { App, Component, onMounted, onWillUnmount, useSubEnv, xml } from "@odoo/owl";
 import { Model } from "../../src";
+import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { SelectionInput } from "../../src/components/selection_input/selection_input";
-import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/registries";
 import { activateSheet, createSheet, selectCell, undo } from "../test_helpers/commands_helpers";
 import { clickCell, keyDown, keyUp, simulateClick } from "../test_helpers/dom_helper";
 import {

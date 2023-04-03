@@ -1,6 +1,7 @@
 import { App, Component, ComponentConstructor, xml } from "@odoo/owl";
 import { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
+import { Action } from "../../src/actions/action";
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
 import { functionRegistry } from "../../src/functions/index";
 import { ImageProvider } from "../../src/helpers/figures/images/image_provider";
@@ -8,7 +9,7 @@ import { toCartesian, toUnboundedZone, toXC, toZone } from "../../src/helpers/in
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { topbarMenuRegistry } from "../../src/registries";
-import { Action, MenuItemRegistry } from "../../src/registries/menu_items_registry";
+import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import {
   ChartDefinition,
   ColorScaleMidPointThreshold,

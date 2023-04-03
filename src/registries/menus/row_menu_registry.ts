@@ -1,8 +1,8 @@
+import * as ACTION_EDIT from "../../actions/edit_actions";
+import * as ACTION_FORMAT from "../../actions/format_actions";
+import * as ACTION_INSERT from "../../actions/insert_actions";
+import * as ACTION_VIEW from "../../actions/view_actions";
 import { MenuItemRegistry } from "../menu_items_registry";
-import * as ACTION_EDIT from "./items/edit_menu_items";
-import * as ACTION_FORMAT from "./items/format_menu_items";
-import * as ACTION_INSERT from "./items/insert_menu_items";
-import * as ACTION_VIEW from "./items/view_menu_items";
 
 export const rowMenuRegistry = new MenuItemRegistry();
 

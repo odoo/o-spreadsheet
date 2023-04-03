@@ -1,6 +1,7 @@
+import { ActionSpec } from "../../actions/action";
+import * as ACTION_FORMAT from "../../actions/format_actions";
 import { _lt } from "../../translation";
-import { ActionSpec, MenuItemRegistry } from "../menu_items_registry";
-import * as ACTION_FORMAT from "./items/format_menu_items";
+import { MenuItemRegistry } from "../menu_items_registry";
 
 export const numberFormatMenuRegistry = new MenuItemRegistry();
 

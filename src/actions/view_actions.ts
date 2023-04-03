@@ -1,10 +1,10 @@
-import { areZonesContinuous } from "../../../helpers";
-import { interactiveAddFilter } from "../../../helpers/ui/filter_interactive";
-import { interactiveFreezeColumnsRows } from "../../../helpers/ui/freeze_interactive";
-import { _lt } from "../../../translation";
-import { SpreadsheetChildEnv } from "../../../types";
-import { ActionSpec } from "../../menu_items_registry";
-import * as ACTIONS from "./../menu_items_actions";
+import { areZonesContinuous } from "../helpers";
+import { interactiveAddFilter } from "../helpers/ui/filter_interactive";
+import { interactiveFreezeColumnsRows } from "../helpers/ui/freeze_interactive";
+import { _lt } from "../translation";
+import { SpreadsheetChildEnv } from "../types";
+import { ActionSpec } from "./action";
+import * as ACTIONS from "./menu_items_actions";
 
 export const hideCols: ActionSpec = {
   name: ACTIONS.HIDE_COLUMNS_NAME,

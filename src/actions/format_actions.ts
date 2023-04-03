@@ -1,8 +1,8 @@
-import { DEFAULT_FONT_SIZE, DEFAULT_VERTICAL_ALIGN, FONT_SIZES } from "../../../constants";
-import { _lt } from "../../../translation";
-import { Align, BorderCommand, SpreadsheetChildEnv } from "../../../types";
-import { ActionSpec } from "../../menu_items_registry";
-import * as ACTIONS from "./../menu_items_actions";
+import { DEFAULT_FONT_SIZE, DEFAULT_VERTICAL_ALIGN, FONT_SIZES } from "../constants";
+import { _lt } from "../translation";
+import { Align, BorderCommand, SpreadsheetChildEnv } from "../types";
+import { ActionSpec } from "./action";
+import * as ACTIONS from "./menu_items_actions";
 
 export const formatNumberAutomatic: ActionSpec = {
   name: _lt("Automatic"),

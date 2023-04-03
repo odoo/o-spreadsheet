@@ -1,6 +1,6 @@
-import { _lt } from "../../../translation";
-import { ActionSpec } from "../../menu_items_registry";
-import * as ACTIONS from "./../menu_items_actions";
+import { _lt } from "../translation";
+import { ActionSpec } from "./action";
+import * as ACTIONS from "./menu_items_actions";
 
 export const sortRange: ActionSpec = {
   name: _lt("Sort range"),
