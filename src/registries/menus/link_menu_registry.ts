@@ -8,6 +8,6 @@ import * as ACTION_SHEET from "./items/sheet_menu_items";
 export const linkMenuRegistry = new MenuItemRegistry();
 
 linkMenuRegistry.add("sheet", {
-  ...ACTION_SHEET.linkSheetMenuItem,
+  ...ACTION_SHEET.linkSheet,
   sequence: 10,
 });

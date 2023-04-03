@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-MenuItemButton" owl="1">
+  <t t-name="o-spreadsheet-ActionButton" owl="1">
     <span
       t-if="isVisible"
       class="o-menu-item-button"
@@ -7,7 +7,7 @@
       t-att-class="{'o-disabled': !isEnabled, active: isActive}"
       t-attf-class="{{props.class}}"
       t-on-click="onClick">
-      <span t-if="iconTitle" t-att-style="menuItemStyle">
+      <span t-if="iconTitle" t-att-style="buttonStyle">
         <t t-call="{{iconTitle}}"/>
       </span>
       <t t-if="props.hasTriangleDownIcon">

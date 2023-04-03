@@ -3,46 +3,65 @@ import { Color } from "../types";
 import { SpreadsheetChildEnv } from "../types/env";
 import { Registry } from "./registry";
 
-//------------------------------------------------------------------------------
-// Menu Item Registry
-//------------------------------------------------------------------------------
-
 /**
- * An ActionMenuItem represent a menu item for the menus of the topbar.
- * and the context menu in the grid.
- *
- * An ActionMenuItem has:
- * - id, used for example to add child
- * - name, which can be a string or a function to compute it
- * - sequence, which represents its position inside the
- *   menus (the lower sequence it has, the upper it is in the menu)
- * - isVisible, which can be defined to compute the visibility of the item
- * - isReadonlyAllowed: is the action allowed when running spreadsheet in readonly mode
- * - action, the action associated to this item. The action can return a result.
- *   The result will be carried by a `menu-clicked` event to the menu parent component.
- * - children, subitems associated to this item
- *    NB: an item without action or children is not displayed !
- * - separator, whether it should add a separator below the item
- *    NB: a separator defined on the last item is not displayed !
- *
+ * An Action represent a menu item for the menus of the top bar
+ * and the context menu in the grid. It can also represent a button
+ * used in the toolbar to trigger an action too.
  */
-export interface MenuItemSpec {
+export interface ActionSpec {
+  /**
+   * String or a function to compute the name
+   */
   name: string | ((env: SpreadsheetChildEnv) => string);
   description?: string;
+  /**
+   * which represents its position inside the
+   * menus (the lower sequence it has, the upper it is in the menu)
+   */
   sequence?: number;
+  /**
+   * used for example to add child
+   */
   id?: string;
+  /**
+   * Can be defined to compute the visibility of the item
+   */
   isVisible?: (env: SpreadsheetChildEnv) => boolean;
+  /**
+   * Can be defined to compute if the user can click on the action
+   */
   isEnabled?: (env: SpreadsheetChildEnv) => boolean;
+  /**
+   * Can be defined to compute if the action is active
+   */
   isActive?: (env: SpreadsheetChildEnv) => boolean;
+  /**
+   * Can be defined to display an icon
+   */
   icon?: string;
+  /**
+   * is the action allowed when running spreadsheet in readonly mode
+   */
   isReadonlyAllowed?: boolean;
-  action?: (env: SpreadsheetChildEnv) => unknown;
-  children?: MenuChildren;
+  /**
+   * Execute the action. The action can return a result.
+   * The result will be carried by a `menu-clicked` event to the menu parent component.
+   */
+  execute?: (env: SpreadsheetChildEnv) => unknown;
+  /**
+   * subitems associated to this item
+   * NB: an action without an execute function or children is not displayed !
+   */
+  children?: ActionChildren;
+  /**
+   * whether it should add a separator below the item in menus
+   * NB: a separator defined on the last item is not displayed !
+   */
   separator?: boolean;
   textColor?: Color;
 }
 
-export interface MenuItem {
+export interface Action {
   name: (env: SpreadsheetChildEnv) => string;
   description: string;
   sequence: number;
@@ -52,22 +71,22 @@ export interface MenuItem {
   isActive?: (env: SpreadsheetChildEnv) => boolean;
   icon: string;
   isReadonlyAllowed: boolean;
-  action?: (env: SpreadsheetChildEnv) => unknown;
-  children: (env: SpreadsheetChildEnv) => MenuItem[];
+  execute?: (env: SpreadsheetChildEnv) => unknown;
+  children: (env: SpreadsheetChildEnv) => Action[];
   separator: boolean;
   textColor?: Color;
 }
 
-export type MenuItemsBuilder = (env: SpreadsheetChildEnv) => MenuItemSpec[];
-type MenuChildren = (MenuItemSpec | MenuItemsBuilder)[];
+export type ActionBuilder = (env: SpreadsheetChildEnv) => ActionSpec[];
+type ActionChildren = (ActionSpec | ActionBuilder)[];
 
-export function createMenu(menuItems: MenuItemSpec[]): MenuItem[] {
-  return menuItems.map(createMenuItem).sort((a, b) => a.sequence - b.sequence);
+export function createActions(menuItems: ActionSpec[]): Action[] {
+  return menuItems.map(createAction).sort((a, b) => a.sequence - b.sequence);
 }
 
 const uuidGenerator = new UuidGenerator();
 
-export function createMenuItem(item: MenuItemSpec): MenuItem {
+export function createAction(item: ActionSpec): Action {
   const name = item.name;
   const children = item.children;
   return {
@@ -76,13 +95,13 @@ export function createMenuItem(item: MenuItemSpec): MenuItem {
     isVisible: item.isVisible ? item.isVisible : () => true,
     isEnabled: item.isEnabled ? item.isEnabled : () => true,
     isActive: item.isActive,
-    action: item.action,
+    execute: item.execute,
     children: children
       ? (env) => {
           return children
             .map((child) => (typeof child === "function" ? child(env) : child))
             .flat()
-            .map(createMenuItem);
+            .map(createAction);
         }
       : () => [],
     isReadonlyAllowed: item.isReadonlyAllowed || false,
@@ -98,11 +117,11 @@ export function createMenuItem(item: MenuItemSpec): MenuItem {
  * The class Registry is extended in order to add the function addChild
  *
  */
-export class MenuItemRegistry extends Registry<MenuItemSpec> {
+export class MenuItemRegistry extends Registry<ActionSpec> {
   /**
    * @override
    */
-  add(key: string, value: MenuItemSpec): MenuItemRegistry {
+  add(key: string, value: ActionSpec): MenuItemRegistry {
     if (value.id === undefined) {
       value.id = key;
     }
@@ -114,12 +133,12 @@ export class MenuItemRegistry extends Registry<MenuItemSpec> {
    * @param path Path of items to add this subitem
    * @param value Subitem to add
    */
-  addChild(key: string, path: string[], value: MenuItemSpec | MenuItemsBuilder): MenuItemRegistry {
+  addChild(key: string, path: string[], value: ActionSpec | ActionBuilder): MenuItemRegistry {
     if (typeof value !== "function" && value.id === undefined) {
       value.id = key;
     }
     const root = path.splice(0, 1)[0];
-    let node: MenuItemSpec | undefined = this.content[root];
+    let node: ActionSpec | undefined = this.content[root];
     if (!node) {
       throw new Error(`Path ${root + ":" + path.join(":")} not found`);
     }
@@ -141,7 +160,7 @@ export class MenuItemRegistry extends Registry<MenuItemSpec> {
     return this;
   }
 
-  getMenuItems(): MenuItem[] {
-    return createMenu(this.getAll());
+  getMenuItems(): Action[] {
+    return createActions(this.getAll());
   }
 }

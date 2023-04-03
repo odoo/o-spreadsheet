@@ -1,56 +1,56 @@
 import { _lt } from "../../translation";
-import { MenuItemRegistry, MenuItemSpec } from "../menu_items_registry";
+import { ActionSpec, MenuItemRegistry } from "../menu_items_registry";
 import * as ACTION_FORMAT from "./items/format_menu_items";
 
 export const numberFormatMenuRegistry = new MenuItemRegistry();
 
 numberFormatMenuRegistry
   .add("format_number_automatic", {
-    ...ACTION_FORMAT.formatNumberAutomaticMenuItem,
+    ...ACTION_FORMAT.formatNumberAutomatic,
     sequence: 10,
     separator: true,
   })
   .add("format_number_number", {
-    ...ACTION_FORMAT.formatNumberNumberMenuItem,
+    ...ACTION_FORMAT.formatNumberNumber,
     sequence: 20,
   })
   .add("format_number_percent", {
-    ...ACTION_FORMAT.formatNumberPercentMenuItem,
+    ...ACTION_FORMAT.formatNumberPercent,
     sequence: 30,
     separator: true,
   })
   .add("format_number_currency", {
-    ...ACTION_FORMAT.formatNumberCurrencyMenuItem,
+    ...ACTION_FORMAT.formatNumberCurrency,
     sequence: 40,
   })
   .add("format_number_currency_rounded", {
-    ...ACTION_FORMAT.formatNumberCurrencyRoundedMenuItem,
+    ...ACTION_FORMAT.formatNumberCurrencyRounded,
     sequence: 50,
   })
   .add("format_custom_currency", {
-    ...ACTION_FORMAT.formatCustomCurrencyMenuItem,
+    ...ACTION_FORMAT.formatCustomCurrency,
     sequence: 60,
     separator: true,
   })
   .add("format_number_date", {
-    ...ACTION_FORMAT.formatNumberDateMenuItem,
+    ...ACTION_FORMAT.formatNumberDate,
     sequence: 70,
   })
   .add("format_number_time", {
-    ...ACTION_FORMAT.formatNumberTimeMenuItem,
+    ...ACTION_FORMAT.formatNumberTime,
     sequence: 80,
   })
   .add("format_number_date_time", {
-    ...ACTION_FORMAT.formatNumberDateTimeMenuItem,
+    ...ACTION_FORMAT.formatNumberDateTime,
     sequence: 90,
   })
   .add("format_number_duration", {
-    ...ACTION_FORMAT.formatNumberDurationMenuItem,
+    ...ACTION_FORMAT.formatNumberDuration,
     sequence: 100,
     separator: true,
   });
 
-export const formatNumberMenuItemSpec: MenuItemSpec = {
+export const formatNumberMenuItemSpec: ActionSpec = {
   name: _lt("More formats"),
   icon: "o-spreadsheet-Icon.NUMBER_FORMATS",
   children: [() => numberFormatMenuRegistry.getAll()],

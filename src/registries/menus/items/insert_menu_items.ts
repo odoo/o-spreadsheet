@@ -1,132 +1,132 @@
 import { functionRegistry } from "../../../functions";
 import { isDefined } from "../../../helpers";
 import { _lt } from "../../../translation";
-import { MenuItemsBuilder, MenuItemSpec } from "../../menu_items_registry";
+import { ActionBuilder, ActionSpec } from "../../menu_items_registry";
 import * as ACTIONS from "./../menu_items_actions";
 
-export const rowInsertRowBeforeMenuItem: MenuItemSpec = {
+export const rowInsertRowBefore: ActionSpec = {
   name: ACTIONS.ROW_INSERT_ROWS_BEFORE_NAME,
-  action: ACTIONS.INSERT_ROWS_BEFORE_ACTION,
+  execute: ACTIONS.INSERT_ROWS_BEFORE_ACTION,
 };
 
-export const topBarInsertRowsBeforeMenuItem: MenuItemSpec = {
-  ...rowInsertRowBeforeMenuItem,
+export const topBarInsertRowsBefore: ActionSpec = {
+  ...rowInsertRowBefore,
   name: ACTIONS.MENU_INSERT_ROWS_BEFORE_NAME,
   isVisible: (env) => env.model.getters.getActiveCols().size === 0,
 };
 
-export const cellInsertRowsBeforeMenuItem: MenuItemSpec = {
-  ...rowInsertRowBeforeMenuItem,
+export const cellInsertRowsBefore: ActionSpec = {
+  ...rowInsertRowBefore,
   name: ACTIONS.CELL_INSERT_ROWS_BEFORE_NAME,
   isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
 };
 
-export const rowInsertRowsAfterMenuItem: MenuItemSpec = {
-  action: ACTIONS.INSERT_ROWS_AFTER_ACTION,
+export const rowInsertRowsAfter: ActionSpec = {
+  execute: ACTIONS.INSERT_ROWS_AFTER_ACTION,
   name: ACTIONS.ROW_INSERT_ROWS_AFTER_NAME,
 };
 
-export const topBarInsertRowsAfterMenuItem: MenuItemSpec = {
-  ...rowInsertRowsAfterMenuItem,
+export const topBarInsertRowsAfter: ActionSpec = {
+  ...rowInsertRowsAfter,
   name: ACTIONS.MENU_INSERT_ROWS_AFTER_NAME,
   isVisible: (env) => env.model.getters.getActiveCols().size === 0,
 };
 
-export const colInsertColsBeforeMenuItem: MenuItemSpec = {
+export const colInsertColsBefore: ActionSpec = {
   name: ACTIONS.COLUMN_INSERT_COLUMNS_BEFORE_NAME,
-  action: ACTIONS.INSERT_COLUMNS_BEFORE_ACTION,
+  execute: ACTIONS.INSERT_COLUMNS_BEFORE_ACTION,
 };
 
-export const topBarInsertColsBeforeMenuItem: MenuItemSpec = {
-  ...colInsertColsBeforeMenuItem,
+export const topBarInsertColsBefore: ActionSpec = {
+  ...colInsertColsBefore,
   name: ACTIONS.MENU_INSERT_COLUMNS_BEFORE_NAME,
   isVisible: (env) => env.model.getters.getActiveRows().size === 0,
 };
 
-export const cellInsertColsBeforeMenuItem: MenuItemSpec = {
-  ...colInsertColsBeforeMenuItem,
+export const cellInsertColsBefore: ActionSpec = {
+  ...colInsertColsBefore,
   name: ACTIONS.CELL_INSERT_COLUMNS_BEFORE_NAME,
   isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
 };
 
-export const colInsertColsAfterMenuItem: MenuItemSpec = {
+export const colInsertColsAfter: ActionSpec = {
   name: ACTIONS.COLUMN_INSERT_COLUMNS_AFTER_NAME,
-  action: ACTIONS.INSERT_COLUMNS_AFTER_ACTION,
+  execute: ACTIONS.INSERT_COLUMNS_AFTER_ACTION,
 };
 
-export const topBarInsertColsAfterMenuItem: MenuItemSpec = {
-  ...colInsertColsAfterMenuItem,
+export const topBarInsertColsAfter: ActionSpec = {
+  ...colInsertColsAfter,
   name: ACTIONS.MENU_INSERT_COLUMNS_AFTER_NAME,
-  action: ACTIONS.INSERT_COLUMNS_AFTER_ACTION,
+  execute: ACTIONS.INSERT_COLUMNS_AFTER_ACTION,
   isVisible: (env) => env.model.getters.getActiveRows().size === 0,
 };
 
-export const insertCellMenuItem: MenuItemSpec = {
+export const insertCell: ActionSpec = {
   name: _lt("Insert cells"),
   isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
 };
 
-export const insertCellShiftDownMenuItem: MenuItemSpec = {
+export const insertCellShiftDown: ActionSpec = {
   name: _lt("Insert cells and shift down"),
-  action: ACTIONS.INSERT_CELL_SHIFT_DOWN,
+  execute: ACTIONS.INSERT_CELL_SHIFT_DOWN,
 };
 
-export const insertCellShiftRightMenuItem: MenuItemSpec = {
+export const insertCellShiftRight: ActionSpec = {
   name: _lt("Insert cells and shift right"),
-  action: ACTIONS.INSERT_CELL_SHIFT_RIGHT,
+  execute: ACTIONS.INSERT_CELL_SHIFT_RIGHT,
 };
 
-export const insertChartMenuItem: MenuItemSpec = {
+export const insertChart: ActionSpec = {
   name: _lt("Chart"),
-  action: ACTIONS.CREATE_CHART,
+  execute: ACTIONS.CREATE_CHART,
 };
 
-export const insertImageMenuItem: MenuItemSpec = {
+export const insertImage: ActionSpec = {
   name: _lt("Image"),
-  action: ACTIONS.CREATE_IMAGE,
+  execute: ACTIONS.CREATE_IMAGE,
   isVisible: (env) => env.imageProvider !== undefined,
 };
 
-export const insertFunctionMenuItem: MenuItemSpec = {
+export const insertFunction: ActionSpec = {
   name: _lt("Function"),
 };
 
-export const insertFunctionSumMenuItem: MenuItemSpec = {
+export const insertFunctionSum: ActionSpec = {
   name: _lt("SUM"),
-  action: (env) => env.startCellEdition(`=SUM(`),
+  execute: (env) => env.startCellEdition(`=SUM(`),
 };
 
-export const insertFunctionAverageMenuItem: MenuItemSpec = {
+export const insertFunctionAverage: ActionSpec = {
   name: _lt("AVERAGE"),
-  action: (env) => env.startCellEdition(`=AVERAGE(`),
+  execute: (env) => env.startCellEdition(`=AVERAGE(`),
 };
 
-export const insertFunctionCountMenuItem: MenuItemSpec = {
+export const insertFunctionCount: ActionSpec = {
   name: _lt("COUNT"),
-  action: (env) => env.startCellEdition(`=COUNT(`),
+  execute: (env) => env.startCellEdition(`=COUNT(`),
 };
 
-export const insertFunctionMaxMenuItem: MenuItemSpec = {
+export const insertFunctionMax: ActionSpec = {
   name: _lt("MAX"),
-  action: (env) => env.startCellEdition(`=MAX(`),
+  execute: (env) => env.startCellEdition(`=MAX(`),
 };
 
-export const insertFunctionMinMenuItem: MenuItemSpec = {
+export const insertFunctionMin: ActionSpec = {
   name: _lt("MIN"),
-  action: (env) => env.startCellEdition(`=MIN(`),
+  execute: (env) => env.startCellEdition(`=MIN(`),
 };
 
-export const categorieFunctionAllMenuItem: MenuItemSpec = {
+export const categorieFunctionAll: ActionSpec = {
   name: _lt("All"),
   children: allFunctionListMenuBuilder(),
 };
 
-function allFunctionListMenuBuilder(): MenuItemSpec[] {
+function allFunctionListMenuBuilder(): ActionSpec[] {
   const fnNames = functionRegistry.getKeys();
-  return createFormulaFunctionMenuItems(fnNames);
+  return createFormulaFunctions(fnNames);
 }
 
-export const categoriesFunctionListMenuBuilder: MenuItemsBuilder = () => {
+export const categoriesFunctionListMenuBuilder: ActionBuilder = () => {
   const functions = functionRegistry.content;
   const categories = [...new Set(functionRegistry.getAll().map((fn) => fn.category))].filter(
     isDefined
@@ -138,27 +138,27 @@ export const categoriesFunctionListMenuBuilder: MenuItemsBuilder = () => {
     );
     return {
       name: category,
-      children: createFormulaFunctionMenuItems(functionsInCategory),
+      children: createFormulaFunctions(functionsInCategory),
     };
   });
 };
 
-export const insertLinkMenuItem: MenuItemSpec = {
+export const insertLink: ActionSpec = {
   name: _lt("Link"),
-  action: ACTIONS.INSERT_LINK,
+  execute: ACTIONS.INSERT_LINK,
 };
 
-export const insertSheetMenuItem: MenuItemSpec = {
+export const insertSheet: ActionSpec = {
   name: _lt("New sheet"),
-  action: ACTIONS.CREATE_SHEET_ACTION,
+  execute: ACTIONS.CREATE_SHEET_ACTION,
 };
 
-function createFormulaFunctionMenuItems(fnNames: string[]): MenuItemSpec[] {
+function createFormulaFunctions(fnNames: string[]): ActionSpec[] {
   return fnNames.sort().map((fnName, i) => {
     return {
       name: fnName,
       sequence: i * 10,
-      action: (env) => env.startCellEdition(`=${fnName}(`),
+      execute: (env) => env.startCellEdition(`=${fnName}(`),
     };
   });
 }

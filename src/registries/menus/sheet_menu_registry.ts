@@ -6,27 +6,27 @@ export function getSheetMenuRegistry(args: { renameSheetCallback: () => void }):
 
   sheetMenuRegistry
     .add("delete", {
-      ...ACTION_SHEET.deleteSheetMenuItem,
+      ...ACTION_SHEET.deleteSheet,
       sequence: 10,
     })
     .add("duplicate", {
-      ...ACTION_SHEET.duplicateSheetMenuItem,
+      ...ACTION_SHEET.duplicateSheet,
       sequence: 20,
     })
     .add("rename", {
-      ...ACTION_SHEET.renameSheetMenuItem(args),
+      ...ACTION_SHEET.renameSheet(args),
       sequence: 30,
     })
     .add("move_right", {
-      ...ACTION_SHEET.sheetMoveRightMenuItem,
+      ...ACTION_SHEET.sheetMoveRight,
       sequence: 40,
     })
     .add("move_left", {
-      ...ACTION_SHEET.sheetMoveLeftMenuItem,
+      ...ACTION_SHEET.sheetMoveLeft,
       sequence: 50,
     })
     .add("hide_sheet", {
-      ...ACTION_SHEET.hideSheetMenuItem,
+      ...ACTION_SHEET.hideSheet,
       sequence: 60,
     });
 

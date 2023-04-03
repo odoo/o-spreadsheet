@@ -3,7 +3,7 @@ import { ImageFigure } from "../components/figures/figure_image/figure_image";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { _lt } from "../translation";
 import { SpreadsheetChildEnv, UID } from "../types";
-import { createMenu, MenuItem, MenuItemSpec } from "./menu_items_registry";
+import { Action, ActionSpec, createActions } from "./menu_items_registry";
 import { Registry } from "./registry";
 
 //------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ import { Registry } from "./registry";
 
 export interface FigureContent {
   Component: any;
-  menuBuilder: (figureId: UID, onFigureDeleted: () => void, env: SpreadsheetChildEnv) => MenuItem[];
+  menuBuilder: (figureId: UID, onFigureDeleted: () => void, env: SpreadsheetChildEnv) => Action[];
   SidePanelComponent?: string;
   keepRatio?: boolean;
   minFigSize?: number;
@@ -44,13 +44,13 @@ function getChartMenu(
   figureId: UID,
   onFigureDeleted: () => void,
   env: SpreadsheetChildEnv
-): MenuItem[] {
-  const menuItemSpecs: MenuItemSpec[] = [
+): Action[] {
+  const menuItemSpecs: ActionSpec[] = [
     {
       id: "edit",
       name: _lt("Edit"),
       sequence: 1,
-      action: () => {
+      execute: () => {
         env.model.dispatch("SELECT_FIGURE", { id: figureId });
         env.openSidePanel("ChartPanel");
       },
@@ -59,22 +59,22 @@ function getChartMenu(
     getCutMenuItem(figureId, env),
     getDeleteMenuItem(figureId, onFigureDeleted, env),
   ];
-  return createMenu(menuItemSpecs);
+  return createActions(menuItemSpecs);
 }
 
 function getImageMenuRegistry(
   figureId: UID,
   onFigureDeleted: () => void,
   env: SpreadsheetChildEnv
-): MenuItem[] {
-  const menuItemSpecs: MenuItemSpec[] = [
+): Action[] {
+  const menuItemSpecs: ActionSpec[] = [
     getCopyMenuItem(figureId, env),
     getCutMenuItem(figureId, env),
     {
       id: "reset_size",
       name: _lt("Reset size"),
       sequence: 4,
-      action: () => {
+      execute: () => {
         const size = env.model.getters.getImageSize(figureId);
         const { height, width } = getMaxFigureSize(env.model.getters, size);
         env.model.dispatch("UPDATE_FIGURE", {
@@ -87,16 +87,16 @@ function getImageMenuRegistry(
     },
     getDeleteMenuItem(figureId, onFigureDeleted, env),
   ];
-  return createMenu(menuItemSpecs);
+  return createActions(menuItemSpecs);
 }
 
-function getCopyMenuItem(figureId: UID, env: SpreadsheetChildEnv): MenuItemSpec {
+function getCopyMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
   return {
     id: "copy",
     name: _lt("Copy"),
     sequence: 2,
     description: "Ctrl+C",
-    action: async () => {
+    execute: async () => {
       env.model.dispatch("SELECT_FIGURE", { id: figureId });
       env.model.dispatch("COPY");
       await env.clipboard.write(env.model.getters.getClipboardContent());
@@ -104,13 +104,13 @@ function getCopyMenuItem(figureId: UID, env: SpreadsheetChildEnv): MenuItemSpec 
   };
 }
 
-function getCutMenuItem(figureId: UID, env: SpreadsheetChildEnv): MenuItemSpec {
+function getCutMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
   return {
     id: "cut",
     name: _lt("Cut"),
     sequence: 3,
     description: "Ctrl+X",
-    action: async () => {
+    execute: async () => {
       env.model.dispatch("SELECT_FIGURE", { id: figureId });
       env.model.dispatch("CUT");
       await env.clipboard.write(env.model.getters.getClipboardContent());
@@ -122,12 +122,12 @@ function getDeleteMenuItem(
   figureId: UID,
   onFigureDeleted: () => void,
   env: SpreadsheetChildEnv
-): MenuItemSpec {
+): ActionSpec {
   return {
     id: "delete",
     name: _lt("Delete"),
     sequence: 10,
-    action: () => {
+    execute: () => {
       env.model.dispatch("DELETE_FIGURE", {
         sheetId: env.model.getters.getActiveSheetId(),
         id: figureId,

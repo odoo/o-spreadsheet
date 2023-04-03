@@ -454,7 +454,7 @@ describe("TopBar component", () => {
     topbarMenuRegistry.addChild("testaction", ["test"], {
       name: "TestAction",
       sequence: 1,
-      action: () => {
+      execute: () => {
         number++;
       },
     });
