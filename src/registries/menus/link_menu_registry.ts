@@ -1,5 +1,5 @@
+import * as ACTION_SHEET from "../../actions/sheet_actions";
 import { MenuItemRegistry } from "../menu_items_registry";
-import * as ACTION_SHEET from "./items/sheet_menu_items";
 
 //------------------------------------------------------------------------------
 // Link Menu Registry

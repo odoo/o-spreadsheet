@@ -1,8 +1,8 @@
-import { functionRegistry } from "../../../functions";
-import { isDefined } from "../../../helpers";
-import { _lt } from "../../../translation";
-import { ActionBuilder, ActionSpec } from "../../menu_items_registry";
-import * as ACTIONS from "./../menu_items_actions";
+import { functionRegistry } from "../functions";
+import { isDefined } from "../helpers";
+import { _lt } from "../translation";
+import { ActionBuilder, ActionSpec } from "./action";
+import * as ACTIONS from "./menu_items_actions";
 
 export const rowInsertRowBefore: ActionSpec = {
   name: ACTIONS.ROW_INSERT_ROWS_BEFORE_NAME,

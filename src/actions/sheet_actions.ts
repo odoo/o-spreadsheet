@@ -1,6 +1,6 @@
-import { buildSheetLink, markdownLink } from "../../../helpers";
-import { _lt } from "../../../translation";
-import { ActionSpec } from "../../menu_items_registry";
+import { buildSheetLink, markdownLink } from "../helpers";
+import { _lt } from "../translation";
+import { ActionSpec } from "./action";
 
 export const linkSheet: ActionSpec = {
   name: _lt("Link sheet"),

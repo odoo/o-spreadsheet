@@ -5,6 +5,11 @@ import {
   useExternalListener,
   useState,
 } from "@odoo/owl";
+import { Action, ActionSpec, createAction } from "../../actions/action";
+import * as ACTION_EDIT from "../../actions/edit_actions";
+import * as ACTION_FORMAT from "../../actions/format_actions";
+import { setStyle } from "../../actions/menu_items_actions";
+import * as ACTION_VIEW from "../../actions/view_actions";
 import {
   BACKGROUND_HEADER_COLOR,
   BACKGROUND_HEADER_FILTER_COLOR,
@@ -16,24 +21,16 @@ import {
   TOPBAR_TOOLBAR_HEIGHT,
 } from "../../constants";
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
-import {
-  formatNumberMenuItemSpec,
-  setStyle,
-  topbarComponentRegistry,
-} from "../../registries/index";
-import * as ACTION_EDIT from "../../registries/menus/items/edit_menu_items";
-import * as ACTION_FORMAT from "../../registries/menus/items/format_menu_items";
-import * as ACTION_VIEW from "../../registries/menus/items/view_menu_items";
+import { formatNumberMenuItemSpec, topbarComponentRegistry } from "../../registries/index";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
-import { Action, ActionSpec, createAction } from "../../registries/menu_items_registry";
 import { Color, Pixel, SpreadsheetChildEnv } from "../../types/index";
+import { ActionButton } from "../action_button/action_button";
 import { ColorPicker } from "../color_picker/color_picker";
 import { ColorPickerWidget } from "../color_picker/color_picker_widget";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { FontSizeEditor } from "../font_size_editor/font_size_editor";
 import { css } from "../helpers/css";
 import { Menu, MenuState } from "../menu/menu";
-import { ActionButton } from "../menu_item_button/menu_item_button";
 import { ComposerFocusType } from "../spreadsheet/spreadsheet";
 
 interface State {

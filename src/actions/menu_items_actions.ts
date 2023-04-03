@@ -1,22 +1,22 @@
-import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH } from "../../constants";
+import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH } from "../constants";
 import {
   getChartPositionAtCenterOfViewport,
   getSmartChartDefinition,
-} from "../../helpers/figures/charts";
-import { centerFigurePosition, getMaxFigureSize } from "../../helpers/figures/figure/figure";
-import { areZonesContinuous, getZoneArea, numberToLetters } from "../../helpers/index";
-import { interactiveSortSelection } from "../../helpers/sort";
-import { interactiveCut } from "../../helpers/ui/cut_interactive";
-import { interactiveAddFilter } from "../../helpers/ui/filter_interactive";
+} from "../helpers/figures/charts";
+import { centerFigurePosition, getMaxFigureSize } from "../helpers/figures/figure/figure";
+import { areZonesContinuous, getZoneArea, numberToLetters } from "../helpers/index";
+import { interactiveSortSelection } from "../helpers/sort";
+import { interactiveCut } from "../helpers/ui/cut_interactive";
+import { interactiveAddFilter } from "../helpers/ui/filter_interactive";
 import {
   handlePasteResult,
   interactivePaste,
   interactivePasteFromOS,
-} from "../../helpers/ui/paste_interactive";
-import { _lt } from "../../translation";
-import { Image } from "../../types/image";
-import { Format, SpreadsheetChildEnv, Style } from "../../types/index";
-import { ClipboardPasteOptions } from "./../../types/clipboard";
+} from "../helpers/ui/paste_interactive";
+import { _lt } from "../translation";
+import { ClipboardPasteOptions } from "../types/clipboard";
+import { Image } from "../types/image";
+import { Format, SpreadsheetChildEnv, Style } from "../types/index";
 
 //------------------------------------------------------------------------------
 // Helpers

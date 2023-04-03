@@ -1,4 +1,5 @@
 import { Component, xml } from "@odoo/owl";
+import { Action, createActions } from "../../src/actions/action";
 import { Menu } from "../../src/components/menu/menu";
 import {
   MENU_ITEM_HEIGHT,
@@ -9,7 +10,6 @@ import {
 import { toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
-import { Action, createActions } from "../../src/registries/menu_items_registry";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import {
   click,

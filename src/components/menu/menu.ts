@@ -1,4 +1,5 @@
 import { Component, onWillUpdateProps, useExternalListener, useRef, useState } from "@odoo/owl";
+import { Action } from "../../actions/action";
 import {
   BG_HOVER_COLOR,
   ICONS_COLOR,
@@ -9,7 +10,6 @@ import {
   MENU_VERTICAL_PADDING,
   MENU_WIDTH,
 } from "../../constants";
-import { Action } from "../../registries/menu_items_registry";
 import { DOMCoordinates, MenuMouseEvent, Pixel, SpreadsheetChildEnv, UID } from "../../types";
 import { css } from "../helpers/css";
 import { getOpenedMenus, isChildEvent } from "../helpers/dom_helpers";

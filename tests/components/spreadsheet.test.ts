@@ -1,8 +1,8 @@
 import { Model } from "../../src";
+import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { Spreadsheet } from "../../src/components";
 import { functionRegistry } from "../../src/functions";
 import { toZone } from "../../src/helpers";
-import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/registries";
 import { SpreadsheetChildEnv } from "../../src/types";
 import {
   addRows,

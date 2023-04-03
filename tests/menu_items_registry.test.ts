@@ -1,9 +1,9 @@
 import { Model, Spreadsheet } from "../src";
+import { Action } from "../src/actions/action";
 import { FONT_SIZES } from "../src/constants";
 import { zoneToXc } from "../src/helpers";
 import { interactivePaste } from "../src/helpers/ui/paste_interactive";
 import { colMenuRegistry, rowMenuRegistry, topbarMenuRegistry } from "../src/registries/index";
-import { Action } from "../src/registries/menu_items_registry";
 import { SpreadsheetChildEnv } from "../src/types";
 import {
   copy,

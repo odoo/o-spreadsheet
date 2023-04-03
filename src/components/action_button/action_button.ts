@@ -1,5 +1,5 @@
 import { Component, onWillUpdateProps } from "@odoo/owl";
-import { ActionSpec, createAction } from "../../registries/menu_items_registry";
+import { ActionSpec, createAction } from "../../actions/action";
 import { SpreadsheetChildEnv } from "../../types";
 import { css, cssPropertiesToCss } from "../helpers";
 

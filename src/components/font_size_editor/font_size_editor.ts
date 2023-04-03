@@ -1,7 +1,7 @@
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import { setStyle } from "../../actions/menu_items_actions";
 import { DEFAULT_FONT_SIZE, FONT_SIZES, SELECTION_BORDER_COLOR } from "../../constants";
 import { clip } from "../../helpers/index";
-import { setStyle } from "../../registries/index";
 import { SpreadsheetChildEnv } from "../../types/index";
 import { css } from "../helpers/css";
 import { isChildEvent } from "../helpers/dom_helpers";

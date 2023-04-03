@@ -1,8 +1,8 @@
 import { _lt } from "../../translation";
 import { MenuItemRegistry } from "../menu_items_registry";
 
-import * as ACTION_EDIT from "./items/edit_menu_items";
-import * as ACTION_INSERT from "./items/insert_menu_items";
+import * as ACTION_EDIT from "../../actions/edit_actions";
+import * as ACTION_INSERT from "../../actions/insert_actions";
 
 //------------------------------------------------------------------------------
 // Context Menu Registry

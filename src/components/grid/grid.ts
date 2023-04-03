@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from "@odoo/owl";
+import { INSERT_LINK } from "../../actions/menu_items_actions";
 import {
   AUTOFILL_EDGE_LENGTH,
   HEADER_HEIGHT,
@@ -19,7 +20,6 @@ import { interactivePaste, interactivePasteFromOS } from "../../helpers/ui/paste
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
-import { INSERT_LINK } from "../../registries/menus/menu_items_actions";
 import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
 import { _lt } from "../../translation";
 import {

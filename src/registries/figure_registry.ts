@@ -1,9 +1,9 @@
+import { Action, ActionSpec, createActions } from "../actions/action";
 import { ChartFigure } from "../components/figures/figure_chart/figure_chart";
 import { ImageFigure } from "../components/figures/figure_image/figure_image";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { _lt } from "../translation";
 import { SpreadsheetChildEnv, UID } from "../types";
-import { Action, ActionSpec, createActions } from "./menu_items_registry";
 import { Registry } from "./registry";
 
 //------------------------------------------------------------------------------

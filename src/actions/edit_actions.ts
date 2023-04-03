@@ -1,9 +1,9 @@
-import { isEqual, positionToZone } from "../../../helpers";
-import { interactiveAddMerge } from "../../../helpers/ui/merge_interactive";
-import { _lt } from "../../../translation";
-import { SpreadsheetChildEnv } from "../../../types";
-import { ActionSpec } from "../../menu_items_registry";
-import * as ACTIONS from "./../menu_items_actions";
+import { isEqual, positionToZone } from "../helpers";
+import { interactiveAddMerge } from "../helpers/ui/merge_interactive";
+import { _lt } from "../translation";
+import { SpreadsheetChildEnv } from "../types";
+import { ActionSpec } from "./action";
+import * as ACTIONS from "./menu_items_actions";
 
 export const undo: ActionSpec = {
   name: _lt("Undo"),
