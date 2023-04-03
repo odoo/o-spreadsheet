@@ -37,33 +37,18 @@
             </span>
           </div>
           <div t-else="" class="o-toolbar-tools d-flex flex-shrink-0 ms-4">
-            <MenuItemButton menuItemSpec="editMenuItems.undoMenuItem" class="'o-topbar-hoverable'"/>
-            <MenuItemButton menuItemSpec="editMenuItems.redoMenuItem" class="'o-topbar-hoverable'"/>
-            <MenuItemButton
-              menuItemSpec="formatMenuItems.paintFormatMenuItem"
-              class="'o-topbar-hoverable'"
-            />
-            <MenuItemButton
-              menuItemSpec="formatMenuItems.clearFormatMenuItem"
-              class="'o-topbar-hoverable'"
-            />
+            <ActionButton action="EDIT.undo" class="'o-topbar-hoverable'"/>
+            <ActionButton action="EDIT.redo" class="'o-topbar-hoverable'"/>
+            <ActionButton action="FORMAT.paintFormat" class="'o-topbar-hoverable'"/>
+            <ActionButton action="FORMAT.clearFormat" class="'o-topbar-hoverable'"/>
 
             <div class="o-divider"/>
 
-            <MenuItemButton
-              menuItemSpec="formatMenuItems.formatPercentMenuItem"
-              class="'o-topbar-hoverable'"
-            />
-            <MenuItemButton
-              menuItemSpec="formatMenuItems.decraseDecimalPlacesMenuItem"
-              class="'o-topbar-hoverable'"
-            />
-            <MenuItemButton
-              menuItemSpec="formatMenuItems.incraseDecimalPlacesMenuItem"
-              class="'o-topbar-hoverable'"
-            />
-            <MenuItemButton
-              menuItemSpec="formatNumberMenuItemSpec"
+            <ActionButton action="FORMAT.formatPercent" class="'o-topbar-hoverable'"/>
+            <ActionButton action="FORMAT.decraseDecimalPlaces" class="'o-topbar-hoverable'"/>
+            <ActionButton action="FORMAT.incraseDecimalPlaces" class="'o-topbar-hoverable'"/>
+            <ActionButton
+              action="formatNumberMenuItemSpec"
               onClick="(ev) => this.toggleToolbarContextMenu(formatNumberMenuItemSpec, ev)"
               hasTriangleDownIcon="true"
               class="'o-topbar-hoverable'"
@@ -75,18 +60,9 @@
 
             <div class="o-divider"/>
 
-            <MenuItemButton
-              menuItemSpec="formatMenuItems.formatBoldMenuItem"
-              class="'o-topbar-hoverable'"
-            />
-            <MenuItemButton
-              menuItemSpec="formatMenuItems.formatItalicMenuItem"
-              class="'o-topbar-hoverable'"
-            />
-            <MenuItemButton
-              menuItemSpec="formatMenuItems.formatStrikethroughMenuItem"
-              class="'o-topbar-hoverable'"
-            />
+            <ActionButton action="FORMAT.formatBold" class="'o-topbar-hoverable'"/>
+            <ActionButton action="FORMAT.formatItalic" class="'o-topbar-hoverable'"/>
+            <ActionButton action="FORMAT.formatStrikethrough" class="'o-topbar-hoverable'"/>
 
             <ColorPickerWidget
               currentColor="state.textColor"
@@ -113,8 +89,8 @@
             />
 
             <div class="o-dropdown">
-              <MenuItemButton
-                menuItemSpec="formatMenuItems.bordersMenuItem"
+              <ActionButton
+                action="FORMAT.borders"
                 t-on-click="(ev) => this.toggleDropdownTool('borderTool', ev)"
                 class="'o-topbar-hoverable'"
               />
@@ -124,61 +100,28 @@
                 t-att-style="dropdownStyle"
                 t-on-click.stop="">
                 <div class="o-dropdown-line">
-                  <MenuItemButton
-                    menuItemSpec="formatMenuItems.bordersAllMenuItem"
-                    class="'o-topbar-hoverable'"
-                  />
-                  <MenuItemButton
-                    menuItemSpec="formatMenuItems.bordersInnerMenuItem"
-                    class="'o-topbar-hoverable'"
-                  />
-                  <MenuItemButton
-                    menuItemSpec="formatMenuItems.bordersHorizontalMenuItem"
-                    class="'o-topbar-hoverable'"
-                  />
-                  <MenuItemButton
-                    menuItemSpec="formatMenuItems.bordersVerticalMenuItem"
-                    class="'o-topbar-hoverable'"
-                  />
-                  <MenuItemButton
-                    menuItemSpec="formatMenuItems.bordersExternalMenuItem"
-                    class="'o-topbar-hoverable'"
-                  />
+                  <ActionButton action="FORMAT.bordersAll" class="'o-topbar-hoverable'"/>
+                  <ActionButton action="FORMAT.bordersInner" class="'o-topbar-hoverable'"/>
+                  <ActionButton action="FORMAT.bordersHorizontal" class="'o-topbar-hoverable'"/>
+                  <ActionButton action="FORMAT.bordersVertical" class="'o-topbar-hoverable'"/>
+                  <ActionButton action="FORMAT.bordersExternal" class="'o-topbar-hoverable'"/>
                 </div>
                 <div class="o-dropdown-line">
-                  <MenuItemButton
-                    menuItemSpec="formatMenuItems.bordersLeftMenuItem"
-                    class="'o-topbar-hoverable'"
-                  />
-                  <MenuItemButton
-                    menuItemSpec="formatMenuItems.bordersTopMenuItem"
-                    class="'o-topbar-hoverable'"
-                  />
-                  <MenuItemButton
-                    menuItemSpec="formatMenuItems.bordersRightMenuItem"
-                    class="'o-topbar-hoverable'"
-                  />
-                  <MenuItemButton
-                    menuItemSpec="formatMenuItems.bordersBottomMenuItem"
-                    class="'o-topbar-hoverable'"
-                  />
-                  <MenuItemButton
-                    menuItemSpec="formatMenuItems.bordersClearMenuItem"
-                    class="'o-topbar-hoverable'"
-                  />
+                  <ActionButton action="FORMAT.bordersLeft" class="'o-topbar-hoverable'"/>
+                  <ActionButton action="FORMAT.bordersTop" class="'o-topbar-hoverable'"/>
+                  <ActionButton action="FORMAT.bordersRight" class="'o-topbar-hoverable'"/>
+                  <ActionButton action="FORMAT.bordersBottom" class="'o-topbar-hoverable'"/>
+                  <ActionButton action="FORMAT.bordersClear" class="'o-topbar-hoverable'"/>
                 </div>
               </div>
             </div>
-            <MenuItemButton
-              menuItemSpec="editMenuItems.mergeCellsMenuItem"
-              class="'o-topbar-hoverable'"
-            />
+            <ActionButton action="EDIT.mergeCells" class="'o-topbar-hoverable'"/>
 
             <div class="o-divider"/>
 
             <div class="o-dropdown">
-              <MenuItemButton
-                menuItemSpec="formatMenuItems.formatAlignmentHorizontalMenuItem"
+              <ActionButton
+                action="FORMAT.formatAlignmentHorizontal"
                 hasTriangleDownIcon="true"
                 t-on-click="(ev) => this.toggleDropdownTool('horizontalAlignTool', ev)"
                 class="'o-topbar-hoverable'"
@@ -189,24 +132,15 @@
                 t-att-style="dropdownStyle"
                 t-on-click.stop="">
                 <div class="o-dropdown-line">
-                  <MenuItemButton
-                    menuItemSpec="formatMenuItems.formatAlignmentLeftMenuItem"
-                    class="'o-topbar-hoverable'"
-                  />
-                  <MenuItemButton
-                    menuItemSpec="formatMenuItems.formatAlignmentCenterMenuItem"
-                    class="'o-topbar-hoverable'"
-                  />
-                  <MenuItemButton
-                    menuItemSpec="formatMenuItems.formatAlignmentRightMenuItem"
-                    class="'o-topbar-hoverable'"
-                  />
+                  <ActionButton action="FORMAT.formatAlignmentLeft" class="'o-topbar-hoverable'"/>
+                  <ActionButton action="FORMAT.formatAlignmentCenter" class="'o-topbar-hoverable'"/>
+                  <ActionButton action="FORMAT.formatAlignmentRight" class="'o-topbar-hoverable'"/>
                 </div>
               </div>
             </div>
             <div class="o-dropdown">
-              <MenuItemButton
-                menuItemSpec="formatMenuItems.formatAlignmentVerticalMenuItem"
+              <ActionButton
+                action="FORMAT.formatAlignmentVertical"
                 hasTriangleDownIcon="true"
                 t-on-click="(ev) => this.toggleDropdownTool('verticalAlignTool', ev)"
                 class="'o-topbar-hoverable'"
@@ -217,24 +151,15 @@
                 t-if="state.activeTool === 'verticalAlignTool'"
                 t-on-click.stop="">
                 <div class="o-dropdown-line">
-                  <MenuItemButton
-                    menuItemSpec="formatMenuItems.formatAlignmentTopMenuItem"
-                    class="'o-topbar-hoverable'"
-                  />
-                  <MenuItemButton
-                    menuItemSpec="formatMenuItems.formatAlignmentMiddleMenuItem"
-                    class="'o-topbar-hoverable'"
-                  />
-                  <MenuItemButton
-                    menuItemSpec="formatMenuItems.formatAlignmentBottomMenuItem"
-                    class="'o-topbar-hoverable'"
-                  />
+                  <ActionButton action="FORMAT.formatAlignmentTop" class="'o-topbar-hoverable'"/>
+                  <ActionButton action="FORMAT.formatAlignmentMiddle" class="'o-topbar-hoverable'"/>
+                  <ActionButton action="FORMAT.formatAlignmentBottom" class="'o-topbar-hoverable'"/>
                 </div>
               </div>
             </div>
             <div class="o-dropdown">
-              <MenuItemButton
-                menuItemSpec="formatMenuItems.formatWrappingMenuItem"
+              <ActionButton
+                action="FORMAT.formatWrapping"
                 hasTriangleDownIcon="true"
                 t-on-click="(ev) => this.toggleDropdownTool('textWrappingTool', ev)"
                 class="'o-topbar-hoverable'"
@@ -245,28 +170,19 @@
                 t-if="state.activeTool === 'textWrappingTool'"
                 t-on-click.stop="">
                 <div class="o-dropdown-line">
-                  <MenuItemButton
-                    menuItemSpec="formatMenuItems.formatWrappingOverflowMenuItem"
+                  <ActionButton
+                    action="FORMAT.formatWrappingOverflow"
                     class="'o-topbar-hoverable'"
                   />
-                  <MenuItemButton
-                    menuItemSpec="formatMenuItems.formatWrappingWrapMenuItem"
-                    class="'o-topbar-hoverable'"
-                  />
-                  <MenuItemButton
-                    menuItemSpec="formatMenuItems.formatWrappingClipMenuItem"
-                    class="'o-topbar-hoverable'"
-                  />
+                  <ActionButton action="FORMAT.formatWrappingWrap" class="'o-topbar-hoverable'"/>
+                  <ActionButton action="FORMAT.formatWrappingClip" class="'o-topbar-hoverable'"/>
                 </div>
               </div>
             </div>
 
             <div class="o-divider"/>
 
-            <MenuItemButton
-              menuItemSpec="viewMenuItems.createRemoveFilterMenuItem"
-              class="'o-topbar-hoverable'"
-            />
+            <ActionButton action="VIEW.createRemoveFilter" class="'o-topbar-hoverable'"/>
           </div>
         </div>
         <TopBarComposer

@@ -1,33 +1,33 @@
 import { _lt } from "../../../translation";
-import { MenuItemSpec } from "../../menu_items_registry";
+import { ActionSpec } from "../../menu_items_registry";
 import * as ACTIONS from "./../menu_items_actions";
 
-export const sortRangeMenuItem: MenuItemSpec = {
+export const sortRange: ActionSpec = {
   name: _lt("Sort range"),
   isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
 };
 
-export const sortAscendingenuItem: MenuItemSpec = {
+export const sortAscending: ActionSpec = {
   name: _lt("Ascending (A ⟶ Z)"),
-  action: ACTIONS.SORT_CELLS_ASCENDING,
+  execute: ACTIONS.SORT_CELLS_ASCENDING,
 };
 
-export const sortDescendingMenuItem: MenuItemSpec = {
+export const sortDescending: ActionSpec = {
   name: _lt("Descending (Z ⟶ A)"),
-  action: ACTIONS.SORT_CELLS_DESCENDING,
+  execute: ACTIONS.SORT_CELLS_DESCENDING,
 };
 
-export const addDataFilterMenuItem: MenuItemSpec = {
+export const addDataFilter: ActionSpec = {
   name: _lt("Create filter"),
-  action: ACTIONS.FILTERS_CREATE_FILTER_TABLE,
+  execute: ACTIONS.FILTERS_CREATE_FILTER_TABLE,
   isVisible: (env) => !ACTIONS.SELECTION_CONTAINS_FILTER(env),
   isEnabled: (env) => ACTIONS.SELECTION_IS_CONTINUOUS(env),
   icon: "o-spreadsheet-Icon.FILTER_ICON_INACTIVE",
 };
 
-export const removeDataFilterMenuItem: MenuItemSpec = {
+export const removeDataFilter: ActionSpec = {
   name: _lt("Remove filter"),
-  action: ACTIONS.FILTERS_REMOVE_FILTER_TABLE,
+  execute: ACTIONS.FILTERS_REMOVE_FILTER_TABLE,
   isVisible: ACTIONS.SELECTION_CONTAINS_FILTER,
   icon: "o-spreadsheet-Icon.FILTER_ICON_INACTIVE",
 };

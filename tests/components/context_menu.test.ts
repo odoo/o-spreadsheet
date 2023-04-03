@@ -9,7 +9,7 @@ import {
 import { toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
-import { createMenu, MenuItem } from "../../src/registries/menu_items_registry";
+import { Action, createActions } from "../../src/registries/menu_items_registry";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import {
   click,
@@ -121,7 +121,7 @@ function getSubMenuSize(depth = 1) {
 
 interface ContextMenuTestConfig {
   onClose?: () => void;
-  menuItems?: MenuItem[];
+  menuItems?: Action[];
 }
 
 async function renderContextMenu(
@@ -153,7 +153,7 @@ function getSelectionAnchorCellXc(model: Model): string {
   return toXC(col, row);
 }
 
-const subMenu: MenuItem[] = createMenu([
+const subMenu: Action[] = createActions([
   {
     id: "root",
     name: "root",
@@ -162,12 +162,12 @@ const subMenu: MenuItem[] = createMenu([
         {
           id: "subMenu1",
           name: "subMenu1",
-          action() {},
+          execute() {},
         },
         {
           id: "subMenu2",
           name: "subMenu2",
-          action() {},
+          execute() {},
         },
       ],
     ],
@@ -185,7 +185,7 @@ class ContextMenuParent extends Component {
     </div>
   `;
   static components = { Menu };
-  menus!: MenuItem[];
+  menus!: Action[];
   position!: { x: number; y: number; width: number; height: number };
   onClose!: () => void;
 
@@ -200,11 +200,11 @@ class ContextMenuParent extends Component {
     };
     this.menus =
       this.props.config.menuItems ||
-      createMenu([
+      createActions([
         {
           id: "Action",
           name: "Action",
-          action() {},
+          execute() {},
         },
       ]);
     this.env.model.dispatch("RESIZE_SHEETVIEW", {
@@ -315,13 +315,13 @@ describe("Context Menu integration tests", () => {
         name: "visible_action",
         sequence: 1,
         isVisible: (env) => getEvaluatedCell(model, "B1").value === "b1",
-        action() {},
+        execute() {},
       })
       .add("hidden_action", {
         name: "hidden_action",
         sequence: 2,
         isVisible: (env) => getEvaluatedCell(model, "B1").value !== "b1",
-        action() {},
+        execute() {},
       });
     setCellContent(model, "B1", "b1");
     await rightClickCell(model, "B1");
@@ -402,11 +402,11 @@ describe("Context Menu integration tests", () => {
 
 describe("Context Menu internal tests", () => {
   test("submenu opens and close when (un)hovered", async () => {
-    const menuItems = createMenu([
+    const menuItems = createActions([
       {
         id: "action",
         name: "action",
-        action() {},
+        execute() {},
       },
       {
         id: "root",
@@ -416,7 +416,7 @@ describe("Context Menu internal tests", () => {
             {
               id: "subMenu",
               name: "subMenu",
-              action() {},
+              execute() {},
             },
           ],
         ],
@@ -444,7 +444,7 @@ describe("Context Menu internal tests", () => {
   });
 
   test("submenu does not open when disabled", async () => {
-    const menuItems: MenuItem[] = createMenu([
+    const menuItems: Action[] = createActions([
       {
         id: "root",
         name: "root",
@@ -453,7 +453,7 @@ describe("Context Menu internal tests", () => {
           {
             name: "subMenu",
             id: "subMenu",
-            action() {},
+            execute() {},
           },
         ],
       },
@@ -465,7 +465,7 @@ describe("Context Menu internal tests", () => {
   });
 
   test("submenu does not open when hovering write only parent", async () => {
-    const menuItems: MenuItem[] = createMenu([
+    const menuItems: Action[] = createActions([
       {
         id: "root",
         name: "root",
@@ -475,7 +475,7 @@ describe("Context Menu internal tests", () => {
           {
             name: "subMenu",
             id: "subMenu",
-            action() {},
+            execute() {},
           },
         ],
       },
@@ -519,7 +519,7 @@ describe("Context Menu internal tests", () => {
   });
 
   test("it renders subsubmenus", async () => {
-    const menuItems = createMenu([
+    const menuItems = createActions([
       {
         id: "root1",
         name: "root1",
@@ -533,7 +533,7 @@ describe("Context Menu internal tests", () => {
                   {
                     id: "subMenu",
                     name: "subMenu",
-                    action() {},
+                    execute() {},
                   },
                 ],
               ],
@@ -549,7 +549,7 @@ describe("Context Menu internal tests", () => {
   });
 
   test("Menu with icon is correctly displayed", async () => {
-    const menuItems: MenuItem[] = createMenu([
+    const menuItems: Action[] = createActions([
       {
         id: "root1",
         name: "root1",
@@ -559,7 +559,7 @@ describe("Context Menu internal tests", () => {
             {
               id: "root2",
               name: "root2",
-              action() {},
+              execute() {},
               icon: "o-spreadsheet-Icon.ITALIC",
             },
           ],
@@ -567,7 +567,7 @@ describe("Context Menu internal tests", () => {
             {
               id: "root3",
               name: "root3",
-              action() {},
+              execute() {},
             },
           ],
         ],
@@ -581,16 +581,16 @@ describe("Context Menu internal tests", () => {
   });
 
   test("Can color menu items", async () => {
-    const menuItems: MenuItem[] = createMenu([
+    const menuItems: Action[] = createActions([
       {
         id: "black",
         name: "black",
-        action() {},
+        execute() {},
       },
       {
         id: "orange",
         name: "orange",
-        action() {},
+        execute() {},
         textColor: "orange",
       },
     ]);
@@ -604,7 +604,7 @@ describe("Context Menu internal tests", () => {
   });
 
   test("Only submenus of the current parent are visible", async () => {
-    const menuItems = createMenu([
+    const menuItems = createActions([
       {
         id: "root_1",
         name: "root_1",
@@ -618,7 +618,7 @@ describe("Context Menu internal tests", () => {
                   {
                     id: "subMenu_1",
                     name: "subMenu_1",
-                    action() {},
+                    execute() {},
                   },
                 ],
               ],
@@ -639,7 +639,7 @@ describe("Context Menu internal tests", () => {
                   {
                     id: "subMenu_2",
                     name: "subMenu_2",
-                    action() {},
+                    execute() {},
                   },
                 ],
               ],
@@ -662,7 +662,7 @@ describe("Context Menu internal tests", () => {
   });
 
   test("Submenu visibility is taken into account", async () => {
-    const menuItems = createMenu([
+    const menuItems = createActions([
       {
         id: "root",
         name: "root_1",
@@ -676,13 +676,13 @@ describe("Context Menu internal tests", () => {
                   {
                     id: "visible_submenu_1",
                     name: "visible_submenu_1",
-                    action() {},
+                    execute() {},
                     isVisible: () => true,
                   },
                   {
                     id: "invisible_submenu_1",
                     name: "invisible_submenu_1",
-                    action() {},
+                    execute() {},
                     isVisible: () => false,
                   },
                 ],
@@ -791,7 +791,7 @@ describe("Context Menu position on large screen 1000px/1000px", () => {
   });
 
   test("multi depth menu is properly placed on the screen", async () => {
-    const subMenus: MenuItem[] = createMenu([
+    const subMenus: Action[] = createActions([
       {
         id: "root",
         name: "root",
@@ -803,7 +803,7 @@ describe("Context Menu position on large screen 1000px/1000px", () => {
               {
                 id: "subSubMenu",
                 name: "subSubMenu",
-                action() {},
+                execute() {},
               },
             ],
           },

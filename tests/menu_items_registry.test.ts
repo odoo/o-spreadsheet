@@ -3,7 +3,7 @@ import { FONT_SIZES } from "../src/constants";
 import { zoneToXc } from "../src/helpers";
 import { interactivePaste } from "../src/helpers/ui/paste_interactive";
 import { colMenuRegistry, rowMenuRegistry, topbarMenuRegistry } from "../src/registries/index";
-import { MenuItem } from "../src/registries/menu_items_registry";
+import { Action } from "../src/registries/menu_items_registry";
 import { SpreadsheetChildEnv } from "../src/types";
 import {
   copy,
@@ -54,7 +54,7 @@ describe("Menu Item Registry", () => {
       return menus.map((name) => ({
         id: name,
         name: name,
-        action: () => {},
+        execute: () => {},
       }));
     });
     const env = makeTestEnv();
@@ -62,11 +62,11 @@ describe("Menu Item Registry", () => {
 
     const children = item.children && item.children(env);
     expect(children).toHaveLength(1);
-    const child = children[0] as MenuItem;
+    const child = children[0] as Action;
     expect(child.name(env)).toBe("Child1");
     expect(child.id).toBe("child1");
     expect(child.children(env)).toHaveLength(3);
-    const subChild = child.children(env)[0] as MenuItem;
+    const subChild = child.children(env)[0] as Action;
     expect(subChild.name(env)).toBe("Child2");
     expect(subChild.description).toBe("coucou");
     expect(subChild.id).toBe("child2");
@@ -1087,12 +1087,12 @@ describe("Menu Item actions", () => {
       expect(unfreeze_panes.isVisible(env)).toBe(false);
       freezeColumns(model, 1);
       expect(unfreeze_panes.isVisible(env)).toBe(true);
-      unfreeze_panes.action?.(env);
+      unfreeze_panes.execute?.(env);
       expect(model.getters.getPaneDivisions(sheetId));
       expect(unfreeze_panes.isVisible(env)).toBe(false);
       freezeRows(model, 3);
       expect(unfreeze_panes.isVisible(env)).toBe(true);
-      unfreeze_panes.action?.(env);
+      unfreeze_panes.execute?.(env);
       expect(model.getters.getPaneDivisions(sheetId));
       expect(unfreeze_panes.isVisible(env)).toBe(false);
     });

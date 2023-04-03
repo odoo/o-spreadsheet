@@ -10,72 +10,72 @@ export const colMenuRegistry = new MenuItemRegistry();
 
 colMenuRegistry
   .add("cut", {
-    ...ACTION_EDIT.cutMenuItem,
+    ...ACTION_EDIT.cut,
     sequence: 10,
   })
   .add("copy", {
-    ...ACTION_EDIT.copyMenuItem,
+    ...ACTION_EDIT.copy,
     sequence: 20,
   })
   .add("paste", {
-    ...ACTION_EDIT.pasteMenuItem,
+    ...ACTION_EDIT.paste,
     sequence: 30,
   })
   .add("paste_special", {
-    ...ACTION_EDIT.pasteSpecialMenuItem,
+    ...ACTION_EDIT.pasteSpecial,
     sequence: 40,
     separator: true,
   })
   .addChild("paste_value_only", ["paste_special"], {
-    ...ACTION_EDIT.pasteSpecialValueMenuItem,
+    ...ACTION_EDIT.pasteSpecialValue,
     sequence: 10,
   })
   .addChild("paste_format_only", ["paste_special"], {
-    ...ACTION_EDIT.pasteSpecialFormatMenuItem,
+    ...ACTION_EDIT.pasteSpecialFormat,
     sequence: 20,
   })
   .add("sort_columns", {
-    ...ACTION_DATA.sortRangeMenuItem,
+    ...ACTION_DATA.sortRange,
     name: (env) =>
       env.model.getters.getActiveCols().size > 1 ? _lt("Sort columns") : _lt("Sort column"),
     sequence: 50,
     separator: true,
   })
   .addChild("sort_ascending", ["sort_columns"], {
-    ...ACTION_DATA.sortAscendingenuItem,
+    ...ACTION_DATA.sortAscending,
     sequence: 10,
   })
   .addChild("sort_descending", ["sort_columns"], {
-    ...ACTION_DATA.sortDescendingMenuItem,
+    ...ACTION_DATA.sortDescending,
     sequence: 20,
   })
   .add("add_column_before", {
-    ...ACTION_INSERT.colInsertColsBeforeMenuItem,
+    ...ACTION_INSERT.colInsertColsBefore,
     sequence: 70,
   })
   .add("add_column_after", {
-    ...ACTION_INSERT.colInsertColsAfterMenuItem,
+    ...ACTION_INSERT.colInsertColsAfter,
     sequence: 80,
   })
   .add("delete_column", {
-    ...ACTION_EDIT.deleteColsMenuItem,
+    ...ACTION_EDIT.deleteCols,
     sequence: 90,
   })
   .add("clear_column", {
-    ...ACTION_EDIT.clearColsMenuItem,
+    ...ACTION_EDIT.clearCols,
     sequence: 100,
   })
   .add("hide_columns", {
-    ...ACTION_VIEW.hideColsMenuItem,
+    ...ACTION_VIEW.hideCols,
     sequence: 85,
     separator: true,
   })
   .add("unhide_columns", {
-    ...ACTION_VIEW.unhideColsMenuItem,
+    ...ACTION_VIEW.unhideCols,
     sequence: 86,
     separator: true,
   })
   .add("conditional_formatting", {
-    ...ACTION_FORMAT.formatCFMenuItem,
+    ...ACTION_FORMAT.formatCF,
     sequence: 110,
   });

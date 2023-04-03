@@ -1,5 +1,5 @@
 import { Component, onWillUpdateProps } from "@odoo/owl";
-import { createMenuItem, MenuItemSpec } from "../../registries/menu_items_registry";
+import { ActionSpec, createAction } from "../../registries/menu_items_registry";
 import { SpreadsheetChildEnv } from "../../types";
 import { css, cssPropertiesToCss } from "../helpers";
 
@@ -20,52 +20,52 @@ css/* scss */ `
 `;
 
 interface Props {
-  menuItemSpec: MenuItemSpec;
+  action: ActionSpec;
   hasTriangleDownIcon?: boolean;
   selectedColor?: string;
   class?: string;
   onClick?: (ev: MouseEvent) => void;
 }
 
-export class MenuItemButton extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-MenuItemButton";
+export class ActionButton extends Component<Props, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-ActionButton";
 
-  private menuItem = createMenuItem(this.props.menuItemSpec);
+  private actionButton = createAction(this.props.action);
 
   setup() {
-    onWillUpdateProps(() => (this.menuItem = createMenuItem(this.props.menuItemSpec)));
+    onWillUpdateProps(() => (this.actionButton = createAction(this.props.action)));
   }
 
   get isVisible() {
-    return this.menuItem.isVisible(this.env);
+    return this.actionButton.isVisible(this.env);
   }
 
   get isEnabled() {
-    return this.menuItem.isEnabled(this.env);
+    return this.actionButton.isEnabled(this.env);
   }
 
   get isActive() {
-    return this.menuItem.isActive?.(this.env);
+    return this.actionButton.isActive?.(this.env);
   }
 
   get title() {
-    const name = this.menuItem.name(this.env);
-    const description = this.menuItem.description;
+    const name = this.actionButton.name(this.env);
+    const description = this.actionButton.description;
     return name + (description ? ` (${description})` : "");
   }
 
   get iconTitle() {
-    return this.menuItem.icon;
+    return this.actionButton.icon;
   }
 
   onClick(ev: MouseEvent) {
     if (this.isEnabled) {
       this.props.onClick?.(ev);
-      this.menuItem.action?.(this.env);
+      this.actionButton.execute?.(this.env);
     }
   }
 
-  get menuItemStyle() {
+  get buttonStyle() {
     if (this.props.selectedColor) {
       return cssPropertiesToCss({
         "border-bottom": `4px solid ${this.props.selectedColor}`,

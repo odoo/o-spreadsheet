@@ -29,70 +29,70 @@ topbarMenuRegistry
     sequence: 20,
   })
   .addChild("undo", ["edit"], {
-    ...ACTION_EDIT.undoMenuItem,
+    ...ACTION_EDIT.undo,
     sequence: 10,
   })
   .addChild("redo", ["edit"], {
-    ...ACTION_EDIT.redoMenuItem,
+    ...ACTION_EDIT.redo,
     sequence: 20,
     separator: true,
   })
   .addChild("copy", ["edit"], {
-    ...ACTION_EDIT.copyMenuItem,
+    ...ACTION_EDIT.copy,
     sequence: 30,
   })
   .addChild("cut", ["edit"], {
-    ...ACTION_EDIT.cutMenuItem,
+    ...ACTION_EDIT.cut,
     sequence: 40,
   })
   .addChild("paste", ["edit"], {
-    ...ACTION_EDIT.pasteMenuItem,
+    ...ACTION_EDIT.paste,
     sequence: 50,
   })
   .addChild("paste_special", ["edit"], {
-    ...ACTION_EDIT.pasteSpecialMenuItem,
+    ...ACTION_EDIT.pasteSpecial,
     sequence: 60,
     separator: true,
   })
   .addChild("paste_special_value", ["edit", "paste_special"], {
-    ...ACTION_EDIT.pasteSpecialValueMenuItem,
+    ...ACTION_EDIT.pasteSpecialValue,
     sequence: 10,
   })
   .addChild("paste_special_format", ["edit", "paste_special"], {
-    ...ACTION_EDIT.pasteSpecialFormatMenuItem,
+    ...ACTION_EDIT.pasteSpecialFormat,
     sequence: 20,
   })
   .addChild("find_and_replace", ["edit"], {
-    ...ACTION_EDIT.findAndReplaceMenuItem,
+    ...ACTION_EDIT.findAndReplace,
     sequence: 65,
     separator: true,
   })
   .addChild("edit_delete_cell_values", ["edit"], {
-    ...ACTION_EDIT.deleteValuesMenuItem,
+    ...ACTION_EDIT.deleteValues,
     sequence: 70,
   })
   .addChild("edit_delete_row", ["edit"], {
-    ...ACTION_EDIT.deleteRowsMenuItem,
+    ...ACTION_EDIT.deleteRows,
     sequence: 80,
   })
   .addChild("edit_delete_column", ["edit"], {
-    ...ACTION_EDIT.deleteColsMenuItem,
+    ...ACTION_EDIT.deleteCols,
     sequence: 90,
   })
   .addChild("edit_delete_cell_shift_up", ["edit"], {
-    ...ACTION_EDIT.deleteCellShiftUpMenuItem,
+    ...ACTION_EDIT.deleteCellShiftUp,
     sequence: 93,
   })
   .addChild("edit_delete_cell_shift_left", ["edit"], {
-    ...ACTION_EDIT.deleteCellShiftLeftMenuItem,
+    ...ACTION_EDIT.deleteCellShiftLeft,
     sequence: 97,
   })
   .addChild("edit_unhide_columns", ["edit"], {
-    ...ACTION_VIEW.unhideAllColsMenuItem,
+    ...ACTION_VIEW.unhideAllCols,
     sequence: 100,
   })
   .addChild("edit_unhide_rows", ["edit"], {
-    ...ACTION_VIEW.unhideAllRowsMenuItem,
+    ...ACTION_VIEW.unhideAllRows,
     sequence: 100,
   })
 
@@ -105,53 +105,53 @@ topbarMenuRegistry
     sequence: 30,
   })
   .addChild("unfreeze_panes", ["view"], {
-    ...ACTION_VIEW.unFreezePaneMenuItem,
+    ...ACTION_VIEW.unFreezePane,
     sequence: 4,
   })
   .addChild("freeze_panes", ["view"], {
-    ...ACTION_VIEW.freezePaneMenuItem,
+    ...ACTION_VIEW.freezePane,
     sequence: 5,
     separator: true,
   })
   .addChild("unfreeze_rows", ["view", "freeze_panes"], {
-    ...ACTION_VIEW.unFreezeRowsMenuItem,
+    ...ACTION_VIEW.unFreezeRows,
     sequence: 5,
   })
   .addChild("freeze_first_row", ["view", "freeze_panes"], {
-    ...ACTION_VIEW.freezeFirstRowMenuItem,
+    ...ACTION_VIEW.freezeFirstRow,
     sequence: 10,
   })
   .addChild("freeze_second_row", ["view", "freeze_panes"], {
-    ...ACTION_VIEW.freezeSecondRowMenuItem,
+    ...ACTION_VIEW.freezeSecondRow,
     sequence: 15,
   })
   .addChild("freeze_current_row", ["view", "freeze_panes"], {
-    ...ACTION_VIEW.freezeCurrentRowMenuItem,
+    ...ACTION_VIEW.freezeCurrentRow,
     sequence: 20,
     separator: true,
   })
   .addChild("unfreeze_columns", ["view", "freeze_panes"], {
-    ...ACTION_VIEW.unFreezeColsMenuItem,
+    ...ACTION_VIEW.unFreezeCols,
     sequence: 25,
   })
   .addChild("freeze_first_col", ["view", "freeze_panes"], {
-    ...ACTION_VIEW.freezeFirstColMenuItem,
+    ...ACTION_VIEW.freezeFirstCol,
     sequence: 30,
   })
   .addChild("freeze_second_col", ["view", "freeze_panes"], {
-    ...ACTION_VIEW.freezeSecondColMenuItem,
+    ...ACTION_VIEW.freezeSecondCol,
     sequence: 35,
   })
   .addChild("freeze_current_col", ["view", "freeze_panes"], {
-    ...ACTION_VIEW.freezeCurrentColMenuItem,
+    ...ACTION_VIEW.freezeCurrentCol,
     sequence: 40,
   })
   .addChild("view_gridlines", ["view"], {
-    ...ACTION_VIEW.viewGridlinesMenuItem,
+    ...ACTION_VIEW.viewGridlines,
     sequence: 10,
   })
   .addChild("view_formulas", ["view"], {
-    ...ACTION_VIEW.viewFormulasMenuItem,
+    ...ACTION_VIEW.viewFormulas,
     sequence: 15,
   })
 
@@ -164,67 +164,67 @@ topbarMenuRegistry
     sequence: 40,
   })
   .addChild("insert_row_before", ["insert"], {
-    ...ACTION_INSERT.topBarInsertRowsBeforeMenuItem,
+    ...ACTION_INSERT.topBarInsertRowsBefore,
     sequence: 10,
   })
   .addChild("insert_row_after", ["insert"], {
-    ...ACTION_INSERT.topBarInsertRowsAfterMenuItem,
+    ...ACTION_INSERT.topBarInsertRowsAfter,
     sequence: 20,
     separator: true,
   })
   .addChild("insert_column_before", ["insert"], {
-    ...ACTION_INSERT.topBarInsertColsBeforeMenuItem,
+    ...ACTION_INSERT.topBarInsertColsBefore,
     sequence: 30,
   })
   .addChild("insert_column_after", ["insert"], {
-    ...ACTION_INSERT.topBarInsertColsAfterMenuItem,
+    ...ACTION_INSERT.topBarInsertColsAfter,
     sequence: 40,
     separator: true,
   })
   .addChild("insert_insert_cell_shift_down", ["insert"], {
-    ...ACTION_INSERT.insertCellShiftDownMenuItem,
+    ...ACTION_INSERT.insertCellShiftDown,
     sequence: 43,
   })
   .addChild("insert_insert_cell_shift_right", ["insert"], {
-    ...ACTION_INSERT.insertCellShiftRightMenuItem,
+    ...ACTION_INSERT.insertCellShiftRight,
     sequence: 47,
     separator: true,
   })
   .addChild("insert_chart", ["insert"], {
-    ...ACTION_INSERT.insertChartMenuItem,
+    ...ACTION_INSERT.insertChart,
     sequence: 50,
   })
   .addChild("insert_image", ["insert"], {
-    ...ACTION_INSERT.insertImageMenuItem,
+    ...ACTION_INSERT.insertImage,
     sequence: 55,
   })
   .addChild("insert_function", ["insert"], {
-    ...ACTION_INSERT.insertFunctionMenuItem,
+    ...ACTION_INSERT.insertFunction,
     sequence: 60,
   })
   .addChild("insert_function_sum", ["insert", "insert_function"], {
-    ...ACTION_INSERT.insertFunctionSumMenuItem,
+    ...ACTION_INSERT.insertFunctionSum,
     sequence: 0,
   })
   .addChild("insert_function_average", ["insert", "insert_function"], {
-    ...ACTION_INSERT.insertFunctionAverageMenuItem,
+    ...ACTION_INSERT.insertFunctionAverage,
     sequence: 10,
   })
   .addChild("insert_function_count", ["insert", "insert_function"], {
-    ...ACTION_INSERT.insertFunctionCountMenuItem,
+    ...ACTION_INSERT.insertFunctionCount,
     sequence: 20,
   })
   .addChild("insert_function_max", ["insert", "insert_function"], {
-    ...ACTION_INSERT.insertFunctionMaxMenuItem,
+    ...ACTION_INSERT.insertFunctionMax,
     sequence: 30,
   })
   .addChild("insert_function_min", ["insert", "insert_function"], {
-    ...ACTION_INSERT.insertFunctionMinMenuItem,
+    ...ACTION_INSERT.insertFunctionMin,
     sequence: 40,
     separator: true,
   })
   .addChild("categorie_function_all", ["insert", "insert_function"], {
-    ...ACTION_INSERT.categorieFunctionAllMenuItem,
+    ...ACTION_INSERT.categorieFunctionAll,
     sequence: 50,
   })
   .addChild(
@@ -233,12 +233,12 @@ topbarMenuRegistry
     ACTION_INSERT.categoriesFunctionListMenuBuilder
   )
   .addChild("insert_link", ["insert"], {
-    ...ACTION_INSERT.insertLinkMenuItem,
+    ...ACTION_INSERT.insertLink,
     separator: true,
     sequence: 70,
   })
   .addChild("insert_sheet", ["insert"], {
-    ...ACTION_INSERT.insertSheetMenuItem,
+    ...ACTION_INSERT.insertSheet,
     sequence: 80,
     separator: true,
   })
@@ -255,81 +255,81 @@ topbarMenuRegistry
     separator: true,
   })
   .addChild("format_bold", ["format"], {
-    ...ACTION_FORMAT.formatBoldMenuItem,
+    ...ACTION_FORMAT.formatBold,
     sequence: 20,
   })
   .addChild("format_italic", ["format"], {
-    ...ACTION_FORMAT.formatItalicMenuItem,
+    ...ACTION_FORMAT.formatItalic,
     sequence: 30,
   })
   .addChild("format_underline", ["format"], {
-    ...ACTION_FORMAT.formatUnderlineMenuItem,
+    ...ACTION_FORMAT.formatUnderline,
     sequence: 40,
   })
   .addChild("format_strikethrough", ["format"], {
-    ...ACTION_FORMAT.formatStrikethroughMenuItem,
+    ...ACTION_FORMAT.formatStrikethrough,
     sequence: 50,
     separator: true,
   })
   .addChild("format_font_size", ["format"], {
-    ...ACTION_FORMAT.formatFontSizeMenuItem,
+    ...ACTION_FORMAT.formatFontSize,
     sequence: 60,
     separator: true,
   })
   .addChild("format_alignment", ["format"], {
-    ...ACTION_FORMAT.formatAlignmentMenuItem,
+    ...ACTION_FORMAT.formatAlignment,
     sequence: 70,
   })
   .addChild("format_alignment_left", ["format", "format_alignment"], {
-    ...ACTION_FORMAT.formatAlignmentLeftMenuItem,
+    ...ACTION_FORMAT.formatAlignmentLeft,
     sequence: 10,
   })
   .addChild("format_alignment_center", ["format", "format_alignment"], {
-    ...ACTION_FORMAT.formatAlignmentCenterMenuItem,
+    ...ACTION_FORMAT.formatAlignmentCenter,
     sequence: 20,
   })
   .addChild("format_alignment_right", ["format", "format_alignment"], {
-    ...ACTION_FORMAT.formatAlignmentRightMenuItem,
+    ...ACTION_FORMAT.formatAlignmentRight,
     sequence: 30,
     separator: true,
   })
   .addChild("format_alignment_top", ["format", "format_alignment"], {
-    ...ACTION_FORMAT.formatAlignmentTopMenuItem,
+    ...ACTION_FORMAT.formatAlignmentTop,
     sequence: 40,
   })
   .addChild("format_alignment_middle", ["format", "format_alignment"], {
-    ...ACTION_FORMAT.formatAlignmentMiddleMenuItem,
+    ...ACTION_FORMAT.formatAlignmentMiddle,
     sequence: 50,
   })
   .addChild("format_alignment_bottom", ["format", "format_alignment"], {
-    ...ACTION_FORMAT.formatAlignmentBottomMenuItem,
+    ...ACTION_FORMAT.formatAlignmentBottom,
     sequence: 60,
     separator: true,
   })
   .addChild("format_wrapping", ["format"], {
-    ...ACTION_FORMAT.formatWrappingMenuItem,
+    ...ACTION_FORMAT.formatWrapping,
     sequence: 80,
     separator: true,
   })
   .addChild("format_wrapping_overflow", ["format", "format_wrapping"], {
-    ...ACTION_FORMAT.formatWrappingOverflowMenuItem,
+    ...ACTION_FORMAT.formatWrappingOverflow,
     sequence: 10,
   })
   .addChild("format_wrapping_wrap", ["format", "format_wrapping"], {
-    ...ACTION_FORMAT.formatWrappingWrapMenuItem,
+    ...ACTION_FORMAT.formatWrappingWrap,
     sequence: 20,
   })
   .addChild("format_wrapping_clip", ["format", "format_wrapping"], {
-    ...ACTION_FORMAT.formatWrappingClipMenuItem,
+    ...ACTION_FORMAT.formatWrappingClip,
     sequence: 30,
   })
   .addChild("format_cf", ["format"], {
-    ...ACTION_FORMAT.formatCFMenuItem,
+    ...ACTION_FORMAT.formatCF,
     sequence: 90,
     separator: true,
   })
   .addChild("format_clearFormat", ["format"], {
-    ...ACTION_FORMAT.clearFormatMenuItem,
+    ...ACTION_FORMAT.clearFormat,
     sequence: 100,
     separator: true,
   })
@@ -343,23 +343,23 @@ topbarMenuRegistry
     sequence: 60,
   })
   .addChild("sort_range", ["data"], {
-    ...ACTION_DATA.sortRangeMenuItem,
+    ...ACTION_DATA.sortRange,
     sequence: 20,
     separator: true,
   })
   .addChild("sort_ascending", ["data", "sort_range"], {
-    ...ACTION_DATA.sortAscendingenuItem,
+    ...ACTION_DATA.sortAscending,
     sequence: 10,
   })
   .addChild("sort_descending", ["data", "sort_range"], {
-    ...ACTION_DATA.sortDescendingMenuItem,
+    ...ACTION_DATA.sortDescending,
     sequence: 20,
   })
   .addChild("add_data_filter", ["data"], {
-    ...ACTION_DATA.addDataFilterMenuItem,
+    ...ACTION_DATA.addDataFilter,
     sequence: 10,
   })
   .addChild("remove_data_filter", ["data"], {
-    ...ACTION_DATA.removeDataFilterMenuItem,
+    ...ACTION_DATA.removeDataFilter,
     sequence: 10,
   });

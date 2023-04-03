@@ -36,7 +36,7 @@ const NOTIFICATION_STYLE =
 topbarMenuRegistry.addChild("clear", ["file"], {
   name: "Clear & reload",
   sequence: 10,
-  action: async (env) => {
+  execute: async (env) => {
     await fetch("http://localhost:9090/clear");
     document.location.reload();
   },
@@ -45,7 +45,7 @@ topbarMenuRegistry.addChild("clear", ["file"], {
 topbarMenuRegistry.addChild("xlsx", ["file"], {
   name: "Save as XLSX",
   sequence: 20,
-  action: async (env) => {
+  execute: async (env) => {
     const doc = await env.model.exportXLSX();
     const zip = new JSZip();
     for (const file of doc.files) {
@@ -77,21 +77,21 @@ class Demo extends Component {
     topbarMenuRegistry.addChild("readonly", ["file"], {
       name: "Open in read-only",
       sequence: 11,
-      action: () => this.model.updateMode("readonly"),
+      execute: () => this.model.updateMode("readonly"),
     });
 
     topbarMenuRegistry.addChild("dashboard", ["file"], {
       name: "Open in dashboard",
       sequence: 12,
       isReadonlyAllowed: true,
-      action: () => this.model.updateMode("dashboard"),
+      execute: () => this.model.updateMode("dashboard"),
     });
 
     topbarMenuRegistry.addChild("read_write", ["file"], {
       name: "Open with write access",
       sequence: 13,
       isReadonlyAllowed: true,
-      action: () => this.model.updateMode("normal"),
+      execute: () => this.model.updateMode("normal"),
     });
     topbarMenuRegistry.addChild("read_write", ["file"], {
       name: () => (this.state.displayHeader ? "Hide header" : "Show header"),
@@ -109,13 +109,13 @@ class Demo extends Component {
       name: "click me",
       sequence: 13,
       isReadonlyAllowed: true,
-      action: () => this.notifyUser({ text: "This is a notification", tag: "notif" }),
+      execute: () => this.notifyUser({ text: "This is a notification", tag: "notif" }),
     });
 
     topbarMenuRegistry.addChild("xlsxImport", ["file"], {
       name: "Import XLSX",
       sequence: 25,
-      action: async (env) => {
+      execute: async (env) => {
         const input = document.createElement("input");
         input.setAttribute("type", "file");
         input.setAttribute("style", "display: none");

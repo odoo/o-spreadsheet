@@ -21,11 +21,11 @@ import {
   setStyle,
   topbarComponentRegistry,
 } from "../../registries/index";
-import * as editMenuItems from "../../registries/menus/items/edit_menu_items";
-import * as formatMenuItems from "../../registries/menus/items/format_menu_items";
-import * as viewMenuItems from "../../registries/menus/items/view_menu_items";
+import * as ACTION_EDIT from "../../registries/menus/items/edit_menu_items";
+import * as ACTION_FORMAT from "../../registries/menus/items/format_menu_items";
+import * as ACTION_VIEW from "../../registries/menus/items/view_menu_items";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
-import { createMenuItem, MenuItem, MenuItemSpec } from "../../registries/menu_items_registry";
+import { Action, ActionSpec, createAction } from "../../registries/menu_items_registry";
 import { Color, Pixel, SpreadsheetChildEnv } from "../../types/index";
 import { ColorPicker } from "../color_picker/color_picker";
 import { ColorPickerWidget } from "../color_picker/color_picker_widget";
@@ -33,7 +33,7 @@ import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { FontSizeEditor } from "../font_size_editor/font_size_editor";
 import { css } from "../helpers/css";
 import { Menu, MenuState } from "../menu/menu";
-import { MenuItemButton } from "../menu_item_button/menu_item_button";
+import { ActionButton } from "../menu_item_button/menu_item_button";
 import { ComposerFocusType } from "../spreadsheet/spreadsheet";
 
 interface State {
@@ -172,7 +172,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     Menu,
     TopBarComposer,
     FontSizeEditor,
-    MenuItemButton,
+    ActionButton,
   };
 
   state: State = useState({
@@ -183,10 +183,10 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   });
   isSelectingMenu = false;
   openedEl: HTMLElement | null = null;
-  menus: MenuItem[] = [];
-  editMenuItems = editMenuItems;
-  formatMenuItems = formatMenuItems;
-  viewMenuItems = viewMenuItems;
+  menus: Action[] = [];
+  EDIT = ACTION_EDIT;
+  FORMAT = ACTION_FORMAT;
+  VIEW = ACTION_VIEW;
   formatNumberMenuItemSpec = formatNumberMenuItemSpec;
   isntToolbarMenu = false;
 
@@ -219,7 +219,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.closeMenus();
   }
 
-  onMenuMouseOver(menu: MenuItem, ev: MouseEvent) {
+  onMenuMouseOver(menu: Action, ev: MouseEvent) {
     if (this.isSelectingMenu && this.isntToolbarMenu) {
       this.openMenu(menu, ev);
     }
@@ -232,7 +232,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.openedEl = isOpen ? null : (ev.target as HTMLElement);
   }
 
-  toggleContextMenu(menu: MenuItem, ev: MouseEvent) {
+  toggleContextMenu(menu: Action, ev: MouseEvent) {
     if (this.state.menuState.isOpen && this.isntToolbarMenu) {
       this.closeMenus();
     } else {
@@ -241,17 +241,17 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  toggleToolbarContextMenu(menuSpec: MenuItemSpec, ev: MouseEvent) {
+  toggleToolbarContextMenu(menuSpec: ActionSpec, ev: MouseEvent) {
     if (this.state.menuState.isOpen && !this.isntToolbarMenu) {
       this.closeMenus();
     } else {
-      const menu = createMenuItem(menuSpec);
+      const menu = createAction(menuSpec);
       this.openMenu(menu, ev);
       this.isntToolbarMenu = false;
     }
   }
 
-  private openMenu(menu: MenuItem, ev: MouseEvent) {
+  private openMenu(menu: Action, ev: MouseEvent) {
     const { left, top, height } = (ev.currentTarget as HTMLElement).getBoundingClientRect();
     this.state.activeTool = "";
     this.state.menuState.isOpen = true;
@@ -278,7 +278,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.menus = topbarMenuRegistry.getMenuItems();
   }
 
-  getMenuName(menu: MenuItem) {
+  getMenuName(menu: Action) {
     return menu.name(this.env);
   }
 

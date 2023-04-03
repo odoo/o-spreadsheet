@@ -2,121 +2,121 @@ import { isEqual, positionToZone } from "../../../helpers";
 import { interactiveAddMerge } from "../../../helpers/ui/merge_interactive";
 import { _lt } from "../../../translation";
 import { SpreadsheetChildEnv } from "../../../types";
-import { MenuItemSpec } from "../../menu_items_registry";
+import { ActionSpec } from "../../menu_items_registry";
 import * as ACTIONS from "./../menu_items_actions";
 
-export const undoMenuItem: MenuItemSpec = {
+export const undo: ActionSpec = {
   name: _lt("Undo"),
   description: "Ctrl+Z",
-  action: ACTIONS.UNDO_ACTION,
+  execute: ACTIONS.UNDO_ACTION,
   isEnabled: (env) => env.model.getters.canUndo(),
   icon: "o-spreadsheet-Icon.UNDO",
 };
 
-export const redoMenuItem: MenuItemSpec = {
+export const redo: ActionSpec = {
   name: _lt("Redo"),
   description: "Ctrl+Y",
-  action: ACTIONS.REDO_ACTION,
+  execute: ACTIONS.REDO_ACTION,
   isEnabled: (env) => env.model.getters.canRedo(),
   icon: "o-spreadsheet-Icon.REDO",
 };
 
-export const copyMenuItem: MenuItemSpec = {
+export const copy: ActionSpec = {
   name: _lt("Copy"),
   description: "Ctrl+C",
   isReadonlyAllowed: true,
-  action: ACTIONS.COPY_ACTION,
+  execute: ACTIONS.COPY_ACTION,
 };
 
-export const cutMenuItem: MenuItemSpec = {
+export const cut: ActionSpec = {
   name: _lt("Cut"),
   description: "Ctrl+X",
-  action: ACTIONS.CUT_ACTION,
+  execute: ACTIONS.CUT_ACTION,
 };
 
-export const pasteMenuItem: MenuItemSpec = {
+export const paste: ActionSpec = {
   name: _lt("Paste"),
   description: "Ctrl+V",
-  action: ACTIONS.PASTE_ACTION,
+  execute: ACTIONS.PASTE_ACTION,
 };
 
-export const pasteSpecialMenuItem: MenuItemSpec = {
+export const pasteSpecial: ActionSpec = {
   name: _lt("Paste special"),
   isVisible: ACTIONS.IS_NOT_CUT_OPERATION,
 };
 
-export const pasteSpecialValueMenuItem: MenuItemSpec = {
+export const pasteSpecialValue: ActionSpec = {
   name: _lt("Paste value only"),
-  action: ACTIONS.PASTE_VALUE_ACTION,
+  execute: ACTIONS.PASTE_VALUE_ACTION,
 };
 
-export const pasteSpecialFormatMenuItem: MenuItemSpec = {
+export const pasteSpecialFormat: ActionSpec = {
   name: _lt("Paste format only"),
-  action: ACTIONS.PASTE_FORMAT_ACTION,
+  execute: ACTIONS.PASTE_FORMAT_ACTION,
 };
 
-export const findAndReplaceMenuItem: MenuItemSpec = {
+export const findAndReplace: ActionSpec = {
   name: _lt("Find and replace"),
   description: "Ctrl+H",
   isReadonlyAllowed: true,
-  action: ACTIONS.OPEN_FAR_SIDEPANEL_ACTION,
+  execute: ACTIONS.OPEN_FAR_SIDEPANEL_ACTION,
 };
 
-export const deleteValuesMenuItem: MenuItemSpec = {
+export const deleteValues: ActionSpec = {
   name: _lt("Delete values"),
-  action: ACTIONS.DELETE_CONTENT_ACTION,
+  execute: ACTIONS.DELETE_CONTENT_ACTION,
 };
 
-export const deleteRowsMenuItem: MenuItemSpec = {
+export const deleteRows: ActionSpec = {
   name: ACTIONS.REMOVE_ROWS_NAME,
-  action: ACTIONS.REMOVE_ROWS_ACTION,
+  execute: ACTIONS.REMOVE_ROWS_ACTION,
 };
 
-export const deleteRowMenuItem: MenuItemSpec = {
-  ...deleteRowsMenuItem,
+export const deleteRow: ActionSpec = {
+  ...deleteRows,
   isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
 };
 
-export const clearRowsMenuItem: MenuItemSpec = {
+export const clearRows: ActionSpec = {
   name: ACTIONS.DELETE_CONTENT_ROWS_NAME,
-  action: ACTIONS.DELETE_CONTENT_ROWS_ACTION,
+  execute: ACTIONS.DELETE_CONTENT_ROWS_ACTION,
 };
 
-export const deleteColsMenuItem: MenuItemSpec = {
+export const deleteCols: ActionSpec = {
   name: ACTIONS.REMOVE_COLUMNS_NAME,
-  action: ACTIONS.REMOVE_COLUMNS_ACTION,
+  execute: ACTIONS.REMOVE_COLUMNS_ACTION,
 };
 
-export const deleteColMenuItem: MenuItemSpec = {
-  ...deleteColsMenuItem,
+export const deleteCol: ActionSpec = {
+  ...deleteCols,
   isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
 };
 
-export const clearColsMenuItem: MenuItemSpec = {
+export const clearCols: ActionSpec = {
   name: ACTIONS.DELETE_CONTENT_COLUMNS_NAME,
-  action: ACTIONS.DELETE_CONTENT_COLUMNS_ACTION,
+  execute: ACTIONS.DELETE_CONTENT_COLUMNS_ACTION,
 };
 
-export const deleteCellsMenuItem: MenuItemSpec = {
+export const deleteCells: ActionSpec = {
   name: _lt("Delete cells"),
   isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
 };
 
-export const deleteCellShiftUpMenuItem: MenuItemSpec = {
+export const deleteCellShiftUp: ActionSpec = {
   name: _lt("Delete cell and shift up"),
-  action: ACTIONS.DELETE_CELL_SHIFT_UP,
+  execute: ACTIONS.DELETE_CELL_SHIFT_UP,
 };
 
-export const deleteCellShiftLeftMenuItem: MenuItemSpec = {
+export const deleteCellShiftLeft: ActionSpec = {
   name: _lt("Delete cell and shift left"),
-  action: ACTIONS.DELETE_CELL_SHIFT_LEFT,
+  execute: ACTIONS.DELETE_CELL_SHIFT_LEFT,
 };
 
-export const mergeCellsMenuItem: MenuItemSpec = {
+export const mergeCells: ActionSpec = {
   name: _lt("Merge cells"),
   isEnabled: (env) => !cannotMerge(env),
   isActive: (env) => isInMerge(env),
-  action: (env) => toggleMerge(env),
+  execute: (env) => toggleMerge(env),
   icon: "o-spreadsheet-Icon.MERGE_CELL",
 };
 

@@ -8,7 +8,7 @@ import { toCartesian, toUnboundedZone, toXC, toZone } from "../../src/helpers/in
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { topbarMenuRegistry } from "../../src/registries";
-import { MenuItem, MenuItemRegistry } from "../../src/registries/menu_items_registry";
+import { Action, MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import {
   ChartDefinition,
   ColorScaleMidPointThreshold,
@@ -550,13 +550,13 @@ export function doAction(
   menuRegistry: MenuItemRegistry = topbarMenuRegistry
 ): void {
   const node = getNode(path, menuRegistry);
-  node.action?.(env);
+  node.execute?.(env);
 }
 
 export function getNode(
   _path: string[],
   menuRegistry: MenuItemRegistry = topbarMenuRegistry
-): MenuItem {
+): Action {
   const path = [..._path];
   let items = menuRegistry.getMenuItems();
   while (items.length && path.length) {

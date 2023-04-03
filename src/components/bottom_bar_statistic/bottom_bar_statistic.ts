@@ -70,7 +70,7 @@ export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
         name: this.getComposedFnName(fnName, fnValue),
         sequence: i,
         isReadonlyAllowed: true,
-        action: () => {
+        execute: () => {
           this.selectedStatisticFn = fnName;
         },
       });

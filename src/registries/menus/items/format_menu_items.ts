@@ -1,87 +1,87 @@
 import { DEFAULT_FONT_SIZE, DEFAULT_VERTICAL_ALIGN, FONT_SIZES } from "../../../constants";
 import { _lt } from "../../../translation";
 import { Align, BorderCommand, SpreadsheetChildEnv } from "../../../types";
-import { MenuItemSpec } from "../../menu_items_registry";
+import { ActionSpec } from "../../menu_items_registry";
 import * as ACTIONS from "./../menu_items_actions";
 
-export const formatNumberAutomaticMenuItem: MenuItemSpec = {
+export const formatNumberAutomatic: ActionSpec = {
   name: _lt("Automatic"),
-  action: ACTIONS.FORMAT_AUTOMATIC_ACTION,
+  execute: ACTIONS.FORMAT_AUTOMATIC_ACTION,
   isActive: (env) => isAutomaticFormatSelected(env),
 };
 
-export const formatNumberNumberMenuItem: MenuItemSpec = {
+export const formatNumberNumber: ActionSpec = {
   name: _lt("Number"),
   description: "1,000.12",
-  action: ACTIONS.FORMAT_NUMBER_ACTION,
+  execute: ACTIONS.FORMAT_NUMBER_ACTION,
   isActive: (env) => isFormatSelected(env, "#,##0.00"),
 };
 
-export const formatPercentMenuItem: MenuItemSpec = {
+export const formatPercent: ActionSpec = {
   name: _lt("Format as percent"),
-  action: ACTIONS.FORMAT_PERCENT_ACTION,
+  execute: ACTIONS.FORMAT_PERCENT_ACTION,
   icon: "o-spreadsheet-Icon.PERCENT",
 };
 
-export const formatNumberPercentMenuItem: MenuItemSpec = {
+export const formatNumberPercent: ActionSpec = {
   name: _lt("Percent"),
   description: "10.12%",
-  action: ACTIONS.FORMAT_PERCENT_ACTION,
+  execute: ACTIONS.FORMAT_PERCENT_ACTION,
   isActive: (env) => isFormatSelected(env, "0.00%"),
 };
 
-export const formatNumberCurrencyMenuItem: MenuItemSpec = {
+export const formatNumberCurrency: ActionSpec = {
   name: _lt("Currency"),
   description: "$1,000.12",
-  action: ACTIONS.FORMAT_CURRENCY_ACTION,
+  execute: ACTIONS.FORMAT_CURRENCY_ACTION,
   isActive: (env) => isFormatSelected(env, "[$$]#,##0.00"),
 };
 
-export const formatNumberCurrencyRoundedMenuItem: MenuItemSpec = {
+export const formatNumberCurrencyRounded: ActionSpec = {
   name: _lt("Currency rounded"),
   description: "$1,000",
-  action: ACTIONS.FORMAT_CURRENCY_ROUNDED_ACTION,
+  execute: ACTIONS.FORMAT_CURRENCY_ROUNDED_ACTION,
   isActive: (env) => isFormatSelected(env, "[$$]#,##0"),
 };
 
-export const formatCustomCurrencyMenuItem: MenuItemSpec = {
+export const formatCustomCurrency: ActionSpec = {
   name: _lt("Custom currency"),
   isVisible: (env) => env.loadCurrencies !== undefined,
-  action: ACTIONS.OPEN_CUSTOM_CURRENCY_SIDEPANEL_ACTION,
+  execute: ACTIONS.OPEN_CUSTOM_CURRENCY_SIDEPANEL_ACTION,
 };
 
-export const formatNumberDateMenuItem: MenuItemSpec = {
+export const formatNumberDate: ActionSpec = {
   name: _lt("Date"),
   description: "9/26/2008",
-  action: ACTIONS.FORMAT_DATE_ACTION,
+  execute: ACTIONS.FORMAT_DATE_ACTION,
   isActive: (env) => isFormatSelected(env, "m/d/yyyy"),
 };
 
-export const formatNumberTimeMenuItem: MenuItemSpec = {
+export const formatNumberTime: ActionSpec = {
   name: _lt("Time"),
   description: "10:43:00 PM",
-  action: ACTIONS.FORMAT_TIME_ACTION,
+  execute: ACTIONS.FORMAT_TIME_ACTION,
   isActive: (env) => isFormatSelected(env, "hh:mm:ss a"),
 };
 
-export const formatNumberDateTimeMenuItem: MenuItemSpec = {
+export const formatNumberDateTime: ActionSpec = {
   name: _lt("Date time"),
   description: "9/26/2008 22:43:00",
-  action: ACTIONS.FORMAT_DATE_TIME_ACTION,
+  execute: ACTIONS.FORMAT_DATE_TIME_ACTION,
   isActive: (env) => isFormatSelected(env, "m/d/yyyy hh:mm:ss"),
 };
 
-export const formatNumberDurationMenuItem: MenuItemSpec = {
+export const formatNumberDuration: ActionSpec = {
   name: _lt("Duration"),
   description: "27:51:38",
-  action: ACTIONS.FORMAT_DURATION_ACTION,
+  execute: ACTIONS.FORMAT_DURATION_ACTION,
   isActive: (env) => isFormatSelected(env, "hhhh:mm:ss"),
 };
 
-export const incraseDecimalPlacesMenuItem: MenuItemSpec = {
+export const incraseDecimalPlaces: ActionSpec = {
   name: _lt("Increase decimal places"),
   icon: "o-spreadsheet-Icon.INCREASE_DECIMAL",
-  action: (env) =>
+  execute: (env) =>
     env.model.dispatch("SET_DECIMAL", {
       sheetId: env.model.getters.getActiveSheetId(),
       target: env.model.getters.getSelectedZones(),
@@ -89,10 +89,10 @@ export const incraseDecimalPlacesMenuItem: MenuItemSpec = {
     }),
 };
 
-export const decraseDecimalPlacesMenuItem: MenuItemSpec = {
+export const decraseDecimalPlaces: ActionSpec = {
   name: _lt("Decrease decimal places"),
   icon: "o-spreadsheet-Icon.DECRASE_DECIMAL",
-  action: (env) =>
+  execute: (env) =>
     env.model.dispatch("SET_DECIMAL", {
       sheetId: env.model.getters.getActiveSheetId(),
       target: env.model.getters.getSelectedZones(),
@@ -100,146 +100,146 @@ export const decraseDecimalPlacesMenuItem: MenuItemSpec = {
     }),
 };
 
-export const formatBoldMenuItem: MenuItemSpec = {
+export const formatBold: ActionSpec = {
   name: _lt("Bold"),
   description: "Ctrl+B",
-  action: ACTIONS.FORMAT_BOLD_ACTION,
+  execute: ACTIONS.FORMAT_BOLD_ACTION,
   icon: "o-spreadsheet-Icon.BOLD",
   isActive: (env) => !!env.model.getters.getCurrentStyle().bold,
 };
 
-export const formatItalicMenuItem: MenuItemSpec = {
+export const formatItalic: ActionSpec = {
   name: _lt("Italic"),
   description: "Ctrl+I",
-  action: ACTIONS.FORMAT_ITALIC_ACTION,
+  execute: ACTIONS.FORMAT_ITALIC_ACTION,
   icon: "o-spreadsheet-Icon.ITALIC",
   isActive: (env) => !!env.model.getters.getCurrentStyle().italic,
 };
 
-export const formatUnderlineMenuItem: MenuItemSpec = {
+export const formatUnderline: ActionSpec = {
   name: _lt("Underline"),
   description: "Ctrl+U",
-  action: ACTIONS.FORMAT_UNDERLINE_ACTION,
+  execute: ACTIONS.FORMAT_UNDERLINE_ACTION,
   icon: "o-spreadsheet-Icon.UNDERLINE",
   isActive: (env) => !!env.model.getters.getCurrentStyle().underline,
 };
 
-export const formatStrikethroughMenuItem: MenuItemSpec = {
+export const formatStrikethrough: ActionSpec = {
   name: _lt("Strikethrough"),
-  action: ACTIONS.FORMAT_STRIKETHROUGH_ACTION,
+  execute: ACTIONS.FORMAT_STRIKETHROUGH_ACTION,
   icon: "o-spreadsheet-Icon.STRIKE",
   isActive: (env) => !!env.model.getters.getCurrentStyle().strikethrough,
 };
 
-export const formatFontSizeMenuItem: MenuItemSpec = {
+export const formatFontSize: ActionSpec = {
   name: _lt("Font size"),
   children: fontSizeMenuBuilder(),
 };
 
-export const formatAlignmentMenuItem: MenuItemSpec = {
+export const formatAlignment: ActionSpec = {
   name: _lt("Alignment"),
   icon: "o-spreadsheet-Icon.ALIGN_LEFT",
 };
 
-export const formatAlignmentHorizontalMenuItem: MenuItemSpec = {
+export const formatAlignmentHorizontal: ActionSpec = {
   name: _lt("Horizontal align"),
   icon: "o-spreadsheet-Icon.ALIGN_LEFT",
 };
 
-export const formatAlignmentLeftMenuItem: MenuItemSpec = {
+export const formatAlignmentLeft: ActionSpec = {
   name: _lt("Left"),
-  action: (env) => ACTIONS.setStyle(env, { align: "left" }),
+  execute: (env) => ACTIONS.setStyle(env, { align: "left" }),
   isActive: (env) => getHorizontalAlign(env) === "left",
   icon: "o-spreadsheet-Icon.ALIGN_LEFT",
 };
 
-export const formatAlignmentCenterMenuItem: MenuItemSpec = {
+export const formatAlignmentCenter: ActionSpec = {
   name: _lt("Center"),
-  action: (env) => ACTIONS.setStyle(env, { align: "center" }),
+  execute: (env) => ACTIONS.setStyle(env, { align: "center" }),
   isActive: (env) => getHorizontalAlign(env) === "center",
   icon: "o-spreadsheet-Icon.ALIGN_CENTER",
 };
 
-export const formatAlignmentRightMenuItem: MenuItemSpec = {
+export const formatAlignmentRight: ActionSpec = {
   name: _lt("Right"),
-  action: (env) => ACTIONS.setStyle(env, { align: "right" }),
+  execute: (env) => ACTIONS.setStyle(env, { align: "right" }),
   isActive: (env) => getHorizontalAlign(env) === "right",
   icon: "o-spreadsheet-Icon.ALIGN_RIGHT",
 };
 
-export const formatAlignmentVerticalMenuItem: MenuItemSpec = {
+export const formatAlignmentVertical: ActionSpec = {
   name: _lt("Vertical align"),
   icon: "o-spreadsheet-Icon.ALIGN_MIDDLE",
 };
 
-export const formatAlignmentTopMenuItem: MenuItemSpec = {
+export const formatAlignmentTop: ActionSpec = {
   name: _lt("Top"),
-  action: (env) => ACTIONS.setStyle(env, { verticalAlign: "top" }),
+  execute: (env) => ACTIONS.setStyle(env, { verticalAlign: "top" }),
   isActive: (env) =>
     (env.model.getters.getCurrentStyle().verticalAlign || DEFAULT_VERTICAL_ALIGN) === "top",
   icon: "o-spreadsheet-Icon.ALIGN_TOP",
 };
 
-export const formatAlignmentMiddleMenuItem: MenuItemSpec = {
+export const formatAlignmentMiddle: ActionSpec = {
   name: _lt("Middle"),
-  action: (env) => ACTIONS.setStyle(env, { verticalAlign: "middle" }),
+  execute: (env) => ACTIONS.setStyle(env, { verticalAlign: "middle" }),
   isActive: (env) =>
     (env.model.getters.getCurrentStyle().verticalAlign || DEFAULT_VERTICAL_ALIGN) === "middle",
   icon: "o-spreadsheet-Icon.ALIGN_MIDDLE",
 };
 
-export const formatAlignmentBottomMenuItem: MenuItemSpec = {
+export const formatAlignmentBottom: ActionSpec = {
   name: _lt("Bottom"),
-  action: (env) => ACTIONS.setStyle(env, { verticalAlign: "bottom" }),
+  execute: (env) => ACTIONS.setStyle(env, { verticalAlign: "bottom" }),
   isActive: (env) =>
     (env.model.getters.getCurrentStyle().verticalAlign || DEFAULT_VERTICAL_ALIGN) === "bottom",
   icon: "o-spreadsheet-Icon.ALIGN_BOTTOM",
 };
 
-export const formatWrappingMenuItem: MenuItemSpec = {
+export const formatWrapping: ActionSpec = {
   name: _lt("Wrapping"),
   icon: "o-spreadsheet-Icon.WRAPPING_OVERFLOW",
 };
 
-export const formatWrappingOverflowMenuItem: MenuItemSpec = {
+export const formatWrappingOverflow: ActionSpec = {
   name: _lt("Overflow"),
-  action: (env) => ACTIONS.setStyle(env, { wrapping: "overflow" }),
+  execute: (env) => ACTIONS.setStyle(env, { wrapping: "overflow" }),
   isActive: (env) => (env.model.getters.getCurrentStyle().wrapping || "overflow") === "overflow",
   icon: "o-spreadsheet-Icon.WRAPPING_OVERFLOW",
 };
 
-export const formatWrappingWrapMenuItem: MenuItemSpec = {
+export const formatWrappingWrap: ActionSpec = {
   name: _lt("Wrap"),
-  action: (env) => ACTIONS.setStyle(env, { wrapping: "wrap" }),
+  execute: (env) => ACTIONS.setStyle(env, { wrapping: "wrap" }),
   isActive: (env) => env.model.getters.getCurrentStyle().wrapping === "wrap",
   icon: "o-spreadsheet-Icon.WRAPPING_WRAP",
 };
 
-export const formatWrappingClipMenuItem: MenuItemSpec = {
+export const formatWrappingClip: ActionSpec = {
   name: _lt("Clip"),
-  action: (env) => ACTIONS.setStyle(env, { wrapping: "clip" }),
+  execute: (env) => ACTIONS.setStyle(env, { wrapping: "clip" }),
   isActive: (env) => env.model.getters.getCurrentStyle().wrapping === "clip",
   icon: "o-spreadsheet-Icon.WRAPPING_CLIP",
 };
 
-export const textColorMenuItem: MenuItemSpec = {
+export const textColor: ActionSpec = {
   name: _lt("Text Color"),
   icon: "o-spreadsheet-Icon.TEXT_COLOR",
 };
 
-export const fillColorMenuItem: MenuItemSpec = {
+export const fillColor: ActionSpec = {
   name: _lt("Fill Color"),
   icon: "o-spreadsheet-Icon.FILL_COLOR",
 };
 
-export const formatCFMenuItem: MenuItemSpec = {
+export const formatCF: ActionSpec = {
   name: _lt("Conditional formatting"),
-  action: ACTIONS.OPEN_CF_SIDEPANEL_ACTION,
+  execute: ACTIONS.OPEN_CF_SIDEPANEL_ACTION,
 };
 
-export const paintFormatMenuItem: MenuItemSpec = {
+export const paintFormat: ActionSpec = {
   name: _lt("Paint Format"),
-  action: (env) =>
+  execute: (env) =>
     env.model.dispatch("ACTIVATE_PAINT_FORMAT", {
       target: env.model.getters.getSelectedZones(),
     }),
@@ -247,84 +247,84 @@ export const paintFormatMenuItem: MenuItemSpec = {
   isActive: (env) => env.model.getters.isPaintingFormat(),
 };
 
-export const clearFormatMenuItem: MenuItemSpec = {
+export const clearFormat: ActionSpec = {
   name: _lt("Clear formatting"),
-  action: ACTIONS.FORMAT_CLEARFORMAT_ACTION,
+  execute: ACTIONS.FORMAT_CLEARFORMAT_ACTION,
   icon: "o-spreadsheet-Icon.CLEAR_FORMAT",
 };
 
-export const bordersMenuItem: MenuItemSpec = {
+export const borders: ActionSpec = {
   name: _lt("Borders"),
   icon: "o-spreadsheet-Icon.BORDERS",
 };
 
-export const bordersAllMenuItem: MenuItemSpec = {
+export const bordersAll: ActionSpec = {
   name: _lt("All borders"),
-  action: (env) => setBorder(env, "all"),
+  execute: (env) => setBorder(env, "all"),
   icon: "o-spreadsheet-Icon.BORDERS",
 };
 
-export const bordersInnerMenuItem: MenuItemSpec = {
+export const bordersInner: ActionSpec = {
   name: _lt("Inner borders"),
-  action: (env) => setBorder(env, "hv"),
+  execute: (env) => setBorder(env, "hv"),
   icon: "o-spreadsheet-Icon.BORDER_HV",
 };
 
-export const bordersHorizontalMenuItem: MenuItemSpec = {
+export const bordersHorizontal: ActionSpec = {
   name: _lt("Horizontal borders"),
-  action: (env) => setBorder(env, "h"),
+  execute: (env) => setBorder(env, "h"),
   icon: "o-spreadsheet-Icon.BORDER_H",
 };
 
-export const bordersVerticalMenuItem: MenuItemSpec = {
+export const bordersVertical: ActionSpec = {
   name: _lt("Vertical borders"),
-  action: (env) => setBorder(env, "v"),
+  execute: (env) => setBorder(env, "v"),
   icon: "o-spreadsheet-Icon.BORDER_V",
 };
 
-export const bordersExternalMenuItem: MenuItemSpec = {
+export const bordersExternal: ActionSpec = {
   name: _lt("External borders"),
-  action: (env) => setBorder(env, "external"),
+  execute: (env) => setBorder(env, "external"),
   icon: "o-spreadsheet-Icon.BORDER_EXTERNAL",
 };
 
-export const bordersLeftMenuItem: MenuItemSpec = {
+export const bordersLeft: ActionSpec = {
   name: _lt("Left borders"),
-  action: (env) => setBorder(env, "left"),
+  execute: (env) => setBorder(env, "left"),
   icon: "o-spreadsheet-Icon.BORDER_LEFT",
 };
 
-export const bordersTopMenuItem: MenuItemSpec = {
+export const bordersTop: ActionSpec = {
   name: _lt("Top borders"),
-  action: (env) => setBorder(env, "top"),
+  execute: (env) => setBorder(env, "top"),
   icon: "o-spreadsheet-Icon.BORDER_TOP",
 };
 
-export const bordersRightMenuItem: MenuItemSpec = {
+export const bordersRight: ActionSpec = {
   name: _lt("Right borders"),
-  action: (env) => setBorder(env, "right"),
+  execute: (env) => setBorder(env, "right"),
   icon: "o-spreadsheet-Icon.BORDER_RIGHT",
 };
 
-export const bordersBottomMenuItem: MenuItemSpec = {
+export const bordersBottom: ActionSpec = {
   name: _lt("Bottom borders"),
-  action: (env) => setBorder(env, "bottom"),
+  execute: (env) => setBorder(env, "bottom"),
   icon: "o-spreadsheet-Icon.BORDER_BOTTOM",
 };
 
-export const bordersClearMenuItem: MenuItemSpec = {
+export const bordersClear: ActionSpec = {
   name: _lt("Clear borders"),
-  action: (env) => setBorder(env, "clear"),
+  execute: (env) => setBorder(env, "clear"),
   icon: "o-spreadsheet-Icon.BORDER_CLEAR",
 };
 
-function fontSizeMenuBuilder(): MenuItemSpec[] {
+function fontSizeMenuBuilder(): ActionSpec[] {
   return FONT_SIZES.map((fs) => {
     return {
       name: fs.toString(),
       sequence: fs,
       id: `font_size_${fs}`,
-      action: (env) => ACTIONS.setStyle(env, { fontSize: fs }),
+      execute: (env) => ACTIONS.setStyle(env, { fontSize: fs }),
       isActive: (env) => isFontSizeSelected(env, fs),
     };
   });

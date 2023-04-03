@@ -1,8 +1,8 @@
 import { buildSheetLink, markdownLink } from "../../../helpers";
 import { _lt } from "../../../translation";
-import { MenuItemSpec } from "../../menu_items_registry";
+import { ActionSpec } from "../../menu_items_registry";
 
-export const linkSheetMenuItem: MenuItemSpec = {
+export const linkSheet: ActionSpec = {
   name: _lt("Link sheet"),
   children: [
     (env) => {
@@ -12,26 +12,26 @@ export const linkSheetMenuItem: MenuItemSpec = {
       return sheets.map((sheet) => ({
         id: sheet.id,
         name: sheet.name,
-        action: () => markdownLink(sheet.name, buildSheetLink(sheet.id)),
+        execute: () => markdownLink(sheet.name, buildSheetLink(sheet.id)),
       }));
     },
   ],
 };
 
-export const deleteSheetMenuItem: MenuItemSpec = {
+export const deleteSheet: ActionSpec = {
   name: _lt("Delete"),
   isVisible: (env) => {
     return env.model.getters.getSheetIds().length > 1;
   },
-  action: (env) =>
+  execute: (env) =>
     env.askConfirmation(_lt("Are you sure you want to delete this sheet ?"), () => {
       env.model.dispatch("DELETE_SHEET", { sheetId: env.model.getters.getActiveSheetId() });
     }),
 };
 
-export const duplicateSheetMenuItem: MenuItemSpec = {
+export const duplicateSheet: ActionSpec = {
   name: _lt("Duplicate"),
-  action: (env) => {
+  execute: (env) => {
     const sheetIdFrom = env.model.getters.getActiveSheetId();
     const sheetIdTo = env.model.uuidGenerator.uuidv4();
     env.model.dispatch("DUPLICATE_SHEET", {
@@ -42,43 +42,43 @@ export const duplicateSheetMenuItem: MenuItemSpec = {
   },
 };
 
-export const renameSheetMenuItem = (args: { renameSheetCallback: () => void }): MenuItemSpec => {
+export const renameSheet = (args: { renameSheetCallback: () => void }): ActionSpec => {
   return {
     name: _lt("Rename"),
-    action: args.renameSheetCallback,
+    execute: args.renameSheetCallback,
   };
 };
 
-export const sheetMoveRightMenuItem: MenuItemSpec = {
+export const sheetMoveRight: ActionSpec = {
   name: _lt("Move right"),
   isVisible: (env) => {
     const sheetId = env.model.getters.getActiveSheetId();
     const sheetIds = env.model.getters.getVisibleSheetIds();
     return sheetIds.indexOf(sheetId) !== sheetIds.length - 1;
   },
-  action: (env) =>
+  execute: (env) =>
     env.model.dispatch("MOVE_SHEET", {
       sheetId: env.model.getters.getActiveSheetId(),
       delta: 1,
     }),
 };
 
-export const sheetMoveLeftMenuItem: MenuItemSpec = {
+export const sheetMoveLeft: ActionSpec = {
   name: _lt("Move left"),
   isVisible: (env) => {
     const sheetId = env.model.getters.getActiveSheetId();
     return env.model.getters.getVisibleSheetIds()[0] !== sheetId;
   },
-  action: (env) =>
+  execute: (env) =>
     env.model.dispatch("MOVE_SHEET", {
       sheetId: env.model.getters.getActiveSheetId(),
       delta: -1,
     }),
 };
 
-export const hideSheetMenuItem: MenuItemSpec = {
+export const hideSheet: ActionSpec = {
   name: _lt("Hide sheet"),
   isVisible: (env) => env.model.getters.getVisibleSheetIds().length !== 1,
-  action: (env) =>
+  execute: (env) =>
     env.model.dispatch("HIDE_SHEET", { sheetId: env.model.getters.getActiveSheetId() }),
 };
