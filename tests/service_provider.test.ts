@@ -1,8 +1,4 @@
-import {
-  createValueStore,
-  DependencyContainer,
-  Get,
-} from "../src/store/dependency_container";
+import { createValueStore, DependencyContainer, Get } from "../src/store/dependency_container";
 
 class MyOtherService {
   constructor(get: Get) {
@@ -40,6 +36,32 @@ class MyService {
 //     });
 //   }
 // }
+
+class TestComputed {
+  constructor(public n = 4) {
+    // return {
+    //   n: this.n,
+    //   comp: this.n * 2,
+    // }
+    // return withComputedProperties(this, [this], {
+    //   comp() {
+    //     return this.n * 2;
+    //   },
+    // });
+  }
+
+  get comp() {
+    return 5;
+  }
+  coucou() {}
+}
+
+const p = Object.getOwnPropertyDescriptors(TestComputed.prototype);
+
+test("properties", () => {
+  console.log(p);
+  console.log(Object.getPrototypeOf(TestComputed.constructor));
+});
 
 class Test {
   constructor(readonly n: number) {

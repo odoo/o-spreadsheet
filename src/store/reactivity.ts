@@ -87,14 +87,17 @@ class TestComputed {
     //   n: this.n,
     //   comp: this.n * 2,
     // }
-    return withComputedProperties(this, [this], {
-      comp() {
-        return this.n * 2;
-      },
-    });
+    // return withComputedProperties(this, [this], {
+    //   comp() {
+    //     return this.n * 2;
+    //   },
+    // });
   }
   coucou() {}
 }
+
+const p = Object.getOwnPropertyDescriptors(TestComputed.prototype);
+// p.n.get
 
 function computedMeta() {}
 
@@ -102,11 +105,11 @@ type A = InstanceType<typeof TestComputed>;
 
 const t = new TestComputed();
 
-const uu = withComputedProperties(t, [t], {
-  comp(dep) {
-    return dep.n * 2;
-  },
-});
-uu.comp;
-t.comp;
-t.comp;
+// const uu = withComputedProperties(t, [t], {
+//   comp(dep) {
+//     return dep.n * 2;
+//   },
+// });
+// uu.comp;
+// t.comp;
+// t.comp;

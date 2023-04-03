@@ -1,4 +1,3 @@
-import { useStore } from "./hooks";
 import { withComputedProperties } from "./reactivity";
 
 /**
@@ -95,14 +94,14 @@ export type CQS<T> = {
 interface Y {
   y: number;
 }
-class CQSTEST{
+class CQSTEST {
   private n = 4;
   constructor() {
     return withComputedProperties(this, [this], {
       y: (d) => {
         return d.L * 2;
-      }
-    })
+      },
+    });
   }
 
   L = 9;
@@ -130,14 +129,14 @@ class CQSTEST{
 // const cqs: CQStore<CQSTEST> = new CQSTEST();
 // cqs.actions.setData(5);
 
-const ty = new CQSTEST();
-ty.
-// ty.actions.setData(5);
+// const ty = new CQSTEST();
+// ty.
+// // ty.actions.setData(5);
 
-const sss = useStore(CQSTEST);
-sss.getSomething();
-sss.Y
-// @ts-expect-error
-sss.sss.L = 9;
+// const sss = useStore(CQSTEST);
+// sss.getSomething();
+// sss.Y
+// // @ts-expect-error
+// sss.sss.L = 9;
 
-const z = sss.getSomething();
+// const z = sss.getSomething();
