@@ -59,6 +59,100 @@ export function computeTextFontSizeInPixels(style?: Style): number {
   return fontSizeInPixels(sizeInPt);
 }
 
+function splitWordToSpecificWidth(
+  ctx: CanvasRenderingContext2D,
+  word: string,
+  width: number,
+  style: Style
+): string[] {
+  const wordWidth = computeTextWidth(ctx, word, style);
+  if (wordWidth <= width) {
+    return [word];
+  }
+
+  const splitWord: string[] = [];
+  let wordPart = "";
+  for (let l of word) {
+    const wordPartWidth = computeTextWidth(ctx, wordPart + l, style);
+    if (wordPartWidth > width) {
+      splitWord.push(wordPart);
+      wordPart = l;
+    } else {
+      wordPart += l;
+    }
+  }
+  splitWord.push(wordPart);
+  return splitWord;
+}
+
+/**
+ * Return the given text, split in multiple lines if needed. The text will be split in multiple
+ * line if it contains NEWLINE characters, or if it's longer than the given width.
+ */
+export function getMultiLineText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  style: Style | undefined,
+  width: number | undefined
+): string[] {
+  if (!style) style = {};
+  const brokenText: string[] = [];
+  for (const line of text.split("\n")) {
+    const words = line.split(" ");
+
+    if (!width) {
+      brokenText.push(line);
+      continue;
+    }
+
+    let textLine = "";
+    let availableWidth = width;
+
+    for (let word of words) {
+      const splitWord = splitWordToSpecificWidth(ctx, word, width, style);
+      const lastPart = splitWord.pop()!;
+      const lastPartWidth = computeTextWidth(ctx, lastPart, style);
+
+      // At this step: "splitWord" is an array composed of parts of word whose
+      // length is at most equal to "width".
+      // Last part contains the end of the word.
+      // Note that: When word length is less than width, then lastPart is equal
+      // to word and splitWord is empty
+
+      if (splitWord.length) {
+        if (textLine !== "") {
+          brokenText.push(textLine);
+          textLine = "";
+          availableWidth = width;
+        }
+        splitWord.forEach((wordPart) => {
+          brokenText.push(wordPart);
+        });
+        textLine = lastPart;
+        availableWidth = width - lastPartWidth;
+      } else {
+        // here "lastPart" is equal to "word" and the "word" size is smaller than "width"
+        const _word = textLine === "" ? lastPart : " " + lastPart;
+        const wordWidth = computeTextWidth(ctx, _word, style);
+
+        if (wordWidth <= availableWidth) {
+          textLine += _word;
+          availableWidth -= wordWidth;
+        } else {
+          brokenText.push(textLine);
+          textLine = lastPart;
+          availableWidth = width - lastPartWidth;
+        }
+      }
+    }
+
+    if (textLine !== "") {
+      brokenText.push(textLine);
+    }
+  }
+  return brokenText;
+}
+
 /**
  * Return the font size that makes the width of a text match the given line width.
  * Minimum font size is 1.
