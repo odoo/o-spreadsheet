@@ -147,16 +147,33 @@ export class ContentEditableHelper {
   getCurrentSelection() {
     let { startElement, endElement, startSelectionOffset, endSelectionOffset } =
       this.getStartAndEndSelection();
-    let startSizeBefore = this.findSizeBeforeElement(startElement!);
-    let endSizeBefore = this.findSizeBeforeElement(endElement!);
+    let startSizeBefore = this.findSelectionIndex(startElement!, startSelectionOffset);
+    let endSizeBefore = this.findSelectionIndex(endElement!, endSelectionOffset);
 
     return {
-      start: startSizeBefore + startSelectionOffset,
-      end: endSizeBefore + endSelectionOffset,
+      start: startSizeBefore,
+      end: endSizeBefore,
     };
   }
 
-  private findSizeBeforeElement(nodeToFind: Node): number {
+  /**
+   * Computes the text 'index' inside this.el based on the currently selected node and its offset.
+   * The selected node is either a Text node or an Element node.
+   *
+   * case 1 -Text node:
+   * the offset is the number of characters from the start of the node. We have to add this offset to the
+   * content length of all previous nodes.
+   *
+   * case 2 - Element node:
+   * the offset is the number of child nodes before the selected node. We have to add the content length of
+   * all the bnodes prior to the selected node as well as the content of the child node before the offset.
+   *
+   * See the MDN documentation for more details.
+   * https://developer.mozilla.org/en-US/docs/Web/API/Range/startOffset
+   * https://developer.mozilla.org/en-US/docs/Web/API/Range/endOffset
+   *
+   */
+  private findSelectionIndex(nodeToFind: Node, nodeOffset: number): number {
     let usedCharacters = 0;
 
     let it = iterateChildren(this.el);
@@ -183,6 +200,25 @@ export class ContentEditableHelper {
     }
     if (current.value !== nodeToFind) {
       throw new Error("Cannot find the node in the children of the element");
+    } else {
+      if (!current.value.hasChildNodes()) {
+        usedCharacters += nodeOffset;
+      } else {
+        const children = [...current.value.childNodes].slice(0, nodeOffset);
+        usedCharacters += children.reduce((acc: number, child: Node, index: number) => {
+          if (child.textContent !== null) {
+            // need to account for paragraph nodes that implicitely add a new line
+            // except for the last paragraph
+            let chars = child.textContent.length;
+            if (child.nodeName === "P" && index !== children.length - 1) {
+              chars++;
+            }
+            return acc + chars;
+          } else {
+            return acc;
+          }
+        }, 0);
+      }
     }
     if (nodeToFind.nodeName === "P" && !isFirstParagraph && nodeToFind.textContent == "") {
       usedCharacters++;
