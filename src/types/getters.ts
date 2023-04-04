@@ -15,6 +15,7 @@ import { EvaluationPlugin } from "../plugins/ui_core_views/cell_evaluation";
 import { CustomColorsPlugin } from "../plugins/ui_core_views/custom_colors";
 import { EvaluationChartPlugin } from "../plugins/ui_core_views/evaluation_chart";
 import { EvaluationConditionalFormatPlugin } from "../plugins/ui_core_views/evaluation_conditional_format";
+import { UIRowSizePlugin } from "../plugins/ui_core_views/row_size";
 import { AutofillPlugin } from "../plugins/ui_feature/autofill";
 import { AutomaticSumPlugin } from "../plugins/ui_feature/automatic_sum";
 import { CellPopoverPlugin } from "../plugins/ui_feature/cell_popovers";
@@ -140,6 +141,7 @@ type FilterEvaluationGetters = Pick<
   GetterNames<typeof FilterEvaluationPlugin>
 >;
 type SplitToColumnsGetters = Pick<SplitToColumnsPlugin, GetterNames<typeof SplitToColumnsPlugin>>;
+type UIRowSizeGetters = Pick<UIRowSizePlugin, GetterNames<typeof UIRowSizePlugin>>;
 
 export type Getters = {
   isReadonly: () => boolean;
@@ -167,4 +169,5 @@ export type Getters = {
   CellPopoverPluginGetters &
   FilterEvaluationGetters &
   HeaderVisibilityIUIGetters &
-  SplitToColumnsGetters;
+  SplitToColumnsGetters &
+  UIRowSizeGetters;

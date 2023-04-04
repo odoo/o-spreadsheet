@@ -20,6 +20,7 @@ import {
   EvaluationConditionalFormatPlugin,
   EvaluationPlugin,
 } from "./ui_core_views";
+import { UIRowSizePlugin } from "./ui_core_views/row_size";
 import {
   AutofillPlugin,
   AutomaticSumPlugin,
@@ -91,4 +92,5 @@ export const coreViewsPluginRegistry = new Registry<UIPluginConstructor>()
   .add("evaluation", EvaluationPlugin)
   .add("evaluation_chart", EvaluationChartPlugin)
   .add("evaluation_cf", EvaluationConditionalFormatPlugin)
+  .add("row_size", UIRowSizePlugin)
   .add("custom_colors", CustomColorsPlugin);

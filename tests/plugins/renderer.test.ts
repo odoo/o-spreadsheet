@@ -32,6 +32,7 @@ import {
   setStyle,
   setZoneBorders,
 } from "../test_helpers/commands_helpers";
+import { getCell } from "../test_helpers/getters_helpers";
 import { createEqualCF, getPlugin, target, toRangesData } from "../test_helpers/helpers";
 import { watchClipboardOutline } from "../test_helpers/renderer_helpers";
 import { DEFAULT_CELL_WIDTH } from "./../../src/constants";
@@ -950,7 +951,7 @@ describe("renderer", () => {
     model.drawGrid(ctx);
 
     const centeredBox = getBoxFromText(model, overflowingContent);
-    const cell = model.getters.getCell({ sheetId: "sheet1", row: 0, col: 2 })!;
+    const cell = getCell(model, "C1")!;
     const contentWidth =
       model.getters.getTextWidth(cell.content, cell.style || {}) + MIN_CELL_TEXT_MARGIN;
     const expectedClipX = 2 * DEFAULT_CELL_WIDTH + colSize / 2 - contentWidth / 2;
@@ -1052,7 +1053,7 @@ describe("renderer", () => {
         x: DEFAULT_CELL_WIDTH, // clipped to the left
         y: 0,
         width: 20, // clipped to the right
-        height: DEFAULT_CELL_HEIGHT,
+        height: model.getters.getRowSize("sheet1", 0),
       });
     }
   );
@@ -1083,7 +1084,7 @@ describe("renderer", () => {
         x: DEFAULT_CELL_WIDTH, // clipped to the left
         y: 0,
         width: 20, // clipped to the right
-        height: DEFAULT_CELL_HEIGHT,
+        height: model.getters.getRowSize("sheet1", 0),
       });
     }
   );
@@ -1264,7 +1265,7 @@ describe("renderer", () => {
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
       model.drawGrid(ctx);
       const box = getBoxFromText(model, cellContent);
-      const cell = model.getters.getCell({ sheetId: "sheet1", row: 1, col: 1 })!;
+      const cell = getCell(model, "B2")!;
       const textWidth = model.getters.getTextWidth(cell.content, cell.style || {});
       const expectedClipRect = model.getters.getVisibleRect({
         left: 0,
