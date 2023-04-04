@@ -147,16 +147,16 @@ export class ContentEditableHelper {
   getCurrentSelection() {
     let { startElement, endElement, startSelectionOffset, endSelectionOffset } =
       this.getStartAndEndSelection();
-    let startSizeBefore = this.findSizeBeforeElement(startElement!);
-    let endSizeBefore = this.findSizeBeforeElement(endElement!);
+    let startSizeBefore = this.findSizeBeforeElement(startElement!, startSelectionOffset);
+    let endSizeBefore = this.findSizeBeforeElement(endElement!, endSelectionOffset);
 
     return {
-      start: startSizeBefore + startSelectionOffset,
-      end: endSizeBefore + endSelectionOffset,
+      start: startSizeBefore,
+      end: endSizeBefore,
     };
   }
 
-  private findSizeBeforeElement(nodeToFind: Node): number {
+  private findSizeBeforeElement(nodeToFind: Node, nodeOffset: number): number {
     let usedCharacters = 0;
 
     let it = iterateChildren(this.el);
@@ -183,6 +183,19 @@ export class ContentEditableHelper {
     }
     if (current.value !== nodeToFind) {
       throw new Error("Cannot find the node in the children of the element");
+    } else {
+      if (!current.value.hasChildNodes()) {
+        usedCharacters += nodeOffset;
+      } else {
+        const children = [...current.value.childNodes].slice(0, nodeOffset);
+        usedCharacters += children.reduce((acc: number, child: Node) => {
+          if (child.textContent) {
+            return acc + child.textContent.length;
+          } else {
+            return acc;
+          }
+        }, 0);
+      }
     }
     if (nodeToFind.nodeName === "P" && !isFirstParagraph && nodeToFind.textContent == "") {
       usedCharacters++;
