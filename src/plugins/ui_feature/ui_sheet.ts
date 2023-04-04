@@ -1,14 +1,13 @@
 import {
   FILTER_ICON_MARGIN,
   ICON_EDGE_LENGTH,
-  NEWLINE,
   PADDING_AUTORESIZE_HORIZONTAL,
 } from "../../constants";
 import {
   computeIconWidth,
   computeTextWidth,
-  getMultiLineText,
   positions,
+  splitTextToWidth,
 } from "../../helpers/index";
 import { localizeFormula } from "../../helpers/locale";
 import { Command, CommandResult, LocalCommand, UID } from "../../types";
@@ -76,27 +75,38 @@ export class SheetUIPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   getCellWidth(position: CellPosition): number {
-    const text = this.getCellText(position);
     const style = this.getters.getCellComputedStyle(position);
-    const multiLineText = text.split(NEWLINE);
-    let contentWidth = Math.max(...multiLineText.map((line) => this.getTextWidth(line, style)));
+
+    let contentWidth = 0;
+
+    const content = this.getters.getEvaluatedCell(position).formattedValue;
+    if (content) {
+      const multiLineText = splitTextToWidth(this.ctx, content, style, undefined);
+      contentWidth += Math.max(
+        ...multiLineText.map((line) => computeTextWidth(this.ctx, line, style))
+      );
+    }
+
     const icon = this.getters.getConditionalIcon(position);
     if (icon) {
-      contentWidth += computeIconWidth(this.getters.getCellStyle(position));
+      contentWidth += computeIconWidth(style);
     }
+
     const isFilterHeader = this.getters.isFilterHeader(position);
     if (isFilterHeader) {
       contentWidth += ICON_EDGE_LENGTH + FILTER_ICON_MARGIN;
     }
 
-    if (contentWidth > 0) {
-      contentWidth += 2 * PADDING_AUTORESIZE_HORIZONTAL;
-
-      if (this.getters.getCellStyle(position).wrapping === "wrap") {
-        const colWidth = this.getters.getColSize(this.getters.getActiveSheetId(), position.col);
-        return Math.min(colWidth, contentWidth);
-      }
+    if (contentWidth === 0) {
+      return 0;
     }
+
+    contentWidth += 2 * PADDING_AUTORESIZE_HORIZONTAL;
+    if (style.wrapping === "wrap") {
+      const colWidth = this.getters.getColSize(this.getters.getActiveSheetId(), position.col);
+      return Math.min(colWidth, contentWidth);
+    }
+
     return contentWidth;
   }
 
@@ -120,7 +130,7 @@ export class SheetUIPlugin extends UIPlugin {
   getCellMultiLineText(position: CellPosition, width: number | undefined): string[] {
     const style = this.getters.getCellStyle(position);
     const text = this.getters.getCellText(position, this.getters.shouldShowFormulas());
-    return getMultiLineText(this.ctx, text, style, width);
+    return splitTextToWidth(this.ctx, text, style, width);
   }
 
   /**

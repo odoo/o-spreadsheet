@@ -1005,9 +1005,11 @@ describe("Multi users synchronisation", () => {
       });
       charlie.dispatch("DELETE_SHEET", { sheetId: firstSheetId });
     });
+    const colSize = alice.getters.getColSize("sheet2", 0);
+    const ctx = document.createElement("canvas").getContext("2d")!;
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getRowSize("sheet2", 0),
-      getDefaultCellHeight(getCell(alice, "A1"))
+      getDefaultCellHeight(ctx, getCell(alice, "A1"), colSize)
     );
   });
 });

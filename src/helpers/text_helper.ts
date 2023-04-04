@@ -8,7 +8,7 @@ import {
   NEWLINE,
   PADDING_AUTORESIZE_VERTICAL,
 } from "../constants";
-import { Cell, Pixel, Style } from "../types";
+import { Cell, Style } from "../types";
 
 export function computeTextLinesHeight(textLineHeight: number, numberOfLines: number = 1) {
   return numberOfLines * (textLineHeight + MIN_CELL_TEXT_MARGIN) - MIN_CELL_TEXT_MARGIN;
@@ -17,12 +17,20 @@ export function computeTextLinesHeight(textLineHeight: number, numberOfLines: nu
 /**
  * Get the default height of the cell given its style.
  */
-export function getDefaultCellHeight(cell: Cell | undefined): Pixel {
-  if (!cell || !cell.content) {
-    return DEFAULT_CELL_HEIGHT;
-  }
+export function getDefaultCellHeight(
+  ctx: CanvasRenderingContext2D,
+  cell: Cell | undefined,
+  colSize: number
+) {
+  if (!cell || !cell.content) return DEFAULT_CELL_HEIGHT;
+  const maxWidth = cell.style?.wrapping ? colSize - 2 * MIN_CELL_TEXT_MARGIN : undefined;
+
+  const numberOfLines = cell.isFormula
+    ? 1
+    : splitTextToWidth(ctx, cell.content, cell.style, maxWidth).length;
+
   const fontSize = computeTextFontSizeInPixels(cell.style);
-  const numberOfLines = cell.isFormula ? 1 : cell.content.split(NEWLINE).length;
+
   return computeTextLinesHeight(fontSize, numberOfLines) + 2 * PADDING_AUTORESIZE_VERTICAL;
 }
 
@@ -89,7 +97,7 @@ function splitWordToSpecificWidth(
  * Return the given text, split in multiple lines if needed. The text will be split in multiple
  * line if it contains NEWLINE characters, or if it's longer than the given width.
  */
-export function getMultiLineText(
+export function splitTextToWidth(
   ctx: CanvasRenderingContext2D,
   text: string,
   style: Style | undefined,
@@ -97,8 +105,12 @@ export function getMultiLineText(
 ): string[] {
   if (!style) style = {};
   const brokenText: string[] = [];
-  for (const line of text.split("\n")) {
-    const words = line.split(" ");
+
+  // Checking if text contains NEWLINE before split makes it very slightly slower if text contains it,
+  // but 5-10x faster if it doesn't
+  const lines = text.includes(NEWLINE) ? text.split(NEWLINE) : [text];
+  for (const line of lines) {
+    const words = line.includes(" ") ? line.split(" ") : [line];
 
     if (!width) {
       brokenText.push(line);

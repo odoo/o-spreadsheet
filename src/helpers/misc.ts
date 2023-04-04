@@ -494,3 +494,13 @@ export function memoize<T extends any[], U>(func: (...args: T) => U): (...args: 
     },
   }[funcName];
 }
+
+export function removeIndexesFromArray<T>(array: readonly T[], indexes: number[]): T[] {
+  return array.filter((_, index) => !indexes.includes(index));
+}
+
+export function insertItemsAtIndex<T>(array: readonly T[], items: T[], index: number): T[] {
+  const newArray = [...array];
+  newArray.splice(index, 0, ...items);
+  return newArray;
+}
