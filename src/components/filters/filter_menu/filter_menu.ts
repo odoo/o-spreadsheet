@@ -168,9 +168,7 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     // Set with lowercase values to avoid duplicates
     const normalizedValues = [...new Set(strValues.map(toLowerCase))];
 
-    const sortedValues = normalizedValues.sort((val1, val2) =>
-      val1.localeCompare(val2, undefined, { numeric: true, sensitivity: "base" })
-    );
+    const sortedValues = this.sortValues(normalizedValues);
 
     return sortedValues.map((normalizedValue) => {
       const checked =
@@ -181,6 +179,42 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
         string: strValues.find((val) => toLowerCase(val) === normalizedValue) || "",
       };
     });
+  }
+
+  /**
+   * Sorts an array of strings by treating them as either numeric values, dates, or strings.
+   *
+   * Numeric values are sorted in ascending order, while dates are sorted in chronological order.
+   * Strings are sorted based on the standard alphabetical order, with numeric and case sensitivity
+   * taken into account.
+   *
+   * Note: This function is intended to handle English dates only and may not work correctly with dates in other languages.
+   */
+  private sortValues(values: string[]): string[] {
+    const sortedValues = values.sort((a, b) => {
+      const aIsNumeric = !isNaN(+a);
+      const bIsNumeric = !isNaN(+b);
+      const aIsDate = !isNaN(Date.parse(a));
+      const bIsDate = !isNaN(Date.parse(b));
+
+      switch (true) {
+        case aIsNumeric && bIsNumeric:
+          return +a - +b;
+        case aIsNumeric:
+          return -1;
+        case bIsNumeric:
+          return 1;
+        case aIsDate && bIsDate:
+          return +new Date(a) - +new Date(b);
+        case aIsDate:
+          return -1;
+        case bIsDate:
+          return 1;
+        default:
+          return a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" });
+      }
+    });
+    return sortedValues;
   }
 
   checkValue(value: Value) {

@@ -96,6 +96,40 @@ describe("Filter menu component", () => {
       expect(values.map((val) => val.value)).toEqual(["2", "10", "a", "B"]);
     });
 
+    test("Dates are sorted in chronological order and non-date values are appended at the end", async () => {
+      createFilter(model, "A1:A5");
+      setCellContent(model, "A2", "September 2022");
+      setCellContent(model, "A3", "April 2023");
+      setCellContent(model, "A4", "Order Date (Month)");
+      setCellContent(model, "A5", "Jan 2023");
+
+      await openFilterMenu();
+      const menuValues = getFilterMenuValues();
+      expect(menuValues.map((val) => val.value)).toEqual([
+        "September 2022",
+        "Jan 2023",
+        "April 2023",
+        "Order Date (Month)",
+      ]);
+    });
+
+    test("[Intentional] Dates in other languages (except 'english') are not sorted in chronological order", async () => {
+      createFilter(model, "A1:A5");
+      setCellContent(model, "A2", "Şubat 2023");
+      setCellContent(model, "A3", "Temmuz 2022");
+      setCellContent(model, "A4", "Nisan 2023");
+      setCellContent(model, "A5", "Ekim 2022");
+
+      await openFilterMenu();
+      const menuValues = getFilterMenuValues();
+      expect(menuValues.map((val) => val.value)).toEqual([
+        "Temmuz 2022",
+        "Ekim 2022",
+        "Şubat 2023",
+        "Nisan 2023",
+      ]);
+    });
+
     test("We display the formated value of the cells", async () => {
       setFormat(model, "m/d/yyyy", target("A4"));
       await openFilterMenu();
