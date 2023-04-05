@@ -1,5 +1,5 @@
 import { deepCopy } from "../../src/helpers";
-import { groupConsecutive, lazy, range } from "../../src/helpers/misc";
+import { groupConsecutive, isConsecutive, lazy, range } from "../../src/helpers/misc";
 
 describe("Misc", () => {
   test("range", () => {
@@ -196,5 +196,19 @@ describe("lazy", () => {
 
   test("map a non-computed lazy value to another value", () => {
     expect(lazy(5).map((n) => n + 1)()).toBe(6);
+  });
+});
+
+describe("isConsecutive", () => {
+  test("consecutive", () => {
+    expect(isConsecutive([2, 3, 1])).toBeTruthy();
+  });
+
+  test("inconsecutive", () => {
+    expect(isConsecutive([5, 1, 2])).toBeFalsy();
+  });
+
+  test("sort numerically rather than lexicographically", () => {
+    expect(isConsecutive([10, 9, 11])).toBeTruthy();
   });
 });

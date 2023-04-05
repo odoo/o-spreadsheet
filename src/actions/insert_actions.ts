@@ -1,94 +1,117 @@
 import { functionRegistry } from "../functions";
-import { isDefined } from "../helpers";
+import { isConsecutive, isDefined } from "../helpers";
 import { _lt } from "../translation";
 import { ActionBuilder, ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 
 export const insertRow: ActionSpec = {
   name: ACTIONS.MENU_INSERT_ROWS_NAME,
-  isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
+  isVisible: (env) =>
+    isConsecutive(env.model.getters.getActiveRows()) &&
+    ACTIONS.IS_ONLY_ONE_RANGE(env) &&
+    env.model.getters.getActiveCols().size === 0,
   icon: "o-spreadsheet-Icon.INSERT_ROW",
 };
 
 export const rowInsertRowBefore: ActionSpec = {
   name: ACTIONS.ROW_INSERT_ROWS_BEFORE_NAME,
   execute: ACTIONS.INSERT_ROWS_BEFORE_ACTION,
+  isVisible: (env) =>
+    isConsecutive(env.model.getters.getActiveRows()) &&
+    ACTIONS.IS_ONLY_ONE_RANGE(env) &&
+    env.model.getters.getActiveCols().size === 0,
 };
 
 export const topBarInsertRowsBefore: ActionSpec = {
   ...rowInsertRowBefore,
   name: ACTIONS.MENU_INSERT_ROWS_BEFORE_NAME,
-  isVisible: (env) => env.model.getters.getActiveCols().size === 0,
 };
 
 export const cellInsertRowsBefore: ActionSpec = {
   ...rowInsertRowBefore,
   name: ACTIONS.CELL_INSERT_ROWS_BEFORE_NAME,
-  isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
   icon: "o-spreadsheet-Icon.INSERT_ROW",
 };
 
 export const rowInsertRowsAfter: ActionSpec = {
   execute: ACTIONS.INSERT_ROWS_AFTER_ACTION,
   name: ACTIONS.ROW_INSERT_ROWS_AFTER_NAME,
+  isVisible: (env) =>
+    isConsecutive(env.model.getters.getActiveRows()) &&
+    ACTIONS.IS_ONLY_ONE_RANGE(env) &&
+    env.model.getters.getActiveCols().size === 0,
 };
 
 export const topBarInsertRowsAfter: ActionSpec = {
   ...rowInsertRowsAfter,
   name: ACTIONS.MENU_INSERT_ROWS_AFTER_NAME,
-  isVisible: (env) => env.model.getters.getActiveCols().size === 0,
 };
 
 export const insertCol: ActionSpec = {
   name: ACTIONS.MENU_INSERT_COLUMNS_NAME,
-  isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
+  isVisible: (env) =>
+    isConsecutive(env.model.getters.getActiveCols()) &&
+    ACTIONS.IS_ONLY_ONE_RANGE(env) &&
+    env.model.getters.getActiveRows().size === 0,
   icon: "o-spreadsheet-Icon.INSERT_COL",
 };
 
 export const colInsertColsBefore: ActionSpec = {
   name: ACTIONS.COLUMN_INSERT_COLUMNS_BEFORE_NAME,
   execute: ACTIONS.INSERT_COLUMNS_BEFORE_ACTION,
+  isVisible: (env) =>
+    isConsecutive(env.model.getters.getActiveCols()) &&
+    ACTIONS.IS_ONLY_ONE_RANGE(env) &&
+    env.model.getters.getActiveRows().size === 0,
 };
 
 export const topBarInsertColsBefore: ActionSpec = {
   ...colInsertColsBefore,
   name: ACTIONS.MENU_INSERT_COLUMNS_BEFORE_NAME,
-  isVisible: (env) => env.model.getters.getActiveRows().size === 0,
 };
 
 export const cellInsertColsBefore: ActionSpec = {
   ...colInsertColsBefore,
   name: ACTIONS.CELL_INSERT_COLUMNS_BEFORE_NAME,
-  isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
   icon: "o-spreadsheet-Icon.INSERT_COL",
 };
 
 export const colInsertColsAfter: ActionSpec = {
   name: ACTIONS.COLUMN_INSERT_COLUMNS_AFTER_NAME,
   execute: ACTIONS.INSERT_COLUMNS_AFTER_ACTION,
+  isVisible: (env) =>
+    isConsecutive(env.model.getters.getActiveCols()) &&
+    ACTIONS.IS_ONLY_ONE_RANGE(env) &&
+    env.model.getters.getActiveRows().size === 0,
 };
 
 export const topBarInsertColsAfter: ActionSpec = {
   ...colInsertColsAfter,
   name: ACTIONS.MENU_INSERT_COLUMNS_AFTER_NAME,
   execute: ACTIONS.INSERT_COLUMNS_AFTER_ACTION,
-  isVisible: (env) => env.model.getters.getActiveRows().size === 0,
 };
 
 export const insertCell: ActionSpec = {
   name: _lt("Insert cells"),
-  isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
+  isVisible: (env) =>
+    ACTIONS.IS_ONLY_ONE_RANGE(env) &&
+    env.model.getters.getActiveCols().size === 0 &&
+    env.model.getters.getActiveRows().size === 0,
   icon: "o-spreadsheet-Icon.INSERT_CELL",
 };
 
 export const insertCellShiftDown: ActionSpec = {
   name: _lt("Insert cells and shift down"),
   execute: ACTIONS.INSERT_CELL_SHIFT_DOWN,
+  isVisible: (env) =>
+    env.model.getters.getActiveRows().size === 0 && env.model.getters.getActiveCols().size === 0,
 };
 
 export const insertCellShiftRight: ActionSpec = {
   name: _lt("Insert cells and shift right"),
   execute: ACTIONS.INSERT_CELL_SHIFT_RIGHT,
+  isVisible: (env) =>
+    env.model.getters.getActiveRows().size === 0 && env.model.getters.getActiveCols().size === 0,
 };
 
 export const insertChart: ActionSpec = {

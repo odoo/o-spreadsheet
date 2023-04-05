@@ -14,8 +14,10 @@ import {
   activateSheet,
   addCellToSelection,
   addColumns,
+  addRows,
   createSheet,
   deleteColumns,
+  deleteRows,
   hideColumns,
   hideRows,
   merge,
@@ -1006,5 +1008,247 @@ describe("Selection loop (ctrl + a)", () => {
       expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A1:A2");
       expect(model.getters.getActiveSheetScrollInfo()).toEqual(initialScroll);
     });
+  });
+});
+
+describe("Multiple selection updates after insertion and deletion", () => {
+  test("after inserting column before", () => {
+    const model = new Model({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
+    selectColumn(model, 4, "overrideSelection"); // select E
+    selectColumn(model, 9, "newAnchor"); // select J
+    let selection = model.getters.getSelection();
+    expect(selection.zones).toEqual([
+      { left: 4, right: 4, top: 0, bottom: 9 },
+      { left: 9, right: 9, top: 0, bottom: 9 },
+    ]);
+    expect(selection.anchor.cell).toEqual(toCartesian("J1"));
+
+    addColumns(model, "before", "A", 1);
+    selection = model.getters.getSelection();
+    expect(selection.anchor.cell).toEqual(toCartesian("K1"));
+    expect(selection.zones).toEqual([
+      { left: 5, right: 5, top: 0, bottom: 9 },
+      { left: 10, right: 10, top: 0, bottom: 9 },
+    ]);
+  });
+
+  test("after inserting column between", () => {
+    const model = new Model({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
+    selectColumn(model, 4, "overrideSelection"); // select E
+    selectColumn(model, 9, "newAnchor"); // select J
+    let selection = model.getters.getSelection();
+    expect(selection.zones).toEqual([
+      { left: 4, right: 4, top: 0, bottom: 9 },
+      { left: 9, right: 9, top: 0, bottom: 9 },
+    ]);
+    expect(selection.anchor.cell).toEqual(toCartesian("J1"));
+
+    addColumns(model, "before", "H", 1);
+    selection = model.getters.getSelection();
+    expect(selection.anchor.cell).toEqual(toCartesian("K1"));
+    expect(selection.zones).toEqual([
+      { left: 4, right: 4, top: 0, bottom: 9 },
+      { left: 10, right: 10, top: 0, bottom: 9 },
+    ]);
+  });
+
+  test("after inserting column after", () => {
+    const model = new Model({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
+    selectColumn(model, 4, "overrideSelection"); // select E
+    selectColumn(model, 9, "newAnchor"); // select J
+    let selection = model.getters.getSelection();
+    expect(selection.zones).toEqual([
+      { left: 4, right: 4, top: 0, bottom: 9 },
+      { left: 9, right: 9, top: 0, bottom: 9 },
+    ]);
+    expect(selection.anchor.cell).toEqual(toCartesian("J1"));
+
+    addColumns(model, "after", "K", 1);
+    selection = model.getters.getSelection();
+    expect(selection.anchor.cell).toEqual(toCartesian("J1"));
+    expect(selection.zones).toEqual([
+      { left: 4, right: 4, top: 0, bottom: 9 },
+      { left: 9, right: 9, top: 0, bottom: 9 },
+    ]);
+  });
+
+  test("after inserting row before", () => {
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
+    selectRow(model, 4, "overrideSelection"); // select 5
+    selectRow(model, 9, "newAnchor"); // select 10
+    let selection = model.getters.getSelection();
+    expect(selection.zones).toEqual([
+      { left: 0, right: 9, top: 4, bottom: 4 },
+      { left: 0, right: 9, top: 9, bottom: 9 },
+    ]);
+    expect(selection.anchor.cell).toEqual(toCartesian("A10"));
+
+    addRows(model, "before", 0, 1);
+    selection = model.getters.getSelection();
+    expect(selection.anchor.cell).toEqual(toCartesian("A11"));
+    expect(selection.zones).toEqual([
+      { left: 0, right: 9, top: 5, bottom: 5 },
+      { left: 0, right: 9, top: 10, bottom: 10 },
+    ]);
+  });
+
+  test("after inserting row between", () => {
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
+    selectRow(model, 4, "overrideSelection"); // select 5
+    selectRow(model, 9, "newAnchor"); // select 10
+    let selection = model.getters.getSelection();
+    expect(selection.zones).toEqual([
+      { left: 0, right: 9, top: 4, bottom: 4 },
+      { left: 0, right: 9, top: 9, bottom: 9 },
+    ]);
+    expect(selection.anchor.cell).toEqual(toCartesian("A10"));
+
+    addRows(model, "before", 6, 1);
+    selection = model.getters.getSelection();
+    expect(selection.anchor.cell).toEqual(toCartesian("A11"));
+    expect(selection.zones).toEqual([
+      { left: 0, right: 9, top: 4, bottom: 4 },
+      { left: 0, right: 9, top: 10, bottom: 10 },
+    ]);
+  });
+
+  test("after inserting rows after", () => {
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
+    selectRow(model, 4, "overrideSelection"); // select 5
+    selectRow(model, 9, "newAnchor"); // select 10
+    let selection = model.getters.getSelection();
+    expect(selection.zones).toEqual([
+      { left: 0, right: 9, top: 4, bottom: 4 },
+      { left: 0, right: 9, top: 9, bottom: 9 },
+    ]);
+    expect(selection.anchor.cell).toEqual(toCartesian("A10"));
+
+    addRows(model, "after", 11, 1);
+    selection = model.getters.getSelection();
+    expect(selection.anchor.cell).toEqual(toCartesian("A10"));
+    expect(selection.zones).toEqual([
+      { left: 0, right: 9, top: 4, bottom: 4 },
+      { left: 0, right: 9, top: 9, bottom: 9 },
+    ]);
+  });
+
+  test("after deleting column before", () => {
+    const model = new Model({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
+    selectColumn(model, 4, "overrideSelection"); // select E
+    selectColumn(model, 9, "newAnchor"); // select J
+    let selection = model.getters.getSelection();
+    expect(selection.zones).toEqual([
+      { left: 4, right: 4, top: 0, bottom: 9 },
+      { left: 9, right: 9, top: 0, bottom: 9 },
+    ]);
+    expect(selection.anchor.cell).toEqual(toCartesian("J1"));
+
+    deleteColumns(model, ["A"]);
+    selection = model.getters.getSelection();
+    expect(selection.anchor.cell).toEqual(toCartesian("I1"));
+    expect(selection.zones).toEqual([
+      { left: 3, right: 3, top: 0, bottom: 9 },
+      { left: 8, right: 8, top: 0, bottom: 9 },
+    ]);
+  });
+
+  test("after deleting column between", () => {
+    const model = new Model({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
+    selectColumn(model, 4, "overrideSelection"); // select E
+    selectColumn(model, 9, "newAnchor"); // select J
+    let selection = model.getters.getSelection();
+    expect(selection.zones).toEqual([
+      { left: 4, right: 4, top: 0, bottom: 9 },
+      { left: 9, right: 9, top: 0, bottom: 9 },
+    ]);
+    expect(selection.anchor.cell).toEqual(toCartesian("J1"));
+
+    deleteColumns(model, ["H"]);
+    selection = model.getters.getSelection();
+    expect(selection.anchor.cell).toEqual(toCartesian("I1"));
+    expect(selection.zones).toEqual([
+      { left: 4, right: 4, top: 0, bottom: 9 },
+      { left: 8, right: 8, top: 0, bottom: 9 },
+    ]);
+  });
+
+  test("after deleting column after", () => {
+    const model = new Model({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
+    selectColumn(model, 4, "overrideSelection"); // select E
+    selectColumn(model, 9, "newAnchor"); // select J
+    let selection = model.getters.getSelection();
+    expect(selection.zones).toEqual([
+      { left: 4, right: 4, top: 0, bottom: 9 },
+      { left: 9, right: 9, top: 0, bottom: 9 },
+    ]);
+    expect(selection.anchor.cell).toEqual(toCartesian("J1"));
+
+    deleteColumns(model, ["K"]);
+    selection = model.getters.getSelection();
+    expect(selection.anchor.cell).toEqual(toCartesian("J1"));
+    expect(selection.zones).toEqual([
+      { left: 4, right: 4, top: 0, bottom: 9 },
+      { left: 9, right: 9, top: 0, bottom: 9 },
+    ]);
+  });
+
+  test("after deleting row before", () => {
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
+    selectRow(model, 4, "overrideSelection"); // select 5
+    selectRow(model, 9, "newAnchor"); // select 10
+    let selection = model.getters.getSelection();
+    expect(selection.zones).toEqual([
+      { left: 0, right: 9, top: 4, bottom: 4 },
+      { left: 0, right: 9, top: 9, bottom: 9 },
+    ]);
+    expect(selection.anchor.cell).toEqual(toCartesian("A10"));
+
+    deleteRows(model, [1]);
+    selection = model.getters.getSelection();
+    expect(selection.anchor.cell).toEqual(toCartesian("A9"));
+    expect(selection.zones).toEqual([
+      { left: 0, right: 9, top: 3, bottom: 3 },
+      { left: 0, right: 9, top: 8, bottom: 8 },
+    ]);
+  });
+
+  test("after deleting row between", () => {
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
+    selectRow(model, 4, "overrideSelection"); // select 5
+    selectRow(model, 9, "newAnchor"); // select 10
+    let selection = model.getters.getSelection();
+    expect(selection.zones).toEqual([
+      { left: 0, right: 9, top: 4, bottom: 4 },
+      { left: 0, right: 9, top: 9, bottom: 9 },
+    ]);
+    expect(selection.anchor.cell).toEqual(toCartesian("A10"));
+
+    deleteRows(model, [6]);
+    selection = model.getters.getSelection();
+    expect(selection.anchor.cell).toEqual(toCartesian("A9"));
+    expect(selection.zones).toEqual([
+      { left: 0, right: 9, top: 4, bottom: 4 },
+      { left: 0, right: 9, top: 8, bottom: 8 },
+    ]);
+  });
+
+  test("after deleting row after", () => {
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
+    selectRow(model, 4, "overrideSelection"); // select 5
+    selectRow(model, 9, "newAnchor"); // select 10
+    let selection = model.getters.getSelection();
+    expect(selection.zones).toEqual([
+      { left: 0, right: 9, top: 4, bottom: 4 },
+      { left: 0, right: 9, top: 9, bottom: 9 },
+    ]);
+    expect(selection.anchor.cell).toEqual(toCartesian("A10"));
+
+    deleteRows(model, [10]);
+    selection = model.getters.getSelection();
+    expect(selection.anchor.cell).toEqual(toCartesian("A10"));
+    expect(selection.zones).toEqual([
+      { left: 0, right: 9, top: 4, bottom: 4 },
+      { left: 0, right: 9, top: 9, bottom: 9 },
+    ]);
   });
 });

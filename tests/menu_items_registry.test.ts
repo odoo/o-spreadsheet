@@ -305,19 +305,19 @@ describe("Menu Item actions", () => {
   });
 
   describe("Insert -> Row above", () => {
-    const path = ["insert", "insert_row", "insert_row_before"];
+    const insertRowBeforePath = ["insert", "insert_row", "insert_row_before"];
 
     test("A selected row", () => {
-      selectRow(model, 4, "newAnchor");
-      expect(getName(path, env)).toBe("Row above");
-      expect(getNode(path).isVisible(env)).toBeTruthy();
+      selectRow(model, 4, "overrideSelection");
+      expect(getName(insertRowBeforePath, env)).toBe("Row above");
+      expect(getNode(insertRowBeforePath).isVisible(env)).toBeTruthy();
     });
 
-    test("Multiple selected rows", () => {
-      selectRow(model, 4, "newAnchor");
+    test("Multiple consecutive selected rows", () => {
+      selectRow(model, 4, "overrideSelection");
       selectRow(model, 5, "updateAnchor");
-      expect(getName(path, env)).toBe("2 Rows above");
-      doAction(path, env);
+      expect(getName(insertRowBeforePath, env)).toBe("2 Rows above");
+      doAction(insertRowBeforePath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
         dimension: "ROW",
@@ -325,25 +325,31 @@ describe("Menu Item actions", () => {
         quantity: 2,
         position: "before",
       });
-      expect(getNode(path).isVisible(env)).toBeTruthy();
+      expect(getNode(insertRowBeforePath).isVisible(env)).toBeTruthy();
+    });
+
+    test("Multiple inconsecutive selected rows", () => {
+      selectRow(model, 4, "overrideSelection");
+      selectRow(model, 6, "newAnchor");
+      expect(getNode(insertRowBeforePath).isVisible(env)).toBeFalsy();
     });
 
     test("A selected column should hide the item", () => {
-      selectColumn(model, 4, "newAnchor");
-      expect(getNode(path).isVisible(env)).toBeFalsy();
+      selectColumn(model, 4, "overrideSelection");
+      expect(getNode(insertRowBeforePath).isVisible(env)).toBeFalsy();
     });
 
     test("A selected cell", () => {
       selectCell(model, "D4");
-      expect(getName(path, env)).toBe("Row above");
-      expect(getNode(path).isVisible(env)).toBeTruthy();
+      expect(getName(insertRowBeforePath, env)).toBe("Row above");
+      expect(getNode(insertRowBeforePath).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
       setAnchorCorner(model, "E5");
-      expect(getName(path, env)).toBe("2 Rows above");
-      doAction(path, env);
+      expect(getName(insertRowBeforePath, env)).toBe("2 Rows above");
+      doAction(insertRowBeforePath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
         dimension: "ROW",
@@ -351,24 +357,55 @@ describe("Menu Item actions", () => {
         quantity: 2,
         position: "before",
       });
-      expect(getNode(path).isVisible(env)).toBeTruthy();
+      expect(getNode(insertRowBeforePath).isVisible(env)).toBeTruthy();
+    });
+  });
+
+  describe("Insert row above via row menu", () => {
+    const addRowBeforePath = ["add_row_before"];
+
+    test("A selected row", () => {
+      selectRow(model, 4, "overrideSelection");
+      expect(getName(addRowBeforePath, env, rowMenuRegistry)).toBe("Insert row above");
+      expect(getNode(addRowBeforePath, rowMenuRegistry).isVisible(env)).toBeTruthy();
+    });
+
+    test("Multiple consecutive selected rows", () => {
+      selectRow(model, 4, "overrideSelection");
+      selectRow(model, 5, "updateAnchor");
+      expect(getName(addRowBeforePath, env, rowMenuRegistry)).toBe("Insert 2 rows above");
+      doAction(addRowBeforePath, env, rowMenuRegistry);
+      expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
+        sheetId: env.model.getters.getActiveSheetId(),
+        dimension: "ROW",
+        base: 4,
+        quantity: 2,
+        position: "before",
+      });
+      expect(getNode(addRowBeforePath, rowMenuRegistry).isVisible(env)).toBeTruthy();
+    });
+
+    test("Multiple inconsecutive selected rows", () => {
+      selectRow(model, 4, "overrideSelection");
+      selectRow(model, 6, "newAnchor");
+      expect(getNode(addRowBeforePath, rowMenuRegistry).isVisible(env)).toBeFalsy();
     });
   });
 
   describe("Insert -> Row below", () => {
-    const path = ["insert", "insert_row", "insert_row_after"];
+    const insertRowAfterPath = ["insert", "insert_row", "insert_row_after"];
 
     test("A selected row", () => {
-      selectRow(model, 4, "newAnchor");
-      expect(getName(path, env)).toBe("Row below");
-      expect(getNode(path).isVisible(env)).toBeTruthy();
+      selectRow(model, 4, "overrideSelection");
+      expect(getName(insertRowAfterPath, env)).toBe("Row below");
+      expect(getNode(insertRowAfterPath).isVisible(env)).toBeTruthy();
     });
 
-    test("Multiple selected rows", () => {
-      selectRow(model, 4, "newAnchor");
+    test("Multiple consecutive selected rows", () => {
+      selectRow(model, 4, "overrideSelection");
       selectRow(model, 5, "updateAnchor");
-      expect(getName(path, env)).toBe("2 Rows below");
-      doAction(path, env);
+      expect(getName(insertRowAfterPath, env)).toBe("2 Rows below");
+      doAction(insertRowAfterPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
         dimension: "ROW",
@@ -376,25 +413,31 @@ describe("Menu Item actions", () => {
         quantity: 2,
         position: "after",
       });
-      expect(getNode(path).isVisible(env)).toBeTruthy();
+      expect(getNode(insertRowAfterPath).isVisible(env)).toBeTruthy();
+    });
+
+    test("Multiple inconsecutive selected rows", () => {
+      selectRow(model, 4, "overrideSelection");
+      selectRow(model, 6, "newAnchor");
+      expect(getNode(insertRowAfterPath).isVisible(env)).toBeFalsy();
     });
 
     test("A selected column should hide the item", () => {
-      selectColumn(model, 4, "newAnchor");
-      expect(getNode(path).isVisible(env)).toBeFalsy();
+      selectColumn(model, 4, "overrideSelection");
+      expect(getNode(insertRowAfterPath).isVisible(env)).toBeFalsy();
     });
 
     test("A selected cell", () => {
       selectCell(model, "D4");
-      expect(getName(path, env)).toBe("Row below");
-      expect(getNode(path).isVisible(env)).toBeTruthy();
+      expect(getName(insertRowAfterPath, env)).toBe("Row below");
+      expect(getNode(insertRowAfterPath).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
       setAnchorCorner(model, "E5");
-      expect(getName(path, env)).toBe("2 Rows below");
-      doAction(path, env);
+      expect(getName(insertRowAfterPath, env)).toBe("2 Rows below");
+      doAction(insertRowAfterPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
         dimension: "ROW",
@@ -402,24 +445,55 @@ describe("Menu Item actions", () => {
         quantity: 2,
         position: "after",
       });
-      expect(getNode(path).isVisible(env)).toBeTruthy();
+      expect(getNode(insertRowAfterPath).isVisible(env)).toBeTruthy();
+    });
+  });
+
+  describe("Insert row below via row menu", () => {
+    const addRowAfterPath = ["add_row_after"];
+
+    test("A selected row", () => {
+      selectRow(model, 4, "overrideSelection");
+      expect(getName(addRowAfterPath, env, rowMenuRegistry)).toBe("Insert row below");
+      expect(getNode(addRowAfterPath, rowMenuRegistry).isVisible(env)).toBeTruthy();
+    });
+
+    test("Multiple consecutive selected rows", () => {
+      selectRow(model, 4, "overrideSelection");
+      selectRow(model, 5, "updateAnchor");
+      expect(getName(addRowAfterPath, env, rowMenuRegistry)).toBe("Insert 2 rows below");
+      doAction(addRowAfterPath, env, rowMenuRegistry);
+      expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
+        sheetId: env.model.getters.getActiveSheetId(),
+        dimension: "ROW",
+        base: 5,
+        quantity: 2,
+        position: "after",
+      });
+      expect(getNode(addRowAfterPath, rowMenuRegistry).isVisible(env)).toBeTruthy();
+    });
+
+    test("Multiple inconsecutive selected rows", () => {
+      selectRow(model, 4, "overrideSelection");
+      selectRow(model, 6, "newAnchor");
+      expect(getNode(addRowAfterPath, rowMenuRegistry).isVisible(env)).toBeFalsy();
     });
   });
 
   describe("Insert -> Column left", () => {
-    const path = ["insert", "insert_column", "insert_column_before"];
+    const insertColBeforePath = ["insert", "insert_column", "insert_column_before"];
 
     test("A selected column", () => {
-      selectColumn(model, 4, "newAnchor");
-      expect(getName(path, env)).toBe("Column left");
-      expect(getNode(path).isVisible(env)).toBeTruthy();
+      selectColumn(model, 4, "overrideSelection");
+      expect(getName(insertColBeforePath, env)).toBe("Column left");
+      expect(getNode(insertColBeforePath).isVisible(env)).toBeTruthy();
     });
 
-    test("Multiple selected columns", () => {
-      selectColumn(model, 4, "newAnchor");
+    test("Multiple consecutive selected columns", () => {
+      selectColumn(model, 4, "overrideSelection");
       selectColumn(model, 5, "updateAnchor");
-      expect(getName(path, env)).toBe("2 Columns left");
-      doAction(path, env);
+      expect(getName(insertColBeforePath, env)).toBe("2 Columns left");
+      doAction(insertColBeforePath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
         base: 4,
@@ -427,25 +501,31 @@ describe("Menu Item actions", () => {
         quantity: 2,
         position: "before",
       });
-      expect(getNode(path).isVisible(env)).toBeTruthy();
+      expect(getNode(insertColBeforePath).isVisible(env)).toBeTruthy();
+    });
+
+    test("Multiple inconsecutive selected columns", () => {
+      selectColumn(model, 4, "overrideSelection");
+      selectColumn(model, 6, "newAnchor");
+      expect(getNode(insertColBeforePath).isVisible(env)).toBeFalsy();
     });
 
     test("A selected row should hide the item", () => {
-      selectRow(model, 4, "newAnchor");
-      expect(getNode(path).isVisible(env)).toBeFalsy();
+      selectRow(model, 4, "overrideSelection");
+      expect(getNode(insertColBeforePath).isVisible(env)).toBeFalsy();
     });
 
     test("A selected cell", () => {
       selectCell(model, "D4");
-      expect(getName(path, env)).toBe("Column left");
-      expect(getNode(path).isVisible(env)).toBeTruthy();
+      expect(getName(insertColBeforePath, env)).toBe("Column left");
+      expect(getNode(insertColBeforePath).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
       setAnchorCorner(model, "E5");
-      expect(getName(path, env)).toBe("2 Columns left");
-      doAction(path, env);
+      expect(getName(insertColBeforePath, env)).toBe("2 Columns left");
+      doAction(insertColBeforePath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
         base: 3,
@@ -453,24 +533,55 @@ describe("Menu Item actions", () => {
         quantity: 2,
         position: "before",
       });
-      expect(getNode(path).isVisible(env)).toBeTruthy();
+      expect(getNode(insertColBeforePath).isVisible(env)).toBeTruthy();
+    });
+  });
+
+  describe("Insert column left via column Menu", () => {
+    const addColBeforePath = ["add_column_before"];
+
+    test("A selected column", () => {
+      selectColumn(model, 4, "overrideSelection");
+      expect(getName(addColBeforePath, env, colMenuRegistry)).toBe("Insert column left");
+      expect(getNode(addColBeforePath, colMenuRegistry).isVisible(env)).toBeTruthy();
+    });
+
+    test("Multiple consecutive selected columns", () => {
+      selectColumn(model, 4, "overrideSelection");
+      selectColumn(model, 5, "updateAnchor");
+      expect(getName(addColBeforePath, env, colMenuRegistry)).toBe("Insert 2 columns left");
+      doAction(addColBeforePath, env, colMenuRegistry);
+      expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
+        sheetId: env.model.getters.getActiveSheetId(),
+        base: 4,
+        dimension: "COL",
+        quantity: 2,
+        position: "before",
+      });
+      expect(getNode(addColBeforePath, colMenuRegistry).isVisible(env)).toBeTruthy();
+    });
+
+    test("Multiple inconsecutive selected columns", () => {
+      selectColumn(model, 4, "overrideSelection");
+      selectColumn(model, 6, "newAnchor");
+      expect(getNode(addColBeforePath, colMenuRegistry).isVisible(env)).toBeFalsy();
     });
   });
 
   describe("Insert -> Column right", () => {
-    const path = ["insert", "insert_column", "insert_column_after"];
+    const insertColAfterPath = ["insert", "insert_column", "insert_column_after"];
 
     test("A selected column", () => {
-      selectColumn(model, 4, "newAnchor");
-      expect(getName(path, env)).toBe("Column right");
-      expect(getNode(path).isVisible(env)).toBeTruthy();
+      selectColumn(model, 4, "overrideSelection");
+      expect(getName(insertColAfterPath, env)).toBe("Column right");
+      expect(getNode(insertColAfterPath).isVisible(env)).toBeTruthy();
     });
 
-    test("Multiple selected columns", () => {
-      selectColumn(model, 4, "newAnchor");
+    test("Multiple consecutive selected columns", () => {
+      selectColumn(model, 4, "overrideSelection");
       selectColumn(model, 5, "updateAnchor");
-      expect(getName(path, env)).toBe("2 Columns right");
-      doAction(path, env);
+      expect(getName(insertColAfterPath, env)).toBe("2 Columns right");
+      doAction(insertColAfterPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
         base: 5,
@@ -478,25 +589,31 @@ describe("Menu Item actions", () => {
         quantity: 2,
         position: "after",
       });
-      expect(getNode(path).isVisible(env)).toBeTruthy();
+      expect(getNode(insertColAfterPath).isVisible(env)).toBeTruthy();
+    });
+
+    test("Multiple inconsecutive selected columns", () => {
+      selectColumn(model, 4, "overrideSelection");
+      selectColumn(model, 6, "newAnchor");
+      expect(getNode(insertColAfterPath).isVisible(env)).toBeFalsy();
     });
 
     test("A selected row should hide the item", () => {
-      selectRow(model, 4, "newAnchor");
-      expect(getNode(path).isVisible(env)).toBeFalsy();
+      selectRow(model, 4, "overrideSelection");
+      expect(getNode(insertColAfterPath).isVisible(env)).toBeFalsy();
     });
 
     test("A selected cell", () => {
       selectCell(model, "D4");
-      expect(getName(path, env)).toBe("Column right");
-      expect(getNode(path).isVisible(env)).toBeTruthy();
+      expect(getName(insertColAfterPath, env)).toBe("Column right");
+      expect(getNode(insertColAfterPath).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
       setAnchorCorner(model, "E5");
-      expect(getName(path, env)).toBe("2 Columns right");
-      doAction(path, env);
+      expect(getName(insertColAfterPath, env)).toBe("2 Columns right");
+      doAction(insertColAfterPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
         base: 4,
@@ -504,7 +621,160 @@ describe("Menu Item actions", () => {
         quantity: 2,
         position: "after",
       });
-      expect(getNode(path).isVisible(env)).toBeTruthy();
+      expect(getNode(insertColAfterPath).isVisible(env)).toBeTruthy();
+    });
+  });
+
+  describe("Insert column right via column menu", () => {
+    const addColAfterPath = ["add_column_after"];
+
+    test("A selected column", () => {
+      selectColumn(model, 4, "overrideSelection");
+      expect(getName(addColAfterPath, env, colMenuRegistry)).toBe("Insert column right");
+      expect(getNode(addColAfterPath, colMenuRegistry).isVisible(env)).toBeTruthy();
+    });
+
+    test("Multiple consecutive selected columns", () => {
+      selectColumn(model, 4, "overrideSelection");
+      selectColumn(model, 5, "updateAnchor");
+      expect(getName(addColAfterPath, env, colMenuRegistry)).toBe("Insert 2 columns right");
+      doAction(addColAfterPath, env, colMenuRegistry);
+      expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
+        sheetId: env.model.getters.getActiveSheetId(),
+        base: 5,
+        dimension: "COL",
+        quantity: 2,
+        position: "after",
+      });
+      expect(getNode(addColAfterPath, colMenuRegistry).isVisible(env)).toBeTruthy();
+    });
+
+    test("Multiple inconsecutive selected columns", () => {
+      selectColumn(model, 4, "overrideSelection");
+      selectColumn(model, 6, "newAnchor");
+      expect(getNode(addColAfterPath, colMenuRegistry).isVisible(env)).toBeFalsy();
+    });
+  });
+
+  describe("Insert -> Insert cells and shift down", () => {
+    const insertCellShiftDownPath = ["insert", "insert_cell", "insert_cell_down"];
+
+    test("A selected row should hide the item", () => {
+      selectRow(model, 4, "overrideSelection");
+      expect(getNode(insertCellShiftDownPath).isVisible(env)).toBeFalsy();
+    });
+
+    test("A selected column should hide the item", () => {
+      selectColumn(model, 4, "overrideSelection");
+      expect(getNode(insertCellShiftDownPath).isVisible(env)).toBeFalsy();
+    });
+
+    test("Multiple consecutive selected columns should hide the item", () => {
+      selectColumn(model, 4, "overrideSelection");
+      selectColumn(model, 5, "updateAnchor");
+      expect(getNode(insertCellShiftDownPath).isVisible(env)).toBeFalsy();
+    });
+
+    test("Multiple inconsecutive selected columns should hide the item", () => {
+      selectColumn(model, 4, "overrideSelection");
+      selectColumn(model, 6, "newAnchor");
+      expect(getNode(insertCellShiftDownPath).isVisible(env)).toBeFalsy();
+    });
+
+    test("Multiple consecutive selected rows should hide the item", () => {
+      selectRow(model, 4, "overrideSelection");
+      selectRow(model, 5, "updateAnchor");
+      expect(getNode(insertCellShiftDownPath).isVisible(env)).toBeFalsy();
+    });
+
+    test("Multiple inconsecutive selected rows should hide the item", () => {
+      selectRow(model, 4, "overrideSelection");
+      selectRow(model, 6, "newAnchor");
+      expect(getNode(insertCellShiftDownPath).isVisible(env)).toBeFalsy();
+    });
+
+    test("A selected cell", () => {
+      selectCell(model, "D4");
+      expect(getName(insertCellShiftDownPath, env)).toBe("Shift down");
+      doAction(insertCellShiftDownPath, env);
+      expect(dispatch).toHaveBeenLastCalledWith("INSERT_CELL", {
+        zone: env.model.getters.getSelectedZone(),
+        shiftDimension: "ROW",
+      });
+      expect(getNode(insertCellShiftDownPath).isVisible(env)).toBeTruthy();
+    });
+
+    test("Multiple selected cells", () => {
+      selectCell(model, "D4");
+      setAnchorCorner(model, "E5");
+      expect(getName(insertCellShiftDownPath, env)).toBe("Shift down");
+      doAction(insertCellShiftDownPath, env);
+      expect(dispatch).toHaveBeenLastCalledWith("INSERT_CELL", {
+        zone: env.model.getters.getSelectedZone(),
+        shiftDimension: "ROW",
+      });
+      expect(getNode(insertCellShiftDownPath).isVisible(env)).toBeTruthy();
+    });
+  });
+
+  describe("Insert -> Insert cells and shift right", () => {
+    const insertCellShiftRightPath = ["insert", "insert_cell", "insert_cell_right"];
+
+    test("A selected row should hide the item", () => {
+      selectRow(model, 4, "overrideSelection");
+      expect(getNode(insertCellShiftRightPath).isVisible(env)).toBeFalsy();
+    });
+
+    test("A selected column should hide the item", () => {
+      selectColumn(model, 4, "overrideSelection");
+      expect(getNode(insertCellShiftRightPath).isVisible(env)).toBeFalsy();
+    });
+
+    test("Multiple consecutive selected columns should hide the item", () => {
+      selectColumn(model, 4, "overrideSelection");
+      selectColumn(model, 5, "updateAnchor");
+      expect(getNode(insertCellShiftRightPath).isVisible(env)).toBeFalsy();
+    });
+
+    test("Multiple inconsecutive selected columns should hide the item", () => {
+      selectColumn(model, 4, "overrideSelection");
+      selectColumn(model, 6, "newAnchor");
+      expect(getNode(insertCellShiftRightPath).isVisible(env)).toBeFalsy();
+    });
+
+    test("Multiple consecutive selected rows should hide the item", () => {
+      selectRow(model, 4, "overrideSelection");
+      selectRow(model, 5, "updateAnchor");
+      expect(getNode(insertCellShiftRightPath).isVisible(env)).toBeFalsy();
+    });
+
+    test("Multiple inconsecutive selected rows should hide the item", () => {
+      selectRow(model, 4, "overrideSelection");
+      selectRow(model, 6, "newAnchor");
+      expect(getNode(insertCellShiftRightPath).isVisible(env)).toBeFalsy();
+    });
+
+    test("A selected cell", () => {
+      selectCell(model, "D4");
+      expect(getName(insertCellShiftRightPath, env)).toBe("Shift right");
+      doAction(insertCellShiftRightPath, env);
+      expect(dispatch).toHaveBeenLastCalledWith("INSERT_CELL", {
+        zone: env.model.getters.getSelectedZone(),
+        shiftDimension: "COL",
+      });
+      expect(getNode(insertCellShiftRightPath).isVisible(env)).toBeTruthy();
+    });
+
+    test("Multiple selected cells", () => {
+      selectCell(model, "D4");
+      setAnchorCorner(model, "E5");
+      expect(getName(insertCellShiftRightPath, env)).toBe("Shift right");
+      doAction(insertCellShiftRightPath, env);
+      expect(dispatch).toHaveBeenLastCalledWith("INSERT_CELL", {
+        zone: env.model.getters.getSelectedZone(),
+        shiftDimension: "COL",
+      });
+      expect(getNode(insertCellShiftRightPath).isVisible(env)).toBeTruthy();
     });
   });
 
