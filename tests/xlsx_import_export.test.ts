@@ -1,7 +1,7 @@
 import { Model } from "../src";
 import { FIGURE_BORDER_WIDTH } from "../src/constants";
 import { buildSheetLink, toZone } from "../src/helpers";
-import { Align, BorderDescr, ConditionalFormatRule, Style } from "../src/types";
+import { Align, BorderDescr, ConditionalFormatRule, Style, Wrapping } from "../src/types";
 import { isXLSXExportXMLFile } from "../src/xlsx/helpers/xlsx_helper";
 import { VerticalAlign } from "./../src/types/misc";
 import {
@@ -105,6 +105,7 @@ describe("Export data to xlsx then import it", () => {
     { align: "right" as Align },
     { verticalAlign: "top" as VerticalAlign },
     { fillColor: "#151515" },
+    { wrapping: "wrap" as Wrapping },
   ])("Cell style %s", (style: Style) => {
     model.dispatch("SET_FORMATTING", { sheetId, target: target("A1"), style });
     const importedModel = exportToXlsxThenImport(model);

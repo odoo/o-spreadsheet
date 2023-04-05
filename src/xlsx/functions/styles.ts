@@ -135,6 +135,9 @@ export function addStyles(styles: XLSXStyle[]): XMLString {
     if (style.alignment && style.alignment.horizontal) {
       alignAttrs.push(["horizontal", style.alignment.horizontal]);
     }
+    if (style.alignment && style.alignment.wrapText) {
+      alignAttrs.push(["wrapText", "1"]);
+    }
 
     if (alignAttrs.length > 0) {
       attributes.push(["applyAlignment", "1"]); // for Libre Office
