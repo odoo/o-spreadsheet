@@ -310,7 +310,7 @@ export const DELETE_CELL_SHIFT_LEFT = (env: SpreadsheetChildEnv) => {
 };
 
 export const MENU_INSERT_ROWS_NAME = (env: SpreadsheetChildEnv) => {
-  const number = getColumnsNumber(env);
+  const number = getRowsNumber(env);
   return number === 1 ? _lt("Insert row") : _lt("Insert %s rows", number.toString());
 };
 

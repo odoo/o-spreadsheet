@@ -536,3 +536,16 @@ export function moveItemToIndex<T>(array: T[], startIndex: number, targetIndex: 
   array.splice(targetIndex, 0, item);
   return array;
 }
+
+/**
+ * Determine if the numbers are consecutive.
+ */
+export function isConsecutive(iterable: Iterable<number>): boolean {
+  const array = Array.from(iterable).sort((a, b) => a - b); // sort numerically rather than lexicographically
+  for (let i = 1; i < array.length; i++) {
+    if (array[i] - array[i - 1] !== 1) {
+      return false;
+    }
+  }
+  return true;
+}

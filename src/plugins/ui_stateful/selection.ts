@@ -574,7 +574,11 @@ export class GridSelectionPlugin extends UIPlugin {
       },
       zone: selectedZone,
     };
-    this.setSelectionMixin(anchor, [selectedZone]);
+
+    const selections = this.gridSelection.zones.map((zone) =>
+      updateSelectionOnDeletion(zone, "left", [...cmd.elements])
+    );
+    this.setSelectionMixin(anchor, selections);
   }
 
   private onRowsRemoved(cmd: RemoveColumnsRowsCommand) {
@@ -589,20 +593,29 @@ export class GridSelectionPlugin extends UIPlugin {
       },
       zone: selectedZone,
     };
-    this.setSelectionMixin(anchor, [selectedZone]);
+    const selections = this.gridSelection.zones.map((zone) =>
+      updateSelectionOnDeletion(zone, "top", [...cmd.elements])
+    );
+    this.setSelectionMixin(anchor, selections);
   }
 
   private onAddElements(cmd: AddColumnsRowsCommand) {
-    const selection = this.gridSelection.anchor.zone;
-    const zone = updateSelectionOnInsertion(
-      selection,
-      cmd.dimension === "COL" ? "left" : "top",
+    const start = cmd.dimension === "COL" ? "left" : "top";
+    const anchorZone = updateSelectionOnInsertion(
+      this.gridSelection.anchor.zone,
+      start,
       cmd.base,
       cmd.position,
       cmd.quantity
     );
-    const anchor = { cell: { col: zone.left, row: zone.top }, zone };
-    this.setSelectionMixin(anchor, [zone]);
+    const selection = this.gridSelection.zones.map((zone) =>
+      updateSelectionOnInsertion(zone, start, cmd.base, cmd.position, cmd.quantity)
+    );
+    const anchor = {
+      cell: { col: anchorZone.left, row: anchorZone.top },
+      zone: anchorZone,
+    };
+    this.setSelectionMixin(anchor, selection);
   }
 
   private onMoveElements(cmd: MoveColumnsRowsCommand) {
