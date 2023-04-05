@@ -1,9 +1,11 @@
 import { CommandResult, CorePlugin } from "../src";
+import { DEFAULT_REVISION_ID } from "../src/constants";
 import { toZone } from "../src/helpers";
 import { Model, ModelConfig } from "../src/model";
 import { corePluginRegistry, featurePluginRegistry } from "../src/plugins/index";
 import { UIPlugin } from "../src/plugins/ui_plugin";
 import { Command, CoreCommand, coreTypes, DispatchResult } from "../src/types";
+import { statefulUIPluginRegistry } from "./../src/plugins/index";
 import { setupCollaborativeEnv } from "./collaborative/collaborative_helpers";
 import { copy, selectCell, setCellContent } from "./test_helpers/commands_helpers";
 import {
@@ -294,6 +296,34 @@ describe("Model", () => {
     ]);
     expect(getEvaluatedCell(model, "A1").value).toBe(6);
     featurePluginRegistry.remove("MyUIPlugin");
+  });
+
+  test("Stateful UI plugin don't receive commands after other plugins, with potentially invalid data", () => {
+    let numberCalls = 0;
+    class MyStatefulPlugin extends UIPlugin {
+      handle(cmd: Command) {
+        if (cmd.type !== "CREATE_SHEET") return;
+        expect(this.getters.getSheetIds()).toContain(cmd.sheetId);
+        numberCalls++;
+      }
+    }
+    statefulUIPluginRegistry.add("myUIPlugin", MyStatefulPlugin);
+
+    new Model({}, {}, [
+      {
+        type: "REMOTE_REVISION",
+        clientId: "42",
+        serverRevisionId: DEFAULT_REVISION_ID,
+        nextRevisionId: "2",
+        version: 1,
+        commands: [
+          { type: "CREATE_SHEET", position: 1, sheetId: "someOtherSheetId" },
+          { type: "DELETE_SHEET", sheetId: "someOtherSheetId" },
+        ],
+      },
+    ]);
+    expect(numberCalls).toEqual(1);
+    featurePluginRegistry.remove("myUIPlugin");
   });
 
   test("Core commands which dispatch UPDATE_CELL should trigger evaluation", () => {
