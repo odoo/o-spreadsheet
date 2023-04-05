@@ -4,12 +4,13 @@ import {
   DEFAULT_FONT_SIZE,
   FILTER_ICON_MARGIN,
   ICON_EDGE_LENGTH,
+  NEWLINE,
   PADDING_AUTORESIZE_HORIZONTAL,
   PADDING_AUTORESIZE_VERTICAL,
 } from "../../src/constants";
 import { arg, functionRegistry } from "../../src/functions";
 import { toString } from "../../src/functions/helpers";
-import { fontSizeInPixels, toZone } from "../../src/helpers";
+import { fontSizeInPixels, toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import {
   Arg,
@@ -446,6 +447,18 @@ describe("Autoresize", () => {
     const initCellWidth = sizes[0] + hPadding;
     model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(initCellWidth);
+  });
+
+  test("Can autoresize a column with multiline content", () => {
+    const content = `Hello this is \nmultiline content for test`;
+    setCellContent(model, "A1", content);
+    model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    const position = { sheetId, ...toCartesian("A1") };
+    const style = model.getters.getCellComputedStyle(position);
+    const multiLineText = content.split(NEWLINE);
+    expect(model.getters.getColSize(sheetId, 0)).toBe(
+      Math.max(...multiLineText.map((line) => model.getters.getTextWidth(line, style))) + hPadding
+    );
   });
 
   test("Can autoresize a column with text width smaller than cell width", () => {
