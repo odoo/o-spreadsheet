@@ -1,6 +1,7 @@
 import {
   FILTER_ICON_MARGIN,
   ICON_EDGE_LENGTH,
+  NEWLINE,
   PADDING_AUTORESIZE_HORIZONTAL,
 } from "../../constants";
 import { computeIconWidth, computeTextWidth, positions } from "../../helpers/index";
@@ -81,7 +82,8 @@ export class SheetUIPlugin extends UIPlugin {
   getCellWidth(position: CellPosition): number {
     const text = this.getCellText(position);
     const style = this.getters.getCellComputedStyle(position);
-    let contentWidth = this.getTextWidth(text, style);
+    const multiLineText = text.split(NEWLINE);
+    let contentWidth = Math.max(...multiLineText.map((line) => this.getTextWidth(line, style)));
     const icon = this.getters.getConditionalIcon(position);
     if (icon) {
       contentWidth += computeIconWidth(this.getters.getCellStyle(position));
