@@ -157,7 +157,7 @@ export interface XLSXExportXMLFile {
 
 export interface XLSXExportImageFile {
   path: string;
-  imagePath: string;
+  imageSrc: string;
 }
 
 export interface XLSXExport {
