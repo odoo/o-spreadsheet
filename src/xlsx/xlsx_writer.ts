@@ -10,6 +10,7 @@ import {
 } from "../types/xlsx";
 import { XLSXExportXMLFile } from "./../types/xlsx";
 import { CONTENT_TYPES, NAMESPACE, RELATIONSHIP_NSR, XLSX_RELATION_TYPE } from "./constants";
+import { IMAGE_MIMETYPE_EXTENSION_MAPPING } from "./conversion";
 import { createChart } from "./functions/charts";
 import { addConditionalFormatting } from "./functions/conditional_formatting";
 import { createDrawing } from "./functions/drawings";
@@ -37,6 +38,7 @@ import {
   convertWidthToExcel,
 } from "./helpers/content_helpers";
 import {
+  createDefaultXMLElement,
   createOverride,
   createXMLFile,
   escapeXml,
@@ -119,8 +121,7 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
     // Figures and Charts
     let drawingNode = escapeXml``;
     const drawingRelIds: string[] = [];
-    const charts = sheet.charts;
-    for (const chart of charts) {
+    for (const chart of sheet.charts) {
       const xlsxChartId = convertChartId(chart.id);
       const chartRelId = addRelsToFile(
         construct.relsFiles,
@@ -140,25 +141,31 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
       );
     }
 
-    const images = sheet.images;
-    for (const image of images) {
+    for (const image of sheet.images) {
+      const mimeType = image.data.mimetype;
+      if (mimeType === undefined) continue;
+      const extension = IMAGE_MIMETYPE_EXTENSION_MAPPING[mimeType];
+      // only support exporting images with mimetypes specified in the mapping
+      if (extension === undefined) continue;
       const xlsxImageId = convertImageId(image.id);
+      let imageFileName = `image${xlsxImageId}.${extension}`;
+
       const imageRelId = addRelsToFile(
         construct.relsFiles,
         `xl/drawings/_rels/drawing${sheetIndex}.xml.rels`,
         {
-          target: `../media/image${xlsxImageId}`,
+          target: `../media/${imageFileName}`,
           type: XLSX_RELATION_TYPE.image,
         }
       );
       drawingRelIds.push(imageRelId);
       files.push({
-        path: `xl/media/image${xlsxImageId}`,
-        imagePath: image.data.path,
+        path: `xl/media/${imageFileName}`,
+        imageSrc: image.data.path,
       });
     }
 
-    const drawings = [...charts, ...images];
+    const drawings = [...sheet.charts, ...sheet.images];
     if (drawings.length) {
       const drawingRelId = addRelsToFile(
         construct.relsFiles,
@@ -310,6 +317,10 @@ function createRelsFiles(relsFiles: XLSXRelFile[]): XLSXExportFile[] {
 
 function createContentTypes(files: XLSXExportFile[]): XLSXExportXMLFile {
   const overrideNodes: XMLString[] = [];
+  // hard-code supported image mimetypes
+  const imageDefaultNodes = Object.entries(IMAGE_MIMETYPE_EXTENSION_MAPPING).map(
+    ([mimetype, extension]) => createDefaultXMLElement(extension, mimetype)
+  );
   for (const file of files) {
     if ("contentType" in file && file.contentType) {
       overrideNodes.push(createOverride("/" + file.path, CONTENT_TYPES[file.contentType]));
@@ -327,6 +338,7 @@ function createContentTypes(files: XLSXExportFile[]): XLSXExportXMLFile {
 
   const xml = escapeXml/*xml*/ `
     <Types xmlns="${NAMESPACE["Types"]}">
+      ${joinXmlNodes(Object.values(imageDefaultNodes))}
       <Default ${formatAttributes(relsAttributes)} />
       <Default ${formatAttributes(xmlAttributes)} />
       ${joinXmlNodes(overrideNodes)}

@@ -13,7 +13,7 @@ export class ImageProvider implements ImageProviderInterface {
     const file = await this.getImageFromUser();
     const path = await this.fileStore.upload(file);
     const size = await this.getImageSize(path);
-    return { path, size };
+    return { path, size, mimetype: file.type };
   }
 
   private getImageFromUser(): Promise<File> {

@@ -12,8 +12,9 @@ describe("image plugin", function () {
       sheetId,
       path: "image path",
       size: { width: 100, height: 100 },
+      mimetype: "image/jpeg",
     };
-    createImage(model, { figureId: imageId, definition: definition });
+    createImage(model, { figureId: imageId, definition });
     expect(model.getters.getImage(imageId)).toEqual(definition);
   });
 
@@ -35,8 +36,9 @@ describe("image plugin", function () {
       sheetId,
       path: "image path",
       size: { width: 100, height: 100 },
+      mimetype: "image/jpeg",
     };
-    createImage(model, { figureId: imageId, definition: definition });
+    createImage(model, { figureId: imageId, definition });
     model.dispatch("SELECT_FIGURE", { id: imageId });
     model.dispatch("COPY");
     paste(model, "D4");
@@ -55,8 +57,9 @@ describe("image plugin", function () {
       sheetId,
       path: "image path",
       size: { width: 100, height: 100 },
+      mimetype: "image/jpeg",
     };
-    createImage(model, { figureId: imageId, definition: definition });
+    createImage(model, { figureId: imageId, definition });
     model.dispatch("SELECT_FIGURE", { id: imageId });
     model.dispatch("CUT");
     paste(model, "D4");
