@@ -39,7 +39,7 @@ function exportToXlsxThenImport(model: Model) {
   const exported = model.exportXLSX();
   const dataToImport = {};
   for (let file of exported.files) {
-    dataToImport[file.path] = isXLSXExportXMLFile(file) ? file.content : file.imagePath;
+    dataToImport[file.path] = isXLSXExportXMLFile(file) ? file.content : file.imageSrc;
   }
   const imported = new Model(dataToImport, undefined, undefined, undefined, false);
   return imported;
