@@ -57,6 +57,7 @@ describe("Color Picker buttons", () => {
     expect(fixture.querySelector(".o-custom-selector")).toBeDefined();
     await simulateClick(".o-color-picker-toggler");
     expect(fixture.querySelector(".o-custom-selector")).toBeNull();
+    expect(fixture.querySelector(".o-color-picker")).toMatchSnapshot();
   });
 
   test("Can pick a standard color", async () => {
