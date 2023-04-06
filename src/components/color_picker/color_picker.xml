@@ -30,7 +30,9 @@
         <div
           class="o-color-picker-toggler o-color-picker-line-item"
           t-on-click.stop="toggleColorPicker">
-          <div align="center">+</div>
+          <div class="o-color-picker-toggler-sign">
+            <t t-call="o-spreadsheet-Icon.PLUS"/>
+          </div>
         </div>
         <div
           t-foreach="env.model.getters.getCustomColors()"
