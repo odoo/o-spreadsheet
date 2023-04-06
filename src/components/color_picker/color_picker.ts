@@ -49,6 +49,18 @@ css/* scss */ `
       grid-template-columns: repeat(${ITEMS_PER_LINE}, 1fr);
       grid-gap: ${ITEM_HORIZONTAL_MARGIN * 2}px;
     }
+    .o-color-picker-toggler {
+      display: flex;
+      .o-color-picker-toggler-sign {
+        margin: auto auto;
+        width: 55%;
+        height: 55%;
+        .o-icon {
+          width: 100%;
+          height: 100%;
+        }
+      }
+    }
     .o-color-picker-line-item {
       width: ${ITEM_EDGE_LENGTH}px;
       height: ${ITEM_EDGE_LENGTH}px;

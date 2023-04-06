@@ -62,6 +62,12 @@ describe("Color Picker buttons", () => {
     }
   });
 
+  test("Full component rendering", async () => {
+    await mountColorPicker();
+    await simulateClick(".o-color-picker-toggler-sign");
+    expect(fixture.querySelector(".o-color-picker")).toMatchSnapshot();
+  });
+
   test("Can pick a standard color", async () => {
     const onColorPicked = jest.fn();
     await mountColorPicker({ onColorPicked });
