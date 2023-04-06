@@ -341,3 +341,14 @@ export const XLSX_INDEXED_COLORS = {
   64: "000000", // system foreground
   65: "FFFFFF", // system background
 };
+
+export const IMAGE_MIMETYPE_EXTENSION_MAPPING = {
+  "image/avif": "avif",
+  "image/bmp": "bmp",
+  "image/gif": "gif",
+  "image/vnd.microsoft.icon": "ico",
+  "image/jpeg": "jpeg",
+  "image/png": "png",
+  "image/tiff": "tiff",
+  "image/webp": "webp",
+};

@@ -104,6 +104,7 @@ export function createImage(
     definition: {
       path: "image path",
       size: { width: 380, height: 380 },
+      mimetype: "image/jpeg",
       ...partialParam.definition,
     },
   };

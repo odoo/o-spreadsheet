@@ -575,6 +575,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -1160,6 +1168,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -1745,6 +1761,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -3387,6 +3411,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -4385,6 +4417,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -5319,6 +5359,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -5881,6 +5929,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -6480,6 +6536,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -7041,6 +7105,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -7643,6 +7715,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -8121,6 +8201,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -8673,6 +8761,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -9272,6 +9368,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -9495,6 +9599,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -9856,6 +9968,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -9963,6 +10083,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -10099,6 +10227,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -10777,6 +10913,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -10813,8 +10957,8 @@ Object {
       "path": "xl/workbook.xml",
     },
     Object {
-      "imagePath": "image path",
-      "path": "xl/media/image7",
+      "imageSrc": "image path",
+      "path": "xl/media/image7.jpeg",
     },
     Object {
       "content": "<xdr:wsDr xmlns:xdr=\\"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\" xmlns:a=\\"http://schemas.openxmlformats.org/drawingml/2006/main\\" xmlns:c=\\"http://schemas.openxmlformats.org/drawingml/2006/chart\\">
@@ -10968,7 +11112,7 @@ Object {
     },
     Object {
       "content": "<Relationships xmlns=\\"http://schemas.openxmlformats.org/package/2006/relationships\\">
-    <Relationship Id=\\"rId1\\" Target=\\"../media/image7\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\\"/>
+    <Relationship Id=\\"rId1\\" Target=\\"../media/image7.jpeg\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\\"/>
 </Relationships>",
       "contentType": undefined,
       "path": "xl/drawings/_rels/drawing0.xml.rels",
@@ -10982,6 +11126,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -11018,8 +11170,8 @@ Object {
       "path": "xl/workbook.xml",
     },
     Object {
-      "imagePath": "image path",
-      "path": "xl/media/image6",
+      "imageSrc": "image path",
+      "path": "xl/media/image6.jpeg",
     },
     Object {
       "content": "<xdr:wsDr xmlns:xdr=\\"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\" xmlns:a=\\"http://schemas.openxmlformats.org/drawingml/2006/main\\" xmlns:c=\\"http://schemas.openxmlformats.org/drawingml/2006/chart\\">
@@ -11173,7 +11325,7 @@ Object {
     },
     Object {
       "content": "<Relationships xmlns=\\"http://schemas.openxmlformats.org/package/2006/relationships\\">
-    <Relationship Id=\\"rId1\\" Target=\\"../media/image6\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\\"/>
+    <Relationship Id=\\"rId1\\" Target=\\"../media/image6.jpeg\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\\"/>
 </Relationships>",
       "contentType": undefined,
       "path": "xl/drawings/_rels/drawing0.xml.rels",
@@ -11187,6 +11339,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -11224,8 +11384,8 @@ Object {
       "path": "xl/workbook.xml",
     },
     Object {
-      "imagePath": "image path",
-      "path": "xl/media/image4",
+      "imageSrc": "image path",
+      "path": "xl/media/image4.jpeg",
     },
     Object {
       "content": "<xdr:wsDr xmlns:xdr=\\"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\" xmlns:a=\\"http://schemas.openxmlformats.org/drawingml/2006/main\\" xmlns:c=\\"http://schemas.openxmlformats.org/drawingml/2006/chart\\">
@@ -11324,8 +11484,8 @@ Object {
       "path": "xl/worksheets/sheet0.xml",
     },
     Object {
-      "imagePath": "image path",
-      "path": "xl/media/image5",
+      "imageSrc": "image path",
+      "path": "xl/media/image5.jpeg",
     },
     Object {
       "content": "<xdr:wsDr xmlns:xdr=\\"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\" xmlns:a=\\"http://schemas.openxmlformats.org/drawingml/2006/main\\" xmlns:c=\\"http://schemas.openxmlformats.org/drawingml/2006/chart\\">
@@ -11481,7 +11641,7 @@ Object {
     },
     Object {
       "content": "<Relationships xmlns=\\"http://schemas.openxmlformats.org/package/2006/relationships\\">
-    <Relationship Id=\\"rId1\\" Target=\\"../media/image4\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\\"/>
+    <Relationship Id=\\"rId1\\" Target=\\"../media/image4.jpeg\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\\"/>
 </Relationships>",
       "contentType": undefined,
       "path": "xl/drawings/_rels/drawing0.xml.rels",
@@ -11495,7 +11655,7 @@ Object {
     },
     Object {
       "content": "<Relationships xmlns=\\"http://schemas.openxmlformats.org/package/2006/relationships\\">
-    <Relationship Id=\\"rId1\\" Target=\\"../media/image5\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\\"/>
+    <Relationship Id=\\"rId1\\" Target=\\"../media/image5.jpeg\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\\"/>
 </Relationships>",
       "contentType": undefined,
       "path": "xl/drawings/_rels/drawing1.xml.rels",
@@ -11509,6 +11669,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -11547,12 +11715,12 @@ Object {
       "path": "xl/workbook.xml",
     },
     Object {
-      "imagePath": "image path",
-      "path": "xl/media/image2",
+      "imageSrc": "image path",
+      "path": "xl/media/image2.jpeg",
     },
     Object {
-      "imagePath": "image path",
-      "path": "xl/media/image3",
+      "imageSrc": "image path",
+      "path": "xl/media/image3.jpeg",
     },
     Object {
       "content": "<xdr:wsDr xmlns:xdr=\\"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\" xmlns:a=\\"http://schemas.openxmlformats.org/drawingml/2006/main\\" xmlns:c=\\"http://schemas.openxmlformats.org/drawingml/2006/chart\\">
@@ -11755,8 +11923,8 @@ Object {
     },
     Object {
       "content": "<Relationships xmlns=\\"http://schemas.openxmlformats.org/package/2006/relationships\\">
-    <Relationship Id=\\"rId1\\" Target=\\"../media/image2\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\\"/>
-    <Relationship Id=\\"rId2\\" Target=\\"../media/image3\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\\"/>
+    <Relationship Id=\\"rId1\\" Target=\\"../media/image2.jpeg\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\\"/>
+    <Relationship Id=\\"rId2\\" Target=\\"../media/image3.jpeg\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\\"/>
 </Relationships>",
       "contentType": undefined,
       "path": "xl/drawings/_rels/drawing0.xml.rels",
@@ -11770,6 +11938,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -11806,8 +11982,8 @@ Object {
       "path": "xl/workbook.xml",
     },
     Object {
-      "imagePath": "image path",
-      "path": "xl/media/image1",
+      "imageSrc": "image path",
+      "path": "xl/media/image1.jpeg",
     },
     Object {
       "content": "<xdr:wsDr xmlns:xdr=\\"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\" xmlns:a=\\"http://schemas.openxmlformats.org/drawingml/2006/main\\" xmlns:c=\\"http://schemas.openxmlformats.org/drawingml/2006/chart\\">
@@ -11961,7 +12137,7 @@ Object {
     },
     Object {
       "content": "<Relationships xmlns=\\"http://schemas.openxmlformats.org/package/2006/relationships\\">
-    <Relationship Id=\\"rId1\\" Target=\\"../media/image1\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\\"/>
+    <Relationship Id=\\"rId1\\" Target=\\"../media/image1.jpeg\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\\"/>
 </Relationships>",
       "contentType": undefined,
       "path": "xl/drawings/_rels/drawing0.xml.rels",
@@ -11975,6 +12151,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -12154,6 +12338,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -12329,6 +12521,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -12504,6 +12704,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -14224,6 +14432,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -14529,6 +14745,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -14718,6 +14942,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -14915,6 +15147,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -16690,6 +16930,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -16844,6 +17092,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -17048,6 +17304,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
@@ -17553,6 +17817,14 @@ Object {
     },
     Object {
       "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"avif\\" ContentType=\\"image/avif\\"/>
+    <Default Extension=\\"bmp\\" ContentType=\\"image/bmp\\"/>
+    <Default Extension=\\"gif\\" ContentType=\\"image/gif\\"/>
+    <Default Extension=\\"ico\\" ContentType=\\"image/vnd.microsoft.icon\\"/>
+    <Default Extension=\\"jpeg\\" ContentType=\\"image/jpeg\\"/>
+    <Default Extension=\\"png\\" ContentType=\\"image/png\\"/>
+    <Default Extension=\\"tiff\\" ContentType=\\"image/tiff\\"/>
+    <Default Extension=\\"webp\\" ContentType=\\"image/webp\\"/>
     <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
     <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
     <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>

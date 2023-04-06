@@ -49,8 +49,8 @@ topbarMenuRegistry.addChild("xlsx", ["file"], {
     const doc = await env.model.exportXLSX();
     const zip = new JSZip();
     for (const file of doc.files) {
-      if (file.imagePath) {
-        const fetchedImage = await fetch(file.imagePath).then((response) => response.blob());
+      if (file.imageSrc) {
+        const fetchedImage = await fetch(file.imageSrc).then((response) => response.blob());
         zip.file(file.path, fetchedImage);
       } else {
         zip.file(file.path, file.content.replaceAll(` xmlns=""`, ""));
