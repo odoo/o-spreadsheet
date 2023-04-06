@@ -142,6 +142,7 @@ exports[`BottomBar component simple rendering 1`] = `
       >
         <svg
           class="o-icon"
+          viewBox="0 0 18 18"
         >
           <path
             d="M8 0h2v8h8v2h-8v8H8v-8H0V8h8"
