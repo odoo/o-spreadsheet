@@ -85,6 +85,12 @@ export function createOverride(partName: string, contentType: string): XMLString
   `;
 }
 
+export function createDefaultXMLElement(extension: string, contentType: string): XMLString {
+  return escapeXml/*xml*/ `
+    <Default Extension="${extension}" ContentType="${contentType}" />
+  `;
+}
+
 export function joinXmlNodes(xmlNodes: XMLString[]): XMLString {
   return new XMLString(xmlNodes.join("\n"));
 }
