@@ -1,6 +1,6 @@
 import { overlap } from "../../helpers";
 import { transformDefinition } from "../../helpers/figures/charts";
-import { otRegistry } from "../../registries";
+import { otRegistry } from "../../registries/ot_registry";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,

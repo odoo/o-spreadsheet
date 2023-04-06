@@ -69,7 +69,7 @@ class Test {
   }
 }
 
-const TestProvider = createValueStore(new Test(4));
+const TestProvider = createValueStore(() => new Test(4));
 
 // const services = new DependencyContainer();
 // const s = services.get(MyService);
@@ -135,7 +135,7 @@ test("inject", () => {
   }
   const stores = new DependencyContainer();
   const a = new A(4);
-  const AStore = createValueStore(a);
+  const AStore = createValueStore(() => a);
   stores.inject(AStore, a);
   expect(stores.get(AStore)).toBe(a);
 });

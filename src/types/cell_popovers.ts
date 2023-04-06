@@ -27,13 +27,19 @@ export interface PopoverBuilders {
 export interface ClosedCellPopover {
   isOpen: false;
 }
+export interface OpenCellPopover {
+  isOpen: true;
+  type: CellPopoverType;
+  col: number;
+  row: number;
+}
 
 /**
  * Description of a cell component.
  * i.e. which component class, which props and where to
  * display it relative to the cell
  */
-type OpenCellPopover<C extends ComponentConstructor> = {
+type OpenCellPopoverComponent<C extends ComponentConstructor> = {
   isOpen: true;
   Component: C;
   props: PropsOf<C>;
@@ -42,7 +48,7 @@ type OpenCellPopover<C extends ComponentConstructor> = {
 
 export type CellPopoverComponent<
   C extends MaxSizedComponentConstructor = MaxSizedComponentConstructor
-> = ClosedCellPopover | OpenCellPopover<C>;
+> = ClosedCellPopover | OpenCellPopoverComponent<C>;
 
 export type PositionedCellPopover<
   C extends MaxSizedComponentConstructor = MaxSizedComponentConstructor

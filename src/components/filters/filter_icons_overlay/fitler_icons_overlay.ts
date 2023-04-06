@@ -1,5 +1,8 @@
 import { Component } from "@odoo/owl";
 import { FILTER_ICON_EDGE_LENGTH, FILTER_ICON_MARGIN } from "../../../constants";
+import { CellPopover } from "../../../store/cell_popover";
+import { CQS } from "../../../store/dependency_container";
+import { useStore } from "../../../store/hooks";
 import { DOMCoordinates, HeaderIndex, Position, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
 import { FilterIcon } from "../filter_icon/filter_icon";
@@ -19,6 +22,11 @@ export class FilterIconsOverlay extends Component<Props, SpreadsheetChildEnv> {
   static defaultProps = {
     gridPosition: { x: 0, y: 0 },
   };
+  private cellPopover!: CQS<CellPopover>;
+
+  setup() {
+    this.cellPopover = useStore(CellPopover);
+  }
 
   getVisibleFilterHeaders(): Position[] {
     const sheetId = this.env.model.getters.getActiveSheetId();
@@ -45,18 +53,25 @@ export class FilterIconsOverlay extends Component<Props, SpreadsheetChildEnv> {
     return this.env.model.getters.isFilterActive({ sheetId, ...position });
   }
 
-  toggleFilterMenu(position: Position) {
-    const activePopoverType = this.env.model.getters.getPersistentPopoverTypeAtPosition(position);
-    if (activePopoverType && activePopoverType === "FilterMenu") {
-      this.env.model.dispatch("CLOSE_CELL_POPOVER");
+  toggleFilterMenu({ col, row }: Position) {
+    const activePopover = this.cellPopover.cellPersistentPopover;
+    console.log(activePopover);
+    if (
+      activePopover.isOpen &&
+      activePopover.col === col &&
+      activePopover.row === row &&
+      activePopover.type === "FilterMenu"
+    ) {
+      this.cellPopover.close();
+      // this.env.model.dispatch("CLOSE_CELL_POPOVER");
       return;
     }
-    const { col, row } = position;
-    this.env.model.dispatch("OPEN_CELL_POPOVER", {
-      col,
-      row,
-      popoverType: "FilterMenu",
-    });
+    this.cellPopover.open({ col, row }, "FilterMenu");
+    // this.env.model.dispatch("OPEN_CELL_POPOVER", {
+    //   col,
+    //   row,
+    //   popoverType: "FilterMenu",
+    // });
   }
 
   private isPositionVisible(x: HeaderIndex, y: HeaderIndex) {

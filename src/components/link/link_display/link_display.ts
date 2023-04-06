@@ -2,6 +2,9 @@ import { Component } from "@odoo/owl";
 import { LINK_COLOR } from "../../../constants";
 import { toXC } from "../../../helpers";
 import { openLink, urlRepresentation } from "../../../helpers/links";
+import { cellPopoverRegistry } from "../../../registries";
+import { CellPopover } from "../../../store/cell_popover";
+import { useStore } from "../../../store/hooks";
 import { EvaluatedCell, Link, Position, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { css } from "../../helpers/css";
@@ -67,6 +70,8 @@ export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv
   static components = { Menu };
   static template = "o-spreadsheet-LinkDisplay";
 
+  private cellPopover = useStore(CellPopover);
+
   get cell(): EvaluatedCell {
     const { col, row } = this.props.cellPosition;
     const sheetId = this.env.model.getters.getActiveSheetId();
@@ -92,12 +97,13 @@ export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv
   }
 
   edit() {
-    const { col, row } = this.props.cellPosition;
-    this.env.model.dispatch("OPEN_CELL_POPOVER", {
-      col,
-      row,
-      popoverType: "LinkEditor",
-    });
+    // const { col, row } = ;
+    this.cellPopover.open(this.props.cellPosition, "LinkEditor");
+    // this.env.model.dispatch("OPEN_CELL_POPOVER", {
+    //   col,
+    //   row,
+    //   popoverType: "LinkEditor",
+    // });
   }
 
   unlink() {
@@ -115,7 +121,7 @@ export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv
   }
 }
 
-export const LinkCellPopoverBuilder: PopoverBuilders = {
+const LinkCellPopoverBuilder: PopoverBuilders = {
   onHover: (position, getters): CellPopoverComponent<typeof LinkDisplay> => {
     const cell = getters.getEvaluatedCell(position);
     const shouldDisplayLink =
@@ -134,3 +140,4 @@ LinkDisplay.props = {
   cellPosition: Object,
   onClosed: { type: Function, optional: true },
 };
+cellPopoverRegistry.add("LinkCell", LinkCellPopoverBuilder);

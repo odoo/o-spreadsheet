@@ -1,5 +1,3 @@
-import { withComputedProperties } from "./reactivity";
-
 /**
  * An injectable store constructor
  */
@@ -59,10 +57,10 @@ class StoreFactory {
   }
 }
 
-export function createValueStore<T extends object>(value: T): StoreConstructor<T> {
+export function createValueStore<T extends object>(value: () => T): StoreConstructor<T> {
   class MetaStore {
     constructor(get: Get) {
-      return value;
+      return value();
     }
   }
   return MetaStore as StoreConstructor<T>;
@@ -89,26 +87,29 @@ export type CQS<T> = {
   readonly [key in keyof T]: NeverReturns<T[key]>;
 };
 
+// Design ==================
+// make it easy to read (computed properties)
+
 // type CommandQueryStore<T> = OnlyReadonlyProperties<T> & WriteOnlyMethods<T>;
 // type CommandQueryStore<T> = WriteOnlyMethods<T>;
-interface Y {
-  y: number;
-}
-class CQSTEST {
-  private n = 4;
-  constructor() {
-    return withComputedProperties(this, [this], {
-      y: (d) => {
-        return d.L * 2;
-      },
-    });
-  }
+// interface Y {
+//   y: number;
+// }
+// class CQSTEST {
+//   private n = 4;
+//   constructor() {
+//     return withComputedProperties(this, [this], {
+//       y: (d) => {
+//         return d.L * 2;
+//       },
+//     });
+//   }
 
-  L = 9;
-  getSomething() {
-    return this.n;
-  }
-}
+//   L = 9;
+//   getSomething() {
+//     return this.n;
+//   }
+// }
 
 // class TestComputed {
 //   constructor(public n = 4) {

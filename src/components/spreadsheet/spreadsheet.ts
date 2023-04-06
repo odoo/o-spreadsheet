@@ -22,6 +22,8 @@ import {
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
+import { useStoreProvider } from "../../store/hooks";
+import { ModelStore } from "../../store/model_store";
 import { _lt } from "../../translation";
 import { Pixel, SpreadsheetChildEnv } from "../../types";
 import { NotifyUIEvent } from "../../types/ui";
@@ -199,6 +201,8 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     onPatched(() => {
       this.checkViewportSize();
     });
+    const stores = useStoreProvider();
+    stores.inject(ModelStore, this.model);
   }
 
   get focusTopBarComposer(): Omit<ComposerFocusType, "cellFocus"> {

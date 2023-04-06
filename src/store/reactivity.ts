@@ -37,11 +37,11 @@ export function withComputedProperties<
   return obj as T & { [key in keyof V]: ReturnType<V[key]> };
 }
 
-class MetaComputed<T extends object, V extends { [key: string]: (this: T) => unknown }> {
-  constructor(obj: T, descriptor: V) {
-    return withComputedProperties(obj, [obj], descriptor);
-  }
-}
+// class MetaComputed<T extends object, V extends { [key: string]: (this: T) => unknown }> {
+//   constructor(obj: T, descriptor: V) {
+//     return withComputedProperties(obj, [obj], descriptor);
+//   }
+// }
 
 // function Computed<T, V extends { [key: string]: (this: T) => unknown }>(source: T, descriptor): T & { readonly [key in keyof V]: ReturnType<V[key]> } {
 //   class Meta {
@@ -55,21 +55,18 @@ class MetaComputed<T extends object, V extends { [key: string]: (this: T) => unk
 //   comp2: number;
 //   n: number;
 // }
-type Computed<T> = {
-  [key in keyof T]: T[keyof T];
-};
+// type Computed<T> = {
+//   [key in keyof T]: T[keyof T];
+// };
 
-// Design
-// make it easy to read (computed properties)
+// interface ComputedProperties {
+//   comp: number;
+//   comp2: number;
+// }
 
-interface ComputedProperties {
-  comp: number;
-  comp2: number;
-}
-
-interface State {
-  n: number;
-}
+// interface State {
+//   n: number;
+// }
 
 const state = {
   n: 4,
@@ -81,29 +78,29 @@ withComputedProperties(state, [], {
   },
 });
 
-class TestComputed {
-  constructor(public n = 4) {
-    // return {
-    //   n: this.n,
-    //   comp: this.n * 2,
-    // }
-    // return withComputedProperties(this, [this], {
-    //   comp() {
-    //     return this.n * 2;
-    //   },
-    // });
-  }
-  coucou() {}
-}
+// class TestComputed {
+//   constructor(public n = 4) {
+//     // return {
+//     //   n: this.n,
+//     //   comp: this.n * 2,
+//     // }
+//     // return withComputedProperties(this, [this], {
+//     //   comp() {
+//     //     return this.n * 2;
+//     //   },
+//     // });
+//   }
+//   coucou() {}
+// }
 
-const p = Object.getOwnPropertyDescriptors(TestComputed.prototype);
-// p.n.get
+// const p = Object.getOwnPropertyDescriptors(TestComputed.prototype);
+// // p.n.get
 
-function computedMeta() {}
+// function computedMeta() {}
 
-type A = InstanceType<typeof TestComputed>;
+// type A = InstanceType<typeof TestComputed>;
 
-const t = new TestComputed();
+// const t = new TestComputed();
 
 // const uu = withComputedProperties(t, [t], {
 //   comp(dep) {

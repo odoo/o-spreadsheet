@@ -1,4 +1,6 @@
 import { Component, onMounted, onWillUnmount, useRef } from "@odoo/owl";
+import { useStore } from "../../store/hooks";
+import { HoveredCell } from "../../store/hovered_cell";
 import {
   DOMCoordinates,
   DOMDimension,
@@ -163,7 +165,15 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     this.gridOverlay = useRef("gridOverlay");
-    useCellHovered(this.env, this.gridOverlay, this.props.onCellHovered);
+    const hoveredCell = useStore(HoveredCell);
+    useCellHovered(this.env, this.gridOverlay, ({ col, row }) => {
+      this.props.onCellHovered({ col, row });
+      if (col !== undefined && row !== undefined) {
+        hoveredCell.hover({ col, row });
+      } else {
+        hoveredCell.hover(undefined);
+      }
+    });
     const resizeObserver = new ResizeObserver(() => {
       this.props.onGridResized({
         height: this.gridOverlayEl.clientHeight,
