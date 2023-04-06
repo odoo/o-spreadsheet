@@ -529,10 +529,10 @@ height: 1px;
     >
       <svg
         class="o-icon"
+        viewBox="0 0 18 18"
       >
         <path
           d="M8,0 L10,0 L10,8 L18,8 L18,10 L10,10 L10,18 L8,18 L8,10 L0,10 L0,8 L8,8"
-          fill="#000000"
         />
       </svg>
     </div>
