@@ -121,7 +121,7 @@ describe("TopBar component", () => {
   test("Menu should be closed while clicking on composer", async () => {
     await mountParent();
     expect(fixture.querySelectorAll(".o-menu").length).toBe(0);
-    await click(fixture, ".o-topbar-menu[data-id='file']");
+    await click(fixture, ".o-topbar-menu[data-id='edit']");
     expect(fixture.querySelectorAll(".o-menu").length).toBe(1);
     await click(fixture, ".o-spreadsheet-topbar div.o-composer");
     expect(fixture.querySelectorAll(".o-menu").length).toBe(0);
@@ -425,15 +425,16 @@ describe("TopBar component", () => {
   test("Can open a Topbar menu", async () => {
     const { parent } = await mountParent();
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
+    const env = parent.env;
     const items = topbarMenuRegistry.getMenuItems();
-    const number = items.filter((item) => item.children(parent.env).length !== 0).length;
+    const number = items.filter(
+      (item) => item.children(env).length !== 0 && item.isVisible(env)
+    ).length;
     expect(fixture.querySelectorAll(".o-topbar-menu")).toHaveLength(number);
-    await click(fixture, ".o-topbar-menu[data-id='file']");
+    await click(fixture, ".o-topbar-menu[data-id='edit']");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
-    const file = getNode(["file"], topbarMenuRegistry);
-    const numberChild = file
-      .children(parent.env)
-      .filter((item) => item.children.length !== 0 || item.action).length;
+    const edit = getNode(["edit"], topbarMenuRegistry);
+    const numberChild = edit.children(parent.env).filter((item) => item.isVisible(env)).length;
     expect(fixture.querySelectorAll(".o-menu-item")).toHaveLength(numberChild);
     await click(fixture, ".o-spreadsheet-topbar");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
@@ -441,21 +442,16 @@ describe("TopBar component", () => {
 
   test("Can open a Topbar menu with mousemove", async () => {
     const { parent } = await mountParent();
-    await click(fixture, ".o-topbar-menu[data-id='file']");
-    const file = getNode(["file"], topbarMenuRegistry);
-    let numberChild = file
-      .children(parent.env)
-      .filter((item) => item.children.length !== 0 || item.action).length;
+    await click(fixture, ".o-topbar-menu[data-id='edit']");
+    const edit = getNode(["edit"], topbarMenuRegistry);
+    const env = parent.env;
+    let numberChild = edit.children(env).filter((item) => item.isVisible(env)).length;
     expect(fixture.querySelectorAll(".o-menu-item")).toHaveLength(numberChild);
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
     triggerMouseEvent(".o-topbar-menu[data-id='insert']", "mouseover");
     await nextTick();
     const insert = getNode(["insert"], topbarMenuRegistry);
-    numberChild = insert
-      ?.children(parent.env)
-      .filter(
-        (item) => (item.children.length !== 0 || item.action) && item.isVisible(parent.env)
-      ).length;
+    numberChild = insert?.children(parent.env).filter((item) => item.isVisible(parent.env)).length;
     expect(fixture.querySelectorAll(".o-menu-item")).toHaveLength(numberChild);
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
   });

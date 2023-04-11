@@ -16,12 +16,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
       <div
         class="o-topbar-topleft d-flex"
       >
-        <div
-          class="o-topbar-menu o-topbar-hoverable rounded"
-          data-id="file"
-        >
-          File
-        </div>
+        
         <div
           class="o-topbar-menu o-topbar-hoverable rounded"
           data-id="edit"
