@@ -1,0 +1,28 @@
+<templates>
+  <t t-name="o-spreadsheet-VersionHistory" owl="1">
+    <div class="o-version-history">
+      <div class="o-version-history-content">
+        <div
+          t-foreach="this.revisions"
+          t-as="revision"
+          t-key="revision.operation.id"
+          class="o-version-history-item"
+          t-on-click="() => this.onRevisionClick(revision)">
+          <span
+            t-if="revision.operation.data.timestamp"
+            class="o-version-history-date"
+            t-esc="formatDateFromTimestamp(revision.operation.data.timestamp)"
+          />
+          <span t-else="" class="o-version-history-date" t-esc="UITexts.dateNotAvaialble"/>
+          <br/>
+          <span
+            t-if="state.currently_selected_revision_id == revision.operation.id"
+            class="o-version-history-current-version"
+            t-esc="UITexts.displayedVersion"
+          />
+          <br t-if="state.currently_selected_revision_id == revision.operation.id"/>
+        </div>
+      </div>
+    </div>
+  </t>
+</templates>

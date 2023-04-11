@@ -132,6 +132,9 @@ app.ws("/", function (ws, req) {
       case "REVISION_UNDONE":
       case "REVISION_REDONE":
         if (msg.serverRevisionId === serverRevisionId) {
+          const timestamp = Date.now();
+          msg.timestamp = timestamp;
+          message.timestamp = timestamp;
           serverRevisionId = msg.nextRevisionId;
           messages.push(msg);
           broadcast(message);

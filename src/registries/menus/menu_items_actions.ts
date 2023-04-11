@@ -723,3 +723,13 @@ export const SORT_CELLS_DESCENDING = (env: SpreadsheetChildEnv) => {
 export const IS_ONLY_ONE_RANGE = (env: SpreadsheetChildEnv): boolean => {
   return env.model.getters.getSelectedZones().length === 1;
 };
+
+export const OPEN_VERSION_HISTORY_SIDE_PANEL = (env: SpreadsheetChildEnv) => {
+  env.model.updateMode("readonly");
+  env.openSidePanel("VersionHistory", {
+    onCloseSidePanel: () => {
+      env.model.getSession().getRevisions().fastForward();
+      env.model.updateMode("normal");
+    },
+  });
+};

@@ -24,6 +24,13 @@ topbarMenuRegistry
     sequence: 10,
     action: () => console.log("Not implemented"),
   })
+  .addChild("version_history", ["file"], {
+    name: _lt("Version history"),
+  })
+  .addChild("see_version_history", ["file", "version_history"], {
+    name: _lt("See version history"),
+    action: ACTIONS.OPEN_VERSION_HISTORY_SIDE_PANEL,
+  })
   .addChild("undo", ["edit"], {
     name: _lt("Undo"),
     description: "Ctrl+Z",
