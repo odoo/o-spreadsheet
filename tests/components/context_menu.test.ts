@@ -135,7 +135,6 @@ async function renderContextMenu(
       y,
       width,
       height,
-      model: new Model(),
       config: testConfig,
     },
     fixture,
@@ -203,7 +202,7 @@ class ContextMenuParent extends Component {
           action() {},
         },
       ]);
-    this.props.model.dispatch("RESIZE_SHEETVIEW", {
+    this.env.model.dispatch("RESIZE_SHEETVIEW", {
       height: this.props.height,
       width: this.props.width,
       gridOffsetX: 0,
@@ -461,6 +460,31 @@ describe("Context Menu internal tests", () => {
     await renderContextMenu(300, 300, { menuItems });
     expect(fixture.querySelector(".o-menu div[data-name='root']")!.classList).toContain("disabled");
     await simulateClick(".o-menu div[data-name='root']");
+    expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeFalsy();
+  });
+
+  test("submenu does not open when hovering write only parent", async () => {
+    const menuItems: MenuItem[] = createMenu([
+      {
+        id: "root",
+        name: "root",
+        isEnabled: () => true,
+        isReadonlyAllowed: false,
+        children: [
+          {
+            name: "subMenu",
+            id: "subMenu",
+            action() {},
+          },
+        ],
+      },
+    ]);
+    await renderContextMenu(300, 300, { menuItems });
+    model.updateMode("readonly");
+    await nextTick();
+    expect(fixture.querySelector(".o-menu div[data-name='root']")!.classList).toContain("disabled");
+    triggerMouseEvent(".o-menu div[data-name='root']", "mouseover");
+    await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeFalsy();
   });
 

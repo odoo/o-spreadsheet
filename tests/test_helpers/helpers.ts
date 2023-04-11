@@ -130,6 +130,7 @@ export async function mountComponent<Props extends { [key: string]: any }>(
     env?: Partial<SpreadsheetChildEnv>;
     model?: Model;
     fixture?: HTMLElement;
+    renderOnModelUpdate?: boolean; // true by default
   } = {}
 ): Promise<{
   app: App;
@@ -147,9 +148,14 @@ export async function mountComponent<Props extends { [key: string]: any }>(
   const fixture = optionalArgs?.fixture || makeTestFixture();
   const parent = await app.mount(fixture);
 
+  if (optionalArgs.renderOnModelUpdate === undefined || optionalArgs.renderOnModelUpdate) {
+    model.on("update", null, () => parent.render(true));
+  }
+
   registerCleanup(() => {
     app.destroy();
     fixture.remove();
+    model.off("update", null);
   });
 
   return { app, parent, model, fixture, env: parent.env };
@@ -170,6 +176,7 @@ export async function mountSpreadsheet(
     props,
     env: partialEnv,
     model: props.model,
+    renderOnModelUpdate: false,
   });
 
   /**
