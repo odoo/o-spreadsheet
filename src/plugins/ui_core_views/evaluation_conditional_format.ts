@@ -64,7 +64,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
         }
         break;
       case "PASTE_CONDITIONAL_FORMAT":
-        this.pasteCf(cmd.origin, cmd.target, cmd.operation);
+        this.pasteCf(cmd.originPosition, cmd.targetPosition, cmd.operation);
         break;
     }
   }

@@ -499,7 +499,7 @@ export interface CopyCommand {
 export interface CutCommand {
   type: "CUT";
   /** Zones to cut. If none were given, will copy the zones in the selection*/
-  target?: Zone[];
+  cutTarget?: Zone[];
 }
 
 export interface PasteCommand {
@@ -866,8 +866,8 @@ export interface InsertCellCommand {
 
 export interface PasteCFCommand {
   type: "PASTE_CONDITIONAL_FORMAT";
-  origin: CellPosition;
-  target: CellPosition;
+  originPosition: CellPosition;
+  targetPosition: CellPosition;
   operation: "CUT" | "COPY";
 }
 

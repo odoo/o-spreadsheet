@@ -1845,7 +1845,7 @@ describe("clipboard: pasting outside of sheet", () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "B1", "2");
 
-      model.dispatch("CUT", { target: target("A1:B1") });
+      cut(model, "A1:B1");
       addColumns(model, "before", "A", 1);
       model.dispatch("PASTE", { target: [toZone("A2")] });
       expect(getCellContent(model, "B1")).toBe("1");
@@ -1860,7 +1860,7 @@ describe("clipboard: pasting outside of sheet", () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "B1", "2");
 
-      model.dispatch("CUT", { target: target("A1:B1") });
+      cut(model, "A1:B1");
       addColumns(model, "after", "B", 1);
       model.dispatch("PASTE", { target: [toZone("A2")] });
       expect(getCellContent(model, "A1")).toBe("");
@@ -1874,7 +1874,7 @@ describe("clipboard: pasting outside of sheet", () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "B1", "2");
 
-      model.dispatch("CUT", { target: target("A1:B1") });
+      cut(model, "A1:B1");
       addColumns(model, "after", "A", 1);
       model.dispatch("PASTE", { target: [toZone("A2")] });
       expect(getCellContent(model, "A1")).toBe("1");
@@ -1888,7 +1888,7 @@ describe("clipboard: pasting outside of sheet", () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "B1", "2");
 
-      model.dispatch("CUT", { target: target("A1:B1") });
+      cut(model, "A1:B1");
       addColumns(model, "after", "A", 5);
       model.dispatch("PASTE", { target: [toZone("A2")] });
       expect(getCellContent(model, "A1")).toBe("1");
@@ -1902,7 +1902,7 @@ describe("clipboard: pasting outside of sheet", () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "2");
 
-      model.dispatch("CUT", { target: target("A1:A2") });
+      cut(model, "A1:A2");
       addRows(model, "before", 0, 1);
       model.dispatch("PASTE", { target: [toZone("C1")] });
       expect(getCellContent(model, "A2")).toBe("1");
@@ -1917,7 +1917,7 @@ describe("clipboard: pasting outside of sheet", () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "2");
 
-      model.dispatch("CUT", { target: target("A1:A2") });
+      cut(model, "A1:A2");
       addRows(model, "after", 2, 1);
       model.dispatch("PASTE", { target: [toZone("C1")] });
       expect(getCellContent(model, "A1")).toBe("");
@@ -1931,7 +1931,7 @@ describe("clipboard: pasting outside of sheet", () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "2");
 
-      model.dispatch("CUT", { target: target("A1:A2") });
+      cut(model, "A1:A2");
       addRows(model, "after", 0, 1);
       model.dispatch("PASTE", { target: [toZone("C1")] });
       expect(getCellContent(model, "A1")).toBe("1");
@@ -1945,7 +1945,7 @@ describe("clipboard: pasting outside of sheet", () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "2");
 
-      model.dispatch("CUT", { target: target("A1:A2") });
+      cut(model, "A1:A2");
       addRows(model, "after", 0, 5);
       model.dispatch("PASTE", { target: [toZone("C1")] });
       expect(getCellContent(model, "A1")).toBe("1");
@@ -1961,7 +1961,7 @@ describe("clipboard: pasting outside of sheet", () => {
       setCellContent(model, "B2", "1");
       setCellContent(model, "C2", "2");
 
-      model.dispatch("CUT", { target: target("B2:C2") });
+      cut(model, "B2:C2");
       deleteColumns(model, ["A"]);
       model.dispatch("PASTE", { target: [toZone("D1")] });
       expect(getCellContent(model, "A2")).toBe("1");
@@ -1975,7 +1975,7 @@ describe("clipboard: pasting outside of sheet", () => {
       setCellContent(model, "B2", "1");
       setCellContent(model, "C2", "2");
 
-      model.dispatch("CUT", { target: target("B2:C2") });
+      cut(model, "B2:C2");
       deleteColumns(model, ["D"]);
       model.dispatch("PASTE", { target: [toZone("D1")] });
       expect(getCellContent(model, "B2")).toBe("");
@@ -1989,7 +1989,7 @@ describe("clipboard: pasting outside of sheet", () => {
       setCellContent(model, "B2", "1");
       setCellContent(model, "C2", "2");
 
-      model.dispatch("CUT", { target: target("B2:C2") });
+      cut(model, "B2:C2");
       deleteColumns(model, ["C"]);
       model.dispatch("PASTE", { target: [toZone("D1")] });
       expect(getCellContent(model, "B2")).toBe("1");
@@ -2001,7 +2001,7 @@ describe("clipboard: pasting outside of sheet", () => {
       setCellContent(model, "B2", "1");
       setCellContent(model, "C2", "2");
 
-      model.dispatch("CUT", { target: target("B2:C2") });
+      cut(model, "B2:C2");
       deleteRows(model, [0]);
       model.dispatch("PASTE", { target: [toZone("D1")] });
       expect(getCellContent(model, "B1")).toBe("1");
@@ -2015,7 +2015,7 @@ describe("clipboard: pasting outside of sheet", () => {
       setCellContent(model, "B2", "1");
       setCellContent(model, "C2", "2");
 
-      model.dispatch("CUT", { target: target("B2:C2") });
+      cut(model, "B2:C2");
       deleteRows(model, [3]);
       model.dispatch("PASTE", { target: [toZone("D1")] });
       expect(getCellContent(model, "B2")).toBe("");
@@ -2029,7 +2029,7 @@ describe("clipboard: pasting outside of sheet", () => {
       setCellContent(model, "B2", "1");
       setCellContent(model, "B3", "2");
 
-      model.dispatch("CUT", { target: target("B2:B3") });
+      cut(model, "B2:B3");
       deleteRows(model, [2]);
       model.dispatch("PASTE", { target: [toZone("D1")] });
       expect(getCellContent(model, "B2")).toBe("1");

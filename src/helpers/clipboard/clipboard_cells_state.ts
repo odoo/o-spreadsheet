@@ -330,8 +330,8 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
         this.pasteCell(origin, position, this.operation, clipboardOptions);
         if (shouldPasteCF) {
           this.dispatch("PASTE_CONDITIONAL_FORMAT", {
-            origin: origin.position,
-            target: position,
+            originPosition: origin.position,
+            targetPosition: position,
             operation: this.operation,
           });
         }
