@@ -25,10 +25,6 @@ css/* scss */ `
     font-size: 15px;
     border-top: 1px solid lightgrey;
 
-    .o-add-sheet.disabled {
-      cursor: not-allowed;
-    }
-
     .o-sheet-item {
       cursor: pointer;
       &:hover {
