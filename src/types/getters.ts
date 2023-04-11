@@ -1,5 +1,4 @@
 import { Session } from "../collaborative/session";
-import { LocalHistory } from "../history/local_history";
 import { BordersPlugin } from "../plugins/core/borders";
 import { CellPlugin } from "../plugins/core/cell";
 import { ChartPlugin } from "../plugins/core/chart";
@@ -24,6 +23,7 @@ import { CellPopoverPlugin } from "../plugins/ui_feature/cell_popovers";
 import { FindAndReplacePlugin } from "../plugins/ui_feature/find_and_replace";
 import { HeaderVisibilityUIPlugin } from "../plugins/ui_feature/header_visibility_ui";
 import { HighlightPlugin } from "../plugins/ui_feature/highlight";
+import { HistoryPlugin } from "../plugins/ui_feature/local_history";
 import { RendererPlugin } from "../plugins/ui_feature/renderer";
 import { SelectionInputsManagerPlugin } from "../plugins/ui_feature/selection_inputs_manager";
 import { SelectionMultiUserPlugin } from "../plugins/ui_feature/selection_multiuser";
@@ -84,10 +84,7 @@ type ConditionalFormatGetters = Pick<
   ConditionalFormatPlugin,
   GetterNames<typeof ConditionalFormatPlugin>
 >;
-type LocalHistoryGetters = {
-  canUndo: LocalHistory["canUndo"];
-  canRedo: LocalHistory["canRedo"];
-};
+type LocalHistoryGetters = Pick<HistoryPlugin, GetterNames<typeof HistoryPlugin>>;
 type FiltersGetters = Pick<FiltersPlugin, GetterNames<typeof FiltersPlugin>>;
 
 export type CoreGetters = SheetGetters &

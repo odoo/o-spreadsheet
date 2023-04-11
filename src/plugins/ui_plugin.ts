@@ -1,3 +1,4 @@
+import { Session } from "../collaborative/session";
 import { ModelConfig } from "../model";
 import { SelectionStreamProcessor } from "../selection_stream/selection_stream_processor";
 import { StateObserver } from "../state_observer";
@@ -22,6 +23,7 @@ export interface UIPluginConfig {
   readonly uiActions: UIActions;
   readonly custom: ModelConfig["custom"];
   readonly lazyEvaluation: boolean;
+  readonly session: Session;
 }
 
 export interface UIPluginConstructor {

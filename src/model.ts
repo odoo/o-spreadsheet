@@ -5,7 +5,6 @@ import { DEFAULT_REVISION_ID } from "./constants";
 import { EventBus } from "./helpers/event_bus";
 import { deepCopy, UuidGenerator } from "./helpers/index";
 import { buildRevisionLog } from "./history/factory";
-import { LocalHistory } from "./history/local_history";
 import {
   createEmptyExcelWorkbookData,
   createEmptyWorkbookData,
@@ -123,8 +122,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private coreViewsPlugins: UIPlugin[] = [];
 
-  private history: LocalHistory;
-
   private range: RangeAdapter;
 
   private session: Session;
@@ -199,8 +196,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     this.session = this.setupSession(workbookData.revisionId);
 
-    this.history = new LocalHistory(this.dispatchFromCorePlugin, this.session);
-
     this.coreGetters = {} as CoreGetters;
 
     this.range = new RangeAdapter(this.coreGetters);
@@ -215,8 +210,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.getters = {
       isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",
       isDashboard: () => this.config.mode === "dashboard",
-      canUndo: this.history.canUndo.bind(this.history),
-      canRedo: this.history.canRedo.bind(this.history),
       getClient: this.session.getClient.bind(this.session),
       getConnectedClients: this.session.getConnectedClients.bind(this.session),
       isFullySynchronized: this.session.isFullySynchronized.bind(this.session),
@@ -255,8 +248,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       this.handlers.push(plugin);
     }
     this.uuidGenerator.setIsFastStrategy(false);
-
-    this.handlers.push(this.history);
 
     // starting plugins
     this.dispatch("START");
@@ -363,8 +354,14 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private setupSessionEvents() {
     this.session.on("remote-revision-received", this, this.onRemoteRevisionReceived);
-    this.session.on("revision-redone", this, this.finalize);
-    this.session.on("revision-undone", this, this.finalize);
+    this.session.on("revision-undone", this, ({ commands }) => {
+      this.dispatchFromCorePlugin("UNDO", { commands });
+      this.finalize();
+    });
+    this.session.on("revision-redone", this, ({ commands }) => {
+      this.dispatchFromCorePlugin("REDO", { commands });
+      this.finalize();
+    });
     // How could we improve communication between the session and UI?
     // It feels weird to have the model piping specific session events to its own bus.
     this.session.on("unexpected-revision-id", this, () => this.trigger("unexpected-revision-id"));
@@ -415,6 +412,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       custom: this.config.custom,
       uiActions: this.config,
       lazyEvaluation: this.config.lazyEvaluation,
+      session: this.session,
     };
   }
 
