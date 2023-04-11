@@ -1,14 +1,7 @@
-import { EventBus } from "@odoo/owl";
-import { Session } from "../collaborative/session";
-import { MAX_HISTORY_STEPS } from "../constants";
-import {
-  Command,
-  CommandDispatcher,
-  CommandHandler,
-  CommandResult,
-  CoreCommand,
-  UID,
-} from "../types";
+import { Session } from "../../collaborative/session";
+import { MAX_HISTORY_STEPS } from "../../constants";
+import { Command, CommandResult, UID } from "../../types";
+import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
 /**
  * Local History
@@ -17,7 +10,8 @@ import {
  * It maintains the local undo and redo stack to allow to undo/redo only local
  * changes
  */
-export class LocalHistory extends EventBus implements CommandHandler<Command> {
+export class HistoryPlugin extends UIPlugin {
+  static getters = ["canUndo", "canRedo"] as const;
   /**
    * Ids of the revisions which can be undone
    */
@@ -28,11 +22,12 @@ export class LocalHistory extends EventBus implements CommandHandler<Command> {
    */
   private redoStack: UID[] = [];
 
-  constructor(protected dispatch: CommandDispatcher["dispatch"], private session: Session) {
-    super();
+  private session: Session;
+
+  constructor(config: UIPluginConfig) {
+    super(config);
+    this.session = config.session;
     this.session.on("new-local-state-update", this, this.onNewLocalStateUpdate);
-    this.session.on("revision-undone", this, ({ commands }) => this.selectiveUndo(commands));
-    this.session.on("revision-redone", this, ({ commands }) => this.selectiveRedo(commands));
     this.session.on("pending-revisions-dropped", this, ({ revisionIds }) => this.drop(revisionIds));
     this.session.on("snapshot", this, () => {
       this.undoStack = [];
@@ -55,8 +50,6 @@ export class LocalHistory extends EventBus implements CommandHandler<Command> {
     }
     return CommandResult.Success;
   }
-
-  beforeHandle(cmd: Command) {}
 
   handle(cmd: Command) {
     switch (cmd.type) {
@@ -104,13 +97,5 @@ export class LocalHistory extends EventBus implements CommandHandler<Command> {
     if (this.undoStack.length > MAX_HISTORY_STEPS) {
       this.undoStack.shift();
     }
-  }
-
-  private selectiveUndo(commands: readonly CoreCommand[]) {
-    this.dispatch("UNDO", { commands });
-  }
-
-  private selectiveRedo(commands: readonly CoreCommand[]) {
-    this.dispatch("REDO", { commands });
   }
 }
