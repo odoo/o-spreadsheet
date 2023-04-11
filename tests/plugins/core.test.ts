@@ -823,5 +823,15 @@ describe("Generic allowDispatch", () => {
       });
       expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
     });
+
+    test("Position dependant command", () => {
+      const sheetZone = model.getters.getSheetZone(sheetId);
+      const result = dispatch(cmdType, {
+        sheetId,
+        col: sheetZone.right + 1,
+        row: sheetZone.bottom + 1,
+      });
+      expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
+    });
   });
 });
