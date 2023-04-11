@@ -32,18 +32,8 @@ export class SheetUIPlugin extends UIPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: LocalCommand): CommandResult {
-    switch (cmd.type) {
-      case "AUTORESIZE_ROWS":
-      case "AUTORESIZE_COLUMNS":
-        try {
-          this.getters.getSheet(cmd.sheetId);
-          break;
-        } catch (error) {
-          return CommandResult.InvalidSheetId;
-        }
-    }
-    return CommandResult.Success;
+  allowDispatch(cmd: LocalCommand): CommandResult | CommandResult[] {
+    return this.chainValidations(this.checkSheetExists, this.checkZonesAreInSheet)(cmd);
   }
 
   handle(cmd: Command) {
@@ -271,5 +261,32 @@ export class SheetUIPlugin extends UIPlugin {
     }
     splitWord.push(wordPart);
     return splitWord;
+  }
+
+  /**
+   * Check that any "sheetId" in the command matches an existing
+   * sheet.
+   */
+  private checkSheetExists(cmd: Command): CommandResult {
+    if ("sheetId" in cmd && this.getters.tryGetSheet(cmd.sheetId) === undefined) {
+      return CommandResult.InvalidSheetId;
+    }
+    return CommandResult.Success;
+  }
+
+  /**
+   * Check if zones in the command are well formed and
+   * not outside the sheet.
+   */
+  private checkZonesAreInSheet(cmd: Command): CommandResult {
+    const sheetId = "sheetId" in cmd ? cmd.sheetId : this.getters.tryGetActiveSheetId();
+    const zones = this.getters.getCommandZones(cmd);
+    if (!sheetId && zones.length > 0) {
+      return CommandResult.NoActiveSheet;
+    }
+    if (sheetId && zones.length > 0) {
+      return this.getters.checkZonesExistInSheet(sheetId, zones);
+    }
+    return CommandResult.Success;
   }
 }

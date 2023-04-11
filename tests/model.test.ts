@@ -3,7 +3,7 @@ import { toZone } from "../src/helpers";
 import { Model, ModelConfig } from "../src/model";
 import { corePluginRegistry, featurePluginRegistry } from "../src/plugins/index";
 import { UIPlugin } from "../src/plugins/ui_plugin";
-import { Command, CoreCommand, coreTypes, DispatchResult } from "../src/types";
+import { Command, CommandTypes, CoreCommand, coreTypes, DispatchResult } from "../src/types";
 import { setupCollaborativeEnv } from "./collaborative/collaborative_helpers";
 import { copy, selectCell, setCellContent } from "./test_helpers/commands_helpers";
 import {
@@ -114,6 +114,20 @@ describe("Model", () => {
     setCellContent(model, "A1", "hello");
     expect(getCellContent(model, "A1")).toBe("hello");
     featurePluginRegistry.remove("myUIPlugin");
+  });
+
+  test("Core plugins allowDispatch don't receive UI commands", () => {
+    const receivedCommands: CommandTypes[] = [];
+    class MyCorePlugin extends CorePlugin {
+      allowDispatch(cmd: CoreCommand): CommandResult {
+        receivedCommands.push(cmd.type);
+        return CommandResult.Success;
+      }
+    }
+    corePluginRegistry.add("myCorePlugin", MyCorePlugin);
+    const model = new Model();
+    model.dispatch("COPY");
+    expect(receivedCommands).not.toContain("COPY");
   });
 
   test("canDispatch method is exposed and works", () => {

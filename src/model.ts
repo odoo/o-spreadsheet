@@ -174,6 +174,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   uuidGenerator: UuidGenerator;
 
   private readonly handlers: CommandHandler<Command>[] = [];
+  private readonly uiHandlers: CommandHandler<Command>[] = [];
   private readonly coreHandlers: CommandHandler<CoreCommand>[] = [];
 
   constructor(
@@ -236,17 +237,20 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       const plugin = this.setupUiPlugin(Plugin);
       this.statefulUIPlugins.push(plugin);
       this.handlers.push(plugin);
+      this.uiHandlers.push(plugin);
     }
     for (let Plugin of coreViewsPluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
       this.coreViewsPlugins.push(plugin);
       this.handlers.push(plugin);
+      this.uiHandlers.push(plugin);
       this.coreHandlers.push(plugin);
     }
     for (let Plugin of featurePluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
       this.featurePlugins.push(plugin);
       this.handlers.push(plugin);
+      this.uiHandlers.push(plugin);
     }
     this.uuidGenerator.setIsFastStrategy(false);
 
@@ -320,7 +324,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.handlers.push(plugin);
   }
 
-  private onRemoteRevisionReceived({ commands }: { commands: CoreCommand[] }) {
+  private onRemoteRevisionReceived({ commands }: { commands: readonly CoreCommand[] }) {
     for (let command of commands) {
       const previousStatus = this.status;
       this.status = Status.RunningCore;
@@ -436,7 +440,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   private checkDispatchAllowedLocalCommand(command: LocalCommand): DispatchResult {
-    const results = this.handlers.map((handler) => handler.allowDispatch(command));
+    const results = this.uiHandlers.map((handler) => handler.allowDispatch(command));
     return new DispatchResult(results.flat());
   }
 

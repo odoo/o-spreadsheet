@@ -105,6 +105,7 @@ export class GridSelectionPlugin extends UIPlugin {
     "isSelected",
     "isSingleColSelected",
     "getElementsFromSelection",
+    "tryGetActiveSheetId",
   ] as const;
 
   private gridSelection: {
@@ -339,6 +340,10 @@ export class GridSelectionPlugin extends UIPlugin {
 
   getActiveSheetId(): UID {
     return this.activeSheet.id;
+  }
+
+  tryGetActiveSheetId(): UID | undefined {
+    return this.activeSheet?.id;
   }
 
   getActiveCell(): EvaluatedCell {
