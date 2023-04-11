@@ -1,6 +1,7 @@
 import { functionRegistry } from "../../src/functions";
+import { zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CommandResult } from "../../src/types";
+import { CommandResult, coreTypes, UID } from "../../src/types";
 import {
   activateSheet,
   addCellToSelection,
@@ -26,6 +27,7 @@ import {
   getRangeFormattedValues,
   getRangeValues,
 } from "../test_helpers/getters_helpers";
+import { toRangesData } from "../test_helpers/helpers";
 
 describe("core", () => {
   describe("statistic functions", () => {
@@ -767,6 +769,59 @@ describe("history", () => {
       expect(getRangeValues(model, "Sheet2!B2", sheet2Id)).toEqual([true]);
       expect(getRangeValues(model, "Sheet2!B2", sheet1Id)).toEqual([true]);
       expect(getRangeValues(model, "B2", "invalidSheetId")).toEqual([]);
+    });
+  });
+});
+
+describe("Generic allowDispatch", () => {
+  let model: Model;
+  let sheetId: UID;
+
+  function dispatch(type: string, payload: any) {
+    //@ts-ignore
+    return model.dispatch(type, payload);
+  }
+
+  beforeEach(() => {
+    //@ts-ignore
+    coreTypes.add("MY_CORE_CMD");
+    model = new Model();
+    sheetId = model.getters.getActiveSheetId();
+  });
+
+  afterEach(() => {
+    //@ts-ignore
+    coreTypes.delete("MY_CORE_CMD");
+  });
+
+  describe.each(["MY_CORE_CMD", "My_UI_CMD"])("Generic allowDispatch", (cmdType: string) => {
+    test("Sheet dependant command", () => {
+      const result = dispatch(cmdType, { sheetId: "notARealSheet" });
+      expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
+    });
+
+    test("Zone dependant command", () => {
+      const sheetZone = model.getters.getSheetZone(sheetId);
+      const outOfSheetZone = { ...sheetZone, right: sheetZone.right + 10 };
+      const result = dispatch(cmdType, { sheetId, zone: outOfSheetZone });
+      expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
+    });
+
+    test("Target dependant command", () => {
+      const sheetZone = model.getters.getSheetZone(sheetId);
+      const outOfSheetZone = { ...sheetZone, right: sheetZone.right + 10 };
+      const result = dispatch(cmdType, { sheetId, target: [outOfSheetZone] });
+      expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
+    });
+
+    test("Range dependant command", () => {
+      const sheetZone = model.getters.getSheetZone(sheetId);
+      const outOfSheetZoneXc = zoneToXc({ ...sheetZone, right: sheetZone.right + 10 });
+      const result = dispatch(cmdType, {
+        sheetId,
+        ranges: toRangesData(sheetId, outOfSheetZoneXc),
+      });
+      expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
     });
   });
 });

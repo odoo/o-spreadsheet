@@ -69,6 +69,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getSheetSize",
     "getSheetZone",
     "getPaneDivisions",
+    "checkZonesExistInSheet",
+    "getCommandZones",
   ] as const;
 
   readonly sheetIdsMapName: Record<string, UID | undefined> = {};
@@ -81,7 +83,11 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   // ---------------------------------------------------------------------------
 
   allowDispatch(cmd: CoreCommand) {
-    const genericChecks = this.chainValidations(this.checkSheetExists, this.checkZones)(cmd);
+    const genericChecks = this.chainValidations(
+      this.checkSheetExists,
+      this.checkZonesAreInSheet
+    )(cmd);
+
     if (genericChecks !== CommandResult.Success) {
       return genericChecks;
     }
@@ -468,6 +474,38 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return positions(zone)
       .map(({ col, row }) => this.getCell({ sheetId, col, row }))
       .every((cell) => !cell || cell.content === "");
+  }
+
+  getCommandZones(cmd: Command): Zone[] {
+    const zones: Zone[] = [];
+    if ("zone" in cmd) {
+      zones.push(cmd.zone);
+    }
+    if ("target" in cmd && Array.isArray(cmd.target)) {
+      zones.push(...cmd.target);
+    }
+    if ("ranges" in cmd && Array.isArray(cmd.ranges)) {
+      zones.push(
+        ...cmd.ranges.map((rangeData) => this.getters.getRangeFromRangeData(rangeData).zone)
+      );
+    }
+    return zones;
+  }
+
+  /**
+   * Check if zones in the command are well formed and
+   * not outside the sheet.
+   */
+  checkZonesExistInSheet(sheetId: UID, zones: Zone[]): CommandResult {
+    if (!zones.every(isZoneValid)) return CommandResult.InvalidRange;
+
+    if (zones.length) {
+      const sheetZone = this.getSheetZone(sheetId);
+      return zones.every((zone) => isZoneInside(zone, sheetZone))
+        ? CommandResult.Success
+        : CommandResult.TargetOutOfSheet;
+    }
+    return CommandResult.Success;
   }
 
   private updateCellPosition(cmd: UpdateCellPositionCommand) {
@@ -981,15 +1019,11 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return { rowNumber, colNumber };
   }
 
-  // ----------------------------------------------------
-  //  HIDE / SHOW
-  // ----------------------------------------------------
-
   /**
    * Check that any "sheetId" in the command matches an existing
    * sheet.
    */
-  private checkSheetExists(cmd: Command): CommandResult {
+  private checkSheetExists(cmd: CoreCommand): CommandResult {
     if (cmd.type !== "CREATE_SHEET" && "sheetId" in cmd && this.sheets[cmd.sheetId] === undefined) {
       return CommandResult.InvalidSheetId;
     } else if (cmd.type === "CREATE_SHEET" && this.sheets[cmd.sheetId] !== undefined) {
@@ -1002,27 +1036,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    * Check if zones in the command are well formed and
    * not outside the sheet.
    */
-  private checkZones(cmd: Command): CommandResult {
-    const zones: Zone[] = [];
-    if ("zone" in cmd) {
-      zones.push(cmd.zone);
-    }
-    if ("target" in cmd && Array.isArray(cmd.target)) {
-      zones.push(...cmd.target);
-    }
-    if ("ranges" in cmd && Array.isArray(cmd.ranges)) {
-      zones.push(
-        ...cmd.ranges.map((rangeData) => this.getters.getRangeFromRangeData(rangeData).zone)
-      );
-    }
-    if (!zones.every(isZoneValid)) {
-      return CommandResult.InvalidRange;
-    } else if (zones.length && "sheetId" in cmd) {
-      const sheetZone = this.getSheetZone(cmd.sheetId);
-      return zones.every((zone) => isZoneInside(zone, sheetZone))
-        ? CommandResult.Success
-        : CommandResult.TargetOutOfSheet;
-    }
-    return CommandResult.Success;
+  private checkZonesAreInSheet(cmd: CoreCommand): CommandResult {
+    if (!("sheetId" in cmd)) return CommandResult.Success;
+    return this.checkZonesExistInSheet(cmd.sheetId, this.getCommandZones(cmd));
   }
 }
