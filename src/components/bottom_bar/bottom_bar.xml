@@ -8,7 +8,7 @@
       <Ripple>
         <div
           class="o-sheet-item o-add-sheet me-2 p-1"
-          t-att-class="{'disabled': env.model.getters.isReadonly()}"
+          t-if="!env.model.getters.isReadonly()"
           t-on-click="clickAddSheet">
           <t t-call="o-spreadsheet-Icon.PLUS"/>
         </div>

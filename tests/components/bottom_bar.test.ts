@@ -84,6 +84,13 @@ describe("BottomBar component", () => {
     });
   });
 
+  test("cannot create a new sheet in readonly mode", async () => {
+    const { model } = await mountBottomBar();
+    model.updateMode("readonly");
+    await nextTick();
+    expect(fixture.querySelector(".o-add-sheet")).toBeNull();
+  });
+
   test("create a second sheet while the first one is called Sheet2", async () => {
     const model = new Model({ sheets: [{ name: "Sheet2" }] });
     await mountBottomBar(model);
