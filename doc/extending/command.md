@@ -90,3 +90,15 @@ type LocalRepeatTransform = (
   childCommands: readonly CoreCommand[]
 ) => CoreCommand[] | LocalCommand | undefined;
 ```
+
+## Reserved keywords in commands
+
+Some parameters in command payload are reserved, and should always have the same meaning and type each time they appear in a command. Those are :
+
+- `sheetId` : should be a string that is an id of a valid sheet
+- `col`/`row`: should be numbers describing a valid sheet position
+- `zone` : should be a valid `Zone`
+- `target` : should be a valid array of `Zone`
+- `ranges`: should be a valid array of `RangeData`
+
+These parameters are automatically validated for any commands by an internal `allowDispatch` test. `sheetId` must refer to an existing sheet and other parameters must describe valid positions in the sheet.

@@ -642,7 +642,7 @@ export class GridSelectionPlugin extends UIPlugin {
     const deltaRow = isBasedBefore && !isCol ? thickness : 0;
 
     this.dispatch("CUT", {
-      target: [
+      cutTarget: [
         {
           left: isCol ? start + deltaCol : 0,
           right: isCol ? end + deltaCol : this.getters.getNumberCols(cmd.sheetId) - 1,

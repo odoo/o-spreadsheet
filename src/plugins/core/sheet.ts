@@ -481,10 +481,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     if ("zone" in cmd) {
       zones.push(cmd.zone);
     }
-    if ("target" in cmd && Array.isArray(cmd.target)) {
+    if ("target" in cmd) {
       zones.push(...cmd.target);
     }
-    if ("ranges" in cmd && Array.isArray(cmd.ranges)) {
+    if ("ranges" in cmd) {
       zones.push(
         ...cmd.ranges.map((rangeData) => this.getters.getRangeFromRangeData(rangeData).zone)
       );
