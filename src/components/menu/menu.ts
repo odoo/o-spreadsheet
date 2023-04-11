@@ -239,7 +239,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onMouseOver(menu: MenuItem, position: Pixel, ev: MouseEvent) {
-    if (menu.isEnabled(this.env)) {
+    if (this.isEnabled(menu)) {
       if (this.isRoot(menu)) {
         this.openSubMenu(menu, position, ev);
       } else {
