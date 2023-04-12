@@ -173,13 +173,11 @@ export class FilterEvaluationPlugin extends UIPlugin {
   }
 
   private intersectZoneWithViewport(sheetId: UID, zone: Zone) {
-    const colsRange = range(zone.left, zone.right + 1);
-    const rowsRange = range(zone.top, zone.bottom + 1);
     return {
-      left: this.getters.findVisibleHeader(sheetId, "COL", colsRange),
-      right: this.getters.findVisibleHeader(sheetId, "COL", colsRange.reverse()),
-      top: this.getters.findVisibleHeader(sheetId, "ROW", rowsRange),
-      bottom: this.getters.findVisibleHeader(sheetId, "ROW", rowsRange.reverse()),
+      left: this.getters.findVisibleHeader(sheetId, "COL", zone.left, zone.right),
+      right: this.getters.findVisibleHeader(sheetId, "COL", zone.right, zone.left),
+      top: this.getters.findVisibleHeader(sheetId, "ROW", zone.top, zone.bottom),
+      bottom: this.getters.findVisibleHeader(sheetId, "ROW", zone.bottom, zone.top),
     };
   }
 
