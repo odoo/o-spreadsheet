@@ -37,6 +37,7 @@ export interface UIPluginConstructor {
  */
 export class UIPlugin<State = any, C = Command> extends BasePlugin<State, C> {
   static layers: LAYERS[] = [];
+  static getters: readonly string[] = [];
 
   protected getters: Getters;
   protected ui: UIActions;

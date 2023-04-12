@@ -35,12 +35,11 @@ interface ChartState {
 
 export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   static getters = [
-    "isChartDefined",
-    "getChartDefinition",
-    "getChartType",
-    "getChartIds",
+    {
+      chart: ["isChartDefined", "getChartDefinition", "getChartType"],
+      other: ["getChartIds", "getContextCreationChart"],
+    },
     "getChart",
-    "getContextCreationChart",
   ] as const;
 
   readonly charts: Record<UID, AbstractChart | undefined> = {};

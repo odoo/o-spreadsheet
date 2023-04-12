@@ -4,6 +4,7 @@ import {
   CommandHandler,
   CommandResult,
   ExcelWorkbookData,
+  GettersDeclaration,
   Validation,
   WorkbookHistory,
 } from "../types/index";
@@ -22,7 +23,7 @@ import { Validator } from "../types/validator";
  */
 
 export class BasePlugin<State = any, C = any> implements CommandHandler<C>, Validator {
-  static getters: readonly string[] = [];
+  static getters: GettersDeclaration = [];
 
   protected history: WorkbookHistory<State>;
   protected dispatch: CommandDispatcher["dispatch"];
