@@ -1,0 +1,10 @@
+<templates>
+  <t t-name="o-spreadsheet-SidePanelErrors" owl="1">
+    <t t-foreach="props.messages" t-as="msg" t-key="msg">
+      <div class="d-flex align-items-center" t-att-class="divClasses">
+        <t t-call="o-spreadsheet-Icon.TRIANGLE_EXCLAMATION"/>
+        <span t-esc="msg"/>
+      </div>
+    </t>
+  </t>
+</templates>

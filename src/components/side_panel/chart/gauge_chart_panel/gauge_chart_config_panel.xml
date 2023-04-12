@@ -12,10 +12,9 @@
           onSelectionConfirmed="() => this.updateDataRange()"
         />
       </div>
-      <div class="o-section o-sidepanel-error" t-if="configurationErrorMessages">
-        <div t-foreach="configurationErrorMessages" t-as="error" t-key="error">
-          <t t-esc="error"/>
-        </div>
+
+      <div class="o-section" t-if="configurationErrorMessages.length">
+        <SidePanelErrors messages="configurationErrorMessages" msgType="'error'"/>
       </div>
     </div>
   </t>

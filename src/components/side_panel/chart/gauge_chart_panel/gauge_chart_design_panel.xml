@@ -30,8 +30,9 @@
         <div class="o-subsection-left">
           <input
             type="text"
-            t-att-value="props.definition.sectionRule.rangeMin"
-            t-on-change="updateRangeMin"
+            t-model="state.sectionRule.rangeMin"
+            t-on-change="() => this.updateSectionRule(state.sectionRule)"
+            t-on-input="() => this.canUpdateSectionRule(state.sectionRule)"
             class="o-input o-data-range-min"
             t-att-class="{ 'o-invalid': isRangeMinInvalid() }"
           />
@@ -39,8 +40,9 @@
         <div class="o-subsection-right">
           <input
             type="text"
-            t-att-value="props.definition.sectionRule.rangeMax"
-            t-on-change="updateRangeMax"
+            t-model="state.sectionRule.rangeMax"
+            t-on-change="() => this.updateSectionRule(state.sectionRule)"
+            t-on-input="() => this.canUpdateSectionRule(state.sectionRule)"
             class="o-input o-data-range-max"
             t-att-class="{ 'o-invalid': isRangeMaxInvalid() }"
           />
@@ -50,14 +52,12 @@
       <div class="o-section">
         <div class="o-section-title">Thresholds</div>
         <t t-call="o-spreadsheet-GaugeChartColorSectionTemplate">
-          <t t-set="sectionRule" t-value="props.definition.sectionRule"/>
+          <t t-set="sectionRule" t-value="state.sectionRule"/>
         </t>
       </div>
 
-      <div class="o-section o-sidepanel-error" t-if="designErrorMessages.length">
-        <div t-foreach="designErrorMessages" t-as="error" t-key="error">
-          <t t-esc="error"/>
-        </div>
+      <div class="o-section" t-if="designErrorMessages.length">
+        <SidePanelErrors messages="designErrorMessages" msgType="'error'"/>
       </div>
     </div>
   </t>
@@ -123,10 +123,11 @@
         <input
           type="text"
           class="o-input"
-          t-on-change="(ev) => this.updateInflectionPointValue(inflectionPointName, ev)"
+          t-model="inflectionPoint.value"
+          t-on-input="() => this.canUpdateSectionRule(state.sectionRule)"
+          t-on-change="() => this.updateSectionRule(state.sectionRule)"
           t-attf-class="o-input-{{inflectionPointName}}"
           t-att-class="{ 'o-invalid': isInvalid }"
-          t-model="inflectionPoint.value"
         />
       </td>
       <td>
@@ -134,7 +135,7 @@
           class="o-input"
           name="valueType"
           t-model="inflectionPoint.type"
-          t-on-change="(ev) => this.updateInflectionPointType(inflectionPointName, ev)">
+          t-on-change="(ev) => this.updateSectionRule(state.sectionRule)">
           <option value="number">Number</option>
           <option value="percentage">Percentage</option>
         </select>

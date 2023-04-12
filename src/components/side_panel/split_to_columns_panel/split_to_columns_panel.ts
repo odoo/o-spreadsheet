@@ -4,6 +4,7 @@ import { interactiveSplitToColumns } from "../../../helpers/ui/split_to_columns_
 import { _lt } from "../../../translation";
 import { CommandResult, SpreadsheetChildEnv } from "../../../types/index";
 import { SplitToColumnsTerms } from "../../translations_terms";
+import { SidePanelErrors } from "../side_panel_errors/side_panel_errors";
 
 type SeparatorValue = "auto" | "custom" | " " | "," | ";" | typeof NEWLINE;
 
@@ -33,6 +34,7 @@ interface State {
 
 export class SplitIntoColumnsPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SplitIntoColumnsPanel";
+  static components = { SidePanelErrors };
 
   state = useState<State>({ separatorValue: "auto", addNewColumns: false, customSeparator: "" });
 
