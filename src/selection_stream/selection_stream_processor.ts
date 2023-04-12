@@ -421,8 +421,8 @@ export class SelectionStreamProcessor
     }
     const { left, right, top, bottom } = zone;
     const sheetId = this.getters.getActiveSheetId();
-    const refCol = this.getters.findVisibleHeader(sheetId, "COL", range(left, right + 1));
-    const refRow = this.getters.findVisibleHeader(sheetId, "ROW", range(top, bottom + 1));
+    const refCol = this.getters.findVisibleHeader(sheetId, "COL", left, right);
+    const refRow = this.getters.findVisibleHeader(sheetId, "ROW", top, bottom);
     if (refRow === undefined || refCol === undefined) {
       return CommandResult.SelectionOutOfBound;
     }
@@ -530,10 +530,10 @@ export class SelectionStreamProcessor
 
     return {
       col: this.getters.isColHidden(sheetId, anchorCol)
-        ? this.getters.findVisibleHeader(sheetId, "COL", range(left, right + 1)) || anchorCol
+        ? this.getters.findVisibleHeader(sheetId, "COL", left, right) || anchorCol
         : anchorCol,
       row: this.getters.isRowHidden(sheetId, anchorRow)
-        ? this.getters.findVisibleHeader(sheetId, "ROW", range(top, bottom + 1)) || anchorRow
+        ? this.getters.findVisibleHeader(sheetId, "ROW", top, bottom) || anchorRow
         : anchorRow,
     };
   }

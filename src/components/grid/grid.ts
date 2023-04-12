@@ -5,7 +5,7 @@ import {
   HEADER_WIDTH,
   SCROLLBAR_WIDTH,
 } from "../../constants";
-import { isInside, range } from "../../helpers/index";
+import { isInside } from "../../helpers/index";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
 import { interactivePaste, interactivePasteFromOS } from "../../helpers/ui/paste_interactive";
 import { ComposerSelection } from "../../plugins/ui/edition";
@@ -224,12 +224,14 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       const col = this.env.model.getters.findVisibleHeader(
         sheetId,
         "COL",
-        range(0, this.env.model.getters.getNumberCols(sheetId)).reverse()
+        this.env.model.getters.getNumberCols(sheetId) - 1,
+        0
       )!;
       const row = this.env.model.getters.findVisibleHeader(
         sheetId,
         "ROW",
-        range(0, this.env.model.getters.getNumberRows(sheetId)).reverse()
+        this.env.model.getters.getNumberRows(sheetId) - 1,
+        0
       )!;
       this.env.model.selection.selectCell(col, row);
     },

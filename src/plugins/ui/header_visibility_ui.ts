@@ -1,4 +1,3 @@
-import { range } from "../../helpers";
 import { Dimension, ExcelWorkbookData, HeaderIndex, Position, UID } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
@@ -31,17 +30,44 @@ export class HeaderVisibilityUIPlugin extends UIPlugin {
 
   getNextVisibleCellPosition(sheetId: UID, col: number, row: number): Position {
     return {
-      col: this.findVisibleHeader(sheetId, "COL", range(col, this.getters.getNumberCols(sheetId)))!,
-      row: this.findVisibleHeader(sheetId, "ROW", range(row, this.getters.getNumberRows(sheetId)))!,
+      col: this.findVisibleHeader(sheetId, "COL", col, this.getters.getNumberCols(sheetId) - 1)!,
+      row: this.findVisibleHeader(sheetId, "ROW", row, this.getters.getNumberRows(sheetId) - 1)!,
     };
   }
 
-  findVisibleHeader(sheetId: UID, dimension: Dimension, indexes: number[]): number | undefined {
-    return indexes.find(
-      (index) =>
-        this.getters.doesHeaderExist(sheetId, dimension, index) &&
-        !this.isHeaderHidden(sheetId, dimension, index)
-    );
+  /**
+   * Find the first visible header in the range [`from` => `to`].
+   *
+   * Both `from` and `to` are inclusive.
+   */
+  findVisibleHeader(
+    sheetId: UID,
+    dimension: Dimension,
+    from: number,
+    to: number
+  ): number | undefined {
+    if (from <= to) {
+      for (let i = from; i <= to; i++) {
+        if (
+          this.getters.doesHeaderExist(sheetId, dimension, i) &&
+          !this.isHeaderHidden(sheetId, dimension, i)
+        ) {
+          return i;
+        }
+      }
+    }
+    if (from > to) {
+      for (let i = from; i >= to; i--) {
+        if (
+          this.getters.doesHeaderExist(sheetId, dimension, i) &&
+          !this.isHeaderHidden(sheetId, dimension, i)
+        ) {
+          return i;
+        }
+      }
+    }
+
+    return undefined;
   }
 
   findLastVisibleColRowIndex(
