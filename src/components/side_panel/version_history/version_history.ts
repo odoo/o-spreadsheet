@@ -1,6 +1,5 @@
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
 import { Revision } from "../../../collaborative/revisions";
-import { _lt } from "../../../translation";
 import { OperationSequenceNode, SpreadsheetChildEnv } from "../../../types/index";
 import { UID } from "../../../types/misc";
 import { css } from "../../helpers/css";
@@ -34,18 +33,11 @@ interface Props {
 }
 
 interface VersionHistoryState {
-  currently_selected_revision_id: UID;
+  currentlySelectedRevisionId: UID;
 }
 
 export class VersionHistory extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-VersionHistory";
-  static props = ["model"];
-
-  /* @ts-ignore => used in xml */
-  private readonly UITexts = {
-    displayedVersion: _lt("Displayed Version"),
-    dateNotAvaialble: _lt("Date not available"),
-  };
 
   /* @ts-ignore => used in xml */
   private revisions: OperationSequenceNode<Revision>[] = [
@@ -56,8 +48,7 @@ export class VersionHistory extends Component<Props, SpreadsheetChildEnv> {
       .revertedExecution(this.env.model.getSession().getRevisions().getHeadBranch()),
   ];
   private state: VersionHistoryState = useState({
-    currently_selected_revision_id: this.env.model.getSession().getRevisions().getHeadOperation()
-      .id,
+    currentlySelectedRevisionId: this.env.model.getSession().getRevisions().getHeadOperation().id,
   });
 
   setup() {
@@ -86,7 +77,7 @@ export class VersionHistory extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onRevisionClick(revision) {
-    this.state.currently_selected_revision_id = revision.operation.id;
+    this.state.currentlySelectedRevisionId = revision.operation.id;
     this.env.model.getSession().getRevisions().fastForward();
     this.env.model.getSession().getRevisions().revertTo(revision.operation.id);
     this.env.model.trigger("update");

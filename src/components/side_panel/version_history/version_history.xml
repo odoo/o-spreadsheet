@@ -13,14 +13,14 @@
             class="o-version-history-date"
             t-esc="formatDateFromTimestamp(revision.operation.data.timestamp)"
           />
-          <span t-else="" class="o-version-history-date" t-esc="UITexts.dateNotAvaialble"/>
+          <span t-else="" class="o-version-history-date">Date not available</span>
           <br/>
           <span
-            t-if="state.currently_selected_revision_id == revision.operation.id"
-            class="o-version-history-current-version"
-            t-esc="UITexts.displayedVersion"
-          />
-          <br t-if="state.currently_selected_revision_id == revision.operation.id"/>
+            t-if="state.currentlySelectedRevisionId == revision.operation.id"
+            class="o-version-history-current-version">
+            Displayed Version
+          </span>
+          <br t-if="state.currentlySelectedRevisionId == revision.operation.id"/>
         </div>
       </div>
     </div>
