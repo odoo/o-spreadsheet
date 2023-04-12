@@ -2,16 +2,19 @@ import { Component, useExternalListener, useState } from "@odoo/owl";
 import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import { LineChartDefinition } from "../../../../types/chart/line_chart";
 import { PieChartDefinition } from "../../../../types/chart/pie_chart";
-import { Color, CommandResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 
 interface Props {
   figureId: UID;
   definition: LineChartDefinition | BarChartDefinition | PieChartDefinition;
+  canUpdateChart: (
+    definition: Partial<LineChartDefinition | BarChartDefinition | PieChartDefinition>
+  ) => DispatchResult;
   updateChart: (
     figureId: UID,
     definition: Partial<LineChartDefinition | BarChartDefinition | PieChartDefinition>
-  ) => CommandResult | CommandResult[];
+  ) => DispatchResult;
 }
 
 interface State {
@@ -61,4 +64,5 @@ LineBarPieDesignPanel.props = {
   figureId: String,
   definition: Object,
   updateChart: Function,
+  canUpdateChart: Function,
 };

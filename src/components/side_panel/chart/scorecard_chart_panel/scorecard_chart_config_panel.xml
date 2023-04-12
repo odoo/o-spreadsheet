@@ -32,10 +32,9 @@
           <option value="percentage">Percentage change from key value</option>
         </select>
       </div>
-      <div class="o-section o-sidepanel-error" t-if="errorMessages">
-        <div t-foreach="errorMessages" t-as="error" t-key="error">
-          <t t-esc="error"/>
-        </div>
+
+      <div class="o-section" t-if="errorMessages.length">
+        <SidePanelErrors messages="errorMessages" msgType="'error'"/>
       </div>
     </div>
   </t>

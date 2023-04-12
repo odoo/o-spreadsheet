@@ -41,6 +41,7 @@
           definition="definition"
           figureId="figureId"
           updateChart.bind="updateChart"
+          canUpdateChart.bind="canUpdateChart"
           t-key="figureId + definition.type"
         />
       </t>
@@ -50,6 +51,7 @@
           definition="definition"
           figureId="figureId"
           updateChart.bind="updateChart"
+          canUpdateChart.bind="canUpdateChart"
           t-key="figureId + definition.type"
         />
       </t>
