@@ -32,6 +32,12 @@ describe("formatValue on number", () => {
     expect(formatValue(-0.00000000001)).toBe("-0");
     expect(formatValue(-0.000000000001)).toBe("-0");
 
+    expect(formatValue(0.9999999)).toBe("0.9999999");
+    expect(formatValue(0.99999999)).toBe("0.99999999");
+    expect(formatValue(0.999999999)).toBe("0.999999999");
+    expect(formatValue(0.9999999999)).toBe("1");
+    expect(formatValue(0.99999999999)).toBe("1");
+
     expect(formatValue(1.123456789)).toBe("1.123456789");
     expect(formatValue(10.123456789)).toBe("10.12345679");
     expect(formatValue(100.123456789)).toBe("100.1234568");
