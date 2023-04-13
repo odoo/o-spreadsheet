@@ -28,9 +28,14 @@ export class HeaderVisibilityPlugin extends CorePlugin {
           cmd.dimension === "COL"
             ? this.getters.getNumberCols(cmd.sheetId)
             : this.getters.getNumberRows(cmd.sheetId);
-        return (hiddenGroup || []).flat().concat(cmd.elements).length < elements
-          ? CommandResult.Success
-          : CommandResult.TooManyHiddenElements;
+        const hiddenElements = new Set((hiddenGroup || []).flat().concat(cmd.elements));
+        if (hiddenElements.size >= elements) {
+          return CommandResult.TooManyHiddenElements;
+        } else if (Math.min(...cmd.elements) < 0 || Math.max(...cmd.elements) > elements) {
+          return CommandResult.InvalidHeaderIndex;
+        } else {
+          return CommandResult.Success;
+        }
       }
       case "REMOVE_COLUMNS_ROWS":
         if (!this.getters.tryGetSheet(cmd.sheetId)) {
