@@ -143,6 +143,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   uuidGenerator: UuidGenerator;
 
+  private readonly handlers: CommandHandler<Command>[] = [];
+  private readonly coreHandlers: CommandHandler<CoreCommand>[] = [];
+
   constructor(
     data: any = {},
     config: Partial<ModelConfig> = {},
@@ -194,6 +197,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     // Initiate stream processor
     this.selection = new SelectionStreamProcessor(this.getters);
 
+    this.coreHandlers.push(this.range);
+    this.handlers.push(this.range);
+
     // registering plugins
     for (let Plugin of corePluginRegistry.getAll()) {
       this.setupCorePlugin(Plugin, workbookData);
@@ -203,6 +209,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       this.setupUiPlugin(Plugin);
     }
     this.uuidGenerator.setIsFastStrategy(false);
+
+    this.handlers.push(this.history);
 
     // starting plugins
     this.dispatch("START");
@@ -227,10 +235,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     markRaw(this);
   }
 
-  get handlers(): CommandHandler<Command>[] {
-    return [this.range, ...this.corePlugins, ...this.uiPlugins, this.history];
-  }
-
   joinSession() {
     this.session.join(this.config.client);
   }
@@ -251,6 +255,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       this.getters[name] = plugin[name].bind(plugin);
     }
     this.uiPlugins.push(plugin);
+    this.handlers.push(plugin);
     const layers = Plugin.layers.map((l) => [plugin, l] as [UIPlugin, LAYERS]);
     this.renderers.push(...layers);
     this.renderers.sort((p1, p2) => p1[1] - p2[1]);
@@ -282,6 +287,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     }
     plugin.import(data);
     this.corePlugins.push(plugin);
+    this.coreHandlers.push(plugin);
+    this.handlers.push(plugin);
   }
 
   private onRemoteRevisionReceived({ commands }: { commands: CoreCommand[] }) {
@@ -305,7 +312,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
             return;
           }
           this.isReplayingCommand = true;
-          this.dispatchToHandlers([this.range, ...this.corePlugins], command);
+          this.dispatchToHandlers(this.coreHandlers, command);
           this.isReplayingCommand = false;
         }
       ),
@@ -437,7 +444,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     const command: Command = { type, ...payload };
     const previousStatus = this.status;
     this.status = Status.RunningCore;
-    const handlers = this.isReplayingCommand ? [this.range, ...this.corePlugins] : this.handlers;
+    const handlers = this.isReplayingCommand ? this.coreHandlers : this.handlers;
     this.dispatchToHandlers(handlers, command);
     this.status = previousStatus;
     return DispatchResult.Success;
