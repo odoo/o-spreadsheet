@@ -171,6 +171,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   uuidGenerator: UuidGenerator;
 
+  private readonly handlers: CommandHandler<Command>[] = [];
+  private readonly coreHandlers: CommandHandler<CoreCommand>[] = [];
+
   constructor(
     data: any = {},
     config: Partial<ModelConfig> = {},
@@ -220,6 +223,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     // Initiate stream processor
     this.selection = new SelectionStreamProcessor(this.getters);
 
+    this.coreHandlers.push(this.range);
+    this.handlers.push(this.range);
+
     this.corePluginConfig = this.setupCorePluginConfig();
     this.uiPluginConfig = this.setupUiPluginConfig();
 
@@ -229,15 +235,24 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     }
     Object.assign(this.getters, this.coreGetters);
     for (let Plugin of statefulUIPluginRegistry.getAll()) {
-      this.statefulUIPlugins.push(this.setupUiPlugin(Plugin));
+      const plugin = this.setupUiPlugin(Plugin);
+      this.statefulUIPlugins.push(plugin);
+      this.handlers.push(plugin);
     }
     for (let Plugin of coreViewsPluginRegistry.getAll()) {
-      this.coreViewsPlugins.push(this.setupUiPlugin(Plugin));
+      const plugin = this.setupUiPlugin(Plugin);
+      this.coreViewsPlugins.push(plugin);
+      this.handlers.push(plugin);
+      this.coreHandlers.push(plugin);
     }
     for (let Plugin of featurePluginRegistry.getAll()) {
-      this.featurePlugins.push(this.setupUiPlugin(Plugin));
+      const plugin = this.setupUiPlugin(Plugin);
+      this.featurePlugins.push(plugin);
+      this.handlers.push(plugin);
     }
     this.uuidGenerator.setIsFastStrategy(false);
+
+    this.handlers.push(this.history);
 
     // starting plugins
     this.dispatch("START");
@@ -261,14 +276,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     // mark all models as "raw", so they will not be turned into reactive objects
     // by owl, since we do not rely on reactivity
     markRaw(this);
-  }
-
-  get handlers(): CommandHandler<Command>[] {
-    return [this.range, ...this.corePlugins, ...this.allUIPlugins, this.history];
-  }
-
-  get allUIPlugins(): UIPlugin[] {
-    return [...this.statefulUIPlugins, ...this.coreViewsPlugins, ...this.featurePlugins];
   }
 
   joinSession() {
@@ -315,6 +322,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     }
     plugin.import(data);
     this.corePlugins.push(plugin);
+    this.coreHandlers.push(plugin);
+    this.handlers.push(plugin);
   }
 
   private onRemoteRevisionReceived({ commands }: { commands: CoreCommand[] }) {
