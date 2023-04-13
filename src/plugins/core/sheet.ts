@@ -834,10 +834,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   private moveCellOnColumnsDeletion(sheet: Sheet, deletedColumn: number) {
-    for (let [index, row] of Object.entries(sheet.rows)) {
-      const rowIndex = parseInt(index, 10);
+    for (let rowIndex = 0; rowIndex < sheet.rows.length; rowIndex++) {
+      const row = sheet.rows[rowIndex];
       for (let i in row.cells) {
-        const colIndex = parseInt(i, 10);
+        const colIndex = Number(i);
         const cellId = row.cells[i];
         if (cellId) {
           if (colIndex === deletedColumn) {
@@ -870,11 +870,11 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     dimension: "rows" | "columns"
   ) {
     const commands: UpdateCellPositionCommand[] = [];
-    for (const [index, row] of Object.entries(sheet.rows)) {
-      const rowIndex = parseInt(index, 10);
+    for (let rowIndex = 0; rowIndex < sheet.rows.length; rowIndex++) {
+      const row = sheet.rows[rowIndex];
       if (dimension !== "rows" || rowIndex >= addedElement) {
         for (let i in row.cells) {
-          const colIndex = parseInt(i, 10);
+          const colIndex = Number(i);
           const cellId = row.cells[i];
           if (cellId) {
             if (dimension === "rows" || colIndex >= addedElement) {
@@ -909,11 +909,11 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     deleteToRow: HeaderIndex
   ) {
     const numberRows = deleteToRow - deleteFromRow + 1;
-    for (let [index, row] of Object.entries(sheet.rows)) {
-      const rowIndex = parseInt(index, 10);
+    for (let rowIndex = 0; rowIndex < sheet.rows.length; rowIndex++) {
+      const row = sheet.rows[rowIndex];
       if (rowIndex >= deleteFromRow && rowIndex <= deleteToRow) {
         for (let i in row.cells) {
-          const colIndex = parseInt(i, 10);
+          const colIndex = Number(i);
           const cellId = row.cells[i];
           if (cellId) {
             this.dispatch("CLEAR_CELL", {
@@ -926,7 +926,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       }
       if (rowIndex > deleteToRow) {
         for (let i in row.cells) {
-          const colIndex = parseInt(i, 10);
+          const colIndex = Number(i);
           const cellId = row.cells[i];
           if (cellId) {
             this.dispatch("UPDATE_CELL_POSITION", {
@@ -945,7 +945,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     const rows: Row[] = [];
     const cellsQueue = sheet.rows.map((row) => row.cells);
     for (let i in sheet.rows) {
-      if (parseInt(i, 10) === index) {
+      if (Number(i) === index) {
         continue;
       }
       rows.push({
