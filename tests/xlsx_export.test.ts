@@ -18,7 +18,7 @@ import { exportPrettifiedXlsx, toRangesData } from "./test_helpers/helpers";
 function getExportedExcelData(model: Model): ExcelWorkbookData {
   model.dispatch("EVALUATE_CELLS");
   let data = createEmptyExcelWorkbookData();
-  for (let handler of model.handlers) {
+  for (let handler of model["handlers"]) {
     if (handler instanceof BasePlugin) {
       handler.exportForExcel(data);
     }
