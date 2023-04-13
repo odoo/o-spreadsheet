@@ -1,4 +1,5 @@
-import { useEffect } from "@odoo/owl";
+import { onWillUnmount, useEffect } from "@odoo/owl";
+import { throttle } from "../../helpers";
 
 interface IntervalTimer {
   pause: () => void;
@@ -29,4 +30,15 @@ export function useInterval(callback: () => void, delay: number): IntervalTimer 
       }
     },
   };
+}
+
+export function useDebounced<T extends (...args: unknown[]) => void>(
+  func: T,
+  delay: number,
+  immediate = false
+) {
+  const debounced = throttle(func, delay);
+  // debugger
+  onWillUnmount(() => debounced.cancel());
+  return debounced;
 }

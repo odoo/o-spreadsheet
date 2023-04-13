@@ -1,7 +1,7 @@
 import { DEBOUNCE_TIME, DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../constants";
 import { UuidGenerator } from "../helpers";
 import { EventBus } from "../helpers/event_bus";
-import { debounce, isDefined } from "../helpers/misc";
+import { debounce, Debounced, isDefined } from "../helpers/misc";
 import { SelectiveHistory as RevisionLog } from "../history/selective_history";
 import { CoreCommand, HistoryChange, UID, WorkbookData } from "../types";
 import {
@@ -34,7 +34,7 @@ export class Session extends EventBus<CollaborativeEvent> {
   /**
    * Id of the server revision
    */
-  private debouncedMove: Session["move"];
+  private debouncedMove: Debounced<Session["move"]>;
   private pendingMessages: StateUpdateMessage[] = [];
 
   private waitingAck: boolean = false;
@@ -68,7 +68,7 @@ export class Session extends EventBus<CollaborativeEvent> {
   ) {
     super();
 
-    this.debouncedMove = debounce(this._move.bind(this), DEBOUNCE_TIME) as Session["move"];
+    this.debouncedMove = debounce(this._move.bind(this), DEBOUNCE_TIME);
   }
 
   canApplyOptimisticUpdate() {
@@ -150,6 +150,7 @@ export class Session extends EventBus<CollaborativeEvent> {
    * Notify the server that the user client left the collaborative session
    */
   leave() {
+    this.debouncedMove.cancel();
     delete this.clients[this.clientId];
     this.transportService.leave(this.clientId);
     this.transportService.sendMessage({

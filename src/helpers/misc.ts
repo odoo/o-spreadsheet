@@ -364,6 +364,8 @@ export function getItemId<T>(item: T, itemsDic: { [id: number]: T }) {
   return maxId + 1;
 }
 
+export type Debounced<T extends (...args: unknown[]) => void> = T & { cancel: () => void };
+
 /**
  * This method comes from owl 1 as it was removed in owl 2
  *
@@ -374,24 +376,83 @@ export function getItemId<T>(item: T, itemsDic: { [id: number]: T }) {
  *
  * Inspired by https://davidwalsh.name/javascript-debounce-function
  */
-export function debounce(func: Function, wait: number, immediate?: boolean): Function {
-  let timeout;
-  return function (this: any) {
-    const context = this;
-    const args = arguments;
-    function later() {
-      timeout = null;
-      if (!immediate) {
-        func.apply(context, args);
-      }
+export function debounce<T extends (...args: unknown[]) => void>(
+  func: T,
+  delay: number,
+  immediate = false
+): Debounced<T> {
+  let handle;
+  const funcName = func.name ? func.name + " (debounce)" : "debounce";
+  const debounced = Object.assign(
+    {
+      [funcName](...args) {
+        const callNow = immediate && !handle;
+        clearTimeout(handle);
+        handle = setTimeout(() => {
+          handle = null;
+          if (!immediate) {
+            func.apply(this, args);
+          }
+        }, delay);
+        if (callNow) {
+          func.apply(this, args);
+        }
+      },
+    }[funcName],
+    {
+      cancel() {
+        clearTimeout(handle);
+      },
     }
-    const callNow = immediate && !timeout;
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-    if (callNow) {
-      func.apply(context, args);
+  );
+  return debounced as Debounced<T>;
+}
+
+/**
+ * Creates a version of the function where only the last call between two
+ * animation frames is executed before the browser's next repaint. This
+ * effectively throttles the function to the display's refresh rate.
+ * NB: The first call is always called immediately (leading edge).
+ *
+ * @template {Function} T
+ * @param {T} func the function to throttle
+ * @returns {T & { cancel: () => void }} the throttled function
+ */
+export function throttle(func, delay: number) {
+  let handle: any = null;
+  const calls: Set<unknown[]> = new Set();
+  const funcName = func.name ? `${func.name} (throttleForAnimation)` : "throttleForAnimation";
+  const pending = () => {
+    if (calls.size) {
+      handle = setTimeout(pending, delay);
+      const args = [...calls].pop()!;
+      calls.clear();
+      func(...args);
+    } else {
+      handle = null;
     }
   };
+  return Object.assign(
+    {
+      /** @type {any} */
+      [funcName](...args) {
+        const isNew = handle === null;
+        if (isNew) {
+          handle = setTimeout(pending, delay);
+          // func.apply(this, args)
+        } else {
+          calls.add(args);
+        }
+      },
+    }[funcName],
+    {
+      cancel() {
+        clearTimeout(handle);
+        calls.clear();
+        handle = null;
+      },
+    }
+  );
 }
 
 /*

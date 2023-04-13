@@ -11,6 +11,7 @@ import { DOMCoordinates, MenuMouseEvent, Pixel, SpreadsheetChildEnv, UID } from 
 import { css } from "../helpers/css";
 import { getOpenedMenus, isChildEvent } from "../helpers/dom_helpers";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
+import { useDebounced } from "../helpers/time_hooks";
 import { Popover, PopoverProps } from "../popover/popover";
 
 //------------------------------------------------------------------------------
@@ -112,6 +113,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
         this.closeSubMenu();
       }
     });
+    this.overMenuItem = useDebounced(this.overMenuItem.bind(this), 200);
   }
 
   get menuItemsAndSeparators(): MenuItemOrSeparator[] {
@@ -136,6 +138,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get subMenuPosition(): DOMCoordinates {
+    console.log("render submenu");
     const position = Object.assign({}, this.subMenu.position);
     position.y -= this.subMenu.scrollOffset || 0;
     return position;
@@ -205,8 +208,9 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
    * If the given menu is not disabled, open it's submenu at the
    * correct position according to available surrounding space.
    */
-  openSubMenu(menu: MenuItem, menuIndex: number, ev: MouseEvent) {
-    const parentMenuEl = ev.currentTarget as HTMLElement;
+  openSubMenu(menu: MenuItem, menuIndex: number, parentMenuEl: HTMLElement | null) {
+    // const parentMenuEl = ev.currentTarget as HTMLElement;
+    console.log("open", parentMenuEl);
     if (!parentMenuEl) return;
     const y = parentMenuEl.getBoundingClientRect().top;
 
@@ -224,6 +228,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   closeSubMenu() {
+    console.log("closeSubMenu");
     this.subMenu.isOpen = false;
     this.subMenu.parentMenu = undefined;
   }
@@ -231,7 +236,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   onClickMenu(menu: MenuItem, menuIndex: number, ev: MouseEvent) {
     if (this.isEnabled(menu)) {
       if (this.isRoot(menu)) {
-        this.openSubMenu(menu, menuIndex, ev);
+        this.openSubMenu(menu, menuIndex, ev.currentTarget as HTMLElement);
       } else {
         this.activateMenu(menu);
       }
@@ -239,9 +244,15 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onMouseOver(menu: MenuItem, position: Pixel, ev: MouseEvent) {
+    // we must capture the `currentTarget` value while the event is being handled
+    // because it will be nullified after the event is handled
+    this.overMenuItem(menu, position, ev.currentTarget as HTMLElement);
+  }
+
+  overMenuItem(menu: MenuItem, position: Pixel, parentMenuEl: HTMLElement | null) {
     if (menu.isEnabled(this.env)) {
       if (this.isRoot(menu)) {
-        this.openSubMenu(menu, position, ev);
+        this.openSubMenu(menu, position, parentMenuEl);
       } else {
         this.closeSubMenu();
       }
