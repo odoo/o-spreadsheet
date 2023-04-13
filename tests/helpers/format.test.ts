@@ -19,6 +19,12 @@ describe("formatValue on number", () => {
     expect(formatValue(0.00000000001)).toBe("0");
     expect(formatValue(0.000000000001)).toBe("0");
 
+    expect(formatValue(0.9999999)).toBe("0.9999999");
+    expect(formatValue(0.99999999)).toBe("0.99999999");
+    expect(formatValue(0.999999999)).toBe("0.999999999");
+    expect(formatValue(0.9999999999)).toBe("0.9999999999");
+    expect(formatValue(0.99999999999)).toBe("1");
+
     // @compatibility note: in Google Sheets, the next three tests result in 1234512345
     expect(formatValue(1234512345.1)).toBe("1234512345.1");
     expect(formatValue(1234512345.12)).toBe("1234512345.12");
