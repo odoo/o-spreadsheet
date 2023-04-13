@@ -118,6 +118,17 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         return this.orderedSheetIds.length > 1
           ? CommandResult.Success
           : CommandResult.NotEnoughSheets;
+      case "REMOVE_COLUMNS_ROWS": {
+        const elements =
+          cmd.dimension === "COL"
+            ? this.getNumberCols(cmd.sheetId)
+            : this.getNumberRows(cmd.sheetId);
+        if (Math.min(...cmd.elements) < 0 || Math.max(...cmd.elements) > elements) {
+          return CommandResult.InvalidHeaderIndex;
+        } else {
+          return CommandResult.Success;
+        }
+      }
       case "FREEZE_ROWS": {
         return this.checkValidations(
           cmd,
