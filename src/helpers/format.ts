@@ -224,12 +224,98 @@ const numberRepresentation: Intl.NumberFormat[] = [];
  * - all digit stored in the decimal part of the number
  *
  * The 'maxDecimal' parameter allows to indicate the number of digits to not
- * exceed in the decimal part, in which case digits are rounded
+ * exceed in the decimal part, in which case digits are rounded.
  *
- * Intl.Numberformat is used to properly handle all the roundings.
- * e.g. 1234.7  with format ### (<> maxDecimals=0) should become 1235, not 1234
  **/
 function splitNumber(
+  value: number,
+  maxDecimals: number = MAX_DECIMAL_PLACES
+): { integerDigits: string; decimalDigits: string | undefined } {
+  const asString = value.toString();
+  if (asString.includes("e")) return splitNumberIntl(value, maxDecimals);
+
+  if (Number.isInteger(value)) {
+    return { integerDigits: asString, decimalDigits: undefined };
+  }
+
+  const indexOfDot = asString.indexOf(".");
+  let integerDigits = asString.substring(0, indexOfDot);
+  let decimalDigits: string | undefined = asString.substring(indexOfDot + 1);
+
+  if (maxDecimals === 0) {
+    if (Number(decimalDigits[0]) >= 5) {
+      integerDigits = (Number(integerDigits) + 1).toString();
+    }
+    return { integerDigits, decimalDigits: undefined };
+  }
+
+  if (decimalDigits.length > maxDecimals) {
+    const { integerDigits: roundedIntegerDigits, decimalDigits: roundedDecimalDigits } =
+      limitDecimalDigits(decimalDigits, maxDecimals);
+
+    decimalDigits = roundedDecimalDigits;
+    if (roundedIntegerDigits !== "0") {
+      integerDigits = (Number(integerDigits) + Number(roundedIntegerDigits)).toString();
+    }
+  }
+
+  return { integerDigits, decimalDigits: removeTrailingZeroes(decimalDigits || "") };
+}
+
+/**
+ *  Return the given string minus the trailing "0" characters.
+ *
+ * @param numberString : a string of integers
+ * @returns the numberString, minus the eventual zeroes at the end
+ */
+function removeTrailingZeroes(numberString: string): string | undefined {
+  let i = numberString.length - 1;
+  while (i >= 0 && numberString[i] === "0") {
+    i--;
+  }
+  return numberString.slice(0, i + 1) || undefined;
+}
+
+/**
+ * Limit the size of the decimal part of a number to the given number of digits.
+ */
+function limitDecimalDigits(
+  decimalDigits: string,
+  maxDecimals: number
+): {
+  integerDigits: string;
+  decimalDigits: string | undefined;
+} {
+  let integerDigits = "0";
+  let resultDecimalDigits: string | undefined = decimalDigits;
+
+  // Note : we'd want to simply use number.toFixed() to handle the max digits & rounding,
+  // but it has very strange behaviour. Ex: 12.345.toFixed(2) => "12.35", but 1.345.toFixed(2) => "1.34"
+  let slicedDecimalDigits = decimalDigits.slice(0, maxDecimals);
+  const i = maxDecimals;
+
+  if (Number(Number(decimalDigits[i]) < 5)) {
+    return { integerDigits, decimalDigits: slicedDecimalDigits };
+  }
+
+  // round up
+  const slicedRoundedUp = (Number(slicedDecimalDigits) + 1).toString();
+  if (slicedRoundedUp.length > slicedDecimalDigits.length) {
+    integerDigits = (Number(integerDigits) + 1).toString();
+    resultDecimalDigits = undefined;
+  } else {
+    resultDecimalDigits = slicedRoundedUp;
+  }
+
+  return { integerDigits, decimalDigits: resultDecimalDigits };
+}
+
+/**
+ * Split numbers into decimal/integer digits using Intl.NumberFormat.
+ * Supports numbers with a lot of digits that are transformed to scientific notation by
+ * number.toString(), but is slow.
+ */
+function splitNumberIntl(
   value: number,
   maxDecimals: number = MAX_DECIMAL_PLACES
 ): { integerDigits: string; decimalDigits: string | undefined } {
