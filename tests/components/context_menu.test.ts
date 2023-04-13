@@ -548,7 +548,7 @@ describe("Context Menu internal tests", () => {
     expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeTruthy();
   });
 
-  test("Menu with icon is correctly displayed", async () => {
+  test("Menu with icon is not displayed", async () => {
     const menuItems: Action[] = createActions([
       {
         id: "root1",
@@ -574,9 +574,9 @@ describe("Context Menu internal tests", () => {
       },
     ]);
     await renderContextMenu(300, 990, { menuItems });
-    expect(fixture.querySelector("div[data-name='root1'] svg")).not.toBeNull();
+    expect(fixture.querySelector("div[data-name='root1'] svg")).not.toBeNull(); // right caret
     await simulateClick("div[data-name='root1']");
-    expect(fixture.querySelector("div[data-name='root2'] svg")).not.toBeNull();
+    expect(fixture.querySelector("div[data-name='root2'] svg")).toBeNull();
     expect(fixture.querySelector("div[data-name='root3'] svg")).toBeNull();
   });
 
