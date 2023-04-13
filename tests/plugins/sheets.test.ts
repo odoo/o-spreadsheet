@@ -1,5 +1,5 @@
 import { FORBIDDEN_SHEET_CHARS } from "../../src/constants";
-import { getComposerSheetName, toZone } from "../../src/helpers";
+import { getComposerSheetName, numberToLetters, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import {
@@ -1015,5 +1015,25 @@ describe("sheets", () => {
     const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     expect(freezeColumns(model, 11)).toBeCancelledBecause(CommandResult.InvalidFreezeQuantity);
     expect(freezeRows(model, 12)).toBeCancelledBecause(CommandResult.InvalidFreezeQuantity);
+  });
+
+  test("Cannot delete unexisting columns", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    const originalNumberCols = model.getters.getNumberCols(sheetId);
+    const result = deleteColumns(model, [1, 2, originalNumberCols + 10].map(numberToLetters));
+    expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
+    deleteColumns(model, [1, 2].map(numberToLetters));
+    expect(model.getters.getNumberCols(sheetId)).toBe(originalNumberCols - 2);
+  });
+
+  test("Cannot delete unexisting rows", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    const originalNumberRows = model.getters.getNumberRows(sheetId);
+    const result = deleteRows(model, [1, 2, originalNumberRows + 1]);
+    expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
+    deleteRows(model, [1, 2]);
+    expect(model.getters.getNumberRows(sheetId)).toBe(originalNumberRows - 2);
   });
 });
