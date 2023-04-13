@@ -1,6 +1,6 @@
 import { CommandResult, Model } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { toZone } from "../../src/helpers";
+import { numberToLetters, toZone } from "../../src/helpers";
 import {
   addColumns,
   addRows,
@@ -267,14 +267,15 @@ describe("Hide Rows", () => {
   });
 
   test.each([
-    [10, 2],
-    [2, 10],
+    [9, 2],
+    [2, 9],
   ])(
     "delete multiple rows with alphabetical order different from natural order",
     (...deletedRows) => {
-      hideRows(model, [5, 11]);
+      model = new Model({ sheets: [{ id: sheetId, colNumber: 10, rowNumber: 10 }] });
+      hideRows(model, [5, 8]);
       deleteRows(model, deletedRows);
-      expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[4], [9]]);
+      expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[4], [7]]);
     }
   );
 
@@ -312,5 +313,25 @@ describe("Hide Rows", () => {
     setSelection(model, ["A1:A4"]);
     hideRows(model, [0]);
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1:D4")]);
+  });
+
+  test("Cannot hide unexisting columns", () => {
+    model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    const originalNumberCols = model.getters.getNumberCols(sheetId);
+    const result = hideColumns(model, [1, 2, originalNumberCols + 10].map(numberToLetters));
+    expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
+    hideColumns(model, [1, 2].map(numberToLetters));
+    expect(model.getters.getHiddenColsGroups(sheetId)).toEqual([[1, 2]]);
+  });
+
+  test("Cannot hide unexisting rows", () => {
+    model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    const originalNumberRows = model.getters.getNumberRows(sheetId);
+    const result = hideRows(model, [1, 2, originalNumberRows + 1]);
+    expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
+    hideRows(model, [1, 2]);
+    expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[1, 2]]);
   });
 });
