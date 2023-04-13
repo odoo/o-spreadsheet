@@ -1522,12 +1522,22 @@ function computeFormulaCells(cols, rows) {
   return cells;
 }
 
-function computeNumberCells(cols, rows) {
+function computeNumberCells(cols, rows, type = "numbers") {
   const cells = {};
   for (let col = 0; col < cols; col++) {
     const letter = _getColumnLetter(col);
     for (let index = 1; index < rows - 1; index++) {
-      cells[letter + index] = { content: `${col + index}` };
+      switch (type) {
+        case "numbers":
+          cells[letter + index] = { content: `${col + index}` };
+          break;
+        case "floats":
+          cells[letter + index] = { content: `${col + index}.123` };
+          break;
+        case "longFloats":
+          cells[letter + index] = { content: `${col + index}.123456789123456` };
+          break;
+      }
     }
   }
   return cells;
@@ -1560,7 +1570,9 @@ export function makeLargeDataset(cols, rows, sheetsInfo = ["formulas"]) {
         cells = computeFormulaCells(cols, rows);
         break;
       case "numbers":
-        cells = computeNumberCells(cols, rows);
+      case "floats":
+      case "longFloats":
+        cells = computeNumberCells(cols, rows, sheetsInfo[0]);
         break;
       case "strings":
         cells = computeStringCells(cols, rows);
