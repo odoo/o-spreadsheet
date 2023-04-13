@@ -23,7 +23,7 @@ jobs:
       - name: Build
         run: npm ci && npm run dist
       - name: Release
-        uses: ncipollo/release-action@v1.11.2
+        uses: ncipollo/release-action@v1.12.0
         with:
           tag: ${{ fromJSON(steps.parse.outputs.data).version }}
           body: ${{ fromJSON(steps.parse.outputs.data).body }}
