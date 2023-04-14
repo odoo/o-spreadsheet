@@ -16,6 +16,7 @@ import {
 import {
   clickCell,
   getElComputedStyle,
+  hoverCell,
   rightClickCell,
   simulateClick,
   triggerMouseEvent,
@@ -209,6 +210,76 @@ describe("Spreadsheet", () => {
     freezeRows(model, 51);
     await nextTick();
     expect(notifyUser).toHaveBeenCalledTimes(2);
+  });
+
+  test("Z-indexes of the various spreadsheet components", async () => {
+    jest.useFakeTimers();
+    ({ model } = await mountSpreadsheet());
+    const getZIndex = (selector: string) => Number(getElComputedStyle(selector, "zIndex")) || 0;
+    mockChart();
+
+    const gridZIndex = getZIndex(".o-grid");
+    const vScrollbarZIndex = getZIndex(".o-scrollbar.vertical");
+    const hScrollbarZIndex = getZIndex(".o-scrollbar.horizontal");
+    const scrollbarCornerZIndex = getZIndex(".o-scrollbar.corner");
+
+    triggerMouseEvent(".o-dropdown", "click");
+    await nextTick();
+    const dropDownZIndex = getZIndex(".o-dropdown-content");
+
+    await rightClickCell(model, "A1");
+    const contextMenuZIndex = getZIndex(".o-popover");
+
+    await typeInComposerGrid("=A1:B2");
+    const gridComposerZIndex = getZIndex("div.o-grid-composer");
+
+    await typeInComposerTopBar("=SUM(A1,A2)");
+    const topBarComposerZIndex = getZIndex(".o-topbar-toolbar .o-composer-container");
+
+    const highlighZIndex = getZIndex(".o-highlight");
+
+    triggerMouseEvent(".o-tool.o-dropdown.o-with-color", "click");
+    await nextTick();
+    const colorPickerZIndex = getZIndex("div.o-color-picker");
+
+    createChart(model, {}, "thisIsAnId");
+    model.dispatch("SELECT_FIGURE", { id: "thisIsAnId" });
+    await nextTick();
+    const figureZIndex = getZIndex(".o-figure-wrapper");
+    const figureAnchorZIndex = getZIndex(".o-fig-anchor");
+
+    setCellContent(model, "A1", "=SUM()");
+    await nextTick();
+    await hoverCell(model, "A1", 400);
+    const gridPopoverZIndex = getZIndex(".o-popover");
+
+    expect(gridZIndex).toBeLessThan(highlighZIndex);
+    expect(highlighZIndex).toBeLessThan(figureZIndex);
+    expect(figureZIndex).toBeLessThan(vScrollbarZIndex);
+    expect(vScrollbarZIndex).toEqual(hScrollbarZIndex);
+    expect(hScrollbarZIndex).toEqual(scrollbarCornerZIndex);
+    expect(scrollbarCornerZIndex).toBeLessThan(gridPopoverZIndex);
+    expect(gridPopoverZIndex).toBeLessThan(gridComposerZIndex);
+    expect(gridComposerZIndex).toBeLessThan(dropDownZIndex);
+    expect(dropDownZIndex).toBeLessThan(colorPickerZIndex);
+    expect(colorPickerZIndex).toBeLessThan(topBarComposerZIndex);
+    expect(topBarComposerZIndex).toBeLessThan(contextMenuZIndex);
+    expect(contextMenuZIndex).toBeLessThan(figureAnchorZIndex);
+
+    jest.useRealTimers();
+  });
+
+  test("Keydown is ineffective in dashboard mode", async () => {
+    ({ parent, fixture } = await mountSpreadsheet());
+    const spreadsheetKeyDown = jest.spyOn(parent, "onKeydown");
+    const spreadsheetDiv = fixture.querySelector(".o-spreadsheet")!;
+    spreadsheetDiv.dispatchEvent(new KeyboardEvent("keydown", { key: "H", ctrlKey: true }));
+    expect(spreadsheetKeyDown).toHaveBeenCalled();
+    jest.clearAllMocks();
+    parent.model.updateMode("dashboard");
+    await nextTick();
+    spreadsheetDiv.dispatchEvent(new KeyboardEvent("keydown", { key: "H", ctrlKey: true }));
+    expect(spreadsheetKeyDown).not.toHaveBeenCalled();
   });
 });
 
@@ -467,69 +538,5 @@ describe("Composer / selectionInput interactions", () => {
     await clickCell(model, "E5");
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);
     expect(model.getters.getActiveMainViewport()).toMatchObject(scrolledViewport);
-  });
-
-  test("Z-indexes of the various spreadsheet components", async () => {
-    const getZIndex = (selector: string) => Number(getElComputedStyle(selector, "zIndex")) || 0;
-    mockChart();
-
-    const gridZIndex = getZIndex(".o-grid");
-    const vScrollbarZIndex = getZIndex(".o-scrollbar.vertical");
-    const hScrollbarZIndex = getZIndex(".o-scrollbar.horizontal");
-    const scrollbarCornerZIndex = getZIndex(".o-scrollbar.corner");
-
-    triggerMouseEvent(".o-dropdown", "click");
-    await nextTick();
-    const dropDownZIndex = getZIndex(".o-dropdown-content");
-
-    await rightClickCell(model, "A1");
-    const contextMenuZIndex = getZIndex(".o-popover");
-
-    await typeInComposerGrid("=A1:B2");
-    const gridComposerZIndex = getZIndex("div.o-grid-composer");
-
-    await typeInComposerTopBar("=SUM(A1,A2)");
-    const topBarComposerZIndex = getZIndex(".o-topbar-toolbar .o-composer-container");
-
-    const highlighZIndex = getZIndex(".o-highlight");
-
-    triggerMouseEvent(".o-tool.o-dropdown.o-with-color", "click");
-    await nextTick();
-    const colorPickerZIndex = getZIndex("div.o-color-picker");
-
-    createChart(model, {}, "thisIsAnId");
-    model.dispatch("SELECT_FIGURE", { id: "thisIsAnId" });
-    await nextTick();
-    const figureZIndex = getZIndex(".o-figure-wrapper");
-    const figureAnchorZIndex = getZIndex(".o-fig-anchor");
-
-    setCellContent(model, "A1", "=SUM()");
-    await clickCell(model, "A1");
-    const gridPopoverZIndex = getZIndex(".o-popover");
-
-    expect(gridZIndex).toBeLessThan(highlighZIndex);
-    expect(highlighZIndex).toBeLessThan(figureZIndex);
-    expect(figureZIndex).toBeLessThan(vScrollbarZIndex);
-    expect(vScrollbarZIndex).toEqual(hScrollbarZIndex);
-    expect(hScrollbarZIndex).toEqual(scrollbarCornerZIndex);
-    expect(scrollbarCornerZIndex).toBeLessThan(gridPopoverZIndex);
-    expect(gridPopoverZIndex).toBeLessThan(gridComposerZIndex);
-    expect(gridComposerZIndex).toBeLessThan(dropDownZIndex);
-    expect(dropDownZIndex).toBeLessThan(colorPickerZIndex);
-    expect(colorPickerZIndex).toBeLessThan(topBarComposerZIndex);
-    expect(topBarComposerZIndex).toBeLessThan(contextMenuZIndex);
-    expect(contextMenuZIndex).toBeLessThan(figureAnchorZIndex);
-  });
-
-  test("Keydown is ineffective in dashboard mode", async () => {
-    const spreadsheetKeyDown = jest.spyOn(parent, "onKeydown");
-    const spreadsheetDiv = fixture.querySelector(".o-spreadsheet")!;
-    spreadsheetDiv.dispatchEvent(new KeyboardEvent("keydown", { key: "H", ctrlKey: true }));
-    expect(spreadsheetKeyDown).toHaveBeenCalled();
-    jest.clearAllMocks();
-    parent.model.updateMode("dashboard");
-    await nextTick();
-    spreadsheetDiv.dispatchEvent(new KeyboardEvent("keydown", { key: "H", ctrlKey: true }));
-    expect(spreadsheetKeyDown).not.toHaveBeenCalled();
   });
 });
