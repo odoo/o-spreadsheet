@@ -36,7 +36,6 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
 
   static getters = [
     "getRangeString",
-    "getSelectionRangeString",
     "getRangeFromSheetXC",
     "createAdaptedRanges",
     "getRangeDataFromXc",
@@ -319,22 +318,6 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     const rangeInterface = { prefixSheet, zone, sheetId, invalidSheetName, parts };
 
     return new RangeImpl(rangeInterface, this.getters.getSheetSize).orderZone();
-  }
-
-  /**
-   * Same as `getRangeString` but add all necessary merge to the range to make it a valid selection
-   */
-  getSelectionRangeString(range: Range, forSheetId: UID): string {
-    const rangeImpl = RangeImpl.fromRange(range, this.getters);
-    const expandedZone = this.getters.expandZone(rangeImpl.sheetId, rangeImpl.zone);
-    const expandedRange = rangeImpl.clone({
-      zone: {
-        ...expandedZone,
-        bottom: rangeImpl.isFullCol ? undefined : expandedZone.bottom,
-        right: rangeImpl.isFullRow ? undefined : expandedZone.right,
-      },
-    });
-    return this.getRangeString(expandedRange, forSheetId);
   }
 
   /**
