@@ -218,6 +218,56 @@ export function range(start: number, end: number, step = 1) {
   return array;
 }
 
+export function sequence<T>(values: Iterable<T>): Sequence<T> {
+  return new Sequence(values);
+}
+
+class Sequence<T> implements Iterable<T> {
+  constructor(private readonly values: Iterable<T>) {}
+  [Symbol.iterator](): Iterator<T, any, undefined> {
+    return this.values[Symbol.iterator]();
+  }
+
+  map<U>(mapper: (value: T) => U): Sequence<U> {
+    const values = this.values;
+    function* mappedSequence() {
+      for (const value of values) {
+        yield mapper(value);
+      }
+    }
+    return new Sequence(mappedSequence());
+  }
+
+  filter(predicate: (value: T) => boolean): Sequence<T> {
+    const values = this.values;
+    function* filteredSequence() {
+      for (const value of values) {
+        if (predicate(value)) {
+          yield value;
+        }
+      }
+    }
+    return new Sequence(filteredSequence());
+  }
+
+  find(predicate: (value: T) => boolean): T | undefined {
+    for (const value of this.values) {
+      if (predicate(value)) {
+        return value;
+      }
+    }
+    return undefined;
+  }
+
+  toArray(): T[] {
+    return [...this.values];
+  }
+
+  toSet(): Set<T> {
+    return new Set(this.values);
+  }
+}
+
 /**
  * Groups consecutive numbers.
  * The input array is assumed to be sorted
