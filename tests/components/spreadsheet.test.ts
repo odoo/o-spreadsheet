@@ -16,6 +16,7 @@ import {
   click,
   clickCell,
   getElComputedStyle,
+  hoverCell,
   rightClickCell,
   simulateClick,
 } from "../test_helpers/dom_helper";
@@ -157,6 +158,7 @@ describe("Simple Spreadsheet Component", () => {
   });
 
   test("Z-indexes of the various spreadsheet components", async () => {
+    jest.useFakeTimers();
     ({ model, fixture } = await mountSpreadsheet());
     const getZIndex = (selector: string) => Number(getElComputedStyle(selector, "zIndex")) || 0;
     mockChart();
@@ -168,6 +170,11 @@ describe("Simple Spreadsheet Component", () => {
     const dropdownEL = fixture.querySelector(".o-menu-item-button[title='Borders']")!;
     await click(dropdownEL);
     const dropDownZIndex = getZIndex(".o-dropdown-content");
+
+    setCellContent(model, "A1", "=SUM()");
+    await nextTick();
+    await hoverCell(model, "A1", 400);
+    const gridPopoverZIndex = getZIndex(".o-popover");
 
     await rightClickCell(model, "A1");
     const popoverZIndex = getZIndex(".o-popover");
@@ -191,6 +198,7 @@ describe("Simple Spreadsheet Component", () => {
     expect(vScrollbarZIndex).toEqual(hScrollbarZIndex);
     expect(hScrollbarZIndex).toEqual(scrollbarCornerZIndex);
     expect(scrollbarCornerZIndex).toBeLessThan(gridComposerZIndex);
+    expect(gridPopoverZIndex).toBeLessThan(gridComposerZIndex);
     expect(gridComposerZIndex).toBeLessThan(dropDownZIndex);
     expect(dropDownZIndex).toBeLessThan(topBarComposerZIndex);
     expect(topBarComposerZIndex).toBeLessThan(popoverZIndex);
