@@ -19,7 +19,7 @@
             t-if="isSameColor(props.currentColor, color)"
             align="center"
             t-attf-style="color:{{getCheckMarkColor()}}">
-            &#10004;
+            ✓
           </div>
         </div>
       </div>
@@ -45,7 +45,7 @@
             t-if="isSameColor(props.currentColor, color)"
             align="center"
             t-attf-style="color:{{getCheckMarkColor()}}">
-            &#10004;
+            ✓
           </div>
         </div>
       </div>
