@@ -1,5 +1,5 @@
 import { deepCopy } from "../../src/helpers";
-import { groupConsecutive, lazy, range } from "../../src/helpers/misc";
+import { groupConsecutive, lazy, range, sequence } from "../../src/helpers/misc";
 
 describe("Misc", () => {
   test("range", () => {
@@ -27,6 +27,45 @@ describe("Misc", () => {
     expect(groupConsecutive([1, 2, 4])).toEqual([[1, 2], [4]]);
     expect(groupConsecutive([-1, 0, 4])).toEqual([[-1, 0], [4]]);
     expect(groupConsecutive([4, 2, 1])).toEqual([[4], [2, 1]]);
+  });
+});
+
+describe("sequence", () => {
+  test("map", () => {
+    const seq = sequence([1, 2, 3]).map((x) => x * 2);
+    expect(seq.toArray()).toEqual([2, 4, 6]);
+  });
+  test("filter", () => {
+    const seq = sequence([1, 2, 3, 4]).filter((x) => x % 2 === 0);
+    expect(seq.toArray()).toEqual([2, 4]);
+  });
+  test("find", () => {
+    const n = sequence([1, 2, 3, 4]).find((x) => x % 2 === 0);
+    expect(n).toEqual(2);
+  });
+  test("using sets", () => {
+    const set = sequence(new Set([1, 2, 3, 4])).toSet();
+    expect(set).toEqual(new Set([1, 2, 3, 4]));
+  });
+  test("map then filter", () => {
+    const seq = sequence([1, 2, 3, 4])
+      .map((x) => x * 2)
+      .filter((x) => x > 4);
+    expect(seq.toArray()).toEqual([6, 8]);
+  });
+  test("map is lazy", () => {
+    const mapper = jest.fn((x) => x * 2);
+    const seq = sequence([1, 2, 3]).map(mapper);
+    expect(mapper).not.toHaveBeenCalled();
+    expect(seq.toArray()).toEqual([2, 4, 6]);
+    expect(mapper).toHaveBeenCalledTimes(3);
+  });
+  test("filter is lazy", () => {
+    const predicate = jest.fn((x) => x % 2 === 0);
+    const seq = sequence([1, 2, 3]).filter(predicate);
+    expect(predicate).not.toHaveBeenCalled();
+    expect(seq.toArray()).toEqual([2]);
+    expect(predicate).toHaveBeenCalledTimes(3);
   });
 });
 

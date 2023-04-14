@@ -222,6 +222,9 @@ export function sequence<T>(values: Iterable<T>): Sequence<T> {
   return new Sequence(values);
 }
 
+/**
+ * A sequence is a lazy iterable data structure that can be transformed with map and filter.
+ */
 class Sequence<T> implements Iterable<T> {
   constructor(private readonly values: Iterable<T>) {}
   [Symbol.iterator](): Iterator<T, any, undefined> {
