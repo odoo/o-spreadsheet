@@ -2,7 +2,13 @@ import { App, Component, onMounted, onWillUnmount, useSubEnv, xml } from "@odoo/
 import { Model } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { SelectionInput } from "../../src/components/selection_input/selection_input";
-import { activateSheet, createSheet, selectCell, undo } from "../test_helpers/commands_helpers";
+import {
+  activateSheet,
+  createSheet,
+  merge,
+  selectCell,
+  undo,
+} from "../test_helpers/commands_helpers";
 import {
   clickCell,
   keyDown,
@@ -187,6 +193,34 @@ describe("Selection Input", () => {
     expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe(`color: ${color};`);
     expect(fixture.querySelectorAll("input")[1].value).toBe("B5");
     expect(fixture.querySelectorAll("input")[1].getAttribute("style")).toBe(`color: ${color2};`);
+  });
+
+  test("can select full column as unbounded zone by clicking on header", async () => {
+    const { model } = await createSelectionInput();
+    model.selection.selectColumn(3, "overrideSelection");
+    await nextTick();
+    expect(fixture.querySelector("input")!.value).toBe("D:D");
+  });
+
+  test("can select full row as unbounded zone by clicking on header", async () => {
+    const { model } = await createSelectionInput();
+    model.selection.selectRow(2, "overrideSelection");
+    await nextTick();
+    expect(fixture.querySelector("input")!.value).toBe("3:3");
+  });
+
+  test("can correctly select a merged zone", async () => {
+    const { model } = await createSelectionInput();
+    merge(model, "A1:B2");
+    model.selection.selectCell(0, 0);
+    await nextTick();
+    expect(fixture.querySelector("input")!.value).toBe("A1");
+    model.selection.selectZone({
+      cell: { col: 0, row: 0 },
+      zone: { top: 0, left: 0, bottom: 1, right: 1 },
+    });
+    await nextTick();
+    expect(fixture.querySelector("input")!.value).toBe("A1");
   });
 
   test("ctrl + select cell --> add new input", async () => {

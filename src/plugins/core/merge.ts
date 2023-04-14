@@ -1,9 +1,12 @@
 import {
   clip,
+  getCanonicalSheetName,
   isDefined,
   isEqual,
   overlap,
   positions,
+  RangeImpl,
+  splitReference,
   toXC,
   toZone,
   union,
@@ -52,6 +55,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     "getMerge",
     "getMergesInZone",
     "isSingleCellOrMerge",
+    "getSelectionRangeString",
   ] as const;
 
   private nextId: number = 1;
@@ -153,6 +157,29 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     return Array.from(mergeIds)
       .map((mergeId) => this.getMergeById(sheetId, mergeId))
       .filter(isDefined);
+  }
+
+  /**
+   * Same as `getRangeString` but add all necessary merge to the range to make it a valid selection
+   */
+  getSelectionRangeString(range: Range, forSheetId: UID): string {
+    const rangeImpl = RangeImpl.fromRange(range, this.getters);
+    const expandedZone = this.getters.expandZone(rangeImpl.sheetId, rangeImpl.zone);
+    const expandedRange = rangeImpl.clone({
+      zone: {
+        ...expandedZone,
+        bottom: rangeImpl.isFullCol ? undefined : expandedZone.bottom,
+        right: rangeImpl.isFullRow ? undefined : expandedZone.right,
+      },
+    });
+    const rangeString = this.getters.getRangeString(expandedRange, forSheetId);
+    if (this.isSingleCellOrMerge(rangeImpl.sheetId, rangeImpl.zone)) {
+      const { sheetName, xc } = splitReference(rangeString);
+      return `${sheetName !== undefined ? getCanonicalSheetName(sheetName) + "!" : ""}${
+        xc.split(":")[0]
+      }`;
+    }
+    return rangeString;
   }
 
   /**
