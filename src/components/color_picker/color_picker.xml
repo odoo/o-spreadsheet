@@ -16,8 +16,8 @@
               t-if="isSameColor(props.currentColor, color)"
               align="center"
               t-attf-style="color:{{getCheckMarkColor()}}">
-            &#10004;
-          </div>
+              ✓
+            </div>
           </div>
         </div>
         <div class="o-separator"/>
@@ -42,8 +42,8 @@
               t-if="props.currentColor === color"
               align="center"
               t-attf-style="color:{{getCheckMarkColor()}}">
-            &#10004;
-          </div>
+              ✓
+            </div>
           </div>
         </div>
         <div t-if="state.showGradient" class="o-custom-selector">
