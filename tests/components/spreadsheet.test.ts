@@ -16,6 +16,7 @@ import {
 import {
   clickCell,
   getElComputedStyle,
+  hoverCell,
   rightClickCell,
   simulateClick,
   triggerMouseEvent,
@@ -160,6 +161,7 @@ describe("Simple Spreadsheet Component", () => {
   });
 
   test("Z-indexes of the various spreadsheet components", async () => {
+    jest.useFakeTimers();
     ({ model } = await mountSpreadsheet());
     const getZIndex = (selector: string) => Number(getElComputedStyle(selector, "zIndex")) || 0;
     mockChart();
@@ -192,17 +194,25 @@ describe("Simple Spreadsheet Component", () => {
     const figureZIndex = getZIndex(".o-figure-wrapper");
     const figureAnchorZIndex = getZIndex(".o-fig-anchor");
 
+    setCellContent(model, "A1", "=SUM()");
+    await nextTick();
+    await hoverCell(model, "A1", 400);
+    const gridPopoverZIndex = getZIndex(".o-popover");
+
     expect(gridZIndex).toBeLessThan(highlighZIndex);
     expect(highlighZIndex).toBeLessThan(figureZIndex);
     expect(figureZIndex).toBeLessThan(vScrollbarZIndex);
     expect(vScrollbarZIndex).toEqual(hScrollbarZIndex);
     expect(hScrollbarZIndex).toEqual(scrollbarCornerZIndex);
     expect(scrollbarCornerZIndex).toBeLessThan(gridComposerZIndex);
+    expect(gridPopoverZIndex).toBeLessThan(gridComposerZIndex);
     expect(gridComposerZIndex).toBeLessThan(dropDownZIndex);
     expect(dropDownZIndex).toBeLessThan(colorPickerZIndex);
     expect(colorPickerZIndex).toBeLessThan(topBarComposerZIndex);
     expect(topBarComposerZIndex).toBeLessThan(contextMenuZIndex);
     expect(contextMenuZIndex).toBeLessThan(figureAnchorZIndex);
+
+    jest.useRealTimers();
   });
 
   test("Keydown is ineffective in dashboard mode", async () => {
