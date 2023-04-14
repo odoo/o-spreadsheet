@@ -137,7 +137,7 @@ describe("Color Picker buttons", () => {
   test("initial standard color", async () => {
     await mountColorPicker({ currentColor: "#45818e" });
     const color = fixture.querySelector("div[data-color='#45818E']") as HTMLElement;
-    expect(color?.textContent).toBe(" ✔ ");
+    expect(color?.textContent).toBe(" ✓ ");
   });
 
   test("initial custom color", async () => {
@@ -145,7 +145,7 @@ describe("Color Picker buttons", () => {
     setStyle(model, "A1", { fillColor: "#123456" });
     await mountColorPicker({ currentColor: "#123456" }, model);
     const color = fixture.querySelector("div[data-color='#123456']") as HTMLElement;
-    expect(color?.textContent).toBe(" ✔ ");
+    expect(color?.textContent).toBe(" ✓ ");
   });
 
   test("wrong initial color", async () => {
