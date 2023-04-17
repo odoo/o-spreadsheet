@@ -51,12 +51,9 @@ export function addFormula(cell: ExcelCellData): {
   } else {
     // Shouldn't we always output the value then ?
     const value = cell.value;
-    // what if value = 0? Is this condition correct?
-    if (value) {
-      const type = getCellType(value);
-      attrs.push(["t", type]);
-      node = escapeXml/*xml*/ `<v>${value}</v>`;
-    }
+    const type = getCellType(value);
+    attrs.push(["t", type]);
+    node = escapeXml/*xml*/ `<v>${value}</v>`;
     return { attrs, node };
   }
 }
