@@ -234,7 +234,7 @@ export const POW: AddFunctionDescription = {
       base (number) ${_lt("The number to raise to the exponent power.")}
       exponent (number) ${_lt("The exponent to raise base to.")}
     `),
-  returns: ["BOOLEAN"],
+  returns: ["NUMBER"],
   compute: function (base: PrimitiveArgValue, exponent: PrimitiveArgValue): number {
     return POWER.compute(base, exponent) as number;
   },
