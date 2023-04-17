@@ -645,7 +645,7 @@ describe("Context Menu internal tests", () => {
     expect(fixture.querySelector(".o-menu div[data-name='invisible_submenu_1']")).toBeFalsy();
   });
 });
-jest.setTimeout(300000);
+
 describe("Context Menu position on large screen 1000px/1000px", () => {
   test("it renders menu on the bottom right if enough space", async () => {
     const [clickX, clickY] = await renderContextMenu(300, 300);
