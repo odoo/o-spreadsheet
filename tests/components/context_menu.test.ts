@@ -1,5 +1,5 @@
 import { Component, xml } from "@odoo/owl";
-import { Action, createActions } from "../../src/actions/action";
+import { Action, ActionSpec, createActions } from "../../src/actions/action";
 import { Menu } from "../../src/components/menu/menu";
 import {
   MENU_ITEM_HEIGHT,
@@ -861,5 +861,67 @@ describe("Context menu react to grid size changes", () => {
     menus = fixture.querySelectorAll(".o-menu");
     expect(menus[0].parentElement?.style.left).toBe(`${500 - MENU_WIDTH}px`);
     expect(menus[1]).toBeFalsy();
+  });
+});
+
+describe("Context menu separator", () => {
+  function getSimpleMenuItem(
+    name: string,
+    options?: {
+      hidden?: boolean;
+      separator?: boolean;
+    }
+  ): ActionSpec {
+    return {
+      id: name,
+      name,
+      isVisible: () => !options?.hidden,
+      separator: options?.separator,
+    };
+  }
+
+  test("Separators are displayed", async () => {
+    const menuItems = createActions([
+      getSimpleMenuItem("1", { separator: true }),
+      getSimpleMenuItem("2"),
+    ]);
+
+    await renderContextMenu(0, 0, { menuItems });
+    expect(fixture.querySelector(".o-menu")?.children[1].classList).toContain("o-separator");
+    expect(fixture.querySelectorAll(".o-menu .o-separator").length).toBe(1);
+  });
+
+  test("Separators of hidden items are displayed", async () => {
+    const menuItems = createActions([
+      getSimpleMenuItem("1"),
+      getSimpleMenuItem("2", { separator: true, hidden: true }),
+      getSimpleMenuItem("3"),
+    ]);
+
+    await renderContextMenu(0, 0, { menuItems });
+    expect(fixture.querySelector(".o-menu")?.children[1].classList).toContain("o-separator");
+    expect(fixture.querySelectorAll(".o-menu .o-separator").length).toBe(1);
+  });
+
+  test("No separator for empty menu", async () => {
+    const menuItems = createActions([getSimpleMenuItem("1", { separator: true, hidden: true })]);
+    await renderContextMenu(0, 0, { menuItems });
+    expect(fixture.querySelectorAll(".o-menu .o-separator").length).toBe(0);
+  });
+
+  test("No separator for last menu item in menu", async () => {
+    const menuItems = createActions([getSimpleMenuItem("1", { separator: true })]);
+    await renderContextMenu(0, 0, { menuItems });
+    expect(fixture.querySelectorAll(".o-menu .o-separator").length).toBe(0);
+  });
+
+  test("No separator for last visible menu item menu", async () => {
+    const menuItems = createActions([
+      getSimpleMenuItem("1", { separator: true }),
+      getSimpleMenuItem("2", { hidden: true }),
+    ]);
+
+    await renderContextMenu(0, 0, { menuItems });
+    expect(fixture.querySelectorAll(".o-menu .o-separator").length).toBe(0);
   });
 });
