@@ -350,6 +350,7 @@ const allNonExportableFormulasData = {
         A17: { content: "=UPLUS(42)" },
         A18: { content: "=AVERAGE.WEIGHTED(1,1,3,3)" },
         A19: { content: "=JOIN(1,2,3)" },
+        A20: { content: "=MULTIPLY(42,0)" },
       },
     },
   ],
@@ -615,6 +616,13 @@ describe("Test XLSX export", () => {
 
     test("All non-exportable formulas", async () => {
       const model = new Model(allNonExportableFormulasData);
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
+
+    test("Non exportable formulas are exported even with a falsy value", async () => {
+      const model = new Model({
+        sheets: [{ cells: { A1: { content: "=MULTIPLY(100,0)" }, A2: { content: "=EQ(2,4)" } } }],
+      });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
