@@ -139,6 +139,9 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
         menuItemsAndSeparators.push("separator");
       }
     }
+    if (menuItemsAndSeparators[menuItemsAndSeparators.length - 1] === "separator") {
+      menuItemsAndSeparators.pop();
+    }
     if (menuItemsAndSeparators.length === 1 && menuItemsAndSeparators[0] === "separator") {
       return [];
     }
