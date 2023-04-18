@@ -25,7 +25,7 @@
           class="o-btn o-remove-selection"
           t-if="ranges.length > 1"
           t-on-click="() => this.removeInput(range.id)">
-          ✖
+          ✕
         </button>
       </div>
 
