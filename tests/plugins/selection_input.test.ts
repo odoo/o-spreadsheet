@@ -156,6 +156,14 @@ describe("selection input plugin", () => {
     );
   });
 
+  test("Cannot add multiple ranges to a 'singleRange' input", () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, hasSingleRange: true });
+    expect(model.getters.getSelectionInput(id)).toHaveLength(1);
+    expect(
+      model.dispatch("CHANGE_RANGE", { id, rangeId: idOfRange(model, id, 0), value: "A3,A1" })
+    ).toBeCancelledBecause(CommandResult.MaximumRangesReached);
+  });
+
   test("add an empty range", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
     expect(model.getters.getSelectionInput(id).length).toBe(1);
