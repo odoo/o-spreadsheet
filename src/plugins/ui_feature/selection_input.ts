@@ -37,6 +37,11 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
     initialRanges: string[],
     private readonly inputHasSingleRange: boolean
   ) {
+    if (inputHasSingleRange && initialRanges.length > 1) {
+      throw new Error(
+        "Input with a single range cannot be instantiated with several range references."
+      );
+    }
     super(config);
     this.insertNewRange(0, initialRanges);
     this.activeSheet = this.getters.getActiveSheetId();
@@ -54,6 +59,11 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
     switch (cmd.type) {
       case "ADD_EMPTY_RANGE":
         if (this.inputHasSingleRange && this.ranges.length === 1) {
+          return CommandResult.MaximumRangesReached;
+        }
+        break;
+      case "CHANGE_RANGE":
+        if (this.inputHasSingleRange && cmd.value.split(",").length > 1) {
           return CommandResult.MaximumRangesReached;
         }
         break;

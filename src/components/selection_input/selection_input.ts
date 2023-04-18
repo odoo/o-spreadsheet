@@ -173,6 +173,10 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
+  private extractRanges(value: string): string {
+    return this.props.hasSingleRange ? value.split(",")[0] : value;
+  }
+
   focus(rangeId: string) {
     this.state.isMissing = false;
     this.state.mode = "select-range";
@@ -194,16 +198,17 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
 
   onInputChanged(rangeId: string, ev: InputEvent) {
     const target = ev.target as HTMLInputElement;
+    const value = this.extractRanges(target.value);
     this.env.model.dispatch("CHANGE_RANGE", {
       id: this.id,
       rangeId,
-      value: target.value,
+      value,
     });
     target.blur();
     this.triggerChange();
   }
 
-  disable() {
+  confirm() {
     this.env.model.dispatch("UNFOCUS_SELECTION_INPUT");
     const ranges = this.env.model.getters.getSelectionInputValue(this.id);
     if (this.props.required && ranges.length === 0) {
