@@ -9,8 +9,8 @@ import "./resize_observer.mock";
 
 export let OWL_TEMPLATES: Document;
 
-beforeAll(async () => {
-  OWL_TEMPLATES = await getParsedOwlTemplateBundle();
+beforeAll(() => {
+  OWL_TEMPLATES = getParsedOwlTemplateBundle();
   setDefaultSheetViewSize(1000);
 });
 

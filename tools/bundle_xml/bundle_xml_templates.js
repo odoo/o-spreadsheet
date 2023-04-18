@@ -7,8 +7,8 @@ const config = require("../../package.json");
 /**
  * Returns a bundle of all the xml templates, as a parsed xml Document
  */
-async function getParsedOwlTemplateBundle() {
-  const xml = await getOwlTemplatesBundle();
+function getParsedOwlTemplateBundle() {
+  const xml = getOwlTemplatesBundle();
   const parser = new DOMParser();
   const doc = parser.parseFromString(xml, "text/xml");
   return doc;
@@ -19,21 +19,21 @@ async function getParsedOwlTemplateBundle() {
  *
  * @param {boolean} removeRootTags : remove the unnecessary <templates> root tags for export to Odoo. Slightly slower.
  */
-async function getOwlTemplatesBundle(removeRootTags = false) {
+function getOwlTemplatesBundle(removeRootTags = false) {
   const srcPath = path.join(__dirname, "../../src");
-  const files = await getXmlTemplatesFiles(srcPath);
-  const templateBundle = await createOwlTemplateBundle(files, removeRootTags);
+  const files = getXmlTemplatesFiles(srcPath);
+  const templateBundle = createOwlTemplateBundle(files, removeRootTags);
   return templateBundle;
 }
 
-async function getXmlTemplatesFiles(dir) {
+function getXmlTemplatesFiles(dir) {
   let xmls = [];
-  const files = await fs.promises.readdir(dir);
-  const filesStats = await Promise.all(files.map((file) => fs.promises.stat(dir + "/" + file)));
+  const files = fs.readdirSync(dir);
+  const filesStats = files.map((file) => fs.statSync(dir + "/" + file));
   for (let i in files) {
     const name = dir + "/" + files[i];
     if (filesStats[i].isDirectory()) {
-      xmls = xmls.concat(await getXmlTemplatesFiles(name));
+      xmls = xmls.concat(getXmlTemplatesFiles(name));
     } else {
       if (name.endsWith(".xml")) {
         xmls.push(name);
@@ -43,8 +43,8 @@ async function getXmlTemplatesFiles(dir) {
   return xmls;
 }
 
-async function createOwlTemplateBundle(files, removeRootTags) {
-  const xmls = await Promise.all(files.map((file) => fs.promises.readFile(file, "utf8")));
+function createOwlTemplateBundle(files, removeRootTags) {
+  const xmls = files.map((file) => fs.readFileSync(file, "utf8"));
   let xml = xmls.join("\n");
   // individual xml files need a root tag but we can remove them in the bundle
   if (removeRootTags) {
