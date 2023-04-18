@@ -339,4 +339,10 @@ describe("Selection Input", () => {
     input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
     expect(input.value).toBe("A2");
   });
+
+  test("In 'isSingleRange' mode, capture the first part of a multi range input", async () => {
+    const { model, id } = await createSelectionInput({ hasSingleRange: true });
+    await writeInput(0, "C2,A1");
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("C2");
+  });
 });
