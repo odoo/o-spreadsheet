@@ -971,19 +971,24 @@ export class EvaluationPlugin extends UIPlugin {
     const numberOfRows = this.getters.getNumberRows(sheetId);
     const enoughCols = col + matrixResult.length <= numberOfCols;
     const enoughRows = row + matrixResult[0].length <= numberOfRows;
-    if (!enoughCols || !enoughRows) {
-      if (enoughCols) {
-        throw new Error(_lt("Result couldn't be automatically expanded. Please insert more rows."));
-      }
-      if (enoughRows) {
-        throw new Error(
-          _lt("Result couldn't be automatically expanded. Please insert more columns.")
-        );
-      }
+
+    if (enoughCols && enoughRows) {
+      return;
+    }
+
+    if (enoughCols) {
+      throw new Error(_lt("Result couldn't be automatically expanded. Please insert more rows."));
+    }
+
+    if (enoughRows) {
       throw new Error(
-        _lt("Result couldn't be automatically expanded. Please insert more columns and rows.")
+        _lt("Result couldn't be automatically expanded. Please insert more columns.")
       );
     }
+
+    throw new Error(
+      _lt("Result couldn't be automatically expanded. Please insert more columns and rows.")
+    );
   }
 
   // ---------------------------------------------------------------------------
