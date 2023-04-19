@@ -256,7 +256,12 @@ export const LOOKUP: AddFunctionDescription = {
       rangeLength,
       getElement
     );
-    assertAvailable(searchArray[0][index], searchKey);
+
+    if (index === -1) assertAvailable(undefined, searchKey);
+
+    verticalSearch
+      ? assertAvailable(searchArray[0][index], searchKey)
+      : assertAvailable(searchArray[index][nbRow - 1], searchKey);
 
     if (resultRange === undefined) {
       return (
