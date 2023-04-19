@@ -589,7 +589,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       }
     }
     data.revisionId = this.session.getRevisionId() || DEFAULT_REVISION_ID;
-    data = JSON.parse(JSON.stringify(data));
+    data = deepCopy(data);
     return data;
   }
 
@@ -619,7 +619,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         handler.exportForExcel(data);
       }
     }
-    data = JSON.parse(JSON.stringify(data));
+    data = deepCopy(data);
 
     return getXLSX(data);
   }
