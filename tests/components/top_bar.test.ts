@@ -111,11 +111,15 @@ describe("TopBar component", () => {
     await click(fixture, ".o-menu-item-button[title='Borders']");
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
     expect(fixture.querySelectorAll(".o-menu-item-button[title='All borders']").length).toBe(1);
-    expect(fixture.querySelectorAll(".o-menu-item-button[title='Left']").length).toBe(0);
+    expect(
+      fixture.querySelectorAll(".o-menu-item-button[title='Left (Ctrl+Shift+L)']").length
+    ).toBe(0);
     await click(fixture, ".o-menu-item-button[title='Horizontal align']");
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
     expect(fixture.querySelectorAll(".o-menu-item-button[title='All borders']").length).toBe(0);
-    expect(fixture.querySelectorAll(".o-menu-item-button[title='Left']").length).toBe(1);
+    expect(
+      fixture.querySelectorAll(".o-menu-item-button[title='Left (Ctrl+Shift+L)']").length
+    ).toBe(1);
   });
 
   test("Menu should be closed while clicking on composer", async () => {
@@ -276,7 +280,9 @@ describe("TopBar component", () => {
     });
     expect(getBorder(model, "B1")).toBeDefined();
     await mountParent(model);
-    const clearFormatTool = fixture.querySelector('.o-menu-item-button[title="Clear formatting"]')!;
+    const clearFormatTool = fixture.querySelector(
+      '.o-menu-item-button[title="Clear formatting (Ctrl+<)"]'
+    )!;
     await click(clearFormatTool);
     expect(getCell(model, "B1")).toBeUndefined();
   });
@@ -309,9 +315,9 @@ describe("TopBar component", () => {
 
   describe("horizontal align", () => {
     test.each([
-      ["Left", { align: "left" }],
-      ["Center", { align: "center" }],
-      ["Right", { align: "right" }],
+      ["Left (Ctrl+Shift+L)", { align: "left" }],
+      ["Center (Ctrl+Shift+E)", { align: "center" }],
+      ["Right (Ctrl+Shift+R)", { align: "right" }],
     ])("can set horizontal alignment '%s' with the toolbar", async (iconTitle, expectedStyle) => {
       const { model } = await mountParent();
       await click(fixture, '.o-menu-item-button[title="Horizontal align"]');
@@ -319,11 +325,11 @@ describe("TopBar component", () => {
       expect(model.getters.getCurrentStyle()).toEqual(expectedStyle);
     });
     test.each([
-      ["text", {}, "Left"],
-      ["0", {}, "Right"],
-      ["0", { align: "left" }, "Left"],
-      ["0", { align: "center" }, "Center"],
-      ["0", { align: "right" }, "Right"],
+      ["text", {}, "Left (Ctrl+Shift+L)"],
+      ["0", {}, "Right (Ctrl+Shift+R)"],
+      ["0", { align: "left" }, "Left (Ctrl+Shift+L)"],
+      ["0", { align: "center" }, "Center (Ctrl+Shift+E)"],
+      ["0", { align: "right" }, "Right (Ctrl+Shift+R)"],
     ])(
       "alignment icon options in top bar matches the selected cell (content: %s, style: %s)",
       async (content, style, expectedTitleActive) => {

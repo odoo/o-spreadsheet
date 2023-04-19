@@ -148,6 +148,7 @@ export const formatAlignmentHorizontal: ActionSpec = {
 
 export const formatAlignmentLeft: ActionSpec = {
   name: _lt("Left"),
+  description: "Ctrl+Shift+L",
   execute: (env) => ACTIONS.setStyle(env, { align: "left" }),
   isActive: (env) => getHorizontalAlign(env) === "left",
   icon: "o-spreadsheet-Icon.ALIGN_LEFT",
@@ -155,6 +156,7 @@ export const formatAlignmentLeft: ActionSpec = {
 
 export const formatAlignmentCenter: ActionSpec = {
   name: _lt("Center"),
+  description: "Ctrl+Shift+E",
   execute: (env) => ACTIONS.setStyle(env, { align: "center" }),
   isActive: (env) => getHorizontalAlign(env) === "center",
   icon: "o-spreadsheet-Icon.ALIGN_CENTER",
@@ -162,6 +164,7 @@ export const formatAlignmentCenter: ActionSpec = {
 
 export const formatAlignmentRight: ActionSpec = {
   name: _lt("Right"),
+  description: "Ctrl+Shift+R",
   execute: (env) => ACTIONS.setStyle(env, { align: "right" }),
   isActive: (env) => getHorizontalAlign(env) === "right",
   icon: "o-spreadsheet-Icon.ALIGN_RIGHT",
@@ -249,6 +252,7 @@ export const paintFormat: ActionSpec = {
 
 export const clearFormat: ActionSpec = {
   name: _lt("Clear formatting"),
+  description: "Ctrl+<",
   execute: ACTIONS.FORMAT_CLEARFORMAT_ACTION,
   icon: "o-spreadsheet-Icon.CLEAR_FORMAT",
 };

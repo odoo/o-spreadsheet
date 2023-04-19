@@ -10,9 +10,10 @@ import {
   MESSAGE_VERSION,
   SCROLLBAR_WIDTH,
 } from "../../src/constants";
-import { toCartesian, toHex, toZone, zoneToXc } from "../../src/helpers";
+import { buildSheetLink, toCartesian, toHex, toZone, zoneToXc } from "../../src/helpers";
+import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
-import { HeaderDimensions, UID } from "../../src/types";
+import { Align, HeaderDimensions, UID } from "../../src/types";
 import { getClipboardEvent, MockClipboardData } from "../test_helpers/clipboard";
 import {
   copy,
@@ -27,6 +28,8 @@ import {
   merge,
   resizeRows,
   selectCell,
+  selectColumn,
+  selectRow,
   setCellContent,
   setSelection,
   setStyle,
@@ -52,7 +55,14 @@ import {
   getSelectionAnchorCellXc,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import { getStylePropertyInPx, mountSpreadsheet, nextTick, Touch } from "../test_helpers/helpers";
+import {
+  getStylePropertyInPx,
+  mountSpreadsheet,
+  nextTick,
+  target,
+  Touch,
+} from "../test_helpers/helpers";
+import { FileStore } from "../__mocks__/mock_file_store";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { mockChart } from "./__mocks__/chart";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
@@ -411,6 +421,108 @@ describe("Grid component", () => {
       expect(getStyle(model, "A1")).toEqual({ italic: false });
     });
 
+    test("open inserting image window with CTRL+O", async () => {
+      const fileStore = new FileStore();
+      const data = createEmptyWorkbookData();
+      const { env } = await mountSpreadsheet({
+        model: new Model(data, {
+          external: { fileStore },
+        }),
+      });
+
+      const requestImage = jest.spyOn(env.imageProvider!, "requestImage");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "O", ctrlKey: true, bubbles: true })
+      );
+      await nextTick();
+      expect(requestImage).toHaveBeenCalled();
+    });
+
+    test("set left align with Ctrl+SHIFT+L", async () => {
+      setCellContent(model, "A1", "hello");
+      expect(getCell(model, "A1")!.style).toBeUndefined();
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "L", ctrlKey: true, shiftKey: true, bubbles: true })
+      );
+      await nextTick();
+      expect(getCell(model, "A1")!.style).toEqual({ align: "left" });
+    });
+
+    test("set center align with Ctrl+SHIFT+E", async () => {
+      setCellContent(model, "A1", "hello");
+      expect(getCell(model, "A1")!.style).toBeUndefined();
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "E", ctrlKey: true, shiftKey: true, bubbles: true })
+      );
+      await nextTick();
+      expect(getCell(model, "A1")!.style).toEqual({ align: "center" });
+    });
+
+    test("set right align with Ctrl+SHIFT+R", async () => {
+      setCellContent(model, "A1", "hello");
+      expect(getCell(model, "A1")!.style).toBeUndefined();
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "R", ctrlKey: true, shiftKey: true, bubbles: true })
+      );
+      await nextTick();
+      expect(getCell(model, "A1")!.style).toEqual({ align: "right" });
+    });
+
+    test("clean formatting with CTRL+SHIFT+<", async () => {
+      const style = { fillColor: "red", align: "right" as Align, bold: true };
+      setCellContent(model, "A1", "hello");
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
+        style,
+      });
+      expect(getCell(model, "A1")!.style).toEqual(style);
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "<", ctrlKey: true, shiftKey: true, bubbles: true })
+      );
+      await nextTick();
+      expect(getCell(model, "A1")!.style).toBeUndefined();
+    });
+
+    test("clean formatting with CTRL+<", async () => {
+      const style = { fillColor: "red", align: "right" as Align, bold: true };
+      setCellContent(model, "A1", "hello");
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
+        style,
+      });
+      expect(getCell(model, "A1")!.style).toEqual(style);
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "<", ctrlKey: true, bubbles: true })
+      );
+      await nextTick();
+      expect(getCell(model, "A1")!.style).toBeUndefined();
+    });
+
+    test("open a web link with ALT+ENTER", async () => {
+      const windowOpen = jest.spyOn(window, "open").mockImplementation();
+      setCellContent(model, "A1", "[label](url.com)");
+      selectCell(model, "A1");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Enter", altKey: true, bubbles: true })
+      );
+      expect(windowOpen).toHaveBeenCalledWith("https://url.com", "_blank");
+    });
+
+    test("open a sheet link with ALT+ENTER", async () => {
+      const sheetId = "42";
+      createSheet(model, { sheetId });
+      setCellContent(model, "A1", `[label](${buildSheetLink(sheetId)})`);
+      expect(model.getters.getActiveSheetId()).not.toBe(sheetId);
+
+      selectCell(model, "A1");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Enter", altKey: true, bubbles: true })
+      );
+      expect(model.getters.getActiveSheetId()).toBe(sheetId);
+    });
+
     test("can automatically sum with ALT+=", async () => {
       setCellContent(model, "B2", "2");
       selectCell(model, "B5");
@@ -561,6 +673,184 @@ describe("Grid component", () => {
         new KeyboardEvent("keydown", { key: " ", ctrlKey: true, shiftKey: true, bubbles: true })
       );
       expect(model.getters.getSelectedZone()).toEqual(toZone("A1:Z100"));
+    });
+
+    test("Pressing CTRL+ALT+= when a column is selected inserts a column left", () => {
+      const activeSheetId = model.getters.getActiveSheetId();
+      const numOfCols = model.getters.getNumberCols(activeSheetId);
+      setCellContent(model, "A1", "hello");
+      selectColumn(model, 0, "overrideSelection");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
+      );
+      expect(model.getters.getNumberCols(activeSheetId)).toEqual(numOfCols + 1);
+      expect(getSelectionAnchorCellXc(model)).toBe("B1");
+      expect(getCellContent(model, "A1")).toBe("");
+      expect(getCellContent(model, "B1")).toBe("hello");
+    });
+
+    test("Pressing CTRL+ALT+= when multiple columns are selected as one group inserts the same number of columns left", () => {
+      const activeSheetId = model.getters.getActiveSheetId();
+      const numOfCols = model.getters.getNumberCols(activeSheetId);
+      setCellContent(model, "A1", "hello");
+      selectColumn(model, 0, "overrideSelection");
+      selectColumn(model, 1, "updateAnchor");
+      selectColumn(model, 2, "updateAnchor");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
+      );
+      expect(model.getters.getNumberCols(activeSheetId)).toEqual(numOfCols + 3);
+      expect(getSelectionAnchorCellXc(model)).toBe("D1");
+      expect(getCellContent(model, "A1")).toBe("");
+      expect(getCellContent(model, "D1")).toBe("hello");
+    });
+
+    test("Pressing CTRL+ALT+= when multiple columns are selected as multiple groups won't insert columns left", () => {
+      const activeSheetId = model.getters.getActiveSheetId();
+      const numOfCols = model.getters.getNumberCols(activeSheetId);
+      setCellContent(model, "A1", "hello");
+      selectColumn(model, 0, "overrideSelection");
+      selectColumn(model, 1, "newAnchor");
+      selectColumn(model, 2, "newAnchor");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
+      );
+      expect(model.getters.getNumberCols(activeSheetId)).toEqual(numOfCols);
+    });
+
+    test("Pressing CTRL+ALT+= when a row is selected inserts a row above", () => {
+      const activeSheetId = model.getters.getActiveSheetId();
+      const numOfRows = model.getters.getNumberRows(activeSheetId);
+      setCellContent(model, "A1", "hello");
+      selectRow(model, 0, "overrideSelection");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
+      );
+      expect(model.getters.getNumberRows(activeSheetId)).toEqual(numOfRows + 1);
+      expect(getSelectionAnchorCellXc(model)).toBe("A2");
+      expect(getCellContent(model, "A1")).toBe("");
+      expect(getCellContent(model, "A2")).toBe("hello");
+    });
+
+    test("Pressing CTRL+ALT+= when multiple rows are selected as one group inserts the same number of rows above", () => {
+      const activeSheetId = model.getters.getActiveSheetId();
+      const numOfRows = model.getters.getNumberRows(activeSheetId);
+      setCellContent(model, "A1", "hello");
+      selectRow(model, 0, "overrideSelection");
+      selectRow(model, 1, "updateAnchor");
+      selectRow(model, 2, "updateAnchor");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
+      );
+      expect(model.getters.getNumberRows(activeSheetId)).toEqual(numOfRows + 3);
+      expect(getSelectionAnchorCellXc(model)).toBe("A4");
+      expect(getCellContent(model, "A1")).toBe("");
+      expect(getCellContent(model, "A4")).toBe("hello");
+    });
+
+    test("Pressing CTRL+ALT+= when multiple rows are selected as multiple groups won't insert rows above", () => {
+      const activeSheetId = model.getters.getActiveSheetId();
+      const numOfRows = model.getters.getNumberRows(activeSheetId);
+      setCellContent(model, "A1", "hello");
+      selectRow(model, 0, "overrideSelection");
+      selectRow(model, 1, "newAnchor");
+      selectRow(model, 2, "newAnchor");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
+      );
+      expect(model.getters.getNumberRows(activeSheetId)).toEqual(numOfRows);
+    });
+
+    test("Pressing CTRL+ALT+= when both row(s) and column(s) are selected will not work", () => {
+      const activeSheetId = model.getters.getActiveSheetId();
+      const numOfRows = model.getters.getNumberRows(activeSheetId);
+      const numOfCols = model.getters.getNumberCols(activeSheetId);
+      setCellContent(model, "A1", "hello");
+      selectRow(model, 0, "overrideSelection");
+      selectColumn(model, 2, "newAnchor");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
+      );
+      expect(model.getters.getNumberRows(activeSheetId)).toEqual(numOfRows);
+      expect(model.getters.getNumberCols(activeSheetId)).toEqual(numOfCols);
+      expect(getSelectionAnchorCellXc(model)).toBe("C1");
+      expect(getCellContent(model, "A1")).toBe("hello");
+    });
+
+    test("Pressing CTRL+ALT+- when a column is selected deletes this column", () => {
+      const activeSheetId = model.getters.getActiveSheetId();
+      const numOfCols = model.getters.getNumberCols(activeSheetId);
+      setCellContent(model, "A1", "hello1");
+      setCellContent(model, "B1", "hello2");
+      setCellContent(model, "C1", "hello3");
+      selectColumn(model, 1, "overrideSelection");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "-", ctrlKey: true, altKey: true, bubbles: true })
+      );
+      expect(model.getters.getNumberCols(activeSheetId)).toEqual(numOfCols - 1);
+      expect(getCellContent(model, "A1")).toBe("hello1");
+      expect(getCellContent(model, "B1")).toBe("hello3");
+    });
+
+    test("Pressing CTRL+ALT+- when multiple columns are selected deletes these column", () => {
+      const activeSheetId = model.getters.getActiveSheetId();
+      const numOfCols = model.getters.getNumberCols(activeSheetId);
+      setCellContent(model, "A1", "hello1");
+      setCellContent(model, "B1", "hello2");
+      setCellContent(model, "C1", "hello3");
+      selectColumn(model, 0, "overrideSelection");
+      selectColumn(model, 2, "newAnchor");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "-", ctrlKey: true, altKey: true, bubbles: true })
+      );
+      expect(model.getters.getNumberCols(activeSheetId)).toEqual(numOfCols - 2);
+      expect(getCellContent(model, "A1")).toBe("hello2");
+    });
+
+    test("Pressing CTRL+ALT+- when a row is selected deletes this row", () => {
+      const activeSheetId = model.getters.getActiveSheetId();
+      const numOfRows = model.getters.getNumberRows(activeSheetId);
+      setCellContent(model, "A1", "hello1");
+      setCellContent(model, "A2", "hello2");
+      setCellContent(model, "A3", "hello3");
+      selectRow(model, 1, "overrideSelection");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "-", ctrlKey: true, altKey: true, bubbles: true })
+      );
+      expect(model.getters.getNumberRows(activeSheetId)).toEqual(numOfRows - 1);
+      expect(getCellContent(model, "A1")).toBe("hello1");
+      expect(getCellContent(model, "A2")).toBe("hello3");
+    });
+
+    test("Pressing CTRL+ALT+- when multiple rows are selected deletes these rows", () => {
+      const activeSheetId = model.getters.getActiveSheetId();
+      const numOfRows = model.getters.getNumberRows(activeSheetId);
+      setCellContent(model, "A1", "hello1");
+      setCellContent(model, "A2", "hello2");
+      setCellContent(model, "A3", "hello3");
+      selectRow(model, 0, "overrideSelection");
+      selectRow(model, 2, "newAnchor");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "-", ctrlKey: true, altKey: true, bubbles: true })
+      );
+      expect(model.getters.getNumberRows(activeSheetId)).toEqual(numOfRows - 2);
+      expect(getCellContent(model, "A1")).toBe("hello2");
+    });
+
+    test("Pressing CTRL+ALT+- when both row(s) and column(s) are selected will not work", () => {
+      const activeSheetId = model.getters.getActiveSheetId();
+      const numOfRows = model.getters.getNumberRows(activeSheetId);
+      const numOfCols = model.getters.getNumberCols(activeSheetId);
+      setCellContent(model, "A1", "hello");
+      selectRow(model, 0, "overrideSelection");
+      selectColumn(model, 2, "newAnchor");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "-", ctrlKey: true, altKey: true, bubbles: true })
+      );
+      expect(model.getters.getNumberRows(activeSheetId)).toEqual(numOfRows);
+      expect(model.getters.getNumberCols(activeSheetId)).toEqual(numOfCols);
+      expect(getSelectionAnchorCellXc(model)).toBe("C1");
+      expect(getCellContent(model, "A1")).toBe("hello");
     });
 
     test("Pressing Shift+PageDown activates the next sheet", () => {
@@ -1462,6 +1752,30 @@ describe("Copy paste keyboard shortcut", () => {
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     expect(getCellContent(model, "A1")).toEqual("");
     expect(getCellContent(model, "A2")).toEqual("things");
+  });
+
+  test("can paste value only with CTRL+SHIFT+V", async () => {
+    const content = "things";
+    setCellContent(model, "A1", content);
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: target("A1"),
+      style: { fillColor: "red", align: "right", bold: true },
+    });
+    selectCell(model, "A1");
+    document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
+    // Fake OS clipboard should have the same content
+    // to make paste come from spreadsheet clipboard
+    // which support paste values only
+    parent.env.clipboard.writeText(content);
+    selectCell(model, "A2");
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "V", ctrlKey: true, bubbles: true, shiftKey: true })
+    );
+    await nextTick();
+
+    expect(getCellContent(model, "A2")).toEqual(content);
+    expect(getCell(model, "A2")!.style).toBeUndefined();
   });
 
   test("Clipboard visible zones (copy) will be cleaned after hitting esc", async () => {

@@ -83,6 +83,7 @@ export const insertChart: ActionSpec = {
 
 export const insertImage: ActionSpec = {
   name: _lt("Image"),
+  description: "Ctrl+O",
   execute: ACTIONS.CREATE_IMAGE,
   isVisible: (env) => env.imageProvider !== undefined,
 };
