@@ -4,7 +4,7 @@ import {
   FORBIDDEN_IN_EXCEL_REGEX,
   FORMULA_REF_IDENTIFIER,
 } from "../constants";
-import { getItemId, toXC, toZone, UuidGenerator } from "../helpers/index";
+import { deepCopy, getItemId, toXC, toZone, UuidGenerator } from "../helpers/index";
 import { StateUpdateMessage } from "../types/collaborative/transport_service";
 import {
   CoreCommand,
@@ -46,7 +46,7 @@ export function load(data?: any, verboseImport?: boolean): WorkbookData {
       }
     }
   }
-  data = JSON.parse(JSON.stringify(data));
+  data = deepCopy(data);
 
   // apply migrations, if needed
   if ("version" in data) {
