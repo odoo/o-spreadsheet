@@ -132,7 +132,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           
           <span
             class="o-menu-item-button o-topbar-hoverable"
-            title="Clear formatting"
+            title="Clear formatting (Ctrl+<)"
           >
             <span
               style=""

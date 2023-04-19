@@ -7,7 +7,13 @@ import {
   useRef,
   useState,
 } from "@odoo/owl";
-import { INSERT_LINK } from "../../actions/menu_items_actions";
+import {
+  CREATE_IMAGE,
+  INSERT_COLUMNS_BEFORE_ACTION,
+  INSERT_LINK,
+  INSERT_ROWS_BEFORE_ACTION,
+  PASTE_VALUE_ACTION,
+} from "../../actions/menu_items_actions";
 import {
   AUTOFILL_EDGE_LENGTH,
   HEADER_HEIGHT,
@@ -15,6 +21,7 @@ import {
   SCROLLBAR_WIDTH,
 } from "../../constants";
 import { isInside } from "../../helpers/index";
+import { openLink } from "../../helpers/links";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
 import { interactivePaste, interactivePasteFromOS } from "../../helpers/ui/paste_interactive";
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
@@ -23,6 +30,7 @@ import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
 import { _lt } from "../../translation";
 import {
+  Align,
   CellValueType,
   Client,
   ClipboardMIMEType,
@@ -223,6 +231,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         target: this.env.model.getters.getSelectedZones(),
         style: { underline: !this.env.model.getters.getCurrentStyle().underline },
       }),
+    "CTRL+O": () => CREATE_IMAGE(this.env),
     "ALT+=": () => {
       const sheetId = this.env.model.getters.getActiveSheetId();
 
@@ -239,6 +248,12 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         this.props.onGridComposerCellFocused(formula, { start: 5, end: 5 + zoneXc.length });
       } else {
         this.env.model.dispatch("SUM_SELECTION");
+      }
+    },
+    "ALT+ENTER": () => {
+      const cell = this.env.model.getters.getActiveCell();
+      if (cell.link) {
+        openLink(cell.link, this.env);
       }
     },
     "CTRL+HOME": () => {
@@ -286,8 +301,43 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       const position = this.env.model.getters.getActivePosition();
       this.env.model.selection.selectZone({ cell: position, zone: newZone });
     },
+    "CTRL+SHIFT+E": () => this.setHorizontalAlign("center"),
+    "CTRL+SHIFT+L": () => this.setHorizontalAlign("left"),
+    "CTRL+SHIFT+R": () => this.setHorizontalAlign("right"),
+    "CTRL+SHIFT+V": () => PASTE_VALUE_ACTION(this.env),
+    "CTRL+SHIFT+<": () => this.clearFormatting(), // for qwerty
+    "CTRL+<": () => this.clearFormatting(), // for azerty
     "CTRL+SHIFT+ ": () => {
       this.env.model.selection.selectAll();
+    },
+    "CTRL+ALT+=": () => {
+      const activeCols = this.env.model.getters.getActiveCols();
+      const activeRows = this.env.model.getters.getActiveRows();
+      const isSingleSelection = this.env.model.getters.getSelectedZones().length === 1;
+      const areFullCols = activeCols.size > 0 && isSingleSelection;
+      const areFullRows = activeRows.size > 0 && isSingleSelection;
+      if (areFullCols && !areFullRows) {
+        INSERT_COLUMNS_BEFORE_ACTION(this.env);
+      } else if (areFullRows && !areFullCols) {
+        INSERT_ROWS_BEFORE_ACTION(this.env);
+      }
+    },
+    "CTRL+ALT+-": () => {
+      const columns = [...this.env.model.getters.getActiveCols()];
+      const rows = [...this.env.model.getters.getActiveRows()];
+      if (columns.length > 0 && rows.length === 0) {
+        this.env.model.dispatch("REMOVE_COLUMNS_ROWS", {
+          sheetId: this.env.model.getters.getActiveSheetId(),
+          dimension: "COL",
+          elements: columns,
+        });
+      } else if (rows.length > 0 && columns.length === 0) {
+        this.env.model.dispatch("REMOVE_COLUMNS_ROWS", {
+          sheetId: this.env.model.getters.getActiveSheetId(),
+          dimension: "ROW",
+          elements: rows,
+        });
+      }
     },
     "SHIFT+PAGEDOWN": () => {
       this.env.model.dispatch("ACTIVATE_NEXT_SHEET");
@@ -581,6 +631,21 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   private displayWarningCopyPasteNotSupported() {
     this.env.raiseError(_lt("Copy/Paste is not supported in this browser."));
+  }
+
+  private clearFormatting() {
+    this.env.model.dispatch("CLEAR_FORMATTING", {
+      sheetId: this.env.model.getters.getActiveSheetId(),
+      target: this.env.model.getters.getSelectedZones(),
+    });
+  }
+
+  private setHorizontalAlign(align: Align) {
+    this.env.model.dispatch("SET_FORMATTING", {
+      sheetId: this.env.model.getters.getActiveSheetId(),
+      target: this.env.model.getters.getSelectedZones(),
+      style: { align },
+    });
   }
 
   closeMenu() {
