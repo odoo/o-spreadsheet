@@ -1,4 +1,5 @@
 import { DEFAULT_REVISION_ID } from "../../src/constants";
+import { deepCopy } from "../../src/helpers";
 import { UID, WorkbookData } from "../../src/types";
 import {
   CollaborationMessage,
@@ -18,7 +19,7 @@ export class MockTransportService implements TransportService<CollaborationMessa
   }
 
   sendMessage(message: CollaborationMessage) {
-    const msg: CollaborationMessage = JSON.parse(JSON.stringify(message));
+    const msg: CollaborationMessage = deepCopy(message);
     switch (msg.type) {
       case "REMOTE_REVISION":
       case "REVISION_UNDONE":
@@ -62,7 +63,7 @@ export class MockTransportService implements TransportService<CollaborationMessa
 
   notifyListeners(message: CollaborationMessage) {
     for (const { callback } of this.listeners) {
-      callback(JSON.parse(JSON.stringify(message)));
+      callback(deepCopy(message));
     }
   }
 
