@@ -1,6 +1,7 @@
 import { FORBIDDEN_IN_EXCEL_REGEX } from "../../constants";
 import {
   createDefaultRows,
+  deepCopy,
   getUnquotedSheetName,
   groupConsecutive,
   isDefined,
@@ -669,7 +670,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   private duplicateSheet(fromId: UID, toId: UID) {
     const sheet = this.getSheet(fromId);
     const toName = this.getDuplicateSheetName(sheet.name);
-    const newSheet: Sheet = JSON.parse(JSON.stringify(sheet));
+    const newSheet: Sheet = deepCopy(sheet);
     newSheet.id = toId;
     newSheet.name = toName;
     for (let col = 0; col <= newSheet.numberOfCols; col++) {
