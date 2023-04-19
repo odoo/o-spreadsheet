@@ -1,4 +1,4 @@
-import { DATETIME_FORMAT } from "../constants";
+import { isDateTimeFormat } from "../helpers";
 import { evaluateLiteral } from "../helpers/cells";
 import { AutofillModifier, Cell, CellValueType } from "../types/index";
 import { EvaluatedCell } from "./../types/cells";
@@ -79,7 +79,9 @@ function calculateIncrementBasedOnGroup(group: number[]) {
 autofillRulesRegistry
   .add("simple_value_copy", {
     condition: (cell: Cell, cells: (Cell | undefined)[]) => {
-      return cells.length === 1 && !cell.isFormula && !cell.format?.match(DATETIME_FORMAT);
+      return (
+        cells.length === 1 && !cell.isFormula && !(cell.format && isDateTimeFormat(cell.format))
+      );
     },
     generateRule: () => {
       return { type: "COPY_MODIFIER" };

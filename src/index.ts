@@ -101,7 +101,7 @@ import { CellErrorLevel, EvaluationError } from "./types/errors";
 export const __info__ = {};
 export { Revision } from "./collaborative/revisions";
 export { Spreadsheet } from "./components/index";
-export { DATETIME_FORMAT, setDefaultSheetViewSize } from "./constants";
+export { setDefaultSheetViewSize } from "./constants";
 export { compile, functionCache } from "./formulas/compiler";
 export { astToFormula, convertAstNodes, parse } from "./formulas/parser";
 export { tokenize } from "./formulas/tokenizer";

@@ -1,5 +1,10 @@
-import { DATETIME_FORMAT } from "../../constants";
-import { changeDecimalPlaces, createDefaultFormat, positions, positionToZone } from "../../helpers";
+import {
+  changeDecimalPlaces,
+  createDefaultFormat,
+  isDateTimeFormat,
+  positions,
+  positionToZone,
+} from "../../helpers";
 import {
   CellPosition,
   CellValueType,
@@ -65,7 +70,7 @@ export class FormatPlugin extends UIPlugin {
       const cell = this.getters.getEvaluatedCell(pos);
       if (
         cell.type === CellValueType.number &&
-        !cell.format?.match(DATETIME_FORMAT) // reject dates
+        !(cell.format && isDateTimeFormat(cell.format)) // reject dates
       ) {
         return cell.format || createDefaultFormat(cell.value);
       }

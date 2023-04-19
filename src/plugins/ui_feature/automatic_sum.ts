@@ -1,6 +1,6 @@
-import { DATETIME_FORMAT } from "../../constants";
 import {
   groupConsecutive,
+  isDateTimeFormat,
   isInside,
   isOneDimensional,
   positions,
@@ -205,7 +205,7 @@ export class AutomaticSumPlugin extends UIPlugin {
   }
 
   private isNumber(cell: EvaluatedCell): boolean {
-    return cell.type === CellValueType.number && !cell.format?.match(DATETIME_FORMAT);
+    return cell.type === CellValueType.number && !(cell.format && isDateTimeFormat(cell.format));
   }
 
   private isZoneValid(zone: Zone): boolean {
