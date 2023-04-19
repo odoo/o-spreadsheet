@@ -204,6 +204,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     "CTRL+A": () => this.env.model.selection.loopSelection(),
     "CTRL+Z": () => this.env.model.dispatch("REQUEST_UNDO"),
     "CTRL+Y": () => this.env.model.dispatch("REQUEST_REDO"),
+    F4: () => this.env.model.dispatch("REQUEST_REDO"),
     "CTRL+B": () =>
       this.env.model.dispatch("SET_FORMATTING", {
         sheetId: this.env.model.getters.getActiveSheetId(),

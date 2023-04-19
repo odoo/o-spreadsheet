@@ -314,7 +314,10 @@ describe("Grid component", () => {
       expect(getSelectionAnchorCellXc(model)).toBe("A1");
     });
 
-    test("can undo/redo with keyboard", async () => {
+    test.each([
+      { key: "F4", ctrlKey: false },
+      { key: "Y", ctrlKey: true },
+    ])("can undo/redo with keyboard CTRL+Z/%s", async (redoKey) => {
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
         target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
@@ -327,7 +330,7 @@ describe("Grid component", () => {
       expect(getCell(model, "A1")).toBeUndefined();
       await nextTick();
       document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "y", ctrlKey: true, bubbles: true })
+        new KeyboardEvent("keydown", { ...redoKey, bubbles: true })
       );
       expect(getCell(model, "A1")!.style).toBeDefined();
     });
