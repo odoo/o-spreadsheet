@@ -102,6 +102,40 @@ describe("LOOKUP formula", () => {
   test("Accents and uppercase are ignored", () => {
     expect(evaluateCell("A1", { A1: '=LOOKUP("epee", B1)', B1: "Épée" })).toBe("Épée");
   });
+
+  test("Horizontal search in LOOKUP function with and without result range", () => {
+    const grid = {
+      A1: "1",
+      B1: "2",
+      C1: "3",
+      A2: "4",
+      B2: "5",
+      C2: "6",
+      D1: "=LOOKUP(C1, A1:C1)",
+      D2: "=LOOKUP(3, A1:C1)",
+      D3: "=LOOKUP(C1, A1:C1, A2:C2)",
+    };
+
+    const evaluatedGrid = evaluateGrid(grid);
+    expect(evaluatedGrid.D1).toBe(3);
+    expect(evaluatedGrid.D2).toBe(3);
+    expect(evaluatedGrid.D3).toBe(6);
+  });
+
+  test("Horizontal search in LOOKUP function without result range in multiple rows", () => {
+    const grid = {
+      A1: "1",
+      B1: "2",
+      C1: "3",
+      A2: "A",
+      B2: "B",
+      C2: "C",
+      D1: "=LOOKUP(3, A1:C2)",
+    };
+
+    const evaluatedGrid = evaluateGrid(grid);
+    expect(evaluatedGrid.D1).toBe("C");
+  });
 });
 
 describe("MATCH formula", () => {
