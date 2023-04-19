@@ -800,11 +800,14 @@ export class EvaluationPlugin extends UIPlugin {
     let currentCycle = 0;
     while (nextRcsToUpdate.size && currentCycle < this.maxIteration) {
       extendSet(currentRcsToUpdate, nextRcsToUpdate);
+      const arr = Array.from(currentRcsToUpdate);
       nextRcsToUpdate.clear();
-      while (currentRcsToUpdate.size) {
-        const [cell] = currentRcsToUpdate;
+      for (let i = 0; i < arr.length; ++i) {
+        const cell = arr[i];
+        if (!currentRcsToUpdate.has(cell)) continue;
         setEvaluatedCell(cell, computeCell(cell));
       }
+
       ++currentCycle;
     }
   }
