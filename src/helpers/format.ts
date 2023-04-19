@@ -1,4 +1,3 @@
-import { DATETIME_FORMAT } from "../constants";
 import { _lt } from "../translation";
 import { CellValue, Format, FormattedValue } from "../types";
 import { INITIAL_1900_DAY, numberToJsDate, parseDateTime } from "./dates";
@@ -342,6 +341,10 @@ export function numberToString(number: number): string {
  * Check if the given format is a time, date or date time format.
  */
 export function isDateTimeFormat(format: Format) {
+  if (!allowedDateTimeFormatFirstChar.has(format[0])) {
+    // first check for performance reason
+    return false;
+  }
   try {
     applyDateTimeFormat(1, format);
     return true;
@@ -349,6 +352,7 @@ export function isDateTimeFormat(format: Format) {
     return false;
   }
 }
+const allowedDateTimeFormatFirstChar = new Set(["h", "m", "y", "d"]);
 
 export function applyDateTimeFormat(value: number, format: Format): FormattedValue {
   // TODO: unify the format functions for date and datetime
@@ -591,7 +595,7 @@ function convertFormatToInternalFormat(format: Format): InternalFormat {
       const nextPartIndex = format.substring(currentIndex).indexOf("[");
       closingIndex = nextPartIndex > -1 ? nextPartIndex + currentIndex : format.length;
       const subFormat = format.substring(currentIndex, closingIndex);
-      if (subFormat.match(DATETIME_FORMAT)) {
+      if (isDateTimeFormat(subFormat)) {
         result.push({ type: "DATE", format: subFormat });
       } else {
         result.push({
