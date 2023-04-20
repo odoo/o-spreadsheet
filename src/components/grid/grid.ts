@@ -304,7 +304,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       !this.env.model.getters.getSelectedFigureId() &&
       this.env.model.getters.getEditionMode() === "inactive"
     ) {
-      this.hiddenInput.el!.focus();
+      this.hiddenInput.el?.focus();
     }
   }
 
