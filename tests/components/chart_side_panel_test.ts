@@ -74,6 +74,14 @@ describe("Chart sidepanel component", () => {
     parent.unmount();
   });
 
+  test("hit create button with invalid definition", async () => {
+    const { parent } = await createChartPanel();
+    expect(fixture.querySelector(".o-sidePanelButton.o-error")).toBeNull();
+    await simulateClick(".o-sidePanelButton");
+    expect(fixture.querySelector(".o-sidePanelButton.o-error")).not.toBeNull();
+    parent.unmount();
+  });
+
   // Skipped because updating of a chart is not yet supported
   test.skip("update chart", async () => {
     const model = new Model();
