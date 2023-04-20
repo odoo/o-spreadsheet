@@ -463,7 +463,7 @@ export class EvaluationPlugin extends UIPlugin {
   finalize() {
     if (this.shouldRecomputeCellsEvaluation) {
       this.evaluatedCells = {};
-      this.rcsToUpdate = new Set(this.getAllCells());
+      this.rcsToUpdate = this.getSetOfAllCells();
       if (this.shouldRebuildDependenciesGraph) {
         this.formulaDependencies = new FormulaDependencyGraph();
         this.spreadingArraysFormulas = new Set<string>();
@@ -622,14 +622,16 @@ export class EvaluationPlugin extends UIPlugin {
     }
   }
 
-  private *getAllCells(): Iterable<string> {
+  private getSetOfAllCells(): Set<string> {
+    const cellsSet = new Set<string>();
     // use a generator function to avoid re-building a new object
     for (const sheetId of this.getters.getSheetIds()) {
       const cells = this.getters.getCells(sheetId);
       for (const cellId in cells) {
-        yield cellPositionToRc(this.getters.getCellPosition(cellId));
+        cellsSet.add(cellPositionToRc(this.getters.getCellPosition(cellId)));
       }
     }
+    return cellsSet;
   }
 
   private evaluate() {
