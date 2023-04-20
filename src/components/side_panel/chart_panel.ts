@@ -14,6 +14,7 @@ import * as icons from "../icons";
 import { SelectionInput } from "../selection_input";
 import { chartTerms } from "./translations_terms";
 
+<<<<<<< HEAD
 const { xml, css } = tags;
 
 const CONFIGURATION_TEMPLATE = xml/* xml */ `
@@ -92,9 +93,19 @@ const DESIGN_TEMPLATE = xml/* xml */ `
   </div>
 </div>
 `;
+||||||| parent of 96e69ea5 (temp)
+const Component = owl.Component;
+const { useState } = owl;
+const { xml } = owl.tags;
+=======
+const Component = owl.Component;
+const { useState } = owl;
+const { xml, css } = owl.tags;
+>>>>>>> 96e69ea5 (temp)
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-chart">
+<<<<<<< HEAD
     <div class="o-panel">
       <div class="o-panel-element"
           t-att-class="state.panel !== 'configuration' ? 'inactive' : ''"
@@ -106,6 +117,57 @@ const TEMPLATE = xml/* xml */ `
           t-on-click="activate('design')">
         <i class="fa fa-paint-brush"/>Design
       </div>
+||||||| parent of 96e69ea5 (temp)
+    <div class="o-section">
+      <div class="o-section-title"><t t-esc="env._t('${chartTerms.ChartType}')"/></div>
+      <select t-model="state.type" class="o-input o-type-selector">
+        <option value="bar" t-esc="env._t('${chartTerms.Bar}')"/>
+        <option value="line" t-esc="env._t('${chartTerms.Line}')"/>
+        <option value="pie" t-esc="env._t('${chartTerms.Pie}')"/>
+      </select>
+    </div>
+    <div class="o-section o-chart-title">
+      <div class="o-section-title" t-esc="env._t('${chartTerms.Title}')"/>
+      <input type="text" t-model="state.title" class="o-input" t-att-placeholder="env._t('${chartTerms.TitlePlaceholder}')"/>
+    </div>
+    <div class="o-section o-data-series">
+      <div class="o-section-title" t-esc="env._t('${chartTerms.DataSeries}')"/>
+      <SelectionInput ranges="state.ranges" t-on-selection-changed="onSeriesChanged"/>
+      <input type="checkbox" t-model="state.seriesHasTitle"/><t t-esc="env._t('${chartTerms.MyDataHasTitle}')"/>
+    </div>
+    <div class="o-section o-data-labels">
+        <div class="o-section-title" t-esc="env._t('${chartTerms.DataCategories}')"/>
+        <SelectionInput ranges="[state.labelRange]" t-on-selection-changed="onLabelRangeChanged" maximumRanges="1"/>
+    </div>
+    <div class="o-sidePanelButtons">
+      <button t-if="props.figure" t-on-click="updateChart(props.figure)" class="o-sidePanelButton" t-esc="env._t('${chartTerms.UpdateChart}')"/>
+      <button t-else="" t-on-click="createChart" class="o-sidePanelButton" t-esc="env._t('${chartTerms.CreateChart}')"/>
+=======
+    <div class="o-section">
+      <div class="o-section-title"><t t-esc="env._t('${chartTerms.ChartType}')"/></div>
+      <select t-model="state.type" class="o-input o-type-selector">
+        <option value="bar" t-esc="env._t('${chartTerms.Bar}')"/>
+        <option value="line" t-esc="env._t('${chartTerms.Line}')"/>
+        <option value="pie" t-esc="env._t('${chartTerms.Pie}')"/>
+      </select>
+    </div>
+    <div class="o-section o-chart-title">
+      <div class="o-section-title" t-esc="env._t('${chartTerms.Title}')"/>
+      <input type="text" t-model="state.title" class="o-input" t-att-placeholder="env._t('${chartTerms.TitlePlaceholder}')"/>
+    </div>
+    <div class="o-section o-data-series">
+      <div class="o-section-title" t-esc="env._t('${chartTerms.DataSeries}')"/>
+      <SelectionInput ranges="state.ranges" t-on-selection-changed="onSeriesChanged"/>
+      <input type="checkbox" t-model="state.seriesHasTitle"/><t t-esc="env._t('${chartTerms.MyDataHasTitle}')"/>
+    </div>
+    <div class="o-section o-data-labels">
+        <div class="o-section-title" t-esc="env._t('${chartTerms.DataCategories}')"/>
+        <SelectionInput ranges="[state.labelRange]" t-on-selection-changed="onLabelRangeChanged" maximumRanges="1"/>
+    </div>
+    <div class="o-sidePanelButtons">
+      <button t-if="props.figure" t-on-click="updateChart(props.figure)" class="o-sidePanelButton" t-esc="env._t('${chartTerms.UpdateChart}')"/>
+      <button t-else="" t-on-click="createChart" t-att-class="{ 'o-error': state.errorWhileCreating }" class="o-sidePanelButton" t-esc="env._t('${chartTerms.CreateChart}')"/>
+>>>>>>> 96e69ea5 (temp)
     </div>
 
     <t t-if="state.panel === 'configuration'">
@@ -117,6 +179,7 @@ const TEMPLATE = xml/* xml */ `
   </div>
 `;
 
+<<<<<<< HEAD
 const STYLE = css/* scss */ `
   .o-chart {
     .o-panel {
@@ -149,22 +212,55 @@ const STYLE = css/* scss */ `
   }
 `;
 
+||||||| parent of 96e69ea5 (temp)
+=======
+const CSS = css/*scss */ `
+  .o-chart {
+    .o-sidePanelButton.o-error {
+      border-color: #e14747;
+    }
+  }
+`;
+
+>>>>>>> 96e69ea5 (temp)
 interface Props {
   figure: Figure;
 }
 
 interface ChartPanelState {
+<<<<<<< HEAD
   chart: ChartUIDefinition;
   datasetDispatchResult?: DispatchResult;
   labelsDispatchResult?: DispatchResult;
   panel: "configuration" | "design";
   fillColorTool: boolean;
+||||||| parent of 96e69ea5 (temp)
+  type: ChartTypes;
+  title: string;
+  ranges: string[];
+  labelRange: string;
+  seriesHasTitle: boolean;
+=======
+  type: ChartTypes;
+  title: string;
+  ranges: string[];
+  labelRange: string;
+  seriesHasTitle: boolean;
+  errorWhileCreating: boolean;
+>>>>>>> 96e69ea5 (temp)
 }
 
 export class ChartPanel extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
+<<<<<<< HEAD
   static style = STYLE;
   static components = { SelectionInput, ColorPicker };
+||||||| parent of 96e69ea5 (temp)
+  static components = { SelectionInput };
+=======
+  static style = CSS;
+  static components = { SelectionInput };
+>>>>>>> 96e69ea5 (temp)
   private getters = this.env.getters;
 
   private chartSheetId: UID = this.findSheetId(this.props.figure.id);
@@ -252,8 +348,30 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
     this.state.chart.labelRange = ev.detail.ranges[0];
   }
 
+<<<<<<< HEAD
   getKey(label: string) {
     return label + this.props.figure.id;
+||||||| parent of 96e69ea5 (temp)
+  createChart() {
+    this.env.dispatch("CREATE_CHART", {
+      sheetId: this.getters.getActiveSheet(),
+      id: uuidv4(),
+      definition: this.getChartDefinition(),
+    });
+    this.trigger("close-side-panel");
+=======
+  createChart() {
+    const result = this.env.dispatch("CREATE_CHART", {
+      sheetId: this.getters.getActiveSheet(),
+      id: uuidv4(),
+      definition: this.getChartDefinition(),
+    });
+    if (result.status === "SUCCESS") {
+      this.trigger("close-side-panel");
+    } else {
+      this.state.errorWhileCreating = true;
+    }
+>>>>>>> 96e69ea5 (temp)
   }
 
   toggleColorPicker() {
@@ -278,7 +396,32 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
       fillColorTool: false,
     };
   }
+<<<<<<< HEAD
   private findSheetId(figureId: string): string {
     return this.env.getters.getFigureSheetId(figureId) || "";
+||||||| parent of 96e69ea5 (temp)
+
+  private initialState(): ChartPanelState {
+    const data = this.props.figure ? this.props.figure.data : undefined;
+    return {
+      title: data && data.title ? data.title : "",
+      ranges: data ? data.dataSets.map((ds) => ds.dataRange) : [],
+      labelRange: data ? data.labelRange : "",
+      type: data ? data.type : "bar",
+      seriesHasTitle: data ? data.title !== undefined : false,
+    };
+=======
+
+  private initialState(): ChartPanelState {
+    const data = this.props.figure ? this.props.figure.data : undefined;
+    return {
+      title: data && data.title ? data.title : "",
+      ranges: data ? data.dataSets.map((ds) => ds.dataRange) : [],
+      labelRange: data ? data.labelRange : "",
+      type: data ? data.type : "bar",
+      seriesHasTitle: data ? data.title !== undefined : false,
+      errorWhileCreating: false,
+    };
+>>>>>>> 96e69ea5 (temp)
   }
 }
