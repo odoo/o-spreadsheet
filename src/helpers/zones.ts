@@ -509,6 +509,21 @@ export function positions(zone: Zone): Position[] {
   return positions;
 }
 
+export function mapToPositionsInZone(
+  zone: Zone,
+  callback: (col: number, row: number) => void
+): Position[] {
+  const positions: Position[] = [];
+  const [left, right] = [zone.right, zone.left].sort((a, b) => a - b);
+  const [top, bottom] = [zone.top, zone.bottom].sort((a, b) => a - b);
+  for (let col = left; col <= right; col++) {
+    for (let row = top; row <= bottom; row++) {
+      callback(col, row);
+    }
+  }
+  return positions;
+}
+
 /**
  * This function returns a zone with coordinates modified according to the change
  * applied to the zone. It may be possible to change the zone by resizing or moving

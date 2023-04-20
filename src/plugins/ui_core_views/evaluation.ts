@@ -5,6 +5,7 @@ import { FormulaDependencyGraph, SpreadingRelation } from "../../helpers/evaluat
 import {
   intersection,
   isZoneValid,
+  mapToPositionsInZone,
   positions,
   toCartesian,
   toXC,
@@ -601,9 +602,9 @@ export class EvaluationPlugin extends UIPlugin {
           continue;
         }
         const sheetId = range.sheetId;
-        for (const { col, row } of positions(range.zone)) {
+        mapToPositionsInZone(range.zone, (col, row) => {
           newDependencies.push(cellPositionToRc({ sheetId, col, row }));
-        }
+        });
       }
     }
 
