@@ -866,39 +866,43 @@ export class EvaluationPlugin extends UIPlugin {
      * Note that each col is possibly sparse: it only contain the values of cells
      * that are actually present in the grid.
      */
-    function range(range: Range): MatrixArg {
-      const sheetId = range.sheetId;
-
-      if (!isZoneValid(range.zone)) {
+    function range({ sheetId, zone }: Range): MatrixArg {
+      if (!isZoneValid(zone)) {
         throw new InvalidReferenceError();
       }
 
       // Performance issue: Avoid fetching data on positions that are out of the spreadsheet
       // e.g. A1:ZZZ9999 in a sheet with 10 cols and 10 rows should ignore everything past J10 and return a 10x10 array
       const sheetZone = getters.getSheetZone(sheetId);
-      const result: MatrixArg = { value: [], format: [] };
-
-      const zone = intersection(range.zone, sheetZone);
-      if (!zone) {
-        result.value.push([]);
-        result.format?.push([]);
-        return result;
+      const _zone = intersection(zone, sheetZone);
+      if (!_zone) {
+        return { value: [[]], format: [[]] };
       }
+
+      const height = _zone.bottom - _zone.top + 1;
+      const width = _zone.right - _zone.left + 1;
+      const value: CellValue[][] = Array.from({ length: width }, () =>
+        Array.from({ length: height })
+      );
+      const format: Format[][] = Array.from({ length: width }, () =>
+        Array.from({ length: height })
+      );
 
       // Performance issue: nested loop is faster than a map here
-      for (let col = zone.left; col <= zone.right; col++) {
-        const rowValues: (CellValue | undefined)[] = [];
-        const rowFormat: (Format | undefined)[] = [];
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          const position = { sheetId: range.sheetId, col, row };
-          const evaluatedCell = getEvaluatedCellIfNotEmpty(position);
-          rowValues.push(evaluatedCell?.value);
-          rowFormat.push(evaluatedCell?.format);
+      for (let col = _zone.left; col <= _zone.right; col++) {
+        for (let row = _zone.top; row <= _zone.bottom; row++) {
+          const evaluatedCell = getEvaluatedCellIfNotEmpty({ sheetId: sheetId, col, row });
+          if (evaluatedCell) {
+            const colIndex = col - _zone.left;
+            const rowIndex = row - _zone.top;
+            value[colIndex][rowIndex] = evaluatedCell.value;
+            if (evaluatedCell.format !== undefined) {
+              format[colIndex][rowIndex] = evaluatedCell.format;
+            }
+          }
         }
-        result.value.push(rowValues);
-        result.format?.push(rowFormat);
       }
-      return result;
+      return { value, format };
     }
 
     /**
