@@ -6,7 +6,7 @@ import { chartTerms } from "./translations_terms";
 
 const Component = owl.Component;
 const { useState } = owl;
-const { xml } = owl.tags;
+const { xml, css } = owl.tags;
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-chart">
@@ -33,9 +33,17 @@ const TEMPLATE = xml/* xml */ `
     </div>
     <div class="o-sidePanelButtons">
       <button t-if="props.figure" t-on-click="updateChart(props.figure)" class="o-sidePanelButton" t-esc="env._t('${chartTerms.UpdateChart}')"/>
-      <button t-else="" t-on-click="createChart" class="o-sidePanelButton" t-esc="env._t('${chartTerms.CreateChart}')"/>
+      <button t-else="" t-on-click="createChart" t-att-class="{ 'o-error': state.errorWhileCreating }" class="o-sidePanelButton" t-esc="env._t('${chartTerms.CreateChart}')"/>
     </div>
   </div>
+`;
+
+const CSS = css/*scss */ `
+  .o-chart {
+    .o-sidePanelButton.o-error {
+      border-color: #e14747;
+    }
+  }
 `;
 
 interface Props {
@@ -48,10 +56,12 @@ interface ChartPanelState {
   ranges: string[];
   labelRange: string;
   seriesHasTitle: boolean;
+  errorWhileCreating: boolean;
 }
 
 export class ChartPanel extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
+  static style = CSS;
   static components = { SelectionInput };
   private getters = this.env.getters;
 
@@ -66,12 +76,16 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
   }
 
   createChart() {
-    this.env.dispatch("CREATE_CHART", {
+    const result = this.env.dispatch("CREATE_CHART", {
       sheetId: this.getters.getActiveSheet(),
       id: uuidv4(),
       definition: this.getChartDefinition(),
     });
-    this.trigger("close-side-panel");
+    if (result.status === "SUCCESS") {
+      this.trigger("close-side-panel");
+    } else {
+      this.state.errorWhileCreating = true;
+    }
   }
 
   updateChart(chart: ChartFigure) {
@@ -100,6 +114,7 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
       labelRange: data ? data.labelRange : "",
       type: data ? data.type : "bar",
       seriesHasTitle: data ? data.title !== undefined : false,
+      errorWhileCreating: false,
     };
   }
 }
