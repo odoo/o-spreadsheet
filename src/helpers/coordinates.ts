@@ -34,11 +34,13 @@ export function numberToLetters(n: number): string {
  *     'AA' => 26
  */
 export function lettersToNumber(letters: string): number {
-  let result = 0;
+  let result = -1;
   const l = letters.length;
-  for (let i = 0; i < l; i++) {
-    let n = letters.charCodeAt(i) - 65 + (i < l - 1 ? 1 : 0);
-    result += n * 26 ** (l - i - 1);
+  let pow = 1;
+  for (let i = l - 1; i >= 0; i--) {
+    const charCode = letters[i].charCodeAt(0) - 64;
+    result += charCode * pow;
+    pow *= 26;
   }
   return result;
 }
