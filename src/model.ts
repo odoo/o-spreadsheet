@@ -211,9 +211,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.getters = {
       isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",
       isDashboard: () => this.config.mode === "dashboard",
-      getClient: this.session.getClient.bind(this.session),
-      getConnectedClients: this.session.getConnectedClients.bind(this.session),
-      isFullySynchronized: this.session.isFullySynchronized.bind(this.session),
     } as Getters;
 
     this.uuidGenerator.setIsFastStrategy(true);

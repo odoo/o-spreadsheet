@@ -1,7 +1,7 @@
 import { ClientDisconnectedError } from "../../collaborative/session";
 import { DEFAULT_FONT, DEFAULT_FONT_SIZE } from "../../constants";
 import { Client, ClientPosition, Color, GridRenderingContext, LAYERS, UID } from "../../types";
-import { UIPlugin } from "../ui_plugin";
+import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
 function randomChoice(arr: string[]): string {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -26,11 +26,22 @@ interface ClientToDisplay extends Required<Client> {
   color: Color;
 }
 
-export class SelectionMultiUserPlugin extends UIPlugin {
-  static getters = ["getClientsToDisplay"] as const;
+export class CollaborativePlugin extends UIPlugin {
+  static getters = [
+    "getClientsToDisplay",
+    "getClient",
+    "getConnectedClients",
+    "isFullySynchronized",
+  ] as const;
   static layers = [LAYERS.Selection];
   private availableColors = new Set(colors);
   private colors: Record<UID, Color> = {};
+  private session: UIPluginConfig["session"];
+
+  constructor(config: UIPluginConfig) {
+    super(config);
+    this.session = config.session;
+  }
 
   private isPositionValid(position: ClientPosition): boolean {
     return (
@@ -46,6 +57,18 @@ export class SelectionMultiUserPlugin extends UIPlugin {
     const color = randomChoice([...this.availableColors.values()]);
     this.availableColors.delete(color);
     return color;
+  }
+
+  getClient() {
+    return this.session.getClient();
+  }
+
+  getConnectedClients() {
+    return this.session.getConnectedClients();
+  }
+
+  isFullySynchronized() {
+    return this.session.isFullySynchronized();
   }
 
   /**

@@ -1,4 +1,3 @@
-import { Session } from "../collaborative/session";
 import { BordersPlugin } from "../plugins/core/borders";
 import { CellPlugin } from "../plugins/core/cell";
 import { ChartPlugin } from "../plugins/core/chart";
@@ -20,13 +19,13 @@ import { SheetViewPlugin } from "../plugins/ui_core_views/sheetview";
 import { AutofillPlugin } from "../plugins/ui_feature/autofill";
 import { AutomaticSumPlugin } from "../plugins/ui_feature/automatic_sum";
 import { CellPopoverPlugin } from "../plugins/ui_feature/cell_popovers";
+import { CollaborativePlugin } from "../plugins/ui_feature/collaborative";
 import { FindAndReplacePlugin } from "../plugins/ui_feature/find_and_replace";
 import { HeaderVisibilityUIPlugin } from "../plugins/ui_feature/header_visibility_ui";
 import { HighlightPlugin } from "../plugins/ui_feature/highlight";
 import { HistoryPlugin } from "../plugins/ui_feature/local_history";
 import { RendererPlugin } from "../plugins/ui_feature/renderer";
 import { SelectionInputsManagerPlugin } from "../plugins/ui_feature/selection_inputs_manager";
-import { SelectionMultiUserPlugin } from "../plugins/ui_feature/selection_multiuser";
 import { SortPlugin } from "../plugins/ui_feature/sort";
 import { UIOptionsPlugin } from "../plugins/ui_feature/ui_options";
 import { SheetUIPlugin } from "../plugins/ui_feature/ui_sheet";
@@ -126,19 +125,11 @@ type SelectionInputGetters = Pick<
   SelectionInputsManagerPlugin,
   GetterNames<typeof SelectionInputsManagerPlugin>
 >;
-type SelectionMultiUserGetters = Pick<
-  SelectionMultiUserPlugin,
-  GetterNames<typeof SelectionMultiUserPlugin>
->;
+type CollaborativeGetters = Pick<CollaborativePlugin, GetterNames<typeof CollaborativePlugin>>;
 type SortGetters = Pick<SortPlugin, GetterNames<typeof SortPlugin>>;
 type UIOptionsGetters = Pick<UIOptionsPlugin, GetterNames<typeof UIOptionsPlugin>>;
 type SheetUIGetters = Pick<SheetUIPlugin, GetterNames<typeof SheetUIPlugin>>;
 type ViewportGetters = Pick<SheetViewPlugin, GetterNames<typeof SheetViewPlugin>>;
-type SessionGetters = {
-  getClient: Session["getClient"];
-  getConnectedClients: Session["getConnectedClients"];
-  isFullySynchronized: Session["isFullySynchronized"];
-};
 type CellPopoverPluginGetters = Pick<CellPopoverPlugin, GetterNames<typeof CellPopoverPlugin>>;
 type FilterEvaluationGetters = Pick<
   FilterEvaluationPlugin,
@@ -150,7 +141,6 @@ export type Getters = {
   isDashboard: () => boolean;
 } & LocalHistoryGetters &
   CoreGetters &
-  SessionGetters &
   AutofillGetters &
   AutomaticSumGetters &
   ClipboardGetters &
@@ -164,7 +154,7 @@ export type Getters = {
   RendererGetters &
   SelectionGetters &
   SelectionInputGetters &
-  SelectionMultiUserGetters &
+  CollaborativeGetters &
   SortGetters &
   UIOptionsGetters &
   SheetUIGetters &
