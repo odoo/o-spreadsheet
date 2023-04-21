@@ -44,14 +44,13 @@ export class FormulaDependencyGraph {
     }
   }
 
-  private visitReferences(rc: string, visited: Set<string>, callback: (rc: string) => void): void {
+  private visitReferences(rc: string, visited: Set<string>): void {
     visited.add(rc);
 
     const node = this.nodes.get(rc) || [];
     for (const adjacent of node) {
       if (!visited.has(adjacent)) {
-        callback(adjacent);
-        this.visitReferences(adjacent, visited, callback);
+        this.visitReferences(adjacent, visited);
       }
     }
   }
@@ -59,11 +58,10 @@ export class FormulaDependencyGraph {
   /**
    * See https://en.wikipedia.org/wiki/Depth-first_search
    */
-  visitDeepReferences(rc: string, callback: (rc: string) => void) {
+  visitDeepReferences(rc: string): Set<string> {
     const visited: Set<string> = new Set<string>();
-
-    visited.add(rc);
-    this.visitReferences(rc, visited, callback);
+    this.visitReferences(rc, visited);
+    return visited;
   }
 }
 

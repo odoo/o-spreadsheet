@@ -957,11 +957,10 @@ export class EvaluationPlugin extends UIPlugin {
   }
 
   private findCellsToCompute(mainRc: string, selfInclude: boolean = true): Iterable<string> {
-    const cellsToCompute = new Set<string>();
-    if (selfInclude) {
-      cellsToCompute.add(mainRc);
+    const cellsToCompute = this.formulaDependencies.visitDeepReferences(mainRc);
+    if (!selfInclude) {
+      cellsToCompute.delete(mainRc);
     }
-    this.formulaDependencies.visitDeepReferences(mainRc, (rc: string) => cellsToCompute.add(rc));
     return cellsToCompute;
   }
 
