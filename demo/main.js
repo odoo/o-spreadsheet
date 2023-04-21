@@ -40,6 +40,7 @@ topbarMenuRegistry.addChild("clear", ["file"], {
     await fetch("http://localhost:9090/clear");
     document.location.reload();
   },
+  icon: "o-spreadsheet-Icon.CLEAR_AND_RELOAD",
 });
 
 topbarMenuRegistry.addChild("xlsx", ["file"], {
@@ -60,6 +61,7 @@ topbarMenuRegistry.addChild("xlsx", ["file"], {
       saveAs(blob, doc.name);
     });
   },
+  icon: "o-spreadsheet-Icon.EXPORT_XLSX",
 });
 
 let start;
@@ -79,6 +81,7 @@ class Demo extends Component {
       sequence: 11,
       isVisible: () => this.model.config.mode !== "readonly",
       execute: () => this.model.updateMode("readonly"),
+      icon: "o-spreadsheet-Icon.OPEN_READ_ONLY",
     });
 
     topbarMenuRegistry.addChild("dashboard", ["file"], {
@@ -87,6 +90,7 @@ class Demo extends Component {
       isReadonlyAllowed: true,
       isVisible: () => this.model.config.mode !== "dashboard",
       execute: () => this.model.updateMode("dashboard"),
+      icon: "o-spreadsheet-Icon.OPEN_DASHBOARD",
     });
 
     topbarMenuRegistry.addChild("read_write", ["file"], {
@@ -147,6 +151,7 @@ class Demo extends Component {
         });
         input.click();
       },
+      icon: "o-spreadsheet-Icon.IMPORT_XLSX",
     });
 
     useSubEnv({

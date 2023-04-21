@@ -26,23 +26,27 @@ export const copy: ActionSpec = {
   description: "Ctrl+C",
   isReadonlyAllowed: true,
   execute: ACTIONS.COPY_ACTION,
+  icon: "o-spreadsheet-Icon.COPY",
 };
 
 export const cut: ActionSpec = {
   name: _lt("Cut"),
   description: "Ctrl+X",
   execute: ACTIONS.CUT_ACTION,
+  icon: "o-spreadsheet-Icon.CUT",
 };
 
 export const paste: ActionSpec = {
   name: _lt("Paste"),
   description: "Ctrl+V",
   execute: ACTIONS.PASTE_ACTION,
+  icon: "o-spreadsheet-Icon.PASTE",
 };
 
 export const pasteSpecial: ActionSpec = {
   name: _lt("Paste special"),
   isVisible: ACTIONS.IS_NOT_CUT_OPERATION,
+  icon: "o-spreadsheet-Icon.PASTE",
 };
 
 export const pasteSpecialValue: ActionSpec = {
@@ -61,6 +65,7 @@ export const findAndReplace: ActionSpec = {
   description: "Ctrl+H",
   isReadonlyAllowed: true,
   execute: ACTIONS.OPEN_FAR_SIDEPANEL_ACTION,
+  icon: "o-spreadsheet-Icon.FIND_AND_REPLACE",
 };
 
 export const deleteValues: ActionSpec = {

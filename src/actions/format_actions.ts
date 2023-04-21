@@ -134,6 +134,7 @@ export const formatStrikethrough: ActionSpec = {
 export const formatFontSize: ActionSpec = {
   name: _lt("Font size"),
   children: fontSizeMenuBuilder(),
+  icon: "o-spreadsheet-Icon.FONT_SIZE",
 };
 
 export const formatAlignment: ActionSpec = {
@@ -238,6 +239,7 @@ export const fillColor: ActionSpec = {
 export const formatCF: ActionSpec = {
   name: _lt("Conditional formatting"),
   execute: ACTIONS.OPEN_CF_SIDEPANEL_ACTION,
+  icon: "o-spreadsheet-Icon.CONDITIONAL_FORMAT",
 };
 
 export const paintFormat: ActionSpec = {

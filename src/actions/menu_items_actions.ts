@@ -309,6 +309,11 @@ export const DELETE_CELL_SHIFT_LEFT = (env: SpreadsheetChildEnv) => {
   handlePasteResult(env, result);
 };
 
+export const MENU_INSERT_ROWS_NAME = (env: SpreadsheetChildEnv) => {
+  const number = getColumnsNumber(env);
+  return number === 1 ? _lt("Insert row") : _lt("Insert %s rows", number.toString());
+};
+
 export const MENU_INSERT_ROWS_BEFORE_NAME = (env: SpreadsheetChildEnv) => {
   const number = getRowsNumber(env);
   if (number === 1) {
@@ -391,6 +396,11 @@ export const MENU_INSERT_COLUMNS_BEFORE_NAME = (env: SpreadsheetChildEnv) => {
     return _lt("Column left");
   }
   return _lt("%s Columns left", number.toString());
+};
+
+export const MENU_INSERT_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
+  const number = getColumnsNumber(env);
+  return number === 1 ? _lt("Insert column") : _lt("Insert %s columns", number.toString());
 };
 
 export const COLUMN_INSERT_COLUMNS_BEFORE_NAME = (env: SpreadsheetChildEnv) => {
