@@ -50,7 +50,7 @@ css/* scss */ `
 
       .o-menu-item-icon {
         display: inline-block;
-        margin-right: calc(${MENU_ITEM_PADDING_HORIZONTAL}px * 3 / 5);
+        margin: 0px 8px 0px 0px;
         width: ${MENU_ITEM_HEIGHT - 2 * MENU_ITEM_PADDING_VERTICAL}px;
         line-height: ${MENU_ITEM_HEIGHT - 2 * MENU_ITEM_PADDING_VERTICAL}px;
 
@@ -171,10 +171,13 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get childrenHaveIcon(): boolean {
-    return this.props.menuItems.some((menuItem) => !menuItem.icon && !!menuItem.isActive);
+    return this.props.menuItems.some((menuItem) => !!menuItem.icon || !!menuItem.isActive);
   }
 
   getIconName(menu: Action) {
+    if (menu.icon) {
+      return menu.icon;
+    }
     if (menu.isActive?.(this.env)) {
       return "o-spreadsheet-Icon.CHECK";
     }

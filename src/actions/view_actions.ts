@@ -72,6 +72,7 @@ export const unFreezePane: ActionSpec = {
 
 export const freezePane: ActionSpec = {
   name: _lt("Freeze"),
+  icon: "o-spreadsheet-Icon.FREEZE",
 };
 
 export const unFreezeRows: ActionSpec = {
@@ -144,6 +145,7 @@ export const viewGridlines: ActionSpec = {
       ? _lt("Hide gridlines")
       : _lt("Show gridlines"),
   execute: ACTIONS.SET_GRID_LINES_VISIBILITY_ACTION,
+  icon: "o-spreadsheet-Icon.SHOW_HIDE_GRID",
 };
 
 export const viewFormulas: ActionSpec = {
@@ -151,6 +153,7 @@ export const viewFormulas: ActionSpec = {
     env.model.getters.shouldShowFormulas() ? _lt("Hide formulas") : _lt("Show formulas"),
   execute: ACTIONS.SET_FORMULA_VISIBILITY_ACTION,
   isReadonlyAllowed: true,
+  icon: "o-spreadsheet-Icon.SHOW_HIDE_FORMULA",
 };
 
 export const createRemoveFilter: ActionSpec = {

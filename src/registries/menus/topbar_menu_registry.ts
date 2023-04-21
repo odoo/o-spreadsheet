@@ -67,33 +67,38 @@ topbarMenuRegistry
     sequence: 65,
     separator: true,
   })
-  .addChild("edit_delete_cell_values", ["edit"], {
-    ...ACTION_EDIT.deleteValues,
+  .addChild("delete", ["edit"], {
+    name: _lt("Delete"),
+    icon: "o-spreadsheet-Icon.DELETE",
     sequence: 70,
   })
-  .addChild("edit_delete_row", ["edit"], {
+  .addChild("edit_delete_cell_values", ["edit", "delete"], {
+    ...ACTION_EDIT.deleteValues,
+    sequence: 10,
+  })
+  .addChild("edit_delete_row", ["edit", "delete"], {
     ...ACTION_EDIT.deleteRows,
-    sequence: 80,
+    sequence: 20,
   })
-  .addChild("edit_delete_column", ["edit"], {
+  .addChild("edit_delete_column", ["edit", "delete"], {
     ...ACTION_EDIT.deleteCols,
-    sequence: 90,
+    sequence: 30,
   })
-  .addChild("edit_delete_cell_shift_up", ["edit"], {
+  .addChild("edit_delete_cell_shift_up", ["edit", "delete"], {
     ...ACTION_EDIT.deleteCellShiftUp,
-    sequence: 93,
+    sequence: 40,
   })
-  .addChild("edit_delete_cell_shift_left", ["edit"], {
+  .addChild("edit_delete_cell_shift_left", ["edit", "delete"], {
     ...ACTION_EDIT.deleteCellShiftLeft,
-    sequence: 97,
+    sequence: 50,
   })
   .addChild("edit_unhide_columns", ["edit"], {
     ...ACTION_VIEW.unhideAllCols,
-    sequence: 100,
+    sequence: 80,
   })
   .addChild("edit_unhide_rows", ["edit"], {
     ...ACTION_VIEW.unhideAllRows,
-    sequence: 100,
+    sequence: 80,
   })
 
   // ---------------------------------------------------------------------
@@ -163,31 +168,47 @@ topbarMenuRegistry
     name: _lt("Insert"),
     sequence: 40,
   })
-  .addChild("insert_row_before", ["insert"], {
+  .addChild("insert_row", ["insert"], {
+    ...ACTION_INSERT.insertRow,
+    sequence: 10,
+  })
+  .addChild("insert_row_before", ["insert", "insert_row"], {
     ...ACTION_INSERT.topBarInsertRowsBefore,
     sequence: 10,
   })
-  .addChild("insert_row_after", ["insert"], {
+  .addChild("insert_row_after", ["insert", "insert_row"], {
     ...ACTION_INSERT.topBarInsertRowsAfter,
     sequence: 20,
-    separator: true,
   })
-  .addChild("insert_column_before", ["insert"], {
+  .addChild("insert_column", ["insert"], {
+    ...ACTION_INSERT.insertCol,
+    sequence: 20,
+  })
+  .addChild("insert_column_before", ["insert", "insert_column"], {
     ...ACTION_INSERT.topBarInsertColsBefore,
-    sequence: 30,
+    sequence: 10,
   })
-  .addChild("insert_column_after", ["insert"], {
+  .addChild("insert_column_after", ["insert", "insert_column"], {
     ...ACTION_INSERT.topBarInsertColsAfter,
-    sequence: 40,
-    separator: true,
+    sequence: 20,
   })
-  .addChild("insert_insert_cell_shift_down", ["insert"], {
-    ...ACTION_INSERT.insertCellShiftDown,
+  .addChild("insert_cell", ["insert"], {
+    ...ACTION_INSERT.insertCell,
     sequence: 43,
   })
-  .addChild("insert_insert_cell_shift_right", ["insert"], {
+  .addChild("insert_cell_down", ["insert", "insert_cell"], {
+    ...ACTION_INSERT.insertCellShiftDown,
+    name: _lt("Shift down"),
+    sequence: 10,
+  })
+  .addChild("insert_cell_right", ["insert", "insert_cell"], {
     ...ACTION_INSERT.insertCellShiftRight,
-    sequence: 47,
+    name: _lt("Shift right"),
+    sequence: 20,
+  })
+  .addChild("insert_sheet", ["insert"], {
+    ...ACTION_INSERT.insertSheet,
+    sequence: 80,
     separator: true,
   })
   .addChild("insert_chart", ["insert"], {
@@ -236,11 +257,6 @@ topbarMenuRegistry
     ...ACTION_INSERT.insertLink,
     separator: true,
     sequence: 70,
-  })
-  .addChild("insert_sheet", ["insert"], {
-    ...ACTION_INSERT.insertSheet,
-    sequence: 80,
-    separator: true,
   })
 
   // ---------------------------------------------------------------------

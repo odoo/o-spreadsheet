@@ -185,7 +185,7 @@ describe("Menu Item actions", () => {
   });
 
   test("Edit -> edit_delete_cell_values", () => {
-    doAction(["edit", "edit_delete_cell_values"], env);
+    doAction(["edit", "delete", "edit_delete_cell_values"], env);
     expect(dispatch).toHaveBeenCalledWith("DELETE_CONTENT", {
       sheetId: env.model.getters.getActiveSheetId(),
       target: env.model.getters.getSelectedZones(),
@@ -193,7 +193,7 @@ describe("Menu Item actions", () => {
   });
 
   describe("Edit -> edit_delete_row", () => {
-    const path = ["edit", "edit_delete_row"];
+    const path = ["edit", "delete", "edit_delete_row"];
 
     test("A selected row", () => {
       selectRow(model, 4, "overrideSelection");
@@ -243,7 +243,7 @@ describe("Menu Item actions", () => {
   });
 
   describe("Edit -> edit_delete_column", () => {
-    const path = ["edit", "edit_delete_column"];
+    const path = ["edit", "delete", "edit_delete_column"];
 
     test("A selected column", () => {
       selectColumn(model, 4, "overrideSelection");
@@ -305,7 +305,7 @@ describe("Menu Item actions", () => {
   });
 
   describe("Insert -> Row above", () => {
-    const path = ["insert", "insert_row_before"];
+    const path = ["insert", "insert_row", "insert_row_before"];
 
     test("A selected row", () => {
       selectRow(model, 4, "newAnchor");
@@ -356,7 +356,7 @@ describe("Menu Item actions", () => {
   });
 
   describe("Insert -> Row below", () => {
-    const path = ["insert", "insert_row_after"];
+    const path = ["insert", "insert_row", "insert_row_after"];
 
     test("A selected row", () => {
       selectRow(model, 4, "newAnchor");
@@ -407,7 +407,7 @@ describe("Menu Item actions", () => {
   });
 
   describe("Insert -> Column left", () => {
-    const path = ["insert", "insert_column_before"];
+    const path = ["insert", "insert_column", "insert_column_before"];
 
     test("A selected column", () => {
       selectColumn(model, 4, "newAnchor");
@@ -458,7 +458,7 @@ describe("Menu Item actions", () => {
   });
 
   describe("Insert -> Column right", () => {
-    const path = ["insert", "insert_column_after"];
+    const path = ["insert", "insert_column", "insert_column_after"];
 
     test("A selected column", () => {
       selectColumn(model, 4, "newAnchor");

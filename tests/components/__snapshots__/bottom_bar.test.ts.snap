@@ -132,7 +132,7 @@ exports[`BottomBar component simple rendering 1`] = `
           class="o-icon"
         >
           <path
-            d="M8,0 L10,0 L10,8 L18,8 L18,10 L10,10 L10,18 L8,18 L8,10 L0,10 L0,8 L8,8"
+            d="M8 0h2v8h8v2h-8v8H8v-8H0V8h8"
             fill="currentColor"
           />
         </svg>

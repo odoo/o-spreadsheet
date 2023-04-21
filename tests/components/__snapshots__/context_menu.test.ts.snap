@@ -11,6 +11,18 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     title="Cut"
   >
     <span>
+      <span
+        class="o-menu-item-icon align-middle"
+      >
+        <svg
+          class="o-icon"
+        >
+          <path
+            d="M3 2v2l4.5 5-1.2 1.3c-.4-.2-.8-.3-1.3-.3-1.7 0-3 1.3-3 3s1.3 3 3 3 3-1.3 3-3c0-.5-.1-.9-.3-1.3L9 10.4l1.3 1.3c-.2.4-.3.8-.3 1.3 0 1.7 1.3 3 3 3s3-1.3 3-3-1.3-3-3-3c-.5 0-.9.1-1.3.3L10.4 9 15 4.4V2h-.4L9 7.6 3.4 2H3Zm2 12.5c-.8 0-1.5-.7-1.5-1.5s.7-1.5 1.5-1.5 1.5.7 1.5 1.5-.7 1.5-1.5 1.5Zm9.5-1.5c0 .8-.7 1.5-1.5 1.5s-1.5-.7-1.5-1.5.7-1.5 1.5-1.5 1.5.7 1.5 1.5ZM9 8.5c.3 0 .5.2.5.5s-.2.5-.5.5-.5-.2-.5-.5.2-.5.5-.5"
+            fill="currentColor"
+          />
+        </svg>
+      </span>
       
       <span
         class="o-menu-item-name align-middle"
@@ -33,6 +45,18 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     title="Copy"
   >
     <span>
+      <span
+        class="o-menu-item-icon align-middle"
+      >
+        <svg
+          class="o-icon"
+        >
+          <path
+            d="M14.5 15.23v1.5H3a1 1 0 0 1-1-1V3.23h1.5v11a1 1 0 0 0 1 1h10m0-3.5a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h6.5a1 1 0 0 1 1 1m-9-2.5a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1H15a1 1 0 0 0 1-1v-11a1 1 0 0 0-1-1"
+            fill="currentColor"
+          />
+        </svg>
+      </span>
       
       <span
         class="o-menu-item-name align-middle"
@@ -55,6 +79,18 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     title="Paste"
   >
     <span>
+      <span
+        class="o-menu-item-icon align-middle"
+      >
+        <svg
+          class="o-icon"
+        >
+          <path
+            d="M14.5 2.5H11C10.7 1.6 10 1 9 1s-1.5.5-2 1.5H3.5C2.5 2.5 2 3 2 4v11c0 1 .5 1.5 1.5 1.5h11c1 0 1.5-.5 1.5-1.5V4c0-1-.5-1.5-1.5-1.5Zm-4.75.75c0 .5-.34.75-.75.75s-.75-.34-.75-.75.34-.75.75-.75.75.34.75.75ZM14.5 15h-11V4H5v2.5h8V4h1.5v11"
+            fill="currentColor"
+          />
+        </svg>
+      </span>
       
       <span
         class="o-menu-item-name align-middle"
@@ -77,6 +113,18 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     title="Paste special"
   >
     <span>
+      <span
+        class="o-menu-item-icon align-middle"
+      >
+        <svg
+          class="o-icon"
+        >
+          <path
+            d="M14.5 2.5H11C10.7 1.6 10 1 9 1s-1.5.5-2 1.5H3.5C2.5 2.5 2 3 2 4v11c0 1 .5 1.5 1.5 1.5h11c1 0 1.5-.5 1.5-1.5V4c0-1-.5-1.5-1.5-1.5Zm-4.75.75c0 .5-.34.75-.75.75s-.75-.34-.75-.75.34-.75.75-.75.75.34.75.75ZM14.5 15h-11V4H5v2.5h8V4h1.5v11"
+            fill="currentColor"
+          />
+        </svg>
+      </span>
       
       <span
         class="o-menu-item-name align-middle"
@@ -111,6 +159,18 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     title="Insert row"
   >
     <span>
+      <span
+        class="o-menu-item-icon align-middle"
+      >
+        <svg
+          class="o-icon"
+        >
+          <path
+            d="M.5 2A1.5 1.5 0 0 1 2 .5h14A1.5 1.5 0 0 1 17.5 2v14a1.5 1.5 0 0 1-1.5 1.5H2A1.5 1.5 0 0 1 .5 16V2H2v3.5h14V2H2v9h14V7H2v9h14v-3.5H2"
+            fill="currentColor"
+          />
+        </svg>
+      </span>
       
       <span
         class="o-menu-item-name align-middle"
@@ -128,6 +188,18 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     title="Insert column"
   >
     <span>
+      <span
+        class="o-menu-item-icon align-middle"
+      >
+        <svg
+          class="o-icon"
+        >
+          <path
+            d="M.5 2A1.5 1.5 0 0 1 2 .5h14A1.5 1.5 0 0 1 17.5 2v14a1.5 1.5 0 0 1-1.5 1.5H2A1.5 1.5 0 0 1 .5 16V2H2v14h3.5V2H2h5v14h4V2H2h10.5v14H16V2H2"
+            fill="currentColor"
+          />
+        </svg>
+      </span>
       
       <span
         class="o-menu-item-name align-middle"
@@ -145,6 +217,18 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     title="Insert cells"
   >
     <span>
+      <span
+        class="o-menu-item-icon align-middle"
+      >
+        <svg
+          class="o-icon"
+        >
+          <path
+            d="M.5 2A1.5 1.5 0 0 1 2 .5h14A1.5 1.5 0 0 1 17.5 2v14a1.5 1.5 0 0 1-1.5 1.5H2A1.5 1.5 0 0 1 .5 16V2H2v14h14V2H2"
+            fill="currentColor"
+          />
+        </svg>
+      </span>
       
       <span
         class="o-menu-item-name align-middle"
@@ -179,6 +263,18 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     title="Delete row 8"
   >
     <span>
+      <span
+        class="o-menu-item-icon align-middle"
+      >
+        <svg
+          class="o-icon"
+        >
+          <path
+            d="M12 1.75v-1H6v1H1.5v2h1v12a1.5 1.5 0 0 0 1.5 1.5h10a1.5 1.5 0 0 0 1.5-1.5v-12h1v-2M4 15.75v-12h10v12Zm2-10.5h2v9H6Zm4 0h2v9h-2"
+            fill="currentColor"
+          />
+        </svg>
+      </span>
       
       <span
         class="o-menu-item-name align-middle"
@@ -196,6 +292,18 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     title="Delete column C"
   >
     <span>
+      <span
+        class="o-menu-item-icon align-middle"
+      >
+        <svg
+          class="o-icon"
+        >
+          <path
+            d="M12 1.75v-1H6v1H1.5v2h1v12a1.5 1.5 0 0 0 1.5 1.5h10a1.5 1.5 0 0 0 1.5-1.5v-12h1v-2M4 15.75v-12h10v12Zm2-10.5h2v9H6Zm4 0h2v9h-2"
+            fill="currentColor"
+          />
+        </svg>
+      </span>
       
       <span
         class="o-menu-item-name align-middle"
@@ -213,6 +321,18 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     title="Delete cells"
   >
     <span>
+      <span
+        class="o-menu-item-icon align-middle"
+      >
+        <svg
+          class="o-icon"
+        >
+          <path
+            d="M12 1.75v-1H6v1H1.5v2h1v12a1.5 1.5 0 0 0 1.5 1.5h10a1.5 1.5 0 0 0 1.5-1.5v-12h1v-2M4 15.75v-12h10v12Zm2-10.5h2v9H6Zm4 0h2v9h-2"
+            fill="currentColor"
+          />
+        </svg>
+      </span>
       
       <span
         class="o-menu-item-name align-middle"
@@ -236,6 +356,10 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     </span>
     
   </div>
+  <div
+    class="o-separator"
+  />
+  
   
   <div
     class="o-menu-item"
@@ -243,6 +367,18 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     title="Insert link"
   >
     <span>
+      <span
+        class="o-menu-item-icon align-middle"
+      >
+        <svg
+          class="o-icon"
+          fill="currentColor"
+        >
+          <path
+            d="M6.88 13.69c.19-.19.41-.28.68-.28.27 0 .51.09.72.28.43.45.43.92 0 1.4l-.84.8c-.75.75-1.63 1.12-2.64 1.12-1.04 0-1.93-.37-2.68-1.12C1.37 15.14 1 14.26 1 13.25c0-1.04.37-1.93 1.12-2.68l2.96-2.96c.93-.9 1.89-1.42 2.88-1.54.98-.12 1.84.17 2.56.86.21.21.32.45.32.72 0 .26-.1.51-.32.72-.48.43-.95.43-1.4 0-.67-.64-1.55-.41-2.67.68l-2.93 2.92c-.35.35-.52.77-.52 1.28s.17.92.52 1.24c.35.35.76.52 1.26.52.49 0 .91-.17 1.26-.52l.84-.8m9-11.48c.75.75 1.12 1.63 1.12 2.64 0 1.04-.37 1.94-1.12 2.68l-3.16 3.16c-.99.96-1.99 1.44-3 1.44-.83 0-1.57-.33-2.24-1a.913.913 0 0 1-.28-.68c0-.27.09-.5.27-.72.19-.19.43-.28.71-.28.28 0 .51.09.7.28.66.64 1.48.48 2.44-.48l3.16-3.12c.37-.37.56-.8.56-1.28 0-.51-.19-.92-.56-1.24-.32-.35-.7-.56-1.12-.62-.43-.07-.83.07-1.2.42l-1 1c-.22.19-.45.28-.72.28-.26 0-.5-.09-.68-.28-.46-.45-.46-.92 0-1.4l1-1c.72-.72 1.56-1.06 2.54-1.02.97.04 1.83.45 2.58 1.22"
+          />
+        </svg>
+      </span>
       
       <span
         class="o-menu-item-name align-middle"

@@ -549,38 +549,6 @@ describe("Context Menu internal tests", () => {
     expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeTruthy();
   });
 
-  test("Menu with icon is not displayed", async () => {
-    const menuItems: Action[] = createActions([
-      {
-        id: "root1",
-        name: "root1",
-        icon: "o-spreadsheet-Icon.BOLD",
-        children: [
-          () => [
-            {
-              id: "root2",
-              name: "root2",
-              execute() {},
-              icon: "o-spreadsheet-Icon.ITALIC",
-            },
-          ],
-          () => [
-            {
-              id: "root3",
-              name: "root3",
-              execute() {},
-            },
-          ],
-        ],
-      },
-    ]);
-    await renderContextMenu(300, 990, { menuItems });
-    expect(fixture.querySelector("div[data-name='root1'] svg")).not.toBeNull(); // right caret
-    await simulateClick("div[data-name='root1']");
-    expect(fixture.querySelector("div[data-name='root2'] svg")).toBeNull();
-    expect(fixture.querySelector("div[data-name='root3'] svg")).toBeNull();
-  });
-
   test("Can color menu items", async () => {
     const menuItems: Action[] = createActions([
       {

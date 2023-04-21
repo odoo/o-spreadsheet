@@ -4,6 +4,12 @@ import { _lt } from "../translation";
 import { ActionBuilder, ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 
+export const insertRow: ActionSpec = {
+  name: ACTIONS.MENU_INSERT_ROWS_NAME,
+  isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
+  icon: "o-spreadsheet-Icon.INSERT_ROW",
+};
+
 export const rowInsertRowBefore: ActionSpec = {
   name: ACTIONS.ROW_INSERT_ROWS_BEFORE_NAME,
   execute: ACTIONS.INSERT_ROWS_BEFORE_ACTION,
@@ -19,6 +25,7 @@ export const cellInsertRowsBefore: ActionSpec = {
   ...rowInsertRowBefore,
   name: ACTIONS.CELL_INSERT_ROWS_BEFORE_NAME,
   isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
+  icon: "o-spreadsheet-Icon.INSERT_ROW",
 };
 
 export const rowInsertRowsAfter: ActionSpec = {
@@ -30,6 +37,12 @@ export const topBarInsertRowsAfter: ActionSpec = {
   ...rowInsertRowsAfter,
   name: ACTIONS.MENU_INSERT_ROWS_AFTER_NAME,
   isVisible: (env) => env.model.getters.getActiveCols().size === 0,
+};
+
+export const insertCol: ActionSpec = {
+  name: ACTIONS.MENU_INSERT_COLUMNS_NAME,
+  isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
+  icon: "o-spreadsheet-Icon.INSERT_COL",
 };
 
 export const colInsertColsBefore: ActionSpec = {
@@ -47,6 +60,7 @@ export const cellInsertColsBefore: ActionSpec = {
   ...colInsertColsBefore,
   name: ACTIONS.CELL_INSERT_COLUMNS_BEFORE_NAME,
   isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
+  icon: "o-spreadsheet-Icon.INSERT_COL",
 };
 
 export const colInsertColsAfter: ActionSpec = {
@@ -64,6 +78,7 @@ export const topBarInsertColsAfter: ActionSpec = {
 export const insertCell: ActionSpec = {
   name: _lt("Insert cells"),
   isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
+  icon: "o-spreadsheet-Icon.INSERT_CELL",
 };
 
 export const insertCellShiftDown: ActionSpec = {
@@ -79,6 +94,7 @@ export const insertCellShiftRight: ActionSpec = {
 export const insertChart: ActionSpec = {
   name: _lt("Chart"),
   execute: ACTIONS.CREATE_CHART,
+  icon: "o-spreadsheet-Icon.INSERT_CHART",
 };
 
 export const insertImage: ActionSpec = {
@@ -86,10 +102,12 @@ export const insertImage: ActionSpec = {
   description: "Ctrl+O",
   execute: ACTIONS.CREATE_IMAGE,
   isVisible: (env) => env.imageProvider !== undefined,
+  icon: "o-spreadsheet-Icon.INSERT_IMAGE",
 };
 
 export const insertFunction: ActionSpec = {
   name: _lt("Function"),
+  icon: "o-spreadsheet-Icon.SHOW_HIDE_FORMULA",
 };
 
 export const insertFunctionSum: ActionSpec = {
@@ -147,11 +165,13 @@ export const categoriesFunctionListMenuBuilder: ActionBuilder = () => {
 export const insertLink: ActionSpec = {
   name: _lt("Link"),
   execute: ACTIONS.INSERT_LINK,
+  icon: "o-spreadsheet-Icon.INSERT_LINK",
 };
 
 export const insertSheet: ActionSpec = {
-  name: _lt("New sheet"),
+  name: _lt("Insert sheet"),
   execute: ACTIONS.CREATE_SHEET_ACTION,
+  icon: "o-spreadsheet-Icon.INSERT_SHEET",
 };
 
 function createFormulaFunctions(fnNames: string[]): ActionSpec[] {
