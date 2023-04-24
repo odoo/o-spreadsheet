@@ -4,6 +4,8 @@ import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import {
   activateSheet,
+  addColumns,
+  addRows,
   createChart,
   createSheet,
   createSheetWithName,
@@ -1031,5 +1033,19 @@ describe("sheets", () => {
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
     deleteRows(model, [1, 2]);
     expect(model.getters.getNumberRows(sheetId)).toBe(originalNumberRows - 2);
+  });
+
+  test("Cannot add cols/row to indexes out of the sheet", () => {
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    expect(addColumns(model, "after", "Z", 1)).toBeCancelledBecause(
+      CommandResult.InvalidHeaderIndex
+    );
+    expect(addRows(model, "after", 20, 1)).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
+  });
+
+  test("Cannot add wrong quantity of cols/row", () => {
+    const model = new Model();
+    expect(addColumns(model, "after", "A", 0)).toBeCancelledBecause(CommandResult.InvalidQuantity);
+    expect(addRows(model, "after", 0, -1)).toBeCancelledBecause(CommandResult.InvalidQuantity);
   });
 });
