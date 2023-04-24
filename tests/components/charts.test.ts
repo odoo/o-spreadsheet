@@ -195,6 +195,17 @@ describe("figures", () => {
   );
 
   test.each(["basicChart", "scorecard", "gauge"])(
+    "charts don't have a menu button in readonly mode",
+    async (chartType: string) => {
+      createTestChart(chartType);
+      model.updateMode("readonly");
+      await nextTick();
+      expect(fixture.querySelector(".o-figure")).not.toBeNull();
+      expect(fixture.querySelector(".o-chart-menu-item")).toBeNull();
+    }
+  );
+
+  test.each(["basicChart", "scorecard", "gauge"])(
     "Click on Menu button open context menu in %s",
     async (chartType: string) => {
       createTestChart(chartType);
@@ -730,6 +741,19 @@ describe("figures", () => {
     async (chartType: string) => {
       createTestChart(chartType);
       model.updateMode("dashboard");
+      await nextTick();
+
+      triggerMouseEvent(".o-chart-container", "contextmenu");
+      await nextTick();
+      expect(document.querySelector(".o-menu")).toBeFalsy();
+    }
+  );
+
+  test.each(["basicChart", "scorecard", "gauge"])(
+    "Cannot open context menu on right click in readonly mode",
+    async (chartType: string) => {
+      createTestChart(chartType);
+      model.updateMode("readonly");
       await nextTick();
 
       triggerMouseEvent(".o-chart-container", "contextmenu");
