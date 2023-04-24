@@ -615,6 +615,13 @@ describe("figures", () => {
         expect(fixture.querySelector(".o-figure-menu-item")).toBeNull();
       });
 
+      test("images don't have a menu button in readonly mode", async () => {
+        model.updateMode("readonly");
+        await nextTick();
+        expect(fixture.querySelector(".o-figure")).not.toBeNull();
+        expect(fixture.querySelector(".o-figure-menu-item")).toBeNull();
+      });
+
       test("Can open context menu on right click", async () => {
         triggerMouseEvent(".o-figure", "contextmenu");
         await nextTick();
@@ -647,6 +654,12 @@ describe("figures", () => {
         model.updateMode("dashboard");
         triggerMouseEvent(".o-figure", "contextmenu");
         await nextTick();
+        expect(document.querySelector(".o-menu")).toBeFalsy();
+      });
+
+      test("Cannot open context menu on right click in readonly mode", async () => {
+        model.updateMode("readonly");
+        triggerMouseEvent(".o-figure", "contextmenu");
         expect(document.querySelector(".o-menu")).toBeFalsy();
       });
 
