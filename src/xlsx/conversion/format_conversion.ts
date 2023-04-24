@@ -70,7 +70,7 @@ function isFormatSupported(format: string): boolean {
 }
 
 function isXlsxDateFormat(format: string): boolean {
-  return format.match(XLSX_DATE_FORMAT_REGEX) !== null;
+  return XLSX_DATE_FORMAT_REGEX.test(format);
 }
 
 function convertDateFormat(format: string): string {

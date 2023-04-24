@@ -146,10 +146,10 @@ function convertDateFormat(ast: ASTString): ASTString {
   const internalDate = parseDateTime(value);
   if (internalDate) {
     let format: Format[] = [];
-    if (value.match(mdyDateRegexp) || value.match(ymdDateRegexp)) {
+    if (mdyDateRegexp.test(value) || ymdDateRegexp.test(value)) {
       format.push("yyyy-mm-dd");
     }
-    if (value.match(timeRegexp)) {
+    if (timeRegexp.test(value)) {
       format.push("hh:mm:ss");
     }
     return {

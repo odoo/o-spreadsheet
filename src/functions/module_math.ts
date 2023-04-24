@@ -23,6 +23,8 @@ const DEFAULT_MODE = 0;
 const DEFAULT_PLACES = 0;
 const DEFAULT_SIGNIFICANCE = 1;
 
+const DECIMAL_REPRESENTATION = /^-?[a-z0-9]+$/i;
+
 // -----------------------------------------------------------------------------
 // ABS
 // -----------------------------------------------------------------------------
@@ -613,7 +615,7 @@ export const DECIMAL: AddFunctionDescription = {
      * Remove '-?' in the next regex to catch this error.
      */
     assert(
-      () => !!_value.match(/^-?[a-z0-9]+$/i),
+      () => !!DECIMAL_REPRESENTATION.test(_value),
       _lt("The value (%s) must be a valid base %s representation.", _value, _base.toString())
     );
 
