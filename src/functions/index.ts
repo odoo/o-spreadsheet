@@ -57,7 +57,7 @@ class FunctionRegistry extends Registry<FunctionDescription> {
 
   add(name: string, addDescr: AddFunctionDescription) {
     name = name.toUpperCase();
-    if (!name.match(functionNameRegex)) {
+    if (!functionNameRegex.test(name)) {
       throw new Error(
         _lt(
           "Invalid function name %s. Function names can exclusively contain alphanumerical values separated by dots (.) or underscore (_)",

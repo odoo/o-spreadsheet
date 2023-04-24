@@ -2,7 +2,7 @@ import { Color, HSLA, RGBA } from "../types";
 import { concat } from "./misc";
 
 const RBA_REGEX = /rgba?\(|\s+|\)/gi;
-const HEX_MATCH = /^#([A-F\d]{2}){3,4}$/g;
+const HEX_MATCH = /^#([A-F\d]{2}){3,4}$/;
 
 export const colors = [
   "#eb6d00",
@@ -60,7 +60,7 @@ export function toHex(color: Color): Color {
     }
     hexColor = `#${hexColor}`;
   }
-  if (!hexColor.match(HEX_MATCH)) {
+  if (!HEX_MATCH.test(hexColor)) {
     throw new Error(`invalid color input: ${color}`);
   }
   return hexColor;

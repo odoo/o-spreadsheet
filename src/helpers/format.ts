@@ -624,7 +624,7 @@ function convertToInternalNumberFormat(format: Format): InternalNumberFormat {
   const magnitude = !magnitudeCommas ? 1 : 1000 ** magnitudeCommas.length;
   let _format = format.slice(0, format.length - (magnitudeCommas.length || 0));
   const thousandsSeparator = _format.includes(",");
-  if (_format.match(/\..*,/)) {
+  if (/\..*,/.test(_format)) {
     throw new Error("A format can't contain ',' symbol in the decimal part");
   }
   _format = _format.replace("%", "").replace(",", "");
