@@ -120,6 +120,17 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         return this.orderedSheetIds.length > 1
           ? CommandResult.Success
           : CommandResult.NotEnoughSheets;
+      case "ADD_COLUMNS_ROWS":
+        const elements =
+          cmd.dimension === "COL"
+            ? this.getNumberCols(cmd.sheetId)
+            : this.getNumberRows(cmd.sheetId);
+        if (cmd.base < 0 || cmd.base > elements) {
+          return CommandResult.InvalidHeaderIndex;
+        } else if (cmd.quantity <= 0) {
+          return CommandResult.InvalidQuantity;
+        }
+        return CommandResult.Success;
       case "REMOVE_COLUMNS_ROWS": {
         const elements =
           cmd.dimension === "COL"
