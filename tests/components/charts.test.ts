@@ -137,6 +137,17 @@ describe("charts", () => {
     }
   );
 
+  test.each(["basicChart", "scorecard", "gauge"])(
+    "charts don't have a menu button in readonly mode",
+    async (chartType: string) => {
+      createTestChart(chartType);
+      model.updateMode("readonly");
+      await nextTick();
+      expect(fixture.querySelector(".o-figure")).not.toBeNull();
+      expect(fixture.querySelector(".o-chart-menu-item")).toBeNull();
+    }
+  );
+
   test.each(["scorecard", "basicChart", "gauge"])(
     "Click on Edit button will prefill sidepanel",
     async (chartType: string) => {
