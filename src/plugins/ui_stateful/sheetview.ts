@@ -25,8 +25,8 @@ import {
   Viewport,
   Zone,
 } from "../../types/index";
+import { PixelPosition } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
-import { PixelPosition } from "./../../types/misc";
 
 type SheetViewports = {
   topLeft: InternalViewport | undefined;

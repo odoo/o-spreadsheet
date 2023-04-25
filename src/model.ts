@@ -21,6 +21,7 @@ import {
   statefulUIPluginRegistry,
 } from "./plugins/index";
 import { UIPlugin, UIPluginConfig, UIPluginConstructor } from "./plugins/ui_plugin";
+import { GridSelectionPlugin } from "./plugins/ui_stateful";
 import {
   SelectionStreamProcessor,
   SelectionStreamProcessorImpl,
@@ -232,18 +233,23 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     this.session.loadInitialMessages(stateUpdateMessages);
 
-    for (let Plugin of statefulUIPluginRegistry.getAll()) {
-      const plugin = this.setupUiPlugin(Plugin);
-      this.statefulUIPlugins.push(plugin);
-      this.handlers.push(plugin);
-      this.uiHandlers.push(plugin);
-    }
+    const selectionPlugin = this.setupUiPlugin(GridSelectionPlugin);
+    this.statefulUIPlugins.push(selectionPlugin);
+    this.handlers.push(selectionPlugin);
+    this.uiHandlers.push(selectionPlugin);
+
     for (let Plugin of coreViewsPluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
       this.coreViewsPlugins.push(plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
       this.coreHandlers.push(plugin);
+    }
+    for (let Plugin of statefulUIPluginRegistry.getAll()) {
+      const plugin = this.setupUiPlugin(Plugin);
+      this.statefulUIPlugins.push(plugin);
+      this.handlers.push(plugin);
+      this.uiHandlers.push(plugin);
     }
     for (let Plugin of featurePluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
