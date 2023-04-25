@@ -1,7 +1,7 @@
 import { LINK_COLOR } from "../../constants";
 import { parseLiteral } from "../../helpers/cells";
 import { colorNumberString, percentile } from "../../helpers/index";
-import { clip } from "../../helpers/misc";
+import { clip, lazy } from "../../helpers/misc";
 import { _lt } from "../../translation";
 import {
   CellIsRule,
@@ -15,24 +15,25 @@ import {
   IconSetRule,
   IconThreshold,
   invalidateCFEvaluationCommands,
+  Lazy,
   NumberCell,
   Position,
   Style,
+  UID,
   Zone,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 import { CoreViewCommand } from "./../../types/commands";
 
-// -----------------------------------------------------------------------------
-// Constants
-// -----------------------------------------------------------------------------
+type ComputedStyles = { [col: HeaderIndex]: (Style | undefined)[] };
+type ComputedIcons = { [col: HeaderIndex]: (string | undefined)[] };
 
 export class EvaluationConditionalFormatPlugin extends UIPlugin {
   static getters = ["getConditionalIcon", "getCellComputedStyle"] as const;
   private isStale: boolean = true;
   // stores the computed styles in the format of computedStyles.sheetName[col][row] = Style
-  private computedStyles: { [sheet: string]: { [col: HeaderIndex]: (Style | undefined)[] } } = {};
-  private computedIcons: { [sheet: string]: { [col: HeaderIndex]: (string | undefined)[] } } = {};
+  private computedStyles: { [sheet: string]: Lazy<ComputedStyles> } = {};
+  private computedIcons: { [sheet: string]: Lazy<ComputedIcons> } = {};
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -45,20 +46,14 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     ) {
       this.isStale = true;
     }
-
-    switch (cmd.type) {
-      case "ACTIVATE_SHEET":
-        const activeSheet = cmd.sheetIdTo;
-        this.computedStyles[activeSheet] = this.computedStyles[activeSheet] || {};
-        this.computedIcons[activeSheet] = this.computedIcons[activeSheet] || {};
-        this.isStale = true;
-        break;
-    }
   }
 
   finalize() {
     if (this.isStale) {
-      this.computeStyles();
+      for (const sheetId of this.getters.getSheetIds()) {
+        this.computedStyles[sheetId] = lazy(() => this.getComputedStyles(sheetId));
+        this.computedIcons[sheetId] = lazy(() => this.getComputedIcons(sheetId));
+      }
       this.isStale = false;
     }
   }
@@ -71,7 +66,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     // TODO move this getter out of CF: it also depends on filters and link
     const { sheetId, col, row } = position;
     const cell = this.getters.getCell(position);
-    const styles = this.computedStyles[sheetId];
+    const styles = this.computedStyles[sheetId]();
     const cfStyle = styles && styles[col]?.[row];
     const computedStyle = {
       ...cell?.style,
@@ -90,8 +85,8 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
 
   getConditionalIcon({ col, row }: Position): string | undefined {
     const activeSheet = this.getters.getActiveSheetId();
-    const icon = this.computedIcons[activeSheet];
-    return icon && icon[col]?.[row];
+    const icons = this.computedIcons[activeSheet]();
+    return icons && icons[col]?.[row];
   }
   // ---------------------------------------------------------------------------
   // Private
@@ -107,25 +102,17 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
    * the resulting style will have the combination of all those values.
    * If multiple conditional formatting use the same style value, they will be applied in order so that the last applied wins
    */
-  private computeStyles() {
-    const sheetId = this.getters.getActiveSheetId();
-    this.computedStyles[sheetId] = {};
-    this.computedIcons[sheetId] = {};
-    const computedStyle = this.computedStyles[sheetId];
+  private getComputedStyles(sheetId: UID): ComputedStyles {
+    const computedStyle: ComputedStyles = {};
     for (let cf of this.getters.getConditionalFormats(sheetId).reverse()) {
       try {
         switch (cf.rule.type) {
           case "ColorScaleRule":
             for (let range of cf.ranges) {
-              this.applyColorScale(range, cf.rule);
+              this.applyColorScale(sheetId, range, cf.rule, computedStyle);
             }
             break;
-          case "IconSetRule":
-            for (let range of cf.ranges) {
-              this.applyIcon(range, cf.rule);
-            }
-            break;
-          default:
+          case "CellIsRule":
             for (let ref of cf.ranges) {
               const zone: Zone = this.getters.getRangeFromSheetXC(sheetId, ref).zone;
               for (let row = zone.top; row <= zone.bottom; row++) {
@@ -150,14 +137,27 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
         // we don't care about the errors within the evaluation of a rule
       }
     }
+    return computedStyle;
+  }
+
+  private getComputedIcons(sheetId: UID): ComputedIcons {
+    const computedIcons = {};
+    for (let cf of this.getters.getConditionalFormats(sheetId).reverse()) {
+      if (cf.rule.type !== "IconSetRule") continue;
+
+      for (let range of cf.ranges) {
+        this.applyIcon(sheetId, range, cf.rule, computedIcons);
+      }
+    }
+    return computedIcons;
   }
 
   private parsePoint(
+    sheetId: UID,
     range: string,
     threshold: ColorScaleThreshold | ColorScaleMidPointThreshold | IconThreshold,
     functionName?: "min" | "max"
   ): null | number {
-    const sheetId = this.getters.getActiveSheetId();
     const rangeValues = this.getters
       .getEvaluatedCellsInZone(sheetId, this.getters.getRangeFromSheetXC(sheetId, range).zone)
       .filter((cell): cell is NumberCell => cell.type === CellValueType.number)
@@ -183,9 +183,23 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     }
   }
 
-  private applyIcon(range: string, rule: IconSetRule): void {
-    const lowerInflectionPoint: number | null = this.parsePoint(range, rule.lowerInflectionPoint);
-    const upperInflectionPoint: number | null = this.parsePoint(range, rule.upperInflectionPoint);
+  /** Compute the CF icons for the given range and CF rule, and apply in in the given computedIcons object */
+  private applyIcon(
+    sheetId: UID,
+    range: string,
+    rule: IconSetRule,
+    computedIcons: ComputedIcons
+  ): void {
+    const lowerInflectionPoint: number | null = this.parsePoint(
+      sheetId,
+      range,
+      rule.lowerInflectionPoint
+    );
+    const upperInflectionPoint: number | null = this.parsePoint(
+      sheetId,
+      range,
+      rule.upperInflectionPoint
+    );
     if (
       lowerInflectionPoint === null ||
       upperInflectionPoint === null ||
@@ -193,9 +207,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     ) {
       return;
     }
-    const sheetId = this.getters.getActiveSheetId();
     const zone: Zone = this.getters.getRangeFromSheetXC(sheetId, range).zone;
-    const computedIcons = this.computedIcons[sheetId];
     const iconSet: string[] = [rule.icons.upper, rule.icons.middle, rule.icons.lower];
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
@@ -240,10 +252,19 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
 
     return icons[2];
   }
-  private applyColorScale(range: string, rule: ColorScaleRule): void {
-    const minValue: number | null = this.parsePoint(range, rule.minimum, "min");
-    const midValue: number | null = rule.midpoint ? this.parsePoint(range, rule.midpoint) : null;
-    const maxValue: number | null = this.parsePoint(range, rule.maximum, "max");
+
+  /** Compute the color scale for the given range and CF rule, and apply in in the given computedStyle object */
+  private applyColorScale(
+    sheetId: UID,
+    range: string,
+    rule: ColorScaleRule,
+    computedStyle: ComputedStyles
+  ): void {
+    const minValue: number | null = this.parsePoint(sheetId, range, rule.minimum, "min");
+    const midValue: number | null = rule.midpoint
+      ? this.parsePoint(sheetId, range, rule.midpoint)
+      : null;
+    const maxValue: number | null = this.parsePoint(sheetId, range, rule.maximum, "max");
     if (
       minValue === null ||
       maxValue === null ||
@@ -252,9 +273,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     ) {
       return;
     }
-    const sheetId = this.getters.getActiveSheetId();
     const zone: Zone = this.getters.getRangeFromSheetXC(sheetId, range).zone;
-    const computedStyle = this.computedStyles[sheetId];
     const colorCellArgs: {
       minValue: number;
       minColor: number;
