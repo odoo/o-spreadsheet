@@ -452,7 +452,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * reasons the dispatch failed.
    */
   canDispatch: CommandDispatcher["canDispatch"] = (type: string, payload?: any) => {
-    return this.checkDispatchAllowed({ ...payload, type });
+    return this.checkDispatchAllowed(createCommand(type, payload));
   };
 
   /**
@@ -470,7 +470,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * 2. This allows us to define its type by using the interface CommandDispatcher
    */
   dispatch: CommandDispatcher["dispatch"] = (type: CommandTypes, payload?: any) => {
-    const command: Command = { ...payload, type };
+    const command: Command = createCommand(type, payload);
     let status: Status = this.status;
     if (this.getters.isReadonly() && !canExecuteInReadonly(command)) {
       return new DispatchResult(CommandResult.Readonly);
@@ -522,7 +522,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * A command dispatched from this function is not added to the history.
    */
   private dispatchFromCorePlugin: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
-    const command: Command = { ...payload, type };
+    const command = createCommand(type, payload);
     const previousStatus = this.status;
     this.status = Status.RunningCore;
     const handlers = this.isReplayingCommand ? this.coreHandlers : this.handlers;
@@ -536,7 +536,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * It will call `beforeHandle` and `handle`
    */
   private dispatchToHandlers(handlers: CommandHandler<Command>[], command: Command) {
-    command = deepCopy(command);
     for (const handler of handlers) {
       handler.beforeHandle(command);
     }
@@ -625,4 +624,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       plugin.garbageCollectExternalResources();
     }
   }
+}
+
+function createCommand(type: string, payload: any = {}): Command {
+  const command = deepCopy(payload);
+  command.type = type;
+  return command;
 }
