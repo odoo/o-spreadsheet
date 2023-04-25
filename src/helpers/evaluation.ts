@@ -44,23 +44,22 @@ export class FormulaDependencyGraph {
     }
   }
 
-  private visitReferences(rc: string, visited: Set<string>): void {
-    visited.add(rc);
-
-    const node = this.nodes.get(rc) || [];
-    for (const adjacent of node) {
-      if (!visited.has(adjacent)) {
-        this.visitReferences(adjacent, visited);
-      }
-    }
-  }
-
-  /**
-   * See https://en.wikipedia.org/wiki/Depth-first_search
-   */
   visitDeepReferences(rc: string): Set<string> {
     const visited: Set<string> = new Set<string>();
-    this.visitReferences(rc, visited);
+    const queue: string[] = [rc];
+
+    while (queue.length > 0) {
+      const node = queue.shift()!;
+      visited.add(node);
+
+      const adjacentNodes = this.nodes.get(node) || [];
+      for (const adjacentNode of adjacentNodes) {
+        if (!visited.has(adjacentNode)) {
+          queue.push(adjacentNode);
+        }
+      }
+    }
+
     return visited;
   }
 }
