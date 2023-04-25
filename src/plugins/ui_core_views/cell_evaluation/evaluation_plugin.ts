@@ -206,7 +206,7 @@ export class EvaluationPlugin extends UIPlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  evaluateFormula(formulaString: string, sheetId: UID = this.getters.getActiveSheetId()): any {
+  evaluateFormula(sheetId: UID, formulaString: string): any {
     const compiledFormula = compile(formulaString);
 
     const ranges: Range[] = [];

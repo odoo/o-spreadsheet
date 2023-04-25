@@ -25,6 +25,7 @@ import { ComposerSelection } from "../../src/plugins/ui_stateful";
 import { topbarMenuRegistry } from "../../src/registries";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import {
+  CellPosition,
   ChartDefinition,
   ColorScaleMidPointThreshold,
   ColorScaleThreshold,
@@ -698,4 +699,9 @@ export async function mountComposerWrapper(
   });
 
   return { parent: parent as ComposerWrapper, model, fixture };
+}
+
+export function toCellPosition(sheetId: UID, xc: string): CellPosition {
+  const { col, row } = toCartesian(xc);
+  return { sheetId, col, row };
 }

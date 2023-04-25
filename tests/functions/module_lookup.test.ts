@@ -80,9 +80,10 @@ describe("COLUMN formula", () => {
 
   test("functional test without grid context", () => {
     const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "kikoulol");
-    expect(() => model.getters.evaluateFormula("=COLUMN()")).toThrow();
-    expect(() => model.getters.evaluateFormula("=COLUMN(A1)")).not.toThrow();
+    expect(() => model.getters.evaluateFormula(sheetId, "=COLUMN()")).toThrow();
+    expect(() => model.getters.evaluateFormula(sheetId, "=COLUMN(A1)")).not.toThrow();
   });
 
   test("functional tests on cell arguments", () => {
@@ -432,9 +433,10 @@ describe("ROW formula", () => {
 
   test("functional test without grid context", () => {
     const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "kikoulol");
-    expect(() => model.getters.evaluateFormula("=ROW()")).toThrow();
-    expect(() => model.getters.evaluateFormula("=ROW(A1)")).not.toThrow();
+    expect(() => model.getters.evaluateFormula(sheetId, "=ROW()")).toThrow();
+    expect(() => model.getters.evaluateFormula(sheetId, "=ROW(A1)")).not.toThrow();
   });
 
   test("functional tests on cell arguments", () => {

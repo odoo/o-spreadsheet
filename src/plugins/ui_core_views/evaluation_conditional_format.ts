@@ -17,7 +17,6 @@ import {
   invalidateCFEvaluationCommands,
   Lazy,
   NumberCell,
-  Position,
   Style,
   UID,
   Zone,
@@ -83,9 +82,8 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     return computedStyle;
   }
 
-  getConditionalIcon({ col, row }: Position): string | undefined {
-    const activeSheet = this.getters.getActiveSheetId();
-    const icons = this.computedIcons[activeSheet]();
+  getConditionalIcon({ sheetId, col, row }: CellPosition): string | undefined {
+    const icons = this.computedIcons[sheetId]();
     return icons && icons[col]?.[row];
   }
   // ---------------------------------------------------------------------------
@@ -176,7 +174,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       case "percentile":
         return percentile(rangeValues, Number(threshold.value) / 100, true);
       case "formula":
-        const value = threshold.value && this.getters.evaluateFormula(threshold.value);
+        const value = threshold.value && this.getters.evaluateFormula(sheetId, threshold.value);
         return !(value instanceof Promise) ? value : null;
       default:
         return null;

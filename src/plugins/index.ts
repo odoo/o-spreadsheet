@@ -41,6 +41,7 @@ import {
   ClipboardPlugin,
   EditionPlugin,
   FilterEvaluationPlugin,
+  GridSelectionPlugin,
   SheetViewPlugin,
 } from "./ui_stateful";
 
@@ -77,6 +78,7 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
 
 // Plugins which have a state, but which should not be shared in collaborative
 export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
+  .add("selection", GridSelectionPlugin)
   .add("evaluation_filter", FilterEvaluationPlugin)
   .add("viewport", SheetViewPlugin)
   .add("clipboard", ClipboardPlugin)
