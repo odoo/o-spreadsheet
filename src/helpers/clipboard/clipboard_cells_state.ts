@@ -6,6 +6,7 @@ import {
   ClipboardCell,
   CommandDispatcher,
   CommandResult,
+  ConditionalFormat,
   Dimension,
   FormulaCell,
   Getters,
@@ -16,9 +17,10 @@ import {
 } from "../../types";
 import { ClipboardMIMEType, ClipboardOperation, ClipboardOptions } from "../../types/clipboard";
 import { xmlEscape } from "../../xlsx/helpers/xml_helpers";
+import { toXC } from "../coordinates";
 import { formatValue } from "../format";
 import { range } from "../misc";
-import { createAdaptedZone, mergeOverlappingZones, positions, union } from "../zones";
+import { createAdaptedZone, isInside, mergeOverlappingZones, positions, union } from "../zones";
 import { ClipboardCellsAbstractState } from "./clipboard_abstract_cell_state";
 
 interface CopiedTable {
@@ -329,11 +331,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
         }
         this.pasteCell(origin, position, this.operation, clipboardOptions);
         if (shouldPasteCF) {
-          this.dispatch("PASTE_CONDITIONAL_FORMAT", {
-            originPosition: origin.position,
-            targetPosition: position,
-            operation: this.operation,
-          });
+          this.pasteCf(origin.position, position);
         }
       }
     }
@@ -509,7 +507,9 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
   }
 
   isColRowDirtyingClipboard(position: HeaderIndex, dimension: Dimension): boolean {
-    if (!this.zones) return false;
+    if (!this.zones) {
+      return false;
+    }
     for (let zone of this.zones) {
       if (dimension === "COL" && position <= zone.right) {
         return true;
@@ -535,5 +535,52 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
         ctx.strokeRect(x, y, width, height);
       }
     }
+  }
+
+  private pasteCf(origin: CellPosition, target: CellPosition) {
+    const xc = toXC(target.col, target.row);
+    for (let rule of this.getters.getConditionalFormats(origin.sheetId)) {
+      for (let range of rule.ranges) {
+        if (
+          isInside(
+            origin.col,
+            origin.row,
+            this.getters.getRangeFromSheetXC(origin.sheetId, range).zone
+          )
+        ) {
+          const cf = rule;
+          const toRemoveRange: string[] = [];
+          if (this.operation === "CUT") {
+            //remove from current rule
+            toRemoveRange.push(toXC(origin.col, origin.row));
+          }
+          if (origin.sheetId === target.sheetId) {
+            this.adaptCFRules(origin.sheetId, cf, [xc], toRemoveRange);
+          } else {
+            this.adaptCFRules(target.sheetId, cf, [xc], []);
+            this.adaptCFRules(origin.sheetId, cf, [], toRemoveRange);
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Add or remove cells to a given conditional formatting rule.
+   */
+  private adaptCFRules(sheetId: UID, cf: ConditionalFormat, toAdd: string[], toRemove: string[]) {
+    const newRangesXC = this.getters.getAdaptedCfRanges(sheetId, cf, toAdd, toRemove);
+    if (!newRangesXC) {
+      return;
+    }
+    this.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: cf.id,
+        rule: cf.rule,
+        stopIfTrue: cf.stopIfTrue,
+      },
+      ranges: newRangesXC.map((xc) => this.getters.getRangeDataFromXc(sheetId, xc)),
+      sheetId,
+    });
   }
 }

@@ -17,6 +17,7 @@ import {
   Zone,
 } from "../../../types/index";
 import { UIPlugin, UIPluginConfig } from "../../ui_plugin";
+import { CoreViewCommand } from "./../../../types/commands";
 import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
 import { Evaluator } from "./evaluator";
 
@@ -172,7 +173,7 @@ export class EvaluationPlugin extends UIPlugin {
     }
   }
 
-  handle(cmd: Command) {
+  handle(cmd: CoreViewCommand) {
     switch (cmd.type) {
       case "UPDATE_CELL":
         if (!("content" in cmd || "format" in cmd) || this.shouldRebuildDependenciesGraph) {

@@ -10,7 +10,7 @@ import {
   toHex,
 } from "../../helpers";
 import { GaugeChart, ScorecardChart } from "../../helpers/figures/charts";
-import { Color, Command, RGBA, UID } from "../../types";
+import { Color, CoreViewCommand, RGBA, UID } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 /**
@@ -68,7 +68,7 @@ export class CustomColorsPlugin extends UIPlugin {
   private shouldUpdateColors = false;
   static getters = ["getCustomColors"] as const;
 
-  handle(cmd: Command) {
+  handle(cmd: CoreViewCommand) {
     switch (cmd.type) {
       case "UPDATE_CELL":
       case "UPDATE_CHART":

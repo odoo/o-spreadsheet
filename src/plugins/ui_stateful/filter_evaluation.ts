@@ -22,8 +22,8 @@ import {
   UID,
   Zone,
 } from "../../types";
+import { Command, LocalCommand, UpdateFilterCommand } from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";
-import { Command, LocalCommand, UpdateFilterCommand } from "./../../types/commands";
 
 export class FilterEvaluationPlugin extends UIPlugin {
   static getters = [

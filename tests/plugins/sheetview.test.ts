@@ -6,7 +6,7 @@ import {
 } from "../../src/constants";
 import { isDefined, numberToLetters, range, toXC, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { SheetViewPlugin } from "../../src/plugins/ui_core_views/sheetview";
+import { SheetViewPlugin } from "../../src/plugins/ui_stateful/sheetview";
 import { Zone } from "../../src/types";
 import {
   activateSheet,

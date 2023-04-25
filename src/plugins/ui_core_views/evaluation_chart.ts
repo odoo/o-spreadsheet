@@ -3,7 +3,7 @@ import { chartRuntimeFactory } from "../../helpers/figures/charts";
 import { Color, Range, UID } from "../../types";
 import { ChartRuntime } from "../../types/chart/chart";
 import {
-  Command,
+  CoreViewCommand,
   invalidateCFEvaluationCommands,
   invalidateEvaluationCommands,
 } from "../../types/commands";
@@ -16,7 +16,7 @@ export class EvaluationChartPlugin extends UIPlugin {
 
   private createRuntimeChart = chartRuntimeFactory(this.getters);
 
-  handle(cmd: Command) {
+  handle(cmd: CoreViewCommand) {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
       invalidateCFEvaluationCommands.has(cmd.type) ||

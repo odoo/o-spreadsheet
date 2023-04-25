@@ -1,5 +1,5 @@
 import { compile } from "../../formulas/index";
-import { isInside } from "../../helpers/index";
+import { isInside, recomputeZones } from "../../helpers/index";
 import {
   AddConditionalFormatCommand,
   ApplyRangeChange,
@@ -48,7 +48,12 @@ export class ConditionalFormatPlugin
   extends CorePlugin<ConditionalFormatState>
   implements ConditionalFormatState
 {
-  static getters = ["getConditionalFormats", "getRulesSelection", "getRulesByCell"] as const;
+  static getters = [
+    "getConditionalFormats",
+    "getRulesSelection",
+    "getRulesByCell",
+    "getAdaptedCfRanges",
+  ] as const;
 
   readonly cfRules: { [sheet: string]: ConditionalFormatInternal[] } = {};
 
@@ -222,6 +227,24 @@ export class ConditionalFormatPlugin
         return this.mapToConditionalFormat(sheetId, rule);
       })
     );
+  }
+
+  /**
+   * Add or remove cells to a given conditional formatting rule and return the adapted CF's XCs.
+   */
+  getAdaptedCfRanges(sheetId: UID, cf: ConditionalFormat, toAdd: string[], toRemove: string[]) {
+    if (toAdd.length === 0 && toRemove.length === 0) {
+      return;
+    }
+    const rules = this.getters.getConditionalFormats(sheetId);
+    const replaceIndex = rules.findIndex((c) => c.id === cf.id);
+    let currentRanges: string[] = [];
+    if (replaceIndex > -1) {
+      currentRanges = rules[replaceIndex].ranges;
+    }
+
+    currentRanges = currentRanges.concat(toAdd);
+    return recomputeZones(currentRanges, toRemove);
   }
 
   // ---------------------------------------------------------------------------

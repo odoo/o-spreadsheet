@@ -1,6 +1,6 @@
 import { LINK_COLOR } from "../../constants";
 import { parseLiteral } from "../../helpers/cells";
-import { colorNumberString, isInside, percentile, recomputeZones, toXC } from "../../helpers/index";
+import { colorNumberString, percentile } from "../../helpers/index";
 import { clip } from "../../helpers/misc";
 import { _lt } from "../../translation";
 import {
@@ -10,8 +10,6 @@ import {
   ColorScaleMidPointThreshold,
   ColorScaleRule,
   ColorScaleThreshold,
-  Command,
-  ConditionalFormat,
   EvaluatedCell,
   HeaderIndex,
   IconSetRule,
@@ -20,10 +18,10 @@ import {
   NumberCell,
   Position,
   Style,
-  UID,
   Zone,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
+import { CoreViewCommand } from "./../../types/commands";
 
 // -----------------------------------------------------------------------------
 // Constants
@@ -40,7 +38,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  handle(cmd: Command) {
+  handle(cmd: CoreViewCommand) {
     if (
       invalidateCFEvaluationCommands.has(cmd.type) ||
       (cmd.type === "UPDATE_CELL" && "content" in cmd)
@@ -54,17 +52,6 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
         this.computedStyles[activeSheet] = this.computedStyles[activeSheet] || {};
         this.computedIcons[activeSheet] = this.computedIcons[activeSheet] || {};
         this.isStale = true;
-        break;
-
-      case "AUTOFILL_CELL":
-        const sheetId = this.getters.getActiveSheetId();
-        const cfOrigin = this.getters.getRulesByCell(sheetId, cmd.originCol, cmd.originRow);
-        for (const cf of cfOrigin) {
-          this.adaptRules(sheetId, cf, [toXC(cmd.col, cmd.row)], []);
-        }
-        break;
-      case "PASTE_CONDITIONAL_FORMAT":
-        this.pasteCf(cmd.originPosition, cmd.targetPosition, cmd.operation);
         break;
     }
   }
@@ -438,59 +425,4 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       return false;
     },
   };
-
-  /**
-   * Add or remove cells to a given conditional formatting rule.
-   */
-  private adaptRules(sheetId: UID, cf: ConditionalFormat, toAdd: string[], toRemove: string[]) {
-    if (toAdd.length === 0 && toRemove.length === 0) {
-      return;
-    }
-    const rules = this.getters.getConditionalFormats(sheetId);
-    const replaceIndex = rules.findIndex((c) => c.id === cf.id);
-    let currentRanges: string[] = [];
-    if (replaceIndex > -1) {
-      currentRanges = rules[replaceIndex].ranges;
-    }
-
-    currentRanges = currentRanges.concat(toAdd);
-    const newRangesXC: string[] = recomputeZones(currentRanges, toRemove);
-    this.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: {
-        id: cf.id,
-        rule: cf.rule,
-        stopIfTrue: cf.stopIfTrue,
-      },
-      ranges: newRangesXC.map((xc) => this.getters.getRangeDataFromXc(sheetId, xc)),
-      sheetId,
-    });
-  }
-
-  private pasteCf(origin: CellPosition, target: CellPosition, operation: "CUT" | "COPY") {
-    const xc = toXC(target.col, target.row);
-    for (let rule of this.getters.getConditionalFormats(origin.sheetId)) {
-      for (let range of rule.ranges) {
-        if (
-          isInside(
-            origin.col,
-            origin.row,
-            this.getters.getRangeFromSheetXC(origin.sheetId, range).zone
-          )
-        ) {
-          const cf = rule;
-          const toRemoveRange: string[] = [];
-          if (operation === "CUT") {
-            //remove from current rule
-            toRemoveRange.push(toXC(origin.col, origin.row));
-          }
-          if (origin.sheetId === target.sheetId) {
-            this.adaptRules(origin.sheetId, cf, [xc], toRemoveRange);
-          } else {
-            this.adaptRules(target.sheetId, cf, [xc], []);
-            this.adaptRules(origin.sheetId, cf, [], toRemoveRange);
-          }
-        }
-      }
-    }
-  }
 }

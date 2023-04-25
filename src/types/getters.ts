@@ -14,8 +14,6 @@ import { EvaluationPlugin } from "../plugins/ui_core_views/cell_evaluation";
 import { CustomColorsPlugin } from "../plugins/ui_core_views/custom_colors";
 import { EvaluationChartPlugin } from "../plugins/ui_core_views/evaluation_chart";
 import { EvaluationConditionalFormatPlugin } from "../plugins/ui_core_views/evaluation_conditional_format";
-import { FilterEvaluationPlugin } from "../plugins/ui_core_views/filter_evaluation";
-import { SheetViewPlugin } from "../plugins/ui_core_views/sheetview";
 import { AutofillPlugin } from "../plugins/ui_feature/autofill";
 import { AutomaticSumPlugin } from "../plugins/ui_feature/automatic_sum";
 import { CellPopoverPlugin } from "../plugins/ui_feature/cell_popovers";
@@ -32,7 +30,9 @@ import { UIOptionsPlugin } from "../plugins/ui_feature/ui_options";
 import { SheetUIPlugin } from "../plugins/ui_feature/ui_sheet";
 import { ClipboardPlugin } from "../plugins/ui_stateful/clipboard";
 import { EditionPlugin } from "../plugins/ui_stateful/edition";
+import { FilterEvaluationPlugin } from "../plugins/ui_stateful/filter_evaluation";
 import { GridSelectionPlugin } from "../plugins/ui_stateful/selection";
+import { SheetViewPlugin } from "../plugins/ui_stateful/sheetview";
 // -----------------------------------------------------------------------------
 // Getters
 // -----------------------------------------------------------------------------

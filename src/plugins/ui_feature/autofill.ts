@@ -1,4 +1,4 @@
-import { clip, isInside, toCartesian, toXC } from "../../helpers/index";
+import { clip, deepCopy, isInside, toCartesian, toXC } from "../../helpers/index";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "../../registries/index";
 import {
   AutofillData,
@@ -148,6 +148,7 @@ export class AutofillPlugin extends UIPlugin {
           row: cmd.row,
           border: cmd.border,
         });
+        this.autofillCF(cmd.originCol, cmd.originRow, cmd.col, cmd.row);
     }
   }
 
@@ -431,6 +432,21 @@ export class AutofillPlugin extends UIPlugin {
           },
         ],
       });
+    }
+  }
+
+  private autofillCF(originCol: number, originRow: number, col: number, row: number) {
+    const sheetId = this.getters.getActiveSheetId();
+    const cfOrigin = this.getters.getRulesByCell(sheetId, originCol, originRow);
+    for (const cf of cfOrigin) {
+      const newCfRanges = this.getters.getAdaptedCfRanges(sheetId, cf, [toXC(col, row)], []);
+      if (newCfRanges) {
+        this.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: deepCopy(cf),
+          ranges: newCfRanges.map((xc) => this.getters.getRangeDataFromXc(sheetId, xc)),
+          sheetId,
+        });
+      }
     }
   }
 
