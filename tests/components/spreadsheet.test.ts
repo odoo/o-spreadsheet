@@ -22,9 +22,11 @@ import {
 } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
 import {
+  doAction,
   mountSpreadsheet,
   nextTick,
   restoreDefaultFunctions,
+  spyDispatch,
   startGridComposition,
   typeInComposerGrid,
   typeInComposerTopBar,
@@ -236,6 +238,19 @@ describe("Simple Spreadsheet Component", () => {
     await simulateClick(".o-topbar-topleft .o-topbar-menu");
     expect(parent.model.getters.getEditionMode()).toBe("inactive");
     expect(fixture.querySelectorAll(".o-composer-assistant")).toHaveLength(0);
+  });
+
+  test("Insert a function properly sets the edition", async () => {
+    ({ model, parent, fixture, env } = await mountSpreadsheet());
+    const dispatch = spyDispatch(parent);
+    doAction(["insert", "insert_function", "insert_function_sum"], env);
+    expect(dispatch).toHaveBeenCalledWith("START_EDITION", {
+      text: "=SUM(",
+    });
+    doAction(["insert", "insert_function", "insert_function_sum"], env);
+    expect(dispatch).toHaveBeenCalledWith("SET_CURRENT_CONTENT", {
+      content: "=SUM(",
+    });
   });
 });
 

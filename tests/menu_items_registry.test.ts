@@ -1,5 +1,4 @@
-import { Model, Spreadsheet } from "../src";
-import { Action } from "../src/actions/action";
+import { Model } from "../src";
 import { FONT_SIZES } from "../src/constants";
 import { zoneToXc } from "../src/helpers";
 import { interactivePaste } from "../src/helpers/ui/paste_interactive";
@@ -25,9 +24,7 @@ import {
   getNode,
   makeTestEnv,
   mockUuidV4To,
-  mountSpreadsheet,
   nextTick,
-  spyDispatch,
   target,
 } from "./test_helpers/helpers";
 jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
@@ -62,11 +59,11 @@ describe("Menu Item Registry", () => {
 
     const children = item.children && item.children(env);
     expect(children).toHaveLength(1);
-    const child = children[0] as Action;
+    const child = children[0];
     expect(child.name(env)).toBe("Child1");
     expect(child.id).toBe("child1");
     expect(child.children(env)).toHaveLength(3);
-    const subChild = child.children(env)[0] as Action;
+    const subChild = child.children(env)[0];
     expect(subChild.name(env)).toBe("Child2");
     expect(subChild.description).toBe("coucou");
     expect(subChild.id).toBe("child2");
@@ -94,13 +91,13 @@ describe("Menu Item Registry", () => {
 
 describe("Menu Item actions", () => {
   let model: Model;
-  let parent: Spreadsheet;
   let env: SpreadsheetChildEnv;
   let dispatch: jest.SpyInstance;
 
   beforeEach(async () => {
-    ({ parent, model, env } = await mountSpreadsheet());
-    dispatch = spyDispatch(parent);
+    env = makeTestEnv();
+    model = env.model;
+    dispatch = jest.spyOn(model, "dispatch");
   });
 
   test("Edit -> undo", () => {
@@ -512,7 +509,6 @@ describe("Menu Item actions", () => {
 
   test("Insert -> new sheet", () => {
     mockUuidV4To(model, 42);
-    dispatch = spyDispatch(parent);
     const activeSheetId = env.model.getters.getActiveSheetId();
     doAction(["insert", "insert_sheet"], env);
     expect(dispatch).toHaveBeenNthCalledWith(1, "CREATE_SHEET", {
@@ -526,14 +522,9 @@ describe("Menu Item actions", () => {
   });
 
   test("Insert -> Function", () => {
+    const spyStartCell = jest.spyOn(env, "startCellEdition");
     doAction(["insert", "insert_function", "insert_function_sum"], env);
-    expect(dispatch).toHaveBeenCalledWith("START_EDITION", {
-      text: "=SUM(",
-    });
-    doAction(["insert", "insert_function", "insert_function_sum"], env);
-    expect(dispatch).toHaveBeenCalledWith("SET_CURRENT_CONTENT", {
-      content: "=SUM(",
-    });
+    expect(spyStartCell).toHaveBeenCalled();
   });
 
   describe("Format -> numbers", () => {
@@ -619,12 +610,9 @@ describe("Menu Item actions", () => {
     });
 
     test("Custom currency", async () => {
+      const spyOpenSidePanel = jest.spyOn(env, "openSidePanel");
       doAction(["format", "format_number", "format_custom_currency"], env);
-      await nextTick();
-      expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
-      expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe(
-        "Custom currency format"
-      );
+      expect(spyOpenSidePanel).toHaveBeenCalledWith("CustomCurrency", {});
     });
   });
 
