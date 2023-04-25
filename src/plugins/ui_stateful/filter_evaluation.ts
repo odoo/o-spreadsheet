@@ -18,7 +18,6 @@ import {
   ExcelFilterData,
   ExcelWorkbookData,
   FilterId,
-  Position,
   UID,
   Zone,
 } from "../../types";
@@ -28,9 +27,7 @@ import { UIPlugin } from "../ui_plugin";
 export class FilterEvaluationPlugin extends UIPlugin {
   static getters = [
     "getCellBorderWithFilterBorder",
-    "getFilterHeaders",
     "getFilterValues",
-    "isFilterHeader",
     "isRowFiltered",
     "isFilterActive",
   ] as const;
@@ -136,34 +133,11 @@ export class FilterEvaluationPlugin extends UIPlugin {
     return isObjectEmptyRecursive(border) ? null : border;
   }
 
-  getFilterHeaders(sheetId: UID): Position[] {
-    const headers: Position[] = [];
-    for (let filters of this.getters.getFilterTables(sheetId)) {
-      const zone = filters.zone;
-      if (!zone) {
-        continue;
-      }
-      const row = zone.top;
-      for (let col = zone.left; col <= zone.right; col++) {
-        if (this.getters.isColHidden(sheetId, col) || this.getters.isRowHidden(sheetId, row)) {
-          continue;
-        }
-        headers.push({ col, row });
-      }
-    }
-    return headers;
-  }
-
   getFilterValues(position: CellPosition): string[] {
     const id = this.getters.getFilterId(position);
     const sheetId = position.sheetId;
     if (!id || !this.filterValues[sheetId]) return [];
     return this.filterValues[sheetId][id] || [];
-  }
-
-  isFilterHeader({ sheetId, col, row }: CellPosition): boolean {
-    const headers = this.getFilterHeaders(sheetId);
-    return headers.some((header) => header.col === col && header.row === row);
   }
 
   isFilterActive(position: CellPosition): boolean {
