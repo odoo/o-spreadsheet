@@ -23,6 +23,7 @@ import {
   ExcelWorkbookData,
   FilterId,
   FilterTableId,
+  Position,
   RemoveColumnsRowsCommand,
   UID,
   UpdateCellCommand,
@@ -44,6 +45,8 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
     "getFilterTables",
     "getFilterTablesInZone",
     "getFilterId",
+    "getFilterHeaders",
+    "isFilterHeader",
   ] as const;
 
   readonly tables: Record<UID, Record<FilterTableId, FilterTable | undefined>> = {};
@@ -176,6 +179,23 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
       }
     }
     return false;
+  }
+
+  getFilterHeaders(sheetId: UID): Position[] {
+    const headers: Position[] = [];
+    for (let filterTable of this.getFilterTables(sheetId)) {
+      const zone = filterTable.zone;
+      const row = zone.top;
+      for (let col = zone.left; col <= zone.right; col++) {
+        headers.push({ col, row });
+      }
+    }
+    return headers;
+  }
+
+  isFilterHeader({ sheetId, col, row }: CellPosition): boolean {
+    const headers = this.getFilterHeaders(sheetId);
+    return headers.some((header) => header.col === col && header.row === row);
   }
 
   private onAddColumnsRows(cmd: AddColumnsRowsCommand) {
