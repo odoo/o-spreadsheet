@@ -1,9 +1,11 @@
 import { Model } from "../../../src";
 import { Color, UID } from "../../../src/types";
 import {
+  activateSheet,
   createChart,
   createGaugeChart,
   createScorecardChart,
+  createSheet,
   setCellContent,
 } from "../../test_helpers/commands_helpers";
 import { createEqualCF, target, toRangesData } from "../../test_helpers/helpers";
@@ -82,6 +84,23 @@ describe("Single cell chart background color", () => {
       addCfToA1("#FF0000");
       createTestChart(chartType, "A1", "#0000FF");
       expect(model.getters.getChartRuntime(chartId).background).toEqual("#0000FF");
+    }
+  );
+
+  test.each(["scorecard", "gauge"])(
+    "Chart style change based on CF of another sheet",
+    (chartType: string) => {
+      createSheet(model, { sheetId: "sheet2" });
+      activateSheet(model, "sheet2");
+      setCellContent(model, "A1", "1", sheetId);
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createEqualCF("1", { fillColor: "#000FFF" }, "cfId"),
+        ranges: toRangesData(sheetId, "A1"),
+        sheetId,
+      });
+      const sheet1Name = model.getters.getSheetName(sheetId);
+      createTestChart(chartType, `${sheet1Name}!A1`);
+      expect(model.getters.getChartRuntime(chartId).background).toEqual("#000FFF");
     }
   );
 
