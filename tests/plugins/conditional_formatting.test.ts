@@ -1,4 +1,3 @@
-import { toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult, ConditionalFormattingOperatorValues, UID } from "../../src/types";
 import {
@@ -16,7 +15,12 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getStyle } from "../test_helpers/getters_helpers";
-import { createColorScale, createEqualCF, toRangesData } from "../test_helpers/helpers";
+import {
+  createColorScale,
+  createEqualCF,
+  toCellPosition,
+  toRangesData,
+} from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
@@ -1630,7 +1634,9 @@ describe("conditional formats types", () => {
         sheetId,
       });
       expect(getStyle(model, "A1")).toEqual({});
-      expect(model.getters.getConditionalIcon(toCartesian("A1"))).toEqual("arrowNeutral");
+      expect(model.getters.getConditionalIcon(toCellPosition(sheetId, "A1"))).toEqual(
+        "arrowNeutral"
+      );
     });
 
     test.each(["hello", "TRUE", "=TRUE", `="hello"`, ""])(
@@ -1655,7 +1661,7 @@ describe("conditional formats types", () => {
           sheetId,
         });
         expect(getStyle(model, "A1")).toEqual({});
-        expect(model.getters.getConditionalIcon(toCartesian("A1"))).toBeUndefined();
+        expect(model.getters.getConditionalIcon(toCellPosition(sheetId, "A1"))).toBeUndefined();
       }
     );
 
@@ -1684,11 +1690,15 @@ describe("conditional formats types", () => {
         sheetId,
       });
 
-      expect(model.getters.getConditionalIcon(toCartesian("A1"))).toEqual("arrowBad");
-      expect(model.getters.getConditionalIcon(toCartesian("A2"))).toEqual("arrowBad");
-      expect(model.getters.getConditionalIcon(toCartesian("A3"))).toEqual("arrowNeutral");
-      expect(model.getters.getConditionalIcon(toCartesian("A4"))).toEqual("arrowNeutral");
-      expect(model.getters.getConditionalIcon(toCartesian("A5"))).toEqual("arrowGood");
+      expect(model.getters.getConditionalIcon(toCellPosition(sheetId, "A1"))).toEqual("arrowBad");
+      expect(model.getters.getConditionalIcon(toCellPosition(sheetId, "A2"))).toEqual("arrowBad");
+      expect(model.getters.getConditionalIcon(toCellPosition(sheetId, "A3"))).toEqual(
+        "arrowNeutral"
+      );
+      expect(model.getters.getConditionalIcon(toCellPosition(sheetId, "A4"))).toEqual(
+        "arrowNeutral"
+      );
+      expect(model.getters.getConditionalIcon(toCellPosition(sheetId, "A5"))).toEqual("arrowGood");
     });
 
     test("2 points with 'ge', value scale", () => {
@@ -1716,11 +1726,15 @@ describe("conditional formats types", () => {
         sheetId,
       });
 
-      expect(model.getters.getConditionalIcon(toCartesian("A1"))).toEqual("arrowBad");
-      expect(model.getters.getConditionalIcon(toCartesian("A2"))).toEqual("arrowNeutral");
-      expect(model.getters.getConditionalIcon(toCartesian("A3"))).toEqual("arrowNeutral");
-      expect(model.getters.getConditionalIcon(toCartesian("A4"))).toEqual("arrowGood");
-      expect(model.getters.getConditionalIcon(toCartesian("A5"))).toEqual("arrowGood");
+      expect(model.getters.getConditionalIcon(toCellPosition(sheetId, "A1"))).toEqual("arrowBad");
+      expect(model.getters.getConditionalIcon(toCellPosition(sheetId, "A2"))).toEqual(
+        "arrowNeutral"
+      );
+      expect(model.getters.getConditionalIcon(toCellPosition(sheetId, "A3"))).toEqual(
+        "arrowNeutral"
+      );
+      expect(model.getters.getConditionalIcon(toCellPosition(sheetId, "A4"))).toEqual("arrowGood");
+      expect(model.getters.getConditionalIcon(toCellPosition(sheetId, "A5"))).toEqual("arrowGood");
     });
 
     test("same upper and lower inflection point", () => {
@@ -1748,11 +1762,11 @@ describe("conditional formats types", () => {
         sheetId,
       });
 
-      expect(model.getters.getConditionalIcon(toCartesian("A1"))).toEqual("arrowBad");
-      expect(model.getters.getConditionalIcon(toCartesian("A2"))).toEqual("arrowBad");
-      expect(model.getters.getConditionalIcon(toCartesian("A3"))).toEqual("arrowBad");
-      expect(model.getters.getConditionalIcon(toCartesian("A4"))).toEqual("arrowBad");
-      expect(model.getters.getConditionalIcon(toCartesian("A5"))).toEqual("arrowGood");
+      expect(model.getters.getConditionalIcon(toCellPosition(sheetId, "A1"))).toEqual("arrowBad");
+      expect(model.getters.getConditionalIcon(toCellPosition(sheetId, "A2"))).toEqual("arrowBad");
+      expect(model.getters.getConditionalIcon(toCellPosition(sheetId, "A3"))).toEqual("arrowBad");
+      expect(model.getters.getConditionalIcon(toCellPosition(sheetId, "A4"))).toEqual("arrowBad");
+      expect(model.getters.getConditionalIcon(toCellPosition(sheetId, "A5"))).toEqual("arrowGood");
     });
   });
   describe("color scale", () => {

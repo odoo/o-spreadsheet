@@ -366,9 +366,10 @@ describe("evaluateCells", () => {
   });
 
   test("evaluate formula throws when we pass an invalid formula", () => {
-    let model = new Model();
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
     expect(() => {
-      model.getters.evaluateFormula("=min(abc)");
+      model.getters.evaluateFormula(sheetId, "=min(abc)");
     }).toThrow();
   });
 
@@ -1063,10 +1064,12 @@ describe("evaluateCells", () => {
 });
 
 describe("evaluate formula getter", () => {
-  let model: Model = new Model();
+  let model: Model;
+  let sheetId: string;
 
   beforeEach(() => {
     model = new Model();
+    sheetId = model.getters.getActiveSheetId();
   });
 
   afterAll(() => {
@@ -1075,29 +1078,29 @@ describe("evaluate formula getter", () => {
 
   test("a ref in the current sheet", () => {
     setCellContent(model, "A1", "12");
-    expect(model.getters.evaluateFormula("=A1")).toBe(12);
+    expect(model.getters.evaluateFormula(sheetId, "=A1")).toBe(12);
   });
 
   test("in another sheet", () => {
     createSheet(model, { sheetId: "42" });
     const sheet2 = model.getters.getSheetIds()[1];
     setCellContent(model, "A1", "11", sheet2);
-    expect(model.getters.evaluateFormula("=Sheet2!A1")).toBe(11);
+    expect(model.getters.evaluateFormula(sheetId, "=Sheet2!A1")).toBe(11);
   });
 
   // i think these formulas should throw
   test("in a not existing sheet", () => {
-    expect(() => model.getters.evaluateFormula("=Sheet99!A1")).toThrow();
+    expect(() => model.getters.evaluateFormula(sheetId, "=Sheet99!A1")).toThrow();
   });
 
   test("evaluate a cell in error", () => {
     setCellContent(model, "A1", "=mqsdlkjfqsdf(((--");
-    expect(() => model.getters.evaluateFormula("=A1")).toThrow();
+    expect(() => model.getters.evaluateFormula(sheetId, "=A1")).toThrow();
   });
 
   test("evaluate an invalid formula", () => {
     setCellContent(model, "A1", "=min(abc)");
-    expect(() => model.getters.evaluateFormula("=A1")).toThrow();
+    expect(() => model.getters.evaluateFormula(sheetId, "=A1")).toThrow();
   });
 
   test("EVALUATE_CELLS with no argument re-evaluate all the cells", () => {

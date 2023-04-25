@@ -307,48 +307,49 @@ describe("compile functions", () => {
       }
 
       const m = new Model();
+      const sheetId = m.getters.getActiveSheetId();
 
-      expect(() => m.getters.evaluateFormula("=?ANYEXPECTED(A1:A2)")).toThrowError(
+      expect(() => m.getters.evaluateFormula(sheetId, "=?ANYEXPECTED(A1:A2)")).toThrowError(
         "Function ANYEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
       );
-      expect(() => m.getters.evaluateFormula("=BOOLEANEXPECTED(A1:A2)")).toThrowError(
+      expect(() => m.getters.evaluateFormula(sheetId, "=BOOLEANEXPECTED(A1:A2)")).toThrowError(
         "Function BOOLEANEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
       );
-      expect(() => m.getters.evaluateFormula("=DATEEXPECTED(A1:A2)")).toThrowError(
+      expect(() => m.getters.evaluateFormula(sheetId, "=DATEEXPECTED(A1:A2)")).toThrowError(
         "Function DATEEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
       );
-      expect(() => m.getters.evaluateFormula("=NUMBEREXPECTED(A1:A2)")).toThrowError(
+      expect(() => m.getters.evaluateFormula(sheetId, "=NUMBEREXPECTED(A1:A2)")).toThrowError(
         "Function NUMBEREXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
       );
-      expect(() => m.getters.evaluateFormula("=STRINGEXPECTED(A1:A2)")).toThrowError(
+      expect(() => m.getters.evaluateFormula(sheetId, "=STRINGEXPECTED(A1:A2)")).toThrowError(
         "Function STRINGEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
       );
 
-      expect(() => m.getters.evaluateFormula("=ANYEXPECTED(A1:A$2)")).toThrowError(
+      expect(() => m.getters.evaluateFormula(sheetId, "=ANYEXPECTED(A1:A$2)")).toThrowError(
         "Function ANYEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
       );
-      expect(() => m.getters.evaluateFormula("=ANYEXPECTED(sheet2!A1:A$2)")).toThrowError(
+      expect(() => m.getters.evaluateFormula(sheetId, "=ANYEXPECTED(sheet2!A1:A$2)")).toThrowError(
         "Function ANYEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
       );
-      expect(() => m.getters.evaluateFormula("=A2:A3")).toThrowError(
+      expect(() => m.getters.evaluateFormula(sheetId, "=A2:A3")).toThrowError(
         "Function EQ expects its parameters to be single values or single cell references, not ranges."
       );
-      expect(() => m.getters.evaluateFormula("=+A2:A3")).toThrowError(
+      expect(() => m.getters.evaluateFormula(sheetId, "=+A2:A3")).toThrowError(
         "Function UPLUS expects its parameters to be single values or single cell references, not ranges."
       );
-      expect(() => m.getters.evaluateFormula("=A1+A2:A3")).toThrowError(
+      expect(() => m.getters.evaluateFormula(sheetId, "=A1+A2:A3")).toThrowError(
         "Function ADD expects its parameters to be single values or single cell references, not ranges."
       );
-      expect(() => m.getters.evaluateFormula("=-A2:A3")).toThrowError(
+      expect(() => m.getters.evaluateFormula(sheetId, "=-A2:A3")).toThrowError(
         "Function UMINUS expects its parameters to be single values or single cell references, not ranges."
       );
-      expect(() => m.getters.evaluateFormula("=A1-A2:A3")).toThrowError(
+      expect(() => m.getters.evaluateFormula(sheetId, "=A1-A2:A3")).toThrowError(
         "Function MINUS expects its parameters to be single values or single cell references, not ranges."
       );
-      expect(() => m.getters.evaluateFormula("=A1+A4*A5:A6-A2")).toThrowError(
+      expect(() => m.getters.evaluateFormula(sheetId, "=A1+A4*A5:A6-A2")).toThrowError(
         "Function MULTIPLY expects its parameters to be single values or single cell references, not ranges."
       );
-      expect(() => m.getters.evaluateFormula("=ANYEXPECTED(A1:A1)")).not.toThrow();
+      expect(() => m.getters.evaluateFormula(sheetId, "=ANYEXPECTED(A1:A1)")).not.toThrow();
     });
   });
 
