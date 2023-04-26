@@ -154,26 +154,48 @@ describe("Collaborative session", () => {
     jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
   });
 
-  test("Receiving a bad revision id should trigger", () => {
-    const spy = jest.spyOn(session, "trigger");
-    // simulate a revision not in sync with the server
-    // e.g. the session missed a revision
-    transport["serverRevisionId"] = "invalid";
-    transport.sendMessage({
+  const messages = [
+    {
       type: "REMOTE_REVISION",
       version: MESSAGE_VERSION,
       nextRevisionId: "42",
       clientId: "client_42",
       commands: [],
-      serverRevisionId: transport["serverRevisionId"],
-    });
-    expect(spy).toHaveBeenNthCalledWith(1, "unexpected-revision-id", {
-      revisionId: "invalid",
-    });
+      serverRevisionId: "invalid",
+    },
+    {
+      type: "SNAPSHOT_CREATED",
+      version: MESSAGE_VERSION,
+      nextRevisionId: "42",
+      serverRevisionId: "invalid",
+    },
+    {
+      type: "REVISION_REDONE",
+      version: MESSAGE_VERSION,
+      redoneRevisionId: "24",
+      nextRevisionId: "42",
+      serverRevisionId: "invalid",
+    },
+    {
+      type: "REVISION_UNDONE",
+      version: MESSAGE_VERSION,
+      undoneRevisionId: "24",
+      nextRevisionId: "42",
+      serverRevisionId: "invalid",
+    },
+  ] as const;
+
+  test.each(messages)("Receiving a bad revision id should trigger", (message) => {
+    const spy = jest.spyOn(session, "trigger");
+    // simulate a revision not in sync with the server
+    // e.g. the session missed a revision or received a revision from the past
+    transport["serverRevisionId"] = message.serverRevisionId;
+    transport.sendMessage(message);
+    expect(spy).toHaveBeenNthCalledWith(1, "unexpected-revision-id");
     expect(spy).not.toHaveBeenCalledWith("remote-revision-received");
   });
 
-  test("Receiving bad initial revisions should throw", () => {
+  test.each(messages)("Bad initial revisions should be ignored", (message) => {
     expect(() => {
       session.loadInitialMessages([
         {
@@ -184,15 +206,8 @@ describe("Collaborative session", () => {
           commands: [],
           serverRevisionId: transport["serverRevisionId"],
         },
-        {
-          type: "REMOTE_REVISION",
-          version: MESSAGE_VERSION,
-          nextRevisionId: "43",
-          clientId: "client_43",
-          commands: [],
-          serverRevisionId: "not 42",
-        },
+        message,
       ]);
-    }).toThrow();
+    }).not.toThrow();
   });
 });
