@@ -66,6 +66,7 @@ export interface ExcelWorkbookData extends WorkbookData {
 export interface ExcelCellData extends CellData {
   value: CellValue;
   isFormula: Boolean;
+  computedFormat?: Format;
 }
 export interface ExcelSheetData extends Omit<SheetData, "figureTables"> {
   cells: { [key: string]: ExcelCellData | undefined };

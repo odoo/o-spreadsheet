@@ -13236,6 +13236,13 @@ Object {
                 </v>
             </c>
         </row>
+        <row r=\\"21\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
+            <c r=\\"A21\\" s=\\"2\\" t=\\"n\\">
+                <v>
+                    1000
+                </v>
+            </c>
+        </row>
     </sheetData>
 </worksheet>",
       "contentType": "sheet",
@@ -13243,7 +13250,8 @@ Object {
     },
     Object {
       "content": "<styleSheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
-    <numFmts count=\\"0\\">
+    <numFmts count=\\"1\\">
+        <numFmt numFmtId=\\"164\\" formatCode=\\"#,##0,[$k]\\"/>
     </numFmts>
     <fonts count=\\"2\\">
         <font>
@@ -13274,11 +13282,14 @@ Object {
             <diagonal/>
         </border>
     </borders>
-    <cellXfs count=\\"2\\">
+    <cellXfs count=\\"3\\">
         <xf numFmtId=\\"0\\" fillId=\\"0\\" fontId=\\"0\\" borderId=\\"0\\">
             <alignment vertical=\\"center\\"/>
         </xf>
         <xf numFmtId=\\"0\\" fillId=\\"0\\" fontId=\\"1\\" borderId=\\"0\\">
+            <alignment vertical=\\"center\\"/>
+        </xf>
+        <xf numFmtId=\\"164\\" fillId=\\"0\\" fontId=\\"1\\" borderId=\\"0\\">
             <alignment vertical=\\"center\\"/>
         </xf>
     </cellXfs>
