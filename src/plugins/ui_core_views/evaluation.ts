@@ -406,8 +406,12 @@ export class EvaluationPlugin extends UIPlugin {
         const cell = this.getters.getCell(position);
         if (cell) {
           const exportedCellData = sheet.cells[xc]!;
-          exportedCellData.value = this.getEvaluatedCell(position).value;
+          const evaluatedCell = this.getEvaluatedCell(position);
+          exportedCellData.value = evaluatedCell.value;
           exportedCellData.isFormula = cell.isFormula && !this.isBadExpression(cell.content);
+          if (cell.format !== evaluatedCell.format) {
+            exportedCellData.computedFormat = evaluatedCell.format;
+          }
         }
       }
     }
