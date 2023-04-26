@@ -76,3 +76,10 @@ export class ActionButton extends Component<Props, SpreadsheetChildEnv> {
     return "";
   }
 }
+ActionButton.props = {
+  action: Object,
+  hasTriangleDownIcon: { type: Boolean, optional: true },
+  selectedColor: { type: String, optional: true },
+  class: { type: String, optional: true },
+  onClick: { type: Function, optional: true },
+};
