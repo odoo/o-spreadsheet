@@ -21,11 +21,18 @@ import { isColReference, isRowReference } from "./references";
  *
  */
 export function toZoneWithoutBoundaryChanges(xc: string): UnboundedZone {
-  xc = xc.split("!").pop()!;
-  const ranges = xc
-    .replace(/\$/g, "")
-    .split(":")
-    .map((x) => x.trim());
+  if (xc.includes("!")) {
+    xc = xc.split("!").at(-1)!;
+  }
+  if (xc.includes("$")) {
+    xc = xc.replace(/\$/g, "");
+  }
+  let ranges: string[];
+  if (xc.includes(":")) {
+    ranges = xc.split(":").map((x) => x.trim());
+  } else {
+    ranges = [xc.trim()];
+  }
 
   let top: number, bottom: number, left: number, right: number;
   let fullCol = false;
