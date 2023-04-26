@@ -140,13 +140,9 @@ export class Session extends EventBus<CollaborativeEvent> {
 
   loadInitialMessages(messages: StateUpdateMessage[]) {
     this.isReplayingInitialRevisions = true;
-    this.on("unexpected-revision-id", this, ({ revisionId }) => {
-      throw new Error(`The spreadsheet could not be loaded. Revision ${revisionId} is corrupted.`);
-    });
     for (const message of messages) {
       this.onMessageReceived(message);
     }
-    this.off("unexpected-revision-id", this);
     this.isReplayingInitialRevisions = false;
   }
 
@@ -225,6 +221,10 @@ export class Session extends EventBus<CollaborativeEvent> {
    */
   private onMessageReceived(message: CollaborationMessage) {
     if (this.isAlreadyProcessed(message)) return;
+    if (this.isWrongServerRevisionId(message)) {
+      this.trigger("unexpected-revision-id");
+      return;
+    }
     switch (message.type) {
       case "CLIENT_MOVED":
         this.onClientMoved(message);
@@ -259,10 +259,6 @@ export class Session extends EventBus<CollaborativeEvent> {
         });
         break;
       case "REMOTE_REVISION":
-        if (message.serverRevisionId !== this.serverRevisionId) {
-          this.trigger("unexpected-revision-id", { revisionId: message.serverRevisionId });
-          return;
-        }
         const { clientId, commands } = message;
         const revision = new Revision(message.nextRevisionId, clientId, commands);
         if (revision.clientId !== this.clientId) {
@@ -395,6 +391,18 @@ export class Session extends EventBus<CollaborativeEvent> {
       case "REVISION_REDONE":
       case "REVISION_UNDONE":
         return this.processedRevisions.has(message.nextRevisionId);
+      default:
+        return false;
+    }
+  }
+
+  isWrongServerRevisionId(message: CollaborationMessage) {
+    switch (message.type) {
+      case "REMOTE_REVISION":
+      case "REVISION_REDONE":
+      case "REVISION_UNDONE":
+      case "SNAPSHOT_CREATED":
+        return message.serverRevisionId !== this.serverRevisionId;
       default:
         return false;
     }
