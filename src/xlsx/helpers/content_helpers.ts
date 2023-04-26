@@ -1,10 +1,13 @@
 import { DEFAULT_FONT_SIZE } from "../../constants";
+import { tokenize } from "../../formulas";
+import { functionRegistry } from "../../functions";
 import { splitReference, toUnboundedZone } from "../../helpers";
 import {
   BorderDescr,
-  CellData,
   ConditionalFormattingOperatorValues,
+  ExcelCellData,
   ExcelWorkbookData,
+  Format,
   Style,
   UID,
   WorkbookData,
@@ -104,12 +107,12 @@ function convertBorderDescr(descr: BorderDescr | undefined): XLSXBorderDescr | u
   };
 }
 
-export function extractStyle(cell: CellData, data: WorkbookData): ExtractedStyle {
+export function extractStyle(cell: ExcelCellData, data: WorkbookData): ExtractedStyle {
   let style: Style = {};
   if (cell.style) {
     style = data.styles[cell.style];
   }
-  const format = cell.format ? data.formats[cell.format] : undefined;
+  const format = extractFormat(cell, data);
   const exportedBorder: XLSXBorder = {};
   if (cell.border) {
     const border = data.borders[cell.border];
@@ -143,6 +146,23 @@ export function extractStyle(cell: CellData, data: WorkbookData): ExtractedStyle
   styles.font["bold"] = !!style?.bold || undefined;
   styles.font["italic"] = !!style?.italic || undefined;
   return styles;
+}
+
+function extractFormat(cell: ExcelCellData, data: WorkbookData): Format | undefined {
+  if (cell.format) {
+    return data.formats[cell.format];
+  }
+  if (cell.isFormula) {
+    const tokens = tokenize(cell.content || "");
+    const functions = functionRegistry.content;
+    const isExported = tokens
+      .filter((tk) => tk.type === "FUNCTION")
+      .every((tk) => functions[tk.value.toUpperCase()].isExported);
+    if (!isExported) {
+      return cell.computedFormat;
+    }
+  }
+  return undefined;
 }
 
 export function normalizeStyle(construct: XLSXStructure, styles: ExtractedStyle): number {
