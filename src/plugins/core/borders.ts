@@ -486,9 +486,10 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
 
   import(data: WorkbookData) {
     // Borders
-    if (data.borders) {
+    if (Object.keys(data.borders || {}).length) {
       for (let sheet of data.sheets) {
-        for (let [xc, cell] of Object.entries(sheet.cells)) {
+        for (const xc in sheet.cells) {
+          const cell = sheet.cells[xc];
           if (cell?.border) {
             const border = data.borders[cell.border];
             const { col, row } = toCartesian(xc);
