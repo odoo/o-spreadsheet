@@ -395,6 +395,7 @@ const allNonExportableFormulasData = {
         A18: { content: "=AVERAGE.WEIGHTED(1,1,3,3)" },
         A19: { content: "=JOIN(1,2,3)" },
         A20: { content: "=MULTIPLY(42,0)" },
+        A21: { content: '=FORMAT.LARGE.NUMBER(1000, "k")' },
       },
     },
   ],
