@@ -253,6 +253,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         const exportedCellData = sheet.cells[xc]!;
         exportedCellData.value = cell.evaluated.value;
         exportedCellData.isFormula = cell.isFormula();
+        if (cell.format !== cell.evaluated.format) {
+          exportedCellData.computedFormat = cell.evaluated.format;
+        }
       }
     }
   }
