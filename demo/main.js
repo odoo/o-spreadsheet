@@ -77,6 +77,7 @@ class Demo extends Component {
     topbarMenuRegistry.addChild("readonly", ["file"], {
       name: "Open in read-only",
       sequence: 11,
+      isVisible: () => this.model.config.mode !== "readonly",
       execute: () => this.model.updateMode("readonly"),
     });
 
@@ -84,6 +85,7 @@ class Demo extends Component {
       name: "Open in dashboard",
       sequence: 12,
       isReadonlyAllowed: true,
+      isVisible: () => this.model.config.mode !== "dashboard",
       execute: () => this.model.updateMode("dashboard"),
     });
 
@@ -91,12 +93,14 @@ class Demo extends Component {
       name: "Open with write access",
       sequence: 13,
       isReadonlyAllowed: true,
+      isVisible: () => this.model.config.mode !== "normal",
       execute: () => this.model.updateMode("normal"),
     });
-    topbarMenuRegistry.addChild("read_write", ["file"], {
+
+    topbarMenuRegistry.addChild("display_header", ["file"], {
       name: () => (this.state.displayHeader ? "Hide header" : "Show header"),
       isReadonlyAllowed: true,
-      action: () => (this.state.displayHeader = !this.state.displayHeader),
+      execute: () => (this.state.displayHeader = !this.state.displayHeader),
     });
 
     topbarMenuRegistry.add("notify", {
