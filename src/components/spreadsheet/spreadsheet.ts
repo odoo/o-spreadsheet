@@ -9,8 +9,12 @@ import {
 } from "@odoo/owl";
 import {
   BACKGROUND_GRAY_COLOR,
+  BACKGROUND_HEADER_FILTER_COLOR,
+  BG_HOVER_COLOR,
   BOTTOMBAR_HEIGHT,
   CF_ICON_EDGE_LENGTH,
+  FILTERS_COLOR,
+  ICONS_COLOR,
   ICON_EDGE_LENGTH,
   MAXIMAL_FREEZABLE_RATIO,
   MENU_SEPARATOR_BORDER_WIDTH,
@@ -38,6 +42,12 @@ import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipbo
 // -----------------------------------------------------------------------------
 
 export type ComposerFocusType = "inactive" | "cellFocus" | "contentFocus";
+
+// If we ever change these colors, make sure the filter tool stays green to match the icon in the grid
+const ACTIVE_BG_COLOR = BACKGROUND_HEADER_FILTER_COLOR;
+const ACTIVE_FONT_COLOR = FILTERS_COLOR;
+const HOVERED_BG_COLOR = BG_HOVER_COLOR;
+const HOVERED_FONT_COLOR = "#000";
 
 css/* scss */ `
   .o-spreadsheet {
@@ -70,6 +80,27 @@ css/* scss */ `
       border-bottom: ${MENU_SEPARATOR_BORDER_WIDTH}px solid ${SEPARATOR_COLOR};
       margin-top: ${MENU_SEPARATOR_PADDING}px;
       margin-bottom: ${MENU_SEPARATOR_PADDING}px;
+    }
+    .o-hoverable-button {
+      border-radius: 2px
+      cursor: pointer;
+      .o-icon {
+        color: ${ICONS_COLOR};
+      }
+      &:not(.o-disabled):not(.active):hover {
+        background-color: ${HOVERED_BG_COLOR};
+        color: ${HOVERED_FONT_COLOR};
+        .o-icon {
+          color: ${HOVERED_FONT_COLOR};
+        }
+      }
+      &.active {
+        background-color: ${ACTIVE_BG_COLOR};
+        color: ${ACTIVE_FONT_COLOR};
+        .o-icon {
+          color: ${ACTIVE_FONT_COLOR};
+        }
+      }
     }
   }
 

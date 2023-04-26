@@ -18,31 +18,31 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
       >
         
         <div
-          class="o-topbar-menu o-topbar-hoverable rounded"
+          class="o-topbar-menu o-hoverable-button rounded"
           data-id="edit"
         >
           Edit
         </div>
         <div
-          class="o-topbar-menu o-topbar-hoverable rounded"
+          class="o-topbar-menu o-hoverable-button rounded"
           data-id="view"
         >
           View
         </div>
         <div
-          class="o-topbar-menu o-topbar-hoverable rounded"
+          class="o-topbar-menu o-hoverable-button rounded"
           data-id="insert"
         >
           Insert
         </div>
         <div
-          class="o-topbar-menu o-topbar-hoverable rounded"
+          class="o-topbar-menu o-hoverable-button rounded"
           data-id="format"
         >
           Format
         </div>
         <div
-          class="o-topbar-menu o-topbar-hoverable rounded"
+          class="o-topbar-menu o-hoverable-button rounded"
           data-id="data"
         >
           Data
@@ -68,7 +68,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           class="o-toolbar-tools d-flex flex-shrink-0 ms-4"
         >
           <span
-            class="o-menu-item-button o-disabled o-topbar-hoverable"
+            class="o-menu-item-button o-disabled o-hoverable-button"
             title="Undo (Ctrl+Z)"
           >
             <span
@@ -88,7 +88,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           </span>
           
           <span
-            class="o-menu-item-button o-disabled o-topbar-hoverable"
+            class="o-menu-item-button o-disabled o-hoverable-button"
             title="Redo (Ctrl+Y)"
           >
             <span
@@ -108,7 +108,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           </span>
           
           <span
-            class="o-menu-item-button o-topbar-hoverable"
+            class="o-menu-item-button o-hoverable-button"
             title="Paint Format"
           >
             <span
@@ -129,7 +129,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           </span>
           
           <span
-            class="o-menu-item-button o-topbar-hoverable"
+            class="o-menu-item-button o-hoverable-button"
             title="Clear formatting (Ctrl+<)"
           >
             <span
@@ -152,7 +152,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
             class="o-divider"
           />
           <span
-            class="o-menu-item-button o-topbar-hoverable"
+            class="o-menu-item-button o-hoverable-button"
             title="Format as percent"
           >
             <span
@@ -169,7 +169,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           </span>
           
           <span
-            class="o-menu-item-button o-topbar-hoverable"
+            class="o-menu-item-button o-hoverable-button"
             title="Decrease decimal places"
           >
             <span
@@ -186,7 +186,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           </span>
           
           <span
-            class="o-menu-item-button o-topbar-hoverable"
+            class="o-menu-item-button o-hoverable-button"
             title="Increase decimal places"
           >
             <span
@@ -203,7 +203,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           </span>
           
           <span
-            class="o-menu-item-button o-topbar-hoverable"
+            class="o-menu-item-button o-hoverable-button"
             title="More formats"
           >
             <span
@@ -263,7 +263,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
             class="o-divider"
           />
           <span
-            class="o-menu-item-button o-topbar-hoverable"
+            class="o-menu-item-button o-hoverable-button"
             title="Bold (Ctrl+B)"
           >
             <span
@@ -283,7 +283,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           </span>
           
           <span
-            class="o-menu-item-button o-topbar-hoverable"
+            class="o-menu-item-button o-hoverable-button"
             title="Italic (Ctrl+I)"
           >
             <span
@@ -303,7 +303,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           </span>
           
           <span
-            class="o-menu-item-button o-topbar-hoverable"
+            class="o-menu-item-button o-hoverable-button"
             title="Strikethrough"
           >
             <span
@@ -326,7 +326,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
             class="o-color-picker-widget"
           >
             <span
-              class="o-color-picker-button o-topbar-hoverable o-menu-item-button"
+              class="o-color-picker-button o-hoverable-button o-menu-item-button"
               title="Text Color"
             >
               <span
@@ -352,7 +352,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
             class="o-color-picker-widget"
           >
             <span
-              class="o-color-picker-button o-topbar-hoverable o-menu-item-button"
+              class="o-color-picker-button o-hoverable-button o-menu-item-button"
               title="Fill Color"
             >
               <span
@@ -376,7 +376,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
             title="Borders"
           >
             <span
-              class="o-topbar-hoverable o-menu-item-button"
+              class="o-hoverable-button o-menu-item-button"
             >
               <span>
                 <svg
@@ -393,7 +393,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           </div>
           
           <span
-            class="o-menu-item-button o-disabled o-topbar-hoverable"
+            class="o-menu-item-button o-disabled o-hoverable-button"
             title="Merge cells"
           >
             <span
@@ -419,7 +419,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
             class="o-dropdown"
           >
             <span
-              class="o-menu-item-button o-topbar-hoverable"
+              class="o-menu-item-button o-hoverable-button"
               title="Horizontal align"
             >
               <span
@@ -454,7 +454,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
             class="o-dropdown"
           >
             <span
-              class="o-menu-item-button o-topbar-hoverable"
+              class="o-menu-item-button o-hoverable-button"
               title="Vertical align"
             >
               <span
@@ -489,7 +489,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
             class="o-dropdown"
           >
             <span
-              class="o-menu-item-button o-topbar-hoverable"
+              class="o-menu-item-button o-hoverable-button"
               title="Wrapping"
             >
               <span
@@ -524,7 +524,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
             class="o-divider"
           />
           <span
-            class="o-menu-item-button o-topbar-hoverable"
+            class="o-menu-item-button o-hoverable-button"
             title="Create filter"
           >
             <span

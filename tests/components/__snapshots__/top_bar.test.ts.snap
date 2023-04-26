@@ -17,31 +17,31 @@ exports[`TopBar component can set cell format 1`] = `
         >
           
           <div
-            class="o-topbar-menu o-topbar-hoverable rounded"
+            class="o-topbar-menu o-hoverable-button rounded"
             data-id="edit"
           >
             Edit
           </div>
           <div
-            class="o-topbar-menu o-topbar-hoverable rounded"
+            class="o-topbar-menu o-hoverable-button rounded"
             data-id="view"
           >
             View
           </div>
           <div
-            class="o-topbar-menu o-topbar-hoverable rounded"
+            class="o-topbar-menu o-hoverable-button rounded"
             data-id="insert"
           >
             Insert
           </div>
           <div
-            class="o-topbar-menu o-topbar-hoverable rounded"
+            class="o-topbar-menu o-hoverable-button rounded"
             data-id="format"
           >
             Format
           </div>
           <div
-            class="o-topbar-menu o-topbar-hoverable rounded"
+            class="o-topbar-menu o-hoverable-button rounded"
             data-id="data"
           >
             Data
@@ -67,7 +67,7 @@ exports[`TopBar component can set cell format 1`] = `
             class="o-toolbar-tools d-flex flex-shrink-0 ms-4"
           >
             <span
-              class="o-menu-item-button o-disabled o-topbar-hoverable"
+              class="o-menu-item-button o-disabled o-hoverable-button"
               title="Undo (Ctrl+Z)"
             >
               <span
@@ -87,7 +87,7 @@ exports[`TopBar component can set cell format 1`] = `
             </span>
             
             <span
-              class="o-menu-item-button o-disabled o-topbar-hoverable"
+              class="o-menu-item-button o-disabled o-hoverable-button"
               title="Redo (Ctrl+Y)"
             >
               <span
@@ -107,7 +107,7 @@ exports[`TopBar component can set cell format 1`] = `
             </span>
             
             <span
-              class="o-menu-item-button o-topbar-hoverable"
+              class="o-menu-item-button o-hoverable-button"
               title="Paint Format"
             >
               <span
@@ -128,7 +128,7 @@ exports[`TopBar component can set cell format 1`] = `
             </span>
             
             <span
-              class="o-menu-item-button o-topbar-hoverable"
+              class="o-menu-item-button o-hoverable-button"
               title="Clear formatting (Ctrl+<)"
             >
               <span
@@ -151,7 +151,7 @@ exports[`TopBar component can set cell format 1`] = `
               class="o-divider"
             />
             <span
-              class="o-menu-item-button o-topbar-hoverable"
+              class="o-menu-item-button o-hoverable-button"
               title="Format as percent"
             >
               <span
@@ -168,7 +168,7 @@ exports[`TopBar component can set cell format 1`] = `
             </span>
             
             <span
-              class="o-menu-item-button o-topbar-hoverable"
+              class="o-menu-item-button o-hoverable-button"
               title="Decrease decimal places"
             >
               <span
@@ -185,7 +185,7 @@ exports[`TopBar component can set cell format 1`] = `
             </span>
             
             <span
-              class="o-menu-item-button o-topbar-hoverable"
+              class="o-menu-item-button o-hoverable-button"
               title="Increase decimal places"
             >
               <span
@@ -202,7 +202,7 @@ exports[`TopBar component can set cell format 1`] = `
             </span>
             
             <span
-              class="o-menu-item-button o-topbar-hoverable"
+              class="o-menu-item-button o-hoverable-button"
               title="More formats"
             >
               <span
@@ -262,7 +262,7 @@ exports[`TopBar component can set cell format 1`] = `
               class="o-divider"
             />
             <span
-              class="o-menu-item-button o-topbar-hoverable"
+              class="o-menu-item-button o-hoverable-button"
               title="Bold (Ctrl+B)"
             >
               <span
@@ -282,7 +282,7 @@ exports[`TopBar component can set cell format 1`] = `
             </span>
             
             <span
-              class="o-menu-item-button o-topbar-hoverable"
+              class="o-menu-item-button o-hoverable-button"
               title="Italic (Ctrl+I)"
             >
               <span
@@ -302,7 +302,7 @@ exports[`TopBar component can set cell format 1`] = `
             </span>
             
             <span
-              class="o-menu-item-button o-topbar-hoverable"
+              class="o-menu-item-button o-hoverable-button"
               title="Strikethrough"
             >
               <span
@@ -325,7 +325,7 @@ exports[`TopBar component can set cell format 1`] = `
               class="o-color-picker-widget"
             >
               <span
-                class="o-color-picker-button o-topbar-hoverable o-menu-item-button"
+                class="o-color-picker-button o-hoverable-button o-menu-item-button"
                 title="Text Color"
               >
                 <span
@@ -351,7 +351,7 @@ exports[`TopBar component can set cell format 1`] = `
               class="o-color-picker-widget"
             >
               <span
-                class="o-color-picker-button o-topbar-hoverable o-menu-item-button"
+                class="o-color-picker-button o-hoverable-button o-menu-item-button"
                 title="Fill Color"
               >
                 <span
@@ -375,7 +375,7 @@ exports[`TopBar component can set cell format 1`] = `
               title="Borders"
             >
               <span
-                class="o-topbar-hoverable o-menu-item-button"
+                class="o-hoverable-button o-menu-item-button"
               >
                 <span>
                   <svg
@@ -392,7 +392,7 @@ exports[`TopBar component can set cell format 1`] = `
             </div>
             
             <span
-              class="o-menu-item-button o-disabled o-topbar-hoverable"
+              class="o-menu-item-button o-disabled o-hoverable-button"
               title="Merge cells"
             >
               <span
@@ -418,7 +418,7 @@ exports[`TopBar component can set cell format 1`] = `
               class="o-dropdown"
             >
               <span
-                class="o-menu-item-button o-topbar-hoverable"
+                class="o-menu-item-button o-hoverable-button"
                 title="Horizontal align"
               >
                 <span
@@ -453,7 +453,7 @@ exports[`TopBar component can set cell format 1`] = `
               class="o-dropdown"
             >
               <span
-                class="o-menu-item-button o-topbar-hoverable"
+                class="o-menu-item-button o-hoverable-button"
                 title="Vertical align"
               >
                 <span
@@ -488,7 +488,7 @@ exports[`TopBar component can set cell format 1`] = `
               class="o-dropdown"
             >
               <span
-                class="o-menu-item-button o-topbar-hoverable"
+                class="o-menu-item-button o-hoverable-button"
                 title="Wrapping"
               >
                 <span
@@ -523,7 +523,7 @@ exports[`TopBar component can set cell format 1`] = `
               class="o-divider"
             />
             <span
-              class="o-menu-item-button o-topbar-hoverable"
+              class="o-menu-item-button o-hoverable-button"
               title="Create filter"
             >
               <span
@@ -861,31 +861,31 @@ exports[`TopBar component simple rendering 1`] = `
     >
       
       <div
-        class="o-topbar-menu o-topbar-hoverable rounded"
+        class="o-topbar-menu o-hoverable-button rounded"
         data-id="edit"
       >
         Edit
       </div>
       <div
-        class="o-topbar-menu o-topbar-hoverable rounded"
+        class="o-topbar-menu o-hoverable-button rounded"
         data-id="view"
       >
         View
       </div>
       <div
-        class="o-topbar-menu o-topbar-hoverable rounded"
+        class="o-topbar-menu o-hoverable-button rounded"
         data-id="insert"
       >
         Insert
       </div>
       <div
-        class="o-topbar-menu o-topbar-hoverable rounded"
+        class="o-topbar-menu o-hoverable-button rounded"
         data-id="format"
       >
         Format
       </div>
       <div
-        class="o-topbar-menu o-topbar-hoverable rounded"
+        class="o-topbar-menu o-hoverable-button rounded"
         data-id="data"
       >
         Data
@@ -911,7 +911,7 @@ exports[`TopBar component simple rendering 1`] = `
         class="o-toolbar-tools d-flex flex-shrink-0 ms-4"
       >
         <span
-          class="o-menu-item-button o-disabled o-topbar-hoverable"
+          class="o-menu-item-button o-disabled o-hoverable-button"
           title="Undo (Ctrl+Z)"
         >
           <span
@@ -931,7 +931,7 @@ exports[`TopBar component simple rendering 1`] = `
         </span>
         
         <span
-          class="o-menu-item-button o-disabled o-topbar-hoverable"
+          class="o-menu-item-button o-disabled o-hoverable-button"
           title="Redo (Ctrl+Y)"
         >
           <span
@@ -951,7 +951,7 @@ exports[`TopBar component simple rendering 1`] = `
         </span>
         
         <span
-          class="o-menu-item-button o-topbar-hoverable"
+          class="o-menu-item-button o-hoverable-button"
           title="Paint Format"
         >
           <span
@@ -972,7 +972,7 @@ exports[`TopBar component simple rendering 1`] = `
         </span>
         
         <span
-          class="o-menu-item-button o-topbar-hoverable"
+          class="o-menu-item-button o-hoverable-button"
           title="Clear formatting (Ctrl+<)"
         >
           <span
@@ -995,7 +995,7 @@ exports[`TopBar component simple rendering 1`] = `
           class="o-divider"
         />
         <span
-          class="o-menu-item-button o-topbar-hoverable"
+          class="o-menu-item-button o-hoverable-button"
           title="Format as percent"
         >
           <span
@@ -1012,7 +1012,7 @@ exports[`TopBar component simple rendering 1`] = `
         </span>
         
         <span
-          class="o-menu-item-button o-topbar-hoverable"
+          class="o-menu-item-button o-hoverable-button"
           title="Decrease decimal places"
         >
           <span
@@ -1029,7 +1029,7 @@ exports[`TopBar component simple rendering 1`] = `
         </span>
         
         <span
-          class="o-menu-item-button o-topbar-hoverable"
+          class="o-menu-item-button o-hoverable-button"
           title="Increase decimal places"
         >
           <span
@@ -1046,7 +1046,7 @@ exports[`TopBar component simple rendering 1`] = `
         </span>
         
         <span
-          class="o-menu-item-button o-topbar-hoverable"
+          class="o-menu-item-button o-hoverable-button"
           title="More formats"
         >
           <span
@@ -1106,7 +1106,7 @@ exports[`TopBar component simple rendering 1`] = `
           class="o-divider"
         />
         <span
-          class="o-menu-item-button o-topbar-hoverable"
+          class="o-menu-item-button o-hoverable-button"
           title="Bold (Ctrl+B)"
         >
           <span
@@ -1126,7 +1126,7 @@ exports[`TopBar component simple rendering 1`] = `
         </span>
         
         <span
-          class="o-menu-item-button o-topbar-hoverable"
+          class="o-menu-item-button o-hoverable-button"
           title="Italic (Ctrl+I)"
         >
           <span
@@ -1146,7 +1146,7 @@ exports[`TopBar component simple rendering 1`] = `
         </span>
         
         <span
-          class="o-menu-item-button o-topbar-hoverable"
+          class="o-menu-item-button o-hoverable-button"
           title="Strikethrough"
         >
           <span
@@ -1169,7 +1169,7 @@ exports[`TopBar component simple rendering 1`] = `
           class="o-color-picker-widget"
         >
           <span
-            class="o-color-picker-button o-topbar-hoverable o-menu-item-button"
+            class="o-color-picker-button o-hoverable-button o-menu-item-button"
             title="Text Color"
           >
             <span
@@ -1195,7 +1195,7 @@ exports[`TopBar component simple rendering 1`] = `
           class="o-color-picker-widget"
         >
           <span
-            class="o-color-picker-button o-topbar-hoverable o-menu-item-button"
+            class="o-color-picker-button o-hoverable-button o-menu-item-button"
             title="Fill Color"
           >
             <span
@@ -1219,7 +1219,7 @@ exports[`TopBar component simple rendering 1`] = `
           title="Borders"
         >
           <span
-            class="o-topbar-hoverable o-menu-item-button"
+            class="o-hoverable-button o-menu-item-button"
           >
             <span>
               <svg
@@ -1236,7 +1236,7 @@ exports[`TopBar component simple rendering 1`] = `
         </div>
         
         <span
-          class="o-menu-item-button o-disabled o-topbar-hoverable"
+          class="o-menu-item-button o-disabled o-hoverable-button"
           title="Merge cells"
         >
           <span
@@ -1262,7 +1262,7 @@ exports[`TopBar component simple rendering 1`] = `
           class="o-dropdown"
         >
           <span
-            class="o-menu-item-button o-topbar-hoverable"
+            class="o-menu-item-button o-hoverable-button"
             title="Horizontal align"
           >
             <span
@@ -1297,7 +1297,7 @@ exports[`TopBar component simple rendering 1`] = `
           class="o-dropdown"
         >
           <span
-            class="o-menu-item-button o-topbar-hoverable"
+            class="o-menu-item-button o-hoverable-button"
             title="Vertical align"
           >
             <span
@@ -1332,7 +1332,7 @@ exports[`TopBar component simple rendering 1`] = `
           class="o-dropdown"
         >
           <span
-            class="o-menu-item-button o-topbar-hoverable"
+            class="o-menu-item-button o-hoverable-button"
             title="Wrapping"
           >
             <span
@@ -1367,7 +1367,7 @@ exports[`TopBar component simple rendering 1`] = `
           class="o-divider"
         />
         <span
-          class="o-menu-item-button o-topbar-hoverable"
+          class="o-menu-item-button o-hoverable-button"
           title="Create filter"
         >
           <span
