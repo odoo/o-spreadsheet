@@ -9,7 +9,6 @@ css/* scss */ `
     justify-content: center;
     align-items: center;
     margin: 2px;
-    padding: 0px 3px;
     border-radius: 2px;
     min-width: 20px;
   }

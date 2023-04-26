@@ -12,11 +12,7 @@ import { setStyle } from "../../actions/menu_items_actions";
 import * as ACTION_VIEW from "../../actions/view_actions";
 import {
   BACKGROUND_HEADER_COLOR,
-  BACKGROUND_HEADER_FILTER_COLOR,
-  BG_HOVER_COLOR,
   ComponentsImportance,
-  FILTERS_COLOR,
-  ICONS_COLOR,
   SEPARATOR_COLOR,
   TOPBAR_TOOLBAR_HEIGHT,
 } from "../../constants";
@@ -48,37 +44,10 @@ interface Props {
   dropdownMaxHeight: Pixel;
 }
 
-// If we ever change these colors, make sure the filter tool stays green to match the icon in the grid
-const ACTIVE_BG_COLOR = BACKGROUND_HEADER_FILTER_COLOR;
-const ACTIVE_FONT_COLOR = FILTERS_COLOR;
-
-const HOVERED_BG_COLOR = BG_HOVER_COLOR;
-const HOVERED_FONT_COLOR = "#000";
-
 // -----------------------------------------------------------------------------
 // TopBar
 // -----------------------------------------------------------------------------
 css/* scss */ `
-  .o-topbar-hoverable {
-    cursor: pointer;
-    .o-icon {
-      color: ${ICONS_COLOR};
-    }
-    &:not(.o-disabled):not(.active):hover {
-      background-color: ${HOVERED_BG_COLOR};
-      color: ${HOVERED_FONT_COLOR};
-      .o-icon {
-        color: ${HOVERED_FONT_COLOR};
-      }
-    }
-    &.active {
-      background-color: ${ACTIVE_BG_COLOR};
-      color: ${ACTIVE_FONT_COLOR};
-      .o-icon {
-        color: ${ACTIVE_FONT_COLOR};
-      }
-    }
-  }
   .o-spreadsheet-topbar {
     line-height: 1.2;
     font-size: 13px;

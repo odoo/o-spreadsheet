@@ -15,7 +15,7 @@
               t-foreach="borderPositionsRow"
               t-as="borderPosition"
               t-key="borderPosition"
-              class="o-line-item o-topbar-hoverable"
+              class="o-line-item o-hoverable-button"
               t-att-class="{active:props.currentBorderPosition === borderPosition[0]}"
               t-att-name="borderPosition[0]"
               t-on-click.stop="() => this.setBorderPosition(borderPosition[0])">
@@ -26,7 +26,7 @@
         <div class="o-divider"/>
         <div class="o-border-selector-section">
           <div
-            class="m-0 p-0 d-flex align-items-center justify-content-center o-with-color o-topbar-hoverable"
+            class="m-0 p-0 d-flex align-items-center justify-content-center o-with-color o-hoverable-button"
             title="Border color"
             t-on-click.stop="(ev) => this.toggleDropdownTool('borderColorTool')">
             <ColorPickerWidget
@@ -42,7 +42,7 @@
             <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
           </div>
           <div
-            class="o-border-style-tool d-flex align-items-center justify-content-center o-topbar-hoverable"
+            class="o-border-style-tool d-flex align-items-center justify-content-center o-hoverable-button"
             title="Line style"
             t-ref="lineStyleButton"
             t-on-click.stop="(ev) => this.toggleDropdownTool('borderTypeTool')">
