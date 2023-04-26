@@ -43,7 +43,6 @@ export interface CollaborativeEventReceived {
 
 export interface UnexpectedRevisionIdEvent {
   type: "unexpected-revision-id";
-  revisionId: UID;
 }
 
 export interface NewLocalStateUpdateEvent {
