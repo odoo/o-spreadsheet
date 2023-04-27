@@ -434,12 +434,18 @@ export class EvaluationPlugin extends UIPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  handle(cmd: Command) {
+  beforeHandle(cmd: Command) {
     if (invalidateDependenciesCommands.has(cmd.type)) {
       this.shouldRebuildDependenciesGraph = true;
       this.shouldRecomputeCellsEvaluation = true;
+    }
+  }
+
+  handle(cmd: Command) {
+    if (this.shouldRebuildDependenciesGraph) {
       return;
     }
+
     switch (cmd.type) {
       case "UPDATE_CELL":
         if (!("content" in cmd || "format" in cmd)) {
