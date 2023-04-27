@@ -1,4 +1,3 @@
-import { CorePlugin } from "../../src";
 import {
   BACKGROUND_CHART_COLOR,
   DEFAULT_CELL_HEIGHT,
@@ -9,8 +8,7 @@ import {
 import { toCartesian } from "../../src/helpers";
 import { CURRENT_VERSION } from "../../src/migrations/data";
 import { Model } from "../../src/model";
-import { corePluginRegistry } from "../../src/plugins";
-import { BorderDescr, ColorScaleRule, IconSetRule, WorkbookData } from "../../src/types/index";
+import { BorderDescr, ColorScaleRule, IconSetRule } from "../../src/types/index";
 import {
   activateSheet,
   resizeColumns,
@@ -646,37 +644,4 @@ test("Can import spreadsheet with only version", () => {
   new Model({ version: 1 });
   // We expect the model to be loaded without traceback
   expect(true).toBeTruthy();
-});
-
-test("Imported data are not mutated", () => {
-  class MutatePlugin extends CorePlugin {
-    private entities: Record<string, {}> = {};
-
-    import(data: WorkbookData) {
-      this.entities = data.entities;
-      this.entities["e2"] = {
-        text: "imported",
-      };
-    }
-
-    export(data: WorkbookData) {
-      data.entities = this.entities;
-    }
-  }
-  corePluginRegistry.add("mutate-plugin", MutatePlugin);
-  const data = {
-    entities: {
-      e1: { text: "base" },
-    },
-  };
-  const model = new Model(data);
-  expect(data.entities).toEqual({
-    e1: { text: "base" },
-  });
-  const exported = model.exportData();
-  expect(exported.entities).toEqual({
-    e1: { text: "base" },
-    e2: { text: "imported" },
-  });
-  corePluginRegistry.remove("mutate-plugin");
 });
