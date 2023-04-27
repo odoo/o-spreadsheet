@@ -20,7 +20,8 @@ export class Revision implements RevisionData {
     clientId: ClientId,
     commands: readonly CoreCommand[],
     readonly rootCommand?: Command | "SNAPSHOT" | "REMOTE" | undefined,
-    changes?: readonly HistoryChange[]
+    changes?: readonly HistoryChange[],
+    readonly timestamp?: number
   ) {
     this.id = id;
     this.clientId = clientId;

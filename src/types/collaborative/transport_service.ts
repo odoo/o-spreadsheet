@@ -13,6 +13,7 @@ export interface RemoteRevisionMessage extends AbstractMessage {
   commands: readonly CoreCommand[];
   nextRevisionId: UID;
   serverRevisionId: UID;
+  timestamp?: number;
 }
 
 export interface RevisionUndoneMessage extends AbstractMessage {

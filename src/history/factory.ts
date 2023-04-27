@@ -30,7 +30,9 @@ export function buildRevisionLog(args: {
           toTransform.id,
           toTransform.clientId,
           transformAll(toTransform.commands, revision.commands),
-          toTransform.rootCommand
+          toTransform.rootCommand,
+          undefined,
+          toTransform.timestamp
         );
       },
       without: (revision: Revision) => (toTransform: Revision) => {
@@ -38,7 +40,9 @@ export function buildRevisionLog(args: {
           toTransform.id,
           toTransform.clientId,
           transformAll(toTransform.commands, revision.commands.map(inverseCommand).flat()),
-          toTransform.rootCommand
+          toTransform.rootCommand,
+          undefined,
+          toTransform.timestamp
         );
       },
     },
