@@ -87,7 +87,8 @@ export class Session extends EventBus<CollaborativeEvent> {
       this.clientId,
       commands,
       rootCommand,
-      changes
+      changes,
+      Date.now()
     );
     this.revisions.append(revision.id, revision);
     this.trigger("new-local-state-update", { id: revision.id });
@@ -275,8 +276,15 @@ export class Session extends EventBus<CollaborativeEvent> {
         });
         break;
       case "REMOTE_REVISION":
-        const { clientId, commands } = message;
-        const revision = new Revision(message.nextRevisionId, clientId, commands, "REMOTE");
+        const { clientId, commands, timestamp } = message;
+        const revision = new Revision(
+          message.nextRevisionId,
+          clientId,
+          commands,
+          "REMOTE",
+          undefined,
+          timestamp
+        );
         if (revision.clientId !== this.clientId) {
           this.revisions.insert(revision.id, revision, message.serverRevisionId);
           const pendingCommands = this.pendingMessages
@@ -289,7 +297,14 @@ export class Session extends EventBus<CollaborativeEvent> {
         }
         break;
       case "SNAPSHOT_CREATED": {
-        const revision = new Revision(message.nextRevisionId, "server", [], "SNAPSHOT");
+        const revision = new Revision(
+          message.nextRevisionId,
+          "server",
+          [],
+          "SNAPSHOT",
+          undefined,
+          Date.now()
+        );
         this.revisions.insert(revision.id, revision, message.serverRevisionId);
         this.dropPendingHistoryMessages();
         this.trigger("snapshot");
