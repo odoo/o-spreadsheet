@@ -1,3 +1,4 @@
+import { deepCopy } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { MockTransportService } from "../__mocks__/transport_service";
 interface CollaborativeEnv {
@@ -19,15 +20,15 @@ interface CollaborativeEnv {
 export function setupCollaborativeEnv(): CollaborativeEnv {
   const network = new MockTransportService();
   const emptySheetData = new Model().exportData();
-  const alice = new Model(emptySheetData, {
+  const alice = new Model(deepCopy(emptySheetData), {
     transportService: network,
     client: { id: "alice", name: "Alice" },
   });
-  const bob = new Model(emptySheetData, {
+  const bob = new Model(deepCopy(emptySheetData), {
     transportService: network,
     client: { id: "bob", name: "Bob" },
   });
-  const charlie = new Model(emptySheetData, {
+  const charlie = new Model(deepCopy(emptySheetData), {
     transportService: network,
     client: { id: "charlie", name: "Charlie" },
   });
