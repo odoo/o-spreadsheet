@@ -289,6 +289,9 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   }
 
   openSidePanel(panel: string, panelProps: any) {
+    if (this.sidePanel.isOpen && panel !== this.sidePanel.component) {
+      this.sidePanel.panelProps?.onCloseSidePanel?.();
+    }
     this.sidePanel.component = panel;
     this.sidePanel.panelProps = panelProps;
     this.sidePanel.isOpen = true;
