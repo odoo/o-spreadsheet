@@ -5,7 +5,7 @@ import { OperationSequence } from "./operation_sequence";
 import { Tree } from "./tree";
 
 export class SelectiveHistory<T = unknown> {
-  private HEAD_BRANCH: Branch<T> = new Branch<T>(this.buildTransformation);
+  private HEAD_BRANCH: Branch<T>;
   private HEAD_OPERATION: Operation<T>;
   private tree: Tree<T>;
 
@@ -36,6 +36,7 @@ export class SelectiveHistory<T = unknown> {
     private buildEmpty: (id: UID) => T,
     private readonly buildTransformation: TransformationFactory<T>
   ) {
+    this.HEAD_BRANCH = new Branch<T>(this.buildTransformation);
     this.tree = new Tree(buildTransformation, this.HEAD_BRANCH);
     const initial = new Operation(initialOperationId, buildEmpty(initialOperationId));
     this.tree.insertOperationLast(this.HEAD_BRANCH, initial);

@@ -5,7 +5,7 @@
     "noImplicitThis": true,
     "moduleResolution": "node",
     "removeComments": false,
-    "target": "es2019",
+    "target": "es2022",
     "outDir": "build/js",
     "alwaysStrict": true,
     "noUnusedLocals": true,
