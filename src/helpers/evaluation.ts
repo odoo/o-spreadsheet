@@ -4,7 +4,7 @@
  */
 
 // TODO remove type
-type Node = string[];
+type Node = Set<string>;
 
 /**
  * This class is an implementation of a directed Graph.
@@ -23,11 +23,8 @@ export class FormulaDependencyGraph {
   private readonly nodes: Map<string, Node> = new Map();
 
   removeAllDependencies(formulaRc) {
-    for (const node of this.nodes.values()) {
-      const index = node.findIndex((rc) => rc === formulaRc);
-      if (index > -1) {
-        node.splice(index, 1);
-      }
+    for (const value of this.nodes.values()) {
+      value.delete(formulaRc);
     }
   }
 
@@ -38,9 +35,9 @@ export class FormulaDependencyGraph {
   addDependency({ parameterRc, formulaRc }: { parameterRc: string; formulaRc: string }): void {
     let node = this.nodes.get(parameterRc);
     if (node) {
-      node.push(formulaRc);
+      node.add(formulaRc);
     } else {
-      this.nodes.set(parameterRc, [formulaRc]);
+      this.nodes.set(parameterRc, new Set([formulaRc]));
     }
   }
 
@@ -52,7 +49,7 @@ export class FormulaDependencyGraph {
       const node = queue.shift()!;
       visited.add(node);
 
-      const adjacentNodes = this.nodes.get(node) || [];
+      const adjacentNodes = this.nodes.get(node) || new Set<string>();
       for (const adjacentNode of adjacentNodes) {
         if (!visited.has(adjacentNode)) {
           queue.push(adjacentNode);
