@@ -150,4 +150,21 @@ describe("Side Panel", () => {
     await nextTick();
     expect(onCloseSidePanel).toHaveBeenCalled();
   });
+
+  test("Switching from one sidepanel to another executes the onCloseSidePanel callback", async () => {
+    const onCloseSidePanel = jest.fn();
+    sidePanelRegistry.add("CUSTOM_PANEL_1", {
+      title: "Custom Panel 1",
+      Body: Body,
+    });
+    sidePanelRegistry.add("CUSTOM_PANEL_2", {
+      title: "Custom Panel 2",
+      Body: Body,
+    });
+    parent.env.openSidePanel("CUSTOM_PANEL_1", { onCloseSidePanel });
+    await nextTick();
+    parent.env.openSidePanel("CUSTOM_PANEL_2");
+    await nextTick();
+    expect(onCloseSidePanel).toHaveBeenCalled();
+  });
 });
