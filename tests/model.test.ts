@@ -6,7 +6,12 @@ import { UIPlugin } from "../src/plugins/ui_plugin";
 import { Command, CoreCommand, coreTypes, DispatchResult } from "../src/types";
 import { setupCollaborativeEnv } from "./collaborative/collaborative_helpers";
 import { copy, selectCell, setCellContent } from "./test_helpers/commands_helpers";
-import { getCell, getCellContent, getCellText } from "./test_helpers/getters_helpers";
+import {
+  getCell,
+  getCellContent,
+  getCellText,
+  getEvaluatedCell,
+} from "./test_helpers/getters_helpers";
 
 describe("Model", () => {
   test("core plugin can refuse command from UI plugin", () => {
@@ -254,6 +259,41 @@ describe("Model", () => {
     expect(numberCall).toEqual(1);
     featurePluginRegistry.remove("myUIPlugin");
     corePluginRegistry.remove("myCorePlugin");
+  });
+
+  test("Initial commands are not sent to UI plugins", () => {
+    class MyUIPlugin extends UIPlugin {
+      handle(cmd: Command) {
+        if (cmd.type === "UPDATE_CELL") {
+          throw new Error("Should not be called");
+        }
+      }
+    }
+    featurePluginRegistry.add("MyUIPlugin", MyUIPlugin);
+    const data = {
+      sheets: [{ id: "sheet1" }],
+      revisionId: "initialRevision",
+    };
+    const model = new Model(data, {}, [
+      {
+        type: "REMOTE_REVISION",
+        nextRevisionId: "1",
+        serverRevisionId: "initialRevision",
+        commands: [
+          {
+            type: "UPDATE_CELL",
+            sheetId: "sheet1",
+            col: 0,
+            row: 0,
+            content: "=1+5",
+          },
+        ],
+        clientId: "1",
+        version: 1,
+      },
+    ]);
+    expect(getEvaluatedCell(model, "A1").value).toBe(6);
+    featurePluginRegistry.remove("MyUIPlugin");
   });
 
   test("Core commands which dispatch UPDATE_CELL should trigger evaluation", () => {

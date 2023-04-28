@@ -360,6 +360,33 @@ describe("simple selection", () => {
     expect(model.getters.getSheetPosition("42")).toEqual({ sheetId: "42", ...toCartesian("B1") });
   });
 
+  test("initial revision adding a column before A does not shift the selection", () => {
+    const data = {
+      sheets: [{ id: "sheet1" }],
+      revisionId: "initialRevision",
+    };
+    const model = new Model(data, {}, [
+      {
+        type: "REMOTE_REVISION",
+        nextRevisionId: "1",
+        serverRevisionId: "initialRevision",
+        commands: [
+          {
+            type: "ADD_COLUMNS_ROWS",
+            sheetId: "sheet1",
+            dimension: "COL",
+            position: "before",
+            base: 0,
+            quantity: 1,
+          },
+        ],
+        clientId: "1",
+        version: 1,
+      },
+    ]);
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
+  });
+
   test("Select a merge when its topLeft column is hidden", () => {
     const model = new Model({
       sheets: [{ colNumber: 3, rowNumber: 2, merges: ["A1:B2"], cols: { 0: { isHidden: true } } }],
