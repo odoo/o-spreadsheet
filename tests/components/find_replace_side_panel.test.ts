@@ -33,13 +33,12 @@ describe("find and replace sidePanel component", () => {
   let fixture: HTMLElement;
   let parent: Spreadsheet;
 
-  beforeEach(async () => {
-    ({ parent, model, fixture } = await mountSpreadsheet());
-    parent.env.openSidePanel("FindAndReplace");
-    await nextTick();
-  });
-
   describe("Sidepanel", () => {
+    beforeEach(async () => {
+      ({ parent, model, fixture } = await mountSpreadsheet());
+      parent.env.openSidePanel("FindAndReplace");
+      await nextTick();
+    });
     test("Can close the find and replace side panel", async () => {
       expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
       triggerMouseEvent(document.querySelector(selectors.closeSidepanel), "click");
@@ -88,21 +87,28 @@ describe("find and replace sidePanel component", () => {
   });
   describe("basic search", () => {
     let dispatch;
-    beforeEach(() => {
+
+    beforeEach(async () => {
+      jest.useFakeTimers();
+      ({ parent, model, fixture } = await mountSpreadsheet());
+      parent.env.openSidePanel("FindAndReplace");
+      await nextTick();
       dispatch = spyDispatch(parent);
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
     });
 
     test("simple search", async () => {
       /** Fake timers use to control debounceSearch in Find and Replace */
-      jest.useFakeTimers();
       setInputValueAndTrigger(selectors.inputSearch, "1", "input");
-      jest.runAllTimers();
+      jest.runOnlyPendingTimers();
       await nextTick();
       expect(dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
         searchOptions: { exactMatch: false, matchCase: false, searchFormulas: false },
         toSearch: "1",
       });
-      jest.useRealTimers();
     });
 
     test("clicking on next", async () => {
@@ -129,22 +135,24 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("search on empty string", async () => {
-      jest.useFakeTimers();
       setInputValueAndTrigger(selectors.inputSearch, "", "input");
-      jest.runAllTimers();
+      jest.runOnlyPendingTimers();
       await nextTick();
       expect(dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
         searchOptions: { exactMatch: false, matchCase: false, searchFormulas: false },
         toSearch: "",
       });
-      jest.useRealTimers();
     });
   });
 
   describe("search count match", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       jest.useFakeTimers();
+      ({ parent, model, fixture } = await mountSpreadsheet());
+      parent.env.openSidePanel("FindAndReplace");
+      await nextTick();
     });
+
     afterEach(() => {
       jest.useRealTimers();
     });
@@ -152,7 +160,7 @@ describe("find and replace sidePanel component", () => {
       setCellContent(model, "A1", "Hello");
       expect(fixture.querySelector(".o-input-count")).toBeNull();
       setInputValueAndTrigger(selectors.inputSearch, "Hel", "input");
-      jest.runAllTimers();
+      jest.runOnlyPendingTimers();
       await nextTick();
       expect(fixture.querySelector(".o-input-count")?.innerHTML).toBe("1 / 1");
     });
@@ -162,11 +170,11 @@ describe("find and replace sidePanel component", () => {
       setInputValueAndTrigger(selectors.inputSearch, "Hel", "input");
       await nextTick();
       expect(fixture.querySelector(".o-input-count")).toBeNull();
-      jest.runAllTimers();
+      jest.runOnlyPendingTimers();
       await nextTick();
       expect(fixture.querySelector(".o-input-count")?.innerHTML).toBe("1 / 1");
       setInputValueAndTrigger(selectors.inputSearch, "", "input");
-      jest.runAllTimers();
+      jest.runOnlyPendingTimers();
       await nextTick();
       expect(fixture.querySelector(".o-input-count")).toBeNull();
     });
@@ -174,13 +182,18 @@ describe("find and replace sidePanel component", () => {
     test("search without match displays no match count", async () => {
       expect(fixture.querySelector(".o-input-count")).toBeNull();
       setInputValueAndTrigger(selectors.inputSearch, "a search term", "input");
-      jest.runAllTimers();
+      jest.runOnlyPendingTimers();
       await nextTick();
       expect(fixture.querySelector(".o-input-count")?.innerHTML).toBe("0 / 0");
     });
   });
 
   describe("search options", () => {
+    beforeEach(async () => {
+      ({ parent, model, fixture } = await mountSpreadsheet());
+      parent.env.openSidePanel("FindAndReplace");
+      await nextTick();
+    });
     test("Can search matching case", async () => {
       const dispatch = spyDispatch(parent);
 
@@ -232,6 +245,11 @@ describe("find and replace sidePanel component", () => {
     });
   });
   describe("replace options", () => {
+    beforeEach(async () => {
+      ({ parent, model, fixture } = await mountSpreadsheet());
+      parent.env.openSidePanel("FindAndReplace");
+      await nextTick();
+    });
     test("Can replace a simple text value", async () => {
       setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "hello", "input");
       setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "kikou", "input");
