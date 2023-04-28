@@ -596,24 +596,28 @@ export class EvaluationPlugin extends UIPlugin {
   // Evaluator
   // ---------------------------------------------------------------------------
   private updateFormulaDependencies(thisRc: string) {
+    const dependencies = this.getDirectDependencies(thisRc);
+    for (const dependency of dependencies) {
+      this.formulaDependencies.addDependency({ formulaRc: thisRc, dependencyRc: dependency });
+    }
+  }
+
+  private getDirectDependencies(thisRc: string): string[] {
     const cell = this.rcToCell(thisRc);
     if (!cell?.isFormula) {
-      return;
+      return [];
     }
-    const newDependencies: string[] = [];
+    const dependencies: string[] = [];
     for (const range of cell.dependencies) {
       if (range.invalidSheetName || range.invalidXc) {
         continue;
       }
       const sheetId = range.sheetId;
       mapToPositionsInZone(range.zone, (col, row) => {
-        newDependencies.push(cellPositionToRc({ sheetId, col, row }));
+        dependencies.push(cellPositionToRc({ sheetId, col, row }));
       });
     }
-
-    for (const dependency of newDependencies) {
-      this.formulaDependencies.addDependency({ formulaRc: thisRc, dependencyRc: dependency });
-    }
+    return dependencies;
   }
 
   private getSetOfAllCells(): Set<string> {
