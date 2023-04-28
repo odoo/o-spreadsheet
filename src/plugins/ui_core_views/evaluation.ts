@@ -626,7 +626,7 @@ export class EvaluationPlugin extends UIPlugin {
     }
 
     for (const dependency of newDependencies) {
-      this.formulaDependencies.addDependency({ parameterRc: dependency, formulaRc: thisRc });
+      this.formulaDependencies.addDependency({ formulaRc: thisRc, dependencyRc: dependency });
     }
   }
 

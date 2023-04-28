@@ -32,12 +32,12 @@ export class FormulaDependencyGraph {
    * Create a dependency between two rc positions
    *
    */
-  addDependency({ parameterRc, formulaRc }: { parameterRc: string; formulaRc: string }): void {
-    let node = this.nodes.get(parameterRc);
+  addDependency({ formulaRc, dependencyRc }: { dependencyRc: string; formulaRc: string }): void {
+    let node = this.nodes.get(dependencyRc);
     if (node) {
       node.add(formulaRc);
     } else {
-      this.nodes.set(parameterRc, new Set([formulaRc]));
+      this.nodes.set(dependencyRc, new Set([formulaRc]));
     }
   }
 
