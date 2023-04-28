@@ -514,8 +514,7 @@ export function mapToPositionsInZone(
   callback: (col: number, row: number) => void
 ): Position[] {
   const positions: Position[] = [];
-  const [left, right] = [zone.right, zone.left].sort((a, b) => a - b);
-  const [top, bottom] = [zone.top, zone.bottom].sort((a, b) => a - b);
+  const { left, right, top, bottom } = zone;
   for (let col = left; col <= right; col++) {
     for (let row = top; row <= bottom; row++) {
       callback(col, row);
