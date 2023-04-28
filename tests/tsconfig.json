@@ -1,7 +1,24 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "outDir": "../build/js"
+    "module": "ES6",
+    "preserveConstEnums": true,
+    "noImplicitThis": true,
+    "moduleResolution": "node",
+    "removeComments": false,
+    "target": "es2019",
+    "outDir": "../build/js",
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "strictPropertyInitialization": true,
+    "strictNullChecks": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "preserveWatchOutput": true,
+    "sourceMap": true
   },
   "include": ["../src", "."]
 }
