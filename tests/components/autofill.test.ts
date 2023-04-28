@@ -15,11 +15,10 @@ let fixture: HTMLElement;
 let model: Model;
 let parent: Spreadsheet;
 
-beforeEach(async () => {
-  ({ parent, model, fixture } = await mountSpreadsheet());
-});
-
 describe("Autofill component", () => {
+  beforeEach(async () => {
+    ({ parent, model, fixture } = await mountSpreadsheet());
+  });
   test("Can drag and drop autofill on columns", async () => {
     const dispatch = spyDispatch(parent);
     const autofill = fixture.querySelector(".o-autofill-handler");
@@ -257,6 +256,11 @@ describe("Autofill component", () => {
 describe("Autofill edge scrolling", () => {
   beforeEach(async () => {
     jest.useFakeTimers();
+    ({ parent, model, fixture } = await mountSpreadsheet());
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   test("Can edge scroll horizontally", () => {
