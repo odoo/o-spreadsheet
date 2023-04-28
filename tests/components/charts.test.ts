@@ -460,6 +460,19 @@ describe("charts", () => {
     }
   );
 
+  test("double click a chart in readonly mode does not open the side panel", async () => {
+    createTestChart("basicChart");
+    await nextTick();
+
+    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
+    model.updateMode("readonly");
+    expect(model.getters.getSelectedFigureId()).toBeNull();
+    await nextTick();
+    triggerMouseEvent(".o-chart-container", "dblclick");
+    await nextTick();
+    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
+  });
+
   describe.each(["basicChart", "scorecard", "gauge"])(
     "selecting other chart will adapt sidepanel",
     (chartType: string) => {

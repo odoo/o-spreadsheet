@@ -5,7 +5,6 @@ import {
   getChartDefinitionFromContextCreation,
   getChartTypes,
 } from "../../../../helpers/figures/charts";
-import { _lt } from "../../../../translation";
 import { ChartDefinition, ChartType, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { css } from "../../../helpers/css";
 
@@ -61,7 +60,8 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
   setup(): void {
     const selectedFigureId = this.env.model.getters.getSelectedFigureId();
     if (!selectedFigureId) {
-      throw new Error(_lt("Cannot open the chart side panel while no chart are selected"));
+      this.props.onCloseSidePanel();
+      return;
     }
     this.state = useState({
       panel: "configuration",
