@@ -1,5 +1,4 @@
 {
-  "extends": "../tsconfig.json",
   "compilerOptions": {
     "module": "ES6",
     "preserveConstEnums": true,
