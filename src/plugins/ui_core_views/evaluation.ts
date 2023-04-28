@@ -458,7 +458,8 @@ export class EvaluationPlugin extends UIPlugin {
         if ("content" in cmd) {
           // if the content change, formula dependencies may change. So we need to
           // update the formula dependencies graph.
-          this.updateFormulaDependencies(targetedRc, false);
+          this.formulaDependencies.removeAllDependencies(targetedRc);
+          this.updateFormulaDependencies(targetedRc);
         }
         break;
       case "EVALUATE_CELLS":
@@ -476,7 +477,7 @@ export class EvaluationPlugin extends UIPlugin {
         this.spreadingArraysFormulas = new Set<string>();
         this.spreadingRelations = new SpreadingRelation();
         for (const rc of this.rcsToUpdate) {
-          this.updateFormulaDependencies(rc, true);
+          this.updateFormulaDependencies(rc);
         }
         this.shouldRebuildDependenciesGraph = false;
       }
@@ -599,7 +600,7 @@ export class EvaluationPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
   // Evaluator
   // ---------------------------------------------------------------------------
-  private updateFormulaDependencies(thisRc: string, graphCreation: boolean) {
+  private updateFormulaDependencies(thisRc: string) {
     const cell = this.rcToCell(thisRc);
     if (!cell?.isFormula) {
       return;
@@ -613,16 +614,6 @@ export class EvaluationPlugin extends UIPlugin {
       mapToPositionsInZone(range.zone, (col, row) => {
         newDependencies.push(cellPositionToRc({ sheetId, col, row }));
       });
-    }
-
-    /**
-     * If we are not creating the graph, we need to remove the old dependencies
-     * from the graph. But if we are creating the graph, we don't need to do it
-     * because we are creating the graph from scratch. Not doing it increase
-     * notably the performance of the graph creation.
-     */
-    if (!graphCreation) {
-      this.formulaDependencies.removeAllDependencies(thisRc);
     }
 
     for (const dependency of newDependencies) {
