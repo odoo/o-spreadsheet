@@ -601,17 +601,18 @@ export class EvaluationPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
   private updateFormulaDependencies(thisRc: string, graphCreation: boolean) {
     const cell = this.rcToCell(thisRc);
+    if (!cell?.isFormula) {
+      return;
+    }
     const newDependencies: string[] = [];
-    if (cell !== undefined && cell.isFormula) {
-      for (const range of cell.dependencies) {
-        if (range.invalidSheetName !== undefined || range.invalidXc !== undefined) {
-          continue;
-        }
-        const sheetId = range.sheetId;
-        mapToPositionsInZone(range.zone, (col, row) => {
-          newDependencies.push(cellPositionToRc({ sheetId, col, row }));
-        });
+    for (const range of cell.dependencies) {
+      if (range.invalidSheetName || range.invalidXc) {
+        continue;
       }
+      const sheetId = range.sheetId;
+      mapToPositionsInZone(range.zone, (col, row) => {
+        newDependencies.push(cellPositionToRc({ sheetId, col, row }));
+      });
     }
 
     /**
