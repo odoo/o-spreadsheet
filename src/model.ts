@@ -229,6 +229,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       this.setupCorePlugin(Plugin, workbookData);
     }
     Object.assign(this.getters, this.coreGetters);
+
+    this.session.loadInitialMessages(stateUpdateMessages);
+
     for (let Plugin of statefulUIPluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
       this.statefulUIPlugins.push(plugin);
@@ -258,8 +261,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     // events
     this.setupSessionEvents();
 
-    // Load the initial revisions
-    this.session.loadInitialMessages(stateUpdateMessages);
     this.joinSession();
 
     if (config.snapshotRequested) {
