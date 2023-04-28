@@ -472,16 +472,11 @@ export class EvaluationPlugin extends UIPlugin {
     if (this.shouldRecomputeCellsEvaluation) {
       this.evaluatedCells = {};
       this.rcsToUpdate = this.getSetOfAllCells();
+      this.shouldRecomputeCellsEvaluation = false;
       if (this.shouldRebuildDependenciesGraph) {
-        this.formulaDependencies = new FormulaDependencyGraph();
-        this.spreadingArraysFormulas = new Set<string>();
-        this.spreadingRelations = new SpreadingRelation();
-        for (const rc of this.rcsToUpdate) {
-          this.updateFormulaDependencies(rc);
-        }
+        this.buildDependencyGraph();
         this.shouldRebuildDependenciesGraph = false;
       }
-      this.shouldRecomputeCellsEvaluation = false;
     } else if (this.rcsToUpdate.size) {
       const rcsToUpdateBis = new Set<string>();
 
@@ -993,6 +988,15 @@ export class EvaluationPlugin extends UIPlugin {
     throw new Error(
       _lt("Result couldn't be automatically expanded. Please insert more columns and rows.")
     );
+  }
+
+  private buildDependencyGraph() {
+    this.formulaDependencies = new FormulaDependencyGraph();
+    this.spreadingArraysFormulas = new Set<string>();
+    this.spreadingRelations = new SpreadingRelation();
+    for (const rc of this.rcsToUpdate) {
+      this.updateFormulaDependencies(rc);
+    }
   }
 
   // ---------------------------------------------------------------------------
