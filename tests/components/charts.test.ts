@@ -432,6 +432,7 @@ describe("figures", () => {
     setInputValueAndTrigger(".o-chart-title input", "first_title", "input");
 
     await simulateClick(figures[1] as HTMLElement);
+    await nextTick();
     expect(model.getters.getChartDefinition("1").title).toBe("old_title_1");
     expect(model.getters.getChartDefinition("2").title).toBe("old_title_2");
   });
@@ -480,6 +481,38 @@ describe("figures", () => {
       }
     }
   );
+
+  test("can switch charts and update background", async () => {
+    createChart(model, TEST_CHART_DATA.basicChart, "1");
+    createChart(model, TEST_CHART_DATA.basicChart, "2");
+    const sheetId = model.getters.getActiveSheetId();
+    const [chart1, chart2] = model.getters.getFigures(sheetId);
+    const dispatch = spyDispatch(parent);
+    model.dispatch("SELECT_FIGURE", { id: chart1.id });
+    parent.env.openSidePanel("ChartPanel");
+    await nextTick();
+    await simulateClick(".o-panel-element.inactive");
+    await nextTick();
+    // select second chart
+    model.dispatch("SELECT_FIGURE", { id: chart2.id });
+    await nextTick();
+    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
+    const colorPickerButton = fixture.querySelector(".o-with-color-picker span");
+    await simulateClick(colorPickerButton);
+    await nextTick();
+    const black = fixture.querySelector(
+      ".o-color-picker-line-item[data-color='#000000']"
+    ) as HTMLElement;
+    await simulateClick(black);
+    expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
+      id: chart2.id,
+      sheetId,
+      definition: {
+        ...model.getters.getChartDefinition(chart2.id),
+        background: "#000000",
+      },
+    });
+  });
 
   test.each(["basicChart", "scorecard", "gauge"])(
     "Clicking in the design panel closes the color picker",
