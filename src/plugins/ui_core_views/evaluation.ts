@@ -459,7 +459,8 @@ export class EvaluationPlugin extends UIPlugin {
           // if the content change, formula dependencies may change. So we need to
           // update the formula dependencies graph.
           this.formulaDependencies.removeAllDependencies(targetedRc);
-          this.updateFormulaDependencies(targetedRc);
+          const dependencies = this.getDirectDependencies(targetedRc);
+          this.formulaDependencies.addDependencies(targetedRc, dependencies);
         }
         break;
       case "EVALUATE_CELLS":
@@ -595,12 +596,6 @@ export class EvaluationPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
   // Evaluator
   // ---------------------------------------------------------------------------
-  private updateFormulaDependencies(thisRc: string) {
-    const dependencies = this.getDirectDependencies(thisRc);
-    for (const dependency of dependencies) {
-      this.formulaDependencies.addDependency({ formulaRc: thisRc, dependencyRc: dependency });
-    }
-  }
 
   private getDirectDependencies(thisRc: string): string[] {
     const cell = this.rcToCell(thisRc);
@@ -999,7 +994,8 @@ export class EvaluationPlugin extends UIPlugin {
     this.spreadingArraysFormulas = new Set<string>();
     this.spreadingRelations = new SpreadingRelation();
     for (const rc of this.rcsToUpdate) {
-      this.updateFormulaDependencies(rc);
+      const dependencies = this.getDirectDependencies(rc);
+      this.formulaDependencies.addDependencies(rc, dependencies);
     }
   }
 

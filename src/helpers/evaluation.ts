@@ -28,16 +28,14 @@ export class FormulaDependencyGraph {
     }
   }
 
-  /**
-   * Create a dependency between two rc positions
-   *
-   */
-  addDependency({ formulaRc, dependencyRc }: { dependencyRc: string; formulaRc: string }): void {
-    let node = this.nodes.get(dependencyRc);
-    if (node) {
-      node.add(formulaRc);
-    } else {
-      this.nodes.set(dependencyRc, new Set([formulaRc]));
+  addDependencies(formulaRc: string, dependencies: string[]): void {
+    for (const dependency of dependencies) {
+      let node = this.nodes.get(dependency);
+      if (node) {
+        node.add(formulaRc);
+      } else {
+        this.nodes.set(dependency, new Set([formulaRc]));
+      }
     }
   }
 
