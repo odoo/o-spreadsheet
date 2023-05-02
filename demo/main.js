@@ -189,7 +189,7 @@ class Demo extends Component {
       this.stateUpdateMessages = [];
     }
     // this.createModel(data || demoData);
-    this.createModel(makeLargeDataset(26, 2_500, ["formulas"]));
+    this.createModel(makeLargeDataset(26, 10_000, ["formulas"]));
     // this.createModel({});
   }
 

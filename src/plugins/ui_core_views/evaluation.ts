@@ -492,8 +492,8 @@ export class EvaluationPlugin extends UIPlugin {
           //    formula to take into account the new collisions.
           for (const arrayFormula of this.spreadingRelations.getArrayFormulasRc(rcToUpdate)) {
             if (this.spreadingArraysFormulas.has(arrayFormula)) {
-              extendSet(rcsToUpdateBis, this.findCellsToCompute(arrayFormula, true));
-              break;
+              extendSet(rcsToUpdateBis, this.findCellsToCompute(arrayFormula));
+              break; // there can be only one formula spreading on a cell
             }
           }
         } else if (this.spreadingRelations.hasResult(rcToUpdate)) {
@@ -502,7 +502,7 @@ export class EvaluationPlugin extends UIPlugin {
           //    In this case, it is necessary to indicate to recalculate formulas
           //    that was blocked by the old content.
           for (const arrayFormula of this.spreadingRelations.getArrayFormulasRc(rcToUpdate)) {
-            extendSet(rcsToUpdateBis, this.findCellsToCompute(arrayFormula, true));
+            extendSet(rcsToUpdateBis, this.findCellsToCompute(arrayFormula));
           }
         }
       }
@@ -655,7 +655,7 @@ export class EvaluationPlugin extends UIPlugin {
           delete this.evaluatedCells[child];
           extendSet(nextRcsToUpdate, this.findCellsToCompute(child, false));
           for (const candidate of this.spreadingRelations.getArrayFormulasRc(child)) {
-            extendSet(nextRcsToUpdate, this.findCellsToCompute(candidate, true));
+            extendSet(nextRcsToUpdate, this.findCellsToCompute(candidate));
           }
         }
         this.spreadingArraysFormulas.delete(rc);
