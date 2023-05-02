@@ -315,10 +315,20 @@ function createContentTypes(files: XLSXExportFile[]): XLSXExportXMLFile {
       overrideNodes.push(createOverride("/" + file.path, CONTENT_TYPES[file.contentType]));
     }
   }
+  const relsAttributes: XMLAttributes = [
+    ["Extension", "rels"],
+    ["ContentType", "application/vnd.openxmlformats-package.relationships+xml"],
+  ];
+
+  const xmlAttributes: XMLAttributes = [
+    ["Extension", "xml"],
+    ["ContentType", "application/xml"],
+  ];
+
   const xml = escapeXml/*xml*/ `
     <Types xmlns="${NAMESPACE["Types"]}">
-      <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml" />
-      <Default Extension="xml" ContentType="application/xml" />
+      <Default ${formatAttributes(relsAttributes)} />
+      <Default ${formatAttributes(xmlAttributes)} />
       ${joinXmlNodes(overrideNodes)}
     </Types>
   `;

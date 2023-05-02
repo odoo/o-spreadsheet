@@ -203,9 +203,14 @@ export function addSheetViews(sheet: ExcelSheetData) {
     `;
   }
 
+  const sheetViewAttrs: XMLAttributes = [
+    ["showGridLines", sheet.areGridLinesVisible ? 1 : 0],
+    ["workbookViewId", 0],
+  ];
+
   let sheetView = escapeXml/*xml*/ `
       <sheetViews>
-        <sheetView showGridLines="${sheet.areGridLinesVisible ? 1 : 0}" workbookViewId="0">
+        <sheetView ${formatAttributes(sheetViewAttrs)}>
           ${splitPanes}
         </sheetView>
       </sheetViews>
