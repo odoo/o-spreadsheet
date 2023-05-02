@@ -482,8 +482,6 @@ export class EvaluationPlugin extends UIPlugin {
       const rcsToUpdateBis = new Set<string>();
 
       for (const rcToUpdate of this.rcsToUpdate) {
-        extendSet(rcsToUpdateBis, this.findCellsToCompute(rcToUpdate, false));
-
         const content = this.rcToCell(rcToUpdate)?.content;
         // if the content of a cell changes, we need to check:
         if (content) {
@@ -492,7 +490,7 @@ export class EvaluationPlugin extends UIPlugin {
           //    formula to take into account the new collisions.
           for (const arrayFormula of this.spreadingRelations.getArrayFormulasRc(rcToUpdate)) {
             if (this.spreadingFormulas.has(arrayFormula)) {
-              extendSet(rcsToUpdateBis, this.findCellsToCompute(arrayFormula));
+              rcsToUpdateBis.add(arrayFormula);
               break; // there can be only one formula spreading on a cell
             }
           }
@@ -502,7 +500,7 @@ export class EvaluationPlugin extends UIPlugin {
           //    In this case, it is necessary to indicate to recalculate formulas
           //    that was blocked by the old content.
           for (const arrayFormula of this.spreadingRelations.getArrayFormulasRc(rcToUpdate)) {
-            extendSet(rcsToUpdateBis, this.findCellsToCompute(arrayFormula));
+            rcsToUpdateBis.add(arrayFormula);
           }
         }
       }
@@ -653,9 +651,10 @@ export class EvaluationPlugin extends UIPlugin {
       if (this.spreadingFormulas.has(rc)) {
         for (const child of this.spreadingRelations.getArrayResultsRc(rc)) {
           delete this.evaluatedCells[child];
-          extendSet(nextRcsToUpdate, this.findCellsToCompute(child, false));
+          extendSet(nextRcsToUpdate, this.findCellsToCompute(child));
+          // other array formulas that could spread to this one
           for (const candidate of this.spreadingRelations.getArrayFormulasRc(child)) {
-            extendSet(nextRcsToUpdate, this.findCellsToCompute(candidate));
+            nextRcsToUpdate.add(candidate);
           }
         }
         this.spreadingFormulas.delete(rc);
@@ -748,7 +747,7 @@ export class EvaluationPlugin extends UIPlugin {
 
         // check if formula dependencies present in the spread zone
         // if so, they need to be recomputed
-        extendSet(nextRcsToUpdate, this.findCellsToCompute(rc, false));
+        extendSet(nextRcsToUpdate, this.findCellsToCompute(rc));
       };
 
       const cellId = cellData.id;
@@ -791,14 +790,16 @@ export class EvaluationPlugin extends UIPlugin {
     const compilationParameters = this.getCompilationParameters(computeCell);
     extendSet(nextRcsToUpdate, this.rcsToUpdate);
     this.rcsToUpdate.clear();
-
     let currentCycle = 0;
     while (nextRcsToUpdate.size && currentCycle < this.maxIteration) {
-      extendSet(currentRcsToUpdate, nextRcsToUpdate);
-      const arr = Array.from(currentRcsToUpdate);
+      let order: string[] = Array.from(nextRcsToUpdate);
+      for (const rc of nextRcsToUpdate) {
+        order = order.concat(...this.findCellsToCompute(rc));
+      }
+      extendSet(currentRcsToUpdate, order);
       nextRcsToUpdate.clear();
-      for (let i = 0; i < arr.length; ++i) {
-        const cell = arr[i];
+      for (let i = 0; i < order.length; ++i) {
+        const cell = order[i];
         if (!currentRcsToUpdate.has(cell)) continue;
         setEvaluatedCell(cell, computeCell(cell));
       }
@@ -948,12 +949,8 @@ export class EvaluationPlugin extends UIPlugin {
     return [refFn, range, evalContext];
   }
 
-  private findCellsToCompute(mainRc: string, selfInclude: boolean = true): Iterable<string> {
-    const cellsToCompute = this.formulaDependencies.visitDeepReferences(mainRc);
-    if (!selfInclude) {
-      cellsToCompute.delete(mainRc);
-    }
-    return cellsToCompute;
+  private findCellsToCompute(mainRc: string): Iterable<string> {
+    return this.formulaDependencies.visitDeepReferences(mainRc);
   }
 
   private rcToCell(rc: string): Cell | undefined {
