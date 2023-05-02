@@ -420,7 +420,7 @@ export class EvaluationPlugin extends UIPlugin {
   private rcsToUpdate = new Set<string>();
 
   private formulaDependencies = new FormulaDependencyGraph();
-  private spreadingArraysFormulas = new Set<string>();
+  private spreadingFormulas = new Set<string>();
   private spreadingRelations = new SpreadingRelation();
 
   private maxIteration = 100;
@@ -491,7 +491,7 @@ export class EvaluationPlugin extends UIPlugin {
           //    In this case, it is necessary to indicate to recalculate the concerned
           //    formula to take into account the new collisions.
           for (const arrayFormula of this.spreadingRelations.getArrayFormulasRc(rcToUpdate)) {
-            if (this.spreadingArraysFormulas.has(arrayFormula)) {
+            if (this.spreadingFormulas.has(arrayFormula)) {
               extendSet(rcsToUpdateBis, this.findCellsToCompute(arrayFormula));
               break; // there can be only one formula spreading on a cell
             }
@@ -650,7 +650,7 @@ export class EvaluationPlugin extends UIPlugin {
         }
       }
 
-      if (this.spreadingArraysFormulas.has(rc)) {
+      if (this.spreadingFormulas.has(rc)) {
         for (const child of this.spreadingRelations.getArrayResultsRc(rc)) {
           delete this.evaluatedCells[child];
           extendSet(nextRcsToUpdate, this.findCellsToCompute(child, false));
@@ -658,7 +658,7 @@ export class EvaluationPlugin extends UIPlugin {
             extendSet(nextRcsToUpdate, this.findCellsToCompute(candidate));
           }
         }
-        this.spreadingArraysFormulas.delete(rc);
+        this.spreadingFormulas.delete(rc);
       }
       this.spreadingRelations.removeNode(rc);
 
@@ -744,7 +744,7 @@ export class EvaluationPlugin extends UIPlugin {
 
         // update evaluatedCells
         setEvaluatedCell(rc, evaluatedCell);
-        this.spreadingArraysFormulas.add(parentRc);
+        this.spreadingFormulas.add(parentRc);
 
         // check if formula dependencies present in the spread zone
         // if so, they need to be recomputed
@@ -991,7 +991,7 @@ export class EvaluationPlugin extends UIPlugin {
 
   private buildDependencyGraph() {
     this.formulaDependencies = new FormulaDependencyGraph();
-    this.spreadingArraysFormulas = new Set<string>();
+    this.spreadingFormulas = new Set<string>();
     this.spreadingRelations = new SpreadingRelation();
     for (const rc of this.rcsToUpdate) {
       const dependencies = this.getDirectDependencies(rc);
