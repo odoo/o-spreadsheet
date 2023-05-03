@@ -60,19 +60,21 @@ colMenuRegistry
   .add("delete_column", {
     ...ACTION_EDIT.deleteCols,
     sequence: 90,
+    icon: "o-spreadsheet-Icon.DELETE",
   })
   .add("clear_column", {
     ...ACTION_EDIT.clearCols,
     sequence: 100,
+    icon: "o-spreadsheet-Icon.CLEAR",
   })
   .add("hide_columns", {
     ...ACTION_VIEW.hideCols,
-    sequence: 85,
+    sequence: 105,
     separator: true,
   })
   .add("unhide_columns", {
     ...ACTION_VIEW.unhideCols,
-    sequence: 86,
+    sequence: 106,
     separator: true,
   })
   .add("conditional_formatting", {

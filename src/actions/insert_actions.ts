@@ -20,6 +20,7 @@ export const rowInsertRowBefore: ActionSpec = {
     isConsecutive(env.model.getters.getActiveRows()) &&
     ACTIONS.IS_ONLY_ONE_RANGE(env) &&
     env.model.getters.getActiveCols().size === 0,
+  icon: "o-spreadsheet-Icon.INSERT_ROW_BEFORE",
 };
 
 export const topBarInsertRowsBefore: ActionSpec = {
@@ -30,7 +31,8 @@ export const topBarInsertRowsBefore: ActionSpec = {
 export const cellInsertRowsBefore: ActionSpec = {
   ...rowInsertRowBefore,
   name: ACTIONS.CELL_INSERT_ROWS_BEFORE_NAME,
-  icon: "o-spreadsheet-Icon.INSERT_ROW",
+  isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
+  icon: "o-spreadsheet-Icon.INSERT_ROW_BEFORE",
 };
 
 export const rowInsertRowsAfter: ActionSpec = {
@@ -40,6 +42,7 @@ export const rowInsertRowsAfter: ActionSpec = {
     isConsecutive(env.model.getters.getActiveRows()) &&
     ACTIONS.IS_ONLY_ONE_RANGE(env) &&
     env.model.getters.getActiveCols().size === 0,
+  icon: "o-spreadsheet-Icon.INSERT_ROW_AFTER",
 };
 
 export const topBarInsertRowsAfter: ActionSpec = {
@@ -63,6 +66,7 @@ export const colInsertColsBefore: ActionSpec = {
     isConsecutive(env.model.getters.getActiveCols()) &&
     ACTIONS.IS_ONLY_ONE_RANGE(env) &&
     env.model.getters.getActiveRows().size === 0,
+  icon: "o-spreadsheet-Icon.INSERT_COL_BEFORE",
 };
 
 export const topBarInsertColsBefore: ActionSpec = {
@@ -73,7 +77,8 @@ export const topBarInsertColsBefore: ActionSpec = {
 export const cellInsertColsBefore: ActionSpec = {
   ...colInsertColsBefore,
   name: ACTIONS.CELL_INSERT_COLUMNS_BEFORE_NAME,
-  icon: "o-spreadsheet-Icon.INSERT_COL",
+  isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
+  icon: "o-spreadsheet-Icon.INSERT_COL_BEFORE",
 };
 
 export const colInsertColsAfter: ActionSpec = {
@@ -83,6 +88,7 @@ export const colInsertColsAfter: ActionSpec = {
     isConsecutive(env.model.getters.getActiveCols()) &&
     ACTIONS.IS_ONLY_ONE_RANGE(env) &&
     env.model.getters.getActiveRows().size === 0,
+  icon: "o-spreadsheet-Icon.INSERT_COL_AFTER",
 };
 
 export const topBarInsertColsAfter: ActionSpec = {
@@ -105,6 +111,7 @@ export const insertCellShiftDown: ActionSpec = {
   execute: ACTIONS.INSERT_CELL_SHIFT_DOWN,
   isVisible: (env) =>
     env.model.getters.getActiveRows().size === 0 && env.model.getters.getActiveCols().size === 0,
+  icon: "o-spreadsheet-Icon.INSERT_CELL_SHIFT_DOWN",
 };
 
 export const insertCellShiftRight: ActionSpec = {
@@ -112,6 +119,7 @@ export const insertCellShiftRight: ActionSpec = {
   execute: ACTIONS.INSERT_CELL_SHIFT_RIGHT,
   isVisible: (env) =>
     env.model.getters.getActiveRows().size === 0 && env.model.getters.getActiveCols().size === 0,
+  icon: "o-spreadsheet-Icon.INSERT_CELL_SHIFT_RIGHT",
 };
 
 export const insertChart: ActionSpec = {

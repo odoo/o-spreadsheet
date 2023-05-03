@@ -99,6 +99,7 @@ class Demo extends Component {
       isReadonlyAllowed: true,
       isVisible: () => this.model.config.mode !== "normal",
       execute: () => this.model.updateMode("normal"),
+      icon: "o-spreadsheet-Icon.OPEN_READ_WRITE",
     });
 
     topbarMenuRegistry.addChild("display_header", ["file"], {

@@ -53,10 +53,6 @@ css/* scss */ `
         margin: 0px 8px 0px 0px;
         width: ${MENU_ITEM_HEIGHT - 2 * MENU_ITEM_PADDING_VERTICAL}px;
         line-height: ${MENU_ITEM_HEIGHT - 2 * MENU_ITEM_PADDING_VERTICAL}px;
-
-        .o-icon {
-          color: ${ICONS_COLOR};
-        }
       }
       .o-menu-item-root {
         width: 10px;
@@ -69,6 +65,11 @@ css/* scss */ `
         }
         .o-menu-item-description {
           color: grey;
+        }
+        .o-menu-item-icon {
+          .o-icon {
+            color: ${ICONS_COLOR};
+          }
         }
       }
       &.disabled {

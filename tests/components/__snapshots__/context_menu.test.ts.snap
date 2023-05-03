@@ -166,7 +166,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
           class="o-icon"
         >
           <path
-            d="M.5 2A1.5 1.5 0 0 1 2 .5h14A1.5 1.5 0 0 1 17.5 2v14a1.5 1.5 0 0 1-1.5 1.5H2A1.5 1.5 0 0 1 .5 16V2H2v3.5h14V2H2v9h14V7H2v9h14v-3.5H2"
+            d="M3.5 14.5A1.5 1.5 0 0 0 5 16h10a1.5 1.5 0 0 0 1.5-1.5v-7h-3V5h3V1.5A1.5 1.5 0 0 0 15 0H5a1.5 1.5 0 0 0-1.5 1.5v2h-3V9h3M15 12.5v2H5v-2M15 9v2H5V9m10-7.5v2H5v-2M12 5v2.5H2V5"
             fill="currentColor"
           />
         </svg>
@@ -195,7 +195,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
           class="o-icon"
         >
           <path
-            d="M.5 2A1.5 1.5 0 0 1 2 .5h14A1.5 1.5 0 0 1 17.5 2v14a1.5 1.5 0 0 1-1.5 1.5H2A1.5 1.5 0 0 1 .5 16V2H2v14h3.5V2H2h5v14h4V2H2h10.5v14H16V2H2"
+            d="M15.5 3A1.5 1.5 0 0 1 17 4.5v10a1.5 1.5 0 0 1-1.5 1.5h-7v-3H6v3H2.5A1.5 1.5 0 0 1 1 14.5v-10A1.5 1.5 0 0 1 2.5 3h2V0H10v3m3.5 11.5h2v-10h-2m-3.5 10h2v-10h-2m-7.5 10h2v-10h-2m3.5 7h2.5v-10H6"
             fill="currentColor"
           />
         </svg>

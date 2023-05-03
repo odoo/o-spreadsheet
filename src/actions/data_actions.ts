@@ -40,4 +40,5 @@ export const splitToColumns: ActionSpec = {
   sequence: 1,
   execute: (env) => env.openSidePanel("SplitToColumns", {}),
   isEnabled: (env) => env.model.getters.isSingleColSelected(),
+  icon: "o-spreadsheet-Icon.SPLIT_TEXT",
 };
