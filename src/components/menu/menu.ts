@@ -1,4 +1,13 @@
-import { Component, onWillUpdateProps, useExternalListener, useRef, useState } from "@odoo/owl";
+import {
+  Component,
+  onMounted,
+  onPatched,
+  onWillUpdateProps,
+  useEffect,
+  useExternalListener,
+  useRef,
+  useState,
+} from "@odoo/owl";
 import { Action } from "../../actions/action";
 import {
   BG_HOVER_COLOR,
@@ -10,7 +19,7 @@ import {
   MENU_VERTICAL_PADDING,
   MENU_WIDTH,
 } from "../../constants";
-import { DOMCoordinates, MenuMouseEvent, Pixel, SpreadsheetChildEnv, UID } from "../../types";
+import { DOMCoordinates, MenuMouseEvent, Pixel, Ref, SpreadsheetChildEnv, UID } from "../../types";
 import { css } from "../helpers/css";
 import { getOpenedMenus, isChildEvent } from "../helpers/dom_helpers";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
@@ -26,6 +35,10 @@ css/* scss */ `
     padding: ${MENU_VERTICAL_PADDING}px 0px;
     width: ${MENU_WIDTH}px;
     box-sizing: border-box !important;
+
+    &:focus {
+      outline: none;
+    }
 
     .o-menu-item {
       display: flex;
@@ -53,7 +66,6 @@ css/* scss */ `
       }
 
       &:not(.disabled) {
-        &:hover,
         &.o-menu-item-active {
           background-color: ${BG_HOVER_COLOR};
         }
@@ -84,6 +96,8 @@ interface Props {
   onClose: () => void;
   onMenuClicked?: (ev: CustomEvent) => void;
   menuId?: UID;
+  navigateBackToParent?: (direction: "left" | "right") => void;
+  shouldSelectFirstItemWhenFirstOpened?: boolean;
 }
 
 export interface MenuState {
@@ -92,6 +106,7 @@ export interface MenuState {
   position: null | DOMCoordinates;
   scrollOffset?: Pixel;
   menuItems: Action[];
+  shouldSelectFirstItemWhenFirstOpened?: boolean;
 }
 export class Menu extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Menu";
@@ -100,23 +115,69 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   static defaultProps = {
     depth: 1,
   };
+  private clickableMenuItems: Action[] = [];
   private subMenu: MenuState = useState({
     isOpen: false,
     position: null,
     scrollOffset: 0,
     menuItems: [],
+    shouldSelectFirstItemWhenFirstOpened: false,
+  });
+  private menuItemSelection = useState({
+    selectedIndex: this.props.shouldSelectFirstItemWhenFirstOpened ? 0 : undefined,
   });
   private menuRef = useRef("menu");
   private position: DOMCoordinates = useAbsoluteBoundingRect(this.menuRef);
+  private menuItemRefs: { [id: string]: { action: Action; ref: Ref<HTMLElement> } } = {};
+  childrenHaveIcon: boolean = false;
 
   setup() {
+    for (const menuItem of this.props.menuItems) {
+      this.menuItemRefs[menuItem.id] = {
+        action: menuItem,
+        ref: useRef(menuItem.id),
+      };
+    }
+    this.childrenHaveIcon = this.props.menuItems.some(
+      (menuItem) => !!menuItem.icon || !!menuItem.isActive
+    );
+    if (
+      this.menuItemSelection.selectedIndex === undefined &&
+      this.props.shouldSelectFirstItemWhenFirstOpened
+    ) {
+      this.menuItemSelection.selectedIndex = 0;
+    }
     useExternalListener(window, "click", this.onExternalClick, { capture: true });
     useExternalListener(window, "contextmenu", this.onExternalClick, { capture: true });
+    onMounted(() => this.focus());
     onWillUpdateProps((nextProps: Props) => {
       if (nextProps.menuItems !== this.props.menuItems) {
         this.closeSubMenu();
       }
     });
+    onPatched(() => this.focus());
+    useEffect(
+      () => {
+        this.clickableMenuItems = this.props.menuItems.filter(
+          (menuItem) => menuItem.isEnabled(this.env) && menuItem.isVisible(this.env)
+        );
+        this.closeSubMenu();
+        this.menuItemSelection.selectedIndex = undefined;
+        if (
+          this.menuItemSelection.selectedIndex === undefined &&
+          this.clickableMenuItems.length > 0 &&
+          this.props.shouldSelectFirstItemWhenFirstOpened
+        ) {
+          this.menuItemSelection.selectedIndex = 0;
+        }
+      },
+      () => [this.menuItemsAndSeparators.length]
+    );
+  }
+
+  focus() {
+    if (this.subMenu.isOpen) return;
+    this.menuRef.el?.focus();
   }
 
   get menuItemsAndSeparators(): MenuItemOrSeparator[] {
@@ -165,8 +226,11 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     };
   }
 
-  get childrenHaveIcon(): boolean {
-    return this.props.menuItems.some((menuItem) => !!menuItem.icon || !!menuItem.isActive);
+  isMenuItemActive(menuItem: Action): boolean {
+    if (this.menuItemSelection.selectedIndex === undefined) {
+      return this.isParentMenu(this.subMenu, menuItem);
+    }
+    return menuItem.id === this.clickableMenuItems[this.menuItemSelection.selectedIndex]?.id;
   }
 
   getIconName(menu: Action) {
@@ -228,18 +292,31 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
    * If the given menu is not disabled, open it's submenu at the
    * correct position according to available surrounding space.
    */
-  openSubMenu(menu: Action, menuIndex: number, ev: MouseEvent) {
-    const parentMenuEl = ev.currentTarget as HTMLElement;
-    if (!parentMenuEl) return;
+  openSubMenu(parentMenuEl: HTMLElement, parentMenu: Action) {
     const y = parentMenuEl.getBoundingClientRect().top;
-
     this.subMenu.position = {
       x: this.position.x + this.props.depth * MENU_WIDTH,
       y: y - (this.subMenu.scrollOffset || 0),
     };
-    this.subMenu.menuItems = menu.children(this.env);
+    this.menuItemSelection.selectedIndex = this.clickableMenuItems.findIndex(
+      (menuItem) => menuItem.id === parentMenu.id
+    );
+    this.subMenu.menuItems = parentMenu.children(this.env);
     this.subMenu.isOpen = true;
-    this.subMenu.parentMenu = menu;
+    this.subMenu.parentMenu = parentMenu;
+  }
+
+  openSubMenuViaMouse(parentMenu: Action, ev: MouseEvent) {
+    const parentMenuEl = ev.currentTarget as HTMLElement;
+    this.openSubMenu(parentMenuEl, parentMenu);
+  }
+
+  openSubMenuViaKeyboard(parentMenu: Action) {
+    const { ref } = this.menuItemRefs[parentMenu.id];
+    const parentMenuEl = ref.el as HTMLElement;
+    if (!parentMenuEl) return;
+    this.subMenu.shouldSelectFirstItemWhenFirstOpened = true;
+    this.openSubMenu(parentMenuEl, parentMenu);
   }
 
   isParentMenu(subMenu: MenuState, menuItem: Action) {
@@ -251,24 +328,113 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     this.subMenu.parentMenu = undefined;
   }
 
-  onClickMenu(menu: Action, menuIndex: number, ev: MouseEvent) {
+  onClickMenu(menu: Action, ev: MouseEvent) {
     if (this.isEnabled(menu)) {
       if (this.isRoot(menu)) {
-        this.openSubMenu(menu, menuIndex, ev);
+        this.openSubMenuViaMouse(menu, ev);
       } else {
         this.activateMenu(menu);
       }
     }
   }
 
-  onMouseOver(menu: Action, position: Pixel, ev: MouseEvent) {
+  onMouseMove(menu: Action, ev: MouseEvent) {
+    this.subMenu.shouldSelectFirstItemWhenFirstOpened = false;
+    this.menuItemSelection.selectedIndex = this.clickableMenuItems.findIndex(
+      (menuItem) => menuItem.id === menu.id
+    );
     if (this.isEnabled(menu)) {
       if (this.isRoot(menu)) {
-        this.openSubMenu(menu, position, ev);
+        this.openSubMenuViaMouse(menu, ev);
       } else {
         this.closeSubMenu();
       }
     }
+  }
+
+  onKeydown(ev: KeyboardEvent) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    if (ev.key.startsWith("Arrow")) {
+      this.processArrows(ev);
+    } else if (ev.key === "Enter") {
+      if (this.menuItemSelection.selectedIndex === undefined) return;
+      const menu = this.clickableMenuItems[this.menuItemSelection.selectedIndex];
+      if (this.isEnabled(menu)) {
+        if (this.isRoot(menu)) {
+          this.openSubMenuViaKeyboard(menu);
+        } else {
+          this.activateMenu(menu);
+        }
+      }
+    } else if (ev.key === "Escape") {
+      this.close();
+    }
+  }
+
+  processArrows(ev: KeyboardEvent) {
+    switch (ev.key) {
+      case "ArrowDown": {
+        this.selectNextMenuItem();
+        break;
+      }
+      case "ArrowUp": {
+        this.selectPreviousMenuItem();
+        break;
+      }
+      case "ArrowRight": {
+        if (this.menuItemSelection.selectedIndex === undefined) {
+          this.props.navigateBackToParent?.("right");
+          return;
+        }
+        const menu = this.clickableMenuItems[this.menuItemSelection.selectedIndex];
+        if (!this.isRoot(menu)) {
+          this.props.navigateBackToParent?.("right");
+          return;
+        }
+        this.openSubMenuViaKeyboard(menu);
+        break;
+      }
+      case "ArrowLeft": {
+        this.props.navigateBackToParent?.("left");
+        break;
+      }
+    }
+  }
+
+  onSubmenuBackNavigation(direction: "left" | "right") {
+    this.closeSubMenu();
+    if (direction === "right") {
+      this.props.navigateBackToParent?.(direction);
+    }
+  }
+
+  private selectNextMenuItem() {
+    if (this.clickableMenuItems.length === 0) return;
+    if (this.menuItemSelection.selectedIndex === undefined) {
+      this.menuItemSelection.selectedIndex = 0;
+    } else if (this.menuItemSelection.selectedIndex === this.clickableMenuItems.length - 1) {
+      this.menuItemSelection.selectedIndex = 0;
+    } else {
+      this.menuItemSelection.selectedIndex++;
+    }
+    const nextMenuItem = this.clickableMenuItems[this.menuItemSelection.selectedIndex];
+    const el = this.menuItemRefs[nextMenuItem.id]?.ref.el;
+    el?.scrollIntoView(false);
+  }
+
+  private selectPreviousMenuItem() {
+    if (this.clickableMenuItems.length === 0) return;
+    if (this.menuItemSelection.selectedIndex === undefined) {
+      this.menuItemSelection.selectedIndex = this.clickableMenuItems.length - 1;
+    } else if (this.menuItemSelection.selectedIndex === 0) {
+      this.menuItemSelection.selectedIndex = this.clickableMenuItems.length - 1;
+    } else {
+      this.menuItemSelection.selectedIndex--;
+    }
+    const previousMenuItem = this.clickableMenuItems[this.menuItemSelection.selectedIndex];
+    const el = this.menuItemRefs[previousMenuItem.id]?.ref.el;
+    el?.scrollIntoView(false);
   }
 }
 
@@ -280,4 +446,6 @@ Menu.props = {
   onClose: Function,
   onMenuClicked: { type: Function, optional: true },
   menuId: { type: String, optional: true },
+  navigateBackToParent: { type: Function, optional: true },
+  shouldSelectFirstItemWhenFirstOpened: { type: Boolean, optional: true },
 };

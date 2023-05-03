@@ -13,6 +13,7 @@ import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry"
 import { setCellContent } from "../test_helpers/commands_helpers";
 import {
   click,
+  keyDown,
   rightClickCell,
   simulateClick,
   triggerMouseEvent,
@@ -28,6 +29,8 @@ import {
   nextTick,
 } from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
+
+const ACTIVE_MENU_ITEM_CLASS = "o-menu-item-active";
 
 let fixture: HTMLElement;
 let model: Model;
@@ -399,10 +402,10 @@ describe("Context Menu internal tests", () => {
       },
     ]);
     await renderContextMenu(300, 300, { menuItems });
-    triggerMouseEvent(".o-menu div[data-name='root']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='root']", "mousemove");
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeTruthy();
-    triggerMouseEvent(".o-menu div[data-name='action']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='action']", "mousemove");
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeFalsy();
   });
@@ -410,13 +413,13 @@ describe("Context Menu internal tests", () => {
   test("Submenu parent is highlighted", async () => {
     await renderContextMenu(300, 300, { menuItems: cellMenuRegistry.getMenuItems() });
     const menuItem = fixture.querySelector(".o-menu div[data-name='paste_special']");
-    expect(menuItem?.classList).not.toContain("o-menu-item-active");
-    triggerMouseEvent(menuItem, "mouseover");
+    expect(menuItem?.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    triggerMouseEvent(menuItem, "mousemove");
     await nextTick();
-    expect(menuItem?.classList).toContain("o-menu-item-active");
-    triggerMouseEvent(".o-menu div[data-name='paste_value_only']", "mouseover");
+    expect(menuItem?.classList).toContain(ACTIVE_MENU_ITEM_CLASS);
+    triggerMouseEvent(".o-menu div[data-name='paste_value_only']", "mousemove");
     await nextTick();
-    expect(menuItem?.classList).toContain("o-menu-item-active");
+    expect(menuItem?.classList).toContain(ACTIVE_MENU_ITEM_CLASS);
   });
 
   test("submenu does not open when disabled", async () => {
@@ -460,17 +463,17 @@ describe("Context Menu internal tests", () => {
     model.updateMode("readonly");
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='root']")!.classList).toContain("disabled");
-    triggerMouseEvent(".o-menu div[data-name='root']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='root']", "mousemove");
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeFalsy();
   });
 
   test("submenu does not close when sub item hovered", async () => {
     await renderContextMenu(300, 300, { menuItems: subMenu });
-    triggerMouseEvent(".o-menu div[data-name='root']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='root']", "mousemove");
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='subMenu1']")).toBeTruthy();
-    triggerMouseEvent(".o-menu div[data-name='subMenu1']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='subMenu1']", "mousemove");
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='subMenu1']")).toBeTruthy();
   });
@@ -594,12 +597,12 @@ describe("Context Menu internal tests", () => {
     ]);
     await renderContextMenu(300, 300, { menuItems });
 
-    triggerMouseEvent(".o-menu div[data-name='root_1']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='root_1']", "mousemove");
     await nextTick();
-    triggerMouseEvent(".o-menu div[data-name='root_1_1']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='root_1_1']", "mousemove");
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='subMenu_1']")).toBeTruthy();
-    triggerMouseEvent(".o-menu div[data-name='root_2']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='root_2']", "mousemove");
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='subMenu_1']")).toBeFalsy();
     expect(fixture.querySelector(".o-menu div[data-name='root_2_1']")).toBeTruthy();
@@ -637,10 +640,10 @@ describe("Context Menu internal tests", () => {
       },
     ]);
     await renderContextMenu(300, 300, { menuItems });
-    triggerMouseEvent(".o-menu div[data-name='root']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='root']", "mousemove");
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='menu_1']")).toBeTruthy();
-    triggerMouseEvent(".o-menu div[data-name='menu_1']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='menu_1']", "mousemove");
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='visible_submenu_1']")).toBeTruthy();
     expect(fixture.querySelector(".o-menu div[data-name='invisible_submenu_1']")).toBeFalsy();
@@ -903,5 +906,230 @@ describe("Context menu separator", () => {
 
     await renderContextMenu(0, 0, { menuItems });
     expect(fixture.querySelectorAll(".o-menu .o-separator").length).toBe(0);
+  });
+});
+
+describe("Context menu navigation via keyboard", () => {
+  test("Arrow down to select next menu item", async () => {
+    await renderContextMenu(300, 300, { menuItems: cellMenuRegistry.getMenuItems() });
+    const cutMenuItem = fixture.querySelector(".o-menu div[data-name='cut']");
+    const copyMenuItem = fixture.querySelector(".o-menu div[data-name='copy']");
+    expect(cutMenuItem?.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(copyMenuItem?.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    await keyDown({ key: "ArrowDown" });
+    expect(cutMenuItem?.classList).toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(copyMenuItem?.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    await keyDown({ key: "ArrowDown" });
+    expect(cutMenuItem?.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(copyMenuItem?.classList).toContain(ACTIVE_MENU_ITEM_CLASS);
+  });
+
+  test("Arrow down to select the first menu item if the current active menu item is the last one", async () => {
+    await renderContextMenu(300, 300, { menuItems: cellMenuRegistry.getMenuItems() });
+    const insertLinkMenuItem = fixture.querySelector(".o-menu div[data-name='insert_link']");
+    const cutMenuItem = fixture.querySelector(".o-menu div[data-name='cut']");
+    triggerMouseEvent(insertLinkMenuItem, "mousemove");
+    await nextTick();
+    expect(insertLinkMenuItem?.classList).toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(cutMenuItem?.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    await keyDown({ key: "ArrowDown" });
+    expect(insertLinkMenuItem?.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(cutMenuItem?.classList).toContain(ACTIVE_MENU_ITEM_CLASS);
+  });
+
+  test("Arrow up to select the preceding menu item", async () => {
+    await renderContextMenu(300, 300, { menuItems: cellMenuRegistry.getMenuItems() });
+    const cutMenuItem = fixture.querySelector(".o-menu div[data-name='cut']");
+    const copyMenuItem = fixture.querySelector(".o-menu div[data-name='copy']");
+    triggerMouseEvent(copyMenuItem, "mousemove");
+    await nextTick();
+    expect(copyMenuItem?.classList).toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(cutMenuItem?.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    await keyDown({ key: "ArrowUp" });
+    expect(copyMenuItem?.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(cutMenuItem?.classList).toContain(ACTIVE_MENU_ITEM_CLASS);
+  });
+
+  test("Arrow up to select the last menu item if the current active item is the first one", async () => {
+    await renderContextMenu(300, 300, { menuItems: cellMenuRegistry.getMenuItems() });
+    const cutMenuItem = fixture.querySelector(".o-menu div[data-name='cut']");
+    const insertLinkMenuItem = fixture.querySelector(".o-menu div[data-name='insert_link']");
+    triggerMouseEvent(cutMenuItem, "mousemove");
+    await nextTick();
+    expect(cutMenuItem?.classList).toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(insertLinkMenuItem?.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    await keyDown({ key: "ArrowUp" });
+    expect(cutMenuItem?.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(insertLinkMenuItem?.classList).toContain(ACTIVE_MENU_ITEM_CLASS);
+  });
+
+  test("Disabled menu items will not be selected by keyboard", async () => {
+    const menuItems: Action[] = createActions([
+      { id: "root1", name: "root1" },
+      { id: "root2", name: "root2", isEnabled: () => false },
+      { id: "root3", name: "root3" },
+    ]);
+    await renderContextMenu(300, 300, { menuItems });
+    const root1 = fixture.querySelector(".o-menu div[data-name='root1']");
+    const root2 = fixture.querySelector(".o-menu div[data-name='root2']");
+    const root3 = fixture.querySelector(".o-menu div[data-name='root3']");
+    await keyDown({ key: "ArrowDown" });
+    expect(root1!.classList).toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(root2!.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(root3!.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    await keyDown({ key: "ArrowDown" });
+    expect(root1!.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(root2!.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(root3!.classList).toContain(ACTIVE_MENU_ITEM_CLASS);
+    await keyDown({ key: "ArrowUp" });
+    expect(root1!.classList).toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(root2!.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(root3!.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+  });
+
+  test("Arrow right and left to open and close the sub menu", async () => {
+    const menuItems = createActions([
+      {
+        id: "root",
+        name: "root",
+        children: [
+          () => [
+            {
+              id: "subMenu",
+              name: "subMenu",
+              execute() {},
+            },
+          ],
+        ],
+      },
+    ]);
+    await renderContextMenu(300, 300, { menuItems });
+    await keyDown({ key: "ArrowDown" });
+    expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeFalsy();
+    await keyDown({ key: "ArrowRight" });
+    expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeTruthy();
+    await keyDown({ key: "ArrowLeft" });
+    expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeFalsy();
+  });
+
+  test("After opening the sub menu, controlling via keyboard will be on the sub menu", async () => {
+    const menuItems = createActions([
+      {
+        id: "root",
+        name: "root",
+        children: [
+          () => [
+            {
+              id: "subMenu1",
+              name: "subMenu1",
+              execute() {},
+            },
+            {
+              id: "subMenu2",
+              name: "subMenu2",
+              execute() {},
+            },
+          ],
+        ],
+      },
+    ]);
+    await renderContextMenu(300, 300, { menuItems });
+    await keyDown({ key: "ArrowDown" });
+    await keyDown({ key: "ArrowRight" });
+    await nextTick();
+    const subMenu1 = fixture.querySelector(".o-menu div[data-name='subMenu1']");
+    const subMenu2 = fixture.querySelector(".o-menu div[data-name='subMenu2']");
+    expect(subMenu1?.classList).toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(subMenu2?.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    await keyDown({ key: "ArrowDown" });
+    expect(subMenu1?.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(subMenu2?.classList).toContain(ACTIVE_MENU_ITEM_CLASS);
+  });
+
+  test("After closing the sub menu, controlling via keyboard will be back to the parent menu", async () => {
+    const menuItems = createActions([
+      {
+        id: "root1",
+        name: "root1",
+        children: [
+          () => [
+            {
+              id: "subMenu",
+              name: "subMenu",
+              execute() {},
+            },
+          ],
+        ],
+      },
+      {
+        id: "root2",
+        name: "root2",
+      },
+    ]);
+    await renderContextMenu(300, 300, { menuItems });
+    const root1 = fixture.querySelector(".o-menu div[data-name='root1']");
+    const root2 = fixture.querySelector(".o-menu div[data-name='root2']");
+    await keyDown({ key: "ArrowDown" });
+    await keyDown({ key: "ArrowRight" });
+    expect(root1?.classList).toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(root2?.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeTruthy();
+    await keyDown({ key: "ArrowLeft" });
+    await keyDown({ key: "ArrowDown" });
+    expect(root1?.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(root2?.classList).toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeFalsy();
+  });
+
+  test("Mouse can change the previous selection by keyboard", async () => {
+    const menuItems: Action[] = createActions([
+      { id: "root1", name: "root1" },
+      { id: "root2", name: "root2" },
+      { id: "root3", name: "root3" },
+    ]);
+    await renderContextMenu(300, 300, { menuItems });
+    const root1 = fixture.querySelector(".o-menu div[data-name='root1']");
+    const root2 = fixture.querySelector(".o-menu div[data-name='root2']");
+    const root3 = fixture.querySelector(".o-menu div[data-name='root3']");
+    await keyDown({ key: "ArrowDown" });
+    expect(root1!.classList).toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(root2!.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(root3!.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    triggerMouseEvent(root3, "mousemove");
+    await nextTick();
+    expect(root1!.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(root2!.classList).not.toContain(ACTIVE_MENU_ITEM_CLASS);
+    expect(root3!.classList).toContain(ACTIVE_MENU_ITEM_CLASS);
+  });
+
+  test("ESC to close the sub menu and call the prop close callback", async () => {
+    const menuItems = createActions([
+      {
+        id: "root",
+        name: "root",
+        children: [
+          () => [
+            {
+              id: "subMenu",
+              name: "subMenu",
+              execute() {},
+            },
+          ],
+        ],
+      },
+    ]);
+    let number = 1;
+    await renderContextMenu(300, 300, {
+      menuItems,
+      onClose: () => {
+        number++;
+      },
+    });
+    await keyDown({ key: "ArrowDown" });
+    await keyDown({ key: "ArrowRight" });
+    expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeTruthy();
+    await keyDown({ key: "Escape" });
+    expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeFalsy();
+    expect(number).toEqual(2);
   });
 });

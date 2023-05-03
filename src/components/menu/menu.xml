@@ -7,6 +7,8 @@
         t-on-scroll="onScroll"
         t-on-wheel.stop=""
         t-on-click.stop=""
+        t-on-keydown="onKeydown"
+        tabindex="-1"
         t-on-contextmenu.prevent="">
         <t t-foreach="menuItemsAndSeparators" t-as="menuItem" t-key="menuItem_index">
           <div t-if="menuItem === 'separator'" class="o-separator"/>
@@ -14,12 +16,14 @@
             <t t-set="isMenuRoot" t-value="isRoot(menuItem)"/>
             <t t-set="isMenuEnabled" t-value="isEnabled(menuItem)"/>
             <div
+              t-key="menuItem.id"
+              t-ref="{{menuItem.id}}"
               t-att-title="getName(menuItem)"
               t-att-data-name="menuItem.id"
-              t-on-click="(ev) => this.onClickMenu(menuItem, menuItem_index, ev)"
-              t-on-mouseover="(ev) => this.onMouseOver(menuItem, menuItem_index, ev)"
+              t-on-click="(ev) => this.onClickMenu(menuItem, ev)"
+              t-on-mousemove="(ev) => this.onMouseMove(menuItem, ev)"
               class="o-menu-item"
-              t-att-class="{ 'o-menu-root': isMenuRoot, 'disabled': !isMenuEnabled, 'o-menu-item-active': isParentMenu(subMenu, menuItem)}"
+              t-att-class="{ 'o-menu-root': isMenuRoot, 'disabled': !isMenuEnabled, 'o-menu-item-active': isMenuItemActive(menuItem)}"
               t-att-style="getColor(menuItem)">
               <div class="d-flex w-100">
                 <div t-if="childrenHaveIcon" class="o-menu-item-icon align-middle">
@@ -44,6 +48,7 @@
       </div>
       <Menu
         t-if="subMenu.isOpen"
+        t-key="clickableMenuItems[menuItemSelection.selectedIndex].id"
         position="subMenuPosition"
         menuItems="subMenu.menuItems"
         depth="props.depth + 1"
@@ -51,6 +56,8 @@
         onMenuClicked="props.onMenuClicked"
         onClose="() => this.close()"
         menuId="props.menuId"
+        navigateBackToParent="(direction) => this.onSubmenuBackNavigation(direction)"
+        shouldSelectFirstItemWhenFirstOpened="subMenu.shouldSelectFirstItemWhenFirstOpened"
       />
     </Popover>
   </t>
