@@ -5,13 +5,13 @@ import { css } from "../../helpers/css";
 
 const CSS = css/* scss */ `
   .o-filter-icon {
+    color: ${FILTERS_COLOR};
     position: absolute;
     display: flex;
     align-items: center;
     justify-content: center;
     width: ${FILTER_ICON_EDGE_LENGTH}px;
     height: ${FILTER_ICON_EDGE_LENGTH}px;
-    color: #4a4f59;
   }
   .o-filter-icon:hover {
     background: ${FILTERS_COLOR};

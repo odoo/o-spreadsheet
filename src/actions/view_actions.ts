@@ -10,6 +10,7 @@ export const hideCols: ActionSpec = {
   name: ACTIONS.HIDE_COLUMNS_NAME,
   execute: ACTIONS.HIDE_COLUMNS_ACTION,
   isVisible: ACTIONS.NOT_ALL_VISIBLE_COLS_SELECTED,
+  icon: "o-spreadsheet-Icon.HIDE_COL",
 };
 
 export const unhideCols: ActionSpec = {
@@ -35,6 +36,7 @@ export const hideRows: ActionSpec = {
   name: ACTIONS.HIDE_ROWS_NAME,
   execute: ACTIONS.HIDE_ROWS_ACTION,
   isVisible: ACTIONS.NOT_ALL_VISIBLE_ROWS_SELECTED,
+  icon: "o-spreadsheet-Icon.HIDE_ROW",
 };
 
 export const unhideRows: ActionSpec = {
