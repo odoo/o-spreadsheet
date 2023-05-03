@@ -47,6 +47,7 @@ import {
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
 const functionMap = functionRegistry.mapping;
+const functions = functionRegistry.content;
 
 type CompilationParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
 
@@ -1000,7 +1001,18 @@ export class EvaluationPlugin extends UIPlugin {
         if (cell) {
           const exportedCellData = sheet.cells[rc]!;
           exportedCellData.value = this.getEvaluatedCell(position).value;
-          exportedCellData.isFormula = cell.isFormula && !isBadExpression(cell.content);
+
+          if (cell.isFormula && !isBadExpression(cell.content)) {
+            const isExported = cell.compiledFormula.tokens
+              .filter((tk) => tk.type === "FUNCTION")
+              .every((tk) => functions[tk.value.toUpperCase()].isExported);
+
+            exportedCellData.isFormula = isExported;
+
+            if (!isExported) {
+              exportedCellData.content = exportedCellData.value.toString();
+            }
+          }
         }
       }
     }
