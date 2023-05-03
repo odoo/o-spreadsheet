@@ -980,6 +980,20 @@ describe("Test XLSX export", () => {
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
+    test("pie chart with only title dataset", async () => {
+      const model = new Model({});
+      createChart(
+        model,
+        {
+          dataSets: ["Sheet1!A1"], // only the title cell, no data
+          type: "pie",
+          dataSetsHaveTitle: true,
+        },
+        "1"
+      );
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
+
     test("Export chart overflowing outside the sheet", async () => {
       const model = new Model(chartData);
       createChart(

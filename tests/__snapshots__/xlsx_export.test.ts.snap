@@ -5176,6 +5176,293 @@ Object {
 }
 `;
 
+exports[`Test XLSX export Charts pie chart with only title dataset 1`] = `
+Object {
+  "files": Array [
+    Object {
+      "content": "<workbook xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheets>
+        <sheet state=\\"visible\\" name=\\"Sheet1\\" sheetId=\\"1\\" r:id=\\"rId1\\"/>
+    </sheets>
+</workbook>",
+      "contentType": "workbook",
+      "path": "xl/workbook.xml",
+    },
+    Object {
+      "content": "<c:chartSpace xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\" xmlns:a=\\"http://schemas.openxmlformats.org/drawingml/2006/main\\" xmlns:c=\\"http://schemas.openxmlformats.org/drawingml/2006/chart\\">
+    <c:roundedCorners val=\\"0\\"/>
+    <!-- <manualLayout/> to manually position the chart in the figure container -->
+    <c:spPr>
+        <a:solidFill>
+            <a:srgbClr val=\\"FFFFFF\\"/>
+        </a:solidFill>
+        <a:ln cmpd=\\"sng\\">
+            <a:solidFill>
+                <a:srgbClr val=\\"000000\\"/>
+            </a:solidFill>
+        </a:ln>
+    </c:spPr>
+    <c:chart>
+        <c:title>
+            <c:tx>
+                <c:rich>
+                    <a:bodyPr/>
+                    <a:lstStyle/>
+                    <a:p>
+                        <a:pPr lvl=\\"0\\">
+                            <a:defRPr b=\\"0\\">
+                                <a:solidFill>
+                                    <a:srgbClr val=\\"000000\\"/>
+                                </a:solidFill>
+                                <a:latin typeface=\\"+mn-lt\\"/>
+                            </a:defRPr>
+                        </a:pPr>
+                        <a:r>
+                            <!-- Runs -->
+                            <a:rPr sz=\\"2200\\"/>
+                            <a:t>
+                                test
+                            </a:t>
+                        </a:r>
+                    </a:p>
+                </c:rich>
+            </c:tx>
+            <c:overlay val=\\"0\\"/>
+        </c:title>
+        <c:autoTitleDeleted val=\\"0\\"/>
+        <c:plotArea>
+            <!-- how the chart element is placed on the chart -->
+            <c:layout/>
+            <c:doughnutChart>
+                <c:varyColors val=\\"1\\"/>
+                <c:holeSize val=\\"0\\"/>
+                <dLbls>
+                    <c:showLegendKey val=\\"0\\"/>
+                    <c:showVal val=\\"0\\"/>
+                    <c:showCatName val=\\"0\\"/>
+                    <c:showSerName val=\\"0\\"/>
+                    <c:showPercent val=\\"0\\"/>
+                    <c:showBubbleSize val=\\"0\\"/>
+                    <c:showLeaderLines val=\\"0\\"/>
+                </dLbls>
+            </c:doughnutChart>
+            <c:spPr>
+                <a:solidFill>
+                    <a:srgbClr val=\\"FFFFFF\\"/>
+                </a:solidFill>
+            </c:spPr>
+        </c:plotArea>
+        <c:legend>
+            <c:legendPos val=\\"t\\"/>
+            <c:overlay val=\\"0\\"/>
+            <c:txPr>
+                <a:bodyPr/>
+                <a:lstStyle/>
+                <a:p>
+                    <a:pPr lvl=\\"0\\">
+                        <a:defRPr b=\\"0\\" i=\\"0\\" sz=\\"1000\\">
+                            <a:solidFill>
+                                <a:srgbClr val=\\"000000\\"/>
+                            </a:solidFill>
+                            <a:latin typeface=\\"+mn-lt\\"/>
+                        </a:defRPr>
+                    </a:pPr>
+                </a:p>
+            </c:txPr>
+        </c:legend>
+    </c:chart>
+</c:chartSpace>",
+      "contentType": "chart",
+      "path": "xl/charts/chart1.xml",
+    },
+    Object {
+      "content": "<xdr:wsDr xmlns:xdr=\\"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\" xmlns:a=\\"http://schemas.openxmlformats.org/drawingml/2006/main\\" xmlns:c=\\"http://schemas.openxmlformats.org/drawingml/2006/chart\\">
+    <xdr:twoCellAnchor>
+        <xdr:from>
+            <xdr:col>
+                0
+            </xdr:col>
+            <xdr:colOff>
+                9525
+            </xdr:colOff>
+            <xdr:row>
+                0
+            </xdr:row>
+            <xdr:rowOff>
+                9525
+            </xdr:rowOff>
+        </xdr:from>
+        <xdr:to>
+            <xdr:col>
+                5
+            </xdr:col>
+            <xdr:colOff>
+                542925
+            </xdr:colOff>
+            <xdr:row>
+                14
+            </xdr:row>
+            <xdr:rowOff>
+                133350
+            </xdr:rowOff>
+        </xdr:to>
+        <xdr:graphicFrame>
+            <xdr:nvGraphicFramePr>
+                <xdr:cNvPr id=\\"1\\" name=\\"Chart 1\\" title=\\"Chart\\"/>
+                <xdr:cNvGraphicFramePr/>
+            </xdr:nvGraphicFramePr>
+            <xdr:xfrm>
+                <a:off x=\\"0\\" y=\\"0\\"/>
+                <a:ext cx=\\"0\\" cy=\\"0\\"/>
+            </xdr:xfrm>
+            <a:graphic>
+                <a:graphicData uri=\\"http://schemas.openxmlformats.org/drawingml/2006/chart\\">
+                    <c:chart r:id=\\"rId1\\"/>
+                </a:graphicData>
+            </a:graphic>
+        </xdr:graphicFrame>
+        <xdr:clientData fLocksWithSheet=\\"0\\"/>
+    </xdr:twoCellAnchor>
+</xdr:wsDr>",
+      "contentType": "drawing",
+      "path": "xl/drawings/drawing0.xml",
+    },
+    Object {
+      "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
+    <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
+    <cols>
+        <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"2\\" max=\\"2\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"3\\" max=\\"3\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"4\\" max=\\"4\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"5\\" max=\\"5\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"6\\" max=\\"6\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"7\\" max=\\"7\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"8\\" max=\\"8\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"9\\" max=\\"9\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"10\\" max=\\"10\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"11\\" max=\\"11\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"12\\" max=\\"12\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"13\\" max=\\"13\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"14\\" max=\\"14\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"15\\" max=\\"15\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"16\\" max=\\"16\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"17\\" max=\\"17\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"18\\" max=\\"18\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"19\\" max=\\"19\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"20\\" max=\\"20\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"21\\" max=\\"21\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"22\\" max=\\"22\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"23\\" max=\\"23\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"24\\" max=\\"24\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"25\\" max=\\"25\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"26\\" max=\\"26\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+    </cols>
+    <sheetData>
+    </sheetData>
+    <drawing r:id=\\"rId1\\"/>
+</worksheet>",
+      "contentType": "sheet",
+      "path": "xl/worksheets/sheet0.xml",
+    },
+    Object {
+      "content": "<styleSheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <numFmts count=\\"0\\">
+    </numFmts>
+    <fonts count=\\"1\\">
+        <font>
+            <sz val=\\"10\\"/>
+            <color rgb=\\"000000\\"/>
+            <name val=\\"Calibri\\"/>
+        </font>
+    </fonts>
+    <fills count=\\"2\\">
+        <fill>
+            <patternFill patternType=\\"none\\"/>
+        </fill>
+        <fill>
+            <patternFill patternType=\\"gray125\\"/>
+        </fill>
+    </fills>
+    <borders count=\\"1\\">
+        <border>
+            <left/>
+            <right/>
+            <top/>
+            <bottom/>
+            <diagonal/>
+        </border>
+    </borders>
+    <cellXfs count=\\"1\\">
+        <xf numFmtId=\\"0\\" fillId=\\"0\\" fontId=\\"0\\" borderId=\\"0\\" applyAlignment=\\"1\\">
+            <alignment vertical=\\"bottom\\"/>
+        </xf>
+    </cellXfs>
+    <dxfs count=\\"0\\">
+    </dxfs>
+</styleSheet>",
+      "contentType": "styles",
+      "path": "xl/styles.xml",
+    },
+    Object {
+      "content": "<sst xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" count=\\"0\\" uniqueCount=\\"0\\">
+</sst>",
+      "contentType": "sharedStrings",
+      "path": "xl/sharedStrings.xml",
+    },
+    Object {
+      "content": "<Relationships xmlns=\\"http://schemas.openxmlformats.org/package/2006/relationships\\">
+    <Relationship Id=\\"rId1\\" Target=\\"worksheets/sheet0.xml\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\\"/>
+    <Relationship Id=\\"rId2\\" Target=\\"sharedStrings.xml\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings\\"/>
+    <Relationship Id=\\"rId3\\" Target=\\"styles.xml\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\\"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "xl/_rels/workbook.xml.rels",
+    },
+    Object {
+      "content": "<Relationships xmlns=\\"http://schemas.openxmlformats.org/package/2006/relationships\\">
+    <Relationship Id=\\"rId1\\" Target=\\"../charts/chart1.xml\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart\\"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "xl/drawings/_rels/drawing0.xml.rels",
+    },
+    Object {
+      "content": "<Relationships xmlns=\\"http://schemas.openxmlformats.org/package/2006/relationships\\">
+    <Relationship Id=\\"rId1\\" Target=\\"../drawings/drawing0.xml\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing\\"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "xl/worksheets/_rels/sheet0.xml.rels",
+    },
+    Object {
+      "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
+    <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
+    <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
+    <Override ContentType=\\"application/vnd.openxmlformats-officedocument.drawingml.chart+xml\\" PartName=\\"/xl/charts/chart1.xml\\"/>
+    <Override ContentType=\\"application/vnd.openxmlformats-officedocument.drawing+xml\\" PartName=\\"/xl/drawings/drawing0.xml\\"/>
+    <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\\" PartName=\\"/xl/worksheets/sheet0.xml\\"/>
+    <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\\" PartName=\\"/xl/styles.xml\\"/>
+    <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml\\" PartName=\\"/xl/sharedStrings.xml\\"/>
+</Types>",
+      "contentType": undefined,
+      "path": "[Content_Types].xml",
+    },
+    Object {
+      "content": "<Relationships xmlns=\\"http://schemas.openxmlformats.org/package/2006/relationships\\">
+    <Relationship Id=\\"rId1\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\\" Target=\\"xl/workbook.xml\\"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "_rels/.rels",
+    },
+  ],
+  "name": "my_spreadsheet.xlsx",
+}
+`;
+
 exports[`Test XLSX export Charts simple bar chart with dataset [ 'Sheet1!B1:B4' ] 1`] = `
 Object {
   "files": Array [
