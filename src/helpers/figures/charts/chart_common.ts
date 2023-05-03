@@ -184,8 +184,13 @@ export function createDataSets(
           )
         );
       }
+    } else if (zone.left === zone.right && zone.top === zone.bottom) {
+      // A single cell. If it's only the title, the dataset is not added.
+      if (!dataSetsHaveTitle) {
+        dataSets.push(createDataSet(getters, dataSetSheetId, zone, undefined));
+      }
     } else {
-      /* 1 cell, 1 row or 1 column */
+      /* 1 row or 1 column */
       dataSets.push(
         createDataSet(
           getters,
