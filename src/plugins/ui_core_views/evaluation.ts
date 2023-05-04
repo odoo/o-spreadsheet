@@ -632,27 +632,20 @@ export class EvaluationPlugin extends UIPlugin {
       }
 
       const cellId = cell.id;
-      let result: EvaluatedCell;
 
       try {
         if (cellsBeingComputed.has(cellId)) {
           throw new CircularDependencyError();
         }
         cellsBeingComputed.add(cellId);
-        switch (cell.isFormula) {
-          case true:
-            result = computeFormulaCell(cell);
-            break;
-          case false:
-            result = evaluateLiteral(cell.content, cell.format);
-            break;
-        }
+        return cell.isFormula
+          ? computeFormulaCell(cell)
+          : evaluateLiteral(cell.content, cell.format);
       } catch (e) {
-        result = handleError(e, cell);
+        return handleError(e, cell);
+      } finally {
+        cellsBeingComputed.delete(cellId);
       }
-      cellsBeingComputed.delete(cellId);
-
-      return result;
     };
 
     const handleError = (e: Error | any, cell: Cell): EvaluatedCell => {
