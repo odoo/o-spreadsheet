@@ -19,11 +19,11 @@ describe("Collaborative session", () => {
       id: "alice",
       name: "Alice",
     };
-    const revisionLog = buildRevisionLog(
-      "START_REVISION",
-      () => ({ changes: [], commands: [] }),
-      () => CommandResult.Success
-    );
+    const revisionLog = buildRevisionLog({
+      initialRevisionId: "START_REVISION",
+      recordChanges: () => ({ changes: [], commands: [] }),
+      dispatch: () => CommandResult.Success,
+    });
     session = new Session(revisionLog, transport);
     session.join(client);
   });
