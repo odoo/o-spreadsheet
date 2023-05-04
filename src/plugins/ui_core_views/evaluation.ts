@@ -627,26 +627,26 @@ export class EvaluationPlugin extends UIPlugin {
 
   private evaluate() {
     const cellsBeingComputed = new Set<UID>();
-    // const currentRcsToUpdate = new Set<string>();
+    const currentRcsToUpdate = new Set<string>();
     const nextRcsToUpdate = new Set<string>();
 
     const setEvaluatedCell = (rc: string, evaluatedCell: EvaluatedCell) => {
       if (nextRcsToUpdate.has(rc)) {
         nextRcsToUpdate.delete(rc);
       }
-      // if (currentRcsToUpdate.has(rc)) {
-      //   currentRcsToUpdate.delete(rc);
-      // }
+      if (currentRcsToUpdate.has(rc)) {
+        currentRcsToUpdate.delete(rc);
+      }
       this.evaluatedCells[rc] = evaluatedCell;
     };
 
     const computeCell = (rc: string): EvaluatedCell => {
-      const evaluation = this.evaluatedCells[rc];
-      if (evaluation) {
-        return evaluation; // already computed
+      if (!currentRcsToUpdate.has(rc)) {
+        const evaluation = this.evaluatedCells[rc];
+        if (evaluation) {
+          return evaluation; // already computed
+        }
       }
-      // if (!currentRcsToUpdate.has(rc)) {
-      // }
 
       if (this.spreadingFormulas.has(rc)) {
         for (const child of this.spreadingRelations.getArrayResultsRc(rc)) {
@@ -792,18 +792,15 @@ export class EvaluationPlugin extends UIPlugin {
     this.rcsToUpdate.clear();
     let currentCycle = 0;
     while (nextRcsToUpdate.size && currentCycle < this.maxIteration) {
-      const order: string[] = Array.from(nextRcsToUpdate);
+      let order: string[] = Array.from(nextRcsToUpdate);
       for (const rc of nextRcsToUpdate) {
-        order.push(...this.findCellsToCompute(rc));
+        order = order.concat(...this.findCellsToCompute(rc));
       }
-      for (const rc of order) {
-        delete this.evaluatedCells[rc];
-      }
-      // extendSet(currentRcsToUpdate, order);
+      extendSet(currentRcsToUpdate, order);
       nextRcsToUpdate.clear();
       for (let i = 0; i < order.length; ++i) {
         const cell = order[i];
-        // if (!currentRcsToUpdate.has(cell)) continue;
+        if (!currentRcsToUpdate.has(cell)) continue;
         setEvaluatedCell(cell, computeCell(cell));
       }
 
