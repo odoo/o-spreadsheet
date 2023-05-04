@@ -413,7 +413,6 @@ export class EvaluationPlugin extends UIPlugin {
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
-  private shouldRecomputeCellsEvaluation = true;
   private readonly evalContext: EvalContext;
 
   private evaluatedCells: PositionDict<EvaluatedCell> = {};
@@ -437,7 +436,6 @@ export class EvaluationPlugin extends UIPlugin {
   beforeHandle(cmd: Command) {
     if (invalidateDependenciesCommands.has(cmd.type)) {
       this.shouldRebuildDependenciesGraph = true;
-      this.shouldRecomputeCellsEvaluation = true;
     }
   }
 
@@ -464,21 +462,19 @@ export class EvaluationPlugin extends UIPlugin {
         }
         break;
       case "EVALUATE_CELLS":
-        this.shouldRecomputeCellsEvaluation = true;
+        this.evaluatedCells = {};
+        this.evaluate(this.getSetOfAllCells());
         break;
     }
   }
 
   finalize() {
-    if (this.shouldRecomputeCellsEvaluation) {
+    if (this.shouldRebuildDependenciesGraph) {
       const allCells = this.getSetOfAllCells();
-      if (this.shouldRebuildDependenciesGraph) {
-        this.buildDependencyGraph(allCells);
-        this.shouldRebuildDependenciesGraph = false;
-      }
+      this.buildDependencyGraph(allCells);
+      this.shouldRebuildDependenciesGraph = false;
       this.evaluatedCells = {};
       this.evaluate(allCells);
-      this.shouldRecomputeCellsEvaluation = false;
     } else if (this.rcsToUpdate.size) {
       this.evaluate(this.cellsToEvaluate());
     }
