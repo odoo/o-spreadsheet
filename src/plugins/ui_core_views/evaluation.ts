@@ -509,7 +509,8 @@ export class EvaluationPlugin extends UIPlugin {
       extendSet(this.rcsToUpdate, rcsToUpdateBis);
     }
     if (this.rcsToUpdate.size) {
-      this.evaluate();
+      this.evaluate(this.rcsToUpdate);
+      this.rcsToUpdate.clear();
     }
   }
 
@@ -627,9 +628,12 @@ export class EvaluationPlugin extends UIPlugin {
     return cellsSet;
   }
 
-  private evaluate() {
+  /**
+   * @param cells ordered topologically! TODO explain this better
+   */
+  private evaluate(cells: Set<string>) {
     const cellsBeingComputed = new Set<UID>();
-    const nextRcsToUpdate = new Set<string>();
+    const nextRcsToUpdate = cells;
 
     const setEvaluatedCell = (rc: string, evaluatedCell: EvaluatedCell) => {
       if (nextRcsToUpdate.has(rc)) {
@@ -783,8 +787,6 @@ export class EvaluationPlugin extends UIPlugin {
     };
 
     const compilationParameters = this.getCompilationParameters(computeCell);
-    extendSet(nextRcsToUpdate, this.rcsToUpdate);
-    this.rcsToUpdate.clear();
 
     let currentCycle = 0;
     while (nextRcsToUpdate.size && currentCycle < this.maxIteration) {
