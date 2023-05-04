@@ -230,7 +230,9 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.state.activeTool = "";
     this.state.menuState.isOpen = true;
     this.state.menuState.position = { x: left, y: top + height };
-    this.state.menuState.menuItems = menu.children(this.env);
+    this.state.menuState.menuItems = menu
+      .children(this.env)
+      .sort((a, b) => a.sequence - b.sequence);
     this.state.menuState.parentMenu = menu;
     this.isSelectingMenu = true;
     this.openedEl = ev.target as HTMLElement;
