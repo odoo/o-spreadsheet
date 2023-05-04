@@ -39,7 +39,11 @@ export class FormulaDependencyGraph {
     }
   }
 
-  visitDeepReferences(rc: string): Set<string> {
+  /**
+   * Return the cell and all its dependencies in the order they should be evaluated.
+   * This is called a topological ordering (excluding cycles)
+   */
+  getEvaluationOrder(rc: string): Set<string> {
     const visited: Set<string> = new Set<string>();
     const queue: string[] = [rc];
 
