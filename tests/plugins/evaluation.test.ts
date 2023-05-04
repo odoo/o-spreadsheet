@@ -1297,10 +1297,10 @@ describe("evaluate formulas that return an array", () => {
     expect(getEvaluatedCell(model, "D4").value).toBe(42);
   });
 
-  describe("spread matix with format", () => {
+  describe("spread matrix with format", () => {
     test("can spread matrix of values with matrix of format", () => {
       functionRegistry.add("MATRIX.2.2", {
-        description: "Return an 2*2 matriw with some values",
+        description: "Return an 2*2 matrix with some values",
         args: [],
         returns: ["RANGE<NUMBER>"],
         compute: () => [
@@ -1325,7 +1325,7 @@ describe("evaluate formulas that return an array", () => {
 
     test("can spread matrix of values with scalar format", () => {
       functionRegistry.add("MATRIX.2.2", {
-        description: "Return an 2*2 matriw with some values",
+        description: "Return an 2*2 matrix with some values",
         args: [],
         returns: ["RANGE<NUMBER>"],
         compute: () => [
@@ -1347,7 +1347,7 @@ describe("evaluate formulas that return an array", () => {
 
     test("can't spread simple value with matrix of format", () => {
       functionRegistry.add("SIMPLE.VALUE", {
-        description: "Return an 2*2 matriw with some values",
+        description: "Return an 2*2 matrix with some values",
         args: [],
         returns: ["NUMBER"],
         compute: () => 1,
@@ -1373,7 +1373,7 @@ describe("evaluate formulas that return an array", () => {
 
     test("can't spread matrix of value with matrix of format that haven't same dimension", () => {
       functionRegistry.add("MATRIX.2.2", {
-        description: "Return an 2*2 matriw with some values",
+        description: "Return an 2*2 matrix with some values",
         args: [],
         returns: ["RANGE<NUMBER>"],
         compute: () => [
