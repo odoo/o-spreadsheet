@@ -458,8 +458,7 @@ export class EvaluationPlugin extends UIPlugin {
         }
         break;
       case "EVALUATE_CELLS":
-        this.evaluatedCells = {};
-        this.evaluate(this.getSetOfAllCells());
+        this.evaluateAllCells();
         break;
     }
   }
@@ -467,9 +466,8 @@ export class EvaluationPlugin extends UIPlugin {
   finalize() {
     if (this.shouldRebuildDependenciesGraph) {
       this.buildDependencyGraph();
+      this.evaluateAllCells();
       this.shouldRebuildDependenciesGraph = false;
-      this.evaluatedCells = {};
-      this.evaluate(this.getSetOfAllCells());
     } else if (this.rcsToUpdate.size) {
       this.evaluate(this.cellsToEvaluate());
     }
@@ -588,6 +586,11 @@ export class EvaluationPlugin extends UIPlugin {
       }
     }
     return cellsSet;
+  }
+
+  private evaluateAllCells() {
+    this.evaluatedCells = {};
+    this.evaluate(this.getSetOfAllCells());
   }
 
   /**
