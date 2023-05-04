@@ -54,7 +54,7 @@ export class FormulaDependencyGraph {
         }
       }
     }
-    visited.delete(rc);
+
     return visited;
   }
 }
