@@ -466,11 +466,10 @@ export class EvaluationPlugin extends UIPlugin {
 
   finalize() {
     if (this.shouldRebuildDependenciesGraph) {
-      const allCells = this.getSetOfAllCells();
-      this.buildDependencyGraph(allCells);
+      this.buildDependencyGraph();
       this.shouldRebuildDependenciesGraph = false;
       this.evaluatedCells = {};
-      this.evaluate(allCells);
+      this.evaluate(this.getSetOfAllCells());
     } else if (this.rcsToUpdate.size) {
       this.evaluate(this.cellsToEvaluate());
     }
@@ -950,11 +949,11 @@ export class EvaluationPlugin extends UIPlugin {
     );
   }
 
-  private buildDependencyGraph(cells: Iterable<string>) {
+  private buildDependencyGraph() {
     this.formulaDependencies = new FormulaDependencyGraph();
     this.spreadingFormulas = new Set<string>();
     this.spreadingRelations = new SpreadingRelation();
-    for (const rc of cells) {
+    for (const rc of this.getSetOfAllCells()) {
       const dependencies = this.getDirectDependencies(rc);
       this.formulaDependencies.addDependencies(rc, dependencies);
     }
