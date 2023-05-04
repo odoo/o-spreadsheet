@@ -616,7 +616,8 @@ export class EvaluationPlugin extends UIPlugin {
       if (this.spreadingFormulas.has(rc)) {
         for (const child of this.spreadingRelations.getArrayResultsRc(rc)) {
           delete this.evaluatedCells[child];
-          extendSet(nextRcsToUpdate, this.findCellsToCompute(child, false));
+          // uh oh, wait, this isn't needed ? 🤔
+          // extendSet(nextRcsToUpdate, this.findChildrenToCompute(child));
           for (const candidate of this.spreadingRelations.getArrayFormulasRc(child)) {
             extendSet(nextRcsToUpdate, this.findCellsToCompute(candidate));
           }
