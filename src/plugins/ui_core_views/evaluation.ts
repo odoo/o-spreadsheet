@@ -469,7 +469,7 @@ export class EvaluationPlugin extends UIPlugin {
       this.evaluateAllCells();
       this.shouldRebuildDependenciesGraph = false;
     } else if (this.rcsToUpdate.size) {
-      this.evaluate(this.cellsToEvaluate());
+      this.evaluate(this.withOrderedDependencies(this.rcsToUpdate));
     }
     this.rcsToUpdate.clear();
   }
@@ -962,30 +962,30 @@ export class EvaluationPlugin extends UIPlugin {
     }
   }
 
-  private cellsToEvaluate(): Set<string> {
+  private withOrderedDependencies(rcs: Iterable<string>): Set<string> {
     const cells = new Set<string>();
 
-    for (const rcToUpdate of this.rcsToUpdate) {
-      extendSet(cells, this.findCellsToCompute(rcToUpdate));
+    for (const rc of rcs) {
+      extendSet(cells, this.findCellsToCompute(rc));
 
-      const content = this.rcToCell(rcToUpdate)?.content;
+      const content = this.rcToCell(rc)?.content;
       // if the content of a cell changes, we need to check:
       if (content) {
         // 1) if we write in an empty cell containing the spread of a formula.
         //    In this case, it is necessary to indicate to recalculate the concerned
         //    formula to take into account the new collisions.
-        for (const arrayFormula of this.spreadingRelations.getArrayFormulasRc(rcToUpdate)) {
+        for (const arrayFormula of this.spreadingRelations.getArrayFormulasRc(rc)) {
           if (this.spreadingFormulas.has(arrayFormula)) {
             extendSet(cells, this.findCellsToCompute(arrayFormula));
             break; // there can be only one formula spreading on a cell
           }
         }
-      } else if (this.spreadingRelations.hasResult(rcToUpdate)) {
+      } else if (this.spreadingRelations.hasResult(rc)) {
         // 2) if we put an empty content on a cell which blocks the spread
         //    of another formula.
         //    In this case, it is necessary to indicate to recalculate formulas
         //    that was blocked by the old content.
-        for (const arrayFormula of this.spreadingRelations.getArrayFormulasRc(rcToUpdate)) {
+        for (const arrayFormula of this.spreadingRelations.getArrayFormulasRc(rc)) {
           extendSet(cells, this.findCellsToCompute(arrayFormula));
         }
       }
