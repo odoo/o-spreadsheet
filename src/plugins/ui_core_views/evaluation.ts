@@ -446,15 +446,11 @@ export class EvaluationPlugin extends UIPlugin {
           return;
         }
 
-        const targetedRc = cellPositionToRc(cmd);
-        this.rcsToUpdate.add(targetedRc);
+        const rc = cellPositionToRc(cmd);
+        this.rcsToUpdate.add(rc);
 
         if ("content" in cmd) {
-          // if the content change, formula dependencies may change. So we need to
-          // update the formula dependencies graph.
-          this.formulaDependencies.removeAllDependencies(targetedRc);
-          const dependencies = this.getDirectDependencies(targetedRc);
-          this.formulaDependencies.addDependencies(targetedRc, dependencies);
+          this.updateDependencies(rc);
         }
         break;
       case "EVALUATE_CELLS":
@@ -985,6 +981,12 @@ export class EvaluationPlugin extends UIPlugin {
       }
     }
     return cells;
+  }
+
+  private updateDependencies(rc: string) {
+    this.formulaDependencies.removeAllDependencies(rc);
+    const dependencies = this.getDirectDependencies(rc);
+    this.formulaDependencies.addDependencies(rc, dependencies);
   }
 
   // ---------------------------------------------------------------------------
