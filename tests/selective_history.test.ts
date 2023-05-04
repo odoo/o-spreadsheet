@@ -63,6 +63,7 @@ class MiniEditor {
   private history = new SelectiveHistory({
     initialOperationId: "initial",
     applyOperation: this.apply,
+    replayOperation: this.apply,
     revertOperation: this.revert,
     buildEmpty: (id) => ({ position: -1, value: "" }),
     buildTransformation: {

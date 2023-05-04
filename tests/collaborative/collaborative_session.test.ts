@@ -23,6 +23,7 @@ describe("Collaborative session", () => {
       initialRevisionId: "START_REVISION",
       recordChanges: () => ({ changes: [], commands: [] }),
       dispatch: () => CommandResult.Success,
+      dispatchReplayedCommand: () => CommandResult.Success,
     });
     session = new Session(revisionLog, transport);
     session.join(client);

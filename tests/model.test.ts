@@ -14,6 +14,7 @@ import {
   getCellText,
   getEvaluatedCell,
 } from "./test_helpers/getters_helpers";
+import { MockTransportService } from "./__mocks__/transport_service";
 
 describe("Model", () => {
   test("core plugin can refuse command from UI plugin", () => {
@@ -298,7 +299,7 @@ describe("Model", () => {
     featurePluginRegistry.remove("MyUIPlugin");
   });
 
-  test("Stateful UI plugin don't receive commands after other plugins, with potentially invalid data", () => {
+  test("Stateful UI plugin dont receive remote commands after other plugins, with potentially invalid data", () => {
     let numberCalls = 0;
     class MyStatefulPlugin extends UIPlugin {
       handle(cmd: Command) {
@@ -309,8 +310,11 @@ describe("Model", () => {
     }
     statefulUIPluginRegistry.add("myUIPlugin", MyStatefulPlugin);
 
-    new Model({}, {}, [
-      {
+    const network = new MockTransportService();
+    const model = new Model({}, { transportService: network });
+
+    network.concurrent(() => {
+      network.sendMessage({
         type: "REMOTE_REVISION",
         clientId: "42",
         serverRevisionId: DEFAULT_REVISION_ID,
@@ -320,8 +324,21 @@ describe("Model", () => {
           { type: "CREATE_SHEET", position: 1, sheetId: "someOtherSheetId" },
           { type: "DELETE_SHEET", sheetId: "someOtherSheetId" },
         ],
-      },
-    ]);
+      });
+      setCellContent(model, "A1", "ok");
+    });
+
+    // network.sendMessage({
+    //   type: "REMOTE_REVISION",
+    //   clientId: "42",
+    //   serverRevisionId: DEFAULT_REVISION_ID,
+    //   nextRevisionId: "2",
+    //   version: 1,
+    //   commands: [
+    //     { type: "CREATE_SHEET", position: 1, sheetId: "someOtherSheetId" },
+    //     { type: "DELETE_SHEET", sheetId: "someOtherSheetId" },
+    //   ],
+    // });
     expect(numberCalls).toEqual(1);
     featurePluginRegistry.remove("myUIPlugin");
   });

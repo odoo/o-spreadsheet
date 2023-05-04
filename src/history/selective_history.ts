@@ -11,6 +11,7 @@ export class SelectiveHistory<T = unknown> {
 
   private initialOperationId: UID;
   private applyOperation: (data: T) => void;
+  private replayOperation: (data: T) => void;
   private revertOperation: (data: T) => void;
   private buildEmpty: (id: UID) => T;
   private readonly buildTransformation: TransformationFactory<T>;
@@ -38,11 +39,13 @@ export class SelectiveHistory<T = unknown> {
   constructor(args: {
     initialOperationId: UID;
     applyOperation: (data: T) => void;
+    replayOperation: (data: T) => void;
     revertOperation: (data: T) => void;
     buildEmpty: (id: UID) => T;
     readonly buildTransformation: TransformationFactory<T>;
   }) {
     this.applyOperation = args.applyOperation;
+    this.replayOperation = args.replayOperation;
     this.revertOperation = args.revertOperation;
     this.buildEmpty = args.buildEmpty;
     this.initialOperationId = args.initialOperationId;
@@ -83,9 +86,9 @@ export class SelectiveHistory<T = unknown> {
    */
   insert(operationId: UID, data: T, insertAfter: UID) {
     const operation = new Operation<T>(operationId, data);
-    this.revertTo(insertAfter);
+    const revertedOperations = this.revertTo(insertAfter);
     this.tree.insertOperationAfter(this.HEAD_BRANCH, operation, insertAfter);
-    this.fastForward();
+    this.fastForward(revertedOperations);
   }
 
   /**
@@ -95,9 +98,9 @@ export class SelectiveHistory<T = unknown> {
    */
   undo(operationId: UID, undoId: UID, insertAfter: UID) {
     const { branch, operation } = this.tree.findOperation(this.HEAD_BRANCH, operationId);
-    this.revertBefore(operationId);
+    const revertedOperations = this.revertBefore(operationId);
     this.tree.undo(branch, operation);
-    this.fastForward();
+    this.fastForward(revertedOperations);
     this.insert(undoId, this.buildEmpty(undoId), insertAfter);
   }
 
@@ -108,9 +111,9 @@ export class SelectiveHistory<T = unknown> {
    */
   redo(operationId: UID, redoId: UID, insertAfter: UID) {
     const { branch } = this.tree.findOperation(this.HEAD_BRANCH, operationId);
-    this.revertBefore(operationId);
+    const revertedOperations = this.revertBefore(operationId);
     this.tree.redo(branch);
-    this.fastForward();
+    this.fastForward(revertedOperations);
     this.insert(redoId, this.buildEmpty(redoId), insertAfter);
   }
 
@@ -131,27 +134,29 @@ export class SelectiveHistory<T = unknown> {
   /**
    * Revert the state as it was *before* the given operation was executed.
    */
-  private revertBefore(operationId: UID) {
+  private revertBefore(operationId: UID): string[] {
     const execution = this.tree.revertedExecution(this.HEAD_BRANCH).stopWith(operationId);
-    this.revert(execution);
+    return this.revert(execution);
   }
 
   /**
    * Revert the state as it was *after* the given operation was executed.
    */
-  private revertTo(operationId: UID | null) {
+  private revertTo(operationId: UID | null): string[] {
     const execution = operationId
       ? this.tree.revertedExecution(this.HEAD_BRANCH).stopBefore(operationId)
       : this.tree.revertedExecution(this.HEAD_BRANCH);
-    this.revert(execution);
+    return this.revert(execution);
   }
 
   /**
    * Revert an execution
    */
-  private revert(execution: OperationSequence<T>) {
+  private revert(execution: OperationSequence<T>): string[] {
+    const revertedOperations: string[] = [];
     for (const { next, operation, isCancelled } of execution) {
       if (!isCancelled) {
+        revertedOperations.push(operation.id);
         this.revertOperation(operation.data);
       }
       if (next) {
@@ -159,18 +164,24 @@ export class SelectiveHistory<T = unknown> {
         this.HEAD_OPERATION = next.operation;
       }
     }
+    return revertedOperations;
   }
 
   /**
    * Replay the operations between the current HEAD_BRANCH and the end of the tree
    */
-  private fastForward() {
+  private fastForward(revertedOperations: string[] = []) {
     const operations = this.HEAD_OPERATION
       ? this.tree.execution(this.HEAD_BRANCH).startAfter(this.HEAD_OPERATION.id)
       : this.tree.execution(this.HEAD_BRANCH);
     for (const { operation: operation, branch, isCancelled } of operations) {
+      const isReplay = revertedOperations.includes(operation.id);
       if (!isCancelled) {
-        this.applyOperation(operation.data);
+        if (!isReplay) {
+          this.applyOperation(operation.data);
+        } else {
+          this.replayOperation(operation.data);
+        }
       }
       this.HEAD_OPERATION = operation;
       this.HEAD_BRANCH = branch;

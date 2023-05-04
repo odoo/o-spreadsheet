@@ -10,6 +10,7 @@ export function buildRevisionLog(args: {
   initialRevisionId: UID;
   recordChanges: StateObserver["recordChanges"];
   dispatch: (command: CoreCommand) => void;
+  dispatchReplayedCommand: (command: CoreCommand) => void;
 }) {
   return new SelectiveHistory<Revision>({
     initialOperationId: args.initialRevisionId,
@@ -18,6 +19,15 @@ export function buildRevisionLog(args: {
       const { changes } = args.recordChanges(() => {
         for (const command of commands) {
           args.dispatch(command);
+        }
+      });
+      revision.setChanges(changes);
+    },
+    replayOperation: (revision: Revision) => {
+      const commands = revision.commands.slice();
+      const { changes } = args.recordChanges(() => {
+        for (const command of commands) {
+          args.dispatchReplayedCommand(command);
         }
       });
       revision.setChanges(changes);

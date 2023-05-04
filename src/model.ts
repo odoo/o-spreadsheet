@@ -321,12 +321,12 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   private onRemoteRevisionReceived({ commands }: { commands: CoreCommand[] }) {
-    for (let command of commands) {
-      const previousStatus = this.status;
-      this.status = Status.RunningCore;
-      this.dispatchToHandlers(this.statefulUIPlugins, command);
-      this.status = previousStatus;
-    }
+    // for (let command of commands) {
+    //   const previousStatus = this.status;
+    //   this.status = Status.RunningCore;
+    //   this.dispatchToHandlers(this.statefulUIPlugins, command);
+    //   this.status = previousStatus;
+    // }
     this.finalize();
   }
 
@@ -336,6 +336,13 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         initialRevisionId: revisionId,
         recordChanges: this.state.recordChanges.bind(this.state),
         dispatch: (command: CoreCommand) => {
+          const result = this.checkDispatchAllowed(command);
+          if (!result.isSuccessful) {
+            return;
+          }
+          this.dispatchToHandlers(this.handlers, command);
+        },
+        dispatchReplayedCommand: (command: CoreCommand) => {
           const result = this.checkDispatchAllowed(command);
           if (!result.isSuccessful) {
             return;
