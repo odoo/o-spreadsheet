@@ -471,20 +471,18 @@ export class EvaluationPlugin extends UIPlugin {
 
   finalize() {
     if (this.shouldRecomputeCellsEvaluation) {
-      this.evaluatedCells = {};
-      this.rcsToUpdate = this.getSetOfAllCells();
-      this.shouldRecomputeCellsEvaluation = false;
+      const allCells = this.getSetOfAllCells();
       if (this.shouldRebuildDependenciesGraph) {
-        this.buildDependencyGraph();
+        this.buildDependencyGraph(allCells);
         this.shouldRebuildDependenciesGraph = false;
       }
+      this.evaluatedCells = {};
+      this.evaluate(allCells);
+      this.shouldRecomputeCellsEvaluation = false;
     } else if (this.rcsToUpdate.size) {
-      this.rcsToUpdate = this.cellsToEvaluate();
+      this.evaluate(this.cellsToEvaluate());
     }
-    if (this.rcsToUpdate.size) {
-      this.evaluate(this.rcsToUpdate);
-      this.rcsToUpdate.clear();
-    }
+    this.rcsToUpdate.clear();
   }
 
   // ---------------------------------------------------------------------------
@@ -960,11 +958,11 @@ export class EvaluationPlugin extends UIPlugin {
     );
   }
 
-  private buildDependencyGraph() {
+  private buildDependencyGraph(cells: Iterable<string>) {
     this.formulaDependencies = new FormulaDependencyGraph();
     this.spreadingFormulas = new Set<string>();
     this.spreadingRelations = new SpreadingRelation();
-    for (const rc of this.rcsToUpdate) {
+    for (const rc of cells) {
       const dependencies = this.getDirectDependencies(rc);
       this.formulaDependencies.addDependencies(rc, dependencies);
     }
