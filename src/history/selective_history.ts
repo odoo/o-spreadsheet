@@ -9,6 +9,12 @@ export class SelectiveHistory<T = unknown> {
   private HEAD_OPERATION: Operation<T>;
   private tree: Tree<T>;
 
+  private initialOperationId: UID;
+  private applyOperation: (data: T) => void;
+  private revertOperation: (data: T) => void;
+  private buildEmpty: (id: UID) => T;
+  private readonly buildTransformation: TransformationFactory<T>;
+
   /**
    * The selective history is a data structure used to register changes/updates of a state.
    * Each change/update is called an "operation".
@@ -29,16 +35,25 @@ export class SelectiveHistory<T = unknown> {
    *                    (used for internal implementation)
    * @param buildTransformation Factory used to build transformations
    */
-  constructor(
-    initialOperationId: UID,
-    private applyOperation: (data: T) => void,
-    private revertOperation: (data: T) => void,
-    private buildEmpty: (id: UID) => T,
-    private readonly buildTransformation: TransformationFactory<T>
-  ) {
+  constructor(args: {
+    initialOperationId: UID;
+    applyOperation: (data: T) => void;
+    revertOperation: (data: T) => void;
+    buildEmpty: (id: UID) => T;
+    readonly buildTransformation: TransformationFactory<T>;
+  }) {
+    this.applyOperation = args.applyOperation;
+    this.revertOperation = args.revertOperation;
+    this.buildEmpty = args.buildEmpty;
+    this.initialOperationId = args.initialOperationId;
+    this.buildTransformation = args.buildTransformation;
+
     this.HEAD_BRANCH = new Branch<T>(this.buildTransformation);
-    this.tree = new Tree(buildTransformation, this.HEAD_BRANCH);
-    const initial = new Operation(initialOperationId, buildEmpty(initialOperationId));
+    this.tree = new Tree(this.buildTransformation, this.HEAD_BRANCH);
+    const initial = new Operation(
+      this.initialOperationId,
+      this.buildEmpty(this.initialOperationId)
+    );
     this.tree.insertOperationLast(this.HEAD_BRANCH, initial);
     this.HEAD_OPERATION = initial;
   }
