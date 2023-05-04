@@ -440,13 +440,9 @@ export class EvaluationPlugin extends UIPlugin {
   }
 
   handle(cmd: Command) {
-    if (this.shouldRebuildDependenciesGraph) {
-      return;
-    }
-
     switch (cmd.type) {
       case "UPDATE_CELL":
-        if (!("content" in cmd || "format" in cmd)) {
+        if (!("content" in cmd || "format" in cmd) || this.shouldRebuildDependenciesGraph) {
           return;
         }
 
