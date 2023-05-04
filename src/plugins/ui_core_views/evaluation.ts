@@ -712,7 +712,7 @@ export class EvaluationPlugin extends UIPlugin {
 
         // check if formula dependencies present in the spread zone
         // if so, they need to be recomputed
-        extendSet(nextRcsToUpdate, this.findCellsToCompute(rc, false));
+        extendSet(nextRcsToUpdate, this.findChildrenToCompute(rc));
       };
 
       const cellId = cellData.id;
@@ -912,11 +912,13 @@ export class EvaluationPlugin extends UIPlugin {
     return [refFn, range, evalContext];
   }
 
-  private findCellsToCompute(mainRc: string, selfInclude: boolean = true): Iterable<string> {
+  private findCellsToCompute(mainRc: string): Iterable<string> {
+    return this.formulaDependencies.getEvaluationOrder(mainRc);
+  }
+
+  private findChildrenToCompute(mainRc: string): Iterable<string> {
     const cellsToCompute = this.formulaDependencies.getEvaluationOrder(mainRc);
-    if (!selfInclude) {
-      cellsToCompute.delete(mainRc);
-    }
+    cellsToCompute.delete(mainRc);
     return cellsToCompute;
   }
 
