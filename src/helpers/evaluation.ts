@@ -40,7 +40,8 @@ export class FormulaDependencyGraph {
   }
 
   /**
-   * Return the cell and all its dependencies in the order they should be evaluated.
+   * Return the cell and all cells that depend on it,
+   * in the correct order they should be evaluated.
    * This is called a topological ordering (excluding cycles)
    */
   getEvaluationOrder(rc: string): Set<string> {

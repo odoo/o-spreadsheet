@@ -664,7 +664,7 @@ export class EvaluationPlugin extends UIPlugin {
     };
 
     const computeFormulaCell = (cellData: FormulaCell): EvaluatedCell => {
-      const updatePotentialSpreaders = (i: number, j: number) => {
+      const updateSpreadRelation = (i: number, j: number) => {
         const position = { sheetId, col: i + col, row: j + row };
         const rc = cellPositionToRc(position);
         this.spreadingRelations.addRelation({ resultRc: rc, arrayFormulaRc: parentRc });
@@ -679,10 +679,8 @@ export class EvaluationPlugin extends UIPlugin {
         ) {
           throw new Error(
             _lt(
-              `Array result was not expanded because it would overwrite data in ${toXC(
-                col + i,
-                row + j
-              )}.`
+              "Array result was not expanded because it would overwrite data in %s.",
+              toXC(col + i, row + j)
             )
           );
         }
@@ -739,7 +737,7 @@ export class EvaluationPlugin extends UIPlugin {
 
       this.assertSheetHasEnoughSpaceToSpreadFormulaResult({ sheetId, col, row }, computedValue);
 
-      forEachSpreadPositionInMatrix(computedValue, updatePotentialSpreaders);
+      forEachSpreadPositionInMatrix(computedValue, updateSpreadRelation);
       forEachSpreadPositionInMatrix(computedValue, checkCollision);
       forEachSpreadPositionInMatrix(computedValue, spreadValues);
       return createEvaluatedCell(computedValue[0][0], cellData.format || formatFromPosition(0, 0));
