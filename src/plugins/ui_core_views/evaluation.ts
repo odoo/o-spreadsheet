@@ -479,34 +479,7 @@ export class EvaluationPlugin extends UIPlugin {
         this.shouldRebuildDependenciesGraph = false;
       }
     } else if (this.rcsToUpdate.size) {
-      const rcsToUpdateBis = new Set<string>();
-
-      for (const rcToUpdate of this.rcsToUpdate) {
-        extendSet(rcsToUpdateBis, this.findCellsToCompute(rcToUpdate, false));
-
-        const content = this.rcToCell(rcToUpdate)?.content;
-        // if the content of a cell changes, we need to check:
-        if (content) {
-          // 1) if we write in an empty cell containing the spread of a formula.
-          //    In this case, it is necessary to indicate to recalculate the concerned
-          //    formula to take into account the new collisions.
-          for (const arrayFormula of this.spreadingRelations.getArrayFormulasRc(rcToUpdate)) {
-            if (this.spreadingFormulas.has(arrayFormula)) {
-              extendSet(rcsToUpdateBis, this.findCellsToCompute(arrayFormula));
-              break; // there can be only one formula spreading on a cell
-            }
-          }
-        } else if (this.spreadingRelations.hasResult(rcToUpdate)) {
-          // 2) if we put an empty content on a cell which blocks the spread
-          //    of another formula.
-          //    In this case, it is necessary to indicate to recalculate formulas
-          //    that was blocked by the old content.
-          for (const arrayFormula of this.spreadingRelations.getArrayFormulasRc(rcToUpdate)) {
-            extendSet(rcsToUpdateBis, this.findCellsToCompute(arrayFormula));
-          }
-        }
-      }
-      extendSet(this.rcsToUpdate, rcsToUpdateBis);
+      this.rcsToUpdate = this.cellsToEvaluate();
     }
     if (this.rcsToUpdate.size) {
       this.evaluate(this.rcsToUpdate);
@@ -995,6 +968,37 @@ export class EvaluationPlugin extends UIPlugin {
       const dependencies = this.getDirectDependencies(rc);
       this.formulaDependencies.addDependencies(rc, dependencies);
     }
+  }
+
+  private cellsToEvaluate(): Set<string> {
+    const cells = new Set<string>();
+
+    for (const rcToUpdate of this.rcsToUpdate) {
+      extendSet(cells, this.findCellsToCompute(rcToUpdate));
+
+      const content = this.rcToCell(rcToUpdate)?.content;
+      // if the content of a cell changes, we need to check:
+      if (content) {
+        // 1) if we write in an empty cell containing the spread of a formula.
+        //    In this case, it is necessary to indicate to recalculate the concerned
+        //    formula to take into account the new collisions.
+        for (const arrayFormula of this.spreadingRelations.getArrayFormulasRc(rcToUpdate)) {
+          if (this.spreadingFormulas.has(arrayFormula)) {
+            extendSet(cells, this.findCellsToCompute(arrayFormula));
+            break; // there can be only one formula spreading on a cell
+          }
+        }
+      } else if (this.spreadingRelations.hasResult(rcToUpdate)) {
+        // 2) if we put an empty content on a cell which blocks the spread
+        //    of another formula.
+        //    In this case, it is necessary to indicate to recalculate formulas
+        //    that was blocked by the old content.
+        for (const arrayFormula of this.spreadingRelations.getArrayFormulasRc(rcToUpdate)) {
+          extendSet(cells, this.findCellsToCompute(arrayFormula));
+        }
+      }
+    }
+    return cells;
   }
 
   // ---------------------------------------------------------------------------
