@@ -6,25 +6,25 @@ import { StateObserver } from "../state_observer";
 import { CoreCommand, HistoryChange, UID } from "../types";
 import { SelectiveHistory } from "./selective_history";
 
-export function buildRevisionLog(
-  initialRevisionId: UID,
-  recordChanges: StateObserver["recordChanges"],
-  dispatch: (command: CoreCommand) => void
-) {
-  return new SelectiveHistory<Revision>(
-    initialRevisionId,
-    (revision: Revision) => {
+export function buildRevisionLog(args: {
+  initialRevisionId: UID;
+  recordChanges: StateObserver["recordChanges"];
+  dispatch: (command: CoreCommand) => void;
+}) {
+  return new SelectiveHistory<Revision>({
+    initialOperationId: args.initialRevisionId,
+    applyOperation: (revision: Revision) => {
       const commands = revision.commands.slice();
-      const { changes } = recordChanges(() => {
+      const { changes } = args.recordChanges(() => {
         for (const command of commands) {
-          dispatch(command);
+          args.dispatch(command);
         }
       });
       revision.setChanges(changes);
     },
-    (revision: Revision) => revertChanges([revision]),
-    (id: UID) => new Revision(id, "empty", []),
-    {
+    revertOperation: (revision: Revision) => revertChanges([revision]),
+    buildEmpty: (id: UID) => new Revision(id, "empty", []),
+    buildTransformation: {
       with: (revision: Revision) => (toTransform: Revision) => {
         return new Revision(
           toTransform.id,
@@ -41,8 +41,8 @@ export function buildRevisionLog(
           toTransform.rootCommand
         );
       },
-    }
-  );
+    },
+  });
 }
 
 /**

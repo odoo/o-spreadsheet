@@ -60,12 +60,12 @@ class MiniEditor {
     this.state = this.state.slice(0, position + 1) + this.state.slice(position + value.length + 1);
   };
 
-  private history = new SelectiveHistory(
-    "initial",
-    this.apply,
-    this.revert,
-    (id) => ({ position: -1, value: "" }),
-    {
+  private history = new SelectiveHistory({
+    initialOperationId: "initial",
+    applyOperation: this.apply,
+    revertOperation: this.revert,
+    buildEmpty: (id) => ({ position: -1, value: "" }),
+    buildTransformation: {
       /**
        * Build a transformation function to transform any command as if the execution of
        * a previous `command` was omitted.
@@ -78,8 +78,8 @@ class MiniEditor {
        */
       with: (command) => (commandToTransform) =>
         this.redoTransformation(commandToTransform as Command, command as Command),
-    }
-  );
+    },
+  });
 
   execAfter(insertAfter: UID | null, instruction: [UID, string, number]) {
     const [commandId, text, position] = instruction;

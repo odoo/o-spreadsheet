@@ -332,10 +332,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private setupSession(revisionId: UID): Session {
     const session = new Session(
-      buildRevisionLog(
-        revisionId,
-        this.state.recordChanges.bind(this.state),
-        (command: CoreCommand) => {
+      buildRevisionLog({
+        initialRevisionId: revisionId,
+        recordChanges: this.state.recordChanges.bind(this.state),
+        dispatch: (command: CoreCommand) => {
           const result = this.checkDispatchAllowed(command);
           if (!result.isSuccessful) {
             return;
@@ -343,8 +343,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
           this.isReplayingCommand = true;
           this.dispatchToHandlers(this.coreHandlers, command);
           this.isReplayingCommand = false;
-        }
-      ),
+        },
+      }),
       this.config.transportService,
       revisionId
     );
