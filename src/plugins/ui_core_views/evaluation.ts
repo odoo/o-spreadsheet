@@ -629,25 +629,19 @@ export class EvaluationPlugin extends UIPlugin {
 
   private evaluate() {
     const cellsBeingComputed = new Set<UID>();
-    const currentRcsToUpdate = new Set<string>();
     const nextRcsToUpdate = new Set<string>();
 
     const setEvaluatedCell = (rc: string, evaluatedCell: EvaluatedCell) => {
       if (nextRcsToUpdate.has(rc)) {
         nextRcsToUpdate.delete(rc);
       }
-      if (currentRcsToUpdate.has(rc)) {
-        currentRcsToUpdate.delete(rc);
-      }
       this.evaluatedCells[rc] = evaluatedCell;
     };
 
     const computeCell = (rc: string): EvaluatedCell => {
-      if (!currentRcsToUpdate.has(rc)) {
-        const evaluation = this.evaluatedCells[rc];
-        if (evaluation) {
-          return evaluation; // already computed
-        }
+      const evaluation = this.evaluatedCells[rc];
+      if (evaluation) {
+        return evaluation; // already computed
       }
 
       if (this.spreadingFormulas.has(rc)) {
@@ -794,12 +788,14 @@ export class EvaluationPlugin extends UIPlugin {
 
     let currentCycle = 0;
     while (nextRcsToUpdate.size && currentCycle < this.maxIteration) {
-      extendSet(currentRcsToUpdate, nextRcsToUpdate);
-      const arr = Array.from(currentRcsToUpdate);
+      const arr = Array.from(nextRcsToUpdate);
       nextRcsToUpdate.clear();
       for (let i = 0; i < arr.length; ++i) {
         const cell = arr[i];
-        if (!currentRcsToUpdate.has(cell)) continue;
+        delete this.evaluatedCells[cell];
+      }
+      for (let i = 0; i < arr.length; ++i) {
+        const cell = arr[i];
         setEvaluatedCell(cell, computeCell(cell));
       }
 
