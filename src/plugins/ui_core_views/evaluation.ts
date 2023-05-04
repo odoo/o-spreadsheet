@@ -445,7 +445,6 @@ export class EvaluationPlugin extends UIPlugin {
         if (!("content" in cmd || "format" in cmd) || this.shouldRebuildDependenciesGraph) {
           return;
         }
-
         const rc = cellPositionToRc(cmd);
         this.rcsToUpdate.add(rc);
 
