@@ -849,3 +849,28 @@ test("The composer helper should be closed on toggle topbar context menu", async
   expect(model.getters.getEditionMode()).toBe("inactive");
   expect(fixture.querySelectorAll(".o-composer-assistant")).toHaveLength(0);
 });
+
+test("The menu items are orderer by their sequence", async () => {
+  topbarMenuRegistry.add("test", {
+    sequence: 1,
+    name: "test",
+  });
+  topbarMenuRegistry.addChild("second", ["test"], {
+    name: "second",
+    sequence: 2,
+  });
+  topbarMenuRegistry.addChild("first", ["test"], {
+    name: "first",
+    sequence: 1,
+  });
+  topbarMenuRegistry.addChild("third", ["test"], {
+    name: "third",
+    sequence: 3,
+  });
+  const { fixture } = await mountSpreadsheet();
+  await click(fixture, ".o-topbar-menu[data-id='test']");
+  const menuItems: NodeListOf<HTMLElement> = fixture.querySelectorAll(".o-menu-item");
+  expect(menuItems[0].dataset.name).toBe("first");
+  expect(menuItems[1].dataset.name).toBe("second");
+  expect(menuItems[2].dataset.name).toBe("third");
+});
