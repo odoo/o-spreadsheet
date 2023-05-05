@@ -21,7 +21,7 @@ export const ADD: AddFunctionDescription = {
   returns: ["NUMBER"],
   computeFormat: (value1: PrimitiveArg, value2: PrimitiveArg) => value1?.format || value2?.format,
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): number {
-    return toNumber(value1) + toNumber(value2);
+    return toNumber(value1, this.locale) + toNumber(value2, this.locale);
   },
 };
 
@@ -54,9 +54,9 @@ export const DIVIDE: AddFunctionDescription = {
   computeFormat: (dividend: PrimitiveArg, divisor: PrimitiveArg) =>
     dividend?.format || divisor?.format,
   compute: function (dividend: PrimitiveArgValue, divisor: PrimitiveArgValue): number {
-    const _divisor = toNumber(divisor);
+    const _divisor = toNumber(divisor, this.locale);
     assert(() => _divisor !== 0, _lt("The divisor must be different from zero."));
-    return toNumber(dividend) / _divisor;
+    return toNumber(dividend, this.locale) / _divisor;
   },
 };
 
@@ -158,7 +158,7 @@ export const LT: AddFunctionDescription = {
   ],
   returns: ["BOOLEAN"],
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): boolean {
-    return !GTE.compute(value1, value2);
+    return !GTE.compute.bind(this)(value1, value2);
   },
 };
 
@@ -173,7 +173,7 @@ export const LTE: AddFunctionDescription = {
   ],
   returns: ["BOOLEAN"],
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): boolean {
-    return !GT.compute(value1, value2);
+    return !GT.compute.bind(this)(value1, value2);
   },
 };
 
@@ -189,7 +189,7 @@ export const MINUS: AddFunctionDescription = {
   returns: ["NUMBER"],
   computeFormat: (value1: PrimitiveArg, value2: PrimitiveArg) => value1?.format || value2?.format,
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): number {
-    return toNumber(value1) - toNumber(value2);
+    return toNumber(value1, this.locale) - toNumber(value2, this.locale);
   },
 };
 
@@ -206,7 +206,7 @@ export const MULTIPLY: AddFunctionDescription = {
   computeFormat: (factor1: PrimitiveArg, factor2: PrimitiveArg) =>
     factor1?.format || factor2?.format,
   compute: function (factor1: PrimitiveArgValue, factor2: PrimitiveArgValue): number {
-    return toNumber(factor1) * toNumber(factor2);
+    return toNumber(factor1, this.locale) * toNumber(factor2, this.locale);
   },
 };
 
@@ -221,7 +221,7 @@ export const NE: AddFunctionDescription = {
   ],
   returns: ["BOOLEAN"],
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): boolean {
-    return !EQ.compute(value1, value2);
+    return !EQ.compute.bind(this)(value1, value2);
   },
 };
 
@@ -236,7 +236,7 @@ export const POW: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (base: PrimitiveArgValue, exponent: PrimitiveArgValue): number {
-    return POWER.compute(base, exponent) as number;
+    return POWER.compute.bind(this)(base, exponent) as number;
   },
 };
 
@@ -254,7 +254,7 @@ export const UMINUS: AddFunctionDescription = {
   computeFormat: (value: PrimitiveArg) => value?.format,
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
-    return -toNumber(value);
+    return -toNumber(value, this.locale);
   },
 };
 
@@ -266,7 +266,7 @@ export const UNARY_PERCENT: AddFunctionDescription = {
   args: [arg("percentage (number)", _lt("The value to interpret as a percentage."))],
   returns: ["NUMBER"],
   compute: function (percentage: PrimitiveArgValue): number {
-    return toNumber(percentage) / 100;
+    return toNumber(percentage, this.locale) / 100;
   },
 };
 

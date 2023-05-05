@@ -2,6 +2,7 @@ import { ChartPanel } from "../components/side_panel/chart/main_chart_panel/main
 import { ConditionalFormattingPanel } from "../components/side_panel/conditional_formatting/conditional_formatting";
 import { CustomCurrencyPanel } from "../components/side_panel/custom_currency/custom_currency";
 import { FindAndReplacePanel } from "../components/side_panel/find_and_replace/find_and_replace";
+import { SettingsPanel } from "../components/side_panel/settings/settings_panel";
 import { SplitIntoColumnsPanel } from "../components/side_panel/split_to_columns_panel/split_to_columns_panel";
 import { _lt } from "../translation";
 import { SpreadsheetChildEnv } from "../types";
@@ -41,4 +42,9 @@ sidePanelRegistry.add("CustomCurrency", {
 sidePanelRegistry.add("SplitToColumns", {
   title: _lt("Split text into columns"),
   Body: SplitIntoColumnsPanel,
+});
+
+sidePanelRegistry.add("Settings", {
+  title: _lt("Spreadsheet settings"),
+  Body: SettingsPanel,
 });

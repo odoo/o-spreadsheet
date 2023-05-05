@@ -4,6 +4,7 @@ import { zoneToXc } from "../src/helpers";
 import { interactivePaste } from "../src/helpers/ui/paste_interactive";
 import { colMenuRegistry, rowMenuRegistry, topbarMenuRegistry } from "../src/registries/index";
 import { SpreadsheetChildEnv } from "../src/types";
+import { DEFAULT_LOCALES } from "./../src/types/locale";
 import {
   copy,
   createFilter,
@@ -900,30 +901,33 @@ describe("Menu Item actions", () => {
       });
     });
 
-    test("Date", () => {
+    test.each(DEFAULT_LOCALES)("Date", (locale) => {
+      env.model.dispatch("UPDATE_LOCALE", { locale });
       doAction(["format", "format_number", "format_number_date"], env);
       expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: env.model.getters.getActiveSheetId(),
         target: env.model.getters.getSelectedZones(),
-        format: "m/d/yyyy",
+        format: locale.dateFormat,
       });
     });
 
-    test("Time", () => {
+    test.each(DEFAULT_LOCALES)("Time", (locale) => {
+      env.model.dispatch("UPDATE_LOCALE", { locale });
       doAction(["format", "format_number", "format_number_time"], env);
       expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: env.model.getters.getActiveSheetId(),
         target: env.model.getters.getSelectedZones(),
-        format: "hh:mm:ss a",
+        format: locale.timeFormat,
       });
     });
 
-    test("Date time", () => {
+    test.each(DEFAULT_LOCALES)("Date time", (locale) => {
+      env.model.dispatch("UPDATE_LOCALE", { locale });
       doAction(["format", "format_number", "format_number_date_time"], env);
       expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: env.model.getters.getActiveSheetId(),
         target: env.model.getters.getSelectedZones(),
-        format: "m/d/yyyy hh:mm:ss",
+        format: `${locale.dateFormat} ${locale.timeFormat}`,
       });
     });
 

@@ -2,7 +2,7 @@ import { INCORRECT_RANGE_STRING } from "../../src/constants";
 import { parseDateTime } from "../../src/helpers/dates";
 import { toZone, zoneToXc } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { CellValueType, UID } from "../../src/types";
+import { CellValueType, DEFAULT_LOCALE, UID } from "../../src/types";
 import { redo, setCellContent, sort, undo } from "../test_helpers/commands_helpers";
 import { getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { getCellsObject } from "../test_helpers/helpers";
@@ -10,6 +10,7 @@ jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
 const dateFormat = "mm/dd/yyyy";
+const locale = DEFAULT_LOCALE;
 
 describe("Basic Sorting", () => {
   const sheetId: UID = "sheetId";
@@ -105,12 +106,12 @@ describe("Basic Sorting", () => {
     });
 
     expect(getCellsObject(model, sheetId)).toMatchObject({
-      A1: { value: parseDateTime("06/06/1944")!.value },
-      A2: { value: parseDateTime("09/05/1946")!.value },
-      A3: { value: parseDateTime("08/15/1969")!.value },
-      A4: { value: parseDateTime("08/18/1969")!.value },
-      A5: { value: parseDateTime("11/24/1991")!.value },
-      A6: { value: parseDateTime("11/08/2016")!.value },
+      A1: { value: parseDateTime("06/06/1944", locale)!.value },
+      A2: { value: parseDateTime("09/05/1946", locale)!.value },
+      A3: { value: parseDateTime("08/15/1969", locale)!.value },
+      A4: { value: parseDateTime("08/18/1969", locale)!.value },
+      A5: { value: parseDateTime("11/24/1991", locale)!.value },
+      A6: { value: parseDateTime("11/08/2016", locale)!.value },
     });
   });
   test("Sort Formulas", () => {
@@ -185,7 +186,7 @@ describe("Basic Sorting", () => {
       A2: { content: "23" },
       A3: { content: `=SUM(4, ${INCORRECT_RANGE_STRING})` },
       A4: { content: "=DATE(2012, 12, 21)" },
-      A5: { value: parseDateTime("2020/09/01")!.value },
+      A5: { value: parseDateTime("2020/09/01", locale)!.value },
       A6: { content: "=BADBUNNY" },
       A7: {
         content: `=${INCORRECT_RANGE_STRING}/${INCORRECT_RANGE_STRING}`,
@@ -206,7 +207,7 @@ describe("Basic Sorting", () => {
       A7: { content: "Kills" },
       A8: { content: "=BADBUNNY" },
       A9: { content: "=SUM(4, A1)" },
-      A10: { value: parseDateTime("2020/09/01")!.value },
+      A10: { value: parseDateTime("2020/09/01", locale)!.value },
       A11: { content: "=B1/B2" },
     });
     redo(model);
@@ -215,7 +216,7 @@ describe("Basic Sorting", () => {
       A2: { content: "23" },
       A3: { content: `=SUM(4, ${INCORRECT_RANGE_STRING})` },
       A4: { content: "=DATE(2012, 12, 21)" },
-      A5: { value: parseDateTime("2020/09/01")!.value },
+      A5: { value: parseDateTime("2020/09/01", locale)!.value },
       A6: { content: "=BADBUNNY" },
       A7: {
         content: `=${INCORRECT_RANGE_STRING}/${INCORRECT_RANGE_STRING}`,
@@ -510,9 +511,9 @@ describe("Sort adjacent columns with headers", () => {
       B3: { content: "2500" },
       B4: { content: "49" },
       C1: { content: "Col2" },
-      C2: { value: parseDateTime("09/15/2020")!.value },
-      C3: { value: parseDateTime("09/14/2020")!.value },
-      C4: { value: parseDateTime("09/13/2020")!.value },
+      C2: { value: parseDateTime("09/15/2020", locale)!.value },
+      C3: { value: parseDateTime("09/14/2020", locale)!.value },
+      C4: { value: parseDateTime("09/13/2020", locale)!.value },
     });
   });
 
@@ -528,9 +529,9 @@ describe("Sort adjacent columns with headers", () => {
       B2: { content: "192" },
       B3: { content: "2500" },
       B4: { content: "Col1" },
-      C1: { value: parseDateTime("09/13/2020")!.value },
-      C2: { value: parseDateTime("09/15/2020")!.value },
-      C3: { value: parseDateTime("09/14/2020")!.value },
+      C1: { value: parseDateTime("09/13/2020", locale)!.value },
+      C2: { value: parseDateTime("09/15/2020", locale)!.value },
+      C3: { value: parseDateTime("09/14/2020", locale)!.value },
       C4: { content: "Col2" },
     });
   });
@@ -551,9 +552,9 @@ describe("Sort adjacent columns with headers", () => {
       B3: { content: "2500" },
       B4: { content: "49" },
       C1: { content: "Col2" },
-      C2: { value: parseDateTime("09/15/2020")!.value },
-      C3: { value: parseDateTime("09/14/2020")!.value },
-      C4: { value: parseDateTime("09/13/2020")!.value },
+      C2: { value: parseDateTime("09/15/2020", locale)!.value },
+      C3: { value: parseDateTime("09/14/2020", locale)!.value },
+      C4: { value: parseDateTime("09/13/2020", locale)!.value },
     });
   });
   test("No header when there is an empty cell on top row (other than topLeft)", () => {
@@ -572,9 +573,9 @@ describe("Sort adjacent columns with headers", () => {
       B2: { content: "192" },
       B3: { content: "2500" },
       B4: { content: "Col1" },
-      C1: { value: parseDateTime("09/13/2020")!.value },
-      C2: { value: parseDateTime("09/15/2020")!.value },
-      C3: { value: parseDateTime("09/14/2020")!.value },
+      C1: { value: parseDateTime("09/13/2020", locale)!.value },
+      C2: { value: parseDateTime("09/15/2020", locale)!.value },
+      C3: { value: parseDateTime("09/14/2020", locale)!.value },
     });
   });
   test("No header when comparing top row cells to empty cells", () => {
@@ -599,8 +600,8 @@ describe("Sort adjacent columns with headers", () => {
       B2: { content: "2500" },
       B3: { content: "49" },
       B4: { content: "44" },
-      C1: { value: parseDateTime("09/15/2020")!.value },
-      C2: { value: parseDateTime("09/14/2020")!.value },
+      C1: { value: parseDateTime("09/15/2020", locale)!.value },
+      C2: { value: parseDateTime("09/14/2020", locale)!.value },
       C4: { content: "Col2" },
     });
   });
@@ -657,9 +658,9 @@ describe("Sort Merges", () => {
       C2: { content: "Echo" },
       C5: { content: "Golf" },
       C8: { content: "Zulu" },
-      D2: { value: parseDateTime("08/20/2020")!.value },
-      D5: { value: parseDateTime("07/20/2020")!.value },
-      D8: { value: parseDateTime("09/20/2020")!.value },
+      D2: { value: parseDateTime("08/20/2020", locale)!.value },
+      D5: { value: parseDateTime("07/20/2020", locale)!.value },
+      D8: { value: parseDateTime("09/20/2020", locale)!.value },
     });
   });
 
@@ -676,9 +677,9 @@ describe("Sort Merges", () => {
       C2: { content: "Zulu" },
       C5: { content: "Golf" },
       C8: { content: "Echo" },
-      D2: { value: parseDateTime("09/20/2020")!.value },
-      D5: { value: parseDateTime("08/20/2020")!.value },
-      D8: { value: parseDateTime("07/20/2020")!.value },
+      D2: { value: parseDateTime("09/20/2020", locale)!.value },
+      D5: { value: parseDateTime("08/20/2020", locale)!.value },
+      D8: { value: parseDateTime("07/20/2020", locale)!.value },
     });
   });
 
@@ -701,8 +702,8 @@ describe("Sort Merges", () => {
       C5: { content: "Golf" },
       C8: { content: "Echo" },
       D2: { content: "Header" },
-      D5: { value: parseDateTime("07/20/2020")!.value },
-      D8: { value: parseDateTime("08/20/2020")!.value },
+      D5: { value: parseDateTime("07/20/2020", locale)!.value },
+      D8: { value: parseDateTime("08/20/2020", locale)!.value },
     });
   });
 });

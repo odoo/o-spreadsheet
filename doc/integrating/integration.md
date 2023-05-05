@@ -89,7 +89,7 @@ const model = new Model(data, {
 
 ## Custom currency formats
 
-Enable the custom currency format feature by providing an external access to you currencies.
+Enable the custom currency format feature by providing an external access to your currencies.
 Your function loading the currencies should return a [`Currency`](https://github.com/odoo/o-spreadsheet/blob/b4c1339c82c3831e76636851116fbf754946ea79/src/types/currency.ts) array.
 
 ```ts
@@ -105,6 +105,34 @@ async function loadCurrencies() {
 const model = new Model(data, {
   external: {
     loadCurrencies,
+  },
+});
+```
+
+## External Locales
+
+You can add more locales in the spreadsheet options by providing access to your locales with the model
+config `loadLocales`. Your function loading the locales should return a [`Locale`](/src/types/locale.ts) array.
+
+```ts
+const locale = {
+    name: "English (US)",
+    code: "en_US",
+    thousandsSeparator: ",",
+    decimalSeparator: ".",
+    dateFormat: "m/d/yyyy",
+    timeFormat: "hh:mm:ss a",
+    formulaArgSeparator: ",",
+}
+
+async function loadLocales() {
+  // locales can be loaded from anywhere, including an external server or a local file.
+  return [ locale, locale2, ...];
+}
+
+const model = new Model(data, {
+  external: {
+    loadLocales,
   },
 });
 ```

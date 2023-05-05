@@ -14,6 +14,7 @@ import {
   HideColumnsRowsCommand,
   RemoveColumnsRowsCommand,
   ResizeColumnsRowsCommand,
+  SheetDependentCommand,
 } from "../../src/types/commands";
 import {
   activateSheet,
@@ -141,7 +142,7 @@ describe("Repeat command transform generics", () => {
     createSheet(model, { sheetId: "42" });
     activateSheet(model, "42");
     const transformed = repeatCoreCommand(model.getters, command);
-    expect(transformed?.sheetId).toEqual("42");
+    expect((transformed as SheetDependentCommand)?.sheetId).toEqual("42");
   });
 
   test.each([TEST_COMMANDS.UPDATE_CELL, TEST_COMMANDS.CLEAR_CELL, TEST_COMMANDS.SET_BORDER])(

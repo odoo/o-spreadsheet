@@ -1,4 +1,5 @@
 import { _lt } from "../translation";
+import { Locale } from "../types";
 import { assert, toJsDate } from "./helpers";
 
 /** Assert maturity date > settlement date */
@@ -139,10 +140,11 @@ export function assertDeprecationFactorStrictlyPositive(factor: number) {
 
 export function assertSettlementLessThanOneYearBeforeMaturity(
   settlement: number,
-  maturity: number
+  maturity: number,
+  locale: Locale
 ) {
-  const startDate = toJsDate(settlement);
-  const endDate = toJsDate(maturity);
+  const startDate = toJsDate(settlement, locale);
+  const endDate = toJsDate(maturity, locale);
 
   const startDatePlusOneYear = new Date(startDate);
   startDatePlusOneYear.setFullYear(startDate.getFullYear() + 1);

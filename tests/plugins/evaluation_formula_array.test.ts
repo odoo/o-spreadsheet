@@ -5,6 +5,7 @@ import {
   Arg,
   ArgValue,
   ComputeFunction,
+  DEFAULT_LOCALE,
   ErrorCell,
   FunctionReturnFormat,
   FunctionReturnValue,
@@ -44,8 +45,8 @@ describe("evaluate formulas that return an array", () => {
         m: PrimitiveArgValue,
         v: PrimitiveArgValue
       ): any[][] {
-        return Array.from({ length: toNumber(n) }, (_, i) =>
-          Array.from({ length: toNumber(m) }, (_, j) => v)
+        return Array.from({ length: toNumber(n, DEFAULT_LOCALE) }, (_, i) =>
+          Array.from({ length: toNumber(m, DEFAULT_LOCALE) }, (_, j) => v)
         );
       } as ComputeFunction<ArgValue, FunctionReturnValue>,
     });

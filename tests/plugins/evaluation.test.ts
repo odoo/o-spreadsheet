@@ -16,6 +16,7 @@ import {
   deleteColumns,
   paste,
   setCellContent,
+  updateLocale,
 } from "../test_helpers/commands_helpers";
 import {
   getCell,
@@ -30,6 +31,7 @@ import {
   target,
 } from "../test_helpers/helpers";
 import { CellErrorType } from "./../../src/types/errors";
+import { FR_LOCALE } from "./../test_helpers/constants";
 import resetAllMocks = jest.resetAllMocks;
 
 describe("evaluateCells", () => {
@@ -781,6 +783,22 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "D4").value).toBe(1);
     expect(getEvaluatedCell(model, "D5").value).toBe(1);
     expect(getEvaluatedCell(model, "D6").value).toBe(0);
+  });
+
+  test("various localized number in string expressions ", () => {
+    const model = new Model();
+    updateLocale(model, FR_LOCALE);
+    setCellContent(model, "A1", '"4,2"');
+    expect(getEvaluatedCell(model, "A1").value).toBe('"4,2"');
+
+    setCellContent(model, "B1", '="4,2"');
+    expect(getEvaluatedCell(model, "B1").value).toBe("4,2");
+
+    setCellContent(model, "C1", '=SUM("4,2")');
+    expect(getEvaluatedCell(model, "C1").value).toBe(4.2);
+
+    setCellContent(model, "D1", '=COUNT("4,2")');
+    expect(getEvaluatedCell(model, "D1").value).toBe(1);
   });
 
   test("various expressions with percent, dot and whitespace", () => {

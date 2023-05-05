@@ -133,7 +133,7 @@ Array [
     },
     "length": 1,
     "start": 9,
-    "type": "COMMA",
+    "type": "ARG_SEPARATOR",
     "value": ",",
   },
   Object {
@@ -216,7 +216,7 @@ Array [
     },
     "length": 1,
     "start": 7,
-    "type": "COMMA",
+    "type": "ARG_SEPARATOR",
     "value": ",",
   },
   Object {
@@ -268,7 +268,7 @@ Array [
     },
     "length": 1,
     "start": 13,
-    "type": "COMMA",
+    "type": "ARG_SEPARATOR",
     "value": ",",
   },
   Object {
@@ -324,7 +324,7 @@ Array [
     },
     "length": 1,
     "start": 20,
-    "type": "COMMA",
+    "type": "ARG_SEPARATOR",
     "value": ",",
   },
   Object {
@@ -369,7 +369,7 @@ Array [
     },
     "length": 1,
     "start": 24,
-    "type": "COMMA",
+    "type": "ARG_SEPARATOR",
     "value": ",",
   },
   Object {

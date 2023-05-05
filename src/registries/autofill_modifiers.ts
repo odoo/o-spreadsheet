@@ -38,10 +38,11 @@ autofillModifiersRegistry
     },
   })
   .add("INCREMENT_MODIFIER", {
-    apply: (rule: IncrementModifier, data: AutofillData) => {
+    apply: (rule: IncrementModifier, data: AutofillData, getters: Getters) => {
       rule.current += rule.increment;
       const content = rule.current.toString();
-      const tooltipValue = formatValue(rule.current, data.cell?.format);
+      const locale = getters.getLocale();
+      const tooltipValue = formatValue(rule.current, { format: data.cell?.format, locale });
       return {
         cellData: {
           border: data.border,
@@ -56,6 +57,7 @@ autofillModifiersRegistry
   .add("COPY_MODIFIER", {
     apply: (rule: CopyModifier, data: AutofillData, getters: Getters) => {
       const content = data.cell?.content || "";
+      const localeFormat = { locale: getters.getLocale(), format: data.cell?.format };
       return {
         cellData: {
           border: data.border,
@@ -66,7 +68,7 @@ autofillModifiersRegistry
         tooltip: content
           ? {
               props: {
-                content: evaluateLiteral(data.cell?.content, data.cell?.format).formattedValue,
+                content: evaluateLiteral(data.cell?.content, localeFormat).formattedValue,
               },
             }
           : undefined,

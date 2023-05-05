@@ -217,6 +217,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       model: this.model,
       imageProvider: fileStore ? new ImageProvider(fileStore) : undefined,
       loadCurrencies: this.model.config.external.loadCurrencies,
+      loadLocales: this.model.config.external.loadLocales,
       isDashboard: () => this.model.getters.isDashboard(),
       openSidePanel: this.openSidePanel.bind(this),
       toggleSidePanel: this.toggleSidePanel.bind(this),

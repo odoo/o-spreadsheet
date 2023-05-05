@@ -4,6 +4,7 @@ import {
   ArgValue,
   CellValue,
   FunctionReturnValue,
+  Locale,
   MatrixArgValue,
   PrimitiveArgValue,
 } from "../types";
@@ -15,7 +16,8 @@ import { AVERAGE, COUNT, COUNTA, MAX, MIN, STDEV, STDEVP, VAR, VARP } from "./mo
 function getMatchingCells(
   database: MatrixArgValue,
   field: PrimitiveArgValue,
-  criteria: MatrixArgValue
+  criteria: MatrixArgValue,
+  locale: Locale
 ): any[] {
   // Example
 
@@ -117,6 +119,7 @@ function getMatchingCells(
           (i, j) => {
             matchingRows.add(j);
           },
+          locale,
           true
         );
       } else {
@@ -170,8 +173,8 @@ export const DAVERAGE: AddFunctionDescription = {
     field: PrimitiveArgValue,
     criteria: MatrixArgValue
   ): number {
-    const cells = getMatchingCells(database, field, criteria);
-    return AVERAGE.compute([cells]) as number;
+    const cells = getMatchingCells(database, field, criteria, this.locale);
+    return AVERAGE.compute.bind(this)([cells]) as number;
   },
   isExported: true,
 };
@@ -188,8 +191,8 @@ export const DCOUNT: AddFunctionDescription = {
     field: PrimitiveArgValue,
     criteria: MatrixArgValue
   ): number {
-    const cells = getMatchingCells(database, field, criteria);
-    return COUNT.compute([cells]) as number;
+    const cells = getMatchingCells(database, field, criteria, this.locale);
+    return COUNT.compute.bind(this)([cells]) as number;
   },
   isExported: true,
 };
@@ -206,8 +209,8 @@ export const DCOUNTA: AddFunctionDescription = {
     field: PrimitiveArgValue,
     criteria: MatrixArgValue
   ): number {
-    const cells = getMatchingCells(database, field, criteria);
-    return COUNTA.compute([cells]) as number;
+    const cells = getMatchingCells(database, field, criteria, this.locale);
+    return COUNTA.compute.bind(this)([cells]) as number;
   },
   isExported: true,
 };
@@ -224,7 +227,7 @@ export const DGET: AddFunctionDescription = {
     field: PrimitiveArgValue,
     criteria: MatrixArgValue
   ): FunctionReturnValue {
-    const cells = getMatchingCells(database, field, criteria);
+    const cells = getMatchingCells(database, field, criteria, this.locale);
     assert(() => cells.length === 1, _lt("More than one match found in DGET evaluation."));
     return cells[0];
   },
@@ -243,8 +246,8 @@ export const DMAX: AddFunctionDescription = {
     field: PrimitiveArgValue,
     criteria: MatrixArgValue
   ): number {
-    const cells = getMatchingCells(database, field, criteria);
-    return MAX.compute([cells]) as number;
+    const cells = getMatchingCells(database, field, criteria, this.locale);
+    return MAX.compute.bind(this)([cells]) as number;
   },
   isExported: true,
 };
@@ -261,8 +264,8 @@ export const DMIN: AddFunctionDescription = {
     field: PrimitiveArgValue,
     criteria: MatrixArgValue
   ): number {
-    const cells = getMatchingCells(database, field, criteria);
-    return MIN.compute([cells]) as number;
+    const cells = getMatchingCells(database, field, criteria, this.locale);
+    return MIN.compute.bind(this)([cells]) as number;
   },
   isExported: true,
 };
@@ -279,8 +282,8 @@ export const DPRODUCT: AddFunctionDescription = {
     field: PrimitiveArgValue,
     criteria: MatrixArgValue
   ): number {
-    const cells = getMatchingCells(database, field, criteria);
-    return PRODUCT.compute([cells]) as number;
+    const cells = getMatchingCells(database, field, criteria, this.locale);
+    return PRODUCT.compute.bind(this)([cells]) as number;
   },
   isExported: true,
 };
@@ -297,8 +300,8 @@ export const DSTDEV: AddFunctionDescription = {
     field: PrimitiveArgValue,
     criteria: MatrixArgValue
   ): number {
-    const cells = getMatchingCells(database, field, criteria);
-    return STDEV.compute([cells]) as number;
+    const cells = getMatchingCells(database, field, criteria, this.locale);
+    return STDEV.compute.bind(this)([cells]) as number;
   },
   isExported: true,
 };
@@ -315,8 +318,8 @@ export const DSTDEVP: AddFunctionDescription = {
     field: PrimitiveArgValue,
     criteria: MatrixArgValue
   ): number {
-    const cells = getMatchingCells(database, field, criteria);
-    return STDEVP.compute([cells]) as number;
+    const cells = getMatchingCells(database, field, criteria, this.locale);
+    return STDEVP.compute.bind(this)([cells]) as number;
   },
   isExported: true,
 };
@@ -333,8 +336,8 @@ export const DSUM: AddFunctionDescription = {
     field: PrimitiveArgValue,
     criteria: MatrixArgValue
   ): number {
-    const cells = getMatchingCells(database, field, criteria);
-    return SUM.compute([cells]) as number;
+    const cells = getMatchingCells(database, field, criteria, this.locale);
+    return SUM.compute.bind(this)([cells]) as number;
   },
   isExported: true,
 };
@@ -351,8 +354,8 @@ export const DVAR: AddFunctionDescription = {
     field: PrimitiveArgValue,
     criteria: MatrixArgValue
   ): number {
-    const cells = getMatchingCells(database, field, criteria);
-    return VAR.compute([cells]) as number;
+    const cells = getMatchingCells(database, field, criteria, this.locale);
+    return VAR.compute.bind(this)([cells]) as number;
   },
   isExported: true,
 };
@@ -369,8 +372,8 @@ export const DVARP: AddFunctionDescription = {
     field: PrimitiveArgValue,
     criteria: MatrixArgValue
   ): number {
-    const cells = getMatchingCells(database, field, criteria);
-    return VARP.compute([cells]) as number;
+    const cells = getMatchingCells(database, field, criteria, this.locale);
+    return VARP.compute.bind(this)([cells]) as number;
   },
   isExported: true,
 };

@@ -1,10 +1,12 @@
 import { Model } from "../../../src";
 import { buildSheetLink } from "../../../src/helpers";
+import { DEFAULT_LOCALE } from "../../../src/types";
 import {
   activateSheet,
   createSheet,
   merge,
   setCellContent,
+  updateLocale,
 } from "../../test_helpers/commands_helpers";
 import {
   clickCell,
@@ -16,6 +18,7 @@ import {
 import { getCell, getEvaluatedCell } from "../../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
+import { CellValueType } from "./../../../src/types/cells";
 
 mockGetBoundingClientRect({
   "o-spreadsheet": () => ({ top: 0, left: 0, height: 1000, width: 1000 }),
@@ -155,6 +158,24 @@ describe("link editor component", () => {
     expect(labelInput().value).toBe("Sheet2");
     expect(urlInput().value).toBe("Sheet2");
     expect(urlInput().disabled).toBe(true);
+  });
+
+  test("label is changed to canonical form in model", async () => {
+    updateLocale(model, { ...DEFAULT_LOCALE, formulaArgSeparator: ";", decimalSeparator: "," });
+    await openLinkEditor(model, "A1");
+    setInputValueAndTrigger(labelInput(), "3,15", "input");
+    setInputValueAndTrigger(urlInput(), "https://url.com", "input");
+    await simulateClick("button.o-save");
+    const evaluatedCell = getEvaluatedCell(model, "A1");
+    expect(evaluatedCell).toMatchObject({
+      type: CellValueType.number,
+      value: 3.15,
+      formattedValue: "3,15",
+      link: {
+        label: "3.15",
+        url: "https://url.com",
+      },
+    });
   });
 
   test("clicking the main popover closes the special link menus", async () => {

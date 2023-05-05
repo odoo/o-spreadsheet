@@ -1,7 +1,8 @@
 import { _lt } from "../translation";
-import { CellValue, Format, FormattedValue } from "../types";
-import { INITIAL_1900_DAY, numberToJsDate, parseDateTime } from "./dates";
-import { isDateTime } from "./misc";
+import { CellValue, Format, FormattedValue, Locale, LocaleFormat } from "../types";
+import { DEFAULT_LOCALE } from "./../types/locale";
+import { INITIAL_1900_DAY, isDateTime, numberToJsDate, parseDateTime } from "./dates";
+import { escapeRegExp, memoize } from "./misc";
 import { isNumber } from "./numbers";
 
 /**
@@ -110,7 +111,7 @@ function parseFormat(formatString: Format): InternalFormat {
 /**
  * Formats a cell value with its format.
  */
-export function formatValue(value: CellValue, format?: Format): FormattedValue {
+export function formatValue(value: CellValue, { format, locale }: LocaleFormat): FormattedValue {
   switch (typeof value) {
     case "string":
       return value;
@@ -122,13 +123,17 @@ export function formatValue(value: CellValue, format?: Format): FormattedValue {
         format = createDefaultFormat(value);
       }
       const internalFormat = parseFormat(format);
-      return applyInternalFormat(value, internalFormat);
+      return applyInternalFormat(value, internalFormat, locale);
     case "object":
       return "0";
   }
 }
 
-function applyInternalFormat(value: number, internalFormat: InternalFormat): FormattedValue {
+function applyInternalFormat(
+  value: number,
+  internalFormat: InternalFormat,
+  locale: Locale
+): FormattedValue {
   if (internalFormat[0].type === "DATE") {
     return applyDateTimeFormat(value, internalFormat[0].format);
   }
@@ -137,7 +142,7 @@ function applyInternalFormat(value: number, internalFormat: InternalFormat): For
   for (let part of internalFormat) {
     switch (part.type) {
       case "NUMBER":
-        formattedValue += applyInternalNumberFormat(Math.abs(value), part.format);
+        formattedValue += applyInternalNumberFormat(Math.abs(value), part.format, locale);
         break;
       case "STRING":
         formattedValue += part.format;
@@ -147,7 +152,7 @@ function applyInternalFormat(value: number, internalFormat: InternalFormat): For
   return formattedValue;
 }
 
-function applyInternalNumberFormat(value: number, format: InternalNumberFormat) {
+function applyInternalNumberFormat(value: number, format: InternalNumberFormat, locale: Locale) {
   if (format.isPercent) {
     value = value * 100;
   }
@@ -161,11 +166,12 @@ function applyInternalNumberFormat(value: number, format: InternalNumberFormat) 
   let formattedValue = applyIntegerFormat(
     integerDigits,
     format.integerPart,
-    format.thousandsSeparator
+    format.thousandsSeparator ? locale.thousandsSeparator : undefined
   );
 
   if (format.decimalPart !== undefined) {
-    formattedValue += "." + applyDecimalFormat(decimalDigits || "", format.decimalPart);
+    formattedValue +=
+      locale.decimalSeparator + applyDecimalFormat(decimalDigits || "", format.decimalPart);
   }
 
   if (format.isPercent) {
@@ -177,7 +183,7 @@ function applyInternalNumberFormat(value: number, format: InternalNumberFormat) 
 function applyIntegerFormat(
   integerDigits: string,
   integerFormat: string,
-  hasSeparator: boolean
+  thousandsSeparator: string | undefined
 ): string {
   const _integerDigits = integerDigits === "0" ? "" : integerDigits;
 
@@ -190,8 +196,9 @@ function applyIntegerFormat(
     formattedInteger = "0".repeat(countZero) + formattedInteger; // return "000123"
   }
 
-  if (hasSeparator) {
-    formattedInteger = formattedInteger.match(thousandsGroupsRegexp)?.join(",") || formattedInteger;
+  if (thousandsSeparator) {
+    formattedInteger =
+      formattedInteger.match(thousandsGroupsRegexp)?.join(thousandsSeparator) || formattedInteger;
   }
 
   return formattedInteger;
@@ -340,9 +347,9 @@ function splitNumberIntl(
 }
 
 /** Convert a number into a string, without scientific notation */
-export function numberToString(number: number): string {
+export function numberToString(number: number, decimalSeparator: string): string {
   const { integerDigits, decimalDigits } = splitNumber(number, 20);
-  return decimalDigits ? `${integerDigits}.${decimalDigits}` : integerDigits;
+  return decimalDigits ? integerDigits + decimalSeparator + decimalDigits : integerDigits;
 }
 
 /**
@@ -455,6 +462,15 @@ function formatJSTime(jsDate: Date, format: Format): FormattedValue {
   );
 }
 
+/**
+ * Get a regex matching decimal number based on the locale's thousand separator
+ *
+ * eg. if the locale's thousand separator is a comma, this will return a regex /[0-9]+,[0-9]/
+ */
+export const getDecimalNumberRegex = memoize(function getDecimalNumberRegex(locale: Locale) {
+  return new RegExp(`[0-9]+${escapeRegExp(locale.decimalSeparator)}[0-9]`);
+});
+
 // -----------------------------------------------------------------------------
 // CREATE / MODIFY FORMAT
 // -----------------------------------------------------------------------------
@@ -483,12 +499,16 @@ export function createDefaultFormat(value: number): Format {
   return decimalDigits ? "0." + "0".repeat(decimalDigits.length) : "0";
 }
 
-export function detectFormat(content: string): Format | undefined {
-  if (isDateTime(content)) {
-    const internalDate = parseDateTime(content)!;
-    return internalDate.format;
+export function detectDateFormat(content: string, locale: Locale): Format | undefined {
+  if (!isDateTime(content, locale)) {
+    return undefined;
   }
-  if (!isNumber(content)) {
+  const internalDate = parseDateTime(content, locale)!;
+  return internalDate.format;
+}
+
+export function detectNumberFormat(content: string): Format | undefined {
+  if (!isNumber(content, DEFAULT_LOCALE)) {
     return undefined;
   }
   const digitBase = content.includes(".") ? "0.00" : "0";
@@ -510,7 +530,8 @@ export function detectFormat(content: string): Format | undefined {
 export function createLargeNumberFormat(
   format: Format | undefined,
   magnitude: number,
-  postFix: string
+  postFix: string,
+  locale: Locale
 ): Format {
   const internalFormat = parseFormat(format || "#,##0");
   const largeNumberFormat = internalFormat
@@ -537,7 +558,7 @@ export function createLargeNumberFormat(
   return convertInternalFormatToFormat(largeNumberFormat);
 }
 
-export function changeDecimalPlaces(format: Format, step: number) {
+export function changeDecimalPlaces(format: Format, step: number, locale: Locale) {
   const internalFormat = parseFormat(format);
   const newInternalFormat = internalFormat.map((intFmt) => {
     if (intFmt.type === "NUMBER") {

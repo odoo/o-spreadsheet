@@ -5,6 +5,7 @@ import {
   Arg,
   ArgValue,
   ComputeFunction,
+  DEFAULT_LOCALE,
   Format,
   FunctionReturnValue,
   PrimitiveArg,
@@ -61,7 +62,7 @@ describe("functions", () => {
     functionRegistry.add("RETURN.VALUE.DEPENDING.ON.INPUT.VALUE", {
       description: "return value depending on input value",
       compute: function (arg: PrimitiveArgValue) {
-        return toNumber(arg) * 2;
+        return toNumber(arg, DEFAULT_LOCALE) * 2;
       } as ComputeFunction<ArgValue, FunctionReturnValue>,
       args: [arg("number (number)", "blabla")],
       returns: ["NUMBER"],
@@ -102,7 +103,7 @@ describe("functions", () => {
     functionRegistry.add("RETURN.FORMAT.DEPENDING.ON.INPUT.VALUE", {
       description: "return format depending on input value",
       computeFormat: function (arg: PrimitiveArg) {
-        return toNumber(arg.value) >= 0 ? "0%" : "#,##0.00";
+        return toNumber(arg.value, DEFAULT_LOCALE) >= 0 ? "0%" : "#,##0.00";
       } as ComputeFunction<Arg, Format | undefined>,
       compute: function (arg: PrimitiveArgValue) {
         return arg;

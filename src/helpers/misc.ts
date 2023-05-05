@@ -12,8 +12,7 @@ import {
   PADDING_AUTORESIZE_VERTICAL,
 } from "../constants";
 import { Cell, ConsecutiveIndexes, Lazy, Style, UID } from "../types";
-import { Cloneable, Pixel } from "./../types/misc";
-import { parseDateTime } from "./dates";
+import { Cloneable, Matrix, Pixel } from "./../types/misc";
 /**
  * Stringify an object, like JSON.stringify, except that the first level of keys
  * is ordered.
@@ -274,10 +273,6 @@ export function isBoolean(str: string): boolean {
   return upperCased === "TRUE" || upperCased === "FALSE";
 }
 
-export function isDateTime(str: string): boolean {
-  return parseDateTime(str) !== null;
-}
-
 const MARKDOWN_LINK_REGEX = /^\[([^\[]+)\]\((.+)\)$/;
 //link must start with http or https
 //https://stackoverflow.com/a/3809435/4760614
@@ -497,12 +492,14 @@ export function toLowerCase(str: string | undefined): string {
   return str ? str.toLowerCase() : "";
 }
 
+export function transpose2dArray<T>(matrix: Matrix<T>): Matrix<T>;
+export function transpose2dArray<T, M>(matrix: Matrix<T>, callback: (val: T) => M): Matrix<M>;
 export function transpose2dArray<T, M>(
-  matrix: T[][],
+  matrix: Matrix<T>,
   callback: (val: T) => M = (val) => val as any
 ): M[][] {
   if (!matrix.length) return [];
-  const transposed: M[][] = Array(matrix[0].length);
+  const transposed: Matrix<M> = Array(matrix[0].length);
   for (let i = 0; i < matrix[0].length; i++) {
     transposed[i] = Array(matrix.length);
     for (let j = 0; j < matrix.length; j++) {
@@ -583,4 +580,21 @@ export class JetSet<T> extends Set<T> {
     }
     return deleted;
   }
+}
+
+/**
+ * Creates a version of the function that's memoized on the value of its first
+ * argument, if any.
+ */
+export function memoize<T extends any[], U>(func: (...args: T) => U): (...args: T) => U {
+  const cache = new Map<any, U>();
+  const funcName = func.name ? func.name + " (memoized)" : "memoized";
+  return {
+    [funcName](...args: T) {
+      if (!cache.has(args[0])) {
+        cache.set(args[0], func(...args));
+      }
+      return cache.get(args[0])!;
+    },
+  }[funcName];
 }

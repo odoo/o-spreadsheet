@@ -1,6 +1,7 @@
 import { Component, onWillUpdateProps, useExternalListener, useState } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../constants";
 import { colorNumberString, rangeReference } from "../../../helpers/index";
+import { canonicalizeCFRule, localizeCFRule } from "../../../helpers/locale";
 import { _t } from "../../../translation";
 import {
   CancelledReason,
@@ -382,7 +383,13 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
   }
 
   get conditionalFormats(): ConditionalFormat[] {
-    return this.env.model.getters.getConditionalFormats(this.env.model.getters.getActiveSheetId());
+    const cfs = this.env.model.getters.getConditionalFormats(
+      this.env.model.getters.getActiveSheetId()
+    );
+    return cfs.map((cf) => ({
+      ...cf,
+      rule: localizeCFRule(cf.rule, this.env.model.getters.getLocale()),
+    }));
   }
 
   get isRangeValid(): boolean {
@@ -453,9 +460,10 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
         return;
       }
       const sheetId = this.env.model.getters.getActiveSheetId();
+      const locale = this.env.model.getters.getLocale();
       const result = this.env.model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
-          rule: this.getEditorRule(),
+          rule: canonicalizeCFRule(this.getEditorRule(), locale),
           id:
             this.state.mode === "edit"
               ? this.state.currentCF.id

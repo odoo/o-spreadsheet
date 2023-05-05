@@ -1,3 +1,4 @@
+import { canonicalizeNumberValue } from "../../formulas/formula_locale";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
 import {
   ClipboardMIMEType,
@@ -45,13 +46,14 @@ export class ClipboardOsState extends ClipboardCellsAbstractState {
     const { left: activeCol, top: activeRow } = pasteZone;
     const { numberOfCols, numberOfRows } = zoneToDimension(pasteZone);
     const sheetId = this.getters.getActiveSheetId();
+    const locale = this.getters.getLocale();
     this.addMissingDimensions(numberOfCols, numberOfRows, activeCol, activeRow);
     for (let i = 0; i < values.length; i++) {
       for (let j = 0; j < values[i].length; j++) {
         this.dispatch("UPDATE_CELL", {
           row: activeRow + i,
           col: activeCol + j,
-          content: values[i][j],
+          content: canonicalizeNumberValue(values[i][j], locale),
           sheetId,
         });
       }

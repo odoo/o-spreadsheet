@@ -1,6 +1,7 @@
 import { DEFAULT_ERROR_MESSAGE } from "../constants";
 import { parseNumber, removeStringQuotes } from "../helpers/index";
 import { _lt } from "../translation";
+import { DEFAULT_LOCALE } from "../types";
 import { BadExpressionError, InvalidReferenceError, UnknownFunctionError } from "../types/errors";
 import { Token, tokenize } from "./tokenizer";
 
@@ -107,7 +108,7 @@ function parseOperand(tokens: Token[]): AST {
       next.debug = true;
       return next;
     case "NUMBER":
-      return { type: "NUMBER", value: parseNumber(current.value) };
+      return { type: "NUMBER", value: parseNumber(current.value, DEFAULT_LOCALE) };
     case "STRING":
       return { type: "STRING", value: removeStringQuotes(current.value) };
     case "FUNCTION":
@@ -168,7 +169,7 @@ function parseFunctionArgs(tokens: Token[]): AST[] {
   const args: AST[] = [];
   args.push(parseOneFunctionArg(tokens));
   while (tokens[0]?.type !== "RIGHT_PAREN") {
-    consumeOrThrow(tokens, "COMMA", _lt("Wrong function call"));
+    consumeOrThrow(tokens, "ARG_SEPARATOR", _lt("Wrong function call"));
     args.push(parseOneFunctionArg(tokens));
   }
   consumeOrThrow(tokens, "RIGHT_PAREN");
@@ -177,7 +178,7 @@ function parseFunctionArgs(tokens: Token[]): AST[] {
 
 function parseOneFunctionArg(tokens: Token[]): AST {
   const nextToken = tokens[0];
-  if (nextToken?.type === "COMMA" || nextToken?.type === "RIGHT_PAREN") {
+  if (nextToken?.type === "ARG_SEPARATOR" || nextToken?.type === "RIGHT_PAREN") {
     // arg is empty: "sum(1,,2)" "sum(,1)" "sum(1,)"
     return { type: "EMPTY", value: "" };
   }

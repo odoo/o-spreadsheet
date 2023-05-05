@@ -5,6 +5,7 @@ import {
   PADDING_AUTORESIZE_HORIZONTAL,
 } from "../../constants";
 import { computeIconWidth, computeTextWidth, positions } from "../../helpers/index";
+import { localizeFormula } from "../../helpers/locale";
 import { Command, CommandResult, LocalCommand, UID } from "../../types";
 import {
   CellPosition,
@@ -101,7 +102,7 @@ export class SheetUIPlugin extends UIPlugin {
   getCellText(position: CellPosition, showFormula: boolean = false): string {
     const cell = this.getters.getCell(position);
     if (showFormula && cell?.isFormula) {
-      return cell.content;
+      return localizeFormula(cell.content, this.getters.getLocale());
     } else {
       return this.getters.getEvaluatedCell(position).formattedValue;
     }

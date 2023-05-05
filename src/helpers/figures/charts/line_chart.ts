@@ -6,8 +6,8 @@ import {
   Color,
   CommandResult,
   CoreGetters,
-  Format,
   Getters,
+  LocaleFormat,
   Range,
   RemoveColumnsRowsCommand,
   UID,
@@ -280,14 +280,14 @@ function canBeLinearChart(labelRange: Range | undefined, getters: Getters): bool
 function getLineConfiguration(
   chart: LineChart,
   labels: string[],
-  dataSetFormat: Format | undefined
+  localeFormat: LocaleFormat
 ): ChartConfiguration {
   const fontColor = chartFontColor(chart.background);
   const config: ChartConfiguration = getDefaultChartJsRuntime(
     chart,
     labels,
     fontColor,
-    dataSetFormat
+    localeFormat
   );
   const legend: ChartLegendOptions = {
     labels: {
@@ -333,8 +333,8 @@ function getLineConfiguration(
           // y axis configuration
           beginAtZero: true, // the origin of the y axis is always zero
           callback: (value) => {
-            return dataSetFormat
-              ? formatValue(value, dataSetFormat)
+            return localeFormat.format
+              ? formatValue(value, localeFormat)
               : value?.toLocaleString() || value;
           },
         },
@@ -368,18 +368,20 @@ export function createLineChartRuntime(chart: LineChart, getters: Getters): Line
     ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
   }
 
+  const locale = getters.getLocale();
   const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
-  const config = getLineConfiguration(chart, labels, dataSetFormat);
+  const localeFormat = { format: dataSetFormat, locale };
+  const config = getLineConfiguration(chart, labels, localeFormat);
   const labelFormat = getChartLabelFormat(getters, chart.labelRange)!;
   if (axisType === "time") {
     config.options!.scales!.xAxes![0].type = "time";
-    config.options!.scales!.xAxes![0].time = getChartTimeOptions(labels, labelFormat);
+    config.options!.scales!.xAxes![0].time = getChartTimeOptions(labels, labelFormat, locale);
     config.options!.scales!.xAxes![0].ticks!.maxTicksLimit = 15;
   } else if (axisType === "linear") {
     config.options!.scales!.xAxes![0].type = "linear";
-    config.options!.scales!.xAxes![0].ticks!.callback = (value) => formatValue(value, labelFormat);
+    config.options!.scales!.xAxes![0].ticks!.callback = (value) => formatValue(value, localeFormat);
     config.options!.tooltips!.callbacks!.title = (tooltipItem) => {
-      return formatValue(tooltipItem[0]?.xLabel || "", labelFormat);
+      return formatValue(tooltipItem[0]?.xLabel || "", localeFormat);
     };
   }
 

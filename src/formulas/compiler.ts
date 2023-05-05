@@ -2,7 +2,7 @@ import { Token } from ".";
 import { functionRegistry } from "../functions/index";
 import { concat, parseNumber, removeStringQuotes } from "../helpers";
 import { _lt } from "../translation";
-import { CompiledFormula } from "../types";
+import { CompiledFormula, DEFAULT_LOCALE } from "../types";
 import { BadExpressionError } from "../types/errors";
 import { FunctionCode, FunctionCodeBuilder, Scope } from "./code_builder";
 import { AST, ASTFuncall, parseTokens } from "./parser";
@@ -254,7 +254,7 @@ function compilationCacheKey(
           const value = removeStringQuotes(token.value);
           return `|S${constantValues.strings.indexOf(value)}|`;
         case "NUMBER":
-          return `|N${constantValues.numbers.indexOf(parseNumber(token.value))}|`;
+          return `|N${constantValues.numbers.indexOf(parseNumber(token.value, DEFAULT_LOCALE))}|`;
         case "REFERENCE":
         case "INVALID_REFERENCE":
           return `|${dependencies.indexOf(token.value)}|`;
@@ -289,7 +289,7 @@ function formulaArguments(tokens: Token[]) {
         }
         break;
       case "NUMBER": {
-        const value = parseNumber(token.value);
+        const value = parseNumber(token.value, DEFAULT_LOCALE);
         if (!constantValues.numbers.includes(value)) {
           constantValues.numbers.push(value);
         }

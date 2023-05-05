@@ -24,7 +24,7 @@ export const CHAR: AddFunctionDescription = {
   ],
   returns: ["STRING"],
   compute: function (tableNumber: PrimitiveArgValue): string {
-    const _tableNumber = Math.trunc(toNumber(tableNumber));
+    const _tableNumber = Math.trunc(toNumber(tableNumber, this.locale));
     assert(
       () => _tableNumber >= 1,
       _lt("The table_number (%s) is out of range.", _tableNumber.toString())
@@ -110,7 +110,7 @@ export const FIND: AddFunctionDescription = {
   ): number {
     const _searchFor = toString(searchFor);
     const _textToSearch = toString(textToSearch);
-    const _startingAt = toNumber(startingAt);
+    const _startingAt = toNumber(startingAt, this.locale);
 
     assert(() => _textToSearch !== "", _lt(`The text_to_search must be non-empty.`));
     assert(
@@ -174,7 +174,7 @@ export const LEFT: AddFunctionDescription = {
   ],
   returns: ["STRING"],
   compute: function (text: PrimitiveArgValue, ...args: PrimitiveArgValue[]): string {
-    const _numberOfCharacters = args.length ? toNumber(args[0]) : 1;
+    const _numberOfCharacters = args.length ? toNumber(args[0], this.locale) : 1;
     assert(
       () => _numberOfCharacters >= 0,
       _lt("The number_of_characters (%s) must be positive or null.", _numberOfCharacters.toString())
@@ -232,8 +232,8 @@ export const MID: AddFunctionDescription = {
     extract_length: PrimitiveArgValue
   ): string {
     const _text = toString(text);
-    const _starting_at = toNumber(starting_at);
-    const _extract_length = toNumber(extract_length);
+    const _starting_at = toNumber(starting_at, this.locale);
+    const _extract_length = toNumber(extract_length, this.locale);
 
     assert(
       () => _starting_at >= 1,
@@ -296,14 +296,14 @@ export const REPLACE: AddFunctionDescription = {
     length: PrimitiveArgValue,
     newText: PrimitiveArgValue
   ): string {
-    const _position = toNumber(position);
+    const _position = toNumber(position, this.locale);
     assert(
       () => _position >= 1,
       _lt("The position (%s) must be greater than or equal to 1.", _position.toString())
     );
 
     const _text = toString(text);
-    const _length = toNumber(length);
+    const _length = toNumber(length, this.locale);
     const _newText = toString(newText);
     return _text.substring(0, _position - 1) + _newText + _text.substring(_position - 1 + _length);
   },
@@ -324,7 +324,7 @@ export const RIGHT: AddFunctionDescription = {
   ],
   returns: ["STRING"],
   compute: function (text: PrimitiveArgValue, ...args: PrimitiveArgValue[]): string {
-    const _numberOfCharacters = args.length ? toNumber(args[0]) : 1;
+    const _numberOfCharacters = args.length ? toNumber(args[0], this.locale) : 1;
     assert(
       () => _numberOfCharacters >= 0,
       _lt("The number_of_characters (%s) must be positive or null.", _numberOfCharacters.toString())
@@ -360,7 +360,7 @@ export const SEARCH: AddFunctionDescription = {
   ): number {
     const _searchFor = toString(searchFor).toLowerCase();
     const _textToSearch = toString(textToSearch).toLowerCase();
-    const _startingAt = toNumber(startingAt);
+    const _startingAt = toNumber(startingAt, this.locale);
 
     assert(() => _textToSearch !== "", _lt(`The text_to_search must be non-empty.`));
     assert(
@@ -458,7 +458,7 @@ export const SUBSTITUTE: AddFunctionDescription = {
     replaceWith: PrimitiveArgValue,
     occurrenceNumber: PrimitiveArgValue
   ): string {
-    const _occurrenceNumber = toNumber(occurrenceNumber);
+    const _occurrenceNumber = toNumber(occurrenceNumber, this.locale);
 
     assert(
       () => _occurrenceNumber >= 0,
@@ -568,8 +568,8 @@ export const TEXT: AddFunctionDescription = {
   ],
   returns: ["STRING"],
   compute: function (number: PrimitiveArgValue, format: PrimitiveArgValue): string {
-    const _number = toNumber(number);
-    return formatValue(_number, toString(format));
+    const _number = toNumber(number, this.locale);
+    return formatValue(_number, { format: toString(format), locale: this.locale });
   },
   isExported: true,
 };

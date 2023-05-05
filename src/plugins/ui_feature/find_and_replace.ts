@@ -1,4 +1,5 @@
 import { escapeRegExp } from "../../helpers";
+import { canonicalizeContent } from "../../helpers/locale";
 import {
   CellPosition,
   Color,
@@ -241,7 +242,7 @@ export class FindAndReplacePlugin extends UIPlugin {
         sheetId: this.getters.getActiveSheetId(),
         col: selectedMatch.col,
         row: selectedMatch.row,
-        content: newContent,
+        content: canonicalizeContent(newContent, this.getters.getLocale()),
       });
       this.searchMatches.splice(this.selectedMatchIndex, 1);
       this.selectNextCell(Direction.current);
@@ -258,11 +259,7 @@ export class FindAndReplacePlugin extends UIPlugin {
   }
 
   private getSearchableString(position: CellPosition): string {
-    const cell = this.getters.getCell(position);
-    if (this.searchOptions.searchFormulas && cell?.isFormula) {
-      return cell.content;
-    }
-    return this.getters.getEvaluatedCell(position).formattedValue;
+    return this.getters.getCellText(position, this.searchOptions.searchFormulas);
   }
 
   // ---------------------------------------------------------------------------

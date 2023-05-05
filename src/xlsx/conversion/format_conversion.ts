@@ -1,4 +1,5 @@
 import { formatValue } from "../../helpers";
+import { DEFAULT_LOCALE } from "../../types";
 import { XLSXNumFormat } from "../../types/xlsx";
 import { WarningTypes, XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import { XLSX_FORMATS_CONVERSION_MAP } from "./conversion_maps";
@@ -62,7 +63,7 @@ export function convertXlsxFormat(
 
 function isFormatSupported(format: string): boolean {
   try {
-    formatValue(0, format);
+    formatValue(0, { format, locale: DEFAULT_LOCALE });
     return true;
   } catch (e) {
     return false;

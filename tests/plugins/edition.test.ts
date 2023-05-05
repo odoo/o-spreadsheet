@@ -1,6 +1,6 @@
 import { getCanonicalSheetName, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CommandResult } from "../../src/types";
+import { CellValueType, CommandResult, DEFAULT_LOCALE } from "../../src/types";
 import {
   activateSheet,
   addCellToSelection,
@@ -17,12 +17,15 @@ import {
   setCellContent,
   setFormat,
   setSelection,
+  updateLocale,
 } from "../test_helpers/commands_helpers";
+import { FR_LOCALE } from "../test_helpers/constants";
 import {
   getActivePosition,
   getCell,
   getCellContent,
   getCellText,
+  getEvaluatedCell,
 } from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
 import { target } from "../test_helpers/helpers";
@@ -1031,5 +1034,126 @@ describe("edition", () => {
     expect(model.getters.getCurrentContent()).toBe(`=${composerSheetName}!$A1`);
     model.dispatch("CYCLE_EDITION_REFERENCES");
     expect(model.getters.getCurrentContent()).toBe(`=${composerSheetName}!A1`);
+  });
+
+  describe("Localized numbers and formulas", () => {
+    let model: Model;
+    beforeEach(() => {
+      model = new Model();
+    });
+
+    function editCell(model: Model, xc: string, content: string) {
+      selectCell(model, xc);
+      model.dispatch("START_EDITION", { text: content });
+      model.dispatch("STOP_EDITION");
+    }
+
+    describe("Number litterals", () => {
+      test("Decimal number detected with decimal separator of locale", () => {
+        editCell(model, "A1", "3,14");
+        expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.text);
+        expect(getEvaluatedCell(model, "A1").value).toBe("3,14");
+
+        updateLocale(model, FR_LOCALE);
+        editCell(model, "A2", "3,14");
+        expect(getEvaluatedCell(model, "A2").type).toBe(CellValueType.number);
+        expect(getEvaluatedCell(model, "A2").value).toBe(3.14);
+      });
+
+      test("Decimal numbers with dots are still detected in other locales", () => {
+        // This is not a functional requirement but rather a limitation of the implementation.
+        updateLocale(model, FR_LOCALE);
+        editCell(model, "A1", "3.14");
+        expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.number);
+        expect(getEvaluatedCell(model, "A1").value).toBe(3.14);
+      });
+
+      test("Decimal separator with percent numbers", () => {
+        updateLocale(model, FR_LOCALE);
+
+        editCell(model, "A1", "5,9%");
+        expect(getEvaluatedCell(model, "A1").value).toBeCloseTo(0.059, 3);
+        expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.number);
+        expect(getEvaluatedCell(model, "A1").formattedValue).toBe("5,90%");
+
+        editCell(model, "A2", ",9%");
+        expect(getEvaluatedCell(model, "A2").value).toBeCloseTo(0.009, 3);
+        expect(getEvaluatedCell(model, "A2").type).toBe(CellValueType.number);
+        expect(getEvaluatedCell(model, "A2").formattedValue).toBe("0,90%");
+      });
+
+      test("Decimal separator with currency numbers", () => {
+        updateLocale(model, FR_LOCALE);
+
+        editCell(model, "A1", "$3,14");
+        expect(getEvaluatedCell(model, "A1").value).toBeCloseTo(3.14, 2);
+        expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.number);
+        expect(getEvaluatedCell(model, "A1").formattedValue).toBe("$3,14");
+
+        editCell(model, "A2", "3,14€");
+        expect(getEvaluatedCell(model, "A2").value).toBeCloseTo(3.14, 2);
+        expect(getEvaluatedCell(model, "A2").type).toBe(CellValueType.number);
+        expect(getEvaluatedCell(model, "A2").formattedValue).toBe("3,14€");
+      });
+
+      test("Decimal separator isn't replaced in non-number string", () => {
+        updateLocale(model, FR_LOCALE);
+        editCell(model, "A1", "3,14");
+        expect(getCell(model, "A1")?.content).toBe("3.14");
+
+        editCell(model, "A2", "Olà 3,14 :)");
+        expect(getCell(model, "A2")?.content).toBe("Olà 3,14 :)");
+      });
+    });
+
+    describe("Formulas", () => {
+      test("Decimal number detected with decimal separator of locale", () => {
+        editCell(model, "A1", "=3,14");
+        expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
+
+        updateLocale(model, FR_LOCALE);
+        editCell(model, "A2", "=3,14");
+        expect(getEvaluatedCell(model, "A2").type).toBe(CellValueType.number);
+        expect(getEvaluatedCell(model, "A2").value).toBe(3.14);
+      });
+
+      test("Decimal numbers with dots are still detected in other locales", () => {
+        // This is not a functional requirement but rather a limitation of the implementation.
+        updateLocale(model, FR_LOCALE);
+        editCell(model, "A1", "=3.14");
+        expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.number);
+        expect(getEvaluatedCell(model, "A1").value).toBe(3.14);
+      });
+
+      test("Function argument separator change with the locale", () => {
+        editCell(model, "A1", "=SUM(B2,5)");
+        expect(getEvaluatedCell(model, "A1").value).toBe(5);
+        editCell(model, "A1", "=SUM(B2;5)");
+        expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
+
+        updateLocale(model, { ...DEFAULT_LOCALE, formulaArgSeparator: ";", decimalSeparator: "," });
+        editCell(model, "A1", "=SUM(B2,5)");
+        expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
+        editCell(model, "A1", "=SUM(B2;5)");
+        expect(getEvaluatedCell(model, "A1").value).toBe(5);
+      });
+
+      test("Decimal numbers as function argument", () => {
+        updateLocale(model, {
+          ...DEFAULT_LOCALE,
+          decimalSeparator: ",",
+          formulaArgSeparator: ";",
+        });
+        editCell(model, "A1", "=SUM(3,14; 5)");
+        expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.number);
+        expect(getEvaluatedCell(model, "A1").value).toBe(8.14);
+      });
+
+      test("Decimal numbers in strings aren't localized", () => {
+        updateLocale(model, FR_LOCALE);
+        editCell(model, "A1", '="3,14"');
+        expect(getCell(model, "A1")?.content).toBe('="3,14"');
+      });
+    });
   });
 });

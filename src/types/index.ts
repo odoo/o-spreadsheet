@@ -23,6 +23,7 @@ export * from "./format";
 export * from "./functions";
 export * from "./getters";
 export * from "./history";
+export * from "./locale";
 export * from "./misc";
 export * from "./range";
 export * from "./rendering";

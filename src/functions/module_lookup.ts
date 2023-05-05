@@ -74,11 +74,11 @@ export const ADDRESS: AddFunctionDescription = {
     useA1Notation: PrimitiveArgValue = true,
     sheet: PrimitiveArgValue | undefined
   ): string {
-    const rowNumber = strictToInteger(row);
-    const colNumber = strictToInteger(column);
+    const rowNumber = strictToInteger(row, this.locale);
+    const colNumber = strictToInteger(column, this.locale);
     assertNumberGreaterThanOrEqualToOne(rowNumber);
     assertNumberGreaterThanOrEqualToOne(colNumber);
-    const _absoluteRelativeMode = strictToInteger(absoluteRelativeMode);
+    const _absoluteRelativeMode = strictToInteger(absoluteRelativeMode, this.locale);
     assert(
       () => [1, 2, 3, 4].includes(_absoluteRelativeMode),
       expectNumberRangeError(1, 4, _absoluteRelativeMode)
@@ -178,7 +178,7 @@ export const HLOOKUP: AddFunctionDescription = {
     index: PrimitiveArgValue,
     isSorted: PrimitiveArgValue = DEFAULT_IS_SORTED
   ): FunctionReturnValue {
-    const _index = Math.trunc(toNumber(index));
+    const _index = Math.trunc(toNumber(index, this.locale));
     const _searchKey = normalizeValue(searchKey);
 
     assert(
@@ -317,7 +317,7 @@ export const MATCH: AddFunctionDescription = {
     range: MatrixArgValue,
     searchType: PrimitiveArgValue = DEFAULT_SEARCH_TYPE
   ): number {
-    let _searchType = toNumber(searchType);
+    let _searchType = toNumber(searchType, this.locale);
     const _searchKey = normalizeValue(searchKey);
     const nbCol = range.length;
     const nbRow = range[0].length;
@@ -427,7 +427,7 @@ export const VLOOKUP: AddFunctionDescription = {
     index: PrimitiveArgValue,
     isSorted: PrimitiveArgValue = DEFAULT_IS_SORTED
   ): FunctionReturnValue {
-    const _index = Math.trunc(toNumber(index));
+    const _index = Math.trunc(toNumber(index, this.locale));
     const _searchKey = normalizeValue(searchKey);
     assert(
       () => 1 <= _index && _index <= range.length,
@@ -509,8 +509,8 @@ export const XLOOKUP: AddFunctionDescription = {
     matchMode: PrimitiveArgValue = DEFAULT_MATCH_MODE,
     searchMode: PrimitiveArgValue = DEFAULT_SEARCH_MODE
   ): FunctionReturnValue {
-    const _matchMode = Math.trunc(toNumber(matchMode));
-    const _searchMode = Math.trunc(toNumber(searchMode));
+    const _matchMode = Math.trunc(toNumber(matchMode, this.locale));
+    const _searchMode = Math.trunc(toNumber(searchMode, this.locale));
     const _searchKey = normalizeValue(searchKey);
 
     assert(

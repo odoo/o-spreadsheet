@@ -37,7 +37,7 @@ export const ABS: AddFunctionDescription = {
   args: [arg("value (number)", _lt("The number of which to return the absolute value."))],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
-    return Math.abs(toNumber(value));
+    return Math.abs(toNumber(value, this.locale));
   },
   isExported: true,
 };
@@ -57,7 +57,7 @@ export const ACOS: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
-    const _value = toNumber(value);
+    const _value = toNumber(value, this.locale);
     assert(
       () => Math.abs(_value) <= 1,
       _lt("The value (%s) must be between -1 and 1 inclusive.", _value.toString())
@@ -82,7 +82,7 @@ export const ACOSH: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
-    const _value = toNumber(value);
+    const _value = toNumber(value, this.locale);
     assert(
       () => _value >= 1,
       _lt("The value (%s) must be greater than or equal to 1.", _value.toString())
@@ -100,11 +100,11 @@ export const ACOT: AddFunctionDescription = {
   args: [arg("value (number)", _lt("The value for which to calculate the inverse cotangent."))],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
-    const _value = toNumber(value);
+    const _value = toNumber(value, this.locale);
     const sign = Math.sign(_value) || 1;
     // ACOT has two possible configurations:
-    // @compatibility Excel: return Math.PI / 2 - Math.atan(toNumber(_value));
-    // @compatibility Google: return sign * Math.PI / 2 - Math.atan(toNumber(_value));
+    // @compatibility Excel: return Math.PI / 2 - Math.atan(toNumber(_value, this.locale));
+    // @compatibility Google: return sign * Math.PI / 2 - Math.atan(toNumber(_value, this.locale));
     return (sign * Math.PI) / 2 - Math.atan(_value);
   },
   isExported: true,
@@ -125,7 +125,7 @@ export const ACOTH: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
-    const _value = toNumber(value);
+    const _value = toNumber(value, this.locale);
     assert(
       () => Math.abs(_value) > 1,
       _lt("The value (%s) cannot be between -1 and 1 inclusive.", _value.toString())
@@ -148,7 +148,7 @@ export const ASIN: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
-    const _value = toNumber(value);
+    const _value = toNumber(value, this.locale);
     assert(
       () => Math.abs(_value) <= 1,
       _lt("The value (%s) must be between -1 and 1 inclusive.", _value.toString())
@@ -168,7 +168,7 @@ export const ASINH: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
-    return Math.asinh(toNumber(value));
+    return Math.asinh(toNumber(value, this.locale));
   },
   isExported: true,
 };
@@ -181,7 +181,7 @@ export const ATAN: AddFunctionDescription = {
   args: [arg("value (number)", _lt("The value for which to calculate the inverse tangent."))],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
-    return Math.atan(toNumber(value));
+    return Math.atan(toNumber(value, this.locale));
   },
   isExported: true,
 };
@@ -207,8 +207,8 @@ export const ATAN2: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (x: PrimitiveArgValue, y: PrimitiveArgValue): number {
-    const _x = toNumber(x);
-    const _y = toNumber(y);
+    const _x = toNumber(x, this.locale);
+    const _y = toNumber(y, this.locale);
     assert(
       () => _x !== 0 || _y !== 0,
       _lt(`Function [[FUNCTION_NAME]] caused a divide by zero error.`)
@@ -233,7 +233,7 @@ export const ATANH: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
-    const _value = toNumber(value);
+    const _value = toNumber(value, this.locale);
     assert(
       () => Math.abs(_value) < 1,
       _lt("The value (%s) must be between -1 and 1 exclusive.", _value.toString())
@@ -258,8 +258,8 @@ export const CEILING: AddFunctionDescription = {
   returns: ["NUMBER"],
   computeFormat: (value: PrimitiveArg) => value?.format,
   compute: function (value: PrimitiveArgValue, factor: PrimitiveArgValue = DEFAULT_FACTOR): number {
-    const _value = toNumber(value);
-    const _factor = toNumber(factor);
+    const _value = toNumber(value, this.locale);
+    const _factor = toNumber(factor, this.locale);
     assert(
       () => _factor >= 0 || _value <= 0,
       _lt(
@@ -303,18 +303,18 @@ export const CEILING_MATH: AddFunctionDescription = {
     significance: PrimitiveArgValue = DEFAULT_SIGNIFICANCE,
     mode: PrimitiveArgValue = DEFAULT_MODE
   ): number {
-    let _significance = toNumber(significance);
+    let _significance = toNumber(significance, this.locale);
     if (_significance === 0) {
       return 0;
     }
 
-    const _number = toNumber(number);
+    const _number = toNumber(number, this.locale);
     _significance = Math.abs(_significance);
     if (_number >= 0) {
       return Math.ceil(_number / _significance) * _significance;
     }
 
-    const _mode = toNumber(mode);
+    const _mode = toNumber(mode, this.locale);
     if (_mode === 0) {
       return -Math.floor(Math.abs(_number) / _significance) * _significance;
     }
@@ -342,7 +342,7 @@ export const CEILING_PRECISE: AddFunctionDescription = {
   returns: ["NUMBER"],
   computeFormat: (number: PrimitiveArg) => number?.format,
   compute: function (number: PrimitiveArgValue, significance: PrimitiveArgValue): number {
-    return CEILING_MATH.compute(number, significance, 0) as number;
+    return CEILING_MATH.compute.bind(this)(number, significance, 0) as number;
   },
   isExported: true,
 };
@@ -355,7 +355,7 @@ export const COS: AddFunctionDescription = {
   args: [arg("angle (number)", _lt("The angle to find the cosine of, in radians."))],
   returns: ["NUMBER"],
   compute: function (angle: PrimitiveArgValue): number {
-    return Math.cos(toNumber(angle));
+    return Math.cos(toNumber(angle, this.locale));
   },
   isExported: true,
 };
@@ -368,7 +368,7 @@ export const COSH: AddFunctionDescription = {
   args: [arg("value (number)", _lt("Any real value to calculate the hyperbolic cosine of."))],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
-    return Math.cosh(toNumber(value));
+    return Math.cosh(toNumber(value, this.locale));
   },
   isExported: true,
 };
@@ -381,7 +381,7 @@ export const COT: AddFunctionDescription = {
   args: [arg("angle (number)", _lt("The angle to find the cotangent of, in radians."))],
   returns: ["NUMBER"],
   compute: function (angle: PrimitiveArgValue): number {
-    const _angle = toNumber(angle);
+    const _angle = toNumber(angle, this.locale);
     assert(
       () => _angle !== 0,
       _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
@@ -399,7 +399,7 @@ export const COTH: AddFunctionDescription = {
   args: [arg("value (number)", _lt("Any real value to calculate the hyperbolic cotangent of."))],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
-    const _value = toNumber(value);
+    const _value = toNumber(value, this.locale);
     assert(
       () => _value !== 0,
       _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
@@ -447,9 +447,13 @@ export const COUNTIF: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (...argsValues: ArgValue[]): number {
     let count = 0;
-    visitMatchingRanges(argsValues, (i, j) => {
-      count += 1;
-    });
+    visitMatchingRanges(
+      argsValues,
+      (i, j) => {
+        count += 1;
+      },
+      this.locale
+    );
     return count;
   },
   isExported: true,
@@ -474,9 +478,13 @@ export const COUNTIFS: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (...argsValues: ArgValue[]): number {
     let count = 0;
-    visitMatchingRanges(argsValues, (i, j) => {
-      count += 1;
-    });
+    visitMatchingRanges(
+      argsValues,
+      (i, j) => {
+        count += 1;
+      },
+      this.locale
+    );
     return count;
   },
   isExported: true,
@@ -543,12 +551,16 @@ export const COUNTUNIQUEIFS: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (range: MatrixArgValue, ...argsValues: ArgValue[]): number {
     let uniqueValues = new Set();
-    visitMatchingRanges(argsValues, (i, j) => {
-      const value = range[i][j];
-      if (isDefined(value)) {
-        uniqueValues.add(value);
-      }
-    });
+    visitMatchingRanges(
+      argsValues,
+      (i, j) => {
+        const value = range[i][j];
+        if (isDefined(value)) {
+          uniqueValues.add(value);
+        }
+      },
+      this.locale
+    );
     return uniqueValues.size;
   },
 };
@@ -561,7 +573,7 @@ export const CSC: AddFunctionDescription = {
   args: [arg("angle (number)", _lt("The angle to find the cosecant of, in radians."))],
   returns: ["NUMBER"],
   compute: function (angle: PrimitiveArgValue): number {
-    const _angle = toNumber(angle);
+    const _angle = toNumber(angle, this.locale);
     assert(
       () => _angle !== 0,
       _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
@@ -579,7 +591,7 @@ export const CSCH: AddFunctionDescription = {
   args: [arg("value (number)", _lt("Any real value to calculate the hyperbolic cosecant of."))],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
-    const _value = toNumber(value);
+    const _value = toNumber(value, this.locale);
     assert(
       () => _value !== 0,
       _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
@@ -600,7 +612,7 @@ export const DECIMAL: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue, base: PrimitiveArgValue): number {
-    let _base = toNumber(base);
+    let _base = toNumber(base, this.locale);
     _base = Math.floor(_base);
 
     assert(
@@ -641,7 +653,7 @@ export const DEGREES: AddFunctionDescription = {
   args: [arg("angle (number)", _lt("The angle to convert from radians to degrees."))],
   returns: ["NUMBER"],
   compute: function (angle: PrimitiveArgValue): number {
-    return (toNumber(angle) * 180) / Math.PI;
+    return (toNumber(angle, this.locale) * 180) / Math.PI;
   },
   isExported: true,
 };
@@ -654,7 +666,7 @@ export const EXP: AddFunctionDescription = {
   args: [arg("value (number)", _lt("The exponent to raise e."))],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
-    return Math.exp(toNumber(value));
+    return Math.exp(toNumber(value, this.locale));
   },
   isExported: true,
 };
@@ -677,8 +689,8 @@ export const FLOOR: AddFunctionDescription = {
   returns: ["NUMBER"],
   computeFormat: (value: PrimitiveArg) => value?.format,
   compute: function (value: PrimitiveArgValue, factor: PrimitiveArgValue = DEFAULT_FACTOR): number {
-    const _value = toNumber(value);
-    const _factor = toNumber(factor);
+    const _value = toNumber(value, this.locale);
+    const _factor = toNumber(factor, this.locale);
     assert(
       () => _factor >= 0 || _value <= 0,
       _lt(
@@ -722,18 +734,18 @@ export const FLOOR_MATH: AddFunctionDescription = {
     significance: PrimitiveArgValue = DEFAULT_SIGNIFICANCE,
     mode: PrimitiveArgValue = DEFAULT_MODE
   ): number {
-    let _significance = toNumber(significance);
+    let _significance = toNumber(significance, this.locale);
     if (_significance === 0) {
       return 0;
     }
 
-    const _number = toNumber(number);
+    const _number = toNumber(number, this.locale);
     _significance = Math.abs(_significance);
     if (_number >= 0) {
       return Math.floor(_number / _significance) * _significance;
     }
 
-    const _mode = toNumber(mode);
+    const _mode = toNumber(mode, this.locale);
     if (_mode === 0) {
       return -Math.ceil(Math.abs(_number) / _significance) * _significance;
     }
@@ -763,7 +775,7 @@ export const FLOOR_PRECISE: AddFunctionDescription = {
     number: PrimitiveArgValue,
     significance: PrimitiveArgValue = DEFAULT_SIGNIFICANCE
   ): number {
-    return FLOOR_MATH.compute(number, significance, 0) as number;
+    return FLOOR_MATH.compute.bind(this)(number, significance, 0) as number;
   },
   isExported: true,
 };
@@ -776,7 +788,7 @@ export const ISEVEN: AddFunctionDescription = {
   args: [arg("value (number)", _lt("The value to be verified as even."))],
   returns: ["BOOLEAN"],
   compute: function (value: PrimitiveArgValue): boolean {
-    const _value = strictToNumber(value);
+    const _value = strictToNumber(value, this.locale);
 
     return Math.floor(Math.abs(_value)) & 1 ? false : true;
   },
@@ -804,7 +816,7 @@ export const ISO_CEILING: AddFunctionDescription = {
     number: PrimitiveArgValue,
     significance: PrimitiveArgValue = DEFAULT_SIGNIFICANCE
   ): number {
-    return CEILING_MATH.compute(number, significance, 0) as number;
+    return CEILING_MATH.compute.bind(this)(number, significance, 0) as number;
   },
   isExported: true,
 };
@@ -817,7 +829,7 @@ export const ISODD: AddFunctionDescription = {
   args: [arg("value (number)", _lt("The value to be verified as even."))],
   returns: ["BOOLEAN"],
   compute: function (value: PrimitiveArgValue): boolean {
-    const _value = strictToNumber(value);
+    const _value = strictToNumber(value, this.locale);
 
     return Math.floor(Math.abs(_value)) & 1 ? true : false;
   },
@@ -832,7 +844,7 @@ export const LN: AddFunctionDescription = {
   args: [arg("value (number)", _lt("The value for which to calculate the logarithm, base e."))],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
-    const _value = toNumber(value);
+    const _value = toNumber(value, this.locale);
     assert(() => _value > 0, _lt("The value (%s) must be strictly positive.", _value.toString()));
     return Math.log(_value);
   },
@@ -851,11 +863,11 @@ export const MOD: AddFunctionDescription = {
   returns: ["NUMBER"],
   computeFormat: (dividend: PrimitiveArg) => dividend?.format,
   compute: function (dividend: PrimitiveArgValue, divisor: PrimitiveArgValue): number {
-    const _divisor = toNumber(divisor);
+    const _divisor = toNumber(divisor, this.locale);
 
     assert(() => _divisor !== 0, _lt("The divisor must be different from 0."));
 
-    const _dividend = toNumber(dividend);
+    const _dividend = toNumber(dividend, this.locale);
     const modulus = _dividend % _divisor;
     // -42 % 10 = -2 but we want 8, so need the code below
     if ((modulus > 0 && _divisor < 0) || (modulus < 0 && _divisor > 0)) {
@@ -879,7 +891,7 @@ export const MUNIT: AddFunctionDescription = {
   ],
   returns: ["RANGE<NUMBER>"],
   compute: function (n: PrimitiveArgValue): number[][] {
-    const _n = toInteger(n);
+    const _n = toInteger(n, this.locale);
     assertPositive(_lt("The argument dimension must be positive"), _n);
     return getUnitMatrix(_n);
   },
@@ -895,7 +907,7 @@ export const ODD: AddFunctionDescription = {
   returns: ["NUMBER"],
   computeFormat: (number: PrimitiveArg) => number?.format,
   compute: function (value: PrimitiveArgValue): number {
-    const _value = toNumber(value);
+    const _value = toNumber(value, this.locale);
 
     let temp = Math.ceil(Math.abs(_value));
     temp = temp & 1 ? temp : temp + 1;
@@ -929,8 +941,8 @@ export const POWER: AddFunctionDescription = {
   returns: ["NUMBER"],
   computeFormat: (base: PrimitiveArg) => base?.format,
   compute: function (base: PrimitiveArgValue, exponent: PrimitiveArgValue): number {
-    const _base = toNumber(base);
-    const _exponent = toNumber(exponent);
+    const _base = toNumber(base, this.locale);
+    const _exponent = toNumber(exponent, this.locale);
     assert(
       () => _base >= 0 || Number.isInteger(_exponent),
       _lt("The exponent (%s) must be an integer when the base is negative.", _exponent.toString())
@@ -973,7 +985,7 @@ export const PRODUCT: AddFunctionDescription = {
           }
         }
       } else if (n !== null && n !== undefined) {
-        acc *= strictToNumber(n);
+        acc *= strictToNumber(n, this.locale);
         count += 1;
       }
     }
@@ -1018,10 +1030,10 @@ export const RANDARRAY: AddFunctionDescription = {
     max: PrimitiveArgValue = 1,
     whole_number: PrimitiveArgValue = false
   ): number[][] {
-    const _cols = toInteger(columns);
-    const _rows = toInteger(rows);
-    const _min = toNumber(min);
-    const _max = toNumber(max);
+    const _cols = toInteger(columns, this.locale);
+    const _rows = toInteger(rows, this.locale);
+    const _min = toNumber(min, this.locale);
+    const _max = toNumber(max, this.locale);
     const _whole_number = toBoolean(whole_number);
 
     assertPositive(_lt("The number columns (%s) must be positive.", _cols.toString()), _cols);
@@ -1073,12 +1085,12 @@ export const RANDBETWEEN: AddFunctionDescription = {
   returns: ["NUMBER"],
   computeFormat: (low: PrimitiveArg) => low?.format,
   compute: function (low: PrimitiveArgValue, high: PrimitiveArgValue): number {
-    let _low = toNumber(low);
+    let _low = toNumber(low, this.locale);
     if (!Number.isInteger(_low)) {
       _low = Math.ceil(_low);
     }
 
-    let _high = toNumber(high);
+    let _high = toNumber(high, this.locale);
     if (!Number.isInteger(_high)) {
       _high = Math.floor(_high);
     }
@@ -1111,8 +1123,8 @@ export const ROUND: AddFunctionDescription = {
   returns: ["NUMBER"],
   computeFormat: (value: PrimitiveArg) => value?.format,
   compute: function (value: PrimitiveArgValue, places: PrimitiveArgValue = DEFAULT_PLACES): number {
-    const _value = toNumber(value);
-    let _places = toNumber(places);
+    const _value = toNumber(value, this.locale);
+    let _places = toNumber(places, this.locale);
 
     const absValue = Math.abs(_value);
     let tempResult;
@@ -1147,8 +1159,8 @@ export const ROUNDDOWN: AddFunctionDescription = {
   returns: ["NUMBER"],
   computeFormat: (value: PrimitiveArg) => value?.format,
   compute: function (value: PrimitiveArgValue, places: PrimitiveArgValue = DEFAULT_PLACES): number {
-    const _value = toNumber(value);
-    let _places = toNumber(places);
+    const _value = toNumber(value, this.locale);
+    let _places = toNumber(places, this.locale);
 
     const absValue = Math.abs(_value);
     let tempResult;
@@ -1183,8 +1195,8 @@ export const ROUNDUP: AddFunctionDescription = {
   returns: ["NUMBER"],
   computeFormat: (value: PrimitiveArg) => value?.format,
   compute: function (value: PrimitiveArgValue, places: PrimitiveArgValue = DEFAULT_PLACES): number {
-    const _value = toNumber(value);
-    let _places = toNumber(places);
+    const _value = toNumber(value, this.locale);
+    let _places = toNumber(places, this.locale);
 
     const absValue = Math.abs(_value);
     let tempResult;
@@ -1209,7 +1221,7 @@ export const SEC: AddFunctionDescription = {
   args: [arg("angle (number)", _lt("The angle to find the secant of, in radians."))],
   returns: ["NUMBER"],
   compute: function (angle: PrimitiveArgValue): number {
-    return 1 / Math.cos(toNumber(angle));
+    return 1 / Math.cos(toNumber(angle, this.locale));
   },
   isExported: true,
 };
@@ -1222,7 +1234,7 @@ export const SECH: AddFunctionDescription = {
   args: [arg("value (number)", _lt("Any real value to calculate the hyperbolic secant of."))],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
-    return 1 / Math.cosh(toNumber(value));
+    return 1 / Math.cosh(toNumber(value, this.locale));
   },
   isExported: true,
 };
@@ -1235,7 +1247,7 @@ export const SIN: AddFunctionDescription = {
   args: [arg("angle (number)", _lt("The angle to find the sine of, in radians."))],
   returns: ["NUMBER"],
   compute: function (angle: PrimitiveArgValue): number {
-    return Math.sin(toNumber(angle));
+    return Math.sin(toNumber(angle, this.locale));
   },
   isExported: true,
 };
@@ -1248,7 +1260,7 @@ export const SINH: AddFunctionDescription = {
   args: [arg("value (number)", _lt("Any real value to calculate the hyperbolic sine of."))],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
-    return Math.sinh(toNumber(value));
+    return Math.sinh(toNumber(value, this.locale));
   },
   isExported: true,
 };
@@ -1262,7 +1274,7 @@ export const SQRT: AddFunctionDescription = {
   returns: ["NUMBER"],
   computeFormat: (value: PrimitiveArg) => value?.format,
   compute: function (value: PrimitiveArgValue): number {
-    const _value = toNumber(value);
+    const _value = toNumber(value, this.locale);
     assert(() => _value >= 0, _lt("The value (%s) must be positive or null.", _value.toString()));
     return Math.sqrt(_value);
   },
@@ -1286,7 +1298,7 @@ export const SUM: AddFunctionDescription = {
     return Array.isArray(value1?.format) ? value1.format[0][0] : value1?.format;
   },
   compute: function (...values: ArgValue[]): number {
-    return reduceNumbers(values, (acc, a) => acc + a, 0);
+    return reduceNumbers(values, (acc, a) => acc + a, 0, this.locale);
   },
   isExported: true,
 };
@@ -1315,12 +1327,16 @@ export const SUMIF: AddFunctionDescription = {
     }
 
     let sum = 0;
-    visitMatchingRanges([criteriaRange, criterion], (i, j) => {
-      const value = sumRange![i][j];
-      if (typeof value === "number") {
-        sum += value;
-      }
-    });
+    visitMatchingRanges(
+      [criteriaRange, criterion],
+      (i, j) => {
+        const value = sumRange![i][j];
+        if (typeof value === "number") {
+          sum += value;
+        }
+      },
+      this.locale
+    );
     return sum;
   },
   isExported: true,
@@ -1341,12 +1357,16 @@ export const SUMIFS: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (sumRange: MatrixArgValue, ...criters: ArgValue[]): number {
     let sum = 0;
-    visitMatchingRanges(criters, (i, j) => {
-      const value = sumRange[i][j];
-      if (typeof value === "number") {
-        sum += value;
-      }
-    });
+    visitMatchingRanges(
+      criters,
+      (i, j) => {
+        const value = sumRange[i][j];
+        if (typeof value === "number") {
+          sum += value;
+        }
+      },
+      this.locale
+    );
     return sum;
   },
   isExported: true,
@@ -1360,7 +1380,7 @@ export const TAN: AddFunctionDescription = {
   args: [arg("angle (number)", _lt("The angle to find the tangent of, in radians."))],
   returns: ["NUMBER"],
   compute: function (angle: PrimitiveArgValue): number {
-    return Math.tan(toNumber(angle));
+    return Math.tan(toNumber(angle, this.locale));
   },
   isExported: true,
 };
@@ -1373,7 +1393,7 @@ export const TANH: AddFunctionDescription = {
   args: [arg("value (number)", _lt("Any real value to calculate the hyperbolic tangent of."))],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
-    return Math.tanh(toNumber(value));
+    return Math.tanh(toNumber(value, this.locale));
   },
   isExported: true,
 };
@@ -1393,8 +1413,8 @@ export const TRUNC: AddFunctionDescription = {
   returns: ["NUMBER"],
   computeFormat: (value: PrimitiveArg) => value?.format,
   compute: function (value: PrimitiveArgValue, places: PrimitiveArgValue = DEFAULT_PLACES): number {
-    const _value = toNumber(value);
-    let _places = toNumber(places);
+    const _value = toNumber(value, this.locale);
+    let _places = toNumber(places, this.locale);
 
     if (_places === 0) {
       return Math.trunc(_value);

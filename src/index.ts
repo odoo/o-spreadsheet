@@ -90,6 +90,7 @@ import {
 } from "./registries/repeat_commands_registry";
 import { FunctionDescription } from "./types";
 import { CellErrorLevel, EvaluationError } from "./types/errors";
+import { DEFAULT_LOCALE } from "./types/locale";
 
 /**
  * We export here all entities that needs to be accessed publicly by Odoo.
@@ -231,3 +232,7 @@ export const components = {
 export function addFunction(functionName: string, functionDescription: FunctionDescription) {
   functionRegistry.add(functionName, functionDescription);
 }
+
+export const constants = {
+  DEFAULT_LOCALE,
+};

@@ -205,10 +205,11 @@ export function createScorecardChartRuntime(
     baselineCell = getters.getEvaluatedCell(baselinePosition);
   }
   const background = getters.getBackgroundOfSingleCellChart(chart.background, chart.keyValue);
+  const locale = getters.getLocale();
   return {
     title: _t(chart.title),
     keyValue: formattedKeyValue || keyValue,
-    baselineDisplay: getBaselineText(baselineCell, keyValueCell, chart.baselineMode),
+    baselineDisplay: getBaselineText(baselineCell, keyValueCell, chart.baselineMode, locale),
     baselineArrow: getBaselineArrowDirection(baselineCell, keyValueCell, chart.baselineMode),
     baselineColor: getBaselineColor(
       baselineCell,

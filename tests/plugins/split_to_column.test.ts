@@ -1,6 +1,6 @@
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CommandResult, UID } from "../../src/types";
+import { CommandResult, DEFAULT_LOCALE, UID } from "../../src/types";
 import {
   merge,
   redo,
@@ -9,6 +9,7 @@ import {
   setSelection,
   splitTextToColumns,
   undo,
+  updateLocale,
 } from "../test_helpers/commands_helpers";
 import { getCellContent } from "../test_helpers/getters_helpers";
 import {
@@ -103,6 +104,13 @@ describe("Split text into columns", () => {
     setGrid(model, { A1: "a,b,,,", C1: "C1" });
     splitTextToColumns(model, ",", "A1", { force: true });
     expect(getGrid(model)).toEqual({ A1: "a", B1: "b", C1: "C1" });
+  });
+
+  test("Localized split values are handled", () => {
+    updateLocale(model, { ...DEFAULT_LOCALE, decimalSeparator: ",", formulaArgSeparator: ";" });
+    setGrid(model, { A1: "5,6||=SUM(5; 1,6)" });
+    splitTextToColumns(model, "||", "A1");
+    expect(getGrid(model)).toEqual({ A1: 5.6, B1: 6.6 });
   });
 
   test("Split cell with only separators", () => {

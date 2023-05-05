@@ -28,6 +28,7 @@ import {
   HeaderIndex,
   LAYERS,
   LocalCommand,
+  Locale,
   MoveColumnsRowsCommand,
   RemoveColumnsRowsCommand,
   Selection,
@@ -44,7 +45,7 @@ interface SheetInfo {
 
 interface SelectionStatisticFunction {
   name: string;
-  compute: (values: (number | string | boolean)[]) => number;
+  compute: (values: (number | string | boolean)[], locale: Locale) => number;
   types: CellValueType[];
 }
 
@@ -52,32 +53,32 @@ const selectionStatisticFunctions: SelectionStatisticFunction[] = [
   {
     name: _lt("Sum"),
     types: [CellValueType.number],
-    compute: (values) => SUM.compute([values]) as number,
+    compute: (values, locale) => SUM.compute.bind({ locale })([values]) as number,
   },
   {
     name: _lt("Avg"),
     types: [CellValueType.number],
-    compute: (values) => AVERAGE.compute([values]) as number,
+    compute: (values, locale) => AVERAGE.compute.bind({ locale })([values]) as number,
   },
   {
     name: _lt("Min"),
     types: [CellValueType.number],
-    compute: (values) => MIN.compute([values]) as number,
+    compute: (values, locale) => MIN.compute.bind({ locale })([values]) as number,
   },
   {
     name: _lt("Max"),
     types: [CellValueType.number],
-    compute: (values) => MAX.compute([values]) as number,
+    compute: (values, locale) => MAX.compute.bind({ locale })([values]) as number,
   },
   {
     name: _lt("Count"),
     types: [CellValueType.number, CellValueType.text, CellValueType.boolean, CellValueType.error],
-    compute: (values) => COUNTA.compute([values]) as number,
+    compute: (values, locale) => COUNTA.compute.bind({ locale })([values]) as number,
   },
   {
     name: _lt("Count Numbers"),
     types: [CellValueType.number, CellValueType.text, CellValueType.boolean, CellValueType.error],
-    compute: (values) => COUNT.compute([values]) as number,
+    compute: (values, locale) => COUNT.compute.bind({ locale })([values]) as number,
   },
 ];
 
@@ -448,6 +449,8 @@ export class GridSelectionPlugin extends UIPlugin {
       cellsValues.push(cell.value);
     }
 
+    const locale = this.getters.getLocale();
+
     let statisticFnResults: { [name: string]: number | undefined } = {};
     for (let fn of selectionStatisticFunctions) {
       // We don't want to display statistical information when there is no interest:
@@ -457,7 +460,7 @@ export class GridSelectionPlugin extends UIPlugin {
       // be displayed as undefined rather than 0.
       let fnResult: number | undefined = undefined;
       if (fn.types.some((t) => cellsTypes.has(t))) {
-        fnResult = fn.compute(cellsValues);
+        fnResult = fn.compute(cellsValues, locale);
       }
       statisticFnResults[fn.name] = fnResult;
     }
@@ -476,7 +479,8 @@ export class GridSelectionPlugin extends UIPlugin {
         aggregate += cell.value;
       }
     }
-    return n < 2 ? null : formatValue(aggregate);
+    const locale = this.getters.getLocale();
+    return n < 2 ? null : formatValue(aggregate, { locale });
   }
 
   isSelected(zone: Zone): boolean {

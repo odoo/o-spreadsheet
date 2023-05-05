@@ -1,5 +1,6 @@
 import { NEWLINE } from "../../src/constants";
 import { tokenize } from "../../src/formulas";
+import { DEFAULT_LOCALE } from "../../src/types";
 
 describe("tokenizer", () => {
   test("simple token", () => {
@@ -173,7 +174,7 @@ describe("tokenizer", () => {
       { type: "FUNCTION", value: "AND" },
       { type: "LEFT_PAREN", value: "(" },
       { type: "SYMBOL", value: "true" },
-      { type: "COMMA", value: "," },
+      { type: "ARG_SEPARATOR", value: "," },
       { type: "SYMBOL", value: "false" },
       { type: "RIGHT_PAREN", value: ")" },
     ]);
@@ -291,6 +292,36 @@ describe("tokenizer", () => {
       { type: "OPERATOR", value: "=" },
       { type: "UNKNOWN", value: "ù" },
       { type: "NUMBER", value: "4" },
+    ]);
+  });
+});
+
+describe("Localized tokenizer", () => {
+  test("Can change decimal separator", () => {
+    const locale = { ...DEFAULT_LOCALE, decimalSeparator: "¤" };
+    expect(tokenize("=SUM(5¤9, 8¤1)", locale)).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "FUNCTION", value: "SUM" },
+      { type: "LEFT_PAREN", value: "(" },
+      { type: "NUMBER", value: "5¤9" },
+      { type: "ARG_SEPARATOR", value: "," },
+      { type: "SPACE", value: " " },
+      { type: "NUMBER", value: "8¤1" },
+      { type: "RIGHT_PAREN", value: ")" },
+    ]);
+  });
+
+  test("Can change argument separator", () => {
+    const locale = { ...DEFAULT_LOCALE, formulaArgSeparator: "空" };
+    expect(tokenize("=SUM(5空 8.5)", locale)).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "FUNCTION", value: "SUM" },
+      { type: "LEFT_PAREN", value: "(" },
+      { type: "NUMBER", value: "5" },
+      { type: "ARG_SEPARATOR", value: "空" },
+      { type: "SPACE", value: " " },
+      { type: "NUMBER", value: "8.5" },
+      { type: "RIGHT_PAREN", value: ")" },
     ]);
   });
 });

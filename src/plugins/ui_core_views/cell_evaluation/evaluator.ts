@@ -40,7 +40,7 @@ const MAX_ITERATION = 30;
 
 export class Evaluator {
   private readonly getters: Getters;
-  private readonly compilationParams: CompilationParameters;
+  private compilationParams: CompilationParameters;
   private readonly positionEncoder = new PositionBitsEncoder();
 
   private evaluatedCells: PositionDict<EvaluatedCell> = new Map();
@@ -48,7 +48,7 @@ export class Evaluator {
   private blockedArrayFormulas = new Set<PositionId>();
   private spreadingRelations = new SpreadingRelation();
 
-  constructor(context: ModelConfig["custom"], getters: Getters) {
+  constructor(private readonly context: ModelConfig["custom"], getters: Getters) {
     this.getters = getters;
     this.compilationParams = buildCompilationParameters(context, getters, (position) =>
       this.computeCell(this.encodePosition(position))
@@ -56,7 +56,10 @@ export class Evaluator {
   }
 
   getEvaluatedCell(position: CellPosition): EvaluatedCell {
-    return this.evaluatedCells.get(this.encodePosition(position)) || createEvaluatedCell("");
+    return (
+      this.evaluatedCells.get(this.encodePosition(position)) ||
+      createEvaluatedCell("", { locale: this.getters.getLocale() })
+    );
   }
 
   getArrayFormulaSpreadingOn(position: CellPosition): CellPosition | undefined {
@@ -84,6 +87,12 @@ export class Evaluator {
     this.formulaDependencies().removeAllDependencies(positionId);
     const dependencies = this.getDirectDependencies(positionId);
     this.formulaDependencies().addDependencies(positionId, dependencies);
+  }
+
+  updateCompilationParameters() {
+    this.compilationParams = buildCompilationParameters(this.context, this.getters, (position) =>
+      this.computeCell(this.encodePosition(position))
+    );
   }
 
   evaluateCells(positions: CellPosition[]) {
@@ -196,7 +205,7 @@ export class Evaluator {
 
     const cell = this.getCell(positionId);
     if (cell === undefined) {
-      return createEvaluatedCell("");
+      return createEvaluatedCell("", { locale: this.getters.getLocale() });
     }
 
     const cellId = cell.id;
@@ -208,7 +217,7 @@ export class Evaluator {
       this.cellsBeingComputed.add(cellId);
       return cell.isFormula
         ? this.computeFormulaCell(cell)
-        : evaluateLiteral(cell.content, cell.format);
+        : evaluateLiteral(cell.content, { format: cell.format, locale: this.getters.getLocale() });
     } catch (e) {
       return this.handleError(e, cell);
     } finally {
@@ -248,10 +257,10 @@ export class Evaluator {
     const { value: computedValue, format: computedFormat } = formulaReturn;
 
     if (!isMatrix(computedValue)) {
-      return createEvaluatedCell(
-        computedValue,
-        cellData.format || (computedFormat as string | undefined)
-      );
+      return createEvaluatedCell(computedValue, {
+        format: cellData.format || (computedFormat as string | undefined),
+        locale: this.getters.getLocale(),
+      });
     }
 
     const formulaPosition = this.getters.getCellPosition(cellId);
@@ -267,7 +276,10 @@ export class Evaluator {
     );
 
     const formatFromPosition = formatFromPositionAccess(computedFormat);
-    return createEvaluatedCell(computedValue[0][0], cellData.format || formatFromPosition(0, 0));
+    return createEvaluatedCell(computedValue[0][0], {
+      format: cellData.format || formatFromPosition(0, 0),
+      locale: this.getters.getLocale(),
+    });
   }
 
   private assertSheetHasEnoughSpaceToSpreadFormulaResult(
@@ -341,10 +353,10 @@ export class Evaluator {
       const position = { sheetId, col: i + col, row: j + row };
       const cell = this.getters.getCell(position);
       const format = cell?.format;
-      const evaluatedCell = createEvaluatedCell(
-        matrixResult.value[i][j],
-        format || formatFromPosition(i, j)
-      );
+      const evaluatedCell = createEvaluatedCell(matrixResult.value[i][j], {
+        format: format || formatFromPosition(i, j),
+        locale: this.getters.getLocale(),
+      });
 
       const positionId = this.encodePosition(position);
 

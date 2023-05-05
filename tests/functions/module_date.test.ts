@@ -1,10 +1,14 @@
+import { Model } from "../../src";
 import {} from "../../src/helpers/dates";
+import { setCellContent, updateLocale } from "../test_helpers/commands_helpers";
+import { getEvaluatedCell } from "../test_helpers/getters_helpers";
 import {
   evaluateCell,
   evaluateCellFormat,
   evaluateGrid,
   evaluateGridText,
 } from "../test_helpers/helpers";
+import { FR_LOCALE } from "./../test_helpers/constants";
 
 describe("DATE formula", () => {
   test("functional tests on cell arguments CHECK TIMEZONE IF FAILS", () => {
@@ -90,6 +94,13 @@ describe("DATE formula", () => {
     expect(
       evaluateCellFormat("A1", { A1: "=DATE(B1, C1, D1)", B1: "2028", C1: "12", D1: "5" })
     ).toBe("m/d/yyyy");
+  });
+
+  test("Return format is locale dependant", () => {
+    const model = new Model();
+    updateLocale(model, FR_LOCALE);
+    setCellContent(model, "A1", "=DATE(2020, 12, 5)");
+    expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
 
@@ -273,6 +284,13 @@ describe("EDATE formula", () => {
   test("return value with formatting", () => {
     expect(evaluateCellFormat("A1", { A1: '=EDATE("7/21/1969", 1)' })).toBe("m/d/yyyy");
   });
+
+  test("Return format is locale dependant", () => {
+    const model = new Model();
+    updateLocale(model, FR_LOCALE);
+    setCellContent(model, "A1", '=EDATE("7/7/1969", 1)');
+    expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
+  });
 });
 
 describe("EOMONTH formula", () => {
@@ -306,6 +324,13 @@ describe("EOMONTH formula", () => {
 
   test("return value with formatting", () => {
     expect(evaluateCellFormat("A1", { A1: '=EOMONTH("7/20/2020", 0)' })).toBe("m/d/yyyy");
+  });
+
+  test("Return format is locale dependant", () => {
+    const model = new Model();
+    updateLocale(model, FR_LOCALE);
+    setCellContent(model, "A1", '=EOMONTH("7/7/2020", 0)');
+    expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
 
@@ -568,8 +593,15 @@ describe("NOW formula", () => {
 
   test("return value with formatting", async () => {
     MockDate.set(new Date(2042, 3, 2, 4, 7, 30, 999));
-    expect(evaluateCellFormat("A1", { A1: "=NOW()" })).toBe("m/d/yyyy hh:mm:ss");
+    expect(evaluateCellFormat("A1", { A1: "=NOW()" })).toBe("m/d/yyyy hh:mm:ss a");
     MockDate.reset();
+  });
+
+  test("Return format is locale dependant", () => {
+    const model = new Model();
+    updateLocale(model, FR_LOCALE);
+    setCellContent(model, "A1", "=NOW()");
+    expect(getEvaluatedCell(model, "A1").format).toBe("dd/mm/yyyy hh:mm:ss");
   });
 });
 
@@ -625,6 +657,13 @@ describe("TIME formula", () => {
   test("return value with formatting", async () => {
     expect(evaluateCellFormat("A1", { A1: "=TIME(9, 11, 31)" })).toBe("hh:mm:ss a");
   });
+
+  test("Return format is locale dependant", () => {
+    const model = new Model();
+    updateLocale(model, FR_LOCALE);
+    setCellContent(model, "A1", "=TIME(9, 9, 9)");
+    expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.timeFormat);
+  });
 });
 
 describe("TIMEVALUE formula", () => {
@@ -654,6 +693,13 @@ describe("TODAY formula", () => {
     MockDate.set(new Date(2042, 3, 2, 4, 7, 30, 999));
     expect(evaluateCellFormat("A1", { A1: "=TODAY()" })).toBe("m/d/yyyy");
     MockDate.reset();
+  });
+
+  test("Return format is locale dependant", () => {
+    const model = new Model();
+    updateLocale(model, FR_LOCALE);
+    setCellContent(model, "A1", "=TODAY()");
+    expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
 
@@ -855,6 +901,13 @@ describe("WORKDAY formula", () => {
       "m/d/yyyy"
     );
   });
+
+  test("Return format is locale dependant", () => {
+    const model = new Model();
+    updateLocale(model, FR_LOCALE);
+    setCellContent(model, "A1", "=WORKDAY(5000, 3)");
+    expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
+  });
 });
 
 describe("WORKDAY.INTL formula", () => {
@@ -1006,6 +1059,13 @@ describe("WORKDAY.INTL formula", () => {
     expect(evaluateCellFormat("A1", { A1: "=WORKDAY.INTL(B1, C1)", B1: "1/1/2013", C1: "3" })).toBe(
       "m/d/yyyy"
     );
+  });
+
+  test("Return format is locale dependant", () => {
+    const model = new Model();
+    updateLocale(model, FR_LOCALE);
+    setCellContent(model, "A1", "=WORKDAY.INTL(5000, 3)");
+    expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
 
@@ -1435,6 +1495,13 @@ describe("MONTH.START formula", () => {
   test("return value with formatting", async () => {
     expect(evaluateCellFormat("A1", { A1: '=MONTH.START("7/20/2020")' })).toBe("m/d/yyyy");
   });
+
+  test("Return format is locale dependant", () => {
+    const model = new Model();
+    updateLocale(model, FR_LOCALE);
+    setCellContent(model, "A1", '=MONTH.START("7/7/2020")');
+    expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
+  });
 });
 
 describe("MONTH.END formula", () => {
@@ -1462,6 +1529,13 @@ describe("MONTH.END formula", () => {
 
   test("return value with formatting", async () => {
     expect(evaluateCellFormat("A1", { A1: '=MONTH.END("7/20/2020")' })).toBe("m/d/yyyy");
+  });
+
+  test("Return format is locale dependant", () => {
+    const model = new Model();
+    updateLocale(model, FR_LOCALE);
+    setCellContent(model, "A1", '=MONTH.END("7/7/2020")');
+    expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
 
@@ -1506,6 +1580,13 @@ describe("QUARTER.START formula", () => {
   test("return value with formatting", async () => {
     expect(evaluateCellFormat("A1", { A1: '=QUARTER.START("7/20/2020")' })).toBe("m/d/yyyy");
   });
+
+  test("Return format is locale dependant", () => {
+    const model = new Model();
+    updateLocale(model, FR_LOCALE);
+    setCellContent(model, "A1", '=QUARTER.START("7/7/2020")');
+    expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
+  });
 });
 
 describe("QUARTER.END formula", () => {
@@ -1548,6 +1629,13 @@ describe("QUARTER.END formula", () => {
   test("return value with formatting", async () => {
     expect(evaluateCellFormat("A1", { A1: '=QUARTER.END("7/20/2020")' })).toBe("m/d/yyyy");
   });
+
+  test("Return format is locale dependant", () => {
+    const model = new Model();
+    updateLocale(model, FR_LOCALE);
+    setCellContent(model, "A1", '=QUARTER.END("7/7/2020")');
+    expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
+  });
 });
 
 describe("YEAR.START formula", () => {
@@ -1576,6 +1664,13 @@ describe("YEAR.START formula", () => {
 
   test("return value with formatting", async () => {
     expect(evaluateCellFormat("A1", { A1: '=YEAR.START("7/20/2020")' })).toBe("m/d/yyyy");
+  });
+
+  test("Return format is locale dependant", () => {
+    const model = new Model();
+    updateLocale(model, FR_LOCALE);
+    setCellContent(model, "A1", '=YEAR.START("7/7/2020")');
+    expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
 
@@ -1618,5 +1713,12 @@ describe("YEAR.END formula", () => {
 
   test("return value with formatting", async () => {
     expect(evaluateCellFormat("A1", { A1: '=YEAR.END("7/20/2020")' })).toBe("m/d/yyyy");
+  });
+
+  test("Return format is locale dependant", () => {
+    const model = new Model();
+    updateLocale(model, FR_LOCALE);
+    setCellContent(model, "A1", '=YEAR.END("7/7/2020")');
+    expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });

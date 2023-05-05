@@ -7,8 +7,15 @@ import {
   setCellContent,
   setSelection,
   setViewportOffset,
+  updateLocale,
 } from "../test_helpers/commands_helpers";
-import { getActivePosition, getCellContent, getCellText } from "../test_helpers/getters_helpers";
+import {
+  getActivePosition,
+  getCell,
+  getCellContent,
+  getCellText,
+} from "../test_helpers/getters_helpers";
+import { DEFAULT_LOCALE } from "./../../src/types/locale";
 
 let model: Model;
 let searchOptions: SearchOptions;
@@ -491,6 +498,18 @@ describe("replace", () => {
     expect(matches).toHaveLength(0);
     expect(matchIndex).toStrictEqual(null);
     expect(getCellText(model, "A2")).toBe("=SUM(4,4)");
+  });
+
+  test("Replaced value is changed to canonical form in model", () => {
+    searchOptions.searchFormulas = true;
+    updateLocale(model, { ...DEFAULT_LOCALE, decimalSeparator: ",", formulaArgSeparator: ";" });
+    model.dispatch("UPDATE_SEARCH", { toSearch: "2", searchOptions });
+    model.dispatch("REPLACE_SEARCH", { replaceWith: "2,5" });
+    const matches = model.getters.getSearchMatches();
+    const matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(0);
+    expect(matchIndex).toStrictEqual(null);
+    expect(getCell(model, "A2")?.content).toBe("=SUM(2.5,2.5)");
   });
 
   test("formulas wont be modified if not looking in formulas or not modifying formulas", () => {

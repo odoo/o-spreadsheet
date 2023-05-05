@@ -1,6 +1,6 @@
 import { ICON_SETS } from "../src/components/icons/icons";
 import { buildSheetLink, formatValue, lettersToNumber, markdownLink, toZone } from "../src/helpers";
-import { Border, CellIsRule, IconSetRule, Style } from "../src/types";
+import { Border, CellIsRule, DEFAULT_LOCALE, IconSetRule, Style } from "../src/types";
 import { BarChartDefinition } from "../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../src/types/chart/line_chart";
 import { PieChartDefinition } from "../src/types/chart/pie_chart";
@@ -850,5 +850,7 @@ test.each([
   expect(
     convertXlsxFormat(80, [{ id: 80, format: excelFormat }], new XLSXImportWarningManager())
   ).toEqual(convertedFormat);
-  expect(formatValue(0, convertedFormat)).toEqual(expectedValue);
+  expect(formatValue(0, { format: convertedFormat, locale: DEFAULT_LOCALE })).toEqual(
+    expectedValue
+  );
 });

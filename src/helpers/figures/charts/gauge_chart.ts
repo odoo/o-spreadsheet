@@ -13,6 +13,7 @@ import {
   CommandResult,
   CoreGetters,
   Getters,
+  Locale,
   Range,
   RemoveColumnsRowsCommand,
   UID,
@@ -255,13 +256,11 @@ export class GaugeChart extends AbstractChart {
   }
 }
 
-function getGaugeConfiguration(chart: GaugeChart): GaugeChartConfiguration {
+function getGaugeConfiguration(chart: GaugeChart, locale: Locale): GaugeChartConfiguration {
   const fontColor = chartFontColor(chart.background);
-  const config: GaugeChartConfiguration = getDefaultChartJsRuntime(
-    chart,
-    [],
-    fontColor
-  ) as GaugeChartConfiguration;
+  const config: GaugeChartConfiguration = getDefaultChartJsRuntime(chart, [], fontColor, {
+    locale,
+  }) as GaugeChartConfiguration;
   config.options!.hover = undefined;
   config.options!.events = [];
   config.options!.layout = {
@@ -292,7 +291,8 @@ function getGaugeConfiguration(chart: GaugeChart): GaugeChartConfiguration {
 }
 
 export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): GaugeChartRuntime {
-  const config = getGaugeConfiguration(chart);
+  const locale = getters.getLocale();
+  const config = getGaugeConfiguration(chart, locale);
   const colors = chart.sectionRule.colors;
 
   const lowerPoint = chart.sectionRule.lowerInflectionPoint;
