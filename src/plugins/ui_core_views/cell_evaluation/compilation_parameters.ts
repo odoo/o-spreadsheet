@@ -46,6 +46,7 @@ class CompilationParametersBuilder {
   ) {
     this.evalContext = Object.assign(Object.create(functionMap), context, {
       getters: this.getters,
+      locale: this.getters.getLocale(),
     });
   }
 

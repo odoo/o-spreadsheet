@@ -12,8 +12,8 @@ import {
   Color,
   CommandResult,
   CoreGetters,
-  Format,
   Getters,
+  LocaleFormat,
   Range,
   RemoveColumnsRowsCommand,
   UID,
@@ -198,14 +198,14 @@ export class PieChart extends AbstractChart {
 function getPieConfiguration(
   chart: PieChart,
   labels: string[],
-  dataSetFormat: Format | undefined
+  localeFormat: LocaleFormat
 ): ChartConfiguration {
   const fontColor = chartFontColor(chart.background);
   const config: ChartConfiguration = getDefaultChartJsRuntime(
     chart,
     labels,
     fontColor,
-    dataSetFormat
+    localeFormat
   );
   const legend: ChartLegendOptions = {
     labels: { fontColor },
@@ -256,7 +256,8 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
     ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
   }
   const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
-  const config = getPieConfiguration(chart, labels, dataSetFormat);
+  const locale = getters.getLocale();
+  const config = getPieConfiguration(chart, labels, { format: dataSetFormat, locale });
   const colors = new ChartColors();
   for (let { label, data } of dataSetsValues) {
     const backgroundColor = getPieColors(colors, dataSetsValues);

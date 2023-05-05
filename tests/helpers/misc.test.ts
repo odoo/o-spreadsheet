@@ -1,5 +1,5 @@
 import { deepCopy } from "../../src/helpers";
-import { groupConsecutive, isConsecutive, lazy, range } from "../../src/helpers/misc";
+import { groupConsecutive, isConsecutive, lazy, memoize, range } from "../../src/helpers/misc";
 
 describe("Misc", () => {
   test("range", () => {
@@ -210,5 +210,21 @@ describe("isConsecutive", () => {
 
   test("sort numerically rather than lexicographically", () => {
     expect(isConsecutive([10, 9, 11])).toBeTruthy();
+  });
+});
+
+describe("Memoize", () => {
+  function smile(str: string) {
+    return str + ":)";
+  }
+
+  const memoizedFn = memoize(smile);
+
+  test("Can use memoized function", () => {
+    expect(memoizedFn("ok ")).toEqual("ok :)");
+  });
+
+  test("Memoized function name", () => {
+    expect(memoizedFn.name).toEqual("smile (memoized)");
   });
 });

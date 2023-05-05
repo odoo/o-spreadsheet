@@ -378,7 +378,8 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
       }
 
       if (clipboardOption?.pasteOption === "onlyValue") {
-        const content = formatValue(origin.evaluatedCell.value);
+        const locale = this.getters.getLocale();
+        const content = formatValue(origin.evaluatedCell.value, { locale });
         this.dispatch("UPDATE_CELL", { ...target, content });
         return;
       }

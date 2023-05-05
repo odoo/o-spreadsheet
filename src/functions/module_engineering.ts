@@ -19,8 +19,8 @@ export const DELTA: AddFunctionDescription = {
     number1: PrimitiveArgValue,
     number2: PrimitiveArgValue = DEFAULT_DELTA_ARG
   ): number {
-    const _number1 = toNumber(number1);
-    const _number2 = toNumber(number2);
+    const _number1 = toNumber(number1, this.locale);
+    const _number2 = toNumber(number2, this.locale);
     return _number1 === _number2 ? 1 : 0;
   },
   isExported: true,

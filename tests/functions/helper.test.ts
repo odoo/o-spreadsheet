@@ -1,4 +1,6 @@
 import { dichotomicSearch } from "../../src/functions/helpers";
+import { isValidLocale } from "../../src/helpers/locale";
+import { DEFAULT_LOCALE } from "../../src/types";
 
 function getItem(arr: any[], i: number) {
   return arr[i];
@@ -298,5 +300,49 @@ describe("Function helpers", () => {
       expect(dichotomicSearch(array3, -1, "nextGreater", "asc", 3, getItemInCols)).toBe(2);
       expect(dichotomicSearch(array3, 22, "nextGreater", "asc", 3, getItemInCols)).toBe(-1);
     });
+  });
+});
+
+describe("Locale helpers", () => {
+  test("isValidLocale", () => {
+    const locale = DEFAULT_LOCALE;
+
+    expect(isValidLocale(locale)).toBe(true);
+
+    // Missing values
+    expect(isValidLocale("en_US")).toBe(false);
+    expect(isValidLocale({})).toBe(false);
+    expect(isValidLocale({ ...locale, thousandsSeparator: undefined })).toBe(false);
+    expect(isValidLocale({ ...locale, decimalSeparator: undefined })).toBe(false);
+    expect(isValidLocale({ ...locale, dateFormat: undefined })).toBe(false);
+    expect(isValidLocale({ ...locale, timeFormat: undefined })).toBe(false);
+    expect(isValidLocale({ ...locale, formulaArgSeparator: undefined })).toBe(false);
+    expect(isValidLocale({ ...locale, code: undefined })).toBe(false);
+    expect(isValidLocale({ ...locale, name: undefined })).toBe(false);
+
+    expect(isValidLocale({ ...locale, thousandsSeparator: "" })).toBe(false);
+    expect(isValidLocale({ ...locale, decimalSeparator: "" })).toBe(false);
+    expect(isValidLocale({ ...locale, dateFormat: "" })).toBe(false);
+    expect(isValidLocale({ ...locale, timeFormat: "" })).toBe(false);
+    expect(isValidLocale({ ...locale, formulaArgSeparator: "" })).toBe(false);
+    expect(isValidLocale({ ...locale, code: "" })).toBe(false);
+    expect(isValidLocale({ ...locale, name: "" })).toBe(false);
+
+    // Invalid formats
+    expect(isValidLocale({ ...locale, dateFormat: "hey" })).toBe(false);
+    expect(isValidLocale({ ...locale, dateFormat: "mmmmmmmm/ddddddd/y" })).toBe(false);
+    expect(isValidLocale({ ...locale, dateFormat: "not a format" })).toBe(false);
+
+    expect(isValidLocale({ ...locale, timeFormat: "hey" })).toBe(false);
+    expect(isValidLocale({ ...locale, timeFormat: "hhhhhhh:mmmmm:sssssss" })).toBe(false);
+    expect(isValidLocale({ ...locale, timeFormat: "not a format" })).toBe(false);
+
+    // Invalid formulaArgSeparator
+    expect(isValidLocale({ ...locale, formulaArgSeparator: ".", decimalSeparator: "." })).toBe(
+      false
+    );
+    expect(isValidLocale({ ...locale, formulaArgSeparator: ",", decimalSeparator: "," })).toBe(
+      false
+    );
   });
 });

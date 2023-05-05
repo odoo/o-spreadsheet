@@ -15,6 +15,7 @@ import { XMLAttributes, XMLString } from "../../types/xlsx";
 import { FORCE_DEFAULT_ARGS_FUNCTIONS, NON_RETROCOMPATIBLE_FUNCTIONS } from "../constants";
 import { pushElement } from "../helpers/content_helpers";
 import { escapeXml } from "../helpers/xml_helpers";
+import { DEFAULT_LOCALE } from "./../../types/locale";
 
 export function addFormula(cell: ExcelCellData): {
   attrs: XMLAttributes;
@@ -57,7 +58,7 @@ export function addContent(
   if (!forceString && ["TRUE", "FALSE"].includes(clearValue)) {
     value = clearValue === "TRUE" ? "1" : "0";
     attrs.push(["t", "b"]);
-  } else if (forceString || !isNumber(value)) {
+  } else if (forceString || !isNumber(value, DEFAULT_LOCALE)) {
     const { id } = pushElement(content, sharedStrings);
     value = id.toString();
     attrs.push(["t", "s"]);
@@ -125,7 +126,7 @@ function prependNonRetrocompatibleFunction(ast: ASTFuncall): ASTFuncall {
  */
 function convertDateFormat(ast: ASTString): ASTString {
   const value = ast.value.replace(new RegExp('"', "g"), "");
-  const internalDate = parseDateTime(value);
+  const internalDate = parseDateTime(value, DEFAULT_LOCALE);
   if (internalDate) {
     let format: Format[] = [];
     if (mdyDateRegexp.test(value) || ymdDateRegexp.test(value)) {
@@ -136,7 +137,7 @@ function convertDateFormat(ast: ASTString): ASTString {
     }
     return {
       ...ast,
-      value: formatValue(internalDate.value, format.join(" ")),
+      value: formatValue(internalDate.value, { format: format.join(" "), locale: DEFAULT_LOCALE }),
     };
   } else {
     return { ...ast, value: ast.value.replace(/\\"/g, `""`) };

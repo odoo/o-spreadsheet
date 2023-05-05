@@ -1,6 +1,6 @@
 import { TimeScale } from "chart.js";
 import { parseDateTime } from ".";
-import { Alias, Format } from "../types";
+import { Alias, Format, Locale } from "../types";
 
 // -----------------------------------------------------------------------------
 // File for helpers needed to use time axis in ChartJS
@@ -46,10 +46,14 @@ export const timeFormatMomentCompatible =
   /^((d|dd|m|mm|yyyy|yy|hh|h|ss|a)(-|:|\s|\/))*(d|dd|m|mm|yyyy|yy|hh|h|ss|a)$/i;
 
 /** Get the time options for the XAxis of ChartJS */
-export function getChartTimeOptions(labels: string[], labelFormat: Format): TimeScale {
+export function getChartTimeOptions(
+  labels: string[],
+  labelFormat: Format,
+  locale: Locale
+): TimeScale {
   const momentFormat = convertDateFormatForMoment(labelFormat);
 
-  const timeUnit = getBestTimeUnitForScale(labels, momentFormat);
+  const timeUnit = getBestTimeUnitForScale(labels, momentFormat, locale);
   const displayFormats = {};
   if (timeUnit) {
     displayFormats[timeUnit] = momentFormat;
@@ -114,8 +118,12 @@ function getFormatMinDisplayUnit(format: MomentJSFormat): TimeUnit {
  *    as a unit, but if they span 200 days, we'd like to use months instead
  *
  */
-function getBestTimeUnitForScale(labels: string[], format: MomentJSFormat): TimeUnit | undefined {
-  const labelDates = labels.map((label) => parseDateTime(label)?.jsDate);
+function getBestTimeUnitForScale(
+  labels: string[],
+  format: MomentJSFormat,
+  locale: Locale
+): TimeUnit | undefined {
+  const labelDates = labels.map((label) => parseDateTime(label, locale)?.jsDate);
   if (labelDates.some((date) => date === undefined) || labels.length < 2) {
     return undefined;
   }

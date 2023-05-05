@@ -51,7 +51,7 @@ export const tokenColors = {
   DEBUGGER: operatorColor,
   LEFT_PAREN: functionColor,
   RIGHT_PAREN: functionColor,
-  COMMA: functionColor,
+  ARG_SEPARATOR: functionColor,
   MATCHING_PAREN: "#000000",
 };
 
@@ -196,6 +196,10 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     " ": (ev: KeyboardEvent) => this.processSpaceKey(ev),
   };
 
+  keyCodeMapping: { [keyCode: string]: Function } = {
+    NumpadDecimal: this.processNumpadDecimal,
+  };
+
   setup() {
     onMounted(() => {
       const el = this.composerRef.el!;
@@ -313,6 +317,29 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     this.processContent();
   }
 
+  private processNumpadDecimal(ev: KeyboardEvent) {
+    ev.stopPropagation();
+    ev.preventDefault();
+    const locale = this.env.model.getters.getLocale();
+    const selection = this.contentHelper.getCurrentSelection();
+    const currentContent = this.env.model.getters.getCurrentContent();
+    const content =
+      currentContent.slice(0, selection.start) +
+      locale.decimalSeparator +
+      currentContent.slice(selection.end);
+
+    // Update composer even by hand rather than dispatching an InputEvent because untrusted inputs
+    // events aren't handled natively by contentEditable
+    this.env.model.dispatch("SET_CURRENT_CONTENT", {
+      content,
+      selection: { start: selection.start + 1, end: selection.start + 1 },
+    });
+
+    // We need to do the process content here in case there is no render between the keyDown and the
+    // keyUp event
+    this.processContent();
+  }
+
   onCompositionStart() {
     this.compositionActive = true;
   }
@@ -321,7 +348,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   }
 
   onKeydown(ev: KeyboardEvent) {
-    let handler = this.keyMapping[ev.key];
+    let handler = this.keyMapping[ev.key] || this.keyCodeMapping[ev.code];
     if (handler) {
       handler.call(this, ev);
     } else {
@@ -499,7 +526,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
         case "OPERATOR":
         case "NUMBER":
         case "FUNCTION":
-        case "COMMA":
+        case "ARG_SEPARATOR":
         case "STRING":
           result.push({ value: token.value, color: tokenColors[token.type] || "#000" });
           break;

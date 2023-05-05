@@ -2,7 +2,7 @@ import { ChartConfiguration } from "chart.js";
 import { ChartTerms } from "../../../components/translations_terms";
 import { MAX_CHAR_LABEL } from "../../../constants";
 import { _t } from "../../../translation";
-import { Color, Format, Getters, Range } from "../../../types";
+import { Color, Format, Getters, LocaleFormat, Range } from "../../../types";
 import { DataSet, DatasetValues, LabelValues } from "../../../types/chart/chart";
 import { formatValue, isDateTimeFormat } from "../../format";
 import { range } from "../../misc";
@@ -98,7 +98,7 @@ export function getDefaultChartJsRuntime(
   chart: AbstractChart,
   labels: string[],
   fontColor: Color,
-  dataSetsFormat?: Format | undefined
+  { format, locale }: LocaleFormat
 ): ChartConfiguration {
   return {
     type: chart.type,
@@ -146,8 +146,8 @@ export function getDefaultChartJsRuntime(
                 ? tooltipItem.yLabel
                 : data.datasets?.[tooltipItem.datasetIndex || 0]?.data?.[tooltipItem.index || 0];
             const yLabelStr =
-              dataSetsFormat && typeof yLabel === "number"
-                ? formatValue(yLabel, dataSetsFormat)
+              format && typeof yLabel === "number"
+                ? formatValue(yLabel, { format, locale })
                 : yLabel?.toLocaleString() || "";
 
             return xLabel ? `${xLabel}: ${yLabelStr}` : yLabelStr;

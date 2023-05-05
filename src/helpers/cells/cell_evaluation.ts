@@ -4,54 +4,71 @@ import {
   BooleanCell,
   CellValue,
   CellValueType,
+  DEFAULT_LOCALE,
   EmptyCell,
   ErrorCell,
   EvaluatedCell,
-  Format,
+  Locale,
+  LocaleFormat,
   NumberCell,
 } from "../../types";
 import { CellErrorType, EvaluationError } from "../../types/errors";
-import { detectFormat, formatValue, isDateTimeFormat } from "../format";
+import { isDateTime } from "../dates";
+import { detectDateFormat, detectNumberFormat, formatValue, isDateTimeFormat } from "../format";
 import { detectLink } from "../links";
-import { isBoolean, isDateTime } from "../misc";
+import { isBoolean } from "../misc";
 import { isNumber } from "../numbers";
 
-export function evaluateLiteral(content: string | undefined, format?: Format): EvaluatedCell {
-  return createEvaluatedCell(parseLiteral(content || ""), format);
+export function evaluateLiteral(
+  content: string | undefined,
+  localeFormat: LocaleFormat
+): EvaluatedCell {
+  return createEvaluatedCell(parseLiteral(content || "", localeFormat.locale), localeFormat);
 }
 
-export function parseLiteral(content: string): CellValue {
+export function parseLiteral(content: string, locale: Locale): CellValue {
   if (content.startsWith("=")) {
     throw new Error(`Cannot parse "${content}" because it's not a literal value. It's a formula`);
   }
-  if (isNumber(content) || isDateTime(content)) {
-    return toNumber(content);
+  if (isNumber(content, DEFAULT_LOCALE)) {
+    return toNumber(content, DEFAULT_LOCALE);
+  } else if (isDateTime(content, locale)) {
+    return toNumber(content, locale);
   } else if (isBoolean(content)) {
     return content.toUpperCase() === "TRUE" ? true : false;
   }
   return content;
 }
 
-export function createEvaluatedCell(value: CellValue | null, format?: Format): EvaluatedCell {
+export function createEvaluatedCell(
+  value: CellValue | null,
+  localeFormat: LocaleFormat
+): EvaluatedCell {
   const link = detectLink(value);
   if (link) {
     return {
-      ..._createEvaluatedCell(parseLiteral(link.label), format || detectFormat(link.label)),
+      ..._createEvaluatedCell(parseLiteral(link.label, localeFormat.locale), {
+        format:
+          localeFormat.format ||
+          detectDateFormat(link.label, localeFormat.locale) ||
+          detectNumberFormat(link.label),
+        locale: localeFormat.locale,
+      }),
       link,
     };
   }
-  return _createEvaluatedCell(value, format);
+  return _createEvaluatedCell(value, localeFormat);
 }
 
-function _createEvaluatedCell(value: CellValue | null, format?: Format): EvaluatedCell {
+function _createEvaluatedCell(value: CellValue | null, localeFormat: LocaleFormat): EvaluatedCell {
   try {
     for (const builder of builders) {
-      const evaluateCell = builder(value, format);
+      const evaluateCell = builder(value, localeFormat);
       if (evaluateCell) {
         return evaluateCell;
       }
     }
-    return textCell((value || "").toString(), format);
+    return textCell((value || "").toString(), localeFormat);
   } catch (error) {
     return errorCell(
       (value || "").toString(),
@@ -66,28 +83,28 @@ function _createEvaluatedCell(value: CellValue | null, format?: Format): Evaluat
  */
 type EvaluatedCellBuilder = (
   value: CellValue | null,
-  format: Format | undefined
+  localeFormat: LocaleFormat
 ) => EvaluatedCell | undefined;
 
-function textCell(value: string, format?: Format): EvaluatedCell {
+function textCell(value: string, localeFormat: LocaleFormat): EvaluatedCell {
   return {
     type: CellValueType.text,
     value,
-    format,
+    format: localeFormat.format,
     isAutoSummable: true,
     defaultAlign: "left",
-    formattedValue: formatValue(value, format),
+    formattedValue: formatValue(value, localeFormat),
   };
 }
 
-function numberCell(value: number, format?: Format): NumberCell {
+function numberCell(value: number, localeFormat: LocaleFormat): NumberCell {
   return {
     type: CellValueType.number,
     value: value || 0, // necessary to avoid "-0" and NaN values,
-    format,
+    format: localeFormat.format,
     isAutoSummable: true,
     defaultAlign: "right",
-    formattedValue: formatValue(value, format),
+    formattedValue: formatValue(value, localeFormat),
   };
 }
 
@@ -100,39 +117,39 @@ const EMPTY_EVALUATED_CELL: EmptyCell = {
   formattedValue: "",
 };
 
-function emptyCell(format?: Format): EmptyCell {
-  if (format === undefined) {
+function emptyCell(localeFormat: LocaleFormat): EmptyCell {
+  if (localeFormat.format === undefined) {
     // share the same object to save memory
     return EMPTY_EVALUATED_CELL;
   }
   return {
     type: CellValueType.empty,
     value: "",
-    format,
+    format: localeFormat.format,
     isAutoSummable: true,
     defaultAlign: "left",
     formattedValue: "",
   };
 }
 
-function dateTimeCell(value: number, format: Format): NumberCell {
-  const formattedValue = formatValue(value, format);
+function dateTimeCell(value: number, localeFormat: LocaleFormat): NumberCell {
+  const formattedValue = formatValue(value, localeFormat);
   return {
     type: CellValueType.number,
     value,
-    format,
+    format: localeFormat.format,
     isAutoSummable: false,
     defaultAlign: "right",
     formattedValue,
   };
 }
 
-function booleanCell(value: boolean, format?: Format): BooleanCell {
+function booleanCell(value: boolean, localeFormat: LocaleFormat): BooleanCell {
   const formattedValue = value ? "TRUE" : "FALSE";
   return {
     type: CellValueType.boolean,
     value,
-    format,
+    format: localeFormat.format,
     isAutoSummable: false,
     defaultAlign: "center",
     formattedValue,
@@ -151,29 +168,33 @@ export function errorCell(content: string, error: EvaluationError): ErrorCell {
 }
 
 const builders: EvaluatedCellBuilder[] = [
-  function createEmpty(value, format) {
+  function createEmpty(value, localeFormat) {
     if (value === "") {
-      return emptyCell(format);
+      return emptyCell(localeFormat);
     }
     return undefined;
   },
-  function createDateTime(value, format) {
-    if (!!format && typeof value === "number" && isDateTimeFormat(format)) {
-      return dateTimeCell(value, format);
+  function createDateTime(value, localeFormat) {
+    if (
+      !!localeFormat.format &&
+      typeof value === "number" &&
+      isDateTimeFormat(localeFormat.format)
+    ) {
+      return dateTimeCell(value, localeFormat);
     }
     return undefined;
   },
-  function createNumber(value, format) {
+  function createNumber(value, localeFormat) {
     if (typeof value === "number") {
-      return numberCell(value, format);
+      return numberCell(value, localeFormat);
     } else if (value === null) {
-      return numberCell(0, format);
+      return numberCell(0, localeFormat);
     }
     return undefined;
   },
-  function createBoolean(value, format) {
+  function createBoolean(value, localeFormat) {
     if (typeof value === "boolean") {
-      return booleanCell(value, format);
+      return booleanCell(value, localeFormat);
     }
     return undefined;
   },

@@ -2,7 +2,7 @@ import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { toCartesian, toZone, zoneToXc } from "../../src/helpers";
 import { ClipboardCellsState } from "../../src/helpers/clipboard/clipboard_cells_state";
 import { Model } from "../../src/model";
-import { ClipboardMIMEType, CommandResult } from "../../src/types/index";
+import { ClipboardMIMEType, CommandResult, DEFAULT_LOCALE } from "../../src/types/index";
 import { XMLString } from "../../src/types/xlsx";
 import { parseXML, xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
 import { MockClipboardData } from "../test_helpers/clipboard";
@@ -31,6 +31,7 @@ import {
   setViewportOffset,
   setZoneBorders,
   undo,
+  updateLocale,
 } from "../test_helpers/commands_helpers";
 import {
   getBorder,
@@ -1897,6 +1898,14 @@ describe("clipboard: pasting outside of sheet", () => {
     expect(getCellContent(model, "B3")).toBe("que");
     expect(getCellContent(model, "C3")).toBe("coucou");
     expect(getCellContent(model, "D3")).toBe("Patrick");
+  });
+
+  test("Can paste localized formula from the OS", () => {
+    const model = new Model();
+    updateLocale(model, { ...DEFAULT_LOCALE, decimalSeparator: ",", formulaArgSeparator: ";" });
+    pasteFromOSClipboard(model, "A1", "=SUM(5 ; 3,14)");
+    expect(getCell(model, "A1")?.content).toBe("=SUM(5 , 3.14)");
+    expect(getEvaluatedCell(model, "A1").value).toBe(8.14);
   });
 
   describe("add col/row can invalidate the clipboard of cut", () => {

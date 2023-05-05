@@ -12,6 +12,7 @@ import {
   MergePlugin,
   SheetPlugin,
 } from "./core";
+import { SettingsPlugin } from "./core/settings";
 import { CorePluginConstructor } from "./core_plugin";
 import {
   CustomColorsPlugin,
@@ -46,6 +47,7 @@ import {
 } from "./ui_stateful";
 
 export const corePluginRegistry = new Registry<CorePluginConstructor>()
+  .add("settings", SettingsPlugin)
   .add("sheet", SheetPlugin)
   .add("header visibility", HeaderVisibilityPlugin)
   .add("filters", FiltersPlugin)

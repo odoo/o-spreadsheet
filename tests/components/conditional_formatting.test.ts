@@ -3,13 +3,14 @@ import { Model } from "../../src";
 import { ConditionalFormattingPanel } from "../../src/components/side_panel/conditional_formatting/conditional_formatting";
 import { toZone } from "../../src/helpers";
 import { ConditionalFormatPlugin } from "../../src/plugins/core/conditional_format";
-import { CommandResult, SpreadsheetChildEnv } from "../../src/types";
+import { CellIsRule, CommandResult, SpreadsheetChildEnv, UID } from "../../src/types";
 import {
   activateSheet,
   copy,
   createSheet,
   paste,
   setSelection,
+  updateLocale,
 } from "../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger } from "../test_helpers/dom_helper";
 import {
@@ -24,6 +25,7 @@ import {
   textContentAll,
   toRangesData,
 } from "../test_helpers/helpers";
+import { FR_LOCALE } from "./../test_helpers/constants";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 interface ParentProps {
@@ -122,8 +124,10 @@ describe("UI of conditional formats", () => {
   });
 
   describe("Conditional format list", () => {
+    let sheetId: UID;
+
     beforeEach(async () => {
-      const sheetId = model.getters.getActiveSheetId();
+      sheetId = model.getters.getActiveSheetId();
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
         sheetId: model.getters.getActiveSheetId(),
@@ -164,6 +168,22 @@ describe("UI of conditional formats", () => {
       ).toBe("");
       // TODO VSC: see how we can test the gradient background image
     });
+
+    test("previews are localized", async () => {
+      updateLocale(model, FR_LOCALE);
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createEqualCF("1.5", { fillColor: "#FF0000" }, "3"),
+        sheetId: model.getters.getActiveSheetId(),
+        ranges: toRangesData(sheetId, "A1:A2"),
+      });
+      await nextTick();
+
+      let previews = document.querySelectorAll(selectors.listPreview);
+      expect(previews[2].querySelector(selectors.description.ruletype.rule)!.textContent).toBe(
+        "Is equal to 1,5"
+      );
+    });
+
     test("can edit an existing CellIsRule", async () => {
       await click(fixture.querySelectorAll(selectors.listPreview)[0]);
       await nextTick();
@@ -1333,6 +1353,24 @@ describe("UI of conditional formats", () => {
     expect(
       (document.querySelector(selectors.ruleEditor.editor.operatorInput) as HTMLSelectElement).value
     ).toBe("IsNotEmpty");
+  });
+
+  test("CF rule values are canonicalized when sending them to the model", async () => {
+    updateLocale(model, FR_LOCALE);
+    await click(fixture, selectors.buttonAdd);
+    await nextTick();
+
+    setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "Equal", "change");
+    await nextTick();
+    setInputValueAndTrigger(selectors.ruleEditor.editor.valueInput, "3,59", "input");
+
+    await click(fixture, selectors.buttonSave);
+    const sheetId = model.getters.getActiveSheetId();
+
+    const lastCfIndex = model.getters.getConditionalFormats(sheetId).length - 1;
+    expect(
+      (model.getters.getConditionalFormats(sheetId)[lastCfIndex].rule as CellIsRule).values
+    ).toEqual(["3.59"]);
   });
 });
 

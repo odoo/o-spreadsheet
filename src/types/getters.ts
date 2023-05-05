@@ -9,6 +9,7 @@ import { HeaderVisibilityPlugin } from "../plugins/core/header_visibility";
 import { ImagePlugin } from "../plugins/core/image";
 import { MergePlugin } from "../plugins/core/merge";
 import { RangeAdapter } from "../plugins/core/range";
+import { SettingsPlugin } from "../plugins/core/settings";
 import { SheetPlugin } from "../plugins/core/sheet";
 import { EvaluationPlugin } from "../plugins/ui_core_views/cell_evaluation";
 import { CustomColorsPlugin } from "../plugins/ui_core_views/custom_colors";
@@ -86,6 +87,7 @@ type ConditionalFormatGetters = Pick<
 >;
 type LocalHistoryGetters = Pick<HistoryPlugin, GetterNames<typeof HistoryPlugin>>;
 type FiltersGetters = Pick<FiltersPlugin, GetterNames<typeof FiltersPlugin>>;
+type SettingsGetters = Pick<SettingsPlugin, GetterNames<typeof SettingsPlugin>>;
 
 export type CoreGetters = SheetGetters &
   HeaderSizeGetters &
@@ -98,7 +100,8 @@ export type CoreGetters = SheetGetters &
   ConditionalFormatGetters &
   FigureGetters &
   RangeAdapterGetters &
-  FiltersGetters;
+  FiltersGetters &
+  SettingsGetters;
 
 type AutofillGetters = Pick<AutofillPlugin, GetterNames<typeof AutofillPlugin>>;
 type AutomaticSumGetters = Pick<AutomaticSumPlugin, GetterNames<typeof AutomaticSumPlugin>>;

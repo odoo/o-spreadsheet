@@ -8,7 +8,13 @@ import {
   transpose2dArray,
 } from "../helpers";
 import { _lt } from "../translation";
-import { AddFunctionDescription, ArgValue, MatrixArgValue, PrimitiveArgValue } from "../types";
+import {
+  AddFunctionDescription,
+  ArgValue,
+  Locale,
+  MatrixArgValue,
+  PrimitiveArgValue,
+} from "../types";
 import { arg } from "./arguments";
 import {
   assert,
@@ -150,18 +156,18 @@ export const ACCRINTM: AddFunctionDescription = {
     dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     dayCountConvention = dayCountConvention || 0;
-    const start = Math.trunc(toNumber(issue));
-    const end = Math.trunc(toNumber(maturity));
-    const _redemption = toNumber(redemption);
-    const _rate = toNumber(rate);
-    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+    const start = Math.trunc(toNumber(issue, this.locale));
+    const end = Math.trunc(toNumber(maturity, this.locale));
+    const _redemption = toNumber(redemption, this.locale);
+    const _rate = toNumber(rate, this.locale);
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
     assertSettlementAndIssueDatesAreValid(end, start);
     assertDayCountConventionIsValid(_dayCountConvention);
     assertRedemptionStrictlyPositive(_redemption);
     assertRateStrictlyPositive(_rate);
 
-    const yearFrac = YEARFRAC.compute(start, end, dayCountConvention) as number;
+    const yearFrac = YEARFRAC.compute.bind(this)(start, end, dayCountConvention) as number;
     return _redemption * _rate * yearFrac;
   },
   isExported: true,
@@ -195,13 +201,13 @@ export const AMORLINC: AddFunctionDescription = {
     dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     dayCountConvention = dayCountConvention || 0;
-    const _cost = toNumber(cost);
-    const _purchaseDate = Math.trunc(toNumber(purchaseDate));
-    const _firstPeriodEnd = Math.trunc(toNumber(firstPeriodEnd));
-    const _salvage = toNumber(salvage);
-    const _period = toNumber(period);
-    const _rate = toNumber(rate);
-    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+    const _cost = toNumber(cost, this.locale);
+    const _purchaseDate = Math.trunc(toNumber(purchaseDate, this.locale));
+    const _firstPeriodEnd = Math.trunc(toNumber(firstPeriodEnd, this.locale));
+    const _salvage = toNumber(salvage, this.locale);
+    const _period = toNumber(period, this.locale);
+    const _rate = toNumber(rate, this.locale);
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
     assertCostStrictlyPositive(_cost);
     assertSalvagePositiveOrZero(_salvage);
@@ -235,7 +241,7 @@ export const AMORLINC: AddFunctionDescription = {
     const roundedPeriod = _period < 1 && _period > 0 ? 1 : Math.trunc(_period);
 
     const deprec = _cost * _rate;
-    const yearFrac = YEARFRAC.compute(
+    const yearFrac = YEARFRAC.compute.bind(this)(
       _purchaseDate,
       _firstPeriodEnd,
       _dayCountConvention
@@ -266,10 +272,10 @@ export const COUPDAYS: AddFunctionDescription = {
     dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     dayCountConvention = dayCountConvention || 0;
-    const start = Math.trunc(toNumber(settlement));
-    const end = Math.trunc(toNumber(maturity));
-    const _frequency = Math.trunc(toNumber(frequency));
-    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+    const start = Math.trunc(toNumber(settlement, this.locale));
+    const end = Math.trunc(toNumber(maturity, this.locale));
+    const _frequency = Math.trunc(toNumber(frequency, this.locale));
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
     assertMaturityAndSettlementDatesAreValid(start, end);
     assertCouponFrequencyIsValid(_frequency);
@@ -277,8 +283,18 @@ export const COUPDAYS: AddFunctionDescription = {
 
     // https://wiki.documentfoundation.org/Documentation/Calc_Functions/COUPDAYS
     if (_dayCountConvention === 1) {
-      const before = COUPPCD.compute(settlement, maturity, frequency, dayCountConvention) as number;
-      const after = COUPNCD.compute(settlement, maturity, frequency, dayCountConvention) as number;
+      const before = COUPPCD.compute.bind(this)(
+        settlement,
+        maturity,
+        frequency,
+        dayCountConvention
+      ) as number;
+      const after = COUPNCD.compute.bind(this)(
+        settlement,
+        maturity,
+        frequency,
+        dayCountConvention
+      ) as number;
       return after - before;
     }
 
@@ -302,16 +318,21 @@ export const COUPDAYBS: AddFunctionDescription = {
     dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     dayCountConvention = dayCountConvention || 0;
-    const start = Math.trunc(toNumber(settlement));
-    const end = Math.trunc(toNumber(maturity));
-    const _frequency = Math.trunc(toNumber(frequency));
-    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+    const start = Math.trunc(toNumber(settlement, this.locale));
+    const end = Math.trunc(toNumber(maturity, this.locale));
+    const _frequency = Math.trunc(toNumber(frequency, this.locale));
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
     assertMaturityAndSettlementDatesAreValid(start, end);
     assertCouponFrequencyIsValid(_frequency);
     assertDayCountConventionIsValid(_dayCountConvention);
 
-    const couponBeforeStart = COUPPCD.compute(start, end, frequency, dayCountConvention) as number;
+    const couponBeforeStart = COUPPCD.compute.bind(this)(
+      start,
+      end,
+      frequency,
+      dayCountConvention
+    ) as number;
     if ([1, 2, 3].includes(_dayCountConvention)) {
       return start - couponBeforeStart;
     }
@@ -321,8 +342,8 @@ export const COUPDAYBS: AddFunctionDescription = {
       return Math.round(yearFrac * 360);
     }
 
-    const startDate = toJsDate(start);
-    const dateCouponBeforeStart = toJsDate(couponBeforeStart);
+    const startDate = toJsDate(start, this.locale);
+    const dateCouponBeforeStart = toJsDate(couponBeforeStart, this.locale);
 
     const y1 = dateCouponBeforeStart.getFullYear();
     const y2 = startDate.getFullYear();
@@ -374,16 +395,21 @@ export const COUPDAYSNC: AddFunctionDescription = {
     dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     dayCountConvention = dayCountConvention || 0;
-    const start = Math.trunc(toNumber(settlement));
-    const end = Math.trunc(toNumber(maturity));
-    const _frequency = Math.trunc(toNumber(frequency));
-    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+    const start = Math.trunc(toNumber(settlement, this.locale));
+    const end = Math.trunc(toNumber(maturity, this.locale));
+    const _frequency = Math.trunc(toNumber(frequency, this.locale));
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
     assertMaturityAndSettlementDatesAreValid(start, end);
     assertCouponFrequencyIsValid(_frequency);
     assertDayCountConventionIsValid(_dayCountConvention);
 
-    const couponAfterStart = COUPNCD.compute(start, end, frequency, dayCountConvention) as number;
+    const couponAfterStart = COUPNCD.compute.bind(this)(
+      start,
+      end,
+      frequency,
+      dayCountConvention
+    ) as number;
     if ([1, 2, 3].includes(_dayCountConvention)) {
       return couponAfterStart - start;
     }
@@ -393,13 +419,13 @@ export const COUPDAYSNC: AddFunctionDescription = {
       return Math.round(yearFrac * 360);
     }
 
-    const coupDayBs = COUPDAYBS.compute(
+    const coupDayBs = COUPDAYBS.compute.bind(this)(
       settlement,
       maturity,
       frequency,
       _dayCountConvention
     ) as number;
-    const coupDays = COUPDAYS.compute(
+    const coupDays = COUPDAYS.compute.bind(this)(
       settlement,
       maturity,
       frequency,
@@ -417,7 +443,9 @@ export const COUPNCD: AddFunctionDescription = {
   description: _lt("Next coupon date after the settlement date."),
   args: COUPON_FUNCTION_ARGS,
   returns: ["NUMBER"],
-  computeFormat: () => "m/d/yyyy",
+  computeFormat: function () {
+    return this.locale.dateFormat;
+  },
   compute: function (
     settlement: PrimitiveArgValue,
     maturity: PrimitiveArgValue,
@@ -425,10 +453,10 @@ export const COUPNCD: AddFunctionDescription = {
     dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     dayCountConvention = dayCountConvention || 0;
-    const start = Math.trunc(toNumber(settlement));
-    const end = Math.trunc(toNumber(maturity));
-    const _frequency = Math.trunc(toNumber(frequency));
-    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+    const start = Math.trunc(toNumber(settlement, this.locale));
+    const end = Math.trunc(toNumber(maturity, this.locale));
+    const _frequency = Math.trunc(toNumber(frequency, this.locale));
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
     assertMaturityAndSettlementDatesAreValid(start, end);
     assertCouponFrequencyIsValid(_frequency);
@@ -436,8 +464,17 @@ export const COUPNCD: AddFunctionDescription = {
 
     const monthsPerPeriod = 12 / _frequency;
 
-    const coupNum = COUPNUM.compute(settlement, maturity, frequency, dayCountConvention) as number;
-    const date = addMonthsToDate(toJsDate(end), -(coupNum - 1) * monthsPerPeriod, true);
+    const coupNum = COUPNUM.compute.bind(this)(
+      settlement,
+      maturity,
+      frequency,
+      dayCountConvention
+    ) as number;
+    const date = addMonthsToDate(
+      toJsDate(end, this.locale),
+      -(coupNum - 1) * monthsPerPeriod,
+      true
+    );
     return jsDateToRoundNumber(date);
   },
   isExported: true,
@@ -457,10 +494,10 @@ export const COUPNUM: AddFunctionDescription = {
     dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     dayCountConvention = dayCountConvention || 0;
-    const start = Math.trunc(toNumber(settlement));
-    const end = Math.trunc(toNumber(maturity));
-    const _frequency = Math.trunc(toNumber(frequency));
-    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+    const start = Math.trunc(toNumber(settlement, this.locale));
+    const end = Math.trunc(toNumber(maturity, this.locale));
+    const _frequency = Math.trunc(toNumber(frequency, this.locale));
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
     assertMaturityAndSettlementDatesAreValid(start, end);
     assertCouponFrequencyIsValid(_frequency);
@@ -472,7 +509,7 @@ export const COUPNUM: AddFunctionDescription = {
 
     while (currentDate > start) {
       currentDate = jsDateToRoundNumber(
-        addMonthsToDate(toJsDate(currentDate), -monthsPerPeriod, false)
+        addMonthsToDate(toJsDate(currentDate, this.locale), -monthsPerPeriod, false)
       );
       num++;
     }
@@ -488,7 +525,9 @@ export const COUPPCD: AddFunctionDescription = {
   description: _lt("Last coupon date prior to or on the settlement date."),
   args: COUPON_FUNCTION_ARGS,
   returns: ["NUMBER"],
-  computeFormat: () => "m/d/yyyy",
+  computeFormat: function () {
+    return this.locale.dateFormat;
+  },
   compute: function (
     settlement: PrimitiveArgValue,
     maturity: PrimitiveArgValue,
@@ -496,10 +535,10 @@ export const COUPPCD: AddFunctionDescription = {
     dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     dayCountConvention = dayCountConvention || 0;
-    const start = Math.trunc(toNumber(settlement));
-    const end = Math.trunc(toNumber(maturity));
-    const _frequency = Math.trunc(toNumber(frequency));
-    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+    const start = Math.trunc(toNumber(settlement, this.locale));
+    const end = Math.trunc(toNumber(maturity, this.locale));
+    const _frequency = Math.trunc(toNumber(frequency, this.locale));
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
     assertMaturityAndSettlementDatesAreValid(start, end);
     assertCouponFrequencyIsValid(_frequency);
@@ -507,8 +546,13 @@ export const COUPPCD: AddFunctionDescription = {
 
     const monthsPerPeriod = 12 / _frequency;
 
-    const coupNum = COUPNUM.compute(settlement, maturity, frequency, dayCountConvention) as number;
-    const date = addMonthsToDate(toJsDate(end), -coupNum * monthsPerPeriod, true);
+    const coupNum = COUPNUM.compute.bind(this)(
+      settlement,
+      maturity,
+      frequency,
+      dayCountConvention
+    ) as number;
+    const date = addMonthsToDate(toJsDate(end, this.locale), -coupNum * monthsPerPeriod, true);
     return jsDateToRoundNumber(date);
   },
   isExported: true,
@@ -545,11 +589,11 @@ export const CUMIPMT: AddFunctionDescription = {
     lastPeriod: PrimitiveArgValue,
     endOrBeginning: PrimitiveArgValue = DEFAULT_END_OR_BEGINNING
   ): number {
-    const first = toNumber(firstPeriod);
-    const last = toNumber(lastPeriod);
-    const _rate = toNumber(rate);
-    const pv = toNumber(presentValue);
-    const nOfPeriods = toNumber(numberOfPeriods);
+    const first = toNumber(firstPeriod, this.locale);
+    const last = toNumber(lastPeriod, this.locale);
+    const _rate = toNumber(rate, this.locale);
+    const pv = toNumber(presentValue, this.locale);
+    const nOfPeriods = toNumber(numberOfPeriods, this.locale);
 
     assertFirstAndLastPeriodsAreValid(first, last, nOfPeriods);
     assertRateStrictlyPositive(_rate);
@@ -557,7 +601,14 @@ export const CUMIPMT: AddFunctionDescription = {
 
     let cumSum = 0;
     for (let i = first; i <= last; i++) {
-      const impt = IPMT.compute(rate, i, nOfPeriods, presentValue, 0, endOrBeginning) as number;
+      const impt = IPMT.compute.bind(this)(
+        rate,
+        i,
+        nOfPeriods,
+        presentValue,
+        0,
+        endOrBeginning
+      ) as number;
       cumSum += impt;
     }
 
@@ -597,11 +648,11 @@ export const CUMPRINC: AddFunctionDescription = {
     lastPeriod: PrimitiveArgValue,
     endOrBeginning: PrimitiveArgValue = DEFAULT_END_OR_BEGINNING
   ): number {
-    const first = toNumber(firstPeriod);
-    const last = toNumber(lastPeriod);
-    const _rate = toNumber(rate);
-    const pv = toNumber(presentValue);
-    const nOfPeriods = toNumber(numberOfPeriods);
+    const first = toNumber(firstPeriod, this.locale);
+    const last = toNumber(lastPeriod, this.locale);
+    const _rate = toNumber(rate, this.locale);
+    const pv = toNumber(presentValue, this.locale);
+    const nOfPeriods = toNumber(numberOfPeriods, this.locale);
 
     assertFirstAndLastPeriodsAreValid(first, last, nOfPeriods);
     assertRateStrictlyPositive(_rate);
@@ -609,7 +660,14 @@ export const CUMPRINC: AddFunctionDescription = {
 
     let cumSum = 0;
     for (let i = first; i <= last; i++) {
-      const ppmt = PPMT.compute(rate, i, nOfPeriods, presentValue, 0, endOrBeginning) as number;
+      const ppmt = PPMT.compute.bind(this)(
+        rate,
+        i,
+        nOfPeriods,
+        presentValue,
+        0,
+        endOrBeginning
+      ) as number;
       cumSum += ppmt;
     }
 
@@ -643,11 +701,11 @@ export const DB: AddFunctionDescription = {
     period: PrimitiveArgValue,
     ...args: PrimitiveArgValue[]
   ): number {
-    const _cost = toNumber(cost);
-    const _salvage = toNumber(salvage);
-    const _life = toNumber(life);
-    const _period = Math.trunc(toNumber(period));
-    const _month = args.length ? Math.trunc(toNumber(args[0])) : 12;
+    const _cost = toNumber(cost, this.locale);
+    const _salvage = toNumber(salvage, this.locale);
+    const _life = toNumber(life, this.locale);
+    const _period = Math.trunc(toNumber(period, this.locale));
+    const _month = args.length ? Math.trunc(toNumber(args[0], this.locale)) : 12;
     const lifeLimit = _life + (_month === 12 ? 0 : 1);
 
     assertCostPositiveOrZero(_cost);
@@ -718,11 +776,11 @@ export const DDB: AddFunctionDescription = {
     factor: PrimitiveArgValue = DEFAULT_DDB_DEPRECIATION_FACTOR
   ): number {
     factor = factor || 0;
-    const _cost = toNumber(cost);
-    const _salvage = toNumber(salvage);
-    const _life = toNumber(life);
-    const _period = toNumber(period);
-    const _factor = toNumber(factor);
+    const _cost = toNumber(cost, this.locale);
+    const _salvage = toNumber(salvage, this.locale);
+    const _life = toNumber(life, this.locale);
+    const _period = toNumber(period, this.locale);
+    const _factor = toNumber(factor, this.locale);
 
     assertCostPositiveOrZero(_cost);
     assertSalvagePositiveOrZero(_salvage);
@@ -785,11 +843,11 @@ export const DISC: AddFunctionDescription = {
     dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     dayCountConvention = dayCountConvention || 0;
-    const _settlement = Math.trunc(toNumber(settlement));
-    const _maturity = Math.trunc(toNumber(maturity));
-    const _price = toNumber(price);
-    const _redemption = toNumber(redemption);
-    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+    const _settlement = Math.trunc(toNumber(settlement, this.locale));
+    const _maturity = Math.trunc(toNumber(maturity, this.locale));
+    const _price = toNumber(price, this.locale);
+    const _redemption = toNumber(redemption, this.locale);
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
     assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
     assertDayCountConventionIsValid(_dayCountConvention);
@@ -806,7 +864,11 @@ export const DISC: AddFunctionDescription = {
      * DISC = ____________________  *    ____
      *            redemption             DSM
      */
-    const yearsFrac = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention) as number;
+    const yearsFrac = YEARFRAC.compute.bind(this)(
+      _settlement,
+      _maturity,
+      _dayCountConvention
+    ) as number;
     return (_redemption - _price) / _redemption / yearsFrac;
   },
   isExported: true,
@@ -826,8 +888,8 @@ export const DOLLARDE: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (fractionalPrice: PrimitiveArgValue, unit: PrimitiveArgValue): number {
-    const price = toNumber(fractionalPrice);
-    const _unit = Math.trunc(toNumber(unit));
+    const price = toNumber(fractionalPrice, this.locale);
+    const _unit = Math.trunc(toNumber(unit, this.locale));
 
     assert(() => _unit > 0, _lt("The unit (%s) must be strictly positive.", _unit.toString()));
 
@@ -855,8 +917,8 @@ export const DOLLARFR: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (decimalPrice: PrimitiveArgValue, unit: PrimitiveArgValue): number {
-    const price = toNumber(decimalPrice);
-    const _unit = Math.trunc(toNumber(unit));
+    const price = toNumber(decimalPrice, this.locale);
+    const _unit = Math.trunc(toNumber(unit, this.locale));
 
     assert(() => _unit > 0, _lt("The unit (%s) must be strictly positive.", _unit.toString()));
 
@@ -909,12 +971,12 @@ export const DURATION: AddFunctionDescription = {
     dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     dayCountConvention = dayCountConvention || 0;
-    const start = Math.trunc(toNumber(settlement));
-    const end = Math.trunc(toNumber(maturity));
-    const _rate = toNumber(rate);
-    const _yield = toNumber(securityYield);
-    const _frequency = Math.trunc(toNumber(frequency));
-    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+    const start = Math.trunc(toNumber(settlement, this.locale));
+    const end = Math.trunc(toNumber(maturity, this.locale));
+    const _rate = toNumber(rate, this.locale);
+    const _yield = toNumber(securityYield, this.locale);
+    const _frequency = Math.trunc(toNumber(frequency, this.locale));
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
     assertMaturityAndSettlementDatesAreValid(start, end);
     assertCouponFrequencyIsValid(_frequency);
@@ -923,7 +985,7 @@ export const DURATION: AddFunctionDescription = {
     assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
     assert(() => _yield >= 0, _lt("The yield (%s) must be positive or null.", _yield.toString()));
 
-    const years = YEARFRAC.compute(start, end, _dayCountConvention) as number;
+    const years = YEARFRAC.compute.bind(this)(start, end, _dayCountConvention) as number;
     const timeFirstYear = years - Math.trunc(years) || 1 / _frequency;
     const nbrCoupons = Math.ceil(years * _frequency);
 
@@ -959,8 +1021,8 @@ export const EFFECT: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (nominal_rate: PrimitiveArgValue, periods_per_year: PrimitiveArgValue): number {
-    const nominal = toNumber(nominal_rate);
-    const periods = Math.trunc(toNumber(periods_per_year));
+    const nominal = toNumber(nominal_rate, this.locale);
+    const periods = Math.trunc(toNumber(periods_per_year, this.locale));
 
     assert(
       () => nominal > 0,
@@ -1008,10 +1070,10 @@ export const FV: AddFunctionDescription = {
   ): number {
     presentValue = presentValue || 0;
     endOrBeginning = endOrBeginning || 0;
-    const r = toNumber(rate);
-    const n = toNumber(numberOfPeriods);
-    const p = toNumber(paymentAmount);
-    const pv = toNumber(presentValue);
+    const r = toNumber(rate, this.locale);
+    const n = toNumber(numberOfPeriods, this.locale);
+    const p = toNumber(paymentAmount, this.locale);
+    const pv = toNumber(presentValue, this.locale);
     const type = toBoolean(endOrBeginning) ? 1 : 0;
     return r ? -pv * (1 + r) ** n - (p * (1 + r * type) * ((1 + r) ** n - 1)) / r : -(pv + p * n);
   },
@@ -1032,8 +1094,12 @@ export const FVSCHEDULE: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (principalAmount: PrimitiveArgValue, rateSchedule: ArgValue): number {
-    const principal = toNumber(principalAmount);
-    return reduceAny([rateSchedule], (acc, rate) => acc * (1 + toNumber(rate)), principal);
+    const principal = toNumber(principalAmount, this.locale);
+    return reduceAny(
+      [rateSchedule],
+      (acc, rate) => acc * (1 + toNumber(rate, this.locale)),
+      principal
+    );
   },
   isExported: true,
 };
@@ -1071,10 +1137,10 @@ export const INTRATE: AddFunctionDescription = {
     redemption: PrimitiveArgValue,
     dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
-    const _settlement = Math.trunc(toNumber(settlement));
-    const _maturity = Math.trunc(toNumber(maturity));
-    const _redemption = toNumber(redemption);
-    const _investment = toNumber(investment);
+    const _settlement = Math.trunc(toNumber(settlement, this.locale));
+    const _maturity = Math.trunc(toNumber(maturity, this.locale));
+    const _redemption = toNumber(redemption, this.locale);
+    const _investment = toNumber(investment, this.locale);
 
     assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
     assertInvestmentStrictlyPositive(_investment);
@@ -1087,7 +1153,11 @@ export const INTRATE: AddFunctionDescription = {
      * INTRATE =  _________________________________________
      *              YEARFRAC(settlement, maturity, basis)
      */
-    const yearFrac = YEARFRAC.compute(_settlement, _maturity, dayCountConvention) as number;
+    const yearFrac = YEARFRAC.compute.bind(this)(
+      _settlement,
+      _maturity,
+      dayCountConvention
+    ) as number;
     return (_redemption - _investment) / _investment / yearFrac;
   },
   isExported: true,
@@ -1122,14 +1192,14 @@ export const IPMT: AddFunctionDescription = {
     futureValue: PrimitiveArgValue = DEFAULT_FUTURE_VALUE,
     endOrBeginning: PrimitiveArgValue = DEFAULT_END_OR_BEGINNING
   ): number {
-    const payment = PMT.compute(
+    const payment = PMT.compute.bind(this)(
       rate,
       numberOfPeriods,
       presentValue,
       futureValue,
       endOrBeginning
     ) as number;
-    const ppmt = PPMT.compute(
+    const ppmt = PPMT.compute.bind(this)(
       rate,
       currentPeriod,
       numberOfPeriods,
@@ -1164,7 +1234,7 @@ export const IRR: AddFunctionDescription = {
     cashFlowAmounts: MatrixArgValue,
     rateGuess: PrimitiveArgValue = DEFAULT_RATE_GUESS
   ): number {
-    const _rateGuess = toNumber(rateGuess);
+    const _rateGuess = toNumber(rateGuess, this.locale);
 
     assertRateGuessStrictlyGreaterThanMinusOne(_rateGuess);
 
@@ -1175,11 +1245,15 @@ export const IRR: AddFunctionDescription = {
     let negative = false;
     let amounts: number[] = [];
 
-    visitNumbers([cashFlowAmounts], (amount) => {
-      if (amount > 0) positive = true;
-      if (amount < 0) negative = true;
-      amounts.push(amount);
-    });
+    visitNumbers(
+      [cashFlowAmounts],
+      (amount) => {
+        if (amount > 0) positive = true;
+        if (amount < 0) negative = true;
+        amounts.push(amount);
+      },
+      this.locale
+    );
 
     assert(
       () => positive && negative,
@@ -1242,10 +1316,10 @@ export const ISPMT: AddFunctionDescription = {
     numberOfPeriods: PrimitiveArgValue,
     presentValue: PrimitiveArgValue
   ): number {
-    const interestRate = toNumber(rate);
-    const period = toNumber(currentPeriod);
-    const nOfPeriods = toNumber(numberOfPeriods);
-    const investment = toNumber(presentValue);
+    const interestRate = toNumber(rate, this.locale);
+    const period = toNumber(currentPeriod, this.locale);
+    const nOfPeriods = toNumber(numberOfPeriods, this.locale);
+    const investment = toNumber(presentValue, this.locale);
 
     assert(
       () => nOfPeriods !== 0,
@@ -1296,7 +1370,7 @@ export const MDURATION: AddFunctionDescription = {
     frequency: PrimitiveArgValue,
     dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
-    const duration = DURATION.compute(
+    const duration = DURATION.compute.bind(this)(
       settlement,
       maturity,
       rate,
@@ -1304,8 +1378,8 @@ export const MDURATION: AddFunctionDescription = {
       frequency,
       dayCountConvention
     ) as number;
-    const y = toNumber(securityYield);
-    const k = Math.trunc(toNumber(frequency));
+    const y = toNumber(securityYield, this.locale);
+    const k = Math.trunc(toNumber(frequency, this.locale));
     return duration / (1 + y / k);
   },
   isExported: true,
@@ -1337,9 +1411,12 @@ export const MIRR: AddFunctionDescription = {
     financingRate: PrimitiveArgValue,
     reinvestmentRate: PrimitiveArgValue
   ): number {
-    const fRate = toNumber(financingRate);
-    const rRate = toNumber(reinvestmentRate);
-    const cashFlow = transpose2dArray(cashflowAmount).flat().filter(isDefined).map(toNumber);
+    const fRate = toNumber(financingRate, this.locale);
+    const rRate = toNumber(reinvestmentRate, this.locale);
+    const cashFlow = transpose2dArray(cashflowAmount)
+      .flat()
+      .filter(isDefined)
+      .map((val) => toNumber(val, this.locale));
     const n = cashFlow.length;
 
     /**
@@ -1397,8 +1474,8 @@ export const NOMINAL: AddFunctionDescription = {
     effective_rate: PrimitiveArgValue,
     periods_per_year: PrimitiveArgValue
   ): number {
-    const effective = toNumber(effective_rate);
-    const periods = Math.trunc(toNumber(periods_per_year));
+    const effective = toNumber(effective_rate, this.locale);
+    const periods = Math.trunc(toNumber(periods_per_year, this.locale));
 
     assert(
       () => effective > 0,
@@ -1443,10 +1520,10 @@ export const NPER: AddFunctionDescription = {
   ): number {
     futureValue = futureValue || 0;
     endOrBeginning = endOrBeginning || 0;
-    const r = toNumber(rate);
-    const p = toNumber(paymentAmount);
-    const pv = toNumber(presentValue);
-    const fv = toNumber(futureValue);
+    const r = toNumber(rate, this.locale);
+    const p = toNumber(paymentAmount, this.locale);
+    const pv = toNumber(presentValue, this.locale);
+    const fv = toNumber(futureValue, this.locale);
     const t = toBoolean(endOrBeginning) ? 1 : 0;
 
     /**
@@ -1476,7 +1553,7 @@ export const NPER: AddFunctionDescription = {
 // NPV
 // -----------------------------------------------------------------------------
 
-function npvResult(r: number, startValue: number, values: ArgValue[]): number {
+function npvResult(r: number, startValue: number, values: ArgValue[], locale: Locale): number {
   let i = 0;
   return reduceNumbers(
     values,
@@ -1484,7 +1561,8 @@ function npvResult(r: number, startValue: number, values: ArgValue[]): number {
       i++;
       return acc + v / (1 + r) ** i;
     },
-    startValue
+    startValue,
+    locale
   );
 }
 
@@ -1501,14 +1579,14 @@ export const NPV: AddFunctionDescription = {
   // to do: replace by dollar format
   computeFormat: () => "#,##0.00",
   compute: function (discount: PrimitiveArgValue, ...values: ArgValue[]): number {
-    const _discount = toNumber(discount);
+    const _discount = toNumber(discount, this.locale);
 
     assert(
       () => _discount !== -1,
       _lt("The discount (%s) must be different from -1.", _discount.toString())
     );
 
-    return npvResult(_discount, 0, values);
+    return npvResult(_discount, 0, values, this.locale);
   },
   isExported: true,
 };
@@ -1529,9 +1607,9 @@ export const PDURATION: AddFunctionDescription = {
     presentValue: PrimitiveArgValue,
     futureValue: PrimitiveArgValue
   ): number {
-    const _rate = toNumber(rate);
-    const _presentValue = toNumber(presentValue);
-    const _futureValue = toNumber(futureValue);
+    const _rate = toNumber(rate, this.locale);
+    const _presentValue = toNumber(presentValue, this.locale);
+    const _futureValue = toNumber(futureValue, this.locale);
 
     assertRateStrictlyPositive(_rate);
     assert(
@@ -1577,11 +1655,11 @@ export const PMT: AddFunctionDescription = {
   ): number {
     futureValue = futureValue || 0;
     endOrBeginning = endOrBeginning || 0;
-    const n = toNumber(numberOfPeriods);
-    const r = toNumber(rate);
+    const n = toNumber(numberOfPeriods, this.locale);
+    const r = toNumber(rate, this.locale);
     const t = toBoolean(endOrBeginning) ? 1 : 0;
-    let fv = toNumber(futureValue);
-    let pv = toNumber(presentValue);
+    let fv = toNumber(futureValue, this.locale);
+    let pv = toNumber(presentValue, this.locale);
 
     assertNumberOfPeriodsStrictlyPositive(n);
 
@@ -1634,12 +1712,12 @@ export const PPMT: AddFunctionDescription = {
   ): number {
     futureValue = futureValue || 0;
     endOrBeginning = endOrBeginning || 0;
-    const n = toNumber(numberOfPeriods);
-    const r = toNumber(rate);
-    const period = toNumber(currentPeriod);
+    const n = toNumber(numberOfPeriods, this.locale);
+    const r = toNumber(rate, this.locale);
+    const period = toNumber(currentPeriod, this.locale);
     const type = toBoolean(endOrBeginning) ? 1 : 0;
-    const fv = toNumber(futureValue);
-    const pv = toNumber(presentValue);
+    const fv = toNumber(futureValue, this.locale);
+    const pv = toNumber(presentValue, this.locale);
 
     assertNumberOfPeriodsStrictlyPositive(n);
     assert(
@@ -1647,13 +1725,13 @@ export const PPMT: AddFunctionDescription = {
       _lt("The period must be between 1 and number_of_periods", n.toString())
     );
 
-    const payment = PMT.compute(r, n, pv, fv, endOrBeginning) as number;
+    const payment = PMT.compute.bind(this)(r, n, pv, fv, endOrBeginning) as number;
 
     if (type === 1 && period === 1) return payment;
     const eqPeriod = type === 0 ? period - 1 : period - 2;
     const eqPv = pv + payment * type;
 
-    const capitalAtPeriod = -(FV.compute(r, eqPeriod, payment, eqPv, 0) as number);
+    const capitalAtPeriod = -(FV.compute.bind(this)(r, eqPeriod, payment, eqPv, 0) as number);
     const currentInterest = capitalAtPeriod * r;
     return payment + currentInterest;
   },
@@ -1690,10 +1768,10 @@ export const PV: AddFunctionDescription = {
   ): number {
     futureValue = futureValue || 0;
     endOrBeginning = endOrBeginning || 0;
-    const r = toNumber(rate);
-    const n = toNumber(numberOfPeriods);
-    const p = toNumber(paymentAmount);
-    const fv = toNumber(futureValue);
+    const r = toNumber(rate, this.locale);
+    const n = toNumber(numberOfPeriods, this.locale);
+    const p = toNumber(paymentAmount, this.locale);
+    const fv = toNumber(futureValue, this.locale);
     const type = toBoolean(endOrBeginning) ? 1 : 0;
     // https://wiki.documentfoundation.org/Documentation/Calc_Functions/PV
     return r ? -((p * (1 + r * type) * ((1 + r) ** n - 1)) / r + fv) / (1 + r) ** n : -(fv + p * n);
@@ -1742,13 +1820,13 @@ export const PRICE: AddFunctionDescription = {
     dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     dayCountConvention = dayCountConvention || 0;
-    const _settlement = Math.trunc(toNumber(settlement));
-    const _maturity = Math.trunc(toNumber(maturity));
-    const _rate = toNumber(rate);
-    const _yield = toNumber(securityYield);
-    const _redemption = toNumber(redemption);
-    const _frequency = Math.trunc(toNumber(frequency));
-    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+    const _settlement = Math.trunc(toNumber(settlement, this.locale));
+    const _maturity = Math.trunc(toNumber(maturity, this.locale));
+    const _rate = toNumber(rate, this.locale);
+    const _yield = toNumber(securityYield, this.locale);
+    const _redemption = toNumber(redemption, this.locale);
+    const _frequency = Math.trunc(toNumber(frequency, this.locale));
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
     assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
     assertCouponFrequencyIsValid(_frequency);
@@ -1758,7 +1836,11 @@ export const PRICE: AddFunctionDescription = {
     assert(() => _yield >= 0, _lt("The yield (%s) must be positive or null.", _yield.toString()));
     assertRedemptionStrictlyPositive(_redemption);
 
-    const years = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention) as number;
+    const years = YEARFRAC.compute.bind(this)(
+      _settlement,
+      _maturity,
+      _dayCountConvention
+    ) as number;
     const nbrRealCoupons = years * _frequency;
     const nbrFullCoupons = Math.ceil(nbrRealCoupons);
     const timeFirstCoupon = nbrRealCoupons - Math.floor(nbrRealCoupons) || 1;
@@ -1823,11 +1905,11 @@ export const PRICEDISC: AddFunctionDescription = {
     dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     dayCountConvention = dayCountConvention || 0;
-    const _settlement = Math.trunc(toNumber(settlement));
-    const _maturity = Math.trunc(toNumber(maturity));
-    const _discount = toNumber(discount);
-    const _redemption = toNumber(redemption);
-    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+    const _settlement = Math.trunc(toNumber(settlement, this.locale));
+    const _maturity = Math.trunc(toNumber(maturity, this.locale));
+    const _discount = toNumber(discount, this.locale);
+    const _redemption = toNumber(redemption, this.locale);
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
     assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
     assertDayCountConventionIsValid(_dayCountConvention);
@@ -1843,7 +1925,11 @@ export const PRICEDISC: AddFunctionDescription = {
      *
      * PRICEDISC = redemption - discount * redemption * (DSM/B)
      */
-    const yearsFrac = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention) as number;
+    const yearsFrac = YEARFRAC.compute.bind(this)(
+      _settlement,
+      _maturity,
+      _dayCountConvention
+    ) as number;
     return _redemption - _discount * _redemption * yearsFrac;
   },
   isExported: true,
@@ -1887,12 +1973,12 @@ export const PRICEMAT: AddFunctionDescription = {
     dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     dayCountConvention = dayCountConvention || 0;
-    const _settlement = Math.trunc(toNumber(settlement));
-    const _maturity = Math.trunc(toNumber(maturity));
-    const _issue = Math.trunc(toNumber(issue));
-    const _rate = toNumber(rate);
-    const _yield = toNumber(securityYield);
-    const _dayCount = Math.trunc(toNumber(dayCountConvention));
+    const _settlement = Math.trunc(toNumber(settlement, this.locale));
+    const _maturity = Math.trunc(toNumber(maturity, this.locale));
+    const _issue = Math.trunc(toNumber(issue, this.locale));
+    const _rate = toNumber(rate, this.locale);
+    const _yield = toNumber(securityYield, this.locale);
+    const _dayCount = Math.trunc(toNumber(dayCountConvention, this.locale));
 
     assertSettlementAndIssueDatesAreValid(_settlement, _issue);
     assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
@@ -1927,9 +2013,13 @@ export const PRICEMAT: AddFunctionDescription = {
      * from the results of Excel/LibreOffice, thus we get different values with PRICEMAT.
      *
      */
-    const settlementToMaturity = YEARFRAC.compute(_settlement, _maturity, _dayCount) as number;
-    const issueToSettlement = YEARFRAC.compute(_settlement, _issue, _dayCount) as number;
-    const issueToMaturity = YEARFRAC.compute(_issue, _maturity, _dayCount) as number;
+    const settlementToMaturity = YEARFRAC.compute.bind(this)(
+      _settlement,
+      _maturity,
+      _dayCount
+    ) as number;
+    const issueToSettlement = YEARFRAC.compute.bind(this)(_settlement, _issue, _dayCount) as number;
+    const issueToMaturity = YEARFRAC.compute.bind(this)(_issue, _maturity, _dayCount) as number;
 
     const numerator = 100 + issueToMaturity * _rate * 100;
     const denominator = 1 + settlementToMaturity * _yield;
@@ -1975,12 +2065,12 @@ export const RATE: AddFunctionDescription = {
     futureValue = futureValue || 0;
     endOrBeginning = endOrBeginning || 0;
     rateGuess = rateGuess || RATE_GUESS_DEFAULT;
-    const n = toNumber(numberOfPeriods);
-    const payment = toNumber(paymentPerPeriod);
+    const n = toNumber(numberOfPeriods, this.locale);
+    const payment = toNumber(paymentPerPeriod, this.locale);
     const type = toBoolean(endOrBeginning) ? 1 : 0;
-    const guess = toNumber(rateGuess);
-    let fv = toNumber(futureValue);
-    let pv = toNumber(presentValue);
+    const guess = toNumber(rateGuess, this.locale);
+    let fv = toNumber(futureValue, this.locale);
+    let pv = toNumber(presentValue, this.locale);
 
     assertNumberOfPeriodsStrictlyPositive(n);
     assert(
@@ -2052,11 +2142,11 @@ export const RECEIVED: AddFunctionDescription = {
     dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     dayCountConvention = dayCountConvention || 0;
-    const _settlement = Math.trunc(toNumber(settlement));
-    const _maturity = Math.trunc(toNumber(maturity));
-    const _investment = toNumber(investment);
-    const _discount = toNumber(discount);
-    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+    const _settlement = Math.trunc(toNumber(settlement, this.locale));
+    const _maturity = Math.trunc(toNumber(maturity, this.locale));
+    const _investment = toNumber(investment, this.locale);
+    const _discount = toNumber(discount, this.locale);
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
     assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
     assertDayCountConventionIsValid(_dayCountConvention);
@@ -2074,7 +2164,11 @@ export const RECEIVED: AddFunctionDescription = {
      *
      * The ratio DSM/B can be computed with the YEARFRAC function to take the dayCountConvention into account.
      */
-    const yearsFrac = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention) as number;
+    const yearsFrac = YEARFRAC.compute.bind(this)(
+      _settlement,
+      _maturity,
+      _dayCountConvention
+    ) as number;
     return _investment / (1 - _discount * yearsFrac);
   },
   isExported: true,
@@ -2098,9 +2192,9 @@ export const RRI: AddFunctionDescription = {
     presentValue: PrimitiveArgValue,
     futureValue: PrimitiveArgValue
   ): number {
-    const n = toNumber(numberOfPeriods);
-    const pv = toNumber(presentValue);
-    const fv = toNumber(futureValue);
+    const n = toNumber(numberOfPeriods, this.locale);
+    const pv = toNumber(presentValue, this.locale);
+    const fv = toNumber(futureValue, this.locale);
 
     assertNumberOfPeriodsStrictlyPositive(n);
 
@@ -2131,9 +2225,9 @@ export const SLN: AddFunctionDescription = {
     salvage: PrimitiveArgValue,
     life: PrimitiveArgValue
   ): number {
-    const _cost = toNumber(cost);
-    const _salvage = toNumber(salvage);
-    const _life = toNumber(life);
+    const _cost = toNumber(cost, this.locale);
+    const _salvage = toNumber(salvage, this.locale);
+    const _life = toNumber(life, this.locale);
 
     // No assertion is done on the values of the arguments to be compatible with Excel/Gsheet that don't check the values.
     // It's up to the user to make sure the arguments make sense, which is good design because the user is smart.
@@ -2165,10 +2259,10 @@ export const SYD: AddFunctionDescription = {
     life: PrimitiveArgValue,
     period: PrimitiveArgValue
   ): number {
-    const _cost = toNumber(cost);
-    const _salvage = toNumber(salvage);
-    const _life = toNumber(life);
-    const _period = toNumber(period);
+    const _cost = toNumber(cost, this.locale);
+    const _salvage = toNumber(salvage, this.locale);
+    const _life = toNumber(life, this.locale);
+    const _period = toNumber(period, this.locale);
 
     assertPeriodStrictlyPositive(_period);
     assertLifeStrictlyPositive(_life);
@@ -2217,12 +2311,12 @@ export const TBILLPRICE: AddFunctionDescription = {
     maturity: PrimitiveArgValue,
     discount: PrimitiveArgValue
   ): number {
-    const start = Math.trunc(toNumber(settlement));
-    const end = Math.trunc(toNumber(maturity));
-    const disc = toNumber(discount);
+    const start = Math.trunc(toNumber(settlement, this.locale));
+    const end = Math.trunc(toNumber(maturity, this.locale));
+    const disc = toNumber(discount, this.locale);
 
     assertMaturityAndSettlementDatesAreValid(start, end);
-    assertSettlementLessThanOneYearBeforeMaturity(start, end);
+    assertSettlementLessThanOneYearBeforeMaturity(start, end, this.locale);
     assertDiscountStrictlyPositive(disc);
     assertDiscountStrictlySmallerThanOne(disc);
 
@@ -2235,7 +2329,7 @@ export const TBILLPRICE: AddFunctionDescription = {
      *
      * The ratio DSM/360 can be computed with the YEARFRAC function with dayCountConvention = 2 (actual/360).
      */
-    const yearFrac = YEARFRAC.compute(start, end, 2) as number;
+    const yearFrac = YEARFRAC.compute.bind(this)(start, end, 2) as number;
     return 100 * (1 - disc * yearFrac);
   },
   isExported: true,
@@ -2267,12 +2361,12 @@ export const TBILLEQ: AddFunctionDescription = {
     maturity: PrimitiveArgValue,
     discount: PrimitiveArgValue
   ): number {
-    const start = Math.trunc(toNumber(settlement));
-    const end = Math.trunc(toNumber(maturity));
-    const disc = toNumber(discount);
+    const start = Math.trunc(toNumber(settlement, this.locale));
+    const end = Math.trunc(toNumber(maturity, this.locale));
+    const disc = toNumber(discount, this.locale);
 
     assertMaturityAndSettlementDatesAreValid(start, end);
-    assertSettlementLessThanOneYearBeforeMaturity(start, end);
+    assertSettlementLessThanOneYearBeforeMaturity(start, end, this.locale);
     assertDiscountStrictlyPositive(disc);
     assertDiscountStrictlySmallerThanOne(disc);
 
@@ -2303,12 +2397,12 @@ export const TBILLEQ: AddFunctionDescription = {
      *
      */
 
-    const nDays = DAYS.compute(end, start) as number;
+    const nDays = DAYS.compute.bind(this)(end, start) as number;
     if (nDays <= 182) {
       return (365 * disc) / (360 - disc * nDays);
     }
 
-    const p = (TBILLPRICE.compute(start, end, disc) as number) / 100;
+    const p = (TBILLPRICE.compute.bind(this)(start, end, disc) as number) / 100;
 
     const daysInYear = nDays === 366 ? 366 : 365;
     const x = nDays / daysInYear;
@@ -2346,12 +2440,12 @@ export const TBILLYIELD: AddFunctionDescription = {
     maturity: PrimitiveArgValue,
     price: PrimitiveArgValue
   ): number {
-    const start = Math.trunc(toNumber(settlement));
-    const end = Math.trunc(toNumber(maturity));
-    const p = toNumber(price);
+    const start = Math.trunc(toNumber(settlement, this.locale));
+    const end = Math.trunc(toNumber(maturity, this.locale));
+    const p = toNumber(price, this.locale);
 
     assertMaturityAndSettlementDatesAreValid(start, end);
-    assertSettlementLessThanOneYearBeforeMaturity(start, end);
+    assertSettlementLessThanOneYearBeforeMaturity(start, end, this.locale);
     assertPriceStrictlyPositive(p);
 
     /**
@@ -2367,7 +2461,7 @@ export const TBILLYIELD: AddFunctionDescription = {
      *
      */
 
-    const yearFrac = YEARFRAC.compute(start, end, 2) as number;
+    const yearFrac = YEARFRAC.compute.bind(this)(start, end, 2) as number;
     return ((100 - p) / p) * (1 / yearFrac);
   },
   isExported: true,
@@ -2407,16 +2501,16 @@ export const VDB: AddFunctionDescription = {
     noSwitch: PrimitiveArgValue = DEFAULT_VDB_NO_SWITCH
   ): number {
     factor = factor || 0;
-    const _cost = toNumber(cost);
-    const _salvage = toNumber(salvage);
-    const _life = toNumber(life);
+    const _cost = toNumber(cost, this.locale);
+    const _salvage = toNumber(salvage, this.locale);
+    const _life = toNumber(life, this.locale);
     /* TODO : handle decimal periods
      * on end_period it looks like it is a simple linear function, but I cannot understand exactly how
      * decimals periods are handled with start_period.
      */
-    const _startPeriod = Math.trunc(toNumber(startPeriod));
-    const _endPeriod = Math.trunc(toNumber(endPeriod));
-    const _factor = toNumber(factor);
+    const _startPeriod = Math.trunc(toNumber(startPeriod, this.locale));
+    const _endPeriod = Math.trunc(toNumber(endPeriod, this.locale));
+    const _factor = toNumber(factor, this.locale);
     const _noSwitch = toBoolean(noSwitch);
 
     assertCostPositiveOrZero(_cost);
@@ -2492,10 +2586,10 @@ export const XIRR: AddFunctionDescription = {
     rateGuess: PrimitiveArgValue = RATE_GUESS_DEFAULT
   ): number {
     rateGuess = rateGuess || 0;
-    const guess = toNumber(rateGuess);
+    const guess = toNumber(rateGuess, this.locale);
 
-    const _cashFlows = cashflowAmounts.flat().map(toNumber);
-    const _dates = cashflowDates.flat().map(toNumber);
+    const _cashFlows = cashflowAmounts.flat().map((val) => toNumber(val, this.locale));
+    const _dates = cashflowDates.flat().map((val) => toNumber(val, this.locale));
 
     assertCashFlowsAndDatesHaveSameDimension(cashflowAmounts, cashflowDates);
     assertCashFlowsHavePositiveAndNegativesValues(_cashFlows);
@@ -2576,14 +2670,14 @@ export const XNPV: AddFunctionDescription = {
     cashflowAmounts: ArgValue,
     cashflowDates: ArgValue
   ): number {
-    const rate = toNumber(discount);
+    const rate = toNumber(discount, this.locale);
 
     const _cashFlows = Array.isArray(cashflowAmounts)
-      ? cashflowAmounts.flat().map(strictToNumber)
-      : [strictToNumber(cashflowAmounts)];
+      ? cashflowAmounts.flat().map((val) => strictToNumber(val, this.locale))
+      : [strictToNumber(cashflowAmounts, this.locale)];
     const _dates = Array.isArray(cashflowDates)
-      ? cashflowDates.flat().map(strictToNumber)
-      : [strictToNumber(cashflowDates)];
+      ? cashflowDates.flat().map((val) => strictToNumber(val, this.locale))
+      : [strictToNumber(cashflowDates, this.locale)];
 
     if (Array.isArray(cashflowDates) && Array.isArray(cashflowAmounts)) {
       assertCashFlowsAndDatesHaveSameDimension(cashflowAmounts, cashflowDates);
@@ -2674,13 +2768,13 @@ export const YIELD: AddFunctionDescription = {
     dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     dayCountConvention = dayCountConvention || 0;
-    const _settlement = Math.trunc(toNumber(settlement));
-    const _maturity = Math.trunc(toNumber(maturity));
-    const _rate = toNumber(rate);
-    const _price = toNumber(price);
-    const _redemption = toNumber(redemption);
-    const _frequency = Math.trunc(toNumber(frequency));
-    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+    const _settlement = Math.trunc(toNumber(settlement, this.locale));
+    const _maturity = Math.trunc(toNumber(maturity, this.locale));
+    const _rate = toNumber(rate, this.locale);
+    const _price = toNumber(price, this.locale);
+    const _redemption = toNumber(redemption, this.locale);
+    const _frequency = Math.trunc(toNumber(frequency, this.locale));
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
     assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
     assertCouponFrequencyIsValid(_frequency);
@@ -2690,7 +2784,11 @@ export const YIELD: AddFunctionDescription = {
     assertPriceStrictlyPositive(_price);
     assertRedemptionStrictlyPositive(_redemption);
 
-    const years = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention) as number;
+    const years = YEARFRAC.compute.bind(this)(
+      _settlement,
+      _maturity,
+      _dayCountConvention
+    ) as number;
     const nbrRealCoupons = years * _frequency;
     const nbrFullCoupons = Math.ceil(nbrRealCoupons);
     const timeFirstCoupon = nbrRealCoupons - Math.floor(nbrRealCoupons) || 1;
@@ -2806,11 +2904,11 @@ export const YIELDDISC: AddFunctionDescription = {
     dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     dayCountConvention = dayCountConvention || 0;
-    const _settlement = Math.trunc(toNumber(settlement));
-    const _maturity = Math.trunc(toNumber(maturity));
-    const _price = toNumber(price);
-    const _redemption = toNumber(redemption);
-    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+    const _settlement = Math.trunc(toNumber(settlement, this.locale));
+    const _maturity = Math.trunc(toNumber(maturity, this.locale));
+    const _price = toNumber(price, this.locale);
+    const _redemption = toNumber(redemption, this.locale);
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
     assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
     assertDayCountConventionIsValid(_dayCountConvention);
@@ -2824,7 +2922,11 @@ export const YIELDDISC: AddFunctionDescription = {
      * YIELDDISC = _____________________________________
      *             YEARFRAC(settlement, maturity, basis)
      */
-    const yearFrac = YEARFRAC.compute(settlement, maturity, dayCountConvention) as number;
+    const yearFrac = YEARFRAC.compute.bind(this)(
+      settlement,
+      maturity,
+      dayCountConvention
+    ) as number;
     return (_redemption / _price - 1) / yearFrac;
   },
   isExported: true,
@@ -2867,12 +2969,12 @@ export const YIELDMAT: AddFunctionDescription = {
     dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     dayCountConvention = dayCountConvention || 0;
-    const _settlement = Math.trunc(toNumber(settlement));
-    const _maturity = Math.trunc(toNumber(maturity));
-    const _issue = Math.trunc(toNumber(issue));
-    const _rate = toNumber(rate);
-    const _price = toNumber(price);
-    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+    const _settlement = Math.trunc(toNumber(settlement, this.locale));
+    const _maturity = Math.trunc(toNumber(maturity, this.locale));
+    const _issue = Math.trunc(toNumber(issue, this.locale));
+    const _rate = toNumber(rate, this.locale);
+    const _price = toNumber(price, this.locale);
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
     assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
     assertDayCountConventionIsValid(_dayCountConvention);
@@ -2888,9 +2990,17 @@ export const YIELDMAT: AddFunctionDescription = {
     assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
     assertPriceStrictlyPositive(_price);
 
-    const issueToMaturity = YEARFRAC.compute(_issue, _maturity, _dayCountConvention) as number;
-    const issueToSettlement = YEARFRAC.compute(_issue, _settlement, _dayCountConvention) as number;
-    const settlementToMaturity = YEARFRAC.compute(
+    const issueToMaturity = YEARFRAC.compute.bind(this)(
+      _issue,
+      _maturity,
+      _dayCountConvention
+    ) as number;
+    const issueToSettlement = YEARFRAC.compute.bind(this)(
+      _issue,
+      _settlement,
+      _dayCountConvention
+    ) as number;
+    const settlementToMaturity = YEARFRAC.compute.bind(this)(
       _settlement,
       _maturity,
       _dayCountConvention

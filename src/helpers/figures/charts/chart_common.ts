@@ -11,6 +11,7 @@ import {
   DOMDimension,
   EvaluatedCell,
   Getters,
+  Locale,
   Range,
   RemoveColumnsRowsCommand,
   UID,
@@ -393,7 +394,8 @@ export function shouldRemoveFirstLabel(
 export function getBaselineText(
   baseline: EvaluatedCell | undefined,
   keyValue: EvaluatedCell | undefined,
-  baselineMode: BaselineMode
+  baselineMode: BaselineMode,
+  locale: Locale
 ): string {
   if (!baseline) {
     return "";
@@ -410,7 +412,7 @@ export function getBaselineText(
     }
 
     if (baselineMode !== "percentage" && baseline.format) {
-      return formatValue(diff, baseline.format);
+      return formatValue(diff, { format: baseline.format, locale });
     }
 
     const baselineStr = Math.abs(parseFloat(diff.toFixed(2))).toLocaleString();

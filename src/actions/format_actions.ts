@@ -13,7 +13,7 @@ export const formatNumberAutomatic: ActionSpec = {
 
 export const formatNumberNumber: ActionSpec = {
   name: _lt("Number"),
-  description: "1,000.12",
+  description: "1,000.12", // TODO: update dynamically with locale
   execute: (env) => setFormatter(env, "#,##0.00"),
   isActive: (env) => isFormatSelected(env, "#,##0.00"),
 };
@@ -53,23 +53,29 @@ export const formatCustomCurrency: ActionSpec = {
 
 export const formatNumberDate: ActionSpec = {
   name: _lt("Date"),
-  description: "9/26/2008",
-  execute: (env) => setFormatter(env, "m/d/yyyy"),
-  isActive: (env) => isFormatSelected(env, "m/d/yyyy"),
+  description: "9/26/2008", // TODO: update dynamically with locale
+  execute: (env) => setFormatter(env, env.model.getters.getLocale().dateFormat),
+  isActive: (env) => isFormatSelected(env, env.model.getters.getLocale().dateFormat),
 };
 
 export const formatNumberTime: ActionSpec = {
   name: _lt("Time"),
-  description: "10:43:00 PM",
-  execute: (env) => setFormatter(env, "hh:mm:ss a"),
-  isActive: (env) => isFormatSelected(env, "hh:mm:ss a"),
+  description: "10:43:00 PM", // TODO: update dynamically with locale
+  execute: (env) => setFormatter(env, env.model.getters.getLocale().timeFormat),
+  isActive: (env) => isFormatSelected(env, env.model.getters.getLocale().timeFormat),
 };
 
 export const formatNumberDateTime: ActionSpec = {
   name: _lt("Date time"),
-  description: "9/26/2008 22:43:00",
-  execute: (env) => setFormatter(env, "m/d/yyyy hh:mm:ss"),
-  isActive: (env) => isFormatSelected(env, "m/d/yyyy hh:mm:ss"),
+  description: "9/26/2008 22:43:00", // TODO: update dynamically with locale
+  execute: (env) => {
+    const locale = env.model.getters.getLocale();
+    setFormatter(env, locale.dateFormat + " " + locale.timeFormat);
+  },
+  isActive: (env) => {
+    const locale = env.model.getters.getLocale();
+    return isFormatSelected(env, locale.dateFormat + " " + locale.timeFormat);
+  },
 };
 
 export const formatNumberDuration: ActionSpec = {

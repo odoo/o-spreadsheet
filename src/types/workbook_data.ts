@@ -1,4 +1,4 @@
-import { CellValue, Format } from ".";
+import { CellValue, Format, Locale } from ".";
 import { ExcelChartDefinition } from "./chart/chart";
 import { ConditionalFormat } from "./conditional_formatting";
 import { Image } from "./image";
@@ -49,6 +49,10 @@ export interface SheetData {
   panes?: PaneDivision;
 }
 
+interface WorkbookSettings {
+  locale: Locale;
+}
+
 export interface WorkbookData {
   version: number;
   sheets: SheetData[];
@@ -58,6 +62,7 @@ export interface WorkbookData {
   entities: { [key: string]: { [key: string]: any } };
   revisionId: UID;
   uniqueFigureIds: boolean;
+  settings: WorkbookSettings;
 }
 
 export interface ExcelWorkbookData extends WorkbookData {

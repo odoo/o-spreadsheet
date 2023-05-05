@@ -2,7 +2,8 @@
 // Date Type
 // -----------------------------------------------------------------------------
 
-import { Format } from "../types";
+import { Format, Locale } from "../types";
+import { isDefined } from "./misc";
 
 /**
  * All Spreadsheet dates are internally stored as an object with two values:
@@ -15,6 +16,15 @@ export interface InternalDate {
   jsDate?: Date;
 }
 
+type DateFormatType = "mdy" | "ymd" | "dmy";
+interface DateParts {
+  year: string | undefined;
+  month: string | undefined;
+  day: string | undefined;
+  dateString: string;
+  type: DateFormatType;
+}
+
 // -----------------------------------------------------------------------------
 // Parsing
 // -----------------------------------------------------------------------------
@@ -23,17 +33,26 @@ export const INITIAL_1900_DAY = new Date(1899, 11, 30) as any;
 export const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const CURRENT_MILLENIAL = 2000; // note: don't forget to update this in 2999
 const CURRENT_YEAR = new Date().getFullYear();
+const CURRENT_MONTH = new Date().getMonth();
 const INITIAL_JS_DAY = new Date(0) as any;
 const DATE_JS_1900_OFFSET = INITIAL_JS_DAY - INITIAL_1900_DAY;
 
 export const mdyDateRegexp = /^\d{1,2}(\/|-|\s)\d{1,2}((\/|-|\s)\d{1,4})?$/;
 export const ymdDateRegexp = /^\d{3,4}(\/|-|\s)\d{1,2}(\/|-|\s)\d{1,2}$/;
+
+const dateSeparatorsRegex = /\/|-|\s/;
+export const dateRegexp = /^(\d{1,4})[\/-\s](\d{1,2})([\/-\s](\d{1,4}))?$/;
+
 export const timeRegexp = /((\d+(:\d+)?(:\d+)?\s*(AM|PM))|(\d+:\d+(:\d+)?))$/;
 
-export function parseDateTime(str: string): InternalDate | null {
+export function isDateTime(str: string, locale: Locale): boolean {
+  return parseDateTime(str, locale) !== null;
+}
+
+export function parseDateTime(str: string, locale: Locale): InternalDate | null {
   str = str.trim();
 
-  let time;
+  let time: InternalDate | null = null;
   const timeMatch = str.match(timeRegexp);
   if (timeMatch) {
     time = parseTime(timeMatch[0]);
@@ -43,29 +62,22 @@ export function parseDateTime(str: string): InternalDate | null {
     str = str.replace(timeMatch[0], "").trim();
   }
 
-  let date;
-  const mdyDateMatch = str.match(mdyDateRegexp);
-  const ymdDateMatch = str.match(ymdDateRegexp);
-  if (mdyDateMatch || ymdDateMatch) {
-    let dateMatch;
-    if (mdyDateMatch) {
-      dateMatch = mdyDateMatch[0];
-      date = parseDate(dateMatch, "mdy");
-    } else {
-      dateMatch = ymdDateMatch![0];
-      date = parseDate(dateMatch, "ymd");
-    }
+  let date: InternalDate | null = null;
+  const dateParts = getDateParts(str, locale);
+  if (dateParts) {
+    const separator = dateParts.dateString.match(dateSeparatorsRegex)![0];
+    date = parseDate(dateParts, separator);
     if (date === null) {
       return null;
     }
-    str = str.replace(dateMatch, "").trim();
+    str = str.replace(dateParts.dateString, "").trim();
   }
 
   if (str !== "" || !(date || time)) {
     return null;
   }
 
-  if (date && time) {
+  if (date && date.jsDate && time && time.jsDate) {
     return {
       value: date.value + time.value,
       format: date.format + " " + (time.format === "hhhh:mm:ss" ? "hh:mm:ss" : time.format),
@@ -83,43 +95,127 @@ export function parseDateTime(str: string): InternalDate | null {
   return date || time;
 }
 
-function parseDate(str: string, dateFormat: Format): InternalDate | null {
-  const isMDY = dateFormat === "mdy";
-  const isYMD = dateFormat === "ymd";
-  if (isMDY || isYMD) {
-    const parts: string[] = str.split(/\/|-|\s/);
-    const monthIndex = isMDY ? 0 : 1;
-    const dayIndex = isMDY ? 1 : 2;
-    const yearIndex = isMDY ? 2 : 0;
-    const month = Number(parts[monthIndex]);
-    const day = Number(parts[dayIndex]);
-    const leadingZero =
-      (parts[monthIndex].length === 2 && month < 10) || (parts[dayIndex].length === 2 && day < 10);
-    const year = parts[yearIndex] ? inferYear(parts[yearIndex]) : CURRENT_YEAR;
-    const jsDate = new Date(year, month - 1, day);
-    const sep = str.match(/\/|-|\s/)![0];
-    if (jsDate.getMonth() !== month - 1 || jsDate.getDate() !== day) {
-      // invalid date
-      return null;
-    }
-    const delta = (jsDate as any) - INITIAL_1900_DAY;
+/**
+ * Returns the parts (day/month/year) of a date string corresponding to the given locale.
+ *
+ * - A string "xxxx-xx-xx" will be parsed as "y-m-d" no matter the locale.
+ * - A string "xx-xx-xxxx" will be parsed as "m-d-y" for mdy locale, and "d-m-y" for ymd and dmy locales.
+ * - A string "xx-xx-xx" will be "y-m-d" for ymd locale, "d-m-y" for dmy locale, "m-d-y" for mdy locale.
+ * - A string "xxxx-xx" will be parsed as "y-m" no matter the locale.
+ * - A string "xx-xx" will be parsed as "m-d" for mdy and ymd locales, and "d-m" for dmy locale.
+ */
+function getDateParts(dateString: string, locale: Locale): DateParts | null {
+  const match = dateString.match(dateRegexp);
+  if (!match) {
+    return null;
+  }
 
-    let format = leadingZero ? `mm${sep}dd` : `m${sep}d`;
-    if (parts[yearIndex]) {
-      format = isMDY ? format + sep + "yyyy" : "yyyy" + sep + format;
+  const [, part1, part2, , part3] = match;
+
+  if (part1.length > 2 && part3 && part3.length > 2) {
+    return null;
+  }
+
+  if (part1.length > 2) {
+    return { year: part1, month: part2, day: part3, dateString, type: "ymd" };
+  }
+
+  const localeDateType = getLocaleDateFormatType(locale);
+  if (!part3) {
+    if (localeDateType === "dmy") {
+      return { day: part1, month: part2, year: part3, dateString, type: "dmy" };
     }
-    return {
-      value: Math.round(delta / MS_PER_DAY),
-      format: format,
-      jsDate,
-    };
+    return { month: part1, day: part2, year: part3, dateString, type: "mdy" };
+  }
+
+  if (part3.length > 2) {
+    if (localeDateType === "mdy") {
+      return { month: part1, day: part2, year: part3, dateString, type: "mdy" };
+    }
+    return { day: part1, month: part2, year: part3, dateString, type: "dmy" };
+  }
+
+  if (localeDateType === "mdy") {
+    return { month: part1, day: part2, year: part3, dateString, type: "mdy" };
+  }
+  if (localeDateType === "ymd") {
+    return { year: part1, month: part2, day: part3, dateString, type: "ymd" };
+  }
+  if (localeDateType === "dmy") {
+    return { day: part1, month: part2, year: part3, dateString, type: "dmy" };
   }
   return null;
 }
 
-function inferYear(str: string): number {
-  const nbr = Number(str);
-  switch (str.length) {
+function getLocaleDateFormatType(locale: Locale): DateFormatType {
+  switch (locale.dateFormat[0]) {
+    case "d":
+      return "dmy";
+    case "m":
+      return "mdy";
+    case "y":
+      return "ymd";
+  }
+  throw new Error("Invalid date format in locale");
+}
+
+function parseDate(parts: DateParts, separator: string): InternalDate | null {
+  let { year: yearStr, month: monthStr, day: dayStr } = parts;
+  const month = inferMonth(monthStr);
+  const day = inferDay(dayStr);
+  const year = inferYear(yearStr);
+
+  if (year === null || month === null || day === null) {
+    return null;
+  }
+
+  // month + 1: months are 0-indexed in JS
+  const leadingZero =
+    (monthStr?.length === 2 && month + 1 < 10) || (dayStr?.length === 2 && day < 10);
+  const fullYear = yearStr?.length !== 2;
+
+  const jsDate = new Date(year, month, day);
+  if (jsDate.getMonth() !== month || jsDate.getDate() !== day) {
+    // invalid date
+    return null;
+  }
+  const delta = (jsDate as any) - INITIAL_1900_DAY;
+
+  const format = getFormatFromDateParts(parts, separator, leadingZero, fullYear);
+
+  return {
+    value: Math.round(delta / MS_PER_DAY),
+    format: format,
+    jsDate,
+  };
+}
+
+function getFormatFromDateParts(
+  parts: DateParts,
+  sep: string,
+  leadingZero: boolean,
+  fullYear: boolean
+): Format {
+  const yearFmt = parts.year ? (fullYear ? "yyyy" : "yy") : undefined;
+  const monthFmt = parts.month ? (leadingZero ? "mm" : "m") : undefined;
+  const dayFmt = parts.day ? (leadingZero ? "dd" : "d") : undefined;
+
+  switch (parts.type) {
+    case "mdy":
+      return [monthFmt, dayFmt, yearFmt].filter(isDefined).join(sep);
+    case "ymd":
+      return [yearFmt, monthFmt, dayFmt].filter(isDefined).join(sep);
+    case "dmy":
+      return [dayFmt, monthFmt, yearFmt].filter(isDefined).join(sep);
+  }
+}
+
+function inferYear(yearStr: string | undefined): number | null {
+  if (!yearStr) {
+    return CURRENT_YEAR;
+  }
+  const nbr = Number(yearStr);
+  switch (yearStr.length) {
     case 1:
       return CURRENT_MILLENIAL + nbr;
     case 2:
@@ -130,7 +226,29 @@ function inferYear(str: string): number {
     case 4:
       return nbr;
   }
-  return 0;
+  return null;
+}
+
+function inferMonth(monthStr: string | undefined): number | null {
+  if (!monthStr) {
+    return CURRENT_MONTH;
+  }
+  const nbr = Number(monthStr);
+  if (nbr >= 1 && nbr <= 12) {
+    return nbr - 1;
+  }
+  return null;
+}
+
+function inferDay(dayStr: string | undefined): number | null {
+  if (!dayStr) {
+    return 1;
+  }
+  const nbr = Number(dayStr);
+  if (nbr >= 0 && nbr <= 31) {
+    return nbr;
+  }
+  return null;
 }
 
 function parseTime(str: string): InternalDate | null {

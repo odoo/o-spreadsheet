@@ -41,12 +41,14 @@ import {
   CoreCommand,
   CoreGetters,
   Currency,
+  DEFAULT_LOCALES,
   DispatchResult,
   Getters,
   GridRenderingContext,
   isCoreCommand,
   LAYERS,
   LocalCommand,
+  Locale,
   UID,
 } from "./types/index";
 import { NotifyUIEvent } from "./types/ui";
@@ -95,15 +97,18 @@ export interface ModelConfig {
    * External dependencies required to enable some features
    * such as uploading images.
    */
-  readonly external: Readonly<{
-    readonly fileStore?: FileStore;
-    readonly loadCurrencies?: () => Promise<Currency[]>;
-  }>;
+  readonly external: Readonly<ModelExternalConfig>;
   readonly moveClient: (position: ClientPosition) => void;
   readonly transportService: TransportService;
   readonly client: Client;
   readonly snapshotRequested: boolean;
   readonly notifyUI: (payload: NotifyUIEvent) => void;
+}
+
+export interface ModelExternalConfig {
+  readonly fileStore?: FileStore;
+  readonly loadCurrencies?: () => Promise<Currency[]>;
+  readonly loadLocales?: () => Promise<Locale[]>;
 }
 
 const enum Status {
@@ -382,12 +387,20 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       ...config,
       mode: config.mode || "normal",
       custom: config.custom || {},
-      external: config.external || {},
+      external: this.setupExternalConfig(config.external || {}),
       transportService,
       client,
       moveClient: () => {},
       snapshotRequested: false,
       notifyUI: (payload: NotifyUIEvent) => this.trigger("notify-ui", payload),
+    };
+  }
+
+  private setupExternalConfig(external: Partial<ModelExternalConfig>): ModelExternalConfig {
+    const loadLocales = external.loadLocales || (() => Promise.resolve(DEFAULT_LOCALES));
+    return {
+      ...external,
+      loadLocales,
     };
   }
 

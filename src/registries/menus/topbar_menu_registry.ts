@@ -19,6 +19,12 @@ topbarMenuRegistry
     name: _lt("File"),
     sequence: 10,
   })
+  .addChild("settings", ["file"], {
+    name: _lt("Settings"),
+    sequence: 100,
+    execute: (env) => env.openSidePanel("Settings"),
+    icon: "o-spreadsheet-Icon.COG",
+  })
 
   // ---------------------------------------------------------------------
   // EDIT MENU ITEMS

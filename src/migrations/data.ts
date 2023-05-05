@@ -5,9 +5,11 @@ import {
   FORMULA_REF_IDENTIFIER,
 } from "../constants";
 import { getItemId, toXC, toZone, UuidGenerator } from "../helpers/index";
+import { isValidLocale } from "../helpers/locale";
 import { StateUpdateMessage } from "../types/collaborative/transport_service";
 import {
   CoreCommand,
+  DEFAULT_LOCALE,
   ExcelSheetData,
   ExcelWorkbookData,
   Format,
@@ -23,7 +25,7 @@ import { normalizeV9 } from "./legacy_tools";
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 13;
+export const CURRENT_VERSION = 14;
 const INITIAL_SHEET_ID = "Sheet1";
 
 /**
@@ -323,6 +325,20 @@ const MIGRATIONS: Migration[] = [
       return data;
     },
   },
+  {
+    description: "Add locale to spreadsheet settings",
+    from: 13,
+    to: 14,
+    applyMigration(data: any): any {
+      if (!data.settings) {
+        data.settings = {};
+      }
+      if (!data.settings.locale) {
+        data.settings.locale = DEFAULT_LOCALE;
+      }
+      return data;
+    },
+  },
 ];
 
 /**
@@ -360,8 +376,10 @@ function forceUnicityOfFigure(data: Partial<WorkbookData>): Partial<WorkbookData
  * sanity check: try to fix missing fields/corrupted state by providing
  * sensible default values
  */
-function setDefaults(data: Partial<WorkbookData>): Partial<WorkbookData> {
-  data = Object.assign(createEmptyWorkbookData(), data, { version: CURRENT_VERSION });
+function setDefaults(partialData: Partial<WorkbookData>): Partial<WorkbookData> {
+  const data: WorkbookData = Object.assign(createEmptyWorkbookData(), partialData, {
+    version: CURRENT_VERSION,
+  });
   data.sheets = data.sheets
     ? data.sheets.map((s, i) =>
         Object.assign(createEmptySheet(`Sheet${i + 1}`, `Sheet${i + 1}`), s)
@@ -370,6 +388,10 @@ function setDefaults(data: Partial<WorkbookData>): Partial<WorkbookData> {
 
   if (data.sheets.length === 0) {
     data.sheets.push(createEmptySheet(INITIAL_SHEET_ID, "Sheet1"));
+  }
+
+  if (!isValidLocale(data.settings.locale)) {
+    data.settings!.locale = DEFAULT_LOCALE;
   }
 
   return data;
@@ -520,6 +542,7 @@ export function createEmptyWorkbookData(sheetName = "Sheet1"): WorkbookData {
     borders: {},
     revisionId: DEFAULT_REVISION_ID,
     uniqueFigureIds: true,
+    settings: { locale: DEFAULT_LOCALE },
   };
   return data;
 }

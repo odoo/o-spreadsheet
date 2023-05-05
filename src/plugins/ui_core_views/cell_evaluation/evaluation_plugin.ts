@@ -155,12 +155,10 @@ export class EvaluationPlugin extends UIPlugin {
   private compilationParams: CompilationParameters;
   private positionsToUpdate: CellPosition[] = [];
 
-  constructor(config: UIPluginConfig) {
+  constructor(private config: UIPluginConfig) {
     super(config);
+    this.compilationParams = this.getCompilationParameters();
     this.evaluator = new Evaluator(config.custom, this.getters);
-    this.compilationParams = buildCompilationParameters(config.custom, this.getters, (position) =>
-      this.evaluator.getEvaluatedCell(position)
-    );
   }
 
   // ---------------------------------------------------------------------------
@@ -187,6 +185,10 @@ export class EvaluationPlugin extends UIPlugin {
         break;
       case "EVALUATE_CELLS":
         this.evaluator.evaluateAllCells();
+        break;
+      case "UPDATE_LOCALE":
+        this.compilationParams = this.getCompilationParameters();
+        this.evaluator.updateCompilationParameters();
         break;
     }
   }
@@ -333,6 +335,12 @@ export class EvaluationPlugin extends UIPlugin {
       return spreadingFormulaCell;
     }
     return undefined;
+  }
+
+  private getCompilationParameters() {
+    return buildCompilationParameters(this.config.custom, this.getters, (position) =>
+      this.evaluator.getEvaluatedCell(position)
+    );
   }
 }
 

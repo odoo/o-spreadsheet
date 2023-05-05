@@ -2,7 +2,15 @@
 import { numberToJsDate, parseDateTime } from "../helpers/dates";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _lt } from "../translation";
-import { ArgValue, CellValue, isMatrix, Matrix, MatrixArgValue, PrimitiveArgValue } from "../types";
+import {
+  ArgValue,
+  CellValue,
+  isMatrix,
+  Locale,
+  Matrix,
+  MatrixArgValue,
+  PrimitiveArgValue,
+} from "../types";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
 
@@ -38,17 +46,20 @@ export const expectStringSetError = (stringSet: string[], value: string) => {
   );
 };
 
-export function toNumber(value: string | number | boolean | null | undefined): number {
+export function toNumber(
+  value: string | number | boolean | null | undefined,
+  locale: Locale
+): number {
   switch (typeof value) {
     case "number":
       return value;
     case "boolean":
       return value ? 1 : 0;
     case "string":
-      if (isNumber(value) || value === "") {
-        return parseNumber(value);
+      if (isNumber(value, locale) || value === "") {
+        return parseNumber(value, locale);
       }
-      const internalDate = parseDateTime(value);
+      const internalDate = parseDateTime(value, locale);
       if (internalDate) {
         return internalDate.value;
       }
@@ -58,19 +69,25 @@ export function toNumber(value: string | number | boolean | null | undefined): n
   }
 }
 
-export function strictToNumber(value: string | number | boolean | null | undefined): number {
+export function strictToNumber(
+  value: string | number | boolean | null | undefined,
+  locale: Locale
+): number {
   if (value === "") {
     throw new Error(expectNumberValueError(value));
   }
-  return toNumber(value);
+  return toNumber(value, locale);
 }
 
-export function toInteger(value: string | number | boolean | null | undefined) {
-  return Math.trunc(toNumber(value));
+export function toInteger(value: string | number | boolean | null | undefined, locale: Locale) {
+  return Math.trunc(toNumber(value, locale));
 }
 
-export function strictToInteger(value: string | number | boolean | null | undefined) {
-  return Math.trunc(strictToNumber(value));
+export function strictToInteger(
+  value: string | number | boolean | null | undefined,
+  locale: Locale
+) {
+  return Math.trunc(strictToNumber(value, locale));
 }
 
 export function assertNumberGreaterThanOrEqualToOne(value: number) {
@@ -157,8 +174,11 @@ function strictToBoolean(value: string | number | boolean | null | undefined): b
   return toBoolean(value);
 }
 
-export function toJsDate(value: string | number | boolean | null | undefined): Date {
-  return numberToJsDate(toNumber(value));
+export function toJsDate(
+  value: string | number | boolean | null | undefined,
+  locale: Locale
+): Date {
+  return numberToJsDate(toNumber(value, locale));
 }
 
 // -----------------------------------------------------------------------------
@@ -190,7 +210,7 @@ export function visitAny(args: ArgValue[], cb: (a: PrimitiveArgValue | undefined
   visitArgs(args, cb, cb);
 }
 
-export function visitNumbers(args: ArgValue[], cb: (arg: number) => void): void {
+export function visitNumbers(args: ArgValue[], cb: (arg: number) => void, locale: Locale): void {
   visitArgs(
     args,
     (cellValue) => {
@@ -199,7 +219,7 @@ export function visitNumbers(args: ArgValue[], cb: (arg: number) => void): void 
       }
     },
     (argValue) => {
-      cb(strictToNumber(argValue));
+      cb(strictToNumber(argValue, locale));
     }
   );
 }
@@ -255,7 +275,8 @@ export function reduceAny<T>(
 export function reduceNumbers(
   args: ArgValue[],
   cb: (acc: number, a: number) => number,
-  initialValue: number
+  initialValue: number,
+  locale: Locale
 ): number {
   return reduceArgs(
     args,
@@ -266,7 +287,7 @@ export function reduceNumbers(
       return acc;
     },
     (acc, argValue) => {
-      return cb(acc, strictToNumber(argValue));
+      return cb(acc, strictToNumber(argValue, locale));
     },
     initialValue
   );
@@ -275,7 +296,8 @@ export function reduceNumbers(
 export function reduceNumbersTextAs0(
   args: ArgValue[],
   cb: (acc: number, a: number) => number,
-  initialValue: number
+  initialValue: number,
+  locale: Locale
 ): number {
   return reduceArgs(
     args,
@@ -284,7 +306,7 @@ export function reduceNumbersTextAs0(
         if (typeof ArgValue === "number") {
           return cb(acc, ArgValue);
         } else if (typeof ArgValue === "boolean") {
-          return cb(acc, toNumber(ArgValue));
+          return cb(acc, toNumber(ArgValue, locale));
         } else {
           return cb(acc, 0);
         }
@@ -292,7 +314,7 @@ export function reduceNumbersTextAs0(
       return acc;
     },
     (acc, argValue) => {
-      return cb(acc, toNumber(argValue));
+      return cb(acc, toNumber(argValue, locale));
     },
     initialValue
   );
@@ -360,7 +382,7 @@ interface Predicate {
   regexp?: RegExp;
 }
 
-function getPredicate(descr: string, isQuery: boolean): Predicate {
+function getPredicate(descr: string, isQuery: boolean, locale: Locale): Predicate {
   let operator: Operator;
   let operand: PrimitiveArgValue;
 
@@ -380,8 +402,8 @@ function getPredicate(descr: string, isQuery: boolean): Predicate {
     }
   }
 
-  if (isNumber(operand)) {
-    operand = toNumber(operand);
+  if (isNumber(operand, locale)) {
+    operand = toNumber(operand, locale);
   } else if (operand === "TRUE" || operand === "FALSE") {
     operand = toBoolean(operand);
   }
@@ -488,6 +510,7 @@ function evaluatePredicate(value: CellValue | undefined, criterion: Predicate): 
 export function visitMatchingRanges(
   args: ArgValue[],
   cb: (i: number, j: number) => void,
+  locale: Locale,
   isQuery: boolean = false
 ): void {
   const countArg = args.length;
@@ -517,7 +540,7 @@ export function visitMatchingRanges(
     }
 
     const description = toString(args[i + 1] as PrimitiveArgValue);
-    predicates.push(getPredicate(description, isQuery));
+    predicates.push(getPredicate(description, isQuery, locale));
   }
 
   for (let i = 0; i < dimRow; i++) {

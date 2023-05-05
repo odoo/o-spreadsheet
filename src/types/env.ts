@@ -3,6 +3,7 @@ import { ClipboardInterface } from "../helpers/clipboard/navigator_clipboard_wra
 import { TranslationFunction } from "../translation";
 import { Currency } from "./currency";
 import { ImageProviderInterface } from "./files";
+import { Locale } from "./locale";
 
 export interface EditTextOptions {
   error?: string;
@@ -37,4 +38,5 @@ export interface SpreadsheetChildEnv extends SpreadsheetEnv {
   _t: TranslationFunction;
   startCellEdition: (content: string) => void;
   loadCurrencies?: () => Promise<Currency[]>;
+  loadLocales: () => Promise<Locale[]>;
 }

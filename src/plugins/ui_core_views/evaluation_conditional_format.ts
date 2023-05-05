@@ -388,7 +388,8 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       if (cell.type === CellValueType.error) {
         return false;
       }
-      const values = rule.values.map(parseLiteral);
+      const locale = this.getters.getLocale();
+      const values = rule.values.map((val) => parseLiteral(val, locale));
       switch (rule.operator) {
         case "IsEmpty":
           return cell.value.toString().trim() === "";

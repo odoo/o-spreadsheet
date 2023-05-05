@@ -1,4 +1,9 @@
+import { Model } from "../../src";
 import { formatValue } from "../../src/helpers";
+import { DEFAULT_LOCALE } from "../../src/types";
+import { setCellContent, updateLocale } from "../test_helpers/commands_helpers";
+import { FR_LOCALE } from "../test_helpers/constants";
+import { getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { evaluateCell, evaluateCellFormat, evaluateGrid } from "../test_helpers/helpers";
 
 describe("ACCRINTM formula", () => {
@@ -549,12 +554,21 @@ describe("Coupons formulas", () => {
         const cellValue = evaluateCell("A1", {
           A1: `=COUPPCD("${arg0}", "${arg1}", ${arg2}, ${arg3})`,
         });
-        expect(formatValue(cellValue, "mm/dd/yyyy")).toEqual(expectedResult);
+        expect(formatValue(cellValue, { format: "mm/dd/yyyy", locale: DEFAULT_LOCALE })).toEqual(
+          expectedResult
+        );
       }
     );
 
     test("return formatted value", () => {
       expect(evaluateCellFormat("A1", { A1: "=COUPPCD(0, 100, 1, 1)" })).toBe("m/d/yyyy");
+    });
+
+    test("Return format is locale dependant", () => {
+      const model = new Model();
+      updateLocale(model, FR_LOCALE);
+      setCellContent(model, "A1", "=COUPPCD(0, 100, 1, 1)");
+      expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
     });
   });
 
@@ -616,12 +630,21 @@ describe("Coupons formulas", () => {
         const cellValue = evaluateCell("A1", {
           A1: `=COUPNCD("${settlement}", "${maturity}", ${frequency}, ${dayCount})`,
         });
-        expect(formatValue(cellValue, "mm/dd/yyyy")).toEqual(expectedResult);
+        expect(formatValue(cellValue, { format: "mm/dd/yyyy", locale: DEFAULT_LOCALE })).toEqual(
+          expectedResult
+        );
       }
     );
 
     test("return formatted value", () => {
       expect(evaluateCellFormat("A1", { A1: "=COUPNCD(0, 100, 1, 1)" })).toBe("m/d/yyyy");
+    });
+
+    test("Return format is locale dependant", () => {
+      const model = new Model();
+      updateLocale(model, FR_LOCALE);
+      setCellContent(model, "A1", "=COUPNCD(0, 100, 1, 1)");
+      expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
     });
   });
 

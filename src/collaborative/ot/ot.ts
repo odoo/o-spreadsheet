@@ -98,6 +98,10 @@ function transformSheetId(
   cmd: Extract<CoreCommand, SheetDependentCommand>,
   executed: CoreCommand
 ): CoreCommand | TransformResult {
+  if (!("sheetId" in executed)) {
+    return cmd;
+  }
+
   const deleteSheet = executed.type === "DELETE_SHEET" && executed.sheetId;
   if (cmd.sheetId === deleteSheet) {
     return "IGNORE_COMMAND";
@@ -136,6 +140,10 @@ function transformRangeData(
   cmd: Extract<CoreCommand, RangesDependentCommand>,
   executed: CoreCommand
 ): Extract<CoreCommand, RangesDependentCommand> | TransformResult {
+  if (!("sheetId" in executed)) {
+    return cmd;
+  }
+
   const ranges: RangeData[] = [];
   const deletedSheet = executed.type === "DELETE_SHEET" && executed.sheetId;
   for (const range of cmd.ranges) {

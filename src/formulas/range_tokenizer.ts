@@ -5,6 +5,7 @@ import {
   isRowReference,
   isSingleCellReference,
 } from "../helpers";
+import { DEFAULT_LOCALE } from "./../types/locale";
 import { Token, tokenize } from "./tokenizer";
 
 enum State {
@@ -150,8 +151,8 @@ function matchReference(tokens: Token[]): Token | null {
  *
  * @param formula
  */
-export function rangeTokenize(formula: string): Token[] {
-  const tokens = tokenize(formula);
+export function rangeTokenize(formula: string, locale = DEFAULT_LOCALE): Token[] {
+  const tokens = tokenize(formula, locale);
   const result: Token[] = [];
   while (tokens.length) {
     result.push(matchReference(tokens) || tokens.shift()!);

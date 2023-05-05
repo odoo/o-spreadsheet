@@ -14,6 +14,7 @@ import {
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
 } from "../../helpers/index";
+import { canonicalizeContent, localizeFormula } from "../../helpers/locale";
 import { loopThroughReferenceType } from "../../helpers/reference_type";
 import { _lt } from "../../translation";
 import {
@@ -26,6 +27,7 @@ import {
   HeaderIndex,
   Highlight,
   LocalCommand,
+  Locale,
   Range,
   RemoveColumnsRowsCommand,
   UID,
@@ -407,7 +409,8 @@ export class EditionPlugin extends UIPlugin {
    */
   private startEdition(str?: string, selection?: ComposerSelection) {
     const evaluatedCell = this.getters.getActiveCell();
-    if (str && evaluatedCell.format?.includes("%") && isNumber(str)) {
+    const locale = this.getters.getLocale();
+    if (str && evaluatedCell.format?.includes("%") && isNumber(str, locale)) {
       selection = selection || { start: str.length, end: str.length };
       str = `${str}%`;
     }
@@ -445,6 +448,7 @@ export class EditionPlugin extends UIPlugin {
       if (content) {
         const sheetId = this.getters.getActiveSheetId();
         const cell = this.getters.getEvaluatedCell({ sheetId, col: this.col, row: this.row });
+        content = canonicalizeContent(content, this.getters.getLocale());
         if (content.startsWith("=")) {
           const left = this.currentTokens.filter((t) => t.type === "LEFT_PAREN").length;
           const right = this.currentTokens.filter((t) => t.type === "RIGHT_PAREN").length;
@@ -488,9 +492,10 @@ export class EditionPlugin extends UIPlugin {
   }
 
   private getComposerContent(position: CellPosition): string {
+    const locale = this.getters.getLocale();
     const cell = this.getters.getCell(position);
     if (cell?.isFormula) {
-      return cell.content;
+      return localizeFormula(cell.content, locale);
     }
     const { format, value, type, formattedValue } = this.getters.getEvaluatedCell(position);
     switch (type) {
@@ -505,15 +510,15 @@ export class EditionPlugin extends UIPlugin {
         if (format && isDateTimeFormat(format)) {
           return formattedValue;
         }
-        return this.numberComposerContent(value, format);
+        return this.numberComposerContent(value, format, locale);
     }
   }
 
-  private numberComposerContent(value: number, format?: Format): string {
+  private numberComposerContent(value: number, format: Format | undefined, locale: Locale): string {
     if (format?.includes("%")) {
-      return `${value * 100}%`;
+      return `${numberToString(value * 100, locale.decimalSeparator)}%`;
     }
-    return numberToString(value);
+    return numberToString(value, locale.decimalSeparator);
   }
 
   private cancelEdition() {
@@ -542,7 +547,8 @@ export class EditionPlugin extends UIPlugin {
       this.selectionStart = this.selectionEnd = text.length;
     }
     if (isNewCurrentContent || this.mode !== "inactive") {
-      this.currentTokens = text.startsWith("=") ? composerTokenize(text) : [];
+      const locale = this.getters.getLocale();
+      this.currentTokens = text.startsWith("=") ? composerTokenize(text, locale) : [];
       if (this.currentTokens.length > 100) {
         if (raise) {
           this.ui.notifyUI({
@@ -696,8 +702,8 @@ export class EditionPlugin extends UIPlugin {
   /**
    * Function used to determine when composer selection can start.
    * Three conditions are necessary:
-   * - the previous token is among ["COMMA", "LEFT_PAREN", "OPERATOR"], and is not a postfix unary operator
-   * - the next token is missing or is among ["COMMA", "RIGHT_PAREN", "OPERATOR"]
+   * - the previous token is among ["ARG_SEPARATOR", "LEFT_PAREN", "OPERATOR"], and is not a postfix unary operator
+   * - the next token is missing or is among ["ARG_SEPARATOR", "RIGHT_PAREN", "OPERATOR"]
    * - Previous and next tokens can be separated by spaces
    */
   private canStartComposerRangeSelection(): boolean {
@@ -713,7 +719,7 @@ export class EditionPlugin extends UIPlugin {
       let currentToken = tokenAtCursor;
       // check previous token
       while (
-        !["COMMA", "LEFT_PAREN", "OPERATOR"].includes(currentToken.type) ||
+        !["ARG_SEPARATOR", "LEFT_PAREN", "OPERATOR"].includes(currentToken.type) ||
         POSTFIX_UNARY_OPERATORS.includes(currentToken.value)
       ) {
         if (currentToken.type !== "SPACE" || count < 1) {
@@ -726,7 +732,10 @@ export class EditionPlugin extends UIPlugin {
       count = tokenIdex + 1;
       currentToken = this.currentTokens[count];
       // check next token
-      while (currentToken && !["COMMA", "RIGHT_PAREN", "OPERATOR"].includes(currentToken.type)) {
+      while (
+        currentToken &&
+        !["ARG_SEPARATOR", "RIGHT_PAREN", "OPERATOR"].includes(currentToken.type)
+      ) {
         if (currentToken.type !== "SPACE") {
           return false;
         }

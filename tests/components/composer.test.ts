@@ -13,7 +13,9 @@ import {
   resizeAnchorZone,
   selectCell,
   setCellContent,
+  updateLocale,
 } from "../test_helpers/commands_helpers";
+import { FR_LOCALE } from "../test_helpers/constants";
 import {
   click,
   keyDown,
@@ -844,6 +846,27 @@ describe("composer", () => {
       expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
     }
   );
+
+  test("Composer content is localized", async () => {
+    updateLocale(model, FR_LOCALE);
+    setCellContent(model, "A1", "1.2");
+    await startComposition();
+    expect(model.getters.getCurrentContent()).toEqual("1,2");
+  });
+
+  test("Numpad decimal have a different behaviour depending on the locale", async () => {
+    await startComposition("5");
+    keyDown({ code: "NumpadDecimal", key: "." });
+    keyUp({ code: "NumpadDecimal", key: "." });
+    await nextTick();
+    expect(model.getters.getCurrentContent()).toBe("5.");
+
+    updateLocale(model, FR_LOCALE);
+    keyDown({ code: "NumpadDecimal", key: "." });
+    keyUp({ code: "NumpadDecimal", key: "." });
+    await nextTick();
+    expect(model.getters.getCurrentContent()).toBe("5.,");
+  });
 });
 
 describe("composer formula color", () => {
@@ -869,7 +892,7 @@ describe("composer formula color", () => {
 
   test('type "=SUM(1," --> comma should have specific comma color', async () => {
     await typeInComposer("=SUM(1,");
-    expect(cehMock.colors[","]).toBe(tokenColors["COMMA"]);
+    expect(cehMock.colors[","]).toBe(tokenColors["ARG_SEPARATOR"]);
   });
 
   test(`type '=SUM(1, "2"' --> string should have specific string color`, async () => {

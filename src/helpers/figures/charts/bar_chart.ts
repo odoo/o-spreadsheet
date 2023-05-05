@@ -6,8 +6,8 @@ import {
   Color,
   CommandResult,
   CoreGetters,
-  Format,
   Getters,
+  LocaleFormat,
   Range,
   RemoveColumnsRowsCommand,
   UID,
@@ -199,14 +199,14 @@ export class BarChart extends AbstractChart {
 function getBarConfiguration(
   chart: BarChart,
   labels: string[],
-  dataSetFormat: Format | undefined
+  localeFormat: LocaleFormat
 ): ChartConfiguration {
   const fontColor = chartFontColor(chart.background);
   const config: ChartConfiguration = getDefaultChartJsRuntime(
     chart,
     labels,
     fontColor,
-    dataSetFormat
+    localeFormat
   );
   const legend: ChartLegendOptions = {
     labels: { fontColor },
@@ -242,8 +242,8 @@ function getBarConfiguration(
           // y axis configuration
           beginAtZero: true, // the origin of the y axis is always zero
           callback: (value) => {
-            return dataSetFormat
-              ? formatValue(value, dataSetFormat)
+            return localeFormat.format
+              ? formatValue(value, localeFormat)
               : value?.toLocaleString() || value;
           },
         },
@@ -275,7 +275,8 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
   }
 
   const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
-  const config = getBarConfiguration(chart, labels, dataSetFormat);
+  const locale = getters.getLocale();
+  const config = getBarConfiguration(chart, labels, { format: dataSetFormat, locale });
   const colors = new ChartColors();
 
   for (let { label, data } of dataSetsValues) {

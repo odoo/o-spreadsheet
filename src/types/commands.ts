@@ -6,7 +6,7 @@ import { ClipboardPasteOptions } from "./clipboard";
 import { UpDown } from "./conditional_formatting";
 import { FigureSize } from "./figure";
 import { Image } from "./image";
-import { ConditionalFormat, Figure, Format, Style, Zone } from "./index";
+import { ConditionalFormat, Figure, Format, Locale, Style, Zone } from "./index";
 import {
   Border,
   BorderData,
@@ -98,6 +98,7 @@ export const invalidateEvaluationCommands = new Set<CoreViewCommandTypes>([
   "UNDO",
   "REDO",
   "ADD_MERGE",
+  "UPDATE_LOCALE",
 ]);
 
 export const invalidateDependenciesCommands = new Set<CommandTypes>([
@@ -206,6 +207,8 @@ export const coreTypes = new Set<CoreCommandTypes>([
 
   /** IMAGE */
   "CREATE_IMAGE",
+
+  "UPDATE_LOCALE",
 ]);
 
 export function isCoreCommand(cmd: Command): cmd is CoreCommand {
@@ -491,6 +494,12 @@ export interface SetDecimalCommand extends TargetDependentCommand {
   type: "SET_DECIMAL";
   step: SetDecimalStep;
 }
+
+export interface UpdateLocaleCommand {
+  type: "UPDATE_LOCALE";
+  locale: Locale;
+}
+
 //#endregion
 
 //#region Local Commands
@@ -973,7 +982,8 @@ export type CoreCommand =
 
   /** FILTERS */
   | CreateFilterTableCommand
-  | RemoveFilterTableCommand;
+  | RemoveFilterTableCommand
+  | UpdateLocaleCommand;
 
 export type LocalCommand =
   | RequestUndoCommand
@@ -1179,6 +1189,7 @@ export const enum CommandResult {
   SplitWillOverwriteContent,
   NoSplitSeparatorInSelection,
   NoActiveSheet,
+  InvalidLocale,
 }
 
 export interface CommandHandler<T> {

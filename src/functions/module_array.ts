@@ -50,8 +50,8 @@ export const ARRAY_CONSTRAIN: AddFunctionDescription = {
     columns: PrimitiveArgValue
   ): Matrix<CellValue> {
     const _array = toMatrixArgValue(array);
-    const _rowsArg = toInteger(rows);
-    const _columnsArg = toInteger(columns);
+    const _rowsArg = toInteger(rows, this.locale);
+    const _columnsArg = toInteger(columns, this.locale);
 
     assertPositive(
       _lt("The rows argument (%s) must be strictly positive.", _rowsArg.toString()),
@@ -97,7 +97,7 @@ export const CHOOSECOLS: AddFunctionDescription = {
   //TODO computeFormat
   compute: function (array: ArgValue, ...columns: ArgValue[]): Matrix<CellValue> {
     const _array = toMatrixArgValue(array);
-    const _columns = flattenRowFirst(columns, toInteger);
+    const _columns = flattenRowFirst(columns, (val) => toInteger(val, this.locale));
     assert(
       () => _columns.every((col) => col > 0 && col <= _array.length),
       _lt(
@@ -135,7 +135,7 @@ export const CHOOSEROWS: AddFunctionDescription = {
   //TODO computeFormat
   compute: function (array: ArgValue, ...rows: ArgValue[]): Matrix<CellValue> {
     const _array = toMatrixArgValue(array);
-    const _rows = flattenRowFirst(rows, toInteger);
+    const _rows = flattenRowFirst(rows, (val) => toInteger(val, this.locale));
     assert(
       () => _rows.every((row) => row > 0 && row <= _array[0].length),
       _lt(
@@ -185,8 +185,8 @@ export const EXPAND: AddFunctionDescription = {
     padWith: PrimitiveArgValue = 0
   ): Matrix<CellValue> {
     const _array = toMatrixArgValue(array);
-    const _rows = toInteger(rows);
-    const _columns = columns !== undefined ? toInteger(columns) : _array.length;
+    const _rows = toInteger(rows, this.locale);
+    const _columns = columns !== undefined ? toInteger(columns, this.locale) : _array.length;
     const _padWith = padWith !== undefined && padWith !== null ? padWith : 0; // TODO : Replace with #N/A errors once it's supported
 
     assert(
@@ -463,7 +463,7 @@ export const SUMPRODUCT: AddFunctionDescription = {
         }
         let product = 1;
         for (const range of _args) {
-          product *= toNumber(range[i][j]);
+          product *= toNumber(range[i][j], this.locale);
         }
         result += product;
       }
@@ -626,7 +626,7 @@ export const TOCOL: AddFunctionDescription = {
     scanByColumn: PrimitiveArgValue = TO_COL_ROW_DEFAULT_SCAN
   ): Matrix<CellValue> {
     const _array = toMatrixArgValue(array);
-    const _ignore = toInteger(ignore);
+    const _ignore = toInteger(ignore, this.locale);
     const _scanByColumn = toBoolean(scanByColumn);
 
     assert(() => _ignore >= 0 && _ignore <= 3, _lt("Argument ignore must be between 0 and 3"));
@@ -666,7 +666,7 @@ export const TOROW: AddFunctionDescription = {
     scanByColumn: PrimitiveArgValue = TO_COL_ROW_DEFAULT_SCAN
   ): Matrix<CellValue> {
     const _array = toMatrixArgValue(array);
-    const _ignore = toInteger(ignore);
+    const _ignore = toInteger(ignore, this.locale);
     const _scanByColumn = toBoolean(scanByColumn);
 
     assert(() => _ignore >= 0 && _ignore <= 3, _lt("Argument ignore must be between 0 and 3"));
@@ -777,7 +777,7 @@ export const WRAPCOLS: AddFunctionDescription = {
     padWith: PrimitiveArgValue = 0
   ): Matrix<CellValue> {
     const _range = toMatrixArgValue(range);
-    const nOfRows = toInteger(wrapCount);
+    const nOfRows = toInteger(wrapCount, this.locale);
     const _padWith = padWith === null ? 0 : padWith;
 
     assertSingleColOrRow(_lt("Argument range must be a single row or column."), _range);
@@ -827,7 +827,7 @@ export const WRAPROWS: AddFunctionDescription = {
     padWith: PrimitiveArgValue = 0
   ): Matrix<CellValue> {
     const _range = toMatrixArgValue(range);
-    const nOfCols = toInteger(wrapCount);
+    const nOfCols = toInteger(wrapCount, this.locale);
     const _padWith = padWith === null ? 0 : padWith;
 
     assertSingleColOrRow(_lt("Argument range must be a single row or column."), _range);

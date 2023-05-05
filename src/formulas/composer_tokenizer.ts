@@ -1,3 +1,4 @@
+import { Locale } from "../types";
 import { Token } from "./index";
 import { rangeTokenize } from "./range_tokenizer";
 interface FunctionContext {
@@ -92,7 +93,7 @@ function mapParentFunction(tokens: EnrichedToken[]): EnrichedToken[] {
       case "RIGHT_PAREN":
         stack.pop();
         break;
-      case "COMMA":
+      case "ARG_SEPARATOR":
         if (stack.length) {
           // increment position on current function
           stack[stack.length - 1].argPosition++;
@@ -116,8 +117,8 @@ function mapParentFunction(tokens: EnrichedToken[]): EnrichedToken[] {
  *
  * @param formula
  */
-export function composerTokenize(formula: string): EnrichedToken[] {
-  const tokens = rangeTokenize(formula);
+export function composerTokenize(formula: string, locale: Locale): EnrichedToken[] {
+  const tokens = rangeTokenize(formula, locale);
 
   return mapParentFunction(mapParenthesis(enrichTokens(tokens)));
 }

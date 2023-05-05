@@ -1,6 +1,7 @@
 import { INCORRECT_RANGE_STRING, NEWLINE } from "../constants";
 import { functionRegistry } from "../functions/index";
-import { formulaNumberRegexp, rangeReference, replaceSpecialSpaces } from "../helpers/index";
+import { getFormulaNumberRegex, rangeReference, replaceSpecialSpaces } from "../helpers/index";
+import { DEFAULT_LOCALE, Locale } from "../types";
 
 /**
  * Tokenizer
@@ -32,7 +33,7 @@ type TokenType =
   | "SYMBOL"
   | "SPACE"
   | "DEBUGGER"
-  | "COMMA"
+  | "ARG_SEPARATOR"
   | "LEFT_PAREN"
   | "RIGHT_PAREN"
   | "REFERENCE"
@@ -44,7 +45,7 @@ export interface Token {
   value: string;
 }
 
-export function tokenize(str: string): Token[] {
+export function tokenize(str: string, locale = DEFAULT_LOCALE): Token[] {
   str = replaceSpecialSpaces(str);
   const chars = new TokenizingChars(str);
   const result: Token[] = [];
@@ -52,12 +53,13 @@ export function tokenize(str: string): Token[] {
   while (!chars.isOver()) {
     let token =
       tokenizeSpace(chars) ||
+      tokenizeArgsSeparator(chars, locale) ||
       tokenizeMisc(chars) ||
       tokenizeOperator(chars) ||
       tokenizeString(chars) ||
       tokenizeDebugger(chars) ||
       tokenizeInvalidRange(chars) ||
-      tokenizeNumber(chars) ||
+      tokenizeNumber(chars, locale) ||
       tokenizeSymbol(chars);
 
     if (!token) {
@@ -78,7 +80,6 @@ function tokenizeDebugger(chars: TokenizingChars): Token | null {
 }
 
 const misc = {
-  ",": "COMMA",
   "(": "LEFT_PAREN",
   ")": "RIGHT_PAREN",
 } as const;
@@ -89,6 +90,17 @@ function tokenizeMisc(chars: TokenizingChars): Token | null {
     const type = misc[value];
     return { type, value };
   }
+
+  return null;
+}
+
+function tokenizeArgsSeparator(chars: TokenizingChars, locale: Locale): Token | null {
+  if (chars.current() === locale.formulaArgSeparator) {
+    const value = chars.shift();
+    const type = "ARG_SEPARATOR";
+    return { type, value };
+  }
+
   return null;
 }
 
@@ -102,8 +114,8 @@ function tokenizeOperator(chars: TokenizingChars): Token | null {
   return null;
 }
 
-function tokenizeNumber(chars: TokenizingChars): Token | null {
-  const match = chars.remaining().match(formulaNumberRegexp);
+function tokenizeNumber(chars: TokenizingChars, locale: Locale): Token | null {
+  const match = chars.remaining().match(getFormulaNumberRegex(locale.decimalSeparator));
   if (match) {
     chars.advanceBy(match[0].length);
     return { type: "NUMBER", value: match[0] };

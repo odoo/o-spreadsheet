@@ -1,5 +1,5 @@
 import { BACKGROUND_CHART_COLOR, DEFAULT_BORDER_DESC } from "../../src/constants";
-import { CoreCommand, CoreCommandTypes } from "../../src/types";
+import { CoreCommand, CoreCommandTypes, DEFAULT_LOCALE, Locale } from "../../src/types";
 import { target, toRangesData } from "./helpers";
 
 export const TEST_CHART_DATA = {
@@ -290,6 +290,10 @@ export const TEST_COMMANDS: CommandMapping = {
     target: target("A1"),
     border: { position: "top", style: "thin", color: "#000000" },
   },
+  UPDATE_LOCALE: {
+    type: "UPDATE_LOCALE",
+    locale: DEFAULT_LOCALE,
+  },
 };
 
 export const OT_TESTS_SINGLE_CELL_COMMANDS = [
@@ -308,3 +312,25 @@ export const OT_TESTS_TARGET_DEPENDANT_COMMANDS = [
 ];
 
 export const OT_TESTS_RANGE_DEPENDANT_COMMANDS = [TEST_COMMANDS.ADD_CONDITIONAL_FORMAT];
+
+export const EN_LOCALE = DEFAULT_LOCALE;
+
+export const FR_LOCALE: Locale = {
+  name: "France",
+  code: "fr_FR",
+  thousandsSeparator: " ",
+  decimalSeparator: ",",
+  dateFormat: "dd/mm/yyyy",
+  timeFormat: "hh:mm:ss",
+  formulaArgSeparator: ";",
+};
+
+export const CUSTOM_LOCALE: Locale = {
+  name: "Custom locale",
+  code: "cus_TOM",
+  thousandsSeparator: " ",
+  decimalSeparator: ",",
+  dateFormat: "dd/mm/yyyy",
+  timeFormat: "hh:mm:ss a",
+  formulaArgSeparator: ";",
+};

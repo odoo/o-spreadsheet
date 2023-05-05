@@ -1,5 +1,6 @@
 import { Model } from "../../src";
 import { toNumber } from "../../src/functions/helpers";
+import { DEFAULT_LOCALE } from "../../src/types";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import { getEvaluatedCell } from "../test_helpers/getters_helpers";
 import {
@@ -1940,10 +1941,10 @@ describe("RANDBETWEEN formula", () => {
     ["-42", "-24"],
   ])("take 2 parameters, return a number", (a, b) => {
     expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: a, A3: b })).toBeGreaterThanOrEqual(
-      toNumber(a)
+      toNumber(a, DEFAULT_LOCALE)
     );
     expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: a, A3: b })).toBeLessThanOrEqual(
-      toNumber(b)
+      toNumber(b, DEFAULT_LOCALE)
     );
   });
 

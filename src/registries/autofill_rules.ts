@@ -1,6 +1,6 @@
 import { isDateTimeFormat } from "../helpers";
 import { evaluateLiteral } from "../helpers/cells";
-import { AutofillModifier, Cell, CellValueType } from "../types/index";
+import { AutofillModifier, Cell, CellValueType, DEFAULT_LOCALE } from "../types/index";
 import { EvaluatedCell } from "./../types/cells";
 import { Registry } from "./registry";
 
@@ -38,7 +38,7 @@ function getGroup(
     if (x === cell) {
       found = true;
     }
-    const cellValue = evaluateLiteral(x?.content);
+    const cellValue = evaluateLiteral(x?.content, { locale: DEFAULT_LOCALE });
     if (filter(cellValue)) {
       group.push(cellValue);
     } else {
@@ -91,7 +91,7 @@ autofillRulesRegistry
   .add("increment_alphanumeric_value", {
     condition: (cell: Cell) =>
       !cell.isFormula &&
-      evaluateLiteral(cell.content).type === CellValueType.text &&
+      evaluateLiteral(cell.content, { locale: DEFAULT_LOCALE }).type === CellValueType.text &&
       alphaNumericValueRegExp.test(cell.content),
     generateRule: (cell: Cell, cells: Cell[]) => {
       const numberPostfix = parseInt(cell.content.match(numberPostfixRegExp)![0]);
@@ -119,7 +119,8 @@ autofillRulesRegistry
   })
   .add("copy_text", {
     condition: (cell: Cell) =>
-      !cell.isFormula && evaluateLiteral(cell.content).type === CellValueType.text,
+      !cell.isFormula &&
+      evaluateLiteral(cell.content, { locale: DEFAULT_LOCALE }).type === CellValueType.text,
     generateRule: () => {
       return { type: "COPY_MODIFIER" };
     },
@@ -134,7 +135,8 @@ autofillRulesRegistry
   })
   .add("increment_number", {
     condition: (cell: Cell) =>
-      !cell.isFormula && evaluateLiteral(cell.content).type === CellValueType.number,
+      !cell.isFormula &&
+      evaluateLiteral(cell.content, { locale: DEFAULT_LOCALE }).type === CellValueType.number,
     generateRule: (cell: Cell, cells: (Cell | undefined)[]) => {
       const group = getGroup(
         cell,
@@ -142,7 +144,7 @@ autofillRulesRegistry
         (evaluatedCell) => evaluatedCell.type === CellValueType.number
       ).map((cell) => Number(cell.value));
       const increment = calculateIncrementBasedOnGroup(group);
-      const evaluation = evaluateLiteral(cell.content);
+      const evaluation = evaluateLiteral(cell.content, { locale: DEFAULT_LOCALE });
       return {
         type: "INCREMENT_MODIFIER",
         increment,
