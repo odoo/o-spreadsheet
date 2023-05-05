@@ -127,6 +127,6 @@ export class HistoryPlugin extends UIPlugin {
    * Ignore standard undo/redo revisions (that are empty)
    */
   private getPossibleRevisionToRepeat() {
-    return this.session.getLastLocalNonEmptyRevision(["REQUEST_REDO"]);
+    return this.session.getLastLocalNonEmptyRevision();
   }
 }

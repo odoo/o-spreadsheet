@@ -19,7 +19,7 @@ import {
   StateUpdateMessage,
   TransportService,
 } from "../types/collaborative/transport_service";
-import { Command, CommandTypes } from "./../types/commands";
+import { Command } from "./../types/commands";
 import { transformAll } from "./ot/ot";
 import { Revision } from "./revisions";
 
@@ -49,6 +49,7 @@ export class Session extends EventBus<CollaborativeEvent> {
   private processedRevisions: Set<UID> = new Set();
 
   private uuidGenerator = new UuidGenerator();
+  private lastLocalOperation: Revision | undefined;
   /**
    * Manages the collaboration between multiple users on the same spreadsheet.
    * It can forward local state changes to other users to ensure they all eventually
@@ -91,6 +92,11 @@ export class Session extends EventBus<CollaborativeEvent> {
       Date.now()
     );
     this.revisions.append(revision.id, revision);
+    // REQUEST_REDO just repeats the last operation, the
+    // last operation is still the same and should not change.
+    if (rootCommand.type !== "REQUEST_REDO") {
+      this.lastLocalOperation = revision;
+    }
     this.trigger("new-local-state-update", { id: revision.id });
     this.sendUpdateMessage({
       type: "REMOTE_REVISION",
@@ -198,16 +204,10 @@ export class Session extends EventBus<CollaborativeEvent> {
   }
 
   /**
-   * Get the last local revision whose root command isn't in the given list of ignored commands
+   * Get the last local revision
    * */
-  getLastLocalNonEmptyRevision(ignoredRootCommands: CommandTypes[]): Revision | undefined {
-    const revisions = this.revisions.getRevertedExecution();
-    for (const rev of revisions) {
-      if (rev.rootCommand === "SNAPSHOT") return undefined;
-      if (!rev.rootCommand || rev.rootCommand === "REMOTE") continue;
-      if (!ignoredRootCommands.includes(rev.rootCommand?.type) && rev.commands.length) return rev;
-    }
-    return undefined;
+  getLastLocalNonEmptyRevision(): Revision | undefined {
+    return this.lastLocalOperation;
   }
 
   private _move(position: ClientPosition) {
@@ -281,7 +281,7 @@ export class Session extends EventBus<CollaborativeEvent> {
           message.nextRevisionId,
           clientId,
           commands,
-          "REMOTE",
+          undefined,
           undefined,
           timestamp
         );
@@ -301,13 +301,14 @@ export class Session extends EventBus<CollaborativeEvent> {
           message.nextRevisionId,
           "server",
           [],
-          "SNAPSHOT",
+          undefined,
           undefined,
           Date.now()
         );
         this.revisions.insert(revision.id, revision, message.serverRevisionId);
         this.dropPendingHistoryMessages();
         this.trigger("snapshot");
+        this.lastLocalOperation = undefined;
         break;
       }
     }
