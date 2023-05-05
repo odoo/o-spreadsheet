@@ -1292,9 +1292,20 @@ describe("evaluate formulas that return an array", () => {
   });
 
   test("reference to a formula result array is possible", () => {
+    setCellContent(model, "E5", "=B2");
     setCellContent(model, "A1", "=MFILL(3,3,42)");
     setCellContent(model, "D4", "=C3");
+    expect(getEvaluatedCell(model, "E5").value).toBe(42);
     expect(getEvaluatedCell(model, "D4").value).toBe(42);
+  });
+
+  test("reference to a formula result array is null when removing the array formula", () => {
+    setCellContent(model, "E5", "=B2");
+    setCellContent(model, "A1", "=MFILL(3,3,42)");
+    setCellContent(model, "D4", "=C3");
+    setCellContent(model, "A1", "");
+    expect(getEvaluatedCell(model, "E5").value).toBe(0);
+    expect(getEvaluatedCell(model, "D4").value).toBe(0);
   });
 
   describe("spread matrix with format", () => {
@@ -1504,6 +1515,9 @@ describe("evaluate formulas that return an array", () => {
       expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
         "Array result was not expanded because it would overwrite data in B2."
       );
+      expect(getEvaluatedCell(model, "A2").value).toBe("");
+      expect(getEvaluatedCell(model, "B1").value).toBe("");
+      expect(getEvaluatedCell(model, "B2").value).toBe(66);
     });
 
     test("throw error message concerning the first cell encountered vertically", () => {
@@ -1526,43 +1540,90 @@ describe("evaluate formulas that return an array", () => {
       );
     });
 
-    test("don't spread result when collide", () => {
-      setCellContent(model, "B2", "kikou");
-      setCellContent(model, "A1", "=MFILL(2,2, 42)");
-      expect(getEvaluatedCell(model, "A2").value).toBe("");
-      expect(getEvaluatedCell(model, "B1").value).toBe("");
-      expect(getEvaluatedCell(model, "B2").value).toBe("kikou");
+    describe("don't spread result when collide", () => {
+      test("write collision first", () => {
+        setCellContent(model, "B2", "kikou");
+        setCellContent(model, "A1", "=MFILL(2,2, 42)");
+        expect(getEvaluatedCell(model, "A2").value).toBe("");
+        expect(getEvaluatedCell(model, "B1").value).toBe("");
+        expect(getEvaluatedCell(model, "B2").value).toBe("kikou");
+      });
+
+      test("write formula first", () => {
+        setCellContent(model, "A1", "=MFILL(2,2, 42)");
+        setCellContent(model, "B2", "kikou");
+        expect(getEvaluatedCell(model, "A2").value).toBe("");
+        expect(getEvaluatedCell(model, "B1").value).toBe("");
+        expect(getEvaluatedCell(model, "B2").value).toBe("kikou");
+      });
     });
 
-    test("spread result when remove collision", () => {
-      setCellContent(model, "B2", "kikou");
-      setCellContent(model, "A1", "=MFILL(2,2, 42)");
-      setCellContent(model, "B2", "");
-      expect(getEvaluatedCell(model, "A1").value).toBe(42);
-      expect(getEvaluatedCell(model, "A2").value).toBe(42);
-      expect(getEvaluatedCell(model, "B1").value).toBe(42);
-      expect(getEvaluatedCell(model, "B2").value).toBe(42);
+    describe("spread result when remove collision", () => {
+      test("write collision first", () => {
+        setCellContent(model, "B2", "kikou");
+        setCellContent(model, "A1", "=MFILL(2,2, 42)");
+        setCellContent(model, "B2", "");
+        expect(getEvaluatedCell(model, "A1").value).toBe(42);
+        expect(getEvaluatedCell(model, "A2").value).toBe(42);
+        expect(getEvaluatedCell(model, "B1").value).toBe(42);
+        expect(getEvaluatedCell(model, "B2").value).toBe(42);
+      });
+
+      test("write formula first", () => {
+        setCellContent(model, "A1", "=MFILL(2,2, 42)");
+        setCellContent(model, "B2", "kikou");
+        setCellContent(model, "B2", "");
+        expect(getEvaluatedCell(model, "A1").value).toBe(42);
+        expect(getEvaluatedCell(model, "A2").value).toBe(42);
+        expect(getEvaluatedCell(model, "B1").value).toBe(42);
+        expect(getEvaluatedCell(model, "B2").value).toBe(42);
+      });
     });
 
-    test("spread result when remove several collision", () => {
-      setCellContent(model, "B1", "kikou 1");
-      setCellContent(model, "B2", "kikou 2");
-      setCellContent(model, "A1", "=MFILL(2,2, 42)");
-      deleteContent(model, ["B1:B2"]);
-      expect(getEvaluatedCell(model, "A1").value).toBe(42);
-      expect(getEvaluatedCell(model, "A2").value).toBe(42);
-      expect(getEvaluatedCell(model, "B1").value).toBe(42);
-      expect(getEvaluatedCell(model, "B2").value).toBe(42);
+    describe("spread result when remove several collision", () => {
+      test("write collision first", () => {
+        setCellContent(model, "B1", "kikou 1");
+        setCellContent(model, "B2", "kikou 2");
+        setCellContent(model, "A1", "=MFILL(2,2, 42)");
+        deleteContent(model, ["B1:B2"]);
+        expect(getEvaluatedCell(model, "A1").value).toBe(42);
+        expect(getEvaluatedCell(model, "A2").value).toBe(42);
+        expect(getEvaluatedCell(model, "B1").value).toBe(42);
+        expect(getEvaluatedCell(model, "B2").value).toBe(42);
+      });
+
+      test("write formula first", () => {
+        setCellContent(model, "A1", "=MFILL(2,2, 42)");
+        setCellContent(model, "B1", "kikou 1");
+        setCellContent(model, "B2", "kikou 2");
+        deleteContent(model, ["B1:B2"]);
+        expect(getEvaluatedCell(model, "A1").value).toBe(42);
+        expect(getEvaluatedCell(model, "A2").value).toBe(42);
+        expect(getEvaluatedCell(model, "B1").value).toBe(42);
+        expect(getEvaluatedCell(model, "B2").value).toBe(42);
+      });
     });
 
-    test("keep collide when change collision", () => {
-      setCellContent(model, "B2", "kikou");
-      setCellContent(model, "A1", "=MFILL(2,2, 42)");
-      setCellContent(model, "B2", "Aquecoucou");
-      expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
-      expect(getEvaluatedCell(model, "A2").value).toBe("");
-      expect(getEvaluatedCell(model, "B1").value).toBe("");
-      expect(getEvaluatedCell(model, "B2").value).toBe("Aquecoucou");
+    describe("keep collide when change collision", () => {
+      test("write collision first", () => {
+        setCellContent(model, "B2", "kikou");
+        setCellContent(model, "A1", "=MFILL(2,2, 42)");
+        setCellContent(model, "B2", "Aquecoucou");
+        expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+        expect(getEvaluatedCell(model, "A2").value).toBe("");
+        expect(getEvaluatedCell(model, "B1").value).toBe("");
+        expect(getEvaluatedCell(model, "B2").value).toBe("Aquecoucou");
+      });
+
+      test("write formula first", () => {
+        setCellContent(model, "A1", "=MFILL(2,2, 42)");
+        setCellContent(model, "B2", "kikou");
+        setCellContent(model, "B2", "Aquecoucou");
+        expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+        expect(getEvaluatedCell(model, "A2").value).toBe("");
+        expect(getEvaluatedCell(model, "B1").value).toBe("");
+        expect(getEvaluatedCell(model, "B2").value).toBe("Aquecoucou");
+      });
     });
 
     describe("collision tests on several limit positions", () => {
@@ -1793,7 +1854,7 @@ describe("evaluate formulas that return an array", () => {
       expect(getEvaluatedCell(model, "D1").value).toBe(100);
     });
 
-    test("have collision when spreaded size zone change", () => {
+    test("have collision when spread size zone change", () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "B1", "=MFILL(1,A1+1,42)");
       setCellContent(model, "A3", "=TRANSPOSE(B1:B2)");

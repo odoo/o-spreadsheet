@@ -611,11 +611,13 @@ export class EvaluationPlugin extends UIPlugin {
 
       if (this.spreadingFormulas.has(rc)) {
         for (const child of this.spreadingRelations.getArrayResultsRc(rc)) {
-          delete this.evaluatedCells[child];
-          // uh oh, wait, this isn't needed ? 🤔
-          // extendSet(nextRcsToUpdate, this.findChildrenToCompute(child));
-          for (const candidate of this.spreadingRelations.getArrayFormulasRc(child)) {
-            extendSet(nextRcsToUpdate, this.findCellsToCompute(candidate));
+          const content = this.rcToCell(child)?.content;
+          if (!content) {
+            delete this.evaluatedCells[child];
+            extendSet(nextRcsToUpdate, this.findChildrenToCompute(child));
+            for (const candidate of this.spreadingRelations.getArrayFormulasRc(child)) {
+              extendSet(nextRcsToUpdate, this.findCellsToCompute(candidate));
+            }
           }
         }
         this.spreadingFormulas.delete(rc);
@@ -961,11 +963,11 @@ export class EvaluationPlugin extends UIPlugin {
       const content = this.rcToCell(rc)?.content;
       // if the content of a cell changes, we need to check:
       if (content) {
-        // 1) if we write in an empty cell containing the spread of a formula.
-        //    In this case, it is necessary to indicate to recalculate the concerned
-        //    formula to take into account the new collisions.
         for (const arrayFormula of this.spreadingRelations.getArrayFormulasRc(rc)) {
           if (this.spreadingFormulas.has(arrayFormula)) {
+            // 1) if we write in an empty cell containing the spread of a formula.
+            //    In this case, it is necessary to indicate to recalculate the concerned
+            //    formula to take into account the new collisions.
             extendSet(cells, this.findCellsToCompute(arrayFormula));
             break; // there can be only one formula spreading on a cell
           }
