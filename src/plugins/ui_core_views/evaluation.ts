@@ -3,11 +3,11 @@ import { functionRegistry } from "../../functions/index";
 import { createEvaluatedCell, errorCell, evaluateLiteral } from "../../helpers/cells";
 import { FormulaDependencyGraph, SpreadingRelation } from "../../helpers/evaluation";
 import {
+  getItemId,
   intersection,
   isZoneValid,
   mapToPositionsInZone,
   positions,
-  toCartesian,
   toXC,
   zoneToXc,
 } from "../../helpers/index";
@@ -28,6 +28,7 @@ import {
   EnsureRange,
   EvalContext,
   EvaluatedCell,
+  ExcelCellData,
   ExcelWorkbookData,
   Format,
   FormattedValue,
@@ -995,28 +996,76 @@ export class EvaluationPlugin extends UIPlugin {
   // Export
   // ---------------------------------------------------------------------------
 
+  /**
+   * Returns the corresponding formula cell of a given cell
+   * It could be the formula present in the cell itself or the
+   * formula of the array formula that spreads to the cell
+   */
+  private getCorrespondingFormulaCell(rc): FormulaCell | undefined {
+    const position = rcToCellPosition(rc);
+    const cell = this.getters.getCell(position);
+
+    if (cell && cell.content) {
+      if (cell.isFormula && !isBadExpression(cell.content)) {
+        return cell;
+      }
+      return undefined;
+    }
+
+    const arrayFormulasRc = this.spreadingRelations.getArrayFormulasRc(rc);
+    const spreadingFormulaRc = Array.from(arrayFormulasRc).find((rc) =>
+      this.spreadingFormulas.has(rc)
+    );
+
+    if (!spreadingFormulaRc) {
+      return undefined;
+    }
+
+    const spreadingFormulaPosition = rcToCellPosition(spreadingFormulaRc);
+    const spreadingFormulaCell = this.getters.getCell(spreadingFormulaPosition)!;
+
+    if (spreadingFormulaCell.isFormula) {
+      return spreadingFormulaCell;
+    }
+
+    return undefined;
+  }
+
   exportForExcel(data: ExcelWorkbookData) {
-    for (let sheet of data.sheets) {
-      for (const rc in sheet.cells) {
-        const position = { sheetId: sheet.id, ...toCartesian(rc) };
-        const cell = this.getters.getCell(position);
-        if (cell) {
-          const exportedCellData = sheet.cells[rc]!;
-          exportedCellData.value = this.getEvaluatedCell(position).value;
+    for (const rc in this.evaluatedCells) {
+      const evaluatedCell = this.evaluatedCells[rc];
 
-          if (cell.isFormula && !isBadExpression(cell.content)) {
-            const isExported = cell.compiledFormula.tokens
-              .filter((tk) => tk.type === "FUNCTION")
-              .every((tk) => functions[tk.value.toUpperCase()].isExported);
+      const position = rcToCellPosition(rc);
+      const xc = toXC(position.col, position.row);
 
-            exportedCellData.isFormula = isExported;
+      const value = evaluatedCell.value;
+      let isFormula = false;
+      let newContent: string | undefined = undefined;
+      let newFormat: string | undefined = undefined;
+      let isExported: boolean = true;
 
-            if (!isExported) {
-              exportedCellData.content = exportedCellData.value.toString();
-            }
-          }
+      const formulaCell = this.getCorrespondingFormulaCell(rc);
+      if (formulaCell) {
+        isExported = formulaCell.compiledFormula.tokens
+          .filter((tk) => tk.type === "FUNCTION")
+          .every((tk) => functions[tk.value.toUpperCase()].isExported);
+
+        isFormula = isExported;
+
+        if (!isExported) {
+          newContent = value.toString();
+          newFormat = evaluatedCell.format;
         }
       }
+
+      const exportedSheetData = data.sheets.find((sheet) => sheet.id === position.sheetId)!;
+      const exportedCellData: ExcelCellData = exportedSheetData.cells[xc] || ({} as ExcelCellData);
+
+      const format = newFormat
+        ? getItemId<Format>(newFormat, data.formats)
+        : exportedCellData.format;
+      const content = !isExported ? newContent : exportedCellData.content;
+      exportedSheetData.cells[xc] = { ...exportedCellData, value, isFormula, content, format };
     }
   }
 }
