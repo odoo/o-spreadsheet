@@ -1,7 +1,8 @@
 import { compile } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
 import { createEvaluatedCell, errorCell, evaluateLiteral } from "../../helpers/cells";
-import { FormulaDependencyGraph, SpreadingRelation } from "../../helpers/evaluation";
+import { FormulaDependencyGraph } from "../../helpers/evaluation/formula_dependency_graph";
+import { SpreadingRelation } from "../../helpers/evaluation/spreading_relation";
 import {
   getItemId,
   intersection,
