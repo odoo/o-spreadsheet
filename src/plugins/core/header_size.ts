@@ -195,11 +195,11 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
    * and that is not part of a multi-line merge.
    */
   private getRowTallestCellSize(sheetId: UID, row: HeaderIndex): Pixel {
-    const cellIds = this.getters.getRowCells(sheetId, row);
+    const cells = this.getters.getRowCells(sheetId, row);
     let maxHeight = 0;
-    for (let i = 0; i < cellIds.length; i++) {
-      const cell = this.getters.getCellById(cellIds[i]);
-      if (!cell) continue;
+    for (const cell of cells) {
+      // const cell = this.getters.getCellById(cells[i]);
+      // if (!cell) continue;
       const position = this.getters.getCellPosition(cell.id);
       const cellHeight = this.getCellHeight(position);
       if (cellHeight > maxHeight && cellHeight > DEFAULT_CELL_HEIGHT) {
@@ -207,6 +207,17 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
       }
     }
 
+    // const cellIds = this.getters.getRowCells(sheetId, row);
+    // let maxHeight = 0;
+    // for (let i = 0; i < cellIds.length; i++) {
+    //   const cell = this.getters.getCellById(cellIds[i]);
+    //   if (!cell) continue;
+    //   const position = this.getters.getCellPosition(cell.id);
+    //   const cellHeight = this.getCellHeight(position);
+    //   if (cellHeight > maxHeight && cellHeight > DEFAULT_CELL_HEIGHT) {
+    //     maxHeight = cellHeight;
+    //   }
+    // }
     if (maxHeight <= DEFAULT_CELL_HEIGHT) {
       return DEFAULT_CELL_HEIGHT;
     }

@@ -74,7 +74,7 @@ const fullData = {
       colNumber: 5,
       rowNumber: 4,
       cells: {
-        A1: { content: "1", style: 1, border: 1 },
+        A1: { content: "aaa", style: 1, border: 1 },
         A2: { content: "2", style: 1, border: 1 },
         A3: { content: "3", style: 1, border: 1 },
         A4: { content: "4", style: 1, border: 1 },
@@ -846,6 +846,7 @@ describe("Rows", () => {
         ],
       });
       deleteRows(model, [0, 2, 3]);
+      debugger;
       expect(getCellsObject(model, "sheet1")).toMatchObject({
         A1: { content: "A2" },
       });

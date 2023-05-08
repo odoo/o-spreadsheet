@@ -119,6 +119,7 @@ export interface Sheet {
   id: UID;
   name: string;
   numberOfCols: number;
+  numberOfRows: number;
   rows: Row[];
   areGridLinesVisible: boolean;
   isVisible: boolean;
@@ -195,9 +196,14 @@ export interface HeaderDimensions {
   end: Pixel;
 }
 
-export interface Row {
-  cells: Record<number, UID | undefined>; // number is a column index
-}
+// <<<<<<< HEAD
+// export interface Row {
+//   cells: Record<number, UID | undefined>; // number is a column index
+// }
+// =======
+export type Row = HeaderIndex;
+export type Col = HeaderIndex;
+// >>>>>>> df527e5b (m)
 
 export interface Position {
   col: HeaderIndex;

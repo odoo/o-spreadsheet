@@ -27,7 +27,7 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C>, Vali
   protected history: WorkbookHistory<State>;
   protected dispatch: CommandDispatcher["dispatch"];
 
-  constructor(stateObserver: StateObserver, dispatch: CommandDispatcher["dispatch"]) {
+  constructor(protected stateObserver: StateObserver, dispatch: CommandDispatcher["dispatch"]) {
     this.history = Object.assign(Object.create(stateObserver), {
       update: stateObserver.addChange.bind(stateObserver, this),
       selectCell: () => {},
