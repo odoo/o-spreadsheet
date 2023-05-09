@@ -194,6 +194,7 @@ describe("Simple Spreadsheet Component", () => {
     expect(dropDownZIndex).toBeLessThan(topBarComposerZIndex);
     expect(topBarComposerZIndex).toBeLessThan(popoverZIndex);
     expect(popoverZIndex).toBeLessThan(figureAnchorZIndex);
+    jest.useRealTimers();
   });
 
   test("Keydown is ineffective in dashboard mode", async () => {
@@ -394,4 +395,16 @@ describe("Composer / selectionInput interactions", () => {
     await clickCell(model, "D1");
     expect(model.getters.getSelectedZones()).toEqual([toZone("D1")]);
   });
+});
+test("cell popovers to be closed on clicking outside grid", async () => {
+  jest.useFakeTimers();
+  ({ model, fixture } = await mountSpreadsheet());
+
+  setCellContent(model, "A1", "=SUM(");
+  await nextTick();
+  await hoverCell(model, "A1", 400);
+  expect(fixture.querySelector(".o-popover .o-error-tooltip")).not.toBeNull();
+  await simulateClick(".o-topbar-menu");
+  expect(fixture.querySelector(".o-popover .o-error-tooltip")).toBeNull();
+  jest.useRealTimers();
 });
