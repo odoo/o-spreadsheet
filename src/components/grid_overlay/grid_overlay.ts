@@ -1,4 +1,4 @@
-import { Component, onMounted, onWillUnmount, useRef } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, useExternalListener, useRef } from "@odoo/owl";
 import {
   DOMCoordinates,
   DOMDimension,
@@ -10,6 +10,7 @@ import {
 } from "../../types";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { css } from "../helpers";
+import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
 import { useRefListener } from "../helpers/listener_hook";
 import { useInterval } from "../helpers/time_hooks";
 
@@ -71,10 +72,31 @@ function useCellHovered(
     }
   }
 
+  function onMouseLeave(e: MouseEvent) {
+    const x = e.offsetX;
+    const y = e.offsetY;
+    const gridRect = getBoundingRectAsPOJO(gridRef.el!);
+
+    if (y < 0 || y > gridRect.height || x < 0 || x > gridRect.width) {
+      return updateMousePosition(e);
+    } else {
+      return pause();
+    }
+  }
+
   useRefListener(gridRef, "mousemove", updateMousePosition);
-  useRefListener(gridRef, "mouseleave", pause);
+  useRefListener(gridRef, "mouseleave", onMouseLeave);
   useRefListener(gridRef, "mouseenter", resume);
   useRefListener(gridRef, "mousedown", recompute);
+
+  useExternalListener(window, "click", handleGlobalClick);
+  function handleGlobalClick(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+    const grid = gridRef.el!;
+    if (!grid.contains(target)) {
+      setPosition(undefined, undefined);
+    }
+  }
 
   function setPosition(col?: number, row?: number) {
     if (col !== hoveredPosition.col || row !== hoveredPosition.row) {
