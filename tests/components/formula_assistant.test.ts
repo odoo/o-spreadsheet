@@ -1,9 +1,9 @@
 import { arg, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
+import { keyDown, keyUp } from "../test_helpers/dom_helper";
 import {
   clearFunctions,
   mountSpreadsheet,
-  nextTick,
   restoreDefaultFunctions,
   typeInComposerGrid,
 } from "../test_helpers/helpers";
@@ -19,8 +19,7 @@ beforeEach(async () => {
   ({ model, fixture } = await mountSpreadsheet());
 
   // start composition
-  document.querySelector(".o-grid")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-  await nextTick();
+  await keyDown({ key: "Enter" });
   composerEl = fixture.querySelector(".o-grid div.o-composer")!;
 });
 
@@ -196,10 +195,8 @@ describe("formula assistant", () => {
     test("use arrowKey when selection in a function should not display formula assistant", async () => {
       await typeInComposerGrid("=FUNC1(1,");
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(1);
-      composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
-      await nextTick();
-      composerEl.dispatchEvent(new KeyboardEvent("keyup", { key: "ArrowRight", bubbles: true }));
-      await nextTick();
+      await keyDown({ key: "ArrowRight" });
+      await keyUp({ key: "ArrowRight" });
       expect(model.getters.getCurrentContent()).toBe("=FUNC1(1,B1");
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(0);
     });

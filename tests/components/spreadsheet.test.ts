@@ -17,6 +17,7 @@ import {
   clickCell,
   getElComputedStyle,
   hoverCell,
+  keyDown,
   rightClickCell,
   simulateClick,
 } from "../test_helpers/dom_helper";
@@ -132,30 +133,18 @@ describe("Simple Spreadsheet Component", () => {
   test("can open/close search with ctrl+h", async () => {
     ({ model, parent, fixture } = await mountSpreadsheet());
     await nextTick();
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "H", ctrlKey: true, bubbles: true })
-    );
-    await nextTick();
+    await keyDown({ key: "H", ctrlKey: true });
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "H", ctrlKey: true, bubbles: true })
-    );
-    await nextTick();
+    await keyDown({ key: "H", ctrlKey: true });
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
   });
 
   test("can open/close search with ctrl+f", async () => {
     ({ model, parent, fixture } = await mountSpreadsheet());
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "F", ctrlKey: true, bubbles: true })
-    );
-    await nextTick();
+    await keyDown({ key: "F", ctrlKey: true });
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
     await nextTick();
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "F", ctrlKey: true, bubbles: true })
-    );
-    await nextTick();
+    await keyDown({ key: "F", ctrlKey: true });
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
   });
 
@@ -210,13 +199,13 @@ describe("Simple Spreadsheet Component", () => {
   test("Keydown is ineffective in dashboard mode", async () => {
     ({ model, parent, fixture } = await mountSpreadsheet());
     const spreadsheetKeyDown = jest.spyOn(parent, "onKeydown");
-    const spreadsheetDiv = fixture.querySelector(".o-spreadsheet")!;
-    spreadsheetDiv.dispatchEvent(new KeyboardEvent("keydown", { key: "H", ctrlKey: true }));
+    // const spreadsheetDiv = fixture.querySelector(".o-spreadsheet")!;
+    keyDown({ key: "H", ctrlKey: true });
     expect(spreadsheetKeyDown).toHaveBeenCalled();
     jest.clearAllMocks();
     model.updateMode("dashboard");
     await nextTick();
-    spreadsheetDiv.dispatchEvent(new KeyboardEvent("keydown", { key: "H", ctrlKey: true }));
+    keyDown({ key: "H", ctrlKey: true });
     expect(spreadsheetKeyDown).not.toHaveBeenCalled();
   });
 

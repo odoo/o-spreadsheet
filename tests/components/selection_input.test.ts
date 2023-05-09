@@ -139,7 +139,7 @@ describe("Selection Input", () => {
     await createSelectionInput({ onConfirmed });
     expect(fixture.querySelector(".o-focused")).toBeTruthy();
     expect(isConfirmed).toBeFalsy();
-    await keyDown("Enter");
+    await keyDown({ key: "Enter" });
     expect(fixture.querySelector(".o-focused")).toBeFalsy();
     expect(onConfirmed).toHaveBeenCalled();
     expect(isConfirmed).toBeTruthy();
@@ -276,13 +276,11 @@ describe("Selection Input", () => {
     focus(0);
     await nextTick();
     expect(document.activeElement).toBe(selectionInputEl);
-    selectionInputEl.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft" }));
-    await nextTick();
+    await keyDown({ key: "ArrowLeft" });
     expect(document.activeElement).toBe(selectionInputEl);
     expect(selectionInputEl?.value).toEqual("B2");
-    selectionInputEl.dispatchEvent(new KeyboardEvent("keydown", { key: "F2" }));
-    selectionInputEl.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft" }));
-    await nextTick();
+    keyDown({ key: "F2" });
+    await keyDown({ key: "ArrowLeft" });
     expect(document.activeElement).toBe(selectionInputEl);
     expect(selectionInputEl?.value).toEqual("B2");
   });
@@ -390,8 +388,8 @@ describe("Selection Input", () => {
     let input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
     await simulateClick(input);
     expect(input.value).toBe("A1");
-    await keyDown("Control");
-    await keyUp("Control");
+    await keyDown({ key: "Control" });
+    await keyUp({ key: "Control" });
     await clickCell(model, "A2");
     expect(fixture.querySelectorAll(".o-selection-input input")).toHaveLength(1);
     input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;

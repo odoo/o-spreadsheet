@@ -155,8 +155,23 @@ export function triggerWheelEvent(
   }
 ) {
   const ev = new WheelEvent("wheel", { bubbles: true, ...extra });
+  dispatchEvent(selector, ev);
+}
+
+export function triggerKeyboardEvent(
+  selector: string | EventTarget,
+  type: "keydown" | "keyup",
+  eventArgs: KeyboardEventInit
+) {
+  const ev = new KeyboardEvent(type, { bubbles: true, cancelable: true, ...eventArgs });
+  dispatchEvent(selector, ev);
+}
+
+function dispatchEvent(selector: string | EventTarget, ev: Event) {
   if (typeof selector === "string") {
-    document.querySelector(selector)!.dispatchEvent(ev);
+    const el = document.querySelector(selector);
+    if (!el) throw new Error(`"${selector}" does not match any element.`);
+    el.dispatchEvent(ev);
   } else {
     selector.dispatchEvent(ev);
   }
@@ -189,17 +204,33 @@ export function setCheckboxValueAndTrigger(
  *
  * This comment is meant to leave a trace of this change in case some issues were to arise again.
  */
-export async function keyDown(key: string, options: any = {}): Promise<void> {
-  document.activeElement!.dispatchEvent(
-    new KeyboardEvent("keydown", Object.assign({ key, bubbles: true, cancelable: true }, options))
-  );
+export async function keyDown(eventArgs: KeyboardEventInit): Promise<void> {
+  triggerKeyboardEvent(document.activeElement!, "keydown", eventArgs);
   return await nextTick();
 }
 
-export async function keyUp(key: string, options: any = {}): Promise<void> {
-  document.activeElement!.dispatchEvent(
-    new KeyboardEvent("keyup", Object.assign({ key, bubbles: true, cancelable: true }, options))
-  );
+export async function keyUp(eventArgs: KeyboardEventInit): Promise<void> {
+  triggerKeyboardEvent(document.activeElement!, "keyup", eventArgs);
+  return await nextTick();
+}
+
+export async function focusAndKeyDown(
+  selector: DOMTarget,
+  eventArgs: KeyboardEventInit
+): Promise<void> {
+  const target = getTarget(selector);
+  (target as HTMLElement).focus?.();
+  triggerKeyboardEvent(target, "keydown", eventArgs);
+  return await nextTick();
+}
+
+export async function focusAndKeyUp(
+  selector: DOMTarget,
+  eventArgs: KeyboardEventInit
+): Promise<void> {
+  const target = getTarget(selector);
+  (target as HTMLElement).focus?.();
+  triggerKeyboardEvent(target, "keyup", eventArgs);
   return await nextTick();
 }
 
