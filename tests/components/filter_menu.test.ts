@@ -7,7 +7,7 @@ import {
   setFormat,
   updateFilter,
 } from "../test_helpers/commands_helpers";
-import { keyDown, simulateClick } from "../test_helpers/dom_helper";
+import { focusAndKeyDown, keyDown, simulateClick } from "../test_helpers/dom_helper";
 import { getCellsObject, mountSpreadsheet, nextTick, target } from "../test_helpers/helpers";
 
 async function openFilterMenu() {
@@ -190,7 +190,7 @@ describe("Filter menu component", () => {
     test("Hitting esc key correctly closes the filter menu", async () => {
       await openFilterMenu();
       expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
-      await keyDown("Escape");
+      await keyDown({ key: "Escape" });
       expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(0);
     });
 
@@ -228,35 +228,26 @@ describe("Filter menu component", () => {
 
       test("Can use up/down arrow keys to select items", async () => {
         await openFilterMenu();
-        const searchInput = fixture.querySelector(".o-filter-menu input") as HTMLInputElement;
 
-        searchInput.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown" }));
-        await nextTick();
+        await focusAndKeyDown(".o-filter-menu input", { key: "ArrowDown" });
         const listItems = fixture.querySelectorAll(".o-filter-menu-value");
         expect(listItems[0].classList.contains("selected")).toBeTruthy();
 
-        searchInput.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown" }));
-        await nextTick();
+        await keyDown({ key: "ArrowDown" });
         expect(listItems[1].classList.contains("selected")).toBeTruthy();
 
-        searchInput.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp" }));
-        await nextTick();
+        await keyDown({ key: "ArrowUp" });
         expect(listItems[0].classList.contains("selected")).toBeTruthy();
       });
 
       test("Can press enter to select/unselect items", async () => {
         await openFilterMenu();
-        const searchInput = fixture.querySelector(".o-filter-menu input") as HTMLInputElement;
 
-        searchInput.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown" }));
-        await nextTick();
-
-        searchInput.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-        await nextTick();
+        await focusAndKeyDown(".o-filter-menu input", { key: "ArrowDown" });
+        await keyDown({ key: "Enter" });
         expect(getFilterMenuValues()[0].isChecked).toBeFalsy();
 
-        searchInput.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-        await nextTick();
+        await keyDown({ key: "Enter" });
         expect(getFilterMenuValues()[0].isChecked).toBeTruthy();
       });
     });

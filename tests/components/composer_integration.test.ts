@@ -76,7 +76,7 @@ describe("Composer interactions", () => {
   });
 
   test("type in grid composer adds text to topbar composer", async () => {
-    await keyDown("Enter");
+    await keyDown({ key: "Enter" });
     const gridComposer = document.querySelector(".o-grid .o-composer");
     const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
     expect(document.activeElement).toBe(gridComposer);
@@ -134,7 +134,7 @@ describe("Composer interactions", () => {
   });
 
   test("autocomplete disappear when grid composer is blurred", async () => {
-    await keyDown("Enter");
+    await keyDown({ key: "Enter" });
     const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
     await typeInComposerGrid("=SU");
     expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).not.toBeNull();
@@ -143,7 +143,7 @@ describe("Composer interactions", () => {
   });
 
   test("focus top bar composer does not resize grid composer when autocomplete is displayed", async () => {
-    await keyDown("Enter");
+    await keyDown({ key: "Enter" });
     const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
     const gridComposerContainer = document.querySelector(".o-grid-composer")! as HTMLElement;
     const spy = jest.spyOn(gridComposerContainer.style, "width", "set");
@@ -292,23 +292,23 @@ describe("Composer interactions", () => {
     let composerEl: Element;
     composerEl = await startComposition("a");
     expect(composerEl.textContent).toBe("a");
-    await keyDown("ArrowRight");
+    await keyDown({ key: "ArrowRight" });
     expect(getCellText(model, "A1")).toBe("a");
     expect(getActivePosition(model)).toBe("B1");
 
     composerEl = await startComposition("b");
     expect(composerEl.textContent).toBe("b");
-    await keyDown("ArrowRight");
+    await keyDown({ key: "ArrowRight" });
     expect(getCellText(model, "B1")).toBe("b");
     expect(getActivePosition(model)).toBe("C1");
 
-    await keyDown("ArrowLeft");
+    await keyDown({ key: "ArrowLeft" });
     expect(getActivePosition(model)).toBe("B1");
-    await keyDown("ArrowLeft");
+    await keyDown({ key: "ArrowLeft" });
     expect(getActivePosition(model)).toBe("A1");
     composerEl = await startComposition("c");
     expect(composerEl.textContent).toBe("c");
-    await keyDown("Enter");
+    await keyDown({ key: "Enter" });
     expect(getCellText(model, "B1")).toBe("b");
     expect(getCellText(model, "A1")).toBe("c");
   });
@@ -319,7 +319,7 @@ describe("Composer interactions", () => {
     await typeInComposerGrid(`"`);
     await typeInComposerGrid(`"`);
     expect(composerEl.textContent).toBe(`=""`);
-    await keyDown("ArrowLeft");
+    await keyDown({ key: "ArrowLeft" });
     expect(model.getters.getEditionMode()).not.toBe("inactive");
   });
 
@@ -327,23 +327,23 @@ describe("Composer interactions", () => {
     let composerEl: Element;
     composerEl = await startComposition("a");
     expect(composerEl.textContent).toBe("a");
-    await keyDown("ArrowDown");
+    await keyDown({ key: "ArrowDown" });
     expect(getCellText(model, "A1")).toBe("a");
     expect(getActivePosition(model)).toBe("A2");
 
     composerEl = await startComposition("b");
     expect(composerEl.textContent).toBe("b");
-    await keyDown("ArrowDown");
+    await keyDown({ key: "ArrowDown" });
     expect(getCellText(model, "A2")).toBe("b");
     expect(getActivePosition(model)).toBe("A3");
 
-    await keyDown("ArrowUp");
+    await keyDown({ key: "ArrowUp" });
     expect(getActivePosition(model)).toBe("A2");
-    await keyDown("ArrowUp");
+    await keyDown({ key: "ArrowUp" });
     expect(getActivePosition(model)).toBe("A1");
     composerEl = await startComposition("c");
     expect(composerEl.textContent).toBe("c");
-    await keyDown("Enter");
+    await keyDown({ key: "Enter" });
     expect(getCellText(model, "A2")).toBe("b");
     expect(getCellText(model, "A1")).toBe("c");
   });
@@ -370,7 +370,7 @@ describe("Composer interactions", () => {
   });
 
   test("typing CTRL+C in grid does not type C in the cell", async () => {
-    await keyDown("c", { ctrlKey: true });
+    await keyDown({ key: "c", ctrlKey: true });
     expect(model.getters.getCurrentContent()).toBe("");
   });
 
@@ -383,7 +383,7 @@ describe("Composer interactions", () => {
     )!;
     expect(topbarComposerElement.textContent).toBe("I am Tabouret");
     await simulateClick(topbarComposerElement);
-    await keyDown("Enter");
+    await keyDown({ key: "Enter" });
     expect(topbarComposerElement.textContent).toBe("wooplaburg");
   });
 
@@ -395,7 +395,7 @@ describe("Composer interactions", () => {
     )!;
     expect(topbarComposerElement.textContent).toBe("I am Tabouret");
     await simulateClick(topbarComposerElement); // gain focus on topbar composer
-    await keyDown("ArrowLeft");
+    await keyDown({ key: "ArrowLeft" });
     await simulateClick(".o-grid-overlay", 300, 200); // focus another Cell (i.e. C8)
     expect(topbarComposerElement.textContent).toBe("");
   });

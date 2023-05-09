@@ -62,6 +62,7 @@ import {
   nextTick,
   target,
   Touch,
+  typeInComposerGrid,
 } from "../test_helpers/helpers";
 import { FileStore } from "../__mocks__/mock_file_store";
 import { MockTransportService } from "../__mocks__/transport_service";
@@ -117,9 +118,7 @@ describe("Grid component", () => {
     setCellContent(model, "B2", "b2");
     setCellContent(model, "B3", "b3");
     triggerMouseEvent(".o-overlay", "click", 300, 20);
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true })
-    );
+    keyDown({ key: "ArrowDown" });
     expect(getSelectionAnchorCellXc(model)).toBe("A2");
   });
 
@@ -262,17 +261,14 @@ describe("Grid component", () => {
     test("pressing ENTER put current cell in edit mode", async () => {
       // note: this behaviour is not like excel. Maybe someone will want to
       // change this
-      await keyDown("Enter");
+      await keyDown({ key: "Enter" });
       expect(getSelectionAnchorCellXc(model)).toBe("A1");
       expect(model.getters.getEditionMode()).toBe("editing");
     });
 
     test("pressing ENTER in edit mode stop editing and move one cell down", async () => {
-      model.dispatch("START_EDITION", { text: "a" });
-      await nextTick();
-      fixture
-        .querySelector("div.o-composer")!
-        .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+      await typeInComposerGrid("a");
+      keyDown({ key: "Enter" });
       expect(getSelectionAnchorCellXc(model)).toBe("A2");
       expect(model.getters.getEditionMode()).toBe("inactive");
       expect(getCellContent(model, "A1")).toBe("a");
@@ -281,9 +277,7 @@ describe("Grid component", () => {
     test("pressing BACKSPACE remove the content of a cell", async () => {
       setCellContent(model, "A1", "test");
       await nextTick();
-      fixture
-        .querySelector("div.o-grid")!
-        .dispatchEvent(new KeyboardEvent("keydown", { key: "Backspace" }));
+      keyDown({ key: "Backspace" });
       expect(getSelectionAnchorCellXc(model)).toBe("A1");
       expect(model.getters.getEditionMode()).toBe("inactive");
       expect(getCellContent(model, "A1")).toBe("");
@@ -292,36 +286,30 @@ describe("Grid component", () => {
     test("pressing shift+ENTER in edit mode stop editing and move one cell up", async () => {
       selectCell(model, "A2");
       expect(getSelectionAnchorCellXc(model)).toBe("A2");
-      model.dispatch("START_EDITION", { text: "a" });
-      await nextTick();
-      fixture
-        .querySelector("div.o-composer")!
-        .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", shiftKey: true }));
+      await typeInComposerGrid("a");
+      keyDown({ key: "Enter", shiftKey: true });
       expect(getSelectionAnchorCellXc(model)).toBe("A1");
       expect(model.getters.getEditionMode()).toBe("inactive");
       expect(getCellContent(model, "A2")).toBe("a");
     });
 
     test("pressing shift+ENTER in edit mode in top row stop editing and stay on same cell", async () => {
-      model.dispatch("START_EDITION", { text: "a" });
-      await nextTick();
-      fixture
-        .querySelector("div.o-composer")!
-        .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", shiftKey: true }));
+      await typeInComposerGrid("a");
+      keyDown({ key: "Enter", shiftKey: true });
       expect(getSelectionAnchorCellXc(model)).toBe("A1");
       expect(model.getters.getEditionMode()).toBe("inactive");
       expect(getCellContent(model, "A1")).toBe("a");
     });
 
     test("pressing TAB move to next cell", async () => {
-      await keyDown("Tab");
+      await keyDown({ key: "Tab" });
       expect(getSelectionAnchorCellXc(model)).toBe("B1");
     });
 
     test("pressing shift+TAB move to previous cell", async () => {
       selectCell(model, "B1");
       expect(getSelectionAnchorCellXc(model)).toBe("B1");
-      await keyDown("Tab", { shiftKey: true });
+      await keyDown({ key: "Tab", shiftKey: true });
       expect(getSelectionAnchorCellXc(model)).toBe("A1");
     });
 
@@ -335,14 +323,10 @@ describe("Grid component", () => {
         style: { fillColor: "red" },
       });
       expect(getCell(model, "A1")!.style).toBeDefined();
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "z", ctrlKey: true, bubbles: true })
-      );
+      keyDown({ key: "z", ctrlKey: true });
       expect(getCell(model, "A1")).toBeUndefined();
       await nextTick();
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { ...redoKey, bubbles: true })
-      );
+      keyDown({ ...redoKey, bubbles: true });
       expect(getCell(model, "A1")!.style).toBeDefined();
     });
 
@@ -353,22 +337,16 @@ describe("Grid component", () => {
         style: { fillColor: "red" },
       });
       expect(getCell(model, "A1")!.style).toBeDefined();
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "Z", ctrlKey: true, bubbles: true })
-      );
+      keyDown({ key: "Z", ctrlKey: true });
       expect(getCell(model, "A1")).toBeUndefined();
       await nextTick();
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "Y", ctrlKey: true, bubbles: true })
-      );
+      keyDown({ key: "Y", ctrlKey: true });
       expect(getCell(model, "A1")!.style).toBeDefined();
     });
 
     test("can loop through the selection with CTRL+A", async () => {
       function pressCtrlA() {
-        document.activeElement!.dispatchEvent(
-          new KeyboardEvent("keydown", { key: "A", ctrlKey: true, bubbles: true })
-        );
+        keyDown({ key: "A", ctrlKey: true });
       }
 
       setCellContent(model, "A1", "3");
@@ -391,16 +369,10 @@ describe("Grid component", () => {
     test("toggle bold with Ctrl+B", async () => {
       setCellContent(model, "A1", "hello");
       expect(getCell(model, "A1")!.style).not.toBeDefined();
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "B", ctrlKey: true, bubbles: true })
-      );
-      await nextTick();
+      await keyDown({ key: "B", ctrlKey: true });
       expect(getCell(model, "A1")!.style).toEqual({ bold: true });
       expect(getStyle(model, "A1")).toEqual({ bold: true });
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "B", ctrlKey: true, bubbles: true })
-      );
-      await nextTick();
+      await keyDown({ key: "B", ctrlKey: true });
       expect(getCell(model, "A1")!.style).toEqual({ bold: false });
       expect(getStyle(model, "A1")).toEqual({ bold: false });
     });
@@ -408,16 +380,10 @@ describe("Grid component", () => {
     test("toggle Italic with Ctrl+I", async () => {
       setCellContent(model, "A1", "hello");
       expect(getCell(model, "A1")!.style).toBeUndefined();
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "I", ctrlKey: true, bubbles: true })
-      );
-      await nextTick();
+      await keyDown({ key: "I", ctrlKey: true });
       expect(getCell(model, "A1")!.style).toEqual({ italic: true });
       expect(getStyle(model, "A1")).toEqual({ italic: true });
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "I", ctrlKey: true, bubbles: true })
-      );
-      await nextTick();
+      await keyDown({ key: "I", ctrlKey: true });
       expect(getCell(model, "A1")!.style).toEqual({ italic: false });
       expect(getStyle(model, "A1")).toEqual({ italic: false });
     });
@@ -527,10 +493,7 @@ describe("Grid component", () => {
     test("can automatically sum with ALT+=", async () => {
       setCellContent(model, "B2", "2");
       selectCell(model, "B5");
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
-      );
-      await nextTick();
+      await keyDown({ key: "=", altKey: true });
       expect(document.activeElement).toBe(document.querySelector(".o-grid-composer .o-composer"));
       expect(model.getters.getEditionMode()).toBe("editing");
       expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 10 });
@@ -540,9 +503,7 @@ describe("Grid component", () => {
 
     test("can automatically sum in an empty sheet with ALT+=", () => {
       selectCell(model, "B5");
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
-      );
+      keyDown({ key: "=", altKey: true });
       expect(model.getters.getEditionMode()).toBe("selecting");
       expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
       expect(model.getters.getCurrentContent()).toBe("=SUM()");
@@ -550,9 +511,7 @@ describe("Grid component", () => {
 
     test("can automatically sum multiple zones in an empty sheet with ALT+=", () => {
       setSelection(model, ["A1:B2", "C4:C6"]);
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
-      );
+      keyDown({ key: "=", altKey: true });
       expect(model.getters.getEditionMode()).toBe("selecting");
       expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
       expect(model.getters.getCurrentContent()).toBe("=SUM()");
@@ -562,9 +521,7 @@ describe("Grid component", () => {
       setCellContent(model, "B2", "2");
       merge(model, "B2:B4");
       selectCell(model, "B5");
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
-      );
+      keyDown({ key: "=", altKey: true });
       expect(model.getters.getCurrentContent()).toBe("=SUM(B2)");
     });
 
@@ -572,15 +529,11 @@ describe("Grid component", () => {
       setCellContent(model, "A1", "2");
       merge(model, "B1:B2");
       selectCell(model, "B2");
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
-      );
+      keyDown({ key: "=", altKey: true });
       expect(model.getters.getCurrentContent()).toBe("=SUM(A1)");
       model.dispatch("STOP_EDITION", { cancel: true });
       selectCell(model, "B1");
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
-      );
+      keyDown({ key: "=", altKey: true });
       expect(model.getters.getCurrentContent()).toBe("=SUM(A1)");
     });
 
@@ -589,9 +542,7 @@ describe("Grid component", () => {
       setCellContent(model, "B1", "2");
       setSelection(model, ["A2:B2"]);
 
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
-      );
+      keyDown({ key: "=", altKey: true });
       expect(model.getters.getEditionMode()).toBe("inactive");
       expect(getCellText(model, "A2")).toBe("=SUM(A1)");
       expect(getCellText(model, "B2")).toBe("=SUM(B1)");
@@ -602,9 +553,7 @@ describe("Grid component", () => {
       setCellContent(model, "A2", "2");
       setSelection(model, ["A1:A2"]);
 
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
-      );
+      keyDown({ key: "=", altKey: true });
       expect(model.getters.getEditionMode()).toBe("inactive");
       expect(getCellText(model, "A3")).toBe("=SUM(A1:A2)");
     });
@@ -612,9 +561,7 @@ describe("Grid component", () => {
     test("automatic sum opens composer if selection is one cell even if it's not empty", () => {
       setCellContent(model, "A2", "2");
       selectCell(model, "A2");
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
-      );
+      keyDown({ key: "=", altKey: true });
       expect(model.getters.getEditionMode()).toBe("selecting");
       expect(model.getters.getCurrentContent()).toBe("=SUM()");
     });
@@ -623,56 +570,44 @@ describe("Grid component", () => {
       setCellContent(model, "A2", "2");
       merge(model, "A2:A3");
       selectCell(model, "A2");
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
-      );
+      keyDown({ key: "=", altKey: true });
       expect(model.getters.getEditionMode()).toBe("selecting");
       expect(model.getters.getCurrentContent()).toBe("=SUM()");
     });
 
     test("Pressing CTRL+HOME moves you to first visible top-left cell", () => {
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "Home", ctrlKey: true, bubbles: true })
-      );
+      keyDown({ key: "Home", ctrlKey: true });
       expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
       hideRows(model, [0]);
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "Home", ctrlKey: true, bubbles: true })
-      );
+      keyDown({ key: "Home", ctrlKey: true });
       expect(model.getters.getSelectedZone()).toEqual(toZone("A2"));
     });
     test("Pressing CTRL+END moves you to last visible top-left cell", () => {
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "End", ctrlKey: true, bubbles: true })
-      );
+      keyDown({ key: "End", ctrlKey: true });
       expect(model.getters.getSelectedZone()).toEqual(toZone("Z100"));
       hideColumns(model, ["Z", "Y"]);
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "End", ctrlKey: true, bubbles: true })
-      );
+      keyDown({ key: "End", ctrlKey: true });
       expect(model.getters.getSelectedZone()).toEqual(toZone("X100"));
     });
 
     test("Pressing Ctrl+Space selects the columns of the selection", () => {
       setSelection(model, ["A1:C2"]);
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: " ", ctrlKey: true, bubbles: true })
-      );
+      keyDown({ key: " ", ctrlKey: true });
       expect(model.getters.getSelectedZone()).toEqual(toZone("A1:C100"));
     });
 
     test("Pressing Shift+Space selects the rows of the selection", () => {
       setSelection(model, ["A1:C2"]);
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: " ", shiftKey: true, bubbles: true })
-      );
+      keyDown({ key: " ", shiftKey: true });
       expect(model.getters.getSelectedZone()).toEqual(toZone("A1:Z2"));
     });
 
     test("Pressing Ctrl+Shift+Space selects the whole sheet", () => {
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: " ", ctrlKey: true, shiftKey: true, bubbles: true })
-      );
+      keyDown({
+        key: " ",
+        ctrlKey: true,
+        shiftKey: true,
+      });
       expect(model.getters.getSelectedZone()).toEqual(toZone("A1:Z100"));
     });
 
@@ -860,13 +795,9 @@ describe("Grid component", () => {
       createSheet(model, { sheetId: "third", position: 2 });
 
       expect(model.getters.getActiveSheetId()).toBe("second");
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "PageDown", shiftKey: true, bubbles: true })
-      );
+      keyDown({ key: "PageDown", shiftKey: true });
       expect(model.getters.getActiveSheetId()).toBe("third");
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "PageDown", shiftKey: true, bubbles: true })
-      );
+      keyDown({ key: "PageDown", shiftKey: true });
       expect(model.getters.getActiveSheetId()).toBe(sheetId);
     });
     test("Pressing Shift+PageUp activates the previous sheet", () => {
@@ -875,21 +806,14 @@ describe("Grid component", () => {
       createSheet(model, { sheetId: "third", position: 2 });
 
       expect(model.getters.getActiveSheetId()).toBe("second");
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "PageUp", shiftKey: true, bubbles: true })
-      );
+      keyDown({ key: "PageUp", shiftKey: true });
       expect(model.getters.getActiveSheetId()).toBe(sheetId);
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "PageUp", shiftKey: true, bubbles: true })
-      );
+      keyDown({ key: "PageUp", shiftKey: true });
       expect(model.getters.getActiveSheetId()).toBe("third");
     });
 
     test("pressing Ctrl+K opens the link editor", async () => {
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true })
-      );
-      await nextTick();
+      await keyDown({ key: "k", ctrlKey: true });
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
     });
 
@@ -1055,9 +979,7 @@ describe("Grid component", () => {
       });
       model.dispatch("ACTIVATE_PAINT_FORMAT");
       expect(getCell(model, "C2")).toBeUndefined();
-      document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
-      );
+      keyDown({ key: "ArrowRight" });
       expect(getCell(model, "C2")!.style).toEqual({ bold: true });
     });
     test("closing contextmenu focuses the grid", async () => {
@@ -1269,14 +1191,10 @@ describe("Events on Grid update viewport correctly", () => {
     await clickCell(model, "I1");
     expect(getSelectionAnchorCellXc(model)).toBe("I1");
     const viewport = model.getters.getActiveMainViewport();
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
-    );
+    keyDown({ key: "ArrowRight" });
     expect(getSelectionAnchorCellXc(model)).toBe("J1");
     expect(model.getters.getActiveMainViewport()).toMatchObject(viewport);
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
-    );
+    keyDown({ key: "ArrowRight" });
     expect(getSelectionAnchorCellXc(model)).toBe("K1");
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       ...viewport,
@@ -1295,9 +1213,7 @@ describe("Events on Grid update viewport correctly", () => {
     await clickCell(model, "C1");
     expect(model.getters.getActiveMainViewport().left).toEqual(7);
     expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(4 * DEFAULT_CELL_WIDTH);
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowRight", shiftKey: false, bubbles: true })
-    );
+    keyDown({ key: "ArrowRight", shiftKey: false });
     expect(model.getters.getSelectedZone()).toEqual(toZone("D1"));
     expect(model.getters.getActiveMainViewport().left).toEqual(3);
     expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(0);
@@ -1309,17 +1225,13 @@ describe("Events on Grid update viewport correctly", () => {
     await clickCell(model, "H1");
     expect(model.getters.getActiveMainViewport().left).toEqual(7);
     expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(4 * DEFAULT_CELL_WIDTH);
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowLeft", shiftKey: false, bubbles: true })
-    );
+    keyDown({ key: "ArrowLeft", shiftKey: false });
     expect(model.getters.getSelectedZone()).toEqual(toZone("G1"));
     expect(model.getters.getActiveMainViewport().left).toEqual(6);
     expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(3 * DEFAULT_CELL_WIDTH);
     triggerWheelEvent(document.activeElement!, { deltaY: -4 * DEFAULT_CELL_WIDTH, shiftKey: true });
     await clickCell(model, "D1");
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowLeft", shiftKey: false, bubbles: true })
-    );
+    keyDown({ key: "ArrowLeft", shiftKey: false });
     expect(model.getters.getSelectedZone()).toEqual(toZone("C1"));
     expect(model.getters.getActiveMainViewport().left).toEqual(3);
     expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(0);
@@ -1331,9 +1243,7 @@ describe("Events on Grid update viewport correctly", () => {
     await clickCell(model, "A3");
     expect(model.getters.getActiveMainViewport().top).toEqual(7);
     expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(4 * DEFAULT_CELL_HEIGHT);
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowDown", shiftKey: false, bubbles: true })
-    );
+    keyDown({ key: "ArrowDown", shiftKey: false });
     expect(model.getters.getSelectedZone()).toEqual(toZone("A4"));
     expect(model.getters.getActiveMainViewport().top).toEqual(3);
     expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(0);
@@ -1345,17 +1255,13 @@ describe("Events on Grid update viewport correctly", () => {
     await clickCell(model, "A8");
     expect(model.getters.getActiveMainViewport().top).toEqual(7);
     expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(4 * DEFAULT_CELL_HEIGHT);
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowUp", shiftKey: false, bubbles: true })
-    );
+    keyDown({ key: "ArrowUp", shiftKey: false });
     expect(model.getters.getSelectedZone()).toEqual(toZone("A7"));
     expect(model.getters.getActiveMainViewport().top).toEqual(6);
     expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(3 * DEFAULT_CELL_HEIGHT);
     triggerWheelEvent(document.activeElement!, { deltaY: -4 * DEFAULT_CELL_HEIGHT });
     await clickCell(model, "A4");
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowUp", shiftKey: false, bubbles: true })
-    );
+    keyDown({ key: "ArrowUp", shiftKey: false });
     expect(model.getters.getSelectedZone()).toEqual(toZone("A3"));
     expect(model.getters.getActiveMainViewport().top).toEqual(3);
     expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(0);
@@ -1365,14 +1271,10 @@ describe("Events on Grid update viewport correctly", () => {
     await clickCell(model, "I1");
     expect(getSelectionAnchorCellXc(model)).toBe("I1");
     const viewport = model.getters.getActiveMainViewport();
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowRight", shiftKey: true, bubbles: true })
-    );
+    keyDown({ key: "ArrowRight", shiftKey: true });
     expect(model.getters.getSelectedZone()).toEqual(toZone("I1:J1"));
     expect(model.getters.getActiveMainViewport()).toMatchObject(viewport);
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowRight", shiftKey: true, bubbles: true })
-    );
+    keyDown({ key: "ArrowRight", shiftKey: true });
     expect(model.getters.getSelectedZone()).toEqual(toZone("I1:K1"));
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       ...viewport,
@@ -1391,9 +1293,7 @@ describe("Events on Grid update viewport correctly", () => {
     await clickCell(model, "C1");
     expect(model.getters.getActiveMainViewport().left).toEqual(7);
     expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(4 * DEFAULT_CELL_WIDTH);
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowRight", shiftKey: true, bubbles: true })
-    );
+    keyDown({ key: "ArrowRight", shiftKey: true });
     expect(model.getters.getSelectedZone()).toEqual(toZone("C1:D1"));
     expect(model.getters.getActiveMainViewport().left).toEqual(3);
     expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(0);
@@ -1405,17 +1305,13 @@ describe("Events on Grid update viewport correctly", () => {
     await clickCell(model, "H1");
     expect(model.getters.getActiveMainViewport().left).toEqual(7);
     expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(4 * DEFAULT_CELL_WIDTH);
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowLeft", shiftKey: true, bubbles: true })
-    );
+    keyDown({ key: "ArrowLeft", shiftKey: true });
     expect(model.getters.getSelectedZone()).toEqual(toZone("G1:H1"));
     expect(model.getters.getActiveMainViewport().left).toEqual(6);
     expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(3 * DEFAULT_CELL_WIDTH);
     triggerWheelEvent(document.activeElement!, { deltaY: -4 * DEFAULT_CELL_WIDTH, shiftKey: true });
     await clickCell(model, "D1");
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowLeft", shiftKey: true, bubbles: true })
-    );
+    keyDown({ key: "ArrowLeft", shiftKey: true });
     expect(model.getters.getSelectedZone()).toEqual(toZone("C1:D1"));
     expect(model.getters.getActiveMainViewport().left).toEqual(3);
     expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(0);
@@ -1427,9 +1323,7 @@ describe("Events on Grid update viewport correctly", () => {
     await clickCell(model, "A3");
     expect(model.getters.getActiveMainViewport().top).toEqual(7);
     expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(4 * DEFAULT_CELL_HEIGHT);
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowDown", shiftKey: true, bubbles: true })
-    );
+    keyDown({ key: "ArrowDown", shiftKey: true });
     expect(model.getters.getSelectedZone()).toEqual(toZone("A3:A4"));
     expect(model.getters.getActiveMainViewport().top).toEqual(3);
     expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(0);
@@ -1441,17 +1335,13 @@ describe("Events on Grid update viewport correctly", () => {
     await clickCell(model, "A8");
     expect(model.getters.getActiveMainViewport().top).toEqual(7);
     expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(4 * DEFAULT_CELL_HEIGHT);
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowUp", shiftKey: true, bubbles: true })
-    );
+    keyDown({ key: "ArrowUp", shiftKey: true });
     expect(model.getters.getSelectedZone()).toEqual(toZone("A7:A8"));
     expect(model.getters.getActiveMainViewport().top).toEqual(6);
     expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(3 * DEFAULT_CELL_HEIGHT);
     triggerWheelEvent(document.activeElement!, { deltaY: -4 * DEFAULT_CELL_HEIGHT });
     await clickCell(model, "A4");
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowUp", shiftKey: true, bubbles: true })
-    );
+    keyDown({ key: "ArrowUp", shiftKey: true });
     expect(model.getters.getSelectedZone()).toEqual(toZone("A3:A4"));
     expect(model.getters.getActiveMainViewport().top).toEqual(3);
     expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(0);
@@ -1466,10 +1356,7 @@ describe("Events on Grid update viewport correctly", () => {
     selectCell(model, "Y1");
     await nextTick();
     expect(model.getters.getActiveMainViewport()).toMatchObject(viewport);
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowRight", shiftKey: true, bubbles: true })
-    );
-    await nextTick();
+    await keyDown({ key: "ArrowRight", shiftKey: true });
     expect(model.getters.getActiveMainViewport()).toMatchObject(viewport);
   });
 
@@ -1653,7 +1540,7 @@ describe("Copy paste keyboard shortcut", () => {
     copy(model, "A1");
     selectCell(model, "A2");
     expect(getClipboardVisibleZones(model).length).toBe(1);
-    await keyDown("Escape");
+    await keyDown({ key: "Escape" });
     expect(getClipboardVisibleZones(model).length).toBe(0);
   });
 
@@ -1663,7 +1550,7 @@ describe("Copy paste keyboard shortcut", () => {
     cut(model, "A1");
     selectCell(model, "A2");
     expect(getClipboardVisibleZones(model).length).toBe(1);
-    await keyDown("Escape");
+    await keyDown({ key: "Escape" });
     expect(getClipboardVisibleZones(model).length).toBe(0);
   });
 
@@ -1678,11 +1565,11 @@ describe("Copy paste keyboard shortcut", () => {
     expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
     expect(getClipboardVisibleZones(model).length).toBe(1);
 
-    await keyDown("Escape");
+    await keyDown({ key: "Escape" });
     expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(0);
     expect(getClipboardVisibleZones(model).length).toBe(1);
 
-    await keyDown("Escape");
+    await keyDown({ key: "Escape" });
     expect(getClipboardVisibleZones(model).length).toBe(0);
   });
 
@@ -1693,10 +1580,10 @@ describe("Copy paste keyboard shortcut", () => {
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
     expect(getClipboardVisibleZones(model).length).toBe(1);
 
-    await keyDown("Escape");
+    await keyDown({ key: "Escape" });
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     expect(getClipboardVisibleZones(model).length).toBe(1);
-    await keyDown("Escape");
+    await keyDown({ key: "Escape" });
     expect(getClipboardVisibleZones(model).length).toBe(0);
   });
 

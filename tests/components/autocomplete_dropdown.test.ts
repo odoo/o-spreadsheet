@@ -40,7 +40,7 @@ beforeEach(async () => {
   ({ model, fixture } = await mountSpreadsheet());
 
   // start composition
-  await keyDown("Enter");
+  await keyDown({ key: "Enter" });
   composerEl = fixture.querySelector(".o-grid div.o-composer")!;
 });
 
@@ -107,7 +107,7 @@ describe("Functions autocomplete", () => {
 
     test("=S+TAB complete the function --> =SUM(␣", async () => {
       await typeInComposerGrid("=S");
-      await keyDown("Tab");
+      await keyDown({ key: "Tab" });
       expect(composerEl.textContent).toBe("=SUM(");
       expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
       expect(cehMock.selectionState.position).toBe(5);
@@ -115,7 +115,7 @@ describe("Functions autocomplete", () => {
 
     test("=S+ENTER complete the function --> =SUM(␣", async () => {
       await typeInComposerGrid("=S");
-      await keyDown("Enter");
+      await keyDown({ key: "Enter" });
       expect(composerEl.textContent).toBe("=SUM(");
       expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
       expect(cehMock.selectionState.position).toBe(5);
@@ -128,7 +128,7 @@ describe("Functions autocomplete", () => {
 
     test("=SX+ENTER does not autocomplete anything and moves to the cell down", async () => {
       await typeInComposerGrid("=SX");
-      await keyDown("Tab");
+      await keyDown({ key: "Tab" });
       expect(getCellText(model, "A1")).toBe("=SX");
     });
 
@@ -137,7 +137,7 @@ describe("Functions autocomplete", () => {
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SUM");
-      await keyDown("ArrowUp");
+      await keyDown({ key: "ArrowUp" });
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SZZ");
@@ -148,11 +148,11 @@ describe("Functions autocomplete", () => {
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SUM");
-      await keyDown("ArrowDown");
+      await keyDown({ key: "ArrowDown" });
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SZZ");
-      await keyDown("ArrowUp");
+      await keyDown({ key: "ArrowUp" });
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SUM");
@@ -163,11 +163,11 @@ describe("Functions autocomplete", () => {
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SUM");
-      await keyDown("ArrowDown");
+      await keyDown({ key: "ArrowDown" });
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SZZ");
-      await keyDown("ArrowDown");
+      await keyDown({ key: "ArrowDown" });
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SUM");
@@ -272,19 +272,19 @@ describe("Functions autocomplete", () => {
     });
     test("= and CTRL+Space show autocomplete", async () => {
       await typeInComposerGrid("=");
-      await keyUp(" ", { ctrlKey: true });
+      await keyUp({ key: " ", ctrlKey: true });
       //TODO Need a second nextTick to wait the re-render of SelectionInput (onMounted => uuid assignation). But why not before ?
       await nextTick();
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(3);
-      await keyDown("Tab");
+      await keyDown({ key: "Tab" });
       expect(composerEl.textContent).toBe("=IF(");
       expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
       expect(cehMock.selectionState.position).toBe(4);
     });
     test("= and CTRL+Space & DOWN move to next autocomplete", async () => {
       await typeInComposerGrid("=");
-      await keyUp(" ", { ctrlKey: true });
-      await keyDown("ArrowDown");
+      await keyUp({ key: " ", ctrlKey: true });
+      await keyDown({ key: "ArrowDown" });
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SUM");
@@ -321,17 +321,16 @@ describe("Autocomplete parenthesis", () => {
 
   test("=sum(1,2 + enter adds closing parenthesis", async () => {
     await typeInComposerGrid("=sum(1,2");
-    await keyDown("Enter");
+    await keyDown({ key: "Enter" });
     expect(getCellText(model, "A1")).toBe("=sum(1,2)");
   });
 
   test("=sum(1,2) + enter + edit sum does not add parenthesis", async () => {
     await typeInComposerGrid("=sum(1,2)");
-    await keyDown("Enter");
+    await keyDown({ key: "Enter" });
     selectCell(model, "A1");
     //edit A1
-    await keyDown("Enter");
-    composerEl = fixture.querySelector(".o-grid div.o-composer")!;
+    await keyDown({ key: "Enter" });
 
     model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 4 });
     await nextTick();
@@ -361,13 +360,13 @@ describe("Autocomplete parenthesis", () => {
 
   test("=sum(sum(1,2 + enter add 2 closing parenthesis", async () => {
     await typeInComposerGrid("=sum(sum(1,2");
-    await keyDown("Enter");
+    await keyDown({ key: "Enter" });
     expect(getCellText(model, "A1")).toBe("=sum(sum(1,2))");
   });
 
   test("=sum(sum(1,2) + enter add 1 closing parenthesis", async () => {
     await typeInComposerGrid("=sum(sum(1,2");
-    await keyDown("Enter");
+    await keyDown({ key: "Enter" });
     expect(getCellText(model, "A1")).toBe("=sum(sum(1,2))");
   });
 
@@ -379,13 +378,13 @@ describe("Autocomplete parenthesis", () => {
 
   test('=sum("((((((((") + enter should not complete the parenthesis in the string', async () => {
     await typeInComposerGrid('=sum("((((((((")');
-    await keyDown("Enter");
+    await keyDown({ key: "Enter" });
     expect(getCellText(model, "A1")).toBe('=sum("((((((((")');
   });
 
   test("=s + tab should allow to select a ref", async () => {
     await typeInComposerGrid("=s");
-    await keyDown("Tab");
+    await keyDown({ key: "Tab" });
     expect(model.getters.getEditionMode()).toBe("selecting");
   });
 });

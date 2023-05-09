@@ -7,7 +7,7 @@ import {
 } from "../../src/constants";
 import { Model } from "../../src/model";
 import { createFilter, selectCell, setCellContent } from "../test_helpers/commands_helpers";
-import { simulateClick } from "../test_helpers/dom_helper";
+import { keyDown, simulateClick } from "../test_helpers/dom_helper";
 import { getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
 
@@ -42,9 +42,7 @@ describe("Grid component in dashboard mode", () => {
     model.updateMode("dashboard");
     await nextTick();
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
-    );
+    keyDown({ key: "ArrowRight" });
     expect(getSelectionAnchorCellXc(model)).not.toBe("B1");
   });
 

@@ -29,6 +29,8 @@ import {
 import {
   dragElement,
   getElStyle,
+  keyDown,
+  keyUp,
   simulateClick,
   triggerMouseEvent,
   triggerWheelEvent,
@@ -149,8 +151,7 @@ describe("figures", () => {
     const figure = fixture.querySelector(".o-figure")!;
     await simulateClick(".o-figure");
     expect(document.activeElement).toBe(figure);
-    figure.dispatchEvent(new KeyboardEvent("keydown", { key: "Delete" }));
-    await nextTick();
+    await keyDown({ key: "Delete" });
     expect(fixture.querySelector(".o-figure")).toBeNull();
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
   });
@@ -160,10 +161,9 @@ describe("figures", () => {
     setCellContent(model, "A1", "content");
     selectCell(model, "A1");
     await nextTick();
-    const figure = fixture.querySelector(".o-figure")!;
+    fixture.querySelector(".o-figure")!;
     await simulateClick(".o-figure");
-    figure.dispatchEvent(new KeyboardEvent("keydown", { key: "Delete", bubbles: true }));
-    await nextTick();
+    await keyDown({ key: "Delete" });
     expect(fixture.querySelector(".o-figure")).toBeNull();
     expect(getCellContent(model, "A1")).toBe("content");
   });
@@ -184,41 +184,27 @@ describe("figures", () => {
     let figure = model.getters.getFigure(sheetId, "someuuid");
     expect(figure).toMatchObject({ id: "someuuid", x: 1, y: 1 });
     await nextTick();
-    const figureContainer = fixture.querySelector(".o-figure")!;
+    fixture.querySelector(".o-figure")!;
     await simulateClick(".o-figure");
     await nextTick();
     const selectedFigure = model.getters.getSelectedFigureId();
     expect(selectedFigure).toBe("someuuid");
     //down
-    figureContainer.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true })
-    );
-    figureContainer.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true })
-    );
-    await nextTick();
+    keyDown({ key: "ArrowDown" });
+    await keyDown({ key: "ArrowDown" });
     figure = model.getters.getFigure(sheetId, "someuuid");
     expect(figure).toMatchObject({ id: "someuuid", x: 1, y: 3 });
     //right
-    figureContainer.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
-    );
-    figureContainer.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
-    );
-    await nextTick();
+    keyDown({ key: "ArrowRight" });
+    await keyDown({ key: "ArrowRight" });
     figure = model.getters.getFigure(sheetId, "someuuid");
     expect(figure).toMatchObject({ id: "someuuid", x: 3, y: 3 });
     //left
-    figureContainer.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true })
-    );
-    await nextTick();
+    await keyDown({ key: "ArrowLeft" });
     figure = model.getters.getFigure(sheetId, "someuuid");
     expect(figure).toMatchObject({ id: "someuuid", x: 2, y: 3 });
     //up
-    figureContainer.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }));
-    await nextTick();
+    await keyDown({ key: "ArrowUp" });
     figure = model.getters.getFigure(sheetId, "someuuid");
     expect(figure).toMatchObject({ id: "someuuid", x: 2, y: 2 });
   });
@@ -251,9 +237,7 @@ describe("figures", () => {
     await nextTick();
     setCellContent(model, "A1", "hello");
     await simulateClick(".o-figure");
-    fixture
-      .querySelector(".o-figure")
-      ?.dispatchEvent(new KeyboardEvent("keydown", { key: "z", ctrlKey: true, bubbles: true }));
+    keyDown({ key: "z", ctrlKey: true });
     expect(getCellText(model, "A1")).toBe("");
   });
 
@@ -603,13 +587,9 @@ describe("figures", () => {
       test("Selecting a figure and hitting Ctrl does not unselect it", async () => {
         await simulateClick(".o-figure");
         expect(model.getters.getSelectedFigureId()).toBe(figureId);
-        document.activeElement!.dispatchEvent(
-          new KeyboardEvent("keydown", { key: "Control", bubbles: true })
-        );
+        keyDown({ key: "Control" });
         expect(model.getters.getSelectedFigureId()).toBe(figureId);
-        document.activeElement!.dispatchEvent(
-          new KeyboardEvent("keyup", { key: "Control", bubbles: true })
-        );
+        keyUp({ key: "Control" });
         expect(model.getters.getSelectedFigureId()).toBe(figureId);
       });
     }

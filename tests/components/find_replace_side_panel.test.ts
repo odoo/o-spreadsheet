@@ -1,6 +1,6 @@
 import { Model, Spreadsheet } from "../../src";
 import { setCellContent } from "../test_helpers/commands_helpers";
-import { click, setInputValueAndTrigger } from "../test_helpers/dom_helper";
+import { click, focusAndKeyDown, setInputValueAndTrigger } from "../test_helpers/dom_helper";
 import { mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
@@ -118,10 +118,7 @@ describe("find and replace sidePanel component", () => {
 
     test("Going to next with Enter key", async () => {
       setInputValueAndTrigger(selectors.inputSearch, "1", "input");
-      document
-        .querySelector(selectors.inputSearch)!
-        .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-      await nextTick();
+      await focusAndKeyDown(selectors.inputSearch, { key: "Enter" });
       expect(dispatch).toHaveBeenCalledWith("SELECT_SEARCH_NEXT_MATCH");
     });
 
@@ -278,10 +275,7 @@ describe("find and replace sidePanel component", () => {
       setInputValueAndTrigger(selectors.inputSearch, "hell", "input");
       setInputValueAndTrigger(selectors.inputReplace, "kikou", "input");
       const dispatch = spyDispatch(parent);
-      document
-        .querySelector(selectors.inputReplace)!
-        .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-      await nextTick();
+      await focusAndKeyDown(selectors.inputReplace, { key: "Enter" });
       expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", { replaceWith: "kikou" });
     });
   });

@@ -277,7 +277,7 @@ describe("BottomBar component", () => {
       triggerMouseEvent(sheetName, "dblclick");
       await nextTick();
       sheetName.textContent = "New name";
-      await keyDown("Enter");
+      await keyDown({ key: "Enter" });
       expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toEqual("New name");
     });
 
@@ -295,7 +295,7 @@ describe("BottomBar component", () => {
       triggerMouseEvent(sheetName, "dblclick");
       await nextTick();
       sheetName.textContent = "New name";
-      await keyDown("Escape");
+      await keyDown({ key: "Escape" });
       expect(sheetName.textContent).toEqual("Sheet1");
       expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toEqual("Sheet1");
     });
@@ -305,7 +305,7 @@ describe("BottomBar component", () => {
       triggerMouseEvent(sheetName, "dblclick");
       await nextTick();
       sheetName.textContent = "";
-      await keyDown("Enter");
+      await keyDown({ key: "Enter" });
       expect(raiseError).toHaveBeenCalled();
     });
 
@@ -316,7 +316,7 @@ describe("BottomBar component", () => {
       await nextTick();
       sheetName.textContent = "ThisIsASheet";
       expect(window.getSelection()?.toString()).toEqual("");
-      await keyDown("Enter");
+      await keyDown({ key: "Enter" });
       expect(raiseError).toHaveBeenCalled();
       expect(window.getSelection()?.toString()).toEqual("ThisIsASheet");
       expect(document.activeElement).toEqual(sheetName);

@@ -8,6 +8,7 @@ import {
 } from "../../test_helpers/commands_helpers";
 import {
   clickCell,
+  keyDown,
   rightClickCell,
   setInputValueAndTrigger,
   simulateClick,
@@ -232,22 +233,19 @@ describe("link editor component", () => {
     async (input) => {
       await openLinkEditor(model, "A1");
 
-      input().dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
-      await nextTick();
+      await keyDown({ key: "Enter" });
       expect(fixture.querySelector(".o-link-editor")).toBeTruthy();
       expect(getCell(model, "A1")).toBeUndefined();
 
       setInputValueAndTrigger(labelInput(), "my label", "input");
       await nextTick();
-      input().dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
-      await nextTick();
+      await keyDown({ key: "Enter" });
       expect(fixture.querySelector(".o-link-editor")).toBeTruthy();
       expect(getCell(model, "A1")).toBeUndefined();
 
       setInputValueAndTrigger(urlInput(), "https://url.com", "input");
       await nextTick();
-      input().dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
-      await nextTick();
+      await keyDown({ key: "Enter" });
       expect(fixture.querySelector(".o-link-editor")).toBeFalsy();
       expect(getCell(model, "A1")).toBeDefined();
     }
