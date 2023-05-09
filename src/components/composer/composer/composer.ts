@@ -247,6 +247,11 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
         this.autocompleteAPI.moveDown();
       }
     }
+    if (!this.env.model.getters.isSelectingForComposer()) {
+      const { start, end } = this.contentHelper.getCurrentSelection();
+      this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start, end });
+      this.isKeyStillDown = true;
+    }
   }
 
   private processTabKey(ev: KeyboardEvent) {
@@ -308,11 +313,6 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
       handler.call(this, ev);
     } else {
       ev.stopPropagation();
-    }
-    const { start, end } = this.contentHelper.getCurrentSelection();
-    if (!this.env.model.getters.isSelectingForComposer()) {
-      this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start, end });
-      this.isKeyStillDown = true;
     }
   }
 

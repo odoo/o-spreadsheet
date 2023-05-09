@@ -186,6 +186,25 @@ describe("Functions autocomplete", () => {
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
     });
+
+    test.each(["Enter", "Tab"])(
+      "=S(A1:A5) +ENTER complete the function --> =SUM(A1:A5)",
+      async (buttonkey) => {
+        await typeInComposerGrid("=S(A1:A5)");
+        model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
+        model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 2, end: 2 });
+        await nextTick();
+        await typeInComposerGrid("U", false);
+        expect(model.getters.getCurrentContent()).toBe("=SU(A1:A5)");
+        expect(model.getters.getComposerSelection()).toEqual({ start: 3, end: 3 });
+        expect(document.activeElement).toBe(composerEl);
+        expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(1);
+        await nextTick();
+        composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: buttonkey }));
+        await nextTick();
+        expect(composerEl.textContent).toBe("=SUM(A1:A5)");
+      }
+    );
   });
 
   describe("autocomplete functions SUM IF", () => {
@@ -250,6 +269,12 @@ describe("Autocomplete parenthesis", () => {
       compute: () => 1,
       returns: ["ANY"],
     });
+    functionRegistry.add("SUMIF", {
+      description: "do sumif",
+      args: args(``),
+      compute: () => 1,
+      returns: ["ANY"],
+    });
     functionRegistry.add("SZZ", {
       description: "do something",
       args: args(``),
@@ -302,7 +327,7 @@ describe("Autocomplete parenthesis", () => {
     expect(model.getters.getCurrentContent()).toBe("=SU(");
     expect(model.getters.getComposerSelection()).toEqual({ start: 3, end: 3 });
     expect(document.activeElement).toBe(composerEl);
-    expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(1);
+    expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(2);
     // select the SUM function
     fixture.querySelector(".o-autocomplete-value-focus")!.dispatchEvent(new MouseEvent("click"));
     await nextTick();
@@ -311,6 +336,30 @@ describe("Autocomplete parenthesis", () => {
     expect(cehMock.selectionState.position).toBe(5);
     expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
   });
+
+  test.each(["Enter", "Tab"])(
+    "=SUM( + edit SUM with autocomplete does not add left parenthesis",
+    async (buttonkey) => {
+      await typeInComposerGrid("=SUM(");
+      // go behind the letter "M"
+      model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
+      model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 4, end: 4 });
+      await nextTick();
+      // show autocomplete
+      await typeInComposerGrid("I", false);
+      expect(model.getters.getCurrentContent()).toBe("=SUMI(");
+      expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
+      expect(document.activeElement).toBe(composerEl);
+      expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(1);
+      // select the SUMIF function
+      composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: buttonkey }));
+      await nextTick();
+      expect(composerEl.textContent).toBe("=SUMIF(");
+      expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
+      expect(cehMock.selectionState.position).toBe(7);
+      expect(model.getters.getComposerSelection()).toEqual({ start: 7, end: 7 });
+    }
+  );
 
   test("=sum(sum(1,2 + enter add 2 closing parenthesis", async () => {
     await typeInComposerGrid("=sum(sum(1,2");
