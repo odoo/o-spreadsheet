@@ -1,27 +1,19 @@
 import { compile } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
-import { createEvaluatedCell, errorCell, evaluateLiteral } from "../../helpers/cells";
-import { FormulaDependencyGraph } from "../../helpers/evaluation/formula_dependency_graph";
-import { SpreadingRelation } from "../../helpers/evaluation/spreading_relation";
+import { createEvaluatedCell } from "../../helpers/cells";
+import { EvaluationProcess } from "../../helpers/evaluation/evaluation_process";
+import { cellPositionToRc, rcToCellPosition } from "../../helpers/evaluation/misc";
 import {
   getItemId,
   intersection,
   isZoneValid,
-  mapToPositionsInZone,
   positions,
   toXC,
   zoneToXc,
 } from "../../helpers/index";
 import { _lt } from "../../translation";
+import { InvalidReferenceError } from "../../types/errors";
 import {
-  CellErrorLevel,
-  CellErrorType,
-  CircularDependencyError,
-  EvaluationError,
-  InvalidReferenceError,
-} from "../../types/errors";
-import {
-  Cell,
   CellPosition,
   CellValue,
   CellValueType,
@@ -34,11 +26,8 @@ import {
   Format,
   FormattedValue,
   FormulaCell,
-  FormulaReturn,
   HeaderIndex,
   invalidateDependenciesCommands,
-  isMatrix,
-  Matrix,
   MatrixArg,
   PrimitiveArg,
   Range,
@@ -418,14 +407,8 @@ export class EvaluationPlugin extends UIPlugin {
   private shouldRebuildDependenciesGraph = true;
   private readonly evalContext: EvalContext;
 
-  private evaluatedCells: PositionDict<EvaluatedCell> = {};
+  private evalProcess = new EvaluationProcess(this.getters);
   private rcsToUpdate = new Set<string>();
-
-  private formulaDependencies = new FormulaDependencyGraph();
-  private spreadingFormulas = new Set<string>();
-  private spreadingRelations = new SpreadingRelation();
-
-  private maxIteration = 100;
 
   constructor(config: UIPluginConfig) {
     super(config);
@@ -452,22 +435,22 @@ export class EvaluationPlugin extends UIPlugin {
         this.rcsToUpdate.add(rc);
 
         if ("content" in cmd) {
-          this.updateDependencies(rc);
+          this.evalProcess.updateDependencies(rc);
         }
         break;
       case "EVALUATE_CELLS":
-        this.evaluateAllCells();
+        this.evalProcess.evaluateAllCells();
         break;
     }
   }
 
   finalize() {
     if (this.shouldRebuildDependenciesGraph) {
-      this.buildDependencyGraph();
-      this.evaluateAllCells();
+      this.evalProcess.buildDependencyGraph();
+      this.evalProcess.evaluateAllCells();
       this.shouldRebuildDependenciesGraph = false;
     } else if (this.rcsToUpdate.size) {
-      this.evaluate(this.withOrderedDependencies(this.rcsToUpdate));
+      this.evalProcess.evaluateCells(this.rcsToUpdate);
     }
     this.rcsToUpdate.clear();
   }
@@ -521,7 +504,7 @@ export class EvaluationPlugin extends UIPlugin {
   }
 
   getEvaluatedCellFromRc(rc: string): EvaluatedCell {
-    return this.evaluatedCells[rc] || createEvaluatedCell("");
+    return this.evalProcess.evaluatedCells[rc] || createEvaluatedCell("");
   }
 
   getEvaluatedCells(sheetId: UID): Record<UID, EvaluatedCell> {
@@ -538,228 +521,18 @@ export class EvaluationPlugin extends UIPlugin {
    * Returns all the evaluated cells of a col
    */
   getColEvaluatedCells(sheetId: UID, col: HeaderIndex): EvaluatedCell[] {
-    return Object.keys(this.evaluatedCells)
+    return Object.keys(this.evalProcess.evaluatedCells)
       .filter((rc) => {
-        const position = this.getters.getCellPosition(this.rcToCell(rc)!.id);
+        const position = rcToCellPosition(rc);
         return position.sheetId === sheetId && position.col === col;
       })
-      .map((rc) => this.evaluatedCells[rc]);
+      .map((rc) => this.evalProcess.evaluatedCells[rc]);
   }
 
   getEvaluatedCellsInZone(sheetId: UID, zone: Zone): EvaluatedCell[] {
     return positions(zone).map(({ col, row }) =>
       this.getters.getEvaluatedCell({ sheetId, col, row })
     );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Evaluator
-  // ---------------------------------------------------------------------------
-
-  private getDirectDependencies(thisRc: string): string[] {
-    const cell = this.rcToCell(thisRc);
-    if (!cell?.isFormula) {
-      return [];
-    }
-    const dependencies: string[] = [];
-    for (const range of cell.dependencies) {
-      if (range.invalidSheetName || range.invalidXc) {
-        continue;
-      }
-      const sheetId = range.sheetId;
-      mapToPositionsInZone(range.zone, (col, row) => {
-        dependencies.push(cellPositionToRc({ sheetId, col, row }));
-      });
-    }
-    return dependencies;
-  }
-
-  private getSetOfAllCells(): Set<string> {
-    const cellsSet = new Set<string>();
-    // use a generator function to avoid re-building a new object
-    for (const sheetId of this.getters.getSheetIds()) {
-      const cells = this.getters.getCells(sheetId);
-      for (const cellId in cells) {
-        cellsSet.add(cellPositionToRc(this.getters.getCellPosition(cellId)));
-      }
-    }
-    return cellsSet;
-  }
-
-  private evaluateAllCells() {
-    this.evaluatedCells = {};
-    this.evaluate(this.getSetOfAllCells());
-  }
-
-  /**
-   * @param cells ordered topologically! TODO explain this better
-   */
-  private evaluate(cells: Set<string>) {
-    const cellsBeingComputed = new Set<UID>();
-    const nextRcsToUpdate = cells;
-
-    const setEvaluatedCell = (rc: string, evaluatedCell: EvaluatedCell) => {
-      if (nextRcsToUpdate.has(rc)) {
-        nextRcsToUpdate.delete(rc);
-      }
-      this.evaluatedCells[rc] = evaluatedCell;
-    };
-
-    const computeCell = (rc: string): EvaluatedCell => {
-      const evaluation = this.evaluatedCells[rc];
-      if (evaluation) {
-        return evaluation; // already computed
-      }
-
-      if (this.spreadingFormulas.has(rc)) {
-        for (const child of this.spreadingRelations.getArrayResultsRc(rc)) {
-          const content = this.rcToCell(child)?.content;
-          if (!content) {
-            delete this.evaluatedCells[child];
-            extendSet(nextRcsToUpdate, this.findChildrenToCompute(child));
-            for (const candidate of this.spreadingRelations.getArrayFormulasRc(child)) {
-              extendSet(nextRcsToUpdate, this.findCellsToCompute(candidate));
-            }
-          }
-        }
-        this.spreadingFormulas.delete(rc);
-      }
-      this.spreadingRelations.removeNode(rc);
-
-      const cell = this.rcToCell(rc);
-      if (cell === undefined) {
-        return createEvaluatedCell("");
-      }
-
-      const cellId = cell.id;
-
-      try {
-        if (cellsBeingComputed.has(cellId)) {
-          throw new CircularDependencyError();
-        }
-        cellsBeingComputed.add(cellId);
-        return cell.isFormula
-          ? computeFormulaCell(cell)
-          : evaluateLiteral(cell.content, cell.format);
-      } catch (e) {
-        return handleError(e, cell);
-      } finally {
-        cellsBeingComputed.delete(cellId);
-      }
-    };
-
-    const handleError = (e: Error | any, cell: Cell): EvaluatedCell => {
-      if (!(e instanceof Error)) {
-        e = new Error(e);
-      }
-      const msg = e?.errorType || CellErrorType.GenericError;
-      // apply function name
-      const __lastFnCalled = compilationParameters[2].__lastFnCalled || "";
-      const error = new EvaluationError(
-        msg,
-        e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled),
-        e.logLevel !== undefined ? e.logLevel : CellErrorLevel.error
-      );
-      return errorCell(cell.content, error);
-    };
-
-    const computeFormulaCell = (cellData: FormulaCell): EvaluatedCell => {
-      const updateSpreadRelation = (i: number, j: number) => {
-        const position = { sheetId, col: i + col, row: j + row };
-        const rc = cellPositionToRc(position);
-        this.spreadingRelations.addRelation({ resultRc: rc, arrayFormulaRc: parentRc });
-      };
-
-      const checkCollision = (i: number, j: number) => {
-        const rawCell = this.getters.getCell({ sheetId, col: col + i, row: row + j });
-        if (
-          rawCell?.content ||
-          this.getEvaluatedCell({ sheetId, col: col + i, row: row + j }).type !==
-            CellValueType.empty
-        ) {
-          throw new Error(
-            _lt(
-              "Array result was not expanded because it would overwrite data in %s.",
-              toXC(col + i, row + j)
-            )
-          );
-        }
-      };
-
-      const spreadValues = (i: number, j: number) => {
-        const position = { sheetId, col: i + col, row: j + row };
-        const cell = this.getters.getCell(position);
-        const format = cell?.format;
-        const evaluatedCell = createEvaluatedCell(
-          computedValue![i][j],
-          format || formatFromPosition(i, j)
-        );
-
-        const rc = cellPositionToRc(position);
-
-        // update evaluatedCells
-        setEvaluatedCell(rc, evaluatedCell);
-        this.spreadingFormulas.add(parentRc);
-
-        // check if formula dependencies present in the spread zone
-        // if so, they need to be recomputed
-        extendSet(nextRcsToUpdate, this.findChildrenToCompute(rc));
-      };
-
-      const cellId = cellData.id;
-      compilationParameters[2].__originCellXC = () => {
-        // compute the value lazily for performance reasons
-        const position = compilationParameters[2].getters.getCellPosition(cellId);
-        return toXC(position.col, position.row);
-      };
-      const formulaReturn = cellData.compiledFormula.execute(
-        cellData.dependencies,
-        ...compilationParameters
-      );
-
-      assertFormulaReturnHasConsistentDimensions(formulaReturn);
-
-      const { value: computedValue, format: computedFormat } = formulaReturn;
-
-      if (!isMatrix(computedValue)) {
-        return createEvaluatedCell(
-          computedValue,
-          cellData.format || (computedFormat as string | undefined)
-        ); // the case computedFormat as Matrix is handled by the assertFormulaReturnHasCoincidentDimensions
-      }
-
-      // next constants are used in the functions updatePotentialSpreaders/checkCollision/spreadValues
-      const { sheetId, col, row } = this.getters.getCellPosition(cellId);
-      const parentRc = cellPositionToRc({ sheetId, col, row });
-      const formatFromPosition = isMatrix(computedFormat)
-        ? (i: number, j: number) => computedFormat[i][j]
-        : () => computedFormat;
-
-      this.assertSheetHasEnoughSpaceToSpreadFormulaResult({ sheetId, col, row }, computedValue);
-
-      forEachSpreadPositionInMatrix(computedValue, updateSpreadRelation);
-      forEachSpreadPositionInMatrix(computedValue, checkCollision);
-      forEachSpreadPositionInMatrix(computedValue, spreadValues);
-      return createEvaluatedCell(computedValue[0][0], cellData.format || formatFromPosition(0, 0));
-    };
-
-    const compilationParameters = this.getCompilationParameters(computeCell);
-
-    let currentCycle = 0;
-    while (nextRcsToUpdate.size && currentCycle < this.maxIteration) {
-      const arr = Array.from(nextRcsToUpdate);
-      nextRcsToUpdate.clear();
-      for (let i = 0; i < arr.length; ++i) {
-        const cell = arr[i];
-        delete this.evaluatedCells[cell];
-      }
-      for (let i = 0; i < arr.length; ++i) {
-        const cell = arr[i];
-        setEvaluatedCell(cell, computeCell(cell));
-      }
-
-      ++currentCycle;
-    }
   }
 
   /**
@@ -903,96 +676,6 @@ export class EvaluationPlugin extends UIPlugin {
     return [refFn, range, evalContext];
   }
 
-  private findCellsToCompute(mainRc: string): Iterable<string> {
-    return this.formulaDependencies.getEvaluationOrder(mainRc);
-  }
-
-  private findChildrenToCompute(mainRc: string): Iterable<string> {
-    const cellsToCompute = this.formulaDependencies.getEvaluationOrder(mainRc);
-    cellsToCompute.delete(mainRc);
-    return cellsToCompute;
-  }
-
-  private rcToCell(rc: string): Cell | undefined {
-    return this.getters.getCell(rcToCellPosition(rc));
-  }
-
-  private assertSheetHasEnoughSpaceToSpreadFormulaResult(
-    cellPosition: CellPosition,
-    matrixResult: Matrix<CellValue>
-  ) {
-    const { sheetId, col, row } = cellPosition;
-    const numberOfCols = this.getters.getNumberCols(sheetId);
-    const numberOfRows = this.getters.getNumberRows(sheetId);
-    const enoughCols = col + matrixResult.length <= numberOfCols;
-    const enoughRows = row + matrixResult[0].length <= numberOfRows;
-
-    if (enoughCols && enoughRows) {
-      return;
-    }
-
-    if (enoughCols) {
-      throw new Error(_lt("Result couldn't be automatically expanded. Please insert more rows."));
-    }
-
-    if (enoughRows) {
-      throw new Error(
-        _lt("Result couldn't be automatically expanded. Please insert more columns.")
-      );
-    }
-
-    throw new Error(
-      _lt("Result couldn't be automatically expanded. Please insert more columns and rows.")
-    );
-  }
-
-  private buildDependencyGraph() {
-    this.formulaDependencies = new FormulaDependencyGraph();
-    this.spreadingFormulas = new Set<string>();
-    this.spreadingRelations = new SpreadingRelation();
-    for (const rc of this.getSetOfAllCells()) {
-      const dependencies = this.getDirectDependencies(rc);
-      this.formulaDependencies.addDependencies(rc, dependencies);
-    }
-  }
-
-  private withOrderedDependencies(rcs: Iterable<string>): Set<string> {
-    const cells = new Set<string>();
-
-    for (const rc of rcs) {
-      extendSet(cells, this.findCellsToCompute(rc));
-
-      const content = this.rcToCell(rc)?.content;
-      // if the content of a cell changes, we need to check:
-      if (content) {
-        for (const arrayFormula of this.spreadingRelations.getArrayFormulasRc(rc)) {
-          if (this.spreadingFormulas.has(arrayFormula)) {
-            // 1) if we write in an empty cell containing the spread of a formula.
-            //    In this case, it is necessary to indicate to recalculate the concerned
-            //    formula to take into account the new collisions.
-            extendSet(cells, this.findCellsToCompute(arrayFormula));
-            break; // there can be only one formula spreading on a cell
-          }
-        }
-      } else if (this.spreadingRelations.hasResult(rc)) {
-        // 2) if we put an empty content on a cell which blocks the spread
-        //    of another formula.
-        //    In this case, it is necessary to indicate to recalculate formulas
-        //    that was blocked by the old content.
-        for (const arrayFormula of this.spreadingRelations.getArrayFormulasRc(rc)) {
-          extendSet(cells, this.findCellsToCompute(arrayFormula));
-        }
-      }
-    }
-    return cells;
-  }
-
-  private updateDependencies(rc: string) {
-    this.formulaDependencies.removeAllDependencies(rc);
-    const dependencies = this.getDirectDependencies(rc);
-    this.formulaDependencies.addDependencies(rc, dependencies);
-  }
-
   // ---------------------------------------------------------------------------
   // Export
   // ---------------------------------------------------------------------------
@@ -1033,8 +716,8 @@ export class EvaluationPlugin extends UIPlugin {
   }
 
   exportForExcel(data: ExcelWorkbookData) {
-    for (const rc in this.evaluatedCells) {
-      const evaluatedCell = this.evaluatedCells[rc];
+    for (const rc in this.evalProcess.evaluatedCells) {
+      const evaluatedCell = this.evalProcess.evaluatedCells[rc];
 
       const position = rcToCellPosition(rc);
       const xc = toXC(position.col, position.row);
@@ -1071,64 +754,11 @@ export class EvaluationPlugin extends UIPlugin {
   }
 }
 
-function cellPositionToRc(position: CellPosition): string {
-  return `${position.row}!${position.col}!${position.sheetId}`;
-}
-
-function rcToCellPosition(rc: string): CellPosition {
-  // faster than  a split("!") by a factor 2
-  const i1 = rc.indexOf("!");
-  const row = rc.slice(0, i1);
-  const position = rc.slice(i1 + 1);
-  const i2 = position.indexOf("!");
-  const col = position.slice(0, i2);
-  const sheetId = position.slice(i2 + 1);
-  return { sheetId, col: Number(col), row: Number(row) };
-}
-
-function forEachSpreadPositionInMatrix(
-  matrix: Matrix<CellValue>,
-  callback: (i: number, j: number) => void
-) {
-  for (let i = 0; i < matrix.length; ++i) {
-    for (let j = 0; j < matrix[i].length; ++j) {
-      if (i === 0 && j === 0) {
-        continue;
-      }
-      callback(i, j);
-    }
-  }
-}
-
 function isBadExpression(formula: string): boolean {
   try {
     compile(formula);
     return false;
   } catch (error) {
     return true;
-  }
-}
-
-function assertFormulaReturnHasConsistentDimensions(formulaReturn: FormulaReturn) {
-  const { value: computedValue, format: computedFormat } = formulaReturn;
-  if (!isMatrix(computedValue)) {
-    if (isMatrix(computedFormat)) {
-      throw new Error("A format matrix should never be associated with a scalar value");
-    }
-    return;
-  }
-  if (isMatrix(computedFormat)) {
-    const sameDimensions =
-      computedValue.length === computedFormat.length &&
-      computedValue[0].length === computedFormat[0].length;
-    if (!sameDimensions) {
-      throw new Error("Formats and values should have the same dimensions!");
-    }
-  }
-}
-
-function extendSet<T>(destination: Set<T>, source: Iterable<T>) {
-  for (const element of source) {
-    destination.add(element);
   }
 }
