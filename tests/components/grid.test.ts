@@ -13,7 +13,7 @@ import {
 import { buildSheetLink, toCartesian, toHex, toZone, zoneToXc } from "../../src/helpers";
 import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
-import { Align, HeaderDimensions, UID } from "../../src/types";
+import { Align, ClipboardMIMEType, HeaderDimensions, UID } from "../../src/types";
 import { getClipboardEvent, MockClipboardData } from "../test_helpers/clipboard";
 import {
   copy,
@@ -31,6 +31,7 @@ import {
   selectColumn,
   selectRow,
   setCellContent,
+  setCellFormat,
   setSelection,
   setStyle,
   updateFilter,
@@ -54,6 +55,7 @@ import {
   getCellContent,
   getCellText,
   getClipboardVisibleZones,
+  getEvaluatedCell,
   getSelectionAnchorCellXc,
   getStyle,
 } from "../test_helpers/getters_helpers";
@@ -1425,6 +1427,56 @@ describe("Copy paste keyboard shortcut", () => {
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     expect(getCellContent(model, "A1")).toEqual("");
     expect(getCellContent(model, "A2")).toEqual("things");
+  });
+
+  test("cut zone gets cleared on paste if content/style is altered after cut", async () => {
+    setCellContent(model, "A1", "things");
+    setStyle(model, "A1", { bold: true });
+    selectCell(model, "A1");
+    document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    setCellContent(model, "A1", "new content");
+    setStyle(model, "A1", { bold: false });
+    selectCell(model, "A2");
+    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    expect(getCellContent(model, "A2")).toEqual("things");
+    expect(getStyle(model, "A2")).toEqual({ bold: true });
+    expect(getCell(model, "A1")).toBe(undefined);
+  });
+
+  test("Cut of a formula cell, and enabling showFormulas should return content", async () => {
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setCellContent(model, "A1", "1");
+    setCellFormat(model, "A1", "m/d/yyyy");
+    document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    expect(clipboardData.getData(ClipboardMIMEType.PlainText)).toEqual(getCellContent(model, "A1"));
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: false });
+    selectCell(model, "A2");
+    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    expect(getCellContent(model, "A2")).toEqual("12/31/1899");
+  });
+
+  test("Cut of a formula cell, or non-formula cell with showFormulas should return its formattedValue", async () => {
+    setCellContent(model, "A1", "1");
+    setCellFormat(model, "A1", "m/d/yyyy");
+    document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    expect(clipboardData.getData(ClipboardMIMEType.PlainText)).toEqual(
+      getEvaluatedCell(model, "A1").formattedValue
+    );
+    selectCell(model, "A2");
+    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    expect(getCellContent(model, "A2")).toEqual("12/31/1899");
+
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setCellContent(model, "B1", "1");
+    selectCell(model, "B1");
+    document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    expect(clipboardData.getData(ClipboardMIMEType.PlainText)).toEqual(
+      getEvaluatedCell(model, "B1").formattedValue
+    );
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: false });
+    selectCell(model, "B2");
+    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    expect(getCellContent(model, "B2")).toEqual("1");
   });
 
   test("can paste value only with CTRL+SHIFT+V", async () => {

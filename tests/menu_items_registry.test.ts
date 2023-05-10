@@ -143,6 +143,19 @@ describe("Menu Item actions", () => {
     expect(getCellContent(model, "A1")).toEqual("");
   });
 
+  test("'Edit -> paste' if copied from grid and content altered before paste", async () => {
+    setCellContent(model, "A1", "a1");
+    doAction(["edit", "copy"], env); // first copy from grid
+    setCellContent(model, "A1", "os clipboard");
+    selectCell(model, "C3");
+    await doAction(["edit", "paste"], env);
+    expect(dispatch).toHaveBeenCalledWith("PASTE", {
+      target: env.model.getters.getSelectedZones(),
+      pasteOption: undefined,
+    });
+    expect(getCellContent(model, "C3")).toEqual("a1");
+  });
+
   test("Edit -> paste_special should be hidden after a CUT ", () => {
     model.dispatch("CUT", { cutTarget: env.model.getters.getSelectedZones() });
     expect(getNode(["edit", "paste_special"]).isVisible(env)).toBeFalsy();

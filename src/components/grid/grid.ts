@@ -605,7 +605,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     ev.preventDefault();
   }
 
-  paste(ev: ClipboardEvent) {
+  async paste(ev: ClipboardEvent) {
     if (!this.gridEl.contains(document.activeElement)) {
       return;
     }
@@ -625,6 +625,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         interactivePaste(this.env, target);
       } else {
         interactivePasteFromOS(this.env, target, content);
+      }
+      if (this.env.model.getters.isCutOperation()) {
+        await this.env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });
       }
     }
   }
