@@ -17,6 +17,7 @@ import {
   cut,
   deleteColumns,
   deleteRows,
+  deleteSheet,
   merge,
   paste,
   pasteFromOSClipboard,
@@ -191,16 +192,42 @@ describe("clipboard", () => {
     expect(getCell(model, "C2")!.style).toEqual({ bold: true });
   });
 
+  test("cannot paste multiple times after cut", () => {
+    const model = new Model();
+    setCellContent(model, "B2", "b2");
+    setStyle(model, "B2", { bold: true });
+
+    cut(model, "B2");
+    paste(model, "C2");
+    expect(getCellContent(model, "C2")).toBe("b2");
+    expect(getCell(model, "C2")!.style).toEqual({ bold: true });
+
+    paste(model, "E5");
+    expect(getCell(model, "E5")).toBe(undefined);
+  });
+
+  test("Cut clipboard should be invalidated when sheet is deleted", () => {
+    const model = new Model();
+    const sheet1Id = model.getters.getActiveSheetId();
+    const sheet2Id = "sheet2";
+    createSheet(model, { sheetId: sheet2Id });
+
+    setCellContent(model, "A1", "Apple", sheet1Id);
+    setStyle(model, "A1", { bold: true });
+    cut(model, "A1");
+
+    activateSheet(model, sheet2Id);
+    deleteSheet(model, sheet1Id);
+    paste(model, "A2");
+    expect(getCell(model, "A2", sheet2Id)).toBe(undefined);
+  });
+
   test("can copy into a cell with style", () => {
     const model = new Model();
     // set value and style in B2
     setCellContent(model, "B2", "b2");
     selectCell(model, "B2");
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
-      style: { bold: true },
-    });
+    setStyle(model, "B2", { bold: true });
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
     // set value in A1, select and copy it

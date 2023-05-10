@@ -30,7 +30,7 @@ interface CopiedTable {
 
 /** State of the clipboard when copying/cutting cells */
 export class ClipboardCellsState extends ClipboardCellsAbstractState {
-  private readonly cells: ClipboardCell[][];
+  private cells: ClipboardCell[][];
   private readonly copiedTables: CopiedTable[];
   private readonly zones: Zone[];
 
@@ -210,6 +210,13 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
       });
     }
     this.pasteCopiedTables(target);
+    this.cells.forEach((row) => {
+      row.forEach((c) => {
+        if (c.cell) {
+          c.cell = undefined;
+        }
+      });
+    });
   }
 
   /**
@@ -479,7 +486,9 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
         .map((cells) => {
           return cells
             .map((c) =>
-              c.cell ? this.getters.getCellText(c.position, this.getters.shouldShowFormulas()) : ""
+              this.getters.shouldShowFormulas() && c.cell?.isFormula
+                ? c.cell?.content || ""
+                : c.evaluatedCell?.formattedValue || ""
             )
             .join("\t");
         })

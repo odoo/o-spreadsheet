@@ -16,6 +16,7 @@ import {
   isCoreCommand,
   LAYERS,
   LocalCommand,
+  UID,
   Zone,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
@@ -43,8 +44,8 @@ export class ClipboardPlugin extends UIPlugin {
   private status: "visible" | "invisible" = "invisible";
   private state?: ClipboardState;
   private lastPasteState?: ClipboardState;
-
   private _isPaintingFormat: boolean = false;
+  private originSheetId?: UID;
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -87,6 +88,7 @@ export class ClipboardPlugin extends UIPlugin {
         const zones = ("cutTarget" in cmd && cmd.cutTarget) || this.getters.getSelectedZones();
         this.state = this.getClipboardState(zones, cmd.type);
         this.status = "visible";
+        this.originSheetId = this.getters.getActiveSheetId();
         break;
       case "PASTE":
         if (!this.state) {
@@ -95,9 +97,6 @@ export class ClipboardPlugin extends UIPlugin {
         const pasteOption = cmd.pasteOption || (this._isPaintingFormat ? "onlyFormat" : undefined);
         this._isPaintingFormat = false;
         this.state.paste(cmd.target, { pasteOption, shouldPasteCF: true, selectTarget: true });
-        if (this.state.operation === "CUT") {
-          this.state = undefined;
-        }
         this.lastPasteState = this.state;
         this.status = "invisible";
         break;
@@ -176,6 +175,15 @@ export class ClipboardPlugin extends UIPlugin {
         this.status = "visible";
         break;
       }
+      case "DELETE_SHEET":
+        if (this.state?.operation !== "CUT") {
+          return;
+        }
+        if (this.originSheetId === cmd.sheetId) {
+          this.state = undefined;
+          this.status = "invisible";
+        }
+        break;
       default:
         if (isCoreCommand(cmd)) {
           this.status = "invisible";

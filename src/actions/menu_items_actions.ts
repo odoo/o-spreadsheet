@@ -14,7 +14,7 @@ import {
   interactivePasteFromOS,
 } from "../helpers/ui/paste_interactive";
 import { _lt } from "../translation";
-import { ClipboardPasteOptions } from "../types/clipboard";
+import { ClipboardMIMEType, ClipboardPasteOptions } from "../types/clipboard";
 import { Image } from "../types/image";
 import { Format, SpreadsheetChildEnv, Style } from "../types/index";
 
@@ -90,6 +90,9 @@ async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptio
         interactivePasteFromOS(env, target, osClipboard.content);
       } else {
         interactivePaste(env, target, pasteOption);
+      }
+      if (env.model.getters.isCutOperation() && pasteOption !== "onlyValue") {
+        await env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });
       }
       break;
     case "notImplemented":
