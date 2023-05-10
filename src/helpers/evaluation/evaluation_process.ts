@@ -1,3 +1,4 @@
+import { ModelConfig } from "../../model";
 import { _lt } from "../../translation";
 import {
   Cell,
@@ -25,6 +26,7 @@ import {
 import { createEvaluatedCell, errorCell, evaluateLiteral } from "../cells";
 import { toXC } from "../coordinates";
 import { mapToPositionsInZone } from "../zones";
+import { CompilationParameters, CompilationParametersBuilder } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { cellPositionToRc, rcToCellPosition } from "./misc";
 import { SpreadingRelation } from "./spreading_relation";
@@ -35,19 +37,35 @@ const MAX_CYCLE_ITERATION = 100;
 
 export class EvaluationProcess {
   getters: Getters;
+  private compilationParams: CompilationParameters;
 
-  constructor(getters: Getters) {
+  constructor(context: ModelConfig["custom"], getters: Getters) {
     this.getters = getters;
+    const cpb = new CompilationParametersBuilder(context, getters, this.computeCell);
+    this.compilationParams = cpb.getParameters();
   }
 
-  evaluatedCells: PositionDict<EvaluatedCell> = {};
+  private evaluatedCells: PositionDict<EvaluatedCell> = {};
 
   private formulaDependencies = new FormulaDependencyGraph();
   private spreadingFormulas = new Set<string>();
   private spreadingRelations = new SpreadingRelation();
 
+  getEvaluatedCellFromRc(rc: string): EvaluatedCell {
+    return this.evaluatedCells[rc] || createEvaluatedCell("");
+  }
+
+  getSpreadingFormulaRc(rc: string): string | undefined {
+    const arrayFormulas = this.spreadingRelations.getArrayFormulasRc(rc);
+    return Array.from(arrayFormulas).find((rc) => this.spreadingFormulas.has(rc));
+  }
+
+  getRcs(): string[] {
+    return Object.keys(this.evaluatedCells);
+  }
+
   // ----------------------------------------------------------
-  //        METHOD RELATING TO SPECIFIC CELL EVALUATION
+  //        METHOD RELATING TO SPECIFIC CELLS EVALUATION
   // ----------------------------------------------------------
 
   updateDependencies(rc: string) {
@@ -69,14 +87,12 @@ export class EvaluationProcess {
       const content = this.rcToCell(rc)?.content;
       // if the content of a cell changes, we need to check:
       if (content) {
-        for (const arrayFormula of this.spreadingRelations.getArrayFormulasRc(rc)) {
-          if (this.spreadingFormulas.has(arrayFormula)) {
-            // 1) if we write in an empty cell containing the spread of a formula.
-            //    In this case, it is necessary to indicate to recalculate the concerned
-            //    formula to take into account the new collisions.
-            extendSet(cells, this.findCellsToCompute(arrayFormula));
-            break; // there can be only one formula spreading on a cell
-          }
+        const formulaRc = this.getSpreadingFormulaRc(rc);
+        if (formulaRc) {
+          // 1) if we write in an empty cell containing the spread of a formula.
+          //    In this case, it is necessary to indicate to recalculate the concerned
+          //    formula to take into account the new collisions.
+          extendSet(cells, this.findCellsToCompute(formulaRc));
         }
       } else if (this.spreadingRelations.hasResult(rc)) {
         // 2) if we put an empty content on a cell which blocks the spread
@@ -134,8 +150,6 @@ export class EvaluationProcess {
   private evaluate(cells: Set<string>) {
     this.cellsBeingComputed = new Set<UID>();
     this.nextRcsToUpdate = cells;
-
-    const compilationParameters = this.getCompilationParameters(computeCell);
 
     let currentCycle = 0;
     while (this.nextRcsToUpdate.size && currentCycle < MAX_CYCLE_ITERATION) {
@@ -210,7 +224,7 @@ export class EvaluationProcess {
     }
     const msg = e?.errorType || CellErrorType.GenericError;
     // apply function name
-    const __lastFnCalled = compilationParameters[2].__lastFnCalled || "";
+    const __lastFnCalled = this.compilationParams[2].__lastFnCalled || "";
     const error = new EvaluationError(
       msg,
       e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled),
@@ -221,14 +235,14 @@ export class EvaluationProcess {
 
   private computeFormulaCell = (cellData: FormulaCell): EvaluatedCell => {
     const cellId = cellData.id;
-    compilationParameters[2].__originCellXC = () => {
+    this.compilationParams[2].__originCellXC = () => {
       // compute the value lazily for performance reasons
-      const position = compilationParameters[2].getters.getCellPosition(cellId);
+      const position = this.compilationParams[2].getters.getCellPosition(cellId);
       return toXC(position.col, position.row);
     };
     const formulaReturn = cellData.compiledFormula.execute(
       cellData.dependencies,
-      ...compilationParameters
+      ...this.compilationParams
     );
 
     assertFormulaReturnHasConsistentDimensions(formulaReturn);
@@ -248,7 +262,11 @@ export class EvaluationProcess {
 
     forEachSpreadPositionInMatrix(computedValue, this.updateSpreadRelation(formulaPosition));
     forEachSpreadPositionInMatrix(computedValue, this.checkCollision(formulaPosition));
-    forEachSpreadPositionInMatrix(computedValue, this.spreadValues(formulaPosition, formulaReturn));
+    forEachSpreadPositionInMatrix(
+      computedValue,
+      // due the isMatrix check above, we know that formulaReturn is MatrixFunctionReturn
+      this.spreadValues(formulaPosition, formulaReturn as MatrixFunctionReturn)
+    );
 
     const formatFromPosition = formatFromPositionAccess(computedFormat);
     return createEvaluatedCell(computedValue[0][0], cellData.format || formatFromPosition(0, 0));
@@ -299,7 +317,10 @@ export class EvaluationProcess {
     return (i: number, j: number) => {
       const position = { sheetId: sheetId, col: i + col, row: j + row };
       const rawCell = this.getters.getCell(position);
-      if (rawCell?.content || this.getEvaluatedCell(position).type !== CellValueType.empty) {
+      if (
+        rawCell?.content ||
+        this.getters.getEvaluatedCell(position).type !== CellValueType.empty
+      ) {
         throw new Error(
           _lt(
             "Array result was not expanded because it would overwrite data in %s.",
