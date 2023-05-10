@@ -281,7 +281,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
     if (height > 1 || width > 1 || isCutOperation) {
       const zones = this.pastedZones(target, width, height);
       const newZone = isCutOperation ? zones[0] : union(...zones);
-      this.selection.selectZone({ cell: { col, row }, zone: newZone });
+      this.selection.selectZone({ cell: { col, row }, zone: newZone }, { scrollIntoView: false });
     }
   }
 

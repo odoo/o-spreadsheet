@@ -26,6 +26,7 @@ import {
   setCellFormat,
   setSelection,
   setStyle,
+  setViewportOffset,
   setZoneBorders,
   undo,
 } from "../test_helpers/commands_helpers";
@@ -556,6 +557,13 @@ describe("clipboard", () => {
     expect(model.getters.getMerges(sheetId).map(zoneToXc)).toEqual(["B2:C3"]);
   });
 
+  test("pasting from OS will not change the viewport", () => {
+    const model = new Model();
+    const viewport = model.getters.getActiveMainViewport();
+    pasteFromOSClipboard(model, "C60", "a\t1\nb\t2");
+    expect(model.getters.getActiveMainViewport()).toEqual(viewport);
+  });
+
   test("pasting numbers from windows clipboard => interpreted as number", () => {
     const model = new Model();
     pasteFromOSClipboard(model, "C1", "1\r\n2\r\n3");
@@ -598,6 +606,18 @@ describe("clipboard", () => {
     expect(getCellContent(model, "E2")).toBe("a2");
     expect(getCellContent(model, "F1")).toBe("c1");
     expect(getCellContent(model, "F2")).toBe("c2");
+  });
+
+  test("Viewport won't move after pasting", () => {
+    const model = new Model();
+    copy(model, "A1:B2");
+
+    setSelection(model, ["C60:D70"]);
+    setViewportOffset(model, 0, 0);
+    const viewport = model.getters.getActiveMainViewport();
+
+    paste(model, "C60:D70");
+    expect(model.getters.getActiveMainViewport()).toEqual(viewport);
   });
 
   describe("copy/paste a zone in a larger selection will duplicate the zone on the selection as long as it does not exceed it", () => {
