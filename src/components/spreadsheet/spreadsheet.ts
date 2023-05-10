@@ -82,7 +82,7 @@ css/* scss */ `
       margin-bottom: ${MENU_SEPARATOR_PADDING}px;
     }
     .o-hoverable-button {
-      border-radius: 2px
+      border-radius: 2px;
       cursor: pointer;
       .o-icon {
         color: ${ICONS_COLOR};
