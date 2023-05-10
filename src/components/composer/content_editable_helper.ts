@@ -199,7 +199,14 @@ export class ContentEditableHelper {
       current = it.next();
     }
     if (current.value !== nodeToFind) {
-      throw new Error("Cannot find the node in the children of the element");
+      /** This situation can happen if the code is called while the selection is not currently on the ContentEditableHelper.
+       * In this case, we return 0 because we don't know the size of the text before the selection.
+       *
+       * A known occurence is triggered since the introduction of commit d4663158 (PR #2038).
+       *
+       * FIXME: find a way to test eventhough the selection API is not available in jsDOM.
+       */
+      return 0;
     } else {
       if (!current.value.hasChildNodes()) {
         usedCharacters += nodeOffset;
