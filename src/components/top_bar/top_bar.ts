@@ -12,6 +12,7 @@ import { setStyle } from "../../actions/menu_items_actions";
 import * as ACTION_VIEW from "../../actions/view_actions";
 import {
   BACKGROUND_HEADER_COLOR,
+  BG_HOVER_COLOR,
   ComponentsImportance,
   SEPARATOR_COLOR,
   TOPBAR_TOOLBAR_HEIGHT,
@@ -62,6 +63,11 @@ css/* scss */ `
         .o-topbar-menu {
           padding: 4px 6px;
           margin: 0 2px;
+
+          &.active {
+            background-color: ${BG_HOVER_COLOR};
+            color: #000;
+          }
         }
       }
     }
