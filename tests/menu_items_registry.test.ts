@@ -15,9 +15,10 @@ import {
   selectColumn,
   selectRow,
   setAnchorCorner,
+  setCellContent,
   setSelection,
 } from "./test_helpers/commands_helpers";
-import { getCellContent } from "./test_helpers/getters_helpers";
+import { getCell, getCellContent, getEvaluatedCell } from "./test_helpers/getters_helpers";
 import {
   doAction,
   getName,
@@ -800,21 +801,26 @@ describe("Menu Item actions", () => {
 
   describe("Format -> numbers", () => {
     test("Automatic", () => {
-      doAction(["format", "format_number", "format_number_automatic"], env);
+      const action = getNode(["format", "format_number", "format_number_automatic"]);
+      action.execute?.(env);
       expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: env.model.getters.getActiveSheetId(),
         target: env.model.getters.getSelectedZones(),
         format: "",
       });
+      expect(action.isActive?.(env)).toBe(true);
     });
 
     test("Number", () => {
-      doAction(["format", "format_number", "format_number_number"], env);
+      const action = getNode(["format", "format_number", "format_number_number"]);
+      expect(action.isActive?.(env)).toBe(false);
+      action.execute?.(env);
       expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: env.model.getters.getActiveSheetId(),
         target: env.model.getters.getSelectedZones(),
         format: "#,##0.00",
       });
+      expect(action.isActive?.(env)).toBe(true);
     });
 
     test("Percent", () => {
@@ -884,6 +890,21 @@ describe("Menu Item actions", () => {
       const spyOpenSidePanel = jest.spyOn(env, "openSidePanel");
       doAction(["format", "format_number", "format_custom_currency"], env);
       expect(spyOpenSidePanel).toHaveBeenCalledWith("CustomCurrency", {});
+    });
+
+    test("Automatic format is active when format is computed", () => {
+      selectCell(env.model, "A1");
+      setCellContent(env.model, "A1", "1");
+      const setNumberFormatAction = getNode(["format", "format_number", "format_number_number"]);
+      const setAutoFormatAction = getNode(["format", "format_number", "format_number_automatic"]);
+      setNumberFormatAction.execute?.(env);
+      expect(getCell(model, "A1")?.format).toBe("#,##0.00");
+      setCellContent(env.model, "B1", "=A1");
+      expect(getCell(model, "B1")?.format).toBeUndefined();
+      expect(getEvaluatedCell(model, "B1")?.format).toBe("#,##0.00");
+      selectCell(env.model, "B1");
+      expect(setAutoFormatAction.isActive?.(env)).toBe(true);
+      expect(setNumberFormatAction.isActive?.(env)).toBe(false);
     });
   });
 
