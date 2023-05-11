@@ -306,7 +306,7 @@ export class EvaluationPlugin extends UIPlugin {
         // magic "empty" value
         // Returning {value: null} instead of undefined will ensure that we don't
         // fall back on the default value of the argument provided to the formula's compute function
-        return { value: null };
+        return { value: null, format: cell?.format };
       }
       return getEvaluatedCell(cell);
     }
