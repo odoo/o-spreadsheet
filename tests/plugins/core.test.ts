@@ -319,6 +319,13 @@ describe("core", () => {
           expect(getEvaluatedCell(model, "A2").format).toBe("0%");
         });
 
+        test("with a reference to an empty cell", () => {
+          const model = new Model();
+          setCellFormat(model, "A1", "#,##0[$$]");
+          setCellContent(model, "A2", "=A1");
+          expect(getEvaluatedCell(model, "A2")?.format).toBe("#,##0[$$]");
+        });
+
         test("with the reference declared before the formula and format applied on the formula", () => {
           const model = new Model();
           setCellContent(model, "A1", "3%");
