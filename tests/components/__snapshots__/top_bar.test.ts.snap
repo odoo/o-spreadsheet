@@ -583,8 +583,10 @@ exports[`TopBar component can set cell format 1`] = `
           data-name="format_number_automatic"
           title="Automatic"
         >
-          <span>
-            <span
+          <div
+            class="d-flex w-100"
+          >
+            <div
               class="o-menu-item-icon align-middle"
             >
               <svg
@@ -597,16 +599,16 @@ exports[`TopBar component can set cell format 1`] = `
                   fill="#000"
                 />
               </svg>
-            </span>
+            </div>
             
-            <span
-              class="o-menu-item-name align-middle"
+            <div
+              class="o-menu-item-name align-middle text-truncate"
             >
               Automatic
-            </span>
-          </span>
-          
-          
+            </div>
+            
+            
+          </div>
         </div>
         <div
           class="o-separator"
@@ -618,24 +620,26 @@ exports[`TopBar component can set cell format 1`] = `
           data-name="format_number_number"
           title="Number"
         >
-          <span>
-            <span
+          <div
+            class="d-flex w-100"
+          >
+            <div
               class="o-menu-item-icon align-middle"
             />
             
-            <span
-              class="o-menu-item-name align-middle"
+            <div
+              class="o-menu-item-name align-middle text-truncate"
             >
               Number
-            </span>
-          </span>
-          <span
-            class="o-menu-item-description"
-          >
-            1,000.12
-          </span>
-          
-          
+            </div>
+            <div
+              class="o-menu-item-description ms-auto"
+            >
+              1,000.12
+            </div>
+            
+            
+          </div>
         </div>
         
         <div
@@ -643,24 +647,26 @@ exports[`TopBar component can set cell format 1`] = `
           data-name="format_number_percent"
           title="Percent"
         >
-          <span>
-            <span
+          <div
+            class="d-flex w-100"
+          >
+            <div
               class="o-menu-item-icon align-middle"
             />
             
-            <span
-              class="o-menu-item-name align-middle"
+            <div
+              class="o-menu-item-name align-middle text-truncate"
             >
               Percent
-            </span>
-          </span>
-          <span
-            class="o-menu-item-description"
-          >
-            10.12%
-          </span>
-          
-          
+            </div>
+            <div
+              class="o-menu-item-description ms-auto"
+            >
+              10.12%
+            </div>
+            
+            
+          </div>
         </div>
         <div
           class="o-separator"
@@ -672,24 +678,26 @@ exports[`TopBar component can set cell format 1`] = `
           data-name="format_number_currency"
           title="Currency"
         >
-          <span>
-            <span
+          <div
+            class="d-flex w-100"
+          >
+            <div
               class="o-menu-item-icon align-middle"
             />
             
-            <span
-              class="o-menu-item-name align-middle"
+            <div
+              class="o-menu-item-name align-middle text-truncate"
             >
               Currency
-            </span>
-          </span>
-          <span
-            class="o-menu-item-description"
-          >
-            $1,000.12
-          </span>
-          
-          
+            </div>
+            <div
+              class="o-menu-item-description ms-auto"
+            >
+              $1,000.12
+            </div>
+            
+            
+          </div>
         </div>
         
         <div
@@ -697,24 +705,26 @@ exports[`TopBar component can set cell format 1`] = `
           data-name="format_number_currency_rounded"
           title="Currency rounded"
         >
-          <span>
-            <span
+          <div
+            class="d-flex w-100"
+          >
+            <div
               class="o-menu-item-icon align-middle"
             />
             
-            <span
-              class="o-menu-item-name align-middle"
+            <div
+              class="o-menu-item-name align-middle text-truncate"
             >
               Currency rounded
-            </span>
-          </span>
-          <span
-            class="o-menu-item-description"
-          >
-            $1,000
-          </span>
-          
-          
+            </div>
+            <div
+              class="o-menu-item-description ms-auto"
+            >
+              $1,000
+            </div>
+            
+            
+          </div>
         </div>
         
         <div
@@ -722,19 +732,21 @@ exports[`TopBar component can set cell format 1`] = `
           data-name="format_custom_currency"
           title="Custom currency"
         >
-          <span>
-            <span
+          <div
+            class="d-flex w-100"
+          >
+            <div
               class="o-menu-item-icon align-middle"
             />
             
-            <span
-              class="o-menu-item-name align-middle"
+            <div
+              class="o-menu-item-name align-middle text-truncate"
             >
               Custom currency
-            </span>
-          </span>
-          
-          
+            </div>
+            
+            
+          </div>
         </div>
         <div
           class="o-separator"
@@ -746,24 +758,26 @@ exports[`TopBar component can set cell format 1`] = `
           data-name="format_number_date"
           title="Date"
         >
-          <span>
-            <span
+          <div
+            class="d-flex w-100"
+          >
+            <div
               class="o-menu-item-icon align-middle"
             />
             
-            <span
-              class="o-menu-item-name align-middle"
+            <div
+              class="o-menu-item-name align-middle text-truncate"
             >
               Date
-            </span>
-          </span>
-          <span
-            class="o-menu-item-description"
-          >
-            9/26/2008
-          </span>
-          
-          
+            </div>
+            <div
+              class="o-menu-item-description ms-auto"
+            >
+              9/26/2008
+            </div>
+            
+            
+          </div>
         </div>
         
         <div
@@ -771,24 +785,26 @@ exports[`TopBar component can set cell format 1`] = `
           data-name="format_number_time"
           title="Time"
         >
-          <span>
-            <span
+          <div
+            class="d-flex w-100"
+          >
+            <div
               class="o-menu-item-icon align-middle"
             />
             
-            <span
-              class="o-menu-item-name align-middle"
+            <div
+              class="o-menu-item-name align-middle text-truncate"
             >
               Time
-            </span>
-          </span>
-          <span
-            class="o-menu-item-description"
-          >
-            10:43:00 PM
-          </span>
-          
-          
+            </div>
+            <div
+              class="o-menu-item-description ms-auto"
+            >
+              10:43:00 PM
+            </div>
+            
+            
+          </div>
         </div>
         
         <div
@@ -796,24 +812,26 @@ exports[`TopBar component can set cell format 1`] = `
           data-name="format_number_date_time"
           title="Date time"
         >
-          <span>
-            <span
+          <div
+            class="d-flex w-100"
+          >
+            <div
               class="o-menu-item-icon align-middle"
             />
             
-            <span
-              class="o-menu-item-name align-middle"
+            <div
+              class="o-menu-item-name align-middle text-truncate"
             >
               Date time
-            </span>
-          </span>
-          <span
-            class="o-menu-item-description"
-          >
-            9/26/2008 22:43:00
-          </span>
-          
-          
+            </div>
+            <div
+              class="o-menu-item-description ms-auto"
+            >
+              9/26/2008 22:43:00
+            </div>
+            
+            
+          </div>
         </div>
         
         <div
@@ -821,24 +839,26 @@ exports[`TopBar component can set cell format 1`] = `
           data-name="format_number_duration"
           title="Duration"
         >
-          <span>
-            <span
+          <div
+            class="d-flex w-100"
+          >
+            <div
               class="o-menu-item-icon align-middle"
             />
             
-            <span
-              class="o-menu-item-name align-middle"
+            <div
+              class="o-menu-item-name align-middle text-truncate"
             >
               Duration
-            </span>
-          </span>
-          <span
-            class="o-menu-item-description"
-          >
-            27:51:38
-          </span>
-          
-          
+            </div>
+            <div
+              class="o-menu-item-description ms-auto"
+            >
+              27:51:38
+            </div>
+            
+            
+          </div>
         </div>
         
       </div>

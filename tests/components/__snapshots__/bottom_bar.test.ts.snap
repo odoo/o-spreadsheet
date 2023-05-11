@@ -10,16 +10,18 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     data-name="Sum"
     title="Sum: 24"
   >
-    <span>
+    <div
+      class="d-flex w-100"
+    >
       
-      <span
-        class="o-menu-item-name align-middle"
+      <div
+        class="o-menu-item-name align-middle text-truncate"
       >
         Sum: 24
-      </span>
-    </span>
-    
-    
+      </div>
+      
+      
+    </div>
   </div>
   
   <div
@@ -27,16 +29,18 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     data-name="Avg"
     title="Avg: 24"
   >
-    <span>
+    <div
+      class="d-flex w-100"
+    >
       
-      <span
-        class="o-menu-item-name align-middle"
+      <div
+        class="o-menu-item-name align-middle text-truncate"
       >
         Avg: 24
-      </span>
-    </span>
-    
-    
+      </div>
+      
+      
+    </div>
   </div>
   
   <div
@@ -44,16 +48,18 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     data-name="Min"
     title="Min: 24"
   >
-    <span>
+    <div
+      class="d-flex w-100"
+    >
       
-      <span
-        class="o-menu-item-name align-middle"
+      <div
+        class="o-menu-item-name align-middle text-truncate"
       >
         Min: 24
-      </span>
-    </span>
-    
-    
+      </div>
+      
+      
+    </div>
   </div>
   
   <div
@@ -61,16 +67,18 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     data-name="Max"
     title="Max: 24"
   >
-    <span>
+    <div
+      class="d-flex w-100"
+    >
       
-      <span
-        class="o-menu-item-name align-middle"
+      <div
+        class="o-menu-item-name align-middle text-truncate"
       >
         Max: 24
-      </span>
-    </span>
-    
-    
+      </div>
+      
+      
+    </div>
   </div>
   
   <div
@@ -78,16 +86,18 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     data-name="Count"
     title="Count: 1"
   >
-    <span>
+    <div
+      class="d-flex w-100"
+    >
       
-      <span
-        class="o-menu-item-name align-middle"
+      <div
+        class="o-menu-item-name align-middle text-truncate"
       >
         Count: 1
-      </span>
-    </span>
-    
-    
+      </div>
+      
+      
+    </div>
   </div>
   
   <div
@@ -95,16 +105,18 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     data-name="Count Numbers"
     title="Count Numbers: 1"
   >
-    <span>
+    <div
+      class="d-flex w-100"
+    >
       
-      <span
-        class="o-menu-item-name align-middle"
+      <div
+        class="o-menu-item-name align-middle text-truncate"
       >
         Count Numbers: 1
-      </span>
-    </span>
-    
-    
+      </div>
+      
+      
+    </div>
   </div>
   
 </div>
