@@ -9,6 +9,7 @@ import {
   SpreadsheetChildEnv,
 } from "../../types";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
+import { useRefListener } from "../helpers/listener_hook";
 import { useInterval } from "../helpers/time_hooks";
 
 function useCellHovered(
@@ -59,21 +60,10 @@ function useCellHovered(
     }
   }
 
-  onMounted(() => {
-    const grid = gridRef.el!;
-    grid.addEventListener("mousemove", updateMousePosition);
-    grid.addEventListener("mouseleave", pause);
-    grid.addEventListener("mouseenter", resume);
-    grid.addEventListener("mousedown", recompute);
-  });
-
-  onWillUnmount(() => {
-    const grid = gridRef.el!;
-    grid.removeEventListener("mousemove", updateMousePosition);
-    grid.removeEventListener("mouseleave", pause);
-    grid.removeEventListener("mouseenter", resume);
-    grid.removeEventListener("mousedown", recompute);
-  });
+  useRefListener(gridRef, "mousemove", updateMousePosition);
+  useRefListener(gridRef, "mouseleave", pause);
+  useRefListener(gridRef, "mouseenter", resume);
+  useRefListener(gridRef, "mousedown", recompute);
 
   function setPosition(col?: number, row?: number) {
     if (col !== hoveredPosition.col || row !== hoveredPosition.row) {
@@ -120,17 +110,9 @@ function useTouchMove(
     y = currentY;
   }
 
-  onMounted(() => {
-    gridRef.el!.addEventListener("touchstart", onTouchStart);
-    gridRef.el!.addEventListener("touchend", onTouchEnd);
-    gridRef.el!.addEventListener("touchmove", onTouchMove);
-  });
-
-  onWillUnmount(() => {
-    gridRef.el!.removeEventListener("touchstart", onTouchStart);
-    gridRef.el!.removeEventListener("touchend", onTouchEnd);
-    gridRef.el!.removeEventListener("touchmove", onTouchMove);
-  });
+  useRefListener(gridRef, "touchstart", onTouchStart);
+  useRefListener(gridRef, "touchend", onTouchEnd);
+  useRefListener(gridRef, "touchmove", onTouchMove);
 }
 
 interface Props {
