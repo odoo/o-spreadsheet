@@ -10,8 +10,10 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     data-name="cut"
     title="Cut"
   >
-    <span>
-      <span
+    <div
+      class="d-flex w-100"
+    >
+      <div
         class="o-menu-item-icon align-middle"
       >
         <svg
@@ -22,21 +24,21 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
             fill="currentColor"
           />
         </svg>
-      </span>
+      </div>
       
-      <span
-        class="o-menu-item-name align-middle"
+      <div
+        class="o-menu-item-name align-middle text-truncate"
       >
         Cut
-      </span>
-    </span>
-    <span
-      class="o-menu-item-description"
-    >
-      Ctrl+X
-    </span>
-    
-    
+      </div>
+      <div
+        class="o-menu-item-description ms-auto"
+      >
+        Ctrl+X
+      </div>
+      
+      
+    </div>
   </div>
   
   <div
@@ -44,8 +46,10 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     data-name="copy"
     title="Copy"
   >
-    <span>
-      <span
+    <div
+      class="d-flex w-100"
+    >
+      <div
         class="o-menu-item-icon align-middle"
       >
         <svg
@@ -56,21 +60,21 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
             fill="currentColor"
           />
         </svg>
-      </span>
+      </div>
       
-      <span
-        class="o-menu-item-name align-middle"
+      <div
+        class="o-menu-item-name align-middle text-truncate"
       >
         Copy
-      </span>
-    </span>
-    <span
-      class="o-menu-item-description"
-    >
-      Ctrl+C
-    </span>
-    
-    
+      </div>
+      <div
+        class="o-menu-item-description ms-auto"
+      >
+        Ctrl+C
+      </div>
+      
+      
+    </div>
   </div>
   
   <div
@@ -78,8 +82,10 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     data-name="paste"
     title="Paste"
   >
-    <span>
-      <span
+    <div
+      class="d-flex w-100"
+    >
+      <div
         class="o-menu-item-icon align-middle"
       >
         <svg
@@ -90,21 +96,21 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
             fill="currentColor"
           />
         </svg>
-      </span>
+      </div>
       
-      <span
-        class="o-menu-item-name align-middle"
+      <div
+        class="o-menu-item-name align-middle text-truncate"
       >
         Paste
-      </span>
-    </span>
-    <span
-      class="o-menu-item-description"
-    >
-      Ctrl+V
-    </span>
-    
-    
+      </div>
+      <div
+        class="o-menu-item-description ms-auto"
+      >
+        Ctrl+V
+      </div>
+      
+      
+    </div>
   </div>
   
   <div
@@ -112,8 +118,10 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     data-name="paste_special"
     title="Paste special"
   >
-    <span>
-      <span
+    <div
+      class="d-flex w-100"
+    >
+      <div
         class="o-menu-item-icon align-middle"
       >
         <svg
@@ -124,29 +132,29 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
             fill="currentColor"
           />
         </svg>
-      </span>
+      </div>
       
-      <span
-        class="o-menu-item-name align-middle"
+      <div
+        class="o-menu-item-name align-middle text-truncate"
       >
         Paste special
-      </span>
-    </span>
-    
-    <span
-      class="o-menu-item-root align-middle"
-    >
-      <svg
-        class="o-icon"
+      </div>
+      
+      <div
+        class="o-menu-item-root align-middle ms-auto"
       >
-        <polygon
-          fill="currentColor"
-          points="0 0 4 4 0 8"
-          transform="translate(5 5)"
-        />
-      </svg>
-    </span>
-    
+        <svg
+          class="o-icon"
+        >
+          <polygon
+            fill="currentColor"
+            points="0 0 4 4 0 8"
+            transform="translate(5 5)"
+          />
+        </svg>
+      </div>
+      
+    </div>
   </div>
   <div
     class="o-separator"
@@ -158,8 +166,10 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     data-name="add_row_before"
     title="Insert row"
   >
-    <span>
-      <span
+    <div
+      class="d-flex w-100"
+    >
+      <div
         class="o-menu-item-icon align-middle"
       >
         <svg
@@ -170,16 +180,16 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
             fill="currentColor"
           />
         </svg>
-      </span>
+      </div>
       
-      <span
-        class="o-menu-item-name align-middle"
+      <div
+        class="o-menu-item-name align-middle text-truncate"
       >
         Insert row
-      </span>
-    </span>
-    
-    
+      </div>
+      
+      
+    </div>
   </div>
   
   <div
@@ -187,8 +197,10 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     data-name="add_column_before"
     title="Insert column"
   >
-    <span>
-      <span
+    <div
+      class="d-flex w-100"
+    >
+      <div
         class="o-menu-item-icon align-middle"
       >
         <svg
@@ -199,16 +211,16 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
             fill="currentColor"
           />
         </svg>
-      </span>
+      </div>
       
-      <span
-        class="o-menu-item-name align-middle"
+      <div
+        class="o-menu-item-name align-middle text-truncate"
       >
         Insert column
-      </span>
-    </span>
-    
-    
+      </div>
+      
+      
+    </div>
   </div>
   
   <div
@@ -216,8 +228,10 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     data-name="insert_cell"
     title="Insert cells"
   >
-    <span>
-      <span
+    <div
+      class="d-flex w-100"
+    >
+      <div
         class="o-menu-item-icon align-middle"
       >
         <svg
@@ -228,29 +242,29 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
             fill="currentColor"
           />
         </svg>
-      </span>
+      </div>
       
-      <span
-        class="o-menu-item-name align-middle"
+      <div
+        class="o-menu-item-name align-middle text-truncate"
       >
         Insert cells
-      </span>
-    </span>
-    
-    <span
-      class="o-menu-item-root align-middle"
-    >
-      <svg
-        class="o-icon"
+      </div>
+      
+      <div
+        class="o-menu-item-root align-middle ms-auto"
       >
-        <polygon
-          fill="currentColor"
-          points="0 0 4 4 0 8"
-          transform="translate(5 5)"
-        />
-      </svg>
-    </span>
-    
+        <svg
+          class="o-icon"
+        >
+          <polygon
+            fill="currentColor"
+            points="0 0 4 4 0 8"
+            transform="translate(5 5)"
+          />
+        </svg>
+      </div>
+      
+    </div>
   </div>
   <div
     class="o-separator"
@@ -262,8 +276,10 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     data-name="delete_row"
     title="Delete row 8"
   >
-    <span>
-      <span
+    <div
+      class="d-flex w-100"
+    >
+      <div
         class="o-menu-item-icon align-middle"
       >
         <svg
@@ -274,16 +290,16 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
             fill="currentColor"
           />
         </svg>
-      </span>
+      </div>
       
-      <span
-        class="o-menu-item-name align-middle"
+      <div
+        class="o-menu-item-name align-middle text-truncate"
       >
         Delete row 8
-      </span>
-    </span>
-    
-    
+      </div>
+      
+      
+    </div>
   </div>
   
   <div
@@ -291,8 +307,10 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     data-name="delete_column"
     title="Delete column C"
   >
-    <span>
-      <span
+    <div
+      class="d-flex w-100"
+    >
+      <div
         class="o-menu-item-icon align-middle"
       >
         <svg
@@ -303,16 +321,16 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
             fill="currentColor"
           />
         </svg>
-      </span>
+      </div>
       
-      <span
-        class="o-menu-item-name align-middle"
+      <div
+        class="o-menu-item-name align-middle text-truncate"
       >
         Delete column C
-      </span>
-    </span>
-    
-    
+      </div>
+      
+      
+    </div>
   </div>
   
   <div
@@ -320,8 +338,10 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     data-name="delete_cell"
     title="Delete cells"
   >
-    <span>
-      <span
+    <div
+      class="d-flex w-100"
+    >
+      <div
         class="o-menu-item-icon align-middle"
       >
         <svg
@@ -332,29 +352,29 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
             fill="currentColor"
           />
         </svg>
-      </span>
+      </div>
       
-      <span
-        class="o-menu-item-name align-middle"
+      <div
+        class="o-menu-item-name align-middle text-truncate"
       >
         Delete cells
-      </span>
-    </span>
-    
-    <span
-      class="o-menu-item-root align-middle"
-    >
-      <svg
-        class="o-icon"
+      </div>
+      
+      <div
+        class="o-menu-item-root align-middle ms-auto"
       >
-        <polygon
-          fill="currentColor"
-          points="0 0 4 4 0 8"
-          transform="translate(5 5)"
-        />
-      </svg>
-    </span>
-    
+        <svg
+          class="o-icon"
+        >
+          <polygon
+            fill="currentColor"
+            points="0 0 4 4 0 8"
+            transform="translate(5 5)"
+          />
+        </svg>
+      </div>
+      
+    </div>
   </div>
   <div
     class="o-separator"
@@ -366,8 +386,10 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     data-name="insert_link"
     title="Insert link"
   >
-    <span>
-      <span
+    <div
+      class="d-flex w-100"
+    >
+      <div
         class="o-menu-item-icon align-middle"
       >
         <svg
@@ -378,16 +400,16 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
             d="M6.88 13.69c.19-.19.41-.28.68-.28.27 0 .51.09.72.28.43.45.43.92 0 1.4l-.84.8c-.75.75-1.63 1.12-2.64 1.12-1.04 0-1.93-.37-2.68-1.12C1.37 15.14 1 14.26 1 13.25c0-1.04.37-1.93 1.12-2.68l2.96-2.96c.93-.9 1.89-1.42 2.88-1.54.98-.12 1.84.17 2.56.86.21.21.32.45.32.72 0 .26-.1.51-.32.72-.48.43-.95.43-1.4 0-.67-.64-1.55-.41-2.67.68l-2.93 2.92c-.35.35-.52.77-.52 1.28s.17.92.52 1.24c.35.35.76.52 1.26.52.49 0 .91-.17 1.26-.52l.84-.8m9-11.48c.75.75 1.12 1.63 1.12 2.64 0 1.04-.37 1.94-1.12 2.68l-3.16 3.16c-.99.96-1.99 1.44-3 1.44-.83 0-1.57-.33-2.24-1a.913.913 0 0 1-.28-.68c0-.27.09-.5.27-.72.19-.19.43-.28.71-.28.28 0 .51.09.7.28.66.64 1.48.48 2.44-.48l3.16-3.12c.37-.37.56-.8.56-1.28 0-.51-.19-.92-.56-1.24-.32-.35-.7-.56-1.12-.62-.43-.07-.83.07-1.2.42l-1 1c-.22.19-.45.28-.72.28-.26 0-.5-.09-.68-.28-.46-.45-.46-.92 0-1.4l1-1c.72-.72 1.56-1.06 2.54-1.02.97.04 1.83.45 2.58 1.22"
           />
         </svg>
-      </span>
+      </div>
       
-      <span
-        class="o-menu-item-name align-middle"
+      <div
+        class="o-menu-item-name align-middle text-truncate"
       >
         Insert link
-      </span>
-    </span>
-    
-    
+      </div>
+      
+      
+    </div>
   </div>
   
 </div>

@@ -21,22 +21,22 @@
               class="o-menu-item"
               t-att-class="{ 'o-menu-root': isMenuRoot, 'disabled': !isMenuEnabled, 'o-menu-item-active': isParentMenu(subMenu, menuItem)}"
               t-att-style="getColor(menuItem)">
-              <span>
-                <span t-if="childrenHaveIcon" class="o-menu-item-icon align-middle">
+              <div class="d-flex w-100">
+                <div t-if="childrenHaveIcon" class="o-menu-item-icon align-middle">
                   <t t-if="getIconName(menuItem)" t-call="{{getIconName(menuItem)}}"/>
-                </span>
-                <span class="o-menu-item-name align-middle" t-esc="getName(menuItem)"/>
-              </span>
-              <span
-                t-if="menuItem.description"
-                class="o-menu-item-description"
-                t-esc="menuItem.description"
-              />
-              <span
-                t-if="isMenuRoot"
-                class="o-menu-item-root align-middle"
-                t-call="o-spreadsheet-Icon.TRIANGLE_RIGHT"
-              />
+                </div>
+                <div class="o-menu-item-name align-middle text-truncate" t-esc="getName(menuItem)"/>
+                <div
+                  t-if="menuItem.description"
+                  class="o-menu-item-description ms-auto"
+                  t-esc="menuItem.description"
+                />
+                <div
+                  t-if="isMenuRoot"
+                  class="o-menu-item-root align-middle ms-auto"
+                  t-call="o-spreadsheet-Icon.TRIANGLE_RIGHT"
+                />
+              </div>
             </div>
           </t>
         </t>
