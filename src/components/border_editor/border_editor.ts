@@ -45,7 +45,7 @@ export interface BorderEditorProps {
   class?: string;
   currentBorderColor: Color;
   currentBorderStyle: BorderStyle;
-  currentBorderPosition: BorderPosition;
+  currentBorderPosition: BorderPosition | undefined;
   onBorderColorPicked: (color: Color) => void;
   onBorderStylePicked: (style: BorderStyle) => void;
   onBorderPositionPicked: (position: BorderPosition) => void;
@@ -196,7 +196,7 @@ BorderEditor.props = {
   class: { type: String, optional: true },
   currentBorderColor: { type: String, optional: false },
   currentBorderStyle: { type: String, optional: false },
-  currentBorderPosition: { type: String, optional: false },
+  currentBorderPosition: { type: String, optional: true },
   onBorderColorPicked: Function,
   onBorderStylePicked: Function,
   onBorderPositionPicked: Function,
