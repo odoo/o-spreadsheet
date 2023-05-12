@@ -18,6 +18,7 @@
         t-on-paste.stop=""
         t-on-compositionstart="onCompositionStart"
         t-on-compositionend="onCompositionEnd"
+        t-on-dblclick="onDblClick"
       />
 
       <div
