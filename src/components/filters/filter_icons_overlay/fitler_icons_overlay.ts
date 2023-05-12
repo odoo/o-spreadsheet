@@ -55,7 +55,6 @@ export class FilterIconsOverlay extends Component<Props, SpreadsheetChildEnv> {
 
   toggleFilterMenu({ col, row }: Position) {
     const activePopover = this.cellPopover.cellPersistentPopover;
-    console.log(activePopover);
     if (
       activePopover.isOpen &&
       activePopover.col === col &&
@@ -63,7 +62,6 @@ export class FilterIconsOverlay extends Component<Props, SpreadsheetChildEnv> {
       activePopover.type === "FilterMenu"
     ) {
       this.cellPopover.close();
-      // this.env.model.dispatch("CLOSE_CELL_POPOVER");
       return;
     }
     this.cellPopover.open({ col, row }, "FilterMenu");

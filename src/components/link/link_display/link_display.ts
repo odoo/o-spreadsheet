@@ -2,8 +2,8 @@ import { Component } from "@odoo/owl";
 import { LINK_COLOR } from "../../../constants";
 import { toXC } from "../../../helpers";
 import { openLink, urlRepresentation } from "../../../helpers/links";
-import { cellPopoverRegistry } from "../../../registries";
 import { CellPopover } from "../../../store/cell_popover";
+import { CQS } from "../../../store/dependency_container";
 import { useStore } from "../../../store/hooks";
 import { EvaluatedCell, Link, Position, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
@@ -70,7 +70,11 @@ export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv
   static components = { Menu };
   static template = "o-spreadsheet-LinkDisplay";
 
-  private cellPopover = useStore(CellPopover);
+  private cellPopover!: CQS<CellPopover>;
+
+  setup() {
+    this.cellPopover = useStore(CellPopover);
+  }
 
   get cell(): EvaluatedCell {
     const { col, row } = this.props.cellPosition;
@@ -121,7 +125,7 @@ export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv
   }
 }
 
-const LinkCellPopoverBuilder: PopoverBuilders = {
+export const LinkCellPopoverBuilder: PopoverBuilders = {
   onHover: (position, getters): CellPopoverComponent<typeof LinkDisplay> => {
     const cell = getters.getEvaluatedCell(position);
     const shouldDisplayLink =
@@ -140,4 +144,3 @@ LinkDisplay.props = {
   cellPosition: Object,
   onClosed: { type: Function, optional: true },
 };
-cellPopoverRegistry.add("LinkCell", LinkCellPopoverBuilder);

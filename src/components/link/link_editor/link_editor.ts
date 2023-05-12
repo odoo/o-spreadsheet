@@ -1,7 +1,6 @@
 import { Component, onMounted, useRef, useState } from "@odoo/owl";
 import { markdownLink } from "../../../helpers";
 import { detectLink, urlRepresentation } from "../../../helpers/links";
-import { cellPopoverRegistry } from "../../../registries";
 import { linkMenuRegistry } from "../../../registries/menus/link_menu_registry";
 import { DOMCoordinates, Link, Position, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
@@ -213,4 +212,3 @@ LinkEditor.props = {
   cellPosition: Object,
   onClosed: { type: Function, optional: true },
 };
-cellPopoverRegistry.add("LinkEditor", LinkEditorPopoverBuilder);

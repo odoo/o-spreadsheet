@@ -14,7 +14,6 @@ import {
   interactivePasteFromOS,
 } from "../../helpers/ui/paste_interactive";
 import { CellPopover } from "../../store/cell_popover";
-import { useStore } from "../../store/hooks";
 import { _lt } from "../../translation";
 import { Image } from "../../types/image";
 import { Format, SpreadsheetChildEnv, Style } from "../../types/index";
@@ -674,8 +673,9 @@ export const OPEN_CUSTOM_CURRENCY_SIDEPANEL_ACTION = (env: SpreadsheetChildEnv) 
 
 export const INSERT_LINK = (env: SpreadsheetChildEnv) => {
   let { col, row } = env.model.getters.getActivePosition();
-  const cellPopover = useStore(CellPopover, env);
-  cellPopover.open({ col, row }, "LinkEditor");
+  env.getStore(CellPopover).open({ col, row }, "LinkEditor");
+  // const cellPopover = useStore(CellPopover, env);
+  // cellPopover.open({ col, row }, "LinkEditor");
   // env.model.dispatch("OPEN_CELL_POPOVER", { col, row, popoverType: "LinkEditor" });
 };
 

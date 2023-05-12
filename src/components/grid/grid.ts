@@ -21,6 +21,9 @@ import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import { INSERT_LINK } from "../../registries/menus/menu_items_actions";
 import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
+import { CellPopover } from "../../store/cell_popover";
+import { CQS } from "../../store/dependency_container";
+import { useStore } from "../../store/hooks";
 import { _lt } from "../../translation";
 import {
   CellValueType,
@@ -105,6 +108,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   private menuState!: MenuState;
   private gridRef!: Ref<HTMLElement>;
   private hiddenInput!: Ref<HTMLElement>;
+  private cellPopover!: CQS<CellPopover>;
 
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
@@ -116,6 +120,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       position: null,
       menuItems: [],
     });
+    this.cellPopover = useStore(CellPopover);
     this.gridRef = useRef("grid");
     this.hiddenInput = useRef("hiddenInput");
     this.canvasPosition = useAbsoluteBoundingRect(this.gridRef);
@@ -156,7 +161,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onClosePopover() {
-    if (this.env.model.getters.hasOpenedPopover()) {
+    if (this.cellPopover.isOpen) {
       this.closeOpenedPopover();
     }
     this.focus();
@@ -421,7 +426,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   closeOpenedPopover() {
-    this.env.model.dispatch("CLOSE_CELL_POPOVER");
+    this.cellPopover.close();
   }
   // ---------------------------------------------------------------------------
   // Keyboard interactions
@@ -430,7 +435,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   processArrows(ev: KeyboardEvent) {
     ev.preventDefault();
     ev.stopPropagation();
-    if (this.env.model.getters.hasOpenedPopover()) {
+    if (this.cellPopover.isOpen) {
       this.closeOpenedPopover();
     }
 
