@@ -3,7 +3,7 @@
     <div class="o-composer-container w-100 h-100">
       <div
         class="o-composer w-100 text-start"
-        t-att-class="{ 'text-muted': env.model.getters.isReadonly(), 'unfocusable': env.model.getters.isReadonly() }"
+        t-att-class="{ 'text-muted': env.model.getters.isReadonly(), 'unfocusable': env.model.getters.isReadonly(), 'active': props.focus !== 'inactive' }"
         t-att-style="props.inputStyle"
         t-ref="o_composer"
         tabindex="1"

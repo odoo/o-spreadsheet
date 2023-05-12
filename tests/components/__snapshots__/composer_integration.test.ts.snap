@@ -9,7 +9,7 @@ exports[`Grid composer grid composer basic style Grid composer snapshot 1`] = `
     class="o-composer-container w-100 h-100"
   >
     <div
-      class="o-composer w-100 text-start"
+      class="o-composer w-100 text-start active"
       contenteditable="true"
       spellcheck="false"
       style="max-width:985px; max-height:985px;"
