@@ -14,7 +14,13 @@ import {
   selectCell,
   setCellContent,
 } from "../test_helpers/commands_helpers";
-import { click, keyDown, keyUp, simulateClick } from "../test_helpers/dom_helper";
+import {
+  click,
+  keyDown,
+  keyUp,
+  simulateClick,
+  triggerMouseEvent,
+} from "../test_helpers/dom_helper";
 import {
   getCellContent,
   getCellText,
@@ -1043,5 +1049,87 @@ describe("Copy/paste in composer", () => {
     expect(fixture.querySelectorAll("div.o-composer")).toHaveLength(1);
     expect(pasteFn).not.toBeCalled();
     fixture.removeEventListener("paste", parentPasteFn);
+  });
+});
+
+describe("Double click selection in composer", () => {
+  test("Double click on range in the formula will select the whole range", async () => {
+    const composerEl = await typeInComposer("=SUM(A1:A30)");
+    // mock the real situation
+    // first, A30 will be selected if we double click on the A30 part
+    // this step is done in `onClick` before `onDblClick`
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
+      start: 8,
+      end: 11,
+    });
+    await nextTick();
+    expect(model.getters.getComposerSelection()).toEqual({
+      start: 8,
+      end: 11,
+    });
+    triggerMouseEvent(composerEl, "dblclick");
+    await nextTick();
+    expect(model.getters.getComposerSelection()).toEqual({
+      start: 5,
+      end: 11,
+    });
+  });
+
+  test("Double click at the end of content will not select anything", async () => {
+    const content = "=SUM(A1:A30)";
+    const composerEl = await typeInComposer(content);
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
+      start: content.length - 1,
+      end: content.length - 1,
+    });
+    await nextTick();
+    expect(model.getters.getComposerSelection()).toEqual({
+      start: content.length - 1,
+      end: content.length - 1,
+    });
+    triggerMouseEvent(composerEl, "dblclick");
+    await nextTick();
+    expect(model.getters.getComposerSelection()).toEqual({
+      start: content.length - 1,
+      end: content.length - 1,
+    });
+  });
+
+  test("Double click on normal text won't select the whole text", async () => {
+    const composerEl = await typeInComposer("A1:A30");
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
+      start: 3,
+      end: 6,
+    });
+    await nextTick();
+    expect(model.getters.getComposerSelection()).toEqual({
+      start: 3,
+      end: 6,
+    });
+    triggerMouseEvent(composerEl, "dblclick");
+    await nextTick();
+    expect(model.getters.getComposerSelection()).toEqual({
+      start: 3,
+      end: 6,
+    });
+  });
+
+  test("Double quoted STRING token after = sign will be selected word by word after double click", async () => {
+    const composerEl = await typeInComposer('="Doule quoted string"');
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
+      start: 8,
+      end: 14,
+    }); // select word "quoted"
+    await nextTick();
+    expect(model.getters.getComposerSelection()).toEqual({
+      start: 8,
+      end: 14,
+    });
+    triggerMouseEvent(composerEl, "dblclick");
+    await nextTick();
+    expect(model.getters.getComposerSelection()).toEqual({
+      start: 8,
+      end: 14,
+    });
   });
 });

@@ -416,6 +416,37 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     this.processTokenAtCursor();
   }
 
+  onDblClick() {
+    if (this.env.model.getters.isReadonly()) {
+      return;
+    }
+    const composerContent = this.env.model.getters.getCurrentContent();
+    const isValidFormula = composerContent.startsWith("=");
+
+    if (isValidFormula) {
+      const tokens = this.env.model.getters.getCurrentTokens();
+      const currentSelection = this.contentHelper.getCurrentSelection();
+      if (currentSelection.start === currentSelection.end) return;
+
+      const currentSelectedText = composerContent.substring(
+        currentSelection.start,
+        currentSelection.end
+      );
+      const token = tokens.filter(
+        (token) =>
+          token.value.includes(currentSelectedText) &&
+          token.start <= currentSelection.start &&
+          token.end >= currentSelection.end
+      )[0];
+      if (token.type === "REFERENCE") {
+        this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
+          start: token.start,
+          end: token.end,
+        });
+      }
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Private
   // ---------------------------------------------------------------------------
@@ -448,8 +479,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
    */
   private getContentLines(): HtmlContent[][] {
     let value = this.env.model.getters.getCurrentContent();
-    const isValidFormula =
-      value.startsWith("=") && this.env.model.getters.getCurrentTokens().length > 0;
+    const isValidFormula = value.startsWith("=");
 
     if (value === "") {
       return [];
