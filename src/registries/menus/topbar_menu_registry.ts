@@ -360,7 +360,7 @@ topbarMenuRegistry
   })
   .addChild("sort_range", ["data"], {
     ...ACTION_DATA.sortRange,
-    sequence: 20,
+    sequence: 10,
     separator: true,
   })
   .addChild("sort_ascending", ["data", "sort_range"], {
@@ -373,14 +373,14 @@ topbarMenuRegistry
   })
   .addChild("split_to_columns", ["data"], {
     ...ACTION_DATA.splitToColumns,
-    sequence: 10,
+    sequence: 20,
     separator: true,
   })
   .addChild("add_data_filter", ["data"], {
     ...ACTION_DATA.addDataFilter,
-    sequence: 10,
+    sequence: 30,
   })
   .addChild("remove_data_filter", ["data"], {
     ...ACTION_DATA.removeDataFilter,
-    sequence: 10,
+    sequence: 30,
   });
