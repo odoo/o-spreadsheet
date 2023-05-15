@@ -1,6 +1,6 @@
 import { positionToZone } from "../helpers";
 import { cellPopoverRegistry } from "../registries/cell_popovers_registry";
-import { CellPosition, Position, Rect } from "../types";
+import { CellPosition, Command, Position, Rect } from "../types";
 import {
   CellPopoverType,
   ClosedCellPopover,
@@ -14,7 +14,18 @@ import { Store } from "./store";
 export class CellPopover extends Store {
   private persistentPopover?: CellPosition & { type: CellPopoverType };
   private hoveredCell = this.get(HoveredCell);
+  private model = this.get(ModelStore);
   private getters = this.get(ModelStore).getters;
+
+  constructor(get) {
+    super(get);
+    this.model.on("command-dispatched", this, (cmd: Command) => {
+      switch (cmd.type) {
+        case "ACTIVATE_SHEET":
+          this.close();
+      }
+    });
+  }
 
   open({ col, row }: Position, type: CellPopoverType): void {
     const sheetId = this.getters.getActiveSheetId();

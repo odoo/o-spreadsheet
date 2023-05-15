@@ -1,8 +1,10 @@
 import { Position } from "../types";
+import { Store } from "./store";
 
-export class HoveredCell {
+export class HoveredCell extends Store {
   col?: number;
   row?: number;
+
   hover(position: Position | undefined) {
     if (position) {
       this.col = position.col;

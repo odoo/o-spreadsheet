@@ -521,6 +521,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     for (const handler of handlers) {
       handler.handle(command);
     }
+    this.trigger("command-dispatched", command);
   }
 
   // ---------------------------------------------------------------------------
