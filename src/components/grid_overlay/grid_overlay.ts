@@ -136,7 +136,6 @@ function useTouchMove(
 }
 
 interface Props {
-  onCellHovered: (position: Partial<Position>) => void;
   onCellDoubleClicked: (col: HeaderIndex, row: HeaderIndex) => void;
   onCellClicked: (
     col: HeaderIndex,
@@ -154,7 +153,6 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridOverlay";
   static components = { FiguresContainer };
   static defaultProps = {
-    onCellHovered: () => {},
     onCellDoubleClicked: () => {},
     onCellClicked: () => {},
     onCellRightClicked: () => {},
@@ -167,7 +165,6 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     this.gridOverlay = useRef("gridOverlay");
     const hoveredCell = useStore(HoveredCell);
     useCellHovered(this.env, this.gridOverlay, ({ col, row }) => {
-      this.props.onCellHovered({ col, row });
       if (col !== undefined && row !== undefined) {
         hoveredCell.hover({ col, row });
       } else {
@@ -224,7 +221,6 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
 }
 
 GridOverlay.props = {
-  onCellHovered: { type: Function, optional: true },
   onCellDoubleClicked: { type: Function, optional: true },
   onCellClicked: { type: Function, optional: true },
   onCellRightClicked: { type: Function, optional: true },

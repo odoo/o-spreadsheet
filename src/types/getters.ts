@@ -20,7 +20,6 @@ import { FilterEvaluationPlugin } from "../plugins/ui_core_views/filter_evaluati
 import { SheetViewPlugin } from "../plugins/ui_core_views/sheetview";
 import { AutofillPlugin } from "../plugins/ui_feature/autofill";
 import { AutomaticSumPlugin } from "../plugins/ui_feature/automatic_sum";
-import { CellPopoverPlugin } from "../plugins/ui_feature/cell_popovers";
 import { FindAndReplacePlugin } from "../plugins/ui_feature/find_and_replace";
 import { HeaderVisibilityUIPlugin } from "../plugins/ui_feature/header_visibility_ui";
 import { HighlightPlugin } from "../plugins/ui_feature/highlight";
@@ -142,7 +141,6 @@ type SessionGetters = {
   getConnectedClients: Session["getConnectedClients"];
   isFullySynchronized: Session["isFullySynchronized"];
 };
-type CellPopoverPluginGetters = Pick<CellPopoverPlugin, GetterNames<typeof CellPopoverPlugin>>;
 type FilterEvaluationGetters = Pick<
   FilterEvaluationPlugin,
   GetterNames<typeof FilterEvaluationPlugin>
@@ -172,6 +170,5 @@ export type Getters = {
   UIOptionsGetters &
   SheetUIGetters &
   ViewportGetters &
-  CellPopoverPluginGetters &
   FilterEvaluationGetters &
   HeaderVisibilityIUIGetters;

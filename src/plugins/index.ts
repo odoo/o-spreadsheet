@@ -24,7 +24,6 @@ import {
 import {
   AutofillPlugin,
   AutomaticSumPlugin,
-  CellPopoverPlugin,
   FindAndReplacePlugin,
   FormatPlugin,
   HeaderVisibilityUIPlugin,
@@ -65,7 +64,6 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("sort", SortPlugin)
   .add("automatic_sum", AutomaticSumPlugin)
   .add("format", FormatPlugin)
-  .add("cell_popovers", CellPopoverPlugin)
   .add("selection_multiuser", SelectionMultiUserPlugin);
 
 // Plugins which have a state, but which should not be shared in collaborative

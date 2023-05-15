@@ -24,6 +24,7 @@ import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
 import { CellPopover } from "../../store/cell_popover";
 import { CQS } from "../../store/dependency_container";
 import { useStore } from "../../store/hooks";
+import { HoveredCell } from "../../store/hovered_cell";
 import { _lt } from "../../translation";
 import {
   CellValueType,
@@ -33,7 +34,6 @@ import {
   DOMDimension,
   HeaderIndex,
   Pixel,
-  Position,
   Rect,
   Ref,
   SpreadsheetChildEnv,
@@ -112,7 +112,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
-  hoveredCell!: Partial<Position>;
+  hoveredCell!: CQS<HoveredCell>;
 
   setup() {
     this.menuState = useState({
@@ -124,7 +124,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.gridRef = useRef("grid");
     this.hiddenInput = useRef("hiddenInput");
     this.canvasPosition = useAbsoluteBoundingRect(this.gridRef);
-    this.hoveredCell = useState({ col: undefined, row: undefined });
+    this.hoveredCell = useStore(HoveredCell);
 
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
@@ -141,14 +141,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     );
     this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
       this.moveCanvas(deltaX, deltaY);
-      this.hoveredCell.col = undefined;
-      this.hoveredCell.row = undefined;
+      this.hoveredCell.hover(undefined);
     });
-  }
-
-  onCellHovered({ col, row }) {
-    this.hoveredCell.col = col;
-    this.hoveredCell.row = row;
   }
 
   get gridOverlayDimensions() {
@@ -198,7 +192,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     },
     ESCAPE: () => {
       /** TODO: Clean once we introduce proper focus on sub components. Grid should not have to handle all this logic */
-      if (this.env.model.getters.hasOpenedPopover()) {
+      if (this.cellPopover.isOpen) {
         this.closeOpenedPopover();
       } else if (this.menuState.isOpen) {
         this.closeMenu();
@@ -380,7 +374,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
     }
 
-    if (this.env.model.getters.hasOpenedPopover()) {
+    if (this.cellPopover.isOpen) {
       this.closeOpenedPopover();
     }
     if (this.env.model.getters.getEditionMode() === "editing") {
@@ -518,7 +512,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   toggleContextMenu(type: ContextMenuType, x: Pixel, y: Pixel) {
-    if (this.env.model.getters.hasOpenedPopover()) {
+    if (this.cellPopover.isOpen) {
       this.closeOpenedPopover();
     }
     this.menuState.isOpen = true;

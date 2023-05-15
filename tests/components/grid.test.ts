@@ -12,6 +12,7 @@ import {
 } from "../../src/constants";
 import { toCartesian, toHex, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
+import { CellPopover } from "../../src/store/cell_popover";
 import { getClipboardEvent, MockClipboardData } from "../test_helpers/clipboard";
 import {
   copy,
@@ -675,11 +676,7 @@ describe("Grid component", () => {
     });
 
     test("Scrolling the grid remove persistent popovers if the cell is outside the viewport", async () => {
-      model.dispatch("OPEN_CELL_POPOVER", {
-        col: 0,
-        row: 0,
-        popoverType: "LinkEditor",
-      });
+      parent.env.getStore(CellPopover).open({ col: 0, row: 0 }, "LinkEditor");
       await nextTick();
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
       await scrollGrid({ deltaY: DEFAULT_CELL_HEIGHT });
@@ -689,11 +686,7 @@ describe("Grid component", () => {
     });
 
     test("Scrolling the grid don't remove persistent popovers if the cell is inside the viewport", async () => {
-      model.dispatch("OPEN_CELL_POPOVER", {
-        col: 0,
-        row: 0,
-        popoverType: "LinkEditor",
-      });
+      parent.env.getStore(CellPopover).open({ col: 0, row: 0 }, "LinkEditor");
       await nextTick();
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
       await scrollGrid({ deltaY: DEFAULT_CELL_HEIGHT - 5 });

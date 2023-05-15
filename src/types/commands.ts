@@ -1,6 +1,5 @@
 import { SearchOptions } from "../plugins/ui_feature/find_and_replace";
 import { ComposerSelection } from "../plugins/ui_stateful/edition";
-import { CellPopoverType } from "./cell_popovers";
 import { ChartDefinition } from "./chart/chart";
 import { ClipboardPasteOptions } from "./clipboard";
 import { UpDown } from "./conditional_formatting";
@@ -132,9 +131,6 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
   "SET_CURRENT_CONTENT",
 
   "SET_FORMULA_VISIBILITY",
-
-  "OPEN_CELL_POPOVER",
-  "CLOSE_CELL_POPOVER",
 
   "UPDATE_FILTER",
 ]);
@@ -871,17 +867,6 @@ export interface ActivatePreviousSheetCommand {
   type: "ACTIVATE_PREVIOUS_SHEET";
 }
 
-export interface OpenCellPopoverCommand {
-  type: "OPEN_CELL_POPOVER";
-  col: number;
-  row: number;
-  popoverType: CellPopoverType;
-}
-
-export interface CloseCellPopoverCommand {
-  type: "CLOSE_CELL_POPOVER";
-}
-
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -1007,8 +992,6 @@ export type LocalCommand =
   | SetViewportOffsetCommand
   | MoveViewportDownCommand
   | MoveViewportUpCommand
-  | OpenCellPopoverCommand
-  | CloseCellPopoverCommand
   | ActivateNextSheetCommand
   | ActivatePreviousSheetCommand
   | UpdateFilterCommand;

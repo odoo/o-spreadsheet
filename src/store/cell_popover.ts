@@ -19,9 +19,7 @@ export class CellPopover extends Store {
   open({ col, row }: Position, type: CellPopoverType): void {
     const sheetId = this.getters.getActiveSheetId();
     if (!cellPopoverRegistry.contains(type)) {
-      throw new Error(
-        `Unknown cell popover type: ${type}. Did you add it to the 'cellPopoverRegistry'?`
-      );
+      return;
     }
     this.persistentPopover = {
       col,

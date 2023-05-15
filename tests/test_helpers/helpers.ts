@@ -8,6 +8,7 @@ import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { topbarMenuRegistry } from "../../src/registries";
 import { MenuItem, MenuItemRegistry } from "../../src/registries/menu_items_registry";
+import { DependencyContainer } from "../../src/store/dependency_container";
 import {
   ChartDefinition,
   ColorScaleMidPointThreshold,
@@ -90,6 +91,7 @@ export function makeTestFixture() {
 }
 
 export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): SpreadsheetChildEnv {
+  const container = new DependencyContainer();
   return {
     model: mockEnv.model || new Model(),
     isDashboard: mockEnv.isDashboard || (() => false),
@@ -108,6 +110,7 @@ export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): Spreads
       (async () => {
         return [] as Currency[];
       }),
+    getStore: container.get.bind(container),
   };
 }
 

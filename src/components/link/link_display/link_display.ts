@@ -101,13 +101,7 @@ export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv
   }
 
   edit() {
-    // const { col, row } = ;
     this.cellPopover.open(this.props.cellPosition, "LinkEditor");
-    // this.env.model.dispatch("OPEN_CELL_POPOVER", {
-    //   col,
-    //   row,
-    //   popoverType: "LinkEditor",
-    // });
   }
 
   unlink() {

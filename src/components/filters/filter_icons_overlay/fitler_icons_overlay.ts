@@ -65,11 +65,6 @@ export class FilterIconsOverlay extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
     this.cellPopover.open({ col, row }, "FilterMenu");
-    // this.env.model.dispatch("OPEN_CELL_POPOVER", {
-    //   col,
-    //   row,
-    //   popoverType: "FilterMenu",
-    // });
   }
 
   private isPositionVisible(x: HeaderIndex, y: HeaderIndex) {
