@@ -718,26 +718,16 @@
   </t>
   <t t-name="o-spreadsheet-Icon.SORT_ASCENDING" owl="1">
     <svg class="o-icon" fill="currentColor">
-      <style>
-        .small {
-          font: bold 9px sans-serif;
-        }
-      </style>
       <path d="m3 13-1-1-1 1 3 3 3-3-1-1-1 1V0H3"/>
-      <text x="9" y="7" class="small">A</text>
-      <text x="9.3" y="15" class="small">Z</text>
+      <text x="9" y="7" class="small-text">A</text>
+      <text x="9.3" y="15" class="small-text">Z</text>
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.SORT_DESCENDING" owl="1">
     <svg class="o-icon" fill="currentColor">
-      <style>
-        .small {
-          font: bold 9px sans-serif;
-        }
-      </style>
       <path d="m3 13.9-1-1-1 1 3 3 3-3-1-1-1 1V.9H3"/>
-      <text x="9.3" y="7.9" class="small">Z</text>
-      <text x="9" y="15.9" class="small">A</text>
+      <text x="9.3" y="7.9" class="small-text">Z</text>
+      <text x="9" y="15.9" class="small-text">A</text>
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.FILTER_ICON" owl="1">
@@ -821,16 +811,8 @@
   </t>
   <t t-name="o-spreadsheet-Icon.FONT_SIZE" owl="1">
     <svg class="o-icon" fill="currentColor">
-      <style>
-        .small {
-          font: bold 9px sans-serif;
-        }
-        .heavy {
-          font: bold 16px sans-serif;
-        }
-      </style>
-      <text x="2" y="15" class="small">A</text>
-      <text x="6" y="15" class="heavy">A</text>
+      <text x="2" y="15" class="small-text">A</text>
+      <text x="6" y="15" class="heavy-text">A</text>
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.TRIANGLE_EXCLAMATION" owl="1">

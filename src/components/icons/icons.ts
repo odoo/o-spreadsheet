@@ -1,3 +1,18 @@
+import { css } from "../helpers";
+
+css/* scss */ `
+  .o-spreadsheet {
+    .o-icon {
+      .small-text {
+        font: bold 9px sans-serif;
+      }
+      .heavy-text {
+        font: bold 16px sans-serif;
+      }
+    }
+  }
+`;
+
 export type IconSetType = keyof typeof ICON_SETS;
 
 // -----------------------------------------------------------------------------
