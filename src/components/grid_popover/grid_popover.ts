@@ -1,10 +1,20 @@
 import { Component } from "@odoo/owl";
+import { cellPopoverRegistry } from "../../registries";
 import { CellPopover } from "../../store/cell_popover";
 import { CQS } from "../../store/dependency_container";
 import { useStore } from "../../store/hooks";
 import { Rect, SpreadsheetChildEnv } from "../../types";
 import { ClosedCellPopover, PositionedCellPopover } from "../../types/cell_popovers";
+import { ErrorToolTipPopoverBuilder } from "../error_tooltip/error_tooltip";
+import { FilterMenuPopoverBuilder } from "../filters/filter_menu/filter_menu";
+import { LinkCellPopoverBuilder, LinkEditorPopoverBuilder } from "../link";
 import { Popover } from "../popover/popover";
+
+cellPopoverRegistry
+  .add("ErrorToolTip", ErrorToolTipPopoverBuilder)
+  .add("FilterMenu", FilterMenuPopoverBuilder)
+  .add("LinkEditor", LinkEditorPopoverBuilder)
+  .add("LinkCell", LinkCellPopoverBuilder);
 
 interface Props {
   gridRect: Rect;
