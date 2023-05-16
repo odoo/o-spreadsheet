@@ -4,7 +4,7 @@ import {
   buildCompilationParameters,
   CompilationParameters,
 } from "../../helpers/evaluation/compilation_parameters";
-import { Evaluator } from "../../helpers/evaluation/evaluation_process";
+import { Evaluator } from "../../helpers/evaluation/evaluator";
 import { cellPositionToRc, rcToCellPosition } from "../../helpers/evaluation/misc";
 import { getItemId, positions, toXC } from "../../helpers/index";
 import {
