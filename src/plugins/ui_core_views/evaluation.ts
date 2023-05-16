@@ -1,6 +1,9 @@
 import { compile } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
-import { CompilationParametersBuilder } from "../../helpers/evaluation/compilation_parameters";
+import {
+  buildCompilationParameters,
+  CompilationParameters,
+} from "../../helpers/evaluation/compilation_parameters";
 import { EvaluationProcess } from "../../helpers/evaluation/evaluation_process";
 import { cellPositionToRc, rcToCellPosition } from "../../helpers/evaluation/misc";
 import { getItemId, positions, toXC } from "../../helpers/index";
@@ -388,13 +391,13 @@ export class EvaluationPlugin extends UIPlugin {
   private shouldRebuildDependenciesGraph = true;
 
   private evalProcess: EvaluationProcess;
-  private cpb: CompilationParametersBuilder;
+  private compilationParams: CompilationParameters;
   private rcsToUpdate = new Set<string>();
 
   constructor(config: UIPluginConfig) {
     super(config);
     this.evalProcess = new EvaluationProcess(config.custom, this.getters);
-    this.cpb = new CompilationParametersBuilder(config.custom, this.getters, (cell) =>
+    this.compilationParams = buildCompilationParameters(config.custom, this.getters, (cell) =>
       this.evalProcess.getEvaluatedCellFromRc(cell)
     );
   }
@@ -445,13 +448,12 @@ export class EvaluationPlugin extends UIPlugin {
 
   evaluateFormula(formulaString: string, sheetId: UID = this.getters.getActiveSheetId()): any {
     const compiledFormula = compile(formulaString);
-    const compilationParams = this.cpb.getParameters();
 
     const ranges: Range[] = [];
     for (let xc of compiledFormula.dependencies) {
       ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc));
     }
-    return compiledFormula.execute(ranges, ...compilationParams).value;
+    return compiledFormula.execute(ranges, ...this.compilationParams).value;
   }
 
   /**

@@ -26,7 +26,7 @@ import {
 import { createEvaluatedCell, errorCell, evaluateLiteral } from "../cells";
 import { toXC } from "../coordinates";
 import { mapToPositionsInZone } from "../zones";
-import { CompilationParameters, CompilationParametersBuilder } from "./compilation_parameters";
+import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { cellPositionToRc, rcToCellPosition } from "./misc";
 import { SpreadingRelation } from "./spreading_relation";
@@ -41,8 +41,7 @@ export class EvaluationProcess {
 
   constructor(context: ModelConfig["custom"], getters: Getters) {
     this.getters = getters;
-    const cpb = new CompilationParametersBuilder(context, getters, this.computeCell);
-    this.compilationParams = cpb.getParameters();
+    this.compilationParams = buildCompilationParameters(context, getters, this.computeCell);
   }
 
   private evaluatedCells: PositionDict<EvaluatedCell> = {};

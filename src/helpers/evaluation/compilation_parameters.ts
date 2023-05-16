@@ -28,19 +28,23 @@ const functionMap = functionRegistry.mapping;
  * - a range function to convert any reference to a proper value array
  * - an evaluation context
  */
+export function buildCompilationParameters(
+  context: ModelConfig["custom"],
+  getters: Getters,
+  computeCell: (rc: string) => EvaluatedCell
+) {
+  const builder = new CompilationParametersBuilder(context, getters, computeCell);
+  return builder.getParameters();
+}
 
-export class CompilationParametersBuilder {
+class CompilationParametersBuilder {
   evalContext: EvalContext;
-  getters: Getters;
-  computeCell: (rc: string) => EvaluatedCell;
 
   constructor(
     context: ModelConfig["custom"],
-    getters: Getters,
-    computeCellProcess: (rc: string) => EvaluatedCell
+    private getters: Getters,
+    private computeCell: (rc: string) => EvaluatedCell
   ) {
-    this.getters = getters;
-    this.computeCell = computeCellProcess;
     this.evalContext = Object.assign(Object.create(functionMap), context, {
       getters: this.getters,
     });
