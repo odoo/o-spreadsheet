@@ -144,24 +144,6 @@ const functions = functionRegistry.content;
 // HOW THE EVALUATION WORKS
 // ---------------------------------------------------------------------------
 
-// I - First, the handle method of the evaluation plugin catches:
-
-//   A - Commands that modify the structure of the sheets:
-//      This will cause the main global states to be recomputed entirely.
-
-//   B - Commands that modify the content of the cells:
-//      This is the where we check if the content of the cells has changed.
-//      If this case, we update the formula dependencies graph.
-
-//      Next, we indicate that the cell needs to be recomputed. We do that by adding
-//      the cell to the 'rcsToUpdate' set.
-
-// II - Once all commands have been handled, we pass through the finalize method of the
-//     Evaluation plugin. This is where we list the cells that need to be updated.
-
-//   For each cell C targeted by a command, we :
-//    1 - List all the cells that depend on this cell (using the formula dependencies
-//        graph) and add them to the 'rcsToUpdate' set.
 //    2 - Depending on the type of changes, we can indicate to recompute other cells:
 
 //      1 - If we add content to a cell that didn't have any content before:

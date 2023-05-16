@@ -98,9 +98,11 @@ export class Evaluator {
           // compute array formula to take into account new collisions.
           extendSet(cells, this.findCellsToCompute(formulaRc));
         }
-      } else if (this.spreadingRelations.isArrayFormulaResult(rc)) {
-        // recompute formulas  blocked by the old content.
-        extendSet(cells, this.overlappingArrayFormulas(rc));
+      } else {
+        // recompute formulas blocked by the old content.
+        if (this.spreadingRelations.isArrayFormulaResult(rc)) {
+          extendSet(cells, this.overlappingArrayFormulas(rc));
+        }
       }
     }
     return cells;
