@@ -31,8 +31,6 @@ const UNARY_OPERATOR_MAP = {
   "%": "UNARY.PERCENT",
 };
 
-const RANGE_TYPE_REGEXP = /^RANGE/;
-
 interface ConstantValues {
   numbers: number[];
   strings: string[];
@@ -112,8 +110,8 @@ export function compile(formula: string): CompiledFormula {
         // detect when an argument need to be evaluated as a lazy argument
         const isLazy = argDefinition.lazy;
 
-        const hasRange = argTypes.some((t) => RANGE_TYPE_REGEXP.test(t));
-        const isRangeOnly = argTypes.every((t) => RANGE_TYPE_REGEXP.test(t));
+        const hasRange = argTypes.some((t) => isRangeType(t));
+        const isRangeOnly = argTypes.every((t) => isRangeType(t));
 
         if (isRangeOnly) {
           if (!isRangeInput(currentArg)) {
@@ -350,13 +348,17 @@ function assertEnoughArgs(ast: ASTFuncall) {
   }
 }
 
+function isRangeType(type: string) {
+  return type.startsWith("RANGE");
+}
+
 function isRangeInput(arg: AST) {
   if (arg.type === "REFERENCE") {
     return true;
   }
   if (arg.type === "FUNCALL") {
     const fnDef = functions[arg.value.toUpperCase()];
-    return fnDef && RANGE_TYPE_REGEXP.test(fnDef.returns[0]);
+    return fnDef && isRangeType(fnDef.returns[0]);
   }
 
   return false;
