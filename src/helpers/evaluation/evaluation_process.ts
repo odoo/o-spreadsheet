@@ -183,13 +183,15 @@ export class EvaluationProcess {
     if (this.spreadingFormulas.has(rc)) {
       for (const child of this.spreadingRelations.getArrayResultsRc(rc)) {
         const content = this.rcToCell(child)?.content;
-        if (!content) {
-          // free available cell
-          delete this.evaluatedCells[child];
-          extendSet(this.nextRcsToUpdate, this.getDependencyPrecedence(child));
-          for (const candidate of this.spreadingRelations.getArrayFormulasRc(child)) {
-            extendSet(this.nextRcsToUpdate, this.findCellsToCompute(candidate));
-          }
+        if (content) {
+          // there's no point at re-evaluating overlapping array formulas,
+          // there's still a collision
+          continue;
+        }
+        delete this.evaluatedCells[child];
+        extendSet(this.nextRcsToUpdate, this.getDependencyPrecedence(child));
+        for (const candidate of this.spreadingRelations.getArrayFormulasRc(child)) {
+          extendSet(this.nextRcsToUpdate, this.findCellsToCompute(candidate));
         }
       }
       this.spreadingFormulas.delete(rc);
