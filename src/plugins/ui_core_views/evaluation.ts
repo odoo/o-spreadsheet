@@ -4,7 +4,7 @@ import {
   buildCompilationParameters,
   CompilationParameters,
 } from "../../helpers/evaluation/compilation_parameters";
-import { EvaluationProcess } from "../../helpers/evaluation/evaluation_process";
+import { Evaluator } from "../../helpers/evaluation/evaluation_process";
 import { cellPositionToRc, rcToCellPosition } from "../../helpers/evaluation/misc";
 import { getItemId, positions, toXC } from "../../helpers/index";
 import {
@@ -390,15 +390,15 @@ export class EvaluationPlugin extends UIPlugin {
 
   private shouldRebuildDependenciesGraph = true;
 
-  private evalProcess: EvaluationProcess;
+  private evaluator: Evaluator;
   private compilationParams: CompilationParameters;
   private rcsToUpdate = new Set<string>();
 
   constructor(config: UIPluginConfig) {
     super(config);
-    this.evalProcess = new EvaluationProcess(config.custom, this.getters);
+    this.evaluator = new Evaluator(config.custom, this.getters);
     this.compilationParams = buildCompilationParameters(config.custom, this.getters, (cell) =>
-      this.evalProcess.getEvaluatedCellFromRc(cell)
+      this.evaluator.getEvaluatedCellFromRc(cell)
     );
   }
 
@@ -422,22 +422,22 @@ export class EvaluationPlugin extends UIPlugin {
         this.rcsToUpdate.add(rc);
 
         if ("content" in cmd) {
-          this.evalProcess.updateDependencies(rc);
+          this.evaluator.updateDependencies(rc);
         }
         break;
       case "EVALUATE_CELLS":
-        this.evalProcess.evaluateAllCells();
+        this.evaluator.evaluateAllCells();
         break;
     }
   }
 
   finalize() {
     if (this.shouldRebuildDependenciesGraph) {
-      this.evalProcess.buildDependencyGraph();
-      this.evalProcess.evaluateAllCells();
+      this.evaluator.buildDependencyGraph();
+      this.evaluator.evaluateAllCells();
       this.shouldRebuildDependenciesGraph = false;
     } else if (this.rcsToUpdate.size) {
-      this.evalProcess.evaluateCells(this.rcsToUpdate);
+      this.evaluator.evaluateCells(this.rcsToUpdate);
     }
     this.rcsToUpdate.clear();
   }
@@ -486,7 +486,7 @@ export class EvaluationPlugin extends UIPlugin {
   }
 
   getEvaluatedCell(cellPosition: CellPosition): EvaluatedCell {
-    return this.evalProcess.getEvaluatedCellFromRc(cellPositionToRc(cellPosition));
+    return this.evaluator.getEvaluatedCellFromRc(cellPositionToRc(cellPosition));
   }
 
   getEvaluatedCells(sheetId: UID): Record<UID, EvaluatedCell> {
@@ -525,7 +525,7 @@ export class EvaluationPlugin extends UIPlugin {
       return undefined;
     }
 
-    const spreadingFormulaRc = this.evalProcess.getSpreadingFormulaRc(rc);
+    const spreadingFormulaRc = this.evaluator.getSpreadingFormulaRc(rc);
 
     if (!spreadingFormulaRc) {
       return undefined;
@@ -542,8 +542,8 @@ export class EvaluationPlugin extends UIPlugin {
   }
 
   exportForExcel(data: ExcelWorkbookData) {
-    for (const rc of this.evalProcess.getRcs()) {
-      const evaluatedCell = this.evalProcess.getEvaluatedCellFromRc(rc);
+    for (const rc of this.evaluator.getRcs()) {
+      const evaluatedCell = this.evaluator.getEvaluatedCellFromRc(rc);
 
       const position = rcToCellPosition(rc);
       const xc = toXC(position.col, position.row);

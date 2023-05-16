@@ -35,7 +35,7 @@ type PositionDict<T> = { [rc: string]: T };
 
 const MAX_CYCLE_ITERATION = 100;
 
-export class EvaluationProcess {
+export class Evaluator {
   private getters: Getters;
   private compilationParams: CompilationParameters;
 
