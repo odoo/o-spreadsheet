@@ -148,7 +148,7 @@ describe("evaluate formulas that return an array", () => {
       expect(getCellContent(model, "B2")).toBe("4.00");
     });
 
-    test("can't spread simple value with matrix of format", () => {
+    test("cannot spread simple value with matrix of format", () => {
       functionRegistry.add("SIMPLE.VALUE", {
         description: "Return an 2*2 matrix with some values",
         args: [],
@@ -174,7 +174,7 @@ describe("evaluate formulas that return an array", () => {
       expect(getCellContent(model, "B2")).toBe("22");
     });
 
-    test("can't spread matrix of value with matrix of format that haven't same dimension", () => {
+    test("cannot spread matrix of value with matrix of format that haven't same dimension", () => {
       functionRegistry.add("MATRIX.2.2", {
         description: "Return an 2*2 matrix with some values",
         args: [],
@@ -332,7 +332,7 @@ describe("evaluate formulas that return an array", () => {
       );
     });
 
-    describe("don't spread result when collide", () => {
+    describe("do not spread result when collide", () => {
       test("write collision first", () => {
         setCellContent(model, "B2", "kikou");
         setCellContent(model, "A1", "=MFILL(2,2, 42)");
@@ -517,7 +517,7 @@ describe("evaluate formulas that return an array", () => {
       );
     });
 
-    test("don't spread result when collide", () => {
+    test("do not spread result when collide", () => {
       setCellContent(model, "B2", "=MFILL(3,3, 42)");
       expect(getEvaluatedCell(model, "B2").value).toBe("#ERROR");
       expect(getEvaluatedCell(model, "B3").value).toBe("");
@@ -549,7 +549,7 @@ describe("evaluate formulas that return an array", () => {
       expect(getEvaluatedCell(model, "C5").value).toBe(42);
     });
 
-    test("Don't spread result when delete columns", () => {
+    test("Do not spread result when delete columns", () => {
       setCellContent(model, "A1", "=MFILL(3,3, 42)");
       expect(getEvaluatedCell(model, "A1").value).toBe(42);
       expect(getEvaluatedCell(model, "C3").value).toBe(42);
@@ -559,7 +559,7 @@ describe("evaluate formulas that return an array", () => {
       expect(getEvaluatedCell(model, "B1").value).toBe("");
     });
 
-    test("Don't spread result when delete rows", () => {
+    test("Do not spread result when delete rows", () => {
       setCellContent(model, "A1", "=MFILL(3,3, 42)");
       expect(getEvaluatedCell(model, "A1").value).toBe(42);
       expect(getEvaluatedCell(model, "C3").value).toBe(42);
@@ -699,7 +699,7 @@ describe("evaluate formulas that return an array", () => {
       );
     });
 
-    test("don't spread result when collide", () => {
+    test("do not spread result when collide", () => {
       const formula = "=MFILL(2,2,42)";
       setCellContent(model, "B1", formula);
       setCellContent(model, "A2", formula);
