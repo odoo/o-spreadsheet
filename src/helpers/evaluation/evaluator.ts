@@ -116,7 +116,7 @@ export class Evaluator {
     this.formulaDependencies = new FormulaDependencyGraph();
     this.spreadingFormulas = new Set<string>();
     this.spreadingRelations = new SpreadingRelation();
-    for (const rc of this.getSetOfAllCells()) {
+    for (const rc of this.getAllCells()) {
       const dependencies = this.getDirectDependencies(rc);
       this.formulaDependencies.addDependencies(rc, dependencies);
     }
@@ -124,10 +124,10 @@ export class Evaluator {
 
   evaluateAllCells() {
     this.evaluatedCells = {};
-    this.evaluate(this.getSetOfAllCells());
+    this.evaluate(this.getAllCells());
   }
 
-  private getSetOfAllCells(): Set<string> {
+  private getAllCells(): Set<string> {
     const cellsSet = new Set<string>();
     for (const sheetId of this.getters.getSheetIds()) {
       const cells = this.getters.getCells(sheetId);
