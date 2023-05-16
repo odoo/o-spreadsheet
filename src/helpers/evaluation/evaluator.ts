@@ -343,7 +343,7 @@ export class Evaluator {
 
       // check if formula dependencies present in the spread zone
       // if so, they need to be recomputed
-      extendSet(this.nextRcsToUpdate, this.getDependencyPrecedence(rc));
+      extendSet(this.nextRcsToUpdate, this.findChildrenToCompute(rc));
     };
   }
 
@@ -356,7 +356,7 @@ export class Evaluator {
         continue;
       }
       delete this.evaluatedCells[child];
-      extendSet(this.nextRcsToUpdate, this.getDependencyPrecedence(child));
+      extendSet(this.nextRcsToUpdate, this.findChildrenToCompute(child));
       extendSet(this.nextRcsToUpdate, this.overlappingArrayFormulas(child));
     }
     this.spreadingFormulas.delete(rc);
@@ -385,7 +385,7 @@ export class Evaluator {
     return dependencies;
   }
 
-  private getDependencyPrecedence(rc: string): Iterable<string> {
+  private findChildrenToCompute(rc: string): Iterable<string> {
     const cellsToCompute = this.formulaDependencies.getDependencyPrecedence(rc);
     cellsToCompute.delete(rc);
     return cellsToCompute;
