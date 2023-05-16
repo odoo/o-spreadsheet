@@ -41,6 +41,13 @@ export class Evaluator {
 
   private evaluatedCells: PositionDict<EvaluatedCell> = {};
   private formulaDependencies = new FormulaDependencyGraph();
+  /**
+   * contains the position of array formula that spreads on the grid
+   * (and doesn't collide with other cells)
+   * Used to clear the cells that have been filled by a
+   * spread of when modifying this cell. It should be updated each time an
+   * array formula is evaluated and correctly spread on other cells.
+   */
   private spreadingFormulas = new Set<string>();
   private spreadingRelations = new SpreadingRelation();
 

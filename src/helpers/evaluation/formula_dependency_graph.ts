@@ -8,18 +8,26 @@ type Node = Set<string>;
 
 /**
  * This class is an implementation of a directed Graph.
+ * The graph is used to evaluate the cells in the correct
+ * order, and should be updated each time a cell's content is modified
  *
- * For something like
- * - A1:"= B1 + SQRT(B2)"
- * - C1:"= B1";
- * - C2:"= C1"
- *
- * we will have something like:
- * - (B1) ---> (A1, C1)
- * - (B2) ---> (A1)
- * - (C1) ---> (C2)
  */
 export class FormulaDependencyGraph {
+  /**
+   * Internal structure:
+   * - key: a cell rc
+   * - value: a set of cell rc that depends on the key
+   *
+   * Given
+   * - A1:"= B1 + SQRT(B2)"
+   * - C1:"= B1";
+   * - C2:"= C1"
+   *
+   * we will have something like:
+   * - B1 ---> (A1, C1)   meaning A1 and C1 depends on B1
+   * - B2 ---> (A1)       meaning A1 depends on B2
+   * - C1 ---> (C2)       meaning C2 depends on C1
+   */
   private readonly nodes: Map<string, Node> = new Map();
 
   removeAllDependencies(formulaRc) {
