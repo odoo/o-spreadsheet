@@ -303,7 +303,9 @@ function formulaArguments(tokens: Token[]) {
   };
 }
 
-// check if arguments are supplied in the correct quantities
+/**
+ * Check if arguments are supplied in the correct quantities
+ */
 function assertEnoughArgs(ast: ASTFuncall) {
   const nbrArg = ast.args.length;
   const functionName = ast.value.toUpperCase();

@@ -24,7 +24,7 @@ import {
   setFormat,
 } from "../test_helpers/commands_helpers";
 import { getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
-import { target } from "../test_helpers/helpers";
+import { restoreDefaultFunctions, target } from "../test_helpers/helpers";
 
 describe("evaluate formulas that return an array", () => {
   let model: Model = new Model();
@@ -64,6 +64,10 @@ describe("evaluate formulas that return an array", () => {
       } as ComputeFunction<ArgValue, FunctionReturnValue>,
       isExported: true,
     });
+  });
+
+  afterEach(() => {
+    restoreDefaultFunctions();
   });
 
   test("a simple reference to a range cannot return an array", () => {

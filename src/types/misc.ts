@@ -188,7 +188,12 @@ export type FunctionReturn = MatrixFunctionReturn | PrimitiveFunctionReturn;
 export type FunctionReturnValue = CellValue | Matrix<CellValue>;
 export type FunctionReturnFormat = PrimitiveFormat | MatrixArgFormat;
 
-export type MatrixFunctionReturn = { value: Matrix<CellValue>; format?: FunctionReturnFormat }; // why FunctionReturnFormat and not MatrixArgFormat ?: in case of a matrix, format could stay primitive to avoid fill the whole matrix with same format
+export type MatrixFunctionReturn = {
+  value: Matrix<CellValue>;
+  // why FunctionReturnFormat and not MatrixArgFormat ?
+  // in case of a matrix, format could stay primitive to avoid fill the whole matrix with same format
+  format?: FunctionReturnFormat;
+};
 export type PrimitiveFunctionReturn = { value: CellValue; format?: PrimitiveFormat };
 
 // FORMULA OUTPUT
