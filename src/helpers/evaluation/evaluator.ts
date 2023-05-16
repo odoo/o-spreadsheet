@@ -182,18 +182,7 @@ export class Evaluator {
     }
 
     if (this.spreadingFormulas.has(rc)) {
-      for (const child of this.spreadingRelations.getArrayResultsRc(rc)) {
-        const content = this.rcToCell(child)?.content;
-        if (content) {
-          // there's no point at re-evaluating overlapping array formulas,
-          // there's still a collision
-          continue;
-        }
-        delete this.evaluatedCells[child];
-        extendSet(this.nextRcsToUpdate, this.getDependencyPrecedence(child));
-        extendSet(this.nextRcsToUpdate, this.overlappingArrayFormulas(child));
-      }
-      this.spreadingFormulas.delete(rc);
+      this.invalidateSpreading(rc);
     }
     this.spreadingRelations.removeNode(rc);
 
@@ -357,6 +346,21 @@ export class Evaluator {
       // if so, they need to be recomputed
       extendSet(this.nextRcsToUpdate, this.getDependencyPrecedence(rc));
     };
+  }
+
+  private invalidateSpreading(rc: string) {
+    for (const child of this.spreadingRelations.getArrayResultsRc(rc)) {
+      const content = this.rcToCell(child)?.content;
+      if (content) {
+        // there's no point at re-evaluating overlapping array formulas,
+        // there's still a collision
+        continue;
+      }
+      delete this.evaluatedCells[child];
+      extendSet(this.nextRcsToUpdate, this.getDependencyPrecedence(child));
+      extendSet(this.nextRcsToUpdate, this.overlappingArrayFormulas(child));
+    }
+    this.spreadingFormulas.delete(rc);
   }
 
   // ----------------------------------------------------------
