@@ -20,21 +20,33 @@ export class FormulaDependencyGraph {
    * - B2 ---> (A1)       meaning A1 depends on B2
    * - C1 ---> (C2)       meaning C2 depends on C1
    */
-  private readonly nodes: Map<string, Set<string>> = new Map();
+  private readonly inverseDependencies: Map<string, Set<string>> = new Map();
+  private readonly dependencies: Map<string, Set<string>> = new Map();
 
   removeAllDependencies(formulaRc) {
-    for (const value of this.nodes.values()) {
-      value.delete(formulaRc);
+    const dependencies = this.dependencies.get(formulaRc);
+    if (!dependencies) {
+      return;
     }
+    for (const dependency of dependencies) {
+      this.inverseDependencies.get(dependency)?.delete(formulaRc);
+    }
+    this.dependencies.delete(formulaRc);
   }
 
   addDependencies(formulaRc: string, dependencies: string[]): void {
     for (const dependency of dependencies) {
-      let node = this.nodes.get(dependency);
-      if (node) {
-        node.add(formulaRc);
+      const inverseDependencies = this.inverseDependencies.get(dependency);
+      if (inverseDependencies) {
+        inverseDependencies.add(formulaRc);
       } else {
-        this.nodes.set(dependency, new Set([formulaRc]));
+        this.inverseDependencies.set(dependency, new Set([formulaRc]));
+      }
+      const dependencies = this.dependencies.get(formulaRc);
+      if (dependencies) {
+        dependencies.add(dependency);
+      } else {
+        this.dependencies.set(formulaRc, new Set([dependency]));
       }
     }
   }
@@ -52,7 +64,7 @@ export class FormulaDependencyGraph {
       const node = queue.shift()!;
       visited.add(node);
 
-      const adjacentNodes = this.nodes.get(node) || new Set<string>();
+      const adjacentNodes = this.inverseDependencies.get(node) || new Set<string>();
       for (const adjacentNode of adjacentNodes) {
         if (!visited.has(adjacentNode)) {
           queue.push(adjacentNode);
