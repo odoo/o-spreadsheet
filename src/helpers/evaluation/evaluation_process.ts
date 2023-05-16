@@ -36,19 +36,18 @@ type PositionDict<T> = { [rc: string]: T };
 const MAX_CYCLE_ITERATION = 100;
 
 export class EvaluationProcess {
-  getters: Getters;
+  private getters: Getters;
   private compilationParams: CompilationParameters;
+
+  private evaluatedCells: PositionDict<EvaluatedCell> = {};
+  private formulaDependencies = new FormulaDependencyGraph();
+  private spreadingFormulas = new Set<string>();
+  private spreadingRelations = new SpreadingRelation();
 
   constructor(context: ModelConfig["custom"], getters: Getters) {
     this.getters = getters;
     this.compilationParams = buildCompilationParameters(context, getters, this.computeCell);
   }
-
-  private evaluatedCells: PositionDict<EvaluatedCell> = {};
-
-  private formulaDependencies = new FormulaDependencyGraph();
-  private spreadingFormulas = new Set<string>();
-  private spreadingRelations = new SpreadingRelation();
 
   getEvaluatedCellFromRc(rc: string): EvaluatedCell {
     return this.evaluatedCells[rc] || createEvaluatedCell("");
