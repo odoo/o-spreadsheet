@@ -184,7 +184,6 @@ export class Evaluator {
     if (this.spreadingFormulas.has(rc)) {
       this.invalidateSpreading(rc);
     }
-    this.spreadingRelations.removeNode(rc);
 
     const cell = this.rcToCell(rc);
     if (cell === undefined) {
@@ -361,6 +360,7 @@ export class Evaluator {
       extendSet(this.nextRcsToUpdate, this.overlappingArrayFormulas(child));
     }
     this.spreadingFormulas.delete(rc);
+    this.spreadingRelations.removeNode(rc);
   }
 
   // ----------------------------------------------------------
