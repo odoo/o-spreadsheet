@@ -36,12 +36,12 @@ export class SpreadingRelation {
   readonly resultsToArrayFormulas: Record<string, Set<string>> = {};
   readonly arrayFormulasToResults: Record<string, Set<string>> = {};
 
-  getArrayFormulasRc(resultRc: string): Set<string> {
-    return this.resultsToArrayFormulas[resultRc] || new Set<string>();
+  getArrayFormulasRc(resultRc: string): Iterable<string> {
+    return this.resultsToArrayFormulas[resultRc] || EMPTY_ARRAY;
   }
 
-  getArrayResultsRc(arrayFormulaRc: string): Set<string> {
-    return this.arrayFormulasToResults[arrayFormulaRc] || new Set<string>();
+  getArrayResultsRc(arrayFormulaRc: string): Iterable<string> {
+    return this.arrayFormulasToResults[arrayFormulaRc] || EMPTY_ARRAY;
   }
 
   /**
@@ -72,7 +72,9 @@ export class SpreadingRelation {
     this.arrayFormulasToResults[arrayFormulaRc].add(resultRc);
   }
 
-  hasArrayFormulaResult(rc: string): boolean {
+  isArrayFormulaResult(rc: string): boolean {
     return rc in this.resultsToArrayFormulas;
   }
 }
+
+const EMPTY_ARRAY = [] as const;
