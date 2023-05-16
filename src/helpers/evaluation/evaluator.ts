@@ -93,10 +93,10 @@ export class Evaluator {
       // if the content of a cell changes, we need to check:
       if (content) {
         // array formula might collision with the new content
-        const formulaRc = this.getSpreadingFormulaRc(rc);
-        if (formulaRc) {
+        const arrayFormulaRc = this.getSpreadingFormulaRc(rc);
+        if (arrayFormulaRc) {
           // compute array formula to take into account new collisions.
-          extendSet(cells, this.findCellsToCompute(formulaRc));
+          extendSet(cells, this.findCellsToCompute(arrayFormulaRc));
         }
       } else {
         // recompute formulas blocked by the old content.
