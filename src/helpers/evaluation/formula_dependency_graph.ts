@@ -1,13 +1,5 @@
 /**
- * This file contains structures used in the cell evaluation
- * to track relations between formula cells.
- */
-
-// TODO remove type
-type Node = Set<string>;
-
-/**
- * This class is an implementation of a directed Graph.
+ * This class is an implementation of a dependency Graph.
  * The graph is used to evaluate the cells in the correct
  * order, and should be updated each time a cell's content is modified
  *
@@ -28,7 +20,7 @@ export class FormulaDependencyGraph {
    * - B2 ---> (A1)       meaning A1 depends on B2
    * - C1 ---> (C2)       meaning C2 depends on C1
    */
-  private readonly nodes: Map<string, Node> = new Map();
+  private readonly nodes: Map<string, Set<string>> = new Map();
 
   removeAllDependencies(formulaRc) {
     for (const value of this.nodes.values()) {
