@@ -88,19 +88,12 @@ export class EvaluationProcess {
         // array formula might collision with the new content
         const formulaRc = this.getSpreadingFormulaRc(rc);
         if (formulaRc) {
-          // 1) if we write in an empty cell containing the spread of a formula.
-          //    In this case, it is necessary to indicate to recalculate the concerned
-          //    formula to take into account the new collisions.
+          // compute array formula to take into account new collisions.
           extendSet(cells, this.findCellsToCompute(formulaRc));
         }
       } else if (this.spreadingRelations.hasArrayFormulaResult(rc)) {
-        // 2) if we put an empty content on a cell which blocks the spread
-        //    of another formula.
-        //    In this case, it is necessary to indicate to recalculate formulas
-        //    that was blocked by the old content.
-        for (const arrayFormula of this.spreadingRelations.getArrayFormulasRc(rc)) {
-          extendSet(cells, this.findCellsToCompute(arrayFormula));
-        }
+        // recompute formulas  blocked by the old content.
+        extendSet(cells, this.overlappingArrayFormulas(rc));
       }
     }
     return cells;
@@ -134,6 +127,14 @@ export class EvaluationProcess {
       }
     }
     return cellsSet;
+  }
+
+  private overlappingArrayFormulas(rc: string): Iterable<string> {
+    const cells = new Set<string>();
+    for (const candidate of this.spreadingRelations.getArrayFormulasRc(rc)) {
+      extendSet(cells, this.findCellsToCompute(candidate));
+    }
+    return cells;
   }
 
   // ----------------------------------------------------------
@@ -190,9 +191,7 @@ export class EvaluationProcess {
         }
         delete this.evaluatedCells[child];
         extendSet(this.nextRcsToUpdate, this.getDependencyPrecedence(child));
-        for (const candidate of this.spreadingRelations.getArrayFormulasRc(child)) {
-          extendSet(this.nextRcsToUpdate, this.findCellsToCompute(candidate));
-        }
+        extendSet(this.nextRcsToUpdate, this.overlappingArrayFormulas(child));
       }
       this.spreadingFormulas.delete(rc);
     }
