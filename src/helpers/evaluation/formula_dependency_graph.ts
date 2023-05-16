@@ -44,7 +44,7 @@ export class FormulaDependencyGraph {
    * in the correct order they should be evaluated.
    * This is called a topological ordering (excluding cycles)
    */
-  getEvaluationOrder(rc: string): Set<string> {
+  getDependencyPrecedence(rc: string): Set<string> {
     const visited: Set<string> = new Set<string>();
     const queue: string[] = [rc];
 

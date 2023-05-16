@@ -73,10 +73,10 @@ export class EvaluationProcess {
   }
 
   evaluateCells(cells: Set<string>) {
-    this.evaluate(this.withOrderedDependencies(cells));
+    this.evaluate(this.withDependencyPrecedence(cells));
   }
 
-  private withOrderedDependencies(rcs: Iterable<string>): Set<string> {
+  private withDependencyPrecedence(rcs: Iterable<string>): Set<string> {
     const cells = new Set<string>();
 
     for (const rc of rcs) {
@@ -85,6 +85,7 @@ export class EvaluationProcess {
       const content = this.rcToCell(rc)?.content;
       // if the content of a cell changes, we need to check:
       if (content) {
+        // array formula might collision with the new content
         const formulaRc = this.getSpreadingFormulaRc(rc);
         if (formulaRc) {
           // 1) if we write in an empty cell containing the spread of a formula.
@@ -92,7 +93,7 @@ export class EvaluationProcess {
           //    formula to take into account the new collisions.
           extendSet(cells, this.findCellsToCompute(formulaRc));
         }
-      } else if (this.spreadingRelations.hasResult(rc)) {
+      } else if (this.spreadingRelations.hasArrayFormulaResult(rc)) {
         // 2) if we put an empty content on a cell which blocks the spread
         //    of another formula.
         //    In this case, it is necessary to indicate to recalculate formulas
@@ -183,8 +184,9 @@ export class EvaluationProcess {
       for (const child of this.spreadingRelations.getArrayResultsRc(rc)) {
         const content = this.rcToCell(child)?.content;
         if (!content) {
+          // free available cell
           delete this.evaluatedCells[child];
-          extendSet(this.nextRcsToUpdate, this.findChildrenToCompute(child));
+          extendSet(this.nextRcsToUpdate, this.getDependencyPrecedence(child));
           for (const candidate of this.spreadingRelations.getArrayFormulasRc(child)) {
             extendSet(this.nextRcsToUpdate, this.findCellsToCompute(candidate));
           }
@@ -216,7 +218,7 @@ export class EvaluationProcess {
     }
   };
 
-  private handleError = (e: Error | any, cell: Cell): EvaluatedCell => {
+  private handleError(e: Error | any, cell: Cell): EvaluatedCell {
     if (!(e instanceof Error)) {
       e = new Error(e);
     }
@@ -229,9 +231,9 @@ export class EvaluationProcess {
       e.logLevel !== undefined ? e.logLevel : CellErrorLevel.error
     );
     return errorCell(cell.content, error);
-  };
+  }
 
-  private computeFormulaCell = (cellData: FormulaCell): EvaluatedCell => {
+  private computeFormulaCell(cellData: FormulaCell): EvaluatedCell {
     const cellId = cellData.id;
     this.compilationParams[2].__originCellXC = () => {
       // compute the value lazily for performance reasons
@@ -268,7 +270,7 @@ export class EvaluationProcess {
 
     const formatFromPosition = formatFromPositionAccess(computedFormat);
     return createEvaluatedCell(computedValue[0][0], cellData.format || formatFromPosition(0, 0));
-  };
+  }
 
   private assertSheetHasEnoughSpaceToSpreadFormulaResult(
     { sheetId, col, row }: CellPosition,
@@ -352,7 +354,7 @@ export class EvaluationProcess {
 
       // check if formula dependencies present in the spread zone
       // if so, they need to be recomputed
-      extendSet(this.nextRcsToUpdate, this.findChildrenToCompute(rc));
+      extendSet(this.nextRcsToUpdate, this.getDependencyPrecedence(rc));
     };
   }
 
@@ -378,14 +380,14 @@ export class EvaluationProcess {
     return dependencies;
   }
 
-  private findChildrenToCompute(mainRc: string): Iterable<string> {
-    const cellsToCompute = this.formulaDependencies.getEvaluationOrder(mainRc);
-    cellsToCompute.delete(mainRc);
+  private getDependencyPrecedence(rc: string): Iterable<string> {
+    const cellsToCompute = this.formulaDependencies.getDependencyPrecedence(rc);
+    cellsToCompute.delete(rc);
     return cellsToCompute;
   }
 
-  private findCellsToCompute(mainRc: string): Iterable<string> {
-    return this.formulaDependencies.getEvaluationOrder(mainRc);
+  private findCellsToCompute(rc: string): Iterable<string> {
+    return this.formulaDependencies.getDependencyPrecedence(rc);
   }
 
   private rcToCell(rc: string): Cell | undefined {

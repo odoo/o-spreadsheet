@@ -72,7 +72,7 @@ export class SpreadingRelation {
     this.arrayFormulasToResults[arrayFormulaRc].add(resultRc);
   }
 
-  hasResult(rc: string): boolean {
+  hasArrayFormulaResult(rc: string): boolean {
     return rc in this.resultsToArrayFormulas;
   }
 }
