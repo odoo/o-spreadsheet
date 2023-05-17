@@ -536,3 +536,12 @@ export function moveItemToIndex<T>(array: T[], startIndex: number, targetIndex: 
   array.splice(targetIndex, 0, item);
   return array;
 }
+
+export class JetSet<T> extends Set<T> {
+  extend(iterable: Iterable<T>): this {
+    for (const element of iterable) {
+      this.add(element);
+    }
+    return this;
+  }
+}

@@ -424,7 +424,7 @@ export class EvaluationPlugin extends UIPlugin {
       return undefined;
     }
 
-    const spreadingFormulaRc = this.evaluator.getSpreadingFormulaRc(rc);
+    const spreadingFormulaRc = this.evaluator.getArrayFormulaSpreadingOn(rc);
 
     if (!spreadingFormulaRc) {
       return undefined;

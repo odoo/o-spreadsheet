@@ -25,6 +25,7 @@ import {
 } from "../../types/errors";
 import { createEvaluatedCell, errorCell, evaluateLiteral } from "../cells";
 import { toXC } from "../coordinates";
+import { JetSet } from "../misc";
 import { mapToPositionsInZone } from "../zones";
 import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
@@ -60,7 +61,10 @@ export class Evaluator {
     return this.evaluatedCells[rc] || createEvaluatedCell("");
   }
 
-  getSpreadingFormulaRc(rc: string): string | undefined {
+  getArrayFormulaSpreadingOn(rc: string): string | undefined {
+    if (!this.spreadingRelations.hasArrayFormulaResult(rc)) {
+      return undefined;
+    }
     const arrayFormulas = this.spreadingRelations.getArrayFormulasRc(rc);
     return Array.from(arrayFormulas).find((rc) => this.spreadingFormulas.has(rc));
   }
@@ -80,32 +84,31 @@ export class Evaluator {
   }
 
   evaluateCells(cells: Set<string>) {
-    this.evaluate(this.withDependencyPrecedence(cells));
+    const cellsToCompute = new JetSet<string>();
+    for (const cell of cells) {
+      cellsToCompute.extend(this.getCellsDependingOn(cell, "include-self"));
+    }
+    for (const cell of this.getCellsImpactedByChangesOf(cells)) {
+      cellsToCompute.extend(this.getCellsDependingOn(cell, "include-self"));
+    }
+    this.evaluate(cellsToCompute);
   }
 
-  private withDependencyPrecedence(rcs: Iterable<string>): Set<string> {
-    const cells = new Set<string>();
+  private getCellsImpactedByChangesOf(rcs: Iterable<string>): Iterable<string> {
+    const impactedRcs = new JetSet<string>();
 
     for (const rc of rcs) {
-      extendSet(cells, this.findCellsToCompute(rc));
-
       const content = this.rcToCell(rc)?.content;
-      // if the content of a cell changes, we need to check:
-      if (content) {
-        // array formula might collision with the new content
-        const arrayFormulaRc = this.getSpreadingFormulaRc(rc);
-        if (arrayFormulaRc) {
-          // compute array formula to take into account new collisions.
-          extendSet(cells, this.findCellsToCompute(arrayFormulaRc));
-        }
-      } else {
-        // recompute formulas blocked by the old content.
-        if (this.spreadingRelations.isArrayFormulaResult(rc)) {
-          extendSet(cells, this.overlappingArrayFormulas(rc));
-        }
+      const arrayFormulaRc = this.getArrayFormulaSpreadingOn(rc);
+      if (arrayFormulaRc) {
+        // take into account new collisions.
+        impactedRcs.add(arrayFormulaRc);
+      }
+      if (!content) {
+        impactedRcs.extend(this.getArrayFormulasBlockedByOrSpreadingOn(rc));
       }
     }
-    return cells;
+    return impactedRcs;
   }
 
   // ----------------------------------------------------------
@@ -127,8 +130,8 @@ export class Evaluator {
     this.evaluate(this.getAllCells());
   }
 
-  private getAllCells(): Set<string> {
-    const cellsSet = new Set<string>();
+  private getAllCells(): JetSet<string> {
+    const cellsSet = new JetSet<string>();
     for (const sheetId of this.getters.getSheetIds()) {
       const cells = this.getters.getCells(sheetId);
       for (const cellId in cells) {
@@ -138,10 +141,13 @@ export class Evaluator {
     return cellsSet;
   }
 
-  private overlappingArrayFormulas(rc: string): Iterable<string> {
-    const cells = new Set<string>();
+  private getArrayFormulasBlockedByOrSpreadingOn(rc: string): Iterable<string> {
+    if (!this.spreadingRelations.hasArrayFormulaResult(rc)) {
+      return [];
+    }
+    const cells = new JetSet<string>();
     for (const candidate of this.spreadingRelations.getArrayFormulasRc(rc)) {
-      extendSet(cells, this.findCellsToCompute(candidate));
+      cells.extend(this.getCellsDependingOn(candidate, "include-self"));
     }
     return cells;
   }
@@ -150,13 +156,13 @@ export class Evaluator {
   //                 EVALUATION MAIN PROCESS
   // ----------------------------------------------------------
 
-  private nextRcsToUpdate = new Set<string>();
+  private nextRcsToUpdate = new JetSet<string>();
   private cellsBeingComputed = new Set<UID>();
 
   /**
    * @param cells ordered topologically! TODO explain this better
    */
-  private evaluate(cells: Set<string>) {
+  private evaluate(cells: JetSet<string>) {
     this.cellsBeingComputed = new Set<UID>();
     this.nextRcsToUpdate = cells;
 
@@ -352,7 +358,7 @@ export class Evaluator {
 
       // check if formula dependencies present in the spread zone
       // if so, they need to be recomputed
-      extendSet(this.nextRcsToUpdate, this.findChildrenToCompute(rc));
+      this.nextRcsToUpdate.extend(this.getCellsDependingOn(rc));
     };
   }
 
@@ -365,8 +371,8 @@ export class Evaluator {
         continue;
       }
       delete this.evaluatedCells[child];
-      extendSet(this.nextRcsToUpdate, this.findChildrenToCompute(child));
-      extendSet(this.nextRcsToUpdate, this.overlappingArrayFormulas(child));
+      this.nextRcsToUpdate.extend(this.getCellsDependingOn(child));
+      this.nextRcsToUpdate.extend(this.getArrayFormulasBlockedByOrSpreadingOn(child));
     }
     this.spreadingFormulas.delete(rc);
     this.spreadingRelations.removeNode(rc);
@@ -394,24 +400,19 @@ export class Evaluator {
     return dependencies;
   }
 
-  private findChildrenToCompute(rc: string): Iterable<string> {
-    const cellsToCompute = this.formulaDependencies.getDependencyPrecedence(rc);
-    cellsToCompute.delete(rc);
-    return cellsToCompute;
-  }
-
-  private findCellsToCompute(rc: string): Iterable<string> {
-    return this.formulaDependencies.getDependencyPrecedence(rc);
+  private getCellsDependingOn(
+    rc: string,
+    include: "include-self" | "exclude-self" = "exclude-self"
+  ): Iterable<string> {
+    const rcs = this.formulaDependencies.getCellsDependingOn(rc);
+    if (include === "exclude-self") {
+      rcs.delete(rc);
+    }
+    return rcs;
   }
 
   private rcToCell(rc: string): Cell | undefined {
     return this.getters.getCell(rcToCellPosition(rc));
-  }
-}
-
-function extendSet<T>(destination: Set<T>, source: Iterable<T>) {
-  for (const element of source) {
-    destination.add(element);
   }
 }
 
