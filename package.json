@@ -133,6 +133,12 @@
     "*": "prettier --write"
   },
   "publishConfig": {
+<<<<<<< HEAD
     "tag": "alpha"
+||||||| parent of 272816df (temp)
+    "tag": "latest"
+=======
+    "tag": "16-2"
+>>>>>>> 272816df (temp)
   }
 }
