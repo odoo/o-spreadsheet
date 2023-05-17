@@ -133,6 +133,6 @@
     "*": "prettier --write"
   },
   "publishConfig": {
-    "tag": "latest"
+    "tag": "16-2"
   }
 }
