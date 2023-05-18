@@ -6,7 +6,7 @@ class MockResizeObserver {
   observe() {
     //@ts-ignore
     global.resizers.add(this);
-    this.cb();
+    Promise.resolve().then(() => this.cb());
   }
 
   unobserve() {

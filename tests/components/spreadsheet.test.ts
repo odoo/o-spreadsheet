@@ -1,6 +1,7 @@
-import { Model } from "../../src";
+import { Model, setDefaultSheetViewSize } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { Spreadsheet } from "../../src/components";
+import { getDefaultSheetViewSize } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
 import { toZone } from "../../src/helpers";
 import { SpreadsheetChildEnv } from "../../src/types";
@@ -254,6 +255,19 @@ test("Spreadsheet detects frozen panes that exceed the limit size at start", asy
   const model = new Model({ sheets: [{ panes: { xSplit: 12, ySplit: 50 } }] });
   ({ parent, fixture } = await mountSpreadsheet({ model }, { notifyUser }));
   expect(notifyUser).toHaveBeenCalled();
+});
+
+test("Warns user when viewport is too small for frozen panes but stops warning after resizing/Unmounted", async () => {
+  const originalViewSize = getDefaultSheetViewSize();
+
+  // Setting the sheet viewport size to 0 to represent the "real life" scenario where the default size is 0
+  setDefaultSheetViewSize(0);
+  const notifyUser = jest.fn();
+  const model = new Model({ sheets: [{ panes: { xSplit: 0, ySplit: 20 } }] });
+  ({ parent, fixture } = await mountSpreadsheet({ model }, { notifyUser }));
+  expect(notifyUser).toHaveBeenCalledTimes(0);
+
+  setDefaultSheetViewSize(originalViewSize);
 });
 
 test("Warn user only once when the viewport is too small for its frozen panes", async () => {
