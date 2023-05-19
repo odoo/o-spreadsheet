@@ -362,6 +362,9 @@ export class Evaluator {
   }
 
   private invalidateSpreading(rc: string) {
+    if (!this.spreadingRelations.isArrayFormula(rc)) {
+      return;
+    }
     for (const child of this.spreadingRelations.getArrayResultsRc(rc)) {
       const content = this.rcToCell(child)?.content;
       if (content) {

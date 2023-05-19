@@ -81,6 +81,10 @@ export class SpreadingRelation {
   hasArrayFormulaResult(rc: string): boolean {
     return rc in this.resultsToArrayFormulas;
   }
+
+  isArrayFormula(rc: string): boolean {
+    return rc in this.arrayFormulasToResults;
+  }
 }
 
 const EMPTY_ARRAY = [] as const;
