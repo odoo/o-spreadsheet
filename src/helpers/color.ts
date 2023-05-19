@@ -75,6 +75,15 @@ export function isColorValid(color: Color): boolean {
   }
 }
 
+export function isHSLAValid(color: HSLA): boolean {
+  try {
+    hslaToHex(color);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 const isColorValueValid = (v) => v >= 0 && v <= 255;
 
 export function rgba(r: number, g: number, b: number, a: number = 1): RGBA {
@@ -274,6 +283,39 @@ export function rgbaToHSLA(rgba: RGBA): HSLA {
   return { a: rgba.a, h, s, l };
 }
 
-export function isSameColor(color1: Color, color2: Color): boolean {
-  return isColorValid(color1) && isColorValid(color2) && toHex(color1) === toHex(color2);
+export function hslaToHex(hsla: HSLA): Color {
+  return rgbaToHex(hslaToRGBA(hsla));
+}
+
+export function hexToHSLA(hex: Color): HSLA {
+  return rgbaToHSLA(colorToRGBA(hex));
+}
+
+/**
+ * Will compare two color strings
+ * A tolerance can be provided to account for small differences that could
+ * be introduced by non-bijective transformations between color spaces.
+ *
+ * E.g. HSV <-> RGB is not a bijection
+ *
+ * Note that the tolerance is applied on the euclidean distance between
+ * the two **normalized** color values.
+ */
+export function isSameColor(color1: Color, color2: Color, tolerance: number = 0): boolean {
+  if (!(isColorValid(color1) && isColorValid(color2))) {
+    return false;
+  }
+
+  const rgb1 = colorToRGBA(color1);
+  const rgb2 = colorToRGBA(color2);
+
+  // alpha cannot differ as it is not impacted by transformations
+  if (rgb1.a !== rgb2.a) {
+    return false;
+  }
+
+  const diff = Math.sqrt(
+    ((rgb1.r - rgb2.r) / 255) ** 2 + ((rgb1.g - rgb2.g) / 255) ** 2 + ((rgb1.b - rgb2.b) / 255) ** 2
+  );
+  return diff <= tolerance;
 }

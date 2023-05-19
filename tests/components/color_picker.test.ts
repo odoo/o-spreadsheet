@@ -2,7 +2,7 @@ import { Component, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { ColorPicker, ColorPickerProps } from "../../src/components/color_picker/color_picker";
 import { toHex } from "../../src/helpers";
-import { SpreadsheetChildEnv } from "../../src/types";
+import { Color, SpreadsheetChildEnv } from "../../src/types";
 import { setStyle } from "../test_helpers/commands_helpers";
 import {
   getElComputedStyle,
@@ -97,7 +97,9 @@ describe("Color Picker buttons", () => {
     setInputValueAndTrigger(".o-custom-input-preview input", color, "input");
     await nextTick();
     const previewColor = toHex(getElComputedStyle(".o-color-preview", "backgroundColor"));
-    expect(previewColor).toEqual(color);
+    // hex <-> hsla is not a bijection, this specific color
+    // is not exactly the same when processed
+    expect(previewColor).toBeSameColorAs(color, 0.01);
     await simulateClick(".o-add-button");
     expect(onColorPicked).toHaveBeenCalledWith(color);
   });
@@ -118,11 +120,14 @@ describe("Color Picker buttons", () => {
     const onColorPicked = jest.fn();
     await mountColorPicker({ onColorPicked });
     await simulateClick(".o-color-picker-toggler");
-    setInputValueAndTrigger(".o-custom-input-preview input", "this is not a color", "input");
+    const target = document.querySelector(".o-custom-input-preview input");
+    setInputValueAndTrigger(target, "this is not a color", "input");
     await nextTick();
-    expect(fixture.querySelector(".o-wrong-color")).toBeNull();
-    await simulateClick(".o-add-button");
+
     expect(fixture.querySelector(".o-wrong-color")).not.toBeNull();
+    const addButton = fixture.querySelector(".o-add-button")!;
+    expect(addButton.classList).toContain("o-disabled");
+    await simulateClick(addButton);
     expect(onColorPicked).not.toHaveBeenCalled();
   });
 
@@ -165,5 +170,36 @@ describe("Color Picker buttons", () => {
     await mountColorPicker({ currentColor: "#45818e", maxHeight: 0 });
     const picker = fixture.querySelector<HTMLElement>(".o-color-picker")!;
     expect(picker.style["display"]).toEqual("none");
+  });
+
+  test.each([
+    "#fff",
+    "fff",
+    "#FFFFFF00", // Hex + alpha
+  ])("Can input a custom HEX code, alpha is ignored", async (hexCode) => {
+    await mountColorPicker();
+    await simulateClick(".o-color-picker-toggler");
+
+    const inputTarget = fixture.querySelector(".o-custom-input-preview input")!;
+    setInputValueAndTrigger(inputTarget, hexCode as Color, "input");
+    await nextTick();
+    expect((inputTarget as HTMLInputElement).value).toBeSameColorAs(hexCode.slice(0, 7));
+    const addButton = fixture.querySelector(".o-add-button")!;
+    expect(addButton.classList).not.toContain("o-disabled");
+  });
+
+  test.each([
+    "rgb(1,1,1)", // rgb
+    "rgb(1,1,1,0.5)", // rgba
+  ])("refuse non strictly HEX codes", async (hexCode) => {
+    await mountColorPicker();
+    await simulateClick(".o-color-picker-toggler");
+
+    const inputTarget = fixture.querySelector(".o-custom-input-preview input")!;
+    setInputValueAndTrigger(inputTarget, hexCode as Color, "input");
+    await nextTick();
+    expect((inputTarget as HTMLInputElement).value).toBe(hexCode.slice(0, 7));
+    const addButton = fixture.querySelector(".o-add-button")!;
+    expect(addButton.classList).toContain("o-disabled");
   });
 });

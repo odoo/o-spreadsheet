@@ -459,21 +459,51 @@ exports[`Color Picker buttons Full component rendering 1`] = `
     class="o-custom-selector"
   >
     <div
-      class="o-magnifier-glass"
-      style="display:none; left:0; top:0;"
-    />
-    <div
       class="o-gradient"
-    />
+      style="background:hsl(0 100% 50%);"
+    >
+      <div
+        class="saturation w-100 h-100 position-absolute pe-none"
+      />
+      <div
+        class="lightness w-100 h-100 position-absolute pe-none"
+      />
+      <div
+        class="magnifier pe-none"
+        style="left:-8px; top:178px; background:#000000;"
+      />
+    </div>
+    <div
+      class="o-hue-container"
+    >
+      <div
+        class="o-hue-picker"
+      />
+      <div
+        class="o-hue-slider pe-none"
+        style="margin-left:-8px;"
+      >
+        <svg
+          class="o-icon"
+        >
+          <polygon
+            fill="currentColor"
+            points="4 0 0 4 8 4"
+            transform="translate(5 7)"
+          />
+        </svg>
+      </div>
+    </div>
     <div
       class="o-custom-input-preview"
     >
       <input
+        maxlength="7"
         type="text"
       />
       <div
         class="o-color-preview"
-        style="background-color:#000000"
+        style="background-color:#000000;"
       />
     </div>
     <div
@@ -482,7 +512,7 @@ exports[`Color Picker buttons Full component rendering 1`] = `
       <button
         class="o-add-button"
       >
-        Add
+         Add 
       </button>
     </div>
   </div>
@@ -496,7 +526,7 @@ exports[`Color Picker buttons Full component rendering 1`] = `
     <button
       class="o-cancel"
     >
-      Reset
+      No Color
     </button>
   </div>
 </div>
