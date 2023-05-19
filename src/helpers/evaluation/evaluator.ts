@@ -88,13 +88,11 @@ export class Evaluator {
   }
 
   evaluateCells(cells: Set<string>) {
-    const cellsToCompute = new JetSet<string>();
-    for (const cell of cells) {
-      cellsToCompute.add(...this.getCellsDependingOn(cell, "include-self"));
-    }
-    for (const cell of this.getArrayFormulasImpactedByChangesOf(cells)) {
-      cellsToCompute.add(...this.getCellsDependingOn(cell, "include-self"));
-    }
+    const cellsToCompute = new JetSet<string>(cells);
+    const arrayFormulas = this.getArrayFormulasImpactedByChangesOf(cells);
+    cellsToCompute.add(...this.getCellsDependingOn(cells));
+    cellsToCompute.add(...arrayFormulas);
+    cellsToCompute.add(...this.getCellsDependingOn(arrayFormulas));
     this.evaluate(cellsToCompute);
   }
 
@@ -150,10 +148,9 @@ export class Evaluator {
     if (!this.spreadingRelations.hasArrayFormulaResult(rc)) {
       return [];
     }
-    const cells = new JetSet<string>();
-    for (const candidate of this.spreadingRelations.getArrayFormulasRc(rc)) {
-      cells.add(...this.getCellsDependingOn(candidate, "include-self"));
-    }
+    const arrayFormulas = this.spreadingRelations.getArrayFormulasRc(rc);
+    const cells = new JetSet<string>(arrayFormulas);
+    cells.add(...this.getCellsDependingOn(arrayFormulas));
     return cells;
   }
 
@@ -173,14 +170,14 @@ export class Evaluator {
 
     let currentIteration = 0;
     while (this.nextRcsToUpdate.size && currentIteration++ < MAX_ITERATION) {
-      const arr = Array.from(this.nextRcsToUpdate);
+      const rcs = Array.from(this.nextRcsToUpdate);
       this.nextRcsToUpdate.clear();
-      for (let i = 0; i < arr.length; ++i) {
-        const cell = arr[i];
+      for (let i = 0; i < rcs.length; ++i) {
+        const cell = rcs[i];
         delete this.evaluatedCells[cell];
       }
-      for (let i = 0; i < arr.length; ++i) {
-        const cell = arr[i];
+      for (let i = 0; i < rcs.length; ++i) {
+        const cell = rcs[i];
         this.setEvaluatedCell(cell, this.computeCell(cell));
       }
     }
@@ -361,7 +358,7 @@ export class Evaluator {
 
       // check if formula dependencies present in the spread zone
       // if so, they need to be recomputed
-      this.nextRcsToUpdate.add(...this.getCellsDependingOn(rc));
+      this.nextRcsToUpdate.add(...this.getCellsDependingOn([rc]));
     };
   }
 
@@ -377,7 +374,7 @@ export class Evaluator {
         continue;
       }
       delete this.evaluatedCells[child];
-      this.nextRcsToUpdate.add(...this.getCellsDependingOn(child));
+      this.nextRcsToUpdate.add(...this.getCellsDependingOn([child]));
       this.nextRcsToUpdate.add(...this.getArrayFormulasBlockedByOrSpreadingOn(child));
     }
     this.spreadingRelations.removeNode(rc);
@@ -405,15 +402,8 @@ export class Evaluator {
     return dependencies;
   }
 
-  private getCellsDependingOn(
-    rc: string,
-    include: "include-self" | "exclude-self" = "exclude-self"
-  ): Iterable<string> {
-    const rcs = this.formulaDependencies.getCellsDependingOn(rc);
-    if (include === "exclude-self") {
-      rcs.delete(rc);
-    }
-    return rcs;
+  private getCellsDependingOn(rcs: Iterable<string>): Iterable<string> {
+    return this.formulaDependencies.getCellsDependingOn(rcs);
   }
 
   private rcToCell(rc: string): Cell | undefined {

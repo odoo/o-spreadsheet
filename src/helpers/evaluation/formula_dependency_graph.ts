@@ -1,3 +1,5 @@
+import { JetSet } from "../misc";
+
 /**
  * This class is an implementation of a dependency Graph.
  * The graph is used to evaluate the cells in the correct
@@ -56,9 +58,9 @@ export class FormulaDependencyGraph {
    * in the correct order they should be evaluated.
    * This is called a topological ordering (excluding cycles)
    */
-  getCellsDependingOn(rc: string): Set<string> {
-    const visited: Set<string> = new Set<string>();
-    const queue: string[] = [rc];
+  getCellsDependingOn(rcs: Iterable<string>): Set<string> {
+    const visited: JetSet<string> = new JetSet<string>();
+    const queue: string[] = Array.from(rcs);
 
     while (queue.length > 0) {
       const node = queue.shift()!;
@@ -71,7 +73,7 @@ export class FormulaDependencyGraph {
         }
       }
     }
-
+    visited.delete(...rcs);
     return visited;
   }
 }

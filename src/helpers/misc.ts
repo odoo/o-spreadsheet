@@ -544,4 +544,11 @@ export class JetSet<T> extends Set<T> {
     }
     return this;
   }
+  delete(...iterable: T[]): boolean {
+    let deleted = false;
+    for (const element of iterable) {
+      deleted ||= super.delete(element);
+    }
+    return deleted;
+  }
 }
