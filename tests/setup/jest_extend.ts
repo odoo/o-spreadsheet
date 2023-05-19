@@ -23,7 +23,7 @@ declare global {
       toBeCancelledBecause(...expected: CancelledReason[]): R;
       toBeSuccessfullyDispatched(): R;
       toBeBetween(lower: number, upper: number): R;
-      toBeSameColorAs(expected: string): R;
+      toBeSameColorAs(expected: string, tolerance?: number): R;
     }
   }
 }
@@ -133,9 +133,12 @@ CancelledReasons: ${this.utils.printReceived(dispatchResult.reasons)}
     }
     return { pass: true, message: () => "" };
   },
-  toBeSameColorAs(received: string, expected: string) {
-    const pass = isSameColor(received, expected); //
-    const message = () => (pass ? "" : `Expected ${received} to be equivalent to ${expected}`);
+  toBeSameColorAs(received: string, expected: string, tolerance: number = 0) {
+    const pass = isSameColor(received, expected, tolerance);
+    const message = () =>
+      pass
+        ? ""
+        : `Expected ${received} to be equivalent to ${expected} with a tolerance of ${tolerance}`;
     return {
       pass,
       message,
