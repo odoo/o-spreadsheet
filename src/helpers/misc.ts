@@ -538,9 +538,9 @@ export function moveItemToIndex<T>(array: T[], startIndex: number, targetIndex: 
 }
 
 export class JetSet<T> extends Set<T> {
-  extend(iterable: Iterable<T>): this {
+  add(...iterable: T[]): this {
     for (const element of iterable) {
-      this.add(element);
+      super.add(element);
     }
     return this;
   }

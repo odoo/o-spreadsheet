@@ -86,10 +86,10 @@ export class Evaluator {
   evaluateCells(cells: Set<string>) {
     const cellsToCompute = new JetSet<string>();
     for (const cell of cells) {
-      cellsToCompute.extend(this.getCellsDependingOn(cell, "include-self"));
+      cellsToCompute.add(...this.getCellsDependingOn(cell, "include-self"));
     }
     for (const cell of this.getCellsImpactedByChangesOf(cells)) {
-      cellsToCompute.extend(this.getCellsDependingOn(cell, "include-self"));
+      cellsToCompute.add(...this.getCellsDependingOn(cell, "include-self"));
     }
     this.evaluate(cellsToCompute);
   }
@@ -106,7 +106,7 @@ export class Evaluator {
       }
       if (!content) {
         // The previous content could have blocked some array formulas
-        impactedRcs.extend(this.getArrayFormulasBlockedByOrSpreadingOn(rc));
+        impactedRcs.add(...this.getArrayFormulasBlockedByOrSpreadingOn(rc));
       }
     }
     return impactedRcs;
@@ -148,7 +148,7 @@ export class Evaluator {
     }
     const cells = new JetSet<string>();
     for (const candidate of this.spreadingRelations.getArrayFormulasRc(rc)) {
-      cells.extend(this.getCellsDependingOn(candidate, "include-self"));
+      cells.add(...this.getCellsDependingOn(candidate, "include-self"));
     }
     return cells;
   }
@@ -356,7 +356,7 @@ export class Evaluator {
 
       // check if formula dependencies present in the spread zone
       // if so, they need to be recomputed
-      this.nextRcsToUpdate.extend(this.getCellsDependingOn(rc));
+      this.nextRcsToUpdate.add(...this.getCellsDependingOn(rc));
     };
   }
 
@@ -369,8 +369,8 @@ export class Evaluator {
         continue;
       }
       delete this.evaluatedCells[child];
-      this.nextRcsToUpdate.extend(this.getCellsDependingOn(child));
-      this.nextRcsToUpdate.extend(this.getArrayFormulasBlockedByOrSpreadingOn(child));
+      this.nextRcsToUpdate.add(...this.getCellsDependingOn(child));
+      this.nextRcsToUpdate.add(...this.getArrayFormulasBlockedByOrSpreadingOn(child));
     }
     this.spreadingFormulas.delete(rc);
     this.spreadingRelations.removeNode(rc);
