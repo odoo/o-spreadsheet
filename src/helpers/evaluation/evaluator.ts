@@ -54,7 +54,11 @@ export class Evaluator {
 
   constructor(context: ModelConfig["custom"], getters: Getters) {
     this.getters = getters;
-    this.compilationParams = buildCompilationParameters(context, getters, this.computeCell);
+    this.compilationParams = buildCompilationParameters(
+      context,
+      getters,
+      this.computeCell.bind(this)
+    );
   }
 
   getEvaluatedCellFromRc(rc: string): EvaluatedCell {
@@ -182,14 +186,14 @@ export class Evaluator {
     }
   }
 
-  private setEvaluatedCell = (rc: string, evaluatedCell: EvaluatedCell) => {
+  private setEvaluatedCell(rc: string, evaluatedCell: EvaluatedCell) {
     if (this.nextRcsToUpdate.has(rc)) {
       this.nextRcsToUpdate.delete(rc);
     }
     this.evaluatedCells[rc] = evaluatedCell;
-  };
+  }
 
-  private computeCell = (rc: string): EvaluatedCell => {
+  private computeCell(rc: string): EvaluatedCell {
     const evaluation = this.evaluatedCells[rc];
     if (evaluation) {
       return evaluation; // already computed
@@ -219,7 +223,7 @@ export class Evaluator {
     } finally {
       this.cellsBeingComputed.delete(cellId);
     }
-  };
+  }
 
   private handleError(e: Error | any, cell: Cell): EvaluatedCell {
     if (!(e instanceof Error)) {
