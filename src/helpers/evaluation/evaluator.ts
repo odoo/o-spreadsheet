@@ -136,14 +136,14 @@ export class Evaluator {
   }
 
   private getAllCells(): JetSet<string> {
-    const cellsSet = new JetSet<string>();
+    const rcs = new JetSet<string>();
     for (const sheetId of this.getters.getSheetIds()) {
-      const cells = this.getters.getCells(sheetId);
-      for (const cellId in cells) {
-        cellsSet.add(cellPositionToRc(this.getters.getCellPosition(cellId)));
+      const cellIds = this.getters.getCells(sheetId);
+      for (const cellId in cellIds) {
+        rcs.add(cellPositionToRc(this.getters.getCellPosition(cellId)));
       }
     }
-    return cellsSet;
+    return rcs;
   }
 
   private getArrayFormulasBlockedByOrSpreadingOn(rc: string): Iterable<string> {
