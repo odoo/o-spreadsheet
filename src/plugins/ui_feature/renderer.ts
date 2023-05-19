@@ -135,7 +135,6 @@ export class RendererPlugin extends UIPlugin {
         break;
     }
   }
-
   private drawBackground(renderingContext: GridRenderingContext) {
     const { ctx, thinLineWidth } = renderingContext;
     const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
@@ -296,7 +295,7 @@ export class RendererPlugin extends UIPlugin {
     for (let box of this.boxes) {
       if (box.content) {
         const style = box.style || {};
-        const align = box.content.align || "left";
+        let align = box.content.align || "left";
 
         // compute font and textColor
         const font = computeTextFont(style);
@@ -307,6 +306,10 @@ export class RendererPlugin extends UIPlugin {
         ctx.fillStyle = style.textColor || "#000";
 
         // compute horizontal align start point parameter
+        if (this.getters.isSheetDirectionRtl(this.getters.getActiveSheetId())) {
+          if (align === "left") align = "right";
+          else if (align === "right") align = "left";
+        }
         let x = box.x;
         if (align === "left") {
           x += MIN_CELL_TEXT_MARGIN + (box.image ? box.image.size + MIN_CF_ICON_MARGIN : 0);
@@ -339,7 +342,23 @@ export class RendererPlugin extends UIPlugin {
         // use the horizontal and the vertical start points to:
         // fill text / fill strikethrough / fill underline
         for (let brokenLine of box.content.textLines) {
-          ctx.fillText(brokenLine, Math.round(x), Math.round(y));
+          if (this.getters.isSheetDirectionRtl(this.getters.getActiveSheetId())) {
+            ctx.save();
+            ctx.scale(-1, 1); // Flip horizontally
+            const textWidth = ctx.measureText(brokenLine).width;
+            let adjustedX;
+            if (align === "left") {
+              adjustedX = -(Math.round(x) + textWidth);
+            } else if (align === "right") {
+              adjustedX = -(Math.round(x) - textWidth);
+            } else {
+              adjustedX = -Math.round(x);
+            }
+            ctx.fillText(brokenLine, adjustedX, Math.round(y));
+            ctx.restore();
+          } else {
+            ctx.fillText(brokenLine, Math.round(x), Math.round(y));
+          }
           if (style.strikethrough || style.underline) {
             const lineWidth = computeTextWidth(ctx, brokenLine, style);
             let _x = x;
@@ -490,9 +509,17 @@ export class RendererPlugin extends UIPlugin {
       const colName = numberToLetters(i);
       ctx.fillStyle = activeCols.has(i) ? "#fff" : TEXT_HEADER_COLOR;
       let colStart = this.getHeaderOffset("COL", left, i);
-      ctx.fillText(colName, colStart + colSize / 2, HEADER_HEIGHT / 2);
       ctx.moveTo(colStart + colSize, 0);
       ctx.lineTo(colStart + colSize, HEADER_HEIGHT);
+      if (this.getters.isSheetDirectionRtl(this.getters.getActiveSheetId())) {
+        ctx.save();
+        ctx.translate(colStart + colSize / 2, HEADER_HEIGHT / 2);
+        ctx.scale(-1, 1); // Flip horizontally
+        ctx.fillText(colName, 0, 0);
+        ctx.restore();
+      } else {
+        ctx.fillText(colName, colStart + colSize / 2, HEADER_HEIGHT / 2);
+      }
     }
     // row text + separator
     for (const i of visibleRows) {
@@ -500,7 +527,21 @@ export class RendererPlugin extends UIPlugin {
       ctx.fillStyle = activeRows.has(i) ? "#fff" : TEXT_HEADER_COLOR;
 
       let rowStart = this.getHeaderOffset("ROW", top, i);
-      ctx.fillText(String(i + 1), HEADER_WIDTH / 2, rowStart + rowSize / 2);
+      if (this.getters.isSheetDirectionRtl(this.getters.getActiveSheetId())) {
+        ctx.save();
+        ctx.translate(HEADER_WIDTH / 2, rowStart + rowSize / 2);
+        ctx.scale(-1, 1); // Flip vertically
+        ctx.fillText(String(i + 1), 0, 0);
+        ctx.restore();
+      } else {
+        ctx.fillText(String(i + 1), HEADER_WIDTH / 2, rowStart + rowSize / 2);
+      }
+    }
+
+    // row separator
+    for (const i of visibleRows) {
+      const rowSize = this.getters.getRowSize(sheetId, i);
+      let rowStart = this.getHeaderOffset("ROW", top, i);
       ctx.moveTo(0, rowStart + rowSize);
       ctx.lineTo(HEADER_WIDTH, rowStart + rowSize);
     }

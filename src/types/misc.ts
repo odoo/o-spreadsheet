@@ -95,6 +95,8 @@ export type VerticalAlign = "top" | "middle" | "bottom" | undefined;
 
 export type Wrapping = "overflow" | "wrap" | "clip" | undefined;
 
+export type Direction = "rtl" | "ltr" | undefined;
+
 export interface Style {
   bold?: boolean;
   italic?: boolean;
@@ -106,6 +108,7 @@ export interface Style {
   fillColor?: Color;
   textColor?: Color;
   fontSize?: number; // in pt, not in px!
+  direction?: Direction;
 }
 
 export interface UpdateCellData {
@@ -123,6 +126,7 @@ export interface Sheet {
   areGridLinesVisible: boolean;
   isVisible: boolean;
   panes: PaneDivision;
+  directionStatus: boolean;
 }
 
 export interface CellPosition {

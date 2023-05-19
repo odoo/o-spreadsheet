@@ -205,6 +205,7 @@ export function addSheetViews(sheet: ExcelSheetData) {
 
   const sheetViewAttrs: XMLAttributes = [
     ["showGridLines", sheet.areGridLinesVisible ? 1 : 0],
+    ["sheetDirection", sheet.directionStatus ? 0 : 1],
     ["workbookViewId", 0],
   ];
 

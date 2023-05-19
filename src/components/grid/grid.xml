@@ -2,6 +2,7 @@
   <t t-name="o-spreadsheet-Grid" owl="1">
     <div
       class="o-grid"
+      t-att-style="getStyle"
       tabindex="-1"
       t-att-class="{'o-two-columns': !props.sidePanelIsOpen}"
       t-on-click="focus"

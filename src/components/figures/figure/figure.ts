@@ -166,6 +166,16 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
+  get figureDirection() {
+    let tempProperty: string = "";
+    if (this.env.model.getters.isSheetDirectionRtl(this.env.model.getters.getActiveSheetId())) {
+      tempProperty = cssPropertiesToCss({
+        transform: "scaleX(-1)",
+      });
+    }
+    return this.props.style + "" + tempProperty;
+  }
+
   getResizerPosition(resizer: ResizeAnchor): string {
     const anchorCenteringOffset = (ANCHOR_SIZE - ACTIVE_BORDER_WIDTH) / 2;
     let style: CSSProperties = {};

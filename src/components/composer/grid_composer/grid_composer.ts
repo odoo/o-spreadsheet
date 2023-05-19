@@ -1,4 +1,4 @@
-import { Component, onMounted, onWillUpdateProps, useRef, useState } from "@odoo/owl";
+import { Component, onMounted, onPatched, onWillUpdateProps, useRef, useState } from "@odoo/owl";
 import { ComponentsImportance, SELECTION_BORDER_COLOR } from "../../../constants";
 import {
   deepEquals,
@@ -51,7 +51,9 @@ interface Props {
   onComposerContentFocused: (selection: ComposerSelection) => void;
   gridDims: DOMDimension;
 }
-
+interface mystate {
+  direction: string | undefined;
+}
 /**
  * This component is a composer which positions itself on the grid at the anchor cell.
  * It also applies the style of the cell to the composer input.
@@ -67,6 +69,10 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   private isCellReferenceVisible!: boolean;
 
   private composerState!: ComposerState;
+
+  state: mystate = useState({
+    direction: "ltr",
+  });
 
   setup() {
     this.gridComposerRef = useRef("gridComposer");
@@ -92,6 +98,12 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
         height: el!.parentElement!.clientHeight,
       };
     });
+    onPatched(() => {
+      this.state.direction =
+        this.env.model.getters.getCellComputedStyle(this.env.model.getters.getActivePosition())
+          .direction || "ltr";
+    });
+
     onWillUpdateProps(() => {
       if (this.isCellReferenceVisible) {
         return;
@@ -126,6 +138,32 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       left: `${left - COMPOSER_BORDER_WIDTH}px`,
       top: `${top - GRID_CELL_REFERENCE_TOP_OFFSET}px`,
     });
+  }
+
+  get getDirection() {
+    const isRTL = this.env.model.getters.isSheetDirectionRtl(
+      this.env.model.getters.getActiveSheetId()
+    );
+    const isFormula = this.env.model.getters.getCurrentContent().startsWith("=");
+    if (!isFormula || isRTL) {
+      if (
+        !this.env.model.getters.getCellComputedStyle(this.env.model.getters.getActivePosition())
+          .align &&
+        this.state.direction === "rtl"
+      ) {
+        this.env.model.dispatch("SET_FORMATTING", {
+          sheetId: this.env.model.getters.getActiveSheetId(),
+          target: this.env.model.getters.getSelectedZones(),
+          style: { align: "right" },
+        });
+      }
+      const cssProperties = {
+        direction: this.state.direction,
+        "text-align": this.state.direction === "ltr" ? "left !important" : "right !important",
+        transform: isRTL ? "scaleX(-1)" : "none",
+      };
+      return cssPropertiesToCss(cssProperties) + " " + this.containerStyle;
+    } else return this.containerStyle;
   }
 
   get containerStyle(): string {

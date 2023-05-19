@@ -63,10 +63,8 @@ css/* scss */ `
       overflow-x: hidden;
       word-break: break-all;
       padding-right: 2px;
-
       box-sizing: border-box;
       font-family: ${DEFAULT_FONT};
-
       caret-color: black;
       padding-left: 3px;
       padding-right: 3px;
@@ -227,7 +225,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       // Prevent the default content editable behavior which moves the cursor
       ev.preventDefault();
       ev.stopPropagation();
-      updateSelectionWithArrowKeys(ev, this.env.model.selection);
+      updateSelectionWithArrowKeys(ev, this.env);
       return;
     }
     const content = this.env.model.getters.getCurrentContent();

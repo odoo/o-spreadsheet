@@ -232,6 +232,7 @@ export interface XLSXSheetView {
   showGridLines: boolean;
   showRowColHeaders: boolean;
   pane: PaneDivision;
+  sheetDirection: boolean;
 }
 
 export interface XLSXSheetFormat {

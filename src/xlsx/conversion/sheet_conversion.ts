@@ -27,6 +27,7 @@ export function convertSheets(
     return {
       id: sheet.sheetName,
       areGridLinesVisible: sheetOptions ? sheetOptions.showGridLines : true,
+      directionStatus: sheetOptions ? sheetOptions.sheetDirection : true,
       name: sheet.sheetName,
       colNumber: sheetDims[0],
       rowNumber: sheetDims[1],

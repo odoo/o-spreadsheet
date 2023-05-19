@@ -163,6 +163,14 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
+  get getStyle() {
+    if (this.env.model.getters.isSheetDirectionRtl(this.env.model.getters.getActiveSheetId())) {
+      return cssPropertiesToCss({
+        transform: "scaleX(-1)",
+      });
+    }
+    return;
+  }
   onClosePopover() {
     if (this.env.model.getters.hasOpenedPopover()) {
       this.closeOpenedPopover();
@@ -445,6 +453,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     let prevRow = row;
 
     const onMouseMove = (col: HeaderIndex, row: HeaderIndex) => {
+      if (this.env.model.getters.isSheetDirectionRtl(this.env.model.getters.getActiveSheetId())) {
+        const visibleCols = this.env.model.getters.getSheetViewVisibleCols();
+        const lastVisibleCol = visibleCols[visibleCols.length - 1];
+        col = lastVisibleCol - col;
+      }
       if ((col !== prevCol && col != -1) || (row !== prevRow && row != -1)) {
         prevCol = col === -1 ? prevCol : col;
         prevRow = row === -1 ? prevRow : row;
@@ -487,7 +500,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.closeOpenedPopover();
     }
 
-    updateSelectionWithArrowKeys(ev, this.env.model.selection);
+    updateSelectionWithArrowKeys(ev, this.env);
 
     if (this.env.model.getters.isPaintingFormat()) {
       this.env.model.dispatch("PASTE", {

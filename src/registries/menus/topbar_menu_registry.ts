@@ -339,14 +339,31 @@ topbarMenuRegistry
     ...ACTION_FORMAT.formatWrappingClip,
     sequence: 30,
   })
+  .addChild("direction", ["format"], {
+    ...ACTION_FORMAT.formatDirection,
+    sequence: 90,
+  })
+  .addChild("direction", ["format", "direction"], {
+    ...ACTION_FORMAT.formatDirectionSheetLeft,
+    sequence: 10,
+    separator: true,
+  })
+  .addChild("direction", ["format", "direction"], {
+    ...ACTION_FORMAT.formatDirectionLeft,
+    sequence: 20,
+  })
+  .addChild("direction", ["format", "direction"], {
+    ...ACTION_FORMAT.formatDirectionRight,
+    sequence: 30,
+  })
   .addChild("format_cf", ["format"], {
     ...ACTION_FORMAT.formatCF,
-    sequence: 90,
+    sequence: 100,
     separator: true,
   })
   .addChild("format_clearFormat", ["format"], {
     ...ACTION_FORMAT.clearFormat,
-    sequence: 100,
+    sequence: 110,
     separator: true,
   })
 

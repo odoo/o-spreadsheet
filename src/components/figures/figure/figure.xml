@@ -6,7 +6,7 @@
         t-on-mousedown.stop="(ev) => this.onMouseDown(ev)"
         t-on-contextmenu.prevent.stop="(ev) => !env.model.getters.isReadonly() and this.onContextMenu(ev)"
         t-ref="figure"
-        t-att-style="props.style"
+        t-att-style="figureDirection"
         t-att-data-id="props.figure.id"
         tabindex="0"
         t-on-keydown="(ev) => this.onKeyDown(ev)"

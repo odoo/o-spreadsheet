@@ -6,7 +6,7 @@
       t-att-style="cellReferenceStyle"
       t-esc="cellReference"
     />
-    <div class="o-grid-composer" t-att-style="containerStyle" t-ref="gridComposer">
+    <div class="o-grid-composer" t-att-style="getDirection" t-ref="gridComposer">
       <Composer
         focus="props.focus"
         inputStyle="composerStyle"

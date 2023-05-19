@@ -77,6 +77,9 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
           showGridLines: this.extractAttr(sheetViewElement, "showGridLines", {
             default: true,
           }).asBool(),
+          sheetDirection: this.extractAttr(sheetViewElement, "sheetDirection", {
+            default: true,
+          }).asBool(),
           showRowColHeaders: this.extractAttr(sheetViewElement, "showRowColHeaders", {
             default: true,
           }).asBool(),

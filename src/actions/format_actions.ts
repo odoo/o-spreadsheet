@@ -1,6 +1,6 @@
 import { DEFAULT_FONT_SIZE, DEFAULT_VERTICAL_ALIGN, FONT_SIZES } from "../constants";
 import { _lt } from "../translation";
-import { Align, SpreadsheetChildEnv } from "../types";
+import { Align, Direction, SpreadsheetChildEnv } from "../types";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 
@@ -226,6 +226,39 @@ export const formatWrappingClip: ActionSpec = {
   icon: "o-spreadsheet-Icon.WRAPPING_CLIP",
 };
 
+export const formatDirection: ActionSpec = {
+  name: _lt("Direction"),
+  icon: "o-spreadsheet-Icon.ALIGN_LEFT",
+};
+
+export const formatDirectionLeft: ActionSpec = {
+  name: _lt("Cell left to right"),
+  description: "Ctrl+Shift+L",
+  execute: (env) => ACTIONS.setStyle(env, { direction: "ltr", align: "left" }),
+  isActive: (env) => getCellDirection(env) === "ltr",
+};
+
+export const formatDirectionRight: ActionSpec = {
+  name: _lt("Cell right to left"),
+  description: "Ctrl+Shift+L",
+  execute: (env) => ACTIONS.setStyle(env, { direction: "rtl", align: "right" }),
+  isActive: (env) => getCellDirection(env) === "rtl",
+};
+
+export const formatDirectionSheetLeft: ActionSpec = {
+  name: (env: SpreadsheetChildEnv) =>
+    !env.model.getters.isSheetDirectionRtl(env.model.getters.getActiveSheetId())
+      ? _lt("Sheet Right to left")
+      : _lt("Sheet left to Right"),
+  description: "Ctrl+Shift+L",
+  execute: (env) => {
+    env.model.dispatch("CHANGE_SHEET_DIRECTION", {
+      sheetId: env.model.getters.getActiveSheetId(),
+      directionStatus: !env.model.getters.isSheetDirectionRtl(env.model.getters.getActiveSheetId()),
+    });
+  },
+};
+
 export const textColor: ActionSpec = {
   name: _lt("Text Color"),
   icon: "o-spreadsheet-Icon.TEXT_COLOR",
@@ -293,4 +326,12 @@ function getHorizontalAlign(env: SpreadsheetChildEnv): Align {
   }
   const cell = env.model.getters.getActiveCell();
   return cell.defaultAlign;
+}
+
+function getCellDirection(env: SpreadsheetChildEnv): Direction {
+  const style = env.model.getters.getCurrentStyle();
+  if (style.direction) {
+    return style.direction;
+  }
+  return "ltr";
 }

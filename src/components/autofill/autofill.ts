@@ -95,7 +95,6 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
 
   onMouseDown(ev: MouseEvent) {
     this.state.handler = true;
-
     let lastCol: HeaderIndex | undefined;
     let lastRow: HeaderIndex | undefined;
     const start = {

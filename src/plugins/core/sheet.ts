@@ -64,6 +64,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getNumberRows",
     "getNumberHeaders",
     "getGridLinesVisibility",
+    "isSheetDirectionRtl",
     "getNextSheetName",
     "isEmpty",
     "getSheetSize",
@@ -161,6 +162,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       case "SET_GRID_LINES_VISIBILITY":
         this.setGridLinesVisibility(cmd.sheetId, cmd.areGridLinesVisible);
         break;
+      case "CHANGE_SHEET_DIRECTION":
+        this.setSheetDirection(cmd.sheetId, cmd.directionStatus);
+        break;
       case "DELETE_CONTENT":
         this.clearZones(cmd.sheetId, cmd.target);
         break;
@@ -250,6 +254,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         rows: createDefaultRows(rowNumber),
         areGridLinesVisible:
           sheetData.areGridLinesVisible === undefined ? true : sheetData.areGridLinesVisible,
+        directionStatus:
+          sheetData.directionStatus === undefined ? false : sheetData.directionStatus,
         isVisible: sheetData.isVisible,
         panes: {
           xSplit: sheetData.panes?.xSplit || 0,
@@ -278,6 +284,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         filterTables: [],
         areGridLinesVisible:
           sheet.areGridLinesVisible === undefined ? true : sheet.areGridLinesVisible,
+        directionStatus: sheet.directionStatus === undefined ? false : sheet.directionStatus,
         isVisible: sheet.isVisible,
       };
       if (sheet.panes.xSplit || sheet.panes.ySplit) {
@@ -301,6 +308,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   getGridLinesVisibility(sheetId: UID): boolean {
     return this.getSheet(sheetId).areGridLinesVisible;
+  }
+  isSheetDirectionRtl(sheetId: UID): boolean {
+    return this.getSheet(sheetId).directionStatus;
   }
 
   tryGetSheet(sheetId: UID): Sheet | undefined {
@@ -550,6 +560,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   private setGridLinesVisibility(sheetId: UID, areGridLinesVisible: boolean) {
     this.history.update("sheets", sheetId, "areGridLinesVisible", areGridLinesVisible);
   }
+  private setSheetDirection(sheetId: UID, directionStatus: boolean) {
+    this.history.update("sheets", sheetId, "directionStatus", directionStatus);
+  }
 
   private clearZones(sheetId: UID, zones: Zone[]) {
     for (let zone of zones) {
@@ -582,6 +595,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       numberOfCols: colNumber,
       rows: createDefaultRows(rowNumber),
       areGridLinesVisible: true,
+      directionStatus: false,
       isVisible: true,
       panes: {
         xSplit: 0,

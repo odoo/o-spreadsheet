@@ -166,6 +166,7 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "FREEZE_COLUMNS",
   "FREEZE_ROWS",
   "UNFREEZE_COLUMNS_ROWS",
+  "CHANGE_SHEET_DIRECTION",
 
   /** MERGE */
   "ADD_MERGE",
@@ -312,6 +313,11 @@ export interface UnfreezeRowsCommand {
 export interface SetGridLinesVisibilityCommand extends SheetDependentCommand {
   type: "SET_GRID_LINES_VISIBILITY";
   areGridLinesVisible: boolean;
+}
+
+export interface ChangeSheetDirection extends SheetDependentCommand {
+  type: "CHANGE_SHEET_DIRECTION";
+  directionStatus: boolean;
 }
 
 //------------------------------------------------------------------------------
@@ -927,6 +933,7 @@ export type CoreCommand =
   | UpdateCellPositionCommand
   | ClearCellCommand
   | DeleteContentCommand
+  // | ChangeCellDirection
 
   /** GRID SHAPE */
   | AddColumnsRowsCommand
@@ -940,6 +947,7 @@ export type CoreCommand =
   | UnfreezeColumnsRowsCommand
   | UnfreezeColumnsCommand
   | UnfreezeRowsCommand
+  | ChangeSheetDirection
 
   /** MERGE */
   | AddMergeCommand

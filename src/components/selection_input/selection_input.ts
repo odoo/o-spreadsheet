@@ -195,7 +195,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
       ev.stopPropagation();
       if (this.state.mode === "select-range") {
         ev.preventDefault();
-        updateSelectionWithArrowKeys(ev, this.env.model.selection);
+        updateSelectionWithArrowKeys(ev, this.env);
       }
     } else if (ev.key === "Enter") {
       const target = ev.target as HTMLInputElement;

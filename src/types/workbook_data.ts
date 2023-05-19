@@ -47,6 +47,7 @@ export interface SheetData {
   areGridLinesVisible?: boolean;
   isVisible: boolean;
   panes?: PaneDivision;
+  directionStatus?: boolean;
 }
 
 export interface WorkbookData {
