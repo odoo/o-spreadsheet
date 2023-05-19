@@ -49,7 +49,7 @@ export class Evaluator {
    * spread of when modifying this cell. It should be updated each time an
    * array formula is evaluated and correctly spread on other cells.
    */
-  private spreadingFormulas = new Set<string>();
+  private blockedArrayFormulas = new Set<string>();
   private spreadingRelations = new SpreadingRelation();
 
   constructor(context: ModelConfig["custom"], getters: Getters) {
@@ -66,7 +66,7 @@ export class Evaluator {
       return undefined;
     }
     const arrayFormulas = this.spreadingRelations.getArrayFormulasRc(rc);
-    return Array.from(arrayFormulas).find((rc) => this.spreadingFormulas.has(rc));
+    return Array.from(arrayFormulas).find((rc) => !this.blockedArrayFormulas.has(rc));
   }
 
   getRcs(): string[] {
@@ -118,7 +118,7 @@ export class Evaluator {
 
   buildDependencyGraph() {
     this.formulaDependencies = new FormulaDependencyGraph();
-    this.spreadingFormulas = new Set<string>();
+    this.blockedArrayFormulas = new Set<string>();
     this.spreadingRelations = new SpreadingRelation();
     for (const rc of this.getAllCells()) {
       const dependencies = this.getDirectDependencies(rc);
@@ -195,7 +195,7 @@ export class Evaluator {
       return evaluation; // already computed
     }
 
-    if (this.spreadingFormulas.has(rc)) {
+    if (!this.blockedArrayFormulas.has(rc)) {
       this.invalidateSpreading(rc);
     }
 
@@ -317,6 +317,7 @@ export class Evaluator {
   }
 
   private checkCollision({ sheetId, col, row }: CellPosition): (i: number, j: number) => void {
+    const formulaRc = cellPositionToRc({ sheetId, col, row });
     return (i: number, j: number) => {
       const position = { sheetId: sheetId, col: i + col, row: j + row };
       const rawCell = this.getters.getCell(position);
@@ -324,6 +325,7 @@ export class Evaluator {
         rawCell?.content ||
         this.getters.getEvaluatedCell(position).type !== CellValueType.empty
       ) {
+        this.blockedArrayFormulas.add(formulaRc);
         throw new Error(
           _lt(
             "Array result was not expanded because it would overwrite data in %s.",
@@ -331,6 +333,7 @@ export class Evaluator {
           )
         );
       }
+      this.blockedArrayFormulas.delete(formulaRc);
     };
   }
 
@@ -338,7 +341,6 @@ export class Evaluator {
     { sheetId, col, row }: CellPosition,
     matrixResult: MatrixFunctionReturn
   ): (i: number, j: number) => void {
-    const formulaRc = cellPositionToRc({ sheetId, col, row });
     const formatFromPosition = formatFromPositionAccess(matrixResult.format);
     return (i: number, j: number) => {
       const position = { sheetId, col: i + col, row: j + row };
@@ -352,7 +354,6 @@ export class Evaluator {
       const rc = cellPositionToRc(position);
 
       this.setEvaluatedCell(rc, evaluatedCell);
-      this.spreadingFormulas.add(formulaRc);
 
       // check if formula dependencies present in the spread zone
       // if so, they need to be recomputed
@@ -372,7 +373,6 @@ export class Evaluator {
       this.nextRcsToUpdate.add(...this.getCellsDependingOn(child));
       this.nextRcsToUpdate.add(...this.getArrayFormulasBlockedByOrSpreadingOn(child));
     }
-    this.spreadingFormulas.delete(rc);
     this.spreadingRelations.removeNode(rc);
   }
 

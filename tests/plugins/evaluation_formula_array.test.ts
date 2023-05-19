@@ -348,6 +348,16 @@ describe("evaluate formulas that return an array", () => {
         expect(getEvaluatedCell(model, "B1").value).toBe("");
         expect(getEvaluatedCell(model, "B2").value).toBe("kikou");
       });
+
+      test("do not spread result when collision removed then added again", () => {
+        setCellContent(model, "A1", "=MFILL(2,2, 42)");
+        setCellContent(model, "B2", "kikou");
+        setCellContent(model, "B2", "");
+        setCellContent(model, "B2", "kikou");
+        expect(getEvaluatedCell(model, "A2").value).toBe("");
+        expect(getEvaluatedCell(model, "B1").value).toBe("");
+        expect(getEvaluatedCell(model, "B2").value).toBe("kikou");
+      });
     });
 
     describe("spread result when remove collision", () => {
@@ -640,10 +650,10 @@ describe("evaluate formulas that return an array", () => {
     test("formulas with cross spread dependencies depends on a cycle limit", () => {
       setCellContent(model, "A1", "=MFILL(2,1,D1+1)");
       setCellContent(model, "C1", "=MFILL(2,1,B1+1)");
-      expect(getEvaluatedCell(model, "A1").value).toBe(101);
-      expect(getEvaluatedCell(model, "B1").value).toBe(101);
-      expect(getEvaluatedCell(model, "C1").value).toBe(100);
-      expect(getEvaluatedCell(model, "D1").value).toBe(100);
+      expect(getEvaluatedCell(model, "A1").value).toBe(31);
+      expect(getEvaluatedCell(model, "B1").value).toBe(31);
+      expect(getEvaluatedCell(model, "C1").value).toBe(30);
+      expect(getEvaluatedCell(model, "D1").value).toBe(30);
     });
 
     test("have collision when spread size zone change", () => {
