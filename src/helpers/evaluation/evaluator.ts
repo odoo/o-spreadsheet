@@ -34,7 +34,7 @@ import { SpreadingRelation } from "./spreading_relation";
 
 type PositionDict<T> = { [rc: string]: T };
 
-const MAX_CYCLE_ITERATION = 100;
+const MAX_ITERATION = 30;
 
 export class Evaluator {
   private getters: Getters;
@@ -105,6 +105,7 @@ export class Evaluator {
         impactedRcs.add(arrayFormulaRc);
       }
       if (!content) {
+        // The previous content could have blocked some array formulas
         impactedRcs.extend(this.getArrayFormulasBlockedByOrSpreadingOn(rc));
       }
     }
@@ -166,8 +167,8 @@ export class Evaluator {
     this.cellsBeingComputed = new Set<UID>();
     this.nextRcsToUpdate = cells;
 
-    let currentCycle = 0;
-    while (this.nextRcsToUpdate.size && currentCycle < MAX_CYCLE_ITERATION) {
+    let currentIteration = 0;
+    while (this.nextRcsToUpdate.size && currentIteration++ < MAX_ITERATION) {
       const arr = Array.from(this.nextRcsToUpdate);
       this.nextRcsToUpdate.clear();
       for (let i = 0; i < arr.length; ++i) {
@@ -178,8 +179,6 @@ export class Evaluator {
         const cell = arr[i];
         this.setEvaluatedCell(cell, this.computeCell(cell));
       }
-
-      ++currentCycle;
     }
   }
 
@@ -352,7 +351,6 @@ export class Evaluator {
 
       const rc = cellPositionToRc(position);
 
-      // update evaluatedCells
       this.setEvaluatedCell(rc, evaluatedCell);
       this.spreadingFormulas.add(formulaRc);
 
