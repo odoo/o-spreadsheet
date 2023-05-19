@@ -88,13 +88,13 @@ export class Evaluator {
     for (const cell of cells) {
       cellsToCompute.add(...this.getCellsDependingOn(cell, "include-self"));
     }
-    for (const cell of this.getCellsImpactedByChangesOf(cells)) {
+    for (const cell of this.getArrayFormulasImpactedByChangesOf(cells)) {
       cellsToCompute.add(...this.getCellsDependingOn(cell, "include-self"));
     }
     this.evaluate(cellsToCompute);
   }
 
-  private getCellsImpactedByChangesOf(rcs: Iterable<string>): Iterable<string> {
+  private getArrayFormulasImpactedByChangesOf(rcs: Iterable<string>): Iterable<string> {
     const impactedRcs = new JetSet<string>();
 
     for (const rc of rcs) {
