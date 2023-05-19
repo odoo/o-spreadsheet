@@ -256,7 +256,7 @@ export class Evaluator {
       return createEvaluatedCell(
         computedValue,
         cellData.format || (computedFormat as string | undefined)
-      ); // the case computedFormat as Matrix is handled by the assertFormulaReturnHasCoincidentDimensions
+      );
     }
 
     const formulaPosition = this.getters.getCellPosition(cellId);
