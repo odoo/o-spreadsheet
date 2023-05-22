@@ -9,6 +9,7 @@ interface Props {
   figureId: UID;
   definition: LineChartDefinition | BarChartDefinition | PieChartDefinition;
   updateChart: (
+    figureId: UID,
     definition: Partial<LineChartDefinition | BarChartDefinition | PieChartDefinition>
   ) => CommandResult | CommandResult[];
 }
@@ -38,19 +39,19 @@ export class LineBarPieDesignPanel extends Component<Props, SpreadsheetChildEnv>
   }
 
   updateBackgroundColor(color: Color) {
-    this.props.updateChart({
+    this.props.updateChart(this.props.figureId, {
       background: color,
     });
   }
 
   updateTitle(ev) {
-    this.props.updateChart({
+    this.props.updateChart(this.props.figureId, {
       title: ev.target.value,
     });
   }
 
   updateSelect(attr: string, ev) {
-    this.props.updateChart({
+    this.props.updateChart(this.props.figureId, {
       [attr]: ev.target.value,
     });
   }
