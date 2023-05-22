@@ -51,7 +51,7 @@ export class Evaluator {
   private blockedArrayFormulas = new Set<bigint>();
   private spreadingRelations = new SpreadingRelation();
 
-  private readonly e = new PositionKey();
+  private readonly e = new BitsPositionId();
 
   constructor(context: ModelConfig["custom"], getters: Getters) {
     this.getters = getters;
@@ -464,26 +464,35 @@ function assertFormulaReturnHasConsistentDimensions(formulaReturn: FormulaReturn
   }
 }
 
-class PositionKey {
-  private readonly sheetMapping = new Map<string, bigint>();
+class BitsPositionId {
+  private readonly sheetMapping: Record<string, bigint> = {};
   private readonly inverseSheetMapping = new Map<bigint, string>();
 
+  constructor() {
+    try {
+      // @ts-ignore
+      o_spreadsheet.__DEBUG__ = o_spreadsheet.__DEBUG__ || {};
+      // @ts-ignore
+      o_spreadsheet.__DEBUG__.decodePosition = this.decodePosition.bind(this);
+    } catch (error) {}
+  }
+
   encodePosition({ sheetId, col, row }: CellPosition): bigint {
-    return (this.encodeSheet(sheetId) << 40n) | (BigInt(col) << 20n) | BigInt(row);
+    return (this.encodeSheet(sheetId) << 42n) | (BigInt(col) << 21n) | BigInt(row);
   }
 
   decodePosition(key: bigint): CellPosition {
     const row = Number(key & 0xffffn);
-    const col = Number((key >> 20n) & 0xffffn);
-    const sheetId = this.decodeSheet(key >> 40n);
+    const col = Number((key >> 21n) & 0xffffn);
+    const sheetId = this.decodeSheet(key >> 42n);
     return { sheetId, col, row };
   }
 
   private encodeSheet(sheetId: UID): bigint {
-    const sheetKey = this.sheetMapping.get(sheetId);
+    const sheetKey = this.sheetMapping[sheetId];
     if (sheetKey === undefined) {
-      const newSheetKey = BigInt(this.sheetMapping.size);
-      this.sheetMapping.set(sheetId, newSheetKey);
+      const newSheetKey = BigInt(Object.keys(this.sheetMapping).length);
+      this.sheetMapping[sheetId] = newSheetKey;
       this.inverseSheetMapping.set(newSheetKey, sheetId);
       return newSheetKey;
     }
@@ -493,7 +502,7 @@ class PositionKey {
   private decodeSheet(sheetKey: bigint): UID {
     const sheetId = this.inverseSheetMapping.get(sheetKey);
     if (sheetId === undefined) {
-      throw new Error("Sheet key not found");
+      throw new Error("Sheet id not found");
     }
     return sheetId;
   }
