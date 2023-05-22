@@ -63,7 +63,7 @@ type GaugeMenu =
 interface Props {
   figureId: UID;
   definition: GaugeChartDefinition;
-  updateChart: (definition: Partial<GaugeChartDefinition>) => DispatchResult;
+  updateChart: (figureId: UID, definition: Partial<GaugeChartDefinition>) => DispatchResult;
 }
 
 interface PanelState {
@@ -97,13 +97,13 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
 
   updateBackgroundColor(color: Color) {
     this.state.openedMenu = undefined;
-    this.props.updateChart({
+    this.props.updateChart(this.props.figureId, {
       background: color,
     });
   }
 
   updateTitle(ev) {
-    this.props.updateChart({
+    this.props.updateChart(this.props.figureId, {
       title: ev.target.value,
     });
   }
@@ -200,7 +200,7 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
   }
 
   private updateSectionRule(sectionRule: SectionRule) {
-    this.state.sectionRuleDispatchResult = this.props.updateChart({
+    this.state.sectionRuleDispatchResult = this.props.updateChart(this.props.figureId, {
       sectionRule,
     });
   }

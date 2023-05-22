@@ -48,21 +48,15 @@ interface Props {
 interface State {
   panel: "configuration" | "design";
   figureId: UID;
-  sheetId: UID;
 }
 
 export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartPanel";
 
   private state!: State;
-  private shouldUpdateChart: boolean = true;
 
   get figureId(): UID {
     return this.state.figureId;
-  }
-
-  get sheetId(): UID {
-    return this.state.sheetId;
   }
 
   setup(): void {
@@ -73,17 +67,12 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
     this.state = useState({
       panel: "configuration",
       figureId: selectedFigureId,
-      sheetId: this.env.model.getters.getActiveSheetId(),
     });
 
     onWillUpdateProps(() => {
       const selectedFigureId = this.env.model.getters.getSelectedFigureId();
       if (selectedFigureId && selectedFigureId !== this.state.figureId) {
         this.state.figureId = selectedFigureId;
-        this.state.sheetId = this.env.model.getters.getActiveSheetId();
-        this.shouldUpdateChart = false;
-      } else {
-        this.shouldUpdateChart = true;
       }
       if (!this.env.model.getters.isChartDefined(this.figureId)) {
         this.props.onCloseSidePanel();
@@ -92,8 +81,8 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  updateChart<T extends ChartDefinition>(updateDefinition: Partial<T>) {
-    if (!this.shouldUpdateChart) {
+  updateChart<T extends ChartDefinition>(figureId: UID, updateDefinition: Partial<T>) {
+    if (figureId !== this.figureId) {
       return;
     }
     const definition: T = {
@@ -102,8 +91,8 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
     };
     return this.env.model.dispatch("UPDATE_CHART", {
       definition,
-      id: this.figureId,
-      sheetId: this.sheetId,
+      id: figureId,
+      sheetId: this.env.model.getters.getFigureSheetId(figureId)!,
     });
   }
 
@@ -116,7 +105,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
     this.env.model.dispatch("UPDATE_CHART", {
       definition,
       id: this.figureId,
-      sheetId: this.sheetId,
+      sheetId: this.env.model.getters.getFigureSheetId(this.figureId)!,
     });
   }
 
