@@ -13,13 +13,13 @@ export class LineConfigPanel extends LineBarPieConfigPanel {
   }
 
   onUpdateLabelsAsText(ev) {
-    this.props.updateChart({
+    this.props.updateChart(this.props.figureId, {
       labelsAsText: ev.target.checked,
     });
   }
 
   onUpdateStacked(ev) {
-    this.props.updateChart({
+    this.props.updateChart(this.props.figureId, {
       stacked: ev.target.checked,
     });
   }
