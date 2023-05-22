@@ -538,23 +538,15 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const dependencies = compiledFormula.dependencies.map((xc) =>
       this.getters.getRangeFromSheetXC(sheetId, xc)
     );
-    const buildFormulaContent = this.buildFormulaContent.bind(this);
-    // Only for formulas with dependencies because
-    // **the closure is expensive memory-wise**
-    return {
+    return new FormulaCellWithDependencies(
       id,
-      get content() {
-        return buildFormulaContent(sheetId, {
-          dependencies: this.dependencies,
-          compiledFormula: this.compiledFormula,
-        });
-      },
-      style,
-      format,
-      isFormula: true,
       compiledFormula,
+      format,
+      style,
       dependencies,
-    };
+      sheetId,
+      this.buildFormulaContent.bind(this)
+    );
   }
 
   private createErrorFormula(
@@ -586,5 +578,28 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     if (!sheet) return CommandResult.InvalidSheetId;
     const sheetZone = this.getters.getSheetZone(sheetId);
     return isInside(col, row, sheetZone) ? CommandResult.Success : CommandResult.TargetOutOfSheet;
+  }
+}
+
+class FormulaCellWithDependencies {
+  readonly isFormula = true;
+  constructor(
+    readonly id: UID,
+    readonly compiledFormula: CompiledFormula,
+    readonly format: Format | undefined,
+    readonly style: Style | undefined,
+    readonly dependencies: Range[],
+    private readonly sheetId: UID,
+    private readonly buildFormulaContent: (
+      sheetId: UID,
+      cell: Pick<FormulaCell, "dependencies" | "compiledFormula">
+    ) => string
+  ) {}
+
+  get content() {
+    return this.buildFormulaContent(this.sheetId, {
+      dependencies: this.dependencies,
+      compiledFormula: this.compiledFormula,
+    });
   }
 }
