@@ -7,7 +7,7 @@ import { ChartTerms } from "../../../translations_terms";
 interface Props {
   figureId: UID;
   definition: GaugeChartDefinition;
-  updateChart: (definition: Partial<GaugeChartDefinition>) => DispatchResult;
+  updateChart: (figureId: UID, definition: Partial<GaugeChartDefinition>) => DispatchResult;
 }
 
 interface PanelState {
@@ -42,7 +42,7 @@ export class GaugeChartConfigPanel extends Component<Props, SpreadsheetChildEnv>
   }
 
   updateDataRange() {
-    this.state.dataRangeDispatchResult = this.props.updateChart({
+    this.state.dataRangeDispatchResult = this.props.updateChart(this.props.figureId, {
       dataRange: this.dataRange,
     });
   }
