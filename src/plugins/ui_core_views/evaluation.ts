@@ -5,7 +5,6 @@ import {
   CompilationParameters,
 } from "../../helpers/evaluation/compilation_parameters";
 import { Evaluator } from "../../helpers/evaluation/evaluator";
-import { cellPositionToRc, rcToCellPosition } from "../../helpers/evaluation/misc";
 import { getItemId, positions, toXC } from "../../helpers/index";
 import {
   CellPosition,
@@ -156,13 +155,13 @@ export class EvaluationPlugin extends UIPlugin {
 
   private evaluator: Evaluator;
   private compilationParams: CompilationParameters;
-  private rcsToUpdate = new Set<string>();
+  private rcsToUpdate: CellPosition[] = [];
 
   constructor(config: UIPluginConfig) {
     super(config);
     this.evaluator = new Evaluator(config.custom, this.getters);
-    this.compilationParams = buildCompilationParameters(config.custom, this.getters, (cell) =>
-      this.evaluator.getEvaluatedCellFromRc(cell)
+    this.compilationParams = buildCompilationParameters(config.custom, this.getters, (position) =>
+      this.evaluator.getEvaluatedCell(position)
     );
   }
 
@@ -182,11 +181,10 @@ export class EvaluationPlugin extends UIPlugin {
         if (!("content" in cmd || "format" in cmd) || this.shouldRebuildDependenciesGraph) {
           return;
         }
-        const rc = cellPositionToRc(cmd);
-        this.rcsToUpdate.add(rc);
+        this.rcsToUpdate.push(cmd);
 
         if ("content" in cmd) {
-          this.evaluator.updateDependencies(rc);
+          this.evaluator.updateDependencies(cmd);
         }
         break;
       case "EVALUATE_CELLS":
@@ -200,10 +198,10 @@ export class EvaluationPlugin extends UIPlugin {
       this.evaluator.buildDependencyGraph();
       this.evaluator.evaluateAllCells();
       this.shouldRebuildDependenciesGraph = false;
-    } else if (this.rcsToUpdate.size) {
+    } else if (this.rcsToUpdate.length) {
       this.evaluator.evaluateCells(this.rcsToUpdate);
     }
-    this.rcsToUpdate.clear();
+    this.rcsToUpdate = [];
   }
 
   // ---------------------------------------------------------------------------
@@ -249,8 +247,8 @@ export class EvaluationPlugin extends UIPlugin {
     return this.getters.getEvaluatedCellsInZone(sheet.id, range.zone).map((cell) => cell.format);
   }
 
-  getEvaluatedCell(cellPosition: CellPosition): EvaluatedCell {
-    return this.evaluator.getEvaluatedCellFromRc(cellPositionToRc(cellPosition));
+  getEvaluatedCell(position: CellPosition): EvaluatedCell {
+    return this.evaluator.getEvaluatedCell(position);
   }
 
   getEvaluatedCells(sheetId: UID): Record<UID, EvaluatedCell> {
@@ -278,8 +276,7 @@ export class EvaluationPlugin extends UIPlugin {
    * It could be the formula present in the cell itself or the
    * formula of the array formula that spreads to the cell
    */
-  private getCorrespondingFormulaCell(rc): FormulaCell | undefined {
-    const position = rcToCellPosition(rc);
+  private getCorrespondingFormulaCell(position: CellPosition): FormulaCell | undefined {
     const cell = this.getters.getCell(position);
 
     if (cell && cell.content) {
@@ -289,27 +286,24 @@ export class EvaluationPlugin extends UIPlugin {
       return undefined;
     }
 
-    const spreadingFormulaRc = this.evaluator.getArrayFormulaSpreadingOn(rc);
+    const spreadingFormulaPosition = this.evaluator.getArrayFormulaSpreadingOn(position);
 
-    if (!spreadingFormulaRc) {
+    if (spreadingFormulaPosition === undefined) {
       return undefined;
     }
 
-    const spreadingFormulaPosition = rcToCellPosition(spreadingFormulaRc);
-    const spreadingFormulaCell = this.getters.getCell(spreadingFormulaPosition)!;
+    const spreadingFormulaCell = this.getters.getCell(spreadingFormulaPosition);
 
-    if (spreadingFormulaCell.isFormula) {
+    if (spreadingFormulaCell?.isFormula) {
       return spreadingFormulaCell;
     }
-
     return undefined;
   }
 
   exportForExcel(data: ExcelWorkbookData) {
-    for (const rc of this.evaluator.getRcs()) {
-      const evaluatedCell = this.evaluator.getEvaluatedCellFromRc(rc);
+    for (const position of this.evaluator.getPositions()) {
+      const evaluatedCell = this.evaluator.getEvaluatedCell(position);
 
-      const position = rcToCellPosition(rc);
       const xc = toXC(position.col, position.row);
 
       const value = evaluatedCell.value;
@@ -318,7 +312,7 @@ export class EvaluationPlugin extends UIPlugin {
       let newFormat: string | undefined = undefined;
       let isExported: boolean = true;
 
-      const formulaCell = this.getCorrespondingFormulaCell(rc);
+      const formulaCell = this.getCorrespondingFormulaCell(position);
       if (formulaCell) {
         isExported = formulaCell.compiledFormula.tokens
           .filter((tk) => tk.type === "FUNCTION")

@@ -29,7 +29,6 @@ import { JetSet } from "../misc";
 import { mapToPositionsInZone } from "../zones";
 import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
-import { cellPositionToRc, rcToCellPosition } from "./misc";
 import { SpreadingRelation } from "./spreading_relation";
 
 type PositionDict<T> = { [rc: string]: T };
@@ -54,18 +53,26 @@ export class Evaluator {
 
   constructor(context: ModelConfig["custom"], getters: Getters) {
     this.getters = getters;
-    this.compilationParams = buildCompilationParameters(
-      context,
-      getters,
-      this.computeCell.bind(this)
+    this.compilationParams = buildCompilationParameters(context, getters, (position) =>
+      this.computeCell(cellPositionToRc(position))
     );
   }
 
-  getEvaluatedCellFromRc(rc: string): EvaluatedCell {
-    return this.evaluatedCells[rc] || createEvaluatedCell("");
+  getEvaluatedCell(position: CellPosition): EvaluatedCell {
+    return this.evaluatedCells[cellPositionToRc(position)] || createEvaluatedCell("");
   }
 
-  getArrayFormulaSpreadingOn(rc: string): string | undefined {
+  getArrayFormulaSpreadingOn(position: CellPosition): CellPosition | undefined {
+    const rc = cellPositionToRc(position);
+    const arrayFormulaRc = this.getArrayFormulaSpreadingOnRc(rc);
+    return arrayFormulaRc ? rcToCellPosition(arrayFormulaRc) : undefined;
+  }
+
+  getPositions(): CellPosition[] {
+    return Object.keys(this.evaluatedCells).map(rcToCellPosition);
+  }
+
+  private getArrayFormulaSpreadingOnRc(rc: string): string | undefined {
     if (!this.spreadingRelations.hasArrayFormulaResult(rc)) {
       return undefined;
     }
@@ -73,21 +80,19 @@ export class Evaluator {
     return Array.from(arrayFormulas).find((rc) => !this.blockedArrayFormulas.has(rc));
   }
 
-  getRcs(): string[] {
-    return Object.keys(this.evaluatedCells);
-  }
-
   // ----------------------------------------------------------
   //        METHOD RELATING TO SPECIFIC CELLS EVALUATION
   // ----------------------------------------------------------
 
-  updateDependencies(rc: string) {
+  updateDependencies(position: CellPosition) {
+    const rc = cellPositionToRc(position);
     this.formulaDependencies.removeAllDependencies(rc);
     const dependencies = this.getDirectDependencies(rc);
     this.formulaDependencies.addDependencies(rc, dependencies);
   }
 
-  evaluateCells(cells: Set<string>) {
+  evaluateCells(positions: CellPosition[]) {
+    const cells = positions.map(cellPositionToRc);
     const cellsToCompute = new JetSet<string>(cells);
     const arrayFormulas = this.getArrayFormulasImpactedByChangesOf(cells);
     cellsToCompute.add(...this.getCellsDependingOn(cells));
@@ -101,7 +106,7 @@ export class Evaluator {
 
     for (const rc of rcs) {
       const content = this.rcToCell(rc)?.content;
-      const arrayFormulaRc = this.getArrayFormulaSpreadingOn(rc);
+      const arrayFormulaRc = this.getArrayFormulaSpreadingOnRc(rc);
       if (arrayFormulaRc) {
         // take into account new collisions.
         impactedRcs.add(arrayFormulaRc);
@@ -447,4 +452,19 @@ function assertFormulaReturnHasConsistentDimensions(formulaReturn: FormulaReturn
       throw new Error("Formats and values should have the same dimensions!");
     }
   }
+}
+
+function cellPositionToRc(position: CellPosition): string {
+  return `${position.row}!${position.col}!${position.sheetId}`;
+}
+
+function rcToCellPosition(rc: string): CellPosition {
+  // faster than  a split("!") by a factor 2
+  const i1 = rc.indexOf("!");
+  const row = rc.slice(0, i1);
+  const position = rc.slice(i1 + 1);
+  const i2 = position.indexOf("!");
+  const col = position.slice(0, i2);
+  const sheetId = position.slice(i2 + 1);
+  return { sheetId, col: Number(col), row: Number(row) };
 }

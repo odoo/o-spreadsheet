@@ -17,7 +17,6 @@ import {
 } from "../../types";
 import { InvalidReferenceError } from "../../types/errors";
 import { intersection, isZoneValid, zoneToXc } from "../zones";
-import { cellPositionToRc } from "./misc";
 
 export type CompilationParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
 const functionMap = functionRegistry.mapping;
@@ -31,7 +30,7 @@ const functionMap = functionRegistry.mapping;
 export function buildCompilationParameters(
   context: ModelConfig["custom"],
   getters: Getters,
-  computeCell: (rc: string) => EvaluatedCell
+  computeCell: (position: CellPosition) => EvaluatedCell
 ) {
   const builder = new CompilationParametersBuilder(context, getters, computeCell);
   return builder.getParameters();
@@ -43,7 +42,7 @@ class CompilationParametersBuilder {
   constructor(
     context: ModelConfig["custom"],
     private getters: Getters,
-    private computeCell: (rc: string) => EvaluatedCell
+    private computeCell: (position: CellPosition) => EvaluatedCell
   ) {
     this.evalContext = Object.assign(Object.create(functionMap), context, {
       getters: this.getters,
@@ -112,8 +111,7 @@ class CompilationParametersBuilder {
   }
 
   private getEvaluatedCellIfNotEmpty(position: CellPosition): EvaluatedCell | undefined {
-    const rc = cellPositionToRc(position);
-    const evaluatedCell = this.getEvaluatedCell(rc);
+    const evaluatedCell = this.getEvaluatedCell(position);
     if (evaluatedCell.type === CellValueType.empty) {
       const cell = this.getters.getCell(position);
       if (!cell || cell.content === "") {
@@ -123,8 +121,8 @@ class CompilationParametersBuilder {
     return evaluatedCell;
   }
 
-  private getEvaluatedCell(rc: string): EvaluatedCell {
-    const evaluatedCell = this.computeCell(rc);
+  private getEvaluatedCell(position: CellPosition): EvaluatedCell {
+    const evaluatedCell = this.computeCell(position);
     if (evaluatedCell.type === CellValueType.error) {
       throw evaluatedCell.error;
     }
