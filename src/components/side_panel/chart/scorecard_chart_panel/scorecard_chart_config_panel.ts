@@ -7,7 +7,7 @@ import { ChartTerms } from "../../../translations_terms";
 interface Props {
   figureId: UID;
   definition: ScorecardChartDefinition;
-  updateChart: (definition: Partial<ScorecardChartDefinition>) => DispatchResult;
+  updateChart: (figureId: UID, definition: Partial<ScorecardChartDefinition>) => DispatchResult;
 }
 
 interface PanelState {
@@ -54,7 +54,7 @@ export class ScorecardChartConfigPanel extends Component<Props, SpreadsheetChild
   }
 
   updateKeyValueRange() {
-    this.state.keyValueDispatchResult = this.props.updateChart({
+    this.state.keyValueDispatchResult = this.props.updateChart(this.props.figureId, {
       keyValue: this.keyValue,
     });
   }
@@ -68,7 +68,7 @@ export class ScorecardChartConfigPanel extends Component<Props, SpreadsheetChild
   }
 
   updateBaselineRange() {
-    this.state.baselineDispatchResult = this.props.updateChart({
+    this.state.baselineDispatchResult = this.props.updateChart(this.props.figureId, {
       baseline: this.baseline,
     });
   }
@@ -78,7 +78,7 @@ export class ScorecardChartConfigPanel extends Component<Props, SpreadsheetChild
   }
 
   updateBaselineMode(ev) {
-    this.props.updateChart({ baselineMode: ev.target.value });
+    this.props.updateChart(this.props.figureId, { baselineMode: ev.target.value });
   }
 }
 
