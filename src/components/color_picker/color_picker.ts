@@ -49,7 +49,7 @@ css/* scss */ `
       grid-template-columns: repeat(${ITEMS_PER_LINE}, 1fr);
       grid-gap: ${ITEM_HORIZONTAL_MARGIN * 2}px;
     }
-    .o-color-picker-toggler {
+    .o-color-picker-toggler-button {
       display: flex;
       .o-color-picker-toggler-sign {
         margin: auto auto;
