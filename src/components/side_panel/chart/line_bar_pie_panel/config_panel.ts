@@ -12,6 +12,7 @@ interface Props {
   figureId: UID;
   definition: LineChartDefinition | BarChartDefinition | PieChartDefinition;
   updateChart: (
+    figureId: UID,
     definition: Partial<LineChartDefinition | BarChartDefinition | PieChartDefinition>
   ) => DispatchResult;
 }
@@ -57,7 +58,7 @@ export class LineBarPieConfigPanel extends Component<Props, SpreadsheetChildEnv>
   }
 
   onUpdateDataSetsHaveTitle(ev) {
-    this.props.updateChart({
+    this.props.updateChart(this.props.figureId, {
       dataSetsHaveTitle: ev.target.checked,
     });
   }
@@ -71,7 +72,7 @@ export class LineBarPieConfigPanel extends Component<Props, SpreadsheetChildEnv>
   }
 
   onDataSeriesConfirmed() {
-    this.state.datasetDispatchResult = this.props.updateChart({
+    this.state.datasetDispatchResult = this.props.updateChart(this.props.figureId, {
       dataSets: this.dataSeriesRanges,
     });
   }
@@ -85,13 +86,13 @@ export class LineBarPieConfigPanel extends Component<Props, SpreadsheetChildEnv>
   }
 
   onLabelRangeConfirmed() {
-    this.state.labelsDispatchResult = this.props.updateChart({
+    this.state.labelsDispatchResult = this.props.updateChart(this.props.figureId, {
       labelRange: this.labelRange,
     });
   }
 
   onUpdateAggregated(ev) {
-    this.props.updateChart({
+    this.props.updateChart(this.props.figureId, {
       aggregated: ev.target.checked,
     });
   }

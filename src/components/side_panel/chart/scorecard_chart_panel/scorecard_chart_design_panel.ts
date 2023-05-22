@@ -8,7 +8,7 @@ type ColorPickerId = undefined | "backgroundColor" | "baselineColorUp" | "baseli
 interface Props {
   figureId: UID;
   definition: ScorecardChartDefinition;
-  updateChart: (definition: Partial<ScorecardChartDefinition>) => DispatchResult;
+  updateChart: (figureId: UID, definition: Partial<ScorecardChartDefinition>) => DispatchResult;
 }
 
 interface PanelState {
@@ -28,13 +28,13 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
   }
 
   updateTitle(ev) {
-    this.props.updateChart({
+    this.props.updateChart(this.props.figureId, {
       title: ev.target.value,
     });
   }
 
   updateBaselineDescr(ev) {
-    this.props.updateChart({ baselineDescr: ev.target.value });
+    this.props.updateChart(this.props.figureId, { baselineDescr: ev.target.value });
   }
 
   toggleColorPicker(colorPickerId: ColorPickerId) {
@@ -48,13 +48,13 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
   setColor(color: Color, colorPickerId: ColorPickerId) {
     switch (colorPickerId) {
       case "backgroundColor":
-        this.props.updateChart({ background: color });
+        this.props.updateChart(this.props.figureId, { background: color });
         break;
       case "baselineColorDown":
-        this.props.updateChart({ baselineColorDown: color });
+        this.props.updateChart(this.props.figureId, { baselineColorDown: color });
         break;
       case "baselineColorUp":
-        this.props.updateChart({ baselineColorUp: color });
+        this.props.updateChart(this.props.figureId, { baselineColorUp: color });
         break;
     }
     this.closeMenus();
