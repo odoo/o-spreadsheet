@@ -23,7 +23,7 @@ export class FormulaDependencyGraph {
    * - C1 ---> (C2)       meaning C2 depends on C1
    */
   private readonly inverseDependencies: Map<string, Set<string>> = new Map();
-  private readonly dependencies: Map<string, Set<string>> = new Map();
+  private readonly dependencies: Map<string, string[]> = new Map();
 
   removeAllDependencies(formulaRc) {
     const dependencies = this.dependencies.get(formulaRc);
@@ -44,12 +44,12 @@ export class FormulaDependencyGraph {
       } else {
         this.inverseDependencies.set(dependency, new Set([formulaRc]));
       }
-      const dependencies = this.dependencies.get(formulaRc);
-      if (dependencies) {
-        dependencies.add(dependency);
-      } else {
-        this.dependencies.set(formulaRc, new Set([dependency]));
-      }
+    }
+    const existingDependencies = this.dependencies.get(formulaRc);
+    if (existingDependencies) {
+      existingDependencies.push(...dependencies);
+    } else {
+      this.dependencies.set(formulaRc, dependencies);
     }
   }
 
