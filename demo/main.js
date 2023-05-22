@@ -283,8 +283,8 @@ Demo.template = xml/* xml */ `
     </div>
   </div>
   <div t-else="">
-    <!-- done -->
-    <Spreadsheet model="model" t-key="state.key"/>
+    done
+    <!-- <Spreadsheet model="model" t-key="state.key"/> -->
   </div>
 `;
 Demo.components = { Spreadsheet };

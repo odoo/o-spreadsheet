@@ -31,7 +31,7 @@ import { buildCompilationParameters, CompilationParameters } from "./compilation
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { SpreadingRelation } from "./spreading_relation";
 
-type PositionDict<T> = { [rc: string]: T };
+type PositionDict<T> = Map<bigint, T>;
 
 const MAX_ITERATION = 30;
 
@@ -39,7 +39,7 @@ export class Evaluator {
   private getters: Getters;
   private compilationParams: CompilationParameters;
 
-  private evaluatedCells: PositionDict<EvaluatedCell> = {};
+  private evaluatedCells: PositionDict<EvaluatedCell> = new Map();
   private formulaDependencies = new FormulaDependencyGraph();
   /**
    * contains the position of array formula that spreads on the grid
@@ -48,31 +48,33 @@ export class Evaluator {
    * spread of when modifying this cell. It should be updated each time an
    * array formula is evaluated and correctly spread on other cells.
    */
-  private blockedArrayFormulas = new Set<string>();
+  private blockedArrayFormulas = new Set<bigint>();
   private spreadingRelations = new SpreadingRelation();
+
+  private readonly e = new PositionKey();
 
   constructor(context: ModelConfig["custom"], getters: Getters) {
     this.getters = getters;
     this.compilationParams = buildCompilationParameters(context, getters, (position) =>
-      this.computeCell(cellPositionToRc(position))
+      this.computeCell(this.cellPositionToRc(position))
     );
   }
 
   getEvaluatedCell(position: CellPosition): EvaluatedCell {
-    return this.evaluatedCells[cellPositionToRc(position)] || createEvaluatedCell("");
+    return this.evaluatedCells.get(this.cellPositionToRc(position)) || createEvaluatedCell("");
   }
 
   getArrayFormulaSpreadingOn(position: CellPosition): CellPosition | undefined {
-    const rc = cellPositionToRc(position);
+    const rc = this.cellPositionToRc(position);
     const arrayFormulaRc = this.getArrayFormulaSpreadingOnRc(rc);
-    return arrayFormulaRc ? rcToCellPosition(arrayFormulaRc) : undefined;
+    return arrayFormulaRc ? this.rcToCellPosition(arrayFormulaRc) : undefined;
   }
 
   getPositions(): CellPosition[] {
-    return Object.keys(this.evaluatedCells).map(rcToCellPosition);
+    return [...this.evaluatedCells.keys()].map(this.rcToCellPosition);
   }
 
-  private getArrayFormulaSpreadingOnRc(rc: string): string | undefined {
+  private getArrayFormulaSpreadingOnRc(rc: bigint): bigint | undefined {
     if (!this.spreadingRelations.hasArrayFormulaResult(rc)) {
       return undefined;
     }
@@ -85,15 +87,15 @@ export class Evaluator {
   // ----------------------------------------------------------
 
   updateDependencies(position: CellPosition) {
-    const rc = cellPositionToRc(position);
+    const rc = this.cellPositionToRc(position);
     this.formulaDependencies.removeAllDependencies(rc);
     const dependencies = this.getDirectDependencies(rc);
     this.formulaDependencies.addDependencies(rc, dependencies);
   }
 
   evaluateCells(positions: CellPosition[]) {
-    const cells = positions.map(cellPositionToRc);
-    const cellsToCompute = new JetSet<string>(cells);
+    const cells: bigint[] = positions.map(this.cellPositionToRc.bind(this));
+    const cellsToCompute = new JetSet<bigint>(cells);
     const arrayFormulas = this.getArrayFormulasImpactedByChangesOf(cells);
     cellsToCompute.add(...this.getCellsDependingOn(cells));
     cellsToCompute.add(...arrayFormulas);
@@ -101,13 +103,13 @@ export class Evaluator {
     this.evaluate(cellsToCompute);
   }
 
-  private getArrayFormulasImpactedByChangesOf(rcs: Iterable<string>): Iterable<string> {
-    const impactedRcs = new JetSet<string>();
+  private getArrayFormulasImpactedByChangesOf(rcs: Iterable<bigint>): Iterable<bigint> {
+    const impactedRcs = new JetSet<bigint>();
 
     for (const rc of rcs) {
       const content = this.rcToCell(rc)?.content;
       const arrayFormulaRc = this.getArrayFormulaSpreadingOnRc(rc);
-      if (arrayFormulaRc) {
+      if (arrayFormulaRc !== undefined) {
         // take into account new collisions.
         impactedRcs.add(arrayFormulaRc);
       }
@@ -125,7 +127,7 @@ export class Evaluator {
 
   buildDependencyGraph() {
     this.formulaDependencies = new FormulaDependencyGraph();
-    this.blockedArrayFormulas = new Set<string>();
+    this.blockedArrayFormulas = new Set<bigint>();
     this.spreadingRelations = new SpreadingRelation();
     for (const rc of this.getAllCells()) {
       const dependencies = this.getDirectDependencies(rc);
@@ -134,27 +136,27 @@ export class Evaluator {
   }
 
   evaluateAllCells() {
-    this.evaluatedCells = {};
+    this.evaluatedCells = new Map();
     this.evaluate(this.getAllCells());
   }
 
-  private getAllCells(): JetSet<string> {
-    const rcs = new JetSet<string>();
+  private getAllCells(): JetSet<bigint> {
+    const rcs = new JetSet<bigint>();
     for (const sheetId of this.getters.getSheetIds()) {
       const cellIds = this.getters.getCells(sheetId);
       for (const cellId in cellIds) {
-        rcs.add(cellPositionToRc(this.getters.getCellPosition(cellId)));
+        rcs.add(this.cellPositionToRc(this.getters.getCellPosition(cellId)));
       }
     }
     return rcs;
   }
 
-  private getArrayFormulasBlockedByOrSpreadingOn(rc: string): Iterable<string> {
+  private getArrayFormulasBlockedByOrSpreadingOn(rc: bigint): Iterable<bigint> {
     if (!this.spreadingRelations.hasArrayFormulaResult(rc)) {
       return [];
     }
     const arrayFormulas = this.spreadingRelations.getArrayFormulasRc(rc);
-    const cells = new JetSet<string>(arrayFormulas);
+    const cells = new JetSet<bigint>(arrayFormulas);
     cells.add(...this.getCellsDependingOn(arrayFormulas));
     return cells;
   }
@@ -163,13 +165,13 @@ export class Evaluator {
   //                 EVALUATION MAIN PROCESS
   // ----------------------------------------------------------
 
-  private nextRcsToUpdate = new JetSet<string>();
+  private nextRcsToUpdate = new JetSet<bigint>();
   private cellsBeingComputed = new Set<UID>();
 
   /**
    * @param cells ordered topologically! TODO explain this better
    */
-  private evaluate(cells: JetSet<string>) {
+  private evaluate(cells: JetSet<bigint>) {
     this.cellsBeingComputed = new Set<UID>();
     this.nextRcsToUpdate = cells;
 
@@ -179,7 +181,7 @@ export class Evaluator {
       this.nextRcsToUpdate.clear();
       for (let i = 0; i < rcs.length; ++i) {
         const cell = rcs[i];
-        delete this.evaluatedCells[cell];
+        this.evaluatedCells.delete(cell);
       }
       for (let i = 0; i < rcs.length; ++i) {
         const cell = rcs[i];
@@ -188,15 +190,15 @@ export class Evaluator {
     }
   }
 
-  private setEvaluatedCell(rc: string, evaluatedCell: EvaluatedCell) {
+  private setEvaluatedCell(rc: bigint, evaluatedCell: EvaluatedCell) {
     if (this.nextRcsToUpdate.has(rc)) {
       this.nextRcsToUpdate.delete(rc);
     }
-    this.evaluatedCells[rc] = evaluatedCell;
+    this.evaluatedCells.set(rc, evaluatedCell);
   }
 
-  private computeCell(rc: string): EvaluatedCell {
-    const evaluation = this.evaluatedCells[rc];
+  private computeCell(rc: bigint): EvaluatedCell {
+    const evaluation = this.evaluatedCells.get(rc);
     if (evaluation) {
       return evaluation; // already computed
     }
@@ -314,16 +316,16 @@ export class Evaluator {
     col,
     row,
   }: CellPosition): (i: number, j: number) => void {
-    const formulaRc = cellPositionToRc({ sheetId, col, row });
+    const formulaRc = this.cellPositionToRc({ sheetId, col, row });
     return (i: number, j: number) => {
       const position = { sheetId, col: i + col, row: j + row };
-      const rc = cellPositionToRc(position);
+      const rc = this.cellPositionToRc(position);
       this.spreadingRelations.addRelation({ resultRc: rc, arrayFormulaRc: formulaRc });
     };
   }
 
   private checkCollision({ sheetId, col, row }: CellPosition): (i: number, j: number) => void {
-    const formulaRc = cellPositionToRc({ sheetId, col, row });
+    const formulaRc = this.cellPositionToRc({ sheetId, col, row });
     return (i: number, j: number) => {
       const position = { sheetId: sheetId, col: i + col, row: j + row };
       const rawCell = this.getters.getCell(position);
@@ -357,7 +359,7 @@ export class Evaluator {
         format || formatFromPosition(i, j)
       );
 
-      const rc = cellPositionToRc(position);
+      const rc = this.cellPositionToRc(position);
 
       this.setEvaluatedCell(rc, evaluatedCell);
 
@@ -367,7 +369,7 @@ export class Evaluator {
     };
   }
 
-  private invalidateSpreading(rc: string) {
+  private invalidateSpreading(rc: bigint) {
     if (!this.spreadingRelations.isArrayFormula(rc)) {
       return;
     }
@@ -378,7 +380,7 @@ export class Evaluator {
         // there's still a collision
         continue;
       }
-      delete this.evaluatedCells[child];
+      this.evaluatedCells.delete(child);
       this.nextRcsToUpdate.add(...this.getCellsDependingOn([child]));
       this.nextRcsToUpdate.add(...this.getArrayFormulasBlockedByOrSpreadingOn(child));
     }
@@ -389,30 +391,38 @@ export class Evaluator {
   //                 COMMON FUNCTIONALITY
   // ----------------------------------------------------------
 
-  private getDirectDependencies(thisRc: string): string[] {
+  private getDirectDependencies(thisRc: bigint): bigint[] {
     const cell = this.rcToCell(thisRc);
     if (!cell?.isFormula) {
       return [];
     }
-    const dependencies: string[] = [];
+    const dependencies: bigint[] = [];
     for (const range of cell.dependencies) {
       if (range.invalidSheetName || range.invalidXc) {
         continue;
       }
       const sheetId = range.sheetId;
       mapToPositionsInZone(range.zone, (col, row) => {
-        dependencies.push(cellPositionToRc({ sheetId, col, row }));
+        dependencies.push(this.cellPositionToRc({ sheetId, col, row }));
       });
     }
     return dependencies;
   }
 
-  private getCellsDependingOn(rcs: Iterable<string>): Iterable<string> {
+  private getCellsDependingOn(rcs: Iterable<bigint>): Iterable<bigint> {
     return this.formulaDependencies.getCellsDependingOn(rcs);
   }
 
-  private rcToCell(rc: string): Cell | undefined {
-    return this.getters.getCell(rcToCellPosition(rc));
+  private rcToCell(rc: bigint): Cell | undefined {
+    return this.getters.getCell(this.rcToCellPosition(rc));
+  }
+
+  cellPositionToRc(position: CellPosition): bigint {
+    return this.e.encodePosition(position);
+  }
+
+  rcToCellPosition(rc: bigint): CellPosition {
+    return this.e.decodePosition(rc);
   }
 }
 
@@ -454,17 +464,37 @@ function assertFormulaReturnHasConsistentDimensions(formulaReturn: FormulaReturn
   }
 }
 
-function cellPositionToRc(position: CellPosition): string {
-  return `${position.row}!${position.col}!${position.sheetId}`;
-}
+class PositionKey {
+  private readonly sheetMapping = new Map<string, bigint>();
+  private readonly inverseSheetMapping = new Map<bigint, string>();
 
-function rcToCellPosition(rc: string): CellPosition {
-  // faster than  a split("!") by a factor 2
-  const i1 = rc.indexOf("!");
-  const row = rc.slice(0, i1);
-  const position = rc.slice(i1 + 1);
-  const i2 = position.indexOf("!");
-  const col = position.slice(0, i2);
-  const sheetId = position.slice(i2 + 1);
-  return { sheetId, col: Number(col), row: Number(row) };
+  encodePosition({ sheetId, col, row }: CellPosition): bigint {
+    return (this.encodeSheet(sheetId) << 40n) | (BigInt(col) << 20n) | BigInt(row);
+  }
+
+  decodePosition(key: bigint): CellPosition {
+    const row = Number(key & 0xffffn);
+    const col = Number((key >> 20n) & 0xffffn);
+    const sheetId = this.decodeSheet(key >> 40n);
+    return { sheetId, col, row };
+  }
+
+  private encodeSheet(sheetId: UID): bigint {
+    const sheetKey = this.sheetMapping.get(sheetId);
+    if (sheetKey === undefined) {
+      const newSheetKey = BigInt(this.sheetMapping.size);
+      this.sheetMapping.set(sheetId, newSheetKey);
+      this.inverseSheetMapping.set(newSheetKey, sheetId);
+      return newSheetKey;
+    }
+    return sheetKey;
+  }
+
+  private decodeSheet(sheetKey: bigint): UID {
+    const sheetId = this.inverseSheetMapping.get(sheetKey);
+    if (sheetId === undefined) {
+      throw new Error("Sheet key not found");
+    }
+    return sheetId;
+  }
 }

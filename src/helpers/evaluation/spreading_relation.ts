@@ -39,23 +39,23 @@ export class SpreadingRelation {
    * - (B1) --> (B2, B3, B4)  meaning B1 spreads on B2, B3 and B4
    *
    */
-  private readonly resultsToArrayFormulas: Record<string, Set<string>> = {};
-  private readonly arrayFormulasToResults: Record<string, Set<string>> = {};
+  private readonly resultsToArrayFormulas: Map<bigint, Set<bigint>> = new Map();
+  private readonly arrayFormulasToResults: Map<bigint, Set<bigint>> = new Map();
 
-  getArrayFormulasRc(resultRc: string): Iterable<string> {
-    return this.resultsToArrayFormulas[resultRc] || EMPTY_ARRAY;
+  getArrayFormulasRc(resultRc: bigint): Iterable<bigint> {
+    return this.resultsToArrayFormulas.get(resultRc) || EMPTY_ARRAY;
   }
 
-  getArrayResultsRc(arrayFormulaRc: string): Iterable<string> {
-    return this.arrayFormulasToResults[arrayFormulaRc] || EMPTY_ARRAY;
+  getArrayResultsRc(arrayFormulaRc: bigint): Iterable<bigint> {
+    return this.arrayFormulasToResults.get(arrayFormulaRc) || EMPTY_ARRAY;
   }
 
   /**
    * Remove a node, also remove it from other nodes adjacency list
    */
-  removeNode(rc: string) {
-    delete this.resultsToArrayFormulas[rc];
-    delete this.arrayFormulasToResults[rc];
+  removeNode(rc: bigint) {
+    this.resultsToArrayFormulas.delete(rc);
+    this.arrayFormulasToResults.delete(rc);
   }
 
   /**
@@ -65,25 +65,25 @@ export class SpreadingRelation {
     arrayFormulaRc: arrayFormulaRc,
     resultRc: resultRc,
   }: {
-    arrayFormulaRc: string;
-    resultRc: string;
+    arrayFormulaRc: bigint;
+    resultRc: bigint;
   }): void {
-    if (!(resultRc in this.resultsToArrayFormulas)) {
-      this.resultsToArrayFormulas[resultRc] = new Set<string>();
+    if (!this.resultsToArrayFormulas.has(resultRc)) {
+      this.resultsToArrayFormulas.set(resultRc, new Set<bigint>());
     }
-    this.resultsToArrayFormulas[resultRc].add(arrayFormulaRc);
-    if (!(arrayFormulaRc in this.arrayFormulasToResults)) {
-      this.arrayFormulasToResults[arrayFormulaRc] = new Set<string>();
+    this.resultsToArrayFormulas.get(resultRc)?.add(arrayFormulaRc);
+    if (!this.arrayFormulasToResults.has(arrayFormulaRc)) {
+      this.arrayFormulasToResults.set(arrayFormulaRc, new Set<bigint>());
     }
-    this.arrayFormulasToResults[arrayFormulaRc].add(resultRc);
+    this.arrayFormulasToResults.get(arrayFormulaRc)?.add(resultRc);
   }
 
-  hasArrayFormulaResult(rc: string): boolean {
-    return rc in this.resultsToArrayFormulas;
+  hasArrayFormulaResult(rc: bigint): boolean {
+    return this.resultsToArrayFormulas.has(rc);
   }
 
-  isArrayFormula(rc: string): boolean {
-    return rc in this.arrayFormulasToResults;
+  isArrayFormula(rc: bigint): boolean {
+    return this.arrayFormulasToResults.has(rc);
   }
 }
 
