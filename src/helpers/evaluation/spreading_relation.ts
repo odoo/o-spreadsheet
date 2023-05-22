@@ -1,3 +1,5 @@
+import { CellPositionId } from "../../types";
+
 /**
  * Contains, for each cell, the array
  * formulas that could potentially spread on it
@@ -39,21 +41,21 @@ export class SpreadingRelation {
    * - (B1) --> (B2, B3, B4)  meaning B1 spreads on B2, B3 and B4
    *
    */
-  private readonly resultsToArrayFormulas: Map<bigint, Set<bigint>> = new Map();
-  private readonly arrayFormulasToResults: Map<bigint, Set<bigint>> = new Map();
+  private readonly resultsToArrayFormulas: Map<CellPositionId, Set<CellPositionId>> = new Map();
+  private readonly arrayFormulasToResults: Map<CellPositionId, Set<CellPositionId>> = new Map();
 
-  getArrayFormulasRc(resultRc: bigint): Iterable<bigint> {
+  getArrayFormulasRc(resultRc: CellPositionId): Iterable<CellPositionId> {
     return this.resultsToArrayFormulas.get(resultRc) || EMPTY_ARRAY;
   }
 
-  getArrayResultsRc(arrayFormulaRc: bigint): Iterable<bigint> {
+  getArrayResultsRc(arrayFormulaRc: CellPositionId): Iterable<CellPositionId> {
     return this.arrayFormulasToResults.get(arrayFormulaRc) || EMPTY_ARRAY;
   }
 
   /**
    * Remove a node, also remove it from other nodes adjacency list
    */
-  removeNode(rc: bigint) {
+  removeNode(rc: CellPositionId) {
     this.resultsToArrayFormulas.delete(rc);
     this.arrayFormulasToResults.delete(rc);
   }
@@ -65,24 +67,24 @@ export class SpreadingRelation {
     arrayFormulaRc: arrayFormulaRc,
     resultRc: resultRc,
   }: {
-    arrayFormulaRc: bigint;
-    resultRc: bigint;
+    arrayFormulaRc: CellPositionId;
+    resultRc: CellPositionId;
   }): void {
     if (!this.resultsToArrayFormulas.has(resultRc)) {
-      this.resultsToArrayFormulas.set(resultRc, new Set<bigint>());
+      this.resultsToArrayFormulas.set(resultRc, new Set<CellPositionId>());
     }
     this.resultsToArrayFormulas.get(resultRc)?.add(arrayFormulaRc);
     if (!this.arrayFormulasToResults.has(arrayFormulaRc)) {
-      this.arrayFormulasToResults.set(arrayFormulaRc, new Set<bigint>());
+      this.arrayFormulasToResults.set(arrayFormulaRc, new Set<CellPositionId>());
     }
     this.arrayFormulasToResults.get(arrayFormulaRc)?.add(resultRc);
   }
 
-  hasArrayFormulaResult(rc: bigint): boolean {
+  hasArrayFormulaResult(rc: CellPositionId): boolean {
     return this.resultsToArrayFormulas.has(rc);
   }
 
-  isArrayFormula(rc: bigint): boolean {
+  isArrayFormula(rc: CellPositionId): boolean {
     return this.arrayFormulasToResults.has(rc);
   }
 }

@@ -1,3 +1,4 @@
+import { CellPositionId } from "../../types";
 import { JetSet } from "../misc";
 
 /**
@@ -22,8 +23,8 @@ export class FormulaDependencyGraph {
    * - B2 ---> (A1)       meaning A1 depends on B2
    * - C1 ---> (C2)       meaning C2 depends on C1
    */
-  private readonly inverseDependencies: Map<bigint, Set<bigint>> = new Map();
-  private readonly dependencies: Map<bigint, bigint[]> = new Map();
+  private readonly inverseDependencies: Map<CellPositionId, Set<CellPositionId>> = new Map();
+  private readonly dependencies: Map<CellPositionId, CellPositionId[]> = new Map();
 
   removeAllDependencies(formulaRc) {
     const dependencies = this.dependencies.get(formulaRc);
@@ -36,7 +37,7 @@ export class FormulaDependencyGraph {
     this.dependencies.delete(formulaRc);
   }
 
-  addDependencies(formulaRc: bigint, dependencies: bigint[]): void {
+  addDependencies(formulaRc: CellPositionId, dependencies: CellPositionId[]): void {
     for (const dependency of dependencies) {
       const inverseDependencies = this.inverseDependencies.get(dependency);
       if (inverseDependencies) {
@@ -58,15 +59,15 @@ export class FormulaDependencyGraph {
    * in the correct order they should be evaluated.
    * This is called a topological ordering (excluding cycles)
    */
-  getCellsDependingOn(rcs: Iterable<bigint>): Set<bigint> {
-    const visited: JetSet<bigint> = new JetSet<bigint>();
-    const queue: bigint[] = Array.from(rcs);
+  getCellsDependingOn(rcs: Iterable<CellPositionId>): Set<CellPositionId> {
+    const visited: JetSet<CellPositionId> = new JetSet<CellPositionId>();
+    const queue: CellPositionId[] = Array.from(rcs);
 
     while (queue.length > 0) {
       const node = queue.shift()!;
       visited.add(node);
 
-      const adjacentNodes = this.inverseDependencies.get(node) || new Set<bigint>();
+      const adjacentNodes = this.inverseDependencies.get(node) || new Set<CellPositionId>();
       for (const adjacentNode of adjacentNodes) {
         if (!visited.has(adjacentNode)) {
           queue.push(adjacentNode);

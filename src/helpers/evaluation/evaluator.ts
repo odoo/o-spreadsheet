@@ -3,6 +3,7 @@ import { _lt } from "../../translation";
 import {
   Cell,
   CellPosition,
+  CellPositionId,
   CellValue,
   CellValueType,
   EvaluatedCell,
@@ -31,7 +32,7 @@ import { buildCompilationParameters, CompilationParameters } from "./compilation
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { SpreadingRelation } from "./spreading_relation";
 
-type PositionDict<T> = Map<bigint, T>;
+type PositionDict<T> = Map<CellPositionId, T>;
 
 const MAX_ITERATION = 30;
 
@@ -48,7 +49,7 @@ export class Evaluator {
    * spread of when modifying this cell. It should be updated each time an
    * array formula is evaluated and correctly spread on other cells.
    */
-  private blockedArrayFormulas = new Set<bigint>();
+  private blockedArrayFormulas = new Set<CellPositionId>();
   private spreadingRelations = new SpreadingRelation();
 
   private readonly e = new BitsPositionId();
@@ -74,7 +75,7 @@ export class Evaluator {
     return [...this.evaluatedCells.keys()].map(this.rcToCellPosition);
   }
 
-  private getArrayFormulaSpreadingOnRc(rc: bigint): bigint | undefined {
+  private getArrayFormulaSpreadingOnRc(rc: CellPositionId): CellPositionId | undefined {
     if (!this.spreadingRelations.hasArrayFormulaResult(rc)) {
       return undefined;
     }
@@ -94,8 +95,8 @@ export class Evaluator {
   }
 
   evaluateCells(positions: CellPosition[]) {
-    const cells: bigint[] = positions.map(this.cellPositionToRc.bind(this));
-    const cellsToCompute = new JetSet<bigint>(cells);
+    const cells: CellPositionId[] = positions.map(this.cellPositionToRc.bind(this));
+    const cellsToCompute = new JetSet<CellPositionId>(cells);
     const arrayFormulas = this.getArrayFormulasImpactedByChangesOf(cells);
     cellsToCompute.add(...this.getCellsDependingOn(cells));
     cellsToCompute.add(...arrayFormulas);
@@ -103,8 +104,10 @@ export class Evaluator {
     this.evaluate(cellsToCompute);
   }
 
-  private getArrayFormulasImpactedByChangesOf(rcs: Iterable<bigint>): Iterable<bigint> {
-    const impactedRcs = new JetSet<bigint>();
+  private getArrayFormulasImpactedByChangesOf(
+    rcs: Iterable<CellPositionId>
+  ): Iterable<CellPositionId> {
+    const impactedRcs = new JetSet<CellPositionId>();
 
     for (const rc of rcs) {
       const content = this.rcToCell(rc)?.content;
@@ -127,7 +130,7 @@ export class Evaluator {
 
   buildDependencyGraph() {
     this.formulaDependencies = new FormulaDependencyGraph();
-    this.blockedArrayFormulas = new Set<bigint>();
+    this.blockedArrayFormulas = new Set<CellPositionId>();
     this.spreadingRelations = new SpreadingRelation();
     for (const rc of this.getAllCells()) {
       const dependencies = this.getDirectDependencies(rc);
@@ -140,8 +143,8 @@ export class Evaluator {
     this.evaluate(this.getAllCells());
   }
 
-  private getAllCells(): JetSet<bigint> {
-    const rcs = new JetSet<bigint>();
+  private getAllCells(): JetSet<CellPositionId> {
+    const rcs = new JetSet<CellPositionId>();
     for (const sheetId of this.getters.getSheetIds()) {
       const cellIds = this.getters.getCells(sheetId);
       for (const cellId in cellIds) {
@@ -151,12 +154,12 @@ export class Evaluator {
     return rcs;
   }
 
-  private getArrayFormulasBlockedByOrSpreadingOn(rc: bigint): Iterable<bigint> {
+  private getArrayFormulasBlockedByOrSpreadingOn(rc: CellPositionId): Iterable<CellPositionId> {
     if (!this.spreadingRelations.hasArrayFormulaResult(rc)) {
       return [];
     }
     const arrayFormulas = this.spreadingRelations.getArrayFormulasRc(rc);
-    const cells = new JetSet<bigint>(arrayFormulas);
+    const cells = new JetSet<CellPositionId>(arrayFormulas);
     cells.add(...this.getCellsDependingOn(arrayFormulas));
     return cells;
   }
@@ -165,13 +168,13 @@ export class Evaluator {
   //                 EVALUATION MAIN PROCESS
   // ----------------------------------------------------------
 
-  private nextRcsToUpdate = new JetSet<bigint>();
+  private nextRcsToUpdate = new JetSet<CellPositionId>();
   private cellsBeingComputed = new Set<UID>();
 
   /**
    * @param cells ordered topologically! TODO explain this better
    */
-  private evaluate(cells: JetSet<bigint>) {
+  private evaluate(cells: JetSet<CellPositionId>) {
     this.cellsBeingComputed = new Set<UID>();
     this.nextRcsToUpdate = cells;
 
@@ -190,14 +193,14 @@ export class Evaluator {
     }
   }
 
-  private setEvaluatedCell(rc: bigint, evaluatedCell: EvaluatedCell) {
+  private setEvaluatedCell(rc: CellPositionId, evaluatedCell: EvaluatedCell) {
     if (this.nextRcsToUpdate.has(rc)) {
       this.nextRcsToUpdate.delete(rc);
     }
     this.evaluatedCells.set(rc, evaluatedCell);
   }
 
-  private computeCell(rc: bigint): EvaluatedCell {
+  private computeCell(rc: CellPositionId): EvaluatedCell {
     const evaluation = this.evaluatedCells.get(rc);
     if (evaluation) {
       return evaluation; // already computed
@@ -369,7 +372,7 @@ export class Evaluator {
     };
   }
 
-  private invalidateSpreading(rc: bigint) {
+  private invalidateSpreading(rc: CellPositionId) {
     if (!this.spreadingRelations.isArrayFormula(rc)) {
       return;
     }
@@ -391,12 +394,12 @@ export class Evaluator {
   //                 COMMON FUNCTIONALITY
   // ----------------------------------------------------------
 
-  private getDirectDependencies(thisRc: bigint): bigint[] {
+  private getDirectDependencies(thisRc: CellPositionId): CellPositionId[] {
     const cell = this.rcToCell(thisRc);
     if (!cell?.isFormula) {
       return [];
     }
-    const dependencies: bigint[] = [];
+    const dependencies: CellPositionId[] = [];
     for (const range of cell.dependencies) {
       if (range.invalidSheetName || range.invalidXc) {
         continue;
@@ -409,19 +412,19 @@ export class Evaluator {
     return dependencies;
   }
 
-  private getCellsDependingOn(rcs: Iterable<bigint>): Iterable<bigint> {
+  private getCellsDependingOn(rcs: Iterable<CellPositionId>): Iterable<CellPositionId> {
     return this.formulaDependencies.getCellsDependingOn(rcs);
   }
 
-  private rcToCell(rc: bigint): Cell | undefined {
+  private rcToCell(rc: CellPositionId): Cell | undefined {
     return this.getters.getCell(this.rcToCellPosition(rc));
   }
 
-  cellPositionToRc(position: CellPosition): bigint {
+  cellPositionToRc(position: CellPosition): CellPositionId {
     return this.e.encodePosition(position);
   }
 
-  rcToCellPosition(rc: bigint): CellPosition {
+  rcToCellPosition(rc: CellPositionId): CellPosition {
     return this.e.decodePosition(rc);
   }
 }
@@ -465,8 +468,8 @@ function assertFormulaReturnHasConsistentDimensions(formulaReturn: FormulaReturn
 }
 
 class BitsPositionId {
-  private readonly sheetMapping: Record<string, bigint> = {};
-  private readonly inverseSheetMapping = new Map<bigint, string>();
+  private readonly sheetMapping: Record<string, CellPositionId> = {};
+  private readonly inverseSheetMapping = new Map<CellPositionId, string>();
 
   constructor() {
     try {
@@ -477,18 +480,18 @@ class BitsPositionId {
     } catch (error) {}
   }
 
-  encodePosition({ sheetId, col, row }: CellPosition): bigint {
+  encodePosition({ sheetId, col, row }: CellPosition): CellPositionId {
     return (this.encodeSheet(sheetId) << 42n) | (BigInt(col) << 21n) | BigInt(row);
   }
 
-  decodePosition(key: bigint): CellPosition {
+  decodePosition(key: CellPositionId): CellPosition {
     const row = Number(key & 0xffffn);
     const col = Number((key >> 21n) & 0xffffn);
     const sheetId = this.decodeSheet(key >> 42n);
     return { sheetId, col, row };
   }
 
-  private encodeSheet(sheetId: UID): bigint {
+  private encodeSheet(sheetId: UID): CellPositionId {
     const sheetKey = this.sheetMapping[sheetId];
     if (sheetKey === undefined) {
       const newSheetKey = BigInt(Object.keys(this.sheetMapping).length);
@@ -499,7 +502,7 @@ class BitsPositionId {
     return sheetKey;
   }
 
-  private decodeSheet(sheetKey: bigint): UID {
+  private decodeSheet(sheetKey: CellPositionId): UID {
     const sheetId = this.inverseSheetMapping.get(sheetKey);
     if (sheetId === undefined) {
       throw new Error("Sheet id not found");

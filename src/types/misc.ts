@@ -131,6 +131,8 @@ export interface CellPosition {
   sheetId: UID;
 }
 
+export type CellPositionId = bigint;
+
 // A border description is a pair [style, ]
 export type BorderStyle = "thin" | "medium" | "thick" | "dashed" | "dotted" | "double";
 export type BorderDescr = [BorderStyle, Color];
