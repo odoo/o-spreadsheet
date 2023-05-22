@@ -436,7 +436,7 @@ exports[`Color Picker buttons Full component rendering 1`] = `
     class="colors-grid o-color-picker-toggler"
   >
     <div
-      class="o-color-picker-line-item o-color-picker-toggler"
+      class="o-color-picker-line-item o-color-picker-toggler-button"
     >
       <div
         class="o-color-picker-toggler-sign"
