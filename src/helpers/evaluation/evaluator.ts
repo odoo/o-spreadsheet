@@ -63,8 +63,8 @@ export class Evaluator {
 
   getArrayFormulaSpreadingOn(position: CellPosition): CellPosition | undefined {
     const positionId = this.encodePosition(position);
-    const arrayFormulaRc = this.getArrayFormulaSpreadingOnId(positionId);
-    return arrayFormulaRc !== undefined ? this.decodePosition(arrayFormulaRc) : undefined;
+    const formulaPosition = this.getArrayFormulaSpreadingOnId(positionId);
+    return formulaPosition !== undefined ? this.decodePosition(formulaPosition) : undefined;
   }
 
   getPositions(): CellPosition[] {
@@ -166,7 +166,7 @@ export class Evaluator {
   //                 EVALUATION MAIN PROCESS
   // ----------------------------------------------------------
 
-  private nextRcsToUpdate = new JetSet<PositionId>();
+  private nextCellsToUpdate = new JetSet<PositionId>();
   private cellsBeingComputed = new Set<UID>();
 
   /**
@@ -174,12 +174,12 @@ export class Evaluator {
    */
   private evaluate(cells: JetSet<PositionId>) {
     this.cellsBeingComputed = new Set<UID>();
-    this.nextRcsToUpdate = cells;
+    this.nextCellsToUpdate = cells;
 
     let currentIteration = 0;
-    while (this.nextRcsToUpdate.size && currentIteration++ < MAX_ITERATION) {
-      const positionIds = Array.from(this.nextRcsToUpdate);
-      this.nextRcsToUpdate.clear();
+    while (this.nextCellsToUpdate.size && currentIteration++ < MAX_ITERATION) {
+      const positionIds = Array.from(this.nextCellsToUpdate);
+      this.nextCellsToUpdate.clear();
       for (let i = 0; i < positionIds.length; ++i) {
         const cell = positionIds[i];
         this.evaluatedCells.delete(cell);
@@ -192,8 +192,8 @@ export class Evaluator {
   }
 
   private setEvaluatedCell(positionId: PositionId, evaluatedCell: EvaluatedCell) {
-    if (this.nextRcsToUpdate.has(positionId)) {
-      this.nextRcsToUpdate.delete(positionId);
+    if (this.nextCellsToUpdate.has(positionId)) {
+      this.nextCellsToUpdate.delete(positionId);
     }
     this.evaluatedCells.set(positionId, evaluatedCell);
   }
@@ -317,16 +317,16 @@ export class Evaluator {
     col,
     row,
   }: CellPosition): (i: number, j: number) => void {
-    const formulaRc = this.encodePosition({ sheetId, col, row });
+    const arrayFormulaPositionId = this.encodePosition({ sheetId, col, row });
     return (i: number, j: number) => {
       const position = { sheetId, col: i + col, row: j + row };
-      const positionId = this.encodePosition(position);
-      this.spreadingRelations.addRelation({ resultRc: positionId, arrayFormulaRc: formulaRc });
+      const resultPositionId = this.encodePosition(position);
+      this.spreadingRelations.addRelation({ resultPositionId, arrayFormulaPositionId });
     };
   }
 
   private checkCollision({ sheetId, col, row }: CellPosition): (i: number, j: number) => void {
-    const formulaRc = this.encodePosition({ sheetId, col, row });
+    const formulaPositionId = this.encodePosition({ sheetId, col, row });
     return (i: number, j: number) => {
       const position = { sheetId: sheetId, col: i + col, row: j + row };
       const rawCell = this.getters.getCell(position);
@@ -334,7 +334,7 @@ export class Evaluator {
         rawCell?.content ||
         this.getters.getEvaluatedCell(position).type !== CellValueType.empty
       ) {
-        this.blockedArrayFormulas.add(formulaRc);
+        this.blockedArrayFormulas.add(formulaPositionId);
         throw new Error(
           _lt(
             "Array result was not expanded because it would overwrite data in %s.",
@@ -342,7 +342,7 @@ export class Evaluator {
           )
         );
       }
-      this.blockedArrayFormulas.delete(formulaRc);
+      this.blockedArrayFormulas.delete(formulaPositionId);
     };
   }
 
@@ -366,7 +366,7 @@ export class Evaluator {
 
       // check if formula dependencies present in the spread zone
       // if so, they need to be recomputed
-      this.nextRcsToUpdate.add(...this.getCellsDependingOn([positionId]));
+      this.nextCellsToUpdate.add(...this.getCellsDependingOn([positionId]));
     };
   }
 
@@ -374,7 +374,7 @@ export class Evaluator {
     if (!this.spreadingRelations.isArrayFormula(positionId)) {
       return;
     }
-    for (const child of this.spreadingRelations.getArrayResultsRc(positionId)) {
+    for (const child of this.spreadingRelations.getArrayResultPositionIds(positionId)) {
       const content = this.getCell(child)?.content;
       if (content) {
         // there's no point at re-evaluating overlapping array formulas,
@@ -382,8 +382,8 @@ export class Evaluator {
         continue;
       }
       this.evaluatedCells.delete(child);
-      this.nextRcsToUpdate.add(...this.getCellsDependingOn([child]));
-      this.nextRcsToUpdate.add(...this.getArrayFormulasBlockedByOrSpreadingOn(child));
+      this.nextCellsToUpdate.add(...this.getCellsDependingOn([child]));
+      this.nextCellsToUpdate.add(...this.getArrayFormulasBlockedByOrSpreadingOn(child));
     }
     this.spreadingRelations.removeNode(positionId);
   }
@@ -392,8 +392,8 @@ export class Evaluator {
   //                 COMMON FUNCTIONALITY
   // ----------------------------------------------------------
 
-  private getDirectDependencies(thisRc: PositionId): PositionId[] {
-    const cell = this.getCell(thisRc);
+  private getDirectDependencies(positionId: PositionId): PositionId[] {
+    const cell = this.getCell(positionId);
     if (!cell?.isFormula) {
       return [];
     }

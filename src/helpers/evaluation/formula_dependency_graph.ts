@@ -10,8 +10,8 @@ import { PositionId } from "./evaluator";
 export class FormulaDependencyGraph {
   /**
    * Internal structure:
-   * - key: a cell rc
-   * - value: a set of cell rc that depends on the key
+   * - key: a cell position (encoded as an integer)
+   * - value: a set of cell positions that depends on the key
    *
    * Given
    * - A1:"= B1 + SQRT(B2)"
@@ -26,31 +26,31 @@ export class FormulaDependencyGraph {
   private readonly inverseDependencies: Map<PositionId, Set<PositionId>> = new Map();
   private readonly dependencies: Map<PositionId, PositionId[]> = new Map();
 
-  removeAllDependencies(formulaRc) {
-    const dependencies = this.dependencies.get(formulaRc);
+  removeAllDependencies(formulaPositionId: PositionId) {
+    const dependencies = this.dependencies.get(formulaPositionId);
     if (!dependencies) {
       return;
     }
     for (const dependency of dependencies) {
-      this.inverseDependencies.get(dependency)?.delete(formulaRc);
+      this.inverseDependencies.get(dependency)?.delete(formulaPositionId);
     }
-    this.dependencies.delete(formulaRc);
+    this.dependencies.delete(formulaPositionId);
   }
 
-  addDependencies(formulaRc: PositionId, dependencies: PositionId[]): void {
+  addDependencies(formulaPositionId: PositionId, dependencies: PositionId[]): void {
     for (const dependency of dependencies) {
       const inverseDependencies = this.inverseDependencies.get(dependency);
       if (inverseDependencies) {
-        inverseDependencies.add(formulaRc);
+        inverseDependencies.add(formulaPositionId);
       } else {
-        this.inverseDependencies.set(dependency, new Set([formulaRc]));
+        this.inverseDependencies.set(dependency, new Set([formulaPositionId]));
       }
     }
-    const existingDependencies = this.dependencies.get(formulaRc);
+    const existingDependencies = this.dependencies.get(formulaPositionId);
     if (existingDependencies) {
       existingDependencies.push(...dependencies);
     } else {
-      this.dependencies.set(formulaRc, dependencies);
+      this.dependencies.set(formulaPositionId, dependencies);
     }
   }
 
@@ -59,9 +59,9 @@ export class FormulaDependencyGraph {
    * in the correct order they should be evaluated.
    * This is called a topological ordering (excluding cycles)
    */
-  getCellsDependingOn(rcs: Iterable<PositionId>): Set<PositionId> {
+  getCellsDependingOn(positionIds: Iterable<PositionId>): Set<PositionId> {
     const visited: JetSet<PositionId> = new JetSet<PositionId>();
-    const queue: PositionId[] = Array.from(rcs);
+    const queue: PositionId[] = Array.from(positionIds);
 
     while (queue.length > 0) {
       const node = queue.shift()!;
@@ -74,7 +74,7 @@ export class FormulaDependencyGraph {
         }
       }
     }
-    visited.delete(...rcs);
+    visited.delete(...positionIds);
     return visited;
   }
 }
