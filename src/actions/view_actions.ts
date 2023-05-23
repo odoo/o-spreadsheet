@@ -70,6 +70,7 @@ export const unFreezePane: ActionSpec = {
     env.model.dispatch("UNFREEZE_COLUMNS_ROWS", {
       sheetId: env.model.getters.getActiveSheetId(),
     }),
+  icon: "o-spreadsheet-Icon.UNFREEZE",
 };
 
 export const freezePane: ActionSpec = {
