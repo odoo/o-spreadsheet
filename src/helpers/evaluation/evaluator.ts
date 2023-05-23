@@ -62,8 +62,8 @@ export class Evaluator {
   }
 
   getArrayFormulaSpreadingOn(position: CellPosition): CellPosition | undefined {
-    const rc = this.encodePosition(position);
-    const arrayFormulaRc = this.getArrayFormulaSpreadingOnRc(rc);
+    const positionId = this.encodePosition(position);
+    const arrayFormulaRc = this.getArrayFormulaSpreadingOnId(positionId);
     return arrayFormulaRc !== undefined ? this.decodePosition(arrayFormulaRc) : undefined;
   }
 
@@ -71,12 +71,14 @@ export class Evaluator {
     return [...this.evaluatedCells.keys()].map(this.decodePosition.bind(this));
   }
 
-  private getArrayFormulaSpreadingOnRc(rc: PositionId): PositionId | undefined {
-    if (!this.spreadingRelations.hasArrayFormulaResult(rc)) {
+  private getArrayFormulaSpreadingOnId(positionId: PositionId): PositionId | undefined {
+    if (!this.spreadingRelations.hasArrayFormulaResult(positionId)) {
       return undefined;
     }
-    const arrayFormulas = this.spreadingRelations.getArrayFormulasRc(rc);
-    return Array.from(arrayFormulas).find((rc) => !this.blockedArrayFormulas.has(rc));
+    const arrayFormulas = this.spreadingRelations.getFormulaPositionsSpreadingOn(positionId);
+    return Array.from(arrayFormulas).find(
+      (positionId) => !this.blockedArrayFormulas.has(positionId)
+    );
   }
 
   // ----------------------------------------------------------
@@ -84,10 +86,10 @@ export class Evaluator {
   // ----------------------------------------------------------
 
   updateDependencies(position: CellPosition) {
-    const rc = this.encodePosition(position);
-    this.formulaDependencies.removeAllDependencies(rc);
-    const dependencies = this.getDirectDependencies(rc);
-    this.formulaDependencies.addDependencies(rc, dependencies);
+    const positionId = this.encodePosition(position);
+    this.formulaDependencies.removeAllDependencies(positionId);
+    const dependencies = this.getDirectDependencies(positionId);
+    this.formulaDependencies.addDependencies(positionId, dependencies);
   }
 
   evaluateCells(positions: CellPosition[]) {
@@ -100,22 +102,24 @@ export class Evaluator {
     this.evaluate(cellsToCompute);
   }
 
-  private getArrayFormulasImpactedByChangesOf(rcs: Iterable<PositionId>): Iterable<PositionId> {
-    const impactedRcs = new JetSet<PositionId>();
+  private getArrayFormulasImpactedByChangesOf(
+    positionIds: Iterable<PositionId>
+  ): Iterable<PositionId> {
+    const impactedPositionIds = new JetSet<PositionId>();
 
-    for (const rc of rcs) {
-      const content = this.rcToCell(rc)?.content;
-      const arrayFormulaRc = this.getArrayFormulaSpreadingOnRc(rc);
-      if (arrayFormulaRc !== undefined) {
+    for (const positionId of positionIds) {
+      const content = this.getCell(positionId)?.content;
+      const arrayFormulaPositionId = this.getArrayFormulaSpreadingOnId(positionId);
+      if (arrayFormulaPositionId !== undefined) {
         // take into account new collisions.
-        impactedRcs.add(arrayFormulaRc);
+        impactedPositionIds.add(arrayFormulaPositionId);
       }
       if (!content) {
         // The previous content could have blocked some array formulas
-        impactedRcs.add(...this.getArrayFormulasBlockedByOrSpreadingOn(rc));
+        impactedPositionIds.add(...this.getArrayFormulasBlockedByOrSpreadingOn(positionId));
       }
     }
-    return impactedRcs;
+    return impactedPositionIds;
   }
 
   // ----------------------------------------------------------
@@ -126,9 +130,9 @@ export class Evaluator {
     this.formulaDependencies = new FormulaDependencyGraph();
     this.blockedArrayFormulas = new Set<PositionId>();
     this.spreadingRelations = new SpreadingRelation();
-    for (const rc of this.getAllCells()) {
-      const dependencies = this.getDirectDependencies(rc);
-      this.formulaDependencies.addDependencies(rc, dependencies);
+    for (const positionId of this.getAllCells()) {
+      const dependencies = this.getDirectDependencies(positionId);
+      this.formulaDependencies.addDependencies(positionId, dependencies);
     }
   }
 
@@ -138,21 +142,21 @@ export class Evaluator {
   }
 
   private getAllCells(): JetSet<PositionId> {
-    const rcs = new JetSet<PositionId>();
+    const positionIds = new JetSet<PositionId>();
     for (const sheetId of this.getters.getSheetIds()) {
       const cellIds = this.getters.getCells(sheetId);
       for (const cellId in cellIds) {
-        rcs.add(this.encodePosition(this.getters.getCellPosition(cellId)));
+        positionIds.add(this.encodePosition(this.getters.getCellPosition(cellId)));
       }
     }
-    return rcs;
+    return positionIds;
   }
 
-  private getArrayFormulasBlockedByOrSpreadingOn(rc: PositionId): Iterable<PositionId> {
-    if (!this.spreadingRelations.hasArrayFormulaResult(rc)) {
+  private getArrayFormulasBlockedByOrSpreadingOn(positionId: PositionId): Iterable<PositionId> {
+    if (!this.spreadingRelations.hasArrayFormulaResult(positionId)) {
       return [];
     }
-    const arrayFormulas = this.spreadingRelations.getArrayFormulasRc(rc);
+    const arrayFormulas = this.spreadingRelations.getFormulaPositionsSpreadingOn(positionId);
     const cells = new JetSet<PositionId>(arrayFormulas);
     cells.add(...this.getCellsDependingOn(arrayFormulas));
     return cells;
@@ -174,37 +178,37 @@ export class Evaluator {
 
     let currentIteration = 0;
     while (this.nextRcsToUpdate.size && currentIteration++ < MAX_ITERATION) {
-      const rcs = Array.from(this.nextRcsToUpdate);
+      const positionIds = Array.from(this.nextRcsToUpdate);
       this.nextRcsToUpdate.clear();
-      for (let i = 0; i < rcs.length; ++i) {
-        const cell = rcs[i];
+      for (let i = 0; i < positionIds.length; ++i) {
+        const cell = positionIds[i];
         this.evaluatedCells.delete(cell);
       }
-      for (let i = 0; i < rcs.length; ++i) {
-        const cell = rcs[i];
+      for (let i = 0; i < positionIds.length; ++i) {
+        const cell = positionIds[i];
         this.setEvaluatedCell(cell, this.computeCell(cell));
       }
     }
   }
 
-  private setEvaluatedCell(rc: PositionId, evaluatedCell: EvaluatedCell) {
-    if (this.nextRcsToUpdate.has(rc)) {
-      this.nextRcsToUpdate.delete(rc);
+  private setEvaluatedCell(positionId: PositionId, evaluatedCell: EvaluatedCell) {
+    if (this.nextRcsToUpdate.has(positionId)) {
+      this.nextRcsToUpdate.delete(positionId);
     }
-    this.evaluatedCells.set(rc, evaluatedCell);
+    this.evaluatedCells.set(positionId, evaluatedCell);
   }
 
-  private computeCell(rc: PositionId): EvaluatedCell {
-    const evaluation = this.evaluatedCells.get(rc);
+  private computeCell(positionId: PositionId): EvaluatedCell {
+    const evaluation = this.evaluatedCells.get(positionId);
     if (evaluation) {
       return evaluation; // already computed
     }
 
-    if (!this.blockedArrayFormulas.has(rc)) {
-      this.invalidateSpreading(rc);
+    if (!this.blockedArrayFormulas.has(positionId)) {
+      this.invalidateSpreading(positionId);
     }
 
-    const cell = this.rcToCell(rc);
+    const cell = this.getCell(positionId);
     if (cell === undefined) {
       return createEvaluatedCell("");
     }
@@ -316,8 +320,8 @@ export class Evaluator {
     const formulaRc = this.encodePosition({ sheetId, col, row });
     return (i: number, j: number) => {
       const position = { sheetId, col: i + col, row: j + row };
-      const rc = this.encodePosition(position);
-      this.spreadingRelations.addRelation({ resultRc: rc, arrayFormulaRc: formulaRc });
+      const positionId = this.encodePosition(position);
+      this.spreadingRelations.addRelation({ resultRc: positionId, arrayFormulaRc: formulaRc });
     };
   }
 
@@ -356,22 +360,22 @@ export class Evaluator {
         format || formatFromPosition(i, j)
       );
 
-      const rc = this.encodePosition(position);
+      const positionId = this.encodePosition(position);
 
-      this.setEvaluatedCell(rc, evaluatedCell);
+      this.setEvaluatedCell(positionId, evaluatedCell);
 
       // check if formula dependencies present in the spread zone
       // if so, they need to be recomputed
-      this.nextRcsToUpdate.add(...this.getCellsDependingOn([rc]));
+      this.nextRcsToUpdate.add(...this.getCellsDependingOn([positionId]));
     };
   }
 
-  private invalidateSpreading(rc: PositionId) {
-    if (!this.spreadingRelations.isArrayFormula(rc)) {
+  private invalidateSpreading(positionId: PositionId) {
+    if (!this.spreadingRelations.isArrayFormula(positionId)) {
       return;
     }
-    for (const child of this.spreadingRelations.getArrayResultsRc(rc)) {
-      const content = this.rcToCell(child)?.content;
+    for (const child of this.spreadingRelations.getArrayResultsRc(positionId)) {
+      const content = this.getCell(child)?.content;
       if (content) {
         // there's no point at re-evaluating overlapping array formulas,
         // there's still a collision
@@ -381,7 +385,7 @@ export class Evaluator {
       this.nextRcsToUpdate.add(...this.getCellsDependingOn([child]));
       this.nextRcsToUpdate.add(...this.getArrayFormulasBlockedByOrSpreadingOn(child));
     }
-    this.spreadingRelations.removeNode(rc);
+    this.spreadingRelations.removeNode(positionId);
   }
 
   // ----------------------------------------------------------
@@ -389,7 +393,7 @@ export class Evaluator {
   // ----------------------------------------------------------
 
   private getDirectDependencies(thisRc: PositionId): PositionId[] {
-    const cell = this.rcToCell(thisRc);
+    const cell = this.getCell(thisRc);
     if (!cell?.isFormula) {
       return [];
     }
@@ -406,20 +410,20 @@ export class Evaluator {
     return dependencies;
   }
 
-  private getCellsDependingOn(rcs: Iterable<PositionId>): Iterable<PositionId> {
-    return this.formulaDependencies.getCellsDependingOn(rcs);
+  private getCellsDependingOn(positionIds: Iterable<PositionId>): Iterable<PositionId> {
+    return this.formulaDependencies.getCellsDependingOn(positionIds);
   }
 
-  private rcToCell(rc: PositionId): Cell | undefined {
-    return this.getters.getCell(this.decodePosition(rc));
+  private getCell(positionId: PositionId): Cell | undefined {
+    return this.getters.getCell(this.decodePosition(positionId));
   }
 
   private encodePosition(position: CellPosition): PositionId {
     return this.positionEncoder.encode(position);
   }
 
-  private decodePosition(rc: PositionId): CellPosition {
-    return this.positionEncoder.decode(rc);
+  private decodePosition(positionId: PositionId): CellPosition {
+    return this.positionEncoder.decode(positionId);
   }
 }
 

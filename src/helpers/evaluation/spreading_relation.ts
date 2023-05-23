@@ -44,7 +44,7 @@ export class SpreadingRelation {
   private readonly resultsToArrayFormulas: Map<PositionId, Set<PositionId>> = new Map();
   private readonly arrayFormulasToResults: Map<PositionId, Set<PositionId>> = new Map();
 
-  getArrayFormulasRc(resultRc: PositionId): Iterable<PositionId> {
+  getFormulaPositionsSpreadingOn(resultRc: PositionId): Iterable<PositionId> {
     return this.resultsToArrayFormulas.get(resultRc) || EMPTY_ARRAY;
   }
 
