@@ -119,6 +119,14 @@
       />
     </svg>
   </t>
+  <t t-name="o-spreadsheet-Icon.UNFREEZE" owl="1">
+    <svg class="o-icon">
+      <path
+        fill="currentColor"
+        d="M.5 17.5h16a1 1 0 0 0 1-1v-15a1 1 0 0 0-1-1h-15a1 1 0 0 0-1 1v15a1 1 0 0 0 1 1M5 6H2V2h3m0 9.5H2V7h3m0 9H2v-3.5h3M10.5 7v4.5H6V7m0 9v-3.5h4.5V16m5.5 0h-4.5v-3.5H16m0-1h-4.5V7H16m0-5v4h-4.5V2m-1 4H6V2h4.5"
+      />
+    </svg>
+  </t>
   <t t-name="o-spreadsheet-Icon.SHOW_HIDE_GRID" owl="1">
     <svg class="o-icon">
       <path
