@@ -67,7 +67,7 @@ export class Evaluator {
     return formulaPosition !== undefined ? this.decodePosition(formulaPosition) : undefined;
   }
 
-  getPositions(): CellPosition[] {
+  getEvaluatedPositions(): CellPosition[] {
     return [...this.evaluatedCells.keys()].map(this.decodePosition.bind(this));
   }
 

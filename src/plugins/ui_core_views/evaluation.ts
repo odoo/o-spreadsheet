@@ -301,7 +301,7 @@ export class EvaluationPlugin extends UIPlugin {
   }
 
   exportForExcel(data: ExcelWorkbookData) {
-    for (const position of this.evaluator.getPositions()) {
+    for (const position of this.evaluator.getEvaluatedPositions()) {
       const evaluatedCell = this.evaluator.getEvaluatedCell(position);
 
       const xc = toXC(position.col, position.row);
