@@ -1,4 +1,4 @@
-import { CellPositionId } from "../../types";
+import { PositionId } from "./evaluator";
 
 /**
  * Contains, for each cell, the array
@@ -41,21 +41,21 @@ export class SpreadingRelation {
    * - (B1) --> (B2, B3, B4)  meaning B1 spreads on B2, B3 and B4
    *
    */
-  private readonly resultsToArrayFormulas: Map<CellPositionId, Set<CellPositionId>> = new Map();
-  private readonly arrayFormulasToResults: Map<CellPositionId, Set<CellPositionId>> = new Map();
+  private readonly resultsToArrayFormulas: Map<PositionId, Set<PositionId>> = new Map();
+  private readonly arrayFormulasToResults: Map<PositionId, Set<PositionId>> = new Map();
 
-  getArrayFormulasRc(resultRc: CellPositionId): Iterable<CellPositionId> {
+  getArrayFormulasRc(resultRc: PositionId): Iterable<PositionId> {
     return this.resultsToArrayFormulas.get(resultRc) || EMPTY_ARRAY;
   }
 
-  getArrayResultsRc(arrayFormulaRc: CellPositionId): Iterable<CellPositionId> {
+  getArrayResultsRc(arrayFormulaRc: PositionId): Iterable<PositionId> {
     return this.arrayFormulasToResults.get(arrayFormulaRc) || EMPTY_ARRAY;
   }
 
   /**
    * Remove a node, also remove it from other nodes adjacency list
    */
-  removeNode(rc: CellPositionId) {
+  removeNode(rc: PositionId) {
     this.resultsToArrayFormulas.delete(rc);
     this.arrayFormulasToResults.delete(rc);
   }
@@ -67,24 +67,24 @@ export class SpreadingRelation {
     arrayFormulaRc: arrayFormulaRc,
     resultRc: resultRc,
   }: {
-    arrayFormulaRc: CellPositionId;
-    resultRc: CellPositionId;
+    arrayFormulaRc: PositionId;
+    resultRc: PositionId;
   }): void {
     if (!this.resultsToArrayFormulas.has(resultRc)) {
-      this.resultsToArrayFormulas.set(resultRc, new Set<CellPositionId>());
+      this.resultsToArrayFormulas.set(resultRc, new Set<PositionId>());
     }
     this.resultsToArrayFormulas.get(resultRc)?.add(arrayFormulaRc);
     if (!this.arrayFormulasToResults.has(arrayFormulaRc)) {
-      this.arrayFormulasToResults.set(arrayFormulaRc, new Set<CellPositionId>());
+      this.arrayFormulasToResults.set(arrayFormulaRc, new Set<PositionId>());
     }
     this.arrayFormulasToResults.get(arrayFormulaRc)?.add(resultRc);
   }
 
-  hasArrayFormulaResult(rc: CellPositionId): boolean {
+  hasArrayFormulaResult(rc: PositionId): boolean {
     return this.resultsToArrayFormulas.has(rc);
   }
 
-  isArrayFormula(rc: CellPositionId): boolean {
+  isArrayFormula(rc: PositionId): boolean {
     return this.arrayFormulasToResults.has(rc);
   }
 }
