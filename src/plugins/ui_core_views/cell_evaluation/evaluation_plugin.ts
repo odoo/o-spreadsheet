@@ -268,35 +268,6 @@ export class EvaluationPlugin extends UIPlugin {
   // Export
   // ---------------------------------------------------------------------------
 
-  /**
-   * Returns the corresponding formula cell of a given cell
-   * It could be the formula present in the cell itself or the
-   * formula of the array formula that spreads to the cell
-   */
-  private getCorrespondingFormulaCell(position: CellPosition): FormulaCell | undefined {
-    const cell = this.getters.getCell(position);
-
-    if (cell && cell.content) {
-      if (cell.isFormula && !isBadExpression(cell.content)) {
-        return cell;
-      }
-      return undefined;
-    }
-
-    const spreadingFormulaPosition = this.evaluator.getArrayFormulaSpreadingOn(position);
-
-    if (spreadingFormulaPosition === undefined) {
-      return undefined;
-    }
-
-    const spreadingFormulaCell = this.getters.getCell(spreadingFormulaPosition);
-
-    if (spreadingFormulaCell?.isFormula) {
-      return spreadingFormulaCell;
-    }
-    return undefined;
-  }
-
   exportForExcel(data: ExcelWorkbookData) {
     for (const position of this.evaluator.getEvaluatedPositions()) {
       const evaluatedCell = this.evaluator.getEvaluatedCell(position);
@@ -332,6 +303,35 @@ export class EvaluationPlugin extends UIPlugin {
       const content = !isExported ? newContent : exportedCellData.content;
       exportedSheetData.cells[xc] = { ...exportedCellData, value, isFormula, content, format };
     }
+  }
+
+  /**
+   * Returns the corresponding formula cell of a given cell
+   * It could be the formula present in the cell itself or the
+   * formula of the array formula that spreads to the cell
+   */
+  private getCorrespondingFormulaCell(position: CellPosition): FormulaCell | undefined {
+    const cell = this.getters.getCell(position);
+
+    if (cell && cell.content) {
+      if (cell.isFormula && !isBadExpression(cell.content)) {
+        return cell;
+      }
+      return undefined;
+    }
+
+    const spreadingFormulaPosition = this.evaluator.getArrayFormulaSpreadingOn(position);
+
+    if (spreadingFormulaPosition === undefined) {
+      return undefined;
+    }
+
+    const spreadingFormulaCell = this.getters.getCell(spreadingFormulaPosition);
+
+    if (spreadingFormulaCell?.isFormula) {
+      return spreadingFormulaCell;
+    }
+    return undefined;
   }
 }
 
