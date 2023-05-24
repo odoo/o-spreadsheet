@@ -26,7 +26,7 @@ import {
 import { createEvaluatedCell, errorCell, evaluateLiteral } from "../cells";
 import { toXC } from "../coordinates";
 import { JetSet } from "../misc";
-import { mapToPositionsInZone } from "../zones";
+import { forEachPositionsInZone } from "../zones";
 import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { SpreadingRelation } from "./spreading_relation";
@@ -403,7 +403,7 @@ export class Evaluator {
         continue;
       }
       const sheetId = range.sheetId;
-      mapToPositionsInZone(range.zone, (col, row) => {
+      forEachPositionsInZone(range.zone, (col, row) => {
         dependencies.push(this.encodePosition({ sheetId, col, row }));
       });
     }

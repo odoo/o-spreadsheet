@@ -509,18 +509,13 @@ export function positions(zone: Zone): Position[] {
   return positions;
 }
 
-export function mapToPositionsInZone(
-  zone: Zone,
-  callback: (col: number, row: number) => void
-): Position[] {
-  const positions: Position[] = [];
+export function forEachPositionsInZone(zone: Zone, callback: (col: number, row: number) => void) {
   const { left, right, top, bottom } = zone;
   for (let col = left; col <= right; col++) {
     for (let row = top; row <= bottom; row++) {
       callback(col, row);
     }
   }
-  return positions;
 }
 
 /**
