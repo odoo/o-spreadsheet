@@ -1,6 +1,6 @@
-import { compile } from "../../formulas/index";
-import { functionRegistry } from "../../functions/index";
-import { createEvaluatedCell, errorCell, evaluateLiteral } from "../../helpers/cells";
+import { compile } from "../../../formulas/index";
+import { functionRegistry } from "../../../functions/index";
+import { createEvaluatedCell, errorCell, evaluateLiteral } from "../../../helpers/cells";
 import {
   intersection,
   isDefined,
@@ -10,15 +10,15 @@ import {
   toCartesian,
   toXC,
   zoneToXc,
-} from "../../helpers/index";
-import { _lt } from "../../translation";
+} from "../../../helpers/index";
+import { _lt } from "../../../translation";
 import {
   CellErrorLevel,
   CellErrorType,
   CircularDependencyError,
   EvaluationError,
   InvalidReferenceError,
-} from "../../types/errors";
+} from "../../../types/errors";
 import {
   Cell,
   CellPosition,
@@ -41,8 +41,8 @@ import {
   ReferenceDenormalizer,
   UID,
   Zone,
-} from "../../types/index";
-import { UIPlugin, UIPluginConfig } from "../ui_plugin";
+} from "../../../types/index";
+import { UIPlugin, UIPluginConfig } from "../../ui_plugin";
 
 const functionMap = functionRegistry.mapping;
 
