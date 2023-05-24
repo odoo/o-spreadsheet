@@ -188,8 +188,8 @@ class Demo extends Component {
       this.transportService = undefined;
       this.stateUpdateMessages = [];
     }
-    // this.createModel(data || demoData);
-    this.createModel(makeLargeDataset(26, 10_000, ["formulas"]));
+    this.createModel(data || demoData);
+    // this.createModel(makeLargeDataset(26, 10_000, ["numbers"]));
     // this.createModel({});
   }
 
@@ -283,8 +283,7 @@ Demo.template = xml/* xml */ `
     </div>
   </div>
   <div t-else="">
-    done
-    <!-- <Spreadsheet model="model" t-key="state.key"/> -->
+    <Spreadsheet model="model" t-key="state.key"/>
   </div>
 `;
 Demo.components = { Spreadsheet };

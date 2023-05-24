@@ -79,10 +79,6 @@ export class Evaluator {
     );
   }
 
-  // ----------------------------------------------------------
-  //        METHOD RELATING TO SPECIFIC CELLS EVALUATION
-  // ----------------------------------------------------------
-
   updateDependencies(position: CellPosition) {
     const positionId = this.encodePosition(position);
     this.formulaDependencies.removeAllDependencies(positionId);
@@ -120,10 +116,6 @@ export class Evaluator {
     return impactedPositionIds;
   }
 
-  // ----------------------------------------------------------
-  //      METHOD RELATING TO THE REVALUATION OF ALL CELLS
-  // ----------------------------------------------------------
-
   buildDependencyGraph() {
     this.formulaDependencies = new FormulaDependencyGraph();
     this.blockedArrayFormulas = new Set<PositionId>();
@@ -159,10 +151,6 @@ export class Evaluator {
     cells.add(...this.getCellsDependingOn(arrayFormulas));
     return cells;
   }
-
-  // ----------------------------------------------------------
-  //                 EVALUATION MAIN PROCESS
-  // ----------------------------------------------------------
 
   private nextPositionsToUpdate = new JetSet<PositionId>();
   private cellsBeingComputed = new Set<UID>();
@@ -499,7 +487,7 @@ class PositionBitsEncoder {
   }
 
   /**
-   * Encode
+   * Encode a cell position to a single integer.
    */
   encode({ sheetId, col, row }: CellPosition): PositionId {
     return (this.encodeSheet(sheetId) << 42n) | (BigInt(col) << 21n) | BigInt(row);
