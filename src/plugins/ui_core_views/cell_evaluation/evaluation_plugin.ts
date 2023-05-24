@@ -1,11 +1,6 @@
-import { compile } from "../../formulas/index";
-import { functionRegistry } from "../../functions/index";
-import {
-  buildCompilationParameters,
-  CompilationParameters,
-} from "../../helpers/evaluation/compilation_parameters";
-import { Evaluator } from "../../helpers/evaluation/evaluator";
-import { getItemId, positions, toXC } from "../../helpers/index";
+import { compile } from "../../../formulas/index";
+import { functionRegistry } from "../../../functions/index";
+import { getItemId, positions, toXC } from "../../../helpers/index";
 import {
   CellPosition,
   CellValue,
@@ -20,8 +15,10 @@ import {
   Range,
   UID,
   Zone,
-} from "../../types/index";
-import { UIPlugin, UIPluginConfig } from "../ui_plugin";
+} from "../../../types/index";
+import { UIPlugin, UIPluginConfig } from "../../ui_plugin";
+import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
+import { Evaluator } from "./evaluator";
 
 const functions = functionRegistry.content;
 

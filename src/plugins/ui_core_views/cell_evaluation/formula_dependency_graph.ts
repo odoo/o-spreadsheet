@@ -1,4 +1,4 @@
-import { JetSet } from "../misc";
+import { JetSet } from "../../../helpers";
 import { PositionId } from "./evaluator";
 
 /**

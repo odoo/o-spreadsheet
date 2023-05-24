@@ -1,6 +1,7 @@
-import { functionRegistry } from "../../functions";
-import { ModelConfig } from "../../model";
-import { _lt } from "../../translation";
+import { functionRegistry } from "../../../functions";
+import { intersection, isZoneValid, zoneToXc } from "../../../helpers";
+import { ModelConfig } from "../../../model";
+import { _lt } from "../../../translation";
 import {
   CellPosition,
   CellValue,
@@ -14,9 +15,8 @@ import {
   PrimitiveArg,
   Range,
   ReferenceDenormalizer,
-} from "../../types";
-import { InvalidReferenceError } from "../../types/errors";
-import { intersection, isZoneValid, zoneToXc } from "../zones";
+} from "../../../types";
+import { InvalidReferenceError } from "../../../types/errors";
 
 export type CompilationParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
 const functionMap = functionRegistry.mapping;

@@ -1,5 +1,7 @@
-import { ModelConfig } from "../../model";
-import { _lt } from "../../translation";
+import { forEachPositionsInZone, JetSet, toXC } from "../../../helpers";
+import { createEvaluatedCell, errorCell, evaluateLiteral } from "../../../helpers/cells";
+import { ModelConfig } from "../../../model";
+import { _lt } from "../../../translation";
 import {
   Cell,
   CellPosition,
@@ -16,17 +18,13 @@ import {
   MatrixFunctionReturn,
   PrimitiveFormat,
   UID,
-} from "../../types";
+} from "../../../types";
 import {
   CellErrorLevel,
   CellErrorType,
   CircularDependencyError,
   EvaluationError,
-} from "../../types/errors";
-import { createEvaluatedCell, errorCell, evaluateLiteral } from "../cells";
-import { toXC } from "../coordinates";
-import { JetSet } from "../misc";
-import { forEachPositionsInZone } from "../zones";
+} from "../../../types/errors";
 import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { SpreadingRelation } from "./spreading_relation";
