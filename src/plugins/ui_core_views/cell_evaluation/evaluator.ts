@@ -164,20 +164,17 @@ export class Evaluator {
   //                 EVALUATION MAIN PROCESS
   // ----------------------------------------------------------
 
-  private nextCellsToUpdate = new JetSet<PositionId>();
+  private nextPositionsToUpdate = new JetSet<PositionId>();
   private cellsBeingComputed = new Set<UID>();
 
-  /**
-   * @param cells ordered topologically! TODO explain this better
-   */
   private evaluate(cells: JetSet<PositionId>) {
     this.cellsBeingComputed = new Set<UID>();
-    this.nextCellsToUpdate = cells;
+    this.nextPositionsToUpdate = cells;
 
     let currentIteration = 0;
-    while (this.nextCellsToUpdate.size && currentIteration++ < MAX_ITERATION) {
-      const positionIds = Array.from(this.nextCellsToUpdate);
-      this.nextCellsToUpdate.clear();
+    while (this.nextPositionsToUpdate.size && currentIteration++ < MAX_ITERATION) {
+      const positionIds = Array.from(this.nextPositionsToUpdate);
+      this.nextPositionsToUpdate.clear();
       for (let i = 0; i < positionIds.length; ++i) {
         const cell = positionIds[i];
         this.evaluatedCells.delete(cell);
@@ -190,8 +187,8 @@ export class Evaluator {
   }
 
   private setEvaluatedCell(positionId: PositionId, evaluatedCell: EvaluatedCell) {
-    if (this.nextCellsToUpdate.has(positionId)) {
-      this.nextCellsToUpdate.delete(positionId);
+    if (this.nextPositionsToUpdate.has(positionId)) {
+      this.nextPositionsToUpdate.delete(positionId);
     }
     this.evaluatedCells.set(positionId, evaluatedCell);
   }
@@ -364,7 +361,7 @@ export class Evaluator {
 
       // check if formula dependencies present in the spread zone
       // if so, they need to be recomputed
-      this.nextCellsToUpdate.add(...this.getCellsDependingOn([positionId]));
+      this.nextPositionsToUpdate.add(...this.getCellsDependingOn([positionId]));
     };
   }
 
@@ -380,8 +377,8 @@ export class Evaluator {
         continue;
       }
       this.evaluatedCells.delete(child);
-      this.nextCellsToUpdate.add(...this.getCellsDependingOn([child]));
-      this.nextCellsToUpdate.add(...this.getArrayFormulasBlockedByOrSpreadingOn(child));
+      this.nextPositionsToUpdate.add(...this.getCellsDependingOn([child]));
+      this.nextPositionsToUpdate.add(...this.getArrayFormulasBlockedByOrSpreadingOn(child));
     }
     this.spreadingRelations.removeNode(positionId);
   }

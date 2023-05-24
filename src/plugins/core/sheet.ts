@@ -366,7 +366,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   getCell({ sheetId, col, row }: CellPosition): Cell | undefined {
-    // TODO this is a plugin dependency loop
     const sheet = this.tryGetSheet(sheetId);
     const cellId = sheet?.rows[row]?.cells[col];
     if (cellId === undefined) {
