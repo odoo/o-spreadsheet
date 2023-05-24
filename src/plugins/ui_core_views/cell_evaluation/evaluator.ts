@@ -1,4 +1,4 @@
-import { forEachPositionsInZone, JetSet, toXC } from "../../../helpers";
+import { forEachPositionsInZone, JetSet, lazy, toXC } from "../../../helpers";
 import { createEvaluatedCell, errorCell, evaluateLiteral } from "../../../helpers/cells";
 import { ModelConfig } from "../../../model";
 import { _lt } from "../../../translation";
@@ -44,7 +44,7 @@ export class Evaluator {
   private readonly positionEncoder = new PositionBitsEncoder();
 
   private evaluatedCells: PositionDict<EvaluatedCell> = new Map();
-  private formulaDependencies = new FormulaDependencyGraph();
+  private formulaDependencies = lazy(new FormulaDependencyGraph());
   private blockedArrayFormulas = new Set<PositionId>();
   private spreadingRelations = new SpreadingRelation();
 
@@ -81,9 +81,9 @@ export class Evaluator {
 
   updateDependencies(position: CellPosition) {
     const positionId = this.encodePosition(position);
-    this.formulaDependencies.removeAllDependencies(positionId);
+    this.formulaDependencies().removeAllDependencies(positionId);
     const dependencies = this.getDirectDependencies(positionId);
-    this.formulaDependencies.addDependencies(positionId, dependencies);
+    this.formulaDependencies().addDependencies(positionId, dependencies);
   }
 
   evaluateCells(positions: CellPosition[]) {
@@ -117,13 +117,16 @@ export class Evaluator {
   }
 
   buildDependencyGraph() {
-    this.formulaDependencies = new FormulaDependencyGraph();
     this.blockedArrayFormulas = new Set<PositionId>();
     this.spreadingRelations = new SpreadingRelation();
-    for (const positionId of this.getAllCells()) {
-      const dependencies = this.getDirectDependencies(positionId);
-      this.formulaDependencies.addDependencies(positionId, dependencies);
-    }
+    this.formulaDependencies = lazy(() => {
+      const dependencyGraph = new FormulaDependencyGraph();
+      for (const positionId of this.getAllCells()) {
+        const dependencies = this.getDirectDependencies(positionId);
+        dependencyGraph.addDependencies(positionId, dependencies);
+      }
+      return dependencyGraph;
+    });
   }
 
   evaluateAllCells() {
@@ -394,7 +397,7 @@ export class Evaluator {
   }
 
   private getCellsDependingOn(positionIds: Iterable<PositionId>): Iterable<PositionId> {
-    return this.formulaDependencies.getCellsDependingOn(positionIds);
+    return this.formulaDependencies().getCellsDependingOn(positionIds);
   }
 
   private getCell(positionId: PositionId): Cell | undefined {
