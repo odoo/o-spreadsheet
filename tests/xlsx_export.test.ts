@@ -694,7 +694,7 @@ describe("Test XLSX export", () => {
     test("can export value and format from non-exportable formulas that spread", async () => {
       const model = new Model();
 
-      functionRegistry.add("NON.EXPORTABLE.THAT.SPREAD", {
+      functionRegistry.add("NON.EXPORTABLE.ARRAY.FORMULA", {
         description: "a non exportable formula that spread",
         args: [],
         returns: ["RANGE<NUMBER>"],
@@ -713,7 +713,7 @@ describe("Test XLSX export", () => {
         isExported: false,
       });
 
-      setCellContent(model, "A1", "=NON.EXPORTABLE.THAT.SPREAD()");
+      setCellContent(model, "A1", "=NON.EXPORTABLE.ARRAY.FORMULA()");
 
       const exported = getExportedExcelData(model);
       const cells = exported.sheets[0].cells;
@@ -735,7 +735,7 @@ describe("Test XLSX export", () => {
       const formatId4 = cells["B2"]?.format;
       expect(exported.formats[formatId4!]).toEqual("0%");
 
-      functionRegistry.remove("NON.EXPORTABLE.THAT.SPREAD");
+      functionRegistry.remove("NON.EXPORTABLE.ARRAY.FORMULA");
     });
 
     test("Multi-Sheets exportable functions", async () => {
