@@ -232,7 +232,7 @@ describe("evaluate formulas that return an array", () => {
   });
 
   describe("cut/past reference", () => {
-    test("Reference to a spread is keep when we cut/past the spread formula", () => {
+    test("reference to a spread is keep when we cut/past the spread formula", () => {
       setCellContent(model, "A1", "=MFILL(2,2,42)");
       setCellContent(model, "A3", "=B2");
       expect(getEvaluatedCell(model, "A3").value).toBe(42);
@@ -243,7 +243,7 @@ describe("evaluate formulas that return an array", () => {
       expect(getEvaluatedCell(model, "A3").value).toBe(24);
     });
 
-    test("References to a spread are keep when we cut/past the spread formula", () => {
+    test("references to a spread are keep when we cut/past the spread formula", () => {
       setCellContent(model, "A1", "=MFILL(2,2,42)");
       setCellContent(model, "A3", "=TRANSPOSE(A1:B2)");
       expect(getEvaluatedCell(model, "A3").value).toBe(42);
@@ -257,7 +257,7 @@ describe("evaluate formulas that return an array", () => {
       expect(getEvaluatedCell(model, "B4").value).toBe(24);
     });
 
-    test("Reference to a spread is keep when we cut/past the reference", () => {
+    test("reference to a spread is keep when we cut/past the reference", () => {
       setCellContent(model, "A1", "=MFILL(2,2,42)");
       setCellContent(model, "A3", "=B2");
       expect(getEvaluatedCell(model, "A3").value).toBe(42);
@@ -268,7 +268,7 @@ describe("evaluate formulas that return an array", () => {
       expect(getEvaluatedCell(model, "C3").value).toBe(24);
     });
 
-    test("References to a spread are keep when we cut/past the references", () => {
+    test("references to a spread are keep when we cut/past the references", () => {
       setCellContent(model, "A1", "=MFILL(2,2,42)");
       setCellContent(model, "A3", "=TRANSPOSE(A1:B2)");
       expect(getEvaluatedCell(model, "A3").value).toBe(42);
@@ -559,7 +559,7 @@ describe("evaluate formulas that return an array", () => {
       expect(getEvaluatedCell(model, "C5").value).toBe(42);
     });
 
-    test("Do not spread result when delete columns", () => {
+    test("do not spread result when delete columns", () => {
       setCellContent(model, "A1", "=MFILL(3,3, 42)");
       expect(getEvaluatedCell(model, "A1").value).toBe(42);
       expect(getEvaluatedCell(model, "C3").value).toBe(42);
@@ -569,7 +569,7 @@ describe("evaluate formulas that return an array", () => {
       expect(getEvaluatedCell(model, "B1").value).toBe("");
     });
 
-    test("Do not spread result when delete rows", () => {
+    test("do not spread result when delete rows", () => {
       setCellContent(model, "A1", "=MFILL(3,3, 42)");
       expect(getEvaluatedCell(model, "A1").value).toBe(42);
       expect(getEvaluatedCell(model, "C3").value).toBe(42);
