@@ -85,7 +85,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(model.getters.getChartDefinition("1") as GaugeChartDefinition).toMatchObject({
+    expect(model.getters.chart.getChartDefinition("1") as GaugeChartDefinition).toMatchObject({
       dataRange: "B8",
       type: "gauge",
       title: "Title",
@@ -102,7 +102,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(model.getters.getChartDefinition("1") as GaugeChartDefinition).toMatchObject({
+    expect(model.getters.chart.getChartDefinition("1") as GaugeChartDefinition).toMatchObject({
       type: "gauge",
       dataRange: "A1",
       title: "",
@@ -120,7 +120,7 @@ describe("datasource tests", function () {
       "1"
     );
     addColumns(model, "before", "A", 2);
-    const chart = model.getters.getChartDefinition("1") as GaugeChartDefinition;
+    const chart = model.getters.chart.getChartDefinition("1") as GaugeChartDefinition;
     expect(chart.dataRange).toStrictEqual("Sheet1!D1:D4");
   });
 
@@ -154,7 +154,7 @@ describe("datasource tests", function () {
       title: "hello1",
       sectionRule: randomSectionRule,
     });
-    expect(model.getters.getChartDefinition("1") as GaugeChartDefinition).toMatchObject({
+    expect(model.getters.chart.getChartDefinition("1") as GaugeChartDefinition).toMatchObject({
       dataRange: "A7",
       title: "hello1",
       sectionRule: randomSectionRule,
@@ -405,7 +405,7 @@ describe("multiple sheets", () => {
       },
       "28"
     );
-    const chart = model.getters.getChartDefinition("28") as GaugeChartDefinition;
+    const chart = model.getters.chart.getChartDefinition("28") as GaugeChartDefinition;
     expect(chart.dataRange).toEqual("Sheet1!B1");
   });
 });

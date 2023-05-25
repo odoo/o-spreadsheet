@@ -174,14 +174,14 @@ describe("chart specific Clipboard test", () => {
     const chartId = "thisIsAnId";
     createChart(model, {}, chartId);
     updateChart(model, chartId, { dataSets: ["A1:A5"], labelRange: "B1" });
-    const chartDef = model.getters.getChartDefinition(chartId) as BarChartDefinition;
+    const chartDef = model.getters.chart.getChartDefinition(chartId) as BarChartDefinition;
     model.dispatch("SELECT_FIGURE", { id: chartId });
     copy(model);
     createSheet(model, { sheetId: "42" });
     activateSheet(model, "42");
     paste(model, "A1");
     const newChartId = model.getters.getFigures("42")[0].id;
-    expect(model.getters.getChartDefinition(newChartId)).toEqual({
+    expect(model.getters.chart.getChartDefinition(newChartId)).toEqual({
       ...chartDef,
       dataSets: ["Sheet1!A1:A5"],
       labelRange: "Sheet1!B1",

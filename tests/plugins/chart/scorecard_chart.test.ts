@@ -84,7 +84,7 @@ describe("datasource tests", function () {
       "1"
     );
     addColumns(model, "before", "A", 2);
-    const chart = model.getters.getChartDefinition("1") as ScorecardChartDefinition;
+    const chart = model.getters.chart.getChartDefinition("1") as ScorecardChartDefinition;
     expect(chart.keyValue!).toStrictEqual("Sheet1!D1:D4");
     expect(chart.baseline!).toStrictEqual("Sheet1!C2:C4");
   });
@@ -124,7 +124,7 @@ describe("datasource tests", function () {
       baselineDescr: "description",
       title: "hello1",
     });
-    expect(model.getters.getChartDefinition("1")).toMatchObject({
+    expect(model.getters.chart.getChartDefinition("1")).toMatchObject({
       keyValue: "A7",
       baseline: "E3",
       baselineMode: "percentage",
@@ -212,7 +212,7 @@ describe("datasource tests", function () {
       baseline: "A2",
       baselineMode: "percentage",
     });
-    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    const [scorecardId] = model.getters.chart.getChartIds(model.getters.getActiveSheetId());
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "down",
       baselineColor: "#DC6965",
@@ -229,7 +229,7 @@ describe("datasource tests", function () {
       baseline: "A2",
       baselineMode: "percentage",
     });
-    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    const [scorecardId] = model.getters.chart.getChartIds(model.getters.getActiveSheetId());
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "up",
       baselineColor: "#00A04A",
@@ -246,7 +246,7 @@ describe("datasource tests", function () {
       baseline: "A2",
       baselineMode: "percentage",
     });
-    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    const [scorecardId] = model.getters.chart.getChartIds(model.getters.getActiveSheetId());
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "neutral",
       baselineColor: undefined,
@@ -262,7 +262,7 @@ describe("datasource tests", function () {
       baseline: "A2",
       baselineMode: "percentage",
     });
-    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    const [scorecardId] = model.getters.chart.getChartIds(model.getters.getActiveSheetId());
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "neutral",
       baselineColor: undefined,
@@ -278,7 +278,7 @@ describe("datasource tests", function () {
       baseline: "A2",
       baselineMode: "percentage",
     });
-    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    const [scorecardId] = model.getters.chart.getChartIds(model.getters.getActiveSheetId());
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "neutral",
       baselineColor: undefined,
@@ -293,7 +293,7 @@ describe("datasource tests", function () {
       baseline: "A2",
       baselineMode: "percentage",
     });
-    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    const [scorecardId] = model.getters.chart.getChartIds(model.getters.getActiveSheetId());
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "neutral",
       baselineColor: undefined,
@@ -310,7 +310,7 @@ describe("datasource tests", function () {
       baseline: "A2",
       baselineMode: "percentage",
     });
-    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    const [scorecardId] = model.getters.chart.getChartIds(model.getters.getActiveSheetId());
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "up",
       baselineColor: "#00A04A",
@@ -326,7 +326,7 @@ describe("datasource tests", function () {
       baseline: "A2",
       baselineMode: "percentage",
     });
-    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    const [scorecardId] = model.getters.chart.getChartIds(model.getters.getActiveSheetId());
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "neutral",
       baselineColor: undefined,
@@ -385,7 +385,7 @@ describe("multiple sheets", () => {
       },
       "28"
     );
-    const chart = model.getters.getChartDefinition("28") as ScorecardChartDefinition;
+    const chart = model.getters.chart.getChartDefinition("28") as ScorecardChartDefinition;
     expect(chart.keyValue).toEqual("Sheet1!B1");
     expect(chart.baseline).toEqual("Sheet1!C1");
   });

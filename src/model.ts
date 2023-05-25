@@ -43,6 +43,8 @@ import {
   Currency,
   DispatchResult,
   Getters,
+  GettersCategoryDeclaration,
+  GettersDeclaration,
   GridRenderingContext,
   isCoreCommand,
   LAYERS,
@@ -310,10 +312,14 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private setupGetters(
     getters: Getters | CoreGetters,
     plugin: BasePlugin,
-    gettersDeclaration: readonly string[]
+    gettersDeclaration: GettersDeclaration
   ) {
-    for (const getterName of gettersDeclaration) {
-      this.setupSingleGetter(getters, getterName, plugin);
+    for (const getter of gettersDeclaration) {
+      if (typeof getter === "string") {
+        this.setupSingleGetter(getters, getter, plugin);
+      } else {
+        this.setupGetterCategory(getters, getter, plugin);
+      }
     }
   }
 
@@ -329,6 +335,21 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       throw new Error(`Getter "${getterName}" is already defined.`);
     }
     getters[getterName] = plugin[getterName].bind(plugin);
+  }
+
+  private setupGetterCategory(
+    getters: Getters | CoreGetters,
+    getterCategories: GettersCategoryDeclaration,
+    plugin: BasePlugin
+  ) {
+    for (const [categoryName, getterNames] of Object.entries(getterCategories)) {
+      if (!(categoryName in getters)) {
+        getters[categoryName] = {};
+      }
+      for (const getterName of getterNames) {
+        this.setupSingleGetter(getters[categoryName], getterName, plugin);
+      }
+    }
   }
 
   private onRemoteRevisionReceived({ commands }: { commands: readonly CoreCommand[] }) {

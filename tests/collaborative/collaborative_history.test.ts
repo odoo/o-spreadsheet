@@ -465,9 +465,9 @@ describe("Collaborative local history", () => {
       ],
     };
     const model = new Model(data, {}, initialMessages);
-    const definition1 = model.getters.getChartDefinition("fig1") as LineChartDefinition;
+    const definition1 = model.getters.chart.getChartDefinition("fig1") as LineChartDefinition;
     expect(definition1.dataSets).toEqual(["A1:A3"]);
-    const definition2 = model.getters.getChartDefinition("fig2") as LineChartDefinition;
+    const definition2 = model.getters.chart.getChartDefinition("fig2") as LineChartDefinition;
     expect(definition2.dataSets).toEqual(["B1:B3"]);
   });
 
