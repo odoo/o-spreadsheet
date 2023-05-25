@@ -253,6 +253,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
           (this.autoCompleteState.selectedIndex + 1) % this.autoCompleteState.values.length;
       }
     }
+    this.updateCursorIfNeeded();
   }
 
   private processTabKey(ev: KeyboardEvent) {
@@ -326,7 +327,28 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       handler.call(this, ev);
     } else {
       ev.stopPropagation();
+      this.updateCursorIfNeeded();
     }
+<<<<<<< HEAD
+||||||| parent of 1d126b4c (temp)
+    const { start, end } = this.contentHelper.getCurrentSelection();
+    if (
+      !this.env.model.getters.isSelectingForComposer() &&
+      !(ev.key === "Enter" && (ev.altKey || ev.ctrlKey))
+    ) {
+      this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start, end });
+      this.isKeyStillDown = true;
+    }
+=======
+  }
+
+  private updateCursorIfNeeded() {
+    if (!this.env.model.getters.isSelectingForComposer()) {
+      const { start, end } = this.contentHelper.getCurrentSelection();
+      this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start, end });
+      this.isKeyStillDown = true;
+    }
+>>>>>>> 1d126b4c (temp)
   }
 
   /*
