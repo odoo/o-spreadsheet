@@ -199,6 +199,25 @@ describe("Functions autocomplete", () => {
     });
   });
 
+  test.each(["Enter", "Tab"])(
+    "=S(A1:A5) + %s complete the function --> =SUM(A1:A5)",
+    async (buttonkey) => {
+      await typeInComposer("=S(A1:A5)");
+      model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
+      model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 2, end: 2 });
+      await nextTick();
+      await typeInComposer("U", false);
+      expect(model.getters.getCurrentContent()).toBe("=SU(A1:A5)");
+      expect(model.getters.getComposerSelection()).toEqual({ start: 3, end: 3 });
+      expect(document.activeElement).toBe(composerEl);
+      expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(1);
+      await nextTick();
+      composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: buttonkey }));
+      await nextTick();
+      expect(composerEl.textContent).toBe("=SUM(A1:A5)");
+    }
+  );
+
   describe("autocomplete functions SUM IF", () => {
     test("empty not show autocomplete", async () => {
       await typeInComposer("");
