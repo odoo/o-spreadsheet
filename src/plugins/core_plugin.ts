@@ -39,12 +39,10 @@ export class CorePlugin<State = any, C = CoreCommand>
   implements RangeProvider
 {
   protected getters: CoreGetters;
-  protected range: RangeAdapter;
   protected uuidGenerator: UuidGenerator;
 
   constructor({ getters, stateObserver, range, dispatch, uuidGenerator }: CorePluginConfig) {
     super(stateObserver, dispatch);
-    this.range = range;
     range.addRangeProvider(this.adaptRanges.bind(this));
     this.getters = getters;
     this.uuidGenerator = uuidGenerator;
