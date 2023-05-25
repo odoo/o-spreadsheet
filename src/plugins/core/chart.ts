@@ -36,8 +36,13 @@ interface ChartState {
 export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   static getters = [
     {
-      chart: ["isChartDefined", "getChartDefinition", "getChartType"],
-      other: ["getChartIds", "getContextCreationChart"],
+      chart: [
+        "isChartDefined",
+        "getChartDefinition",
+        "getChartType",
+        "getChartIds",
+        "getContextCreationChart",
+      ],
     },
     "getChart",
   ] as const;
