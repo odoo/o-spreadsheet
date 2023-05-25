@@ -119,7 +119,7 @@ describe("Collaborative range manipulation", () => {
     cut(alice, "A2");
     paste(alice, "D4");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => (user.getters.chart.getChartDefinition("1") as LineChartDefinition).dataSets[0],
+      (user) => (user.getters.chart.getDefinition("1") as LineChartDefinition).dataSets[0],
       "D4"
     );
   });

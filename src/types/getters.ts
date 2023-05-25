@@ -94,7 +94,7 @@ type ChartGetters = Pick<ChartPlugin, GlobalGetterNames<typeof ChartPlugin>> &
 // @ts-ignore
 // const g: ChartGetters = 1;
 // g.other.getContextCreationChart("a");
-// g.chart.getChartType;
+// g.chart.getType;
 // g.getChart("");
 
 // type ChartGetters = Pick<ChartPlugin, GetterNames<typeof ChartPlugin>>;

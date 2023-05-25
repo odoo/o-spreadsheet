@@ -610,7 +610,7 @@ export function getFigureDefinition(
     case "basicChart":
     case "scorecard":
     case "gauge":
-      return model.getters.chart.getChartDefinition(figureId);
+      return model.getters.chart.getDefinition(figureId);
     case "image":
       return model.getters.getImage(figureId);
     default:

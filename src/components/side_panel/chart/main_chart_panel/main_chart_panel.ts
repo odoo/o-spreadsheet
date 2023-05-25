@@ -78,7 +78,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
       } else {
         this.shouldUpdateChart = true;
       }
-      if (!this.env.model.getters.chart.isChartDefined(this.figureId)) {
+      if (!this.env.model.getters.chart.isDefined(this.figureId)) {
         this.props.onCloseSidePanel();
         return;
       }
@@ -114,7 +114,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get chartPanel(): ChartSidePanel {
-    const type = this.env.model.getters.chart.getChartType(this.figureId);
+    const type = this.env.model.getters.chart.getType(this.figureId);
     if (!type) {
       throw new Error("Chart not defined.");
     }
@@ -126,7 +126,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private getChartDefinition(figureId: UID = this.figureId): ChartDefinition {
-    return this.env.model.getters.chart.getChartDefinition(figureId);
+    return this.env.model.getters.chart.getDefinition(figureId);
   }
 
   get chartTypes() {

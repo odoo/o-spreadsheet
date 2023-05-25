@@ -31,7 +31,7 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get chartType(): ChartType {
-    return this.env.model.getters.chart.getChartType(this.props.figure.id);
+    return this.env.model.getters.chart.getType(this.props.figure.id);
   }
 
   get chartComponent(): new (...args: any) => Component {

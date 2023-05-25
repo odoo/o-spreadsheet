@@ -84,7 +84,7 @@ describe("datasource tests", function () {
       "1"
     );
     addColumns(model, "before", "A", 2);
-    const chart = model.getters.chart.getChartDefinition("1") as ScorecardChartDefinition;
+    const chart = model.getters.chart.getDefinition("1") as ScorecardChartDefinition;
     expect(chart.keyValue!).toStrictEqual("Sheet1!D1:D4");
     expect(chart.baseline!).toStrictEqual("Sheet1!C2:C4");
   });
@@ -124,7 +124,7 @@ describe("datasource tests", function () {
       baselineDescr: "description",
       title: "hello1",
     });
-    expect(model.getters.chart.getChartDefinition("1")).toMatchObject({
+    expect(model.getters.chart.getDefinition("1")).toMatchObject({
       keyValue: "A7",
       baseline: "E3",
       baselineMode: "percentage",
@@ -385,7 +385,7 @@ describe("multiple sheets", () => {
       },
       "28"
     );
-    const chart = model.getters.chart.getChartDefinition("28") as ScorecardChartDefinition;
+    const chart = model.getters.chart.getDefinition("28") as ScorecardChartDefinition;
     expect(chart.keyValue).toEqual("Sheet1!B1");
     expect(chart.baseline).toEqual("Sheet1!C1");
   });
