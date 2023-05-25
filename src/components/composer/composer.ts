@@ -289,6 +289,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
         autoCompleteComp.moveDown();
       }
     }
+    this.updateCursorIfNeeded();
   }
 
   private processTabKey(ev: KeyboardEvent) {
@@ -348,9 +349,13 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
       handler.call(this, ev);
     } else {
       ev.stopPropagation();
+      this.updateCursorIfNeeded();
     }
-    const { start, end } = this.contentHelper.getCurrentSelection();
+  }
+
+  private updateCursorIfNeeded() {
     if (!this.getters.isSelectingForComposer()) {
+      const { start, end } = this.contentHelper.getCurrentSelection();
       this.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start, end });
       this.isKeyStillDown = true;
     }
