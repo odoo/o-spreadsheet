@@ -2,7 +2,7 @@ import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { CellPopover } from "../../src/store/cell_popover";
 import { HoveredCell } from "../../src/store/hovered_cell";
 import { ModelStore } from "../../src/store/model_store";
-import { merge, setCellContent } from "../test_helpers";
+import { activateSheet, createSheet, merge, setCellContent } from "../test_helpers";
 import { makeStore, makeStoreContainer } from "../test_helpers/stores";
 
 describe("cell popover plugin", () => {
@@ -27,6 +27,17 @@ describe("cell popover plugin", () => {
     const cellPopover = makeStore(CellPopover);
     //@ts-ignore
     cellPopover.open({ col: 0, row: 0 }, "This doesn't exist");
+    expect(cellPopover.isOpen).toBe(false);
+  });
+
+  test("popover is closed when sheet is changed", () => {
+    const stores = makeStoreContainer();
+    const model = stores.get(ModelStore);
+    createSheet(model, { sheetId: "Sheet2" });
+    const cellPopover = stores.get(CellPopover);
+    cellPopover.open({ col: 0, row: 0 }, "ErrorToolTip");
+    expect(cellPopover.isOpen).toBe(true);
+    activateSheet(model, "Sheet2");
     expect(cellPopover.isOpen).toBe(false);
   });
 });
