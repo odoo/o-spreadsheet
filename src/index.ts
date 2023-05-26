@@ -125,7 +125,13 @@ export {
   RevisionUndoneMessage,
   TransportService,
 } from "./types/collaborative/transport_service";
-export { coreTypes, invalidateEvaluationCommands, readonlyAllowedCommands } from "./types/commands";
+export {
+  coreTypes,
+  invalidateCFEvaluationCommands,
+  invalidateDependenciesCommands,
+  invalidateEvaluationCommands,
+  readonlyAllowedCommands,
+} from "./types/commands";
 export { EvaluationError } from "./types/errors";
 export const SPREADSHEET_DIMENSIONS = {
   MIN_ROW_HEIGHT,
