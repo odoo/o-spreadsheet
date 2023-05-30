@@ -1,21 +1,13 @@
-const { version } = require("../../package.json");
-const git = require("git-rev-sync");
 const bundle = require("./bundle_xml_templates");
 const parseArgs = require("minimist");
-
+const { commitHash, date, version } = require("../utils/info");
 const DEFAULT_DIR = "dist";
 
 const argv = parseArgs(process.argv.slice(2));
 
-let commitHash = "";
-
-try {
-  commitHash = git.short();
-} catch (_) {}
-
 const OUTRO = `
   __info__.version = '${version}';
-  __info__.date = '${new Date().toISOString()}';
+  __info__.date = '${date}';
   __info__.hash = '${commitHash}';
 `;
 

@@ -1,8 +1,9 @@
+const prettier = require("prettier");
 const fs = require("fs");
 const path = require("path");
-const prettier = require("prettier");
 
 const config = require("../../package.json");
+const { writeToFile } = require("../utils/files");
 
 /**
  * Returns a bundle of all the xml templates, as a parsed xml Document
@@ -75,18 +76,6 @@ function prettify(xmlString) {
     console.error("Could not prettify xml, probably because of a syntax error.");
     return xmlString;
   }
-}
-
-function writeToFile(filepath, data) {
-  if (!fs.existsSync(path.dirname(filepath))) {
-    fs.mkdirSync(path.dirname(filepath), { recursive: true });
-  }
-  fs.writeFile(filepath, data, (err) => {
-    if (err) {
-      process.stdout.write(`Error while writing file ${filepath}: ${err}`);
-      return;
-    }
-  });
 }
 
 exports.getParsedOwlTemplateBundle = getParsedOwlTemplateBundle;
