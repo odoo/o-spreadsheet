@@ -29,7 +29,6 @@ function getEmptyClipboardEvent(type: "copy" | "paste" | "cut") {
 describe("Grid component in dashboard mode", () => {
   beforeEach(async () => {
     ({ parent, fixture, model } = await mountSpreadsheet());
-    await nextTick();
   });
 
   test("simple dashboard rendering snapshot", async () => {
