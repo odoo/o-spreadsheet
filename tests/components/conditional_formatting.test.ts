@@ -1,7 +1,9 @@
-import { Model, Spreadsheet } from "../../src";
-import { toZone } from "../../src/helpers/zones";
+import { Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
+import { Model } from "../../src";
+import { ConditionalFormattingPanel } from "../../src/components/side_panel/conditional_formatting/conditional_formatting";
+import { toZone } from "../../src/helpers";
 import { ConditionalFormatPlugin } from "../../src/plugins/core/conditional_format";
-import { CommandResult } from "../../src/types";
+import { CommandResult, SpreadsheetChildEnv } from "../../src/types";
 import {
   activateSheet,
   copy,
@@ -15,94 +17,109 @@ import {
   createEqualCF,
   getPlugin,
   mockUuidV4To,
+  mountComponent,
   mountSpreadsheet,
   nextTick,
-  spyDispatch,
+  spyModelDispatch,
   textContentAll,
   toRangesData,
 } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
-let model: Model;
+interface ParentProps {
+  onCloseSidePanel: () => void;
+}
+class Parent extends Component<ParentProps, SpreadsheetChildEnv> {
+  static components = { ConditionalFormattingPanel };
+  static template = xml/*xml*/ `
+  <div class="o-spreadsheet">
+    <ConditionalFormattingPanel onCloseSidePanel="props.onCloseSidePanel"/>
+  </div>
+  `;
+  setup() {
+    onMounted(() => this.env.model.on("update", this, () => this.render(true)));
+    onWillUnmount(() => this.env.model.off("update", this));
+  }
+}
+
+function errorMessages(): string[] {
+  return textContentAll(selectors.error);
+}
+
+const selectors = {
+  listPreview: ".o-cf .o-cf-preview",
+  ruleEditor: {
+    range: ".o-cf .o-cf-ruleEditor .o-cf-range .o-range input",
+    editor: {
+      operatorInput: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-cell-is-operator",
+      valueInput: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-cell-is-value",
+      bold: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-tool[title='Bold']",
+      italic: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-tool[title='Italic']",
+      underline:
+        ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-tool[title='Underline']",
+      strikethrough:
+        ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-tool[title='Strikethrough']",
+      colorDropdown:
+        ".o-cf .o-cf-ruleEditor .o-cf-editor .o-color-picker-widget .o-color-picker-button",
+      iconSetRule: {
+        container: ".o-cf .o-cf-iconset-rule",
+        iconsets: ".o-cf .o-cf-iconset-rule .o-cf-iconsets .o-cf-iconset",
+        inflextion: ".o-cf .o-cf-iconset-rule .o-inflection",
+        icons: ".o-cf .o-cf-iconset-rule .o-inflection .o-cf-icon",
+        reverse: ".o-cf .o-cf-iconset-rule .o-cf-iconset-reverse",
+        rows: ".o-cf .o-cf-iconset-rule .o-inflection tr",
+      },
+    },
+  },
+  previewImage: ".o-cf-preview-image",
+  description: {
+    ruletype: {
+      rule: ".o-cf-preview-description-rule",
+      values: ".o-cf-preview-description-values",
+    },
+    range: ".o-cf-preview-range",
+  },
+  colorScaleEditor: {
+    minColor: ".o-threshold-minimum .o-color-picker-widget .o-color-picker-button",
+    minType: ".o-threshold-minimum > select",
+    minValue: ".o-threshold-minimum .o-threshold-value",
+
+    midColor: ".o-threshold-midpoint .o-color-picker-widget .o-color-picker-button",
+    midType: ".o-threshold-midpoint > select",
+    midValue: ".o-threshold-midpoint .o-threshold-value",
+
+    maxColor: ".o-threshold-maximum .o-color-picker-widget .o-color-picker-button",
+    maxType: ".o-threshold-maximum > select",
+    maxValue: ".o-threshold-maximum .o-threshold-value",
+
+    colorPickerBlue: ".o-color-picker div[data-color='#0000FF']",
+    colorPickerOrange: ".o-color-picker div[data-color='#FF9900']",
+    colorPickerYellow: ".o-color-picker div[data-color='#FFFF00']",
+  },
+  cfReorder: {
+    buttonUp: ".o-cf-reorder-button-up",
+    buttonDown: ".o-cf-reorder-button-down",
+  },
+  cfTabSelector: ".o-cf-type-selector .o_form_label",
+  buttonSave: ".o-sidePanelButtons .o-cf-save",
+  buttonDelete: ".o-cf-delete-button",
+  buttonCancel: ".o-sidePanelButtons .o-cf-cancel",
+  buttonAdd: ".o-cf-add",
+  buttonReoder: ".o-cf-reorder",
+  buttonExitReorder: ".o-cf-exit-reorder",
+  error: ".o-cf-error",
+  closePanel: ".o-sidePanelClose",
+};
 
 describe("UI of conditional formats", () => {
   let fixture: HTMLElement;
-  let parent: Spreadsheet;
+  let model: Model;
 
   beforeEach(async () => {
-    ({ parent, model, fixture } = await mountSpreadsheet());
-    parent.env.openSidePanel("ConditionalFormatting");
-    await nextTick();
+    ({ model, fixture } = await mountComponent(Parent, {
+      props: { onCloseSidePanel: () => {} },
+    }));
   });
-
-  function errorMessages(): string[] {
-    return textContentAll(selectors.error);
-  }
-
-  const selectors = {
-    listPreview: ".o-cf .o-cf-preview",
-    ruleEditor: {
-      range: ".o-cf .o-cf-ruleEditor .o-cf-range .o-range input",
-      editor: {
-        operatorInput: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-cell-is-operator",
-        valueInput: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-cell-is-value",
-        bold: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-tool[title='Bold']",
-        italic: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-tool[title='Italic']",
-        underline:
-          ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-tool[title='Underline']",
-        strikethrough:
-          ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-tool[title='Strikethrough']",
-        colorDropdown:
-          ".o-cf .o-cf-ruleEditor .o-cf-editor .o-color-picker-widget .o-color-picker-button",
-        iconSetRule: {
-          container: ".o-cf .o-cf-iconset-rule",
-          iconsets: ".o-cf .o-cf-iconset-rule .o-cf-iconsets .o-cf-iconset",
-          inflextion: ".o-cf .o-cf-iconset-rule .o-inflection",
-          icons: ".o-cf .o-cf-iconset-rule .o-inflection .o-cf-icon",
-          reverse: ".o-cf .o-cf-iconset-rule .o-cf-iconset-reverse",
-          rows: ".o-cf .o-cf-iconset-rule .o-inflection tr",
-        },
-      },
-    },
-    previewImage: ".o-cf-preview-image",
-    description: {
-      ruletype: {
-        rule: ".o-cf-preview-description-rule",
-        values: ".o-cf-preview-description-values",
-      },
-      range: ".o-cf-preview-range",
-    },
-    colorScaleEditor: {
-      minColor: ".o-threshold-minimum .o-color-picker-widget .o-color-picker-button",
-      minType: ".o-threshold-minimum > select",
-      minValue: ".o-threshold-minimum .o-threshold-value",
-
-      midColor: ".o-threshold-midpoint .o-color-picker-widget .o-color-picker-button",
-      midType: ".o-threshold-midpoint > select",
-      midValue: ".o-threshold-midpoint .o-threshold-value",
-
-      maxColor: ".o-threshold-maximum .o-color-picker-widget .o-color-picker-button",
-      maxType: ".o-threshold-maximum > select",
-      maxValue: ".o-threshold-maximum .o-threshold-value",
-
-      colorPickerBlue: ".o-color-picker div[data-color='#0000FF']",
-      colorPickerOrange: ".o-color-picker div[data-color='#FF9900']",
-      colorPickerYellow: ".o-color-picker div[data-color='#FFFF00']",
-    },
-    cfReorder: {
-      buttonUp: ".o-cf-reorder-button-up",
-      buttonDown: ".o-cf-reorder-button-down",
-    },
-    cfTabSelector: ".o-cf-type-selector .o_form_label",
-    buttonSave: ".o-sidePanelButtons .o-cf-save",
-    buttonDelete: ".o-cf-delete-button",
-    buttonCancel: ".o-sidePanelButtons .o-cf-cancel",
-    buttonAdd: ".o-cf-add",
-    buttonReoder: ".o-cf-reorder",
-    buttonExitReorder: ".o-cf-exit-reorder",
-    error: ".o-cf-error",
-    closePanel: ".o-sidePanelClose",
-  };
 
   describe("Conditional format list", () => {
     beforeEach(async () => {
@@ -124,7 +141,7 @@ describe("UI of conditional formats", () => {
       await nextTick();
     });
     test("simple snapshot", () => {
-      expect(fixture.querySelector(".o-sidePanel")!).toMatchSnapshot();
+      expect(fixture.querySelector(".o-spreadsheet")!).toMatchSnapshot();
     });
     test("the list of CF has a correct preview", () => {
       // check the html of the list (especially the colors)
@@ -162,7 +179,7 @@ describe("UI of conditional formats", () => {
       await click(fixture, selectors.ruleEditor.editor.underline);
       await click(fixture, selectors.ruleEditor.editor.strikethrough);
 
-      const dispatch = spyDispatch(parent);
+      const dispatch = spyModelDispatch(model);
       //  click save
       await click(fixture, selectors.buttonSave);
 
@@ -246,7 +263,7 @@ describe("UI of conditional formats", () => {
       await click(fixture, selectors.colorScaleEditor.maxColor);
       await click(fixture, selectors.colorScaleEditor.colorPickerYellow);
 
-      const dispatch = spyDispatch(parent);
+      const dispatch = spyModelDispatch(model);
       //  click save
       await click(fixture, selectors.buttonSave);
 
@@ -305,7 +322,7 @@ describe("UI of conditional formats", () => {
       await click(fixture, selectors.ruleEditor.editor.underline);
       await click(fixture, selectors.ruleEditor.editor.strikethrough);
 
-      const dispatch = spyDispatch(parent);
+      const dispatch = spyModelDispatch(model);
       //  click save
       await click(fixture, selectors.buttonSave);
       const sheetId = model.getters.getActiveSheetId();
@@ -336,7 +353,7 @@ describe("UI of conditional formats", () => {
 
       setInputValueAndTrigger(selectors.ruleEditor.range, "hello", "input");
 
-      const dispatch = spyDispatch(parent);
+      const dispatch = spyModelDispatch(model);
       //  click save
       await click(fixture, selectors.buttonSave);
       expect(dispatch).not.toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT");
@@ -355,7 +372,7 @@ describe("UI of conditional formats", () => {
     });
 
     test("can delete Rule", async () => {
-      const dispatch = spyDispatch(parent);
+      const dispatch = spyModelDispatch(model);
       const previews = document.querySelectorAll(selectors.listPreview);
       await click(previews[0], selectors.buttonDelete);
       expect(dispatch).toHaveBeenCalledWith("REMOVE_CONDITIONAL_FORMAT", {
@@ -416,7 +433,7 @@ describe("UI of conditional formats", () => {
     await click(fixture, selectors.colorScaleEditor.maxColor);
     await click(fixture, selectors.colorScaleEditor.colorPickerYellow);
 
-    const dispatch = spyDispatch(parent);
+    const dispatch = spyModelDispatch(model);
     //  click save
     await click(fixture, selectors.buttonSave);
 
@@ -460,7 +477,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "20", "input");
 
-    const dispatch = spyDispatch(parent);
+    const dispatch = spyModelDispatch(model);
     //  click save
     await click(fixture, selectors.buttonSave);
 
@@ -507,7 +524,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "90", "input");
 
-    const dispatch = spyDispatch(parent);
+    const dispatch = spyModelDispatch(model);
     //  click save
     await click(fixture, selectors.buttonSave);
 
@@ -554,7 +571,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "90", "input");
 
-    const dispatch = spyDispatch(parent);
+    const dispatch = spyModelDispatch(model);
     //  click save
     await click(fixture, selectors.buttonSave);
 
@@ -608,7 +625,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "100", "input");
 
-    const dispatch = spyDispatch(parent);
+    const dispatch = spyModelDispatch(model);
     //  click save
     await click(fixture, selectors.buttonSave);
 
@@ -640,19 +657,6 @@ describe("UI of conditional formats", () => {
     });
   });
 
-  test("Make a multiple selection, open CF panel, create a rule => Should create one line per selection", async () => {
-    await click(fixture, selectors.closePanel);
-    setSelection(model, ["B2", "C3"]);
-    parent.env.openSidePanel("ConditionalFormatting");
-    await nextTick();
-    await click(fixture, selectors.buttonAdd);
-    await nextTick();
-    const ranges = document.querySelectorAll(selectors.ruleEditor.range);
-    expect(ranges).toHaveLength(2);
-    expect(ranges[0]["value"]).toBe("B2");
-    expect(ranges[1]["value"]).toBe("C3");
-  });
-
   test("Open CF panel, make a multiple selection, open CF panel, create a rule => Should create one line per selection", async () => {
     setSelection(model, ["B2", "C3"]);
     await click(fixture, selectors.buttonAdd);
@@ -662,26 +666,6 @@ describe("UI of conditional formats", () => {
     expect(ranges[1]["value"]).toBe("C3");
   });
 
-  test("switching sheet resets CF Editor to list", async () => {
-    const sheetId = model.getters.getActiveSheetId();
-    await click(fixture, selectors.closePanel);
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99"),
-      ranges: toRangesData(sheetId, "A1:A2"),
-      sheetId,
-    });
-    createSheet(model, { sheetId: "42" });
-    await nextTick();
-    const zone = toZone("A1:A2");
-    parent.env.openSidePanel("ConditionalFormatting", { selection: [zone] });
-    await nextTick();
-    expect(fixture.querySelector(selectors.listPreview)).toBeNull();
-    expect(fixture.querySelector(selectors.ruleEditor.range! as "input")!.value).toBe("A1:A2");
-    activateSheet(model, "42");
-    await nextTick();
-    expect(fixture.querySelector(selectors.ruleEditor.range)).toBeNull();
-    expect(fixture.querySelector(selectors.listPreview)).toBeDefined();
-  });
   test("error if range is empty", async () => {
     await click(fixture, selectors.buttonAdd);
     await nextTick();
@@ -1088,7 +1072,7 @@ describe("UI of conditional formats", () => {
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "input");
 
-      const dispatch = spyDispatch(parent);
+      const dispatch = spyModelDispatch(model);
       //  click save
       await click(fixture, selectors.buttonSave);
 
@@ -1147,7 +1131,7 @@ describe("UI of conditional formats", () => {
       setInputValueAndTrigger(inputinflectionUpper, "0", "input");
       await nextTick();
 
-      const dispatch = spyDispatch(parent);
+      const dispatch = spyModelDispatch(model);
       //  click save
       await click(fixture, selectors.buttonSave);
 
@@ -1197,7 +1181,7 @@ describe("UI of conditional formats", () => {
     const newIcon = document.querySelectorAll(".o-icon-picker-item")[7];
     await click(newIcon);
 
-    const dispatch = spyDispatch(parent);
+    const dispatch = spyModelDispatch(model);
     //  click save
     await click(fixture, selectors.buttonSave);
 
@@ -1235,7 +1219,7 @@ describe("UI of conditional formats", () => {
       await click(fixture, selectors.buttonAdd);
       await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
 
-      const cfPlugin = getPlugin(parent.props.model, ConditionalFormatPlugin);
+      const cfPlugin = getPlugin(model, ConditionalFormatPlugin);
       cfPlugin.allowDispatch = jest.fn(() => error);
 
       await click(fixture, selectors.buttonSave);
@@ -1257,7 +1241,7 @@ describe("UI of conditional formats", () => {
 
       await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
 
-      const cfPlugin = getPlugin(parent.props.model, ConditionalFormatPlugin);
+      const cfPlugin = getPlugin(model, ConditionalFormatPlugin);
       cfPlugin.allowDispatch = jest.fn(() => error);
 
       await click(fixture, selectors.buttonSave);
@@ -1349,5 +1333,47 @@ describe("UI of conditional formats", () => {
     expect(
       (document.querySelector(selectors.ruleEditor.editor.operatorInput) as HTMLSelectElement).value
     ).toBe("IsNotEmpty");
+  });
+});
+
+describe("Integration tests", () => {
+  let fixture: HTMLElement;
+  let parent: Component;
+  let model: Model;
+
+  beforeEach(async () => {
+    ({ model, fixture, parent } = await mountSpreadsheet());
+  });
+
+  test("Make a multiple selection, open CF panel, create a rule => Should create one line per selection", async () => {
+    setSelection(model, ["B2", "C3"]);
+    parent.env.openSidePanel("ConditionalFormatting");
+    await nextTick();
+    await click(fixture, selectors.buttonAdd);
+    await nextTick();
+    const ranges = document.querySelectorAll(selectors.ruleEditor.range);
+    expect(ranges).toHaveLength(2);
+    expect(ranges[0]["value"]).toBe("B2");
+    expect(ranges[1]["value"]).toBe("C3");
+  });
+
+  test("switching sheet resets CF Editor to list", async () => {
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99"),
+      ranges: toRangesData(sheetId, "A1:A2"),
+      sheetId,
+    });
+    createSheet(model, { sheetId: "42" });
+    await nextTick();
+    const zone = toZone("A1:A2");
+    parent.env.openSidePanel("ConditionalFormatting", { selection: [zone] });
+    await nextTick();
+    expect(fixture.querySelector(selectors.listPreview)).toBeNull();
+    expect(fixture.querySelector(selectors.ruleEditor.range! as "input")!.value).toBe("A1:A2");
+    activateSheet(model, "42");
+    await nextTick();
+    expect(fixture.querySelector(selectors.ruleEditor.range)).toBeNull();
+    expect(fixture.querySelector(selectors.listPreview)).toBeDefined();
   });
 });
