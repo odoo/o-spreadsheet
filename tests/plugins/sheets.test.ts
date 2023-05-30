@@ -1007,4 +1007,24 @@ describe("sheets", () => {
     expect(addColumns(model, "after", "A", 0)).toBeCancelledBecause(CommandResult.InvalidQuantity);
     expect(addRows(model, "after", 0, -1)).toBeCancelledBecause(CommandResult.InvalidQuantity);
   });
+  test("GetUnboundedZone works as expected > Range without any full col/row", () => {
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    const sheetId = model.getters.getActiveSheetId();
+    const zone = toZone("A1:E5");
+    expect(model.getters.getUnboundedZone(sheetId, zone)).toEqual(zone);
+  });
+
+  test("GetUnboundedZone works as expected > Range with a full row", () => {
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    const sheetId = model.getters.getActiveSheetId();
+    const zone = toZone("A1:A10");
+    expect(model.getters.getUnboundedZone(sheetId, zone)).toEqual({ ...zone, bottom: undefined });
+  });
+
+  test("GetUnboundedZone works as expected > Range with a full col", () => {
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    const sheetId = model.getters.getActiveSheetId();
+    const zone = toZone("A1:J1");
+    expect(model.getters.getUnboundedZone(sheetId, zone)).toEqual({ ...zone, right: undefined });
+  });
 });

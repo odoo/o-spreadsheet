@@ -92,10 +92,10 @@ describe("selection input plugin", () => {
     model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
     selectCell(model, "A4");
     setAnchorCorner(model, "A3");
-    expect(model.getters.getSelectionInput(id)[0].xc).toBe("A2:A4");
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("A2");
     expect(highlightedZones(model)).toStrictEqual(["A2:A4"]);
     setAnchorCorner(model, "A2");
-    expect(model.getters.getSelectionInput(id)[0].xc).toBe("A2:A4");
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("A2");
     expect(highlightedZones(model)).toStrictEqual(["A2:A4"]);
   });
 

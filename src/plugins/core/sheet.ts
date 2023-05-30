@@ -29,6 +29,7 @@ import {
   Sheet,
   SheetData,
   UID,
+  UnboundedZone,
   UpdateCellPositionCommand,
   WorkbookData,
   Zone,
@@ -71,6 +72,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getPaneDivisions",
     "checkZonesExistInSheet",
     "getCommandZones",
+    "getUnboundedZone",
   ] as const;
 
   readonly sheetIdsMapName: Record<string, UID | undefined> = {};
@@ -446,6 +448,16 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       left: 0,
       bottom: this.getNumberRows(sheetId) - 1,
       right: this.getNumberCols(sheetId) - 1,
+    };
+  }
+
+  getUnboundedZone(sheetId: UID, zone: Zone): UnboundedZone {
+    const isFullRow = zone.left === 0 && zone.right === this.getNumberCols(sheetId) - 1;
+    const isFullCol = zone.top === 0 && zone.bottom === this.getNumberRows(sheetId) - 1;
+    return {
+      ...zone,
+      right: isFullRow ? undefined : zone.right,
+      bottom: isFullCol ? undefined : zone.bottom,
     };
   }
 

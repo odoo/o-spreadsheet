@@ -206,6 +206,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.coreGetters.getRangeDataFromXc = this.range.getRangeDataFromXc.bind(this.range);
     this.coreGetters.getRangeDataFromZone = this.range.getRangeDataFromZone.bind(this.range);
     this.coreGetters.getRangeFromRangeData = this.range.getRangeFromRangeData.bind(this.range);
+    this.coreGetters.getRangeFromZone = this.range.getRangeFromZone.bind(this.range);
 
     this.getters = {
       isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",

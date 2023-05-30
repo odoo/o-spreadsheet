@@ -1,10 +1,4 @@
-import {
-  colors,
-  getCanonicalSheetName,
-  positionToZone,
-  splitReference,
-  zoneToXc,
-} from "../../helpers/index";
+import { colors, positionToZone, splitReference } from "../../helpers/index";
 import { StreamCallbacks } from "../../selection_stream/event_stream";
 import { SelectionEvent } from "../../types/event_stream";
 import {
@@ -81,11 +75,14 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
   }
 
   handleEvent(event: SelectionEvent) {
-    const xc = zoneToXc(event.anchor.zone);
     const inputSheetId = this.activeSheet;
     const sheetId = this.getters.getActiveSheetId();
-    const sheetName = this.getters.getSheetName(sheetId);
-    this.add([sheetId === inputSheetId ? xc : `${getCanonicalSheetName(sheetName)}!${xc}`]);
+    const zone = event.anchor.zone;
+    const range = this.getters.getRangeFromZone(
+      sheetId,
+      event.type === "HeadersSelected" ? this.getters.getUnboundedZone(sheetId, zone) : zone
+    );
+    this.add([this.getters.getSelectionRangeString(range, inputSheetId)]);
   }
 
   handle(cmd: Command) {

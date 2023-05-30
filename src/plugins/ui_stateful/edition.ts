@@ -3,7 +3,6 @@ import { POSTFIX_UNARY_OPERATORS } from "../../formulas/tokenizer";
 import {
   colors,
   concat,
-  getCanonicalSheetName,
   getZoneArea,
   isDateTimeFormat,
   isEqual,
@@ -28,10 +27,9 @@ import {
   Highlight,
   LocalCommand,
   Range,
-  RangePart,
   RemoveColumnsRowsCommand,
   UID,
-  Zone,
+  UnboundedZone,
 } from "../../types";
 import { SelectionEvent } from "../../types/event_stream";
 import { UIPlugin } from "../ui_plugin";
@@ -105,12 +103,19 @@ export class EditionPlugin extends UIPlugin {
     if (this.mode !== "selecting") {
       return;
     }
+    const sheetId = this.getters.getActiveSheetId();
+    let unboundedZone: UnboundedZone;
+    if (event.type === "HeadersSelected") {
+      unboundedZone = this.getters.getUnboundedZone(sheetId, event.anchor.zone);
+    } else {
+      unboundedZone = event.anchor.zone;
+    }
     switch (event.mode) {
       case "newAnchor":
-        this.insertSelectedRange(event.anchor.zone);
+        this.insertSelectedRange(unboundedZone);
         break;
       default:
-        this.replaceSelectedRanges(event.anchor.zone);
+        this.replaceSelectedRanges(unboundedZone);
         break;
     }
   }
@@ -551,7 +556,7 @@ export class EditionPlugin extends UIPlugin {
     }
   }
 
-  private insertSelectedRange(zone: Zone) {
+  private insertSelectedRange(zone: UnboundedZone) {
     // infer if range selected or selecting range from cursor position
     const start = Math.min(this.selectionStart, this.selectionEnd);
     const ref = this.getZoneReference(zone);
@@ -566,24 +571,16 @@ export class EditionPlugin extends UIPlugin {
   /**
    * Replace the current reference selected by the new one.
    * */
-  private replaceSelectedRanges(zone: Zone) {
+  private replaceSelectedRanges(zone: UnboundedZone) {
     const ref = this.getZoneReference(zone);
     this.replaceText(ref, this.selectionInitialStart, this.selectionEnd);
   }
 
-  private getZoneReference(
-    zone: Zone,
-    fixedParts: RangePart[] = [{ colFixed: false, rowFixed: false }]
-  ): string {
+  private getZoneReference(zone: UnboundedZone): string {
+    const inputSheetId = this.getters.getCurrentEditedCell().sheetId;
     const sheetId = this.getters.getActiveSheetId();
-    let selectedXc = this.getters.zoneToXC(sheetId, zone, fixedParts);
-    if (this.getters.getCurrentEditedCell().sheetId !== this.getters.getActiveSheetId()) {
-      const sheetName = getCanonicalSheetName(
-        this.getters.getSheetName(this.getters.getActiveSheetId())
-      );
-      selectedXc = `${sheetName}!${selectedXc}`;
-    }
-    return selectedXc;
+    const range = this.getters.getRangeFromZone(sheetId, zone);
+    return this.getters.getSelectionRangeString(range, inputSheetId);
   }
 
   private getRangeReference(
