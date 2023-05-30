@@ -1,19 +1,19 @@
-import { Model, Spreadsheet } from "../../src";
+import { Model } from "../../src";
+import { CustomCurrencyPanel } from "../../src/components/side_panel/custom_currency/custom_currency";
 import { currenciesRegistry } from "../../src/registries/currencies_registry";
 import { Currency } from "../../src/types/currency";
 import { setSelection } from "../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger } from "../test_helpers/dom_helper";
-import { mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
+import { mountComponent, nextTick, spyModelDispatch } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 jest.useFakeTimers();
 
 const selectors = {
-  closeSidepanel: ".o-sidePanel .o-sidePanelClose",
-  availableCurrencies: ".o-sidePanel .o-custom-currency .o-available-currencies",
-  inputCode: ".o-sidePanel .o-custom-currency .o-subsection-left input",
-  inputSymbol: ".o-sidePanel .o-custom-currency .o-subsection-right input",
-  formatProposals: ".o-sidePanel .o-custom-currency .o-format-proposals",
-  applyFormat: ".o-sidePanel .o-custom-currency .o-sidePanelButtons button",
+  availableCurrencies: ".o-custom-currency .o-available-currencies",
+  inputCode: ".o-custom-currency .o-subsection-left input",
+  inputSymbol: ".o-custom-currency .o-subsection-right input",
+  formatProposals: ".o-custom-currency .o-format-proposals",
+  applyFormat: ".o-custom-currency .o-sidePanelButtons button",
 };
 
 const [code1, code2] = ["ABC", "DEF"];
@@ -42,56 +42,29 @@ const loadCurrencies = async () => {
   return currenciesData;
 };
 
-let parent: Spreadsheet;
 let dispatch: jest.SpyInstance;
 let currenciesContent: { [key: string]: Currency };
 let model: Model;
 let fixture: HTMLElement;
 
-beforeEach(async () => {
-  currenciesContent = Object.assign({}, currenciesRegistry.content);
-
-  ({ parent, model, fixture } = await mountSpreadsheet({
-    model: new Model({}, { external: { loadCurrencies } }),
-  }));
-  dispatch = spyDispatch(parent);
-
-  parent.env.openSidePanel("CustomCurrency");
-  await nextTick();
-});
-
-afterEach(() => {
-  currenciesRegistry.content = currenciesContent;
-});
-
 describe("custom currency sidePanel component", () => {
+  beforeEach(async () => {
+    currenciesContent = Object.assign({}, currenciesRegistry.content);
+
+    ({ model, fixture } = await mountComponent(CustomCurrencyPanel, {
+      env: { loadCurrencies },
+      model: new Model({}, { external: { loadCurrencies } }),
+      props: { onCloseSidePanel: () => {} },
+    }));
+    dispatch = spyModelDispatch(model);
+    await nextTick();
+  });
+
+  afterEach(() => {
+    currenciesRegistry.content = currenciesContent;
+  });
+
   describe("Sidepanel", () => {
-    // -------------------------------------------------------------------------
-    // Close button
-    // -------------------------------------------------------------------------
-    test("Can close the custom currency side panel", async () => {
-      expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
-      await click(fixture, selectors.closeSidepanel);
-      expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
-    });
-
-    // -------------------------------------------------------------------------
-    // provided currencies
-    // -------------------------------------------------------------------------
-
-    test("if currencies are provided in spreadsheet --> display this currencies", () => {
-      expect(document.querySelector(selectors.availableCurrencies)).toMatchSnapshot();
-    });
-
-    test("if currencies aren't provided in spreadsheet --> remove 'available currencies' section", async () => {
-      // create spreadsheet without loadCurrencies in env
-      currenciesRegistry.content = {};
-      const { parent, fixture } = await mountSpreadsheet();
-      parent.env.openSidePanel("CustomCurrency");
-      await nextTick();
-      expect(fixture.querySelector(selectors.availableCurrencies)).toBe(null);
-    });
-
     // -------------------------------------------------------------------------
     // available currencies selector
     // -------------------------------------------------------------------------
@@ -347,8 +320,8 @@ describe("custom currency sidePanel component", () => {
       await nextTick();
       await click(fixture, selectors.applyFormat);
       expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
-        sheetId: parent.env.model.getters.getActiveSheetId(),
-        target: parent.env.model.getters.getSelectedZones(),
+        sheetId: model.getters.getActiveSheetId(),
+        target: model.getters.getSelectedZones(),
         format: formatResult,
       });
     });
@@ -379,8 +352,8 @@ describe("custom currency sidePanel component", () => {
           await nextTick();
           await click(fixture, selectors.applyFormat);
           expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
-            sheetId: parent.env.model.getters.getActiveSheetId(),
-            target: parent.env.model.getters.getSelectedZones(),
+            sheetId: model.getters.getActiveSheetId(),
+            target: model.getters.getSelectedZones(),
             format: expect.stringMatching(decimalPlacesRegexp),
           });
         }
@@ -413,8 +386,8 @@ describe("custom currency sidePanel component", () => {
           await nextTick();
           await click(fixture, selectors.applyFormat);
           expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
-            sheetId: parent.env.model.getters.getActiveSheetId(),
-            target: parent.env.model.getters.getSelectedZones(),
+            sheetId: model.getters.getActiveSheetId(),
+            target: model.getters.getSelectedZones(),
             format: expect.stringMatching(positionExpressionRegexp),
           });
         }
@@ -435,8 +408,8 @@ describe("custom currency sidePanel component", () => {
           await nextTick();
           await click(fixture, selectors.applyFormat);
           expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
-            sheetId: parent.env.model.getters.getActiveSheetId(),
-            target: parent.env.model.getters.getSelectedZones(),
+            sheetId: model.getters.getActiveSheetId(),
+            target: model.getters.getSelectedZones(),
             format: expect.stringMatching(twoDecimalPlacesRegex),
           });
         }
@@ -464,12 +437,41 @@ describe("custom currency sidePanel component", () => {
           await nextTick();
           await click(fixture, selectors.applyFormat);
           expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
-            sheetId: parent.env.model.getters.getActiveSheetId(),
-            target: parent.env.model.getters.getSelectedZones(),
+            sheetId: model.getters.getActiveSheetId(),
+            target: model.getters.getSelectedZones(),
             format: expect.stringMatching(positionExpressionRegexp),
           });
         }
       );
     }
   );
+});
+
+describe("Provided Currencies", () => {
+  beforeEach(async () => {
+    currenciesContent = Object.assign({}, currenciesRegistry.content);
+  });
+
+  afterEach(() => {
+    currenciesRegistry.content = currenciesContent;
+  });
+
+  test("if currencies are provided in spreadsheet --> display this currencies", async () => {
+    const { fixture } = await mountComponent(CustomCurrencyPanel, {
+      env: { loadCurrencies },
+      model: new Model({}, { external: { loadCurrencies } }),
+      props: { onCloseSidePanel: () => {} },
+    });
+    expect(fixture.querySelector(selectors.availableCurrencies)).toMatchSnapshot();
+  });
+
+  test("if currencies aren't provided in spreadsheet --> remove 'available currencies' section", async () => {
+    const { fixture } = await mountComponent(CustomCurrencyPanel, {
+      env: { loadCurrencies: undefined },
+      model: new Model({}),
+      props: { onCloseSidePanel: () => {} },
+    });
+    await nextTick();
+    expect(fixture.querySelector(selectors.availableCurrencies)).toBe(null);
+  });
 });
