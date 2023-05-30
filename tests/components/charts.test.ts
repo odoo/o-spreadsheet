@@ -92,9 +92,6 @@ describe("charts", () => {
       ],
     };
     ({ parent, model, fixture } = await mountSpreadsheet({ model: new Model(data) }));
-    await nextTick();
-    await nextTick();
-    await nextTick();
   });
 
   test.each(["basicChart", "scorecard", "gauge"])("can export a chart %s", (chartType: string) => {
@@ -1243,7 +1240,6 @@ describe("charts with multiple sheets", () => {
       ],
     };
     ({ parent, model, fixture } = await mountSpreadsheet({ model: new Model(data) }));
-    await nextTick();
   });
 
   test("delete sheet containing chart data does not crash", async () => {
@@ -1259,7 +1255,6 @@ describe("charts with multiple sheets", () => {
 describe("Default background on runtime tests", () => {
   beforeEach(async () => {
     ({ parent, fixture, model } = await mountSpreadsheet({ model: new Model() }));
-    await nextTick();
   });
 
   test("Creating a 'basicChart' without background should have default background on runtime", async () => {

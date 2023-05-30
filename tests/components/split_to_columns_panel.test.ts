@@ -38,7 +38,6 @@ describe("split to columns sidePanel component", () => {
       props: { onCloseSidePanel: () => onCloseSidePanel() },
     }));
     dispatch = spyModelDispatch(model);
-    await nextTick();
     confirmButton = fixture.querySelector(".o-split-to-cols-panel button")!;
     checkBox = fixture.querySelector('.o-split-to-cols-panel input[type="checkbox"]')!;
   });

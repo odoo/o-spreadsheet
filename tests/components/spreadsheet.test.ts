@@ -133,7 +133,6 @@ describe("Simple Spreadsheet Component", () => {
 
   test("can open/close search with ctrl+h", async () => {
     ({ model, parent, fixture } = await mountSpreadsheet());
-    await nextTick();
     await keyDown({ key: "H", ctrlKey: true });
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
     await keyDown({ key: "H", ctrlKey: true });
