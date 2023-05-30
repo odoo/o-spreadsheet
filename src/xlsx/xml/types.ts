@@ -2,8 +2,14 @@ export interface ElementSchema {
   name: string;
   namespace?: NameSpace;
   type?: XMLType;
-  attributes?: Array<{ name: string }>;
+  attributes?: AttributeSchema[];
   children?: ChildrenSchema;
+}
+
+interface AttributeSchema {
+  name: string;
+  type?: XMLType;
+  namespace?: NameSpace;
 }
 
 type SequenceSchema = SequenceElementSchema[];

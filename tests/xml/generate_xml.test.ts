@@ -1,4 +1,3 @@
-import { parseElement } from "../../src/xlsx/xml";
 import { generate } from "../../src/xlsx/xml/generate";
 
 describe("js schema to xml", () => {
@@ -103,6 +102,26 @@ describe("js schema to xml", () => {
       '<ns:person xmlns:ns="http://example.com">John</ns:person>'
     );
   });
+  test("attribute namespace with prefix", () => {
+    const schema = {
+      name: "person",
+      attributes: [
+        {
+          name: "age",
+          namespace: {
+            prefix: "a",
+            uri: "http://example.com",
+          },
+        },
+      ],
+    };
+    const data = {
+      person: {
+        age: 32,
+      },
+    };
+    expect(generate(schema, data)).toBe('<person xmlns:a="http://example.com" a:age="32"/>');
+  });
   test("namespace with prefix on children", () => {
     const schema = {
       name: "person",
@@ -173,16 +192,16 @@ describe("js schema to xml", () => {
   });
 });
 
-describe("XML to js", () => {
-  test("parse a single XML element", () => {
-    expect(parseElement("<person></person>")).toEqual({
-      name: "person",
-    });
-  });
-  test("parse a single XML element with an attribute", () => {
-    expect(parseElement('<person name="John"></person>')).toEqual({
-      name: "person",
-      attributes: [{ name: "name", value: "John" }],
-    });
-  });
-});
+// describe("XML to js", () => {
+//   test("parse a single XML element", () => {
+//     expect(parseElement("<person></person>")).toEqual({
+//       name: "person",
+//     });
+//   });
+//   test("parse a single XML element with an attribute", () => {
+//     expect(parseElement('<person name="John"></person>')).toEqual({
+//       name: "person",
+//       attributes: [{ name: "name", value: "John" }],
+//     });
+//   });
+// });

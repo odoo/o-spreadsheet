@@ -2,16 +2,19 @@ import { XMLString } from "../../types/xlsx";
 import { parseXML } from "../helpers/xml_helpers";
 import { ElementSchema, SequenceElementSchema } from "./types";
 
-export function extract(schema: ElementSchema, xml: string): object {
+export function extract(schema: ElementSchema, xml: string | Element): object {
+  if (xml instanceof Element) {
+    return extractFromDocument(qualifyNamespaces(schema), xml);
+  }
   const doc = parseXML(new XMLString(xml));
   const el = doc.firstElementChild;
   if (el === null) {
     throw new Error("No element found");
   }
-  return _extract(qualifyNamespaces(schema), el);
+  return extractFromDocument(qualifyNamespaces(schema), el);
 }
 
-function _extract(schema: ElementSchema, el: Element): object {
+function extractFromDocument(schema: ElementSchema, el: Element): object {
   if (schema.name !== el.localName) {
     throw new Error(`Expected '${schema.name}' but found '${el.localName}'`);
   }
@@ -54,7 +57,7 @@ function parseValue(textContent, type: ElementSchema["type"]) {
 function extractAttributes(schema: ElementSchema, el: Element) {
   const attributes = {};
   for (const attribute of schema.attributes || []) {
-    const value = el.getAttribute(attribute.name);
+    const value = el.getAttributeNS(attribute.namespace?.uri || "", attribute.name);
     if (value === null) {
       throw new Error(`Expected '${schema.name}' to have attribute '${attribute.name}'`);
     }
@@ -86,7 +89,7 @@ function extractSequence(
         }
         const childData = {
           name: child.localName,
-          ..._extract(childSchema, child)[child.localName],
+          ...extractFromDocument(childSchema, child)[child.localName],
         };
         parsedChildren.push(childData);
         childSchema = childrenSchema.shift();
@@ -99,7 +102,7 @@ function extractSequence(
         }
         const childData = {
           name: child.localName,
-          ..._extract(childSchema, child)[child.localName],
+          ...extractFromDocument(childSchema, child)[child.localName],
         };
         parsedChildren.push(childData);
         break;
@@ -141,5 +144,6 @@ function qualifyNamespaces(schema: ElementSchema, namespace = schema.namespace):
       qualifyNamespaces(child, qualifiedSchema.namespace)
     );
   }
+  console.log(qualifiedSchema);
   return qualifiedSchema;
 }

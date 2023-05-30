@@ -32,7 +32,15 @@ function generateElement(schema: ElementSchema, data: object): Element {
       );
     }
     properties.delete(attribute.name);
-    element.setAttribute(attribute.name, data[schema.name][attribute.name]);
+    const qualifiedName = attribute.namespace?.prefix
+      ? `${attribute.namespace.prefix}:${attribute.name}`
+      : attribute.name;
+    element.setAttributeNS(
+      attribute.namespace?.uri || "",
+      qualifiedName,
+      data[schema.name][attribute.name]
+    );
+    // element.setAttribute(attribute.name, data[schema.name][attribute.name]);
   }
   if (properties.size === 1 && properties) {
     debugger;

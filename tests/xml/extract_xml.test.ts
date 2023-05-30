@@ -69,6 +69,26 @@ describe("extract xml with js schema", () => {
       person: { attributes: { age: "12" } },
     });
   });
+  test("element with a namespaced attribute", () => {
+    const schema = {
+      name: "person",
+      attributes: [{ name: "age", namespace: { uri: "http://example.com" } }],
+    };
+    const xml = /*xml*/ `
+      <person xmlns:a="http://example.com" a:age="12"></person>`;
+    expect(extract(schema, xml)).toEqual({
+      person: { attributes: { age: "12" } },
+    });
+  });
+  test("element with another namespaced attribute", () => {
+    const schema = {
+      name: "person",
+      attributes: [{ name: "age", namespace: { uri: "http://example.com" } }],
+    };
+    const xml = /*xml*/ `
+      <person xmlns:a="http://other.com" a:age="12"></person>`;
+    expect(() => extract(schema, xml)).toThrow("Expected 'person' to have attribute 'age'");
+  });
   test("attribute not found", () => {
     const schema = {
       name: "person",

@@ -52,6 +52,10 @@ const schema: ElementSchema = {
             },
             {
               name: "graphic",
+              namespace: {
+                uri: "http://schemas.openxmlformats.org/drawingml/2006/main",
+                prefix: "a",
+              },
               children: [
                 {
                   name: "graphicData",
@@ -66,8 +70,6 @@ const schema: ElementSchema = {
                       attributes: [
                         {
                           name: "id",
-                          // attribute name space !!
-                          // @ts-ignore
                           namespace: {
                             uri: "http://schemas.openxmlformats.org/officeDocument/2006/relationships",
                             prefix: "r",
@@ -90,7 +92,7 @@ function markerAnchor(name: string) {
   return {
     name,
     namespace: {
-      uri: "http://schemas.openxmlformats.org/drawingml/2006/chartDrawing",
+      uri: "http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing",
       prefix: "xdr",
     },
     children: [{ name: "col" }, { name: "colOff" }, { name: "row" }, { name: "rowOff" }],
@@ -99,7 +101,13 @@ function markerAnchor(name: string) {
 
 export class XlsxFigureExtractor extends XlsxBaseExtractor {
   extractFigures(): XLSXFigure[] {
-    console.log(extract(schema, this.rootFile.file.xml.toString()));
+    schema;
+    // extract
+    try {
+      console.log(extract(schema, this.rootFile.file.xml.firstElementChild!));
+    } catch (error) {
+      console.log(error);
+    }
     return this.mapOnElements(
       { parent: this.rootFile.file.xml, query: "xdr:wsDr", children: true },
       (figureElement): XLSXFigure => {
