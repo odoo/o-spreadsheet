@@ -24,6 +24,7 @@ import {
   RangeData,
   RangeProvider,
   UID,
+  UnboundedZone,
   Zone,
 } from "../../types/index";
 
@@ -41,6 +42,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     "getRangeDataFromXc",
     "getRangeDataFromZone",
     "getRangeFromRangeData",
+    "getRangeFromZone",
   ] as const;
 
   // ---------------------------------------------------------------------------
@@ -382,6 +384,21 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
 
   getRangeDataFromZone(sheetId: UID, zone: Zone): RangeData {
     return { _sheetId: sheetId, _zone: zone };
+  }
+
+  getRangeFromZone(sheetId: UID, zone: UnboundedZone): Range {
+    return new RangeImpl(
+      {
+        sheetId,
+        zone,
+        parts: [
+          { colFixed: false, rowFixed: false },
+          { colFixed: false, rowFixed: false },
+        ],
+        prefixSheet: false,
+      },
+      this.getters.getSheetSize
+    );
   }
 
   getRangeFromRangeData(data: RangeData): Range {

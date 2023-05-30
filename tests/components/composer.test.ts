@@ -459,6 +459,20 @@ describe("ranges and highlights", () => {
       expect(composerEl.textContent).toBe("=SUM($B$1:$B$2)");
     });
   });
+
+  test("Can select full column as unbounded zone", async () => {
+    composerEl = await typeInComposer("=");
+    model.selection.selectColumn(2, "newAnchor");
+    await nextTick();
+    expect(composerEl.textContent).toBe("=C:C");
+  });
+
+  test("Can select full row as unbounded zone", async () => {
+    composerEl = await typeInComposer("=");
+    model.selection.selectRow(2, "newAnchor");
+    await nextTick();
+    expect(composerEl.textContent).toBe("=3:3");
+  });
 });
 
 describe("composer", () => {
