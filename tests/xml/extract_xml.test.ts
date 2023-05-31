@@ -154,7 +154,7 @@ describe("extract xml with js schema", () => {
     const xml = /*xml*/ `<person><age/><address/></person>`;
     expect(() => extract(schema, xml)).toThrow("Missing child: 'age'");
   });
-  test("extract sequence nested children ", () => {
+  test("extract nested child ", () => {
     const schema: ElementSchema = {
       name: "person",
       children: [{ name: "address", children: [{ name: "city" }] }],
@@ -222,6 +222,31 @@ describe("extract xml with js schema", () => {
         children: [
           { name: "city", content: "London" },
           { name: "city", content: "Edinburgh" },
+        ],
+      },
+    });
+  });
+  test("schema with many quantifier extracts nested elements", () => {
+    const schema: ElementSchema = {
+      name: "person",
+      children: [
+        {
+          name: "friend",
+          quantifier: "many",
+          children: [{ name: "name" }],
+        },
+      ],
+    };
+    const xml = /*xml*/ `
+      <person>
+        <friend><name>Raoul</name></friend>
+        <friend><name>Georges</name></friend>
+      </person>`;
+    expect(extract(schema, xml)).toEqual({
+      person: {
+        children: [
+          { name: "friend", children: [{ name: "name", content: "Raoul" }] },
+          { name: "friend", children: [{ name: "name", content: "Georges" }] },
         ],
       },
     });

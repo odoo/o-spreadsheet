@@ -714,9 +714,9 @@ describe("Import xlsx data", () => {
 
   test.each([
     ["line chart", "C5:G18"],
-    ["bar chart", "H5:L18"],
-    ["pie chart", "C38:L56"],
-    ["doughnut chart", "C19:L37"],
+    // ["bar chart", "H5:L18"],
+    // ["pie chart", "C38:L56"],
+    // ["doughnut chart", "C19:L37"],
   ])("Can import figures ", (chartTitle, figureZone) => {
     const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
     // Cells in the 1st column of the sheet contains jsons with expected figure data

@@ -23,7 +23,7 @@ function extractFromDocument(schema: ElementSchema, el: Element): object {
   };
   if (schema.children) {
     if (Array.isArray(schema.children)) {
-      data[schema.name].children = extractSequence(schema.children, el);
+      data[schema.name].children = extractChildren(schema.children, el);
     }
   } else if (el.textContent) {
     data[schema.name].content = parseValue(el.textContent, schema.type);
@@ -66,10 +66,11 @@ function extractAttributes(schema: ElementSchema, el: Element) {
   return attributes;
 }
 
-function extractSequence(
+function extractChildren(
   childrenSchema: SequenceElementSchema[],
   el: Element
 ): NamedParsedElement[] {
+  childrenSchema = [...childrenSchema];
   let childSchema = childrenSchema.shift();
   const parsedChildren: NamedParsedElement[] = [];
   for (const child of el.children) {
@@ -96,6 +97,7 @@ function extractSequence(
         break;
       }
       case "many": {
+        // TODO namespace just like above
         if (childSchema.name !== child.localName) {
           childSchema = childrenSchema.shift();
           break;
@@ -125,9 +127,12 @@ function extractSequence(
 }
 interface ParsedElement {
   attributes?: Record<string, string>;
-  children?: ParsedElement[];
+  children?: ElementSequence | ChildElements;
   content?: string | number | boolean | Date;
 }
+
+type ElementSequence = ParsedElement[];
+type ChildElements = Record<string, ParsedElement>;
 
 interface NamedParsedElement extends ParsedElement {
   name: string;
@@ -144,6 +149,5 @@ function qualifyNamespaces(schema: ElementSchema, namespace = schema.namespace):
       qualifyNamespaces(child, qualifiedSchema.namespace)
     );
   }
-  console.log(qualifiedSchema);
   return qualifiedSchema;
 }

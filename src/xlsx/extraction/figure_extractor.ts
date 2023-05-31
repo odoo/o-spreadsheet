@@ -1,110 +1,19 @@
 import { ExcelChartDefinition } from "../../types";
 import { XLSXFigure, XLSXFigureAnchor } from "../../types/xlsx";
 import { removeNamespaces } from "../helpers/xml_helpers";
-import { ElementSchema, extract } from "../xml";
+import { FIGURE_SCHEMA } from "../schema/figures_schema";
+import { extract } from "../xml";
 import { XlsxBaseExtractor } from "./base_extractor";
 import { XlsxChartExtractor } from "./chart_extractor";
 
-const schema: ElementSchema = {
-  name: "wsDr",
-  namespace: {
-    uri: "http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing",
-    prefix: "xdr",
-  },
-  children: [
-    {
-      name: "twoCellAnchor", // Only twoCellAnchor are supported for xlsx drawings.
-      quantifier: "many",
-      children: [
-        markerAnchor("from"),
-        markerAnchor("to"),
-        {
-          name: "graphicFrame",
-          children: [
-            {
-              name: "nvGraphicFramePr",
-              children: [
-                {
-                  name: "cNvPr",
-                  attributes: [{ name: "id" }, { name: "name" }, { name: "title" }],
-                },
-                { name: "cNvGraphicFramePr" },
-              ],
-            },
-            {
-              name: "xfrm",
-              children: [
-                {
-                  name: "off",
-                  namespace: {
-                    uri: "http://schemas.openxmlformats.org/drawingml/2006/main",
-                    prefix: "a",
-                  },
-                },
-                {
-                  name: "ext",
-                  namespace: {
-                    uri: "http://schemas.openxmlformats.org/drawingml/2006/main",
-                    prefix: "a",
-                  },
-                },
-              ],
-            },
-            {
-              name: "graphic",
-              namespace: {
-                uri: "http://schemas.openxmlformats.org/drawingml/2006/main",
-                prefix: "a",
-              },
-              children: [
-                {
-                  name: "graphicData",
-                  attributes: [{ name: "uri" }],
-                  children: [
-                    {
-                      name: "chart",
-                      namespace: {
-                        uri: "http://schemas.openxmlformats.org/drawingml/2006/chart",
-                        prefix: "c",
-                      },
-                      attributes: [
-                        {
-                          name: "id",
-                          namespace: {
-                            uri: "http://schemas.openxmlformats.org/officeDocument/2006/relationships",
-                            prefix: "r",
-                          },
-                        },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-  ],
-};
-
-function markerAnchor(name: string) {
-  return {
-    name,
-    namespace: {
-      uri: "http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing",
-      prefix: "xdr",
-    },
-    children: [{ name: "col" }, { name: "colOff" }, { name: "row" }, { name: "rowOff" }],
-  };
-}
-
 export class XlsxFigureExtractor extends XlsxBaseExtractor {
   extractFigures(): XLSXFigure[] {
-    schema;
+    FIGURE_SCHEMA;
     // extract
     try {
-      console.log(extract(schema, this.rootFile.file.xml.firstElementChild!));
+      console.log(
+        JSON.stringify(extract(FIGURE_SCHEMA, this.rootFile.file.xml.firstElementChild!))
+      );
     } catch (error) {
       console.log(error);
     }
