@@ -416,7 +416,11 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
         };
       });
     if (searchTerm) {
-      values = fuzzyLookup(searchTerm, values, (t) => t.text);
+      if (searchTerm.toLowerCase() === "true" || searchTerm.toLowerCase() === "false") {
+        values = [];
+      } else {
+        values = fuzzyLookup(searchTerm, values, (t) => t.text);
+      }
     } else {
       // alphabetical order
       values = values.sort((a, b) => a.text.localeCompare(b.text));
