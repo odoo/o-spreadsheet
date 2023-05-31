@@ -2,6 +2,65 @@ import { XMLString } from "../../types/xlsx";
 import { parseXML } from "../helpers/xml_helpers";
 import { ElementSchema, SequenceElementSchema } from "./types";
 
+const InnerContent = Symbol("content");
+
+type ExtractedSchema<S extends ElementSchema> = {
+  [k in S["name"]]: ExtractedValues<S>;
+};
+
+type ExtractedValues<S extends ElementSchema> = {
+  [name in keyof Attrs<S>]: TypedValue<Attrs<S>[name]["type"]>;
+} & Children<S> &
+  InnerContent<S>;
+
+type InnerContent<S extends ElementSchema> = {
+  [InnerContent]: TypedValue<S["type"]>;
+};
+
+// type Attrs<S extends ElementSchema> = {
+//   [name in ExtractedAttributes<S["attributes"]>]: TypedValue<Extract<ExtractedChildren<S["attributes"]>, { name: name }>["type"]>;
+// }
+type Attrs<S extends ElementSchema> = MapNamedArray<S["attributes"]>;
+type Children<S extends ElementSchema> = MapNamedArray<S["children"]>;
+// type Children<S extends ElementSchema> = {
+//   [name in ExtractedChildren<S["children"]>["name"]]: ExtractedValues<
+//     Extract<ExtractedChildren<S["children"]>, { name: name }>
+//   >;
+// }
+
+type MapNamedArray<A extends undefined | { name: string }[]> = A extends any[]
+  ? {
+      [name in A[number]["name"]]: Extract<A[number], { name: name }>;
+    }
+  : never;
+
+type TypedValue<T extends ElementSchema["type"]> = T extends "number"
+  ? number
+  : T extends "boolean"
+  ? boolean
+  : XMLString;
+type ExtractedChildren<C extends ElementSchema["children"]> = C extends any[] ? C[number] : never;
+type ExtractedAttributes<A extends ElementSchema["attributes"]> = A extends any[]
+  ? A[number]["name"]
+  : never;
+
+type S = {
+  name: "person";
+  attributes: [{ name: "age"; type: "number" }, { name: "married"; type: "boolean" }];
+  children: [
+    { name: "address"; type: "boolean" },
+    { name: "friend"; attributes: [{ name: "qsdf" }]; children: [{ name: "girlfriend" }] }
+  ];
+};
+type AA = ExtractedAttributes<S["attributes"]>;
+type CC = ExtractedChildren<S["children"]>;
+type A = ExtractedSchema<S>;
+
+const a: A = {};
+a.person.married;
+a.person.age;
+const ah = a.person.address[InnerContent];
+
 export function extract(schema: ElementSchema, xml: string | Element): object {
   if (xml instanceof Element) {
     return extractFromDocument(qualifyNamespaces(schema), xml);
@@ -23,13 +82,13 @@ function extractFromDocument(schema: ElementSchema, el: Element): object {
   };
   if (schema.children) {
     if (Array.isArray(schema.children)) {
-      data[schema.name].children = extractChildren(schema.children, el);
+      Object.assign(data[schema.name], extractChildren(schema.children, el));
     }
   } else if (el.textContent) {
-    data[schema.name].content = parseValue(el.textContent, schema.type);
+    data[schema.name] = parseValue(el.textContent, schema.type);
   }
   if (schema.attributes) {
-    data[schema.name].attributes = extractAttributes(schema, el);
+    Object.assign(data[schema.name], extractAttributes(schema, el));
   }
   return data;
 }
@@ -66,13 +125,13 @@ function extractAttributes(schema: ElementSchema, el: Element) {
   return attributes;
 }
 
-function extractChildren(
-  childrenSchema: SequenceElementSchema[],
-  el: Element
-): NamedParsedElement[] {
+function extractChildren(childrenSchema: SequenceElementSchema[], el: Element): ParsedElement {
   childrenSchema = [...childrenSchema];
   let childSchema = childrenSchema.shift();
-  const parsedChildren: NamedParsedElement[] = [];
+  if (childSchema?.quantifier === "many") {
+    return { [childSchema.name]: extractRepeatingChildren(childSchema, el) };
+  }
+  const parsedChildren: Record<string, ParsedElement> = {};
   for (const child of el.children) {
     if (childSchema === undefined) {
       return parsedChildren;
@@ -88,28 +147,8 @@ function extractChildren(
           // ignore unknown elements
           break;
         }
-        const childData = {
-          name: child.localName,
-          ...extractFromDocument(childSchema, child)[child.localName],
-        };
-        parsedChildren.push(childData);
+        parsedChildren[child.localName] = extractFromDocument(childSchema, child)[child.localName];
         childSchema = childrenSchema.shift();
-        break;
-      }
-      case "many": {
-        // TODO namespace just like above
-        if (childSchema.name !== child.localName) {
-          childSchema = childrenSchema.shift();
-          break;
-        }
-        const childData = {
-          name: child.localName,
-          ...extractFromDocument(childSchema, child)[child.localName],
-        };
-        parsedChildren.push(childData);
-        break;
-      }
-      case "optional": {
         break;
       }
     }
@@ -125,18 +164,31 @@ function extractChildren(
   }
   return parsedChildren;
 }
+
+function extractRepeatingChildren(childrenSchema: SequenceElementSchema, el: Element) {
+  const children: ParsedElement[] = [];
+  for (const child of el.children) {
+    // TODO namespace just like above
+    if (childrenSchema.name !== child.localName) {
+      break;
+    }
+    children.push(extractFromDocument(childrenSchema, child)[child.localName]);
+  }
+  return children;
+}
 interface ParsedElement {
-  attributes?: Record<string, string>;
-  children?: ElementSequence | ChildElements;
-  content?: string | number | boolean | Date;
+  [key: string]: any;
+  // attributes?: Record<string, string>;
+  // children?: ElementSequence | ChildElements;
+  // content?: string | number | boolean | Date;
 }
 
-type ElementSequence = ParsedElement[];
-type ChildElements = Record<string, ParsedElement>;
+// type ElementSequence = ParsedElement[];
+// type ChildElements = Record<string, ParsedElement>;
 
-interface NamedParsedElement extends ParsedElement {
-  name: string;
-}
+// interface NamedParsedElement extends ParsedElement {
+//   name: string;
+// }
 
 /**
  * Add the namespace to all schema elements and all the children

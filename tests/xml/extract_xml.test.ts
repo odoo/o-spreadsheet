@@ -16,9 +16,7 @@ describe("extract xml with js schema", () => {
     };
     const xml = "<person>John</person>";
     expect(extract(schema, xml)).toEqual({
-      person: {
-        content: "John",
-      },
+      person: "John",
     });
   });
   test("an number value", () => {
@@ -28,9 +26,7 @@ describe("extract xml with js schema", () => {
     };
     const xml = "<age>13</age>";
     expect(extract(schema, xml)).toEqual({
-      age: {
-        content: 13,
-      },
+      age: 13,
     });
   });
   test("a wrong number value", () => {
@@ -47,9 +43,7 @@ describe("extract xml with js schema", () => {
     };
     const xml = "<person>&lt;John&gt;</person>";
     expect(extract(schema, xml)).toEqual({
-      person: {
-        content: "<John>",
-      },
+      person: "<John>",
     });
   });
   test("element not found", () => {
@@ -66,7 +60,17 @@ describe("extract xml with js schema", () => {
     };
     const xml = '<person age="12"/>';
     expect(extract(schema, xml)).toEqual({
-      person: { attributes: { age: "12" } },
+      person: { age: "12" },
+    });
+  });
+  test("an element with a content and an attribute", () => {
+    const schema = {
+      name: "person",
+      attributes: [{ name: "age" }],
+    };
+    const xml = '<person age="12">John</person>';
+    expect(extract(schema, xml)).toEqual({
+      person: "John",
     });
   });
   test("element with a namespaced attribute", () => {
@@ -77,7 +81,7 @@ describe("extract xml with js schema", () => {
     const xml = /*xml*/ `
       <person xmlns:a="http://example.com" a:age="12"></person>`;
     expect(extract(schema, xml)).toEqual({
-      person: { attributes: { age: "12" } },
+      person: { age: "12" },
     });
   });
   test("element with another namespaced attribute", () => {
@@ -106,7 +110,7 @@ describe("extract xml with js schema", () => {
     const xml = "<person><address>London</address></person>";
     expect(extract(schema, xml)).toEqual({
       person: {
-        children: [{ name: "address", content: "London" }],
+        address: "London",
       },
     });
   });
@@ -118,7 +122,7 @@ describe("extract xml with js schema", () => {
     const xml = "<person><address/></person>";
     expect(extract(schema, xml)).toEqual({
       person: {
-        children: [{ name: "address" }],
+        address: {},
       },
     });
   });
@@ -129,9 +133,7 @@ describe("extract xml with js schema", () => {
     };
     const xml = "<person/>";
     expect(extract(schema, xml)).toEqual({
-      person: {
-        children: [],
-      },
+      person: {},
     });
   });
   test("extract a sequence of children in the correct order", () => {
@@ -142,7 +144,8 @@ describe("extract xml with js schema", () => {
     const xml = /*xml*/ `<person><address/><age/></person>`;
     expect(extract(schema, xml)).toEqual({
       person: {
-        children: [{ name: "address" }, { name: "age" }],
+        address: {},
+        age: {},
       },
     });
   });
@@ -167,7 +170,7 @@ describe("extract xml with js schema", () => {
       </person>`;
     expect(extract(schema, xml)).toEqual({
       person: {
-        children: [{ name: "address", children: [{ name: "city", content: "London" }] }],
+        address: { city: "London" },
       },
     });
   });
@@ -179,7 +182,7 @@ describe("extract xml with js schema", () => {
     const xml = "<person><age/><address/><job/></person>";
     expect(extract(schema, xml)).toEqual({
       person: {
-        children: [{ name: "address" }],
+        address: {},
       },
     });
   });
@@ -219,10 +222,7 @@ describe("extract xml with js schema", () => {
       </country>`;
     expect(extract(schema, xml)).toEqual({
       country: {
-        children: [
-          { name: "city", content: "London" },
-          { name: "city", content: "Edinburgh" },
-        ],
+        city: ["London", "Edinburgh"],
       },
     });
   });
@@ -244,10 +244,7 @@ describe("extract xml with js schema", () => {
       </person>`;
     expect(extract(schema, xml)).toEqual({
       person: {
-        children: [
-          { name: "friend", children: [{ name: "name", content: "Raoul" }] },
-          { name: "friend", children: [{ name: "name", content: "Georges" }] },
-        ],
+        friend: [{ name: "Raoul" }, { name: "Georges" }],
       },
     });
   });
@@ -258,7 +255,7 @@ describe("extract xml with js schema", () => {
     };
     const xml = /*xml*/ `<country></country>`;
     expect(extract(schema, xml)).toEqual({
-      country: { children: [] },
+      country: { city: [] },
     });
   });
   test("extract a default namespaced child", () => {
@@ -274,7 +271,7 @@ describe("extract xml with js schema", () => {
       </person>`;
     expect(extract(schema, xml)).toEqual({
       person: {
-        children: [{ name: "address" }],
+        address: {},
       },
     });
   });
@@ -291,7 +288,7 @@ describe("extract xml with js schema", () => {
       </person>`;
     expect(extract(schema, xml)).toEqual({
       person: {
-        children: [{ name: "address" }],
+        address: {},
       },
     });
   });
@@ -309,7 +306,7 @@ describe("extract xml with js schema", () => {
       </person>`;
     expect(extract(schema, xml)).toEqual({
       person: {
-        children: [{ name: "address" }],
+        address: {},
       },
     });
   });
@@ -333,11 +330,13 @@ describe("extract xml with js schema", () => {
       </person>`;
     expect(extract(schema, xml)).toEqual({
       person: {
-        children: [{ name: "address", children: [{ name: "city", content: "London" }] }],
+        address: {
+          city: "London",
+        },
       },
     });
   });
-  test("does not extract a prefixed child from another namespace", () => {
+  test("does not extract other prefixed children from another namespace", () => {
     const namespaceB = "http://B.com";
     const schema: ElementSchema = {
       name: "country",
@@ -348,11 +347,10 @@ describe("extract xml with js schema", () => {
       <country xmlns:a="http://A.com" xmlns:b="http://B.com">
         <a:city>London</a:city>
         <b:city>Edinburgh</b:city>
+        <a:city>York</a:city>
       </country>`;
     expect(extract(schema, xml)).toEqual({
-      country: {
-        children: [{ name: "city", content: "Edinburgh" }],
-      },
+      country: { city: "Edinburgh" },
     });
   });
 });

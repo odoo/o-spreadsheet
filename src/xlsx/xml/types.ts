@@ -1,26 +1,26 @@
 export interface ElementSchema {
-  name: string;
-  namespace?: NameSpace;
-  type?: XMLType;
-  attributes?: AttributeSchema[];
-  children?: ChildrenSchema;
+  readonly name: string;
+  readonly namespace?: NameSpace;
+  readonly type?: XMLType;
+  readonly attributes?: AttributeSchema[];
+  readonly children?: ChildrenSchema;
 }
 
 interface AttributeSchema {
-  name: string;
-  type?: XMLType;
-  namespace?: NameSpace;
+  readonly name: string;
+  readonly type?: XMLType;
+  readonly namespace?: NameSpace;
 }
 
 type SequenceSchema = SequenceElementSchema[];
 
-type ChildrenSchema = SequenceSchema;
+type ChildrenSchema = SequenceSchema | undefined;
 
 export interface SequenceElementSchema extends ElementSchema {
   /**
-   * "required" by default
+   * @default "required"
    */
-  quantifier?: "required" | "many" | "optional";
+  readonly quantifier?: "required" | "many" | "optional";
 }
 
 type XMLType = "string" | "number" | "boolean" | "date" | "time";

@@ -9,8 +9,8 @@ export const FIGURE_SCHEMA: ElementSchema = {
       name: "twoCellAnchor", // Only twoCellAnchor are supported for xlsx drawings.
       quantifier: "many",
       children: [
-        markerAnchor("from"),
-        markerAnchor("to"),
+        markerAnchorSchema("from"),
+        markerAnchorSchema("to"),
         {
           name: "graphicFrame",
           children: [
@@ -55,13 +55,15 @@ export const FIGURE_SCHEMA: ElementSchema = {
   ],
 };
 
-function markerAnchor(name: string) {
+function markerAnchorSchema(name: string) {
   return {
     name,
-    namespace: {
-      uri: "http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing",
-      prefix: "xdr",
-    },
-    children: [{ name: "col" }, { name: "colOff" }, { name: "row" }, { name: "rowOff" }],
-  };
+    namespace: NAMESPACE.spreadsheetDrawing,
+    children: [
+      { name: "col", type: "number" },
+      { name: "colOff", type: "number" },
+      { name: "row", type: "number" },
+      { name: "rowOff", type: "number" },
+    ],
+  } as const;
 }
