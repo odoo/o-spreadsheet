@@ -309,6 +309,16 @@ describe("Functions autocomplete", () => {
       ).toBe("SUM");
     });
   });
+
+  describe("Edge cases with autocomplete", () => {
+    test("autocomplete dropdown should not trigger on =true or =false", async () => {
+      restoreDefaultFunctions();
+      await typeInComposerGrid("=true", true);
+      expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
+      await typeInComposerGrid("=false", true);
+      expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
+    });
+  });
 });
 
 describe("Autocomplete parenthesis", () => {
