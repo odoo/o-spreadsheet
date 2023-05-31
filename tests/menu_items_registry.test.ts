@@ -25,7 +25,6 @@ import {
   getNode,
   makeTestEnv,
   mockUuidV4To,
-  nextTick,
   spyModelDispatch,
   target,
 } from "./test_helpers/helpers";
@@ -129,8 +128,7 @@ describe("Menu Item actions", () => {
   test("Edit -> paste from OS clipboard if copied from outside world last", async () => {
     doAction(["edit", "copy"], env); // first copy from grid
     await env.clipboard.writeText("Then copy in OS clipboard");
-    doAction(["edit", "paste"], env);
-    await nextTick();
+    await doAction(["edit", "paste"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       text: "Then copy in OS clipboard",
       target: [{ bottom: 0, left: 0, right: 0, top: 0 }],
@@ -140,8 +138,7 @@ describe("Menu Item actions", () => {
   test("Edit -> paste if copied from grid last", async () => {
     await env.clipboard.writeText("First copy in OS clipboard");
     doAction(["edit", "copy"], env); // then copy from grid
-    doAction(["edit", "paste"], env);
-    await nextTick();
+    await doAction(["edit", "paste"], env);
     interactivePaste(env, target("A1"));
     expect(getCellContent(model, "A1")).toEqual("");
   });
@@ -158,8 +155,7 @@ describe("Menu Item actions", () => {
 
   test("Edit -> paste_special -> paste_special_value", async () => {
     doAction(["edit", "copy"], env);
-    doAction(["edit", "paste_special", "paste_special_value"], env);
-    await nextTick();
+    await doAction(["edit", "paste_special", "paste_special_value"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE", {
       target: env.model.getters.getSelectedZones(),
       pasteOption: "onlyValue",
@@ -169,8 +165,7 @@ describe("Menu Item actions", () => {
   test("Edit -> paste_special -> paste_special_value from OS clipboard", async () => {
     const text = "in OS clipboard";
     await env.clipboard.writeText(text);
-    doAction(["edit", "paste_special", "paste_special_value"], env);
-    await nextTick();
+    await doAction(["edit", "paste_special", "paste_special_value"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       target: target("A1"),
       text,
@@ -1039,10 +1034,9 @@ describe("Menu Item actions", () => {
     });
   });
 
-  test("Data -> Split to columns action", async () => {
+  test("Data -> Split to columns action", () => {
     const spyOpenSidePanel = jest.spyOn(env, "openSidePanel");
     doAction(["data", "split_to_columns"], env);
-    await nextTick();
     expect(spyOpenSidePanel).toHaveBeenCalledWith("SplitToColumns", {});
   });
 
