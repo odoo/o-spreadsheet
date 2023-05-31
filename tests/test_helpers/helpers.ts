@@ -554,13 +554,13 @@ export function getCellsObject(model: Model, sheetId: UID): Record<string, CellV
   return cells;
 }
 
-export function doAction(
+export async function doAction(
   path: string[],
   env: SpreadsheetChildEnv,
   menuRegistry: MenuItemRegistry = topbarMenuRegistry
-): void {
+) {
   const node = getNode(path, menuRegistry);
-  node.execute?.(env);
+  await node.execute?.(env);
 }
 
 export function getNode(
