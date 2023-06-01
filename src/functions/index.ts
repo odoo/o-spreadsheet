@@ -9,6 +9,7 @@ import {
   EvalContext,
   FunctionDescription,
   FunctionReturn,
+  isMatrix,
 } from "../types";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
 import * as misc from "./module_custom";
@@ -75,10 +76,21 @@ class FunctionRegistry extends Registry<FunctionDescription> {
       const computeValue = descr.compute.bind(this);
       const computeFormat = descr.computeFormat ? descr.computeFormat.bind(this) : () => undefined;
 
-      return {
-        value: computeValue(...extractArgValuesFromArgs(args)),
-        format: computeFormat(...args),
-      };
+      const value = computeValue(...extractArgValuesFromArgs(args));
+      const format = computeFormat(...args);
+      if (isMatrix(value)) {
+        return {
+          value,
+          format,
+        };
+      }
+      if (!isMatrix(format)) {
+        return {
+          value,
+          format,
+        };
+      }
+      throw new Error("A format matrix should never be associated with a scalar value");
     }
 
     this.mapping[name] = computeValueAndFormat;
