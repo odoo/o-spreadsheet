@@ -28,31 +28,38 @@ const atest = {
     { name: "a", type: "boolean" },
     { name: "b", type: "boolean" },
   ],
-  attributes: [{ name: "c", type: "boolean" }],
+  attributes: [
+    { name: "c", type: "boolean" },
+    { name: "b", type: "number" },
+  ],
 } as const;
 type BBB = typeof atest;
 type DD = Attrs<BBB> & Children<BBB>;
-type CCC = ExtractedSchema<BBB>;
-type CCCd = RERE<BBB>;
+type CCC = ExtractType<WithAttrs<BBB>["attributes"][number]>;
 
-type RERE<S extends ElementSchema> = Required<S>;
 // type Attrs<S extends ElementSchema> = {
 //   [name in ExtractedAttributes<S["attributes"]>]: TypedValue<Extract<ExtractedChildren<S["attributes"]>, { name: name }>["type"]>;
 // }
-type Attrs<S extends ElementSchema> = ExtractType<
-  NamedArrayToMap<Extract<S, { attributes: any }>["attributes"]>
->;
+type Attrs<S extends ElementSchema> = MapExtractType<NamedArrayToMap<WithAttrs<S>["attributes"]>>;
+
+type WithAttrs<S extends ElementSchema> = Extract<S, { attributes: any }>;
+type WithChildren<S extends ElementSchema> = Extract<S, { children: any }>;
+
 type ChildrenMap<S extends ElementSchema> = {
-  [name in keyof NamedArrayToMap<Extract<S, { children: any }>["children"]>]: NamedArrayToMap<
-    Extract<S, { children: any }>["children"]
+  [name in keyof NamedArrayToMap<WithChildren<S>["children"]>]: NamedArrayToMap<
+    WithChildren<S>["children"]
   >[name];
 };
 type Children<S extends ElementSchema> = {
   [name in keyof ChildrenMap<S>]: ExtractedValues<ChildrenMap<S>[name]>;
 };
 
-type ExtractType<T extends Record<string, { type?: XMLType }>> = {
+type MapExtractType<T extends Record<string, { type?: XMLType }>> = {
   [k in keyof T]: TypescriptType<T[k]["type"]>;
+};
+
+type ExtractType<T extends { type?: XMLType }> = Omit<[T], "type"> & {
+  type: TypescriptType<T["type"]>;
 };
 
 type NamedArrayToMap<A extends readonly { name: string }[]> = {
@@ -72,7 +79,7 @@ type TypescriptType<T extends ElementSchema["type"]> = T extends "number"
 
 type MySchema = {
   name: "person";
-  attributes: [{ name: "age"; type: "number" }, { name: "married"; type: "boolean" }];
+  // attributes: [{ name: "age"; type: "number" }, { name: "married"; type: "boolean" }];
   children: [
     { name: "address"; type: "boolean" },
     {
@@ -92,7 +99,7 @@ a.person.married;
 a.person.age;
 const ah = a.person.address;
 const asqdfqsdh = a.person.friend.qsdf;
-const asqdfqsdh = a.person.friend.girlfriend;
+const bh = a.person.friend.girlfriend;
 
 export function extract<S extends ElementSchema>(
   schema: S,
