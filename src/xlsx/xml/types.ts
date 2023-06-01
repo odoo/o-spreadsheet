@@ -2,7 +2,7 @@ export interface ElementSchema {
   readonly name: string;
   readonly namespace?: NameSpace;
   readonly type?: XMLType;
-  readonly attributes?: AttributeSchema[];
+  readonly attributes?: Readonly<AttributeSchema[]>;
   readonly children?: ChildrenSchema;
 }
 

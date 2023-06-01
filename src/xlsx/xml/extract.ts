@@ -8,13 +8,15 @@ type ExtractedSchema<S extends ElementSchema> = {
   [k in S["name"]]: ExtractedValues<S>;
 };
 
-type ExtractedValues<S extends ElementSchema> = Attrs<S> & Children<S> & InnerContent<S>;
+type ExtractedValues<S extends ElementSchema> = HasInnerContentOnly<S> extends true
+  ? TypescriptType<S["type"]>
+  : Attrs<S> & Children<S> & InnerContent<S>;
 
-type IsTextNode<S extends ElementSchema> = S["attributes"] & S["children"] extends any[]
+type HasInnerContentOnly<S extends ElementSchema> = S["attributes"] & S["children"] extends any[]
   ? false
   : true;
 
-type Tex = IsTextNode<{ name: "person"; attributes: [{ name: "ed" }] }>;
+type Tex = HasInnerContentOnly<{ name: "person"; children: [{ name: "ed" }] }>;
 type Prout = number[] | unknown extends any[] ? true : false;
 
 type InnerContent<S extends ElementSchema> = {
@@ -57,7 +59,12 @@ type S = {
   attributes: [{ name: "age"; type: "number" }, { name: "married"; type: "boolean" }];
   children: [
     { name: "address"; type: "boolean" },
-    { name: "friend"; attributes: [{ name: "qsdf" }]; children: [{ name: "girlfriend" }] }
+    {
+      name: "friend";
+      type: "number";
+      attributes: [{ name: "qsdf" }];
+      children: [{ name: "girlfriend" }];
+    }
   ];
 };
 type AA = ExtractedAttributes<S["attributes"]>;
@@ -67,7 +74,8 @@ type A = ExtractedSchema<S>;
 const a: A = {};
 a.person.married;
 a.person.age;
-const ah = a.person.address[InnerContent];
+const ah = a.person.address;
+const asqdfqsdh = a.person.friend[InnerContent];
 
 export function extract(schema: ElementSchema, xml: string | Element): object {
   if (xml instanceof Element) {
