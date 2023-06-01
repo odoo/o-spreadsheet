@@ -49,7 +49,7 @@
                 t-on-click="() => this.changeRuleType('CellIsRule')">
                 <input
                   class="form-check-input o_radio_input"
-                  t-attf-checked="{{state.currentCFType === 'CellIsRule'}}"
+                  t-att-checked="state.currentCFType === 'CellIsRule'"
                   type="radio"
                   id="cellIsRule"
                   name="ruleType"
@@ -62,7 +62,7 @@
                 t-on-click="() => this.changeRuleType('ColorScaleRule')">
                 <input
                   class="form-check-input o_radio_input"
-                  t-attf-checked="{{state.currentCFType === 'ColorScaleRule'}}"
+                  t-att-checked="state.currentCFType === 'ColorScaleRule'"
                   type="radio"
                   id="colorScaleRule"
                   name="ruleType"
@@ -78,7 +78,7 @@
                 t-on-click="() => this.changeRuleType('IconSetRule')">
                 <input
                   class="form-check-input o_radio_input"
-                  t-attf-checked="{{state.currentCFType === 'IconSetRule'}}"
+                  t-att-checked="state.currentCFType === 'IconSetRule'"
                   type="radio"
                   id="iconSetRule"
                   name="ruleType"
