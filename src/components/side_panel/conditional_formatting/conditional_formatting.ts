@@ -93,20 +93,20 @@ const TEMPLATE = xml/* xml */ `
               <div class="o-section-title" t-esc="env._t('${conditionalFormattingTerms.CF_TITLE}')"></div>
               <div class="o_field_radio o_horizontal o_field_widget o-cf-type-selector">
                 <div class="custom-control custom-radio o_cf_radio_item" t-on-click="changeRuleType('CellIsRule')">
-                  <input class="custom-control-input o_radio_input" t-attf-checked="{{state.currentCFType === 'CellIsRule'}}" type="radio" id="cellIsRule" name="ruleType" value="CellIsRule"/>
+                  <input class="custom-control-input o_radio_input" t-att-checked="state.currentCFType === 'CellIsRule'" type="radio" id="cellIsRule" name="ruleType" value="CellIsRule"/>
                   <label for="cellIsRule" class="custom-control-label o_form_label">
                     <t t-esc="env._t('${conditionalFormattingTerms.SingleColor}')"/>
                   </label>
                 </div>
                 <div class="custom-control custom-radio o_cf_radio_item" t-on-click="changeRuleType('ColorScaleRule')">
-                  <input class="custom-control-input o_radio_input" t-attf-checked="{{state.currentCFType === 'ColorScaleRule'}}" type="radio" id="colorScaleRule" name="ruleType" value="ColorScaleRule"/>
+                  <input class="custom-control-input o_radio_input" t-att-checked="state.currentCFType === 'ColorScaleRule'" type="radio" id="colorScaleRule" name="ruleType" value="ColorScaleRule"/>
                   <label for="colorScaleRule" class="custom-control-label o_form_label">
                   <t t-esc="env._t('${conditionalFormattingTerms.ColorScale}')"/>
                   </label>
                 </div>
 
                 <div class="custom-control custom-radio o_cf_radio_item" t-on-click="changeRuleType('IconSetRule')">
-                  <input class="custom-control-input o_radio_input" t-attf-checked="{{state.currentCFType === 'IconSetRule'}}" type="radio" id="iconSetRule" name="ruleType" value="IconSetRule"/>
+                  <input class="custom-control-input o_radio_input" t-att-checked="state.currentCFType === 'IconSetRule'" type="radio" id="iconSetRule" name="ruleType" value="IconSetRule"/>
                   <label for="iconSetRule" class="custom-control-label o_form_label">
                   <t t-esc="env._t('${conditionalFormattingTerms.IconSet}')"/>
                   </label>
