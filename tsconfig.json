@@ -17,7 +17,8 @@
     "esModuleInterop": true,
     "allowJs": true,
     "preserveWatchOutput": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "strictBindCallApply": true
   },
   "include": ["src"]
 }
