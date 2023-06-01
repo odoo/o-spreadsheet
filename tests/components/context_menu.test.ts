@@ -128,13 +128,23 @@ const subMenu: FullMenuItem[] = [
 ];
 
 const originalGetBoundingClientRect = HTMLDivElement.prototype.getBoundingClientRect;
-// @ts-ignore the mock should return a complete DOMRect, not only { top, left }
 jest
   .spyOn(HTMLDivElement.prototype, "getBoundingClientRect")
   .mockImplementation(function (this: HTMLDivElement) {
     const menu = this.className.includes("o-menu");
     if (menu) {
-      return getPosition(this);
+      const position = getPosition(this);
+      return {
+        top: position.top,
+        left: position.left,
+        bottom: position.top + this.clientHeight,
+        right: position.left + this.clientWidth,
+        width: this.clientWidth,
+        height: this.clientHeight,
+        x: position.left,
+        y: position.top,
+        toJSON: () => "",
+      };
     }
     return originalGetBoundingClientRect.call(this);
   });
