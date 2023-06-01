@@ -2,7 +2,7 @@ export interface ElementSchema {
   readonly name: string;
   readonly namespace?: NameSpace;
   readonly type?: XMLType;
-  readonly attributes?: Readonly<AttributeSchema[]>;
+  readonly attributes?: readonly AttributeSchema[];
   readonly children?: ChildrenSchema;
 }
 
@@ -12,7 +12,7 @@ interface AttributeSchema {
   readonly namespace?: NameSpace;
 }
 
-type SequenceSchema = SequenceElementSchema[];
+type SequenceSchema = readonly SequenceElementSchema[];
 
 type ChildrenSchema = SequenceSchema | undefined;
 

@@ -4,57 +4,73 @@ import { ElementSchema, SequenceElementSchema, XMLType } from "./types";
 
 const InnerContent = Symbol("content");
 
-type ExtractedSchema<S extends ElementSchema> = {
+export type ExtractedSchema<S extends ElementSchema> = {
   [k in S["name"]]: ExtractedValues<S>;
 };
 
 type ExtractedValues<S extends ElementSchema> = HasInnerContentOnly<S> extends true
   ? TypescriptType<S["type"]>
-  : Attrs<S> & Children<S> & InnerContent<S>;
+  : Attrs<S> & Children<S> & InnerContentC<S>;
 
-type HasInnerContentOnly<S extends ElementSchema> = S["attributes"] & S["children"] extends any[]
-  ? false
-  : true;
+type HasInnerContentOnly<S extends ElementSchema> = Extract<
+  keyof S,
+  "attributes" | "children"
+> extends never
+  ? true
+  : false;
 
-type Tex = HasInnerContentOnly<{ name: "person"; children: [{ name: "ed" }] }>;
-type Prout = number[] | unknown extends any[] ? true : false;
-
-type InnerContent<S extends ElementSchema> = {
+type InnerContentC<S extends ElementSchema> = {
   [InnerContent]: TypescriptType<S["type"]>;
 };
+const atest = {
+  name: "ddd",
+  children: [
+    { name: "a", type: "boolean" },
+    { name: "b", type: "boolean" },
+  ],
+  attributes: [{ name: "c", type: "boolean" }],
+} as const;
+type BBB = typeof atest;
+type DD = Attrs<BBB> & Children<BBB>;
+type CCC = ExtractedSchema<BBB>;
+type CCCd = RERE<BBB>;
 
+type RERE<S extends ElementSchema> = Required<S>;
 // type Attrs<S extends ElementSchema> = {
 //   [name in ExtractedAttributes<S["attributes"]>]: TypedValue<Extract<ExtractedChildren<S["attributes"]>, { name: name }>["type"]>;
 // }
-type Attrs<S extends ElementSchema> = ExtractType<NamedArrayToMap<S["attributes"]>>;
-type Children<S extends ElementSchema> = ExtractType<NamedArrayToMap<S["children"]>>;
-// type Children<S extends ElementSchema> = {
-//   [name in ExtractedChildren<S["children"]>["name"]]: ExtractedValues<
-//     Extract<ExtractedChildren<S["children"]>, { name: name }>
-//   >;
-// }
+type Attrs<S extends ElementSchema> = ExtractType<
+  NamedArrayToMap<Extract<S, { attributes: any }>["attributes"]>
+>;
+type ChildrenMap<S extends ElementSchema> = {
+  [name in keyof NamedArrayToMap<Extract<S, { children: any }>["children"]>]: NamedArrayToMap<
+    Extract<S, { children: any }>["children"]
+  >[name];
+};
+type Children<S extends ElementSchema> = {
+  [name in keyof ChildrenMap<S>]: ExtractedValues<ChildrenMap<S>[name]>;
+};
 
-type ExtractType<T extends Record<string, { type: XMLType }>> = {
+type ExtractType<T extends Record<string, { type?: XMLType }>> = {
   [k in keyof T]: TypescriptType<T[k]["type"]>;
 };
 
-type NamedArrayToMap<A extends undefined | { name: string }[]> = A extends any[]
-  ? {
-      [name in A[number]["name"]]: Extract<A[number], { name: name }>;
-    }
-  : never;
+type NamedArrayToMap<A extends readonly { name: string }[]> = {
+  [name in A[number]["name"]]: Extract<A[number], { name: name }>;
+};
 
 type TypescriptType<T extends ElementSchema["type"]> = T extends "number"
   ? number
   : T extends "boolean"
   ? boolean
-  : XMLString;
-type ExtractedChildren<C extends ElementSchema["children"]> = C extends any[] ? C[number] : never;
-type ExtractedAttributes<A extends ElementSchema["attributes"]> = A extends any[]
-  ? A[number]["name"]
-  : never;
+  : string;
 
-type S = {
+// type ExtractedChildren<C extends ElementSchema["children"]> = C extends any[] ? C[number] : never;
+// type ExtractedAttributes<A extends ElementSchema["attributes"]> = A extends any[]
+//   ? A[number]["name"]
+//   : never;
+
+type MySchema = {
   name: "person";
   attributes: [{ name: "age"; type: "number" }, { name: "married"; type: "boolean" }];
   children: [
@@ -63,30 +79,34 @@ type S = {
       name: "friend";
       type: "number";
       attributes: [{ name: "qsdf" }];
-      children: [{ name: "girlfriend" }];
+      children: [{ name: "girlfriend"; type: "boolean" }];
     }
   ];
 };
-type AA = ExtractedAttributes<S["attributes"]>;
-type CC = ExtractedChildren<S["children"]>;
-type A = ExtractedSchema<S>;
+// type AA = ExtractedAttributes<MySchema["attributes"]>;
+// type CC = ExtractedChildren<MySchema["children"]>;
+type A = ExtractedSchema<MySchema>;
 
 const a: A = {};
 a.person.married;
 a.person.age;
 const ah = a.person.address;
-const asqdfqsdh = a.person.friend[InnerContent];
+const asqdfqsdh = a.person.friend.qsdf;
+const asqdfqsdh = a.person.friend.girlfriend;
 
-export function extract(schema: ElementSchema, xml: string | Element): object {
+export function extract<S extends ElementSchema>(
+  schema: S,
+  xml: string | Element
+): ExtractedSchema<S> {
   if (xml instanceof Element) {
-    return extractFromDocument(qualifyNamespaces(schema), xml);
+    return extractFromDocument(qualifyNamespaces(schema), xml) as ExtractedSchema<S>;
   }
   const doc = parseXML(new XMLString(xml));
   const el = doc.firstElementChild;
   if (el === null) {
     throw new Error("No element found");
   }
-  return extractFromDocument(qualifyNamespaces(schema), el);
+  return extractFromDocument(qualifyNamespaces(schema), el) as ExtractedSchema<S>;
 }
 
 function extractFromDocument(schema: ElementSchema, el: Element): object {

@@ -1,7 +1,6 @@
-import { ElementSchema } from "../xml";
 import { NAMESPACE } from "./namespaces";
 
-export const FIGURE_SCHEMA: ElementSchema = {
+export const FIGURE_SCHEMA = {
   name: "wsDr",
   namespace: NAMESPACE.spreadsheetDrawing,
   children: [
@@ -53,7 +52,7 @@ export const FIGURE_SCHEMA: ElementSchema = {
       ],
     },
   ],
-};
+} as const;
 
 function markerAnchorSchema(name: string) {
   return {
