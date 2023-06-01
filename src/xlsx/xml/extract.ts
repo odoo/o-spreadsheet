@@ -1,6 +1,6 @@
 import { XMLString } from "../../types/xlsx";
 import { parseXML } from "../helpers/xml_helpers";
-import { ElementSchema, SequenceElementSchema } from "./types";
+import { ElementSchema, SequenceElementSchema, XMLType } from "./types";
 
 const InnerContent = Symbol("content");
 
@@ -8,33 +8,41 @@ type ExtractedSchema<S extends ElementSchema> = {
   [k in S["name"]]: ExtractedValues<S>;
 };
 
-type ExtractedValues<S extends ElementSchema> = {
-  [name in keyof Attrs<S>]: TypedValue<Attrs<S>[name]["type"]>;
-} & Children<S> &
-  InnerContent<S>;
+type ExtractedValues<S extends ElementSchema> = Attrs<S> & Children<S> & InnerContent<S>;
+
+type IsTextNode<S extends ElementSchema> = S["attributes"] & S["children"] extends any[]
+  ? false
+  : true;
+
+type Tex = IsTextNode<{ name: "person"; attributes: [{ name: "ed" }] }>;
+type Prout = number[] | unknown extends any[] ? true : false;
 
 type InnerContent<S extends ElementSchema> = {
-  [InnerContent]: TypedValue<S["type"]>;
+  [InnerContent]: TypescriptType<S["type"]>;
 };
 
 // type Attrs<S extends ElementSchema> = {
 //   [name in ExtractedAttributes<S["attributes"]>]: TypedValue<Extract<ExtractedChildren<S["attributes"]>, { name: name }>["type"]>;
 // }
-type Attrs<S extends ElementSchema> = MapNamedArray<S["attributes"]>;
-type Children<S extends ElementSchema> = MapNamedArray<S["children"]>;
+type Attrs<S extends ElementSchema> = ExtractType<NamedArrayToMap<S["attributes"]>>;
+type Children<S extends ElementSchema> = ExtractType<NamedArrayToMap<S["children"]>>;
 // type Children<S extends ElementSchema> = {
 //   [name in ExtractedChildren<S["children"]>["name"]]: ExtractedValues<
 //     Extract<ExtractedChildren<S["children"]>, { name: name }>
 //   >;
 // }
 
-type MapNamedArray<A extends undefined | { name: string }[]> = A extends any[]
+type ExtractType<T extends Record<string, { type: XMLType }>> = {
+  [k in keyof T]: TypescriptType<T[k]["type"]>;
+};
+
+type NamedArrayToMap<A extends undefined | { name: string }[]> = A extends any[]
   ? {
       [name in A[number]["name"]]: Extract<A[number], { name: name }>;
     }
   : never;
 
-type TypedValue<T extends ElementSchema["type"]> = T extends "number"
+type TypescriptType<T extends ElementSchema["type"]> = T extends "number"
   ? number
   : T extends "boolean"
   ? boolean

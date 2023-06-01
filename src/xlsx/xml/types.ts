@@ -23,7 +23,7 @@ export interface SequenceElementSchema extends ElementSchema {
   readonly quantifier?: "required" | "many" | "optional";
 }
 
-type XMLType = "string" | "number" | "boolean" | "date" | "time";
+export type XMLType = "string" | "number" | "boolean" | "date" | "time";
 
 export interface Attribute {
   name: string;
