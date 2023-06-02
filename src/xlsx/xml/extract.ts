@@ -1,10 +1,10 @@
 import { XMLString } from "../../types/xlsx";
 import { parseXML } from "../helpers/xml_helpers";
-import { ElementSchema, SequenceElementSchema, XMLType } from "./types";
+import { ElementSchema as XMLSchema, SequenceElementSchema, XMLType } from "./types";
 
 export const InnerContent = Symbol("InnerContent");
 
-export type ExtractedSchema<S extends ElementSchema> = {
+export type ExtractedSchema<S extends XMLSchema> = {
   [k in S["name"]]: ExtractedValues<S>;
 };
 
@@ -12,28 +12,31 @@ export type ExtractedSchema<S extends ElementSchema> = {
  * A primitive type if the element has no children or attributes.
  * Otherwise, it is an object with the attributes and children as properties.
  */
-type ExtractedValues<S extends ElementSchema> = HasInnerContentOnly<S> extends true
+type ExtractedValues<S extends XMLSchema> = HasInnerContentOnly<S> extends true
   ? TypescriptType<S["type"]>
   : AttrsValues<S> & ChildrenValues<S> & InnerContentC<S>;
 
-type HasInnerContentOnly<S extends ElementSchema> = Extract<
-  keyof S,
-  "attributes" | "children"
-> extends never
-  ? true
-  : false;
-
-type InnerContentC<S extends ElementSchema> = {
-  [InnerContent]: TypescriptType<S["type"]>;
-};
-
-type AttrsValues<S extends ElementSchema> = MapExtractType<
-  NamedArrayToMap<WithAttrs<S>["attributes"]>
+type HasInnerContentOnly<S extends XMLSchema> = And<
+  HasKey<S, "type">,
+  Not<HasKey<S, "attributes" | "children">>
 >;
 
-type WithAttrs<S extends ElementSchema> = Extract<S, { attributes: any }>;
+type HasKey<T, K extends string> = Extract<keyof T, K> extends never ? false : true;
 
-type ChildrenValues<S extends ElementSchema> = {
+type Not<T extends boolean> = T extends true ? false : true;
+type And<T extends boolean, U extends boolean> = T extends true ? U : false;
+
+type InnerContentC<S extends XMLSchema> = HasKey<S, "type"> extends true
+  ? {
+      [InnerContent]: TypescriptType<S["type"]>;
+    }
+  : Record<string, unknown>;
+
+type AttrsValues<S extends XMLSchema> = MapExtractType<NamedArrayToMap<WithAttrs<S>["attributes"]>>;
+
+type WithAttrs<S extends XMLSchema> = Extract<S, { attributes: any }>;
+
+type ChildrenValues<S extends XMLSchema> = {
   [name in keyof Children<S>]: ChildValue<Children<S>[name]>;
 };
 
@@ -41,8 +44,8 @@ type ChildValue<C extends SequenceElementSchema> = C["quantifier"] extends "many
   ? ExtractedValues<C>[]
   : ExtractedValues<C>;
 
-type Children<S extends ElementSchema> = NamedArrayToMap<WithChildren<S>["children"]>;
-type WithChildren<S extends ElementSchema> = Extract<S, { children: any }>;
+type Children<S extends XMLSchema> = NamedArrayToMap<WithChildren<S>["children"]>;
+type WithChildren<S extends XMLSchema> = Extract<S, { children: any }>;
 
 type MapExtractType<T extends Record<string, { type?: XMLType }>> = {
   [k in keyof T]: TypescriptType<T[k]["type"]>;
@@ -52,7 +55,7 @@ type NamedArrayToMap<A extends readonly { name: string }[]> = {
   [name in A[number]["name"]]: Extract<A[number], { name: name }>;
 };
 
-type TypescriptType<T extends ElementSchema["type"]> = T extends "number"
+type TypescriptType<T extends XMLSchema["type"]> = T extends "number"
   ? number
   : T extends "boolean"
   ? boolean
@@ -100,10 +103,7 @@ type TypescriptType<T extends ElementSchema["type"]> = T extends "number"
 // const asqdfqsdh = a.person.friend.qsdf;
 // const bh = a.person.friend.girlfriend;
 
-export function extract<S extends ElementSchema>(
-  schema: S,
-  xml: string | Element
-): ExtractedSchema<S> {
+export function extract<S extends XMLSchema>(schema: S, xml: string | Element): ExtractedSchema<S> {
   if (xml instanceof Element) {
     return extractFromDocument(qualifyNamespaces(schema), xml) as ExtractedSchema<S>;
   }
@@ -115,7 +115,7 @@ export function extract<S extends ElementSchema>(
   return extractFromDocument(qualifyNamespaces(schema), el) as ExtractedSchema<S>;
 }
 
-function extractFromDocument(schema: ElementSchema, el: Element): ExtractedSchema<ElementSchema> {
+function extractFromDocument(schema: XMLSchema, el: Element): ExtractedSchema<XMLSchema> {
   if (schema.name !== el.localName) {
     throw new Error(`Expected '${schema.name}' but found '${el.localName}'`);
   }
@@ -145,7 +145,7 @@ function extractFromDocument(schema: ElementSchema, el: Element): ExtractedSchem
   };
 }
 
-function castValueToType(textContent, type: ElementSchema["type"]) {
+function castValueToType(textContent, type: XMLSchema["type"]) {
   switch (type) {
     case undefined:
     case "string":
@@ -165,7 +165,7 @@ function castValueToType(textContent, type: ElementSchema["type"]) {
   }
 }
 
-function extractAttributes(schema: ElementSchema, el: Element) {
+function extractAttributes(schema: XMLSchema, el: Element) {
   const attributes = {};
   for (const attribute of schema.attributes || []) {
     const value = el.getAttributeNS(attribute.namespace?.uri || "", attribute.name);
@@ -245,7 +245,7 @@ interface ParsedElement {
 /**
  * Add the namespace to all schema elements and all the children
  */
-function qualifyNamespaces(schema: ElementSchema, namespace = schema.namespace): ElementSchema {
+function qualifyNamespaces(schema: XMLSchema, namespace = schema.namespace): XMLSchema {
   const qualifiedSchema = { ...schema };
   qualifiedSchema.namespace = qualifiedSchema.namespace || namespace || { uri: null };
   if (schema.children) {

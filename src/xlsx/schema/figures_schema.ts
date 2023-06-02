@@ -26,8 +26,22 @@ export const FIGURE_SCHEMA = {
             {
               name: "xfrm",
               children: [
-                { name: "off", namespace: NAMESPACE.drawing },
-                { name: "ext", namespace: NAMESPACE.drawing },
+                {
+                  name: "off",
+                  namespace: NAMESPACE.drawing,
+                  attributes: [
+                    { name: "x", type: "number" },
+                    { name: "y", type: "number" },
+                  ],
+                },
+                {
+                  name: "ext",
+                  namespace: NAMESPACE.drawing,
+                  attributes: [
+                    { name: "cx", type: "number" },
+                    { name: "cy", type: "number" },
+                  ],
+                },
               ],
             },
             {
@@ -48,6 +62,10 @@ export const FIGURE_SCHEMA = {
               ],
             },
           ],
+        },
+        {
+          name: "clientData",
+          attributes: [{ name: "fLocksWithSheet", type: "boolean" }],
         },
       ],
     },
