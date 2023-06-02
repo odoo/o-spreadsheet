@@ -14,7 +14,7 @@ interface AttributeSchema {
 
 type SequenceSchema = readonly SequenceElementSchema[];
 
-type ChildrenSchema = SequenceSchema | undefined;
+type ChildrenSchema = SequenceSchema;
 
 export interface SequenceElementSchema extends ElementSchema {
   /**

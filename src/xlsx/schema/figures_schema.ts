@@ -54,7 +54,7 @@ export const FIGURE_SCHEMA = {
   ],
 } as const;
 
-function markerAnchorSchema(name: string) {
+function markerAnchorSchema<N extends string>(name: N) {
   return {
     name,
     namespace: NAMESPACE.spreadsheetDrawing,

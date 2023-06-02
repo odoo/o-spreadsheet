@@ -8,7 +8,7 @@ import { XlsxChartExtractor } from "./chart_extractor";
 export class XlsxFigureExtractor extends XlsxBaseExtractor {
   extractFigures(): XLSXFigure[] {
     const data = extract(FIGURE_SCHEMA, this.rootFile.file.xml.firstElementChild!);
-    data.wsDr;
+    data.wsDr.twoCellAnchor.to.col;
     return data.wsDr.twoCellAnchor.map((figureAnchor) => {
       return {
         anchors: [figureAnchor.from, figureAnchor.to],

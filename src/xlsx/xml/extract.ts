@@ -30,12 +30,11 @@ const atest = {
   ],
   attributes: [
     { name: "c", type: "boolean" },
-    { name: "b", type: "number" },
+    { name: "d", type: "number" },
   ],
 } as const;
 type BBB = typeof atest;
 type DD = Attrs<BBB> & Children<BBB>;
-type CCC = ExtractType<WithAttrs<BBB>["attributes"][number]>;
 
 // type Attrs<S extends ElementSchema> = {
 //   [name in ExtractedAttributes<S["attributes"]>]: TypedValue<Extract<ExtractedChildren<S["attributes"]>, { name: name }>["type"]>;
@@ -45,21 +44,16 @@ type Attrs<S extends ElementSchema> = MapExtractType<NamedArrayToMap<WithAttrs<S
 type WithAttrs<S extends ElementSchema> = Extract<S, { attributes: any }>;
 type WithChildren<S extends ElementSchema> = Extract<S, { children: any }>;
 
-type ChildrenMap<S extends ElementSchema> = {
-  [name in keyof NamedArrayToMap<WithChildren<S>["children"]>]: NamedArrayToMap<
-    WithChildren<S>["children"]
-  >[name];
-};
 type Children<S extends ElementSchema> = {
-  [name in keyof ChildrenMap<S>]: ExtractedValues<ChildrenMap<S>[name]>;
+  [name in keyof ChildrenMap<S>]: ChildrenMap<S>[name]["quantifier"] extends "many"
+    ? ExtractedValues<ChildrenMap<S>[name]>
+    : ExtractedValues<ChildrenMap<S>[name]>;
 };
+
+type ChildrenMap<S extends ElementSchema> = NamedArrayToMap<WithChildren<S>["children"]>;
 
 type MapExtractType<T extends Record<string, { type?: XMLType }>> = {
   [k in keyof T]: TypescriptType<T[k]["type"]>;
-};
-
-type ExtractType<T extends { type?: XMLType }> = Omit<[T], "type"> & {
-  type: TypescriptType<T["type"]>;
 };
 
 type NamedArrayToMap<A extends readonly { name: string }[]> = {
