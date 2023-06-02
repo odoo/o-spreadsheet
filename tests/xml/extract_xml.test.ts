@@ -1,4 +1,4 @@
-import { ElementSchema, extract } from "../../src/xlsx/xml";
+import { ElementSchema, extract, InnerContent } from "../../src/xlsx/xml";
 
 describe("extract xml with js schema", () => {
   test("extract a single element", () => {
@@ -70,7 +70,23 @@ describe("extract xml with js schema", () => {
     };
     const xml = '<person age="12">John</person>';
     expect(extract(schema, xml)).toEqual({
-      person: "John",
+      person: {
+        age: "12",
+        [InnerContent]: "John",
+      },
+    });
+  });
+  test("an element with a content and a child", () => {
+    const schema = {
+      name: "person",
+      children: [{ name: "age" }],
+    };
+    const xml = /*xml*/ `<person>John<age>12</age></person>`;
+    expect(extract(schema, xml)).toEqual({
+      person: {
+        age: "12",
+        [InnerContent]: "John",
+      },
     });
   });
   test("element with a namespaced attribute", () => {

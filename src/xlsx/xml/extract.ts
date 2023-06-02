@@ -2,7 +2,7 @@ import { XMLString } from "../../types/xlsx";
 import { parseXML } from "../helpers/xml_helpers";
 import { ElementSchema, SequenceElementSchema, XMLType } from "./types";
 
-const InnerContent = Symbol("content");
+export const InnerContent = Symbol("InnerContent");
 
 export type ExtractedSchema<S extends ElementSchema> = {
   [k in S["name"]]: ExtractedValues<S>;
@@ -14,7 +14,7 @@ export type ExtractedSchema<S extends ElementSchema> = {
  */
 type ExtractedValues<S extends ElementSchema> = HasInnerContentOnly<S> extends true
   ? TypescriptType<S["type"]>
-  : Attrs<S> & ChildrenValues<S> & InnerContentC<S>;
+  : AttrsValues<S> & ChildrenValues<S> & InnerContentC<S>;
 
 type HasInnerContentOnly<S extends ElementSchema> = Extract<
   keyof S,
@@ -27,14 +27,11 @@ type InnerContentC<S extends ElementSchema> = {
   [InnerContent]: TypescriptType<S["type"]>;
 };
 
-// type Attrs<S extends ElementSchema> = {
-//   [name in ExtractedAttributes<S["attributes"]>]: TypedValue<Extract<ExtractedChildren<S["attributes"]>, { name: name }>["type"]>;
-// }
-type Attrs<S extends ElementSchema> = MapExtractType<NamedArrayToMap<WithAttrs<S>["attributes"]>>;
+type AttrsValues<S extends ElementSchema> = MapExtractType<
+  NamedArrayToMap<WithAttrs<S>["attributes"]>
+>;
 
 type WithAttrs<S extends ElementSchema> = Extract<S, { attributes: any }>;
-// type WithChildren<S extends ElementSchema> = Extract<S, { children: any }>;
-type WithChildren<S extends ElementSchema> = Extract<S, { children: any }>;
 
 type ChildrenValues<S extends ElementSchema> = {
   [name in keyof Children<S>]: ChildValue<Children<S>[name]>;
@@ -45,6 +42,7 @@ type ChildValue<C extends SequenceElementSchema> = C["quantifier"] extends "many
   : ExtractedValues<C>;
 
 type Children<S extends ElementSchema> = NamedArrayToMap<WithChildren<S>["children"]>;
+type WithChildren<S extends ElementSchema> = Extract<S, { children: any }>;
 
 type MapExtractType<T extends Record<string, { type?: XMLType }>> = {
   [k in keyof T]: TypescriptType<T[k]["type"]>;
@@ -60,49 +58,47 @@ type TypescriptType<T extends ElementSchema["type"]> = T extends "number"
   ? boolean
   : string;
 
-const atest = {
-  name: "ddd",
-  children: [
-    { name: "a", type: "boolean" },
-    { name: "b", type: "boolean", attributes: [{ name: "c" }, { name: "d" }] },
-  ],
-  attributes: [
-    { name: "c", type: "boolean" },
-    { name: "d", type: "number" },
-  ],
-} as const;
-type BBB = typeof atest;
-type DD = Attrs<BBB> & ChildrenValues<BBB>;
-type UUU = ChildrenValuestest<BBB>;
+// const atest = {
+//   name: "ddd",
+//   children: [
+//     { name: "a", type: "boolean" },
+//     { name: "b", type: "boolean", attributes: [{ name: "c" }, { name: "d" }] },
+//   ],
+//   attributes: [
+//     { name: "c", type: "boolean" },
+//     { name: "d", type: "number" },
+//   ],
+// } as const;
+// type BBB = typeof atest;
+// type DD = AttrsValues<BBB> & ChildrenValues<BBB>;
+// type UUU = ChildrenValuestest<BBB>;
 
 // type ExtractedChildren<C extends ElementSchema["children"]> = C extends any[] ? C[number] : never;
 // type ExtractedAttributes<A extends ElementSchema["attributes"]> = A extends any[]
 //   ? A[number]["name"]
 //   : never;
 
-type MySchema = {
-  name: "person";
-  // attributes: [{ name: "age"; type: "number" }, { name: "married"; type: "boolean" }];
-  children: [
-    { name: "address"; type: "boolean" },
-    {
-      name: "friend";
-      type: "number";
-      attributes: [{ name: "qsdf" }];
-      children: [{ name: "girlfriend"; type: "boolean" }];
-    }
-  ];
-};
-// type AA = ExtractedAttributes<MySchema["attributes"]>;
-// type CC = ExtractedChildren<MySchema["children"]>;
-type A = ExtractedSchema<MySchema>;
+// type MySchema = {
+//   name: "person";
+//   attributes: [{ name: "age"; type: "number" }, { name: "married"; type: "boolean" }];
+//   children: [
+//     { name: "address"; type: "boolean", quantifier: "many" },
+//     {
+//       name: "friend";
+//       type: "number";
+//       attributes: [{ name: "qsdf" }];
+//       children: [{ name: "girlfriend"; type: "boolean" }];
+//     }
+//   ];
+// };
+// type A = ExtractedSchema<MySchema>;
 
-const a: A = {};
-a.person.married;
-a.person.age;
-const ah = a.person.address;
-const asqdfqsdh = a.person.friend.qsdf;
-const bh = a.person.friend.girlfriend;
+// const a: A = {};
+// a.person.married;
+// a.person.age;
+// const ah = a.person.address;
+// const asqdfqsdh = a.person.friend.qsdf;
+// const bh = a.person.friend.girlfriend;
 
 export function extract<S extends ElementSchema>(
   schema: S,
@@ -119,27 +115,37 @@ export function extract<S extends ElementSchema>(
   return extractFromDocument(qualifyNamespaces(schema), el) as ExtractedSchema<S>;
 }
 
-function extractFromDocument(schema: ElementSchema, el: Element): object {
+function extractFromDocument(schema: ElementSchema, el: Element): ExtractedSchema<ElementSchema> {
   if (schema.name !== el.localName) {
     throw new Error(`Expected '${schema.name}' but found '${el.localName}'`);
   }
-  const data: Record<string, ParsedElement> = {
-    [schema.name]: {},
-  };
+  if (el.textContent && !schema.children && !schema.attributes) {
+    return {
+      [schema.name]: castValueToType(el.textContent, schema.type),
+    };
+  }
+  const data: any = {};
   if (schema.children) {
     if (Array.isArray(schema.children)) {
-      Object.assign(data[schema.name], extractChildren(schema.children, el));
+      Object.assign(data, extractChildren(schema.children, el));
     }
-  } else if (el.textContent) {
-    data[schema.name] = parseValue(el.textContent, schema.type);
   }
   if (schema.attributes) {
-    Object.assign(data[schema.name], extractAttributes(schema, el));
+    Object.assign(data, extractAttributes(schema, el));
   }
-  return data;
+  if (el.textContent) {
+    const textNode = [...el.childNodes].find((child) => child.nodeType === Node.TEXT_NODE);
+    const text = textNode?.textContent?.trim();
+    if (text) {
+      data[InnerContent] = castValueToType(text, schema.type);
+    }
+  }
+  return {
+    [schema.name]: data,
+  };
 }
 
-function parseValue(textContent, type: ElementSchema["type"]) {
+function castValueToType(textContent, type: ElementSchema["type"]) {
   switch (type) {
     case undefined:
     case "string":
