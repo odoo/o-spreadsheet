@@ -42,6 +42,8 @@ type ChildrenValues<S extends XMLSchema> = {
 
 type ChildValue<C extends SequenceElementSchema> = C["quantifier"] extends "many"
   ? ExtractedValues<C>[]
+  : C["quantifier"] extends "optional"
+  ? ExtractedValues<C> | undefined
   : ExtractedValues<C>;
 
 type Children<S extends XMLSchema> = NamedArrayToMap<WithChildren<S>["children"]>;
@@ -85,9 +87,10 @@ type TypescriptType<T extends XMLSchema["type"]> = T extends "number"
 //   name: "person";
 //   attributes: [{ name: "age"; type: "number" }, { name: "married"; type: "boolean" }];
 //   children: [
-//     { name: "address"; type: "boolean", quantifier: "many" },
+//     { name: "address"; type: "boolean", quantifier: "optional" },
 //     {
 //       name: "friend";
+//       quantifier: "optional";
 //       type: "number";
 //       attributes: [{ name: "qsdf" }];
 //       children: [{ name: "girlfriend"; type: "boolean" }];
@@ -100,7 +103,7 @@ type TypescriptType<T extends XMLSchema["type"]> = T extends "number"
 // a.person.married;
 // a.person.age;
 // const ah = a.person.address;
-// const asqdfqsdh = a.person.friend.qsdf;
+// const asqdfqsdh = a.person.friend?.qsdf;
 // const bh = a.person.friend.girlfriend;
 
 export function extract<S extends XMLSchema>(schema: S, xml: string | Element): ExtractedSchema<S> {

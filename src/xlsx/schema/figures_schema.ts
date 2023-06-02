@@ -64,6 +64,7 @@ export const FIGURE_SCHEMA = {
           ],
         },
         {
+          quantifier: "optional",
           name: "clientData",
           attributes: [{ name: "fLocksWithSheet", type: "boolean" }],
         },
