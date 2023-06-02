@@ -8,9 +8,13 @@ export type ExtractedSchema<S extends ElementSchema> = {
   [k in S["name"]]: ExtractedValues<S>;
 };
 
+/**
+ * A primitive type if the element has no children or attributes.
+ * Otherwise, it is an object with the attributes and children as properties.
+ */
 type ExtractedValues<S extends ElementSchema> = HasInnerContentOnly<S> extends true
   ? TypescriptType<S["type"]>
-  : Attrs<S> & Children<S> & InnerContentC<S>;
+  : Attrs<S> & ChildrenValues<S> & InnerContentC<S>;
 
 type HasInnerContentOnly<S extends ElementSchema> = Extract<
   keyof S,
@@ -22,19 +26,6 @@ type HasInnerContentOnly<S extends ElementSchema> = Extract<
 type InnerContentC<S extends ElementSchema> = {
   [InnerContent]: TypescriptType<S["type"]>;
 };
-const atest = {
-  name: "ddd",
-  children: [
-    { name: "a", type: "boolean" },
-    { name: "b", type: "boolean" },
-  ],
-  attributes: [
-    { name: "c", type: "boolean" },
-    { name: "d", type: "number" },
-  ],
-} as const;
-type BBB = typeof atest;
-type DD = Attrs<BBB> & Children<BBB>;
 
 // type Attrs<S extends ElementSchema> = {
 //   [name in ExtractedAttributes<S["attributes"]>]: TypedValue<Extract<ExtractedChildren<S["attributes"]>, { name: name }>["type"]>;
@@ -42,15 +33,18 @@ type DD = Attrs<BBB> & Children<BBB>;
 type Attrs<S extends ElementSchema> = MapExtractType<NamedArrayToMap<WithAttrs<S>["attributes"]>>;
 
 type WithAttrs<S extends ElementSchema> = Extract<S, { attributes: any }>;
+// type WithChildren<S extends ElementSchema> = Extract<S, { children: any }>;
 type WithChildren<S extends ElementSchema> = Extract<S, { children: any }>;
 
-type Children<S extends ElementSchema> = {
-  [name in keyof ChildrenMap<S>]: ChildrenMap<S>[name]["quantifier"] extends "many"
-    ? ExtractedValues<ChildrenMap<S>[name]>
-    : ExtractedValues<ChildrenMap<S>[name]>;
+type ChildrenValues<S extends ElementSchema> = {
+  [name in keyof Children<S>]: ChildValue<Children<S>[name]>;
 };
 
-type ChildrenMap<S extends ElementSchema> = NamedArrayToMap<WithChildren<S>["children"]>;
+type ChildValue<C extends SequenceElementSchema> = C["quantifier"] extends "many"
+  ? ExtractedValues<C>[]
+  : ExtractedValues<C>;
+
+type Children<S extends ElementSchema> = NamedArrayToMap<WithChildren<S>["children"]>;
 
 type MapExtractType<T extends Record<string, { type?: XMLType }>> = {
   [k in keyof T]: TypescriptType<T[k]["type"]>;
@@ -65,6 +59,21 @@ type TypescriptType<T extends ElementSchema["type"]> = T extends "number"
   : T extends "boolean"
   ? boolean
   : string;
+
+const atest = {
+  name: "ddd",
+  children: [
+    { name: "a", type: "boolean" },
+    { name: "b", type: "boolean", attributes: [{ name: "c" }, { name: "d" }] },
+  ],
+  attributes: [
+    { name: "c", type: "boolean" },
+    { name: "d", type: "number" },
+  ],
+} as const;
+type BBB = typeof atest;
+type DD = Attrs<BBB> & ChildrenValues<BBB>;
+type UUU = ChildrenValuestest<BBB>;
 
 // type ExtractedChildren<C extends ElementSchema["children"]> = C extends any[] ? C[number] : never;
 // type ExtractedAttributes<A extends ElementSchema["attributes"]> = A extends any[]
