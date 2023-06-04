@@ -80,7 +80,7 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
     const zone = event.anchor.zone;
     const range = this.getters.getRangeFromZone(
       sheetId,
-      event.type === "HeadersSelected" ? this.getters.getUnboundedZone(sheetId, zone) : zone
+      event.options.unbounded ? this.getters.getUnboundedZone(sheetId, zone) : zone
     );
     this.add([this.getters.getSelectionRangeString(range, inputSheetId)]);
   }

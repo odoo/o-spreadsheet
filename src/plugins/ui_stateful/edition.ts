@@ -106,7 +106,7 @@ export class EditionPlugin extends UIPlugin {
     }
     const sheetId = this.getters.getActiveSheetId();
     let unboundedZone: UnboundedZone;
-    if (event.type === "HeadersSelected") {
+    if (event.options.unbounded) {
       unboundedZone = this.getters.getUnboundedZone(sheetId, event.anchor.zone);
     } else {
       unboundedZone = event.anchor.zone;

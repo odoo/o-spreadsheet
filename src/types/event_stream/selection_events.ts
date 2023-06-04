@@ -1,21 +1,13 @@
 import { AnchorZone } from "..";
 
-interface SelectionEventPayload {
+export type SelectionEventOptions = {
+  scrollIntoView?: boolean;
+  unbounded?: boolean;
+};
+
+export interface SelectionEvent {
   anchor: AnchorZone;
   previousAnchor: AnchorZone;
   mode: "newAnchor" | "overrideSelection" | "updateAnchor";
+  options: SelectionEventOptions;
 }
-
-export interface ZonesSelected extends SelectionEventPayload {
-  type: "ZonesSelected";
-}
-
-export interface HeadersSelected extends SelectionEventPayload {
-  type: "HeadersSelected";
-}
-
-export interface AlterZone extends SelectionEventPayload {
-  type: "AlterZone";
-}
-
-export type SelectionEvent = Readonly<ZonesSelected | HeadersSelected | AlterZone>;
