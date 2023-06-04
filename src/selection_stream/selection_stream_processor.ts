@@ -20,7 +20,7 @@ import {
   SelectionStep,
   Zone,
 } from "../types";
-import { SelectionEvent } from "../types/event_stream";
+import { SelectionEvent, SelectionEventOptions } from "../types/event_stream";
 import { Dimension, HeaderIndex } from "./../types/misc";
 import { EventStream, StreamCallbacks } from "./event_stream";
 
@@ -40,7 +40,7 @@ type StatefulStream<Event, State> = {
  * Allows to select cells in the grid and update the selection
  */
 interface SelectionProcessor {
-  selectZone(anchor: AnchorZone): DispatchResult;
+  selectZone(anchor: AnchorZone, options?: SelectionEventOptions): DispatchResult;
   selectCell(col: number, row: number): DispatchResult;
   moveAnchorCell(direction: SelectionDirection, step: SelectionStep): DispatchResult;
   setAnchorCorner(col: number, row: number): DispatchResult;
@@ -124,17 +124,10 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
     this.stream.getBackToDefault();
   }
 
-  /**
-   * Select a new anchor
-   */
-  selectZone(anchor: AnchorZone): DispatchResult {
-    return this.modifyAnchor(anchor, "overrideSelection", "ZonesSelected");
-  }
-
   private modifyAnchor(
     anchor: AnchorZone,
     mode: SelectionEvent["mode"],
-    eventType: SelectionEvent["type"]
+    options: SelectionEventOptions
   ): DispatchResult {
     const sheetId = this.getters.getActiveSheetId();
     anchor = {
@@ -142,10 +135,20 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
       zone: this.getters.expandZone(sheetId, anchor.zone),
     };
     return this.processEvent({
-      type: eventType,
+      options,
       anchor,
       mode,
     });
+  }
+
+  /**
+   * Select a new anchor
+   */
+  selectZone(
+    anchor: AnchorZone,
+    options: SelectionEventOptions = { scrollIntoView: true }
+  ): DispatchResult {
+    return this.modifyAnchor(anchor, "overrideSelection", options);
   }
 
   /**
@@ -153,7 +156,7 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
    */
   selectCell(col: HeaderIndex, row: HeaderIndex): DispatchResult {
     const zone = positionToZone({ col, row });
-    return this.selectZone({ zone, cell: { col, row } });
+    return this.selectZone({ zone, cell: { col, row } }, { scrollIntoView: true });
   }
 
   /**
@@ -183,9 +186,9 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
     const expandedZone = this.getters.expandZone(sheetId, zone);
     const anchor = { zone: expandedZone, cell: { col: anchorCol, row: anchorRow } };
     return this.processEvent({
-      type: "AlterZone",
       mode: "updateAnchor",
       anchor: anchor,
+      options: { scrollIntoView: false },
     });
   }
 
@@ -197,7 +200,7 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
     ({ col, row } = this.getters.getMainCellPosition({ sheetId, col, row }));
     const zone = this.getters.expandZone(sheetId, positionToZone({ col, row }));
     return this.processEvent({
-      type: "ZonesSelected",
+      options: { scrollIntoView: true },
       anchor: { zone, cell: { col, row } },
       mode: "newAnchor",
     });
@@ -257,7 +260,7 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
       result = result ? organizeZone(result) : result;
       if (result && !isEqual(result, anchor.zone)) {
         return this.processEvent({
-          type: "ZonesSelected",
+          options: { scrollIntoView: true },
           mode: "updateAnchor",
           anchor: { zone: result, cell: { col: anchorCol, row: anchorRow } },
         });
@@ -278,9 +281,9 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
     result = expand(union(currentZone, zoneWithDelta));
     const newAnchor = { zone: result, cell: { col: anchorCol, row: anchorRow } };
     return this.processEvent({
-      type: "ZonesSelected",
       anchor: newAnchor,
       mode: "updateAnchor",
+      options: { scrollIntoView: true },
     });
   }
 
@@ -302,7 +305,10 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
         break;
     }
     return this.processEvent({
-      type: "HeadersSelected",
+      options: {
+        scrollIntoView: false,
+        unbounded: true,
+      },
       anchor: { zone, cell: { col, row } },
       mode,
     });
@@ -326,7 +332,10 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
         break;
     }
     return this.processEvent({
-      type: "HeadersSelected",
+      options: {
+        scrollIntoView: false,
+        unbounded: true,
+      },
       anchor: { zone, cell: { col, row } },
       mode,
     });
@@ -344,17 +353,17 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
 
     // The whole sheet is selected, select the anchor cell
     if (isEqual(this.anchor.zone, this.getters.getSheetZone(sheetId))) {
-      return this.modifyAnchor(
-        { ...anchor, zone: positionToZone(anchor.cell) },
-        "updateAnchor",
-        "AlterZone"
-      );
+      return this.modifyAnchor({ ...anchor, zone: positionToZone(anchor.cell) }, "updateAnchor", {
+        scrollIntoView: false,
+      });
     }
 
     const tableZone = this.expandZoneToTable(anchor.zone);
 
     return !deepEquals(tableZone, anchor.zone)
-      ? this.modifyAnchor({ ...anchor, zone: tableZone }, "updateAnchor", "AlterZone")
+      ? this.modifyAnchor({ ...anchor, zone: tableZone }, "updateAnchor", {
+          scrollIntoView: false,
+        })
       : this.selectAll();
   }
 
@@ -365,7 +374,9 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
    */
   selectTableAroundSelection(): DispatchResult {
     const tableZone = this.expandZoneToTable(this.anchor.zone);
-    return this.modifyAnchor({ ...this.anchor, zone: tableZone }, "updateAnchor", "AlterZone");
+    return this.modifyAnchor({ ...this.anchor, zone: tableZone }, "updateAnchor", {
+      scrollIntoView: false,
+    });
   }
 
   /**
@@ -377,9 +388,11 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
     const right = this.getters.getNumberCols(sheetId) - 1;
     const zone = { left: 0, top: 0, bottom, right };
     return this.processEvent({
-      type: "HeadersSelected",
       mode: "overrideSelection",
       anchor: { zone, cell: this.anchor.cell },
+      options: {
+        scrollIntoView: false,
+      },
     });
   }
 

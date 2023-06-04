@@ -170,7 +170,7 @@ export class GridSelectionPlugin extends UIPlugin {
         break;
     }
     this.setSelectionMixin(event.anchor, zones);
-    /** Any change to the selection has to be  reflected in the selection processor. */
+    /** Any change to the selection has to be reflected in the selection processor. */
     this.selection.resetDefaultAnchor(this, deepCopy(this.gridSelection.anchor));
     const { col, row } = this.gridSelection.anchor.cell;
     this.moveClient({
