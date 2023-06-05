@@ -21,8 +21,8 @@ export interface InternalDate {
 
 const CURRENT_MILLENIAL = 2000; // note: don't forget to update this in 2999
 const CURRENT_YEAR = new Date().getFullYear();
-const INITIAL_1900_DAY = new Date(1899, 11, 30) as any;
-const INITIAL_JS_DAY = new Date(0) as any;
+const INITIAL_1900_DAY = Date.UTC(1899, 11, 30);
+const INITIAL_JS_DAY = Date.UTC(1970, 1, 1);
 const DATE_JS_1900_OFFSET = INITIAL_JS_DAY - INITIAL_1900_DAY;
 
 const mdyDateRegexp = /^\d{1,2}(\/|-|\s)\d{1,2}((\/|-|\s)\d{1,4})?$/;
