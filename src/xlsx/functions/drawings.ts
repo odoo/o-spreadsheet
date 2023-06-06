@@ -63,11 +63,11 @@ export function createDrawing(
       twoCellAnchor: [{
         from: { col: 0, colOff: 0, row: 0, rowOff: 0 },
         to: { col: 0, colOff: 0, row: 0, rowOff: 0 },
-        clientData: { fLocksWithSheet: false },
-        pic: undefined,
+        clientData: { fLocksWithSheet: false,  },
         graphicFrame: {
           nvGraphicFramePr: {
             cNvPr: {
+              
               id: "0",
               name: "Chart 1",
               title: "Chart 1",
@@ -87,7 +87,7 @@ export function createDrawing(
       }]
     }
   }
-
+  data.wsDr.twoCellAnchor[0].graphicFrame?.blipFill
   const xml = escapeXml/*xml*/ `
     <xdr:wsDr ${formatAttributes(namespaces)}>
       ${joinXmlNodes(figuresNodes)}
