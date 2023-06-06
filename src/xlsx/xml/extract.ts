@@ -5,16 +5,16 @@ import { ElementSchema as XMLSchema, SequenceElementSchema, XMLType } from "./ty
 export const InnerContent = Symbol("InnerContent");
 
 export type ExtractedSchema<S extends XMLSchema> = {
-  [k in S["name"]]: ExtractedValues<S>;
+  [k in S["name"]]: ExtractedData<S>;
 };
 
 /**
  * A primitive type if the element has no children or attributes.
  * Otherwise, it is an object with the attributes and children as properties.
  */
-type ExtractedValues<S extends XMLSchema> = HasInnerContentOnly<S> extends true
+type ExtractedData<S extends XMLSchema> = HasInnerContentOnly<S> extends true
   ? TypescriptType<S["type"]>
-  : AttrsValues<S> & ChildrenValues<S> & InnerContentC<S>;
+  : AttrsData<S> & ChildrenData<S> & InnerContentC<S>;
 
 type HasInnerContentOnly<S extends XMLSchema> = And<
   HasKey<S, "type">,
@@ -27,16 +27,30 @@ type InnerContentC<S extends XMLSchema> = HasKey<S, "type"> extends true
     }
   : Record<string, unknown>;
 
-type AttrsValues<S extends XMLSchema> = MapType<MapName<Attrs<S>>>;
+type AttrsData<S extends XMLSchema> = MapType<MapName<Attrs<S>>>;
 
-type WithAttrs<S extends XMLSchema> = Extract<S, { attributes: any }>;
-type WithChildren<S extends XMLSchema> = Extract<S, { children: any }>;
+type ChildrenData<S extends XMLSchema> = RequiredChildrenData<S> &
+  OptionalChildrenData<S> &
+  SequenceChildrenData<S>;
 
-
-type ChildrenValues<S extends XMLSchema> = {
-  [k in keyof ChildrenMap<S>]: ExtractedValues<ChildrenMap<S>[k]>;
+type SequenceChildrenData<S extends XMLSchema> = {
+  [k in keyof SequenceChildrenMap<S>]: ExtractedData<SequenceChildrenMap<S>[k]>[];
 };
-type ChildrenMap<S extends XMLSchema> = Partial<MapName<OptionalChildren<Children<S>>>> & MapName<SequenceChildren<Children<S>>>
+type RequiredChildrenData<S extends XMLSchema> = {
+  [k in keyof RequiredChildrenMap<S>]: ExtractedData<RequiredChildrenMap<S>[k]>;
+};
+type OptionalChildrenData<S extends XMLSchema> = {
+  [k in keyof OptionalChildrenMap<S>]?: ExtractedData<OptionalChildrenMap<S>[k]>;
+};
+// type OptionalChildrenData<S extends XMLSchema> = Partial<ExtractedData<OptionalChildrenMap<S>>>
+
+type OptionalChildrenMap<S extends XMLSchema> = MapName<OptionalChildren<Children<S>>>;
+type SequenceChildrenMap<S extends XMLSchema> = MapName<SequenceChildren<Children<S>>>;
+type RequiredChildrenMap<S extends XMLSchema> = MapName<RequiredChildren<Children<S>>>;
+
+// type ChildrenMap<S extends XMLSchema> = Partial<MapName<OptionalChildren<Children<S>>>> &
+//   MapName<SequenceChildren<Children<S>>> &
+//   MapName<RequiredChildren<Children<S>>>;
 
 // type ChildValue<C extends SequenceElementSchema> = C["quantifier"] extends "many"
 //   ? ExtractedValues<C>[]
@@ -56,13 +70,21 @@ type ChildrenMap<S extends XMLSchema> = Partial<MapName<OptionalChildren<Childre
 // }>;
 type OptionalChildren<C extends SequenceElementSchema> = Extract<C, { quantifier: "optional" }>;
 type SequenceChildren<C extends SequenceElementSchema> = Extract<C, { quantifier: "many" }>;
+type RequiredChildren<C extends SequenceElementSchema> = Exclude<
+  C,
+  OptionalChildren<C> | SequenceChildren<C>
+>;
 
 /**
  * TODO
  */
-type Children<S extends XMLSchema> = WithChildren<S>["children"][number];
-type Attrs<S extends XMLSchema> = WithAttrs<S>["attributes"][number]
+type Children<S extends XMLSchema> = ArrayItemsKeyValues<S, "children">[number];
+type Attrs<S extends XMLSchema> = ArrayItemsKeyValues<S, "attributes">[number];
 
+// type WithAttrs<S extends XMLSchema> = Extract<S, { attributes: any }>;
+// type WithChildren<S extends XMLSchema> = Extract<S, { children: any }>;
+
+type ArrayItemsKeyValues<T, K extends string> = Extract<T, { [k in K]: any }>[K];
 
 type MapType<T extends Record<string, { type?: XMLType }>> = {
   [k in keyof T]: TypescriptType<T[k]["type"]>;
@@ -121,17 +143,17 @@ type MySchema = {
 };
 type A = ExtractedSchema<MySchema>;
 
-type C = ChildrenValues<MySchema>
+type C = ChildrenData<MySchema>;
 const c = {} as C;
-c.friend.qsdf
-c.address
+c.friend.map((f) => f.girlfriend);
+const ad = c.address;
 
 const a: A = {};
 a.person.married;
 a.person.age;
 const ah = a.person.address;
-const asqdfqsdh = a.person.friend?.qsdf;
-const bh = a.person.friend?.girlfriend;
+const asqdfqsdh = a.person.friend?.map((f) => f.qsdf);
+const bh = a.person.friend?.map((f) => f.girlfriend);
 
 export function extract<S extends XMLSchema>(schema: S, xml: string | Element): ExtractedSchema<S> {
   if (xml instanceof Element) {
