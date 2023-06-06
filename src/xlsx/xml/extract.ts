@@ -105,8 +105,6 @@ type HasKey<T, K extends string> = Extract<keyof T, K> extends never ? false : t
 type Not<T extends boolean> = T extends true ? false : true;
 type And<T extends boolean, U extends boolean> = T extends true ? U : false;
 
-type OmitNever<T> = { [K in keyof T as T[K] extends never ? never : K]: T[K] };
-
 // const atest = {
 //   name: "ddd",
 //   children: [
@@ -127,33 +125,33 @@ type OmitNever<T> = { [K in keyof T as T[K] extends never ? never : K]: T[K] };
 //   ? A[number]["name"]
 //   : never;
 
-type MySchema = {
-  name: "person";
-  attributes: [{ name: "age"; type: "number" }, { name: "married"; type: "boolean" }];
-  children: [
-    { name: "address"; type: "boolean"; quantifier: "optional" },
-    {
-      name: "friend";
-      quantifier: "many";
-      // type: "number";
-      attributes: [{ name: "qsdf" }];
-      children: [{ name: "girlfriend"; type: "boolean" }];
-    }
-  ];
-};
-type A = ExtractedSchema<MySchema>;
+// type MySchema = {
+//   name: "person";
+//   attributes: [{ name: "age"; type: "number" }, { name: "married"; type: "boolean" }];
+//   children: [
+//     { name: "address"; type: "boolean"; quantifier: "optional" },
+//     {
+//       name: "friend";
+//       quantifier: "many";
+//       // type: "number";
+//       attributes: [{ name: "qsdf" }];
+//       children: [{ name: "girlfriend"; type: "boolean" }];
+//     }
+//   ];
+// };
+// type A = ExtractedSchema<MySchema>;
 
-type C = ChildrenData<MySchema>;
-const c = {} as C;
-c.friend.map((f) => f.girlfriend);
-const ad = c.address;
+// type C = ChildrenData<MySchema>;
+// const c = {} as C;
+// c.friend.map((f) => f.girlfriend);
+// const ad = c.address;
 
-const a: A = {};
-a.person.married;
-a.person.age;
-const ah = a.person.address;
-const asqdfqsdh = a.person.friend?.map((f) => f.qsdf);
-const bh = a.person.friend?.map((f) => f.girlfriend);
+// const a: A = {};
+// a.person.married;
+// a.person.age;
+// const ah = a.person.address;
+// const asqdfqsdh = a.person.friend?.map((f) => f.qsdf);
+// const bh = a.person.friend?.map((f) => f.girlfriend);
 
 export function extract<S extends XMLSchema>(schema: S, xml: string | Element): ExtractedSchema<S> {
   if (xml instanceof Element) {
