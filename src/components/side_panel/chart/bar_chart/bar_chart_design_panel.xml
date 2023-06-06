@@ -17,7 +17,7 @@
         <div class="o-section-title">Title</div>
         <input
           type="text"
-          t-att-value="env._t(props.definition.title)"
+          t-model="state.title"
           t-on-change="updateTitle"
           class="o-input o-optional"
           placeholder="New Chart"

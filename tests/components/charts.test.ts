@@ -328,11 +328,31 @@ describe("charts", () => {
     await simulateClick(".o-panel .inactive");
     await simulateClick(figures[1] as HTMLElement);
     await simulateClick(".o-chart-title input");
+    setInputValueAndTrigger(".o-chart-title input", "new_title", "input");
     setInputValueAndTrigger(".o-chart-title input", "new_title", "change");
 
     expect(model.getters.getChartDefinition("1").title).toBe("old_title_1");
     expect(model.getters.getChartDefinition("2").title).toBe("new_title");
   });
+
+  test.each(["basicChart", "scorecard", "gauge"])(
+    "defocusing sidepanel after modifying chart title w/o saving should maintain the new title %s",
+    async (chartType: string) => {
+      createTestChart(chartType);
+      await nextTick();
+      await simulateClick(".o-figure");
+      await simulateClick(".o-figure-menu-item");
+      await simulateClick(".o-menu div[data-name='edit']");
+      await simulateClick(".o-panel .inactive");
+      await simulateClick(".o-chart-title input");
+      const chartTitle = document.querySelector(".o-chart-title input") as HTMLInputElement;
+      expect(chartTitle.value).toBe("hello");
+      setInputValueAndTrigger(".o-chart-title input", "hello_new_title", "input");
+      await nextTick();
+      await simulateClick(".o-grid-overlay");
+      expect(chartTitle.value).toBe("hello_new_title");
+    }
+  );
 
   test.each(["basicChart", "scorecard"])(
     "can edit charts %s background",

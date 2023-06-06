@@ -1,4 +1,5 @@
 import { Component, useExternalListener, useState } from "@odoo/owl";
+import { _t } from "../../../../translation";
 import { ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
 import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
@@ -13,6 +14,7 @@ interface Props {
 }
 
 interface PanelState {
+  title: string;
   openedColorPicker: ColorPickerId;
 }
 
@@ -21,16 +23,18 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
   static components = { ColorPickerWidget };
 
   private state: PanelState = useState({
+    title: "",
     openedColorPicker: undefined,
   });
 
   setup() {
+    this.state.title = _t(this.props.definition.title);
     useExternalListener(window, "click", this.closeMenus);
   }
 
-  updateTitle(ev) {
+  updateTitle() {
     this.props.updateChart(this.props.figureId, {
-      title: ev.target.value,
+      title: this.state.title,
     });
   }
 
