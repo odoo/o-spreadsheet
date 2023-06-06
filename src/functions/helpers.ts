@@ -61,6 +61,23 @@ export function toNumber(
   }
 }
 
+export function tryCastAsNumberMatrix(data: Matrix<any>, argName: string): Matrix<number> {
+  data.forEach((row) => {
+    row.forEach((cell) => {
+      if (typeof cell !== "number") {
+        throw new Error(
+          _t(
+            "Function [[FUNCTION_NAME]] expects number values for %s, but got a %s.",
+            typeof cell,
+            argName
+          )
+        );
+      }
+    });
+  });
+  return data as Matrix<number>;
+}
+
 export function strictToNumber(
   value: string | number | boolean | null | undefined,
   locale: Locale
