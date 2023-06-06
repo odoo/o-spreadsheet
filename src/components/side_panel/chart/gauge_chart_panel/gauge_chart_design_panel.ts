@@ -1,5 +1,6 @@
 import { Component, useExternalListener, useState } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/index";
+import { _t } from "../../../../translation";
 import { GaugeChartDefinition, SectionRule } from "../../../../types/chart/gauge_chart";
 import {
   Color,
@@ -57,6 +58,7 @@ interface Props {
 }
 
 interface PanelState {
+  title: string;
   openedMenu?: GaugeMenu;
   sectionRuleDispatchResult?: DispatchResult;
 }
@@ -66,11 +68,13 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
   static components = { ColorPickerWidget };
 
   private state: PanelState = useState({
+    title: "",
     openedMenu: undefined,
     sectionRuleDispatchResult: undefined,
   });
 
   setup() {
+    this.state.title = _t(this.props.definition.title);
     useExternalListener(window, "click", this.closeMenus);
   }
 
@@ -88,9 +92,9 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     });
   }
 
-  updateTitle(ev) {
+  updateTitle() {
     this.props.updateChart(this.props.figureId, {
-      title: ev.target.value,
+      title: this.state.title,
     });
   }
 

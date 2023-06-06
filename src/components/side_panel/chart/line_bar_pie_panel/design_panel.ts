@@ -1,4 +1,5 @@
 import { Component, useExternalListener, useState } from "@odoo/owl";
+import { _t } from "../../../../translation";
 import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import { LineChartDefinition } from "../../../../types/chart/line_chart";
 import { PieChartDefinition } from "../../../../types/chart/pie_chart";
@@ -15,6 +16,7 @@ interface Props {
 }
 
 interface State {
+  title: string;
   fillColorTool: boolean;
 }
 
@@ -23,6 +25,7 @@ export class LineBarPieDesignPanel extends Component<Props, SpreadsheetChildEnv>
   static components = { ColorPickerWidget };
 
   private state: State = useState({
+    title: "",
     fillColorTool: false,
   });
 
@@ -31,6 +34,7 @@ export class LineBarPieDesignPanel extends Component<Props, SpreadsheetChildEnv>
   }
 
   setup() {
+    this.state.title = _t(this.props.definition.title);
     useExternalListener(window as any, "click", this.onClick);
   }
 
@@ -44,9 +48,9 @@ export class LineBarPieDesignPanel extends Component<Props, SpreadsheetChildEnv>
     });
   }
 
-  updateTitle(ev) {
+  updateTitle() {
     this.props.updateChart(this.props.figureId, {
-      title: ev.target.value,
+      title: this.state.title,
     });
   }
 
