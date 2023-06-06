@@ -136,12 +136,21 @@ export function getDefaultCellHeight(cell: Cell | undefined): Pixel {
 }
 
 export function computeTextWidth(context: CanvasRenderingContext2D, text: string, style: Style) {
-  context.save();
-  context.font = computeTextFont(style);
-  const textWidth = context.measureText(text).width;
-  context.restore();
-  return textWidth;
+  const font = computeTextFont(style);
+  if (!textWidthCache[font]) {
+    textWidthCache[font] = {};
+  }
+  if (textWidthCache[font][text] === undefined) {
+    context.save();
+    context.font = font;
+    const textWidth = context.measureText(text).width;
+    context.restore();
+    textWidthCache[font][text] = textWidth;
+  }
+  return textWidthCache[font][text];
 }
+
+const textWidthCache: Record<string, Record<string, number>> = {};
 
 export function fontSizeInPixels(fontSize: number) {
   return Math.round((fontSize * 96) / 72);
