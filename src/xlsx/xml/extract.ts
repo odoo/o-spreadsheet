@@ -21,40 +21,55 @@ type HasInnerContentOnly<S extends XMLSchema> = And<
   Not<HasKey<S, "attributes" | "children">>
 >;
 
-type HasKey<T, K extends string> = Extract<keyof T, K> extends never ? false : true;
-
-type Not<T extends boolean> = T extends true ? false : true;
-type And<T extends boolean, U extends boolean> = T extends true ? U : false;
-
 type InnerContentC<S extends XMLSchema> = HasKey<S, "type"> extends true
   ? {
       [InnerContent]: TypescriptType<S["type"]>;
     }
   : Record<string, unknown>;
 
-type AttrsValues<S extends XMLSchema> = MapExtractType<NamedArrayToMap<WithAttrs<S>["attributes"]>>;
+type AttrsValues<S extends XMLSchema> = MapType<MapName<Attrs<S>>>;
 
 type WithAttrs<S extends XMLSchema> = Extract<S, { attributes: any }>;
-
-type ChildrenValues<S extends XMLSchema> = {
-  [name in keyof Children<S>]: ChildValue<Children<S>[name]>;
-};
-
-type ChildValue<C extends SequenceElementSchema> = C["quantifier"] extends "many"
-  ? ExtractedValues<C>[]
-  : C["quantifier"] extends "optional"
-  ? ExtractedValues<C> | undefined
-  : ExtractedValues<C>;
-
-type Children<S extends XMLSchema> = NamedArrayToMap<WithChildren<S>["children"]>;
 type WithChildren<S extends XMLSchema> = Extract<S, { children: any }>;
 
-type MapExtractType<T extends Record<string, { type?: XMLType }>> = {
+
+type ChildrenValues<S extends XMLSchema> = {
+  [k in keyof ChildrenMap<S>]: ExtractedValues<ChildrenMap<S>[k]>;
+};
+type ChildrenMap<S extends XMLSchema> = Partial<MapName<OptionalChildren<Children<S>>>> & MapName<SequenceChildren<Children<S>>>
+
+// type ChildValue<C extends SequenceElementSchema> = C["quantifier"] extends "many"
+//   ? ExtractedValues<C>[]
+//   : C["quantifier"] extends "optional"
+//   ? ExtractedValues<C> | undefined
+//   : ExtractedValues<C>;
+
+// type SequenceChildren<S extends SequenceElementSchema> = {
+
+// }
+
+// type OptionalChildren<C extends Record<string, SequenceElementSchema>> = OmitNever<{
+//   [k in keyof C]: C[k] extends { quantifier: "optional" } ? C[k] : never;
+// }>;
+// type SequenceChildren<C extends Record<string, SequenceElementSchema>> = OmitNever<{
+//   [k in keyof C]: C[k] extends { quantifier: "many" } ? C[k][] : never;
+// }>;
+type OptionalChildren<C extends SequenceElementSchema> = Extract<C, { quantifier: "optional" }>;
+type SequenceChildren<C extends SequenceElementSchema> = Extract<C, { quantifier: "many" }>;
+
+/**
+ * TODO
+ */
+type Children<S extends XMLSchema> = WithChildren<S>["children"][number];
+type Attrs<S extends XMLSchema> = WithAttrs<S>["attributes"][number]
+
+
+type MapType<T extends Record<string, { type?: XMLType }>> = {
   [k in keyof T]: TypescriptType<T[k]["type"]>;
 };
 
-type NamedArrayToMap<A extends readonly { name: string }[]> = {
-  [name in A[number]["name"]]: Extract<A[number], { name: name }>;
+type MapName<A extends { name: string }> = {
+  [name in A["name"]]: A;
 };
 
 type TypescriptType<T extends XMLSchema["type"]> = T extends "number"
@@ -62,6 +77,13 @@ type TypescriptType<T extends XMLSchema["type"]> = T extends "number"
   : T extends "boolean"
   ? boolean
   : string;
+
+type HasKey<T, K extends string> = Extract<keyof T, K> extends never ? false : true;
+
+type Not<T extends boolean> = T extends true ? false : true;
+type And<T extends boolean, U extends boolean> = T extends true ? U : false;
+
+type OmitNever<T> = { [K in keyof T as T[K] extends never ? never : K]: T[K] };
 
 // const atest = {
 //   name: "ddd",
@@ -83,28 +105,33 @@ type TypescriptType<T extends XMLSchema["type"]> = T extends "number"
 //   ? A[number]["name"]
 //   : never;
 
-// type MySchema = {
-//   name: "person";
-//   attributes: [{ name: "age"; type: "number" }, { name: "married"; type: "boolean" }];
-//   children: [
-//     { name: "address"; type: "boolean", quantifier: "optional" },
-//     {
-//       name: "friend";
-//       quantifier: "optional";
-//       type: "number";
-//       attributes: [{ name: "qsdf" }];
-//       children: [{ name: "girlfriend"; type: "boolean" }];
-//     }
-//   ];
-// };
-// type A = ExtractedSchema<MySchema>;
+type MySchema = {
+  name: "person";
+  attributes: [{ name: "age"; type: "number" }, { name: "married"; type: "boolean" }];
+  children: [
+    { name: "address"; type: "boolean"; quantifier: "optional" },
+    {
+      name: "friend";
+      quantifier: "many";
+      // type: "number";
+      attributes: [{ name: "qsdf" }];
+      children: [{ name: "girlfriend"; type: "boolean" }];
+    }
+  ];
+};
+type A = ExtractedSchema<MySchema>;
 
-// const a: A = {};
-// a.person.married;
-// a.person.age;
-// const ah = a.person.address;
-// const asqdfqsdh = a.person.friend?.qsdf;
-// const bh = a.person.friend.girlfriend;
+type C = ChildrenValues<MySchema>
+const c = {} as C;
+c.friend.qsdf
+c.address
+
+const a: A = {};
+a.person.married;
+a.person.age;
+const ah = a.person.address;
+const asqdfqsdh = a.person.friend?.qsdf;
+const bh = a.person.friend?.girlfriend;
 
 export function extract<S extends XMLSchema>(schema: S, xml: string | Element): ExtractedSchema<S> {
   if (xml instanceof Element) {

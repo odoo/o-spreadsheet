@@ -42,7 +42,7 @@ export function createDrawing(
   for (const [figureIndex, figure] of Object.entries(figures)) {
     switch (figure?.tag) {
       case "chart": {
-        const data = 
+        const data = {}
         // figuresNodes.push(
         //   createChartDrawing(
         //     figure as FigureData<ExcelChartDefinition>,
@@ -64,6 +64,7 @@ export function createDrawing(
         from: { col: 0, colOff: 0, row: 0, rowOff: 0 },
         to: { col: 0, colOff: 0, row: 0, rowOff: 0 },
         clientData: { fLocksWithSheet: false },
+        pic: undefined,
         graphicFrame: {
           nvGraphicFramePr: {
             cNvPr: {

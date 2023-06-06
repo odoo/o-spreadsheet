@@ -1,5 +1,99 @@
 import { NAMESPACE } from "./namespaces";
 
+const CHART_SCHEMA = {
+  name: "graphicFrame",
+  quantifier: "optional",
+  children: [
+    {
+      name: "nvGraphicFramePr",
+      children: [
+        {
+          name: "cNvPr",
+          attributes: [{ name: "id" }, { name: "name" }, { name: "title" }],
+        },
+        { name: "cNvGraphicFramePr" },
+      ],
+    },
+    {
+      name: "xfrm",
+      children: [
+        {
+          name: "off",
+          namespace: NAMESPACE.drawing,
+          attributes: [
+            { name: "x", type: "number" },
+            { name: "y", type: "number" },
+          ],
+        },
+        {
+          name: "ext",
+          namespace: NAMESPACE.drawing,
+          attributes: [
+            { name: "cx", type: "number" },
+            { name: "cy", type: "number" },
+          ],
+        },
+      ],
+    },
+    {
+      name: "graphic",
+      namespace: NAMESPACE.drawing,
+      children: [
+        {
+          name: "graphicData",
+          attributes: [{ name: "uri" }],
+          children: [
+            {
+              name: "chart",
+              namespace: NAMESPACE.chart,
+              attributes: [{ name: "id", namespace: NAMESPACE.relationships }],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+} as const;
+
+const IMAGE_SCHEMA = {
+  name: "pic",
+  quantifier: "optional",
+  children: [
+    {
+      name: "nvPicPr",
+      children: [
+        { name: "cNvPr", attributes: [{ name: "id" }, { name: "name" }, { name: "title" }] },
+        { name: "cNvPicPr", attributes: [{ name: "preferRelativeResize", type: "boolean" }] },
+      ],
+    },
+    {
+      name: "blipFill",
+      children: [
+        {
+          name: "blip",
+          attributes: [{ name: "embed", namespace: NAMESPACE.relationships }, { name: "cstate" }],
+        },
+        {
+          name: "stretch",
+          children: [{ name: "fillRect" }],
+        },
+      ],
+    },
+    {
+      name: "spPr",
+      children: [
+        {
+          name: "prstGeom",
+          namespace: NAMESPACE.drawing,
+          attributes: [{ name: "prst", type: "string" }],
+          children: [{ name: "avLst" }],
+        },
+        { name: "noFill" },
+      ],
+    },
+  ],
+} as const;
+
 export const FIGURE_SCHEMA = {
   name: "wsDr",
   namespace: NAMESPACE.spreadsheetDrawing,
@@ -10,59 +104,8 @@ export const FIGURE_SCHEMA = {
       children: [
         markerAnchorSchema("from"),
         markerAnchorSchema("to"),
-        {
-          name: "graphicFrame",
-          children: [
-            {
-              name: "nvGraphicFramePr",
-              children: [
-                {
-                  name: "cNvPr",
-                  attributes: [{ name: "id" }, { name: "name" }, { name: "title" }],
-                },
-                { name: "cNvGraphicFramePr" },
-              ],
-            },
-            {
-              name: "xfrm",
-              children: [
-                {
-                  name: "off",
-                  namespace: NAMESPACE.drawing,
-                  attributes: [
-                    { name: "x", type: "number" },
-                    { name: "y", type: "number" },
-                  ],
-                },
-                {
-                  name: "ext",
-                  namespace: NAMESPACE.drawing,
-                  attributes: [
-                    { name: "cx", type: "number" },
-                    { name: "cy", type: "number" },
-                  ],
-                },
-              ],
-            },
-            {
-              name: "graphic",
-              namespace: NAMESPACE.drawing,
-              children: [
-                {
-                  name: "graphicData",
-                  attributes: [{ name: "uri" }],
-                  children: [
-                    {
-                      name: "chart",
-                      namespace: NAMESPACE.chart,
-                      attributes: [{ name: "id", namespace: NAMESPACE.relationships }],
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
+        CHART_SCHEMA,
+        IMAGE_SCHEMA,
         {
           quantifier: "optional",
           name: "clientData",
