@@ -138,7 +138,7 @@ export class SheetUIPlugin extends UIPlugin {
   }
 
   private interactiveDeleteSheet(sheetId: UID) {
-    this.ui.askConfirmation(_lt("Are you sure you want to delete this sheet ?"), () => {
+    this.ui.askConfirmation(_lt("Are you sure you want to delete this sheet?"), () => {
       this.dispatch("DELETE_SHEET", { sheetId: sheetId });
     });
   }
