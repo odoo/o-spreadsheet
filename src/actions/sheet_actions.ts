@@ -24,7 +24,7 @@ export const deleteSheet: ActionSpec = {
     return env.model.getters.getSheetIds().length > 1;
   },
   execute: (env) =>
-    env.askConfirmation(_lt("Are you sure you want to delete this sheet ?"), () => {
+    env.askConfirmation(_lt("Are you sure you want to delete this sheet?"), () => {
       env.model.dispatch("DELETE_SHEET", { sheetId: env.model.getters.getActiveSheetId() });
     }),
 };
