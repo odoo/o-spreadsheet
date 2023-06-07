@@ -12,7 +12,7 @@
   - [Processing all values of a specific reference argument](#processing-all-values-of-a-specific-reference-argument)
   - [Processing all values of all arguments at once](#processing-all-values-of-all-arguments-at-once)
 - [Custom external dependency](#custom-external-dependency)
-- [Asynchronous function](#asynchronous-function)
+- [Connecting to an external API](#connecting-to-an-external-api)
 
 ## Adding a new custom function
 
@@ -420,33 +420,34 @@ addFunction("USER.NAME", {
 });
 ```
 
-## Asynchronous function
+## Connecting to an external API
 
-Function are synchronous. However, you can use a `getter` to fetch data from an [external source](#external-dependency).
-Here is what a function fetching currency rate from a server might look like.
+This section provides a step-by-step guide on implementing a function that connects to an external API in the o-spreadsheet library.
+
+To illustrate the process, let's create a simple function called `CURRENCY.RATE` that returns the exchange rate between two currencies, such as `USD` and `EUR`.
+
+Here is the basic structure of our `CURRENCY.RATE` function:
 
 ```ts
 addFunction("CURRENCY.RATE", {
   description:
-    "This function takes in two currency codes as arguments, and returns the exchange rate from the first currency to the second as float.",
-  compute: function (currencyFrom, currencyTo) {
-    const from = toString(currencyFrom);
-    const to = toString(currencyTo);
-    const currencyRate = this.getters.getCurrencyRate(from, to);
-    if (currencyRate.status === "LOADING") {
-      throw new Error("Loading...");
-    }
-    return currencyRate.value;
-  },
+    "This function takes two currency codes as input and returns the exchange rate from the first currency to the second as a floating-point number.",
   args: [
-    arg("currency_from (string)", "First currency code."),
-    arg("currency_to (string)", "Second currency code."),
+    arg("currency_from (string)", "The code of the first currency."),
+    arg("currency_to (string)", "The code of the second currency."),
   ],
+  compute: function (currencyFrom, currencyTo) {
+    // TODO: Implement the function logic here
+  },
   returns: ["NUMBER"],
 });
 ```
 
-And add a [plugin](./extending/architecture.md#plugins) to handle data loading.
+The `compute` function inside the function definition can use external dependencies available in its evaluation context. Refer to the [Custom external dependency](#custom-external-dependency) section for more details on how to implement data fetching and caching in your preferred manner.
+
+To adhere to the o-spreadsheet's architecture, we'll use a dedicated [plugin](./extending/architecture.md#plugins) for this purpose. The `compute` function can access relevant data using its getters.
+
+First, let's create the `CurrencyPlugin` class that extends `UIPlugin` and registers the necessary getters:
 
 ```ts
 const { uiPluginRegistry } = o_spreadsheet.registries;
@@ -457,45 +458,120 @@ class CurrencyPlugin extends UIPlugin {
 
   constructor(config) {
     super(config);
-
-    /**
-     * You can add whatever you need to the `config.custom` property at the model
-     * creation
-     */
-    this.server = config.custom.server;
-
-    // a cache to store fetched rates
-    this.currencyRates = {};
   }
 
   getCurrencyRate(from: string, to: string) {
-    const value = this.getFromCache(from, to);
-    if (value !== undefined) {
-      return value;
-    }
-    // start fetching the data
-    this.server.fetchCurrencyRate(from, to).then((result) => {
-      this.setCacheValue(from, to, result);
-      // don't forget to trigger a new evaluation when the data is loaded!
-      this.dispatch("EVALUATE_CELLS");
-    });
-    // return synchronously
-    return { status: "LOADING" };
-  }
-
-  private getFromCache(from: string, to: string) {
-    const cacheKey = `${from}-${to}`;
-    if (cacheKey in this.currencyRates) {
-      return this.currencyRates[cacheKey];
-    }
-    return undefined;
-  }
-
-  private setCacheValue(from: string, to: string, value: number) {
-    const cacheKey = `${from}-${to}`;
-    this.currencyRates[cacheKey] = { value: result, status: "COMPLETED" };
+    // TODO: Implement the logic to retrieve the currency rate
   }
 }
 
 uiPluginRegistry.add("currencyPlugin", CurrencyPlugin);
 ```
+
+Next, we need to update the `compute` function to use the `getCurrencyRate` getter:
+
+```ts
+addFunction("CURRENCY.RATE", {
+  // ...
+  compute: function (currencyFrom, currencyTo) {
+    const from = toString(currencyFrom);
+    const to = toString(currencyTo);
+    return this.getters.getCurrencyRate(from, to);
+  },
+  // ...
+});
+```
+
+Now, let's address an issue: **spreadsheet functions are synchronous**. This means that our getter `getCurrencyRate` also needs to return synchronously.
+
+To handle this requirement and enable caching of API results, we'll introduce a simple `cache` data structure within our plugin. Caching is important to avoid making repeated API calls when the function is evaluated multiple times during spreadsheet editing.
+
+The `getCurrencyRate` function reads from the cache and returns the status. If the status is `"missing"`, the `fetch` method handles data fetching and updates the cache. The `getFromCache` and `fetch` methods are described below:
+
+```ts
+class CurrencyPlugin extends UIPlugin {
+  static getters = ["getCurrencyRate"];
+
+  constructor(config) {
+    super(config);
+    this.cache = {};
+  }
+
+  getCurrencyRate(from: string, to: string) {
+    const rate = this.getFromCache(from, to);
+    switch (rate.status) {
+      case "missing":
+        this.fetch(from, to);
+        throw new Error("Loading...");
+      case "pending":
+        throw new Error("Loading...");
+      case "fulfilled":
+        return rate.value;
+      case "rejected":
+        throw rate.error;
+      default:
+        throw new Error("An unexpected error occurred");
+    }
+  }
+}
+```
+
+Let's explore a possible implementation of the `getFromCache` and `fetch` methods:
+
+```ts
+class CurrencyPlugin extends UIPlugin {
+  // ...
+
+  private getFromCache(from: string, to: string) {
+    const cacheKey = `${from}-${to}`;
+    if (cacheKey in this.cache) {
+      return this.cache[cacheKey];
+    }
+    return { status: "missing" };
+  }
+
+  private fetch(from: string, to: string) {
+    const cacheKey = `${from}-${to}`;
+    // Mark the value as "pending" in the cache
+    this.cache[cacheKey] = { status: "pending" };
+
+    // Assume we have an endpoint `https://api.example.com/rate/<from>/<to>` to fetch the currency rate.
+    fetch(`https://api.example.com/rate/${from}/${to}`)
+      .then((response) => response.json())
+      .then((data) => {
+        // Update the cache with the result
+        this.cache[cacheKey] = {
+          status: "fulfilled",
+          result: data.rate,
+        };
+      })
+      .catch((error) => {
+        // Update the cache with the error
+        this.cache[cacheKey] = {
+          status: "rejected",
+          error,
+        };
+      })
+      .finally(() => {
+        // Trigger a new evaluation when the data is loaded
+        this.dispatch("EVALUATE_CELLS");
+      });
+  }
+}
+```
+
+Instead of using the native `fetch` method, you can inject your own service through the configuration:
+
+```ts
+class CurrencyPlugin extends UIPlugin {
+  constructor(config) {
+    super(config);
+    /**
+     * You can add whatever you need to the `config.custom` property during model creation
+     */
+    this.rateAPI = config.custom.rateAPI;
+  }
+}
+```
+
+By following these steps, you can successfully connect to an external API and implement custom functions in the o-spreadsheet library.
