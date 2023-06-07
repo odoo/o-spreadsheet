@@ -1,6 +1,11 @@
 import { Model } from "../../src/model";
 import { setCellContent } from "../test_helpers/commands_helpers";
-import { evaluateCell, evaluateGrid } from "../test_helpers/helpers";
+import {
+  createModelFromGrid,
+  evaluateCell,
+  evaluateGrid,
+  getRangeValuesAsMatrix,
+} from "../test_helpers/helpers";
 
 describe("ADDRESS formula", () => {
   test("functional tests without argument", () => {
@@ -879,17 +884,43 @@ describe("HLOOKUP formula", () => {
 });
 
 describe("XLOOKUP formula", () => {
-  test("Check argument validity", () => {
+  test("XLOOKUP takes 3-6 arguments", () => {
     expect(evaluateCell("A1", { A1: "=XLOOKUP()" })).toBe("#BAD_EXPR");
     expect(evaluateCell("A1", { A1: "=XLOOKUP(5)" })).toBe("#BAD_EXPR");
-    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, B1:B5)" })).toBe("#BAD_EXPR");
-    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, B1:B5, C1:C5,, -5)" })).toBe("#ERROR");
-    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, B1:B5, C1:C5,, 2)" })).toBe("#ERROR");
-    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, B1:B5, C1:C5,, 1, 0)" })).toBe("#ERROR");
-    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, B1:B5, C1:C5,, 1, -3)" })).toBe("#ERROR");
-    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, B1:C5, C1:C5,, 1, -3)" })).toBe("#ERROR");
-    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, B1:B5, C1:C6,, 1, -3)" })).toBe("#ERROR");
-    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, B1:D1, B2:E2,, 1, -3)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:D3)" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:D3, D1:D3)" })).toBe("#N/A");
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:D3, D1:D3, 0)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:D3, D1:D3, 0, 0)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:D3, D1:D3, 0, 0, 1)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:D3, D1:D3, 0, 0, 1, 0)" })).toBe("#BAD_EXPR");
+  });
+
+  test("lookup_range is either a single col or a single row", () => {
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:D3, D1:D3, 0)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:F1, D1:F1, 0)" })).toBe(0);
+
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:E3, D1:E3, 0)" })).toBe("#ERROR");
+  });
+
+  test("arguments lookup_range and return_range must have similar dimensions", () => {
+    // lookup_range single col
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:D3, D1:E3, 0)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:D3, D1:D4, 0)" })).toBe("#ERROR");
+
+    // lookup_range single row
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:F1, D1:F3, 0)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:F1, D1:E3, 0)" })).toBe("#ERROR");
+  });
+
+  test("match_mode should be between -1 and 1", () => {
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:D3, D1:D3, 0, -2)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:D3, D1:D3, 0, 2)" })).toBe("#ERROR");
+  });
+
+  test("search_mode should be in [-2, -1, 1, 2]", () => {
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:D3, D1:D3, 0, 0, -3)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:D3, D1:D3, 0, 0, 0)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:D3, D1:D3, 0, 0, 3)" })).toBe("#ERROR");
   });
 
   // prettier-ignore
@@ -916,6 +947,12 @@ describe("XLOOKUP formula", () => {
     expect(grid.Z5).toBe("C6");
   });
 
+  test("vertical XLOOKUP can return an array", () => {
+    const model = createModelFromGrid(commonGrid);
+    setCellContent(model, "F1", '=XLOOKUP( "b2", B1:B6, C1:D6 )');
+    expect(getRangeValuesAsMatrix(model, "F1:G1")).toEqual([["C2", "D2"]]);
+  });
+
   test("Simple horizontal XLOOKUP", () => {
     const grid = evaluateGrid({
       ...commonGrid,
@@ -926,6 +963,12 @@ describe("XLOOKUP formula", () => {
     expect(grid.Z1).toBe(5);
     expect(grid.Z2).toBe("C3");
     expect(grid.Z3).toBe("#N/A");
+  });
+
+  test("horizontal XLOOKUP can return an array", () => {
+    const model = createModelFromGrid(commonGrid);
+    setCellContent(model, "F1", '=XLOOKUP( "C1", B1:D1, B2:D4 )');
+    expect(getRangeValuesAsMatrix(model, "F1:F3")).toEqual([["C2"], ["C3"], ["C4"]]);
   });
 
   test("if_not_found argument", () => {

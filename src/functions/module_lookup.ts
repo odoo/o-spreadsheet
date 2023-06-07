@@ -19,6 +19,7 @@ import {
   normalizeValue,
   strictToInteger,
   toBoolean,
+  toCellValueMatrix,
   toNumber,
   toString,
 } from "./helpers";
@@ -517,16 +518,6 @@ export const XLOOKUP: AddFunctionDescription = {
       _lt("lookup_range should be either a single row or single column.")
     );
     assert(
-      () => returnRange.length === 1 || returnRange[0].length === 1,
-      _lt("return_range should be either a single row or single column.")
-    );
-    assert(
-      () =>
-        returnRange.length === lookupRange.length &&
-        returnRange[0].length === lookupRange[0].length,
-      _lt("return_range should have the same dimensions as lookup_range.")
-    );
-    assert(
       () => [-1, 1, -2, 2].includes(_searchMode),
       _lt("searchMode should be a value in [-1, 1, -2, 2].")
     );
@@ -535,10 +526,22 @@ export const XLOOKUP: AddFunctionDescription = {
       _lt("matchMode should be a value in [-1, 0, 1].")
     );
 
-    const getElement =
-      lookupRange.length === 1 ? getNormalizedValueFromColumnRange : getNormalizedValueFromRowRange;
+    const lookupDirection = lookupRange.length === 1 ? "col" : "row";
 
-    const rangeLen = lookupRange.length === 1 ? lookupRange[0].length : lookupRange.length;
+    assert(
+      () =>
+        lookupDirection === "col"
+          ? returnRange[0].length === lookupRange[0].length
+          : returnRange.length === lookupRange.length,
+      _lt("return_range should have the same dimensions as lookup_range.")
+    );
+
+    const getElement =
+      lookupDirection === "col"
+        ? getNormalizedValueFromColumnRange
+        : getNormalizedValueFromRowRange;
+
+    const rangeLen = lookupDirection === "col" ? lookupRange[0].length : lookupRange.length;
 
     const mode = _matchMode === 0 ? "strict" : _matchMode === 1 ? "nextGreater" : "nextSmaller";
     const reverseSearch = _searchMode === -1;
@@ -552,9 +555,9 @@ export const XLOOKUP: AddFunctionDescription = {
     }
 
     if (index !== -1) {
-      return (
-        lookupRange.length === 1 ? returnRange[0][index] : returnRange[index][0]
-      ) as FunctionReturnValue;
+      return toCellValueMatrix(
+        lookupDirection === "col" ? returnRange.map((col) => [col[index]]) : [returnRange[index]]
+      );
     }
 
     const _defaultValue = defaultValue?.();
