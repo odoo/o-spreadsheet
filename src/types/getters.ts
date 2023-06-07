@@ -10,6 +10,7 @@ import { ImagePlugin } from "../plugins/core/image";
 import { MergePlugin } from "../plugins/core/merge";
 import { RangeAdapter } from "../plugins/core/range";
 import { SheetPlugin } from "../plugins/core/sheet";
+import { CorePluginConstructor } from "../plugins/core_plugin";
 import { EvaluationPlugin } from "../plugins/ui_core_views/cell_evaluation";
 import { CustomColorsPlugin } from "../plugins/ui_core_views/custom_colors";
 import { EvaluationChartPlugin } from "../plugins/ui_core_views/evaluation_chart";
@@ -36,6 +37,9 @@ import { GridSelectionPlugin } from "../plugins/ui_stateful/selection";
 // -----------------------------------------------------------------------------
 // Getters
 // -----------------------------------------------------------------------------
+
+export type GettersCategoryDeclaration = { readonly [category: string]: readonly string[] };
+export type GettersDeclaration = readonly (string | GettersCategoryDeclaration)[];
 
 /**
  * Union of all getter names of a plugin.
@@ -76,7 +80,24 @@ type HeaderVisibilityGetters = Pick<
 type CellGetters = Pick<CellPlugin, GetterNames<typeof CellPlugin>>;
 type MergeGetters = Pick<MergePlugin, GetterNames<typeof MergePlugin>>;
 type BordersGetters = Pick<BordersPlugin, GetterNames<typeof BordersPlugin>>;
-type ChartGetters = Pick<ChartPlugin, GetterNames<typeof ChartPlugin>>;
+
+type Categories<P extends CorePluginConstructor> = Extract<P["getters"][number], object>;
+type GlobalGetterNames<P extends CorePluginConstructor> = Extract<P["getters"][number], string>;
+
+type GettersByCategory<P extends CorePluginConstructor> = {
+  [key in keyof Categories<P>]: Pick<InstanceType<P>, Categories<P>[key][number]>;
+};
+
+type ChartGetters = Pick<ChartPlugin, GlobalGetterNames<typeof ChartPlugin>> &
+  GettersByCategory<typeof ChartPlugin>;
+
+// @ts-ignore
+// const g: ChartGetters = 1;
+// g.other.getContextCreationChart("a");
+// g.chart.getType;
+// g.getChart("");
+
+// type ChartGetters = Pick<ChartPlugin, GetterNames<typeof ChartPlugin>>;
 type ImageGetters = Pick<ImagePlugin, GetterNames<typeof ImagePlugin>>;
 type FigureGetters = Pick<FigurePlugin, GetterNames<typeof FigurePlugin>>;
 type RangeAdapterGetters = Pick<RangeAdapter, GetterNames<typeof RangeAdapter>>;

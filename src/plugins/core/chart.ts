@@ -35,12 +35,10 @@ interface ChartState {
 
 export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   static getters = [
-    "isChartDefined",
-    "getChartDefinition",
-    "getChartType",
-    "getChartIds",
+    {
+      chart: ["isDefined", "getDefinition", "getType", "getChartIds", "getContextCreationChart"],
+    },
     "getChart",
-    "getContextCreationChart",
   ] as const;
 
   readonly charts: Record<UID, AbstractChart | undefined> = {};
@@ -129,7 +127,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     return this.charts[figureId];
   }
 
-  getChartType(figureId: UID): ChartType {
+  getType(figureId: UID): ChartType {
     const type = this.charts[figureId]?.type;
     if (!type) {
       throw new Error("Chart not defined.");
@@ -137,7 +135,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     return type;
   }
 
-  isChartDefined(figureId: UID): boolean {
+  isDefined(figureId: UID): boolean {
     return figureId in this.charts && this.charts !== undefined;
   }
 
@@ -147,7 +145,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       .map(([id]) => id);
   }
 
-  getChartDefinition(figureId: UID): ChartDefinition {
+  getDefinition(figureId: UID): ChartDefinition {
     const definition = this.charts[figureId]?.getDefinition();
     if (!definition) {
       throw new Error(`There is no chart with the given figureId: ${figureId}`);

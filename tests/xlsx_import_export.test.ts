@@ -265,10 +265,10 @@ describe("Export data to xlsx then import it", () => {
     },
   ])("Charts %s", (chartDef: any) => {
     createChart(model, chartDef, "1");
-    chartDef = model.getters.getChartDefinition("1");
+    chartDef = model.getters.chart.getDefinition("1");
     const importedModel = exportToXlsxThenImport(model);
-    const newChartId = importedModel.getters.getChartIds(sheetId)[0];
-    const newChart = importedModel.getters.getChartDefinition(newChartId);
+    const newChartId = importedModel.getters.chart.getChartIds(sheetId)[0];
+    const newChart = importedModel.getters.chart.getDefinition(newChartId);
     expect(newChart).toMatchObject(chartDef);
   });
 

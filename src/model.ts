@@ -43,6 +43,8 @@ import {
   Currency,
   DispatchResult,
   Getters,
+  GettersCategoryDeclaration,
+  GettersDeclaration,
   GridRenderingContext,
   isCoreCommand,
   LAYERS,
@@ -285,15 +287,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private setupUiPlugin(Plugin: UIPluginConstructor) {
     const plugin = new Plugin(this.uiPluginConfig);
-    for (let name of Plugin.getters) {
-      if (!(name in plugin)) {
-        throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
-      }
-      if (name in this.getters) {
-        throw new Error(`Getter "${name}" is already defined.`);
-      }
-      this.getters[name] = plugin[name].bind(plugin);
-    }
+    this.setupGetters(this.getters, plugin, Plugin.getters);
     const layers = Plugin.layers.map((l) => [plugin, l] as [UIPlugin, LAYERS]);
     this.renderers.push(...layers);
     this.renderers.sort((p1, p2) => p1[1] - p2[1]);
@@ -308,19 +302,54 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    */
   private setupCorePlugin(Plugin: CorePluginConstructor, data: WorkbookData) {
     const plugin = new Plugin(this.corePluginConfig);
-    for (let name of Plugin.getters) {
-      if (!(name in plugin)) {
-        throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
-      }
-      if (name in this.coreGetters) {
-        throw new Error(`Getter "${name}" is already defined.`);
-      }
-      this.coreGetters[name] = plugin[name].bind(plugin);
-    }
+    this.setupGetters(this.coreGetters, plugin, Plugin.getters);
     plugin.import(data);
     this.corePlugins.push(plugin);
     this.coreHandlers.push(plugin);
     this.handlers.push(plugin);
+  }
+
+  private setupGetters(
+    getters: Getters | CoreGetters,
+    plugin: BasePlugin,
+    gettersDeclaration: GettersDeclaration
+  ) {
+    for (const getter of gettersDeclaration) {
+      if (typeof getter === "string") {
+        this.setupSingleGetter(getters, getter, plugin);
+      } else {
+        this.setupGetterCategory(getters, getter, plugin);
+      }
+    }
+  }
+
+  private setupSingleGetter(
+    getters: Getters | CoreGetters,
+    getterName: string,
+    plugin: BasePlugin
+  ) {
+    if (!(getterName in plugin)) {
+      throw new Error(`Invalid getter name: ${getterName} for plugin ${plugin.constructor}`);
+    }
+    if (getterName in getters) {
+      throw new Error(`Getter "${getterName}" is already defined.`);
+    }
+    getters[getterName] = plugin[getterName].bind(plugin);
+  }
+
+  private setupGetterCategory(
+    getters: Getters | CoreGetters,
+    getterCategories: GettersCategoryDeclaration,
+    plugin: BasePlugin
+  ) {
+    for (const [categoryName, getterNames] of Object.entries(getterCategories)) {
+      if (!(categoryName in getters)) {
+        getters[categoryName] = {};
+      }
+      for (const getterName of getterNames) {
+        this.setupSingleGetter(getters[categoryName], getterName, plugin);
+      }
+    }
   }
 
   private onRemoteRevisionReceived({ commands }: { commands: readonly CoreCommand[] }) {

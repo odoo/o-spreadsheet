@@ -36,7 +36,7 @@ export class EvaluationChartPlugin extends UIPlugin {
         break;
       case "DELETE_SHEET":
         for (let chartId in this.charts) {
-          if (!this.getters.isChartDefined(chartId)) {
+          if (!this.getters.chart.isDefined(chartId)) {
             this.charts[chartId] = undefined;
           }
         }

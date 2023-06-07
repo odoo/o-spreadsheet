@@ -1511,7 +1511,7 @@ describe("Copy paste keyboard shortcut", () => {
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
     expect(clipboardData.content).toEqual({ "text/plain": "\t" });
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
-    expect(model.getters.getChartIds(sheetId)).toHaveLength(2);
+    expect(model.getters.chart.getChartIds(sheetId)).toHaveLength(2);
   });
 
   test("Can cut/paste chart", async () => {
@@ -1521,8 +1521,8 @@ describe("Copy paste keyboard shortcut", () => {
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     expect(clipboardData.content).toEqual({ "text/plain": "\t" });
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
-    expect(model.getters.getChartIds(sheetId)).toHaveLength(1);
-    expect(model.getters.getChartIds(sheetId)[0]).not.toEqual("chartId");
+    expect(model.getters.chart.getChartIds(sheetId)).toHaveLength(1);
+    expect(model.getters.chart.getChartIds(sheetId)[0]).not.toEqual("chartId");
   });
 
   test("Double clicking only opens composer when actually targetting grid overlay", async () => {

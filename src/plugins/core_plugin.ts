@@ -9,7 +9,7 @@ import {
   UID,
   WorkbookData,
 } from "../types";
-import { CoreGetters } from "../types/getters";
+import { CoreGetters, GettersDeclaration } from "../types/getters";
 import { BasePlugin } from "./base_plugin";
 import { RangeAdapter } from "./core/range";
 
@@ -23,9 +23,9 @@ export interface CorePluginConfig {
   readonly external: ModelConfig["external"];
 }
 
-export interface CorePluginConstructor {
-  new (config: CorePluginConfig): CorePlugin;
-  getters: readonly string[];
+export interface CorePluginConstructor<T extends CorePlugin = any> {
+  new (config: CorePluginConfig): T;
+  getters: GettersDeclaration;
 }
 
 /**

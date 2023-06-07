@@ -83,7 +83,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(model.getters.getChartDefinition("1")).toMatchObject({
+    expect(model.getters.chart.getDefinition("1")).toMatchObject({
       dataSets: ["B1:B4", "C1:C4"],
       labelRange: "Sheet1!A2:A4",
       title: "test",
@@ -102,7 +102,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(model.getters.getChartDefinition("1")).toMatchObject({
+    expect(model.getters.chart.getDefinition("1")).toMatchObject({
       dataSets: ["B1:B4", "C1:C4"],
       labelRange: "Sheet1!A2:A4",
       title: "test",
@@ -122,7 +122,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(model.getters.getChartDefinition("1")).toMatchObject({
+    expect(model.getters.chart.getDefinition("1")).toMatchObject({
       dataSets: ["B2:B4", "C2:C4"],
       labelRange: "A2:A4",
       dataSetsHaveTitle: false,
@@ -158,7 +158,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(model.getters.getChartDefinition("1")).toMatchObject({
+    expect(model.getters.chart.getDefinition("1")).toMatchObject({
       dataSets: ["A8:D8", "A9:D9"],
       labelRange: "B7:D7",
       title: "test",
@@ -176,11 +176,9 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect((model.getters.getChartDefinition("1") as LineChartDefinition)?.dataSets).toMatchObject([
-      "8:8",
-      "A:A",
-      "B:B",
-    ]);
+    expect((model.getters.chart.getDefinition("1") as LineChartDefinition)?.dataSets).toMatchObject(
+      ["8:8", "A:A", "B:B"]
+    );
   });
 
   test("create chart with row datasets without series title", () => {
@@ -194,7 +192,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(model.getters.getChartDefinition("1")).toMatchObject({
+    expect(model.getters.chart.getDefinition("1")).toMatchObject({
       dataSets: ["B8:D8", "B9:D9"],
       labelRange: "B7:D7",
       title: "test",
@@ -230,7 +228,7 @@ describe("datasource tests", function () {
       "1"
     );
     const chart = model.getters.getChartRuntime("1") as LineChartRuntime;
-    expect(model.getters.getChartDefinition("1")).toMatchObject({
+    expect(model.getters.chart.getDefinition("1")).toMatchObject({
       dataSets: [],
       labelRange: "Sheet1!B7:D7",
       title: "test",
@@ -251,7 +249,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(model.getters.getChartDefinition("1")).toMatchObject({
+    expect(model.getters.chart.getDefinition("1")).toMatchObject({
       dataSets: ["B8"],
       dataSetsHaveTitle: false,
       labelRange: "B7",
@@ -273,7 +271,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(model.getters.getChartDefinition("1")).toMatchObject({
+    expect(model.getters.chart.getDefinition("1")).toMatchObject({
       dataSets: ["B1"],
       type: "line",
     });
@@ -306,7 +304,7 @@ describe("datasource tests", function () {
       "1"
     );
     addColumns(model, "before", "A", 2);
-    const chart = model.getters.getChartDefinition("1") as LineChartDefinition;
+    const chart = model.getters.chart.getDefinition("1") as LineChartDefinition;
     expect(chart.dataSets[0]).toStrictEqual("D1:D4");
     expect(chart.dataSets[1]).toStrictEqual("E1:E4");
     expect(chart.labelRange).toStrictEqual("Sheet1!C2:C4");
@@ -394,7 +392,7 @@ describe("datasource tests", function () {
       title: "hello1",
     });
     chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
-    expect(model.getters.getChartDefinition("1")).toMatchObject({
+    expect(model.getters.chart.getDefinition("1")).toMatchObject({
       dataSets: ["A8:D8", "A9:D9"],
       labelRange: "Sheet1!C7:D7",
       title: "hello1",
@@ -417,7 +415,7 @@ describe("datasource tests", function () {
     );
     updateChart(model, "1", { labelRange: undefined });
     expect(
-      (model.getters.getChartDefinition("1") as LineChartDefinition).labelRange
+      (model.getters.chart.getDefinition("1") as LineChartDefinition).labelRange
     ).toBeUndefined();
   });
 
@@ -431,10 +429,10 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    const chartDefinitionBefore = model.getters.getChartDefinition("1");
+    const chartDefinitionBefore = model.getters.chart.getDefinition("1");
     createSheet(model, { sheetId: "42" });
     deleteSheet(model, "42");
-    const chartDefinitionAfter = model.getters.getChartDefinition("1");
+    const chartDefinitionAfter = model.getters.chart.getDefinition("1");
     expect(chartDefinitionBefore).toEqual(chartDefinitionAfter);
   });
 
@@ -448,10 +446,10 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    const chartDefinitionBefore = model.getters.getChartDefinition("1");
+    const chartDefinitionBefore = model.getters.chart.getDefinition("1");
     createSheet(model, { sheetId: "42" });
     deleteColumns(model, ["A"], "42");
-    const chartDefinitionAfter = model.getters.getChartDefinition("1");
+    const chartDefinitionAfter = model.getters.chart.getDefinition("1");
     expect(chartDefinitionBefore).toEqual(chartDefinitionAfter);
   });
 
@@ -554,10 +552,10 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    const chartDefinitionBefore = model.getters.getChartDefinition("1");
+    const chartDefinitionBefore = model.getters.chart.getDefinition("1");
     createSheet(model, { sheetId: "42" });
     addRows(model, "before", 0, 1, "42");
-    const chartDefinitionAfter = model.getters.getChartDefinition("1");
+    const chartDefinitionAfter = model.getters.chart.getDefinition("1");
     expect(chartDefinitionBefore).toEqual(chartDefinitionAfter);
   });
 
@@ -660,7 +658,7 @@ describe("datasource tests", function () {
     );
     createSheet(model, { sheetId: "42" });
     const result = model.dispatch("UPDATE_CHART", {
-      definition: model.getters.getChartDefinition("1"),
+      definition: model.getters.chart.getDefinition("1"),
       sheetId: model.getters.getActiveSheetId(),
       id: "2",
     });
@@ -715,7 +713,7 @@ describe("datasource tests", function () {
       "1"
     );
     const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
-    expect(model.getters.getChartDefinition("1")).toMatchObject({
+    expect(model.getters.chart.getDefinition("1")).toMatchObject({
       dataSets: ["B1:B4"],
       labelRange: "Sheet1!A2:A4",
       title: "test",
@@ -936,9 +934,9 @@ describe("datasource tests", function () {
     expect(figuresSh2.length).toEqual(1);
     expect(figuresSh3.length).toEqual(1);
 
-    expect(newModel.getters.getChartIds(firstSheetId).length).toEqual(1);
-    expect(newModel.getters.getChartIds(secondSheetId).length).toEqual(1);
-    expect(newModel.getters.getChartIds(thirdSheetId).length).toEqual(1);
+    expect(newModel.getters.chart.getChartIds(firstSheetId).length).toEqual(1);
+    expect(newModel.getters.chart.getChartIds(secondSheetId).length).toEqual(1);
+    expect(newModel.getters.chart.getChartIds(thirdSheetId).length).toEqual(1);
 
     expect(figuresSh1[0].id).toEqual("myChart");
     expect(figuresSh2[0].id).toEqual(secondSheetId + FIGURE_ID_SPLITTER + "myChart");
@@ -976,7 +974,7 @@ describe("datasource tests", function () {
       sheetId: firstSheetId,
     });
     const duplicatedFigure = model.getters.getFigures(thirdSheetId)[0];
-    const duplicatedChartDefinition = model.getters.getChartDefinition(duplicatedFigure.id);
+    const duplicatedChartDefinition = model.getters.chart.getDefinition(duplicatedFigure.id);
     expect(duplicatedChartDefinition).toMatchObject({
       dataSets: [`${secondSheetName}!C1:C4`],
       labelRange: `${secondSheetName}!A2:A4`,
@@ -995,7 +993,7 @@ describe("datasource tests", function () {
       "1"
     );
     deleteColumns(model, ["A", "B"]);
-    const def = model.getters.getChartDefinition("1") as LineChartDefinition;
+    const def = model.getters.chart.getDefinition("1") as LineChartDefinition;
     expect(def.dataSets).toHaveLength(1);
     expect(def.dataSets[0]).toEqual("A1:A4");
     expect(def.labelRange).toBeUndefined();
@@ -1053,7 +1051,7 @@ describe("multiple sheets", function () {
       "1"
     );
     const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
-    const chartDefinition = model.getters.getChartDefinition("1");
+    const chartDefinition = model.getters.chart.getDefinition("1");
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
     expect(chartDefinition).toMatchObject({
@@ -1071,7 +1069,7 @@ describe("multiple sheets", function () {
       "1"
     );
     const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
-    const chartDefinition = model.getters.getChartDefinition("1");
+    const chartDefinition = model.getters.chart.getDefinition("1");
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3"]);
     expect(chartDefinition).toMatchObject({
       labelRange: "Sheet1!A2:A4",
@@ -1130,7 +1128,7 @@ describe("multiple sheets", function () {
       "28"
     );
     const chart = (model.getters.getChartRuntime("28") as BarChartRuntime).chartJsConfig;
-    const chartDefinition = model.getters.getChartDefinition("28");
+    const chartDefinition = model.getters.chart.getDefinition("28");
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
     expect(chartDefinition).toMatchObject({
@@ -1360,10 +1358,10 @@ describe("Chart design configuration", () => {
 
   test("Background is correctly updated", () => {
     createChart(model, defaultChart, "42");
-    expect(model.getters.getChartDefinition("42")!.background).toBe("#FFFFFF");
+    expect(model.getters.chart.getDefinition("42")!.background).toBe("#FFFFFF");
 
     updateChart(model, "42", { background: "#000000" });
-    expect(model.getters.getChartDefinition("42")!.background).toBe("#000000");
+    expect(model.getters.chart.getDefinition("42")!.background).toBe("#000000");
   });
 
   test("Stacked bar", () => {
