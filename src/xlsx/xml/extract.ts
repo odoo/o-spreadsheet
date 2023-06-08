@@ -30,7 +30,8 @@ type InnerContentC<S extends XMLSchema> = HasKey<S, "type"> extends true
 
 type AttrsData<S extends XMLSchema> = MapType<MapName<Attrs<S>>>;
 
-type ChildrenData<S extends XMLSchema> = RequiredChildrenData<S> &
+type ChildrenData<S extends XMLSchema> = RequiredChildrenData<S>
+&
   OptionalChildrenData<S> &
   SequenceChildrenData<S>;
 
@@ -50,7 +51,7 @@ type SequenceChildrenMap<S extends XMLSchema> = MapName<SequenceChildren<Childre
 type RequiredChildrenMap<S extends XMLSchema> = MapName<RequiredChildren<Children<S>>>;
 
 
-type FF = OptionalChildrenMap<typeof FIGURE_SCHEMA.children[0]>
+type FF = SequenceChildrenMap<typeof FIGURE_SCHEMA.children[0]>
 // type ChildrenMap<S extends XMLSchema> = Partial<MapName<OptionalChildren<Children<S>>>> &
 //   MapName<SequenceChildren<Children<S>>> &
 //   MapName<RequiredChildren<Children<S>>>;
@@ -94,7 +95,7 @@ type MapType<T extends Record<string, { type?: XMLType }>> = {
 };
 
 type MapName<A extends { name: string }> = {
-  [name in A["name"]]: A;
+  [I in A as I["name"]]: I;
 };
 
 type TypescriptType<T extends XMLSchema["type"]> = T extends "number"
@@ -135,26 +136,33 @@ type MySchema = {
     { name: "address"; type: "boolean"; quantifier: "optional" },
     {
       name: "friend";
-      quantifier: "many";
+      // quantifier: "many";
       // type: "number";
       attributes: [{ name: "qsdf", type : "boolean" }];
       children: [{ name: "girlfriend"; type: "boolean" }];
+    },
+    {
+      name: "hobby";
+      // quantifier: "many";
+      // type: "number";
+      attributes: [{ name: "team", type : "boolean" }];
+      children: [{ name: "dangerous"; type: "boolean" }];
     }
   ];
 };
 type A = ExtractedSchema<MySchema>;
 
-type C = ChildrenData<MySchema>;
+type C = RequiredChildrenMap<MySchema>;
 const c = {} as C;
-c.friend.map((f) => f.girlfriend);
-const ad = c.address;
+// c.friend.map((f) => f.girlfriend);
+const ad = c.;
 
 const a: A = {};
-a.person.friend.map((f) => f.girlfriend);
+a.person.friend.girlfriend
 a.person.age;
-const ah = a.person.married;
-const asqdfqsdh = a.person.friend?.map((f) => f.qsdf);
-const bh = a.person.friend?.map((f) => f.girlfriend);
+// const ah = a.person.hobby.;
+const asqdfqsdh = a.person.friend?.map((f) => f.);
+const bh = a.person.friend?.map((f) => f.team);
 
 export function extract<S extends XMLSchema>(schema: S, xml: string | Element): ExtractedSchema<S> {
   if (xml instanceof Element) {

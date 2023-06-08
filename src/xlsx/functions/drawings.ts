@@ -67,7 +67,6 @@ export function createDrawing(
         graphicFrame: {
           nvGraphicFramePr: {
             cNvPr: {
-              
               id: "0",
               name: "Chart 1",
               title: "Chart 1",
