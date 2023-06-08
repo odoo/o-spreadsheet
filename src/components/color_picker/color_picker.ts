@@ -54,6 +54,7 @@ css/* scss */ `
     .o-color-picker-toggler {
       display: flex;
       .o-color-picker-toggler-sign {
+        display: flex;
         margin: auto auto;
         width: 55%;
         height: 55%;
