@@ -10,7 +10,7 @@ import {
   toHex,
 } from "../../helpers";
 import { GaugeChart, ScorecardChart } from "../../helpers/figures/charts";
-import { Color, CoreViewCommand, RGBA, UID } from "../../types";
+import { Color, CoreViewCommand, Immutable, RGBA, UID } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 /**
@@ -60,7 +60,7 @@ function colorDistance(color1: RGBA, color2: RGBA): number {
 
 interface CustomColorState {
   // Use an object whose keys are the colors to avoid duplicates, and because history doesn't support sets
-  readonly customColors: Record<Color, true>;
+  readonly customColors: Immutable<Record<Color, true>>;
   readonly shouldUpdateColors: boolean;
 }
 
@@ -70,7 +70,7 @@ interface CustomColorState {
  * current spreadsheet
  */
 export class CustomColorsPlugin extends UIPlugin<CustomColorState> {
-  private readonly customColors: Record<Color, true> = {};
+  private readonly customColors: Immutable<Record<Color, true>> = {};
   private readonly shouldUpdateColors = false;
   static getters = ["getCustomColors"] as const;
 
