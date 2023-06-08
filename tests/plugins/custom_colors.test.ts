@@ -1,6 +1,12 @@
 import { Model } from "../../src";
 import { UID } from "../../src/types";
-import { createChart, createScorecardChart, setStyle } from "../test_helpers/commands_helpers";
+import {
+  createChart,
+  createScorecardChart,
+  redo,
+  setStyle,
+  undo,
+} from "../test_helpers/commands_helpers";
 import { createColorScale, createEqualCF, target, toRangesData } from "../test_helpers/helpers";
 
 describe("custom colors are correctly handled when formatting cells", () => {
@@ -63,6 +69,16 @@ describe("custom colors are correctly handled when formatting cells", () => {
   test("duplicated colors on cells only appears once", () => {
     setStyle(model, "A1", { fillColor: "#123456", textColor: "#123456" });
     expect(model.getters.getCustomColors()).toEqual(["#123456"]);
+  });
+
+  test("Custom colors with undo/redo", () => {
+    setStyle(model, "A1", { fillColor: "#123456" });
+    setStyle(model, "A2", { fillColor: "#FF0058" });
+    expect(model.getters.getCustomColors()).toEqual(["#123456", "#FF0058"]);
+    undo(model);
+    expect(model.getters.getCustomColors()).toEqual(["#123456"]);
+    redo(model);
+    expect(model.getters.getCustomColors()).toEqual(["#123456", "#FF0058"]);
   });
 });
 
