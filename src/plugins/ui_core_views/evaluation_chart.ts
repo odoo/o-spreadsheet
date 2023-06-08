@@ -1,6 +1,6 @@
 import { BACKGROUND_CHART_COLOR } from "../../constants";
 import { chartRuntimeFactory } from "../../helpers/figures/charts";
-import { Color, Range, UID } from "../../types";
+import { Color, Immutable, Range, UID } from "../../types";
 import { ChartRuntime } from "../../types/chart/chart";
 import {
   CoreViewCommand,
@@ -10,12 +10,12 @@ import {
 import { UIPlugin } from "../ui_plugin";
 
 interface EvaluationChartState {
-  readonly charts: Record<UID, ChartRuntime | undefined>;
+  readonly charts: Immutable<Record<UID, ChartRuntime | undefined>>;
 }
 export class EvaluationChartPlugin extends UIPlugin<EvaluationChartState> {
   static getters = ["getChartRuntime", "getBackgroundOfSingleCellChart"] as const;
 
-  readonly charts: Record<UID, ChartRuntime | undefined> = {};
+  readonly charts: Immutable<Record<UID, ChartRuntime | undefined>> = {};
 
   private createRuntimeChart = chartRuntimeFactory(this.getters);
 
