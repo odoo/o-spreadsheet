@@ -58,14 +58,20 @@ function colorDistance(color1: RGBA, color2: RGBA): number {
   );
 }
 
+interface CustomColorState {
+  // Use an object whose keys are the colors to avoid duplicates, and because history doesn't support sets
+  readonly customColors: Record<Color, true>;
+  readonly shouldUpdateColors: boolean;
+}
+
 /**
  * CustomColors plugin
  * This plugins aims to compute and keep to custom colors used in the
  * current spreadsheet
  */
-export class CustomColorsPlugin extends UIPlugin {
-  private customColors = new Set<Color>();
-  private shouldUpdateColors = false;
+export class CustomColorsPlugin extends UIPlugin<CustomColorState> {
+  private readonly customColors: Record<Color, true> = {};
+  private readonly shouldUpdateColors = false;
   static getters = ["getCustomColors"] as const;
 
   handle(cmd: CoreViewCommand) {
@@ -77,13 +83,13 @@ export class CustomColorsPlugin extends UIPlugin {
       case "SET_BORDER":
       case "SET_ZONE_BORDERS":
       case "SET_FORMATTING":
-        this.shouldUpdateColors = true;
+        this.history.update("shouldUpdateColors", true);
     }
   }
 
   finalize() {
     if (this.shouldUpdateColors) {
-      this.shouldUpdateColors = false;
+      this.history.update("shouldUpdateColors", false);
       for (const color of this.getCustomColors()) {
         this.tryToAddColor(color);
       }
@@ -104,7 +110,9 @@ export class CustomColorsPlugin extends UIPlugin {
         // remove duplicates first to check validity on a reduced
         // set of colors, then normalize to HEX and remove duplicates
         // again
-        [...new Set([...usedColors, ...this.customColors])].filter(isColorValid).map(toHex)
+        [...new Set([...usedColors, ...Object.keys(this.customColors)])]
+          .filter(isColorValid)
+          .map(toHex)
       ),
     ]).filter((color) => !COLOR_PICKER_DEFAULTS.includes(color));
   }
@@ -174,7 +182,7 @@ export class CustomColorsPlugin extends UIPlugin {
   private tryToAddColor(color: Color) {
     const formattedColor = toHex(color);
     if (color && !COLOR_PICKER_DEFAULTS.includes(formattedColor)) {
-      this.customColors.add(formattedColor);
+      this.history.update("customColors", formattedColor, true);
     }
   }
 }
