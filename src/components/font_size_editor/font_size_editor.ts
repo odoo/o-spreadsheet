@@ -13,13 +13,12 @@ interface State {
 interface Props {
   onToggle: () => void;
   dropdownStyle: string;
+  class: string;
 }
 
-// -----------------------------------------------------------------------------
-// TopBar
-// -----------------------------------------------------------------------------
 css/* scss */ `
   .o-font-size-editor {
+    height: calc(100% - 4px);
     input.o-font-size {
       height: 20px;
       width: 23px;
@@ -107,4 +106,5 @@ export class FontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
 FontSizeEditor.props = {
   onToggle: Function,
   dropdownStyle: String,
+  class: String,
 };
