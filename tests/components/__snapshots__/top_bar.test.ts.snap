@@ -234,26 +234,29 @@ exports[`TopBar component can set cell format 1`] = `
               class="o-divider"
             />
             <div
-              class="o-dropdown o-font-size-editor"
+              class="o-dropdown"
             >
-              <input
-                class="o-font-size bg-transparent border-0 ps-1"
-                max="400"
-                min="1"
-                type="number"
-              />
               <div
+                class="o-font-size-editor d-flex align-items-center o-hoverable-button"
                 title="Font Size"
               >
-                <svg
-                  class="o-icon"
-                >
-                  <polygon
-                    fill="currentColor"
-                    points="0 0 4 4 8 0"
-                    transform="translate(5 7)"
-                  />
-                </svg>
+                <input
+                  class="o-font-size bg-transparent border-0"
+                  max="400"
+                  min="1"
+                  type="number"
+                />
+                <span>
+                  <svg
+                    class="o-icon"
+                  >
+                    <polygon
+                      fill="currentColor"
+                      points="0 0 4 4 8 0"
+                      transform="translate(5 7)"
+                    />
+                  </svg>
+                </span>
               </div>
               
             </div>
@@ -1098,26 +1101,29 @@ exports[`TopBar component simple rendering 1`] = `
           class="o-divider"
         />
         <div
-          class="o-dropdown o-font-size-editor"
+          class="o-dropdown"
         >
-          <input
-            class="o-font-size bg-transparent border-0 ps-1"
-            max="400"
-            min="1"
-            type="number"
-          />
           <div
+            class="o-font-size-editor d-flex align-items-center o-hoverable-button"
             title="Font Size"
           >
-            <svg
-              class="o-icon"
-            >
-              <polygon
-                fill="currentColor"
-                points="0 0 4 4 8 0"
-                transform="translate(5 7)"
-              />
-            </svg>
+            <input
+              class="o-font-size bg-transparent border-0"
+              max="400"
+              min="1"
+              type="number"
+            />
+            <span>
+              <svg
+                class="o-icon"
+              >
+                <polygon
+                  fill="currentColor"
+                  points="0 0 4 4 8 0"
+                  transform="translate(5 7)"
+                />
+              </svg>
+            </span>
           </div>
           
         </div>

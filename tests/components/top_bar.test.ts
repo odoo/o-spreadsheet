@@ -292,14 +292,8 @@ describe("TopBar component", () => {
     const { model } = await mountParent();
     const fontSizeText = fixture.querySelector("input.o-font-size")! as HTMLInputElement;
     expect(fontSizeText.value.trim()).toBe(DEFAULT_FONT_SIZE.toString());
-    const fontSizeTool = fixture.querySelector('div[title="Font Size"]')!;
-    fontSizeTool.dispatchEvent(new Event("click"));
-    await nextTick();
-    const fontSizeList = fixture.querySelector(".o-font-size-editor div.o-dropdown-content")!;
-    fontSizeList
-      .querySelector('[data-size="8"]')!
-      .dispatchEvent(new Event("click", { bubbles: true }));
-    await nextTick();
+    await click(fixture, ".o-font-size-editor");
+    await click(fixture, '.o-dropdown-content [data-size="8"]');
     expect(fontSizeText.value.trim()).toBe("8");
     expect(getStyle(model, "A1").fontSize).toBe(8);
   });
