@@ -6,9 +6,13 @@ A standalone spreadsheet for the web, easily integrable and extendable.
 
 a.k.a. "[Owly](https://github.com/odoo/owl) Sheet" 🦉
 
-- All basic features you can expect from a spreadsheet
+- Cells, functions and formulas
+- Formatting options
+- Charts
+- Data sorting and filtering
 - Real time collaboration
-- Import/Export of excel file format
+- Undo/Redo
+- Import/Export to excel file format
 - and more...
 
 **Try it online** with the [live demo](https://odoo.github.io/o-spreadsheet/)!
@@ -28,7 +32,9 @@ a.k.a. "[Owly](https://github.com/odoo/owl) Sheet" 🦉
 - use with Typescript
   -->
 
-## Extending the functionalities of o-spreadsheet
+## Extend o-spreadsheet
+
+o-spreadsheet lets you extend its capabilities through APIs and plugins, allowing you to create a tailored experience that aligns perfectly with your needs.
 
 1. [Architecture](doc/extending/architecture.md)
 2. [Custom function](doc/add_function.md)
