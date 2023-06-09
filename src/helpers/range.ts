@@ -1,6 +1,7 @@
 import { _lt } from "../translation";
 import {
   CoreGetters,
+  Getters,
   Range,
   RangeData,
   RangePart,
@@ -200,9 +201,14 @@ export function createRange(getters: CoreGetters, sheetId: UID, range?: string):
  * Spread multiple colrows zone to one row/col zone and add a many new input range as needed.
  * For example, A1:B4 will become [A1:A4, B1:B4]
  */
-export function spreadRange(ranges: string[]): string[] {
+export function spreadRange(getters: Getters, ranges: string[]): string[] {
   const postProcessedRanges: string[] = [];
   for (const range of ranges) {
+    if (!getters.isRangeValid(range)) {
+      postProcessedRanges.push(range); // ignore invalid range
+      continue;
+    }
+
     const { sheetName } = splitReference(range);
     const sheetPrefix = sheetName ? `${sheetName}!` : "";
     const zone = toUnboundedZone(range);
