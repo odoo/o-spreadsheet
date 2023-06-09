@@ -16,6 +16,7 @@ import {
 import { TEST_CHART_DATA } from "../test_helpers/constants";
 import {
   click,
+  focusAndKeyDown,
   setInputValueAndTrigger,
   simulateClick,
   triggerMouseEvent,
@@ -740,6 +741,21 @@ describe("charts", () => {
         expect(fixture.querySelectorAll(".o-data-series .o-selection-ok").length).toBe(0);
       }
     );
+
+    test("does not update the chart with an invalid dataset", async () => {
+      createTestChart("basicChart");
+      await nextTick();
+
+      await simulateClick(".o-figure");
+      await simulateClick(".o-figure-menu-item");
+      await simulateClick(".o-menu div[data-name='edit']");
+      await simulateClick(".o-data-series input");
+      setInputValueAndTrigger(".o-data-series input", "A1:A10--", "input");
+      await nextTick();
+      await focusAndKeyDown(".o-data-series input", { key: "Enter" });
+
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject(TEST_CHART_DATA.basicChart);
+    });
 
     test.each(["basicChart", "scorecard", "gauge"])(
       "Clicking on reset button on dataset/keyValue/dataRange put back the last valid dataset/keyValue/dataRange",

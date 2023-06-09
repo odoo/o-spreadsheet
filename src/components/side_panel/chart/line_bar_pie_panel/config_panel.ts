@@ -80,7 +80,7 @@ export class LineBarPieConfigPanel extends Component<Props, SpreadsheetChildEnv>
   }
 
   onDataSeriesConfirmed() {
-    this.dataSeriesRanges = spreadRange(this.dataSeriesRanges);
+    this.dataSeriesRanges = spreadRange(this.env.model.getters, this.dataSeriesRanges);
     this.state.datasetDispatchResult = this.props.updateChart(this.props.figureId, {
       dataSets: this.dataSeriesRanges,
     });
