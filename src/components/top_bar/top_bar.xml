@@ -55,9 +55,11 @@
             />
 
             <div class="o-divider"/>
-
-            <FontSizeEditor onToggle="() => this.onClick()" dropdownStyle="this.dropdownStyle"/>
-
+            <FontSizeEditor
+              class="'o-hoverable-button'"
+              onToggle.bind="this.onClick"
+              dropdownStyle="this.dropdownStyle"
+            />
             <div class="o-divider"/>
 
             <ActionButton action="FORMAT.formatBold" class="'o-hoverable-button'"/>
