@@ -39,7 +39,7 @@ export function removeStringQuotes(str: string): string {
   return str;
 }
 
-function isCloneable<T>(obj: T | Cloneable<T>): obj is Cloneable<T> {
+function isCloneable<T extends Object>(obj: T | Cloneable<T>): obj is Cloneable<T> {
   return "clone" in obj && obj.clone instanceof Function;
 }
 
