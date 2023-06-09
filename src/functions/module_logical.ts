@@ -43,6 +43,19 @@ export const AND: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// FALSE
+// -----------------------------------------------------------------------------
+export const FALSE: AddFunctionDescription = {
+  description: _lt("Logical value `false`."),
+  args: [],
+  returns: ["BOOLEAN"],
+  compute: function (): boolean {
+    return false;
+  },
+  isExported: true,
+};
+
+// -----------------------------------------------------------------------------
 // IF
 // -----------------------------------------------------------------------------
 export const IF: AddFunctionDescription = {
@@ -232,6 +245,19 @@ export const OR: AddFunctionDescription = {
     });
     assert(() => foundBoolean, _lt(`[[FUNCTION_NAME]] has no valid input data.`));
     return acc;
+  },
+  isExported: true,
+};
+
+// -----------------------------------------------------------------------------
+// TRUE
+// -----------------------------------------------------------------------------
+export const TRUE: AddFunctionDescription = {
+  description: _lt("Logical value `true`."),
+  args: [],
+  returns: ["BOOLEAN"],
+  compute: function (): boolean {
+    return true;
   },
   isExported: true,
 };
