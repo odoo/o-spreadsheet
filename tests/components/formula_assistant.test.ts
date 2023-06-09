@@ -402,3 +402,33 @@ describe("formula assistant", () => {
     });
   });
 });
+
+describe("formula assistant for boolean functions", () => {
+  beforeAll(() => {
+    clearFunctions();
+    functionRegistry.add("TRUE", {
+      description: "TRUE",
+      args: [],
+      compute: () => true,
+      returns: ["BOOLEAN"],
+    });
+    functionRegistry.add("FALSE", {
+      description: "FALSE",
+      args: [],
+      compute: () => false,
+      returns: ["BOOLEAN"],
+    });
+  });
+
+  afterAll(() => {
+    restoreDefaultFunctions();
+  });
+
+  test.each(["=TRUE(", "=true(", "=FALSE(", "=false("])(
+    "show boolean formula assistant",
+    async () => {
+      await typeInComposer("=TRue(");
+      expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(1);
+    }
+  );
+});

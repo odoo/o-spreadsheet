@@ -44,6 +44,18 @@ describe("AND formula", () => {
   });
 });
 
+describe("FALSE formula", () => {
+  test("does not accept argument", () => {
+    expect(evaluateCell("A1", { A1: "=FALSE(45)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+  test("return false", () => {
+    expect(evaluateCell("A1", { A1: "=FALSE()" })).toBe(false);
+  });
+  test("equals the false boolean value", () => {
+    expect(evaluateCell("A1", { A1: "=FALSE()=FALSE" })).toBe(true);
+  });
+});
+
 describe("IF formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=IF( ,  ,  )" })).toBe("");
@@ -353,6 +365,18 @@ describe("OR formula", () => {
     expect(evaluateCell("A1", { A1: "=OR(A2:A5)", A3: '="TRUE"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=OR(A2:A5)", A3: "42" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=OR(A2:A5)", A3: '="42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+  });
+});
+
+describe("TRUE formula", () => {
+  test("does not accept argument", () => {
+    expect(evaluateCell("A1", { A1: "=TRUE(45)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+  test("return true", () => {
+    expect(evaluateCell("A1", { A1: "=TRUE()" })).toBe(true);
+  });
+  test("equals the true boolean value", () => {
+    expect(evaluateCell("A1", { A1: "=TRUE()=TRUE" })).toBe(true);
   });
 });
 

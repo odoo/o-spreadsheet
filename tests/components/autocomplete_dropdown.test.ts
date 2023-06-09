@@ -364,3 +364,51 @@ describe("composer Assistant", () => {
     expect(assistantEL.style.transform).toBe("translate(0, -100%)");
   });
 });
+
+describe("autocomplete boolean functions", () => {
+  beforeEach(async () => {
+    clearFunctions();
+    functionRegistry.add("TRUE", {
+      description: "TRUE",
+      args: [],
+      compute: () => true,
+      returns: ["BOOLEAN"],
+    });
+    functionRegistry.add("FALSE", {
+      description: "FALSE",
+      args: [],
+      compute: () => false,
+      returns: ["BOOLEAN"],
+    });
+    ({ model, fixture, parent } = await mountComposerWrapper());
+    parent.startComposition();
+    await nextTick();
+  });
+
+  afterAll(() => {
+    restoreDefaultFunctions();
+  });
+
+  test("partial TRUE show autocomplete", async () => {
+    await typeInComposer("=TRU");
+    expect(fixture.querySelector(".o-autocomplete-value")?.textContent).toBe("TRUE");
+  });
+
+  test.each(["=TRUE", "=true"])("exact match TRUE does not show autocomplete", async (formula) => {
+    await typeInComposer(formula);
+    expect(fixture.querySelector(".o-autocomplete-value")).toBeNull();
+  });
+
+  test("partial FALSE show autocomplete", async () => {
+    await typeInComposer("=FAL");
+    expect(fixture.querySelector(".o-autocomplete-value")?.textContent).toBe("FALSE");
+  });
+
+  test.each(["=FALSE", "=false"])(
+    "exact match FALSE does not show autocomplete",
+    async (formula) => {
+      await typeInComposer(formula);
+      expect(fixture.querySelector(".o-autocomplete-value")).toBeNull();
+    }
+  );
+});

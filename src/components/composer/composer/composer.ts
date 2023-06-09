@@ -385,7 +385,12 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   }
 
   showAutocomplete(searchTerm: string) {
-    if (!this.env.model.getters.getCurrentContent().startsWith("=")) {
+    const searchTermUpperCase = searchTerm.toUpperCase();
+    if (
+      !this.env.model.getters.getCurrentContent().startsWith("=") ||
+      searchTermUpperCase === "TRUE" ||
+      searchTermUpperCase === "FALSE"
+    ) {
       return;
     }
     this.autoCompleteState.showProvider = true;
