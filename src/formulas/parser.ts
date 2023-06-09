@@ -2,7 +2,7 @@ import { DEFAULT_ERROR_MESSAGE } from "../constants";
 import { parseNumber, removeStringQuotes } from "../helpers/index";
 import { _lt } from "../translation";
 import { DEFAULT_LOCALE } from "../types";
-import { BadExpressionError, InvalidReferenceError, UnknownFunctionError } from "../types/errors";
+import { BadExpressionError, InvalidReferenceError } from "../types/errors";
 import { Token, tokenize } from "./tokenizer";
 
 const functionRegex = /[a-zA-Z0-9\_]+(\.[a-zA-Z0-9\_]+)*/;
@@ -111,9 +111,6 @@ function parseOperand(tokens: Token[]): AST {
       return { type: "NUMBER", value: parseNumber(current.value, DEFAULT_LOCALE) };
     case "STRING":
       return { type: "STRING", value: removeStringQuotes(current.value) };
-    case "FUNCTION":
-      const args = parseFunctionArgs(tokens);
-      return { type: "FUNCALL", value: current.value, args };
     case "INVALID_REFERENCE":
       throw new InvalidReferenceError();
     case "REFERENCE":
@@ -130,13 +127,15 @@ function parseOperand(tokens: Token[]): AST {
         value: current.value,
       };
     case "SYMBOL":
-      if (["TRUE", "FALSE"].includes(current.value.toUpperCase())) {
-        return { type: "BOOLEAN", value: current.value.toUpperCase() === "TRUE" } as AST;
+      const value = current.value;
+      const nextToken = tokens[0];
+      if (nextToken?.type === "LEFT_PAREN" && functionRegex.test(current.value)) {
+        const args = parseFunctionArgs(tokens);
+        return { type: "FUNCALL", value: value, args };
       }
-      if (current.value) {
-        if (functionRegex.test(current.value) && tokens[0]?.type === "LEFT_PAREN") {
-          throw new UnknownFunctionError(current.value);
-        }
+      const upperCaseValue = value.toUpperCase();
+      if (upperCaseValue === "TRUE" || upperCaseValue === "FALSE") {
+        return { type: "BOOLEAN", value: upperCaseValue === "TRUE" };
       }
       throw new BadExpressionError(_lt("Invalid formula"));
 
@@ -240,45 +239,60 @@ export function parseTokens(tokens: Token[]): AST {
   return result;
 }
 
+export function visitAst(ast: AST, fn: (ast: AST) => void) {
+  mapAst(ast, (ast) => {
+    fn(ast);
+    return ast;
+  });
+}
+
 /**
  * Allows to visit all nodes of an AST and apply a mapping function
  * to nodes of a specific type.
  * Useful if you want to convert some part of a formula.
  *
- * e.g.
- * ```ts
+ * @example
  * convertAstNodes(ast, "FUNCALL", convertFormulaToExcel)
  *
  * function convertFormulaToExcel(ast: ASTFuncall) {
  *   // ...
  *   return modifiedAst
  * }
- * ```
  */
 export function convertAstNodes<T extends AST["type"]>(
   ast: AST,
   type: T,
   fn: (ast: Extract<AST, { type: T }>) => AST
-) {
-  if (type === ast.type) {
-    ast = fn(ast as Extract<AST, { type: T }>);
-  }
+): AST {
+  return mapAst(ast, (ast) => {
+    if (ast.type === type) {
+      return fn(ast as Extract<AST, { type: T }>);
+    }
+    return ast;
+  });
+}
+
+export function mapAst<T extends AST["type"]>(
+  ast: AST,
+  fn: (ast: Extract<AST, { type: T }>) => AST
+): AST {
+  ast = fn(ast as Extract<AST, { type: T }>);
   switch (ast.type) {
     case "FUNCALL":
       return {
         ...ast,
-        args: ast.args.map((child) => convertAstNodes(child, type, fn)),
+        args: ast.args.map((child) => mapAst(child, fn)),
       };
     case "UNARY_OPERATION":
       return {
         ...ast,
-        operand: convertAstNodes(ast.operand, type, fn),
+        operand: mapAst(ast.operand, fn),
       };
     case "BIN_OPERATION":
       return {
         ...ast,
-        right: convertAstNodes(ast.right, type, fn),
-        left: convertAstNodes(ast.left, type, fn),
+        right: mapAst(ast.right, fn),
+        left: mapAst(ast.left, fn),
       };
     default:
       return ast;

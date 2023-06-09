@@ -3,7 +3,7 @@ import { functionRegistry } from "../functions/index";
 import { concat, parseNumber, removeStringQuotes } from "../helpers";
 import { _lt } from "../translation";
 import { CompiledFormula, DEFAULT_LOCALE } from "../types";
-import { BadExpressionError } from "../types/errors";
+import { BadExpressionError, UnknownFunctionError } from "../types/errors";
 import { FunctionCode, FunctionCodeBuilder, Scope } from "./code_builder";
 import { AST, ASTFuncall, parseTokens } from "./parser";
 import { rangeTokenize } from "./range_tokenizer";
@@ -94,6 +94,10 @@ export function compile(formula: string): CompiledFormula {
       const { args } = ast;
       const functionName = ast.value.toUpperCase();
       const functionDefinition = functions[functionName];
+
+      if (!functionDefinition) {
+        throw new UnknownFunctionError(ast.value);
+      }
 
       assertEnoughArgs(ast);
 

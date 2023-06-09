@@ -1,5 +1,4 @@
 import { INCORRECT_RANGE_STRING, NEWLINE } from "../constants";
-import { functionRegistry } from "../functions/index";
 import { getFormulaNumberRegex, rangeReference, replaceSpecialSpaces } from "../helpers/index";
 import { DEFAULT_LOCALE, Locale } from "../types";
 
@@ -20,7 +19,6 @@ import { DEFAULT_LOCALE, Locale } from "../types";
  * formulas.
  */
 
-const functions = functionRegistry.content;
 export const POSTFIX_UNARY_OPERATORS = ["%"];
 const OPERATORS = "+,-,*,/,:,=,<>,>=,>,<=,<,^,&".split(",").concat(POSTFIX_UNARY_OPERATORS);
 
@@ -28,8 +26,6 @@ type TokenType =
   | "OPERATOR"
   | "NUMBER"
   | "STRING"
-  | "BOOLEAN"
-  | "FUNCTION"
   | "SYMBOL"
   | "SPACE"
   | "DEBUGGER"
@@ -190,16 +186,11 @@ function tokenizeSymbol(chars: TokenizingChars): Token | null {
   }
   if (result.length) {
     const value = result;
-    const isFunction = value.toUpperCase() in functions;
-    if (isFunction) {
-      return { type: "FUNCTION", value };
-    }
     const isReference = rangeReference.test(value);
     if (isReference) {
       return { type: "REFERENCE", value };
-    } else {
-      return { type: "SYMBOL", value };
     }
+    return { type: "SYMBOL", value };
   }
   return null;
 }
