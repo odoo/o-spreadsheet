@@ -1,6 +1,4 @@
 import { DEFAULT_FONT_SIZE } from "../../constants";
-import { tokenize } from "../../formulas";
-import { functionRegistry } from "../../functions";
 import { splitReference, toUnboundedZone } from "../../helpers";
 import {
   BorderDescr,
@@ -138,16 +136,6 @@ export function extractStyle(cell: ExcelCellData, data: WorkbookData): Extracted
 function extractFormat(cell: ExcelCellData, data: WorkbookData): Format | undefined {
   if (cell.format) {
     return data.formats[cell.format];
-  }
-  if (cell.isFormula) {
-    const tokens = tokenize(cell.content || "");
-    const functions = functionRegistry.content;
-    const isExported = tokens
-      .filter((tk) => tk.type === "FUNCTION")
-      .every((tk) => functions[tk.value.toUpperCase()].isExported);
-    if (!isExported) {
-      return cell.computedFormat;
-    }
   }
   return undefined;
 }
