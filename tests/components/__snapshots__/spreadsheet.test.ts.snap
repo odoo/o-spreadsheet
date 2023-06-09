@@ -176,27 +176,30 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
             class="o-divider"
           />
           <div
-            class="o-dropdown o-font-size-editor"
+            class="o-dropdown"
           >
-            <input
-              class="o-font-size bg-transparent border-0"
-              max="400"
-              min="1"
-              type="number"
-            />
-            <span
+            <div
+              class="o-font-size-editor o-tool"
               title="Font Size"
             >
-              <svg
-                class="o-icon"
-              >
-                <polygon
-                  fill="#000000"
-                  points="0 0 4 4 8 0"
-                  transform="translate(5 7)"
-                />
-              </svg>
-            </span>
+              <input
+                class="o-font-size bg-transparent border-0"
+                max="400"
+                min="1"
+                type="number"
+              />
+              <span>
+                <svg
+                  class="o-icon"
+                >
+                  <polygon
+                    fill="#000000"
+                    points="0 0 4 4 8 0"
+                    transform="translate(5 7)"
+                  />
+                </svg>
+              </span>
+            </div>
             
           </div>
           
