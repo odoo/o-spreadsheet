@@ -62,7 +62,7 @@ describe("rangeTokenizer", () => {
     expect(rangeTokenize("= SUM ( C4 : C5 )")).toEqual([
       { type: "OPERATOR", value: "=" },
       { type: "SPACE", value: " " },
-      { type: "FUNCTION", value: "SUM" },
+      { type: "SYMBOL", value: "SUM" },
       { type: "SPACE", value: " " },
       { type: "LEFT_PAREN", value: "(" },
       { type: "SPACE", value: " " },
@@ -82,7 +82,7 @@ describe("rangeTokenizer", () => {
   test.each(["A:A", "A1:A"])("formula with full column", (xc) => {
     expect(rangeTokenize(`=SUM(${xc})`)).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "FUNCTION", value: "SUM" },
+      { type: "SYMBOL", value: "SUM" },
       { type: "LEFT_PAREN", value: "(" },
       { type: "REFERENCE", value: xc },
       { type: "RIGHT_PAREN", value: ")" },
@@ -99,7 +99,7 @@ describe("rangeTokenizer", () => {
   test.each(["1:1", "A1:1"])("formula with full row", (xc) => {
     expect(rangeTokenize(`=SUM(${xc})`)).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "FUNCTION", value: "SUM" },
+      { type: "SYMBOL", value: "SUM" },
       { type: "LEFT_PAREN", value: "(" },
       { type: "REFERENCE", value: xc },
       { type: "RIGHT_PAREN", value: ")" },

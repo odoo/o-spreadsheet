@@ -20,7 +20,7 @@ Array [
     "end": 5,
     "length": 3,
     "start": 2,
-    "type": "FUNCTION",
+    "type": "SYMBOL",
     "value": "SUM",
   },
   Object {
@@ -99,7 +99,7 @@ Array [
     "end": 4,
     "length": 3,
     "start": 1,
-    "type": "FUNCTION",
+    "type": "SYMBOL",
     "value": "AND",
   },
   Object {
@@ -171,7 +171,7 @@ Array [
     "end": 4,
     "length": 3,
     "start": 1,
-    "type": "FUNCTION",
+    "type": "SYMBOL",
     "value": "SUM",
   },
   Object {
@@ -279,7 +279,7 @@ Array [
     },
     "length": 3,
     "start": 14,
-    "type": "FUNCTION",
+    "type": "SYMBOL",
     "value": "ADD",
   },
   Object {

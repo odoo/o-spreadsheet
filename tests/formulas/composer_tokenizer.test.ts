@@ -117,10 +117,10 @@ describe("composerTokenizer base tests", () => {
 
   test("Function token", () => {
     expect(composerTokenize("SUM", DEFAULT_LOCALE)).toEqual([
-      { start: 0, end: 3, length: 3, type: "FUNCTION", value: "SUM" },
+      { start: 0, end: 3, length: 3, type: "SYMBOL", value: "SUM" },
     ]);
     expect(composerTokenize("RAND", DEFAULT_LOCALE)).toEqual([
-      { start: 0, end: 4, length: 4, type: "FUNCTION", value: "RAND" },
+      { start: 0, end: 4, length: 4, type: "SYMBOL", value: "RAND" },
     ]);
   });
   test("Boolean", () => {

@@ -137,14 +137,14 @@ describe("tokenizer", () => {
   });
 
   test("Function token", () => {
-    expect(tokenize("SUM")).toEqual([{ type: "FUNCTION", value: "SUM" }]);
-    expect(tokenize("RAND")).toEqual([{ type: "FUNCTION", value: "RAND" }]);
-    expect(tokenize("rand")).toEqual([{ type: "FUNCTION", value: "rand" }]);
+    expect(tokenize("SUM")).toEqual([{ type: "SYMBOL", value: "SUM" }]);
+    expect(tokenize("RAND")).toEqual([{ type: "SYMBOL", value: "RAND" }]);
+    expect(tokenize("rand")).toEqual([{ type: "SYMBOL", value: "rand" }]);
   });
 
   test("Function token with point", () => {
-    expect(tokenize("CEILING.MATH")).toEqual([{ type: "FUNCTION", value: "CEILING.MATH" }]);
-    expect(tokenize("ceiling.math")).toEqual([{ type: "FUNCTION", value: "ceiling.math" }]);
+    expect(tokenize("CEILING.MATH")).toEqual([{ type: "SYMBOL", value: "CEILING.MATH" }]);
+    expect(tokenize("ceiling.math")).toEqual([{ type: "SYMBOL", value: "ceiling.math" }]);
   });
 
   test("Boolean", () => {
@@ -171,7 +171,7 @@ describe("tokenizer", () => {
     ]);
     expect(tokenize("=AND(true,false)")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "FUNCTION", value: "AND" },
+      { type: "SYMBOL", value: "AND" },
       { type: "LEFT_PAREN", value: "(" },
       { type: "SYMBOL", value: "true" },
       { type: "ARG_SEPARATOR", value: "," },
@@ -301,7 +301,7 @@ describe("Localized tokenizer", () => {
     const locale = { ...DEFAULT_LOCALE, decimalSeparator: "¤" };
     expect(tokenize("=SUM(5¤9, 8¤1)", locale)).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "FUNCTION", value: "SUM" },
+      { type: "SYMBOL", value: "SUM" },
       { type: "LEFT_PAREN", value: "(" },
       { type: "NUMBER", value: "5¤9" },
       { type: "ARG_SEPARATOR", value: "," },
@@ -315,7 +315,7 @@ describe("Localized tokenizer", () => {
     const locale = { ...DEFAULT_LOCALE, formulaArgSeparator: "空" };
     expect(tokenize("=SUM(5空 8.5)", locale)).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "FUNCTION", value: "SUM" },
+      { type: "SYMBOL", value: "SUM" },
       { type: "LEFT_PAREN", value: "(" },
       { type: "NUMBER", value: "5" },
       { type: "ARG_SEPARATOR", value: "空" },

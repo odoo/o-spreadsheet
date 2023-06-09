@@ -32,7 +32,7 @@ describe("parser", () => {
   });
 
   test("function without a opening parenthesis", () => {
-    expect(() => parse(`SUM 5`)).toThrow("Missing opening parenthesis");
+    expect(() => parse(`SUM 5`)).toThrow("Invalid formula");
   });
 
   test("function without closing parenthesis", () => {

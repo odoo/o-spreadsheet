@@ -83,7 +83,7 @@ function mapParentFunction(tokens: EnrichedToken[]): EnrichedToken[] {
     }
 
     switch (token.type) {
-      case "FUNCTION":
+      case "SYMBOL":
         functionStarted = token.value;
         break;
       case "LEFT_PAREN":

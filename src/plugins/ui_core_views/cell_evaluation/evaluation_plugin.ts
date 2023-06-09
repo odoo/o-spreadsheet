@@ -1,5 +1,4 @@
-import { compile } from "../../../formulas/index";
-import { functionRegistry } from "../../../functions/index";
+import { compile, isExportableToExcel } from "../../../formulas/index";
 import { getItemId, positions, toXC } from "../../../helpers/index";
 import {
   CellPosition,
@@ -20,8 +19,6 @@ import { UIPlugin, UIPluginConfig } from "../../ui_plugin";
 import { CoreViewCommand } from "./../../../types/commands";
 import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
 import { Evaluator } from "./evaluator";
-
-const functions = functionRegistry.content;
 
 //#region
 
@@ -285,10 +282,7 @@ export class EvaluationPlugin extends UIPlugin {
 
       const formulaCell = this.getCorrespondingFormulaCell(position);
       if (formulaCell) {
-        isExported = formulaCell.compiledFormula.tokens
-          .filter((tk) => tk.type === "FUNCTION")
-          .every((tk) => functions[tk.value.toUpperCase()].isExported);
-
+        isExported = isExportableToExcel(formulaCell.compiledFormula.tokens);
         isFormula = isExported;
 
         if (!isExported) {

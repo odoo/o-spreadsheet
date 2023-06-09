@@ -2,13 +2,7 @@ import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from
 import { DEFAULT_FONT, NEWLINE } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/index";
 import { functionRegistry } from "../../../functions/index";
-import {
-  fuzzyLookup,
-  getZoneArea,
-  isEqual,
-  rangeReference,
-  splitReference,
-} from "../../../helpers/index";
+import { fuzzyLookup, getZoneArea, isEqual, splitReference } from "../../../helpers/index";
 import { ComposerSelection } from "../../../plugins/ui_stateful/edition";
 
 import {
@@ -525,7 +519,6 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       switch (token.type) {
         case "OPERATOR":
         case "NUMBER":
-        case "FUNCTION":
         case "ARG_SEPARATOR":
         case "STRING":
           result.push({ value: token.value, color: tokenColors[token.type] || "#000" });
@@ -535,9 +528,12 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
           result.push({ value: token.value, color: this.rangeColor(xc, sheetName) || "#000" });
           break;
         case "SYMBOL":
-          let value = token.value;
-          if (["TRUE", "FALSE"].includes(value.toUpperCase())) {
+          const value = token.value;
+          const upperCaseValue = value.toUpperCase();
+          if (upperCaseValue === "TRUE" || upperCaseValue === "FALSE") {
             result.push({ value: token.value, color: tokenColors.NUMBER });
+          } else if (upperCaseValue in functionRegistry.content) {
+            result.push({ value: token.value, color: tokenColors.FUNCTION });
           } else {
             result.push({ value: token.value, color: "#000" });
           }
@@ -641,27 +637,31 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     this.functionDescriptionState.showDescription = false;
 
     if (content.startsWith("=")) {
-      const tokenAtCursor = this.env.model.getters.getTokenAtCursor();
-      if (tokenAtCursor) {
-        const { xc } = splitReference(tokenAtCursor.value);
-        if (
-          tokenAtCursor.type === "FUNCTION" ||
-          (tokenAtCursor.type === "SYMBOL" && !rangeReference.test(xc))
-        ) {
-          // initialize Autocomplete Dropdown
-          this.showAutocomplete(tokenAtCursor.value);
-        } else if (tokenAtCursor.functionContext && tokenAtCursor.type !== "UNKNOWN") {
-          // initialize Formula Assistant
-          const tokenContext = tokenAtCursor.functionContext;
-          const parentFunction = tokenContext.parent.toUpperCase();
-          const description = functions[parentFunction];
-          const argPosition = tokenContext.argPosition;
+      const token = this.env.model.getters.getTokenAtCursor();
+      if (!token) {
+        return;
+      }
+      if (token.type === "SYMBOL") {
+        // initialize Autocomplete Dropdown
+        this.showAutocomplete(token.value);
+        return;
+      }
+      const tokenContext = token.functionContext;
+      const parentFunction = tokenContext?.parent.toUpperCase();
+      if (
+        tokenContext &&
+        parentFunction &&
+        parentFunction in functions &&
+        token.type !== "UNKNOWN"
+      ) {
+        // initialize Formula Assistant
+        const description = functions[parentFunction];
+        const argPosition = tokenContext.argPosition;
 
-          this.functionDescriptionState.functionName = parentFunction;
-          this.functionDescriptionState.functionDescription = description;
-          this.functionDescriptionState.argToFocus = description.getArgToFocus(argPosition + 1) - 1;
-          this.functionDescriptionState.showDescription = true;
-        }
+        this.functionDescriptionState.functionName = parentFunction;
+        this.functionDescriptionState.functionDescription = description;
+        this.functionDescriptionState.argToFocus = description.getArgToFocus(argPosition + 1) - 1;
+        this.functionDescriptionState.showDescription = true;
       }
     }
   }
