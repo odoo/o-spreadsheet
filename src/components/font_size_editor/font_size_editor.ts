@@ -13,13 +13,12 @@ interface State {
 interface Props {
   onToggle: () => void;
   dropdownStyle: string;
+  class: string;
 }
 
-// -----------------------------------------------------------------------------
-// TopBar
-// -----------------------------------------------------------------------------
 css/* scss */ `
   .o-font-size-editor {
+    height: calc(100% - 4px);
     input.o-font-size {
       outline-color: ${SELECTION_BORDER_COLOR};
       height: 20px;
@@ -32,13 +31,13 @@ css/* scss */ `
     input::-webkit-inner-spin-button {
       -webkit-appearance: none;
     }
-
-    .o-text-options > div {
-      line-height: 26px;
-      padding: 3px 12px;
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
+  }
+  .o-text-options > div {
+    cursor: pointer;
+    line-height: 26px;
+    padding: 3px 12px;
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.08);
     }
   }
 `;
@@ -116,4 +115,5 @@ export class FontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
 FontSizeEditor.props = {
   onToggle: Function,
   dropdownStyle: String,
+  class: String,
 };
