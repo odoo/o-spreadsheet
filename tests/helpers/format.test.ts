@@ -185,6 +185,33 @@ describe("formatValue on number", () => {
     expect(formatValue(0.456789, "0.00000")).toBe("0.45679");
   });
 
+  test("apply decimal with a leading 0 in the decimal part rounded up", () => {
+    expect(formatValue(0.0695, "0.0")).toBe("0.1");
+    expect(formatValue(0.0695, "0.00")).toBe("0.07");
+    expect(formatValue(0.0695, "0.000")).toBe("0.070");
+    expect(formatValue(0.0695, "0.0000")).toBe("0.0695");
+  });
+
+  test("apply decimal with two leading 0 in the decimal part rounded up", () => {
+    expect(formatValue(0.00695, "0.0")).toBe("0.0");
+    expect(formatValue(0.00695, "0.00")).toBe("0.01");
+    expect(formatValue(0.00695, "0.000")).toBe("0.007");
+    expect(formatValue(0.00695, "0.0000")).toBe("0.0070");
+    expect(formatValue(0.00695, "0.00000")).toBe("0.00695");
+  });
+
+  test("apply decimal with a leading 0 in the decimal part rounded down", () => {
+    expect(formatValue(0.064, "0.00")).toBe("0.06");
+    expect(formatValue(0.0694, "0.000")).toBe("0.069");
+    expect(formatValue(0.0694, "0.0000")).toBe("0.0694");
+  });
+
+  test("apply decimal with two leading 0 in the decimal part rounded down", () => {
+    expect(formatValue(0.0064, "0.000")).toBe("0.006");
+    expect(formatValue(0.00694, "0.0000")).toBe("0.0069");
+    expect(formatValue(0.00694, "0.00000")).toBe("0.00694");
+  });
+
   test("apply format with thousand separator", () => {
     expect(formatValue(100, "000")).toBe("100");
     expect(formatValue(100, ",000")).toBe("100");
