@@ -1,4 +1,9 @@
+import { ExtractedSchema } from "../xml";
 import { NAMESPACE } from "./namespaces";
+
+export type DrawingXMLData = ExtractedSchema<typeof FIGURE_SCHEMA>;
+export type ChartXMLData = ExtractedSchema<typeof CHART_SCHEMA>;
+export type ImageXMLData = ExtractedSchema<typeof IMAGE_SCHEMA>;
 
 const CHART_SCHEMA = {
   name: "graphicFrame",
@@ -9,7 +14,7 @@ const CHART_SCHEMA = {
       children: [
         {
           name: "cNvPr",
-          attributes: [{ name: "id" }, { name: "name" }, { name: "title" }],
+          attributes: [{ name: "id", type: "number" }, { name: "name" }, { name: "title" }],
         },
         { name: "cNvGraphicFramePr" },
       ],
@@ -62,7 +67,10 @@ const IMAGE_SCHEMA = {
     {
       name: "nvPicPr",
       children: [
-        { name: "cNvPr", attributes: [{ name: "id" }, { name: "name" }, { name: "title" }] },
+        {
+          name: "cNvPr",
+          attributes: [{ name: "id", type: "number" }, { name: "name" }, { name: "title" }],
+        },
         { name: "cNvPicPr", attributes: [{ name: "preferRelativeResize", type: "boolean" }] },
       ],
     },

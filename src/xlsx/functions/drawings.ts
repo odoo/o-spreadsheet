@@ -1,16 +1,13 @@
 import { FIGURE_BORDER_WIDTH } from "../../constants";
 import { HeaderData, SheetData } from "../../types";
 import { ExcelChartDefinition } from "../../types/chart/chart";
-import { XMLAttributes, XMLString } from "../../types/xlsx";
-import { DRAWING_NS_A, DRAWING_NS_C, RELATIONSHIP_NSR } from "../constants";
+import { XMLAttributes } from "../../types/xlsx";
+import { DRAWING_NS_A, DRAWING_NS_C, NAMESPACE, RELATIONSHIP_NSR } from "../constants";
 import { convertChartId, convertDotValueToEMU, convertImageId } from "../helpers/content_helpers";
 import { escapeXml, formatAttributes, joinXmlNodes, parseXML } from "../helpers/xml_helpers";
-import { FIGURE_SCHEMA } from "../schema/figures_schema";
-import { ExtractedSchema } from "../xml";
+import { ChartXMLData, DrawingXMLData, ImageXMLData } from "../schema/figures_schema";
 import { Image } from "./../../types/image";
 import { FigureData } from "./../../types/workbook_data";
-import { NAMESPACE } from "../schema/namespaces";
-
 
 type FigurePosition = {
   to: {
@@ -33,60 +30,42 @@ export function createDrawing(
   figures: FigureData<ExcelChartDefinition | Image>[]
 ): XMLDocument {
   const namespaces: XMLAttributes = [
-    ["xmlns:xdr", NAMESPACE.drawing.uri],
+    ["xmlns:xdr", NAMESPACE.drawing],
     ["xmlns:r", RELATIONSHIP_NSR],
     ["xmlns:a", DRAWING_NS_A],
     ["xmlns:c", DRAWING_NS_C],
   ];
-  const figuresNodes: XMLString[] = [];
+  const figuresNodes: DrawingXMLData["wsDr"]["twoCellAnchor"] = [];
   for (const [figureIndex, figure] of Object.entries(figures)) {
+    const { from, to } = convertFigureData(figure, sheet);
     switch (figure?.tag) {
-      case "chart": {
-        const data = {}
-        // figuresNodes.push(
-        //   createChartDrawing(
-        //     figure as FigureData<ExcelChartDefinition>,
-        //     sheet,
-        //     drawingRelIds[figureIndex]
-        //   )
-        // );
+      case "chart":
+        figuresNodes.push({
+          from,
+          to,
+          ...createChartDrawing(
+            figure as FigureData<ExcelChartDefinition>,
+            sheet,
+            drawingRelIds[figureIndex]
+          ),
+          clientData: { fLocksWithSheet: false },
+        });
         break;
       case "image":
-        figuresNodes.push(
-          createImageDrawing(figure as FigureData<Image>, sheet, drawingRelIds[figureIndex])
-        );
+        figuresNodes.push({
+          from,
+          to,
+          ...createImageDrawing(figure as FigureData<Image>, sheet, drawingRelIds[figureIndex]),
+          clientData: { fLocksWithSheet: false },
+        });
         break;
     }
   }
-  const data: ExtractedSchema<typeof FIGURE_SCHEMA> = {
+  const drawingData: DrawingXMLData = {
     wsDr: {
-      twoCellAnchor: [{
-        from: { col: 0, colOff: 0, row: 0, rowOff: 0 },
-        to: { col: 0, colOff: 0, row: 0, rowOff: 0 },
-        clientData: { fLocksWithSheet: false,  },
-        graphicFrame: {
-          nvGraphicFramePr: {
-            cNvPr: {
-              id: "0",
-              name: "Chart 1",
-              title: "Chart 1",
-            },
-            cNvGraphicFramePr: {},
-          },
-          xfrm: { off: { x: 0, y: 0}, ext: { cx:0, cy: 0}},
-          graphic: {
-            graphicData: {
-              uri: NAMESPACE.chart.uri,
-              chart: {
-                id: "rId1",
-              }
-            }
-          }
-        }
-      }]
-    }
-  }
-  data.wsDr.twoCellAnchor[0].graphicFrame?.blipFill
+      twoCellAnchor: figuresNodes,
+    },
+  };
   const xml = escapeXml/*xml*/ `
     <xdr:wsDr ${formatAttributes(namespaces)}>
       ${joinXmlNodes(figuresNodes)}
@@ -155,12 +134,9 @@ function createChartDrawing(
   figure: FigureData<ExcelChartDefinition>,
   sheet: SheetData,
   chartRelId: string
-) {
+): ChartXMLData {
   const chartId = convertChartId(figure.id);
-  const { from, to } = convertFigureData(figure, sheet);
   return {
-    from,
-    to,
     graphicFrame: {
       nvGraphicFramePr: {
         cNvPr: {
@@ -170,19 +146,20 @@ function createChartDrawing(
         },
         cNvGraphicFramePr: {},
       },
-      xfrm: { off: { x: 0, y: 0}, ext: { cx:0, cy: 0}},
       graphic: {
         graphicData: {
-          uri: NAMESPACE.chart.uri,
           chart: {
             id: chartRelId,
-          }
-        }
-      }
-    }
-  }
-}
-  // position
+          },
+          uri: DRAWING_NS_C,
+        },
+      },
+      xfrm: {
+        off: { x: 0, y: 0 },
+        ext: { cx: 0, cy: 0 },
+      },
+    },
+  };
   // const cNvPrAttrs: XMLAttributes = [
   //   ["id", chartId],
   //   ["name", `Chart ${chartId}`],
@@ -226,48 +203,76 @@ function createImageDrawing(
   figure: FigureData<Image>,
   sheet: SheetData,
   imageRelId: string
-): XMLString {
-  // position
-  const { from, to } = convertFigureData(figure, sheet);
+): ImageXMLData {
   const imageId = convertImageId(figure.id);
-  const cNvPrAttrs: XMLAttributes = [
-    ["id", imageId],
-    ["name", `Image ${imageId}`],
-    ["title", "Image"],
-  ];
-  return escapeXml/*xml*/ `
-    <xdr:twoCellAnchor editAs="oneCell">
-      <xdr:from>
-        <xdr:col>${from.col}</xdr:col>
-        <xdr:colOff>${from.colOff}</xdr:colOff>
-        <xdr:row>${from.row}</xdr:row>
-        <xdr:rowOff>${from.rowOff}</xdr:rowOff>
-      </xdr:from>
-      <xdr:to>
-        <xdr:col>${to.col}</xdr:col>
-        <xdr:colOff>${to.colOff}</xdr:colOff>
-        <xdr:row>${to.row}</xdr:row>
-        <xdr:rowOff>${to.rowOff}</xdr:rowOff>
-      </xdr:to>
-      <xdr:pic>
-        <xdr:nvPicPr>
-          <xdr:cNvPr ${formatAttributes(cNvPrAttrs)}/>
-          <xdr:cNvPicPr preferRelativeResize="0"/>
-        </xdr:nvPicPr>
-        <xdr:blipFill>
-          <a:blip cstate="print" r:embed="${imageRelId}"/>
-          <a:stretch>
-            <a:fillRect/>
-          </a:stretch>
-        </xdr:blipFill>
-        <xdr:spPr>
-          <a:prstGeom prst="rect">
-            <a:avLst/>
-          </a:prstGeom>
-          <a:noFill/>
-        </xdr:spPr>
-      </xdr:pic>
-      <xdr:clientData fLocksWithSheet="0"/>
-    </xdr:twoCellAnchor>
-  `;
+  return {
+    pic: {
+      nvPicPr: {
+        cNvPr: {
+          id: convertImageId(figure.id),
+          name: `Image ${imageId}`,
+          title: "Image",
+        },
+      },
+      spPr: {
+        noFill: {},
+        prstGeom: {
+          prst: "rect",
+          avLst: {},
+        },
+      },
+      blipFill: {
+        blip: {
+          cstate: "print",
+          embed: imageRelId,
+        },
+        stretch: {
+          fillRect: {},
+        },
+      },
+    },
+  };
+  // position
+  // const { from, to } = convertFigureData(figure, sheet);
+  // const imageId = convertImageId(figure.id);
+  // const cNvPrAttrs: XMLAttributes = [
+  //   ["id", imageId],
+  //   ["name", `Image ${imageId}`],
+  //   ["title", "Image"],
+  // ];
+  // return escapeXml/*xml*/ `
+  //   <xdr:twoCellAnchor editAs="oneCell">
+  //     <xdr:from>
+  //       <xdr:col>${from.col}</xdr:col>
+  //       <xdr:colOff>${from.colOff}</xdr:colOff>
+  //       <xdr:row>${from.row}</xdr:row>
+  //       <xdr:rowOff>${from.rowOff}</xdr:rowOff>
+  //     </xdr:from>
+  //     <xdr:to>
+  //       <xdr:col>${to.col}</xdr:col>
+  //       <xdr:colOff>${to.colOff}</xdr:colOff>
+  //       <xdr:row>${to.row}</xdr:row>
+  //       <xdr:rowOff>${to.rowOff}</xdr:rowOff>
+  //     </xdr:to>
+  //     <xdr:pic>
+  //       <xdr:nvPicPr>
+  //         <xdr:cNvPr ${formatAttributes(cNvPrAttrs)}/>
+  //         <xdr:cNvPicPr preferRelativeResize="0"/>
+  //       </xdr:nvPicPr>
+  //       <xdr:blipFill>
+  //         <a:blip cstate="print" r:embed="${imageRelId}"/>
+  //         <a:stretch>
+  //           <a:fillRect/>
+  //         </a:stretch>
+  //       </xdr:blipFill>
+  //       <xdr:spPr>
+  //         <a:prstGeom prst="rect">
+  //           <a:avLst/>
+  //         </a:prstGeom>
+  //         <a:noFill/>
+  //       </xdr:spPr>
+  //     </xdr:pic>
+  //     <xdr:clientData fLocksWithSheet="0"/>
+  //   </xdr:twoCellAnchor>
+  // `;
 }
