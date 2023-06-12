@@ -240,6 +240,8 @@ function removeTrailingZeroes(numberString: string): string | undefined {
   return numberString.slice(0, i + 1) || undefined;
 }
 
+const leadingZeroesRegexp = /^0+/;
+
 /**
  * Limit the size of the decimal part of a number to the given number of digits.
  */
@@ -258,17 +260,23 @@ function limitDecimalDigits(
   let slicedDecimalDigits = decimalDigits.slice(0, maxDecimals);
   const i = maxDecimals;
 
-  if (Number(Number(decimalDigits[i]) < 5)) {
+  if (Number(decimalDigits[i]) < 5) {
     return { integerDigits, decimalDigits: slicedDecimalDigits };
   }
 
   // round up
+  const leadingZeroes = slicedDecimalDigits.match(leadingZeroesRegexp)?.[0] || "";
   const slicedRoundedUp = (Number(slicedDecimalDigits) + 1).toString();
-  if (slicedRoundedUp.length > slicedDecimalDigits.length) {
-    integerDigits = (Number(integerDigits) + 1).toString();
+  const withoutLeadingZeroes = slicedDecimalDigits.slice(leadingZeroes.length);
+  // e.g. carry over from 99 to 100
+  const carryOver = slicedRoundedUp.length > withoutLeadingZeroes.length;
+  if (carryOver && !leadingZeroes) {
+    integerDigits = "1";
     resultDecimalDigits = undefined;
+  } else if (carryOver) {
+    resultDecimalDigits = leadingZeroes.slice(0, -1) + slicedRoundedUp;
   } else {
-    resultDecimalDigits = slicedRoundedUp;
+    resultDecimalDigits = leadingZeroes + slicedRoundedUp;
   }
 
   return { integerDigits, decimalDigits: resultDecimalDigits };
