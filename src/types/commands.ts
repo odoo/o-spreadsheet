@@ -541,6 +541,7 @@ export interface PasteFromOSClipboardCommand {
   type: "PASTE_FROM_OS_CLIPBOARD";
   target: Zone[];
   text: string;
+  pasteOption?: ClipboardPasteOptions;
 }
 
 export interface AutoresizeColumnsCommand {

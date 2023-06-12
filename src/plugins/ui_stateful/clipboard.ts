@@ -65,7 +65,7 @@ export class ClipboardPlugin extends UIPlugin {
         return this.state.isPasteAllowed(cmd.target, { pasteOption });
       case "PASTE_FROM_OS_CLIPBOARD": {
         const state = new ClipboardOsState(cmd.text, this.getters, this.dispatch, this.selection);
-        return state.isPasteAllowed(cmd.target);
+        return state.isPasteAllowed(cmd.target, { pasteOption: cmd.pasteOption });
       }
       case "INSERT_CELL": {
         const { cut, paste } = this.getInsertCellsTargets(cmd.zone, cmd.shiftDimension);
@@ -156,7 +156,7 @@ export class ClipboardPlugin extends UIPlugin {
       }
       case "PASTE_FROM_OS_CLIPBOARD":
         this.state = new ClipboardOsState(cmd.text, this.getters, this.dispatch, this.selection);
-        this.state.paste(cmd.target);
+        this.state.paste(cmd.target, { pasteOption: cmd.pasteOption });
         this.lastPasteState = this.state;
         this.status = "invisible";
         break;

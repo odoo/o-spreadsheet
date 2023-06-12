@@ -17,6 +17,7 @@ import {
   setAnchorCorner,
   setCellContent,
   setSelection,
+  setStyle,
 } from "./test_helpers/commands_helpers";
 import { getCell, getCellContent, getEvaluatedCell } from "./test_helpers/getters_helpers";
 import {
@@ -156,6 +157,34 @@ describe("Menu Item actions", () => {
     expect(getCellContent(model, "C3")).toEqual("a1");
   });
 
+  test("Paste only-format from OS clipboard should paste nothing", async () => {
+    await env.clipboard.writeText("Copy in OS clipboard");
+    selectCell(model, "A1");
+    await doAction(["edit", "paste_special", "paste_special_format"], env);
+    expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
+      text: "Copy in OS clipboard",
+      target: target("A1"),
+      pasteOption: "onlyFormat",
+    });
+    expect(getCellContent(model, "A1")).toEqual("");
+  });
+
+  test("Internal copy followed by OS copy should not bring paste format from internal copy", async () => {
+    setCellContent(model, "C1", "c1");
+    setStyle(model, "C1", { fillColor: "#FA0000" });
+    selectCell(model, "C1");
+    doAction(["edit", "copy"], env); // first copy from grid
+    await env.clipboard.writeText("Then copy in OS clipboard");
+    selectCell(model, "A1");
+    await doAction(["edit", "paste_special", "paste_special_format"], env);
+    expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
+      text: "Then copy in OS clipboard",
+      target: target("A1"),
+      pasteOption: "onlyFormat",
+    });
+    expect(getCellContent(model, "A1")).toEqual("");
+  });
+
   test("Edit -> paste_special should be hidden after a CUT ", () => {
     model.dispatch("CUT", { cutTarget: env.model.getters.getSelectedZones() });
     expect(getNode(["edit", "paste_special"]).isVisible(env)).toBeFalsy();
@@ -182,13 +211,26 @@ describe("Menu Item actions", () => {
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       target: target("A1"),
       text,
+      pasteOption: "onlyValue",
     });
   });
 
-  test("Edit -> paste_special -> paste_special_format", () => {
-    doAction(["edit", "paste_special", "paste_special_format"], env);
+  test("Edit -> paste_special -> paste_special_format", async () => {
+    doAction(["edit", "copy"], env);
+    await doAction(["edit", "paste_special", "paste_special_format"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE", {
       target: env.model.getters.getSelectedZones(),
+      pasteOption: "onlyFormat",
+    });
+  });
+
+  test("Edit -> paste_special -> paste_special_format from OS clipboard", async () => {
+    const text = "in OS clipboard";
+    await env.clipboard.writeText(text);
+    await doAction(["edit", "paste_special", "paste_special_format"], env);
+    expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
+      target: target("A1"),
+      text,
       pasteOption: "onlyFormat",
     });
   });
