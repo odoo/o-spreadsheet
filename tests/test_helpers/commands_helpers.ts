@@ -270,8 +270,17 @@ export function paste(
 /**
  * Paste from OS clipboard on a zone
  */
-export function pasteFromOSClipboard(model: Model, range: string, content: string): DispatchResult {
-  return model.dispatch("PASTE_FROM_OS_CLIPBOARD", { text: content, target: target(range) });
+export function pasteFromOSClipboard(
+  model: Model,
+  range: string,
+  content: string,
+  pasteOption?: ClipboardPasteOptions
+): DispatchResult {
+  return model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
+    text: content,
+    target: target(range),
+    pasteOption,
+  });
 }
 
 /**

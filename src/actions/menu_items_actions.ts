@@ -87,7 +87,7 @@ async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptio
     case "ok":
       const target = env.model.getters.getSelectedZones();
       if (osClipboard && osClipboard.content !== spreadsheetClipboard) {
-        interactivePasteFromOS(env, target, osClipboard.content);
+        interactivePasteFromOS(env, target, osClipboard.content, pasteOption);
       } else {
         interactivePaste(env, target, pasteOption);
       }
@@ -112,8 +112,7 @@ async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptio
   }
 }
 
-export const PASTE_FORMAT_ACTION = (env: SpreadsheetChildEnv) =>
-  interactivePaste(env, env.model.getters.getSelectedZones(), "onlyFormat");
+export const PASTE_FORMAT_ACTION = (env: SpreadsheetChildEnv) => paste(env, "onlyFormat");
 
 export const DELETE_CONTENT_ACTION = (env: SpreadsheetChildEnv) =>
   env.model.dispatch("DELETE_CONTENT", {

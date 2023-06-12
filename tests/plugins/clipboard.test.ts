@@ -5,6 +5,7 @@ import { Model } from "../../src/model";
 import { ClipboardMIMEType, CommandResult } from "../../src/types/index";
 import { XMLString } from "../../src/types/xlsx";
 import { parseXML, xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
+import { MockClipboardData } from "../test_helpers/clipboard";
 import {
   activateSheet,
   addCellToSelection,
@@ -190,6 +191,18 @@ describe("clipboard", () => {
 
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
     expect(getCell(model, "C2")!.style).toEqual({ bold: true });
+  });
+
+  test("copying external content & paste-format on a cell will not paste content", () => {
+    const model = new Model();
+    const clipboardData = new MockClipboardData();
+    clipboardData.setData(ClipboardMIMEType.PlainText, "Excalibur");
+
+    const content = clipboardData.getData(ClipboardMIMEType.PlainText);
+    pasteFromOSClipboard(model, "C2", content);
+    expect(getCellContent(model, "C2")).toBe(content);
+    pasteFromOSClipboard(model, "C3", content, "onlyFormat");
+    expect(getCellContent(model, "C3")).toBe("");
   });
 
   test("cannot paste multiple times after cut", () => {

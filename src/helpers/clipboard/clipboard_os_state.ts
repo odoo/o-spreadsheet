@@ -36,7 +36,10 @@ export class ClipboardOsState extends ClipboardCellsAbstractState {
     return CommandResult.Success;
   }
 
-  paste(target: Zone[]) {
+  paste(target: Zone[], clipboardOption?: ClipboardOptions) {
+    if (clipboardOption?.pasteOption === "onlyFormat") {
+      return;
+    }
     const values = this.values;
     const pasteZone = this.getPasteZone(target);
     const { left: activeCol, top: activeRow } = pasteZone;

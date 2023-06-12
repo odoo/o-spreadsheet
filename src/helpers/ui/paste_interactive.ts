@@ -34,7 +34,12 @@ export function interactivePaste(
   handlePasteResult(env, result);
 }
 
-export function interactivePasteFromOS(env: SpreadsheetChildEnv, target: Zone[], text: string) {
-  const result = env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", { target, text });
+export function interactivePasteFromOS(
+  env: SpreadsheetChildEnv,
+  target: Zone[],
+  text: string,
+  pasteOption?: ClipboardPasteOptions
+) {
+  const result = env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", { target, text, pasteOption });
   handlePasteResult(env, result);
 }
