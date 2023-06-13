@@ -10,6 +10,7 @@ import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { topbarMenuRegistry } from "../../src/registries";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
+import { _t } from "../../src/translation";
 import {
   ChartDefinition,
   ColorScaleMidPointThreshold,
@@ -146,7 +147,7 @@ export async function mountComponent<Props extends { [key: string]: any }>(
   model.drawGrid = () => {};
   const env = makeTestEnv({ ...optionalArgs.env, model: model });
   const props = optionalArgs.props || ({} as Props);
-  const app = new App(component, { props, env, test: true });
+  const app = new App(component, { props, env, test: true, translateFn: _t });
   app.addTemplates(OWL_TEMPLATES);
   const fixture = optionalArgs?.fixture || makeTestFixture();
   const parent = await app.mount(fixture);
