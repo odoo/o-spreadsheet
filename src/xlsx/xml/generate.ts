@@ -1,4 +1,5 @@
 import { XMLString } from "../../types/xlsx";
+import { InnerContent } from "./extract";
 import { ElementSchema } from "./types";
 
 export function generate(schema: ElementSchema, data: object): XMLString {
@@ -24,6 +25,9 @@ function generateElement(schema: ElementSchema, data: object): Element {
   if (typeof data[schema.name] !== "object") {
     element.textContent = data[schema.name];
     return element;
+  }
+  if (InnerContent in data[schema.name]) {
+    element.textContent = data[schema.name][InnerContent];
   }
   const properties = new Set(Object.keys(data[schema.name]));
   for (const attribute of schema.attributes || []) {
