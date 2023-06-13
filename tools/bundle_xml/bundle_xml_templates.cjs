@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const prettier = require("prettier");
 
-const config = require("../../package.json");
+const config = JSON.parse(fs.readFileSync(path.join("__dirname", "../package.json")));
 
 /**
  * Returns a bundle of all the xml templates, as a parsed xml Document
@@ -96,5 +96,6 @@ function writeToFile(filepath, data) {
   });
 }
 
+exports.getOwlTemplatesBundle = getOwlTemplatesBundle;
 exports.getParsedOwlTemplateBundle = getParsedOwlTemplateBundle;
 exports.writeOwlTemplateBundleToFile = writeOwlTemplateBundleToFile;

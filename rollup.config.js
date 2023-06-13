@@ -3,8 +3,9 @@ import terser from "@rollup/plugin-terser";
 import dts from "rollup-plugin-dts";
 import typescript from "rollup-plugin-typescript2";
 import { bundle } from "./tools/bundle.cjs";
+import { getOwlTemplatesBundle } from "./tools/bundle_xml/bundle_xml_templates.cjs";
 
-const outro = bundle.outro();
+const outro = bundle.outro() +  "\n" + includeXMLTemplates();
 
 /**
  * Get the rollup config based on the arguments
@@ -77,3 +78,13 @@ export default (commandLineArgs) => {
 
   return config;
 };
+
+// an iife to include the xml templates in the bundle as a string
+
+function includeXMLTemplates() {
+  const xmlString = getOwlTemplatesBundle(true);
+  return  `
+(function () {
+  const xmlString = \`${xmlString}\`;
+})()`;
+}
