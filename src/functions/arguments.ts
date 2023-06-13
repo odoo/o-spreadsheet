@@ -21,10 +21,10 @@ const ARG_TYPES: ArgType[] = [
 ];
 
 export function arg(definition: string, description: string = ""): ArgDefinition {
-  return makeArg(`${definition} ${description}`);
+  return makeArg(definition, description);
 }
 
-function makeArg(str: string): ArgDefinition {
+function makeArg(str: string, description: string): ArgDefinition {
   let parts = str.match(ARG_REGEXP)!;
   let name = parts[1].trim();
   let types: ArgType[] = [];
@@ -50,7 +50,6 @@ function makeArg(str: string): ArgDefinition {
       defaultValue = param.trim().slice(8);
     }
   }
-  let description = parts[3].trim();
   const result: ArgDefinition = {
     name,
     description,
