@@ -1,11 +1,16 @@
 import { FIGURE_BORDER_WIDTH } from "../../constants";
 import { HeaderData, SheetData } from "../../types";
 import { ExcelChartDefinition } from "../../types/chart/chart";
-import { XMLAttributes } from "../../types/xlsx";
-import { DRAWING_NS_A, DRAWING_NS_C, NAMESPACE, RELATIONSHIP_NSR } from "../constants";
+import { DRAWING_NS_C } from "../constants";
 import { convertChartId, convertDotValueToEMU, convertImageId } from "../helpers/content_helpers";
-import { escapeXml, formatAttributes, joinXmlNodes, parseXML } from "../helpers/xml_helpers";
-import { ChartXMLData, DrawingXMLData, ImageXMLData } from "../schema/figures_schema";
+import { parseXML } from "../helpers/xml_helpers";
+import {
+  ChartXMLData,
+  DrawingXMLData,
+  FIGURE_SCHEMA,
+  ImageXMLData,
+} from "../schema/figures_schema";
+import { generate } from "../xml";
 import { Image } from "./../../types/image";
 import { FigureData } from "./../../types/workbook_data";
 
@@ -29,12 +34,12 @@ export function createDrawing(
   sheet: SheetData,
   figures: FigureData<ExcelChartDefinition | Image>[]
 ): XMLDocument {
-  const namespaces: XMLAttributes = [
-    ["xmlns:xdr", NAMESPACE.drawing],
-    ["xmlns:r", RELATIONSHIP_NSR],
-    ["xmlns:a", DRAWING_NS_A],
-    ["xmlns:c", DRAWING_NS_C],
-  ];
+  // const namespaces: XMLAttributes = [
+  //   ["xmlns:xdr", NAMESPACE.drawing],
+  //   ["xmlns:r", RELATIONSHIP_NSR],
+  //   ["xmlns:a", DRAWING_NS_A],
+  //   ["xmlns:c", DRAWING_NS_C],
+  // ];
   const figuresNodes: DrawingXMLData["wsDr"]["twoCellAnchor"] = [];
   for (const [figureIndex, figure] of Object.entries(figures)) {
     const { from, to } = convertFigureData(figure, sheet);
@@ -66,12 +71,13 @@ export function createDrawing(
       twoCellAnchor: figuresNodes,
     },
   };
-  const xml = escapeXml/*xml*/ `
-    <xdr:wsDr ${formatAttributes(namespaces)}>
-      ${joinXmlNodes(figuresNodes)}
-    </xdr:wsDr>
-  `;
-  return parseXML(xml);
+  return parseXML(generate(FIGURE_SCHEMA, drawingData));
+  // const xml = escapeXml/*xml*/ `
+  //   <xdr:wsDr ${formatAttributes(namespaces)}>
+  //     ${joinXmlNodes(figuresNodes)}
+  //   </xdr:wsDr>
+  // `;
+  // return parseXML(xml);
 }
 
 /**
@@ -208,6 +214,9 @@ function createImageDrawing(
   return {
     pic: {
       nvPicPr: {
+        cNvPicPr: {
+          preferRelativeResize: false,
+        },
         cNvPr: {
           id: convertImageId(figure.id),
           name: `Image ${imageId}`,

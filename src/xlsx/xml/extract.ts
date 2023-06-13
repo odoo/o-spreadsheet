@@ -1,6 +1,6 @@
 import { XMLString } from "../../types/xlsx";
 import { parseXML } from "../helpers/xml_helpers";
-import { FIGURE_SCHEMA } from "../schema/figures_schema";
+// import { FIGURE_SCHEMA } from "../schema/figures_schema";
 import { ElementSchema as XMLSchema, SequenceElementSchema, XMLType } from "./types";
 
 export const InnerContent = Symbol("InnerContent");
@@ -30,8 +30,7 @@ type InnerContentC<S extends XMLSchema> = HasKey<S, "type"> extends true
 
 type AttrsData<S extends XMLSchema> = MapType<MapName<Attrs<S>>>;
 
-type ChildrenData<S extends XMLSchema> = RequiredChildrenData<S>
-&
+type ChildrenData<S extends XMLSchema> = RequiredChildrenData<S> &
   OptionalChildrenData<S> &
   SequenceChildrenData<S>;
 
@@ -50,8 +49,7 @@ type OptionalChildrenMap<S extends XMLSchema> = MapName<OptionalChildren<Childre
 type SequenceChildrenMap<S extends XMLSchema> = MapName<SequenceChildren<Children<S>>>;
 type RequiredChildrenMap<S extends XMLSchema> = MapName<RequiredChildren<Children<S>>>;
 
-
-type FF = SequenceChildrenMap<typeof FIGURE_SCHEMA.children[0]>
+// type FF = SequenceChildrenMap<typeof FIGURE_SCHEMA.children[0]>
 // type ChildrenMap<S extends XMLSchema> = Partial<MapName<OptionalChildren<Children<S>>>> &
 //   MapName<SequenceChildren<Children<S>>> &
 //   MapName<RequiredChildren<Children<S>>>;
@@ -129,40 +127,40 @@ type And<T extends boolean, U extends boolean> = T extends true ? U : false;
 //   ? A[number]["name"]
 //   : never;
 
-type MySchema = {
-  name: "person";
-  attributes: [{ name: "age"; type: "number" }, { name: "married"; type: "boolean" }];
-  children: [
-    { name: "address"; type: "boolean"; quantifier: "optional" },
-    {
-      name: "friend";
-      // quantifier: "many";
-      // type: "number";
-      attributes: [{ name: "qsdf", type : "boolean" }];
-      children: [{ name: "girlfriend"; type: "boolean" }];
-    },
-    {
-      name: "hobby";
-      // quantifier: "many";
-      // type: "number";
-      attributes: [{ name: "team", type : "boolean" }];
-      children: [{ name: "dangerous"; type: "boolean" }];
-    }
-  ];
-};
-type A = ExtractedSchema<MySchema>;
+// type MySchema = {
+//   name: "person";
+//   attributes: [{ name: "age"; type: "number" }, { name: "married"; type: "boolean" }];
+//   children: [
+//     { name: "address"; type: "boolean"; quantifier: "optional" },
+//     {
+//       name: "friend";
+//       // quantifier: "many";
+//       // type: "number";
+//       attributes: [{ name: "qsdf", type : "boolean" }];
+//       children: [{ name: "girlfriend"; type: "boolean" }];
+//     },
+//     {
+//       name: "hobby";
+//       // quantifier: "many";
+//       // type: "number";
+//       attributes: [{ name: "team", type : "boolean" }];
+//       children: [{ name: "dangerous"; type: "boolean" }];
+//     }
+//   ];
+// };
+// type A = ExtractedSchema<MySchema>;
 
-type C = RequiredChildrenMap<MySchema>;
-const c = {} as C;
-// c.friend.map((f) => f.girlfriend);
-const ad = c.;
+// type C = RequiredChildrenMap<MySchema>;
+// const c = {} as C;
+// // c.friend.map((f) => f.girlfriend);
+// const ad = c.;
 
-const a: A = {};
-a.person.friend.girlfriend
-a.person.age;
-// const ah = a.person.hobby.;
-const asqdfqsdh = a.person.friend?.map((f) => f.);
-const bh = a.person.friend?.map((f) => f.team);
+// const a: A = {};
+// a.person.friend.girlfriend
+// a.person.age;
+// // const ah = a.person.hobby.;
+// const asqdfqsdh = a.person.friend?.map((f) => f.);
+// const bh = a.person.friend?.map((f) => f.team);
 
 export function extract<S extends XMLSchema>(schema: S, xml: string | Element): ExtractedSchema<S> {
   if (xml instanceof Element) {

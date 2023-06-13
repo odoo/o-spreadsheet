@@ -1,8 +1,9 @@
+import { XMLString } from "../../types/xlsx";
 import { ElementSchema } from "./types";
 
-export function generate(schema: ElementSchema, data: object) {
+export function generate(schema: ElementSchema, data: object): XMLString {
   const s = new XMLSerializer();
-  return s.serializeToString(generateElement(schema, data));
+  return new XMLString(s.serializeToString(generateElement(schema, data)));
 }
 
 function createBaseElement(schema: ElementSchema) {
@@ -43,7 +44,6 @@ function generateElement(schema: ElementSchema, data: object): Element {
     // element.setAttribute(attribute.name, data[schema.name][attribute.name]);
   }
   if (properties.size === 1 && properties) {
-    debugger;
     if (schema.children?.length === 1) {
       element.appendChild(generateElement(schema.children[0], data[schema.name]));
     } else {
