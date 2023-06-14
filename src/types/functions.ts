@@ -27,7 +27,7 @@ export interface ArgDefinition<T extends string> {
 export type ComputeFunctionArg<T> = T | (() => T) | undefined;
 export type ComputeFunction<T, R> = (this: EvalContext, ...args: ComputeFunctionArg<T>[]) => R;
 
-export interface AddFunctionDescription<Args extends ArgDefinition<any>[]> {
+export interface AddFunctionDescription<Args extends ArgDefinition<any>[] = any[]> {
   description: string;
   compute: ComputeFunction<ArgValue, FunctionReturnValue>;
   computeFormat?: ComputeFunction<Arg, FunctionReturnFormat>;

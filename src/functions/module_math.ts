@@ -28,7 +28,7 @@ const DECIMAL_REPRESENTATION = /^-?[a-z0-9]+$/i;
 // -----------------------------------------------------------------------------
 // ABS
 // -----------------------------------------------------------------------------
-export const ABS: AddFunctionDescription = {
+export const ABS = {
   description: _lt("Absolute value of a number."),
   args: [arg("value (number)", _lt("The number of which to return the absolute value."))],
   returns: ["NUMBER"],
@@ -36,7 +36,7 @@ export const ABS: AddFunctionDescription = {
     return Math.abs(toNumber(value));
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ACOS
