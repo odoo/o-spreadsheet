@@ -1,4 +1,4 @@
-import { Arg, ArgValue, FunctionReturnFormat, FunctionReturnValue } from "./misc";
+import { Arg, ArgValue, FunctionReturnFormat, FunctionReturnValue, Matrix } from "./misc";
 
 export type ArgType =
   | "ANY"
@@ -13,13 +13,13 @@ export type ArgType =
   | "RANGE<STRING>"
   | "META";
 
-export interface ArgDefinition {
+export interface ArgDefinition<T extends string> {
   repeating?: boolean;
   optional?: boolean;
   lazy?: boolean;
   description: string;
   name: string;
-  type: ArgType[];
+  type: InferArgType<T>[];
   default?: boolean;
   defaultValue?: any;
 }
@@ -27,12 +27,12 @@ export interface ArgDefinition {
 export type ComputeFunctionArg<T> = T | (() => T) | undefined;
 export type ComputeFunction<T, R> = (this: EvalContext, ...args: ComputeFunctionArg<T>[]) => R;
 
-export interface AddFunctionDescription {
+export interface AddFunctionDescription<Args extends ArgDefinition<any>[]> {
   description: string;
   compute: ComputeFunction<ArgValue, FunctionReturnValue>;
   computeFormat?: ComputeFunction<Arg, FunctionReturnFormat>;
   category?: string;
-  args: ArgDefinition[];
+  args: Args;
   returns: [ArgType];
   isExported?: boolean;
   hidden?: boolean;
@@ -50,3 +50,31 @@ export type EvalContext = {
   __originCellXC?: () => string;
   [key: string]: any;
 };
+
+type InferArgType<A extends string> = A extends `${infer N}(${infer T})`
+  ? Trim<CsvToUnion<Uppercase<T>>>
+  : never;
+type CsvToUnion<A extends string> = A extends `${infer N},${infer T}` ? N | CsvToUnion<T> : A;
+type Trim<A extends string> = A extends ` ${infer N}`
+  ? Trim<N>
+  : A extends `${infer N} `
+  ? Trim<N>
+  : A;
+
+type ToTypescriptType<A extends string> = A extends ArgType ? TypeMapping[A] : never;
+
+type TypeMapping = {
+  ANY: any;
+  BOOLEAN: boolean;
+  NUMBER: number;
+  STRING: string;
+  DATE: Date;
+  RANGE: any[];
+  "RANGE<BOOLEAN>": Matrix<boolean>;
+  "RANGE<NUMBER>": Matrix<number>;
+  "RANGE<STRING>": Matrix<string>;
+  "RANGE<DATE>": Matrix<Date>;
+  META: any;
+};
+
+type TEST = InferArgType<"my_arg (number, range<number>, default=10)">;
