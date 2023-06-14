@@ -154,6 +154,21 @@ describe("sheets", () => {
     );
   });
 
+  test("Rename command won't be dispatched if the name is unchanged (case sensitive)", () => {
+    const model = new Model({ sheets: [{ id: "11", name: "Sheet1" }] });
+    expect(renameSheet(model, "11", "Sheet1")).toBeCancelledBecause(
+      CommandResult.UnchangedSheetName
+    );
+  });
+
+  test("Can change sheet name case", () => {
+    const sheetId = "11";
+    const model = new Model({ sheets: [{ id: sheetId, name: "Sheet1" }] });
+    expect(model.getters.getSheetName(sheetId)).toBe("Sheet1");
+    renameSheet(model, "11", "SHEET1");
+    expect(model.getters.getSheetName(sheetId)).toBe("SHEET1");
+  });
+
   test("Cannot create a sheet with a position > length of sheets", () => {
     const model = new Model();
     expect(model.dispatch("CREATE_SHEET", { sheetId: "42", position: 54 })).toBeCancelledBecause(

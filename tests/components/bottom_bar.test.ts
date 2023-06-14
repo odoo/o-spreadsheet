@@ -321,6 +321,17 @@ describe("BottomBar component", () => {
       expect(window.getSelection()?.toString()).toEqual("ThisIsASheet");
       expect(document.activeElement).toEqual(sheetName);
     });
+
+    test("Sheet name is case insensitive", async () => {
+      const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
+      expect(sheetName.textContent).toEqual("Sheet1");
+      triggerMouseEvent(sheetName, "dblclick");
+      await nextTick();
+      sheetName.textContent = "SHEET1";
+      await keyDown({ key: "Enter" });
+      expect(raiseError).not.toHaveBeenCalled();
+      expect(sheetName.textContent).toEqual("SHEET1");
+    });
   });
 
   test("Can duplicate a sheet", async () => {

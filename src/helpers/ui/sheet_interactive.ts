@@ -8,9 +8,6 @@ export function interactiveRenameSheet(
   name: string,
   errorCallback: () => void
 ) {
-  const originalSheetName = env.model.getters.getSheetName(sheetId);
-  if (name === null || name === originalSheetName) return;
-
   const result = env.model.dispatch("RENAME_SHEET", { sheetId, name });
   if (result.reasons.includes(CommandResult.MissingSheetName)) {
     env.raiseError(_lt("The sheet name cannot be empty."), errorCallback);

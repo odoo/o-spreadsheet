@@ -639,10 +639,16 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   private checkSheetName(cmd: RenameSheetCommand | CreateSheetCommand): CommandResult {
+    const originalSheetName = this.getters.tryGetSheetName(cmd.sheetId);
+    if (originalSheetName !== undefined && cmd.name === originalSheetName) {
+      return CommandResult.UnchangedSheetName;
+    }
+
     const { orderedSheetIds, sheets } = this;
     const name = cmd.name && cmd.name.trim().toLowerCase();
-
-    if (orderedSheetIds.find((id) => sheets[id]?.name.toLowerCase() === name)) {
+    if (
+      orderedSheetIds.find((id) => sheets[id]?.name.toLowerCase() === name && id !== cmd.sheetId)
+    ) {
       return CommandResult.DuplicatedSheetName;
     }
     if (FORBIDDEN_IN_EXCEL_REGEX.test(name!)) {
@@ -703,8 +709,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     const oldName = sheet.name;
     this.history.update("sheets", sheet.id, "name", name.trim());
     const sheetIdsMapName = Object.assign({}, this.sheetIdsMapName);
-    sheetIdsMapName[name] = sheet.id;
     delete sheetIdsMapName[oldName];
+    sheetIdsMapName[name] = sheet.id;
     this.history.update("sheetIdsMapName", sheetIdsMapName);
   }
 
