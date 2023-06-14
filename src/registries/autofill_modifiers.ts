@@ -103,8 +103,13 @@ autofillModifiersRegistry
         return { cellData: {} };
       }
       const sheetId = data.sheetId;
-      const ranges = getters.createAdaptedRanges(cell.dependencies, x, y, sheetId);
-      const content = getters.buildFormulaContent(sheetId, cell, ranges);
+      const content = getters.getTranslatedCellFormula(
+        sheetId,
+        x,
+        y,
+        cell.compiledFormula,
+        cell.dependencies
+      );
       return {
         cellData: {
           border: data.border,

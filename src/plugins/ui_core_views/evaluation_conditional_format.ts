@@ -1,4 +1,5 @@
 import { LINK_COLOR } from "../../constants";
+import { compile } from "../../formulas";
 import { parseLiteral } from "../../helpers/cells";
 import { colorNumberString, percentile } from "../../helpers/index";
 import { clip, lazy } from "../../helpers/misc";
@@ -6,6 +7,7 @@ import { _lt } from "../../translation";
 import {
   CellIsRule,
   CellPosition,
+  CellValue,
   CellValueType,
   ColorScaleMidPointThreshold,
   ColorScaleRule,
@@ -111,14 +113,31 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
             }
             break;
           case "CellIsRule":
+            const formulas = cf.rule.values.map((value) =>
+              value.startsWith("=") ? compile(value) : undefined
+            );
             for (let ref of cf.ranges) {
               const zone: Zone = this.getters.getRangeFromSheetXC(sheetId, ref).zone;
               for (let row = zone.top; row <= zone.bottom; row++) {
                 for (let col = zone.left; col <= zone.right; col++) {
-                  const pr: (cell: EvaluatedCell, rule: CellIsRule) => boolean =
-                    this.rulePredicate[cf.rule.type];
-                  let cell = this.getters.getEvaluatedCell({ sheetId, col, row });
-                  if (pr && pr(cell, cf.rule)) {
+                  const predicate = this.rulePredicate[cf.rule.type];
+                  const target = { sheetId, col, row };
+                  const values = cf.rule.values.map((value, i) => {
+                    const compiledFormula = formulas[i];
+                    if (compiledFormula) {
+                      return this.getters.getTranslatedCellFormula(
+                        sheetId,
+                        col - zone.left,
+                        row - zone.top,
+                        compiledFormula,
+                        compiledFormula.dependencies.map((d) =>
+                          this.getters.getRangeFromSheetXC(sheetId, d)
+                        )
+                      );
+                    }
+                    return value;
+                  });
+                  if (predicate && predicate(target, { ...cf.rule, values })) {
                     if (!computedStyle[col]) computedStyle[col] = [];
                     // we must combine all the properties of all the CF rules applied to the given cell
                     computedStyle[col][row] = Object.assign(
@@ -382,14 +401,20 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
    * Execute the predicate to know if a conditional formatting rule should be applied to a cell
    */
   private rulePredicate: {
-    CellIsRule: (cell: EvaluatedCell, rule: CellIsRule) => boolean;
+    CellIsRule: (target: CellPosition, rule: CellIsRule) => boolean;
   } = {
-    CellIsRule: (cell: EvaluatedCell, rule: CellIsRule): boolean => {
+    CellIsRule: (target: CellPosition, rule: CellIsRule): boolean => {
+      const cell: EvaluatedCell = this.getters.getEvaluatedCell(target);
       if (cell.type === CellValueType.error) {
         return false;
       }
       const locale = this.getters.getLocale();
-      const values = rule.values.map((val) => parseLiteral(val, locale));
+      const values: CellValue[] = rule.values.map((value) => {
+        if (value.startsWith("=")) {
+          return this.getters.evaluateFormula(target.sheetId, value);
+        }
+        return parseLiteral(value, locale);
+      });
       switch (rule.operator) {
         case "IsEmpty":
           return cell.value.toString().trim() === "";
