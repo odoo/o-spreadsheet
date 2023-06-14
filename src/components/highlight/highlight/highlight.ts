@@ -35,7 +35,6 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
 
   onResizeHighlight(isLeft: boolean, isTop: boolean) {
     const activeSheetId = this.env.model.getters.getActiveSheetId();
-
     this.highlightState.shiftingMode = "isResizing";
     const z = this.props.zone;
 
@@ -45,9 +44,7 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
     let lastRow = isTop ? z.top : z.bottom;
     let currentZone = z;
 
-    this.env.model.dispatch("START_CHANGE_HIGHLIGHT", {
-      range: this.env.model.getters.getRangeDataFromZone(activeSheetId, currentZone),
-    });
+    this.env.model.dispatch("START_CHANGE_HIGHLIGHT", { zone: currentZone });
 
     const mouseMove = (col: HeaderIndex, row: HeaderIndex) => {
       if (lastCol !== col || lastRow !== row) {
@@ -69,15 +66,14 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
           bottom: Math.max(pivotRow, lastRow),
         };
 
-        newZone = this.env.model.getters.expandZone(activeSheetId, newZone);
-
         if (!isEqual(newZone, currentZone)) {
-          this.env.model.dispatch("CHANGE_HIGHLIGHT", {
-            range: this.env.model.getters.getRangeFromZone(
-              activeSheetId,
-              this.env.model.getters.getUnboundedZone(activeSheetId, newZone)
-            ).rangeData,
-          });
+          this.env.model.selection.selectZone(
+            {
+              cell: { col: newZone.left, row: newZone.top },
+              zone: newZone,
+            },
+            { unbounded: true }
+          );
           currentZone = newZone;
         }
       }
@@ -85,10 +81,6 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
 
     const mouseUp = () => {
       this.highlightState.shiftingMode = "none";
-      // To do:
-      // Command used here to restore focus to the current composer,
-      // to be changed when refactoring the 'edition' plugin
-      this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     };
 
     dragAndDropBeyondTheViewport(this.env, mouseMove, mouseUp);
@@ -111,9 +103,7 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
     const deltaRowMax = this.env.model.getters.getNumberRows(activeSheetId) - z.bottom - 1;
 
     let currentZone = z;
-    this.env.model.dispatch("START_CHANGE_HIGHLIGHT", {
-      range: this.env.model.getters.getRangeDataFromZone(activeSheetId, currentZone),
-    });
+    this.env.model.dispatch("START_CHANGE_HIGHLIGHT", { zone: currentZone });
 
     let lastCol = initCol;
     let lastRow = initRow;
@@ -132,14 +122,14 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
           bottom: z.bottom + deltaRow,
         };
 
-        newZone = this.env.model.getters.expandZone(activeSheetId, newZone);
         if (!isEqual(newZone, currentZone)) {
-          this.env.model.dispatch("CHANGE_HIGHLIGHT", {
-            range: this.env.model.getters.getRangeFromZone(
-              activeSheetId,
-              this.env.model.getters.getUnboundedZone(activeSheetId, newZone)
-            ).rangeData,
-          });
+          this.env.model.selection.selectZone(
+            {
+              cell: { col: newZone.left, row: newZone.top },
+              zone: newZone,
+            },
+            { unbounded: true }
+          );
           currentZone = newZone;
         }
       }
@@ -147,10 +137,6 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
 
     const mouseUp = () => {
       this.highlightState.shiftingMode = "none";
-      // To do:
-      // Command used here to restore focus to the current composer,
-      // to be changed when refactoring the 'edition' plugin
-      this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     };
 
     dragAndDropBeyondTheViewport(this.env, mouseMove, mouseUp);
