@@ -24,13 +24,15 @@ export interface ArgDefinition<T extends string> {
   defaultValue?: any;
 }
 
-export type ComputeFunctionArg<T> = T | (() => T) | undefined;
-export type ComputeFunction<T, R> = (this: EvalContext, ...args: ComputeFunctionArg<T>[]) => R;
+export type ComputeFunctionArg<T> = {
+  [K in keyof T]: T;
+};
+export type ComputeFunction<T extends any[], R> = (this: EvalContext, ...args: T) => R;
 
 export interface AddFunctionDescription<Args extends ArgDefinition<any>[] = any[]> {
   description: string;
-  compute: ComputeFunction<ArgValue, FunctionReturnValue>;
-  computeFormat?: ComputeFunction<Arg, FunctionReturnFormat>;
+  compute: ComputeFunction<ConvertToArrays<Args>, FunctionReturnValue>;
+  computeFormat?: ComputeFunction<Arg[], FunctionReturnFormat>;
   category?: string;
   args: Args;
   returns: [ArgType];
@@ -61,7 +63,7 @@ type Trim<A extends string> = A extends ` ${infer N}`
   ? Trim<N>
   : A;
 
-type ToTypescriptType<A extends string> = A extends ArgType ? TypeMapping[A] : never;
+type ToTypescriptType<A extends string> = A extends ArgType | "OPTIONAL" ? TypeMapping[A] : never;
 
 type TypeMapping = {
   ANY: any;
@@ -75,6 +77,14 @@ type TypeMapping = {
   "RANGE<STRING>": Matrix<string>;
   "RANGE<DATE>": Matrix<Date>;
   META: any;
+  OPTIONAL: undefined
 };
 
-type TEST = InferArgType<"my_arg (number, range<number>, default=10)">;
+type TEST = InferArgType<"my_arg (number, range<number>, default=10, optional)">;
+
+type T = ["NUMBER", "STRING", "OPTIONAL"]
+
+type ConvertToArrays<T extends any[]> = {
+  [K in keyof T]: ToTypescriptType<T[K]>;
+};
+type T2 = ConvertToArrays<T>;

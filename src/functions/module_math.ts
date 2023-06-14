@@ -390,7 +390,7 @@ export const COT: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 // COTH
 // -----------------------------------------------------------------------------
-export const COTH: AddFunctionDescription = {
+export const COTH = {
   description: _lt("Hyperbolic cotangent of any real number."),
   args: [arg("value (number)", _lt("Any real value to calculate the hyperbolic cotangent of."))],
   returns: ["NUMBER"],
@@ -403,7 +403,7 @@ export const COTH: AddFunctionDescription = {
     return 1 / Math.tanh(_value);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // COUNTBLANK
