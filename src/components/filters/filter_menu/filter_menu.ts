@@ -194,11 +194,11 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   selectAll() {
-    this.state.values.forEach((value) => (value.checked = true));
+    this.displayedValues.forEach((value) => (value.checked = true));
   }
 
   clearAll() {
-    this.state.values.forEach((value) => (value.checked = false));
+    this.displayedValues.forEach((value) => (value.checked = false));
   }
 
   get filterTable() {
