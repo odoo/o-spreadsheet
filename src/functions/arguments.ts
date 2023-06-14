@@ -24,7 +24,11 @@ export function arg<D extends string>(definition: D, description: string = ""): 
   return makeArg(definition, description);
 }
 
-export function func<Args extends ArgDefinition<any>[]>(desc: AddFunctionDescription<Args>) {
+export function args<Args extends readonly ArgDefinition[]>(args: Args): Args {
+  return args;
+}
+
+export function defineFunction<Args extends readonly ArgDefinition[]>(desc: AddFunctionDescription<Args>) {
   return desc;
 }
 

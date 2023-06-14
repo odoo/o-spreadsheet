@@ -27,17 +27,17 @@ export interface ArgDefinition<T extends ArgType = any> {
 export type ComputeFunctionArg<T> = {
   [K in keyof T]: T;
 };
-export type ComputeFunction<T extends any[], R> = (this: EvalContext, ...args: T) => R;
+export type ComputeFunction<T extends readonly any[], R> = (this: EvalContext, ...args: T) => R;
 
-export interface AddFunctionDescription<Args extends ArgDefinition[] = any[]> {
-  description: string;
-  compute: ComputeFunction<ConvertToArrays<Args>, FunctionReturnValue>;
-  computeFormat?: ComputeFunction<Arg[], FunctionReturnFormat>;
-  category?: string;
-  args: Args;
-  returns: [ArgType];
-  isExported?: boolean;
-  hidden?: boolean;
+export interface AddFunctionDescription<Args extends readonly ArgDefinition[] = any[]> {
+  readonly description: string;
+  readonly compute: ComputeFunction<ArgTypesToTypescript<Args>, FunctionReturnValue>;
+  readonly computeFormat?: ComputeFunction<Arg[], FunctionReturnFormat>;
+  readonly category?: string;
+  readonly args: Args;
+  readonly returns: Readonly<[ArgType]>;
+  readonly isExported?: boolean;
+  readonly hidden?: boolean;
 }
 
 export interface FunctionDescription extends AddFunctionDescription {
@@ -85,11 +85,11 @@ type TypeMapping = {
   OPTIONAL: undefined
 };
 
-type TEST = InferArgType<"my_arg (number, range<number>, default=10, optional)">;
+// type TEST = InferArgType<"my_arg (number, range<number>, default=10, optional)">;
 
-type T = ["NUMBER", "STRING", "OPTIONAL"]
+// type T = ["NUMBER", "STRING", "OPTIONAL"]
 
-type ConvertToArrays<Args extends ArgDefinition<any>[]> = {
+type ArgTypesToTypescript<Args extends readonly ArgDefinition[]> = {
   [K in keyof Args]: ToTypescriptType<Args[K]["type"]>;
 };
-type T2 = ConvertToArrays<T>;
+// type T2 = ArgTypesToTypescript<T>;

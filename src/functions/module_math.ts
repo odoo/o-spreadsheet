@@ -7,7 +7,7 @@ import {
   PrimitiveArg,
   PrimitiveArgValue,
 } from "../types";
-import { arg, func } from "./arguments";
+import { arg, args, defineFunction } from "./arguments";
 import {
   assert,
   reduceAny,
@@ -372,11 +372,15 @@ export const COSH: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 // COT
 // -----------------------------------------------------------------------------
-export const COT = func({
+const y = args([
+  arg("angle (number)", _lt("The angle to find the cotangent of, in radians.")),
+  arg("angle2 (boolean)", _lt("The angle to find the cotangent of, in radians."))
+] as const) ;
+export const COT = defineFunction({
   description: _lt("Cotangent of an angle provided in radians."),
-  args: [arg("angle (number)", _lt("The angle to find the cotangent of, in radians."))],
+  args: args([arg("angle (number)", _lt("The angle to find the cotangent of, in radians.")), arg("angle2 (boolean)", _lt("The angle to find the cotangent of, in radians."))] as const),
   returns: ["NUMBER"],
-  compute: function (angle): number {
+  compute: function (angle, angle2): number {
     const _angle = toNumber(angle);
     assert(
       () => _angle !== 0,
@@ -385,7 +389,22 @@ export const COT = func({
     return 1 / Math.tan(_angle);
   },
   isExported: true,
-});
+} as const);
+
+const hhh = {
+  description: _lt("Cotangent of an angle provided in radians."),
+  args: [arg("angle (number)", _lt("The angle to find the cotangent of, in radians.")), arg("angle2 (boolean)", _lt("The angle to find the cotangent of, in radians."))] as const,
+  returns: ["NUMBER"],
+  compute: function (angle, angle2): number {
+    const _angle = toNumber(angle);
+    assert(
+      () => _angle !== 0,
+      _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+    );
+    return 1 / Math.tan(_angle);
+  },
+  isExported: true,
+} as const
 
 // -----------------------------------------------------------------------------
 // COTH
