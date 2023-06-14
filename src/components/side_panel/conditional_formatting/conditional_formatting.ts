@@ -643,6 +643,23 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
     this.closeMenus();
   }
 
+  onKeydown(event: KeyboardEvent) {
+    if (event.key === "F4") {
+      const target = event.target as HTMLInputElement;
+      const update = this.env.model.getters.getCycledReference(
+        { start: target.selectionStart ?? 0, end: target.selectionEnd ?? 0 },
+        target.value
+      );
+
+      if (!update) {
+        return;
+      }
+      target.value = update.content;
+      target.setSelectionRange(update.selection.start, update.selection.end);
+      target.dispatchEvent(new Event("input"));
+    }
+  }
+
   setColor(target: string, color: Color) {
     this.state.rules.cellIs.style[target] = color;
     this.closeMenus();

@@ -24,18 +24,20 @@
       <t t-if="rule.operator !== 'IsEmpty' and rule.operator !== 'IsNotEmpty'">
         <input
           type="text"
-          placeholder="Value"
+          placeholder="Value or formula"
           t-model="rule.values[0]"
           t-att-class="{ 'o-invalid': isValue1Invalid }"
           class="o-input o-cell-is-value o-required"
+          t-on-keydown="(ev) => this.onKeydown(ev)"
         />
         <t t-if="rule.operator === 'Between' || rule.operator === 'NotBetween'">
           <input
             type="text"
-            placeholder="and value"
+            placeholder="and value or formula"
             t-model="rule.values[1]"
             t-att-class="{ 'o-invalid': isValue2Invalid }"
             class="o-input o-cell-is-value o-required"
+            t-on-keydown="(ev) => this.onKeydown(ev)"
           />
         </t>
       </t>

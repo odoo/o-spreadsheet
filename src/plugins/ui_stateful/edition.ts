@@ -60,6 +60,7 @@ export class EditionPlugin extends UIPlugin {
     "getTokenAtCursor",
     "getComposerHighlights",
     "getCurrentEditedCell",
+    "getCycledReference",
   ] as const;
 
   private col: HeaderIndex = 0;
@@ -297,37 +298,55 @@ export class EditionPlugin extends UIPlugin {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Misc
-  // ---------------------------------------------------------------------------
+  /**
+   * Return the cycled reference if any (A1 -> $A$1 -> A$1 -> $A1 -> A1)
+   */
+  getCycledReference(selection: { start: number; end: number }, content: string) {
+    const locale = this.getters.getLocale();
+    const currentTokens = content.startsWith("=") ? composerTokenize(content, locale) : [];
 
-  private cycleReferences() {
-    const tokens = this.getTokensInSelection();
+    const tokens = currentTokens.filter(
+      (t) =>
+        (t.start <= selection.start && t.end >= selection.start) ||
+        (t.start >= selection.start && t.start < selection.end)
+    );
+
     const refTokens = tokens.filter((token) => token.type === "REFERENCE");
-    if (refTokens.length === 0) return;
+    if (refTokens.length === 0) {
+      return;
+    }
 
     const updatedReferences = tokens
       .map(loopThroughReferenceType)
       .map((token) => token.value)
       .join("");
 
-    const content = this.currentContent;
     const start = tokens[0].start;
     const end = tokens[tokens.length - 1].end;
     const newContent = content.slice(0, start) + updatedReferences + content.slice(end);
     const lengthDiff = newContent.length - content.length;
-
     const startOfTokens = refTokens[0].start;
     const endOfTokens = refTokens[refTokens.length - 1].end + lengthDiff;
-    const selection = { start: startOfTokens, end: endOfTokens };
-    // Put the selection at the end of the token if we cycled on a single token
-    if (refTokens.length === 1 && this.selectionStart === this.selectionEnd) {
-      selection.start = selection.end;
+    const newSelection = { start: startOfTokens, end: endOfTokens };
+    if (refTokens.length === 1 && selection.start === selection.end) {
+      newSelection.start = newSelection.end;
+    }
+    return { content: newContent, selection: newSelection };
+  }
+
+  // ---------------------------------------------------------------------------
+  // Misc
+  // ---------------------------------------------------------------------------
+
+  private cycleReferences() {
+    const updated = this.getCycledReference(this.getComposerSelection(), this.currentContent);
+    if (updated === undefined) {
+      return;
     }
 
     this.dispatch("SET_CURRENT_CONTENT", {
-      content: newContent,
-      selection,
+      content: updated.content,
+      selection: updated.selection,
     });
   }
 
@@ -745,17 +764,5 @@ export class EditionPlugin extends UIPlugin {
       return true;
     }
     return false;
-  }
-
-  /**
-   * Return all the tokens between selectionStart and selectionEnd.
-   * Includes token that begin right on selectionStart or end right on selectionEnd.
-   */
-  private getTokensInSelection(): EnrichedToken[] {
-    const start = Math.min(this.selectionStart, this.selectionEnd);
-    const end = Math.max(this.selectionStart, this.selectionEnd);
-    return this.currentTokens.filter(
-      (t) => (t.start <= start && t.end >= start) || (t.start >= start && t.start < end)
-    );
   }
 }

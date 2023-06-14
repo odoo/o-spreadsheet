@@ -12,7 +12,7 @@ import {
   setSelection,
   updateLocale,
 } from "../test_helpers/commands_helpers";
-import { click, setInputValueAndTrigger } from "../test_helpers/dom_helper";
+import { click, keyDown, setInputValueAndTrigger } from "../test_helpers/dom_helper";
 import {
   createColorScale,
   createEqualCF,
@@ -223,6 +223,24 @@ describe("UI of conditional formats", () => {
         ranges: toRangesData(sheetId, "A1:A3"),
         sheetId,
       });
+    });
+
+    test("Can cycle on reference (with F4) in a CellIsRule editor input", async () => {
+      await click(fixture.querySelectorAll(selectors.listPreview)[0]);
+      setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "BeginsWith", "change");
+
+      const input = fixture.querySelector(
+        selectors.ruleEditor.editor.valueInput
+      )! as HTMLInputElement;
+      setInputValueAndTrigger(input, "=A2", "input");
+      input.focus();
+      await nextTick();
+      await keyDown({ key: "F4" });
+      expect(input.value).toBe("=$A$2");
+      await keyDown({ key: "F4" });
+      expect(input.value).toBe("=A$2");
+      await keyDown({ key: "F4" });
+      expect(input.value).toBe("=$A2");
     });
 
     test("CellIsRule editor displays the right preview", async () => {

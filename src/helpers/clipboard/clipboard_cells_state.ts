@@ -8,7 +8,6 @@ import {
   CommandResult,
   ConditionalFormat,
   Dimension,
-  FormulaCell,
   Getters,
   GridRenderingContext,
   HeaderIndex,
@@ -386,9 +385,13 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
       let content = origin.cell.content;
 
       if (origin.cell.isFormula && operation === "COPY") {
-        const offsetX = col - origin.position.col;
-        const offsetY = row - origin.position.row;
-        content = this.getUpdatedContent(sheetId, origin.cell, offsetX, offsetY, operation);
+        content = this.getters.getTranslatedCellFormula(
+          sheetId,
+          col - origin.position.col,
+          row - origin.position.row,
+          origin.cell.compiledFormula,
+          origin.cell.dependencies
+        );
       }
       this.dispatch("UPDATE_CELL", {
         ...target,
@@ -405,20 +408,6 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
         this.dispatch("CLEAR_CELL", target);
       }
     }
-  }
-
-  /**
-   * Get the newly updated formula, after applying offsets
-   */
-  private getUpdatedContent(
-    sheetId: UID,
-    cell: Pick<FormulaCell, "compiledFormula" | "dependencies">,
-    offsetX: number,
-    offsetY: number,
-    operation: ClipboardOperation
-  ): string {
-    const ranges = this.getters.createAdaptedRanges(cell.dependencies, offsetX, offsetY, sheetId);
-    return this.getters.buildFormulaContent(sheetId, cell, ranges);
   }
 
   /**

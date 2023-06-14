@@ -935,6 +935,156 @@ describe("conditional formats types", () => {
       });
     });
 
+    test("Operator GreaterThan with simple reference", () => {
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: "GreaterThan",
+            values: ["=A2"],
+            style: { fillColor: "#ff0f0f" },
+          },
+          id: "11",
+        },
+        ranges: toRangesData(sheetId, "A1:B2"),
+        sheetId,
+      });
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "B1", "2");
+      setCellContent(model, "A2", "0");
+      setCellContent(model, "B2", "4");
+      expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
+      expect(getStyle(model, "B1")).toEqual({});
+      expect(getStyle(model, "A2")).toEqual({});
+      expect(getStyle(model, "B2")).toEqual({ fillColor: "#ff0f0f" });
+    });
+
+    test("Operator GreaterThan with full-fixed simple reference", () => {
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: "GreaterThan",
+            values: ["=$A$2"],
+            style: { fillColor: "#ff0f0f" },
+          },
+          id: "11",
+        },
+        ranges: toRangesData(sheetId, "A1:B2"),
+        sheetId,
+      });
+      setCellContent(model, "A1", "3");
+      setCellContent(model, "B1", "1");
+      setCellContent(model, "A2", "2");
+      setCellContent(model, "B2", "4");
+      expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
+      expect(getStyle(model, "B1")).toEqual({});
+      expect(getStyle(model, "A2")).toEqual({});
+      expect(getStyle(model, "B2")).toEqual({ fillColor: "#ff0f0f" });
+    });
+
+    test("Operator GreaterThan with column-fixed simple reference", () => {
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: "GreaterThan",
+            values: ["=$A2"],
+            style: { fillColor: "#ff0f0f" },
+          },
+          id: "11",
+        },
+        ranges: toRangesData(sheetId, "A1:B2"),
+        sheetId,
+      });
+      setCellContent(model, "A1", "3");
+      setCellContent(model, "B1", "3");
+      setCellContent(model, "A2", "2");
+      setCellContent(model, "B2", "4");
+      expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
+      expect(getStyle(model, "B1")).toEqual({ fillColor: "#ff0f0f" });
+      expect(getStyle(model, "B1")).toEqual({ fillColor: "#ff0f0f" });
+      expect(getStyle(model, "B2")).toEqual({ fillColor: "#ff0f0f" });
+    });
+
+    test("Operator GreaterThan with row-fixed simple reference", () => {
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: "GreaterThan",
+            values: ["=A$2"],
+            style: { fillColor: "#ff0f0f" },
+          },
+          id: "11",
+        },
+        ranges: toRangesData(sheetId, "A1:B2"),
+        sheetId,
+      });
+      setCellContent(model, "A1", "3");
+      setCellContent(model, "B1", "1");
+      setCellContent(model, "A2", "2");
+      setCellContent(model, "B2", "4");
+      expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
+      expect(getStyle(model, "B1")).toEqual({});
+      expect(getStyle(model, "A2")).toEqual({});
+      expect(getStyle(model, "B2")).toEqual({});
+    });
+
+    test("Operator GreaterThan with formula", () => {
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: "GreaterThan",
+            values: ["=SUM(A1:B2)/4"],
+            style: { fillColor: "#ff0f0f" },
+          },
+          id: "11",
+        },
+        ranges: toRangesData(sheetId, "A1:B2"),
+        sheetId,
+      });
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "B1", "2");
+      setCellContent(model, "A2", "3");
+      setCellContent(model, "B2", "4");
+      expect(getStyle(model, "A1")).toEqual({});
+      for (const cell of ["A2", "B1", "B2"]) {
+        expect(getStyle(model, cell)).toEqual({
+          fillColor: "#ff0f0f",
+        });
+      }
+    });
+
+    test("Operator GreaterThan with formula and fixed row/col", () => {
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: "GreaterThan",
+            values: ["=SUM($A$1:$B$2)/4"],
+            style: { fillColor: "#ff0f0f" },
+          },
+          id: "11",
+        },
+        ranges: toRangesData(sheetId, "A1:B2"),
+        sheetId,
+      });
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "B1", "2");
+      setCellContent(model, "A2", "3");
+      setCellContent(model, "B2", "4");
+      expect(getStyle(model, "A1")).toEqual({});
+      expect(getStyle(model, "B1")).toEqual({});
+      expect(getStyle(model, "A2")).toEqual({
+        fillColor: "#ff0f0f",
+      });
+      expect(getStyle(model, "B2")).toEqual({
+        fillColor: "#ff0f0f",
+      });
+    });
+
     test("Operator GreaterThanOrEqual", () => {
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
@@ -1381,25 +1531,22 @@ describe("conditional formats types", () => {
       ["NotContains", ["1", ""]],
       ["Between", ["1", "1"]],
       ["NotBetween", ["1", "1"]],
-    ])(
-      "%s operator with valid number of arguments: %s",
-      (operator: ConditionalFormattingOperatorValues, values: []) => {
-        let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            rule: {
-              type: "CellIsRule",
-              operator: operator,
-              values: values,
-              style: { fillColor: "#ff0f0f" },
-            },
-            id: "11",
+    ])("%s operator with valid number of arguments: %s", (operator: string, values: string[]) => {
+      let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: operator as ConditionalFormattingOperatorValues,
+            values: values,
+            style: { fillColor: "#ff0f0f" },
           },
-          ranges: toRangesData(sheetId, "A1"),
-          sheetId,
-        });
-        expect(result).toBeSuccessfullyDispatched();
-      }
-    );
+          id: "11",
+        },
+        ranges: toRangesData(sheetId, "A1"),
+        sheetId,
+      });
+      expect(result).toBeSuccessfullyDispatched();
+    });
 
     test.each([
       ["GreaterThan", []],
@@ -1421,75 +1568,66 @@ describe("conditional formats types", () => {
       ["NotContains", [""]],
       ["Between", ["", "1"]],
       ["NotBetween", ["", "1"]],
-    ])(
-      "%s operator with missing first argument %s",
-      (operator: ConditionalFormattingOperatorValues, values: []) => {
-        let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            rule: {
-              type: "CellIsRule",
-              operator: operator,
-              values: values,
-              style: { fillColor: "#ff0f0f" },
-            },
-            id: "11",
+    ])("%s operator with missing first argument %s", (operator: string, values: string[]) => {
+      let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: operator as ConditionalFormattingOperatorValues,
+            values: values,
+            style: { fillColor: "#ff0f0f" },
           },
-          ranges: toRangesData(sheetId, "A1"),
-          sheetId,
-        });
-        expect(result).toBeCancelledBecause(CommandResult.FirstArgMissing);
-      }
-    );
+          id: "11",
+        },
+        ranges: toRangesData(sheetId, "A1"),
+        sheetId,
+      });
+      expect(result).toBeCancelledBecause(CommandResult.FirstArgMissing);
+    });
   });
   test.each([
     ["Between", ["1"]],
     ["Between", ["1", ""]],
     ["NotBetween", ["1"]],
     ["NotBetween", ["1", ""]],
-  ])(
-    "%s operator with missing second argument %s",
-    (operator: ConditionalFormattingOperatorValues, values: []) => {
-      let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: operator,
-            values: values,
-            style: { fillColor: "#ff0f0f" },
-          },
-          id: "11",
+  ])("%s operator with missing second argument %s", (operator: string, values: string[]) => {
+    let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        rule: {
+          type: "CellIsRule",
+          operator: operator as ConditionalFormattingOperatorValues,
+          values: values,
+          style: { fillColor: "#ff0f0f" },
         },
-        ranges: toRangesData(sheetId, "A1"),
-        sheetId,
-      });
-      expect(result).toBeCancelledBecause(CommandResult.SecondArgMissing);
-    }
-  );
+        id: "11",
+      },
+      ranges: toRangesData(sheetId, "A1"),
+      sheetId,
+    });
+    expect(result).toBeCancelledBecause(CommandResult.SecondArgMissing);
+  });
   test.each([
     ["Between", ["", ""]],
     ["NotBetween", ["", ""]],
-  ])(
-    "%s operator with both arguments missing %s",
-    (operator: ConditionalFormattingOperatorValues, values: []) => {
-      let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: operator,
-            values: values,
-            style: { fillColor: "#ff0f0f" },
-          },
-          id: "11",
+  ])("%s operator with both arguments missing %s", (operator: string, values: string[]) => {
+    let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        rule: {
+          type: "CellIsRule",
+          operator: operator as ConditionalFormattingOperatorValues,
+          values: values,
+          style: { fillColor: "#ff0f0f" },
         },
-        ranges: toRangesData(sheetId, "A1"),
-        sheetId,
-      });
-      expect(result).toBeCancelledBecause(
-        CommandResult.FirstArgMissing,
-        CommandResult.SecondArgMissing
-      );
-    }
-  );
+        id: "11",
+      },
+      ranges: toRangesData(sheetId, "A1"),
+      sheetId,
+    });
+    expect(result).toBeCancelledBecause(
+      CommandResult.FirstArgMissing,
+      CommandResult.SecondArgMissing
+    );
+  });
 
   test("CF with cell referencing empty cell is treated as zero", () => {
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -1586,7 +1724,7 @@ describe("conditional formats types", () => {
       ["number", "number"],
       ["percentage", "percentage"],
       ["percentile", "percentile"],
-    ])(
+    ] as const)(
       "dispatch is not allowed if points not ascending (upper: %s , lower: %s)",
       (
         lowerInflectionPoint: "number" | "percentage" | "percentile",
@@ -1826,7 +1964,7 @@ describe("conditional formats types", () => {
       ["number", "number", "number"],
       ["percentage", "percentage", "percentage"],
       ["percentile", "percentile", "percentile"],
-    ])(
+    ] as const)(
       "dispatch is not allowed if points not ascending (min: %s , mid: %s, max: %s )",
       (
         minType: "number" | "percentage" | "percentile",
