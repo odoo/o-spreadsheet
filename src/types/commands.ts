@@ -608,12 +608,7 @@ export interface EvaluateCellsCommand {
 
 export interface StartChangeHighlightCommand {
   type: "START_CHANGE_HIGHLIGHT";
-  range: RangeData;
-}
-
-export interface ChangeHighlightCommand {
-  type: "CHANGE_HIGHLIGHT";
-  range: RangeData;
+  zone: Zone;
 }
 
 export interface StopComposerSelectionCommand {
@@ -1015,7 +1010,6 @@ export type LocalCommand =
   | PrepareExpansionCommand
   | StopSelectionCommand
   | EvaluateCellsCommand
-  | ChangeHighlightCommand
   | StartChangeHighlightCommand
   | SetColorCommand
   | StopComposerSelectionCommand
