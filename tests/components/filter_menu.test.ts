@@ -7,7 +7,12 @@ import {
   setFormat,
   updateFilter,
 } from "../test_helpers/commands_helpers";
-import { focusAndKeyDown, keyDown, simulateClick } from "../test_helpers/dom_helper";
+import {
+  focusAndKeyDown,
+  keyDown,
+  setInputValueAndTrigger,
+  simulateClick,
+} from "../test_helpers/dom_helper";
 import { getCellsObject, mountSpreadsheet, nextTick, target } from "../test_helpers/helpers";
 
 async function openFilterMenu() {
@@ -187,6 +192,35 @@ describe("Filter menu component", () => {
       ]);
     });
 
+    test("Clear all work on the displayed values", async () => {
+      await openFilterMenu();
+      setInputValueAndTrigger(".o-filter-menu input", "1", "input");
+      await nextTick();
+      await simulateClick(".o-filter-menu-action-text:nth-of-type(2)");
+      setInputValueAndTrigger(".o-filter-menu input", "", "input");
+      await nextTick();
+      expect(getFilterMenuValues()).toEqual([
+        { value: "(Blanks)", isChecked: true },
+        { value: "1", isChecked: false },
+        { value: "2", isChecked: true },
+      ]);
+    });
+
+    test("Select all work on the displayed values", async () => {
+      await openFilterMenu();
+      await simulateClick(".o-filter-menu-action-text:nth-of-type(2)");
+      setInputValueAndTrigger(".o-filter-menu input", "1", "input");
+      await nextTick();
+      await simulateClick(".o-filter-menu-action-text:nth-of-type(1)");
+      setInputValueAndTrigger(".o-filter-menu input", "", "input");
+      await nextTick();
+      expect(getFilterMenuValues()).toEqual([
+        { value: "(Blanks)", isChecked: false },
+        { value: "1", isChecked: true },
+        { value: "2", isChecked: false },
+      ]);
+    });
+
     test("Hitting esc key correctly closes the filter menu", async () => {
       await openFilterMenu();
       expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
@@ -197,9 +231,7 @@ describe("Filter menu component", () => {
     describe("Search bar", () => {
       test("Can filter values with the search bar", async () => {
         await openFilterMenu();
-        const searchInput = fixture.querySelector(".o-filter-menu input") as HTMLInputElement;
-        searchInput.value = "1";
-        searchInput.dispatchEvent(new Event("input", { bubbles: true }));
+        setInputValueAndTrigger(".o-filter-menu input", "1", "input");
         await nextTick();
         expect(getFilterMenuValues().map((v) => v.value)).toEqual(["1"]);
       });
@@ -219,9 +251,7 @@ describe("Filter menu component", () => {
         setCellContent(model, "A5", "Illinois");
 
         await openFilterMenu();
-        const searchInput = fixture.querySelector(".o-filter-menu input") as HTMLInputElement;
-        searchInput.value = "lo";
-        searchInput.dispatchEvent(new Event("input", { bubbles: true }));
+        setInputValueAndTrigger(".o-filter-menu input", "lo", "input");
         await nextTick();
         expect(getFilterMenuValues().map((v) => v.value)).toEqual(["Florida", "Illinois"]);
       });
