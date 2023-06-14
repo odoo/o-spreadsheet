@@ -13,13 +13,13 @@ export type ArgType =
   | "RANGE<STRING>"
   | "META";
 
-export interface ArgDefinition<T extends string> {
+export interface ArgDefinition<T extends ArgType = any> {
   repeating?: boolean;
   optional?: boolean;
   lazy?: boolean;
   description: string;
   name: string;
-  type: InferArgType<T>[];
+  type: T;
   default?: boolean;
   defaultValue?: any;
 }
@@ -29,7 +29,7 @@ export type ComputeFunctionArg<T> = {
 };
 export type ComputeFunction<T extends any[], R> = (this: EvalContext, ...args: T) => R;
 
-export interface AddFunctionDescription<Args extends ArgDefinition<any>[] = any[]> {
+export interface AddFunctionDescription<Args extends ArgDefinition[] = any[]> {
   description: string;
   compute: ComputeFunction<ConvertToArrays<Args>, FunctionReturnValue>;
   computeFormat?: ComputeFunction<Arg[], FunctionReturnFormat>;
@@ -53,9 +53,14 @@ export type EvalContext = {
   [key: string]: any;
 };
 
-type InferArgType<A extends string> = A extends `${infer N}(${infer T})`
-  ? Trim<CsvToUnion<Uppercase<T>>>
+
+export type InferArgType<A extends string> = InferArgProperties<A> extends ArgType
+  ? InferArgProperties<A>
   : never;
+
+export type InferArgProperties<A extends string> = A extends `${infer N}(${infer T})`
+? Trim<CsvToUnion<Uppercase<T>>>
+: never;
 type CsvToUnion<A extends string> = A extends `${infer N},${infer T}` ? N | CsvToUnion<T> : A;
 type Trim<A extends string> = A extends ` ${infer N}`
   ? Trim<N>
@@ -84,7 +89,7 @@ type TEST = InferArgType<"my_arg (number, range<number>, default=10, optional)">
 
 type T = ["NUMBER", "STRING", "OPTIONAL"]
 
-type ConvertToArrays<T extends any[]> = {
-  [K in keyof T]: ToTypescriptType<T[K]>;
+type ConvertToArrays<Args extends ArgDefinition<any>[]> = {
+  [K in keyof Args]: ToTypescriptType<Args[K]["type"]>;
 };
 type T2 = ConvertToArrays<T>;

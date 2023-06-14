@@ -3,6 +3,7 @@ import { _lt } from "../translation";
 import {
   AddFunctionDescription,
   Arg,
+  ArgDefinition,
   ArgValue,
   ComputeFunction,
   ComputeFunctionArg,
@@ -30,7 +31,7 @@ export { arg } from "./arguments";
 
 type Functions = { [functionName: string]: AddFunctionDescription };
 type Category = { name: string; functions: Functions };
-const categories: Category[] = [
+const categories = [
   { name: _lt("Database"), functions: database },
   { name: _lt("Date"), functions: date },
   { name: _lt("Financial"), functions: financial },
@@ -44,7 +45,7 @@ const categories: Category[] = [
   { name: _lt("Text"), functions: text },
   { name: _lt("Engineering"), functions: engineering },
   { name: _lt("Web"), functions: web },
-];
+]as const;
 
 const functionNameRegex = /^[A-Z0-9\_\.]+$/;
 
@@ -56,7 +57,7 @@ class FunctionRegistry extends Registry<FunctionDescription> {
     [key: string]: ComputeFunction<Arg, FunctionReturn>;
   } = {};
 
-  add(name: string, addDescr: AddFunctionDescription) {
+  add<Args extends ArgDefinition<any>[] >(name: string, addDescr: AddFunctionDescription<Args>) {
     name = name.toUpperCase();
     if (!functionNameRegex.test(name)) {
       throw new Error(

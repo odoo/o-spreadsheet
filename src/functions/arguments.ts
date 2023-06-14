@@ -1,5 +1,5 @@
 import { _lt } from "../translation";
-import { AddFunctionDescription, ArgDefinition, ArgType, FunctionDescription } from "../types";
+import { AddFunctionDescription, ArgDefinition, ArgType, FunctionDescription, InferArgType } from "../types";
 
 //------------------------------------------------------------------------------
 // Arg description DSL
@@ -20,8 +20,12 @@ const ARG_TYPES: ArgType[] = [
   "META",
 ];
 
-export function arg(definition: string, description: string = ""): ArgDefinition {
+export function arg<D extends string>(definition: D, description: string = ""): ArgDefinition<InferArgType<D>> {
   return makeArg(definition, description);
+}
+
+export function func<Args extends ArgDefinition<any>[]>(desc: AddFunctionDescription<Args>) {
+  return desc;
 }
 
 function makeArg(str: string, description: string): ArgDefinition {
