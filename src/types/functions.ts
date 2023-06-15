@@ -1,4 +1,4 @@
-import { Arg, ArgValue, FunctionReturnFormat, FunctionReturnValue, Matrix } from "./misc";
+import { Arg, FunctionReturnFormat, FunctionReturnValue, Matrix } from "./misc";
 
 export type ArgType =
   | "ANY"
@@ -29,16 +29,20 @@ export type ComputeFunctionArg<T> = {
 };
 export type ComputeFunction<T extends readonly any[], R> = (this: EvalContext, ...args: T) => R;
 
-export interface AddFunctionDescription<Args extends readonly ArgDefinition[] = any[]> {
+export interface AddFunctionDescription<ArgTypes extends readonly ArgType[] = any[]> {
   readonly description: string;
-  readonly compute: ComputeFunction<ArgTypesToTypescript<Args>, FunctionReturnValue>;
+  readonly compute: ComputeFunction<ArgTypesToTypescript<ArgTypes>, FunctionReturnValue>;
   readonly computeFormat?: ComputeFunction<Arg[], FunctionReturnFormat>;
   readonly category?: string;
-  readonly args: Args;
+  readonly args: ArgTypesToDefinition<ArgTypes>;
   readonly returns: Readonly<[ArgType]>;
   readonly isExported?: boolean;
   readonly hidden?: boolean;
 }
+
+type ArgTypesToDefinition<Type extends readonly ArgType[]> = {
+  [K in keyof Type]: ArgDefinition<Type[K]>;
+};
 
 export interface FunctionDescription extends AddFunctionDescription {
   minArgRequired: number;
@@ -53,14 +57,13 @@ export type EvalContext = {
   [key: string]: any;
 };
 
-
 export type InferArgType<A extends string> = InferArgProperties<A> extends ArgType
   ? InferArgProperties<A>
   : never;
 
 export type InferArgProperties<A extends string> = A extends `${infer N}(${infer T})`
-? Trim<CsvToUnion<Uppercase<T>>>
-: never;
+  ? Trim<CsvToUnion<Uppercase<T>>>
+  : never;
 type CsvToUnion<A extends string> = A extends `${infer N},${infer T}` ? N | CsvToUnion<T> : A;
 type Trim<A extends string> = A extends ` ${infer N}`
   ? Trim<N>
@@ -82,14 +85,14 @@ type TypeMapping = {
   "RANGE<STRING>": Matrix<string>;
   "RANGE<DATE>": Matrix<Date>;
   META: any;
-  OPTIONAL: undefined
+  OPTIONAL: undefined;
 };
 
 // type TEST = InferArgType<"my_arg (number, range<number>, default=10, optional)">;
 
 // type T = ["NUMBER", "STRING", "OPTIONAL"]
 
-type ArgTypesToTypescript<Args extends readonly ArgDefinition[]> = {
-  [K in keyof Args]: ToTypescriptType<Args[K]["type"]>;
+type ArgTypesToTypescript<Type extends readonly ArgType[]> = {
+  [K in keyof Type]: ToTypescriptType<Type[K]>;
 };
 // type T2 = ArgTypesToTypescript<T>;
