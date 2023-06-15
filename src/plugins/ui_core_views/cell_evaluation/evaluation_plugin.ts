@@ -11,6 +11,7 @@ import {
   FormattedValue,
   FormulaCell,
   invalidateDependenciesCommands,
+  isMatrix,
   Range,
   UID,
   Zone,
@@ -212,7 +213,11 @@ export class EvaluationPlugin extends UIPlugin {
     for (let xc of compiledFormula.dependencies) {
       ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc));
     }
-    return compiledFormula.execute(ranges, ...this.compilationParams).value;
+    const array = compiledFormula.execute(ranges, ...this.compilationParams);
+    if (isMatrix(array)) {
+      return array.map((col) => col.map((row) => row.value));
+    }
+    return array.value;
   }
 
   /**

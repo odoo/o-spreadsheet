@@ -12,6 +12,7 @@ import {
   isMatrix,
 } from "../types";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
+import { matrixMap } from "./helpers";
 import * as array from "./module_array";
 import * as misc from "./module_custom";
 import * as database from "./module_database";
@@ -72,36 +73,59 @@ class FunctionRegistry extends Registry<FunctionDescription> {
     }
     const descr = addMetaInfoFromArg(addDescr);
     validateArguments(descr.args);
-
-    function computeValueAndFormat(
-      this: EvalContext,
-      ...args: ComputeFunctionArg<Arg>[]
-    ): FunctionReturn {
-      const computeValue = descr.compute.bind(this);
-      const computeFormat = descr.computeFormat ? descr.computeFormat.bind(this) : () => undefined;
-
-      const value = computeValue(...extractArgValuesFromArgs(args));
-      const format = computeFormat(...args);
-      if (isMatrix(value)) {
-        return {
-          value,
-          format,
-        };
-      }
-      if (!isMatrix(format)) {
-        return {
-          value,
-          format,
-        };
-      }
-      throw new Error("A format matrix should never be associated with a scalar value");
-    }
-
-    this.mapping[name] = computeValueAndFormat;
-
+    this.mapping[name] = createComputeFunctionFromDescription(descr);
     super.add(name, descr);
     return this;
   }
+}
+
+function createComputeFunctionFromDescription(
+  descr: FunctionDescription
+): ComputeFunction<Arg, FunctionReturn> {
+  const computeValueAndFormat = "computeValueAndFormat" in descr;
+  const computeValue = "compute" in descr;
+  const computeFormat = "computeFormat" in descr;
+
+  if (!computeValueAndFormat && !computeValue) {
+    throw new Error(
+      "Invalid function description, need at least one 'compute' or 'computeValueAndFormat' function"
+    );
+  }
+
+  if (computeValueAndFormat && (computeValue || computeFormat)) {
+    throw new Error(
+      "Invalid function description, cannot have both 'computeValueAndFormat' and 'compute'/'computeFormat' functions"
+    );
+  }
+
+  if (computeValueAndFormat) {
+    return descr.computeValueAndFormat;
+  }
+
+  // case computeValue
+  return buildComputeFunctionFromDescription(descr);
+}
+
+function buildComputeFunctionFromDescription(descr) {
+  return function (this: EvalContext, ...args: ComputeFunctionArg<Arg>[]): FunctionReturn {
+    const computeValue = descr.compute.bind(this);
+    const computeFormat = descr.computeFormat?.bind(this) || (() => undefined);
+    const value = computeValue(...extractArgValuesFromArgs(args));
+    const format = computeFormat(...args);
+
+    if (isMatrix(value)) {
+      if (format === undefined || isMatrix(format)) {
+        return value.map((col, i) =>
+          col.map((row, j) => ({ value: row, format: format?.[i]?.[j] }))
+        );
+      }
+    } else {
+      if (format === undefined || !isMatrix(format)) {
+        return { value, format };
+      }
+    }
+    throw new Error("A format matrix should never be associated with a scalar value");
+  };
 }
 
 function extractArgValuesFromArgs(args: ComputeFunctionArg<Arg>[]): ComputeFunctionArg<ArgValue>[] {
@@ -110,10 +134,17 @@ function extractArgValuesFromArgs(args: ComputeFunctionArg<Arg>[]): ComputeFunct
       return undefined;
     }
     if (typeof arg === "function") {
-      return () => arg()?.value;
+      return () => extractArgValueFromArg(arg());
     }
-    return arg.value;
+    return extractArgValueFromArg(arg);
   });
+}
+
+function extractArgValueFromArg(arg: Arg) {
+  if (isMatrix(arg)) {
+    return matrixMap(arg, (data) => data.value);
+  }
+  return arg?.value;
 }
 
 export const functionRegistry = new FunctionRegistry();

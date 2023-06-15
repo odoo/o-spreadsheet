@@ -2834,18 +2834,18 @@ describe("MIRR formula", () => {
     expect(cellValue2).toBeCloseTo(2.1155759, 4);
   });
 
-  test("undefined values in cashflow_amounts are ignored and not treated as 0", () => {
-    let grid: any = { B1: undefined, B2: "3", B3: undefined, B4: "-2", B5: undefined };
+  test("no values in cashflow_amounts are ignored and not treated as 0", () => {
+    let grid: any = { B2: "3", B4: "-2" };
     expect(evaluateCell("A1", { A1: "=MIRR(B1:B5, 1, 1)", ...grid })).toBeCloseTo(5, 4);
-    grid = { B1: "0", B2: "3", B3: undefined, B4: "-2", B5: undefined };
+    grid = { B1: "0", B2: "3", B4: "-2" };
     expect(evaluateCell("A1", { A1: "=MIRR(B1:B5, 1, 1)", ...grid })).toBeCloseTo(2.464101615, 4);
-    grid = { B1: undefined, B2: "3", B3: "0", B4: "-2", B5: undefined };
+    grid = { B2: "3", B3: "0", B4: "-2" };
     expect(evaluateCell("A1", { A1: "=MIRR(B1:B5, 1, 1)", ...grid })).toBeCloseTo(3.898979486, 4);
-    grid = { B1: undefined, B2: "3", B3: undefined, B4: "-2", B5: "0" };
+    grid = { B2: "3", B4: "-2", B5: "0" };
     expect(evaluateCell("A1", { A1: "=MIRR(B1:B5, 1, 1)", ...grid })).toBeCloseTo(2.464101615, 4);
-    grid = { B1: undefined, B2: "3", B3: "0", B4: "-2", B5: "0" };
+    grid = { B2: "3", B3: "0", B4: "-2", B5: "0" };
     expect(evaluateCell("A1", { A1: "=MIRR(B1:B5, 1, 1)", ...grid })).toBeCloseTo(2.634241186, 4);
-    grid = { B1: "0", B2: "3", B3: "0", B4: "-2", B5: undefined };
+    grid = { B1: "0", B2: "3", B3: "0", B4: "-2" };
     expect(evaluateCell("A1", { A1: "=MIRR(B1:B5, 1, 1)", ...grid })).toBeCloseTo(2.634241186, 4);
     grid = { B1: "0", B2: "3", B3: "0", B4: "-2", B5: "0" };
     expect(evaluateCell("A1", { A1: "=MIRR(B1:B5, 1, 1)", ...grid })).toBeCloseTo(2.13016916, 4);
@@ -5012,13 +5012,13 @@ describe("XNPV formula", () => {
   });
 
   test("there should be only numbers in the ranges", () => {
-    let grid: Record<string, string | undefined> = { B1: "1", B2: "-1", C1: "2", C2: "abcd" };
+    let grid: Record<string, string> = { B1: "1", B2: "-1", C1: "2", C2: "abcd" };
     expect(evaluateCell("A1", { A1: "=XNPV(1, B1:B2, C1:C2)", ...grid })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     grid = { B1: "abcd", B2: "-1", C1: "3", C2: "1" };
     expect(evaluateCell("A1", { A1: "=XNPV(1, B1:B2, C1:C2)", ...grid })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    grid = { B1: "1", B2: undefined, C1: "3", C2: "1" };
+    grid = { B1: "1", C1: "3", C2: "1" };
     expect(evaluateCell("A1", { A1: "=XNPV(1, B1:B2, C1:C2)", ...grid })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    grid = { B1: "1", B2: "-1", C1: "3", C2: undefined };
+    grid = { B1: "1", B2: "-1", C1: "3" };
     expect(evaluateCell("A1", { A1: "=XNPV(1, B1:B2, C1:C2)", ...grid })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 

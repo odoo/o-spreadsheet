@@ -5,6 +5,7 @@ import {
   checkFunctionDoesntSpreadBeyondRange,
   createModelFromGrid,
   evaluateCell,
+  getRangeFormatsAsMatrix,
   getRangeValuesAsMatrix,
 } from "../test_helpers/helpers";
 
@@ -153,6 +154,23 @@ describe("UNIQUE function", () => {
       ["", ""],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E3")).toBeTruthy();
+  });
+
+  test("UNIQUE: result format depends on range's format", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "1%", B1: "5",
+      A2: "01/10/2020", B2: "01/01",
+      A3: "01/10/2020", B3: "01/01",
+      A4: "5", B4: "1%"
+     };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "D1", "=UNIQUE(A1:B4)");
+    expect(getRangeFormatsAsMatrix(model, "D1:E3")).toEqual([
+      ["0%", ""],
+      ["mm/dd/yyyy", "mm/dd"],
+      ["", "0%"],
+    ]);
   });
 
   test("UNIQUE function with undefined values", () => {

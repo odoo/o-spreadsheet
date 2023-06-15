@@ -126,7 +126,7 @@ describe("evaluate formulas that return an array", () => {
       expect(getCellContent(model, "B2")).toBe("4");
     });
 
-    test("can spread matrix of values with scalar format", () => {
+    test("can spread matrix of values with scalar format returns an error", () => {
       functionRegistry.add("MATRIX.2.2", {
         description: "Return an 2*2 matrix with some values",
         args: [],
@@ -141,11 +141,10 @@ describe("evaluate formulas that return an array", () => {
       setFormat(model, "0%", target("A1:A2"));
       setCellContent(model, "A1", "=MATRIX.2.2()");
 
-      expect(getCellContent(model, "A1")).toBe("100%");
-      expect(getCellContent(model, "A2")).toBe("200%");
-
-      expect(getCellContent(model, "B1")).toBe("3.00");
-      expect(getCellContent(model, "B2")).toBe("4.00");
+      expect(getCellContent(model, "A1")).toBe("#ERROR");
+      expect(getCellContent(model, "A2")).toBe("");
+      expect(getCellContent(model, "B1")).toBe("");
+      expect(getCellContent(model, "B2")).toBe("");
     });
 
     test("cannot spread simple value with matrix of format", () => {
@@ -174,40 +173,14 @@ describe("evaluate formulas that return an array", () => {
       expect(getCellContent(model, "B2")).toBe("22");
     });
 
-    test("cannot spread matrix of value with matrix of format that haven't same dimension", () => {
-      functionRegistry.add("MATRIX.2.2", {
-        description: "Return an 2*2 matrix with some values",
-        args: [],
-        returns: ["RANGE<NUMBER>"],
-        compute: () => [
-          [1, 2],
-          [3, 4],
-        ],
-        computeFormat: () => [
-          ["0.00", undefined, undefined],
-          ["0.00", undefined, undefined],
-          ["0.00", undefined, undefined],
-        ],
-      });
-
-      setCellContent(model, "A1", "=MATRIX.2.2()");
-
-      expect(getCellContent(model, "A1")).toBe("#ERROR");
-      expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
-        "Formats and values should have the same dimensions!"
-      );
-      expect(getCellContent(model, "A2")).toBe("");
-      expect(getCellContent(model, "B1")).toBe("");
-      expect(getCellContent(model, "B2")).toBe("");
-    });
-
     test("can spread matrix of format depending on matrix of format", () => {
       functionRegistry.add("MATRIX", {
         description: "Return the matrix passed as argument",
         args: [arg("matrix (range<number>)", "a matrix")],
         returns: ["RANGE<NUMBER>"],
         compute: ((matrix) => matrix) as ComputeFunction<ArgValue, FunctionReturnValue>,
-        computeFormat: ((matrix: MatrixArg) => matrix?.format) as ComputeFunction<
+        computeFormat: ((matrix: MatrixArg) =>
+          matrix.map((row) => row.map((item) => item?.format))) as ComputeFunction<
           Arg,
           FunctionReturnFormat
         >,

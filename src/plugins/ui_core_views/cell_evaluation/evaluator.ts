@@ -5,18 +5,12 @@ import { _t } from "../../../translation";
 import {
   Cell,
   CellPosition,
-  CellValue,
   CellValueType,
   EvaluatedCell,
-  Format,
   FormulaCell,
-  FormulaReturn,
   Getters,
   isMatrix,
-  Matrix,
-  MatrixArgFormat,
   MatrixFunctionReturn,
-  PrimitiveFormat,
   UID,
 } from "../../../types";
 import {
@@ -252,39 +246,38 @@ export class Evaluator {
       ...this.compilationParams
     );
 
-    assertFormulaReturnHasConsistentDimensions(formulaReturn);
-
-    const { value: computedValue, format: computedFormat } = formulaReturn;
-
-    if (!isMatrix(computedValue)) {
-      return createEvaluatedCell(computedValue, {
-        format: cellData.format || (computedFormat as string | undefined),
+    if (!isMatrix(formulaReturn)) {
+      return createEvaluatedCell(formulaReturn.value, {
+        format: cellData.format || formulaReturn.format,
         locale: this.getters.getLocale(),
       });
     }
 
     const formulaPosition = this.getters.getCellPosition(cellId);
 
-    this.assertSheetHasEnoughSpaceToSpreadFormulaResult(formulaPosition, computedValue);
+    this.assertSheetHasEnoughSpaceToSpreadFormulaResult(formulaPosition, formulaReturn);
 
-    forEachSpreadPositionInMatrix(computedValue, this.updateSpreadRelation(formulaPosition));
-    forEachSpreadPositionInMatrix(computedValue, this.checkCollision(formulaPosition));
+    const nbColumns = formulaReturn.length;
+    const nbRows = formulaReturn[0].length;
+
+    forEachSpreadPositionInMatrix(nbColumns, nbRows, this.updateSpreadRelation(formulaPosition));
+    forEachSpreadPositionInMatrix(nbColumns, nbRows, this.checkCollision(formulaPosition));
     forEachSpreadPositionInMatrix(
-      computedValue,
-      // due the isMatrix check above, we know that formulaReturn is MatrixFunctionReturn
-      this.spreadValues(formulaPosition, formulaReturn as MatrixFunctionReturn)
+      nbColumns,
+      nbRows,
+      // thanks to the isMatrix check above, we know that formulaReturn is MatrixFunctionReturn
+      this.spreadValues(formulaPosition, formulaReturn)
     );
 
-    const formatFromPosition = formatFromPositionAccess(computedFormat);
-    return createEvaluatedCell(computedValue[0][0], {
-      format: cellData.format || formatFromPosition(0, 0),
+    return createEvaluatedCell(formulaReturn[0][0].value, {
+      format: cellData.format || formulaReturn[0][0]?.format,
       locale: this.getters.getLocale(),
     });
   }
 
   private assertSheetHasEnoughSpaceToSpreadFormulaResult(
     { sheetId, col, row }: CellPosition,
-    matrixResult: Matrix<CellValue>
+    matrixResult: MatrixFunctionReturn
   ) {
     const numberOfCols = this.getters.getNumberCols(sheetId);
     const numberOfRows = this.getters.getNumberRows(sheetId);
@@ -346,13 +339,12 @@ export class Evaluator {
     { sheetId, col, row }: CellPosition,
     matrixResult: MatrixFunctionReturn
   ): (i: number, j: number) => void {
-    const formatFromPosition = formatFromPositionAccess(matrixResult.format);
     return (i: number, j: number) => {
       const position = { sheetId, col: i + col, row: j + row };
       const cell = this.getters.getCell(position);
       const format = cell?.format;
-      const evaluatedCell = createEvaluatedCell(matrixResult.value[i][j], {
-        format: format || formatFromPosition(i, j),
+      const evaluatedCell = createEvaluatedCell(matrixResult[i][j].value, {
+        format: format || matrixResult[i][j]?.format,
         locale: this.getters.getLocale(),
       });
 
@@ -424,39 +416,16 @@ export class Evaluator {
 }
 
 function forEachSpreadPositionInMatrix(
-  matrix: Matrix<CellValue>,
+  nbColumns: number,
+  nbRows: number,
   callback: (i: number, j: number) => void
 ) {
-  for (let i = 0; i < matrix.length; ++i) {
-    for (let j = 0; j < matrix[i].length; ++j) {
+  for (let i = 0; i < nbColumns; ++i) {
+    for (let j = 0; j < nbRows; ++j) {
       if (i === 0 && j === 0) {
         continue;
       }
       callback(i, j);
-    }
-  }
-}
-
-function formatFromPositionAccess(
-  format: Format | MatrixArgFormat | undefined
-): (i: number, j: number) => PrimitiveFormat {
-  return isMatrix(format) ? (i: number, j: number) => format[i][j] : () => format;
-}
-
-function assertFormulaReturnHasConsistentDimensions(formulaReturn: FormulaReturn) {
-  const { value: computedValue, format: computedFormat } = formulaReturn;
-  if (!isMatrix(computedValue)) {
-    if (isMatrix(computedFormat)) {
-      throw new Error("A format matrix should never be associated with a scalar value");
-    }
-    return;
-  }
-  if (isMatrix(computedFormat)) {
-    const sameDimensions =
-      computedValue.length === computedFormat.length &&
-      computedValue[0].length === computedFormat[0].length;
-    if (!sameDimensions) {
-      throw new Error("Formats and values should have the same dimensions!");
     }
   }
 }

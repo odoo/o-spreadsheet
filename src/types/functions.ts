@@ -1,5 +1,5 @@
 import { Locale } from "./locale";
-import { Arg, ArgValue, FunctionReturnFormat, FunctionReturnValue } from "./misc";
+import { Arg, ArgValue, FunctionReturn, FunctionReturnFormat, FunctionReturnValue } from "./misc";
 
 export type ArgType =
   | "ANY"
@@ -29,10 +29,8 @@ export interface ArgDefinition {
 export type ComputeFunctionArg<T> = T | (() => T) | undefined;
 export type ComputeFunction<T, R> = (this: EvalContext, ...args: ComputeFunctionArg<T>[]) => R;
 
-export interface AddFunctionDescription {
+interface AddFunctionDescriptionBase {
   description: string;
-  compute: ComputeFunction<ArgValue, FunctionReturnValue>;
-  computeFormat?: ComputeFunction<Arg, FunctionReturnFormat>;
   category?: string;
   args: ArgDefinition[];
   returns: [ArgType];
@@ -40,12 +38,28 @@ export interface AddFunctionDescription {
   hidden?: boolean;
 }
 
-export interface FunctionDescription extends AddFunctionDescription {
+interface ComputeValue {
+  compute: ComputeFunction<ArgValue, FunctionReturnValue>;
+}
+
+interface ComputeFormat {
+  computeFormat: ComputeFunction<Arg, FunctionReturnFormat>;
+}
+
+interface ComputeValueAndFormat {
+  computeValueAndFormat: ComputeFunction<Arg, FunctionReturn>;
+}
+
+export type AddFunctionDescription =
+  | (AddFunctionDescriptionBase & ComputeValue & Partial<ComputeFormat>)
+  | (AddFunctionDescriptionBase & ComputeValueAndFormat);
+
+export type FunctionDescription = AddFunctionDescription & {
   minArgRequired: number;
   maxArgPossible: number;
   nbrArgRepeating: number;
   getArgToFocus: (argPosition: number) => number;
-}
+};
 
 export type EvalContext = {
   __lastFnCalled?: string;

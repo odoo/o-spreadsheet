@@ -26,68 +26,68 @@ describe("database formula", () => {
     test("functional tests on cell arguments", () => {
       // prettier-ignore
       const gridDcount = {
-          A20: "YEAR", 
-          A21: "1976", B21: '=DCOUNT(A1:D17, "YEAR", A20:A21)',
+          A20: "YEAR",
+          A21: "1976",    B21: '=DCOUNT(A1:D17, "YEAR", A20:A21)',
 
-          B24: '=DCOUNT(A1:D17, "YEAR", A23:A24)',
+                          B24: '=DCOUNT(A1:D17, "YEAR", A23:A24)',
 
-          A27: "1976", B27: '=DCOUNT(A1:D17, "YEAR", A26:A27)',
+          A27: "1976",    B27: '=DCOUNT(A1:D17, "YEAR", A26:A27)',
 
-          A29: "YEAR", 
-                       B30: '=DCOUNT(A1:D17, "YEAR", A29:A30)',
+          A29: "YEAR",
+                          B30: '=DCOUNT(A1:D17, "YEAR", A29:A30)',
 
-          A32: "TEST", 
-          A33: "2"   , B33: '=DCOUNT(A1:D17, "YEAR", A32:A33)',
+          A32: "TEST",
+          A33: "2"   ,    B33: '=DCOUNT(A1:D17, "YEAR", A32:A33)',
 
-          A35: "TEST", 
-                       B36: '=DCOUNT(A1:D17, "YEAR", A35:A36)',
+          A35: "TEST",
+                          B36: '=DCOUNT(A1:D17, "YEAR", A35:A36)',
 
-          A39: "2"   , B39: '=DCOUNT(A1:D17, "YEAR", A38:A39)',
+          A39: "2"   ,    B39: '=DCOUNT(A1:D17, "YEAR", A38:A39)',
 
-          A41: "FILM", 
-          A42: "Léon", B42: '=DCOUNT(A1:D17, "FILM", A41:A42)',
+          A41: "FILM",
+          A42: "Léon",    B42: '=DCOUNT(A1:D17, "FILM", A41:A42)',
 
-          A44: "year"  , B44: "year" ,
-          A45: "<>1965", B45: ">1940", C45: '=DCOUNT(A1:D17, "YEAR", A44:B45)',
+          A44: "year"  ,  B44: "year" ,
+          A45: "<>1965",  B45: ">1940", C45: '=DCOUNT(A1:D17, "YEAR", A44:B45)',
 
-          A47: "NAME"  , 
-          A48: "Jean R", B48: '=DCOUNT(A1:D17, "YEAR", A47:A48)',
+          A47: "NAME"  ,
+          A48: "Jean R",  B48: '=DCOUNT(A1:D17, "YEAR", A47:A48)',
 
-          A50: "NAME"   , 
+          A50: "NAME"   ,
           A51: "Jean Re", B51: '=DCOUNT(A1:D17, "YEAR", A50:A51)',
 
-          A53: "NAME"  , 
-          A54: "Jean R", B54: '=DCOUNT(A1:D17, C1, A53:A54)',
+          A53: "NAME"  ,
+          A54: "Jean R",  B54: '=DCOUNT(A1:D17, C1, A53:A54)',
 
-          A56: "NAME"  , 
-          A57: "Jean R", B57: '=DCOUNT(A1:D17, 3, A56:A57)',
+          A56: "NAME"  ,
+          A57: "Jean R",  B57: '=DCOUNT(A1:D17, 3, A56:A57)',
 
-          A59: "1"     , 
-          A60: "Jean R", B60: '=DCOUNT(A1:D17, "YEAR", A59:A60)',
+          A59: "1"     ,
+          A60: "Jean R",  B60: '=DCOUNT(A1:D17, "YEAR", A59:A60)',
 
-          A62: "SCORE", B62: "SCORE",
-          A63: "0.71" , B63: "0.7"  , C63: '=DCOUNT(A1:D17, "YEAR", A62:B63)',
+          A62: "SCORE",   B62: "SCORE",
+          A63: "0.71" ,   B63: "0.7"  , C63: '=DCOUNT(A1:D17, "YEAR", A62:B63)',
 
           A65: "SCORE",
-          A66: "0.71" , 
-          A67: "0.7"  , B67: '=DCOUNT(A1:D17, "YEAR", A65:A67)',
+          A66: "0.71" ,
+          A67: "0.7"  ,   B67: '=DCOUNT(A1:D17, "YEAR", A65:A67)',
 
-          A69: "SCORE", 
-          A70: ">0.7" , B70: '=DCOUNT(A1:D17, "YEAR", A69:A70)',
+          A69: "SCORE",
+          A70: ">0.7" ,   B70: '=DCOUNT(A1:D17, "YEAR", A69:A70)',
 
           A72: "SCORE",
-          A73: ">0.7" , 
-          A74: ">0.71", B74: '=DCOUNT(A1:D17, "YEAR", A72:A74)',
+          A73: ">0.7" ,
+          A74: ">0.71",   B74: '=DCOUNT(A1:D17, "YEAR", A72:A74)',
 
-          A76: "NAME"  , 
-          A77: "JEAN R", B77: '=DCOUNT(A1:D17, 4.9, A76:A77)',
+          A76: "NAME"  ,
+          A77: "JEAN R",  B77: '=DCOUNT(A1:D17, 4.9, A76:A77)',
 
-          A79: "SCORE", B79: "YEAR"
-                      , B80: "1976",
+          A79: "SCORE",   B79: "YEAR"
+                      ,   B80: "1976",
           A81: "0.7"  ,              C81: '=DCOUNT(A1:D17, "YEAR", A79:B81)',
 
-          A83: "SCORE", B83: "TEST"
-                      , B84: "1976",
+          A83: "SCORE",   B83: "TEST"
+                      ,   B84: "1976",
           A85: "0.7"  ,              C85: '=DCOUNT(A1:D17, "YEAR", A83:B85)',
 
         };

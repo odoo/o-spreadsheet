@@ -99,7 +99,7 @@ function getMatchingCells(
       const currentName = toString(criteria[indexCol][0]).toUpperCase();
       const indexColDB = indexColNameDB.get(currentName);
       const criter = criteria[indexCol][indexRow];
-      if (criter !== undefined) {
+      if (criter !== null) {
         if (indexColDB !== undefined) {
           args.push([database[indexColDB].slice(1, dimColDB)]);
           args.push(criter);
@@ -134,7 +134,7 @@ function getMatchingCells(
 
   // 4 - return for each database row corresponding, the cells corresponding to the field parameter
 
-  const fieldCol: (CellValue | undefined)[] = database[index];
+  const fieldCol: (CellValue | null)[] = database[index].map((col) => col);
   // Example continuation:: fieldCol = ["C", "j", "k", 7]
   const matchingCells = [...matchingRows].map((x) => fieldCol[x + 1]);
   // Example continuation:: matchingCells = ["j", 7]
