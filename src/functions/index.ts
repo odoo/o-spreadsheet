@@ -6,7 +6,6 @@ import {
   ArgValue,
   ComputeFunction,
   ComputeFunctionArg,
-  EvalContext,
   FunctionDescription,
   FunctionReturn,
   isMatrix,
@@ -73,36 +72,62 @@ class FunctionRegistry extends Registry<FunctionDescription> {
     const descr = addMetaInfoFromArg(addDescr);
     validateArguments(descr.args);
 
-    function computeValueAndFormat(
-      this: EvalContext,
-      ...args: ComputeFunctionArg<Arg>[]
-    ): FunctionReturn {
-      const computeValue = descr.compute.bind(this);
-      const computeFormat = descr.computeFormat ? descr.computeFormat.bind(this) : () => undefined;
+    if ("computeValueAndFormat" in descr) {
+      const computeValueAndFormat = descr.computeValueAndFormat.bind(this);
+      this.mapping[name] = computeValueAndFormat;
+    } else {
+      const computeValueAndFormat = (...args: ComputeFunctionArg<Arg>[]): FunctionReturn => {
+        const computeValue = descr.compute.bind(this);
+        const computeFormat = descr.computeFormat
+          ? descr.computeFormat.bind(this)
+          : () => undefined;
 
-      const value = computeValue(...extractArgValuesFromArgs(args));
-      const format = computeFormat(...args);
-      if (isMatrix(value)) {
-        return {
-          value,
-          format,
-        };
-      }
-      if (!isMatrix(format)) {
-        return {
-          value,
-          format,
-        };
-      }
-      throw new Error("A format matrix should never be associated with a scalar value");
+        const value = computeValue(...extractArgValuesFromArgs(args));
+        const format = computeFormat(...args);
+
+        if (isMatrix(value)) {
+          if (format === undefined || isMatrix(format)) {
+            return { value, format };
+          }
+        } else {
+          if (format === undefined || !isMatrix(format)) {
+            return { value, format };
+          }
+        }
+        throw new Error("A format matrix should never be associated with a scalar value");
+      };
+      this.mapping[name] = computeValueAndFormat;
     }
-
-    this.mapping[name] = computeValueAndFormat;
-
     super.add(name, descr);
     return this;
   }
 }
+
+// function computeValueAndFormat(
+//   this: EvalContext,
+//   ...args: ComputeFunctionArg<Arg>[]
+// ): FunctionReturn {
+//   const computeValue = descr.compute.bind(this);
+//   const computeFormat = descr.computeFormat ? descr.computeFormat.bind(this) : () => undefined;
+
+//   const value = computeValue(...extractArgValuesFromArgs(args));
+//   const format = computeFormat(...args);
+//   if (isMatrix(value)) {
+//     return {
+//       value,
+//       format,
+//     };
+//   }
+//   if (!isMatrix(format)) {
+//     return {
+//       value,
+//       format,
+//     };
+//   }
+//   throw new Error("A format matrix should never be associated with a scalar value");
+// }
+
+// this.mapping[name] = computeValueAndFormat;
 
 function extractArgValuesFromArgs(args: ComputeFunctionArg<Arg>[]): ComputeFunctionArg<ArgValue>[] {
   return args.map((arg) => {

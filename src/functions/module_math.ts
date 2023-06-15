@@ -3,6 +3,7 @@ import {
   AddFunctionDescription,
   Arg,
   ArgValue,
+  isMatrix,
   MatrixArgValue,
   PrimitiveArg,
   PrimitiveArgValue,
@@ -1403,6 +1404,19 @@ export const TRUNC: AddFunctionDescription = {
       _places = Math.trunc(_places);
     }
     return Math.trunc(_value * Math.pow(10, _places)) / Math.pow(10, _places);
+  },
+  isExported: true,
+};
+
+export const TRANSPOSE: AddFunctionDescription = {
+  description: _lt("Transposes the rows and columns of a range."),
+  args: [arg("range (any, range<any>)", _lt("The range to be transposed."))],
+  returns: ["RANGE"],
+  computeValueAndFormat: (arg: Arg) => {
+    const values = isMatrix(arg.value) ? arg.value : [[arg.value]];
+    const formats = isMatrix(arg.format) && arg.format !== undefined ? arg.format : [[arg.format]];
+    // return nomInconnu(values, formats, (i,j) => values[j][i], (i,j) => formats[j][i]);
+    return nomInconnu2(values, formats, (i, j, arg) => arg[j][i]);
   },
   isExported: true,
 };

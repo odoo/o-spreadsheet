@@ -8,15 +8,12 @@ import {
   CellValue,
   CellValueType,
   EvaluatedCell,
-  Format,
   FormulaCell,
   FormulaReturn,
   Getters,
   isMatrix,
   Matrix,
-  MatrixArgFormat,
   MatrixFunctionReturn,
-  PrimitiveFormat,
   UID,
 } from "../../../types";
 import {
@@ -266,8 +263,7 @@ export class Evaluator {
       this.spreadValues(formulaPosition, formulaReturn as MatrixFunctionReturn)
     );
 
-    const formatFromPosition = formatFromPositionAccess(computedFormat);
-    return createEvaluatedCell(computedValue[0][0], cellData.format || formatFromPosition(0, 0));
+    return createEvaluatedCell(computedValue[0][0], cellData.format || computedFormat?.[0]?.[0]);
   }
 
   private assertSheetHasEnoughSpaceToSpreadFormulaResult(
@@ -336,14 +332,13 @@ export class Evaluator {
     { sheetId, col, row }: CellPosition,
     matrixResult: MatrixFunctionReturn
   ): (i: number, j: number) => void {
-    const formatFromPosition = formatFromPositionAccess(matrixResult.format);
     return (i: number, j: number) => {
       const position = { sheetId, col: i + col, row: j + row };
       const cell = this.getters.getCell(position);
       const format = cell?.format;
       const evaluatedCell = createEvaluatedCell(
         matrixResult.value[i][j],
-        format || formatFromPosition(i, j)
+        format || matrixResult.format?.[i]?.[j]
       );
 
       const positionId = this.encodePosition(position);
@@ -427,21 +422,15 @@ function forEachSpreadPositionInMatrix(
   }
 }
 
-function formatFromPositionAccess(
-  format: Format | MatrixArgFormat | undefined
-): (i: number, j: number) => PrimitiveFormat {
-  return isMatrix(format) ? (i: number, j: number) => format[i][j] : () => format;
-}
-
 function assertFormulaReturnHasConsistentDimensions(formulaReturn: FormulaReturn) {
   const { value: computedValue, format: computedFormat } = formulaReturn;
-  if (!isMatrix(computedValue)) {
-    if (isMatrix(computedFormat)) {
-      throw new Error("A format matrix should never be associated with a scalar value");
-    }
+  if (computedFormat === undefined) {
     return;
   }
-  if (isMatrix(computedFormat)) {
+  if (isMatrix(computedValue) !== isMatrix(computedFormat)) {
+    throw new Error("A format matrix should never be associated with a scalar value");
+  }
+  if (isMatrix(computedValue)) {
     const sameDimensions =
       computedValue.length === computedFormat.length &&
       computedValue[0].length === computedFormat[0].length;
