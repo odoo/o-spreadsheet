@@ -50,7 +50,7 @@ interface SelectionInputTestConfig {
 class Parent extends Component<any> {
   static template = xml/* xml */ `
     <SelectionInput
-      ranges="() => initialRanges || []"
+      ranges="initialRanges || []"
       hasSingleRange="hasSingleRange"
       onSelectionChanged="(ranges) => this.onChanged(ranges)"
       onSelectionConfirmed="onConfirmed" />
@@ -88,10 +88,10 @@ class MultiParent extends Component<any> {
   static template = xml/* xml */ `
     <div>
       <div class="input-1">
-        <SelectionInput ranges="() => []"/>
+        <SelectionInput ranges="[]"/>
       </div>
       <div class="input-2">
-        <SelectionInput ranges="() => []"/>
+        <SelectionInput ranges="[]"/>
       </div>
     </div>
   `;

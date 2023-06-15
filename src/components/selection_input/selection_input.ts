@@ -69,7 +69,7 @@ css/* scss */ `
 `;
 
 interface Props {
-  ranges: () => string[];
+  ranges: string[];
   hasSingleRange?: boolean;
   required?: boolean;
   isInvalid?: boolean;
@@ -101,7 +101,7 @@ interface SelectionRange extends Omit<RangeInputValue, "color"> {
 export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SelectionInput";
   private id = uuidGenerator.uuidv4();
-  private previousRanges: string[] = this.props.ranges() || [];
+  private previousRanges: string[] = this.props.ranges || [];
   private originSheet = this.env.model.getters.getActiveSheetId();
   private state: State = useState({
     isMissing: false,
@@ -113,8 +113,8 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     const existingSelectionRanges = this.env.model.getters.getSelectionInput(this.id);
     const ranges = existingSelectionRanges.length
       ? existingSelectionRanges
-      : this.props.ranges()
-      ? this.props.ranges().map((xc, id) => ({
+      : this.props.ranges
+      ? this.props.ranges.map((xc, id) => ({
           xc,
           id,
           isFocused: false,
@@ -159,7 +159,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   enableNewSelectionInput() {
     this.env.model.dispatch("ENABLE_NEW_SELECTION_INPUT", {
       id: this.id,
-      initialRanges: this.props.ranges(),
+      initialRanges: this.props.ranges,
       hasSingleRange: this.props.hasSingleRange,
     });
   }
@@ -281,7 +281,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     }
     this.props.onSelectionChanged?.(existingSelectionXcs);
     this.props.onSelectionConfirmed?.();
-    this.previousRanges = this.props.ranges();
+    this.previousRanges = existingSelectionXcs;
     if (existingSelectionXcs.join() !== this.previousRanges.join()) {
       this.enableNewSelectionInput();
     }
@@ -290,7 +290,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
 }
 
 SelectionInput.props = {
-  ranges: Function,
+  ranges: Array,
   hasSingleRange: { type: Boolean, optional: true },
   required: { type: Boolean, optional: true },
   isInvalid: { type: Boolean, optional: true },
