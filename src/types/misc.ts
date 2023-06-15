@@ -181,12 +181,12 @@ export type Matrix<T = unknown> = T[][];
 // FORMULA FUNCTION INPUT
 
 export type Arg = MatrixArg | PrimitiveArg;
-export type MatrixArg = { value: MatrixArgValue; format?: MatrixArgFormat };
+export type MatrixArg = Matrix<PrimitiveArg>;
 export type PrimitiveArg = { value: PrimitiveArgValue; format?: PrimitiveFormat };
 
 export type ArgValue = PrimitiveArgValue | MatrixArgValue;
 
-export type MatrixArgValue = Matrix<CellValue | undefined>; // TODO: replace undefined by null for consistency --> MatrixArgValue will be Matrix<PrimitiveArgValue>
+export type MatrixArgValue = Matrix<PrimitiveArgValue>;
 export type PrimitiveArgValue = CellValue | null; // null represents an empty cell. We prefer null instead of undefined because undefined could be replaced by a default value when passed to a javascript function
 
 export type MatrixArgFormat = Matrix<PrimitiveFormat>;
@@ -198,12 +198,7 @@ export type FunctionReturn = MatrixFunctionReturn | PrimitiveFunctionReturn;
 export type FunctionReturnValue = CellValue | Matrix<CellValue>;
 export type FunctionReturnFormat = PrimitiveFormat | MatrixArgFormat;
 
-export type MatrixFunctionReturn = {
-  value: Matrix<CellValue>;
-  // this is FunctionReturnFormat and not MatrixArgFormat
-  // to allow the format to be a simple primitive and avoid filling the whole matrix with same format
-  format?: FunctionReturnFormat;
-};
+export type MatrixFunctionReturn = Matrix<PrimitiveFunctionReturn>;
 export type PrimitiveFunctionReturn = { value: CellValue; format?: PrimitiveFormat };
 
 // FORMULA OUTPUT

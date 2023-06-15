@@ -2,16 +2,14 @@ import { transpose2dArray } from "../helpers";
 import { _t } from "../translation";
 import {
   AddFunctionDescription,
-  ArgValue,
-  CellValue,
+  Arg,
   isMatrix,
-  Matrix,
-  MatrixArgValue,
-  PrimitiveArgValue,
+  MatrixFunctionReturn,
+  PrimitiveArg,
 } from "../types";
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
-import { assert, toBoolean, toCellValue, toCellValueMatrix, toMatrixArgValue } from "./helpers";
+import { assert, matrixMap, toBoolean, toCellValue, toMatrix } from "./helpers";
 import { assertSameDimensions, assertSingleColOrRow } from "./helper_assert";
 
 // -----------------------------------------------------------------------------
@@ -36,10 +34,11 @@ export const FILTER = {
     ),
   ],
   returns: ["RANGE<ANY>"],
-  //TODO computeFormat
-  compute: function (range: ArgValue, ...conditions: ArgValue[]): Matrix<CellValue> {
-    let _range = toMatrixArgValue(range);
-    const _conditionsMatrices = conditions.map((cond) => toMatrixArgValue(cond));
+  computeValueAndFormat: function (range: Arg, ...conditions: Arg[]) {
+    let _array = toMatrix(range);
+    const _conditionsMatrices = conditions.map((cond) =>
+      matrixMap(toMatrix(cond), (data) => toCellValue(data.value))
+    );
     _conditionsMatrices.map((c) =>
       assertSingleColOrRow(_t("The arguments condition must be a single column or row."), c)
     );
@@ -50,27 +49,31 @@ export const FILTER = {
     const _conditions = _conditionsMatrices.map((c) => c.flat());
 
     const mode = _conditionsMatrices[0].length === 1 ? "row" : "col";
-    _range = mode === "row" ? transpose2dArray(_range) : _range;
+    _array = mode === "row" ? transpose2dArray(_array) : _array;
 
     assert(
-      () => _conditions.every((cond) => cond.length === _range.length),
+      () => _conditions.every((cond) => cond.length === _array.length),
       _t(`FILTER has mismatched sizes on the range and conditions.`)
     );
 
-    const results: MatrixArgValue = [];
-
-    for (let i = 0; i < _range.length; i++) {
-      const row = _range[i];
+    const result: MatrixFunctionReturn = [];
+    for (let i = 0; i < _array.length; i++) {
+      const row = _array[i];
       if (_conditions.every((c) => c[i])) {
-        results.push(row);
+        result.push(
+          row.map((cell) => ({
+            value: toCellValue(cell.value),
+            format: cell.format,
+          }))
+        );
       }
     }
 
-    if (!results.length) {
+    if (!result.length) {
       throw new NotAvailableError(_t("No match found in FILTER evaluation"));
     }
 
-    return toCellValueMatrix(mode === "row" ? transpose2dArray(results) : results);
+    return mode === "row" ? transpose2dArray(result) : result;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -92,38 +95,42 @@ export const UNIQUE = {
     ),
   ],
   returns: ["RANGE<NUMBER>"],
-  // TODO computeFormat
-  compute: function (
-    range: ArgValue,
-    byColumn: PrimitiveArgValue,
-    exactlyOnce: PrimitiveArgValue
-  ): Matrix<CellValue> | CellValue {
+  computeValueAndFormat: function (range: Arg, byColumn: PrimitiveArg, exactlyOnce: PrimitiveArg) {
     if (!isMatrix(range)) {
-      return toCellValue(range);
+      return { value: toCellValue(range.value), format: range.format };
     }
-    const _byColumn = toBoolean(byColumn) || false;
-    const _exactlyOnce = toBoolean(exactlyOnce) || false;
-    if (!_byColumn) range = transpose2dArray(range);
+    const _byColumn = toBoolean(byColumn?.value) || false;
+    const _exactlyOnce = toBoolean(exactlyOnce?.value) || false;
+    let _array = toMatrix(range);
+    if (!_byColumn) {
+      _array = transpose2dArray(_array);
+    }
 
-    const map: Map<string, { val: (CellValue | undefined)[]; count: number }> = new Map();
+    const map: Map<string, { data: PrimitiveArg[]; count: number }> = new Map();
 
-    for (const row of range) {
-      const key = JSON.stringify(row);
+    for (const data of _array) {
+      const key = JSON.stringify(data.map((item) => item.value));
       const occurrence = map.get(key);
       if (!occurrence) {
-        map.set(key, { val: row, count: 1 });
+        map.set(key, { data, count: 1 });
       } else {
         occurrence.count++;
       }
     }
 
-    const results = _exactlyOnce
-      ? [...map.values()].filter((v) => v.count === 1).map((v) => v.val)
-      : [...map.values()].map((v) => v.val);
+    const result: MatrixFunctionReturn = [];
+    for (const row of map.values()) {
+      if (_exactlyOnce && row.count > 1) {
+        continue;
+      }
+      result.push(
+        row.data.map((item) => ({ value: toCellValue(item.value), format: item.format }))
+      );
+    }
 
-    if (!results.length) throw new Error(_t("No unique values found"));
+    if (!result.length) throw new Error(_t("No unique values found"));
 
-    return toCellValueMatrix(_byColumn ? results : transpose2dArray(results));
+    return _byColumn ? result : transpose2dArray(result);
   },
   isExported: true,
 } satisfies AddFunctionDescription;

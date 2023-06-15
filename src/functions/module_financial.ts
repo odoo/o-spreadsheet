@@ -1,7 +1,6 @@
 import {
   addMonthsToDate,
   getYearFrac,
-  isDefined,
   isLastDayOfMonth,
   jsDateToRoundNumber,
   range,
@@ -1357,7 +1356,7 @@ export const MIRR = {
     const rRate = toNumber(reinvestmentRate, this.locale);
     const cashFlow = transpose2dArray(cashflowAmount)
       .flat()
-      .filter(isDefined)
+      .filter((t) => t !== null)
       .map((val) => toNumber(val, this.locale));
     const n = cashFlow.length;
 

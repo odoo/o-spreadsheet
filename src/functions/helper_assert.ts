@@ -1,7 +1,7 @@
 import { ArgValue, isMatrix, Matrix, MatrixArgValue } from "../types";
 import { assert } from "./helpers";
 
-export function assertSingleColOrRow(errorStr: string, arg: MatrixArgValue) {
+export function assertSingleColOrRow(errorStr: string, arg: Matrix) {
   assert(() => arg.length === 1 || arg[0].length === 1, errorStr);
 }
 

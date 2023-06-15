@@ -4,12 +4,10 @@ import { ModelConfig } from "../../../model";
 import { _t } from "../../../translation";
 import {
   CellPosition,
-  CellValue,
   CellValueType,
   EnsureRange,
   EvalContext,
   EvaluatedCell,
-  Format,
   Getters,
   MatrixArg,
   PrimitiveArg,
@@ -95,15 +93,14 @@ class CompilationParametersBuilder {
     if (range.invalidSheetName) {
       throw new Error(_t("Invalid sheet name: %s", range.invalidSheetName));
     }
-
-    return this.readCell(range);
+    const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
+    return this.readCell(position);
   }
 
-  private readCell(range: Range): PrimitiveArg {
-    if (!this.getters.tryGetSheet(range.sheetId)) {
+  private readCell(position: CellPosition): PrimitiveArg {
+    if (!this.getters.tryGetSheet(position.sheetId)) {
       throw new Error(_t("Invalid sheet name"));
     }
-    const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
     const evaluatedCell = this.getEvaluatedCellIfNotEmpty(position);
     if (evaluatedCell === undefined) {
       return { value: null, format: this.getters.getCell(position)?.format };
@@ -148,30 +145,20 @@ class CompilationParametersBuilder {
     const sheetZone = this.getters.getSheetZone(sheetId);
     const _zone = intersection(zone, sheetZone);
     if (!_zone) {
-      return { value: [[]], format: [[]] };
+      return [[]];
     }
 
     const height = _zone.bottom - _zone.top + 1;
     const width = _zone.right - _zone.left + 1;
-    const value: CellValue[][] = Array.from({ length: width }, () =>
-      Array.from({ length: height })
-    );
-    const format: Format[][] = Array.from({ length: width }, () => Array.from({ length: height }));
-
+    const matrix: MatrixArg = Array.from({ length: width }, () => Array.from({ length: height }));
     // Performance issue: nested loop is faster than a map here
     for (let col = _zone.left; col <= _zone.right; col++) {
       for (let row = _zone.top; row <= _zone.bottom; row++) {
-        const evaluatedCell = this.getEvaluatedCellIfNotEmpty({ sheetId: sheetId, col, row });
-        if (evaluatedCell) {
-          const colIndex = col - _zone.left;
-          const rowIndex = row - _zone.top;
-          value[colIndex][rowIndex] = evaluatedCell.value;
-          if (evaluatedCell.format !== undefined) {
-            format[colIndex][rowIndex] = evaluatedCell.format;
-          }
-        }
+        const colIndex = col - _zone.left;
+        const rowIndex = row - _zone.top;
+        matrix[colIndex][rowIndex] = this.readCell({ sheetId, col, row });
       }
     }
-    return { value, format };
+    return matrix;
   }
 }

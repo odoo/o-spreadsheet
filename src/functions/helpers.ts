@@ -5,6 +5,7 @@ import { _t } from "../translation";
 import {
   ArgValue,
   CellValue,
+  Format,
   isMatrix,
   Locale,
   Matrix,
@@ -196,7 +197,7 @@ function visitArgs(
       const lenCol = arg[0].length;
       for (let y = 0; y < lenCol; y++) {
         for (let x = 0; x < lenRow; x++) {
-          cellCb(arg[x][y]);
+          cellCb(arg[x][y] ?? undefined);
         }
       }
     } else {
@@ -245,13 +246,13 @@ function reduceArgs<T>(
       if (dir === "rowFirst") {
         for (let row = 0; row < numberOfRows; row++) {
           for (let col = 0; col < numberOfCols; col++) {
-            val = cellCb(val, arg[col][row]);
+            val = cellCb(val, arg[col][row] ?? undefined);
           }
         }
       } else {
         for (let col = 0; col < numberOfCols; col++) {
           for (let row = 0; row < numberOfRows; row++) {
-            val = cellCb(val, arg[col][row]);
+            val = cellCb(val, arg[col][row] ?? undefined);
           }
         }
       }
@@ -321,6 +322,29 @@ export function reduceNumbersTextAs0(
 }
 
 // -----------------------------------------------------------------------------
+// MATRIX FUNCTIONS
+// -----------------------------------------------------------------------------
+
+export function generateMatrix(
+  nRows: number,
+  nColumns: number,
+  valueCallback: (i: number, j: number) => any,
+  formatCallback: (i: number, j: number) => Format | undefined
+) {
+  const returned = Array(nColumns);
+  for (let i = 0; i < nColumns; i++) {
+    returned[i] = Array(nRows);
+    for (let j = 0; j < nRows; j++) {
+      returned[i][j] = {
+        value: valueCallback(i, j) ?? 0,
+        format: formatCallback(i, j),
+      };
+    }
+  }
+  return returned;
+}
+
+// -----------------------------------------------------------------------------
 // CONDITIONAL EXPLORE FUNCTIONS
 // -----------------------------------------------------------------------------
 
@@ -340,7 +364,7 @@ function conditionalVisitArgs(
       const lenCol = arg[0].length;
       for (let y = 0; y < lenCol; y++) {
         for (let x = 0; x < lenRow; x++) {
-          if (!cellCb(arg[x][y])) return;
+          if (!cellCb(arg[x][y] ?? undefined)) return;
         }
       }
     } else {
@@ -549,7 +573,7 @@ export function visitMatchingRanges(
       for (let k = 0; k < countArg - 1; k += 2) {
         const criteriaValue = (args[k] as MatrixArgValue)[i][j];
         const criterion = predicates[k / 2];
-        validatedPredicates = evaluatePredicate(criteriaValue, criterion);
+        validatedPredicates = evaluatePredicate(criteriaValue ?? undefined, criterion);
         if (!validatedPredicates) {
           break;
         }
@@ -569,14 +593,14 @@ export function getNormalizedValueFromColumnRange(
   range: MatrixArgValue,
   index: number
 ): CellValue | undefined {
-  return normalizeValue(range[0][index]);
+  return normalizeValue(range[0][index]) ?? undefined;
 }
 
 export function getNormalizedValueFromRowRange(
   range: MatrixArgValue,
   index: number
 ): CellValue | undefined {
-  return normalizeValue(range[index][0]);
+  return normalizeValue(range[index][0]) ?? undefined;
 }
 
 /**
@@ -779,6 +803,10 @@ export function toCellValue(value: any): CellValue {
 export function toMatrixArgValue(values: ArgValue): MatrixArgValue {
   if (isMatrix(values)) return values;
   return [[values === null ? 0 : values]];
+}
+
+export function toMatrix<T>(data: T | Matrix<T>): Matrix<T> {
+  return isMatrix(data) ? data : [[data]];
 }
 
 /**
