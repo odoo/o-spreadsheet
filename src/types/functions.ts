@@ -14,13 +14,13 @@ export type ArgType =
   | "RANGE<STRING>"
   | "META";
 
-export interface ArgDefinition<T extends ArgType = any> {
+export interface ArgDefinition<T extends ArgType = ArgType> {
   repeating?: boolean;
   optional?: boolean;
   lazy?: boolean;
   description: string;
   name: string;
-  type: T;
+  type: T[];
   default?: boolean;
   defaultValue?: any;
 }
@@ -90,11 +90,11 @@ type TypeMapping = {
 };
 
 type ArgsToTypescript<Type extends readonly ArgDefinition[]> = {
-  [K in keyof Type]: ToTypescriptType<Type[K]["type"]>;
+  [K in keyof Type]: ToTypescriptType<Type[K]["type"][number]>;
 };
 type FullArgsToTypescript<Type extends readonly ArgDefinition[]> = {
   [K in keyof Type]: {
-    value: ToTypescriptType<Type[K]["type"]>;
+    value: ToTypescriptType<Type[K]["type"][number]>;
     format: Format | undefined;
   };
 };

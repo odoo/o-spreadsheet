@@ -69,14 +69,17 @@ class FunctionRegistry extends Registry<FunctionDescription> {
     const descr = addMetaInfoFromArg(addDescr);
     validateArguments(descr.args);
 
+    const castingFns;
+
     function computeValueAndFormat(
       this: EvalContext,
       ...args: ComputeFunctionArg<Arg>[]
     ): FunctionReturn {
+      const castedArgs = castArgs;
       const computeValue = descr.compute.bind(this);
       const computeFormat = descr.computeFormat ? descr.computeFormat.bind(this) : () => undefined;
 
-      const value = computeValue(...extractArgValuesFromArgs(args));
+      const value = computeValue(...extractValuesFromArgs(args));
       const format = computeFormat(...args);
       if (isMatrix(value)) {
         return {
@@ -100,7 +103,7 @@ class FunctionRegistry extends Registry<FunctionDescription> {
   }
 }
 
-function extractArgValuesFromArgs(args: ComputeFunctionArg<Arg>[]): ComputeFunctionArg<ArgValue>[] {
+function extractValuesFromArgs(args: ComputeFunctionArg<Arg>[]): ComputeFunctionArg<ArgValue>[] {
   return args.map((arg) => {
     if (arg === undefined) {
       return undefined;

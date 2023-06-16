@@ -3,9 +3,15 @@ import {
   AddFunctionDescription,
   ArgDefinition,
   ArgType,
+  ArgValue,
+  EvalContext,
   FunctionDescription,
   InferArgType,
+  isMatrix,
+  Matrix,
+  MatrixArgValue,
 } from "../types";
+import { toBoolean, toJsDate, toNumber, toString } from "./helpers";
 
 //------------------------------------------------------------------------------
 // Arg description DSL
@@ -30,7 +36,7 @@ export function arg<D extends string>(
   definition: D,
   description: string = ""
 ): ArgDefinition<InferArgType<D>> {
-  return makeArg(definition, description);
+  return makeArg(definition, description) as ArgDefinition<InferArgType<D>>;
 }
 
 // export function args<Args extends readonly ArgDefinition<ArgType>[]>(args: Args): Args {
@@ -196,4 +202,96 @@ export function validateArguments(args: ArgDefinition[]) {
     previousArgOptional = current.optional;
     previousArgDefault = current.default;
   }
+}
+
+export function getCastingFunctions(args: ArgDefinition[]) {
+  return args.map((arg) => {
+    arg;
+    const castingFunction = getCastingFunction(arg);
+    return castingFunction;
+  });
+}
+
+const CAST_MAP = {
+  NUMBER: toNumber,
+  STRING: toString,
+  BOOLEAN: toBoolean,
+  DATE: toJsDate,
+};
+
+function getCastingFunction(arg: ArgDefinition) {
+  const argTypes = arg.type;
+  const hasRange = argTypes.some((type) => type.startsWith("RANGE"));
+  const isRangeOnly = argTypes.every((type) => type.startsWith("RANGE"));
+  if (allArgType(argTypes, "NUMBER")) {
+    if (isRangeOnly) {
+      return rangeCastingFunction("NUMBER", arg.optional || false);
+    }
+    if (!hasRange) {
+      return singleValueCastingFunction("NUMBER", arg.optional || false);
+    }
+    return function (this: EvalContext, value: ArgValue) {
+      if (arg.optional && value === undefined) {
+        return undefined;
+      }
+      if (isMatrix(value)) {
+        return matrixMap(value, CAST_MAP[type]);
+      }
+      return CAST_MAP[type];
+    };
+  } else if (allArgType(argTypes, "STRING")) {
+    return function (this: EvalContext, value: ArgValue) {
+      if (arg.optional && value === undefined) {
+        return undefined;
+      }
+      return toString(value);
+    };
+  } else if (allArgType(argTypes, "BOOLEAN")) {
+    return function (this: EvalContext, value: ArgValue) {
+      if (arg.optional && value === undefined) {
+        return undefined;
+      }
+      return toBoolean(value);
+    };
+  } else if (allArgType(argTypes, "DATE")) {
+    return function (this: EvalContext, value: ArgValue) {
+      if (arg.optional && value === undefined) {
+        return undefined;
+      }
+      return toJsDate(value);
+    };
+  }
+}
+
+function rangeCastingFunction(type: ArgType, optional: boolean) {
+  return function (this: EvalContext, value: MatrixArgValue) {
+    if (optional && value === undefined) {
+      return undefined;
+    }
+    return matrixMap(value, CAST_MAP[type]);
+  };
+}
+function singleValueCastingFunction(type: ArgType, optional: boolean) {
+  return function (this: EvalContext, value: MatrixArgValue) {
+    if (optional && value === undefined) {
+      return undefined;
+    }
+    return CAST_MAP[type];
+  };
+}
+
+function allArgType(argTypes: ArgType[], type: ArgType): boolean {
+  return argTypes.every((argType) => argType === type);
+}
+
+// TODO ADRM's PR #2380
+export function matrixMap<T, M>(matrix: Matrix<T>, fn: (value: T) => M): Matrix<M> {
+  let result: Matrix<M> = new Array(matrix.length);
+  for (let i = 0; i < matrix.length; i++) {
+    result[i] = new Array(matrix[i].length);
+    for (let j = 0; j < matrix[i].length; j++) {
+      result[i][j] = fn(matrix[i][j]);
+    }
+  }
+  return result;
 }
