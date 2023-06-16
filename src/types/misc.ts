@@ -159,7 +159,7 @@ export type ReferenceDenormalizer = (
   paramNumber: number
 ) => any | any[][];
 
-export type EnsureRange = (range: Range) => MatrixArg;
+export type EnsureRange = (range: Range) => MatrixArg<unknown>;
 
 export type NumberParser = (str: string) => number;
 
@@ -180,13 +180,16 @@ export type Matrix<T = unknown> = T[][];
 
 // FORMULA FUNCTION INPUT
 
-export type Arg = MatrixArg | PrimitiveArg;
-export type MatrixArg = { value: MatrixArgValue; format?: MatrixArgFormat };
-export type PrimitiveArg = { value: PrimitiveArgValue; format?: PrimitiveFormat };
+export type Arg<V = PrimitiveArgValue> = MatrixArg<V> | PrimitiveArg<V>;
+export type MatrixArg<V = PrimitiveArgValue> = {
+  value: Matrix<V>;
+  format?: Matrix<Format | undefined>;
+};
+export type PrimitiveArg<V = PrimitiveArgValue> = { value: V; format?: Format };
 
-export type ArgValue = PrimitiveArgValue | MatrixArgValue;
+export type ArgValue<V = PrimitiveArgValue> = V | Matrix<V>;
 
-export type MatrixArgValue = Matrix<CellValue | undefined>; // TODO: replace undefined by null for consistency --> MatrixArgValue will be Matrix<PrimitiveArgValue>
+export type MatrixArgValue<V = CellValue | undefined> = Matrix<V>; // TODO: replace undefined by null for consistency --> MatrixArgValue will be Matrix<PrimitiveArgValue>
 export type PrimitiveArgValue = CellValue | null; // null represents an empty cell. We prefer null instead of undefined because undefined could be replaced by a default value when passed to a javascript function
 
 export type MatrixArgFormat = Matrix<PrimitiveFormat>;
@@ -204,12 +207,12 @@ export type MatrixFunctionReturn = {
   // to allow the format to be a simple primitive and avoid filling the whole matrix with same format
   format?: FunctionReturnFormat;
 };
-export type PrimitiveFunctionReturn = { value: CellValue; format?: PrimitiveFormat };
+export type PrimitiveFunctionReturn = { value: CellValue; format?: Format };
 
 // FORMULA OUTPUT
 
 export type FormulaReturn = MatrixFunctionReturn | PrimitiveFormulaReturn;
-type PrimitiveFormulaReturn = { value: CellValue | null; format?: PrimitiveFormat };
+type PrimitiveFormulaReturn = { value: CellValue | null; format?: Format };
 
 export function isMatrix(x: any): x is Matrix<any> {
   return Array.isArray(x) && Array.isArray(x[0]);

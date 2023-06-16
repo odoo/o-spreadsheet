@@ -16,7 +16,6 @@ import {
   Matrix,
   MatrixArgFormat,
   MatrixFunctionReturn,
-  PrimitiveFormat,
   UID,
 } from "../../../types";
 import {
@@ -429,7 +428,7 @@ function forEachSpreadPositionInMatrix(
 
 function formatFromPositionAccess(
   format: Format | MatrixArgFormat | undefined
-): (i: number, j: number) => PrimitiveFormat {
+): (i: number, j: number) => Format | undefined {
   return isMatrix(format) ? (i: number, j: number) => format[i][j] : () => format;
 }
 

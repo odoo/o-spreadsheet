@@ -1,4 +1,5 @@
-import { Arg, FunctionReturnFormat, FunctionReturnValue, Matrix } from "./misc";
+import { Format } from "./format";
+import { FunctionReturnFormat, FunctionReturnValue, Matrix } from "./misc";
 
 export type ArgType =
   | "ANY"
@@ -31,8 +32,8 @@ export type ComputeFunction<T extends readonly any[], R> = (this: EvalContext, .
 
 export interface AddFunctionDescription<Args extends readonly ArgDefinition[] = any[]> {
   readonly description: string;
-  readonly compute: ComputeFunction<ArgTypesToTypescript<Args>, FunctionReturnValue>;
-  readonly computeFormat?: ComputeFunction<Arg[], FunctionReturnFormat>;
+  readonly compute: ComputeFunction<ArgsToTypescript<Args>, FunctionReturnValue>;
+  readonly computeFormat?: ComputeFunction<FullArgsToTypescript<Args>, FunctionReturnFormat>;
   readonly category?: string;
   readonly args: Args;
   readonly returns: Readonly<[ArgType]>;
@@ -88,11 +89,12 @@ type TypeMapping = {
   OPTIONAL: undefined;
 };
 
-// type TEST = InferArgType<"my_arg (number, range<number>, default=10, optional)">;
-
-// type T = ["NUMBER", "STRING", "OPTIONAL"]
-
-type ArgTypesToTypescript<Type extends readonly ArgDefinition[]> = {
+type ArgsToTypescript<Type extends readonly ArgDefinition[]> = {
   [K in keyof Type]: ToTypescriptType<Type[K]["type"]>;
 };
-// type T2 = ArgTypesToTypescript<T>;
+type FullArgsToTypescript<Type extends readonly ArgDefinition[]> = {
+  [K in keyof Type]: {
+    value: ToTypescriptType<Type[K]["type"]>;
+    format: Format | undefined;
+  };
+};

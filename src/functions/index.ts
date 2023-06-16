@@ -6,7 +6,6 @@ import {
   ArgDefinition,
   ArgValue,
   ComputeFunction,
-  ComputeFunctionArg,
   EvalContext,
   FunctionDescription,
   FunctionReturn,
@@ -45,7 +44,7 @@ const categories = [
   { name: _lt("Text"), functions: text },
   { name: _lt("Engineering"), functions: engineering },
   { name: _lt("Web"), functions: web },
-]as const;
+] as const;
 
 const functionNameRegex = /^[A-Z0-9\_\.]+$/;
 
@@ -57,7 +56,7 @@ class FunctionRegistry extends Registry<FunctionDescription> {
     [key: string]: ComputeFunction<Arg, FunctionReturn>;
   } = {};
 
-  add<Args extends ArgDefinition<any>[] >(name: string, addDescr: AddFunctionDescription<Args>) {
+  add<Args extends ArgDefinition<any>[]>(name: string, addDescr: AddFunctionDescription<Args>) {
     name = name.toUpperCase();
     if (!functionNameRegex.test(name)) {
       throw new Error(
@@ -124,3 +123,5 @@ for (let category of categories) {
     functionRegistry.add(name, { isExported: false, ...addDescr });
   }
 }
+
+export type ComputeFunctionArg<T> = T | (() => T) | undefined;
