@@ -12,7 +12,7 @@ import { Format } from "../types";
 export interface InternalDate {
   value: number;
   format: Format;
-  jsDate?: Date;
+  jsDate: Date;
 }
 
 // -----------------------------------------------------------------------------
@@ -43,7 +43,7 @@ export function parseDateTime(str: string): InternalDate | null {
     str = str.replace(timeMatch[0], "").trim();
   }
 
-  let date;
+  let date: InternalDate | null = null;
   const mdyDateMatch = str.match(mdyDateRegexp);
   const ymdDateMatch = str.match(ymdDateRegexp);
   if (mdyDateMatch || ymdDateMatch) {
