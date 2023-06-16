@@ -10,6 +10,7 @@ import {
   isMatrix,
   Matrix,
   MatrixArgValue,
+  PrimitiveArgValue,
 } from "../types";
 import { toBoolean, toJsDate, toNumber, toString } from "./helpers";
 
@@ -113,14 +114,15 @@ export function addMetaInfoFromArg(addDescr: AddFunctionDescription): FunctionDe
       repeatingArg++;
     }
   }
-  const descr = addDescr as FunctionDescription;
-  descr.minArgRequired = minArg;
-  descr.maxArgPossible = repeatingArg ? Infinity : countArg;
-  descr.nbrArgRepeating = repeatingArg;
-  descr.getArgToFocus = argTargeting(countArg, repeatingArg);
-  descr.hidden = addDescr.hidden || false;
 
-  return descr;
+  return {
+    ...addDescr,
+    minArgRequired: minArg,
+    maxArgPossible: repeatingArg ? Infinity : countArg,
+    nbrArgRepeating: repeatingArg,
+    getArgToFocus: argTargeting(countArg, repeatingArg),
+    hidden: addDescr.hidden || false,
+  };
 }
 
 /**
@@ -220,47 +222,32 @@ const CAST_MAP = {
 };
 
 function getCastingFunction(arg: ArgDefinition) {
+  const types = arg.type.map(getPrimitiveType);
+  const hasMixedType = new Set(types).size > 1;
+  const hasAnyType = types.includes("ANY");
+  if (hasMixedType || hasAnyType || arg.lazy) {
+    // no auto-casting
+    return (v) => v;
+  }
+  const type = types[0];
   const argTypes = arg.type;
   const hasRange = argTypes.some((type) => type.startsWith("RANGE"));
   const isRangeOnly = argTypes.every((type) => type.startsWith("RANGE"));
-  if (allArgType(argTypes, "NUMBER")) {
-    if (isRangeOnly) {
-      return rangeCastingFunction("NUMBER", arg.optional || false);
+  // if (isRangeOnly) {
+  //   return rangeCastingFunction(type, arg.optional || false);
+  // }
+  // if (!hasRange) {
+  //   return singleValueCastingFunction(type, arg.optional || false);
+  // }
+  return function (this: EvalContext, value: ArgValue) {
+    if (arg.optional && value === undefined) {
+      return undefined;
     }
-    if (!hasRange) {
-      return singleValueCastingFunction("NUMBER", arg.optional || false);
+    if (isMatrix(value)) {
+      return matrixMap(value, CAST_MAP[type]);
     }
-    return function (this: EvalContext, value: ArgValue) {
-      if (arg.optional && value === undefined) {
-        return undefined;
-      }
-      if (isMatrix(value)) {
-        return matrixMap(value, CAST_MAP[type]);
-      }
-      return CAST_MAP[type];
-    };
-  } else if (allArgType(argTypes, "STRING")) {
-    return function (this: EvalContext, value: ArgValue) {
-      if (arg.optional && value === undefined) {
-        return undefined;
-      }
-      return toString(value);
-    };
-  } else if (allArgType(argTypes, "BOOLEAN")) {
-    return function (this: EvalContext, value: ArgValue) {
-      if (arg.optional && value === undefined) {
-        return undefined;
-      }
-      return toBoolean(value);
-    };
-  } else if (allArgType(argTypes, "DATE")) {
-    return function (this: EvalContext, value: ArgValue) {
-      if (arg.optional && value === undefined) {
-        return undefined;
-      }
-      return toJsDate(value);
-    };
-  }
+    return CAST_MAP[type];
+  };
 }
 
 function rangeCastingFunction(type: ArgType, optional: boolean) {
@@ -272,7 +259,7 @@ function rangeCastingFunction(type: ArgType, optional: boolean) {
   };
 }
 function singleValueCastingFunction(type: ArgType, optional: boolean) {
-  return function (this: EvalContext, value: MatrixArgValue) {
+  return function (this: EvalContext, value: PrimitiveArgValue) {
     if (optional && value === undefined) {
       return undefined;
     }
@@ -280,8 +267,11 @@ function singleValueCastingFunction(type: ArgType, optional: boolean) {
   };
 }
 
-function allArgType(argTypes: ArgType[], type: ArgType): boolean {
-  return argTypes.every((argType) => argType === type);
+function getPrimitiveType(type: ArgType): ArgType {
+  if (type.startsWith("RANGE")) {
+    return type.slice(6, -1) as ArgType;
+  }
+  return type;
 }
 
 // TODO ADRM's PR #2380

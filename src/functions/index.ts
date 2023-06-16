@@ -11,7 +11,7 @@ import {
   FunctionReturn,
   isMatrix,
 } from "../types";
-import { addMetaInfoFromArg, validateArguments } from "./arguments";
+import { addMetaInfoFromArg, getCastingFunctions, validateArguments } from "./arguments";
 import * as misc from "./module_custom";
 import * as database from "./module_database";
 import * as date from "./module_date";
@@ -53,7 +53,7 @@ const functionNameRegex = /^[A-Z0-9\_\.]+$/;
 //------------------------------------------------------------------------------
 class FunctionRegistry extends Registry<FunctionDescription> {
   mapping: {
-    [key: string]: ComputeFunction<Arg, FunctionReturn>;
+    [key: string]: ComputeFunction<Arg[], FunctionReturn>;
   } = {};
 
   add<Args extends ArgDefinition<any>[]>(name: string, addDescr: AddFunctionDescription<Args>) {
@@ -69,13 +69,22 @@ class FunctionRegistry extends Registry<FunctionDescription> {
     const descr = addMetaInfoFromArg(addDescr);
     validateArguments(descr.args);
 
-    const castingFns;
+    const castingFns: ((value: ArgValue) => ArgValue)[] = getCastingFunctions(descr.args);
 
     function computeValueAndFormat(
       this: EvalContext,
       ...args: ComputeFunctionArg<Arg>[]
     ): FunctionReturn {
-      const castedArgs = castArgs;
+      for (let i = 0; i < args.length; i++) {
+        const arg = args[i];
+        if (typeof arg === "function") {
+          continue;
+        } else if (arg === undefined) {
+          continue;
+        } else {
+          arg.value = castingFns[i](arg.value);
+        }
+      }
       const computeValue = descr.compute.bind(this);
       const computeFormat = descr.computeFormat ? descr.computeFormat.bind(this) : () => undefined;
 
@@ -127,4 +136,4 @@ for (let category of categories) {
   }
 }
 
-export type ComputeFunctionArg<T> = T | (() => T) | undefined;
+type ComputeFunctionArg<T> = T | (() => T);

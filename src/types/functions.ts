@@ -1,5 +1,5 @@
 import { Format } from "./format";
-import { FunctionReturnFormat, FunctionReturnValue, Matrix } from "./misc";
+import { FunctionReturnFormat, FunctionReturnValue, Matrix, PrimitiveArgValue } from "./misc";
 
 export type ArgType =
   | "ANY"
@@ -72,21 +72,26 @@ type Trim<A extends string> = A extends ` ${infer N}`
   ? Trim<N>
   : A;
 
-type ToTypescriptType<A extends string> = A extends ArgType | "OPTIONAL" ? TypeMapping[A] : never;
+type ToTypescriptType<A extends string> = A extends ArgType | "OPTIONAL" | "LAZY" | "REPEATING"
+  ? TypeMapping[A]
+  : never;
 
 type TypeMapping = {
-  ANY: any;
   BOOLEAN: boolean;
   NUMBER: number;
   STRING: string;
   DATE: Date;
-  RANGE: any[];
+  RANGE: PrimitiveArgValue[];
   "RANGE<BOOLEAN>": Matrix<boolean>;
   "RANGE<NUMBER>": Matrix<number>;
   "RANGE<STRING>": Matrix<string>;
   "RANGE<DATE>": Matrix<Date>;
-  META: any;
   OPTIONAL: undefined;
+  // no automatic casting
+  META: PrimitiveArgValue;
+  ANY: PrimitiveArgValue;
+  REPEATING: PrimitiveArgValue;
+  LAZY: () => PrimitiveArgValue;
 };
 
 type ArgsToTypescript<Type extends readonly ArgDefinition[]> = {
