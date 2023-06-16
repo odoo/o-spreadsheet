@@ -617,6 +617,16 @@ describe("charts", () => {
       "C1:C4",
       "D1:D4",
     ]);
+    expect(fixture.querySelectorAll(".o-selection-input input").length).toEqual(4);
+    expect(
+      (fixture.querySelectorAll(".o-selection-input input")[0] as HTMLInputElement).value
+    ).toBe("B1:B4");
+    expect(
+      (fixture.querySelectorAll(".o-selection-input input")[1] as HTMLInputElement).value
+    ).toBe("C1:C4");
+    expect(
+      (fixture.querySelectorAll(".o-selection-input input")[2] as HTMLInputElement).value
+    ).toBe("D1:D4");
   });
 
   test("Can add multiple ranges all in once with fullRow range", async () => {
