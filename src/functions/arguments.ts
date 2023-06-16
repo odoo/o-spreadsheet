@@ -24,7 +24,7 @@ export function arg<D extends string>(definition: D, description: string = ""): 
   return makeArg(definition, description);
 }
 
-export function args<Args extends readonly ArgDefinition[]>(args: Args): Args {
+export function args<Args extends readonly ArgDefinition<ArgType>[]>(args: Args): Args {
   return args;
 }
 

@@ -29,12 +29,12 @@ export type ComputeFunctionArg<T> = {
 };
 export type ComputeFunction<T extends readonly any[], R> = (this: EvalContext, ...args: T) => R;
 
-export interface AddFunctionDescription<ArgTypes extends readonly ArgType[] = any[]> {
+export interface AddFunctionDescription<Args extends readonly ArgDefinition[] = any[]> {
   readonly description: string;
-  readonly compute: ComputeFunction<ArgTypesToTypescript<ArgTypes>, FunctionReturnValue>;
+  readonly compute: ComputeFunction<ArgTypesToTypescript<Args>, FunctionReturnValue>;
   readonly computeFormat?: ComputeFunction<Arg[], FunctionReturnFormat>;
   readonly category?: string;
-  readonly args: ArgTypesToDefinition<ArgTypes>;
+  readonly args: Args;
   readonly returns: Readonly<[ArgType]>;
   readonly isExported?: boolean;
   readonly hidden?: boolean;
@@ -92,7 +92,7 @@ type TypeMapping = {
 
 // type T = ["NUMBER", "STRING", "OPTIONAL"]
 
-type ArgTypesToTypescript<Type extends readonly ArgType[]> = {
-  [K in keyof Type]: ToTypescriptType<Type[K]>;
+type ArgTypesToTypescript<Type extends readonly ArgDefinition[]> = {
+  [K in keyof Type]: ToTypescriptType<Type[K]["type"]>;
 };
 // type T2 = ArgTypesToTypescript<T>;

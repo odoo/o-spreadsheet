@@ -372,15 +372,29 @@ export const COSH: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 // COT
 // -----------------------------------------------------------------------------
-const y = args([
-  arg("angle (number)", _lt("The angle to find the cotangent of, in radians.")),
-  arg("angle2 (boolean)", _lt("The angle to find the cotangent of, in radians."))
-] as const) ;
+const y = args([arg("angle (number)", _lt("The angle to find the cotangent of, in radians.")), arg("angle2 (boolean)", _lt("The angle to find the cotangent of, in radians."))] as const) ;
 export const COT = defineFunction({
   description: _lt("Cotangent of an angle provided in radians."),
   args: args([arg("angle (number)", _lt("The angle to find the cotangent of, in radians.")), arg("angle2 (boolean)", _lt("The angle to find the cotangent of, in radians."))] as const),
   returns: ["NUMBER"],
-  compute: function (angle, angle2): number {
+  compute: function (angle: number, angle2: boolean): number {
+    const _angle = toNumber(angle);
+    assert(
+      () => _angle !== 0,
+      _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+    );
+    return 1 / Math.tan(_angle);
+  },
+  isExported: true,
+} as const);
+export const COTTEST = defineFunction({
+  description: _lt("Cotangent of an angle provided in radians."),
+  args: [
+    arg("angle (number)", _lt("The angle to find the cotangent of, in radians.")),
+    arg("angle2 (boolean)", _lt("The angle to find the cotangent of, in radians."))
+  ] as const,
+  returns: ["NUMBER"],
+  compute: function (angle: number, angle2: boolean): number {
     const _angle = toNumber(angle);
     assert(
       () => _angle !== 0,
