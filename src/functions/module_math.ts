@@ -375,7 +375,7 @@ export const COSH: AddFunctionDescription = {
 const y = args([arg("angle (number)", _lt("The angle to find the cotangent of, in radians.")), arg("angle2 (boolean)", _lt("The angle to find the cotangent of, in radians."))] as const) ;
 export const COT = defineFunction({
   description: _lt("Cotangent of an angle provided in radians."),
-  args: args([arg("angle (number)", _lt("The angle to find the cotangent of, in radians.")), arg("angle2 (boolean)", _lt("The angle to find the cotangent of, in radians."))] as const),
+  args: [arg("angle (number)", _lt("The angle to find the cotangent of, in radians.")), arg("angle2 (boolean)", _lt("The angle to find the cotangent of, in radians."))],
   returns: ["NUMBER"],
   compute: function (angle: number, angle2: boolean): number {
     const _angle = toNumber(angle);
@@ -392,9 +392,9 @@ export const COTTEST = defineFunction({
   args: [
     arg("angle (number)", _lt("The angle to find the cotangent of, in radians.")),
     arg("angle2 (boolean)", _lt("The angle to find the cotangent of, in radians."))
-  ] as const,
+  ],
   returns: ["NUMBER"],
-  compute: function (angle: number, angle2: boolean): number {
+  compute: function (angle, angle2): number {
     const _angle = toNumber(angle);
     assert(
       () => _angle !== 0,
