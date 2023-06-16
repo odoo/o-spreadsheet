@@ -21,7 +21,7 @@ import {
 import { ColorPickerWidget } from "../../color_picker/color_picker_widget";
 import { getTextDecoration } from "../../helpers";
 import { css, cssPropertiesToCss } from "../../helpers/css";
-import { ICONS, ICON_SETS } from "../../icons/icons";
+import { CFIcon, ICONS, ICON_SETS } from "../../icons/icons";
 import { IconPicker } from "../../icon_picker/icon_picker";
 import { SelectionInput } from "../../selection_input/selection_input";
 import { CellIsOperators } from "../../translations_terms";
@@ -749,7 +749,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
     icons.lower = this.iconSets[iconSet].bad;
   }
 
-  setIcon(target: "upper" | "middle" | "lower", icon: string) {
+  setIcon(target: "upper" | "middle" | "lower", icon: CFIcon) {
     this.state.rules.iconSet.icons[target] = icon;
   }
 }

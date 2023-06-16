@@ -1,3 +1,4 @@
+import { CFIcon } from "../components/icons/icons";
 import { Style, UID } from "./misc";
 import { Range } from "./range";
 
@@ -85,9 +86,9 @@ export interface ColorScaleRule {
 // }
 
 export interface IconSet {
-  upper: string;
-  middle: string;
-  lower: string;
+  upper: CFIcon;
+  middle: CFIcon;
+  lower: CFIcon;
 }
 export interface IconSetRule {
   type: "IconSetRule";

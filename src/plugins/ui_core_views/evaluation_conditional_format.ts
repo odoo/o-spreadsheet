@@ -1,3 +1,4 @@
+import { CFIcon } from "../../components/icons/icons";
 import { LINK_COLOR } from "../../constants";
 import { parseLiteral } from "../../helpers/cells";
 import { colorNumberString, percentile } from "../../helpers/index";
@@ -25,7 +26,7 @@ import { UIPlugin } from "../ui_plugin";
 import { CoreViewCommand } from "./../../types/commands";
 
 type ComputedStyles = { [col: HeaderIndex]: (Style | undefined)[] };
-type ComputedIcons = { [col: HeaderIndex]: (string | undefined)[] };
+type ComputedIcons = { [col: HeaderIndex]: (CFIcon | undefined)[] };
 
 export class EvaluationConditionalFormatPlugin extends UIPlugin {
   static getters = ["getConditionalIcon", "getCellComputedStyle"] as const;
@@ -82,7 +83,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     return computedStyle;
   }
 
-  getConditionalIcon({ sheetId, col, row }: CellPosition): string | undefined {
+  getConditionalIcon({ sheetId, col, row }: CellPosition): CFIcon | undefined {
     const icons = this.computedIcons[sheetId]();
     return icons && icons[col]?.[row];
   }
@@ -206,7 +207,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       return;
     }
     const zone: Zone = this.getters.getRangeFromSheetXC(sheetId, range).zone;
-    const iconSet: string[] = [rule.icons.upper, rule.icons.middle, rule.icons.lower];
+    const iconSet = [rule.icons.upper, rule.icons.middle, rule.icons.lower];
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
         const cell = this.getters.getEvaluatedCell({ sheetId, col, row });
@@ -234,8 +235,8 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     upperOperator: string,
     lowerInflectionPoint: number,
     lowerOperator: string,
-    icons: string[]
-  ): string {
+    icons: CFIcon[]
+  ): CFIcon {
     if (
       (upperOperator === "ge" && value >= upperInflectionPoint) ||
       (upperOperator === "gt" && value > upperInflectionPoint)

@@ -14,6 +14,7 @@ css/* scss */ `
 `;
 
 export type IconSetType = keyof typeof ICON_SETS;
+export type CFIcon = keyof typeof ICONS;
 
 // -----------------------------------------------------------------------------
 // We need here the svg of the icons that we need to convert to images for the renderer
@@ -102,4 +103,4 @@ export const ICON_SETS = {
     neutral: "dotNeutral",
     bad: "dotBad",
   },
-};
+} as const;

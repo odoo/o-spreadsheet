@@ -174,7 +174,7 @@ export const ICON_SET_CONVERSION_MAP: Record<ExcelIconSet, IconSetType | undefin
   "3Stars": "smiley",
   "3Triangles": "arrows",
   "5Boxes": "dots",
-};
+} as const;
 
 /** Map between legend position in XLSX file and human readable position  */
 export const DRAWING_LEGEND_POSITION_CONVERSION_MAP: Record<string, LegendPosition> = {

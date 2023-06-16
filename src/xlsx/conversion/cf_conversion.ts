@@ -1,9 +1,10 @@
-import { ICON_SETS } from "../../components/icons/icons";
+import { CFIcon, ICON_SETS } from "../../components/icons/icons";
 import {
   ColorScaleMidPointThreshold,
   ColorScaleThreshold,
   ConditionalFormat,
   ConditionalFormattingOperatorValues,
+  IconSet,
   IconThreshold,
 } from "../../types";
 import { ExcelIconSet, XLSXConditionalFormat, XLSXDxf } from "../../types/xlsx";
@@ -220,7 +221,7 @@ function convertIconSet(
     ranges: xlsxCf.sqref,
     rule: {
       type: "IconSetRule",
-      icons: icons,
+      icons: icons as IconSet,
       upperInflectionPoint: thresholds[1],
       lowerInflectionPoint: thresholds[0],
     },
@@ -232,9 +233,9 @@ function convertIconSet(
  *
  * The indexes are : 0 : bad, 1 : neutral, 2 : good
  */
-function convertIcons(xlsxIconSet: ExcelIconSet, index: number): string {
+function convertIcons(xlsxIconSet: ExcelIconSet, index: number): CFIcon | undefined {
   const iconSet = ICON_SET_CONVERSION_MAP[xlsxIconSet];
-  if (!iconSet) return "";
+  if (!iconSet) return undefined;
 
   return index === 0
     ? ICON_SETS[iconSet].bad
