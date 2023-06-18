@@ -11,7 +11,7 @@ import {
   ZoneDimension,
 } from "../types";
 import { isRowReference, splitReference } from "./references";
-import { toUnboundedZone, zoneToXc } from "./zones";
+import { getZoneArea, toUnboundedZone, zoneToXc } from "./zones";
 
 interface ConstructorArgs {
   readonly zone: Readonly<Zone | UnboundedZone>;
@@ -35,12 +35,20 @@ export class RangeImpl implements Range {
 
   constructor(args: ConstructorArgs, private getSheetSize: (sheetId: UID) => ZoneDimension) {
     this._zone = args.zone;
-    this.parts = args.parts;
+
     this.prefixSheet = args.prefixSheet;
     this.invalidXc = args.invalidXc;
 
     this.sheetId = args.sheetId;
     this.invalidSheetName = args.invalidSheetName;
+
+    let _fixedParts = [...args.parts];
+    if (args.parts.length === 1 && getZoneArea(this.zone) > 1) {
+      _fixedParts.push({ ...args.parts[0] });
+    } else if (args.parts.length === 2 && getZoneArea(this.zone) === 1) {
+      _fixedParts.pop();
+    }
+    this.parts = _fixedParts;
   }
 
   static fromRange(range: Range, getters: CoreGetters): RangeImpl {

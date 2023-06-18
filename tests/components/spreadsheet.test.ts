@@ -313,7 +313,7 @@ describe("Composer / selectionInput interactions", () => {
     sheets: [
       {
         id: "sh1",
-        cells: { B2: { content: "=A1" } },
+        cells: { B2: { content: "=A1+A2" } },
         conditionalFormats: [
           {
             id: "42",
@@ -338,13 +338,13 @@ describe("Composer / selectionInput interactions", () => {
     await simulateClick(".o-selection-input input");
 
     expect(model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("B2:C4")]);
-    expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(0);
+    expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
 
     // select Composer
     await simulateClick(".o-spreadsheet-topbar .o-composer");
 
-    expect(model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("A1")]);
-    expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
+    expect(model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("A1"), toZone("A2")]);
+    expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(2);
   });
   test.each(["A", "="])(
     "Switching from grid composer to selection input should update the highlights and hide the highlight components",
@@ -363,20 +363,20 @@ describe("Composer / selectionInput interactions", () => {
     }
   );
 
-  test("Switching from composer to selection input should update the highlights and hide the highlight components", async () => {
+  test("Switching from composer to selection input should update the highlights and the highlight components", async () => {
     selectCell(model, "B2");
     OPEN_CF_SIDEPANEL_ACTION(env);
     await nextTick();
 
     await simulateClick(".o-spreadsheet-topbar .o-composer");
-    expect(model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("A1")]);
-    expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
+    expect(model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("A1"), toZone("A2")]);
+    expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(2);
 
     //open cf sidepanel
     await simulateClick(".o-selection-input input");
 
     expect(model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("B2:C4")]);
-    expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(0);
+    expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
   });
 
   test("Switching from composer to focusing a figure should resubscribe grid_selection", async () => {
