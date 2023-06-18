@@ -1,4 +1,4 @@
-import { colors, positionToZone, splitReference } from "../../helpers/index";
+import { colors, isEqual, positionToZone, splitReference } from "../../helpers/index";
 import { StreamCallbacks } from "../../selection_stream/event_stream";
 import { SelectionEvent } from "../../types/event_stream";
 import {
@@ -77,15 +77,13 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
     if (this.focusedRangeIndex === null) {
       return;
     }
+
     const inputSheetId = this.inputSheetId;
     const activeSheetId = this.getters.getActiveSheetId();
-    const zone = event.anchor.zone;
-    const range = this.getters.getRangeFromZone(
-      activeSheetId,
-      event.options.unbounded ? this.getters.getUnboundedZone(activeSheetId, zone) : zone
-    );
-
-    const xc = this.getters.getSelectionRangeString(range, inputSheetId);
+    const zone = event.options.unbounded
+      ? this.getters.getUnboundedZone(activeSheetId, event.anchor.zone)
+      : event.anchor.zone;
+    const range = this.getters.getRangeFromZone(activeSheetId, zone);
 
     const willAddNewRange =
       event.mode === "newAnchor" &&
@@ -93,9 +91,17 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
       this.ranges[this.focusedRangeIndex].xc.trim() !== "";
 
     if (willAddNewRange) {
+      const xc = this.getters.getSelectionRangeString(range, inputSheetId);
       this.insertNewRange(this.ranges.length, [xc]);
       this.focusLast();
     } else {
+      let parts = range.parts;
+      const previousXc = this.ranges[this.focusedRangeIndex].xc.trim();
+      if (previousXc) {
+        parts = this.getters.getRangeFromSheetXC(inputSheetId, previousXc).parts;
+      }
+      const newRange = range.clone({ parts });
+      const xc = this.getters.getSelectionRangeString(newRange, inputSheetId);
       this.setRange(this.focusedRangeIndex, [xc]);
     }
   }
@@ -144,7 +150,27 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
           const zone = this.getters.expandZone(cmd.sheetIdTo, positionToZone({ col, row }));
           this.selection.resetAnchor(this, { cell: { col, row }, zone });
         }
+        break;
       }
+      case "START_CHANGE_HIGHLIGHT":
+        const activeSheetId = this.getters.getActiveSheetId();
+        const newZone = this.getters.expandZone(activeSheetId, cmd.zone);
+        const focusIndex = this.ranges.findIndex((range) => {
+          const { xc, sheetName: sheet } = splitReference(range.xc);
+          const sheetName = sheet || this.getters.getSheetName(this.inputSheetId);
+          if (this.getters.getSheetName(activeSheetId) !== sheetName) {
+            return false;
+          }
+          const refRange = this.getters.getRangeFromSheetXC(activeSheetId, xc);
+          return isEqual(this.getters.expandZone(activeSheetId, refRange.zone), newZone);
+        });
+
+        if (focusIndex !== -1) {
+          this.focus(focusIndex);
+          const { left, top } = newZone;
+          this.selection.resetAnchor(this, { cell: { col: left, row: top }, zone: newZone });
+        }
+        break;
     }
   }
 

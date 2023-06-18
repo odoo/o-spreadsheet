@@ -2,10 +2,12 @@ import { App, Component, onMounted, onWillUnmount, useSubEnv, xml } from "@odoo/
 import { Model } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { SelectionInput } from "../../src/components/selection_input/selection_input";
+import { toCartesian, toZone } from "../../src/helpers";
 import {
   activateSheet,
   addCellToSelection,
   createSheet,
+  createSheetWithName,
   merge,
   selectCell,
   undo,
@@ -19,7 +21,6 @@ import {
 } from "../test_helpers/dom_helper";
 import {
   getChildFromComponent,
-  makeTestFixture,
   mountComponent,
   mountSpreadsheet,
   nextTick,
@@ -124,7 +125,7 @@ async function createSelectionInput(
   }));
   await nextTick();
   const id = (parent as Parent).id;
-  return { parent: parent as Parent, model, id, app };
+  return { parent: parent as Parent, model, id, app, fixture };
 }
 
 describe("Selection Input", () => {
@@ -391,8 +392,7 @@ describe("Selection Input", () => {
   });
 
   test("go back to initial sheet when selection is finished", async () => {
-    const fixture = makeTestFixture();
-    const { model } = await createSelectionInput({}, fixture);
+    const { model, fixture } = await createSelectionInput();
     const sheet1Id = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", activate: true });
     await createSelectionInput({}, fixture);
@@ -402,15 +402,13 @@ describe("Selection Input", () => {
     expect(fixture.querySelector("input")!.value).toBe("Sheet2!B4");
     await simulateClick(".o-selection-ok");
     expect(model.getters.getActiveSheetId()).toBe(sheet1Id);
-    fixture.remove();
   });
 
   test("undo after selection won't change active sheet", async () => {
-    const fixture = makeTestFixture();
-    const { model } = await createSelectionInput({}, fixture);
+    const { model } = await createSelectionInput();
     const sheet1Id = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42" });
-    await createSelectionInput({}, fixture);
+    await createSelectionInput();
     activateSheet(model, "42");
     selectCell(model, "B4");
     await nextTick();
@@ -418,7 +416,6 @@ describe("Selection Input", () => {
     expect(model.getters.getActiveSheetId()).toBe(sheet1Id);
     undo(model);
     expect(model.getters.getActiveSheetId()).toBe(sheet1Id);
-    fixture.remove();
   });
   test("show red border if and only if invalid range", async () => {
     await createSelectionInput();
@@ -461,5 +458,240 @@ describe("Selection Input", () => {
     const { model, id } = await createSelectionInput({ hasSingleRange: true });
     await writeInput(0, "C2,A1");
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("C2");
+  });
+
+  describe("change highlight position in the grid", () => {
+    test("change the associated range in the composer ", async () => {
+      const { model, fixture } = await createSelectionInput({ initialRanges: ["B2"] });
+      focus(0);
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        zone: toZone("B2"),
+      });
+      model.selection.selectZone(
+        { cell: toCartesian("C3"), zone: toZone("C3") },
+        { unbounded: true }
+      );
+      await nextTick();
+      expect(fixture.querySelectorAll("input")[0].value).toBe("C3");
+    });
+    test("highlights change handle unbounded ranges ", async () => {
+      const { model, fixture } = await createSelectionInput({ initialRanges: ["B2"] });
+      focus(0);
+      await nextTick();
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        zone: toZone("B1:B100"),
+      });
+      model.selection.selectZone(
+        { cell: toCartesian("C1"), zone: toZone("C1:C100") },
+        { unbounded: true }
+      );
+      await nextTick();
+      expect(fixture.querySelectorAll("input")[0].value).toBe("C:C");
+    });
+    test("change the first associated range in the composer when ranges are the same", async () => {
+      const { model, fixture } = await createSelectionInput({ initialRanges: ["B2", "B2"] });
+      focus(0);
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        zone: toZone("B2"),
+      });
+      model.selection.selectZone(
+        { cell: toCartesian("C3"), zone: toZone("C3") },
+        { unbounded: true }
+      );
+      await nextTick();
+      const inputs = fixture.querySelectorAll("input");
+      expect(inputs[0].value).toBe("C3");
+      expect(inputs[1].value).toBe("B2");
+    });
+
+    test("the first range doesn't change if other highlight transit by the first range state ", async () => {
+      const { model, fixture } = await createSelectionInput({ initialRanges: ["B2", "B1"] });
+      focus(0);
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        zone: toZone("B1"),
+      });
+      model.selection.selectZone(
+        { cell: toCartesian("B2"), zone: toZone("B2") },
+        { unbounded: true }
+      );
+      model.selection.selectZone(
+        { cell: toCartesian("B3"), zone: toZone("B3") },
+        { unbounded: true }
+      );
+
+      await nextTick();
+      const inputs = fixture.querySelectorAll("input");
+      expect(inputs[0].value).toBe("B2");
+      expect(inputs[1].value).toBe("B3");
+    });
+
+    test("can change references of different length", async () => {
+      const { model, fixture } = await createSelectionInput({ initialRanges: ["B1"] });
+      focus(0);
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        zone: toZone("B1"),
+      });
+      model.selection.selectZone(
+        { cell: toCartesian("B1"), zone: toZone("B1:B2") },
+        { unbounded: true }
+      );
+      await nextTick();
+      expect(fixture.querySelectorAll("input")[0].value).toBe("B1:B2");
+    });
+
+    test("can change references with sheetname", async () => {
+      const { model, fixture } = await createSelectionInput({ initialRanges: ["Sheet42!B1"] });
+      createSheetWithName(model, { sheetId: "42", activate: true }, "Sheet42");
+      await nextTick();
+      focus(0);
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        zone: toZone("B1"),
+      });
+      model.selection.selectZone(
+        { cell: toCartesian("B2"), zone: toZone("B2") },
+        { unbounded: true }
+      );
+      await nextTick();
+      expect(fixture.querySelectorAll("input")[0].value).toBe("Sheet42!B2");
+    });
+
+    test("change references of the current sheet", async () => {
+      const { model, fixture } = await createSelectionInput({
+        initialRanges: ["B1", "Sheet42!B1"],
+      });
+      createSheetWithName(model, { sheetId: "42", activate: true }, "Sheet42");
+      await nextTick();
+      focus(0);
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        zone: toZone("B1"),
+      });
+      model.selection.selectZone(
+        { cell: toCartesian("B2"), zone: toZone("B2") },
+        { unbounded: true }
+      );
+      await nextTick();
+      const inputs = fixture.querySelectorAll("input");
+      expect(inputs[0].value).toBe("B1");
+      expect(inputs[1].value).toBe("Sheet42!B2");
+    });
+
+    test.each([
+      ["b$1", "C$1"],
+      ["$b1", "$C1"],
+    ])("can change cells reference with index fixed", async (ref, resultRef) => {
+      const { model, fixture } = await createSelectionInput({ initialRanges: [ref] });
+      focus(0);
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        zone: toZone("B1"),
+      });
+      model.selection.selectZone(
+        { cell: toCartesian("C1"), zone: toZone("C1") },
+        { unbounded: true }
+      );
+      await nextTick();
+      expect(fixture.querySelectorAll("input")[0].value).toBe(resultRef);
+    });
+
+    test.each([
+      ["B1:B$2", "C1:C$2"],
+      ["B1:$B$2", "C1:$C$2"],
+      ["B1:$B2", "C1:$C2"],
+      ["$B1:B2", "$C1:C2"],
+      ["$B$1:B2", "$C$1:C2"],
+      ["B$1:B2", "C$1:C2"],
+      ["$B1:$B2", "$C1:$C2"],
+      ["B$1:B$2", "C$1:C$2"],
+      ["$B$1:$B$2", "$C$1:$C$2"],
+    ])("can change ranges reference with index fixed", async (ref, resultRef) => {
+      const { model, fixture } = await createSelectionInput({ initialRanges: [ref] });
+      focus(0);
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        zone: toZone("B1:B2"),
+      });
+      model.selection.selectZone(
+        { cell: toCartesian("C1"), zone: toZone("C1:C2") },
+        { unbounded: true }
+      );
+      await nextTick();
+      expect(fixture.querySelectorAll("input")[0].value).toBe(resultRef);
+    });
+
+    test("can change cells merged reference", async () => {
+      const { model, fixture } = await createSelectionInput({ initialRanges: ["B1"] });
+      merge(model, "B1:B2");
+      await nextTick();
+      focus(0);
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        zone: toZone("B1:B2"),
+      });
+      model.selection.selectZone(
+        { cell: toCartesian("C1"), zone: toZone("C1") },
+        { unbounded: true }
+      );
+      await nextTick();
+      expect(fixture.querySelectorAll("input")[0].value).toBe("C1");
+
+      await simulateClick(".o-add-selection");
+      await writeInput(1, "B2");
+
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        zone: toZone("B1:B2"),
+      });
+      model.selection.selectZone(
+        { cell: toCartesian("C2"), zone: toZone("C2") },
+        { unbounded: true }
+      );
+      await nextTick();
+      const inputs = fixture.querySelectorAll("input");
+      expect(inputs[0].value).toBe("C1");
+      expect(inputs[1].value).toBe("C2");
+    });
+
+    test("can change cells merged reference with index fixed", async () => {
+      const { model, fixture } = await createSelectionInput({ initialRanges: ["B$2"] });
+      merge(model, "B1:B2");
+      await nextTick();
+      focus(0);
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        zone: toZone("B1:B2"),
+      });
+      model.selection.selectZone(
+        { cell: toCartesian("C1"), zone: toZone("C1:C2") },
+        { unbounded: true }
+      );
+      await nextTick();
+      expect(fixture.querySelectorAll("input")[0].value).toBe("C$1:C$2");
+    });
+
+    test("references are expanded to include merges", async () => {
+      const { model, fixture } = await createSelectionInput({ initialRanges: ["A1:B1"] });
+      merge(model, "C1:D1");
+      await nextTick();
+      focus(0);
+
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        zone: toZone("A1:B1"),
+      });
+      model.selection.selectZone(
+        { cell: toCartesian("B1"), zone: toZone("B1:C1") },
+        { unbounded: true }
+      );
+      await nextTick();
+      expect(fixture.querySelectorAll("input")[0].value).toBe("B1:D1");
+    });
+
+    test("can change references of different length with index fixed", async () => {
+      const { model, fixture } = await createSelectionInput({ initialRanges: ["$B$1"] });
+      focus(0);
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        zone: toZone("B1"),
+      });
+      model.selection.selectZone(
+        { cell: toCartesian("B1"), zone: toZone("B1:B2") },
+        { unbounded: true }
+      );
+      await nextTick();
+      expect(fixture.querySelectorAll("input")[0].value).toBe("$B$1:$B$2");
+    });
   });
 });

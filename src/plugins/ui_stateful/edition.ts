@@ -3,7 +3,6 @@ import { POSTFIX_UNARY_OPERATORS } from "../../formulas/tokenizer";
 import {
   colors,
   concat,
-  getZoneArea,
   isDateTimeFormat,
   isEqual,
   isNumber,
@@ -29,6 +28,7 @@ import {
   LocalCommand,
   Locale,
   Range,
+  RangePart,
   RemoveColumnsRowsCommand,
   UID,
   UnboundedZone,
@@ -621,16 +621,8 @@ export class EditionPlugin extends UIPlugin {
     return this.getters.getSelectionRangeString(range, inputSheetId);
   }
 
-  private getRangeReference(
-    range: Range,
-    fixedParts: Range["parts"] = [{ colFixed: false, rowFixed: false }]
-  ) {
+  private getRangeReference(range: Range, fixedParts: Readonly<RangePart[]>) {
     let _fixedParts = [...fixedParts];
-    if (fixedParts.length === 1 && getZoneArea(range.zone) > 1) {
-      _fixedParts.push({ ...fixedParts[0] });
-    } else if (fixedParts.length === 2 && getZoneArea(range.zone) === 1) {
-      _fixedParts.pop();
-    }
     const newRange = range.clone({ parts: _fixedParts });
     return this.getters.getSelectionRangeString(
       newRange,
