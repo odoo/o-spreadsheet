@@ -14,11 +14,6 @@ import {
   setSelection,
 } from "../test_helpers/commands_helpers";
 
-function select(model: Model, xc: string) {
-  selectCell(model, xc);
-  model.dispatch("STOP_SELECTION_INPUT");
-}
-
 /** returns the highlighted zone in the current sheet */
 function highlightedZones(model: Model) {
   const sheetId = model.getters.getActiveSheetId();
@@ -64,11 +59,11 @@ describe("selection input plugin", () => {
   test("focused input should change with selection", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
     model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
-    select(model, "C2");
+    selectCell(model, "C2");
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("C2");
     const firstColor = model.getters.getSelectionInput(id)[0].color;
     expect(highlightedZones(model)).toStrictEqual(["C2"]);
-    select(model, "D4");
+    selectCell(model, "D4");
     const secondColor = model.getters.getSelectionInput(id)[0].color;
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("D4");
     expect(highlightedZones(model)).toStrictEqual(["D4"]);
@@ -89,8 +84,7 @@ describe("selection input plugin", () => {
     merge(model, "A2:A4");
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, hasSingleRange: true });
     model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
-    model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
-    selectCell(model, "A4");
+    addCellToSelection(model, "A4");
     setAnchorCorner(model, "A3");
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("A2");
     expect(highlightedZones(model)).toStrictEqual(["A2:A4"]);
@@ -110,7 +104,7 @@ describe("selection input plugin", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
     model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
     model.dispatch("START_EDITION", { text: "=" });
-    select(model, "C2");
+    selectCell(model, "C2");
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("");
   });
 
@@ -121,8 +115,7 @@ describe("selection input plugin", () => {
     expect(model.getters.getSelectionInput(id).length).toBe(1);
     expect(model.getters.getSelectionInput(id).map((i) => i.xc)).toEqual(["C2"]);
     expect(highlightedZones(model)).toStrictEqual(["C2"]);
-    model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
-    selectCell(model, "D2");
+    addCellToSelection(model, "D2");
     expect(model.getters.getSelectionInput(id).length).toBe(2);
     expect(model.getters.getSelectionInput(id).map((i) => i.xc)).toEqual(["C2", "D2"]);
     expect(highlightedZones(model)).toStrictEqual(["C2", "D2"]);
@@ -133,17 +126,15 @@ describe("selection input plugin", () => {
   test("expanding a selection focuses the last range", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
     model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
-    select(model, "C2");
-    model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
-    selectCell(model, "D2");
+    selectCell(model, "C2");
+    addCellToSelection(model, "D2");
     expect(model.getters.getSelectionInput(id)[1].isFocused).toBe(true);
   });
 
   test("expanding a selection does not add input if maximum is reached", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, hasSingleRange: true });
-    select(model, "C2");
-    model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
-    selectCell(model, "D2");
+    selectCell(model, "C2");
+    addCellToSelection(model, "D2");
     expect(model.getters.getSelectionInput(id)).toHaveLength(1);
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("D2");
   });
@@ -239,8 +230,7 @@ describe("selection input plugin", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, initialRanges: ["A1"] });
     model.dispatch("ADD_EMPTY_RANGE", { id });
 
-    model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
-    selectCell(model, "C2");
+    addCellToSelection(model, "C2");
     expect(model.getters.getSelectionInput(id)[1].xc).toBe("C2");
     setAnchorCorner(model, "D2");
     expect(model.getters.getSelectionInput(id)[1].xc).toBe("C2:D2");
@@ -257,7 +247,7 @@ describe("selection input plugin", () => {
 
   test("same color with new selection in same range", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
-    select(model, "C2");
+    selectCell(model, "C2");
     const color = model.getters.getSelectionInput(id)[0].color;
     selectCell(model, "D2");
     expect(model.getters.getSelectionInput(id)[0].color).toBe(color);
@@ -265,19 +255,18 @@ describe("selection input plugin", () => {
 
   test("color changes when expanding selection", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
-    select(model, "C2");
+    selectCell(model, "C2");
     const color = model.getters.getSelectionInput(id)[0].color;
-    model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
-    selectCell(model, "D2");
+    addCellToSelection(model, "D2");
     expect(model.getters.getSelectionInput(id)[1].color).not.toEqual(color);
   });
 
   test("color changes in new input", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
-    select(model, "C2");
+    selectCell(model, "C2");
     const color = model.getters.getSelectionInput(id)[0].color;
     model.dispatch("ADD_EMPTY_RANGE", { id });
-    select(model, "C2");
+    selectCell(model, "C2");
     expect(model.getters.getSelectionInput(id)[1].color).not.toBe(color);
   });
 
@@ -298,10 +287,10 @@ describe("selection input plugin", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
     model.dispatch("ADD_EMPTY_RANGE", { id });
     expect(model.getters.getSelectionInput(id)[1].isFocused).toBe(true);
-    select(model, "C2");
+    selectCell(model, "C2");
     const firstColor = model.getters.getSelectionInput(id)[1].color;
     model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
-    select(model, "C3");
+    selectCell(model, "C3");
     const secondColor = model.getters.getSelectionInput(id)[0].color;
     expect(model.getters.getHighlights().length).toBe(2);
     expect(firstColor).not.toBe(secondColor);
@@ -447,9 +436,7 @@ describe("selection input plugin", () => {
     selectCell(model, "C2");
     model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
     expect(highlightedZones(model)).toEqual(["C4"]);
-    model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
-    selectCell(model, "D2");
-    model.dispatch("STOP_SELECTION_INPUT");
+    addCellToSelection(model, "D2");
     expect(highlightedZones(model)).toEqual(["C4", "D2"]);
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("C4");
     expect(model.getters.getSelectionInput(id)[1].xc).toBe("D2");
@@ -463,11 +450,9 @@ describe("selection input plugin", () => {
     });
     selectCell(model, "C2");
     model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
-    model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
-    selectCell(model, "E1");
+    addCellToSelection(model, "E1");
     setAnchorCorner(model, "E2");
     setAnchorCorner(model, "E3");
-    model.dispatch("STOP_SELECTION_INPUT");
     expect(highlightedZones(model)).toEqual(["E1:E3"]);
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("E1:E3");
   });
@@ -476,8 +461,7 @@ describe("selection input plugin", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, initialRanges: ["D4"] });
     selectCell(model, "C2");
     model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
-    model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
-    selectCell(model, "D2");
+    addCellToSelection(model, "D2");
     expect(highlightedZones(model)).toEqual(["D4", "D2"]);
     resizeAnchorZone(model, "right");
     expect(highlightedZones(model)).toEqual(["D4", "D2:E2"]);
@@ -489,7 +473,6 @@ describe("selection input plugin", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, initialRanges: ["D4"] });
     selectCell(model, "C2");
     model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
-    model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
     addCellToSelection(model, "D2");
     expect(highlightedZones(model)).toEqual(["D4", "D2"]);
     resizeAnchorZone(model, "right");
@@ -543,18 +526,16 @@ describe("selection input plugin", () => {
 
   test("can select multiple ranges in another sheet", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
-    select(model, "A1");
+    selectCell(model, "A1");
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("A1");
     expect(highlightedZones(model)).toEqual(["A1"]);
     const firstSheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", activate: true });
-    model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
     addCellToSelection(model, "B2");
     expect(model.getters.getSelectionInput(id)).toHaveLength(2);
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("A1");
     expect(model.getters.getSelectionInput(id)[1].xc).toBe("Sheet2!B2");
     expect(highlightedZones(model)).toEqual(["B2"]);
-    model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
     addCellToSelection(model, "B3");
     expect(model.getters.getSelectionInput(id)).toHaveLength(3);
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("A1");
@@ -570,14 +551,14 @@ describe("selection input plugin", () => {
     (sheetName) => {
       model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
       createSheetWithName(model, { sheetId: "42", activate: true }, sheetName);
-      select(model, "A1");
+      selectCell(model, "A1");
       expect(model.getters.getSelectionInput(id)[0].xc).toBe(`'${sheetName}'!A1`);
     }
   );
 
   test("focus while in other sheet", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
-    select(model, "A1");
+    selectCell(model, "A1");
     createSheet(model, { sheetId: "42", activate: true });
     model.dispatch("UNFOCUS_SELECTION_INPUT");
     let [range] = model.getters.getSelectionInput(id);
