@@ -31,8 +31,7 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
 
   ranges: RangeInputValue[] = [];
   focusedRangeIndex: number | null = null;
-  private activeSheet: UID;
-  private willAddNewRange: boolean = false;
+  private inputSheetId: UID;
 
   constructor(
     config: UIPluginConfig,
@@ -46,7 +45,7 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
     }
     super(config);
     this.insertNewRange(0, initialRanges);
-    this.activeSheet = this.getters.getActiveSheetId();
+    this.inputSheetId = this.getters.getActiveSheetId();
     if (this.ranges.length === 0) {
       this.insertNewRange(this.ranges.length, [""]);
       this.focusLast();
@@ -75,14 +74,30 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
   }
 
   handleEvent(event: SelectionEvent) {
-    const inputSheetId = this.activeSheet;
-    const sheetId = this.getters.getActiveSheetId();
+    if (this.focusedRangeIndex === null) {
+      return;
+    }
+    const inputSheetId = this.inputSheetId;
+    const activeSheetId = this.getters.getActiveSheetId();
     const zone = event.anchor.zone;
     const range = this.getters.getRangeFromZone(
-      sheetId,
-      event.options.unbounded ? this.getters.getUnboundedZone(sheetId, zone) : zone
+      activeSheetId,
+      event.options.unbounded ? this.getters.getUnboundedZone(activeSheetId, zone) : zone
     );
-    this.add([this.getters.getSelectionRangeString(range, inputSheetId)]);
+
+    const xc = this.getters.getSelectionRangeString(range, inputSheetId);
+
+    const willAddNewRange =
+      event.mode === "newAnchor" &&
+      !this.inputHasSingleRange &&
+      this.ranges[this.focusedRangeIndex].xc.trim() !== "";
+
+    if (willAddNewRange) {
+      this.insertNewRange(this.ranges.length, [xc]);
+      this.focusLast();
+    } else {
+      this.setRange(this.focusedRangeIndex, [xc]);
+    }
   }
 
   handle(cmd: Command) {
@@ -119,16 +134,6 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
           this.removeRange(index);
         }
         break;
-      case "STOP_SELECTION_INPUT":
-        this.willAddNewRange = false;
-        break;
-      case "PREPARE_SELECTION_INPUT_EXPANSION": {
-        const index = this.focusedRangeIndex;
-        if (index !== null && !this.inputHasSingleRange) {
-          this.willAddNewRange = this.ranges[index].xc.trim() !== "";
-        }
-        break;
-      }
       case "ACTIVATE_SHEET": {
         if (cmd.sheetIdFrom !== cmd.sheetIdTo) {
           const { col, row } = this.getters.getNextVisibleCellPosition({
@@ -176,19 +181,6 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
 
   private unfocus() {
     this.focusedRangeIndex = null;
-  }
-
-  private add(newRanges: string[]) {
-    if (this.focusedRangeIndex === null || newRanges.length === 0) {
-      return;
-    }
-    if (this.willAddNewRange) {
-      this.insertNewRange(this.ranges.length, newRanges);
-      this.focusLast();
-      this.willAddNewRange = false;
-    } else {
-      this.setRange(this.focusedRangeIndex, newRanges);
-    }
   }
 
   private setContent(index: number, xc: string) {
@@ -244,12 +236,12 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
   private inputToHighlights({ xc, color }: Pick<RangeInputValue, "xc" | "color">): Highlight[] {
     const XCs = this.cleanInputs([xc])
       .filter((range) => this.getters.isRangeValid(range))
-      .filter((reference) => this.shouldBeHighlighted(this.activeSheet, reference));
+      .filter((reference) => this.shouldBeHighlighted(this.inputSheetId, reference));
     return XCs.map((xc) => {
       const { sheetName } = splitReference(xc);
       return {
-        zone: this.getters.getRangeFromSheetXC(this.activeSheet, xc).zone,
-        sheetId: (sheetName && this.getters.getSheetIdByName(sheetName)) || this.activeSheet,
+        zone: this.getters.getRangeFromSheetXC(this.inputSheetId, xc).zone,
+        sheetId: (sheetName && this.getters.getSheetIdByName(sheetName)) || this.inputSheetId,
         color,
       };
     });

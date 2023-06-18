@@ -4,6 +4,7 @@ import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { SelectionInput } from "../../src/components/selection_input/selection_input";
 import {
   activateSheet,
+  addCellToSelection,
   createSheet,
   merge,
   selectCell,
@@ -246,8 +247,7 @@ describe("Selection Input", () => {
   test("input is not filled with highlight when maximum ranges reached", async () => {
     const { model } = await createSelectionInput({ hasSingleRange: true });
     expect(fixture.querySelectorAll("input")).toHaveLength(1);
-    model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
-    selectCell(model, "B2");
+    addCellToSelection(model, "B2");
     await nextTick();
     expect(fixture.querySelectorAll("input")).toHaveLength(1);
     expect(fixture.querySelector("input")!.value).toBe("B2");
