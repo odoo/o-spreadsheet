@@ -1,6 +1,11 @@
-function nomInconnu(values, formats, value_callback, format_callback) {
-  const nColumns = values[0].length;
-  const nRows = values.length;
+function nomInconnu(
+  nRows: number,
+  nColumns: number,
+  values,
+  formats,
+  value_callback,
+  format_callback
+) {
   const returned = {
     value: Array(nColumns),
     format: formats ? Array(nColumns) : undefined,
@@ -20,8 +25,10 @@ function nomInconnu(values, formats, value_callback, format_callback) {
   return returned;
 }
 
-function nomInconnu2(values, formats, callback) {
+function nomInconnu2(nRows: number, nColumns: number, values, formats, callback) {
   return nomInconnu(
+    nRows,
+    nColumns,
     values,
     formats,
     (i, j) => callback(i, j, values),
