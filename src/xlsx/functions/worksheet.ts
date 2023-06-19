@@ -137,8 +137,13 @@ export function addHyperlinks(
         const sheetId = parseSheetUrl(url);
         const sheet = data.sheets.find((sheet) => sheet.id === sheetId);
         const location = sheet ? `${sheet.name}!A1` : INCORRECT_RANGE_STRING;
+        const hyperlinkAttributes: XMLAttributes = [
+          ["display", label],
+          ["location", location],
+          ["ref", xc],
+        ];
         linkNodes.push(escapeXml/*xml*/ `
-          <hyperlink display="${label}" location="${location}" ref="${xc}"/>
+          <hyperlink ${formatAttributes(hyperlinkAttributes)}/>
         `);
       } else {
         const linkRelId = addRelsToFile(
@@ -150,8 +155,12 @@ export function addHyperlinks(
             targetMode: "External",
           }
         );
+        const hyperlinkAttributes: XMLAttributes = [
+          ["r:id", linkRelId],
+          ["ref", xc],
+        ];
         linkNodes.push(escapeXml/*xml*/ `
-          <hyperlink r:id="${linkRelId}" ref="${xc}"/>
+          <hyperlink ${formatAttributes(hyperlinkAttributes)}/>
         `);
       }
     }
