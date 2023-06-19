@@ -1415,8 +1415,11 @@ export const TRANSPOSE: AddFunctionDescription = {
   computeValueAndFormat: (arg: Arg) => {
     const values = isMatrix(arg.value) ? arg.value : [[arg.value]];
     const formats = isMatrix(arg.format) && arg.format !== undefined ? arg.format : [[arg.format]];
-    // return nomInconnu(values, formats, (i,j) => values[j][i], (i,j) => formats[j][i]);
-    return nomInconnu2(values, formats, (i, j, arg) => arg[j][i]);
+    const nColumns = values[0].length;
+    const nRows = values.length;
+
+    // return nomInconnu(nRows, nColumns, values, formats, (i,j) => values[j][i], (i,j) => formats[j][i]);
+    return nomInconnu2(nRows, nColumns, values, formats, (i, j, arg) => arg[j][i]);
   },
   isExported: true,
 };
