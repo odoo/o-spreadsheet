@@ -8,14 +8,28 @@ import * as ACTIONS from "./menu_items_actions";
 
 export const hideCols: ActionSpec = {
   name: ACTIONS.HIDE_COLUMNS_NAME,
-  execute: ACTIONS.HIDE_COLUMNS_ACTION,
+  execute: (env) => {
+    const columns = env.model.getters.getElementsFromSelection("COL");
+    env.model.dispatch("HIDE_COLUMNS_ROWS", {
+      sheetId: env.model.getters.getActiveSheetId(),
+      dimension: "COL",
+      elements: columns,
+    });
+  },
   isVisible: ACTIONS.NOT_ALL_VISIBLE_COLS_SELECTED,
   icon: "o-spreadsheet-Icon.HIDE_COL",
 };
 
 export const unhideCols: ActionSpec = {
   name: _lt("Unhide columns"),
-  execute: ACTIONS.UNHIDE_COLUMNS_ACTION,
+  execute: (env) => {
+    const columns = env.model.getters.getElementsFromSelection("COL");
+    env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
+      sheetId: env.model.getters.getActiveSheetId(),
+      dimension: "COL",
+      elements: columns,
+    });
+  },
   isVisible: (env: SpreadsheetChildEnv) => {
     const hiddenCols = env.model.getters
       .getHiddenColsGroups(env.model.getters.getActiveSheetId())
@@ -27,21 +41,42 @@ export const unhideCols: ActionSpec = {
 
 export const unhideAllCols: ActionSpec = {
   name: _lt("Unhide all columns"),
-  execute: ACTIONS.UNHIDE_ALL_COLUMNS_ACTION,
+  execute: (env) => {
+    const sheetId = env.model.getters.getActiveSheetId();
+    env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
+      sheetId,
+      dimension: "COL",
+      elements: Array.from(Array(env.model.getters.getNumberCols(sheetId)).keys()),
+    });
+  },
   isVisible: (env: SpreadsheetChildEnv) =>
     env.model.getters.getHiddenColsGroups(env.model.getters.getActiveSheetId()).length > 0,
 };
 
 export const hideRows: ActionSpec = {
   name: ACTIONS.HIDE_ROWS_NAME,
-  execute: ACTIONS.HIDE_ROWS_ACTION,
+  execute: (env) => {
+    const rows = env.model.getters.getElementsFromSelection("ROW");
+    env.model.dispatch("HIDE_COLUMNS_ROWS", {
+      sheetId: env.model.getters.getActiveSheetId(),
+      dimension: "ROW",
+      elements: rows,
+    });
+  },
   isVisible: ACTIONS.NOT_ALL_VISIBLE_ROWS_SELECTED,
   icon: "o-spreadsheet-Icon.HIDE_ROW",
 };
 
 export const unhideRows: ActionSpec = {
   name: _lt("Unhide rows"),
-  execute: ACTIONS.UNHIDE_ROWS_ACTION,
+  execute: (env) => {
+    const columns = env.model.getters.getElementsFromSelection("ROW");
+    env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
+      sheetId: env.model.getters.getActiveSheetId(),
+      dimension: "ROW",
+      elements: columns,
+    });
+  },
   isVisible: (env: SpreadsheetChildEnv) => {
     const hiddenRows = env.model.getters
       .getHiddenRowsGroups(env.model.getters.getActiveSheetId())
@@ -53,7 +88,14 @@ export const unhideRows: ActionSpec = {
 
 export const unhideAllRows: ActionSpec = {
   name: _lt("Unhide all rows"),
-  execute: ACTIONS.UNHIDE_ALL_ROWS_ACTION,
+  execute: (env) => {
+    const sheetId = env.model.getters.getActiveSheetId();
+    env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
+      sheetId,
+      dimension: "ROW",
+      elements: Array.from(Array(env.model.getters.getNumberRows(sheetId)).keys()),
+    });
+  },
   isVisible: (env: SpreadsheetChildEnv) =>
     env.model.getters.getHiddenRowsGroups(env.model.getters.getActiveSheetId()).length > 0,
 };
@@ -147,14 +189,21 @@ export const viewGridlines: ActionSpec = {
     env.model.getters.getGridLinesVisibility(env.model.getters.getActiveSheetId())
       ? _lt("Hide gridlines")
       : _lt("Show gridlines"),
-  execute: ACTIONS.SET_GRID_LINES_VISIBILITY_ACTION,
+  execute: (env) => {
+    const sheetId = env.model.getters.getActiveSheetId();
+    env.model.dispatch("SET_GRID_LINES_VISIBILITY", {
+      sheetId,
+      areGridLinesVisible: !env.model.getters.getGridLinesVisibility(sheetId),
+    });
+  },
   icon: "o-spreadsheet-Icon.SHOW_HIDE_GRID",
 };
 
 export const viewFormulas: ActionSpec = {
   name: (env: SpreadsheetChildEnv) =>
     env.model.getters.shouldShowFormulas() ? _lt("Hide formulas") : _lt("Show formulas"),
-  execute: ACTIONS.SET_FORMULA_VISIBILITY_ACTION,
+  execute: (env) =>
+    env.model.dispatch("SET_FORMULA_VISIBILITY", { show: !env.model.getters.shouldShowFormulas() }),
   isReadonlyAllowed: true,
   icon: "o-spreadsheet-Icon.SHOW_HIDE_FORMULA",
 };

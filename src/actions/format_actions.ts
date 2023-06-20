@@ -3,17 +3,18 @@ import { _lt } from "../translation";
 import { Align, SpreadsheetChildEnv } from "../types";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
+import { setFormatter, setStyle } from "./menu_items_actions";
 
 export const formatNumberAutomatic: ActionSpec = {
   name: _lt("Automatic"),
-  execute: ACTIONS.FORMAT_AUTOMATIC_ACTION,
+  execute: (env) => setFormatter(env, ""),
   isActive: (env) => isAutomaticFormatSelected(env),
 };
 
 export const formatNumberNumber: ActionSpec = {
   name: _lt("Number"),
   description: "1,000.12",
-  execute: ACTIONS.FORMAT_NUMBER_ACTION,
+  execute: (env) => setFormatter(env, "#,##0.00"),
   isActive: (env) => isFormatSelected(env, "#,##0.00"),
 };
 
@@ -33,48 +34,48 @@ export const formatNumberPercent: ActionSpec = {
 export const formatNumberCurrency: ActionSpec = {
   name: _lt("Currency"),
   description: "$1,000.12",
-  execute: ACTIONS.FORMAT_CURRENCY_ACTION,
+  execute: (env) => setFormatter(env, "[$$]#,##0.00"),
   isActive: (env) => isFormatSelected(env, "[$$]#,##0.00"),
 };
 
 export const formatNumberCurrencyRounded: ActionSpec = {
   name: _lt("Currency rounded"),
   description: "$1,000",
-  execute: ACTIONS.FORMAT_CURRENCY_ROUNDED_ACTION,
+  execute: (env) => setFormatter(env, "[$$]#,##0"),
   isActive: (env) => isFormatSelected(env, "[$$]#,##0"),
 };
 
 export const formatCustomCurrency: ActionSpec = {
   name: _lt("Custom currency"),
   isVisible: (env) => env.loadCurrencies !== undefined,
-  execute: ACTIONS.OPEN_CUSTOM_CURRENCY_SIDEPANEL_ACTION,
+  execute: (env) => env.openSidePanel("CustomCurrency", {}),
 };
 
 export const formatNumberDate: ActionSpec = {
   name: _lt("Date"),
   description: "9/26/2008",
-  execute: ACTIONS.FORMAT_DATE_ACTION,
+  execute: (env) => setFormatter(env, "m/d/yyyy"),
   isActive: (env) => isFormatSelected(env, "m/d/yyyy"),
 };
 
 export const formatNumberTime: ActionSpec = {
   name: _lt("Time"),
   description: "10:43:00 PM",
-  execute: ACTIONS.FORMAT_TIME_ACTION,
+  execute: (env) => setFormatter(env, "hh:mm:ss a"),
   isActive: (env) => isFormatSelected(env, "hh:mm:ss a"),
 };
 
 export const formatNumberDateTime: ActionSpec = {
   name: _lt("Date time"),
   description: "9/26/2008 22:43:00",
-  execute: ACTIONS.FORMAT_DATE_TIME_ACTION,
+  execute: (env) => setFormatter(env, "m/d/yyyy hh:mm:ss"),
   isActive: (env) => isFormatSelected(env, "m/d/yyyy hh:mm:ss"),
 };
 
 export const formatNumberDuration: ActionSpec = {
   name: _lt("Duration"),
   description: "27:51:38",
-  execute: ACTIONS.FORMAT_DURATION_ACTION,
+  execute: (env) => setFormatter(env, "hhhh:mm:ss"),
   isActive: (env) => isFormatSelected(env, "hhhh:mm:ss"),
 };
 
@@ -103,7 +104,7 @@ export const decraseDecimalPlaces: ActionSpec = {
 export const formatBold: ActionSpec = {
   name: _lt("Bold"),
   description: "Ctrl+B",
-  execute: ACTIONS.FORMAT_BOLD_ACTION,
+  execute: (env) => setStyle(env, { bold: !env.model.getters.getCurrentStyle().bold }),
   icon: "o-spreadsheet-Icon.BOLD",
   isActive: (env) => !!env.model.getters.getCurrentStyle().bold,
 };
@@ -111,7 +112,7 @@ export const formatBold: ActionSpec = {
 export const formatItalic: ActionSpec = {
   name: _lt("Italic"),
   description: "Ctrl+I",
-  execute: ACTIONS.FORMAT_ITALIC_ACTION,
+  execute: (env) => setStyle(env, { italic: !env.model.getters.getCurrentStyle().italic }),
   icon: "o-spreadsheet-Icon.ITALIC",
   isActive: (env) => !!env.model.getters.getCurrentStyle().italic,
 };
@@ -119,14 +120,15 @@ export const formatItalic: ActionSpec = {
 export const formatUnderline: ActionSpec = {
   name: _lt("Underline"),
   description: "Ctrl+U",
-  execute: ACTIONS.FORMAT_UNDERLINE_ACTION,
+  execute: (env) => setStyle(env, { underline: !env.model.getters.getCurrentStyle().underline }),
   icon: "o-spreadsheet-Icon.UNDERLINE",
   isActive: (env) => !!env.model.getters.getCurrentStyle().underline,
 };
 
 export const formatStrikethrough: ActionSpec = {
   name: _lt("Strikethrough"),
-  execute: ACTIONS.FORMAT_STRIKETHROUGH_ACTION,
+  execute: (env) =>
+    setStyle(env, { strikethrough: !env.model.getters.getCurrentStyle().strikethrough }),
   icon: "o-spreadsheet-Icon.STRIKE",
   isActive: (env) => !!env.model.getters.getCurrentStyle().strikethrough,
 };
@@ -255,7 +257,11 @@ export const paintFormat: ActionSpec = {
 export const clearFormat: ActionSpec = {
   name: _lt("Clear formatting"),
   description: "Ctrl+<",
-  execute: ACTIONS.FORMAT_CLEARFORMAT_ACTION,
+  execute: (env) =>
+    env.model.dispatch("CLEAR_FORMATTING", {
+      sheetId: env.model.getters.getActiveSheetId(),
+      target: env.model.getters.getSelectedZones(),
+    }),
   icon: "o-spreadsheet-Icon.CLEAR_FORMAT",
 };
 
