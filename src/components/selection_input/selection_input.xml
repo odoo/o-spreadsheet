@@ -28,7 +28,7 @@
           />
           <span
             t-if="isInvalid || !range.isValidRange"
-            class="error-icon text-danger position-absolute"
+            class="error-icon text-danger position-absolute d-flex align-items-center"
             title="This range is invalid">
             <t t-call="o-spreadsheet-Icon.ERROR"/>
           </span>
