@@ -3,14 +3,21 @@
     <div class="o-color-picker-widget">
       <span
         class="o-color-picker-button"
-        t-ref="colorPickerButton"
-        t-on-click.stop="props.toggleColorPicker"
-        t-att-title="props.title"
         t-att-class="props.class ? props.class : 'o-color-picker-button-style'"
+        t-on-click="onPrevColorClick"
         t-att-disabled="props.disabled">
         <span t-att-style="iconStyle">
           <t t-call="{{props.icon}}"/>
         </span>
+      </span>
+      <span
+        class="dropDowncls"
+        t-ref="colorPickerButton"
+        t-att-class="props.class ? props.class : 'o-color-picker-button-style'"
+        t-on-click.stop="props.toggleColorPicker"
+        t-att-title="props.title"
+        icon="FORMAT.formatAlignmentHorizontalIcon">
+        <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
       </span>
       <ColorPicker
         t-if="props.showColorPicker"

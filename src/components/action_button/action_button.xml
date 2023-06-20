@@ -8,11 +8,11 @@
       t-attf-class="{{props.class}}"
       t-on-click="onClick">
       <span t-if="iconTitle" t-att-style="buttonStyle">
-        <t t-call="{{iconTitle}}"/>
+        <t t-call="{{iconTitle}}" t-on-click.stop=""/>
       </span>
-      <t t-if="props.hasTriangleDownIcon">
-        <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
-      </t>
     </span>
+    <t t-if="props.hasTriangleDownIcon" class="o-hoverable-button">
+      <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
+    </t>
   </t>
 </templates>

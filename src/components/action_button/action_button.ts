@@ -8,7 +8,6 @@ css/* scss */ `
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 2px;
     border-radius: 2px;
     min-width: 20px;
   }
@@ -46,7 +45,10 @@ export class ActionButton extends Component<Props, SpreadsheetChildEnv> {
   get isActive() {
     return this.actionButton.isActive?.(this.env);
   }
-
+  get check() {
+    console.log(":check");
+    return console.log("clicked Icon");
+  }
   get title() {
     const name = this.actionButton.name(this.env);
     const description = this.actionButton.description;
@@ -58,6 +60,7 @@ export class ActionButton extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onClick(ev: MouseEvent) {
+    console.log("ACTION BUTTON ONCLICK :", this.props);
     if (this.isEnabled) {
       this.props.onClick?.(ev);
       this.actionButton.execute?.(this.env);

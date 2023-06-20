@@ -36,6 +36,8 @@ interface State {
   activeTool: string;
   fillColor: string;
   textColor: string;
+  prevFillColor: string;
+  prevTextColor: string;
 }
 
 interface Props {
@@ -154,6 +156,8 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     activeTool: "",
     fillColor: "#ffffff",
     textColor: "#000000",
+    prevFillColor: "#ffffff",
+    prevTextColor: "#000000",
   });
   isSelectingMenu = false;
   openedEl: HTMLElement | null = null;
@@ -163,6 +167,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   VIEW = ACTION_VIEW;
   formatNumberMenuItemSpec = formatNumberMenuItemSpec;
   isntToolbarMenu = false;
+  colorSet = "#fbfbbf";
 
   setup() {
     useExternalListener(window, "click", this.onExternalClick);
@@ -189,6 +194,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onClick() {
+    console.log("TOPBAR ONCLICK : ", this.props, this.props.onClick());
     this.props.onClick();
     this.closeMenus();
   }
@@ -248,9 +254,10 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   updateCellState() {
+    console.log("updateCellState");
     const style = this.env.model.getters.getCurrentStyle();
-    this.state.fillColor = style.fillColor || "#ffffff";
-    this.state.textColor = style.textColor || "#000000";
+    this.state.fillColor = style.fillColor || this.state.prevFillColor || "#ffffff";
+    this.state.textColor = style.textColor || this.state.prevTextColor || "#000000";
     this.menus = topbarMenuRegistry.getMenuItems();
   }
 
@@ -259,6 +266,14 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   setColor(target: string, color: Color) {
+    console.log("called", target, color);
+
+    if (target === "fillColor") {
+      this.state.prevFillColor = color;
+    } else if (target === "textColor") {
+      this.state.prevTextColor = color;
+    }
+
     setStyle(this.env, { [target]: color });
     this.onClick();
   }

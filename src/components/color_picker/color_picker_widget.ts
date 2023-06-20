@@ -1,4 +1,5 @@
 import { Component, useRef } from "@odoo/owl";
+import { toHex } from "../../helpers";
 import { Pixel, Rect, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers";
 import { ColorPicker } from "./color_picker";
@@ -55,7 +56,12 @@ export class ColorPickerWidget extends Component<Props, SpreadsheetChildEnv> {
   static components = { ColorPicker };
 
   colorPickerButtonRef = useRef("colorPickerButton");
+  prevColor: string | undefined;
 
+  onPrevColorClick() {
+    console.log("Current color :", this.props.currentColor);
+    this.props.onColorPicked(toHex(this.props.currentColor?.toString() || "#ffbffb"));
+  }
   get iconStyle() {
     return this.props.currentColor
       ? `border-color: ${this.props.currentColor}`

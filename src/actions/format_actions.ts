@@ -141,10 +141,12 @@ export const formatAlignment: ActionSpec = {
   name: _lt("Alignment"),
   icon: "o-spreadsheet-Icon.ALIGN_LEFT",
 };
-
-export const formatAlignmentHorizontal: ActionSpec = {
+export const formatAlignmentHorizontalIcon: ActionSpec = {
   name: _lt("Horizontal align"),
   icon: "o-spreadsheet-Icon.ALIGN_LEFT",
+};
+export const formatAlignmentHorizontal: ActionSpec = {
+  name: _lt("Horizontal align"),
 };
 
 export const formatAlignmentLeft: ActionSpec = {

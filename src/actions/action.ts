@@ -87,6 +87,7 @@ const uuidGenerator = new UuidGenerator();
 export function createAction(item: ActionSpec): Action {
   const name = item.name;
   const children = item.children;
+
   return {
     id: item.id || uuidGenerator.uuidv4(),
     name: typeof name === "function" ? name : () => name,

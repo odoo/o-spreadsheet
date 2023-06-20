@@ -311,12 +311,14 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
   }
 
   private updateColor(newHsl: Partial<Omit<HSLA, "a">>) {
+    debugger;
     this.state.currentHslaColor = { ...this.state.currentHslaColor, ...newHsl };
     this.state.customHexColor = hslaToHex(this.state.currentHslaColor);
   }
 
   onColorClick(color: Color) {
     if (color) {
+      console.log("color :", color);
       this.props.onColorPicked(toHex(color));
     }
   }
