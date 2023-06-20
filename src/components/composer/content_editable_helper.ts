@@ -193,6 +193,14 @@ export class ContentEditableHelper {
     element?.scrollIntoView({ block: "nearest" });
   }
 
+  /**
+   * remove the current selection of the user
+   * */
+  removeSelection() {
+    let selection = window.getSelection()!;
+    selection.removeAllRanges();
+  }
+
   private removeAll() {
     if (this.el) {
       while (this.el.firstChild) {

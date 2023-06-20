@@ -12,6 +12,7 @@
         t-on-keydown="onKeydown"
         t-on-mousewheel.stop=""
         t-on-input="onInput"
+        t-on-mousedown="onMousedown"
         t-on-click="onClick"
         t-on-keyup="onKeyup"
         t-on-paste.stop=""
