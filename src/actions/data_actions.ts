@@ -1,3 +1,6 @@
+import { areZonesContinuous } from "../helpers/index";
+import { interactiveSortSelection } from "../helpers/sort";
+import { interactiveAddFilter } from "../helpers/ui/filter_interactive";
 import { _lt } from "../translation";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
@@ -10,27 +13,48 @@ export const sortRange: ActionSpec = {
 
 export const sortAscending: ActionSpec = {
   name: _lt("Ascending (A ⟶ Z)"),
-  execute: ACTIONS.SORT_CELLS_ASCENDING,
+  execute: (env) => {
+    const { anchor, zones } = env.model.getters.getSelection();
+    const sheetId = env.model.getters.getActiveSheetId();
+    interactiveSortSelection(env, sheetId, anchor.cell, zones[0], "ascending");
+  },
   icon: "o-spreadsheet-Icon.SORT_ASCENDING",
 };
 
 export const sortDescending: ActionSpec = {
   name: _lt("Descending (Z ⟶ A)"),
-  execute: ACTIONS.SORT_CELLS_DESCENDING,
+  execute: (env) => {
+    const { anchor, zones } = env.model.getters.getSelection();
+    const sheetId = env.model.getters.getActiveSheetId();
+    interactiveSortSelection(env, sheetId, anchor.cell, zones[0], "descending");
+  },
   icon: "o-spreadsheet-Icon.SORT_DESCENDING",
 };
 
 export const addDataFilter: ActionSpec = {
   name: _lt("Create filter"),
-  execute: ACTIONS.FILTERS_CREATE_FILTER_TABLE,
+  execute: (env) => {
+    const sheetId = env.model.getters.getActiveSheetId();
+    const selection = env.model.getters.getSelection().zones;
+    interactiveAddFilter(env, sheetId, selection);
+  },
   isVisible: (env) => !ACTIONS.SELECTION_CONTAINS_FILTER(env),
-  isEnabled: (env) => ACTIONS.SELECTION_IS_CONTINUOUS(env),
+  isEnabled: (env): boolean => {
+    const selectedZones = env.model.getters.getSelectedZones();
+    return areZonesContinuous(...selectedZones);
+  },
   icon: "o-spreadsheet-Icon.MENU_FILTER_ICON",
 };
 
 export const removeDataFilter: ActionSpec = {
   name: _lt("Remove filter"),
-  execute: ACTIONS.FILTERS_REMOVE_FILTER_TABLE,
+  execute: (env) => {
+    const sheetId = env.model.getters.getActiveSheetId();
+    env.model.dispatch("REMOVE_FILTER_TABLE", {
+      sheetId,
+      target: env.model.getters.getSelectedZones(),
+    });
+  },
   isVisible: ACTIONS.SELECTION_CONTAINS_FILTER,
   icon: "o-spreadsheet-Icon.MENU_FILTER_ICON",
 };

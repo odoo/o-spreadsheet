@@ -1,5 +1,7 @@
 import { isEqual, positionToZone } from "../helpers";
+import { interactiveCut } from "../helpers/ui/cut_interactive";
 import { interactiveAddMerge } from "../helpers/ui/merge_interactive";
+import { handlePasteResult } from "../helpers/ui/paste_interactive";
 import { _lt } from "../translation";
 import { SpreadsheetChildEnv } from "../types";
 import { ActionSpec } from "./action";
@@ -8,7 +10,7 @@ import * as ACTIONS from "./menu_items_actions";
 export const undo: ActionSpec = {
   name: _lt("Undo"),
   description: "Ctrl+Z",
-  execute: ACTIONS.UNDO_ACTION,
+  execute: (env) => env.model.dispatch("REQUEST_UNDO"),
   isEnabled: (env) => env.model.getters.canUndo(),
   icon: "o-spreadsheet-Icon.UNDO",
 };
@@ -16,7 +18,7 @@ export const undo: ActionSpec = {
 export const redo: ActionSpec = {
   name: _lt("Redo"),
   description: "Ctrl+Y",
-  execute: ACTIONS.REDO_ACTION,
+  execute: (env) => env.model.dispatch("REQUEST_REDO"),
   isEnabled: (env) => env.model.getters.canRedo(),
   icon: "o-spreadsheet-Icon.REDO",
 };
@@ -25,14 +27,20 @@ export const copy: ActionSpec = {
   name: _lt("Copy"),
   description: "Ctrl+C",
   isReadonlyAllowed: true,
-  execute: ACTIONS.COPY_ACTION,
+  execute: async (env) => {
+    env.model.dispatch("COPY");
+    await env.clipboard.write(env.model.getters.getClipboardContent());
+  },
   icon: "o-spreadsheet-Icon.COPY",
 };
 
 export const cut: ActionSpec = {
   name: _lt("Cut"),
   description: "Ctrl+X",
-  execute: ACTIONS.CUT_ACTION,
+  execute: async (env) => {
+    interactiveCut(env);
+    await env.clipboard.write(env.model.getters.getClipboardContent());
+  },
   icon: "o-spreadsheet-Icon.CUT",
 };
 
@@ -45,7 +53,9 @@ export const paste: ActionSpec = {
 
 export const pasteSpecial: ActionSpec = {
   name: _lt("Paste special"),
-  isVisible: ACTIONS.IS_NOT_CUT_OPERATION,
+  isVisible: (env): boolean => {
+    return !env.model.getters.isCutOperation();
+  },
   icon: "o-spreadsheet-Icon.PASTE",
 };
 
@@ -64,13 +74,19 @@ export const findAndReplace: ActionSpec = {
   name: _lt("Find and replace"),
   description: "Ctrl+H",
   isReadonlyAllowed: true,
-  execute: ACTIONS.OPEN_FAR_SIDEPANEL_ACTION,
+  execute: (env) => {
+    env.openSidePanel("FindAndReplace", {});
+  },
   icon: "o-spreadsheet-Icon.FIND_AND_REPLACE",
 };
 
 export const deleteValues: ActionSpec = {
   name: _lt("Delete values"),
-  execute: ACTIONS.DELETE_CONTENT_ACTION,
+  execute: (env) =>
+    env.model.dispatch("DELETE_CONTENT", {
+      sheetId: env.model.getters.getActiveSheetId(),
+      target: env.model.getters.getSelectedZones(),
+    }),
 };
 
 export const deleteRows: ActionSpec = {
@@ -112,12 +128,20 @@ export const deleteCells: ActionSpec = {
 
 export const deleteCellShiftUp: ActionSpec = {
   name: _lt("Delete cell and shift up"),
-  execute: ACTIONS.DELETE_CELL_SHIFT_UP,
+  execute: (env) => {
+    const zone = env.model.getters.getSelectedZone();
+    const result = env.model.dispatch("DELETE_CELL", { zone, shiftDimension: "ROW" });
+    handlePasteResult(env, result);
+  },
 };
 
 export const deleteCellShiftLeft: ActionSpec = {
   name: _lt("Delete cell and shift left"),
-  execute: ACTIONS.DELETE_CELL_SHIFT_LEFT,
+  execute: (env) => {
+    const zone = env.model.getters.getSelectedZone();
+    const result = env.model.dispatch("DELETE_CELL", { zone, shiftDimension: "COL" });
+    handlePasteResult(env, result);
+  },
 };
 
 export const mergeCells: ActionSpec = {
