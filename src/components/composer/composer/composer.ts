@@ -386,6 +386,22 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     this.autoCompleteState.selectedIndex = 0;
   }
 
+  /**
+   * This is required to ensure the content helper selection is
+   * properly updated on "onclick" events. Depending on the browser,
+   * the callback onClick from the composer will be executed before
+   * the selection was updated in the dom, which means we capture an
+   * wrong selection which is then forced upon the content helper on
+   * patchContent.
+   */
+  onMousedown(ev: MouseEvent) {
+    if (ev.button > 0) {
+      // not main button, probably a context menu
+      return;
+    }
+    this.contentHelper.removeSelection();
+  }
+
   onClick() {
     if (this.env.model.getters.isReadonly()) {
       return;

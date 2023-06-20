@@ -79,6 +79,11 @@ export class ContentEditableHelper {
     }
   }
 
+  removeSelection() {
+    this.currentState.cursorStart = 0;
+    this.currentState.cursorEnd = 0;
+  }
+
   removeAll() {
     this.selectionState = initialSelectionState;
     this.currentState.cursorStart = 0;
