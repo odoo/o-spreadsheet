@@ -19,12 +19,7 @@ import {
   PrimitiveFormat,
   UID,
 } from "../../../types";
-import {
-  CellErrorLevel,
-  CellErrorType,
-  CircularDependencyError,
-  EvaluationError,
-} from "../../../types/errors";
+import { CircularDependencyError } from "../../../types/errors";
 import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { SpreadingRelation } from "./spreading_relation";
@@ -200,42 +195,26 @@ export class Evaluator {
     }
 
     const cellId = cell.id;
-
-    try {
-      if (this.cellsBeingComputed.has(cellId)) {
-        throw new CircularDependencyError();
-      }
-      this.cellsBeingComputed.add(cellId);
-      return cell.isFormula
-        ? this.computeFormulaCell(cell)
-        : evaluateLiteral(cell.content, cell.format);
-    } catch (e) {
-      return this.handleError(e, cell);
-    } finally {
-      this.cellsBeingComputed.delete(cellId);
+    if (this.cellsBeingComputed.has(cellId)) {
+      return errorCell(new CircularDependencyError());
     }
-  }
 
-  private handleError(e: Error | any, cell: Cell): EvaluatedCell {
-    if (!(e instanceof Error)) {
-      e = new Error(e);
+    if (!cell.isFormula) {
+      return evaluateLiteral(cell.content, cell.format);
     }
-    const msg = e?.errorType || CellErrorType.GenericError;
-    // apply function name
-    const __lastFnCalled = this.compilationParams[2].__lastFnCalled || "";
-    const error = new EvaluationError(
-      msg,
-      e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled),
-      e.logLevel !== undefined ? e.logLevel : CellErrorLevel.error
-    );
-    return errorCell(cell.content, error);
+
+    this.cellsBeingComputed.add(cellId);
+    const result = this.computeFormulaCell(cell);
+    this.cellsBeingComputed.delete(cellId);
+
+    return result;
   }
 
   private computeFormulaCell(cellData: FormulaCell): EvaluatedCell {
     const cellId = cellData.id;
-    this.compilationParams[2].__originCellXC = () => {
+    this.compilationParams[3].__originCellXC = () => {
       // compute the value lazily for performance reasons
-      const position = this.compilationParams[2].getters.getCellPosition(cellId);
+      const position = this.compilationParams[3].getters.getCellPosition(cellId);
       return toXC(position.col, position.row);
     };
     const formulaReturn = cellData.compiledFormula.execute(

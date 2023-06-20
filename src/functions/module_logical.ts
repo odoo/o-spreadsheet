@@ -55,21 +55,21 @@ export const IF: AddFunctionDescription = {
       )
     ),
     arg(
-      "value_if_true (any, lazy)",
+      "value_if_true (any, handle error)",
       _lt("The value the function returns if logical_expression is TRUE.")
     ),
     arg(
-      "value_if_false (any, lazy, default=FALSE)",
+      "value_if_false (any, handle error , default=FALSE)",
       _lt("The value the function returns if logical_expression is FALSE.")
     ),
   ],
   returns: ["ANY"],
   compute: function (
     logicalExpression: PrimitiveArgValue,
-    valueIfTrue: () => PrimitiveArgValue,
-    valueIfFalse: () => PrimitiveArgValue = () => false
+    valueIfTrue: PrimitiveArgValue,
+    valueIfFalse: PrimitiveArgValue = false
   ): FunctionReturnValue {
-    const result = toBoolean(logicalExpression) ? valueIfTrue() : valueIfFalse();
+    const result = toBoolean(logicalExpression) ? valueIfTrue : valueIfFalse;
     return result === null || result === undefined ? "" : result;
   },
   isExported: true,

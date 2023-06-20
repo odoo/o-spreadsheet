@@ -161,12 +161,15 @@ export type ReferenceDenormalizer = (
 
 export type EnsureRange = (range: Range) => MatrixArg;
 
+export type HandleError = (e: Error | any) => EvaluatedCell;
+
 export type NumberParser = (str: string) => number;
 
 export type _CompiledFormula = (
   deps: Range[],
   refFn: ReferenceDenormalizer,
   range: EnsureRange,
+  handleError: HandleError,
   ctx: {}
 ) => FormulaReturn;
 

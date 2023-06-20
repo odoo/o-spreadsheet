@@ -1,5 +1,6 @@
 import { functionRegistry } from "../../../functions";
 import { intersection, isZoneValid, zoneToXc } from "../../../helpers";
+import { errorCell } from "../../../helpers/cells";
 import { ModelConfig } from "../../../model";
 import { _lt } from "../../../translation";
 import {
@@ -11,14 +12,20 @@ import {
   EvaluatedCell,
   Format,
   Getters,
+  HandleError,
   MatrixArg,
   PrimitiveArg,
   Range,
   ReferenceDenormalizer,
 } from "../../../types";
-import { InvalidReferenceError } from "../../../types/errors";
+import {
+  CellErrorLevel,
+  CellErrorType,
+  EvaluationError,
+  InvalidReferenceError,
+} from "../../../types/errors";
 
-export type CompilationParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
+export type CompilationParameters = [ReferenceDenormalizer, EnsureRange, HandleError, EvalContext];
 const functionMap = functionRegistry.mapping;
 
 /**
@@ -50,7 +57,12 @@ class CompilationParametersBuilder {
   }
 
   getParameters(): CompilationParameters {
-    return [this.refFn.bind(this), this.range.bind(this), this.evalContext];
+    return [
+      this.refFn.bind(this),
+      this.range.bind(this),
+      this.handleError.bind(this),
+      this.evalContext,
+    ];
   }
 
   /**
@@ -172,5 +184,20 @@ class CompilationParametersBuilder {
       }
     }
     return { value, format };
+  }
+
+  private handleError(e: Error | any): EvaluatedCell {
+    if (!(e instanceof Error)) {
+      e = new Error(e);
+    }
+    const msg = e?.errorType || CellErrorType.GenericError;
+    // apply function name
+    const __lastFnCalled = this.evalContext.__lastFnCalled || "";
+    const error = new EvaluationError(
+      msg,
+      e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled),
+      e.logLevel !== undefined ? e.logLevel : CellErrorLevel.error
+    );
+    return errorCell(error);
   }
 }

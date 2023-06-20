@@ -54,7 +54,6 @@ function _createEvaluatedCell(value: CellValue | null, format?: Format): Evaluat
     return textCell((value || "").toString(), format);
   } catch (error) {
     return errorCell(
-      (value || "").toString(),
       new EvaluationError(CellErrorType.GenericError, error.message || DEFAULT_ERROR_MESSAGE)
     );
   }
@@ -139,7 +138,7 @@ function booleanCell(value: boolean, format?: Format): BooleanCell {
   };
 }
 
-export function errorCell(content: string, error: EvaluationError): ErrorCell {
+export function errorCell(error: EvaluationError): ErrorCell {
   return {
     type: CellValueType.error,
     value: error.errorType,

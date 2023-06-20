@@ -31,6 +31,7 @@ function makeArg(str: string, description: string): ArgDefinition {
   let isOptional = false;
   let isRepeating = false;
   let isLazy = false;
+  let handleError = false;
   let defaultValue;
 
   for (let param of parts[2].split(",")) {
@@ -48,6 +49,8 @@ function makeArg(str: string, description: string): ArgDefinition {
       isLazy = true;
     } else if (key.startsWith("DEFAULT=")) {
       defaultValue = param.trim().slice(8);
+    } else if (key === "HANDLE ERROR") {
+      handleError = true;
     }
   }
   const result: ArgDefinition = {
@@ -68,6 +71,7 @@ function makeArg(str: string, description: string): ArgDefinition {
     result.default = true;
     result.defaultValue = defaultValue;
   }
+  if (handleError) result.handleError = true;
   return result;
 }
 

@@ -22,6 +22,7 @@ export interface ArgDefinition {
   type: ArgType[];
   default?: boolean;
   defaultValue?: any;
+  handleError?: boolean;
 }
 
 export type ComputeFunctionArg<T> = T | (() => T) | undefined;
