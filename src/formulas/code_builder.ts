@@ -8,6 +8,10 @@ export interface FunctionCode {
    */
   wrapInClosure(): FunctionCode;
   /**
+   * Wrap the function code in a try/catch
+   */
+  tryCatch(): FunctionCode;
+  /**
    * Return the same function code but with the return expression assigned to a variable.
    */
   assignResultToVariable(): FunctionCode;
@@ -47,6 +51,19 @@ class FunctionCodeImpl implements FunctionCode {
     code.append(`const ${closureName} = () => {`);
     code.append(this.code);
     code.append(`return ${this.returnExpression};`);
+    code.append(`}`);
+    return code.return(closureName);
+  }
+
+  tryCatch(): FunctionCode {
+    const closureName = this.scope.nextVariableName();
+    const code = new FunctionCodeBuilder(this.scope);
+    code.append(`let ${closureName};`);
+    code.append(`try {`);
+    code.append(this.code);
+    code.append(`${closureName} = ${this.returnExpression};`);
+    code.append(`} catch (e) {`);
+    code.append(`${closureName} = handleError(e);`);
     code.append(`}`);
     return code.return(closureName);
   }

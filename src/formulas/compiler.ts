@@ -65,7 +65,7 @@ export function compile(formula: string): CompiledFormula {
     if (ast.type === "EMPTY") {
       throw new BadExpressionError(_lt("Invalid formula"));
     }
-    const compiledAST = compileAST(ast);
+    const compiledAST = compileAST(ast).tryCatch();
     const code = new FunctionCodeBuilder();
     code.append(`// ${cacheKey}`);
     code.append(compiledAST);
@@ -74,6 +74,7 @@ export function compile(formula: string): CompiledFormula {
       "deps", // the dependencies in the current formula
       "ref", // a function to access a certain dependency at a given index
       "range", // same as above, but guarantee that the result is in the form of a range
+      "handleError", // a function to handle errors
       "ctx",
       code.toString()
     );
@@ -130,7 +131,14 @@ export function compile(formula: string): CompiledFormula {
           functionName,
           paramIndex: i + 1,
         });
-        compiledArgs.push(isLazy ? compiledAST.wrapInClosure() : compiledAST);
+
+        if (argDefinition.handleError) {
+          compiledArgs.push(compiledAST.tryCatch());
+        } else if (isLazy) {
+          compiledArgs.push(compiledAST.wrapInClosure());
+        } else {
+          compiledArgs.push(compiledAST);
+        }
       }
 
       return compiledArgs;
