@@ -32,7 +32,7 @@ export type ComputeFunction<T extends readonly any[], R> = (this: EvalContext, .
 
 export interface AddFunctionDescription<Args extends readonly ArgDefinition[] = any[]> {
   readonly description: string;
-  readonly compute: ComputeFunction<ArgsToTypescript<Args>, FunctionReturnValue>;
+  readonly compute: ComputeFunction<ArgValuesToTypescript<Args>, FunctionReturnValue>;
   readonly computeFormat?: ComputeFunction<FullArgsToTypescript<Args>, FunctionReturnFormat>;
   readonly category?: string;
   readonly args: Args;
@@ -94,12 +94,12 @@ type TypeMapping = {
   LAZY: () => PrimitiveArgValue;
 };
 
-type ArgsToTypescript<Type extends readonly ArgDefinition[]> = {
+type ArgValuesToTypescript<Type extends readonly ArgDefinition[]> = {
   [K in keyof Type]: ToTypescriptType<Type[K]["type"][number]>;
 };
 type FullArgsToTypescript<Type extends readonly ArgDefinition[]> = {
   [K in keyof Type]: {
     value: ToTypescriptType<Type[K]["type"][number]>;
-    format: Format | undefined;
+    format?: Format | undefined | Matrix<Format | undefined>;
   };
 };

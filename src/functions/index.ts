@@ -136,4 +136,4 @@ for (let category of categories) {
   }
 }
 
-type ComputeFunctionArg<T> = T | (() => T);
+export type ComputeFunctionArg<T> = T | (() => T);

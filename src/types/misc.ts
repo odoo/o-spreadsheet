@@ -190,7 +190,7 @@ export type PrimitiveArg<V = PrimitiveArgValue> = { value: V; format?: Format };
 export type ArgValue<V = PrimitiveArgValue> = V | Matrix<V>;
 
 export type MatrixArgValue<V = CellValue | undefined> = Matrix<V>; // TODO: replace undefined by null for consistency --> MatrixArgValue will be Matrix<PrimitiveArgValue>
-export type PrimitiveArgValue = CellValue | null | undefined; // null represents an empty cell. We prefer null instead of undefined because undefined could be replaced by a default value when passed to a javascript function
+export type PrimitiveArgValue = CellValue | null; // null represents an empty cell. We prefer null instead of undefined because undefined could be replaced by a default value when passed to a javascript function
 
 export type MatrixArgFormat = Matrix<PrimitiveFormat>;
 export type PrimitiveFormat = Format | undefined;

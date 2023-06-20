@@ -1,3 +1,4 @@
+import { ComputeFunctionArg } from ".";
 import { _lt } from "../translation";
 import {
   AddFunctionDescription,
@@ -225,23 +226,31 @@ function getCastingFunction(arg: ArgDefinition) {
   const types = arg.type.map(getPrimitiveType);
   const hasMixedType = new Set(types).size > 1;
   const hasAnyType = types.includes("ANY");
-  if (hasMixedType || hasAnyType || arg.lazy) {
+  if (hasMixedType || hasAnyType) {
     // no auto-casting
     return (v) => v;
   }
   const type = types[0];
-  const argTypes = arg.type;
-  const hasRange = argTypes.some((type) => type.startsWith("RANGE"));
-  const isRangeOnly = argTypes.every((type) => type.startsWith("RANGE"));
+  // const argTypes = arg.type;
+  // const hasRange = argTypes.some((type) => type.startsWith("RANGE"));
+  // const isRangeOnly = argTypes.every((type) => type.startsWith("RANGE"));
   // if (isRangeOnly) {
   //   return rangeCastingFunction(type, arg.optional || false);
   // }
   // if (!hasRange) {
   //   return singleValueCastingFunction(type, arg.optional || false);
   // }
-  return function (this: EvalContext, value: ArgValue) {
+  return function (this: EvalContext, value: ComputeFunctionArg<ArgValue>) {
     if (arg.optional && value === undefined) {
       return undefined;
+    }
+    if (typeof value === "function") {
+      return () => {
+        if (isMatrix(value)) {
+          return matrixMap(value, CAST_MAP[type]);
+        }
+        return CAST_MAP[type];
+      };
     }
     if (isMatrix(value)) {
       return matrixMap(value, CAST_MAP[type]);
