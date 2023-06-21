@@ -1,24 +1,24 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Linear/Time charts font color is white with a dark background color 1`] = `
-Object {
+{
   "background": "#010101",
-  "chartJsConfig": Object {
-    "data": Object {
-      "datasets": Array [
-        Object {
+  "chartJsConfig": {
+    "data": {
+      "datasets": [
+        {
           "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
-          "data": Array [
-            Object {
+          "data": [
+            {
               "x": "19",
               "y": 11,
             },
-            Object {
+            {
               "x": "18",
               "y": 12,
             },
-            Object {
+            {
               "x": "17",
               "y": 13,
             },
@@ -29,37 +29,37 @@ Object {
           "pointBackgroundColor": "rgb(31,119,180)",
         },
       ],
-      "labels": Array [
+      "labels": [
         "19",
         "18",
         "17",
       ],
     },
-    "options": Object {
-      "animation": Object {
+    "options": {
+      "animation": {
         "duration": 0,
       },
-      "elements": Object {
-        "line": Object {
+      "elements": {
+        "line": {
           "fill": false,
         },
-        "point": Object {
+        "point": {
           "hitRadius": 15,
         },
       },
-      "hover": Object {
+      "hover": {
         "animationDuration": 10,
       },
-      "layout": Object {
-        "padding": Object {
+      "layout": {
+        "padding": {
           "bottom": 10,
           "left": 20,
           "right": 20,
           "top": 10,
         },
       },
-      "legend": Object {
-        "labels": Object {
+      "legend": {
+        "labels": {
           "fontColor": "#FFFFFF",
           "generateLabels": [Function],
         },
@@ -69,10 +69,10 @@ Object {
       "maintainAspectRatio": false,
       "responsive": true,
       "responsiveAnimationDuration": 0,
-      "scales": Object {
-        "xAxes": Array [
-          Object {
-            "ticks": Object {
+      "scales": {
+        "xAxes": [
+          {
+            "ticks": {
               "callback": [Function],
               "fontColor": "#FFFFFF",
               "labelOffset": 2,
@@ -83,10 +83,10 @@ Object {
             "type": "linear",
           },
         ],
-        "yAxes": Array [
-          Object {
+        "yAxes": [
+          {
             "position": "left",
-            "ticks": Object {
+            "ticks": {
               "beginAtZero": true,
               "callback": [Function],
               "fontColor": "#FFFFFF",
@@ -94,15 +94,15 @@ Object {
           },
         ],
       },
-      "title": Object {
+      "title": {
         "display": true,
         "fontColor": "#FFFFFF",
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
       },
-      "tooltips": Object {
-        "callbacks": Object {
+      "tooltips": {
+        "callbacks": {
           "label": [Function],
           "title": [Function],
         },
@@ -114,28 +114,28 @@ Object {
 `;
 
 exports[`Linear/Time charts snapshot test of chartJS configuration for date chart 1`] = `
-Object {
+{
   "background": "#FFFFFF",
-  "chartJsConfig": Object {
-    "data": Object {
-      "datasets": Array [
-        Object {
+  "chartJsConfig": {
+    "data": {
+      "datasets": [
+        {
           "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
-          "data": Array [
-            Object {
+          "data": [
+            {
               "x": "1/19/1900",
               "y": 10,
             },
-            Object {
+            {
               "x": "1/18/1900",
               "y": 11,
             },
-            Object {
+            {
               "x": "1/17/1900",
               "y": 12,
             },
-            Object {
+            {
               "x": "1/16/1900",
               "y": 13,
             },
@@ -146,38 +146,38 @@ Object {
           "pointBackgroundColor": "rgb(31,119,180)",
         },
       ],
-      "labels": Array [
+      "labels": [
         "1/19/1900",
         "1/18/1900",
         "1/17/1900",
         "1/16/1900",
       ],
     },
-    "options": Object {
-      "animation": Object {
+    "options": {
+      "animation": {
         "duration": 0,
       },
-      "elements": Object {
-        "line": Object {
+      "elements": {
+        "line": {
           "fill": false,
         },
-        "point": Object {
+        "point": {
           "hitRadius": 15,
         },
       },
-      "hover": Object {
+      "hover": {
         "animationDuration": 10,
       },
-      "layout": Object {
-        "padding": Object {
+      "layout": {
+        "padding": {
           "bottom": 10,
           "left": 20,
           "right": 20,
           "top": 10,
         },
       },
-      "legend": Object {
-        "labels": Object {
+      "legend": {
+        "labels": {
           "fontColor": "#000000",
           "generateLabels": [Function],
         },
@@ -187,10 +187,10 @@ Object {
       "maintainAspectRatio": false,
       "responsive": true,
       "responsiveAnimationDuration": 0,
-      "scales": Object {
-        "xAxes": Array [
-          Object {
-            "ticks": Object {
+      "scales": {
+        "xAxes": [
+          {
+            "ticks": {
               "fontColor": "#000000",
               "labelOffset": 2,
               "maxRotation": 60,
@@ -198,8 +198,8 @@ Object {
               "minRotation": 15,
               "padding": 5,
             },
-            "time": Object {
-              "displayFormats": Object {
+            "time": {
+              "displayFormats": {
                 "day": "M/D/YYYY",
               },
               "parser": "M/D/YYYY",
@@ -208,10 +208,10 @@ Object {
             "type": "time",
           },
         ],
-        "yAxes": Array [
-          Object {
+        "yAxes": [
+          {
             "position": "left",
-            "ticks": Object {
+            "ticks": {
               "beginAtZero": true,
               "callback": [Function],
               "fontColor": "#000000",
@@ -219,15 +219,15 @@ Object {
           },
         ],
       },
-      "title": Object {
+      "title": {
         "display": true,
         "fontColor": "#000000",
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
       },
-      "tooltips": Object {
-        "callbacks": Object {
+      "tooltips": {
+        "callbacks": {
           "label": [Function],
         },
       },
@@ -238,28 +238,28 @@ Object {
 `;
 
 exports[`Linear/Time charts snapshot test of chartJS configuration for linear chart 1`] = `
-Object {
+{
   "background": "#FFFFFF",
-  "chartJsConfig": Object {
-    "data": Object {
-      "datasets": Array [
-        Object {
+  "chartJsConfig": {
+    "data": {
+      "datasets": [
+        {
           "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
-          "data": Array [
-            Object {
+          "data": [
+            {
               "x": "20",
               "y": 10,
             },
-            Object {
+            {
               "x": "19",
               "y": 11,
             },
-            Object {
+            {
               "x": "18",
               "y": 12,
             },
-            Object {
+            {
               "x": "17",
               "y": 13,
             },
@@ -270,38 +270,38 @@ Object {
           "pointBackgroundColor": "rgb(31,119,180)",
         },
       ],
-      "labels": Array [
+      "labels": [
         "20",
         "19",
         "18",
         "17",
       ],
     },
-    "options": Object {
-      "animation": Object {
+    "options": {
+      "animation": {
         "duration": 0,
       },
-      "elements": Object {
-        "line": Object {
+      "elements": {
+        "line": {
           "fill": false,
         },
-        "point": Object {
+        "point": {
           "hitRadius": 15,
         },
       },
-      "hover": Object {
+      "hover": {
         "animationDuration": 10,
       },
-      "layout": Object {
-        "padding": Object {
+      "layout": {
+        "padding": {
           "bottom": 10,
           "left": 20,
           "right": 20,
           "top": 10,
         },
       },
-      "legend": Object {
-        "labels": Object {
+      "legend": {
+        "labels": {
           "fontColor": "#000000",
           "generateLabels": [Function],
         },
@@ -311,10 +311,10 @@ Object {
       "maintainAspectRatio": false,
       "responsive": true,
       "responsiveAnimationDuration": 0,
-      "scales": Object {
-        "xAxes": Array [
-          Object {
-            "ticks": Object {
+      "scales": {
+        "xAxes": [
+          {
+            "ticks": {
               "callback": [Function],
               "fontColor": "#000000",
               "labelOffset": 2,
@@ -325,10 +325,10 @@ Object {
             "type": "linear",
           },
         ],
-        "yAxes": Array [
-          Object {
+        "yAxes": [
+          {
             "position": "left",
-            "ticks": Object {
+            "ticks": {
               "beginAtZero": true,
               "callback": [Function],
               "fontColor": "#000000",
@@ -336,15 +336,15 @@ Object {
           },
         ],
       },
-      "title": Object {
+      "title": {
         "display": true,
         "fontColor": "#000000",
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
       },
-      "tooltips": Object {
-        "callbacks": Object {
+      "tooltips": {
+        "callbacks": {
           "label": [Function],
           "title": [Function],
         },
@@ -356,49 +356,49 @@ Object {
 `;
 
 exports[`datasource tests create a chart with stacked bar 1`] = `
-Object {
+{
   "background": "#FFFFFF",
-  "chartJsConfig": Object {
-    "data": Object {
-      "datasets": Array [
-        Object {
+  "chartJsConfig": {
+    "data": {
+      "datasets": [
+        {
           "backgroundColor": "rgb(31,119,180)",
           "borderColor": "rgb(31,119,180)",
-          "data": Array [
+          "data": [
             30,
           ],
           "label": "P4",
         },
       ],
-      "labels": Array [
+      "labels": [
         "P4",
       ],
     },
-    "options": Object {
-      "animation": Object {
+    "options": {
+      "animation": {
         "duration": 0,
       },
-      "elements": Object {
-        "line": Object {
+      "elements": {
+        "line": {
           "fill": false,
         },
-        "point": Object {
+        "point": {
           "hitRadius": 15,
         },
       },
-      "hover": Object {
+      "hover": {
         "animationDuration": 10,
       },
-      "layout": Object {
-        "padding": Object {
+      "layout": {
+        "padding": {
           "bottom": 10,
           "left": 20,
           "right": 20,
           "top": 10,
         },
       },
-      "legend": Object {
-        "labels": Object {
+      "legend": {
+        "labels": {
           "fontColor": "#000000",
         },
         "onClick": undefined,
@@ -407,11 +407,11 @@ Object {
       "maintainAspectRatio": false,
       "responsive": true,
       "responsiveAnimationDuration": 0,
-      "scales": Object {
-        "xAxes": Array [
-          Object {
+      "scales": {
+        "xAxes": [
+          {
             "stacked": true,
-            "ticks": Object {
+            "ticks": {
               "fontColor": "#000000",
               "labelOffset": 2,
               "maxRotation": 60,
@@ -420,11 +420,11 @@ Object {
             },
           },
         ],
-        "yAxes": Array [
-          Object {
+        "yAxes": [
+          {
             "position": "left",
             "stacked": true,
-            "ticks": Object {
+            "ticks": {
               "beginAtZero": true,
               "callback": [Function],
               "fontColor": "#000000",
@@ -432,15 +432,15 @@ Object {
           },
         ],
       },
-      "title": Object {
+      "title": {
         "display": true,
         "fontColor": "#000000",
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
       },
-      "tooltips": Object {
-        "callbacks": Object {
+      "tooltips": {
+        "callbacks": {
           "label": [Function],
         },
       },
@@ -451,15 +451,15 @@ Object {
 `;
 
 exports[`datasource tests create chart with a dataset of one cell (no title) 1`] = `
-Object {
+{
   "background": "#FFFFFF",
-  "chartJsConfig": Object {
-    "data": Object {
-      "datasets": Array [
-        Object {
+  "chartJsConfig": {
+    "data": {
+      "datasets": [
+        {
           "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
-          "data": Array [
+          "data": [
             30,
           ],
           "fill": false,
@@ -468,35 +468,35 @@ Object {
           "pointBackgroundColor": "rgb(31,119,180)",
         },
       ],
-      "labels": Array [
+      "labels": [
         "P4",
       ],
     },
-    "options": Object {
-      "animation": Object {
+    "options": {
+      "animation": {
         "duration": 0,
       },
-      "elements": Object {
-        "line": Object {
+      "elements": {
+        "line": {
           "fill": false,
         },
-        "point": Object {
+        "point": {
           "hitRadius": 15,
         },
       },
-      "hover": Object {
+      "hover": {
         "animationDuration": 10,
       },
-      "layout": Object {
-        "padding": Object {
+      "layout": {
+        "padding": {
           "bottom": 10,
           "left": 20,
           "right": 20,
           "top": 10,
         },
       },
-      "legend": Object {
-        "labels": Object {
+      "legend": {
+        "labels": {
           "fontColor": "#000000",
           "generateLabels": [Function],
         },
@@ -506,10 +506,10 @@ Object {
       "maintainAspectRatio": false,
       "responsive": true,
       "responsiveAnimationDuration": 0,
-      "scales": Object {
-        "xAxes": Array [
-          Object {
-            "ticks": Object {
+      "scales": {
+        "xAxes": [
+          {
+            "ticks": {
               "fontColor": "#000000",
               "labelOffset": 2,
               "maxRotation": 60,
@@ -518,10 +518,10 @@ Object {
             },
           },
         ],
-        "yAxes": Array [
-          Object {
+        "yAxes": [
+          {
             "position": "left",
-            "ticks": Object {
+            "ticks": {
               "beginAtZero": true,
               "callback": [Function],
               "fontColor": "#000000",
@@ -529,15 +529,15 @@ Object {
           },
         ],
       },
-      "title": Object {
+      "title": {
         "display": true,
         "fontColor": "#000000",
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
       },
-      "tooltips": Object {
-        "callbacks": Object {
+      "tooltips": {
+        "callbacks": {
           "label": [Function],
         },
       },
@@ -548,15 +548,15 @@ Object {
 `;
 
 exports[`datasource tests create chart with column datasets 1`] = `
-Object {
+{
   "background": "#FFFFFF",
-  "chartJsConfig": Object {
-    "data": Object {
-      "datasets": Array [
-        Object {
+  "chartJsConfig": {
+    "data": {
+      "datasets": [
+        {
           "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
-          "data": Array [
+          "data": [
             10,
             11,
             12,
@@ -566,10 +566,10 @@ Object {
           "lineTension": 0,
           "pointBackgroundColor": "rgb(31,119,180)",
         },
-        Object {
+        {
           "backgroundColor": "#FF7F0E",
           "borderColor": "rgb(255,127,14)",
-          "data": Array [
+          "data": [
             20,
             19,
             18,
@@ -580,37 +580,37 @@ Object {
           "pointBackgroundColor": "rgb(255,127,14)",
         },
       ],
-      "labels": Array [
+      "labels": [
         "P1",
         "P2",
         "P3",
       ],
     },
-    "options": Object {
-      "animation": Object {
+    "options": {
+      "animation": {
         "duration": 0,
       },
-      "elements": Object {
-        "line": Object {
+      "elements": {
+        "line": {
           "fill": false,
         },
-        "point": Object {
+        "point": {
           "hitRadius": 15,
         },
       },
-      "hover": Object {
+      "hover": {
         "animationDuration": 10,
       },
-      "layout": Object {
-        "padding": Object {
+      "layout": {
+        "padding": {
           "bottom": 10,
           "left": 20,
           "right": 20,
           "top": 10,
         },
       },
-      "legend": Object {
-        "labels": Object {
+      "legend": {
+        "labels": {
           "fontColor": "#000000",
           "generateLabels": [Function],
         },
@@ -620,10 +620,10 @@ Object {
       "maintainAspectRatio": false,
       "responsive": true,
       "responsiveAnimationDuration": 0,
-      "scales": Object {
-        "xAxes": Array [
-          Object {
-            "ticks": Object {
+      "scales": {
+        "xAxes": [
+          {
+            "ticks": {
               "fontColor": "#000000",
               "labelOffset": 2,
               "maxRotation": 60,
@@ -632,10 +632,10 @@ Object {
             },
           },
         ],
-        "yAxes": Array [
-          Object {
+        "yAxes": [
+          {
             "position": "left",
-            "ticks": Object {
+            "ticks": {
               "beginAtZero": true,
               "callback": [Function],
               "fontColor": "#000000",
@@ -643,15 +643,15 @@ Object {
           },
         ],
       },
-      "title": Object {
+      "title": {
         "display": true,
         "fontColor": "#000000",
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
       },
-      "tooltips": Object {
-        "callbacks": Object {
+      "tooltips": {
+        "callbacks": {
           "label": [Function],
         },
       },
@@ -662,15 +662,15 @@ Object {
 `;
 
 exports[`datasource tests create chart with column datasets with category title 1`] = `
-Object {
+{
   "background": "#FFFFFF",
-  "chartJsConfig": Object {
-    "data": Object {
-      "datasets": Array [
-        Object {
+  "chartJsConfig": {
+    "data": {
+      "datasets": [
+        {
           "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
-          "data": Array [
+          "data": [
             10,
             11,
             12,
@@ -680,10 +680,10 @@ Object {
           "lineTension": 0,
           "pointBackgroundColor": "rgb(31,119,180)",
         },
-        Object {
+        {
           "backgroundColor": "#FF7F0E",
           "borderColor": "rgb(255,127,14)",
-          "data": Array [
+          "data": [
             20,
             19,
             18,
@@ -694,37 +694,37 @@ Object {
           "pointBackgroundColor": "rgb(255,127,14)",
         },
       ],
-      "labels": Array [
+      "labels": [
         "P1",
         "P2",
         "P3",
       ],
     },
-    "options": Object {
-      "animation": Object {
+    "options": {
+      "animation": {
         "duration": 0,
       },
-      "elements": Object {
-        "line": Object {
+      "elements": {
+        "line": {
           "fill": false,
         },
-        "point": Object {
+        "point": {
           "hitRadius": 15,
         },
       },
-      "hover": Object {
+      "hover": {
         "animationDuration": 10,
       },
-      "layout": Object {
-        "padding": Object {
+      "layout": {
+        "padding": {
           "bottom": 10,
           "left": 20,
           "right": 20,
           "top": 10,
         },
       },
-      "legend": Object {
-        "labels": Object {
+      "legend": {
+        "labels": {
           "fontColor": "#000000",
           "generateLabels": [Function],
         },
@@ -734,10 +734,10 @@ Object {
       "maintainAspectRatio": false,
       "responsive": true,
       "responsiveAnimationDuration": 0,
-      "scales": Object {
-        "xAxes": Array [
-          Object {
-            "ticks": Object {
+      "scales": {
+        "xAxes": [
+          {
+            "ticks": {
               "fontColor": "#000000",
               "labelOffset": 2,
               "maxRotation": 60,
@@ -746,10 +746,10 @@ Object {
             },
           },
         ],
-        "yAxes": Array [
-          Object {
+        "yAxes": [
+          {
             "position": "left",
-            "ticks": Object {
+            "ticks": {
               "beginAtZero": true,
               "callback": [Function],
               "fontColor": "#000000",
@@ -757,15 +757,15 @@ Object {
           },
         ],
       },
-      "title": Object {
+      "title": {
         "display": true,
         "fontColor": "#000000",
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
       },
-      "tooltips": Object {
-        "callbacks": Object {
+      "tooltips": {
+        "callbacks": {
           "label": [Function],
         },
       },
@@ -776,15 +776,15 @@ Object {
 `;
 
 exports[`datasource tests create chart with column datasets without series title 1`] = `
-Object {
+{
   "background": "#FFFFFF",
-  "chartJsConfig": Object {
-    "data": Object {
-      "datasets": Array [
-        Object {
+  "chartJsConfig": {
+    "data": {
+      "datasets": [
+        {
           "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
-          "data": Array [
+          "data": [
             10,
             11,
             12,
@@ -794,10 +794,10 @@ Object {
           "lineTension": 0,
           "pointBackgroundColor": "rgb(31,119,180)",
         },
-        Object {
+        {
           "backgroundColor": "#FF7F0E",
           "borderColor": "rgb(255,127,14)",
-          "data": Array [
+          "data": [
             20,
             19,
             18,
@@ -808,37 +808,37 @@ Object {
           "pointBackgroundColor": "rgb(255,127,14)",
         },
       ],
-      "labels": Array [
+      "labels": [
         "P1",
         "P2",
         "P3",
       ],
     },
-    "options": Object {
-      "animation": Object {
+    "options": {
+      "animation": {
         "duration": 0,
       },
-      "elements": Object {
-        "line": Object {
+      "elements": {
+        "line": {
           "fill": false,
         },
-        "point": Object {
+        "point": {
           "hitRadius": 15,
         },
       },
-      "hover": Object {
+      "hover": {
         "animationDuration": 10,
       },
-      "layout": Object {
-        "padding": Object {
+      "layout": {
+        "padding": {
           "bottom": 10,
           "left": 20,
           "right": 20,
           "top": 10,
         },
       },
-      "legend": Object {
-        "labels": Object {
+      "legend": {
+        "labels": {
           "fontColor": "#000000",
           "generateLabels": [Function],
         },
@@ -848,10 +848,10 @@ Object {
       "maintainAspectRatio": false,
       "responsive": true,
       "responsiveAnimationDuration": 0,
-      "scales": Object {
-        "xAxes": Array [
-          Object {
-            "ticks": Object {
+      "scales": {
+        "xAxes": [
+          {
+            "ticks": {
               "fontColor": "#000000",
               "labelOffset": 2,
               "maxRotation": 60,
@@ -860,10 +860,10 @@ Object {
             },
           },
         ],
-        "yAxes": Array [
-          Object {
+        "yAxes": [
+          {
             "position": "left",
-            "ticks": Object {
+            "ticks": {
               "beginAtZero": true,
               "callback": [Function],
               "fontColor": "#000000",
@@ -871,15 +871,15 @@ Object {
           },
         ],
       },
-      "title": Object {
+      "title": {
         "display": true,
         "fontColor": "#000000",
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
       },
-      "tooltips": Object {
-        "callbacks": Object {
+      "tooltips": {
+        "callbacks": {
           "label": [Function],
         },
       },
@@ -890,42 +890,62 @@ Object {
 `;
 
 exports[`datasource tests create chart with only the dataset title (no data) 1`] = `
-Object {
+{
   "background": "#FFFFFF",
+<<<<<<< HEAD
   "chartJsConfig": Object {
     "data": Object {
       "datasets": Array [],
       "labels": Array [
         "P4",
+=======
+  "chartJsConfig": {
+    "data": {
+      "datasets": [
+        {
+          "backgroundColor": "#1F77B4",
+          "borderColor": "rgb(31,119,180)",
+          "data": [
+            undefined,
+            undefined,
+          ],
+          "fill": false,
+          "label": "30",
+          "lineTension": 0,
+          "pointBackgroundColor": "rgb(31,119,180)",
+        },
+      ],
+      "labels": [
+>>>>>>> 29f00be5 ([IMP] packages: upgrade jest to version 29)
         "P5",
         "P6",
       ],
     },
-    "options": Object {
-      "animation": Object {
+    "options": {
+      "animation": {
         "duration": 0,
       },
-      "elements": Object {
-        "line": Object {
+      "elements": {
+        "line": {
           "fill": false,
         },
-        "point": Object {
+        "point": {
           "hitRadius": 15,
         },
       },
-      "hover": Object {
+      "hover": {
         "animationDuration": 10,
       },
-      "layout": Object {
-        "padding": Object {
+      "layout": {
+        "padding": {
           "bottom": 10,
           "left": 20,
           "right": 20,
           "top": 10,
         },
       },
-      "legend": Object {
-        "labels": Object {
+      "legend": {
+        "labels": {
           "fontColor": "#000000",
           "generateLabels": [Function],
         },
@@ -935,10 +955,10 @@ Object {
       "maintainAspectRatio": false,
       "responsive": true,
       "responsiveAnimationDuration": 0,
-      "scales": Object {
-        "xAxes": Array [
-          Object {
-            "ticks": Object {
+      "scales": {
+        "xAxes": [
+          {
+            "ticks": {
               "fontColor": "#000000",
               "labelOffset": 2,
               "maxRotation": 60,
@@ -947,10 +967,10 @@ Object {
             },
           },
         ],
-        "yAxes": Array [
-          Object {
+        "yAxes": [
+          {
             "position": "left",
-            "ticks": Object {
+            "ticks": {
               "beginAtZero": true,
               "callback": [Function],
               "fontColor": "#000000",
@@ -958,15 +978,15 @@ Object {
           },
         ],
       },
-      "title": Object {
+      "title": {
         "display": true,
         "fontColor": "#000000",
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
       },
-      "tooltips": Object {
-        "callbacks": Object {
+      "tooltips": {
+        "callbacks": {
           "label": [Function],
         },
       },
@@ -977,15 +997,15 @@ Object {
 `;
 
 exports[`datasource tests create chart with rectangle dataset 1`] = `
-Object {
+{
   "background": "#FFFFFF",
-  "chartJsConfig": Object {
-    "data": Object {
-      "datasets": Array [
-        Object {
+  "chartJsConfig": {
+    "data": {
+      "datasets": [
+        {
           "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
-          "data": Array [
+          "data": [
             10,
             11,
             12,
@@ -995,10 +1015,10 @@ Object {
           "lineTension": 0,
           "pointBackgroundColor": "rgb(31,119,180)",
         },
-        Object {
+        {
           "backgroundColor": "#FF7F0E",
           "borderColor": "rgb(255,127,14)",
-          "data": Array [
+          "data": [
             20,
             19,
             18,
@@ -1009,37 +1029,37 @@ Object {
           "pointBackgroundColor": "rgb(255,127,14)",
         },
       ],
-      "labels": Array [
+      "labels": [
         "P1",
         "P2",
         "P3",
       ],
     },
-    "options": Object {
-      "animation": Object {
+    "options": {
+      "animation": {
         "duration": 0,
       },
-      "elements": Object {
-        "line": Object {
+      "elements": {
+        "line": {
           "fill": false,
         },
-        "point": Object {
+        "point": {
           "hitRadius": 15,
         },
       },
-      "hover": Object {
+      "hover": {
         "animationDuration": 10,
       },
-      "layout": Object {
-        "padding": Object {
+      "layout": {
+        "padding": {
           "bottom": 10,
           "left": 20,
           "right": 20,
           "top": 10,
         },
       },
-      "legend": Object {
-        "labels": Object {
+      "legend": {
+        "labels": {
           "fontColor": "#000000",
           "generateLabels": [Function],
         },
@@ -1049,10 +1069,10 @@ Object {
       "maintainAspectRatio": false,
       "responsive": true,
       "responsiveAnimationDuration": 0,
-      "scales": Object {
-        "xAxes": Array [
-          Object {
-            "ticks": Object {
+      "scales": {
+        "xAxes": [
+          {
+            "ticks": {
               "fontColor": "#000000",
               "labelOffset": 2,
               "maxRotation": 60,
@@ -1061,10 +1081,10 @@ Object {
             },
           },
         ],
-        "yAxes": Array [
-          Object {
+        "yAxes": [
+          {
             "position": "left",
-            "ticks": Object {
+            "ticks": {
               "beginAtZero": true,
               "callback": [Function],
               "fontColor": "#000000",
@@ -1072,15 +1092,15 @@ Object {
           },
         ],
       },
-      "title": Object {
+      "title": {
         "display": true,
         "fontColor": "#000000",
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
       },
-      "tooltips": Object {
-        "callbacks": Object {
+      "tooltips": {
+        "callbacks": {
           "label": [Function],
         },
       },
@@ -1091,15 +1111,15 @@ Object {
 `;
 
 exports[`datasource tests create chart with row datasets 1`] = `
-Object {
+{
   "background": "#FFFFFF",
-  "chartJsConfig": Object {
-    "data": Object {
-      "datasets": Array [
-        Object {
+  "chartJsConfig": {
+    "data": {
+      "datasets": [
+        {
           "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
-          "data": Array [
+          "data": [
             30,
             31,
             32,
@@ -1109,10 +1129,10 @@ Object {
           "lineTension": 0,
           "pointBackgroundColor": "rgb(31,119,180)",
         },
-        Object {
+        {
           "backgroundColor": "#FF7F0E",
           "borderColor": "rgb(255,127,14)",
-          "data": Array [
+          "data": [
             40,
             41,
             42,
@@ -1123,37 +1143,37 @@ Object {
           "pointBackgroundColor": "rgb(255,127,14)",
         },
       ],
-      "labels": Array [
+      "labels": [
         "P4",
         "P5",
         "P6",
       ],
     },
-    "options": Object {
-      "animation": Object {
+    "options": {
+      "animation": {
         "duration": 0,
       },
-      "elements": Object {
-        "line": Object {
+      "elements": {
+        "line": {
           "fill": false,
         },
-        "point": Object {
+        "point": {
           "hitRadius": 15,
         },
       },
-      "hover": Object {
+      "hover": {
         "animationDuration": 10,
       },
-      "layout": Object {
-        "padding": Object {
+      "layout": {
+        "padding": {
           "bottom": 10,
           "left": 20,
           "right": 20,
           "top": 10,
         },
       },
-      "legend": Object {
-        "labels": Object {
+      "legend": {
+        "labels": {
           "fontColor": "#000000",
           "generateLabels": [Function],
         },
@@ -1163,10 +1183,10 @@ Object {
       "maintainAspectRatio": false,
       "responsive": true,
       "responsiveAnimationDuration": 0,
-      "scales": Object {
-        "xAxes": Array [
-          Object {
-            "ticks": Object {
+      "scales": {
+        "xAxes": [
+          {
+            "ticks": {
               "fontColor": "#000000",
               "labelOffset": 2,
               "maxRotation": 60,
@@ -1175,10 +1195,10 @@ Object {
             },
           },
         ],
-        "yAxes": Array [
-          Object {
+        "yAxes": [
+          {
             "position": "left",
-            "ticks": Object {
+            "ticks": {
               "beginAtZero": true,
               "callback": [Function],
               "fontColor": "#000000",
@@ -1186,15 +1206,15 @@ Object {
           },
         ],
       },
-      "title": Object {
+      "title": {
         "display": true,
         "fontColor": "#000000",
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
       },
-      "tooltips": Object {
-        "callbacks": Object {
+      "tooltips": {
+        "callbacks": {
           "label": [Function],
         },
       },
@@ -1205,15 +1225,15 @@ Object {
 `;
 
 exports[`datasource tests create chart with row datasets with category title 1`] = `
-Object {
+{
   "background": "#FFFFFF",
-  "chartJsConfig": Object {
-    "data": Object {
-      "datasets": Array [
-        Object {
+  "chartJsConfig": {
+    "data": {
+      "datasets": [
+        {
           "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
-          "data": Array [
+          "data": [
             30,
             31,
             32,
@@ -1223,10 +1243,10 @@ Object {
           "lineTension": 0,
           "pointBackgroundColor": "rgb(31,119,180)",
         },
-        Object {
+        {
           "backgroundColor": "#FF7F0E",
           "borderColor": "rgb(255,127,14)",
-          "data": Array [
+          "data": [
             40,
             41,
             42,
@@ -1237,37 +1257,37 @@ Object {
           "pointBackgroundColor": "rgb(255,127,14)",
         },
       ],
-      "labels": Array [
+      "labels": [
         "P4",
         "P5",
         "P6",
       ],
     },
-    "options": Object {
-      "animation": Object {
+    "options": {
+      "animation": {
         "duration": 0,
       },
-      "elements": Object {
-        "line": Object {
+      "elements": {
+        "line": {
           "fill": false,
         },
-        "point": Object {
+        "point": {
           "hitRadius": 15,
         },
       },
-      "hover": Object {
+      "hover": {
         "animationDuration": 10,
       },
-      "layout": Object {
-        "padding": Object {
+      "layout": {
+        "padding": {
           "bottom": 10,
           "left": 20,
           "right": 20,
           "top": 10,
         },
       },
-      "legend": Object {
-        "labels": Object {
+      "legend": {
+        "labels": {
           "fontColor": "#000000",
           "generateLabels": [Function],
         },
@@ -1277,10 +1297,10 @@ Object {
       "maintainAspectRatio": false,
       "responsive": true,
       "responsiveAnimationDuration": 0,
-      "scales": Object {
-        "xAxes": Array [
-          Object {
-            "ticks": Object {
+      "scales": {
+        "xAxes": [
+          {
+            "ticks": {
               "fontColor": "#000000",
               "labelOffset": 2,
               "maxRotation": 60,
@@ -1289,10 +1309,10 @@ Object {
             },
           },
         ],
-        "yAxes": Array [
-          Object {
+        "yAxes": [
+          {
             "position": "left",
-            "ticks": Object {
+            "ticks": {
               "beginAtZero": true,
               "callback": [Function],
               "fontColor": "#000000",
@@ -1300,15 +1320,15 @@ Object {
           },
         ],
       },
-      "title": Object {
+      "title": {
         "display": true,
         "fontColor": "#000000",
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
       },
-      "tooltips": Object {
-        "callbacks": Object {
+      "tooltips": {
+        "callbacks": {
           "label": [Function],
         },
       },
@@ -1319,15 +1339,15 @@ Object {
 `;
 
 exports[`datasource tests create chart with row datasets without series title 1`] = `
-Object {
+{
   "background": "#FFFFFF",
-  "chartJsConfig": Object {
-    "data": Object {
-      "datasets": Array [
-        Object {
+  "chartJsConfig": {
+    "data": {
+      "datasets": [
+        {
           "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
-          "data": Array [
+          "data": [
             30,
             31,
             32,
@@ -1337,10 +1357,10 @@ Object {
           "lineTension": 0,
           "pointBackgroundColor": "rgb(31,119,180)",
         },
-        Object {
+        {
           "backgroundColor": "#FF7F0E",
           "borderColor": "rgb(255,127,14)",
-          "data": Array [
+          "data": [
             40,
             41,
             42,
@@ -1351,37 +1371,37 @@ Object {
           "pointBackgroundColor": "rgb(255,127,14)",
         },
       ],
-      "labels": Array [
+      "labels": [
         "P4",
         "P5",
         "P6",
       ],
     },
-    "options": Object {
-      "animation": Object {
+    "options": {
+      "animation": {
         "duration": 0,
       },
-      "elements": Object {
-        "line": Object {
+      "elements": {
+        "line": {
           "fill": false,
         },
-        "point": Object {
+        "point": {
           "hitRadius": 15,
         },
       },
-      "hover": Object {
+      "hover": {
         "animationDuration": 10,
       },
-      "layout": Object {
-        "padding": Object {
+      "layout": {
+        "padding": {
           "bottom": 10,
           "left": 20,
           "right": 20,
           "top": 10,
         },
       },
-      "legend": Object {
-        "labels": Object {
+      "legend": {
+        "labels": {
           "fontColor": "#000000",
           "generateLabels": [Function],
         },
@@ -1391,10 +1411,10 @@ Object {
       "maintainAspectRatio": false,
       "responsive": true,
       "responsiveAnimationDuration": 0,
-      "scales": Object {
-        "xAxes": Array [
-          Object {
-            "ticks": Object {
+      "scales": {
+        "xAxes": [
+          {
+            "ticks": {
               "fontColor": "#000000",
               "labelOffset": 2,
               "maxRotation": 60,
@@ -1403,10 +1423,10 @@ Object {
             },
           },
         ],
-        "yAxes": Array [
-          Object {
+        "yAxes": [
+          {
             "position": "left",
-            "ticks": Object {
+            "ticks": {
               "beginAtZero": true,
               "callback": [Function],
               "fontColor": "#000000",
@@ -1414,15 +1434,15 @@ Object {
           },
         ],
       },
-      "title": Object {
+      "title": {
         "display": true,
         "fontColor": "#000000",
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "test",
       },
-      "tooltips": Object {
-        "callbacks": Object {
+      "tooltips": {
+        "callbacks": {
           "label": [Function],
         },
       },

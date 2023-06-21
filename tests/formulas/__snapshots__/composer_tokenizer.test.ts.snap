@@ -1,38 +1,38 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`composerTokenizer = SUM ( C4 : C5 ) 1`] = `
-Array [
-  Object {
+[
+  {
     "end": 1,
     "length": 1,
     "start": 0,
     "type": "OPERATOR",
     "value": "=",
   },
-  Object {
+  {
     "end": 2,
     "length": 1,
     "start": 1,
     "type": "SPACE",
     "value": " ",
   },
-  Object {
+  {
     "end": 5,
     "length": 3,
     "start": 2,
     "type": "FUNCTION",
     "value": "SUM",
   },
-  Object {
+  {
     "end": 6,
     "length": 1,
     "start": 5,
     "type": "SPACE",
     "value": " ",
   },
-  Object {
+  {
     "end": 7,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 0,
       "parent": "SUM",
     },
@@ -42,9 +42,9 @@ Array [
     "type": "LEFT_PAREN",
     "value": "(",
   },
-  Object {
+  {
     "end": 8,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 0,
       "parent": "SUM",
     },
@@ -53,9 +53,9 @@ Array [
     "type": "SPACE",
     "value": " ",
   },
-  Object {
+  {
     "end": 15,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 0,
       "parent": "SUM",
     },
@@ -64,9 +64,9 @@ Array [
     "type": "REFERENCE",
     "value": "C4 : C5",
   },
-  Object {
+  {
     "end": 16,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 0,
       "parent": "SUM",
     },
@@ -75,7 +75,7 @@ Array [
     "type": "SPACE",
     "value": " ",
   },
-  Object {
+  {
     "end": 17,
     "length": 1,
     "parenIndex": 1,
@@ -87,24 +87,24 @@ Array [
 `;
 
 exports[`composerTokenizer base tests Boolean 1`] = `
-Array [
-  Object {
+[
+  {
     "end": 1,
     "length": 1,
     "start": 0,
     "type": "OPERATOR",
     "value": "=",
   },
-  Object {
+  {
     "end": 4,
     "length": 3,
     "start": 1,
     "type": "FUNCTION",
     "value": "AND",
   },
-  Object {
+  {
     "end": 5,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 0,
       "parent": "AND",
     },
@@ -114,9 +114,9 @@ Array [
     "type": "LEFT_PAREN",
     "value": "(",
   },
-  Object {
+  {
     "end": 9,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 0,
       "parent": "AND",
     },
@@ -125,9 +125,9 @@ Array [
     "type": "SYMBOL",
     "value": "true",
   },
-  Object {
+  {
     "end": 10,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 1,
       "parent": "AND",
     },
@@ -136,9 +136,9 @@ Array [
     "type": "COMMA",
     "value": ",",
   },
-  Object {
+  {
     "end": 15,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 1,
       "parent": "AND",
     },
@@ -147,7 +147,7 @@ Array [
     "type": "SYMBOL",
     "value": "false",
   },
-  Object {
+  {
     "end": 16,
     "length": 1,
     "parenIndex": 1,
@@ -159,24 +159,24 @@ Array [
 `;
 
 exports[`composerTokenizer base tests formula token 1`] = `
-Array [
-  Object {
+[
+  {
     "end": 1,
     "length": 1,
     "start": 0,
     "type": "OPERATOR",
     "value": "=",
   },
-  Object {
+  {
     "end": 4,
     "length": 3,
     "start": 1,
     "type": "FUNCTION",
     "value": "SUM",
   },
-  Object {
+  {
     "end": 5,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 0,
       "parent": "SUM",
     },
@@ -186,9 +186,9 @@ Array [
     "type": "LEFT_PAREN",
     "value": "(",
   },
-  Object {
+  {
     "end": 6,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 0,
       "parent": "SUM",
     },
@@ -197,9 +197,9 @@ Array [
     "type": "NUMBER",
     "value": "1",
   },
-  Object {
+  {
     "end": 7,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 0,
       "parent": "SUM",
     },
@@ -208,9 +208,9 @@ Array [
     "type": "SPACE",
     "value": " ",
   },
-  Object {
+  {
     "end": 8,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 1,
       "parent": "SUM",
     },
@@ -219,7 +219,7 @@ Array [
     "type": "COMMA",
     "value": ",",
   },
-  Object {
+  {
     "end": 9,
     "length": 1,
     "parenIndex": 2,
@@ -227,30 +227,30 @@ Array [
     "type": "LEFT_PAREN",
     "value": "(",
   },
-  Object {
+  {
     "end": 10,
     "length": 1,
     "start": 9,
     "type": "NUMBER",
     "value": "1",
   },
-  Object {
+  {
     "end": 11,
     "length": 1,
     "start": 10,
     "type": "OPERATOR",
     "value": "+",
   },
-  Object {
+  {
     "end": 12,
     "length": 1,
     "start": 11,
     "type": "NUMBER",
     "value": "2",
   },
-  Object {
+  {
     "end": 13,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 1,
       "parent": "SUM",
     },
@@ -260,9 +260,9 @@ Array [
     "type": "RIGHT_PAREN",
     "value": ")",
   },
-  Object {
+  {
     "end": 14,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 2,
       "parent": "SUM",
     },
@@ -271,9 +271,9 @@ Array [
     "type": "COMMA",
     "value": ",",
   },
-  Object {
+  {
     "end": 17,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 2,
       "parent": "SUM",
     },
@@ -282,9 +282,9 @@ Array [
     "type": "FUNCTION",
     "value": "ADD",
   },
-  Object {
+  {
     "end": 18,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 2,
       "parent": "SUM",
     },
@@ -293,9 +293,9 @@ Array [
     "type": "SPACE",
     "value": " ",
   },
-  Object {
+  {
     "end": 19,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 0,
       "parent": "ADD",
     },
@@ -305,9 +305,9 @@ Array [
     "type": "LEFT_PAREN",
     "value": "(",
   },
-  Object {
+  {
     "end": 20,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 0,
       "parent": "ADD",
     },
@@ -316,9 +316,9 @@ Array [
     "type": "NUMBER",
     "value": "2",
   },
-  Object {
+  {
     "end": 21,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 1,
       "parent": "ADD",
     },
@@ -327,9 +327,9 @@ Array [
     "type": "COMMA",
     "value": ",",
   },
-  Object {
+  {
     "end": 22,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 1,
       "parent": "ADD",
     },
@@ -338,9 +338,9 @@ Array [
     "type": "SPACE",
     "value": " ",
   },
-  Object {
+  {
     "end": 23,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 1,
       "parent": "ADD",
     },
@@ -349,9 +349,9 @@ Array [
     "type": "NUMBER",
     "value": "3",
   },
-  Object {
+  {
     "end": 24,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 2,
       "parent": "SUM",
     },
@@ -361,9 +361,9 @@ Array [
     "type": "RIGHT_PAREN",
     "value": ")",
   },
-  Object {
+  {
     "end": 25,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 3,
       "parent": "SUM",
     },
@@ -372,9 +372,9 @@ Array [
     "type": "COMMA",
     "value": ",",
   },
-  Object {
+  {
     "end": 26,
-    "functionContext": Object {
+    "functionContext": {
       "argPosition": 3,
       "parent": "SUM",
     },
@@ -383,7 +383,7 @@ Array [
     "type": "NUMBER",
     "value": "4",
   },
-  Object {
+  {
     "end": 27,
     "length": 1,
     "parenIndex": 1,

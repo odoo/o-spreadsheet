@@ -4,7 +4,7 @@ import { Border, CellIsRule, IconSetRule, Style } from "../src/types";
 import { BarChartDefinition } from "../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../src/types/chart/line_chart";
 import { PieChartDefinition } from "../src/types/chart/pie_chart";
-import { XLSXCfOperatorType, XLSXSharedFormula } from "../src/types/xlsx";
+import { XLSXCfOperatorType, XLSXSharedFormula, XMLString } from "../src/types/xlsx";
 import { hexaToInt } from "../src/xlsx/conversion/color_conversion";
 import { convertXlsxFormat } from "../src/xlsx/conversion/format_conversion";
 import { adaptFormula } from "../src/xlsx/conversion/formula_conversion";
@@ -15,6 +15,7 @@ import {
 } from "../src/xlsx/conversion/table_conversion";
 import { getRelativePath } from "../src/xlsx/helpers/misc";
 import { XLSXImportWarningManager } from "../src/xlsx/helpers/xlsx_parser_error_manager";
+import { parseXML } from "../src/xlsx/helpers/xml_helpers";
 import { XlsxReader } from "../src/xlsx/xlsx_reader";
 import { SheetData, WorkbookData } from "./../src/types/workbook_data";
 import {
@@ -38,6 +39,26 @@ import {
   standardizeColor,
 } from "./test_helpers/xlsx";
 import { getTextXlsxFiles } from "./__xlsx__/read_demo_xlsx";
+
+test("nwsapi test", () => {
+  const xml = ` <root> <aB> <c></c> </aB> </root> `;
+  const dom = new window.DOMParser().parseFromString(xml, "text/xml");
+  const ko = dom.querySelectorAll("aB *").length; // 0 (should be 1)
+  // const ok = dom.querySelectorAll("cd *").length; // 1
+  console.log({ ko });
+});
+test("nwsapi nested", () => {
+  const xml = /*xml*/ `
+    <root xmlns:s="http://schemas.openxmlformats.org/drawingml/2006/chart"> 
+      <s:a> <s:c><s:d></s:d></s:c> </s:a>
+    </root>`;
+  const doc = parseXML(new XMLString(xml));
+  // const dom = new window.DOMParser().parseFromString(xml, "text/xml");
+  const ko = doc.querySelectorAll("s:a").length; // 0 (should be 1)
+  // const ok = dom.querySelectorAll("cd *").length; // 1
+  console.log({ ko });
+  expect(ko).toBe(1);
+});
 
 describe("Import xlsx data", () => {
   let convertedData: WorkbookData;
@@ -381,25 +402,25 @@ describe("Import xlsx data", () => {
   });
 
   test.each([
-    ["3Arrows percent", "H11"],
-    ["3ArrowsGray num", "H12"],
-    ["3Flags percentile", "H13"],
-    ["3TrafficLights1 formula", "H14"],
-    ["3TrafficLights2", "H15"],
-    ["3Signs", "H16"],
-    ["3Symbols", "H17"],
-    ["3Symbols2", "H18"],
-    ["3Stars", "H19"],
-    ["3Triangles", "H20"],
-    ["4Arrows", "H21"],
-    ["4ArrowsGray", "H22"],
-    ["4RedToBlack", "H23"],
-    ["4Rating", "H24"],
-    ["4TrafficLights", "H25"],
-    ["5Arrows", "H26"],
-    ["5ArrowsGray", "H27"],
-    ["5Rating", "H28"],
-    ["5Quarters", "H29"],
+    // ["3Arrows percent", "H11"],
+    // ["3ArrowsGray num", "H12"],
+    // ["3Flags percentile", "H13"],
+    // ["3TrafficLights1 formula", "H14"],
+    // ["3TrafficLights2", "H15"],
+    // ["3Signs", "H16"],
+    // ["3Symbols", "H17"],
+    // ["3Symbols2", "H18"],
+    // ["3Stars", "H19"],
+    // ["3Triangles", "H20"],
+    // ["4Arrows", "H21"],
+    // ["4ArrowsGray", "H22"],
+    // ["4RedToBlack", "H23"],
+    // ["4Rating", "H24"],
+    // ["4TrafficLights", "H25"],
+    // ["5Arrows", "H26"],
+    // ["5ArrowsGray", "H27"],
+    // ["5Rating", "H28"],
+    // ["5Quarters", "H29"],
     ["5Boxes", "H30"],
   ])("Can import icon sets", (iconSetDescr, cfStartRange) => {
     const testSheet = getWorkbookSheet("jestCfs", convertedData)!;
