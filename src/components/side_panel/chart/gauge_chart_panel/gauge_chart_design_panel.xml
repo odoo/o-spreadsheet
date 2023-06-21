@@ -3,15 +3,17 @@
     <div>
       <div class="o-section o-chart-background-color">
         <div class="o-section-title">Background color</div>
-        Select a color...
-        <ColorPickerWidget
-          currentColor="props.definition.background"
-          toggleColorPicker="() => this.toggleMenu('backgroundColor', ev)"
-          showColorPicker="state.openedMenu === 'backgroundColor'"
-          onColorPicked="(color) => this.updateBackgroundColor(color)"
-          title="env._t('Background Color')"
-          icon="'o-spreadsheet-Icon.FILL_COLOR'"
-        />
+        <div class="d-flex align-items-center">
+          <span class="pe-1">Select a color...</span>
+          <ColorPickerWidget
+            currentColor="props.definition.background"
+            toggleColorPicker="() => this.toggleMenu('backgroundColor', ev)"
+            showColorPicker="state.openedMenu === 'backgroundColor'"
+            onColorPicked="(color) => this.updateBackgroundColor(color)"
+            title="env._t('Background Color')"
+            icon="'o-spreadsheet-Icon.FILL_COLOR'"
+          />
+        </div>
       </div>
 
       <div class="o-section o-chart-title">
