@@ -2,18 +2,16 @@
   <t t-name="o-spreadsheet-LineConfigPanel" owl="1">
     <div>
       <div class="o-section pt-0">
-        <div class="o-checkbox">
-          <label>
-            <input
-              type="checkbox"
-              name="stacked"
-              t-att-checked="props.definition.stacked"
-              t-on-change="onUpdateStacked"
-              class="align-middle"
-            />
-            Stacked linechart
-          </label>
-        </div>
+        <label class="o-checkbox">
+          <input
+            type="checkbox"
+            name="stacked"
+            t-att-checked="props.definition.stacked"
+            t-on-change="onUpdateStacked"
+            class="align-middle"
+          />
+          Stacked linechart
+        </label>
       </div>
       <div class="o-section o-data-series">
         <div class="o-section-title">Data Series</div>
@@ -33,7 +31,7 @@
           onSelectionChanged="(ranges) => this.onLabelRangeChanged(ranges)"
           onSelectionConfirmed="() => this.onLabelRangeConfirmed()"
         />
-        <label>
+        <label class="o-checkbox">
           <input
             type="checkbox"
             name="aggregated"
@@ -43,17 +41,15 @@
           />
           Aggregate
         </label>
-        <div t-if="canTreatLabelsAsText">
-          <label>
-            <input
-              type="checkbox"
-              name="labelsAsText"
-              t-att-checked="props.definition.labelsAsText"
-              t-on-change="onUpdateLabelsAsText"
-            />
-            Treat labels as text
-          </label>
-        </div>
+        <label t-if="canTreatLabelsAsText" class="o-checkbox">
+          <input
+            type="checkbox"
+            name="labelsAsText"
+            t-att-checked="props.definition.labelsAsText"
+            t-on-change="onUpdateLabelsAsText"
+          />
+          Treat labels as text
+        </label>
       </div>
       <div class="o-section o-use-row-as-headers" t-if="calculateHeaderPosition()">
         <label>
@@ -63,9 +59,11 @@
             t-on-change="onUpdateDataSetsHaveTitle"
             class="align-middle"
           />
-          Use row
-          <span t-esc="calculateHeaderPosition()"/>
-          as headers
+          <span>
+            Use row
+            <t t-esc="calculateHeaderPosition()"/>
+            as headers
+          </span>
         </label>
       </div>
 

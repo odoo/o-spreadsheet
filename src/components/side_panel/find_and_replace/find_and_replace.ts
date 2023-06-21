@@ -5,20 +5,6 @@ import { css } from "../../helpers/css";
 
 css/* scss */ `
   .o-find-and-replace {
-    .o-far-item {
-      display: block;
-      .o-far-checkbox {
-        display: inline-block;
-        .o-far-input {
-          vertical-align: middle;
-        }
-        .o-far-label {
-          position: relative;
-          top: 1.5px;
-          padding-left: 4px;
-        }
-      }
-    }
     outline: none;
     height: 100%;
     .o-input-search-container {

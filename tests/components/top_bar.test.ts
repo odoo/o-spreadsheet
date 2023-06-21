@@ -841,7 +841,7 @@ describe("Topbar - View", () => {
     await nextTick();
     await click(
       fixture,
-      ".o-sidePanel .o-sidePanelBody .o-find-and-replace .o-section:nth-child(1) .o-far-item:nth-child(3) input"
+      ".o-sidePanel .o-sidePanelBody .o-find-and-replace .o-section:nth-child(1) .o-checkbox:nth-child(3) input"
     );
     expect(model.getters.shouldShowFormulas()).toBe(false);
     await click(fixture, ".o-sidePanel .o-sidePanelHeader .o-sidePanelClose");

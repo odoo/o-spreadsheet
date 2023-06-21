@@ -25,17 +25,15 @@
           placeholder="Add any characters or symbol"
         />
 
-        <div class="o-checkbox">
-          <label>
-            <input
-              type="checkbox"
-              name="add columns"
-              t-att-checked="state.addNewColumns"
-              t-on-change="updateAddNewColumnsCheckbox"
-            />
-            Add new columns to avoid overwriting cells
-          </label>
-        </div>
+        <label class="o-checkbox">
+          <input
+            type="checkbox"
+            name="add columns"
+            t-att-checked="state.addNewColumns"
+            t-on-change="updateAddNewColumnsCheckbox"
+          />
+          Add new columns to avoid overwriting cells
+        </label>
 
         <div class="o-sidePanelButtons">
           <button
