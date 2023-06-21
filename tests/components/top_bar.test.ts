@@ -61,7 +61,7 @@ class Parent extends Component<Props, SpreadsheetChildEnv> {
       <TopBar
         focusComposer="state.focusComposer"
         onClick="() => {}"
-        onComposerContentFocused="() => {}"
+        onComposerContentFocused="() => this.setFocusComposer('contentFocus')"
         dropdownMaxHeight="gridHeight"/>
     </div>
   `;
@@ -531,21 +531,26 @@ describe("TopBar component", () => {
 
   test("Cannot edit cell in a readonly spreadsheet", async () => {
     const model = new Model({}, { mode: "readonly" });
-    let parent: Parent;
-    ({ parent, fixture } = await mountParent(model));
+    ({ fixture } = await mountParent(model));
 
     let composerEl = fixture.querySelector(".o-spreadsheet-topbar div.o-composer")!;
-
-    expect(composerEl.classList.contains("unfocusable")).toBeTruthy();
     expect(composerEl.attributes.getNamedItem("contentEditable")!.value).toBe("false");
+    await simulateClick(composerEl);
 
-    parent.setFocusComposer("contentFocus");
-    await nextTick();
     // Won't update the current content
     const content = model.getters.getCurrentContent();
     expect(content).toBe("");
     composerEl = await typeInComposerTopBar("tabouret", false);
     expect(model.getters.getCurrentContent()).toBe(content);
+  });
+
+  test("Keep focus on the composer when clicked in readonly mode", async () => {
+    ({ fixture } = await mountParent(new Model({}, { mode: "readonly" })));
+
+    let composerEl = fixture.querySelector(".o-spreadsheet-topbar div.o-composer")! as HTMLElement;
+    expect(document.activeElement).not.toBe(composerEl);
+    await simulateClick(composerEl);
+    expect(document.activeElement).toBe(composerEl);
   });
 
   test.each([
