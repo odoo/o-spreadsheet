@@ -33,6 +33,10 @@ css/* scss */ `
       top: 20%;
     }
   }
+
+  .user-select-text {
+    user-select: text;
+  }
 `;
 
 interface Props {

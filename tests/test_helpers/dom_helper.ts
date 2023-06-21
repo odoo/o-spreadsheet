@@ -19,8 +19,19 @@ export async function simulateClick(
     (document.activeElement as HTMLElement | null)?.dispatchEvent(
       new FocusEvent("blur", { relatedTarget: target })
     );
-
-    target.dispatchEvent(new FocusEvent("focus", { relatedTarget: oldActiveEl }));
+    /** Dispatching a crafted FocusEvent does not actually focus the target.
+     * JSDom pretty much requires us to rely on Element.focus()
+     * Because of the problematic behavior addressed in 71a9c8c2,
+     * we have to check a posteriori if the target has been properly focused
+     * and if not, dispatch a FocusEvent with the relatedTarget to ensure a proper
+     * fallback behaviour.
+     */
+    if (target instanceof HTMLElement) {
+      target.focus();
+    }
+    if (document.activeElement !== target) {
+      target.dispatchEvent(new FocusEvent("focus", { relatedTarget: oldActiveEl }));
+    }
   }
   triggerMouseEvent(selector, "mouseup", x, y, extra);
   triggerMouseEvent(selector, "click", x, y, extra);

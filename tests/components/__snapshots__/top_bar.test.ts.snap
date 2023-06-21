@@ -558,7 +558,7 @@ exports[`TopBar component can set cell format 1`] = `
           
         </div>
         <div
-          class="o-topbar-composer bg-white"
+          class="o-topbar-composer bg-white user-select-text"
           style="border-color:#E0E2E4; border-right:none;"
         >
           <div
@@ -1430,7 +1430,7 @@ exports[`TopBar component simple rendering 1`] = `
       
     </div>
     <div
-      class="o-topbar-composer bg-white"
+      class="o-topbar-composer bg-white user-select-text"
       style="border-color:#E0E2E4; border-right:none;"
     >
       <div

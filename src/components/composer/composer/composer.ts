@@ -65,10 +65,6 @@ css/* scss */ `
       padding-right: 3px;
       outline: none;
 
-      &.unfocusable {
-        pointer-events: none;
-      }
-
       p {
         margin-bottom: 0px;
 
