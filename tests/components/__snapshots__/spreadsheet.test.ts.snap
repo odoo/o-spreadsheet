@@ -116,9 +116,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
             class="o-menu-item-button o-hoverable-button"
             title="Paint Format"
           >
-            <span
-              style=""
-            >
+            <span>
               <svg
                 class="o-icon"
               >
@@ -129,8 +127,6 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 />
               </svg>
             </span>
-            
-            
           </span>
           
           <span

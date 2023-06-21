@@ -17,6 +17,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import {
   click,
+  doubleClick,
   dragElement,
   getElComputedStyle,
   keyDown,
@@ -250,8 +251,7 @@ describe("BottomBar component", () => {
     test("Double click on the sheet name make it editable and give it the focus", async () => {
       const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
       expect(sheetName.getAttribute("contenteditable")).toEqual("false");
-      triggerMouseEvent(sheetName, "dblclick");
-      await nextTick();
+      await doubleClick(sheetName);
       expect(sheetName.getAttribute("contenteditable")).toEqual("true");
       expect(document.activeElement).toEqual(sheetName);
     });
@@ -267,15 +267,13 @@ describe("BottomBar component", () => {
 
     test("The whole sheet name is in the selection after starting the edition", async () => {
       const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
-      triggerMouseEvent(sheetName, "dblclick");
-      await nextTick();
+      await doubleClick(sheetName);
       expect(window.getSelection()?.toString()).toEqual("Sheet1");
     });
 
     test("Pressing enter confirm the change in sheet name", async () => {
       const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
-      triggerMouseEvent(sheetName, "dblclick");
-      await nextTick();
+      await doubleClick(sheetName);
       sheetName.textContent = "New name";
       await keyDown({ key: "Enter" });
       expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toEqual("New name");
@@ -283,8 +281,7 @@ describe("BottomBar component", () => {
 
     test("Losing focus confirms the change in sheet name", async () => {
       const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
-      triggerMouseEvent(sheetName, "dblclick");
-      await nextTick();
+      await doubleClick(sheetName);
       sheetName.textContent = "New name";
       sheetName.blur();
       expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toEqual("New name");
@@ -292,8 +289,7 @@ describe("BottomBar component", () => {
 
     test("Pressing escape cancels the change in sheet name", async () => {
       const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
-      triggerMouseEvent(sheetName, "dblclick");
-      await nextTick();
+      await doubleClick(sheetName);
       sheetName.textContent = "New name";
       await keyDown({ key: "Escape" });
       expect(sheetName.textContent).toEqual("Sheet1");
@@ -302,8 +298,7 @@ describe("BottomBar component", () => {
 
     test("Renaming sheet is interactive", async () => {
       const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
-      triggerMouseEvent(sheetName, "dblclick");
-      await nextTick();
+      await doubleClick(sheetName);
       sheetName.textContent = "";
       await keyDown({ key: "Enter" });
       expect(raiseError).toHaveBeenCalled();
@@ -312,8 +307,7 @@ describe("BottomBar component", () => {
     test("After an error was raised at the confirmation of the new sheet name, the sheet name is selected and focused ", async () => {
       createSheet(model, { name: "ThisIsASheet" });
       const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
-      triggerMouseEvent(sheetName, "dblclick");
-      await nextTick();
+      await doubleClick(sheetName);
       sheetName.textContent = "ThisIsASheet";
       expect(window.getSelection()?.toString()).toEqual("");
       await keyDown({ key: "Enter" });

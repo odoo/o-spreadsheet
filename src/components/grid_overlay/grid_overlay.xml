@@ -3,7 +3,8 @@
     <div
       t-ref="gridOverlay"
       class="o-grid-overlay overflow-hidden"
-      t-att-style="props.gridOverlayDimensions"
+      t-att-class="{'o-paint-format-cursor': isPaintingFormat}"
+      t-att-style="style"
       t-on-mousedown="onMouseDown"
       t-on-dblclick.self="onDoubleClick"
       t-on-contextmenu="onContextMenu">

@@ -76,6 +76,13 @@ export async function click(el: Element, selector: string = "") {
   await nextTick();
 }
 
+export async function doubleClick(el: Element, selector: string = "") {
+  const event = new MouseEvent("dblclick", { bubbles: true, cancelable: true });
+  const target = findElement(el, selector);
+  target.dispatchEvent(event);
+  await nextTick();
+}
+
 /**
  * Simulate hovering a cell for a given amount of time.
  * Don't forget to use `jest.useFakeTimers();` when using

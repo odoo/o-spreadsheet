@@ -16,6 +16,7 @@ import {
 import { TEST_CHART_DATA } from "../test_helpers/constants";
 import {
   click,
+  doubleClick,
   focusAndKeyDown,
   setInputValueAndTrigger,
   simulateClick,
@@ -202,8 +203,7 @@ describe("charts", () => {
       createTestChart(chartType);
       await nextTick();
       expect(document.querySelector(".o-chart-container")).toBeTruthy();
-      triggerMouseEvent(".o-chart-container", "dblclick");
-      await nextTick();
+      await doubleClick(fixture, ".o-chart-container");
       expect(model.getters.getSelectedFigureId()).toBe("someuuid");
       expect(document.querySelector(".o-sidePanel")).toBeTruthy();
     }
@@ -534,8 +534,7 @@ describe("charts", () => {
     model.updateMode("readonly");
     expect(model.getters.getSelectedFigureId()).toBeNull();
     await nextTick();
-    triggerMouseEvent(".o-chart-container", "dblclick");
-    await nextTick();
+    await doubleClick(fixture, ".o-chart-container");
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
   });
 

@@ -182,7 +182,7 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
-      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      target: target("B2"),
       style: { bold: true },
     });
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
@@ -264,7 +264,7 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
-      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      target: target("B2"),
       style: { bold: true },
     });
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
@@ -431,7 +431,7 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      target: target("B2"),
       style: { bold: true },
     });
 
@@ -1017,7 +1017,7 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      target: target("B2"),
       style: { bold: true },
     });
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
@@ -1034,7 +1034,7 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      target: target("B2"),
       style: { bold: true },
     });
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
@@ -1052,7 +1052,7 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      target: target("B2"),
       style: { bold: true },
     });
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
@@ -1070,7 +1070,7 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      target: target("B2"),
       style: { bold: true },
     });
     copy(model, "B2");
@@ -1098,7 +1098,7 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      target: target("B2"),
       style: { bold: true },
     });
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
@@ -1326,7 +1326,7 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      target: target("B2"),
       style: { bold: true },
     });
     copy(model, "B2");
@@ -1536,7 +1536,7 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      target: target("B2"),
       style: { bold: true },
     });
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });

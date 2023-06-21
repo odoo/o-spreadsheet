@@ -250,16 +250,6 @@ export const formatCF: ActionSpec = {
   icon: "o-spreadsheet-Icon.CONDITIONAL_FORMAT",
 };
 
-export const paintFormat: ActionSpec = {
-  name: _lt("Paint Format"),
-  execute: (env) =>
-    env.model.dispatch("ACTIVATE_PAINT_FORMAT", {
-      target: env.model.getters.getSelectedZones(),
-    }),
-  icon: "o-spreadsheet-Icon.PAINT_FORMAT",
-  isActive: (env) => env.model.getters.isPaintingFormat(),
-};
-
 export const clearFormat: ActionSpec = {
   name: _lt("Clear formatting"),
   description: "Ctrl+<",
