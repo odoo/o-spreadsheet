@@ -19,39 +19,30 @@
         </div>
         <div>
           <!-- TODO: go through this css, the group misses a padding and could profit from BootStrap -->
-          <div class="o-far-item">
-            <label class="o-far-checkbox">
-              <input
-                t-model="state.searchOptions.matchCase"
-                t-on-change="updateSearch"
-                class="o-far-input"
-                type="checkbox"
-              />
-              <span class="o-far-label">Match case</span>
-            </label>
-          </div>
-          <div class="o-far-item">
-            <label class="o-far-checkbox">
-              <input
-                t-model="state.searchOptions.exactMatch"
-                t-on-change="updateSearch"
-                class="o-far-input"
-                type="checkbox"
-              />
-              <span class="o-far-label">Match entire cell content</span>
-            </label>
-          </div>
-          <div class="o-far-item">
-            <label class="o-far-checkbox">
-              <input
-                t-model="state.searchOptions.searchFormulas"
-                t-on-change="searchFormulas"
-                class="o-far-input"
-                type="checkbox"
-              />
-              <span class="o-far-label">Search in formulas</span>
-            </label>
-          </div>
+          <label class="o-checkbox mt-1">
+            <input
+              t-model="state.searchOptions.matchCase"
+              t-on-change="updateSearch"
+              type="checkbox"
+            />
+            <span>Match case</span>
+          </label>
+          <label class="o-checkbox">
+            <input
+              t-model="state.searchOptions.exactMatch"
+              t-on-change="updateSearch"
+              type="checkbox"
+            />
+            <span>Match entire cell content</span>
+          </label>
+          <label class="o-checkbox">
+            <input
+              t-model="state.searchOptions.searchFormulas"
+              t-on-change="searchFormulas"
+              type="checkbox"
+            />
+            <span>Search in formulas</span>
+          </label>
         </div>
       </div>
       <div class="o-sidePanelButtons">

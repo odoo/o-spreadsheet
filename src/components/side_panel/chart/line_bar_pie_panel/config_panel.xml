@@ -19,7 +19,7 @@
           onSelectionChanged="(ranges) => this.onLabelRangeChanged(ranges)"
           onSelectionConfirmed="() => this.onLabelRangeConfirmed()"
         />
-        <label>
+        <label class="o-checkbox">
           <input
             type="checkbox"
             name="aggregated"
@@ -31,16 +31,18 @@
         </label>
       </div>
       <div class="o-section o-use-row-as-headers" t-if="calculateHeaderPosition()">
-        <label>
+        <label class="o-checkbox">
           <input
             type="checkbox"
             t-att-checked="props.definition.dataSetsHaveTitle"
             t-on-change="onUpdateDataSetsHaveTitle"
             class="align-middle"
           />
-          Use row
-          <span t-esc="calculateHeaderPosition()"/>
-          as headers
+          <span>
+            Use row
+            <t t-esc="calculateHeaderPosition()"/>
+            as headers
+          </span>
         </label>
       </div>
 

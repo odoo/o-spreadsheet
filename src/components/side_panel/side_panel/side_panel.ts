@@ -132,12 +132,10 @@ css/* scss */ `
     }
 
     .o-checkbox {
-      label {
-        display: flex;
-        justify-items: center;
-        input {
-          margin-right: 5px;
-        }
+      display: flex;
+      justify-items: center;
+      input {
+        margin-right: 5px;
       }
     }
 

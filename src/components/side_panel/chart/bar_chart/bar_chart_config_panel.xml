@@ -2,18 +2,16 @@
   <t t-name="o-spreadsheet-BarConfigPanel" owl="1">
     <div>
       <div class="o-section pt-0">
-        <div class="o-checkbox">
-          <label>
-            <input
-              type="checkbox"
-              name="stacked"
-              t-att-checked="props.definition.stacked"
-              t-on-change="onUpdateStacked"
-              class="align-middle"
-            />
-            Stacked barchart
-          </label>
-        </div>
+        <label class="o-checkbox">
+          <input
+            type="checkbox"
+            name="stacked"
+            t-att-checked="props.definition.stacked"
+            t-on-change="onUpdateStacked"
+            class="align-middle"
+          />
+          Stacked barchart
+        </label>
       </div>
       <div class="o-section o-data-series">
         <div class="o-section-title">Data Series</div>
@@ -33,7 +31,7 @@
           onSelectionChanged="(ranges) => this.onLabelRangeChanged(ranges)"
           onSelectionConfirmed="() => this.onLabelRangeConfirmed()"
         />
-        <label>
+        <label class="o-checkbox">
           <input
             type="checkbox"
             name="aggregated"
@@ -45,16 +43,18 @@
         </label>
       </div>
       <div class="o-section o-use-row-as-headers" t-if="calculateHeaderPosition()">
-        <label>
+        <label class="o-checkbox">
           <input
             type="checkbox"
             t-att-checked="props.definition.dataSetsHaveTitle"
             t-on-change="onUpdateDataSetsHaveTitle"
             class="align-middle"
           />
-          Use row
-          <span t-esc="calculateHeaderPosition()"/>
-          as headers
+          <span>
+            Use row
+            <t t-esc="calculateHeaderPosition()"/>
+            as headers
+          </span>
         </label>
       </div>
 
