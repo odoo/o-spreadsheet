@@ -39,7 +39,7 @@
           <div t-else="" class="o-toolbar-tools d-flex flex-shrink-0 ms-4">
             <ActionButton action="EDIT.undo" class="'o-hoverable-button'"/>
             <ActionButton action="EDIT.redo" class="'o-hoverable-button'"/>
-            <ActionButton action="FORMAT.paintFormat" class="'o-hoverable-button'"/>
+            <PaintFormatButton class="'o-hoverable-button'"/>
             <ActionButton action="FORMAT.clearFormat" class="'o-hoverable-button'"/>
 
             <div class="o-divider"/>

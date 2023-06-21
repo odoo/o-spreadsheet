@@ -30,6 +30,7 @@ import { FontSizeEditor } from "../font_size_editor/font_size_editor";
 import { css } from "../helpers/css";
 import { Menu, MenuState } from "../menu/menu";
 import { ComposerFocusType } from "../spreadsheet/spreadsheet";
+import { PaintFormatButton } from "./../paint_format_button/paint_format_button";
 
 interface State {
   menuState: MenuState;
@@ -146,6 +147,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     TopBarComposer,
     FontSizeEditor,
     ActionButton,
+    PaintFormatButton,
     BorderEditorWidget,
   };
 

@@ -115,9 +115,7 @@ exports[`TopBar component can set cell format 1`] = `
               class="o-menu-item-button o-hoverable-button"
               title="Paint Format"
             >
-              <span
-                style=""
-              >
+              <span>
                 <svg
                   class="o-icon"
                 >
@@ -128,8 +126,6 @@ exports[`TopBar component can set cell format 1`] = `
                   />
                 </svg>
               </span>
-              
-              
             </span>
             
             <span
@@ -987,9 +983,7 @@ exports[`TopBar component simple rendering 1`] = `
           class="o-menu-item-button o-hoverable-button"
           title="Paint Format"
         >
-          <span
-            style=""
-          >
+          <span>
             <svg
               class="o-icon"
             >
@@ -1000,8 +994,6 @@ exports[`TopBar component simple rendering 1`] = `
               />
             </svg>
           </span>
-          
-          
         </span>
         
         <span

@@ -44,7 +44,7 @@ export class ClipboardPlugin extends UIPlugin {
   private status: "visible" | "invisible" = "invisible";
   private state?: ClipboardState;
   private lastPasteState?: ClipboardState;
-  private _isPaintingFormat: boolean = false;
+  private paintFormatStatus: "inactive" | "oneOff" | "persistent" = "inactive";
   private originSheetId?: UID;
 
   // ---------------------------------------------------------------------------
@@ -61,7 +61,8 @@ export class ClipboardPlugin extends UIPlugin {
         if (!this.state) {
           return CommandResult.EmptyClipboard;
         }
-        const pasteOption = cmd.pasteOption || (this._isPaintingFormat ? "onlyFormat" : undefined);
+        const pasteOption =
+          cmd.pasteOption || (this.paintFormatStatus !== "inactive" ? "onlyFormat" : undefined);
         return this.state.isPasteAllowed(cmd.target, { pasteOption });
       case "PASTE_FROM_OS_CLIPBOARD": {
         const state = new ClipboardOsState(cmd.text, this.getters, this.dispatch, this.selection);
@@ -76,6 +77,11 @@ export class ClipboardPlugin extends UIPlugin {
         const { cut, paste } = this.getDeleteCellsTargets(cmd.zone, cmd.shiftDimension);
         const state = this.getClipboardStateForCopyCells(cut, "CUT");
         return state.isPasteAllowed(paste);
+      }
+      case "ACTIVATE_PAINT_FORMAT": {
+        if (this.paintFormatStatus !== "inactive") {
+          return CommandResult.AlreadyInPaintingFormatMode;
+        }
       }
     }
     return CommandResult.Success;
@@ -94,11 +100,14 @@ export class ClipboardPlugin extends UIPlugin {
         if (!this.state) {
           break;
         }
-        const pasteOption = cmd.pasteOption || (this._isPaintingFormat ? "onlyFormat" : undefined);
-        this._isPaintingFormat = false;
+        const pasteOption =
+          cmd.pasteOption || (this.paintFormatStatus !== "inactive" ? "onlyFormat" : undefined);
         this.state.paste(cmd.target, { pasteOption, shouldPasteCF: true, selectTarget: true });
         this.lastPasteState = this.state;
-        this.status = "invisible";
+        if (this.paintFormatStatus === "oneOff") {
+          this.paintFormatStatus = "inactive";
+          this.status = "invisible";
+        }
         break;
       case "CLEAN_CLIPBOARD_HIGHLIGHT":
         this.status = "invisible";
@@ -171,8 +180,12 @@ export class ClipboardPlugin extends UIPlugin {
       case "ACTIVATE_PAINT_FORMAT": {
         const zones = this.getters.getSelectedZones();
         this.state = this.getClipboardStateForCopyCells(zones, "COPY");
-        this._isPaintingFormat = true;
         this.status = "visible";
+        if (cmd.persistent) {
+          this.paintFormatStatus = "persistent";
+        } else {
+          this.paintFormatStatus = "oneOff";
+        }
         break;
       }
       case "DELETE_SHEET":
@@ -184,6 +197,11 @@ export class ClipboardPlugin extends UIPlugin {
           this.status = "invisible";
         }
         break;
+      case "CANCEL_PAINT_FORMAT": {
+        this.paintFormatStatus = "inactive";
+        this.status = "invisible";
+        break;
+      }
       default:
         if (isCoreCommand(cmd)) {
           this.status = "invisible";
@@ -219,7 +237,7 @@ export class ClipboardPlugin extends UIPlugin {
   }
 
   isPaintingFormat(): boolean {
-    return this._isPaintingFormat;
+    return this.paintFormatStatus !== "inactive";
   }
 
   // ---------------------------------------------------------------------------

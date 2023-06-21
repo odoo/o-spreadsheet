@@ -205,6 +205,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         this.closeOpenedPopover();
       } else if (this.menuState.isOpen) {
         this.closeMenu();
+      } else if (this.env.model.getters.isPaintingFormat()) {
+        this.env.model.dispatch("CANCEL_PAINT_FORMAT");
       } else {
         this.env.model.dispatch("CLEAN_CLIPBOARD_HIGHLIGHT");
       }

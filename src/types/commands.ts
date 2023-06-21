@@ -544,6 +544,11 @@ export interface AutoFillCellCommand {
 
 export interface ActivatePaintFormatCommand {
   type: "ACTIVATE_PAINT_FORMAT";
+  persistent?: boolean;
+}
+
+export interface CancelPaintFormatCommand {
+  type: "CANCEL_PAINT_FORMAT";
 }
 
 export interface PasteFromOSClipboardCommand {
@@ -1006,6 +1011,7 @@ export type LocalCommand =
   | AutoFillCellCommand
   | PasteFromOSClipboardCommand
   | ActivatePaintFormatCommand
+  | CancelPaintFormatCommand
   | AutoresizeColumnsCommand
   | AutoresizeRowsCommand
   | MoveColumnsRowsCommand
@@ -1190,6 +1196,7 @@ export const enum CommandResult {
   NoSplitSeparatorInSelection,
   NoActiveSheet,
   InvalidLocale,
+  AlreadyInPaintingFormatMode,
 }
 
 export interface CommandHandler<T> {

@@ -18,6 +18,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import {
   click,
+  doubleClick,
   getElComputedStyle,
   simulateClick,
   triggerMouseEvent,
@@ -30,6 +31,7 @@ import {
   mountComponent,
   mountSpreadsheet,
   nextTick,
+  target,
   toRangesData,
   typeInComposerTopBar,
 } from "../test_helpers/helpers";
@@ -195,15 +197,55 @@ describe("TopBar component", () => {
     expect(getCell(model, "A1")).toBeUndefined();
   });
 
-  test("paint format tools", async () => {
-    await mountParent();
-    const paintFormatTool = fixture.querySelector('.o-menu-item-button[title="Paint Format"]')!;
+  describe("Paint format tools", () => {
+    test("Single click to activate paint format (once)", async () => {
+      const { model } = await mountParent();
+      const paintFormatTool = fixture.querySelector('.o-menu-item-button[title="Paint Format"]')!;
+      expect(paintFormatTool.classList.contains("active")).toBeFalsy();
 
-    expect(paintFormatTool.classList.contains("active")).toBeFalsy();
+      await click(paintFormatTool);
+      expect(paintFormatTool.classList.contains("active")).toBeTruthy();
 
-    await click(paintFormatTool);
+      model.dispatch("PASTE", {
+        target: target("B2"),
+      }); // to simulate clicking cell to paste format
+      await nextTick();
+      expect(paintFormatTool.classList.contains("active")).toBeFalsy();
+    });
 
-    expect(paintFormatTool.classList.contains("active")).toBeTruthy();
+    test("Double click to activate and keep it", async () => {
+      const { model } = await mountParent();
+      const paintFormatTool = fixture.querySelector('.o-menu-item-button[title="Paint Format"]')!;
+      expect(paintFormatTool.classList.contains("active")).toBeFalsy();
+
+      await doubleClick(paintFormatTool);
+      expect(paintFormatTool.classList.contains("active")).toBeTruthy();
+
+      model.dispatch("PASTE", {
+        target: target("B2"),
+      }); // to simulate clicking cell to paste format
+      expect(paintFormatTool.classList.contains("active")).toBeTruthy();
+    });
+
+    test("When paint format (single) is activated, single click will exit paint format mode", async () => {
+      await mountParent();
+      const paintFormatTool = fixture.querySelector('.o-menu-item-button[title="Paint Format"]')!;
+      await click(paintFormatTool);
+      expect(paintFormatTool.classList.contains("active")).toBeTruthy();
+
+      await click(paintFormatTool);
+      expect(paintFormatTool.classList.contains("active")).toBeFalsy();
+    });
+
+    test("When paint format (persistent) is activated, single click will exit paint format mode", async () => {
+      await mountParent();
+      const paintFormatTool = fixture.querySelector('.o-menu-item-button[title="Paint Format"]')!;
+      await doubleClick(paintFormatTool);
+      expect(paintFormatTool.classList.contains("active")).toBeTruthy();
+
+      await click(paintFormatTool);
+      expect(paintFormatTool.classList.contains("active")).toBeFalsy();
+    });
   });
 
   describe("Filter Tool", () => {

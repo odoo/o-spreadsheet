@@ -38,6 +38,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import {
   clickCell,
+  doubleClick,
   edgeScrollDelay,
   getElComputedStyle,
   gridMouseEvent,
@@ -873,19 +874,44 @@ describe("Grid component", () => {
   });
 
   describe("paint format tool with grid selection", () => {
-    test("can paste format with mouse", async () => {
+    test("can paste format with mouse once", async () => {
       setCellContent(model, "B2", "b2");
       selectCell(model, "B2");
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+        target: target("B2"),
         style: { bold: true },
       });
-      model.dispatch("ACTIVATE_PAINT_FORMAT");
+      model.dispatch("ACTIVATE_PAINT_FORMAT", { persistent: false });
       gridMouseEvent(model, "mousedown", "C8");
       expect(getCell(model, "C8")).toBeUndefined();
       gridMouseEvent(model, "mouseup", "C8");
       expect(getCell(model, "C8")!.style).toEqual({ bold: true });
+
+      gridMouseEvent(model, "mousedown", "D8");
+      expect(getCell(model, "D8")).toBeUndefined();
+      gridMouseEvent(model, "mouseup", "D8");
+      expect(getCell(model, "D8")).toBeUndefined();
+    });
+
+    test("can keep the paint format mode persistently", async () => {
+      setCellContent(model, "B2", "b2");
+      selectCell(model, "B2");
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: target("B2"),
+        style: { bold: true },
+      });
+      model.dispatch("ACTIVATE_PAINT_FORMAT", { persistent: true });
+      gridMouseEvent(model, "mousedown", "C8");
+      expect(getCell(model, "C8")).toBeUndefined();
+      gridMouseEvent(model, "mouseup", "C8");
+      expect(getCell(model, "C8")!.style).toEqual({ bold: true });
+
+      gridMouseEvent(model, "mousedown", "D8");
+      expect(getCell(model, "D8")).toBeUndefined();
+      gridMouseEvent(model, "mouseup", "D8");
+      expect(getCell(model, "D8")!.style).toEqual({ bold: true });
     });
 
     test("can paste format with key", async () => {
@@ -893,53 +919,91 @@ describe("Grid component", () => {
       selectCell(model, "B2");
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+        target: target("B2"),
         style: { bold: true },
       });
-      model.dispatch("ACTIVATE_PAINT_FORMAT");
+      model.dispatch("ACTIVATE_PAINT_FORMAT", { persistent: false });
       expect(getCell(model, "C2")).toBeUndefined();
       keyDown({ key: "ArrowRight" });
       expect(getCell(model, "C2")!.style).toEqual({ bold: true });
     });
-    test("closing contextmenu focuses the grid", async () => {
-      await rightClickCell(model, "B2");
-      await simulateClick(".o-menu div[data-name='add_row_before']");
-      expect(fixture.querySelector(".o-menu div[data-name='add_row_before']")).toBeFalsy();
-      expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
+
+    test("can exit the paint format mode via ESC key", async () => {
+      setCellContent(model, "B2", "b2");
+      selectCell(model, "B2");
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: target("B2"),
+        style: { bold: true },
+      });
+      model.dispatch("ACTIVATE_PAINT_FORMAT", { persistent: false });
+      keyDown({ key: "Escape" });
+      gridMouseEvent(model, "mousedown", "C8");
+      expect(getCell(model, "C8")).toBeUndefined();
+      gridMouseEvent(model, "mouseup", "C8");
+      expect(getCell(model, "C8")).toBeUndefined();
     });
 
-    test("Duplicating sheet in the bottom bar focus the grid afterward", async () => {
-      expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
+    test("in persistent mode, updating the style of origin cell won't change the copied style", async () => {
+      setCellContent(model, "B2", "b2");
+      selectCell(model, "B2");
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: target("B2"),
+        style: { bold: true },
+      });
+      model.dispatch("ACTIVATE_PAINT_FORMAT", { persistent: true });
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: target("B2"),
+        style: { bold: false },
+      });
 
-      // open and close sheet context menu
-      await simulateClick(".o-spreadsheet-bottom-bar .o-all-sheets .o-sheet .o-icon");
-      await simulateClick(".o-menu-item[title='Duplicate']");
-
-      expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
+      gridMouseEvent(model, "mousedown", "D8");
+      expect(getCell(model, "D8")).toBeUndefined();
+      gridMouseEvent(model, "mouseup", "D8");
+      expect(getCell(model, "D8")!.style).toEqual({ bold: true });
     });
+  });
 
-    test("Can open context menu with a keyboard input ", async () => {
-      const selector = ".o-grid>input";
-      const target = document.querySelector(selector)! as HTMLElement;
-      target.focus();
-      triggerMouseEvent(selector, "contextmenu", 0, 0, { button: 1, bubbles: true });
-      await nextTick();
-      expect(fixture.querySelector(".o-menu")).toBeTruthy();
-    });
+  test("closing contextmenu focuses the grid", async () => {
+    await rightClickCell(model, "B2");
+    await simulateClick(".o-menu div[data-name='add_row_before']");
+    expect(fixture.querySelector(".o-menu div[data-name='add_row_before']")).toBeFalsy();
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
+  });
 
-    test("input event triggered from a paste should not open composer", async () => {
-      const input = fixture.querySelector(".o-grid>input");
-      input?.dispatchEvent(
-        new InputEvent("input", {
-          data: "d",
-          bubbles: true,
-          isComposing: false,
-          inputType: "insertFromPaste",
-        })
-      );
-      await nextTick();
-      expect(model.getters.getEditionMode()).toBe("inactive");
-    });
+  test("Duplicating sheet in the bottom bar focus the grid afterward", async () => {
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
+
+    // open and close sheet context menu
+    await simulateClick(".o-spreadsheet-bottom-bar .o-all-sheets .o-sheet .o-icon");
+    await simulateClick(".o-menu-item[title='Duplicate']");
+
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid>input"));
+  });
+
+  test("Can open context menu with a keyboard input ", async () => {
+    const selector = ".o-grid>input";
+    const target = document.querySelector(selector)! as HTMLElement;
+    target.focus();
+    triggerMouseEvent(selector, "contextmenu", 0, 0, { button: 1, bubbles: true });
+    await nextTick();
+    expect(fixture.querySelector(".o-menu")).toBeTruthy();
+  });
+
+  test("input event triggered from a paste should not open composer", async () => {
+    const input = fixture.querySelector(".o-grid>input");
+    input?.dispatchEvent(
+      new InputEvent("input", {
+        data: "d",
+        bubbles: true,
+        isComposing: false,
+        inputType: "insertFromPaste",
+      })
+    );
+    await nextTick();
+    expect(model.getters.getEditionMode()).toBe("inactive");
   });
 });
 
@@ -1586,14 +1650,12 @@ describe("Copy paste keyboard shortcut", () => {
     await nextTick();
     expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
     // double click on child
-    triggerMouseEvent(".o-figure", "dblclick");
-    await nextTick();
+    await doubleClick(fixture, ".o-figure");
     expect(model.getters.getEditionMode()).toBe("inactive");
     expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
 
     // double click on grid overlay
-    triggerMouseEvent(".o-grid-overlay", "dblclick");
-    await nextTick();
+    await doubleClick(fixture, ".o-grid-overlay");
     expect(model.getters.getEditionMode()).toBe("editing");
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
   });
