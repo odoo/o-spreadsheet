@@ -15,6 +15,7 @@ import {
   escapeNamespaces,
   removeNamespaces,
 } from "../helpers/xml_helpers";
+import { XLSXImageFile } from "./../../types/xlsx";
 
 interface MapOnElementArgs {
   query: string;
@@ -106,9 +107,13 @@ export class XlsxBaseExtractor {
   /**
    * Get the list of all the XLSX files in the XLSX file structure
    */
-  protected getListOfFiles(): XLSXImportFile[] {
-    const files = Object.values(this.xlsxFileStructure).flat().filter(isDefined);
-    return files;
+  protected getListOfXMLFiles(): XLSXImportFile[] {
+    const XMLFiles = Object.entries(this.xlsxFileStructure)
+      .filter(([key]) => key !== "images")
+      .map(([_, value]) => value)
+      .flat()
+      .filter(isDefined);
+    return XMLFiles;
   }
 
   /**
@@ -332,16 +337,26 @@ export class XlsxBaseExtractor {
   }
 
   /**
-   * Returns the xlsx file targeted by a relationship.
+   * Returns the xml file targeted by a relationship.
    */
   protected getTargetXmlFile(relationship: XLSXRel): XLSXImportFile {
     if (!relationship) throw new Error("Undefined target file");
-    let target = relationship.target;
-    target = target.replace("../", "");
-    target = target.replace("./", "");
+    const target = this.processRelationshipTargetName(relationship.target);
     // Use "endsWith" because targets are relative paths, and we know the files by their absolute path.
-    const f = this.getListOfFiles().find((f) => f.file.fileName.endsWith(target));
+    const f = this.getListOfXMLFiles().find((f) => f.file.fileName.endsWith(target));
     if (!f || !f.file) throw new Error("Cannot find target file");
+    return f;
+  }
+
+  /**
+   * Returns the image parameters targeted by a relationship.
+   */
+  protected getTargetImageFile(relationship: XLSXRel): XLSXImageFile {
+    if (!relationship) throw new Error("Undefined target file");
+    const target = this.processRelationshipTargetName(relationship.target);
+    // Use "endsWith" because targets are relative paths, and we know the files by their absolute path.
+    const f = this.xlsxFileStructure.images.find((f) => f.fileName.endsWith(target));
+    if (!f) throw new Error("Cannot find target file");
     return f;
   }
 
@@ -392,5 +407,10 @@ export class XlsxBaseExtractor {
       default:
         return clrScheme[colorId].value;
     }
+  }
+
+  /** Remove signs of relative path. */
+  private processRelationshipTargetName(targetName: string): string {
+    return targetName.replace(/\.+\//, "");
   }
 }

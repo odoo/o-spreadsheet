@@ -57,7 +57,13 @@ export const RELATIONSHIP_NSR =
   "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 
 export const HEIGHT_FACTOR = 0.75; // 100px => 75 u
-export const WIDTH_FACTOR = 0.1317; // 100px => 13.17 u
+
+/**
+ * Excel says its default column width is 8.43 characters (64px)
+ * which makes WIDTH_FACTOR = 0.1317, but it doesn't work well
+ * 0.143 is a value from dev's experiments.
+ */
+export const WIDTH_FACTOR = 0.143;
 
 /** unit : maximum number of characters a column can hold at the standard font size. What. */
 export const EXCEL_DEFAULT_COL_WIDTH = 8.43;

@@ -4,6 +4,7 @@ import { Border, CellIsRule, DEFAULT_LOCALE, IconSetRule, Style } from "../src/t
 import { BarChartDefinition } from "../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../src/types/chart/line_chart";
 import { PieChartDefinition } from "../src/types/chart/pie_chart";
+import { Image } from "../src/types/image";
 import { XLSXCfOperatorType, XLSXSharedFormula } from "../src/types/xlsx";
 import { hexaToInt } from "../src/xlsx/conversion/color_conversion";
 import { convertXlsxFormat } from "../src/xlsx/conversion/format_conversion";
@@ -785,6 +786,14 @@ describe("Import xlsx data", () => {
       expect(chartData.dataSetsHaveTitle).toBeTruthy();
     }
   );
+
+  test("Can import images", () => {
+    const testSheet = getWorkbookSheet("jestImages", convertedData)!;
+    const figure = testSheet.figures.find((figure) => figure.tag === "image")!;
+    const imageData = figure.data as Image;
+    expect(imageData.path).toEqual("relative path");
+    expect(figure.width).toEqual(figure.height);
+  });
 
   describe("Misc tests", () => {
     test("Newlines characters in strings are removed", () => {

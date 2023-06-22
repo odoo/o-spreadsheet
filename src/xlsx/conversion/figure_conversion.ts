@@ -6,6 +6,7 @@ import {
   zoneToXc,
 } from "../../helpers";
 import { ChartDefinition, ExcelChartDefinition, FigureData } from "../../types";
+import { ExcelImage } from "../../types/image";
 import { XLSXFigure, XLSXWorksheet } from "../../types/xlsx";
 import { convertEMUToDotValue, getColPosition, getRowPosition } from "../helpers/content_helpers";
 import { convertColor } from "./color_conversion";
@@ -36,20 +37,37 @@ function convertFigure(
     getRowPosition(figure.anchors[1].row, sheetData) +
     convertEMUToDotValue(figure.anchors[1].rowOffset);
 
-  const width = x2 - x1;
-  const height = y2 - y1;
+  const figureData = { id, x: x1, y: y1 };
 
-  const chartData = convertChartData(figure.data);
-  if (!chartData) return undefined;
-  return {
-    id: id,
-    x: x1,
-    y: y1,
-    width: width,
-    height: height,
-    tag: "chart",
-    data: convertChartData(figure.data),
-  };
+  if (isChartData(figure.data)) {
+    return {
+      ...figureData,
+      width: x2 - x1,
+      height: y2 - y1,
+      tag: "chart",
+      data: convertChartData(figure.data),
+    };
+  } else if (isImageData(figure.data)) {
+    return {
+      ...figureData,
+      width: convertEMUToDotValue(figure.data.size.cx),
+      height: convertEMUToDotValue(figure.data.size.cy),
+      tag: "image",
+      data: {
+        path: figure.data.imageSrc,
+        mimetype: figure.data.mimetype,
+      },
+    };
+  }
+  return undefined;
+}
+
+function isChartData(data: ExcelChartDefinition | ExcelImage): data is ExcelChartDefinition {
+  return "dataSets" in data;
+}
+
+function isImageData(data: ExcelChartDefinition | ExcelImage): data is ExcelImage {
+  return "imageSrc" in data;
 }
 
 function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | undefined {

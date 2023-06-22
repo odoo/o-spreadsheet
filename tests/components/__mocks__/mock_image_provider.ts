@@ -1,3 +1,4 @@
+import { FigureSize } from "../../../src/types";
 import { FileStore, ImageProviderInterface } from "../../../src/types/files";
 import { Image } from "../../../src/types/image";
 
@@ -13,5 +14,9 @@ export class ImageProvider implements ImageProviderInterface {
 
   async requestImage(): Promise<Image> {
     return { path: this.path, size: this.size, mimetype: this.mimetype };
+  }
+
+  async getImageOriginalSize(path: string): Promise<FigureSize> {
+    return this.size;
   }
 }

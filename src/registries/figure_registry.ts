@@ -74,8 +74,15 @@ function getImageMenuRegistry(
       id: "reset_size",
       name: _lt("Reset size"),
       sequence: 4,
-      execute: () => {
-        const size = env.model.getters.getImageSize(figureId);
+      execute: async () => {
+        const imagePath = env.model.getters.getImagePath(figureId);
+        const size =
+          env.model.getters.getImageSize(figureId) ??
+          (await env.imageProvider?.getImageOriginalSize(imagePath));
+        if (!env.model.getters.getImageSize(figureId)) {
+          const image = env.model.getters.getImage(figureId);
+          image.size = size;
+        }
         const { height, width } = getMaxFigureSize(env.model.getters, size);
         env.model.dispatch("UPDATE_FIGURE", {
           sheetId: env.model.getters.getActiveSheetId(),

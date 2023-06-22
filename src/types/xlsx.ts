@@ -1,4 +1,5 @@
 import { Alias, ExcelChartDefinition, Format, PaneDivision } from ".";
+import { ExcelImage } from "../types/image";
 
 /**
  * Most of the times we tried to create Objects that matched quite closely with the data in the XLSX files.
@@ -29,6 +30,7 @@ import { Alias, ExcelChartDefinition, Format, PaneDivision } from ".";
  *  - fills (XLSXFill): §18.8.20 (fill)
  *  - figure (XLSXFigure): §20.5.2.35 (wsDr (Worksheet Drawing))
  *  - fonts (XLSXFont): §18.8.22 (font)
+ *  - images (XLSXImageFile): §20.2.2.5 (pic)
  *  - merge (string): §18.3.1.55 (mergeCell)
  *  - number format (XLSXNumFormat) : §18.8.30 (numFmt)
  *  - rows (XLSXRow): §18.3.1.73 (row)
@@ -107,6 +109,7 @@ export interface XLSXFileStructure {
   figures: XLSXImportFile[];
   tables: XLSXImportFile[];
   externalLinks: XLSXImportFile[];
+  images: XLSXImageFile[];
 }
 
 export type XMLAttributeValue = string | number | boolean;
@@ -330,11 +333,20 @@ export type ExcelIconSet =
 export type XlsxHexColor = string & Alias;
 
 export interface ImportedFiles {
-  [path: string]: string;
+  [path: string]:
+    | string
+    | {
+        imageSrc: string;
+      };
 }
 
 export interface XLSXXmlDocuments {
   [path: string]: XMLDocument;
+}
+
+export interface XLSXImageFile {
+  fileName: string;
+  imageSrc: string;
 }
 
 type XLSXFillPatternType =
@@ -500,9 +512,14 @@ export interface XLSXFigureAnchor {
   rowOffset: number; // in EMU (English Metrical Unit)
 }
 
+export interface XLSXFigureSize {
+  cx: number;
+  cy: number;
+}
+
 export interface XLSXFigure {
   anchors: XLSXFigureAnchor[];
-  data: ExcelChartDefinition;
+  data: ExcelChartDefinition | ExcelImage;
 }
 
 export const XLSX_CHART_TYPES = [

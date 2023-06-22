@@ -6,6 +6,7 @@ import { isXLSXExportXMLFile } from "../src/xlsx/helpers/xlsx_helper";
 import { VerticalAlign } from "./../src/types/misc";
 import {
   createChart,
+  createImage,
   createSheet,
   hideColumns,
   hideRows,
@@ -40,7 +41,13 @@ function exportToXlsxThenImport(model: Model) {
   const exported = model.exportXLSX();
   const dataToImport = {};
   for (let file of exported.files) {
-    dataToImport[file.path] = isXLSXExportXMLFile(file) ? file.content : file.imageSrc;
+    if (isXLSXExportXMLFile(file)) {
+      dataToImport[file.path] = file.content;
+      continue;
+    }
+    dataToImport[file.path] = {
+      imageSrc: file.imageSrc,
+    };
   }
   const imported = new Model(dataToImport, undefined, undefined, undefined, false);
   return imported;
@@ -282,5 +289,23 @@ describe("Export data to xlsx then import it", () => {
     const sheetLink2 = buildSheetLink(newSheetId!);
     expect(cell.link?.label).toBe("my label");
     expect(cell.link?.url).toBe(sheetLink2);
+  });
+
+  test("Image", () => {
+    createImage(model, {
+      figureId: "1",
+      size: {
+        width: 300,
+        height: 400,
+      },
+    });
+    const imageDefinition = model.getters.getImage("1");
+    const importedModel = exportToXlsxThenImport(model);
+
+    const newFigure = importedModel.getters.getFigures(sheetId)[0];
+    const newImage = importedModel.getters.getImage(newFigure.id);
+    expect(newImage.path).toEqual(imageDefinition.path);
+    expect(newFigure.width).toBe(300);
+    expect(newFigure.height).toBe(400);
   });
 });

@@ -369,7 +369,7 @@ export const XLSX_INDEXED_COLORS = {
   65: "FFFFFF", // system background
 };
 
-export const IMAGE_MIMETYPE_EXTENSION_MAPPING = {
+export const IMAGE_MIMETYPE_TO_EXTENSION_MAPPING = {
   "image/avif": "avif",
   "image/bmp": "bmp",
   "image/gif": "gif",
@@ -378,4 +378,16 @@ export const IMAGE_MIMETYPE_EXTENSION_MAPPING = {
   "image/png": "png",
   "image/tiff": "tiff",
   "image/webp": "webp",
+};
+
+export const IMAGE_EXTENSION_TO_MIMETYPE_MAPPING = {
+  avif: "image/avif",
+  bmp: "image/bmp",
+  gif: "image/gif",
+  ico: "image/vnd.microsoft.icon",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  tiff: "image/tiff",
+  webp: "image/webp",
+  jpg: "image/jpeg",
 };

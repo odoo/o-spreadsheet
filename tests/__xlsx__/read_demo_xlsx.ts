@@ -22,6 +22,10 @@ function importDir(path: string): ImportedFiles {
     if (lstatSync(filePath).isDirectory()) {
       const subDirFiles = importDir(filePath + "/");
       importedFiles = { ...importedFiles, ...subDirFiles };
+    } else if (filePath.includes("media/image")) {
+      importedFiles[filePath] = {
+        imageSrc: "relative path",
+      };
     } else {
       const fileContent = readFileSync(filePath, "utf-8");
       importedFiles[filePath] = fileContent;
