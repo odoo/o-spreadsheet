@@ -28,8 +28,8 @@ import * as web from "./module_web";
 
 export { arg } from "./arguments";
 
-type Functions = { [functionName: string]: AddFunctionDescription };
-type Category = { name: string; functions: Functions };
+// type Functions = { [functionName: string]: AddFunctionDescription };
+// type Category = { name: string; functions: Functions };
 const categories = [
   { name: _lt("Database"), functions: database },
   { name: _lt("Date"), functions: date },
@@ -114,9 +114,9 @@ class FunctionRegistry extends Registry<FunctionDescription> {
 
 function extractValuesFromArgs(args: ComputeFunctionArg<Arg>[]): ComputeFunctionArg<ArgValue>[] {
   return args.map((arg) => {
-    if (arg === undefined) {
-      return undefined;
-    }
+    // if (arg === undefined) {
+    //   return undefined;
+    // }
     if (typeof arg === "function") {
       return () => arg()?.value;
     }

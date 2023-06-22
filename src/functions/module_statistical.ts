@@ -1,8 +1,15 @@
 import { parseDateTime } from "../helpers/dates";
 import { isNumber, percentile } from "../helpers/index";
 import { _lt } from "../translation";
-import { AddFunctionDescription, Arg, ArgValue, MatrixArgValue, PrimitiveArgValue } from "../types";
-import { arg } from "./arguments";
+import {
+  AddFunctionDescription,
+  Arg,
+  ArgValue,
+  isMatrix,
+  MatrixArgValue,
+  PrimitiveArgValue,
+} from "../types";
+import { arg, typeCheckFunction } from "./arguments";
 import {
   assert,
   dichotomicSearch,
@@ -332,7 +339,8 @@ export const AVERAGEA: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 // AVERAGEIF
 // -----------------------------------------------------------------------------
-export const AVERAGEIF: AddFunctionDescription = {
+
+export const AVERAGEIF = typeCheckFunction({
   description: _lt(`Average of values depending on criteria.`),
   args: [
     arg("criteria_range (range)", _lt("The range to check against criterion.")),
@@ -345,8 +353,8 @@ export const AVERAGEIF: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (
     criteriaRange: MatrixArgValue,
-    criterion: PrimitiveArgValue,
-    averageRange: ArgValue
+    criterion: string,
+    averageRange: MatrixArgValue
   ): number {
     if (averageRange === undefined || averageRange === null) {
       averageRange = criteriaRange;
@@ -371,7 +379,7 @@ export const AVERAGEIF: AddFunctionDescription = {
     return sum / count;
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // AVERAGEIFS
@@ -427,7 +435,7 @@ export const COUNT: AddFunctionDescription = {
   compute: function (...values: ArgValue[]): number {
     let count = 0;
     for (let n of values) {
-      if (Array.isArray(n)) {
+      if (isMatrix(n)) {
         for (let i of n) {
           for (let j of i) {
             if (typeof j === "number") {

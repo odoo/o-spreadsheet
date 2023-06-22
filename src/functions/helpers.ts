@@ -2,7 +2,7 @@
 import { numberToJsDate, parseDateTime } from "../helpers/dates";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _lt } from "../translation";
-import { ArgValue, CellValue, MatrixArgValue, PrimitiveArgValue } from "../types";
+import { ArgValue, CellValue, isMatrix, MatrixArgValue, PrimitiveArgValue } from "../types";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
 
@@ -166,7 +166,7 @@ function visitArgs(
   dataCb: (a: PrimitiveArgValue) => void
 ): void {
   for (let arg of args) {
-    if (Array.isArray(arg)) {
+    if (isMatrix(arg)) {
       // arg is ref to a Cell/Range
       const lenRow = arg.length;
       const lenCol = arg[0].length;
@@ -212,7 +212,7 @@ function reduceArgs<T>(
 ): T {
   let val = initialValue;
   for (let arg of args) {
-    if (Array.isArray(arg)) {
+    if (isMatrix(arg)) {
       // arg is ref to a Cell/Range
       const lenRow = arg.length;
       const lenCol = arg[0].length;
@@ -297,7 +297,7 @@ function conditionalVisitArgs(
   dataCb: (a: PrimitiveArgValue) => boolean
 ): void {
   for (let arg of args) {
-    if (Array.isArray(arg)) {
+    if (isMatrix(arg)) {
       // arg is ref to a Cell/Range
       const lenRow = arg.length;
       const lenCol = arg[0].length;
@@ -492,7 +492,7 @@ export function visitMatchingRanges(
     const criteriaRange = args[i];
 
     if (
-      !Array.isArray(criteriaRange) ||
+      !isMatrix(criteriaRange) ||
       criteriaRange.length !== dimRow ||
       criteriaRange[0].length !== dimCol
     ) {

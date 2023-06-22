@@ -6,6 +6,7 @@ import { Token } from "../formulas";
 import { Cell, CellValue, EvaluatedCell } from "./cells";
 import { CommandResult } from "./commands";
 import { Format } from "./format";
+import { AArg, ArgDefinition } from "./functions";
 import { Range } from "./range";
 
 /**
@@ -180,14 +181,14 @@ export type Matrix<T = unknown> = T[][];
 
 // FORMULA FUNCTION INPUT
 
-export type Arg<V = PrimitiveArgValue> = MatrixArg<V> | PrimitiveArg<V>;
+export type Arg = AArg<ArgDefinition>;
 export type MatrixArg<V = PrimitiveArgValue> = {
   value: Matrix<V>;
   format?: Matrix<Format | undefined>;
 };
 export type PrimitiveArg<V = PrimitiveArgValue> = { value: V; format?: Format };
 
-export type ArgValue<V = PrimitiveArgValue> = V | Matrix<V>;
+export type ArgValue = Arg["value"];
 
 export type MatrixArgValue<V = CellValue | undefined> = Matrix<V>; // TODO: replace undefined by null for consistency --> MatrixArgValue will be Matrix<PrimitiveArgValue>
 export type PrimitiveArgValue = CellValue | null; // null represents an empty cell. We prefer null instead of undefined because undefined could be replaced by a default value when passed to a javascript function

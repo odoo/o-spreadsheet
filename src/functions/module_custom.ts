@@ -17,7 +17,7 @@ export const FORMAT_LARGE_NUMBER: AddFunctionDescription = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (arg: PrimitiveArg, unit: PrimitiveArg | undefined) => {
+  computeFormat: (arg: PrimitiveArg, unit: PrimitiveArg) => {
     const value = Math.abs(toNumber(arg.value));
     const format = arg.format;
     if (unit !== undefined) {

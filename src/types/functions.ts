@@ -1,3 +1,4 @@
+import { CellValue } from "./cells";
 import { Format } from "./format";
 import { FunctionReturnFormat, FunctionReturnValue, Matrix, PrimitiveArgValue } from "./misc";
 
@@ -14,7 +15,7 @@ export type ArgType =
   | "RANGE<STRING>"
   | "META";
 
-export interface ArgDefinition<T extends ArgType = ArgType> {
+export interface ArgDefinition<T extends ArgType | "OPTIONAL" = ArgType> {
   repeating?: boolean;
   optional?: boolean;
   lazy?: boolean;
@@ -41,10 +42,6 @@ export interface AddFunctionDescription<Args extends readonly ArgDefinition[] = 
   readonly hidden?: boolean;
 }
 
-type ArgTypesToDefinition<Type extends readonly ArgType[]> = {
-  [K in keyof Type]: ArgDefinition<Type[K]>;
-};
-
 export interface FunctionDescription extends AddFunctionDescription {
   minArgRequired: number;
   maxArgPossible: number;
@@ -58,9 +55,7 @@ export type EvalContext = {
   [key: string]: any;
 };
 
-export type InferArgType<A extends string> = InferArgProperties<A> extends ArgType
-  ? InferArgProperties<A>
-  : never;
+export type InferArgType<A extends string> = Extract<InferArgProperties<A>, ArgType | "OPTIONAL">;
 
 export type InferArgProperties<A extends string> = A extends `${infer N}(${infer T})`
   ? Trim<CsvToUnion<Uppercase<T>>>
@@ -72,34 +67,41 @@ type Trim<A extends string> = A extends ` ${infer N}`
   ? Trim<N>
   : A;
 
-type ToTypescriptType<A extends string> = A extends ArgType | "OPTIONAL" | "LAZY" | "REPEATING"
+type ToTypescript<A extends string> = A extends ArgType | "OPTIONAL" | "REPEATING"
   ? TypeMapping[A]
   : never;
 
 type TypeMapping = {
   BOOLEAN: boolean;
+  // "HANDLE ERROR": Error;
   NUMBER: number;
   STRING: string;
-  DATE: Date;
-  RANGE: PrimitiveArgValue[];
+  DATE: number;
   "RANGE<BOOLEAN>": Matrix<boolean>;
   "RANGE<NUMBER>": Matrix<number>;
   "RANGE<STRING>": Matrix<string>;
-  "RANGE<DATE>": Matrix<Date>;
+  "RANGE<DATE>": Matrix<number>;
   OPTIONAL: undefined;
   // no automatic casting
   META: PrimitiveArgValue;
   ANY: PrimitiveArgValue;
   REPEATING: PrimitiveArgValue;
-  LAZY: () => PrimitiveArgValue;
+  RANGE: Matrix<CellValue | undefined>;
 };
 
-type ArgValuesToTypescript<Type extends readonly ArgDefinition[]> = {
-  [K in keyof Type]: ToTypescriptType<Type[K]["type"][number]>;
+type ArgValuesToTypescript<Args extends readonly ArgDefinition[]> = {
+  [K in keyof Args]: Args[K]["lazy"] extends true
+    ? () => ArgToTypescript<Args[K]>
+    : ArgToTypescript<Args[K]>;
 };
-type FullArgsToTypescript<Type extends readonly ArgDefinition[]> = {
-  [K in keyof Type]: {
-    value: ToTypescriptType<Type[K]["type"][number]>;
-    format?: Format | undefined | Matrix<Format | undefined>;
-  };
+type FullArgsToTypescript<Args extends readonly ArgDefinition[]> = {
+  [K in keyof Args]: Args[K]["lazy"] extends true ? () => AArg<Args[K]> : AArg<Args[K]>;
 };
+
+type ArgToTypescript<A extends ArgDefinition> = ToTypescript<A["type"][number]>;
+
+export type AArg<A extends ArgDefinition> = {
+  value: ArgToTypescript<A>;
+  format?: Format | undefined | Matrix<Format | undefined>;
+};
+// type FullArgToTypescript<A extends ArgDefinition> = A["lazy"] extends true ? () => AA<A> : AA<A>;

@@ -3,11 +3,12 @@ import {
   AddFunctionDescription,
   Arg,
   ArgValue,
+  isMatrix,
   MatrixArgValue,
   PrimitiveArg,
   PrimitiveArgValue,
 } from "../types";
-import { arg, fn } from "./arguments";
+import { arg, typeCheckFunction } from "./arguments";
 import {
   assert,
   reduceAny,
@@ -373,7 +374,7 @@ export const COSH: AddFunctionDescription = {
 // COT
 // -----------------------------------------------------------------------------
 
-export const COT = fn({
+export const COT = typeCheckFunction({
   description: _lt("Cotangent of an angle provided in radians."),
   args: [
     arg("angle (number)", _lt("The angle to find the cotangent of, in radians.")),
@@ -943,7 +944,7 @@ export const PRODUCT: AddFunctionDescription = {
     let count = 0;
     let acc = 1;
     for (let n of factors) {
-      if (Array.isArray(n)) {
+      if (isMatrix(n)) {
         for (let i of n) {
           for (let j of i) {
             if (typeof j === "number") {

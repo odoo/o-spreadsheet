@@ -45,7 +45,9 @@ export function arg<D extends string>(
 //   return args;
 // }
 
-export function fn<Args extends readonly ArgDefinition[]>(desc: AddFunctionDescription<Args>) {
+export function typeCheckFunction<Args extends readonly ArgDefinition[]>(
+  desc: AddFunctionDescription<Args>
+) {
   return desc;
 }
 
