@@ -1,9 +1,11 @@
 import { Model } from "../../src";
 import { UID } from "../../src/types";
 import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
+import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {
   createScorecardChart as createScorecardChartHelper,
   setCellContent,
+  setStyle,
   updateChart,
 } from "../test_helpers/commands_helpers";
 import { dragElement, getElStyle, simulateClick } from "../test_helpers/dom_helper";
@@ -280,6 +282,29 @@ describe("Scorecard charts", () => {
       expect(style["text-decoration"]).toEqual("line-through underline");
     }
   });
+
+  test.each([{ keyValue: "A3" }, { baseline: "A3" }])(
+    "Scorecard elements take the bold/italic style into account when finding the best font size",
+    async (scorecardArg) => {
+      const string = "This is a long string that will be the keyvalue";
+      let ctxFontOFMeasuredValue = "";
+      jest
+        .spyOn(MockCanvasRenderingContext2D.prototype, "measureText")
+        .mockImplementation(function (this: MockCanvasRenderingContext2D, text) {
+          if (text === string) {
+            ctxFontOFMeasuredValue = this.font;
+          }
+          return { width: 1 };
+        });
+      setCellContent(model, "A3", string);
+      setStyle(model, "A3", { bold: true, italic: true });
+      await createScorecardChart(model, scorecardArg, chartId);
+
+      expect(ctxFontOFMeasuredValue).toContain("bold");
+      expect(ctxFontOFMeasuredValue).toContain("italic");
+      jest.spyOn(MockCanvasRenderingContext2D.prototype, "measureText").mockRestore();
+    }
+  );
 
   test("Baseline mode percentage don't inherit of the style/format of the cell", async () => {
     model.dispatch("SET_FORMATTING", {
