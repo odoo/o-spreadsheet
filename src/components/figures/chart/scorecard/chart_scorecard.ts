@@ -156,9 +156,15 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
 
     // Fonts sizes in px
     const keyFontSize =
-      new KeyValueElement().getElementMaxFontSize(this.getDrawableHeight(), this) * scalingFactor;
+      new KeyValueElement(this.runtime.keyValueStyle).getElementMaxFontSize(
+        this.getDrawableHeight(),
+        this
+      ) * scalingFactor;
     const baselineFontSize =
-      new BaselineElement().getElementMaxFontSize(this.getDrawableHeight(), this) * scalingFactor;
+      new BaselineElement(this.runtime.baselineStyle).getElementMaxFontSize(
+        this.getDrawableHeight(),
+        this
+      ) * scalingFactor;
 
     return {
       titleStyle: this.getTextStyle({
@@ -207,8 +213,8 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
 
   /** Return the element with he widest text in the chart */
   private getWidestElement(): ScorecardScalableElement {
-    const baseline = new BaselineElement();
-    const keyValue = new KeyValueElement();
+    const baseline = new BaselineElement(this.runtime.baselineStyle);
+    const keyValue = new KeyValueElement(this.runtime.keyValueStyle);
 
     return baseline.getElementWidth(BASELINE_BOX_HEIGHT_RATIO, this.ctx, this) >
       keyValue.getElementWidth(KEY_BOX_HEIGHT_RATIO, this.ctx, this)
@@ -217,33 +223,44 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   }
 }
 
-interface ScorecardScalableElement {
+abstract class ScorecardScalableElement {
+  constructor(private style: Style = {}) {}
+
   /** Return the width of an scorecard element in pixels */
-  getElementWidth: (
+  abstract getElementWidth(
     fontSize: number,
     ctx: CanvasRenderingContext2D,
     chart: ScorecardChart
-  ) => Pixel;
+  ): Pixel;
 
   /**
    * Get the maximal height of an element of the scorecard.
    *
    * This is computed such as all the height is taken by the elements, even if there is no title or baseline.
    */
-  getElementMaxFontSize: (availableHeight: Pixel, chart: ScorecardChart) => number;
+  abstract getElementMaxFontSize(availableHeight: Pixel, chart: ScorecardChart): number;
+
+  protected measureTextWidth(ctx: CanvasRenderingContext2D, text: string, fontSize: number) {
+    const italic = this.style.italic ? "italic" : "";
+    const weight = this.style.bold ? "bold" : "";
+    ctx.font = `${italic} ${weight} ${fontSize}px ${DEFAULT_FONT}`;
+    return ctx.measureText(text).width;
+  }
 }
 
-class BaselineElement implements ScorecardScalableElement {
+class BaselineElement extends ScorecardScalableElement {
   getElementWidth(fontSize: number, ctx: CanvasRenderingContext2D, chart: ScorecardChart): Pixel {
     if (!chart.runtime) return 0;
     const baselineStr = chart.baseline;
     // Put mock text to simulate the width of the up/down arrow
     const largeText = chart.baselineArrowDirection !== "neutral" ? "A " + baselineStr : baselineStr;
-    ctx.font = `${fontSize}px ${DEFAULT_FONT}`;
-    let textWidth = ctx.measureText(largeText).width;
+    let textWidth = this.measureTextWidth(ctx, largeText, fontSize);
     // Baseline descr font size should be smaller than baseline font size
-    ctx.font = `${fontSize * BASELINE_DESCR_FONT_RATIO}px ${DEFAULT_FONT}`;
-    textWidth += ctx.measureText(chart.baselineDescr).width;
+    textWidth += this.measureTextWidth(
+      ctx,
+      chart.baselineDescr,
+      fontSize * BASELINE_DESCR_FONT_RATIO
+    );
     return textWidth;
   }
 
@@ -255,12 +272,11 @@ class BaselineElement implements ScorecardScalableElement {
   }
 }
 
-class KeyValueElement implements ScorecardScalableElement {
+class KeyValueElement extends ScorecardScalableElement {
   getElementWidth(fontSize: number, ctx: CanvasRenderingContext2D, chart: ScorecardChart): Pixel {
     if (!chart.runtime) return 0;
     const str = chart.keyValue || "";
-    ctx.font = `${fontSize}px ${DEFAULT_FONT}`;
-    return ctx.measureText(str).width;
+    return this.measureTextWidth(ctx, str, fontSize);
   }
 
   getElementMaxFontSize(availableHeight: Pixel, chart: ScorecardChart): number {
