@@ -136,13 +136,28 @@ class Demo extends Component {
           const myjszip = new JSZip();
           const zip = await myjszip.loadAsync(input.files[0]);
           const files = Object.keys(zip.files);
-          const contents = await Promise.all(files.map((file) => zip.files[file].async("text")));
+          const images = [];
+          const contents = await Promise.all(
+            files.map((file) => {
+              if (file.includes("media/image")) {
+                images.push(file);
+                return zip.files[file].async("blob");
+              }
+              return zip.files[file].async("text");
+            })
+          );
           const inputFiles = {};
           for (let i = 0; i < contents.length; i++) {
             inputFiles[files[i]] = contents[i];
           }
           this.leaveCollaborativeSession();
           await fetch("http://localhost:9090/clear");
+          for (let i = 0; i < images.length; i++) {
+            const blob = inputFiles[images[i]];
+            const file = new File([blob], images[i].split("/").at(-1));
+            const imageSrc = await this.fileStore.upload(file);
+            inputFiles[images[i]] = { imageSrc };
+          }
           await this.initiateConnection(inputFiles);
           this.state.key = this.state.key + 1;
 

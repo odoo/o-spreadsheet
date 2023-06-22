@@ -10,7 +10,7 @@ import {
 } from "../types/xlsx";
 import { XLSXExportXMLFile } from "./../types/xlsx";
 import { CONTENT_TYPES, NAMESPACE, RELATIONSHIP_NSR, XLSX_RELATION_TYPE } from "./constants";
-import { IMAGE_MIMETYPE_EXTENSION_MAPPING } from "./conversion";
+import { IMAGE_MIMETYPE_TO_EXTENSION_MAPPING } from "./conversion";
 import { createChart } from "./functions/charts";
 import { addConditionalFormatting } from "./functions/conditional_formatting";
 import { createDrawing } from "./functions/drawings";
@@ -144,7 +144,7 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
     for (const image of sheet.images) {
       const mimeType = image.data.mimetype;
       if (mimeType === undefined) continue;
-      const extension = IMAGE_MIMETYPE_EXTENSION_MAPPING[mimeType];
+      const extension = IMAGE_MIMETYPE_TO_EXTENSION_MAPPING[mimeType];
       // only support exporting images with mimetypes specified in the mapping
       if (extension === undefined) continue;
       const xlsxImageId = convertImageId(image.id);
@@ -318,7 +318,7 @@ function createRelsFiles(relsFiles: XLSXRelFile[]): XLSXExportFile[] {
 function createContentTypes(files: XLSXExportFile[]): XLSXExportXMLFile {
   const overrideNodes: XMLString[] = [];
   // hard-code supported image mimetypes
-  const imageDefaultNodes = Object.entries(IMAGE_MIMETYPE_EXTENSION_MAPPING).map(
+  const imageDefaultNodes = Object.entries(IMAGE_MIMETYPE_TO_EXTENSION_MAPPING).map(
     ([mimetype, extension]) => createDefaultXMLElement(extension, mimetype)
   );
   for (const file of files) {

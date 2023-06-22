@@ -1151,11 +1151,9 @@ describe("Test XLSX export", () => {
       const model = new Model(getModelData());
       const maxSheetSize = model.getters.getMainViewportRect();
       createImage(model, {
-        definition: {
-          size: {
-            width: 100000 + maxSheetSize.width,
-            height: 100000 + maxSheetSize.height,
-          },
+        size: {
+          width: 100000 + maxSheetSize.width,
+          height: 100000 + maxSheetSize.height,
         },
       });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" mc:Ignorable="x14ac xr xr2 xr3" xr:uid="{00000000-0001-0000-0100-000000000000}">
+  <dimension ref="A1:B4"/>
+  <sheetViews>
+    <sheetView zoomScaleNormal="100" workbookViewId="0">
+      <selection activeCell="A21" sqref="A21"/>
+    </sheetView>
+  </sheetViews>
+  <sheetFormatPr defaultColWidth="13.7109375" defaultRowHeight="12.75" x14ac:dyDescent="0.2"/>
+  <cols>
+    <col min="1" max="1" width="65.140625" customWidth="1"/>
+    <col min="2" max="26" width="13.7109375" customWidth="1"/>
+  </cols>
+  <sheetData>
+    <row r="1" spans="1:2" x14ac:dyDescent="0.2" />
+    <row r="2" spans="1:2" x14ac:dyDescent="0.2" />
+    <row r="3" spans="1:2" x14ac:dyDescent="0.2" />
+    <row r="4" spans="1:2" x14ac:dyDescent="0.2" />
+  </sheetData>
+  <pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>
+  <drawing r:id="rId1"/>
+</worksheet>

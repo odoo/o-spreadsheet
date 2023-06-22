@@ -34,8 +34,7 @@ These are the elements of the XMLs that we don't parse at all because we don't i
 
 - Figures :
 
-  - figures that have an anchor different than twoCellAnchor (but I couldn't find when a different anchor type was used in Excel)
-  - figures that don't contain a chart (eg. Images)
+  - figures that have an anchor different than twoCellAnchor (Google Sheets uses oneCellAnchor)
 
 - Charts :
 

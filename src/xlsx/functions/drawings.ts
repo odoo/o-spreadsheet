@@ -178,6 +178,9 @@ function createImageDrawing(
     ["name", `Image ${imageId}`],
     ["title", "Image"],
   ];
+  const cx = convertDotValueToEMU(figure.width);
+  const cy = convertDotValueToEMU(figure.height);
+
   return escapeXml/*xml*/ `
     <xdr:twoCellAnchor editAs="oneCell">
       <xdr:from>
@@ -204,6 +207,9 @@ function createImageDrawing(
           </a:stretch>
         </xdr:blipFill>
         <xdr:spPr>
+          <a:xfrm>
+            <a:ext cx="${cx}" cy="${cy}" />
+          </a:xfrm>
           <a:prstGeom prst="rect">
             <a:avLst/>
           </a:prstGeom>

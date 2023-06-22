@@ -5,6 +5,7 @@ import {
   ImportedFiles,
   XLSXExternalBook,
   XLSXFileStructure,
+  XLSXImageFile,
   XLSXImportData,
   XLSXWorksheet,
   XLSXXmlDocuments,
@@ -30,15 +31,22 @@ const EXCEL_IMPORT_VERSION = 12;
 export class XlsxReader {
   warningManager: XLSXImportWarningManager;
   xmls: XLSXXmlDocuments;
+  images: XLSXImageFile[];
 
   constructor(files: ImportedFiles) {
     this.warningManager = new XLSXImportWarningManager();
 
     this.xmls = {};
+    this.images = [];
     for (let key of Object.keys(files)) {
       // Random files can be in xlsx (like a bin file for printer settings)
       if (key.endsWith(".xml") || key.endsWith(".rels")) {
-        this.xmls[key] = parseXML(new XMLString(files[key]));
+        this.xmls[key] = parseXML(new XMLString(files[key] as string));
+      } else if (key.includes("media/image")) {
+        this.images.push({
+          fileName: key,
+          imageSrc: files[key]["imageSrc"],
+        });
       }
     }
   }
@@ -121,6 +129,7 @@ export class XlsxReader {
       tables: getXLSXFilesOfType(CONTENT_TYPES.table, this.xmls),
       pivots: getXLSXFilesOfType(CONTENT_TYPES.pivot, this.xmls),
       externalLinks: getXLSXFilesOfType(CONTENT_TYPES.externalLink, this.xmls),
+      images: this.images,
     };
 
     if (!xlsxFileStructure.workbook.rels) {

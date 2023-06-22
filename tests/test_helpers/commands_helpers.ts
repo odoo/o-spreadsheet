@@ -21,6 +21,7 @@ import { PieChartDefinition } from "../../src/types/chart/pie_chart";
 import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
 import { Image } from "../../src/types/image";
 import { SelectionDirection, SelectionStep } from "../../src/types/selection";
+import { FigureSize } from "./../../src/types/figure";
 import { target } from "./helpers";
 
 /**
@@ -95,6 +96,7 @@ export function createImage(
     figureId?: UID;
     position?: { x: number; y: number };
     definition?: Partial<Image>;
+    size?: FigureSize;
   }
 ) {
   const param = {
@@ -104,17 +106,17 @@ export function createImage(
     ...partialParam,
     definition: {
       path: "image path",
-      size: { width: 380, height: 380 },
       mimetype: "image/jpeg",
       ...partialParam.definition,
     },
   };
+  const size = partialParam.size ?? { width: 380, height: 380 };
   return model.dispatch("CREATE_IMAGE", {
     sheetId: param.sheetId,
     figureId: param.figureId,
     position: param.position,
-    size: param.definition.size,
-    definition: param.definition,
+    size,
+    definition: { size, ...param.definition },
   });
 }
 

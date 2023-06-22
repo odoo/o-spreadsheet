@@ -52,7 +52,7 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_IMAGE":
-        this.addFigure(cmd.figureId, cmd.sheetId, cmd.position, cmd.size);
+        this.addImage(cmd.figureId, cmd.sheetId, cmd.position, cmd.size);
         this.history.update("images", cmd.sheetId, cmd.figureId, cmd.definition);
         this.syncedImages.add(cmd.definition.path);
         break;
@@ -123,7 +123,7 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
   // Private
   // ---------------------------------------------------------------------------
 
-  private addFigure(id: UID, sheetId: UID, position: { x: Pixel; y: Pixel }, size: FigureSize) {
+  private addImage(id: UID, sheetId: UID, position: { x: Pixel; y: Pixel }, size: FigureSize) {
     const figure: Figure = {
       id,
       x: position.x,
