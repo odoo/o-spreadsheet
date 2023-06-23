@@ -4,6 +4,9 @@
 export interface StoreConstructor<T = any> {
   new (get: Get): T;
 }
+export interface DisposableStoreConstructor<T extends DisposableStore = any> {
+  new (get: Get): T;
+}
 
 export interface DisposableStore {
   dispose(): void;
@@ -34,9 +37,13 @@ export class DependencyContainer {
 
   get<T>(Store: StoreConstructor<T>): T {
     if (!this.dependencies.has(Store)) {
-      this.dependencies.set(Store, this.factory.build(Store));
+      this.dependencies.set(Store, this.instantiate(Store));
     }
     return this.dependencies.get(Store);
+  }
+
+  instantiate<T>(Store: StoreConstructor<T>): T {
+    return this.factory.build(Store);
   }
 }
 
@@ -70,11 +77,7 @@ export function createValueStore<T extends object>(value: () => T): StoreConstru
   return MetaStore as StoreConstructor<T>;
 }
 
-/**
- * Force any function to never return anything, effectively
- * making it write-only.
- */
-type NeverReturns<T> = T extends (...args: any[]) => any ? (...args: Parameters<T>) => never : T;
+export type Store<T> = CQS<T>;
 
 /**
  * Command Query Separation [1,2] implementation with types.
@@ -87,9 +90,15 @@ type NeverReturns<T> = T extends (...args: any[]) => any ? (...args: Parameters<
  * [2] https://en.wikipedia.org/wiki/Command%E2%80%93query_separation
  * [3] in an ideal world, they would be deeply read-only, but that's not possible natively in TypeScript
  */
-export type CQS<T> = {
+type CQS<T> = {
   readonly [key in keyof T]: NeverReturns<T[key]>;
 };
+
+/**
+ * Force any function to never return anything, effectively
+ * making it write-only.
+ */
+type NeverReturns<T> = T extends (...args: any[]) => any ? (...args: Parameters<T>) => never : T;
 
 // Design ==================
 // make it easy to read (computed properties)

@@ -1,5 +1,10 @@
-import { useEnv, useState, useSubEnv } from "@odoo/owl";
-import { CQS, DependencyContainer, StoreConstructor } from "./dependency_container";
+import { onWillUnmount, useEnv, useState, useSubEnv } from "@odoo/owl";
+import {
+  DependencyContainer,
+  DisposableStoreConstructor,
+  Store,
+  StoreConstructor,
+} from "./dependency_container";
 
 export function useStoreProvider() {
   const container = new DependencyContainer();
@@ -15,11 +20,25 @@ type Env = ReturnType<typeof useEnv>;
 export function useStore<T extends StoreConstructor>(
   Store: T,
   env: Env = useEnv()
-): CQS<InstanceType<T>> {
-  // const env = env ||;
+): Store<InstanceType<T>> {
+  const container = getDependencyContainer(env);
+  return useState(container.get(Store));
+}
+
+export function useLocalStore<T extends DisposableStoreConstructor>(
+  Store: T
+): Omit<Store<InstanceType<T>>, "dispose"> {
+  const env = useEnv();
+  const container = getDependencyContainer(env);
+  const store = container.instantiate(Store);
+  onWillUnmount(() => store.dispose());
+  return useState(store);
+}
+
+function getDependencyContainer(env: Env) {
   const container = env.__spreadsheet_stores__;
   if (!(container instanceof DependencyContainer)) {
     throw new Error("No store provider found. Did you forget to call useStoreProvider() ?");
   }
-  return useState(container.get(Store));
+  return container;
 }

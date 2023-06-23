@@ -2,7 +2,7 @@ import { Component, useChildSubEnv, useRef } from "@odoo/owl";
 import { positionToZone } from "../../helpers/zones";
 import { clickableCellRegistry } from "../../registries/cell_clickable_registry";
 import { CellPopover } from "../../store/cell_popover";
-import { CQS } from "../../store/dependency_container";
+import { Store } from "../../store/dependency_container";
 import { HoveredCell } from "../../store/hovered_cell";
 import { useStore } from "../../store/store_hooks";
 import {
@@ -56,8 +56,8 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
 
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
-  private cellPopover!: CQS<CellPopover>;
-  private hoveredCell!: CQS<HoveredCell>;
+  private cellPopover!: Store<CellPopover>;
+  private hoveredCell!: Store<HoveredCell>;
   setup() {
     this.cellPopover = useStore(CellPopover);
     const gridRef = useRef("grid");

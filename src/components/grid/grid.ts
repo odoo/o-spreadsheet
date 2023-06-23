@@ -22,7 +22,7 @@ import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import { INSERT_LINK } from "../../registries/menus/menu_items_actions";
 import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
 import { CellPopover } from "../../store/cell_popover";
-import { CQS } from "../../store/dependency_container";
+import { Store } from "../../store/dependency_container";
 import { HoveredCell } from "../../store/hovered_cell";
 import { useStore } from "../../store/store_hooks";
 import { _lt } from "../../translation";
@@ -108,11 +108,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   private menuState!: MenuState;
   private gridRef!: Ref<HTMLElement>;
   private hiddenInput!: Ref<HTMLElement>;
-  private cellPopover!: CQS<CellPopover>;
+  private cellPopover!: Store<CellPopover>;
 
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
-  hoveredCell!: CQS<HoveredCell>;
+  hoveredCell!: Store<HoveredCell>;
 
   setup() {
     this.menuState = useState({
