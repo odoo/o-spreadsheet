@@ -31,14 +31,6 @@ export type ComputeFunctionArg<T> = {
 };
 export type ComputeFunction<T extends readonly any[], R> = (this: EvalContext, ...args: T) => R;
 
-const a: ComputeFunction<[number | Matrix<number>, number | Matrix<number>], number> = function (
-  value1: number,
-  value2: number
-): number {
-  return 2;
-};
-a([[5]]);
-
 export interface AddFunctionDescription<Args extends readonly ArgDefinition[] = any[]> {
   readonly description: string;
   readonly compute: ComputeFunction<ArgValuesToTypescript<Args>, FunctionReturnValue>;
