@@ -3,7 +3,7 @@ import { _lt } from "../translation";
 import {
   AddFunctionDescription,
   Arg,
-  ArgDefinition,
+  ArgSpec,
   ArgValue,
   ComputeFunction,
   EvalContext,
@@ -56,7 +56,7 @@ class FunctionRegistry extends Registry<FunctionDescription> {
     [key: string]: ComputeFunction<Arg[], FunctionReturn>;
   } = {};
 
-  add<Args extends ArgDefinition<any>[]>(name: string, addDescr: AddFunctionDescription<Args>) {
+  add<Args extends ArgSpec<any>[]>(name: string, addDescr: AddFunctionDescription<Args>) {
     name = name.toUpperCase();
     if (!functionNameRegex.test(name)) {
       throw new Error(

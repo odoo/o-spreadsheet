@@ -2,7 +2,7 @@ import { CellValue } from "./cells";
 import { Format } from "./format";
 import { FunctionReturnFormat, FunctionReturnValue, Matrix, PrimitiveArgValue } from "./misc";
 
-export type ArgType =
+export type ArgTypeSpec =
   | "ANY"
   | "BOOLEAN"
   | "NUMBER"
@@ -15,7 +15,7 @@ export type ArgType =
   | "RANGE<STRING>"
   | "META";
 
-export interface ArgDefinition<T extends ArgType | "OPTIONAL" = ArgType> {
+export interface ArgSpec<T extends ArgTypeSpec | "OPTIONAL" = ArgTypeSpec> {
   repeating?: boolean;
   optional?: boolean;
   lazy?: boolean;
@@ -31,13 +31,13 @@ export type ComputeFunctionArg<T> = {
 };
 export type ComputeFunction<T extends readonly any[], R> = (this: EvalContext, ...args: T) => R;
 
-export interface AddFunctionDescription<Args extends readonly ArgDefinition[] = any[]> {
+export interface AddFunctionDescription<Args extends readonly ArgSpec[] = any[]> {
   readonly description: string;
-  readonly compute: ComputeFunction<ArgValuesToTypescript<Args>, FunctionReturnValue>;
-  readonly computeFormat?: ComputeFunction<FullArgsToTypescript<Args>, FunctionReturnFormat>;
+  readonly compute: ComputeFunction<ArgValueTypeArray<Args>, FunctionReturnValue>;
+  readonly computeFormat?: ComputeFunction<ArgTypeArray<Args>, FunctionReturnFormat>;
   readonly category?: string;
   readonly args: Args;
-  readonly returns: Readonly<[ArgType]>;
+  readonly returns: Readonly<[ArgTypeSpec]>;
   readonly isExported?: boolean;
   readonly hidden?: boolean;
 }
@@ -55,7 +55,10 @@ export type EvalContext = {
   [key: string]: any;
 };
 
-export type InferArgType<A extends string> = Extract<InferArgProperties<A>, ArgType | "OPTIONAL">;
+export type InferArgType<A extends string> = Extract<
+  InferArgProperties<A>,
+  ArgTypeSpec | "OPTIONAL"
+>;
 
 export type InferArgProperties<A extends string> = A extends `${infer N}(${infer T})`
   ? Trim<CsvToUnion<Uppercase<T>>>
@@ -67,7 +70,7 @@ type Trim<A extends string> = A extends ` ${infer N}`
   ? Trim<N>
   : A;
 
-type ToTypescript<A extends string> = A extends ArgType | "OPTIONAL" | "REPEATING"
+type ToTypescript<A extends string> = A extends ArgTypeSpec | "OPTIONAL" | "REPEATING"
   ? TypeMapping[A]
   : never;
 
@@ -89,19 +92,21 @@ type TypeMapping = {
   RANGE: Matrix<CellValue | undefined>;
 };
 
-type ArgValuesToTypescript<Args extends readonly ArgDefinition[]> = {
+type ArgValueTypeArray<Args extends readonly ArgSpec[]> = {
   [K in keyof Args]: Args[K]["lazy"] extends true
-    ? () => ArgToTypescript<Args[K]>
-    : ArgToTypescript<Args[K]>;
+    ? () => ArgTypeSimple<Args[K]>
+    : ArgTypeSimple<Args[K]>;
 };
-type FullArgsToTypescript<Args extends readonly ArgDefinition[]> = {
-  [K in keyof Args]: Args[K]["lazy"] extends true ? () => AArg<Args[K]> : AArg<Args[K]>;
+type ArgTypeArray<Args extends readonly ArgSpec[]> = {
+  // [K in keyof Args]: Args[K]["lazy"] extends true ? () => AArg<Args[K]> : AArg<Args[K]>;
+  [K in keyof Args]: Lazyfy<Args[K], AArg<Args[K]>>;
 };
 
-type ArgToTypescript<A extends ArgDefinition> = ToTypescript<A["type"][number]>;
+type ArgTypeSimple<A extends ArgSpec> = ToTypescript<A["type"][number]>;
 
-export type AArg<A extends ArgDefinition> = {
-  value: ArgToTypescript<A>;
+export type AArg<A extends ArgSpec> = {
+  value: ArgTypeSimple<A>;
   format?: Format | undefined | Matrix<Format | undefined>;
 };
-// type FullArgToTypescript<A extends ArgDefinition> = A["lazy"] extends true ? () => AA<A> : AA<A>;
+
+type Lazyfy<A extends ArgSpec, V> = A["lazy"] extends true ? () => V : V;

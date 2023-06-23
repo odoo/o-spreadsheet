@@ -6,7 +6,7 @@ import { Token } from "../formulas";
 import { Cell, CellValue, EvaluatedCell } from "./cells";
 import { CommandResult } from "./commands";
 import { Format } from "./format";
-import { AArg, ArgDefinition } from "./functions";
+import { AArg, ArgSpec } from "./functions";
 import { Range } from "./range";
 
 /**
@@ -181,7 +181,7 @@ export type Matrix<T = unknown> = T[][];
 
 // FORMULA FUNCTION INPUT
 
-export type Arg = AArg<ArgDefinition>;
+export type Arg = AArg<ArgSpec>;
 export type MatrixArg<V = PrimitiveArgValue> = {
   value: Matrix<V>;
   format?: Matrix<Format | undefined>;

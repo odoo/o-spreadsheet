@@ -2,8 +2,8 @@ import { ComputeFunctionArg } from ".";
 import { _lt } from "../translation";
 import {
   AddFunctionDescription,
-  ArgDefinition,
-  ArgType,
+  ArgSpec,
+  ArgTypeSpec,
   ArgValue,
   EvalContext,
   FunctionDescription,
@@ -20,7 +20,7 @@ import { toBoolean, toJsDate, toNumber, toString } from "./helpers";
 //------------------------------------------------------------------------------
 
 const ARG_REGEXP = /(.*?)\((.*?)\)(.*)/;
-const ARG_TYPES: ArgType[] = [
+const ARG_TYPES: ArgTypeSpec[] = [
   "ANY",
   "BOOLEAN",
   "DATE",
@@ -37,24 +37,24 @@ const ARG_TYPES: ArgType[] = [
 export function arg<D extends string>(
   definition: D,
   description: string = ""
-): ArgDefinition<InferArgType<D>> {
-  return makeArg(definition, description) as ArgDefinition<InferArgType<D>>;
+): ArgSpec<InferArgType<D>> {
+  return makeArg(definition, description) as ArgSpec<InferArgType<D>>;
 }
 
 // export function args<Args extends readonly ArgDefinition<ArgType>[]>(args: Args): Args {
 //   return args;
 // }
 
-export function typeCheckFunction<Args extends readonly ArgDefinition[]>(
+export function typeCheckFunction<Args extends readonly ArgSpec[]>(
   desc: AddFunctionDescription<Args>
 ) {
   return desc;
 }
 
-function makeArg(str: string, description: string): ArgDefinition {
+function makeArg(str: string, description: string): ArgSpec {
   let parts = str.match(ARG_REGEXP)!;
   let name = parts[1].trim();
-  let types: ArgType[] = [];
+  let types: ArgTypeSpec[] = [];
   let isOptional = false;
   let isRepeating = false;
   let isLazy = false;
@@ -77,7 +77,7 @@ function makeArg(str: string, description: string): ArgDefinition {
       defaultValue = param.trim().slice(8);
     }
   }
-  const result: ArgDefinition = {
+  const result: ArgSpec = {
     name,
     description,
     type: types,
@@ -174,7 +174,7 @@ function argTargeting(countArg, repeatingArg): (argPosition: number) => number {
 // Argument validation
 //------------------------------------------------------------------------------
 
-export function validateArguments(args: ArgDefinition[]) {
+export function validateArguments(args: ArgSpec[]) {
   let previousArgRepeating: boolean | undefined = false;
   let previousArgOptional: boolean | undefined = false;
   let previousArgDefault: boolean | undefined = false;
@@ -209,7 +209,7 @@ export function validateArguments(args: ArgDefinition[]) {
   }
 }
 
-export function getCastingFunctions(args: ArgDefinition[]) {
+export function getCastingFunctions(args: ArgSpec[]) {
   return args.map((arg) => {
     arg;
     const castingFunction = getCastingFunction(arg);
@@ -224,7 +224,7 @@ const CAST_MAP = {
   DATE: toJsDate,
 };
 
-function getCastingFunction(arg: ArgDefinition) {
+function getCastingFunction(arg: ArgSpec) {
   const types = arg.type.map(getPrimitiveType);
   const hasMixedType = new Set(types).size > 1;
   const hasAnyType = types.includes("ANY");
@@ -261,7 +261,7 @@ function getCastingFunction(arg: ArgDefinition) {
   };
 }
 
-function rangeCastingFunction(type: ArgType, optional: boolean) {
+function rangeCastingFunction(type: ArgTypeSpec, optional: boolean) {
   return function (this: EvalContext, value: MatrixArgValue) {
     if (optional && value === undefined) {
       return undefined;
@@ -269,7 +269,7 @@ function rangeCastingFunction(type: ArgType, optional: boolean) {
     return matrixMap(value, CAST_MAP[type]);
   };
 }
-function singleValueCastingFunction(type: ArgType, optional: boolean) {
+function singleValueCastingFunction(type: ArgTypeSpec, optional: boolean) {
   return function (this: EvalContext, value: PrimitiveArgValue) {
     if (optional && value === undefined) {
       return undefined;
@@ -278,9 +278,9 @@ function singleValueCastingFunction(type: ArgType, optional: boolean) {
   };
 }
 
-function getPrimitiveType(type: ArgType): ArgType {
+function getPrimitiveType(type: ArgTypeSpec): ArgTypeSpec {
   if (type.startsWith("RANGE")) {
-    return type.slice(6, -1) as ArgType;
+    return type.slice(6, -1) as ArgTypeSpec;
   }
   return type;
 }
