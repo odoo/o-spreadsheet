@@ -50,14 +50,20 @@ type CommandMapping = {
   [key in CoreCommandTypes]: Extract<CoreCommand, { type: key }>;
 };
 
-// TODO : use this in ot_*.test.ts files. should be at least -400 lines of code
-const TEST_COMMANDS_PARTIAL: Partial<CommandMapping> = {
+export const TEST_COMMANDS: CommandMapping = {
   UPDATE_CELL: {
     type: "UPDATE_CELL",
     col: 0,
     row: 0,
     content: "hello",
     sheetId: "sheetId",
+  },
+  UPDATE_CELL_POSITION: {
+    type: "UPDATE_CELL_POSITION",
+    cellId: "Id",
+    sheetId: "sheetId",
+    row: 0,
+    col: 0,
   },
   CLEAR_CELL: {
     type: "CLEAR_CELL",
@@ -123,6 +129,24 @@ const TEST_COMMANDS_PARTIAL: Partial<CommandMapping> = {
     sheetId: "sheetId",
     sheetIdTo: "duplicateSheetId",
   },
+  MOVE_SHEET: {
+    type: "MOVE_SHEET",
+    sheetId: "sheetId",
+    delta: -1,
+  },
+  DELETE_SHEET: {
+    type: "DELETE_SHEET",
+    sheetId: "sheetId",
+  },
+  RENAME_SHEET: {
+    type: "RENAME_SHEET",
+    sheetId: "sheetId",
+    name: "newName",
+  },
+  SHOW_SHEET: {
+    type: "SHOW_SHEET",
+    sheetId: "sheetId",
+  },
   ADD_CONDITIONAL_FORMAT: {
     type: "ADD_CONDITIONAL_FORMAT",
     ranges: toRangesData("sheetId", "A1"),
@@ -137,6 +161,17 @@ const TEST_COMMANDS_PARTIAL: Partial<CommandMapping> = {
     },
     sheetId: "sheetId",
   },
+  REMOVE_CONDITIONAL_FORMAT: {
+    type: "REMOVE_CONDITIONAL_FORMAT",
+    id: "cfId",
+    sheetId: "sheetId",
+  },
+  MOVE_CONDITIONAL_FORMAT: {
+    type: "MOVE_CONDITIONAL_FORMAT",
+    sheetId: "sheetId",
+    cfId: "cfId",
+    direction: "up",
+  },
   CREATE_FIGURE: {
     type: "CREATE_FIGURE",
     figure: {
@@ -149,11 +184,27 @@ const TEST_COMMANDS_PARTIAL: Partial<CommandMapping> = {
     },
     sheetId: "sheetId",
   },
+  DELETE_FIGURE: {
+    type: "DELETE_FIGURE",
+    id: "figureId",
+    sheetId: "sheetId",
+  },
+  UPDATE_FIGURE: {
+    type: "UPDATE_FIGURE",
+    id: "figureId",
+    sheetId: "sheetId",
+  },
   CREATE_CHART: {
     type: "CREATE_CHART",
     definition: TEST_CHART_DATA.basicChart,
     position: { x: 0, y: 0 },
     size: { width: 200, height: 200 },
+    id: "figureId",
+    sheetId: "sheetId",
+  },
+  UPDATE_CHART: {
+    type: "UPDATE_CHART",
+    definition: TEST_CHART_DATA.basicChart,
     id: "figureId",
     sheetId: "sheetId",
   },
@@ -180,5 +231,80 @@ const TEST_COMMANDS_PARTIAL: Partial<CommandMapping> = {
     quantity: 1,
     sheetId: "sheetId",
   },
+  REMOVE_COLUMNS_ROWS: {
+    type: "REMOVE_COLUMNS_ROWS",
+    dimension: "ROW",
+    elements: [0],
+    sheetId: "sheetId",
+  },
+  FREEZE_COLUMNS: {
+    type: "FREEZE_COLUMNS",
+    sheetId: "sheetId",
+    quantity: 1,
+  },
+  FREEZE_ROWS: {
+    type: "FREEZE_ROWS",
+    sheetId: "sheetId",
+    quantity: 1,
+  },
+  UNFREEZE_COLUMNS: {
+    type: "UNFREEZE_COLUMNS",
+    sheetId: "sheetId",
+  },
+  UNFREEZE_ROWS: {
+    type: "UNFREEZE_ROWS",
+    sheetId: "sheetId",
+  },
+  UNFREEZE_COLUMNS_ROWS: {
+    type: "UNFREEZE_COLUMNS_ROWS",
+    sheetId: "sheetId",
+  },
+  HIDE_COLUMNS_ROWS: {
+    type: "HIDE_COLUMNS_ROWS",
+    dimension: "ROW",
+    elements: [0],
+    sheetId: "sheetId",
+  },
+  UNHIDE_COLUMNS_ROWS: {
+    type: "UNHIDE_COLUMNS_ROWS",
+    dimension: "ROW",
+    elements: [0],
+    sheetId: "sheetId",
+  },
+  SET_GRID_LINES_VISIBILITY: {
+    type: "SET_GRID_LINES_VISIBILITY",
+    sheetId: "sheetId",
+    areGridLinesVisible: true,
+  },
+  MOVE_RANGES: {
+    type: "MOVE_RANGES",
+    target: target("A1"),
+    sheetId: "sheetId",
+    targetSheetId: "sheetId",
+    col: 0,
+    row: 0,
+  },
+  SET_ZONE_BORDERS: {
+    type: "SET_ZONE_BORDERS",
+    sheetId: "sheetId",
+    target: target("A1"),
+    border: { position: "top", style: "thin", color: "#000000" },
+  },
 };
-export const TEST_COMMANDS = TEST_COMMANDS_PARTIAL as CommandMapping;
+
+export const OT_TESTS_SINGLE_CELL_COMMANDS = [
+  TEST_COMMANDS.UPDATE_CELL,
+  TEST_COMMANDS.UPDATE_CELL_POSITION,
+  TEST_COMMANDS.CLEAR_CELL,
+  TEST_COMMANDS.SET_BORDER,
+];
+
+export const OT_TESTS_TARGET_DEPENDANT_COMMANDS = [
+  TEST_COMMANDS.DELETE_CONTENT,
+  TEST_COMMANDS.SET_FORMATTING,
+  TEST_COMMANDS.CLEAR_FORMATTING,
+  TEST_COMMANDS.CREATE_FILTER_TABLE,
+  TEST_COMMANDS.REMOVE_FILTER_TABLE,
+];
+
+export const OT_TESTS_RANGE_DEPENDANT_COMMANDS = [TEST_COMMANDS.ADD_CONDITIONAL_FORMAT];
