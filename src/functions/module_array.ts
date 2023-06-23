@@ -1,4 +1,3 @@
-import { transpose2dArray } from "../helpers";
 import { _lt } from "../translation";
 import {
   AddFunctionDescription,
@@ -30,6 +29,7 @@ import {
   assertSquareMatrix,
   isNumberMatrix,
 } from "./helper_assert";
+import { nomInconnu2 } from "./helper_math";
 import { invertMatrix, multiplyMatrices } from "./helper_matrices";
 
 // -----------------------------------------------------------------------------
@@ -698,19 +698,14 @@ export const TOROW: AddFunctionDescription = {
 export const TRANSPOSE: AddFunctionDescription = {
   description: _lt("Transposes the rows and columns of a range."),
   args: [arg("range (any, range<any>)", _lt("The range to be transposed."))],
-  returns: ["RANGE<ANY>"],
-  computeFormat: (values: Arg) => {
-    if (!values.format) {
-      return undefined;
-    }
-    if (!isMatrix(values.format)) {
-      return values.format;
-    }
-    return transpose2dArray(values.format);
-  },
-  compute: function (values: ArgValue): Matrix<CellValue> {
-    const _values = toMatrixArgValue(values);
-    return transpose2dArray(_values, toCellValue);
+  returns: ["RANGE"],
+  computeValueAndFormat: (arg: Arg) => {
+    const values = isMatrix(arg.value) ? arg.value : [[arg.value]];
+    const formats = isMatrix(arg.format) && arg.format !== undefined ? arg.format : [[arg.format]];
+    const nColumns = values[0].length;
+    const nRows = values.length;
+
+    return nomInconnu2(nRows, nColumns, values, formats, (i, j, arg) => arg[j][i]);
   },
   isExported: true,
 };

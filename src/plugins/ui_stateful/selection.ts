@@ -1,4 +1,5 @@
 import { SELECTION_BORDER_COLOR } from "../../constants";
+import { evaluateFormula } from "../../functions/helpers";
 import { SUM } from "../../functions/module_math";
 import { AVERAGE, COUNT, COUNTA, MAX, MIN } from "../../functions/module_statistical";
 import {
@@ -52,32 +53,32 @@ const selectionStatisticFunctions: SelectionStatisticFunction[] = [
   {
     name: _lt("Sum"),
     types: [CellValueType.number],
-    compute: (values) => SUM.compute([values]) as number,
+    compute: (values) => evaluateFormula(SUM, [values]) as number,
   },
   {
     name: _lt("Avg"),
     types: [CellValueType.number],
-    compute: (values) => AVERAGE.compute([values]) as number,
+    compute: (values) => evaluateFormula(AVERAGE, [values]) as number,
   },
   {
     name: _lt("Min"),
     types: [CellValueType.number],
-    compute: (values) => MIN.compute([values]) as number,
+    compute: (values) => evaluateFormula(MIN, [values]) as number,
   },
   {
     name: _lt("Max"),
     types: [CellValueType.number],
-    compute: (values) => MAX.compute([values]) as number,
+    compute: (values) => evaluateFormula(MAX, [values]) as number,
   },
   {
     name: _lt("Count"),
     types: [CellValueType.number, CellValueType.text, CellValueType.boolean, CellValueType.error],
-    compute: (values) => COUNTA.compute([values]) as number,
+    compute: (values) => evaluateFormula(COUNTA, [values]) as number,
   },
   {
     name: _lt("Count Numbers"),
     types: [CellValueType.number, CellValueType.text, CellValueType.boolean, CellValueType.error],
-    compute: (values) => COUNT.compute([values]) as number,
+    compute: (values) => evaluateFormula(COUNT, [values]) as number,
   },
 ];
 

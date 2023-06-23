@@ -1,4 +1,4 @@
-function nomInconnu(
+export function nomInconnu(
   nRows: number,
   nColumns: number,
   values,
@@ -25,7 +25,7 @@ function nomInconnu(
   return returned;
 }
 
-function nomInconnu2(nRows: number, nColumns: number, values, formats, callback) {
+export function nomInconnu2(nRows: number, nColumns: number, values, formats, callback) {
   return nomInconnu(
     nRows,
     nColumns,

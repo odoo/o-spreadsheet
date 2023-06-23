@@ -8,7 +8,7 @@ import {
   PrimitiveArgValue,
 } from "../types";
 import { arg } from "./arguments";
-import { assert, toString, visitMatchingRanges } from "./helpers";
+import { assert, evaluateFormula, toString, visitMatchingRanges } from "./helpers";
 import { PRODUCT, SUM } from "./module_math";
 import { AVERAGE, COUNT, COUNTA, MAX, MIN, STDEV, STDEVP, VAR, VARP } from "./module_statistical";
 
@@ -171,7 +171,7 @@ export const DAVERAGE: AddFunctionDescription = {
     criteria: MatrixArgValue
   ): number {
     const cells = getMatchingCells(database, field, criteria);
-    return AVERAGE.compute([cells]) as number;
+    return evaluateFormula(AVERAGE, [cells]) as number;
   },
   isExported: true,
 };
@@ -189,7 +189,7 @@ export const DCOUNT: AddFunctionDescription = {
     criteria: MatrixArgValue
   ): number {
     const cells = getMatchingCells(database, field, criteria);
-    return COUNT.compute([cells]) as number;
+    return evaluateFormula(COUNT, [cells]) as number;
   },
   isExported: true,
 };
@@ -207,7 +207,7 @@ export const DCOUNTA: AddFunctionDescription = {
     criteria: MatrixArgValue
   ): number {
     const cells = getMatchingCells(database, field, criteria);
-    return COUNTA.compute([cells]) as number;
+    return evaluateFormula(COUNTA, [cells]) as number;
   },
   isExported: true,
 };
@@ -244,7 +244,7 @@ export const DMAX: AddFunctionDescription = {
     criteria: MatrixArgValue
   ): number {
     const cells = getMatchingCells(database, field, criteria);
-    return MAX.compute([cells]) as number;
+    return evaluateFormula(MAX, [cells]) as number;
   },
   isExported: true,
 };
@@ -262,7 +262,7 @@ export const DMIN: AddFunctionDescription = {
     criteria: MatrixArgValue
   ): number {
     const cells = getMatchingCells(database, field, criteria);
-    return MIN.compute([cells]) as number;
+    return evaluateFormula(MIN, [cells]) as number;
   },
   isExported: true,
 };
@@ -280,7 +280,7 @@ export const DPRODUCT: AddFunctionDescription = {
     criteria: MatrixArgValue
   ): number {
     const cells = getMatchingCells(database, field, criteria);
-    return PRODUCT.compute([cells]) as number;
+    return evaluateFormula(PRODUCT, [cells]) as number;
   },
   isExported: true,
 };
@@ -298,7 +298,7 @@ export const DSTDEV: AddFunctionDescription = {
     criteria: MatrixArgValue
   ): number {
     const cells = getMatchingCells(database, field, criteria);
-    return STDEV.compute([cells]) as number;
+    return evaluateFormula(STDEV, [cells]) as number;
   },
   isExported: true,
 };
@@ -316,7 +316,7 @@ export const DSTDEVP: AddFunctionDescription = {
     criteria: MatrixArgValue
   ): number {
     const cells = getMatchingCells(database, field, criteria);
-    return STDEVP.compute([cells]) as number;
+    return evaluateFormula(STDEVP, [cells]) as number;
   },
   isExported: true,
 };
@@ -334,7 +334,7 @@ export const DSUM: AddFunctionDescription = {
     criteria: MatrixArgValue
   ): number {
     const cells = getMatchingCells(database, field, criteria);
-    return SUM.compute([cells]) as number;
+    return evaluateFormula(SUM, [cells]) as number;
   },
   isExported: true,
 };
@@ -352,7 +352,7 @@ export const DVAR: AddFunctionDescription = {
     criteria: MatrixArgValue
   ): number {
     const cells = getMatchingCells(database, field, criteria);
-    return VAR.compute([cells]) as number;
+    return evaluateFormula(VAR, [cells]) as number;
   },
   isExported: true,
 };
@@ -370,7 +370,7 @@ export const DVARP: AddFunctionDescription = {
     criteria: MatrixArgValue
   ): number {
     const cells = getMatchingCells(database, field, criteria);
-    return VARP.compute([cells]) as number;
+    return evaluateFormula(VARP, [cells]) as number;
   },
   isExported: true,
 };

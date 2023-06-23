@@ -2,7 +2,15 @@
 import { numberToJsDate, parseDateTime } from "../helpers/dates";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _lt } from "../translation";
-import { ArgValue, CellValue, isMatrix, Matrix, MatrixArgValue, PrimitiveArgValue } from "../types";
+import {
+  AddFunctionDescription,
+  ArgValue,
+  CellValue,
+  isMatrix,
+  Matrix,
+  MatrixArgValue,
+  PrimitiveArgValue,
+} from "../types";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
 
@@ -778,4 +786,14 @@ export function flattenRowFirst<T, M>(items: Array<T | Matrix<T>>, callback: (va
     }
   }
   return flattened;
+}
+
+export function evaluateFormula(formula: AddFunctionDescription, ...values) {
+  if ("compute" in formula) {
+    return formula.compute(...values);
+  }
+  if ("computeValueAndFormat" in formula) {
+    return formula.computeValueAndFormat(...values).value;
+  }
+  return undefined;
 }

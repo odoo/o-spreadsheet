@@ -3,7 +3,6 @@ import {
   AddFunctionDescription,
   Arg,
   ArgValue,
-  isMatrix,
   MatrixArgValue,
   PrimitiveArg,
   PrimitiveArgValue,
@@ -11,6 +10,7 @@ import {
 import { arg } from "./arguments";
 import {
   assert,
+  evaluateFormula,
   reduceAny,
   reduceNumbers,
   strictToNumber,
@@ -343,7 +343,7 @@ export const CEILING_PRECISE: AddFunctionDescription = {
   returns: ["NUMBER"],
   computeFormat: (number: PrimitiveArg) => number?.format,
   compute: function (number: PrimitiveArgValue, significance: PrimitiveArgValue): number {
-    return CEILING_MATH.compute(number, significance, 0) as number;
+    return evaluateFormula(CEILING_MATH, number, significance, 0) as number;
   },
   isExported: true,
 };
@@ -764,7 +764,7 @@ export const FLOOR_PRECISE: AddFunctionDescription = {
     number: PrimitiveArgValue,
     significance: PrimitiveArgValue = DEFAULT_SIGNIFICANCE
   ): number {
-    return FLOOR_MATH.compute(number, significance, 0) as number;
+    return evaluateFormula(FLOOR_MATH, number, significance, 0) as number;
   },
   isExported: true,
 };
@@ -805,7 +805,7 @@ export const ISO_CEILING: AddFunctionDescription = {
     number: PrimitiveArgValue,
     significance: PrimitiveArgValue = DEFAULT_SIGNIFICANCE
   ): number {
-    return CEILING_MATH.compute(number, significance, 0) as number;
+    return evaluateFormula(CEILING_MATH, number, significance, 0) as number;
   },
   isExported: true,
 };
@@ -1404,22 +1404,6 @@ export const TRUNC: AddFunctionDescription = {
       _places = Math.trunc(_places);
     }
     return Math.trunc(_value * Math.pow(10, _places)) / Math.pow(10, _places);
-  },
-  isExported: true,
-};
-
-export const TRANSPOSE: AddFunctionDescription = {
-  description: _lt("Transposes the rows and columns of a range."),
-  args: [arg("range (any, range<any>)", _lt("The range to be transposed."))],
-  returns: ["RANGE"],
-  computeValueAndFormat: (arg: Arg) => {
-    const values = isMatrix(arg.value) ? arg.value : [[arg.value]];
-    const formats = isMatrix(arg.format) && arg.format !== undefined ? arg.format : [[arg.format]];
-    const nColumns = values[0].length;
-    const nRows = values.length;
-
-    // return nomInconnu(nRows, nColumns, values, formats, (i,j) => values[j][i], (i,j) => formats[j][i]);
-    return nomInconnu2(nRows, nColumns, values, formats, (i, j, arg) => arg[j][i]);
   },
   isExported: true,
 };

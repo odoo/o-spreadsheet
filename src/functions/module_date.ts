@@ -17,6 +17,7 @@ import { AddFunctionDescription, ArgValue, PrimitiveArgValue } from "../types";
 import { arg } from "./arguments";
 import {
   assert,
+  evaluateFormula,
   expectStringSetError,
   toBoolean,
   toJsDate,
@@ -255,7 +256,7 @@ export const DAYS360: AddFunctionDescription = {
     const _endDate = toNumber(endDate);
     const dayCountConvention = toBoolean(method) ? 4 : 0;
 
-    const yearFrac = YEARFRAC.compute(startDate, endDate, dayCountConvention) as number;
+    const yearFrac = evaluateFormula(YEARFRAC, _startDate, _endDate, dayCountConvention) as number;
     return Math.sign(_endDate - _startDate) * Math.round(yearFrac * 360);
   },
   isExported: true,
@@ -464,7 +465,7 @@ export const NETWORKDAYS: AddFunctionDescription = {
     endDate: PrimitiveArgValue,
     holidays: ArgValue
   ): number {
-    return NETWORKDAYS_INTL.compute(startDate, endDate, 1, holidays) as number;
+    return evaluateFormula(NETWORKDAYS_INTL, startDate, endDate, 1, holidays) as number;
   },
   isExported: true,
 };
@@ -777,7 +778,7 @@ export const WEEKNUM: AddFunctionDescription = {
     );
 
     if (_type === 21) {
-      return ISOWEEKNUM.compute(date) as number;
+      return evaluateFormula(ISOWEEKNUM, date) as number;
     }
 
     let startDayOfWeek: number;
@@ -831,7 +832,7 @@ export const WORKDAY: AddFunctionDescription = {
     numDays: PrimitiveArgValue,
     holidays: ArgValue | undefined = undefined
   ): number {
-    return WORKDAY_INTL.compute(startDate, numDays, 1, holidays) as number;
+    return evaluateFormula(WORKDAY_INTL, startDate, numDays, 1, holidays) as number;
   },
   isExported: true,
 };
@@ -997,7 +998,7 @@ export const MONTH_END: AddFunctionDescription = {
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
   compute: function (date: PrimitiveArgValue): number {
-    return EOMONTH.compute(date, 0) as number;
+    return evaluateFormula(EOMONTH, date, 0) as number;
   },
 };
 
@@ -1022,8 +1023,8 @@ export const QUARTER_START: AddFunctionDescription = {
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
   compute: function (date: PrimitiveArgValue): number {
-    const quarter = QUARTER.compute(date) as number;
-    const year = YEAR.compute(date) as number;
+    const quarter = evaluateFormula(QUARTER, date) as number;
+    const year = evaluateFormula(YEAR, date) as number;
     const jsDate = new Date(year, (quarter - 1) * 3, 1);
     return jsDateToRoundNumber(jsDate);
   },
@@ -1038,8 +1039,8 @@ export const QUARTER_END: AddFunctionDescription = {
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
   compute: function (date: PrimitiveArgValue): number {
-    const quarter = QUARTER.compute(date) as number;
-    const year = YEAR.compute(date) as number;
+    const quarter = evaluateFormula(QUARTER, date) as number;
+    const year = evaluateFormula(YEAR, date) as number;
     const jsDate = new Date(year, quarter * 3, 0);
     return jsDateToRoundNumber(jsDate);
   },
@@ -1054,7 +1055,7 @@ export const YEAR_START: AddFunctionDescription = {
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
   compute: function (date: PrimitiveArgValue): number {
-    const year = YEAR.compute(date) as number;
+    const year = evaluateFormula(YEAR, date) as number;
     const jsDate = new Date(year, 0, 1);
     return jsDateToRoundNumber(jsDate);
   },
@@ -1069,7 +1070,7 @@ export const YEAR_END: AddFunctionDescription = {
   returns: ["DATE"],
   computeFormat: () => "m/d/yyyy",
   compute: function (date: PrimitiveArgValue): number {
-    const year = YEAR.compute(date) as number;
+    const year = evaluateFormula(YEAR, date) as number;
     const jsDate = new Date(year + 1, 0, 0);
     return jsDateToRoundNumber(jsDate);
   },

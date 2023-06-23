@@ -6,6 +6,7 @@ import { arg } from "./arguments";
 import {
   assert,
   dichotomicSearch,
+  evaluateFormula,
   reduceAny,
   reduceNumbers,
   reduceNumbersTextAs0,
@@ -813,7 +814,7 @@ export const PERCENTILE: AddFunctionDescription = {
     return Array.isArray(data?.format) ? data.format[0][0] : data?.format;
   },
   compute: function (data: ArgValue, percentile: PrimitiveArgValue): number {
-    return PERCENTILE_INC.compute(data, percentile) as number;
+    return evaluateFormula(PERCENTILE_INC, data, percentile) as number;
   },
   isExported: true,
 };
@@ -878,7 +879,7 @@ export const QUARTILE: AddFunctionDescription = {
     return Array.isArray(data?.format) ? data.format[0][0] : data?.format;
   },
   compute: function (data: ArgValue, quartileNumber: PrimitiveArgValue): number {
-    return QUARTILE_INC.compute(data, quartileNumber) as number;
+    return evaluateFormula(QUARTILE_INC, data, quartileNumber) as number;
   },
   isExported: true,
 };
@@ -984,7 +985,7 @@ export const STDEV: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
-    return Math.sqrt(VAR.compute(...values) as number);
+    return Math.sqrt(evaluateFormula(VAR, ...values) as number);
   },
   isExported: true,
 };
@@ -1003,7 +1004,7 @@ export const STDEV_P: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
-    return Math.sqrt(VAR_P.compute(...values) as number);
+    return Math.sqrt(evaluateFormula(VAR_P, ...values) as number);
   },
   isExported: true,
 };
@@ -1022,7 +1023,7 @@ export const STDEV_S: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
-    return Math.sqrt(VAR_S.compute(...values) as number);
+    return Math.sqrt(evaluateFormula(VAR_S, ...values) as number);
   },
   isExported: true,
 };
@@ -1041,7 +1042,7 @@ export const STDEVA: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
-    return Math.sqrt(VARA.compute(...values) as number);
+    return Math.sqrt(evaluateFormula(VARA, ...values) as number);
   },
   isExported: true,
 };
@@ -1060,7 +1061,7 @@ export const STDEVP: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
-    return Math.sqrt(VARP.compute(...values) as number);
+    return Math.sqrt(evaluateFormula(VARP, ...values) as number);
   },
   isExported: true,
 };
@@ -1079,7 +1080,7 @@ export const STDEVPA: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
-    return Math.sqrt(VARPA.compute(...values) as number);
+    return Math.sqrt(evaluateFormula(VARPA, ...values) as number);
   },
   isExported: true,
 };

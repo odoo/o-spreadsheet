@@ -12,6 +12,7 @@ import { AddFunctionDescription, ArgValue, MatrixArgValue, PrimitiveArgValue } f
 import { arg } from "./arguments";
 import {
   assert,
+  evaluateFormula,
   reduceAny,
   reduceNumbers,
   strictToNumber,
@@ -161,7 +162,7 @@ export const ACCRINTM: AddFunctionDescription = {
     assertRedemptionStrictlyPositive(_redemption);
     assertRateStrictlyPositive(_rate);
 
-    const yearFrac = YEARFRAC.compute(start, end, dayCountConvention) as number;
+    const yearFrac = evaluateFormula(YEARFRAC, start, end, _dayCountConvention) as number;
     return _redemption * _rate * yearFrac;
   },
   isExported: true,
@@ -235,7 +236,8 @@ export const AMORLINC: AddFunctionDescription = {
     const roundedPeriod = _period < 1 && _period > 0 ? 1 : Math.trunc(_period);
 
     const deprec = _cost * _rate;
-    const yearFrac = YEARFRAC.compute(
+    const yearFrac = evaluateFormula(
+      YEARFRAC,
       _purchaseDate,
       _firstPeriodEnd,
       _dayCountConvention
@@ -277,8 +279,20 @@ export const COUPDAYS: AddFunctionDescription = {
 
     // https://wiki.documentfoundation.org/Documentation/Calc_Functions/COUPDAYS
     if (_dayCountConvention === 1) {
-      const before = COUPPCD.compute(settlement, maturity, frequency, dayCountConvention) as number;
-      const after = COUPNCD.compute(settlement, maturity, frequency, dayCountConvention) as number;
+      const before = evaluateFormula(
+        COUPPCD,
+        settlement,
+        maturity,
+        frequency,
+        dayCountConvention
+      ) as number;
+      const after = evaluateFormula(
+        COUPNCD,
+        settlement,
+        maturity,
+        frequency,
+        dayCountConvention
+      ) as number;
       return after - before;
     }
 
@@ -311,7 +325,13 @@ export const COUPDAYBS: AddFunctionDescription = {
     assertCouponFrequencyIsValid(_frequency);
     assertDayCountConventionIsValid(_dayCountConvention);
 
-    const couponBeforeStart = COUPPCD.compute(start, end, frequency, dayCountConvention) as number;
+    const couponBeforeStart = evaluateFormula(
+      COUPPCD,
+      start,
+      end,
+      frequency,
+      dayCountConvention
+    ) as number;
     if ([1, 2, 3].includes(_dayCountConvention)) {
       return start - couponBeforeStart;
     }
@@ -383,7 +403,13 @@ export const COUPDAYSNC: AddFunctionDescription = {
     assertCouponFrequencyIsValid(_frequency);
     assertDayCountConventionIsValid(_dayCountConvention);
 
-    const couponAfterStart = COUPNCD.compute(start, end, frequency, dayCountConvention) as number;
+    const couponAfterStart = evaluateFormula(
+      COUPNCD,
+      start,
+      end,
+      frequency,
+      dayCountConvention
+    ) as number;
     if ([1, 2, 3].includes(_dayCountConvention)) {
       return couponAfterStart - start;
     }
@@ -393,13 +419,15 @@ export const COUPDAYSNC: AddFunctionDescription = {
       return Math.round(yearFrac * 360);
     }
 
-    const coupDayBs = COUPDAYBS.compute(
+    const coupDayBs = evaluateFormula(
+      COUPDAYBS,
       settlement,
       maturity,
       frequency,
       _dayCountConvention
     ) as number;
-    const coupDays = COUPDAYS.compute(
+    const coupDays = evaluateFormula(
+      COUPDAYS,
       settlement,
       maturity,
       frequency,
@@ -436,7 +464,13 @@ export const COUPNCD: AddFunctionDescription = {
 
     const monthsPerPeriod = 12 / _frequency;
 
-    const coupNum = COUPNUM.compute(settlement, maturity, frequency, dayCountConvention) as number;
+    const coupNum = evaluateFormula(
+      COUPNUM,
+      settlement,
+      maturity,
+      frequency,
+      dayCountConvention
+    ) as number;
     const date = addMonthsToDate(toJsDate(end), -(coupNum - 1) * monthsPerPeriod, true);
     return jsDateToRoundNumber(date);
   },
@@ -507,7 +541,13 @@ export const COUPPCD: AddFunctionDescription = {
 
     const monthsPerPeriod = 12 / _frequency;
 
-    const coupNum = COUPNUM.compute(settlement, maturity, frequency, dayCountConvention) as number;
+    const coupNum = evaluateFormula(
+      COUPNUM,
+      settlement,
+      maturity,
+      frequency,
+      dayCountConvention
+    ) as number;
     const date = addMonthsToDate(toJsDate(end), -coupNum * monthsPerPeriod, true);
     return jsDateToRoundNumber(date);
   },
@@ -557,7 +597,15 @@ export const CUMIPMT: AddFunctionDescription = {
 
     let cumSum = 0;
     for (let i = first; i <= last; i++) {
-      const impt = IPMT.compute(rate, i, nOfPeriods, presentValue, 0, endOrBeginning) as number;
+      const impt = evaluateFormula(
+        IPMT,
+        rate,
+        i,
+        nOfPeriods,
+        presentValue,
+        0,
+        endOrBeginning
+      ) as number;
       cumSum += impt;
     }
 
@@ -609,7 +657,15 @@ export const CUMPRINC: AddFunctionDescription = {
 
     let cumSum = 0;
     for (let i = first; i <= last; i++) {
-      const ppmt = PPMT.compute(rate, i, nOfPeriods, presentValue, 0, endOrBeginning) as number;
+      const ppmt = evaluateFormula(
+        PPMT,
+        rate,
+        i,
+        nOfPeriods,
+        presentValue,
+        0,
+        endOrBeginning
+      ) as number;
       cumSum += ppmt;
     }
 
@@ -806,7 +862,12 @@ export const DISC: AddFunctionDescription = {
      * DISC = ____________________  *    ____
      *            redemption             DSM
      */
-    const yearsFrac = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention) as number;
+    const yearsFrac = evaluateFormula(
+      YEARFRAC,
+      _settlement,
+      _maturity,
+      _dayCountConvention
+    ) as number;
     return (_redemption - _price) / _redemption / yearsFrac;
   },
   isExported: true,
@@ -923,7 +984,7 @@ export const DURATION: AddFunctionDescription = {
     assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
     assert(() => _yield >= 0, _lt("The yield (%s) must be positive or null.", _yield.toString()));
 
-    const years = YEARFRAC.compute(start, end, _dayCountConvention) as number;
+    const years = evaluateFormula(YEARFRAC, start, end, _dayCountConvention) as number;
     const timeFirstYear = years - Math.trunc(years) || 1 / _frequency;
     const nbrCoupons = Math.ceil(years * _frequency);
 
@@ -1087,7 +1148,12 @@ export const INTRATE: AddFunctionDescription = {
      * INTRATE =  _________________________________________
      *              YEARFRAC(settlement, maturity, basis)
      */
-    const yearFrac = YEARFRAC.compute(_settlement, _maturity, dayCountConvention) as number;
+    const yearFrac = evaluateFormula(
+      YEARFRAC,
+      _settlement,
+      _maturity,
+      dayCountConvention
+    ) as number;
     return (_redemption - _investment) / _investment / yearFrac;
   },
   isExported: true,
@@ -1122,14 +1188,16 @@ export const IPMT: AddFunctionDescription = {
     futureValue: PrimitiveArgValue = DEFAULT_FUTURE_VALUE,
     endOrBeginning: PrimitiveArgValue = DEFAULT_END_OR_BEGINNING
   ): number {
-    const payment = PMT.compute(
+    const payment = evaluateFormula(
+      PMT,
       rate,
       numberOfPeriods,
       presentValue,
       futureValue,
       endOrBeginning
     ) as number;
-    const ppmt = PPMT.compute(
+    const ppmt = evaluateFormula(
+      PPMT,
       rate,
       currentPeriod,
       numberOfPeriods,
@@ -1296,7 +1364,8 @@ export const MDURATION: AddFunctionDescription = {
     frequency: PrimitiveArgValue,
     dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
-    const duration = DURATION.compute(
+    const duration = evaluateFormula(
+      DURATION,
       settlement,
       maturity,
       rate,
@@ -1647,13 +1716,13 @@ export const PPMT: AddFunctionDescription = {
       _lt("The period must be between 1 and number_of_periods", n.toString())
     );
 
-    const payment = PMT.compute(r, n, pv, fv, endOrBeginning) as number;
+    const payment = evaluateFormula(PMT, r, n, pv, fv, endOrBeginning) as number;
 
     if (type === 1 && period === 1) return payment;
     const eqPeriod = type === 0 ? period - 1 : period - 2;
     const eqPv = pv + payment * type;
 
-    const capitalAtPeriod = -(FV.compute(r, eqPeriod, payment, eqPv, 0) as number);
+    const capitalAtPeriod = -(evaluateFormula(FV, r, eqPeriod, payment, eqPv, 0) as number);
     const currentInterest = capitalAtPeriod * r;
     return payment + currentInterest;
   },
@@ -1758,7 +1827,7 @@ export const PRICE: AddFunctionDescription = {
     assert(() => _yield >= 0, _lt("The yield (%s) must be positive or null.", _yield.toString()));
     assertRedemptionStrictlyPositive(_redemption);
 
-    const years = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention) as number;
+    const years = evaluateFormula(YEARFRAC, _settlement, _maturity, _dayCountConvention) as number;
     const nbrRealCoupons = years * _frequency;
     const nbrFullCoupons = Math.ceil(nbrRealCoupons);
     const timeFirstCoupon = nbrRealCoupons - Math.floor(nbrRealCoupons) || 1;
@@ -1843,7 +1912,12 @@ export const PRICEDISC: AddFunctionDescription = {
      *
      * PRICEDISC = redemption - discount * redemption * (DSM/B)
      */
-    const yearsFrac = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention) as number;
+    const yearsFrac = evaluateFormula(
+      YEARFRAC,
+      _settlement,
+      _maturity,
+      _dayCountConvention
+    ) as number;
     return _redemption - _discount * _redemption * yearsFrac;
   },
   isExported: true,
@@ -1927,9 +2001,14 @@ export const PRICEMAT: AddFunctionDescription = {
      * from the results of Excel/LibreOffice, thus we get different values with PRICEMAT.
      *
      */
-    const settlementToMaturity = YEARFRAC.compute(_settlement, _maturity, _dayCount) as number;
-    const issueToSettlement = YEARFRAC.compute(_settlement, _issue, _dayCount) as number;
-    const issueToMaturity = YEARFRAC.compute(_issue, _maturity, _dayCount) as number;
+    const settlementToMaturity = evaluateFormula(
+      YEARFRAC,
+      _settlement,
+      _maturity,
+      _dayCount
+    ) as number;
+    const issueToSettlement = evaluateFormula(YEARFRAC, _settlement, _issue, _dayCount) as number;
+    const issueToMaturity = evaluateFormula(YEARFRAC, _issue, _maturity, _dayCount) as number;
 
     const numerator = 100 + issueToMaturity * _rate * 100;
     const denominator = 1 + settlementToMaturity * _yield;
@@ -2074,7 +2153,12 @@ export const RECEIVED: AddFunctionDescription = {
      *
      * The ratio DSM/B can be computed with the YEARFRAC function to take the dayCountConvention into account.
      */
-    const yearsFrac = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention) as number;
+    const yearsFrac = evaluateFormula(
+      YEARFRAC,
+      _settlement,
+      _maturity,
+      _dayCountConvention
+    ) as number;
     return _investment / (1 - _discount * yearsFrac);
   },
   isExported: true,
@@ -2235,7 +2319,7 @@ export const TBILLPRICE: AddFunctionDescription = {
      *
      * The ratio DSM/360 can be computed with the YEARFRAC function with dayCountConvention = 2 (actual/360).
      */
-    const yearFrac = YEARFRAC.compute(start, end, 2) as number;
+    const yearFrac = evaluateFormula(YEARFRAC, start, end, 2) as number;
     return 100 * (1 - disc * yearFrac);
   },
   isExported: true,
@@ -2303,12 +2387,12 @@ export const TBILLEQ: AddFunctionDescription = {
      *
      */
 
-    const nDays = DAYS.compute(end, start) as number;
+    const nDays = evaluateFormula(DAYS, end, start) as number;
     if (nDays <= 182) {
       return (365 * disc) / (360 - disc * nDays);
     }
 
-    const p = (TBILLPRICE.compute(start, end, disc) as number) / 100;
+    const p = (evaluateFormula(TBILLPRICE, start, end, disc) as number) / 100;
 
     const daysInYear = nDays === 366 ? 366 : 365;
     const x = nDays / daysInYear;
@@ -2367,7 +2451,7 @@ export const TBILLYIELD: AddFunctionDescription = {
      *
      */
 
-    const yearFrac = YEARFRAC.compute(start, end, 2) as number;
+    const yearFrac = evaluateFormula(YEARFRAC, start, end, 2) as number;
     return ((100 - p) / p) * (1 / yearFrac);
   },
   isExported: true,
@@ -2690,7 +2774,7 @@ export const YIELD: AddFunctionDescription = {
     assertPriceStrictlyPositive(_price);
     assertRedemptionStrictlyPositive(_redemption);
 
-    const years = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention) as number;
+    const years = evaluateFormula(YEARFRAC, _settlement, _maturity, _dayCountConvention) as number;
     const nbrRealCoupons = years * _frequency;
     const nbrFullCoupons = Math.ceil(nbrRealCoupons);
     const timeFirstCoupon = nbrRealCoupons - Math.floor(nbrRealCoupons) || 1;
@@ -2824,7 +2908,7 @@ export const YIELDDISC: AddFunctionDescription = {
      * YIELDDISC = _____________________________________
      *             YEARFRAC(settlement, maturity, basis)
      */
-    const yearFrac = YEARFRAC.compute(settlement, maturity, dayCountConvention) as number;
+    const yearFrac = evaluateFormula(YEARFRAC, settlement, maturity, dayCountConvention) as number;
     return (_redemption / _price - 1) / yearFrac;
   },
   isExported: true,
@@ -2888,9 +2972,20 @@ export const YIELDMAT: AddFunctionDescription = {
     assert(() => _rate >= 0, _lt("The rate (%s) must be positive or null.", _rate.toString()));
     assertPriceStrictlyPositive(_price);
 
-    const issueToMaturity = YEARFRAC.compute(_issue, _maturity, _dayCountConvention) as number;
-    const issueToSettlement = YEARFRAC.compute(_issue, _settlement, _dayCountConvention) as number;
-    const settlementToMaturity = YEARFRAC.compute(
+    const issueToMaturity = evaluateFormula(
+      YEARFRAC,
+      _issue,
+      _maturity,
+      _dayCountConvention
+    ) as number;
+    const issueToSettlement = evaluateFormula(
+      YEARFRAC,
+      _issue,
+      _settlement,
+      _dayCountConvention
+    ) as number;
+    const settlementToMaturity = evaluateFormula(
+      YEARFRAC,
       _settlement,
       _maturity,
       _dayCountConvention

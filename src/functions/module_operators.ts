@@ -6,7 +6,7 @@ import {
   PrimitiveArgValue,
 } from "../types";
 import { arg } from "./arguments";
-import { assert, toNumber, toString } from "./helpers";
+import { assert, evaluateFormula, toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
 
 // -----------------------------------------------------------------------------
@@ -158,7 +158,7 @@ export const LT: AddFunctionDescription = {
   ],
   returns: ["BOOLEAN"],
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): boolean {
-    return !GTE.compute(value1, value2);
+    return !evaluateFormula(GTE, value1, value2);
   },
 };
 
@@ -173,7 +173,7 @@ export const LTE: AddFunctionDescription = {
   ],
   returns: ["BOOLEAN"],
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): boolean {
-    return !GT.compute(value1, value2);
+    return !evaluateFormula(GT, value1, value2);
   },
 };
 
@@ -221,7 +221,7 @@ export const NE: AddFunctionDescription = {
   ],
   returns: ["BOOLEAN"],
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): boolean {
-    return !EQ.compute(value1, value2);
+    return !evaluateFormula(EQ, value1, value2);
   },
 };
 
@@ -236,7 +236,7 @@ export const POW: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (base: PrimitiveArgValue, exponent: PrimitiveArgValue): number {
-    return POWER.compute(base, exponent) as number;
+    return evaluateFormula(POWER, base, exponent) as number;
   },
 };
 
