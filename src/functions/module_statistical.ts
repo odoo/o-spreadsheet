@@ -1,14 +1,7 @@
 import { parseDateTime } from "../helpers/dates";
 import { isNumber, percentile } from "../helpers/index";
 import { _lt } from "../translation";
-import {
-  AddFunctionDescription,
-  Arg,
-  ArgValue,
-  isMatrix,
-  MatrixArgValue,
-  PrimitiveArgValue,
-} from "../types";
+import { Arg, ArgValue, isMatrix, MatrixArgValue, PrimitiveArgValue } from "../types";
 import { arg, typeCheckFunction } from "./arguments";
 import {
   assert,
@@ -146,7 +139,7 @@ function centile(data: ArgValue[], percent: PrimitiveArgValue, isInclusive: bool
 // -----------------------------------------------------------------------------
 // AVEDEV
 // -----------------------------------------------------------------------------
-export const AVEDEV: AddFunctionDescription = {
+export const AVEDEV = typeCheckFunction({
   description: _lt("Average magnitude of deviations from mean."),
   args: [
     arg("value1 (number, range<number>)", _lt("The first value or range of the sample.")),
@@ -156,7 +149,8 @@ export const AVEDEV: AddFunctionDescription = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (...values: ArgValue[]): number {
+  // this is wrong it must also be Matrix<number>
+  compute: function (...values: number[]): number {
     let count = 0;
     const sum = reduceNumbers(
       values,
@@ -174,12 +168,12 @@ export const AVEDEV: AddFunctionDescription = {
     return reduceNumbers(values, (acc, a) => acc + Math.abs(average - a), 0) / count;
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // AVERAGE
 // -----------------------------------------------------------------------------
-export const AVERAGE: AddFunctionDescription = {
+export const AVERAGE = typeCheckFunction({
   description: _lt(`Numerical average value in a dataset, ignoring text.`),
   args: [
     arg(
@@ -212,7 +206,7 @@ export const AVERAGE: AddFunctionDescription = {
     return sum / count;
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // AVERAGE.WEIGHTED
@@ -222,7 +216,7 @@ const negativeWeightError = _lt(
   `[[FUNCTION_NAME]] expects the weight to be positive or equal to 0.`
 );
 
-export const AVERAGE_WEIGHTED: AddFunctionDescription = {
+export const AVERAGE_WEIGHTED = typeCheckFunction({
   description: _lt(`Weighted average.`),
   args: [
     arg("values (number, range<number>)", _lt("Values to average.")),
@@ -296,12 +290,12 @@ export const AVERAGE_WEIGHTED: AddFunctionDescription = {
 
     return sum / count;
   },
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // AVERAGEA
 // -----------------------------------------------------------------------------
-export const AVERAGEA: AddFunctionDescription = {
+export const AVERAGEA = typeCheckFunction({
   description: _lt(`Numerical average value in a dataset.`),
   args: [
     arg(
@@ -334,7 +328,7 @@ export const AVERAGEA: AddFunctionDescription = {
     return sum / count;
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // AVERAGEIF
@@ -384,7 +378,7 @@ export const AVERAGEIF = typeCheckFunction({
 // -----------------------------------------------------------------------------
 // AVERAGEIFS
 // -----------------------------------------------------------------------------
-export const AVERAGEIFS: AddFunctionDescription = {
+export const AVERAGEIFS = typeCheckFunction({
   description: _lt(`Average of values depending on multiple criteria.`),
   args: [
     arg("average_range (range)", _lt("The range to average.")),
@@ -414,12 +408,12 @@ export const AVERAGEIFS: AddFunctionDescription = {
     return sum / count;
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // COUNT
 // -----------------------------------------------------------------------------
-export const COUNT: AddFunctionDescription = {
+export const COUNT = typeCheckFunction({
   description: _lt(`The number of numeric values in dataset.`),
   args: [
     arg(
@@ -450,12 +444,12 @@ export const COUNT: AddFunctionDescription = {
     return count;
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // COUNTA
 // -----------------------------------------------------------------------------
-export const COUNTA: AddFunctionDescription = {
+export const COUNTA = typeCheckFunction({
   description: _lt(`The number of values in a dataset.`),
   args: [
     arg("value1 (any, range)", _lt("The first value or range to consider when counting.")),
@@ -469,7 +463,7 @@ export const COUNTA: AddFunctionDescription = {
     return reduceAny(values, (acc, a) => (a !== undefined && a !== null ? acc + 1 : acc), 0);
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // COVAR
@@ -477,7 +471,7 @@ export const COUNTA: AddFunctionDescription = {
 
 // Note: Unlike the VAR function which corresponds to the variance over a sample (VAR.S),
 // the COVAR function corresponds to the covariance over an entire population (COVAR.P)
-export const COVAR: AddFunctionDescription = {
+export const COVAR = typeCheckFunction({
   description: _lt(`The covariance of a dataset.`),
   args: [
     arg(
@@ -494,12 +488,12 @@ export const COVAR: AddFunctionDescription = {
     return covariance(dataY, dataX, false);
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // COVARIANCE.P
 // -----------------------------------------------------------------------------
-export const COVARIANCE_P: AddFunctionDescription = {
+export const COVARIANCE_P = typeCheckFunction({
   description: _lt(`The covariance of a dataset.`),
   args: [
     arg(
@@ -516,12 +510,12 @@ export const COVARIANCE_P: AddFunctionDescription = {
     return covariance(dataY, dataX, false);
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // COVARIANCE.S
 // -----------------------------------------------------------------------------
-export const COVARIANCE_S: AddFunctionDescription = {
+export const COVARIANCE_S = typeCheckFunction({
   description: _lt(`The sample covariance of a dataset.`),
   args: [
     arg(
@@ -538,12 +532,12 @@ export const COVARIANCE_S: AddFunctionDescription = {
     return covariance(dataY, dataX, true);
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // LARGE
 // -----------------------------------------------------------------------------
-export const LARGE: AddFunctionDescription = {
+export const LARGE = typeCheckFunction({
   description: _lt("Nth largest element from a data set."),
   args: [
     arg("data (any, range)", _lt("Array or range containing the dataset to consider.")),
@@ -585,12 +579,12 @@ export const LARGE: AddFunctionDescription = {
     return result!;
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // MAX
 // -----------------------------------------------------------------------------
-export const MAX: AddFunctionDescription = {
+export const MAX = typeCheckFunction({
   description: _lt("Maximum value in a numeric dataset."),
   args: [
     arg(
@@ -611,12 +605,12 @@ export const MAX: AddFunctionDescription = {
     return result === -Infinity ? 0 : result;
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // MAXA
 // -----------------------------------------------------------------------------
-export const MAXA: AddFunctionDescription = {
+export const MAXA = typeCheckFunction({
   description: _lt("Maximum numeric value in a dataset."),
   args: [
     arg(
@@ -643,12 +637,12 @@ export const MAXA: AddFunctionDescription = {
     return maxa === -Infinity ? 0 : maxa;
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // MAXIFS
 // -----------------------------------------------------------------------------
-export const MAXIFS: AddFunctionDescription = {
+export const MAXIFS = typeCheckFunction({
   description: _lt("Returns the maximum value in a range of cells, filtered by a set of criteria."),
   args: [
     arg("range (range)", _lt("The range of cells from which the maximum will be determined.")),
@@ -679,12 +673,12 @@ export const MAXIFS: AddFunctionDescription = {
     return result === -Infinity ? 0 : result;
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // MEDIAN
 // -----------------------------------------------------------------------------
-export const MEDIAN: AddFunctionDescription = {
+export const MEDIAN = typeCheckFunction({
   description: _lt("Median value in a numeric dataset."),
   args: [
     arg(
@@ -708,12 +702,12 @@ export const MEDIAN: AddFunctionDescription = {
     return centile(data, 0.5, true);
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // MIN
 // -----------------------------------------------------------------------------
-export const MIN: AddFunctionDescription = {
+export const MIN = typeCheckFunction({
   description: _lt("Minimum value in a numeric dataset."),
   args: [
     arg(
@@ -734,12 +728,12 @@ export const MIN: AddFunctionDescription = {
     return result === Infinity ? 0 : result;
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // MINA
 // -----------------------------------------------------------------------------
-export const MINA: AddFunctionDescription = {
+export const MINA = typeCheckFunction({
   description: _lt("Minimum numeric value in a dataset."),
   args: [
     arg(
@@ -766,12 +760,12 @@ export const MINA: AddFunctionDescription = {
     return mina === Infinity ? 0 : mina;
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // MINIFS
 // -----------------------------------------------------------------------------
-export const MINIFS: AddFunctionDescription = {
+export const MINIFS = typeCheckFunction({
   description: _lt("Returns the minimum value in a range of cells, filtered by a set of criteria."),
   args: [
     arg("range (range)", _lt("The range of cells from which the minimum will be determined.")),
@@ -802,12 +796,12 @@ export const MINIFS: AddFunctionDescription = {
     return result === Infinity ? 0 : result;
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // PERCENTILE
 // -----------------------------------------------------------------------------
-export const PERCENTILE: AddFunctionDescription = {
+export const PERCENTILE = typeCheckFunction({
   description: _lt("Value at a given percentile of a dataset."),
   args: [
     arg("data (any, range)", _lt("The array or range containing the dataset to consider.")),
@@ -824,12 +818,12 @@ export const PERCENTILE: AddFunctionDescription = {
     return PERCENTILE_INC.compute(data, percentile) as number;
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // PERCENTILE.EXC
 // -----------------------------------------------------------------------------
-export const PERCENTILE_EXC: AddFunctionDescription = {
+export const PERCENTILE_EXC = typeCheckFunction({
   description: _lt("Value at a given percentile of a dataset exclusive of 0 and 1."),
   args: [
     arg("data (any, range)", _lt("The array or range containing the dataset to consider.")),
@@ -848,12 +842,12 @@ export const PERCENTILE_EXC: AddFunctionDescription = {
     return centile([data], percentile, false);
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // PERCENTILE.INC
 // -----------------------------------------------------------------------------
-export const PERCENTILE_INC: AddFunctionDescription = {
+export const PERCENTILE_INC = typeCheckFunction({
   description: _lt("Value at a given percentile of a dataset."),
   args: [
     arg("data (any, range)", _lt("The array or range containing the dataset to consider.")),
@@ -870,12 +864,12 @@ export const PERCENTILE_INC: AddFunctionDescription = {
     return centile([data], percentile, true);
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // QUARTILE
 // -----------------------------------------------------------------------------
-export const QUARTILE: AddFunctionDescription = {
+export const QUARTILE = typeCheckFunction({
   description: _lt("Value nearest to a specific quartile of a dataset."),
   args: [
     arg("data (any, range)", _lt("The array or range containing the dataset to consider.")),
@@ -889,12 +883,12 @@ export const QUARTILE: AddFunctionDescription = {
     return QUARTILE_INC.compute(data, quartileNumber) as number;
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // QUARTILE.EXC
 // -----------------------------------------------------------------------------
-export const QUARTILE_EXC: AddFunctionDescription = {
+export const QUARTILE_EXC = typeCheckFunction({
   description: _lt("Value nearest to a specific quartile of a dataset exclusive of 0 and 4."),
   args: [
     arg("data (any, range)", _lt("The array or range containing the dataset to consider.")),
@@ -909,12 +903,12 @@ export const QUARTILE_EXC: AddFunctionDescription = {
     return centile([data], 0.25 * _quartileNumber, false);
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // QUARTILE.INC
 // -----------------------------------------------------------------------------
-export const QUARTILE_INC: AddFunctionDescription = {
+export const QUARTILE_INC = typeCheckFunction({
   description: _lt("Value nearest to a specific quartile of a dataset."),
   args: [
     arg("data (any, range)", _lt("The array or range containing the dataset to consider.")),
@@ -929,12 +923,12 @@ export const QUARTILE_INC: AddFunctionDescription = {
     return centile([data], 0.25 * _quartileNumber, true);
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // SMALL
 // -----------------------------------------------------------------------------
-export const SMALL: AddFunctionDescription = {
+export const SMALL = typeCheckFunction({
   description: _lt("Nth smallest element in a data set."),
   args: [
     arg("data (any, range)", _lt("The array or range containing the dataset to consider.")),
@@ -976,12 +970,12 @@ export const SMALL: AddFunctionDescription = {
     return result!;
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // STDEV
 // -----------------------------------------------------------------------------
-export const STDEV: AddFunctionDescription = {
+export const STDEV = typeCheckFunction({
   description: _lt("Standard deviation."),
   args: [
     arg("value1 (number, range<number>)", _lt("The first value or range of the sample.")),
@@ -995,12 +989,12 @@ export const STDEV: AddFunctionDescription = {
     return Math.sqrt(VAR.compute(...values) as number);
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // STDEV.P
 // -----------------------------------------------------------------------------
-export const STDEV_P: AddFunctionDescription = {
+export const STDEV_P = typeCheckFunction({
   description: _lt("Standard deviation of entire population."),
   args: [
     arg("value1 (number, range<number>)", _lt("The first value or range of the population.")),
@@ -1014,12 +1008,12 @@ export const STDEV_P: AddFunctionDescription = {
     return Math.sqrt(VAR_P.compute(...values) as number);
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // STDEV.S
 // -----------------------------------------------------------------------------
-export const STDEV_S: AddFunctionDescription = {
+export const STDEV_S = typeCheckFunction({
   description: _lt("Standard deviation."),
   args: [
     arg("value1 (number, range<number>)", _lt("The first value or range of the sample.")),
@@ -1033,12 +1027,12 @@ export const STDEV_S: AddFunctionDescription = {
     return Math.sqrt(VAR_S.compute(...values) as number);
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // STDEVA
 // -----------------------------------------------------------------------------
-export const STDEVA: AddFunctionDescription = {
+export const STDEVA = typeCheckFunction({
   description: _lt("Standard deviation of sample (text as 0)."),
   args: [
     arg("value1 (number, range<number>)", _lt("The first value or range of the sample.")),
@@ -1052,12 +1046,12 @@ export const STDEVA: AddFunctionDescription = {
     return Math.sqrt(VARA.compute(...values) as number);
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // STDEVP
 // -----------------------------------------------------------------------------
-export const STDEVP: AddFunctionDescription = {
+export const STDEVP = typeCheckFunction({
   description: _lt("Standard deviation of entire population."),
   args: [
     arg("value1 (number, range<number>)", _lt("The first value or range of the population.")),
@@ -1071,12 +1065,12 @@ export const STDEVP: AddFunctionDescription = {
     return Math.sqrt(VARP.compute(...values) as number);
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // STDEVPA
 // -----------------------------------------------------------------------------
-export const STDEVPA: AddFunctionDescription = {
+export const STDEVPA = typeCheckFunction({
   description: _lt("Standard deviation of entire population (text as 0)."),
   args: [
     arg("value1 (number, range<number>)", _lt("The first value or range of the population.")),
@@ -1090,12 +1084,12 @@ export const STDEVPA: AddFunctionDescription = {
     return Math.sqrt(VARPA.compute(...values) as number);
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // VAR
 // -----------------------------------------------------------------------------
-export const VAR: AddFunctionDescription = {
+export const VAR = typeCheckFunction({
   description: _lt("Variance."),
   args: [
     arg("value1 (number, range<number>)", _lt("The first value or range of the sample.")),
@@ -1109,12 +1103,12 @@ export const VAR: AddFunctionDescription = {
     return variance(values, true, false);
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // VAR.P
 // -----------------------------------------------------------------------------
-export const VAR_P: AddFunctionDescription = {
+export const VAR_P = typeCheckFunction({
   description: _lt("Variance of entire population."),
   args: [
     arg("value1 (number, range<number>)", _lt("The first value or range of the population.")),
@@ -1128,12 +1122,12 @@ export const VAR_P: AddFunctionDescription = {
     return variance(values, false, false);
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // VAR.S
 // -----------------------------------------------------------------------------
-export const VAR_S: AddFunctionDescription = {
+export const VAR_S = typeCheckFunction({
   description: _lt("Variance."),
   args: [
     arg("value1 (number, range<number>)", _lt("The first value or range of the sample.")),
@@ -1147,12 +1141,12 @@ export const VAR_S: AddFunctionDescription = {
     return variance(values, true, false);
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // VARA
 // -----------------------------------------------------------------------------
-export const VARA: AddFunctionDescription = {
+export const VARA = typeCheckFunction({
   description: _lt("Variance of sample (text as 0)."),
   args: [
     arg("value1 (number, range<number>)", _lt("The first value or range of the sample.")),
@@ -1166,12 +1160,12 @@ export const VARA: AddFunctionDescription = {
     return variance(values, true, true);
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // VARP
 // -----------------------------------------------------------------------------
-export const VARP: AddFunctionDescription = {
+export const VARP = typeCheckFunction({
   description: _lt("Variance of entire population."),
   args: [
     arg("value1 (number, range<number>)", _lt("The first value or range of the population.")),
@@ -1185,12 +1179,12 @@ export const VARP: AddFunctionDescription = {
     return variance(values, false, false);
   },
   isExported: true,
-};
+} as const);
 
 // -----------------------------------------------------------------------------
 // VARPA
 // -----------------------------------------------------------------------------
-export const VARPA: AddFunctionDescription = {
+export const VARPA = typeCheckFunction({
   description: _lt("Variance of entire population (text as 0)."),
   args: [
     arg("value1 (number, range<number>)", _lt("The first value or range of the population.")),
@@ -1204,4 +1198,4 @@ export const VARPA: AddFunctionDescription = {
     return variance(values, false, true);
   },
   isExported: true,
-};
+} as const);
