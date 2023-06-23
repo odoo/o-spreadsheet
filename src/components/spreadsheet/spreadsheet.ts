@@ -22,8 +22,8 @@ import {
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
-import { useStoreProvider } from "../../store/hooks";
 import { ModelStore } from "../../store/model_store";
+import { useStoreProvider } from "../../store/store_hooks";
 import { _lt } from "../../translation";
 import { Pixel, SpreadsheetChildEnv } from "../../types";
 import { NotifyUIEvent } from "../../types/ui";

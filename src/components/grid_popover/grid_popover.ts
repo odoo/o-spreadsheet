@@ -2,7 +2,7 @@ import { Component } from "@odoo/owl";
 import { cellPopoverRegistry } from "../../registries";
 import { CellPopover } from "../../store/cell_popover";
 import { CQS } from "../../store/dependency_container";
-import { useStore } from "../../store/hooks";
+import { useStore } from "../../store/store_hooks";
 import { Rect, SpreadsheetChildEnv } from "../../types";
 import { ClosedCellPopover, PositionedCellPopover } from "../../types/cell_popovers";
 import { ErrorToolTipPopoverBuilder } from "../error_tooltip/error_tooltip";

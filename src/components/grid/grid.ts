@@ -23,8 +23,8 @@ import { INSERT_LINK } from "../../registries/menus/menu_items_actions";
 import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
 import { CellPopover } from "../../store/cell_popover";
 import { CQS } from "../../store/dependency_container";
-import { useStore } from "../../store/hooks";
 import { HoveredCell } from "../../store/hovered_cell";
+import { useStore } from "../../store/store_hooks";
 import { _lt } from "../../translation";
 import {
   CellValueType,

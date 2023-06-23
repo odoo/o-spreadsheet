@@ -8,23 +8,18 @@ import {
   PositionedCellPopover,
 } from "../types/cell_popovers";
 import { HoveredCell } from "./hovered_cell";
-import { ModelStore } from "./model_store";
-import { Store } from "./store";
+import { SpreadsheetStore } from "./spreadsheet_store";
 
-export class CellPopover extends Store {
+export class CellPopover extends SpreadsheetStore {
   private persistentPopover?: CellPosition & { type: CellPopoverType };
   private hoveredCell = this.get(HoveredCell);
-  private model = this.get(ModelStore);
-  private getters = this.get(ModelStore).getters;
+  private getters = this.model.getters;
 
-  constructor(get) {
-    super(get);
-    this.model.on("command-dispatched", this, (cmd: Command) => {
-      switch (cmd.type) {
-        case "ACTIVATE_SHEET":
-          this.close();
-      }
-    });
+  protected handle(cmd: Command) {
+    switch (cmd.type) {
+      case "ACTIVATE_SHEET":
+        this.close();
+    }
   }
 
   open({ col, row }: Position, type: CellPopoverType): void {

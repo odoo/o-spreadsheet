@@ -3,8 +3,8 @@ import { positionToZone } from "../../helpers/zones";
 import { clickableCellRegistry } from "../../registries/cell_clickable_registry";
 import { CellPopover } from "../../store/cell_popover";
 import { CQS } from "../../store/dependency_container";
-import { useStore } from "../../store/hooks";
 import { HoveredCell } from "../../store/hovered_cell";
+import { useStore } from "../../store/store_hooks";
 import {
   CellPosition,
   DOMCoordinates,

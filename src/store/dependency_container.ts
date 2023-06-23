@@ -5,6 +5,10 @@ export interface StoreConstructor<T = any> {
   new (get: Get): T;
 }
 
+export interface DisposableStore {
+  dispose(): void;
+}
+
 /**
  * A function used to inject dependencies in a store constructor
  */

@@ -4,7 +4,7 @@ import { toXC } from "../../../helpers";
 import { openLink, urlRepresentation } from "../../../helpers/links";
 import { CellPopover } from "../../../store/cell_popover";
 import { CQS } from "../../../store/dependency_container";
-import { useStore } from "../../../store/hooks";
+import { useStore } from "../../../store/store_hooks";
 import { EvaluatedCell, Link, Position, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { css } from "../../helpers/css";
