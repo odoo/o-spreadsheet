@@ -1,11 +1,14 @@
 import { useEffect, useRef } from "@odoo/owl";
 import { Model } from "../..";
 import { CANVAS_SHIFT } from "../../constants";
+import { CanvasStore } from "../../store/canvas_store";
+import { useStoreProvider } from "../../store/store_hooks";
 import { DOMDimension } from "../../types";
 
 export function useGridDrawing(refName: string, model: Model, canvasSize: () => DOMDimension) {
   const canvasRef = useRef(refName);
   useEffect(drawGrid);
+  const stores = useStoreProvider();
 
   function drawGrid() {
     const canvas = canvasRef.el as HTMLCanvasElement;
@@ -17,6 +20,7 @@ export function useGridDrawing(refName: string, model: Model, canvasSize: () => 
       dpr,
       thinLineWidth,
     };
+    stores.inject(CanvasStore, renderingContext);
     const { width, height } = canvasSize();
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
@@ -32,5 +36,6 @@ export function useGridDrawing(refName: string, model: Model, canvasSize: () => 
     ctx.translate(-CANVAS_SHIFT, -CANVAS_SHIFT);
     ctx.scale(dpr, dpr);
     model.drawGrid(renderingContext);
+    // layers ??
   }
 }

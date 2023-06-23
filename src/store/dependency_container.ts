@@ -1,16 +1,17 @@
 /**
  * An injectable store constructor
  */
-export interface StoreConstructor<T = any> {
-  new (get: Get): T;
-}
-export interface DisposableStoreConstructor<T extends DisposableStore = any> {
-  new (get: Get): T;
+export interface StoreConstructor<T = any, A extends any[] = any[]> {
+  new (get: Get, ...args: A): T;
 }
 
 export interface DisposableStore {
   dispose(): void;
 }
+
+export type DisposableStoreConstructor<T extends DisposableStore = any> = StoreConstructor<T>;
+
+export type StoreParameters<T extends StoreConstructor> = SkipFirst<ConstructorParameters<T>>;
 
 /**
  * A function used to inject dependencies in a store constructor
@@ -42,10 +43,12 @@ export class DependencyContainer {
     return this.dependencies.get(Store);
   }
 
-  instantiate<T>(Store: StoreConstructor<T>): T {
-    return this.factory.build(Store);
+  instantiate<T>(Store: StoreConstructor<T>, ...args: StoreParameters<StoreConstructor<T>>): T {
+    return this.factory.build(Store, ...args);
   }
 }
+
+type SkipFirst<T extends any[]> = T extends [any, ...infer U] ? U : never;
 
 class StoreFactory {
   private building: Set<StoreConstructor<any>> = new Set();
@@ -55,14 +58,14 @@ class StoreFactory {
    * Build a store instance and get all its dependencies
    * while detecting and preventing circular dependencies
    */
-  build<T>(Store: StoreConstructor<T>): T {
+  build<T>(Store: StoreConstructor<T>, ...args: StoreParameters<StoreConstructor<T>>): T {
     if (this.building.has(Store)) {
       throw new Error(
         `Circular dependency detected: ${[...this.building, Store].map((s) => s.name).join(" -> ")}`
       );
     }
     this.building.add(Store);
-    const instance = new Store(this.get);
+    const instance = new Store(this.get, ...args);
     this.building.delete(Store);
     return instance;
   }
@@ -78,6 +81,7 @@ export function createValueStore<T extends object>(value: () => T): StoreConstru
 }
 
 export type Store<T> = CQS<T>;
+// export type DisposableStore<T> = Omit<Store<T>, "dispose">;
 
 /**
  * Command Query Separation [1,2] implementation with types.
@@ -98,7 +102,7 @@ type CQS<T> = {
  * Force any function to never return anything, effectively
  * making it write-only.
  */
-type NeverReturns<T> = T extends (...args: any[]) => any ? (...args: Parameters<T>) => never : T;
+type NeverReturns<T> = T extends (...args: any[]) => any ? (...args: Parameters<T>) => void : T;
 
 // Design ==================
 // make it easy to read (computed properties)

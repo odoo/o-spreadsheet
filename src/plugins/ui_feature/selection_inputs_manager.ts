@@ -1,4 +1,4 @@
-import { positionToZone, rangeReference, splitReference } from "../../helpers/index";
+import { rangeReference, splitReference } from "../../helpers/index";
 import { Command, CommandResult, Highlight, LAYERS, UID } from "../../types/index";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 import { RangeInputValue, SelectionInputPlugin } from "./selection_input";
@@ -13,8 +13,8 @@ import { RangeInputValue, SelectionInputPlugin } from "./selection_input";
 export class SelectionInputsManagerPlugin extends UIPlugin {
   static layers = [LAYERS.Highlights];
   static getters = [
-    "getSelectionInput",
-    "getSelectionInputValue",
+    // "getSelectionInput",
+    // "getSelectionInputValue",
     "isRangeValid",
     "getSelectionInputHighlights",
   ] as const;
@@ -26,7 +26,7 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
     return this.focusedInputId ? this.inputs[this.focusedInputId] : null;
   }
 
-  constructor(private config: UIPluginConfig) {
+  constructor(config: UIPluginConfig) {
     super(config);
   }
   // ---------------------------------------------------------------------------
@@ -34,13 +34,15 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   allowDispatch(cmd: Command): CommandResult {
-    switch (cmd.type) {
-      case "FOCUS_RANGE":
-        const index = this.currentInput?.getIndex(cmd.rangeId);
-        if (this.focusedInputId === cmd.id && this.currentInput?.focusedRangeIndex === index) {
-          return CommandResult.InputAlreadyFocused;
-        }
-        break;
+    switch (
+      cmd.type
+      // case "FOCUS_RANGE":
+      //   const index = this.currentInput?.getIndex(cmd.rangeId);
+      //   if (this.focusedInputId === cmd.id && this.currentInput?.focusedRangeIndex === index) {
+      //     return CommandResult.InputAlreadyFocused;
+      //   }
+      //   break;
+    ) {
     }
     if (this.currentInput) {
       return this.currentInput.allowDispatch(cmd);
@@ -49,49 +51,48 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
   }
 
   handle(cmd: Command) {
-    switch (cmd.type) {
-      case "ENABLE_NEW_SELECTION_INPUT":
-        this.initInput(cmd.id, cmd.initialRanges || [], cmd.hasSingleRange);
-        break;
-      case "DISABLE_SELECTION_INPUT":
-        if (this.focusedInputId === cmd.id) {
-          this.unfocus();
-        }
-        delete this.inputs[cmd.id];
-        break;
-      case "UNFOCUS_SELECTION_INPUT":
-        this.unfocus();
-        break;
-
-      case "ADD_EMPTY_RANGE":
-      case "REMOVE_RANGE":
-        if (cmd.id !== this.focusedInputId) {
-          const input = this.inputs[cmd.id];
-          this.selection.capture(
-            input,
-            { cell: { col: 0, row: 0 }, zone: positionToZone({ col: 0, row: 0 }) },
-            { handleEvent: input.handleEvent.bind(input) }
-          );
-          this.focusedInputId = cmd.id;
-        }
-        break;
-      case "FOCUS_RANGE":
-      case "CHANGE_RANGE":
-        if (cmd.id !== this.focusedInputId) {
-          const input = this.inputs[cmd.id];
-          const range = input.ranges.find((range) => range.id === cmd.rangeId);
-          const sheetId = this.getters.getActiveSheetId();
-          const zone = this.getters.getRangeFromSheetXC(sheetId, range?.xc || "A1").zone;
-          this.selection.capture(
-            input,
-            { cell: { col: zone.left, row: zone.top }, zone },
-            { handleEvent: input.handleEvent.bind(input) }
-          );
-          this.focusedInputId = cmd.id;
-        }
-        break;
-    }
-    this.currentInput?.handle(cmd);
+    // switch (cmd.type) {
+    //   case "ENABLE_NEW_SELECTION_INPUT":
+    //     this.initInput(cmd.id, cmd.initialRanges || [], cmd.hasSingleRange);
+    //     break;
+    //   // case "DISABLE_SELECTION_INPUT":
+    //   //   if (this.focusedInputId === cmd.id) {
+    //   //     this.unfocus();
+    //   //   }
+    //   //   delete this.inputs[cmd.id];
+    //     break;
+    //   case "UNFOCUS_SELECTION_INPUT":
+    //     this.unfocus();
+    //     break;
+    //   case "ADD_EMPTY_RANGE":
+    //   case "REMOVE_RANGE":
+    //     if (cmd.id !== this.focusedInputId) {
+    //       const input = this.inputs[cmd.id];
+    //       this.selection.capture(
+    //         input,
+    //         { cell: { col: 0, row: 0 }, zone: positionToZone({ col: 0, row: 0 }) },
+    //         { handleEvent: input.handleEvent.bind(input) }
+    //       );
+    //       this.focusedInputId = cmd.id;
+    //     }
+    //     break;
+    //   case "FOCUS_RANGE":
+    //   case "CHANGE_RANGE":
+    //     if (cmd.id !== this.focusedInputId) {
+    //       // const input = this.inputs[cmd.id];
+    //       // const range = input.ranges.find((range) => range.id === cmd.rangeId);
+    //       // const sheetId = this.getters.getActiveSheetId();
+    //       // const zone = this.getters.getRangeFromSheetXC(sheetId, range?.xc || "A1").zone;
+    //       // this.selection.capture(
+    //       //   input,
+    //       //   { cell: { col: zone.left, row: zone.top }, zone },
+    //       //   { handleEvent: input.handleEvent.bind(input) }
+    //       // );
+    //       this.focusedInputId = cmd.id;
+    //     }
+    //     break;
+    // }
+    // this.currentInput?.handle(cmd);
   }
 
   // ---------------------------------------------------------------------------
@@ -144,21 +145,21 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
   // Other
   // ---------------------------------------------------------------------------
 
-  private initInput(id: UID, initialRanges: string[], inputHasSingleRange: boolean = false) {
-    this.inputs[id] = new SelectionInputPlugin(this.config, initialRanges, inputHasSingleRange);
-    if (initialRanges.length === 0) {
-      const input = this.inputs[id];
-      const anchor = {
-        zone: positionToZone({ col: 0, row: 0 }),
-        cell: { col: 0, row: 0 },
-      };
-      this.selection.capture(input, anchor, { handleEvent: input.handleEvent.bind(input) });
-      this.focusedInputId = id;
-    }
-  }
+  // private initInput(id: UID, initialRanges: string[], inputHasSingleRange: boolean = false) {
+  //   this.inputs[id] = new SelectionInputPlugin(this.config, initialRanges, inputHasSingleRange);
+  //   if (initialRanges.length === 0) {
+  //     const input = this.inputs[id];
+  //     const anchor = {
+  //       zone: positionToZone({ col: 0, row: 0 }),
+  //       cell: { col: 0, row: 0 },
+  //     };
+  //     this.selection.capture(input, anchor, { handleEvent: input.handleEvent.bind(input) });
+  //     this.focusedInputId = id;
+  //   }
+  // }
 
-  private unfocus() {
-    this.selection.release(this.currentInput!);
-    this.focusedInputId = null;
-  }
+  // private unfocus() {
+  //   this.selection.release(this.currentInput!);
+  //   this.focusedInputId = null;
+  // }
 }

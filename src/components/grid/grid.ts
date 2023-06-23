@@ -398,6 +398,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       }
     };
     const onMouseUp = () => {
+      // what is this?
       this.env.model.dispatch("STOP_SELECTION_INPUT");
       if (this.env.model.getters.isPaintingFormat()) {
         this.env.model.dispatch("PASTE", {

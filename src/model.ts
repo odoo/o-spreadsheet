@@ -541,9 +541,16 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   drawGrid(context: GridRenderingContext) {
     // we make sure here that the viewport is properly positioned: the offsets
     // correspond exactly to a cell
+    const alreadyDrawn = new Set<LAYERS>(); // c'est pas beau => reverse structure and it will be ok
     for (let [renderer, layer] of this.renderers) {
       context.ctx.save();
       renderer.drawGrid(context, layer);
+      // duplicate calls with the same layer
+      if (!alreadyDrawn.has(layer)) {
+        this.dispatch("RENDER_CANVAS", { layer });
+      }
+      alreadyDrawn.add(layer);
+      // this.dispatch()
       context.ctx.restore();
     }
   }

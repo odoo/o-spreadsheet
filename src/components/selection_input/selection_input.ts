@@ -1,20 +1,15 @@
-import {
-  Component,
-  onMounted,
-  onPatched,
-  onWillUnmount,
-  useEffect,
-  useRef,
-  useState,
-} from "@odoo/owl";
+import { Component, onPatched, useEffect, useRef, useState } from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../../constants";
-import { UuidGenerator } from "../../helpers/index";
+// import { UuidGenerator } from "../../helpers/index";
 import { RangeInputValue } from "../../plugins/ui_feature/selection_input";
+import { Store } from "../../store/dependency_container";
+import { SelectionInputStore } from "../../store/selection_input_store";
+import { useLocalStore } from "../../store/store_hooks";
 import { SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 
-const uuidGenerator = new UuidGenerator();
+// const uuidGenerator = new UuidGenerator();
 
 css/* scss */ `
   .o-selection {
@@ -94,7 +89,7 @@ interface SelectionRange extends Omit<RangeInputValue, "color"> {
  */
 export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SelectionInput";
-  private id = uuidGenerator.uuidv4();
+  // private id = uuidGenerator.uuidv4();
   private previousRanges: string[] = this.props.ranges || [];
   private originSheet = this.env.model.getters.getActiveSheetId();
   private state: State = useState({
@@ -102,9 +97,11 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     mode: "select-range",
   });
   private focusedInput = useRef("focusedInput");
+  private store!: Store<SelectionInputStore>;
 
   get ranges(): SelectionRange[] {
-    const existingSelectionRange = this.env.model.getters.getSelectionInput(this.id);
+    // const existingSelectionRange = this.env.model.getters.getSelectionInput(this.id);
+    const existingSelectionRange = this.store.selectionInputs;
     const ranges = existingSelectionRange.length
       ? existingSelectionRange
       : this.props.ranges
@@ -133,29 +130,35 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   setup() {
+    // what if props changes?
+    this.store = useLocalStore(
+      SelectionInputStore,
+      this.props.ranges,
+      this.props.hasSingleRange || false
+    );
     useEffect(
       () => this.focusedInput.el?.focus(),
       () => [this.focusedInput.el]
     );
-    onMounted(() => this.enableNewSelectionInput());
-    onWillUnmount(async () => this.disableNewSelectionInput());
+    // onMounted(() => this.enableNewSelectionInput());
+    // onWillUnmount(async () => this.disableNewSelectionInput());
     onPatched(() => this.checkChange());
   }
 
-  enableNewSelectionInput() {
-    this.env.model.dispatch("ENABLE_NEW_SELECTION_INPUT", {
-      id: this.id,
-      initialRanges: this.props.ranges,
-      hasSingleRange: this.props.hasSingleRange,
-    });
-  }
+  // enableNewSelectionInput() {
+  //   this.env.model.dispatch("ENABLE_NEW_SELECTION_INPUT", {
+  //     id: this.id,
+  //     initialRanges: this.props.ranges,
+  //     hasSingleRange: this.props.hasSingleRange,
+  //   });
+  // }
 
-  disableNewSelectionInput() {
-    this.env.model.dispatch("DISABLE_SELECTION_INPUT", { id: this.id });
-  }
+  // disableNewSelectionInput() {
+  //   this.env.model.dispatch("DISABLE_SELECTION_INPUT", { id: this.id });
+  // }
 
   checkChange() {
-    const value = this.env.model.getters.getSelectionInputValue(this.id);
+    const value = this.store.selectionInputValues;
     if (this.previousRanges.join() !== value.join()) {
       this.triggerChange();
     }
@@ -167,7 +170,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private triggerChange() {
-    const ranges = this.env.model.getters.getSelectionInputValue(this.id);
+    const ranges = this.store.selectionInputValues;
     this.props.onSelectionChanged?.(ranges);
     this.previousRanges = ranges;
   }
@@ -193,35 +196,40 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   focus(rangeId: number) {
     this.state.isMissing = false;
     this.state.mode = "select-range";
-    this.env.model.dispatch("FOCUS_RANGE", {
-      id: this.id,
-      rangeId,
-    });
+    this.store.focusById(rangeId);
+    // this.env.model.dispatch("FOCUS_RANGE", {
+    //   id: this.id,
+    //   rangeId,
+    // });
   }
 
   addEmptyInput() {
-    this.env.model.dispatch("ADD_EMPTY_RANGE", { id: this.id });
+    this.store.addEmptyRange();
+    // this.env.model.dispatch("ADD_EMPTY_RANGE", { id: this.id });
   }
 
   removeInput(rangeId: number) {
-    this.env.model.dispatch("REMOVE_RANGE", { id: this.id, rangeId });
+    this.store.removeRange(rangeId);
+    // this.env.model.dispatch("REMOVE_RANGE", { id: this.id, rangeId });
     this.triggerChange();
     this.props.onSelectionConfirmed?.();
   }
 
   onInputChanged(rangeId: number, ev: InputEvent) {
     const target = ev.target as HTMLInputElement;
-    this.env.model.dispatch("CHANGE_RANGE", {
-      id: this.id,
-      rangeId,
-      value: target.value,
-    });
+    this.store.changeRange(rangeId, target.value);
+    // this.env.model.dispatch("CHANGE_RANGE", {
+    //   id: this.id,
+    //   rangeId,
+    //   value: target.value,
+    // });
     this.triggerChange();
   }
 
   confirm() {
-    this.env.model.dispatch("UNFOCUS_SELECTION_INPUT");
-    const ranges = this.env.model.getters.getSelectionInputValue(this.id);
+    this.store.unfocus();
+    // this.env.model.dispatch("UNFOCUS_SELECTION_INPUT");
+    const ranges = this.store.selectionInputValues;
     if (this.props.required && ranges.length === 0) {
       this.state.isMissing = true;
     }

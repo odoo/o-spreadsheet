@@ -5,6 +5,7 @@ import { ReactiveStore } from "./store";
 
 export class SpreadsheetStore extends ReactiveStore {
   protected model = this.get(ModelStore);
+  protected getters = this.model.getters;
 
   constructor(get) {
     super(get);

@@ -23,3 +23,5 @@ UI state needs model state (getters) and react to model changes (commands)
 with access to getters and handle commands
 but exposes methods and attributes to components
 What about dispatch (e.g. find & replace) ?
+
+Local store arguments should be config only => readonly stuff

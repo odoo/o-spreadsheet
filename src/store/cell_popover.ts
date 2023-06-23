@@ -13,7 +13,6 @@ import { SpreadsheetStore } from "./spreadsheet_store";
 export class CellPopover extends SpreadsheetStore {
   private persistentPopover?: CellPosition & { type: CellPopoverType };
   private hoveredCell = this.get(HoveredCell);
-  private getters = this.model.getters;
 
   protected handle(cmd: Command) {
     switch (cmd.type) {

@@ -4,9 +4,14 @@ import {
   DisposableStoreConstructor,
   Store,
   StoreConstructor,
+  StoreParameters,
 } from "./dependency_container";
 
 export function useStoreProvider() {
+  const env = useEnv();
+  if (env.__spreadsheet_stores__ instanceof DependencyContainer) {
+    return env.__spreadsheet_stores__;
+  }
   const container = new DependencyContainer();
   useSubEnv({
     __spreadsheet_stores__: container,
@@ -26,11 +31,13 @@ export function useStore<T extends StoreConstructor>(
 }
 
 export function useLocalStore<T extends DisposableStoreConstructor>(
-  Store: T
-): Omit<Store<InstanceType<T>>, "dispose"> {
+  Store: T,
+  ...args: StoreParameters<T>
+): Store<InstanceType<T>> {
   const env = useEnv();
   const container = getDependencyContainer(env);
-  const store = container.instantiate(Store);
+  debugger;
+  const store = container.instantiate(Store, ...args);
   onWillUnmount(() => store.dispose());
   return useState(store);
 }
