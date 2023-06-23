@@ -1,7 +1,7 @@
 import { parseDateTime } from "../helpers/dates";
 import { isNumber, percentile } from "../helpers/index";
 import { _lt } from "../translation";
-import { Arg, ArgValue, isMatrix, MatrixArgValue, PrimitiveArgValue } from "../types";
+import { Arg, ArgValue, isMatrix, Matrix, MatrixArgValue, PrimitiveArgValue } from "../types";
 import { arg, typeCheckFunction } from "./arguments";
 import {
   assert,
@@ -150,7 +150,7 @@ export const AVEDEV = typeCheckFunction({
   ],
   returns: ["NUMBER"],
   // this is wrong it must also be Matrix<number>
-  compute: function (...values: number[]): number {
+  compute: function (value1: number | Matrix<number>, value2: number | Matrix<number>): number {
     let count = 0;
     const sum = reduceNumbers(
       values,

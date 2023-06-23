@@ -12,6 +12,7 @@
     "noUnusedParameters": false,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "strictFunctionTypes": true,
     "strictPropertyInitialization": true,
     "strictNullChecks": true,
     "esModuleInterop": true,
