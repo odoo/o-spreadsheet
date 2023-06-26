@@ -1,4 +1,5 @@
 import {
+  Command,
   CommandDispatcher,
   CommandResult,
   Dimension,
@@ -110,6 +111,10 @@ export class ClipboardFigureState implements ClipboardState {
 
   getClipboardContent(): ClipboardContent {
     return { [ClipboardMIMEType.PlainText]: "\t" };
+  }
+
+  isInvalidatedBy(cmd: Command): boolean {
+    return false;
   }
 
   isColRowDirtyingClipboard(position: HeaderIndex, dimension: Dimension): boolean {

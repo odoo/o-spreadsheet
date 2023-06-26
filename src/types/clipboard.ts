@@ -1,4 +1,4 @@
-import { CommandResult } from "./commands";
+import { Command, CommandResult } from "./commands";
 import { Dimension, HeaderIndex, UID, Zone } from "./misc";
 import { GridRenderingContext } from "./rendering";
 
@@ -28,6 +28,7 @@ export interface ClipboardState {
   paste(target: Zone[], options?: ClipboardOptions | undefined): void;
   getClipboardContent(): ClipboardContent;
   drawClipboard(renderingContext: GridRenderingContext): void;
+  isInvalidatedBy(cmd: Command): boolean;
 
   /**
    * Check if a col/row added/removed at the given position is dirtying the clipboard

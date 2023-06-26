@@ -222,6 +222,43 @@ describe("clipboard", () => {
     expect(getCell(model, "E5")).toBe(undefined);
   });
 
+  test("Cannot paste if content is altered after cut", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "things");
+    setStyle(model, "A1", { bold: true });
+    cut(model, "A1");
+    setCellContent(model, "A1", "new content");
+    paste(model, "A2");
+    expect(getCell(model, "A2")).toBe(undefined);
+  });
+
+  test("Cannot paste if style is altered after cut", async () => {
+    const model = new Model();
+    setCellContent(model, "A1", "a1");
+    setStyle(model, "A1", { bold: true });
+    cut(model, "A1");
+    setStyle(model, "A1", { bold: false });
+    paste(model, "A2");
+    expect(getCell(model, "A2")).toBe(undefined);
+  });
+
+  test("Cannot paste if borders are altered after cut", async () => {
+    const model = new Model();
+    setCellContent(model, "A1", "a1");
+    setZoneBorders(model, { position: "bottom" });
+    expect(getBorder(model, "A1")).toEqual({ bottom: DEFAULT_BORDER_DESC });
+
+    cut(model, "A1");
+    setZoneBorders(model, { position: "top" });
+    expect(getBorder(model, "A1")).toEqual({
+      bottom: DEFAULT_BORDER_DESC,
+      top: DEFAULT_BORDER_DESC,
+    });
+
+    paste(model, "A2");
+    expect(getCell(model, "A2")).toBe(undefined);
+  });
+
   test("Cut clipboard should be invalidated when sheet is deleted", () => {
     const model = new Model();
     const sheet1Id = model.getters.getActiveSheetId();

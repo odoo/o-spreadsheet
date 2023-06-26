@@ -88,6 +88,9 @@ export class ClipboardPlugin extends UIPlugin {
   }
 
   handle(cmd: Command) {
+    if (this.state?.operation === "CUT" && this.state?.isInvalidatedBy(cmd)) {
+      this.state = undefined;
+    }
     switch (cmd.type) {
       case "COPY":
       case "CUT":

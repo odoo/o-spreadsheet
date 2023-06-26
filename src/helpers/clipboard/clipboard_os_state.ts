@@ -3,6 +3,7 @@ import { SelectionStreamProcessor } from "../../selection_stream/selection_strea
 import {
   ClipboardMIMEType,
   ClipboardOptions,
+  Command,
   CommandDispatcher,
   CommandResult,
   Getters,
@@ -74,6 +75,10 @@ export class ClipboardOsState extends ClipboardCellsAbstractState {
     return {
       [ClipboardMIMEType.PlainText]: this.values.map((values) => values.join("\t")).join("\n"),
     };
+  }
+
+  isInvalidatedBy(cmd: Command): boolean {
+    return false;
   }
 
   private getPasteZone(target: Zone[]): Zone {

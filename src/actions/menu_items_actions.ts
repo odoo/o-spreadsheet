@@ -50,8 +50,8 @@ async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptio
       } else {
         interactivePaste(env, target, pasteOption);
       }
-      if (env.model.getters.isCutOperation() && pasteOption !== "onlyValue") {
-        await env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });
+      if (env.model.getters.isCutOperation()) {
+        await clearOSClipboard(env);
       }
       break;
     case "notImplemented":
@@ -69,6 +69,10 @@ async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptio
       );
       break;
   }
+}
+
+export async function clearOSClipboard(env: SpreadsheetChildEnv) {
+  await env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });
 }
 
 export const PASTE_FORMAT_ACTION = (env: SpreadsheetChildEnv) => paste(env, "onlyFormat");

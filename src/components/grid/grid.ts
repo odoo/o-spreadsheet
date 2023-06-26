@@ -13,6 +13,7 @@ import {
   INSERT_LINK,
   INSERT_ROWS_BEFORE_ACTION,
   PASTE_VALUE_ACTION,
+  clearOSClipboard,
 } from "../../actions/menu_items_actions";
 import {
   AUTOFILL_EDGE_LENGTH,
@@ -628,7 +629,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         interactivePasteFromOS(this.env, target, content);
       }
       if (this.env.model.getters.isCutOperation()) {
-        await this.env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });
+        await clearOSClipboard(this.env);
       }
     }
   }

@@ -4,6 +4,7 @@ import { SelectionStreamProcessor } from "../../selection_stream/selection_strea
 import {
   CellPosition,
   ClipboardCell,
+  Command,
   CommandDispatcher,
   CommandResult,
   ConditionalFormat,
@@ -18,7 +19,7 @@ import { ClipboardMIMEType, ClipboardOperation, ClipboardOptions } from "../../t
 import { xmlEscape } from "../../xlsx/helpers/xml_helpers";
 import { toXC } from "../coordinates";
 import { formatValue } from "../format";
-import { range } from "../misc";
+import { deepEquals, range } from "../misc";
 import { createAdaptedZone, isInside, mergeOverlappingZones, positions, union } from "../zones";
 import { ClipboardCellsAbstractState } from "./clipboard_abstract_cell_state";
 
@@ -503,6 +504,67 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
     }
     htmlTable += "</table>";
     return htmlTable;
+  }
+
+  isInvalidatedBy(cmd: Command): boolean {
+    switch (cmd.type) {
+      case "SET_ZONE_BORDERS":
+        for (const zone of cmd.target) {
+          if (this.areZonesAdjacent(zone, this.zones[0])) {
+            for (const originRow of this.cells) {
+              for (const cell of originRow) {
+                const { col, row, sheetId } = cell.position;
+                const originBorder = cell.border;
+                const currentBorder =
+                  this.getters.getCellBorder({ col, row, sheetId }) || undefined;
+                if (JSON.stringify(originBorder) !== JSON.stringify(currentBorder)) {
+                  return true;
+                }
+              }
+            }
+          }
+        }
+        break;
+      case "UPDATE_CELL":
+        for (const originRow of this.cells) {
+          for (const cell of originRow) {
+            const { col, row, sheetId } = cell.position;
+            if (col === cmd.col && row === cmd.row && sheetId === cmd.sheetId) {
+              const originContent =
+                this.getters.shouldShowFormulas() && cell.cell?.isFormula
+                  ? cell.cell?.content || ""
+                  : cell.evaluatedCell?.formattedValue || "";
+              if (cmd.content && cmd.content !== originContent) {
+                return true;
+              }
+              if (cmd.style && JSON.stringify(cmd.style) !== JSON.stringify(cell.style)) {
+                return true;
+              }
+              if (
+                cmd.format &&
+                JSON.stringify(cmd.format) !== JSON.stringify(cell.evaluatedCell.format)
+              ) {
+                return true;
+              }
+            }
+          }
+        }
+        break;
+    }
+    return false;
+  }
+
+  private areZonesAdjacent(currentZone: Zone, clippedZone: Zone): boolean {
+    if (
+      currentZone.top === clippedZone.bottom + 1 ||
+      currentZone.right + 1 === clippedZone.left ||
+      currentZone.bottom === clippedZone.top - 1 ||
+      currentZone.left === clippedZone.right + 1 ||
+      deepEquals(currentZone, clippedZone)
+    ) {
+      return true;
+    }
+    return false;
   }
 
   isColRowDirtyingClipboard(position: HeaderIndex, dimension: Dimension): boolean {

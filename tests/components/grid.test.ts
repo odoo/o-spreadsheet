@@ -1493,20 +1493,6 @@ describe("Copy paste keyboard shortcut", () => {
     expect(getCellContent(model, "A2")).toEqual("things");
   });
 
-  test("cut zone gets cleared on paste if content/style is altered after cut", async () => {
-    setCellContent(model, "A1", "things");
-    setStyle(model, "A1", { bold: true });
-    selectCell(model, "A1");
-    document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
-    setCellContent(model, "A1", "new content");
-    setStyle(model, "A1", { bold: false });
-    selectCell(model, "A2");
-    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
-    expect(getCellContent(model, "A2")).toEqual("things");
-    expect(getStyle(model, "A2")).toEqual({ bold: true });
-    expect(getCell(model, "A1")).toBe(undefined);
-  });
-
   test("Cut of a formula cell, and enabling showFormulas should return content", async () => {
     model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
     setCellContent(model, "A1", "1");
