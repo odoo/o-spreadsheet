@@ -102,10 +102,12 @@ class Demo extends Component {
       icon: "o-spreadsheet-Icon.OPEN_READ_WRITE",
     });
 
-    topbarMenuRegistry.addChild("display_header", ["file"], {
+    topbarMenuRegistry.addChild("display_header", ["view"], {
       name: () => (this.state.displayHeader ? "Hide header" : "Show header"),
       isReadonlyAllowed: true,
       execute: () => (this.state.displayHeader = !this.state.displayHeader),
+      icon: "o-spreadsheet-Icon.DISPLAY_HEADER",
+      sequence: 1000,
     });
 
     topbarMenuRegistry.add("notify", {
