@@ -100,7 +100,14 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
         this.history.update("tables", filterTables);
         break;
       case "DUPLICATE_SHEET":
-        this.history.update("tables", cmd.sheetIdTo, deepCopy(this.tables[cmd.sheetId]));
+        const tables: Record<FilterTableId, FilterTable | undefined> = {};
+        for (const filterTable of Object.values(this.tables[cmd.sheetId] || {})) {
+          if (filterTable) {
+            const newFilterTable = deepCopy(filterTable);
+            tables[newFilterTable.id] = newFilterTable;
+          }
+        }
+        this.history.update("tables", cmd.sheetIdTo, tables);
         break;
       case "ADD_COLUMNS_ROWS":
         this.onAddColumnsRows(cmd);
