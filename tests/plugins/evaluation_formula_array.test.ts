@@ -126,7 +126,7 @@ describe("evaluate formulas that return an array", () => {
       expect(getCellContent(model, "B2")).toBe("4");
     });
 
-    test("can spread matrix of values with scalar format", () => {
+    test("can spread matrix of values with scalar format returns an error", () => {
       functionRegistry.add("MATRIX.2.2", {
         description: "Return an 2*2 matrix with some values",
         args: [],
@@ -141,11 +141,10 @@ describe("evaluate formulas that return an array", () => {
       setFormat(model, "0%", target("A1:A2"));
       setCellContent(model, "A1", "=MATRIX.2.2()");
 
-      expect(getCellContent(model, "A1")).toBe("100%");
-      expect(getCellContent(model, "A2")).toBe("200%");
-
-      expect(getCellContent(model, "B1")).toBe("3.00");
-      expect(getCellContent(model, "B2")).toBe("4.00");
+      expect(getCellContent(model, "A1")).toBe("#ERROR");
+      expect(getCellContent(model, "A2")).toBe("");
+      expect(getCellContent(model, "B1")).toBe("");
+      expect(getCellContent(model, "B2")).toBe("");
     });
 
     test("cannot spread simple value with matrix of format", () => {

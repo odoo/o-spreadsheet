@@ -6,6 +6,7 @@ import {
   ArgValue,
   ComputeFunction,
   ComputeFunctionArg,
+  EvalContext,
   FunctionDescription,
   FunctionReturn,
   isMatrix,
@@ -76,12 +77,14 @@ class FunctionRegistry extends Registry<FunctionDescription> {
       const computeValueAndFormat = descr.computeValueAndFormat.bind(this);
       this.mapping[name] = computeValueAndFormat;
     } else {
-      const computeValueAndFormat = (...args: ComputeFunctionArg<Arg>[]): FunctionReturn => {
-        const computeValue = descr.compute.bind(this);
-        const computeFormat = descr.computeFormat
-          ? descr.computeFormat.bind(this)
-          : () => undefined;
-
+      const _computeValue = descr.compute;
+      const _computeFormat = descr.computeFormat;
+      function computeValueAndFormat(
+        this: EvalContext,
+        ...args: ComputeFunctionArg<Arg>[]
+      ): FunctionReturn {
+        const computeValue = _computeValue.bind(this);
+        const computeFormat = _computeFormat ? _computeFormat.bind(this) : () => undefined;
         const value = computeValue(...extractArgValuesFromArgs(args));
         const format = computeFormat(...args);
 
@@ -95,7 +98,7 @@ class FunctionRegistry extends Registry<FunctionDescription> {
           }
         }
         throw new Error("A format matrix should never be associated with a scalar value");
-      };
+      }
       this.mapping[name] = computeValueAndFormat;
     }
     super.add(name, descr);

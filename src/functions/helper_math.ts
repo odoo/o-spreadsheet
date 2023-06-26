@@ -1,14 +1,15 @@
-export function nomInconnu(
+import { MatrixArgFormat, MatrixArgValue, PrimitiveArgValue } from "../types";
+
+export function mapValueAndFormat(
   nRows: number,
   nColumns: number,
-  values,
-  formats,
+  computeFormat: boolean,
   value_callback,
   format_callback
 ) {
   const returned = {
     value: Array(nColumns),
-    format: formats ? Array(nColumns) : undefined,
+    format: computeFormat ? Array(nColumns) : undefined,
   };
   for (let i = 0; i < nColumns; i++) {
     returned.value[i] = Array(nRows);
@@ -16,7 +17,7 @@ export function nomInconnu(
       returned.format[i] = Array(nRows);
     }
     for (let j = 0; j < nRows; j++) {
-      returned.value[i][j] = value_callback(i, j);
+      returned.value[i][j] = value_callback(i, j) || 0;
       if (returned.format !== undefined) {
         returned.format[i][j] = format_callback(i, j);
       }
@@ -25,12 +26,17 @@ export function nomInconnu(
   return returned;
 }
 
-export function nomInconnu2(nRows: number, nColumns: number, values, formats, callback) {
-  return nomInconnu(
+export function mapBothValueAndFormat(
+  nRows: number,
+  nColumns: number,
+  values: MatrixArgValue | PrimitiveArgValue[][],
+  formats: MatrixArgFormat | undefined,
+  callback
+) {
+  return mapValueAndFormat(
     nRows,
     nColumns,
-    values,
-    formats,
+    formats !== undefined,
     (i, j) => callback(i, j, values),
     (i, j) => callback(i, j, formats)
   );

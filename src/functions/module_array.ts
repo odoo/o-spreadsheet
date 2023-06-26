@@ -29,7 +29,7 @@ import {
   assertSquareMatrix,
   isNumberMatrix,
 } from "./helper_assert";
-import { nomInconnu2 } from "./helper_math";
+import { mapBothValueAndFormat } from "./helper_math";
 import { invertMatrix, multiplyMatrices } from "./helper_matrices";
 
 // -----------------------------------------------------------------------------
@@ -705,7 +705,7 @@ export const TRANSPOSE: AddFunctionDescription = {
     const nColumns = values[0].length;
     const nRows = values.length;
 
-    return nomInconnu2(nRows, nColumns, values, formats, (i, j, arg) => arg[j][i]);
+    return mapBothValueAndFormat(nRows, nColumns, values, formats, (i, j, arg) => arg[j][i]);
   },
   isExported: true,
 };
