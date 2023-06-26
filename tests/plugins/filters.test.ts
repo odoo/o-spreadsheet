@@ -148,6 +148,22 @@ describe("Filters plugin", () => {
       expect(getFilterValues(model, sheet2Id)).toMatchObject([{ zone: "A1:A3", value: ["D"] }]);
     });
 
+    test("Can delete row/columns on duplicated sheet with filters", () => {
+      createFilter(model, "B1:B3");
+      updateFilter(model, "B1", ["C"]);
+
+      const sheet2Id = "42";
+      model.dispatch("DUPLICATE_SHEET", {
+        sheetId: sheetId,
+        sheetIdTo: sheet2Id,
+      });
+      expect(getFilterValues(model, sheet2Id)).toMatchObject([{ zone: "B1:B3", value: ["C"] }]);
+      deleteColumns(model, ["A"], sheet2Id);
+
+      expect(getFilterValues(model, sheetId)).toMatchObject([{ zone: "B1:B3", value: ["C"] }]);
+      expect(getFilterValues(model, sheet2Id)).toMatchObject([{ zone: "A1:A3", value: ["C"] }]);
+    });
+
     test("Filter is disabled if its header row is hidden by the user", () => {
       createFilter(model, "A1:A3");
       setCellContent(model, "A2", "28");
