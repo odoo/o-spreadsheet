@@ -915,3 +915,26 @@ test("The menu items are orderer by their sequence", async () => {
   expect(menuItems[1].dataset.name).toBe("second");
   expect(menuItems[2].dataset.name).toBe("third");
 });
+
+describe("Topbar svg icon", () => {
+  test.each([
+    [{ align: "left" }, "Horizontal align", "align-left"],
+    [{ align: "center" }, "Horizontal align", "align-center"],
+    [{ align: "right" }, "Horizontal align", "align-right"],
+    [{ verticalAlign: "top" }, "Vertical align", "align-top"],
+    [{ verticalAlign: "middle" }, "Vertical align", "align-middle"],
+    [{ verticalAlign: "bottom" }, "Vertical align", "align-bottom"],
+    [{ wrapping: "clip" }, "Wrapping", "wrapping-clip"],
+    [{ wrapping: "wrap" }, "Wrapping", "wrapping-wrap"],
+    [{ wrapping: "overflow" }, "Wrapping", "wrapping-overflow"],
+  ])("Icon in top bar matches the selected cell style", async (style, buttonTitle, iconClass) => {
+    const model = new Model();
+    setStyle(model, "A1", style as Style);
+
+    ({ fixture } = await mountSpreadsheet({ model }));
+    await nextTick();
+
+    const icon = fixture.querySelector(`.o-menu-item-button[title="${buttonTitle}"] svg`);
+    expect(icon?.classList.contains(iconClass)).toBeTruthy();
+  });
+});

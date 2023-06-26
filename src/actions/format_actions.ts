@@ -1,8 +1,13 @@
-import { DEFAULT_FONT_SIZE, DEFAULT_VERTICAL_ALIGN, FONT_SIZES } from "../constants";
+import {
+  DEFAULT_FONT_SIZE,
+  DEFAULT_VERTICAL_ALIGN,
+  DEFAULT_WRAPPING_MODE,
+  FONT_SIZES,
+} from "../constants";
 import { formatValue, roundFormat } from "../helpers";
 import { parseLiteral } from "../helpers/cells";
 import { _lt } from "../translation";
-import { Align, DEFAULT_LOCALE, SpreadsheetChildEnv } from "../types";
+import { Align, DEFAULT_LOCALE, SpreadsheetChildEnv, VerticalAlign, Wrapping } from "../types";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 import { setFormatter, setStyle } from "./menu_items_actions";
@@ -192,7 +197,7 @@ export const formatAlignment: ActionSpec = {
 
 export const formatAlignmentHorizontal: ActionSpec = {
   name: _lt("Horizontal align"),
-  icon: "o-spreadsheet-Icon.ALIGN_LEFT",
+  icon: (env) => getHorizontalAlignmentIcon(env),
 };
 
 export const formatAlignmentLeft: ActionSpec = {
@@ -221,56 +226,58 @@ export const formatAlignmentRight: ActionSpec = {
 
 export const formatAlignmentVertical: ActionSpec = {
   name: _lt("Vertical align"),
-  icon: "o-spreadsheet-Icon.ALIGN_MIDDLE",
+  icon: (env) => getVerticalAlignmentIcon(env),
 };
 
 export const formatAlignmentTop: ActionSpec = {
   name: _lt("Top"),
   execute: (env) => ACTIONS.setStyle(env, { verticalAlign: "top" }),
-  isActive: (env) =>
-    (env.model.getters.getCurrentStyle().verticalAlign || DEFAULT_VERTICAL_ALIGN) === "top",
+  isActive: (env) => getVerticalAlign(env) === "top",
   icon: "o-spreadsheet-Icon.ALIGN_TOP",
 };
 
 export const formatAlignmentMiddle: ActionSpec = {
   name: _lt("Middle"),
   execute: (env) => ACTIONS.setStyle(env, { verticalAlign: "middle" }),
-  isActive: (env) =>
-    (env.model.getters.getCurrentStyle().verticalAlign || DEFAULT_VERTICAL_ALIGN) === "middle",
+  isActive: (env) => getVerticalAlign(env) === "middle",
   icon: "o-spreadsheet-Icon.ALIGN_MIDDLE",
 };
 
 export const formatAlignmentBottom: ActionSpec = {
   name: _lt("Bottom"),
   execute: (env) => ACTIONS.setStyle(env, { verticalAlign: "bottom" }),
-  isActive: (env) =>
-    (env.model.getters.getCurrentStyle().verticalAlign || DEFAULT_VERTICAL_ALIGN) === "bottom",
+  isActive: (env) => getVerticalAlign(env) === "bottom",
   icon: "o-spreadsheet-Icon.ALIGN_BOTTOM",
+};
+
+export const formatWrappingIcon: ActionSpec = {
+  name: _lt("Wrapping"),
+  icon: "o-spreadsheet-Icon.WRAPPING_OVERFLOW",
 };
 
 export const formatWrapping: ActionSpec = {
   name: _lt("Wrapping"),
-  icon: "o-spreadsheet-Icon.WRAPPING_OVERFLOW",
+  icon: (env) => getWrapModeIcon(env),
 };
 
 export const formatWrappingOverflow: ActionSpec = {
   name: _lt("Overflow"),
   execute: (env) => ACTIONS.setStyle(env, { wrapping: "overflow" }),
-  isActive: (env) => (env.model.getters.getCurrentStyle().wrapping || "overflow") === "overflow",
+  isActive: (env) => getWrappingMode(env) === "overflow",
   icon: "o-spreadsheet-Icon.WRAPPING_OVERFLOW",
 };
 
 export const formatWrappingWrap: ActionSpec = {
   name: _lt("Wrap"),
   execute: (env) => ACTIONS.setStyle(env, { wrapping: "wrap" }),
-  isActive: (env) => env.model.getters.getCurrentStyle().wrapping === "wrap",
+  isActive: (env) => getWrappingMode(env) === "wrap",
   icon: "o-spreadsheet-Icon.WRAPPING_WRAP",
 };
 
 export const formatWrappingClip: ActionSpec = {
   name: _lt("Clip"),
   execute: (env) => ACTIONS.setStyle(env, { wrapping: "clip" }),
-  isActive: (env) => env.model.getters.getCurrentStyle().wrapping === "clip",
+  isActive: (env) => getWrappingMode(env) === "clip",
   icon: "o-spreadsheet-Icon.WRAPPING_CLIP",
 };
 
@@ -335,4 +342,59 @@ function getHorizontalAlign(env: SpreadsheetChildEnv): Align {
   }
   const cell = env.model.getters.getActiveCell();
   return cell.defaultAlign;
+}
+
+function getVerticalAlign(env: SpreadsheetChildEnv): VerticalAlign {
+  const style = env.model.getters.getCurrentStyle();
+  if (style.verticalAlign) {
+    return style.verticalAlign;
+  }
+  return DEFAULT_VERTICAL_ALIGN;
+}
+
+function getWrappingMode(env: SpreadsheetChildEnv): Wrapping {
+  const style = env.model.getters.getCurrentStyle();
+  if (style.wrapping) {
+    return style.wrapping;
+  }
+  return DEFAULT_WRAPPING_MODE;
+}
+
+function getHorizontalAlignmentIcon(env: SpreadsheetChildEnv) {
+  const horizontalAlign = getHorizontalAlign(env);
+
+  switch (horizontalAlign) {
+    case "right":
+      return "o-spreadsheet-Icon.ALIGN_RIGHT";
+    case "center":
+      return "o-spreadsheet-Icon.ALIGN_CENTER";
+    default:
+      return "o-spreadsheet-Icon.ALIGN_LEFT";
+  }
+}
+
+function getVerticalAlignmentIcon(env: SpreadsheetChildEnv) {
+  const verticalAlign = getVerticalAlign(env);
+
+  switch (verticalAlign) {
+    case "top":
+      return "o-spreadsheet-Icon.ALIGN_TOP";
+    case "middle":
+      return "o-spreadsheet-Icon.ALIGN_MIDDLE";
+    default:
+      return "o-spreadsheet-Icon.ALIGN_BOTTOM";
+  }
+}
+
+function getWrapModeIcon(env: SpreadsheetChildEnv) {
+  const wrapMode = getWrappingMode(env);
+
+  switch (wrapMode) {
+    case "wrap":
+      return "o-spreadsheet-Icon.WRAPPING_WRAP";
+    case "clip":
+      return "o-spreadsheet-Icon.WRAPPING_CLIP";
+    default:
+      return "o-spreadsheet-Icon.WRAPPING_OVERFLOW";
+  }
 }
