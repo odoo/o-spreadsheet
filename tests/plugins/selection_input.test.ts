@@ -1,5 +1,8 @@
 import { Model } from "../../src";
 import { toZone, zoneToXc } from "../../src/helpers";
+import { Store } from "../../src/store/dependency_container";
+import { ModelStore } from "../../src/store/model_store";
+import { SelectionInputStore } from "../../src/store/selection_input_store";
 import { CommandResult } from "../../src/types";
 import {
   activateSheet,
@@ -13,6 +16,7 @@ import {
   setAnchorCorner,
   setSelection,
 } from "../test_helpers/commands_helpers";
+import { makeStore, makeStoreContainer } from "../test_helpers/stores";
 
 function select(model: Model, xc: string) {
   selectCell(model, xc);
@@ -29,8 +33,8 @@ function highlightedZones(model: Model) {
     .map(zoneToXc);
 }
 
-function idOfRange(model: Model, id: string, rangeIndex: number): number {
-  return model.getters.getSelectionInput(id)[rangeIndex].id;
+function idOfRange(selection: Store<SelectionInputStore>, rangeIndex: number): number {
+  return selection.selectionInputs[rangeIndex].id;
 }
 
 describe("selection input plugin", () => {
@@ -41,46 +45,54 @@ describe("selection input plugin", () => {
   });
 
   test("empty input should focus the first range", () => {
-    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
-    expect(model.getters.getSelectionInput(id).length).toBe(1);
-    expect(model.getters.getSelectionInput(id)[0].xc).toBe("");
-    expect(model.getters.getSelectionInput(id)[0].isFocused).toBe(true);
+    const selection = makeStore(SelectionInputStore);
+    expect(selection.selectionInputs.length).toBe(1);
+    expect(selection.selectionInputs[0].xc).toBe("");
+    expect(selection.selectionInputs[0].isFocused).toBe(true);
   });
 
   test("input with inital ranges should not be focused", () => {
-    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, initialRanges: ["D4"] });
-    expect(model.getters.getSelectionInput(id).length).toBe(1);
-    expect(model.getters.getSelectionInput(id)[0].xc).toBe("D4");
-    expect(model.getters.getSelectionInput(id)[0].isFocused).toBeFalsy();
+    const selection = makeStore(SelectionInputStore, ["D4"]);
+    // model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, initialRanges: ["D4"] });
+    expect(selection.selectionInputs.length).toBe(1);
+    expect(selection.selectionInputs[0].xc).toBe("D4");
+    expect(selection.selectionInputs[0].isFocused).toBeFalsy();
     expect(highlightedZones(model)).toStrictEqual([]);
   });
 
   test("multiple initial values have different ids", () => {
-    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, initialRanges: ["D4", "D5"] });
-    const [range1, range2] = model.getters.getSelectionInput(id);
+    const selection = makeStore(SelectionInputStore, ["D4", "D5"]);
+    // model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, initialRanges: ["D4", "D5"] });
+    const [range1, range2] = selection.selectionInputs;
     expect(range1.id).not.toBe(range2.id);
   });
 
   test("focused input should change with selection", () => {
-    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
-    model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
+    const stores = makeStoreContainer();
+    const model = stores.get(ModelStore);
+    const selection = makeStore(SelectionInputStore);
+    selection.focusById(idOfRange(selection, 0));
     select(model, "C2");
-    expect(model.getters.getSelectionInput(id)[0].xc).toBe("C2");
-    const firstColor = model.getters.getSelectionInput(id)[0].color;
+    expect(selection.selectionInputs[0].xc).toBe("C2");
+    const firstColor = selection.selectionInputs[0].color;
     expect(highlightedZones(model)).toStrictEqual(["C2"]);
     select(model, "D4");
-    const secondColor = model.getters.getSelectionInput(id)[0].color;
-    expect(model.getters.getSelectionInput(id)[0].xc).toBe("D4");
+    const secondColor = selection.selectionInputs[0].color;
+    expect(selection.selectionInputs[0].xc).toBe("D4");
     expect(highlightedZones(model)).toStrictEqual(["D4"]);
     expect(firstColor).toBe(secondColor);
   });
 
   test("select cell inside a merge expands the selection", () => {
+    const stores = makeStoreContainer();
+    const model = stores.get(ModelStore);
+    const selection = makeStore(SelectionInputStore);
     merge(model, "A2:A4");
-    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
-    model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
+    // model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
+    selection.focusById(idOfRange(selection, 0));
+    // model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
     setSelection(model, ["A3:A5"]);
-    expect(model.getters.getSelectionInput(id)[0].xc).toBe("A2:A5");
+    expect(selection.selectionInputs[0].xc).toBe("A2:A5");
     expect(highlightedZones(model)).toStrictEqual(["A2:A5"]);
   });
 
