@@ -147,6 +147,8 @@ export const DEFAULT_FONT_SIZE = 10;
 export const HEADER_FONT_SIZE = 11;
 export const DEFAULT_FONT = "'Roboto', arial";
 export const DEFAULT_VERTICAL_ALIGN = "bottom";
+export const DEFAULT_HORIZONTAL_ALIGN = "left";
+export const DEFAULT_WRAPPING_MODE = "overflow";
 
 // Borders
 export const DEFAULT_BORDER_DESC: BorderDescr = { style: "thin", color: "#000000" };

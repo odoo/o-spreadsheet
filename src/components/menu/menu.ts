@@ -170,8 +170,8 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getIconName(menu: Action) {
-    if (menu.icon) {
-      return menu.icon;
+    if (menu.icon(this.env)) {
+      return menu.icon(this.env);
     }
     if (menu.isActive?.(this.env)) {
       return "o-spreadsheet-Icon.CHECK";

@@ -54,7 +54,7 @@ export class ActionButton extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get iconTitle() {
-    return this.actionButton.icon;
+    return this.actionButton.icon(this.env);
   }
 
   onClick(ev: MouseEvent) {

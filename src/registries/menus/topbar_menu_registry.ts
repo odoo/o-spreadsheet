@@ -329,7 +329,7 @@ topbarMenuRegistry
     separator: true,
   })
   .addChild("format_wrapping", ["format"], {
-    ...ACTION_FORMAT.formatWrapping,
+    ...ACTION_FORMAT.formatWrappingIcon,
     sequence: 80,
     separator: true,
   })

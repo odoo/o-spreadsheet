@@ -464,10 +464,10 @@ exports[`TopBar component can set cell format 1`] = `
                   style=""
                 >
                   <svg
-                    class="o-icon align-middle"
+                    class="o-icon align-bottom"
                   >
                     <path
-                      d="M12.5 3H10V0H8v3H5.5L9 6.5M5.5 15H8v3h2v-3h2.5L9 11.5M3 8v2h12V8"
+                      d="M5.5 9H8V2h2v7h2.5L9 12.5M3 14v2h12v-2"
                       fill="currentColor"
                     />
                   </svg>
@@ -1332,10 +1332,10 @@ exports[`TopBar component simple rendering 1`] = `
               style=""
             >
               <svg
-                class="o-icon align-middle"
+                class="o-icon align-bottom"
               >
                 <path
-                  d="M12.5 3H10V0H8v3H5.5L9 6.5M5.5 15H8v3h2v-3h2.5L9 11.5M3 8v2h12V8"
+                  d="M5.5 9H8V2h2v7h2.5L9 12.5M3 14v2h12v-2"
                   fill="currentColor"
                 />
               </svg>

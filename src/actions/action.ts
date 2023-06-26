@@ -36,7 +36,7 @@ export interface ActionSpec {
   /**
    * Can be defined to display an icon
    */
-  icon?: string;
+  icon?: string | ((env: SpreadsheetChildEnv) => string);
   /**
    * is the action allowed when running spreadsheet in readonly mode
    */
@@ -67,7 +67,7 @@ export interface Action {
   isVisible: (env: SpreadsheetChildEnv) => boolean;
   isEnabled: (env: SpreadsheetChildEnv) => boolean;
   isActive?: (env: SpreadsheetChildEnv) => boolean;
-  icon: string;
+  icon: (env: SpreadsheetChildEnv) => string;
   isReadonlyAllowed: boolean;
   execute?: (env: SpreadsheetChildEnv) => unknown;
   children: (env: SpreadsheetChildEnv) => Action[];
@@ -88,6 +88,7 @@ export function createAction(item: ActionSpec): Action {
   const name = item.name;
   const children = item.children;
   const description = item.description;
+  const icon = item.icon;
   return {
     id: item.id || uuidGenerator.uuidv4(),
     name: typeof name === "function" ? name : () => name,
@@ -105,7 +106,7 @@ export function createAction(item: ActionSpec): Action {
       : () => [],
     isReadonlyAllowed: item.isReadonlyAllowed || false,
     separator: item.separator || false,
-    icon: item.icon || "",
+    icon: typeof icon === "function" ? icon : () => icon || "",
     description: typeof description === "function" ? description : () => description || "",
     textColor: item.textColor,
     sequence: item.sequence || 0,
