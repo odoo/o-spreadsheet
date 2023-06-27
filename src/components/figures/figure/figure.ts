@@ -63,7 +63,7 @@ css/*SCSS*/ `
       position: absolute;
       width: ${ANCHOR_SIZE}px;
       height: ${ANCHOR_SIZE}px;
-      background-color: #1a73e8;
+      background-color: ${SELECTION_BORDER_COLOR};
       outline: ${BORDER_WIDTH}px solid white;
 
       &.o-top {

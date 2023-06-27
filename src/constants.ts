@@ -5,23 +5,33 @@ import { CellErrorType } from "./types/errors";
 export const CANVAS_SHIFT = 0.5;
 
 // Colors
+// TODORAR split them in 2 categories, th UI and canvas colors.
+// UI will end up in css and will be overriden by themes.
+
 export const BACKGROUND_GRAY_COLOR = "#f5f5f5";
+
+//UI
+export const GREY_BORDER = "#C0C0C0";
+export const MENU_ITEM_DISABLED_COLOR = "#CACACA";
+export const BG_HOVER_COLOR = "#EBEBEB";
+export const FILTERS_COLOR = "#188038";
+export const BACKGROUND_HEADER_FILTER_COLOR = "#E6F4EA";
+export const BACKGROUND_HEADER_SELECTED_FILTER_COLOR = "#CEEAD6";
+
+// canvas
 export const BACKGROUND_HEADER_COLOR = "#F8F9FA";
 export const BACKGROUND_HEADER_SELECTED_COLOR = "#E8EAED";
 export const BACKGROUND_HEADER_ACTIVE_COLOR = "#595959";
 export const TEXT_HEADER_COLOR = "#666666";
 export const FIGURE_BORDER_COLOR = "#c9ccd2";
-export const SELECTION_BORDER_COLOR = "#3266ca";
+export const SELECTION_BORDER_COLOR = "#4684E7";
 export const HEADER_BORDER_COLOR = "#C0C0C0";
 export const CELL_BORDER_COLOR = "#E2E3E3";
 export const BACKGROUND_CHART_COLOR = "#FFFFFF";
-export const MENU_ITEM_DISABLED_COLOR = "#CACACA";
-export const BG_HOVER_COLOR = "#EBEBEB";
+
 export const DEFAULT_COLOR_SCALE_MIDPOINT_COLOR = 0xb6d7a8;
 export const LINK_COLOR = "#01666b";
-export const FILTERS_COLOR = "#188038";
-export const BACKGROUND_HEADER_FILTER_COLOR = "#E6F4EA";
-export const BACKGROUND_HEADER_SELECTED_FILTER_COLOR = "#CEEAD6";
+
 export const SEPARATOR_COLOR = "#E0E2E4";
 export const ICONS_COLOR = "#4A4F59";
 

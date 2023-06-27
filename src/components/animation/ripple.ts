@@ -116,7 +116,7 @@ export class Ripple extends Component<RippleProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Ripple";
   static components = { RippleEffect };
   static defaultProps = {
-    color: "#aaaaaa",
+    color: "#a9a9a9",
     opacity: 0.4,
     duration: 800,
     enabled: true,

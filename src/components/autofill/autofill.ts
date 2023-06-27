@@ -1,5 +1,5 @@
 import { Component, useState, xml } from "@odoo/owl";
-import { AUTOFILL_EDGE_LENGTH } from "../../constants";
+import { AUTOFILL_EDGE_LENGTH, SELECTION_BORDER_COLOR } from "../../constants";
 import { clip } from "../../helpers";
 import { HeaderIndex, SpreadsheetChildEnv } from "../../types";
 import { css, cssPropertiesToCss } from "../helpers/css";
@@ -16,7 +16,7 @@ css/* scss */ `
     width: ${AUTOFILL_EDGE_LENGTH}px;
     border: 1px solid white;
     box-sizing: border-box !important;
-    background-color: #1a73e8;
+    background-color: ${SELECTION_BORDER_COLOR};
   }
 
   .o-autofill-handler {

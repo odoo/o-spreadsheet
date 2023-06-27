@@ -749,7 +749,6 @@ export class GridSelectionPlugin extends UIPlugin {
     const { ctx, thinLineWidth } = renderingContext;
     // selection
     const zones = this.getSelectedZones();
-    ctx.fillStyle = "#f3f7fe";
     const onlyOneCell =
       zones.length === 1 && zones[0].left === zones[0].right && zones[0].top === zones[0].bottom;
     ctx.fillStyle = onlyOneCell ? "#f3f7fe" : "#e9f0ff";

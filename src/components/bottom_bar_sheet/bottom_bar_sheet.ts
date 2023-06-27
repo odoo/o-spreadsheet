@@ -1,5 +1,5 @@
 import { Component, onMounted, onPatched, useRef, useState } from "@odoo/owl";
-import { BOTTOMBAR_HEIGHT } from "../../constants";
+import { BOTTOMBAR_HEIGHT, GREY_BORDER } from "../../constants";
 import { interactiveRenameSheet } from "../../helpers/ui/sheet_interactive";
 import { getSheetMenuRegistry } from "../../registries";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
@@ -12,8 +12,8 @@ css/* scss */ `
     padding: 0 15px;
     padding-right: 10px;
     height: ${BOTTOMBAR_HEIGHT}px;
-    border-left: 1px solid #c1c1c1;
-    border-right: 1px solid #c1c1c1;
+    border-left: 1px solid ${GREY_BORDER};
+    border-right: 1px solid ${GREY_BORDER};
     margin-left: -1px;
     cursor: pointer;
     &:hover {
