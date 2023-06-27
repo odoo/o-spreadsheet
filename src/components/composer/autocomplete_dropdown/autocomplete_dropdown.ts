@@ -5,13 +5,12 @@ import { AutocompleteValue } from "../composer/composer";
 css/* scss */ `
   .o-autocomplete-dropdown {
     pointer-events: auto;
+    cursor: pointer;
     background-color: #fff;
     max-width: 400px;
-    & > div:hover {
-      background-color: #f2f2f2;
-    }
+
     .o-autocomplete-value-focus {
-      background-color: rgba(0, 0, 0, 0.08);
+      background-color: #f2f2f2;
     }
 
     & > div {
@@ -28,6 +27,7 @@ interface Props {
   values: AutocompleteValue[];
   selectedIndex: number | undefined;
   onValueSelected: (value: string) => void;
+  onValueHovered: (index: string) => void;
 }
 
 export class TextValueProvider extends Component<Props> {
@@ -38,4 +38,5 @@ TextValueProvider.props = {
   values: Array,
   selectedIndex: { type: Number, optional: true },
   onValueSelected: Function,
+  onValueHovered: Function,
 };
