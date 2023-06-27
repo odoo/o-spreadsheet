@@ -380,3 +380,22 @@ test.each([
     expect(getCellContent(model, "A1")).toEqual(sanitizedString);
   }
 );
+
+test.each([
+  ["12/31/1999", "36525", "m/d/yyyy"],
+  ["30€", "30", "#,##0[$€]"],
+  ["50.69%", "0.5069", "0.00%"],
+])(
+  "Special literal string %s is stored and exported as a number + format",
+  (literal, value, format) => {
+    const model = new Model();
+    setCellContent(model, "A1", literal);
+    expect(getCell(model, "A1")).toMatchObject({ content: value, format: format });
+    const exportedData = model.exportData();
+    expect(exportedData.sheets[0].cells.A1).toMatchObject({
+      content: value,
+      format: 1,
+    });
+    expect(exportedData.formats["1"]).toEqual(format);
+  }
+);

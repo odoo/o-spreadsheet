@@ -1,4 +1,5 @@
 import { compile, tokenize } from "../../formulas";
+import { parseLiteral } from "../../helpers/cells";
 import {
   concat,
   detectFormat,
@@ -493,6 +494,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     format: Format | undefined,
     style: Style | undefined
   ): LiteralCell {
+    content = parseLiteral(content).toString();
     return {
       id,
       content,
