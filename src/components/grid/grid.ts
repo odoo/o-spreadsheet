@@ -424,10 +424,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     row: HeaderIndex,
     { ctrlKey, shiftKey }: { ctrlKey: boolean; shiftKey: boolean }
   ) {
-    if (ctrlKey) {
-      this.env.model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
-    }
-
     if (this.env.model.getters.hasOpenedPopover()) {
       this.closeOpenedPopover();
     }
@@ -452,7 +448,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       }
     };
     const onMouseUp = () => {
-      this.env.model.dispatch("STOP_SELECTION_INPUT");
       if (this.env.model.getters.isPaintingFormat()) {
         this.env.model.dispatch("PASTE", {
           target: this.env.model.getters.getSelectedZones(),

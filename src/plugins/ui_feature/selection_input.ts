@@ -32,7 +32,6 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
   ranges: RangeInputValue[] = [];
   focusedRangeIndex: number | null = null;
   private activeSheet: UID;
-  private willAddNewRange: boolean = false;
 
   constructor(
     config: UIPluginConfig,
@@ -75,6 +74,16 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
   }
 
   handleEvent(event: SelectionEvent) {
+    if (this.focusedRangeIndex === null) {
+      return;
+    }
+    if (event.mode === "newAnchor") {
+      const index = this.focusedRangeIndex;
+      if (!this.inputHasSingleRange && this.ranges[index].xc.trim() !== "") {
+        this.insertNewRange(this.ranges.length, [""]);
+        this.focusLast();
+      }
+    }
     const inputSheetId = this.activeSheet;
     const sheetId = this.getters.getActiveSheetId();
     const zone = event.anchor.zone;
@@ -82,7 +91,8 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
       sheetId,
       event.options.unbounded ? this.getters.getUnboundedZone(sheetId, zone) : zone
     );
-    this.add([this.getters.getSelectionRangeString(range, inputSheetId)]);
+    const rangeString = this.getters.getSelectionRangeString(range, inputSheetId);
+    this.setRange(this.focusedRangeIndex, [rangeString]);
   }
 
   handle(cmd: Command) {
@@ -119,16 +129,6 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
           this.removeRange(index);
         }
         break;
-      case "STOP_SELECTION_INPUT":
-        this.willAddNewRange = false;
-        break;
-      case "PREPARE_SELECTION_INPUT_EXPANSION": {
-        const index = this.focusedRangeIndex;
-        if (index !== null && !this.inputHasSingleRange) {
-          this.willAddNewRange = this.ranges[index].xc.trim() !== "";
-        }
-        break;
-      }
       case "ACTIVATE_SHEET": {
         if (cmd.sheetIdFrom !== cmd.sheetIdTo) {
           const { col, row } = this.getters.getNextVisibleCellPosition({
@@ -176,19 +176,6 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
 
   private unfocus() {
     this.focusedRangeIndex = null;
-  }
-
-  private add(newRanges: string[]) {
-    if (this.focusedRangeIndex === null || newRanges.length === 0) {
-      return;
-    }
-    if (this.willAddNewRange) {
-      this.insertNewRange(this.ranges.length, newRanges);
-      this.focusLast();
-      this.willAddNewRange = false;
-    } else {
-      this.setRange(this.focusedRangeIndex, newRanges);
-    }
   }
 
   private setContent(index: number, xc: string) {

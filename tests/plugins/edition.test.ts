@@ -434,7 +434,6 @@ describe("edition", () => {
 
     addCellToSelection(model, "D4");
     expect(model.getters.getCurrentContent()).toBe("=SUM(D4");
-    model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
 
     addCellToSelection(model, "E5");
     expect(model.getters.getCurrentContent()).toBe("=SUM(D4,E5");
@@ -462,7 +461,6 @@ describe("edition", () => {
     addCellToSelection(model, "D4");
     addCellToSelection(model, "E5");
     resizeAnchorZone(model, "down");
-    model.dispatch("STOP_SELECTION_INPUT");
 
     expect(model.getters.getCurrentContent()).toBe("=SUM(D4,E5:E6");
     selectCell(model, "F6");

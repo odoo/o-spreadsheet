@@ -120,9 +120,6 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
 
   "COPY",
 
-  "PREPARE_SELECTION_INPUT_EXPANSION",
-  "STOP_SELECTION_INPUT",
-
   "RESIZE_SHEETVIEW",
   "SET_VIEWPORT_OFFSET",
 
@@ -563,24 +560,6 @@ export interface ActivateSheetCommand {
 }
 
 /**
- * Set the selection mode to `readyToExpand`.
- * The user is ready to expand the selected zones with a new
- * selection (i.e. add an other zone the to currently selected zones).
- * In other words, the next selection will be added to the
- * current selection if this mode is active.
- */
-export interface PrepareExpansionCommand {
-  type: "PREPARE_SELECTION_INPUT_EXPANSION";
-}
-
-/**
- * Set the selection mode to `idle`.
- */
-export interface StopSelectionCommand {
-  type: "STOP_SELECTION_INPUT";
-}
-
-/**
  * Set a color to be used for the next selection to highlight.
  * The color is only used when selection highlight is enabled.
  */
@@ -1000,8 +979,6 @@ export type LocalCommand =
   | AutoresizeRowsCommand
   | MoveColumnsRowsCommand
   | ActivateSheetCommand
-  | PrepareExpansionCommand
-  | StopSelectionCommand
   | EvaluateCellsCommand
   | ChangeHighlightCommand
   | StartChangeHighlightCommand
