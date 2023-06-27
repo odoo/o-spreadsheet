@@ -420,12 +420,12 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
           text,
           description,
         };
+      })
+      .sort((a, b) => {
+        return a.text.length - b.text.length || a.text.localeCompare(b.text);
       });
     if (searchTerm) {
       values = fuzzyLookup(searchTerm, values, (t) => t.text);
-    } else {
-      // alphabetical order
-      values = values.sort((a, b) => a.text.localeCompare(b.text));
     }
     this.autoCompleteState.values = values.slice(0, 10);
     this.autoCompleteState.selectedIndex = 0;
