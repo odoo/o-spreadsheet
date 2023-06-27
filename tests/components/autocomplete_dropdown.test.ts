@@ -2,7 +2,13 @@ import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import { selectCell } from "../test_helpers/commands_helpers";
-import { click, keyDown, keyUp, simulateClick } from "../test_helpers/dom_helper";
+import {
+  click,
+  keyDown,
+  keyUp,
+  simulateClick,
+  triggerMouseEvent,
+} from "../test_helpers/dom_helper";
 import { getCellText } from "../test_helpers/getters_helpers";
 import {
   ComposerWrapper,
@@ -225,6 +231,26 @@ describe("Functions autocomplete", () => {
 
       await simulateClick(dropDownEl);
       expect(document.activeElement).toEqual(activeElement);
+    });
+
+    test("Hovering over an autocomplete entry highlights it as the current choice", async () => {
+      await typeInComposer("=S");
+      expect(
+        fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
+      ).toBe("SUM");
+      const entries = fixture.querySelectorAll(".o-autocomplete-value");
+      const firstEntry = entries[0];
+      const secondEntry = entries[1];
+      triggerMouseEvent(secondEntry, "mousemove");
+      await nextTick();
+      expect(
+        fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
+      ).toBe("SZZ");
+      triggerMouseEvent(firstEntry, "mousemove");
+      await nextTick();
+      expect(
+        fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
+      ).toBe("SUM");
     });
   });
 

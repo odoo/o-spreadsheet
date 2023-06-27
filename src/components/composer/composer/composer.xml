@@ -33,6 +33,7 @@
           values="autoCompleteState.values"
           selectedIndex="autoCompleteState.selectedIndex"
           onValueSelected.bind="this.autoComplete"
+          onValueHovered.bind="this.updateAutoCompleteIndex"
         />
         <FunctionDescriptionProvider
           t-if="functionDescriptionState.showDescription"

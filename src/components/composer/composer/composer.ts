@@ -2,7 +2,7 @@ import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from
 import { DEFAULT_FONT, NEWLINE } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/index";
 import { functionRegistry } from "../../../functions/index";
-import { fuzzyLookup, getZoneArea, isEqual, splitReference } from "../../../helpers/index";
+import { clip, fuzzyLookup, getZoneArea, isEqual, splitReference } from "../../../helpers/index";
 import { interactiveStopEdition } from "../../../helpers/ui/stop_edition_interactive";
 import { ComposerSelection } from "../../../plugins/ui_stateful/edition";
 
@@ -429,6 +429,10 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     }
     this.autoCompleteState.values = values.slice(0, 10);
     this.autoCompleteState.selectedIndex = 0;
+  }
+
+  updateAutoCompleteIndex(index: number) {
+    this.autoCompleteState.selectedIndex = clip(0, index, 10);
   }
 
   /**
