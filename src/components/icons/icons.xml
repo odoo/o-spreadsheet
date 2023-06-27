@@ -839,4 +839,12 @@
       />
     </svg>
   </t>
+  <t t-name="o-spreadsheet-Icon.DISPLAY_HEADER" owl="1">
+    <svg class="o-icon" width="18" height="18">
+      <path
+        fill="currentColor"
+        d="M.75.5h16.5v17H.75m1.5-12H.75V7h1.5v1.5H.75V10h1.5v1.5H.75V13h1.5v1.5H.75V16h1.5v1.5h1.5V16h1.5v1.5h1.5V16h1.5v1.5h1.5V16h1.5v1.5h1.5V16h1.5v1.5h1.5V16h1.5v-1.5h-1.5V13h1.5v-1.5h-1.5V10h1.5V8.5h-1.5V7h1.5V5.5M2.75 2.25v1.5h2v-1.5m2.5 0v1.5h7v-1.5"
+      />
+    </svg>
+  </t>
 </templates>
