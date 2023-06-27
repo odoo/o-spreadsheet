@@ -36,9 +36,9 @@ export class DependencyContainer {
     this.dependencies.set(Store, instance);
   }
 
-  get<T>(Store: StoreConstructor<T>): T {
+  get<T>(Store: StoreConstructor<T>, ...args: StoreParameters<StoreConstructor<T>>): T {
     if (!this.dependencies.has(Store)) {
-      this.dependencies.set(Store, this.instantiate(Store));
+      this.dependencies.set(Store, this.instantiate(Store, ...args));
     }
     return this.dependencies.get(Store);
   }
