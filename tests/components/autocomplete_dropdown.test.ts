@@ -41,31 +41,36 @@ async function typeInComposer(text: string, fromScratch: boolean = true) {
 
 beforeEach(() => {
   clearFunctions();
-  functionRegistry.add("IF", {
-    description: "do if",
-    args: [],
-    compute: () => 1,
-    returns: ["ANY"],
-  });
-  functionRegistry.add("SUM", {
-    description: "do sum",
-    args: [],
-    compute: () => 1,
-    returns: ["ANY"],
-  });
-  functionRegistry.add("SZZ", {
-    description: "do something",
-    args: [],
-    compute: () => 1,
-    returns: ["ANY"],
-  });
-  functionRegistry.add("HIDDEN", {
-    description: "do something",
-    args: [],
-    compute: () => 1,
-    returns: ["ANY"],
-    hidden: true,
-  });
+  functionRegistry
+    .add("IF", {
+      description: "do if",
+      args: [],
+      compute: () => 1,
+      returns: ["ANY"],
+    })
+    .add("SUM", {
+      description: "do sum",
+      args: [],
+      compute: () => 1,
+      returns: ["ANY"],
+    })
+    .add("SZZ", {
+      description: "do something",
+      args: [],
+      compute: () => 1,
+      returns: ["ANY"],
+    })
+    .add("HIDDEN", {
+      description: "do something",
+      args: [],
+      compute: () => 1,
+      returns: ["ANY"],
+      hidden: true,
+    });
+});
+
+afterEach(() => {
+  restoreDefaultFunctions();
 });
 
 describe("Functions autocomplete", () => {
@@ -75,10 +80,6 @@ describe("Functions autocomplete", () => {
     parent.startComposition();
     await nextTick();
     composerEl = fixture.querySelector("div.o-composer")!;
-  });
-
-  afterAll(() => {
-    restoreDefaultFunctions();
   });
 
   describe("autocomplete", () => {
@@ -413,7 +414,7 @@ describe("autocomplete boolean functions", () => {
     await nextTick();
   });
 
-  afterAll(() => {
+  afterEach(() => {
     restoreDefaultFunctions();
   });
 
@@ -439,4 +440,64 @@ describe("autocomplete boolean functions", () => {
       expect(fixture.querySelector(".o-autocomplete-value")).toBeNull();
     }
   );
+});
+describe("composer entries", () => {
+  beforeEach(() => {
+    clearFunctions();
+    functionRegistry
+      .add("SEC", {
+        description: "",
+        args: [],
+        compute: () => 1,
+        returns: ["ANY"],
+      })
+      .add("SUPER", {
+        description: "",
+        args: [],
+        compute: () => 1,
+        returns: ["ANY"],
+      })
+      .add("SIN", {
+        description: "",
+        args: [],
+        compute: () => 1,
+        returns: ["ANY"],
+      })
+      .add("SLNT", {
+        description: "",
+        args: [],
+        compute: () => 1,
+        returns: ["ANY"],
+      })
+      .add("SECQ", {
+        description: "",
+        args: [],
+        compute: () => 1,
+        returns: ["ANY"],
+      })
+      .add("SAPER", {
+        description: "",
+        args: [],
+        compute: () => 1,
+        returns: ["ANY"],
+      })
+      .add("SLN", {
+        description: "",
+        args: [],
+        compute: () => 1,
+        returns: ["ANY"],
+      });
+  });
+  test("Autocomplente entries are sorted by length and then alphanumerically", async () => {
+    ({ fixture, parent } = await mountComposerWrapper());
+    await typeInComposer("=S");
+    const entries = fixture.querySelectorAll(".o-autocomplete-value");
+    expect(entries[0].textContent).toBe("SEC");
+    expect(entries[1].textContent).toBe("SIN");
+    expect(entries[2].textContent).toBe("SLN");
+    expect(entries[3].textContent).toBe("SECQ");
+    expect(entries[4].textContent).toBe("SLNT");
+    expect(entries[5].textContent).toBe("SAPER");
+    expect(entries[6].textContent).toBe("SUPER");
+  });
 });
