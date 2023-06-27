@@ -563,6 +563,40 @@ describe("clipboard", () => {
       expect(firstCellStyle).toContain("background:#123456;");
     });
 
+    test("Clipboard HTML has computed style of cells", async () => {
+      const sheetId = model.getters.getActiveSheetId();
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "3");
+      setStyle(model, "A1", { bold: true });
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createEqualCF("3", { fillColor: "#123456" }, "id"),
+        ranges: toRangesData(sheetId, "A2"),
+        sheetId,
+      });
+      copy(model, "A1:A2");
+
+      const html = model.getters.getClipboardContent()[ClipboardMIMEType.Html]!;
+      const matchPattern = /<td style="(.*?)">.*?<\/td>/g;
+      const computedStyle = html.match(matchPattern)!;
+      expect(computedStyle).toStrictEqual([
+        '<td style="font-weight:bold;">1</td>',
+        '<td style="background:#123456;">3</td>',
+      ]);
+
+      setStyle(model, "A1", { italic: true });
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createEqualCF("3", { fillColor: "#FF0000" }, "id"),
+        ranges: toRangesData(sheetId, "A2"),
+        sheetId,
+      });
+      const updatedHtmlContent = model.getters.getClipboardContent()[ClipboardMIMEType.Html]!;
+      const updatedComputedStyle = updatedHtmlContent.match(matchPattern)!;
+      expect(updatedComputedStyle).toStrictEqual([
+        '<td style="font-weight:bold; font-style:italic;">1</td>',
+        '<td style="background:#FF0000;">3</td>',
+      ]);
+    });
+
     test("Copied cells have their content escaped", async () => {
       const cellContent = "<div>1</div>";
       setCellContent(model, "A1", cellContent);

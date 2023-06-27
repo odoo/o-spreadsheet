@@ -496,7 +496,9 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
     for (const row of this.cells) {
       htmlTable += "<tr>";
       for (const cell of row) {
-        const cssStyle = cssPropertiesToCss(cellStyleToCss(cell.style));
+        const cssStyle = cssPropertiesToCss(
+          cellStyleToCss(this.getters.getCellComputedStyle(cell.position))
+        );
         const cellText = this.getters.getCellText(cell.position);
         htmlTable += `<td style="${cssStyle}">` + xmlEscape(cellText) + "</td>";
       }
