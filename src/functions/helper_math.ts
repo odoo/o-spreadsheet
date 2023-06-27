@@ -1,11 +1,11 @@
-import { MatrixArgFormat, MatrixArgValue, PrimitiveArgValue } from "../types";
+import { Format, MatrixArgFormat, MatrixArgValue, PrimitiveArgValue } from "../types";
 
 export function mapValueAndFormat(
   nRows: number,
   nColumns: number,
   computeFormat: boolean,
-  value_callback,
-  format_callback
+  value_callback: (i: number, j: number) => any,
+  format_callback: (i: number, j: number) => Format | undefined
 ) {
   const returned = {
     value: Array(nColumns),
@@ -17,7 +17,7 @@ export function mapValueAndFormat(
       returned.format[i] = Array(nRows);
     }
     for (let j = 0; j < nRows; j++) {
-      returned.value[i][j] = value_callback(i, j) || 0;
+      returned.value[i][j] = value_callback(i, j) ?? 0;
       if (returned.format !== undefined) {
         returned.format[i][j] = format_callback(i, j);
       }

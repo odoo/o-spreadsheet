@@ -766,6 +766,10 @@ export function toMatrixArgValue(values: ArgValue): MatrixArgValue {
   return [[values === null ? 0 : values]];
 }
 
+export function toMatrix<T>(data: T | Matrix<T>): Matrix<T> {
+  return isMatrix(data) ? data : [[data]];
+}
+
 /**
  * Flatten an array of items, where each item can be a single value or a 2D array, and apply the
  * callback to each element.
