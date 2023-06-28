@@ -11,7 +11,7 @@ export interface ActionSpec {
    * String or a function to compute the name
    */
   name: string | ((env: SpreadsheetChildEnv) => string);
-  description?: string;
+  description?: string | ((env: SpreadsheetChildEnv) => string);
   /**
    * which represents its position inside the
    * menus (the lower sequence it has, the upper it is in the menu)
@@ -61,7 +61,7 @@ export interface ActionSpec {
 
 export interface Action {
   name: (env: SpreadsheetChildEnv) => string;
-  description: string;
+  description: (env: SpreadsheetChildEnv) => string;
   sequence: number;
   id: string;
   isVisible: (env: SpreadsheetChildEnv) => boolean;
@@ -87,6 +87,7 @@ const uuidGenerator = new UuidGenerator();
 export function createAction(item: ActionSpec): Action {
   const name = item.name;
   const children = item.children;
+  const description = item.description;
   return {
     id: item.id || uuidGenerator.uuidv4(),
     name: typeof name === "function" ? name : () => name,
@@ -105,7 +106,7 @@ export function createAction(item: ActionSpec): Action {
     isReadonlyAllowed: item.isReadonlyAllowed || false,
     separator: item.separator || false,
     icon: item.icon || "",
-    description: item.description || "",
+    description: typeof description === "function" ? description : () => description || "",
     textColor: item.textColor,
     sequence: item.sequence || 0,
   };

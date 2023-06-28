@@ -20,7 +20,9 @@ import {
   setCellContent,
   setSelection,
   setStyle,
+  updateLocale,
 } from "./test_helpers/commands_helpers";
+import { FR_LOCALE } from "./test_helpers/constants";
 import { getCell, getCellContent, getEvaluatedCell } from "./test_helpers/getters_helpers";
 import {
   doAction,
@@ -70,7 +72,7 @@ describe("Menu Item Registry", () => {
     expect(child.children(env)).toHaveLength(3);
     const subChild = child.children(env)[0];
     expect(subChild.name(env)).toBe("Child2");
-    expect(subChild.description).toBe("coucou");
+    expect(subChild.description(env)).toBe("coucou");
     expect(subChild.id).toBe("child2");
 
     const allChildren = child.children(env);
@@ -889,6 +891,35 @@ describe("Menu Item actions", () => {
         format: "#,##0.00",
       });
       expect(action.isActive?.(env)).toBe(true);
+    });
+
+    test.each([
+      ["format_number_number", "1,000.12"],
+      ["format_number_percent", "10.12%"],
+      ["format_number_currency", "$1,000.12"],
+      ["format_number_currency_rounded", "$1,000"],
+      ["format_number_date", "9/26/2023"],
+      ["format_number_time", "10:43:00 PM"],
+      ["format_number_date_time", "9/26/2023 10:43:00 PM"],
+      ["format_number_duration", "27:51:38"],
+    ])("number formatting description with default locale", (actionId, expectedDescription) => {
+      const action = getNode(["format", "format_number", actionId]);
+      expect(action.description(env)).toBe(expectedDescription);
+    });
+
+    test.each([
+      ["format_number_number", "1 000,12"],
+      ["format_number_percent", "10,12%"],
+      ["format_number_currency", "$1 000,12"],
+      ["format_number_currency_rounded", "$1 000"],
+      ["format_number_date", "26/09/2023"],
+      ["format_number_time", "22:43:00"],
+      ["format_number_date_time", "26/09/2023 22:43:00"],
+      ["format_number_duration", "27:51:38"],
+    ])("number formatting description with custom locale", (actionId, expectedDescription) => {
+      updateLocale(model, FR_LOCALE);
+      const action = getNode(["format", "format_number", actionId]);
+      expect(action.description(env)).toBe(expectedDescription);
     });
 
     test("Percent", () => {
