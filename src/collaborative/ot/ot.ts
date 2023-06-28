@@ -1,22 +1,31 @@
-import { isDefined, isInside } from "../../helpers/index";
+import {
+  getAddHeaderStartIndex,
+  isDefined,
+  isInside,
+  moveHeaderIndexesOnHeaderAddition,
+  moveHeaderIndexesOnHeaderDeletion,
+} from "../../helpers/index";
 import { otRegistry } from "../../registries/ot_registry";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
   CoreCommand,
-  GridDependentCommand,
   HeaderIndex,
+  isPositionDependent,
+  isSheetDependent,
+  isTargetDependent,
   PositionDependentCommand,
   RemoveColumnsRowsCommand,
   SheetDependentCommand,
   TargetDependentCommand,
   Zone,
-  isGridDependent,
-  isPositionDependent,
-  isSheetDependent,
-  isTargetDependent,
 } from "../../types";
-import { RangesDependentCommand, isRangeDependant } from "./../../types/commands";
+import {
+  HeadersDependentCommand,
+  isHeadersDependant,
+  isRangeDependant,
+  RangesDependentCommand,
+} from "./../../types/commands";
 import { RangeData } from "./../../types/range";
 import { transformZone } from "./ot_helpers";
 import "./ot_specific";
@@ -30,7 +39,7 @@ const transformations: {
   { match: isSheetDependent, fn: transformSheetId },
   { match: isTargetDependent, fn: transformTarget },
   { match: isPositionDependent, fn: transformPosition },
-  { match: isGridDependent, fn: transformDimension },
+  { match: isHeadersDependant, fn: transformHeaders },
   { match: isRangeDependant, fn: transformRangeData },
 ];
 
@@ -95,22 +104,22 @@ function genericTransform(cmd: CoreCommand, executed: CoreCommand): CoreCommand 
 }
 
 function transformSheetId(
-  cmd: Extract<CoreCommand, SheetDependentCommand>,
+  toTransform: Extract<CoreCommand, SheetDependentCommand>,
   executed: CoreCommand
 ): CoreCommand | TransformResult {
   if (!("sheetId" in executed)) {
-    return cmd;
+    return toTransform;
   }
 
   const deleteSheet = executed.type === "DELETE_SHEET" && executed.sheetId;
-  if (cmd.sheetId === deleteSheet) {
+  if (toTransform.sheetId === deleteSheet) {
     return "IGNORE_COMMAND";
   } else if (
-    cmd.type === "CREATE_SHEET" ||
+    toTransform.type === "CREATE_SHEET" ||
     executed.type === "CREATE_SHEET" ||
-    cmd.sheetId !== executed.sheetId
+    toTransform.sheetId !== executed.sheetId
   ) {
-    return cmd;
+    return toTransform;
   }
   return "SKIP_TRANSFORMATION";
 }
@@ -137,16 +146,16 @@ function transformTarget(
 }
 
 function transformRangeData(
-  cmd: Extract<CoreCommand, RangesDependentCommand>,
+  toTransform: Extract<CoreCommand, RangesDependentCommand>,
   executed: CoreCommand
 ): Extract<CoreCommand, RangesDependentCommand> | TransformResult {
   if (!("sheetId" in executed)) {
-    return cmd;
+    return toTransform;
   }
 
   const ranges: RangeData[] = [];
   const deletedSheet = executed.type === "DELETE_SHEET" && executed.sheetId;
-  for (const range of cmd.ranges) {
+  for (const range of toTransform.ranges) {
     if (range._sheetId !== executed.sheetId) {
       ranges.push({ ...range, _zone: range._zone });
     } else {
@@ -159,54 +168,36 @@ function transformRangeData(
   if (!ranges.length) {
     return "IGNORE_COMMAND";
   }
-  return { ...cmd, ranges };
+  return { ...toTransform, ranges };
 }
 
-function transformDimension(
-  cmd: Extract<CoreCommand, GridDependentCommand>,
+function transformHeaders(
+  toTransform: Extract<CoreCommand, HeadersDependentCommand>,
   executed: CoreCommand
 ): CoreCommand | TransformResult {
-  const transformSheetResult = transformSheetId(cmd, executed);
+  const transformSheetResult = transformSheetId(toTransform, executed);
   if (transformSheetResult !== "SKIP_TRANSFORMATION") {
-    return transformSheetResult === "IGNORE_COMMAND" ? "IGNORE_COMMAND" : cmd;
+    return transformSheetResult === "IGNORE_COMMAND" ? "IGNORE_COMMAND" : toTransform;
   }
-  if (executed.type === "ADD_COLUMNS_ROWS" || executed.type === "REMOVE_COLUMNS_ROWS") {
-    if (executed.dimension !== cmd.dimension) {
-      return cmd;
-    }
-    const isUnique = cmd.type === "ADD_COLUMNS_ROWS";
-    const field = isUnique ? "base" : "elements";
-    let elements: HeaderIndex[] = isUnique ? [cmd[field]] : cmd[field];
-    if (executed.type === "REMOVE_COLUMNS_ROWS") {
-      elements = elements
-        .map((element) => {
-          if (executed.elements.includes(element)) {
-            return undefined;
-          }
-          const executedElements = executed.elements.sort((a, b) => b - a);
-          for (let removedElement of executedElements) {
-            if (element > removedElement) {
-              element--;
-            }
-          }
-          return element;
-        })
-        .filter(isDefined);
-    }
-    if (executed.type === "ADD_COLUMNS_ROWS") {
-      const base = executed.position === "before" ? executed.base - 1 : executed.base;
-      elements = elements.map((el) => (el > base ? el + executed.quantity : el));
-    }
-    if (elements.length) {
-      let result: HeaderIndex[] | HeaderIndex = elements;
-      if (isUnique) {
-        result = elements[0];
-      }
-      return { ...cmd, [field]: result };
-    }
+  if (executed.type !== "ADD_COLUMNS_ROWS" && executed.type !== "REMOVE_COLUMNS_ROWS") {
+    return "SKIP_TRANSFORMATION";
+  }
+  if (executed.dimension !== toTransform.dimension) {
+    return toTransform;
+  }
+
+  let result: HeaderIndex[] = [];
+  if (executed.type === "REMOVE_COLUMNS_ROWS") {
+    result = moveHeaderIndexesOnHeaderDeletion(executed.elements, toTransform.elements);
+  } else if (executed.type === "ADD_COLUMNS_ROWS") {
+    const base = getAddHeaderStartIndex(executed.position, executed.base);
+    result = moveHeaderIndexesOnHeaderAddition(base, executed.quantity, toTransform.elements);
+  }
+
+  if (result.length === 0) {
     return "IGNORE_COMMAND";
   }
-  return "SKIP_TRANSFORMATION";
+  return { ...toTransform, elements: result };
 }
 
 /**
@@ -214,18 +205,18 @@ function transformDimension(
  * (Add/remove cols/rows) and a merge
  */
 function transformPosition(
-  cmd: Extract<CoreCommand, PositionDependentCommand>,
+  toTransform: Extract<CoreCommand, PositionDependentCommand>,
   executed: CoreCommand
 ): Extract<CoreCommand, PositionDependentCommand> | TransformResult {
-  const transformSheetResult = transformSheetId(cmd, executed);
+  const transformSheetResult = transformSheetId(toTransform, executed);
   if (transformSheetResult !== "SKIP_TRANSFORMATION") {
-    return transformSheetResult === "IGNORE_COMMAND" ? "IGNORE_COMMAND" : cmd;
+    return transformSheetResult === "IGNORE_COMMAND" ? "IGNORE_COMMAND" : toTransform;
   }
   if (executed.type === "ADD_COLUMNS_ROWS" || executed.type === "REMOVE_COLUMNS_ROWS") {
-    return transformPositionWithGrid(cmd, executed);
+    return transformPositionWithGrid(toTransform, executed);
   }
   if (executed.type === "ADD_MERGE") {
-    return transformPositionWithMerge(cmd, executed);
+    return transformPositionWithMerge(toTransform, executed);
   }
   return "SKIP_TRANSFORMATION";
 }
@@ -235,11 +226,11 @@ function transformPosition(
  * transformation consists of updating the position.
  */
 function transformPositionWithGrid(
-  cmd: Extract<CoreCommand, PositionDependentCommand>,
+  toTransform: Extract<CoreCommand, PositionDependentCommand>,
   executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
 ): Extract<CoreCommand, PositionDependentCommand> | TransformResult {
   const field = executed.dimension === "COL" ? "col" : "row";
-  let base = cmd[field];
+  let base = toTransform[field];
   if (executed.type === "REMOVE_COLUMNS_ROWS") {
     const elements = [...executed.elements].sort((a, b) => b - a);
     if (elements.includes(base)) {
@@ -256,7 +247,7 @@ function transformPositionWithGrid(
       base = base + executed.quantity;
     }
   }
-  return { ...cmd, [field]: base };
+  return { ...toTransform, [field]: base };
 }
 
 /**
@@ -264,14 +255,14 @@ function transformPositionWithGrid(
  * consists of checking that the position is not inside the merged zones
  */
 function transformPositionWithMerge(
-  cmd: Extract<CoreCommand, PositionDependentCommand>,
+  toTransform: Extract<CoreCommand, PositionDependentCommand>,
   executed: AddMergeCommand
 ): Extract<CoreCommand, PositionDependentCommand> | TransformResult {
   for (const zone of executed.target) {
-    const sameTopLeft = cmd.col === zone.left && cmd.row === zone.top;
-    if (!sameTopLeft && isInside(cmd.col, cmd.row, zone)) {
+    const sameTopLeft = toTransform.col === zone.left && toTransform.row === zone.top;
+    if (!sameTopLeft && isInside(toTransform.col, toTransform.row, zone)) {
       return "IGNORE_COMMAND";
     }
   }
-  return cmd;
+  return toTransform;
 }
