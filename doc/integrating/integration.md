@@ -49,6 +49,7 @@ const model = new Model(data, config);
   - `external`: External dependencies required to enable some features such as uploading images.
   - [`transportService`](../integrating/collaborative/collaborative.md) Service which ensure the communication in a collaborative context
   - `client` Client information (name, id). Used in collaborative context to indicate the positions of all clients.
+  - `defaultCurrencyFormat`: currency format proposed in the menu. e.g. `"[$€]#,##0.00"` for Euro (defaults to `"[$$]#,##0.00"`)
   - `snapshotRequested` Boolean that set to true will indicate to the session that a snapshot has to be done after the loading of revisions.
   - `notifyUI` Function that will be called whenever something has to be asked to the user.
 

@@ -1,6 +1,11 @@
 import { parseDateTime } from "../../src/helpers";
-import { formatValue, isDateTimeFormat } from "../../src/helpers/format";
-import { DEFAULT_LOCALE } from "../../src/types";
+import {
+  createCurrencyFormat,
+  formatValue,
+  isDateTimeFormat,
+  roundFormat,
+} from "../../src/helpers/format";
+import { Currency, DEFAULT_LOCALE } from "../../src/types";
 import { FR_LOCALE } from "./../test_helpers/constants";
 
 const locale = DEFAULT_LOCALE;
@@ -893,5 +898,58 @@ describe("formatValue on date and time", () => {
       const value = parseDateTime(date, locale)!.value;
       expect(formatValue(value, { format: "hhhh:mm:ss", locale })).toBe(result);
     });
+  });
+});
+
+describe("rounding format", () => {
+  test("round format", () => {
+    expect(roundFormat("#,##0.00")).toBe("#,##0");
+    expect(roundFormat("#,##0")).toBe("#,##0");
+    expect(roundFormat("#,##0.")).toBe("#,##0");
+    expect(roundFormat("0.00%")).toBe("0%");
+    expect(roundFormat("[$$]#,##0.00")).toBe("[$$]#,##0");
+    expect(roundFormat("ddd-mm-yyyy")).toBe("ddd-mm-yyyy");
+  });
+});
+
+describe("create currency format", () => {
+  const symbol = "θ";
+  const code = "O$OO";
+
+  test("full currency", () => {
+    const currency: Currency = {
+      code,
+      symbol,
+      decimalPlaces: 2,
+      name: "Odoo Dollar",
+      position: "before",
+    };
+    const format = createCurrencyFormat(currency);
+    expect(format).toBe("[$O$OO θ]#,##0.00");
+    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("O$OO θ1,234.56");
+  });
+
+  test("custom decimal places currency", () => {
+    const format = createCurrencyFormat({ symbol, decimalPlaces: 4 });
+    expect(format).toBe("[$θ]#,##0.0000");
+    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("θ1,234.5600");
+  });
+
+  test("without decimal places currency", () => {
+    const format = createCurrencyFormat({ symbol, decimalPlaces: 0 });
+    expect(format).toBe("[$θ]#,##0");
+    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("θ1,235");
+  });
+
+  test("currency with symbol placed after", () => {
+    const format = createCurrencyFormat({ symbol, position: "after" });
+    expect(format).toBe("#,##0.00[$θ]");
+    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("1,234.56θ");
+  });
+
+  test("currency with symbol and code placed after", () => {
+    const format = createCurrencyFormat({ symbol, code, position: "after" });
+    expect(format).toBe("#,##0.00[$ O$OO θ]");
+    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("1,234.56 O$OO θ");
   });
 });

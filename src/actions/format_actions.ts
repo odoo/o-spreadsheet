@@ -1,5 +1,5 @@
 import { DEFAULT_FONT_SIZE, DEFAULT_VERTICAL_ALIGN, FONT_SIZES } from "../constants";
-import { formatValue } from "../helpers";
+import { formatValue, roundFormat } from "../helpers";
 import { parseLiteral } from "../helpers/cells";
 import { _lt } from "../translation";
 import { Align, DEFAULT_LOCALE, SpreadsheetChildEnv } from "../types";
@@ -45,22 +45,26 @@ export const formatNumberCurrency: ActionSpec = {
   name: _lt("Currency"),
   description: (env) =>
     formatValue(1000.12, {
-      format: "[$$]#,##0.00",
+      format: env.model.config.defaultCurrencyFormat,
       locale: env.model.getters.getLocale(),
     }),
-  execute: (env) => setFormatter(env, "[$$]#,##0.00"),
-  isActive: (env) => isFormatSelected(env, "[$$]#,##0.00"),
+  execute: (env) => setFormatter(env, env.model.config.defaultCurrencyFormat),
+  isActive: (env) => isFormatSelected(env, env.model.config.defaultCurrencyFormat),
 };
 
 export const formatNumberCurrencyRounded: ActionSpec = {
   name: _lt("Currency rounded"),
   description: (env) =>
     formatValue(1000, {
-      format: "[$$]#,##0",
+      format: roundFormat(env.model.config.defaultCurrencyFormat),
       locale: env.model.getters.getLocale(),
     }),
-  execute: (env) => setFormatter(env, "[$$]#,##0"),
-  isActive: (env) => isFormatSelected(env, "[$$]#,##0"),
+  execute: (env) => setFormatter(env, roundFormat(env.model.config.defaultCurrencyFormat)),
+  isActive: (env) => isFormatSelected(env, roundFormat(env.model.config.defaultCurrencyFormat)),
+  isVisible: (env) => {
+    const currencyFormat = env.model.config.defaultCurrencyFormat;
+    return currencyFormat !== roundFormat(currencyFormat);
+  },
 };
 
 export const formatCustomCurrency: ActionSpec = {
