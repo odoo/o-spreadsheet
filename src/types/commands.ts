@@ -53,13 +53,14 @@ export function isSheetDependent(cmd: CoreCommand): boolean {
   return "sheetId" in cmd;
 }
 
-export interface GridDependentCommand {
+export interface HeadersDependentCommand {
   sheetId: UID;
   dimension: Dimension;
+  elements: HeaderIndex[];
 }
 
-export function isGridDependent(cmd: CoreCommand): boolean {
-  return "dimension" in cmd && "sheetId" in cmd;
+export function isHeadersDependant(cmd: CoreCommand): boolean {
+  return "dimension" in cmd && "sheetId" in cmd && "elements" in cmd;
 }
 
 export interface TargetDependentCommand {
@@ -240,36 +241,37 @@ export interface UpdateCellPositionCommand extends PositionDependentCommand {
 // Grid Shape
 //------------------------------------------------------------------------------
 
-export interface AddColumnsRowsCommand extends GridDependentCommand {
+export interface AddColumnsRowsCommand extends SheetDependentCommand {
   type: "ADD_COLUMNS_ROWS";
+  dimension: Dimension;
   base: HeaderIndex;
   quantity: number;
   position: "before" | "after";
 }
 
-export interface RemoveColumnsRowsCommand extends GridDependentCommand {
+export interface RemoveColumnsRowsCommand extends HeadersDependentCommand {
   type: "REMOVE_COLUMNS_ROWS";
   elements: HeaderIndex[];
 }
 
-export interface MoveColumnsRowsCommand extends GridDependentCommand {
+export interface MoveColumnsRowsCommand extends HeadersDependentCommand {
   type: "MOVE_COLUMNS_ROWS";
   base: HeaderIndex;
   elements: HeaderIndex[];
 }
 
-export interface ResizeColumnsRowsCommand extends GridDependentCommand {
+export interface ResizeColumnsRowsCommand extends HeadersDependentCommand {
   type: "RESIZE_COLUMNS_ROWS";
   elements: number[];
   size: number | null;
 }
 
-export interface HideColumnsRowsCommand extends GridDependentCommand {
+export interface HideColumnsRowsCommand extends HeadersDependentCommand {
   type: "HIDE_COLUMNS_ROWS";
   elements: HeaderIndex[];
 }
 
-export interface UnhideColumnsRowsCommand extends GridDependentCommand {
+export interface UnhideColumnsRowsCommand extends HeadersDependentCommand {
   type: "UNHIDE_COLUMNS_ROWS";
   elements: HeaderIndex[];
 }

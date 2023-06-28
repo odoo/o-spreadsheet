@@ -1,4 +1,9 @@
-import { overlap } from "../../helpers";
+import {
+  getAddHeaderStartIndex,
+  moveHeaderIndexesOnHeaderAddition,
+  moveHeaderIndexesOnHeaderDeletion,
+  overlap,
+} from "../../helpers";
 import { transformDefinition } from "../../helpers/figures/charts";
 import { otRegistry } from "../../registries";
 import {
@@ -11,6 +16,7 @@ import {
   DeleteSheetCommand,
   FreezeColumnsCommand,
   FreezeRowsCommand,
+  HeaderIndex,
   MoveRangeCommand,
   RemoveColumnsRowsCommand,
   RemoveMergeCommand,
@@ -22,6 +28,9 @@ import {
 /*
  * This file contains the specifics transformations
  */
+
+otRegistry.addTransformation("ADD_COLUMNS_ROWS", ["ADD_COLUMNS_ROWS"], addHeadersTransformation);
+otRegistry.addTransformation("REMOVE_COLUMNS_ROWS", ["ADD_COLUMNS_ROWS"], addHeadersTransformation);
 
 otRegistry.addTransformation(
   "ADD_COLUMNS_ROWS",
@@ -58,14 +67,14 @@ otRegistry.addTransformation(
 );
 
 function transformTargetSheetId(
-  cmd: MoveRangeCommand,
+  toTransform: MoveRangeCommand,
   executed: DeleteSheetCommand
 ): MoveRangeCommand | undefined {
   const deletedSheetId = executed.sheetId;
-  if (cmd.targetSheetId === deletedSheetId || cmd.sheetId === deletedSheetId) {
+  if (toTransform.targetSheetId === deletedSheetId || toTransform.sheetId === deletedSheetId) {
     return undefined;
   }
-  return cmd;
+  return toTransform;
 }
 
 function updateChartFigure(
@@ -89,30 +98,30 @@ function updateChartRangesTransformation(
 }
 
 function createSheetTransformation(
-  cmd: CreateSheetCommand,
+  toTransform: CreateSheetCommand,
   executed: CreateSheetCommand
 ): CreateSheetCommand {
-  if (cmd.name === executed.name) {
+  if (toTransform.name === executed.name) {
     return {
-      ...cmd,
-      name: cmd.name?.match(/\d+/)
-        ? cmd.name.replace(/\d+/, (n) => (parseInt(n) + 1).toString())
-        : `${cmd.name}~`,
-      position: cmd.position + 1,
+      ...toTransform,
+      name: toTransform.name?.match(/\d+/)
+        ? toTransform.name.replace(/\d+/, (n) => (parseInt(n) + 1).toString())
+        : `${toTransform.name}~`,
+      position: toTransform.position + 1,
     };
   }
-  return cmd;
+  return toTransform;
 }
 
 function mergeTransformation(
-  cmd: AddMergeCommand | RemoveMergeCommand | CreateFilterTableCommand,
+  toTransform: AddMergeCommand | RemoveMergeCommand | CreateFilterTableCommand,
   executed: AddMergeCommand
 ): AddMergeCommand | RemoveMergeCommand | CreateFilterTableCommand | undefined {
-  if (cmd.sheetId !== executed.sheetId) {
-    return cmd;
+  if (toTransform.sheetId !== executed.sheetId) {
+    return toTransform;
   }
   const target: Zone[] = [];
-  for (const zone1 of cmd.target) {
+  for (const zone1 of toTransform.target) {
     for (const zone2 of executed.target) {
       if (!overlap(zone1, zone2)) {
         target.push({ ...zone1 });
@@ -120,23 +129,23 @@ function mergeTransformation(
     }
   }
   if (target.length) {
-    return { ...cmd, target };
+    return { ...toTransform, target };
   }
   return undefined;
 }
 
 function freezeTransformation(
-  cmd: FreezeColumnsCommand | FreezeRowsCommand,
+  toTransform: FreezeColumnsCommand | FreezeRowsCommand,
   executed: RemoveColumnsRowsCommand | AddColumnsRowsCommand
 ): FreezeColumnsCommand | FreezeRowsCommand | undefined {
-  if (cmd.sheetId !== executed.sheetId) {
-    return cmd;
+  if (toTransform.sheetId !== executed.sheetId) {
+    return toTransform;
   }
-  const dimension = cmd.type === "FREEZE_COLUMNS" ? "COL" : "ROW";
+  const dimension = toTransform.type === "FREEZE_COLUMNS" ? "COL" : "ROW";
   if (dimension !== executed.dimension) {
-    return cmd;
+    return toTransform;
   }
-  let quantity = cmd["quantity"];
+  let quantity = toTransform["quantity"];
   if (executed.type === "REMOVE_COLUMNS_ROWS") {
     const executedElements = [...executed.elements].sort((a, b) => b - a);
     for (let removedElement of executedElements) {
@@ -149,26 +158,52 @@ function freezeTransformation(
     const executedBase = executed.position === "before" ? executed.base - 1 : executed.base;
     quantity = quantity > executedBase ? quantity + executed.quantity : quantity;
   }
-  return quantity > 0 ? { ...cmd, quantity } : undefined;
+  return quantity > 0 ? { ...toTransform, quantity } : undefined;
 }
 
 /**
  * Cancel CREATE_FILTER_TABLE and ADD_MERGE commands if they overlap a filter
  */
 function createTableTransformation(
-  cmd: CreateFilterTableCommand | AddMergeCommand,
+  toTransform: CreateFilterTableCommand | AddMergeCommand,
   executed: CreateFilterTableCommand
 ): CreateFilterTableCommand | AddMergeCommand | undefined {
-  if (cmd.sheetId !== executed.sheetId) {
-    return cmd;
+  if (toTransform.sheetId !== executed.sheetId) {
+    return toTransform;
   }
 
-  for (const cmdTarget of cmd.target) {
+  for (const cmdTarget of toTransform.target) {
     for (const executedCmdTarget of executed.target) {
       if (overlap(executedCmdTarget, cmdTarget)) {
         return undefined;
       }
     }
   }
-  return cmd;
+  return toTransform;
+}
+
+/**
+ * Transform ADD_COLUMNS_ROWS command if some headers were added/removed
+ */
+function addHeadersTransformation(
+  toTransform: AddColumnsRowsCommand,
+  executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
+): AddColumnsRowsCommand | undefined {
+  if (toTransform.sheetId !== executed.sheetId || toTransform.dimension !== executed.dimension) {
+    return toTransform;
+  }
+
+  let result: HeaderIndex | undefined = undefined;
+  if (executed.type === "REMOVE_COLUMNS_ROWS") {
+    result = moveHeaderIndexesOnHeaderDeletion(executed.elements, [toTransform.base])[0];
+  } else if (executed.type === "ADD_COLUMNS_ROWS") {
+    const base = getAddHeaderStartIndex(executed.position, executed.base);
+    result = moveHeaderIndexesOnHeaderAddition(base, executed.quantity, [toTransform.base])[0];
+  }
+
+  if (result === undefined) {
+    return undefined;
+  }
+
+  return { ...toTransform, base: result };
 }
