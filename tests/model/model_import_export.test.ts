@@ -591,7 +591,6 @@ test("complete import, then export", () => {
       },
     ],
     settings: { locale: DEFAULT_LOCALE },
-    entities: {},
     styles: {
       1: { bold: true, textColor: "#3A3791", fontSize: 12 },
     },
@@ -675,7 +674,6 @@ test("import then export (figures)", () => {
         headerGroups: { COL: [], ROW: [] },
       },
     ],
-    entities: {},
     styles: {},
     formats: {},
     borders: {},

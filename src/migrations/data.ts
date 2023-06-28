@@ -536,7 +536,6 @@ export function createEmptyWorkbookData(sheetName = "Sheet1"): WorkbookData {
   const data = {
     version: CURRENT_VERSION,
     sheets: [createEmptySheet(INITIAL_SHEET_ID, sheetName)],
-    entities: {},
     styles: {},
     formats: {},
     borders: {},
