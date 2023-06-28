@@ -931,22 +931,51 @@ describe("Menu Item actions", () => {
       });
     });
 
-    test("Currency", () => {
-      doAction(["format", "format_number", "format_number_currency"], env);
-      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
-        sheetId: env.model.getters.getActiveSheetId(),
-        target: env.model.getters.getSelectedZones(),
-        format: "[$$]#,##0.00",
-      });
+    test("currency format with default currency", () => {
+      const action = getNode(["format", "format_number", "format_number_currency"]);
+      expect(action.description(env)).toBe("$1,000.12");
+      action.execute?.(env);
+      expect(getCell(model, "A1")?.format).toBe("[$$]#,##0.00");
     });
 
-    test("Currency rounded", () => {
-      doAction(["format", "format_number", "format_number_currency_rounded"], env);
-      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
-        sheetId: env.model.getters.getActiveSheetId(),
-        target: env.model.getters.getSelectedZones(),
-        format: "[$$]#,##0",
-      });
+    test("rounded currency format with default currency", () => {
+      const action = getNode(["format", "format_number", "format_number_currency_rounded"]);
+      expect(action.description(env)).toBe("$1,000");
+      action.execute?.(env);
+      expect(getCell(model, "A1")?.format).toBe("[$$]#,##0");
+    });
+
+    test("currency format with custom default currency", () => {
+      const model = new Model({}, { defaultCurrencyFormat: "[$€]#,##0.000" });
+      env = makeTestEnv({ model });
+      const action = getNode(["format", "format_number", "format_number_currency"]);
+      expect(action.description(env)).toBe("€1,000.120");
+      action.execute?.(env);
+      expect(getCell(model, "A1")?.format).toBe("[$€]#,##0.000");
+    });
+
+    test("rounded currency format with custom default currency", () => {
+      const model = new Model({}, { defaultCurrencyFormat: "[$€]#,##0.000" });
+      env = makeTestEnv({ model });
+      const action = getNode(["format", "format_number", "format_number_currency_rounded"]);
+      expect(action.description(env)).toBe("€1,000");
+      action.execute?.(env);
+      expect(getCell(model, "A1")?.format).toBe("[$€]#,##0");
+    });
+
+    test("rounded currency format is invisible if the custom default format is already rounded", () => {
+      const model = new Model({}, { defaultCurrencyFormat: "[$€]#,##0" });
+      env = makeTestEnv({ model });
+      const action = getNode(["format", "format_number", "format_number_currency_rounded"]);
+      expect(action.isVisible(env)).toBe(false);
+    });
+
+    test("currency format description with locale and custom default currency", () => {
+      const model = new Model({}, { defaultCurrencyFormat: "[$€]#,##0.000" });
+      env = makeTestEnv({ model });
+      updateLocale(model, FR_LOCALE);
+      const action = getNode(["format", "format_number", "format_number_currency"]);
+      expect(action.description(env)).toBe("€1 000,120");
     });
 
     test.each(DEFAULT_LOCALES)("Date", (locale) => {

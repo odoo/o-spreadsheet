@@ -38,6 +38,7 @@ import {
 import {
   colorToRGBA,
   computeTextWidth,
+  createCurrencyFormat,
   formatValue,
   isDefined,
   isMarkdownLink,
@@ -186,6 +187,7 @@ export const helpers = {
   numberToLetters,
   UuidGenerator,
   formatValue,
+  createCurrencyFormat,
   computeTextWidth,
   createEmptyWorkbookData,
   createEmptySheet,

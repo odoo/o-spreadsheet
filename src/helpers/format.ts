@@ -1,5 +1,5 @@
 import { _lt } from "../translation";
-import { CellValue, Format, FormattedValue, Locale, LocaleFormat } from "../types";
+import { CellValue, Currency, Format, FormattedValue, Locale, LocaleFormat } from "../types";
 import { DEFAULT_LOCALE } from "./../types/locale";
 import { INITIAL_1900_DAY, isDateTime, numberToJsDate, parseDateTime } from "./dates";
 import { escapeRegExp, memoize } from "./misc";
@@ -525,6 +525,42 @@ export function detectNumberFormat(content: string): Format | undefined {
     return digitBase + "%";
   }
   return undefined;
+}
+
+export function createCurrencyFormat(currency: Partial<Currency>): Format {
+  const decimalPlaces = currency.decimalPlaces ?? 2;
+  const position = currency.position ?? "before";
+  const code = currency.code ?? "";
+  const symbol = currency.symbol ?? "";
+  const decimalRepresentation = decimalPlaces ? "." + "0".repeat(decimalPlaces) : "";
+  const numberFormat = "#,##0" + decimalRepresentation;
+  let textExpression = `${code} ${symbol}`.trim();
+  if (position === "after" && code) {
+    textExpression = " " + textExpression;
+  }
+  return insertTextInFormat(textExpression, position, numberFormat);
+}
+
+function insertTextInFormat(text: string, position: "before" | "after", format: Format): Format {
+  const textExpression = `[$${text}]`;
+  return position === "before" ? textExpression + format : format + textExpression;
+}
+
+export function roundFormat(format: Format): Format {
+  const internalFormat = parseFormat(format);
+  const roundedFormat = internalFormat.map((formatPart) => {
+    if (formatPart.type === "NUMBER") {
+      return {
+        type: formatPart.type,
+        format: {
+          ...formatPart.format,
+          decimalPart: undefined,
+        },
+      };
+    }
+    return formatPart;
+  });
+  return convertInternalFormatToFormat(roundedFormat);
 }
 
 export function createLargeNumberFormat(
