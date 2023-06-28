@@ -11,7 +11,6 @@ describe("load data", () => {
       borders: {},
       styles: {},
       formats: {},
-      entities: {},
       settings: { locale: DEFAULT_LOCALE },
       revisionId: DEFAULT_REVISION_ID,
       sheets: [
@@ -46,7 +45,6 @@ describe("load data", () => {
       borders: {},
       styles: {},
       formats: {},
-      entities: {},
       revisionId: DEFAULT_REVISION_ID,
       sheets: [
         {
@@ -78,7 +76,6 @@ describe("load data", () => {
       borders: {},
       styles: {},
       formats: {},
-      entities: {},
       revisionId: DEFAULT_REVISION_ID,
       sheets: [
         {
@@ -151,7 +148,6 @@ describe("load data", () => {
       borders: {},
       styles: {},
       formats: {},
-      entities: {},
       revisionId: DEFAULT_REVISION_ID,
       sheets: [
         {

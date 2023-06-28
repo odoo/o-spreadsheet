@@ -152,7 +152,6 @@ export class XlsxReader {
       styles: convertStyles(data, this.warningManager),
       formats: convertFormats(data, this.warningManager),
       borders: convertBorders(data, this.warningManager),
-      entities: {},
       revisionId: DEFAULT_REVISION_ID,
     } as WorkbookData;
 
