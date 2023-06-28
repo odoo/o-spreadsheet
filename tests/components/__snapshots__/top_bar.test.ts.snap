@@ -781,7 +781,7 @@ exports[`TopBar component can set cell format 1`] = `
             <div
               class="o-menu-item-description ms-auto"
             >
-              9/26/2008
+              9/26/2023
             </div>
             
             
@@ -835,7 +835,7 @@ exports[`TopBar component can set cell format 1`] = `
             <div
               class="o-menu-item-description ms-auto"
             >
-              9/26/2008 22:43:00
+              9/26/2023 10:43:00 PM
             </div>
             
             

@@ -49,7 +49,7 @@ export class ActionButton extends Component<Props, SpreadsheetChildEnv> {
 
   get title() {
     const name = this.actionButton.name(this.env);
-    const description = this.actionButton.description;
+    const description = this.actionButton.description(this.env);
     return name + (description ? ` (${description})` : "");
   }
 
