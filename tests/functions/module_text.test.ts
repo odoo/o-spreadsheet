@@ -734,6 +734,9 @@ describe("TRIM formula", () => {
     );
     expect(evaluateCell("A1", { A1: '=TRIM(" A ")' })).toBe("A");
     expect(evaluateCell("A1", { A1: '=TRIM("  A     ")' })).toBe("A");
+    expect(evaluateCell("A1", { A1: '=TRIM("  A    B  ")' })).toBe("A B");
+    expect(evaluateCell("A1", { A1: '=TRIM("  A   \n B   \n  \n C  ")' })).toBe("A\nB\n\nC"); // @compatibility: the TRIM Excel function does not keep line breaks
+    expect(evaluateCell("A1", { A1: '=TRIM(" \t  A   \t B\tC  \t")' })).toBe("A B C");
   });
 
   test("casting tests on simple arguments", () => {
@@ -744,7 +747,7 @@ describe("TRIM formula", () => {
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=TRIM(A2)" })).toBe("");
     expect(evaluateCell("A1", { A1: "=TRIM(A2)", A2: " Kikou  " })).toBe("Kikou");
-    expect(evaluateCell("A1", { A1: "=TRIM(A2)", A2: '" Kikou  "' })).toBe('" Kikou  "');
+    expect(evaluateCell("A1", { A1: "=TRIM(A2)", A2: '" Kikou  "' })).toBe('" Kikou "');
     expect(evaluateCell("A1", { A1: "=TRIM(A2)", A2: '=" Kikou  "' })).toBe("Kikou");
   });
 });

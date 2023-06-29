@@ -1,4 +1,4 @@
-import { escapeRegExp, formatValue } from "../helpers";
+import { escapeRegExp, formatValue, trimContent } from "../helpers";
 import { _t } from "../translation";
 import { AddFunctionDescription, ArgValue, CellValue, Matrix, Maybe } from "../types";
 import { arg } from "./arguments";
@@ -534,7 +534,7 @@ export const TRIM = {
   ],
   returns: ["STRING"],
   compute: function (text: Maybe<CellValue>): string {
-    return toString(text).trim();
+    return trimContent(toString(text));
   },
   isExported: true,
 } satisfies AddFunctionDescription;

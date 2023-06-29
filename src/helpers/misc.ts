@@ -489,3 +489,8 @@ export function insertItemsAtIndex<T>(array: readonly T[], items: T[], index: nu
   newArray.splice(index, 0, ...items);
   return newArray;
 }
+
+export function trimContent(content: string): string {
+  const contentLines = content.split("\n");
+  return contentLines.map((line) => line.replace(/\s+/g, " ").trim()).join("\n");
+}
