@@ -36,6 +36,13 @@ export const removeDuplicates: ActionSpec = {
   },
 };
 
+export const trimWhitespace: ActionSpec = {
+  name: _t("Trim whitespace"),
+  execute: (env) => {
+    env.model.dispatch("TRIM_WHITESPACE");
+  },
+};
+
 export const sortDescending: ActionSpec = {
   name: _t("Descending (Z ⟶ A)"),
   execute: (env) => {
