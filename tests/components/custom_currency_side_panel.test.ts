@@ -2,7 +2,8 @@ import { Model } from "../../src";
 import { CustomCurrencyPanel } from "../../src/components/side_panel/custom_currency/custom_currency";
 import { currenciesRegistry } from "../../src/registries/currencies_registry";
 import { Currency } from "../../src/types/currency";
-import { setSelection } from "../test_helpers/commands_helpers";
+import { setSelection, updateLocale } from "../test_helpers/commands_helpers";
+import { FR_LOCALE } from "../test_helpers/constants";
 import { click, setInputValueAndTrigger } from "../test_helpers/dom_helper";
 import { mountComponent, nextTick, spyModelDispatch } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
@@ -13,6 +14,7 @@ const selectors = {
   inputCode: ".o-custom-currency .o-subsection-left input",
   inputSymbol: ".o-custom-currency .o-subsection-right input",
   formatProposals: ".o-custom-currency .o-format-proposals",
+  formatProposalOptions: ".o-custom-currency .o-format-proposals option",
   applyFormat: ".o-custom-currency .o-sidePanelButtons button",
 };
 
@@ -265,6 +267,34 @@ describe("custom currency sidePanel component", () => {
         expect(document.querySelector(selectors.formatProposals)).toMatchSnapshot();
       }
     );
+
+    test("currency proposals uses locale format", async () => {
+      setInputValueAndTrigger(selectors.availableCurrencies, "1", "change");
+      await nextTick();
+      const proposals = [...document.querySelectorAll(selectors.formatProposalOptions)];
+      expect(proposals.map((el) => el.textContent)).toEqual([
+        "1,000µ",
+        "1,000.000µ",
+        "1,000 ABC µ",
+        "1,000.000 ABC µ",
+        "µ1,000",
+        "µ1,000.000",
+        "ABC µ1,000",
+        "ABC µ1,000.000",
+      ]);
+      updateLocale(model, FR_LOCALE);
+      await nextTick();
+      expect(proposals.map((el) => el.textContent)).toEqual([
+        "1 000µ",
+        "1 000,000µ",
+        "1 000 ABC µ",
+        "1 000,000 ABC µ",
+        "µ1 000",
+        "µ1 000,000",
+        "ABC µ1 000",
+        "ABC µ1 000,000",
+      ]);
+    });
 
     test.each([selectors.inputCode, selectors.inputSymbol])(
       "change code input or symbol input --> does not change proposal selected index",

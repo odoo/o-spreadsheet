@@ -1,4 +1,5 @@
 import { Component, onWillStart, useState } from "@odoo/owl";
+import { createCurrencyFormat, formatValue, roundFormat } from "../../../helpers";
 import { currenciesRegistry } from "../../../registries/currencies_registry";
 import { Currency, Format, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
@@ -46,18 +47,45 @@ export class CustomCurrencyPanel extends Component<Props, SpreadsheetChildEnv> {
 
   get formatProposals(): CurrencyProposal[] {
     const currency = this.availableCurrencies[this.state.selectedCurrencyIndex];
-    const proposalBases = this.initProposalBases(currency.decimalPlaces);
-    const firstPosition = currency.position;
-    const secondPosition = currency.position === "before" ? "after" : "before";
+    const position = currency.position;
+    const opposite = currency.position === "before" ? "after" : "before";
     const symbol = this.state.currencySymbol.trim() ? this.state.currencySymbol : "";
     const code = this.state.currencyCode.trim() ? this.state.currencyCode : "";
-
-    return code || symbol
-      ? [
-          ...this.createFormatProposals(proposalBases, symbol, code, firstPosition),
-          ...this.createFormatProposals(proposalBases, symbol, code, secondPosition),
-        ]
-      : [];
+    const decimalPlaces = currency.decimalPlaces;
+    if (!symbol && !code) {
+      return [];
+    }
+    const simple = symbol ? createCurrencyFormat({ symbol, position, decimalPlaces }) : "";
+    const rounded = simple ? roundFormat(simple) : "";
+    const simpleWithCode = createCurrencyFormat({ symbol, position, decimalPlaces, code });
+    const roundedWithCode = roundFormat(simpleWithCode);
+    const simpleOpposite = symbol
+      ? createCurrencyFormat({ symbol, position: opposite, decimalPlaces })
+      : "";
+    const roundedOpposite = simpleOpposite ? roundFormat(simpleOpposite) : "";
+    const simpleOppositeWithCode = createCurrencyFormat({
+      symbol,
+      position: opposite,
+      decimalPlaces,
+      code,
+    });
+    const roundedOppositeWithCode = roundFormat(simpleOppositeWithCode);
+    const formats = new Set([
+      rounded,
+      simple,
+      roundedWithCode,
+      simpleWithCode,
+      roundedOpposite,
+      simpleOpposite,
+      roundedOppositeWithCode,
+      simpleOppositeWithCode,
+    ]);
+    return [...formats]
+      .filter((format) => format !== "")
+      .map((format) => ({
+        format,
+        example: formatValue(1000.0, { format, locale: this.env.model.getters.getLocale() }),
+      }));
   }
 
   get isSameFormat(): boolean {
@@ -124,61 +152,6 @@ export class CustomCurrencyPanel extends Component<Props, SpreadsheetChildEnv> {
 
   private initAvailableCurrencies() {
     this.state.selectedCurrencyIndex = 0;
-  }
-
-  private initProposalBases(decimalPlaces: Currency["decimalPlaces"]): CurrencyProposal[] {
-    const result: CurrencyProposal[] = [{ format: "#,##0", example: "1,000" }];
-    const decimalRepresentation = decimalPlaces ? "." + "0".repeat(decimalPlaces) : "";
-    if (decimalRepresentation) {
-      result.push({
-        format: "#,##0" + decimalRepresentation,
-        example: "1,000" + decimalRepresentation,
-      });
-    }
-    return result;
-  }
-
-  private createFormatProposals(
-    proposalBases: CurrencyProposal[],
-    symbol: Currency["symbol"],
-    code: Currency["code"],
-    position: Currency["position"]
-  ): CurrencyProposal[] {
-    let formatProposals: CurrencyProposal[] = [];
-
-    // 1 - add proposal with symbol and without code
-    if (symbol) {
-      for (let base of proposalBases) {
-        formatProposals.push(
-          this.createFormatProposal(position, base.example, base.format, symbol)
-        );
-      }
-    }
-
-    // 2 - if code exist --> add more proposal with symbol and with code
-    if (code) {
-      for (let base of proposalBases) {
-        const expression = (position === "after" ? " " : "") + code + " " + symbol;
-        formatProposals.push(
-          this.createFormatProposal(position, base.example, base.format, expression)
-        );
-      }
-    }
-
-    return formatProposals;
-  }
-
-  private createFormatProposal(
-    position: Currency["position"],
-    baseExample: CurrencyProposal["example"],
-    formatBase: CurrencyProposal["format"],
-    expression: string
-  ): CurrencyProposal {
-    const formatExpression = "[$" + expression + "]";
-    return {
-      example: position === "before" ? expression + baseExample : baseExample + expression,
-      format: position === "before" ? formatExpression + formatBase : formatBase + formatExpression,
-    };
   }
 
   private getCommonFormat(): Format | undefined {
