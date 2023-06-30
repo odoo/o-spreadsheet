@@ -239,13 +239,6 @@ export function parseTokens(tokens: Token[]): AST {
   return result;
 }
 
-export function visitAst(ast: AST, fn: (ast: AST) => void) {
-  mapAst(ast, (ast) => {
-    fn(ast);
-    return ast;
-  });
-}
-
 /**
  * Allows to visit all nodes of an AST and apply a mapping function
  * to nodes of a specific type.
@@ -270,6 +263,28 @@ export function convertAstNodes<T extends AST["type"]>(
     }
     return ast;
   });
+}
+
+export function iterateAstNodes(ast: AST): AST[] {
+  return Array.from(astIterator(ast));
+}
+
+function* astIterator(ast: AST): Iterable<AST> {
+  yield ast;
+  switch (ast.type) {
+    case "FUNCALL":
+      for (const arg of ast.args) {
+        yield* astIterator(arg);
+      }
+      break;
+    case "UNARY_OPERATION":
+      yield* astIterator(ast.operand);
+      break;
+    case "BIN_OPERATION":
+      yield* astIterator(ast.left);
+      yield* astIterator(ast.right);
+      break;
+  }
 }
 
 export function mapAst<T extends AST["type"]>(
