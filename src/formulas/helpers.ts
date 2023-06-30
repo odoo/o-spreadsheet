@@ -1,21 +1,15 @@
 import { functionRegistry } from "../functions";
-import { parseTokens, visitAst } from "./parser";
+import { iterateAstNodes, parseTokens } from "./parser";
 import { Token } from "./tokenizer";
 
 const functions = functionRegistry.content;
 
 export function isExportableToExcel(tokens: Token[]): boolean {
   try {
-    let isExported = true;
-    visitAst(parseTokens(tokens), (ast) => {
-      if (ast.type === "FUNCALL") {
-        const func = functions[ast.value.toUpperCase()];
-        if (!func?.isExported) {
-          isExported = false;
-        }
-      }
-    });
-    return isExported;
+    const nonExportableFunctions = iterateAstNodes(parseTokens(tokens)).filter(
+      (ast) => ast.type === "FUNCALL" && !functions[ast.value.toUpperCase()]?.isExported
+    );
+    return nonExportableFunctions.length === 0;
   } catch (error) {
     return false;
   }

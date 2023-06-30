@@ -104,7 +104,7 @@ export { Revision } from "./collaborative/revisions";
 export { Spreadsheet } from "./components/index";
 export { setDefaultSheetViewSize } from "./constants";
 export { compile, functionCache } from "./formulas/compiler";
-export { astToFormula, convertAstNodes, parse } from "./formulas/parser";
+export { astToFormula, convertAstNodes, iterateAstNodes, parse } from "./formulas/parser";
 export { tokenize } from "./formulas/tokenizer";
 export { AbstractChart } from "./helpers/figures/charts";
 export { findCellInNewZone } from "./helpers/zones";
