@@ -93,6 +93,7 @@ export class PieChart extends AbstractChart {
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): PieChartDefinition {
+    // console.log("<>>??>", context.auxiliaryRange, context.range![0]);
     return {
       background: context.background,
       dataSets: context.range ? context.range : [],
@@ -100,7 +101,7 @@ export class PieChart extends AbstractChart {
       legendPosition: "top",
       title: context.title || "",
       type: "pie",
-      labelRange: context.auxiliaryRange || undefined,
+      labelRange: context.auxiliaryRange,
       aggregated: false,
     };
   }
@@ -110,6 +111,7 @@ export class PieChart extends AbstractChart {
   }
 
   getContextCreation(): ChartCreationContext {
+    console.log("DATASETS :::", this.dataSets);
     return {
       background: this.background,
       title: this.title,
@@ -237,11 +239,32 @@ function getPieColors(colors: ChartColors, dataSetsValues: DatasetValues[]): Col
 
   return pieColors;
 }
+function countStringOccurrences(dataset: string[]): number[] {
+  const occurrencesMap = new Map<string, number>();
+
+  for (const item of dataset) {
+    if (occurrencesMap.has(item)) {
+      const count = occurrencesMap.get(item)!;
+      occurrencesMap.set(item, count + 1);
+    } else {
+      occurrencesMap.set(item, 1);
+    }
+  }
+
+  const countArray: number[] = [];
+  for (const count of occurrencesMap.values()) {
+    countArray.push(count);
+  }
+
+  return countArray;
+}
 
 export function createPieChartRuntime(chart: PieChart, getters: Getters): PieChartRuntime {
   const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
   let labels = labelValues.formattedValues;
   let dataSetsValues = getChartDatasetValues(getters, chart.dataSets);
+  console.log("DATASET VALUE :", dataSetsValues);
+
   if (
     chart.dataSetsHaveTitle &&
     dataSetsValues[0] &&
@@ -258,11 +281,20 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
   const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
   const config = getPieConfiguration(chart, labels, dataSetFormat);
   const colors = new ChartColors();
+
   for (let { label, data } of dataSetsValues) {
+    const stringOccurrences = countStringOccurrences(data);
+    console.log("string Occ : ", stringOccurrences);
+    const totalOccurrences = stringOccurrences.reduce((total, count) => total + count, 0);
+    console.log("total Occ :", totalOccurrences);
+    const percentages = stringOccurrences.map((count) =>
+      ((count / totalOccurrences) * 100).toFixed(2)
+    );
+    console.log("PERCENTAGE :", percentages);
     const backgroundColor = getPieColors(colors, dataSetsValues);
     const dataset: ChartDataSets = {
       label,
-      data,
+      data: percentages,
       borderColor: "#FFFFFF",
       backgroundColor,
     };
