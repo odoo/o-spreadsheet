@@ -11,6 +11,7 @@ import {
   toCartesian,
   toXC,
 } from "../../helpers/index";
+import { toError } from "../../types/errors";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -573,7 +574,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         dependencies: [],
         tokens: tokenize(content),
         execute: function () {
-          throw error;
+          return { value: toError(error) };
         },
       },
       dependencies: [],

@@ -10,7 +10,7 @@ import {
   MatrixArgValue,
   PrimitiveArgValue,
 } from "../types";
-import { NotAvailableError } from "../types/errors";
+import { GenericError, NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import {
   assert,
@@ -348,7 +348,7 @@ export const MDETERM: AddFunctionDescription = {
       _matrix
     );
     if (!isNumberMatrix(_matrix)) {
-      throw new Error(_lt("The argument square_matrix must be a matrix of numbers."));
+      throw new GenericError(_lt("The argument square_matrix must be a matrix of numbers."));
     }
     const { determinant } = invertMatrix(_matrix);
 
@@ -379,12 +379,12 @@ export const MINVERSE: AddFunctionDescription = {
       _matrix
     );
     if (!isNumberMatrix(_matrix)) {
-      throw new Error(_lt("The argument square_matrix must be a matrix of numbers."));
+      throw new GenericError(_lt("The argument square_matrix must be a matrix of numbers."));
     }
 
     const { inverted } = invertMatrix(_matrix);
     if (!inverted) {
-      throw new Error(_lt("The matrix is not invertible."));
+      throw new GenericError(_lt("The matrix is not invertible."));
     }
 
     return inverted;
@@ -422,7 +422,7 @@ export const MMULT: AddFunctionDescription = {
       )
     );
     if (!isNumberMatrix(_matrix1) || !isNumberMatrix(_matrix2)) {
-      throw new Error(_lt("The arguments matrix1 and matrix2 must be matrices of numbers."));
+      throw new GenericError(_lt("The arguments matrix1 and matrix2 must be matrices of numbers."));
     }
 
     return multiplyMatrices(_matrix1, _matrix2);
@@ -510,7 +510,9 @@ function getSumXAndY(
   }
 
   if (!validPairFound) {
-    throw new Error("The arguments array_x and array_y must contain at least one pair of numbers.");
+    throw new GenericError(
+      "The arguments array_x and array_y must contain at least one pair of numbers."
+    );
   }
 
   return result;

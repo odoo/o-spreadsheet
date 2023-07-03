@@ -39,7 +39,7 @@ interface EvaluatedCellProperties {
   readonly link?: Link;
 }
 
-export type CellValue = string | number | boolean;
+export type CellValue = string | number | boolean | EvaluationError;
 
 export type EvaluatedCell = NumberCell | TextCell | BooleanCell | EmptyCell | ErrorCell;
 

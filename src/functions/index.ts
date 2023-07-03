@@ -9,8 +9,11 @@ import {
   EvalContext,
   FunctionDescription,
   FunctionReturn,
+  FunctionReturnFormat,
+  FunctionReturnValue,
   isMatrix,
 } from "../types";
+import { toError } from "../types/errors";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
 import * as array from "./module_array";
 import * as misc from "./module_custom";
@@ -80,8 +83,18 @@ class FunctionRegistry extends Registry<FunctionDescription> {
       const computeValue = descr.compute.bind(this);
       const computeFormat = descr.computeFormat ? descr.computeFormat.bind(this) : () => undefined;
 
-      const value = computeValue(...extractArgValuesFromArgs(args));
-      const format = computeFormat(...args);
+      let value: FunctionReturnValue;
+      let format: FunctionReturnFormat;
+
+      try {
+        value = computeValue(...extractArgValuesFromArgs(args));
+        format = computeFormat(...args);
+      } catch (e: unknown) {
+        value = toError(e);
+        value.message = value.message.replace("[[FUNCTION_NAME]]", name);
+        return { value };
+      }
+
       if (isMatrix(value)) {
         return {
           value,

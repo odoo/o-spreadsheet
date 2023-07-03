@@ -20,10 +20,10 @@ import {
   UID,
 } from "../../../types";
 import {
-  CellErrorLevel,
-  CellErrorType,
   CircularDependencyError,
-  EvaluationError,
+  CollisionError,
+  GenericError,
+  toError,
 } from "../../../types/errors";
 import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
@@ -210,34 +210,20 @@ export class Evaluator {
 
     const cellId = cell.id;
 
-    try {
-      if (this.cellsBeingComputed.has(cellId)) {
-        throw new CircularDependencyError();
-      }
-      this.cellsBeingComputed.add(cellId);
-      return cell.isFormula
-        ? this.computeFormulaCell(cell)
-        : evaluateLiteral(cell.content, { format: cell.format, locale: this.getters.getLocale() });
-    } catch (e) {
-      return this.handleError(e);
-    } finally {
-      this.cellsBeingComputed.delete(cellId);
+    if (this.cellsBeingComputed.has(cellId)) {
+      return errorCell(new CircularDependencyError());
     }
-  }
 
-  private handleError(e: Error | any): EvaluatedCell {
-    if (!(e instanceof Error)) {
-      e = new Error(e);
+    if (!cell.isFormula) {
+      return evaluateLiteral(cell.content, {
+        format: cell.format,
+        locale: this.getters.getLocale(),
+      });
     }
-    const msg = e?.errorType || CellErrorType.GenericError;
-    // apply function name
-    const __lastFnCalled = this.compilationParams[2].__lastFnCalled || "";
-    const error = new EvaluationError(
-      msg,
-      e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled),
-      e.logLevel !== undefined ? e.logLevel : CellErrorLevel.error
-    );
-    return errorCell(error);
+    this.cellsBeingComputed.add(cellId);
+    const result = this.computeFormulaCell(cell);
+    this.cellsBeingComputed.delete(cellId);
+    return result;
   }
 
   private computeFormulaCell(cellData: FormulaCell): EvaluatedCell {
@@ -265,10 +251,21 @@ export class Evaluator {
 
     const formulaPosition = this.getters.getCellPosition(cellId);
 
-    this.assertSheetHasEnoughSpaceToSpreadFormulaResult(formulaPosition, computedValue);
+    // TODO: WE COULD IMPROVE THIS BEHAVIOR BY ADDING NEW COLUMNS AND ROWS AUTOMATICALLY
+    if (!this.hasEnoughSpaceToSpread(formulaPosition, computedValue)) {
+      return errorCell(
+        new GenericError(
+          _lt("Result couldn't be automatically expanded. Please insert more columns and rows.")
+        )
+      );
+    }
 
     forEachSpreadPositionInMatrix(computedValue, this.updateSpreadRelation(formulaPosition));
-    forEachSpreadPositionInMatrix(computedValue, this.checkCollision(formulaPosition));
+    try {
+      forEachSpreadPositionInMatrix(computedValue, this.checkCollision(formulaPosition));
+    } catch (e) {
+      return errorCell(toError(e));
+    }
     forEachSpreadPositionInMatrix(
       computedValue,
       // due the isMatrix check above, we know that formulaReturn is MatrixFunctionReturn
@@ -282,32 +279,18 @@ export class Evaluator {
     });
   }
 
-  private assertSheetHasEnoughSpaceToSpreadFormulaResult(
+  private hasEnoughSpaceToSpread(
     { sheetId, col, row }: CellPosition,
     matrixResult: Matrix<CellValue>
-  ) {
+  ): boolean {
     const numberOfCols = this.getters.getNumberCols(sheetId);
     const numberOfRows = this.getters.getNumberRows(sheetId);
     const enoughCols = col + matrixResult.length <= numberOfCols;
     const enoughRows = row + matrixResult[0].length <= numberOfRows;
-
     if (enoughCols && enoughRows) {
-      return;
+      return true;
     }
-
-    if (enoughCols) {
-      throw new Error(_lt("Result couldn't be automatically expanded. Please insert more rows."));
-    }
-
-    if (enoughRows) {
-      throw new Error(
-        _lt("Result couldn't be automatically expanded. Please insert more columns.")
-      );
-    }
-
-    throw new Error(
-      _lt("Result couldn't be automatically expanded. Please insert more columns and rows.")
-    );
+    return false;
   }
 
   private updateSpreadRelation({
@@ -333,12 +316,7 @@ export class Evaluator {
         this.getters.getEvaluatedCell(position).type !== CellValueType.empty
       ) {
         this.blockedArrayFormulas.add(formulaPositionId);
-        throw new Error(
-          _lt(
-            "Array result was not expanded because it would overwrite data in %s.",
-            toXC(position.col, position.row)
-          )
-        );
+        throw new CollisionError(position.col, position.row);
       }
       this.blockedArrayFormulas.delete(formulaPositionId);
     };

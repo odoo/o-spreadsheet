@@ -16,7 +16,7 @@ import {
   Range,
   ReferenceDenormalizer,
 } from "../../../types";
-import { InvalidReferenceError } from "../../../types/errors";
+import { GenericError, InvalidReferenceError } from "../../../types/errors";
 
 export type CompilationParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
 const functionMap = functionRegistry.mapping;
@@ -79,7 +79,7 @@ class CompilationParametersBuilder {
 
     // if the formula definition could have accepted a range, we would pass through the _range function and not here
     if (range.zone.bottom !== range.zone.top || range.zone.left !== range.zone.right) {
-      throw new Error(
+      throw new GenericError(
         paramNumber
           ? _lt(
               "Function %s expects the parameter %s to be a single value or a single cell reference, not a range.",
@@ -93,7 +93,7 @@ class CompilationParametersBuilder {
       );
     }
     if (range.invalidSheetName) {
-      throw new Error(_lt("Invalid sheet name: %s", range.invalidSheetName));
+      throw new GenericError(_lt("Invalid sheet name: %s", range.invalidSheetName));
     }
 
     return this.readCell(range);
@@ -101,12 +101,15 @@ class CompilationParametersBuilder {
 
   private readCell(range: Range): PrimitiveArg {
     if (!this.getters.tryGetSheet(range.sheetId)) {
-      throw new Error(_lt("Invalid sheet name"));
+      throw new GenericError(_lt("Invalid sheet name"));
     }
     const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
     const evaluatedCell = this.getEvaluatedCellIfNotEmpty(position);
     if (evaluatedCell === undefined) {
       return { value: null, format: this.getters.getCell(position)?.format };
+    }
+    if (evaluatedCell.type === CellValueType.error) {
+      return { value: evaluatedCell.error };
     }
     return evaluatedCell;
   }
@@ -124,9 +127,6 @@ class CompilationParametersBuilder {
 
   private getEvaluatedCell(position: CellPosition): EvaluatedCell {
     const evaluatedCell = this.computeCell(position);
-    if (evaluatedCell.type === CellValueType.error) {
-      throw evaluatedCell.error;
-    }
     return evaluatedCell;
   }
 
@@ -140,7 +140,7 @@ class CompilationParametersBuilder {
    */
   private range({ sheetId, zone }: Range): MatrixArg {
     if (!isZoneValid(zone)) {
-      throw new InvalidReferenceError();
+      return { value: [[new InvalidReferenceError()]] };
     }
 
     // Performance issue: Avoid fetching data on positions that are out of the spreadsheet
@@ -165,7 +165,8 @@ class CompilationParametersBuilder {
         if (evaluatedCell) {
           const colIndex = col - _zone.left;
           const rowIndex = row - _zone.top;
-          value[colIndex][rowIndex] = evaluatedCell.value;
+          value[colIndex][rowIndex] =
+            evaluatedCell.type === CellValueType.error ? evaluatedCell.error : evaluatedCell.value;
           if (evaluatedCell.format !== undefined) {
             format[colIndex][rowIndex] = evaluatedCell.format;
           }

@@ -6,7 +6,7 @@ import {
   PrimitiveArg,
   PrimitiveArgValue,
 } from "../types";
-import { CellErrorType } from "../types/errors";
+import { CellErrorType, GenericError } from "../types/errors";
 import { arg } from "./arguments";
 import { assert, conditionalVisitBoolean, toBoolean } from "./helpers";
 
@@ -179,7 +179,7 @@ export const IFS: AddFunctionDescription = {
         return returnValue !== null ? returnValue : "";
       }
     }
-    throw new Error(_lt(`No match.`));
+    throw new GenericError(_lt(`No match.`));
   },
   isExported: true,
 };

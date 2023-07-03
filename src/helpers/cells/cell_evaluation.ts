@@ -1,4 +1,3 @@
-import { DEFAULT_ERROR_MESSAGE } from "../../constants";
 import { toNumber } from "../../functions/helpers";
 import {
   BooleanCell,
@@ -12,7 +11,7 @@ import {
   LocaleFormat,
   NumberCell,
 } from "../../types";
-import { CellErrorType, EvaluationError } from "../../types/errors";
+import { EvaluationError, isEvaluationError } from "../../types/errors";
 import { isDateTime } from "../dates";
 import { detectDateFormat, detectNumberFormat, formatValue, isDateTimeFormat } from "../format";
 import { detectLink } from "../links";
@@ -61,19 +60,13 @@ export function createEvaluatedCell(
 }
 
 function _createEvaluatedCell(value: CellValue | null, localeFormat: LocaleFormat): EvaluatedCell {
-  try {
-    for (const builder of builders) {
-      const evaluateCell = builder(value, localeFormat);
-      if (evaluateCell) {
-        return evaluateCell;
-      }
+  for (const builder of builders) {
+    const evaluateCell = builder(value, localeFormat);
+    if (evaluateCell) {
+      return evaluateCell;
     }
-    return textCell((value || "").toString(), localeFormat);
-  } catch (error) {
-    return errorCell(
-      new EvaluationError(CellErrorType.GenericError, error.message || DEFAULT_ERROR_MESSAGE)
-    );
   }
+  return textCell((value || "").toString(), localeFormat);
 }
 
 /**
@@ -158,11 +151,11 @@ function booleanCell(value: boolean, localeFormat: LocaleFormat): BooleanCell {
 export function errorCell(error: EvaluationError): ErrorCell {
   return {
     type: CellValueType.error,
-    value: error.errorType,
+    value: error.type,
     error,
     isAutoSummable: false,
     defaultAlign: "center",
-    formattedValue: error.errorType,
+    formattedValue: error.type,
   };
 }
 
@@ -170,6 +163,12 @@ const builders: EvaluatedCellBuilder[] = [
   function createEmpty(value, localeFormat) {
     if (value === "") {
       return emptyCell(localeFormat);
+    }
+    return undefined;
+  },
+  function createError(value) {
+    if (isEvaluationError(value)) {
+      return errorCell(value);
     }
     return undefined;
   },
