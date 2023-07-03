@@ -54,6 +54,7 @@ function getChartMenu(
         env.model.dispatch("SELECT_FIGURE", { id: figureId });
         env.openSidePanel("ChartPanel");
       },
+      icon: "o-spreadsheet-Icon.EDIT",
     },
     getCopyMenuItem(figureId, env),
     getCutMenuItem(figureId, env),
@@ -91,6 +92,7 @@ function getImageMenuRegistry(
           width,
         });
       },
+      icon: "o-spreadsheet-Icon.REFRESH",
     },
     getDeleteMenuItem(figureId, onFigureDeleted, env),
   ];
@@ -108,6 +110,7 @@ function getCopyMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
       env.model.dispatch("COPY");
       await env.clipboard.write(env.model.getters.getClipboardContent());
     },
+    icon: "o-spreadsheet-Icon.COPY",
   };
 }
 
@@ -122,6 +125,7 @@ function getCutMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
       env.model.dispatch("CUT");
       await env.clipboard.write(env.model.getters.getClipboardContent());
     },
+    icon: "o-spreadsheet-Icon.CUT",
   };
 }
 
@@ -141,5 +145,6 @@ function getDeleteMenuItem(
       });
       onFigureDeleted();
     },
+    icon: "o-spreadsheet-Icon.DELETE",
   };
 }
