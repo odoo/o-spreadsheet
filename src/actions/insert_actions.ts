@@ -168,7 +168,7 @@ export const insertFunctionMin: ActionSpec = {
 
 export const categorieFunctionAll: ActionSpec = {
   name: _lt("All"),
-  children: allFunctionListMenuBuilder(),
+  children: [allFunctionListMenuBuilder],
 };
 
 function allFunctionListMenuBuilder(): ActionSpec[] {
