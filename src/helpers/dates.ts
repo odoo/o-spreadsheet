@@ -41,7 +41,7 @@ export const mdyDateRegexp = /^\d{1,2}(\/|-|\s)\d{1,2}((\/|-|\s)\d{1,4})?$/;
 export const ymdDateRegexp = /^\d{3,4}(\/|-|\s)\d{1,2}(\/|-|\s)\d{1,2}$/;
 
 const dateSeparatorsRegex = /\/|-|\s/;
-export const dateRegexp = /^(\d{1,4})[\/-\s](\d{1,2})([\/-\s](\d{1,4}))?$/;
+const dateRegexp = /^(\d{1,4})[\/-\s](\d{1,4})([\/-\s](\d{1,4}))?$/;
 
 export const timeRegexp = /((\d+(:\d+)?(:\d+)?\s*(AM|PM))|(\d+:\d+(:\d+)?))$/;
 
@@ -122,6 +122,10 @@ function getDateParts(dateString: string, locale: Locale): DateParts | null {
 
   const localeDateType = getLocaleDateFormatType(locale);
   if (!part3) {
+    if (part2.length > 2) {
+      // e.g. 11/2023
+      return { month: part1, year: part2, day: undefined, dateString, type: localeDateType };
+    }
     if (localeDateType === "dmy") {
       return { day: part1, month: part2, year: part3, dateString, type: "dmy" };
     }
