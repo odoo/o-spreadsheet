@@ -98,6 +98,16 @@ describe("date helpers: can detect and parse various dates", () => {
     expect(d2.format).toBe("mm/dd");
   });
 
+  test("can detect and parse m/yyyy and mm/yyy dates ", () => {
+    const d1 = parseDateTime("3/2023", locale)!;
+    expect(d1.jsDate!).toEqual(new Date(2023, 2, 1));
+    expect(d1.format).toBe("m/yyyy");
+
+    const d2 = parseDateTime("03/2023", locale)!;
+    expect(d2.jsDate!).toEqual(new Date(2023, 2, 1));
+    expect(d2.format).toBe("mm/yyyy");
+  });
+
   test("can detect and parse m-d-yyyy dates ", () => {
     expect(parseDateTime("3-2-2010", locale)).toEqual({
       value: 40239,
@@ -147,6 +157,16 @@ describe("date helpers: can detect and parse various dates", () => {
     expect(d2.format).toBe("mm-dd");
   });
 
+  test("can detect and parse m-yyyy and mm-yyy dates ", () => {
+    const d1 = parseDateTime("3-2023", locale)!;
+    expect(d1.jsDate!).toEqual(new Date(2023, 2, 1));
+    expect(d1.format).toBe("m-yyyy");
+
+    const d2 = parseDateTime("03-2023", locale)!;
+    expect(d2.jsDate!).toEqual(new Date(2023, 2, 1));
+    expect(d2.format).toBe("mm-yyyy");
+  });
+
   test('can detect and parse "mm dd yyyy" dates ', () => {
     expect(parseDateTime("03 20 2010", locale)).toEqual({
       value: 40257,
@@ -183,6 +203,16 @@ describe("date helpers: can detect and parse various dates", () => {
     expect(d2.format).toBe("mm dd");
   });
 
+  test("can detect and parse 'm yyyy' and 'mm yyyy' dates ", () => {
+    const d1 = parseDateTime("3 2023", locale)!;
+    expect(d1.jsDate!).toEqual(new Date(2023, 2, 1));
+    expect(d1.format).toBe("m yyyy");
+
+    const d2 = parseDateTime("03 2023", locale)!;
+    expect(d2.jsDate!).toEqual(new Date(2023, 2, 1));
+    expect(d2.format).toBe("mm yyyy");
+  });
+
   test("does not parse invalid dates", () => {
     expect(parseDateTime("100/100/2099", locale)).toBeNull();
     expect(parseDateTime("20/10/2020", locale)).toBeNull(); // 20 is not a valid month
@@ -191,6 +221,11 @@ describe("date helpers: can detect and parse various dates", () => {
     expect(parseDateTime("02/28/2021", locale)).not.toBeNull();
     expect(parseDateTime("02/29/2021", locale)).toBeNull();
     expect(parseDateTime("01/33/2021", locale)).toBeNull();
+    expect(parseDateTime("01/2023/01", locale)).toBeNull();
+    expect(parseDateTime("01/2023/2023", locale)).toBeNull();
+    expect(parseDateTime("13/2023", locale)).toBeNull();
+    expect(parseDateTime("0/2023", locale)).toBeNull();
+    expect(parseDateTime("-1/2023", locale)).toBeNull();
   });
 
   test("can infer a year if not given completely", () => {
