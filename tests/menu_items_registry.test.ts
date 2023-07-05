@@ -1,5 +1,6 @@
 import { Model } from "../src";
 import { FONT_SIZES } from "../src/constants";
+import { functionRegistry } from "../src/functions";
 import { zoneToXc } from "../src/helpers";
 import { interactivePaste } from "../src/helpers/ui/paste_interactive";
 import { colMenuRegistry, rowMenuRegistry, topbarMenuRegistry } from "../src/registries/index";
@@ -27,6 +28,7 @@ import {
   getNode,
   makeTestEnv,
   mockUuidV4To,
+  restoreDefaultFunctions,
   spyModelDispatch,
   target,
 } from "./test_helpers/helpers";
@@ -848,6 +850,21 @@ describe("Menu Item actions", () => {
     const spyStartCell = jest.spyOn(env, "startCellEdition");
     doAction(["insert", "insert_function", "insert_function_sum"], env);
     expect(spyStartCell).toHaveBeenCalled();
+  });
+
+  test("Insert -> Function -> All includes new functions", () => {
+    functionRegistry.add("TEST.FUNC", {
+      args: [],
+      compute: () => 42,
+      description: "Test function",
+      returns: ["NUMBER"],
+    });
+    const env = makeTestEnv();
+    const allFunctions = getNode(["insert", "insert_function", "categorie_function_all"]).children(
+      env
+    );
+    expect(allFunctions.map((f) => f.name(env))).toContain("TEST.FUNC");
+    restoreDefaultFunctions();
   });
 
   describe("Format -> numbers", () => {
