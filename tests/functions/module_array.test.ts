@@ -47,6 +47,20 @@ describe("ARRAY.CONSTRAIN function", () => {
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:F3")).toBeTruthy();
   });
 
+  test("ARRAY.CONSTRAINT: result format depends on range's format", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "1%", B1: "1",
+      A2: '01/10/2020',
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "D1", "=ARRAY.CONSTRAIN(A1:B2, 2, 2)");
+    expect(getRangeFormatsAsMatrix(model, "D1:E2")).toEqual([
+      ["0%", ""],
+      ["mm/dd/yyyy", ""],
+    ]);
+  });
+
   test("Constraint array returns whole array if arguments col/row are greater than the range dimensions", () => {
     // prettier-ignore
     const grid = {
@@ -156,6 +170,22 @@ describe("CHOOSECOLS function", () => {
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E3")).toBeTruthy();
   });
 
+  test("CHOOSECOLS: result format depends on range's format", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "1%", B1: "1.00",
+      A2: "01/10/2020",  B2: "test",
+      A3: "1"
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "D1", "=CHOOSECOLS(A1:B3, 1, 2)");
+    expect(getRangeFormatsAsMatrix(model, "D1:E3")).toEqual([
+      ["0%", ""],
+      ["mm/dd/yyyy", ""],
+      ["", ""],
+    ]);
+  });
+
   test("Order of chosen column is respected (row-first for ranges)", () => {
     //prettier-ignore
     const grid = {
@@ -248,6 +278,22 @@ describe("CHOOSEROWS function", () => {
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E3")).toBeTruthy();
   });
 
+  test("CHOOSEROWS: result format depends on range's format", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "1%", B1: "1.00",
+      A2: "01/10/2020", B2: "test",
+      A3: "1",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "D1", "=CHOOSEROWS(A1:C2, 1, 2)");
+    expect(getRangeFormatsAsMatrix(model, "D1:E3")).toEqual([
+      ["0%", ""],
+      ["mm/dd/yyyy", ""],
+      ["", ""],
+    ]);
+  });
+
   test("Order of chosen rows is respected (row-first for ranges)", () => {
     //prettier-ignore
     const grid = {
@@ -297,7 +343,11 @@ describe("EXPAND function", () => {
   });
 
   test("Expand rows", () => {
-    const grid = { A1: "A1", A2: "A2", B1: "B1", B2: "B2" };
+    // prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1",
+      A2: "A2", B2: "B2"
+    };
     const model = createModelFromGrid(grid);
     setCellContent(model, "D1", "=EXPAND(A1:B2, 3)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
@@ -309,7 +359,11 @@ describe("EXPAND function", () => {
   });
 
   test("Expand columns", () => {
-    const grid = { A1: "A1", A2: "A2", B1: "B1", B2: "B2" };
+    // prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1",
+      A2: "A2", B2: "B2"
+    };
     const model = createModelFromGrid(grid);
     setCellContent(model, "D1", "=EXPAND(A1:B2, 2, 3)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
@@ -321,7 +375,11 @@ describe("EXPAND function", () => {
   });
 
   test("Expand rows and columns with a default value", () => {
-    const grid = { A1: "A1", A2: "A2", B1: "B1", B2: "B2" };
+    // prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1",
+      A2: "A2", B2: "B2"
+    };
     const model = createModelFromGrid(grid);
     setCellContent(model, "D1", "=EXPAND(A1:B2, 3, 3, 66)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
@@ -345,6 +403,21 @@ describe("EXPAND function", () => {
     expect(getRangeValuesAsMatrix(model, "D1:E2")).toEqual([
       ["A1", 0],
       [0, 0],
+    ]);
+  });
+
+  test("EXPAND: result format depends on arguments' format", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "1%",  B1: "1.00",
+      A2: "01/10/2020", B2: "test"
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "D1", "=EXPAND(A1:B2, 3, 3, A1)");
+    expect(getRangeFormatsAsMatrix(model, "D1:F3")).toEqual([
+      ["0%", "", "0%"],
+      ["mm/dd/yyyy", "", "0%"],
+      ["0%", "0%", "0%"],
     ]);
   });
 
@@ -381,6 +454,13 @@ describe("FLATTEN function", () => {
     setCellContent(model, "D1", "=FLATTEN(A1:C1)");
     expect(getRangeValuesAsMatrix(model, "D1:D3")).toEqual([["A1"], ["B1"], ["C1"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D3")).toBeTruthy();
+  });
+
+  test("FLATTEN: result format depends on range's format", () => {
+    const grid = { A1: "1%", B1: "01/10/2020", C1: "1" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "D1", "=FLATTEN(A1:C1)");
+    expect(getRangeFormatsAsMatrix(model, "D1:D3")).toEqual([["0%"], ["mm/dd/yyyy"], [""]]);
   });
 
   test("Flatten a range goes row-first", () => {
@@ -588,6 +668,22 @@ describe("HSTACK function", () => {
       ["A3", 0, 0, 0],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:G3")).toBeTruthy();
+  });
+
+  test("HSTACK: result format depends on range's format", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "1%", B1: "01/10/2020",
+      A2: "5", B2: "01/01",
+      A3: ""
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "D1", "=HSTACK(A1:A3, A1:B2, 9)");
+    expect(getRangeFormatsAsMatrix(model, "D1:G3")).toEqual([
+      ["0%", "0%", "mm/dd/yyyy", ""],
+      ["", "", "mm/dd", ""],
+      ["", "", "", ""],
+    ]);
   });
 
   test("undefined values are replaced with zeroes", () => {
@@ -989,6 +1085,25 @@ describe("TOCOL function", () => {
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D6")).toBeTruthy();
   });
 
+  test("TOCOL: result format depends on range's format", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "1%", B1: "01/10/2020",
+      A2: "5", B2: "01/01",
+      A3: ""
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "D1", "=TOCOL(A1:B3)");
+    expect(getRangeFormatsAsMatrix(model, "D1:D6")).toEqual([
+      ["0%"],
+      ["mm/dd/yyyy"],
+      [""],
+      ["mm/dd"],
+      [""],
+      [""],
+    ]);
+  });
+
   test("TOCOL: undefined values are replaced by zeroes", () => {
     const grid = { A1: "A1", A2: "A2", B1: "B1", B2: undefined };
     const model = createModelFromGrid(grid);
@@ -1066,6 +1181,20 @@ describe("TOROW function", () => {
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:I1")).toBeTruthy();
   });
 
+  test("TOROW: result format depends on range's format", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "1%", B1: "01/10/2020",
+      A2: "5", B2: "01/01",
+      A3: ""
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "D1", "=TOROW(A1:B3)");
+    expect(getRangeFormatsAsMatrix(model, "D1:I1")).toEqual([
+      ["0%", "mm/dd/yyyy", "", "mm/dd", "", ""],
+    ]);
+  });
+
   test("TOROW: undefined values are replaced by zeroes", () => {
     const grid = { A1: "A1", A2: "A2", B1: "B1", B2: undefined };
     const model = createModelFromGrid(grid);
@@ -1112,9 +1241,9 @@ describe("TOROW function", () => {
 
 describe("TRANSPOSE function", () => {
   test("TRANSPOSE takes 1 arguments", () => {
-    // expect(evaluateCell("A1", { A1: "=TRANSPOSE()" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=TRANSPOSE()" })).toBe("#BAD_EXPR");
     expect(evaluateCell("A1", { A1: "=TRANSPOSE(B1:C2)" })).toBe(0);
-    // expect(evaluateCell("A1", { A1: "=TRANSPOSE(B1:C2, 0)" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=TRANSPOSE(B1:C2, 0)" })).toBe("#BAD_EXPR");
   });
 
   test("Transpose matrix", () => {
@@ -1204,6 +1333,23 @@ describe("VSTACK function", () => {
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E4")).toBeTruthy();
   });
 
+  test("VSTACK: result format depends on range's format", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "1%", B1: "01/10/2020",
+      A2: "5", B2: "01/01",
+      A3: ""
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "D1", "=VSTACK(A1:B1, B2:B3, 9)");
+    expect(getRangeFormatsAsMatrix(model, "D1:E4")).toEqual([
+      ["0%", "mm/dd/yyyy"],
+      ["mm/dd", ""],
+      ["", ""],
+      ["", ""],
+    ]);
+  });
+
   test("undefined values are replaced with zeroes", () => {
     const grid = { A1: "A1", A2: undefined, B1: undefined, B2: "B2" };
     const model = createModelFromGrid(grid);
@@ -1262,6 +1408,17 @@ describe("WRAPCOLS function", () => {
       ["B1", "D1"],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "E1:F2")).toBeTruthy();
+  });
+
+  test("WRAPCOLS: result format depends on range's format", () => {
+    const grid = { A1: "1%", B1: "5", C1: "01/10/2020", D1: "01/01" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "E1", "=WRAPCOLS(A1:D1, 3, A1)");
+    expect(getRangeFormatsAsMatrix(model, "E1:F3")).toEqual([
+      ["0%", "mm/dd"],
+      ["", "0%"],
+      ["mm/dd/yyyy", "0%"],
+    ]);
   });
 
   test("array padding", () => {
@@ -1343,6 +1500,16 @@ describe("WRAPROWS function", () => {
       ["C1", "D1"],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "E1:F2")).toBeTruthy();
+  });
+
+  test("WRAPROWS: result format depends on range's format", () => {
+    const grid = { A1: "1%", B1: "5", C1: "01/10/2020", D1: "01/01" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "E1", "=WRAPROWS(A1:D1, 3, A1)");
+    expect(getRangeFormatsAsMatrix(model, "E1:G2")).toEqual([
+      ["0%", "", "mm/dd/yyyy"],
+      ["mm/dd", "0%", "0%"],
+    ]);
   });
 
   test("array padding", () => {

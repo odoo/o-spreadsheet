@@ -144,7 +144,10 @@ export const UNIQUE: AddFunctionDescription = {
 
     if (!values.length) throw new Error(_lt("No unique values found"));
 
-    return { value: toCellValueMatrix(_byColumn ? values : transpose2dArray(values)) };
+    return {
+      value: toCellValueMatrix(_byColumn ? values : transpose2dArray(values)),
+      format: _byColumn ? formats : transpose2dArray(formats),
+    };
   },
   isExported: true,
 };

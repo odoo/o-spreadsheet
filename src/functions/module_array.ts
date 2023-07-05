@@ -5,7 +5,6 @@ import {
   ArgValue,
   CellValue,
   Format,
-  isMatrix,
   Matrix,
   MatrixArg,
   MatrixArgValue,
@@ -190,7 +189,8 @@ export const EXPAND: AddFunctionDescription = {
     const _formats = toMatrix(arg.format);
     const _nbRows = toInteger(rows.value);
     const _nbColumns = columns !== undefined ? toInteger(columns.value) : _values.length;
-    const _padWith = padWith !== undefined && padWith.value !== null ? padWith.value : 0; // TODO : Replace with #N/A errors once it's supported
+    const _padWithValue = padWith !== undefined && padWith.value !== null ? padWith.value : 0; // TODO : Replace with #N/A errors once it's supported
+    const _padWithFormat = padWith?.format; // TODO : Replace with #N/A errors once it's supported
 
     assert(
       () => _nbRows >= _values[0].length,
@@ -211,8 +211,10 @@ export const EXPAND: AddFunctionDescription = {
       _nbRows,
       _nbColumns,
       arg.format !== undefined,
-      (i, j) => (i >= _values.length || j >= _values[i].length ? _padWith : _values[i][j] ?? 0),
-      (i, j) => _formats?.[i]?.[j]
+      (i, j) =>
+        i >= _values.length || j >= _values[i].length ? _padWithValue : _values[i][j] ?? 0,
+      (i, j) =>
+        i >= _formats.length || j >= _formats[i].length ? _padWithFormat : _formats?.[i]?.[j]
     );
   },
   isExported: true,
@@ -659,7 +661,7 @@ export const TOCOL: AddFunctionDescription = {
           continue;
         }
         result.push(toCellValue(item));
-        formats.push(scanByColumn ? _formats?.[i]?.[j] : _formats?.[j]?.[i]);
+        formats.push(_scanByColumn ? _formats?.[i]?.[j] : _formats?.[j]?.[i]);
       }
     }
 
@@ -704,7 +706,7 @@ export const TOROW: AddFunctionDescription = {
           continue;
         }
         result.push([toCellValue(item)]);
-        formats.push([scanByColumn ? _formats?.[i]?.[j] : _formats?.[j]?.[i]]);
+        formats.push([_scanByColumn ? _formats?.[i]?.[j] : _formats?.[j]?.[i]]);
       }
     }
 
@@ -798,9 +800,10 @@ export const WRAPCOLS: AddFunctionDescription = {
     padWith: PrimitiveArg = { value: 0 }
   ) => {
     const _values = toMatrixArgValue(range.value);
-    const _formats = isMatrix(range.format) ? range.format : [[range.format]];
+    const _formats = toMatrix(range.format);
     const nbRows = toInteger(wrapCount.value);
-    const _padWith = padWith.value === null ? 0 : padWith.value;
+    const _padWithValue = padWith.value === null ? 0 : padWith.value;
+    const _padWithFormat = padWith?.format;
 
     assertSingleColOrRow(_lt("Argument range must be a single row or column."), _values);
 
@@ -813,10 +816,13 @@ export const WRAPCOLS: AddFunctionDescription = {
       nbColumns,
       range.format !== undefined,
       (i, j) => {
-        const index = i * nbColumns + j;
-        return index < values.length ? toCellValue(values[index]) : _padWith;
+        const index = i * nbRows + j;
+        return index < values.length ? toCellValue(values[index]) : _padWithValue;
       },
-      (i, j) => formats?.[i * nbColumns + j]
+      (i, j) => {
+        const index = i * nbRows + j;
+        return index < formats.length ? formats[index] : _padWithFormat;
+      }
     );
   },
   isExported: true,
@@ -847,9 +853,10 @@ export const WRAPROWS: AddFunctionDescription = {
     padWith: PrimitiveArg = { value: 0 }
   ) => {
     const _values = toMatrixArgValue(range.value);
-    const _formats = isMatrix(range.format) ? range.format : [[range.format]];
+    const _formats = toMatrix(range.format);
     const nbColumns = toInteger(wrapCount.value);
-    const _padWith = padWith.value === null ? 0 : padWith.value;
+    const _padWithValue = padWith.value === null ? 0 : padWith.value;
+    const _padWithFormat = padWith?.format;
 
     assertSingleColOrRow(_lt("Argument range must be a single row or column."), _values);
 
@@ -863,9 +870,12 @@ export const WRAPROWS: AddFunctionDescription = {
       range.format !== undefined,
       (i, j) => {
         const index = j * nbColumns + i;
-        return index < values.length ? toCellValue(values[index]) : _padWith;
+        return index < values.length ? toCellValue(values[index]) : _padWithValue;
       },
-      (i, j) => formats?.[j * nbColumns + i]
+      (i, j) => {
+        const index = j * nbColumns + i;
+        return index < formats.length ? formats[index] : _padWithFormat;
+      }
     );
   },
   isExported: true,
