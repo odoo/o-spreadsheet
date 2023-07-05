@@ -28,8 +28,8 @@
           t-on-contextmenu.prevent=""
           t-att-style="getCellClickableStyle(clickableCell.coordinates)"
         />
+        <FilterIconsOverlay/>
       </div>
-      <FilterIconsOverlay/>
       <VerticalScrollBar/>
       <HorizontalScrollBar/>
       <div class="o-scrollbar corner"/>
