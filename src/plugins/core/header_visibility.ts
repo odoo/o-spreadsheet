@@ -8,6 +8,7 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     "checkElementsIncludeAllVisibleHeaders",
     "getHiddenColsGroups",
     "getHiddenRowsGroups",
+    "isHeaderHiddenByUser",
     "isRowHiddenByUser",
     "isColHiddenByUser",
   ] as const;
@@ -106,12 +107,18 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     return includesAll(elements, visibleHeaders);
   }
 
+  isHeaderHiddenByUser(sheetId: UID, dimension: Dimension, index: HeaderIndex): boolean {
+    return dimension === "COL"
+      ? this.isColHiddenByUser(sheetId, index)
+      : this.isRowHiddenByUser(sheetId, index);
+  }
+
   isRowHiddenByUser(sheetId: UID, index: HeaderIndex): boolean {
-    return this.hiddenHeaders[sheetId].ROW[index];
+    return this.hiddenHeaders[sheetId].ROW[index] || this.getters.isRowFolded(sheetId, index);
   }
 
   isColHiddenByUser(sheetId: UID, index: HeaderIndex): boolean {
-    return this.hiddenHeaders[sheetId].COL[index];
+    return this.hiddenHeaders[sheetId].COL[index] || this.getters.isColFolded(sheetId, index);
   }
 
   getHiddenColsGroups(sheetId: UID): ConsecutiveIndexes[] {

@@ -1,4 +1,5 @@
 import { Model } from "../../src";
+import { toZone } from "../../src/helpers";
 import {
   repeatCommandTransformRegistry,
   repeatCoreCommand,
@@ -11,10 +12,12 @@ import {
   CreateFigureCommand,
   CreateImageOverCommand,
   CreateSheetCommand,
+  GroupHeadersCommand,
   HideColumnsRowsCommand,
   RemoveColumnsRowsCommand,
   ResizeColumnsRowsCommand,
   SheetDependentCommand,
+  UnGroupHeadersCommand,
 } from "../../src/types/commands";
 import {
   activateSheet,
@@ -73,6 +76,10 @@ describe("Repeat commands basics", () => {
       "CREATE_IMAGE",
       "HIDE_SHEET",
       "RESIZE_COLUMNS_ROWS",
+      "GROUP_HEADERS",
+      "UNGROUP_HEADERS",
+      "UNFOLD_HEADER_GROUPS_IN_ZONE",
+      "FOLD_HEADER_GROUPS_IN_ZONE",
     ].sort();
     const registryKeys = repeatCommandTransformRegistry.getKeys().sort();
     expect(repeatableCommands).toEqual(registryKeys);
@@ -167,6 +174,15 @@ describe("Repeat command transform generics", () => {
       setSelection(model, ["B2:C4"]);
       const transformed = repeatCoreCommand(model.getters, command);
       expect(transformed).toMatchObject({ target: target("B2:C4") });
+    }
+  );
+
+  test.each([TEST_COMMANDS.FOLD_HEADER_GROUPS_IN_ZONE, TEST_COMMANDS.UNFOLD_HEADER_GROUPS_IN_ZONE])(
+    "Zone dependant commands have zone equal to current current selection",
+    (command: CoreCommand) => {
+      setSelection(model, ["B2:C4"]);
+      const transformed = repeatCoreCommand(model.getters, command);
+      expect(transformed).toMatchObject({ zone: toZone("B2:C4") });
     }
   );
 
@@ -313,6 +329,42 @@ describe("Repeat command transform specifics", () => {
       ...command,
       elements: args.affectedHeader,
       sheetId: "42",
+    });
+  });
+
+  test.each(["COL", "ROW"] as const)("Repeat group headers command %s", (dimension) => {
+    createSheet(model, { sheetId: "42" });
+    const command: GroupHeadersCommand = {
+      ...TEST_COMMANDS.GROUP_HEADERS,
+      dimension: dimension,
+      sheetId,
+    };
+    activateSheet(model, "42");
+    setSelection(model, ["A1:D4"]);
+    const transformed = repeatCoreCommand(model.getters, command);
+    expect(transformed).toEqual({
+      ...command,
+      sheetId: "42",
+      start: 0,
+      end: 3,
+    });
+  });
+
+  test.each(["COL", "ROW"] as const)("Repeat ungroup headers command %s", (dimension) => {
+    createSheet(model, { sheetId: "42" });
+    const command: UnGroupHeadersCommand = {
+      ...TEST_COMMANDS.UNGROUP_HEADERS,
+      dimension: dimension,
+      sheetId,
+    };
+    activateSheet(model, "42");
+    setSelection(model, ["A1:D4"]);
+    const transformed = repeatCoreCommand(model.getters, command);
+    expect(transformed).toEqual({
+      ...command,
+      sheetId: "42",
+      start: 0,
+      end: 3,
     });
   });
 });

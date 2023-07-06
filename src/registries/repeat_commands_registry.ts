@@ -1,5 +1,8 @@
 import { deepCopy, isDefined } from "../helpers";
-import { genericRepeatsTransforms } from "../history/repeat_commands/repeat_commands_generic";
+import {
+  genericRepeatsTransforms,
+  repeatZoneDependantCommand,
+} from "../history/repeat_commands/repeat_commands_generic";
 import {
   repeatAddColumnsRowsCommand,
   repeatAutoResizeCommand,
@@ -7,6 +10,7 @@ import {
   repeatCreateFigureCommand,
   repeatCreateImageCommand,
   repeatCreateSheetCommand,
+  repeatGroupHeadersCommand,
   repeatHeaderElementCommand,
   repeatInsertOrDeleteCellCommand,
   repeatPasteCommand,
@@ -60,6 +64,11 @@ repeatCommandTransformRegistry.add("CREATE_SHEET", repeatCreateSheetCommand);
 repeatCommandTransformRegistry.add("CREATE_FIGURE", repeatCreateFigureCommand);
 repeatCommandTransformRegistry.add("CREATE_CHART", repeatCreateChartCommand);
 repeatCommandTransformRegistry.add("CREATE_IMAGE", repeatCreateImageCommand);
+repeatCommandTransformRegistry.add("GROUP_HEADERS", repeatGroupHeadersCommand);
+repeatCommandTransformRegistry.add("UNGROUP_HEADERS", repeatGroupHeadersCommand);
+repeatCommandTransformRegistry.add("UNGROUP_HEADERS", repeatGroupHeadersCommand);
+repeatCommandTransformRegistry.add("UNFOLD_HEADER_GROUPS_IN_ZONE", repeatZoneDependantCommand);
+repeatCommandTransformRegistry.add("FOLD_HEADER_GROUPS_IN_ZONE", repeatZoneDependantCommand);
 
 export const repeatLocalCommandTransformRegistry = new Registry<LocalRepeatTransform>();
 repeatLocalCommandTransformRegistry.add("STOP_EDITION", repeatLocalCommandChildren);

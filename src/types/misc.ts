@@ -339,3 +339,11 @@ type ImmutableArray<T> = ReadonlyArray<Immutable<T>>;
 type ImmutableMap<K, V> = ReadonlyMap<Immutable<K>, Immutable<V>>;
 type ImmutableSet<T> = ReadonlySet<Immutable<T>>;
 type ImmutableObject<T> = { readonly [K in keyof T]: Immutable<T[K]> };
+
+export interface HeaderGroup {
+  start: HeaderIndex;
+  end: HeaderIndex;
+  isFolded?: boolean;
+}
+
+export type Direction = "up" | "down" | "left" | "right";

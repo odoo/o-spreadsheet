@@ -141,7 +141,7 @@ exports[`BottomBar component simple rendering 1`] = `
         class="o-sheet-item o-add-sheet me-2 p-1"
       >
         <svg
-          class="o-icon"
+          class="o-icon plus"
           viewBox="0 0 18 18"
         >
           <path

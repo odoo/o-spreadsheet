@@ -568,6 +568,7 @@ test("complete import, then export", () => {
         areGridLinesVisible: true,
         isVisible: true,
         panes: { ySplit: 1, xSplit: 5 },
+        headerGroups: { COL: [], ROW: [] },
       },
       {
         id: "someuuid_2",
@@ -585,6 +586,7 @@ test("complete import, then export", () => {
         filterTables: [],
         areGridLinesVisible: false,
         isVisible: true,
+        headerGroups: { COL: [], ROW: [] },
       },
     ],
     settings: { locale: DEFAULT_LOCALE },
@@ -665,6 +667,7 @@ test("import then export (figures)", () => {
         filterTables: [],
         areGridLinesVisible: true,
         isVisible: true,
+        headerGroups: { COL: [], ROW: [] },
       },
     ],
     entities: {},

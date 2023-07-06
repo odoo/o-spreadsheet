@@ -8,9 +8,11 @@ import {
   ResizeColumnsRowsCommand,
 } from "../../../src/types";
 import {
+  OT_TESTS_HEADER_GROUP_COMMANDS,
   OT_TESTS_RANGE_DEPENDANT_COMMANDS,
   OT_TESTS_SINGLE_CELL_COMMANDS,
   OT_TESTS_TARGET_DEPENDANT_COMMANDS,
+  OT_TESTS_ZONE_DEPENDANT_COMMANDS,
   TEST_COMMANDS,
 } from "../../test_helpers/constants";
 import { target, toRangesData } from "../../test_helpers/helpers";
@@ -70,20 +72,15 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
       const result = transform(command, addRowsAfter);
       expect(result).toEqual(command);
     });
-    test(`add rows after ${cmd.type}`, () => {
+    test(`add rows before ${cmd.type}`, () => {
       const command = { ...cmd, sheetId, target: [toZone("A10:B11")] };
       const result = transform(command, addRowsAfter);
       expect(result).toEqual({ ...command, target: [toZone("A12:B13")] });
     });
-    test(`add rows after in ${cmd.type}`, () => {
-      const command = { ...cmd, sheetId, target: [toZone("A5:B6")] };
+    test(`add rows in ${cmd.type}`, () => {
+      const command = { ...cmd, sheetId, target: [toZone("A1:B10")] };
       const result = transform(command, addRowsAfter);
-      expect(result).toEqual({ ...command, target: [toZone("A5:B6")] });
-    });
-    test(`add rows before in ${cmd.type}`, () => {
-      const command = { ...cmd, sheetId, target: [toZone("A5:B6")] };
-      const result = transform(command, addRowsBefore);
-      expect(result).toEqual({ ...command, target: [toZone("A5:B6")] });
+      expect(result).toEqual({ ...command, target: [toZone("A1:B12")] });
     });
     test(`${cmd.type} and rows added in different sheets`, () => {
       const command = { ...cmd, target: [toZone("A1:F3")], sheetId: "42" };
@@ -94,6 +91,29 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
       const command = { ...cmd, sheetId, target: [toZone("A1:C1"), toZone("A10:B11")] };
       const result = transform(command, addRowsAfter);
       expect(result).toEqual({ ...command, target: [toZone("A1:C1"), toZone("A12:B13")] });
+    });
+  });
+
+  describe.each(OT_TESTS_ZONE_DEPENDANT_COMMANDS)("zone dependant commands", (cmd) => {
+    test(`add rows after ${cmd.type}`, () => {
+      const command = { ...cmd, sheetId, zone: toZone("A1:C1") };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual(command);
+    });
+    test(`add rows before ${cmd.type}`, () => {
+      const command = { ...cmd, sheetId, zone: toZone("A10:B11") };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual({ ...command, zone: toZone("A12:B13") });
+    });
+    test(`add rows in ${cmd.type}`, () => {
+      const command = { ...cmd, sheetId, zone: toZone("A1:B12") };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual({ ...command, zone: toZone("A1:B14") });
+    });
+    test(`${cmd.type} and rows added in different sheets`, () => {
+      const command = { ...cmd, zone: toZone("A1:F3"), sheetId: "42" };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual(command);
     });
   });
 
@@ -395,3 +415,50 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
     });
   });
 });
+
+describe.each(OT_TESTS_HEADER_GROUP_COMMANDS)(
+  "Transform of (UN)GROUP_HEADERS when adding rows",
+  (cmd) => {
+    const addRowsCmd: AddColumnsRowsCommand = {
+      ...TEST_COMMANDS.ADD_COLUMNS_ROWS,
+      dimension: "ROW",
+      quantity: 2,
+    };
+    const toTransform: (typeof OT_TESTS_HEADER_GROUP_COMMANDS)[number] = {
+      ...cmd,
+      dimension: "ROW",
+      start: 5,
+      end: 7,
+    };
+
+    test("Add rows before the group", () => {
+      const executed: AddColumnsRowsCommand = { ...addRowsCmd, base: 0, position: "after" };
+      const result = transform(toTransform, executed);
+      expect(result).toEqual({ ...toTransform, start: 7, end: 9 });
+    });
+
+    test("Add rows right before the group", () => {
+      const executed: AddColumnsRowsCommand = { ...addRowsCmd, base: 5, position: "before" };
+      const result = transform(toTransform, executed);
+      expect(result).toEqual({ ...toTransform, start: 7, end: 9 });
+    });
+
+    test("Add rows inside the group", () => {
+      const executed: AddColumnsRowsCommand = { ...addRowsCmd, base: 5, position: "after" };
+      const result = transform(toTransform, executed);
+      expect(result).toEqual({ ...toTransform, start: 5, end: 9 });
+    });
+
+    test("Add rows after the group", () => {
+      const executed: AddColumnsRowsCommand = { ...addRowsCmd, base: 7, position: "after" };
+      const result = transform(toTransform, executed);
+      expect(result).toEqual({ ...toTransform, start: 5, end: 7 });
+    });
+
+    test("Add rows in another sheet", () => {
+      const executed: AddColumnsRowsCommand = { ...addRowsCmd, base: 0, sheetId: "42" };
+      const result = transform(toTransform, executed);
+      expect(result).toEqual(toTransform);
+    });
+  }
+);

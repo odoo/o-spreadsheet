@@ -4,13 +4,15 @@ import { functionRegistry } from "../src/functions";
 import { zoneToXc } from "../src/helpers";
 import { interactivePaste } from "../src/helpers/ui/paste_interactive";
 import { colMenuRegistry, rowMenuRegistry, topbarMenuRegistry } from "../src/registries/index";
-import { SpreadsheetChildEnv } from "../src/types";
+import { SpreadsheetChildEnv, UID } from "../src/types";
 import { DEFAULT_LOCALES } from "./../src/types/locale";
 import {
   copy,
   createFilter,
   freezeColumns,
   freezeRows,
+  groupColumns,
+  groupRows,
   hideColumns,
   hideRows,
   selectCell,
@@ -98,6 +100,7 @@ describe("Menu Item Registry", () => {
 
 describe("Menu Item actions", () => {
   let model: Model;
+  let sheetId: UID;
   let env: SpreadsheetChildEnv;
   let dispatch: jest.SpyInstance;
 
@@ -105,6 +108,7 @@ describe("Menu Item actions", () => {
     env = makeTestEnv();
     model = env.model;
     dispatch = spyModelDispatch(model);
+    sheetId = model.getters.getActiveSheetId();
   });
 
   test("Edit -> undo", () => {
@@ -1498,6 +1502,87 @@ describe("Menu Item actions", () => {
     expect(dispatch).toHaveBeenCalledWith("SET_GRID_LINES_VISIBILITY", {
       sheetId,
       areGridLinesVisible: false,
+    });
+  });
+
+  describe("View -> group headers", () => {
+    const groupColsPath = ["view", "group_headers", "group_columns"];
+    const groupRowsPath = ["view", "group_headers", "group_rows"];
+    const ungroupColsPath = ["view", "group_headers", "ungroup_columns"];
+    const ungroupRowsPath = ["view", "group_headers", "ungroup_rows"];
+
+    test("Can group columns", () => {
+      setSelection(model, ["A1:C3"]);
+      expect(getName(groupColsPath, env)).toBe("Group columns A - C");
+      doAction(groupColsPath, env);
+      expect(model.getters.getHeaderGroups(sheetId, "COL")[0]).toMatchObject({
+        start: 0,
+        end: 2,
+      });
+    });
+
+    test("Cannot group multiple selections", () => {
+      setSelection(model, ["A1:B3", "C1:C3"]);
+      expect(getNode(groupColsPath).isVisible(env)).toBeFalsy();
+    });
+
+    test("Cannot re-group same selection of columns", () => {
+      setSelection(model, ["A1:B3"]);
+      getNode(groupColsPath).execute?.(env);
+      expect(getNode(groupColsPath).isVisible(env)).toBeFalsy();
+    });
+
+    test("Can ungroup columns", () => {
+      groupColumns(model, "A", "C");
+      setSelection(model, ["A1:C3"]);
+      expect(getName(ungroupColsPath, env)).toBe("Ungroup columns A - C");
+      doAction(ungroupColsPath, env);
+      expect(model.getters.getHeaderGroups(sheetId, "COL")).toHaveLength(0);
+    });
+
+    test("Cannot ungroup columns when there's no group in the selection", () => {
+      setSelection(model, ["A1:C3"]);
+      expect(getNode(ungroupColsPath).isVisible(env)).toBeFalsy();
+
+      groupColumns(model, "A", "C");
+      expect(getNode(ungroupColsPath).isVisible(env)).toBeTruthy();
+    });
+
+    test("Can group rows", () => {
+      setSelection(model, ["A1:C3"]);
+      expect(getName(groupRowsPath, env)).toBe("Group rows 1 - 3");
+      doAction(groupRowsPath, env);
+      expect(model.getters.getHeaderGroups(sheetId, "ROW")[0]).toMatchObject({
+        start: 0,
+        end: 2,
+      });
+    });
+
+    test("Cannot group multiple selections", () => {
+      setSelection(model, ["A1:C1", "A2:C2"]);
+      expect(getNode(groupRowsPath).isVisible(env)).toBeFalsy();
+    });
+
+    test("Cannot re-group same selection of rows", () => {
+      setSelection(model, ["A1:B3"]);
+      getNode(groupRowsPath).execute?.(env);
+      expect(getNode(groupRowsPath).isVisible(env)).toBeFalsy();
+    });
+
+    test("Can ungroup rows", () => {
+      groupRows(model, 0, 2);
+      setSelection(model, ["A1:C3"]);
+      expect(getName(ungroupRowsPath, env)).toBe("Ungroup rows 1 - 3");
+      doAction(ungroupRowsPath, env);
+      expect(model.getters.getHeaderGroups(sheetId, "ROW")).toHaveLength(0);
+    });
+
+    test("Cannot ungroup rows when there's no group in the selection", () => {
+      setSelection(model, ["A1:C3"]);
+      expect(getNode(ungroupRowsPath).isVisible(env)).toBeFalsy();
+
+      groupRows(model, 0, 2);
+      expect(getNode(ungroupRowsPath).isVisible(env)).toBeTruthy();
     });
   });
 

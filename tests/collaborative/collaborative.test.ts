@@ -18,6 +18,7 @@ import {
   deleteColumns,
   deleteRows,
   deleteSheet,
+  groupHeaders,
   hideRows,
   hideSheet,
   merge,
@@ -28,6 +29,7 @@ import {
   setCellContent,
   setStyle,
   undo,
+  ungroupHeaders,
 } from "../test_helpers/commands_helpers";
 import {
   getBorder,
@@ -1010,6 +1012,42 @@ describe("Multi users synchronisation", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getRowSize("sheet2", 0),
       getDefaultCellHeight(ctx, getCell(alice, "A1"), colSize)
+    );
+  });
+
+  test.each(["COL", "ROW"] as const)("Can group headers concurrently", (dimension) => {
+    const sheetId = alice.getters.getActiveSheetId();
+
+    network.concurrent(() => {
+      groupHeaders(bob, dimension, 0, 1);
+      groupHeaders(alice, dimension, 2, 4); // Should merge with first group since they are contiguous
+      groupHeaders(charlie, dimension, 3, 6); // Intersects with merged group => group starts should be swapped
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getHeaderGroups(sheetId, dimension).sort((a, b) => a.start - b.start),
+      [
+        { start: 0, end: 6 },
+        { start: 3, end: 4 },
+      ]
+    );
+  });
+
+  test.each(["COL", "ROW"] as const)("Can ungroup headers concurrently", (dimension) => {
+    const sheetId = alice.getters.getActiveSheetId();
+    groupHeaders(alice, dimension, 0, 1);
+    groupHeaders(alice, dimension, 0, 5);
+
+    network.concurrent(() => {
+      // First ungroup should remove header from group [0, 1], second ungroup from group [0, 5]
+      ungroupHeaders(bob, dimension, 0, 0);
+      ungroupHeaders(alice, dimension, 0, 0);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getHeaderGroups(sheetId, dimension),
+      [
+        { start: 1, end: 5 },
+        { start: 1, end: 1 },
+      ]
     );
   });
 });

@@ -13,6 +13,7 @@ import {
   OT_TESTS_RANGE_DEPENDANT_COMMANDS,
   OT_TESTS_SINGLE_CELL_COMMANDS,
   OT_TESTS_TARGET_DEPENDANT_COMMANDS,
+  OT_TESTS_ZONE_DEPENDANT_COMMANDS,
   TEST_COMMANDS,
 } from "../../test_helpers/constants";
 import { toRangesData } from "../../test_helpers/helpers";
@@ -52,6 +53,7 @@ describe("OT with DELETE_SHEET", () => {
     ...OT_TESTS_SINGLE_CELL_COMMANDS,
     ...OT_TESTS_TARGET_DEPENDANT_COMMANDS,
     ...OT_TESTS_RANGE_DEPENDANT_COMMANDS,
+    ...OT_TESTS_ZONE_DEPENDANT_COMMANDS,
     addColumns,
     addRows,
     removeColumn,
@@ -69,13 +71,17 @@ describe("OT with DELETE_SHEET", () => {
     TEST_COMMANDS.REMOVE_CONDITIONAL_FORMAT,
     TEST_COMMANDS.DELETE_SHEET,
     TEST_COMMANDS.MOVE_RANGES,
+    TEST_COMMANDS.GROUP_HEADERS,
+    TEST_COMMANDS.UNGROUP_HEADERS,
+    TEST_COMMANDS.FOLD_HEADER_GROUP,
+    TEST_COMMANDS.UNFOLD_HEADER_GROUP,
   ])("Delete sheet", (cmd) => {
     test("Delete the sheet on which the command is triggered", () => {
       const result = transform({ ...cmd, sheetId: deletedSheetId }, deleteSheet);
       expect(result).toBeUndefined();
     });
 
-    test("Delete the sheet on which the command is triggered", () => {
+    test("Delete a sheet other than the one on which the command is triggered", () => {
       const command = { ...cmd, sheetId };
       const result = transform(command, deleteSheet);
       expect(result).toEqual(command);

@@ -12,6 +12,7 @@ import {
   MergePlugin,
   SheetPlugin,
 } from "./core";
+import { HeaderGroupingPlugin } from "./core/header_grouping";
 import { SettingsPlugin } from "./core/settings";
 import { CorePluginConstructor } from "./core_plugin";
 import {
@@ -51,6 +52,7 @@ import {
 export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("settings", SettingsPlugin)
   .add("sheet", SheetPlugin)
+  .add("header grouping", HeaderGroupingPlugin)
   .add("header visibility", HeaderVisibilityPlugin)
   .add("filters", FiltersPlugin)
   .add("cell", CellPlugin)

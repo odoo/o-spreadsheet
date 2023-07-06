@@ -22,6 +22,15 @@ export function repeatTargetDependantCommand<T extends Command>(getters: Getters
   };
 }
 
+export function repeatZoneDependantCommand<T extends Command>(getters: Getters, command: T): T {
+  if (!("zone" in command)) return command;
+
+  return {
+    ...deepCopy(command),
+    zone: getters.getSelectedZone(),
+  };
+}
+
 export function repeatPositionDependantCommand<T extends Command>(getters: Getters, command: T): T {
   if (!("row" in command) || !("col" in command)) return command;
 

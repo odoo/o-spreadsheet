@@ -2,7 +2,7 @@ import { CellValue, Format, Locale } from ".";
 import { ExcelChartDefinition } from "./chart/chart";
 import { ConditionalFormat } from "./conditional_formatting";
 import { Image } from "./image";
-import { Border, PaneDivision, Pixel, Style, UID } from "./misc";
+import { Border, Dimension, HeaderGroup, PaneDivision, Pixel, Style, UID } from "./misc";
 
 export interface Dependencies {
   references: string[];
@@ -47,6 +47,7 @@ export interface SheetData {
   areGridLinesVisible?: boolean;
   isVisible: boolean;
   panes?: PaneDivision;
+  headerGroups?: Record<Dimension, HeaderGroup[]>;
 }
 
 interface WorkbookSettings {

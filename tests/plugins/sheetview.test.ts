@@ -15,8 +15,11 @@ import {
   createFilter,
   deleteColumns,
   deleteRows,
+  foldHeaderGroup,
   freezeColumns,
   freezeRows,
+  groupColumns,
+  groupRows,
   hideColumns,
   hideRows,
   merge,
@@ -854,6 +857,20 @@ describe("Viewport of Simple sheet", () => {
     expect(model.getters.getActiveMainViewport()).not.toEqual(oldViewport);
     oldViewport = { ...model.getters.getActiveMainViewport() };
     setFormat(model, "0.00%", target("A5"));
+    expect(model.getters.getActiveMainViewport()).not.toEqual(oldViewport);
+  });
+
+  test("Viewport is updated when folding/unfolding header groups", () => {
+    model = new Model();
+
+    groupColumns(model, "A", "B");
+    let oldViewport = { ...model.getters.getActiveMainViewport() };
+    foldHeaderGroup(model, "COL", 0, 1);
+    expect(model.getters.getActiveMainViewport()).not.toEqual(oldViewport);
+
+    groupRows(model, 1, 2);
+    oldViewport = { ...model.getters.getActiveMainViewport() };
+    foldHeaderGroup(model, "ROW", 1, 2);
     expect(model.getters.getActiveMainViewport()).not.toEqual(oldViewport);
   });
 

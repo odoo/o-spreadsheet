@@ -2,7 +2,7 @@
 
 exports[`Grid component simple rendering snapshot 1`] = `
 <div
-  class="o-grid o-two-columns"
+  class="o-grid w-100 h-100"
   tabindex="-1"
 >
   <div
