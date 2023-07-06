@@ -12,7 +12,7 @@ import {
 } from "../types/index";
 import { BasePlugin } from "./base_plugin";
 
-type UIActions = Pick<ModelConfig, "notifyUI">;
+type UIActions = Pick<ModelConfig, "notifyUI" | "raiseBlockingErrorUI">;
 
 export interface UIPluginConfig {
   readonly getters: Getters;

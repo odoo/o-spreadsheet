@@ -28,10 +28,9 @@ setTranslationMethod(
 
 const uuidGenerator = new o_spreadsheet.helpers.UuidGenerator();
 
-const tags = new Set();
-
 const NOTIFICATION_STYLE =
   "position:absolute;\
+  right:0px;\
   border:2px solid black;\
   background:#F5F5DCD5;\
   padding:20px;\
@@ -121,11 +120,28 @@ class Demo extends Component {
       isReadonlyAllowed: true,
     });
 
-    topbarMenuRegistry.addChild("fakenotify", ["notify"], {
-      name: "click me",
+    topbarMenuRegistry.addChild("fake_notify_sticky", ["notify"], {
+      name: "fake notify (sticky)",
       sequence: 13,
       isReadonlyAllowed: true,
-      execute: () => this.notifyUser({ text: "This is a notification", tag: "notif" }),
+      execute: () =>
+        this.notifyUser({
+          text: "I'm a sticky notification ! You want me to leave ? COME FIGHT WITH ME !!!",
+          sticky: true,
+          type: "warning",
+        }),
+    });
+
+    topbarMenuRegistry.addChild("fake_notify_no_sticky", ["notify"], {
+      name: "fake notify (no sticky)",
+      sequence: 14,
+      isReadonlyAllowed: true,
+      execute: () =>
+        this.notifyUser({
+          text: "I'm not a sticky notification, Just a simple notification. So... CiaoByeBye, see you in another universe...",
+          sticky: false,
+          type: "warning",
+        }),
     });
 
     topbarMenuRegistry.addChild("throw error", ["notify"], {
@@ -266,18 +282,23 @@ class Demo extends Component {
   }
 
   notifyUser(notification) {
-    if (tags.has(notification.tag)) return;
     const div = document.createElement("div");
     const text = document.createTextNode(notification.text);
     div.appendChild(text);
     div.style = NOTIFICATION_STYLE;
     const element = document.querySelector(".o-spreadsheet");
     div.onclick = () => {
-      tags.delete(notification.tag);
       element.removeChild(div);
     };
     element.appendChild(div);
-    tags.add(notification.tag);
+
+    if (!notification.sticky) {
+      setTimeout(() => {
+        if (document.body.contains(div)) {
+          element.removeChild(div);
+        }
+      }, 5000);
+    }
   }
 
   raiseError(content, callback) {

@@ -205,10 +205,7 @@ export class EditionPlugin extends UIPlugin {
           this.sheetId = this.getters.getActiveSheetId();
           this.cancelEditionAndActivateSheet();
           this.resetContent();
-          this.ui.notifyUI({
-            type: "ERROR",
-            text: CELL_DELETED_MESSAGE,
-          });
+          this.ui.raiseBlockingErrorUI(CELL_DELETED_MESSAGE);
         }
         break;
       case "CYCLE_EDITION_REFERENCES":
@@ -337,10 +334,7 @@ export class EditionPlugin extends UIPlugin {
   private onColumnsRemoved(cmd: RemoveColumnsRowsCommand) {
     if (cmd.elements.includes(this.col) && this.mode !== "inactive") {
       this.dispatch("STOP_EDITION", { cancel: true });
-      this.ui.notifyUI({
-        type: "ERROR",
-        text: CELL_DELETED_MESSAGE,
-      });
+      this.ui.raiseBlockingErrorUI(CELL_DELETED_MESSAGE);
       return;
     }
     const { top, left } = updateSelectionOnDeletion(
@@ -355,10 +349,7 @@ export class EditionPlugin extends UIPlugin {
   private onRowsRemoved(cmd: RemoveColumnsRowsCommand) {
     if (cmd.elements.includes(this.row) && this.mode !== "inactive") {
       this.dispatch("STOP_EDITION", { cancel: true });
-      this.ui.notifyUI({
-        type: "ERROR",
-        text: CELL_DELETED_MESSAGE,
-      });
+      this.ui.raiseBlockingErrorUI(CELL_DELETED_MESSAGE);
       return;
     }
     const { top, left } = updateSelectionOnDeletion(
@@ -543,12 +534,11 @@ export class EditionPlugin extends UIPlugin {
       this.currentTokens = text.startsWith("=") ? composerTokenize(text, locale) : [];
       if (this.currentTokens.length > 100) {
         if (raise) {
-          this.ui.notifyUI({
-            type: "ERROR",
-            text: _t(
+          this.ui.raiseBlockingErrorUI(
+            _t(
               "This formula has over 100 parts. It can't be processed properly, consider splitting it into multiple cells"
-            ),
-          });
+            )
+          );
         }
       }
     }
