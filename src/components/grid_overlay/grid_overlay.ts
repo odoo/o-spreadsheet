@@ -1,10 +1,10 @@
 import { Component, onMounted, onWillUnmount, useExternalListener, useRef } from "@odoo/owl";
 import {
   DOMCoordinates,
-  DOMDimension,
   HeaderIndex,
   Pixel,
   Position,
+  Rect,
   Ref,
   SpreadsheetChildEnv,
 } from "../../types";
@@ -157,7 +157,7 @@ interface Props {
     modifiers: { ctrlKey: boolean; shiftKey: boolean }
   ) => void;
   onCellRightClicked: (col: HeaderIndex, row: HeaderIndex, coordinates: DOMCoordinates) => void;
-  onGridResized: (dimension: DOMDimension) => void;
+  onGridResized: (dimension: Rect) => void;
   onGridMoved: (deltaX: Pixel, deltaY: Pixel) => void;
   gridOverlayDimensions: string;
   onFigureDeleted: () => void;
@@ -180,7 +180,10 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     this.gridOverlay = useRef("gridOverlay");
     useCellHovered(this.env, this.gridOverlay, this.props.onCellHovered);
     const resizeObserver = new ResizeObserver(() => {
+      const boundingRect = this.gridOverlayEl.getBoundingClientRect();
       this.props.onGridResized({
+        x: boundingRect.left,
+        y: boundingRect.top,
         height: this.gridOverlayEl.clientHeight,
         width: this.gridOverlayEl.clientWidth,
       });

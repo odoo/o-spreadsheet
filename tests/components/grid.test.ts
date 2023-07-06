@@ -14,21 +14,26 @@ import { buildSheetLink, toCartesian, toHex, toZone, zoneToXc } from "../../src/
 import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
 import { Align, ClipboardMIMEType, HeaderDimensions, UID } from "../../src/types";
-import { getClipboardEvent, MockClipboardData } from "../test_helpers/clipboard";
+import { FileStore } from "../__mocks__/mock_file_store";
+import { MockTransportService } from "../__mocks__/transport_service";
+import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard";
 import {
   copy,
   createChart,
   createFilter,
   createSheet,
   cut,
+  foldHeaderGroup,
   freezeColumns,
   freezeRows,
+  groupHeaders,
   hideColumns,
   hideRows,
   merge,
   resizeRows,
   selectCell,
   selectColumn,
+  selectHeader,
   selectRow,
   setCellContent,
   setCellFormat,
@@ -68,8 +73,6 @@ import {
   typeInComposerGrid,
 } from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
-import { FileStore } from "../__mocks__/mock_file_store";
-import { MockTransportService } from "../__mocks__/transport_service";
 import { mockChart } from "./__mocks__/chart";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
@@ -1712,5 +1715,115 @@ describe("Copy paste keyboard shortcut", () => {
     );
     await nextTick();
     expect(parent.focusGridComposer).toBe("cellFocus");
+  });
+});
+
+describe("Header grouping shortcuts", () => {
+  let sheetId: string;
+
+  beforeEach(async () => {
+    ({ parent, model, fixture } = await mountSpreadsheet());
+    sheetId = model.getters.getActiveSheetId();
+  });
+
+  describe.each(["COL", "ROW"] as const)("With selected header", (dimension) => {
+    test("ALT+SHIFT+ARROWRIGHT: group selected header", () => {
+      selectHeader(model, dimension, 1, "overrideSelection");
+      keyDown({ key: "ArrowRight", altKey: true, shiftKey: true });
+      expect(model.getters.getHeaderGroups(sheetId, dimension)).toMatchObject([
+        { start: 1, end: 1 },
+      ]);
+    });
+
+    test("ALT+SHIFT+ARROWLEFT: ungroup selected header", () => {
+      groupHeaders(model, dimension, 1, 1);
+      selectHeader(model, dimension, 1, "overrideSelection");
+      keyDown({ key: "ArrowLeft", altKey: true, shiftKey: true });
+      expect(model.getters.getHeaderGroups(sheetId, dimension)).toMatchObject([]);
+    });
+
+    test("ALT+SHIFT+ARROWUP: fold selected header", () => {
+      groupHeaders(model, dimension, 1, 1);
+      selectHeader(model, dimension, 1, "overrideSelection");
+      keyDown({ key: "ArrowUp", altKey: true, shiftKey: true });
+      expect(model.getters.isGroupFolded(sheetId, dimension, 1, 1)).toBe(true);
+    });
+
+    test("ALT+SHIFT+ARROWDOWN: unfold selected header", () => {
+      groupHeaders(model, dimension, 1, 1);
+      foldHeaderGroup(model, dimension, 1, 1);
+      selectHeader(model, dimension, 1, "overrideSelection");
+      keyDown({ key: "ArrowDown", altKey: true, shiftKey: true });
+      expect(model.getters.isGroupFolded(sheetId, dimension, 1, 1)).toBe(false);
+    });
+  });
+
+  describe("With selected zone ", () => {
+    test("ALT+SHIFT+ARROWRIGHT: open group context menu", async () => {
+      setSelection(model, ["A1:B2"]);
+      keyDown({ key: "ArrowRight", altKey: true, shiftKey: true });
+      await nextTick();
+      expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+      expect(fixture.querySelector('.o-menu-item[data-name="group_columns"]')).toBeTruthy();
+      expect(fixture.querySelector('.o-menu-item[data-name="group_rows"]')).toBeTruthy();
+    });
+
+    test("ALT+SHIFT+ARROWLEFT: open ungroup context menu", async () => {
+      setSelection(model, ["A1:B2"]);
+      groupHeaders(model, "COL", 1, 2);
+      groupHeaders(model, "ROW", 1, 2);
+      keyDown({ key: "ArrowLeft", altKey: true, shiftKey: true });
+      await nextTick();
+      expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+      expect(fixture.querySelector('.o-menu-item[data-name="ungroup_columns"]')).toBeTruthy();
+      expect(fixture.querySelector('.o-menu-item[data-name="ungroup_rows"]')).toBeTruthy();
+    });
+
+    test("ALT+SHIFT+ARROWUP: fold column and row groups", () => {
+      setSelection(model, ["A1:B2"]);
+      groupHeaders(model, "COL", 1, 2);
+      groupHeaders(model, "ROW", 1, 2);
+      keyDown({ key: "ArrowUp", altKey: true, shiftKey: true });
+      expect(model.getters.isGroupFolded(sheetId, "COL", 1, 2)).toBe(true);
+      expect(model.getters.isGroupFolded(sheetId, "ROW", 1, 2)).toBe(true);
+    });
+
+    test("ALT+SHIFT+ARROWDOWN: unfold column and row groups", () => {
+      setSelection(model, ["A1:B2"]);
+      groupHeaders(model, "COL", 1, 2);
+      groupHeaders(model, "ROW", 1, 2);
+      foldHeaderGroup(model, "COL", 1, 2);
+      foldHeaderGroup(model, "ROW", 1, 2);
+      keyDown({ key: "ArrowDown", altKey: true, shiftKey: true });
+      expect(model.getters.isGroupFolded(sheetId, "COL", 1, 2)).toBe(false);
+      expect(model.getters.isGroupFolded(sheetId, "ROW", 1, 2)).toBe(false);
+    });
+  });
+
+  describe("With the whole sheet selected", () => {
+    beforeEach(() => {
+      const sheetSize = model.getters.getSheetZone(sheetId);
+      setSelection(model, [zoneToXc(sheetSize)]);
+    });
+
+    test("ALT+SHIFT+ARROWUP: fold all groups", () => {
+      groupHeaders(model, "COL", 1, 2);
+      groupHeaders(model, "ROW", 1, 2);
+
+      keyDown({ key: "ArrowUp", altKey: true, shiftKey: true });
+      expect(model.getters.isGroupFolded(sheetId, "COL", 1, 2)).toBe(true);
+      expect(model.getters.isGroupFolded(sheetId, "ROW", 1, 2)).toBe(true);
+    });
+
+    test("ALT+SHIFT+ARROWDOWN: unfold all groups", () => {
+      groupHeaders(model, "COL", 1, 2);
+      groupHeaders(model, "ROW", 1, 2);
+      foldHeaderGroup(model, "COL", 1, 2);
+      foldHeaderGroup(model, "ROW", 1, 2);
+
+      keyDown({ key: "ArrowDown", altKey: true, shiftKey: true });
+      expect(model.getters.isGroupFolded(sheetId, "COL", 1, 2)).toBe(false);
+      expect(model.getters.isGroupFolded(sheetId, "ROW", 1, 2)).toBe(false);
+    });
   });
 });

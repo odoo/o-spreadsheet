@@ -14,13 +14,28 @@
           focusComposer="focusTopBarComposer"
           dropdownMaxHeight="gridHeight"
         />
-        <Grid
-          sidePanelIsOpen="sidePanel.isOpen"
-          focusComposer="focusGridComposer"
-          exposeFocus="(focus) => this._focusGrid = focus"
-          onComposerContentFocused="() => this.onGridComposerContentFocused()"
-          onGridComposerCellFocused="(content, selection) => this.onGridComposerCellFocused(content, selection)"
-        />
+        <div
+          class="o-grid-container"
+          t-att-class="{'o-two-columns': !sidePanel.isOpen}"
+          t-att-style="gridContainerStyle"
+          t-on-click="this.focusGrid">
+          <div class="o-top-left"/>
+          <div class="o-column-groups">
+            <HeaderGroupContainer layers="colLayers" dimension="'COL'"/>
+          </div>
+          <div class="o-row-groups">
+            <HeaderGroupContainer layers="rowLayers" dimension="'ROW'"/>
+          </div>
+          <div class="o-group-grid overflow-hidden">
+            <Grid
+              sidePanelIsOpen="sidePanel.isOpen"
+              focusComposer="focusGridComposer"
+              exposeFocus="(focus) => this._focusGrid = focus"
+              onComposerContentFocused="() => this.onGridComposerContentFocused()"
+              onGridComposerCellFocused="(content, selection) => this.onGridComposerCellFocused(content, selection)"
+            />
+          </div>
+        </div>
         <SidePanel
           t-if="sidePanel.isOpen"
           onCloseSidePanel="() => this.closeSidePanel()"

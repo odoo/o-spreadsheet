@@ -16,6 +16,10 @@ import {
   interactivePasteFromOS,
 } from "../../src/helpers/ui/paste_interactive";
 import { interactiveRenameSheet } from "../../src/helpers/ui/sheet_interactive";
+import {
+  ToggleGroupInteractiveContent,
+  interactiveToggleGroup,
+} from "../../src/helpers/ui/toggle_group_interactive";
 import { Model } from "../../src/model";
 import { CommandResult, Dimension, Position, SpreadsheetChildEnv, UID } from "../../src/types";
 import {
@@ -27,6 +31,7 @@ import {
   cut,
   freezeColumns,
   freezeRows,
+  groupHeaders,
   merge,
   selectCell,
   setCellContent,
@@ -327,6 +332,26 @@ describe("UI Helpers", () => {
         AddMergeInteractiveContent.MergeInFilter.toString()
       );
       expect(askConfirmationTextSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("Fold header group", () => {
+    test("Cannot fold all rows", () => {
+      const numberOfRows = model.getters.getNumberRows(sheetId);
+      groupHeaders(model, "ROW", 0, numberOfRows - 1);
+      interactiveToggleGroup(env, sheetId, "ROW", 0, numberOfRows - 1);
+      expect(notifyUserTextSpy).toHaveBeenCalledWith(
+        ToggleGroupInteractiveContent.CannotHideAllRows.toString()
+      );
+    });
+
+    test("Cannot fold all columns", () => {
+      const numberOfColumns = model.getters.getNumberCols(sheetId);
+      groupHeaders(model, "COL", 0, numberOfColumns - 1);
+      interactiveToggleGroup(env, sheetId, "COL", 0, numberOfColumns - 1);
+      expect(notifyUserTextSpy).toHaveBeenCalledWith(
+        ToggleGroupInteractiveContent.CannotHideAllColumns.toString()
+      );
     });
   });
 

@@ -11,20 +11,22 @@ import {
   AddMergeCommand,
   CoreCommand,
   HeaderIndex,
-  isPositionDependent,
-  isSheetDependent,
-  isTargetDependent,
   PositionDependentCommand,
   RemoveColumnsRowsCommand,
   SheetDependentCommand,
   TargetDependentCommand,
   Zone,
+  isPositionDependent,
+  isSheetDependent,
+  isTargetDependent,
 } from "../../types";
 import {
   HeadersDependentCommand,
+  RangesDependentCommand,
+  ZoneDependentCommand,
   isHeadersDependant,
   isRangeDependant,
-  RangesDependentCommand,
+  isZoneDependent,
 } from "./../../types/commands";
 import { RangeData } from "./../../types/range";
 import { transformZone } from "./ot_helpers";
@@ -38,6 +40,7 @@ const transformations: {
 }[] = [
   { match: isSheetDependent, fn: transformSheetId },
   { match: isTargetDependent, fn: transformTarget },
+  { match: isZoneDependent, fn: transformZoneDependentCommand },
   { match: isPositionDependent, fn: transformPosition },
   { match: isHeadersDependant, fn: transformHeaders },
   { match: isRangeDependant, fn: transformRangeData },
@@ -145,6 +148,20 @@ function transformTarget(
   return { ...cmd, target };
 }
 
+function transformZoneDependentCommand(
+  cmd: Extract<CoreCommand, ZoneDependentCommand>,
+  executed: CoreCommand
+) {
+  const transformSheetResult = transformSheetId(cmd, executed);
+  if (transformSheetResult !== "SKIP_TRANSFORMATION") {
+    return transformSheetResult === "IGNORE_COMMAND" ? "IGNORE_COMMAND" : cmd;
+  }
+  const newZone = transformZone(cmd.zone, executed);
+  if (newZone) {
+    return { ...cmd, zone: newZone };
+  }
+  return "IGNORE_COMMAND";
+}
 function transformRangeData(
   toTransform: Extract<CoreCommand, RangesDependentCommand>,
   executed: CoreCommand

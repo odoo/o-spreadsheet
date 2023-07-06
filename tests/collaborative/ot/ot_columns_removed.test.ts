@@ -8,9 +8,11 @@ import {
   ResizeColumnsRowsCommand,
 } from "../../../src/types";
 import {
+  OT_TESTS_HEADER_GROUP_COMMANDS,
   OT_TESTS_RANGE_DEPENDANT_COMMANDS,
   OT_TESTS_SINGLE_CELL_COMMANDS,
   OT_TESTS_TARGET_DEPENDANT_COMMANDS,
+  OT_TESTS_ZONE_DEPENDANT_COMMANDS,
   TEST_COMMANDS,
 } from "../../test_helpers/constants";
 import { target, toRangesData } from "../../test_helpers/helpers";
@@ -92,6 +94,34 @@ describe("OT with REMOVE_COLUMN", () => {
       const command = { ...cmd, sheetId, target: [toZone("C1:D2"), toZone("A1")] };
       const result = transform(command, removeColumns);
       expect(result).toEqual({ ...command, target: [toZone("A1")] });
+    });
+  });
+
+  describe.each(OT_TESTS_ZONE_DEPENDANT_COMMANDS)("zone dependant commands", (cmd) => {
+    test(`remove columns after ${cmd.type}`, () => {
+      const command = { ...cmd, sheetId, zone: toZone("A1:A3") };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual(command);
+    });
+    test(`remove columns before ${cmd.type}`, () => {
+      const command = { ...cmd, sheetId, zone: toZone("M1:O2") };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual({ ...command, zone: toZone("J1:L2") });
+    });
+    test(`remove columns before and after ${cmd.type}`, () => {
+      const command = { ...cmd, sheetId, zone: toZone("E1:E2") };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual({ ...command, zone: toZone("C1:C2") });
+    });
+    test(`${cmd.type} in removed columns`, () => {
+      const command = { ...cmd, sheetId, zone: toZone("F1:G2") };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual({ ...command, zone: toZone("D1:D2") });
+    });
+    test(`${cmd.type} and columns removed in different sheets`, () => {
+      const command = { ...cmd, zone: toZone("A1:F3"), sheetId: "42" };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual(command);
     });
   });
 
@@ -400,3 +430,53 @@ describe("OT with REMOVE_COLUMN", () => {
     });
   });
 });
+
+describe.each(OT_TESTS_HEADER_GROUP_COMMANDS)(
+  "Transform of (UN)GROUP_HEADERS when removing columns",
+  (cmd) => {
+    const removeColumnsCmd: RemoveColumnsRowsCommand = {
+      ...TEST_COMMANDS.REMOVE_COLUMNS_ROWS,
+      dimension: "COL",
+    };
+    const toTransform: (typeof OT_TESTS_HEADER_GROUP_COMMANDS)[number] = {
+      ...cmd,
+      dimension: "COL",
+      start: 5,
+      end: 7,
+    };
+
+    test("Remove columns before the group", () => {
+      const executed: RemoveColumnsRowsCommand = { ...removeColumnsCmd, elements: [0, 1] };
+      const result = transform(toTransform, executed);
+      expect(result).toEqual({ ...toTransform, start: 3, end: 5 });
+    });
+
+    test("Remove some columns of the group", () => {
+      const executed: RemoveColumnsRowsCommand = { ...removeColumnsCmd, elements: [6, 1] };
+      const result = transform(toTransform, executed);
+      expect(result).toEqual({ ...toTransform, start: 4, end: 5 });
+    });
+
+    test("Remove all columns of the group", () => {
+      const executed: RemoveColumnsRowsCommand = { ...removeColumnsCmd, elements: [5, 6, 7] };
+      const result = transform(toTransform, executed);
+      expect(result).toEqual(undefined);
+    });
+
+    test("Remove columns after the group", () => {
+      const executed: RemoveColumnsRowsCommand = { ...removeColumnsCmd, elements: [8, 9] };
+      const result = transform(toTransform, executed);
+      expect(result).toEqual({ ...toTransform, start: 5, end: 7 });
+    });
+
+    test("Remove columns in another sheet", () => {
+      const executed: RemoveColumnsRowsCommand = {
+        ...removeColumnsCmd,
+        elements: [0],
+        sheetId: "42",
+      };
+      const result = transform(toTransform, executed);
+      expect(result).toEqual(toTransform);
+    });
+  }
+);

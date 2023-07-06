@@ -6,6 +6,7 @@ import {
   ChartDefinition,
   ClipboardPasteOptions,
   CreateSheetCommand,
+  Dimension,
   DispatchResult,
   Locale,
   SortDirection,
@@ -379,6 +380,19 @@ export function deleteRows(
   });
 }
 
+export function deleteHeaders(
+  model: Model,
+  dimension: Dimension,
+  headers: number[],
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  return model.dispatch("REMOVE_COLUMNS_ROWS", {
+    sheetId,
+    dimension,
+    elements: headers,
+  });
+}
+
 /**
  * Resize rows
  */
@@ -657,6 +671,19 @@ export function selectRow(
   return model.selection.selectRow(row, mode);
 }
 
+export function selectHeader(
+  model: Model,
+  dimension: Dimension,
+  index: number,
+  mode: "overrideSelection" | "updateAnchor" | "newAnchor"
+) {
+  if (dimension === "ROW") {
+    return model.selection.selectRow(index, mode);
+  } else {
+    return model.selection.selectColumn(index, mode);
+  }
+}
+
 export function selectAll(model: Model) {
   return model.selection.selectAll();
 }
@@ -884,4 +911,124 @@ export function splitTextToColumns(
 
 export function updateLocale(model: Model, locale: Locale) {
   return model.dispatch("UPDATE_LOCALE", { locale });
+}
+
+/**
+ * Group the given columns. The groupId isn't part of the command, but we'll use jest to mock the uuid generator to
+ * return the given groupId, to make the writing of the tests easier.
+ */
+export function groupColumns(
+  model: Model,
+  start: string,
+  end: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return groupHeaders(model, "COL", lettersToNumber(start), lettersToNumber(end), sheetId);
+}
+
+/**
+ * Group the given rows. The groupId isn't part of the command, but we'll use jest to mock the uuid generator to
+ * return the given groupId, to make the writing of the tests easier.
+ */
+export function groupRows(
+  model: Model,
+  start: number,
+  end: number,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return groupHeaders(model, "ROW", start, end, sheetId);
+}
+
+/**
+ * Group the given headers. The groupId isn't part of the command, but we'll use jest to mock the uuid generator to
+ * return the given groupId, to make the writing of the tests easier.
+ */
+export function groupHeaders(
+  model: Model,
+  dimension: "ROW" | "COL",
+  start: number,
+  end: number,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("GROUP_HEADERS", { sheetId, dimension, start, end });
+}
+
+export function ungroupHeaders(
+  model: Model,
+  dimension: "ROW" | "COL",
+  start: number,
+  end: number,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("UNGROUP_HEADERS", { sheetId, dimension, start, end });
+}
+
+export function duplicateSheet(
+  model: Model,
+  sheetId: UID = model.getters.getActiveSheetId(),
+  sheetIdTo: UID = model.uuidGenerator.uuidv4()
+) {
+  return model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo });
+}
+
+export function unfoldHeaderGroup(
+  model: Model,
+  dimension: Dimension,
+  start: number,
+  end: number,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("UNFOLD_HEADER_GROUP", { dimension, sheetId, start, end });
+}
+
+export function foldHeaderGroup(
+  model: Model,
+  dimension: Dimension,
+  start: number,
+  end: number,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("FOLD_HEADER_GROUP", { dimension, sheetId, start, end });
+}
+
+export function unfoldAllHeaderGroups(
+  model: Model,
+  dimension: Dimension,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("UNFOLD_ALL_HEADER_GROUPS", { sheetId, dimension });
+}
+
+export function foldAllHeaderGroups(
+  model: Model,
+  dimension: Dimension,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("FOLD_ALL_HEADER_GROUPS", { sheetId, dimension });
+}
+
+export function foldHeaderGroupsInZone(
+  model: Model,
+  dimension: Dimension,
+  xc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("FOLD_HEADER_GROUPS_IN_ZONE", {
+    dimension,
+    zone: toZone(xc),
+    sheetId,
+  });
+}
+
+export function unfoldHeaderGroupsInZone(
+  model: Model,
+  dimension: Dimension,
+  xc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("UNFOLD_HEADER_GROUPS_IN_ZONE", {
+    dimension,
+    zone: toZone(xc),
+    sheetId,
+  });
 }

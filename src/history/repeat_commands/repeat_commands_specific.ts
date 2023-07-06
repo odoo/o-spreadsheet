@@ -9,6 +9,7 @@ import {
   CreateImageOverCommand,
   CreateSheetCommand,
   DeleteCellCommand,
+  GroupHeadersCommand,
   HideColumnsRowsCommand,
   InsertCellCommand,
   PasteCommand,
@@ -16,6 +17,7 @@ import {
   RepeatPasteCommand,
   ResizeColumnsRowsCommand,
   SortCommand,
+  UnGroupHeadersCommand,
 } from "./../../types/commands";
 import { repeatSheetDependantCommand } from "./repeat_commands_generic";
 
@@ -143,5 +145,18 @@ export function repeatPasteCommand(getters: Getters, cmd: PasteCommand): RepeatP
     type: "REPEAT_PASTE",
     pasteOption: deepCopy(cmd.pasteOption),
     target: getters.getSelectedZones(),
+  };
+}
+
+export function repeatGroupHeadersCommand<T extends GroupHeadersCommand | UnGroupHeadersCommand>(
+  getters: Getters,
+  cmd: T
+): T {
+  const currentSelection = getters.getSelectedZone();
+
+  return {
+    ...repeatSheetDependantCommand(getters, cmd),
+    start: cmd.dimension === "COL" ? currentSelection.left : currentSelection.top,
+    end: cmd.dimension === "COL" ? currentSelection.right : currentSelection.bottom,
   };
 }

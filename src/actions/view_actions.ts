@@ -1,8 +1,9 @@
-import { areZonesContinuous } from "../helpers";
+import { areZonesContinuous, numberToLetters } from "../helpers";
 import { interactiveAddFilter } from "../helpers/ui/filter_interactive";
 import { interactiveFreezeColumnsRows } from "../helpers/ui/freeze_interactive";
 import { _t } from "../translation";
 import { SpreadsheetChildEnv } from "../types";
+import { Dimension } from "./../types/misc";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 
@@ -217,6 +218,82 @@ export const createRemoveFilter: ActionSpec = {
   icon: "o-spreadsheet-Icon.FILTER_ICON_INACTIVE",
 };
 
+export const groupColumns: ActionSpec = {
+  name: (env) => {
+    const selection = env.model.getters.getSelectedZone();
+    if (selection.left === selection.right) {
+      return _t("Group column %s", numberToLetters(selection.left));
+    }
+    return _t(
+      "Group columns %s - %s",
+      numberToLetters(selection.left),
+      numberToLetters(selection.right)
+    );
+  },
+  execute: (env) => groupHeadersAction(env, "COL"),
+  isVisible: (env) => {
+    const sheetId = env.model.getters.getActiveSheetId();
+    const selection = env.model.getters.getSelectedZone();
+    const groups = env.model.getters.getHeaderGroupsInZone(sheetId, "COL", selection);
+
+    return (
+      ACTIONS.IS_ONLY_ONE_RANGE(env) &&
+      !groups.some((group) => group.start === selection.left && group.end === selection.right)
+    );
+  },
+  icon: "o-spreadsheet-Icon.GROUP_COLUMNS",
+};
+
+export const groupRows: ActionSpec = {
+  name: (env) => {
+    const selection = env.model.getters.getSelectedZone();
+    if (selection.top === selection.bottom) {
+      return _t("Group row %s", String(selection.top + 1));
+    }
+    return _t("Group rows %s - %s", String(selection.top + 1), String(selection.bottom + 1));
+  },
+  execute: (env) => groupHeadersAction(env, "ROW"),
+  isVisible: (env) => {
+    const sheetId = env.model.getters.getActiveSheetId();
+    const selection = env.model.getters.getSelectedZone();
+    const groups = env.model.getters.getHeaderGroupsInZone(sheetId, "ROW", selection);
+
+    return (
+      ACTIONS.IS_ONLY_ONE_RANGE(env) &&
+      !groups.some((group) => group.start === selection.top && group.end === selection.bottom)
+    );
+  },
+  icon: "o-spreadsheet-Icon.GROUP_ROWS",
+};
+
+export const ungroupColumns: ActionSpec = {
+  name: (env) => {
+    const selection = env.model.getters.getSelectedZone();
+    if (selection.left === selection.right) {
+      return _t("Ungroup column %s", numberToLetters(selection.left));
+    }
+    return _t(
+      "Ungroup columns %s - %s",
+      numberToLetters(selection.left),
+      numberToLetters(selection.right)
+    );
+  },
+  execute: (env) => ungroupHeaders(env, "COL"),
+  icon: "o-spreadsheet-Icon.UNGROUP_COLUMNS",
+};
+
+export const ungroupRows: ActionSpec = {
+  name: (env) => {
+    const selection = env.model.getters.getSelectedZone();
+    if (selection.top === selection.bottom) {
+      return _t("Ungroup row %s", String(selection.top + 1));
+    }
+    return _t("Ungroup rows %s - %s", String(selection.top + 1), String(selection.bottom + 1));
+  },
+  execute: (env) => ungroupHeaders(env, "ROW"),
+  icon: "o-spreadsheet-Icon.UNGROUP_ROWS",
+};
+
 function selectionContainsFilter(env: SpreadsheetChildEnv): boolean {
   const sheetId = env.model.getters.getActiveSheetId();
   const selectedZones = env.model.getters.getSelectedZones();
@@ -243,4 +320,35 @@ function createRemoveFilterAction(env: SpreadsheetChildEnv) {
   const sheetId = env.model.getters.getActiveSheetId();
   const selection = env.model.getters.getSelectedZones();
   interactiveAddFilter(env, sheetId, selection);
+}
+
+function groupHeadersAction(env: SpreadsheetChildEnv, dim: Dimension) {
+  const selection = env.model.getters.getSelectedZone();
+  const sheetId = env.model.getters.getActiveSheetId();
+  env.model.dispatch("GROUP_HEADERS", {
+    sheetId,
+    dimension: dim,
+    start: dim === "COL" ? selection.left : selection.top,
+    end: dim === "COL" ? selection.right : selection.bottom,
+  });
+}
+
+function ungroupHeaders(env: SpreadsheetChildEnv, dim: Dimension) {
+  const selection = env.model.getters.getSelectedZone();
+  const sheetId = env.model.getters.getActiveSheetId();
+  env.model.dispatch("UNGROUP_HEADERS", {
+    sheetId,
+    dimension: dim,
+    start: dim === "COL" ? selection.left : selection.top,
+    end: dim === "COL" ? selection.right : selection.bottom,
+  });
+}
+
+export function canUngroupHeaders(env: SpreadsheetChildEnv, dimension: Dimension): boolean {
+  const sheetId = env.model.getters.getActiveSheetId();
+  const selection = env.model.getters.getSelectedZones();
+  return (
+    selection.length === 1 &&
+    env.model.getters.getHeaderGroupsInZone(sheetId, dimension, selection[0]).length > 0
+  );
 }

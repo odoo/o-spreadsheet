@@ -4,6 +4,7 @@ import { ChartPlugin } from "../plugins/core/chart";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { FigurePlugin } from "../plugins/core/figures";
 import { FiltersPlugin } from "../plugins/core/filters";
+import { HeaderGroupingPlugin } from "../plugins/core/header_grouping";
 import { HeaderSizePlugin } from "../plugins/core/header_size";
 import { HeaderVisibilityPlugin } from "../plugins/core/header_visibility";
 import { ImagePlugin } from "../plugins/core/image";
@@ -89,6 +90,7 @@ type ConditionalFormatGetters = Pick<
 type LocalHistoryGetters = Pick<HistoryPlugin, GetterNames<typeof HistoryPlugin>>;
 type FiltersGetters = Pick<FiltersPlugin, GetterNames<typeof FiltersPlugin>>;
 type SettingsGetters = Pick<SettingsPlugin, GetterNames<typeof SettingsPlugin>>;
+type HeaderGroupingGetters = Pick<HeaderGroupingPlugin, GetterNames<typeof HeaderGroupingPlugin>>;
 
 export type CoreGetters = SheetGetters &
   HeaderSizeGetters &
@@ -102,7 +104,8 @@ export type CoreGetters = SheetGetters &
   FigureGetters &
   RangeAdapterGetters &
   FiltersGetters &
-  SettingsGetters;
+  SettingsGetters &
+  HeaderGroupingGetters;
 
 type AutofillGetters = Pick<AutofillPlugin, GetterNames<typeof AutofillPlugin>>;
 type AutomaticSumGetters = Pick<AutomaticSumPlugin, GetterNames<typeof AutomaticSumPlugin>>;

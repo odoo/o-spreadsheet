@@ -172,8 +172,12 @@ export class FilterEvaluationPlugin extends UIPlugin {
     const hiddenRows = new Set<number>();
     for (let filter of filters) {
       // Disable filters whose header are hidden
-      if (this.getters.isRowHiddenByUser(sheetId, filter.zoneWithHeaders.top)) continue;
-      if (hiddenRows.has(filter.zoneWithHeaders.top)) continue;
+      if (
+        hiddenRows.has(filter.zoneWithHeaders.top) ||
+        this.getters.isRowHiddenByUser(sheetId, filter.zoneWithHeaders.top)
+      ) {
+        continue;
+      }
       const filteredValues = this.filterValues[sheetId]?.[filter.id]?.map(toLowerCase);
       if (!filteredValues || !filter.filteredZone) continue;
       for (let row = filter.filteredZone.top; row <= filter.filteredZone.bottom; row++) {

@@ -15,6 +15,9 @@ import {
   BOTTOMBAR_HEIGHT,
   CF_ICON_EDGE_LENGTH,
   FILTERS_COLOR,
+  GRID_BORDER_COLOR,
+  GROUP_LAYER_WIDTH,
+  HEADER_GROUPING_BACKGROUND_COLOR,
   ICONS_COLOR,
   ICON_EDGE_LENGTH,
   MAXIMAL_FREEZABLE_RATIO,
@@ -28,11 +31,12 @@ import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
 import { _t } from "../../translation";
-import { InformationNotification, Pixel, SpreadsheetChildEnv } from "../../types";
+import { HeaderGroup, InformationNotification, Pixel, SpreadsheetChildEnv } from "../../types";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
 import { Grid } from "../grid/grid";
-import { css } from "../helpers/css";
+import { HeaderGroupContainer } from "../header_group/header_group_container";
+import { css, cssPropertiesToCss } from "../helpers/css";
 import { SidePanel } from "../side_panel/side_panel/side_panel";
 import { TopBar } from "../top_bar/top_bar";
 import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipboard_wrapper";
@@ -102,6 +106,31 @@ css/* scss */ `
         }
       }
     }
+
+    .o-grid-container {
+      display: grid;
+      background-color: ${HEADER_GROUPING_BACKGROUND_COLOR};
+
+      .o-top-left {
+        border: 1px solid ${GRID_BORDER_COLOR};
+        margin-bottom: -1px;
+        margin-right: -1px;
+      }
+
+      .o-column-groups {
+        grid-column-start: 2;
+        border-top: 1px solid ${GRID_BORDER_COLOR};
+      }
+
+      .o-row-groups {
+        grid-row-start: 2;
+      }
+
+      .o-group-grid {
+        border-top: 1px solid ${GRID_BORDER_COLOR};
+        border-left: 1px solid ${GRID_BORDER_COLOR};
+      }
+    }
   }
 
   .o-two-columns {
@@ -139,7 +168,6 @@ css/* scss */ `
     }
 
     > canvas {
-      border-top: 1px solid #e2e3e3;
       border-bottom: 1px solid #e2e3e3;
     }
     .o-scrollbar {
@@ -177,7 +205,14 @@ interface ComposerState {
 
 export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Spreadsheet";
-  static components = { TopBar, Grid, BottomBar, SidePanel, SpreadsheetDashboard };
+  static components = {
+    TopBar,
+    Grid,
+    BottomBar,
+    SidePanel,
+    SpreadsheetDashboard,
+    HeaderGroupContainer,
+  };
 
   sidePanel!: SidePanelState;
   composer!: ComposerState;
@@ -391,6 +426,25 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   get gridHeight(): Pixel {
     const { height } = this.env.model.getters.getSheetViewDimension();
     return height;
+  }
+
+  get gridContainerStyle(): string {
+    const gridColSize = GROUP_LAYER_WIDTH * this.rowLayers.length;
+    const gridRowSize = GROUP_LAYER_WIDTH * this.colLayers.length;
+    return cssPropertiesToCss({
+      "grid-template-columns": `${gridColSize ? gridColSize + 2 : 0}px auto`, // +2: margins
+      "grid-template-rows": `${gridRowSize ? gridRowSize + 2 : 0}px auto`,
+    });
+  }
+
+  get rowLayers(): HeaderGroup[][] {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    return this.env.model.getters.getVisibleGroupLayers(sheetId, "ROW");
+  }
+
+  get colLayers(): HeaderGroup[][] {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    return this.env.model.getters.getVisibleGroupLayers(sheetId, "COL");
   }
 }
 

@@ -63,4 +63,14 @@ rowMenuRegistry
   .add("conditional_formatting", {
     ...ACTION_FORMAT.formatCF,
     sequence: 90,
+    separator: true,
+  })
+  .add("group_rows", {
+    sequence: 100,
+    ...ACTION_VIEW.groupRows,
+  })
+  .add("ungroup_rows", {
+    sequence: 110,
+    ...ACTION_VIEW.ungroupRows,
+    isVisible: (env) => ACTION_VIEW.canUngroupHeaders(env, "ROW"),
   });

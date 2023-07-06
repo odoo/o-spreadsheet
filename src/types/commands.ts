@@ -86,6 +86,15 @@ export interface PositionDependentCommand {
   row: number;
 }
 
+export interface ZoneDependentCommand {
+  sheetId: UID;
+  zone: Zone;
+}
+
+export function isZoneDependent(cmd: CoreCommand): boolean {
+  return "zone" in cmd;
+}
+
 export function isPositionDependent(cmd: CoreCommand): boolean {
   return "col" in cmd && "row" in cmd && "sheetId" in cmd;
 }
@@ -206,6 +215,14 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "CREATE_IMAGE",
 
   "UPDATE_LOCALE",
+  "GROUP_HEADERS",
+  "UNGROUP_HEADERS",
+  "UNFOLD_HEADER_GROUP",
+  "FOLD_HEADER_GROUP",
+  "FOLD_ALL_HEADER_GROUPS",
+  "UNFOLD_ALL_HEADER_GROUPS",
+  "UNFOLD_HEADER_GROUPS_IN_ZONE",
+  "FOLD_HEADER_GROUPS_IN_ZONE",
 ]);
 
 export function isCoreCommand(cmd: Command): cmd is CoreCommand {
@@ -506,6 +523,54 @@ export interface RemoveDuplicatesCommand {
   type: "REMOVE_DUPLICATES";
   columns: HeaderIndex[];
   hasHeader: boolean;
+}
+
+export interface GroupHeadersCommand extends SheetDependentCommand {
+  type: "GROUP_HEADERS";
+  dimension: Dimension;
+  start: HeaderIndex;
+  end: HeaderIndex;
+}
+
+export interface UnGroupHeadersCommand extends SheetDependentCommand {
+  type: "UNGROUP_HEADERS";
+  dimension: Dimension;
+  start: HeaderIndex;
+  end: HeaderIndex;
+}
+
+export interface FoldHeaderGroupCommand extends SheetDependentCommand {
+  type: "FOLD_HEADER_GROUP";
+  dimension: Dimension;
+  start: HeaderIndex;
+  end: HeaderIndex;
+}
+
+export interface UnfoldHeaderGroupCommand extends SheetDependentCommand {
+  type: "UNFOLD_HEADER_GROUP";
+  dimension: Dimension;
+  start: HeaderIndex;
+  end: HeaderIndex;
+}
+
+export interface FoldAllHeaderGroupsCommand extends SheetDependentCommand {
+  type: "FOLD_ALL_HEADER_GROUPS";
+  dimension: Dimension;
+}
+
+export interface UnfoldAllHeaderGroupsCommand extends SheetDependentCommand {
+  type: "UNFOLD_ALL_HEADER_GROUPS";
+  dimension: Dimension;
+}
+
+export interface UnfoldHeaderGroupsInZoneCommand extends ZoneDependentCommand {
+  type: "UNFOLD_HEADER_GROUPS_IN_ZONE";
+  dimension: Dimension;
+}
+
+export interface FoldHeaderGroupsInZoneCommand extends ZoneDependentCommand {
+  type: "FOLD_HEADER_GROUPS_IN_ZONE";
+  dimension: Dimension;
 }
 
 //#endregion
@@ -970,7 +1035,17 @@ export type CoreCommand =
   /** FILTERS */
   | CreateFilterTableCommand
   | RemoveFilterTableCommand
-  | UpdateLocaleCommand;
+  | UpdateLocaleCommand
+
+  /** Grouping */
+  | GroupHeadersCommand
+  | UnGroupHeadersCommand
+  | UnfoldHeaderGroupCommand
+  | FoldHeaderGroupCommand
+  | FoldAllHeaderGroupsCommand
+  | UnfoldAllHeaderGroupsCommand
+  | UnfoldHeaderGroupsInZoneCommand
+  | FoldHeaderGroupsInZoneCommand;
 
 export type LocalCommand =
   | RequestUndoCommand
@@ -1180,6 +1255,9 @@ export const enum CommandResult {
   NoColumnsProvided = "NoColumnsProvided",
   ColumnsNotIncludedInZone = "ColumnsNotIncludedInZone",
   DuplicatesColumnsSelected = "DuplicatesColumnsSelected",
+  InvalidHeaderGroupStartEnd = "InvalidHeaderGroupStartEnd",
+  HeaderGroupAlreadyExists = "HeaderGroupAlreadyExists",
+  UnknownHeaderGroup = "UnknownHeaderGroup",
 }
 
 export interface CommandHandler<T> {

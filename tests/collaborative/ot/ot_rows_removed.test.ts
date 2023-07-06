@@ -8,9 +8,11 @@ import {
   ResizeColumnsRowsCommand,
 } from "../../../src/types";
 import {
+  OT_TESTS_HEADER_GROUP_COMMANDS,
   OT_TESTS_RANGE_DEPENDANT_COMMANDS,
   OT_TESTS_SINGLE_CELL_COMMANDS,
   OT_TESTS_TARGET_DEPENDANT_COMMANDS,
+  OT_TESTS_ZONE_DEPENDANT_COMMANDS,
   TEST_COMMANDS,
 } from "../../test_helpers/constants";
 import { target, toRangesData } from "../../test_helpers/helpers";
@@ -92,6 +94,34 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
       const command = { ...cmd, sheetId, target: [toZone("A3:B4"), toZone("A1")] };
       const result = transform(command, removeRows);
       expect(result).toEqual({ ...command, target: [toZone("A1")] });
+    });
+  });
+
+  describe.each(OT_TESTS_ZONE_DEPENDANT_COMMANDS)("zone dependant commands", (cmd) => {
+    test(`remove rows after ${cmd.type}`, () => {
+      const command = { ...cmd, sheetId, zone: toZone("A1:C1") };
+      const result = transform(command, removeRows);
+      expect(result).toEqual(command);
+    });
+    test(`remove rows before ${cmd.type}`, () => {
+      const command = { ...cmd, sheetId, zone: toZone("A12:B14") };
+      const result = transform(command, removeRows);
+      expect(result).toEqual({ ...command, zone: toZone("A9:B11") });
+    });
+    test(`remove rows before and after ${cmd.type}`, () => {
+      const command = { ...cmd, sheetId, zone: toZone("A5:B5") };
+      const result = transform(command, removeRows);
+      expect(result).toEqual({ ...command, zone: toZone("A3:B3") });
+    });
+    test(`${cmd.type} in removed rows`, () => {
+      const command = { ...cmd, sheetId, zone: toZone("A6:B7") };
+      const result = transform(command, removeRows);
+      expect(result).toEqual({ ...command, zone: toZone("A4:B4") });
+    });
+    test(`${cmd.type} and rows removed in different sheets`, () => {
+      const command = { ...cmd, zone: toZone("A1:C6"), sheetId: "42" };
+      const result = transform(command, removeRows);
+      expect(result).toEqual(command);
     });
   });
 
@@ -401,3 +431,53 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
     });
   });
 });
+
+describe.each(OT_TESTS_HEADER_GROUP_COMMANDS)(
+  "Transform of (UN)GROUP_HEADERS when removing rows",
+  (cmd) => {
+    const removeRowsCmd: RemoveColumnsRowsCommand = {
+      ...TEST_COMMANDS.REMOVE_COLUMNS_ROWS,
+      dimension: "ROW",
+    };
+    const toTransform: (typeof OT_TESTS_HEADER_GROUP_COMMANDS)[number] = {
+      ...cmd,
+      dimension: "ROW",
+      start: 5,
+      end: 7,
+    };
+
+    test("Remove rows before the group", () => {
+      const executed: RemoveColumnsRowsCommand = { ...removeRowsCmd, elements: [0, 1] };
+      const result = transform(toTransform, executed);
+      expect(result).toEqual({ ...toTransform, start: 3, end: 5 });
+    });
+
+    test("Remove some rows of the group", () => {
+      const executed: RemoveColumnsRowsCommand = { ...removeRowsCmd, elements: [6, 1] };
+      const result = transform(toTransform, executed);
+      expect(result).toEqual({ ...toTransform, start: 4, end: 5 });
+    });
+
+    test("Remove all rows of the group", () => {
+      const executed: RemoveColumnsRowsCommand = { ...removeRowsCmd, elements: [5, 6, 7] };
+      const result = transform(toTransform, executed);
+      expect(result).toEqual(undefined);
+    });
+
+    test("Remove rows after the group", () => {
+      const executed: RemoveColumnsRowsCommand = { ...removeRowsCmd, elements: [8, 9] };
+      const result = transform(toTransform, executed);
+      expect(result).toEqual({ ...toTransform, start: 5, end: 7 });
+    });
+
+    test("Remove rows in another sheet", () => {
+      const executed: RemoveColumnsRowsCommand = {
+        ...removeRowsCmd,
+        elements: [0],
+        sheetId: "42",
+      };
+      const result = transform(toTransform, executed);
+      expect(result).toEqual(toTransform);
+    });
+  }
+);

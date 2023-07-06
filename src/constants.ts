@@ -24,6 +24,11 @@ export const BACKGROUND_HEADER_FILTER_COLOR = "#E6F4EA";
 export const BACKGROUND_HEADER_SELECTED_FILTER_COLOR = "#CEEAD6";
 export const SEPARATOR_COLOR = "#E0E2E4";
 export const ICONS_COLOR = "#4A4F59";
+export const HEADER_GROUPING_BACKGROUND_COLOR = "#F5F5F5";
+export const HEADER_GROUPING_BORDER_COLOR = "#999";
+export const GRID_BORDER_COLOR = "#E2E3E3";
+export const FROZEN_PANE_HEADER_BORDER_COLOR = "#BCBCBC";
+export const FROZEN_PANE_BORDER_COLOR = "#DADFE8";
 
 // Color picker defaults as upper case HEX to match `toHex`helper
 export const COLOR_PICKER_DEFAULTS: Color[] = [
@@ -130,6 +135,7 @@ export const PADDING_AUTORESIZE_VERTICAL = 3;
 export const PADDING_AUTORESIZE_HORIZONTAL = MIN_CELL_TEXT_MARGIN;
 export const FILTER_ICON_MARGIN = 2;
 export const FILTER_ICON_EDGE_LENGTH = 17;
+export const GROUP_LAYER_WIDTH = 21;
 
 // Menus
 export const MENU_WIDTH = 250;
@@ -201,6 +207,7 @@ export const DEFAULT_ERROR_MESSAGE = _t("Invalid expression");
 export enum ComponentsImportance {
   Grid = 0,
   Highlight = 5,
+  HeaderGroupingButton = 6,
   Figure = 10,
   ScrollBar = 15,
   GridPopover = 19,

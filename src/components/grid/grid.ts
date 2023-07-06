@@ -14,6 +14,7 @@ import {
   INSERT_ROWS_BEFORE_ACTION,
   PASTE_VALUE_ACTION,
 } from "../../actions/menu_items_actions";
+import { canUngroupHeaders } from "../../actions/view_actions";
 import {
   AUTOFILL_EDGE_LENGTH,
   HEADER_HEIGHT,
@@ -24,9 +25,13 @@ import { isInside } from "../../helpers/index";
 import { openLink } from "../../helpers/links";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
 import { interactivePaste, interactivePasteFromOS } from "../../helpers/ui/paste_interactive";
-import { ComposerSelection } from "../../plugins/ui_stateful/edition";
+import { ComposerSelection } from "../../plugins/ui_stateful";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
+import {
+  groupHeadersMenuRegistry,
+  unGroupHeadersMenuRegistry,
+} from "../../registries/menus/header_group_registry";
 import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
 import { _t } from "../../translation";
 import {
@@ -36,6 +41,8 @@ import {
   ClipboardMIMEType,
   DOMCoordinates,
   DOMDimension,
+  Dimension,
+  Direction,
   HeaderIndex,
   Pixel,
   Position,
@@ -73,12 +80,20 @@ import { ComposerFocusType } from "../spreadsheet/spreadsheet";
  * - a vertical resizer (same, for rows)
  */
 
-export type ContextMenuType = "ROW" | "COL" | "CELL" | "FILTER";
+export type ContextMenuType =
+  | "ROW"
+  | "COL"
+  | "CELL"
+  | "FILTER"
+  | "GROUP_HEADERS"
+  | "UNGROUP_HEADERS";
 
 const registries = {
   ROW: rowMenuRegistry,
   COL: colMenuRegistry,
   CELL: cellMenuRegistry,
+  GROUP_HEADERS: groupHeadersMenuRegistry,
+  UNGROUP_HEADERS: unGroupHeadersMenuRegistry,
 };
 
 interface Props {
@@ -350,6 +365,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     PAGEDOWN: () => this.env.model.dispatch("SHIFT_VIEWPORT_DOWN"),
     PAGEUP: () => this.env.model.dispatch("SHIFT_VIEWPORT_UP"),
     "CTRL+K": () => INSERT_LINK(this.env),
+    "ALT+SHIFT+ARROWRIGHT": () => this.processHeaderGroupingKey("right"),
+    "ALT+SHIFT+ARROWLEFT": () => this.processHeaderGroupingKey("left"),
+    "ALT+SHIFT+ARROWUP": () => this.processHeaderGroupingKey("up"),
+    "ALT+SHIFT+ARROWDOWN": () => this.processHeaderGroupingKey("down"),
   };
 
   focus() {
@@ -498,16 +517,12 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onKeydown(ev: KeyboardEvent) {
-    if (ev.key.startsWith("Arrow")) {
-      this.processArrows(ev);
-      return;
-    }
-
+    const eventKey = ev.key.toUpperCase();
     let keyDownString = "";
-    if (ev.ctrlKey) keyDownString += "CTRL+";
+    if (ev.ctrlKey && eventKey !== "CTRL") keyDownString += "CTRL+";
     if (ev.metaKey) keyDownString += "CTRL+";
-    if (ev.altKey) keyDownString += "ALT+";
-    if (ev.shiftKey) keyDownString += "SHIFT+";
+    if (ev.altKey && eventKey !== "ALT") keyDownString += "ALT+";
+    if (ev.shiftKey && eventKey !== "SHIFT") keyDownString += "SHIFT+";
     keyDownString += ev.key.toUpperCase();
 
     let handler = this.keyDownMapping[keyDownString];
@@ -515,6 +530,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       ev.preventDefault();
       ev.stopPropagation();
       handler();
+      return;
+    }
+
+    if (ev.key.startsWith("Arrow")) {
+      this.processArrows(ev);
       return;
     }
   }
@@ -655,6 +675,105 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   closeMenu() {
     this.menuState.isOpen = false;
     this.focus();
+  }
+
+  private processHeaderGroupingKey(direction: Direction) {
+    if (this.env.model.getters.getSelectedZones().length !== 1) {
+      return;
+    }
+
+    const selectingRows = this.env.model.getters.getActiveRows().size > 0;
+    const selectingCols = this.env.model.getters.getActiveCols().size > 0;
+
+    if (selectingCols && selectingRows) {
+      this.processHeaderGroupingEventOnWholeSheet(direction);
+    } else if (selectingCols) {
+      this.processHeaderGroupingEventOnHeaders(direction, "COL");
+    } else if (selectingRows) {
+      this.processHeaderGroupingEventOnHeaders(direction, "ROW");
+    } else {
+      this.processHeaderGroupingEventOnGrid(direction);
+    }
+  }
+
+  private processHeaderGroupingEventOnHeaders(direction: Direction, dimension: Dimension) {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+
+    const zone = this.env.model.getters.getSelectedZone();
+    const start = dimension === "COL" ? zone.left : zone.top;
+    const end = dimension === "COL" ? zone.right : zone.bottom;
+
+    switch (direction) {
+      case "right":
+        this.env.model.dispatch("GROUP_HEADERS", { sheetId, dimension: dimension, start, end });
+        break;
+      case "left":
+        this.env.model.dispatch("UNGROUP_HEADERS", { sheetId, dimension: dimension, start, end });
+        break;
+      case "down":
+        this.env.model.dispatch("UNFOLD_HEADER_GROUPS_IN_ZONE", { sheetId, dimension, zone });
+        break;
+      case "up":
+        this.env.model.dispatch("FOLD_HEADER_GROUPS_IN_ZONE", { sheetId, dimension, zone });
+        break;
+    }
+  }
+
+  private processHeaderGroupingEventOnWholeSheet(direction: Direction) {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    if (direction === "up") {
+      this.env.model.dispatch("FOLD_ALL_HEADER_GROUPS", { sheetId, dimension: "ROW" });
+      this.env.model.dispatch("FOLD_ALL_HEADER_GROUPS", { sheetId, dimension: "COL" });
+    } else if (direction === "down") {
+      this.env.model.dispatch("UNFOLD_ALL_HEADER_GROUPS", { sheetId, dimension: "ROW" });
+      this.env.model.dispatch("UNFOLD_ALL_HEADER_GROUPS", { sheetId, dimension: "COL" });
+    }
+  }
+
+  private processHeaderGroupingEventOnGrid(direction: Direction) {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const zone = this.env.model.getters.getSelectedZone();
+    switch (direction) {
+      case "down":
+        this.env.model.dispatch("UNFOLD_HEADER_GROUPS_IN_ZONE", {
+          sheetId,
+          dimension: "ROW",
+          zone: zone,
+        });
+        this.env.model.dispatch("UNFOLD_HEADER_GROUPS_IN_ZONE", {
+          sheetId,
+          dimension: "COL",
+          zone: zone,
+        });
+        break;
+      case "up":
+        this.env.model.dispatch("FOLD_HEADER_GROUPS_IN_ZONE", {
+          sheetId,
+          dimension: "ROW",
+          zone: zone,
+        });
+        this.env.model.dispatch("FOLD_HEADER_GROUPS_IN_ZONE", {
+          sheetId,
+          dimension: "COL",
+          zone: zone,
+        });
+        break;
+      case "right": {
+        const { x, y, width } = this.env.model.getters.getVisibleRect(zone);
+        const gridRect = this.getGridRect();
+        this.toggleContextMenu("GROUP_HEADERS", x + width + gridRect.x, y + gridRect.y);
+        break;
+      }
+      case "left": {
+        if (!canUngroupHeaders(this.env, "COL") && !canUngroupHeaders(this.env, "ROW")) {
+          return;
+        }
+        const { x, y, width } = this.env.model.getters.getVisibleRect(zone);
+        const gridRect = this.getGridRect();
+        this.toggleContextMenu("UNGROUP_HEADERS", x + width + gridRect.x, y + gridRect.y);
+        break;
+      }
+    }
   }
 }
 

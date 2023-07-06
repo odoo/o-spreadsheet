@@ -3,6 +3,7 @@ import {
   moveHeaderIndexesOnHeaderAddition,
   moveHeaderIndexesOnHeaderDeletion,
   overlap,
+  range,
 } from "../../helpers";
 import { transformDefinition } from "../../helpers/figures/charts";
 import { otRegistry } from "../../registries";
@@ -14,12 +15,16 @@ import {
   CreateSheetCommand,
   DeleteFigureCommand,
   DeleteSheetCommand,
+  FoldHeaderGroupCommand,
   FreezeColumnsCommand,
   FreezeRowsCommand,
+  GroupHeadersCommand,
   HeaderIndex,
   MoveRangeCommand,
   RemoveColumnsRowsCommand,
   RemoveMergeCommand,
+  UnGroupHeadersCommand,
+  UnfoldHeaderGroupCommand,
   UpdateChartCommand,
   UpdateFigureCommand,
   Zone,
@@ -64,6 +69,16 @@ otRegistry.addTransformation(
   "CREATE_FILTER_TABLE",
   ["CREATE_FILTER_TABLE", "ADD_MERGE"],
   createTableTransformation
+);
+otRegistry.addTransformation(
+  "ADD_COLUMNS_ROWS",
+  ["GROUP_HEADERS", "UNGROUP_HEADERS", "FOLD_HEADER_GROUP", "UNFOLD_HEADER_GROUP"],
+  groupHeadersTransformation
+);
+otRegistry.addTransformation(
+  "REMOVE_COLUMNS_ROWS",
+  ["GROUP_HEADERS", "UNGROUP_HEADERS", "FOLD_HEADER_GROUP", "UNFOLD_HEADER_GROUP"],
+  groupHeadersTransformation
 );
 
 function transformTargetSheetId(
@@ -206,4 +221,37 @@ function addHeadersTransformation(
   }
 
   return { ...toTransform, base: result };
+}
+
+type HeaderGroupCommand =
+  | GroupHeadersCommand
+  | UnGroupHeadersCommand
+  | FoldHeaderGroupCommand
+  | UnfoldHeaderGroupCommand;
+
+/**
+ * Transform header group command if some headers were added/removed
+ */
+function groupHeadersTransformation(
+  toTransform: HeaderGroupCommand,
+  executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
+): HeaderGroupCommand | undefined {
+  if (toTransform.sheetId !== executed.sheetId || toTransform.dimension !== executed.dimension) {
+    return toTransform;
+  }
+
+  const elementsToTransform = range(toTransform.start, toTransform.end + 1);
+  let results: HeaderIndex[] = [];
+  if (executed.type === "REMOVE_COLUMNS_ROWS") {
+    results = moveHeaderIndexesOnHeaderDeletion(executed.elements, elementsToTransform);
+  } else if (executed.type === "ADD_COLUMNS_ROWS") {
+    const base = getAddHeaderStartIndex(executed.position, executed.base);
+    results = moveHeaderIndexesOnHeaderAddition(base, executed.quantity, elementsToTransform);
+  }
+
+  if (results.length === 0) {
+    return undefined;
+  }
+
+  return { ...toTransform, start: Math.min(...results), end: Math.max(...results) };
 }

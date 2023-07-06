@@ -58,6 +58,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "isSheetVisible",
     "getEvaluationSheets",
     "doesHeaderExist",
+    "doesHeadersExist",
     "getCell",
     "getCellPosition",
     "getColsZone",
@@ -364,6 +365,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return dimension === "COL"
       ? index >= 0 && index < this.getNumberCols(sheetId)
       : index >= 0 && index < this.getNumberRows(sheetId);
+  }
+
+  doesHeadersExist(sheetId: UID, dimension: Dimension, headerIndexes: HeaderIndex[]): boolean {
+    return headerIndexes.every((index) => this.doesHeaderExist(sheetId, dimension, index));
   }
 
   getRow(sheetId: UID, index: HeaderIndex): Row {

@@ -197,8 +197,16 @@ export class SheetViewPlugin extends UIPlugin {
       case "ADD_COLUMNS_ROWS":
       case "UNHIDE_COLUMNS_ROWS":
       case "UPDATE_FILTER":
-        this.resetViewports(cmd.sheetId);
+      case "FOLD_HEADER_GROUP":
+      case "UNFOLD_HEADER_GROUP":
+      case "FOLD_HEADER_GROUPS_IN_ZONE":
+      case "UNFOLD_HEADER_GROUPS_IN_ZONE":
+      case "UNFOLD_ALL_HEADER_GROUPS":
+      case "FOLD_ALL_HEADER_GROUPS": {
+        const sheetId = "sheetId" in cmd ? cmd.sheetId : this.getters.getActiveSheetId();
+        this.resetViewports(sheetId);
         break;
+      }
       case "UPDATE_CELL":
         // update cell content or format can change hidden rows because of data filters
         if ("content" in cmd || "format" in cmd || cmd.style?.fontSize !== undefined) {

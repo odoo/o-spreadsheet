@@ -12,6 +12,8 @@ import {
   FILTERS_COLOR,
   FILTER_ICON_EDGE_LENGTH,
   FILTER_ICON_MARGIN,
+  FROZEN_PANE_BORDER_COLOR,
+  FROZEN_PANE_HEADER_BORDER_COLOR,
   HEADER_BORDER_COLOR,
   HEADER_FONT_SIZE,
   HEADER_HEIGHT,
@@ -516,7 +518,7 @@ export class RendererPlugin extends UIPlugin {
     const widthCorrection = this.getters.isDashboard() ? 0 : HEADER_WIDTH;
     const heightCorrection = this.getters.isDashboard() ? 0 : HEADER_HEIGHT;
     ctx.lineWidth = 6 * thinLineWidth;
-    ctx.strokeStyle = "#BCBCBC";
+    ctx.strokeStyle = FROZEN_PANE_HEADER_BORDER_COLOR;
     ctx.beginPath();
     if (offsetCorrectionX) {
       ctx.moveTo(widthCorrection + offsetCorrectionX, 0);
@@ -547,7 +549,7 @@ export class RendererPlugin extends UIPlugin {
     const widthCorrection = this.getters.isDashboard() ? 0 : HEADER_WIDTH;
     const heightCorrection = this.getters.isDashboard() ? 0 : HEADER_HEIGHT;
     ctx.lineWidth = 6 * thinLineWidth;
-    ctx.strokeStyle = "#DADFE8";
+    ctx.strokeStyle = FROZEN_PANE_BORDER_COLOR;
     ctx.beginPath();
     if (offsetCorrectionX) {
       ctx.moveTo(widthCorrection + offsetCorrectionX, heightCorrection);

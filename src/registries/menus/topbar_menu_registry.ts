@@ -2,6 +2,7 @@ import * as ACTION_DATA from "../../actions/data_actions";
 import * as ACTION_EDIT from "../../actions/edit_actions";
 import * as ACTION_FORMAT from "../../actions/format_actions";
 import * as ACTION_INSERT from "../../actions/insert_actions";
+import * as ACTIONS from "../../actions/menu_items_actions";
 import * as ACTION_VIEW from "../../actions/view_actions";
 import { _t } from "../../translation";
 import { MenuItemRegistry } from "../menu_items_registry";
@@ -122,7 +123,6 @@ topbarMenuRegistry
   .addChild("freeze_panes", ["view"], {
     ...ACTION_VIEW.freezePane,
     sequence: 5,
-    separator: true,
   })
   .addChild("unfreeze_rows", ["view", "freeze_panes"], {
     ...ACTION_VIEW.unFreezeRows,
@@ -157,13 +157,38 @@ topbarMenuRegistry
     ...ACTION_VIEW.freezeCurrentCol,
     sequence: 40,
   })
+  .addChild("group_headers", ["view"], {
+    name: _t("Group"),
+    sequence: 15,
+    separator: true,
+    icon: "o-spreadsheet-Icon.PLUS_IN_BOX",
+    isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
+  })
+  .addChild("group_columns", ["view", "group_headers"], {
+    ...ACTION_VIEW.groupColumns,
+    sequence: 5,
+  })
+  .addChild("ungroup_columns", ["view", "group_headers"], {
+    ...ACTION_VIEW.ungroupColumns,
+    isVisible: (env) => ACTION_VIEW.canUngroupHeaders(env, "COL"),
+    sequence: 10,
+  })
+  .addChild("group_rows", ["view", "group_headers"], {
+    ...ACTION_VIEW.groupRows,
+    sequence: 15,
+  })
+  .addChild("ungroup_rows", ["view", "group_headers"], {
+    ...ACTION_VIEW.ungroupRows,
+    isVisible: (env) => ACTION_VIEW.canUngroupHeaders(env, "ROW"),
+    sequence: 20,
+  })
   .addChild("view_gridlines", ["view"], {
     ...ACTION_VIEW.viewGridlines,
-    sequence: 10,
+    sequence: 15,
   })
   .addChild("view_formulas", ["view"], {
     ...ACTION_VIEW.viewFormulas,
-    sequence: 15,
+    sequence: 20,
   })
 
   // ---------------------------------------------------------------------

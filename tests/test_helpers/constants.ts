@@ -294,6 +294,56 @@ export const TEST_COMMANDS: CommandMapping = {
     type: "UPDATE_LOCALE",
     locale: DEFAULT_LOCALE,
   },
+  GROUP_HEADERS: {
+    type: "GROUP_HEADERS",
+    sheetId: "sheetId",
+    dimension: "ROW",
+    start: 0,
+    end: 1,
+  },
+  UNGROUP_HEADERS: {
+    type: "UNGROUP_HEADERS",
+    sheetId: "sheetId",
+    dimension: "ROW",
+    start: 0,
+    end: 1,
+  },
+  UNFOLD_HEADER_GROUP: {
+    type: "UNFOLD_HEADER_GROUP",
+    sheetId: "sheetId",
+    dimension: "ROW",
+    start: 0,
+    end: 1,
+  },
+  FOLD_HEADER_GROUP: {
+    type: "FOLD_HEADER_GROUP",
+    sheetId: "sheetId",
+    dimension: "ROW",
+    start: 0,
+    end: 1,
+  },
+  UNFOLD_ALL_HEADER_GROUPS: {
+    type: "UNFOLD_ALL_HEADER_GROUPS",
+    sheetId: "sheetId",
+    dimension: "ROW",
+  },
+  FOLD_ALL_HEADER_GROUPS: {
+    type: "FOLD_ALL_HEADER_GROUPS",
+    sheetId: "sheetId",
+    dimension: "ROW",
+  },
+  UNFOLD_HEADER_GROUPS_IN_ZONE: {
+    type: "UNFOLD_HEADER_GROUPS_IN_ZONE",
+    sheetId: "sheetId",
+    dimension: "ROW",
+    zone: { top: 0, left: 0, bottom: 1, right: 1 },
+  },
+  FOLD_HEADER_GROUPS_IN_ZONE: {
+    type: "FOLD_HEADER_GROUPS_IN_ZONE",
+    sheetId: "sheetId",
+    dimension: "ROW",
+    zone: { top: 0, left: 0, bottom: 1, right: 1 },
+  },
 };
 
 export const OT_TESTS_SINGLE_CELL_COMMANDS = [
@@ -309,6 +359,18 @@ export const OT_TESTS_TARGET_DEPENDANT_COMMANDS = [
   TEST_COMMANDS.CLEAR_FORMATTING,
   TEST_COMMANDS.CREATE_FILTER_TABLE,
   TEST_COMMANDS.REMOVE_FILTER_TABLE,
+];
+
+export const OT_TESTS_ZONE_DEPENDANT_COMMANDS = [
+  TEST_COMMANDS.UNFOLD_HEADER_GROUPS_IN_ZONE,
+  TEST_COMMANDS.FOLD_HEADER_GROUPS_IN_ZONE,
+];
+
+export const OT_TESTS_HEADER_GROUP_COMMANDS = [
+  TEST_COMMANDS.GROUP_HEADERS,
+  TEST_COMMANDS.UNGROUP_HEADERS,
+  TEST_COMMANDS.FOLD_HEADER_GROUP,
+  TEST_COMMANDS.UNFOLD_HEADER_GROUP,
 ];
 
 export const OT_TESTS_RANGE_DEPENDANT_COMMANDS = [TEST_COMMANDS.ADD_CONDITIONAL_FORMAT];

@@ -576,98 +576,120 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
   </div>
   
   <div
-    class="o-grid o-two-columns"
-    tabindex="-1"
+    class="o-grid-container o-two-columns"
+    style="grid-template-columns:0px auto; grid-template-rows:0px auto;"
   >
     <div
-      class="o-grid-overlay overflow-hidden"
-      style="top:26px; left:48px; height:calc(100% - 41px); width:calc(100% - 63px);"
+      class="o-top-left"
+    />
+    <div
+      class="o-column-groups"
     >
-      <div>
-        
-      </div>
-      
       
     </div>
-    
     <div
-      class="o-overlay"
+      class="o-row-groups"
+    >
+      
+    </div>
+    <div
+      class="o-group-grid overflow-hidden"
     >
       <div
-        class="o-col-resizer"
+        class="o-grid w-100 h-100"
+        tabindex="-1"
       >
+        <div
+          class="o-grid-overlay overflow-hidden"
+          style="top:26px; left:48px; height:calc(100% - 41px); width:calc(100% - 63px);"
+        >
+          <div>
+            
+          </div>
+          
+          
+        </div>
+        
+        <div
+          class="o-overlay"
+        >
+          <div
+            class="o-col-resizer"
+          >
+            
+            
+            
+            
+            
+          </div>
+          
+          <div
+            class="o-row-resizer"
+          >
+            
+            
+            
+            
+            
+          </div>
+          
+          <div
+            class="all"
+          />
+        </div>
+        
+        
+        <input
+          class="position-absolute"
+          style="z-index:-1000;"
+        />
+        <canvas
+          height="1011"
+          style="width:1033px;height:1011px;"
+          width="1033"
+        />
+        
+        
+        
+        
+        <div
+          class="o-autofill"
+          style="top:45px; left:140px; visibility:visible;"
+        />
+        <div
+          class="o-autofill-handler"
+          style="top:45px; left:140px;"
+        />
         
         
         
         
         
+        
+        
+        <div
+          class="o-scrollbar vertical"
+          style="top:26px; right:0px; width:15px; bottom:0px;"
+        >
+          <div
+            style="width:1px; height:2328px;"
+          />
+        </div>
+        
+        <div
+          class="o-scrollbar horizontal"
+          style="left:48px; bottom:0px; height:15px; right:0px;"
+        >
+          <div
+            style="width:2592px; height:1px;"
+          />
+        </div>
+        
+        <div
+          class="o-scrollbar corner"
+        />
       </div>
-      
-      <div
-        class="o-row-resizer"
-      >
-        
-        
-        
-        
-        
-      </div>
-      
-      <div
-        class="all"
-      />
     </div>
-    
-    
-    <input
-      class="position-absolute"
-      style="z-index:-1000;"
-    />
-    <canvas
-      height="1011"
-      style="width:1033px;height:1011px;"
-      width="1033"
-    />
-    
-    
-    
-    
-    <div
-      class="o-autofill"
-      style="top:45px; left:140px; visibility:visible;"
-    />
-    <div
-      class="o-autofill-handler"
-      style="top:45px; left:140px;"
-    />
-    
-    
-    
-    
-    
-    
-    
-    <div
-      class="o-scrollbar vertical"
-      style="top:26px; right:0px; width:15px; bottom:0px;"
-    >
-      <div
-        style="width:1px; height:2328px;"
-      />
-    </div>
-    
-    <div
-      class="o-scrollbar horizontal"
-      style="left:48px; bottom:0px; height:15px; right:0px;"
-    >
-      <div
-        style="width:2592px; height:1px;"
-      />
-    </div>
-    
-    <div
-      class="o-scrollbar corner"
-    />
   </div>
   
   <div
@@ -688,7 +710,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           class="o-sheet-item o-add-sheet me-2 p-1"
         >
           <svg
-            class="o-icon"
+            class="o-icon plus"
             viewBox="0 0 18 18"
           >
             <path

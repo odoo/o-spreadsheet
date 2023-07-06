@@ -80,4 +80,14 @@ colMenuRegistry
   .add("conditional_formatting", {
     ...ACTION_FORMAT.formatCF,
     sequence: 110,
+    separator: true,
+  })
+  .add("group_columns", {
+    sequence: 120,
+    ...ACTION_VIEW.groupColumns,
+  })
+  .add("ungroup_columns", {
+    sequence: 130,
+    ...ACTION_VIEW.ungroupColumns,
+    isVisible: (env) => ACTION_VIEW.canUngroupHeaders(env, "COL"),
   });
