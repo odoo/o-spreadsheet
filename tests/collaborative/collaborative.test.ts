@@ -558,7 +558,7 @@ describe("Multi users synchronisation", () => {
 
   test("Composer is moved when column is removed on it", () => {
     selectCell(alice, "D2");
-    const spy = jest.spyOn(alice["config"], "notifyUI");
+    const spy = jest.spyOn(alice["config"], "raiseBlockingErrorUI");
     alice.dispatch("START_EDITION", { text: "hello" });
     deleteColumns(bob, ["D"]);
     expect(spy).toHaveBeenCalled();
@@ -612,7 +612,7 @@ describe("Multi users synchronisation", () => {
   test("Delete row & Don't notify cell is deleted when composer is active", () => {
     selectCell(alice, "A4");
     alice.dispatch("START_EDITION", { text: "hello" });
-    const spy = jest.spyOn(alice["config"], "notifyUI");
+    const spy = jest.spyOn(alice["config"], "raiseBlockingErrorUI");
     deleteRows(bob, [3]);
     expect(spy).toHaveBeenCalled();
     expect(alice.getters.getEditionMode()).toBe("inactive");
@@ -621,7 +621,7 @@ describe("Multi users synchronisation", () => {
   test("Delete col & Don't notify cell is deleted when composer is active", () => {
     selectCell(alice, "A4");
     alice.dispatch("START_EDITION", { text: "hello" });
-    const spy = jest.spyOn(alice["config"], "notifyUI");
+    const spy = jest.spyOn(alice["config"], "raiseBlockingErrorUI");
     deleteColumns(bob, ["A"]);
     expect(spy).toHaveBeenCalled();
     expect(alice.getters.getEditionMode()).toBe("inactive");
@@ -632,7 +632,7 @@ describe("Multi users synchronisation", () => {
     createSheet(alice, { sheetId: "42" });
     selectCell(alice, "A4");
     alice.dispatch("START_EDITION", { text: "hello" });
-    const spy = jest.spyOn(alice["config"], "notifyUI");
+    const spy = jest.spyOn(alice["config"], "raiseBlockingErrorUI");
     alice.dispatch("DELETE_SHEET", { sheetId: activeSheetId });
     expect(spy).toHaveBeenCalled();
     expect(alice.getters.getEditionMode()).toBe("inactive");
@@ -642,7 +642,7 @@ describe("Multi users synchronisation", () => {
     selectCell(alice, "A4");
     alice.dispatch("START_EDITION", { text: "hello" });
     alice.dispatch("STOP_EDITION");
-    const spy = jest.spyOn(alice["config"], "notifyUI");
+    const spy = jest.spyOn(alice["config"], "raiseBlockingErrorUI");
     deleteRows(bob, [3]);
     expect(spy).not.toHaveBeenCalled();
     expect(alice.getters.getEditionMode()).toBe("inactive");
@@ -652,7 +652,7 @@ describe("Multi users synchronisation", () => {
     selectCell(alice, "A4");
     alice.dispatch("START_EDITION", { text: "hello" });
     alice.dispatch("STOP_EDITION");
-    const spy = jest.spyOn(alice["config"], "notifyUI");
+    const spy = jest.spyOn(alice["config"], "raiseBlockingErrorUI");
     deleteColumns(bob, ["A"]);
     expect(spy).not.toHaveBeenCalled();
     expect(alice.getters.getEditionMode()).toBe("inactive");
@@ -664,7 +664,7 @@ describe("Multi users synchronisation", () => {
     selectCell(alice, "A4");
     alice.dispatch("START_EDITION", { text: "hello" });
     alice.dispatch("STOP_EDITION");
-    const spy = jest.spyOn(alice["config"], "notifyUI");
+    const spy = jest.spyOn(alice["config"], "raiseBlockingErrorUI");
     alice.dispatch("DELETE_SHEET", { sheetId: activeSheetId });
     expect(spy).not.toHaveBeenCalled();
     expect(alice.getters.getEditionMode()).toBe("inactive");
@@ -702,7 +702,7 @@ describe("Multi users synchronisation", () => {
     createSheet(alice, { sheetId: "42" });
     activateSheet(alice, "42");
     selectCell(alice, "A4");
-    const spy = jest.spyOn(alice["config"], "notifyUI");
+    const spy = jest.spyOn(alice["config"], "raiseBlockingErrorUI");
     alice.dispatch("START_EDITION", { text: "hello" });
     bob.dispatch("DELETE_SHEET", { sheetId: "42" });
     expect(spy).toHaveBeenCalled();
@@ -712,7 +712,7 @@ describe("Multi users synchronisation", () => {
   test("Composing in a sheet when a sheet deletion is redone", () => {
     createSheet(alice, { sheetId: "42" });
     selectCell(alice, "A4");
-    const spy = jest.spyOn(alice["config"], "notifyUI");
+    const spy = jest.spyOn(alice["config"], "raiseBlockingErrorUI");
     bob.dispatch("DELETE_SHEET", { sheetId: "42" });
     undo(bob);
     activateSheet(alice, "42");
@@ -725,7 +725,7 @@ describe("Multi users synchronisation", () => {
   test("Composing in a sheet when a sheet creation is undone", () => {
     createSheet(bob, { sheetId: "42" });
     selectCell(alice, "A4");
-    const spy = jest.spyOn(alice["config"], "notifyUI");
+    const spy = jest.spyOn(alice["config"], "raiseBlockingErrorUI");
     activateSheet(alice, "42");
     alice.dispatch("START_EDITION", { text: "hello" });
     undo(bob);

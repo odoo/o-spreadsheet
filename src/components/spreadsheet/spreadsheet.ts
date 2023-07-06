@@ -27,8 +27,7 @@ import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
 import { _t } from "../../translation";
-import { Pixel, SpreadsheetChildEnv } from "../../types";
-import { NotifyUIEvent } from "../../types/ui";
+import { InformationNotification, Pixel, SpreadsheetChildEnv } from "../../types";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
 import { Grid } from "../grid/grid";
@@ -253,12 +252,16 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
   private bindModelEvents() {
     this.model.on("update", this, () => this.render(true));
-    this.model.on("notify-ui", this, this.onNotifyUI);
+    this.model.on("notify-ui", this, (notification: InformationNotification) =>
+      this.env.notifyUser(notification)
+    );
+    this.model.on("raise-error-ui", this, ({ text }) => this.env.raiseError(text));
   }
 
   private unbindModelEvents() {
     this.model.off("update", this);
     this.model.off("notify-ui", this);
+    this.model.off("raise-error-ui", this);
   }
 
   private checkViewportSize() {
@@ -279,19 +282,12 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
         text: _t(
           "The current window is too small to display this sheet properly. Consider resizing your browser window or adjusting frozen rows and columns."
         ),
-        tag: "viewportTooSmall",
+        type: "warning",
+        sticky: false,
       });
       this.isViewportTooSmall = true;
     } else {
       this.isViewportTooSmall = false;
-    }
-  }
-
-  private onNotifyUI(payload: NotifyUIEvent) {
-    switch (payload.type) {
-      case "ERROR":
-        this.env.raiseError(payload.text);
-        break;
     }
   }
 

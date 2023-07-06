@@ -46,13 +46,13 @@ import {
   Format,
   Getters,
   GridRenderingContext,
+  InformationNotification,
   isCoreCommand,
   LAYERS,
   LocalCommand,
   Locale,
   UID,
 } from "./types/index";
-import { NotifyUIEvent } from "./types/ui";
 import { WorkbookData } from "./types/workbook_data";
 import { XLSXExport } from "./types/xlsx";
 import { getXLSX } from "./xlsx/xlsx_writer";
@@ -104,7 +104,8 @@ export interface ModelConfig {
   readonly transportService: TransportService;
   readonly client: Client;
   readonly snapshotRequested: boolean;
-  readonly notifyUI: (payload: NotifyUIEvent) => void;
+  readonly notifyUI: (payload: InformationNotification) => void;
+  readonly raiseBlockingErrorUI: (text: string) => void;
 }
 
 export interface ModelExternalConfig {
@@ -395,7 +396,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       client,
       moveClient: () => {},
       snapshotRequested: false,
-      notifyUI: (payload: NotifyUIEvent) => this.trigger("notify-ui", payload),
+      notifyUI: (payload) => this.trigger("notify-ui", payload),
+      raiseBlockingErrorUI: (text) => this.trigger("raise-error-ui", { text }),
     };
   }
 

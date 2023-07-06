@@ -293,11 +293,28 @@ test("Warn user only once when the viewport is too small for its frozen panes", 
   expect(notifyUser).toHaveBeenCalledTimes(2);
 });
 
-test("Notify ui correctly with type notification correctly use notifyUser in the env", async () => {
+test("Raise error to ui use 'raiseError' in the env", async () => {
   const raiseError = jest.fn();
   ({ model, fixture } = await mountSpreadsheet(undefined, { raiseError }));
-  model["config"].notifyUI({ type: "ERROR", text: "hello" });
-  expect(raiseError).toHaveBeenCalledWith("hello");
+  model["config"].raiseBlockingErrorUI("windows has detected that your monitor is not plugged in");
+  expect(raiseError).toHaveBeenCalledWith(
+    "windows has detected that your monitor is not plugged in"
+  );
+});
+
+test("Notify ui correctly, with type notification correctly use notifyUser in the env", async () => {
+  const notifyUser = jest.fn();
+  ({ model, fixture } = await mountSpreadsheet(undefined, { notifyUser }));
+  model["config"].notifyUI({
+    text: "hello",
+    type: "info",
+    sticky: false,
+  });
+  expect(notifyUser).toHaveBeenCalledWith({
+    text: "hello",
+    type: "info",
+    sticky: false,
+  });
 });
 
 test("grid should regain focus after a topbar menu option is selected", async () => {

@@ -10,11 +10,12 @@ export interface EditTextOptions {
   placeholder?: string;
 }
 
-export type notificationType = "ERROR" | "INFORMATION";
+export type NotificationType = "danger" | "info" | "success" | "warning";
 
 export interface InformationNotification {
   text: string;
-  tag: string;
+  type: NotificationType;
+  sticky: boolean;
 }
 
 export interface SpreadsheetEnv {
