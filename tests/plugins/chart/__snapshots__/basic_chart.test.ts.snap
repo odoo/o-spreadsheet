@@ -25,8 +25,8 @@ exports[`Linear/Time charts font color is white with a dark background color 1`]
           ],
           "fill": false,
           "label": "10",
-          "lineTension": 0,
           "pointBackgroundColor": "rgb(31,119,180)",
+          "tension": 0,
         },
       ],
       "labels": [
@@ -36,9 +36,7 @@ exports[`Linear/Time charts font color is white with a dark background color 1`]
       ],
     },
     "options": {
-      "animation": {
-        "duration": 0,
-      },
+      "animation": false,
       "elements": {
         "line": {
           "fill": false,
@@ -46,9 +44,6 @@ exports[`Linear/Time charts font color is white with a dark background color 1`]
         "point": {
           "hitRadius": 15,
         },
-      },
-      "hover": {
-        "animationDuration": 10,
       },
       "layout": {
         "padding": {
@@ -58,56 +53,53 @@ exports[`Linear/Time charts font color is white with a dark background color 1`]
           "top": 10,
         },
       },
-      "legend": {
-        "labels": {
-          "fontColor": "#FFFFFF",
-          "generateLabels": [Function],
-        },
-        "onClick": undefined,
-        "position": "top",
-      },
       "maintainAspectRatio": false,
+      "plugins": {
+        "legend": {
+          "labels": {
+            "color": "#FFFFFF",
+            "generateLabels": [Function],
+          },
+          "onClick": [Function],
+          "position": "top",
+        },
+        "title": {
+          "color": "#FFFFFF",
+          "display": true,
+          "font": {
+            "size": 22,
+            "weight": "normal",
+          },
+          "text": "test",
+        },
+        "tooltip": {
+          "callbacks": {
+            "label": [Function],
+            "title": [Function],
+          },
+        },
+      },
       "responsive": true,
-      "responsiveAnimationDuration": 0,
       "scales": {
-        "xAxes": [
-          {
-            "ticks": {
-              "callback": [Function],
-              "fontColor": "#FFFFFF",
-              "labelOffset": 2,
-              "maxRotation": 60,
-              "minRotation": 15,
-              "padding": 5,
-            },
-            "type": "linear",
+        "x": {
+          "ticks": {
+            "callback": [Function],
+            "color": "#FFFFFF",
+            "padding": 5,
           },
-        ],
-        "yAxes": [
-          {
-            "position": "left",
-            "ticks": {
-              "beginAtZero": true,
-              "callback": [Function],
-              "fontColor": "#FFFFFF",
-            },
+          "type": "linear",
+        },
+        "y": {
+          "beginAtZero": true,
+          "position": "left",
+          "ticks": {
+            "callback": [Function],
+            "color": "#FFFFFF",
           },
-        ],
-      },
-      "title": {
-        "display": true,
-        "fontColor": "#FFFFFF",
-        "fontSize": 22,
-        "fontStyle": "normal",
-        "text": "test",
-      },
-      "tooltips": {
-        "callbacks": {
-          "label": [Function],
-          "title": [Function],
         },
       },
     },
+    "plugins": [],
     "type": "line",
   },
 }
@@ -142,8 +134,8 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
           ],
           "fill": false,
           "label": "Series 1",
-          "lineTension": 0,
           "pointBackgroundColor": "rgb(31,119,180)",
+          "tension": 0,
         },
       ],
       "labels": [
@@ -154,9 +146,7 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
       ],
     },
     "options": {
-      "animation": {
-        "duration": 0,
-      },
+      "animation": false,
       "elements": {
         "line": {
           "fill": false,
@@ -164,9 +154,6 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
         "point": {
           "hitRadius": 15,
         },
-      },
-      "hover": {
-        "animationDuration": 10,
       },
       "layout": {
         "padding": {
@@ -176,62 +163,59 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
           "top": 10,
         },
       },
-      "legend": {
-        "labels": {
-          "fontColor": "#000000",
-          "generateLabels": [Function],
-        },
-        "onClick": undefined,
-        "position": "top",
-      },
       "maintainAspectRatio": false,
+      "plugins": {
+        "legend": {
+          "labels": {
+            "color": "#000000",
+            "generateLabels": [Function],
+          },
+          "onClick": [Function],
+          "position": "top",
+        },
+        "title": {
+          "color": "#000000",
+          "display": true,
+          "font": {
+            "size": 22,
+            "weight": "normal",
+          },
+          "text": "test",
+        },
+        "tooltip": {
+          "callbacks": {
+            "label": [Function],
+          },
+        },
+      },
       "responsive": true,
-      "responsiveAnimationDuration": 0,
       "scales": {
-        "xAxes": [
-          {
-            "ticks": {
-              "fontColor": "#000000",
-              "labelOffset": 2,
-              "maxRotation": 60,
-              "maxTicksLimit": 15,
-              "minRotation": 15,
-              "padding": 5,
-            },
-            "time": {
-              "displayFormats": {
-                "day": "M/D/YYYY",
-              },
-              "parser": "M/D/YYYY",
-              "unit": "day",
-            },
-            "type": "time",
+        "x": {
+          "ticks": {
+            "color": "#000000",
+            "maxTicksLimit": 15,
+            "padding": 5,
           },
-        ],
-        "yAxes": [
-          {
-            "position": "left",
-            "ticks": {
-              "beginAtZero": true,
-              "callback": [Function],
-              "fontColor": "#000000",
+          "time": {
+            "displayFormats": {
+              "month": "M/d/yyyy",
             },
+            "parser": "M/d/yyyy",
+            "unit": "month",
           },
-        ],
-      },
-      "title": {
-        "display": true,
-        "fontColor": "#000000",
-        "fontSize": 22,
-        "fontStyle": "normal",
-        "text": "test",
-      },
-      "tooltips": {
-        "callbacks": {
-          "label": [Function],
+          "type": "time",
+        },
+        "y": {
+          "beginAtZero": true,
+          "position": "left",
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+          },
         },
       },
     },
+    "plugins": [],
     "type": "line",
   },
 }
@@ -266,8 +250,8 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for linear ch
           ],
           "fill": false,
           "label": "Series 1",
-          "lineTension": 0,
           "pointBackgroundColor": "rgb(31,119,180)",
+          "tension": 0,
         },
       ],
       "labels": [
@@ -278,9 +262,7 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for linear ch
       ],
     },
     "options": {
-      "animation": {
-        "duration": 0,
-      },
+      "animation": false,
       "elements": {
         "line": {
           "fill": false,
@@ -288,9 +270,6 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for linear ch
         "point": {
           "hitRadius": 15,
         },
-      },
-      "hover": {
-        "animationDuration": 10,
       },
       "layout": {
         "padding": {
@@ -300,56 +279,53 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for linear ch
           "top": 10,
         },
       },
-      "legend": {
-        "labels": {
-          "fontColor": "#000000",
-          "generateLabels": [Function],
-        },
-        "onClick": undefined,
-        "position": "top",
-      },
       "maintainAspectRatio": false,
+      "plugins": {
+        "legend": {
+          "labels": {
+            "color": "#000000",
+            "generateLabels": [Function],
+          },
+          "onClick": [Function],
+          "position": "top",
+        },
+        "title": {
+          "color": "#000000",
+          "display": true,
+          "font": {
+            "size": 22,
+            "weight": "normal",
+          },
+          "text": "test",
+        },
+        "tooltip": {
+          "callbacks": {
+            "label": [Function],
+            "title": [Function],
+          },
+        },
+      },
       "responsive": true,
-      "responsiveAnimationDuration": 0,
       "scales": {
-        "xAxes": [
-          {
-            "ticks": {
-              "callback": [Function],
-              "fontColor": "#000000",
-              "labelOffset": 2,
-              "maxRotation": 60,
-              "minRotation": 15,
-              "padding": 5,
-            },
-            "type": "linear",
+        "x": {
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+            "padding": 5,
           },
-        ],
-        "yAxes": [
-          {
-            "position": "left",
-            "ticks": {
-              "beginAtZero": true,
-              "callback": [Function],
-              "fontColor": "#000000",
-            },
+          "type": "linear",
+        },
+        "y": {
+          "beginAtZero": true,
+          "position": "left",
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
           },
-        ],
-      },
-      "title": {
-        "display": true,
-        "fontColor": "#000000",
-        "fontSize": 22,
-        "fontStyle": "normal",
-        "text": "test",
-      },
-      "tooltips": {
-        "callbacks": {
-          "label": [Function],
-          "title": [Function],
         },
       },
     },
+    "plugins": [],
     "type": "line",
   },
 }
@@ -375,9 +351,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
       ],
     },
     "options": {
-      "animation": {
-        "duration": 0,
-      },
+      "animation": false,
       "elements": {
         "line": {
           "fill": false,
@@ -385,9 +359,6 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
         "point": {
           "hitRadius": 15,
         },
-      },
-      "hover": {
-        "animationDuration": 10,
       },
       "layout": {
         "padding": {
@@ -397,54 +368,51 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
           "top": 10,
         },
       },
-      "legend": {
-        "labels": {
-          "fontColor": "#000000",
-        },
-        "onClick": undefined,
-        "position": "top",
-      },
       "maintainAspectRatio": false,
+      "plugins": {
+        "legend": {
+          "labels": {
+            "color": "#000000",
+          },
+          "onClick": [Function],
+          "position": "top",
+        },
+        "title": {
+          "color": "#000000",
+          "display": true,
+          "font": {
+            "size": 22,
+            "weight": "normal",
+          },
+          "text": "test",
+        },
+        "tooltip": {
+          "callbacks": {
+            "label": [Function],
+          },
+        },
+      },
       "responsive": true,
-      "responsiveAnimationDuration": 0,
       "scales": {
-        "xAxes": [
-          {
-            "stacked": true,
-            "ticks": {
-              "fontColor": "#000000",
-              "labelOffset": 2,
-              "maxRotation": 60,
-              "minRotation": 15,
-              "padding": 5,
-            },
+        "x": {
+          "stacked": true,
+          "ticks": {
+            "color": "#000000",
+            "padding": 5,
           },
-        ],
-        "yAxes": [
-          {
-            "position": "left",
-            "stacked": true,
-            "ticks": {
-              "beginAtZero": true,
-              "callback": [Function],
-              "fontColor": "#000000",
-            },
+        },
+        "y": {
+          "beginAtZero": true,
+          "position": "left",
+          "stacked": true,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
           },
-        ],
-      },
-      "title": {
-        "display": true,
-        "fontColor": "#000000",
-        "fontSize": 22,
-        "fontStyle": "normal",
-        "text": "test",
-      },
-      "tooltips": {
-        "callbacks": {
-          "label": [Function],
         },
       },
     },
+    "plugins": [],
     "type": "bar",
   },
 }
@@ -464,8 +432,8 @@ exports[`datasource tests create chart with a dataset of one cell (no title) 1`]
           ],
           "fill": false,
           "label": "Series 1",
-          "lineTension": 0,
           "pointBackgroundColor": "rgb(31,119,180)",
+          "tension": 0,
         },
       ],
       "labels": [
@@ -473,9 +441,7 @@ exports[`datasource tests create chart with a dataset of one cell (no title) 1`]
       ],
     },
     "options": {
-      "animation": {
-        "duration": 0,
-      },
+      "animation": false,
       "elements": {
         "line": {
           "fill": false,
@@ -483,9 +449,6 @@ exports[`datasource tests create chart with a dataset of one cell (no title) 1`]
         "point": {
           "hitRadius": 15,
         },
-      },
-      "hover": {
-        "animationDuration": 10,
       },
       "layout": {
         "padding": {
@@ -495,53 +458,50 @@ exports[`datasource tests create chart with a dataset of one cell (no title) 1`]
           "top": 10,
         },
       },
-      "legend": {
-        "labels": {
-          "fontColor": "#000000",
-          "generateLabels": [Function],
-        },
-        "onClick": undefined,
-        "position": "top",
-      },
       "maintainAspectRatio": false,
+      "plugins": {
+        "legend": {
+          "labels": {
+            "color": "#000000",
+            "generateLabels": [Function],
+          },
+          "onClick": [Function],
+          "position": "top",
+        },
+        "title": {
+          "color": "#000000",
+          "display": true,
+          "font": {
+            "size": 22,
+            "weight": "normal",
+          },
+          "text": "test",
+        },
+        "tooltip": {
+          "callbacks": {
+            "label": [Function],
+          },
+        },
+      },
       "responsive": true,
-      "responsiveAnimationDuration": 0,
       "scales": {
-        "xAxes": [
-          {
-            "ticks": {
-              "fontColor": "#000000",
-              "labelOffset": 2,
-              "maxRotation": 60,
-              "minRotation": 15,
-              "padding": 5,
-            },
+        "x": {
+          "ticks": {
+            "color": "#000000",
+            "padding": 5,
           },
-        ],
-        "yAxes": [
-          {
-            "position": "left",
-            "ticks": {
-              "beginAtZero": true,
-              "callback": [Function],
-              "fontColor": "#000000",
-            },
+        },
+        "y": {
+          "beginAtZero": true,
+          "position": "left",
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
           },
-        ],
-      },
-      "title": {
-        "display": true,
-        "fontColor": "#000000",
-        "fontSize": 22,
-        "fontStyle": "normal",
-        "text": "test",
-      },
-      "tooltips": {
-        "callbacks": {
-          "label": [Function],
         },
       },
     },
+    "plugins": [],
     "type": "line",
   },
 }
@@ -563,8 +523,8 @@ exports[`datasource tests create chart with column datasets 1`] = `
           ],
           "fill": false,
           "label": "first column dataset",
-          "lineTension": 0,
           "pointBackgroundColor": "rgb(31,119,180)",
+          "tension": 0,
         },
         {
           "backgroundColor": "#FF7F0E",
@@ -576,8 +536,8 @@ exports[`datasource tests create chart with column datasets 1`] = `
           ],
           "fill": false,
           "label": "second column datase…",
-          "lineTension": 0,
           "pointBackgroundColor": "rgb(255,127,14)",
+          "tension": 0,
         },
       ],
       "labels": [
@@ -587,9 +547,7 @@ exports[`datasource tests create chart with column datasets 1`] = `
       ],
     },
     "options": {
-      "animation": {
-        "duration": 0,
-      },
+      "animation": false,
       "elements": {
         "line": {
           "fill": false,
@@ -597,9 +555,6 @@ exports[`datasource tests create chart with column datasets 1`] = `
         "point": {
           "hitRadius": 15,
         },
-      },
-      "hover": {
-        "animationDuration": 10,
       },
       "layout": {
         "padding": {
@@ -609,53 +564,50 @@ exports[`datasource tests create chart with column datasets 1`] = `
           "top": 10,
         },
       },
-      "legend": {
-        "labels": {
-          "fontColor": "#000000",
-          "generateLabels": [Function],
-        },
-        "onClick": undefined,
-        "position": "top",
-      },
       "maintainAspectRatio": false,
+      "plugins": {
+        "legend": {
+          "labels": {
+            "color": "#000000",
+            "generateLabels": [Function],
+          },
+          "onClick": [Function],
+          "position": "top",
+        },
+        "title": {
+          "color": "#000000",
+          "display": true,
+          "font": {
+            "size": 22,
+            "weight": "normal",
+          },
+          "text": "test",
+        },
+        "tooltip": {
+          "callbacks": {
+            "label": [Function],
+          },
+        },
+      },
       "responsive": true,
-      "responsiveAnimationDuration": 0,
       "scales": {
-        "xAxes": [
-          {
-            "ticks": {
-              "fontColor": "#000000",
-              "labelOffset": 2,
-              "maxRotation": 60,
-              "minRotation": 15,
-              "padding": 5,
-            },
+        "x": {
+          "ticks": {
+            "color": "#000000",
+            "padding": 5,
           },
-        ],
-        "yAxes": [
-          {
-            "position": "left",
-            "ticks": {
-              "beginAtZero": true,
-              "callback": [Function],
-              "fontColor": "#000000",
-            },
+        },
+        "y": {
+          "beginAtZero": true,
+          "position": "left",
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
           },
-        ],
-      },
-      "title": {
-        "display": true,
-        "fontColor": "#000000",
-        "fontSize": 22,
-        "fontStyle": "normal",
-        "text": "test",
-      },
-      "tooltips": {
-        "callbacks": {
-          "label": [Function],
         },
       },
     },
+    "plugins": [],
     "type": "line",
   },
 }
@@ -677,8 +629,8 @@ exports[`datasource tests create chart with column datasets with category title 
           ],
           "fill": false,
           "label": "first column dataset",
-          "lineTension": 0,
           "pointBackgroundColor": "rgb(31,119,180)",
+          "tension": 0,
         },
         {
           "backgroundColor": "#FF7F0E",
@@ -690,8 +642,8 @@ exports[`datasource tests create chart with column datasets with category title 
           ],
           "fill": false,
           "label": "second column datase…",
-          "lineTension": 0,
           "pointBackgroundColor": "rgb(255,127,14)",
+          "tension": 0,
         },
       ],
       "labels": [
@@ -701,9 +653,7 @@ exports[`datasource tests create chart with column datasets with category title 
       ],
     },
     "options": {
-      "animation": {
-        "duration": 0,
-      },
+      "animation": false,
       "elements": {
         "line": {
           "fill": false,
@@ -711,9 +661,6 @@ exports[`datasource tests create chart with column datasets with category title 
         "point": {
           "hitRadius": 15,
         },
-      },
-      "hover": {
-        "animationDuration": 10,
       },
       "layout": {
         "padding": {
@@ -723,53 +670,50 @@ exports[`datasource tests create chart with column datasets with category title 
           "top": 10,
         },
       },
-      "legend": {
-        "labels": {
-          "fontColor": "#000000",
-          "generateLabels": [Function],
-        },
-        "onClick": undefined,
-        "position": "top",
-      },
       "maintainAspectRatio": false,
+      "plugins": {
+        "legend": {
+          "labels": {
+            "color": "#000000",
+            "generateLabels": [Function],
+          },
+          "onClick": [Function],
+          "position": "top",
+        },
+        "title": {
+          "color": "#000000",
+          "display": true,
+          "font": {
+            "size": 22,
+            "weight": "normal",
+          },
+          "text": "test",
+        },
+        "tooltip": {
+          "callbacks": {
+            "label": [Function],
+          },
+        },
+      },
       "responsive": true,
-      "responsiveAnimationDuration": 0,
       "scales": {
-        "xAxes": [
-          {
-            "ticks": {
-              "fontColor": "#000000",
-              "labelOffset": 2,
-              "maxRotation": 60,
-              "minRotation": 15,
-              "padding": 5,
-            },
+        "x": {
+          "ticks": {
+            "color": "#000000",
+            "padding": 5,
           },
-        ],
-        "yAxes": [
-          {
-            "position": "left",
-            "ticks": {
-              "beginAtZero": true,
-              "callback": [Function],
-              "fontColor": "#000000",
-            },
+        },
+        "y": {
+          "beginAtZero": true,
+          "position": "left",
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
           },
-        ],
-      },
-      "title": {
-        "display": true,
-        "fontColor": "#000000",
-        "fontSize": 22,
-        "fontStyle": "normal",
-        "text": "test",
-      },
-      "tooltips": {
-        "callbacks": {
-          "label": [Function],
         },
       },
     },
+    "plugins": [],
     "type": "line",
   },
 }
@@ -791,8 +735,8 @@ exports[`datasource tests create chart with column datasets without series title
           ],
           "fill": false,
           "label": "Series 1",
-          "lineTension": 0,
           "pointBackgroundColor": "rgb(31,119,180)",
+          "tension": 0,
         },
         {
           "backgroundColor": "#FF7F0E",
@@ -804,8 +748,8 @@ exports[`datasource tests create chart with column datasets without series title
           ],
           "fill": false,
           "label": "Series 2",
-          "lineTension": 0,
           "pointBackgroundColor": "rgb(255,127,14)",
+          "tension": 0,
         },
       ],
       "labels": [
@@ -815,9 +759,7 @@ exports[`datasource tests create chart with column datasets without series title
       ],
     },
     "options": {
-      "animation": {
-        "duration": 0,
-      },
+      "animation": false,
       "elements": {
         "line": {
           "fill": false,
@@ -825,9 +767,6 @@ exports[`datasource tests create chart with column datasets without series title
         "point": {
           "hitRadius": 15,
         },
-      },
-      "hover": {
-        "animationDuration": 10,
       },
       "layout": {
         "padding": {
@@ -837,53 +776,50 @@ exports[`datasource tests create chart with column datasets without series title
           "top": 10,
         },
       },
-      "legend": {
-        "labels": {
-          "fontColor": "#000000",
-          "generateLabels": [Function],
-        },
-        "onClick": undefined,
-        "position": "top",
-      },
       "maintainAspectRatio": false,
+      "plugins": {
+        "legend": {
+          "labels": {
+            "color": "#000000",
+            "generateLabels": [Function],
+          },
+          "onClick": [Function],
+          "position": "top",
+        },
+        "title": {
+          "color": "#000000",
+          "display": true,
+          "font": {
+            "size": 22,
+            "weight": "normal",
+          },
+          "text": "test",
+        },
+        "tooltip": {
+          "callbacks": {
+            "label": [Function],
+          },
+        },
+      },
       "responsive": true,
-      "responsiveAnimationDuration": 0,
       "scales": {
-        "xAxes": [
-          {
-            "ticks": {
-              "fontColor": "#000000",
-              "labelOffset": 2,
-              "maxRotation": 60,
-              "minRotation": 15,
-              "padding": 5,
-            },
+        "x": {
+          "ticks": {
+            "color": "#000000",
+            "padding": 5,
           },
-        ],
-        "yAxes": [
-          {
-            "position": "left",
-            "ticks": {
-              "beginAtZero": true,
-              "callback": [Function],
-              "fontColor": "#000000",
-            },
+        },
+        "y": {
+          "beginAtZero": true,
+          "position": "left",
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
           },
-        ],
-      },
-      "title": {
-        "display": true,
-        "fontColor": "#000000",
-        "fontSize": 22,
-        "fontStyle": "normal",
-        "text": "test",
-      },
-      "tooltips": {
-        "callbacks": {
-          "label": [Function],
         },
       },
     },
+    "plugins": [],
     "type": "line",
   },
 }
@@ -902,9 +838,7 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
       ],
     },
     "options": {
-      "animation": {
-        "duration": 0,
-      },
+      "animation": false,
       "elements": {
         "line": {
           "fill": false,
@@ -912,9 +846,6 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
         "point": {
           "hitRadius": 15,
         },
-      },
-      "hover": {
-        "animationDuration": 10,
       },
       "layout": {
         "padding": {
@@ -924,53 +855,50 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
           "top": 10,
         },
       },
-      "legend": {
-        "labels": {
-          "fontColor": "#000000",
-          "generateLabels": [Function],
-        },
-        "onClick": undefined,
-        "position": "top",
-      },
       "maintainAspectRatio": false,
+      "plugins": {
+        "legend": {
+          "labels": {
+            "color": "#000000",
+            "generateLabels": [Function],
+          },
+          "onClick": [Function],
+          "position": "top",
+        },
+        "title": {
+          "color": "#000000",
+          "display": true,
+          "font": {
+            "size": 22,
+            "weight": "normal",
+          },
+          "text": "test",
+        },
+        "tooltip": {
+          "callbacks": {
+            "label": [Function],
+          },
+        },
+      },
       "responsive": true,
-      "responsiveAnimationDuration": 0,
       "scales": {
-        "xAxes": [
-          {
-            "ticks": {
-              "fontColor": "#000000",
-              "labelOffset": 2,
-              "maxRotation": 60,
-              "minRotation": 15,
-              "padding": 5,
-            },
+        "x": {
+          "ticks": {
+            "color": "#000000",
+            "padding": 5,
           },
-        ],
-        "yAxes": [
-          {
-            "position": "left",
-            "ticks": {
-              "beginAtZero": true,
-              "callback": [Function],
-              "fontColor": "#000000",
-            },
+        },
+        "y": {
+          "beginAtZero": true,
+          "position": "left",
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
           },
-        ],
-      },
-      "title": {
-        "display": true,
-        "fontColor": "#000000",
-        "fontSize": 22,
-        "fontStyle": "normal",
-        "text": "test",
-      },
-      "tooltips": {
-        "callbacks": {
-          "label": [Function],
         },
       },
     },
+    "plugins": [],
     "type": "line",
   },
 }
@@ -992,8 +920,8 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
           ],
           "fill": false,
           "label": "first column dataset",
-          "lineTension": 0,
           "pointBackgroundColor": "rgb(31,119,180)",
+          "tension": 0,
         },
         {
           "backgroundColor": "#FF7F0E",
@@ -1005,8 +933,8 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
           ],
           "fill": false,
           "label": "second column datase…",
-          "lineTension": 0,
           "pointBackgroundColor": "rgb(255,127,14)",
+          "tension": 0,
         },
       ],
       "labels": [
@@ -1016,9 +944,7 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
       ],
     },
     "options": {
-      "animation": {
-        "duration": 0,
-      },
+      "animation": false,
       "elements": {
         "line": {
           "fill": false,
@@ -1026,9 +952,6 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
         "point": {
           "hitRadius": 15,
         },
-      },
-      "hover": {
-        "animationDuration": 10,
       },
       "layout": {
         "padding": {
@@ -1038,53 +961,50 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
           "top": 10,
         },
       },
-      "legend": {
-        "labels": {
-          "fontColor": "#000000",
-          "generateLabels": [Function],
-        },
-        "onClick": undefined,
-        "position": "top",
-      },
       "maintainAspectRatio": false,
+      "plugins": {
+        "legend": {
+          "labels": {
+            "color": "#000000",
+            "generateLabels": [Function],
+          },
+          "onClick": [Function],
+          "position": "top",
+        },
+        "title": {
+          "color": "#000000",
+          "display": true,
+          "font": {
+            "size": 22,
+            "weight": "normal",
+          },
+          "text": "test",
+        },
+        "tooltip": {
+          "callbacks": {
+            "label": [Function],
+          },
+        },
+      },
       "responsive": true,
-      "responsiveAnimationDuration": 0,
       "scales": {
-        "xAxes": [
-          {
-            "ticks": {
-              "fontColor": "#000000",
-              "labelOffset": 2,
-              "maxRotation": 60,
-              "minRotation": 15,
-              "padding": 5,
-            },
+        "x": {
+          "ticks": {
+            "color": "#000000",
+            "padding": 5,
           },
-        ],
-        "yAxes": [
-          {
-            "position": "left",
-            "ticks": {
-              "beginAtZero": true,
-              "callback": [Function],
-              "fontColor": "#000000",
-            },
+        },
+        "y": {
+          "beginAtZero": true,
+          "position": "left",
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
           },
-        ],
-      },
-      "title": {
-        "display": true,
-        "fontColor": "#000000",
-        "fontSize": 22,
-        "fontStyle": "normal",
-        "text": "test",
-      },
-      "tooltips": {
-        "callbacks": {
-          "label": [Function],
         },
       },
     },
+    "plugins": [],
     "type": "line",
   },
 }
@@ -1106,8 +1026,8 @@ exports[`datasource tests create chart with row datasets 1`] = `
           ],
           "fill": false,
           "label": "first row dataset",
-          "lineTension": 0,
           "pointBackgroundColor": "rgb(31,119,180)",
+          "tension": 0,
         },
         {
           "backgroundColor": "#FF7F0E",
@@ -1119,8 +1039,8 @@ exports[`datasource tests create chart with row datasets 1`] = `
           ],
           "fill": false,
           "label": "second row dataset",
-          "lineTension": 0,
           "pointBackgroundColor": "rgb(255,127,14)",
+          "tension": 0,
         },
       ],
       "labels": [
@@ -1130,9 +1050,7 @@ exports[`datasource tests create chart with row datasets 1`] = `
       ],
     },
     "options": {
-      "animation": {
-        "duration": 0,
-      },
+      "animation": false,
       "elements": {
         "line": {
           "fill": false,
@@ -1140,9 +1058,6 @@ exports[`datasource tests create chart with row datasets 1`] = `
         "point": {
           "hitRadius": 15,
         },
-      },
-      "hover": {
-        "animationDuration": 10,
       },
       "layout": {
         "padding": {
@@ -1152,53 +1067,50 @@ exports[`datasource tests create chart with row datasets 1`] = `
           "top": 10,
         },
       },
-      "legend": {
-        "labels": {
-          "fontColor": "#000000",
-          "generateLabels": [Function],
-        },
-        "onClick": undefined,
-        "position": "top",
-      },
       "maintainAspectRatio": false,
+      "plugins": {
+        "legend": {
+          "labels": {
+            "color": "#000000",
+            "generateLabels": [Function],
+          },
+          "onClick": [Function],
+          "position": "top",
+        },
+        "title": {
+          "color": "#000000",
+          "display": true,
+          "font": {
+            "size": 22,
+            "weight": "normal",
+          },
+          "text": "test",
+        },
+        "tooltip": {
+          "callbacks": {
+            "label": [Function],
+          },
+        },
+      },
       "responsive": true,
-      "responsiveAnimationDuration": 0,
       "scales": {
-        "xAxes": [
-          {
-            "ticks": {
-              "fontColor": "#000000",
-              "labelOffset": 2,
-              "maxRotation": 60,
-              "minRotation": 15,
-              "padding": 5,
-            },
+        "x": {
+          "ticks": {
+            "color": "#000000",
+            "padding": 5,
           },
-        ],
-        "yAxes": [
-          {
-            "position": "left",
-            "ticks": {
-              "beginAtZero": true,
-              "callback": [Function],
-              "fontColor": "#000000",
-            },
+        },
+        "y": {
+          "beginAtZero": true,
+          "position": "left",
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
           },
-        ],
-      },
-      "title": {
-        "display": true,
-        "fontColor": "#000000",
-        "fontSize": 22,
-        "fontStyle": "normal",
-        "text": "test",
-      },
-      "tooltips": {
-        "callbacks": {
-          "label": [Function],
         },
       },
     },
+    "plugins": [],
     "type": "line",
   },
 }
@@ -1220,8 +1132,8 @@ exports[`datasource tests create chart with row datasets with category title 1`]
           ],
           "fill": false,
           "label": "first row dataset",
-          "lineTension": 0,
           "pointBackgroundColor": "rgb(31,119,180)",
+          "tension": 0,
         },
         {
           "backgroundColor": "#FF7F0E",
@@ -1233,8 +1145,8 @@ exports[`datasource tests create chart with row datasets with category title 1`]
           ],
           "fill": false,
           "label": "second row dataset",
-          "lineTension": 0,
           "pointBackgroundColor": "rgb(255,127,14)",
+          "tension": 0,
         },
       ],
       "labels": [
@@ -1244,9 +1156,7 @@ exports[`datasource tests create chart with row datasets with category title 1`]
       ],
     },
     "options": {
-      "animation": {
-        "duration": 0,
-      },
+      "animation": false,
       "elements": {
         "line": {
           "fill": false,
@@ -1254,9 +1164,6 @@ exports[`datasource tests create chart with row datasets with category title 1`]
         "point": {
           "hitRadius": 15,
         },
-      },
-      "hover": {
-        "animationDuration": 10,
       },
       "layout": {
         "padding": {
@@ -1266,53 +1173,50 @@ exports[`datasource tests create chart with row datasets with category title 1`]
           "top": 10,
         },
       },
-      "legend": {
-        "labels": {
-          "fontColor": "#000000",
-          "generateLabels": [Function],
-        },
-        "onClick": undefined,
-        "position": "top",
-      },
       "maintainAspectRatio": false,
+      "plugins": {
+        "legend": {
+          "labels": {
+            "color": "#000000",
+            "generateLabels": [Function],
+          },
+          "onClick": [Function],
+          "position": "top",
+        },
+        "title": {
+          "color": "#000000",
+          "display": true,
+          "font": {
+            "size": 22,
+            "weight": "normal",
+          },
+          "text": "test",
+        },
+        "tooltip": {
+          "callbacks": {
+            "label": [Function],
+          },
+        },
+      },
       "responsive": true,
-      "responsiveAnimationDuration": 0,
       "scales": {
-        "xAxes": [
-          {
-            "ticks": {
-              "fontColor": "#000000",
-              "labelOffset": 2,
-              "maxRotation": 60,
-              "minRotation": 15,
-              "padding": 5,
-            },
+        "x": {
+          "ticks": {
+            "color": "#000000",
+            "padding": 5,
           },
-        ],
-        "yAxes": [
-          {
-            "position": "left",
-            "ticks": {
-              "beginAtZero": true,
-              "callback": [Function],
-              "fontColor": "#000000",
-            },
+        },
+        "y": {
+          "beginAtZero": true,
+          "position": "left",
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
           },
-        ],
-      },
-      "title": {
-        "display": true,
-        "fontColor": "#000000",
-        "fontSize": 22,
-        "fontStyle": "normal",
-        "text": "test",
-      },
-      "tooltips": {
-        "callbacks": {
-          "label": [Function],
         },
       },
     },
+    "plugins": [],
     "type": "line",
   },
 }
@@ -1334,8 +1238,8 @@ exports[`datasource tests create chart with row datasets without series title 1`
           ],
           "fill": false,
           "label": "Series 1",
-          "lineTension": 0,
           "pointBackgroundColor": "rgb(31,119,180)",
+          "tension": 0,
         },
         {
           "backgroundColor": "#FF7F0E",
@@ -1347,8 +1251,8 @@ exports[`datasource tests create chart with row datasets without series title 1`
           ],
           "fill": false,
           "label": "Series 2",
-          "lineTension": 0,
           "pointBackgroundColor": "rgb(255,127,14)",
+          "tension": 0,
         },
       ],
       "labels": [
@@ -1358,9 +1262,7 @@ exports[`datasource tests create chart with row datasets without series title 1`
       ],
     },
     "options": {
-      "animation": {
-        "duration": 0,
-      },
+      "animation": false,
       "elements": {
         "line": {
           "fill": false,
@@ -1368,9 +1270,6 @@ exports[`datasource tests create chart with row datasets without series title 1`
         "point": {
           "hitRadius": 15,
         },
-      },
-      "hover": {
-        "animationDuration": 10,
       },
       "layout": {
         "padding": {
@@ -1380,53 +1279,50 @@ exports[`datasource tests create chart with row datasets without series title 1`
           "top": 10,
         },
       },
-      "legend": {
-        "labels": {
-          "fontColor": "#000000",
-          "generateLabels": [Function],
-        },
-        "onClick": undefined,
-        "position": "top",
-      },
       "maintainAspectRatio": false,
+      "plugins": {
+        "legend": {
+          "labels": {
+            "color": "#000000",
+            "generateLabels": [Function],
+          },
+          "onClick": [Function],
+          "position": "top",
+        },
+        "title": {
+          "color": "#000000",
+          "display": true,
+          "font": {
+            "size": 22,
+            "weight": "normal",
+          },
+          "text": "test",
+        },
+        "tooltip": {
+          "callbacks": {
+            "label": [Function],
+          },
+        },
+      },
       "responsive": true,
-      "responsiveAnimationDuration": 0,
       "scales": {
-        "xAxes": [
-          {
-            "ticks": {
-              "fontColor": "#000000",
-              "labelOffset": 2,
-              "maxRotation": 60,
-              "minRotation": 15,
-              "padding": 5,
-            },
+        "x": {
+          "ticks": {
+            "color": "#000000",
+            "padding": 5,
           },
-        ],
-        "yAxes": [
-          {
-            "position": "left",
-            "ticks": {
-              "beginAtZero": true,
-              "callback": [Function],
-              "fontColor": "#000000",
-            },
+        },
+        "y": {
+          "beginAtZero": true,
+          "position": "left",
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
           },
-        ],
-      },
-      "title": {
-        "display": true,
-        "fontColor": "#000000",
-        "fontSize": 22,
-        "fontStyle": "normal",
-        "text": "test",
-      },
-      "tooltips": {
-        "callbacks": {
-          "label": [Function],
         },
       },
     },
+    "plugins": [],
     "type": "line",
   },
 }

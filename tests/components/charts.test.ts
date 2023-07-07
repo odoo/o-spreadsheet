@@ -472,7 +472,7 @@ describe("charts", () => {
       12,
     ]);
     expect(mockChartData.type).toBe("pie");
-    expect((mockChartData.options!.title as any).text).toBe("hello");
+    expect((mockChartData.options?.plugins!.title as any).text).toBe("hello");
   });
 
   test("updating a chart from another sheet does not change it s sheetId", async () => {

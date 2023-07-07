@@ -1,14 +1,12 @@
-import { ChartConfiguration } from "chart.js";
+import type { ChartConfiguration } from "chart.js";
 
 export const mockChart = () => {
   const mockChartData: ChartConfiguration = {
-    data: undefined,
-    options: {
-      title: undefined,
-    },
-    type: undefined,
+    data: { datasets: [] },
+    type: "bar",
   };
   class ChartMock {
+    static register = () => {};
     constructor(ctx: unknown, chartData: ChartConfiguration) {
       Object.assign(mockChartData, chartData);
     }

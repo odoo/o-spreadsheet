@@ -261,23 +261,24 @@ function getGaugeConfiguration(chart: GaugeChart, locale: Locale): GaugeChartCon
   const config: GaugeChartConfiguration = getDefaultChartJsRuntime(chart, [], fontColor, {
     locale,
   }) as GaugeChartConfiguration;
-  config.options!.hover = undefined;
-  config.options!.events = [];
-  config.options!.layout = {
+  config.options.hover = undefined;
+  config.options.events = [];
+  config.options.layout = {
     padding: { left: 30, right: 30, top: chart.title ? 10 : 25, bottom: 25 },
   };
-  config.options!.needle = {
-    radiusPercentage: 2,
-    widthPercentage: 3.2,
-    lengthPercentage: 80,
-    color: "#000000",
-  };
-  config.options!.valueLabel = {
-    display: false,
-    formatter: null,
-    color: "#FFFFFF",
+  config.options.needle = {
+    width: 10,
+    borderColor: "#000000",
     backgroundColor: "#000000",
-    fontSize: 30,
+  };
+  config.options.valueLabel = {
+    display: false,
+    font: {
+      size: 30,
+      color: "#FFFFFF",
+    },
+    backgroundColor: "#000000",
+    borderColor: "#000000",
     borderRadius: 5,
     padding: {
       top: 5,
@@ -285,7 +286,6 @@ function getGaugeConfiguration(chart: GaugeChart, locale: Locale): GaugeChartCon
       bottom: 5,
       left: 5,
     },
-    bottomMarginPercentage: 5,
   };
   return config;
 }
@@ -335,17 +335,13 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
       data.push(point.value);
       backgroundColor.push(point.color);
     });
-  // There's a bug in gauge lib when the last element in `data` is 0 (i.e. when the range maximum is 0).
-  // The value wrongly fallbacks to 1 because 0 is falsy
-  // See https://github.com/haiiaaa/chartjs-gauge/pull/33
-  // https://github.com/haiiaaa/chartjs-gauge/blob/2ea50541d754d710cb30c2502fa690ac5dc27afd/src/controllers/controller.gauge.js#L52
   data.push(maxNeedleValue);
   backgroundColor.push(colors.upperColor);
 
   const dataRange = chart.dataRange;
   const deltaBeyondRangeLimit = needleCoverage / 30;
   let needleValue = minNeedleValue - deltaBeyondRangeLimit; // make needle value always at the minimum by default
-  let cellFormatter: (() => string) | null = null;
+  let cellFormatter: (() => string) | undefined = undefined;
   let displayValue = false;
 
   if (dataRange !== undefined) {
@@ -365,13 +361,14 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
         minNeedleValue - deltaBeyondRangeLimit,
         maxNeedleValue + deltaBeyondRangeLimit
       );
+      // show the original value, not the clipped one
       cellFormatter = () => getters.getRangeFormattedValues(dataRange)[0];
       displayValue = true;
     }
   }
 
-  config.options!.valueLabel!.display = displayValue;
-  config.options!.valueLabel!.formatter = cellFormatter;
+  config.options.valueLabel!.display = displayValue;
+  config.options.valueLabel!.formatter = cellFormatter;
   config.data!.datasets!.push({
     data,
     minValue: Number(chart.sectionRule.rangeMin),

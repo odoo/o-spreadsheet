@@ -1,4 +1,5 @@
-import { TimeScale } from "chart.js";
+import type { TimeScaleOptions } from "chart.js";
+import { DeepPartial } from "chart.js/dist/types/utils";
 import { parseDateTime } from ".";
 import { Alias, Format, Locale } from "../types";
 
@@ -6,7 +7,7 @@ import { Alias, Format, Locale } from "../types";
 // File for helpers needed to use time axis in ChartJS
 // -----------------------------------------------------------------------------
 
-type MomentJSFormat = string & Alias;
+type LuxonFormat = string & Alias;
 type TimeUnit = "year" | "month" | "day" | "hour" | "minute" | "second";
 
 const UNIT_LENGTH: Record<TimeUnit, number> = {
@@ -40,9 +41,9 @@ const Milliseconds = {
 };
 
 /**
- * Regex to test if a format string is a date format that can be translated into a moment time format
+ * Regex to test if a format string is a date format that can be translated into a luxon time format
  */
-export const timeFormatMomentCompatible =
+export const timeFormatLuxonCompatible =
   /^((d|dd|m|mm|yyyy|yy|hh|h|ss|a)(-|:|\s|\/))*(d|dd|m|mm|yyyy|yy|hh|h|ss|a)$/i;
 
 /** Get the time options for the XAxis of ChartJS */
@@ -50,31 +51,28 @@ export function getChartTimeOptions(
   labels: string[],
   labelFormat: Format,
   locale: Locale
-): TimeScale {
-  const momentFormat = convertDateFormatForMoment(labelFormat);
+): DeepPartial<TimeScaleOptions["time"]> {
+  const luxonFormat = convertDateFormatForLuxon(labelFormat);
 
-  const timeUnit = getBestTimeUnitForScale(labels, momentFormat, locale);
+  const timeUnit = getBestTimeUnitForScale(labels, luxonFormat, locale);
   const displayFormats = {};
   if (timeUnit) {
-    displayFormats[timeUnit] = momentFormat;
+    displayFormats[timeUnit] = luxonFormat;
   }
 
   return {
-    parser: momentFormat,
+    parser: luxonFormat,
     displayFormats,
-    unit: timeUnit,
+    unit: timeUnit ?? false,
   };
 }
 
 /**
  * Convert the given date format into a format that moment.js understands.
  *
- * https://momentjs.com/docs/#/parsing/string-format/
+ * https://github.com/moment/luxon/blob/master/docs/formatting.md#table-of-tokens
  */
-function convertDateFormatForMoment(format: Format): MomentJSFormat {
-  format = format.replace(/y/g, "Y");
-  format = format.replace(/d/g, "D");
-
+function convertDateFormatForLuxon(format: Format): LuxonFormat {
   // "m" before "h" === month, "m" after "h" === minute
   const indexH = format.indexOf("h");
   if (indexH >= 0) {
@@ -92,7 +90,7 @@ function convertDateFormatForMoment(format: Format): MomentJSFormat {
 }
 
 /** Get the minimum time unit that the format is able to display */
-function getFormatMinDisplayUnit(format: MomentJSFormat): TimeUnit {
+function getFormatMinDisplayUnit(format: LuxonFormat): TimeUnit {
   if (format.includes("s")) {
     return "second";
   } else if (format.includes("m")) {
@@ -120,7 +118,7 @@ function getFormatMinDisplayUnit(format: MomentJSFormat): TimeUnit {
  */
 function getBestTimeUnitForScale(
   labels: string[],
-  format: MomentJSFormat,
+  format: LuxonFormat,
   locale: Locale
 ): TimeUnit | undefined {
   const labelDates = labels.map((label) => parseDateTime(label, locale)?.jsDate);

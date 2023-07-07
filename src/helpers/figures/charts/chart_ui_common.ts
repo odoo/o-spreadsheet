@@ -1,4 +1,4 @@
-import { ChartConfiguration } from "chart.js";
+import type { ChartConfiguration, ChartOptions, ChartType } from "chart.js";
 import { ChartTerms } from "../../../components/translations_terms";
 import { MAX_CHAR_LABEL } from "../../../constants";
 import { _t } from "../../../translation";
@@ -99,66 +99,59 @@ export function getDefaultChartJsRuntime(
   labels: string[],
   fontColor: Color,
   { format, locale }: LocaleFormat
-): ChartConfiguration {
-  return {
-    type: chart.type,
-    options: {
-      // https://www.chartjs.org/docs/latest/general/responsive.html
-      responsive: true, // will resize when its container is resized
-      maintainAspectRatio: false, // doesn't maintain the aspect ration (width/height =2 by default) so the user has the choice of the exact layout
-      layout: {
-        padding: { left: 20, right: 20, top: chart.title ? 10 : 25, bottom: 10 },
+): Required<ChartConfiguration> {
+  const options: ChartOptions = {
+    // https://www.chartjs.org/docs/latest/general/responsive.html
+    responsive: true, // will resize when its container is resized
+    maintainAspectRatio: false, // doesn't maintain the aspect ration (width/height =2 by default) so the user has the choice of the exact layout
+    layout: {
+      padding: { left: 20, right: 20, top: chart.title ? 10 : 25, bottom: 10 },
+    },
+    elements: {
+      line: {
+        fill: false, // do not fill the area under line charts
       },
-      elements: {
-        line: {
-          fill: false, // do not fill the area under line charts
-        },
-        point: {
-          hitRadius: 15, // increased hit radius to display point tooltip when hovering nearby
-        },
+      point: {
+        hitRadius: 15, // increased hit radius to display point tooltip when hovering nearby
       },
-      animation: {
-        duration: 0, // general animation time
-      },
-      hover: {
-        animationDuration: 10, // duration of animations when hovering an item
-      },
-      responsiveAnimationDuration: 0, // animation duration after a resize
+    },
+    animation: false,
+    plugins: {
       title: {
         display: !!chart.title,
-        fontSize: 22,
-        fontStyle: "normal",
         text: _t(chart.title),
-        fontColor,
+        color: fontColor,
+        font: { size: 22, weight: "normal" },
       },
       legend: {
         // Disable default legend onClick (show/hide dataset), to allow us to set a global onClick on the chart container.
         // If we want to re-enable this in the future, we need to override the default onClick to stop the event propagation
-        onClick: undefined,
+        onClick: () => {},
       },
-      tooltips: {
+      tooltip: {
         callbacks: {
-          label: function (tooltipItem: Chart.ChartTooltipItem, data: Chart.ChartData) {
-            let xLabel = data.datasets?.[tooltipItem.datasetIndex || 0]?.label;
-
-            const yLabel =
-              tooltipItem.yLabel !== ""
-                ? tooltipItem.yLabel
-                : data.datasets?.[tooltipItem.datasetIndex || 0]?.data?.[tooltipItem.index || 0];
+          label: function (tooltipItem) {
+            let xLabel = tooltipItem.label;
+            // tooltipItem.parsed.y can be an object or a number for pie charts
+            const yLabel = tooltipItem.parsed.y ?? tooltipItem.parsed;
             const yLabelStr =
               format && typeof yLabel === "number"
                 ? formatValue(yLabel, { format, locale })
                 : yLabel?.toLocaleString() || "";
-
             return xLabel ? `${xLabel}: ${yLabelStr}` : yLabelStr;
           },
         },
       },
     },
+  };
+  return {
+    type: chart.type as ChartType,
+    options,
     data: {
       labels: labels.map(truncateLabel),
       datasets: [],
     },
+    plugins: [],
   };
 }
 

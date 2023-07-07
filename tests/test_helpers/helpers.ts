@@ -7,7 +7,7 @@ import {
   useState,
   xml,
 } from "@odoo/owl";
-import { ChartConfiguration } from "chart.js";
+import type { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { Action } from "../../src/actions/action";
 import { Composer, ComposerProps } from "../../src/components/composer/composer/composer";
@@ -613,13 +613,15 @@ export function makeInteractiveTestEnv(
 
 export const mockChart = () => {
   const mockChartData: ChartConfiguration = {
-    data: undefined,
-    options: {
-      title: undefined,
-    },
-    type: undefined,
+    data: { datasets: [] },
+    type: "bar",
   };
+  class MockLuxonTimeAdapter {
+    _id = "luxon";
+  }
   class ChartMock {
+    static register = () => {};
+    static _adapters = { _date: MockLuxonTimeAdapter };
     constructor(ctx: unknown, chartData: ChartConfiguration) {
       Object.assign(mockChartData, chartData);
     }
@@ -634,6 +636,7 @@ export const mockChart = () => {
     options = mockChartData.options;
     config = mockChartData;
   }
+
   //@ts-ignore
   window.Chart = ChartMock;
   return mockChartData;

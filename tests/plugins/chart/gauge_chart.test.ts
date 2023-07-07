@@ -538,7 +538,7 @@ describe("Chart design configuration", () => {
       createGaugeChart(model, defaultChart, "1");
       const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!.chartJsConfig;
       const displayedValue = chart.options!.valueLabel!.formatter!;
-      expect(displayedValue()).toBe("-60");
+      expect(displayedValue("dummy")).toBe("-60");
     });
   });
 
@@ -567,7 +567,7 @@ describe("Chart design configuration", () => {
       createGaugeChart(model, defaultChart, "1");
       const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!.chartJsConfig;
       const displayedValue = chart.options!.valueLabel!.formatter!;
-      expect(displayedValue()).toBe("160");
+      expect(displayedValue("dummy")).toBe("160");
     });
   });
 
@@ -582,7 +582,7 @@ describe("Chart design configuration", () => {
     createGaugeChart(model, defaultChart, "1");
     const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!.chartJsConfig;
     const displayedValue = chart.options!.valueLabel!.formatter!;
-    expect(displayedValue()).toBe("42.00%");
+    expect(displayedValue("dummy")).toBe("42.00%");
   });
 
   test("data configuration include inflection point values followed by rangeMax value", () => {
