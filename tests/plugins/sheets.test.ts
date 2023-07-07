@@ -1015,6 +1015,21 @@ describe("sheets", () => {
     expect(freezeRows(model, 12)).toBeCancelledBecause(CommandResult.InvalidFreezeQuantity);
   });
 
+  test("Cannot delete all non-frozen columns/rows when frozen columns/rows exist", () => {
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    const sheetId = model.getters.getActiveSheetId();
+    freezeColumns(model, 5, sheetId);
+    freezeRows(model, 5, sheetId);
+
+    expect(deleteRows(model, [5, 6, 7, 8, 9])).toBeCancelledBecause(
+      CommandResult.NotEnoughElements
+    );
+
+    expect(deleteColumns(model, ["F", "G", "H", "I", "J"])).toBeCancelledBecause(
+      CommandResult.NotEnoughElements
+    );
+  });
+
   test("Cannot delete unexisting columns", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
