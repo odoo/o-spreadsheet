@@ -1,13 +1,14 @@
+import type { ChartType, TooltipItem } from "chart.js";
 import { Model } from "../../../src";
 import { ChartTerms } from "../../../src/components/translations_terms";
 import { FIGURE_ID_SPLITTER } from "../../../src/constants";
 import { BarChart } from "../../../src/helpers/figures/charts";
 import { toZone, zoneToXc } from "../../../src/helpers/zones";
 import { ChartPlugin } from "../../../src/plugins/core/chart";
-import { CommandResult } from "../../../src/types";
+import { CommandResult, UID } from "../../../src/types";
+import { PieChartRuntime } from "../../../src/types/chart";
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
 import { LineChartDefinition, LineChartRuntime } from "../../../src/types/chart/line_chart";
-import { PieChartRuntime } from "../../../src/types/chart/pie_chart";
 import {
   activateSheet,
   addColumns,
@@ -25,7 +26,7 @@ import {
   undo,
   updateChart,
 } from "../../test_helpers/commands_helpers";
-import { getPlugin, nextTick, target } from "../../test_helpers/helpers";
+import { getPlugin, mockChart, nextTick, target } from "../../test_helpers/helpers";
 import { ChartDefinition } from "./../../../src/types/chart/chart";
 jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
 
@@ -319,10 +320,11 @@ describe("datasource tests", function () {
       "1"
     );
     const title = (model.getters.getChartRuntime("1") as PieChartRuntime).chartJsConfig!.options!
-      .tooltips!.callbacks!.title!;
-    const chartData = { datasets: [{ label: "dataset 1" }, { label: "dataset 2" }] };
-    expect(title([{ datasetIndex: 0 }], chartData)).toBe("dataset 1");
-    expect(title([{ datasetIndex: 1 }], chartData)).toBe("dataset 2");
+      .plugins?.tooltip!.callbacks!.title!;
+    // @ts-ignore `title` should be binded to the TooltipModel
+    expect(title([{ dataset: { label: "dataset 1" } }])).toBe("dataset 1");
+    // @ts-ignore `title` should be binded to the TooltipModel
+    expect(title([{ dataset: { label: "dataset 2" } }])).toBe("dataset 2");
   });
 
   test.each(["bar", "line"] as const)("chart %s tooltip title is not dynamic", (chartType) => {
@@ -332,7 +334,7 @@ describe("datasource tests", function () {
       "1"
     );
     const title = (model.getters.getChartRuntime("1") as BarChartRuntime | LineChartRuntime)
-      ?.chartJsConfig?.options?.tooltips?.callbacks?.title;
+      ?.chartJsConfig?.options?.plugins?.tooltip?.callbacks?.title;
     expect(title).toBeUndefined();
   });
 
@@ -1014,11 +1016,11 @@ describe("title", function () {
       "1"
     );
     let chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
-    expect(chart.options!.title!.text).toEqual("title");
+    expect(chart.options!.plugins!.title!.text).toEqual("title");
 
     updateChart(model, "1", { title: "newTitle" });
     chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
-    expect(chart.options!.title!.text).toEqual("newTitle");
+    expect(chart.options!.plugins!.title!.text).toEqual("newTitle");
   });
 
   test("Title is not displayed if empty", () => {
@@ -1032,11 +1034,13 @@ describe("title", function () {
       "1"
     );
     expect(
-      (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig.options?.title?.display
+      (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig.options?.plugins?.title
+        ?.display
     ).toBe(true);
     updateChart(model, "1", { title: "" });
     expect(
-      (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig.options?.title?.display
+      (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig.options?.plugins?.title
+        ?.display
     ).toBe(false);
   });
 });
@@ -1274,20 +1278,20 @@ describe("Chart without labels", () => {
   test("The legend is not displayed when there is only one dataSet and no label", () => {
     createChart(model, defaultChart, "42");
     expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig?.options?.legend
-        ?.display
+      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig?.options?.plugins
+        ?.legend?.display
     ).toBe(false);
 
     createChart(model, { ...defaultChart, dataSets: ["A1:A2", "A3:A4"] }, "43");
     expect(
-      (model.getters.getChartRuntime("43") as BarChartRuntime).chartJsConfig?.options?.legend
-        ?.display
+      (model.getters.getChartRuntime("43") as BarChartRuntime).chartJsConfig?.options?.plugins
+        ?.legend?.display
     ).toBeUndefined();
 
     createChart(model, { ...defaultChart, labelRange: "B1:B2" }, "44");
     expect(
-      (model.getters.getChartRuntime("44") as BarChartRuntime).chartJsConfig?.options?.legend
-        ?.display
+      (model.getters.getChartRuntime("44") as BarChartRuntime).chartJsConfig?.options?.plugins
+        ?.legend?.display
     ).toBeUndefined();
   });
 
@@ -1335,26 +1339,26 @@ describe("Chart design configuration", () => {
   test("Legend position", () => {
     createChart(model, defaultChart, "42");
     expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.legend
-        ?.position
+      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.plugins
+        ?.legend?.position
     ).toBe("top");
 
     updateChart(model, "42", { legendPosition: "left" });
     expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.legend
-        ?.position
+      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.plugins
+        ?.legend?.position
     ).toBe("left");
 
     updateChart(model, "42", { legendPosition: "right" });
     expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.legend
-        ?.position
+      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.plugins
+        ?.legend?.position
     ).toBe("right");
 
     updateChart(model, "42", { legendPosition: "bottom" });
     expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.legend
-        ?.position
+      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.plugins
+        ?.legend?.position
     ).toBe("bottom");
   });
 
@@ -1368,57 +1372,35 @@ describe("Chart design configuration", () => {
 
   test("Stacked bar", () => {
     createChart(model, defaultChart, "42");
-    expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales
-        ?.xAxes![0].stacked
-    ).toBeUndefined();
-    expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales
-        ?.yAxes![0].stacked
-    ).toBeUndefined();
+    expect(isChartAxisStacked(model, "42", "x")).toBeUndefined();
+    expect(isChartAxisStacked(model, "42", "y")).toBeUndefined();
 
     updateChart(model, "42", { stacked: true });
-    expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales
-        ?.xAxes![0].stacked
-    ).toBe(true);
-    expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales
-        ?.yAxes![0].stacked
-    ).toBe(true);
+    expect(isChartAxisStacked(model, "42", "x")).toBe(true);
+    expect(isChartAxisStacked(model, "42", "y")).toBe(true);
 
     updateChart(model, "42", { type: "line" });
-    expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales
-        ?.xAxes![0].stacked
-    ).toBeUndefined();
-    expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales
-        ?.yAxes![0].stacked
-    ).toBe(true);
+    expect(isChartAxisStacked(model, "42", "x")).toBeUndefined();
+    expect(isChartAxisStacked(model, "42", "y")).toBe(true);
 
     updateChart(model, "42", { type: "line", stacked: false });
-    expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales
-        ?.xAxes![0].stacked
-    ).toBeUndefined();
-    expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales
-        ?.yAxes![0].stacked
-    ).toBeUndefined();
+    expect(isChartAxisStacked(model, "42", "x")).toBeUndefined();
+    expect(isChartAxisStacked(model, "42", "y")).toBeUndefined();
   });
 
   test("Vertical axis position", () => {
     createChart(model, defaultChart, "42");
     expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales
-        ?.yAxes![0].position
+      // @ts-ignore
+      // prettier-ignore
+      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales?.y?.position
     ).toBe("left");
 
     updateChart(model, "42", { verticalAxisPosition: "right" });
     expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales
-        ?.yAxes![0].position
+      // @ts-ignore
+      // prettier-ignore
+      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales?.y?.position
     ).toBe("right");
   });
 
@@ -1431,15 +1413,15 @@ describe("Chart design configuration", () => {
           // prettier-ignore
           cells: {
             // data point 1: first empty
-            A2: { content: "" },    B2: { content: "" },    C2: { content: "" },
+            A2: { content: "" }, B2: { content: "" }, C2: { content: "" },
             // data point 2: only label
-            A3: { content: "P1" },  B3: { content: "" },    C3: { content: "" },
+            A3: { content: "P1" }, B3: { content: "" }, C3: { content: "" },
             // data point 3: only first value
-            A4: { content: "" },    B4: { content: "10" },  C4: { content: "" },
+            A4: { content: "" }, B4: { content: "10" }, C4: { content: "" },
             // data point 4: empty in the middle of data points
-            A5: { content: "" },    B5: { content: "" },    C5: { content: "" },
+            A5: { content: "" }, B5: { content: "" }, C5: { content: "" },
             // data point 5: only second value
-            A6: { content: "" },    B6: { content: "" },    C6: { content: "20" },
+            A6: { content: "" }, B6: { content: "" }, C6: { content: "20" },
           },
         },
       ],
@@ -1544,11 +1526,18 @@ describe("Chart design configuration", () => {
   });
 
   describe("Format of Y values at Runtime", () => {
-    function getTooltipItem(value: number | string, chartType: string): Chart.ChartTooltipItem {
+    function getTooltipItem(value: number, chartType: string): TooltipItem<ChartType> {
       return {
-        xLabel: "",
-        // yLabel is empty for pie charts for whatever reason, we will find the value with the index/datasetIndex
-        yLabel: chartType === "pie" ? "" : value,
+        label: "",
+        // yLabel is an number for pie charts for whatever reason
+        // @ts-ignore chart.js type is wrong
+        parsed:
+          chartType === "pie"
+            ? value
+            : {
+                x: 0,
+                y: value,
+              },
         datasetIndex: 0,
         index: 0,
       };
@@ -1560,7 +1549,7 @@ describe("Chart design configuration", () => {
         createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
         const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
         //@ts-ignore
-        expect(runtime.chartJsConfig.options.scales.yAxes![0].ticks.callback!(60000000)).toEqual(
+        expect(runtime.chartJsConfig.options.scales.y?.ticks.callback!(60000000)).toEqual(
           (60000000).toLocaleString()
         );
       }
@@ -1571,7 +1560,7 @@ describe("Chart design configuration", () => {
       createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
       const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
       //@ts-ignore
-      expect(runtime.chartJsConfig.options.scales.yAxes![0].ticks.callback!(60000000)).toEqual(
+      expect(runtime.chartJsConfig.options.scales.y?.ticks.callback!(60000000)).toEqual(
         "$60,000,000.00"
       );
     });
@@ -1581,7 +1570,7 @@ describe("Chart design configuration", () => {
       createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
       const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
       //@ts-ignore
-      expect(runtime.chartJsConfig.options.scales.yAxes![0].ticks.callback!(600)).toEqual("600");
+      expect(runtime.chartJsConfig.options.scales.y?.ticks.callback!(600)).toEqual("600");
     });
 
     test.each(["bar", "line", "pie"])(
@@ -1593,7 +1582,8 @@ describe("Chart design configuration", () => {
         const data = runtime.chartJsConfig.data!;
         const tooltipItem = getTooltipItem(data.datasets![0].data![0] as number, chartType);
         expect(
-          runtime.chartJsConfig.options!.tooltips!.callbacks!.label!(tooltipItem, data)
+          // @ts-ignore should be binded to the chart tooltip model
+          runtime.chartJsConfig.options!.plugins!.tooltip!.callbacks!.label!(tooltipItem)
         ).toEqual((60000000).toLocaleString());
       }
     );
@@ -1608,7 +1598,8 @@ describe("Chart design configuration", () => {
         const data = runtime.chartJsConfig.data!;
         const tooltipItem = getTooltipItem(data.datasets![0].data![0] as number, chartType);
         expect(
-          runtime.chartJsConfig.options!.tooltips!.callbacks!.label!(tooltipItem, data)
+          // @ts-ignore should be binded to the chart tooltip model
+          runtime.chartJsConfig.options!.plugins!.tooltip!.callbacks!.label!(tooltipItem)
         ).toEqual("$6,000.00");
       }
     );
@@ -1623,7 +1614,8 @@ describe("Chart design configuration", () => {
         const data = runtime.chartJsConfig.data!;
         const tooltipItem = getTooltipItem(data.datasets![0].data![0] as number, chartType);
         expect(
-          runtime.chartJsConfig.options!.tooltips!.callbacks!.label!(tooltipItem, data)
+          // @ts-ignore should be binded to the chart tooltip model
+          runtime.chartJsConfig.options!.plugins!.tooltip!.callbacks!.label!(tooltipItem)
         ).toEqual((6000).toLocaleString());
       }
     );
@@ -1753,6 +1745,10 @@ describe("Chart aggregate labels", () => {
 describe("Linear/Time charts", () => {
   const chartId = "1";
 
+  beforeEach(() => {
+    mockChart(); // mock chart.js with luxon time adapter installed
+  });
+
   test("linear axis for line chart with numbers labels/dataset", () => {
     createChart(
       model,
@@ -1765,7 +1761,7 @@ describe("Linear/Time charts", () => {
       chartId
     );
     const chart = (model.getters.getChartRuntime(chartId) as LineChartRuntime).chartJsConfig;
-    expect(chart.options!.scales!.xAxes![0].type).toEqual("linear");
+    expect(chart.options?.scales?.x?.type).toEqual("linear");
   });
 
   test("time axis for line/bar chart with date labels", () => {
@@ -1785,11 +1781,11 @@ describe("Linear/Time charts", () => {
       chartId
     );
     let chart = (model.getters.getChartRuntime(chartId) as LineChartRuntime).chartJsConfig;
-    expect(chart.options!.scales!.xAxes![0].type).toEqual("time");
+    expect(chart.options?.scales?.x?.type).toEqual("time");
 
     updateChart(model, chartId, { type: "bar" });
     model.getters.getChartRuntime(chartId)!;
-    expect(chart.options!.scales!.xAxes![0].type).toEqual("time");
+    expect(chart.options?.scales?.x?.type).toEqual("time");
   });
 
   test("time axis for line/bar chart with formulas w/ date format as labels", () => {
@@ -1808,11 +1804,11 @@ describe("Linear/Time charts", () => {
       chartId
     );
     let chart = model.getters.getChartRuntime(chartId) as LineChartRuntime;
-    expect(chart.chartJsConfig.options!.scales!.xAxes![0].type).toEqual("time");
+    expect(chart.chartJsConfig.options?.scales?.x?.type).toEqual("time");
 
     updateChart(model, chartId, { type: "bar" });
     model.getters.getChartRuntime(chartId)!;
-    expect(chart.chartJsConfig.options!.scales!.xAxes![0].type).toEqual("time");
+    expect(chart.chartJsConfig.options?.scales?.x?.type).toEqual("time");
   });
 
   test("date chart: empty label with a value is replaced by arbitrary label with no value", () => {
@@ -1974,12 +1970,14 @@ test("creating chart with single dataset should have legend position set as none
   );
   await nextTick();
   expect(
-    (model.getters.getChartRuntime("24") as BarChartRuntime).chartJsConfig.options?.legend?.display
+    (model.getters.getChartRuntime("24") as BarChartRuntime).chartJsConfig.options?.plugins?.legend
+      ?.display
   ).toBeFalsy();
   updateChart(model, "24", { legendPosition: "top" });
   await nextTick();
   expect(
-    (model.getters.getChartRuntime("24") as BarChartRuntime).chartJsConfig.options?.legend?.position
+    (model.getters.getChartRuntime("24") as BarChartRuntime).chartJsConfig.options?.plugins?.legend
+      ?.position
   ).toBe("top");
 });
 
@@ -2012,3 +2010,9 @@ test("Duplicating a sheet dispatches `CREATE_CHART` for each chart", () => {
   expect(spyDispatch).toHaveBeenNthCalledWith(3, "CREATE_CHART", expect.any(Object));
   expect(spyDispatch).toHaveBeenNthCalledWith(4, "CREATE_FIGURE", expect.any(Object));
 });
+
+function isChartAxisStacked(model: Model, chartId: UID, axis: "x" | "y"): boolean {
+  const runtime = model.getters.getChartRuntime(chartId) as BarChartRuntime;
+  // @ts-ignore
+  return runtime.chartJsConfig.options?.scales?.[axis]?.stacked;
+}

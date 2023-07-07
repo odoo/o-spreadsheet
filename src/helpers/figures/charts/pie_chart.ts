@@ -1,10 +1,5 @@
-import {
-  ChartConfiguration,
-  ChartData,
-  ChartDataSets,
-  ChartLegendOptions,
-  ChartTooltipItem,
-} from "chart.js";
+import type { ChartConfiguration, ChartDataset, LegendOptions } from "chart.js";
+import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   AddColumnsRowsCommand,
@@ -201,29 +196,21 @@ function getPieConfiguration(
   localeFormat: LocaleFormat
 ): ChartConfiguration {
   const fontColor = chartFontColor(chart.background);
-  const config: ChartConfiguration = getDefaultChartJsRuntime(
-    chart,
-    labels,
-    fontColor,
-    localeFormat
-  );
-  const legend: ChartLegendOptions = {
-    labels: { fontColor },
+  const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
+  const legend: DeepPartial<LegendOptions<"pie">> = {
+    labels: { color: fontColor },
   };
   if ((!chart.labelRange && chart.dataSets.length === 1) || chart.legendPosition === "none") {
     legend.display = false;
   } else {
     legend.position = chart.legendPosition;
   }
-  config.options!.legend = { ...config.options?.legend, ...legend };
-  config.options!.layout = {
+  Object.assign(config.options.plugins!.legend || {}, legend);
+  config.options.layout = {
     padding: { left: 20, right: 20, top: chart.title ? 10 : 25, bottom: 10 },
   };
-  config.options!.tooltips!.callbacks!.title = function (
-    tooltipItems: ChartTooltipItem[],
-    data: ChartData
-  ) {
-    return data.datasets![tooltipItems[0]!.datasetIndex!].label!;
+  config.options.plugins!.tooltip!.callbacks!.title = function (tooltipItems) {
+    return tooltipItems[0].dataset.label;
   };
   return config;
 }
@@ -261,7 +248,7 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
   const colors = new ChartColors();
   for (let { label, data } of dataSetsValues) {
     const backgroundColor = getPieColors(colors, dataSetsValues);
-    const dataset: ChartDataSets = {
+    const dataset: ChartDataset = {
       label,
       data,
       borderColor: "#FFFFFF",

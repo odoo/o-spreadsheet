@@ -55,7 +55,8 @@ export class EvaluationChartPlugin extends UIPlugin<EvaluationChartState> {
       if (!chart) {
         throw new Error(`No chart for the given id: ${figureId}`);
       }
-      this.history.update("charts", figureId, this.createRuntimeChart(chart));
+      const runtime = this.createRuntimeChart(chart) as Immutable<ChartRuntime>;
+      this.history.update("charts", figureId, runtime);
     }
     return this.charts[figureId] as ChartRuntime;
   }

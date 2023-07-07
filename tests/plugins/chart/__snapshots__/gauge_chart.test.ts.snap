@@ -24,9 +24,7 @@ exports[`datasource tests create a gauge chart 1`] = `
       "labels": [],
     },
     "options": {
-      "animation": {
-        "duration": 0,
-      },
+      "animation": false,
       "elements": {
         "line": {
           "fill": false,
@@ -45,38 +43,42 @@ exports[`datasource tests create a gauge chart 1`] = `
           "top": 10,
         },
       },
-      "legend": {
-        "onClick": undefined,
-      },
       "maintainAspectRatio": false,
       "needle": {
-        "color": "#000000",
-        "lengthPercentage": 80,
-        "radiusPercentage": 2,
-        "widthPercentage": 3.2,
+        "backgroundColor": "#000000",
+        "borderColor": "#000000",
+        "width": 10,
       },
-      "responsive": true,
-      "responsiveAnimationDuration": 0,
-      "title": {
-        "display": true,
-        "fontColor": "#000000",
-        "fontSize": 22,
-        "fontStyle": "normal",
-        "text": "Title",
-      },
-      "tooltips": {
-        "callbacks": {
-          "label": [Function],
+      "plugins": {
+        "legend": {
+          "onClick": [Function],
+        },
+        "title": {
+          "color": "#000000",
+          "display": true,
+          "font": {
+            "size": 22,
+            "weight": "normal",
+          },
+          "text": "Title",
+        },
+        "tooltip": {
+          "callbacks": {
+            "label": [Function],
+          },
         },
       },
+      "responsive": true,
       "valueLabel": {
         "backgroundColor": "#000000",
+        "borderColor": "#000000",
         "borderRadius": 5,
-        "bottomMarginPercentage": 5,
-        "color": "#FFFFFF",
         "display": false,
-        "fontSize": 30,
-        "formatter": null,
+        "font": {
+          "color": "#FFFFFF",
+          "size": 30,
+        },
+        "formatter": undefined,
         "padding": {
           "bottom": 5,
           "left": 5,
@@ -85,6 +87,7 @@ exports[`datasource tests create a gauge chart 1`] = `
         },
       },
     },
+    "plugins": [],
     "type": "gauge",
   },
 }
@@ -114,9 +117,7 @@ exports[`datasource tests create empty gauge chart 1`] = `
       "labels": [],
     },
     "options": {
-      "animation": {
-        "duration": 0,
-      },
+      "animation": false,
       "elements": {
         "line": {
           "fill": false,
@@ -135,38 +136,42 @@ exports[`datasource tests create empty gauge chart 1`] = `
           "top": 25,
         },
       },
-      "legend": {
-        "onClick": undefined,
-      },
       "maintainAspectRatio": false,
       "needle": {
-        "color": "#000000",
-        "lengthPercentage": 80,
-        "radiusPercentage": 2,
-        "widthPercentage": 3.2,
+        "backgroundColor": "#000000",
+        "borderColor": "#000000",
+        "width": 10,
       },
-      "responsive": true,
-      "responsiveAnimationDuration": 0,
-      "title": {
-        "display": false,
-        "fontColor": "#000000",
-        "fontSize": 22,
-        "fontStyle": "normal",
-        "text": "",
-      },
-      "tooltips": {
-        "callbacks": {
-          "label": [Function],
+      "plugins": {
+        "legend": {
+          "onClick": [Function],
+        },
+        "title": {
+          "color": "#000000",
+          "display": false,
+          "font": {
+            "size": 22,
+            "weight": "normal",
+          },
+          "text": "",
+        },
+        "tooltip": {
+          "callbacks": {
+            "label": [Function],
+          },
         },
       },
+      "responsive": true,
       "valueLabel": {
         "backgroundColor": "#000000",
+        "borderColor": "#000000",
         "borderRadius": 5,
-        "bottomMarginPercentage": 5,
-        "color": "#FFFFFF",
         "display": false,
-        "fontSize": 30,
-        "formatter": null,
+        "font": {
+          "color": "#FFFFFF",
+          "size": 30,
+        },
+        "formatter": undefined,
         "padding": {
           "bottom": 5,
           "left": 5,
@@ -175,6 +180,7 @@ exports[`datasource tests create empty gauge chart 1`] = `
         },
       },
     },
+    "plugins": [],
     "type": "gauge",
   },
 }

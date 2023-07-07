@@ -1,4 +1,5 @@
-import { ChartConfiguration, ChartDataSets, ChartLegendOptions } from "chart.js";
+import type { ChartConfiguration, ChartDataset, LegendOptions } from "chart.js";
+import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   AddColumnsRowsCommand,
@@ -202,57 +203,45 @@ function getBarConfiguration(
   localeFormat: LocaleFormat
 ): ChartConfiguration {
   const fontColor = chartFontColor(chart.background);
-  const config: ChartConfiguration = getDefaultChartJsRuntime(
-    chart,
-    labels,
-    fontColor,
-    localeFormat
-  );
-  const legend: ChartLegendOptions = {
-    labels: { fontColor },
+  const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
+  const legend: DeepPartial<LegendOptions<"bar">> = {
+    labels: { color: fontColor },
   };
   if ((!chart.labelRange && chart.dataSets.length === 1) || chart.legendPosition === "none") {
     legend.display = false;
   } else {
     legend.position = chart.legendPosition;
   }
-  config.options!.legend = { ...config.options?.legend, ...legend };
-  config.options!.layout = {
+  config.options.plugins!.legend = { ...config.options.plugins?.legend, ...legend };
+  config.options.layout = {
     padding: { left: 20, right: 20, top: chart.title ? 10 : 25, bottom: 10 },
   };
 
-  config.options!.scales = {
-    xAxes: [
-      {
-        ticks: {
-          // x axis configuration
-          maxRotation: 60,
-          minRotation: 15,
-          padding: 5,
-          labelOffset: 2,
-          fontColor,
+  config.options.scales = {
+    x: {
+      ticks: {
+        padding: 5,
+        color: fontColor,
+      },
+    },
+    y: {
+      position: chart.verticalAxisPosition,
+      beginAtZero: true, // the origin of the y axis is always zero
+      ticks: {
+        color: fontColor,
+        callback: (value) => {
+          return localeFormat.format
+            ? formatValue(value, localeFormat)
+            : value?.toLocaleString() || value;
         },
       },
-    ],
-    yAxes: [
-      {
-        position: chart.verticalAxisPosition,
-        ticks: {
-          fontColor,
-          // y axis configuration
-          beginAtZero: true, // the origin of the y axis is always zero
-          callback: (value) => {
-            return localeFormat.format
-              ? formatValue(value, localeFormat)
-              : value?.toLocaleString() || value;
-          },
-        },
-      },
-    ],
+    },
   };
   if (chart.stacked) {
-    config.options!.scales.xAxes![0].stacked = true;
-    config.options!.scales.yAxes![0].stacked = true;
+    // @ts-ignore chart.js type is broken
+    config.options.scales!.x!.stacked = true;
+    // @ts-ignore chart.js type is broken
+    config.options.scales!.y!.stacked = true;
   }
   return config;
 }
@@ -281,13 +270,13 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
 
   for (let { label, data } of dataSetsValues) {
     const color = colors.next();
-    const dataset: ChartDataSets = {
+    const dataset: ChartDataset = {
       label,
       data,
       borderColor: color,
       backgroundColor: color,
     };
-    config.data!.datasets!.push(dataset);
+    config.data.datasets.push(dataset);
   }
 
   return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };

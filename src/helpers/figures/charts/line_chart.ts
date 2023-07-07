@@ -1,4 +1,5 @@
-import { ChartConfiguration, ChartDataSets, ChartLegendOptions } from "chart.js";
+import type { Chart as ChartType, ChartConfiguration, ChartDataset, LegendOptions } from "chart.js";
+import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR, LINE_FILL_TRANSPARENCY } from "../../../constants";
 import {
   AddColumnsRowsCommand,
@@ -24,7 +25,7 @@ import { LegendPosition, VerticalAxisPosition } from "../../../types/chart/commo
 import { LineChartDefinition, LineChartRuntime } from "../../../types/chart/line_chart";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
-import { getChartTimeOptions, timeFormatMomentCompatible } from "../../chart_date";
+import { getChartTimeOptions, timeFormatLuxonCompatible } from "../../chart_date";
 import { colorToRGBA, rgbaToHex } from "../../color";
 import { formatValue } from "../../format";
 import { deepCopy, findNextDefinedValue } from "../../misc";
@@ -54,6 +55,9 @@ import {
   getDefaultChartJsRuntime,
   getFillingMode,
 } from "./chart_ui_common";
+
+// @ts-ignore
+const Chart: typeof ChartType = window.Chart;
 
 export class LineChart extends AbstractChart {
   readonly dataSets: DataSet[];
@@ -232,7 +236,7 @@ export function canChartParseLabels(labelRange: Range | undefined, getters: Gett
 }
 
 function getChartAxisType(chart: LineChart, getters: Getters): AxisType {
-  if (isDateChart(chart, getters)) {
+  if (isDateChart(chart, getters) && isLuxonTimeAdapterInstalled()) {
     return "time";
   }
   if (isLinearChart(chart, getters)) {
@@ -258,7 +262,7 @@ function canBeDateChart(labelRange: Range | undefined, getters: Getters): boolea
     col: labelRange.zone.left,
     row: labelRange.zone.top,
   }).format;
-  return Boolean(labelFormat && timeFormatMomentCompatible.test(labelFormat));
+  return Boolean(labelFormat && timeFormatLuxonCompatible.test(labelFormat));
 }
 
 function canBeLinearChart(labelRange: Range | undefined, getters: Getters): boolean {
@@ -281,20 +285,17 @@ function getLineConfiguration(
   chart: LineChart,
   labels: string[],
   localeFormat: LocaleFormat
-): ChartConfiguration {
+): Required<ChartConfiguration> {
   const fontColor = chartFontColor(chart.background);
-  const config: ChartConfiguration = getDefaultChartJsRuntime(
-    chart,
-    labels,
-    fontColor,
-    localeFormat
-  );
-  const legend: ChartLegendOptions = {
+  const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
+
+  const legend: DeepPartial<LegendOptions<"line">> = {
     labels: {
-      fontColor,
+      color: fontColor,
       generateLabels(chart) {
+        // color the legend labels with the dataset color, without any transparency
         const { data } = chart;
-        const labels = window.Chart.defaults.global.legend!.labels!.generateLabels!(chart);
+        const labels = Chart.defaults.plugins.legend.labels.generateLabels!(chart);
         for (const [index, label] of labels.entries()) {
           label.fillStyle = data.datasets![index].borderColor as string;
         }
@@ -307,42 +308,34 @@ function getLineConfiguration(
   } else {
     legend.position = chart.legendPosition;
   }
-  config.options!.legend = { ...config.options?.legend, ...legend };
-  config.options!.layout = {
+  Object.assign(config.options.plugins!.legend || {}, legend);
+  config.options.layout = {
     padding: { left: 20, right: 20, top: chart.title ? 10 : 25, bottom: 10 },
   };
 
-  config.options!.scales = {
-    xAxes: [
-      {
-        ticks: {
-          // x axis configuration
-          maxRotation: 60,
-          minRotation: 15,
-          padding: 5,
-          labelOffset: 2,
-          fontColor,
+  config.options.scales = {
+    x: {
+      ticks: {
+        padding: 5,
+        color: fontColor,
+      },
+    },
+    y: {
+      position: chart.verticalAxisPosition,
+      beginAtZero: true, // the origin of the y axis is always zero
+      ticks: {
+        color: fontColor,
+        callback: (value) => {
+          return localeFormat.format
+            ? formatValue(value, localeFormat)
+            : value?.toLocaleString() || value;
         },
       },
-    ],
-    yAxes: [
-      {
-        position: chart.verticalAxisPosition,
-        ticks: {
-          fontColor,
-          // y axis configuration
-          beginAtZero: true, // the origin of the y axis is always zero
-          callback: (value) => {
-            return localeFormat.format
-              ? formatValue(value, localeFormat)
-              : value?.toLocaleString() || value;
-          },
-        },
-      },
-    ],
+    },
   };
-  if (chart.stacked) {
-    config.options!.scales.yAxes![0].stacked = true;
+  if (chart.stacked && config.options?.scales?.y) {
+    // @ts-ignore chart.js type is wrong
+    config.options.scales.y.stacked = true;
   }
   return config;
 }
@@ -374,14 +367,18 @@ export function createLineChartRuntime(chart: LineChart, getters: Getters): Line
   const config = getLineConfiguration(chart, labels, localeFormat);
   const labelFormat = getChartLabelFormat(getters, chart.labelRange)!;
   if (axisType === "time") {
-    config.options!.scales!.xAxes![0].type = "time";
-    config.options!.scales!.xAxes![0].time = getChartTimeOptions(labels, labelFormat, locale);
-    config.options!.scales!.xAxes![0].ticks!.maxTicksLimit = 15;
+    const axis = {
+      type: "time",
+      time: getChartTimeOptions(labels, labelFormat, locale),
+    };
+    Object.assign(config.options.scales!.x!, axis);
+    config.options.scales!.x!.ticks!.maxTicksLimit = 15;
   } else if (axisType === "linear") {
-    config.options!.scales!.xAxes![0].type = "linear";
-    config.options!.scales!.xAxes![0].ticks!.callback = (value) => formatValue(value, localeFormat);
-    config.options!.tooltips!.callbacks!.title = (tooltipItem) => {
-      return formatValue(tooltipItem[0]?.xLabel || "", localeFormat);
+    config.options.scales!.x!.type = "linear";
+    config.options.scales!.x!.ticks!.callback = (value) =>
+      formatValue(value, { format: labelFormat, locale });
+    config.options.plugins!.tooltip!.callbacks!.title = (tooltipItem) => {
+      return formatValue(tooltipItem[0]?.label || "", localeFormat);
     };
   }
 
@@ -398,10 +395,10 @@ export function createLineChartRuntime(chart: LineChart, getters: Getters): Line
     }
     const backgroundColor = rgbaToHex(backgroundRGBA);
 
-    const dataset: ChartDataSets = {
+    const dataset: ChartDataset = {
       label,
       data,
-      lineTension: 0, // 0 -> render straight lines, which is much faster
+      tension: 0, // 0 -> render straight lines, which is much faster
       borderColor: color,
       backgroundColor,
       pointBackgroundColor: color,
@@ -411,4 +408,24 @@ export function createLineChartRuntime(chart: LineChart, getters: Getters): Line
   }
 
   return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
+}
+
+let missingTimeAdapterAlreadyWarned = false;
+
+function isLuxonTimeAdapterInstalled() {
+  // @ts-ignore
+  if (!window.Chart) {
+    return false;
+  }
+  // @ts-ignore
+  const adapter = new window.Chart._adapters._date({});
+  // @ts-ignore
+  const isInstalled = adapter._id === "luxon";
+  if (!isInstalled && !missingTimeAdapterAlreadyWarned) {
+    missingTimeAdapterAlreadyWarned = true;
+    console.warn(
+      "'chartjs-adapter-luxon' time adapter is not installed. Time scale axes are disabled."
+    );
+  }
+  return isInstalled;
 }

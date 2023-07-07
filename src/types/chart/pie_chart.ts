@@ -1,4 +1,4 @@
-import { ChartConfiguration } from "chart.js";
+import type { ChartConfiguration } from "chart.js";
 import { Color } from "../misc";
 import { LegendPosition } from "./common_chart";
 

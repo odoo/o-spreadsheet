@@ -1,9 +1,9 @@
 import { Component, onMounted, onPatched, useRef } from "@odoo/owl";
-import Chart, { ChartConfiguration } from "chart.js";
+import type { Chart, ChartConfiguration } from "chart.js";
 import { deepEquals } from "../../../../helpers";
 import { Figure, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
-import { GaugeChartOptions } from "../../../../types/chart/gauge_chart";
+import { GaugeChartConfiguration, GaugeChartOptions } from "../../../../types/chart/gauge_chart";
 
 interface Props {
   figure: Figure;
@@ -48,18 +48,19 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  private createChart(chartData: ChartConfiguration) {
+  private createChart(chartData: ChartConfiguration | GaugeChartConfiguration) {
     const canvas = this.canvas.el as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
-    this.chart = new window.Chart(ctx, chartData);
+    // @ts-ignore
+    this.chart = new window.Chart(ctx, chartData as ChartConfiguration);
   }
 
   private updateChartJs(chartRuntime: ChartJSRuntime) {
     const chartData = chartRuntime.chartJsConfig;
     if (chartData.data && chartData.data.datasets) {
       this.chart!.data = chartData.data;
-      if (chartData.options?.title) {
-        this.chart!.config.options!.title = chartData.options.title;
+      if (chartData.options?.plugins?.title) {
+        this.chart!.config.options!.plugins!.title = chartData.options.plugins.title;
       }
       if (chartData.options && "valueLabel" in chartData.options) {
         if (chartData.options?.valueLabel) {
@@ -68,12 +69,13 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
         }
       }
     } else {
-      this.chart!.data.datasets = undefined;
+      this.chart!.data.datasets = [];
     }
-    this.chart!.config.options!.tooltips = chartData.options?.tooltips;
-    this.chart!.config.options!.legend = chartData.options?.legend;
+    this.chart!.config.options!.plugins!.tooltip = chartData.options!.plugins!.tooltip;
+    this.chart!.config.options!.plugins!.legend = chartData.options!.plugins!.legend;
     this.chart!.config.options!.scales = chartData.options?.scales;
-    this.chart!.update({ duration: 0 });
+    // ?
+    this.chart!.update("active");
   }
 }
 
