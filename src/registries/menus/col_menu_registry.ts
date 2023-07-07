@@ -72,11 +72,7 @@ colMenuRegistry
     name: ACTIONS.REMOVE_COLUMNS_NAME,
     sequence: 90,
     action: ACTIONS.REMOVE_COLUMNS_ACTION,
-    isVisible: (env: SpreadsheetChildEnv) => {
-      const sheetId = env.model.getters.getActiveSheetId();
-      const selectedCols = env.model.getters.getElementsFromSelection("COL");
-      return env.model.getters.canRemoveHeaders(sheetId, "COL", selectedCols);
-    },
+    isVisible: (env: SpreadsheetChildEnv) => ACTIONS.CAN_REMOVE_COLUMNS_ROWS("COL", env),
   })
   .add("clear_column", {
     name: ACTIONS.DELETE_CONTENT_COLUMNS_NAME,
@@ -90,7 +86,7 @@ colMenuRegistry
     isVisible: (env: SpreadsheetChildEnv) => {
       const sheetId = env.model.getters.getActiveSheetId();
       const selectedCols = env.model.getters.getElementsFromSelection("COL");
-      return env.model.getters.canRemoveHeaders(sheetId, "COL", selectedCols);
+      return !env.model.getters.checkElementsIncludeAllVisibleHeaders(sheetId, "COL", selectedCols);
     },
     separator: true,
   })
