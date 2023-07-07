@@ -2186,6 +2186,27 @@ test("Duplicating a sheet dispatches `CREATE_CHART` for each chart", () => {
   expect(spyDispatch).toHaveBeenNthCalledWith(4, "CREATE_FIGURE", expect.any(Object));
 });
 
+test("Plotting chart on string occurences", () => {
+  const model = new Model();
+  setCellContent(model, "B1", "title");
+  setCellContent(model, "B2", "value 1");
+  setCellContent(model, "B3", "value 2");
+  setCellContent(model, "B4", "value 2");
+  createChart(
+    model,
+    {
+      dataSets: ["B1:B4"],
+      dataSetsHaveTitle: true,
+      labelRange: "A2",
+    },
+    "1"
+  );
+  const expectedData = [1, 2]; // Represents the string occurences
+  expect(
+    (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig.data!.datasets![0]!.data
+  ).toEqual(expectedData);
+});
+
 function isChartAxisStacked(model: Model, chartId: UID, axis: "x" | "y"): boolean {
   const runtime = model.getters.getChartRuntime(chartId) as BarChartRuntime;
   // @ts-ignore
