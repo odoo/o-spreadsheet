@@ -14,9 +14,7 @@ import { buildSheetLink, toCartesian, toHex, toZone, zoneToXc } from "../../src/
 import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
 import { Align, ClipboardMIMEType, HeaderDimensions, UID } from "../../src/types";
-import { FileStore } from "../__mocks__/mock_file_store";
-import { MockTransportService } from "../__mocks__/transport_service";
-import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard";
+import { getClipboardEvent, MockClipboardData } from "../test_helpers/clipboard";
 import {
   copy,
   createChart,
@@ -69,6 +67,9 @@ import {
   target,
   typeInComposerGrid,
 } from "../test_helpers/helpers";
+import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
+import { FileStore } from "../__mocks__/mock_file_store";
+import { MockTransportService } from "../__mocks__/transport_service";
 import { mockChart } from "./__mocks__/chart";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
@@ -83,6 +84,11 @@ function getHorizontalScroll(): number {
   const scrollbar = fixture.querySelector(".o-scrollbar.horizontal") as HTMLElement;
   return scrollbar.scrollLeft;
 }
+
+const mockGridPosition = { x: 40, y: 40 };
+mockGetBoundingClientRect({
+  "o-grid": () => mockGridPosition,
+});
 
 let fixture: HTMLElement;
 let model: Model;
@@ -990,6 +996,11 @@ describe("Grid component", () => {
     triggerMouseEvent(selector, "contextmenu", 0, 0, { button: 1, bubbles: true });
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
+    const popover = fixture.querySelector<HTMLElement>(".o-popover")!;
+    expect(parseInt(popover.style.left)).toBe(
+      mockGridPosition.x + HEADER_WIDTH + DEFAULT_CELL_WIDTH
+    );
+    expect(parseInt(popover.style.top)).toBe(mockGridPosition.y + HEADER_HEIGHT);
   });
 
   test("input event triggered from a paste should not open composer", async () => {
