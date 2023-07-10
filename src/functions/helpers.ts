@@ -5,7 +5,6 @@ import { _t } from "../translation";
 import {
   ArgValue,
   CellValue,
-  Format,
   isMatrix,
   Locale,
   Matrix,
@@ -325,20 +324,16 @@ export function reduceNumbersTextAs0(
 // MATRIX FUNCTIONS
 // -----------------------------------------------------------------------------
 
-export function generateMatrix(
-  nRows: number,
+export function generateMatrix<T>(
   nColumns: number,
-  valueCallback: (i: number, j: number) => any,
-  formatCallback: (i: number, j: number) => Format | undefined
-) {
+  nRows: number,
+  callback: (col: number, row: number) => T
+): Matrix<T> {
   const returned = Array(nColumns);
-  for (let i = 0; i < nColumns; i++) {
-    returned[i] = Array(nRows);
-    for (let j = 0; j < nRows; j++) {
-      returned[i][j] = {
-        value: valueCallback(i, j) ?? 0,
-        format: formatCallback(i, j),
-      };
+  for (let col = 0; col < nColumns; col++) {
+    returned[col] = Array(nRows);
+    for (let row = 0; row < nRows; row++) {
+      returned[col][row] = callback(col, row);
     }
   }
   return returned;
@@ -470,7 +465,7 @@ function operandToRegExp(operand: string): RegExp {
 function evaluatePredicate(value: CellValue | undefined, criterion: Predicate): boolean {
   const { operator, operand } = criterion;
 
-  if (value === undefined || operand === undefined) {
+  if (value === undefined || operand === undefined || value === null || operand === null) {
     return false;
   }
 
@@ -655,7 +650,7 @@ export function dichotomicSearch<T>(
       currentVal = getValueInData(data, currentIndex);
       currentType = typeof currentVal;
     }
-    if (currentType !== targetType || currentVal === undefined) {
+    if (currentType !== targetType || currentVal === undefined || currentVal === null) {
       indexLeft = indexMedian + 1;
       continue;
     }
@@ -667,6 +662,7 @@ export function dichotomicSearch<T>(
     } else if (mode === "nextSmaller" && currentVal <= target) {
       if (
         matchVal === undefined ||
+        matchVal === null ||
         matchVal < currentVal ||
         (matchVal === currentVal && sortOrder === "asc" && matchValIndex! < currentIndex) ||
         (matchVal === currentVal && sortOrder === "desc" && matchValIndex! > currentIndex)
@@ -778,14 +774,10 @@ function compareCellValues(left: CellValue | undefined, right: CellValue | undef
 }
 
 export function matrixMap<T, M>(matrix: Matrix<T>, fn: (value: T) => M): Matrix<M> {
-  let result: Matrix<M> = new Array(matrix.length);
-  for (let i = 0; i < matrix.length; i++) {
-    result[i] = new Array(matrix[i].length);
-    for (let j = 0; j < matrix[i].length; j++) {
-      result[i][j] = fn(matrix[i][j]);
-    }
+  if (matrix.length === 0) {
+    return [];
   }
-  return result;
+  return generateMatrix(matrix.length, matrix[0].length, (col, row) => fn(matrix[col][row]));
 }
 
 export function toCellValueMatrix(values: Matrix<any>): Matrix<CellValue> {

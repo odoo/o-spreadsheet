@@ -26,7 +26,7 @@ export function evaluateLiteral(
   return createEvaluatedCell(parseLiteral(content || "", localeFormat.locale), localeFormat);
 }
 
-export function parseLiteral(content: string, locale: Locale): CellValue {
+export function parseLiteral(content: string, locale: Locale): Exclude<CellValue, null> {
   if (content.startsWith("=")) {
     throw new Error(`Cannot parse "${content}" because it's not a literal value. It's a formula`);
   }
