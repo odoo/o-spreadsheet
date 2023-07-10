@@ -4,9 +4,11 @@ import { SearchOptions } from "../../src/plugins/ui_feature/find_and_replace";
 import {
   activateSheet,
   createSheet,
+  redo,
   setCellContent,
   setSelection,
   setViewportOffset,
+  undo,
   updateLocale,
 } from "../test_helpers/commands_helpers";
 import {
@@ -158,6 +160,84 @@ describe("basic search", () => {
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
     expect(matches).toHaveLength(0);
     expect(matchIndex).toStrictEqual(null);
+  });
+
+  test("Need to update search if column or row is removed", () => {
+    model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
+    let matches = model.getters.getSearchMatches();
+    let matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(4);
+    expect(matchIndex).toStrictEqual(0);
+    expect(matches[0]).toStrictEqual({ col: 0, row: 1, selected: true });
+    expect(matches[1]).toStrictEqual({ col: 0, row: 2, selected: false });
+    expect(matches[2]).toStrictEqual({ col: 0, row: 3, selected: false });
+    expect(matches[3]).toStrictEqual({ col: 0, row: 4, selected: false });
+    model.dispatch("REMOVE_COLUMNS_ROWS", {
+      dimension: "ROW",
+      elements: [1],
+      sheetId: model.getters.getActiveSheetId(),
+    });
+    matches = model.getters.getSearchMatches();
+    matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(3);
+    expect(matchIndex).toStrictEqual(0);
+    expect(matches[0]).toStrictEqual({ col: 0, row: 1, selected: true });
+    expect(matches[1]).toStrictEqual({ col: 0, row: 2, selected: false });
+    expect(matches[2]).toStrictEqual({ col: 0, row: 3, selected: false });
+  });
+
+  test("Need to update search if column or row is removed", () => {
+    model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
+    let matches = model.getters.getSearchMatches();
+    let matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(4);
+    expect(matchIndex).toStrictEqual(0);
+    model.dispatch("REMOVE_COLUMNS_ROWS", {
+      dimension: "ROW",
+      elements: [1],
+      sheetId: model.getters.getActiveSheetId(),
+    });
+    matches = model.getters.getSearchMatches();
+    matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(3);
+    expect(matchIndex).toStrictEqual(0);
+    undo(model);
+    matches = model.getters.getSearchMatches();
+    matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(4);
+    expect(matchIndex).toStrictEqual(0);
+    redo(model);
+    matches = model.getters.getSearchMatches();
+    matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(3);
+    expect(matchIndex).toStrictEqual(0);
+  });
+
+  test("Need to maintain search if column or row is added", () => {
+    model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
+    let matches = model.getters.getSearchMatches();
+    let matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(4);
+    expect(matchIndex).toStrictEqual(0);
+    expect(matches[0]).toStrictEqual({ col: 0, row: 1, selected: true });
+    expect(matches[1]).toStrictEqual({ col: 0, row: 2, selected: false });
+    expect(matches[2]).toStrictEqual({ col: 0, row: 3, selected: false });
+    expect(matches[3]).toStrictEqual({ col: 0, row: 4, selected: false });
+    model.dispatch("ADD_COLUMNS_ROWS", {
+      dimension: "COL",
+      base: 1,
+      quantity: 1,
+      position: "after",
+      sheetId: model.getters.getActiveSheetId(),
+    });
+    matches = model.getters.getSearchMatches();
+    matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(4);
+    expect(matchIndex).toStrictEqual(0);
+    expect(matches[0]).toStrictEqual({ col: 0, row: 1, selected: true });
+    expect(matches[1]).toStrictEqual({ col: 0, row: 2, selected: false });
+    expect(matches[2]).toStrictEqual({ col: 0, row: 3, selected: false });
+    expect(matches[3]).toStrictEqual({ col: 0, row: 4, selected: false });
   });
 
   test("new search when changing sheet", () => {
