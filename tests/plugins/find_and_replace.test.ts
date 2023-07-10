@@ -59,7 +59,8 @@ describe("basic search", () => {
     expect(model.getters.getSelection().zones).toEqual([toZone("A6")]);
   });
 
-  test("modifying cells won't change the search", () => {
+  test.skip("modifying cells won't change the search", () => {
+    // updated cell need to update the search
     model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
     let matches = model.getters.getSearchMatches();
     let matchIndex = model.getters.getCurrentSelectedMatchIndex();
@@ -114,8 +115,7 @@ describe("basic search", () => {
     expect(model.getters.getSearchMatches()).toHaveLength(0);
   });
 
-  test.skip("Will search a modified cell", () => {
-    // not implemented
+  test("Will search a modified cell", () => {
     model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
     let matches = model.getters.getSearchMatches();
     let matchIndex = model.getters.getCurrentSelectedMatchIndex();
@@ -125,14 +125,14 @@ describe("basic search", () => {
     expect(matches[1]).toStrictEqual({ col: 0, row: 2, selected: false });
     expect(matches[2]).toStrictEqual({ col: 0, row: 3, selected: false });
     expect(matches[3]).toStrictEqual({ col: 0, row: 4, selected: false });
-    setCellContent(model, "B1", "=1");
+    setCellContent(model, "B1", "1");
     setCellContent(model, "B2", "=11");
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
     expect(matches).toHaveLength(6);
     expect(matchIndex).toStrictEqual(0);
-    expect(matches[0]).toStrictEqual({ col: 1, row: 0, selected: false });
-    expect(matches[1]).toStrictEqual({ col: 0, row: 1, selected: true });
+    expect(matches[0]).toStrictEqual({ col: 1, row: 0, selected: true });
+    expect(matches[1]).toStrictEqual({ col: 0, row: 1, selected: false });
     expect(matches[2]).toStrictEqual({ col: 1, row: 1, selected: false });
     expect(matches[3]).toStrictEqual({ col: 0, row: 2, selected: false });
     expect(matches[4]).toStrictEqual({ col: 0, row: 3, selected: false });
@@ -507,8 +507,8 @@ describe("replace", () => {
     model.dispatch("REPLACE_SEARCH", { replaceWith: "2,5" });
     const matches = model.getters.getSearchMatches();
     const matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    expect(matches).toHaveLength(0);
-    expect(matchIndex).toStrictEqual(null);
+    expect(matches).toHaveLength(1);
+    expect(matchIndex).toStrictEqual(0);
     expect(getCell(model, "A2")?.content).toBe("=SUM(2.5,2.5)");
   });
 
