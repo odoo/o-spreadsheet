@@ -60,12 +60,7 @@ export const FILTER = {
     for (let i = 0; i < _array.length; i++) {
       const row = _array[i];
       if (_conditions.every((c) => c[i])) {
-        result.push(
-          row.map((cell) => ({
-            value: toCellValue(cell.value),
-            format: cell.format,
-          }))
-        );
+        result.push(row);
       }
     }
 
@@ -97,7 +92,7 @@ export const UNIQUE = {
   returns: ["RANGE<NUMBER>"],
   computeValueAndFormat: function (range: Arg, byColumn: PrimitiveArg, exactlyOnce: PrimitiveArg) {
     if (!isMatrix(range)) {
-      return { value: toCellValue(range.value), format: range.format };
+      return { value: range.value, format: range.format };
     }
     const _byColumn = toBoolean(byColumn?.value) || false;
     const _exactlyOnce = toBoolean(exactlyOnce?.value) || false;
@@ -123,9 +118,7 @@ export const UNIQUE = {
       if (_exactlyOnce && row.count > 1) {
         continue;
       }
-      result.push(
-        row.data.map((item) => ({ value: toCellValue(item.value), format: item.format }))
-      );
+      result.push(row.data);
     }
 
     if (!result.length) throw new Error(_t("No unique values found"));
