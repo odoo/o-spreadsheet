@@ -89,6 +89,8 @@ export class FindAndReplacePlugin extends UIPlugin {
       case "UPDATE_CELL":
       case "ACTIVATE_SHEET":
       case "REFRESH_SEARCH":
+      case "HIDE_COLUMNS_ROWS":
+      case "UNHIDE_COLUMNS_ROWS":
         this.isEvaluationDirty = true;
         break;
     }
@@ -268,6 +270,19 @@ export class FindAndReplacePlugin extends UIPlugin {
   }
 
   private getSearchableString(position: CellPosition): string {
+    const { sheetId, col, row } = position;
+    const cell = this.getters.getCell(position);
+    if (!cell) {
+      return "";
+    }
+
+    const isColHidden = this.getters.isColHidden(sheetId, col);
+    const isRowHidden = this.getters.isRowHidden(sheetId, row);
+
+    if (isColHidden || isRowHidden) {
+      return "";
+    }
+
     return this.getters.getCellText(position, this.searchOptions.searchFormulas);
   }
 

@@ -139,6 +139,27 @@ describe("basic search", () => {
     expect(matches[5]).toStrictEqual({ col: 0, row: 4, selected: false });
   });
 
+  test("Will skip search if cell is hidden", () => {
+    model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
+    let matches = model.getters.getSearchMatches();
+    let matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(4);
+    expect(matchIndex).toStrictEqual(0);
+    expect(matches[0]).toStrictEqual({ col: 0, row: 1, selected: true });
+    expect(matches[1]).toStrictEqual({ col: 0, row: 2, selected: false });
+    expect(matches[2]).toStrictEqual({ col: 0, row: 3, selected: false });
+    expect(matches[3]).toStrictEqual({ col: 0, row: 4, selected: false });
+    model.dispatch("HIDE_COLUMNS_ROWS", {
+      dimension: "COL",
+      elements: [0],
+      sheetId: model.getters.getActiveSheetId(),
+    });
+    matches = model.getters.getSearchMatches();
+    matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(0);
+    expect(matchIndex).toStrictEqual(null);
+  });
+
   test("new search when changing sheet", () => {
     const sheet1 = model.getters.getActiveSheetId();
     const sheet2 = "42";
