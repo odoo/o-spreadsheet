@@ -11,12 +11,13 @@ import {
   MatrixArgValue,
   PrimitiveArgValue,
 } from "../types";
+import { GenericError, isEvaluationError } from "../types/errors";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
 
 export function assert(condition: () => boolean, message: string): void {
   if (!condition()) {
-    throw new Error(message);
+    throw new GenericError(message);
   }
 }
 // -----------------------------------------------------------------------------
@@ -46,10 +47,10 @@ export const expectStringSetError = (stringSet: string[], value: string) => {
   );
 };
 
-export function toNumber(
-  value: string | number | boolean | null | undefined,
-  locale: Locale
-): number {
+export function toNumber(value: PrimitiveArgValue | undefined, locale: Locale): number {
+  if (isEvaluationError(value)) {
+    throw value;
+  }
   switch (typeof value) {
     case "number":
       return value;
@@ -63,30 +64,24 @@ export function toNumber(
       if (internalDate) {
         return internalDate.value;
       }
-      throw new Error(expectNumberValueError(value));
+      throw new GenericError(expectNumberValueError(value));
     default:
       return 0;
   }
 }
 
-export function strictToNumber(
-  value: string | number | boolean | null | undefined,
-  locale: Locale
-): number {
+export function strictToNumber(value: PrimitiveArgValue | undefined, locale: Locale): number {
   if (value === "") {
-    throw new Error(expectNumberValueError(value));
+    throw new GenericError(expectNumberValueError(value));
   }
   return toNumber(value, locale);
 }
 
-export function toInteger(value: string | number | boolean | null | undefined, locale: Locale) {
+export function toInteger(value: PrimitiveArgValue | undefined, locale: Locale) {
   return Math.trunc(toNumber(value, locale));
 }
 
-export function strictToInteger(
-  value: string | number | boolean | null | undefined,
-  locale: Locale
-) {
+export function strictToInteger(value: PrimitiveArgValue | undefined, locale: Locale) {
   return Math.trunc(strictToNumber(value, locale));
 }
 
@@ -100,7 +95,10 @@ export function assertNumberGreaterThanOrEqualToOne(value: number) {
   );
 }
 
-export function toString(value: string | number | boolean | null | undefined): string {
+export function toString(value: PrimitiveArgValue | undefined): string {
+  if (isEvaluationError(value)) {
+    throw value;
+  }
   switch (typeof value) {
     case "string":
       return value;
@@ -143,7 +141,10 @@ const expectBooleanValueError = (value: string) =>
     value
   );
 
-export function toBoolean(value: string | number | boolean | null | undefined): boolean {
+export function toBoolean(value: PrimitiveArgValue | undefined): boolean {
+  if (isEvaluationError(value)) {
+    throw value;
+  }
   switch (typeof value) {
     case "boolean":
       return value;
@@ -156,7 +157,7 @@ export function toBoolean(value: string | number | boolean | null | undefined): 
         if (uppercaseVal === "FALSE") {
           return false;
         }
-        throw new Error(expectBooleanValueError(value));
+        throw new GenericError(expectBooleanValueError(value));
       } else {
         return false;
       }
@@ -167,17 +168,14 @@ export function toBoolean(value: string | number | boolean | null | undefined): 
   }
 }
 
-function strictToBoolean(value: string | number | boolean | null | undefined): boolean {
+function strictToBoolean(value: PrimitiveArgValue | undefined): boolean {
   if (value === "") {
-    throw new Error(expectBooleanValueError(value));
+    throw new GenericError(expectBooleanValueError(value));
   }
   return toBoolean(value);
 }
 
-export function toJsDate(
-  value: string | number | boolean | null | undefined,
-  locale: Locale
-): Date {
+export function toJsDate(value: PrimitiveArgValue | undefined, locale: Locale): Date {
   return numberToJsDate(toNumber(value, locale));
 }
 
@@ -283,6 +281,9 @@ export function reduceNumbers(
     (acc, ArgValue) => {
       if (typeof ArgValue === "number") {
         return cb(acc, ArgValue);
+      }
+      if (isEvaluationError(ArgValue)) {
+        throw ArgValue;
       }
       return acc;
     },
@@ -516,7 +517,7 @@ export function visitMatchingRanges(
   const countArg = args.length;
 
   if (countArg % 2 === 1) {
-    throw new Error(
+    throw new GenericError(
       _lt(`Function [[FUNCTION_NAME]] expects criteria_range and criterion to be in pairs.`)
     );
   }
@@ -534,7 +535,7 @@ export function visitMatchingRanges(
       criteriaRange.length !== dimRow ||
       criteriaRange[0].length !== dimCol
     ) {
-      throw new Error(
+      throw new GenericError(
         _lt(`Function [[FUNCTION_NAME]] expects criteria_range to have the same dimension`)
       );
     }

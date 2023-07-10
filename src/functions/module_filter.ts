@@ -9,7 +9,7 @@ import {
   MatrixArgValue,
   PrimitiveArgValue,
 } from "../types";
-import { NotAvailableError } from "../types/errors";
+import { GenericError, NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import { assert, toBoolean, toCellValue, toCellValueMatrix, toMatrixArgValue } from "./helpers";
 import { assertSameDimensions, assertSingleColOrRow } from "./helper_assert";
@@ -121,7 +121,7 @@ export const UNIQUE: AddFunctionDescription = {
       ? [...map.values()].filter((v) => v.count === 1).map((v) => v.val)
       : [...map.values()].map((v) => v.val);
 
-    if (!results.length) throw new Error(_lt("No unique values found"));
+    if (!results.length) throw new GenericError(_lt("No unique values found"));
 
     return toCellValueMatrix(_byColumn ? results : transpose2dArray(results));
   },

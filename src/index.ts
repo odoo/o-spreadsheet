@@ -89,7 +89,7 @@ import {
   repeatLocalCommandTransformRegistry,
 } from "./registries/repeat_commands_registry";
 import { FunctionDescription } from "./types";
-import { CellErrorLevel, EvaluationError } from "./types/errors";
+import { CellErrorLevel } from "./types/errors";
 import { DEFAULT_LOCALE } from "./types/locale";
 
 /**
@@ -133,7 +133,6 @@ export {
   invalidateEvaluationCommands,
   readonlyAllowedCommands,
 } from "./types/commands";
-export { EvaluationError } from "./types/errors";
 export const SPREADSHEET_DIMENSIONS = {
   MIN_ROW_HEIGHT,
   MIN_COL_WIDTH,
@@ -193,7 +192,6 @@ export const helpers = {
   getDefaultChartJsRuntime,
   chartFontColor,
   ChartColors,
-  EvaluationError,
   CellErrorLevel,
   getFillingMode,
   rgbaToHex,

@@ -8,6 +8,7 @@ import {
   MatrixArgValue,
   PrimitiveArgValue,
 } from "../types";
+import { GenericError } from "../types/errors";
 import { arg } from "./arguments";
 import { assert, toString, visitMatchingRanges } from "./helpers";
 import { PRODUCT, SUM } from "./module_math";
@@ -46,14 +47,14 @@ function getMatchingCells(
   // where the first column has the value 1.
 
   if (typeof field !== "number" && typeof field !== "string") {
-    throw new Error(_lt("The field must be a number or a string"));
+    throw new GenericError(_lt("The field must be a number or a string"));
   }
 
   let index: number;
   if (typeof field === "number") {
     index = Math.trunc(field) - 1;
     if (index < 0 || dimRowDB - 1 < index) {
-      throw new Error(
+      throw new GenericError(
         _lt(
           "The field (%s) must be one of %s or must be a number between 1 and %s inclusive.",
           field.toString(),
@@ -65,7 +66,7 @@ function getMatchingCells(
     const colName = toString(field).toUpperCase();
     index = indexColNameDB.get(colName) ?? -1;
     if (index === -1) {
-      throw new Error(
+      throw new GenericError(
         _lt(
           "The field (%s) must be one of %s.",
           toString(field),
@@ -82,7 +83,7 @@ function getMatchingCells(
   const dimColCriteria = criteria[0].length;
 
   if (dimColCriteria < 2) {
-    throw new Error(
+    throw new GenericError(
       _lt(
         "The criteria range contains %s row, it must be at least 2 rows.",
         dimColCriteria.toString()
