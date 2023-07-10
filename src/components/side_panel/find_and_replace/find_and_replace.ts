@@ -1,4 +1,4 @@
-import { Component, onMounted, onWillUnmount, useRef, useState } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
 
@@ -69,6 +69,14 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     this.showFormulaState = this.env.model.getters.shouldShowFormulas();
+
+    useEffect(
+      () => {
+        this.state.searchOptions.searchFormulas = this.env.model.getters.shouldShowFormulas();
+        this.searchFormulas();
+      },
+      () => [this.env.model.getters.shouldShowFormulas()]
+    );
 
     onMounted(() => this.focusInput());
 
