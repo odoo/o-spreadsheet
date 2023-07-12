@@ -1,7 +1,7 @@
 import { ExcelChartDataset, ExcelChartDefinition } from "../../types";
 import { XLSXChartType, XLSX_CHART_TYPES } from "../../types/xlsx";
 import { CHART_TYPE_CONVERSION_MAP, DRAWING_LEGEND_POSITION_CONVERSION_MAP } from "../conversion";
-import { removeNamespaces } from "../helpers/xml_helpers";
+import { removeTagEscapedNamespaces } from "../helpers/xml_helpers";
 import { XlsxBaseExtractor } from "./base_extractor";
 
 export class XlsxChartExtractor extends XlsxBaseExtractor {
@@ -81,7 +81,7 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
       throw new Error("Missing plot area in the chart definition.");
     }
     for (let child of plotAreaElement.children) {
-      const tag = removeNamespaces(child.tagName);
+      const tag = removeTagEscapedNamespaces(child.tagName);
       if (XLSX_CHART_TYPES.some((chartType) => chartType === tag)) {
         return tag as XLSXChartType;
       }
