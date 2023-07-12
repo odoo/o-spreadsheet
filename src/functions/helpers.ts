@@ -228,13 +228,13 @@ export function visitNumbers(args: ArgValue[], cb: (arg: number) => void, locale
 // REDUCE FUNCTIONS
 // -----------------------------------------------------------------------------
 
-function reduceArgs<T>(
-  args: ArgValue[],
-  cellCb: (acc: T, a: CellValue | undefined) => T,
-  dataCb: (acc: T, a: PrimitiveArgValue) => T,
-  initialValue: T,
+function reduceArgs<T, M>(
+  args: (T | Matrix<T>)[],
+  cellCb: (acc: M, a: T) => M,
+  dataCb: (acc: M, a: T) => M,
+  initialValue: M,
   dir: "rowFirst" | "colFirst" = "rowFirst"
-): T {
+): M {
   let val = initialValue;
   for (let arg of args) {
     if (Array.isArray(arg)) {
@@ -245,13 +245,13 @@ function reduceArgs<T>(
       if (dir === "rowFirst") {
         for (let row = 0; row < numberOfRows; row++) {
           for (let col = 0; col < numberOfCols; col++) {
-            val = cellCb(val, arg[col][row] ?? undefined);
+            val = cellCb(val, arg[col][row]);
           }
         }
       } else {
         for (let col = 0; col < numberOfCols; col++) {
           for (let row = 0; row < numberOfRows; row++) {
-            val = cellCb(val, arg[col][row] ?? undefined);
+            val = cellCb(val, arg[col][row]);
           }
         }
       }
@@ -263,12 +263,12 @@ function reduceArgs<T>(
   return val;
 }
 
-export function reduceAny<T>(
-  args: ArgValue[],
-  cb: (acc: T, a: PrimitiveArgValue | undefined) => T,
-  initialValue: T,
+export function reduceAny<T, M>(
+  args: (T | Matrix<T>)[],
+  cb: (acc: M, a: T) => M,
+  initialValue: M,
   dir: "rowFirst" | "colFirst" = "rowFirst"
-): T {
+): M {
   return reduceArgs(args, cb, cb, initialValue, dir);
 }
 
@@ -324,6 +324,9 @@ export function reduceNumbersTextAs0(
 // MATRIX FUNCTIONS
 // -----------------------------------------------------------------------------
 
+/**
+ * Generate a matrix of size nColumns x nRows and apply a callback on each position
+ */
 export function generateMatrix<T>(
   nColumns: number,
   nRows: number,
@@ -337,6 +340,20 @@ export function generateMatrix<T>(
     }
   }
   return returned;
+}
+
+export function matrixMap<T, M>(matrix: Matrix<T>, fn: (value: T) => M): Matrix<M> {
+  if (matrix.length === 0) {
+    return [];
+  }
+  return generateMatrix(matrix.length, matrix[0].length, (col, row) => fn(matrix[col][row]));
+}
+
+export function transposeMatrix<T>(matrix: Matrix<T>): Matrix<T> {
+  if (!matrix.length) {
+    return [];
+  }
+  return generateMatrix(matrix[0].length, matrix.length, (i, j) => matrix[j][i]);
 }
 
 // -----------------------------------------------------------------------------
@@ -773,30 +790,6 @@ function compareCellValues(left: CellValue | undefined, right: CellValue | undef
   return typeOrder;
 }
 
-export function matrixMap<T, M>(matrix: Matrix<T>, fn: (value: T) => M): Matrix<M> {
-  if (matrix.length === 0) {
-    return [];
-  }
-  return generateMatrix(matrix.length, matrix[0].length, (col, row) => fn(matrix[col][row]));
-}
-
-export function toCellValueMatrix(values: Matrix<any>): Matrix<CellValue> {
-  return matrixMap(values, toCellValue);
-}
-
-export function toCellValue(value: any): CellValue {
-  if (value === null || value === undefined) return 0;
-  if (typeof value === "number") return value;
-  if (typeof value === "string") return value;
-  if (typeof value === "boolean") return value;
-  return String(value);
-}
-
-export function toMatrixArgValue(values: ArgValue): MatrixArgValue {
-  if (isMatrix(values)) return values;
-  return [[values === null ? 0 : values]];
-}
-
 export function toMatrix<T>(data: T | Matrix<T>): Matrix<T> {
   return isMatrix(data) ? data : [[data]];
 }
@@ -807,18 +800,15 @@ export function toMatrix<T>(data: T | Matrix<T>): Matrix<T> {
  *
  * The 2D array are flattened row first.
  */
-export function flattenRowFirst<T, M>(items: Array<T | Matrix<T>>, callback: (val: T) => M): M[] {
-  const flattened: M[] = [];
-  for (const item of items) {
-    if (!Array.isArray(item)) {
-      flattened.push(callback(item));
-      continue;
-    }
-    for (let row = 0; row < item[0].length; row++) {
-      for (let col = 0; col < item.length; col++) {
-        flattened.push(callback(item[col][row]));
-      }
-    }
-  }
-  return flattened;
+export function flattenRowFirst<T, K>(items: Array<T | Matrix<T>>, callback: (val: T) => K): K[] {
+  /**/
+  return reduceAny(
+    items,
+    (array: K[], val: T) => {
+      array.push(callback(val));
+      return array;
+    },
+    [],
+    "rowFirst"
+  );
 }
