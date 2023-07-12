@@ -54,6 +54,7 @@ export class FindAndReplacePlugin extends UIPlugin {
     searchFormulas: false,
   };
   private toSearch: string = "";
+  private isSearchDirty = false;
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -85,10 +86,21 @@ export class FindAndReplacePlugin extends UIPlugin {
       case "ADD_COLUMNS_ROWS":
         this.clearSearch();
         break;
+      case "EVALUATE_CELLS":
+      case "UPDATE_CELL":
+        this.isSearchDirty = true;
+        break;
       case "ACTIVATE_SHEET":
       case "REFRESH_SEARCH":
         this.refreshSearch();
         break;
+    }
+  }
+
+  finalize() {
+    if (this.isSearchDirty) {
+      this.refreshSearch();
+      this.isSearchDirty = false;
     }
   }
 

@@ -1,4 +1,5 @@
 import { Model } from "../../src";
+import { functionRegistry } from "../../src/functions";
 import { toZone } from "../../src/helpers";
 import { SearchOptions } from "../../src/plugins/ui_feature/find_and_replace";
 import {
@@ -60,28 +61,6 @@ describe("basic search", () => {
     expect(model.getters.getSelection().zones).toEqual([toZone("A6")]);
   });
 
-  test("modifying cells won't change the search", () => {
-    model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
-    let matches = model.getters.getSearchMatches();
-    let matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    expect(matches.length).toBe(4);
-    expect(matchIndex).toStrictEqual(0);
-    expect(matches[0]).toStrictEqual({ col: 0, row: 1, selected: true });
-    expect(matches[1]).toStrictEqual({ col: 0, row: 2, selected: false });
-    expect(matches[2]).toStrictEqual({ col: 0, row: 3, selected: false });
-    expect(matches[3]).toStrictEqual({ col: 0, row: 4, selected: false });
-    setCellContent(model, "A2", "hello");
-    setCellContent(model, "B1", "1");
-    matches = model.getters.getSearchMatches();
-    matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    expect(matches.length).toBe(4);
-    expect(matchIndex).toStrictEqual(0);
-    expect(matches[0]).toStrictEqual({ col: 0, row: 1, selected: true });
-    expect(matches[1]).toStrictEqual({ col: 0, row: 2, selected: false });
-    expect(matches[2]).toStrictEqual({ col: 0, row: 3, selected: false });
-    expect(matches[3]).toStrictEqual({ col: 0, row: 4, selected: false });
-  });
-
   test("change the search", async () => {
     model.dispatch("UPDATE_SEARCH", { toSearch: "hello", searchOptions });
     model.dispatch("SELECT_SEARCH_NEXT_MATCH");
@@ -101,6 +80,54 @@ describe("basic search", () => {
     expect(matches[1]).toStrictEqual({ col: 0, row: 2, selected: false });
     expect(matches[2]).toStrictEqual({ col: 0, row: 3, selected: false });
     expect(matches[3]).toStrictEqual({ col: 0, row: 4, selected: false });
+  });
+
+  test("refresh search when cell is updated", async () => {
+    model.dispatch("UPDATE_SEARCH", { toSearch: "hello", searchOptions });
+    let matches = model.getters.getSearchMatches();
+    let matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(2);
+    expect(matchIndex).toStrictEqual(0);
+    expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: true });
+    expect(matches[1]).toStrictEqual({ col: 0, row: 1, selected: false });
+    setCellContent(model, "B1", "hello");
+    setCellContent(model, "B2", '="hello"');
+    matches = model.getters.getSearchMatches();
+    matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(4);
+    expect(matchIndex).toStrictEqual(0);
+    expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: true });
+    expect(matches[1]).toStrictEqual({ col: 1, row: 0, selected: false });
+    expect(matches[2]).toStrictEqual({ col: 0, row: 1, selected: false });
+    expect(matches[3]).toStrictEqual({ col: 1, row: 1, selected: false });
+  });
+
+  test("refresh search when cell is update with EVALUATE_CELLS", async () => {
+    model.dispatch("UPDATE_SEARCH", { toSearch: "hello", searchOptions });
+    let matches = model.getters.getSearchMatches();
+    let matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(2);
+    expect(matchIndex).toStrictEqual(0);
+    expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: true });
+    expect(matches[1]).toStrictEqual({ col: 0, row: 1, selected: false });
+    let value = "3";
+    functionRegistry.add("GETVALUE", {
+      description: "Get value",
+      compute: () => value,
+      args: [],
+      returns: ["NUMBER"],
+    });
+    setCellContent(model, "B1", "=GETVALUE()");
+    value = '="hello"';
+    model.dispatch("EVALUATE_CELLS", { sheetId: model.getters.getActiveSheetId() });
+    matches = model.getters.getSearchMatches();
+    matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(getCellContent(model, "B1")).toBe('="hello"');
+    expect(matches).toHaveLength(3);
+    expect(matchIndex).toStrictEqual(0);
+    expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: true });
+    expect(matches[1]).toStrictEqual({ col: 1, row: 0, selected: false });
+    expect(matches[2]).toStrictEqual({ col: 0, row: 1, selected: false });
   });
 
   test("search on empty string does not match anything", () => {
@@ -519,12 +546,12 @@ describe("replace", () => {
     searchOptions.searchFormulas = true;
     updateLocale(model, { ...DEFAULT_LOCALE, decimalSeparator: ",", formulaArgSeparator: ";" });
     model.dispatch("UPDATE_SEARCH", { toSearch: "2", searchOptions });
-    model.dispatch("REPLACE_SEARCH", { replaceWith: "2,5" });
+    model.dispatch("REPLACE_SEARCH", { replaceWith: "4,5" });
     const matches = model.getters.getSearchMatches();
     const matchIndex = model.getters.getCurrentSelectedMatchIndex();
     expect(matches).toHaveLength(0);
     expect(matchIndex).toStrictEqual(null);
-    expect(getCell(model, "A2")?.content).toBe("=SUM(2.5,2.5)");
+    expect(getCell(model, "A2")?.content).toBe("=SUM(4.5,4.5)");
   });
 
   test("formulas wont be modified if not looking in formulas or not modifying formulas", () => {
