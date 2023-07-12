@@ -83,8 +83,6 @@ export class FindAndReplacePlugin extends UIPlugin {
       case "REDO":
       case "REMOVE_COLUMNS_ROWS":
       case "ADD_COLUMNS_ROWS":
-        this.clearSearch();
-        break;
       case "EVALUATE_CELLS":
       case "UPDATE_CELL":
         this.isSearchDirty = true;
