@@ -5,6 +5,7 @@ import {
   ArgValue,
   CellValue,
   Matrix,
+  MatrixArg,
   MatrixArgValue,
   MatrixFunctionReturn,
   PrimitiveArg,
@@ -19,8 +20,8 @@ import {
   toBoolean,
   toInteger,
   toMatrix,
-  toMatrixArgValue,
   toNumber,
+  transposeMatrix,
 } from "./helpers";
 import {
   assertPositive,
@@ -88,7 +89,6 @@ export const CHOOSECOLS = {
   computeValueAndFormat: function (array: Arg, ...columns: Arg[]): MatrixFunctionReturn {
     const _array = toMatrix(array);
     const _columns = flattenRowFirst(columns, (item) => toInteger(item.value, this.locale));
-    const _nbRows = _array[0].length;
 
     assert(
       () => _columns.every((col) => col > 0 && col <= _array.length),
@@ -99,7 +99,13 @@ export const CHOOSECOLS = {
       )
     );
 
-    return generateMatrix(_columns.length, _nbRows, (col, row) => _array[_columns[col] - 1][row]); // -1 because columns arguments are 1-indexed
+    const result: MatrixArg = Array(_columns.length);
+    for (let col = 0; col < _columns.length; col++) {
+      const colIndex = _columns[col] - 1; // -1 because columns arguments are 1-indexed
+      result[col] = _array[colIndex];
+    }
+
+    return result;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -307,7 +313,7 @@ export const MDETERM = {
   ],
   returns: ["NUMBER"],
   compute: function (matrix: ArgValue): number {
-    const _matrix = toMatrixArgValue(matrix);
+    const _matrix = toMatrix(matrix);
 
     assertSquareMatrix(
       _t("The argument square_matrix must have the same number of columns and rows."),
@@ -338,7 +344,7 @@ export const MINVERSE = {
   ],
   returns: ["RANGE<NUMBER>"],
   compute: function (matrix: ArgValue): Matrix<CellValue> {
-    const _matrix = toMatrixArgValue(matrix);
+    const _matrix = toMatrix(matrix);
 
     assertSquareMatrix(
       _t("The argument square_matrix must have the same number of columns and rows."),
@@ -375,8 +381,8 @@ export const MMULT = {
   ],
   returns: ["RANGE<NUMBER>"],
   compute: function (matrix1: ArgValue, matrix2: ArgValue): Matrix<CellValue> {
-    const _matrix1 = toMatrixArgValue(matrix1);
-    const _matrix2 = toMatrixArgValue(matrix2);
+    const _matrix1 = toMatrix(matrix1);
+    const _matrix2 = toMatrix(matrix2);
 
     assert(
       () => _matrix1.length === _matrix2[0].length,
@@ -420,16 +426,16 @@ export const SUMPRODUCT = {
   returns: ["NUMBER"],
   compute: function (...args: ArgValue[]): number {
     assertSameDimensions(_t("All the ranges must have the same dimensions."), ...args);
-    const _args = args.map(toMatrixArgValue);
+    const _args = args.map(toMatrix);
     let result = 0;
-    for (let i = 0; i < _args[0].length; i++) {
-      for (let j = 0; j < _args[0][i].length; j++) {
-        if (!_args.every((range) => typeof range[i][j] === "number")) {
+    for (let col = 0; col < _args[0].length; col++) {
+      for (let row = 0; row < _args[0][col].length; row++) {
+        if (!_args.every((range) => typeof range[col][row] === "number")) {
           continue;
         }
         let product = 1;
         for (const range of _args) {
-          product *= toNumber(range[i][j], this.locale);
+          product *= toNumber(range[col][row], this.locale);
         }
         result += product;
       }
@@ -458,15 +464,15 @@ function getSumXAndY(
     arrayX,
     arrayY
   );
-  const _arrayX = toMatrixArgValue(arrayX);
-  const _arrayY = toMatrixArgValue(arrayY);
+  const _arrayX = toMatrix(arrayX);
+  const _arrayY = toMatrix(arrayY);
 
   let validPairFound = false;
   let result = 0;
-  for (const i in _arrayX) {
-    for (const j in _arrayX[i]) {
-      const arrayXValue = _arrayX[i][j];
-      const arrayYValue = _arrayY[i][j];
+  for (const col in _arrayX) {
+    for (const row in _arrayX[col]) {
+      const arrayXValue = _arrayX[col][row];
+      const arrayYValue = _arrayY[col][row];
       if (typeof arrayXValue !== "number" || typeof arrayYValue !== "number") {
         continue;
       }
@@ -596,21 +602,14 @@ export const TOCOL = {
 
     assert(() => _ignore >= 0 && _ignore <= 3, _t("Argument ignore must be between 0 and 3"));
 
-    const result: PrimitiveFunctionReturn[] = [];
-    const firstDim = _scanByColumn ? _array.length : _array[0].length;
-    const secondDim = _scanByColumn ? _array[0].length : _array.length;
-
-    for (let i = 0; i < firstDim; i++) {
-      for (let j = 0; j < secondDim; j++) {
-        const item = _scanByColumn ? _array[i][j] : _array[j][i];
-        // TODO : implement ignore value 2 (ignore error) & 3 (ignore blanks and errors) once we can have errors in
-        // the array w/o crashing
-        if ((_ignore === 1 || _ignore === 3) && (item.value === undefined || item.value === null)) {
-          continue;
-        }
-        result.push(item);
-      }
-    }
+    // TODO : implement ignore value 2 (ignore error) & 3 (ignore blanks and errors) once we can have errors in
+    // the array w/o crashing
+    const result = (_scanByColumn ? _array : transposeMatrix(_array))
+      .flat()
+      .filter(
+        (item) =>
+          (_ignore !== 1 && _ignore !== 3) || (item.value !== undefined && item.value !== null)
+      );
 
     if (result.length === 0) {
       throw new NotAvailableError(_t("No results for the given arguments of TOCOL."));
@@ -638,21 +637,15 @@ export const TOROW = {
 
     assert(() => _ignore >= 0 && _ignore <= 3, _t("Argument ignore must be between 0 and 3"));
 
-    const result: MatrixFunctionReturn = [];
-    const firstDim = _scanByColumn ? _array.length : _array[0].length;
-    const secondDim = _scanByColumn ? _array[0].length : _array.length;
-
-    for (let i = 0; i < firstDim; i++) {
-      for (let j = 0; j < secondDim; j++) {
-        const item = _scanByColumn ? _array[i][j] : _array[j][i];
-        // TODO : implement ignore value 2 (ignore error) & 3 (ignore blanks and errors) once we can have errors in
-        // the array w/o crashing
-        if ((_ignore === 1 || _ignore === 3) && (item.value === undefined || item.value === null)) {
-          continue;
-        }
-        result.push([item]);
-      }
-    }
+    // TODO : implement ignore value 2 (ignore error) & 3 (ignore blanks and errors) once we can have errors in
+    // the array w/o crashing
+    const result = (_scanByColumn ? _array : transposeMatrix(_array))
+      .flat()
+      .filter(
+        (item) =>
+          (_ignore !== 1 && _ignore !== 3) || (item.value !== undefined && item.value !== null)
+      )
+      .map((item) => [item]);
 
     if (result.length === 0 || result[0].length === 0) {
       throw new NotAvailableError(_t("No results for the given arguments of TOROW."));

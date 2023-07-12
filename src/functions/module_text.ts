@@ -1,8 +1,8 @@
-import { escapeRegExp, formatValue, transpose2dArray } from "../helpers";
+import { escapeRegExp, formatValue } from "../helpers";
 import { _t } from "../translation";
 import { AddFunctionDescription, ArgValue, PrimitiveArgValue } from "../types";
 import { arg } from "./arguments";
-import { assert, reduceAny, toBoolean, toNumber, toString } from "./helpers";
+import { assert, reduceAny, toBoolean, toNumber, toString, transposeMatrix } from "./helpers";
 
 const DEFAULT_STARTING_AT = 1;
 
@@ -428,7 +428,7 @@ export const SPLIT = {
       result = result.filter((text) => text !== "");
     }
 
-    return transpose2dArray([result]);
+    return transposeMatrix([result]);
   },
   isExported: true,
 } satisfies AddFunctionDescription;

@@ -1,4 +1,3 @@
-import { transpose2dArray } from "../helpers";
 import { _t } from "../translation";
 import {
   AddFunctionDescription,
@@ -9,7 +8,7 @@ import {
 } from "../types";
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
-import { assert, matrixMap, toBoolean, toCellValue, toMatrix } from "./helpers";
+import { assert, matrixMap, toBoolean, toMatrix, transposeMatrix } from "./helpers";
 import { assertSameDimensions, assertSingleColOrRow } from "./helper_assert";
 
 // -----------------------------------------------------------------------------
@@ -37,7 +36,7 @@ export const FILTER = {
   computeValueAndFormat: function (range: Arg, ...conditions: Arg[]) {
     let _array = toMatrix(range);
     const _conditionsMatrices = conditions.map((cond) =>
-      matrixMap(toMatrix(cond), (data) => toCellValue(data.value))
+      matrixMap(toMatrix(cond), (data) => data.value)
     );
     _conditionsMatrices.map((c) =>
       assertSingleColOrRow(_t("The arguments condition must be a single column or row."), c)
@@ -49,7 +48,7 @@ export const FILTER = {
     const _conditions = _conditionsMatrices.map((c) => c.flat());
 
     const mode = _conditionsMatrices[0].length === 1 ? "row" : "col";
-    _array = mode === "row" ? transpose2dArray(_array) : _array;
+    _array = mode === "row" ? transposeMatrix(_array) : _array;
 
     assert(
       () => _conditions.every((cond) => cond.length === _array.length),
@@ -68,7 +67,7 @@ export const FILTER = {
       throw new NotAvailableError(_t("No match found in FILTER evaluation"));
     }
 
-    return mode === "row" ? transpose2dArray(result) : result;
+    return mode === "row" ? transposeMatrix(result) : result;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -98,7 +97,7 @@ export const UNIQUE = {
     const _exactlyOnce = toBoolean(exactlyOnce?.value) || false;
     let _array = toMatrix(range);
     if (!_byColumn) {
-      _array = transpose2dArray(_array);
+      _array = transposeMatrix(_array);
     }
 
     const map: Map<string, { data: PrimitiveArg[]; count: number }> = new Map();
@@ -123,7 +122,7 @@ export const UNIQUE = {
 
     if (!result.length) throw new Error(_t("No unique values found"));
 
-    return _byColumn ? result : transpose2dArray(result);
+    return _byColumn ? result : transposeMatrix(result);
   },
   isExported: true,
 } satisfies AddFunctionDescription;

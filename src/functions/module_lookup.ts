@@ -21,7 +21,6 @@ import {
   normalizeValue,
   strictToInteger,
   toBoolean,
-  toCellValueMatrix,
   toNumber,
   toString,
 } from "./helpers";
@@ -601,9 +600,9 @@ export const XLOOKUP = {
     }
 
     if (index !== -1) {
-      return toCellValueMatrix(
-        lookupDirection === "col" ? returnRange.map((col) => [col[index]]) : [returnRange[index]]
-      );
+      return lookupDirection === "col"
+        ? returnRange.map((col) => [col[index]])
+        : [returnRange[index]];
     }
 
     const _defaultValue = defaultValue?.();

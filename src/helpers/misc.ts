@@ -3,7 +3,7 @@
 //------------------------------------------------------------------------------
 import { NEWLINE } from "../constants";
 import { ConsecutiveIndexes, Lazy, UID } from "../types";
-import { Cloneable, Matrix } from "./../types/misc";
+import { Cloneable } from "./../types/misc";
 /**
  * Stringify an object, like JSON.stringify, except that the first level of keys
  * is ordered.
@@ -386,23 +386,6 @@ export function removeFalsyAttributes(obj: Object): Object {
   const cleanObject = { ...obj };
   Object.keys(cleanObject).forEach((key) => !cleanObject[key] && delete cleanObject[key]);
   return cleanObject;
-}
-
-export function transpose2dArray<T>(matrix: Matrix<T>): Matrix<T>;
-export function transpose2dArray<T, M>(matrix: Matrix<T>, callback: (val: T) => M): Matrix<M>;
-export function transpose2dArray<T, M>(
-  matrix: Matrix<T>,
-  callback: (val: T) => M = (val) => val as any
-): M[][] {
-  if (!matrix.length) return [];
-  const transposed: Matrix<M> = Array(matrix[0].length);
-  for (let i = 0; i < matrix[0].length; i++) {
-    transposed[i] = Array(matrix.length);
-    for (let j = 0; j < matrix.length; j++) {
-      transposed[i][j] = callback(matrix[j][i]);
-    }
-  }
-  return transposed;
 }
 
 /**

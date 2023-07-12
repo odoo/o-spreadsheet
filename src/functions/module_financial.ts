@@ -4,7 +4,6 @@ import {
   isLastDayOfMonth,
   jsDateToRoundNumber,
   range,
-  transpose2dArray,
 } from "../helpers";
 import { _t } from "../translation";
 import {
@@ -23,6 +22,7 @@ import {
   toBoolean,
   toJsDate,
   toNumber,
+  transposeMatrix,
   visitNumbers,
 } from "./helpers";
 import {
@@ -1354,7 +1354,7 @@ export const MIRR = {
   ): number {
     const fRate = toNumber(financingRate, this.locale);
     const rRate = toNumber(reinvestmentRate, this.locale);
-    const cashFlow = transpose2dArray(cashflowAmount)
+    const cashFlow = transposeMatrix(cashflowAmount)
       .flat()
       .filter((t) => t !== null)
       .map((val) => toNumber(val, this.locale));
