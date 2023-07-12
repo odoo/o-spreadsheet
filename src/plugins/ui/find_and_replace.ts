@@ -79,16 +79,14 @@ export class FindAndReplacePlugin extends UIPlugin {
       case "REPLACE_ALL_SEARCH":
         this.replaceAll(cmd.replaceWith);
         break;
-      case "UNDO":
-      case "REDO":
-      case "REMOVE_COLUMNS_ROWS":
-      case "ADD_COLUMNS_ROWS":
-        this.clearSearch();
-        break;
       case "EVALUATE_CELLS":
       case "UPDATE_CELL":
         this.isSearchDirty = true;
         break;
+      case "UNDO":
+      case "REDO":
+      case "REMOVE_COLUMNS_ROWS":
+      case "ADD_COLUMNS_ROWS":
       case "ACTIVATE_SHEET":
         this.refreshSearch();
         break;
