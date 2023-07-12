@@ -4,9 +4,12 @@ import { toZone } from "../../src/helpers";
 import { SearchOptions } from "../../src/plugins/ui/find_and_replace";
 import {
   activateSheet,
+  addRows,
   createSheet,
-  hideRows,
+  deleteRows,
+  redo,
   setCellContent,
+  undo,
 } from "../test_helpers/commands_helpers";
 import { getCellContent, getCellText } from "../test_helpers/getters_helpers";
 
@@ -183,18 +186,68 @@ describe("basic search", () => {
     expect(matchIndex).toStrictEqual(0);
   });
 
-  test("hidden cells should not be included in match", () => {
+  test("Need to update search if column or row is removed", () => {
     model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
     let matches = model.getters.getSearchMatches();
     let matchIndex = model.getters.getCurrentSelectedMatchIndex();
     expect(matches).toHaveLength(4);
     expect(matchIndex).toStrictEqual(0);
-    hideRows(model, [1]);
-    model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
+    expect(matches[0]).toStrictEqual({ col: 0, row: 1, selected: true });
+    expect(matches[1]).toStrictEqual({ col: 0, row: 2, selected: false });
+    expect(matches[2]).toStrictEqual({ col: 0, row: 3, selected: false });
+    expect(matches[3]).toStrictEqual({ col: 0, row: 4, selected: false });
+    deleteRows(model, [1]);
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(0);
+    expect(matches[0]).toStrictEqual({ col: 0, row: 1, selected: true });
+    expect(matches[1]).toStrictEqual({ col: 0, row: 2, selected: false });
+    expect(matches[2]).toStrictEqual({ col: 0, row: 3, selected: false });
+  });
+
+  test("Need to update search if doing undo redo operation which can update the cell", () => {
+    model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
+    let matches = model.getters.getSearchMatches();
+    let matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(4);
+    expect(matchIndex).toStrictEqual(0);
+    deleteRows(model, [1]);
+    matches = model.getters.getSearchMatches();
+    matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(3);
+    expect(matchIndex).toStrictEqual(0);
+    undo(model);
+    matches = model.getters.getSearchMatches();
+    matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(4);
+    expect(matchIndex).toStrictEqual(0);
+    redo(model);
+    matches = model.getters.getSearchMatches();
+    matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(3);
+    expect(matchIndex).toStrictEqual(0);
+  });
+
+  test("Need to maintain search if column or row is added", () => {
+    model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
+    let matches = model.getters.getSearchMatches();
+    let matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(4);
+    expect(matchIndex).toStrictEqual(0);
+    expect(matches[0]).toStrictEqual({ col: 0, row: 1, selected: true });
+    expect(matches[1]).toStrictEqual({ col: 0, row: 2, selected: false });
+    expect(matches[2]).toStrictEqual({ col: 0, row: 3, selected: false });
+    expect(matches[3]).toStrictEqual({ col: 0, row: 4, selected: false });
+    addRows(model, "after", 1, 1);
+    matches = model.getters.getSearchMatches();
+    matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(4);
+    expect(matchIndex).toStrictEqual(0);
+    expect(matches[0]).toStrictEqual({ col: 0, row: 1, selected: true });
+    expect(matches[1]).toStrictEqual({ col: 0, row: 3, selected: false });
+    expect(matches[2]).toStrictEqual({ col: 0, row: 4, selected: false });
+    expect(matches[3]).toStrictEqual({ col: 0, row: 5, selected: false });
   });
 });
 describe("next/previous cycle", () => {
