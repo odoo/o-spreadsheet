@@ -17,7 +17,7 @@ import { assertSameDimensions, assertSingleColOrRow } from "./helper_assert";
 // -----------------------------------------------------------------------------
 // FILTER
 // -----------------------------------------------------------------------------
-export const FILTER: AddFunctionDescription = {
+export const FILTER = {
   description: _t(
     "Returns a filtered version of the source range, returning only rows or columns that meet the specified conditions."
   ),
@@ -73,12 +73,12 @@ export const FILTER: AddFunctionDescription = {
     return toCellValueMatrix(mode === "row" ? transpose2dArray(results) : results);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // UNIQUE
 // -----------------------------------------------------------------------------
-export const UNIQUE: AddFunctionDescription = {
+export const UNIQUE = {
   description: _t("Unique rows in the provided source range."),
   args: [
     arg("range (any, range<any>)", _t("The data to filter by unique entries.")),
@@ -126,4 +126,4 @@ export const UNIQUE: AddFunctionDescription = {
     return toCellValueMatrix(_byColumn ? results : transpose2dArray(results));
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;

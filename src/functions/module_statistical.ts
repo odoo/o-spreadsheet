@@ -152,7 +152,7 @@ function centile(
 // -----------------------------------------------------------------------------
 // AVEDEV
 // -----------------------------------------------------------------------------
-export const AVEDEV: AddFunctionDescription = {
+export const AVEDEV = {
   description: _t("Average magnitude of deviations from mean."),
   args: [
     arg("value1 (number, range<number>)", _t("The first value or range of the sample.")),
@@ -181,12 +181,12 @@ export const AVEDEV: AddFunctionDescription = {
     return reduceNumbers(values, (acc, a) => acc + Math.abs(average - a), 0, this.locale) / count;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // AVERAGE
 // -----------------------------------------------------------------------------
-export const AVERAGE: AddFunctionDescription = {
+export const AVERAGE = {
   description: _t(`Numerical average value in a dataset, ignoring text.`),
   args: [
     arg(
@@ -220,7 +220,7 @@ export const AVERAGE: AddFunctionDescription = {
     return sum / count;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // AVERAGE.WEIGHTED
@@ -230,7 +230,7 @@ const negativeWeightError = _t(
   `[[FUNCTION_NAME]] expects the weight to be positive or equal to 0.`
 );
 
-export const AVERAGE_WEIGHTED: AddFunctionDescription = {
+export const AVERAGE_WEIGHTED = {
   description: _t(`Weighted average.`),
   args: [
     arg("values (number, range<number>)", _t("Values to average.")),
@@ -304,12 +304,12 @@ export const AVERAGE_WEIGHTED: AddFunctionDescription = {
 
     return sum / count;
   },
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // AVERAGEA
 // -----------------------------------------------------------------------------
-export const AVERAGEA: AddFunctionDescription = {
+export const AVERAGEA = {
   description: _t(`Numerical average value in a dataset.`),
   args: [
     arg(
@@ -343,12 +343,12 @@ export const AVERAGEA: AddFunctionDescription = {
     return sum / count;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // AVERAGEIF
 // -----------------------------------------------------------------------------
-export const AVERAGEIF: AddFunctionDescription = {
+export const AVERAGEIF = {
   description: _t(`Average of values depending on criteria.`),
   args: [
     arg("criteria_range (range)", _t("The range to check against criterion.")),
@@ -391,12 +391,12 @@ export const AVERAGEIF: AddFunctionDescription = {
     return sum / count;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // AVERAGEIFS
 // -----------------------------------------------------------------------------
-export const AVERAGEIFS: AddFunctionDescription = {
+export const AVERAGEIFS = {
   description: _t(`Average of values depending on multiple criteria.`),
   args: [
     arg("average_range (range)", _t("The range to average.")),
@@ -430,12 +430,12 @@ export const AVERAGEIFS: AddFunctionDescription = {
     return sum / count;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // COUNT
 // -----------------------------------------------------------------------------
-export const COUNT: AddFunctionDescription = {
+export const COUNT = {
   description: _t(`The number of numeric values in dataset.`),
   args: [
     arg(
@@ -470,12 +470,12 @@ export const COUNT: AddFunctionDescription = {
     return count;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // COUNTA
 // -----------------------------------------------------------------------------
-export const COUNTA: AddFunctionDescription = {
+export const COUNTA = {
   description: _t(`The number of values in a dataset.`),
   args: [
     arg("value1 (any, range)", _t("The first value or range to consider when counting.")),
@@ -489,7 +489,7 @@ export const COUNTA: AddFunctionDescription = {
     return reduceAny(values, (acc, a) => (a !== undefined && a !== null ? acc + 1 : acc), 0);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // COVAR
@@ -497,7 +497,7 @@ export const COUNTA: AddFunctionDescription = {
 
 // Note: Unlike the VAR function which corresponds to the variance over a sample (VAR.S),
 // the COVAR function corresponds to the covariance over an entire population (COVAR.P)
-export const COVAR: AddFunctionDescription = {
+export const COVAR = {
   description: _t(`The covariance of a dataset.`),
   args: [
     arg("data_y (any, range)", _t("The range representing the array or matrix of dependent data.")),
@@ -511,12 +511,12 @@ export const COVAR: AddFunctionDescription = {
     return covariance(dataY, dataX, false);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // COVARIANCE.P
 // -----------------------------------------------------------------------------
-export const COVARIANCE_P: AddFunctionDescription = {
+export const COVARIANCE_P = {
   description: _t(`The covariance of a dataset.`),
   args: [
     arg("data_y (any, range)", _t("The range representing the array or matrix of dependent data.")),
@@ -530,12 +530,12 @@ export const COVARIANCE_P: AddFunctionDescription = {
     return covariance(dataY, dataX, false);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // COVARIANCE.S
 // -----------------------------------------------------------------------------
-export const COVARIANCE_S: AddFunctionDescription = {
+export const COVARIANCE_S = {
   description: _t(`The sample covariance of a dataset.`),
   args: [
     arg("data_y (any, range)", _t("The range representing the array or matrix of dependent data.")),
@@ -549,12 +549,12 @@ export const COVARIANCE_S: AddFunctionDescription = {
     return covariance(dataY, dataX, true);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // LARGE
 // -----------------------------------------------------------------------------
-export const LARGE: AddFunctionDescription = {
+export const LARGE = {
   description: _t("Nth largest element from a data set."),
   args: [
     arg("data (any, range)", _t("Array or range containing the dataset to consider.")),
@@ -596,12 +596,12 @@ export const LARGE: AddFunctionDescription = {
     return result!;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // MAX
 // -----------------------------------------------------------------------------
-export const MAX: AddFunctionDescription = {
+export const MAX = {
   description: _t("Maximum value in a numeric dataset."),
   args: [
     arg(
@@ -622,12 +622,12 @@ export const MAX: AddFunctionDescription = {
     return result === -Infinity ? 0 : result;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // MAXA
 // -----------------------------------------------------------------------------
-export const MAXA: AddFunctionDescription = {
+export const MAXA = {
   description: _t("Maximum numeric value in a dataset."),
   args: [
     arg(
@@ -655,12 +655,12 @@ export const MAXA: AddFunctionDescription = {
     return maxa === -Infinity ? 0 : maxa;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // MAXIFS
 // -----------------------------------------------------------------------------
-export const MAXIFS: AddFunctionDescription = {
+export const MAXIFS = {
   description: _t("Returns the maximum value in a range of cells, filtered by a set of criteria."),
   args: [
     arg("range (range)", _t("The range of cells from which the maximum will be determined.")),
@@ -695,12 +695,12 @@ export const MAXIFS: AddFunctionDescription = {
     return result === -Infinity ? 0 : result;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // MEDIAN
 // -----------------------------------------------------------------------------
-export const MEDIAN: AddFunctionDescription = {
+export const MEDIAN = {
   description: _t("Median value in a numeric dataset."),
   args: [
     arg(
@@ -728,12 +728,12 @@ export const MEDIAN: AddFunctionDescription = {
     return centile(data, 0.5, true, this.locale);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // MIN
 // -----------------------------------------------------------------------------
-export const MIN: AddFunctionDescription = {
+export const MIN = {
   description: _t("Minimum value in a numeric dataset."),
   args: [
     arg(
@@ -754,12 +754,12 @@ export const MIN: AddFunctionDescription = {
     return result === Infinity ? 0 : result;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // MINA
 // -----------------------------------------------------------------------------
-export const MINA: AddFunctionDescription = {
+export const MINA = {
   description: _t("Minimum numeric value in a dataset."),
   args: [
     arg(
@@ -787,12 +787,12 @@ export const MINA: AddFunctionDescription = {
     return mina === Infinity ? 0 : mina;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // MINIFS
 // -----------------------------------------------------------------------------
-export const MINIFS: AddFunctionDescription = {
+export const MINIFS = {
   description: _t("Returns the minimum value in a range of cells, filtered by a set of criteria."),
   args: [
     arg("range (range)", _t("The range of cells from which the minimum will be determined.")),
@@ -827,12 +827,12 @@ export const MINIFS: AddFunctionDescription = {
     return result === Infinity ? 0 : result;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // PERCENTILE
 // -----------------------------------------------------------------------------
-export const PERCENTILE: AddFunctionDescription = {
+export const PERCENTILE = {
   description: _t("Value at a given percentile of a dataset."),
   args: [
     arg("data (any, range)", _t("The array or range containing the dataset to consider.")),
@@ -846,15 +846,15 @@ export const PERCENTILE: AddFunctionDescription = {
     return Array.isArray(data?.format) ? data.format[0][0] : data?.format;
   },
   compute: function (data: ArgValue, percentile: PrimitiveArgValue): number {
-    return PERCENTILE_INC.compute.bind(this)(data, percentile) as number;
+    return PERCENTILE_INC.compute.bind(this)(data, percentile);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // PERCENTILE.EXC
 // -----------------------------------------------------------------------------
-export const PERCENTILE_EXC: AddFunctionDescription = {
+export const PERCENTILE_EXC = {
   description: _t("Value at a given percentile of a dataset exclusive of 0 and 1."),
   args: [
     arg("data (any, range)", _t("The array or range containing the dataset to consider.")),
@@ -873,12 +873,12 @@ export const PERCENTILE_EXC: AddFunctionDescription = {
     return centile([data], percentile, false, this.locale);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // PERCENTILE.INC
 // -----------------------------------------------------------------------------
-export const PERCENTILE_INC: AddFunctionDescription = {
+export const PERCENTILE_INC = {
   description: _t("Value at a given percentile of a dataset."),
   args: [
     arg("data (any, range)", _t("The array or range containing the dataset to consider.")),
@@ -895,12 +895,12 @@ export const PERCENTILE_INC: AddFunctionDescription = {
     return centile([data], percentile, true, this.locale);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // QUARTILE
 // -----------------------------------------------------------------------------
-export const QUARTILE: AddFunctionDescription = {
+export const QUARTILE = {
   description: _t("Value nearest to a specific quartile of a dataset."),
   args: [
     arg("data (any, range)", _t("The array or range containing the dataset to consider.")),
@@ -911,15 +911,15 @@ export const QUARTILE: AddFunctionDescription = {
     return Array.isArray(data?.format) ? data.format[0][0] : data?.format;
   },
   compute: function (data: ArgValue, quartileNumber: PrimitiveArgValue): number {
-    return QUARTILE_INC.compute.bind(this)(data, quartileNumber) as number;
+    return QUARTILE_INC.compute.bind(this)(data, quartileNumber);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // QUARTILE.EXC
 // -----------------------------------------------------------------------------
-export const QUARTILE_EXC: AddFunctionDescription = {
+export const QUARTILE_EXC = {
   description: _t("Value nearest to a specific quartile of a dataset exclusive of 0 and 4."),
   args: [
     arg("data (any, range)", _t("The array or range containing the dataset to consider.")),
@@ -934,12 +934,12 @@ export const QUARTILE_EXC: AddFunctionDescription = {
     return centile([data], 0.25 * _quartileNumber, false, this.locale);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // QUARTILE.INC
 // -----------------------------------------------------------------------------
-export const QUARTILE_INC: AddFunctionDescription = {
+export const QUARTILE_INC = {
   description: _t("Value nearest to a specific quartile of a dataset."),
   args: [
     arg("data (any, range)", _t("The array or range containing the dataset to consider.")),
@@ -954,12 +954,12 @@ export const QUARTILE_INC: AddFunctionDescription = {
     return centile([data], 0.25 * _quartileNumber, true, this.locale);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // SMALL
 // -----------------------------------------------------------------------------
-export const SMALL: AddFunctionDescription = {
+export const SMALL = {
   description: _t("Nth smallest element in a data set."),
   args: [
     arg("data (any, range)", _t("The array or range containing the dataset to consider.")),
@@ -1001,12 +1001,12 @@ export const SMALL: AddFunctionDescription = {
     return result!;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // STDEV
 // -----------------------------------------------------------------------------
-export const STDEV: AddFunctionDescription = {
+export const STDEV = {
   description: _t("Standard deviation."),
   args: [
     arg("value1 (number, range<number>)", _t("The first value or range of the sample.")),
@@ -1017,15 +1017,15 @@ export const STDEV: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
-    return Math.sqrt(VAR.compute.bind(this)(...values) as number);
+    return Math.sqrt(VAR.compute.bind(this)(...values));
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // STDEV.P
 // -----------------------------------------------------------------------------
-export const STDEV_P: AddFunctionDescription = {
+export const STDEV_P = {
   description: _t("Standard deviation of entire population."),
   args: [
     arg("value1 (number, range<number>)", _t("The first value or range of the population.")),
@@ -1036,15 +1036,15 @@ export const STDEV_P: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
-    return Math.sqrt(VAR_P.compute.bind(this)(...values) as number);
+    return Math.sqrt(VAR_P.compute.bind(this)(...values));
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // STDEV.S
 // -----------------------------------------------------------------------------
-export const STDEV_S: AddFunctionDescription = {
+export const STDEV_S = {
   description: _t("Standard deviation."),
   args: [
     arg("value1 (number, range<number>)", _t("The first value or range of the sample.")),
@@ -1055,15 +1055,15 @@ export const STDEV_S: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
-    return Math.sqrt(VAR_S.compute.bind(this)(...values) as number);
+    return Math.sqrt(VAR_S.compute.bind(this)(...values));
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // STDEVA
 // -----------------------------------------------------------------------------
-export const STDEVA: AddFunctionDescription = {
+export const STDEVA = {
   description: _t("Standard deviation of sample (text as 0)."),
   args: [
     arg("value1 (number, range<number>)", _t("The first value or range of the sample.")),
@@ -1074,15 +1074,15 @@ export const STDEVA: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
-    return Math.sqrt(VARA.compute.bind(this)(...values) as number);
+    return Math.sqrt(VARA.compute.bind(this)(...values));
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // STDEVP
 // -----------------------------------------------------------------------------
-export const STDEVP: AddFunctionDescription = {
+export const STDEVP = {
   description: _t("Standard deviation of entire population."),
   args: [
     arg("value1 (number, range<number>)", _t("The first value or range of the population.")),
@@ -1093,15 +1093,15 @@ export const STDEVP: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
-    return Math.sqrt(VARP.compute.bind(this)(...values) as number);
+    return Math.sqrt(VARP.compute.bind(this)(...values));
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // STDEVPA
 // -----------------------------------------------------------------------------
-export const STDEVPA: AddFunctionDescription = {
+export const STDEVPA = {
   description: _t("Standard deviation of entire population (text as 0)."),
   args: [
     arg("value1 (number, range<number>)", _t("The first value or range of the population.")),
@@ -1112,15 +1112,15 @@ export const STDEVPA: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
-    return Math.sqrt(VARPA.compute.bind(this)(...values) as number);
+    return Math.sqrt(VARPA.compute.bind(this)(...values));
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // VAR
 // -----------------------------------------------------------------------------
-export const VAR: AddFunctionDescription = {
+export const VAR = {
   description: _t("Variance."),
   args: [
     arg("value1 (number, range<number>)", _t("The first value or range of the sample.")),
@@ -1134,12 +1134,12 @@ export const VAR: AddFunctionDescription = {
     return variance(values, true, false, this.locale);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // VAR.P
 // -----------------------------------------------------------------------------
-export const VAR_P: AddFunctionDescription = {
+export const VAR_P = {
   description: _t("Variance of entire population."),
   args: [
     arg("value1 (number, range<number>)", _t("The first value or range of the population.")),
@@ -1153,12 +1153,12 @@ export const VAR_P: AddFunctionDescription = {
     return variance(values, false, false, this.locale);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // VAR.S
 // -----------------------------------------------------------------------------
-export const VAR_S: AddFunctionDescription = {
+export const VAR_S = {
   description: _t("Variance."),
   args: [
     arg("value1 (number, range<number>)", _t("The first value or range of the sample.")),
@@ -1172,12 +1172,12 @@ export const VAR_S: AddFunctionDescription = {
     return variance(values, true, false, this.locale);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // VARA
 // -----------------------------------------------------------------------------
-export const VARA: AddFunctionDescription = {
+export const VARA = {
   description: _t("Variance of sample (text as 0)."),
   args: [
     arg("value1 (number, range<number>)", _t("The first value or range of the sample.")),
@@ -1191,12 +1191,12 @@ export const VARA: AddFunctionDescription = {
     return variance(values, true, true, this.locale);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // VARP
 // -----------------------------------------------------------------------------
-export const VARP: AddFunctionDescription = {
+export const VARP = {
   description: _t("Variance of entire population."),
   args: [
     arg("value1 (number, range<number>)", _t("The first value or range of the population.")),
@@ -1210,12 +1210,12 @@ export const VARP: AddFunctionDescription = {
     return variance(values, false, false, this.locale);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // VARPA
 // -----------------------------------------------------------------------------
-export const VARPA: AddFunctionDescription = {
+export const VARPA = {
   description: _t("Variance of entire population (text as 0)."),
   args: [
     arg("value1 (number, range<number>)", _t("The first value or range of the population.")),
@@ -1229,4 +1229,4 @@ export const VARPA: AddFunctionDescription = {
     return variance(values, false, true, this.locale);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;

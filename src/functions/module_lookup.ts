@@ -43,7 +43,7 @@ function assertAvailable(variable, searchKey) {
 // ADDRESS
 // -----------------------------------------------------------------------------
 
-export const ADDRESS: AddFunctionDescription = {
+export const ADDRESS = {
   description: _t("Returns a cell reference as a string. "),
   args: [
     arg("row (number)", _t("The row number of the cell reference. ")),
@@ -104,13 +104,13 @@ export const ADDRESS: AddFunctionDescription = {
     return cellReference;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // COLUMN
 // -----------------------------------------------------------------------------
 
-export const COLUMN: AddFunctionDescription = {
+export const COLUMN = {
   description: _t("Column number of a specified cell."),
   args: [
     arg(
@@ -131,13 +131,13 @@ export const COLUMN: AddFunctionDescription = {
     return zone.left + 1;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // COLUMNS
 // -----------------------------------------------------------------------------
 
-export const COLUMNS: AddFunctionDescription = {
+export const COLUMNS = {
   description: _t("Number of columns in a specified array or range."),
   args: [arg("range (meta)", _t("The range whose column count will be returned."))],
   returns: ["NUMBER"],
@@ -146,13 +146,13 @@ export const COLUMNS: AddFunctionDescription = {
     return zone.right - zone.left + 1;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // HLOOKUP
 // -----------------------------------------------------------------------------
 
-export const HLOOKUP: AddFunctionDescription = {
+export const HLOOKUP = {
   description: _t(`Horizontal lookup`),
   args: [
     arg("search_key (any)", _t("The value to search for. For example, 42, 'Cats', or I24.")),
@@ -213,7 +213,7 @@ export const HLOOKUP: AddFunctionDescription = {
     return col[_index - 1] as FunctionReturnValue;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // INDEX
@@ -266,7 +266,7 @@ export const INDEX: AddFunctionDescription = {
 // LOOKUP
 // -----------------------------------------------------------------------------
 
-export const LOOKUP: AddFunctionDescription = {
+export const LOOKUP = {
   description: _t(`Look up a value.`),
   args: [
     arg("search_key (any)", _t("The value to search for. For example, 42, 'Cats', or I24.")),
@@ -342,13 +342,13 @@ export const LOOKUP: AddFunctionDescription = {
     return resultRange[0][index] as FunctionReturnValue;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // MATCH
 // -----------------------------------------------------------------------------
 const DEFAULT_SEARCH_TYPE = 1;
-export const MATCH: AddFunctionDescription = {
+export const MATCH = {
   description: _t(`Position of item in range that matches value.`),
   args: [
     arg("search_key (any)", _t("The value to search for. For example, 42, 'Cats', or I24.")),
@@ -398,13 +398,13 @@ export const MATCH: AddFunctionDescription = {
     return index + 1;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ROW
 // -----------------------------------------------------------------------------
 
-export const ROW: AddFunctionDescription = {
+export const ROW = {
   description: _t("Row number of a specified cell."),
   args: [
     arg(
@@ -425,13 +425,13 @@ export const ROW: AddFunctionDescription = {
     return zone.top + 1;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ROWS
 // -----------------------------------------------------------------------------
 
-export const ROWS: AddFunctionDescription = {
+export const ROWS = {
   description: _t("Number of rows in a specified array or range."),
   args: [arg("range (meta)", _t("The range whose row count will be returned."))],
   returns: ["NUMBER"],
@@ -440,13 +440,13 @@ export const ROWS: AddFunctionDescription = {
     return zone.bottom - zone.top + 1;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // VLOOKUP
 // -----------------------------------------------------------------------------
 
-export const VLOOKUP: AddFunctionDescription = {
+export const VLOOKUP = {
   description: _t(`Vertical lookup.`),
   args: [
     arg("search_key (any)", _t("The value to search for. For example, 42, 'Cats', or I24.")),
@@ -509,12 +509,12 @@ export const VLOOKUP: AddFunctionDescription = {
     return value as FunctionReturnValue;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // XLOOKUP
 // -----------------------------------------------------------------------------
-export const XLOOKUP: AddFunctionDescription = {
+export const XLOOKUP = {
   description: _t(
     `Search a range for a match and return the corresponding item from a second range.`
   ),
@@ -611,4 +611,4 @@ export const XLOOKUP: AddFunctionDescription = {
     return _defaultValue!;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;

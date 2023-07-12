@@ -540,7 +540,7 @@ export const XLSX_CHART_TYPES = [
   "surface3DChart",
   "bubbleChart",
 ] as const;
-export type XLSXChartType = typeof XLSX_CHART_TYPES[number];
+export type XLSXChartType = (typeof XLSX_CHART_TYPES)[number];
 
 /** An XLSX File is a main XML file and optionally a corresponding rel file */
 export interface XLSXImportFile {

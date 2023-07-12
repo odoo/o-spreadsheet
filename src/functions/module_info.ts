@@ -6,7 +6,7 @@ import { arg } from "./arguments";
 // -----------------------------------------------------------------------------
 // ISERR
 // -----------------------------------------------------------------------------
-export const ISERR: AddFunctionDescription = {
+export const ISERR = {
   description: _t("Whether a value is an error other than #N/A."),
   args: [arg("value (any, lazy)", _t("The value to be verified as an error type."))],
   returns: ["BOOLEAN"],
@@ -19,12 +19,12 @@ export const ISERR: AddFunctionDescription = {
     }
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ISERROR
 // -----------------------------------------------------------------------------
-export const ISERROR: AddFunctionDescription = {
+export const ISERROR = {
   description: _t("Whether a value is an error."),
   args: [arg("value (any, lazy)", _t("The value to be verified as an error type."))],
   returns: ["BOOLEAN"],
@@ -37,12 +37,12 @@ export const ISERROR: AddFunctionDescription = {
     }
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ISLOGICAL
 // -----------------------------------------------------------------------------
-export const ISLOGICAL: AddFunctionDescription = {
+export const ISLOGICAL = {
   description: _t("Whether a value is `true` or `false`."),
   args: [arg("value (any, lazy)", _t("The value to be verified as a logical TRUE or FALSE."))],
   returns: ["BOOLEAN"],
@@ -54,12 +54,12 @@ export const ISLOGICAL: AddFunctionDescription = {
     }
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ISNA
 // -----------------------------------------------------------------------------
-export const ISNA: AddFunctionDescription = {
+export const ISNA = {
   description: _t("Whether a value is the error #N/A."),
   args: [arg("value (any, lazy)", _t("The value to be verified as an error type."))],
   returns: ["BOOLEAN"],
@@ -72,12 +72,12 @@ export const ISNA: AddFunctionDescription = {
     }
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ISNONTEXT
 // -----------------------------------------------------------------------------
-export const ISNONTEXT: AddFunctionDescription = {
+export const ISNONTEXT = {
   description: _t("Whether a value is non-textual."),
   args: [arg("value (any, lazy)", _t("The value to be checked."))],
   returns: ["BOOLEAN"],
@@ -89,13 +89,13 @@ export const ISNONTEXT: AddFunctionDescription = {
     }
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ISNUMBER
 // -----------------------------------------------------------------------------
 
-export const ISNUMBER: AddFunctionDescription = {
+export const ISNUMBER = {
   description: _t("Whether a value is a number."),
   args: [arg("value (any, lazy)", _t("The value to be verified as a number."))],
   returns: ["BOOLEAN"],
@@ -107,12 +107,12 @@ export const ISNUMBER: AddFunctionDescription = {
     }
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ISTEXT
 // -----------------------------------------------------------------------------
-export const ISTEXT: AddFunctionDescription = {
+export const ISTEXT = {
   description: _t("Whether a value is text."),
   args: [arg("value (any, lazy)", _t("The value to be verified as text."))],
   returns: ["BOOLEAN"],
@@ -124,12 +124,12 @@ export const ISTEXT: AddFunctionDescription = {
     }
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ISBLANK
 // -----------------------------------------------------------------------------
-export const ISBLANK: AddFunctionDescription = {
+export const ISBLANK = {
   description: _t("Whether the referenced cell is empty"),
   args: [arg("value (any, lazy)", _t("Reference to the cell that will be checked for emptiness."))],
   returns: ["BOOLEAN"],
@@ -142,12 +142,12 @@ export const ISBLANK: AddFunctionDescription = {
     }
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // NA
 // -----------------------------------------------------------------------------
-export const NA: AddFunctionDescription = {
+export const NA = {
   description: _t("Returns the error value #N/A."),
   args: [],
   returns: ["BOOLEAN"],
@@ -155,4 +155,4 @@ export const NA: AddFunctionDescription = {
     throw new NotAvailableError();
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;

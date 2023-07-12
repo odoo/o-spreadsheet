@@ -13,7 +13,7 @@ import { assert, conditionalVisitBoolean, toBoolean } from "./helpers";
 // -----------------------------------------------------------------------------
 // AND
 // -----------------------------------------------------------------------------
-export const AND: AddFunctionDescription = {
+export const AND = {
   description: _t("Logical `and` operator."),
   args: [
     arg(
@@ -40,7 +40,7 @@ export const AND: AddFunctionDescription = {
     return acc;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // FALSE
@@ -58,7 +58,7 @@ export const FALSE: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 // IF
 // -----------------------------------------------------------------------------
-export const IF: AddFunctionDescription = {
+export const IF = {
   description: _t("Returns value depending on logical expression."),
   args: [
     arg(
@@ -86,12 +86,12 @@ export const IF: AddFunctionDescription = {
     return result === null || result === undefined ? "" : result;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // IFERROR
 // -----------------------------------------------------------------------------
-export const IFERROR: AddFunctionDescription = {
+export const IFERROR = {
   description: _t("Value if it is not an error, otherwise 2nd argument."),
   args: [
     arg("value (any, lazy)", _t("The value to return if value itself is not an error.")),
@@ -124,12 +124,12 @@ export const IFERROR: AddFunctionDescription = {
     return result === null || result === undefined ? "" : result;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // IFNA
 // -----------------------------------------------------------------------------
-export const IFNA: AddFunctionDescription = {
+export const IFNA = {
   description: _t("Value if it is not an #N/A error, otherwise 2nd argument."),
   args: [
     arg("value (any, lazy)", _t("The value to return if value itself is not #N/A an error.")),
@@ -156,12 +156,12 @@ export const IFNA: AddFunctionDescription = {
     return result === null || result === undefined ? "" : result;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // IFS
 // -----------------------------------------------------------------------------
-export const IFS: AddFunctionDescription = {
+export const IFS = {
   description: _t("Returns a value depending on multiple logical expressions."),
   args: [
     arg(
@@ -195,12 +195,12 @@ export const IFS: AddFunctionDescription = {
     throw new Error(_t(`No match.`));
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // NOT
 // -----------------------------------------------------------------------------
-export const NOT: AddFunctionDescription = {
+export const NOT = {
   description: _t("Returns opposite of provided logical value."),
   args: [
     arg(
@@ -215,12 +215,12 @@ export const NOT: AddFunctionDescription = {
     return !toBoolean(logicalExpression);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // OR
 // -----------------------------------------------------------------------------
-export const OR: AddFunctionDescription = {
+export const OR = {
   description: _t("Logical `or` operator."),
   args: [
     arg(
@@ -247,7 +247,7 @@ export const OR: AddFunctionDescription = {
     return acc;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // TRUE
@@ -265,7 +265,7 @@ export const TRUE: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 // XOR
 // -----------------------------------------------------------------------------
-export const XOR: AddFunctionDescription = {
+export const XOR = {
   description: _t("Logical `xor` operator."),
   args: [
     arg(
@@ -292,4 +292,4 @@ export const XOR: AddFunctionDescription = {
     return acc;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;

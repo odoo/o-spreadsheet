@@ -12,7 +12,7 @@ import { POWER } from "./module_math";
 // -----------------------------------------------------------------------------
 // ADD
 // -----------------------------------------------------------------------------
-export const ADD: AddFunctionDescription = {
+export const ADD = {
   description: _t(`Sum of two numbers.`),
   args: [
     arg("value1 (number)", _t("The first addend.")),
@@ -23,12 +23,12 @@ export const ADD: AddFunctionDescription = {
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): number {
     return toNumber(value1, this.locale) + toNumber(value2, this.locale);
   },
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // CONCAT
 // -----------------------------------------------------------------------------
-export const CONCAT: AddFunctionDescription = {
+export const CONCAT = {
   description: _t(`Concatenation of two values.`),
   args: [
     arg("value1 (string)", _t("The value to which value2 will be appended.")),
@@ -39,12 +39,12 @@ export const CONCAT: AddFunctionDescription = {
     return toString(value1) + toString(value2);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // DIVIDE
 // -----------------------------------------------------------------------------
-export const DIVIDE: AddFunctionDescription = {
+export const DIVIDE = {
   description: _t(`One number divided by another.`),
   args: [
     arg("dividend (number)", _t("The number to be divided.")),
@@ -58,7 +58,7 @@ export const DIVIDE: AddFunctionDescription = {
     assert(() => _divisor !== 0, _t("The divisor must be different from zero."));
     return toNumber(dividend, this.locale) / _divisor;
   },
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // EQ
@@ -69,7 +69,7 @@ function isEmpty(value: PrimitiveArgValue): boolean {
 
 const getNeutral = { number: 0, string: "", boolean: false };
 
-export const EQ: AddFunctionDescription = {
+export const EQ = {
   description: _t(`Equal.`),
   args: [
     arg("value1 (any)", _t("The first value.")),
@@ -87,7 +87,7 @@ export const EQ: AddFunctionDescription = {
     }
     return value1 === value2;
   },
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // GT
@@ -116,7 +116,7 @@ function applyRelationalOperator(
   return cb(value1, value2);
 }
 
-export const GT: AddFunctionDescription = {
+export const GT = {
   description: _t(`Strictly greater than.`),
   args: [
     arg("value1 (any)", _t("The value to test as being greater than value2.")),
@@ -128,12 +128,12 @@ export const GT: AddFunctionDescription = {
       return v1 > v2;
     });
   },
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // GTE
 // -----------------------------------------------------------------------------
-export const GTE: AddFunctionDescription = {
+export const GTE = {
   description: _t(`Greater than or equal to.`),
   args: [
     arg("value1 (any)", _t("The value to test as being greater than or equal to value2.")),
@@ -145,12 +145,12 @@ export const GTE: AddFunctionDescription = {
       return v1 >= v2;
     });
   },
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // LT
 // -----------------------------------------------------------------------------
-export const LT: AddFunctionDescription = {
+export const LT = {
   description: _t(`Less than.`),
   args: [
     arg("value1 (any)", _t("The value to test as being less than value2.")),
@@ -160,12 +160,12 @@ export const LT: AddFunctionDescription = {
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): boolean {
     return !GTE.compute.bind(this)(value1, value2);
   },
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // LTE
 // -----------------------------------------------------------------------------
-export const LTE: AddFunctionDescription = {
+export const LTE = {
   description: _t(`Less than or equal to.`),
   args: [
     arg("value1 (any)", _t("The value to test as being less than or equal to value2.")),
@@ -175,12 +175,12 @@ export const LTE: AddFunctionDescription = {
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): boolean {
     return !GT.compute.bind(this)(value1, value2);
   },
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // MINUS
 // -----------------------------------------------------------------------------
-export const MINUS: AddFunctionDescription = {
+export const MINUS = {
   description: _t(`Difference of two numbers.`),
   args: [
     arg("value1 (number)", _t("The minuend, or number to be subtracted from.")),
@@ -191,12 +191,12 @@ export const MINUS: AddFunctionDescription = {
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): number {
     return toNumber(value1, this.locale) - toNumber(value2, this.locale);
   },
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // MULTIPLY
 // -----------------------------------------------------------------------------
-export const MULTIPLY: AddFunctionDescription = {
+export const MULTIPLY = {
   description: _t(`Product of two numbers`),
   args: [
     arg("factor1 (number)", _t("The first multiplicand.")),
@@ -208,12 +208,12 @@ export const MULTIPLY: AddFunctionDescription = {
   compute: function (factor1: PrimitiveArgValue, factor2: PrimitiveArgValue): number {
     return toNumber(factor1, this.locale) * toNumber(factor2, this.locale);
   },
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // NE
 // -----------------------------------------------------------------------------
-export const NE: AddFunctionDescription = {
+export const NE = {
   description: _t(`Not equal.`),
   args: [
     arg("value1 (any)", _t("The first value.")),
@@ -223,12 +223,12 @@ export const NE: AddFunctionDescription = {
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): boolean {
     return !EQ.compute.bind(this)(value1, value2);
   },
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // POW
 // -----------------------------------------------------------------------------
-export const POW: AddFunctionDescription = {
+export const POW = {
   description: _t(`A number raised to a power.`),
   args: [
     arg("base (number)", _t("The number to raise to the exponent power.")),
@@ -236,14 +236,14 @@ export const POW: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (base: PrimitiveArgValue, exponent: PrimitiveArgValue): number {
-    return POWER.compute.bind(this)(base, exponent) as number;
+    return POWER.compute.bind(this)(base, exponent);
   },
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // UMINUS
 // -----------------------------------------------------------------------------
-export const UMINUS: AddFunctionDescription = {
+export const UMINUS = {
   description: _t(`A number with the sign reversed.`),
   args: [
     arg(
@@ -256,24 +256,24 @@ export const UMINUS: AddFunctionDescription = {
   compute: function (value: PrimitiveArgValue): number {
     return -toNumber(value, this.locale);
   },
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // UNARY_PERCENT
 // -----------------------------------------------------------------------------
-export const UNARY_PERCENT: AddFunctionDescription = {
+export const UNARY_PERCENT = {
   description: _t(`Value interpreted as a percentage.`),
   args: [arg("percentage (number)", _t("The value to interpret as a percentage."))],
   returns: ["NUMBER"],
   compute: function (percentage: PrimitiveArgValue): number {
     return toNumber(percentage, this.locale) / 100;
   },
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // UPLUS
 // -----------------------------------------------------------------------------
-export const UPLUS: AddFunctionDescription = {
+export const UPLUS = {
   description: _t(`A specified number, unchanged.`),
   args: [arg("value (any)", _t("The number to return."))],
   returns: ["ANY"],
@@ -281,4 +281,4 @@ export const UPLUS: AddFunctionDescription = {
   compute: function (value: PrimitiveArgValue): FunctionReturnValue {
     return value === null ? "" : value;
   },
-};
+} satisfies AddFunctionDescription;

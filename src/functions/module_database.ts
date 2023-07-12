@@ -164,7 +164,7 @@ const databaseArgs = [
 // -----------------------------------------------------------------------------
 // DAVERAGE
 // -----------------------------------------------------------------------------
-export const DAVERAGE: AddFunctionDescription = {
+export const DAVERAGE = {
   description: _t("Average of a set of values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
@@ -174,15 +174,15 @@ export const DAVERAGE: AddFunctionDescription = {
     criteria: MatrixArgValue
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    return AVERAGE.compute.bind(this)([cells]) as number;
+    return AVERAGE.compute.bind(this)([cells]);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // DCOUNT
 // -----------------------------------------------------------------------------
-export const DCOUNT: AddFunctionDescription = {
+export const DCOUNT = {
   description: _t("Counts values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
@@ -192,15 +192,15 @@ export const DCOUNT: AddFunctionDescription = {
     criteria: MatrixArgValue
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    return COUNT.compute.bind(this)([cells]) as number;
+    return COUNT.compute.bind(this)([cells]);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // DCOUNTA
 // -----------------------------------------------------------------------------
-export const DCOUNTA: AddFunctionDescription = {
+export const DCOUNTA = {
   description: _t("Counts values and text from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
@@ -210,15 +210,15 @@ export const DCOUNTA: AddFunctionDescription = {
     criteria: MatrixArgValue
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    return COUNTA.compute.bind(this)([cells]) as number;
+    return COUNTA.compute.bind(this)([cells]);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // DGET
 // -----------------------------------------------------------------------------
-export const DGET: AddFunctionDescription = {
+export const DGET = {
   description: _t("Single value from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
@@ -232,12 +232,12 @@ export const DGET: AddFunctionDescription = {
     return cells[0];
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // DMAX
 // -----------------------------------------------------------------------------
-export const DMAX: AddFunctionDescription = {
+export const DMAX = {
   description: _t("Maximum of values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
@@ -247,15 +247,15 @@ export const DMAX: AddFunctionDescription = {
     criteria: MatrixArgValue
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    return MAX.compute.bind(this)([cells]) as number;
+    return MAX.compute.bind(this)([cells]);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // DMIN
 // -----------------------------------------------------------------------------
-export const DMIN: AddFunctionDescription = {
+export const DMIN = {
   description: _t("Minimum of values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
@@ -265,15 +265,15 @@ export const DMIN: AddFunctionDescription = {
     criteria: MatrixArgValue
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    return MIN.compute.bind(this)([cells]) as number;
+    return MIN.compute.bind(this)([cells]);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // DPRODUCT
 // -----------------------------------------------------------------------------
-export const DPRODUCT: AddFunctionDescription = {
+export const DPRODUCT = {
   description: _t("Product of values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
@@ -283,15 +283,15 @@ export const DPRODUCT: AddFunctionDescription = {
     criteria: MatrixArgValue
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    return PRODUCT.compute.bind(this)([cells]) as number;
+    return PRODUCT.compute.bind(this)([cells]);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // DSTDEV
 // -----------------------------------------------------------------------------
-export const DSTDEV: AddFunctionDescription = {
+export const DSTDEV = {
   description: _t("Standard deviation of population sample from table."),
   args: databaseArgs,
   returns: ["NUMBER"],
@@ -301,15 +301,15 @@ export const DSTDEV: AddFunctionDescription = {
     criteria: MatrixArgValue
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    return STDEV.compute.bind(this)([cells]) as number;
+    return STDEV.compute.bind(this)([cells]);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // DSTDEVP
 // -----------------------------------------------------------------------------
-export const DSTDEVP: AddFunctionDescription = {
+export const DSTDEVP = {
   description: _t("Standard deviation of entire population from table."),
   args: databaseArgs,
   returns: ["NUMBER"],
@@ -319,15 +319,15 @@ export const DSTDEVP: AddFunctionDescription = {
     criteria: MatrixArgValue
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    return STDEVP.compute.bind(this)([cells]) as number;
+    return STDEVP.compute.bind(this)([cells]);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // DSUM
 // -----------------------------------------------------------------------------
-export const DSUM: AddFunctionDescription = {
+export const DSUM = {
   description: _t("Sum of values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
@@ -337,15 +337,15 @@ export const DSUM: AddFunctionDescription = {
     criteria: MatrixArgValue
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    return SUM.compute.bind(this)([cells]) as number;
+    return SUM.compute.bind(this)([cells]);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // DVAR
 // -----------------------------------------------------------------------------
-export const DVAR: AddFunctionDescription = {
+export const DVAR = {
   description: _t("Variance of population sample from table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
@@ -355,15 +355,15 @@ export const DVAR: AddFunctionDescription = {
     criteria: MatrixArgValue
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    return VAR.compute.bind(this)([cells]) as number;
+    return VAR.compute.bind(this)([cells]);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // DVARP
 // -----------------------------------------------------------------------------
-export const DVARP: AddFunctionDescription = {
+export const DVARP = {
   description: _t("Variance of a population from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
@@ -373,7 +373,7 @@ export const DVARP: AddFunctionDescription = {
     criteria: MatrixArgValue
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    return VARP.compute.bind(this)([cells]) as number;
+    return VARP.compute.bind(this)([cells]);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
