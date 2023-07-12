@@ -376,7 +376,7 @@ Useful when all arguments must have the same processing, and ignore values that 
 - `visitNumbers`(args: IArguments | any[], callback: (arg: number) => void): void
 
 ```javascript
-export const MEDIAN: AddFunctionDescription = {
+export const MEDIAN = {
   description: "Median value in a numeric dataset.",
   args: [
     arg(

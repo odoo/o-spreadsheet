@@ -7,7 +7,7 @@ import { toNumber } from "./helpers";
 // -----------------------------------------------------------------------------
 // FORMAT.LARGE.NUMBER
 // -----------------------------------------------------------------------------
-export const FORMAT_LARGE_NUMBER: AddFunctionDescription = {
+export const FORMAT_LARGE_NUMBER = {
   description: _t(`Apply a large number format`),
   args: [
     arg("value (number)", _t("The number.")),
@@ -45,4 +45,4 @@ export const FORMAT_LARGE_NUMBER: AddFunctionDescription = {
   compute: function (value: PrimitiveArgValue): number {
     return toNumber(value, this.locale);
   },
-};
+} satisfies AddFunctionDescription;

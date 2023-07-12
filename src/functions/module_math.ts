@@ -32,7 +32,7 @@ const DECIMAL_REPRESENTATION = /^-?[a-z0-9]+$/i;
 // -----------------------------------------------------------------------------
 // ABS
 // -----------------------------------------------------------------------------
-export const ABS: AddFunctionDescription = {
+export const ABS = {
   description: _t("Absolute value of a number."),
   args: [arg("value (number)", _t("The number of which to return the absolute value."))],
   returns: ["NUMBER"],
@@ -40,12 +40,12 @@ export const ABS: AddFunctionDescription = {
     return Math.abs(toNumber(value, this.locale));
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ACOS
 // -----------------------------------------------------------------------------
-export const ACOS: AddFunctionDescription = {
+export const ACOS = {
   description: _t("Inverse cosine of a value, in radians."),
   args: [
     arg(
@@ -65,12 +65,12 @@ export const ACOS: AddFunctionDescription = {
     return Math.acos(_value);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ACOSH
 // -----------------------------------------------------------------------------
-export const ACOSH: AddFunctionDescription = {
+export const ACOSH = {
   description: _t("Inverse hyperbolic cosine of a number."),
   args: [
     arg(
@@ -90,12 +90,12 @@ export const ACOSH: AddFunctionDescription = {
     return Math.acosh(_value);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ACOT
 // -----------------------------------------------------------------------------
-export const ACOT: AddFunctionDescription = {
+export const ACOT = {
   description: _t("Inverse cotangent of a value."),
   args: [arg("value (number)", _t("The value for which to calculate the inverse cotangent."))],
   returns: ["NUMBER"],
@@ -108,12 +108,12 @@ export const ACOT: AddFunctionDescription = {
     return (sign * Math.PI) / 2 - Math.atan(_value);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ACOTH
 // -----------------------------------------------------------------------------
-export const ACOTH: AddFunctionDescription = {
+export const ACOTH = {
   description: _t("Inverse hyperbolic cotangent of a value."),
   args: [
     arg(
@@ -133,12 +133,12 @@ export const ACOTH: AddFunctionDescription = {
     return Math.log((_value + 1) / (_value - 1)) / 2;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ASIN
 // -----------------------------------------------------------------------------
-export const ASIN: AddFunctionDescription = {
+export const ASIN = {
   description: _t("Inverse sine of a value, in radians."),
   args: [
     arg(
@@ -156,12 +156,12 @@ export const ASIN: AddFunctionDescription = {
     return Math.asin(_value);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ASINH
 // -----------------------------------------------------------------------------
-export const ASINH: AddFunctionDescription = {
+export const ASINH = {
   description: _t("Inverse hyperbolic sine of a number."),
   args: [
     arg("value (number)", _t("The value for which to calculate the inverse hyperbolic sine.")),
@@ -171,12 +171,12 @@ export const ASINH: AddFunctionDescription = {
     return Math.asinh(toNumber(value, this.locale));
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ATAN
 // -----------------------------------------------------------------------------
-export const ATAN: AddFunctionDescription = {
+export const ATAN = {
   description: _t("Inverse tangent of a value, in radians."),
   args: [arg("value (number)", _t("The value for which to calculate the inverse tangent."))],
   returns: ["NUMBER"],
@@ -184,12 +184,12 @@ export const ATAN: AddFunctionDescription = {
     return Math.atan(toNumber(value, this.locale));
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ATAN2
 // -----------------------------------------------------------------------------
-export const ATAN2: AddFunctionDescription = {
+export const ATAN2 = {
   description: _t("Angle from the X axis to a point (x,y), in radians."),
   args: [
     arg(
@@ -216,12 +216,12 @@ export const ATAN2: AddFunctionDescription = {
     return Math.atan2(_y, _x);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ATANH
 // -----------------------------------------------------------------------------
-export const ATANH: AddFunctionDescription = {
+export const ATANH = {
   description: _t("Inverse hyperbolic tangent of a number."),
   args: [
     arg(
@@ -241,12 +241,12 @@ export const ATANH: AddFunctionDescription = {
     return Math.atanh(_value);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // CEILING
 // -----------------------------------------------------------------------------
-export const CEILING: AddFunctionDescription = {
+export const CEILING = {
   description: _t(`Rounds number up to nearest multiple of factor.`),
   args: [
     arg("value (number)", _t("The value to round up to the nearest integer multiple of factor.")),
@@ -271,12 +271,12 @@ export const CEILING: AddFunctionDescription = {
     return _factor ? Math.ceil(_value / _factor) * _factor : 0;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // CEILING.MATH
 // -----------------------------------------------------------------------------
-export const CEILING_MATH: AddFunctionDescription = {
+export const CEILING_MATH = {
   description: _t(`Rounds number up to nearest multiple of factor.`),
   args: [
     arg(
@@ -322,12 +322,12 @@ export const CEILING_MATH: AddFunctionDescription = {
     return -Math.ceil(Math.abs(_number) / _significance) * _significance;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // CEILING.PRECISE
 // -----------------------------------------------------------------------------
-export const CEILING_PRECISE: AddFunctionDescription = {
+export const CEILING_PRECISE = {
   description: _t(`Rounds number up to nearest multiple of factor.`),
   args: [
     arg(
@@ -342,15 +342,15 @@ export const CEILING_PRECISE: AddFunctionDescription = {
   returns: ["NUMBER"],
   computeFormat: (number: PrimitiveArg) => number?.format,
   compute: function (number: PrimitiveArgValue, significance: PrimitiveArgValue): number {
-    return CEILING_MATH.compute.bind(this)(number, significance, 0) as number;
+    return CEILING_MATH.compute.bind(this)(number, significance, 0);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // COS
 // -----------------------------------------------------------------------------
-export const COS: AddFunctionDescription = {
+export const COS = {
   description: _t("Cosine of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the cosine of, in radians."))],
   returns: ["NUMBER"],
@@ -358,12 +358,12 @@ export const COS: AddFunctionDescription = {
     return Math.cos(toNumber(angle, this.locale));
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // COSH
 // -----------------------------------------------------------------------------
-export const COSH: AddFunctionDescription = {
+export const COSH = {
   description: _t("Hyperbolic cosine of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic cosine of."))],
   returns: ["NUMBER"],
@@ -371,12 +371,12 @@ export const COSH: AddFunctionDescription = {
     return Math.cosh(toNumber(value, this.locale));
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // COT
 // -----------------------------------------------------------------------------
-export const COT: AddFunctionDescription = {
+export const COT = {
   description: _t("Cotangent of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the cotangent of, in radians."))],
   returns: ["NUMBER"],
@@ -389,12 +389,12 @@ export const COT: AddFunctionDescription = {
     return 1 / Math.tan(_angle);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // COTH
 // -----------------------------------------------------------------------------
-export const COTH: AddFunctionDescription = {
+export const COTH = {
   description: _t("Hyperbolic cotangent of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic cotangent of."))],
   returns: ["NUMBER"],
@@ -407,12 +407,12 @@ export const COTH: AddFunctionDescription = {
     return 1 / Math.tanh(_value);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // COUNTBLANK
 // -----------------------------------------------------------------------------
-export const COUNTBLANK: AddFunctionDescription = {
+export const COUNTBLANK = {
   description: _t("Number of empty values."),
   args: [
     arg(
@@ -433,12 +433,12 @@ export const COUNTBLANK: AddFunctionDescription = {
     );
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // COUNTIF
 // -----------------------------------------------------------------------------
-export const COUNTIF: AddFunctionDescription = {
+export const COUNTIF = {
   description: _t("A conditional count across a range."),
   args: [
     arg("range (range)", _t("The range that is tested against criterion.")),
@@ -457,12 +457,12 @@ export const COUNTIF: AddFunctionDescription = {
     return count;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // COUNTIFS
 // -----------------------------------------------------------------------------
-export const COUNTIFS: AddFunctionDescription = {
+export const COUNTIFS = {
   description: _t("Count values depending on multiple criteria."),
   args: [
     arg("criteria_range1 (range)", _t("The range to check against criterion1.")),
@@ -488,7 +488,7 @@ export const COUNTIFS: AddFunctionDescription = {
     return count;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // COUNTUNIQUE
@@ -507,7 +507,7 @@ function isDefined(value: any): boolean {
   }
 }
 
-export const COUNTUNIQUE: AddFunctionDescription = {
+export const COUNTUNIQUE = {
   description: _t("Counts number of unique values in a range."),
   args: [
     arg("value1 (any, range)", _t("The first value or range to consider for uniqueness.")),
@@ -520,13 +520,13 @@ export const COUNTUNIQUE: AddFunctionDescription = {
   compute: function (...argsValues: ArgValue[]): number {
     return reduceAny(argsValues, (acc, a) => (isDefined(a) ? acc.add(a) : acc), new Set()).size;
   },
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // COUNTUNIQUEIFS
 // -----------------------------------------------------------------------------
 
-export const COUNTUNIQUEIFS: AddFunctionDescription = {
+export const COUNTUNIQUEIFS = {
   description: _t("Counts number of unique values in a range, filtered by a set of criteria."),
   args: [
     arg(
@@ -563,12 +563,12 @@ export const COUNTUNIQUEIFS: AddFunctionDescription = {
     );
     return uniqueValues.size;
   },
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // CSC
 // -----------------------------------------------------------------------------
-export const CSC: AddFunctionDescription = {
+export const CSC = {
   description: _t("Cosecant of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the cosecant of, in radians."))],
   returns: ["NUMBER"],
@@ -581,12 +581,12 @@ export const CSC: AddFunctionDescription = {
     return 1 / Math.sin(_angle);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // CSCH
 // -----------------------------------------------------------------------------
-export const CSCH: AddFunctionDescription = {
+export const CSCH = {
   description: _t("Hyperbolic cosecant of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic cosecant of."))],
   returns: ["NUMBER"],
@@ -599,12 +599,12 @@ export const CSCH: AddFunctionDescription = {
     return 1 / Math.sinh(_value);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // DECIMAL
 // -----------------------------------------------------------------------------
-export const DECIMAL: AddFunctionDescription = {
+export const DECIMAL = {
   description: _t("Converts from another base to decimal."),
   args: [
     arg("value (string)", _t("The number to convert.")),
@@ -643,12 +643,12 @@ export const DECIMAL: AddFunctionDescription = {
     return deci;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // DEGREES
 // -----------------------------------------------------------------------------
-export const DEGREES: AddFunctionDescription = {
+export const DEGREES = {
   description: _t(`Converts an angle value in radians to degrees.`),
   args: [arg("angle (number)", _t("The angle to convert from radians to degrees."))],
   returns: ["NUMBER"],
@@ -656,12 +656,12 @@ export const DEGREES: AddFunctionDescription = {
     return (toNumber(angle, this.locale) * 180) / Math.PI;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // EXP
 // -----------------------------------------------------------------------------
-export const EXP: AddFunctionDescription = {
+export const EXP = {
   description: _t(`Euler's number, e (~2.718) raised to a power.`),
   args: [arg("value (number)", _t("The exponent to raise e."))],
   returns: ["NUMBER"],
@@ -669,12 +669,12 @@ export const EXP: AddFunctionDescription = {
     return Math.exp(toNumber(value, this.locale));
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // FLOOR
 // -----------------------------------------------------------------------------
-export const FLOOR: AddFunctionDescription = {
+export const FLOOR = {
   description: _t(`Rounds number down to nearest multiple of factor.`),
   args: [
     arg("value (number)", _t("The value to round down to the nearest integer multiple of factor.")),
@@ -699,12 +699,12 @@ export const FLOOR: AddFunctionDescription = {
     return _factor ? Math.floor(_value / _factor) * _factor : 0;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // FLOOR.MATH
 // -----------------------------------------------------------------------------
-export const FLOOR_MATH: AddFunctionDescription = {
+export const FLOOR_MATH = {
   description: _t(`Rounds number down to nearest multiple of factor.`),
   args: [
     arg(
@@ -749,12 +749,12 @@ export const FLOOR_MATH: AddFunctionDescription = {
     return -Math.floor(Math.abs(_number) / _significance) * _significance;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // FLOOR.PRECISE
 // -----------------------------------------------------------------------------
-export const FLOOR_PRECISE: AddFunctionDescription = {
+export const FLOOR_PRECISE = {
   description: _t(`Rounds number down to nearest multiple of factor.`),
   args: [
     arg(
@@ -772,15 +772,15 @@ export const FLOOR_PRECISE: AddFunctionDescription = {
     number: PrimitiveArgValue,
     significance: PrimitiveArgValue = DEFAULT_SIGNIFICANCE
   ): number {
-    return FLOOR_MATH.compute.bind(this)(number, significance, 0) as number;
+    return FLOOR_MATH.compute.bind(this)(number, significance, 0);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ISEVEN
 // -----------------------------------------------------------------------------
-export const ISEVEN: AddFunctionDescription = {
+export const ISEVEN = {
   description: _t(`Whether the provided value is even.`),
   args: [arg("value (number)", _t("The value to be verified as even."))],
   returns: ["BOOLEAN"],
@@ -790,12 +790,12 @@ export const ISEVEN: AddFunctionDescription = {
     return Math.floor(Math.abs(_value)) & 1 ? false : true;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ISO.CEILING
 // -----------------------------------------------------------------------------
-export const ISO_CEILING: AddFunctionDescription = {
+export const ISO_CEILING = {
   description: _t(`Rounds number up to nearest multiple of factor.`),
   args: [
     arg(
@@ -813,15 +813,15 @@ export const ISO_CEILING: AddFunctionDescription = {
     number: PrimitiveArgValue,
     significance: PrimitiveArgValue = DEFAULT_SIGNIFICANCE
   ): number {
-    return CEILING_MATH.compute.bind(this)(number, significance, 0) as number;
+    return CEILING_MATH.compute.bind(this)(number, significance, 0);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ISODD
 // -----------------------------------------------------------------------------
-export const ISODD: AddFunctionDescription = {
+export const ISODD = {
   description: _t(`Whether the provided value is even.`),
   args: [arg("value (number)", _t("The value to be verified as even."))],
   returns: ["BOOLEAN"],
@@ -831,12 +831,12 @@ export const ISODD: AddFunctionDescription = {
     return Math.floor(Math.abs(_value)) & 1 ? true : false;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // LN
 // -----------------------------------------------------------------------------
-export const LN: AddFunctionDescription = {
+export const LN = {
   description: _t(`The logarithm of a number, base e (euler's number).`),
   args: [arg("value (number)", _t("The value for which to calculate the logarithm, base e."))],
   returns: ["NUMBER"],
@@ -846,12 +846,12 @@ export const LN: AddFunctionDescription = {
     return Math.log(_value);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // MOD
 // -----------------------------------------------------------------------------
-export const MOD: AddFunctionDescription = {
+export const MOD = {
   description: _t(`Modulo (remainder) operator.`),
   args: [
     arg("dividend (number)", _t("The number to be divided to find the remainder.")),
@@ -873,12 +873,12 @@ export const MOD: AddFunctionDescription = {
     return modulus;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // MUNIT
 // -----------------------------------------------------------------------------
-export const MUNIT: AddFunctionDescription = {
+export const MUNIT = {
   description: _t("Returns a n x n unit matrix, where n is the input dimension."),
   args: [
     arg(
@@ -893,12 +893,12 @@ export const MUNIT: AddFunctionDescription = {
     return getUnitMatrix(_n);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ODD
 // -----------------------------------------------------------------------------
-export const ODD: AddFunctionDescription = {
+export const ODD = {
   description: _t(`Rounds a number up to the nearest odd integer.`),
   args: [arg("value (number)", _t("The value to round to the next greatest odd number."))],
   returns: ["NUMBER"],
@@ -911,12 +911,12 @@ export const ODD: AddFunctionDescription = {
     return _value < 0 ? -temp : temp;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // PI
 // -----------------------------------------------------------------------------
-export const PI: AddFunctionDescription = {
+export const PI = {
   description: _t(`The number pi.`),
   args: [],
   returns: ["NUMBER"],
@@ -924,12 +924,12 @@ export const PI: AddFunctionDescription = {
     return Math.PI;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // POWER
 // -----------------------------------------------------------------------------
-export const POWER: AddFunctionDescription = {
+export const POWER = {
   description: _t(`A number raised to a power.`),
   args: [
     arg("base (number)", _t("The number to raise to the exponent power.")),
@@ -947,12 +947,12 @@ export const POWER: AddFunctionDescription = {
     return Math.pow(_base, _exponent);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // PRODUCT
 // -----------------------------------------------------------------------------
-export const PRODUCT: AddFunctionDescription = {
+export const PRODUCT = {
   description: _t("Result of multiplying a series of numbers together."),
   args: [
     arg(
@@ -992,12 +992,12 @@ export const PRODUCT: AddFunctionDescription = {
     return acc;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // RAND
 // -----------------------------------------------------------------------------
-export const RAND: AddFunctionDescription = {
+export const RAND = {
   description: _t("A random number between 0 inclusive and 1 exclusive."),
   args: [],
   returns: ["NUMBER"],
@@ -1005,12 +1005,12 @@ export const RAND: AddFunctionDescription = {
     return Math.random();
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // RANDARRAY
 // -----------------------------------------------------------------------------
-export const RANDARRAY: AddFunctionDescription = {
+export const RANDARRAY = {
   description: _t("Returns a grid of random numbers between 0 inclusive and 1 exclusive."),
   args: [
     arg("rows (number, default=1)", _t("The number of rows to be returned.")),
@@ -1068,12 +1068,12 @@ export const RANDARRAY: AddFunctionDescription = {
     return result;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // RANDBETWEEN
 // -----------------------------------------------------------------------------
-export const RANDBETWEEN: AddFunctionDescription = {
+export const RANDBETWEEN = {
   description: _t("Random integer between two values, inclusive."),
   args: [
     arg("low (number)", _t("The low end of the random range.")),
@@ -1103,12 +1103,12 @@ export const RANDBETWEEN: AddFunctionDescription = {
     return _low + Math.ceil((_high - _low + 1) * Math.random()) - 1;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ROUND
 // -----------------------------------------------------------------------------
-export const ROUND: AddFunctionDescription = {
+export const ROUND = {
   description: _t("Rounds a number according to standard rules."),
   args: [
     arg("value (number)", _t("The value to round to places number of places.")),
@@ -1136,12 +1136,12 @@ export const ROUND: AddFunctionDescription = {
     return _value >= 0 ? tempResult : -tempResult;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ROUNDDOWN
 // -----------------------------------------------------------------------------
-export const ROUNDDOWN: AddFunctionDescription = {
+export const ROUNDDOWN = {
   description: _t(`Rounds down a number.`),
   args: [
     arg(
@@ -1172,12 +1172,12 @@ export const ROUNDDOWN: AddFunctionDescription = {
     return _value >= 0 ? tempResult : -tempResult;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ROUNDUP
 // -----------------------------------------------------------------------------
-export const ROUNDUP: AddFunctionDescription = {
+export const ROUNDUP = {
   description: _t(`Rounds up a number.`),
   args: [
     arg("value (number)", _t("The value to round to places number of places, always rounding up.")),
@@ -1205,12 +1205,12 @@ export const ROUNDUP: AddFunctionDescription = {
     return _value >= 0 ? tempResult : -tempResult;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // SEC
 // -----------------------------------------------------------------------------
-export const SEC: AddFunctionDescription = {
+export const SEC = {
   description: _t("Secant of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the secant of, in radians."))],
   returns: ["NUMBER"],
@@ -1218,12 +1218,12 @@ export const SEC: AddFunctionDescription = {
     return 1 / Math.cos(toNumber(angle, this.locale));
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // SECH
 // -----------------------------------------------------------------------------
-export const SECH: AddFunctionDescription = {
+export const SECH = {
   description: _t("Hyperbolic secant of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic secant of."))],
   returns: ["NUMBER"],
@@ -1231,12 +1231,12 @@ export const SECH: AddFunctionDescription = {
     return 1 / Math.cosh(toNumber(value, this.locale));
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // SIN
 // -----------------------------------------------------------------------------
-export const SIN: AddFunctionDescription = {
+export const SIN = {
   description: _t("Sine of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the sine of, in radians."))],
   returns: ["NUMBER"],
@@ -1244,12 +1244,12 @@ export const SIN: AddFunctionDescription = {
     return Math.sin(toNumber(angle, this.locale));
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // SINH
 // -----------------------------------------------------------------------------
-export const SINH: AddFunctionDescription = {
+export const SINH = {
   description: _t("Hyperbolic sine of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic sine of."))],
   returns: ["NUMBER"],
@@ -1257,12 +1257,12 @@ export const SINH: AddFunctionDescription = {
     return Math.sinh(toNumber(value, this.locale));
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // SQRT
 // -----------------------------------------------------------------------------
-export const SQRT: AddFunctionDescription = {
+export const SQRT = {
   description: _t("Positive square root of a positive number."),
   args: [arg("value (number)", _t("The number for which to calculate the positive square root."))],
   returns: ["NUMBER"],
@@ -1273,12 +1273,12 @@ export const SQRT: AddFunctionDescription = {
     return Math.sqrt(_value);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // SUM
 // -----------------------------------------------------------------------------
-export const SUM: AddFunctionDescription = {
+export const SUM = {
   description: _t("Sum of a series of numbers and/or cells."),
   args: [
     arg("value1 (number, range<number>)", _t("The first number or range to add together.")),
@@ -1295,12 +1295,12 @@ export const SUM: AddFunctionDescription = {
     return reduceNumbers(values, (acc, a) => acc + a, 0, this.locale);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // SUMIF
 // -----------------------------------------------------------------------------
-export const SUMIF: AddFunctionDescription = {
+export const SUMIF = {
   description: _t("A conditional sum across a range."),
   args: [
     arg("criteria_range (range)", _t("The range which is tested against criterion.")),
@@ -1334,12 +1334,12 @@ export const SUMIF: AddFunctionDescription = {
     return sum;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // SUMIFS
 // -----------------------------------------------------------------------------
-export const SUMIFS: AddFunctionDescription = {
+export const SUMIFS = {
   description: _t("Sums a range depending on multiple criteria."),
   args: [
     arg("sum_range (range)", _t("The range to sum.")),
@@ -1364,12 +1364,12 @@ export const SUMIFS: AddFunctionDescription = {
     return sum;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // TAN
 // -----------------------------------------------------------------------------
-export const TAN: AddFunctionDescription = {
+export const TAN = {
   description: _t("Tangent of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the tangent of, in radians."))],
   returns: ["NUMBER"],
@@ -1377,12 +1377,12 @@ export const TAN: AddFunctionDescription = {
     return Math.tan(toNumber(angle, this.locale));
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // TANH
 // -----------------------------------------------------------------------------
-export const TANH: AddFunctionDescription = {
+export const TANH = {
   description: _t("Hyperbolic tangent of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic tangent of."))],
   returns: ["NUMBER"],
@@ -1390,12 +1390,12 @@ export const TANH: AddFunctionDescription = {
     return Math.tanh(toNumber(value, this.locale));
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // TRUNC
 // -----------------------------------------------------------------------------
-export const TRUNC: AddFunctionDescription = {
+export const TRUNC = {
   description: _t("Truncates a number."),
   args: [
     arg("value (number)", _t("The value to be truncated.")),
@@ -1419,4 +1419,4 @@ export const TRUNC: AddFunctionDescription = {
     return Math.trunc(_value * Math.pow(10, _places)) / Math.pow(10, _places);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;

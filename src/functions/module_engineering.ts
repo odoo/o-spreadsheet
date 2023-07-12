@@ -8,7 +8,7 @@ const DEFAULT_DELTA_ARG = 0;
 // -----------------------------------------------------------------------------
 // DELTA
 // -----------------------------------------------------------------------------
-export const DELTA: AddFunctionDescription = {
+export const DELTA = {
   description: _t("Compare two numeric values, returning 1 if they're equal."),
   args: [
     arg(" (number)", _t("The first number to compare.")),
@@ -24,4 +24,4 @@ export const DELTA: AddFunctionDescription = {
     return _number1 === _number2 ? 1 : 0;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;

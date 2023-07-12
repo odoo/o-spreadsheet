@@ -132,7 +132,7 @@ function newtonMethod(
 // -----------------------------------------------------------------------------
 // ACCRINTM
 // -----------------------------------------------------------------------------
-export const ACCRINTM: AddFunctionDescription = {
+export const ACCRINTM = {
   description: _t("Accrued interest of security paying at maturity."),
   args: [
     arg("issue (date)", _t("The date the security was initially issued.")),
@@ -164,16 +164,16 @@ export const ACCRINTM: AddFunctionDescription = {
     assertRedemptionStrictlyPositive(_redemption);
     assertRateStrictlyPositive(_rate);
 
-    const yearFrac = YEARFRAC.compute.bind(this)(start, end, dayCountConvention) as number;
+    const yearFrac = YEARFRAC.compute.bind(this)(start, end, dayCountConvention);
     return _redemption * _rate * yearFrac;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // AMORLINC
 // -----------------------------------------------------------------------------
-export const AMORLINC: AddFunctionDescription = {
+export const AMORLINC = {
   description: _t("Depreciation for an accounting period."),
   args: [
     arg("cost (number)", _t("The initial cost of the asset.")),
@@ -242,7 +242,7 @@ export const AMORLINC: AddFunctionDescription = {
       _purchaseDate,
       _firstPeriodEnd,
       _dayCountConvention
-    ) as number;
+    );
     const firstDeprec = _purchaseDate === _firstPeriodEnd ? deprec : deprec * yearFrac;
 
     const valueAtPeriod = _cost - firstDeprec - deprec * roundedPeriod;
@@ -253,12 +253,12 @@ export const AMORLINC: AddFunctionDescription = {
     return _salvage - valueAtPeriod < deprec ? deprec - (_salvage - valueAtPeriod) : 0;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // COUPDAYS
 // -----------------------------------------------------------------------------
-export const COUPDAYS: AddFunctionDescription = {
+export const COUPDAYS = {
   description: _t("Days in coupon period containing settlement date."),
   args: COUPON_FUNCTION_ARGS,
   returns: ["NUMBER"],
@@ -285,13 +285,8 @@ export const COUPDAYS: AddFunctionDescription = {
         maturity,
         frequency,
         dayCountConvention
-      ) as number;
-      const after = COUPNCD.compute.bind(this)(
-        settlement,
-        maturity,
-        frequency,
-        dayCountConvention
-      ) as number;
+      );
+      const after = COUPNCD.compute.bind(this)(settlement, maturity, frequency, dayCountConvention);
       return after - before;
     }
 
@@ -299,12 +294,12 @@ export const COUPDAYS: AddFunctionDescription = {
     return daysInYear / _frequency;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // COUPDAYBS
 // -----------------------------------------------------------------------------
-export const COUPDAYBS: AddFunctionDescription = {
+export const COUPDAYBS = {
   description: _t("Days from settlement until next coupon."),
   args: COUPON_FUNCTION_ARGS,
   returns: ["NUMBER"],
@@ -324,12 +319,7 @@ export const COUPDAYBS: AddFunctionDescription = {
     assertCouponFrequencyIsValid(_frequency);
     assertDayCountConventionIsValid(_dayCountConvention);
 
-    const couponBeforeStart = COUPPCD.compute.bind(this)(
-      start,
-      end,
-      frequency,
-      dayCountConvention
-    ) as number;
+    const couponBeforeStart = COUPPCD.compute.bind(this)(start, end, frequency, dayCountConvention);
     if ([1, 2, 3].includes(_dayCountConvention)) {
       return start - couponBeforeStart;
     }
@@ -376,12 +366,12 @@ export const COUPDAYBS: AddFunctionDescription = {
     return (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // COUPDAYSNC
 // -----------------------------------------------------------------------------
-export const COUPDAYSNC: AddFunctionDescription = {
+export const COUPDAYSNC = {
   description: _t("Days from settlement until next coupon."),
   args: COUPON_FUNCTION_ARGS,
   returns: ["NUMBER"],
@@ -401,12 +391,7 @@ export const COUPDAYSNC: AddFunctionDescription = {
     assertCouponFrequencyIsValid(_frequency);
     assertDayCountConventionIsValid(_dayCountConvention);
 
-    const couponAfterStart = COUPNCD.compute.bind(this)(
-      start,
-      end,
-      frequency,
-      dayCountConvention
-    ) as number;
+    const couponAfterStart = COUPNCD.compute.bind(this)(start, end, frequency, dayCountConvention);
     if ([1, 2, 3].includes(_dayCountConvention)) {
       return couponAfterStart - start;
     }
@@ -421,22 +406,22 @@ export const COUPDAYSNC: AddFunctionDescription = {
       maturity,
       frequency,
       _dayCountConvention
-    ) as number;
+    );
     const coupDays = COUPDAYS.compute.bind(this)(
       settlement,
       maturity,
       frequency,
       _dayCountConvention
-    ) as number;
+    );
     return coupDays - coupDayBs;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // COUPNCD
 // -----------------------------------------------------------------------------
-export const COUPNCD: AddFunctionDescription = {
+export const COUPNCD = {
   description: _t("Next coupon date after the settlement date."),
   args: COUPON_FUNCTION_ARGS,
   returns: ["NUMBER"],
@@ -461,12 +446,7 @@ export const COUPNCD: AddFunctionDescription = {
 
     const monthsPerPeriod = 12 / _frequency;
 
-    const coupNum = COUPNUM.compute.bind(this)(
-      settlement,
-      maturity,
-      frequency,
-      dayCountConvention
-    ) as number;
+    const coupNum = COUPNUM.compute.bind(this)(settlement, maturity, frequency, dayCountConvention);
     const date = addMonthsToDate(
       toJsDate(end, this.locale),
       -(coupNum - 1) * monthsPerPeriod,
@@ -475,12 +455,12 @@ export const COUPNCD: AddFunctionDescription = {
     return jsDateToRoundNumber(date);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // COUPNUM
 // -----------------------------------------------------------------------------
-export const COUPNUM: AddFunctionDescription = {
+export const COUPNUM = {
   description: _t("Number of coupons between settlement and maturity."),
   args: COUPON_FUNCTION_ARGS,
   returns: ["NUMBER"],
@@ -513,12 +493,12 @@ export const COUPNUM: AddFunctionDescription = {
     return num - 1;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // COUPPCD
 // -----------------------------------------------------------------------------
-export const COUPPCD: AddFunctionDescription = {
+export const COUPPCD = {
   description: _t("Last coupon date prior to or on the settlement date."),
   args: COUPON_FUNCTION_ARGS,
   returns: ["NUMBER"],
@@ -543,22 +523,17 @@ export const COUPPCD: AddFunctionDescription = {
 
     const monthsPerPeriod = 12 / _frequency;
 
-    const coupNum = COUPNUM.compute.bind(this)(
-      settlement,
-      maturity,
-      frequency,
-      dayCountConvention
-    ) as number;
+    const coupNum = COUPNUM.compute.bind(this)(settlement, maturity, frequency, dayCountConvention);
     const date = addMonthsToDate(toJsDate(end, this.locale), -coupNum * monthsPerPeriod, true);
     return jsDateToRoundNumber(date);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // CUMIPMT
 // -----------------------------------------------------------------------------
-export const CUMIPMT: AddFunctionDescription = {
+export const CUMIPMT = {
   description: _t("Cumulative interest paid over a set of periods."),
   args: [
     arg("rate (number)", _t("The interest rate.")),
@@ -598,26 +573,19 @@ export const CUMIPMT: AddFunctionDescription = {
 
     let cumSum = 0;
     for (let i = first; i <= last; i++) {
-      const impt = IPMT.compute.bind(this)(
-        rate,
-        i,
-        nOfPeriods,
-        presentValue,
-        0,
-        endOrBeginning
-      ) as number;
+      const impt = IPMT.compute.bind(this)(rate, i, nOfPeriods, presentValue, 0, endOrBeginning);
       cumSum += impt;
     }
 
     return cumSum;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // CUMPRINC
 // -----------------------------------------------------------------------------
-export const CUMPRINC: AddFunctionDescription = {
+export const CUMPRINC = {
   description: _t("Cumulative principal paid over a set of periods."),
   args: [
     arg("rate (number)", _t("The interest rate.")),
@@ -657,26 +625,19 @@ export const CUMPRINC: AddFunctionDescription = {
 
     let cumSum = 0;
     for (let i = first; i <= last; i++) {
-      const ppmt = PPMT.compute.bind(this)(
-        rate,
-        i,
-        nOfPeriods,
-        presentValue,
-        0,
-        endOrBeginning
-      ) as number;
+      const ppmt = PPMT.compute.bind(this)(rate, i, nOfPeriods, presentValue, 0, endOrBeginning);
       cumSum += ppmt;
     }
 
     return cumSum;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // DB
 // -----------------------------------------------------------------------------
-export const DB: AddFunctionDescription = {
+export const DB = {
   description: _t("Depreciation via declining balance method."),
   args: [
     arg("cost (number)", _t("The initial cost of the asset.")),
@@ -742,13 +703,13 @@ export const DB: AddFunctionDescription = {
     return before - after;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // DDB
 // -----------------------------------------------------------------------------
 const DEFAULT_DDB_DEPRECIATION_FACTOR = 2;
-export const DDB: AddFunctionDescription = {
+export const DDB = {
   description: _t("Depreciation via double-declining balance method."),
   args: [
     arg("cost (number)", _t("The initial cost of the asset.")),
@@ -804,12 +765,12 @@ export const DDB: AddFunctionDescription = {
     return Math.max(deprec, 0);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // DISC
 // -----------------------------------------------------------------------------
-export const DISC: AddFunctionDescription = {
+export const DISC = {
   description: _t("Discount rate of a security based on price."),
   args: [
     arg(
@@ -859,20 +820,16 @@ export const DISC: AddFunctionDescription = {
      * DISC = ____________________  *    ____
      *            redemption             DSM
      */
-    const yearsFrac = YEARFRAC.compute.bind(this)(
-      _settlement,
-      _maturity,
-      _dayCountConvention
-    ) as number;
+    const yearsFrac = YEARFRAC.compute.bind(this)(_settlement, _maturity, _dayCountConvention);
     return (_redemption - _price) / _redemption / yearsFrac;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // DOLLARDE
 // -----------------------------------------------------------------------------
-export const DOLLARDE: AddFunctionDescription = {
+export const DOLLARDE = {
   description: _t("Convert a decimal fraction to decimal value."),
   args: [
     arg(
@@ -896,12 +853,12 @@ export const DOLLARDE: AddFunctionDescription = {
     return truncatedPrice + priceFractionalPart * frac;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // DOLLARFR
 // -----------------------------------------------------------------------------
-export const DOLLARFR: AddFunctionDescription = {
+export const DOLLARFR = {
   description: _t("Convert a decimal value to decimal fraction."),
   args: [
     arg("decimal_price (number)", _t("The price quotation given as a decimal value.")),
@@ -925,12 +882,12 @@ export const DOLLARFR: AddFunctionDescription = {
     return truncatedPrice + priceFractionalPart * frac;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // DURATION
 // -----------------------------------------------------------------------------
-export const DURATION: AddFunctionDescription = {
+export const DURATION = {
   description: _t("Number of periods for an investment to reach a value."),
   args: [
     arg(
@@ -978,7 +935,7 @@ export const DURATION: AddFunctionDescription = {
     assert(() => _rate >= 0, _t("The rate (%s) must be positive or null.", _rate.toString()));
     assert(() => _yield >= 0, _t("The yield (%s) must be positive or null.", _yield.toString()));
 
-    const years = YEARFRAC.compute.bind(this)(start, end, _dayCountConvention) as number;
+    const years = YEARFRAC.compute.bind(this)(start, end, _dayCountConvention);
     const timeFirstYear = years - Math.trunc(years) || 1 / _frequency;
     const nbrCoupons = Math.ceil(years * _frequency);
 
@@ -1001,12 +958,12 @@ export const DURATION: AddFunctionDescription = {
     return count === 0 ? 0 : sum / count;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // EFFECT
 // -----------------------------------------------------------------------------
-export const EFFECT: AddFunctionDescription = {
+export const EFFECT = {
   description: _t("Annual effective interest rate."),
   args: [
     arg("nominal_rate (number)", _t("The nominal interest rate per year.")),
@@ -1030,13 +987,13 @@ export const EFFECT: AddFunctionDescription = {
     return Math.pow(1 + nominal / periods, periods) - 1;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // FV
 // -----------------------------------------------------------------------------
 const DEFAULT_PRESENT_VALUE = 0;
-export const FV: AddFunctionDescription = {
+export const FV = {
   description: _t("Future value of an annuity investment."),
   args: [
     arg("rate (number)", _t("The interest rate.")),
@@ -1071,12 +1028,12 @@ export const FV: AddFunctionDescription = {
     return r ? -pv * (1 + r) ** n - (p * (1 + r * type) * ((1 + r) ** n - 1)) / r : -(pv + p * n);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // FVSCHEDULE
 // -----------------------------------------------------------------------------
-export const FVSCHEDULE: AddFunctionDescription = {
+export const FVSCHEDULE = {
   description: _t("Future value of principal from series of rates."),
   args: [
     arg("principal (number)", _t("The amount of initial capital or value to compound against.")),
@@ -1095,12 +1052,12 @@ export const FVSCHEDULE: AddFunctionDescription = {
     );
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // INTRATE
 // -----------------------------------------------------------------------------
-export const INTRATE: AddFunctionDescription = {
+export const INTRATE = {
   description: _t("Calculates effective interest rate."),
   args: [
     arg(
@@ -1144,20 +1101,16 @@ export const INTRATE: AddFunctionDescription = {
      * INTRATE =  _________________________________________
      *              YEARFRAC(settlement, maturity, basis)
      */
-    const yearFrac = YEARFRAC.compute.bind(this)(
-      _settlement,
-      _maturity,
-      dayCountConvention
-    ) as number;
+    const yearFrac = YEARFRAC.compute.bind(this)(_settlement, _maturity, dayCountConvention);
     return (_redemption - _investment) / _investment / yearFrac;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // IPMT
 // -----------------------------------------------------------------------------
-export const IPMT: AddFunctionDescription = {
+export const IPMT = {
   description: _t("Payment on the principal of an investment."),
   args: [
     arg("rate (number)", _t("The annualized rate of interest.")),
@@ -1189,7 +1142,7 @@ export const IPMT: AddFunctionDescription = {
       presentValue,
       futureValue,
       endOrBeginning
-    ) as number;
+    );
     const ppmt = PPMT.compute.bind(this)(
       rate,
       currentPeriod,
@@ -1197,17 +1150,17 @@ export const IPMT: AddFunctionDescription = {
       presentValue,
       futureValue,
       endOrBeginning
-    ) as number;
+    );
     return payment - ppmt;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // IRR
 // -----------------------------------------------------------------------------
 const DEFAULT_RATE_GUESS = 0.1;
-export const IRR: AddFunctionDescription = {
+export const IRR = {
   description: _t("Internal rate of return given periodic cashflows."),
   args: [
     arg(
@@ -1287,12 +1240,12 @@ export const IRR: AddFunctionDescription = {
     return newtonMethod(func, derivFunc, _rateGuess + 1, 20, 1e-5) - 1;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ISPMT
 // -----------------------------------------------------------------------------
-export const ISPMT: AddFunctionDescription = {
+export const ISPMT = {
   description: _t("Returns the interest paid at a particular period of an investment."),
   args: [
     arg("rate (number)", _t("The interest rate.")),
@@ -1321,12 +1274,12 @@ export const ISPMT: AddFunctionDescription = {
     return -1 * currentInvestment * interestRate;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // MDURATION
 // -----------------------------------------------------------------------------
-export const MDURATION: AddFunctionDescription = {
+export const MDURATION = {
   description: _t("Modified Macaulay duration."),
   args: [
     arg(
@@ -1366,18 +1319,18 @@ export const MDURATION: AddFunctionDescription = {
       securityYield,
       frequency,
       dayCountConvention
-    ) as number;
+    );
     const y = toNumber(securityYield, this.locale);
     const k = Math.trunc(toNumber(frequency, this.locale));
     return duration / (1 + y / k);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // MIRR
 // -----------------------------------------------------------------------------
-export const MIRR: AddFunctionDescription = {
+export const MIRR = {
   description: _t("Modified internal rate of return."),
   args: [
     arg(
@@ -1447,12 +1400,12 @@ export const MIRR: AddFunctionDescription = {
     return (-fv / pv) ** exponent - 1;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // NOMINAL
 // -----------------------------------------------------------------------------
-export const NOMINAL: AddFunctionDescription = {
+export const NOMINAL = {
   description: _t("Annual nominal interest rate."),
   args: [
     arg("effective_rate (number)", _t("The effective interest rate per year.")),
@@ -1479,12 +1432,12 @@ export const NOMINAL: AddFunctionDescription = {
     return (Math.pow(effective + 1, 1 / periods) - 1) * periods;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // NPER
 // -----------------------------------------------------------------------------
-export const NPER: AddFunctionDescription = {
+export const NPER = {
   description: _t("Number of payment periods for an investment."),
   args: [
     arg("rate (number)", _t("The interest rate.")),
@@ -1536,7 +1489,7 @@ export const NPER: AddFunctionDescription = {
     return Math.log((c - fv) / (pv + c)) / Math.log(1 + r);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // NPV
@@ -1555,7 +1508,7 @@ function npvResult(r: number, startValue: number, values: ArgValue[], locale: Lo
   );
 }
 
-export const NPV: AddFunctionDescription = {
+export const NPV = {
   description: _t(
     "The net present value of an investment based on a series of periodic cash flows and a discount rate."
   ),
@@ -1578,12 +1531,12 @@ export const NPV: AddFunctionDescription = {
     return npvResult(_discount, 0, values, this.locale);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // PDURATION
 // -----------------------------------------------------------------------------
-export const PDURATION: AddFunctionDescription = {
+export const PDURATION = {
   description: _t("Computes the number of periods needed for an investment to reach a value."),
   args: [
     arg("rate (number)", _t("The rate at which the investment grows each period.")),
@@ -1613,12 +1566,12 @@ export const PDURATION: AddFunctionDescription = {
     return (Math.log(_futureValue) - Math.log(_presentValue)) / Math.log(1 + _rate);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // PMT
 // -----------------------------------------------------------------------------
-export const PMT: AddFunctionDescription = {
+export const PMT = {
   description: _t("Periodic payment for an annuity investment."),
   args: [
     arg("rate (number)", _t("The annualized rate of interest.")),
@@ -1668,12 +1621,12 @@ export const PMT: AddFunctionDescription = {
     return payment;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // PPMT
 // -----------------------------------------------------------------------------
-export const PPMT: AddFunctionDescription = {
+export const PPMT = {
   description: _t("Payment on the principal of an investment."),
   args: [
     arg("rate (number)", _t("The annualized rate of interest.")),
@@ -1714,23 +1667,23 @@ export const PPMT: AddFunctionDescription = {
       _t("The period must be between 1 and number_of_periods", n.toString())
     );
 
-    const payment = PMT.compute.bind(this)(r, n, pv, fv, endOrBeginning) as number;
+    const payment = PMT.compute.bind(this)(r, n, pv, fv, endOrBeginning);
 
     if (type === 1 && period === 1) return payment;
     const eqPeriod = type === 0 ? period - 1 : period - 2;
     const eqPv = pv + payment * type;
 
-    const capitalAtPeriod = -(FV.compute.bind(this)(r, eqPeriod, payment, eqPv, 0) as number);
+    const capitalAtPeriod = -FV.compute.bind(this)(r, eqPeriod, payment, eqPv, 0);
     const currentInterest = capitalAtPeriod * r;
     return payment + currentInterest;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // PV
 // -----------------------------------------------------------------------------
-export const PV: AddFunctionDescription = {
+export const PV = {
   description: _t("Present value of an annuity investment."),
   args: [
     arg("rate (number)", _t("The interest rate.")),
@@ -1766,12 +1719,12 @@ export const PV: AddFunctionDescription = {
     return r ? -((p * (1 + r * type) * ((1 + r) ** n - 1)) / r + fv) / (1 + r) ** n : -(fv + p * n);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // PRICE
 // -----------------------------------------------------------------------------
-export const PRICE: AddFunctionDescription = {
+export const PRICE = {
   description: _t("Price of a security paying periodic interest."),
   args: [
     arg(
@@ -1823,11 +1776,7 @@ export const PRICE: AddFunctionDescription = {
     assert(() => _yield >= 0, _t("The yield (%s) must be positive or null.", _yield.toString()));
     assertRedemptionStrictlyPositive(_redemption);
 
-    const years = YEARFRAC.compute.bind(this)(
-      _settlement,
-      _maturity,
-      _dayCountConvention
-    ) as number;
+    const years = YEARFRAC.compute.bind(this)(_settlement, _maturity, _dayCountConvention);
     const nbrRealCoupons = years * _frequency;
     const nbrFullCoupons = Math.ceil(nbrRealCoupons);
     const timeFirstCoupon = nbrRealCoupons - Math.floor(nbrRealCoupons) || 1;
@@ -1856,12 +1805,12 @@ export const PRICE: AddFunctionDescription = {
     );
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // PRICEDISC
 // -----------------------------------------------------------------------------
-export const PRICEDISC: AddFunctionDescription = {
+export const PRICEDISC = {
   description: _t("Price of a discount security."),
   args: [
     arg(
@@ -1910,20 +1859,16 @@ export const PRICEDISC: AddFunctionDescription = {
      *
      * PRICEDISC = redemption - discount * redemption * (DSM/B)
      */
-    const yearsFrac = YEARFRAC.compute.bind(this)(
-      _settlement,
-      _maturity,
-      _dayCountConvention
-    ) as number;
+    const yearsFrac = YEARFRAC.compute.bind(this)(_settlement, _maturity, _dayCountConvention);
     return _redemption - _discount * _redemption * yearsFrac;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // PRICEMAT
 // -----------------------------------------------------------------------------
-export const PRICEMAT: AddFunctionDescription = {
+export const PRICEMAT = {
   description: _t(
     "Calculates the price of a security paying interest at maturity, based on expected yield."
   ),
@@ -1996,13 +1941,9 @@ export const PRICEMAT: AddFunctionDescription = {
      * from the results of Excel/LibreOffice, thus we get different values with PRICEMAT.
      *
      */
-    const settlementToMaturity = YEARFRAC.compute.bind(this)(
-      _settlement,
-      _maturity,
-      _dayCount
-    ) as number;
-    const issueToSettlement = YEARFRAC.compute.bind(this)(_settlement, _issue, _dayCount) as number;
-    const issueToMaturity = YEARFRAC.compute.bind(this)(_issue, _maturity, _dayCount) as number;
+    const settlementToMaturity = YEARFRAC.compute.bind(this)(_settlement, _maturity, _dayCount);
+    const issueToSettlement = YEARFRAC.compute.bind(this)(_settlement, _issue, _dayCount);
+    const issueToMaturity = YEARFRAC.compute.bind(this)(_issue, _maturity, _dayCount);
 
     const numerator = 100 + issueToMaturity * _rate * 100;
     const denominator = 1 + settlementToMaturity * _yield;
@@ -2010,13 +1951,13 @@ export const PRICEMAT: AddFunctionDescription = {
     return numerator / denominator - term2;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // RATE
 // -----------------------------------------------------------------------------
 const RATE_GUESS_DEFAULT = 0.1;
-export const RATE: AddFunctionDescription = {
+export const RATE = {
   description: _t("Interest rate of an annuity investment."),
   args: [
     arg("number_of_periods (number)", _t("The number of payments to be made.")),
@@ -2086,12 +2027,12 @@ export const RATE: AddFunctionDescription = {
     return newtonMethod(func, derivFunc, guess, 40, 1e-5);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // RECEIVED
 // -----------------------------------------------------------------------------
-export const RECEIVED: AddFunctionDescription = {
+export const RECEIVED = {
   description: _t("Amount received at maturity for a security."),
   args: [
     arg(
@@ -2145,20 +2086,16 @@ export const RECEIVED: AddFunctionDescription = {
      *
      * The ratio DSM/B can be computed with the YEARFRAC function to take the dayCountConvention into account.
      */
-    const yearsFrac = YEARFRAC.compute.bind(this)(
-      _settlement,
-      _maturity,
-      _dayCountConvention
-    ) as number;
+    const yearsFrac = YEARFRAC.compute.bind(this)(_settlement, _maturity, _dayCountConvention);
     return _investment / (1 - _discount * yearsFrac);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // RRI
 // -----------------------------------------------------------------------------
-export const RRI: AddFunctionDescription = {
+export const RRI = {
   description: _t(
     "Computes the rate needed for an investment to reach a specific value within a specific number of periods."
   ),
@@ -2187,12 +2124,12 @@ export const RRI: AddFunctionDescription = {
     return (fv / pv) ** (1 / n) - 1;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // SLN
 // -----------------------------------------------------------------------------
-export const SLN: AddFunctionDescription = {
+export const SLN = {
   description: _t("Depreciation of an asset using the straight-line method."),
   args: [
     arg("cost (number)", _t("The initial cost of the asset.")),
@@ -2216,12 +2153,12 @@ export const SLN: AddFunctionDescription = {
     return (_cost - _salvage) / _life;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // SYD
 // -----------------------------------------------------------------------------
-export const SYD: AddFunctionDescription = {
+export const SYD = {
   description: _t("Depreciation via sum of years digit method."),
   args: [
     arg("cost (number)", _t("The initial cost of the asset.")),
@@ -2264,12 +2201,12 @@ export const SYD: AddFunctionDescription = {
     return (_cost - _salvage) * (remainingPeriods / deprecFactor);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // TBILLPRICE
 // -----------------------------------------------------------------------------
-export const TBILLPRICE: AddFunctionDescription = {
+export const TBILLPRICE = {
   description: _t("Price of a US Treasury bill."),
   args: [
     arg(
@@ -2308,16 +2245,16 @@ export const TBILLPRICE: AddFunctionDescription = {
      *
      * The ratio DSM/360 can be computed with the YEARFRAC function with dayCountConvention = 2 (actual/360).
      */
-    const yearFrac = YEARFRAC.compute.bind(this)(start, end, 2) as number;
+    const yearFrac = YEARFRAC.compute.bind(this)(start, end, 2);
     return 100 * (1 - disc * yearFrac);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // TBILLEQ
 // -----------------------------------------------------------------------------
-export const TBILLEQ: AddFunctionDescription = {
+export const TBILLEQ = {
   description: _t("Equivalent rate of return for a US Treasury bill."),
   args: [
     arg(
@@ -2374,12 +2311,12 @@ export const TBILLEQ: AddFunctionDescription = {
      *
      */
 
-    const nDays = DAYS.compute.bind(this)(end, start) as number;
+    const nDays = DAYS.compute.bind(this)(end, start);
     if (nDays <= 182) {
       return (365 * disc) / (360 - disc * nDays);
     }
 
-    const p = (TBILLPRICE.compute.bind(this)(start, end, disc) as number) / 100;
+    const p = TBILLPRICE.compute.bind(this)(start, end, disc) / 100;
 
     const daysInYear = nDays === 366 ? 366 : 365;
     const x = nDays / daysInYear;
@@ -2389,12 +2326,12 @@ export const TBILLEQ: AddFunctionDescription = {
     return num / denom;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // TBILLYIELD
 // -----------------------------------------------------------------------------
-export const TBILLYIELD: AddFunctionDescription = {
+export const TBILLYIELD = {
   description: _t("The yield of a US Treasury bill based on price."),
   args: [
     arg(
@@ -2436,17 +2373,17 @@ export const TBILLYIELD: AddFunctionDescription = {
      *
      */
 
-    const yearFrac = YEARFRAC.compute.bind(this)(start, end, 2) as number;
+    const yearFrac = YEARFRAC.compute.bind(this)(start, end, 2);
     return ((100 - p) / p) * (1 / yearFrac);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // VDB
 // -----------------------------------------------------------------------------
 const DEFAULT_VDB_NO_SWITCH = false;
-export const VDB: AddFunctionDescription = {
+export const VDB = {
   description: _t("Variable declining balance. WARNING : does not handle decimal periods."),
   args: [
     arg("cost (number)", _t("The initial cost of the asset.")),
@@ -2533,12 +2470,12 @@ export const VDB: AddFunctionDescription = {
     return resultDeprec;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // XIRR
 // -----------------------------------------------------------------------------
-export const XIRR: AddFunctionDescription = {
+export const XIRR = {
   description: _t("Internal rate of return given non-periodic cash flows."),
   args: [
     arg(
@@ -2621,12 +2558,12 @@ export const XIRR: AddFunctionDescription = {
     return newtonMethod(func, derivFunc, guess, 40, 1e-5, nanFallback);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // XNPV
 // -----------------------------------------------------------------------------
-export const XNPV: AddFunctionDescription = {
+export const XNPV = {
   description: _t("Net present value given to non-periodic cash flows.."),
   args: [
     arg("discount (number)", _t("The discount rate of the investment over one period.")),
@@ -2699,13 +2636,13 @@ export const XNPV: AddFunctionDescription = {
     return pv;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // YIELD
 // -----------------------------------------------------------------------------
 
-export const YIELD: AddFunctionDescription = {
+export const YIELD = {
   description: _t("Annual yield of a security paying periodic interest."),
   args: [
     arg(
@@ -2757,11 +2694,7 @@ export const YIELD: AddFunctionDescription = {
     assertPriceStrictlyPositive(_price);
     assertRedemptionStrictlyPositive(_redemption);
 
-    const years = YEARFRAC.compute.bind(this)(
-      _settlement,
-      _maturity,
-      _dayCountConvention
-    ) as number;
+    const years = YEARFRAC.compute.bind(this)(_settlement, _maturity, _dayCountConvention);
     const nbrRealCoupons = years * _frequency;
     const nbrFullCoupons = Math.ceil(nbrRealCoupons);
     const timeFirstCoupon = nbrRealCoupons - Math.floor(nbrRealCoupons) || 1;
@@ -2841,12 +2774,12 @@ export const YIELD: AddFunctionDescription = {
     return (methodResult - 1) * _frequency;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // YIELDDISC
 // -----------------------------------------------------------------------------
-export const YIELDDISC: AddFunctionDescription = {
+export const YIELDDISC = {
   description: _t("Annual yield of a discount security."),
   args: [
     arg(
@@ -2893,21 +2826,17 @@ export const YIELDDISC: AddFunctionDescription = {
      * YIELDDISC = _____________________________________
      *             YEARFRAC(settlement, maturity, basis)
      */
-    const yearFrac = YEARFRAC.compute.bind(this)(
-      settlement,
-      maturity,
-      dayCountConvention
-    ) as number;
+    const yearFrac = YEARFRAC.compute.bind(this)(settlement, maturity, dayCountConvention);
     return (_redemption / _price - 1) / yearFrac;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // YIELDMAT
 // -----------------------------------------------------------------------------
 
-export const YIELDMAT: AddFunctionDescription = {
+export const YIELDMAT = {
   description: _t("Annual yield of a security paying interest at maturity."),
   args: [
     arg(
@@ -2959,21 +2888,13 @@ export const YIELDMAT: AddFunctionDescription = {
     assert(() => _rate >= 0, _t("The rate (%s) must be positive or null.", _rate.toString()));
     assertPriceStrictlyPositive(_price);
 
-    const issueToMaturity = YEARFRAC.compute.bind(this)(
-      _issue,
-      _maturity,
-      _dayCountConvention
-    ) as number;
-    const issueToSettlement = YEARFRAC.compute.bind(this)(
-      _issue,
-      _settlement,
-      _dayCountConvention
-    ) as number;
+    const issueToMaturity = YEARFRAC.compute.bind(this)(_issue, _maturity, _dayCountConvention);
+    const issueToSettlement = YEARFRAC.compute.bind(this)(_issue, _settlement, _dayCountConvention);
     const settlementToMaturity = YEARFRAC.compute.bind(this)(
       _settlement,
       _maturity,
       _dayCountConvention
-    ) as number;
+    );
 
     const numerator =
       (100 * (1 + _rate * issueToMaturity)) / (_price + 100 * _rate * issueToSettlement) - 1;
@@ -2981,4 +2902,4 @@ export const YIELDMAT: AddFunctionDescription = {
     return numerator / settlementToMaturity;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;

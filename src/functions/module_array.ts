@@ -35,7 +35,7 @@ import { invertMatrix, multiplyMatrices } from "./helper_matrices";
 // -----------------------------------------------------------------------------
 // ARRAY_CONSTRAIN
 // -----------------------------------------------------------------------------
-export const ARRAY_CONSTRAIN: AddFunctionDescription = {
+export const ARRAY_CONSTRAIN = {
   description: _t("Returns a result array constrained to a specific width and height."),
   args: [
     arg("input_range (any, range<any>)", _t("The range to constrain.")),
@@ -75,12 +75,12 @@ export const ARRAY_CONSTRAIN: AddFunctionDescription = {
     return result;
   },
   isExported: false,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // CHOOSECOLS
 // -----------------------------------------------------------------------------
-export const CHOOSECOLS: AddFunctionDescription = {
+export const CHOOSECOLS = {
   description: _t("Creates a new array from the selected columns in the existing range."),
   args: [
     arg("array (any, range<any>)", _t("The array that contains the columns to be returned.")),
@@ -116,12 +116,12 @@ export const CHOOSECOLS: AddFunctionDescription = {
     return toCellValueMatrix(result);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // CHOOSEROWS
 // -----------------------------------------------------------------------------
-export const CHOOSEROWS: AddFunctionDescription = {
+export const CHOOSEROWS = {
   description: _t("Creates a new array from the selected rows in the existing range."),
   args: [
     arg("array (any, range<any>)", _t("The array that contains the rows to be returned.")),
@@ -157,12 +157,12 @@ export const CHOOSEROWS: AddFunctionDescription = {
     return result;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // EXPAND
 // -----------------------------------------------------------------------------
-export const EXPAND: AddFunctionDescription = {
+export const EXPAND = {
   description: _t("Expands or pads an array to specified row and column dimensions."),
   args: [
     arg("array (any, range<any>)", _t("The array to expand.")),
@@ -218,12 +218,12 @@ export const EXPAND: AddFunctionDescription = {
     return result;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // FLATTEN
 // -----------------------------------------------------------------------------
-export const FLATTEN: AddFunctionDescription = {
+export const FLATTEN = {
   description: _t("Flattens all the values from one or more ranges into a single column."),
   args: [
     arg("range (any, range<any>)", _t("The first range to flatten.")),
@@ -234,12 +234,12 @@ export const FLATTEN: AddFunctionDescription = {
     return [flattenRowFirst(ranges, toCellValue)];
   },
   isExported: false,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // FREQUENCY
 // -----------------------------------------------------------------------------
-export const FREQUENCY: AddFunctionDescription = {
+export const FREQUENCY = {
   description: _t("Calculates the frequency distribution of a range."),
   args: [
     arg("data (range<number>)", _t("The array of ranges containing the values to be counted.")),
@@ -292,12 +292,12 @@ export const FREQUENCY: AddFunctionDescription = {
     return [result];
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // HSTACK
 // -----------------------------------------------------------------------------
-export const HSTACK: AddFunctionDescription = {
+export const HSTACK = {
   description: _t("Appends ranges horizontally and in sequence to return a larger array."),
   args: [
     arg("range1 (any, range<any>)", _t("The first range to be appended.")),
@@ -324,12 +324,12 @@ export const HSTACK: AddFunctionDescription = {
     return colArray;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // MDETERM
 // -----------------------------------------------------------------------------
-export const MDETERM: AddFunctionDescription = {
+export const MDETERM = {
   description: _t("Returns the matrix determinant of a square matrix."),
   args: [
     arg(
@@ -355,12 +355,12 @@ export const MDETERM: AddFunctionDescription = {
     return determinant;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // MINVERSE
 // -----------------------------------------------------------------------------
-export const MINVERSE: AddFunctionDescription = {
+export const MINVERSE = {
   description: _t("Returns the multiplicative inverse of a square matrix."),
   args: [
     arg(
@@ -390,12 +390,12 @@ export const MINVERSE: AddFunctionDescription = {
     return inverted;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // MMULT
 // -----------------------------------------------------------------------------
-export const MMULT: AddFunctionDescription = {
+export const MMULT = {
   description: _t("Calculates the matrix product of two matrices."),
   args: [
     arg(
@@ -428,12 +428,12 @@ export const MMULT: AddFunctionDescription = {
     return multiplyMatrices(_matrix1, _matrix2);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // SUMPRODUCT
 // -----------------------------------------------------------------------------
-export const SUMPRODUCT: AddFunctionDescription = {
+export const SUMPRODUCT = {
   description: _t(
     "Calculates the sum of the products of corresponding entries in equal-sized ranges."
   ),
@@ -471,7 +471,7 @@ export const SUMPRODUCT: AddFunctionDescription = {
     return result;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // SUMX2MY2
@@ -516,7 +516,7 @@ function getSumXAndY(
   return result;
 }
 
-export const SUMX2MY2: AddFunctionDescription = {
+export const SUMX2MY2 = {
   description: _t(
     "Calculates the sum of the difference of the squares of the values in two array."
   ),
@@ -539,12 +539,12 @@ export const SUMX2MY2: AddFunctionDescription = {
     return getSumXAndY(arrayX, arrayY, (x, y) => x ** 2 - y ** 2);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // SUMX2PY2
 // -----------------------------------------------------------------------------
-export const SUMX2PY2: AddFunctionDescription = {
+export const SUMX2PY2 = {
   description: _t("Calculates the sum of the sum of the squares of the values in two array."),
   args: [
     arg(
@@ -565,12 +565,12 @@ export const SUMX2PY2: AddFunctionDescription = {
     return getSumXAndY(arrayX, arrayY, (x, y) => x ** 2 + y ** 2);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // SUMXMY2
 // -----------------------------------------------------------------------------
-export const SUMXMY2: AddFunctionDescription = {
+export const SUMXMY2 = {
   description: _t("Calculates the sum of squares of the differences of values in two array."),
   args: [
     arg(
@@ -591,7 +591,7 @@ export const SUMXMY2: AddFunctionDescription = {
     return getSumXAndY(arrayX, arrayY, (x, y) => (x - y) ** 2);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // TOCOL
@@ -615,7 +615,7 @@ const TO_COL_ROW_ARGS = [
   ),
 ];
 
-export const TOCOL: AddFunctionDescription = {
+export const TOCOL = {
   description: _t("Transforms a range of cells into a single column."),
   args: TO_COL_ROW_ARGS,
   returns: ["RANGE<ANY>"],
@@ -650,12 +650,12 @@ export const TOCOL: AddFunctionDescription = {
     return [result];
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // TOROW
 // -----------------------------------------------------------------------------
-export const TOROW: AddFunctionDescription = {
+export const TOROW = {
   description: _t("Transforms a range of cells into a single row."),
   args: TO_COL_ROW_ARGS,
   returns: ["RANGE<ANY>"],
@@ -690,12 +690,12 @@ export const TOROW: AddFunctionDescription = {
     return result;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // TRANSPOSE
 // -----------------------------------------------------------------------------
-export const TRANSPOSE: AddFunctionDescription = {
+export const TRANSPOSE = {
   description: _t("Transposes the rows and columns of a range."),
   args: [arg("range (any, range<any>)", _t("The range to be transposed."))],
   returns: ["RANGE<ANY>"],
@@ -713,12 +713,12 @@ export const TRANSPOSE: AddFunctionDescription = {
     return transpose2dArray(_values, toCellValue);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // VSTACK
 // -----------------------------------------------------------------------------
-export const VSTACK: AddFunctionDescription = {
+export const VSTACK = {
   description: _t("Appends ranges vertically and in sequence to return a larger array."),
   args: [
     arg("range1 (any, range<any>)", _t("The first range to be appended.")),
@@ -749,12 +749,12 @@ export const VSTACK: AddFunctionDescription = {
     return result;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // WRAPCOLS
 // -----------------------------------------------------------------------------
-export const WRAPCOLS: AddFunctionDescription = {
+export const WRAPCOLS = {
   description: _t(
     "Wraps the provided row or column of cells by columns after a specified number of elements to form a new array."
   ),
@@ -799,12 +799,12 @@ export const WRAPCOLS: AddFunctionDescription = {
     return result;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // WRAPROWS
 // -----------------------------------------------------------------------------
-export const WRAPROWS: AddFunctionDescription = {
+export const WRAPROWS = {
   description: _t(
     "Wraps the provided row or column of cells by rows after a specified number of elements to form a new array."
   ),
@@ -850,4 +850,4 @@ export const WRAPROWS: AddFunctionDescription = {
     return result;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;

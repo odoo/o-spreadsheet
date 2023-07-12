@@ -53,32 +53,32 @@ const selectionStatisticFunctions: SelectionStatisticFunction[] = [
   {
     name: _t("Sum"),
     types: [CellValueType.number],
-    compute: (values, locale) => SUM.compute.bind({ locale })([values]) as number,
+    compute: (values, locale) => SUM.compute.bind({ locale })([values]),
   },
   {
     name: _t("Avg"),
     types: [CellValueType.number],
-    compute: (values, locale) => AVERAGE.compute.bind({ locale })([values]) as number,
+    compute: (values, locale) => AVERAGE.compute.bind({ locale })([values]),
   },
   {
     name: _t("Min"),
     types: [CellValueType.number],
-    compute: (values, locale) => MIN.compute.bind({ locale })([values]) as number,
+    compute: (values, locale) => MIN.compute.bind({ locale })([values]),
   },
   {
     name: _t("Max"),
     types: [CellValueType.number],
-    compute: (values, locale) => MAX.compute.bind({ locale })([values]) as number,
+    compute: (values, locale) => MAX.compute.bind({ locale })([values]),
   },
   {
     name: _t("Count"),
     types: [CellValueType.number, CellValueType.text, CellValueType.boolean, CellValueType.error],
-    compute: (values, locale) => COUNTA.compute.bind({ locale })([values]) as number,
+    compute: (values, locale) => COUNTA.compute.bind({ locale })([values]),
   },
   {
     name: _t("Count Numbers"),
     types: [CellValueType.number, CellValueType.text, CellValueType.boolean, CellValueType.error],
-    compute: (values, locale) => COUNT.compute.bind({ locale })([values]) as number,
+    compute: (values, locale) => COUNT.compute.bind({ locale })([values]),
   },
 ];
 

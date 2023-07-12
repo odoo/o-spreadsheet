@@ -132,7 +132,7 @@ export interface CellPosition {
 }
 
 export const borderStyles = ["thin", "medium", "thick", "dashed", "dotted"] as const;
-export type BorderStyle = typeof borderStyles[number];
+export type BorderStyle = (typeof borderStyles)[number];
 // A complete border description is a pair [style, color]
 export type BorderDescr = { style: BorderStyle; color: Color };
 

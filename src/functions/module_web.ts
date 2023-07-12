@@ -7,7 +7,7 @@ import { toString } from "./helpers";
 // -----------------------------------------------------------------------------
 // HYPERLINK
 // -----------------------------------------------------------------------------
-export const HYPERLINK: AddFunctionDescription = {
+export const HYPERLINK = {
   description: _t("Creates a hyperlink in a cell."),
   args: [
     arg("url (string)", _t("The full URL of the link enclosed in quotation marks.")),
@@ -24,4 +24,4 @@ export const HYPERLINK: AddFunctionDescription = {
     return markdownLink(processedLabel, processedUrl);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;

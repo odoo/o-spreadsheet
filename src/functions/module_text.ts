@@ -12,7 +12,7 @@ const wordRegex = /[A-Za-zÀ-ÖØ-öø-ÿ]+/g;
 // -----------------------------------------------------------------------------
 // CHAR
 // -----------------------------------------------------------------------------
-export const CHAR: AddFunctionDescription = {
+export const CHAR = {
   description: _t("Gets character associated with number."),
   args: [
     arg(
@@ -30,12 +30,12 @@ export const CHAR: AddFunctionDescription = {
     return String.fromCharCode(_tableNumber);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // CLEAN
 // -----------------------------------------------------------------------------
-export const CLEAN: AddFunctionDescription = {
+export const CLEAN = {
   description: _t("Remove non-printable characters from a piece of text."),
   args: [arg("text (string)", _t("The text whose non-printable characters are to be removed."))],
   returns: ["STRING"],
@@ -50,12 +50,12 @@ export const CLEAN: AddFunctionDescription = {
     return cleanedStr;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // CONCATENATE
 // -----------------------------------------------------------------------------
-export const CONCATENATE: AddFunctionDescription = {
+export const CONCATENATE = {
   description: _t("Appends strings to one another."),
   args: [
     arg("string1 (string, range<string>)", _t("The initial string.")),
@@ -66,12 +66,12 @@ export const CONCATENATE: AddFunctionDescription = {
     return reduceAny(values, (acc, a) => acc + toString(a), "");
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // EXACT
 // -----------------------------------------------------------------------------
-export const EXACT: AddFunctionDescription = {
+export const EXACT = {
   description: _t("Tests whether two strings are identical."),
   args: [
     arg("string1 (string)", _t("The first string to compare.")),
@@ -82,12 +82,12 @@ export const EXACT: AddFunctionDescription = {
     return toString(string1) === toString(string2);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // FIND
 // -----------------------------------------------------------------------------
-export const FIND: AddFunctionDescription = {
+export const FIND = {
   description: _t("First position of string found in text, case-sensitive."),
   args: [
     arg("search_for (string)", _t("The string to look for within text_to_search.")),
@@ -130,12 +130,12 @@ export const FIND: AddFunctionDescription = {
     return result + 1;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // JOIN
 // -----------------------------------------------------------------------------
-export const JOIN: AddFunctionDescription = {
+export const JOIN = {
   description: _t("Concatenates elements of arrays with delimiter."),
   args: [
     arg(
@@ -156,12 +156,12 @@ export const JOIN: AddFunctionDescription = {
     const _delimiter = toString(delimiter);
     return reduceAny(valuesOrArrays, (acc, a) => (acc ? acc + _delimiter : "") + toString(a), "");
   },
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // LEFT
 // -----------------------------------------------------------------------------
-export const LEFT: AddFunctionDescription = {
+export const LEFT = {
   description: _t("Substring from beginning of specified string."),
   args: [
     arg("text (string)", _t("The string from which the left portion will be returned.")),
@@ -180,12 +180,12 @@ export const LEFT: AddFunctionDescription = {
     return toString(text).substring(0, _numberOfCharacters);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // LEN
 // -----------------------------------------------------------------------------
-export const LEN: AddFunctionDescription = {
+export const LEN = {
   description: _t("Length of a string."),
   args: [arg("text (string)", _t("The string whose length will be returned."))],
   returns: ["NUMBER"],
@@ -193,12 +193,12 @@ export const LEN: AddFunctionDescription = {
     return toString(text).length;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // LOWER
 // -----------------------------------------------------------------------------
-export const LOWER: AddFunctionDescription = {
+export const LOWER = {
   description: _t("Converts a specified string to lowercase."),
   args: [arg("text (string)", _t("The string to convert to lowercase."))],
   returns: ["STRING"],
@@ -206,12 +206,12 @@ export const LOWER: AddFunctionDescription = {
     return toString(text).toLowerCase();
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // MID
 // -----------------------------------------------------------------------------
-export const MID: AddFunctionDescription = {
+export const MID = {
   description: _t("A segment of a string."),
   args: [
     arg("text (string)", _t("The string to extract a segment from.")),
@@ -248,12 +248,12 @@ export const MID: AddFunctionDescription = {
     return _text.slice(_starting_at - 1, _starting_at + _extract_length - 1);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // PROPER
 // -----------------------------------------------------------------------------
-export const PROPER: AddFunctionDescription = {
+export const PROPER = {
   description: _t("Capitalizes each word in a specified string."),
   args: [
     arg(
@@ -271,12 +271,12 @@ export const PROPER: AddFunctionDescription = {
     });
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // REPLACE
 // -----------------------------------------------------------------------------
-export const REPLACE: AddFunctionDescription = {
+export const REPLACE = {
   description: _t("Replaces part of a text string with different text."),
   args: [
     arg("text (string)", _t("The text, a part of which will be replaced.")),
@@ -306,12 +306,12 @@ export const REPLACE: AddFunctionDescription = {
     return _text.substring(0, _position - 1) + _newText + _text.substring(_position - 1 + _length);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // RIGHT
 // -----------------------------------------------------------------------------
-export const RIGHT: AddFunctionDescription = {
+export const RIGHT = {
   description: _t("A substring from the end of a specified string."),
   args: [
     arg("text (string)", _t("The string from which the right portion will be returned.")),
@@ -332,12 +332,12 @@ export const RIGHT: AddFunctionDescription = {
     return _text.substring(stringLength - _numberOfCharacters, stringLength);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // SEARCH
 // -----------------------------------------------------------------------------
-export const SEARCH: AddFunctionDescription = {
+export const SEARCH = {
   description: _t("First position of string found in text, ignoring case."),
   args: [
     arg("search_for (string)", _t("The string to look for within text_to_search.")),
@@ -380,14 +380,14 @@ export const SEARCH: AddFunctionDescription = {
     return result + 1;
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // SPLIT
 // -----------------------------------------------------------------------------
 const SPLIT_DEFAULT_SPLIT_BY_EACH = true;
 const SPLIT_DEFAULT_REMOVE_EMPTY_TEXT = true;
-export const SPLIT: AddFunctionDescription = {
+export const SPLIT = {
   description: _t("Split text by specific character delimiter(s)."),
   args: [
     arg("text (string)", _t("The text to divide.")),
@@ -431,12 +431,12 @@ export const SPLIT: AddFunctionDescription = {
     return transpose2dArray([result]);
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // SUBSTITUTE
 // -----------------------------------------------------------------------------
-export const SUBSTITUTE: AddFunctionDescription = {
+export const SUBSTITUTE = {
   description: _t("Replaces existing text with new text in a string."),
   args: [
     arg("text_to_search (string)", _t("The text within which to search and replace.")),
@@ -479,12 +479,12 @@ export const SUBSTITUTE: AddFunctionDescription = {
     return _textToSearch.replace(reg, (text) => (++n === _occurrenceNumber ? _replaceWith : text));
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // TEXTJOIN
 // -----------------------------------------------------------------------------
-export const TEXTJOIN: AddFunctionDescription = {
+export const TEXTJOIN = {
   description: _t("Combines text from multiple strings and/or arrays."),
   args: [
     arg(
@@ -522,12 +522,12 @@ export const TEXTJOIN: AddFunctionDescription = {
     );
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // TRIM
 // -----------------------------------------------------------------------------
-export const TRIM: AddFunctionDescription = {
+export const TRIM = {
   description: _t("Removes space characters."),
   args: [
     arg("text (string)", _t("The text or reference to a cell containing text to be trimmed.")),
@@ -537,12 +537,12 @@ export const TRIM: AddFunctionDescription = {
     return toString(text).trim();
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // UPPER
 // -----------------------------------------------------------------------------
-export const UPPER: AddFunctionDescription = {
+export const UPPER = {
   description: _t("Converts a specified string to uppercase."),
   args: [arg("text (string)", _t("The string to convert to uppercase."))],
   returns: ["STRING"],
@@ -550,12 +550,12 @@ export const UPPER: AddFunctionDescription = {
     return toString(text).toUpperCase();
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // TEXT
 // -----------------------------------------------------------------------------
-export const TEXT: AddFunctionDescription = {
+export const TEXT = {
   description: _t("Converts a number to text according to a specified format."),
   args: [
     arg("number (number)", _t("The number, date or time to format.")),
@@ -570,4 +570,4 @@ export const TEXT: AddFunctionDescription = {
     return formatValue(_number, { format: toString(format), locale: this.locale });
   },
   isExported: true,
-};
+} satisfies AddFunctionDescription;
