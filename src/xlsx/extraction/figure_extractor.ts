@@ -1,6 +1,6 @@
 import { ExcelChartDefinition } from "../../types";
 import { XLSXFigure, XLSXFigureAnchor } from "../../types/xlsx";
-import { removeNamespaces } from "../helpers/xml_helpers";
+import { removeTagEscapedNamespaces } from "../helpers/xml_helpers";
 import { XlsxBaseExtractor } from "./base_extractor";
 import { XlsxChartExtractor } from "./chart_extractor";
 
@@ -9,7 +9,7 @@ export class XlsxFigureExtractor extends XlsxBaseExtractor {
     return this.mapOnElements(
       { parent: this.rootFile.file.xml, query: "xdr:wsDr", children: true },
       (figureElement): XLSXFigure => {
-        const anchorType = removeNamespaces(figureElement.tagName);
+        const anchorType = removeTagEscapedNamespaces(figureElement.tagName);
         if (anchorType !== "twoCellAnchor") {
           throw new Error("Only twoCellAnchor are supported for xlsx drawings.");
         }

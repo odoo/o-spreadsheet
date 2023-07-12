@@ -10,11 +10,7 @@ import {
 } from "../../types/xlsx";
 import { fixXlsxUnicode } from "../helpers/misc";
 import { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
-import {
-  areNamespaceIgnoredByQuerySelector,
-  escapeNamespaces,
-  removeNamespaces,
-} from "../helpers/xml_helpers";
+import { escapeQueryNameSpaces } from "../helpers/xml_helpers";
 
 interface MapOnElementArgs {
   query: string;
@@ -64,9 +60,15 @@ export class XlsxBaseExtractor {
   // the XLSXImportFile contains both the main .xml file, and the .rels file
   protected currentFile: string | undefined = undefined;
 
-  // If the parser querySelector() implementation ignores tag namespaces or not
-  protected areNamespaceIgnored: boolean;
-
+  /**
+   * /!\ Important : There should be no namespaces in the tags of the XML files.
+   *
+   * This class use native querySelector and querySelectorAll, that's used for HTML (not XML). These aren't supposed to
+   * handled namespaces, as they are not supported by the HTML specification. Some implementations (most browsers) do
+   * actually support namespaces, but some don't (e.g. jsdom).
+   *
+   * The namespace should be escaped as with NAMESPACE string (eg. <t:foo> => <NAMESPACEtNAMESPACEfoo>).
+   */
   constructor(
     rootFile: XLSXImportFile,
     xlsxStructure: XLSXFileStructure,
@@ -76,7 +78,6 @@ export class XlsxBaseExtractor {
     this.currentFile = rootFile.file.fileName;
     this.xlsxFileStructure = xlsxStructure;
     this.warningManager = warningManager;
-    this.areNamespaceIgnored = areNamespaceIgnoredByQuerySelector();
     this.relationships = {};
     if (rootFile.rels) {
       this.extractRelationships(rootFile.rels).map((rel) => {
@@ -343,30 +344,14 @@ export class XlsxBaseExtractor {
     return f;
   }
 
-  /**
-   * Wrapper of querySelector, but we'll remove the namespaces from the query if areNamespacesIgnored is true.
-   *
-   * Why we need to do this :
-   *  - For an XML "<t:test />"
-   *  - on Jest(jsdom) : xml.querySelector("test") == null, xml.querySelector("t\\:test") == <t:test />
-   *  - on Browser : xml.querySelector("test") == <t:test />, xml.querySelector("t\\:test") == null
-   */
   protected querySelector(element: Element | Document, query: string) {
-    query = this.areNamespaceIgnored ? removeNamespaces(query) : escapeNamespaces(query);
-    return element.querySelector(query);
+    const escapedQuery = escapeQueryNameSpaces(query);
+    return element.querySelector(escapedQuery);
   }
 
-  /**
-   * Wrapper of querySelectorAll, but we'll remove the namespaces from the query if areNamespacesIgnored is true.
-   *
-   * Why we need to do this :
-   *  - For an XML "<t:test />"
-   *  - on Jest(jsdom) : xml.querySelectorAll("test") == [], xml.querySelectorAll("t\\:test") == [<t:test />]
-   *  - on Browser : xml.querySelectorAll("test") == [<t:test />], xml.querySelectorAll("t\\:test") == []
-   */
   protected querySelectorAll(element: Element | Document, query: string) {
-    query = this.areNamespaceIgnored ? removeNamespaces(query) : escapeNamespaces(query);
-    return element.querySelectorAll(query);
+    const escapedQuery = escapeQueryNameSpaces(query);
+    return element.querySelectorAll(escapedQuery);
   }
 
   /**

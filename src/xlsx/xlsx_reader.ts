@@ -23,7 +23,7 @@ import { XlsxMiscExtractor, XlsxSheetExtractor, XlsxStyleExtractor } from "./ext
 import { XlsxExternalBookExtractor } from "./extraction/external_book_extractor";
 import { getXLSXFilesOfType } from "./helpers/xlsx_helper";
 import { XLSXImportWarningManager } from "./helpers/xlsx_parser_error_manager";
-import { parseXML } from "./helpers/xml_helpers";
+import { escapeTagNamespaces, parseXML } from "./helpers/xml_helpers";
 
 const EXCEL_IMPORT_VERSION = 12;
 
@@ -38,7 +38,8 @@ export class XlsxReader {
     for (let key of Object.keys(files)) {
       // Random files can be in xlsx (like a bin file for printer settings)
       if (key.endsWith(".xml") || key.endsWith(".rels")) {
-        this.xmls[key] = parseXML(new XMLString(files[key]));
+        const contentString = escapeTagNamespaces(files[key] as string);
+        this.xmls[key] = parseXML(new XMLString(contentString));
       }
     }
   }

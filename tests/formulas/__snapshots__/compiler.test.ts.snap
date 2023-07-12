@@ -69,7 +69,7 @@ exports[`compile functions with meta arguments function call requesting meta par
 "function anonymous(deps,ref,range,ctx
 ) {
 // =USEMETAARG(|0|)
-let _2 = ref(deps[0], true, \\"USEMETAARG\\",  1);
+let _2 = ref(deps[0], true, "USEMETAARG",  1);
 ctx.__lastFnCalled = 'USEMETAARG';
 let _1 = ctx['USEMETAARG'](_2);
 return _1;
@@ -80,7 +80,7 @@ exports[`compile functions with meta arguments function call requesting meta par
 "function anonymous(deps,ref,range,ctx
 ) {
 // =USEMETAARG(|0|)
-let _2 = ref(deps[0], true, \\"USEMETAARG\\",  1);
+let _2 = ref(deps[0], true, "USEMETAARG",  1);
 ctx.__lastFnCalled = 'USEMETAARG';
 let _1 = ctx['USEMETAARG'](_2);
 return _1;
@@ -102,11 +102,11 @@ exports[`expression compiler expression with $ref 1`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =|0|+|1|+|2|
-let _3 = ref(deps[0], false, \\"ADD\\",  undefined);
-let _4 = ref(deps[1], false, \\"ADD\\",  undefined);
+let _3 = ref(deps[0], false, "ADD",  undefined);
+let _4 = ref(deps[1], false, "ADD",  undefined);
 ctx.__lastFnCalled = 'ADD';
 let _2 = ctx['ADD'](_3, _4);
-let _5 = ref(deps[2], false, \\"ADD\\",  undefined);
+let _5 = ref(deps[2], false, "ADD",  undefined);
 ctx.__lastFnCalled = 'ADD';
 let _1 = ctx['ADD'](_2, _5);
 return _1;
@@ -117,7 +117,7 @@ exports[`expression compiler expression with references with a sheet 1`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =|0|
-let _1 = ref(deps[0], false, \\"EQ\\",  undefined);
+let _1 = ref(deps[0], false, "EQ",  undefined);
 return _1;
 }"
 `;
@@ -127,7 +127,7 @@ exports[`expression compiler expressions with a debugger 1`] = `
 ) {
 // =?|0|/|N0|
 debugger;
-let _2 = ref(deps[0], false, \\"DIVIDE\\",  undefined);
+let _2 = ref(deps[0], false, "DIVIDE",  undefined);
 let _3 = { value: this.constantValues.numbers[0] };
 ctx.__lastFnCalled = 'DIVIDE';
 let _1 = ctx['DIVIDE'](_2, _3);
@@ -139,7 +139,7 @@ exports[`expression compiler read some values and functions 1`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =|0|+sum(|1|)
-let _2 = ref(deps[0], false, \\"ADD\\",  undefined);
+let _2 = ref(deps[0], false, "ADD",  undefined);
 let _4 = range(deps[1]);
 ctx.__lastFnCalled = 'SUM';
 let _3 = ctx['SUM'](_4);
@@ -318,7 +318,7 @@ exports[`expression compiler some arithmetic expressions 15`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =|0|%
-let _2 = ref(deps[0], false, \\"UNARY.PERCENT\\",  undefined);
+let _2 = ref(deps[0], false, "UNARY.PERCENT",  undefined);
 ctx.__lastFnCalled = 'UNARY.PERCENT';
 let _1 = ctx['UNARY.PERCENT'](_2);
 return _1;

@@ -1,18 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`datasource tests create a gauge chart 1`] = `
-Object {
+{
   "background": "#FFFFFF",
-  "chartJsConfig": Object {
-    "data": Object {
-      "datasets": Array [
-        Object {
-          "backgroundColor": Array [
+  "chartJsConfig": {
+    "data": {
+      "datasets": [
+        {
+          "backgroundColor": [
             "#999999",
             "#111111",
             "#dddddd",
           ],
-          "data": Array [
+          "data": [
             70,
             150,
             500,
@@ -21,35 +21,35 @@ Object {
           "value": -223.33333333333334,
         },
       ],
-      "labels": Array [],
+      "labels": [],
     },
-    "options": Object {
-      "animation": Object {
+    "options": {
+      "animation": {
         "duration": 0,
       },
-      "elements": Object {
-        "line": Object {
+      "elements": {
+        "line": {
           "fill": false,
         },
-        "point": Object {
+        "point": {
           "hitRadius": 15,
         },
       },
-      "events": Array [],
+      "events": [],
       "hover": undefined,
-      "layout": Object {
-        "padding": Object {
+      "layout": {
+        "padding": {
           "bottom": 25,
           "left": 30,
           "right": 30,
           "top": 10,
         },
       },
-      "legend": Object {
+      "legend": {
         "onClick": undefined,
       },
       "maintainAspectRatio": false,
-      "needle": Object {
+      "needle": {
         "color": "#000000",
         "lengthPercentage": 80,
         "radiusPercentage": 2,
@@ -57,14 +57,14 @@ Object {
       },
       "responsive": true,
       "responsiveAnimationDuration": 0,
-      "title": Object {
+      "title": {
         "display": true,
         "fontColor": "#000000",
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "Title",
       },
-      "valueLabel": Object {
+      "valueLabel": {
         "backgroundColor": "#000000",
         "borderRadius": 5,
         "bottomMarginPercentage": 5,
@@ -72,7 +72,7 @@ Object {
         "display": false,
         "fontSize": 30,
         "formatter": null,
-        "padding": Object {
+        "padding": {
           "bottom": 5,
           "left": 5,
           "right": 5,
@@ -86,18 +86,18 @@ Object {
 `;
 
 exports[`datasource tests create empty gauge chart 1`] = `
-Object {
+{
   "background": "#FFFFFF",
-  "chartJsConfig": Object {
-    "data": Object {
-      "datasets": Array [
-        Object {
-          "backgroundColor": Array [
+  "chartJsConfig": {
+    "data": {
+      "datasets": [
+        {
+          "backgroundColor": [
             "#6aa84f",
             "#f1c232",
             "#cc0000",
           ],
-          "data": Array [
+          "data": [
             33,
             66,
             100,
@@ -106,35 +106,35 @@ Object {
           "value": -3.3333333333333335,
         },
       ],
-      "labels": Array [],
+      "labels": [],
     },
-    "options": Object {
-      "animation": Object {
+    "options": {
+      "animation": {
         "duration": 0,
       },
-      "elements": Object {
-        "line": Object {
+      "elements": {
+        "line": {
           "fill": false,
         },
-        "point": Object {
+        "point": {
           "hitRadius": 15,
         },
       },
-      "events": Array [],
+      "events": [],
       "hover": undefined,
-      "layout": Object {
-        "padding": Object {
+      "layout": {
+        "padding": {
           "bottom": 25,
           "left": 30,
           "right": 30,
           "top": 25,
         },
       },
-      "legend": Object {
+      "legend": {
         "onClick": undefined,
       },
       "maintainAspectRatio": false,
-      "needle": Object {
+      "needle": {
         "color": "#000000",
         "lengthPercentage": 80,
         "radiusPercentage": 2,
@@ -142,14 +142,14 @@ Object {
       },
       "responsive": true,
       "responsiveAnimationDuration": 0,
-      "title": Object {
+      "title": {
         "display": false,
         "fontColor": "#000000",
         "fontSize": 22,
         "fontStyle": "normal",
         "text": "",
       },
-      "valueLabel": Object {
+      "valueLabel": {
         "backgroundColor": "#000000",
         "borderRadius": 5,
         "bottomMarginPercentage": 5,
@@ -157,7 +157,7 @@ Object {
         "display": false,
         "fontSize": 30,
         "formatter": null,
-        "padding": Object {
+        "padding": {
           "bottom": 5,
           "left": 5,
           "right": 5,
