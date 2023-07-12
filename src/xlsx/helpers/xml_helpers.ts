@@ -113,29 +113,32 @@ export function escapeXml(strings: TemplateStringsArray, ...expressions): XMLStr
 }
 
 /**
- * Removes the namespace of all the xml tags in the string.
+ * Removes the escaped namespace of all the xml tags in the string.
  *
- * Eg. : "ns:test a" => "test a"
+ * Eg. : "NAMESPACEnsNAMESPACEtest a" => "test a"
  */
-export function removeNamespaces(query: string): string {
-  return query.replace(/[a-z0-9]+:(?=[a-z0-9]+)/gi, "");
+export function removeTagEscapedNamespaces(tag: string): string {
+  return tag.replace(/NAMESPACE.*NAMESPACE(.*)/, "$1");
 }
 
 /**
- * Escape the namespace's colons of all the xml tags in the string.
+ * Encase the namespaces in the element's tags with NAMESPACE string
  *
- * Eg. : "ns:test a" => "ns\\:test a"
+ * e.g. <x:foo> becomes <NAMESPACExNAMESPACEFoo>
+ *
+ * That's useful because namespaces aren't supported by the HTML specification, so it's arbitrary whether a HTML parser/querySelector
+ * implementation will support namespaces in the tags or not.
  */
-export function escapeNamespaces(query: string): string {
-  return query.replace(/([a-z0-9]+):(?=[a-z0-9]+)/gi, "$1\\:");
+export function escapeTagNamespaces(str: string): string {
+  return str.replaceAll(
+    /(<\/?)([a-zA-Z0-9]+):([a-zA-Z0-9]+)/g,
+    "$1" + "NAMESPACE" + "$2" + "NAMESPACE" + "$3"
+  );
 }
 
-/**
- * Return true if the querySelector ignores the namespaces when searching for a tag in the DOM.
- *
- * Should return true if it's running on a browser, and false if it's running on jest (jsdom).
- */
-export function areNamespaceIgnoredByQuerySelector() {
-  const doc = new DOMParser().parseFromString("<t:test xmlns:t='a'/>", "text/xml");
-  return doc.querySelector("test") !== null;
+export function escapeQueryNameSpaces(query: string): string {
+  return query.replaceAll(
+    /([a-zA-Z0-9]+):([a-zA-Z0-9]+)/g,
+    "NAMESPACE" + "$1" + "NAMESPACE" + "$2"
+  );
 }
