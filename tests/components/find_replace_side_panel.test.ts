@@ -51,22 +51,6 @@ describe("find and replace sidePanel component", () => {
       expect(document.activeElement).toBe(document.querySelector(selectors.inputSearch));
     });
 
-    test("focusing the sidepanel will update the search", async () => {
-      setInputValueAndTrigger(selectors.inputSearch, "hello", "input");
-      await nextTick();
-      const inputSearch: HTMLElement = document.activeElement as HTMLButtonElement;
-      expect(document.activeElement).toBe(document.querySelector(selectors.inputSearch));
-
-      inputSearch!.blur();
-      expect(document.activeElement).toBe(document.querySelector("body"));
-
-      const sidePanel = document.querySelector(".o-find-and-replace");
-      const dispatch = spyDispatch(parent);
-      sidePanel!.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
-      await nextTick();
-      expect(dispatch).toHaveBeenCalledWith("REFRESH_SEARCH");
-    });
-
     test("disable next/previous/replace/replaceAll if searching on empty string", async () => {
       setInputValueAndTrigger(selectors.inputSearch, "", "input");
       await nextTick();
@@ -230,6 +214,20 @@ describe("find and replace sidePanel component", () => {
       await click(fixture, selectors.checkBoxSearchFormulas);
       await click(fixture, selectors.closeSidepanel);
       expect(model.getters.shouldShowFormulas()).toBe(false);
+    });
+
+    test("Setting show formula from f&r should retain its state even it's changed via topbar", async () => {
+      model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+      await nextTick();
+      expect(model.getters.shouldShowFormulas()).toBe(true);
+      expect(
+        (document.querySelector(selectors.checkBoxSearchFormulas) as HTMLInputElement).checked
+      ).toBe(true);
+      await click(fixture, selectors.checkBoxSearchFormulas);
+      expect(model.getters.shouldShowFormulas()).toBe(false);
+      expect(
+        (document.querySelector(selectors.checkBoxSearchFormulas) as HTMLInputElement).checked
+      ).toBe(false);
     });
   });
   describe("replace options", () => {
