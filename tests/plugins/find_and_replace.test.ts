@@ -542,4 +542,15 @@ describe("replace", () => {
     expect(getCellContent(model, "A3")).toBe("kikou");
     expect(getCellContent(model, "A4")).toBe("kikou");
   });
+
+  test("replace all won't update the active cell", () => {
+    model.dispatch("UPDATE_SEARCH", { toSearch: "hell", searchOptions });
+    expect(getActivePosition(model)).toBe("A1");
+    model.dispatch("REPLACE_ALL_SEARCH", { replaceWith: "kikou" });
+    const matches = model.getters.getSearchMatches();
+    const matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(0);
+    expect(matchIndex).toStrictEqual(null);
+    expect(getActivePosition(model)).toBe("A1");
+  });
 });
