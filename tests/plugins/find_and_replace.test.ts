@@ -4,6 +4,7 @@ import { SearchOptions } from "../../src/plugins/ui_feature/find_and_replace";
 import {
   activateSheet,
   createSheet,
+  hideRows,
   setCellContent,
   setSelection,
   setViewportOffset,
@@ -161,6 +162,20 @@ describe("basic search", () => {
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
     expect(matches).toHaveLength(2);
+    expect(matchIndex).toStrictEqual(0);
+  });
+
+  test("hidden cells should not be included in match", () => {
+    model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
+    let matches = model.getters.getSearchMatches();
+    let matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(4);
+    expect(matchIndex).toStrictEqual(0);
+    hideRows(model, [1]);
+    model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
+    matches = model.getters.getSearchMatches();
+    matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(0);
   });
 });
