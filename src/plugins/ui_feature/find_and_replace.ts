@@ -85,7 +85,6 @@ export class FindAndReplacePlugin extends UIPlugin {
         this.clearSearch();
         break;
       case "ACTIVATE_SHEET":
-      case "REFRESH_SEARCH":
         this.refreshSearch();
         break;
     }
