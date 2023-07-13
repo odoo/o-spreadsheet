@@ -125,7 +125,6 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
 
   "SELECT_SEARCH_NEXT_MATCH",
   "SELECT_SEARCH_PREVIOUS_MATCH",
-  "REFRESH_SEARCH",
   "UPDATE_SEARCH",
   "CLEAR_SEARCH",
 
@@ -783,9 +782,6 @@ export interface UpdateSearchCommand {
 export interface ClearSearchCommand {
   type: "CLEAR_SEARCH";
 }
-export interface RefreshSearchCommand {
-  type: "REFRESH_SEARCH";
-}
 
 export interface SelectSearchPreviousCommand {
   type: "SELECT_SEARCH_PREVIOUS_MATCH";
@@ -1011,7 +1007,6 @@ export type LocalCommand =
   | AutofillAutoCommand
   | SelectFigureCommand
   | UpdateSearchCommand
-  | RefreshSearchCommand
   | ClearSearchCommand
   | SelectSearchPreviousCommand
   | SelectSearchNextCommand
