@@ -1,4 +1,4 @@
-import { Component, onMounted, onWillUnmount, useRef, useState } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
 
@@ -70,6 +70,14 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.dispatch("CLEAR_SEARCH");
       this.env.model.dispatch("SET_FORMULA_VISIBILITY", { show: this.showFormulaState });
     });
+
+    useEffect(
+      () => {
+        this.state.searchOptions.searchFormulas = this.env.model.getters.shouldShowFormulas();
+        this.searchFormulas();
+      },
+      () => [this.env.model.getters.shouldShowFormulas()]
+    );
   }
 
   onInput(ev) {
@@ -89,11 +97,6 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
       ev.preventDefault();
       this.replace();
     }
-  }
-
-  onFocusSidePanel() {
-    this.state.searchOptions.searchFormulas = this.env.model.getters.shouldShowFormulas();
-    this.env.model.dispatch("REFRESH_SEARCH");
   }
 
   searchFormulas() {
