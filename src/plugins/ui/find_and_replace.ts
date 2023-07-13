@@ -154,12 +154,17 @@ export class FindAndReplacePlugin extends UIPlugin {
    * Find matches using the current regex
    */
   private findMatches() {
-    const activeSheetId = this.getters.getActiveSheetId();
-    const cells = this.getters.getCells(activeSheetId);
+    const sheetId = this.getters.getActiveSheetId();
+    const cells = this.getters.getCells(sheetId);
     const matches: SearchMatch[] = [];
-
     if (this.toSearch) {
       for (const cell of Object.values(cells)) {
+        const { col, row } = this.getters.getCellPosition(cell.id);
+        const isColHidden = this.getters.isColHidden(sheetId, col);
+        const isRowHidden = this.getters.isRowHidden(sheetId, row);
+        if (isColHidden || isRowHidden) {
+          continue;
+        }
         if (
           cell &&
           this.currentSearchRegex &&
