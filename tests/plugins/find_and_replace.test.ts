@@ -2,7 +2,12 @@ import { Model } from "../../src";
 import { args, functionRegistry } from "../../src/functions";
 import { toZone } from "../../src/helpers";
 import { SearchOptions } from "../../src/plugins/ui/find_and_replace";
-import { activateSheet, createSheet, setCellContent } from "../test_helpers/commands_helpers";
+import {
+  activateSheet,
+  createSheet,
+  hideRows,
+  setCellContent,
+} from "../test_helpers/commands_helpers";
 import { getCellContent, getCellText } from "../test_helpers/getters_helpers";
 
 let model: Model;
@@ -175,6 +180,20 @@ describe("basic search", () => {
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
     expect(matches).toHaveLength(2);
+    expect(matchIndex).toStrictEqual(0);
+  });
+
+  test("hidden cells should not be included in match", () => {
+    model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
+    let matches = model.getters.getSearchMatches();
+    let matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(4);
+    expect(matchIndex).toStrictEqual(0);
+    hideRows(model, [1]);
+    model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
+    matches = model.getters.getSearchMatches();
+    matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(0);
   });
 });
