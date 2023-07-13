@@ -226,39 +226,38 @@ export class FindAndReplacePlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
   // Replace
   // ---------------------------------------------------------------------------
+  private replaceMatch(selectedMatch: SearchMatch, replaceWith: string) {
+    if (!this.currentSearchRegex) {
+      return;
+    }
+
+    const sheetId = this.getters.getActiveSheetId();
+    const cell = this.getters.getCell({ sheetId, ...selectedMatch });
+    const { col, row } = selectedMatch;
+
+    if (cell?.isFormula && !this.searchOptions.searchFormulas) {
+      return;
+    }
+    const replaceRegex = new RegExp(
+      this.currentSearchRegex.source,
+      this.currentSearchRegex.flags + "g"
+    );
+    const toReplace: string | null = this.getSearchableString({ sheetId, col, row });
+    const content = toReplace.replace(replaceRegex, replaceWith);
+    this.dispatch("UPDATE_CELL", { sheetId, col, row, content });
+  }
+
   /**
    * Replace the value of the currently selected match
    */
   private replace(replaceWith: string) {
-    if (this.selectedMatchIndex === null || !this.currentSearchRegex) {
+    if (this.selectedMatchIndex === null) {
       return;
     }
-    const matches = this.searchMatches;
-    const selectedMatch = matches[this.selectedMatchIndex];
-    const sheetId = this.getters.getActiveSheetId();
-    const cell = this.getters.getCell({ sheetId, ...selectedMatch });
-    if (cell?.isFormula && !this.searchOptions.searchFormulas) {
-      this.selectNextCell(Direction.next);
-    } else {
-      const replaceRegex = new RegExp(
-        this.currentSearchRegex.source,
-        this.currentSearchRegex.flags + "g"
-      );
-      const toReplace: string | null = this.getSearchableString({
-        sheetId,
-        col: selectedMatch.col,
-        row: selectedMatch.row,
-      });
-      const newContent = toReplace.replace(replaceRegex, replaceWith);
-      this.dispatch("UPDATE_CELL", {
-        sheetId: this.getters.getActiveSheetId(),
-        col: selectedMatch.col,
-        row: selectedMatch.row,
-        content: newContent,
-      });
-      this.searchMatches.splice(this.selectedMatchIndex, 1);
-      this.selectNextCell(Direction.current);
-    }
+
+    const selectedMatch = this.searchMatches[this.selectedMatchIndex];
+    this.replaceMatch(selectedMatch, replaceWith);
+    this.selectNextCell(Direction.next);
   }
   /**
    * Apply the replace function to all the matches one time.
@@ -266,7 +265,7 @@ export class FindAndReplacePlugin extends UIPlugin {
   private replaceAll(replaceWith: string) {
     const matchCount = this.searchMatches.length;
     for (let i = 0; i < matchCount; i++) {
-      this.replace(replaceWith);
+      this.replaceMatch(this.searchMatches[i], replaceWith);
     }
   }
 
