@@ -300,6 +300,14 @@ test("Notify ui correctly with type notification correctly use notifyUser in the
   expect(raiseError).toHaveBeenCalledWith("hello");
 });
 
+test("grid should regain focus after a topbar menu option is selected", async () => {
+  ({ parent, fixture } = await mountSpreadsheet());
+  expect(document.activeElement!.tagName).toEqual("INPUT");
+  await click(fixture, ".o-topbar-menu[data-id='format']");
+  await simulateClick(".o-menu-item[title='Bold']");
+  expect(document.activeElement!.tagName).toEqual("INPUT");
+});
+
 describe("Composer / selectionInput interactions", () => {
   const modelDataCf = {
     sheets: [
