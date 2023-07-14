@@ -20,6 +20,7 @@
             position="state.menuState.position"
             menuItems="state.menuState.menuItems"
             onClose="() => this.closeMenus()"
+            onMenuClicked="() => this.props.onClick()"
           />
         </div>
         <div class="o-topbar-topright">
