@@ -281,6 +281,15 @@ describe("Spreadsheet", () => {
     spreadsheetDiv.dispatchEvent(new KeyboardEvent("keydown", { key: "H", ctrlKey: true }));
     expect(spreadsheetKeyDown).not.toHaveBeenCalled();
   });
+
+  test("grid should regain focus after a topbar menu option is selected", async () => {
+    ({ parent, fixture } = await mountSpreadsheet());
+    expect(document.activeElement!.tagName).toEqual("INPUT");
+    triggerMouseEvent(".o-topbar-menu[data-id='format']", "click");
+    await nextTick();
+    await simulateClick(".o-menu-item[title='Bold']");
+    expect(document.activeElement!.tagName).toEqual("INPUT");
+  });
 });
 
 describe("Composer interactions", () => {
