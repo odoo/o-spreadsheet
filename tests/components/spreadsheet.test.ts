@@ -238,7 +238,6 @@ describe("Simple Spreadsheet Component", () => {
     expect(fixture.querySelectorAll(".o-composer-assistant")).toHaveLength(0);
   });
 });
-
 test("Can instantiate a spreadsheet with a given client id-name", async () => {
   const client = { id: "alice", name: "Alice" };
   ({ model } = await mountSpreadsheet({ model: new Model({}, { client }) }));
@@ -280,6 +279,14 @@ test("Notify ui correctly with type notification correctly use notifyUser in the
   ({ model, fixture } = await mountSpreadsheet(undefined, { raiseError }));
   model["config"].notifyUI({ type: "ERROR", text: "hello" });
   expect(raiseError).toHaveBeenCalledWith("hello");
+});
+
+test("grid should regain focus after a topbar menu option is selected", async () => {
+  ({ parent, fixture } = await mountSpreadsheet());
+  expect(document.activeElement!.tagName).toEqual("INPUT");
+  await click(fixture, ".o-topbar-menu[data-id='format']");
+  await simulateClick(".o-menu-item[title='Bold']");
+  expect(document.activeElement!.tagName).toEqual("INPUT");
 });
 
 describe("Composer / selectionInput interactions", () => {
