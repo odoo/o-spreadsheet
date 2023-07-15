@@ -58,5 +58,15 @@ export function dragFigureForResize(
     }
   }
 
+  // Restrict resizing if x or y reaches header boundaries
+  if (x < 0) {
+    width += x;
+    x = 0;
+  }
+  if (y < 0) {
+    height += y;
+    y = 0;
+  }
+
   return { ...initialFigure, x, y, width, height };
 }
