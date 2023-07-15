@@ -259,6 +259,23 @@ describe("figures", () => {
     expect(model.getters.getFigure(sheetId, figureId)).toMatchObject(expectedSize);
   });
 
+  test.each([
+    ["top", { mouseOffsetX: 0, mouseOffsetY: -100 }],
+    ["left", { mouseOffsetX: -100, mouseOffsetY: 0 }],
+    ["topLeft", { mouseOffsetX: -100, mouseOffsetY: -100 }],
+  ])(
+    "Resizing a figure through its top and left anchor does not change size beyond header boundaries",
+    async (anchor: string, mouseMove: { mouseOffsetX: number; mouseOffsetY: number }) => {
+      const figureId = "someuuid";
+      const figure = { width: 100, height: 100 };
+      createFigure(model, { id: figureId, y: 0, x: 0, ...figure });
+      model.dispatch("SELECT_FIGURE", { id: figureId });
+      await nextTick();
+      await dragAnchor(anchor, mouseMove.mouseOffsetX, mouseMove.mouseOffsetY, true);
+      expect(model.getters.getFigure(sheetId, figureId)).toMatchObject(figure);
+    }
+  );
+
   describe("Move a figure with drag & drop ", () => {
     test("Can move a figure with drag & drop", async () => {
       createFigure(model, { id: "someuuid", x: 200, y: 100 });
