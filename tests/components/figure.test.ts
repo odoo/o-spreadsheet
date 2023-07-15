@@ -268,6 +268,24 @@ describe("figures", () => {
   });
 
   test.each([
+    ["top", { mouseOffsetX: 0, mouseOffsetY: -100 }],
+    ["left", { mouseOffsetX: -100, mouseOffsetY: 0 }],
+    ["topLeft", { mouseOffsetX: -100, mouseOffsetY: -100 }],
+  ])(
+    "Resizing a figure through its top and left anchor does not change size beyond header boundaries",
+    async (anchor: string, mouseMove: { mouseOffsetX: number; mouseOffsetY: number }) => {
+      const figureId = "someuuid";
+      const sheetId = model.getters.getActiveSheetId();
+      const figure = { width: 100, height: 100 };
+      createFigure(model, { id: figureId, y: 0, x: 0, ...figure });
+      await nextTick();
+      await simulateClick(".o-figure");
+      await dragAnchor(anchor, mouseMove.mouseOffsetX, mouseMove.mouseOffsetY, true);
+      expect(model.getters.getFigure(sheetId, figureId)).toMatchObject(figure);
+    }
+  );
+
+  test.each([
     [
       "topLeft",
       { mouseOffsetX: 200, mouseOffsetY: 200 },
