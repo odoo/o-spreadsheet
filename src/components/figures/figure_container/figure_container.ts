@@ -287,6 +287,15 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
         if (dirY < 0) {
           this.dnd.y = dndInitialY + figure.height * fraction;
         }
+
+        if (this.dnd.x < 0) {
+          this.dnd.width += this.dnd.x;
+          this.dnd.x = 0;
+        }
+        if (this.dnd.y < 0) {
+          this.dnd.height += this.dnd.y;
+          this.dnd.y = 0;
+        }
       };
     } else {
       onMouseMove = (ev: MouseEvent) => {
@@ -300,6 +309,15 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
         }
         if (dirY < 0) {
           this.dnd.y = dndInitialY - deltaY;
+        }
+
+        if (this.dnd.x < 0) {
+          this.dnd.width += this.dnd.x;
+          this.dnd.x = 0;
+        }
+        if (this.dnd.y < 0) {
+          this.dnd.height += this.dnd.y;
+          this.dnd.y = 0;
         }
       };
     }
