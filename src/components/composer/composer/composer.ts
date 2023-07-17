@@ -9,12 +9,14 @@ import { ComposerSelection } from "../../../plugins/ui_stateful/edition";
 import {
   Color,
   CSSProperties,
+  Direction,
   DOMDimension,
   FunctionDescription,
   Rect,
   SpreadsheetChildEnv,
 } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
+import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { getHtmlContentFromPattern } from "../../helpers/html_content_helpers";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
 import { ComposerFocusType } from "../../spreadsheet/spreadsheet";
@@ -193,16 +195,16 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   tokens: EnrichedToken[] = [];
 
   keyMapping: { [key: string]: Function } = {
-    ArrowUp: this.processArrowKeys,
-    ArrowDown: this.processArrowKeys,
-    ArrowLeft: this.processArrowKeys,
-    ArrowRight: this.processArrowKeys,
-    Enter: this.processEnterKey,
+    Enter: (ev: KeyboardEvent) => this.processEnterKey(ev, "down"),
+    "Shift+Enter": (ev: KeyboardEvent) => this.processEnterKey(ev, "up"),
+    "Alt+Enter": this.processNewLineEvent,
+    "Ctrl+Enter": this.processNewLineEvent,
     Escape: this.processEscapeKey,
     F2: () => console.warn("Not implemented"),
     F4: this.processF4Key,
-    Tab: (ev: KeyboardEvent) => this.processTabKey(ev),
-    " ": (ev: KeyboardEvent) => this.processSpaceKey(ev),
+    Tab: (ev: KeyboardEvent) => this.processTabKey(ev, "right"),
+    "Shift+Tab": (ev: KeyboardEvent) => this.processTabKey(ev, "left"),
+    "Ctrl+ ": this.processSpaceKey,
   };
 
   keyCodeMapping: { [keyCode: string]: Function } = {
@@ -273,7 +275,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     }
   }
 
-  private processTabKey(ev: KeyboardEvent) {
+  private processTabKey(ev: KeyboardEvent, direction: Direction) {
     ev.preventDefault();
     ev.stopPropagation();
     const state = this.autoCompleteState;
@@ -285,29 +287,20 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       }
     }
 
-    const direction = ev.shiftKey ? "left" : "right";
     interactiveStopEdition(this.env);
     this.env.model.selection.moveAnchorCell(direction, 1);
   }
 
   processSpaceKey(ev: KeyboardEvent) {
-    if (ev.ctrlKey) {
-      ev.preventDefault();
-      ev.stopPropagation();
-      this.showFunctionAutocomplete("");
-      this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
-    }
-  }
-
-  private processEnterKey(ev: KeyboardEvent) {
     ev.preventDefault();
     ev.stopPropagation();
-    if (ev.altKey || ev.ctrlKey) {
-      this.composerRef.el?.dispatchEvent(
-        new InputEvent("input", { inputType: "insertParagraph", bubbles: true, isComposing: false })
-      );
-      return;
-    }
+    this.showFunctionAutocomplete("");
+    this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
+  }
+
+  private processEnterKey(ev: KeyboardEvent, direction: Direction) {
+    ev.preventDefault();
+    ev.stopPropagation();
 
     const state = this.autoCompleteState;
     if (state.showProvider && state.selectedIndex !== undefined) {
@@ -318,8 +311,23 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       }
     }
     interactiveStopEdition(this.env);
-    const direction = ev.shiftKey ? "up" : "down";
     this.env.model.selection.moveAnchorCell(direction, 1);
+  }
+
+  private processNewLineEvent(ev: KeyboardEvent) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    const content = this.contentHelper.getText();
+    const selection = this.contentHelper.getCurrentSelection();
+    const start = Math.min(selection.start, selection.end);
+    const end = Math.max(selection.start, selection.end);
+
+    this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
+    this.env.model.dispatch("SET_CURRENT_CONTENT", {
+      content: content.slice(0, start) + NEWLINE + content.slice(end),
+      selection: { start: start + 1, end: start + 1 },
+    });
+    this.processContent();
   }
 
   private processEscapeKey() {
@@ -362,7 +370,13 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   }
 
   onKeydown(ev: KeyboardEvent) {
-    let handler = this.keyMapping[ev.key] || this.keyCodeMapping[ev.code];
+    if (ev.key.startsWith("Arrow")) {
+      this.processArrowKeys(ev);
+      return;
+    }
+    let handler =
+      this.keyMapping[keyboardEventToShortcutString(ev)] ||
+      this.keyCodeMapping[keyboardEventToShortcutString(ev, "code")];
     if (handler) {
       handler.call(this, ev);
     } else {
@@ -379,12 +393,6 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     }
     let content = this.contentHelper.getText();
     let selection = this.contentHelper.getCurrentSelection();
-    if (ev.inputType === "insertParagraph") {
-      const start = Math.min(selection.start, selection.end);
-      const end = Math.max(selection.start, selection.end);
-      content = content.slice(0, start) + NEWLINE + content.slice(end);
-      selection = { start: start + 1, end: start + 1 };
-    }
     this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     this.env.model.dispatch("SET_CURRENT_CONTENT", {
       content,
