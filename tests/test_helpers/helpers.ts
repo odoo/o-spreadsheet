@@ -527,12 +527,12 @@ export async function typeInComposerHelper(selector: string, text: string, fromS
   (composerEl as HTMLElement).focus();
   // @ts-ignore
   const cehMock = window.mockContentHelper as ContentEditableHelper;
-  composerEl.dispatchEvent(new Event("keydown", { bubbles: true }));
+  composerEl.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "" }));
   await nextTick();
   cehMock.insertText(text);
   composerEl.dispatchEvent(new InputEvent("input", { data: text, bubbles: true }));
   await nextTick();
-  composerEl.dispatchEvent(new Event("keyup", { bubbles: true }));
+  composerEl.dispatchEvent(new KeyboardEvent("keyup", { bubbles: true, key: "" }));
   await nextTick();
   return composerEl;
 }

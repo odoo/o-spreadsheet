@@ -59,6 +59,7 @@ import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
 import { cssPropertiesToCss } from "../helpers";
+import { keyboardEventToShortcutString } from "../helpers/dom_helpers";
 import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
@@ -189,33 +190,33 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   // this map will handle most of the actions that should happen on key down. The arrow keys are managed in the key
   // down itself
   private keyDownMapping: { [key: string]: Function } = {
-    ENTER: () => {
+    Enter: () => {
       const cell = this.env.model.getters.getActiveCell();
       cell.type === CellValueType.empty
         ? this.props.onGridComposerCellFocused()
         : this.props.onComposerContentFocused();
     },
-    TAB: () => this.env.model.selection.moveAnchorCell("right", 1),
-    "SHIFT+TAB": () => this.env.model.selection.moveAnchorCell("left", 1),
+    Tab: () => this.env.model.selection.moveAnchorCell("right", 1),
+    "Shift+Tab": () => this.env.model.selection.moveAnchorCell("left", 1),
     F2: () => {
       const cell = this.env.model.getters.getActiveCell();
       cell.type === CellValueType.empty
         ? this.props.onGridComposerCellFocused()
         : this.props.onComposerContentFocused();
     },
-    DELETE: () => {
+    Delete: () => {
       this.env.model.dispatch("DELETE_CONTENT", {
         sheetId: this.env.model.getters.getActiveSheetId(),
         target: this.env.model.getters.getSelectedZones(),
       });
     },
-    BACKSPACE: () => {
+    Backspace: () => {
       this.env.model.dispatch("DELETE_CONTENT", {
         sheetId: this.env.model.getters.getActiveSheetId(),
         target: this.env.model.getters.getSelectedZones(),
       });
     },
-    ESCAPE: () => {
+    Escape: () => {
       /** TODO: Clean once we introduce proper focus on sub components. Grid should not have to handle all this logic */
       if (this.env.model.getters.hasOpenedPopover()) {
         this.closeOpenedPopover();
@@ -227,30 +228,30 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         this.env.model.dispatch("CLEAN_CLIPBOARD_HIGHLIGHT");
       }
     },
-    "CTRL+A": () => this.env.model.selection.loopSelection(),
-    "CTRL+Z": () => this.env.model.dispatch("REQUEST_UNDO"),
-    "CTRL+Y": () => this.env.model.dispatch("REQUEST_REDO"),
+    "Ctrl+A": () => this.env.model.selection.loopSelection(),
+    "Ctrl+Z": () => this.env.model.dispatch("REQUEST_UNDO"),
+    "Ctrl+Y": () => this.env.model.dispatch("REQUEST_REDO"),
     F4: () => this.env.model.dispatch("REQUEST_REDO"),
-    "CTRL+B": () =>
+    "Ctrl+B": () =>
       this.env.model.dispatch("SET_FORMATTING", {
         sheetId: this.env.model.getters.getActiveSheetId(),
         target: this.env.model.getters.getSelectedZones(),
         style: { bold: !this.env.model.getters.getCurrentStyle().bold },
       }),
-    "CTRL+I": () =>
+    "Ctrl+I": () =>
       this.env.model.dispatch("SET_FORMATTING", {
         sheetId: this.env.model.getters.getActiveSheetId(),
         target: this.env.model.getters.getSelectedZones(),
         style: { italic: !this.env.model.getters.getCurrentStyle().italic },
       }),
-    "CTRL+U": () =>
+    "Ctrl+U": () =>
       this.env.model.dispatch("SET_FORMATTING", {
         sheetId: this.env.model.getters.getActiveSheetId(),
         target: this.env.model.getters.getSelectedZones(),
         style: { underline: !this.env.model.getters.getCurrentStyle().underline },
       }),
-    "CTRL+O": () => CREATE_IMAGE(this.env),
-    "ALT+=": () => {
+    "Ctrl+O": () => CREATE_IMAGE(this.env),
+    "Alt+=": () => {
       const sheetId = this.env.model.getters.getActiveSheetId();
 
       const mainSelectedZone = this.env.model.getters.getSelectedZone();
@@ -268,13 +269,13 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         this.env.model.dispatch("SUM_SELECTION");
       }
     },
-    "ALT+ENTER": () => {
+    "Alt+Enter": () => {
       const cell = this.env.model.getters.getActiveCell();
       if (cell.link) {
         openLink(cell.link, this.env);
       }
     },
-    "CTRL+HOME": () => {
+    "Ctrl+Home": () => {
       const sheetId = this.env.model.getters.getActiveSheetId();
       const { col, row } = this.env.model.getters.getNextVisibleCellPosition({
         sheetId,
@@ -283,7 +284,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       });
       this.env.model.selection.selectCell(col, row);
     },
-    "CTRL+END": () => {
+    "Ctrl+End": () => {
       const sheetId = this.env.model.getters.getActiveSheetId();
       const col = this.env.model.getters.findVisibleHeader(
         sheetId,
@@ -299,7 +300,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       )!;
       this.env.model.selection.selectCell(col, row);
     },
-    "SHIFT+ ": () => {
+    "Shift+ ": () => {
       const sheetId = this.env.model.getters.getActiveSheetId();
       const newZone = {
         ...this.env.model.getters.getSelectedZone(),
@@ -309,7 +310,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       const position = this.env.model.getters.getActivePosition();
       this.env.model.selection.selectZone({ cell: position, zone: newZone });
     },
-    "CTRL+ ": () => {
+    "Ctrl+ ": () => {
       const sheetId = this.env.model.getters.getActiveSheetId();
       const newZone = {
         ...this.env.model.getters.getSelectedZone(),
@@ -319,18 +320,18 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       const position = this.env.model.getters.getActivePosition();
       this.env.model.selection.selectZone({ cell: position, zone: newZone });
     },
-    "CTRL+D": async () => this.env.model.dispatch("COPY_PASTE_CELLS_ABOVE"),
-    "CTRL+R": async () => this.env.model.dispatch("COPY_PASTE_CELLS_ON_LEFT"),
-    "CTRL+SHIFT+E": () => this.setHorizontalAlign("center"),
-    "CTRL+SHIFT+L": () => this.setHorizontalAlign("left"),
-    "CTRL+SHIFT+R": () => this.setHorizontalAlign("right"),
-    "CTRL+SHIFT+V": () => PASTE_VALUE_ACTION(this.env),
-    "CTRL+SHIFT+<": () => this.clearFormatting(), // for qwerty
-    "CTRL+<": () => this.clearFormatting(), // for azerty
-    "CTRL+SHIFT+ ": () => {
+    "Ctrl+D": async () => this.env.model.dispatch("COPY_PASTE_CELLS_ABOVE"),
+    "Ctrl+R": async () => this.env.model.dispatch("COPY_PASTE_CELLS_ON_LEFT"),
+    "Ctrl+Shift+E": () => this.setHorizontalAlign("center"),
+    "Ctrl+Shift+L": () => this.setHorizontalAlign("left"),
+    "Ctrl+Shift+R": () => this.setHorizontalAlign("right"),
+    "Ctrl+Shift+V": () => PASTE_VALUE_ACTION(this.env),
+    "Ctrl+Shift+<": () => this.clearFormatting(), // for qwerty
+    "Ctrl+<": () => this.clearFormatting(), // for azerty
+    "Ctrl+Shift+ ": () => {
       this.env.model.selection.selectAll();
     },
-    "CTRL+ALT+=": () => {
+    "Ctrl+Alt+=": () => {
       const activeCols = this.env.model.getters.getActiveCols();
       const activeRows = this.env.model.getters.getActiveRows();
       const isSingleSelection = this.env.model.getters.getSelectedZones().length === 1;
@@ -342,7 +343,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         INSERT_ROWS_BEFORE_ACTION(this.env);
       }
     },
-    "CTRL+ALT+-": () => {
+    "Ctrl+Alt+-": () => {
       const columns = [...this.env.model.getters.getActiveCols()];
       const rows = [...this.env.model.getters.getActiveRows()];
       if (columns.length > 0 && rows.length === 0) {
@@ -359,19 +360,19 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         });
       }
     },
-    "SHIFT+PAGEDOWN": () => {
+    "Shift+PageDown": () => {
       this.env.model.dispatch("ACTIVATE_NEXT_SHEET");
     },
-    "SHIFT+PAGEUP": () => {
+    "Shift+PageUp": () => {
       this.env.model.dispatch("ACTIVATE_PREVIOUS_SHEET");
     },
-    PAGEDOWN: () => this.env.model.dispatch("SHIFT_VIEWPORT_DOWN"),
-    PAGEUP: () => this.env.model.dispatch("SHIFT_VIEWPORT_UP"),
-    "CTRL+K": () => INSERT_LINK(this.env),
-    "ALT+SHIFT+ARROWRIGHT": () => this.processHeaderGroupingKey("right"),
-    "ALT+SHIFT+ARROWLEFT": () => this.processHeaderGroupingKey("left"),
-    "ALT+SHIFT+ARROWUP": () => this.processHeaderGroupingKey("up"),
-    "ALT+SHIFT+ARROWDOWN": () => this.processHeaderGroupingKey("down"),
+    PageDown: () => this.env.model.dispatch("SHIFT_VIEWPORT_DOWN"),
+    PageUp: () => this.env.model.dispatch("SHIFT_VIEWPORT_UP"),
+    "Ctrl+K": () => INSERT_LINK(this.env),
+    "Alt+Shift+ArrowRight": () => this.processHeaderGroupingKey("right"),
+    "Alt+Shift+ArrowLeft": () => this.processHeaderGroupingKey("left"),
+    "Alt+Shift+ArrowUp": () => this.processHeaderGroupingKey("up"),
+    "Alt+Shift+ArrowDown": () => this.processHeaderGroupingKey("down"),
   };
 
   focus() {
@@ -520,15 +521,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onKeydown(ev: KeyboardEvent) {
-    const eventKey = ev.key.toUpperCase();
-    let keyDownString = "";
-    if (ev.ctrlKey && eventKey !== "CTRL") keyDownString += "CTRL+";
-    if (ev.metaKey) keyDownString += "CTRL+";
-    if (ev.altKey && eventKey !== "ALT") keyDownString += "ALT+";
-    if (ev.shiftKey && eventKey !== "SHIFT") keyDownString += "SHIFT+";
-    keyDownString += ev.key.toUpperCase();
-
-    let handler = this.keyDownMapping[keyDownString];
+    const keyDownString = keyboardEventToShortcutString(ev);
+    const handler = this.keyDownMapping[keyDownString];
     if (handler) {
       ev.preventDefault();
       ev.stopPropagation();
