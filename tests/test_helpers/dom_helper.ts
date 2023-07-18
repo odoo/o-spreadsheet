@@ -296,6 +296,11 @@ export async function dragElement(
   await nextTick();
 }
 
+export async function scrollGrid(args: { deltaY?: number; shiftKey?: boolean }) {
+  triggerWheelEvent(".o-grid", { deltaY: args.deltaY || 0, shiftKey: args.shiftKey });
+  await nextTick();
+}
+
 /**
  *
  * @param scrollDistance distance of cursor from the edge

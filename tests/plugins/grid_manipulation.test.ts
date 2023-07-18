@@ -937,7 +937,7 @@ describe("Rows", () => {
       const newDimensions = model.getters.getMainViewportRect();
       expect(newDimensions).toMatchObject({
         width: 192, // col size + 1 DEFAULT_CELL_WIDTH for spacing
-        height: 124, // sum of row sizes + 1 DEFAULT_CELL_HEIGHT  and 5px for spacing
+        height: 170, // sum of row sizes + 1 DEFAULT_CELL_HEIGHT + 5px for spacing + 46px for adding rows footer
       });
     });
     test("On addition after", () => {
@@ -959,7 +959,7 @@ describe("Rows", () => {
       const newDimensions = model.getters.getMainViewportRect();
       expect(newDimensions).toMatchObject({
         width: 192, // col size + 1 DEFAULT_CELL_WIDTH for spacing
-        height: 144, // sum of row sizes + 1 DEFAULT_CELL_HEIGHT  and 5px for spacing
+        height: 190, // sum of row sizes + 1 DEFAULT_CELL_HEIGHT  and 5px for spacing + 46px for adding rows footer
       });
       expect(model.getters.getNumberRows(sheetId)).toBe(6);
     });
@@ -979,7 +979,7 @@ describe("Rows", () => {
       let dimensions = model.getters.getMainViewportRect();
       expect(dimensions).toMatchObject({
         width: 192, // col size + 1 DEFAULT_CELL_WIDTH for spacing
-        height: 124, // sum of row sizes + 1 DEFAULT_CELL_HEIGHT  and 5px for spacing
+        height: 170, // sum of row sizes + 1 DEFAULT_CELL_HEIGHT  and 5px for spacing + 46px for adding rows footer
       });
       const to = model.getters.getActiveSheetId();
       createSheet(model, { activate: true, sheetId: "42" });
@@ -987,7 +987,7 @@ describe("Rows", () => {
       dimensions = model.getters.getMainViewportRect();
       expect(dimensions).toMatchObject({
         width: 192, // col size + 1 DEFAULT_CELL_WIDTH for spacing
-        height: 124, // sum of row sizes + 1 DEFAULT_CELL_HEIGHT  and 5px for spacing
+        height: 170, // sum of row sizes + 1 DEFAULT_CELL_HEIGHT  and 5px for spacing + 46px for adding rows footer
       });
     });
   });

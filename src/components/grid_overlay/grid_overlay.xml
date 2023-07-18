@@ -10,6 +10,11 @@
       t-on-contextmenu="onContextMenu">
       <FiguresContainer onFigureDeleted="props.onFigureDeleted"/>
       <DataValidationOverlay/>
+      <GridAddRowsFooter
+        t-if="!env.model.getters.isReadonly()"
+        t-key="env.model.getters.getActiveSheetId()"
+        focusGrid="props.onFigureDeleted"
+      />
     </div>
   </t>
 </templates>

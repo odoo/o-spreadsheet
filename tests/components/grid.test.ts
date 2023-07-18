@@ -49,6 +49,7 @@ import {
   hoverCell,
   keyDown,
   rightClickCell,
+  scrollGrid,
   simulateClick,
   triggerMouseEvent,
   triggerTouchEvent,
@@ -782,11 +783,6 @@ describe("Grid component", () => {
   });
 
   describe("Grid Scroll", () => {
-    async function scrollGrid(args: { deltaY?: number; shiftKey?: boolean }) {
-      triggerWheelEvent(".o-grid", { deltaY: args.deltaY || 0, shiftKey: args.shiftKey });
-      await nextTick();
-    }
-
     test("Can scroll vertically", async () => {
       await scrollGrid({ deltaY: 1000 });
       expect(getVerticalScroll()).toBe(1000);

@@ -139,24 +139,24 @@ describe("Viewport of Simple sheet", () => {
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 0,
       right: 10,
-      top: 57,
+      top: 59,
       bottom: 99,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
       scrollX: 0,
-      scrollY: DEFAULT_CELL_HEIGHT * 57,
+      scrollY: DEFAULT_CELL_HEIGHT * 57 + 46, // 46px for adding rows footer
     });
 
     redo(model); // should not alter offset
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 0,
       right: 10,
-      top: 57,
-      bottom: 100,
+      top: 59,
+      bottom: 102,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
       scrollX: 0,
-      scrollY: DEFAULT_CELL_HEIGHT * 57,
+      scrollY: DEFAULT_CELL_HEIGHT * 57 + 46, // 46px for adding row footer
     });
   });
 
@@ -418,7 +418,7 @@ describe("Viewport of Simple sheet", () => {
     setViewportOffset(model, nCols * DEFAULT_CELL_WIDTH + 10, nRows * DEFAULT_CELL_HEIGHT + 10);
 
     const maxOffsetX = DEFAULT_CELL_WIDTH * (nCols - 10 + 1);
-    const maxOffsetY = DEFAULT_CELL_HEIGHT * (nRows - 10 + 1);
+    const maxOffsetY = DEFAULT_CELL_HEIGHT * (nRows - 10 + 1) + 46;
     expect(getActiveSheetFullScrollInfo(model)).toEqual({
       scrollbarScrollX: maxOffsetX + 1,
       scrollbarScrollY: maxOffsetY + 1 + 5,
@@ -507,14 +507,14 @@ describe("Viewport of Simple sheet", () => {
     });
     resizeRows(model, [...Array(numberRows).keys()], DEFAULT_CELL_HEIGHT / 2);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
-      top: 19,
+      top: 22,
       bottom: 99,
       left: 0,
       right: 10,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
       scrollX: 0,
-      scrollY: Math.round(DEFAULT_CELL_HEIGHT / 2) * 19,
+      scrollY: Math.round(DEFAULT_CELL_HEIGHT / 2) * 19 + 36, // for adding rows footer
     });
   });
 
@@ -567,14 +567,14 @@ describe("Viewport of Simple sheet", () => {
     expect(model.getters.getActiveMainViewport()).toMatchObject(viewport);
     hideRows(model, range(60, 100));
     expect(model.getters.getActiveMainViewport()).toMatchObject({
-      top: 17,
+      top: 19,
       bottom: 99,
       left: viewport.left,
       right: viewport.right,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
       scrollX: 0,
-      scrollY: DEFAULT_CELL_HEIGHT * 17,
+      scrollY: DEFAULT_CELL_HEIGHT * 17 + 46, // 46px for adding rows footer
     });
   });
   test("Horizontally move position to top right then back to top left correctly affects offset", () => {
@@ -1415,8 +1415,8 @@ describe("shift viewport up/down", () => {
       selectCell(model, selectedCell);
       model.dispatch("SHIFT_VIEWPORT_DOWN");
       expect(model.getters.getSelectedZone()).toEqual({
-        top: toZone(selectedCell).top + 3,
-        bottom: toZone(selectedCell).bottom + 3,
+        top: toZone(selectedCell).top + 5,
+        bottom: toZone(selectedCell).bottom + 5,
         left: 0,
         right: 0,
       });

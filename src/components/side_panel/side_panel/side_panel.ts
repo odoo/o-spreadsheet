@@ -1,5 +1,5 @@
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
-import { BACKGROUND_HEADER_COLOR, DISABLED_TEXT_COLOR, FILTERS_COLOR } from "../../../constants";
+import { BACKGROUND_HEADER_COLOR, FILTERS_COLOR } from "../../../constants";
 import { SidePanelContent, sidePanelRegistry } from "../../../registries/side_panel_registry";
 import { SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
@@ -76,66 +76,19 @@ css/* scss */ `
       text-align: right;
     }
 
-    .o-sidePanelButton {
-      border: 1px solid lightgrey;
-      padding: 0px 20px 0px 20px;
-      border-radius: 4px;
-      font-weight: 500;
-      font-size: 14px;
-      height: 30px;
-      line-height: 16px;
-      background: white;
-      margin-right: 8px;
+    .o-button.primary:not(.o-disabled) {
+      background-color: ${FILTERS_COLOR};
+      color: white;
       &:hover:enabled {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-      &.primary:not(.o-disabled) {
+        opacity: 0.8;
         background-color: ${FILTERS_COLOR};
-        color: white;
-        &:hover:enabled {
-          opacity: 0.8;
-          background-color: ${FILTERS_COLOR};
-        }
-      }
-    }
-    .o-sidePanelButton:enabled {
-      cursor: pointer;
-    }
-
-    .o-sidePanelButton:disabled {
-      color: ${DISABLED_TEXT_COLOR};
-    }
-
-    .o-sidePanelButton:last-child {
-      margin-right: 0px;
-    }
-
-    .o-sidePanel-btn-link {
-      font-size: 14px;
-      padding: 20px 24px 11px 24px;
-      height: 44px;
-      cursor: pointer;
-      text-decoration: none;
-      &:hover {
-        color: #003a39;
-        text-decoration: none;
       }
     }
 
-    .o-input {
-      color: #666666;
-      border-width: 1px;
-      border-radius: 4px;
-      min-width: 0px;
-      padding: 4px 6px;
-      box-sizing: border-box;
-      line-height: 1;
-      width: 100%;
-      height: 28px;
-      .o-type-selector {
-        background-position: right 5px top 11px;
-      }
+    .o-input .o-type-selector {
+      background-position: right 5px top 11px;
     }
+
     input.o-required,
     select.o-required {
       border-color: #4c4c4c;

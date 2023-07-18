@@ -159,7 +159,7 @@ describe("charts", () => {
       expect(editButton.textContent).toBe("Edit");
       await simulateClick(".o-menu div[data-name='edit']");
       expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
-      const panelChartType = fixture.querySelectorAll(".o-input")[0];
+      const panelChartType = fixture.querySelectorAll(".o-sidePanel .o-input")[0];
       switch (chartType) {
         case "basicChart": {
           const dataSeries = fixture.querySelectorAll(
@@ -452,7 +452,7 @@ describe("charts", () => {
     await simulateClick(".o-menu div[data-name='edit']");
     await nextTick();
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
-    const chartType = fixture.querySelectorAll(".o-input")[0] as HTMLSelectElement;
+    const chartType = fixture.querySelectorAll(".o-sidePanel .o-input")[0] as HTMLSelectElement;
     const dataSeries = fixture.querySelectorAll(
       ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
     )[0] as HTMLInputElement;
@@ -486,7 +486,7 @@ describe("charts", () => {
 
     createSheet(model, { sheetId: "42", activate: true });
     await nextTick();
-    const chartType = fixture.querySelectorAll(".o-input")[0] as HTMLSelectElement;
+    const chartType = fixture.querySelectorAll(".o-sidePanel .o-input")[0] as HTMLSelectElement;
     setInputValueAndTrigger(chartType, "pie", "change");
     await nextTick();
 
@@ -572,7 +572,7 @@ describe("charts", () => {
           }
 
           await nextTick();
-          const panelChartType = fixture.querySelectorAll(".o-input")[0];
+          const panelChartType = fixture.querySelectorAll(".o-sidePanel .o-input")[0];
           const dataSeries = fixture.querySelectorAll(
             ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
           )[0];

@@ -14,6 +14,7 @@ import {
   BG_HOVER_COLOR,
   BOTTOMBAR_HEIGHT,
   CF_ICON_EDGE_LENGTH,
+  DISABLED_TEXT_COLOR,
   FILTERS_COLOR,
   GRID_BORDER_COLOR,
   GROUP_LAYER_WIDTH,
@@ -185,6 +186,44 @@ css/* scss */ `
       position: absolute;
       outline: none;
     }
+  }
+
+  .o-button {
+    border: 1px solid lightgrey;
+    padding: 0px 20px 0px 20px;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 14px;
+    height: 30px;
+    line-height: 16px;
+    background: white;
+    margin-right: 8px;
+    &:hover:enabled {
+      background-color: rgba(0, 0, 0, 0.08);
+    }
+
+    &:enabled {
+      cursor: pointer;
+    }
+
+    &:disabled {
+      color: ${DISABLED_TEXT_COLOR};
+    }
+
+    &:last-child {
+      margin-right: 0px;
+    }
+  }
+
+  .o-input {
+    color: #666666;
+    border-radius: 4px;
+    min-width: 0px;
+    padding: 4px 6px;
+    box-sizing: border-box;
+    line-height: 1;
+    width: 100%;
+    height: 28px;
   }
 `;
 

@@ -52,7 +52,7 @@
       </div>
       <div class="o-sidePanelButtons">
         <button
-          class="o-sidePanelButton"
+          class="o-button"
           t-on-click="() => this.apply()"
           t-att-disabled="!formatProposals.length || isSameFormat">
           Apply

@@ -50,13 +50,10 @@
         <button
           t-att-disabled="!hasSearchResult"
           t-on-click="onSelectPreviousCell"
-          class="o-sidePanelButton">
+          class="o-button">
           Previous
         </button>
-        <button
-          t-att-disabled="!hasSearchResult"
-          t-on-click="onSelectNextCell"
-          class="o-sidePanelButton">
+        <button t-att-disabled="!hasSearchResult" t-on-click="onSelectNextCell" class="o-button">
           Next
         </button>
       </div>
@@ -76,13 +73,13 @@
         <button
           t-att-disabled="env.model.getters.getCurrentSelectedMatchIndex() === null"
           t-on-click="replace"
-          class="o-sidePanelButton">
+          class="o-button">
           Replace
         </button>
         <button
           t-att-disabled="env.model.getters.getCurrentSelectedMatchIndex() === null"
           t-on-click="replaceAll"
-          class="o-sidePanelButton">
+          class="o-button">
           Replace all
         </button>
       </div>
