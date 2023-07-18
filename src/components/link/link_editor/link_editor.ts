@@ -39,26 +39,6 @@ css/* scss */ `
       padding-top: 16px;
       padding-bottom: 16px;
       text-align: right;
-      .o-button {
-        border: 1px solid lightgrey;
-        padding: 0px 20px 0px 20px;
-        border-radius: 4px;
-        font-weight: 500;
-        font-size: 14px;
-        height: 30px;
-        line-height: 16px;
-        background: white;
-        margin-right: 8px;
-        &:hover:enabled {
-          background-color: rgba(0, 0, 0, 0.08);
-        }
-      }
-      .o-button:enabled {
-        cursor: pointer;
-      }
-      .o-button:last-child {
-        margin-right: 0px;
-      }
     }
     input {
       box-sizing: border-box;

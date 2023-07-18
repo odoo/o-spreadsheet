@@ -10,6 +10,7 @@ import {
 } from "../../types";
 import { DataValidationOverlay } from "../data_validation_overlay/data_validation_overlay";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
+import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
 import { css } from "../helpers";
 import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
 import { useRefListener } from "../helpers/listener_hook";
@@ -169,7 +170,7 @@ interface Props {
 
 export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridOverlay";
-  static components = { FiguresContainer, DataValidationOverlay };
+  static components = { FiguresContainer, DataValidationOverlay, GridAddRowsFooter };
   static defaultProps = {
     onCellHovered: () => {},
     onCellDoubleClicked: () => {},

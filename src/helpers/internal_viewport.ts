@@ -1,4 +1,4 @@
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, FOOTER_HEIGHT } from "../constants";
 import {
   DOMDimension,
   Dimension,
@@ -98,6 +98,10 @@ export class InternalViewport {
         Math.min(topRowSize, this.viewportHeight - lastRowSize) // Add pixels that allows the snapping at maximum vertical scroll
       );
       height = Math.max(height, this.viewportHeight); // if the viewport grid size is smaller than its client height, return client height
+    }
+
+    if (lastRowEnd + FOOTER_HEIGHT > height && !this.getters.isReadonly()) {
+      height += FOOTER_HEIGHT;
     }
 
     return { width, height };
@@ -343,7 +347,7 @@ export class InternalViewport {
       }
     }
     this.top = this.getRowIndex(this.offsetScrollbarY, true);
-    this.bottom = this.getRowIndex(this.offsetScrollbarY + this.viewportWidth, true);
+    this.bottom = this.getRowIndex(this.offsetScrollbarY + this.viewportHeight, true);
     if (this.bottom === -1) {
       this.bottom = this.boundaries.bottom;
     }

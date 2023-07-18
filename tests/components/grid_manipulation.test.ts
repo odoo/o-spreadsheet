@@ -1,15 +1,26 @@
 import { Spreadsheet } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { zoneToXc } from "../../src/helpers";
-import { Model } from "../../src/model";
+import { range, zoneToXc } from "../../src/helpers";
+import { Mode, Model } from "../../src/model";
 import {
+  activateSheet,
+  createSheet,
+  deleteRows,
   hideColumns,
   hideRows,
   selectColumn,
   selectRow,
   setSelection,
 } from "../test_helpers/commands_helpers";
-import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
+import {
+  click,
+  getElStyle,
+  keyDown,
+  scrollGrid,
+  setInputValueAndTrigger,
+  simulateClick,
+  triggerMouseEvent,
+} from "../test_helpers/dom_helper";
 import { getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
 
@@ -267,5 +278,124 @@ describe("Context Menu hide col/row", () => {
       sheetId: model.getters.getActiveSheetId(),
       dimension: "ROW",
     });
+  });
+});
+
+describe("Adding rows footer at the end of sheet", () => {
+  test("won't show if the end of sheet doesn't show in the viewport", () => {
+    const top = parseInt(getElStyle(".o-grid-add-rows", "top"));
+    const { height } = model.getters.getSheetViewDimension();
+    expect(top).toBeGreaterThan(height);
+  });
+
+  test("will show when the page is scrolled down to the end of sheet", async () => {
+    const { height } = model.getters.getSheetViewDimension();
+    await scrollGrid({ deltaY: 10000 });
+    const top = parseInt(getElStyle(".o-grid-add-rows", "top"));
+    expect(top).toBeLessThan(height);
+  });
+
+  test.each(["dashboard", "readonly"] as const)(
+    "will not show in the %s mode",
+    async (mode: Mode) => {
+      model.updateMode(mode);
+      await scrollGrid({ deltaY: 10000 });
+      expect(fixture.querySelector(".o-grid-add-rows")).toBeFalsy();
+    }
+  );
+
+  test("will be just below the last row, if the sheet is too short to scroll", async () => {
+    const sheetId = model.getters.getActiveSheetId();
+    const { height } = model.getters.getSheetViewDimension();
+    const numberOfRows = model.getters.getNumberRows(sheetId);
+    let top = parseInt(getElStyle(".o-grid-add-rows", "top"));
+    expect(top).toBeGreaterThan(height);
+
+    deleteRows(model, range(0, numberOfRows - 3)); // only leave 3 rows
+    await nextTick();
+    let end = model.getters.getRowDimensions(sheetId, 2).end;
+    top = parseInt(getElStyle(".o-grid-add-rows", "top"));
+    expect(top).toBeLessThan(height);
+    expect(top).toEqual(end);
+
+    deleteRows(model, range(0, 2));
+    await nextTick();
+    end = model.getters.getRowDimensions(sheetId, 0).end;
+    top = parseInt(getElStyle(".o-grid-add-rows", "top"));
+    expect(top).toEqual(end);
+  });
+
+  test("can add the specified number of rows at the end of sheet by clicking ADD button", async () => {
+    await scrollGrid({ deltaY: 10000 });
+    const sheetId = model.getters.getActiveSheetId();
+    const numberOfRows = model.getters.getNumberRows(sheetId);
+    const input = fixture.querySelector(".o-grid-add-rows input");
+    setInputValueAndTrigger(input, "10", "input");
+    await click(fixture, ".o-grid-add-rows button");
+    expect(model.getters.getNumberRows(sheetId)).toEqual(numberOfRows + 10);
+  });
+
+  test("can add the specified number of rows at the end of sheet via Enter key", async () => {
+    await scrollGrid({ deltaY: 10000 });
+    const sheetId = model.getters.getActiveSheetId();
+    const numberOfRows = model.getters.getNumberRows(sheetId);
+    const input = fixture.querySelector(".o-grid-add-rows input")! as HTMLInputElement;
+    setInputValueAndTrigger(input, "10", "input");
+    input.focus();
+    await keyDown({ key: "Enter" });
+    expect(model.getters.getNumberRows(sheetId)).toEqual(numberOfRows + 10);
+  });
+
+  test("cannot input a non-positive number", async () => {
+    await scrollGrid({ deltaY: 10000 });
+    const sheetId = model.getters.getActiveSheetId();
+    const numberOfRows = model.getters.getNumberRows(sheetId);
+    const input = fixture.querySelector(".o-grid-add-rows input")!;
+    setInputValueAndTrigger(input, "0", "input");
+    await click(fixture, ".o-grid-add-rows button");
+    expect(fixture.querySelector(".o-sidepanel-error")).toBeTruthy();
+    expect(model.getters.getNumberRows(sheetId)).toEqual(numberOfRows);
+  });
+
+  test("cannot input a number greater than 10000", async () => {
+    await scrollGrid({ deltaY: 10000 });
+    const sheetId = model.getters.getActiveSheetId();
+    const numberOfRows = model.getters.getNumberRows(sheetId);
+    const input = fixture.querySelector(".o-grid-add-rows input")!;
+    setInputValueAndTrigger(input, "10001", "input");
+    await click(fixture, ".o-grid-add-rows button");
+    expect(fixture.querySelector(".o-sidepanel-error")).toBeTruthy();
+    expect(model.getters.getNumberRows(sheetId)).toEqual(numberOfRows);
+  });
+
+  test("cannot input a string", async () => {
+    await scrollGrid({ deltaY: 10000 });
+    const sheetId = model.getters.getActiveSheetId();
+    const numberOfRows = model.getters.getNumberRows(sheetId);
+    const input = fixture.querySelector(".o-grid-add-rows input")!;
+    setInputValueAndTrigger(input, "abc", "input");
+    await click(fixture, ".o-grid-add-rows button");
+    expect(fixture.querySelector(".o-sidepanel-error")).toBeTruthy();
+    expect(model.getters.getNumberRows(sheetId)).toEqual(numberOfRows);
+  });
+
+  test("will scroll down to the new last row after adding new rows", async () => {
+    await scrollGrid({ deltaY: 10000 });
+    const input = fixture.querySelector(".o-grid-add-rows input");
+    setInputValueAndTrigger(input, "1000", "input");
+    await click(fixture, ".o-grid-add-rows button");
+    const sheetId = model.getters.getActiveSheetId();
+    const numberOfRows = model.getters.getNumberRows(sheetId);
+    expect(model.getters.getSheetViewVisibleRows()).toContain(numberOfRows - 1);
+  });
+
+  test("the input value will be the default value 100 after changing sheet", async () => {
+    createSheet(model, { sheetId: "sheet2" });
+    await scrollGrid({ deltaY: 10000 });
+    const input = fixture.querySelector(".o-grid-add-rows input");
+    setInputValueAndTrigger(input, "1000", "input");
+    activateSheet(model, "sheet2");
+    await nextTick();
+    expect(fixture.querySelector<HTMLInputElement>(".o-grid-add-rows input")!.value).toBe("100");
   });
 });

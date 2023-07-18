@@ -17,13 +17,13 @@ const selectors = {
     ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-input-search-container input",
   inputReplace: ".o-sidePanel .o-find-and-replace .o-section:nth-child(3) input",
   previousButton:
-    ".o-sidePanel .o-find-and-replace .o-sidePanelButtons:nth-of-type(2) .o-sidePanelButton:nth-child(1)",
+    ".o-sidePanel .o-find-and-replace .o-sidePanelButtons:nth-of-type(2) .o-button:nth-child(1)",
   nextButton:
-    ".o-sidePanel .o-find-and-replace .o-sidePanelButtons:nth-of-type(2) .o-sidePanelButton:nth-child(2)",
+    ".o-sidePanel .o-find-and-replace .o-sidePanelButtons:nth-of-type(2) .o-button:nth-child(2)",
   replaceButton:
-    ".o-sidePanel .o-find-and-replace .o-sidePanelButtons:nth-of-type(4) .o-sidePanelButton:nth-child(1)",
+    ".o-sidePanel .o-find-and-replace .o-sidePanelButtons:nth-of-type(4) .o-button:nth-child(1)",
   replaceAllButton:
-    ".o-sidePanel .o-find-and-replace .o-sidePanelButtons:nth-of-type(4) .o-sidePanelButton:nth-child(2)",
+    ".o-sidePanel .o-find-and-replace .o-sidePanelButtons:nth-of-type(4) .o-button:nth-child(2)",
   checkBoxMatchingCase:
     ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-checkbox:nth-child(1) input",
   checkBoxExactMatch:

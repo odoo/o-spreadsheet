@@ -612,6 +612,27 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           
           
           
+          
+          <div
+            class="o-grid-add-rows mt-2 ms-2 w-100 d-flex position-relative align-items-center"
+            style="top:2300px;"
+          >
+            <button
+              class="o-button"
+            >
+              Add
+            </button>
+            <input
+              class="o-grid-add-rows-input o-input mt-0 me-2"
+              type="text"
+              value="100"
+            />
+            <span>
+              more rows at the bottom
+            </span>
+            
+          </div>
+          
         </div>
         
         <div
@@ -676,7 +697,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           style="top:26px; right:0px; width:15px; bottom:0px;"
         >
           <div
-            style="width:1px; height:2328px;"
+            style="width:1px; height:2374px;"
           />
         </div>
         

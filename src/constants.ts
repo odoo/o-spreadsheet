@@ -136,6 +136,9 @@ export const PADDING_AUTORESIZE_HORIZONTAL = MIN_CELL_TEXT_MARGIN;
 export const GROUP_LAYER_WIDTH = 21;
 export const GRID_ICON_MARGIN = 2;
 export const GRID_ICON_EDGE_LENGTH = 17;
+export const FILTER_ICON_MARGIN = 2;
+export const FILTER_ICON_EDGE_LENGTH = 17;
+export const FOOTER_HEIGHT = 2 * DEFAULT_CELL_HEIGHT;
 
 // Menus
 export const MENU_WIDTH = 250;
