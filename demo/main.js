@@ -111,7 +111,7 @@ class Demo extends Component {
     });
 
     topbarMenuRegistry.add("notify", {
-      name: "Notify?",
+      name: "Dummy notifications",
       sequence: 1000,
       isReadonlyAllowed: true,
     });
@@ -121,6 +121,12 @@ class Demo extends Component {
       sequence: 13,
       isReadonlyAllowed: true,
       execute: () => this.notifyUser({ text: "This is a notification", tag: "notif" }),
+    });
+
+    topbarMenuRegistry.addChild("throw error", ["notify"], {
+      name: "Uncaught error",
+      sequence: 11,
+      execute: () => a / 0,
     });
 
     topbarMenuRegistry.addChild("xlsxImport", ["file"], {
@@ -179,14 +185,17 @@ class Demo extends Component {
       editText: this.editText,
     });
     useExternalListener(window, "beforeunload", this.leaveCollaborativeSession.bind(this));
+    useExternalListener(window, "unhandledrejection", () => {
+      this.raiseError("An unexpected error occurred. Open the developer console for details.");
+    });
 
     onWillStart(() => this.initiateConnection());
 
     onMounted(() => console.log("Mounted: ", Date.now() - start));
     onWillUnmount(this.leaveCollaborativeSession.bind(this));
     onError((error) => {
-      console.error(error);
       console.error(error.cause);
+      this.raiseError("An unexpected error occurred. Open the developer console for details.");
     });
   }
 
