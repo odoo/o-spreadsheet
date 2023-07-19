@@ -1,7 +1,7 @@
 import { Component, onWillUpdateProps, useExternalListener, useRef, useState } from "@odoo/owl";
 import {
+  DISABLED_TEXT_COLOR,
   HEADER_HEIGHT,
-  MENU_ITEM_DISABLED_COLOR,
   MENU_ITEM_HEIGHT,
   MENU_SEPARATOR_HEIGHT,
   MENU_WIDTH,
@@ -61,7 +61,7 @@ css/* scss */ `
         }
       }
       &.disabled {
-        color: ${MENU_ITEM_DISABLED_COLOR};
+        color: ${DISABLED_TEXT_COLOR};
         cursor: not-allowed;
       }
     }
