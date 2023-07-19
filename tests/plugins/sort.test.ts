@@ -332,6 +332,31 @@ describe("Basic Sorting", () => {
       A7: { content: "-33" },
     });
   });
+
+  test("Sort with a cell that will be removed because it is considered empty", () => {
+    model = new Model({
+      sheets: [
+        {
+          id: sheetId,
+          colNumber: 1,
+          rowNumber: 3,
+          cells: {
+            A1: { content: "a" },
+            A2: { content: '=""' },
+          },
+        },
+      ],
+    });
+    sort(model, {
+      zone: "A2:A3",
+      anchor: "A2",
+      direction: "ascending",
+      sortOptions: { emptyCellAsZero: true },
+    });
+    expect(getCellsObject(model, sheetId)).toMatchObject({
+      A1: { content: "a" },
+    });
+  });
 });
 
 describe("Trigger sort generic errors", () => {
