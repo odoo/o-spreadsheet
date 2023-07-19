@@ -33,7 +33,7 @@ export class ContentEditableHelper {
       selection.removeAllRanges();
       selection.addRange(range);
     }
-    if (start == end && start === 0) {
+    if (start === end && start === 0) {
       range.setStart(this.el, 0);
       range.setEnd(this.el, 0);
     } else {
@@ -295,7 +295,7 @@ export class ContentEditableHelper {
         }, 0);
       }
     }
-    if (nodeToFind.nodeName === "P" && !isFirstParagraph && nodeToFind.textContent == "") {
+    if (nodeToFind.nodeName === "P" && !isFirstParagraph && nodeToFind.textContent === "") {
       usedCharacters++;
     }
     return usedCharacters;

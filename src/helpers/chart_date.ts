@@ -75,7 +75,7 @@ function convertDateFormatForMoment(format: Format): MomentJSFormat {
   format = format.replace(/y/g, "Y");
   format = format.replace(/d/g, "D");
 
-  // "m" before "h" == month, "m" after "h" == minute
+  // "m" before "h" === month, "m" after "h" === minute
   const indexH = format.indexOf("h");
   if (indexH >= 0) {
     format = format.slice(0, indexH).replace(/m/g, "M") + format.slice(indexH);

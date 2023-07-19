@@ -362,7 +362,7 @@ export function addMonthsToDate(date: Date, months: number, keepEndOfMonth: bool
 
 function isLeapYear(year: number): boolean {
   const _year = Math.trunc(year);
-  return (_year % 4 === 0 && _year % 100 != 0) || _year % 400 == 0;
+  return (_year % 4 === 0 && _year % 100 != 0) || _year % 400 === 0;
 }
 
 export function getYearFrac(startDate: number, endDate: number, _dayCountConvention: number) {

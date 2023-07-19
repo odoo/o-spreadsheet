@@ -498,7 +498,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
   }
 
   private getHTMLContent(): string {
-    if (this.cells.length == 1 && this.cells[0].length == 1) {
+    if (this.cells.length === 1 && this.cells[0].length === 1) {
       return this.getters.getCellText(this.cells[0][0].position);
     }
 

@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.json());
 // parse data with connect-multiparty.
 app.use(formData.parse(/* options */));
-// delete from the request all empty files (size == 0)
+// delete from the request all empty files (size === 0)
 app.use(formData.format());
 // change the file objects to fs.ReadStream
 app.use(formData.stream());

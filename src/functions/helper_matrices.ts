@@ -46,7 +46,7 @@ export function invertMatrix(M: Matrix<number>): {
     let diagonalElement = C[pivot][pivot];
 
     // if we have a 0 on the diagonal we'll need to swap with a lower row
-    if (diagonalElement == 0) {
+    if (diagonalElement === 0) {
       //look through every row below the i'th row
       for (let row = pivot + 1; row < dim; row++) {
         //if the ii'th row has a non-0 in the i'th col, swap it with that row
@@ -75,7 +75,7 @@ export function invertMatrix(M: Matrix<number>): {
     // the other rows so that there will be 0's in this column in the
     // rows above and below this one
     for (let row = 0; row < dim; row++) {
-      if (row == pivot) {
+      if (row === pivot) {
         continue;
       }
 

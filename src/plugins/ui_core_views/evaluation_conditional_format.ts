@@ -412,7 +412,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
         case "ContainsText":
           return cell.value.toString().indexOf(values[0].toString()) > -1;
         case "NotContains":
-          return !cell.value || cell.value.toString().indexOf(values[0].toString()) == -1;
+          return !cell.value || cell.value.toString().indexOf(values[0].toString()) === -1;
         case "GreaterThan":
           return cell.value > values[0];
         case "GreaterThanOrEqual":
