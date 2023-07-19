@@ -12,6 +12,7 @@ import {
   SortDirection,
   SortOptions,
   UID,
+  UpdateCellCommand,
   Zone,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
@@ -280,18 +281,17 @@ export class SortPlugin extends UIPlugin {
     const sortedIndex: number[] = sortedIndexOfSortTypeCells.map((x) => x.index);
 
     const [width, height]: [number, number] = [cells.length, cells[0].length];
-
+    const cellUpdates: Omit<UpdateCellCommand, "type">[] = [];
     for (let c: HeaderIndex = 0; c < width; c++) {
       for (let r: HeaderIndex = 0; r < height; r++) {
         let cell = cells[c][sortedIndex[r]];
         let newCol: HeaderIndex = sortZone.left + c * stepX;
         let newRow: HeaderIndex = sortZone.top + r * stepY;
-        let newCellValues: any = {
+        let newCellValues: Omit<UpdateCellCommand, "type"> = {
           sheetId: sheetId,
           col: newCol,
           row: newRow,
           content: "",
-          value: "",
         };
         if (cell) {
           let content: string = cell.content;
@@ -305,11 +305,11 @@ export class SortPlugin extends UIPlugin {
           newCellValues.style = cell.style;
           newCellValues.content = content;
           newCellValues.format = cell.format;
-          newCellValues.value = cell.evaluated.value;
         }
-        this.dispatch("UPDATE_CELL", newCellValues);
+        cellUpdates.push(newCellValues);
       }
     }
+    cellUpdates.forEach((cmdPayload) => this.dispatch("UPDATE_CELL", cmdPayload));
   }
 
   /**
