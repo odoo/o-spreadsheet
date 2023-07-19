@@ -778,3 +778,11 @@ export function toCellPosition(sheetId: UID, xc: string): CellPosition {
   const { col, row } = toCartesian(xc);
   return { sheetId, col, row };
 }
+
+/** Get the data validation rules a sheet, transforming ranges into strings for easier testing */
+export function getDataValidationRules(model: Model, sheetId = model.getters.getActiveSheetId()) {
+  return model.getters.getDataValidationRules(sheetId).map((rule) => ({
+    ...rule,
+    ranges: rule.ranges.map((range) => model.getters.getRangeString(range, sheetId)),
+  }));
+}

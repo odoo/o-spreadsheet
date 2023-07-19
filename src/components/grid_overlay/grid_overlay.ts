@@ -8,10 +8,12 @@ import {
   Ref,
   SpreadsheetChildEnv,
 } from "../../types";
+import { DataValidationOverlay } from "../data_validation_overlay/data_validation_overlay";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { css } from "../helpers";
 import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
 import { useRefListener } from "../helpers/listener_hook";
+import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { useInterval } from "../helpers/time_hooks";
 
 const CURSOR_SVG = /*xml*/ `
@@ -167,7 +169,7 @@ interface Props {
 
 export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridOverlay";
-  static components = { FiguresContainer };
+  static components = { FiguresContainer, DataValidationOverlay };
   static defaultProps = {
     onCellHovered: () => {},
     onCellDoubleClicked: () => {},
@@ -176,10 +178,10 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     onGridResized: () => {},
     onFigureDeleted: () => {},
   };
-  private gridOverlay!: Ref<HTMLElement>;
+  private gridOverlay: Ref<HTMLElement> = useRef("gridOverlay");
+  private gridOverlayRect = useAbsoluteBoundingRect(this.gridOverlay);
 
   setup() {
-    this.gridOverlay = useRef("gridOverlay");
     useCellHovered(this.env, this.gridOverlay, this.props.onCellHovered);
     const resizeObserver = new ResizeObserver(() => {
       const boundingRect = this.gridOverlayEl.getBoundingClientRect();
@@ -238,8 +240,11 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private getCartesianCoordinates(ev: MouseEvent): [HeaderIndex, HeaderIndex] {
-    const colIndex = this.env.model.getters.getColIndex(ev.offsetX);
-    const rowIndex = this.env.model.getters.getRowIndex(ev.offsetY);
+    const x = ev.clientX - this.gridOverlayRect.x;
+    const y = ev.clientY - this.gridOverlayRect.y;
+
+    const colIndex = this.env.model.getters.getColIndex(x);
+    const rowIndex = this.env.model.getters.getRowIndex(y);
     return [colIndex, rowIndex];
   }
 }

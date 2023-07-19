@@ -1,7 +1,15 @@
 import { Model } from "../../src";
-import { ErrorToolTip } from "../../src/components/error_tooltip/error_tooltip";
+import {
+  ErrorToolTip,
+  ErrorToolTipMessage,
+} from "../../src/components/error_tooltip/error_tooltip";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { createChart, merge, setCellContent } from "../test_helpers/commands_helpers";
+import {
+  addDataValidation,
+  createChart,
+  merge,
+  setCellContent,
+} from "../test_helpers/commands_helpers";
 import { TEST_CHART_DATA } from "../test_helpers/constants";
 import {
   clickCell,
@@ -17,13 +25,31 @@ mockChart();
 describe("Error tooltip component", () => {
   let fixture: HTMLElement;
 
-  async function mountErrorTooltip(error: string) {
-    ({ fixture } = await mountComponent(ErrorToolTip, { props: { text: error } }));
+  async function mountErrorTooltip(errors: ErrorToolTipMessage[]) {
+    ({ fixture } = await mountComponent(ErrorToolTip, { props: { errors } }));
   }
 
-  test("Can display error message", async () => {
-    await mountErrorTooltip("This is an error");
-    expect(fixture.querySelector(".o-error-tooltip")?.textContent).toBe("This is an error");
+  test("Can display an error message", async () => {
+    await mountErrorTooltip([{ message: "This is an error", title: "Error" }]);
+    expect(fixture.querySelector(".o-error-tooltip-title")?.textContent).toBe("Error");
+    expect(fixture.querySelector(".o-error-tooltip-message")?.textContent).toBe("This is an error");
+  });
+
+  test("Can display multiple error messages", async () => {
+    await mountErrorTooltip([
+      { message: "This is an error", title: "Error" },
+      { message: "Invalid data", title: "Invalid" },
+    ]);
+    const titles = fixture.querySelectorAll(".o-error-tooltip-title");
+    const messages = fixture.querySelectorAll(".o-error-tooltip-message");
+    expect(titles).toHaveLength(2);
+    expect(messages).toHaveLength(2);
+
+    expect(titles[0].textContent).toBe("Error");
+    expect(messages[0].textContent).toBe("This is an error");
+
+    expect(titles[1].textContent).toBe("Invalid");
+    expect(messages[1].textContent).toBe("Invalid data");
   });
 });
 
@@ -44,6 +70,20 @@ describe("Grid integration", () => {
     setCellContent(model, "A1", "=1/0");
     await hoverCell(model, "A1", 400);
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
+  });
+
+  test("can display invalid data validation error", async () => {
+    setCellContent(model, "A1", "hello");
+    addDataValidation(model, "A1", "id", { type: "textContains", values: ["hi"] });
+    await hoverCell(model, "A1", 400);
+    expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
+  });
+
+  test("can display both cell error and data validation error", async () => {
+    setCellContent(model, "A1", "=1/0");
+    addDataValidation(model, "A1", "id", { type: "textContains", values: ["1"] });
+    await hoverCell(model, "A1", 400);
+    expect(document.querySelectorAll(".o-error-tooltip-title")).toHaveLength(2);
   });
 
   test("don't display error on #N/A", async () => {

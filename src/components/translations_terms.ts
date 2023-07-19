@@ -106,3 +106,28 @@ export const RemoveDuplicateTerms = {
     [CommandResult.WillRemoveExistingMerge]: PasteInteractiveContent.willRemoveExistingMerge,
   },
 };
+
+export const DVTerms = {
+  DateIs: {
+    today: _t("today"),
+    yesterday: _t("yesterday"),
+    tomorrow: _t("tomorrow"),
+    lastWeek: _t("in the past week"),
+    lastMonth: _t("in the past month"),
+    lastYear: _t("in the past year"),
+  },
+  DateIsBefore: {
+    today: _t("today"),
+    yesterday: _t("yesterday"),
+    tomorrow: _t("tomorrow"),
+    lastWeek: _t("one week ago"),
+    lastMonth: _t("one month ago"),
+    lastYear: _t("one year ago"),
+  },
+  CriterionError: {
+    notEmptyValue: _t("The value must not be empty"),
+    numberValue: _t("The value must be a number"),
+    dateValue: _t("The value must be a date"),
+    validRange: _t("The value must be a valid range"),
+  },
+};

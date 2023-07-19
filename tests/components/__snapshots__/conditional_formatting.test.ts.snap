@@ -117,12 +117,12 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
       
     </div>
     <div
-      class="btn btn-link o-cf-btn-link o-cf-add"
+      class="btn btn-link o-sidePanel-btn-link o-cf-add"
     >
        + Add another rule 
     </div>
     <div
-      class="btn btn-link o-cf-btn-link o-cf-reorder"
+      class="btn btn-link o-sidePanel-btn-link o-cf-reorder"
     >
        Reorder rules 
     </div>

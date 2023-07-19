@@ -2,7 +2,7 @@
 // Date Type
 // -----------------------------------------------------------------------------
 
-import { Format, Locale } from "../types";
+import { CellValue, Format, Locale } from "../types";
 import { isDefined } from "./misc";
 
 /**
@@ -44,6 +44,21 @@ const dateSeparatorsRegex = /\/|-|\s/;
 const dateRegexp = /^(\d{1,4})[\/-\s](\d{1,4})([\/-\s](\d{1,4}))?$/;
 
 export const timeRegexp = /((\d+(:\d+)?(:\d+)?\s*(AM|PM))|(\d+:\d+(:\d+)?))$/;
+
+/** Convert a value number representing a date, or return undefined if it isn't possible */
+export function valueToDateNumber(value: CellValue, locale: Locale): number | undefined {
+  switch (typeof value) {
+    case "number":
+      return value;
+    case "string":
+      if (isDateTime(value, locale)) {
+        return parseDateTime(value, locale)?.value;
+      }
+      return !value || isNaN(Number(value)) ? undefined : Number(value);
+    default:
+      return undefined;
+  }
+}
 
 export function isDateTime(str: string, locale: Locale): boolean {
   return parseDateTime(str, locale) !== null;
@@ -324,8 +339,12 @@ export function numberToJsDate(value: number): Date {
 }
 
 export function jsDateToRoundNumber(date: Date): number {
+  return Math.round(jsDateToNumber(date));
+}
+
+export function jsDateToNumber(date: Date): number {
   const delta = date.getTime() - INITIAL_1900_DAY.getTime();
-  return Math.round(delta / MS_PER_DAY);
+  return delta / MS_PER_DAY;
 }
 
 /** Return the number of days in the current month of the given date */
@@ -528,4 +547,38 @@ export function getTimeDifferenceInWholeYears(startDate: Date, endDate: Date) {
 
 export function areTwoDatesWithinOneYear(startDate: number, endDate: number) {
   return getYearFrac(startDate, endDate, 1) < 1;
+}
+
+export function areDatesSameDay(startDate: number, endDate: number) {
+  return Math.trunc(startDate) === Math.trunc(endDate);
+}
+
+export function isDateBetween(date: number, startDate: number, endDate: number) {
+  if (startDate > endDate) {
+    return isDateBetween(date, endDate, startDate);
+  }
+  date = Math.trunc(date);
+  startDate = Math.trunc(startDate);
+  endDate = Math.trunc(endDate);
+  return date >= startDate && date <= endDate;
+}
+
+/** Check if the first date is strictly before the second date */
+export function isDateStrictlyBefore(date: number, dateBefore: number) {
+  return Math.trunc(date) < Math.trunc(dateBefore);
+}
+
+/** Check if the first date is before or equal to the second date */
+export function isDateBefore(date: number, dateBefore: number) {
+  return Math.trunc(date) <= Math.trunc(dateBefore);
+}
+
+/** Check if the first date is strictly after the second date */
+export function isDateStrictlyAfter(date: number, dateAfter: number) {
+  return Math.trunc(date) > Math.trunc(dateAfter);
+}
+
+/** Check if the first date is after or equal to the second date */
+export function isDateAfter(date: number, dateAfter: number) {
+  return Math.trunc(date) >= Math.trunc(dateAfter);
 }

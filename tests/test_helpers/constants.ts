@@ -344,6 +344,23 @@ export const TEST_COMMANDS: CommandMapping = {
     dimension: "ROW",
     zone: { top: 0, left: 0, bottom: 1, right: 1 },
   },
+  ADD_DATA_VALIDATION_RULE: {
+    type: "ADD_DATA_VALIDATION_RULE",
+    sheetId: "sheetId",
+    ranges: toRangesData("sheetId", "A1"),
+    rule: {
+      id: "dvId",
+      criterion: {
+        type: "textContains",
+        values: ["1"],
+      },
+    },
+  },
+  REMOVE_DATA_VALIDATION_RULE: {
+    type: "REMOVE_DATA_VALIDATION_RULE",
+    sheetId: "sheetId",
+    id: "dvId",
+  },
 };
 
 export const OT_TESTS_SINGLE_CELL_COMMANDS = [
@@ -373,7 +390,10 @@ export const OT_TESTS_HEADER_GROUP_COMMANDS = [
   TEST_COMMANDS.UNFOLD_HEADER_GROUP,
 ];
 
-export const OT_TESTS_RANGE_DEPENDANT_COMMANDS = [TEST_COMMANDS.ADD_CONDITIONAL_FORMAT];
+export const OT_TESTS_RANGE_DEPENDANT_COMMANDS = [
+  TEST_COMMANDS.ADD_CONDITIONAL_FORMAT,
+  TEST_COMMANDS.ADD_DATA_VALIDATION_RULE,
+];
 
 export const EN_LOCALE = DEFAULT_LOCALE;
 

@@ -417,13 +417,23 @@ topbarMenuRegistry
   .addChild("split_to_columns", ["data"], {
     ...ACTION_DATA.splitToColumns,
     sequence: 20,
+  })
+  .addChild("data_validation", ["data"], {
+    name: _t("Data Validation"),
+    execute: (env) => {
+      env.openSidePanel("DataValidation");
+    },
+    icon: "o-spreadsheet-Icon.DATA_VALIDATION",
+    sequence: 30,
     separator: true,
   })
   .addChild("add_data_filter", ["data"], {
     ...ACTION_DATA.addDataFilter,
-    sequence: 30,
+    sequence: 40,
+    separator: true,
   })
   .addChild("remove_data_filter", ["data"], {
     ...ACTION_DATA.removeDataFilter,
-    sequence: 30,
+    sequence: 40,
+    separator: true,
   });

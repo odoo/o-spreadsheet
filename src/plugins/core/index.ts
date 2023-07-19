@@ -2,6 +2,7 @@ export * from "./borders";
 export * from "./cell";
 export * from "./chart";
 export * from "./conditional_format";
+export * from "./data_validation";
 export * from "./figures";
 export * from "./filters";
 export * from "./header_size";

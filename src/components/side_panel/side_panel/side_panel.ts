@@ -1,5 +1,5 @@
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
-import { BACKGROUND_HEADER_COLOR, DISABLED_TEXT_COLOR } from "../../../constants";
+import { BACKGROUND_HEADER_COLOR, DISABLED_TEXT_COLOR, FILTERS_COLOR } from "../../../constants";
 import { SidePanelContent, sidePanelRegistry } from "../../../registries/side_panel_registry";
 import { SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
@@ -89,6 +89,14 @@ css/* scss */ `
       &:hover:enabled {
         background-color: rgba(0, 0, 0, 0.08);
       }
+      &.primary:not(.o-disabled) {
+        background-color: ${FILTERS_COLOR};
+        color: white;
+        &:hover:enabled {
+          opacity: 0.8;
+          background-color: ${FILTERS_COLOR};
+        }
+      }
     }
     .o-sidePanelButton:enabled {
       cursor: pointer;
@@ -102,8 +110,21 @@ css/* scss */ `
       margin-right: 0px;
     }
 
+    .o-sidePanel-btn-link {
+      font-size: 14px;
+      padding: 20px 24px 11px 24px;
+      height: 44px;
+      cursor: pointer;
+      text-decoration: none;
+      &:hover {
+        color: #003a39;
+        text-decoration: none;
+      }
+    }
+
     .o-input {
       color: #666666;
+      border-width: 1px;
       border-radius: 4px;
       min-width: 0px;
       padding: 4px 6px;

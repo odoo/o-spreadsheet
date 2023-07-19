@@ -1,0 +1,11 @@
+<templates>
+  <t t-name="o-spreadsheet-DataValidationCheckbox">
+    <input
+      type="checkbox"
+      class="o-dv-checkbox"
+      t-att-class="{'pe-none': isDisabled}"
+      t-on-change="onCheckboxChange"
+      t-att-checked="checkBoxValue"
+    />
+  </t>
+</templates>

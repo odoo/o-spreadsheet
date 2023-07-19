@@ -1,6 +1,7 @@
 import { Component, onMounted, onWillUpdateProps, useState } from "@odoo/owl";
 import { NEWLINE } from "../../../constants";
 import { interactiveSplitToColumns } from "../../../helpers/ui/split_to_columns_interactive";
+import { interactiveStopEdition } from "../../../helpers/ui/stop_edition_interactive";
 import { _t } from "../../../translation";
 import { CommandResult, SpreadsheetChildEnv } from "../../../types/index";
 import { SplitToColumnsTerms } from "../../translations_terms";
@@ -48,7 +49,7 @@ export class SplitIntoColumnsPanel extends Component<Props, SpreadsheetChildEnv>
     });
 
     onMounted(() => {
-      this.env.model.dispatch("STOP_EDITION");
+      interactiveStopEdition(this.env);
     });
   }
 

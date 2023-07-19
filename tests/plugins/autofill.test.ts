@@ -4,6 +4,7 @@ import { AutofillPlugin } from "../../src/plugins/ui_feature/autofill";
 import { Border, ConditionalFormat, Style } from "../../src/types";
 import { DIRECTION } from "../../src/types/index";
 import {
+  addDataValidation,
   createSheet,
   createSheetWithName,
   deleteColumns,
@@ -24,6 +25,7 @@ import {
 import "../test_helpers/helpers";
 import {
   XCToMergeCellMap,
+  getDataValidationRules,
   getMergeCellMap,
   getPlugin,
   toRangesData,
@@ -184,6 +186,19 @@ describe("Autofill", () => {
     });
     expect(getStyle(model, "A7")).toEqual({});
     expect(getStyle(model, "A8")).toEqual({});
+  });
+
+  test("Autofill add data validation to target cell if present in origin cell", () => {
+    setCellContent(model, "A1", "1");
+    addDataValidation(model, "A1", "id", { type: "textContains", values: ["1"] });
+    autofill("A1", "A4");
+    expect(getDataValidationRules(model, model.getters.getActiveSheetId())).toMatchObject([
+      {
+        id: "id",
+        criterion: { type: "textContains", values: ["1"] },
+        ranges: ["A1:A4"],
+      },
+    ]);
   });
 
   describe("Autofill multiple values", () => {

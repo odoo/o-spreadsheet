@@ -1,10 +1,13 @@
 import { composerTokenize, EnrichedToken } from "../../formulas/index";
 import { POSTFIX_UNARY_OPERATORS } from "../../formulas/tokenizer";
+import { parseLiteral } from "../../helpers/cells";
 import {
   colors,
   concat,
+  fuzzyLookup,
   isDateTimeFormat,
   isEqual,
+  isNotNull,
   isNumber,
   markdownLink,
   numberToString,
@@ -30,6 +33,7 @@ import {
   Range,
   RangePart,
   RemoveColumnsRowsCommand,
+  StopEditionCommand,
   UID,
   UnboundedZone,
   Zone,
@@ -61,6 +65,7 @@ export class EditionPlugin extends UIPlugin {
     "getComposerHighlights",
     "getCurrentEditedCell",
     "getCycledReference",
+    "getAutoCompleteDataValidationValues",
   ] as const;
 
   private col: HeaderIndex = 0;
@@ -85,19 +90,21 @@ export class EditionPlugin extends UIPlugin {
       case "SET_CURRENT_CONTENT":
         if (cmd.selection) {
           return this.validateSelection(cmd.content.length, cmd.selection.start, cmd.selection.end);
-        } else {
-          return CommandResult.Success;
         }
+        break;
       case "START_EDITION":
         if (cmd.selection) {
           const content = cmd.text || this.getComposerContent(this.getters.getActivePosition());
           return this.validateSelection(content.length, cmd.selection.start, cmd.selection.end);
-        } else {
+        }
+        break;
+      case "STOP_EDITION":
+        if (this.mode === "inactive") {
           return CommandResult.Success;
         }
-      default:
-        return CommandResult.Success;
+        return this.checkDataValidation(cmd);
     }
+    return CommandResult.Success;
   }
 
   private handleEvent(event: SelectionEvent) {
@@ -305,6 +312,10 @@ export class EditionPlugin extends UIPlugin {
     return { content: newContent, selection: newSelection };
   }
 
+  getInitialComposerContent(): string | undefined {
+    return this.initialContent;
+  }
+
   // ---------------------------------------------------------------------------
   // Misc
   // ---------------------------------------------------------------------------
@@ -423,7 +434,7 @@ export class EditionPlugin extends UIPlugin {
       this.cancelEditionAndActivateSheet();
       const col = this.col;
       const row = this.row;
-      let content = this.currentContent;
+      let content = this.getCurrentCanonicalContent();
       const didChange = this.initialContent !== content;
       if (!didChange) {
         return;
@@ -431,7 +442,6 @@ export class EditionPlugin extends UIPlugin {
       if (content) {
         const sheetId = this.getters.getActiveSheetId();
         const cell = this.getters.getEvaluatedCell({ sheetId, col: this.col, row: this.row });
-        content = canonicalizeNumberContent(content, this.getters.getLocale());
         if (content.startsWith("=")) {
           const left = this.currentTokens.filter((t) => t.type === "LEFT_PAREN").length;
           const right = this.currentTokens.filter((t) => t.type === "RIGHT_PAREN").length;
@@ -458,6 +468,10 @@ export class EditionPlugin extends UIPlugin {
       }
       this.setContent("");
     }
+  }
+
+  private getCurrentCanonicalContent(): string {
+    return canonicalizeNumberContent(this.currentContent, this.getters.getLocale());
   }
 
   private cancelEditionAndActivateSheet() {
@@ -710,6 +724,39 @@ export class EditionPlugin extends UIPlugin {
       .map((token) => this.getters.getRangeFromSheetXC(editionSheetId, token.value));
   }
 
+  getAutoCompleteDataValidationValues(): string[] {
+    if (this.mode === "inactive") {
+      return [];
+    }
+
+    const rule = this.getters.getValidationRuleForCell(this.getCurrentEditedCell());
+    if (
+      !rule ||
+      (rule.criterion.type !== "isValueInList" && rule.criterion.type !== "isValueInRange")
+    ) {
+      return [];
+    }
+
+    let values: string[];
+    if (rule.criterion.type === "isValueInList") {
+      values = rule.criterion.values;
+    } else {
+      const range = this.getters.getRangeFromSheetXC(this.sheetId, rule.criterion.values[0]);
+      values = this.getters
+        .getRangeValues(range)
+        .filter(isNotNull)
+        .map((value) => value.toString())
+        .filter((val) => val !== "");
+    }
+    const composerContent = this.getCurrentContent();
+    if (composerContent && composerContent !== this.getInitialComposerContent()) {
+      const filteredValues = fuzzyLookup(composerContent, values, (val) => val);
+      values = filteredValues.length ? filteredValues : values;
+    }
+
+    return values;
+  }
+
   /**
    * Function used to determine when composer selection can start.
    * Three conditions are necessary:
@@ -756,5 +803,28 @@ export class EditionPlugin extends UIPlugin {
       return true;
     }
     return false;
+  }
+
+  private checkDataValidation(cmd: StopEditionCommand) {
+    const cellPosition = { sheetId: this.sheetId, col: this.col, row: this.row };
+    try {
+      const content = this.getCurrentCanonicalContent();
+      const cellValue = content.startsWith("=")
+        ? this.getters.evaluateFormula(this.sheetId, content)
+        : parseLiteral(content, this.getters.getLocale());
+
+      const validationResult = this.getters.getValidationResultForCellValue(
+        cellValue,
+        cellPosition
+      );
+      if (!validationResult.isValid && validationResult.rule.isBlocking) {
+        return CommandResult.BlockingValidationRule;
+      }
+      return CommandResult.Success;
+    } catch (e) {
+      // error at formula evaluation
+      const rule = this.getters.getValidationRuleForCell(cellPosition);
+      return rule?.isBlocking ? CommandResult.BlockingValidationRule : CommandResult.Success;
+    }
   }
 }

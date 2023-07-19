@@ -6,7 +6,15 @@ import { ClipboardPasteOptions } from "./clipboard";
 import { UpDown } from "./conditional_formatting";
 import { FigureSize } from "./figure";
 import { Image } from "./image";
-import { ConditionalFormat, Figure, Format, Locale, Style, Zone } from "./index";
+import {
+  ConditionalFormat,
+  DataValidationRule,
+  Figure,
+  Format,
+  Locale,
+  Style,
+  Zone,
+} from "./index";
 import {
   Border,
   BorderData,
@@ -214,7 +222,7 @@ export const coreTypes = new Set<CoreCommandTypes>([
   /** IMAGE */
   "CREATE_IMAGE",
 
-  "UPDATE_LOCALE",
+  /** HEADER GROUP */
   "GROUP_HEADERS",
   "UNGROUP_HEADERS",
   "UNFOLD_HEADER_GROUP",
@@ -223,6 +231,13 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "UNFOLD_ALL_HEADER_GROUPS",
   "UNFOLD_HEADER_GROUPS_IN_ZONE",
   "FOLD_HEADER_GROUPS_IN_ZONE",
+
+  /** DATA VALIDATION */
+  "ADD_DATA_VALIDATION_RULE",
+  "REMOVE_DATA_VALIDATION_RULE",
+
+  /** MISC */
+  "UPDATE_LOCALE",
 ]);
 
 export function isCoreCommand(cmd: Command): cmd is CoreCommand {
@@ -575,6 +590,16 @@ export interface UnfoldHeaderGroupsInZoneCommand extends ZoneDependentCommand {
 export interface FoldHeaderGroupsInZoneCommand extends ZoneDependentCommand {
   type: "FOLD_HEADER_GROUPS_IN_ZONE";
   dimension: Dimension;
+}
+
+export interface AddDataValidationCommand extends SheetDependentCommand, RangesDependentCommand {
+  type: "ADD_DATA_VALIDATION_RULE";
+  rule: Omit<DataValidationRule, "ranges">;
+}
+
+export interface RemoveDataValidationCommand extends SheetDependentCommand {
+  type: "REMOVE_DATA_VALIDATION_RULE";
+  id: string;
 }
 
 //#endregion
@@ -1034,15 +1059,14 @@ export type CoreCommand =
   | CreateChartCommand
   | UpdateChartCommand
 
-  /** Image */
+  /** IMAGE */
   | CreateImageOverCommand
 
   /** FILTERS */
   | CreateFilterTableCommand
   | RemoveFilterTableCommand
-  | UpdateLocaleCommand
 
-  /** Grouping */
+  /** HEADER GROUP */
   | GroupHeadersCommand
   | UnGroupHeadersCommand
   | UnfoldHeaderGroupCommand
@@ -1050,7 +1074,14 @@ export type CoreCommand =
   | FoldAllHeaderGroupsCommand
   | UnfoldAllHeaderGroupsCommand
   | UnfoldHeaderGroupsInZoneCommand
-  | FoldHeaderGroupsInZoneCommand;
+  | FoldHeaderGroupsInZoneCommand
+
+  /** DATA VALIDATION */
+  | AddDataValidationCommand
+  | RemoveDataValidationCommand
+
+  /** MISC */
+  | UpdateLocaleCommand;
 
 export type LocalCommand =
   | RequestUndoCommand
@@ -1265,6 +1296,11 @@ export const enum CommandResult {
   InvalidHeaderGroupStartEnd = "InvalidHeaderGroupStartEnd",
   HeaderGroupAlreadyExists = "HeaderGroupAlreadyExists",
   UnknownHeaderGroup = "UnknownHeaderGroup",
+  UnknownDataValidationRule = "UnknownDataValidationRule",
+  UnknownDataValidationCriterionType = "UnknownDataValidationCriterionType",
+  InvalidDataValidationCriterionValue = "InvalidDataValidationCriterionValue",
+  InvalidNumberOfCriterionValues = "InvalidNumberOfCriterionValues",
+  BlockingValidationRule = "BlockingValidationRule",
 }
 
 export interface CommandHandler<T> {

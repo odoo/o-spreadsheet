@@ -6,6 +6,7 @@ import {
   ChartDefinition,
   ClipboardPasteOptions,
   CreateSheetCommand,
+  DataValidationCriterion,
   Dimension,
   Direction,
   DispatchResult,
@@ -25,7 +26,7 @@ import { PieChartDefinition } from "../../src/types/chart/pie_chart";
 import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
 import { Image } from "../../src/types/image";
 import { FigureSize } from "./../../src/types/figure";
-import { target } from "./helpers";
+import { target, toRangesData } from "./helpers";
 
 /**
  * Dispatch an UNDO to the model
@@ -1032,4 +1033,28 @@ export function unfoldHeaderGroupsInZone(
     zone: toZone(xc),
     sheetId,
   });
+}
+
+export function addDataValidation(
+  model: Model,
+  xcs: string,
+  id: UID,
+  criterion: DataValidationCriterion = { type: "textContains", values: ["test"] },
+  isBlocking: "blocking" | "warning" = "warning",
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  const ranges = toRangesData(sheetId, xcs);
+  return model.dispatch("ADD_DATA_VALIDATION_RULE", {
+    sheetId,
+    ranges,
+    rule: { id, criterion, isBlocking: isBlocking === "blocking" },
+  });
+}
+
+export function removeDataValidation(
+  model: Model,
+  id: UID,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id });
 }

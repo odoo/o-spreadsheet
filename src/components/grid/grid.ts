@@ -25,6 +25,7 @@ import { isInside } from "../../helpers/index";
 import { openLink } from "../../helpers/links";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
 import { interactivePaste, interactivePasteFromOS } from "../../helpers/ui/paste_interactive";
+import { interactiveStopEdition } from "../../helpers/ui/stop_edition_interactive";
 import { ComposerSelection } from "../../plugins/ui_stateful";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
@@ -449,7 +450,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.closeOpenedPopover();
     }
     if (this.env.model.getters.getEditionMode() === "editing") {
-      this.env.model.dispatch("STOP_EDITION");
+      interactiveStopEdition(this.env);
     }
     if (shiftKey) {
       this.env.model.selection.setAnchorCorner(col, row);
@@ -562,7 +563,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const lastZone = this.env.model.getters.getSelectedZone();
     const { left: col, top: row } = lastZone;
     let type: ContextMenuType = "CELL";
-    this.env.model.dispatch("STOP_EDITION");
+    interactiveStopEdition(this.env);
     if (this.env.model.getters.getActiveCols().has(col)) {
       type = "COL";
     } else if (this.env.model.getters.getActiveRows().has(row)) {

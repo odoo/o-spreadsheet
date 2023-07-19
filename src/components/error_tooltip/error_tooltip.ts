@@ -1,7 +1,7 @@
 import { Component } from "@odoo/owl";
+import { _t } from "../../translation";
 import { CellValueType } from "../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../types/cell_popovers";
-import { CellErrorLevel } from "../../types/errors";
 import { css } from "../helpers/css";
 
 const ERROR_TOOLTIP_MAX_HEIGHT = 80;
@@ -16,36 +16,65 @@ css/* scss */ `
     width: ${ERROR_TOOLTIP_WIDTH}px;
     box-sizing: border-box !important;
     overflow-wrap: break-word;
+
+    .o-error-tooltip-message {
+      overflow: hidden;
+      display: -webkit-box; /* Limit to 3 lines */
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+      -webkit-box-orient: vertical;
+    }
   }
 `;
 
+export interface ErrorToolTipMessage {
+  title: string;
+  message: string;
+}
+
 interface ErrorToolTipProps {
-  text: string;
+  errors: ErrorToolTipMessage[];
   onClosed?: () => void;
 }
 
 export class ErrorToolTip extends Component<ErrorToolTipProps> {
   static maxSize = { maxHeight: ERROR_TOOLTIP_MAX_HEIGHT };
   static template = "o-spreadsheet-ErrorToolTip";
-  static components = {};
 }
 
 ErrorToolTip.props = {
-  text: String,
+  errors: Array,
   onClosed: { type: Function, optional: true },
 };
 
 export const ErrorToolTipPopoverBuilder: PopoverBuilders = {
   onHover: (position, getters): CellPopoverComponent<typeof ErrorToolTip> => {
     const cell = getters.getEvaluatedCell(position);
-    if (cell.type === CellValueType.error && cell.error.logLevel > CellErrorLevel.silent) {
-      return {
-        isOpen: true,
-        props: { text: cell.error.message },
-        Component: ErrorToolTip,
-        cellCorner: "TopRight",
-      };
+    const errors: ErrorToolTipMessage[] = [];
+    if (cell.type === CellValueType.error && cell.error.isVerbose) {
+      errors.push({
+        title: _t("Error"),
+        message: cell.error.message,
+      });
     }
-    return { isOpen: false };
+
+    const validationErrorMessage = getters.getInvalidDataValidationMessage(position);
+    if (validationErrorMessage) {
+      errors.push({
+        title: _t("Invalid"),
+        message: validationErrorMessage,
+      });
+    }
+
+    if (!errors.length) {
+      return { isOpen: false };
+    }
+
+    return {
+      isOpen: true,
+      props: { errors: errors },
+      Component: ErrorToolTip,
+      cellCorner: "TopRight",
+    };
   },
 };

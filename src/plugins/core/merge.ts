@@ -1,5 +1,6 @@
 import {
   clip,
+  deepEquals,
   getCanonicalSheetName,
   isDefined,
   isEqual,
@@ -56,6 +57,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     "getMergesInZone",
     "isSingleCellOrMerge",
     "getSelectionRangeString",
+    "isMainCellPosition",
   ] as const;
 
   private nextId: number = 1;
@@ -298,6 +300,11 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     const { numberOfCols, numberOfRows } = zoneToDimension(zone);
     return numberOfCols === 1 && numberOfRows === 1;
   }
+
+  isMainCellPosition(position: CellPosition): boolean {
+    return deepEquals(this.getMainCellPosition(position), position);
+  }
+
   // ---------------------------------------------------------------------------
   // Merges
   // ---------------------------------------------------------------------------

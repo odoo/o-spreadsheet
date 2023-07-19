@@ -254,7 +254,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       openSidePanel: this.openSidePanel.bind(this),
       toggleSidePanel: this.toggleSidePanel.bind(this),
       clipboard: this.env.clipboard || instantiateClipboard(),
-      startCellEdition: (content: string) => this.onGridComposerCellFocused(content),
+      startCellEdition: (content?: string) => this.onGridComposerCellFocused(content),
     });
 
     useExternalListener(window as any, "resize", () => this.render(true));

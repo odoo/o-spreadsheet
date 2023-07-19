@@ -20,6 +20,7 @@ import { Align, BorderPosition, Box, GridRenderingContext, Viewport, Zone } from
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {
   addColumns,
+  addDataValidation,
   copy,
   createFilter,
   deleteColumns,
@@ -1204,6 +1205,31 @@ describe("renderer", () => {
     });
   });
 
+  test("Cells are clipped with data validation icons", () => {
+    let box: Box;
+    const cellContent = "This is a long text that should be clipped";
+    const model = new Model();
+    resizeColumns(model, ["A"], 10);
+    setCellContent(model, "A1", cellContent);
+
+    addDataValidation(model, "B1", "id", { type: "isBoolean", values: [] });
+
+    const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+    model.drawGrid(ctx);
+    box = getBoxFromText(model, cellContent);
+    const expectedClipRect = { x: 0, y: 0, width: 10, height: DEFAULT_CELL_HEIGHT };
+    expect(box.clipRect).toEqual(expectedClipRect);
+
+    addDataValidation(model, "B1", "id", {
+      type: "isValueInList",
+      values: ["a"],
+      displayStyle: "arrow",
+    });
+    model.drawGrid(ctx);
+    box = getBoxFromText(model, cellContent);
+    expect(box.clipRect).toEqual(expectedClipRect);
+  });
+
   test.each([
     ["right", ["left"], { left: 1, right: 1, top: 1, bottom: 1 }], // align right, left border => clipped on cell zone
     ["right", ["left", "right"], { left: 1, right: 1, top: 1, bottom: 1 }], // align right, left + right border => clipped on cell zone
@@ -1431,21 +1457,21 @@ describe("renderer", () => {
     });
     model.drawGrid(ctx);
     const boxA1 = getBoxFromText(model, "#N/A"); //NotAvailableError => Shouldn't display
-    expect(boxA1.error).toBeUndefined();
+    expect(boxA1.isError).toBeFalsy();
     const boxB1 = getBoxFromText(model, "#CYCLE"); //CycleError => Should display
-    expect(boxB1.error).toBe("Circular reference");
+    expect(boxB1.isError).toBeTruthy();
     expect(filled[0][0]).toBe(boxB1.x + boxB1.width - 5);
     expect(filled[0][1]).toBe(boxB1.y);
     const boxC1 = getBoxFromText(model, "#REF"); //BadReferenceError => Should display
-    expect(boxC1.error).toBe("Invalid reference");
+    expect(boxB1.isError).toBeTruthy();
     expect(filled[1][0]).toBe(boxC1.x + boxC1.width - 5);
     expect(filled[1][1]).toBe(boxC1.y);
     const boxD1 = getBoxFromText(model, "#BAD_EXPR"); //BadExpressionError => Should display
-    expect(boxD1.error).toBeTruthy();
+    expect(boxD1.isError).toBeTruthy();
     expect(filled[2][0]).toBe(boxD1.x + boxD1.width - 5);
     expect(filled[2][1]).toBe(boxD1.y);
     const boxE1 = getBoxFromText(model, "#ERROR"); // GeneralError => Should display
-    expect(boxE1.error).toBeTruthy();
+    expect(boxE1.isError).toBeTruthy();
     expect(filled[3][0]).toBe(boxE1.x + boxE1.width - 5);
     expect(filled[3][1]).toBe(boxE1.y);
   });
