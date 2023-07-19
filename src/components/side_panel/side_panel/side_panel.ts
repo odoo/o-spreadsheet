@@ -1,5 +1,5 @@
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
-import { BACKGROUND_HEADER_COLOR } from "../../../constants";
+import { BACKGROUND_HEADER_COLOR, DISABLED_TEXT_COLOR } from "../../../constants";
 import { SidePanelContent, sidePanelRegistry } from "../../../registries/side_panel_registry";
 import { SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
@@ -104,6 +104,11 @@ css/* scss */ `
     .o-sidePanelButton:enabled {
       cursor: pointer;
     }
+
+    .o-sidePanelButton:disabled {
+      color: ${DISABLED_TEXT_COLOR};
+    }
+
     .o-sidePanelButton:last-child {
       margin-right: 0px;
     }

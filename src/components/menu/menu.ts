@@ -2,8 +2,8 @@ import { Component, onWillUpdateProps, useExternalListener, useRef, useState } f
 import { Action } from "../../actions/action";
 import {
   BG_HOVER_COLOR,
+  DISABLED_TEXT_COLOR,
   ICONS_COLOR,
-  MENU_ITEM_DISABLED_COLOR,
   MENU_ITEM_HEIGHT,
   MENU_ITEM_PADDING_HORIZONTAL,
   MENU_ITEM_PADDING_VERTICAL,
@@ -67,7 +67,7 @@ css/* scss */ `
         }
       }
       &.disabled {
-        color: ${MENU_ITEM_DISABLED_COLOR};
+        color: ${DISABLED_TEXT_COLOR};
         cursor: not-allowed;
       }
     }
