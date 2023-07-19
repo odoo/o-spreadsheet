@@ -365,8 +365,8 @@ export class XlsxBaseExtractor {
    *
    * Why we need to do this :
    *  - For an XML "<t:test />"
-   *  - on Jest(jsdom) : xml.querySelector("test") == null, xml.querySelector("t\\:test") == <t:test />
-   *  - on Browser : xml.querySelector("test") == <t:test />, xml.querySelector("t\\:test") == null
+   *  - on Jest(jsdom) : xml.querySelector("test") === null, xml.querySelector("t\\:test") === <t:test />
+   *  - on Browser : xml.querySelector("test") === <t:test />, xml.querySelector("t\\:test") === null
    */
   protected querySelector(element: Element | Document, query: string) {
     query = this.areNamespaceIgnored ? removeNamespaces(query) : escapeNamespaces(query);
@@ -378,8 +378,8 @@ export class XlsxBaseExtractor {
    *
    * Why we need to do this :
    *  - For an XML "<t:test />"
-   *  - on Jest(jsdom) : xml.querySelectorAll("test") == [], xml.querySelectorAll("t\\:test") == [<t:test />]
-   *  - on Browser : xml.querySelectorAll("test") == [<t:test />], xml.querySelectorAll("t\\:test") == []
+   *  - on Jest(jsdom) : xml.querySelectorAll("test") === [], xml.querySelectorAll("t\\:test") === [<t:test />]
+   *  - on Browser : xml.querySelectorAll("test") === [<t:test />], xml.querySelectorAll("t\\:test") === []
    */
   protected querySelectorAll(element: Element | Document, query: string) {
     query = this.areNamespaceIgnored ? removeNamespaces(query) : escapeNamespaces(query);

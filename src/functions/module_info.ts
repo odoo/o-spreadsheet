@@ -68,7 +68,7 @@ export const ISNA: AddFunctionDescription = {
       value();
       return false;
     } catch (e) {
-      return e?.errorType == CellErrorType.NotAvailable;
+      return e?.errorType === CellErrorType.NotAvailable;
     }
   },
   isExported: true,

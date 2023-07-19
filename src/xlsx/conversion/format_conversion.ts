@@ -37,8 +37,8 @@ export function convertXlsxFormat(
       }
       convertedFormat = convertedFormat.replace(/"(.*)"/g, "[$$$1]"); // replace '"..."' by '[$...]'
 
-      convertedFormat = convertedFormat.replace(/_.{1}/g, ""); // _ == ignore width of next char for align purposes. Not supported ATM
-      convertedFormat = convertedFormat.replace(/\*.{1}/g, ""); // * == repeat next character enough to fill the line. Not supported ATM
+      convertedFormat = convertedFormat.replace(/_.{1}/g, ""); // _ === ignore width of next char for align purposes. Not supported ATM
+      convertedFormat = convertedFormat.replace(/\*.{1}/g, ""); // * === repeat next character enough to fill the line. Not supported ATM
 
       convertedFormat = convertedFormat.replace(/\\ /g, " "); // unescape spaces
 

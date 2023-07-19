@@ -603,7 +603,7 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
 
     while (true) {
       const nextCellPosition = this.getNextCellPosition(currentPosition, dim, dir);
-      // Break if nextPosition == currentPosition, which happens if there's no next valid position
+      // Break if nextPosition === currentPosition, which happens if there's no next valid position
       if (
         currentPosition.col === nextCellPosition.col &&
         currentPosition.row === nextCellPosition.row

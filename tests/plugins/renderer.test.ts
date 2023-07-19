@@ -1422,9 +1422,9 @@ describe("renderer", () => {
 
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {
       onFunctionCall: (val, args) => {
-        if (val == "moveTo") {
+        if (val === "moveTo") {
           current = [args[0], args[1]];
-        } else if (val == "fill") {
+        } else if (val === "fill") {
           filled.push([current[0], current[1]]);
         }
       },
@@ -1801,9 +1801,9 @@ describe("renderer", () => {
         }
       },
       onFunctionCall: (val, args) => {
-        if (currentColor !== "" && val == "moveTo") {
+        if (currentColor !== "" && val === "moveTo") {
           renderedBorders[currentColor] = { start: args };
-        } else if (currentColor !== "" && val == "lineTo") {
+        } else if (currentColor !== "" && val === "lineTo") {
           renderedBorders[currentColor].end = args;
           currentColor = "";
         }

@@ -392,7 +392,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
 
   /**
    * Set the borders of a cell.
-   * It overrides the current border if override == true.
+   * It overrides the current border if override === true.
    */
   private setBorder(
     sheetId: UID,
