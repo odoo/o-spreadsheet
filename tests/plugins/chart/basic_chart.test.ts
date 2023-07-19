@@ -28,7 +28,7 @@ import {
   updateLocale,
 } from "../../test_helpers/commands_helpers";
 import { getPlugin, mockChart, nextTick, target } from "../../test_helpers/helpers";
-import { ChartDefinition } from "./../../../src/types/chart/chart";
+import { ChartDefinition, ChartJSRuntime } from "./../../../src/types/chart/chart";
 import { FR_LOCALE } from "./../../test_helpers/constants";
 jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
 
@@ -1527,24 +1527,28 @@ describe("Chart design configuration", () => {
     expect(chart.chartJsConfig.data!.labels).toEqual(["3/1/2022", "2022/03/02"]);
   });
 
-  describe("Format of Y values at Runtime", () => {
-    function getTooltipItem(value: number, chartType: string): TooltipItem<ChartType> {
-      return {
-        label: "",
-        // yLabel is an number for pie charts for whatever reason
-        // @ts-ignore chart.js type is wrong
-        parsed:
-          chartType === "pie"
-            ? value
-            : {
-                x: 0,
-                y: value,
-              },
-        datasetIndex: 0,
-        index: 0,
-      };
-    }
+  function getTooltipLabel(chart: ChartJSRuntime, datasetIndex: number, dataIndex: number): string {
+    const tooltipItem: TooltipItem<ChartType> = {
+      label: "",
+      // @ts-ignore chart.js type is wrong
+      parsed:
+        // @ts-ignore
+        chart.type === "pie"
+          ? (chart.chartJsConfig!.data!.datasets![datasetIndex].data![dataIndex] as number)
+          : {
+              x: 0,
+              y: chart.chartJsConfig!.data!.datasets![datasetIndex].data![dataIndex] as number,
+            },
+      //@ts-ignore chartjs dataset type is wrong
+      dataset: chart.chartJsConfig.data!.datasets[datasetIndex],
+      datasetIndex,
+      dataIndex,
+    };
+    // @ts-ignore
+    return chart.chartJsConfig!.options!.plugins!.tooltip!.callbacks!.label!(tooltipItem);
+  }
 
+  describe("Format of Y values at Runtime", () => {
     test.each(["bar", "line"])(
       "Bar/Line chart Y axis, cell without format: thousand separator",
       (chartType) => {
@@ -1588,52 +1592,75 @@ describe("Chart design configuration", () => {
       expect(runtime.chartJsConfig.options.scales.y?.ticks.callback!(600)).toEqual("600");
     });
 
-    test.each(["bar", "line", "pie"])(
+    test.each(["bar", "line"])(
       "Basic chart tooltip label, cell without format: thousand separator",
       (chartType) => {
         setCellContent(model, "A2", "60000000");
         createChart(model, { ...defaultChart, type: chartType as "bar" | "line" | "pie" }, "42");
         const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
-        const data = runtime.chartJsConfig.data!;
-        const tooltipItem = getTooltipItem(data.datasets![0].data![0] as number, chartType);
-        expect(
-          // @ts-ignore should be binded to the chart tooltip model
-          runtime.chartJsConfig.options!.plugins!.tooltip!.callbacks!.label!(tooltipItem)
-        ).toEqual("60,000,000");
+        const label = getTooltipLabel(runtime, 0, 0);
+
+        expect(label).toEqual("60,000,000");
       }
     );
 
-    test.each(["bar", "line", "pie"])(
-      "Basic chart tooltip label, cell with format",
-      (chartType) => {
-        setCellContent(model, "A2", "6000");
-        setCellFormat(model, "A2", "[$$]#,##0.00");
-        createChart(model, { ...defaultChart, type: chartType as "bar" | "line" | "pie" }, "42");
-        const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
-        const data = runtime.chartJsConfig.data!;
-        const tooltipItem = getTooltipItem(data.datasets![0].data![0] as number, chartType);
-        expect(
-          // @ts-ignore should be binded to the chart tooltip model
-          runtime.chartJsConfig.options!.plugins!.tooltip!.callbacks!.label!(tooltipItem)
-        ).toEqual("$6,000.00");
-      }
-    );
+    test.each(["bar", "line"])("Basic chart tooltip label, cell with format", (chartType) => {
+      setCellContent(model, "A2", "6000");
+      setCellFormat(model, "A2", "[$$]#,##0.00");
+      createChart(model, { ...defaultChart, type: chartType as "bar" | "line" | "pie" }, "42");
+      const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
+      const label = getTooltipLabel(runtime, 0, 0);
+      expect(label).toEqual("$6,000.00");
+    });
 
-    test.each(["bar", "line", "pie"])(
-      "Basic chart tooltip label, date format is ignored",
-      (chartType) => {
-        setCellContent(model, "A2", "6000");
-        setCellFormat(model, "A2", "m/d/yyyy");
-        createChart(model, { ...defaultChart, type: chartType as "bar" | "line" | "pie" }, "42");
-        const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
-        const data = runtime.chartJsConfig.data!;
-        const tooltipItem = getTooltipItem(data.datasets![0].data![0] as number, chartType);
-        expect(
-          // @ts-ignore should be binded to the chart tooltip model
-          runtime.chartJsConfig.options!.plugins!.tooltip!.callbacks!.label!(tooltipItem)
-        ).toEqual("6,000");
-      }
-    );
+    test.each(["bar", "line"])("Basic chart tooltip label, date format is ignored", (chartType) => {
+      setCellContent(model, "A2", "6000");
+      setCellFormat(model, "A2", "m/d/yyyy");
+      createChart(model, { ...defaultChart, type: chartType as "bar" | "line" | "pie" }, "42");
+      const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
+      const label = getTooltipLabel(runtime, 0, 0);
+      expect(label).toEqual("6,000");
+    });
+  });
+
+  describe("Pie Chart tooltip", () => {
+    test("pie chart tooltip label to include percentage", () => {
+      setCellContent(model, "A1", "P1");
+      setCellContent(model, "A2", "100");
+      setCellContent(model, "A3", "150");
+      createChart(
+        model,
+        {
+          dataSets: ["A1:A3"],
+          labelRange: "A1",
+          type: "pie",
+        },
+        "1"
+      );
+      const chart = model.getters.getChartRuntime("1") as PieChartRuntime;
+      const label = getTooltipLabel(chart, 0, 1);
+
+      expect(label).toBe("P1: 150 (60.00%)");
+    });
+
+    test("pie chart tooltip label with format", () => {
+      setCellContent(model, "A1", "P1");
+      setCellContent(model, "A2", "6000");
+      setCellFormat(model, "A2", "[$$]#,##0.00");
+      createChart(
+        model,
+        {
+          dataSets: ["A1:A2"],
+          labelRange: "A1",
+          type: "pie",
+        },
+        "1"
+      );
+      const chart = model.getters.getChartRuntime("1") as PieChartRuntime;
+      const label = getTooltipLabel(chart, 0, 0);
+
+      expect(label).toBe("P1: $6,000.00 (100.00%)");
+    });
   });
 });
 

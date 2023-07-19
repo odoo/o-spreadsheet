@@ -1,4 +1,10 @@
-import type { ChartConfiguration, ChartDataset, LegendOptions } from "chart.js";
+import type {
+  BubbleDataPoint,
+  ChartConfiguration,
+  ChartDataset,
+  LegendOptions,
+  Point,
+} from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
@@ -24,6 +30,7 @@ import { LegendPosition } from "../../../types/chart/common_chart";
 import { PieChartDefinition, PieChartRuntime } from "../../../types/chart/pie_chart";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
+import { formatValue } from "../../format";
 import { createRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
@@ -212,6 +219,19 @@ function getPieConfiguration(
   config.options.plugins!.tooltip!.callbacks!.title = function (tooltipItems) {
     return tooltipItems[0].dataset.label;
   };
+  config.options.plugins!.tooltip!.callbacks!.label = function (tooltipItem) {
+    const { format, locale } = localeFormat;
+    const data = tooltipItem.dataset.data;
+    const dataIndex = tooltipItem.dataIndex;
+    const percentage = calculatePercentage(data, dataIndex);
+
+    const xLabel = tooltipItem.label || tooltipItem.dataset.label;
+    const yLabel = tooltipItem.parsed.y ?? tooltipItem.parsed;
+    const toolTipFormat = !format && yLabel > 1000 ? "#,##" : format;
+    const yLabelStr = formatValue(yLabel, { format: toolTipFormat, locale });
+
+    return xLabel ? `${xLabel}: ${yLabelStr} (${percentage}%)` : `${yLabelStr} (${percentage}%)`;
+  };
   return config;
 }
 
@@ -223,6 +243,21 @@ function getPieColors(colors: ChartColors, dataSetsValues: DatasetValues[]): Col
   }
 
   return pieColors;
+}
+
+function calculatePercentage(
+  dataset: (number | [number, number] | Point | BubbleDataPoint | null)[],
+  dataIndex: number
+): string {
+  const numericData: number[] = dataset.filter((value) => typeof value === "number") as number[];
+  const total = numericData.reduce((sum, value) => sum + value, 0);
+
+  if (!total) {
+    return "";
+  }
+  const percentage = ((dataset[dataIndex] as number) / total) * 100;
+
+  return percentage.toFixed(2);
 }
 
 export function createPieChartRuntime(chart: PieChart, getters: Getters): PieChartRuntime {
