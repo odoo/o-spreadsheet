@@ -307,10 +307,8 @@ export class SortPlugin extends UIPlugin {
         }
         updateCellCommands.push(newCellValues);
       }
-      for (const cmd of updateCellCommands) {
-        this.dispatch("UPDATE_CELL", cmd);
-      }
     }
+    updateCellCommands.forEach((cmdPayload) => this.dispatch("UPDATE_CELL", cmdPayload));
   }
 
   /**
