@@ -152,7 +152,6 @@ describe("find and replace sidePanel component", () => {
     test("search match count is removed when input is cleared", async () => {
       setCellContent(model, "A1", "Hello");
       setInputValueAndTrigger(selectors.inputSearch, "Hel", "input");
-      await nextTick();
       expect(fixture.querySelector(".o-input-count")).toBeNull();
       jest.runOnlyPendingTimers();
       await nextTick();
