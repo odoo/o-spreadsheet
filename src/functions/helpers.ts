@@ -129,14 +129,6 @@ export function normalizeString(str: string) {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
-/**
- * Normalize a value.
- * If the cell value is a string, this will set it to lowercase and replacing accent letters with plain letters
- */
-export function normalizeValue<T>(value: T): T | string {
-  return typeof value === "string" ? normalizeString(value) : value;
-}
-
 const expectBooleanValueError = (value: string) =>
   _t(
     "The function [[FUNCTION_NAME]] expects a boolean value, but '%s' is a text, and cannot be coerced to a number.",
@@ -601,20 +593,6 @@ export function visitMatchingRanges(
 // COMMON FUNCTIONS
 // -----------------------------------------------------------------------------
 
-export function getNormalizedValueFromColumnRange(
-  range: MatrixArgValue,
-  index: number
-): CellValue | undefined {
-  return normalizeValue(range[0][index]) ?? undefined;
-}
-
-export function getNormalizedValueFromRowRange(
-  range: MatrixArgValue,
-  index: number
-): CellValue | undefined {
-  return normalizeValue(range[index][0]) ?? undefined;
-}
-
 /**
  * Perform a dichotomic search on an array and return the index of the nearest match.
  *
@@ -641,7 +619,8 @@ export function dichotomicSearch<T>(
   if (target === null || target === undefined) {
     return -1;
   }
-  const targetType = typeof target;
+  const _target = normalizeValue(target);
+  const targetType = typeof _target;
 
   let matchVal: CellValue | undefined = undefined;
   let matchValIndex: number | undefined = undefined;
@@ -658,13 +637,13 @@ export function dichotomicSearch<T>(
     indexMedian = Math.floor((indexLeft + indexRight) / 2);
 
     currentIndex = indexMedian;
-    currentVal = getValueInData(data, currentIndex);
+    currentVal = normalizeValue(getValueInData(data, currentIndex));
     currentType = typeof currentVal;
 
     // 1 - linear search to find value with the same type
     while (indexLeft < currentIndex && targetType !== currentType) {
       currentIndex--;
-      currentVal = getValueInData(data, currentIndex);
+      currentVal = normalizeValue(getValueInData(data, currentIndex));
       currentType = typeof currentVal;
     }
     if (currentType !== targetType || currentVal === undefined || currentVal === null) {
@@ -673,10 +652,10 @@ export function dichotomicSearch<T>(
     }
 
     // 2 - check if value match
-    if (mode === "strict" && currentVal === target) {
+    if (mode === "strict" && currentVal === _target) {
       matchVal = currentVal;
       matchValIndex = currentIndex;
-    } else if (mode === "nextSmaller" && currentVal <= target) {
+    } else if (mode === "nextSmaller" && currentVal <= _target) {
       if (
         matchVal === undefined ||
         matchVal === null ||
@@ -687,7 +666,7 @@ export function dichotomicSearch<T>(
         matchVal = currentVal;
         matchValIndex = currentIndex;
       }
-    } else if (mode === "nextGreater" && currentVal >= target) {
+    } else if (mode === "nextGreater" && currentVal >= _target) {
       if (
         matchVal === undefined ||
         matchVal > currentVal ||
@@ -701,8 +680,8 @@ export function dichotomicSearch<T>(
 
     // 3 - give new indexes for the Binary search
     if (
-      (sortOrder === "asc" && currentVal > target) ||
-      (sortOrder === "desc" && currentVal <= target)
+      (sortOrder === "asc" && currentVal > _target) ||
+      (sortOrder === "desc" && currentVal <= _target)
     ) {
       indexRight = currentIndex - 1;
     } else {
@@ -743,6 +722,7 @@ export function linearSearch<T>(
 ): number {
   if (target === null || target === undefined) return -1;
 
+  const _target = normalizeValue(target);
   const getValue = reverseSearch
     ? (data: T, i: number) => getValueInData(data, numberOfValues - i - 1)
     : getValueInData;
@@ -750,22 +730,22 @@ export function linearSearch<T>(
   let closestMatch: CellValue | undefined = undefined;
   let closestMatchIndex = -1;
   for (let i = 0; i < numberOfValues; i++) {
-    const value = getValue(data, i);
-    if (value === target) {
+    const value = normalizeValue(getValue(data, i));
+    if (value === _target) {
       return reverseSearch ? numberOfValues - i - 1 : i;
     }
     if (mode === "nextSmaller") {
       if (
-        (!closestMatch && compareCellValues(target, value) >= 0) ||
-        (compareCellValues(target, value) >= 0 && compareCellValues(value, closestMatch) > 0)
+        (!closestMatch && compareCellValues(_target, value) >= 0) ||
+        (compareCellValues(_target, value) >= 0 && compareCellValues(value, closestMatch) > 0)
       ) {
         closestMatch = value;
         closestMatchIndex = i;
       }
     } else if (mode === "nextGreater") {
       if (
-        (!closestMatch && compareCellValues(target, value) <= 0) ||
-        (compareCellValues(target, value) <= 0 && compareCellValues(value, closestMatch) < 0)
+        (!closestMatch && compareCellValues(_target, value) <= 0) ||
+        (compareCellValues(_target, value) <= 0 && compareCellValues(value, closestMatch) < 0)
       ) {
         closestMatch = value;
         closestMatchIndex = i;
@@ -774,6 +754,14 @@ export function linearSearch<T>(
   }
 
   return reverseSearch ? numberOfValues - closestMatchIndex - 1 : closestMatchIndex;
+}
+
+/**
+ * Normalize a value.
+ * If the cell value is a string, this will set it to lowercase and replacing accent letters with plain letters
+ */
+function normalizeValue<T>(value: T): T | string {
+  return typeof value === "string" ? normalizeString(value) : value;
 }
 
 function compareCellValues(left: CellValue | undefined, right: CellValue | undefined): number {
