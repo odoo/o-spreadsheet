@@ -5,10 +5,10 @@ exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
   class="o-autocomplete-dropdown shadow"
 >
   <div
-    class="d-flex flex-column o-autocomplete-value-focus"
+    class="d-flex flex-column text-start o-autocomplete-value-focus"
   >
     <div
-      class="o-autocomplete-value"
+      class="o-autocomplete-value text-truncate"
     >
       SUM
     </div>
@@ -20,10 +20,10 @@ exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
     
   </div>
   <div
-    class="d-flex flex-column"
+    class="d-flex flex-column text-start"
   >
     <div
-      class="o-autocomplete-value"
+      class="o-autocomplete-value text-truncate"
     >
       SZZ
     </div>
@@ -36,16 +36,16 @@ exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
 exports[`composer Assistant render above the cell when not enough place below 1`] = `
 <div
   class="o-composer-assistant"
-  style="top:-3px; transform:translate(0, -100%); right:0px; width:300px;"
+  style="min-width:96px; width:300px; top:-3px; transform:translate(0, -100%); right:0px;"
 >
   <div
     class="o-autocomplete-dropdown shadow"
   >
     <div
-      class="d-flex flex-column o-autocomplete-value-focus"
+      class="d-flex flex-column text-start o-autocomplete-value-focus"
     >
       <div
-        class="o-autocomplete-value"
+        class="o-autocomplete-value text-truncate"
       >
         SUM
       </div>
@@ -57,10 +57,10 @@ exports[`composer Assistant render above the cell when not enough place below 1`
       
     </div>
     <div
-      class="d-flex flex-column"
+      class="d-flex flex-column text-start"
     >
       <div
-        class="o-autocomplete-value"
+        class="o-autocomplete-value text-truncate"
       >
         SZZ
       </div>
@@ -76,16 +76,16 @@ exports[`composer Assistant render above the cell when not enough place below 1`
 exports[`composer Assistant render below the cell by default 1`] = `
 <div
   class="o-composer-assistant"
-  style="width:300px;"
+  style="min-width:300px; width:300px;"
 >
   <div
     class="o-autocomplete-dropdown shadow"
   >
     <div
-      class="d-flex flex-column o-autocomplete-value-focus"
+      class="d-flex flex-column text-start o-autocomplete-value-focus"
     >
       <div
-        class="o-autocomplete-value"
+        class="o-autocomplete-value text-truncate"
       >
         SUM
       </div>
@@ -97,10 +97,10 @@ exports[`composer Assistant render below the cell by default 1`] = `
       
     </div>
     <div
-      class="d-flex flex-column"
+      class="d-flex flex-column text-start"
     >
       <div
-        class="o-autocomplete-value"
+        class="o-autocomplete-value text-truncate"
       >
         SZZ
       </div>

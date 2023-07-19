@@ -8,7 +8,17 @@ exports[`Grid integration can display error tooltip 1`] = `
   <div
     class="o-error-tooltip"
   >
-    The divisor must be different from zero.
+    <div
+      class="o-error-tooltip-title fw-bold text-danger"
+    >
+      Error
+    </div>
+    <div
+      class="o-error-tooltip-message"
+    >
+      The divisor must be different from zero.
+    </div>
+    
   </div>
 </div>
 `;

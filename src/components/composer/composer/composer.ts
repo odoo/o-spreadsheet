@@ -3,6 +3,7 @@ import { DEFAULT_FONT, NEWLINE } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/index";
 import { functionRegistry } from "../../../functions/index";
 import { fuzzyLookup, getZoneArea, isEqual, splitReference } from "../../../helpers/index";
+import { interactiveStopEdition } from "../../../helpers/ui/stop_edition_interactive";
 import { ComposerSelection } from "../../../plugins/ui_stateful/edition";
 
 import {
@@ -107,8 +108,9 @@ interface ComposerState {
 
 interface AutoCompleteState {
   showProvider: boolean;
-  selectedIndex: number;
+  selectedIndex: number | undefined;
   values: AutocompleteValue[];
+  type: "function" | "dataValidation";
 }
 
 interface FunctionDescriptionState {
@@ -137,7 +139,8 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   autoCompleteState: AutoCompleteState = useState({
     showProvider: false,
     values: [],
-    selectedIndex: 0,
+    selectedIndex: undefined,
+    type: "function",
   });
 
   functionDescriptionState: FunctionDescriptionState = useState({
@@ -149,10 +152,16 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   private compositionActive: boolean = false;
 
   get assistantStyle(): string {
+    const assistantStyle: CSSProperties = {};
+
+    assistantStyle["min-width"] = `${this.props.rect?.width || ASSISTANT_WIDTH}px`;
+    if (this.autoCompleteState.type === "function") {
+      assistantStyle.width = `${ASSISTANT_WIDTH}px`;
+    }
+
     if (this.props.delimitation && this.props.rect) {
       const { x: cellX, y: cellY, height: cellHeight } = this.props.rect;
       const remainingHeight = this.props.delimitation.height - (cellY + cellHeight);
-      let assistantStyle: CSSProperties = {};
       if (cellY > remainingHeight) {
         // render top
         // We compensate 2 px of margin on the assistant style + 1px for design reasons
@@ -163,10 +172,8 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
         // render left
         assistantStyle.right = `0px`;
       }
-      assistantStyle.width = `${ASSISTANT_WIDTH}px`;
-      return cssPropertiesToCss(assistantStyle);
     }
-    return cssPropertiesToCss({ width: `${ASSISTANT_WIDTH}px` });
+    return cssPropertiesToCss(assistantStyle);
   }
 
   // we can't allow input events to be triggered while we remove and add back the content of the composer in processContent
@@ -194,6 +201,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     onMounted(() => {
       const el = this.composerRef.el!;
       this.contentHelper.updateEl(el);
+      this.processTokenAtCursor();
     });
 
     onWillUnmount(() => {
@@ -224,7 +232,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       !this.autoCompleteState.showProvider &&
       !content.startsWith("=")
     ) {
-      this.env.model.dispatch("STOP_EDITION");
+      interactiveStopEdition(this.env);
       return;
     }
     // All arrow keys are processed: up and down should move autocomplete, left
@@ -237,6 +245,10 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     // only for arrow up and down
     if (["ArrowUp", "ArrowDown"].includes(ev.key) && this.autoCompleteState.showProvider) {
       ev.preventDefault();
+      if (this.autoCompleteState.selectedIndex === undefined) {
+        this.autoCompleteState.selectedIndex = 0;
+        return;
+      }
       if (ev.key === "ArrowUp") {
         this.autoCompleteState.selectedIndex--;
         if (this.autoCompleteState.selectedIndex < 0) {
@@ -252,9 +264,9 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   private processTabKey(ev: KeyboardEvent) {
     ev.preventDefault();
     ev.stopPropagation();
-    if (this.autoCompleteState.showProvider) {
-      const autoCompleteValue =
-        this.autoCompleteState.values[this.autoCompleteState.selectedIndex]?.text;
+    const state = this.autoCompleteState;
+    if (state.showProvider && state.selectedIndex !== undefined) {
+      const autoCompleteValue = this.autoCompleteState.values[state.selectedIndex]?.text;
       if (autoCompleteValue) {
         this.autoComplete(autoCompleteValue);
         return;
@@ -262,7 +274,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     }
 
     const direction = ev.shiftKey ? "left" : "right";
-    this.env.model.dispatch("STOP_EDITION");
+    interactiveStopEdition(this.env);
     this.env.model.selection.moveAnchorCell(direction, 1);
   }
 
@@ -270,7 +282,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     if (ev.ctrlKey) {
       ev.preventDefault();
       ev.stopPropagation();
-      this.showAutocomplete("");
+      this.showFunctionAutocomplete("");
       this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     }
   }
@@ -285,15 +297,15 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       return;
     }
 
-    if (this.autoCompleteState.showProvider) {
-      const autoCompleteValue =
-        this.autoCompleteState.values[this.autoCompleteState.selectedIndex]?.text;
+    const state = this.autoCompleteState;
+    if (state.showProvider && state.selectedIndex !== undefined) {
+      const autoCompleteValue = this.autoCompleteState.values[state.selectedIndex]?.text;
       if (autoCompleteValue) {
         this.autoComplete(autoCompleteValue);
         return;
       }
     }
-    this.env.model.dispatch("STOP_EDITION");
+    interactiveStopEdition(this.env);
     const direction = ev.shiftKey ? "up" : "down";
     this.env.model.selection.moveAnchorCell(direction, 1);
   }
@@ -390,7 +402,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     }
   }
 
-  showAutocomplete(searchTerm: string) {
+  showFunctionAutocomplete(searchTerm: string) {
     const searchTermUpperCase = searchTerm.toUpperCase();
     if (
       !this.env.model.getters.getCurrentContent().startsWith("=") ||
@@ -400,6 +412,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       return;
     }
     this.autoCompleteState.showProvider = true;
+    this.autoCompleteState.type = "function";
     let values = Object.entries(functionRegistry.content)
       .filter(([_, { hidden }]) => !hidden)
       .map(([text, { description }]) => {
@@ -647,6 +660,12 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     this.autoCompleteState.showProvider = false;
     this.functionDescriptionState.showDescription = false;
 
+    const dataValidationAutocompleteValues =
+      this.env.model.getters.getAutoCompleteDataValidationValues();
+    if (!content.startsWith("=") && dataValidationAutocompleteValues.length) {
+      this.showDataValidationAutocomplete(dataValidationAutocompleteValues);
+    }
+
     if (content.startsWith("=")) {
       const token = this.env.model.getters.getTokenAtCursor();
       if (!token) {
@@ -654,7 +673,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       }
       if (token.type === "SYMBOL") {
         // initialize Autocomplete Dropdown
-        this.showAutocomplete(token.value);
+        this.showFunctionAutocomplete(token.value);
         return;
       }
       const tokenContext = token.functionContext;
@@ -678,7 +697,10 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   }
 
   private autoComplete(value: string) {
-    if (value) {
+    if (!value) {
+      return;
+    }
+    if (this.autoCompleteState.type === "function") {
       const tokenAtCursor = this.env.model.getters.getTokenAtCursor();
       if (tokenAtCursor) {
         let start = tokenAtCursor.end;
@@ -702,17 +724,22 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
           }
         }
 
-        this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
-          start,
-          end,
-        });
+        this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start, end });
       }
 
-      this.env.model.dispatch("REPLACE_COMPOSER_CURSOR_SELECTION", {
-        text: value,
-      });
+      this.env.model.dispatch("REPLACE_COMPOSER_CURSOR_SELECTION", { text: value });
+    } else {
+      this.env.model.dispatch("SET_CURRENT_CONTENT", { content: value });
+      this.env.model.dispatch("STOP_EDITION");
     }
     this.processTokenAtCursor();
+  }
+
+  private showDataValidationAutocomplete(values: string[]) {
+    this.autoCompleteState.showProvider = true;
+    this.autoCompleteState.type = "dataValidation";
+    this.autoCompleteState.selectedIndex = undefined;
+    this.autoCompleteState.values = values.map((value) => ({ text: value, description: "" }));
   }
 }
 

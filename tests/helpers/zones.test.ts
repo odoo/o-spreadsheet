@@ -306,6 +306,13 @@ describe("recomputeZones", () => {
     const expectedZone = ["A1:A6", "D1:D6"];
     expect(recomputeZones(toKeep, toRemove)).toEqual(expectedZone);
   });
+
+  test("remove an unbounded zone", () => {
+    const toKeep = ["A1:D6"];
+    const toRemove = ["2:3"];
+    const expectedZone = ["A1:D1", "A4:D6"];
+    expect(recomputeZones(toKeep, toRemove)).toEqual(expectedZone);
+  });
 });
 
 describe("toZone", () => {

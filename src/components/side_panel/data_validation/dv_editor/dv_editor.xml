@@ -1,0 +1,49 @@
+<templates>
+  <t t-name="o-spreadsheet-DataValidationEditor">
+    <div class="o-dv-form w-100 h-100">
+      <div class="o-section o-dv-range">
+        <div class="o-section-title">Apply to range</div>
+        <SelectionInput
+          ranges="() => state.rule.ranges"
+          onSelectionChanged="(ranges) => this.onRangesChanged(ranges)"
+          required="true"
+        />
+
+        <div class="o-subsection o-dv-settings">
+          <div class="o-section-title">Criteria</div>
+          <SelectMenu
+            class="'o-dv-type o-input mb-4'"
+            menuItems="dvCriterionMenuItems"
+            selectedValue="selectedCriterionName"
+          />
+
+          <t
+            t-if="criterionComponent"
+            t-component="criterionComponent"
+            t-key="state.rule.criterion.type"
+            criterion="state.rule.criterion"
+            onCriterionChanged.bind="onCriterionChanged"
+          />
+        </div>
+      </div>
+
+      <div class="o-section o-dv-invalid-option">
+        <div class="o-section-title">If the data is invalid</div>
+        <select class="o-dv-reject-input o-input" t-on-change="changeRuleIsBlocking">
+          <option t-att-selected="!state.rule.isBlocking" value="false">Show a warning</option>
+          <option t-att-selected="state.rule.isBlocking" value="true">Reject the input</option>
+        </select>
+      </div>
+
+      <div class="o-sidePanelButtons">
+        <button t-on-click="props.onExit" class="o-dv-cancel o-sidePanelButton">Cancel</button>
+        <button
+          t-on-click="onSave"
+          class="o-dv-save o-sidePanelButton primary"
+          t-att-class="{'o-disabled': !canSave }">
+          Save
+        </button>
+      </div>
+    </div>
+  </t>
+</templates>

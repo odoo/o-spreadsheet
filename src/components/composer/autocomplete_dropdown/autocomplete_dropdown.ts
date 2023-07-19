@@ -6,6 +6,7 @@ css/* scss */ `
   .o-autocomplete-dropdown {
     pointer-events: auto;
     background-color: #fff;
+    max-width: 400px;
     & > div:hover {
       background-color: #f2f2f2;
     }
@@ -14,7 +15,7 @@ css/* scss */ `
     }
 
     & > div {
-      padding: 1px 0 5px 5px;
+      padding: 1px 5px 5px 5px;
       .o-autocomplete-description {
         padding-left: 5px;
         font-size: 11px;
@@ -25,7 +26,7 @@ css/* scss */ `
 
 interface Props {
   values: AutocompleteValue[];
-  selectedIndex: number;
+  selectedIndex: number | undefined;
   onValueSelected: (value: string) => void;
 }
 
@@ -35,6 +36,6 @@ export class TextValueProvider extends Component<Props> {
 
 TextValueProvider.props = {
   values: Array,
-  selectedIndex: Number,
+  selectedIndex: { type: Number, optional: true },
   onValueSelected: Function,
 };

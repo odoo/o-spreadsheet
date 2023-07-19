@@ -1,0 +1,16 @@
+<templates>
+  <t t-name="o-spreadsheet-DataValidationDoubleInput">
+    <DataValidationInput
+      value="props.criterion.values[0]"
+      onValueChanged.bind="onFirstValueChanged"
+      criterionType="props.criterion.type"
+    />
+
+    <div class="o-section-subtitle ms-1 my-2">and</div>
+    <DataValidationInput
+      value="props.criterion.values[1]"
+      onValueChanged.bind="onSecondValueChanged"
+      criterionType="props.criterion.type"
+    />
+  </t>
+</templates>

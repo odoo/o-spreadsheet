@@ -19,6 +19,7 @@ import { UIPlugin } from "../ui_plugin";
 
 export class SheetUIPlugin extends UIPlugin {
   static getters = [
+    "doesCellHaveGridIcon",
     "getCellWidth",
     "getTextWidth",
     "getCellText",
@@ -88,8 +89,7 @@ export class SheetUIPlugin extends UIPlugin {
       contentWidth += computeIconWidth(style);
     }
 
-    const isFilterHeader = this.getters.isFilterHeader(position);
-    if (isFilterHeader) {
+    if (this.getters.doesCellHaveGridIcon(position)) {
       contentWidth += ICON_EDGE_LENGTH + GRID_ICON_MARGIN;
     }
 
@@ -184,6 +184,13 @@ export class SheetUIPlugin extends UIPlugin {
           : this.getters.getRowSize(sheetId, i);
     }
     return offset;
+  }
+
+  doesCellHaveGridIcon(position: CellPosition): boolean {
+    const isFilterHeader = this.getters.isFilterHeader(position);
+    const hasListIcon =
+      !this.getters.isReadonly() && this.getters.cellHasListDataValidationIcon(position);
+    return isFilterHeader || hasListIcon;
   }
 
   // ---------------------------------------------------------------------------

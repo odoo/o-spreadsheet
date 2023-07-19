@@ -349,3 +349,8 @@ export interface HeaderGroup {
 export type Direction = "up" | "down" | "left" | "right";
 
 export type SelectionStep = number | "end";
+
+export interface Offset {
+  col: number;
+  row: number;
+}

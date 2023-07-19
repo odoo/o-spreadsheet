@@ -9,6 +9,7 @@
       t-on-dblclick.self="onDoubleClick"
       t-on-contextmenu="onContextMenu">
       <FiguresContainer onFigureDeleted="props.onFigureDeleted"/>
+      <DataValidationOverlay/>
     </div>
   </t>
 </templates>

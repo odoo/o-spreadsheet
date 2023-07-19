@@ -61,6 +61,17 @@ export function toNumber(
   }
 }
 
+export function tryToNumber(
+  value: string | number | boolean | null | undefined,
+  locale: Locale
+): number | undefined {
+  try {
+    return toNumber(value, locale);
+  } catch (e) {
+    return undefined;
+  }
+}
+
 export function tryCastAsNumberMatrix(data: Matrix<any>, argName: string): Matrix<number> {
   data.forEach((row) => {
     row.forEach((cell) => {

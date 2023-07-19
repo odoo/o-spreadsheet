@@ -240,6 +240,10 @@ export function isDefined<T>(argument: T | undefined): argument is T {
   return argument !== undefined;
 }
 
+export function isNotNull<T>(argument: T | null): argument is T {
+  return argument !== null;
+}
+
 /**
  * Check if all the values of an object, and all the values of the objects inside of it, are undefined.
  */
@@ -493,4 +497,11 @@ export function insertItemsAtIndex<T>(array: readonly T[], items: T[], index: nu
 export function trimContent(content: string): string {
   const contentLines = content.split("\n");
   return contentLines.map((line) => line.replace(/\s+/g, " ").trim()).join("\n");
+}
+
+export function isNumberBetween(value: number, min: number, max: number): boolean {
+  if (min > max) {
+    return isNumberBetween(value, max, min);
+  }
+  return value >= min && value <= max;
 }

@@ -22,6 +22,10 @@ export class EvaluationError extends Error {
   ) {
     super(message);
   }
+
+  get isVerbose(): boolean {
+    return this.logLevel > CellErrorLevel.silent;
+  }
 }
 
 export class BadExpressionError extends EvaluationError {

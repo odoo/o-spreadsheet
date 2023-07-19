@@ -18,7 +18,6 @@ import {
   HEADER_FONT_SIZE,
   HEADER_HEIGHT,
   HEADER_WIDTH,
-  ICON_EDGE_LENGTH,
   MIN_CELL_TEXT_MARGIN,
   MIN_CF_ICON_MARGIN,
   TEXT_HEADER_COLOR,
@@ -35,7 +34,6 @@ import {
   positionToZone,
   union,
 } from "../../helpers/index";
-import { CellErrorLevel } from "../../types/errors";
 import {
   Align,
   Box,
@@ -168,7 +166,7 @@ export class RendererPlugin extends UIPlugin {
         ctx.fillStyle = style.fillColor || "#ffffff";
         ctx.fillRect(box.x, box.y, box.width, box.height);
       }
-      if (box.error) {
+      if (box.isError) {
         ctx.fillStyle = "red";
         ctx.beginPath();
         ctx.moveTo(box.x + box.width - 5, box.y);
@@ -316,7 +314,7 @@ export class RendererPlugin extends UIPlugin {
           x +=
             box.width -
             MIN_CELL_TEXT_MARGIN -
-            (box.isFilterHeader ? ICON_EDGE_LENGTH + GRID_ICON_MARGIN : 0);
+            (box.hasIcon ? GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN : 0);
         } else {
           x += box.width / 2;
         }
@@ -569,10 +567,14 @@ export class RendererPlugin extends UIPlugin {
       const position = { sheetId, col: col + 1, row };
       const nextCell = this.getters.getEvaluatedCell(position);
       const nextCellBorder = this.getters.getCellBorderWithFilterBorder(position);
+      const cellHasIcon = this.getters.doesCellHaveGridIcon(position);
+      const cellHasCheckbox = this.getters.isCellValidCheckbox(position);
       if (
         nextCell.type !== CellValueType.empty ||
         this.getters.isInMerge(position) ||
-        nextCellBorder?.left
+        nextCellBorder?.left ||
+        cellHasIcon ||
+        cellHasCheckbox
       ) {
         return col;
       }
@@ -588,10 +590,14 @@ export class RendererPlugin extends UIPlugin {
       const position = { sheetId, col: col - 1, row };
       const previousCell = this.getters.getEvaluatedCell(position);
       const previousCellBorder = this.getters.getCellBorderWithFilterBorder(position);
+      const cellHasIcon = this.getters.doesCellHaveGridIcon(position);
+      const cellHasCheckbox = this.getters.isCellValidCheckbox(position);
       if (
         previousCell.type !== CellValueType.empty ||
         this.getters.isInMerge(position) ||
-        previousCellBorder?.right
+        previousCellBorder?.right ||
+        cellHasIcon ||
+        cellHasCheckbox
       ) {
         return col;
       }
@@ -631,11 +637,15 @@ export class RendererPlugin extends UIPlugin {
       border: this.getters.getCellBorderWithFilterBorder(position) || undefined,
       style: this.getters.getCellComputedStyle(position),
       verticalAlign,
+      isError:
+        (cell.type === CellValueType.error && cell.error.isVerbose) ||
+        this.getters.isDataValidationInvalid(position),
     };
 
-    if (cell.type === CellValueType.empty) {
+    if (cell.type === CellValueType.empty || this.getters.isCellValidCheckbox(position)) {
       return box;
     }
+
     /** Icon CF */
     const cfIcon = this.getters.getConditionalIcon(position);
     const fontSizePX = computeTextFontSizeInPixels(box.style);
@@ -649,9 +659,9 @@ export class RendererPlugin extends UIPlugin {
       };
     }
 
-    /** Filter Header */
-    box.isFilterHeader = this.getters.isFilterHeader(position);
-    const headerIconWidth = box.isFilterHeader ? GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN : 0;
+    /** Filter Header or data validation icon */
+    box.hasIcon = this.getters.doesCellHaveGridIcon(position);
+    const headerIconWidth = box.hasIcon ? GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN : 0;
 
     /** Content */
     const style = this.getters.getCellComputedStyle(position);
@@ -671,14 +681,9 @@ export class RendererPlugin extends UIPlugin {
       align,
     };
 
-    /** Error */
-    if (cell.type === CellValueType.error && cell.error.logLevel > CellErrorLevel.silent) {
-      box.error = cell.error.message;
-    }
-
     /** ClipRect */
     const isOverflowing = contentWidth > width || fontSizePX > height;
-    if (cfIcon || box.isFilterHeader) {
+    if (cfIcon || box.hasIcon) {
       box.clipRect = {
         x: box.x + iconBoxWidth,
         y: box.y,

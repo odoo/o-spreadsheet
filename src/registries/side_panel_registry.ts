@@ -7,6 +7,7 @@ import { SettingsPanel } from "../components/side_panel/settings/settings_panel"
 import { SplitIntoColumnsPanel } from "../components/side_panel/split_to_columns_panel/split_to_columns_panel";
 import { _t } from "../translation";
 import { SpreadsheetChildEnv } from "../types";
+import { DataValidationPanel } from "./../components/side_panel/data_validation/data_validation_panel";
 import { Registry } from "./registry";
 
 //------------------------------------------------------------------------------
@@ -53,4 +54,9 @@ sidePanelRegistry.add("Settings", {
 sidePanelRegistry.add("RemoveDuplicates", {
   title: _t("Remove duplicates"),
   Body: RemoveDuplicatesPanel,
+});
+
+sidePanelRegistry.add("DataValidation", {
+  title: _t("Data validation"),
+  Body: DataValidationPanel,
 });

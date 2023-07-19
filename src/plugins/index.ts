@@ -4,6 +4,7 @@ import {
   CellPlugin,
   ChartPlugin,
   ConditionalFormatPlugin,
+  DataValidationPlugin,
   FigurePlugin,
   FiltersPlugin,
   HeaderSizePlugin,
@@ -19,6 +20,7 @@ import {
   CustomColorsPlugin,
   EvaluationChartPlugin,
   EvaluationConditionalFormatPlugin,
+  EvaluationDataValidationPlugin,
   EvaluationPlugin,
 } from "./ui_core_views";
 import { UIRowSizePlugin } from "./ui_core_views/row_size";
@@ -62,7 +64,8 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("conditional formatting", ConditionalFormatPlugin)
   .add("figures", FigurePlugin)
   .add("chart", ChartPlugin)
-  .add("image", ImagePlugin);
+  .add("image", ImagePlugin)
+  .add("dataValidation", DataValidationPlugin);
 
 // Plugins which handle a specific feature, without handling any core commands
 export const featurePluginRegistry = new Registry<UIPluginConstructor>()
@@ -97,4 +100,5 @@ export const coreViewsPluginRegistry = new Registry<UIPluginConstructor>()
   .add("evaluation_chart", EvaluationChartPlugin)
   .add("evaluation_cf", EvaluationConditionalFormatPlugin)
   .add("row_size", UIRowSizePlugin)
-  .add("custom_colors", CustomColorsPlugin);
+  .add("custom_colors", CustomColorsPlugin)
+  .add("data_validation_ui", EvaluationDataValidationPlugin);

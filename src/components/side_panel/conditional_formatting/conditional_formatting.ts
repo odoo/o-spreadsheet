@@ -163,17 +163,6 @@ css/* scss */ `
         line-height: 35px;
       }
     }
-    .o-cf-btn-link {
-      font-size: 14px;
-      padding: 20px 24px 11px 24px;
-      height: 44px;
-      cursor: pointer;
-      text-decoration: none;
-    }
-    .o-cf-btn-link:hover {
-      color: #003a39;
-      text-decoration: none;
-    }
     .o-cf-error {
       color: red;
       margin-top: 10px;

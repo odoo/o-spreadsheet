@@ -75,6 +75,7 @@ describe("OT with DELETE_SHEET", () => {
     TEST_COMMANDS.UNGROUP_HEADERS,
     TEST_COMMANDS.FOLD_HEADER_GROUP,
     TEST_COMMANDS.UNFOLD_HEADER_GROUP,
+    TEST_COMMANDS.REMOVE_DATA_VALIDATION_RULE,
   ])("Delete sheet", (cmd) => {
     test("Delete the sheet on which the command is triggered", () => {
       const result = transform({ ...cmd, sheetId: deletedSheetId }, deleteSheet);

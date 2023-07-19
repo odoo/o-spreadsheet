@@ -1,0 +1,17 @@
+<templates>
+  <t t-name="o-spreadsheet-SelectMenu">
+    <select
+      t-att-class="props.class"
+      t-ref="select"
+      t-on-mousedown.stop.prevent=""
+      t-on-click="onClick">
+      <option selected="true" t-esc="props.selectedValue"/>
+    </select>
+    <Menu
+      t-if="state.isMenuOpen"
+      menuItems="props.menuItems"
+      position="menuPosition"
+      onClose.bind="onMenuClosed"
+    />
+  </t>
+</templates>

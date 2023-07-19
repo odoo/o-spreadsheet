@@ -1,4 +1,4 @@
-import { clip, deepCopy, isInside, toCartesian, toXC } from "../../helpers/index";
+import { clip, deepCopy, isInside, recomputeZones, toCartesian, toXC } from "../../helpers/index";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "../../registries/index";
 import {
   AutofillData,
@@ -149,6 +149,7 @@ export class AutofillPlugin extends UIPlugin {
           border: cmd.border,
         });
         this.autofillCF(cmd.originCol, cmd.originRow, cmd.col, cmd.row);
+        this.autofillDV(cmd.originCol, cmd.originRow, cmd.col, cmd.row);
     }
   }
 
@@ -448,6 +449,23 @@ export class AutofillPlugin extends UIPlugin {
         });
       }
     }
+  }
+
+  private autofillDV(originCol: number, originRow: number, col: number, row: number) {
+    const sheetId = this.getters.getActiveSheetId();
+    const cellPosition = { sheetId, col: originCol, row: originRow };
+    const dvOrigin = this.getters.getValidationRuleForCell(cellPosition);
+    if (!dvOrigin) {
+      return;
+    }
+
+    const dvRangesXcs = dvOrigin.ranges.map((range) => this.getters.getRangeString(range, sheetId));
+    const newDvRanges = recomputeZones(dvRangesXcs.concat(toXC(col, row)), []);
+    this.dispatch("ADD_DATA_VALIDATION_RULE", {
+      rule: dvOrigin,
+      ranges: newDvRanges.map((xc) => this.getters.getRangeDataFromXc(sheetId, xc)),
+      sheetId,
+    });
   }
 
   // ---------------------------------------------------------------------------

@@ -1,5 +1,6 @@
 import { _t } from "../translation";
 import {
+  CellPosition,
   CoreGetters,
   Getters,
   Range,
@@ -11,7 +12,7 @@ import {
   ZoneDimension,
 } from "../types";
 import { isRowReference, splitReference } from "./references";
-import { getZoneArea, toUnboundedZone, zoneToXc } from "./zones";
+import { getZoneArea, positions, toUnboundedZone, zoneToXc } from "./zones";
 
 interface ConstructorArgs {
   readonly zone: Readonly<Zone | UnboundedZone>;
@@ -249,4 +250,17 @@ export function spreadRange(getters: Getters, ranges: string[]): string[] {
     }
   }
   return postProcessedRanges;
+}
+
+/**
+ * Get all the cell positions in the given ranges. If a cell is in multiple ranges, it will be returned multiple times.
+ */
+export function getCellPositionsInRanges(ranges: Range[]): CellPosition[] {
+  const cellPositions: CellPosition[] = [];
+  for (const range of ranges) {
+    for (const position of positions(range.zone)) {
+      cellPositions.push({ ...position, sheetId: range.sheetId });
+    }
+  }
+  return cellPositions;
 }

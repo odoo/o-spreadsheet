@@ -7,6 +7,7 @@ import {
   CommandDispatcher,
   CommandResult,
   ConditionalFormat,
+  DataValidationRule,
   Dimension,
   Getters,
   GridRenderingContext,
@@ -20,7 +21,14 @@ import { toXC } from "../coordinates";
 import { formatValue } from "../format";
 import { deepEquals, range } from "../misc";
 import { UuidGenerator } from "../uuid";
-import { createAdaptedZone, isInside, mergeOverlappingZones, positions, union } from "../zones";
+import {
+  createAdaptedZone,
+  isInside,
+  mergeOverlappingZones,
+  positions,
+  recomputeZones,
+  union,
+} from "../zones";
 import { ClipboardCellsAbstractState } from "./clipboard_abstract_cell_state";
 
 interface CopiedTable {
@@ -33,7 +41,6 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
   private cells: ClipboardCell[][];
   private readonly copiedTables: CopiedTable[];
   private readonly zones: Zone[];
-
   private readonly uuidGenerator = new UuidGenerator();
 
   constructor(
@@ -322,6 +329,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
 
     const shouldPasteCF =
       clipboardOptions?.pasteOption !== "onlyValue" && clipboardOptions?.shouldPasteCF;
+    const shouldPasteDV = !clipboardOptions?.pasteOption;
 
     const sheetId = this.getters.getActiveSheetId();
     // first, add missing cols/rows if needed
@@ -341,6 +349,9 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
         this.pasteCell(origin, position, this.operation, clipboardOptions);
         if (shouldPasteCF) {
           this.pasteCf(origin.position, position);
+        }
+        if (shouldPasteDV) {
+          this.pasteDataValidation(origin.position, position);
         }
       }
     }
@@ -593,5 +604,67 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
       .find((cf) => cf.stopIfTrue === originCF.stopIfTrue && deepEquals(cf.rule, originCF.rule));
 
     return cfInTarget ? cfInTarget : { ...originCF, id: this.uuidGenerator.uuidv4(), ranges: [] };
+  }
+
+  private pasteDataValidation(origin: CellPosition, target: CellPosition) {
+    const rule = this.getters.getValidationRuleForCell(origin);
+    if (!rule) {
+      return;
+    }
+    const xc = toXC(target.col, target.row);
+    for (const range of rule.ranges) {
+      if (isInside(origin.col, origin.row, range.zone)) {
+        const toRemoveRange: string[] = [];
+        if (this.operation === "CUT") {
+          toRemoveRange.push(toXC(origin.col, origin.row));
+        }
+        if (origin.sheetId === target.sheetId) {
+          this.adaptDataValidationRule(origin.sheetId, rule, [xc], toRemoveRange);
+        } else {
+          this.adaptDataValidationRule(origin.sheetId, rule, [], toRemoveRange);
+          let copyToRule = this.getDataValidationRuleToCopyTo(target.sheetId, rule);
+          this.adaptDataValidationRule(target.sheetId, copyToRule, [xc], []);
+        }
+      }
+    }
+  }
+
+  private getDataValidationRuleToCopyTo(
+    targetSheetId: UID,
+    originRule: DataValidationRule
+  ): DataValidationRule {
+    const ruleInTargetSheet = this.getters
+      .getDataValidationRules(targetSheetId)
+      .find(
+        (rule) =>
+          deepEquals(originRule.criterion, rule.criterion) &&
+          originRule.isBlocking === rule.isBlocking
+      );
+
+    return ruleInTargetSheet
+      ? ruleInTargetSheet
+      : { ...originRule, id: this.uuidGenerator.uuidv4(), ranges: [] };
+  }
+
+  /**
+   * Add or remove XCs to a given data validation rule.
+   */
+  private adaptDataValidationRule(
+    sheetId: UID,
+    rule: DataValidationRule,
+    toAdd: string[],
+    toRemove: string[]
+  ) {
+    const dvRangesXcs = rule.ranges.map((range) => this.getters.getRangeString(range, sheetId));
+    const newRangesXC = recomputeZones([...dvRangesXcs, ...toAdd], toRemove);
+    if (newRangesXC.length === 0) {
+      this.dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id: rule.id });
+      return;
+    }
+    this.dispatch("ADD_DATA_VALIDATION_RULE", {
+      rule,
+      ranges: newRangesXC.map((xc) => this.getters.getRangeDataFromXc(sheetId, xc)),
+      sheetId,
+    });
   }
 }

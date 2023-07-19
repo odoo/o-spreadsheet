@@ -367,7 +367,7 @@ export function isZoneInside(smallZone: Zone, biggerZone: Zone): boolean {
  */
 export function recomputeZones(zonesXc: string[], toRemoveZonesXc: string[]): string[] {
   const zones = zonesXc.map(toUnboundedZone);
-  const zonesToRemove = toRemoveZonesXc.map(toZone);
+  const zonesToRemove = toRemoveZonesXc.map(toUnboundedZone);
   // Compute the max to replace the bottom of full columns and right of full rows by something
   // bigger than any other col/row to be able to apply the algorithm while keeping tracks of what
   // zones are full cols/rows

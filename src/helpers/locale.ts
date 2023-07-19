@@ -3,6 +3,7 @@ import { toNumber } from "../functions/helpers";
 import {
   ColorScaleThreshold,
   ConditionalFormatRule,
+  DataValidationRule,
   DEFAULT_LOCALE,
   IconThreshold,
   Locale,
@@ -227,6 +228,17 @@ export function canonicalizeCFRule(
 
 export function localizeCFRule(cf: ConditionalFormatRule, locale: Locale): ConditionalFormatRule {
   return changeCFRuleLocale(cf, (content) => localizeContent(content, locale));
+}
+
+export function localizeDataValidationRule(
+  rule: DataValidationRule,
+  locale: Locale
+): DataValidationRule {
+  const localizedDVRule = deepCopy(rule);
+  localizedDVRule.criterion.values = localizedDVRule.criterion.values.map((content) =>
+    localizeContent(content, locale)
+  );
+  return localizedDVRule;
 }
 
 function changeCFRuleLocale(

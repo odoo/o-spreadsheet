@@ -17,6 +17,7 @@ import {
   SEPARATOR_COLOR,
   TOPBAR_TOOLBAR_HEIGHT,
 } from "../../constants";
+import { interactiveStopEdition } from "../../helpers/ui/stop_edition_interactive";
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
 import { formatNumberMenuItemSpec, topbarComponentRegistry } from "../../registries/index";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
@@ -238,7 +239,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.state.menuState.parentMenu = menu;
     this.isSelectingMenu = true;
     this.openedEl = ev.target as HTMLElement;
-    this.env.model.dispatch("STOP_EDITION");
+    interactiveStopEdition(this.env);
   }
 
   closeMenus() {

@@ -2,6 +2,7 @@ import { BordersPlugin } from "../plugins/core/borders";
 import { CellPlugin } from "../plugins/core/cell";
 import { ChartPlugin } from "../plugins/core/chart";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
+import { DataValidationPlugin } from "../plugins/core/data_validation";
 import { FigurePlugin } from "../plugins/core/figures";
 import { FiltersPlugin } from "../plugins/core/filters";
 import { HeaderGroupingPlugin } from "../plugins/core/header_grouping";
@@ -12,6 +13,7 @@ import { MergePlugin } from "../plugins/core/merge";
 import { RangeAdapter } from "../plugins/core/range";
 import { SettingsPlugin } from "../plugins/core/settings";
 import { SheetPlugin } from "../plugins/core/sheet";
+import { EvaluationDataValidationPlugin } from "../plugins/ui_core_views";
 import { EvaluationPlugin } from "../plugins/ui_core_views/cell_evaluation";
 import { CustomColorsPlugin } from "../plugins/ui_core_views/custom_colors";
 import { EvaluationChartPlugin } from "../plugins/ui_core_views/evaluation_chart";
@@ -91,6 +93,7 @@ type LocalHistoryGetters = Pick<HistoryPlugin, GetterNames<typeof HistoryPlugin>
 type FiltersGetters = Pick<FiltersPlugin, GetterNames<typeof FiltersPlugin>>;
 type SettingsGetters = Pick<SettingsPlugin, GetterNames<typeof SettingsPlugin>>;
 type HeaderGroupingGetters = Pick<HeaderGroupingPlugin, GetterNames<typeof HeaderGroupingPlugin>>;
+type DataValidationGetters = Pick<DataValidationPlugin, GetterNames<typeof DataValidationPlugin>>;
 
 export type CoreGetters = SheetGetters &
   HeaderSizeGetters &
@@ -105,7 +108,8 @@ export type CoreGetters = SheetGetters &
   RangeAdapterGetters &
   FiltersGetters &
   SettingsGetters &
-  HeaderGroupingGetters;
+  HeaderGroupingGetters &
+  DataValidationGetters;
 
 type AutofillGetters = Pick<AutofillPlugin, GetterNames<typeof AutofillPlugin>>;
 type AutomaticSumGetters = Pick<AutomaticSumPlugin, GetterNames<typeof AutomaticSumPlugin>>;
@@ -145,6 +149,10 @@ type FilterEvaluationGetters = Pick<
 >;
 type SplitToColumnsGetters = Pick<SplitToColumnsPlugin, GetterNames<typeof SplitToColumnsPlugin>>;
 type UIRowSizeGetters = Pick<UIRowSizePlugin, GetterNames<typeof UIRowSizePlugin>>;
+type EvaluationDataValidationPluginGetters = Pick<
+  EvaluationDataValidationPlugin,
+  GetterNames<typeof EvaluationDataValidationPlugin>
+>;
 
 export type Getters = {
   isReadonly: () => boolean;
@@ -173,4 +181,5 @@ export type Getters = {
   FilterEvaluationGetters &
   HeaderVisibilityIUIGetters &
   SplitToColumnsGetters &
-  UIRowSizeGetters;
+  UIRowSizeGetters &
+  EvaluationDataValidationPluginGetters;

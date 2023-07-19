@@ -17,6 +17,7 @@ export * from "./collaborative/session";
 export * from "./commands";
 export * from "./conditional_formatting";
 export * from "./currency";
+export * from "./data_validation";
 export * from "./env";
 export * from "./figure";
 export * from "./format";

@@ -3,12 +3,13 @@ import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
 import { getDefaultCellHeight, range, toCartesian, toZone } from "../../src/helpers";
 import { featurePluginRegistry } from "../../src/plugins";
-import { Command, CommandResult, CoreCommand } from "../../src/types";
+import { Command, CommandResult, CoreCommand, DataValidationCriterion } from "../../src/types";
 import { CollaborationMessage } from "../../src/types/collaborative/transport_service";
 import { MockTransportService } from "../__mocks__/transport_service";
 import {
   activateSheet,
   addColumns,
+  addDataValidation,
   addRows,
   clearCell,
   copy,
@@ -39,7 +40,12 @@ import {
   getMerges,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import { createEqualCF, target, toRangesData } from "../test_helpers/helpers";
+import {
+  createEqualCF,
+  getDataValidationRules,
+  target,
+  toRangesData,
+} from "../test_helpers/helpers";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
 describe("Multi users synchronisation", () => {
@@ -1047,6 +1053,21 @@ describe("Multi users synchronisation", () => {
       [
         { start: 1, end: 5 },
         { start: 1, end: 1 },
+      ]
+    );
+  });
+
+  test("Overlapping data validation rules created concurrently", () => {
+    const criterion: DataValidationCriterion = { type: "textContains", values: ["1"] };
+    network.concurrent(() => {
+      addDataValidation(alice, "A1:A5", "id", criterion);
+      addDataValidation(bob, "A3:A7", "id2", criterion);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getDataValidationRules(user),
+      [
+        { id: "id", ranges: ["A1:A2"], criterion, isBlocking: false },
+        { id: "id2", ranges: ["A3:A7"], criterion, isBlocking: false },
       ]
     );
   });
